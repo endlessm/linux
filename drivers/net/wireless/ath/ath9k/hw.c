@@ -22,6 +22,7 @@
 #include <linux/etherdevice.h>
 #include <linux/gpio.h>
 #include <asm/unaligned.h>
+#include <linux/dmi.h>
 
 #include "hw.h"
 #include "hw-ops.h"
@@ -2438,6 +2439,17 @@ static void ath9k_gpio_cap_init(struct ath_hw *ah)
 	}
 }
 
+static const struct dmi_system_id dmi_norfkill_gpio[] = {
+	{
+		.ident = "Acer Aspire ES1-421",
+		.matches = {
+			DMI_MATCH(DMI_SYS_VENDOR, "Acer"),
+			DMI_MATCH(DMI_PRODUCT_NAME, "Aspire ES1-421"),
+		},
+	},
+	{}
+};
+
 int ath9k_hw_fill_cap_info(struct ath_hw *ah)
 {
 	struct ath9k_hw_capabilities *pCap = &ah->caps;
@@ -2546,7 +2558,9 @@ int ath9k_hw_fill_cap_info(struct ath_hw *ah)
 		ah->rfkill_polarity =
 			MS(ah->rfsilent, EEP_RFSILENT_POLARITY);
 
-		pCap->hw_caps |= ATH9K_HW_CAP_RFSILENT;
+		if (!dmi_check_system(dmi_norfkill_gpio)) {
+			pCap->hw_caps |= ATH9K_HW_CAP_RFSILENT;
+		}
 	}
 #endif
 	if (AR_SREV_9271(ah) || AR_SREV_9300_20_OR_LATER(ah))
