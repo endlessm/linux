@@ -33,39 +33,62 @@ static int asus_rog_input_mapping(struct hid_device *hdev, struct hid_input *hi,
 		struct hid_field *field, struct hid_usage *usage,
 		unsigned long **bit, int *max)
 {
-	if ((usage->hid & HID_USAGE_PAGE) != HID_UP_ASUS_ROG_HOTKEY)
+	if ((usage->hid & HID_USAGE_PAGE) != HID_UP_ASUS_ROG_HOTKEY
+		&& (usage->hid & HID_USAGE_PAGE) != HID_UP_MSVENDOR)
 		return 0;
 
-	set_bit(EV_REP, hi->input->evbit);
-	switch (usage->hid & HID_USAGE) {
-	/* Reported on ASUS Gaming model (Republic of Gamers) keyboards */
-	case 0x6c: asus_rog_map_key_clear(KEY_SLEEP);		break;
-	case 0x88: asus_rog_map_key_clear(KEY_WLAN);		break;
-	case 0xc5: asus_rog_map_key_clear(KEY_KBDILLUMDOWN);	break;
-	case 0xc4: asus_rog_map_key_clear(KEY_KBDILLUMUP);	break;
-	case 0x10: asus_rog_map_key_clear(KEY_BRIGHTNESSDOWN);	break;
-	case 0x20: asus_rog_map_key_clear(KEY_BRIGHTNESSUP);	break;
-	case 0x35: asus_rog_map_key_clear(KEY_DISPLAY_OFF);	break;
-	// KEY_F21 is for ASUS touchpad toggle
-	case 0x6b: asus_rog_map_key_clear(KEY_F21);             break;
-	case 0x82: asus_rog_map_key_clear(KEY_CAMERA);          break;
-	case 0xb5: asus_rog_map_key_clear(KEY_CALC);            break;
-	// KEY_PROG1 for ROG key
-	case 0x38: asus_rog_map_key_clear(KEY_PROG1);           break;
-	// KEY_PROG2 for Fn+C ASUS Splendid
-	case 0xba: asus_rog_map_key_clear(KEY_PROG2);           break;
-	// KEY_PROG3 for Fn+Space Power4Gear Hybrid, may not be present
-	case 0x5c: asus_rog_map_key_clear(KEY_PROG3);           break;
+	if ((usage->hid & HID_USAGE_PAGE) == HID_UP_ASUS_ROG_HOTKEY) {
+		set_bit(EV_REP, hi->input->evbit);
+		switch (usage->hid & HID_USAGE) {
+		/* Reported on ASUS Republic of Gamers keyboards */
+		case 0x6c: asus_rog_map_key_clear(KEY_SLEEP);		break;
+		case 0x88: asus_rog_map_key_clear(KEY_WLAN);		break;
+		case 0xc5: asus_rog_map_key_clear(KEY_KBDILLUMDOWN);	break;
+		case 0xc4: asus_rog_map_key_clear(KEY_KBDILLUMUP);	break;
+		case 0x10: asus_rog_map_key_clear(KEY_BRIGHTNESSDOWN);	break;
+		case 0x20: asus_rog_map_key_clear(KEY_BRIGHTNESSUP);	break;
+		case 0x35: asus_rog_map_key_clear(KEY_DISPLAY_OFF);	break;
+		// KEY_F21 is for ASUS touchpad toggle
+		case 0x6b: asus_rog_map_key_clear(KEY_F21);             break;
+		case 0x82: asus_rog_map_key_clear(KEY_CAMERA);          break;
+		case 0xb5: asus_rog_map_key_clear(KEY_CALC);            break;
+		// KEY_PROG1 for ROG key
+		case 0x38: asus_rog_map_key_clear(KEY_PROG1);           break;
+		// KEY_PROG2 for Fn+C ASUS Splendid
+		case 0xba: asus_rog_map_key_clear(KEY_PROG2);           break;
+		// KEY_PROG3 for Fn+Space Power4Gear Hybrid, may not be present
+		case 0x5c: asus_rog_map_key_clear(KEY_PROG3);           break;
 
-	default:
-		return 0;
+		default:
+			return 0;
+		}
 	}
+
+	// For ASUS ZEN AIO customized wired keyboards
+	if ((usage->hid & HID_USAGE_PAGE) == HID_UP_MSVENDOR) {
+		set_bit(EV_REP, hi->input->evbit);
+		switch (usage->hid & HID_USAGE) {
+		case 0xf1:
+			asus_rog_map_key_clear(KEY_WLAN);
+			break;
+		case 0xf2:
+			asus_rog_map_key_clear(KEY_BRIGHTNESSDOWN);
+			break;
+		case 0xf3:
+			asus_rog_map_key_clear(KEY_BRIGHTNESSUP);
+			break;
+		default:
+			return 0;
+		}
+	}
+
 	return 1;
 }
 
 static const struct hid_device_id asus_rog_devices[] = {
 	{ HID_USB_DEVICE(USB_VENDOR_ID_ASUSTEK, USB_DEVICE_ID_ASUSTEK_ROG_MACROKEY1) },
 	{ HID_USB_DEVICE(USB_VENDOR_ID_ASUSTEK, USB_DEVICE_ID_ASUSTEK_ROG_MACROKEY2) },
+	{ HID_USB_DEVICE(USB_VENDOR_ID_JESS, USB_DEVICE_ID_ASUSTEK_ZEN_AIO_KBD) },
 	{ }
 };
 MODULE_DEVICE_TABLE(hid, asus_rog_devices);
