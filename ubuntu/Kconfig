@@ -10,6 +10,10 @@ menu "Ubuntu Supplied Third-Party Device Drivers"
 ##
 ##
 ##
+source "ubuntu/dm-raid4-5/Kconfig"
+##
+##
+##
 ##
 ##
 ##
