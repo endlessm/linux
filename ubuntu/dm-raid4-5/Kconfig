@@ -1,0 +1,6 @@
+config DM_RAID45
+	tristate "RAID 4/5 target (EXPERIMENTAL)"
+	depends on BLK_DEV_DM && XOR_BLOCKS && EXPERIMENTAL
+	default m
+	---help---
+	A target that supports RAID4 and RAID5 mappings.
