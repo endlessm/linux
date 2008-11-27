@@ -36,7 +36,11 @@ early_param("hostname", early_hostname);
 const char linux_proc_banner[] =
 	"%s version %s"
 	" (" LINUX_COMPILE_BY "@" LINUX_COMPILE_HOST ")"
-	" (" LINUX_COMPILER ") %s\n";
+	" (" LINUX_COMPILER ") %s"
+#ifdef CONFIG_VERSION_SIGNATURE
+        " (" CONFIG_VERSION_SIGNATURE ")"
+#endif
+	"\n";
 
 BUILD_SALT;
 BUILD_LTO_INFO;
