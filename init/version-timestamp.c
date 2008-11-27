@@ -27,4 +27,8 @@ struct uts_namespace init_uts_ns = {
 /* FIXED STRINGS! Don't touch! */
 const char linux_banner[] =
 	"Linux version " UTS_RELEASE " (" LINUX_COMPILE_BY "@"
-	LINUX_COMPILE_HOST ") (" LINUX_COMPILER ") " UTS_VERSION "\n";
+	LINUX_COMPILE_HOST ") (" LINUX_COMPILER ") " UTS_VERSION
+#ifdef CONFIG_VERSION_SIGNATURE
+	" (" CONFIG_VERSION_SIGNATURE ")"
+#endif
+	"\n";
