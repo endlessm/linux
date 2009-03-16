@@ -82,7 +82,7 @@ static struct dentry *nbd_dbg_dir;
 
 static unsigned int nbds_max = 16;
 static struct nbd_device *nbd_dev;
-static int max_part;
+static int max_part = 15;
 
 static inline struct device *nbd_to_dev(struct nbd_device *nbd)
 {
