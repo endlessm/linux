@@ -65,7 +65,7 @@ struct nbd_device {
 
 static unsigned int nbds_max = 16;
 static struct nbd_device *nbd_dev;
-static int max_part;
+static int max_part = 15;
 
 /*
  * Use just one lock (or at most 1 per NIC). Two arguments for this:
