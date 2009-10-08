@@ -215,7 +215,7 @@ static int __init debug_kernel(char *str)
 
 static int __init quiet_kernel(char *str)
 {
-	console_loglevel = 4;
+	console_loglevel = 2;
 	return 0;
 }
 
