@@ -1899,3 +1899,7 @@ void inode_dio_done(struct inode *inode)
 		wake_up_bit(&inode->i_state, __I_DIO_WAKEUP);
 }
 EXPORT_SYMBOL(inode_dio_done);
+
+#define CREATE_TRACE_POINTS
+#include <trace/events/vfs.h>
+
