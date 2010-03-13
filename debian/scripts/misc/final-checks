@@ -1,0 +1,68 @@
+#!/bin/bash
+
+debian="$1"
+abi="$2"
+
+. "$debian/etc/kernelconfig"
+archs=$( awk '/^Architecture:/ { $1=""; for (i=1; i<=NF; i++) { if ($i != "all") { print $i }}}' debian/control | sort -u)
+
+fail=0
+
+failure()
+{
+	echo "EE: $@" 1>&2
+	fail=1
+}
+
+abi_check()
+{
+	local abidir="$1"
+	local arch="$2"
+	local flavour="$3"
+
+	local abidir="$abidir/$arch"
+
+	if [ ! -f "$abidir/$flavour" -a \
+	     ! -f "$abidir/$flavour.ignore" -a \
+	     ! -f "$abidir/ignore" ]
+	then
+		failure "$arch/$flavour ABI symbol file missing"
+	fi
+
+	if [ ! -f "$abidir/$flavour.modules" -a \
+	     ! -f "$abidir/$flavour.ignore.modules" -a \
+	     ! -f "$abidir/ignore.modules" ]
+	then
+		failure "$arch/$flavour ABI modules file missing"
+	fi
+
+	if [ ! -f "$abidir/$flavour.retpoline" -a \
+	     ! -f "$abidir/$flavour.ignore.retpoline" -a \
+	     ! -f "$abidir/ignore.retpoline" ]
+	then
+		failure "$arch/$flavour ABI retpoline file missing"
+	fi
+}
+
+for arch in $archs
+do
+	image_pkg=$(awk -F '\\s*=\\s*' '$1 == "do_flavour_image_package" { print $2 }' $debian/rules.d/$arch.mk)
+	if [ "$image_pkg" = "false" ]; then
+		continue
+	fi
+	if [ ! -f "$debian/rules.d/$arch.mk" ]; then
+		continue
+	fi
+	flavours=$(
+		awk '/^\s*flavours\s*=/{
+			sub(/^\s*flavours\s*=\s*/, "");
+			print
+		}' "$debian/rules.d/$arch.mk")
+	for flavour in $flavours
+	do
+		flavour=$(echo "$flavour" | sed -e 's@.*/config.flavour.@@')
+		abi_check "$debian/abi/$abi" "$arch" "$flavour"
+	done
+done
+
+exit "$fail"
