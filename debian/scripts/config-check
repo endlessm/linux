@@ -1,0 +1,413 @@
+#!/usr/bin/perl
+#
+# check-config -- check the current config for issues
+#
+use strict;
+
+my $P = 'check-config';
+
+my $test = -1;
+if ($ARGV[0] eq '--test') {
+	$test = $ARGV[1] + 0;
+} elsif ($#ARGV != 4) {
+	die "Usage: $P <config> <arch> <flavour> <commonconfig> <warn-only>\n";
+}
+
+my ($config, $arch, $flavour, $commonconfig, $warn_only) = @ARGV;
+
+my $checks = "$commonconfig/enforce";
+my %values = ();
+
+# If we are in overridden then still perform the checks and emit the messages
+# but do not return failure.  Those items marked FATAL will alway trigger
+# failure.
+my $fail_exit = 1;
+$fail_exit = 0 if ($warn_only eq 'true' || $warn_only eq '1');
+my $exit_val = 0;
+
+# Predicate execution engine.
+sub pred_first {
+	my ($rest) = @_;
+	my $depth = 0;
+	my $off;
+	my $char;
+	my $pred;
+	
+	for ($off = 0; $off <= length($rest); $off++) {
+		$char = substr($rest, $off, 1);
+		if ($char eq '(') {
+			$depth++;
+		} elsif ($char eq ')') {
+			$depth--;
+		} elsif ($depth == 0 && $char eq '&') {
+			last;
+		} elsif ($depth == 0 && $char eq '|') {
+			last;
+		}
+	}
+	if ($depth > 0) {
+		die "$P: $rest: missing close parenthesis ')'\n";
+	} elsif ($depth < 0) {
+		die "$P: $rest: missing open parenthesis '('\n";
+	}
+
+	($pred, $rest) = (substr($rest, 0, $off), substr($rest, $off + 1));
+
+	$pred =~ s/^\s*//;
+	$pred =~ s/\s*$//;
+
+	#print "pred<$pred> rest<$rest> char<$char>\n";
+	($pred, $rest, $char);
+}
+		
+sub pred_do {
+	my ($pred) = @_;
+	my (@a) = split(' ', $pred);
+	my $possible;
+
+	if ($a[0] eq 'arch') {
+		die "$P: $pred: malformed -- $pred <arch>\n" if ($#a < 1);
+		for $possible (@a[1..$#a]) {
+			#print "    *** ARCH<$flavour ?? $possible>\n";
+			return 1 if ($arch eq $possible);
+		}
+		return 0;
+	} elsif ($a[0] eq 'flavour') {
+		die "$P: $pred: malformed -- $pred <flavour>\n" if ($#a < 1);
+		for $possible (@a[1..$#a]) {
+			#print "    *** FLAVOUR<$flavour ?? $a[1]>\n";
+			return 1 if ($flavour eq $possible);
+		}
+		return 0;
+	} elsif ($a[0] eq 'value') {
+		die "$P: $pred: malformed -- $pred <name> <val>\n" if ($#a != 2);
+		#print "    *** CHECK<$a[1] $a[2] ?? " . $values{$a[1]} . ">\n";
+		return ($values{$a[1]} eq $a[2]);
+	} elsif ($a[0] eq 'exists') {
+		die "$P: $pred: malformed -- $pred <name>\n" if ($#a != 1);
+		return (defined $values{$a[1]});
+	} else {
+		die "$P: $pred: unknown predicate\n";
+	}
+	return 1;
+}
+sub pred_exec {
+	my ($rest) = @_;
+	my $pred;
+	my $cut = 0;
+	my $res;
+	my $sep;
+
+	#print "pred_exec<$rest>\n";
+
+	($pred, $rest, $sep) = pred_first($rest);
+
+	# Leading ! implies inversion.
+	if ($pred =~ /^\s*!\s*(.*)$/) {
+		#print " invert<$1>\n";
+		($cut, $res) = pred_exec($1);
+		$res = !$res;
+
+	# Leading / implies a CUT operation.
+	} elsif ($pred =~ /^\s*\/\s*(.*)$/) {
+		#print " cut<$1>\n";
+		($cut, $res) = pred_exec($1);
+		$cut = 1;
+
+	# Recurse left for complex expressions.
+	} elsif ($pred =~ /^\s*\((.*)\)\s*$/) {
+		#print " left<$1>\n";
+		($cut, $res) = pred_exec($1);
+
+	# Check for common syntax issues.
+	} elsif ($pred eq '') {
+		if ($sep eq '&' || $sep eq '|') {
+			die "$P: $pred$rest: malformed binary operator\n";
+		} else {
+			die "$P: $pred$rest: syntax error\n";
+		}
+		
+	# A predicate, execute it.
+	} else {
+		#print " DO<$pred> sep<$sep>\n";
+		$res = pred_do($pred);
+	}
+
+	#print " pre-return res<$res> sep<$sep>\n";
+	if ($sep eq '') {
+		#
+		
+	# Recurse right for binary operators -- note these are lazy.
+	} elsif ($sep eq '&' || $sep eq '|') {
+		#print " right<$rest> ? sep<$sep> res<$res>\n";
+		if ($rest =~ /^\s*($|\||\&)/) {
+			die "$P: $pred$rest: malformed binary operator\n";
+		}
+		if ($cut == 0 && (($res && $sep eq '&') || (!$res && $sep eq '|'))) {
+			#print " right<$rest>\n";
+			($cut, $res) = pred_exec($rest);
+		}
+
+	} else {
+		die "$P: $pred$rest: malformed predicate\n";
+	}
+	#warn " return cut<$cut> res<$res> sep<$sep>\n";
+	return ($cut, $res);
+}
+
+#
+# PREDICATE TESTS
+#
+my $test_total = 1;
+my $test_good = 0;
+sub pred_test {
+	my ($pred, $eres, $eerr) = @_;
+	my ($cut, $res, $err, $fail);
+
+	$test_total++;
+	if ($test != 0 && $test != $test_total - 1) {
+		return;
+	}
+
+	eval {
+		($cut, $res) = pred_exec($pred);
+	};
+	$err = $@;
+	chomp($err);
+
+	$res = !!$res;
+	$eres = !!$eres;
+
+	$fail = '';
+	if (defined $eres && $res != $eres) {
+		$fail = "result missmatch, expected $eres returned $res";
+	}
+	if (defined $eerr && $err eq '') {
+		$fail = "error missmatch, expected '$eerr' returned success";
+	} elsif (defined $eerr && $err !~ /$eerr/) {
+		$fail = "error missmatch, expected '$eerr' returned '$err'";
+	} elsif (!defined $eerr && $err ne '') {
+		$fail = "error missmatch, expected success returned '$err'";
+	}
+	
+	if ($fail eq '') {
+		$test_good++;
+	} else {
+		print "$pred: $test_total: FAIL: $fail\n";
+	}
+	#print "TEST<$pred> eres<$eres> eerr<$eerr> res<$res> err<$err>\n";
+}
+if ($test >= 0) {
+	$arch = 'MYARCH';
+	$flavour = 'MYFLAVOUR';
+	%values = ( 'ENABLED' => 'y', 'DISABLED' => 'n' );
+
+	# Errors.
+	my $eunkn = 'unknown predicate';
+	my $epred = 'malformed';
+	my $eclose = 'missing close parenthesis';
+	my $eopen = 'missing open parenthesis';
+	my $ebinary = 'malformed binary operator';
+
+	# Basic predicate tests.
+	print "TEST: $test_total: basic predicate tests ...\n";
+
+	pred_test('nosuchcommand', undef, $eunkn);
+	pred_test('arch', undef, $epred);
+	pred_test('arch MYARCH', 1, undef);
+	pred_test('arch MYARCH NOTMYARCH', 1, undef);
+	pred_test('arch NOTMYARCH MYARCH', 1, undef);
+	pred_test('arch NOTMYARCH NOTMYARCH MYARCH', 1, undef);
+	pred_test('arch NOTMYARCH MYARCH NOTMYARCH', 1, undef);
+	pred_test('arch NOTMYARCH', 0, undef);
+
+	pred_test('flavour', undef, $epred);
+	pred_test('flavour MYFLAVOUR', 1, undef);
+	pred_test('flavour NOTMYFLAVOUR MYFLAVOUR', 1, undef);
+	pred_test('flavour NOTMYFLAVOUR NOTMYFLAVOUR MYFLAVOUR', 1, undef);
+	pred_test('flavour NOTMYFLAVOUR MYFLAVOUR NOTMYFLAVOUR', 1, undef);
+	pred_test('flavour NOTMYFLAVOUR', 0, undef);
+
+	pred_test('value', undef, $epred);
+	pred_test('value ENABLED', undef, $epred);
+	pred_test('value ENABLED ENABLED ENABLED', undef, $epred);
+	pred_test('value ENABLED y', 1, undef);
+	pred_test('value ENABLED n', 0, undef);
+	pred_test('value DISABLED n', 1, undef);
+	pred_test('value DISABLED y', 0, undef);
+
+	pred_test('exists', undef, $epred);
+	pred_test('exists ENABLED ENABLED', undef, $epred);
+	pred_test('exists ENABLED', 1, undef);
+	pred_test('exists DISABLED', 1, undef);
+	pred_test('exists MISSING', 0, undef);
+
+	print "TEST: $test_total: inversion tests ...\n";	
+	pred_test('!exists ENABLED', 0, undef);
+	pred_test('!exists MISSING', 1, undef);
+	pred_test('!!exists ENABLED', 1, undef);
+	pred_test('!!exists MISSING', 0, undef);
+	pred_test('!!!exists ENABLED', 0, undef);
+	pred_test('!!!exists MISSING', 1, undef);
+
+	print "TEST: $test_total: parentheses tests ...\n";	
+	pred_test('(exists ENABLED)', 1, undef);
+	pred_test('((exists ENABLED))', 1, undef);
+	pred_test('(((exists ENABLED)))', 1, undef);
+	pred_test('(exists MISSING)', 0, undef);
+	pred_test('((exists MISSING))', 0, undef);
+	pred_test('(((exists MISSING)))', 0, undef);
+
+	pred_test('(!exists ENABLED)', 0, undef);
+	pred_test('((!exists ENABLED))', 0, undef);
+	pred_test('(((!exists ENABLED)))', 0, undef);
+	pred_test('(!exists MISSING)', 1, undef);
+	pred_test('((!exists MISSING))', 1, undef);
+	pred_test('(((!exists MISSING)))', 1, undef);
+
+	pred_test('((!(exists ENABLED)))', 0, undef);
+	pred_test('((!(exists MISSING)))', 1, undef);
+	pred_test('(!((exists ENABLED)))', 0, undef);
+	pred_test('(!((exists MISSING)))', 1, undef);
+	pred_test('!(((exists ENABLED)))', 0, undef);
+	pred_test('!(((exists MISSING)))', 1, undef);
+	pred_test('!((!(exists ENABLED)))', 1, undef);
+	pred_test('!((!(exists MISSING)))', 0, undef);
+	pred_test('!(!(!(exists ENABLED)))', 0, undef);
+	pred_test('!(!(!(exists MISSING)))', 1, undef);
+
+	pred_test('(', undef, $eclose);
+	pred_test('()(', undef, $eclose);
+	pred_test('(())(', undef, $eclose);
+	pred_test('((()))(', undef, $eclose);
+	pred_test('(()', undef, $eclose);
+	pred_test('((())', undef, $eclose);
+	pred_test('(((()))', undef, $eclose);
+	pred_test('(()()', undef, $eclose);
+	pred_test('((())()', undef, $eclose);
+
+	pred_test(')', undef, $eopen);
+	pred_test('())', undef, $eopen);
+	pred_test('(()))', undef, $eopen);
+	pred_test('((())))', undef, $eopen);
+
+	print "TEST: $test_total: binary and tests ...\n";
+
+	pred_test('exists ENABLED &', undef, $ebinary);
+	pred_test('& exists ENABLED', undef, $ebinary);
+	pred_test('exists ENABLED & & exists ENABLED', undef, $ebinary);
+
+	pred_test('exists MISSING & exists MISSING', 0, undef);
+	pred_test('exists MISSING & exists ENABLED', 0, undef);
+	pred_test('exists ENABLED & exists MISSING', 0, undef);
+	pred_test('exists ENABLED & exists ENABLED', 1, undef);
+
+	pred_test('exists MISSING & exists MISSING & exists MISSING', 0, undef);
+	pred_test('exists MISSING & exists MISSING & exists ENABLED', 0, undef);
+	pred_test('exists MISSING & exists ENABLED & exists MISSING', 0, undef);
+	pred_test('exists MISSING & exists ENABLED & exists ENABLED', 0, undef);
+	pred_test('exists ENABLED & exists MISSING & exists MISSING', 0, undef);
+	pred_test('exists ENABLED & exists MISSING & exists ENABLED', 0, undef);
+	pred_test('exists ENABLED & exists ENABLED & exists MISSING', 0, undef);
+	pred_test('exists ENABLED & exists ENABLED & exists ENABLED', 1, undef);
+
+	print "TEST: $test_total: binary or tests ...\n";
+
+	pred_test('exists ENABLED |', undef, $ebinary);
+	pred_test('| exists ENABLED', undef, $ebinary);
+	pred_test('exists ENABLED | | exists ENABLED', undef, $ebinary);
+
+	pred_test('exists MISSING | exists MISSING', 0, undef);
+	pred_test('exists MISSING | exists ENABLED', 1, undef);
+	pred_test('exists ENABLED | exists MISSING', 1, undef);
+	pred_test('exists ENABLED | exists ENABLED', 1, undef);
+
+	pred_test('exists MISSING | exists MISSING | exists MISSING', 0, undef);
+	pred_test('exists MISSING | exists MISSING | exists ENABLED', 1, undef);
+	pred_test('exists MISSING | exists ENABLED | exists MISSING', 1, undef);
+	pred_test('exists MISSING | exists ENABLED | exists ENABLED', 1, undef);
+	pred_test('exists ENABLED | exists MISSING | exists MISSING', 1, undef);
+	pred_test('exists ENABLED | exists MISSING | exists ENABLED', 1, undef);
+	pred_test('exists ENABLED | exists ENABLED | exists MISSING', 1, undef);
+	pred_test('exists ENABLED | exists ENABLED | exists ENABLED', 1, undef);
+
+	print "TEST: $test_total: binary or/and combination tests ...\n";
+
+	pred_test('exists MISSING | exists MISSING & exists MISSING', 0, undef);
+	pred_test('exists MISSING | exists MISSING & exists ENABLED', 0, undef);
+	pred_test('exists MISSING | exists ENABLED & exists MISSING', 0, undef);
+	pred_test('exists MISSING | exists ENABLED & exists ENABLED', 1, undef);
+	pred_test('exists ENABLED | exists MISSING & exists MISSING', 1, undef);
+	pred_test('exists ENABLED | exists MISSING & exists ENABLED', 1, undef);
+	pred_test('exists ENABLED | exists ENABLED & exists MISSING', 1, undef);
+	pred_test('exists ENABLED | exists ENABLED & exists ENABLED', 1, undef);
+
+	print "TEST: $test_total: binary and/or combination tests ...\n";
+
+	pred_test('exists MISSING & exists MISSING | exists MISSING', 0, undef);
+	pred_test('exists MISSING & exists MISSING | exists ENABLED', 0, undef);
+	pred_test('exists MISSING & exists ENABLED | exists MISSING', 0, undef);
+	pred_test('exists MISSING & exists ENABLED | exists ENABLED', 0, undef);
+	pred_test('exists ENABLED & exists MISSING | exists MISSING', 0, undef);
+	pred_test('exists ENABLED & exists MISSING | exists ENABLED', 1, undef);
+	pred_test('exists ENABLED & exists ENABLED | exists MISSING', 1, undef);
+	pred_test('exists ENABLED & exists ENABLED | exists ENABLED', 1, undef);
+
+	print "TEST: $test_total: cut tests ...\n";
+	pred_test('(arch MYARCH & exists MISSING) | exists ENABLED', 1, undef);
+	pred_test('(arch MYARCH &/ exists MISSING) | exists ENABLED', 0, undef);
+
+	$test_total--;
+	print "TEST: $test_good/$test_total succeeded\n";
+
+	exit $exit_val;
+}
+
+# Load up the current configuration values -- FATAL if this fails
+print "$P: $config: loading config\n";
+open(CONFIG, "<$config") || die "$P: $config: open failed -- $! -- aborting\n";
+while (<CONFIG>) {
+	# Pull out values.
+	/^#*\s*(CONFIG_\w+)[\s=](.*)$/ or next;
+	if ($2 eq 'is not set') {
+		$values{$1} = 'n';
+	} else {
+		$values{$1} = $2;
+	}
+}
+close(CONFIG);
+
+# FATAL: Check if we have an enforcement list.
+my $pass = 0;
+my $total = 0;
+my $line = '';
+print "$P: $checks: loading checks\n";
+open(CHECKS, "<$checks") || die "$P: $checks: open failed -- $! -- aborting\n";
+while (<CHECKS>) {
+	/^#/ && next;
+	chomp;
+
+	$line .= $_;
+	if ($line =~ /\\$/) {
+		chop($line);
+		$line .= " ";
+		next;
+	}
+	$line =~ /^\s*$/ && next;
+
+	#print "CHECK: <$line>\n";
+	$total++;
+	my (undef, $result) = pred_exec($line);
+	if (!$result) {
+		print "$P: FAIL: $line\n";
+		$exit_val = $fail_exit;
+	} else {
+		$pass++;
+	}
+
+	$line = '';
+}
+close(CHECKS);
+
+print "$P: $pass/$total checks passed -- exit $exit_val\n";
+exit $exit_val;
