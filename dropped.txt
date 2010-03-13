@@ -1,0 +1,7 @@
+This is the list of patches/features which have been temporarily
+reverted or disabled for EE:
+
+UBUNTU: SAUCE: nvme: add quirk to not call disable function when suspending
+UBUNTU: SAUCE: pci/nvme: prevent WDC PC SN720 NVMe from entering D3 and being disabled
+UBUNTU: SAUCE: drm/i915: Add support for retrying hotplug
+UBUNTU: SAUCE: drm/i915: Enable hotplug retry
