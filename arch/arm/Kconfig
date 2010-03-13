@@ -2205,6 +2205,7 @@ source "net/Kconfig"
 source "drivers/Kconfig"
 
 source "drivers/firmware/Kconfig"
+source "ubuntu/Kconfig"
 
 source "fs/Kconfig"
 
