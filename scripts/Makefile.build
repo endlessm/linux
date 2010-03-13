@@ -250,6 +250,12 @@ cmd_gen_ksymdeps = \
 undefined_syms = $(NM) $< | $(AWK) '$$1 == "U" { printf("%s%s", x++ ? " " : "", $$2) }';
 endif
 
+ifdef CONFIG_RETPOLINE
+cmd_ubuntu_retpoline = $(CONFIG_SHELL) $(srctree)/scripts/ubuntu-retpoline-extract-one $(@) $(<) "$(filter -m16 %code16gcc.h,$(a_flags))";
+else
+cmd_ubuntu_retpoline =
+endif
+
 define rule_cc_o_c
 	$(call cmd_and_fixdep,cc_o_c)
 	$(call cmd,gen_ksymdeps)
@@ -257,6 +263,7 @@ define rule_cc_o_c
 	$(call cmd,checkdoc)
 	$(call cmd,objtool)
 	$(call cmd,modversions_c)
+	$(call cmd,ubuntu-retpoline)
 	$(call cmd,record_mcount)
 endef
 
@@ -265,6 +272,7 @@ define rule_as_o_S
 	$(call cmd,gen_ksymdeps)
 	$(call cmd,objtool)
 	$(call cmd,modversions_S)
+	$(call cmd,ubuntu-retpoline)
 endef
 
 # Built-in and composite module parts

@@ -1,0 +1,239 @@
+#!/usr/bin/make -f
+#
+# $(DEBIAN)/rules for Ubuntu linux
+#
+# Use this however you want, just give credit where credit is due.
+#
+# Copyright (c) 2007 Ben Collins <bcollins@ubuntu.com>
+#
+
+DEBIAN=$(shell awk -F= '($$1 == "DEBIAN") { print $$2 }' <debian/debian.env)
+
+# dpkg-buildpackage passes options that are incomptatible
+# with the kernel build.
+unexport CFLAGS
+unexport LDFLAGS
+
+export LC_ALL=C
+export SHELL=/bin/bash -e
+
+# Where do we find the common configuration.
+export DROOT=debian
+
+# Common variables for all architectures
+include $(DROOT)/rules.d/0-common-vars.mk
+
+# Pull in some arch specific stuff
+-include $(DEBIAN)/rules.d/$(arch).mk
+
+# Pull in some branch specific stuff. Used by LTS backport
+# branches to override master branch settings such as do_tools_common.
+-include $(DEBIAN)/rules.d/hooks.mk
+
+# Maintainer targets
+include $(DROOT)/rules.d/1-maintainer.mk
+
+do_linux_tools=$(sort $(filter-out false,$(do_tools_usbip) $(do_tools_cpupower) $(do_tools_perf) $(do_tools_bpftool) $(do_tools_x86)))
+do_cloud_tools=$(sort $(filter-out false,$(do_tools_hyperv)))
+do_tools_common?=true
+do_tools_host?=false
+do_tools_perf_jvmti?=false
+do_enforce_all?=false
+
+# Don't build tools or udebs in a cross compile environment.
+ifneq ($(DEB_HOST_ARCH),$(DEB_BUILD_ARCH))
+	do_tools=false
+	disable_d_i=true
+	do_zfs=false
+	do_dkms_nvidia=false
+	do_dkms_nvidia_server=false
+endif
+
+# Are any of the kernel signing options enabled.
+any_signed=$(sort $(filter-out false,$(uefi_signed) $(opal_signed) $(sipl_signed)))
+ifeq ($(any_signed),true)
+bin_pkg_name=$(bin_pkg_name_unsigned)
+else
+bin_pkg_name=$(bin_pkg_name_signed)
+endif
+
+# Stages -- support both DEB_STAGE=stage1 and DEB_BUILD_PROFILE=bootstrap
+ifeq ($(DEB_STAGE),stage1)
+    DEB_BUILD_PROFILES=stage1
+endif
+ifneq ($(DEB_BUILD_PROFILE),)
+    DEB_BUILD_PROFILES=$(DEB_BUILD_PROFILE)
+endif
+ifneq ($(filter stage1,$(DEB_BUILD_PROFILES)),)
+    do_tools=false
+    do_doc_package=false
+    do_source_package=false
+    do_flavour_image_package=false
+    do_flavour_header_package=false
+endif
+
+# autopkgtest -- rebuild support
+#  - only build the first flavour on the assumption it is representative
+#  - disable dkms builds as the versions used may have been deleted
+ifneq ($(filter autopkgtest,$(DEB_BUILD_PROFILES)),)
+	flavours := $(firstword $(flavours))
+	disable_d_i=true
+	do_zfs=false
+	do_dkms_nvidia=false
+	do_dkms_nvidia_server=false
+endif
+
+# Being used to build a mainline build -- turn off things which do not work.
+ifeq ($(do_mainline_build),true)
+	do_extras_package=false
+	do_tools=false
+	no_dumpfile=1
+	do_zfs=false
+	do_dkms_nvidia=false
+	do_dkms_nvidia_server=false
+	skipabi=true
+	skipmodule=true
+	skipretpoline=true
+endif
+
+# Disable tools build and packaging if do_tools != true
+ifneq ($(do_tools),true)
+	do_linux_tools=
+	do_cloud_tools=
+	do_tools_common=
+	do_tools_host=
+endif
+
+ifeq ($(do_zfs),false)
+	do_zfs_disable:=$(shell for m in $$(cat $(DROOT)/zfs-modules.ignore); do grep -qxF $$m $(prev_abidir)/../modules.ignore 2>/dev/null || echo $$m >> $(prev_abidir)/../modules.ignore; done)
+endif
+
+ifeq ($(do_dkms_wireguard),false)
+	do_wireguard_disable:=$(shell for m in $$(cat $(DROOT)/wireguard-modules.ignore); do grep -qxF $$m $(prev_abidir)/../modules.ignore 2>/dev/null || echo $$m >> $(prev_abidir)/../modules.ignore; done)
+endif
+
+# Either tools package needs the common source preparation
+do_any_tools=$(sort $(filter-out false,$(do_linux_tools) $(do_cloud_tools)))
+
+# Versions of dkms packages.
+dkms_zfs_linux_version=$(shell gawk '/^zfs-linux / { print $$2; }' debian/dkms-versions)
+
+# NVIDIA DKMS package gross series split into desktop and server.
+nvidia_desktop_series=$(shell sed -n -e 's/^nvidia-graphics-drivers-\([0-9][0-9]*\) .*/\1/p' debian/dkms-versions)
+nvidia_server_series=$(shell sed -n -e 's/^nvidia-graphics-drivers-\([0-9][0-9]*-server\) .*/\1/p' debian/dkms-versions)
+
+# Debian Build System targets
+binary: binary-indep binary-arch
+
+build: build-arch build-indep
+
+clean: debian/control debian/canonical-certs.pem
+	dh_testdir
+	dh_testroot
+	dh_clean
+
+	# d-i stuff
+	rm -rf $(DEBIAN)/d-i-$(arch)
+	# Generated on the fly.
+	rm -f $(DEBIAN)/d-i/firmware/$(arch)/kernel-image
+
+	# normal build junk
+	rm -rf $(DEBIAN)/abi/$(release)-$(revision)
+	rm -rf $(builddir)
+	rm -f $(stampdir)/stamp-*
+	rm -rf $(DEBIAN)/linux-*
+
+	# This gets rid of the d-i packages in control
+	cp -f $(DEBIAN)/control.stub $(DROOT)/control
+	cp $(DEBIAN)/changelog debian/changelog
+
+	# Install the copyright information.
+	cp $(DEBIAN)/copyright debian/copyright
+
+	# Install the retpoline extractor.
+	cp $(DROOT)/scripts/retpoline-extract-one scripts/ubuntu-retpoline-extract-one
+
+	# If we have a reconstruct script use it.
+	[ -f $(DEBIAN)/reconstruct ] && bash $(DEBIAN)/reconstruct || true
+
+	# Remove generated intermediate files
+	rm -f $(DROOT)/control.stub $(DEBIAN)/control.stub
+	rm -f $(DROOT)/scripts/fix-filenames
+
+distclean: clean
+	rm -rf $(DROOT)/control debian/changelog \
+		debian/control debian/control.stub debian/copyright \
+		scripts/ubuntu-retpoline-extract-one
+
+# Builds the image, arch headers and debug packages
+include $(DROOT)/rules.d/2-binary-arch.mk
+
+# Rules for building the udebs ($(DEBIAN)-installer)
+include $(DROOT)/rules.d/5-udebs.mk
+
+# Builds the source, doc and linux-headers indep packages
+include $(DROOT)/rules.d/3-binary-indep.mk
+
+# Various checks to be performed on builds
+include $(DROOT)/rules.d/4-checks.mk
+
+control_files := $(DEBIAN)/control.stub.in
+ifeq ($(do_libc_dev_package),true)
+ifneq (,$(wildcard $(DEBIAN)/control.d/linux-libc-dev.stub))
+	control_files += $(DEBIAN)/control.d/linux-libc-dev.stub
+endif
+endif
+ifeq ($(do_doc_package),true)
+ifneq (,$(wildcard $(DEBIAN)/control.d/linux-doc.stub))
+	control_files += $(DEBIAN)/control.d/linux-doc.stub
+endif
+endif
+
+# Misc stuff
+.PHONY: $(DEBIAN)/control.stub
+$(DEBIAN)/control.stub: 				\
+		$(DROOT)/scripts/control-create		\
+		$(control_files)			\
+		$(DEBIAN)/changelog			\
+		$(wildcard $(DEBIAN)/control.d/* $(DEBIAN)/sub-flavours/*.vars)
+	for i in $(control_files); do                                           \
+	  cat $$i;                                                              \
+	  echo "";                                                              \
+	done | sed -e 's/PKGVER/$(release)/g'                                   \
+	        -e 's/ABINUM/$(abinum)/g'                                       \
+		-e 's/SRCPKGNAME/$(src_pkg_name)/g'                             \
+		-e 's/=HUMAN=/$(human_arch)/g'                                  \
+		-e 's/=SERIES=/$(series)/g'                                     \
+	  > $(DEBIAN)/control.stub;
+	flavours="$(sort $(wildcard $(DEBIAN)/control.d/vars.* $(DEBIAN)/sub-flavours/*.vars))";\
+	for i in $$flavours; do							\
+	  $(SHELL) $(DROOT)/scripts/control-create $$i "$(any_signed)" |	\
+		sed -e 's/PKGVER/$(release)/g'                                  \
+		-e 's/ABINUM/$(abinum)/g'                                       \
+		-e 's/SRCPKGNAME/$(src_pkg_name)/g'                             \
+		-e 's/=HUMAN=/$(human_arch)/g'                                  \
+		-e 's/=SERIES=/$(series)/g'                                     \
+		>> $(DEBIAN)/control.stub;                                      \
+	done
+
+.PHONY: debian/control
+debian/control: $(DEBIAN)/control.stub
+	echo "# placebo control.stub for kernel-wedge flow change" >debian/control.stub
+	cp $(DEBIAN)/control.stub debian/control
+	export KW_DEFCONFIG_DIR=$(DEBIAN)/d-i && \
+	export KW_CONFIG_DIR=$(DEBIAN)/d-i && \
+	LANG=C kernel-wedge gen-control $(release)-$(abinum) | \
+		perl -f $(DROOT)/scripts/misc/kernel-wedge-arch.pl $(arch) \
+		>>$(CURDIR)/debian/control
+
+debian/canonical-certs.pem: $(wildcard $(DROOT)/certs/*-all.pem) $(wildcard $(DROOT)/certs/*-$(arch).pem) $(wildcard $(DEBIAN)/certs/*-all.pem) $(wildcard $(DEBIAN)/certs/*-$(arch).pem)
+	for cert in $(sort $(notdir $^));					\
+	do									\
+		for dir in $(DEBIAN) $(DROOT);					\
+		do								\
+			if [ -f "$$dir/certs/$$cert" ]; then			\
+				cat "$$dir/certs/$$cert";			\
+				break;						\
+			fi;							\
+		done;								\
+	done >"$@"
