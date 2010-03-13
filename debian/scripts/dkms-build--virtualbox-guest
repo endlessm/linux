@@ -1,0 +1,19 @@
+#!/bin/sh
+
+srcdir="$1"
+objects="$2"
+log="$3"
+shift 3
+
+dkms_dir="$1"
+abi_flavour="$2"
+sign="$3"
+pkgname="$4"
+pkgdir="$5"
+dbgpkgdir="$6"
+package="$7"
+shift 7
+
+# We want to ship the vboxvideo.ko from the upstream staging tree, so
+# remove the one built via dkms.
+rm -f "$pkgdir/vboxvideo.ko"
