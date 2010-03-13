@@ -1,0 +1,45 @@
+#!/bin/sh
+set -e
+
+# Only run regression-suite on kernels we can boot in canonistack
+source=`dpkg-parsechangelog -SSource`
+case $source in
+    linux|linux-hwe*|linux-kvm|linux-oem)
+	;;
+    *)
+	echo "ubuntu-regression-suite is pointless, if one cannot boot the kernel"
+	exit 77
+	;;
+esac
+
+# Only run regression-suite if we were requested to
+have_meta=0
+for trigger in ${ADT_TEST_TRIGGERS}
+do
+    case "$trigger" in
+	linux-meta/*|linux-meta-*/*)
+	    have_meta=1
+	    ;;
+    esac
+done
+if [ -n "$ADT_TEST_TRIGGERS" ] && [ "$have_meta" -eq 0 ]; then
+    echo "ubuntu-regression-suite is not requested, as there is no linux-meta trigger"
+    exit 77
+fi
+
+sver=`dpkg-parsechangelog -SVersion`
+read x rver x </proc/version_signature
+
+flavour=${rver#*-*-}
+rver=${rver%-$flavour}
+
+echo "Source Package Version: $sver"
+echo "Running Kernel Version: $rver"
+
+if [ "$sver" != "$rver" ]; then
+    echo "ERROR: running version does not match source package" 1>&2
+    exit 1
+fi
+
+git clone git://kernel.ubuntu.com/ubuntu/kernel-testing
+kernel-testing/run-dep8-tests
