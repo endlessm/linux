@@ -22,6 +22,8 @@
 #include <linux/kdev_t.h>
 #include <linux/syscalls.h>
 
+LIST_HEAD(populate_rootfs_domain);
+
 /*
  * Create a simple rootfs that is similar to the default initramfs
  */
