@@ -1812,7 +1812,7 @@ static int omap_hsmmc_probe(struct platform_device *pdev)
 	host->slot_id	= 0;
 	host->mapbase	= res->start + pdata->reg_offset;
 	host->base	= ioremap(host->mapbase, SZ_4K);
-	host->power_mode = MMC_POWER_OFF;
+	host->power_mode = -1;
 	host->next_data.cookie = 1;
 
 	platform_set_drvdata(pdev, host);
