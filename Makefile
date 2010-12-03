@@ -1376,6 +1376,7 @@ headers: $(version_h) scripts_unifdef uapi-asm-generic archheaders archscripts
 	$(if $(filter um, $(SRCARCH)), $(error Headers not exportable for UML))
 	$(Q)$(MAKE) $(hdr-inst)=include/uapi
 	$(Q)$(MAKE) $(hdr-inst)=arch/$(SRCARCH)/include/uapi
+	$(Q)$(MAKE) $(hdr-inst)=ubuntu/include dst=include oldheaders=
 
 ifdef CONFIG_HEADERS_INSTALL
 prepare: headers
