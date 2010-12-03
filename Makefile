@@ -1206,11 +1206,13 @@ headers: $(version_h) scripts_unifdef uapi-asm-generic archheaders archscripts
 	  $(error Headers not exportable for the $(SRCARCH) architecture))
 	$(Q)$(MAKE) $(hdr-inst)=include/uapi
 	$(Q)$(MAKE) $(hdr-inst)=arch/$(SRCARCH)/include/uapi
+	$(Q)$(MAKE) $(hdr-inst)=ubuntu/include dst=include oldheaders=
 
 PHONY += headers_check
 headers_check: headers
 	$(Q)$(MAKE) $(hdr-inst)=include/uapi HDRCHECK=1
 	$(Q)$(MAKE) $(hdr-inst)=arch/$(SRCARCH)/include/uapi HDRCHECK=1
+	$(Q)$(MAKE) $(hdr-inst)=ubuntu/include dst=include oldheaders= HDRCHECK=1
 
 ifdef CONFIG_HEADERS_INSTALL
 prepare: headers
