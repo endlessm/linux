@@ -77,6 +77,9 @@ static const struct of_device_id of_device_ids[] = {
 		.compatible	= "simple-bus"
 	},
 	{
+		.compatible     = "fsl,dpaa"
+	},
+	{
 		.compatible	= "fsl,srio",
 	},
 	{
@@ -112,6 +115,32 @@ int __init corenet_gen_publish_devices(void)
 	return of_platform_bus_probe(NULL, of_device_ids, NULL);
 }
 
+/* Early setup is required for large chunks of contiguous (and coarsely-aligned)
+ * memory. The following shoe-horns Qman/Bman "init_early" calls into the
+ * platform setup to let them parse their CCSR nodes early on. */
+#ifdef CONFIG_FSL_QMAN_CONFIG
+void __init qman_init_early(void);
+#endif
+#ifdef CONFIG_FSL_BMAN_CONFIG
+void __init bman_init_early(void);
+#endif
+#ifdef CONFIG_FSL_PME2_CTRL
+void __init pme2_init_early(void);
+#endif
+
+__init void corenet_ds_init_early(void)
+{
+#ifdef CONFIG_FSL_QMAN_CONFIG
+	qman_init_early();
+#endif
+#ifdef CONFIG_FSL_BMAN_CONFIG
+	bman_init_early();
+#endif
+#ifdef CONFIG_FSL_PME2_CTRL
+	pme2_init_early();
+#endif
+}
+
 static const char * const boards[] __initconst = {
 	"fsl,P2041RDB",
 	"fsl,P3041DS",
@@ -120,6 +149,7 @@ static const char * const boards[] __initconst = {
 	"fsl,P5020DS",
 	"fsl,P5040DS",
 	"fsl,T4240QDS",
+	"fsl,T4240RDB",
 	"fsl,B4860QDS",
 	"fsl,B4420QDS",
 	"fsl,B4220QDS",
@@ -137,6 +167,7 @@ static const char * const hv_boards[] __initconst = {
 	"fsl,P5020DS-hv",
 	"fsl,P5040DS-hv",
 	"fsl,T4240QDS-hv",
+	"fsl,T4240RDB-hv",
 	"fsl,B4860QDS-hv",
 	"fsl,B4420QDS-hv",
 	"fsl,B4220QDS-hv",
@@ -197,6 +228,7 @@ define_machine(corenet_generic) {
 #else
 	.power_save		= e500_idle,
 #endif
+	.init_early		= corenet_ds_init_early,
 };
 
 machine_arch_initcall(corenet_generic, corenet_gen_publish_devices);
