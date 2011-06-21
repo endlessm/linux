@@ -68,3 +68,4 @@ obj-$(CONFIG_DGNC)			+= dgnc/
 obj-$(CONFIG_DGAP)			+= dgap/
 obj-$(CONFIG_MTD_SPINAND_MT29F)	+= mt29f_spinand/
 obj-$(CONFIG_FSL_DPA)		+= fsl_qbman/
+obj-$(CONFIG_FSL_PME2)		+= fsl_pme2/

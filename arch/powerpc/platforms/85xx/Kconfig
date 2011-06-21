@@ -254,6 +254,7 @@ config CORENET_GENERIC
 	select GPIO_MPC8XXX
 	select HAS_RAPIDIO
 	select HAS_FSL_QBMAN
+	select HAS_FSL_PME
 	select PPC_EPAPR_HV_PIC
 	help
 	  This option enables support for the FSL CoreNet based boards.

@@ -1,0 +1,215 @@
+config FSL_PME2
+	bool "Freescale Datapath Pattern Matcher support"
+	depends on HAS_FSL_PME && FSL_QMAN_PORTAL
+	default y
+
+menu "Freescale Datapath PME options"
+	depends on FSL_PME2
+
+config FSL_PME2_CTRL
+	bool "Freescale PME2 (p4080, etc) device control"
+	default y
+	---help---
+	  This compiles device support for the Freescale PME2 pattern matching
+	  part contained in datapath-enabled SoCs (ie. accessed via Qman and
+	  Bman portal functionality). At least one guest operating system must
+	  have this driver support, together with the appropriate device-tree
+	  entry, for PME2 functionality to be available. It is responsible for
+	  allocating system memory to the device and configuring it for
+	  operation. For this reason, it must be built into the kernel and will
+	  initialise during early kernel boot.
+
+config FSL_PME2_PDSRSIZE
+	int "Pattern Description and Stateful Rule default table size"
+	depends on FSL_PME2_CTRL
+	range 74240 1048573
+	default 131072
+	help
+	  Select the default size of the Pattern Description and Stateful Rule
+	  table as the number of 128 byte entries. This only takes effect if
+	  the device tree node doesn't have the 'fsl,pme-pdsr' property.
+	  range 74240-1048573 (9.5MB-134MB)
+	  default 131072 (16MB)
+
+if FSL_PME2_CTRL
+comment "Statefule Rule Engine"
+endif
+
+config FSL_PME2_SRESIZE
+	int "SRE Session Context Entries table default table size"
+	depends on FSL_PME2_CTRL
+	range 0 134217727
+	default 327680
+	help
+	  Select the default size of the SRE Context Table as the number of 32
+	  byte entries. This only takes effect if the device tree node doesn't
+	  have the 'fsl,pme-sre' property.
+	  range 0-134217727 (0-4GB)
+	  default 327680 (10MB)
+
+config FSL_PME2_SRE_AIM
+	bool "Alternate Inconclusive Mode"
+	depends on FSL_PME2_CTRL
+	default n
+	help
+	  Select the inconclusive match mode treatment. When true the
+	  “alternate” inconclusive mode is used. When false the “default”
+	  inconclusive mode is used.
+
+config FSL_PME2_SRE_ESR
+	bool "End of SUI Simple Report"
+	depends on FSL_PME2_CTRL
+	default n
+	help
+	  Select if an End of SUI will produce a Simple End of SUI report.
+
+config FSL_PME2_SRE_CTX_SIZE_PER_SESSION
+	int "Default SRE Context Size per Session (16 => 64KB, 17 => 128KB)"
+	depends on FSL_PME2_CTRL
+	range 5 17
+	default 17
+	help
+	  Select SRE context size per session as a power of 2.
+	  range 5-17
+	  Examples:
+	             5  => 32 B
+	             6  => 64 B
+	             7  => 128 B
+	             8  => 256 B
+	             9  => 512 B
+	             10 => 1 KB
+	             11 => 2 KB
+	             12 => 4 KB
+	             13 => 8 KB
+	             14 => 16 KB
+	             15 => 32 KB
+	             16 => 64 KB
+	             17 => 128 KB
+
+config FSL_PME2_SRE_CNR
+	int "Configured Number of Stateful Rules as a multiple of 256 (128 => 32768 )"
+	depends on FSL_PME2_CTRL
+	range 0 128
+	default 128
+	help
+	  Select number of stateful rules as a multiple of 256.
+	  range 0-128
+	  Examples:
+	             0  => 0
+	             1  => 256
+	             2  => 512
+	             ...
+	             127 => 32512
+	             128 => 32768
+
+config FSL_PME2_SRE_MAX_INSTRUCTION_LIMIT
+	int "Maximum number of SRE instructions to be executed per reaction."
+	depends on FSL_PME2_CTRL
+	range 0 65535
+	default 65535
+	help
+	  Select the maximum number of SRE instructions to be executed per
+	  reaction.
+	  range 0 65535
+
+config FSL_PME2_SRE_MAX_BLOCK_NUMBER
+	int "Maximum number of Reaction Head blocks to be traversed per pattern match event"
+	depends on FSL_PME2_CTRL
+	range 0 32767
+	default 32767
+	help
+	  Select the maximum number of reaction head blocks to be traversed per
+	  pattern match event (e.g. a matched pattern or an End of SUI event).
+	  range 0-32767
+
+config FSL_PME2_PORTAL
+	tristate "Freescale PME2 (p4080, etc) device usage"
+	default y
+	---help---
+	  This compiles I/O support for the Freescale PME2 pattern matching
+	  part contained in datapath-enabled SoCs (ie. accessed via Qman and
+	  Bman portal functionality).
+
+if FSL_PME2_PORTAL
+
+config FSL_PME2_TEST_HIGH
+	tristate "PME2 high-level self-test"
+	default n
+	---help---
+	  This uses the high-level Qman driver (and the cpu-affine portals it
+	  manages) to perform high-level PME2 API testing with it.
+
+config FSL_PME2_TEST_SCAN
+	tristate "PME2 scan self-test"
+	default n
+	---help---
+	  This uses the high-level Qman driver (and the cpu-affine portals it
+	  manages) to perform scan PME2 API testing with it.
+
+config FSL_PME2_TEST_SCAN_WITH_BPID
+	bool "PME2 scan self-test with buffer pool"
+	depends on FSL_PME2_TEST_SCAN && FSL_BMAN_PORTAL
+	default y
+	---help---
+	  This uses a buffer pool id for scan test
+
+config FSL_PME2_TEST_SCAN_WITH_BPID_SIZE
+	int "Buffer Pool size."
+	depends on FSL_PME2_TEST_SCAN_WITH_BPID
+	range 0 11
+	default 3
+	---help---
+	  This uses the specified buffer pool size.
+
+config FSL_PME2_DB
+	tristate "PME2 Database support"
+	depends on FSL_PME2_CTRL
+	default y
+	---help---
+	  This compiles the database driver for PME2.
+
+config FSL_PME2_DB_QOSOUT_PRIORITY
+	int "PME DB output frame queue priority."
+	depends on FSL_PME2_DB
+	range 0 7
+	default 2
+	---help---
+	  The PME DB has a scheduled output frame queue. The qos priority level is configurable.
+	  range 0-7
+		0 => High Priority 0
+		1 => High Priority 1
+		2 => Medium Priority
+		3 => Medium Priority
+		4 => Medium Priority
+		5 => Low Priority
+		6 => Low Priority
+		7 => Low Priority
+
+config FSL_PME2_SCAN
+        tristate "PME2 Scan support"
+        default y
+        ---help---
+          This compiles the scan driver for PME2.
+
+config FSL_PME2_SCAN_DEBUG
+        bool "Debug Statements"
+        default n
+        depends on FSL_PME2_SCAN
+        ---help---
+          The PME2_SCAN driver can optionally trace with more verbosity
+          of verbosity.
+
+endif
+
+config FSL_PME2_STAT_ACCUMULATOR_UPDATE_INTERVAL
+	int "Configure the pme2 statistics update interval in milliseconds"
+	depends on FSL_PME2_CTRL
+	range 0 10000
+	default 3400
+	help
+	  The pme accumulator reads the current device statistics and add it
+	  to a running counter. The frequency of these updates may be
+	  controlled. If 0 is specified, no automatic updates is done.
+	  range 0-10000
+
+endmenu

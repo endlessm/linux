@@ -740,6 +740,11 @@ config HAS_FSL_QBMAN
 	help
 	  Datapath Acceleration Queue and Buffer management
 
+config HAS_FSL_PME
+	bool
+	depends on HAS_FSL_QBMAN
+	default n
+
 # Yes MCA RS/6000s exist but Linux-PPC does not currently support any
 config MCA
 	bool
