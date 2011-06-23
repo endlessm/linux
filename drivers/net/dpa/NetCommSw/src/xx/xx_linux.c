@@ -74,7 +74,6 @@
 #include <asm/irq.h>
 #include <asm/bitops.h>
 #include <asm/uaccess.h>
-#include <asm/system.h>
 #include <asm/io.h>
 #include <asm/atomic.h>
 #include <asm/string.h>
@@ -851,7 +850,7 @@ uint32_t E500_GetId(void)
 int GetDeviceIrqNum(int irq)
 {
     struct device_node  *iPar;
-    struct irq_host     *irqHost;
+    struct irq_domain   *irqHost;
     uint32_t            hwIrq;
 
     /* Get the interrupt controller */

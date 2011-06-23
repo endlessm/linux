@@ -1,7 +1,7 @@
 #
 # Makefile config for the Freescale NetcommSW
 #
-NET_DPA     = $(srctree)/drivers/net
+NET_DPA     = $(srctree)/drivers/net/ethernet/freescale
 DRV_DPA     = $(srctree)/drivers/net/dpa
 NCSW        = $(srctree)/drivers/net/dpa/NetCommSw
 

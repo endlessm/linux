@@ -341,7 +341,6 @@ config XEN_NETDEV_BACKEND
 
 	  The corresponding Linux frontend driver is enabled by the
 	  CONFIG_XEN_NETDEV_FRONTEND configuration option.
-
 	  The backend driver presents a standard network device
 	  endpoint for each paravirtual network device to the driver
 	  domain network stack. These can then be bridged or routed
@@ -353,12 +352,63 @@ config XEN_NETDEV_BACKEND
 	  will be called xen-netback.
 
 config VMXNET3
-	tristate "VMware VMXNET3 ethernet driver"
-	depends on PCI && INET
+        tristate "VMware VMXNET3 ethernet driver"
+        depends on PCI && INET
+        help
+          This driver supports VMware's vmxnet3 virtual ethernet NIC.
+          To compile this driver as a module, choose M here: the
+          module will be called vmxnet3.
+
+config DPA
+	bool "Freescale Data Path Frame Manager Ethernet"
+	depends on FSL_SOC && FSL_BMAN_PORTAL && FSL_QMAN_PORTAL && FSL_FMAN
+	select PHYLIB
+
+config DPA_OFFLINE_PORTS
+	bool "Offline Ports support"
+	depends on DPA
+	default y
 	help
-	  This driver supports VMware's vmxnet3 virtual ethernet NIC.
-	  To compile this driver as a module, choose M here: the
-	  module will be called vmxnet3.
+	  The Offline Parsing / Host Command ports (short: OH ports, of Offline ports) provide
+	  most of the functionality of the regular, online ports, except they receive their
+	  frames from a core or an accelerator on the SoC, via QMan frame queues,
+	  rather than directly from the network.
+	  Offline ports are configured via PCD (Parse-Classify-Distribute) schemes, just like
+	  any online FMan port. They deliver the processed frames to frame queues, according
+	  to the applied PCD configurations.
+
+	  Choosing this feature will not impact the functionality and/or performance of the system,
+	  so it is safe to have it.
+
+config DPA_MAX_FRM_SIZE
+	int "Maximum L2 frame size"
+	depends on DPA
+	range 64 9600
+	default "1522"
+	help
+	  Configure this in relation to the maximum possible MTU of your network configuration. In particular,
+	  one would need to increase this value in order to use jumbo frames. DPA_MAX_FRM_SIZE must accomodate
+	  the Ethernet FCS (4 bytes) and one ETH+VLAN header (18 bytes), to a total of 22 bytes in excess of
+	  the desired L3 MTU.
+
+	  Note that having too large a DPA_MAX_FRM_SIZE (much larger than the actual MTU) may lead to buffer
+	  exhaustion, especially in the case of badly fragmented datagrams on the Rx path. Conversely,
+	  having a DPA_MAX_FRM_SIZE smaller than the actual MTU will lead to frames being dropped.
+
+	  This can be overridden by specifying "fsl_fman_phy_max_frm" in the kernel bootargs:
+	    * in Hypervisor-based scenarios, by adding a "chosen" node with the "bootargs" property specifying
+              "fsl_fman_phy_max_frm=<YourValue>";
+	    * in non-Hypervisor-based scenarios, via u-boot's env, by modifying the "bootargs" env variable.
+
+config FSL_DPA_1588
+	tristate "IEEE 1588-compliant timestamping"
+	depends on DPA
+	default n
+
+config DPAA_ETH_UNIT_TESTS
+	bool "Run Unit Tests for DPAA Ethernet"
+	depends on DPA
+	default y
 
 source "drivers/net/hyperv/Kconfig"
 
