@@ -2823,7 +2823,14 @@ int __dev_queue_xmit(struct sk_buff *skb, void *accel_priv)
 
 	skb_update_prio(skb);
 
+	if (dev->features & NETIF_F_HW_QDISC) {
+ 		txq = netdev_pick_tx(dev, skb, accel_priv);
+		rc = dev_hard_start_xmit(skb, dev, txq);
+		goto out;
+	}
+
 	txq = netdev_pick_tx(dev, skb, accel_priv);
+
 	q = rcu_dereference_bh(txq->qdisc);
 
 #ifdef CONFIG_NET_CLS_ACT
