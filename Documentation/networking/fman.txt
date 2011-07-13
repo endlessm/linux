@@ -1,0 +1,232 @@
+The FMan driver
+Sysfs file description
+
+Author: Andrei Sorin Pistirica <sorin.pistirica@freescale.com>
+Updated: 2010-12-08
+
+FMAN SYSFS statistics counters
+------------------------------
+The document contains statistics counters description for every type of
+FMAN port and for all FMAN modules  as well (FMAN, FMAN:DMA and FMAN:PCD).
+Every counter is related to a specific register mapped as well.
+
+Port type: Tx
+-------------
+port_frame: FMBM_TFRC
+    "counts the total number of frames flowing on the Tx port, regardless of
+     whether they got transmitted or discarded."
+
+port_discard_frame: FMBM_TFDC
+    "counts the number of frames that were discarded due to DMA error indication
+     that was sensed during the process of frame payload or frame context
+     loading."
+
+port_dealloc_buf:FMBM_TBDC
+    "counts the number of buffer deallocate operations."
+
+port_enq_total:FMQM_PnETFC
+    "counts the number of enqueue operations preformed for this portID."
+
+port_length_err:FMBM_TFLEDC
+    "counts the number of frames that were discarded due to frame length error."
+
+port_unsupprted_format:FMBM_TFUFDC
+    "counts the number of frames that were discarded due to frame format
+     error - frame descriptor contains unsupported format."
+
+port_deq_total:FMQM_PnDTFC
+    "counts the total number of FDs that dequeued from the QMan for this
+     portID."
+
+port_deq_from_default:FMQM_PnDDCFQC
+    "counts the number of time the portID used the default confirmation FQID
+     from the BMI.s FMBM_TDCFQID"
+
+port_deq_confirm:FMQM_PnDCC
+    "counts the number of times the PortID got a FD from the dequeue response
+     that require confirmation."
+
+Port type: Rx
+-------------
+port_frame:FMBM_RFRC
+    "counts the total number of frames received on the Rx port."
+
+port_discard_frame:FMBM_RFDC
+    "counts the number of frames received on the Rx port that were not able
+     to enter the receive queue system due to WRED algorithm."
+
+port_dealloc_buf:FMBM_RBDC
+    "counts the number of buffer deallocate operations."
+
+port_enq_total:FMQM_PnETFC
+    "counts the number of enqueue operations preformed for this portID"
+
+port_rx_bad_frame:FMBM_RBFC
+    "counts the number of frames received on the Rx port with an error
+     indication"
+
+port_rx_large_frame:FMBM_RLFC
+    "counts the number of frames received on the Rx port with an over size
+     indication. Over size indication is marked when frame size exceeds the
+     maximum configured in the corresponding MAC configuration register"
+
+port_rx_out_of_buffers_discard:FMBM_RODC
+    "counts the number of frames received on the Rx port that were not able
+     to enter the receive queue system due to lack of external buffers, or
+     the lack of suitable buffers that cause the S/G list to grow beyond 16
+     entries, or the lack of suitable buffer to hold S/G list (including
+     start margin), or the lack of suitable buffer to hold the frame header
+     (including start margin)."
+
+port_rx_filter_frame:FMBM_RFFC
+    "counts the number of frames received on the Rx port that were filtered
+     out by the parse and classify modules of the Fman"
+
+Port type: Oh
+-------------
+Oh ports have the same counters as RX and TX ports. The counters are listed
+below and the description can be found at the other ports (above):
+    port_frame
+    port_discard_frame
+    port_dealloc_buf
+    port_enq_total
+    port_length_err
+    port_unsupprted_format
+    port_deq_total
+    port_deq_from_default
+    port_deq_confirm
+    port_rx_bad_frame
+    port_rx_large_frame
+    port_rx_out_of_buffers_discard
+
+Fman:
+-----
+enq_total_frame:FMQM_ETFC
+    "counts the total number of enqueue operations the QMI performed."
+
+deq_total_frame:FMQM_DTFC
+    "counts the total number of FDs that dequeued from the Qman."
+
+deq_0:FMQM_DC0
+    "counts the number of times the QMI received a NULL FD from the QMan as a
+     response to a dequeue request (command)"
+
+deq_1:FMQM_DC1
+    "counts the number of times the QMI got 1 FD from the QMan as a response
+     to a dequeue request (command)"
+
+deq_2:FMQM_DC2
+    "counts the number of times the QMI got 2 FD from the QMan as a response
+     to a dequeue request (command)"
+
+deq_from_default:FMQM_DDCFQC
+    "counts the number of times the QMI used the default confirmation FQID
+     from the BMI's FMBM_TCFQID"
+
+deq_from_context:FMQM_CBCFQC
+    "counts the number of times the QMI used the override confirmation FQID
+     from the FD command field"
+
+deq_from_fd:FMQM_DFOCFQC
+    "counts the number of times the QMI used the override confirmation FQID
+     from the FD command field"
+
+deq_confirm:(FMQM_DCC
+    "counts the number of times the QMI gets an FD from the dequeue response
+     that requires confirmation"
+
+Fman: DMA
+---------
+The FMAN:DMA counters are read from FMDMSR register. They reports bus error
+events that are recognized by the FMan DMA controller on all of the
+FMan DMA channels.
+    The counters are:
+        cmq_not_empty
+        bus_error
+        read_buf_ecc_error
+        write_buf_ecc_sys_error
+        write_buf_ecc_fm_error
+
+Fman: PCD
+---------
+pcd_kg_total:FMKG_TPC
+    "count of packets passed in the keygen on all schemes"
+
+pcd_plcr_yellow:FMPL_YPC
+    "counts the total number of YELLOW packets that exit the Policer"
+
+pcd_plcr_red:FMPL_RPC
+    "counter counts the total number of RED packets that exit the Policer"
+
+pcd_plcr_recolored_to_red:FMPL_RRPC
+    "counts the number of packets that changed color to RED by the Policer"
+
+pcd_plcr_recolored_to_yellow:FMPL_RYPC
+    "counts the number of packets that changed color to YELLOW by the Policer"
+
+pcd_plcr_total:FMPL_TPC
+    "counts the total number of packets passed in the Policer"
+
+pcd_plcr_length_mismatch:FMPL_FLMC
+    "counts the number of packets with length mismatch indicated by an offset
+     value of 0xFF in the selected parser result entry or when the calculated
+     frame offset result is greater than the packet full length provided by
+     FD length"
+
+pcd_prs_parse_dispatch:FMPR_PDS
+    "counts the number of times the parser block was dispatched by FPM"
+
+pcd_prs_l2_parse_result_returned:FMPR_L2RRS
+    "counts the number of times L2 parse result was returned (including with
+     errors)"
+
+pcd_prs_l3_parse_result_returned:FMPR_L3RRS
+    "counts the number of times L3 parse result was returned (including with
+     errors)
+
+pcd_prs_l4_parse_result_returned:FMPR_L4RRS
+    "counts the number of times L4 parse result was returned (including with
+     errors)"
+
+pcd_prs_shim_parse_result_returned:FMPR_SRRS
+    "counts the number of times Shim parse result was returned (including with
+     errors)"
+
+pcd_prs_l2_parse_result_returned_with_err:FMPR_L2RRES
+    "counts the number of times L2 parse result was returned with errors"
+
+pcd_prs_l3_parse_result_returned_with_err:FMPR_L3RRES
+    "counts the number of times L3 parse result was returned with errors"
+
+pcd_prs_l4_parse_result_returned_with_err:FMPR_L4RRES
+    "counts the number of times L4 parse result was returned with errors"
+
+pcd_prs_shim_parse_result_returned_with_err:FMPR_SRRES
+    "counts the number of times Shim parse result was returned with errors"
+
+pcd_prs_soft_prs_cycles:FMPR_SPCS
+    "counts the number of cycles spent executing soft parser instruction
+     (including stall cycles)"
+
+pcd_prs_soft_prs_stall_cycles:FMPR_SPSCS
+    "counts the number of cycles stalled waiting for parser internal memory
+     reads while executing soft parser instruction."
+
+pcd_prs_hard_prs_cycle_incl_stall_cycles:FMPR_HXSCS
+    "counts the number of cycles spent executing hard parser (including stall
+     cycles)"
+
+pcd_prs_muram_read_cycles:FMPR_MRCS
+    "counts the number of cycles while performing FMan Memory read"
+
+pcd_prs_muram_read_stall_cycles:FMPR_MRSCS
+    "counts the number of cycles stalled while performing FMan Memory read"
+
+pcd_prs_muram_write_cycles:FMPR_MWCS
+    "counts the number of cycles while performing FMan Memory write"
+
+pcd_prs_muram_write_stall_cycles:FMPR_MWSCS
+    "counts the number of cycles stalled while performing FMan Memory write"
+
+pcd_prs_fpm_command_stall_cycles:FMPR_FCSCS
+    "counts the number of cycles stalled while performing a FPM command"
