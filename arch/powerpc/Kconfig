@@ -735,6 +735,11 @@ config FSL_GTM
 	help
 	  Freescale General-purpose Timers support
 
+config HAS_FSL_QBMAN
+	bool "Datapath Acceleration Queue and Buffer management"
+	help
+	  Datapath Acceleration Queue and Buffer management
+
 # Yes MCA RS/6000s exist but Linux-PPC does not currently support any
 config MCA
 	bool

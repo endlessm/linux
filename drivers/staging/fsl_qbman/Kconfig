@@ -1,0 +1,278 @@
+config FSL_DPA
+	bool "Freescale Datapath Queue and Buffer management"
+	depends on HAS_FSL_QBMAN
+	default y
+	select FSL_QMAN_FQ_LOOKUP if PPC64
+
+menu "Freescale Datapath QMan/BMan options"
+	depends on FSL_DPA
+
+config FSL_DPA_CHECKING
+	bool "additional driver checking"
+	default n
+	---help---
+	  Compiles in additional checks to sanity-check the drivers and any
+	  use of it by other code. Not recommended for performance.
+
+config FSL_DPA_HAVE_IRQ
+	bool
+	default y
+
+config FSL_DPA_CAN_WAIT
+	bool
+	default y
+
+config FSL_DPA_CAN_WAIT_SYNC
+	bool
+	default y
+
+config FSL_DPA_PIRQ_FAST
+	bool "fast-path processing via IRQ"
+	depends on FSL_DPA_HAVE_IRQ
+	default y
+	---help---
+	  By default, configure fast-path handling to be triggered by IRQ.
+	  Drivers can modify this at run-time, but for linux it makes sense
+	  for all handling to be triggered by IRQ, unless a special
+	  run-to-completion application is being built.
+
+config FSL_DPA_PIRQ_SLOW
+	bool "slow-path processing via IRQ"
+	depends on FSL_DPA_HAVE_IRQ
+	default y
+	---help---
+	  By default, configure slow-path handling to be triggered by IRQ.
+	  Drivers can modify this at run-time, but for linux it makes sense
+	  for all handling to be triggered by IRQ, unless a special
+	  run-to-completion application is being built.
+
+config FSL_DPA_PORTAL_SHARE
+	bool "allow portals to be affine to multiple CPUs"
+	default y
+	---help---
+	  If the kernel, via its device-tree, will be required to use a
+	  single Qman or Bman portal for multiple CPUs, then select this
+	  option. Note however that compiling with this option will result
+	  in a very slight (but non-zero) overhead even when the feature
+	  is not being used.
+
+config FSL_DPA_UIO
+	tristate "Export USDPAA portals via UIO"
+	depends on UIO
+	default y
+	---help---
+	  Portals are exported as UIO devices for use by USDPAA (User
+	  Space DataPath Acceleration Architecture) applications.
+
+config FSL_BMAN
+	bool "Freescale Buffer Manager support"
+	default y
+
+if FSL_BMAN
+
+config FSL_BMAN_PORTAL
+	bool "Bman portal support"
+	default y
+	---help---
+	  Compiles support to detect and support Bman software corenet portals
+	  (as provided by the device-tree).
+
+config FSL_BMAN_CONFIG
+	bool "Bman device management"
+	default y
+	---help---
+	  If this linux image is running natively, you need this option. If this
+	  linux image is running as a guest OS under the hypervisor, only one
+	  guest OS ("the control plane") needs this option.
+
+config FSL_BMAN_TEST
+	tristate "Bman self-tests"
+	depends on FSL_BMAN_PORTAL
+	default n
+	---help---
+	  This option compiles self-test code for Bman.
+
+config FSL_BMAN_TEST_HIGH
+	bool "Bman high-level self-test"
+	depends on FSL_BMAN_TEST
+	default y
+	---help---
+	  This requires the presence of cpu-affine portals, and performs
+	  high-level API testing with them (whichever portal(s) are affine to
+	  the cpu(s) the test executes on).
+
+config FSL_BMAN_TEST_THRESH
+	bool "Bman threshold test"
+	depends on FSL_BMAN_TEST
+	default y
+	---help---
+	  Multi-threaded (SMP) test of Bman pool depletion. A pool is seeded
+	  before multiple threads (one per cpu) create pool objects to track
+	  depletion state changes. The pool is then drained to empty by a
+	  "drainer" thread, and the other threads that they observe exactly
+	  the depletion state changes that are expected.
+
+config FSL_BMAN_DEBUGFS
+	tristate "Bman debugfs interface"
+	depends on FSL_BMAN_PORTAL && DEBUG_FS
+	default y
+	---help---
+	This option compiles bman debugfs code for Bman.
+
+endif # FSL_BMAN
+
+config FSL_QMAN
+	bool "Freescale Queue Manager support"
+	default y
+
+if FSL_QMAN
+
+config FSL_QMAN_PORTAL
+	bool "Qman portal support"
+	default y
+	---help---
+	  Compiles support to detect and support Qman software corenet portals
+	  (as provided by the device-tree).
+
+config FSL_QMAN_BUG_AND_FEATURE_REV1
+	bool "workarounds for errata and missing features in p4080 rev1"
+	depends on FSL_QMAN_PORTAL
+	default y
+	---help---
+	  If this option is selected, the driver will be compiled with
+	  workarounds for errata as well as feature limitations (relative to
+	  more recent parts) of p4080 rev1. On unaffected revisions, this
+	  support incurs only a negligable overhead, typically only a couple of
+	  instructions per non-fast-path operation (the fast-path operations are
+	  unaffected).
+
+	  If in doubt, say Y.
+
+config FSL_QMAN_POLL_LIMIT
+	int
+	default 32
+
+config FSL_QMAN_PORTAL_DISABLEAUTO_DCA
+	bool "disable discrete-consumption support on cpu-affine portals"
+	default n
+	---help---
+	  By default, auto-initialised cpu-affine portals support
+	  discrete-consumption acknowledgements, but this may be unimplemented
+	  in the simulation model.
+
+config FSL_QMAN_NULL_FQ_DEMUX
+	bool "support NULL demux handlers"
+	default y
+	---help---
+	  Normally, incoming frame dequeues and messages from Qman to a software
+	  portal provide a direct demux to the owner of the corresponding FQ.
+	  However, exotic "zero-conf" possibilities can be supported if other
+	  cpus (or operating systems) can schedule "NULL" FQs to a receiver's
+	  portal. If this option is selected, the driver will support this
+	  feature, but it adds a small overhead to the hottest-path in the
+	  driver, so it should be disabled unless needed.
+
+config FSL_QMAN_DQRR_PREFETCHING
+	bool "support prefetching or DQRR (if stashing disabled)"
+	default y
+	---help---
+	  Normally, portals are configured to stash DQRR entries, but if this is
+	  not the case, then s/w needs to invalidate and prefetch ring entries.
+	  Selecting this option supports both cases and chooses the best one at
+	  run-time, but introduces a small overhead in some hot paths of the
+	  driver, so disable it if you know stashing will be configured.
+
+config FSL_QMAN_CONFIG
+	bool "Qman device management"
+	default y
+	---help---
+	  If this linux image is running natively, you need this option. If this
+	  linux image is running as a guest OS under the hypervisor, only one
+	  guest OS ("the control plane") needs this option.
+
+config FSL_QMAN_TEST
+	tristate "Qman self-tests"
+	depends on FSL_QMAN_PORTAL
+	default n
+	---help---
+	  This option compiles self-test code for Qman.
+
+config FSL_QMAN_TEST_STASH_POTATO
+	bool "Qman 'hot potato' data-stashing self-test"
+	depends on FSL_QMAN_TEST
+	default y
+	---help---
+	  This performs a "hot potato" style test enqueuing/dequeuing a frame
+	  across a series of FQs scheduled to different portals (and cpus), with
+	  DQRR, data and context stashing always on.
+
+config FSL_QMAN_TEST_HIGH
+	bool "Qman high-level self-test"
+	depends on FSL_QMAN_TEST
+	default y
+	---help---
+	  This requires the presence of cpu-affine portals, and performs
+	  high-level API testing with them (whichever portal(s) are affine to
+	  the cpu(s) the test executes on).
+
+config FSL_QMAN_TEST_ERRATA
+	bool "Qman errata-handling self-test"
+	depends on FSL_QMAN_TEST
+	default y
+	---help---
+	  This requires the presence of cpu-affine portals, and performs
+	  testing that handling for known hardware-errata is correct.
+
+config FSL_QMAN_DEBUGFS
+	tristate "Qman debugfs interface"
+	depends on FSL_QMAN_PORTAL
+	default y
+	---help---
+	This option compiles qman debugfs code for Qman.
+
+# H/w settings that can be hard-coded for now.
+config FSL_QMAN_FQD_SZ
+	int "Size of Frame Queue Descriptor region"
+	default 9
+	---help---
+	This is the size of the FQD region defined as: PAGE_SIZE * (2^value)
+	ex: 9 => PAGE_SIZE * (2^9)
+
+# Corenet initiator settings. Stash request queues are 4-deep to match cores'
+# ability to snart. Stash priority is 3, other priorities are 2.
+config FSL_QMAN_CI_SCHED_CFG_SRCCIV
+	int
+	depends on FSL_QMAN_CONFIG
+	default 4
+config FSL_QMAN_CI_SCHED_CFG_SRQ_W
+	int
+	depends on FSL_QMAN_CONFIG
+	default 3
+config FSL_QMAN_CI_SCHED_CFG_RW_W
+	int
+	depends on FSL_QMAN_CONFIG
+	default 2
+config FSL_QMAN_CI_SCHED_CFG_BMAN_W
+	int
+	depends on FSL_QMAN_CONFIG
+	default 2
+
+# portal interrupt settings
+config FSL_QMAN_PIRQ_DQRR_ITHRESH
+	int
+	default 12
+config FSL_QMAN_PIRQ_MR_ITHRESH
+	int
+	default 4
+config FSL_QMAN_PIRQ_IPERIOD
+	int
+	default 100
+
+# 64 bit kernel support
+config FSL_QMAN_FQ_LOOKUP
+	bool
+	default n
+
+endif # FSL_QMAN
+
+endmenu
