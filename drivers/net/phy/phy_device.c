@@ -867,6 +867,16 @@ int genphy_read_status(struct phy_device *phydev)
 
 		lpa &= adv;
 
+		err = phy_read(phydev, MII_BMSR);
+
+		if (err < 0)
+			return err;
+
+		/* if the link changed while reading speed and duplex
+		 * abort the speed and duplex update */
+		if (((err & BMSR_LSTATUS) == 0) != (phydev->link == 0))
+			return 0;
+
 		phydev->speed = SPEED_10;
 		phydev->duplex = DUPLEX_HALF;
 		phydev->pause = phydev->asym_pause = 0;
