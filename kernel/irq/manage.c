@@ -24,7 +24,7 @@
 #include "internals.h"
 
 #if defined(CONFIG_IRQ_FORCED_THREADING) && !defined(CONFIG_PREEMPT_RT)
-__read_mostly bool force_irqthreads;
+__read_mostly bool force_irqthreads = IS_ENABLED(CONFIG_IRQ_FORCED_THREADING_DEFAULT);
 EXPORT_SYMBOL_GPL(force_irqthreads);
 
 static int __init setup_forced_irqthreads(char *arg)
@@ -32,7 +32,13 @@ static int __init setup_forced_irqthreads(char *arg)
 	force_irqthreads = true;
 	return 0;
 }
+static int __init setup_no_irqthreads(char *arg)
+{
+	force_irqthreads = false;
+	return 0;
+}
 early_param("threadirqs", setup_forced_irqthreads);
+early_param("nothreadirqs", setup_no_irqthreads);
 #endif
 
 static void __synchronize_hardirq(struct irq_desc *desc, bool sync_chip)
