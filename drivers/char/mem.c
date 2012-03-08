@@ -28,6 +28,7 @@
 #include <linux/export.h>
 #include <linux/io.h>
 #include <linux/uio.h>
+#include <linux/module.h>
 
 #include <linux/uaccess.h>
 
@@ -579,6 +580,9 @@ static ssize_t write_port(struct file *file, const char __user *buf,
 {
 	unsigned long i = *ppos;
 	const char __user *tmp = buf;
+
+	if (secure_modules())
+		return -EPERM;
 
 	if (!access_ok(VERIFY_READ, buf, count))
 		return -EFAULT;
