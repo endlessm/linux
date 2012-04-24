@@ -649,6 +649,10 @@
 			/proc/<pid>/coredump_filter.
 			See also Documentation/filesystems/proc.txt.
 
+	cpufreq_driver= [X86] Allow only the named cpu frequency scaling driver
+			to register. Example: cpufreq_driver=powernow-k8
+			Format: { none | STRING }
+
 	cpuidle.off=1	[CPU_IDLE]
 			disable the cpuidle sub-system
 
