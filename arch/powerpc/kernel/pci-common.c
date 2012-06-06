@@ -1469,9 +1469,15 @@ void pcibios_disable_device(struct pci_dev *dev)
 		phb->controller_ops.disable_device(dev);
 }
 
+/* Before assuming too much here, take care to realize that we need sign
+ * extension from 32-bit pointers to 64-bit resource addresses to work.
+ */
 resource_size_t pcibios_io_space_offset(struct pci_controller *hose)
 {
-	return (unsigned long) hose->io_base_virt - _IO_BASE;
+	long vbase = (long)hose->io_base_virt;
+	long io_base = _IO_BASE;
+
+	return (resource_size_t)(vbase - io_base);
 }
 
 static void pcibios_setup_phb_resources(struct pci_controller *hose,
