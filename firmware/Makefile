@@ -60,7 +60,6 @@ fw-shipped-$(CONFIG_DRM_RADEON) += radeon/R100_cp.bin radeon/R200_cp.bin \
 				   radeon/RV710_pfp.bin radeon/RV710_me.bin
 fw-shipped-$(CONFIG_E100) += e100/d101m_ucode.bin e100/d101s_ucode.bin \
 			     e100/d102e_ucode.bin
-fw-shipped-$(CONFIG_MYRI_SBUS) += myricom/lanai.bin
 fw-shipped-$(CONFIG_PCMCIA_PCNET) += 
 				     
 fw-shipped-$(CONFIG_PCMCIA_3C589) += 
