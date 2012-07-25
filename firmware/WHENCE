@@ -619,16 +619,6 @@ Found in hex form in kernel source.
 
 --------------------------------------------------------------------------
 
-Driver: MYRI_SBUS - MyriCOM Gigabit Ethernet
-
-File: myricom/lanai.bin
-
-Licence: Unknown
-
-Found in hex form in kernel source.
-
---------------------------------------------------------------------------
-
 Driver: bnx2x: Broadcom Everest
 
 File: bnx2x/bnx2x-e1-6.2.9.0.fw
