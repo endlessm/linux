@@ -28,7 +28,6 @@ acenic-objs := acenic/tg1.bin acenic/tg2.bin
 endif
 fw-shipped-$(CONFIG_ACENIC) += $(acenic-objs)
 fw-shipped-$(CONFIG_ATARI_DSP56K) += dsp56k/bootstrap.bin
-fw-shipped-$(CONFIG_ATM_AMBASSADOR) += atmsar11.fw
 fw-shipped-$(CONFIG_BNX2X) += bnx2x/bnx2x-e1-7.2.51.0.fw \
 			      bnx2x/bnx2x-e1h-7.2.51.0.fw \
 			      bnx2x/bnx2x-e2-7.2.51.0.fw
