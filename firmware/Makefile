@@ -69,8 +69,6 @@ fw-shipped-$(CONFIG_PCMCIA_3C589) +=
 fw-shipped-$(CONFIG_PCMCIA_3C574) += 
 fw-shipped-$(CONFIG_SERIAL_8250_CS) +=
 				       
-fw-shipped-$(CONFIG_SCSI_ADVANSYS) += advansys/mcode.bin advansys/38C1600.bin \
-				      advansys/3550.bin advansys/38C0800.bin
 fw-shipped-$(CONFIG_SCSI_QLOGIC_1280) += qlogic/1040.bin qlogic/1280.bin \
 					 qlogic/12160.bin
 fw-shipped-$(CONFIG_SCSI_QLOGICPTI) += qlogic/isp1000.bin
