@@ -45,6 +45,7 @@ install-%: pkgdir = $(CURDIR)/debian/$(bin_pkg_name)-$*
 install-%: pkgdir_ex = $(CURDIR)/debian/$(extra_pkg_name)-$*
 install-%: bindoc = $(pkgdir)/usr/share/doc/$(bin_pkg_name)-$*
 install-%: dbgpkgdir = $(CURDIR)/debian/$(bin_pkg_name)-$*-dbgsym
+install-%: signed = $(CURDIR)/debian/$(bin_pkg_name)-signed
 install-%: basepkg = $(hdrs_pkg_name)
 install-%: hdrdir = $(CURDIR)/debian/$(basepkg)-$*/usr/src/$(basepkg)-$*
 install-%: target_flavour = $*
@@ -69,6 +70,16 @@ else
 	gzip -c9v $(builddir)/build-$*/$(kernel_file) > \
 		$(pkgdir)/boot/$(install_file)-$(abi_release)-$*
 	chmod 600 $(pkgdir)/boot/$(install_file)-$(abi_release)-$*
+endif
+
+ifeq ($(arch),amd64)
+	install -d $(signed)/$(release)-$(revision)
+	# Check to see if this supports handoff, if not do not sign it.
+	# Check the identification area magic and version >= 0x020b
+	handoff=`dd if="$(pkgdir)/boot/$(install_file)-$(abi_release)-$*" bs=1 skip=514 count=6 2>/dev/null | od -s | awk '($$1 == 0 && $$2 == 25672 && $$3 == 21362 && $$4 >= 523) { print "GOOD" }'`; \
+	[ "$$handoff" = "GOOD" ] && \
+		cp -p $(pkgdir)/boot/$(install_file)-$(abi_release)-$* \
+			$(signed)/$(release)-$(revision)/$(install_file)-$(abi_release)-$*.efi
 endif
 
 	install -m644 $(builddir)/build-$*/.config \
@@ -470,8 +481,17 @@ ifeq ($(do_tools),true)
 	dh_builddeb -p$(toolspkg)
 endif
 
+binary-debs: signed = $(CURDIR)/debian/$(bin_pkg_name)-signed
+binary-debs: signedv = $(CURDIR)/debian/$(bin_pkg_name)-signed/$(release)-$(revision)
+binary-debs: signed_tar = $(src_pkg_name)_$(release)-$(revision)_$(arch).tar.gz
 binary-debs: binary-perarch $(addprefix binary-,$(flavours))
 	@echo Debug: $@
+ifeq ($(arch),amd64)
+	echo $(release)-$(revision) > $(signedv)/version
+	cd $(signedv) && ls *.efi >flavours
+	cd $(signed) && tar czvf ../../../$(signed_tar) .
+	dpkg-distaddfile $(signed_tar) raw-uefi -
+endif
 
 build-arch-deps-$(do_flavour_image_package) += $(addprefix $(stampdir)/stamp-build-,$(flavours))
 build-arch: $(build-arch-deps-true)
