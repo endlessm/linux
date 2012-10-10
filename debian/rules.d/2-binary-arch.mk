@@ -78,9 +78,10 @@ ifeq ($(uefi_signed),true)
 	# Check to see if this supports handoff, if not do not sign it.
 	# Check the identification area magic and version >= 0x020b
 	handoff=`dd if="$(pkgdir)/boot/$(install_file)-$(abi_release)-$*" bs=1 skip=514 count=6 2>/dev/null | od -s | awk '($$1 == 0 && $$2 == 25672 && $$3 == 21362 && $$4 >= 523) { print "GOOD" }'`; \
-	[ "$$handoff" = "GOOD" ] && \
+	if [ "$$handoff" = "GOOD" ]; then \
 		cp -p $(pkgdir)/boot/$(install_file)-$(abi_release)-$* \
-			$(signed)/$(release)-$(revision)/$(install_file)-$(abi_release)-$*.efi
+			$(signed)/$(release)-$(revision)/$(install_file)-$(abi_release)-$*.efi; \
+	fi
 endif
 endif
 
