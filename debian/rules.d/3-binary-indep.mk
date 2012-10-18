@@ -43,9 +43,9 @@ ifeq ($(do_flavour_header_package),true)
 	  \( -name 'Makefile*' -o -name 'Kconfig*' -o -name 'Kbuild*' -o \
 	     -name '*.sh' -o -name '*.pl' -o -name '*.lds' \) \
 	  -print | cpio -pd --preserve-modification-time $(indep_hdrdir)
-	cp -a drivers/media/dvb/dvb-core/*.h $(indep_hdrdir)/drivers/media/dvb/dvb-core
-	cp -a drivers/media/video/*.h $(indep_hdrdir)/drivers/media/video
-	cp -a drivers/media/dvb/frontends/*.h $(indep_hdrdir)/drivers/media/dvb/frontends
+	cp -a drivers/media/dvb-core/*.h $(indep_hdrdir)/drivers/media/dvb-core
+	cp -a drivers/video/*.h $(indep_hdrdir)/drivers/video
+	cp -a drivers/media/dvb-frontends/*.h $(indep_hdrdir)/drivers/media/dvb-frontends
 	cp -a scripts include $(indep_hdrdir)
 	(find arch -name include -type d -print | \
 		xargs -n1 -i: find : -type f) | \
