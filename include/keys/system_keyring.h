@@ -32,6 +32,7 @@ extern int restrict_link_by_builtin_and_secondary_trusted(
 #else
 #define restrict_link_by_builtin_and_secondary_trusted restrict_link_by_builtin_trusted
 #endif
+extern struct key *get_system_keyring(void);
 
 #ifdef CONFIG_IMA_BLACKLIST_KEYRING
 extern struct key *ima_blacklist_keyring;
