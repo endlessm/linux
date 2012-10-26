@@ -1921,6 +1921,15 @@ config SYSTEM_DATA_VERIFICATION
 	  module verification, kexec image verification and firmware blob
 	  verification.
 
+config SYSTEM_BLACKLIST_KEYRING
+	bool "Provide system-wide ring of blacklisted keys"
+	depends on KEYS
+	help
+	  Provide a system keyring to which blacklisted keys can be added.
+	  Keys in the keyring are considered entirely untrusted.  Keys in this
+	  keyring are used by the module signature checking to reject loading
+	  of modules signed with a blacklisted key.
+
 config PROFILING
 	bool "Profiling support"
 	help

@@ -22,6 +22,9 @@ static struct key *builtin_trusted_keys;
 #ifdef CONFIG_SECONDARY_TRUSTED_KEYRING
 static struct key *secondary_trusted_keys;
 #endif
+#ifdef CONFIG_SYSTEM_BLACKLIST_KEYRING
+struct key *system_blacklist_keyring;
+#endif
 
 extern __initconst const u8 system_certificate_list[];
 extern __initconst const unsigned long system_certificate_list_size;
@@ -98,6 +101,16 @@ static __init int system_trusted_keyring_init(void)
 
 	if (key_link(secondary_trusted_keys, builtin_trusted_keys) < 0)
 		panic("Can't link trusted keyrings\n");
+#endif
+#ifdef CONFIG_SYSTEM_BLACKLIST_KEYRING
+	system_blacklist_keyring = keyring_alloc(".system_blacklist_keyring",
+			KUIDT_INIT(0), KGIDT_INIT(0), current_cred(),
+			((KEY_POS_ALL & ~KEY_POS_SETATTR) |
+			 KEY_USR_VIEW | KEY_USR_READ | KEY_USR_SEARCH),
+			KEY_ALLOC_NOT_IN_QUOTA,
+			NULL, NULL);
+	if (IS_ERR(system_blacklist_keyring))
+		panic("Can't allocate system blacklist keyring\n");
 #endif
 
 	return 0;
@@ -215,6 +228,15 @@ int verify_pkcs7_signature(const void *data, size_t len,
 		trusted_keys = builtin_trusted_keys;
 #endif
 	}
+#ifdef CONFIG_SYSTEM_BLACKLIST_KEYRING
+	ret = pkcs7_validate_trust(pkcs7, system_blacklist_keyring);
+	if (!ret) {
+		/* module is signed with a cert in the blacklist.  reject */
+		pr_err("Module key is in the blacklist\n");
+		ret = -EKEYREJECTED;
+		goto error;
+	}
+#endif
 	ret = pkcs7_validate_trust(pkcs7, trusted_keys);
 	if (ret < 0) {
 		if (ret == -ENOKEY)
