@@ -30,6 +30,19 @@ extern __initconst const u8 system_certificate_list[];
 extern __initconst const unsigned long system_certificate_list_size;
 
 /**
+ * get_system_keyring - Return a pointer to the system keyring
+ *
+ */
+struct key *get_system_keyring(void)
+{
+	struct key *system_keyring = NULL;
+
+	system_keyring = builtin_trusted_keys;
+	return system_keyring;
+}
+EXPORT_SYMBOL_GPL(get_system_keyring);
+
+/**
  * restrict_link_to_builtin_trusted - Restrict keyring addition by built in CA
  *
  * Restrict the addition of keys into a keyring based on the key-to-be-added
