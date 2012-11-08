@@ -230,3 +230,8 @@ endif
 lockme_file = $(CURDIR)/debian/.LOCK
 lockme_cmd = flock -w 60
 lockme = $(lockme_cmd) $(lockme_file)
+
+# Checks if a var is overriden by the custom rules. Called with var and
+# flavour as arguments.
+custom_override = \
+ $(shell if [ -n "$($(1)_$(2))" ]; then echo "$($(1)_$(2))"; else echo "$($(1))"; fi)
