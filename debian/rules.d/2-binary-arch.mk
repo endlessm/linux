@@ -34,10 +34,11 @@ build-%: $(stampdir)/stamp-build-%
 
 # Do the actual build, including image and modules
 $(stampdir)/stamp-build-%: target_flavour = $*
+$(stampdir)/stamp-build-%: bldimg = $(call custom_override,build_image,$*)
 $(stampdir)/stamp-build-%: dtb_target = $(notdir $(dtb_file_$*))
 $(stampdir)/stamp-build-%: $(stampdir)/stamp-prepare-%
-	@echo Debug: $@
-	$(build_cd) $(kmake) $(build_O) $(conc_level) $(build_image) modules $(dtb_target)
+	@echo Debug: $@ build_image $(build_image) bldimg $(bldimg)
+	$(build_cd) $(kmake) $(build_O) $(conc_level) $(bldimg) modules $(dtb_target)
 	@touch $@
 
 # Install the finished build
@@ -47,29 +48,33 @@ install-%: bindoc = $(pkgdir)/usr/share/doc/$(bin_pkg_name)-$*
 install-%: dbgpkgdir = $(CURDIR)/debian/$(bin_pkg_name)-$*-dbgsym
 install-%: signed = $(CURDIR)/debian/$(bin_pkg_name)-signed
 install-%: basepkg = $(hdrs_pkg_name)
+install-%: kernfile = $(call custom_override,kernel_file,$*)
+install-%: instfile = $(call custom_override,install_file,$*)
 install-%: hdrdir = $(CURDIR)/debian/$(basepkg)-$*/usr/src/$(basepkg)-$*
 install-%: target_flavour = $*
 install-%: dtb_file=$(dtb_file_$*)
 install-%: dtb_target=$(notdir $(dtb_file_$*))
 install-%: checks-%
-	@echo Debug: $@
+	@echo Debug: $@ kernel_file $(kernel_file) kernfile $(kernfile) install_file $(install_file) instfile $(instfile)
 	dh_testdir
 	dh_testroot
 	dh_clean -k -p$(bin_pkg_name)-$*
 	dh_clean -k -p$(hdrs_pkg_name)-$*
+ifneq ($(skipdbg),true)
 	dh_clean -k -p$(dbg_pkg_name)-$*
+endif
 
 	# The main image
 	# compress_file logic required because not all architectures
 	# generate a zImage automatically out of the box
 ifeq ($(compress_file),)
-	install -m600 -D $(builddir)/build-$*/$(kernel_file) \
-		$(pkgdir)/boot/$(install_file)-$(abi_release)-$*
+	install -m600 -D $(builddir)/build-$*/$(kernfile) \
+		$(pkgdir)/boot/$(instfile)-$(abi_release)-$*
 else
 	install -d $(pkgdir)/boot
-	gzip -c9v $(builddir)/build-$*/$(kernel_file) > \
-		$(pkgdir)/boot/$(install_file)-$(abi_release)-$*
-	chmod 600 $(pkgdir)/boot/$(install_file)-$(abi_release)-$*
+	gzip -c9v $(builddir)/build-$*/$(kernfile) > \
+		$(pkgdir)/boot/$(instfile)-$(abi_release)-$*
+	chmod 600 $(pkgdir)/boot/$(instfile)-$(abi_release)-$*
 endif
 
 ifeq ($(arch),amd64)
@@ -77,10 +82,10 @@ ifeq ($(uefi_signed),true)
 	install -d $(signed)/$(release)-$(revision)
 	# Check to see if this supports handoff, if not do not sign it.
 	# Check the identification area magic and version >= 0x020b
-	handoff=`dd if="$(pkgdir)/boot/$(install_file)-$(abi_release)-$*" bs=1 skip=514 count=6 2>/dev/null | od -s | awk '($$1 == 0 && $$2 == 25672 && $$3 == 21362 && $$4 >= 523) { print "GOOD" }'`; \
+	handoff=`dd if="$(pkgdir)/boot/$(instfile)-$(abi_release)-$*" bs=1 skip=514 count=6 2>/dev/null | od -s | awk '($$1 == 0 && $$2 == 25672 && $$3 == 21362 && $$4 >= 523) { print "GOOD" }'`; \
 	if [ "$$handoff" = "GOOD" ]; then \
-		cp -p $(pkgdir)/boot/$(install_file)-$(abi_release)-$* \
-			$(signed)/$(release)-$(revision)/$(install_file)-$(abi_release)-$*.efi; \
+		cp -p $(pkgdir)/boot/$(instfile)-$(abi_release)-$* \
+			$(signed)/$(release)-$(revision)/$(instfile)-$(abi_release)-$*.efi; \
 	fi
 endif
 endif
@@ -140,7 +145,7 @@ endif
 	# Now the image scripts
 	install -d $(pkgdir)/DEBIAN
 	for script in postinst postrm preinst prerm; do				\
-	  sed -e 's/=V/$(abi_release)-$*/g' -e 's/=K/$(install_file)/g'		\
+	  sed -e 's/=V/$(abi_release)-$*/g' -e 's/=K/$(instfile)/g'		\
 	      -e 's/=L/$(loader)/g'         -e 's@=B@$(build_arch)@g'		\
 	       $(DROOT)/control-scripts/$$script > $(pkgdir)/DEBIAN/$$script;	\
 	  chmod 755 $(pkgdir)/DEBIAN/$$script;					\
@@ -149,7 +154,7 @@ endif
 	if [ -f $(DEBIAN)/control.d/$(target_flavour).inclusion-list ] ; then	\
 		install -d $(pkgdir_ex)/DEBIAN;					\
 		for script in postinst postrm ; do				\
-			sed -e 's/=V/$(abi_release)-$*/g' -e 's/=K/$(install_file)/g'		\
+			sed -e 's/=V/$(abi_release)-$*/g' -e 's/=K/$(instfile)/g'		\
 			    -e 's/=L/$(loader)/g'         -e 's@=B@$(build_arch)@g'		\
 			    debian/control-scripts/$$script > $(pkgdir_ex)/DEBIAN/$$script; \
 			chmod 755 $(pkgdir_ex)/DEBIAN/$$script;			\
@@ -174,7 +179,7 @@ ifneq ($(skipsub),true)
 		install -d debian/$(bin_pkg_name)-$$sub/DEBIAN;	\
 		for script in postinst postrm preinst prerm; do			\
 			sed -e 's/=V/$(abi_release)-$*/g'			\
-			    -e 's/=K/$(install_file)/g'				\
+			    -e 's/=K/$(instfile)/g'				\
 			    -e 's/=L/$(loader)/g'				\
 			    -e 's@=B@$(build_arch)@g'				\
 				$(DROOT)/control-scripts/$$script >		\
@@ -237,7 +242,7 @@ endif
 	# Now the header scripts
 	install -d $(CURDIR)/debian/$(basepkg)-$*/DEBIAN
 	for script in postinst; do						\
-	  sed -e 's/=V/$(abi_release)-$*/g' -e 's/=K/$(install_file)/g'	\
+	  sed -e 's/=V/$(abi_release)-$*/g' -e 's/=K/$(instfile)/g'	\
 		$(DROOT)/control-scripts/headers-$$script > 			\
 			$(CURDIR)/debian/$(basepkg)-$*/DEBIAN/$$script;		\
 	  chmod 755 $(CURDIR)/debian/$(basepkg)-$*/DEBIAN/$$script;		\
