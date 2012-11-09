@@ -6,7 +6,7 @@ build-indep:
 # install-headers <- install-doc <- install-source <- install-tools <- install-indep <- binary-indep
 # install-headers <- binary-headers
 #
-indep_hdrpkg = $(hdrs_pkg_name)
+indep_hdrpkg = $(indep_hdrs_pkg_name)
 indep_hdrdir = $(CURDIR)/debian/$(indep_hdrpkg)/usr/src/$(indep_hdrpkg)
 install-headers:
 	@echo Debug: $@
