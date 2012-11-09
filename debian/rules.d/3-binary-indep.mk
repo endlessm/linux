@@ -1,6 +1,33 @@
 build-indep:
 	@echo Debug: $@
 
+# The binary-indep dependency chain is:
+#
+# install-headers <- install-doc <- install-source <- install-tools <- install-indep <- binary-indep
+# install-headers <- binary-headers
+#
+indep_hdrpkg = $(hdrs_pkg_name)
+indep_hdrdir = $(CURDIR)/debian/$(indep_hdrpkg)/usr/src/$(indep_hdrpkg)
+install-headers:
+	@echo Debug: $@
+	dh_testdir
+	dh_testroot
+	dh_prep
+
+ifeq ($(do_flavour_header_package),true)
+	install -d $(indep_hdrdir)
+	find . -path './debian' -prune -o -path './$(DEBIAN)' -prune \
+	  -o -path './include/*' -prune \
+	  -o -path './scripts/*' -prune -o -type f \
+	  \( -name 'Makefile*' -o -name 'Kconfig*' -o -name 'Kbuild*' -o \
+	     -name '*.sh' -o -name '*.pl' -o -name '*.lds' \) \
+	  -print | cpio -pd --preserve-modification-time $(indep_hdrdir)
+	cp -a scripts include $(indep_hdrdir)
+	(find arch -name include -type d -print | \
+		xargs -n1 -i: find : -type f) | \
+		cpio -pd --preserve-modification-time $(indep_hdrdir)
+endif
+
 docpkg = $(doc_pkg_name)
 docdir = $(CURDIR)/debian/$(docpkg)/usr/share/doc/$(docpkg)
 install-doc: install-headers
@@ -24,28 +51,6 @@ endif
 	cp -a Documentation/* $(docdir)
 	rm -rf $(docdir)/DocBook
 	find $(docdir) -name .gitignore | xargs rm -f
-endif
-
-indep_hdrpkg = $(hdrs_pkg_name)
-indep_hdrdir = $(CURDIR)/debian/$(indep_hdrpkg)/usr/src/$(indep_hdrpkg)
-install-headers:
-	@echo Debug: $@
-	dh_testdir
-	dh_testroot
-	dh_prep
-
-ifeq ($(do_flavour_header_package),true)
-	install -d $(indep_hdrdir)
-	find . -path './debian' -prune -o -path './$(DEBIAN)' -prune \
-	  -o -path './include/*' -prune \
-	  -o -path './scripts/*' -prune -o -type f \
-	  \( -name 'Makefile*' -o -name 'Kconfig*' -o -name 'Kbuild*' -o \
-	     -name '*.sh' -o -name '*.pl' -o -name '*.lds' \) \
-	  -print | cpio -pd --preserve-modification-time $(indep_hdrdir)
-	cp -a scripts include $(indep_hdrdir)
-	(find arch -name include -type d -print | \
-		xargs -n1 -i: find : -type f) | \
-		cpio -pd --preserve-modification-time $(indep_hdrdir)
 endif
 
 srcpkg = $(src_pkg_name)-source-$(release)
