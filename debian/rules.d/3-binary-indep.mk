@@ -8,7 +8,6 @@ install-doc: install-headers
 ifeq ($(do_doc_package),true)
 	dh_testdir
 	dh_testroot
-	dh_clean -k -p$(docpkg)
 
 	install -d $(docdir)
 ifeq ($(do_doc_package_content),true)
@@ -31,11 +30,11 @@ indep_hdrpkg = $(hdrs_pkg_name)
 indep_hdrdir = $(CURDIR)/debian/$(indep_hdrpkg)/usr/src/$(indep_hdrpkg)
 install-headers:
 	@echo Debug: $@
-ifeq ($(do_flavour_header_package),true)
 	dh_testdir
 	dh_testroot
-	dh_clean -k -p$(indep_hdrpkg)
+	dh_prep
 
+ifeq ($(do_flavour_header_package),true)
 	install -d $(indep_hdrdir)
 	find . -path './debian' -prune -o -path './$(DEBIAN)' -prune \
 	  -o -path './include/*' -prune \
@@ -55,9 +54,6 @@ balldir = $(CURDIR)/debian/$(srcpkg)/usr/src/$(srcpkg)/$(srcpkg)
 install-source: install-doc
 	@echo Debug: $@
 ifeq ($(do_source_package),true)
-	dh_testdir
-	dh_testroot
-	dh_clean -k -p$(srcpkg)
 
 	install -d $(srcdir)
 ifeq ($(do_source_package_content),true)
@@ -87,9 +83,6 @@ install-tools: toolsman = $(CURDIR)/debian/$(toolspkg)/usr/share/man
 install-tools: install-source $(stampdir)/stamp-build-perarch
 	@echo Debug: $@
 ifeq ($(do_tools),true)
-	dh_testdir
-	dh_testroot
-	dh_clean -k -p$(toolspkg)
 
 	install -d $(toolsbin)
 	install -d $(toolsman)/man1
@@ -130,8 +123,6 @@ install-indep: install-tools
 # binary-indep target during builds.
 binary-headers: install-headers
 	@echo Debug: $@
-	dh_testdir
-	dh_testroot
 	dh_installchangelogs -p$(indep_hdrpkg)
 	dh_installdocs -p$(indep_hdrpkg)
 	dh_compress -p$(indep_hdrpkg)
@@ -143,8 +134,6 @@ binary-headers: install-headers
 
 binary-indep: install-indep
 	@echo Debug: $@
-	dh_testdir
-	dh_testroot
 
 	dh_installchangelogs -i
 	dh_installdocs -i
