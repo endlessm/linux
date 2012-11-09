@@ -75,7 +75,7 @@ sub pred_do {
 	} elsif ($a[0] eq 'flavour') {
 		die "$P: $pred: malformed -- $pred <flavour>\n" if ($#a < 1);
 		for $possible (@a[1..$#a]) {
-			#print "    *** FLAVOUR<$flavour ?? $a[1]>\n";
+			#print "    *** FLAVOUR<$flavour ?? $possible>\n";
 			return 1 if ($flavour eq $possible);
 		}
 		return 0;
