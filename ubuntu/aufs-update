@@ -1,0 +1,52 @@
+#!/bin/bash
+#
+# NOTE: See aufs/BOM.UPDATING for instructions on how to use this updater.
+#
+
+if [ "$#" -ne 1 ]; then
+	echo "Usage: $0 <aufs2-standalone directory>" 1>&2
+	exit 1
+fi
+aufs="$1"
+
+# Get the current tip name
+{
+	read x url
+	read x o_log_sha1
+	read x o_tip_sha1
+} <aufs/BOM
+
+# Identify the tip of the standalone tree for reporting
+n_tip_sha1=`( cd "$aufs" && git log --format=%H HEAD^..HEAD )`
+
+# Update aufs to the latest.
+git rm -rf aufs
+cp -rp "$aufs/fs/aufs" aufs
+#cp -rp "$aufs/include" aufs
+cp -rp "$aufs/include/linux" include
+cp -rp "$aufs/include/uapi" include
+git checkout -f HEAD -- aufs/BOM aufs/BOM.UPDATING
+
+# Reinsert the include update.
+#sed -i -e '1iEXTRA_CFLAGS += -I$(src)/include' aufs/Makefile
+
+# Fix the relative patch references ...
+sed -i -e 's@/include/@/ubuntu/include/@g;' aufs/Makefile
+
+## # Find the latest commit in the ChangeLog.
+## read x n_log_sha1 <"$aufs/ChangeLog"
+
+# Insert the new commit ID and commit the result.
+sed -i -e "s/^COMMIT: .*/COMMIT: $n_tip_sha1/" aufs/BOM
+sed -i -e "s/^CHANGELOG: .*/CHANGELOG: $n_log_sha1/" aufs/BOM
+
+git add aufs include/linux include/uapi
+{
+	echo "UBUNTU: ubuntu: AUFS -- update to $n_tip_sha1"
+	echo ""
+	(cd "$aufs" && git log --no-merges "$o_tip_sha1..$n_tip_sha1" | git shortlog)
+## 	awk <"$aufs/ChangeLog" '
+## 		/^commit '"$o_log_sha1"'/ 	{ exit }
+## 						{ print "    " $0 }
+## 	'
+} | git commit -s -F -
