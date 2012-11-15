@@ -1,0 +1,80 @@
+= How to update AUFS2 =
+
+This document covers the process for updating aufs2 within the Ubuntu
+drivers directory.  
+
+== Background ==
+
+Upstream aufs2 is maintained in a git tree as below (which is _not_ used
+when updating Ubuntu).  This represents the primary upstream source tree:
+
+    http://git.c3sl.ufpr.br/pub/scm/aufs/aufs2-2.6.git
+
+However this is on an http: transport and incredibly slow.  It is advisable
+to also add the gitorius mirror to your tree, fetching that before origin
+to reduce the objects you need from the main tree:
+
+    git://gitorious.org/aufs2/aufs2.git
+
+Ubuntu updates are actually taken from the aufs2-standalone tree, somewhat
+similar to the compat-wireless tree.  The version in this tree is based on
+the mainline tree above but is modularisable, a key requirement for Ubuntu.
+This tree is found at the git tree below (check the BOM for the definative
+location):
+
+    http://git.c3sl.ufpr.br/pub/scm/aufs/aufs2-standalone.git
+
+This tree contains a set of branches, one per upstream release.  The
+aufs2.1 branch represents the mainline tracking branch, with aufs-2.1-38
+representing the delta to mainline 2.6.38.  Each branch contains a set
+of patches which affect the core enabling the application of aufs2, plus
+an open tree for the fs/aufs tree.  The core patches tend to be static
+from early in the line of an upstream release, and thus generally do not
+need updating as often.
+
+== Updating the core patches ==
+
+Ubuntu uses two of the core enablement patches, which are applied in the
+order below.  The remaining changes required to enable aufs are Ubuntu
+specific and static:
+
+    aufs2-base.patch
+    aufs2-standalone.patch
+
+In order to update these patches it is simplest to simply revert the
+existing pair and apply these as two commit.  This allows us to more
+easily drop aufs in the future should that be required.
+
+As these core enablement patches are very slow in changing we normally
+do not need to update these more than once per upstream mainline release
+though sometimes changes do affect these.
+
+== Updating aufs2 ==
+
+Once the enablement patches are updated we can simply use the aufs-update
+script in the ubuntu/ directory to update the existing source.  There are
+regular updates to the aufs2 upstream and it is likely we will see updates
+there more than once a month.
+
+Firstly checkout the upstream standalone tree (see the BOM for the
+location) and checkout an appropriate branch for the release you are
+updating.  Then simply run the aufs-update command from within the ubuntu/
+drivers directory, supplying the location of the local aufs2-standalone tree
+on the command line:
+
+	cd ubuntu
+	sh aufs-update ../../aufs2-standalone
+
+This will result in an update commit containing the updated code and
+also updating the BOM.  Note that any local modifications are now lost.
+Where those exist they should be cherry-picked and then squashed into
+the update commit to ensure we retain them.
+
+== Ubuntu modifications ==
+
+We carry a very small delta to the upstream aufs2 source.  Any such changes
+need to be cherry-picked from the history and squashed into any update
+commit in order to prevent regression.  Any current patches are listed below:
+
+Lucid/Maverick/Natty/Oneiric:
+    UBUNTU: ubuntu: AUFS -- suppress benign plink warning messages
