@@ -29,20 +29,6 @@ fw-shipped-$(CONFIG_BNX2) += 	bnx2/bnx2-mips-09-6.2.1b.fw \
 				bnx2/bnx2-mips-06-6.2.3.fw \
 				bnx2/bnx2-rv2p-09-6.0.17.fw \
 				bnx2/bnx2-rv2p-09ax-6.0.17.fw
-fw-shipped-$(CONFIG_DRM_RADEON) += radeon/R100_cp.bin radeon/R200_cp.bin \
-				   radeon/R300_cp.bin radeon/R420_cp.bin \
-				   radeon/RS690_cp.bin radeon/RS600_cp.bin \
-				   radeon/R520_cp.bin \
-				   radeon/R600_pfp.bin radeon/R600_me.bin \
-				   radeon/RV610_pfp.bin radeon/RV610_me.bin \
-				   radeon/RV630_pfp.bin radeon/RV630_me.bin \
-				   radeon/RV620_pfp.bin radeon/RV620_me.bin \
-				   radeon/RV635_pfp.bin radeon/RV635_me.bin \
-				   radeon/RV670_pfp.bin radeon/RV670_me.bin \
-				   radeon/RS780_pfp.bin radeon/RS780_me.bin \
-				   radeon/RV770_pfp.bin radeon/RV770_me.bin \
-				   radeon/RV730_pfp.bin radeon/RV730_me.bin \
-				   radeon/RV710_pfp.bin radeon/RV710_me.bin
 fw-shipped-$(CONFIG_E100) += e100/d101m_ucode.bin e100/d101s_ucode.bin \
 			     e100/d102e_ucode.bin
 fw-shipped-$(CONFIG_PCMCIA_PCNET) += 
