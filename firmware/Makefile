@@ -20,7 +20,6 @@ fw-external-y := $(subst ",,$(CONFIG_EXTRA_FIRMWARE))
 # accurate. In the latter case it doesn't matter -- it'll use $(fw-shipped-all).
 # But be aware that the config file might not be included at all.
 
-fw-shipped-$(CONFIG_ATARI_DSP56K) += dsp56k/bootstrap.bin
 fw-shipped-$(CONFIG_BNX2X) += bnx2x/bnx2x-e1-7.8.2.0.fw \
 			      bnx2x/bnx2x-e1h-7.8.2.0.fw \
 			      bnx2x/bnx2x-e2-7.8.2.0.fw
