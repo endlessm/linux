@@ -254,7 +254,7 @@ endif
 	 PREV_REVISION="$(prev_revision)" ABI_NUM="$(abinum)"		\
 	 PREV_ABI_NUM="$(prev_abinum)" BUILD_DIR="$(builddir)/build-$*"	\
 	 INSTALL_DIR="$(pkgdir)" SOURCE_DIR="$(CURDIR)"			\
-	 run-parts -v $(DROOT)/tests
+	 run-parts -v $(DROOT)/tests-build
 
 	#
 	# Remove files which are generated at installation by postinst,
