@@ -41,6 +41,12 @@ ifeq ($(DEB_BUILD_PROFILE),bootstrap)
     do_flavour_header_package=false
 endif
 
+# autopkgtest -- rebuild support
+#  only build the first flavour on the assumption it is representative
+ifeq ($(DEB_BUILD_PROFILE),autopkgtest)
+flavours := $(firstword $(flavours))
+endif
+
 # Debian Build System targets
 binary: binary-indep binary-arch
 
