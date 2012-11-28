@@ -18,6 +18,17 @@ then
 	echo You must run this script from the root of the repo
 	exit 1
 fi
+. debian/debian.env
+
+NFWINFO="`find $DEBIAN -name fwinfo|wc -l`"
+if [ ! "$NFWINFO" = "1" ]
+then
+	echo Your repo is hosed. There can only be one fwinfo file.
+	find $DEBIAN -name fwinfo
+	exit 1
+fi
+
+FWINFO="`pwd`/`find $DEBIAN -name fwinfo`"
 
 CDIR=`pwd`
 OFW=$1
@@ -30,12 +41,15 @@ cd $NFW
 (find . -type f | egrep -v "debian|git|LICEN|WHEN|READ|Make|configure" | sed 's;\./;;' | \
 while read f
 do
-	if [ ! -f $OFW/$f ]
+	if grep -q $f $FWINFO
 	then
-		echo $f
-	elif ! cmp $f $OFW/$f > /dev/null
-	then
-		echo $f
+		if [ ! -f $OFW/$f ]
+		then
+			echo $f
+		elif ! cmp $f $OFW/$f > /dev/null
+		then
+			echo $f
+		fi
 	fi
 done) |\
 while read f
