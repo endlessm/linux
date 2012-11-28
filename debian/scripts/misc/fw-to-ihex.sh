@@ -10,7 +10,9 @@ fi
 echo "unsigned char d[] = {" > $F.c
 hexdump -v -e '"\t" 8/1 "0x%02x, " "\n"' $F >> $F.c
 echo "};" >> $F.c
+sed -i 's/0x .*$//' $F.c
 
-gcc -c $F.c
+O="`dirname $F`/`basename $F`.o"
+gcc -o $O -c $F.c
 objcopy -Oihex $F.o $F.ihex
 
