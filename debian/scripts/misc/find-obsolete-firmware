@@ -52,7 +52,7 @@ cp debian/build/build-generic/.config .
 mkdir -p $LF
 make firmware_install INSTALL_MOD_PATH=`pwd`
 
-cd $LF
+(cd $LF
 find . -type f | while read f
 do
 	BN="`basename $f`"
@@ -73,7 +73,7 @@ do
 			echo "$f does not exist in $FW" | $TEE $LO
 		fi
 	fi
-done
+done)
 
 #
 # Check for firmware files referenced by the kernel
@@ -81,12 +81,11 @@ done
 #
 cat $FWINFO | while read fwi f
 do
-	if [ ! -f $f ]
+	if [ -s lib/firmware/$f ] || [ -s $FW/$f ]
 	then
-		if [ ! -f $FW/$f ]
-		then
-			echo "Missing firmware $f" | $TEE $LO
-		fi
+		continue
+	else
+		echo "Missing firmware $f" | $TEE $LO
 	fi
 done
 
