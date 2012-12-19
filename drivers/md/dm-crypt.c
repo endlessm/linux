@@ -2003,6 +2003,12 @@ static int crypt_iterate_devices(struct dm_target *ti,
 	return fn(ti, cc->dev, cc->start, ti->len, data);
 }
 
+static void crypt_io_hints(struct dm_target *ti,
+			    struct queue_limits *limits)
+{
+	limits->max_write_same_sectors = 0;
+}
+
 static struct target_type crypt_target = {
 	.name   = "crypt",
 	.version = {1, 13, 0},
@@ -2017,6 +2023,7 @@ static struct target_type crypt_target = {
 	.message = crypt_message,
 	.merge  = crypt_merge,
 	.iterate_devices = crypt_iterate_devices,
+	.io_hints = crypt_io_hints,
 };
 
 static int __init dm_crypt_init(void)
