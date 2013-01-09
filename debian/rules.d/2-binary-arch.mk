@@ -35,7 +35,7 @@ build-%: $(stampdir)/stamp-build-%
 # Do the actual build, including image and modules
 $(stampdir)/stamp-build-%: target_flavour = $*
 $(stampdir)/stamp-build-%: bldimg = $(call custom_override,build_image,$*)
-$(stampdir)/stamp-build-%: dtb_target = $(notdir $(dtb_file_$*))
+$(stampdir)/stamp-build-%: dtb_target = $(dtb_files_$*)
 $(stampdir)/stamp-build-%: $(stampdir)/stamp-prepare-%
 	@echo Debug: $@ build_image $(build_image) bldimg $(bldimg)
 	$(build_cd) $(kmake) $(build_O) $(conc_level) $(bldimg) modules $(dtb_target)
@@ -52,8 +52,7 @@ install-%: kernfile = $(call custom_override,kernel_file,$*)
 install-%: instfile = $(call custom_override,install_file,$*)
 install-%: hdrdir = $(CURDIR)/debian/$(basepkg)-$*/usr/src/$(basepkg)-$*
 install-%: target_flavour = $*
-install-%: dtb_file=$(dtb_file_$*)
-install-%: dtb_target=$(notdir $(dtb_file_$*))
+install-%: dtb_files = $(dtb_files_$*)
 install-%: checks-%
 	@echo Debug: $@ kernel_file $(kernel_file) kernfile $(kernfile) install_file $(install_file) instfile $(instfile)
 	dh_testdir
@@ -96,10 +95,12 @@ endif
 		$(pkgdir)/boot/abi-$(abi_release)-$*
 	install -m600 $(builddir)/build-$*/System.map \
 		$(pkgdir)/boot/System.map-$(abi_release)-$*
-	if [ "$(dtb_target)" ]; then \
+	if [ "$(dtb_files)" ]; then \
 		install -d $(pkgdir)/lib/firmware/$(abi_release)-$*/device-tree; \
-		install -m644 $(builddir)/build-$*/$(dtb_file) \
-			$(pkgdir)/lib/firmware/$(abi_release)-$*/device-tree/$(dtb_target); \
+		for dtb_file in $(dtb_files); do \
+			install -m644 $(builddir)/build-$*/arch/$(build_arch)/boot/dts/$$dtb_file \
+				$(pkgdir)/lib/firmware/$(abi_release)-$*/device-tree/$$dtb_file; \
+		done \
 	fi
 ifeq ($(no_dumpfile),)
 	makedumpfile -g $(pkgdir)/boot/vmcoreinfo-$(abi_release)-$* \
