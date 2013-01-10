@@ -92,7 +92,9 @@ ifeq ($(do_tools),true)
 	install -d $(toolsbin)
 	install -d $(toolsman)/man1
 
+ifeq ($(do_tools_perf),true)
 	install -m755 debian/tools/perf $(toolsbin)/perf
+endif
 	if [ "$(arch)" = "amd64" ] || [ "$(arch)" = "i386" ]; then \
 		install -m755 debian/tools/x86_energy_perf_policy $(toolsbin)/x86_energy_perf_policy; \
 		install -m755 debian/tools/turbostat $(toolsbin)/turbostat; \
@@ -108,9 +110,11 @@ ifeq ($(do_tools),true)
 	rm $(builddir)/tools/tools
 	rsync -a tools/ $(builddir)/tools/tools/
 
+ifeq ($(do_tools_perf),true)
 	cd $(builddir)/tools/tools/perf && make man
 	install -m644 $(builddir)/tools/tools/perf/Documentation/*.1 \
 		$(toolsman)/man1
+endif
 	if [ "$(arch)" = "amd64" ] || [ "$(arch)" = "i386" ]; then \
 		install -d $(toolsman)/man8; \
 		install -m644 $(CURDIR)/tools/power/x86/x86_energy_perf_policy/*.8 $(toolsman)/man8; \

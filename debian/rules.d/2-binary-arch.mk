@@ -441,8 +441,10 @@ endif
 $(stampdir)/stamp-build-perarch: $(stampdir)/stamp-prepare-perarch
 	@echo Debug: $@
 ifeq ($(do_tools),true)
+ifeq ($(do_tools_perf),true)
 	cd $(builddirpa)/tools/perf && \
 		make HAVE_CPLUS_DEMANGLE=1 CROSS_COMPILE=$(CROSS_COMPILE)
+endif
 	if [ "$(arch)" = "amd64" ] || [ "$(arch)" = "i386" ]; then \
 		cd $(builddirpa)/tools/power/x86/x86_energy_perf_policy && make CROSS_COMPILE=$(CROSS_COMPILE); \
 		cd $(builddirpa)/tools/power/x86/turbostat && make CROSS_COMPILE=$(CROSS_COMPILE); \
@@ -459,8 +461,10 @@ install-perarch: $(stampdir)/stamp-build-perarch
 	# Add the tools.
 ifeq ($(do_tools),true)
 	install -d $(toolspkgdir)/usr/bin
+ifeq ($(do_tools_perf),true)
 	install -s -m755 $(builddirpa)/tools/perf/perf \
 		$(toolspkgdir)/usr/bin/perf_$(abi_release)
+endif
 	if [ "$(arch)" = "amd64" ] || [ "$(arch)" = "i386" ]; then \
 		install -s -m755 $(builddirpa)/tools/power/x86/x86_energy_perf_policy/x86_energy_perf_policy \
 			$(toolspkgdir)/usr/bin/x86_energy_perf_policy_$(abi_release); \
