@@ -221,7 +221,7 @@ endif
 	$(kmake) O=$(hdrdir) -j1 silentoldconfig prepare scripts
 	# We'll symlink this stuff
 	rm -f $(hdrdir)/Makefile
-	rm -rf $(hdrdir)/include2
+	rm -rf $(hdrdir)/include2 $(hdrdir)/source
 	# Copy over the compilation version.
 	cp "$(builddir)/build-$*/include/generated/compile.h" \
 		"$(hdrdir)/include/generated/compile.h"
