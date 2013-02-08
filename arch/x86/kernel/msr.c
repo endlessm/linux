@@ -105,6 +105,9 @@ static ssize_t msr_write(struct file *file, const char __user *buf,
 	int err = 0;
 	ssize_t bytes = 0;
 
+	if (secure_modules())
+		return -EPERM;
+
 	if (count % 8)
 		return -EINVAL;	/* Invalid chunk size */
 
@@ -150,6 +153,10 @@ static long msr_ioctl(struct file *file, unsigned int ioc, unsigned long arg)
 	case X86_IOC_WRMSR_REGS:
 		if (!(file->f_mode & FMODE_WRITE)) {
 			err = -EBADF;
+			break;
+		}
+		if (secure_modules()) {
+			err = -EPERM;
 			break;
 		}
 		if (copy_from_user(&regs, uregs, sizeof regs)) {
