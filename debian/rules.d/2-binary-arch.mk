@@ -450,7 +450,7 @@ $(stampdir)/stamp-build-perarch: $(stampdir)/stamp-prepare-perarch
 ifeq ($(do_tools),true)
 ifeq ($(do_tools_perf),true)
 	cd $(builddirpa)/tools/perf && \
-		make HAVE_CPLUS_DEMANGLE=1 CROSS_COMPILE=$(CROSS_COMPILE)
+		make HAVE_CPLUS_DEMANGLE=1 CROSS_COMPILE=$(CROSS_COMPILE) NO_LIBPYTHON=1
 endif
 	if [ "$(arch)" = "amd64" ] || [ "$(arch)" = "i386" ]; then \
 		cd $(builddirpa)/tools/power/x86/x86_energy_perf_policy && make CROSS_COMPILE=$(CROSS_COMPILE); \
