@@ -4,7 +4,6 @@
 src_pkg_name=$(shell sed -n '1s/^\(.*\) (.*).*$$/\1/p' $(DEBIAN)/changelog)
 
 # Get some version info
-series := oneiric
 release := $(shell sed -n '1s/^$(src_pkg_name).*(\(.*\)-.*).*$$/\1/p' $(DEBIAN)/changelog)
 revisions := $(shell sed -n 's/^$(src_pkg_name)\ .*($(release)-\(.*\)).*$$/\1/p' $(DEBIAN)/changelog | tac)
 revision ?= $(word $(words $(revisions)),$(revisions))
@@ -24,16 +23,6 @@ family=ubuntu
 # image, or rebuild the entire set of Ubuntu packages using custom patches
 # or configs.
 AUTOBUILD=
-
-#
-# This is a way to support some external variables. A good example is
-# a local setup for ccache and distcc See LOCAL_ENV_CC and
-# LOCAL_ENV_DISTCC_HOSTS in the definition of kmake.
-# For example:
-#      LOCAL_ENV_CC="ccache distcc"
-#      LOCAL_ENV_DISTCC_HOSTS="localhost 10.0.2.5 10.0.2.221"
-#
--include $(CURDIR)/../.$(series)-env
 
 ifneq ($(AUTOBUILD),)
 skipabi		= true
