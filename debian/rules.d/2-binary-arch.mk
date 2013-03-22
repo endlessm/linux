@@ -112,6 +112,7 @@ endif
 		INSTALL_MOD_STRIP=1 INSTALL_MOD_PATH=$(pkgdir)/ \
 		INSTALL_FW_PATH=$(pkgdir)/lib/firmware/$(abi_release)-$*
 
+ifeq ($(do_extras_package),true)
 	#
 	# Remove all modules not in the inclusion list.
 	#
@@ -127,6 +128,7 @@ endif
 		/sbin/depmod -b $(pkgdir) -ea -F $(pkgdir)/boot/System.map-$(abi_release)-$* \
 			$(abi_release)-$* 2>&1 |tee $(target_flavour).depmod.log; \
 	fi
+endif
 
 ifeq ($(no_dumpfile),)
 	makedumpfile -g $(pkgdir)/boot/vmcoreinfo-$(abi_release)-$* \
@@ -151,6 +153,7 @@ endif
 	       $(DROOT)/control-scripts/$$script > $(pkgdir)/DEBIAN/$$script;	\
 	  chmod 755 $(pkgdir)/DEBIAN/$$script;					\
 	done
+ifeq ($(do_extras_package),true)
 	# Install the postinit/postrm scripts in the extras package.
 	if [ -f $(DEBIAN)/control.d/$(target_flavour).inclusion-list ] ; then	\
 		install -d $(pkgdir_ex)/DEBIAN;					\
@@ -161,6 +164,7 @@ endif
 			chmod 755 $(pkgdir_ex)/DEBIAN/$$script;			\
 		done;								\
 	fi
+endif
 
 	# Install the full changelog.
 ifeq ($(do_doc_package),true)
@@ -348,6 +352,7 @@ binary-%: install-%
 	dh_md5sums -p$(pkgimg)
 	dh_builddeb -p$(pkgimg) -- -Zbzip2 -z9
 
+ifeq ($(do_extras_package),true)
 	if [ -f $(DEBIAN)/control.d/$(target_flavour).inclusion-list ] ; then \
 		dh_installchangelogs -p$(pkgimg_ex); \
 		dh_installdocs -p$(pkgimg_ex); \
@@ -359,6 +364,7 @@ binary-%: install-%
 		dh_md5sums -p$(pkgimg_ex); \
 		dh_builddeb -p$(pkgimg_ex) -- -Zbzip2 -z9; \
 	fi
+endif
 
 	dh_installchangelogs -p$(pkghdr)
 	dh_installdocs -p$(pkghdr)
