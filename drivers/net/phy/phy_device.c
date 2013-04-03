@@ -55,6 +55,7 @@ static void phy_device_release(struct device *dev)
 }
 
 static struct phy_driver genphy_driver;
+static struct phy_driver gen10g_driver;
 extern int mdio_bus_init(void);
 extern void mdio_bus_exit(void);
 
@@ -521,8 +522,8 @@ int phy_init_hw(struct phy_device *phydev)
  *
  * Description: Called by drivers to attach to a particular PHY
  *     device. The phy_device is found, and properly hooked up
- *     to the phy_driver.  If no driver is attached, then the
- *     genphy_driver is used.  The phy_device is given a ptr to
+ *     to the phy_driver.  If no driver is attached, then a
+ *     generic driver is used.  The phy_device is given a ptr to
  *     the attaching device, and given a callback for link status
  *     change.  The phy_device is returned to the attaching driver.
  */
@@ -535,12 +536,10 @@ static int phy_attach_direct(struct net_device *dev, struct phy_device *phydev,
 	/* Assume that if there is no driver, that it doesn't
 	 * exist, and we should use the genphy driver. */
 	if (NULL == d->driver) {
-		if (phydev->is_c45) {
-			pr_err("No driver for phy %x\n", phydev->phy_id);
-			return -ENODEV;
-		}
-
-		d->driver = &genphy_driver.driver;
+		if (phydev->is_c45)
+			d->driver = &gen10g_driver.driver;
+		else
+			d->driver = &genphy_driver.driver;
 
 		err = d->driver->probe(d);
 		if (err >= 0)
@@ -622,6 +621,8 @@ void phy_detach(struct phy_device *phydev)
 	 * from the generic driver so that there's a chance a
 	 * real driver could be loaded */
 	if (phydev->dev.driver == &genphy_driver.driver)
+		device_release_driver(&phydev->dev);
+	else if (phydev->dev.driver == &gen10g_driver.driver)
 		device_release_driver(&phydev->dev);
 }
 EXPORT_SYMBOL(phy_detach);
