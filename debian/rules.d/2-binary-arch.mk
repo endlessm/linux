@@ -48,6 +48,7 @@ install-%: bindoc = $(pkgdir)/usr/share/doc/$(bin_pkg_name)-$*
 install-%: dbgpkgdir = $(CURDIR)/debian/$(bin_pkg_name)-$*-dbgsym
 install-%: signed = $(CURDIR)/debian/$(bin_pkg_name)-signed
 install-%: basepkg = $(hdrs_pkg_name)
+install-%: indeppkg = $(indep_hdrs_pkg_name)
 install-%: kernfile = $(call custom_override,kernel_file,$*)
 install-%: instfile = $(call custom_override,install_file,$*)
 install-%: hdrdir = $(CURDIR)/debian/$(basepkg)-$*/usr/src/$(basepkg)-$*
@@ -239,7 +240,7 @@ ifeq ($(arch),powerpc)
 	cp $(builddir)/build-$*/arch/powerpc/lib/*.o $(hdrdir)/arch/powerpc/lib
 endif
 	# Script to symlink everything up
-	$(SHELL) $(DROOT)/scripts/link-headers "$(hdrdir)" "$(basepkg)" "$*"
+	$(SHELL) $(DROOT)/scripts/link-headers "$(hdrdir)" "$(indeppkg)" "$*"
 	# The build symlink
 	install -d debian/$(basepkg)-$*/lib/modules/$(abi_release)-$*
 	ln -s /usr/src/$(basepkg)-$* \
