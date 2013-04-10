@@ -55,5 +55,8 @@ done) |\
 while read f
 do
 	mkdir -p $CDIR/firmware/`dirname $f`
-	cp -v $f $CDIR/firmware/`dirname $f`
+	if [ ! -f $CDIR/firmware/`dirname $f`/`basename $f`.ihex ]
+	then
+		cp -v $f $CDIR/firmware/`dirname $f`
+	fi
 done
