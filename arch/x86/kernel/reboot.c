@@ -484,6 +484,14 @@ static struct dmi_system_id __initdata reboot_dmi_table[] = {
 			DMI_MATCH(DMI_PRODUCT_NAME, "Latitude E6220"),
 		},
 	},
+	{	/* Handle problems with rebooting on the OptiPlex 390. */
+		.callback = set_pci_reboot,
+		.ident = "Dell OptiPlex 390",
+		.matches = {
+			DMI_MATCH(DMI_SYS_VENDOR, "Dell Inc."),
+			DMI_MATCH(DMI_PRODUCT_NAME, "OptiPlex 390"),
+		},
+	},
 	{ }
 };
 
