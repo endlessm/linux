@@ -1,0 +1,555 @@
+commit 2c2a566b64b4254c530fb0c2222b30e8a739bac9
+Author: Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
+Date:   Sat Sep 1 17:45:09 2012 -0700
+
+    tracing: Let tracepoints have data passed to tracepoint callbacks (backport)
+    
+    Backport of commit 38516ab59fbc5b3bb278cf5e1fe2867c70cff32e for
+    2.6.32.x and 2.6.33.x. Keeping kABI compatibility.
+    
+    Signed-off-by: Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
+
+---
+ include/linux/tracepoint.h             |  141 +++++++++++++++++++++++++-------
+ kernel/tracepoint.c                    |  144 ++++++++++++++++++++++++---------
+ samples/tracepoints/tp-samples-trace.h |    4 +-
+ 3 files changed, 216 insertions(+), 73 deletions(-)
+
+Index: linux/include/linux/tracepoint.h
+===================================================================
+--- linux.orig/include/linux/tracepoint.h
++++ linux/include/linux/tracepoint.h
+@@ -20,12 +20,20 @@
+ struct module;
+ struct tracepoint;
+ 
++#define HAVE_KABI_2635_TRACEPOINT
++
++struct tracepoint_func {
++	void *func;
++	void *data;
++	bool kabi_2635;
++};
++
+ struct tracepoint {
+ 	const char *name;		/* Tracepoint name */
+ 	int state;			/* State. */
+ 	void (*regfunc)(void);
+ 	void (*unregfunc)(void);
+-	void **funcs;
++	struct tracepoint_func *funcs;
+ } __attribute__((aligned(32)));		/*
+ 					 * Aligned on 32 bytes because it is
+ 					 * globally visible and gcc happily
+@@ -43,17 +51,33 @@ struct tracepoint {
+ /*
+  * it_func[0] is never NULL because there is at least one element in the array
+  * when the array itself is non NULL.
++ *
++ * Note, the proto and args passed in includes "__data" as the first parameter.
++ * The reason for this is to handle the "void" prototype. If a tracepoint
++ * has a "void" prototype, then it is invalid to declare a function
++ * as "(void *, void)". The DECLARE_TRACE_NOARGS() will pass in just
++ * "void *data", where as the DECLARE_TRACE() will pass in "void *data, proto".
+  */
+-#define __DO_TRACE(tp, proto, args)					\
++#define __DO_TRACE(tp, data_proto, data_args, proto, args)		\
+ 	do {								\
+-		void **it_func;						\
++		struct tracepoint_func *it_func_ptr;			\
++		void *it_func;						\
+ 									\
+ 		rcu_read_lock_sched_notrace();				\
+-		it_func = rcu_dereference((tp)->funcs);			\
+-		if (it_func) {						\
++		it_func_ptr = rcu_dereference((tp)->funcs);		\
++		if (it_func_ptr) {					\
+ 			do {						\
+-				((void(*)(proto))(*it_func))(args);	\
+-			} while (*(++it_func));				\
++				if (it_func_ptr->kabi_2635) {		\
++					void *__data;			\
++									\
++					it_func = (it_func_ptr)->func;	\
++					__data = (it_func_ptr)->data;	\
++					((void(*)(data_proto))(it_func))(data_args); \
++				} else {				\
++					it_func = (it_func_ptr)->func;	\
++					((void(*)(proto))(it_func))(args); \
++				}					\
++			} while ((++it_func_ptr)->func);		\
+ 		}							\
+ 		rcu_read_unlock_sched_notrace();			\
+ 	} while (0)
+@@ -63,22 +87,39 @@ struct tracepoint {
+  * not add unwanted padding between the beginning of the section and the
+  * structure. Force alignment to the same alignment as the section start.
+  */
+-#define DECLARE_TRACE(name, proto, args)				\
++#define __DECLARE_TRACE(name, proto, args, data_proto, data_args)	\
+ 	extern struct tracepoint __tracepoint_##name;			\
+ 	static inline void trace_##name(proto)				\
+ 	{								\
+ 		if (unlikely(__tracepoint_##name.state))		\
+ 			__DO_TRACE(&__tracepoint_##name,		\
+-				TP_PROTO(proto), TP_ARGS(args));	\
++				TP_PROTO(data_proto),			\
++				TP_ARGS(data_args),			\
++				TP_PROTO(proto),			\
++				TP_ARGS(args));				\
+ 	}								\
+-	static inline int register_trace_##name(void (*probe)(proto))	\
+-	{								\
++	static inline int						\
++	register_trace_##name(void (*probe)(proto))			\
++ 	{								\
+ 		return tracepoint_probe_register(#name, (void *)probe);	\
+-	}								\
+-	static inline int unregister_trace_##name(void (*probe)(proto))	\
+-	{								\
+-		return tracepoint_probe_unregister(#name, (void *)probe);\
+-	}
++ 	}								\
++	static inline int						\
++	unregister_trace_##name(void (*probe)(proto))			\
++ 	{								\
++		return tracepoint_probe_unregister(#name, (void *)probe); \
++ 	}								\
++	static inline int						\
++	kabi_2635_register_trace_##name(void (*probe)(data_proto), void *data) \
++ 	{								\
++		return kabi_2635_tracepoint_probe_register(#name, (void *)probe,	\
++						 data);			\
++ 	}								\
++	static inline int						\
++	kabi_2635_unregister_trace_##name(void (*probe)(data_proto), void *data) \
++ 	{								\
++		return kabi_2635_tracepoint_probe_unregister(#name, (void *)probe, \
++						   data);		\
++ 	}
+ 
+ 
+ #define DEFINE_TRACE_FN(name, reg, unreg)				\
+@@ -100,19 +141,29 @@ extern void tracepoint_update_probe_rang
+ 	struct tracepoint *end);
+ 
+ #else /* !CONFIG_TRACEPOINTS */
+-#define DECLARE_TRACE(name, proto, args)				\
+-	static inline void _do_trace_##name(struct tracepoint *tp, proto) \
+-	{ }								\
+-	static inline void trace_##name(proto)				\
+-	{ }								\
+-	static inline int register_trace_##name(void (*probe)(proto))	\
+-	{								\
+-		return -ENOSYS;						\
+-	}								\
+-	static inline int unregister_trace_##name(void (*probe)(proto))	\
+-	{								\
+-		return -ENOSYS;						\
+-	}
++#define __DECLARE_TRACE(name, proto, args, data_proto, data_args)	\
++ 	static inline void trace_##name(proto)				\
++ 	{ }								\
++	static inline int						\
++	register_trace_##name(void (*probe)(proto))			\
++ 	{								\
++ 		return -ENOSYS;						\
++ 	}								\
++	static inline int						\
++	unregister_trace_##name(void (*probe)(proto))			\
++ 	{								\
++ 		return -ENOSYS;						\
++ 	}								\
++	static inline int						\
++	kabi_2635_register_trace_##name(void (*probe)(data_proto), void *data) \
++ 	{								\
++ 		return -ENOSYS;						\
++ 	}								\
++	static inline int						\
++	kabi_2635_unregister_trace_##name(void (*probe)(data_proto), void *data) \
++ 	{								\
++ 		return -ENOSYS;						\
++ 	}
+ 
+ #define DEFINE_TRACE_FN(name, reg, unreg)
+ #define DEFINE_TRACE(name)
+@@ -123,6 +174,28 @@ static inline void tracepoint_update_pro
+ 	struct tracepoint *end)
+ { }
+ #endif /* CONFIG_TRACEPOINTS */
++
++/*
++ * The need for the DECLARE_TRACE_NOARGS() is to handle the prototype
++ * (void). "void" is a special value in a function prototype and can
++ * not be combined with other arguments. Since the DECLARE_TRACE()
++ * macro adds a data element at the beginning of the prototype,
++ * we need a way to differentiate "(void *data, proto)" from
++ * "(void *data, void)". The second prototype is invalid.
++ *
++ * DECLARE_TRACE_NOARGS() passes "void" as the tracepoint prototype
++ * and "void *__data" as the callback prototype.
++ *
++ * DECLARE_TRACE() passes "proto" as the tracepoint protoype and
++ * "void *__data, proto" as the callback prototype.
++ */
++#define DECLARE_TRACE_NOARGS(name)					\
++	__DECLARE_TRACE(name, void, , void *__data, __data)
++#define DECLARE_TRACE(name, proto, args)				\
++	__DECLARE_TRACE(name, PARAMS(proto), PARAMS(args),		\
++			PARAMS(void *__data, proto),			\
++			PARAMS(__data, args))
++
+ #endif /* DECLARE_TRACE */
+ 
+ /*
+@@ -130,15 +203,23 @@ static inline void tracepoint_update_pro
+  * Internal API, should not be used directly.
+  */
+ extern int tracepoint_probe_register(const char *name, void *probe);
++extern int kabi_2635_tracepoint_probe_register(const char *name, void *probe, void *data);
+ 
+ /*
+  * Disconnect a probe from a tracepoint.
+  * Internal API, should not be used directly.
+  */
+-extern int tracepoint_probe_unregister(const char *name, void *probe);
++extern int
++tracepoint_probe_unregister(const char *name, void *probe);
++extern int
++kabi_2635_tracepoint_probe_unregister(const char *name, void *probe, void *data);
+ 
+ extern int tracepoint_probe_register_noupdate(const char *name, void *probe);
++extern int kabi_2635_tracepoint_probe_register_noupdate(const char *name, void *probe,
++					      void *data);
+ extern int tracepoint_probe_unregister_noupdate(const char *name, void *probe);
++extern int kabi_2635_tracepoint_probe_unregister_noupdate(const char *name, void *probe,
++						void *data);
+ extern void tracepoint_probe_update_all(void);
+ 
+ struct tracepoint_iter {
+Index: linux/kernel/tracepoint.c
+===================================================================
+--- linux.orig/kernel/tracepoint.c
++++ linux/kernel/tracepoint.c
+@@ -54,7 +54,7 @@ static struct hlist_head tracepoint_tabl
+  */
+ struct tracepoint_entry {
+ 	struct hlist_node hlist;
+-	void **funcs;
++	struct tracepoint_func *funcs;
+ 	int refcount;	/* Number of times armed. 0 if disarmed. */
+ 	char name[0];
+ };
+@@ -64,12 +64,12 @@ struct tp_probes {
+ 		struct rcu_head rcu;
+ 		struct list_head list;
+ 	} u;
+-	void *probes[0];
++	struct tracepoint_func probes[0];
+ };
+ 
+ static inline void *allocate_probes(int count)
+ {
+-	struct tp_probes *p  = kmalloc(count * sizeof(void *)
++	struct tp_probes *p  = kmalloc(count * sizeof(struct tracepoint_func)
+ 			+ sizeof(struct tp_probes), GFP_KERNEL);
+ 	return p == NULL ? NULL : p->probes;
+ }
+@@ -79,7 +79,7 @@ static void rcu_free_old_probes(struct r
+ 	kfree(container_of(head, struct tp_probes, u.rcu));
+ }
+ 
+-static inline void release_probes(void *old)
++static inline void release_probes(struct tracepoint_func *old)
+ {
+ 	if (old) {
+ 		struct tp_probes *tp_probes = container_of(old,
+@@ -95,15 +95,16 @@ static void debug_print_probes(struct tr
+ 	if (!tracepoint_debug || !entry->funcs)
+ 		return;
+ 
+-	for (i = 0; entry->funcs[i]; i++)
+-		printk(KERN_DEBUG "Probe %d : %p\n", i, entry->funcs[i]);
++	for (i = 0; entry->funcs[i].func; i++)
++		printk(KERN_DEBUG "Probe %d : %p\n", i, entry->funcs[i].func);
+ }
+ 
+-static void *
+-tracepoint_entry_add_probe(struct tracepoint_entry *entry, void *probe)
++static struct tracepoint_func *
++tracepoint_entry_add_probe(struct tracepoint_entry *entry,
++			   void *probe, void *data, bool kabi_2635)
+ {
+ 	int nr_probes = 0;
+-	void **old, **new;
++	struct tracepoint_func *old, *new;
+ 
+ 	WARN_ON(!probe);
+ 
+@@ -111,8 +112,9 @@ tracepoint_entry_add_probe(struct tracep
+ 	old = entry->funcs;
+ 	if (old) {
+ 		/* (N -> N+1), (N != 0, 1) probes */
+-		for (nr_probes = 0; old[nr_probes]; nr_probes++)
+-			if (old[nr_probes] == probe)
++		for (nr_probes = 0; old[nr_probes].func; nr_probes++)
++			if (old[nr_probes].func == probe &&
++			    old[nr_probes].data == data)
+ 				return ERR_PTR(-EEXIST);
+ 	}
+ 	/* + 2 : one for new probe, one for NULL func */
+@@ -120,9 +122,11 @@ tracepoint_entry_add_probe(struct tracep
+ 	if (new == NULL)
+ 		return ERR_PTR(-ENOMEM);
+ 	if (old)
+-		memcpy(new, old, nr_probes * sizeof(void *));
+-	new[nr_probes] = probe;
+-	new[nr_probes + 1] = NULL;
++		memcpy(new, old, nr_probes * sizeof(struct tracepoint_func));
++	new[nr_probes].func = probe;
++	new[nr_probes].data = data;
++	new[nr_probes].kabi_2635 = kabi_2635;
++	new[nr_probes + 1].func = NULL;
+ 	entry->refcount = nr_probes + 1;
+ 	entry->funcs = new;
+ 	debug_print_probes(entry);
+@@ -130,10 +134,11 @@ tracepoint_entry_add_probe(struct tracep
+ }
+ 
+ static void *
+-tracepoint_entry_remove_probe(struct tracepoint_entry *entry, void *probe)
++tracepoint_entry_remove_probe(struct tracepoint_entry *entry,
++			      void *probe, void *data)
+ {
+ 	int nr_probes = 0, nr_del = 0, i;
+-	void **old, **new;
++	struct tracepoint_func *old, *new;
+ 
+ 	old = entry->funcs;
+ 
+@@ -142,8 +147,10 @@ tracepoint_entry_remove_probe(struct tra
+ 
+ 	debug_print_probes(entry);
+ 	/* (N -> M), (N > 1, M >= 0) probes */
+-	for (nr_probes = 0; old[nr_probes]; nr_probes++) {
+-		if ((!probe || old[nr_probes] == probe))
++	for (nr_probes = 0; old[nr_probes].func; nr_probes++) {
++		if (!probe ||
++		    (old[nr_probes].func == probe &&
++		     old[nr_probes].data == data))
+ 			nr_del++;
+ 	}
+ 
+@@ -160,10 +167,11 @@ tracepoint_entry_remove_probe(struct tra
+ 		new = allocate_probes(nr_probes - nr_del + 1);
+ 		if (new == NULL)
+ 			return ERR_PTR(-ENOMEM);
+-		for (i = 0; old[i]; i++)
+-			if ((probe && old[i] != probe))
++		for (i = 0; old[i].func; i++)
++			if (probe &&
++			    (old[i].func != probe || old[i].data != data))
+ 				new[j++] = old[i];
+-		new[nr_probes - nr_del] = NULL;
++		new[nr_probes - nr_del].func = NULL;
+ 		entry->refcount = nr_probes - nr_del;
+ 		entry->funcs = new;
+ 	}
+@@ -315,18 +323,19 @@ static void tracepoint_update_probes(voi
+ 	module_update_tracepoints();
+ }
+ 
+-static void *tracepoint_add_probe(const char *name, void *probe)
++static struct tracepoint_func *
++tracepoint_add_probe(const char *name, void *probe, void *data, bool kabi_2635)
+ {
+ 	struct tracepoint_entry *entry;
+-	void *old;
++	struct tracepoint_func *old;
+ 
+ 	entry = get_tracepoint(name);
+ 	if (!entry) {
+ 		entry = add_tracepoint(name);
+ 		if (IS_ERR(entry))
+-			return entry;
++			return (struct tracepoint_func *)entry;
+ 	}
+-	old = tracepoint_entry_add_probe(entry, probe);
++	old = tracepoint_entry_add_probe(entry, probe, data, kabi_2635);
+ 	if (IS_ERR(old) && !entry->refcount)
+ 		remove_tracepoint(entry);
+ 	return old;
+@@ -340,12 +349,14 @@ static void *tracepoint_add_probe(const
+  * Returns 0 if ok, error value on error.
+  * The probe address must at least be aligned on the architecture pointer size.
+  */
+-int tracepoint_probe_register(const char *name, void *probe)
++static
++int ___tracepoint_probe_register(const char *name, void *probe, void *data,
++			bool kabi_2635)
+ {
+-	void *old;
++	struct tracepoint_func *old;
+ 
+ 	mutex_lock(&tracepoints_mutex);
+-	old = tracepoint_add_probe(name, probe);
++	old = tracepoint_add_probe(name, probe, data, kabi_2635);
+ 	mutex_unlock(&tracepoints_mutex);
+ 	if (IS_ERR(old))
+ 		return PTR_ERR(old);
+@@ -354,17 +365,30 @@ int tracepoint_probe_register(const char
+ 	release_probes(old);
+ 	return 0;
+ }
++
++int kabi_2635_tracepoint_probe_register(const char *name, void *probe, void *data)
++{
++	return ___tracepoint_probe_register(name, probe, data, 1);
++}
++EXPORT_SYMBOL_GPL(kabi_2635_tracepoint_probe_register);
++
++
++int tracepoint_probe_register(const char *name, void *probe)
++{
++	return ___tracepoint_probe_register(name, probe, NULL, 0);
++}
+ EXPORT_SYMBOL_GPL(tracepoint_probe_register);
+ 
+-static void *tracepoint_remove_probe(const char *name, void *probe)
++static struct tracepoint_func *
++tracepoint_remove_probe(const char *name, void *probe, void *data)
+ {
+ 	struct tracepoint_entry *entry;
+-	void *old;
++	struct tracepoint_func *old;
+ 
+ 	entry = get_tracepoint(name);
+ 	if (!entry)
+ 		return ERR_PTR(-ENOENT);
+-	old = tracepoint_entry_remove_probe(entry, probe);
++	old = tracepoint_entry_remove_probe(entry, probe, data);
+ 	if (IS_ERR(old))
+ 		return old;
+ 	if (!entry->refcount)
+@@ -382,12 +406,13 @@ static void *tracepoint_remove_probe(con
+  * itself uses stop_machine(), which insures that every preempt disabled section
+  * have finished.
+  */
+-int tracepoint_probe_unregister(const char *name, void *probe)
++static
++int ___tracepoint_probe_unregister(const char *name, void *probe, void *data)
+ {
+-	void *old;
++	struct tracepoint_func *old;
+ 
+ 	mutex_lock(&tracepoints_mutex);
+-	old = tracepoint_remove_probe(name, probe);
++	old = tracepoint_remove_probe(name, probe, data);
+ 	mutex_unlock(&tracepoints_mutex);
+ 	if (IS_ERR(old))
+ 		return PTR_ERR(old);
+@@ -396,6 +421,17 @@ int tracepoint_probe_unregister(const ch
+ 	release_probes(old);
+ 	return 0;
+ }
++
++int kabi_2635_tracepoint_probe_unregister(const char *name, void *probe, void *data)
++{
++	return ___tracepoint_probe_unregister(name, probe, data);
++}
++EXPORT_SYMBOL_GPL(kabi_2635_tracepoint_probe_unregister);
++
++int tracepoint_probe_unregister(const char *name, void *probe)
++{
++	return ___tracepoint_probe_unregister(name, probe, NULL);
++}
+ EXPORT_SYMBOL_GPL(tracepoint_probe_unregister);
+ 
+ static LIST_HEAD(old_probes);
+@@ -418,12 +454,14 @@ static void tracepoint_add_old_probes(vo
+  *
+  * caller must call tracepoint_probe_update_all()
+  */
+-int tracepoint_probe_register_noupdate(const char *name, void *probe)
++static
++int ___tracepoint_probe_register_noupdate(const char *name, void *probe,
++				       void *data, bool kabi_2635)
+ {
+-	void *old;
++	struct tracepoint_func *old;
+ 
+ 	mutex_lock(&tracepoints_mutex);
+-	old = tracepoint_add_probe(name, probe);
++	old = tracepoint_add_probe(name, probe, data, kabi_2635);
+ 	if (IS_ERR(old)) {
+ 		mutex_unlock(&tracepoints_mutex);
+ 		return PTR_ERR(old);
+@@ -432,6 +470,18 @@ int tracepoint_probe_register_noupdate(c
+ 	mutex_unlock(&tracepoints_mutex);
+ 	return 0;
+ }
++
++int kabi_2635_tracepoint_probe_register_noupdate(const char *name, void *probe,
++				       void *data)
++{
++	return ___tracepoint_probe_register_noupdate(name, probe, data, 1);
++}
++EXPORT_SYMBOL_GPL(kabi_2635_tracepoint_probe_register_noupdate);
++
++int tracepoint_probe_register_noupdate(const char *name, void *probe)
++{
++	return ___tracepoint_probe_register_noupdate(name, probe, NULL, 0);
++}
+ EXPORT_SYMBOL_GPL(tracepoint_probe_register_noupdate);
+ 
+ /**
+@@ -441,12 +491,14 @@ EXPORT_SYMBOL_GPL(tracepoint_probe_regis
+  *
+  * caller must call tracepoint_probe_update_all()
+  */
+-int tracepoint_probe_unregister_noupdate(const char *name, void *probe)
++static
++int ___tracepoint_probe_unregister_noupdate(const char *name, void *probe,
++					 void *data)
+ {
+-	void *old;
++	struct tracepoint_func *old;
+ 
+ 	mutex_lock(&tracepoints_mutex);
+-	old = tracepoint_remove_probe(name, probe);
++	old = tracepoint_remove_probe(name, probe, data);
+ 	if (IS_ERR(old)) {
+ 		mutex_unlock(&tracepoints_mutex);
+ 		return PTR_ERR(old);
+@@ -455,6 +507,18 @@ int tracepoint_probe_unregister_noupdate
+ 	mutex_unlock(&tracepoints_mutex);
+ 	return 0;
+ }
++
++int kabi_2635_tracepoint_probe_unregister_noupdate(const char *name, void *probe,
++					 void *data)
++{
++	return ___tracepoint_probe_unregister_noupdate(name, probe, data);
++}
++EXPORT_SYMBOL_GPL(kabi_2635_tracepoint_probe_unregister_noupdate);
++
++int tracepoint_probe_unregister_noupdate(const char *name, void *probe)
++{
++	return ___tracepoint_probe_unregister_noupdate(name, probe, NULL);
++}
+ EXPORT_SYMBOL_GPL(tracepoint_probe_unregister_noupdate);
+ 
+ /**
+Index: linux/samples/tracepoints/tp-samples-trace.h
+===================================================================
+--- linux.orig/samples/tracepoints/tp-samples-trace.h
++++ linux/samples/tracepoints/tp-samples-trace.h
+@@ -7,7 +7,5 @@
+ DECLARE_TRACE(subsys_event,
+ 	TP_PROTO(struct inode *inode, struct file *file),
+ 	TP_ARGS(inode, file));
+-DECLARE_TRACE(subsys_eventb,
+-	TP_PROTO(void),
+-	TP_ARGS());
++DECLARE_TRACE_NOARGS(subsys_eventb);
+ #endif

@@ -1,0 +1,71 @@
+commit f0d902f497ee2fb747086322a31925c7fb351d7a
+Author: Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
+Date:   Sat Sep 1 17:47:36 2012 -0700
+
+    mm: export generic_pipe_buf_*() to modules (backport)
+    
+    Backport for 2.6.32.x to 2.6.34.x of commits:
+    
+    commit 51921cb746f56983db5a373ca68deb2b0d3ddf01
+    Author: Miklos Szeredi <mszeredi@suse.cz>
+    Date:   Wed May 26 08:44:22 2010 +0200
+    
+        mm: export generic_pipe_buf_*() to modules
+    
+        This is needed by fuse device code which wants to create pipe buffers.
+        Signed-off-by: Miklos Szeredi <mszeredi@suse.cz>
+    
+    Signed-off-by: Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
+
+diff --git a/fs/pipe.c b/fs/pipe.c
+index d0cc080..0eb6f53 100644
+--- a/fs/pipe.c
++++ b/fs/pipe.c
+@@ -222,6 +222,7 @@ void *generic_pipe_buf_map(struct pipe_inode_info *pipe,
+ 
+ 	return kmap(buf->page);
+ }
++EXPORT_SYMBOL(generic_pipe_buf_map);
+ 
+ /**
+  * generic_pipe_buf_unmap - unmap a previously mapped pipe buffer
+@@ -241,6 +242,7 @@ void generic_pipe_buf_unmap(struct pipe_inode_info *pipe,
+ 	} else
+ 		kunmap(buf->page);
+ }
++EXPORT_SYMBOL(generic_pipe_buf_unmap);
+ 
+ /**
+  * generic_pipe_buf_steal - attempt to take ownership of a &pipe_buffer
+@@ -271,6 +273,7 @@ int generic_pipe_buf_steal(struct pipe_inode_info *pipe,
+ 
+ 	return 1;
+ }
++EXPORT_SYMBOL(generic_pipe_buf_steal);
+ 
+ /**
+  * generic_pipe_buf_get - get a reference to a &struct pipe_buffer
+@@ -286,6 +289,7 @@ void generic_pipe_buf_get(struct pipe_inode_info *pipe, struct pipe_buffer *buf)
+ {
+ 	page_cache_get(buf->page);
+ }
++EXPORT_SYMBOL(generic_pipe_buf_get);
+ 
+ /**
+  * generic_pipe_buf_confirm - verify contents of the pipe buffer
+@@ -301,6 +305,7 @@ int generic_pipe_buf_confirm(struct pipe_inode_info *info,
+ {
+ 	return 0;
+ }
++EXPORT_SYMBOL(generic_pipe_buf_confirm);
+ 
+ /**
+  * generic_pipe_buf_release - put a reference to a &struct pipe_buffer
+@@ -315,6 +320,7 @@ void generic_pipe_buf_release(struct pipe_inode_info *pipe,
+ {
+ 	page_cache_release(buf->page);
+ }
++EXPORT_SYMBOL(generic_pipe_buf_release);
+ 
+ static const struct pipe_buf_operations anon_pipe_buf_ops = {
+ 	.can_merge = 1,

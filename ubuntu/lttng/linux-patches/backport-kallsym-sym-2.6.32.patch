@@ -1,0 +1,37 @@
+commit e6b48d720e39d17f06a4462be4164e1a358817de
+Author: Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
+Date:   Sat Sep 1 17:51:33 2012 -0700
+
+    kallsyms: Re-enable export of kallsyms_lookup (backport)
+    
+    Backport of part of commit:
+    
+    commit f60d24d2ad04977b0bd9e3eb35dba2d2fa569af9
+    Author: Frederic Weisbecker <fweisbec@gmail.com>
+    Date:   Tue Nov 10 10:17:07 2009 +0100
+    
+        hw-breakpoints: Fix broken hw-breakpoint sample module
+    
+        The hw-breakpoint sample module has been broken during the
+        hw-breakpoint internals refactoring. Propagate the changes
+        to it.
+    
+        Reported-by: "K. Prasad" <prasad@linux.vnet.ibm.com>
+        Signed-off-by: Frederic Weisbecker <fweisbec@gmail.com>
+    
+    for kernel 2.6.32.x. (just the symbol export)
+    
+    Signed-off-by: Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
+
+diff --git a/kernel/kallsyms.c b/kernel/kallsyms.c
+index 8b6b8b6..8e5288a 100644
+--- a/kernel/kallsyms.c
++++ b/kernel/kallsyms.c
+@@ -181,6 +181,7 @@ unsigned long kallsyms_lookup_name(const char *name)
+ 	}
+ 	return module_kallsyms_lookup_name(name);
+ }
++EXPORT_SYMBOL_GPL(kallsyms_lookup_name);
+ 
+ int kallsyms_on_each_symbol(int (*fn)(void *, const char *, struct module *,
+ 				      unsigned long),
