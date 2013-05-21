@@ -143,11 +143,6 @@ int tp_list_show(struct seq_file *m, void *p)
 {
 	const struct lttng_event_desc *probe_desc = p;
 
-	/*
-	 * Don't export lttng internal event: lttng_metadata.
-	 */
-	if (!strcmp(probe_desc->name, "lttng_metadata"))
-		return 0;
 	seq_printf(m,	"event { name = %s; };\n",
 		   probe_desc->name);
 	return 0;

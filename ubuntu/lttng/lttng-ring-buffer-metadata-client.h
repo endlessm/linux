@@ -148,6 +148,54 @@ static void client_buffer_finalize(struct lib_ring_buffer *buf, void *priv, int 
 {
 }
 
+static int client_timestamp_begin(const struct lib_ring_buffer_config *config,
+		struct lib_ring_buffer *buf, uint64_t *timestamp_begin)
+{
+	return -ENOSYS;
+}
+
+static int client_timestamp_end(const struct lib_ring_buffer_config *config,
+			struct lib_ring_buffer *bufb,
+			uint64_t *timestamp_end)
+{
+	return -ENOSYS;
+}
+
+static int client_events_discarded(const struct lib_ring_buffer_config *config,
+			struct lib_ring_buffer *bufb,
+			uint64_t *events_discarded)
+{
+	return -ENOSYS;
+}
+
+static int client_current_timestamp(const struct lib_ring_buffer_config *config,
+		struct lib_ring_buffer *bufb,
+		uint64_t *ts)
+{
+	return -ENOSYS;
+}
+
+static int client_content_size(const struct lib_ring_buffer_config *config,
+			struct lib_ring_buffer *bufb,
+			uint64_t *content_size)
+{
+	return -ENOSYS;
+}
+
+static int client_packet_size(const struct lib_ring_buffer_config *config,
+			struct lib_ring_buffer *bufb,
+			uint64_t *packet_size)
+{
+	return -ENOSYS;
+}
+
+static int client_stream_id(const struct lib_ring_buffer_config *config,
+			struct lib_ring_buffer *bufb,
+			uint64_t *stream_id)
+{
+	return -ENOSYS;
+}
+
 static const struct lib_ring_buffer_config client_config = {
 	.cb.ring_buffer_clock_read = client_ring_buffer_clock_read,
 	.cb.record_header_size = client_record_header_size,
@@ -175,6 +223,14 @@ struct channel *_channel_create(const char *name,
 				unsigned int switch_timer_interval,
 				unsigned int read_timer_interval)
 {
+	lttng_chan->ops->timestamp_begin = client_timestamp_begin;
+	lttng_chan->ops->timestamp_end = client_timestamp_end;
+	lttng_chan->ops->events_discarded = client_events_discarded;
+	lttng_chan->ops->content_size = client_content_size;
+	lttng_chan->ops->packet_size = client_packet_size;
+	lttng_chan->ops->stream_id = client_stream_id;
+	lttng_chan->ops->current_timestamp = client_current_timestamp;
+
 	return channel_create(&client_config, name, lttng_chan, buf_addr,
 			      subbuf_size, num_subbuf, switch_timer_interval,
 			      read_timer_interval);

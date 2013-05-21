@@ -236,6 +236,10 @@ void trace_##_name(void *__data);
 		},						\
 	},
 
+#undef __dynamic_array_enc_ext_2
+#define __dynamic_array_enc_ext_2(_type, _item, _length1, _length2, _order, _base, _encoding) \
+	__dynamic_array_enc_ext(_type, _item, _length1 + _length2, _order, _base, _encoding)
+
 #undef __dynamic_array
 #define __dynamic_array(_type, _item, _length)			\
 	__dynamic_array_enc_ext(_type, _item, _length, __BYTE_ORDER, 10, none)
@@ -247,6 +251,10 @@ void trace_##_name(void *__data);
 #undef __dynamic_array_hex
 #define __dynamic_array_hex(_type, _item, _length)		\
 	__dynamic_array_enc_ext(_type, _item, _length, __BYTE_ORDER, 16, none)
+
+#undef __dynamic_array_text_2
+#define __dynamic_array_text_2(_type, _item, _length1, _length2)	\
+	__dynamic_array_enc_ext_2(_type, _item, _length1, _length2, __BYTE_ORDER, 10, UTF8)
 
 #undef __string
 #define __string(_item, _src)					\
@@ -407,6 +415,18 @@ static __used struct lttng_probe_desc TP_ID(__probe_desc___, TRACE_SYSTEM) = {
 	__event_len += sizeof(_type) * __dynamic_len[__dynamic_len_idx];       \
 	__dynamic_len_idx++;
 
+#undef __dynamic_array_enc_ext_2
+#define __dynamic_array_enc_ext_2(_type, _item, _length1, _length2, _order, _base, _encoding)\
+	__event_len += lib_ring_buffer_align(__event_len, lttng_alignof(u32));   \
+	__event_len += sizeof(u32);					       \
+	__event_len += lib_ring_buffer_align(__event_len, lttng_alignof(_type)); \
+	__dynamic_len[__dynamic_len_idx] = (_length1);			       \
+	__event_len += sizeof(_type) * __dynamic_len[__dynamic_len_idx];       \
+	__dynamic_len_idx++;						       \
+	__dynamic_len[__dynamic_len_idx] = (_length2);			       \
+	__event_len += sizeof(_type) * __dynamic_len[__dynamic_len_idx];       \
+	__dynamic_len_idx++;
+
 #undef __string
 #define __string(_item, _src)						       \
 	__event_len += __dynamic_len[__dynamic_len_idx++] = strlen(_src) + 1;
@@ -464,6 +484,10 @@ static inline size_t __event_get_size__##_name(size_t *__dynamic_len, _proto) \
 	__event_align = max_t(size_t, __event_align, lttng_alignof(u32));	  \
 	__event_align = max_t(size_t, __event_align, lttng_alignof(_type));
 
+#undef __dynamic_array_enc_ext_2
+#define __dynamic_array_enc_ext_2(_type, _item, _length1, _length2, _order, _base, _encoding)\
+	__dynamic_array_enc_ext(_type, _item, _length1 + _length2, _order, _base, _encoding)
+
 #undef __string
 #define __string(_item, _src)
 
@@ -509,6 +533,10 @@ static inline size_t __event_get_align__##_name(_proto)			      \
 #undef __dynamic_array_enc_ext
 #define __dynamic_array_enc_ext(_type, _item, _length, _order, _base, _encoding)\
 	_type	_item;
+
+#undef __dynamic_array_enc_ext_2
+#define __dynamic_array_enc_ext_2(_type, _item, _length1, _length2, _order, _base, _encoding)\
+	__dynamic_array_enc_ext(_type, _item, _length1 + _length2, _order, _base, _encoding)
 
 #undef __string
 #define __string(_item, _src)			char _item;
@@ -558,6 +586,15 @@ __end_field_##_item:
 __end_field_##_item##_1:						\
 	goto __assign_##_item##_2;					\
 __end_field_##_item##_2:
+
+#undef __dynamic_array_enc_ext_2
+#define __dynamic_array_enc_ext_2(_type, _item, _length1, _length2, _order, _base, _encoding)\
+	goto __assign_##_item##_1;					\
+__end_field_##_item##_1:						\
+	goto __assign_##_item##_2;					\
+__end_field_##_item##_2:						\
+	goto __assign_##_item##_3;					\
+__end_field_##_item##_3:
 
 #undef __string
 #define __string(_item, _src)						\
@@ -616,9 +653,33 @@ __assign_##dest##_2:							\
 		sizeof(__typemap.dest) * __get_dynamic_array_len(dest));\
 	goto __end_field_##dest##_2;
 
+#undef tp_memcpy_dyn_gen_2
+#define tp_memcpy_dyn_gen_2(write_ops, dest, src1, src2)		\
+__assign_##dest##_1:							\
+	{								\
+		u32 __tmpl = __dynamic_len[__dynamic_len_idx]		\
+			+ __dynamic_len[__dynamic_len_idx + 1];		\
+		lib_ring_buffer_align_ctx(&__ctx, lttng_alignof(u32));	\
+		__chan->ops->event_write(&__ctx, &__tmpl, sizeof(u32));	\
+	}								\
+	goto __end_field_##dest##_1;					\
+__assign_##dest##_2:							\
+	lib_ring_buffer_align_ctx(&__ctx, lttng_alignof(__typemap.dest));	\
+	__chan->ops->write_ops(&__ctx, src1,				\
+		sizeof(__typemap.dest) * __get_dynamic_array_len(dest));\
+	goto __end_field_##dest##_2;					\
+__assign_##dest##_3:							\
+	__chan->ops->write_ops(&__ctx, src2,				\
+		sizeof(__typemap.dest) * __get_dynamic_array_len(dest));\
+	goto __end_field_##dest##_3;
+
 #undef tp_memcpy_dyn
 #define tp_memcpy_dyn(dest, src)					\
 	tp_memcpy_dyn_gen(event_write, dest, src)
+
+#undef tp_memcpy_dyn_2
+#define tp_memcpy_dyn_2(dest, src1, src2)				\
+	tp_memcpy_dyn_gen_2(event_write, dest, src1, src2)
 
 #undef tp_memcpy_dyn_from_user
 #define tp_memcpy_dyn_from_user(dest, src)				\
@@ -683,6 +744,11 @@ __assign_##dest##_2:							\
 #define _TP_SESSION_CHECK(session, csession)	1
 #endif /* TP_SESSION_CHECK */
 
+/*
+ * __dynamic_len array length is twice the number of fields due to
+ * __dynamic_array_enc_ext_2() and tp_memcpy_dyn_2(), which are the
+ * worse case, needing 2 entries per field.
+ */
 #undef DECLARE_EVENT_CLASS
 #define DECLARE_EVENT_CLASS(_name, _proto, _args, _tstruct, _assign, _print)  \
 static void __event_probe__##_name(void *__data, _proto)		      \
@@ -692,7 +758,7 @@ static void __event_probe__##_name(void *__data, _proto)		      \
 	struct lib_ring_buffer_ctx __ctx;				      \
 	size_t __event_len, __event_align;				      \
 	size_t __dynamic_len_idx = 0;					      \
-	size_t __dynamic_len[ARRAY_SIZE(__event_fields___##_name)];	      \
+	size_t __dynamic_len[2 * ARRAY_SIZE(__event_fields___##_name)];	      \
 	struct __event_typemap__##_name __typemap;			      \
 	int __ret;							      \
 									      \

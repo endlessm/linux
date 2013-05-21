@@ -443,7 +443,11 @@ TRACE_EVENT(rcu_kfree_callback,
  */
 TRACE_EVENT(rcu_batch_start,
 
-#if (LINUX_VERSION_CODE >= KERNEL_VERSION(3,4,0))
+#if (LINUX_VERSION_CODE >= KERNEL_VERSION(3,9,0))
+	TP_PROTO(char *rcuname, long qlen_lazy, long qlen, long blimit),
+
+	TP_ARGS(rcuname, qlen_lazy, qlen, blimit),
+#elif (LINUX_VERSION_CODE >= KERNEL_VERSION(3,4,0))
 	TP_PROTO(char *rcuname, long qlen_lazy, long qlen, int blimit),
 
 	TP_ARGS(rcuname, qlen_lazy, qlen, blimit),
@@ -459,7 +463,11 @@ TRACE_EVENT(rcu_batch_start,
 		__field(long, qlen_lazy)
 #endif
 		__field(long, qlen)
+#if (LINUX_VERSION_CODE >= KERNEL_VERSION(3,9,0))
+		__field(long, blimit)
+#else
 		__field(int, blimit)
+#endif
 	),
 
 	TP_fast_assign(
@@ -471,7 +479,11 @@ TRACE_EVENT(rcu_batch_start,
 		tp_assign(blimit, blimit)
 	),
 
-#if (LINUX_VERSION_CODE >= KERNEL_VERSION(3,4,0))
+#if (LINUX_VERSION_CODE >= KERNEL_VERSION(3,9,0))
+	TP_printk("%s CBs=%ld/%ld bl=%ld",
+		  __get_str(rcuname), __entry->qlen_lazy, __entry->qlen,
+		  __entry->blimit)
+#elif (LINUX_VERSION_CODE >= KERNEL_VERSION(3,4,0))
 	TP_printk("%s CBs=%ld/%ld bl=%d",
 		  __get_str(rcuname), __entry->qlen_lazy, __entry->qlen,
 		  __entry->blimit)

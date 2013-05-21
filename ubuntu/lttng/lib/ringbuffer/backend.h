@@ -96,6 +96,8 @@ void lib_ring_buffer_write(const struct lib_ring_buffer_config *config,
 	struct lib_ring_buffer_backend_pages *rpages;
 	unsigned long sb_bindex, id;
 
+	if (unlikely(!len))
+		return;
 	offset &= chanb->buf_size - 1;
 	sbidx = offset >> chanb->subbuf_size_order;
 	index = (offset & (chanb->subbuf_size - 1)) >> PAGE_SHIFT;
@@ -142,6 +144,8 @@ void lib_ring_buffer_memset(const struct lib_ring_buffer_config *config,
 	struct lib_ring_buffer_backend_pages *rpages;
 	unsigned long sb_bindex, id;
 
+	if (unlikely(!len))
+		return;
 	offset &= chanb->buf_size - 1;
 	sbidx = offset >> chanb->subbuf_size_order;
 	index = (offset & (chanb->subbuf_size - 1)) >> PAGE_SHIFT;
@@ -189,6 +193,8 @@ void lib_ring_buffer_copy_from_user_inatomic(const struct lib_ring_buffer_config
 	unsigned long ret;
 	mm_segment_t old_fs = get_fs();
 
+	if (unlikely(!len))
+		return;
 	offset &= chanb->buf_size - 1;
 	sbidx = offset >> chanb->subbuf_size_order;
 	index = (offset & (chanb->subbuf_size - 1)) >> PAGE_SHIFT;
@@ -262,10 +268,5 @@ unsigned long lib_ring_buffer_get_records_unread(
 	}
 	return records_unread;
 }
-
-ssize_t lib_ring_buffer_file_splice_read(struct file *in, loff_t *ppos,
-					 struct pipe_inode_info *pipe,
-					 size_t len, unsigned int flags);
-loff_t lib_ring_buffer_no_llseek(struct file *file, loff_t offset, int origin);
 
 #endif /* _LIB_RING_BUFFER_BACKEND_H */

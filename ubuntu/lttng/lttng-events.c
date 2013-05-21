@@ -35,8 +35,13 @@
 #include "lttng-tracer.h"
 #include "lttng-abi-old.h"
 
+#define METADATA_CACHE_DEFAULT_SIZE 4096
+
 static LIST_HEAD(sessions);
 static LIST_HEAD(lttng_transport_list);
+/*
+ * Protect the sessions and metadata caches.
+ */
 static DEFINE_MUTEX(sessions_mutex);
 static struct kmem_cache *event_cache;
 
@@ -49,6 +54,8 @@ int _lttng_event_metadata_statedump(struct lttng_session *session,
 				  struct lttng_event *event);
 static
 int _lttng_session_metadata_statedump(struct lttng_session *session);
+static
+void _lttng_metadata_channel_hangup(struct lttng_metadata_stream *stream);
 
 void synchronize_trace(void)
 {
@@ -61,23 +68,54 @@ void synchronize_trace(void)
 struct lttng_session *lttng_session_create(void)
 {
 	struct lttng_session *session;
+	struct lttng_metadata_cache *metadata_cache;
 
 	mutex_lock(&sessions_mutex);
 	session = kzalloc(sizeof(struct lttng_session), GFP_KERNEL);
 	if (!session)
-		return NULL;
+		goto err;
 	INIT_LIST_HEAD(&session->chan);
 	INIT_LIST_HEAD(&session->events);
 	uuid_le_gen(&session->uuid);
+
+	metadata_cache = kzalloc(sizeof(struct lttng_metadata_cache),
+			GFP_KERNEL);
+	if (!metadata_cache)
+		goto err_free_session;
+	metadata_cache->data = kzalloc(METADATA_CACHE_DEFAULT_SIZE,
+			GFP_KERNEL);
+	if (!metadata_cache->data)
+		goto err_free_cache;
+	metadata_cache->cache_alloc = METADATA_CACHE_DEFAULT_SIZE;
+	kref_init(&metadata_cache->refcount);
+	session->metadata_cache = metadata_cache;
+	INIT_LIST_HEAD(&metadata_cache->metadata_stream);
 	list_add(&session->list, &sessions);
 	mutex_unlock(&sessions_mutex);
 	return session;
+
+err_free_cache:
+	kfree(metadata_cache);
+err_free_session:
+	kfree(session);
+err:
+	mutex_unlock(&sessions_mutex);
+	return NULL;
+}
+
+void metadata_cache_destroy(struct kref *kref)
+{
+	struct lttng_metadata_cache *cache =
+		container_of(kref, struct lttng_metadata_cache, refcount);
+	kfree(cache->data);
+	kfree(cache);
 }
 
 void lttng_session_destroy(struct lttng_session *session)
 {
 	struct lttng_channel *chan, *tmpchan;
 	struct lttng_event *event, *tmpevent;
+	struct lttng_metadata_stream *metadata_stream;
 	int ret;
 
 	mutex_lock(&sessions_mutex);
@@ -93,8 +131,13 @@ void lttng_session_destroy(struct lttng_session *session)
 	synchronize_trace();	/* Wait for in-flight events to complete */
 	list_for_each_entry_safe(event, tmpevent, &session->events, list)
 		_lttng_event_destroy(event);
-	list_for_each_entry_safe(chan, tmpchan, &session->chan, list)
+	list_for_each_entry_safe(chan, tmpchan, &session->chan, list) {
+		BUG_ON(chan->channel_type == METADATA_CHANNEL);
 		_lttng_channel_destroy(chan);
+	}
+	list_for_each_entry(metadata_stream, &session->metadata_cache->metadata_stream, list)
+		_lttng_metadata_channel_hangup(metadata_stream);
+	kref_put(&session->metadata_cache->refcount, metadata_cache_destroy);
 	list_del(&session->list);
 	mutex_unlock(&sessions_mutex);
 	kfree(session);
@@ -158,7 +201,7 @@ int lttng_channel_enable(struct lttng_channel *channel)
 {
 	int old;
 
-	if (channel == channel->session->metadata)
+	if (channel->channel_type == METADATA_CHANNEL)
 		return -EPERM;
 	old = xchg(&channel->enabled, 1);
 	if (old)
@@ -170,7 +213,7 @@ int lttng_channel_disable(struct lttng_channel *channel)
 {
 	int old;
 
-	if (channel == channel->session->metadata)
+	if (channel->channel_type == METADATA_CHANNEL)
 		return -EPERM;
 	old = xchg(&channel->enabled, 0);
 	if (!old)
@@ -182,7 +225,7 @@ int lttng_event_enable(struct lttng_event *event)
 {
 	int old;
 
-	if (event->chan == event->chan->session->metadata)
+	if (event->chan->channel_type == METADATA_CHANNEL)
 		return -EPERM;
 	old = xchg(&event->enabled, 1);
 	if (old)
@@ -194,7 +237,7 @@ int lttng_event_disable(struct lttng_event *event)
 {
 	int old;
 
-	if (event->chan == event->chan->session->metadata)
+	if (event->chan->channel_type == METADATA_CHANNEL)
 		return -EPERM;
 	old = xchg(&event->enabled, 0);
 	if (!old)
@@ -218,13 +261,14 @@ struct lttng_channel *lttng_channel_create(struct lttng_session *session,
 				       void *buf_addr,
 				       size_t subbuf_size, size_t num_subbuf,
 				       unsigned int switch_timer_interval,
-				       unsigned int read_timer_interval)
+				       unsigned int read_timer_interval,
+				       enum channel_type channel_type)
 {
 	struct lttng_channel *chan;
 	struct lttng_transport *transport = NULL;
 
 	mutex_lock(&sessions_mutex);
-	if (session->been_active)
+	if (session->been_active && channel_type != METADATA_CHANNEL)
 		goto active;	/* Refuse to add channel to active session */
 	transport = lttng_transport_find(transport_name);
 	if (!transport) {
@@ -241,6 +285,7 @@ struct lttng_channel *lttng_channel_create(struct lttng_session *session,
 		goto nomem;
 	chan->session = session;
 	chan->id = session->free_chan_id++;
+	chan->ops = &transport->ops;
 	/*
 	 * Note: the channel creation op already writes into the packet
 	 * headers. Therefore the "chan" information used as input
@@ -252,8 +297,8 @@ struct lttng_channel *lttng_channel_create(struct lttng_session *session,
 	if (!chan->chan)
 		goto create_error;
 	chan->enabled = 1;
-	chan->ops = &transport->ops;
 	chan->transport = transport;
+	chan->channel_type = channel_type;
 	list_add(&chan->list, &session->chan);
 	mutex_unlock(&sessions_mutex);
 	return chan;
@@ -270,7 +315,9 @@ active:
 }
 
 /*
- * Only used internally at session destruction.
+ * Only used internally at session destruction for per-cpu channels, and
+ * when metadata channel is released.
+ * Needs to be called with sessions mutex held.
  */
 static
 void _lttng_channel_destroy(struct lttng_channel *chan)
@@ -280,6 +327,24 @@ void _lttng_channel_destroy(struct lttng_channel *chan)
 	list_del(&chan->list);
 	lttng_destroy_context(chan->ctx);
 	kfree(chan);
+}
+
+void lttng_metadata_channel_destroy(struct lttng_channel *chan)
+{
+	BUG_ON(chan->channel_type != METADATA_CHANNEL);
+
+	/* Protect the metadata cache with the sessions_mutex. */
+	mutex_lock(&sessions_mutex);
+	_lttng_channel_destroy(chan);
+	mutex_unlock(&sessions_mutex);
+}
+EXPORT_SYMBOL_GPL(lttng_metadata_channel_destroy);
+
+static
+void _lttng_metadata_channel_hangup(struct lttng_metadata_stream *stream)
+{
+	stream->finalized = 1;
+	wake_up_interruptible(&stream->read_wait);
 }
 
 /*
@@ -482,20 +547,69 @@ void _lttng_event_destroy(struct lttng_event *event)
 }
 
 /*
+ * Serialize at most one packet worth of metadata into a metadata
+ * channel.
  * We have exclusive access to our metadata buffer (protected by the
  * sessions_mutex), so we can do racy operations such as looking for
  * remaining space left in packet and write, since mutual exclusion
  * protects us from concurrent writes.
+ * Returns the number of bytes written in the channel, 0 if no data
+ * was written and a negative value on error.
+ */
+int lttng_metadata_output_channel(struct lttng_metadata_stream *stream,
+		struct channel *chan)
+{
+	struct lib_ring_buffer_ctx ctx;
+	int ret = 0;
+	size_t len, reserve_len;
+
+	/*
+	 * Ensure we support mutiple get_next / put sequences followed
+	 * by put_next.
+	 */
+	WARN_ON(stream->metadata_in < stream->metadata_out);
+	if (stream->metadata_in != stream->metadata_out)
+		return 0;
+
+	len = stream->metadata_cache->metadata_written -
+		stream->metadata_in;
+	if (!len)
+		return 0;
+	reserve_len = min_t(size_t,
+			stream->transport->ops.packet_avail_size(chan),
+			len);
+	lib_ring_buffer_ctx_init(&ctx, chan, NULL, reserve_len,
+			sizeof(char), -1);
+	/*
+	 * If reservation failed, return an error to the caller.
+	 */
+	ret = stream->transport->ops.event_reserve(&ctx, 0);
+	if (ret != 0) {
+		printk(KERN_WARNING "LTTng: Metadata event reservation failed\n");
+		goto end;
+	}
+	stream->transport->ops.event_write(&ctx,
+			stream->metadata_cache->data + stream->metadata_in,
+			reserve_len);
+	stream->transport->ops.event_commit(&ctx);
+	stream->metadata_in += reserve_len;
+	ret = reserve_len;
+
+end:
+	return ret;
+}
+
+/*
+ * Write the metadata to the metadata cache.
+ * Must be called with sessions_mutex held.
  */
 int lttng_metadata_printf(struct lttng_session *session,
 			  const char *fmt, ...)
 {
-	struct lib_ring_buffer_ctx ctx;
-	struct lttng_channel *chan = session->metadata;
 	char *str;
-	int ret = 0, waitret;
-	size_t len, reserve_len, pos;
+	size_t len;
 	va_list ap;
+	struct lttng_metadata_stream *stream;
 
 	WARN_ON_ONCE(!ACCESS_ONCE(session->active));
 
@@ -506,42 +620,40 @@ int lttng_metadata_printf(struct lttng_session *session,
 		return -ENOMEM;
 
 	len = strlen(str);
-	pos = 0;
+	if (session->metadata_cache->metadata_written + len >
+			session->metadata_cache->cache_alloc) {
+		char *tmp_cache_realloc;
+		unsigned int tmp_cache_alloc_size;
 
-	for (pos = 0; pos < len; pos += reserve_len) {
-		reserve_len = min_t(size_t,
-				chan->ops->packet_avail_size(chan->chan),
-				len - pos);
-		lib_ring_buffer_ctx_init(&ctx, chan->chan, NULL, reserve_len,
-					 sizeof(char), -1);
-		/*
-		 * We don't care about metadata buffer's records lost
-		 * count, because we always retry here. Report error if
-		 * we need to bail out after timeout or being
-		 * interrupted.
-		 */
-		waitret = wait_event_interruptible_timeout(*chan->ops->get_writer_buf_wait_queue(chan->chan, -1),
-			({
-				ret = chan->ops->event_reserve(&ctx, 0);
-				ret != -ENOBUFS || !ret;
-			}),
-			msecs_to_jiffies(LTTNG_METADATA_TIMEOUT_MSEC));
-		if (!waitret || waitret == -ERESTARTSYS || ret) {
-			printk(KERN_WARNING "LTTng: Failure to write metadata to buffers (%s)\n",
-				waitret == -ERESTARTSYS ? "interrupted" :
-					(ret == -ENOBUFS ? "timeout" : "I/O error"));
-			if (waitret == -ERESTARTSYS)
-				ret = waitret;
-			goto end;
-		}
-		chan->ops->event_write(&ctx, &str[pos], reserve_len);
-		chan->ops->event_commit(&ctx);
+		tmp_cache_alloc_size = max_t(unsigned int,
+				session->metadata_cache->cache_alloc + len,
+				session->metadata_cache->cache_alloc << 1);
+		tmp_cache_realloc = krealloc(session->metadata_cache->data,
+				tmp_cache_alloc_size, GFP_KERNEL);
+		if (!tmp_cache_realloc)
+			goto err;
+		session->metadata_cache->cache_alloc = tmp_cache_alloc_size;
+		session->metadata_cache->data = tmp_cache_realloc;
 	}
-end:
+	memcpy(session->metadata_cache->data +
+			session->metadata_cache->metadata_written,
+			str, len);
+	session->metadata_cache->metadata_written += len;
 	kfree(str);
-	return ret;
+
+	list_for_each_entry(stream, &session->metadata_cache->metadata_stream, list)
+		wake_up_interruptible(&stream->read_wait);
+
+	return 0;
+
+err:
+	kfree(str);
+	return -ENOMEM;
 }
 
+/*
+ * Must be called with sessions_mutex held.
+ */
 static
 int _lttng_field_statedump(struct lttng_session *session,
 			 const struct lttng_event_field *field)
@@ -698,6 +810,9 @@ int _lttng_fields_metadata_statedump(struct lttng_session *session,
 	return ret;
 }
 
+/*
+ * Must be called with sessions_mutex held.
+ */
 static
 int _lttng_event_metadata_statedump(struct lttng_session *session,
 				  struct lttng_channel *chan,
@@ -707,7 +822,7 @@ int _lttng_event_metadata_statedump(struct lttng_session *session,
 
 	if (event->metadata_dumped || !ACCESS_ONCE(session->active))
 		return 0;
-	if (chan == session->metadata)
+	if (chan->channel_type == METADATA_CHANNEL)
 		return 0;
 
 	ret = lttng_metadata_printf(session,
@@ -763,6 +878,9 @@ end:
 
 }
 
+/*
+ * Must be called with sessions_mutex held.
+ */
 static
 int _lttng_channel_metadata_statedump(struct lttng_session *session,
 				    struct lttng_channel *chan)
@@ -771,7 +889,8 @@ int _lttng_channel_metadata_statedump(struct lttng_session *session,
 
 	if (chan->metadata_dumped || !ACCESS_ONCE(session->active))
 		return 0;
-	if (chan == session->metadata)
+
+	if (chan->channel_type == METADATA_CHANNEL)
 		return 0;
 
 	WARN_ON_ONCE(!chan->header_type);
@@ -810,6 +929,9 @@ end:
 	return ret;
 }
 
+/*
+ * Must be called with sessions_mutex held.
+ */
 static
 int _lttng_stream_packet_context_declare(struct lttng_session *session)
 {
@@ -833,6 +955,8 @@ int _lttng_stream_packet_context_declare(struct lttng_session *session)
  * Large header:
  * id: range: 0 - 65534.
  * id 65535 is reserved to indicate an extended header.
+ *
+ * Must be called with sessions_mutex held.
  */
 static
 int _lttng_event_header_declare(struct lttng_session *session)
@@ -897,6 +1021,7 @@ uint64_t measure_clock_offset(void)
 
 /*
  * Output metadata into this session's metadata buffers.
+ * Must be called with sessions_mutex held.
  */
 static
 int _lttng_session_metadata_statedump(struct lttng_session *session)
@@ -911,10 +1036,6 @@ int _lttng_session_metadata_statedump(struct lttng_session *session)
 		return 0;
 	if (session->metadata_dumped)
 		goto skip_session;
-	if (!session->metadata) {
-		printk(KERN_WARNING "LTTng: attempt to start tracing, but metadata channel is not found. Operation abort.\n");
-		return -EPERM;
-	}
 
 	snprintf(uuid_s, sizeof(uuid_s),
 		"%02x%02x%02x%02x-%02x%02x-%02x%02x-%02x%02x-%02x%02x%02x%02x%02x%02x",

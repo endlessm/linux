@@ -156,6 +156,9 @@ extern
 void lib_ring_buffer_switch_slow(struct lib_ring_buffer *buf,
 				 enum switch_mode mode);
 
+extern
+void lib_ring_buffer_switch_remote(struct lib_ring_buffer *buf);
+
 /* Buffer write helpers */
 
 static inline
@@ -328,6 +331,12 @@ void lib_ring_buffer_check_deliver(const struct lib_ring_buffer_config *config,
 		 * The subbuffer size is least 2 bytes (minimum size: 1 page).
 		 * This guarantees that old_commit_count + 1 != commit_count.
 		 */
+
+		/*
+		 * Order prior updates to reserve count prior to the
+		 * commit_cold cc_sb update.
+		 */
+		smp_wmb();
 		if (likely(v_cmpxchg(config, &buf->commit_cold[idx].cc_sb,
 					 old_commit_count, old_commit_count + 1)
 			   == old_commit_count)) {
@@ -370,6 +379,11 @@ void lib_ring_buffer_check_deliver(const struct lib_ring_buffer_config *config,
 			/* End of exclusive subbuffer access */
 			v_set(config, &buf->commit_cold[idx].cc_sb,
 			      commit_count);
+			/*
+			 * Order later updates to reserve count after
+			 * the commit_cold cc_sb update.
+			 */
+			smp_wmb();
 			lib_ring_buffer_vmcore_check_deliver(config, buf,
 							 commit_count, idx);
 

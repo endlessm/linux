@@ -1,3 +1,62 @@
+2013-09-03 LTTng modules 2.3.0
+	* Fix: metadata stream should not reference session
+	* Fix: btrfs: support 3.11 Linux kernel
+	* statedump: remove KERN_DEBUG messages
+	* Fix: ext4: add missing tracepoints for 3.11 kernel
+	* Fix: ext4: Linux 3.11 support
+	* Fix: ext3: 3.11 Linux support
+	* Fix: statedump nsproxy 3.11 Linux support
+
+2013-08-30 LTTng modules 2.3.0-rc2
+	* Fix: metadata lttng channel refcount
+	* README: lttng-modules incompatible with lttng 0.x patchset
+
+2013-07-17 LTTng modules 2.3.0-rc1
+	* Fix: kvm x86 probes side-effect
+	* Fix: allow get/put subbuf in loop for metadata stream
+	* Add support for kvm x86 specific tracepoints
+	* Add mainline headers for kvm x86 tracepoints
+	* Remove old 3.0.4 x86-64 extracted syscall info
+	* Point the x86-64 overrides to newly extracted 3.10-rc7 files
+	* Add syscalls extracted files from a 3.10-rc7 kernel
+	* Improve documentation of the syscall extractor script
+	* Fix: double length of __dynamic_len array
+	* Fix printk instrumentation
+	* Introduce __dynamic_array_enc_ext_2() and tp_memcpy_dyn_2()
+	* Fix: ring buffer: get_subbuf() checks should be performed on "consumed" parameter
+	* Fix: SWITCH_FLUSH new sub-buffer checks
+	* Fix: ring buffer: handle concurrent update in nested buffer wrap around check
+	* Cleanup: lib_ring_buffer_switch_new_end() only calls subbuffer_set_data_size()
+	* Revert "Cleanup: ring buffer: remove lib_ring_buffer_switch_new_end()"
+	* Fix: handle writes of length 0
+	* Fix: ring buffer: RING_BUFFER_FLUSH ioctl buffer corruption
+	* Cleanup: ring buffer: remove lib_ring_buffer_switch_new_end()
+	* print warning and return -EBUSY on double get_subbuf()
+	* Add header to fix compilation of syscalls-extractor on 3.9 kernel
+	* Fix: don't do 0 byte event reservation
+	* Document that payload size need to be greater than 0
+	* Fix build and load against linux-2.6.33.x
+	* Fix: add missing CONFIG_COMPAT around lib_ring_buffer_compat_ioctl
+	* Metadata cache and multiple metadata channels
+	* fix block instrumentation probe signature mismatch for 3.9.x kernels
+	* fix: block instrumentation: NULL pointer dereference
+	* Update rcu instrumentation to 3.9.[0-4]
+	* Fix CPU hotplug section mismatches
+	* Add system calls definitions for powerpc-32
+	* Remove bashism in lttng-syscalls-generate-headers.sh
+	* Update ARM (32 bit) syscall tracepoints to 3.4
+
+2013-05-09 LTTng modules 2.2.0-rc2
+	* Remove useless lttng_metadata probe
+	* Fix: warning kvm_trace_exit_reason redefined for 3.9 kernel
+	* Fix: 3.9.0 block layer instrumentation build
+	* Revert "Stop build if CONFIG_TRACEPOINTS is not set"
+	* Stop build if CONFIG_TRACEPOINTS is not set
+	* Add comments to endifs.
+	* Fix: remove ARM set_tls system call override
+	* Cleanup: arm sys_mmap whitespace
+	* Clean up using global_dirty_limit wrapper for writeback probe
+
 2013-03-29 LTTng modules 2.2.0-rc1
 	* Update README
 	* Fix: vmscan instrumentation build

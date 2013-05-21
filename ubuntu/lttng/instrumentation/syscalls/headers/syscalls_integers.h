@@ -1,5 +1,5 @@
 #ifdef CONFIG_X86_64
-#include "x86-64-syscalls-3.0.4_integers.h"
+#include "x86-64-syscalls-3.10.0-rc7_integers.h"
 #endif
 
 #ifdef CONFIG_X86_32
@@ -7,5 +7,9 @@
 #endif
 
 #ifdef CONFIG_ARM
-#include "arm-32-syscalls-2.6.38_integers.h"
+#include "arm-32-syscalls-3.4.25_integers.h"
+#endif
+
+#ifdef CONFIG_PPC
+#include "powerpc-32-syscalls-3.0.34_integers.h"
 #endif

@@ -39,12 +39,12 @@
 #include "lttng-events.h"
 
 #define LTTNG_MODULES_MAJOR_VERSION 2
-#define LTTNG_MODULES_MINOR_VERSION 2
+#define LTTNG_MODULES_MINOR_VERSION 3
 #define LTTNG_MODULES_PATCHLEVEL_VERSION 0
 
-#define LTTNG_VERSION_NAME		"Cuda"
+#define LTTNG_VERSION_NAME		"Dominus Vobiscum"
 #define LTTNG_VERSION_DESCRIPTION	\
-	"Brewed at the Benelux microbrewery, this IPA has huge floral, citric and resinous hop aroma, simply an amazing nose. The flavor is very fresh with a light caramel malting touch completing a strong body. Huge amounts of hops, lots of grapefruit, lemon and oranges. This is an outstanding IPA!"
+	"A very succulent line-up of beers brewed at Microbrasserie Charlevoix. Elaborated starting from special malts and fermented with a Belgian yeast. These beers are refermented in bottle and will make you discover the richness of wheat, amber and triple styles."
 
 #ifndef CHAR_BIT
 #define CHAR_BIT 8

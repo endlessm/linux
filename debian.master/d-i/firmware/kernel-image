@@ -1,0 +1,13 @@
+device-tree/highbank.dtb ?
+device-tree/imx6dl-wandboard.dtb ?
+device-tree/imx6q-sabrelite.dtb ?
+device-tree/imx6q-wandboard.dtb ?
+device-tree/omap3-beagle-xm.dtb ?
+device-tree/omap4-panda.dtb ?
+device-tree/omap4-panda-es.dtb ?
+device-tree/tegra20-harmony.dtb ?
+device-tree/tegra20-paz00.dtb ?
+device-tree/tegra20-seaboard.dtb ?
+device-tree/tegra20-trimslice.dtb ?
+device-tree/tegra20-ventana.dtb ?
+device-tree/tegra20-whistler.dtb ?

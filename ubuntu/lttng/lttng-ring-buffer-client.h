@@ -390,6 +390,92 @@ static void client_buffer_finalize(struct lib_ring_buffer *buf, void *priv, int 
 {
 }
 
+static struct packet_header *client_packet_header(
+		const struct lib_ring_buffer_config *config,
+		struct lib_ring_buffer *buf)
+{
+	struct lib_ring_buffer_backend *bufb;
+	unsigned long sb_bindex;
+	struct packet_header *header;
+
+	bufb = &buf->backend;
+	sb_bindex = subbuffer_id_get_index(config, bufb->buf_rsb.id);
+	header = (struct packet_header *)
+		lib_ring_buffer_offset_address(bufb,
+				sb_bindex * bufb->chan->backend.subbuf_size);
+
+	return header;
+}
+
+static int client_timestamp_begin(const struct lib_ring_buffer_config *config,
+		struct lib_ring_buffer *buf,
+		uint64_t *timestamp_begin)
+{
+	struct packet_header *header = client_packet_header(config, buf);
+	*timestamp_begin = header->ctx.timestamp_begin;
+
+	return 0;
+}
+
+static int client_timestamp_end(const struct lib_ring_buffer_config *config,
+			struct lib_ring_buffer *buf,
+			uint64_t *timestamp_end)
+{
+	struct packet_header *header = client_packet_header(config, buf);
+	*timestamp_end = header->ctx.timestamp_end;
+
+	return 0;
+}
+
+static int client_events_discarded(const struct lib_ring_buffer_config *config,
+			struct lib_ring_buffer *buf,
+			uint64_t *events_discarded)
+{
+	struct packet_header *header = client_packet_header(config, buf);
+	*events_discarded = header->ctx.events_discarded;
+
+	return 0;
+}
+
+static int client_content_size(const struct lib_ring_buffer_config *config,
+			struct lib_ring_buffer *buf,
+			uint64_t *content_size)
+{
+	struct packet_header *header = client_packet_header(config, buf);
+	*content_size = header->ctx.content_size;
+
+	return 0;
+}
+
+static int client_packet_size(const struct lib_ring_buffer_config *config,
+			struct lib_ring_buffer *buf,
+			uint64_t *packet_size)
+{
+	struct packet_header *header = client_packet_header(config, buf);
+	*packet_size = header->ctx.packet_size;
+
+	return 0;
+}
+
+static int client_stream_id(const struct lib_ring_buffer_config *config,
+			struct lib_ring_buffer *buf,
+			uint64_t *stream_id)
+{
+	struct packet_header *header = client_packet_header(config, buf);
+	*stream_id = header->stream_id;
+
+	return 0;
+}
+
+static int client_current_timestamp(const struct lib_ring_buffer_config *config,
+		struct lib_ring_buffer *bufb,
+		uint64_t *ts)
+{
+	*ts = config->cb.ring_buffer_clock_read(bufb->backend.chan);
+
+	return 0;
+}
+
 static const struct lib_ring_buffer_config client_config = {
 	.cb.ring_buffer_clock_read = client_ring_buffer_clock_read,
 	.cb.record_header_size = client_record_header_size,
@@ -417,6 +503,14 @@ struct channel *_channel_create(const char *name,
 				unsigned int switch_timer_interval,
 				unsigned int read_timer_interval)
 {
+	lttng_chan->ops->timestamp_begin = client_timestamp_begin;
+	lttng_chan->ops->timestamp_end = client_timestamp_end;
+	lttng_chan->ops->events_discarded = client_events_discarded;
+	lttng_chan->ops->content_size = client_content_size;
+	lttng_chan->ops->packet_size = client_packet_size;
+	lttng_chan->ops->stream_id = client_stream_id;
+	lttng_chan->ops->current_timestamp = client_current_timestamp;
+
 	return channel_create(&client_config, name, lttng_chan, buf_addr,
 			      subbuf_size, num_subbuf, switch_timer_interval,
 			      read_timer_interval);

@@ -106,16 +106,23 @@ static int lib_ring_buffer_mmap_buf(struct lib_ring_buffer *buf,
 	return 0;
 }
 
+int lib_ring_buffer_mmap(struct file *filp, struct vm_area_struct *vma,
+		struct lib_ring_buffer *buf)
+{
+	return lib_ring_buffer_mmap_buf(buf, vma);
+}
+EXPORT_SYMBOL_GPL(lib_ring_buffer_mmap);
+
 /**
- *	lib_ring_buffer_mmap - mmap file op
+ *	vfs_lib_ring_buffer_mmap - mmap file op
  *	@filp: the file
  *	@vma: the vma describing what to map
  *
  *	Calls upon lib_ring_buffer_mmap_buf() to map the file into user space.
  */
-int lib_ring_buffer_mmap(struct file *filp, struct vm_area_struct *vma)
+int vfs_lib_ring_buffer_mmap(struct file *filp, struct vm_area_struct *vma)
 {
 	struct lib_ring_buffer *buf = filp->private_data;
-	return lib_ring_buffer_mmap_buf(buf, vma);
+	return lib_ring_buffer_mmap(filp, vma, buf);
 }
-EXPORT_SYMBOL_GPL(lib_ring_buffer_mmap);
+EXPORT_SYMBOL_GPL(vfs_lib_ring_buffer_mmap);

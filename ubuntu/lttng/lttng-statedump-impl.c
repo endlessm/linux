@@ -50,6 +50,7 @@
 #include "wrapper/irqdesc.h"
 #include "wrapper/spinlock.h"
 #include "wrapper/fdtable.h"
+#include "wrapper/nsproxy.h"
 
 #ifdef CONFIG_GENERIC_HARDIRQS
 #include <linux/irq.h>
@@ -295,7 +296,7 @@ void lttng_statedump_process_ns(struct lttng_session *session,
 	rcu_read_lock();
 	proxy = task_nsproxy(p);
 	if (proxy) {
-		pid_ns = proxy->pid_ns;
+		pid_ns = lttng_get_proxy_pid_ns(proxy);
 		do {
 			trace_lttng_statedump_process_state(session,
 				p, type, mode, submode, status, pid_ns);
@@ -380,7 +381,6 @@ int do_lttng_statedump(struct lttng_session *session)
 {
 	int cpu;
 
-	printk(KERN_DEBUG "LTT state dump thread start\n");
 	trace_lttng_statedump_start(session);
 	lttng_enumerate_process_states(session);
 	lttng_enumerate_file_descriptors(session);
@@ -408,7 +408,6 @@ int do_lttng_statedump(struct lttng_session *session)
 	__wait_event(statedump_wq, (atomic_read(&kernel_threads_to_run) == 0));
 	put_online_cpus();
 	/* Our work is done */
-	printk(KERN_DEBUG "LTT state dump end\n");
 	trace_lttng_statedump_end(session);
 	return 0;
 }
@@ -418,7 +417,6 @@ int do_lttng_statedump(struct lttng_session *session)
  */
 int lttng_statedump_start(struct lttng_session *session)
 {
-	printk(KERN_DEBUG "LTTng: state dump begin\n");
 	return do_lttng_statedump(session);
 }
 EXPORT_SYMBOL_GPL(lttng_statedump_start);

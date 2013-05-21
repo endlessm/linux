@@ -1,5 +1,5 @@
 #ifdef CONFIG_X86_64
-#include "x86-64-syscalls-3.0.4_pointers.h"
+#include "x86-64-syscalls-3.10.0-rc7_pointers.h"
 #endif
 
 #ifdef CONFIG_X86_32
@@ -7,5 +7,9 @@
 #endif
 
 #ifdef CONFIG_ARM
-#include "arm-32-syscalls-2.6.38_pointers.h"
+#include "arm-32-syscalls-3.4.25_pointers.h"
+#endif
+
+#ifdef CONFIG_PPC
+#include "powerpc-32-syscalls-3.0.34_pointers.h"
 #endif

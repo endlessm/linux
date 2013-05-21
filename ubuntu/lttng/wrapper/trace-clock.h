@@ -32,6 +32,8 @@
 #include <linux/ktime.h>
 #include <linux/time.h>
 #include <linux/hrtimer.h>
+#include <linux/version.h>
+#include "../lttng-kernel-version.h"
 #include "random.h"
 
 static inline u64 trace_clock_monotonic_wrapper(void)

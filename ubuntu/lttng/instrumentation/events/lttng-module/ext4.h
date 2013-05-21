@@ -410,6 +410,39 @@ TRACE_EVENT(ext4_da_writepages,
 		  (unsigned long) __entry->writeback_index)
 )
 
+#if (LINUX_VERSION_CODE >= KERNEL_VERSION(3,11,0))
+
+TRACE_EVENT(ext4_da_write_pages,
+	TP_PROTO(struct inode *inode, pgoff_t first_page,
+		 struct writeback_control *wbc),
+
+	TP_ARGS(inode, first_page, wbc),
+
+	TP_STRUCT__entry(
+		__field(	dev_t,	dev			)
+		__field(	ino_t,	ino			)
+		__field(      pgoff_t,	first_page		)
+		__field(	 long,	nr_to_write		)
+		__field(	  int,	sync_mode		)
+	),
+
+	TP_fast_assign(
+		tp_assign(dev, inode->i_sb->s_dev)
+		tp_assign(ino, inode->i_ino)
+		tp_assign(first_page, first_page)
+		tp_assign(nr_to_write, wbc->nr_to_write)
+		tp_assign(sync_mode, wbc->sync_mode)
+	),
+
+	TP_printk("dev %d,%d ino %lu first_page %lu nr_to_write %ld "
+		  "sync_mode %d",
+		  MAJOR(__entry->dev), MINOR(__entry->dev),
+		  (unsigned long) __entry->ino, __entry->first_page,
+		  __entry->nr_to_write, __entry->sync_mode)
+)
+
+#else
+
 TRACE_EVENT(ext4_da_write_pages,
 	TP_PROTO(struct inode *inode, struct mpage_da_data *mpd),
 
@@ -462,6 +495,39 @@ TRACE_EVENT(ext4_da_write_pages,
 #endif
                   )
 )
+
+#endif
+
+#if (LINUX_VERSION_CODE >= KERNEL_VERSION(3,11,0))
+
+TRACE_EVENT(ext4_da_write_pages_extent,
+	TP_PROTO(struct inode *inode, struct ext4_map_blocks *map),
+
+	TP_ARGS(inode, map),
+
+	TP_STRUCT__entry(
+		__field(	dev_t,	dev			)
+		__field(	ino_t,	ino			)
+		__field(	__u64,	lblk			)
+		__field(	__u32,	len			)
+		__field(	__u32,	flags			)
+	),
+
+	TP_fast_assign(
+		tp_assign(dev, inode->i_sb->s_dev)
+		tp_assign(ino, inode->i_ino)
+		tp_assign(lblk, map->m_lblk)
+		tp_assign(len, map->m_len)
+		tp_assign(flags, map->m_flags)
+	),
+
+	TP_printk("dev %d,%d ino %lu lblk %llu len %u flags %s",
+		  MAJOR(__entry->dev), MINOR(__entry->dev),
+		  (unsigned long) __entry->ino, __entry->lblk, __entry->len,
+		  show_mflags(__entry->flags))
+)
+
+#endif
 
 TRACE_EVENT(ext4_da_writepages_result,
 	TP_PROTO(struct inode *inode, struct writeback_control *wbc,
@@ -604,6 +670,50 @@ DEFINE_EVENT(ext4__page_op, ext4_releasepage,
 	TP_ARGS(page)
 )
 
+#if (LINUX_VERSION_CODE >= KERNEL_VERSION(3,11,0))
+
+DECLARE_EVENT_CLASS(ext4_invalidatepage_op,
+	TP_PROTO(struct page *page, unsigned int offset, unsigned int length),
+
+	TP_ARGS(page, offset, length),
+
+	TP_STRUCT__entry(
+		__field(	dev_t,	dev			)
+		__field(	ino_t,	ino			)
+		__field(	pgoff_t, index			)
+		__field(	unsigned int, offset		)
+		__field(	unsigned int, length		)
+	),
+
+	TP_fast_assign(
+		tp_assign(dev, page->mapping->host->i_sb->s_dev)
+		tp_assign(ino, page->mapping->host->i_ino)
+		tp_assign(index, page->index)
+		tp_assign(offset, offset)
+		tp_assign(length, length)
+	),
+
+	TP_printk("dev %d,%d ino %lu page_index %lu offset %u length %u",
+		  MAJOR(__entry->dev), MINOR(__entry->dev),
+		  (unsigned long) __entry->ino,
+		  (unsigned long) __entry->index,
+		  __entry->offset, __entry->length)
+)
+
+DEFINE_EVENT(ext4_invalidatepage_op, ext4_invalidatepage,
+	TP_PROTO(struct page *page, unsigned int offset, unsigned int length),
+
+	TP_ARGS(page, offset, length)
+)
+
+DEFINE_EVENT(ext4_invalidatepage_op, ext4_journalled_invalidatepage,
+	TP_PROTO(struct page *page, unsigned int offset, unsigned int length),
+
+	TP_ARGS(page, offset, length)
+)
+
+#else
+
 TRACE_EVENT(ext4_invalidatepage,
 	TP_PROTO(struct page *page, unsigned long offset),
 
@@ -629,6 +739,9 @@ TRACE_EVENT(ext4_invalidatepage,
 		  (unsigned long) __entry->ino,
 		  (unsigned long) __entry->index, __entry->offset)
 )
+
+#endif
+
 #endif
 
 TRACE_EVENT(ext4_discard_blocks,
@@ -1641,6 +1754,35 @@ TRACE_EVENT(ext4_fallocate_exit,
 		  __entry->ret)
 )
 
+#if (LINUX_VERSION_CODE >= KERNEL_VERSION(3,11,0))
+
+TRACE_EVENT(ext4_punch_hole,
+	TP_PROTO(struct inode *inode, loff_t offset, loff_t len),
+
+	TP_ARGS(inode, offset, len),
+
+	TP_STRUCT__entry(
+		__field(	dev_t,	dev			)
+		__field(	ino_t,	ino			)
+		__field(	loff_t,	offset			)
+		__field(	loff_t, len			)
+	),
+
+	TP_fast_assign(
+		tp_assign(dev, inode->i_sb->s_dev)
+		tp_assign(ino, inode->i_ino)
+		tp_assign(offset, offset)
+		tp_assign(len, len)
+	),
+
+	TP_printk("dev %d,%d ino %lu offset %lld len %lld",
+		  MAJOR(__entry->dev), MINOR(__entry->dev),
+		  (unsigned long) __entry->ino,
+		  __entry->offset, __entry->len)
+)
+
+#endif
+
 TRACE_EVENT(ext4_unlink_enter,
 	TP_PROTO(struct inode *parent, struct dentry *dentry),
 
@@ -1850,7 +1992,59 @@ DEFINE_EVENT(ext4__map_blocks_enter, ext4_ind_map_blocks_enter,
 	TP_ARGS(inode, lblk, len, flags)
 )
 
-#if (LINUX_VERSION_CODE >= KERNEL_VERSION(3,8,0))
+#if (LINUX_VERSION_CODE >= KERNEL_VERSION(3,11,0))
+
+DECLARE_EVENT_CLASS(ext4__map_blocks_exit,
+	TP_PROTO(struct inode *inode, unsigned flags, struct ext4_map_blocks *map,
+		 int ret),
+
+	TP_ARGS(inode, flags, map, ret),
+
+	TP_STRUCT__entry(
+		__field(	dev_t,		dev		)
+		__field(	ino_t,		ino		)
+		__field(	unsigned int,	flags		)
+		__field(	ext4_fsblk_t,	pblk		)
+		__field(	ext4_lblk_t,	lblk		)
+		__field(	unsigned int,	len		)
+		__field(	unsigned int,	mflags		)
+		__field(	int,		ret		)
+	),
+
+	TP_fast_assign(
+		tp_assign(dev, inode->i_sb->s_dev)
+		tp_assign(ino, inode->i_ino)
+		tp_assign(flags, flags)
+		tp_assign(pblk, map->m_pblk)
+		tp_assign(lblk, map->m_lblk)
+		tp_assign(len, map->m_len)
+		tp_assign(mflags, map->m_flags)
+		tp_assign(ret, ret)
+	),
+
+	TP_printk("dev %d,%d ino %lu flags %s lblk %u pblk %llu len %u "
+		  "mflags %s ret %d",
+		  MAJOR(__entry->dev), MINOR(__entry->dev),
+		  (unsigned long) __entry->ino,
+		  show_map_flags(__entry->flags), __entry->lblk, __entry->pblk,
+		  __entry->len, show_mflags(__entry->mflags), __entry->ret)
+)
+
+DEFINE_EVENT(ext4__map_blocks_exit, ext4_ext_map_blocks_exit,
+	TP_PROTO(struct inode *inode, unsigned flags,
+		 struct ext4_map_blocks *map, int ret),
+
+	TP_ARGS(inode, flags, map, ret)
+)
+
+DEFINE_EVENT(ext4__map_blocks_exit, ext4_ind_map_blocks_exit,
+	TP_PROTO(struct inode *inode, unsigned flags,
+		 struct ext4_map_blocks *map, int ret),
+
+	TP_ARGS(inode, flags, map, ret)
+)
+
+#elif (LINUX_VERSION_CODE >= KERNEL_VERSION(3,8,0))
 
 DECLARE_EVENT_CLASS(ext4__map_blocks_exit,
 	TP_PROTO(struct inode *inode, struct ext4_map_blocks *map, int ret),
@@ -1991,7 +2185,57 @@ TRACE_EVENT(ext4_load_inode,
 )
 #endif
 
-#if (LINUX_VERSION_CODE >= KERNEL_VERSION(3,1,0))
+#if (LINUX_VERSION_CODE >= KERNEL_VERSION(3,11,0))
+
+TRACE_EVENT(ext4_journal_start,
+	TP_PROTO(struct super_block *sb, int blocks, int rsv_blocks,
+		 unsigned long IP),
+
+	TP_ARGS(sb, blocks, rsv_blocks, IP),
+
+	TP_STRUCT__entry(
+		__field(	dev_t,	dev			)
+		__field(unsigned long,	ip			)
+		__field(	  int,	blocks			)
+		__field(	  int,	rsv_blocks		)
+	),
+
+	TP_fast_assign(
+		tp_assign(dev, sb->s_dev)
+		tp_assign(ip, IP)
+		tp_assign(blocks, blocks)
+		tp_assign(rsv_blocks, rsv_blocks)
+	),
+
+	TP_printk("dev %d,%d blocks, %d rsv_blocks, %d caller %pF",
+		  MAJOR(__entry->dev), MINOR(__entry->dev),
+		  __entry->blocks, __entry->rsv_blocks, (void *)__entry->ip)
+)
+
+TRACE_EVENT(ext4_journal_start_reserved,
+	TP_PROTO(struct super_block *sb, int blocks, unsigned long IP),
+
+	TP_ARGS(sb, blocks, IP),
+
+	TP_STRUCT__entry(
+		__field(	dev_t,	dev			)
+		__field(unsigned long,	ip			)
+		__field(	  int,	blocks			)
+	),
+
+	TP_fast_assign(
+		tp_assign(dev, sb->s_dev)
+		tp_assign(ip, IP)
+		tp_assign(blocks, blocks)
+	),
+
+	TP_printk("dev %d,%d blocks, %d caller %pF",
+		  MAJOR(__entry->dev), MINOR(__entry->dev),
+		  __entry->blocks, (void *)__entry->ip)
+)
+
+#elif (LINUX_VERSION_CODE >= KERNEL_VERSION(3,1,0))
+
 TRACE_EVENT(ext4_journal_start,
 	TP_PROTO(struct super_block *sb, int nblocks, unsigned long IP),
 
@@ -2292,6 +2536,51 @@ TRACE_EVENT(ext4_ext_show_extent,
 		  (unsigned short) __entry->len)
 )
 
+#if (LINUX_VERSION_CODE >= KERNEL_VERSION(3,11,0))
+
+TRACE_EVENT(ext4_remove_blocks,
+	    TP_PROTO(struct inode *inode, struct ext4_extent *ex,
+		ext4_lblk_t from, ext4_fsblk_t to,
+		long long partial_cluster),
+
+	TP_ARGS(inode, ex, from, to, partial_cluster),
+
+	TP_STRUCT__entry(
+		__field(	dev_t,		dev	)
+		__field(	ino_t,		ino	)
+		__field(	ext4_lblk_t,	from	)
+		__field(	ext4_lblk_t,	to	)
+		__field(	long long,	partial	)
+		__field(	ext4_fsblk_t,	ee_pblk	)
+		__field(	ext4_lblk_t,	ee_lblk	)
+		__field(	unsigned short,	ee_len	)
+	),
+
+	TP_fast_assign(
+		tp_assign(dev, inode->i_sb->s_dev)
+		tp_assign(ino, inode->i_ino)
+		tp_assign(from, from)
+		tp_assign(to, to)
+		tp_assign(partial, partial_cluster)
+		tp_assign(ee_pblk, ext4_ext_pblock(ex))
+		tp_assign(ee_lblk, le32_to_cpu(ex->ee_block))
+		tp_assign(ee_len, ext4_ext_get_actual_len(ex))
+	),
+
+	TP_printk("dev %d,%d ino %lu extent [%u(%llu), %u]"
+		  "from %u to %u partial_cluster %lld",
+		  MAJOR(__entry->dev), MINOR(__entry->dev),
+		  (unsigned long) __entry->ino,
+		  (unsigned) __entry->ee_lblk,
+		  (unsigned long long) __entry->ee_pblk,
+		  (unsigned short) __entry->ee_len,
+		  (unsigned) __entry->from,
+		  (unsigned) __entry->to,
+		  (long long) __entry->partial)
+)
+
+#else
+
 TRACE_EVENT(ext4_remove_blocks,
 	    TP_PROTO(struct inode *inode, struct ext4_extent *ex,
 		ext4_lblk_t from, ext4_fsblk_t to,
@@ -2333,6 +2622,50 @@ TRACE_EVENT(ext4_remove_blocks,
 		  (unsigned) __entry->partial)
 )
 
+#endif
+
+#if (LINUX_VERSION_CODE >= KERNEL_VERSION(3,11,0))
+
+TRACE_EVENT(ext4_ext_rm_leaf,
+	TP_PROTO(struct inode *inode, ext4_lblk_t start,
+		 struct ext4_extent *ex,
+		 long long partial_cluster),
+
+	TP_ARGS(inode, start, ex, partial_cluster),
+
+	TP_STRUCT__entry(
+		__field(	dev_t,		dev	)
+		__field(	ino_t,		ino	)
+		__field(	long long,	partial	)
+		__field(	ext4_lblk_t,	start	)
+		__field(	ext4_lblk_t,	ee_lblk	)
+		__field(	ext4_fsblk_t,	ee_pblk	)
+		__field(	short,		ee_len	)
+	),
+
+	TP_fast_assign(
+		tp_assign(dev, inode->i_sb->s_dev)
+		tp_assign(ino, inode->i_ino)
+		tp_assign(partial, partial_cluster)
+		tp_assign(start, start)
+		tp_assign(ee_lblk, le32_to_cpu(ex->ee_block))
+		tp_assign(ee_pblk, ext4_ext_pblock(ex))
+		tp_assign(ee_len, ext4_ext_get_actual_len(ex))
+	),
+
+	TP_printk("dev %d,%d ino %lu start_lblk %u last_extent [%u(%llu), %u]"
+		  "partial_cluster %lld",
+		  MAJOR(__entry->dev), MINOR(__entry->dev),
+		  (unsigned long) __entry->ino,
+		  (unsigned) __entry->start,
+		  (unsigned) __entry->ee_lblk,
+		  (unsigned long long) __entry->ee_pblk,
+		  (unsigned short) __entry->ee_len,
+		  (long long) __entry->partial)
+)
+
+#else
+
 TRACE_EVENT(ext4_ext_rm_leaf,
 	TP_PROTO(struct inode *inode, ext4_lblk_t start,
 		 struct ext4_extent *ex, ext4_fsblk_t partial_cluster),
@@ -2370,6 +2703,8 @@ TRACE_EVENT(ext4_ext_rm_leaf,
 		  (unsigned) __entry->partial)
 )
 
+#endif
+
 TRACE_EVENT(ext4_ext_rm_idx,
 	TP_PROTO(struct inode *inode, ext4_fsblk_t pblk),
 
@@ -2392,6 +2727,40 @@ TRACE_EVENT(ext4_ext_rm_idx,
 		  (unsigned long) __entry->ino,
 		  (unsigned long long) __entry->pblk)
 )
+
+#if (LINUX_VERSION_CODE >= KERNEL_VERSION(3,11,0))
+
+TRACE_EVENT(ext4_ext_remove_space,
+	TP_PROTO(struct inode *inode, ext4_lblk_t start,
+		 ext4_lblk_t end, int depth),
+
+	TP_ARGS(inode, start, end, depth),
+
+	TP_STRUCT__entry(
+		__field(	dev_t,		dev	)
+		__field(	ino_t,		ino	)
+		__field(	ext4_lblk_t,	start	)
+		__field(	ext4_lblk_t,	end	)
+		__field(	int,		depth	)
+	),
+
+	TP_fast_assign(
+		tp_assign(dev, inode->i_sb->s_dev)
+		tp_assign(ino, inode->i_ino)
+		tp_assign(start, start)
+		tp_assign(end, end)
+		tp_assign(depth, depth)
+	),
+
+	TP_printk("dev %d,%d ino %lu since %u end %u depth %d",
+		  MAJOR(__entry->dev), MINOR(__entry->dev),
+		  (unsigned long) __entry->ino,
+		  (unsigned) __entry->start,
+		  (unsigned) __entry->end,
+		  __entry->depth)
+)
+
+#else
 
 TRACE_EVENT(ext4_ext_remove_space,
 	TP_PROTO(struct inode *inode, ext4_lblk_t start, int depth),
@@ -2418,6 +2787,49 @@ TRACE_EVENT(ext4_ext_remove_space,
 		  (unsigned) __entry->start,
 		  __entry->depth)
 )
+
+#endif
+
+#if (LINUX_VERSION_CODE >= KERNEL_VERSION(3,11,0))
+
+TRACE_EVENT(ext4_ext_remove_space_done,
+	TP_PROTO(struct inode *inode, ext4_lblk_t start, ext4_lblk_t end,
+		 int depth, long long partial, __le16 eh_entries),
+
+	TP_ARGS(inode, start, end, depth, partial, eh_entries),
+
+	TP_STRUCT__entry(
+		__field(	dev_t,		dev		)
+		__field(	ino_t,		ino		)
+		__field(	ext4_lblk_t,	start		)
+		__field(	ext4_lblk_t,	end		)
+		__field(	int,		depth		)
+		__field(	long long,	partial		)
+		__field(	unsigned short,	eh_entries	)
+	),
+
+	TP_fast_assign(
+		tp_assign(dev, inode->i_sb->s_dev)
+		tp_assign(ino, inode->i_ino)
+		tp_assign(start, start)
+		tp_assign(end, end)
+		tp_assign(depth, depth)
+		tp_assign(partial, partial)
+		tp_assign(eh_entries, le16_to_cpu(eh_entries))
+	),
+
+	TP_printk("dev %d,%d ino %lu since %u end %u depth %d partial %lld "
+		  "remaining_entries %u",
+		  MAJOR(__entry->dev), MINOR(__entry->dev),
+		  (unsigned long) __entry->ino,
+		  (unsigned) __entry->start,
+		  (unsigned) __entry->end,
+		  __entry->depth,
+		  (long long) __entry->partial,
+		  (unsigned short) __entry->eh_entries)
+)
+
+#else
 
 TRACE_EVENT(ext4_ext_remove_space_done,
 	TP_PROTO(struct inode *inode, ext4_lblk_t start, int depth,
@@ -2452,6 +2864,220 @@ TRACE_EVENT(ext4_ext_remove_space_done,
 		  (unsigned) __entry->partial,
 		  (unsigned short) __entry->eh_entries)
 )
+
+#endif
+
+#endif
+
+#if (LINUX_VERSION_CODE >= KERNEL_VERSION(3,11,0))
+
+TRACE_EVENT(ext4_es_insert_extent,
+	TP_PROTO(struct inode *inode, struct extent_status *es),
+
+	TP_ARGS(inode, es),
+
+	TP_STRUCT__entry(
+		__field(	dev_t,		dev		)
+		__field(	ino_t,		ino		)
+		__field(	ext4_lblk_t,	lblk		)
+		__field(	ext4_lblk_t,	len		)
+		__field(	ext4_fsblk_t,	pblk		)
+		__field(	char, status	)
+	),
+
+	TP_fast_assign(
+		tp_assign(dev, inode->i_sb->s_dev)
+		tp_assign(ino, inode->i_ino)
+		tp_assign(lblk, es->es_lblk)
+		tp_assign(len, es->es_len)
+		tp_assign(pblk, ext4_es_pblock(es))
+		tp_assign(status, ext4_es_status(es) >> 60)
+	),
+
+	TP_printk("dev %d,%d ino %lu es [%u/%u) mapped %llu status %s",
+		  MAJOR(__entry->dev), MINOR(__entry->dev),
+		  (unsigned long) __entry->ino,
+		  __entry->lblk, __entry->len,
+		  __entry->pblk, show_extent_status(__entry->status))
+)
+
+TRACE_EVENT(ext4_es_remove_extent,
+	TP_PROTO(struct inode *inode, ext4_lblk_t lblk, ext4_lblk_t len),
+
+	TP_ARGS(inode, lblk, len),
+
+	TP_STRUCT__entry(
+		__field(	dev_t,	dev			)
+		__field(	ino_t,	ino			)
+		__field(	loff_t,	lblk			)
+		__field(	loff_t,	len			)
+	),
+
+	TP_fast_assign(
+		tp_assign(dev, inode->i_sb->s_dev)
+		tp_assign(ino, inode->i_ino)
+		tp_assign(lblk, lblk)
+		tp_assign(len, len)
+	),
+
+	TP_printk("dev %d,%d ino %lu es [%lld/%lld)",
+		  MAJOR(__entry->dev), MINOR(__entry->dev),
+		  (unsigned long) __entry->ino,
+		  __entry->lblk, __entry->len)
+)
+
+TRACE_EVENT(ext4_es_find_delayed_extent_range_enter,
+	TP_PROTO(struct inode *inode, ext4_lblk_t lblk),
+
+	TP_ARGS(inode, lblk),
+
+	TP_STRUCT__entry(
+		__field(	dev_t,		dev		)
+		__field(	ino_t,		ino		)
+		__field(	ext4_lblk_t,	lblk		)
+	),
+
+	TP_fast_assign(
+		tp_assign(dev, inode->i_sb->s_dev)
+		tp_assign(ino, inode->i_ino)
+		tp_assign(lblk, lblk)
+	),
+
+	TP_printk("dev %d,%d ino %lu lblk %u",
+		  MAJOR(__entry->dev), MINOR(__entry->dev),
+		  (unsigned long) __entry->ino, __entry->lblk)
+)
+
+TRACE_EVENT(ext4_es_find_delayed_extent_range_exit,
+	TP_PROTO(struct inode *inode, struct extent_status *es),
+
+	TP_ARGS(inode, es),
+
+	TP_STRUCT__entry(
+		__field(	dev_t,		dev		)
+		__field(	ino_t,		ino		)
+		__field(	ext4_lblk_t,	lblk		)
+		__field(	ext4_lblk_t,	len		)
+		__field(	ext4_fsblk_t,	pblk		)
+		__field(	char, status	)
+	),
+
+	TP_fast_assign(
+		tp_assign(dev, inode->i_sb->s_dev)
+		tp_assign(ino, inode->i_ino)
+		tp_assign(lblk, es->es_lblk)
+		tp_assign(len, es->es_len)
+		tp_assign(pblk, ext4_es_pblock(es))
+		tp_assign(status, ext4_es_status(es) >> 60)
+	),
+
+	TP_printk("dev %d,%d ino %lu es [%u/%u) mapped %llu status %s",
+		  MAJOR(__entry->dev), MINOR(__entry->dev),
+		  (unsigned long) __entry->ino,
+		  __entry->lblk, __entry->len,
+		  __entry->pblk, show_extent_status(__entry->status))
+)
+
+TRACE_EVENT(ext4_es_lookup_extent_enter,
+	TP_PROTO(struct inode *inode, ext4_lblk_t lblk),
+
+	TP_ARGS(inode, lblk),
+
+	TP_STRUCT__entry(
+		__field(	dev_t,		dev		)
+		__field(	ino_t,		ino		)
+		__field(	ext4_lblk_t,	lblk		)
+	),
+
+	TP_fast_assign(
+		tp_assign(dev, inode->i_sb->s_dev)
+		tp_assign(ino, inode->i_ino)
+		tp_assign(lblk, lblk)
+	),
+
+	TP_printk("dev %d,%d ino %lu lblk %u",
+		  MAJOR(__entry->dev), MINOR(__entry->dev),
+		  (unsigned long) __entry->ino, __entry->lblk)
+)
+
+TRACE_EVENT(ext4_es_lookup_extent_exit,
+	TP_PROTO(struct inode *inode, struct extent_status *es,
+		 int found),
+
+	TP_ARGS(inode, es, found),
+
+	TP_STRUCT__entry(
+		__field(	dev_t,		dev		)
+		__field(	ino_t,		ino		)
+		__field(	ext4_lblk_t,	lblk		)
+		__field(	ext4_lblk_t,	len		)
+		__field(	ext4_fsblk_t,	pblk		)
+		__field(	char,		status		)
+		__field(	int,		found		)
+	),
+
+	TP_fast_assign(
+		tp_assign(dev, inode->i_sb->s_dev)
+		tp_assign(ino, inode->i_ino)
+		tp_assign(lblk, es->es_lblk)
+		tp_assign(len, es->es_len)
+		tp_assign(pblk, ext4_es_pblock(es))
+		tp_assign(status, ext4_es_status(es) >> 60)
+		tp_assign(found, found)
+	),
+
+	TP_printk("dev %d,%d ino %lu found %d [%u/%u) %llu %s",
+		  MAJOR(__entry->dev), MINOR(__entry->dev),
+		  (unsigned long) __entry->ino, __entry->found,
+		  __entry->lblk, __entry->len,
+		  __entry->found ? __entry->pblk : 0,
+		  show_extent_status(__entry->found ? __entry->status : 0))
+)
+
+TRACE_EVENT(ext4_es_shrink_enter,
+	TP_PROTO(struct super_block *sb, int nr_to_scan, int cache_cnt),
+
+	TP_ARGS(sb, nr_to_scan, cache_cnt),
+
+	TP_STRUCT__entry(
+		__field(	dev_t,	dev			)
+		__field(	int,	nr_to_scan		)
+		__field(	int,	cache_cnt		)
+	),
+
+	TP_fast_assign(
+		tp_assign(dev, sb->s_dev)
+		tp_assign(nr_to_scan, nr_to_scan)
+		tp_assign(cache_cnt, cache_cnt)
+	),
+
+	TP_printk("dev %d,%d nr_to_scan %d cache_cnt %d",
+		  MAJOR(__entry->dev), MINOR(__entry->dev),
+		  __entry->nr_to_scan, __entry->cache_cnt)
+)
+
+TRACE_EVENT(ext4_es_shrink_exit,
+	TP_PROTO(struct super_block *sb, int shrunk_nr, int cache_cnt),
+
+	TP_ARGS(sb, shrunk_nr, cache_cnt),
+
+	TP_STRUCT__entry(
+		__field(	dev_t,	dev			)
+		__field(	int,	shrunk_nr		)
+		__field(	int,	cache_cnt		)
+	),
+
+	TP_fast_assign(
+		tp_assign(dev, sb->s_dev)
+		tp_assign(shrunk_nr, shrunk_nr)
+		tp_assign(cache_cnt, cache_cnt)
+	),
+
+	TP_printk("dev %d,%d shrunk_nr %d cache_cnt %d",
+		  MAJOR(__entry->dev), MINOR(__entry->dev),
+		  __entry->shrunk_nr, __entry->cache_cnt)
+)
+
 #endif
 
 #endif /* _TRACE_EXT4_H */

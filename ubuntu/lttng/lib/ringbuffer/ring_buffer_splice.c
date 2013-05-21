@@ -37,10 +37,12 @@
 #define printk_dbg(fmt, args...)
 #endif
 
-loff_t lib_ring_buffer_no_llseek(struct file *file, loff_t offset, int origin)
+loff_t vfs_lib_ring_buffer_no_llseek(struct file *file, loff_t offset,
+		int origin)
 {
 	return -ESPIPE;
 }
+EXPORT_SYMBOL_GPL(vfs_lib_ring_buffer_no_llseek);
 
 /*
  * Release pages from the buffer so splice pipe_to_file can move them.
@@ -78,9 +80,9 @@ static int subbuf_splice_actor(struct file *in,
 			       loff_t *ppos,
 			       struct pipe_inode_info *pipe,
 			       size_t len,
-			       unsigned int flags)
+			       unsigned int flags,
+			       struct lib_ring_buffer *buf)
 {
-	struct lib_ring_buffer *buf = in->private_data;
 	struct channel *chan = buf->backend.chan;
 	const struct lib_ring_buffer_config *config = &chan->backend.config;
 	unsigned int poff, subbuf_pages, nr_pages;
@@ -160,9 +162,9 @@ static int subbuf_splice_actor(struct file *in,
 
 ssize_t lib_ring_buffer_splice_read(struct file *in, loff_t *ppos,
 				    struct pipe_inode_info *pipe, size_t len,
-				    unsigned int flags)
+				    unsigned int flags,
+				    struct lib_ring_buffer *buf)
 {
-	struct lib_ring_buffer *buf = in->private_data;
 	struct channel *chan = buf->backend.chan;
 	const struct lib_ring_buffer_config *config = &chan->backend.config;
 	ssize_t spliced;
@@ -189,7 +191,7 @@ ssize_t lib_ring_buffer_splice_read(struct file *in, loff_t *ppos,
 	printk_dbg(KERN_DEBUG "SPLICE read len %zu pos %zd\n", len,
 		   (ssize_t)*ppos);
 	while (len && !spliced) {
-		ret = subbuf_splice_actor(in, ppos, pipe, len, flags);
+		ret = subbuf_splice_actor(in, ppos, pipe, len, flags, buf);
 		printk_dbg(KERN_DEBUG "SPLICE read loop ret %d\n", ret);
 		if (ret < 0)
 			break;
@@ -213,3 +215,13 @@ ssize_t lib_ring_buffer_splice_read(struct file *in, loff_t *ppos,
 	return ret;
 }
 EXPORT_SYMBOL_GPL(lib_ring_buffer_splice_read);
+
+ssize_t vfs_lib_ring_buffer_splice_read(struct file *in, loff_t *ppos,
+				    struct pipe_inode_info *pipe, size_t len,
+				    unsigned int flags)
+{
+	struct lib_ring_buffer *buf = in->private_data;
+
+	return lib_ring_buffer_splice_read(in, ppos, pipe, len, flags, buf);
+}
+EXPORT_SYMBOL_GPL(vfs_lib_ring_buffer_splice_read);

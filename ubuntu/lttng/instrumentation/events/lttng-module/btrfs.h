@@ -39,7 +39,22 @@ struct extent_state;
 		{ BTRFS_SHARED_BLOCK_REF_KEY, 	"SHARED_BLOCK_REF" },	\
 		{ BTRFS_SHARED_DATA_REF_KEY, 	"SHARED_DATA_REF" })
 
-#if (LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,40))
+
+#if (LINUX_VERSION_CODE >= KERNEL_VERSION(3,11,0))
+#define __show_root_type(obj)						\
+	__print_symbolic_u64(obj,					\
+		{ BTRFS_ROOT_TREE_OBJECTID, 	"ROOT_TREE"	},	\
+		{ BTRFS_EXTENT_TREE_OBJECTID, 	"EXTENT_TREE"	},	\
+		{ BTRFS_CHUNK_TREE_OBJECTID, 	"CHUNK_TREE"	},	\
+		{ BTRFS_DEV_TREE_OBJECTID, 	"DEV_TREE"	},	\
+		{ BTRFS_FS_TREE_OBJECTID, 	"FS_TREE"	},	\
+		{ BTRFS_ROOT_TREE_DIR_OBJECTID, "ROOT_TREE_DIR"	},	\
+		{ BTRFS_CSUM_TREE_OBJECTID, 	"CSUM_TREE"	},	\
+		{ BTRFS_TREE_LOG_OBJECTID,	"TREE_LOG"	},	\
+		{ BTRFS_QUOTA_TREE_OBJECTID,	"QUOTA_TREE"	},	\
+		{ BTRFS_TREE_RELOC_OBJECTID,	"TREE_RELOC"	},	\
+		{ BTRFS_DATA_RELOC_TREE_OBJECTID, "DATA_RELOC_TREE" })
+#elif (LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,40))
 #define __show_root_type(obj)						\
 	__print_symbolic_u64(obj,					\
 		{ BTRFS_ROOT_TREE_OBJECTID, 	"ROOT_TREE"	},	\
@@ -67,7 +82,12 @@ struct extent_state;
 		{ BTRFS_DATA_RELOC_TREE_OBJECTID, "DATA_RELOC_TREE" })
 #endif
 
-#if (LINUX_VERSION_CODE >= KERNEL_VERSION(3,8,0))
+#if (LINUX_VERSION_CODE >= KERNEL_VERSION(3,11,0))
+#define show_root_type(obj)						\
+	obj, ((obj >= BTRFS_DATA_RELOC_TREE_OBJECTID) ||		\
+	      (obj >= BTRFS_ROOT_TREE_OBJECTID &&			\
+	       obj <= BTRFS_QUOTA_TREE_OBJECTID)) ? __show_root_type(obj) : "-"
+#elif (LINUX_VERSION_CODE >= KERNEL_VERSION(3,8,0))
 #define show_root_type(obj)						\
 	obj, ((obj >= BTRFS_DATA_RELOC_TREE_OBJECTID) ||		\
 	      (obj >= BTRFS_ROOT_TREE_OBJECTID &&			\
@@ -78,7 +98,20 @@ struct extent_state;
 	      (obj <= BTRFS_CSUM_TREE_OBJECTID )) ? __show_root_type(obj) : "-"
 #endif /* #else #if (LINUX_VERSION_CODE >= KERNEL_VERSION(3,8,0)) */
 
-#if (LINUX_VERSION_CODE >= KERNEL_VERSION(3,3,0))
+#if (LINUX_VERSION_CODE >= KERNEL_VERSION(3,11,0))
+
+#define BTRFS_GROUP_FLAGS	\
+	{ BTRFS_BLOCK_GROUP_DATA,	"DATA"},	\
+	{ BTRFS_BLOCK_GROUP_SYSTEM,	"SYSTEM"},	\
+	{ BTRFS_BLOCK_GROUP_METADATA,	"METADATA"},	\
+	{ BTRFS_BLOCK_GROUP_RAID0,	"RAID0"}, 	\
+	{ BTRFS_BLOCK_GROUP_RAID1,	"RAID1"}, 	\
+	{ BTRFS_BLOCK_GROUP_DUP,	"DUP"}, 	\
+	{ BTRFS_BLOCK_GROUP_RAID10,	"RAID10"}, 	\
+	{ BTRFS_BLOCK_GROUP_RAID5,	"RAID5"},	\
+	{ BTRFS_BLOCK_GROUP_RAID6,	"RAID6"}
+
+#elif (LINUX_VERSION_CODE >= KERNEL_VERSION(3,3,0))
 
 #define BTRFS_GROUP_FLAGS	\
 	{ BTRFS_BLOCK_GROUP_DATA,	"DATA"}, \
@@ -192,12 +225,27 @@ DEFINE_EVENT(btrfs__inode, btrfs_inode_evict,
 #define show_map_type(type)			\
 	type, (type >= EXTENT_MAP_LAST_BYTE) ? "-" :  __show_map_type(type)
 
+#if (LINUX_VERSION_CODE >= KERNEL_VERSION(3,11,0))
+
+#define show_map_flags(flag)						\
+	__print_flags(flag, "|",					\
+		{ EXTENT_FLAG_PINNED, 		"PINNED" 	},	\
+		{ EXTENT_FLAG_COMPRESSED, 	"COMPRESSED" 	},	\
+		{ EXTENT_FLAG_VACANCY, 		"VACANCY" 	},	\
+		{ EXTENT_FLAG_PREALLOC, 	"PREALLOC" 	},	\
+		{ EXTENT_FLAG_LOGGING,	 	"LOGGING" 	},	\
+		{ EXTENT_FLAG_FILLING,	 	"FILLING" 	})
+
+#else
+
 #define show_map_flags(flag)						\
 	__print_flags(flag, "|",					\
 		{ EXTENT_FLAG_PINNED, 		"PINNED" 	},	\
 		{ EXTENT_FLAG_COMPRESSED, 	"COMPRESSED" 	},	\
 		{ EXTENT_FLAG_VACANCY, 		"VACANCY" 	},	\
 		{ EXTENT_FLAG_PREALLOC, 	"PREALLOC" 	})
+
+#endif
 
 TRACE_EVENT(btrfs_get_extent,
 
@@ -243,6 +291,22 @@ TRACE_EVENT(btrfs_get_extent,
 		  __entry->refs, __entry->compress_type)
 )
 
+#if (LINUX_VERSION_CODE >= KERNEL_VERSION(3,11,0))
+
+#define show_ordered_flags(flags)					\
+	__print_symbolic(flags,						\
+		{ BTRFS_ORDERED_IO_DONE, 	"IO_DONE" 	},	\
+		{ BTRFS_ORDERED_COMPLETE, 	"COMPLETE" 	},	\
+		{ BTRFS_ORDERED_NOCOW, 		"NOCOW" 	},	\
+		{ BTRFS_ORDERED_COMPRESSED, 	"COMPRESSED" 	},	\
+		{ BTRFS_ORDERED_PREALLOC, 	"PREALLOC" 	},	\
+		{ BTRFS_ORDERED_DIRECT, 	"DIRECT" 	},	\
+		{ BTRFS_ORDERED_IOERR, 		"IOERR" 	},	\
+		{ BTRFS_ORDERED_UPDATED_ISIZE, 	"UPDATED_ISIZE"	},	\
+		{ BTRFS_ORDERED_LOGGED_CSUM, 	"LOGGED_CSUM"	})
+
+#else
+
 #define show_ordered_flags(flags)					\
 	__print_symbolic(flags,					\
 		{ BTRFS_ORDERED_IO_DONE, 	"IO_DONE" 	},	\
@@ -251,6 +315,8 @@ TRACE_EVENT(btrfs_get_extent,
 		{ BTRFS_ORDERED_COMPRESSED, 	"COMPRESSED" 	},	\
 		{ BTRFS_ORDERED_PREALLOC, 	"PREALLOC" 	},	\
 		{ BTRFS_ORDERED_DIRECT, 	"DIRECT" 	})
+
+#endif
 
 DECLARE_EVENT_CLASS(btrfs__ordered_extent,
 
@@ -635,6 +701,22 @@ TRACE_EVENT(btrfs_delayed_ref_head,
 		  __entry->is_data)
 )
 
+#if (LINUX_VERSION_CODE >= KERNEL_VERSION(3,11,0))
+
+#define show_chunk_type(type)					\
+	__print_flags(type, "|",				\
+		{ BTRFS_BLOCK_GROUP_DATA, 	"DATA"	},	\
+		{ BTRFS_BLOCK_GROUP_SYSTEM, 	"SYSTEM"},	\
+		{ BTRFS_BLOCK_GROUP_METADATA, 	"METADATA"},	\
+		{ BTRFS_BLOCK_GROUP_RAID0, 	"RAID0" },	\
+		{ BTRFS_BLOCK_GROUP_RAID1, 	"RAID1" },	\
+		{ BTRFS_BLOCK_GROUP_DUP, 	"DUP"	},	\
+		{ BTRFS_BLOCK_GROUP_RAID10, 	"RAID10"},	\
+		{ BTRFS_BLOCK_GROUP_RAID5, 	"RAID5"	},	\
+		{ BTRFS_BLOCK_GROUP_RAID6, 	"RAID6"	})
+
+#else
+
 #define show_chunk_type(type)					\
 	__print_flags(type, "|",				\
 		{ BTRFS_BLOCK_GROUP_DATA, 	"DATA"	},	\
@@ -644,6 +726,8 @@ TRACE_EVENT(btrfs_delayed_ref_head,
 		{ BTRFS_BLOCK_GROUP_RAID1, 	"RAID1" },	\
 		{ BTRFS_BLOCK_GROUP_DUP, 	"DUP"	},	\
 		{ BTRFS_BLOCK_GROUP_RAID10, 	"RAID10"})
+
+#endif
 
 DECLARE_EVENT_CLASS(btrfs__chunk,
 

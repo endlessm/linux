@@ -174,4 +174,44 @@ struct lttng_kernel_context {
 #define LTTNG_KERNEL_ENABLE			_IO(0xF6, 0x82)
 #define LTTNG_KERNEL_DISABLE			_IO(0xF6, 0x83)
 
+/* LTTng-specific ioctls for the lib ringbuffer */
+/* returns the timestamp begin of the current sub-buffer */
+#define LTTNG_RING_BUFFER_GET_TIMESTAMP_BEGIN	_IOR(0xF6, 0x20, uint64_t)
+/* returns the timestamp end of the current sub-buffer */
+#define LTTNG_RING_BUFFER_GET_TIMESTAMP_END	_IOR(0xF6, 0x21, uint64_t)
+/* returns the number of events discarded */
+#define LTTNG_RING_BUFFER_GET_EVENTS_DISCARDED	_IOR(0xF6, 0x22, uint64_t)
+/* returns the packet payload size */
+#define LTTNG_RING_BUFFER_GET_CONTENT_SIZE	_IOR(0xF6, 0x23, uint64_t)
+/* returns the actual packet size */
+#define LTTNG_RING_BUFFER_GET_PACKET_SIZE	_IOR(0xF6, 0x24, uint64_t)
+/* returns the stream id */
+#define LTTNG_RING_BUFFER_GET_STREAM_ID		_IOR(0xF6, 0x25, uint64_t)
+/* returns the current timestamp */
+#define LTTNG_RING_BUFFER_GET_CURRENT_TIMESTAMP	_IOR(0xF6, 0x26, uint64_t)
+
+#ifdef CONFIG_COMPAT
+/* returns the timestamp begin of the current sub-buffer */
+#define LTTNG_RING_BUFFER_COMPAT_GET_TIMESTAMP_BEGIN \
+	LTTNG_RING_BUFFER_GET_TIMESTAMP_BEGIN
+/* returns the timestamp end of the current sub-buffer */
+#define LTTNG_RING_BUFFER_COMPAT_GET_TIMESTAMP_END \
+	LTTNG_RING_BUFFER_GET_TIMESTAMP_END
+/* returns the number of events discarded */
+#define LTTNG_RING_BUFFER_COMPAT_GET_EVENTS_DISCARDED \
+	LTTNG_RING_BUFFER_GET_EVENTS_DISCARDED
+/* returns the packet payload size */
+#define LTTNG_RING_BUFFER_COMPAT_GET_CONTENT_SIZE \
+	LTTNG_RING_BUFFER_GET_CONTENT_SIZE
+/* returns the actual packet size */
+#define LTTNG_RING_BUFFER_COMPAT_GET_PACKET_SIZE \
+	LTTNG_RING_BUFFER_GET_PACKET_SIZE
+/* returns the stream id */
+#define LTTNG_RING_BUFFER_COMPAT_GET_STREAM_ID \
+	LTTNG_RING_BUFFER_GET_STREAM_ID
+/* returns the current timestamp */
+#define LTTNG_RING_BUFFER_COMPAT_GET_CURRENT_TIMESTAMP \
+	LTTNG_RING_BUFFER_GET_CURRENT_TIMESTAMP
+#endif /* CONFIG_COMPAT */
+
 #endif /* _LTTNG_ABI_H */

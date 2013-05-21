@@ -1,0 +1,12 @@
+human_arch	= PowerPC
+build_arch	= powerpc
+header_arch	= $(build_arch)
+defconfig	= pmac32_defconfig
+flavours	=
+build_image	= vmlinux
+kernel_file	= $(build_image)
+install_file	= $(build_image)
+no_dumpfile	= true
+do_tools	= false
+loader		= yaboot
+do_flavour_image_package = false

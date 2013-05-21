@@ -31,6 +31,7 @@
 #include <linux/dcache.h>
 #include <linux/ftrace_event.h>
 #include <trace/syscall.h>
+#include <asm/syscall.h>
 
 #ifndef CONFIG_FTRACE_SYSCALLS
 #error "You need to set CONFIG_FTRACE_SYSCALLS=y"

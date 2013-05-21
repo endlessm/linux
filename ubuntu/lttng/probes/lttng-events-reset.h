@@ -29,6 +29,9 @@
 #undef __dynamic_array_enc_ext
 #define __dynamic_array_enc_ext(_type, _item, _length, _order, _base, _encoding)
 
+#undef __dynamic_array_enc_ext_2
+#define __dynamic_array_enc_ext_2(_type, _item, _length1, _length2, _order, _base, _encoding)
+
 #undef __dynamic_array_len
 #define __dynamic_array_len(_type, _item, _length)
 

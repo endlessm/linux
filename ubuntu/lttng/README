@@ -44,11 +44,7 @@ lttng-modules tree). It should work fine with newer kernels and other
 architectures, but expect build issues with kernels older than 2.6.36.
 The clock source currently used is the standard gettimeofday (slower,
 less scalable and less precise than the LTTng 0.x clocks).  Support for
-LTTng 0.x clocks will be added back soon into LTTng 2.0.  Please note
-that lttng-modules 2.0 can build on a Linux kernel patched with the
-LTTng 0.x patchset, but the lttng-modules 2.0 replace the lttng-modules
-0.x, so both tracers cannot be installed at the same time for a given
-kernel version.
+LTTng 0.x clocks will be added back soon into LTTng 2.0.
 
 
 * Kernel config options required

@@ -98,6 +98,58 @@ enum {
 
 #endif
 
+#if (LINUX_VERSION_CODE >= KERNEL_VERSION(3,9,0))
+DECLARE_EVENT_CLASS(block_buffer,
+
+	TP_PROTO(struct buffer_head *bh),
+
+	TP_ARGS(bh),
+
+	TP_STRUCT__entry (
+		__field(  dev_t,	dev			)
+		__field(  sector_t,	sector			)
+		__field(  size_t,	size			)
+	),
+
+	TP_fast_assign(
+		tp_assign(dev, bh->b_bdev->bd_dev)
+		tp_assign(sector, bh->b_blocknr)
+		tp_assign(size, bh->b_size)
+	),
+
+	TP_printk("%d,%d sector=%llu size=%zu",
+		MAJOR(__entry->dev), MINOR(__entry->dev),
+		(unsigned long long)__entry->sector, __entry->size
+	)
+)
+
+/**
+ * block_touch_buffer - mark a buffer accessed
+ * @bh: buffer_head being touched
+ *
+ * Called from touch_buffer().
+ */
+DEFINE_EVENT(block_buffer, block_touch_buffer,
+
+	TP_PROTO(struct buffer_head *bh),
+
+	TP_ARGS(bh)
+)
+
+/**
+ * block_dirty_buffer - mark a buffer dirty
+ * @bh: buffer_head being dirtied
+ *
+ * Called from mark_buffer_dirty().
+ */
+DEFINE_EVENT(block_buffer, block_dirty_buffer,
+
+	TP_PROTO(struct buffer_head *bh),
+
+	TP_ARGS(bh)
+)
+#endif
+
 DECLARE_EVENT_CLASS(block_rq_with_error,
 
 	TP_PROTO(struct request_queue *q, struct request *rq),
@@ -124,7 +176,7 @@ DECLARE_EVENT_CLASS(block_rq_with_error,
 		tp_assign(errors, rq->errors)
 		blk_fill_rwbs(rwbs, rq->cmd_flags, blk_rq_bytes(rq))
 		tp_memcpy_dyn(cmd, (rq->cmd_type == REQ_TYPE_BLOCK_PC) ?
-					rq->cmd : NULL);
+					rq->cmd : NULL)
 	),
 
 	TP_printk("%d,%d %s (%s) %llu + %u [%d]",
@@ -215,7 +267,7 @@ DECLARE_EVENT_CLASS(block_rq,
 					blk_rq_bytes(rq) : 0)
 		blk_fill_rwbs(rwbs, rq->cmd_flags, blk_rq_bytes(rq))
 		tp_memcpy_dyn(cmd, (rq->cmd_type == REQ_TYPE_BLOCK_PC) ?
-					rq->cmd : NULL);
+					rq->cmd : NULL)
 		tp_memcpy(comm, current->comm, TASK_COMM_LEN)
 	),
 
@@ -350,11 +402,12 @@ TRACE_EVENT(block_bio_complete,
 		  __entry->nr_sector, __entry->error)
 )
 
-DECLARE_EVENT_CLASS(block_bio,
+#if (LINUX_VERSION_CODE >= KERNEL_VERSION(3,9,0))
+DECLARE_EVENT_CLASS(block_bio_merge,
 
-	TP_PROTO(struct request_queue *q, struct bio *bio),
+	TP_PROTO(struct request_queue *q, struct request *rq, struct bio *bio),
 
-	TP_ARGS(q, bio),
+	TP_ARGS(q, rq, bio),
 
 	TP_STRUCT__entry(
 		__field( dev_t,		dev			)
@@ -387,17 +440,105 @@ DECLARE_EVENT_CLASS(block_bio,
  * Merging block request @bio to the end of an existing block request
  * in queue @q.
  */
-DEFINE_EVENT(block_bio, block_bio_backmerge,
+DEFINE_EVENT(block_bio_merge, block_bio_backmerge,
 
-#if (LINUX_VERSION_CODE >= KERNEL_VERSION(3,9,0))
 	TP_PROTO(struct request_queue *q, struct request *rq, struct bio *bio),
 
 	TP_ARGS(q, rq, bio)
+)
+
+/**
+ * block_bio_frontmerge - merging block operation to the beginning of an existing operation
+ * @q: queue holding operation
+ * @bio: new block operation to merge
+ *
+ * Merging block IO operation @bio to the beginning of an existing block
+ * operation in queue @q.
+ */
+DEFINE_EVENT(block_bio_merge, block_bio_frontmerge,
+
+	TP_PROTO(struct request_queue *q, struct request *rq, struct bio *bio),
+
+	TP_ARGS(q, rq, bio)
+)
+
+/**
+ * block_bio_queue - putting new block IO operation in queue
+ * @q: queue holding operation
+ * @bio: new block operation
+ *
+ * About to place the block IO operation @bio into queue @q.
+ */
+TRACE_EVENT(block_bio_queue,
+
+	TP_PROTO(struct request_queue *q, struct bio *bio),
+
+	TP_ARGS(q, bio),
+
+	TP_STRUCT__entry(
+		__field( dev_t,		dev			)
+		__field( sector_t,	sector			)
+		__field( unsigned int,	nr_sector		)
+		__array( char,		rwbs,	RWBS_LEN	)
+		__array( char,		comm,	TASK_COMM_LEN	)
+	),
+
+	TP_fast_assign(
+		tp_assign(dev, bio->bi_bdev->bd_dev)
+		tp_assign(sector, bio->bi_sector)
+		tp_assign(nr_sector, bio->bi_size >> 9)
+		blk_fill_rwbs(rwbs, bio->bi_rw, bio->bi_size)
+		tp_memcpy(comm, current->comm, TASK_COMM_LEN)
+	),
+
+	TP_printk("%d,%d %s %llu + %u [%s]",
+		  MAJOR(__entry->dev), MINOR(__entry->dev), __entry->rwbs,
+		  (unsigned long long)__entry->sector,
+		  __entry->nr_sector, __entry->comm)
+)
 #else
+DECLARE_EVENT_CLASS(block_bio,
+
+	TP_PROTO(struct request_queue *q, struct bio *bio),
+
+	TP_ARGS(q, bio),
+
+	TP_STRUCT__entry(
+		__field( dev_t,		dev			)
+		__field( sector_t,	sector			)
+		__field( unsigned int,	nr_sector		)
+		__field( unsigned int,	rwbs			)
+		__array_text( char,		comm,	TASK_COMM_LEN	)
+	),
+
+	TP_fast_assign(
+		tp_assign(dev, bio->bi_bdev ? bio->bi_bdev->bd_dev : 0)
+		tp_assign(sector, bio->bi_sector)
+		tp_assign(nr_sector, bio->bi_size >> 9)
+		blk_fill_rwbs(rwbs, bio->bi_rw, bio->bi_size)
+		tp_memcpy(comm, current->comm, TASK_COMM_LEN)
+	),
+
+	TP_printk("%d,%d %s %llu + %u [%s]",
+		  MAJOR(__entry->dev), MINOR(__entry->dev),
+		  __print_rwbs_flags(__entry->rwbs),
+		  (unsigned long long)__entry->sector,
+		  __entry->nr_sector, __entry->comm)
+)
+
+/**
+ * block_bio_backmerge - merging block operation to the end of an existing operation
+ * @q: queue holding operation
+ * @bio: new block operation to merge
+ *
+ * Merging block request @bio to the end of an existing block request
+ * in queue @q.
+ */
+DEFINE_EVENT(block_bio, block_bio_backmerge,
+
 	TP_PROTO(struct request_queue *q, struct bio *bio),
 
 	TP_ARGS(q, bio)
-#endif
 )
 
 /**
@@ -410,15 +551,9 @@ DEFINE_EVENT(block_bio, block_bio_backmerge,
  */
 DEFINE_EVENT(block_bio, block_bio_frontmerge,
 
-#if (LINUX_VERSION_CODE >= KERNEL_VERSION(3,9,0))
-	TP_PROTO(struct request_queue *q, struct request *rq, struct bio *bio),
-
-	TP_ARGS(q, rq, bio)
-#else
 	TP_PROTO(struct request_queue *q, struct bio *bio),
 
 	TP_ARGS(q, bio)
-#endif
 )
 
 /**
@@ -434,6 +569,7 @@ DEFINE_EVENT(block_bio, block_bio_queue,
 
 	TP_ARGS(q, bio)
 )
+#endif
 
 DECLARE_EVENT_CLASS(block_get_rq,
 

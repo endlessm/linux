@@ -41,17 +41,13 @@ static int compat_put_ulong(compat_ulong_t val, unsigned long arg)
 }
 #endif
 
-/**
- *	lib_ring_buffer_open - ring buffer open file operation
- *	@inode: opened inode
- *	@file: opened file
- *
- *	Open implementation. Makes sure only one open instance of a buffer is
- *	done at a given moment.
+/*
+ * This is not used by anonymous file descriptors. This code is left
+ * there if we ever want to implement an inode with open() operation.
  */
-int lib_ring_buffer_open(struct inode *inode, struct file *file)
+int lib_ring_buffer_open(struct inode *inode, struct file *file,
+		struct lib_ring_buffer *buf)
 {
-	struct lib_ring_buffer *buf = inode->i_private;
 	int ret;
 
 	if (!buf)
@@ -61,7 +57,6 @@ int lib_ring_buffer_open(struct inode *inode, struct file *file)
 	if (ret)
 		return ret;
 
-	file->private_data = buf;
 	ret = nonseekable_open(inode, file);
 	if (ret)
 		goto release_read;
@@ -71,34 +66,53 @@ release_read:
 	lib_ring_buffer_release_read(buf);
 	return ret;
 }
+EXPORT_SYMBOL_GPL(lib_ring_buffer_open);
 
 /**
- *	lib_ring_buffer_release - ring buffer release file operation
+ *	vfs_lib_ring_buffer_open - ring buffer open file operation
+ *	@inode: opened inode
+ *	@file: opened file
+ *
+ *	Open implementation. Makes sure only one open instance of a buffer is
+ *	done at a given moment.
+ */
+static
+int vfs_lib_ring_buffer_open(struct inode *inode, struct file *file)
+{
+	struct lib_ring_buffer *buf = inode->i_private;
+
+	file->private_data = buf;
+	return lib_ring_buffer_open(inode, file, buf);
+}
+
+int lib_ring_buffer_release(struct inode *inode, struct file *file,
+		struct lib_ring_buffer *buf)
+{
+	lib_ring_buffer_release_read(buf);
+
+	return 0;
+}
+EXPORT_SYMBOL_GPL(lib_ring_buffer_release);
+
+/**
+ *	vfs_lib_ring_buffer_release - ring buffer release file operation
  *	@inode: opened inode
  *	@file: opened file
  *
  *	Release implementation.
  */
-int lib_ring_buffer_release(struct inode *inode, struct file *file)
+static
+int vfs_lib_ring_buffer_release(struct inode *inode, struct file *file)
 {
 	struct lib_ring_buffer *buf = file->private_data;
 
-	lib_ring_buffer_release_read(buf);
-
-	return 0;
+	return lib_ring_buffer_release(inode, file, buf);
 }
 
-/**
- *	lib_ring_buffer_poll - ring buffer poll file operation
- *	@filp: the file
- *	@wait: poll table
- *
- *	Poll implementation.
- */
-unsigned int lib_ring_buffer_poll(struct file *filp, poll_table *wait)
+unsigned int lib_ring_buffer_poll(struct file *filp, poll_table *wait,
+		struct lib_ring_buffer *buf)
 {
 	unsigned int mask = 0;
-	struct lib_ring_buffer *buf = filp->private_data;
 	struct channel *chan = buf->backend.chan;
 	const struct lib_ring_buffer_config *config = &chan->backend.config;
 	int finalized, disabled;
@@ -148,34 +162,26 @@ retry:
 	}
 	return mask;
 }
+EXPORT_SYMBOL_GPL(lib_ring_buffer_poll);
 
 /**
- *	lib_ring_buffer_ioctl - control ring buffer reader synchronization
- *
+ *	vfs_lib_ring_buffer_poll - ring buffer poll file operation
  *	@filp: the file
- *	@cmd: the command
- *	@arg: command arg
+ *	@wait: poll table
  *
- *	This ioctl implements commands necessary for producer/consumer
- *	and flight recorder reader interaction :
- *	RING_BUFFER_GET_NEXT_SUBBUF
- *		Get the next sub-buffer that can be read. It never blocks.
- *	RING_BUFFER_PUT_NEXT_SUBBUF
- *		Release the currently read sub-buffer.
- *	RING_BUFFER_GET_SUBBUF_SIZE
- *		returns the size of the current sub-buffer.
- *	RING_BUFFER_GET_MAX_SUBBUF_SIZE
- *		returns the maximum size for sub-buffers.
- *	RING_BUFFER_GET_NUM_SUBBUF
- *		returns the number of reader-visible sub-buffers in the per cpu
- *              channel (for mmap).
- *      RING_BUFFER_GET_MMAP_READ_OFFSET
- *              returns the offset of the subbuffer belonging to the reader.
- *              Should only be used for mmap clients.
+ *	Poll implementation.
  */
-long lib_ring_buffer_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
+static
+unsigned int vfs_lib_ring_buffer_poll(struct file *filp, poll_table *wait)
 {
 	struct lib_ring_buffer *buf = filp->private_data;
+
+	return lib_ring_buffer_poll(filp, wait, buf);
+}
+
+long lib_ring_buffer_ioctl(struct file *filp, unsigned int cmd,
+		unsigned long arg, struct lib_ring_buffer *buf)
+{
 	struct channel *chan = buf->backend.chan;
 	const struct lib_ring_buffer_config *config = &chan->backend.config;
 
@@ -261,18 +267,50 @@ long lib_ring_buffer_ioctl(struct file *filp, unsigned int cmd, unsigned long ar
 				 arg);
 	}
 	case RING_BUFFER_FLUSH:
-		lib_ring_buffer_switch_slow(buf, SWITCH_ACTIVE);
+		lib_ring_buffer_switch_remote(buf);
 		return 0;
 	default:
 		return -ENOIOCTLCMD;
 	}
 }
+EXPORT_SYMBOL_GPL(lib_ring_buffer_ioctl);
+
+/**
+ *	vfs_lib_ring_buffer_ioctl - control ring buffer reader synchronization
+ *
+ *	@filp: the file
+ *	@cmd: the command
+ *	@arg: command arg
+ *
+ *	This ioctl implements commands necessary for producer/consumer
+ *	and flight recorder reader interaction :
+ *	RING_BUFFER_GET_NEXT_SUBBUF
+ *		Get the next sub-buffer that can be read. It never blocks.
+ *	RING_BUFFER_PUT_NEXT_SUBBUF
+ *		Release the currently read sub-buffer.
+ *	RING_BUFFER_GET_SUBBUF_SIZE
+ *		returns the size of the current sub-buffer.
+ *	RING_BUFFER_GET_MAX_SUBBUF_SIZE
+ *		returns the maximum size for sub-buffers.
+ *	RING_BUFFER_GET_NUM_SUBBUF
+ *		returns the number of reader-visible sub-buffers in the per cpu
+ *              channel (for mmap).
+ *      RING_BUFFER_GET_MMAP_READ_OFFSET
+ *              returns the offset of the subbuffer belonging to the reader.
+ *              Should only be used for mmap clients.
+ */
+static
+long vfs_lib_ring_buffer_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
+{
+	struct lib_ring_buffer *buf = filp->private_data;
+
+	return lib_ring_buffer_ioctl(filp, cmd, arg, buf);
+}
 
 #ifdef CONFIG_COMPAT
 long lib_ring_buffer_compat_ioctl(struct file *filp, unsigned int cmd,
-				  unsigned long arg)
+		unsigned long arg, struct lib_ring_buffer *buf)
 {
-	struct lib_ring_buffer *buf = filp->private_data;
 	struct channel *chan = buf->backend.chan;
 	const struct lib_ring_buffer_config *config = &chan->backend.config;
 
@@ -374,25 +412,35 @@ long lib_ring_buffer_compat_ioctl(struct file *filp, unsigned int cmd,
 		return compat_put_ulong(read_offset, arg);
 	}
 	case RING_BUFFER_COMPAT_FLUSH:
-		lib_ring_buffer_switch_slow(buf, SWITCH_ACTIVE);
+		lib_ring_buffer_switch_remote(buf);
 		return 0;
 	default:
 		return -ENOIOCTLCMD;
 	}
 }
+EXPORT_SYMBOL_GPL(lib_ring_buffer_compat_ioctl);
+
+static
+long vfs_lib_ring_buffer_compat_ioctl(struct file *filp, unsigned int cmd,
+				  unsigned long arg)
+{
+	struct lib_ring_buffer *buf = filp->private_data;
+
+	return lib_ring_buffer_compat_ioctl(filp, cmd, arg, buf);
+}
 #endif
 
 const struct file_operations lib_ring_buffer_file_operations = {
 	.owner = THIS_MODULE,
-	.open = lib_ring_buffer_open,
-	.release = lib_ring_buffer_release,
-	.poll = lib_ring_buffer_poll,
-	.splice_read = lib_ring_buffer_splice_read,
-	.mmap = lib_ring_buffer_mmap,
-	.unlocked_ioctl = lib_ring_buffer_ioctl,
-	.llseek = lib_ring_buffer_no_llseek,
+	.open = vfs_lib_ring_buffer_open,
+	.release = vfs_lib_ring_buffer_release,
+	.poll = vfs_lib_ring_buffer_poll,
+	.splice_read = vfs_lib_ring_buffer_splice_read,
+	.mmap = vfs_lib_ring_buffer_mmap,
+	.unlocked_ioctl = vfs_lib_ring_buffer_ioctl,
+	.llseek = vfs_lib_ring_buffer_no_llseek,
 #ifdef CONFIG_COMPAT
-	.compat_ioctl = lib_ring_buffer_compat_ioctl,
+	.compat_ioctl = vfs_lib_ring_buffer_compat_ioctl,
 #endif
 };
 EXPORT_SYMBOL_GPL(lib_ring_buffer_file_operations);

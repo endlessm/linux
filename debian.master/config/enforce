@@ -1,0 +1,131 @@
+#
+# SECURITY items
+#
+# Ensure this option is enabled.
+value CONFIG_COMPAT_BRK n
+value CONFIG_DEVKMEM n
+value CONFIG_LSM_MMAP_MIN_ADDR 0
+value CONFIG_SECURITY y
+!exists CONFIG_SECURITY_FILE_CAPABILITIES | value CONFIG_SECURITY_FILE_CAPABILITIES y
+value CONFIG_SECURITY_SELINUX y
+value CONFIG_SECURITY_SMACK y
+value CONFIG_SECURITY_YAMA y
+value CONFIG_SYN_COOKIES y
+value CONFIG_DEFAULT_SECURITY_APPARMOR y
+value CONFIG_DEBUG_INFO y
+# For architectures which support this option ensure it is enabled.
+!exists CONFIG_XEN_ACPI_PROCESSOR | value CONFIG_XEN_ACPI_PROCESSOR y
+!exists CONFIG_SECCOMP | value CONFIG_SECCOMP y
+!exists CONFIG_HAVE_ARCH_SECCOMP_FILTER | value CONFIG_SECCOMP_FILTER y
+!exists CONFIG_CC_STACKPROTECTOR | value CONFIG_CC_STACKPROTECTOR y
+!exists CONFIG_DEBUG_RODATA | value CONFIG_DEBUG_RODATA y
+!exists CONFIG_DEBUG_SET_MODULE_RONX | value CONFIG_DEBUG_SET_MODULE_RONX y
+!exists CONFIG_STRICT_DEVMEM | value CONFIG_STRICT_DEVMEM y
+# For architectures which support this option ensure it is disabled.
+!exists CONFIG_COMPAT_VDSO | value CONFIG_COMPAT_VDSO n
+!exists CONFIG_ACPI_CUSTOM_METHOD | value CONFIG_ACPI_CUSTOM_METHOD n
+# Default to 32768 on ARM, 65536 for everything else.
+(arch armel armhf &/ value CONFIG_DEFAULT_MMAP_MIN_ADDR 32768) | \
+ value CONFIG_DEFAULT_MMAP_MIN_ADDR 65536
+
+# upstart requires DEVTMPFS be enabled and mounted by default.
+value CONFIG_DEVTMPFS y
+value CONFIG_DEVTMPFS_MOUNT y
+
+# some /dev nodes require POSIX ACLs, like /dev/dsp
+value CONFIG_TMPFS_POSIX_ACL y
+
+# Ramdisk size should be a minimum of 64M
+value CONFIG_BLK_DEV_RAM_SIZE 65536
+
+# LVM requires dm_mod built in to activate correctly (LP: #560717)
+value CONFIG_BLK_DEV_DM y
+
+# sysfs: ensure all DEPRECATED items are off
+!exists CONFIG_SYSFS_DEPRECATED_V2 | value CONFIG_SYSFS_DEPRECATED_V2 n
+!exists CONFIG_SYSFS_DEPRECATED | value CONFIG_SYSFS_DEPRECATED n
+
+# automatically add local version will cause packaging failure
+value CONFIG_LOCALVERSION_AUTO n
+
+# provide framebuffer console form the start
+# UbuntuSpec:foundations-m-grub2-boot-framebuffer
+value CONFIG_FRAMEBUFFER_CONSOLE y
+
+# GRUB changes will rely on built in vesafb on x86,
+# UbuntuSpec:foundations-m-grub2-boot-framebuffer
+#(( arch i386 | arch amd64 ) & value CONFIG_FB_VESA y) | \
+#	value CONFIG_FB_VESA m | !exists CONFIG_FB_VESA
+#value CONFIG_FB_VESA m | !exists CONFIG_FB_VESA
+
+# Build in uinput module so that it's always available (LP: 584812)
+value CONFIG_INPUT_UINPUT y
+
+# upstart relies on getting all of the kernel arguments
+#value CONFIG_INIT_PASS_ALL_PARAMS y
+
+# Enabling CONFIG_IMA is vastly expensive, ensure it is off
+value CONFIG_IMA n
+
+# Ensure CONFIG_IPV6 is y, if this is a module we get a module load for
+# every ipv6 packet, bad.
+value CONFIG_IPV6 y
+
+# Ensure ECRYPT_FS is y as it cannot be autoloaded and it has complex
+# dependancies which can pull it =m at a whim.
+value CONFIG_ECRYPT_FS y
+
+# Ensure CONFIG_EFI_VARS is y as debian-installer relies on having
+# access to efivars when installing in EFI mode. See LP:837332
+value CONFIG_EFI_VARS y | !exists CONFIG_EFI_VARS
+
+# Ensure CONFIG_VFAT_FS is y for arm, needed to ensure we able to replace
+# a kernel with the same version.  Also needed for EFI based systems.
+(arch armel armhf arm64 i386 amd64 &/ value CONFIG_VFAT_FS y) | \
+ value CONFIG_VFAT_FS m
+
+# Ensure CONFIG_GPIO_TWL4030 is y for arm, LP:921934
+(arch armel armhf &/ value CONFIG_GPIO_TWL4030 y) | \
+ value CONFIG_GPIO_TWL4030 m | \
+ !exists CONFIG_GPIO_TWL4030
+
+# Ensure CONFIG_THERM_ADT746X is y for powerpc-smp flavours.
+# See LP:923094
+(flavour powerpc-smp &/ value CONFIG_THERM_ADT746X y) | \
+ !exists CONFIG_THERM_ADT746X
+
+# Ensure CONFIG_NVRAM is y for powerpc-smp, LP:942193
+(flavour powerpc-smp powerpc-e500 powerpc-e500mc &/ value CONFIG_NVRAM y) | \
+ (flavour powerpc-e500 powerpc-e500mc) | \
+ value CONFIG_NVRAM m | \
+ !exists CONFIG_NVRAM
+
+# Ensure CONFIG_STUB_POULSBO is disabled if CONFIG_DRM_PSB is enabled
+# See LP:899244
+(!exists CONFIG_DRM_PSB | value CONFIG_DRM_PSB n) | \
+((value CONFIG_DRM_PSB y | value CONFIG_DRM_PSB m) & (value CONFIG_STUB_POULSBO n | !exists CONFIG_STUB_POULSBO))
+
+# Ensure CONFIG_B43_BCMA_EXTRA is disabled if CONFIG_BRCMSMAC is enabled.
+# Otherwise b43 and brcmsmac will overlap in the hardware they claim to
+# support.
+(!exists CONFIG_BRCMSMAC | value CONFIG_BRCMSMAC n) | \
+((value CONFIG_BRCMSMAC y | value CONFIG_BRCMSMAC m) & (value CONFIG_B43_BCMA_EXTRA n | !exists CONFIG_B43_BCMA_EXTRA))
+
+# CONFIG_AUDIT_LOGINUID_IMMUTABLE is not compatible with upstart
+value CONFIG_AUDIT_LOGINUID_IMMUTABLE n
+
+# CONFIG_I2C_DESIGNWARE_PLATFORM is required by Calxeda Highbank
+(flavour highbank &/ value CONFIG_I2C_DESIGNWARE_PLATFORM y) | \
+value CONFIG_I2C_DESIGNWARE_PLATFORM m | \
+!exists CONFIG_I2C_DESIGNWARE_PLATFORM
+
+# Don't use the generic ehci/ohci code on omap, it doesn't work
+((flavour generic & arch armhf &/ value CONFIG_USB_EHCI_HCD_PLATFORM n & value CONFIG_USB_OHCI_HCD_PLATFORM n) | \
+	!exists MISSING)
+
+# CONFIG_DRM_MGAG200, experimental driver hangs boot on HP Proliant Gen8
+# See LP:1042903
+(!exists CONFIG_DRM_MGAG200 | value CONFIG_DRM_MGAG200 n)
+
+# Required if /init is a shell script.
+value CONFIG_BINFMT_SCRIPT y

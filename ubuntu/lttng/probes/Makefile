@@ -8,7 +8,6 @@ ifneq ($(CONFIG_TRACEPOINTS),)
 ccflags-y += -I$(PWD)/probes
 obj-m += lttng-types.o
 
-obj-m += lttng-probe-lttng.o
 obj-m += lttng-probe-sched.o
 obj-m += lttng-probe-irq.o
 obj-m += lttng-probe-timer.o
@@ -20,6 +19,17 @@ obj-m += lttng-probe-statedump.o
 
 ifneq ($(CONFIG_KVM),)
 obj-m += lttng-probe-kvm.o
+ifneq ($(CONFIG_X86),)
+kvm_dep = $(srctree)/virt/kvm/iodev.h
+ifneq ($(wildcard $(kvm_dep)),)
+CFLAGS_lttng-probe-kvm-x86.o += -I$(srctree)/virt/kvm
+CFLAGS_lttng-probe-kvm-x86-mmu.o += -I$(srctree)/virt/kvm
+obj-m += lttng-probe-kvm-x86.o
+obj-m += lttng-probe-kvm-x86-mmu.o
+else
+$(warning File $(kvm_dep) not found. Probe "kvm" x86-specific is disabled. Use full kernel source tree to enable it.)
+endif
+endif
 endif
 
 obj-m +=  $(shell \

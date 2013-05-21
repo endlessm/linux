@@ -33,7 +33,7 @@ endif # CONFIG_HAVE_SYSCALL_TRACEPOINTS
 ifneq ($(CONFIG_PERF_EVENTS),)
 lttng-tracer-objs += $(shell \
 	if [ $(VERSION) -ge 3 \
-		-o \( $(VERSION) -eq 2 -a $(PATCHLEVEL) -ge 6 -a $(SUBLEVEL) -ge 34 \) ] ; then \
+		-o \( $(VERSION) -eq 2 -a $(PATCHLEVEL) -ge 6 -a $(SUBLEVEL) -ge 33 \) ] ; then \
 		echo "lttng-context-perf-counters.o" ; fi;)
 endif # CONFIG_PERF_EVENTS
 

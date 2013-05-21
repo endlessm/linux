@@ -207,7 +207,7 @@ struct lib_ring_buffer_ctx {
  * @ctx: ring buffer context to initialize
  * @chan: channel
  * @priv: client private data
- * @data_size: size of record data payload
+ * @data_size: size of record data payload. It must be greater than 0.
  * @largest_align: largest alignment within data payload types
  * @cpu: processor id
  */

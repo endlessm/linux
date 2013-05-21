@@ -1,8 +1,12 @@
 #!/bin/sh
 
 # Generate system call probe description macros from syscall metadata dump file.
+# The resulting header will be written in the headers subdirectory, in a file name
+# based on the name of the input file. 
+#
 # example usage:
 #
+# lttng-syscalls-generate-headers.sh <type> <input_dir> <input_filename_in_dir> <bitness>
 # lttng-syscalls-generate-headers.sh integers 3.0.4 x86-64-syscalls-3.0.4 64
 # lttng-syscalls-generate-headers.sh pointers 3.0.4 x86-64-syscalls-3.0.4 64
 
@@ -59,7 +63,7 @@ if [ "$CLASS" = integers ]; then
 
 NRARGS=0
 
-echo -e \
+printf \
 'SC_DECLARE_EVENT_CLASS_NOARGS(syscalls_noargs,\n'\
 '	TP_STRUCT__entry(),\n'\
 '	TP_fast_assign(),\n'\

@@ -12,7 +12,7 @@ is expected). See the dmesg output for system call metadata.
 
 Take the dmesg metadata and feed it to lttng-syscalls-generate-headers.sh, e.g.,
 from the instrumentation/syscalls directory. See the script header for
-usage example.
+usage example. It should be run for both the integers and pointers types.
 
 After these are created, we just need to follow the new system call additions,
 no need to regenerate the whole thing, since system calls are only appended to.

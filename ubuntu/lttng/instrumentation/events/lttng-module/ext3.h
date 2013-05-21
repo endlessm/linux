@@ -295,6 +295,38 @@ DEFINE_EVENT(ext3__page_op, ext3_releasepage,
 	TP_ARGS(page)
 )
 
+#if (LINUX_VERSION_CODE >= KERNEL_VERSION(3,11,0))
+
+TRACE_EVENT(ext3_invalidatepage,
+	TP_PROTO(struct page *page, unsigned int offset, unsigned int length),
+
+	TP_ARGS(page, offset, length),
+
+	TP_STRUCT__entry(
+		__field(	pgoff_t, index			)
+		__field(	unsigned int, offset		)
+		__field(	unsigned int, length		)
+		__field(	ino_t,	ino			)
+		__field(	dev_t,	dev			)
+
+	),
+
+	TP_fast_assign(
+		tp_assign(index, page->index)
+		tp_assign(offset, offset)
+		tp_assign(length, length)
+		tp_assign(ino, page->mapping->host->i_ino)
+		tp_assign(dev, page->mapping->host->i_sb->s_dev)
+	),
+
+	TP_printk("dev %d,%d ino %lu page_index %lu offset %u length %u",
+		  MAJOR(__entry->dev), MINOR(__entry->dev),
+		  (unsigned long) __entry->ino,
+		  __entry->index, __entry->offset, __entry->length)
+)
+
+#else
+
 TRACE_EVENT(ext3_invalidatepage,
 	TP_PROTO(struct page *page, unsigned long offset),
 
@@ -320,6 +352,8 @@ TRACE_EVENT(ext3_invalidatepage,
 		  (unsigned long) __entry->ino,
 		  __entry->index, __entry->offset)
 )
+
+#endif
 
 TRACE_EVENT(ext3_discard_blocks,
 	TP_PROTO(struct super_block *sb, unsigned long blk,

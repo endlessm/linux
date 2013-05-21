@@ -25,6 +25,7 @@
 #include <linux/perf_event.h>
 #include <linux/list.h>
 #include <linux/string.h>
+#include <linux/cpu.h>
 #include "lttng-events.h"
 #include "wrapper/ringbuffer/frontend_types.h"
 #include "wrapper/vmalloc.h"
@@ -120,7 +121,7 @@ void lttng_destroy_perf_counter_field(struct lttng_ctx_field *field)
  * soon).
  */
 static
-int __cpuinit lttng_perf_counter_cpu_hp_callback(struct notifier_block *nb,
+int lttng_perf_counter_cpu_hp_callback(struct notifier_block *nb,
 						 unsigned long action,
 						 void *hcpu)
 {
