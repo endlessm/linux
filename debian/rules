@@ -29,6 +29,11 @@ include $(DROOT)/rules.d/0-common-vars.mk
 # Maintainer targets
 include $(DROOT)/rules.d/1-maintainer.mk
 
+# Don't build tools in a cross compile environment.
+ifneq ($(DEB_HOST_ARCH),$(DEB_BUILD_ARCH))
+	do_tools = false
+endif
+
 # Stages -- support both DEB_STAGE=stage1 and DEB_BUILD_PROFILE=bootstrap
 ifeq ($(DEB_STAGE),stage1)
     DEB_BUILD_PROFILE=bootstrap
