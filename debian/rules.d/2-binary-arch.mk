@@ -474,17 +474,17 @@ install-perarch: $(stampdir)/stamp-build-perarch
 ifeq ($(do_tools),true)
 	install -d $(toolspkgdir)/usr/bin
 ifeq ($(do_tools_perf),true)
-	install -s -m755 $(builddirpa)/tools/perf/perf \
+	install -m755 $(builddirpa)/tools/perf/perf \
 		$(toolspkgdir)/usr/bin/perf_$(abi_release)
 endif
 	if [ "$(arch)" = "amd64" ] || [ "$(arch)" = "i386" ]; then \
-		install -s -m755 $(builddirpa)/tools/power/x86/x86_energy_perf_policy/x86_energy_perf_policy \
+		install -m755 $(builddirpa)/tools/power/x86/x86_energy_perf_policy/x86_energy_perf_policy \
 			$(toolspkgdir)/usr/bin/x86_energy_perf_policy_$(abi_release); \
-		install -s -m755 $(builddirpa)/tools/power/x86/turbostat/turbostat \
+		install -m755 $(builddirpa)/tools/power/x86/turbostat/turbostat \
 			$(toolspkgdir)/usr/bin/turbostat_$(abi_release); \
 		if [ "$(do_hyperv)" = "true" ]; then \
 			install -d $(toolspkgdir)/usr/sbin; \
-			install -s -m755 $(builddirpa)/tools/hv/hv_kvp_daemon \
+			install -m755 $(builddirpa)/tools/hv/hv_kvp_daemon \
 				$(toolspkgdir)/usr/sbin/hv_kvp_daemon_$(abi_release); \
 		fi; \
 	fi
@@ -494,6 +494,7 @@ binary-perarch: toolspkg = $(tools_pkg_name)
 binary-perarch: install-perarch
 	@echo Debug: $@
 ifeq ($(do_tools),true)
+	dh_strip -p$(toolspkg)
 	dh_installchangelogs -p$(toolspkg)
 	dh_installdocs -p$(toolspkg)
 	dh_compress -p$(toolspkg)
