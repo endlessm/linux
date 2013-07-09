@@ -1348,7 +1348,15 @@ skpinv:	addi	r6,r6,1				/* Increment */
  * r4 = MAS0 w/TLBSEL & ESEL for the temp mapping
  */
 	/* Now we branch the new virtual address mapped by this entry */
+#ifdef CONFIG_RELOCATABLE
+	/* We have to find out address from lr. */
+	bl	1f		/* Find our address */
+1:	mflr	r6
+	addi	r6,r6,(2f - 1b)
+	tovirt(r6,r6)
+#else
 	LOAD_REG_IMMEDIATE(r6,2f)
+#endif
 	lis	r7,MSR_KERNEL@h
 	ori	r7,r7,MSR_KERNEL@l
 	mtspr	SPRN_SRR0,r6
@@ -1580,9 +1588,17 @@ _GLOBAL(book3e_secondary_thread_init)
 	mflr	r28
 	b	3b
 
-init_core_book3e:
+_GLOBAL(init_core_book3e)
 	/* Establish the interrupt vector base */
+#ifdef CONFIG_RELOCATABLE
+/* In relocatable case the value of the constant expression 'expr' is only
+ * offset. So instead, we should loads the address of label 'name'.
+ */
+	tovirt(r2,r2)
+	LOAD_REG_ADDR(r3, interrupt_base_book3e)
+#else
 	LOAD_REG_IMMEDIATE(r3, interrupt_base_book3e)
+#endif
 	mtspr	SPRN_IVPR,r3
 	sync
 	blr
