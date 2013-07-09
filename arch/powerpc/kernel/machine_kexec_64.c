@@ -30,72 +30,6 @@
 #include <asm/smp.h>
 #include <asm/hw_breakpoint.h>
 
-int default_machine_kexec_prepare(struct kimage *image)
-{
-	int i;
-	unsigned long begin, end;	/* limits of segment */
-	unsigned long low, high;	/* limits of blocked memory range */
-	struct device_node *node;
-	const unsigned long *basep;
-	const unsigned int *sizep;
-
-	if (!ppc_md.hpte_clear_all)
-		return -ENOENT;
-
-	/*
-	 * Since we use the kernel fault handlers and paging code to
-	 * handle the virtual mode, we must make sure no destination
-	 * overlaps kernel static data or bss.
-	 */
-	for (i = 0; i < image->nr_segments; i++)
-		if (image->segment[i].mem < __pa(_end))
-			return -ETXTBSY;
-
-	/*
-	 * For non-LPAR, we absolutely can not overwrite the mmu hash
-	 * table, since we are still using the bolted entries in it to
-	 * do the copy.  Check that here.
-	 *
-	 * It is safe if the end is below the start of the blocked
-	 * region (end <= low), or if the beginning is after the
-	 * end of the blocked region (begin >= high).  Use the
-	 * boolean identity !(a || b)  === (!a && !b).
-	 */
-	if (htab_address) {
-		low = __pa(htab_address);
-		high = low + htab_size_bytes;
-
-		for (i = 0; i < image->nr_segments; i++) {
-			begin = image->segment[i].mem;
-			end = begin + image->segment[i].memsz;
-
-			if ((begin < high) && (end > low))
-				return -ETXTBSY;
-		}
-	}
-
-	/* We also should not overwrite the tce tables */
-	for_each_node_by_type(node, "pci") {
-		basep = of_get_property(node, "linux,tce-base", NULL);
-		sizep = of_get_property(node, "linux,tce-size", NULL);
-		if (basep == NULL || sizep == NULL)
-			continue;
-
-		low = *basep;
-		high = low + (*sizep);
-
-		for (i = 0; i < image->nr_segments; i++) {
-			begin = image->segment[i].mem;
-			end = begin + image->segment[i].memsz;
-
-			if ((begin < high) && (end > low))
-				return -ETXTBSY;
-		}
-	}
-
-	return 0;
-}
-
 #define IND_FLAGS (IND_DESTINATION | IND_INDIRECTION | IND_DONE | IND_SOURCE)
 
 static void copy_segments(unsigned long ind)
@@ -367,6 +301,87 @@ void default_machine_kexec(struct kimage *image)
 	/* NOTREACHED */
 }
 
+#ifdef CONFIG_PPC_BOOK3E
+int default_machine_kexec_prepare(struct kimage *image)
+{
+	int i;
+	/*
+	 * Since we use the kernel fault handlers and paging code to
+	 * handle the virtual mode, we must make sure no destination
+	 * overlaps kernel static data or bss.
+	 */
+	for (i = 0; i < image->nr_segments; i++)
+		if (image->segment[i].mem < __pa(_end))
+			return -ETXTBSY;
+	return 0;
+}
+#else /* CONFIG_PPC_BOOK3E */
+int default_machine_kexec_prepare(struct kimage *image)
+{
+	int i;
+	unsigned long begin, end;	/* limits of segment */
+	unsigned long low, high;	/* limits of blocked memory range */
+	struct device_node *node;
+	const unsigned long *basep;
+	const unsigned int *sizep;
+
+	if (!ppc_md.hpte_clear_all)
+		return -ENOENT;
+
+	/*
+	 * Since we use the kernel fault handlers and paging code to
+	 * handle the virtual mode, we must make sure no destination
+	 * overlaps kernel static data or bss.
+	 */
+	for (i = 0; i < image->nr_segments; i++)
+		if (image->segment[i].mem < __pa(_end))
+			return -ETXTBSY;
+
+	/*
+	 * For non-LPAR, we absolutely can not overwrite the mmu hash
+	 * table, since we are still using the bolted entries in it to
+	 * do the copy.  Check that here.
+	 *
+	 * It is safe if the end is below the start of the blocked
+	 * region (end <= low), or if the beginning is after the
+	 * end of the blocked region (begin >= high).  Use the
+	 * boolean identity !(a || b)  === (!a && !b).
+	 */
+	if (htab_address) {
+		low = __pa(htab_address);
+		high = low + htab_size_bytes;
+
+		for (i = 0; i < image->nr_segments; i++) {
+			begin = image->segment[i].mem;
+			end = begin + image->segment[i].memsz;
+
+			if ((begin < high) && (end > low))
+				return -ETXTBSY;
+		}
+	}
+
+	/* We also should not overwrite the tce tables */
+	for_each_node_by_type(node, "pci") {
+		basep = of_get_property(node, "linux,tce-base", NULL);
+		sizep = of_get_property(node, "linux,tce-size", NULL);
+		if (basep == NULL || sizep == NULL)
+			continue;
+
+		low = *basep;
+		high = low + (*sizep);
+
+		for (i = 0; i < image->nr_segments; i++) {
+			begin = image->segment[i].mem;
+			end = begin + image->segment[i].memsz;
+
+			if ((begin < high) && (end > low))
+				return -ETXTBSY;
+		}
+	}
+
+	return 0;
+}
+
 /* Values we need to export to the second kernel via the device tree. */
 static unsigned long htab_base;
 static unsigned long htab_size;
@@ -413,3 +428,4 @@ static int __init export_htab_values(void)
 	return 0;
 }
 late_initcall(export_htab_values);
+#endif /* !CONFIG_PPC_BOOK3E */
