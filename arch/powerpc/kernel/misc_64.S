@@ -487,6 +487,49 @@ kexec_flag:
 
 
 #ifdef CONFIG_KEXEC
+#ifdef CONFIG_PPC_BOOK3E
+/* BOOK3E have no a real MMU mode so we have to setup the initial TLB
+ * for a core to map v:0 to p:0 as 1:1. This current implementation
+ * assume that 1G is enough for kexec.
+ */
+#include <asm/mmu.h>
+kexec_create_tlb:
+	/* Invalidate all TLBs to avoid any TLB conflict. */
+	PPC_TLBILX_ALL(0,R0)
+	sync
+	isync
+
+	mfspr	r10,SPRN_TLB1CFG
+	andi.	r10,r10,TLBnCFG_N_ENTRY	/* Extract # entries */
+	subi	r10,r10,1		/* Often its always safe to use last */
+	lis	r9,MAS0_TLBSEL(1)@h
+	rlwimi	r9,r10,16,4,15		/* Setup MAS0 = TLBSEL | ESEL(r9) */
+
+/* Setup a temp mapping v:0 to p:0 as 1:1 and return to it.
+ */
+#ifdef CONFIG_SMP
+#define M_IF_SMP	MAS2_M
+#else
+#define M_IF_SMP	0
+#endif
+	mtspr	SPRN_MAS0,r9
+
+	lis	r9,(MAS1_VALID|MAS1_IPROT)@h
+	ori	r9,r9,(MAS1_TSIZE(BOOK3E_PAGESZ_1GB))@l
+	mtspr	SPRN_MAS1,r9
+
+	LOAD_REG_IMMEDIATE(r9, 0x0 | M_IF_SMP)
+	mtspr	SPRN_MAS2,r9
+
+	LOAD_REG_IMMEDIATE(r9, 0x0 | MAS3_SR | MAS3_SW | MAS3_SX)
+	mtspr	SPRN_MAS3,r9
+	li	r9,0
+	mtspr	SPRN_MAS7,r9
+
+	tlbwe
+	isync
+	blr
+#endif
 
 /* kexec_smp_wait(void)
  *
@@ -500,6 +543,10 @@ kexec_flag:
  */
 _GLOBAL(kexec_smp_wait)
 	lhz	r3,PACAHWCPUID(r13)
+#ifdef CONFIG_PPC_BOOK3E
+	/* Create a 1:1 mapping. */
+	bl	kexec_create_tlb
+#endif
 	bl	real_mode
 
 	li	r4,KEXEC_STATE_REAL_MODE
@@ -516,6 +563,7 @@ _GLOBAL(kexec_smp_wait)
  * don't overwrite r3 here, it is live for kexec_wait above.
  */
 real_mode:	/* assume normal blr return */
+#ifndef CONFIG_PPC_BOOK3E
 1:	li	r9,MSR_RI
 	li	r10,MSR_DR|MSR_IR
 	mflr	r11		/* return address to SRR0 */
@@ -527,7 +575,10 @@ real_mode:	/* assume normal blr return */
 	mtspr	SPRN_SRR1,r10
 	mtspr	SPRN_SRR0,r11
 	rfid
-
+#else
+	/* the real mode is nothing for book3e. */
+	blr
+#endif
 
 /*
  * kexec_sequence(newstack, start, image, control, clear_all())
@@ -576,6 +627,8 @@ _GLOBAL(kexec_sequence)
 	mtmsrd	r3,1
 #else
 	wrteei	0
+	/* Create a 1:1 mapping. */
+	bl	kexec_create_tlb
 #endif
 
 	/* copy dest pages, flush whole dest image */
