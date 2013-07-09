@@ -91,6 +91,10 @@ __secondary_hold_spinloop:
 __secondary_hold_acknowledge:
 	.llong	0x0
 
+	.globl	__run_at_kexec
+__run_at_kexec:
+	.llong	0x0	/* Flag for the secondary kernel from kexec. */
+
 #ifdef CONFIG_RELOCATABLE
 	/* This flag is set to 1 by a loader if the kernel should run
 	 * at the loaded address instead of the linked address.  This
@@ -422,6 +426,12 @@ __after_prom_start:
 #if defined(CONFIG_PPC_BOOK3E)
 	tovirt(r26,r26)			/* on booke, we already run at PAGE_OFFSET */
 #endif
+#if defined(CONFIG_KEXEC) || defined(CONFIG_CRASH_DUMP)
+	/* If relocated we need to restore this flag on that relocated address. */
+	ld	r7,__run_at_kexec-_stext(r26)
+	std	r7,__run_at_kexec-_stext(r26)
+#endif
+
 	lwz	r7,__run_at_load-_stext(r26)
 #if defined(CONFIG_PPC_BOOK3E)
 	tophys(r26,r26)			/* Restore for the remains. */

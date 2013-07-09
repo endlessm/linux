@@ -646,6 +646,12 @@ _GLOBAL(kexec_sequence)
 	bl	copy_and_flush	/* (dest, src, copy limit, start offset) */
 1:	/* assume normal blr return */
 
+	/* notify we're going into kexec kernel for SMP. */
+	LOAD_REG_ADDR(r3,__run_at_kexec)
+	li	r4,1
+	std	r4,0(r3)
+	sync
+
 	/* release other cpus to the new kernel secondary start at 0x60 */
 	mflr	r5
 	li	r6,1
