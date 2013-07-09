@@ -130,6 +130,10 @@ __secondary_hold:
 	/* Grab our physical cpu number */
 	mr	r24,r3
 	/* stash r4 for book3e */
+#ifdef CONFIG_PPC_FSL_BOOK3E
+	/* we need to setup initial TLB entry. */
+	li	r4,0
+#endif
 	mr	r25,r4
 
 	/* Tell the master cpu we're here */
