@@ -10,6 +10,11 @@ build_cd =
 build_O  = O=$(builddir)/build-$*
 endif
 
+# Typically supplied from the arch makefile, e.g., debian.master/control.d/armhf.mk
+ifneq ($(gcc),)
+kmake += CC=$(CROSS_COMPILE)$(gcc)
+endif
+
 $(stampdir)/stamp-prepare-%: config-prepare-check-%
 	@echo Debug: $@
 	@touch $@
