@@ -10,5 +10,10 @@ armhf	PKGVER-ABINUM	generic-lpae		PKGVER-ABINUM-generic-lpae		-
 arm64	PKGVER-ABINUM	generic		PKGVER-ABINUM-generic		-
 
 ppc64el	PKGVER-ABINUM	generic		PKGVER-ABINUM-generic		-
+
 # Ports
 # arch	version		flavour		installedname			suffix	bdep
+powerpc	PKGVER-ABINUM	powerpc-smp	PKGVER-ABINUM-powerpc-smp	-	
+powerpc	PKGVER-ABINUM	powerpc64-smp	PKGVER-ABINUM-powerpc64-smp	-	
+powerpc	PKGVER-ABINUM	powerpc-e500	PKGVER-ABINUM-powerpc-e500	-	
+powerpc PKGVER-ABINUM	powerpc-e500mc	PKGVER-ABINUM-powerpc-e500mc	-	

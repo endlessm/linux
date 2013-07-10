@@ -1,0 +1,6 @@
+supported="32-bit Freescale Power e500mc"
+target="Geared toward server systems."
+desc="32-bit Freescale Power e500mc"
+bootloader="grub-kexec"
+provides="redhat-cluster-modules, ivtv-modules"
+arch="powerpc"

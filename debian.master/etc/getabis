@@ -16,3 +16,4 @@ getall arm64 generic
 getall ppc64el generic
 
 # Ports arches and flavours.
+getall powerpc powerpc-smp powerpc64-smp powerpc-e500 powerpc-e500mc powerpc64-emb

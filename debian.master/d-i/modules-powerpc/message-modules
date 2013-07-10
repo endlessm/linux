@@ -1,0 +1,13 @@
+mptbase
+mptctl
+mptfc
+mptlan
+mptsas
+mptscsih
+mptspi
+i2o_block
+i2o_bus
+i2o_config ?
+i2o_core
+i2o_proc
+i2o_scsi

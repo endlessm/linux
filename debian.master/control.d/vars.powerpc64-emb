@@ -1,0 +1,6 @@
+supported="64-bit PowerPC SMP Book3E"
+target="Geared toward desktop or server systems."
+desc="64-bit PowerPC SMP Book3E"
+bootloader="grub-kexec"
+provides="redhat-cluster-modules, ivtv-modules"
+arch="powerpc"
