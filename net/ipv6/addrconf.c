@@ -4696,18 +4696,20 @@ int addrconf_sysctl_disable(struct ctl_table *ctl, int write,
 	return ret;
 }
 
-#ifdef CONFIG_IPV6_PRIVACY
 static void dev_tempaddr_change(struct inet6_dev *idev)
 {
+	struct netdev_notifier_info info;
+
 	if (!idev || !idev->dev)
 		return;
 
+	netdev_notifier_info_init(&info, idev->dev);
 	if (!idev->cnf.disable_ipv6) {
 		/* If ipv6 is enabled, try to bring down and back up the
 		 * interface to get new temporary addresses created
 		 */
-		addrconf_notify(NULL, NETDEV_DOWN, idev->dev);
-		addrconf_notify(NULL, NETDEV_UP, idev->dev);
+		addrconf_notify(NULL, NETDEV_DOWN, &info);
+		addrconf_notify(NULL, NETDEV_UP, &info);
 	}
 }
 
@@ -4772,7 +4774,6 @@ int addrconf_sysctl_tempaddr(ctl_table *ctl, int write,
 		*ppos = pos;
 	return ret;
 }
-#endif
 
 static struct addrconf_sysctl_table
 {
