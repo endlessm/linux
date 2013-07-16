@@ -20,9 +20,9 @@ fw-external-y := $(subst $(quote),,$(CONFIG_EXTRA_FIRMWARE))
 # accurate. In the latter case it doesn't matter -- it'll use $(fw-shipped-all).
 # But be aware that the config file might not be included at all.
 
-fw-shipped-$(CONFIG_BNX2X) += bnx2x/bnx2x-e1-7.8.2.0.fw \
-			      bnx2x/bnx2x-e1h-7.8.2.0.fw \
-			      bnx2x/bnx2x-e2-7.8.2.0.fw
+fw-shipped-$(CONFIG_BNX2X) += bnx2x/bnx2x-e1-7.8.17.0.fw \
+			      bnx2x/bnx2x-e1h-7.8.17.0.fw \
+			      bnx2x/bnx2x-e2-7.8.17.0.fw
 fw-shipped-$(CONFIG_BNX2) += 	bnx2/bnx2-mips-09-6.2.1b.fw \
 				bnx2/bnx2-rv2p-06-6.0.15.fw \
 				bnx2/bnx2-mips-06-6.2.3.fw \
