@@ -213,7 +213,8 @@ kmake = make ARCH=$(build_arch) \
 	KERNELVERSION=$(abi_release)-$(target_flavour) \
 	CONFIG_DEBUG_SECTION_MISMATCH=y \
 	KBUILD_BUILD_VERSION="$(uploadnum)" \
-	LOCALVERSION= localver-extra=
+	LOCALVERSION= localver-extra= \
+	CFLAGS_MODULE="-DPKG_ABI=$(abinum)"
 ifneq ($(LOCAL_ENV_CC),)
 kmake += CC=$(LOCAL_ENV_CC) DISTCC_HOSTS=$(LOCAL_ENV_DISTCC_HOSTS)
 endif
