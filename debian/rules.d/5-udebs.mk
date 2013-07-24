@@ -44,7 +44,7 @@ do-binary-udebs: debian/control
 	done
 	
 	# Generate the meta-udeb dependancy lists.
-	awk '								\
+	@awk '								\
 		/Package: /		{ package=$$2 }			\
 		(/Package-Type: udeb/ && package !~ /^'$(src_pkg_name)'-udebs-/) { 	\
 			n = split(package, bits, "-");			\
@@ -61,7 +61,7 @@ do-binary-udebs: debian/control
 			}						\
 		}							\
 	' <$(CURDIR)/debian/control
-	while read i; do \
+	@while read i; do \
 		$(lockme) dh_gencontrol -p$$i; \
 		dh_builddeb -p$$i; \
 	done <$(builddir)/udeb-meta-packages
