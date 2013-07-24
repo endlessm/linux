@@ -29,6 +29,14 @@
 #include <clocksource/hyperv_timer.h>
 #include <linux/highmem.h>
 
+#ifndef PKG_ABI
+/*
+ * Preserve the ability to 'make deb-pkg' since PKG_ABI is provided
+ * by the Ubuntu build rules.
+ */
+#define PKG_ABI 0
+#endif
+
 int hyperv_init_cpuhp;
 u64 hv_current_partition_id = ~0ull;
 EXPORT_SYMBOL_GPL(hv_current_partition_id);
@@ -422,7 +430,7 @@ void __init hyperv_init(void)
 	 * 1. Register the guest ID
 	 * 2. Enable the hypercall and register the hypercall page
 	 */
-	guest_id = generate_guest_id(0, LINUX_VERSION_CODE, 0);
+	guest_id = generate_guest_id(0x80 /*Canonical*/, LINUX_VERSION_CODE, PKG_ABI);
 	wrmsrl(HV_X64_MSR_GUEST_OS_ID, guest_id);
 
 	hv_hypercall_pg = __vmalloc_node_range(PAGE_SIZE, 1, VMALLOC_START,
