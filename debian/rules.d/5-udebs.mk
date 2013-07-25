@@ -47,8 +47,8 @@ do-binary-udebs: debian/control
 	@awk '								\
 		/Package: /		{ package=$$2 }			\
 		(/Package-Type: udeb/ && package !~ /^'$(src_pkg_name)'-udebs-/) { 	\
-			n = split(package, bits, "-");			\
-			flavour = bits[n - 1];				\
+			match(package, "'$(release)'-'$(abinum)'-(.*)-di", bits);	\
+			flavour = bits[1];				\
 			udebs[flavour] = udebs[flavour] package ", ";	\
 		}							\
 		END {							\
