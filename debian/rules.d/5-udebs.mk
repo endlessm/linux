@@ -14,7 +14,7 @@ do-binary-udebs: debian/control
 	# unpack the kernels into a temporary directory
 	mkdir -p debian/d-i-${arch}
 
-	imagelist=$$(cat $(builddir)/kernel-versions | grep ^${arch} | awk '{print $$4}') && \
+	imagelist=$$(cat $(builddir)/kernel-versions | grep ^${arch} | gawk '{print $$4}') && \
 	for i in $$imagelist; do \
 	  dpkg -x $$(ls ../linux-image-$$i\_$(release)-$(revision)_${arch}.deb) \
 		debian/d-i-${arch}; \
@@ -44,7 +44,7 @@ do-binary-udebs: debian/control
 	done
 	
 	# Generate the meta-udeb dependancy lists.
-	@awk '								\
+	@gawk '								\
 		/Package: /		{ package=$$2 }			\
 		(/Package-Type: udeb/ && package !~ /^'$(src_pkg_name)'-udebs-/) { 	\
 			match(package, "'$(release)'-'$(abinum)'-(.*)-di", bits);	\
