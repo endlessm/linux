@@ -90,7 +90,7 @@ printenv:
 
 printchanges:
 	@baseCommit=$$(git log --pretty=format:'%H %s' | \
-		awk '/UBUNTU: '".*Ubuntu-$(prev_fullver)"'$$/ { print $$1; exit }'); \
+		gawk '/UBUNTU: '".*Ubuntu-$(prev_fullver)"'$$/ { print $$1; exit }'); \
 		git log "$$baseCommit"..HEAD | \
 		perl -w -f $(DROOT)/scripts/misc/git-ubuntu-log $(ubuntu_log_opts)
 
@@ -102,7 +102,7 @@ diffupstream:
 
 startnewrelease:
 	dh_testdir
-	@nextminor=$(shell expr `echo $(revision) | awk -F. '{print $$2}'` + 1); \
+	@nextminor=$(shell expr `echo $(revision) | gawk -F. '{print $$2}'` + 1); \
 	now="$(shell date -R)"; \
 	echo "Creating new changelog set for $(abi_release).$$nextminor..."; \
 	echo -e "$(src_pkg_name) ($(abi_release).$$nextminor) UNRELEASED; urgency=low\n" > $(DEBIAN)/changelog.new; \
