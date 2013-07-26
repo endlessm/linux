@@ -11,7 +11,7 @@ fi
 
 ver=$1
 revision=$2
-abi=$(echo $revision | awk -F. '{print $1}')
+abi=$(echo $revision | gawk -F. '{print $1}')
 
 verabi=$ver-$abi
 verfull=$ver-$revision
@@ -82,7 +82,7 @@ getall() {
 				# exposed when using the `find ...` form of the command.
 				ko=$(find lib/modules/$verabi-$sub/kernel \
 					-name '*.ko' | head -1)
-				readelf -p .comment "$ko" | awk '
+				readelf -p .comment "$ko" | gawk '
 					($1 == "[") {
 						printf("%s", $3);
 						for (n=4; n<=NF; n++) {
