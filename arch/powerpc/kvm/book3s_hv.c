@@ -540,6 +540,48 @@ static void kvmppc_create_dtl_entry(struct kvm_vcpu *vcpu,
 	vcpu->arch.dtl.dirty = true;
 }
 
+static int kvmppc_h_set_mode(struct kvm_vcpu *vcpu, unsigned long mflags,
+			     unsigned long resource, unsigned long value1,
+			     unsigned long value2)
+{
+	struct kvm *kvm = vcpu->kvm;
+	struct kvm_vcpu *v;
+	int n;
+
+	switch (resource) {
+	case H_SET_MODE_RESOURCE_LE:
+		if (value1)
+			return H_P3;
+		if (value2)
+			return H_P4;
+
+		switch (mflags) {
+		case 0:
+			mutex_lock(&kvm->lock);
+			kvm->arch.lpcr &= ~LPCR_ILE;
+			kvm_for_each_vcpu(n, v, kvm)
+				v->arch.intr_msr &= ~MSR_LE;
+			mutex_unlock(&kvm->lock);
+			kick_all_cpus_sync();
+			return H_SUCCESS;
+
+		case 1:
+			mutex_lock(&kvm->lock);
+			kvm->arch.lpcr |= LPCR_ILE;
+			kvm_for_each_vcpu(n, v, kvm)
+				v->arch.intr_msr |= MSR_LE;
+			mutex_unlock(&kvm->lock);
+			kick_all_cpus_sync();
+			return H_SUCCESS;
+
+		default:
+			return H_UNSUPPORTED_FLAG_START;
+		}
+	default:
+		return H_P2;
+	}
+}
+
 int kvmppc_pseries_do_hcall(struct kvm_vcpu *vcpu)
 {
 	unsigned long req = kvmppc_get_gpr(vcpu, 3);
@@ -605,6 +647,12 @@ int kvmppc_pseries_do_hcall(struct kvm_vcpu *vcpu)
 
 		/* Send the error out to userspace via KVM_RUN */
 		return rc;
+	case H_SET_MODE:
+		ret = kvmppc_h_set_mode(vcpu, kvmppc_get_gpr(vcpu, 4),
+					kvmppc_get_gpr(vcpu, 5),
+					kvmppc_get_gpr(vcpu, 6),
+					kvmppc_get_gpr(vcpu, 7));
+		break;
 
 	case H_XIRR:
 	case H_CPPR:
@@ -1020,6 +1068,7 @@ static struct kvm_vcpu *kvmppc_core_vcpu_create_hv(struct kvm *kvm,
 	spin_lock_init(&vcpu->arch.vpa_update_lock);
 	spin_lock_init(&vcpu->arch.tbacct_lock);
 	vcpu->arch.busy_preempt = TB_NIL;
+	vcpu->arch.intr_msr = MSR_SF | MSR_ME;
 
 	kvmppc_mmu_book3s_hv_init(vcpu);
 
