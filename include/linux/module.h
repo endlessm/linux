@@ -260,6 +260,12 @@ extern const typeof(name) __mod_##type##__##name##_device_table		\
 
 struct notifier_block;
 
+#ifdef CONFIG_MODULE_SIG
+extern void enforce_signed_modules(void);
+#else
+static inline void enforce_signed_modules(void) {};
+#endif
+
 #ifdef CONFIG_MODULES
 
 extern int modules_disabled; /* for sysctl */
