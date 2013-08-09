@@ -92,6 +92,9 @@ ifeq ($(do_tools),true)
 	install -d $(toolsbin)
 	install -d $(toolsman)/man1
 
+	install -m755 debian/tools/cpupower $(toolsbin)/cpupower
+	install -m644 $(CURDIR)/tools/power/cpupower/man/*.1 $(toolsman)/man1/
+
 ifeq ($(do_tools_perf),true)
 	install -m755 debian/tools/perf $(toolsbin)/perf
 endif
