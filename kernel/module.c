@@ -4280,6 +4280,13 @@ void module_layout(struct module *mod,
 EXPORT_SYMBOL(module_layout);
 #endif
 
+#ifdef CONFIG_MODULE_SIG
+void enforce_signed_modules(void)
+{
+	sig_enforce = true;
+}
+#endif
+
 bool secure_modules(void)
 {
 #ifdef CONFIG_MODULE_SIG
