@@ -95,14 +95,14 @@ ifeq ($(do_tools),true)
 ifeq ($(do_tools_perf),true)
 	install -m755 debian/tools/perf $(toolsbin)/perf
 endif
-	if [ "$(arch)" = "amd64" ] || [ "$(arch)" = "i386" ]; then \
-		install -m755 debian/tools/x86_energy_perf_policy $(toolsbin)/x86_energy_perf_policy; \
-		install -m755 debian/tools/turbostat $(toolsbin)/turbostat; \
-		if [ "$(do_hyperv)" = "true" ]; then \
-			install -d $(toolssbin) ; \
-			install -m755 debian/tools/generic $(toolssbin)/hv_kvp_daemon; \
-		fi; \
-	fi
+ifeq ($(do_tools_x86),true)
+	install -m755 debian/tools/x86_energy_perf_policy $(toolsbin)/x86_energy_perf_policy
+	install -m755 debian/tools/turbostat $(toolsbin)/turbostat
+endif
+ifeq ($(do_tools_hyperv),true)
+	install -d $(toolssbin)
+	install -m755 debian/tools/generic $(toolssbin)/hv_kvp_daemon
+endif
 
 	rm -rf $(builddir)/tools
 	install -d $(builddir)/tools
@@ -115,14 +115,14 @@ ifeq ($(do_tools_perf),true)
 	install -m644 $(builddir)/tools/tools/perf/Documentation/*.1 \
 		$(toolsman)/man1
 endif
-	if [ "$(arch)" = "amd64" ] || [ "$(arch)" = "i386" ]; then \
-		install -d $(toolsman)/man8; \
-		install -m644 $(CURDIR)/tools/power/x86/x86_energy_perf_policy/*.8 $(toolsman)/man8; \
-		install -m644 $(CURDIR)/tools/power/x86/turbostat/*.8 $(toolsman)/man8; \
-		if [ "$(do_hyperv)" = "true" ]; then \
-			install -m644 $(CURDIR)/tools/hv/*.8 $(toolsman)/man8; \
-		fi; \
-	fi
+ifeq ($(do_tools_x86),true)
+	install -d $(toolsman)/man8
+	install -m644 $(CURDIR)/tools/power/x86/x86_energy_perf_policy/*.8 $(toolsman)/man8
+	install -m644 $(CURDIR)/tools/power/x86/turbostat/*.8 $(toolsman)/man8
+endif
+ifeq ($(do_tools_hyperv),true)
+	install -m644 $(CURDIR)/tools/hv/*.8 $(toolsman)/man8
+endif
 endif
 
 install-indep: install-tools

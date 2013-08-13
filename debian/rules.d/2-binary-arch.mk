@@ -462,13 +462,13 @@ ifeq ($(do_tools_perf),true)
 	cd $(builddirpa)/tools/perf && \
 		make prefix=/usr HAVE_CPLUS_DEMANGLE=1 CROSS_COMPILE=$(CROSS_COMPILE) NO_LIBPYTHON=1 NO_LIBPERL=1 PYTHON=python2.7
 endif
-	if [ "$(arch)" = "amd64" ] || [ "$(arch)" = "i386" ]; then \
-		cd $(builddirpa)/tools/power/x86/x86_energy_perf_policy && make CROSS_COMPILE=$(CROSS_COMPILE); \
-		cd $(builddirpa)/tools/power/x86/turbostat && make CROSS_COMPILE=$(CROSS_COMPILE); \
-		if [ "$(do_hyperv)" = "true" ]; then \
-			cd $(builddirpa)/tools/hv && make CROSS_COMPILE=$(CROSS_COMPILE); \
-		fi; \
-	fi
+ifeq ($(do_tools_x86),true)
+	cd $(builddirpa)/tools/power/x86/x86_energy_perf_policy && make CROSS_COMPILE=$(CROSS_COMPILE)
+	cd $(builddirpa)/tools/power/x86/turbostat && make CROSS_COMPILE=$(CROSS_COMPILE)
+endif
+ifeq ($(do_tools_hyperv),true)
+	cd $(builddirpa)/tools/hv && make CROSS_COMPILE=$(CROSS_COMPILE)
+endif
 endif
 	@touch $@
 
@@ -482,17 +482,17 @@ ifeq ($(do_tools_perf),true)
 	install -m755 $(builddirpa)/tools/perf/perf \
 		$(toolspkgdir)/usr/bin/perf_$(abi_release)
 endif
-	if [ "$(arch)" = "amd64" ] || [ "$(arch)" = "i386" ]; then \
-		install -m755 $(builddirpa)/tools/power/x86/x86_energy_perf_policy/x86_energy_perf_policy \
-			$(toolspkgdir)/usr/bin/x86_energy_perf_policy_$(abi_release); \
-		install -m755 $(builddirpa)/tools/power/x86/turbostat/turbostat \
-			$(toolspkgdir)/usr/bin/turbostat_$(abi_release); \
-		if [ "$(do_hyperv)" = "true" ]; then \
-			install -d $(toolspkgdir)/usr/sbin; \
-			install -m755 $(builddirpa)/tools/hv/hv_kvp_daemon \
-				$(toolspkgdir)/usr/sbin/hv_kvp_daemon_$(abi_release); \
-		fi; \
-	fi
+ifeq ($(do_tools_x86),true)
+	install -m755 $(builddirpa)/tools/power/x86/x86_energy_perf_policy/x86_energy_perf_policy \
+		$(toolspkgdir)/usr/bin/x86_energy_perf_policy_$(abi_release)
+	install -m755 $(builddirpa)/tools/power/x86/turbostat/turbostat \
+		$(toolspkgdir)/usr/bin/turbostat_$(abi_release)
+endif
+ifeq ($(do_tools_hyperv),true)
+	install -d $(toolspkgdir)/usr/sbin
+	install -m755 $(builddirpa)/tools/hv/hv_kvp_daemon \
+		$(toolspkgdir)/usr/sbin/hv_kvp_daemon_$(abi_release)
+endif
 endif
 
 binary-perarch: toolspkg = $(tools_pkg_name)
