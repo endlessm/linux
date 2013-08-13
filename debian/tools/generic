@@ -1,16 +1,22 @@
 #!/bin/bash
 full_version=`uname -r`
 
+# First check for a fully qualified version.
+this="/usr/lib/linux-tools/$full_version/`basename $0`"
+if [ -f "$this" ]; then
+	exec "$this" "$@"
+fi
+
 # Removing flavour from version i.e. generic or server.
 flavour_abi=${full_version#*-}
 flavour=${flavour_abi#*-}
 version=${full_version%-$flavour}
 this="$0_$version"
-
-if [ ! -f "$this" ]; then
-    echo "$this not found" >&2
-    echo "You may need to install linux-tools-$version" >&2
-    exit 2
+if [ -f "$this" ]; then
+	exec "$this" "$@"
 fi
 
-exec "$this" "$@"
+# Give them a hint as to what to install.
+echo "`basename $0` not found for kernel $version" >&2
+echo "You may need to install linux-tools-$version-$flavour" >&2
+exit 2
