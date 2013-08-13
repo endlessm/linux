@@ -92,15 +92,15 @@ ifeq ($(do_tools),true)
 	install -d $(toolsbin)
 	install -d $(toolsman)/man1
 
-	install -m755 debian/tools/cpupower $(toolsbin)/cpupower
+	install -m755 debian/tools/generic $(toolsbin)/cpupower
 	install -m644 $(CURDIR)/tools/power/cpupower/man/*.1 $(toolsman)/man1/
 
 ifeq ($(do_tools_perf),true)
-	install -m755 debian/tools/perf $(toolsbin)/perf
+	install -m755 debian/tools/generic $(toolsbin)/perf
 endif
 ifeq ($(do_tools_x86),true)
-	install -m755 debian/tools/x86_energy_perf_policy $(toolsbin)/x86_energy_perf_policy
-	install -m755 debian/tools/turbostat $(toolsbin)/turbostat
+	install -m755 debian/tools/generic $(toolsbin)/x86_energy_perf_policy
+	install -m755 debian/tools/generic $(toolsbin)/turbostat
 endif
 ifeq ($(do_tools_hyperv),true)
 	install -d $(toolssbin)
