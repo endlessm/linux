@@ -17,6 +17,7 @@
 
 #include "domain.h"
 #include "match.h"
+#include "label.h"
 
 struct aa_profile;
 struct path;
@@ -46,6 +47,8 @@ struct path;
 				 AA_MAY_META_READ | AA_MAY_META_WRITE | \
 				 AA_MAY_CHMOD | AA_MAY_CHOWN | AA_MAY_LOCK | \
 				 AA_EXEC_MMAP | AA_MAY_LINK)
+
+#define inode_cxt(X) (X)->i_security
 
 /*
  * The xindex is broken into 3 parts
@@ -171,13 +174,13 @@ unsigned int aa_str_perms(struct aa_dfa *dfa, unsigned int start,
 			  const char *name, struct path_cond *cond,
 			  struct file_perms *perms);
 
-int aa_path_perm(int op, struct aa_profile *profile, struct path *path,
+int aa_path_perm(int op, struct aa_label *label, struct path *path,
 		 int flags, u32 request, struct path_cond *cond);
 
-int aa_path_link(struct aa_profile *profile, struct dentry *old_dentry,
+int aa_path_link(struct aa_label *label, struct dentry *old_dentry,
 		 struct path *new_dir, struct dentry *new_dentry);
 
-int aa_file_perm(int op, struct aa_profile *profile, struct file *file,
+int aa_file_perm(int op, struct aa_label *label, struct file *file,
 		 u32 request);
 
 static inline void aa_free_file_rules(struct aa_file_rules *rules)

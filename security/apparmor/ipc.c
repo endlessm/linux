@@ -26,7 +26,7 @@ static void audit_cb(struct audit_buffer *ab, void *va)
 {
 	struct common_audit_data *sa = va;
 	audit_log_format(ab, " target=");
-	audit_log_untrustedstring(ab, sa->aad->target);
+	audit_log_untrustedstring(ab, aad(sa)->target);
 }
 
 /**
@@ -43,7 +43,7 @@ static int aa_audit_ptrace(struct aa_profile *profile,
 	struct common_audit_data sa;
 	struct apparmor_audit_data aad = {0,};
 	sa.type = LSM_AUDIT_DATA_NONE;
-	sa.aad = &aad;
+	aad_set(&sa, &aad);
 	aad.op = OP_PTRACE;
 	aad.target = target;
 	aad.error = error;
@@ -54,24 +54,33 @@ static int aa_audit_ptrace(struct aa_profile *profile,
 
 /**
  * aa_may_ptrace - test if tracer task can trace the tracee
- * @tracer: profile of the task doing the tracing  (NOT NULL)
+ * @tracer: label of the task doing the tracing  (NOT NULL)
  * @tracee: task to be traced
  * @mode: whether PTRACE_MODE_READ || PTRACE_MODE_ATTACH
  *
  * Returns: %0 else error code if permission denied or error
  */
-int aa_may_ptrace(struct aa_profile *tracer, struct aa_profile *tracee,
-		  unsigned int mode)
+int aa_may_ptrace(struct aa_label *tracer, struct aa_label *tracee, unsigned int mode)
 {
-	/* TODO: currently only based on capability, not extended ptrace
-	 *       rules,
-	 *       Test mode for PTRACE_MODE_READ || PTRACE_MODE_ATTACH
-	 */
+	struct aa_profile *profile;
+	int i, error = 0;
 
 	if (unconfined(tracer) || tracer == tracee)
 		return 0;
-	/* log this capability request */
-	return aa_capable(tracer, CAP_SYS_PTRACE, 1);
+
+	label_for_each_confined(i, tracer, profile) {
+		/* TODO: currently only based on capability, not extended ptrace
+		 *       rules,
+		 *       Test mode for PTRACE_MODE_READ || PTRACE_MODE_ATTACH
+		 */
+
+		/* log this capability request */
+		int e = aa_capable(profile, CAP_SYS_PTRACE, 1);
+		if (e)
+			error = e;
+	}
+
+	return error;
 }
 
 /**
@@ -94,18 +103,19 @@ int aa_ptrace(struct task_struct *tracer, struct task_struct *tracee,
 	 *       - tracer profile has CAP_SYS_PTRACE
 	 */
 
-	struct aa_profile *tracer_p = aa_get_task_profile(tracer);
+	struct aa_label *tracer_l = aa_get_task_label(tracer);
 	int error = 0;
 
-	if (!unconfined(tracer_p)) {
-		struct aa_profile *tracee_p = aa_get_task_profile(tracee);
+	if (!unconfined(tracer_l)) {
+		struct aa_label *tracee_l = aa_get_task_label(tracee);
 
-		error = aa_may_ptrace(tracer_p, tracee_p, mode);
-		error = aa_audit_ptrace(tracer_p, tracee_p, error);
+		error = aa_may_ptrace(tracer_l, tracee_l, mode);
 
-		aa_put_profile(tracee_p);
+		error = aa_audit_ptrace(labels_profile(tracer_l), labels_profile(tracee_l), error);
+
+		aa_put_label(tracee_l);
 	}
-	aa_put_profile(tracer_p);
+	aa_put_label(tracer_l);
 
 	return error;
 }

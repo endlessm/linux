@@ -26,6 +26,7 @@
 #include "include/context.h"
 #include "include/crypto.h"
 #include "include/match.h"
+#include "include/path.h"
 #include "include/policy.h"
 #include "include/policy_unpack.h"
 
@@ -70,13 +71,13 @@ struct aa_ext {
 static void audit_cb(struct audit_buffer *ab, void *va)
 {
 	struct common_audit_data *sa = va;
-	if (sa->aad->iface.target) {
-		struct aa_profile *name = sa->aad->iface.target;
+	if (aad(sa)->iface.target) {
+		struct aa_profile *name = aad(sa)->iface.target;
 		audit_log_format(ab, " name=");
 		audit_log_untrustedstring(ab, name->base.hname);
 	}
-	if (sa->aad->iface.pos)
-		audit_log_format(ab, " offset=%ld", sa->aad->iface.pos);
+	if (aad(sa)->iface.pos)
+		audit_log_format(ab, " offset=%ld", aad(sa)->iface.pos);
 }
 
 /**
@@ -92,11 +93,11 @@ static void audit_cb(struct audit_buffer *ab, void *va)
 static int audit_iface(struct aa_profile *new, const char *name,
 		       const char *info, struct aa_ext *e, int error)
 {
-	struct aa_profile *profile = __aa_current_profile();
+	struct aa_profile *profile = labels_profile(__aa_current_label());
 	struct common_audit_data sa;
 	struct apparmor_audit_data aad = {0,};
 	sa.type = LSM_AUDIT_DATA_NONE;
-	sa.aad = &aad;
+	aad_set(&sa, &aad);
 	if (e)
 		aad.iface.pos = e->pos - e->start;
 	aad.iface.target = new;
@@ -190,6 +191,19 @@ static bool unpack_nameX(struct aa_ext *e, enum aa_code code, const char *name)
 
 fail:
 	e->pos = pos;
+	return 0;
+}
+
+static bool unpack_u16(struct aa_ext *e, u16 *data, const char *name)
+{
+	if (unpack_nameX(e, AA_U16, name)) {
+		if (!inbounds(e, sizeof(u16)))
+			return 0;
+		if (data)
+			*data = le16_to_cpu(get_unaligned((u16 *) e->pos));
+		e->pos += sizeof(u16);
+		return 1;
+	}
 	return 0;
 }
 
@@ -476,6 +490,7 @@ static struct aa_profile *unpack_profile(struct aa_ext *e)
 {
 	struct aa_profile *profile = NULL;
 	const char *name = NULL;
+	size_t size = 0;
 	int i, error = -EPROTO;
 	kernel_cap_t tmpcap;
 	u32 tmp;
@@ -516,7 +531,7 @@ static struct aa_profile *unpack_profile(struct aa_ext *e)
 	if (!unpack_u32(e, &tmp, NULL))
 		goto fail;
 	if (tmp & PACKED_FLAG_HAT)
-		profile->flags |= PFLAG_HAT;
+		profile->label.flags |= FLAG_HAT;
 	if (!unpack_u32(e, &tmp, NULL))
 		goto fail;
 	if (tmp == PACKED_MODE_COMPLAIN)
@@ -534,11 +549,9 @@ static struct aa_profile *unpack_profile(struct aa_ext *e)
 		goto fail;
 
 	/* path_flags is optional */
-	if (unpack_u32(e, &profile->path_flags, "path_flags"))
-		profile->path_flags |= profile->flags & PFLAG_MEDIATE_DELETED;
-	else
+	if (!unpack_u32(e, &profile->path_flags, "path_flags"))
 		/* set a default value if path_flags field is not present */
-		profile->path_flags = PFLAG_MEDIATE_DELETED;
+		profile->path_flags = PATH_MEDIATE_DELETED;
 
 	if (!unpack_u32(e, &(profile->caps.allow.cap[0]), NULL))
 		goto fail;
@@ -575,6 +588,38 @@ static struct aa_profile *unpack_profile(struct aa_ext *e)
 
 	if (!unpack_rlimits(e, profile))
 		goto fail;
+
+	size = unpack_array(e, "net_allowed_af");
+	if (size) {
+
+		for (i = 0; i < size; i++) {
+			/* discard extraneous rules that this kernel will
+			 * never request
+			 */
+			if (i >= AF_MAX) {
+				u16 tmp;
+				if (!unpack_u16(e, &tmp, NULL) ||
+				    !unpack_u16(e, &tmp, NULL) ||
+				    !unpack_u16(e, &tmp, NULL))
+					goto fail;
+				continue;
+			}
+			if (!unpack_u16(e, &profile->net.allow[i], NULL))
+				goto fail;
+			if (!unpack_u16(e, &profile->net.audit[i], NULL))
+				goto fail;
+			if (!unpack_u16(e, &profile->net.quiet[i], NULL))
+				goto fail;
+		}
+		if (!unpack_nameX(e, AA_ARRAYEND, NULL))
+			goto fail;
+	}
+	/*
+	 * allow unix domain and netlink sockets they are handled
+	 * by IPC
+	 */
+	profile->net.allow[AF_UNIX] = 0xffff;
+	profile->net.allow[AF_NETLINK] = 0xffff;
 
 	if (unpack_nameX(e, AA_STRUCT, "policydb")) {
 		/* generic policy dfa - optional and may be NULL */
