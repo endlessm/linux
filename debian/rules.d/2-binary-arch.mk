@@ -509,6 +509,8 @@ ifeq ($(do_tools_hyperv),true)
 	install -d $(toolspkgdir)/usr/sbin
 	install -m755 $(builddirpa)/tools/hv/hv_kvp_daemon \
 		$(toolspkgdir)/usr/sbin/hv_kvp_daemon_$(abi_release)
+	install -m755 $(builddirpa)/tools/hv/hv_vss_daemon \
+		$(toolspkgdir)/usr/sbin/hv_vss_daemon_$(abi_release)
 endif
 endif
 
