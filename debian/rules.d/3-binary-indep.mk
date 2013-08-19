@@ -105,6 +105,7 @@ endif
 ifeq ($(do_tools_hyperv),true)
 	install -d $(toolssbin)
 	install -m755 debian/tools/generic $(toolssbin)/hv_kvp_daemon
+	install -m755 debian/tools/generic $(toolssbin)/hv_vss_daemon
 endif
 
 	rm -rf $(builddir)/tools
