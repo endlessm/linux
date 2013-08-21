@@ -129,6 +129,7 @@ extern int opal_enter_rtas(struct rtas_args *args,
 #define OPAL_LPC_READ				67
 #define OPAL_LPC_WRITE				68
 #define OPAL_RETURN_CPU				69
+#define OPAL_REINIT_CPUS			70
 #define OPAL_FLASH_VALIDATE			76
 #define OPAL_FLASH_MANAGE			77
 #define OPAL_FLASH_UPDATE			78
@@ -599,6 +600,11 @@ struct OpalIoPhb3ErrorData {
 	uint64_t pestB[OPAL_PHB3_NUM_PEST_REGS];
 };
 
+enum {
+	OPAL_REINIT_CPUS_HILE_BE	= (1 << 0),
+	OPAL_REINIT_CPUS_HILE_LE	= (1 << 1),
+};
+
 typedef struct oppanel_line {
 	const char * 	line;
 	uint64_t 	line_len;
@@ -719,6 +725,7 @@ int64_t opal_pci_next_error(uint64_t phb_id, uint64_t *first_frozen_pe,
 			    uint16_t *pci_error_type, uint16_t *severity);
 int64_t opal_pci_poll(uint64_t phb_id);
 int64_t opal_return_cpu(void);
+int64_t opal_reinit_cpus(uint64_t flags);
 
 int64_t opal_xscom_read(uint32_t gcid, uint64_t pcb_addr, __be64 *val);
 int64_t opal_xscom_write(uint32_t gcid, uint64_t pcb_addr, uint64_t val);
