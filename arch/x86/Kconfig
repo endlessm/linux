@@ -1721,7 +1721,8 @@ config EFI_MIXED
 	   If unsure, say N.
 
 config EFI_SECURE_BOOT_SIG_ENFORCE
-        def_bool n
+	def_bool n
+	depends on EFI
 	prompt "Force module signing when UEFI Secure Boot is enabled"
 	---help---
 	  UEFI Secure Boot provides a mechanism for ensuring that the
