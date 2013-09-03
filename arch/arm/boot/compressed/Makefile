@@ -3,6 +3,7 @@
 #
 # create a compressed vmlinuz image from the original vmlinux
 #
+KBUILD_CFLAGS := $(filter-out -fstack-protector, $(KBUILD_CFLAGS)) -fno-stack-protector
 
 OBJS		=
 
