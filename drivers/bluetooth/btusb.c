@@ -113,6 +113,7 @@ static const struct usb_device_id btusb_table[] = {
 
 	/* Broadcom BCM43142A0 */
 	{ USB_DEVICE(0x04ca, 0x2007), .driver_info = BTUSB_BCM_PATCHRAM },
+	{ USB_DEVICE(0x105b, 0xe065), .driver_info = BTUSB_BCM_PATCHRAM },
 
 	/* Foxconn - Hon Hai */
 	{ USB_VENDOR_AND_INTERFACE_INFO(0x0489, 0xff, 0x01, 0x01), .driver_info = BTUSB_BCM_PATCHRAM },
