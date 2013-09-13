@@ -1441,6 +1441,14 @@ static int storvsc_device_configure(struct scsi_device *sdevice)
 
 	sdevice->no_write_same = 1;
 
+	/*
+	 * hyper-v lies about its capabilities indicating it is only SPC-2
+	 * compliant, but actually implements the core SPC-3 features.
+	 * If we pretend to be SPC-3, we send RC16 which activates trim and
+	 * will query the appropriate VPD pages to enable trim.
+	 */
+	sdevice->scsi_level = SCSI_SPC_3;
+
 	return 0;
 }
 
