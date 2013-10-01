@@ -41,6 +41,9 @@
 /* Flag indicating whether initialization completed */
 int apparmor_initialized __initdata;
 
+DEFINE_PER_CPU(struct aa_buffers, aa_buffers);
+
+
 /*
  * LSM hook functions
  */
@@ -1390,6 +1393,36 @@ static int __init set_init_cxt(void)
 	return 0;
 }
 
+static void destroy_buffers(void)
+{
+	u32 i, j;
+
+	for_each_possible_cpu(i) {
+		for_each_cpu_buffer(j) {
+			kvfree(per_cpu(aa_buffers, i).buf[j]);
+			per_cpu(aa_buffers, i).buf[j] = NULL;
+		}
+	}
+}
+
+static int __init alloc_buffers(void)
+{
+	u32 i, j;
+
+	for_each_possible_cpu(i) {
+		for_each_cpu_buffer(j) {
+			char *buffer = kvmalloc(aa_g_path_max);
+			if (!buffer) {
+				destroy_buffers();
+				return -ENOMEM;
+			}
+			per_cpu(aa_buffers, i).buf[j] = buffer;
+		}
+	}
+
+	return 0;
+}
+
 static int __init apparmor_init(void)
 {
 	int error;
@@ -1404,6 +1437,12 @@ static int __init apparmor_init(void)
 	if (error) {
 		AA_ERROR("Unable to allocate default profile namespace\n");
 		goto alloc_out;
+	}
+
+	error = alloc_buffers();
+	if (error) {
+		AA_ERROR("Unable to allocate work buffers\n");
+		goto buffers_out;
 	}
 
 	error = set_init_cxt();
@@ -1434,6 +1473,9 @@ static int __init apparmor_init(void)
 
 register_security_out:
 	aa_free_root_ns();
+
+buffers_out:
+	destroy_buffers();
 
 alloc_out:
 	aa_destroy_aafs();

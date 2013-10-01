@@ -347,8 +347,9 @@ int aa_remount(struct aa_label *label, struct path *path, unsigned long flags,
 
 	binary = path->dentry->d_sb->s_type->fs_flags & FS_BINARY_MOUNTDATA;
 
+	get_buffers(buffer);
 	error = aa_path_name(path, path_flags(labels_profile(label), path),
-			     &buffer, &name, &info);
+			     buffer, &name, &info);
 	if (error) {
 		error = audit_mount(labels_profile(label), GFP_KERNEL, OP_MOUNT, name, NULL,
 				    NULL, NULL, flags, data, AA_MAY_MOUNT,
@@ -367,7 +368,7 @@ int aa_remount(struct aa_label *label, struct path *path, unsigned long flags,
 	}
 
 out:
-	kfree(buffer);
+	put_buffers(buffer);
 
 	return error;
 }
@@ -387,8 +388,9 @@ int aa_bind_mount(struct aa_label *label, struct path *path,
 
 	flags &= MS_REC | MS_BIND;
 
-	error = aa_path_name(path, path_flags(labels_profile(label), path), &buffer, &name,
-			     &info);
+	get_buffers(buffer, old_buffer);
+	error = aa_path_name(path, path_flags(labels_profile(label), path),
+			     buffer, &name, &info);
 	if (error)
 		goto error;
 
@@ -398,7 +400,7 @@ int aa_bind_mount(struct aa_label *label, struct path *path,
 
 	error = aa_path_name(&old_path, path_flags(labels_profile(label),
 						   &old_path),
-			     &old_buffer, &old_name, &info);
+			     old_buffer, &old_name, &info);
 	path_put(&old_path);
 	if (error)
 		goto error;
@@ -414,8 +416,7 @@ int aa_bind_mount(struct aa_label *label, struct path *path,
 	}
 
 out:
-	kfree(buffer);
-	kfree(old_buffer);
+	put_buffers(buffer, old_buffer);
 
 	return error;
 
@@ -439,8 +440,9 @@ int aa_mount_change_type(struct aa_label *label, struct path *path,
 	flags &= (MS_REC | MS_SILENT | MS_SHARED | MS_PRIVATE | MS_SLAVE |
 		  MS_UNBINDABLE);
 
+	get_buffers(buffer);
 	error = aa_path_name(path, path_flags(labels_profile(label), path),
-			     &buffer, &name, &info);
+			     buffer, &name, &info);
 	if (error) {
 		error = audit_mount(labels_profile(label), GFP_KERNEL, OP_MOUNT, name, NULL,
 				    NULL, NULL, flags, NULL, AA_MAY_MOUNT,
@@ -459,7 +461,7 @@ int aa_mount_change_type(struct aa_label *label, struct path *path,
 	}
 
 out:
-	kfree(buffer);
+	put_buffers(buffer);
 
 	return error;
 }
@@ -477,8 +479,9 @@ int aa_move_mount(struct aa_label *label, struct path *path,
 	if (!orig_name || !*orig_name)
 		return -EINVAL;
 
+	get_buffers(buffer, old_buffer);
 	error = aa_path_name(path, path_flags(labels_profile(label), path),
-			     &buffer, &name, &info);
+			     buffer, &name, &info);
 	if (error)
 		goto error;
 
@@ -488,7 +491,7 @@ int aa_move_mount(struct aa_label *label, struct path *path,
 
 	error = aa_path_name(&old_path, path_flags(labels_profile(label),
 						   &old_path),
-			     &old_buffer, &old_name, &info);
+			     old_buffer, &old_name, &info);
 	path_put(&old_path);
 	if (error)
 		goto error;
@@ -504,8 +507,7 @@ int aa_move_mount(struct aa_label *label, struct path *path,
 	}
 
 out:
-	kfree(buffer);
-	kfree(old_buffer);
+	put_buffers(buffer, old_buffer);
 
 	return error;
 
@@ -528,6 +530,7 @@ int aa_new_mount(struct aa_label *label, const char *orig_dev_name,
 	int i, error;
 
 	dev_name = orig_dev_name;
+	get_buffers(buffer, dev_buffer);
 	if (type) {
 		int requires_dev;
 		struct file_system_type *fstype = get_fs_type(type);
@@ -553,7 +556,7 @@ int aa_new_mount(struct aa_label *label, const char *orig_dev_name,
 			error = aa_path_name(&dev_path,
 					     path_flags(labels_profile(label),
 							&dev_path),
-					     &dev_buffer, &dev_name, &info);
+					     dev_buffer, &dev_name, &info);
 			path_put(&dev_path);
 			if (error)
 				goto error;
@@ -561,7 +564,7 @@ int aa_new_mount(struct aa_label *label, const char *orig_dev_name,
 	}
 
 	error = aa_path_name(path, path_flags(labels_profile(label), path),
-			     &buffer, &name, &info);
+			     buffer, &name, &info);
 	if (error)
 		goto error;
 
@@ -576,8 +579,7 @@ int aa_new_mount(struct aa_label *label, const char *orig_dev_name,
 	}
 
 cleanup:
-	kfree(buffer);
-	kfree(dev_buffer);
+	put_buffers(buffer, dev_buffer);
 
 out:
 	return error;
@@ -598,8 +600,9 @@ int aa_umount(struct aa_label *label, struct vfsmount *mnt, int flags)
 	int i, error;
 
 	struct path path = { mnt, mnt->mnt_root };
+	get_buffers(buffer);
 	error = aa_path_name(&path, path_flags(labels_profile(label), &path),
-			     &buffer, &name, &info);
+			     buffer, &name, &info);
 	if (error) {
 		error = audit_mount(labels_profile(label), GFP_KERNEL,
 				    OP_UMOUNT, name, NULL, NULL, NULL, 0, NULL,
@@ -628,7 +631,7 @@ int aa_umount(struct aa_label *label, struct vfsmount *mnt, int flags)
 	}
 
 out:
-	kfree(buffer);
+	put_buffers(buffer);
 
 	return error;
 }
@@ -643,15 +646,16 @@ int aa_pivotroot(struct aa_label *label, struct path *old_path,
 	const char *old_name, *new_name = NULL, *info = NULL;
 	int i, error;
 
+	get_buffers(old_buffer, new_buffer);
 	error = aa_path_name(old_path, path_flags(labels_profile(label),
 						  old_path),
-			     &old_buffer, &old_name, &info);
+			     old_buffer, &old_name, &info);
 	if (error)
 		goto error;
 
 	error = aa_path_name(new_path, path_flags(labels_profile(label),
 						  new_path),
-			     &new_buffer, &new_name, &info);
+			     new_buffer, &new_name, &info);
 	if (error)
 		goto error;
 
@@ -691,8 +695,7 @@ int aa_pivotroot(struct aa_label *label, struct path *old_path,
 
 out:
 	aa_put_profile(target);
-	kfree(old_buffer);
-	kfree(new_buffer);
+	put_buffers(old_buffer, new_buffer);
 
 	return error;
 
