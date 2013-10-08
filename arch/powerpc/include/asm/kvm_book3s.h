@@ -271,6 +271,16 @@ static inline ulong kvmppc_get_pc(struct kvm_vcpu *vcpu)
 	return vcpu->arch.pc;
 }
 
+static inline bool kvmppc_need_byteswap(struct kvm_vcpu *vcpu)
+{
+	return vcpu->arch.shared->msr & MSR_LE;
+}
+
+static inline bool kvmppc_is_bigendian(struct kvm_vcpu *vcpu)
+{
+	return !kvmppc_need_byteswap(vcpu);
+}
+
 static inline int kvmppc_ld32(struct kvm_vcpu *vcpu, ulong *eaddr,
 			      u32 *ptr, bool data)
 {
