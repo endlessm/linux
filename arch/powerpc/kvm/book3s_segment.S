@@ -289,6 +289,15 @@ ld_last_inst:
 #endif
 	stw	r0, SVCPU_LAST_INST(r13)
 
+#ifdef CONFIG_PPC64
+	andi.	r9, r4, MSR_LE
+	beq	no_ld_last_inst
+
+	/* swap and store the result */
+	addi	r9, r13, SVCPU_LAST_INST
+	stwbrx	r0, 0, r9
+#endif
+
 no_ld_last_inst:
 
 	/* Unset guest mode */

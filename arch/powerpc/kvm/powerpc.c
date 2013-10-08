@@ -673,9 +673,13 @@ static void kvmppc_complete_mmio_load(struct kvm_vcpu *vcpu,
 }
 
 int kvmppc_handle_load(struct kvm_run *run, struct kvm_vcpu *vcpu,
-                       unsigned int rt, unsigned int bytes, int is_bigendian)
+			unsigned int rt, unsigned int bytes, int not_reverse)
 {
 	int idx, ret;
+	int is_bigendian = not_reverse;
+
+	if (!kvmppc_is_bigendian(vcpu))
+		is_bigendian = !not_reverse;
 
 	if (bytes > sizeof(run->mmio.data)) {
 		printk(KERN_ERR "%s: bad MMIO length: %d\n", __func__,
@@ -711,21 +715,25 @@ EXPORT_SYMBOL_GPL(kvmppc_handle_load);
 
 /* Same as above, but sign extends */
 int kvmppc_handle_loads(struct kvm_run *run, struct kvm_vcpu *vcpu,
-                        unsigned int rt, unsigned int bytes, int is_bigendian)
+			unsigned int rt, unsigned int bytes, int not_reverse)
 {
 	int r;
 
 	vcpu->arch.mmio_sign_extend = 1;
-	r = kvmppc_handle_load(run, vcpu, rt, bytes, is_bigendian);
+	r = kvmppc_handle_load(run, vcpu, rt, bytes, not_reverse);
 
 	return r;
 }
 
 int kvmppc_handle_store(struct kvm_run *run, struct kvm_vcpu *vcpu,
-                        u64 val, unsigned int bytes, int is_bigendian)
+			u64 val, unsigned int bytes, int not_reverse)
 {
 	void *data = run->mmio.data;
 	int idx, ret;
+	int is_bigendian = not_reverse;
+
+	if (!kvmppc_is_bigendian(vcpu))
+		is_bigendian = !not_reverse;
 
 	if (bytes > sizeof(run->mmio.data)) {
 		printk(KERN_ERR "%s: bad MMIO length: %d\n", __func__,

@@ -284,7 +284,14 @@ static inline bool kvmppc_is_bigendian(struct kvm_vcpu *vcpu)
 static inline int kvmppc_ld32(struct kvm_vcpu *vcpu, ulong *eaddr,
 			      u32 *ptr, bool data)
 {
-	return kvmppc_ld(vcpu, eaddr, sizeof(u32), ptr, data);
+	int ret;
+
+	ret = kvmppc_ld(vcpu, eaddr, sizeof(u32), ptr, data);
+
+	if (kvmppc_need_byteswap(vcpu))
+		*ptr = swab32(*ptr);
+
+	return ret;
 }
 
 static inline u32 kvmppc_get_last_inst(struct kvm_vcpu *vcpu)

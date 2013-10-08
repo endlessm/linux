@@ -1412,10 +1412,19 @@ fast_interrupt_c_return:
 	lwz	r8, 0(r10)
 	mtmsrd	r3
 
+	andi.	r0, r11, MSR_LE
+
 	/* Store the result */
 	stw	r8, VCPU_LAST_INST(r9)
 
+	beq	after_inst_store
+
+	/* Swap and store the result */
+	addi	r4, r9, VCPU_LAST_INST
+	stwbrx	r8, 0, r4
+
 	/* Unset guest mode. */
+after_inst_store:
 	li	r0, KVM_GUEST_MODE_HOST_HV
 	stb	r0, HSTATE_IN_GUEST(r13)
 	b	guest_exit_cont
