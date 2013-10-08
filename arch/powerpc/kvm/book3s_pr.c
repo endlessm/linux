@@ -627,7 +627,7 @@ static int kvmppc_read_inst(struct kvm_vcpu *vcpu)
 	u32 last_inst = kvmppc_get_last_inst(vcpu);
 	int ret;
 
-	ret = kvmppc_ld(vcpu, &srr0, sizeof(u32), &last_inst, false);
+	ret = kvmppc_ld32(vcpu, &srr0, &last_inst, false);
 	if (ret == -ENOENT) {
 		ulong msr = vcpu->arch.shared->msr;
 

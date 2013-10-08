@@ -544,7 +544,7 @@ static int kvmppc_hv_emulate_mmio(struct kvm_run *run, struct kvm_vcpu *vcpu,
 	 * If we fail, we just return to the guest and try executing it again.
 	 */
 	if (vcpu->arch.last_inst == KVM_INST_FETCH_FAILED) {
-		ret = kvmppc_ld(vcpu, &srr0, sizeof(u32), &last_inst, false);
+		ret = kvmppc_ld32(vcpu, &srr0, &last_inst, false);
 		if (ret != EMULATE_DONE || last_inst == KVM_INST_FETCH_FAILED)
 			return RESUME_GUEST;
 		vcpu->arch.last_inst = last_inst;
