@@ -217,6 +217,21 @@ sub test_relative {
   die "Internal Error: No such dir $params{'New Dir'} "
     unless -d $params{'New Dir'};
 
+  # If the caller specified a test file, and it does not exist try and find
+  # another file to use in its stead.  As we are installing kernels we can
+  # use any versioned file from this kernel which should be in the same place.
+  if (defined $params{'Test File'} and
+      ! -f $params{'Old Dir'} . '/' . $params{'Test File'}) {
+
+      my @possible = glob($params{'Old Dir'} . "/*$version*");
+      if ($#possible >= 0) {
+        $params{'Test File'} = `basename "$possible[0]"`;
+        chomp($params{'Test File'});
+        warn "Test relative: selected $params{'Test File'}"
+          if $DEBUG;
+      }
+  }
+
   warn "Test relative: testing $params{'Old Dir'} -> $params{'New Dir'}"
     if $DEBUG;
   chomp($cwd = `pwd`);
