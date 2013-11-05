@@ -421,7 +421,7 @@ sub move_p {
     if $DEBUG;
   my $vmlinuz_target = readlink "$kimage";
   my $real_target = '';
-  my $target = `readlink -q -m "${realimageloc}${kimage-$version}"`;
+  my $target = `readlink -q -m "${realimageloc}${kimage}-${version}"`;
   $real_target = abs_path($vmlinuz_target) if defined($vmlinuz_target);
 
   if (!defined($vmlinuz_target) || ! -f "$real_target") {
