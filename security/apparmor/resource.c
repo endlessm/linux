@@ -96,7 +96,7 @@ int aa_task_setrlimit(struct aa_label *label, struct task_struct *task,
 	int i, error = 0;
 
 	rcu_read_lock();
-	task_label = aa_get_label(aa_cred_label(__task_cred(task)));
+	task_label = aa_get_newest_cred_label(__task_cred(task));
 	rcu_read_unlock();
 
 	/* TODO: extend resource control to handle other (non current)

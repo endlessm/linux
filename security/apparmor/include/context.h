@@ -103,6 +103,17 @@ static inline struct aa_label *aa_cred_label(const struct cred *cred)
 }
 
 /**
+ * aa_get_newest_cred_label - obtain the newest version of the label on a cred
+ * @cred: cred to obtain label from (NOT NULL)
+ *
+ * Returns: newest version of confining label
+ */
+static inline struct aa_label *aa_get_newest_cred_label(const struct cred *cred)
+{
+	return aa_get_newest_label(aa_cred_label(cred));
+}
+
+/**
  * __aa_task_label - retrieve another task's label
  * @task: task to query  (NOT NULL)
  *

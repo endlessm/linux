@@ -255,7 +255,6 @@ static inline struct aa_profile *aa_get_newest_profile(struct aa_profile *p)
 	return labels_profile(aa_get_newest_label(&p->label));
 }
 
-
 static inline struct aa_profile *aa_deref_parent(struct aa_profile *p)
 {
 	return rcu_dereference_protected(p->parent,
