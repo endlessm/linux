@@ -61,6 +61,7 @@ drivers/net/ppp/*
 drivers/net/slip/*
 drivers/net/veth.ko
 drivers/net/vmxnet3/vmxnet3.ko
+drivers/net/vxlan.ko
 drivers/net/xen-netback/*
 drivers/parport/parport.ko
 drivers/parport/parport_pc.ko
@@ -143,6 +144,7 @@ net/lapb/*
 net/llc/*
 net/netfilter/*
 net/netrom/*
+net/openvswitch/*
 net/phonet/*
 net/rose/*
 net/rxrpc/*
