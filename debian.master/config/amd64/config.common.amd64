@@ -3,7 +3,6 @@
 #
 CONFIG_64BIT=y
 CONFIG_AC97_BUS=m
-CONFIG_ACPI_BLACKLIST_YEAR=0
 CONFIG_AHCI_IMX=m
 CONFIG_ARCH_DEFCONFIG="arch/x86/configs/x86_64_defconfig"
 CONFIG_ARCH_HWEIGHT_CFLAGS="-fcall-saved-rdi -fcall-saved-rsi -fcall-saved-rdx -fcall-saved-rcx -fcall-saved-r8 -fcall-saved-r9 -fcall-saved-r10 -fcall-saved-r11"
