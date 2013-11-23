@@ -111,9 +111,6 @@ value CONFIG_EFI_VARS y | !exists CONFIG_EFI_VARS
 (!exists CONFIG_BRCMSMAC | value CONFIG_BRCMSMAC n) | \
 ((value CONFIG_BRCMSMAC y | value CONFIG_BRCMSMAC m) & (value CONFIG_B43_BCMA_EXTRA n | !exists CONFIG_B43_BCMA_EXTRA))
 
-# CONFIG_AUDIT_LOGINUID_IMMUTABLE is not compatible with upstart
-value CONFIG_AUDIT_LOGINUID_IMMUTABLE n
-
 # CONFIG_I2C_DESIGNWARE_PLATFORM is required by Calxeda Highbank
 (flavour highbank &/ value CONFIG_I2C_DESIGNWARE_PLATFORM y) | \
 value CONFIG_I2C_DESIGNWARE_PLATFORM m | \
