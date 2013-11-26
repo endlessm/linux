@@ -36,7 +36,6 @@ set +all ?mark 'Filesystem' ?flag EXPERIMENTAL ?type bool = n
 set +all ?mark 'Filesystem' ?flag EXPERIMENTAL ?type tristate = m note<experimental opt-in>`
 set +all ?mark 'Filesystem' !flag EXPERIMENTAL ?type tristate = m
 #  default installer filesystems should be built-in
-CONFIG_EXT3_FS					y note<default filesystem> mark<CRITICAL>
 CONFIG_EXT4_FS					y note<default filesystem> mark<CRITICAL>
 #  filesystems which do not probe
 CONFIG_FUSE_FS					y note<not autoloadable>
@@ -75,9 +74,7 @@ CONFIG_CIFS_STATS2				n
 CONFIG_CIFS_UPCALL				y
 CONFIG_CIFS_WEAK_PW_HASH			y
 #  ext2
-CONFIG_EXT2_FS_XIP				n
 #  ext3
-CONFIG_EXT3_DEFAULTS_TO_ORDERED			y
 #  f2fs
 CONFIG_F2FS_STAT_FS				y
 #  fat
@@ -1149,7 +1146,6 @@ CONFIG_USB_INVENTRA_DMA p policy<(flavour omap &/ value y) | value n> note<OMAP2
 
 # highbank boot essential
 CONFIG_SATA_AHCI_PLATFORM p policy<(flavour highbank &/ value y) | (flavour omap4 &/ value n) | value m> note<boot essential on highbank/build failure on ti-omap4> flag<BUILD FAILURE>
-CONFIG_EXT2_FS p policy<(flavour highbank &/ value y) | value m> note<boot essential on highbank>
 CONFIG_KEYBOARD_HIGHBANK p policy<(flavour highbank &/ value y) | value m> note<boot essential on highbank>
 
 # POWERPC boot essential devices
