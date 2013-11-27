@@ -481,13 +481,14 @@ $(stampdir)/stamp-build-perarch: $(stampdir)/stamp-prepare-perarch
 	@echo Debug: $@
 ifeq ($(do_tools),true)
 
+ifeq ($(do_tools_cpupower),true)
 	# Allow for multiple installed versions of cpupower and libcpupower.so:
 	# Override LIB_MIN in order to to generate a versioned .so named
 	# libcpupower.so.$(abi_release) and link cpupower with that.
 	make -C $(builddirpa)/tools/power/cpupower \
 		CROSS_COMPILE=$(CROSS_COMPILE) \
 		LIB_MIN=$(abi_release) CPUFREQ_BENCH=false
-
+endif
 ifeq ($(do_tools_perf),true)
 	cd $(builddirpa)/tools/perf && \
 		make prefix=/usr HAVE_CPLUS_DEMANGLE=1 CROSS_COMPILE=$(CROSS_COMPILE) NO_LIBPYTHON=1 NO_LIBPERL=1 PYTHON=python2.7
@@ -510,13 +511,14 @@ ifeq ($(do_tools),true)
 	install -d $(toolspkgdir)/usr/lib
 	install -d $(toolspkgdir)/usr/lib/$(src_pkg_name)-tools-$(abi_release)
 
+ifeq ($(do_tools_cpupower),true)
 	install -m755 $(builddirpa)/tools/power/cpupower/cpupower \
 		$(toolspkgdir)/usr/lib/$(src_pkg_name)-tools-$(abi_release)
 	# Install only the full versioned libcpupower.so.$(abi_release), not
 	# the usual symlinks to it.
 	install -m644 $(builddirpa)/tools/power/cpupower/libcpupower.so.$(abi_release) \
 		$(toolspkgdir)/usr/lib/
-
+endif
 ifeq ($(do_tools_perf),true)
 	install -m755 $(builddirpa)/tools/perf/perf $(toolspkgdir)/usr/lib/$(src_pkg_name)-tools-$(abi_release)
 endif
