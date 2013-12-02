@@ -1,0 +1,6 @@
+serial-modules
+pata-modules
+fat-modules
+pcmcia-storage-modules
+nic-pcmcia-modules
+pcmcia-modules
