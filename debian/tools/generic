@@ -18,5 +18,12 @@ fi
 
 # Give them a hint as to what to install.
 echo "`basename $0` not found for kernel $version" >&2
-echo "You may need to install linux-tools-$version-$flavour" >&2
+if dpkg --compare-versions "$full_version" lt "3.11.0"; then
+	flavour=''
+else
+	flavour="-$flavour"
+fi
+echo "You may need to install linux-tools-$version$flavour for this kernel." >&2
+echo "You may also wish to install linux-tools$flavour or" >&2
+echo "linux-image$flavour-lts-<series> to keep up to date." >&2
 exit 2
