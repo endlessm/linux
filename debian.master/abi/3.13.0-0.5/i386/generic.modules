@@ -3767,7 +3767,6 @@ videocodec
 videodev
 viperboard
 viperboard_adc
-virtio_console
 virtio-rng
 virtio_scsi
 virtual
