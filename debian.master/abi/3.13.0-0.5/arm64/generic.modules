@@ -1815,7 +1815,6 @@ videobuf2-vmalloc
 videobuf-core
 videobuf-dma-contig
 videodev
-virtio_console
 virtio-rng
 virtio_scsi
 virtual
