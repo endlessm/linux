@@ -1169,12 +1169,42 @@ int mixer_check_mode(struct drm_display_mode *mode)
 		mode->hdisplay, mode->vdisplay, mode->vrefresh,
 		(mode->flags & DRM_MODE_FLAG_INTERLACE) ? 1 : 0);
 
+#if 0
 	if ((w >= 464 && w <= 720 && h >= 261 && h <= 576) ||
 		(w >= 1024 && w <= 1280 && h >= 576 && h <= 720) ||
 		(w >= 1664 && w <= 1920 && h >= 936 && h <= 1080))
 		return 0;
 
 	return -EINVAL;
+#endif
+
+	/* Displayed badly like 1024x768, but I can't find a suitable timing
+	 * workaround. */
+	if (w == 800 && h == 600)
+		return -EINVAL;
+
+	/* This resolution results in no signal on my Panasonic TV */
+	if (w == 1440 && h == 480 && mode->flags & DRM_MODE_FLAG_INTERLACE)
+		return -EINVAL;
+
+	/* This resolution is displayed with bad deinterlacing and really
+	 * flickery */
+	if (w == 1440 && h == 576 && mode->flags & DRM_MODE_FLAG_INTERLACE)
+		return -EINVAL;
+
+	/* Tested on Hanns.G HSG1049, can't apply the timing workaround because
+	 * at 223 pixel offset the whole image jumps to be massively truncated
+	 * on the left side. */
+	if (w == 1440 && h == 900)
+		return -EINVAL;
+
+	/* Can't apply the timing workaround because somewhere between 100px
+	 * and 200px, the display reports "No signal" */
+	if (w == 1280 && h == 800)
+		return -EINVAL;
+
+
+	return 0;
 }
 
 static struct exynos_drm_manager_ops mixer_manager_ops = {
