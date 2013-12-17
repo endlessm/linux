@@ -6,7 +6,6 @@ linux (3.13.0-0.7) trusty; urgency=low
 
   [ Tim Gardner ]
 
-  * Rebase to v3.13-rc4
   * [Config] CONFIG_REGULATOR_S2MPS11=n for FTBS
 
   [ Upstream Kernel Changes ]
