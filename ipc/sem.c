@@ -1966,6 +1966,14 @@ sleep_again:
 	error = get_queue_result(&queue);
 
 	/*
+	 * wake_up_sem_queue_do operates on queue without locking, so we
+	 * need a barrier here to order our read of queue.status and the
+	 * subsequent reuse of queue (queue is on the stack so will be
+	 * most likely reused in the next function call).
+	 */
+	smp_mb();
+
+	/*
 	 * Array removed? If yes, leave without sem_unlock().
 	 */
 	if (IS_ERR(sma)) {
