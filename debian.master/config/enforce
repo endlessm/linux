@@ -81,8 +81,9 @@ value CONFIG_EFI_VARS y | !exists CONFIG_EFI_VARS
 
 # Ensure CONFIG_VFAT_FS is y for arm, needed to ensure we able to replace
 # a kernel with the same version.  Also needed for EFI based systems.
-(arch armel armhf arm64 i386 amd64 &/ value CONFIG_VFAT_FS y) | \
- value CONFIG_VFAT_FS m
+#(arch armel armhf arm64 i386 amd64 &/ value CONFIG_VFAT_FS y) | \
+# value CONFIG_VFAT_FS m
+value CONFIG_VFAT_FS y
 
 # Ensure CONFIG_GPIO_TWL4030 is y for arm, LP:921934
 (arch armel armhf &/ value CONFIG_GPIO_TWL4030 y) | \
