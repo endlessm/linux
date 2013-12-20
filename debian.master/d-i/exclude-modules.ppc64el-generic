@@ -4,3 +4,9 @@ fat-modules
 pcmcia-storage-modules
 nic-pcmcia-modules
 pcmcia-modules
+firewire-core-modules
+usb-modules
+mouse-modules
+irda-modules
+sata-modules
+speakup-modules
