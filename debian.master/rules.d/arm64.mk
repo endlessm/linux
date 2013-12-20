@@ -12,3 +12,7 @@ loader		= grub
 do_tools	= false
 #do_flavour_image_package = false
 #disable_d_i	= true
+
+dtb_files_generic += apm-mustang.dtb
+dtb_files_generic += foundation-v8.dtb
+dtb_files_generic += rtsm_ve-aemv8a.dtb
