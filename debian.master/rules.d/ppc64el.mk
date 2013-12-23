@@ -8,6 +8,7 @@ kernel_file     = arch/powerpc/boot/vmlinux.strip
 install_file	= vmlinux
 no_dumpfile	= true
 loader		= yaboot
+do_extras_package = true
 
 do_tools	= false
 #do_flavour_image_package = false
