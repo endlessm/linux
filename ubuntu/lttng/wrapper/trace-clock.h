@@ -36,6 +36,10 @@
 #include "../lttng-kernel-version.h"
 #include "random.h"
 
+#if LTTNG_KERNEL_RANGE(3,10,0, 3,10,14) || LTTNG_KERNEL_RANGE(3,11,0, 3,11,3)
+#error "Linux kernels 3.10 and 3.11 introduce a deadlock in the timekeeping subsystem. Fixed by commit 7bd36014460f793c19e7d6c94dab67b0afcfcb7f \"timekeeping: Fix HRTICK related deadlock from ntp lock changes\" in Linux."
+#endif
+
 static inline u64 trace_clock_monotonic_wrapper(void)
 {
 	ktime_t ktime;

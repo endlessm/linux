@@ -20,7 +20,11 @@
  */
 TRACE_EVENT(rcu_utilization,
 
+#if (LINUX_VERSION_CODE >= KERNEL_VERSION(3,12,0))
+	TP_PROTO(const char *s),
+#else /* #if (LINUX_VERSION_CODE >= KERNEL_VERSION(3,12,0)) */
 	TP_PROTO(char *s),
+#endif /* #else #if (LINUX_VERSION_CODE >= KERNEL_VERSION(3,12,0)) */
 
 	TP_ARGS(s),
 

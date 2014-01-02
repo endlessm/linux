@@ -31,6 +31,7 @@
 #include "wrapper/vmalloc.h"	/* for wrapper_vmalloc_sync_all() */
 #include "wrapper/random.h"
 #include "wrapper/tracepoint.h"
+#include "lttng-kernel-version.h"
 #include "lttng-events.h"
 #include "lttng-tracer.h"
 #include "lttng-abi-old.h"
@@ -60,9 +61,15 @@ void _lttng_metadata_channel_hangup(struct lttng_metadata_stream *stream);
 void synchronize_trace(void)
 {
 	synchronize_sched();
+#if (LINUX_VERSION_CODE >= KERNEL_VERSION(3,4,0))
+#ifdef CONFIG_PREEMPT_RT_FULL
+	synchronize_rcu();
+#endif
+#else /* (LINUX_VERSION_CODE >= KERNEL_VERSION(3,4,0)) */
 #ifdef CONFIG_PREEMPT_RT
 	synchronize_rcu();
 #endif
+#endif /* (LINUX_VERSION_CODE >= KERNEL_VERSION(3,4,0)) */
 }
 
 struct lttng_session *lttng_session_create(void)
@@ -459,6 +466,7 @@ struct lttng_event *lttng_event_create(struct lttng_channel *chan,
 		break;
 	default:
 		WARN_ON_ONCE(1);
+		goto register_error;
 	}
 	ret = _lttng_event_metadata_statedump(chan->session, chan, event);
 	if (ret)
@@ -827,7 +835,7 @@ int _lttng_event_metadata_statedump(struct lttng_session *session,
 
 	ret = lttng_metadata_printf(session,
 		"event {\n"
-		"	name = %s;\n"
+		"	name = \"%s\";\n"
 		"	id = %u;\n"
 		"	stream_id = %u;\n",
 		event->desc->name,
@@ -1252,3 +1260,6 @@ module_exit(lttng_events_exit);
 MODULE_LICENSE("GPL and additional rights");
 MODULE_AUTHOR("Mathieu Desnoyers <mathieu.desnoyers@efficios.com>");
 MODULE_DESCRIPTION("LTTng Events");
+MODULE_VERSION(__stringify(LTTNG_MODULES_MAJOR_VERSION) "."
+	__stringify(LTTNG_MODULES_MINOR_VERSION) "."
+	__stringify(LTTNG_MODULES_PATCHLEVEL_VERSION));

@@ -2869,7 +2869,51 @@ TRACE_EVENT(ext4_ext_remove_space_done,
 
 #endif
 
-#if (LINUX_VERSION_CODE >= KERNEL_VERSION(3,11,0))
+#if (LINUX_VERSION_CODE >= KERNEL_VERSION(3,12,0))
+
+DECLARE_EVENT_CLASS(ext4__es_extent,
+	TP_PROTO(struct inode *inode, struct extent_status *es),
+
+	TP_ARGS(inode, es),
+
+	TP_STRUCT__entry(
+		__field(	dev_t,		dev		)
+		__field(	ino_t,		ino		)
+		__field(	ext4_lblk_t,	lblk		)
+		__field(	ext4_lblk_t,	len		)
+		__field(	ext4_fsblk_t,	pblk		)
+		__field(	char, status	)
+	),
+
+	TP_fast_assign(
+		tp_assign(dev, inode->i_sb->s_dev)
+		tp_assign(ino, inode->i_ino)
+		tp_assign(lblk, es->es_lblk)
+		tp_assign(len, es->es_len)
+		tp_assign(pblk, ext4_es_pblock(es))
+		tp_assign(status, ext4_es_status(es))
+	),
+
+	TP_printk("dev %d,%d ino %lu es [%u/%u) mapped %llu status %s",
+		  MAJOR(__entry->dev), MINOR(__entry->dev),
+		  (unsigned long) __entry->ino,
+		  __entry->lblk, __entry->len,
+		  __entry->pblk, show_extent_status(__entry->status))
+)
+
+DEFINE_EVENT(ext4__es_extent, ext4_es_insert_extent,
+	TP_PROTO(struct inode *inode, struct extent_status *es),
+
+	TP_ARGS(inode, es)
+)
+
+DEFINE_EVENT(ext4__es_extent, ext4_es_cache_extent,
+	TP_PROTO(struct inode *inode, struct extent_status *es),
+
+	TP_ARGS(inode, es)
+)
+
+#elif (LINUX_VERSION_CODE >= KERNEL_VERSION(3,11,0))
 
 TRACE_EVENT(ext4_es_insert_extent,
 	TP_PROTO(struct inode *inode, struct extent_status *es),

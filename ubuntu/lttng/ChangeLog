@@ -1,3 +1,29 @@
+2013-12-10 LTTng modules 2.4.0-rc2
+	* Fix: client_packet_header() uses wrong packet
+	* Cleanup: fix typo in ring buffer backend comment
+	* Fix: handle unknown event type parameter
+	* Fix: eliminate timestamp overlap between packets
+	* gcc blacklist: only apply when building with gcc
+	* Blacklist ARM gcc 4.8.0, 4.8.1, 4.8.2
+
+2013-11-15 LTTng modules 2.4.0-rc1
+	* Update ext4 instrumentation to Linux 3.12
+	* Update RCU instrumentation to Linux 3.12
+	* Update btrfs instrumentation to 3.12 kernel
+	* Update vmscan instrumentation to Linux 3.12
+	* update: kmem instrumentation 3.12 kernel support
+	* lttng-statedump-impl: Use generic hard irqs for Linux >= 3.12
+	* lttng-statedump-impl: Fix lttng_list_interrupts for empty implementation
+	* Import fix from LTSI: 3.4+ RT kernels use CONFIG_PREEMPT_RT_FULL
+	* Add new tracepoint in KVM
+	* Blacklist kernels 3.10.13 and 3.11.2
+	* LTTng trace-clock: shrink kernel blacklist
+	* Metadata flush writes data from the cache
+	* Per-stream ioctl to get the current timestamp
+	* LTTng ringbuffer ABI calls for index generation
+	* Prepare LTTng override of ring buffer fops
+	* Blacklist Linux kernels 3.10+
+
 2013-09-03 LTTng modules 2.3.0
 	* Fix: metadata stream should not reference session
 	* Fix: btrfs: support 3.11 Linux kernel

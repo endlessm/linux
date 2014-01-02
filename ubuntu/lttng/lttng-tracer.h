@@ -35,16 +35,17 @@
 #include <asm/local.h>
 
 #include "wrapper/trace-clock.h"
+#include "wrapper/compiler.h"
 #include "lttng-tracer-core.h"
 #include "lttng-events.h"
 
 #define LTTNG_MODULES_MAJOR_VERSION 2
-#define LTTNG_MODULES_MINOR_VERSION 3
+#define LTTNG_MODULES_MINOR_VERSION 4
 #define LTTNG_MODULES_PATCHLEVEL_VERSION 0
 
-#define LTTNG_VERSION_NAME		"Dominus Vobiscum"
+#define LTTNG_VERSION_NAME		"Époque Opaque"
 #define LTTNG_VERSION_DESCRIPTION	\
-	"A very succulent line-up of beers brewed at Microbrasserie Charlevoix. Elaborated starting from special malts and fermented with a Belgian yeast. These beers are refermented in bottle and will make you discover the richness of wheat, amber and triple styles."
+	"The Époque Opaque is a black IPA from Trou du Diable brewery. The nose is eerily reminiscent of the coffee crisp candy from of our childhood. These strong mocha accents are present on the palate, which are quickly subdued by Japanese and Australian hops leading to a final state of satisfaction enjoyable for any fan of bitter beer."
 
 #ifndef CHAR_BIT
 #define CHAR_BIT 8

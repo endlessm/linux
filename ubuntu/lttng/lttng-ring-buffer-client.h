@@ -394,17 +394,7 @@ static struct packet_header *client_packet_header(
 		const struct lib_ring_buffer_config *config,
 		struct lib_ring_buffer *buf)
 {
-	struct lib_ring_buffer_backend *bufb;
-	unsigned long sb_bindex;
-	struct packet_header *header;
-
-	bufb = &buf->backend;
-	sb_bindex = subbuffer_id_get_index(config, bufb->buf_rsb.id);
-	header = (struct packet_header *)
-		lib_ring_buffer_offset_address(bufb,
-				sb_bindex * bufb->chan->backend.subbuf_size);
-
-	return header;
+	return lib_ring_buffer_read_offset_address(&buf->backend, 0);
 }
 
 static int client_timestamp_begin(const struct lib_ring_buffer_config *config,

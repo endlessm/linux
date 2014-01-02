@@ -814,8 +814,9 @@ EXPORT_SYMBOL_GPL(lib_ring_buffer_read_get_page);
  *
  * Return the address where a given offset is located (for read).
  * Should be used to get the current subbuffer header pointer. Given we know
- * it's never on a page boundary, it's safe to write directly to this address,
- * as long as the write is never bigger than a page size.
+ * it's never on a page boundary, it's safe to read/write directly
+ * from/to this address, as long as the read/write is never bigger than a
+ * page size.
  */
 void *lib_ring_buffer_read_offset_address(struct lib_ring_buffer_backend *bufb,
 					  size_t offset)

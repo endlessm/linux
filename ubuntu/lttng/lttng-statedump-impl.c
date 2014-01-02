@@ -51,8 +51,9 @@
 #include "wrapper/spinlock.h"
 #include "wrapper/fdtable.h"
 #include "wrapper/nsproxy.h"
+#include "wrapper/irq.h"
 
-#ifdef CONFIG_GENERIC_HARDIRQS
+#ifdef CONFIG_LTTNG_HAS_LIST_IRQ
 #include <linux/irq.h>
 #endif
 
@@ -244,7 +245,7 @@ int lttng_enumerate_vm_maps(struct lttng_session *session)
 }
 #endif
 
-#ifdef CONFIG_GENERIC_HARDIRQS
+#ifdef CONFIG_LTTNG_HAS_LIST_IRQ
 
 #if (LINUX_VERSION_CODE < KERNEL_VERSION(2,6,39))
 #define irq_desc_get_chip(desc) get_irq_desc_chip(desc)
@@ -277,7 +278,7 @@ void lttng_list_interrupts(struct lttng_session *session)
 }
 #else
 static inline
-void list_interrupts(struct lttng_session *session)
+void lttng_list_interrupts(struct lttng_session *session)
 {
 }
 #endif

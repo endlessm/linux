@@ -212,7 +212,11 @@ TRACE_EVENT(mm_shrink_slab_start,
 
 	TP_fast_assign(
 		tp_assign(shr,shr)
+#if (LINUX_VERSION_CODE >= KERNEL_VERSION(3,12,0))
+		tp_assign(shrink, shr->scan_objects)
+#else /* #if (LINUX_VERSION_CODE >= KERNEL_VERSION(3,12,0)) */
 		tp_assign(shrink, shr->shrink)
+#endif /* #else #if (LINUX_VERSION_CODE >= KERNEL_VERSION(3,12,0)) */
 		tp_assign(nr_objects_to_shrink, nr_objects_to_shrink)
 		tp_assign(gfp_flags, sc->gfp_mask)
 		tp_assign(pgs_scanned, pgs_scanned)
@@ -251,7 +255,11 @@ TRACE_EVENT(mm_shrink_slab_end,
 
 	TP_fast_assign(
 		tp_assign(shr, shr)
+#if (LINUX_VERSION_CODE >= KERNEL_VERSION(3,12,0))
+		tp_assign(shrink, shr->scan_objects)
+#else /* #if (LINUX_VERSION_CODE >= KERNEL_VERSION(3,12,0)) */
 		tp_assign(shrink, shr->shrink)
+#endif /* #else #if (LINUX_VERSION_CODE >= KERNEL_VERSION(3,12,0)) */
 		tp_assign(unused_scan, unused_scan_cnt)
 		tp_assign(new_scan, new_scan_cnt)
 		tp_assign(retval, shrinker_retval)

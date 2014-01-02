@@ -1,0 +1,29 @@
+Linux: link syscalls metadata as data (for LTTng syscall extraction)
+
+* NOT for mainline *
+
+Signed-off-by: Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
+---
+ include/asm-generic/vmlinux.lds.h |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+Index: linux-2.6-lttng/include/asm-generic/vmlinux.lds.h
+===================================================================
+--- linux-2.6-lttng.orig/include/asm-generic/vmlinux.lds.h
++++ linux-2.6-lttng/include/asm-generic/vmlinux.lds.h
+@@ -169,6 +169,7 @@
+ 	MEM_KEEP(exit.data)						\
+ 	STRUCT_ALIGN();							\
+ 	*(__tracepoints)						\
++	TRACE_SYSCALLS()						\
+ 	/* implement dynamic printk debug */				\
+ 	. = ALIGN(8);                                                   \
+ 	VMLINUX_SYMBOL(__start___jump_table) = .;                       \
+@@ -489,7 +490,6 @@
+ 	*(.init.rodata)							\
+ 	MCOUNT_REC()							\
+ 	FTRACE_EVENTS()							\
+-	TRACE_SYSCALLS()						\
+ 	DEV_DISCARD(init.rodata)					\
+ 	CPU_DISCARD(init.rodata)					\
+ 	MEM_DISCARD(init.rodata)					\
