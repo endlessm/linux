@@ -207,12 +207,14 @@ get_write_lock:
 		 */
 		if (mapping_cap_account_dirty(mapping)) {
 			unsigned long addr;
-			struct file *file = get_file(vma->vm_file);
+			struct file *file = vma->vm_file;
+			vma_get_file(vma);
+
 			/* mmap_region may free vma; grab the info now */
 			vm_flags = vma->vm_flags;
 
 			addr = mmap_region(file, start, size, vm_flags, pgoff);
-			fput(file);
+			vma_fput(vma);
 			if (IS_ERR_VALUE(addr)) {
 				err = addr;
 			} else {
