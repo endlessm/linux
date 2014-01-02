@@ -283,6 +283,7 @@ DEFINE_EVENT(kvm_async_pf_nopresent_ready, kvm_async_pf_ready,
 	TP_ARGS(token, gva)
 );
 
+#if 0
 TRACE_EVENT(
 	kvm_async_pf_completed,
 	TP_PROTO(unsigned long address, struct page *page, u64 gva),
@@ -303,6 +304,7 @@ TRACE_EVENT(
 	TP_printk("gva %#llx address %#lx pfn %#llx",  __entry->gva,
 		  __entry->address, __entry->pfn)
 );
+#endif
 
 #endif
 
