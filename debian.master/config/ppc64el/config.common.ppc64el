@@ -44,7 +44,6 @@ CONFIG_CHR_DEV_ST=y
 CONFIG_COMPACTION=y
 # CONFIG_CORDIC is not set
 # CONFIG_CPU_FREQ is not set
-# CONFIG_CPU_IDLE_MULTIPLE_DRIVERS is not set
 # CONFIG_CRASH_DUMP is not set
 # CONFIG_CRC8 is not set
 # CONFIG_DDR is not set
