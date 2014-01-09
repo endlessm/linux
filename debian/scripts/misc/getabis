@@ -63,30 +63,6 @@ getall() {
 			echo -n "extracting$prefixes..."
 			for filename in $filenames
 			do
-				#
-				# Extract module names and preface with the package nickname
-				# from which they were extracted, e.g., linux-image or
-				# linux-image-extras. This will cause module-check to fail
-				# when a module moves from linux-image-extra to linux-image and
-				# vice versa. The solution is a mandatory ABI bump, and add an
-				# ignore.module file in each arch ABI directory.
-				#
-				rm -rf tmp
-				dpkg-deb --extract $filename tmp
-				pkgname="`echo $filename|sed 's/-'$verabi'.*$//'`"
-				(cd tmp; find lib/modules/$verabi-$sub/kernel -name '*.ko') | \
-					sed -e 's/.*\/\([^\/]*\)\.ko/\1/' | \
-					sort | \
-					gawk '{printf("%s:%s\n","'$pkgname'",$1);}' \
-					>> $abidir/$arch/$sub.modules
-			done
-			#
-			# Dump all package modules into one directory for the rest of the
-			# processing.
-			#
-			rm -rf tmp
-			for filename in $filenames
-			do
 				dpkg-deb --extract $filename tmp
 			done
 			find tmp -name "*.ko" | while read f; do
@@ -97,10 +73,9 @@ getall() {
 			else
 				echo -n "NO ABI FILE..."
 			fi
-			
-			#
-			# Extract compiler versions
-			#
+			(cd tmp; find lib/modules/$verabi-$sub/kernel -name '*.ko') | \
+				sed -e 's/.*\/\([^\/]*\)\.ko/\1/' | sort > \
+				$abidir/$arch/$sub.modules
 			(
 				cd tmp;
 				# Prevent exposing some errors when called by python scripts. SIGPIPE seems to get
