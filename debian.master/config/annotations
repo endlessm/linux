@@ -202,6 +202,7 @@ CONFIG_X509_CERTIFICATE_PARSER			y note<module signing>
 CONFIG_CRYPTO_HW				y
 CONFIG_CRYPTO_DEV_PADLOCK			y note<dependancy of boot essential>
 CONFIG_CRYPTO_DEV_HIFN_795X_RNG			y
+CONFIG_CRYPTO_DEV_NX_COMPRESS			y note<dependancy of boot essential>
 
 # Menu: Device Drivers
 CONFIG_POWER_AVS				y
@@ -426,15 +427,16 @@ set +all ?mark 'GPIO' !flag EXPERIMENTAL ?type tristate = m
 #  standard forms:
 set +pattern ^GPIO_ ?mark 'GPIO' ?type bool !flag EXPERIMENTAL = y
 #
+CONFIG_GPIO_SYSFS				n
 CONFIG_GPIOLIB					y
-CONFIG_GPIO_CS5535				p policy<(value CONFIG_OLPC_X01_SCI y &/ value y) | value m> note<dependancy OLPC_X01_SCI=y>
 CONFIG_GPIO_EM n note<h/w not encounted>
-CONFIG_GPIO_TWL4030				p policy<(arch armel armhf &/ value y) | value m> note<boot essential on arm>
+CONFIG_GPIO_TWL4030				y note<boot essential on arm>
 
 # Menu: Device Drivers >> Generic Driver Options
 CONFIG_UEVENT_HELPER_PATH			""
 CONFIG_DEVTMPFS					y
 CONFIG_DEVTMPFS_MOUNT				y
+CONFIG_STANDALONE				p policy<(arch i386 amd64 &/ value n) | value y>
 CONFIG_PREVENT_FIRMWARE_BUILD			y
 CONFIG_FW_LOADER				y note<core CPU firmware updater>
 CONFIG_FIRMWARE_IN_KERNEL			y
@@ -618,7 +620,6 @@ CONFIG_HWSPINLOCK_OMAP				y note<boot essential on OMAP4>
 CONFIG_I2C_ALGOBIT				p policy<(arch powerpc &/ value y) | value m>  note<boot essential dependancy on powerpc>
 
 # Menu: Device Drivers >> I2C Hardware Bus support
-CONFIG_I2C_DESIGNWARE_PLATFORM			p policy<(arch armhf &/ value y) | value m> note<boot essential on highbank>
 CONFIG_I2C_IMX					y
 CONFIG_I2C_OMAP					p policy<(arch armel armhf &/ value y) | value m> note<boot essential on arm>
 
@@ -2136,6 +2137,7 @@ CONFIG_EZX_PCAP					p policy<(arch armhf &/ value n) | value m> flag<BUILD FAILU
 #CONFIG_TOUCHSCREEN_EGALAX			p policy<(arch armel armhf &/ value n) | value m> flag<BUILD FAILURE> note<FTBS on ti-omap4>
 #CONFIG_TOUCHSCREEN_EETI				p policy<(arch armel armhf &/ value n) | value m> flag<BUILD FAILURE> note<FTBS on ti-omap4>
 #CONFIG_SENSORS_AK8975				p policy<(arch armel armhf &/ value n) | value m> flag<BUILD FAILURE> note<FTBS on ti-omap4>
+CONFIG_PPC_EPAPR_HV_BYTECHAN			n flag<BUILD FAILURE> note<FTBFS on ppc64el>
 
 # Ensure DEPRECATED options are off.
 set +all ?flag DEPRECATED !mark annotated ?type bool		= n
