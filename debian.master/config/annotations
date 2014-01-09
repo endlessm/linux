@@ -26,9 +26,16 @@ CONFIG_SCHED_DEBUG				y
 CONFIG_SYSTEM_TRUSTED_KEYRING			y
 
 # Menu: ROOT (arm)
+CONFIG_ARM_DMA_IOMMU_ALIGNMENT			8
+CONFIG_ARM_PATCH_PHYS_VIRT			y
 
 # Menu: ROOT (powerpc)
 CONFIG_RELOCATABLE				y
+CONFIG_CPU_BIG_ENDIAN				n
+CONFIG_PPC64					y
+CONFIG_CPU_LITTLE_ENDIAN			y
+CONFIG_NR_IRQS					512
+CONFIG_SCOM_DEBUGFS				n
 
 # Menu: ROOT (x86)
 
@@ -42,42 +49,57 @@ CONFIG_CRASH_DUMP				y
 # Menu: Bus options (arm)
 
 # Menu: Bus options (powerpc)
+CONFIG_FSL_LBC					y
 
 # Menu: Bus options (x86)
+CONFIG_ISA_DMA_API				y
+CONFIG_X86_SYSFB				y
+CONFIG_ISA					y
+CONFIG_EISA					y
+CONFIG_ALIX					y
+CONFIG_NET5501					y
+CONFIG_GEOS					y
 
 # Menu: Bus options >> PCCard (PCMCIA/CardBus) support
-CONFIG_PCCARD p policy<(arch armel armhf ppc64el &/ value n) | value m> note<not a supported interface on arm/power>
+CONFIG_PCCARD					p policy<(arch armel armhf ppc64el &/ value n) | value m> note<not a supported interface on arm/power>
+CONFIG_PCMCIA_LOAD_CIS				y
+CONFIG_CARDBUS					y
+CONFIG_YENTA_O2					y
+CONFIG_YENTA_RICOH				y
+CONFIG_YENTA_TI					y
+CONFIG_YENTA_ENE_TUNE				y
+CONFIG_YENTA_TOSHIBA				y
 
 # Menu: Bus options >> PCI support
+CONFIG_PCI					y
 CONFIG_PCIEPORTBUS				y
 CONFIG_HOTPLUG_PCI_PCIE				y
 CONFIG_PCIEAER_INJECT				n flag<TESTING>
 CONFIG_PCI_IOAPIC				p policy<(arch i386 amd64 &/ value y) | value m> note<boot essential on i386/amd64>
 
 # Menu: Bus options >> PCI support (arm)
-CONFIG_PCI					y
 
 # Menu: Bus options >> PCI support (powerpc)
-CONFIG_PCI					y
 
 # Menu: Bus options >> PCI support (x86)
-CONFIG_PCI					y
+CONFIG_PCI_MMCONFIG				y
+CONFIG_PCI_GOANY				y
 
 # Menu: Bus options >> PCI support >> PCI host controller drivers
+CONFIG_PCI_IMX6					y
+CONFIG_PCI_TEGRA				y
 
 # Menu: Bus options >> PCI support >> RapidIO support
+CONFIG_RAPIDIO					y
+CONFIG_RAPIDIO_DISC_TIMEOUT			30
+CONFIG_RAPIDIO_ENABLE_RX_TX_PORTS		n
+CONFIG_RAPIDIO_DMA_ENGINE			y
 
 # Menu: Bus options >> PCI support >> RapidIO support (powerpc)
-CONFIG_RAPIDIO					y
 
 # Menu: Bus options >> PCI support >> RapidIO support (x86)
-CONFIG_RAPIDIO					y
 
 # Menu: Bus options >> PCI support >> RapidIO support >> RapidIO Switch drivers
-CONFIG_RAPIDIO_TSI57X				y
-CONFIG_RAPIDIO_CPS_XX				y
-CONFIG_RAPIDIO_TSI568				y
-CONFIG_RAPIDIO_CPS_GEN2				y
 
 # Menu: Bus options >> PCI support >> Support for PCI Hotplug
 CONFIG_HOTPLUG_PCI				y
@@ -101,7 +123,7 @@ CONFIG_CAN_PEAK_PCIEC				y
 
 # Menu: CPU Power Management >> CPU Frequency scaling
 CONFIG_CPU_FREQ					y
-CONFIG_CPU_FREQ_STAT				p policy<(arch i386 amd64 armel armhf &/ value y) | value m> note<dependancy of boot essential>
+CONFIG_CPU_FREQ_STAT				y note<dependancy of boot essential>
 CONFIG_CPU_FREQ_STAT_DETAILS			y
 CONFIG_CPU_FREQ_DEFAULT_GOV_PERFORMANCE		y note<for bootspeed>
 CONFIG_CPU_FREQ_GOV_PERFORMANCE			y note<not autoloadable>
@@ -109,6 +131,7 @@ CONFIG_CPU_FREQ_GOV_POWERSAVE			y note<not autoloadable>
 CONFIG_CPU_FREQ_GOV_USERSPACE			y note<not autoloadable>
 CONFIG_CPU_FREQ_GOV_ONDEMAND			y note<not autoloadable>
 CONFIG_CPU_FREQ_GOV_CONSERVATIVE		y note<not autoloadable>
+CONFIG_CRYPTO_DEV_NX				y
 
 # Menu: CPU Power Management >> CPU Frequency scaling >> ARM CPU frequency scaling drivers
 
@@ -145,6 +168,7 @@ CONFIG_CPU_IDLE_GOV_MENU			y
 
 # Menu: CPU Power Management >> CPU Idle >> ARM CPU Idle Drivers
 CONFIG_ARM_BIG_LITTLE_CPUIDLE			y
+CONFIG_ARM_HIGHBANK_CPUIDLE			p policy<(arch armhf & flavour generic &/ value n) | value y> note<broken on ecx-1000>
 
 # Menu: Cryptographic API
 set +tree-menu 'Cryptographic API' ?flag EXPERIMENTAL ?type bool = n
@@ -194,7 +218,7 @@ CONFIG_W1_SLAVE_DS2433_CRC			n
 # Menu: Device Drivers >> ATA/ATAPI/MFM/RLL support (DEPRECATED)
 set +tree 'Device Drivers>>ATA/ATAPI/MFM/RLL support (DEPRECATED)'      = n
 #
-CONFIG_IDE					p policy<(arch powerpc ppc64el &/ value y) | value n)> note<boot essential on powerpc)>
+CONFIG_IDE					p policy<(arch powerpc ppc64el &/ value y) | value n> note<boot essential on powerpc>
 CONFIG_IDE_GD                                   y
 CONFIG_IDE_GD_ATA                               y
 CONFIG_BLK_DEV_IDECD                            y
@@ -202,7 +226,6 @@ CONFIG_IDEPCI_PCIBUS_ORDER                      y
 CONFIG_BLK_DEV_GENERIC                          y
 CONFIG_BLK_DEV_AMD74XX                          y
 CONFIG_IDE_PROC_FS                              y
-CONFIG_IDEPCI_PCIBUS_ORDER                      y
 
 # Menu: Device Drivers >> Accelerometers
 
@@ -217,6 +240,7 @@ CONFIG_LP8788_ADC				y
 CONFIG_EXYNOS_ADC				y
 
 # Menu: Device Drivers >> Android
+CONFIG_ANDROID					n
 
 # Menu: Device Drivers >> Atmel devices (AVR32 and AT91)
 
@@ -244,9 +268,10 @@ CONFIG_BLK_DEV_XIP n note<prevents use of HIGHMEM for ram disks>
 CONFIG_CDROM_PKTCDVD_BUFFERS			8
 CONFIG_CDROM_PKTCDVD_WCACHE			n mark<DANGEROUS>
 CONFIG_XEN_BLKDEV_FRONTEND			y note<not autoloadable -- XEN paravirt support>
-CONFIG_VIRTIO_BLK				p policy<(arch i386 amd64 &/ value y) | (arch armel armhf &/ value n) | value m> note<KVM paravirt support -- not autoloadable>
+CONFIG_VIRTIO_BLK				y note<KVM paravirt support -- not autoloadable>
 CONFIG_BLK_DEV_HD				n note<very old disk device support> mark<ANCIENT>
 CONFIG_BLK_DEV_RBD m note<CEPH client side support>
+CONFIG_MG_DISK_RES				0
 
 # Menu: Device Drivers >> Broadcom specific AMBA
 CONFIG_BCMA_HOST_PCI				y
@@ -288,6 +313,12 @@ CONFIG_HPET					y
 CONFIG_HPET_MMAP				y
 CONFIG_HPET_MMAP_DEFAULT			y
 CONFIG_HVC_DCC					y
+CONFIG_VIRTIO_CONSOLE				y
+CONFIG_HVC_CONSOLE				y
+CONFIG_HVC_OLD_HVSI				n
+CONFIG_HVC_OPAL					y
+CONFIG_HVC_RTAS					y
+CONFIG_HVC_UDBG					n
 
 # Menu: Device Drivers >> Character devices >> IPMI top-level message handler
 CONFIG_IPMI_PANIC_EVENT				n
@@ -296,10 +327,10 @@ CONFIG_IPMI_PANIC_EVENT				n
 
 # Menu: Device Drivers >> Character devices >> Serial drivers
 CONFIG_SERIAL_8250				y note<boot essential -- serial consoles>
-CONFIG_SERIAL_8250_PNP				p policy<(arch i386 amd64 armel armhf &/ value y) | value m> note<boot essential -- serial consoles>
+CONFIG_SERIAL_8250_PNP				y
 CONFIG_SERIAL_8250_CONSOLE			y
 CONFIG_SERIAL_8250_DMA				y
-CONFIG_SERIAL_8250_PCI				p policy<(arch i386 amd64 armel armhf &/ value y) | value m> note<boot essential -- serial consoles>
+CONFIG_SERIAL_8250_PCI				y
 CONFIG_SERIAL_8250_NR_UARTS			48
 CONFIG_SERIAL_8250_RUNTIME_UARTS		32
 CONFIG_SERIAL_8250_EXTENDED			y
@@ -326,7 +357,9 @@ CONFIG_SERIAL_OMAP				p policy<(arch armel armhf &/ value y) | value m> note<boo
 CONFIG_SERIAL_OMAP_CONSOLE			y
 
 # Menu: Device Drivers >> Character devices >> TPM Hardware Support
-CONFIG_TCG_TPM					y
+CONFIG_TCG_TPM					y note<needed for early validation>
+CONFIG_TCG_TIS					y
+CONFIG_TCG_IBMVTPM				y
 
 # Menu: Device Drivers >> Common Clock Framework
 CONFIG_COMMON_CLK_VERSATILE			y
@@ -345,7 +378,6 @@ CONFIG_NET_DMA					y note<y if INTEL_IOATDMA or FSL_DMA>
 CONFIG_ASYNC_TX_DMA				y
 CONFIG_DMATEST					n flag<TESTING>
 CONFIG_AMBA_PL08X				y
-CONFIG_PL330_DMA				p policy<(arch armhf &/ value y) | value m> note<boot essential on highbank>
 CONFIG_DMA_OMAP					y
 
 # Menu: Device Drivers >> Dallas's 1-wire support
@@ -1632,11 +1664,26 @@ CONFIG_SAMPLES					n
 
 # Menu: Kernel hacking >> Tracers
 CONFIG_FTRACE					y
+CONFIG_FUNCTION_TRACER				y
+CONFIG_FUNCTION_GRAPH_TRACER			y
+CONFIG_SCHED_TRACER				y
+CONFIG_FTRACE_SYSCALLS				y
+CONFIG_BRANCH_PROFILE_NONE			y
+CONFIG_STACK_TRACER				y
+CONFIG_BLK_DEV_IO_TRACE				y
+CONFIG_KPROBE_EVENT				y
+CONFIG_UPROBE_EVENT				y
+CONFIG_DYNAMIC_FTRACE				y
+CONFIG_FUNCTION_PROFILER			y
+CONFIG_FTRACE_STARTUP_TEST			n flag<TESTING>
+CONFIG_MMIOTRACE				y
 CONFIG_MMIOTRACE_TEST				n flag<TESTING>
 CONFIG_RING_BUFFER_BENCHMARK			n flag<TESTING>
+CONFIG_RING_BUFFER_STARTUP_TEST			n flag<TESTING>
 
 # Menu: Kernel hacking >> printk and dmesg options
 CONFIG_PRINTK_TIME				y
+CONFIG_DYNAMIC_DEBUG				y
 
 # Menu: Kernel options
 CONFIG_APM_EMULATION p policy<(arch armel armhf &/ value n) | value m> note<deliberatly forced off for ARM>
@@ -2091,8 +2138,8 @@ CONFIG_EZX_PCAP					p policy<(arch armhf &/ value n) | value m> flag<BUILD FAILU
 #CONFIG_SENSORS_AK8975				p policy<(arch armel armhf &/ value n) | value m> flag<BUILD FAILURE> note<FTBS on ti-omap4>
 
 # Ensure DEPRECATED options are off.
-set +all ?flag DEPRECATED ?type bool		= n
-set +all ?flag DEPRECATED ?type tristate	= n
+set +all ?flag DEPRECATED !mark annotated ?type bool		= n
+set +all ?flag DEPRECATED !mark annotated ?type tristate	= n
 
 # Ensure DANGEROUS things are turned off.
 set +all ?flag DANGEROUS = n
