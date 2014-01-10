@@ -70,6 +70,7 @@ struct nouveau_device {
 	const char *dbgopt;
 	const char *name;
 	const char *cname;
+	u64 disable_mask;
 
 	enum {
 		NV_04    = 0x04,
