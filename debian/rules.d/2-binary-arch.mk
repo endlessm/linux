@@ -86,7 +86,6 @@ else
 	chmod 600 $(pkgdir)/boot/$(instfile)-$(abi_release)-$*
 endif
 
-ifeq ($(arch),amd64)
 ifeq ($(uefi_signed),true)
 	install -d $(signed)/$(release)-$(revision)
 	# Check to see if this supports handoff, if not do not sign it.
@@ -96,7 +95,6 @@ ifeq ($(uefi_signed),true)
 		cp -p $(pkgdir)/boot/$(instfile)-$(abi_release)-$* \
 			$(signed)/$(release)-$(revision)/$(instfile)-$(abi_release)-$*.efi; \
 	fi
-endif
 endif
 
 	install -m644 $(builddir)/build-$*/.config \
@@ -557,13 +555,11 @@ binary-debs: signedv = $(CURDIR)/debian/$(bin_pkg_name)-signed/$(release)-$(revi
 binary-debs: signed_tar = $(src_pkg_name)_$(release)-$(revision)_$(arch).tar.gz
 binary-debs: binary-perarch $(addprefix binary-,$(flavours))
 	@echo Debug: $@
-ifeq ($(arch),amd64)
 ifeq ($(uefi_signed),true)
 	echo $(release)-$(revision) > $(signedv)/version
 	cd $(signedv) && ls *.efi >flavours
 	cd $(signed) && tar czvf ../../../$(signed_tar) .
 	dpkg-distaddfile $(signed_tar) raw-uefi -
-endif
 endif
 
 build-arch-deps-$(do_flavour_image_package) += $(addprefix $(stampdir)/stamp-build-,$(flavours))
