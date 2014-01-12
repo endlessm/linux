@@ -8125,6 +8125,13 @@ EXPORT_SYMBOL vmlinux 0xffc543ca	address_space_init_once
 EXPORT_SYMBOL vmlinux 0xffd202a4	snd_ctl_remove_id
 EXPORT_SYMBOL vmlinux 0xffd5a395	default_wake_function
 EXPORT_SYMBOL vmlinux 0xfffb14e6	cdrom_open
+EXPORT_SYMBOL_GPL crypto/ablk_helper 0x5077342e	ablk_exit
+EXPORT_SYMBOL_GPL crypto/ablk_helper 0x6196c635	ablk_set_key
+EXPORT_SYMBOL_GPL crypto/ablk_helper 0x81b7807d	ablk_encrypt
+EXPORT_SYMBOL_GPL crypto/ablk_helper 0xbaf71bc4	__ablk_encrypt
+EXPORT_SYMBOL_GPL crypto/ablk_helper 0xda802dd7	ablk_init
+EXPORT_SYMBOL_GPL crypto/ablk_helper 0xdd0e77b5	ablk_decrypt
+EXPORT_SYMBOL_GPL crypto/ablk_helper 0xeab45295	ablk_init_common
 EXPORT_SYMBOL_GPL crypto/af_alg 0x0a8bafcf	af_alg_complete
 EXPORT_SYMBOL_GPL crypto/af_alg 0x2a25014d	af_alg_unregister_type
 EXPORT_SYMBOL_GPL crypto/af_alg 0x466c4b06	af_alg_release

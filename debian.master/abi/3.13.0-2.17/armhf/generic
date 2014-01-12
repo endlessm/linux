@@ -9762,6 +9762,13 @@ EXPORT_SYMBOL vmlinux 0xffd5a395	default_wake_function
 EXPORT_SYMBOL vmlinux 0xffdb82bc	sg_free_table
 EXPORT_SYMBOL vmlinux 0xfff14642	twl6040_get_vibralr_status
 EXPORT_SYMBOL vmlinux 0xfffe0b1f	tcf_em_register
+EXPORT_SYMBOL_GPL crypto/ablk_helper 0x068aaf8a	ablk_encrypt
+EXPORT_SYMBOL_GPL crypto/ablk_helper 0x11ab49a3	ablk_exit
+EXPORT_SYMBOL_GPL crypto/ablk_helper 0x7d69f1d6	ablk_init
+EXPORT_SYMBOL_GPL crypto/ablk_helper 0xa0209e9c	ablk_init_common
+EXPORT_SYMBOL_GPL crypto/ablk_helper 0xa4099ca6	__ablk_encrypt
+EXPORT_SYMBOL_GPL crypto/ablk_helper 0xbde686f8	ablk_set_key
+EXPORT_SYMBOL_GPL crypto/ablk_helper 0xf2bc40a2	ablk_decrypt
 EXPORT_SYMBOL_GPL crypto/af_alg 0x0667ac30	af_alg_unregister_type
 EXPORT_SYMBOL_GPL crypto/af_alg 0x144e62a7	af_alg_accept
 EXPORT_SYMBOL_GPL crypto/af_alg 0x344a4440	af_alg_make_sg
