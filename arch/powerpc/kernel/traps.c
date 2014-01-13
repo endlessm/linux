@@ -1384,7 +1384,6 @@ void fp_unavailable_tm(struct pt_regs *regs)
 
 	TM_DEBUG("FP Unavailable trap whilst transactional at 0x%lx, MSR=%lx\n",
 		 regs->nip, regs->msr);
-	tm_enable();
 
         /* We can only have got here if the task started using FP after
          * beginning the transaction.  So, the transactional regs are just a
@@ -1393,8 +1392,7 @@ void fp_unavailable_tm(struct pt_regs *regs)
          * transaction, and probably retry but now with FP enabled.  So the
          * checkpointed FP registers need to be loaded.
 	 */
-	tm_reclaim(&current->thread, current->thread.regs->msr,
-		   TM_CAUSE_FAC_UNAV);
+	tm_reclaim_current(TM_CAUSE_FAC_UNAV);
 	/* Reclaim didn't save out any FPRs to transact_fprs. */
 
 	/* Enable FP for the task: */
@@ -1417,9 +1415,7 @@ void altivec_unavailable_tm(struct pt_regs *regs)
 	TM_DEBUG("Vector Unavailable trap whilst transactional at 0x%lx,"
 		 "MSR=%lx\n",
 		 regs->nip, regs->msr);
-	tm_enable();
-	tm_reclaim(&current->thread, current->thread.regs->msr,
-		   TM_CAUSE_FAC_UNAV);
+	tm_reclaim_current(TM_CAUSE_FAC_UNAV);
 	regs->msr |= MSR_VEC;
 	tm_recheckpoint(&current->thread, regs->msr);
 	current->thread.used_vr = 1;
@@ -1440,10 +1436,8 @@ void vsx_unavailable_tm(struct pt_regs *regs)
 		 "MSR=%lx\n",
 		 regs->nip, regs->msr);
 
-	tm_enable();
 	/* This reclaims FP and/or VR regs if they're already enabled */
-	tm_reclaim(&current->thread, current->thread.regs->msr,
-		   TM_CAUSE_FAC_UNAV);
+	tm_reclaim_current(TM_CAUSE_FAC_UNAV);
 
 	regs->msr |= MSR_VEC | MSR_FP | current->thread.fpexc_mode |
 		MSR_VSX;
