@@ -3415,6 +3415,8 @@ static int be_setup(struct be_adapter *adapter)
 
 	be_set_rx_mode(adapter->netdev);
 
+	be_cmd_get_acpi_wol_cap(adapter);
+
 	be_cmd_get_flow_control(adapter, &tx_fc, &rx_fc);
 
 	if (rx_fc != adapter->rx_fc || tx_fc != adapter->tx_fc)
@@ -4284,12 +4286,6 @@ static void be_remove(struct pci_dev *pdev)
 	free_netdev(adapter->netdev);
 }
 
-bool be_is_wol_supported(struct be_adapter *adapter)
-{
-	return ((adapter->wol_cap & BE_WOL_CAP) &&
-		!be_is_wol_excluded(adapter)) ? true : false;
-}
-
 static int be_get_initial_config(struct be_adapter *adapter)
 {
 	int status, level;
@@ -4297,17 +4293,6 @@ static int be_get_initial_config(struct be_adapter *adapter)
 	status = be_cmd_get_cntl_attributes(adapter);
 	if (status)
 		return status;
-
-	status = be_cmd_get_acpi_wol_cap(adapter);
-	if (status) {
-		/* in case of a failure to get wol capabillities
-		 * check the exclusion list to determine WOL capability */
-		if (!be_is_wol_excluded(adapter))
-			adapter->wol_cap |= BE_WOL_CAP;
-	}
-
-	if (be_is_wol_supported(adapter))
-		adapter->wol = true;
 
 	/* Must be a power of 2 or else MODULO will BUG_ON */
 	adapter->be_get_temp_freq = 64;
@@ -4579,7 +4564,7 @@ static int be_suspend(struct pci_dev *pdev, pm_message_t state)
 	struct be_adapter *adapter = pci_get_drvdata(pdev);
 	struct net_device *netdev =  adapter->netdev;
 
-	if (adapter->wol)
+	if (adapter->wol_en)
 		be_setup_wol(adapter, true);
 
 	be_intr_set(adapter, false);
@@ -4635,7 +4620,7 @@ static int be_resume(struct pci_dev *pdev)
 			      msecs_to_jiffies(1000));
 	netif_device_attach(netdev);
 
-	if (adapter->wol)
+	if (adapter->wol_en)
 		be_setup_wol(adapter, false);
 
 	return 0;
