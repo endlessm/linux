@@ -293,9 +293,11 @@ endif
 		$(pkgdir)/lib/modules/$(abi_release)-$*
 	rmdir $(pkgdir)/lib/modules/$(abi_release)-$*/_
 
+ifeq ($(do_tools),true)
 	# Create the linux-tools version-flavour link
 	install -d $(toolspkgdir)/usr/lib/linux-tools
 	ln -s ../$(src_pkg_name)-tools-$(abi_release) $(toolspkgdir)/usr/lib/linux-tools/$(abi_release)-$*
+endif
 
 headers_tmp := $(CURDIR)/debian/tmp-headers
 headers_dir := $(CURDIR)/debian/linux-libc-dev
