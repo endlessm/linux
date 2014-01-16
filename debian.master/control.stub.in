@@ -46,17 +46,6 @@ Description: Linux kernel specific documentation for version PKGVER
  /usr/share/doc/SRCPKGNAME-doc/00-INDEX for a list of what is
  contained in each file.
 
-Package: SRCPKGNAME-tools-common
-Architecture: all
-Section: kernel
-Priority: optional
-Depends: ${misc:Depends}
-Replaces: SRCPKGNAME-tools (<= 2.6.32-16.25)
-Description: Linux kernel version specific tools for version PKGVER
- This package provides the architecture independent parts for kernel
- version locked tools (such as perf and x86_energy_perf_policy) for
- version PGKVER.
-
 Package: SRCPKGNAME-headers-PKGVER-ABINUM
 Architecture: all
 Section: devel
@@ -79,6 +68,17 @@ Description: Linux Kernel Headers for development
  are used by the installed headers for GNU glibc and other system
  libraries. They are NOT meant to be used to build third-party modules for
  your kernel. Use SRCPKGNAME-headers-* packages for that.
+
+Package: SRCPKGNAME-tools-common
+Architecture: all
+Section: kernel
+Priority: optional
+Depends: ${misc:Depends}
+Replaces: SRCPKGNAME-tools (<= 2.6.32-16.25)
+Description: Linux kernel version specific tools for version PKGVER
+ This package provides the architecture independent parts for kernel
+ version locked tools (such as perf and x86_energy_perf_policy) for
+ version PGKVER.
 
 Package: SRCPKGNAME-tools-PKGVER-ABINUM
 Architecture: i386 amd64 armhf
