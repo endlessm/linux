@@ -9,6 +9,7 @@ install_file	= vmlinuz
 loader		= grub
 no_dumpfile	= true
 uefi_signed     = true
+do_tools	= true
 do_tools_cpupower = true
 do_tools_perf   = true
 do_tools_x86	= true
