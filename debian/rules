@@ -29,10 +29,17 @@ include $(DROOT)/rules.d/0-common-vars.mk
 # Maintainer targets
 include $(DROOT)/rules.d/1-maintainer.mk
 
+do_tools=$(sort $(filter-out false,$(do_tools_cpupower) $(do_tools_perf) $(do_tools_x86)))
+do_cloud_tools=$(sort $(filter-out false,$(do_tools_hyperv)))
+
 # Don't build tools in a cross compile environment.
 ifneq ($(DEB_HOST_ARCH),$(DEB_BUILD_ARCH))
 	do_tools = false
+	do_cloud_tools = false
 endif
+
+# Either tools package needs the common source preparation
+do_tools_infra=$(sort $(filter-out false,$(do_tools) $(do_cloud_tools)))
 
 # Stages -- support both DEB_STAGE=stage1 and DEB_BUILD_PROFILE=bootstrap
 ifeq ($(DEB_STAGE),stage1)

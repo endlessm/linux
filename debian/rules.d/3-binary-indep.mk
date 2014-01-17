@@ -85,8 +85,18 @@ install-tools: toolspkg = $(tools_common_pkg_name)
 install-tools: toolsbin = $(CURDIR)/debian/$(toolspkg)/usr/bin
 install-tools: toolssbin = $(CURDIR)/debian/$(toolspkg)/usr/sbin
 install-tools: toolsman = $(CURDIR)/debian/$(toolspkg)/usr/share/man
+install-tools: cloudpkg = $(cloud_common_pkg_name)
+install-tools: cloudbin = $(CURDIR)/debian/$(cloudpkg)/usr/bin
+install-tools: cloudsbin = $(CURDIR)/debian/$(cloudpkg)/usr/sbin
+install-tools: cloudman = $(CURDIR)/debian/$(cloudpkg)/usr/share/man
 install-tools: install-source $(stampdir)/stamp-build-perarch
 	@echo Debug: $@
+
+	rm -rf $(builddir)/tools
+	install -d $(builddir)/tools
+	for i in *; do ln -s $(CURDIR)/$$i $(builddir)/tools/; done
+	rm $(builddir)/tools/tools
+	rsync -a tools/ $(builddir)/tools/tools/
 
 	install -d $(toolsbin)
 	install -d $(toolsman)/man1
@@ -99,16 +109,6 @@ install-tools: install-source $(stampdir)/stamp-build-perarch
 	install -m755 debian/tools/generic $(toolsbin)/x86_energy_perf_policy
 	install -m755 debian/tools/generic $(toolsbin)/turbostat
 
-	install -d $(toolssbin)
-	install -m755 debian/tools/generic $(toolssbin)/hv_kvp_daemon
-	install -m755 debian/tools/generic $(toolssbin)/hv_vss_daemon
-
-	rm -rf $(builddir)/tools
-	install -d $(builddir)/tools
-	for i in *; do ln -s $(CURDIR)/$$i $(builddir)/tools/; done
-	rm $(builddir)/tools/tools
-	rsync -a tools/ $(builddir)/tools/tools/
-
 	cd $(builddir)/tools/tools/perf && make man
 	install -m644 $(builddir)/tools/tools/perf/Documentation/*.1 \
 		$(toolsman)/man1
@@ -117,7 +117,12 @@ install-tools: install-source $(stampdir)/stamp-build-perarch
 	install -m644 $(CURDIR)/tools/power/x86/x86_energy_perf_policy/*.8 $(toolsman)/man8
 	install -m644 $(CURDIR)/tools/power/x86/turbostat/*.8 $(toolsman)/man8
 
-	install -m644 $(CURDIR)/tools/hv/*.8 $(toolsman)/man8
+	install -d $(cloudsbin)
+	install -m755 debian/tools/generic $(cloudsbin)/hv_kvp_daemon
+	install -m755 debian/tools/generic $(cloudsbin)/hv_vss_daemon
+
+	install -d $(cloudman)/man8
+	install -m644 $(CURDIR)/tools/hv/*.8 $(cloudman)/man8
 
 install-indep: install-tools
 	@echo Debug: $@

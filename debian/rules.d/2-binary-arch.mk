@@ -53,6 +53,7 @@ install-%: bindoc = $(pkgdir)/usr/share/doc/$(bin_pkg_name)-$*
 install-%: dbgpkgdir = $(CURDIR)/debian/$(bin_pkg_name)-$*-dbgsym
 install-%: signed = $(CURDIR)/debian/$(bin_pkg_name)-signed
 install-%: toolspkgdir = $(CURDIR)/debian/$(tools_flavour_pkg_name)-$*
+install-%: cloudpkgdir = $(CURDIR)/debian/$(cloud_flavour_pkg_name)-$*
 install-%: basepkg = $(hdrs_pkg_name)
 install-%: indeppkg = $(indep_hdrs_pkg_name)
 install-%: kernfile = $(call custom_override,kernel_file,$*)
@@ -294,9 +295,24 @@ endif
 	rmdir $(pkgdir)/lib/modules/$(abi_release)-$*/_
 
 ifeq ($(do_tools),true)
-	# Create the linux-tools version-flavour link
-	install -d $(toolspkgdir)/usr/lib/linux-tools
-	ln -s ../$(src_pkg_name)-tools-$(abi_release) $(toolspkgdir)/usr/lib/linux-tools/$(abi_release)-$*
+	# Create the linux-tools tool links
+	install -d $(toolspkgdir)/usr/lib/linux-tools/$(abi_release)-$*
+ifeq ($(do_tools_cpupower),true)
+	ln -s ../$(src_pkg_name)-tools-$(abi_release)/cpupower $(toolspkgdir)/usr/lib/linux-tools/$(abi_release)-$*
+endif
+ifeq ($(do_tools_perf),true)
+	ln -s ../$(src_pkg_name)-tools-$(abi_release)/perf $(toolspkgdir)/usr/lib/linux-tools/$(abi_release)-$*
+endif
+ifeq ($(do_tools_x86),true)
+	ln -s ../$(src_pkg_name)-tools-$(abi_release)/x86_energy_perf_policy $(toolspkgdir)/usr/lib/linux-tools/$(abi_release)-$*
+	ln -s ../$(src_pkg_name)-tools-$(abi_release)/turbostat $(toolspkgdir)/usr/lib/linux-tools/$(abi_release)-$*
+endif
+endif
+ifeq ($(do_tools_hyperv),true)
+	# Create the linux-hyperv tool links
+	install -d $(cloudpkgdir)/usr/lib/linux-tools/$(abi_release)-$*
+	ln -s ../$(src_pkg_name)-tools-$(abi_release)/hv_kvp_daemon $(cloudpkgdir)/usr/lib/linux-tools/$(abi_release)-$*
+	ln -s ../$(src_pkg_name)-tools-$(abi_release)/hv_vss_daemon $(cloudpkgdir)/usr/lib/linux-tools/$(abi_release)-$*
 endif
 
 headers_tmp := $(CURDIR)/debian/tmp-headers
@@ -357,6 +373,7 @@ binary-%: pkghdr = $(hdrs_pkg_name)-$*
 binary-%: dbgpkg = $(bin_pkg_name)-$*-dbgsym
 binary-%: dbgpkgdir = $(CURDIR)/debian/$(bin_pkg_name)-$*-dbgsym
 binary-%: pkgtools = $(tools_flavour_pkg_name)-$*
+binary-%: pkgcloud = $(cloud_flavour_pkg_name)-$*
 binary-%: target_flavour = $*
 binary-%: install-%
 	@echo Debug: $@
@@ -455,6 +472,17 @@ ifeq ($(do_tools),true)
 	dh_md5sums -p$(pkgtools)
 	dh_builddeb -p$(pkgtools)
 endif
+ifeq ($(do_cloud_tools),true)
+	dh_installchangelogs -p$(pkgcloud)
+	dh_installdocs -p$(pkgcloud)
+	dh_compress -p$(pkgcloud)
+	dh_fixperms -p$(pkgcloud)
+	dh_shlibdeps -p$(pkgcloud)
+	dh_installdeb -p$(pkgcloud)
+	$(lockme) dh_gencontrol -p$(pkgcloud)
+	dh_md5sums -p$(pkgcloud)
+	dh_builddeb -p$(pkgcloud)
+endif
 
 ifneq ($(full_build),false)
 	# Clean out this flavours build directory.
@@ -470,7 +498,7 @@ builddirpa = $(builddir)/tools-perarch
 
 $(stampdir)/stamp-prepare-perarch:
 	@echo Debug: $@
-ifeq ($(do_tools),true)
+ifeq ($(do_tools_infra),true)
 	rm -rf $(builddirpa)
 	install -d $(builddirpa)
 	for i in *; do ln -s $(CURDIR)/$$i $(builddirpa); done
@@ -482,7 +510,6 @@ endif
 $(stampdir)/stamp-build-perarch: $(stampdir)/stamp-prepare-perarch
 	@echo Debug: $@
 ifeq ($(do_tools),true)
-
 ifeq ($(do_tools_cpupower),true)
 	# Allow for multiple installed versions of cpupower and libcpupower.so:
 	# Override LIB_MIN in order to to generate a versioned .so named
@@ -499,13 +526,14 @@ ifeq ($(do_tools_x86),true)
 	cd $(builddirpa)/tools/power/x86/x86_energy_perf_policy && make CROSS_COMPILE=$(CROSS_COMPILE)
 	cd $(builddirpa)/tools/power/x86/turbostat && make CROSS_COMPILE=$(CROSS_COMPILE)
 endif
+endif
 ifeq ($(do_tools_hyperv),true)
 	cd $(builddirpa)/tools/hv && make CROSS_COMPILE=$(CROSS_COMPILE)
-endif
 endif
 	@touch $@
 
 install-perarch: toolspkgdir = $(CURDIR)/debian/$(tools_pkg_name)
+install-perarch: cloudpkgdir = $(CURDIR)/debian/$(cloud_pkg_name)
 install-perarch: $(stampdir)/stamp-build-perarch
 	@echo Debug: $@
 	# Add the tools.
@@ -530,15 +558,18 @@ ifeq ($(do_tools_x86),true)
 	install -m755 $(builddirpa)/tools/power/x86/turbostat/turbostat \
 		$(toolspkgdir)/usr/lib/$(src_pkg_name)-tools-$(abi_release)
 endif
-ifeq ($(do_tools_hyperv),true)
-	install -m755 $(builddirpa)/tools/hv/hv_kvp_daemon \
-		$(toolspkgdir)/usr/lib/$(src_pkg_name)-tools-$(abi_release)
-	install -m755 $(builddirpa)/tools/hv/hv_vss_daemon \
-		$(toolspkgdir)/usr/lib/$(src_pkg_name)-tools-$(abi_release)
 endif
+ifeq ($(do_tools_hyperv),true)
+	install -d $(cloudpkgdir)/usr/lib
+	install -d $(cloudpkgdir)/usr/lib/$(src_pkg_name)-tools-$(abi_release)
+	install -m755 $(builddirpa)/tools/hv/hv_kvp_daemon \
+		$(cloudpkgdir)/usr/lib/$(src_pkg_name)-tools-$(abi_release)
+	install -m755 $(builddirpa)/tools/hv/hv_vss_daemon \
+		$(cloudpkgdir)/usr/lib/$(src_pkg_name)-tools-$(abi_release)
 endif
 
 binary-perarch: toolspkg = $(tools_pkg_name)
+binary-perarch: cloudpkg = $(cloud_pkg_name)
 binary-perarch: install-perarch
 	@echo Debug: $@
 ifeq ($(do_tools),true)
@@ -552,6 +583,18 @@ ifeq ($(do_tools),true)
 	$(lockme) dh_gencontrol -p$(toolspkg)
 	dh_md5sums -p$(toolspkg)
 	dh_builddeb -p$(toolspkg)
+endif
+ifeq ($(do_cloud_tools),true)
+	dh_strip -p$(cloudpkg)
+	dh_installchangelogs -p$(cloudpkg)
+	dh_installdocs -p$(cloudpkg)
+	dh_compress -p$(cloudpkg)
+	dh_fixperms -p$(cloudpkg)
+	dh_shlibdeps -p$(cloudpkg)
+	dh_installdeb -p$(cloudpkg)
+	$(lockme) dh_gencontrol -p$(cloudpkg)
+	dh_md5sums -p$(cloudpkg)
+	dh_builddeb -p$(cloudpkg)
 endif
 
 binary-debs: signed = $(CURDIR)/debian/$(bin_pkg_name)-signed

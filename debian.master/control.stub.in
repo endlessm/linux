@@ -92,3 +92,25 @@ Description: Linux kernel version specific tools for version PKGVER-ABINUM
  =HUMAN=.
  You probabally want to install linux-tools-PKGVER-ABINUM-<flavour>.
 
+Package: SRCPKGNAME-cloud-tools-common
+Architecture: all
+Section: kernel
+Priority: optional
+Breaks: SRCPKGNAME-tools-common (<< 3.13.0-8.28)
+Replaces: SRCPKGNAME-tools-common (<< 3.13.0-8.28)
+Depends: ${misc:Depends}
+Description: Linux kernel version specific cloud tools for version PKGVER
+ This package provides the architecture independent parts for kernel
+ version locked tools for cloud tools for version PGKVER.
+
+Package: SRCPKGNAME-cloud-tools-PKGVER-ABINUM
+Architecture: i386 amd64 armhf
+Section: devel
+Priority: optional
+Depends: ${misc:Depends}, ${shlibs:Depends}, SRCPKGNAME-cloud-tools-common
+Description: Linux kernel version specific cloud tools for version PKGVER-ABINUM
+ This package provides the architecture dependant parts for kernel
+ version locked tools for cloud tools for version PKGVER-ABINUM on
+ =HUMAN=.
+ You probabally want to install linux-cloud-tools-PKGVER-ABINUM-<flavour>.
+

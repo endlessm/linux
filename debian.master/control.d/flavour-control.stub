@@ -108,6 +108,16 @@ Description: Linux kernel version specific tools for version PKGVER-ABINUM
  version PKGVER-ABINUM on
  =HUMAN=.
 
+Package: linux-cloud-tools-PKGVER-ABINUM-FLAVOUR
+Architecture: ARCH
+Section: devel
+Priority: optional
+Depends: ${misc:Depends}, SRCPKGNAME-cloud-tools-PKGVER-ABINUM
+Description: Linux kernel version specific cloud tools for version PKGVER-ABINUM
+ This package provides the architecture dependant parts for kernel
+ version locked tools for cloud for version PKGVER-ABINUM on
+ =HUMAN=.
+
 Package: SRCPKGNAME-udebs-FLAVOUR
 XC-Package-Type: udeb
 Section: debian-installer
