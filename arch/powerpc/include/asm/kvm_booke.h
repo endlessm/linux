@@ -104,6 +104,11 @@ static inline ulong kvmppc_get_pc(struct kvm_vcpu *vcpu)
 	return vcpu->arch.pc;
 }
 
+static inline bool kvmppc_is_bigendian(struct kvm_vcpu *vcpu)
+{
+	return 1;
+}
+
 static inline ulong kvmppc_get_fault_dar(struct kvm_vcpu *vcpu)
 {
 	return vcpu->arch.fault_dear;
