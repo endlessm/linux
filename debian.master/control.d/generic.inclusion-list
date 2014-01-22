@@ -37,6 +37,7 @@ drivers/input/misc/xen-kbdfront.ko
 drivers/md/*
 drivers/message/fusion*
 drivers/misc/vmw_balloon.ko
+drivers/misc/vmw_vmci/vmw_vmci.ko
 drivers/net/mii.ko
 drivers/net/ethernet/8390/8390.ko
 drivers/net/ethernet/realtek/8139too.ko
@@ -151,6 +152,7 @@ net/rxrpc/*
 net/sched/*
 net/sctp/*
 net/tipc/*
+net/vmw_vsock/*
 net/x25/*
 net/xfrm/*
 net/sunrpc/auth_gss/auth_rpcgss.ko
