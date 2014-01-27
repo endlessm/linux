@@ -396,6 +396,7 @@ gen8_render_ring_flush(struct intel_ring_buffer *ring,
 {
 	u32 flags = 0;
 	u32 scratch_addr = ring->scratch.gtt_offset + 2 * CACHELINE_BYTES;
+	int ret;
 
 	flags |= PIPE_CONTROL_CS_STALL;
 
@@ -412,6 +413,14 @@ gen8_render_ring_flush(struct intel_ring_buffer *ring,
 		flags |= PIPE_CONTROL_STATE_CACHE_INVALIDATE;
 		flags |= PIPE_CONTROL_QW_WRITE;
 		flags |= PIPE_CONTROL_GLOBAL_GTT_IVB;
+
+		/* WaCsStallBeforeStateCacheInvalidate:bdw,chv */
+		ret = gen8_emit_pipe_control(ring,
+					     PIPE_CONTROL_CS_STALL |
+					     PIPE_CONTROL_STALL_AT_SCOREBOARD,
+					     0);
+		if (ret)
+			return ret;
 	}
 
 	return gen8_emit_pipe_control(ring, flags, scratch_addr);
