@@ -1,0 +1,9 @@
+config XGENE_QMTM
+	tristate "APM X-Gene Queue Manager/Traffic Manager driver"
+	depends on ARM64 || COMPILE_TEST
+	default y
+	help
+	  This option enables APM X-Gene Queue Manager Traffic Manager (QMTM)
+	  driver support.
+	  QMTM is required for Ethernet, PktDMA (XOR Engine) and Security
+	  Engine.

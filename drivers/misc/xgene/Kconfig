@@ -1,0 +1,1 @@
+source "drivers/misc/xgene/qmtm/Kconfig"

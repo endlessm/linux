@@ -665,6 +665,15 @@ S:	Maintained
 F:	drivers/net/appletalk/
 F:	net/appletalk/
 
+APPLIEDMICRO (APM) X-GENE SOC QUEUE MANAGER/TRAFFIC MANAGER (QMTM) DRIVER
+M:	Ravi Patel <rapatel@apm.com>
+M:	Keyur Chudgar <kchudgar@apm.com>
+S:	Maintained
+F:	drivers/misc/xgene/
+F:	include/misc/xgene/xgene_qmtm.h
+F:	Documentation/devicetree/bindings/misc/apm-xgene-qmtm.txt
+F:	Documentation/misc-devices/apm-xgene-qmtm
+
 APTINA CAMERA SENSOR PLL
 M:	Laurent Pinchart <Laurent.pinchart@ideasonboard.com>
 L:	linux-media@vger.kernel.org
