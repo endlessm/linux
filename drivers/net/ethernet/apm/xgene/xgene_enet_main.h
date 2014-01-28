@@ -173,4 +173,5 @@ void xgene_enet_init_priv(struct xgene_enet_priv *priv);
 int xgene_enet_parse_error(u8 LErr, int qid);
 void xgene_enet_register_err_irqs(struct net_device *ndev);
 
+extern const struct ethtool_ops xgene_ethtool_ops;
 #endif /* __XGENE_ENET_MAIN_H__ */

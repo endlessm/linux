@@ -357,6 +357,10 @@
 #define INTERFACE_CONTROL_ADDR                                       0x00000038
 #define STATION_ADDR0_ADDR                                           0x00000040
 #define STATION_ADDR1_ADDR                                           0x00000044
+#define RX_FLOW_EN1_MASK                                             0x00000020
+#define TX_FLOW_EN1_MASK                                             0x00000010
+#define RX_FLOW_EN1_RD(src)                           (((src) & 0x00000020)>>5)
+#define TX_FLOW_EN1_RD(src)                           (((src) & 0x00000010)>>4)
 #define SCAN_CYCLE_MASK                                              0x00000002
 #define SOFT_RESET1_MASK                                             0x80000000
 #define MAX_FRAME_LEN_SET(dst, src) \

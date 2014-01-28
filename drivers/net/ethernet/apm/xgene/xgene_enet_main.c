@@ -1408,6 +1408,7 @@ static int xgene_enet_init_hw(struct xgene_enet_pdev *pdev)
 
 	/* Ethtool checks the capabilities/features in hw_features flag */
 	ndev->hw_features = ndev->features;
+	SET_ETHTOOL_OPS(ndev, &xgene_ethtool_ops);
 
 	rc = register_netdev(ndev);
 	if (rc) {
