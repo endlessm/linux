@@ -119,6 +119,7 @@ orinoco_plx ?
 orinoco_tmd ?
 pcnet32 ?
 qlcnic ?
+r815x ?
 r8169 ?
 rate_control ?
 rfc1051 ?
