@@ -1,0 +1,10 @@
+config NET_XGENE
+	tristate "APM X-Gene Ethernet Driver"
+	depends on XGENE_QMTM
+	select PHYLIB
+	default y
+	help
+	  This is the Ethernet driver for APM X-Gene SoC.
+
+	  To compile this driver as a module, choose M here. This module will
+	  be called xgene_enet.
