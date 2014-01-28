@@ -379,5 +379,23 @@
 			#clock-cells = <1>;
 			clocks = <&qmlclk 0>;
 		};
+
+		menet: ethernet@17020000 {
+			compatible = "apm,xgene-enet";
+			status = "disabled";
+			reg = <0x0 0x17020000 0x0 0x30>,
+			      <0x0 0x17020000 0x0 0x10000>,
+			      <0x0 0x17020000 0x0 0x20>;
+			slave-name = "RGMII";
+			interrupts = <0x0 0x38 0x4>,
+				     <0x0 0x39 0x4>,
+				     <0x0 0x3a 0x4>;
+			#clock-cells = <1>;
+			clocks = <&eth8clk 0>;
+			local-mac-address = <0x0 0x11 0x3a 0x8a 0x5a 0x78>;
+			max-frame-size = <0x233a>;
+			phyid = <3>;
+			phy-mode = "rgmii";
+		};
 	};
 };
