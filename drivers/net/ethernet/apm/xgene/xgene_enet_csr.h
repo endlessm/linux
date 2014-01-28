@@ -19,6 +19,13 @@
 #ifndef __XGENE_ENET_CSR_H__
 #define __XGENE_ENET_CSR_H__
 
+#define RSIF_INT_REG0_ADDR                                           0x00000054
+#define RSIF_FINT_REG0_ADDR                                          0x0000005c
+#define TSIF_INT_REG0_ADDR                                           0x0000012c
+#define TSIF_FINT_REG0_ADDR                                          0x00000134
+#define TSO_INT_REG0_ADDR                                            0x00000324
+#define SPI2SAP_INT_REG0_ADDR                                        0x00000448
+#define RX_TX_BUF_CHKSM_INT_REG0_ADDR                                0x0000052c
 #define ENET_SPARE_CFG_REG_ADDR                                      0x00000750
 #define RSIF_CONFIG_REG_ADDR                                         0x00000010
 #define RSIF_RAM_DBG_REG0_ADDR                                       0x00000048
@@ -33,7 +40,108 @@
 #define TSIF_MSS_REG1_0_ADDR                                         0x00000110
 #define TSO_CFG_0_ADDR                                               0x00000314
 #define TSO_CFG_INSERT_VLAN_0_ADDR                                   0x0000031c
-#define CFG_RSIF_FPBUFF_TIMEOUT_EN_WR(src)      (((u32)(src)<<31) & 0x80000000)
+#define CFG_RSIF_FPBUFF_TIMEOUT_EN_WR(src) \
+	(((u32)(src)<<31) & 0x80000000)
+#define RSIF_LCL_RXBUF_FIFO_OVERFL_INTR_RXPRT10_MASK                 0x20000000
+#define RSIF_LCL_RXBUF_FIFO_OVERFL_INTR_RXPRT10_RD(src) \
+	(((src) & 0x20000000)>>29)
+#define RSIF_LCL_RXBUF_FIFO_UNDERFL_INTR_RXPRT10_MASK                0x10000000
+#define RSIF_LCL_RXBUF_FIFO_UNDERFL_INTR_RXPRT10_RD(src) \
+	(((src) & 0x10000000)>>28)
+#define RSIF_CHKSUM_BUFF_FIFO_OVERFL_INTR_RXPRT10_MASK               0x08000000
+#define RSIF_CHKSUM_BUFF_FIFO_OVERFL_INTR_RXPRT10_RD(src) \
+	(((src) & 0x08000000)>>27)
+#define RSIF_CHKSUM_BUFF_FIFO_UNDERFL_INTR_RXPRT10_MASK              0x04000000
+#define RSIF_CHKSUM_BUFF_FIFO_UNDERFL_INTR_RXPRT10_RD(src) \
+	(((src) & 0x04000000)>>26)
+#define RSIF_TIMESTAMP_BUFF_FIFO_OVERFL_INTR_RXPRT10_MASK            0x02000000
+#define RSIF_TIMESTAMP_BUFF_FIFO_OVERFL_INTR_RXPRT10_RD(src) \
+	(((src) & 0x02000000)>>25)
+#define RSIF_TIMESTAMP_BUFF_FIFO_UNDERFL_INTR_RXPRT10_MASK           0x01000000
+#define RSIF_TIMESTAMP_BUFF_FIFO_UNDERFL_INTR_RXPRT10_RD(src) \
+	(((src) & 0x01000000)>>24)
+#define RSIF_ERR_BUFF_FIFO_OVERFL_INTR_RXPRT10_MASK                  0x00800000
+#define RSIF_ERR_BUFF_FIFO_OVERFL_INTR_RXPRT10_RD(src) \
+	(((src) & 0x00800000)>>23)
+#define RSIF_ERR_BUFF_FIFO_UNDERFL_INTR_RXPRT10_MASK                 0x00400000
+#define RSIF_ERR_BUFF_FIFO_UNDERFL_INTR_RXPRT10_RD(src) \
+	(((src) & 0x00400000)>>22)
+#define RSIF_CLEBUFF_FIFO_OVERFL_INTR_RXPRT10_MASK                   0x00200000
+#define RSIF_CLEBUFF_FIFO_OVERFL_INTR_RXPRT10_RD(src) \
+	(((src) & 0x00200000)>>21)
+#define RSIF_CLEBUFF_FIFO_UNDERFL_INTR_RXPRT10_MASK                  0x00100000
+#define RSIF_CLEBUFF_FIFO_UNDERFL_INTR_RXPRT10_RD(src) \
+	(((src) & 0x00100000)>>20)
+#define RSIF_CTRLBUFF_FIFO_OVERFL_INTR_RXPRT10_MASK                  0x00080000
+#define RSIF_CTRLBUFF_FIFO_OVERFL_INTR_RXPRT10_RD(src) \
+	(((src) & 0x00080000)>>19)
+#define RSIF_CTRLBUFF_FIFO_UNDERFL_INTR_RXPRT10_MASK                 0x00040000
+#define RSIF_CTRLBUFF_FIFO_UNDERFL_INTR_RXPRT10_RD(src) \
+	(((src) & 0x00040000)>>18)
+#define RSIF_BUF_FIFO_OVERFL_INTR_RXPRT10_MASK                       0x00020000
+#define RSIF_BUF_FIFO_OVERFL_INTR_RXPRT10_RD(src) \
+	(((src) & 0x00020000)>>17)
+#define RSIF_BUF_FIFO_UNDERFL_INTR_RXPRT10_MASK                      0x00010000
+#define RSIF_BUF_FIFO_UNDERFL_INTR_RXPRT10_RD(src) \
+	(((src) & 0x00010000)>>16)
+#define ENET_RSIF_PLC_CLEBUFF_FIFO_OVERFL_INTR0_MASK              0x00008000
+#define ENET_RSIF_PLC_CLEBUFF_FIFO_OVERFL_INTR0_RD(src) \
+	(((src) & 0x00008000)>>15)
+#define ENET_RSIF_PLC_CLEBUFF_FIFO_UNDERFL_INTR0_RD(src) \
+	(((src) & 0x00004000)>>14)
+#define RSIF_LCL_RXBUF_FIFO_UNDERFL_INTR_RXPRT00_MASK                0x00001000
+#define RSIF_LCL_RXBUF_FIFO_UNDERFL_INTR_RXPRT00_RD(src) \
+	(((src) & 0x00001000)>>12)
+#define RSIF_LCL_RXBUF_FIFO_OVERFL_INTR_RXPRT00_MASK                 0x00002000
+#define RSIF_LCL_RXBUF_FIFO_OVERFL_INTR_RXPRT00_RD(src) \
+	(((src) & 0x00002000)>>13)
+#define RSIF_CHKSUM_BUFF_FIFO_OVERFL_INTR_RXPRT00_MASK               0x00000800
+#define RSIF_CHKSUM_BUFF_FIFO_OVERFL_INTR_RXPRT00_RD(src) \
+	(((src) & 0x00000800)>>11)
+#define RSIF_CHKSUM_BUFF_FIFO_UNDERFL_INTR_RXPRT00_MASK              0x00000400
+#define RSIF_CHKSUM_BUFF_FIFO_UNDERFL_INTR_RXPRT00_RD(src) \
+	(((src) & 0x00000400)>>10)
+#define RSIF_TIMESTAMP_BUFF_FIFO_OVERFL_INTR_RXPRT00_MASK            0x00000200
+#define RSIF_TIMESTAMP_BUFF_FIFO_OVERFL_INTR_RXPRT00_RD(src) \
+	(((src) & 0x00000200)>>9)
+#define RSIF_TIMESTAMP_BUFF_FIFO_UNDERFL_INTR_RXPRT00_MASK           0x00000100
+#define RSIF_TIMESTAMP_BUFF_FIFO_UNDERFL_INTR_RXPRT00_RD(src) \
+	(((src) & 0x00000100)>>8)
+#define RSIF_ERR_BUFF_FIFO_OVERFL_INTR_RXPRT00_MASK                  0x00000080
+#define RSIF_ERR_BUFF_FIFO_OVERFL_INTR_RXPRT00_RD(src) (((src) & 0x00000080)>>7)
+#define RSIF_ERR_BUFF_FIFO_UNDERFL_INTR_RXPRT00_MASK                 0x00000040
+#define RSIF_ERR_BUFF_FIFO_UNDERFL_INTR_RXPRT00_RD(src) \
+	(((src) & 0x00000040)>>6)
+#define RSIF_CLEBUFF_FIFO_OVERFL_INTR_RXPRT00_MASK                   0x00000020
+#define RSIF_CLEBUFF_FIFO_OVERFL_INTR_RXPRT00_RD(src) (((src) & 0x00000020)>>5)
+#define RSIF_CLEBUFF_FIFO_UNDERFL_INTR_RXPRT00_MASK                  0x00000010
+#define RSIF_CLEBUFF_FIFO_UNDERFL_INTR_RXPRT00_RD(src) (((src) & 0x00000010)>>4)
+#define RSIF_CTRLBUFF_FIFO_OVERFL_INTR_RXPRT00_MASK                  0x00000008
+#define RSIF_CTRLBUFF_FIFO_OVERFL_INTR_RXPRT00_RD(src) (((src) & 0x00000008)>>3)
+#define RSIF_CTRLBUFF_FIFO_UNDERFL_INTR_RXPRT00_MASK                 0x00000004
+#define RSIF_CTRLBUFF_FIFO_UNDERFL_INTR_RXPRT00_RD(src) \
+	(((src) & 0x00000004)>>2)
+#define RSIF_BUF_FIFO_OVERFL_INTR_RXPRT00_MASK                       0x00000002
+#define RSIF_BUF_FIFO_OVERFL_INTR_RXPRT00_RD(src)     (((src) & 0x00000002)>>1)
+#define RSIF_BUF_FIFO_UNDERFL_INTR_RXPRT00_MASK                      0x00000001
+#define RSIF_BUF_FIFO_UNDERFL_INTR_RXPRT00_RD(src)       (((src) & 0x00000001))
+#define RSIF_SS_MIRRORERR_INTR_RXPRT10_MASK                          0x00080000
+#define RSIF_SS_MIRRORERR_INTR_RXPRT10_RD(src)       (((src) & 0x00080000)>>19)
+#define RSIF_SS_SPLIT_BOUNDARY_INTR_RXPRT10_RD(src)  (((src) & 0x00040000)>>18)
+#define RSIF_SS_FPBUFF_TIMEOUT_INTR_RXPRT10_MASK                     0x00020000
+#define RSIF_SS_FPBUFF_TIMEOUT_INTR_RXPRT10_RD(src)  (((src) & 0x00020000)>>17)
+#define RSIF_SS_AXI_WRERR_INTR_RXPRT10_MASK                          0x00010000
+#define RSIF_SS_AXI_WRERR_INTR_RXPRT10_RD(src)       (((src) & 0x00010000)>>16)
+#define RSIF_SS_MIRRORERR_INTR_RXPRT00_MASK                          0x00000010
+#define RSIF_SS_MIRRORERR_INTR_RXPRT00_RD(src)        (((src) & 0x00000010)>>4)
+#define RSIF_SS_SPLIT_BOUNDARY_INTR_RXPRT00_MASK                     0x00000008
+#define RSIF_SS_SPLIT_BOUNDARY_INTR_RXPRT00_RD(src)   (((src) & 0x00000008)>>3)
+#define RSIF_SS_FPBUFF_TIMEOUT_INTR_RXPRT00_MASK                     0x00000004
+#define RSIF_SS_FPBUFF_TIMEOUT_INTR_RXPRT00_RD(src)   (((src) & 0x00000004)>>2)
+#define RSIF_SS_AXI_WRERR_INTR_RXPRT00_MASK                          0x00000002
+#define RSIF_SS_AXI_WRERR_INTR_RXPRT00_RD(src)        (((src) & 0x00000002)>>1)
+#define STS_RSIF_PLC_DROP0_MASK                                      0x00000001
+#define STS_RSIF_PLC_DROP0_RD(src)                       (((src) & 0x00000001))
 #define CFG_TSIF_MSS_SZ10_SET(dst, src) \
 	(((dst) & ~0x3fff0000) | (((u32)(src)<<16) & 0x3fff0000))
 #define CFG_TSIF_MSS_SZ00_SET(dst, src) \
@@ -42,7 +150,99 @@
 	(((dst) & ~0x00003fff) | (((u32)(src)) & 0x00003fff))
 #define CFG_TSIF_MSS_SZ30_SET(dst, src) \
 	(((dst) & ~0x3fff0000) | (((u32)(src)<<16) & 0x3fff0000))
+#define TSIF_RDMBUFF_FIFO_OVERFL_INTR_PRT10_MASK                     0x00200000
+#define TSIF_RDMBUFF_FIFO_OVERFL_INTR_PRT10_RD(src)  (((src) & 0x00200000)>>21)
+#define TSIF_RDMBUFF_FIFO_UNDERFL_INTR_PRT10_MASK                    0x00100000
+#define TSIF_RDMBUFF_FIFO_UNDERFL_INTR_PRT10_RD(src) (((src) & 0x00100000)>>20)
+#define TSIF_RRM_FIFO_OVERFL_INTR_PRT10_MASK                         0x00080000
+#define TSIF_RRM_FIFO_OVERFL_INTR_PRT10_RD(src)      (((src) & 0x00080000)>>19)
+#define TSIF_RRM_FIFO_UNDERFL_INTR_PRT10_MASK                        0x00040000
+#define TSIF_RRM_FIFO_UNDERFL_INTR_PRT10_RD(src)     (((src) & 0x00040000)>>18)
+#define TSIF_AMABUF_FIFO_OVERFL_INTR_PRT10_MASK                      0x00020000
+#define TSIF_AMABUF_FIFO_OVERFL_INTR_PRT10_RD(src)   (((src) & 0x00020000)>>17)
+#define TSIF_AMABUF_FIFO_UNDERFL_INTR_PRT10_MASK                     0x00010000
+#define TSIF_AMABUF_FIFO_UNDERFL_INTR_PRT10_RD(src)  (((src) & 0x00010000)>>16)
+#define TSIF_RDMBUFF_FIFO_OVERFL_INTR_PRT00_MASK                     0x00000020
+#define TSIF_RDMBUFF_FIFO_OVERFL_INTR_PRT00_RD(src)   (((src) & 0x00000020)>>5)
+#define TSIF_RDMBUFF_FIFO_UNDERFL_INTR_PRT00_MASK                    0x00000010
+#define TSIF_RDMBUFF_FIFO_UNDERFL_INTR_PRT00_RD(src)  (((src) & 0x00000010)>>4)
+#define TSIF_RRM_FIFO_OVERFL_INTR_PRT00_MASK                         0x00000008
+#define TSIF_RRM_FIFO_OVERFL_INTR_PRT00_RD(src)       (((src) & 0x00000008)>>3)
+#define TSIF_RRM_FIFO_UNDERFL_INTR_PRT00_MASK                        0x00000004
+#define TSIF_RRM_FIFO_UNDERFL_INTR_PRT00_RD(src)      (((src) & 0x00000004)>>2)
+#define TSIF_AMABUF_FIFO_OVERFL_INTR_PRT00_MASK                      0x00000002
+#define TSIF_AMABUF_FIFO_OVERFL_INTR_PRT00_RD(src)    (((src) & 0x00000002)>>1)
+#define TSIF_AMABUF_FIFO_UNDERFL_INTR_PRT00_MASK                     0x00000001
+#define TSIF_AMABUF_FIFO_UNDERFL_INTR_PRT00_RD(src)      (((src) & 0x00000001))
+#define TSIF_SS_AXI_LLRDERR_INTR_PRT10_MASK                          0x00040000
+#define TSIF_SS_AXI_LLRDERR_INTR_PRT10_RD(src)       (((src) & 0x00040000)>>18)
+#define TSIF_SS_AXI_RDERR_INTR_PRT10_MASK                            0x00020000
+#define TSIF_SS_AXI_RDERR_INTR_PRT10_RD(src)         (((src) & 0x00020000)>>17)
+#define TSIF_SS_BAD_MSG_INTR_PRT10_MASK                              0x00010000
+#define TSIF_SS_BAD_MSG_INTR_PRT10_RD(src)           (((src) & 0x00010000)>>16)
+#define TSIF_SS_AXI_LLRDERR_INTR_PRT00_MASK                          0x00000004
+#define TSIF_SS_AXI_LLRDERR_INTR_PRT00_RD(src)        (((src) & 0x00000004)>>2)
+#define TSIF_SS_AXI_RDERR_INTR_PRT00_MASK                            0x00000002
+#define TSIF_SS_AXI_RDERR_INTR_PRT00_RD(src)          (((src) & 0x00000002)>>1)
+#define TSIF_SS_BAD_MSG_INTR_PRT00_MASK                              0x00000001
+#define TSIF_SS_BAD_MSG_INTR_PRT00_RD(src)               (((src) & 0x00000001))
 #define RESUME_TX_WR(src)                           (((u32)(src)) & 0x00000001)
+#define MB_TTF_FIFO_OVERFL_INTR_PRT10_RD(src)        (((src) & 0x00200000)>>21)
+#define MB_TTF_FIFO_OVERFL_INTR_PRT10_MASK                           0x00200000
+#define MB_TTF_FIFO_UNDERFL_INTR_PRT10_RD(src)       (((src) & 0x00100000)>>20)
+#define MB_TTF_FIFO_UNDERFL_INTR_PRT10_MASK                          0x00100000
+#define MH_DEALLOC_FIFO_OVERFL_INTR_PRT10_RD(src)    (((src) & 0x00080000)>>19)
+#define MH_DEALLOC_FIFO_OVERFL_INTR_PRT10_MASK                       0x00080000
+#define MH_DEALLOC_FIFO_UNDERFL_INTR_PRT10_RD(src)   (((src) & 0x00040000)>>18)
+#define MH_DEALLOC_FIFO_UNDERFL_INTR_PRT10_MASK                      0x00040000
+#define MH_FIFO_OVERFL_INTR_PRT10_RD(src)            (((src) & 0x00020000)>>17)
+#define MH_FIFO_OVERFL_INTR_PRT10_MASK                               0x00020000
+#define MH_FIFO_UNDERFL_INTR_PRT10_RD(src)           (((src) & 0x00010000)>>16)
+#define MH_FIFO_UNDERFL_INTR_PRT10_MASK                              0x00010000
+#define MB_TTF_FIFO_OVERFL_INTR_PRT00_RD(src)         (((src) & 0x00000020)>>5)
+#define MB_TTF_FIFO_OVERFL_INTR_PRT00_MASK                           0x00000020
+#define MB_TTF_FIFO_UNDERFL_INTR_PRT00_RD(src)        (((src) & 0x00000010)>>4)
+#define MB_TTF_FIFO_UNDERFL_INTR_PRT00_MASK                          0x00000010
+#define MH_DEALLOC_FIFO_OVERFL_INTR_PRT00_RD(src)     (((src) & 0x00000008)>>3)
+#define MH_DEALLOC_FIFO_OVERFL_INTR_PRT00_MASK                       0x00000008
+#define MH_DEALLOC_FIFO_UNDERFL_INTR_PRT00_RD(src)    (((src) & 0x00000004)>>2)
+#define MH_DEALLOC_FIFO_UNDERFL_INTR_PRT00_MASK                      0x00000004
+#define MH_FIFO_OVERFL_INTR_PRT00_RD(src)             (((src) & 0x00000002)>>1)
+#define MH_FIFO_OVERFL_INTR_PRT00_MASK                               0x00000002
+#define MH_FIFO_UNDERFL_INTR_PRT00_RD(src)               (((src) & 0x00000001))
+#define MH_FIFO_UNDERFL_INTR_PRT00_MASK                              0x00000001
+#define MACIF_FIFO_OVERFL_INTR_RXPRT10_RD(src)       (((src) & 0x00020000)>>17)
+#define MACIF_FIFO_OVERFL_INTR_RXPRT10_MASK                          0x00020000
+#define MACIF_FIFO_OVERFL_INTR_RXPRT00_RD(src)        (((src) & 0x00000002)>>1)
+#define MACIF_FIFO_OVERFL_INTR_RXPRT00_MASK                          0x00000002
+#define MACIF_FIFO_UNDERFL_INTR_RXPRT10_RD(src)      (((src) & 0x00010000)>>16)
+#define MACIF_FIFO_UNDERFL_INTR_RXPRT10_MASK                         0x00010000
+#define MACIF_FIFO_UNDERFL_INTR_RXPRT00_RD(src)          (((src) & 0x00000001))
+#define MACIF_FIFO_UNDERFL_INTR_RXPRT00_MASK                         0x00000001
+#define RXBUF_PAUSE_INTR_PORT10_RD(src)              (((src) & 0x00400000)>>22)
+#define RXBUF_PAUSE_INTR_PORT10_MASK                                 0x00400000
+#define RX_CHKSUM_INTR_PORT10_RD(src)                (((src) & 0x00200000)>>21)
+#define RX_CHKSUM_INTR_PORT10_MASK                                   0x00200000
+#define TX_CHKSUM_INTR_PORT10_RD(src)                (((src) & 0x00100000)>>20)
+#define TX_CHKSUM_INTR_PORT10_MASK                                   0x00100000
+#define RXBUF_FIFO_OVERFL_INTR_PRT10_RD(src)         (((src) & 0x00080000)>>19)
+#define RXBUF_FIFO_OVERFL_INTR_PRT10_MASK                            0x00080000
+#define RXBUF_FIFO_UNDERFL_INTR_PRT10_RD(src)        (((src) & 0x00040000)>>18)
+#define RXBUF_FIFO_UNDERFL_INTR_PRT10_MASK                           0x00040000
+#define TXBUF_FIFO_OVERFL_INTR_PRT10_RD(src)         (((src) & 0x00020000)>>17)
+#define TXBUF_FIFO_UNDERFL_INTR_PRT10_RD(src)        (((src) & 0x00010000)>>16)
+#define RXBUF_PAUSE_INTR_PORT00_RD(src)               (((src) & 0x00000040)>>6)
+#define RX_CHKSUM_INTR_PORT00_RD(src)                 (((src) & 0x00000020)>>5)
+#define RX_CHKSUM_INTR_PORT00_MASK                                   0x00000020
+#define RXBUF_PAUSE_INTR_PORT00_MASK                                 0x00000040
+#define TX_CHKSUM_INTR_PORT00_RD(src)                 (((src) & 0x00000010)>>4)
+#define TX_CHKSUM_INTR_PORT00_MASK                                   0x00000010
+#define RXBUF_FIFO_OVERFL_INTR_PRT00_RD(src)          (((src) & 0x00000008)>>3)
+#define RXBUF_FIFO_OVERFL_INTR_PRT00_MASK                            0x00000008
+#define RXBUF_FIFO_UNDERFL_INTR_PRT00_RD(src)         (((src) & 0x00000004)>>2)
+#define RXBUF_FIFO_UNDERFL_INTR_PRT00_MASK                           0x00000004
+#define TXBUF_FIFO_OVERFL_INTR_PRT00_RD(src)          (((src) & 0x00000002)>>1)
+#define TXBUF_FIFO_UNDERFL_INTR_PRT00_RD(src)            (((src) & 0x00000001))
 #define CFG_SPEED_1250_WR(src)                  (((u32)(src)<<24) & 0x01000000)
 #define CFG_TXCLK_MUXSEL0_WR(src)               (((u32)(src)<<29) & 0xe0000000)
 #define TX_PORT0_WR(src)                            (((u32)(src)) & 0x00000001)
@@ -58,6 +258,8 @@
 	(((dst) & ~0x000f0000) | (((u32)(src)<<16) & 0x000f0000))
 #define CFG_CLE_HENQNUM0_SET(dst, src) \
 	(((dst) & ~0x0fff0000) | (((u32)(src)<<16) & 0x0fff0000))
+#define MAC_INT_REG0_ADDR                                            0x00000514
+#define MAC_INT_REG1_ADDR                                            0x0000051c
 #define ICM_CONFIG0_REG_0_ADDR                                       0x00000400
 #define ICM_CONFIG2_REG_0_ADDR                                       0x00000410
 #define ECM_CONFIG0_REG_0_ADDR                                       0x00000500
@@ -68,10 +270,69 @@
 	(((dst) & ~0x00000002) | (((u32)(src)<<1) & 0x00000002))
 #define RESUME_RX0_SET(dst, src) \
 	(((dst) & ~0x00000001) | (((u32)(src)) & 0x00000001))
+#define ICM_DATA_FIFO_UNDERFL_INTR_PRT10_RD(src)     (((src) & 0x01000000)>>24)
+#define ICM_DATA_FIFO_UNDERFL_INTR_PRT10_MASK                        0x01000000
+#define ICM_DATA_FIFO_OVERFL_INTR_PRT10_MASK                         0x00800000
+#define ICM_CTRL_FIFO_OVERFL_INTR_PRT00_RD(src)       (((src) & 0x00000020)>>5)
+#define ICM_CTRL_FIFO_OVERFL_INTR_PRT00_MASK                         0x00000020
+#define ICM_CTRL_FIFO_OVERFL_INTR_PRT10_RD(src)      (((src) & 0x00200000)>>21)
+#define ICM_CTRL_FIFO_OVERFL_INTR_PRT10_MASK                         0x00200000
+#define ICM_CTRL_FIFO_UNDERFL_INTR_PRT10_RD(src)     (((src) & 0x00400000)>>22)
+#define ICM_CTRL_FIFO_UNDERFL_INTR_PRT10_MASK                        0x00400000
+#define ICM_CTRL_FIFO_UNDERFL_INTR_PRT00_RD(src)      (((src) & 0x00000040)>>6)
+#define ICM_CTRL_FIFO_UNDERFL_INTR_PRT00_MASK                        0x00000040
+#define ICM_DATA_FIFO_OVERFL_INTR_PRT00_RD(src)       (((src) & 0x00000080)>>7)
+#define ICM_DATA_FIFO_OVERFL_INTR_PRT10_RD(src)      (((src) & 0x00800000)>>23)
+#define ICM_DATA_FIFO_OVERFL_INTR_PRT00_MASK                         0x00000080
+#define ICM_DATA_FIFO_UNDERFL_INTR_PRT00_RD(src)      (((src) & 0x00000100)>>8)
+#define ICM_DATA_FIFO_UNDERFL_INTR_PRT00_MASK                        0x00000100
+#define ECM_DATA_FIFO_UNDERN_INTR_PRT00_RD(src)       (((src) & 0x00000010)>>4)
+#define ECM_DATA_FIFO_UNDERN_INTR_PRT00_MASK                         0x00000010
+#define ECM_DATA_FIFO_UNDERN_INTR_PRT10_RD(src)      (((src) & 0x00100000)>>20)
+#define ECM_DATA_FIFO_UNDERN_INTR_PRT10_MASK                         0x00100000
+#define ECM_DATA_FIFO_UNDERFL_INTR_PRT10_RD(src)     (((src) & 0x00080000)>>19)
+#define ECM_DATA_FIFO_UNDERFL_INTR_PRT10_MASK                        0x00080000
+#define ECM_DATA_FIFO_OVERFL_INTR_PRT10_RD(src)      (((src) & 0x00040000)>>18)
+#define ECM_DATA_FIFO_OVERFL_INTR_PRT10_MASK                         0x00040000
+#define CARRY_PORT01_RD(src)                             (((src) & 0x00000001))
+#define CARRY_PORT01_MASK                                            0x00000001
+#define LINKDOWN_PORT11_RD(src)                       (((src) & 0x00000008)>>3)
+#define LINKDOWN_PORT11_MASK                                         0x00000008
+#define CARRY_PORT11_RD(src)                          (((src) & 0x00000004)>>2)
+#define CARRY_PORT11_MASK                                            0x00000004
+#define LINKDOWN_PORT01_RD(src)                       (((src) & 0x00000002)>>1)
+#define LINKDOWN_PORT01_MASK                                         0x00000002
+#define MACIF_FIFO_UNDERFL_INTR_RXPRT00_F2_RD(src)    (((src) & 0x00000002)>>1)
+#define MACIF_FIFO_UNDERFL_INTR_RXPRT00_F2_MASK                      0x00000002
+#define MACIF_FIFO_UNDERFL_INTR_RXPRT10_F2_RD(src)   (((src) & 0x00020000)>>17)
+#define MACIF_FIFO_UNDERFL_INTR_RXPRT10_F2_MASK                      0x00020000
+#define MACIF_FIFO_OVERFL_INTR_RXPRT00_F2_RD(src)        (((src) & 0x00000001))
+#define MACIF_FIFO_OVERFL_INTR_RXPRT00_F2_MASK                       0x00000001
+#define MACIF_FIFO_OVERFL_INTR_RXPRT10_F2_RD(src)    (((src) & 0x00010000)>>16)
+#define MACIF_FIFO_OVERFL_INTR_RXPRT10_F2_MASK                       0x00010000
+#define ECM_DATA_FIFO_UNDERFL_INTR_PRT00_RD(src)      (((src) & 0x00000008)>>3)
+#define ECM_DATA_FIFO_UNDERFL_INTR_PRT00_MASK                        0x00000008
+#define ECM_DATA_FIFO_OVERFL_INTR_PRT00_RD(src)       (((src) & 0x00000004)>>2)
+#define ECM_DATA_FIFO_OVERFL_INTR_PRT00_MASK                         0x00000004
+#define ENET_STSSSQMIINT0_ADDR                                    0x0000009c
+#define ENET_STSSSQMIINT1_ADDR                                    0x000000a4
+#define ENET_STSSSQMIINT2_ADDR                                    0x000000ac
+#define ENET_STSSSQMIINT3_ADDR                                    0x000000b4
+#define ENET_STSSSQMIINT4_ADDR                                    0x000000bc
 #define ENET_CFGSSQMIWQASSOC_ADDR                                 0x000000e0
 #define ENET_CFGSSQMIFPQASSOC_ADDR                                0x000000dc
 #define ENET_CFGSSQMIQMLITEFPQASSOC_ADDR                          0x000000f0
 #define ENET_CFGSSQMIQMLITEWQASSOC_ADDR                           0x000000f4
+#define ENET_FPOVERFLOW0_RD(src)                      (((src) & 0xffffffff))
+#define ENET_WQOVERFLOW1_RD(src)                      (((src) & 0xffffffff))
+#define ENET_FPUNDERRUN2_RD(src)                      (((src) & 0xffffffff))
+#define ENET_WQUNDERRUN3_RD(src)                      (((src) & 0xffffffff))
+#define ENET_AXIWCMR_SLVERR4_RD(src)               (((src) & 0x00000002)>>1)
+#define ENET_AXIWCMR_SLVERR4_MASK                                 0x00000002
+#define ENET_FPOVERFLOW0_MASK                                     0xffffffff
+#define ENET_WQOVERFLOW1_MASK                                     0xffffffff
+#define ENET_FPUNDERRUN2_MASK                                     0xffffffff
+#define ENET_WQUNDERRUN3_MASK                                     0xffffffff
 #define ENET_CLKEN_ADDR                                              0x00000008
 #define ENET_SRST_ADDR                                               0x00000000
 #define CSR0_RESET_WR(src)                          (((u32)(src)) & 0x00000001)
@@ -159,4 +420,4 @@
 #define TX_FCS_ERROR_CNTR_MASK                                       0x00000fff
 #define TX_UNDSIZE_FRAME_CNTR_MASK                                   0x00000fff
 
-#endif /* __XGENE_ENET_CSR_H__ */
+#endif  /* __XGENE_ENET_CSR_H__ */

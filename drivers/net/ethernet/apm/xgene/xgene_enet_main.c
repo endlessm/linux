@@ -341,7 +341,8 @@ static int xgene_enet_tx_completion(struct xgene_enet_qcontext *e2c,
 }
 
 static inline u16 xgene_enet_select_queue(struct net_device *ndev,
-					  struct sk_buff *skb)
+					  struct sk_buff *skb,
+					  void *accel_priv)
 {
 	return skb_tx_hash(ndev, skb);
 }
@@ -767,6 +768,7 @@ static int xgene_enet_rx_frame(struct xgene_enet_qcontext *e2c,
 			goto process_pkt;
 		}
 
+		xgene_enet_parse_error(LErr, qid);
 		netdev_dbg(ndev, "ENET LErr 0x%x skb 0x%p FP 0x%x\n",
 			   LErr, skb, msg16->FPQNum);
 		print_hex_dump(KERN_ERR, "QM Msg: ",
@@ -1258,6 +1260,8 @@ static void xgene_enet_register_irq(struct net_device *ndev)
 		/* Disable interrupts for RX queue mailboxes */
 		disable_irq_nosync(pdev->rx[qindex]->qdesc->irq);
 	}
+
+	xgene_enet_register_err_irqs(ndev);
 }
 
 static int xgene_enet_get_resources(struct xgene_enet_pdev *pdev)
@@ -1320,6 +1324,30 @@ static int xgene_enet_get_resources(struct xgene_enet_pdev *pdev)
 		goto out;
 	}
 	pdev->sdev = sdev;
+
+	pdata.irq = platform_get_irq(plat_dev, 0);
+	if (pdata.irq <= 0) {
+		dev_err(dev, "Unable to get ENET Error IRQ\n");
+		rc = pdata.irq;
+		goto out;
+	}
+	pdev->enet_err_irq = pdata.irq;
+
+	pdata.irq = platform_get_irq(plat_dev, 1);
+	if (pdata.irq <= 0) {
+		dev_err(dev, "Unable to get ENET MAC Error IRQ\n");
+		rc = pdata.irq;
+		goto out;
+	}
+	pdev->enet_mac_err_irq = pdata.irq;
+
+	pdata.irq = platform_get_irq(plat_dev, 2);
+	if (pdata.irq <= 0) {
+		dev_err(dev, "Unable to get ENET QMI Error IRQ\n");
+		rc = pdata.irq;
+		goto out;
+	}
+	pdev->enet_qmi_err_irq = pdata.irq;
 
 	rc = of_property_read_u32(plat_dev->dev.of_node, "phyid",
 				  &pdata.phy_id);

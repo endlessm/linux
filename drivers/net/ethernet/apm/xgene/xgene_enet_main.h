@@ -127,6 +127,7 @@ struct eth_queue_ids {
 
 struct xgene_enet_platform_data {
 	const char *sname;
+	int irq;
 	u32 phy_id;
 	u8 ethaddr[6];
 };
@@ -155,6 +156,9 @@ struct xgene_enet_pdev {
 	struct eth_queue_ids qm_queues;
 	u32 rx_buff_cnt, tx_cqt_low, tx_cqt_hi;
 	int mss;
+	unsigned int enet_err_irq;
+	unsigned int enet_mac_err_irq;
+	unsigned int enet_qmi_err_irq;
 	struct xgene_enet_priv priv;
 };
 
