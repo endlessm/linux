@@ -1,0 +1,67 @@
+APM X-Gene SoC Ethernet nodes
+
+Ethernet nodes are defined to describe on-chip ethernet interfaces in
+APM X-Gene SoC. Ethernet subsystem communicates with a central Queue Manager
+(QMTM) using messages for transmit, receive and allocating data buffers.
+There are multiple ethernet interfaces in APM X-Gene SoC. Each ethernet
+interface has its own node. Its corresponding clock nodes are shown below.
+
+Required properties:
+- compatible		: Shall be "apm,xgene-enet"
+- reg			: First memory resource shall be the Ethernet CSR
+			  memory resource for indirect MAC access.
+			  Second memory resource shall be the Ethernet CSR
+			  memory resource.
+			  Third memory resource shall be the Ethernet CSR
+			  memory resource for indirect MII access.
+- slave-name		: Shall be QMTM slave name.
+- interrupts		: First interrupt resource shall be the Ethernet global
+			  Error interrupt.
+			: Second interrupt resource shall be the Ethernet MAC
+			  Error interrupt.
+			: Third interrupt resource shall be the Ethernet QM
+			  interface interrupt.
+- clocks		: Reference to the clock entry.
+- local-mac-address	: Shall be ethernet mac address.
+- max-frame-size	: Shall be maximum ethernet frame size.
+- devid			: Shall be ethernet interface number.
+- phyid			: Shall be ethernet MII phy address.
+- phy-mode		: Shall be ethernet MII mode.
+
+Optional properties:
+- status		: Shall be "ok" if enabled or "disabled" if disabled.
+			  Default is "ok".
+
+Example:
+	eth8clk: eth8clk {
+		compatible = "apm,xgene-device-clock";
+		clock-names = "eth8clk";
+		status = "ok";
+	};
+
+	menet: ethernet@17020000 {
+		compatible = "apm,xgene-enet";
+		status = "disabled";
+		reg = <0x0 0x17020000 0x0 0x30>,
+		      <0x0 0x17020000 0x0 0x10000>,
+		      <0x0 0x17020000 0x0 0x20>;
+		slave-name = "RGMII";
+		interrupts = <0x0 0x38 0x4>,
+			     <0x0 0x39 0x4>,
+			     <0x0 0x3a 0x4>;
+		clocks = <&eth8clk 0>;
+		local-mac-address = <0x0 0x11 0x3a 0x8a 0x5a 0x78>;
+		max-frame-size = <0x233a>;
+		devid = <8>;
+		phyid = <3>;
+		phy-mode = "rgmii";
+	};
+
+/* Board-specific peripheral configurations */
+aliases {
+	ethernet0 = &menet;
+};
+
+&menet {
+        status = "ok";
+};
