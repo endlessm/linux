@@ -588,12 +588,16 @@ static int xgene_qmtm_enable(struct xgene_qmtm *qmtm)
 		qmtm->write_qstate(&qinfo);
 	}
 
-	return rc;
+	/* Enable error reporting */
+	return xgene_qmtm_enable_error(qmtm);
 }
 
 static int xgene_qmtm_disable(struct xgene_qmtm *qmtm)
 {
 	u32 queue_id;
+
+	/* Disable error reporting */
+	xgene_qmtm_disable_error(qmtm);
 
 	for (queue_id = 0; queue_id < qmtm->max_queues; queue_id++) {
 		if (qmtm->qinfo[queue_id]) {

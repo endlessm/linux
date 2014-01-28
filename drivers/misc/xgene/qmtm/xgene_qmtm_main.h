@@ -129,6 +129,10 @@ enum xgene_qmtm_fp_mode {
 void xgene_qmtm_wr32(struct xgene_qmtm *qmtm, u32 offset, u32 data);
 void xgene_qmtm_rd32(struct xgene_qmtm *qmtm, u32 offset, u32 *data);
 
+/* QMTM Error handling */
+int xgene_qmtm_enable_error(struct xgene_qmtm *qmtm);
+void xgene_qmtm_disable_error(struct xgene_qmtm *qmtm);
+
 struct xgene_qmtm_sdev *storm_qmtm_get_sdev(char *name);
 
 #endif /* __XGENE_QMTM_MAIN_H__ */
