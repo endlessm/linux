@@ -44,22 +44,29 @@ do-binary-udebs: debian/control
 	done
 	
 	# Generate the meta-udeb dependancy lists.
-	@gawk '								\
-		/Package: /		{ package=$$2 }			\
-		(/Package-Type: udeb/ && package !~ /^'$(src_pkg_name)'-udebs-/) { 	\
-			match(package, "'$(release)'-'$(abinum)'-(.*)-di", bits);	\
-			flavour = bits[1];				\
-			udebs[flavour] = udebs[flavour] package ", ";	\
-		}							\
-		END {							\
-			for (flavour in udebs) {				\
-				package="'$(src_pkg_name)'-udebs-" flavour;	\
-				file="debian/" package ".substvars";		\
-				print("udeb:Depends=" udebs[flavour]) > file;	\
-				metas="'$(builddir)'/udeb-meta-packages";	\
-				print(package) >metas			\
-			}						\
-		}							\
+	@gawk '										\
+		/^Package:/ {								\
+			package=$$2; flavour=""; parch="" }				\
+		(/Package-Type: udeb/ && package !~ /^'$(src_pkg_name)'-udebs-/) {      \
+			match(package, "'$(release)'-'$(abinum)'-(.*)-di", bits);       \
+			flavour = bits[1];						\
+		}									\
+		(/^Architecture:/ && $$0 " " ~ / '$(arch)'/) {				\
+			parch=$$0;							\
+		}									\
+		(flavour != "" && parch != "") {					\
+			udebs[flavour] = udebs[flavour] package ", ";			\
+			flavour=""; parch="";						\
+		}                                                      			\
+		END {                                                  			\
+			for (flavour in udebs) {					\
+				package="'$(src_pkg_name)'-udebs-" flavour;		\
+				file="debian/" package ".substvars";			\
+				print("udeb:Depends=" udebs[flavour]) > file;		\
+				metas="'$(builddir)'/udeb-meta-packages";		\
+				print(package) >metas					\
+			}								\
+		}									\
 	' <$(CURDIR)/debian/control
 	@while read i; do \
 		$(lockme) dh_gencontrol -p$$i; \
