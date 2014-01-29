@@ -2,6 +2,7 @@ Package: kernel-image
 Provides: ext3-modules, ext4-modules
 Provides_amd64: efi-modules, ext3-modules, ext4-modules
 Provides_i386: efi-modules, ext3-modules, ext4-modules
+Provides_ppc64el: ext3-modules, ext4-modules, fat-modules
 
 Package: fat-modules
 Depends: kernel-image
