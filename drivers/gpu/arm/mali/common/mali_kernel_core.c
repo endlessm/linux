@@ -33,6 +33,7 @@
 #include "mali_timeline.h"
 #include "mali_soft_job.h"
 #include "mali_pm_domain.h"
+#include "mali_platform.h"
 #if defined(CONFIG_MALI400_PROFILING)
 #include "mali_osk_profiling.h"
 #endif
@@ -881,6 +882,7 @@ _mali_osk_errcode_t mali_initialize_subsystems(void)
 
 	/* Allowing the system to be turned off */
 	mali_pm_init_end();
+	mali_platform_init();
 
 	return _MALI_OSK_ERR_OK; /* all ok */
 }
@@ -890,6 +892,7 @@ void mali_terminate_subsystems(void)
 	struct mali_pmu_core *pmu = mali_pmu_get_global_pmu_core();
 
 	MALI_DEBUG_PRINT(2, ("terminate_subsystems() called\n"));
+	mali_platform_deinit();
 
 	mali_utilization_term();
 	mali_control_timer_term();
