@@ -14,5 +14,9 @@ source "ubuntu/aufs/Kconfig"
 ##
 ##
 ##
+source "ubuntu/i915/Kconfig"
+##
+##
+##
 
 endmenu
