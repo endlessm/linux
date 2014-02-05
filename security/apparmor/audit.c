@@ -210,7 +210,8 @@ int aa_audit(int type, struct aa_profile *profile, gfp_t gfp,
 
 	if (aad(sa)->type == AUDIT_APPARMOR_KILL)
 		(void)send_sig_info(SIGKILL, NULL,
-				    sa->u.tsk ?  sa->u.tsk : current);
+			sa->type == LSM_AUDIT_DATA_TASK && sa->u.tsk ?
+				    sa->u.tsk : current);
 
 	if (aad(sa)->type == AUDIT_APPARMOR_ALLOWED)
 		return complain_error(aad(sa)->error);
