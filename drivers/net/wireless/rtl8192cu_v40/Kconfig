@@ -1,0 +1,6 @@
+config RTL8192CU_V40
+	tristate "Realtek 8192C USB WiFi Version 20130911(V4.0)"
+	depends on USB
+	---help---
+	  Help message of RTL8192CU(New Version)
+
