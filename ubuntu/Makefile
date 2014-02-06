@@ -16,7 +16,9 @@ obj-$(CONFIG_AUFS_FS)		+= aufs/
 ##
 ##
 ##
+ifneq ($(ARCH),arm)
 obj-m				+= lttng/
+endif
 ##
 ##
 ##
