@@ -23,6 +23,7 @@
 #include <linux/module.h>
 #include <linux/slab.h>
 #include <linux/compat.h>
+#include <linux/err.h>
 #include <asm/ptrace.h>
 #include <asm/syscall.h>
 
@@ -322,14 +323,15 @@ int fill_table(const struct trace_syscall_entry *table, size_t table_len,
 		ev.instrumentation = LTTNG_KERNEL_NOOP;
 		chan_table[i] = lttng_event_create(chan, &ev, filter,
 						desc);
-		if (!chan_table[i]) {
+		WARN_ON_ONCE(!chan_table[i]);
+		if (IS_ERR(chan_table[i])) {
 			/*
 			 * If something goes wrong in event registration
 			 * after the first one, we have no choice but to
 			 * leave the previous events in there, until
 			 * deleted by session teardown.
 			 */
-			return -EINVAL;
+			return PTR_ERR(chan_table[i]);
 		}
 	}
 	return 0;
@@ -369,8 +371,9 @@ int lttng_syscalls_register(struct lttng_channel *chan, void *filter)
 		ev.instrumentation = LTTNG_KERNEL_NOOP;
 		chan->sc_unknown = lttng_event_create(chan, &ev, filter,
 						    desc);
-		if (!chan->sc_unknown) {
-			return -EINVAL;
+		WARN_ON_ONCE(!chan->sc_unknown);
+		if (IS_ERR(chan->sc_unknown)) {
+			return PTR_ERR(chan->sc_unknown);
 		}
 	}
 
@@ -384,8 +387,9 @@ int lttng_syscalls_register(struct lttng_channel *chan, void *filter)
 		ev.instrumentation = LTTNG_KERNEL_NOOP;
 		chan->sc_compat_unknown = lttng_event_create(chan, &ev, filter,
 							   desc);
-		if (!chan->sc_compat_unknown) {
-			return -EINVAL;
+		WARN_ON_ONCE(!chan->sc_unknown);
+		if (IS_ERR(chan->sc_compat_unknown)) {
+			return PTR_ERR(chan->sc_compat_unknown);
 		}
 	}
 
@@ -399,8 +403,9 @@ int lttng_syscalls_register(struct lttng_channel *chan, void *filter)
 		ev.instrumentation = LTTNG_KERNEL_NOOP;
 		chan->sc_exit = lttng_event_create(chan, &ev, filter,
 						 desc);
-		if (!chan->sc_exit) {
-			return -EINVAL;
+		WARN_ON_ONCE(!chan->sc_exit);
+		if (IS_ERR(chan->sc_exit)) {
+			return PTR_ERR(chan->sc_exit);
 		}
 	}
 

@@ -43,6 +43,7 @@
 #include <linux/file.h>
 #include <linux/uaccess.h>
 #include <linux/slab.h>
+#include <linux/err.h>
 #include "wrapper/vmalloc.h"	/* for wrapper_vmalloc_sync_all() */
 #include "wrapper/ringbuffer/vfs.h"
 #include "wrapper/ringbuffer/backend.h"
@@ -912,8 +913,9 @@ int lttng_abi_create_event(struct file *channel_file,
 		 * will stay invariant for the rest of the session.
 		 */
 		event = lttng_event_create(channel, event_param, NULL, NULL);
-		if (!event) {
-			ret = -EINVAL;
+		WARN_ON_ONCE(!event);
+		if (IS_ERR(event)) {
+			ret = PTR_ERR(event);
 			goto event_error;
 		}
 		event_file->private_data = event;

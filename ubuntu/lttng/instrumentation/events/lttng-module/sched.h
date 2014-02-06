@@ -15,7 +15,24 @@
 #ifndef _TRACE_SCHED_DEF_
 #define _TRACE_SCHED_DEF_
 
-#if (LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,35))
+#if (LINUX_VERSION_CODE >= KERNEL_VERSION(3,13,0))
+
+static inline long __trace_sched_switch_state(struct task_struct *p)
+{
+	long state = p->state;
+
+#ifdef CONFIG_PREEMPT
+	/*
+	 * For all intents and purposes a preempted task is a running task.
+	 */
+	if (task_preempt_count(p) & PREEMPT_ACTIVE)
+		state = TASK_RUNNING | TASK_STATE_MAX;
+#endif
+
+	return state;
+}
+
+#elif (LINUX_VERSION_CODE >= KERNEL_VERSION(3,2,0))
 
 static inline long __trace_sched_switch_state(struct task_struct *p)
 {
@@ -26,11 +43,24 @@ static inline long __trace_sched_switch_state(struct task_struct *p)
 	 * For all intents and purposes a preempted task is a running task.
 	 */
 	if (task_thread_info(p)->preempt_count & PREEMPT_ACTIVE)
-#if (LINUX_VERSION_CODE >= KERNEL_VERSION(3,2,0))
 		state = TASK_RUNNING | TASK_STATE_MAX;
-#else
-		state = TASK_RUNNING;
 #endif
+
+	return state;
+}
+
+#elif (LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,35))
+
+static inline long __trace_sched_switch_state(struct task_struct *p)
+{
+	long state = p->state;
+
+#ifdef CONFIG_PREEMPT
+	/*
+	 * For all intents and purposes a preempted task is a running task.
+	 */
+	if (task_thread_info(p)->preempt_count & PREEMPT_ACTIVE)
+		state = TASK_RUNNING;
 #endif
 
 	return state;

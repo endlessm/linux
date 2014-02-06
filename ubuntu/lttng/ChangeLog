@@ -1,3 +1,13 @@
+2014-01-29 LTTng modules 2.4.0-rc3
+	* Fix: tracepoint event name mapping at unregister
+	* Fix: tracepoint name remapping
+	* Fix: enable event error path memory corruption
+	* Update kvm instrumentation to Linux 3.13
+	* Update sched instrumentation to Linux 3.13
+	* Fix: provide more precise error report for enable event
+	* Fix: quote event name in metadata
+	* Add version info to lttng-tracer.ko modinfo
+
 2013-12-10 LTTng modules 2.4.0-rc2
 	* Fix: client_packet_header() uses wrong packet
 	* Cleanup: fix typo in ring buffer backend comment

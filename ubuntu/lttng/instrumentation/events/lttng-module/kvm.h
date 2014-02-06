@@ -325,7 +325,29 @@ DEFINE_EVENT(kvm_async_pf_nopresent_ready, kvm_async_pf_ready,
 	TP_ARGS(token, gva)
 )
 
-#if 0
+#if (LINUX_VERSION_CODE >= KERNEL_VERSION(3,13,0))
+
+TRACE_EVENT(
+	kvm_async_pf_completed,
+	TP_PROTO(unsigned long address, u64 gva),
+	TP_ARGS(address, gva),
+
+	TP_STRUCT__entry(
+		__field(unsigned long, address)
+		__field(u64, gva)
+		),
+
+	TP_fast_assign(
+		tp_assign(address, address)
+		tp_assign(gva, gva)
+		),
+
+	TP_printk("gva %#llx address %#lx",  __entry->gva,
+		  __entry->address)
+)
+
+#else /* #if (LINUX_VERSION_CODE >= KERNEL_VERSION(3,13,0)) */
+
 TRACE_EVENT(
 	kvm_async_pf_completed,
 	TP_PROTO(unsigned long address, struct page *page, u64 gva),
@@ -346,7 +368,8 @@ TRACE_EVENT(
 	TP_printk("gva %#llx address %#lx pfn %#llx",  __entry->gva,
 		  __entry->address, __entry->pfn)
 )
-#endif
+
+#endif /* #else #if (LINUX_VERSION_CODE >= KERNEL_VERSION(3,13,0)) */
 
 #endif
 

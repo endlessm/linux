@@ -170,7 +170,8 @@ struct lttng_ctx {
 };
 
 struct lttng_event_desc {
-	const char *name;
+	const char *name;		/* lttng-modules name */
+	const char *kname;		/* Linux kernel name (tracepoints) */
 	void *probe_callback;
 	const struct lttng_event_ctx *ctx;	/* context */
 	const struct lttng_event_field *fields;	/* event payload */

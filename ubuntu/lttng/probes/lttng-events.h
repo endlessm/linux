@@ -327,6 +327,7 @@ static void __event_probe__##_name(void *__data);
 static const struct lttng_event_desc __event_desc___##_map = {		\
 	.fields = __event_fields___##_template,		     		\
 	.name = #_map,					     		\
+	.kname = #_name,				     		\
 	.probe_callback = (void *) TP_PROBE_CB(_template),   		\
 	.nr_fields = ARRAY_SIZE(__event_fields___##_template),		\
 	.owner = THIS_MODULE,				     		\
