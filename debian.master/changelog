@@ -4,6 +4,13 @@ linux (3.13.0-8.27) UNRELEASED; urgency=low
   CHANGELOG: Use the printchanges target to see the curent changes.
   CHANGELOG: Use the insertchanges target to create the final log.
 
+  [ Upstream Kernel Changes ]
+
+  * rebase to v3.13.2
+    - LP: #1260303
+    - LP: #1260303
+    - LP: #1268468
+
  -- Tim Gardner <tim.gardner@canonical.com>  Thu, 06 Feb 2014 09:25:51 -0700
 
 linux (3.13.0-7.26) trusty; urgency=low
