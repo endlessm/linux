@@ -76,3 +76,13 @@ config SECURITY_APPARMOR_HASH
 	  This option selects whether sha1 hashing is done against loaded
           profiles and exported for inspection to user space via the apparmor
           filesystem.
+
+config SECURITY_APPARMOR_AA3_SEMANTICS
+	bool "AppArmor3 semantics"
+	depends on SECURITY_APPARMOR
+	default y
+	help
+	  This option enables semantic changes in apparmor 3 that affect
+	  policy developed for an apparmor 2.8 system. If enabled
+	  apparmor 2.8 policy may need to be updated when used with an
+	  apparmor 3 enabled kernel.

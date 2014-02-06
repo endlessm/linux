@@ -793,6 +793,7 @@ do { \
 static int unix_fs_perm(int op, struct aa_label *label, struct sock *sk,
 			u32 mask)
 {
+#ifdef CONFIG_SECURITY_APPARMOR_AA3_SEMANTICS
 	if (!unconfined(label) && UNIX_FS(sk)) {
 		struct unix_sock *u = unix_sk(sk);
 
@@ -803,6 +804,7 @@ static int unix_fs_perm(int op, struct aa_label *label, struct sock *sk,
 
 		return aa_path_perm(op, label, &u->path, 0, mask, &cond);
 	}
+#endif
 	return 0;
 }
 
