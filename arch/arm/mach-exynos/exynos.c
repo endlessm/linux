@@ -143,6 +143,13 @@ static struct map_desc exynos5_iodesc[] __initdata = {
 	},
 };
 
+static void exynos4_power_off(void)
+{
+	/* PS_HOLD might be active high or active low : flip the polarity bit */
+	writel(readl(S5P_PS_HOLD_CONTROL) ^ S5P_PS_HOLD_DATA,
+				S5P_PS_HOLD_CONTROL);
+}
+
 void exynos_restart(enum reboot_mode mode, const char *cmd)
 {
 	struct device_node *np;
@@ -300,6 +307,9 @@ static void __init exynos_dt_machine_init(void)
 
 	exynos_cpuidle_init();
 	exynos_cpufreq_init();
+
+	if (soc_is_exynos4())
+		pm_power_off = exynos4_power_off;
 
 	of_platform_populate(NULL, of_default_bus_match_table, NULL, NULL);
 }
