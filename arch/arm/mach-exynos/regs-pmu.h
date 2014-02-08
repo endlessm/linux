@@ -127,6 +127,10 @@
 #define S5P_PAD_RET_EBIA_OPTION			0x3188
 #define S5P_PAD_RET_EBIB_OPTION			0x31A8
 
+#define S5P_PS_HOLD_CONTROL			0x330C
+
+#define S5P_PS_HOLD_DATA			(1 << 8)
+
 #define S5P_CORE_LOCAL_PWR_EN			0x3
 
 /* Only for EXYNOS4210 */
