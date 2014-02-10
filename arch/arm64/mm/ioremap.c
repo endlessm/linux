@@ -98,3 +98,17 @@ void __iomem *ioremap_cache(phys_addr_t phys_addr, size_t size)
 				__builtin_return_address(0));
 }
 EXPORT_SYMBOL(ioremap_cache);
+
+#ifdef CONFIG_PCI
+int pci_ioremap_io(unsigned int offset, phys_addr_t phys_addr)
+{
+	BUG_ON(offset + SZ_64K > IO_SPACE_LIMIT);
+
+	return ioremap_page_range((unsigned long)PCI_IOBASE + offset,
+				  (unsigned long)PCI_IOBASE + offset + SZ_64K,
+				  phys_addr,
+				  __pgprot(PROT_NORMAL_NC));
+}
+EXPORT_SYMBOL_GPL(pci_ioremap_io);
+#endif
+
