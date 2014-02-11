@@ -2453,8 +2453,6 @@ static int i40e_vsi_configure(struct i40e_vsi *vsi)
 	i40e_set_vsi_rx_mode(vsi);
 	i40e_restore_vlan(vsi);
 	i40e_vsi_config_dcb_rings(vsi);
-	if (vsi->type == I40E_VSI_FDIR)
-		i40e_fdir_filter_restore(vsi);
 	err = i40e_vsi_configure_tx(vsi);
 	if (!err)
 		err = i40e_vsi_configure_rx(vsi);
@@ -4085,6 +4083,10 @@ static int i40e_up_complete(struct i40e_vsi *vsi)
 	} else if (vsi->netdev) {
 		netdev_info(vsi->netdev, "NIC Link is Down\n");
 	}
+
+	/* replay FDIR SB filters */
+	if (vsi->type == I40E_VSI_FDIR)
+		i40e_fdir_filter_restore(vsi);
 	i40e_service_event_schedule(pf);
 
 	return 0;
