@@ -79,6 +79,7 @@ struct iommu_table {
 #ifdef CONFIG_IOMMU_API
 	struct iommu_group *it_group;
 #endif
+	void (*set_bypass)(struct iommu_table *tbl, bool enable);
 };
 
 struct scatterlist;
