@@ -665,6 +665,7 @@ static void intel_didl_outputs(struct drm_device *dev)
 	acpi_status status;
 	u32 temp, max_outputs;
 	int i = 0;
+	bool done;
 
 	handle = ACPI_HANDLE(&dev->pdev->dev);
 	if (!handle || acpi_bus_get_device(handle, &acpi_dev))
@@ -686,21 +687,20 @@ static void intel_didl_outputs(struct drm_device *dev)
 		return;
 	}
 
-	/*
-	 * In theory, did2, the extended didl, gets added at opregion version
-	 * 3.0. In practice, however, we're supposed to set it for earlier
-	 * versions as well, since a BIOS that doesn't understand did2 should
-	 * not look at it anyway. Use a variable so we can tweak this if a need
-	 * arises later.
-	 */
-	max_outputs = ARRAY_SIZE(opregion->acpi->didl) +
-		ARRAY_SIZE(opregion->acpi->did2);
-
+	done = false;
 	list_for_each_entry(acpi_cdev, &acpi_video_bus->children, node) {
-		if (i >= max_outputs) {
-			DRM_DEBUG_KMS("More than %u outputs detected via ACPI\n",
-				      max_outputs);
-			return;
+		if (i >= 8) {
+			dev_dbg(&dev->pdev->dev,
+				"More than 8 outputs detected via ACPI, %s\n",
+				acpi_device_bid(acpi_cdev));
+			if (acpi_has_method(acpi_cdev->handle, "_BCM")) {
+				dev_dbg(&dev->pdev->dev,
+					"%s has _BCM, replacing 8th entry\n",
+					acpi_device_bid(acpi_cdev));
+				i = 7;
+				done = true;
+			} else
+				continue;
 		}
 		status = acpi_evaluate_integer(acpi_cdev->handle, "_ADR",
 					       NULL, &device_id);
@@ -709,6 +709,9 @@ static void intel_didl_outputs(struct drm_device *dev)
 				goto blind_set;
 			set_did(opregion, i++, (u32)(device_id & 0x0f0f));
 		}
+
+		if (done)
+			return;
 	}
 
 end:
