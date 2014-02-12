@@ -622,6 +622,7 @@ static void intel_didl_outputs(struct drm_device *dev)
 	acpi_status status;
 	u32 temp;
 	int i = 0;
+	bool done;
 
 	handle = ACPI_HANDLE(&dev->pdev->dev);
 	if (!handle || acpi_bus_get_device(handle, &acpi_dev))
@@ -643,11 +644,20 @@ static void intel_didl_outputs(struct drm_device *dev)
 		return;
 	}
 
+	done = false;
 	list_for_each_entry(acpi_cdev, &acpi_video_bus->children, node) {
 		if (i >= 8) {
 			dev_dbg(&dev->pdev->dev,
-				"More than 8 outputs detected via ACPI\n");
-			return;
+				"More than 8 outputs detected via ACPI, %s\n",
+				acpi_device_bid(acpi_cdev));
+			if (acpi_has_method(acpi_cdev->handle, "_BCM")) {
+				dev_dbg(&dev->pdev->dev,
+					"%s has _BCM, replacing 8th entry\n",
+					acpi_device_bid(acpi_cdev));
+				i = 7;
+				done = true;
+			} else
+				continue;
 		}
 		status =
 			acpi_evaluate_integer(acpi_cdev->handle, "_ADR",
@@ -659,6 +669,9 @@ static void intel_didl_outputs(struct drm_device *dev)
 				  &opregion->acpi->didl[i]);
 			i++;
 		}
+
+		if (done)
+			return;
 	}
 
 end:
