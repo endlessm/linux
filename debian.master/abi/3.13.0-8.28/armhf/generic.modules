@@ -521,7 +521,6 @@ comm
 configfs
 connector-analog-tv
 connector-dvi
-connector-hdmi
 contec_pci_dio
 cordic
 core
@@ -866,7 +865,6 @@ em_u32
 enc28j60
 enclosure
 encoder-tfp410
-encoder-tpd12s015
 eni
 enic
 epat
