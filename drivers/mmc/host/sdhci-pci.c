@@ -65,7 +65,6 @@ struct sdhci_pci_fixes {
 	unsigned int		quirks;
 	unsigned int		quirks2;
 	bool			allow_runtime_pm;
-	bool			own_cd_for_runtime_pm;
 
 	int			(*probe) (struct sdhci_pci_chip *);
 
@@ -297,7 +296,6 @@ static const struct sdhci_pci_fixes sdhci_intel_mrst_hc1_hc2 = {
 static const struct sdhci_pci_fixes sdhci_intel_mfd_sd = {
 	.quirks		= SDHCI_QUIRK_NO_ENDATTR_IN_NOPDESC,
 	.allow_runtime_pm = true,
-	.own_cd_for_runtime_pm = true,
 };
 
 static const struct sdhci_pci_fixes sdhci_intel_mfd_sdio = {
@@ -362,7 +360,6 @@ static const struct sdhci_pci_fixes sdhci_intel_byt_sdio = {
 static const struct sdhci_pci_fixes sdhci_intel_byt_sd = {
 	.quirks2	= SDHCI_QUIRK2_CARD_ON_NEEDS_BUS_ON,
 	.allow_runtime_pm = true,
-	.own_cd_for_runtime_pm = true,
 };
 
 /* Define Host controllers for Intel Merrifield platform */
@@ -1460,14 +1457,6 @@ static struct sdhci_pci_slot *sdhci_pci_probe_slot(
 		goto remove;
 
 	sdhci_pci_add_own_cd(slot);
-
-	/*
-	 * Check if the chip needs a separate GPIO for card detect to wake up
-	 * from runtime suspend.  If it is not there, don't allow runtime PM.
-	 * Note sdhci_pci_add_own_cd() sets slot->cd_gpio to -EINVAL on failure.
-	 */
-	if (chip->fixes->own_cd_for_runtime_pm && !gpio_is_valid(slot->cd_gpio))
-		chip->allow_runtime_pm = false;
 
 	return slot;
 
