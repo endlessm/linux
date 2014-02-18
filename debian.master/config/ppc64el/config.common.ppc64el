@@ -455,7 +455,6 @@ CONFIG_USB_SUPPORT=y
 # CONFIG_USB_USS720 is not set
 # CONFIG_USB_WDM is not set
 # CONFIG_USB_WUSB_CBAF is not set
-# CONFIG_USB_XHCI_HCD is not set
 # CONFIG_USB_YUREX is not set
 # CONFIG_USER_NS is not set
 # CONFIG_UWB is not set
