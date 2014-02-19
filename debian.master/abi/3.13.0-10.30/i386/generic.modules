@@ -53,7 +53,6 @@ acenic
 acerhdf
 acer-wmi
 acpi_extlog
-acpi_ipmi
 acpi_pad
 acpiphp_ibm
 acpi_power_meter
@@ -1578,9 +1577,7 @@ iphase
 ipheth
 ipip
 ipmi_devintf
-ipmi_msghandler
 ipmi_poweroff
-ipmi_si
 ipmi_watchdog
 ipoctal
 ipr
