@@ -23,7 +23,7 @@
 #define UMP_ADDR_ALIGN_OFFSET(x) ((x)&(UMP_MINIMUM_SIZE-1))
 static void phys_blocks_release(void *ctx, struct ump_dd_mem *descriptor);
 
-UMP_KERNEL_API_EXPORT ump_dd_handle ump_dd_handle_create_from_phys_blocks(ump_dd_physical_block *blocks, unsigned long num_blocks)
+UMP_KERNEL_API_EXPORT ump_dd_handle ump_dd_handle_create_from_phys_blocks2(ump_dd_physical_block * blocks, unsigned long num_blocks, int is_cached)
 {
 	ump_dd_mem *mem;
 	unsigned long size_total = 0;
@@ -73,8 +73,7 @@ UMP_KERNEL_API_EXPORT ump_dd_handle ump_dd_handle_create_from_phys_blocks(ump_dd
 	mem->backend_info = NULL;
 	mem->ctx = NULL;
 	mem->release_func = phys_blocks_release;
-	/* For now UMP handles created by ump_dd_handle_create_from_phys_blocks() is forced to be Uncached */
-	mem->is_cached = 0;
+	mem->is_cached = is_cached;
 	mem->hw_device = _UMP_UK_USED_BY_CPU;
 	mem->lock_usage = UMP_NOT_LOCKED;
 
@@ -92,7 +91,13 @@ UMP_KERNEL_API_EXPORT ump_dd_handle ump_dd_handle_create_from_phys_blocks(ump_dd
 	return (ump_dd_handle)mem;
 }
 
-static void phys_blocks_release(void *ctx, struct ump_dd_mem *descriptor)
+UMP_KERNEL_API_EXPORT ump_dd_handle ump_dd_handle_create_from_phys_blocks(ump_dd_physical_block * blocks, unsigned long num_blocks)
+{
+	/* For now UMP handles created by ump_dd_handle_create_from_phys_blocks() is forced to be Uncached */
+	return ump_dd_handle_create_from_phys_blocks2(blocks, num_blocks, 0);
+}
+
+static void phys_blocks_release(void * ctx, struct ump_dd_mem * descriptor)
 {
 	_mali_osk_free(descriptor->block_array);
 	descriptor->block_array = NULL;
