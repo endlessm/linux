@@ -1371,6 +1371,7 @@ ipheth
 ipip
 ipmi_devintf
 ipmi_poweroff
+ipmi_si
 ipmi_watchdog
 ipoctal
 ipr

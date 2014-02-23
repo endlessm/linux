@@ -836,6 +836,7 @@ ip_gre
 iphase
 ipmi_devintf
 ipmi_poweroff
+ipmi_si
 ipmi_watchdog
 ips
 ip_set
