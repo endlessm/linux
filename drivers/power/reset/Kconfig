@@ -51,3 +51,10 @@ config POWER_RESET_XGENE
 	depends on POWER_RESET
 	help
 	  Reboot support for the APM SoC X-Gene Eval boards.
+
+config POWER_RESET_SYSCON
+	bool "Generic SYSCON regmap reset driver"
+	depends on MFD_SYSCON
+	depends on POWER_RESET
+	help
+	  Reboot support for generic SYSCON mapped register reset.
