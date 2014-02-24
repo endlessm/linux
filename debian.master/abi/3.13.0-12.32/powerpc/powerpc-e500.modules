@@ -2816,7 +2816,6 @@ scsi_transport_fc
 scsi_transport_iscsi
 scsi_transport_sas
 scsi_transport_spi
-scsi_transport_srp
 sctp
 sctp_probe
 sdhci
