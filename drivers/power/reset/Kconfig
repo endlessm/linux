@@ -80,3 +80,9 @@ config POWER_RESET_KEYSTONE
 	help
 	  Reboot support for the KEYSTONE SoCs.
 
+config POWER_RESET_SYSCON
+	bool "Generic SYSCON regmap reset driver"
+	depends on MFD_SYSCON
+	depends on POWER_RESET
+	help
+	  Reboot support for generic SYSCON mapped register reset.
