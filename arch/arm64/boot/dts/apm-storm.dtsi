@@ -645,6 +645,5 @@
 			interrupts = <0x0 0x41 0x4>;
 			clocks = <&rngpkaclk 0>;
 		};
-
 	};
 };
