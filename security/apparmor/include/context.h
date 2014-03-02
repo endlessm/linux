@@ -19,7 +19,6 @@
 #include <linux/slab.h>
 #include <linux/sched.h>
 
-#include "label.h"
 #include "policy.h"
 
 #define cred_cxt(X) (X)->security
@@ -29,7 +28,7 @@
  * @perms: the permission the file was opened with
  *
  * The file_cxt could currently be directly stored in file->f_security
- * as the label reference is now stored in the f_cred.  However the
+ * as the profile reference is now stored in the f_cred.  However the
  * cxt struct will expand in the future so we keep the struct.
  */
 struct aa_file_cxt {
@@ -59,20 +58,20 @@ static inline void aa_free_file_context(struct aa_file_cxt *cxt)
 
 /**
  * struct aa_task_cxt - primary label for confined tasks
- * @label: the current label   (NOT NULL)
- * @exec: label to transition to on next exec  (MAYBE NULL)
- * @previous: label the task may return to     (MAYBE NULL)
- * @token: magic value the task must know for returning to @previous
+ * @profile: the current profile   (NOT NULL)
+ * @exec: profile to transition to on next exec  (MAYBE NULL)
+ * @previous: profile the task may return to     (MAYBE NULL)
+ * @token: magic value the task must know for returning to @previous_profile
  *
- * Contains the task's current label (which could change due to
+ * Contains the task's current profile (which could change due to
  * change_hat).  Plus the hat_magic needed during change_hat.
  *
  * TODO: make so a task can be confined by a stack of contexts
  */
 struct aa_task_cxt {
-	struct aa_label *label;
-	struct aa_label *onexec;
-	struct aa_label *previous;
+	struct aa_profile *profile;
+	struct aa_profile *onexec;
+	struct aa_profile *previous;
 	u64 token;
 };
 
@@ -80,39 +79,39 @@ struct aa_task_cxt *aa_alloc_task_context(gfp_t flags);
 void aa_free_task_context(struct aa_task_cxt *cxt);
 void aa_dup_task_context(struct aa_task_cxt *new,
 			 const struct aa_task_cxt *old);
-int aa_replace_current_label(struct aa_label *label);
-int aa_set_current_onexec(struct aa_label *label);
-int aa_set_current_hat(struct aa_label *label, u64 token);
-int aa_restore_previous_label(u64 cookie);
-struct aa_label *aa_get_task_label(struct task_struct *task);
+int aa_replace_current_profile(struct aa_profile *profile);
+int aa_set_current_onexec(struct aa_profile *profile);
+int aa_set_current_hat(struct aa_profile *profile, u64 token);
+int aa_restore_previous_profile(u64 cookie);
+struct aa_profile *aa_get_task_profile(struct task_struct *task);
 
 
 /**
- * aa_cred_label - obtain cred's label
- * @cred: cred to obtain label from  (NOT NULL)
+ * aa_cred_profile - obtain cred's profiles
+ * @cred: cred to obtain profiles from  (NOT NULL)
  *
- * Returns: confining label
+ * Returns: confining profile
  *
  * does NOT increment reference count
  */
-static inline struct aa_label *aa_cred_label(const struct cred *cred)
+static inline struct aa_profile *aa_cred_profile(const struct cred *cred)
 {
 	struct aa_task_cxt *cxt = cred_cxt(cred);
-	BUG_ON(!cxt || !cxt->label);
-	return cxt->label;
+	BUG_ON(!cxt || !cxt->profile);
+	return cxt->profile;
 }
 
 /**
- * __aa_task_label - retrieve another task's label
+ * __aa_task_profile - retrieve another task's profile
  * @task: task to query  (NOT NULL)
  *
- * Returns: @task's label without incrementing its ref count
+ * Returns: @task's profile without incrementing its ref count
  *
  * If @task != current needs to be called in RCU safe critical section
  */
-static inline struct aa_label *__aa_task_label(struct task_struct *task)
+static inline struct aa_profile *__aa_task_profile(struct task_struct *task)
 {
-	return aa_cred_label(__task_cred(task));
+	return aa_cred_profile(__task_cred(task));
 }
 
 /**
@@ -123,75 +122,44 @@ static inline struct aa_label *__aa_task_label(struct task_struct *task)
  */
 static inline bool __aa_task_is_confined(struct task_struct *task)
 {
-	return !unconfined(__aa_task_label(task));
+	return !unconfined(__aa_task_profile(task));
 }
 
 /**
- * __aa_current_label - find the current tasks confining label
+ * __aa_current_profile - find the current tasks confining profile
  *
- * Returns: up to date confining label or the ns unconfined label (NOT NULL)
+ * Returns: up to date confining profile or the ns unconfined profile (NOT NULL)
  *
  * This fn will not update the tasks cred to the most up to date version
- * of the label so it is safe to call when inside of locks.
+ * of the profile so it is safe to call when inside of locks.
  */
-static inline struct aa_label *__aa_current_label(void)
+static inline struct aa_profile *__aa_current_profile(void)
 {
-	return aa_cred_label(current_cred());
+	return aa_cred_profile(current_cred());
 }
 
 /**
- * __aa_get_current_label - find newest version of the current tasks label
+ * aa_current_profile - find the current tasks confining profile and do updates
  *
- * Returns: newest version of confining label (NOT NULL)
+ * Returns: up to date confining profile or the ns unconfined profile (NOT NULL)
  *
- * This fn will not update the tasks cred, so it is safe inside of locks
- *
- * The returned reference must be put with __aa_put_current_label()
- */
-static inline struct aa_label *__aa_get_current_label(void)
-{
-	struct aa_label *l = __aa_current_label();
-
-	if (label_invalid(l))
-		l = aa_get_newest_label(l);
-	return l;
-}
-
-/**
- * __aa_put_current_label - put a reference found with aa_get_current_label
- * @label: label reference to put
- *
- * Should only be used with a reference obtained with __aa_get_current_label
- * and never used in situations where the task cred may be updated
- */
-static inline void __aa_put_current_label(struct aa_label *label)
-{
-	if (label != __aa_current_label())
-		aa_put_label(label);
-}
-
-/**
- * aa_current_label - find the current tasks confining label and update it
- *
- * Returns: up to date confining label or the ns unconfined label (NOT NULL)
- *
- * This fn will update the tasks cred structure if the label has been
+ * This fn will update the tasks cred structure if the profile has been
  * replaced.  Not safe to call inside locks
  */
-static inline struct aa_label *aa_current_label(void)
+static inline struct aa_profile *aa_current_profile(void)
 {
 	const struct aa_task_cxt *cxt = current_cxt();
-	struct aa_label *label;
-	BUG_ON(!cxt || !cxt->label);
+	struct aa_profile *profile;
+	BUG_ON(!cxt || !cxt->profile);
 
-	if (label_invalid(cxt->label)) {
-		label = aa_get_newest_label(cxt->label);
-		aa_replace_current_label(label);
-		aa_put_label(label);
+	if (PROFILE_INVALID(cxt->profile)) {
+		profile = aa_get_newest_profile(cxt->profile);
+		aa_replace_current_profile(profile);
+		aa_put_profile(profile);
 		cxt = current_cxt();
 	}
 
-	return cxt->label;
+	return cxt->profile;
 }
 
 /**
@@ -200,8 +168,8 @@ static inline struct aa_label *aa_current_label(void)
  */
 static inline void aa_clear_task_cxt_trans(struct aa_task_cxt *cxt)
 {
-	aa_put_label(cxt->previous);
-	aa_put_label(cxt->onexec);
+	aa_put_profile(cxt->previous);
+	aa_put_profile(cxt->onexec);
 	cxt->previous = NULL;
 	cxt->onexec = NULL;
 	cxt->token = 0;

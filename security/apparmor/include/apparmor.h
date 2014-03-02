@@ -30,9 +30,8 @@
 #define AA_CLASS_NET		4
 #define AA_CLASS_RLIMITS	5
 #define AA_CLASS_DOMAIN		6
-#define AA_CLASS_MOUNT		7
 
-#define AA_CLASS_LAST		AA_CLASS_MOUNT
+#define AA_CLASS_LAST		AA_CLASS_DOMAIN
 
 /* Control parameters settable through module/boot flags */
 extern enum audit_mode aa_g_audit;
@@ -42,7 +41,6 @@ extern bool aa_g_lock_policy;
 extern bool aa_g_logsyscall;
 extern bool aa_g_paranoid_load;
 extern unsigned int aa_g_path_max;
-extern bool aa_g_unconfined_init;
 
 /*
  * DEBUG remains global (no per profile flag) since it is mostly used in sysctl
@@ -54,12 +52,6 @@ extern bool aa_g_unconfined_init;
 		if (aa_g_debug && printk_ratelimit())			\
 			printk(KERN_DEBUG "AppArmor: " fmt, ##args);	\
 	} while (0)
-
-#define AA_WARN(X) WARN((X), "APPARMOR WARN %s: %s\n", __FUNCTION__, #X)
-
-#define AA_BUG(X, args...) AA_BUG_FMT((X), "" args )
-#define AA_BUG_FMT(X, fmt, args...)					\
-	WARN((X), "AppArmor WARN %s: (" #X "): " fmt, __FUNCTION__ , ##args )
 
 #define AA_ERROR(fmt, args...)						\
 	do {								\
@@ -125,35 +117,5 @@ static inline bool mediated_filesystem(struct inode *inode)
 {
 	return !(inode->i_sb->s_flags & MS_NOUSER);
 }
-
-
-struct counted_str {
-	struct kref count;
-	char name[];
-};
-
-#define str_to_counted(str) \
-	((struct counted_str *)(str - offsetof(struct counted_str,name)))
-
-#define __counted	/* atm just a notation */
-
-void aa_str_kref(struct kref *kref);
-char *aa_str_alloc(int size, gfp_t gfp);
-
-
-static inline __counted char *aa_get_str(__counted char *str)
-{
-	if (str)
-		kref_get(&(str_to_counted(str)->count));
-
-	return str;
-}
-
-static inline void aa_put_str(__counted char *str)
-{
-	if (str)
-		kref_put(&str_to_counted(str)->count, aa_str_kref);
-}
-
 
 #endif /* __APPARMOR_H */

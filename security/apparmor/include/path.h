@@ -23,7 +23,7 @@ enum path_flags {
 	PATH_CHROOT_NSCONNECT = 0x10,	/* connect paths that are at ns root */
 
 	PATH_DELEGATE_DELETED = 0x08000, /* delegate deleted files */
-	PATH_MEDIATE_DELETED = 0x10000,	 /* mediate deleted paths */
+	PATH_MEDIATE_DELETED = 0x10000,	/* mediate deleted paths */
 };
 
 int aa_path_name(struct path *path, int flags, char **buffer,

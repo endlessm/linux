@@ -60,24 +60,24 @@ void aa_free_domain_entries(struct aa_domain *domain)
 static int may_change_ptraced_domain(struct aa_profile *to_profile)
 {
 	struct task_struct *tracer;
-	struct aa_label *tracerl = NULL;
+	struct aa_profile *tracerp = NULL;
 	int error = 0;
 
 	rcu_read_lock();
 	tracer = ptrace_parent(current);
 	if (tracer)
 		/* released below */
-		tracerl = aa_get_task_label(tracer);
+		tracerp = aa_get_task_profile(tracer);
 
 	/* not ptraced */
-	if (!tracer || unconfined(tracerl))
+	if (!tracer || unconfined(tracerp))
 		goto out;
 
-	error = aa_may_ptrace(tracerl, &to_profile->label, PTRACE_MODE_ATTACH);
+	error = aa_may_ptrace(tracerp, to_profile, PTRACE_MODE_ATTACH);
 
 out:
 	rcu_read_unlock();
-	aa_put_label(tracerl);
+	aa_put_profile(tracerp);
 
 	return error;
 }
@@ -101,7 +101,7 @@ static struct file_perms change_profile_perms(struct aa_profile *profile,
 	struct path_cond cond = { };
 	unsigned int state;
 
-	if (profile_unconfined(profile)) {
+	if (unconfined(profile)) {
 		perms.allow = AA_MAY_CHANGE_PROFILE | AA_MAY_ONEXEC;
 		perms.audit = perms.quiet = perms.kill = 0;
 		return perms;
@@ -143,7 +143,7 @@ static struct aa_profile *__attach_match(const char *name,
 	struct aa_profile *profile, *candidate = NULL;
 
 	list_for_each_entry_rcu(profile, head, base.list) {
-		if (profile->label.flags & FLAG_NULL)
+		if (profile->flags & PFLAG_NULL)
 			continue;
 		if (profile->xmatch && profile->xmatch_len > len) {
 			unsigned int state = aa_dfa_match(profile->xmatch,
@@ -236,7 +236,7 @@ static const char *next_name(int xtype, const char *name)
  *
  * Returns: refcounted profile, or NULL on failure (MAYBE NULL)
  */
-struct aa_profile *x_table_lookup(struct aa_profile *profile, u32 xindex)
+static struct aa_profile *x_table_lookup(struct aa_profile *profile, u32 xindex)
 {
 	struct aa_profile *new_profile = NULL;
 	struct aa_namespace *ns = profile->ns;
@@ -337,7 +337,6 @@ static struct aa_profile *x_to_profile(struct aa_profile *profile,
 int apparmor_bprm_set_creds(struct linux_binprm *bprm)
 {
 	struct aa_task_cxt *cxt;
-	struct aa_label *label;
 	struct aa_profile *profile, *new_profile = NULL;
 	struct aa_namespace *ns;
 	char *buffer = NULL;
@@ -358,8 +357,7 @@ int apparmor_bprm_set_creds(struct linux_binprm *bprm)
 	cxt = cred_cxt(bprm->cred);
 	BUG_ON(!cxt);
 
-	label = aa_get_newest_label(cxt->label);
-	profile = labels_profile(label);
+	profile = aa_get_newest_profile(cxt->profile);
 	/*
 	 * get the namespace from the replacement profile as replacement
 	 * can change the namespace
@@ -371,8 +369,8 @@ int apparmor_bprm_set_creds(struct linux_binprm *bprm)
 	error = aa_path_name(&bprm->file->f_path, profile->path_flags, &buffer,
 			     &name, &info);
 	if (error) {
-		if (profile_unconfined(profile) ||
-		    (profile->label.flags & FLAG_IX_ON_NAME_ERROR))
+		if (unconfined(profile) ||
+		    (profile->flags & PFLAG_IX_ON_NAME_ERROR))
 			error = 0;
 		name = bprm->filename;
 		goto audit;
@@ -381,11 +379,11 @@ int apparmor_bprm_set_creds(struct linux_binprm *bprm)
 	/* Test for onexec first as onexec directives override other
 	 * x transitions.
 	 */
-	if (profile_unconfined(profile)) {
+	if (unconfined(profile)) {
 		/* unconfined task */
 		if (cxt->onexec)
 			/* change_profile on exec already been granted */
-			new_profile = labels_profile(aa_get_label(cxt->onexec));
+			new_profile = aa_get_profile(cxt->onexec);
 		else
 			new_profile = find_attach(ns, &ns->base.profiles, name);
 		if (!new_profile)
@@ -411,13 +409,13 @@ int apparmor_bprm_set_creds(struct linux_binprm *bprm)
 		 * exec\0change_profile
 		 */
 		state = aa_dfa_null_transition(profile->file.dfa, state);
-		cp = change_profile_perms(profile, labels_profile(cxt->onexec)->ns,
-					  labels_profile(cxt->onexec)->base.name,
+		cp = change_profile_perms(profile, cxt->onexec->ns,
+					  cxt->onexec->base.name,
 					  AA_MAY_ONEXEC, state);
 
 		if (!(cp.allow & AA_MAY_ONEXEC))
 			goto audit;
-		new_profile = labels_profile(aa_get_newest_label(cxt->onexec));
+		new_profile = aa_get_newest_profile(cxt->onexec);
 		goto apply;
 	}
 
@@ -434,7 +432,7 @@ int apparmor_bprm_set_creds(struct linux_binprm *bprm)
 				new_profile = aa_get_profile(profile);
 				goto x_clear;
 			} else if (perms.xindex & AA_X_UNCONFINED) {
-				new_profile = labels_profile(aa_get_newest_label(&ns->unconfined->label));
+				new_profile = aa_get_newest_profile(ns->unconfined);
 				info = "ux fallback";
 			} else {
 				error = -ENOENT;
@@ -507,9 +505,9 @@ apply:
 	bprm->per_clear |= PER_CLEAR_ON_SETID;
 
 x_clear:
-	aa_put_label(cxt->label);
+	aa_put_profile(cxt->profile);
 	/* transfer new profile reference will be released when cxt is freed */
-	cxt->label = &new_profile->label;
+	cxt->profile = new_profile;
 
 	/* clear out all temporary/transitional state from the context */
 	aa_clear_task_cxt_trans(cxt);
@@ -519,7 +517,7 @@ audit:
 			      name, target, cond.uid, info, error);
 
 cleanup:
-	aa_put_label(label);
+	aa_put_profile(profile);
 	kfree(buffer);
 
 	return error;
@@ -550,18 +548,18 @@ int apparmor_bprm_secureexec(struct linux_binprm *bprm)
  */
 void apparmor_bprm_committing_creds(struct linux_binprm *bprm)
 {
-	struct aa_label *label = __aa_current_label();
+	struct aa_profile *profile = __aa_current_profile();
 	struct aa_task_cxt *new_cxt = cred_cxt(bprm->cred);
 
 	/* bail out if unconfined or not changing profile */
-	if ((new_cxt->label == label) ||
-	    (unconfined(new_cxt->label)))
+	if ((new_cxt->profile == profile) ||
+	    (unconfined(new_cxt->profile)))
 		return;
 
 	current->pdeath_signal = 0;
 
-	/* reset soft limits and set hard limits for the new label */
-	__aa_transition_rlimits(label, new_cxt->label);
+	/* reset soft limits and set hard limits for the new profile */
+	__aa_transition_rlimits(profile, new_cxt->profile);
 }
 
 /**
@@ -611,8 +609,7 @@ int aa_change_hat(const char *hats[], int count, u64 token, bool permtest)
 {
 	const struct cred *cred;
 	struct aa_task_cxt *cxt;
-	struct aa_label *label, *previous;
-	struct aa_profile *profile, *hat = NULL;
+	struct aa_profile *profile, *previous_profile, *hat = NULL;
 	char *name = NULL;
 	int i;
 	struct file_perms perms = {};
@@ -630,12 +627,10 @@ int aa_change_hat(const char *hats[], int count, u64 token, bool permtest)
 	/* released below */
 	cred = get_current_cred();
 	cxt = cred_cxt(cred);
-	label = aa_cred_label(cred);
-	previous = cxt->previous;
+	profile = aa_cred_profile(cred);
+	previous_profile = cxt->previous;
 
-	profile = labels_profile(label);
-
-	if (unconfined(label)) {
+	if (unconfined(profile)) {
 		info = "unconfined";
 		error = -EPERM;
 		goto audit;
@@ -647,7 +642,7 @@ int aa_change_hat(const char *hats[], int count, u64 token, bool permtest)
 		if (PROFILE_IS_HAT(profile))
 			root = aa_get_profile_rcu(&profile->parent);
 		else
-			root = aa_get_profile(labels_profile(label));
+			root = aa_get_profile(profile);
 
 		/* find first matching hat */
 		for (i = 0; i < count && !hat; i++)
@@ -701,7 +696,7 @@ int aa_change_hat(const char *hats[], int count, u64 token, bool permtest)
 		}
 
 		if (!permtest) {
-			error = aa_set_current_hat(&hat->label, token);
+			error = aa_set_current_hat(hat, token);
 			if (error == -EACCES)
 				/* kill task in case of brute force attacks */
 				perms.kill = AA_MAY_CHANGEHAT;
@@ -709,12 +704,12 @@ int aa_change_hat(const char *hats[], int count, u64 token, bool permtest)
 				/* reset error for learning of new hats */
 				error = -ENOENT;
 		}
-	} else if (previous) {
-		/* Return to saved label.  Kill task if restore fails
+	} else if (previous_profile) {
+		/* Return to saved profile.  Kill task if restore fails
 		 * to avoid brute force attacks
 		 */
-		target = previous->hname;
-		error = aa_restore_previous_label(token);
+		target = previous_profile->base.hname;
+		error = aa_restore_previous_profile(token);
 		perms.kill = AA_MAY_CHANGEHAT;
 	} else
 		/* ignore restores when there is no saved profile */
@@ -753,7 +748,6 @@ int aa_change_profile(const char *ns_name, const char *hname, bool onexec,
 		      bool permtest)
 {
 	const struct cred *cred;
-	struct aa_label *label;
 	struct aa_profile *profile, *target = NULL;
 	struct aa_namespace *ns = NULL;
 	struct file_perms perms = {};
@@ -773,8 +767,7 @@ int aa_change_profile(const char *ns_name, const char *hname, bool onexec,
 	}
 
 	cred = get_current_cred();
-	label = aa_cred_label(cred);
-	profile = labels_profile(label);
+	profile = aa_cred_profile(cred);
 
 	/*
 	 * Fail explicitly requested domain transitions if no_new_privs
@@ -783,7 +776,7 @@ int aa_change_profile(const char *ns_name, const char *hname, bool onexec,
 	 * no_new_privs is set because this aways results in a reduction
 	 * of permissions.
 	 */
-	if (current->no_new_privs && !unconfined(label)) {
+	if (current->no_new_privs && !unconfined(profile)) {
 		put_cred(cred);
 		return -EPERM;
 	}
@@ -804,7 +797,7 @@ int aa_change_profile(const char *ns_name, const char *hname, bool onexec,
 
 	/* if the name was not specified, use the name of the current profile */
 	if (!hname) {
-		if (profile_unconfined(profile))
+		if (unconfined(profile))
 			hname = ns->unconfined->base.hname;
 		else
 			hname = profile->base.hname;
@@ -844,9 +837,9 @@ int aa_change_profile(const char *ns_name, const char *hname, bool onexec,
 		goto audit;
 
 	if (onexec)
-		error = aa_set_current_onexec(&target->label);
+		error = aa_set_current_onexec(target);
 	else
-		error = aa_replace_current_label(&target->label);
+		error = aa_replace_current_profile(target);
 
 audit:
 	if (!permtest)
