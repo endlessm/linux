@@ -287,8 +287,7 @@ int aa_path_perm(int op, struct aa_label *label, struct path *path,
 	/* TODO: fix path lookup flags */
 	flags |= labels_profile(label)->path_flags | (S_ISDIR(cond->mode) ?
 						      PATH_IS_DIR : 0);
-	get_buffers(buffer);
-	error = aa_path_name(path, flags, buffer, &name, &info);
+	error = aa_path_name(path, flags, &buffer, &name, &info);
 	if (error) {
 		if (error == -ENOENT && is_deleted(path->dentry)) {
 			/* Access to open files that are deleted are
@@ -318,7 +317,7 @@ int aa_path_perm(int op, struct aa_label *label, struct path *path,
 	}
 
 out:
-	put_buffers(buffer);
+	kfree(buffer);
 
 	return error;
 }
@@ -383,15 +382,14 @@ int aa_path_link(struct aa_label *label, struct dentry *old_dentry,
 	/* TODO: fix path lookup flags, auditing of failed path for profile */
 	profile = labels_profile(label);
 	/* buffer freed below, lname is pointer in buffer */
-	get_buffers(buffer, buffer2);
-	error = aa_path_name(&link, labels_profile(label)->path_flags, buffer,
+	error = aa_path_name(&link, labels_profile(label)->path_flags, &buffer,
 			     &lname, &info);
 	if (error)
 		goto err;
 
 	/* buffer2 freed below, tname is pointer in buffer2 */
 	error = aa_path_name(&target, labels_profile(label)->path_flags,
-			     buffer2, &tname, &info);
+			     &buffer2, &tname, &info);
 	if (error)
 		goto err;
 
@@ -457,7 +455,8 @@ int aa_path_link(struct aa_label *label, struct dentry *old_dentry,
 	}
 
 out:
-	put_buffers(buffer, buffer2);
+	kfree(buffer);
+	kfree(buffer2);
 
 	return error;
 
