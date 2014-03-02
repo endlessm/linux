@@ -126,7 +126,7 @@ static int apparmor_capget(struct task_struct *target, kernel_cap_t *effective,
 
 	rcu_read_lock();
 	cred = __task_cred(target);
-	label = aa_get_newest_cred_label(cred);
+	label = aa_cred_label(cred);
 
 	*effective = cred->cap_effective;
 	*inheritable = cred->cap_inheritable;
@@ -145,7 +145,6 @@ static int apparmor_capget(struct task_struct *target, kernel_cap_t *effective,
 		}
 	}
 	rcu_read_unlock();
-	aa_put_label(label);
 
 	return 0;
 }
@@ -160,17 +159,15 @@ static int apparmor_capable(const struct cred *cred, struct user_namespace *ns,
 	if (error)
 		return error;
 
-	label = aa_get_newest_cred_label(cred);
+	label = aa_cred_label(cred);
 	if (unconfined(label))
-		goto out;
+		return 0;
 
 	label_for_each_confined(i, label, profile) {
 		int e = aa_capable(profile, cap, audit);
 		if (e)
 			error = e;
 	}
-out:
-	aa_put_label(label);
 
 	return error;
 }
@@ -429,7 +426,7 @@ static int apparmor_file_open(struct file *file, const struct cred *cred)
 		return 0;
 	}
 
-	label = aa_get_newest_cred_label(cred);
+	label = aa_cred_label(cred);
 	if (!unconfined(label)) {
 		struct inode *inode = file_inode(file);
 		struct path_cond cond = { inode->i_uid, inode->i_mode };
@@ -439,7 +436,6 @@ static int apparmor_file_open(struct file *file, const struct cred *cred)
 		/* todo cache full allowed permissions set and state */
 		fcxt->allow = aa_map_file_to_perms(file);
 	}
-	aa_put_label(label);
 
 	return error;
 }
@@ -464,14 +460,14 @@ static void apparmor_file_free_security(struct file *file)
 static int common_file_perm(int op, struct file *file, u32 mask)
 {
 	struct aa_file_cxt *fcxt = file->f_security;
-	struct aa_label *label, *flabel = aa_get_newest_cred_label(file->f_cred);
+	struct aa_label *label, *flabel = aa_cred_label(file->f_cred);
 	int error = 0;
 
 	BUG_ON(!flabel);
 
 	if (!file->f_path.mnt ||
 	    !mediated_filesystem(file_inode(file)))
-		goto out;
+		return 0;
 
 	label = __aa_get_current_label();
 
@@ -486,8 +482,6 @@ static int common_file_perm(int op, struct file *file, u32 mask)
 	    ((flabel != label) || (mask & ~fcxt->allow)))
 		error = aa_file_perm(op, label, file, mask);
 	__aa_put_current_label(label);
-out:
-	aa_put_label(flabel);
 
 	return error;
 }
