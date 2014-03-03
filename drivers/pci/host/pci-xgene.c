@@ -364,7 +364,7 @@ static void xgene_pcie_poll_linkup(struct xgene_pcie_port *port,
 			*lanes = val32 >> 26;
 		}
 		time = jiffies_to_msecs(jiffies - start_time);
-	} while ((!port->link_up) || (time <= XGENE_LTSSM_L0_WAIT));
+	} while ((!port->link_up) && (time <= XGENE_LTSSM_L0_WAIT));
 }
 
 static void xgene_pcie_setup_root_complex(struct xgene_pcie_port *port)
