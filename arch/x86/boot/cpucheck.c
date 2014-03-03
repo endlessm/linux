@@ -69,6 +69,13 @@ static int is_transmeta(void)
 	       cpu_vendor[2] == A32('M', 'x', '8', '6');
 }
 
+static int is_intel(void)
+{
+	return cpu_vendor[0] == A32('G', 'e', 'n', 'u') &&
+	       cpu_vendor[1] == A32('i', 'n', 'e', 'I') &&
+	       cpu_vendor[2] == A32('n', 't', 'e', 'l');
+}
+
 static int has_fpu(void)
 {
 	u16 fcw = -1, fsw = -1;
@@ -239,6 +246,24 @@ int check_cpu(int *cpu_level_ptr, int *req_level_ptr, u32 **err_flags_ptr)
 		asm("wrmsr" : : "a" (eax), "d" (edx), "c" (ecx));
 
 		err = check_flags();
+	} else if (err == 0x01 &&
+		   !(err_flags[0] & ~(1 << X86_FEATURE_PAE)) &&
+		   is_intel() && cpu.level == 6 &&
+		   (cpu.model == 9 || cpu.model == 13)) {
+		/* PAE is disabled on this Pentium M but can be forced */
+		if (cmdline_find_option_bool("forcepae")) {
+			puts("WARNING: Forcing PAE in CPU flags\n");
+			set_bit(X86_FEATURE_PAE, cpu.flags);
+			err = check_flags();
+		}
+		else {
+			puts("ERROR: PAE is disabled on this Pentium M\n"
+				"(PAE can potentially be enabled with "
+				"kernel parameter\n"
+				"\"forcepae\" - this is unsupported, may "
+				"cause unknown\n"
+				"problems, and will taint the kernel)\n");
+		}
 	}
 
 	if (err_flags_ptr)
