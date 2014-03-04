@@ -95,12 +95,10 @@ drivers/video/output.ko
 drivers/video/syscopyarea.ko
 drivers/video/sysfillrect.ko
 drivers/video/sysimgblt.ko
-drivers/video/vesafb.ko
 drivers/video/vga16fb.ko
 drivers/video/vgastate.ko
 drivers/video/xen-fbfront.ko
 drivers/video/fb_sys_fops.ko
-drivers/virtio/virtio_balloon.ko
 drivers/watchdog/softdog.ko
 drivers/xen/*
 fs/9p/*
