@@ -42,9 +42,10 @@
 #define surf_size_struct SVGA3dSize
 #define u32 uint32
 #define u64 uint64_t
-#define U32_MAX ((u32)~0U)
 
 #endif /* __KERNEL__ */
+
+#define U32_MAX ((u32)~0U)
 
 #include "svga3d_reg.h"
 
