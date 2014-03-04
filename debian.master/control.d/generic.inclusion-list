@@ -13,6 +13,7 @@ drivers/block/floppy.ko
 drivers/block/cryptoloop.ko
 drivers/block/rbd.ko
 drivers/char/hangcheck-timer.ko
+drivers/char/hw_random/virtio-rng.ko
 drivers/char/ipmi/ipmi_msghandler.ko
 drivers/char/lp.ko
 drivers/char/nvram.ko
@@ -38,6 +39,7 @@ drivers/md/*
 drivers/message/fusion*
 drivers/misc/vmw_balloon.ko
 drivers/misc/vmw_vmci/vmw_vmci.ko
+drivers/net/caif/caif_virtio.ko
 drivers/net/mii.ko
 drivers/net/ethernet/8390/8390.ko
 drivers/net/ethernet/realtek/8139too.ko
@@ -85,7 +87,9 @@ drivers/scsi/scsi_transport_sas.ko
 drivers/scsi/scsi_tgt.ko
 drivers/scsi/vmw_pvscsi.ko
 drivers/scsi/hv_storvsc.ko
+drivers/scsi/virtio_scsi.ko
 drivers/usb/storage/usb-storage.ko
+drivers/vhost/vringh.ko
 drivers/video/cirrusfb.ko
 drivers/video/output.ko
 drivers/video/syscopyarea.ko
