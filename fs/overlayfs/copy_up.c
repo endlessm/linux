@@ -276,24 +276,12 @@ static int ovl_copy_up_one(struct dentry *parent, struct dentry *dentry,
 	}
 
 	err = -ENOMEM;
-	override_cred = prepare_creds();
+	override_cred = prepare_kernel_cred(NULL);
 	if (!override_cred)
 		goto out_free_link;
 
 	override_cred->fsuid = stat->uid;
 	override_cred->fsgid = stat->gid;
-	/*
-	 * CAP_SYS_ADMIN for copying up extended attributes
-	 * CAP_DAC_OVERRIDE for create
-	 * CAP_FOWNER for chmod, timestamp update
-	 * CAP_FSETID for chmod
-	 * CAP_MKNOD for mknod
-	 */
-	cap_raise(override_cred->cap_effective, CAP_SYS_ADMIN);
-	cap_raise(override_cred->cap_effective, CAP_DAC_OVERRIDE);
-	cap_raise(override_cred->cap_effective, CAP_FOWNER);
-	cap_raise(override_cred->cap_effective, CAP_FSETID);
-	cap_raise(override_cred->cap_effective, CAP_MKNOD);
 	old_cred = override_creds(override_cred);
 
 	mutex_lock_nested(&upperdir->d_inode->i_mutex, I_MUTEX_PARENT);

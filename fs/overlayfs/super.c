@@ -304,12 +304,10 @@ static int ovl_do_lookup(struct dentry *dentry)
 			struct cred *override_cred;
 
 			err = -ENOMEM;
-			override_cred = prepare_creds();
+			override_cred = prepare_kernel_cred(NULL);
 			if (!override_cred)
 				goto out_dput_upper;
 
-			/* CAP_SYS_ADMIN needed for getxattr */
-			cap_raise(override_cred->cap_effective, CAP_SYS_ADMIN);
 			old_cred = override_creds(override_cred);
 
 			if (ovl_is_opaquedir(upperdentry)) {

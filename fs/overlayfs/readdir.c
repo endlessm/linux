@@ -218,18 +218,12 @@ static int ovl_dir_mark_whiteouts(struct ovl_readdir_data *rdd)
 	const struct cred *old_cred;
 	struct cred *override_cred;
 
-	override_cred = prepare_creds();
+	override_cred = prepare_kernel_cred(NULL);
 	if (!override_cred) {
 		ovl_cache_free(rdd->list);
 		return -ENOMEM;
 	}
 
-	/*
-	 * CAP_SYS_ADMIN for getxattr
-	 * CAP_DAC_OVERRIDE for lookup
-	 */
-	cap_raise(override_cred->cap_effective, CAP_SYS_ADMIN);
-	cap_raise(override_cred->cap_effective, CAP_DAC_OVERRIDE);
 	old_cred = override_creds(override_cred);
 
 	mutex_lock(&rdd->dir->d_inode->i_mutex);
@@ -503,18 +497,10 @@ static int ovl_remove_whiteouts(struct dentry *dir, struct list_head *list)
 	ovl_path_upper(dir, &upperpath);
 	upperdir = upperpath.dentry;
 
-	override_cred = prepare_creds();
+	override_cred = prepare_kernel_cred(NULL);
 	if (!override_cred)
 		return -ENOMEM;
 
-	/*
-	 * CAP_DAC_OVERRIDE for lookup and unlink
-	 * CAP_SYS_ADMIN for setxattr of "trusted" namespace
-	 * CAP_FOWNER for unlink in sticky directory
-	 */
-	cap_raise(override_cred->cap_effective, CAP_DAC_OVERRIDE);
-	cap_raise(override_cred->cap_effective, CAP_SYS_ADMIN);
-	cap_raise(override_cred->cap_effective, CAP_FOWNER);
 	old_cred = override_creds(override_cred);
 
 	err = vfs_setxattr(upperdir, ovl_opaque_xattr, "y", 1, 0);

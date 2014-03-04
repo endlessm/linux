@@ -11,6 +11,7 @@
 #include <linux/namei.h>
 #include <linux/xattr.h>
 #include <linux/security.h>
+#include <linux/sched.h>
 #include <linux/cred.h>
 #include "overlayfs.h"
 
@@ -26,20 +27,16 @@ static int ovl_whiteout(struct dentry *upperdir, struct dentry *dentry)
 	/* FIXME: recheck lower dentry to see if whiteout is really needed */
 
 	err = -ENOMEM;
-	override_cred = prepare_creds();
+	override_cred = prepare_kernel_cred(NULL);
 	if (!override_cred)
 		goto out;
 
-	/*
-	 * CAP_SYS_ADMIN for setxattr
-	 * CAP_DAC_OVERRIDE for symlink creation
-	 * CAP_FOWNER for unlink in sticky directory
-	 */
-	cap_raise(override_cred->cap_effective, CAP_SYS_ADMIN);
-	cap_raise(override_cred->cap_effective, CAP_DAC_OVERRIDE);
-	cap_raise(override_cred->cap_effective, CAP_FOWNER);
-	override_cred->fsuid = GLOBAL_ROOT_UID;
-	override_cred->fsgid = GLOBAL_ROOT_GID;
+	override_cred->fsuid = make_kuid(current_user_ns(), 0);
+	if (!uid_valid(override_cred->fsuid))
+		override_cred->fsuid = GLOBAL_ROOT_UID;
+	override_cred->fsgid = make_kgid(current_user_ns(), 0);
+	if (!gid_valid(override_cred->fsgid))
+		override_cred->fsgid = GLOBAL_ROOT_GID;
 	old_cred = override_creds(override_cred);
 
 	newdentry = lookup_one_len(dentry->d_name.name, upperdir,
@@ -103,16 +100,10 @@ static struct dentry *ovl_lookup_create(struct dentry *upperdir,
 			goto out_dput;
 
 		err = -ENOMEM;
-		override_cred = prepare_creds();
+		override_cred = prepare_kernel_cred(NULL);
 		if (!override_cred)
 			goto out_dput;
 
-		/*
-		 * CAP_SYS_ADMIN for getxattr
-		 * CAP_FOWNER for unlink in sticky directory
-		 */
-		cap_raise(override_cred->cap_effective, CAP_SYS_ADMIN);
-		cap_raise(override_cred->cap_effective, CAP_FOWNER);
 		old_cred = override_creds(override_cred);
 
 		err = -EEXIST;
@@ -205,12 +196,10 @@ static int ovl_set_opaque(struct dentry *upperdentry)
 	const struct cred *old_cred;
 	struct cred *override_cred;
 
-	override_cred = prepare_creds();
+	override_cred = prepare_kernel_cred(NULL);
 	if (!override_cred)
 		return -ENOMEM;
 
-	/* CAP_SYS_ADMIN for setxattr of "trusted" namespace */
-	cap_raise(override_cred->cap_effective, CAP_SYS_ADMIN);
 	old_cred = override_creds(override_cred);
 	err = vfs_setxattr(upperdentry, ovl_opaque_xattr, "y", 1, 0);
 	revert_creds(old_cred);
@@ -225,12 +214,10 @@ static int ovl_remove_opaque(struct dentry *upperdentry)
 	const struct cred *old_cred;
 	struct cred *override_cred;
 
-	override_cred = prepare_creds();
+	override_cred = prepare_kernel_cred(NULL);
 	if (!override_cred)
 		return -ENOMEM;
 
-	/* CAP_SYS_ADMIN for removexattr of "trusted" namespace */
-	cap_raise(override_cred->cap_effective, CAP_SYS_ADMIN);
 	old_cred = override_creds(override_cred);
 	err = vfs_removexattr(upperdentry, ovl_opaque_xattr);
 	revert_creds(old_cred);
