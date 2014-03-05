@@ -5314,8 +5314,8 @@ static void gen8_init_clock_gating(struct drm_device *dev)
 	/* WaPsrDPRSUnmaskVBlankInSRD */
 	for_each_pipe(i) {
 		I915_WRITE(CHICKEN_PIPESL_1(i),
-			   I915_READ(CHICKEN_PIPESL_1(i) |
-				     DPRS_MASK_VBLANK_SRD));
+			   I915_READ(CHICKEN_PIPESL_1(i)) |
+			   DPRS_MASK_VBLANK_SRD);
 	}
 }
 
