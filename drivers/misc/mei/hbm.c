@@ -599,7 +599,7 @@ int mei_hbm_dispatch(struct mei_device *dev, struct mei_msg_hdr *hdr)
 	 */
 	if (dev->hbm_state == MEI_HBM_IDLE) {
 		dev_dbg(&dev->pdev->dev, "hbm: state is idle ignore spurious messages\n");
-		return;
+		return 0;
 	}
 
 	switch (mei_msg->hbm_cmd) {
