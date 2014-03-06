@@ -43,6 +43,9 @@
 #include "hw-me.h"
 #include "client.h"
 
+static bool disable_msi;
+module_param(disable_msi, bool, 0);
+
 /* mei_pci_tbl - PCI Device ID Table */
 static DEFINE_PCI_DEVICE_TABLE(mei_me_pci_tbl) = {
 	{PCI_DEVICE(PCI_VENDOR_ID_INTEL, MEI_DEV_ID_82946GZ)},
@@ -173,7 +176,8 @@ static int mei_me_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
 		err = -ENOMEM;
 		goto free_device;
 	}
-	pci_enable_msi(pdev);
+	if (!disable_msi)
+		pci_enable_msi(pdev);
 
 	 /* request and enable interrupt */
 	if (pci_dev_msi_enabled(pdev))
