@@ -120,6 +120,7 @@ install-tools: install-source $(stampdir)/stamp-build-perarch
 	install -d $(cloudsbin)
 	install -m755 debian/tools/generic $(cloudsbin)/hv_kvp_daemon
 	install -m755 debian/tools/generic $(cloudsbin)/hv_vss_daemon
+	install -m755 debian/tools/generic $(cloudsbin)/hv_fcopy_daemon
 
 	install -d $(cloudman)/man8
 	install -m644 $(CURDIR)/tools/hv/*.8 $(cloudman)/man8
