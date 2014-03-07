@@ -762,6 +762,8 @@ struct kvm_x86_ops {
 			       struct x86_instruction_info *info,
 			       enum x86_intercept_stage stage);
 	void (*handle_external_intr)(struct kvm_vcpu *vcpu);
+
+	int (*check_nested_events)(struct kvm_vcpu *vcpu, bool external_intr);
 };
 
 struct kvm_arch_async_pf {
