@@ -168,6 +168,10 @@ extern int opal_enter_rtas(struct rtas_args *args,
 #define OPAL_DUMP_ACK				84
 #define OPAL_GET_MSG				85
 #define OPAL_CHECK_ASYNC_COMPLETION		86
+#define OPAL_SYNC_HOST_REBOOT			87
+#define OPAL_SENSOR_READ			88
+#define OPAL_GET_PARAM				89
+#define OPAL_SET_PARAM				90
 #define OPAL_DUMP_RESEND			91
 #define OPAL_SYNC_HOST_REBOOT			87
 #define OPAL_DUMP_INFO2				94
@@ -809,6 +813,13 @@ int64_t opal_dump_resend_notification(void);
 
 int64_t opal_get_msg(uint64_t buffer, size_t size);
 int64_t opal_check_completion(uint64_t buffer, size_t size, uint64_t token);
+int64_t opal_sync_host_reboot(void);
+int64_t opal_get_param(uint64_t token, uint32_t param_id, uint64_t buffer,
+		size_t length);
+int64_t opal_set_param(uint64_t token, uint32_t param_id, uint64_t buffer,
+		size_t length);
+int64_t opal_sensor_read(uint32_t sensor_hndl, int token,
+		uint32_t *sensor_data);
 
 /* Internal functions */
 extern int early_init_dt_scan_opal(unsigned long node, const char *uname, int depth, void *data);
@@ -839,6 +850,7 @@ extern int opal_async_get_token_interruptible(void);
 extern int __opal_async_release_token(int token);
 extern int opal_async_release_token(int token);
 extern int opal_async_wait_response(uint64_t token, struct opal_msg *msg);
+extern int opal_get_sensor_data(u32 sensor_hndl, u32 *sensor_data);
 
 extern void hvc_opal_init_early(void);
 
