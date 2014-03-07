@@ -51,4 +51,11 @@ config PHY_EXYNOS_DP_VIDEO
 	help
 	  Support for Display Port PHY found on Samsung EXYNOS SoCs.
 
+config PHY_XGENE
+	tristate "APM X-Gene 15Gbps PHY support"
+	depends on HAS_IOMEM && OF && (ARM64 || COMPILE_TEST)
+	select GENERIC_PHY
+	help
+	  This option enables support for APM X-Gene SoC multi-purpose PHY.
+
 endmenu
