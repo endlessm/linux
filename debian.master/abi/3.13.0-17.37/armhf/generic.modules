@@ -1596,7 +1596,6 @@ ledtrig-backlight
 ledtrig-camera
 ledtrig-default-on
 ledtrig-gpio
-ledtrig-heartbeat
 ledtrig-oneshot
 ledtrig-timer
 ledtrig-transient
