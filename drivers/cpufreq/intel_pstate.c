@@ -980,6 +980,8 @@ static int __init intel_pstate_init(void)
 	intel_pstate_debug_expose_params();
 	intel_pstate_sysfs_expose_params();
 
+	pr_info("Consider also installing thermald for improved thermal control.\n");
+
 	return rc;
 out:
 	get_online_cpus();
