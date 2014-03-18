@@ -40,7 +40,7 @@ sed -i -e 's@/include/@/ubuntu/include/@g;' aufs/Makefile
 sed -i -e "s/^COMMIT: .*/COMMIT: $n_tip_sha1/" aufs/BOM
 sed -i -e "s/^CHANGELOG: .*/CHANGELOG: $n_log_sha1/" aufs/BOM
 
-git add aufs include/linux include/uapi
+git add aufs include/uapi
 {
 	echo "UBUNTU: ubuntu: AUFS -- update to $n_tip_sha1"
 	echo ""
