@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2005-2013 Junjiro R. Okajima
+ * Copyright (C) 2005-2014 Junjiro R. Okajima
  *
  * This program, aufs is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -70,8 +70,8 @@ static int epilog(struct inode *dir, aufs_bindex_t bindex,
 	wh = au_wh_create(dentry, bwh, wh_dentry->d_parent);
 	rerr = PTR_ERR(wh);
 	if (IS_ERR(wh)) {
-		AuIOErr("%.*s reverting whiteout failed(%d, %d)\n",
-			AuDLNPair(dentry), err, rerr);
+		AuIOErr("%pd reverting whiteout failed(%d, %d)\n",
+			dentry, err, rerr);
 		err = -EIO;
 	} else
 		dput(wh);
@@ -158,7 +158,7 @@ lock_hdir_lkup_wh(struct dentry *dentry, struct au_dtime *dt,
 	unsigned int udba;
 	aufs_bindex_t bcpup;
 
-	AuDbg("%.*s\n", AuDLNPair(dentry));
+	AuDbg("%pd\n", dentry);
 
 	err = au_wr_dir(dentry, src_dentry, wr_dir_args);
 	bcpup = err;
@@ -243,7 +243,7 @@ static int add_simple(struct inode *dir, struct dentry *dentry,
 		struct au_wr_dir_args wr_dir_args;
 	} *a;
 
-	AuDbg("%.*s\n", AuDLNPair(dentry));
+	AuDbg("%pd\n", dentry);
 	IMustLock(dir);
 
 	err = -ENOMEM;
@@ -297,8 +297,8 @@ static int add_simple(struct inode *dir, struct dentry *dentry,
 		rerr = vfsub_unlink(h_dir, &a->h_path, /*delegated*/NULL,
 				    /*force*/0);
 		if (rerr) {
-			AuIOErr("%.*s revert failure(%d, %d)\n",
-				AuDLNPair(dentry), err, rerr);
+			AuIOErr("%pd revert failure(%d, %d)\n",
+				dentry, err, rerr);
 			err = -EIO;
 		}
 		au_dtime_revert(&a->dt);
@@ -629,8 +629,7 @@ out_revert:
 	rerr = vfsub_unlink(au_pinned_h_dir(&a->pin), &a->h_path,
 			    /*delegated*/NULL, /*force*/0);
 	if (unlikely(rerr)) {
-		AuIOErr("%.*s reverting failed(%d, %d)\n",
-			AuDLNPair(dentry), err, rerr);
+		AuIOErr("%pd reverting failed(%d, %d)\n", dentry, err, rerr);
 		err = -EIO;
 	}
 	au_dtime_revert(&dt);
@@ -730,8 +729,8 @@ int aufs_mkdir(struct inode *dir, struct dentry *dentry, umode_t mode)
 		rerr = au_diropq_remove(dentry, bindex);
 		mutex_unlock(h_mtx);
 		if (rerr) {
-			AuIOErr("%.*s reverting diropq failed(%d, %d)\n",
-				AuDLNPair(dentry), err, rerr);
+			AuIOErr("%pd reverting diropq failed(%d, %d)\n",
+				dentry, err, rerr);
 			err = -EIO;
 		}
 	}
@@ -740,8 +739,8 @@ out_dir:
 	AuLabel(revert dir);
 	rerr = vfsub_rmdir(au_pinned_h_dir(&a->pin), &h_path);
 	if (rerr) {
-		AuIOErr("%.*s reverting dir failed(%d, %d)\n",
-			AuDLNPair(dentry), err, rerr);
+		AuIOErr("%pd reverting dir failed(%d, %d)\n",
+			dentry, err, rerr);
 		err = -EIO;
 	}
 	au_dtime_revert(&a->dt);

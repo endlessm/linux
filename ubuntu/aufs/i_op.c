@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2005-2013 Junjiro R. Okajima
+ * Copyright (C) 2005-2014 Junjiro R. Okajima
  *
  * This program, aufs is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -873,7 +873,7 @@ static void au_refresh_iattr(struct inode *inode, struct kstat *st,
 		n = inode->i_nlink;
 		n -= nlink;
 		n += st->nlink;
-		smp_mb();
+		smp_mb(); /* for i_nlink */
 		/* 0 can happen */
 		set_nlink(inode, n);
 	}

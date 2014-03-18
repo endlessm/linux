@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2005-2013 Junjiro R. Okajima
+ * Copyright (C) 2005-2014 Junjiro R. Okajima
  *
  * This program, aufs is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -373,8 +373,8 @@ static int au_wbr_init(struct au_branch *br, struct super_block *sb,
 	if (kst.f_namelen >= NAME_MAX)
 		err = au_br_init_wh(sb, br, perm);
 	else
-		pr_err("%.*s(%s), unsupported namelen %ld\n",
-		       AuDLNPair(au_br_dentry(br)),
+		pr_err("%pd(%s), unsupported namelen %ld\n",
+		       au_br_dentry(br),
 		       au_sbtype(au_br_dentry(br)->d_sb), kst.f_namelen);
 
 out:
@@ -639,7 +639,7 @@ static int test_dentry_busy(struct dentry *root, aufs_bindex_t bindex,
 			    && au_h_dptr(d, bindex)
 			    && au_test_dbusy(d, bstart, bend)) {
 				err = -EBUSY;
-				AuVerbose(verbose, "busy %.*s\n", AuDLNPair(d));
+				AuVerbose(verbose, "busy %pd\n", d);
 				AuDbgDentry(d);
 			}
 			di_read_unlock(d, AuLock_IR);
@@ -1067,12 +1067,11 @@ static int au_br_mod_files_ro(struct super_block *sb, aufs_bindex_t bindex)
 	for (ull = 0; ull < max; ull++) {
 		file = array[ull];
 
-		/* AuDbg("%.*s\n", AuDLNPair(file->f_dentry)); */
+		/* AuDbg("%pD\n", file); */
 		fi_read_lock(file);
 		if (unlikely(au_test_mmapped(file))) {
 			err = -EBUSY;
-			AuVerbose(verbose, "mmapped %.*s\n",
-				  AuDLNPair(file->f_dentry));
+			AuVerbose(verbose, "mmapped %pD\n", file);
 			AuDbgFile(file);
 			FiMustNoWaiters(file);
 			fi_read_unlock(file);

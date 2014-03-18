@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2005-2013 Junjiro R. Okajima
+ * Copyright (C) 2005-2014 Junjiro R. Okajima
  *
  * This program, aufs is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -482,8 +482,7 @@ int vfsub_iterate_dir(struct file *file, struct dir_context *ctx)
 {
 	int err;
 
-	AuDbg("%.*s, ctx{%pf, %llu}\n",
-	      AuDLNPair(file->f_dentry), ctx->actor, ctx->pos);
+	AuDbg("%pD, ctx{%pf, %llu}\n", file, ctx->actor, ctx->pos);
 
 	lockdep_off();
 	err = iterate_dir(file, ctx);

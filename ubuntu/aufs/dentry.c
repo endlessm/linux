@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2005-2013 Junjiro R. Okajima
+ * Copyright (C) 2005-2014 Junjiro R. Okajima
  *
  * This program, aufs is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -208,8 +208,8 @@ int au_lkup_dentry(struct dentry *dentry, aufs_bindex_t bstart, mode_t type)
 	if (unlikely(!au_opt_test(au_mntflags(dentry->d_sb), UDBA_NONE)
 		     && au_dbstart(dentry) < 0)) {
 		err = -EIO;
-		AuIOErr("both of real entry and whiteout found, %.*s, err %d\n",
-			AuDLNPair(dentry), err);
+		AuIOErr("both of real entry and whiteout found, %pd, err %d\n",
+			dentry, err);
 	}
 
 out_parent:
@@ -263,8 +263,7 @@ int au_lkup_neg(struct dentry *dentry, aufs_bindex_t bindex, int wh)
 		goto out;
 	if (unlikely(h_dentry->d_inode)) {
 		err = -EIO;
-		AuIOErr("%.*s should be negative on b%d.\n",
-			AuDLNPair(h_dentry), bindex);
+		AuIOErr("%pd should be negative on b%d.\n", h_dentry, bindex);
 		dput(h_dentry);
 		goto out;
 	}
@@ -521,8 +520,8 @@ static void au_hide(struct dentry *dentry)
 		/* shrink_dcache_parent(dentry); */
 		err = au_hide_children(dentry);
 		if (unlikely(err))
-			AuIOErr("%.*s, failed hiding children, ignored %d\n",
-				AuDLNPair(dentry), err);
+			AuIOErr("%pd, failed hiding children, ignored %d\n",
+				dentry, err);
 	}
 	au_do_hide(dentry);
 }
@@ -753,8 +752,7 @@ out_dgen:
 	au_update_digen(dentry);
 out:
 	if (unlikely(err && !(dentry->d_flags & DCACHE_NFSFS_RENAMED))) {
-		AuIOErr("failed refreshing %.*s, %d\n",
-			AuDLNPair(dentry), err);
+		AuIOErr("failed refreshing %pd, %d\n", dentry, err);
 		AuDbgDentry(dentry);
 	}
 	AuTraceErr(err);
@@ -797,7 +795,7 @@ static int h_d_revalidate(struct dentry *dentry, struct inode *inode,
 	int err;
 	umode_t mode, h_mode;
 	aufs_bindex_t bindex, btail, bstart, ibs, ibe;
-	unsigned char plus, unhashed, is_root, h_plus;
+	unsigned char plus, unhashed, is_root, h_plus, h_nfs;
 	struct inode *h_inode, *h_cached_inode;
 	struct dentry *h_dentry;
 	struct qstr *name, *h_name;
@@ -835,18 +833,25 @@ static int h_d_revalidate(struct dentry *dentry, struct inode *inode,
 		if (!h_dentry)
 			continue;
 
-		AuDbg("b%d, %.*s\n", bindex, AuDLNPair(h_dentry));
+		AuDbg("b%d, %pd\n", bindex, h_dentry);
+		h_nfs = !!au_test_nfs(h_dentry->d_sb);
 		spin_lock(&h_dentry->d_lock);
 		h_name = &h_dentry->d_name;
 		if (unlikely(do_udba
 			     && !is_root
-			     && (unhashed != !!d_unhashed(h_dentry)
-				 || name->len != h_name->len
-				 || memcmp(name->name, h_name->name, name->len))
+			     && ((!h_nfs
+				  && (unhashed != !!d_unhashed(h_dentry)
+				      || name->len != h_name->len
+				      || memcmp(name->name, h_name->name,
+						name->len)))
+				 || (h_nfs
+				     && !(flags & LOOKUP_OPEN)
+				     && (h_dentry->d_flags
+					 & DCACHE_NFSFS_RENAMED)))
 			    )) {
-			AuDbg("unhash 0x%x 0x%x, %.*s %.*s\n",
-				  unhashed, d_unhashed(h_dentry),
-				  AuDLNPair(dentry), AuDLNPair(h_dentry));
+			AuDbg("unhash 0x%x 0x%x, %pd %pd\n",
+			      unhashed, d_unhashed(h_dentry),
+			      dentry, h_dentry);
 			spin_unlock(&h_dentry->d_lock);
 			goto err;
 		}
@@ -876,17 +881,27 @@ static int h_d_revalidate(struct dentry *dentry, struct inode *inode,
 		if (inode && ibs <= bindex && bindex <= ibe)
 			h_cached_inode = au_h_iptr(inode, bindex);
 
-		if (unlikely(plus != h_plus
-			     || mode != h_mode
+		if (!h_nfs) {
+			if (unlikely(plus != h_plus))
+				goto err;
+		} else {
+			if (unlikely(!(h_dentry->d_flags & DCACHE_NFSFS_RENAMED)
+				     && !is_root
+				     && !IS_ROOT(h_dentry)
+				     && unhashed != d_unhashed(h_dentry)))
+				goto err;
+		}
+		if (unlikely(mode != h_mode
 			     || h_cached_inode != h_inode))
 			goto err;
 		continue;
 
-	err:
+err:
 		err = -EINVAL;
 		break;
 	}
 
+	AuTraceErr(err);
 	return err;
 }
 
@@ -1012,7 +1027,9 @@ static int aufs_d_revalidate(struct dentry *dentry, unsigned int flags)
 	di_downgrade_lock(dentry, AuLock_IR);
 
 	err = -EINVAL;
-	if (inode && (IS_DEADDIR(inode) || !inode->i_nlink))
+	if (!(flags & LOOKUP_OPEN)
+	    && inode
+	    && (IS_DEADDIR(inode) || !inode->i_nlink))
 		goto out_inval;
 
 	do_udba = !au_opt_test(au_mntflags(sb), UDBA_NONE);
@@ -1030,8 +1047,8 @@ static int aufs_d_revalidate(struct dentry *dentry, unsigned int flags)
 	err = h_d_revalidate(dentry, inode, flags, do_udba);
 	if (unlikely(!err && do_udba && au_dbstart(dentry) < 0)) {
 		err = -EIO;
-		AuDbg("both of real entry and whiteout found, %.*s, err %d\n",
-		      AuDLNPair(dentry), err);
+		AuDbg("both of real entry and whiteout found, %p, err %d\n",
+		      dentry, err);
 	}
 	goto out_inval;
 
@@ -1043,7 +1060,7 @@ out_inval:
 	valid = !err;
 out:
 	if (!valid) {
-		AuDbg("%.*s invalid, %d\n", AuDLNPair(dentry), valid);
+		AuDbg("%pd invalid, %d\n", dentry, valid);
 		d_drop(dentry);
 	}
 	return valid;

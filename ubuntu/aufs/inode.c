@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2005-2013 Junjiro R. Okajima
+ * Copyright (C) 2005-2014 Junjiro R. Okajima
  *
  * This program, aufs is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -427,8 +427,8 @@ new_ino:
 
 	if (unlikely(au_test_fs_unique_ino(h_dentry->d_inode)))
 		AuWarn1("Warning: Un-notified UDBA or repeatedly renamed dir,"
-			" b%d, %s, %.*s, hi%lu, i%lu.\n",
-			bstart, au_sbtype(h_dentry->d_sb), AuDLNPair(dentry),
+			" b%d, %s, %pd, hi%lu, i%lu.\n",
+			bstart, au_sbtype(h_dentry->d_sb), dentry,
 			(unsigned long)h_ino, (unsigned long)ino);
 	ino = 0;
 	err = au_xino_write(sb, bstart, h_ino, /*ino*/0);

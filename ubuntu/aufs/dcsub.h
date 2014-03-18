@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2005-2013 Junjiro R. Okajima
+ * Copyright (C) 2005-2014 Junjiro R. Okajima
  *
  * This program, aufs is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -54,6 +54,11 @@ int au_dcsub_pages_rev_aufs(struct au_dcsub_pages *dpages,
 int au_test_subdir(struct dentry *d1, struct dentry *d2);
 
 /* ---------------------------------------------------------------------- */
+
+/*
+ * todo: in linux-3.13, several similar (but faster) helpers are added to
+ * include/linux/dcache.h. Try them (in the future).
+ */
 
 static inline int au_d_hashed_positive(struct dentry *d)
 {

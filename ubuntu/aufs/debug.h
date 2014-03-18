@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2005-2013 Junjiro R. Okajima
+ * Copyright (C) 2005-2014 Junjiro R. Okajima
  *
  * This program, aufs is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -103,7 +103,6 @@ AuStubInt0(au_debug_test, void)
 
 /* dirty macros for debug print, use with "%.*s" and caution */
 #define AuLNPair(qstr)		(qstr)->len, (qstr)->name
-#define AuDLNPair(d)		AuLNPair(&(d)->d_name)
 
 /* ---------------------------------------------------------------------- */
 

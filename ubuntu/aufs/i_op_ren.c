@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2005-2013 Junjiro R. Okajima
+ * Copyright (C) 2005-2014 Junjiro R. Okajima
  *
  * This program, aufs is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -111,7 +111,7 @@ static void au_ren_rev_diropq(int err, struct au_ren_args *a)
 	au_hn_imtx_unlock(a->src_hinode);
 	au_set_dbdiropq(a->src_dentry, a->src_bdiropq);
 	if (rerr)
-		RevertFailure("remove diropq %.*s", AuDLNPair(a->src_dentry));
+		RevertFailure("remove diropq %pd", a->src_dentry);
 }
 
 static void au_ren_rev_rename(int err, struct au_ren_args *a)
@@ -123,7 +123,7 @@ static void au_ren_rev_rename(int err, struct au_ren_args *a)
 					  a->src_h_parent);
 	rerr = PTR_ERR(a->h_path.dentry);
 	if (IS_ERR(a->h_path.dentry)) {
-		RevertFailure("lkup one %.*s", AuDLNPair(a->src_dentry));
+		RevertFailure("lkup one %pd", a->src_dentry);
 		return;
 	}
 
@@ -140,7 +140,7 @@ static void au_ren_rev_rename(int err, struct au_ren_args *a)
 	dput(a->h_path.dentry);
 	/* au_set_h_dptr(a->src_dentry, a->btgt, NULL); */
 	if (rerr)
-		RevertFailure("rename %.*s", AuDLNPair(a->src_dentry));
+		RevertFailure("rename %pd", a->src_dentry);
 }
 
 static void au_ren_rev_cpup(int err, struct au_ren_args *a)
@@ -154,7 +154,7 @@ static void au_ren_rev_cpup(int err, struct au_ren_args *a)
 	au_set_h_dptr(a->src_dentry, a->btgt, NULL);
 	au_set_dbstart(a->src_dentry, a->src_bstart);
 	if (rerr)
-		RevertFailure("unlink %.*s", AuDLNPair(a->dst_h_dentry));
+		RevertFailure("unlink %pd", a->dst_h_dentry);
 }
 
 static void au_ren_rev_whtmp(int err, struct au_ren_args *a)
@@ -166,7 +166,7 @@ static void au_ren_rev_whtmp(int err, struct au_ren_args *a)
 					  a->dst_h_parent);
 	rerr = PTR_ERR(a->h_path.dentry);
 	if (IS_ERR(a->h_path.dentry)) {
-		RevertFailure("lkup one %.*s", AuDLNPair(a->dst_dentry));
+		RevertFailure("lkup one %pd", a->dst_dentry);
 		return;
 	}
 	if (a->h_path.dentry->d_inode) {
@@ -188,7 +188,7 @@ static void au_ren_rev_whtmp(int err, struct au_ren_args *a)
 	if (!rerr)
 		au_set_h_dptr(a->dst_dentry, a->btgt, dget(a->h_dst));
 	else
-		RevertFailure("rename %.*s", AuDLNPair(a->h_dst));
+		RevertFailure("rename %pd", a->h_dst);
 }
 
 static void au_ren_rev_whsrc(int err, struct au_ren_args *a)
@@ -199,7 +199,7 @@ static void au_ren_rev_whsrc(int err, struct au_ren_args *a)
 	rerr = au_wh_unlink_dentry(a->src_h_dir, &a->h_path, a->src_dentry);
 	au_set_dbwh(a->src_dentry, a->src_bwh);
 	if (rerr)
-		RevertFailure("unlink %.*s", AuDLNPair(a->src_wh_dentry));
+		RevertFailure("unlink %pd", a->src_wh_dentry);
 }
 #undef RevertFailure
 
@@ -254,8 +254,8 @@ static int au_ren_del_whtmp(struct au_ren_args *a)
 	    || au_test_fs_remote(a->h_dst->d_sb)) {
 		err = au_whtmp_rmdir(dir, a->btgt, a->h_dst, &a->whlist);
 		if (unlikely(err))
-			pr_warn("failed removing whtmp dir %.*s (%d), "
-				"ignored.\n", AuDLNPair(a->h_dst), err);
+			pr_warn("failed removing whtmp dir %pd (%d), "
+				"ignored.\n", a->h_dst, err);
 	} else {
 		au_nhash_wh_free(&a->thargs->whlist);
 		a->thargs->whlist = a->whlist;
@@ -828,7 +828,7 @@ int aufs_rename(struct inode *_src_dir, struct dentry *_src_dentry,
 	/* reduce stack space */
 	struct au_ren_args *a;
 
-	AuDbg("%.*s, %.*s\n", AuDLNPair(_src_dentry), AuDLNPair(_dst_dentry));
+	AuDbg("%pd, %pd\n", _src_dentry, _dst_dentry);
 	IMustLock(_src_dir);
 	IMustLock(_dst_dir);
 

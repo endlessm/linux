@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2005-2013 Junjiro R. Okajima
+ * Copyright (C) 2005-2014 Junjiro R. Okajima
  *
  * This program, aufs is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -562,9 +562,7 @@ static void dump_opts(struct au_opts *opts)
 			break;
 		case Opt_xino:
 			u.xino = &opt->xino;
-			AuDbg("xino {%s %.*s}\n",
-				  u.xino->path,
-				  AuDLNPair(u.xino->file->f_dentry));
+			AuDbg("xino {%s %pD}\n", u.xino->path, u.xino->file);
 			break;
 		case Opt_trunc_xino:
 			AuLabel(trunc_xino);
@@ -1386,7 +1384,7 @@ static int au_opt_br(struct super_block *sb, struct au_opt *opt,
 		goto add;
 	case Opt_prepend:
 		opt->add.bindex = 0;
-	add:
+	add: /* indented label */
 	case Opt_add:
 		err = au_br_add(sb, &opt->add,
 				au_ftest_opts(opts->flags, REMOUNT));
