@@ -270,6 +270,9 @@ struct exynos_drm_private {
 	struct drm_crtc *crtc[MAX_CRTC];
 	struct drm_property *plane_zpos_property;
 	struct drm_property *crtc_mode_property;
+	struct drm_property *crtc_underscan_property;
+	struct drm_property *crtc_underscan_hborder_property;
+	struct drm_property *crtc_underscan_vborder_property;
 
 	unsigned long da_start;
 	unsigned long da_space_size;
