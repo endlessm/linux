@@ -28,6 +28,13 @@ enum exynos_crtc_mode {
 	CRTC_MODE_BLANK,	/* The private plane of crtc is blank */
 };
 
+enum exynos_crtc_underscan {
+	CRTC_UNDERSCAN_AUTO,	/* automatic underscan. unimplmented same as off */
+	CRTC_UNDERSCAN_OFF,	/* underscan disabled */
+	CRTC_UNDERSCAN_ON,	/* underscan scaled mode. unimplemented because of hardware capabilities */
+	CRTC_UNDERSCAN_CROP,	/* underscan on implemented as cropped */
+};
+
 /*
  * Exynos specific crtc structure.
  *
@@ -42,6 +49,9 @@ enum exynos_crtc_mode {
  *	this pipe value.
  * @dpms: store the crtc dpms value
  * @mode: store the crtc mode value
+ * @underscan: The CRTC underscan type
+ * @underscan_hborder: The underscan horizontal border
+ * @underscan_vborder: The underscan vertical border
  */
 struct exynos_drm_crtc {
 	struct drm_crtc			drm_crtc;
@@ -49,6 +59,9 @@ struct exynos_drm_crtc {
 	unsigned int			pipe;
 	unsigned int			dpms;
 	enum exynos_crtc_mode		mode;
+	enum exynos_crtc_underscan	underscan;
+	uint64_t			underscan_hborder;
+	uint64_t			underscan_vborder;
 	wait_queue_head_t		pending_flip_queue;
 	atomic_t			pending_flip;
 };
@@ -124,6 +137,8 @@ exynos_drm_crtc_mode_set(struct drm_crtc *crtc, struct drm_display_mode *mode,
 	struct drm_framebuffer *fb = crtc->primary->fb;
 	unsigned int crtc_w;
 	unsigned int crtc_h;
+	unsigned int crtc_uh = 0;
+	unsigned int crtc_uv = 0;
 
 	/*
 	 * copy the mode data adjusted by mode_fixup() into crtc->mode
@@ -137,7 +152,12 @@ exynos_drm_crtc_mode_set(struct drm_crtc *crtc, struct drm_display_mode *mode,
 	if (manager->ops->mode_set)
 		manager->ops->mode_set(manager, &crtc->mode);
 
-	return exynos_plane_mode_set(crtc->primary, crtc, fb, 0, 0,
+	if (exynos_crtc->underscan == CRTC_UNDERSCAN_CROP) {
+		crtc_uh = exynos_crtc->underscan_hborder;
+		crtc_uv = exynos_crtc->underscan_vborder;
+	}
+
+	return exynos_plane_mode_set(crtc->primary, crtc, fb, crtc_uh, crtc_uv,
 				     crtc_w, crtc_h, x, y, crtc_w, crtc_h);
 }
 
@@ -148,6 +168,8 @@ static int exynos_drm_crtc_mode_set_commit(struct drm_crtc *crtc, int x, int y,
 	struct drm_framebuffer *fb = crtc->primary->fb;
 	unsigned int crtc_w;
 	unsigned int crtc_h;
+	unsigned int crtc_uh = 0;
+	unsigned int crtc_uv = 0;
 	int ret;
 
 	/* when framebuffer changing is requested, crtc's dpms should be on */
@@ -159,7 +181,12 @@ static int exynos_drm_crtc_mode_set_commit(struct drm_crtc *crtc, int x, int y,
 	crtc_w = fb->width - x;
 	crtc_h = fb->height - y;
 
-	ret = exynos_plane_mode_set(crtc->primary, crtc, fb, 0, 0,
+	if (exynos_crtc->underscan == CRTC_UNDERSCAN_CROP) {
+		crtc_uh = exynos_crtc->underscan_hborder;
+		crtc_uv = exynos_crtc->underscan_vborder;
+	}
+
+	ret = exynos_plane_mode_set(crtc->primary, crtc, fb, crtc_uh, crtc_uv,
 				    crtc_w, crtc_h, x, y, crtc_w, crtc_h);
 	if (ret)
 		return ret;
@@ -300,6 +327,23 @@ static int exynos_drm_crtc_set_property(struct drm_crtc *crtc,
 		}
 
 		return 0;
+	} else if (property == dev_priv->crtc_underscan_property) {
+		enum exynos_crtc_underscan underscan = val;
+
+		if (underscan == exynos_crtc->underscan)
+			return 0;
+
+		exynos_crtc->underscan = underscan;
+
+		return 0;
+	} else if (property == dev_priv->crtc_underscan_hborder_property) {
+		exynos_crtc->underscan_hborder = val;
+
+		return 0;
+	} else if (property == dev_priv->crtc_underscan_vborder_property) {
+		exynos_crtc->underscan_vborder = val;
+
+		return 0;
 	}
 
 	return -EINVAL;
@@ -332,6 +376,59 @@ static void exynos_drm_crtc_attach_mode_property(struct drm_crtc *crtc)
 
 		dev_priv->crtc_mode_property = prop;
 	}
+
+	drm_object_attach_property(&crtc->base, prop, 0);
+}
+
+static const struct drm_prop_enum_list underscan_names[] = {
+	{ CRTC_UNDERSCAN_AUTO, "auto" },
+	{ CRTC_UNDERSCAN_OFF, "off" },
+	{ CRTC_UNDERSCAN_CROP, "crop" },
+};
+
+static void exynos_drm_crtc_attach_underscan_property(struct drm_crtc *crtc)
+{
+	struct drm_device *dev = crtc->dev;
+	struct exynos_drm_private *dev_priv = dev->dev_private;
+	struct drm_property *prop;
+
+	DRM_DEBUG_KMS("%s\n", __func__);
+
+	prop = dev_priv->crtc_underscan_property;
+	if (!prop) {
+		prop = drm_property_create_enum(dev, 0, "underscan",
+			underscan_names, ARRAY_SIZE(underscan_names));
+		if (!prop)
+			return;
+
+		dev_priv->crtc_underscan_property = prop;
+	}
+
+	drm_object_attach_property(&crtc->base, prop, 0);
+
+
+	prop = dev_priv->crtc_underscan_hborder_property;
+	if (!prop) {
+		prop = drm_property_create_range(dev, 0, "underscan hborder",
+			0, 128);
+		if (!prop)
+			return;
+
+		dev_priv->crtc_underscan_hborder_property = prop;
+        }
+
+	drm_object_attach_property(&crtc->base, prop, 0);
+
+
+	prop = dev_priv->crtc_underscan_vborder_property;
+	if (!prop) {
+		prop = drm_property_create_range(dev, 0, "underscan vborder",
+			0, 128);
+		if (!prop)
+			return;
+
+		dev_priv->crtc_underscan_vborder_property = prop;
+        }
 
 	drm_object_attach_property(&crtc->base, prop, 0);
 }
@@ -374,6 +471,8 @@ int exynos_drm_crtc_create(struct exynos_drm_manager *manager)
 	drm_crtc_helper_add(crtc, &exynos_crtc_helper_funcs);
 
 	exynos_drm_crtc_attach_mode_property(crtc);
+
+	exynos_drm_crtc_attach_underscan_property(crtc);
 
 	return 0;
 
