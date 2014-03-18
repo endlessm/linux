@@ -63,6 +63,7 @@
 #include "mvm.h"
 #include "sta.h"
 #include "iwl-io.h"
+#include "fw-error-dump.h"
 
 struct iwl_dbgfs_mvm_ctx {
 	struct iwl_mvm *mvm;
@@ -137,6 +138,51 @@ static ssize_t iwl_dbgfs_sta_drain_write(struct file *file,
 	mutex_unlock(&mvm->mutex);
 
 	return ret;
+}
+
+static int iwl_dbgfs_fw_error_dump_open(struct inode *inode, struct file *file)
+{
+	struct iwl_mvm *mvm = inode->i_private;
+	int ret;
+
+	if (!mvm)
+		return -EINVAL;
+
+	mutex_lock(&mvm->mutex);
+	if (!mvm->fw_error_dump) {
+		ret = -ENODATA;
+		goto out;
+	}
+
+	file->private_data = mvm->fw_error_dump;
+	mvm->fw_error_dump = NULL;
+	kfree(mvm->fw_error_sram);
+	mvm->fw_error_sram = NULL;
+	mvm->fw_error_sram_len = 0;
+	ret = 0;
+
+out:
+	mutex_unlock(&mvm->mutex);
+	return ret;
+}
+
+static ssize_t iwl_dbgfs_fw_error_dump_read(struct file *file,
+					    char __user *user_buf,
+					    size_t count, loff_t *ppos)
+{
+	struct iwl_fw_error_dump_file *dump_file = file->private_data;
+
+	return simple_read_from_buffer(user_buf, count, ppos,
+				       dump_file,
+				       le32_to_cpu(dump_file->file_len));
+}
+
+static int iwl_dbgfs_fw_error_dump_release(struct inode *inode,
+					   struct file *file)
+{
+	vfree(file->private_data);
+
+	return 0;
 }
 
 static ssize_t iwl_dbgfs_sram_read(struct file *file, char __user *user_buf,
@@ -1170,6 +1216,12 @@ MVM_DEBUGFS_READ_FILE_OPS(fw_rx_stats);
 MVM_DEBUGFS_WRITE_FILE_OPS(fw_restart);
 MVM_DEBUGFS_READ_WRITE_FILE_OPS(scan_ant_rxchain);
 
+static const struct file_operations iwl_dbgfs_fw_error_dump_ops = {
+	.open = iwl_dbgfs_fw_error_dump_open,
+	.read = iwl_dbgfs_fw_error_dump_read,
+	.release = iwl_dbgfs_fw_error_dump_release,
+};
+
 #ifdef CONFIG_PM_SLEEP
 MVM_DEBUGFS_READ_WRITE_FILE_OPS(d3_sram);
 #endif
@@ -1189,6 +1241,7 @@ int iwl_mvm_dbgfs_register(struct iwl_mvm *mvm, struct dentry *dbgfs_dir)
 	MVM_DEBUGFS_ADD_FILE(sta_drain, mvm->debugfs_dir, S_IWUSR);
 	MVM_DEBUGFS_ADD_FILE(sram, mvm->debugfs_dir, S_IWUSR | S_IRUSR);
 	MVM_DEBUGFS_ADD_FILE(stations, dbgfs_dir, S_IRUSR);
+	MVM_DEBUGFS_ADD_FILE(fw_error_dump, dbgfs_dir, S_IRUSR);
 	MVM_DEBUGFS_ADD_FILE(bt_notif, dbgfs_dir, S_IRUSR);
 	MVM_DEBUGFS_ADD_FILE(bt_cmd, dbgfs_dir, S_IRUSR);
 	if (mvm->fw->ucode_capa.flags & IWL_UCODE_TLV_FLAGS_DEVICE_PS_CMD)
