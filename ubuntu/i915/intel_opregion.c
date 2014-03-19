@@ -28,6 +28,7 @@
 #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
 
 #include <linux/acpi.h>
+#include <linux/acpi_io.h>
 #include <acpi/video.h>
 
 #include <drm/drmP.h>
