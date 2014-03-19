@@ -714,7 +714,7 @@ static int xgene_pcie_setup(int nr, struct pci_sys_data *sys)
 	return 1;
 }
 
-static int __init xgene_pcie_probe_bridge(struct platform_device *pdev)
+static int xgene_pcie_probe_bridge(struct platform_device *pdev)
 {
 	struct device_node *np = of_node_get(pdev->dev.of_node);
 	struct xgene_pcie_port *port;
@@ -764,7 +764,7 @@ skip:
 	return 0;
 }
 
-static const struct of_device_id xgene_pcie_match_table[] __initconst = {
+static const struct of_device_id xgene_pcie_match_table[] = {
 	{.compatible = "apm,xgene-pcie",},
 	{},
 };
