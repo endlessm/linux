@@ -156,6 +156,8 @@ MODULE_PARM_DESC(prefault_disable,
 
 static struct drm_driver driver;
 
+extern int i915_bdw_enabled;
+
 static const struct intel_device_info intel_i830_info = {
 	.gen = 2, .is_mobile = 1, .cursor_needs_physical = 1, .num_pipes = 2,
 	.has_overlay = 1, .overlay_needs_physical = 1,
@@ -785,6 +787,7 @@ int i915_reset(struct drm_device *dev)
 
 static int i915_pci_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
 {
+	int ret;
 	struct intel_device_info *intel_info =
 		(struct intel_device_info *) ent->driver_data;
 
@@ -804,7 +807,11 @@ static int i915_pci_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
 
 	driver.driver_features &= ~(DRIVER_USE_AGP);
 
-	return drm_get_pci_dev(pdev, ent, &driver);
+	ret = drm_get_pci_dev(pdev, ent, &driver);
+
+	if (!ret)
+		i915_bdw_enabled = 1;
+	return ret;
 }
 
 static void
