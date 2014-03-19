@@ -790,6 +790,9 @@ void iwl_mvm_fw_error_dump(struct iwl_mvm *mvm)
 	 * mvm->fw_error_sram right now.
 	 */
 	memcpy(dump_data->data, mvm->fw_error_sram, mvm->fw_error_sram_len);
+	kfree(mvm->fw_error_sram);
+	mvm->fw_error_sram = NULL;
+	mvm->fw_error_sram_len = 0;
 }
 #endif
 
