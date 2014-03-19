@@ -774,6 +774,9 @@ bool iwl_mvm_fw_error_dump(struct iwl_mvm *mvm)
 	if (mvm->fw_error_dump)
 		return true;
 
+	if (!mvm->fw_error_sram)
+		return false;
+
 	file_len = mvm->fw_error_sram_len +
 		   sizeof(*dump_file) +
 		   sizeof(*dump_data);
