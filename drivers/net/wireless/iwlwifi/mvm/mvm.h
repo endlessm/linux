@@ -605,7 +605,7 @@ void iwl_mvm_hwrate_to_tx_rate(u32 rate_n_flags,
 u8 iwl_mvm_mac80211_idx_to_hwrate(int rate_idx);
 void iwl_mvm_dump_nic_error_log(struct iwl_mvm *mvm);
 #ifdef CONFIG_IWLWIFI_DEBUGFS
-void iwl_mvm_fw_error_dump(struct iwl_mvm *mvm);
+bool iwl_mvm_fw_error_dump(struct iwl_mvm *mvm);
 void iwl_mvm_fw_error_sram_dump(struct iwl_mvm *mvm);
 #endif
 u8 first_antenna(u8 mask);

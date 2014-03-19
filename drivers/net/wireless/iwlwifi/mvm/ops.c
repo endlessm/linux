@@ -757,7 +757,8 @@ static void iwl_mvm_nic_restart(struct iwl_mvm *mvm)
 }
 
 #ifdef CONFIG_IWLWIFI_DEBUGFS
-void iwl_mvm_fw_error_dump(struct iwl_mvm *mvm)
+/* Returns true if a dump was created */
+bool iwl_mvm_fw_error_dump(struct iwl_mvm *mvm)
 {
 	struct iwl_fw_error_dump_file *dump_file;
 	struct iwl_fw_error_dump_data *dump_data;
@@ -765,8 +766,13 @@ void iwl_mvm_fw_error_dump(struct iwl_mvm *mvm)
 
 	lockdep_assert_held(&mvm->mutex);
 
+	/*
+	 * Don't create an error dump if we'v already got one, but return
+	 * true to trigger a (re-?)notification to userspace that there's
+	 * something there to read.
+	 */
 	if (mvm->fw_error_dump)
-		return;
+		return true;
 
 	file_len = mvm->fw_error_sram_len +
 		   sizeof(*dump_file) +
@@ -774,7 +780,7 @@ void iwl_mvm_fw_error_dump(struct iwl_mvm *mvm)
 
 	dump_file = vmalloc(file_len);
 	if (!dump_file)
-		return;
+		return false;
 
 	mvm->fw_error_dump = dump_file;
 
@@ -793,6 +799,8 @@ void iwl_mvm_fw_error_dump(struct iwl_mvm *mvm)
 	kfree(mvm->fw_error_sram);
 	mvm->fw_error_sram = NULL;
 	mvm->fw_error_sram_len = 0;
+
+	return true;
 }
 #endif
 
