@@ -56,5 +56,6 @@ config POWER_RESET_SYSCON
 	bool "Generic SYSCON regmap reset driver"
 	depends on MFD_SYSCON
 	depends on POWER_RESET
+	depends on ARCH_XGENE
 	help
 	  Reboot support for generic SYSCON mapped register reset.
