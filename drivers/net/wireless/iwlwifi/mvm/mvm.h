@@ -68,6 +68,7 @@
 #include <linux/spinlock.h>
 #include <linux/leds.h>
 #include <linux/in6.h>
+#include <linux/vmalloc.h>
 
 #include "iwl-op-mode.h"
 #include "iwl-trans.h"
