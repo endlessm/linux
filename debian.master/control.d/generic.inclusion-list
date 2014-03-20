@@ -68,6 +68,7 @@ drivers/net/vxlan.ko
 drivers/net/xen-netback/*
 drivers/parport/parport.ko
 drivers/parport/parport_pc.ko
+drivers/phy/phy-core.ko
 drivers/pps/pps_core.ko
 drivers/ptp/ptp.ko
 drivers/net/ethernet/dec/tulip/*
