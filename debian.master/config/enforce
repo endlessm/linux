@@ -124,3 +124,7 @@ value CONFIG_I2C_DESIGNWARE_PLATFORM m | \
 
 # Required if /init is a shell script.
 value CONFIG_BINFMT_SCRIPT y
+
+# CPUIDLE is a source of instabilities on ECX-1000, leave it off
+((flavour generic & arch armhf &/ value CONFIG_CPU_IDLE n) | \
+	!exists MISSING)
