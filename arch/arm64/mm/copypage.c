@@ -32,3 +32,4 @@ void __cpu_clear_user_page(void *kaddr, unsigned long vaddr)
 {
 	clear_page(kaddr);
 }
+EXPORT_SYMBOL(__cpu_clear_user_page);
