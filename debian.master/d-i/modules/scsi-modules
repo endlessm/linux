@@ -118,6 +118,8 @@ ums-cypress ?
 be2iscsi ?
 3w-sas ?
 isci ?
+mlx4_ib ?
+mlx5_ib ?
 
 # device handlers
 scsi_dh_alua ?
