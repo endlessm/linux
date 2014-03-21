@@ -1335,7 +1335,6 @@ penmount
 percpu_test
 pfuze100-regulator
 phonet
-phy-core
 phy-exynos-dp-video
 phy-exynos-mipi-video
 pixcir_i2c_ts
