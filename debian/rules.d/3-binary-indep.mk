@@ -121,9 +121,18 @@ install-tools: install-source $(stampdir)/stamp-build-perarch
 	install -m755 debian/tools/generic $(cloudsbin)/hv_kvp_daemon
 	install -m755 debian/tools/generic $(cloudsbin)/hv_vss_daemon
 	install -m755 debian/tools/generic $(cloudsbin)/hv_fcopy_daemon
+	install -m755 debian/cloud-tools/hv_get_dhcp_info $(cloudsbin)
+	install -m755 debian/cloud-tools/hv_get_dns_info $(cloudsbin)
+	install -m755 debian/cloud-tools/hv_set_ifconfig $(cloudsbin)
 
 	install -d $(cloudman)/man8
 	install -m644 $(CURDIR)/tools/hv/*.8 $(cloudman)/man8
+
+	dh_installinit -p$(cloudpkg) --name hv-kvp-daemon
+	dh_installinit -p$(cloudpkg) --name hv-vss-daemon
+	dh_installinit -p$(cloudpkg) --name hv-fcopy-daemon
+
+
 
 install-indep: install-tools
 	@echo Debug: $@

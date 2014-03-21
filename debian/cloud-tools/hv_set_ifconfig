@@ -1,0 +1,224 @@
+#! /usr/bin/env python
+
+# set interfaces in hv_kvp_daemon style
+import fileinput
+import sys
+import errno
+import os
+import shutil
+import tempfile
+import subprocess
+
+if_filename="/etc/network/interfaces"
+
+'''Get quiet'''
+sys.stdout = open(os.devnull, 'w')
+sys.stderr = open(os.devnull, 'w')
+
+try:
+	if_file=open(if_filename,"r+")
+except IOError as e:
+	exit(e.errno)
+else:
+	if_file.close()
+
+
+def kvp_dict(file):
+	return dict(line.strip().split("=") for line in file)
+
+
+#setting the hwaddress to something azure is not expecting is fatal networking 
+
+if len(sys.argv) != 2 :
+	exit(errno.EINVAL)
+
+kvp=dict(line.strip().split("=") for line in fileinput.input())
+
+if not "HWADDR" in kvp :
+	exit(errno.EPROTO)
+
+if not "IF_NAME" in kvp :
+	exit(1)
+
+output=[]
+basename=kvp["IF_NAME"]
+
+if "DHCP" in kvp and kvp["DHCP"]=="yes" :
+	output += ["auto " + basename]
+	output += ["iface " + basename  + " inet dhcp"]
+	output += [""]
+else:
+	''' Matchup the interface specific lines '''
+
+	'''DNS entries will go with the first interface
+	and there can be a max of three'''
+	autolist=[]
+	dns=[]
+	if "DNS1" in kvp :
+		dns+=[kvp["DNS1"]]
+		if "DNS2" in kvp :
+			dns+=[kvp["DNS2"]]
+			if "DNS3" in kvp :
+				dns+=[kvp["DNS3"]]
+
+
+	'''
+	    No real max for the number of interface + aliases ... 
+	    only required is the address (but mate everything up that comes in. '''
+
+	'''ipv4 first'''
+
+	v4names=[name for name in kvp.keys() if name.startswith("IPADDR")]
+	v4names.sort()
+
+	v6names=[name for name in kvp.keys() if name.startswith("IPV6ADDR")]
+	v6names.sort()
+
+	'''IPV6 requires a netmask'''
+	'''If an ipv6 exists, you'll want to turn off /proc/sys/net/ipv6/conf/all/autoconf with
+	up echo 0 > /proc/sys/net/ipv6/conf/all/autoconf'''
+
+	'''Counter needs to increment as soon as any interface is set.'''
+
+
+	if_count=0
+
+	for v4 in v4names:
+		ifname=basename
+		suffix=""
+		if if_count :
+			ifname+=":" + str(if_count)
+			suffix="_"+str(if_count)
+		if not ifname in autolist:
+			autolist += [ifname]
+		output += [ "iface " + ifname + " inet static"]
+		output += [ "\t" + "address " + kvp[v4]]
+		if "NETMASK"+suffix in kvp.keys():
+			output += ["\tnetmask " + kvp["NETMASK"+suffix]]
+		if "GATEWAY"+suffix in kvp.keys():
+			output += ["\tgateway " + kvp["GATEWAY"+suffix]]
+		if not if_count :
+			output += ["\tdns-nameservers " + ' '.join(dns)]
+		output += [""]
+		if_count+=1
+
+	if6_count=0
+	if6_used=0
+	for v6 in v6names:
+		ifname=basename
+		suffix=""
+		if if6_used :
+			ifname+=":" + str(if6_used)
+		if if6_count :
+			suffix="_" + str(if6_count)
+		if not ifname in autolist:
+			autolist += [ifname]
+		if "IPV6NETMASK"+suffix in kvp.keys():
+			output += [ "iface " + ifname + " inet6 static"]
+			output += [ "\taddress " + kvp[v6]]
+			output += [ "\tnetmask " + kvp["IPV6NETMASK"+suffix]]
+			if "IPV6_DEFAULTGW"+suffix in kvp.keys():
+				output += [ "\tgateway " + kvp["IPV6_DEFAULTGW"+suffix] ]
+			if not if_count :
+				output += ["\tdns-nameservers " + ' '.join(dns)]
+			output += [""]
+			if_count += 1
+			if6_used += 1
+		if6_count += 1
+
+	output = ["auto "+" ".join(autolist)] + output
+output=["# The following stanza(s) added by hv_set_ifconfig"] + output
+output+=["#End of hv_set_ifconfig stanzas"]
+print "==================================="
+print output
+print "==================================="
+
+
+''' Time to clean out the existing interface file'''
+
+f=open(if_filename,"r")
+flines=f.readlines()
+f.close()
+newfile=[]
+pitchstanza=0
+inastanza=0
+stanza=[]
+for line in flines:
+	if line.startswith("auto"):
+		if inastanza:
+			if not pitchstanza:
+				newfile.extend(stanza)
+			stanza=[]
+		inastanza=0
+		newline=""
+		autoline=line.strip().split(" ")
+		for word in autoline:
+			if (not word == basename) and (not word.startswith(basename+":")):
+				newline+=word + " "
+		newline = newline.strip()
+		if not newline == "auto":
+			newfile += [newline.strip()]
+	elif line.startswith(("iface","mapping","source")):
+		'''Read a stanza'''
+		'''A Stanza can also start with allow- ie allow-hotplug'''
+		if inastanza:
+			if not pitchstanza:
+				newfile.extend(stanza)
+			stanza=[]
+		inastanza=1
+		pitchstanza=0
+		autoline=line.strip().split(" ")
+		for word in autoline:
+			if (word == basename) or (word.startswith(basename+":")):
+				pitchstanza=1
+		if not pitchstanza:
+			stanza+=[line.strip()]
+	else:
+		if inastanza:
+			if not pitchstanza:
+				stanza+=[line.strip()]
+		else:
+			if not pitchstanza:
+				newfile += [line.strip()]
+
+
+for line in newfile:
+	print line
+for line in output:
+	print line
+
+
+fd, path = tempfile.mkstemp()
+for line in newfile:
+	os.write(fd,line)
+	os.write(fd,"\n")
+for line in output:
+	os.write(fd,line)
+	os.write(fd,"\n")
+os.close(fd)
+
+shutil.copy(path,if_filename)
+os.chmod(if_filename,0644)
+#print "TMPFILE is at: " + path
+#print "Copied file is at: " + if_filename
+
+
+try:
+    retcode = subprocess.call("ifdown "+basename , shell=True)
+    if retcode < 0:
+        print >>sys.stderr, "Child was terminated by signal", -retcode
+    else:
+        print >>sys.stderr, "Child returned", retcode
+except OSError as e:
+    print >>sys.stderr, "Execution failed:", e
+
+try:
+    retcode = subprocess.call("ifup "+basename , shell=True)
+    if retcode < 0:
+        print >>sys.stderr, "Child was terminated by signal", -retcode
+    else:
+        print >>sys.stderr, "Child returned", retcode
+except OSError as e:
+    print >>sys.stderr, "Execution failed:", e
+
+
