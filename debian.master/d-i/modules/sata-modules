@@ -13,6 +13,6 @@ sata_via.ko ?
 sata_vsc.ko ?
 ahci_platform ?
 ahci ?
-ahxi_xgene ?
+ahci_xgene ?
 acard-ahci ?
 libahci ?
