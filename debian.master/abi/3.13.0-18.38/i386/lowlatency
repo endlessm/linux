@@ -10592,6 +10592,7 @@ EXPORT_SYMBOL_GPL drivers/hv/hv_vmbus 0x8699ac22	vmbus_sendpacket_pagebuffer
 EXPORT_SYMBOL_GPL drivers/hv/hv_vmbus 0xd5643858	vmbus_establish_gpadl
 EXPORT_SYMBOL_GPL drivers/hv/hv_vmbus 0xe000571b	vmbus_open
 EXPORT_SYMBOL_GPL drivers/hv/hv_vmbus 0xeb3e134f	vmbus_sendpacket_multipagebuffer
+EXPORT_SYMBOL_GPL drivers/hv/hv_vmbus 0xf45dd651	hyperv_mmio
 EXPORT_SYMBOL_GPL drivers/hwmon/adt7x10 0x6fc0d5c3	adt7x10_probe
 EXPORT_SYMBOL_GPL drivers/hwmon/adt7x10 0xd432e877	adt7x10_dev_pm_ops
 EXPORT_SYMBOL_GPL drivers/hwmon/adt7x10 0xda5bfa52	adt7x10_remove

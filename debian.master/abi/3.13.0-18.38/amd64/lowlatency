@@ -10500,6 +10500,7 @@ EXPORT_SYMBOL_GPL drivers/hv/hv_vmbus 0x93436265	vmbus_set_sc_create_callback
 EXPORT_SYMBOL_GPL drivers/hv/hv_vmbus 0x948882ca	vmbus_get_outgoing_channel
 EXPORT_SYMBOL_GPL drivers/hv/hv_vmbus 0xc747b6df	vmbus_close
 EXPORT_SYMBOL_GPL drivers/hv/hv_vmbus 0xf2831b6c	vmbus_driver_unregister
+EXPORT_SYMBOL_GPL drivers/hv/hv_vmbus 0xf45dd651	hyperv_mmio
 EXPORT_SYMBOL_GPL drivers/hv/hv_vmbus 0xfd84af7c	__vmbus_driver_register
 EXPORT_SYMBOL_GPL drivers/hwmon/adt7x10 0xb4365d22	adt7x10_remove
 EXPORT_SYMBOL_GPL drivers/hwmon/adt7x10 0xcea5a8d9	adt7x10_probe
