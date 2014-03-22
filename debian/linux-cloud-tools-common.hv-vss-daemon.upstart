@@ -12,7 +12,11 @@ pre-start script
                 . /etc/default/hv-kvp-daemon-init
         fi
         [ "$RUN_VSS_DAEMON" -eq 0 ] && { stop; exit 0; }
-        [ -x /usr/sbin/hv_vss_daemon ] || { stop; exit 0; }
+	if [ -d /sys/class/dmi/id/. ]; then
+		read company </sys/class/dmi/id/sys_vendor
+		read product </sys/class/dmi/id/product_name
+		[ "$company:$product" = 'Microsoft Corporation:Virtual Machine' ] || { stop; exit 0; }
+	fi
 end script
 
 exec /usr/sbin/hv_vss_daemon
