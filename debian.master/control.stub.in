@@ -48,6 +48,7 @@ Description: Linux kernel specific documentation for version PKGVER
 
 Package: SRCPKGNAME-headers-PKGVER-ABINUM
 Architecture: all
+Multi-Arch: foreign
 Section: devel
 Priority: optional
 Depends: ${misc:Depends}, coreutils | fileutils (>= 4.0)
@@ -71,6 +72,7 @@ Description: Linux Kernel Headers for development
 
 Package: SRCPKGNAME-tools-common
 Architecture: all
+Multi-Arch: foreign
 Section: kernel
 Priority: optional
 Depends: ${misc:Depends}
@@ -94,6 +96,7 @@ Description: Linux kernel version specific tools for version PKGVER-ABINUM
 
 Package: SRCPKGNAME-cloud-tools-common
 Architecture: all
+Multi-Arch: foreign
 Section: kernel
 Priority: optional
 Breaks: SRCPKGNAME-tools-common (<< 3.13.0-8.28)
