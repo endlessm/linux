@@ -622,7 +622,6 @@ dvb-usb-vp7045
 dwc2
 dwc2_platform
 dwc3
-dwc3-omap
 dw_dmac
 dw_dmac_core
 dw_mmc
@@ -2404,9 +2403,6 @@ test-string_helpers
 tgr192
 thmc50
 ti-adc081c
-ti_am335x_adc
-ti_am335x_tsc
-ti_am335x_tscadc
 ti_dac7512
 timb_dma
 timblogiw

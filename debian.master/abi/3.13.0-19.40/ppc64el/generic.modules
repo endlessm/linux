@@ -1817,9 +1817,6 @@ test_power
 tgr192
 thmc50
 ti-adc081c
-ti_am335x_adc
-ti_am335x_tsc
-ti_am335x_tscadc
 ti_dac7512
 tifm_7xx1
 tifm_core

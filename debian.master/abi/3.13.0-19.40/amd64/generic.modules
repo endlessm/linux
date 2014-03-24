@@ -875,7 +875,6 @@ dwc2
 dwc2_pci
 dwc2_platform
 dwc3
-dwc3-omap
 dwc3-pci
 dw_dmac
 dw_dmac_core
@@ -3451,9 +3450,6 @@ tgr192
 thinkpad_acpi
 thmc50
 ti-adc081c
-ti_am335x_adc
-ti_am335x_tsc
-ti_am335x_tscadc
 ti_dac7512
 tifm_7xx1
 tifm_core
