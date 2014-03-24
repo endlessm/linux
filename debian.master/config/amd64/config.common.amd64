@@ -5,7 +5,6 @@ CONFIG_64BIT=y
 CONFIG_AC97_BUS=m
 # CONFIG_AHCI_IMX is not set
 CONFIG_AIC79XX_RESET_DELAY_MS=5000
-# CONFIG_ANDROID is not set
 CONFIG_ARCH_DEFCONFIG="arch/x86/configs/x86_64_defconfig"
 CONFIG_ARCH_DMA_ADDR_T_64BIT=y
 CONFIG_ARCH_HWEIGHT_CFLAGS="-fcall-saved-rdi -fcall-saved-rsi -fcall-saved-rdx -fcall-saved-rcx -fcall-saved-r8 -fcall-saved-r9 -fcall-saved-r10 -fcall-saved-r11"
