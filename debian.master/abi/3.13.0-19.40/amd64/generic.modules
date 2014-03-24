@@ -219,7 +219,6 @@ ah4
 ah6
 aha152x_cs
 ahci
-ahci_imx
 ahci_platform
 aic79xx
 aic7xxx
@@ -1034,7 +1033,6 @@ frpw
 fsa9480
 fscache
 fschmd
-fsl_lpuart
 ft1000
 ft1000_pcmcia
 ftdi-elan

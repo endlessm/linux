@@ -190,7 +190,6 @@ af-rxrpc
 ah4
 ah6
 ahci
-ahci_imx
 ahci_platform
 ahci_xgene
 aic79xx
@@ -707,7 +706,6 @@ fore_200e
 freevxfs
 fsa9480
 fscache
-fsl_lpuart
 fujitsu_ts
 g450_pll
 g760a

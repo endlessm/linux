@@ -205,7 +205,6 @@ ah4
 ah6
 aha152x_cs
 ahci
-ahci_imx
 ahci_platform
 aic79xx
 aic7xxx
@@ -955,7 +954,6 @@ fsldma
 fsl_elbc_nand
 fsl_hypervisor
 fsl_ifc_nand
-fsl_lpuart
 fsl_pq_mdio
 fsl_qe_udc
 fsl_upm

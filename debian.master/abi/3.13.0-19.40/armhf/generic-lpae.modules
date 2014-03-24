@@ -167,7 +167,6 @@ af-rxrpc
 afs
 ah4
 ah6
-ahci_imx
 ahci_platform
 aio_aio12_8
 aio_iiro_16
@@ -737,7 +736,6 @@ friq
 frpw
 fsa9480
 fscache
-fsl_lpuart
 ft1000
 ftdi-elan
 ftdi_sio
