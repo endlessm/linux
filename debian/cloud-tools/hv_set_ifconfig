@@ -37,11 +37,11 @@ kvp=dict(line.strip().split("=") for line in fileinput.input())
 if not "HWADDR" in kvp :
 	exit(errno.EPROTO)
 
-if not "IF_NAME" in kvp :
+if not "DEVICE" in kvp :
 	exit(1)
 
 output=[]
-basename=kvp["IF_NAME"]
+basename=kvp["DEVICE"]
 
 if "DHCP" in kvp and kvp["DHCP"]=="yes" :
 	output += ["auto " + basename]
