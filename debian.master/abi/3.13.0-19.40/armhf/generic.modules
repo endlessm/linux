@@ -789,7 +789,6 @@ dwc2
 dwc2_pci
 dwc2_platform
 dwc3
-dwc3-exynos
 dwc3-omap
 dwc3-pci
 dw_dmac
@@ -886,7 +885,6 @@ extcon-gpio
 extcon-max77693
 extcon-max8997
 extcon-palmas
-exynos-rng
 ezusb
 f2fs
 f71805f
@@ -2284,7 +2282,6 @@ phram
 phy-am335x
 phy-am335x-control
 phy-exynos-dp-video
-phy-exynos-mipi-video
 phy-gpio-vbus-usb
 phy-isp1301
 phy-omap-usb3

@@ -623,7 +623,6 @@ dvb-usb-vp7045
 dwc2
 dwc2_platform
 dwc3
-dwc3-exynos
 dwc3-omap
 dw_dmac
 dw_dmac_core
@@ -703,7 +702,6 @@ extcon-gpio
 extcon-max77693
 extcon-max8997
 extcon-palmas
-exynos-rng
 ezusb
 f2fs
 f71805f
@@ -1793,7 +1791,6 @@ phy-am335x
 phy-am335x-control
 phy-core
 phy-exynos-dp-video
-phy-exynos-mipi-video
 phy-gpio-vbus-usb
 phy-isp1301
 phy-rcar-usb

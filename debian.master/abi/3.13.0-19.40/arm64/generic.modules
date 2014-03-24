@@ -670,7 +670,6 @@ extcon-gpio
 extcon-max77693
 extcon-max8997
 extcon-palmas
-exynos-rng
 f2fs
 f71805f
 f71882fg
@@ -1773,7 +1772,6 @@ phantom
 phison
 phonet
 phy-exynos-dp-video
-phy-exynos-mipi-video
 pixcir_i2c_ts
 pktcdvd
 pktgen

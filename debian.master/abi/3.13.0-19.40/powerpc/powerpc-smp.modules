@@ -797,7 +797,6 @@ dwc2
 dwc2_pci
 dwc2_platform
 dwc3
-dwc3-exynos
 dwc3-omap
 dwc3-pci
 dw_dmac
@@ -2322,7 +2321,6 @@ phonet
 phram
 phy-core
 phy-exynos-dp-video
-phy-exynos-mipi-video
 phy-generic
 phy-gpio-vbus-usb
 phy-isp1301
