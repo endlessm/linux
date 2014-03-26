@@ -7,7 +7,7 @@ build_image	= vmlinux.strip
 kernel_file     = arch/powerpc/boot/vmlinux.strip
 install_file	= vmlinux
 no_dumpfile	= true
-loader		= yaboot
+loader		= grub
 do_extras_package = true
 
 do_tools_cpupower = true
