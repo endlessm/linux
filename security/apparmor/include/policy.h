@@ -27,8 +27,11 @@
 #include "capability.h"
 #include "domain.h"
 #include "file.h"
+#include "label.h"
+#include "net.h"
 #include "resource.h"
 
+extern const char *aa_hidden_ns_name;
 extern const char *const aa_profile_mode_names[];
 #define APPARMOR_MODE_NAMES_MAX_INDEX 4
 
@@ -40,11 +43,13 @@ extern const char *const aa_profile_mode_names[];
 
 #define KILL_MODE(_profile) PROFILE_MODE((_profile), APPARMOR_KILL)
 
-#define PROFILE_IS_HAT(_profile) ((_profile)->flags & PFLAG_HAT)
+#define PROFILE_IS_HAT(_profile) ((_profile)->label.flags & FLAG_HAT)
 
-#define PROFILE_INVALID(_profile) ((_profile)->flags & PFLAG_INVALID)
+#define PROFILE_INVALID(_profile) ((_profile)->label.flags & FLAG_INVALID)
 
 #define on_list_rcu(X) (!list_empty(X) && (X)->prev != LIST_POISON2)
+
+#define PROFILE_MEDIATES(P, T)	((P)->policy.start[(T)] != 0)
 
 /*
  * FIXME: currently need a clean way to replace and remove profiles as a
@@ -59,32 +64,18 @@ enum profile_mode {
 	APPARMOR_UNCONFINED,	/* profile set to unconfined */
 };
 
-enum profile_flags {
-	PFLAG_HAT = 1,			/* profile is a hat */
-	PFLAG_NULL = 4,			/* profile is null learning profile */
-	PFLAG_IX_ON_NAME_ERROR = 8,	/* fallback to ix on name lookup fail */
-	PFLAG_IMMUTABLE = 0x10,		/* don't allow changes/replacement */
-	PFLAG_USER_DEFINED = 0x20,	/* user based profile - lower privs */
-	PFLAG_NO_LIST_REF = 0x40,	/* list doesn't keep profile ref */
-	PFLAG_OLD_NULL_TRANS = 0x100,	/* use // as the null transition */
-	PFLAG_INVALID = 0x200,		/* profile replaced/removed */
-	PFLAG_NS_COUNT = 0x400,		/* carries NS ref count */
-
-	/* These flags must correspond with PATH_flags */
-	PFLAG_MEDIATE_DELETED = 0x10000, /* mediate instead delegate deleted */
-};
 
 struct aa_profile;
 
 /* struct aa_policy - common part of both namespaces and profiles
  * @name: name of the object
- * @hname - The hierarchical name
+ * @hname - The hierarchical name, NOTE: is .name of struct counted_str
  * @list: list policy object is on
  * @profiles: head of the profiles list contained in the object
  */
 struct aa_policy {
-	char *name;
-	char *hname;
+	const char *name;
+	__counted char *hname;
 	struct list_head list;
 	struct list_head profiles;
 };
@@ -136,6 +127,8 @@ struct aa_namespace {
 	struct list_head sub_ns;
 	atomic_t uniq_null;
 	long uniq_id;
+	int level;
+	struct aa_labelset labels;
 
 	struct dentry *dents[AAFS_NS_SIZEOF];
 };
@@ -151,31 +144,23 @@ struct aa_policydb {
 
 };
 
-struct aa_replacedby {
-	struct kref count;
-	struct aa_profile __rcu *profile;
-};
-
-
 /* struct aa_profile - basic confinement data
  * @base - base components of the profile (name, refcount, lists, lock ...)
- * @count: reference count of the obj
- * @rcu: rcu head used when removing from @list
+ * @label - label this profile is an extension of
  * @parent: parent of profile
  * @ns: namespace the profile is in
- * @replacedby: is set to the profile that replaced this profile
  * @rename: optional profile name that this profile renamed
  * @attach: human readable attachment string
  * @xmatch: optional extended matching for unconfined executables names
  * @xmatch_len: xmatch prefix len, used to determine xmatch priority
  * @audit: the auditing mode of the profile
  * @mode: the enforcement mode of the profile
- * @flags: flags controlling profile behavior
  * @path_flags: flags controlling path generation behavior
  * @size: the memory consumed by this profiles rules
  * @policy: general match rules governing policy
  * @file: The set of rules governing basic file access and domain transitions
  * @caps: capabilities for the profile
+ * @net: network controls for the profile
  * @rlimits: rlimits for the profile
  *
  * @dents: dentries for the profiles file entries in apparmorfs
@@ -197,12 +182,10 @@ struct aa_replacedby {
  */
 struct aa_profile {
 	struct aa_policy base;
-	struct kref count;
-	struct rcu_head rcu;
+	struct aa_label label;
 	struct aa_profile __rcu *parent;
 
 	struct aa_namespace *ns;
-	struct aa_replacedby *replacedby;
 	const char *rename;
 
 	const char *attach;
@@ -210,13 +193,13 @@ struct aa_profile {
 	int xmatch_len;
 	enum audit_mode audit;
 	long mode;
-	long flags;
 	u32 path_flags;
 	int size;
 
 	struct aa_policydb policy;
 	struct aa_file_rules file;
 	struct aa_caps caps;
+	struct aa_net net;
 	struct aa_rlimit rlimits;
 
 	unsigned char *hash;
@@ -231,6 +214,7 @@ void aa_add_profile(struct aa_policy *common, struct aa_profile *profile);
 
 bool aa_ns_visible(struct aa_namespace *curr, struct aa_namespace *view);
 const char *aa_ns_name(struct aa_namespace *parent, struct aa_namespace *child);
+void aa_free_namespace(struct aa_namespace *ns);
 int aa_alloc_root_ns(void);
 void aa_free_root_ns(void);
 void aa_free_namespace_kref(struct kref *kref);
@@ -238,14 +222,18 @@ void aa_free_namespace_kref(struct kref *kref);
 struct aa_namespace *aa_find_namespace(struct aa_namespace *root,
 				       const char *name);
 
+struct aa_label *aa_setup_default_label(void);
 
-void aa_free_replacedby_kref(struct kref *kref);
 struct aa_profile *aa_alloc_profile(const char *name);
 struct aa_profile *aa_new_null_profile(struct aa_profile *parent, int hat);
 void aa_free_profile(struct aa_profile *profile);
 void aa_free_profile_kref(struct kref *kref);
 struct aa_profile *aa_find_child(struct aa_profile *parent, const char *name);
+struct aa_profile *aa_lookupn_profile(struct aa_namespace *ns,
+				      const char *hname, size_t n);
 struct aa_profile *aa_lookup_profile(struct aa_namespace *ns, const char *name);
+struct aa_profile *aa_fqlookupn_profile(struct aa_namespace *ns, char *fqname,
+					int n);
 struct aa_profile *aa_match_profile(struct aa_namespace *ns, const char *name);
 
 ssize_t aa_replace_profiles(void *udata, size_t size, bool noreplace);
@@ -254,8 +242,20 @@ ssize_t aa_remove_profiles(char *name, size_t size);
 #define PROF_ADD 1
 #define PROF_REPLACE 0
 
-#define unconfined(X) ((X)->mode == APPARMOR_UNCONFINED)
+#define profile_unconfined(X) ((X)->mode == APPARMOR_UNCONFINED)
 
+/**
+ * aa_get_newest_profile - simple wrapper fn to wrap the label version
+ * @p: profile (NOT NULL)
+ *
+ * Returns refcount to newest version of the profile (maybe @p)
+ *
+ * Requires: @p must be held with a valid refcount
+ */
+static inline struct aa_profile *aa_get_newest_profile(struct aa_profile *p)
+{
+	return labels_profile(aa_get_newest_label(&p->label));
+}
 
 static inline struct aa_profile *aa_deref_parent(struct aa_profile *p)
 {
@@ -273,7 +273,7 @@ static inline struct aa_profile *aa_deref_parent(struct aa_profile *p)
 static inline struct aa_profile *aa_get_profile(struct aa_profile *p)
 {
 	if (p)
-		kref_get(&(p->count));
+		kref_get(&(p->label.count));
 
 	return p;
 }
@@ -287,7 +287,7 @@ static inline struct aa_profile *aa_get_profile(struct aa_profile *p)
  */
 static inline struct aa_profile *aa_get_profile_not0(struct aa_profile *p)
 {
-	if (p && kref_get_not0(&p->count))
+	if (p && kref_get_not0(&p->label.count))
 		return p;
 
 	return NULL;
@@ -307,29 +307,10 @@ static inline struct aa_profile *aa_get_profile_rcu(struct aa_profile __rcu **p)
 	rcu_read_lock();
 	do {
 		c = rcu_dereference(*p);
-	} while (c && !kref_get_not0(&c->count));
+	} while (c && !kref_get_not0(&c->label.count));
 	rcu_read_unlock();
 
 	return c;
-}
-
-/**
- * aa_get_newest_profile - find the newest version of @profile
- * @profile: the profile to check for newer versions of
- *
- * Returns: refcounted newest version of @profile taking into account
- *          replacement, renames and removals
- *          return @profile.
- */
-static inline struct aa_profile *aa_get_newest_profile(struct aa_profile *p)
-{
-	if (!p)
-		return NULL;
-
-	if (PROFILE_INVALID(p))
-		return aa_get_profile_rcu(&p->replacedby->profile);
-
-	return aa_get_profile(p);
 }
 
 /**
@@ -339,33 +320,7 @@ static inline struct aa_profile *aa_get_newest_profile(struct aa_profile *p)
 static inline void aa_put_profile(struct aa_profile *p)
 {
 	if (p)
-		kref_put(&p->count, aa_free_profile_kref);
-}
-
-static inline struct aa_replacedby *aa_get_replacedby(struct aa_replacedby *p)
-{
-	if (p)
-		kref_get(&(p->count));
-
-	return p;
-}
-
-static inline void aa_put_replacedby(struct aa_replacedby *p)
-{
-	if (p)
-		kref_put(&p->count, aa_free_replacedby_kref);
-}
-
-/* requires profile list write lock held */
-static inline void __aa_update_replacedby(struct aa_profile *orig,
-					  struct aa_profile *new)
-{
-	struct aa_profile *tmp;
-	tmp = rcu_dereference_protected(orig->replacedby->profile,
-					mutex_is_locked(&orig->ns->lock));
-	rcu_assign_pointer(orig->replacedby->profile, aa_get_profile(new));
-	orig->flags |= PFLAG_INVALID;
-	aa_put_profile(tmp);
+		kref_put(&p->label.count, aa_label_kref);
 }
 
 /**

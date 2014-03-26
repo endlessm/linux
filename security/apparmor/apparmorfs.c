@@ -18,15 +18,18 @@
 #include <linux/module.h>
 #include <linux/seq_file.h>
 #include <linux/uaccess.h>
+#include <linux/mount.h>
 #include <linux/namei.h>
 #include <linux/capability.h>
 #include <linux/rcupdate.h>
+#include <uapi/linux/major.h>
 
 #include "include/apparmor.h"
 #include "include/apparmorfs.h"
 #include "include/audit.h"
 #include "include/context.h"
 #include "include/crypto.h"
+#include "include/ipc.h"
 #include "include/policy.h"
 #include "include/resource.h"
 
@@ -37,7 +40,7 @@
  *
  * Returns: length of mangled name
  */
-static int mangle_name(char *name, char *target)
+static int mangle_name(const char *name, char *target)
 {
 	char *t = target;
 
@@ -186,6 +189,143 @@ static const struct file_operations aa_fs_profile_remove = {
 	.llseek = default_llseek,
 };
 
+/**
+ * query_label - queries a label and writes permissions to buf
+ * @buf: the resulting permissions string is stored here (NOT NULL)
+ * @buf_len: size of buf
+ * @query: binary query string to match against the dfa
+ * @query_len: size of query
+ *
+ * The buffers pointed to by buf and query may overlap. The query buffer is
+ * parsed before buf is written to.
+ *
+ * The query should look like "LABEL_NAME\0DFA_STRING" where LABEL_NAME is
+ * the name of the label, in the current namespace, that is to be queried and
+ * DFA_STRING is a binary string to match against the label(s)'s DFA.
+ *
+ * LABEL_NAME must be NUL terminated. DFA_STRING may contain NUL characters
+ * but must *not* be NUL terminated.
+ *
+ * Returns: number of characters written to buf or -errno on failure
+ */
+static ssize_t query_label(char *buf, size_t buf_len,
+			   char *query, size_t query_len)
+{
+	struct aa_profile *profile;
+	struct aa_label *label;
+	struct aa_namespace *ns;
+	char *label_name, *match_str;
+	size_t label_name_len, match_len;
+	u32 allow = 0, audit = 0, quiet = 0;
+	unsigned int state;
+	struct label_it i;
+
+	if (!query_len)
+		return -EINVAL;
+
+	label_name = query;
+	label_name_len = strnlen(query, query_len);
+	if (!label_name_len || label_name_len == query_len)
+		return -EINVAL;
+
+	/**
+	 * The extra byte is to account for the null byte between the
+	 * profile name and dfa string. profile_name_len is greater
+	 * than zero and less than query_len, so a byte can be safely
+	 * added or subtracted.
+	 */
+	match_str = label_name + label_name_len + 1;
+	match_len = query_len - label_name_len - 1;
+
+	ns = labels_ns(aa_current_label());
+	label = aa_label_parse(ns, label_name, GFP_KERNEL);
+	if (IS_ERR(label))
+		return PTR_ERR(label);
+
+	allow = 0xffffffff;
+	audit = quiet = 0x00000000;
+	label_for_each_confined(i, label, profile) {
+		if (profile->policy.dfa) {
+			state = aa_dfa_match_len(profile->policy.dfa,
+						 profile->policy.start[0],
+						 match_str, match_len);
+			allow &= dfa_user_allow(profile->policy.dfa, state);
+			audit |= dfa_user_audit(profile->policy.dfa, state);
+			quiet |= dfa_user_quiet(profile->policy.dfa, state);
+		} else {
+			/* TODO: do we want to accumulate audit/quiet
+			   or just clear as currently doing */
+			allow = audit = quiet = 0;
+			break;
+		}
+	}
+	aa_put_label(label);
+
+	return scnprintf(buf, buf_len,
+		      "allow 0x%08x\ndeny 0x%08x\naudit 0x%08x\nquiet 0x%08x\n",
+		      allow, 0, audit, quiet);
+}
+
+#define QUERY_CMD_LABEL		"label\0"
+#define QUERY_CMD_LABEL_LEN	6
+#define QUERY_CMD_PROFILE	"profile\0"
+#define QUERY_CMD_PROFILE_LEN	8
+
+/**
+ * aa_write_access - generic permissions query
+ * @file: pointer to open apparmorfs/access file
+ * @ubuf: user buffer containing the complete query string (NOT NULL)
+ * @count: size of ubuf
+ * @ppos: position in the file (MUST BE ZERO)
+ *
+ * Allows for one permission query per open(), write(), and read() sequence.
+ * The only query currently supported is a label-based query. For this query
+ * ubuf must begin with "label\0", followed by the profile query specific
+ * format described in the query_label() function documentation.
+ *
+ * Returns: number of bytes written or -errno on failure
+ */
+static ssize_t aa_write_access(struct file *file, const char __user *ubuf,
+			       size_t count, loff_t *ppos)
+{
+	char *buf;
+	ssize_t len;
+
+	if (*ppos)
+		return -ESPIPE;
+
+	buf = simple_transaction_get(file, ubuf, count);
+	if (IS_ERR(buf))
+		return PTR_ERR(buf);
+
+	if (count > QUERY_CMD_PROFILE_LEN &&
+	    !memcmp(buf, QUERY_CMD_PROFILE, QUERY_CMD_PROFILE_LEN)) {
+		len = query_label(buf, SIMPLE_TRANSACTION_LIMIT,
+				  buf + QUERY_CMD_PROFILE_LEN,
+				  count - QUERY_CMD_PROFILE_LEN);
+	} else if (count > QUERY_CMD_LABEL_LEN &&
+		   !memcmp(buf, QUERY_CMD_LABEL, QUERY_CMD_LABEL_LEN)) {
+		len = query_label(buf, SIMPLE_TRANSACTION_LIMIT,
+				  buf + QUERY_CMD_LABEL_LEN,
+				  count - QUERY_CMD_LABEL_LEN);
+	} else
+		len = -EINVAL;
+
+	if (len < 0)
+		return len;
+
+	simple_transaction_set(file, len);
+
+	return count;
+}
+
+static const struct file_operations aa_fs_access = {
+	.write		= aa_write_access,
+	.read		= simple_transaction_read,
+	.release	= simple_transaction_release,
+	.llseek		= generic_file_llseek,
+};
+
 static int aa_fs_seq_show(struct seq_file *seq, void *v)
 {
 	struct aa_fs_entry *fs_file = seq->private;
@@ -249,9 +389,10 @@ static int aa_fs_seq_profile_release(struct inode *inode, struct file *file)
 static int aa_fs_seq_profname_show(struct seq_file *seq, void *v)
 {
 	struct aa_replacedby *r = seq->private;
-	struct aa_profile *profile = aa_get_profile_rcu(&r->profile);
+	struct aa_label *label = aa_get_label_rcu(&r->label);
+	struct aa_profile *profile = labels_profile(label);
 	seq_printf(seq, "%s\n", profile->base.name);
-	aa_put_profile(profile);
+	aa_put_label(label);
 
 	return 0;
 }
@@ -272,9 +413,10 @@ static const struct file_operations aa_fs_profname_fops = {
 static int aa_fs_seq_profmode_show(struct seq_file *seq, void *v)
 {
 	struct aa_replacedby *r = seq->private;
-	struct aa_profile *profile = aa_get_profile_rcu(&r->profile);
+	struct aa_label *label = aa_get_label_rcu(&r->label);
+	struct aa_profile *profile = labels_profile(label);
 	seq_printf(seq, "%s\n", aa_profile_mode_names[profile->mode]);
-	aa_put_profile(profile);
+	aa_put_label(label);
 
 	return 0;
 }
@@ -295,14 +437,15 @@ static const struct file_operations aa_fs_profmode_fops = {
 static int aa_fs_seq_profattach_show(struct seq_file *seq, void *v)
 {
 	struct aa_replacedby *r = seq->private;
-	struct aa_profile *profile = aa_get_profile_rcu(&r->profile);
+	struct aa_label *label = aa_get_label_rcu(&r->label);
+	struct aa_profile *profile = labels_profile(label);
 	if (profile->attach)
 		seq_printf(seq, "%s\n", profile->attach);
 	else if (profile->xmatch)
 		seq_puts(seq, "<unknown>\n");
 	else
 		seq_printf(seq, "%s\n", profile->base.name);
-	aa_put_profile(profile);
+	aa_put_label(label);
 
 	return 0;
 }
@@ -323,7 +466,8 @@ static const struct file_operations aa_fs_profattach_fops = {
 static int aa_fs_seq_hash_show(struct seq_file *seq, void *v)
 {
 	struct aa_replacedby *r = seq->private;
-	struct aa_profile *profile = aa_get_profile_rcu(&r->profile);
+	struct aa_label *label = aa_get_label_rcu(&r->label);
+	struct aa_profile *profile = labels_profile(label);
 	unsigned int i, size = aa_hash_size();
 
 	if (profile->hash) {
@@ -379,6 +523,8 @@ void __aa_fs_profile_migrate_dents(struct aa_profile *old,
 
 	for (i = 0; i < AAFS_PROF_SIZEOF; i++) {
 		new->dents[i] = old->dents[i];
+		if (new->dents[i])
+			new->dents[i]->d_inode->i_mtime = CURRENT_TIME;
 		old->dents[i] = NULL;
 	}
 }
@@ -387,7 +533,7 @@ static struct dentry *create_profile_file(struct dentry *dir, const char *name,
 					  struct aa_profile *profile,
 					  const struct file_operations *fops)
 {
-	struct aa_replacedby *r = aa_get_replacedby(profile->replacedby);
+	struct aa_replacedby *r = aa_get_replacedby(profile->label.replacedby);
 	struct dentry *dent;
 
 	dent = securityfs_create_file(name, S_IFREG | 0444, dir, r, fops);
@@ -682,7 +828,7 @@ static struct aa_profile *next_profile(struct aa_namespace *root,
 static void *p_start(struct seq_file *f, loff_t *pos)
 {
 	struct aa_profile *profile = NULL;
-	struct aa_namespace *root = aa_current_profile()->ns;
+	struct aa_namespace *root = labels_ns(aa_current_label());
 	loff_t l = *pos;
 	f->private = aa_get_namespace(root);
 
@@ -789,6 +935,16 @@ static struct aa_fs_entry aa_fs_entry_file[] = {
 	{ }
 };
 
+static struct aa_fs_entry aa_fs_entry_ptrace[] = {
+	AA_FS_FILE_STRING("mask", "read trace"),
+	{ }
+};
+
+static struct aa_fs_entry aa_fs_entry_signal[] = {
+	AA_FS_FILE_STRING("mask", AA_FS_SIG_MASK),
+	{ }
+};
+
 static struct aa_fs_entry aa_fs_entry_domain[] = {
 	AA_FS_FILE_BOOLEAN("change_hat",	1),
 	AA_FS_FILE_BOOLEAN("change_hatv",	1),
@@ -797,18 +953,47 @@ static struct aa_fs_entry aa_fs_entry_domain[] = {
 	{ }
 };
 
+static struct aa_fs_entry aa_fs_entry_versions[] = {
+	AA_FS_FILE_BOOLEAN("v5",         1),
+	AA_FS_FILE_BOOLEAN("v6",         1),
+	{ }
+};
+
 static struct aa_fs_entry aa_fs_entry_policy[] = {
+	AA_FS_DIR("versions",                   aa_fs_entry_versions),
 	AA_FS_FILE_BOOLEAN("set_load",          1),
-	{}
+	{ }
+};
+
+static struct aa_fs_entry aa_fs_entry_mount[] = {
+	AA_FS_FILE_STRING("mask", "mount umount"),
+	{ }
+};
+
+static struct aa_fs_entry aa_fs_entry_namespaces[] = {
+	AA_FS_FILE_BOOLEAN("profile",           1),
+	AA_FS_FILE_BOOLEAN("pivot_root",        1),
+	{ }
+};
+
+static struct aa_fs_entry aa_fs_entry_dbus[] = {
+	AA_FS_FILE_STRING("mask", "acquire send receive"),
+	{ }
 };
 
 static struct aa_fs_entry aa_fs_entry_features[] = {
 	AA_FS_DIR("policy",			aa_fs_entry_policy),
 	AA_FS_DIR("domain",			aa_fs_entry_domain),
 	AA_FS_DIR("file",			aa_fs_entry_file),
+	AA_FS_DIR("network",                    aa_fs_entry_network),
+	AA_FS_DIR("mount",                      aa_fs_entry_mount),
+	AA_FS_DIR("namespaces",                 aa_fs_entry_namespaces),
 	AA_FS_FILE_U64("capability",		VFS_CAP_FLAGS_MASK),
 	AA_FS_DIR("rlimit",			aa_fs_entry_rlimit),
 	AA_FS_DIR("caps",			aa_fs_entry_caps),
+	AA_FS_DIR("ptrace",			aa_fs_entry_ptrace),
+	AA_FS_DIR("signal",			aa_fs_entry_signal),
+	AA_FS_DIR("dbus",			aa_fs_entry_dbus),
 	{ }
 };
 
@@ -816,6 +1001,7 @@ static struct aa_fs_entry aa_fs_entry_apparmor[] = {
 	AA_FS_FILE_FOPS(".load", 0640, &aa_fs_profile_load),
 	AA_FS_FILE_FOPS(".replace", 0640, &aa_fs_profile_replace),
 	AA_FS_FILE_FOPS(".remove", 0640, &aa_fs_profile_remove),
+	AA_FS_FILE_FOPS(".access", 0666, &aa_fs_access),
 	AA_FS_FILE_FOPS("profiles", 0640, &aa_fs_profiles_fops),
 	AA_FS_DIR("features", aa_fs_entry_features),
 	{ }
@@ -925,6 +1111,52 @@ void __init aa_destroy_aafs(void)
 	aafs_remove_dir(&aa_fs_entry);
 }
 
+
+#define NULL_FILE_NAME ".null"
+struct path aa_null;
+
+static int aa_mk_null_file(struct dentry *parent)
+{
+	struct vfsmount *mount = NULL;
+	struct dentry *dentry;
+	struct inode *inode;
+	int count = 0;
+	int error = simple_pin_fs(parent->d_sb->s_type, &mount, &count);
+
+	if (error) {
+		return error;
+	}
+	mutex_lock(&parent->d_inode->i_mutex);
+	dentry = lookup_one_len(NULL_FILE_NAME, parent, strlen(NULL_FILE_NAME));
+	if (IS_ERR(dentry)) {
+		error = PTR_ERR(dentry);
+		goto out;
+	}
+	inode = new_inode(parent->d_inode->i_sb);
+	if (!inode) {
+		error = -ENOMEM;
+		goto out1;
+	}
+
+	inode->i_ino = get_next_ino();
+	inode->i_mode = S_IFCHR | S_IRUGO | S_IWUGO;
+	inode->i_atime = inode->i_mtime = inode->i_ctime = CURRENT_TIME;
+	init_special_inode(inode, S_IFCHR | S_IRUGO | S_IWUGO,
+			   MKDEV(MEM_MAJOR, 3));
+	d_instantiate(dentry, inode);
+	aa_null.dentry = dget(dentry);
+	aa_null.mnt = mntget(mount);
+
+	error = 0;
+
+out1:
+	dput(dentry);
+out:
+	mutex_unlock(&parent->d_inode->i_mutex);
+	simple_release_fs(&mount, &count);
+	return error;
+}
+
 /**
  * aa_create_aafs - create the apparmor security filesystem
  *
@@ -954,7 +1186,13 @@ static int __init aa_create_aafs(void)
 	if (error)
 		goto error;
 
-	/* TODO: add support for apparmorfs_null and apparmorfs_mnt */
+	error = aa_mk_null_file(aa_fs_entry.dentry);
+	if (error)
+		goto error;
+
+	if (!aa_g_unconfined_init) {
+		/* TODO: add default profile to apparmorfs */
+	}
 
 	/* Report that AppArmor fs is enabled */
 	aa_info_message("AppArmor Filesystem Enabled");
