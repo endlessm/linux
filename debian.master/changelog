@@ -1,4 +1,4 @@
-linux (3.13.0-20.41) trusty; urgency=low
+linux (3.13.0-20.42) trusty; urgency=low
 
   [ Adam Conrad ]
 
@@ -13,6 +13,7 @@ linux (3.13.0-20.41) trusty; urgency=low
   * cloud-tools -- update IF_NAME to DEVICE in hv_* scripts
     - LP: #1295401
   * [Config] cloud-tools -- ensure we force older hv-kvp-daemon-init off
+  * [Config] fix up Breaks/Replaces on linux-cloud-tools-common to fix upgrades
 
   [ Emmanuel Grumbach ]
 
