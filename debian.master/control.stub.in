@@ -99,8 +99,8 @@ Architecture: all
 Multi-Arch: foreign
 Section: kernel
 Priority: optional
-Breaks: SRCPKGNAME-tools-common (<< 3.13.0-8.28)
-Replaces: SRCPKGNAME-tools-common (<< 3.13.0-8.28)
+Breaks: SRCPKGNAME-tools-common (<< 3.13.0-8.28), hv-kvp-daemon-init (<< 3.13)
+Replaces: SRCPKGNAME-tools-common (<< 3.13.0-8.28), hv-kvp-daemon-init (<< 3.13)
 Depends: ${misc:Depends}
 Description: Linux kernel version specific cloud tools for version PKGVER
  This package provides the architecture independent parts for kernel
