@@ -354,7 +354,7 @@ static int parse_fp_mode_table(struct drm_device *dev, struct nvbios *bios)
 		/* Apple cards don't have the fp table; the laptops use DDC */
 		/* The table is also missing on some x86 IGPs */
 #ifndef __powerpc__
-		NV_ERROR(drm, "Pointer to flat panel table invalid\n");
+		NV_WARN(drm, "Pointer to flat panel table invalid\n");
 #endif
 		bios->digital_min_front_porch = 0x4b;
 		return 0;
@@ -938,7 +938,7 @@ static int parse_bit_tmds_tbl_entry(struct drm_device *dev, struct nvbios *bios,
 
 	tmdstableptr = ROM16(bios->data[bitentry->offset]);
 	if (!tmdstableptr) {
-		NV_ERROR(drm, "Pointer to TMDS table invalid\n");
+		NV_WARN(drm, "Pointer to TMDS table invalid\n");
 		return -EINVAL;
 	}
 
