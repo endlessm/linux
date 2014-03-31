@@ -8168,7 +8168,7 @@ int kvm_arch_init(void *opaque)
 		goto out;
 	}
 	if (ops->disabled_by_bios()) {
-		pr_err_ratelimited("kvm: disabled by bios\n");
+		pr_warn_ratelimited("kvm: disabled by bios\n");
 		r = -EOPNOTSUPP;
 		goto out;
 	}
