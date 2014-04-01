@@ -45,7 +45,7 @@ struct mcheck_recoverable_range {
 static struct mcheck_recoverable_range *mc_recoverable_range;
 static int mc_recoverable_range_len;
 
-static struct device_node *opal_node;
+struct device_node *opal_node;
 static DEFINE_SPINLOCK(opal_write_lock);
 extern u64 opal_mc_secondary_handler[];
 static unsigned int *opal_irqs;
@@ -605,6 +605,8 @@ static int __init opal_init(void)
 		opal_flash_init();
 		/* Setup platform dump extract interface */
 		opal_platform_dump_init();
+		/* Setup message log interface. */
+		opal_msglog_init();
 	}
 
 	return 0;
