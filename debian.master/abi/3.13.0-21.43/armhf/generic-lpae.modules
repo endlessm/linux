@@ -2570,7 +2570,6 @@ usbnet
 usbserial
 usb-serial-simple
 usbsevseg
-usb-storage
 usbtest
 usbtmc
 usbtouchscreen
