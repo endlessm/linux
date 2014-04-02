@@ -460,7 +460,7 @@ void ixgbe_ptp_rx_hang(struct ixgbe_adapter *adapter)
 		IXGBE_READ_REG(hw, IXGBE_RXSTMPH);
 		adapter->last_rx_ptp_check = jiffies;
 
-		e_warn(drv, "clearing RX Timestamp hang");
+		e_warn(drv, "clearing RX Timestamp hang\n");
 	}
 }
 
@@ -518,7 +518,7 @@ static void ixgbe_ptp_tx_hwtstamp_work(struct work_struct *work)
 	if (timeout) {
 		dev_kfree_skb_any(adapter->ptp_tx_skb);
 		adapter->ptp_tx_skb = NULL;
-		e_warn(drv, "clearing Tx Timestamp hang");
+		e_warn(drv, "clearing Tx Timestamp hang\n");
 		return;
 	}
 
