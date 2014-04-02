@@ -6092,6 +6092,20 @@ static int __vcpu_run(struct kvm_vcpu *vcpu)
 		}
 		if (need_resched()) {
 			srcu_read_unlock(&kvm->srcu, vcpu->srcu_idx);
+#ifdef CONFIG_X86_32
+			/*
+			 * This is a hack around a current bug on i386
+			 * that causes TIF_NEED_RESCHED not being propagated
+			 * into the per-cpu counter. This causes cond_resched()
+			 * which is what kvm_resched() calls to exit without
+			 * actually rescheduling. We continue immediately with
+			 * the loop but vcpu_enter_guest checks for the process
+			 * flag and immediately exits and this loops busily
+			 * runs forever.
+			 */
+			if (tif_need_resched())
+				set_preempt_need_resched();
+#endif
 			kvm_resched(vcpu);
 			vcpu->srcu_idx = srcu_read_lock(&kvm->srcu);
 		}
