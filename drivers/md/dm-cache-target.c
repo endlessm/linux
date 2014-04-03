@@ -2589,30 +2589,6 @@ static int write_discard_bitset(struct cache *cache)
 	return 0;
 }
 
-static int save_hint(void *context, dm_cblock_t cblock, dm_oblock_t oblock,
-		     uint32_t hint)
-{
-	struct cache *cache = context;
-	return dm_cache_save_hint(cache->cmd, cblock, hint);
-}
-
-static int write_hints(struct cache *cache)
-{
-	int r;
-
-	r = dm_cache_begin_hints(cache->cmd, cache->policy);
-	if (r) {
-		DMERR("dm_cache_begin_hints failed");
-		return r;
-	}
-
-	r = policy_walk_mappings(cache->policy, save_hint, cache);
-	if (r)
-		DMERR("policy_walk_mappings failed");
-
-	return r;
-}
-
 /*
  * returns true on success
  */
@@ -2630,7 +2606,7 @@ static bool sync_metadata(struct cache *cache)
 
 	save_stats(cache);
 
-	r3 = write_hints(cache);
+	r3 = dm_cache_write_hints(cache->cmd, cache->policy);
 	if (r3)
 		DMERR("could not write hints");
 
