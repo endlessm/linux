@@ -5916,6 +5916,7 @@ EXPORT_SYMBOL vmlinux 0x0c9b6089	nvram_get_size
 EXPORT_SYMBOL vmlinux 0x0ca0c882	twl6030_interrupt_mask
 EXPORT_SYMBOL vmlinux 0x0cae232b	utf16s_to_utf8s
 EXPORT_SYMBOL vmlinux 0x0cba845e	agp_find_bridge
+EXPORT_SYMBOL vmlinux 0x0cbac481	mach_chrp
 EXPORT_SYMBOL vmlinux 0x0ce2f9af	swiotlb_free_coherent
 EXPORT_SYMBOL vmlinux 0x0ce900af	blk_finish_plug
 EXPORT_SYMBOL vmlinux 0x0cf709d0	dec_zone_page_state
@@ -6420,6 +6421,7 @@ EXPORT_SYMBOL vmlinux 0x2c08448b	block_read_full_page
 EXPORT_SYMBOL vmlinux 0x2c14323a	kstrtol_from_user
 EXPORT_SYMBOL vmlinux 0x2c256e1f	input_scancode_to_scalar
 EXPORT_SYMBOL vmlinux 0x2c3647af	tcp_proc_register
+EXPORT_SYMBOL vmlinux 0x2c3b8d72	mach_powermac
 EXPORT_SYMBOL vmlinux 0x2c3c454c	security_path_truncate
 EXPORT_SYMBOL vmlinux 0x2c3d8021	proc_set_user
 EXPORT_SYMBOL vmlinux 0x2c4a8c58	km_query
@@ -6666,6 +6668,7 @@ EXPORT_SYMBOL vmlinux 0x3cc4b0dc	lg_lock_init
 EXPORT_SYMBOL vmlinux 0x3ccba5f5	bio_integrity_prep
 EXPORT_SYMBOL vmlinux 0x3ce4ca6f	disable_irq
 EXPORT_SYMBOL vmlinux 0x3ced5840	inet6_bind
+EXPORT_SYMBOL vmlinux 0x3cffd163	cur_cpu_spec
 EXPORT_SYMBOL vmlinux 0x3d141da7	inet_recvmsg
 EXPORT_SYMBOL vmlinux 0x3d288588	dquot_alloc_inode
 EXPORT_SYMBOL vmlinux 0x3d2b0539	__cleancache_get_page
@@ -7068,7 +7071,6 @@ EXPORT_SYMBOL vmlinux 0x550958dd	input_mt_destroy_slots
 EXPORT_SYMBOL vmlinux 0x551079a1	tcf_register_action
 EXPORT_SYMBOL vmlinux 0x5517b59e	do_splice_to
 EXPORT_SYMBOL vmlinux 0x551bd071	__rb_erase_color
-EXPORT_SYMBOL vmlinux 0x552b24f1	ppc_md
 EXPORT_SYMBOL vmlinux 0x5541ea93	on_each_cpu
 EXPORT_SYMBOL vmlinux 0x5544720f	iget5_locked
 EXPORT_SYMBOL vmlinux 0x55467ede	fsl_upm_find
@@ -7224,6 +7226,7 @@ EXPORT_SYMBOL vmlinux 0x5f19a6d2	inet_proto_csum_replace16
 EXPORT_SYMBOL vmlinux 0x5f28c2dc	idr_remove
 EXPORT_SYMBOL vmlinux 0x5f3c8f5c	mmc_assume_removable
 EXPORT_SYMBOL vmlinux 0x5f3d7632	generic_ro_fops
+EXPORT_SYMBOL vmlinux 0x5f549f71	ppc_md
 EXPORT_SYMBOL vmlinux 0x5f754e5a	memset
 EXPORT_SYMBOL vmlinux 0x5f8a2728	isa_io_base
 EXPORT_SYMBOL vmlinux 0x5f99ccf4	seq_putc
@@ -7347,7 +7350,6 @@ EXPORT_SYMBOL vmlinux 0x673f815e	agp_bridges
 EXPORT_SYMBOL vmlinux 0x675b8f61	param_get_string
 EXPORT_SYMBOL vmlinux 0x675e1b42	keyring_search
 EXPORT_SYMBOL vmlinux 0x677b447c	tcp_sendpage
-EXPORT_SYMBOL vmlinux 0x6783b87a	mach_chrp
 EXPORT_SYMBOL vmlinux 0x678716b1	send_sig_info
 EXPORT_SYMBOL vmlinux 0x679bed90	con_copy_unimap
 EXPORT_SYMBOL vmlinux 0x67b78eb3	seq_hlist_next_rcu
@@ -7607,7 +7609,6 @@ EXPORT_SYMBOL vmlinux 0x78221a46	dquot_commit_info
 EXPORT_SYMBOL vmlinux 0x782594b6	dma_set_mask
 EXPORT_SYMBOL vmlinux 0x78386a11	names_cachep
 EXPORT_SYMBOL vmlinux 0x783b3563	wake_up_atomic_t
-EXPORT_SYMBOL vmlinux 0x785270b4	cur_cpu_spec
 EXPORT_SYMBOL vmlinux 0x785fc5f4	__netlink_kernel_create
 EXPORT_SYMBOL vmlinux 0x7878c142	ipmi_smi_watcher_register
 EXPORT_SYMBOL vmlinux 0x7878cc4b	dm_unregister_target
@@ -7970,7 +7971,6 @@ EXPORT_SYMBOL vmlinux 0x8d551bef	sysctl_tcp_rmem
 EXPORT_SYMBOL vmlinux 0x8d55bb8a	qid_eq
 EXPORT_SYMBOL vmlinux 0x8d73278e	hex_asc_upper
 EXPORT_SYMBOL vmlinux 0x8d7c1ed2	dst_release
-EXPORT_SYMBOL vmlinux 0x8d80f54b	mach_powermac
 EXPORT_SYMBOL vmlinux 0x8d818049	security_sb_set_mnt_opts
 EXPORT_SYMBOL vmlinux 0x8d9acebe	phy_driver_register
 EXPORT_SYMBOL vmlinux 0x8da6b41c	bio_integrity_set_tag
@@ -8506,7 +8506,6 @@ EXPORT_SYMBOL vmlinux 0xae545f06	_raw_write_unlock_irqrestore
 EXPORT_SYMBOL vmlinux 0xae729e59	security_req_classify_flow
 EXPORT_SYMBOL vmlinux 0xaea78ba0	remap_pfn_range
 EXPORT_SYMBOL vmlinux 0xaeaced07	udp_proc_unregister
-EXPORT_SYMBOL vmlinux 0xaeaebd39	machine_id
 EXPORT_SYMBOL vmlinux 0xaec655c7	alloc_pages_exact
 EXPORT_SYMBOL vmlinux 0xaecb5cc7	rtnl_link_get_net
 EXPORT_SYMBOL vmlinux 0xaed0958c	xfrm_register_mode
@@ -9431,6 +9430,7 @@ EXPORT_SYMBOL vmlinux 0xe982fcaa	sock_rfree
 EXPORT_SYMBOL vmlinux 0xe999b716	netif_stacked_transfer_operstate
 EXPORT_SYMBOL vmlinux 0xe9a8563a	set_security_override_from_ctx
 EXPORT_SYMBOL vmlinux 0xe9b865c4	posix_acl_from_xattr
+EXPORT_SYMBOL vmlinux 0xe9c2a5f8	machine_id
 EXPORT_SYMBOL vmlinux 0xe9d021f2	xfrm6_prepare_output
 EXPORT_SYMBOL vmlinux 0xe9e45d73	blk_register_region
 EXPORT_SYMBOL vmlinux 0xe9f7149c	zlib_deflate_workspacesize
