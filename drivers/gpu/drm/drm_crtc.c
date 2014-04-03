@@ -2492,6 +2492,7 @@ int drm_crtc_check_viewport(const struct drm_crtc *crtc,
 	if (crtc->invert_dimensions)
 		swap(hdisplay, vdisplay);
 
+#if 0
 	if (hdisplay > fb->width ||
 	    vdisplay > fb->height ||
 	    x > fb->width - hdisplay ||
@@ -2501,6 +2502,7 @@ int drm_crtc_check_viewport(const struct drm_crtc *crtc,
 			      crtc->invert_dimensions ? " (inverted)" : "");
 		return -ENOSPC;
 	}
+#endif
 
 	return 0;
 }
