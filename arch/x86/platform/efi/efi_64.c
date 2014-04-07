@@ -222,3 +222,12 @@ void __iomem *__init efi_ioremap(unsigned long phys_addr, unsigned long size,
 
 	return (void __iomem *)__va(phys_addr);
 }
+
+void __init efi_runtime_mkexec(void)
+{
+	if (!efi_enabled(EFI_OLD_MEMMAP))
+		return;
+
+	if (__supported_pte_mask & _PAGE_NX)
+		runtime_code_page_mkexec();
+}
