@@ -29,6 +29,7 @@ dtb_files_generic	+= tegra20-ventana.dtb
 dtb_files_generic	+= tegra20-whistler.dtb
 dtb_files_generic	+= am335x-bone.dtb
 dtb_files_generic	+= am335x-boneblack.dtb
+dtb_files_generic	+= vexpress-v2p-ca9.dtb
 
 dtb_files_generic-lpae   += highbank.dtb
 dtb_files_generic-lpae	 += vexpress-v2p-ca15-tc1.dtb
