@@ -955,9 +955,9 @@ int vt_ioctl(struct tty_struct *tty,
 	return 0;
 }
 
-void reset_vc(struct vc_data *vc)
+void reset_vc(struct vc_data *vc, int mode)
 {
-	vc->vc_mode = KD_TEXT;
+	vc->vc_mode = mode;
 	vt_reset_unicode(vc->vc_num);
 	vc->vt_mode.mode = VT_AUTO;
 	vc->vt_mode.waitv = 0;
@@ -988,7 +988,7 @@ void vc_SAK(struct work_struct *work)
 		 */
 		if (tty)
 			__do_SAK(tty);
-		reset_vc(vc);
+		reset_vc(vc, KD_TEXT);
 	}
 	console_unlock();
 }
@@ -1174,7 +1174,7 @@ static void complete_change_console(struct vc_data *vc)
 		 * this outside of VT_PROCESS but there is no single process
 		 * to account for and tracking tty count may be undesirable.
 		 */
-			reset_vc(vc);
+			reset_vc(vc, KD_TEXT);
 
 			if (old_vc_mode != vc->vc_mode) {
 				if (vc->vc_mode == KD_TEXT)
@@ -1246,7 +1246,7 @@ void change_console(struct vc_data *new_vc)
 		 * this outside of VT_PROCESS but there is no single process
 		 * to account for and tracking tty count may be undesirable.
 		 */
-		reset_vc(vc);
+		reset_vc(vc, KD_TEXT);
 
 		/*
 		 * Fall through to normal (VT_AUTO) handling of the switch...
