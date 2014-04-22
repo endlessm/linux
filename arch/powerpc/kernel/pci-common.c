@@ -341,6 +341,7 @@ struct pci_controller* pci_find_hose_for_OF_device(struct device_node* node)
 	}
 	return NULL;
 }
+EXPORT_SYMBOL(pci_find_hose_for_OF_device);
 
 struct pci_controller *pci_find_controller_for_domain(int domain_nr)
 {
@@ -1607,6 +1608,7 @@ int early_find_capability(struct pci_controller *hose, int bus, int devfn,
 {
 	return pci_bus_find_capability(fake_pci_bus(hose, bus), devfn, cap);
 }
+EXPORT_SYMBOL_GPL(early_find_capability);
 
 struct device_node *pcibios_get_phb_of_node(struct pci_bus *bus)
 {
