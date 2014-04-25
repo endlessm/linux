@@ -431,9 +431,9 @@ static unsigned int clamp_align(unsigned int x, unsigned int min,
 	/* Bits that must be zero to be aligned */
 	unsigned int mask = ~((1 << align) - 1);
 
-	/* Round to nearest aligned value */
+	/* Round up */
 	if (align)
-		x = (x + (1 << (align - 1))) & mask;
+		x = (x + ~mask) & mask;
 
 	/* Clamp to aligned value of min and max */
 	if (x < min)
