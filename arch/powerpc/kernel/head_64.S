@@ -490,7 +490,7 @@ __after_prom_start:
 	bne	3f
 
 #ifdef CONFIG_PPC_BOOK3E
-	LOAD_REG_ADDR(r5, __end_interrupts)
+	LOAD_REG_ADDR(r5, interrupt_end_book3e)
 	LOAD_REG_ADDR(r11, _stext)
 	sub	r5,r5,r11
 #else
