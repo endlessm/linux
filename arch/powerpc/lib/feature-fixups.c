@@ -141,8 +141,11 @@ void do_final_fixups(void)
 
 	src = (int *)(KERNELBASE + PHYSICAL_START);
 	dest = (int *)KERNELBASE;
+#ifdef CONFIG_PPC_BOOK3E
+	length = (interrupt_end_book3e - _stext) / sizeof(int);
+#else
 	length = (__end_interrupts - _stext) / sizeof(int);
-
+#endif
 	while (length--) {
 		patch_instruction(dest, *src);
 		src++;
