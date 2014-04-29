@@ -8,8 +8,13 @@
 
 #ifdef __powerpc64__
 
+#ifdef CONFIG_PPC_BOOK3E
+extern char interrupt_base_book3e[];
+extern char interrupt_end_book3e[];
+#else
 extern char __start_interrupts[];
 extern char __end_interrupts[];
+#endif
 
 extern char __prom_init_toc_start[];
 extern char __prom_init_toc_end[];
@@ -26,9 +31,13 @@ static inline int overlaps_interrupt_vector_text(unsigned long start,
 							unsigned long end)
 {
 	unsigned long real_start, real_end;
+#ifdef CONFIG_PPC_BOOK3E
+	real_start = interrupt_base_book3e - _stext;
+	real_end = interrupt_end_book3e - _stext;
+#else
 	real_start = __start_interrupts - _stext;
 	real_end = __end_interrupts - _stext;
-
+#endif
 	return start < (unsigned long)__va(real_end) &&
 		(unsigned long)__va(real_start) < end;
 }
