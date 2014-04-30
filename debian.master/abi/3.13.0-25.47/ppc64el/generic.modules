@@ -9,7 +9,6 @@
 8139too
 8250_dw
 8390
-842
 88pm800
 88pm805
 88pm80x
@@ -1774,7 +1773,6 @@ n_tracesink
 null_blk
 nvidiafb
 nvme
-nx-crypto
 nxt200x
 nxt6000
 objlayoutdriver
