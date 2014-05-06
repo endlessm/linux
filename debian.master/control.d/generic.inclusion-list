@@ -159,6 +159,7 @@ net/vmw_vsock/*
 net/x25/*
 net/xfrm/*
 net/sunrpc/auth_gss/auth_rpcgss.ko
+net/sunrpc/auth_gss/rpcsec_gss_krb5.ko
 net/sunrpc/sunrpc.ko
 sound/soundcore.ko
 sound/core/*
