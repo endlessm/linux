@@ -275,6 +275,14 @@ linux (3.13.0-25.47) trusty; urgency=low
 
  -- Joseph Salisbury <joseph.salisbury@canonical.com>  Mon, 28 Apr 2014 15:02:45 -0400
 
+linux (3.13.0-24.47) trusty; urgency=low
+
+  [ Peter Hurley ]
+
+  * n_tty: Fix n_tty_write crash when echoing in raw mode
+
+ -- Brad Figg <brad.figg@canonical.com>  Wed, 30 Apr 2014 15:08:31 -0700
+
 linux (3.13.0-24.46) trusty; urgency=low
 
   [ Andy Whitcroft ]
