@@ -7615,9 +7615,11 @@ static void prepare_vmcs02(struct kvm_vcpu *vcpu, struct vmcs12 *vmcs12)
 
 	vmcs_write64(VMCS_LINK_POINTER, -1ull);
 
-	vmcs_write32(PIN_BASED_VM_EXEC_CONTROL,
-		(vmcs_config.pin_based_exec_ctrl |
-		 vmcs12->pin_based_vm_exec_control));
+	exec_control = vmcs12->pin_based_vm_exec_control;
+	exec_control |= vmcs_config.pin_based_exec_ctrl;
+	exec_control &= ~(PIN_BASED_VMX_PREEMPTION_TIMER |
+                          PIN_BASED_POSTED_INTR);
+	vmcs_write32(PIN_BASED_VM_EXEC_CONTROL, exec_control);
 
 	if (vmcs12->pin_based_vm_exec_control & PIN_BASED_VMX_PREEMPTION_TIMER)
 		vmcs_write32(VMX_PREEMPTION_TIMER_VALUE,
@@ -7653,7 +7655,9 @@ static void prepare_vmcs02(struct kvm_vcpu *vcpu, struct vmcs12 *vmcs12)
 		if (!vmx->rdtscp_enabled)
 			exec_control &= ~SECONDARY_EXEC_RDTSCP;
 		/* Take the following fields only from vmcs12 */
-		exec_control &= ~SECONDARY_EXEC_VIRTUALIZE_APIC_ACCESSES;
+		exec_control &= ~(SECONDARY_EXEC_VIRTUALIZE_APIC_ACCESSES |
+				  SECONDARY_EXEC_VIRTUAL_INTR_DELIVERY |
+                                  SECONDARY_EXEC_APIC_REGISTER_VIRT);
 		if (nested_cpu_has(vmcs12,
 				CPU_BASED_ACTIVATE_SECONDARY_CONTROLS))
 			exec_control |= vmcs12->secondary_vm_exec_control;
