@@ -828,7 +828,7 @@ static int iwl_mvm_configure_mcast_filter(struct iwl_mvm *mvm,
 
 	memcpy(mcast_filter_cmd.bssid, vif->bss_conf.bssid, ETH_ALEN);
 
-	return iwl_mvm_send_cmd_pdu(mvm, MCAST_FILTER_CMD, CMD_SYNC,
+	return iwl_mvm_send_cmd_pdu(mvm, MCAST_FILTER_CMD, CMD_ASYNC,
 				    sizeof(mcast_filter_cmd),
 				    &mcast_filter_cmd);
 }
