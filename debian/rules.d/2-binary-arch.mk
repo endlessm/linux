@@ -244,8 +244,8 @@ endif
 	# Copy over the compilation version.
 	cp "$(builddir)/build-$*/include/generated/compile.h" \
 		"$(hdrdir)/include/generated/compile.h"
-	# powerpc seems to need some .o files for external module linking. Add them in.
-ifeq ($(arch),powerpc)
+	# powerpc kernel arch seems to need some .o files for external module linking. Add them in.
+ifeq ($(build_arch),powerpc)
 	mkdir -p $(hdrdir)/arch/powerpc/lib
 	cp $(builddir)/build-$*/arch/powerpc/lib/*.o $(hdrdir)/arch/powerpc/lib
 endif
