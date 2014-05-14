@@ -848,6 +848,7 @@ static int rmi_probe(struct hid_device *hdev, const struct hid_device_id *id)
 		return -EIO;
 	}
 
+	hid_hw_stop(hdev);
 	return 0;
 }
 
