@@ -1,5 +1,9 @@
 linux (3.13.0-27.50) trusty; urgency=low
 
+  [ Brad Figg ]
+
+  * Revert "rtlwifi: Set the link state"
+
  -- Brad Figg <brad.figg@canonical.com>  Thu, 15 May 2014 10:21:43 -0700
 
 linux (3.13.0-27.49) trusty; urgency=low
