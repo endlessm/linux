@@ -33,7 +33,7 @@
 #include <arpa/inet.h>
 #include <linux/fs.h>
 #include <linux/connector.h>
-#include "../../include/linux/hyperv.h"
+#include <linux/hyperv.h>
 #include <linux/netlink.h>
 #include <syslog.h>
 
