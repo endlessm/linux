@@ -34,7 +34,7 @@
 #include <errno.h>
 #include <arpa/inet.h>
 #include <linux/connector.h>
-#include "../../include/linux/hyperv.h"
+#include <linux/hyperv.h>
 #include <linux/netlink.h>
 #include <ifaddrs.h>
 #include <netdb.h>
