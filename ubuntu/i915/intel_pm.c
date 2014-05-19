@@ -31,7 +31,7 @@
 #include "../../drivers/platform/x86/intel_ips.h"
 #include <linux/module.h>
 #include <linux/vgaarb.h>
-#include <drm/i915_powerwell.h>
+#include <drm/i915_powerwell_bdw.h>
 #include <linux/pm_runtime.h>
 
 /**
@@ -5628,7 +5628,7 @@ void intel_display_power_put(struct drm_i915_private *dev_priv,
 static struct i915_power_domains *hsw_pwr;
 
 /* Display audio driver power well request */
-void i915_request_power_well(void)
+void i915_bdw_request_power_well(void)
 {
 	struct drm_i915_private *dev_priv;
 
@@ -5639,10 +5639,10 @@ void i915_request_power_well(void)
 				power_domains);
 	intel_display_power_get(dev_priv, POWER_DOMAIN_AUDIO);
 }
-EXPORT_SYMBOL_GPL(i915_request_power_well);
+EXPORT_SYMBOL_GPL(i915_bdw_request_power_well);
 
 /* Display audio driver power well release */
-void i915_release_power_well(void)
+void i915_bdw_release_power_well(void)
 {
 	struct drm_i915_private *dev_priv;
 
@@ -5653,7 +5653,7 @@ void i915_release_power_well(void)
 				power_domains);
 	intel_display_power_put(dev_priv, POWER_DOMAIN_AUDIO);
 }
-EXPORT_SYMBOL_GPL(i915_release_power_well);
+EXPORT_SYMBOL_GPL(i915_bdw_release_power_well);
 
 #define POWER_DOMAIN_MASK (BIT(POWER_DOMAIN_NUM) - 1)
 
