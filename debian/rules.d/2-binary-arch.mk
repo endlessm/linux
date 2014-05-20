@@ -110,7 +110,8 @@ endif
 		for dtb_file in $(dtb_files); do \
 			install -m644 $(builddir)/build-$*/arch/$(build_arch)/boot/dts/$$dtb_file \
 				$(pkgdir)/lib/firmware/$(abi_release)-$*/device-tree/$$dtb_file; \
-		done \
+			echo "device-tree/$$dtb_file ?" >> $(DEBIAN)/d-i/firmware/kernel-image; \
+		done; \
 	fi
 ifeq ($(no_dumpfile),)
 	makedumpfile -g $(pkgdir)/boot/vmcoreinfo-$(abi_release)-$* \
