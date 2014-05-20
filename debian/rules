@@ -78,7 +78,6 @@ clean: debian/control
 	rm -rf $(DEBIAN)/d-i-$(arch)
 
 	# normal build junk
-	rm -rf $(DEBIAN)/abi/$(release)-$(revision)
 	rm -rf $(builddir)
 	rm -f $(stampdir)/stamp-*
 	rm -rf $(DEBIAN)/linux-*
