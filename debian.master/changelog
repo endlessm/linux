@@ -1,3 +1,31 @@
+linux (3.13.0-27.50endless1) eos; urgency=low
+
+  [ Adam Lee ]
+
+  * SAUCE: (no-up) rtlwifi: rtl8723be: disable MSI interrupts mode
+    - LP: #1310512, #1320070
+
+  [ Cosimo Cecchi ]
+
+  * 8192cu: add RealTek driver for 8192cu chipsets
+  * release 3.13.0-27.50endless1
+
+  [ Dan Nicholson ]
+
+  * debian: don't delete current ABI files in debian.master/abi during
+    clean
+
+  [ Daniel Drake ]
+
+  * drm/edid: request HDMI underscan by default
+
+  [ Sjoerd Simons ]
+
+  * debian: make linux-initramfs-tools an alternative for initramfs-tools
+  * intel_lvds: add a no lvds quirk for the Zotac ZBOX
+
+ -- Cosimo Cecchi <cosimo@endlessm.com>  Tue, 20 May 2014 15:40:10 -0700
+
 linux (3.13.0-27.50) trusty; urgency=low
 
   [ Brad Figg ]

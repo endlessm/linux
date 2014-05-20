@@ -1362,10 +1362,6 @@ EXPORT_SYMBOL drivers/net/wireless/rtlwifi/rtl8192c/rtl8192c-common 0xe28d9fd5	r
 EXPORT_SYMBOL drivers/net/wireless/rtlwifi/rtl8192c/rtl8192c-common 0xef2e30c5	rtl92c_dm_rf_saving
 EXPORT_SYMBOL drivers/net/wireless/rtlwifi/rtl8192c/rtl8192c-common 0xf5ce4b35	_rtl92c_phy_fw_rf_serial_write
 EXPORT_SYMBOL drivers/net/wireless/rtlwifi/rtl8192c/rtl8192c-common 0xfd56a433	rtl92c_set_fw_rsvdpagepkt
-EXPORT_SYMBOL drivers/net/wireless/rtlwifi/rtl_usb 0x868faad6	rtl_usb_disconnect
-EXPORT_SYMBOL drivers/net/wireless/rtlwifi/rtl_usb 0x8e148dda	rtl_usb_resume
-EXPORT_SYMBOL drivers/net/wireless/rtlwifi/rtl_usb 0xa1cf9291	rtl_usb_suspend
-EXPORT_SYMBOL drivers/net/wireless/rtlwifi/rtl_usb 0xaa15749b	rtl_usb_probe
 EXPORT_SYMBOL drivers/net/wireless/rtlwifi/rtlwifi 0x0a158ced	rtlwifi_rate_mapping
 EXPORT_SYMBOL drivers/net/wireless/rtlwifi/rtlwifi 0x1ae5e58f	rtl_ps_enable_nic
 EXPORT_SYMBOL drivers/net/wireless/rtlwifi/rtlwifi 0x207fbb70	rtl_evm_db_to_percentage

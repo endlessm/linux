@@ -2269,10 +2269,6 @@ EXPORT_SYMBOL drivers/net/wireless/rtlwifi/rtl_pci 0x2f7c979a	rtl_pci_resume
 EXPORT_SYMBOL drivers/net/wireless/rtlwifi/rtl_pci 0x8901fa6b	rtl_pci_disconnect
 EXPORT_SYMBOL drivers/net/wireless/rtlwifi/rtl_pci 0xa554abb1	rtl_pci_suspend
 EXPORT_SYMBOL drivers/net/wireless/rtlwifi/rtl_pci 0xab7dd36d	rtl_pci_probe
-EXPORT_SYMBOL drivers/net/wireless/rtlwifi/rtl_usb 0x01a2c11b	rtl_usb_probe
-EXPORT_SYMBOL drivers/net/wireless/rtlwifi/rtl_usb 0x05a5d509	rtl_usb_suspend
-EXPORT_SYMBOL drivers/net/wireless/rtlwifi/rtl_usb 0x107ef795	rtl_usb_disconnect
-EXPORT_SYMBOL drivers/net/wireless/rtlwifi/rtl_usb 0x2a1b5800	rtl_usb_resume
 EXPORT_SYMBOL drivers/net/wireless/rtlwifi/rtlwifi 0x0622ff72	rtl_efuse_shadow_map_update
 EXPORT_SYMBOL drivers/net/wireless/rtlwifi/rtlwifi 0x124b378f	rtl_cam_delete_one_entry
 EXPORT_SYMBOL drivers/net/wireless/rtlwifi/rtlwifi 0x207fbb70	rtl_evm_db_to_percentage

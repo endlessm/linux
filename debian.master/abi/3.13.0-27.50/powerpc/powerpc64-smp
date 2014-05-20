@@ -2256,10 +2256,6 @@ EXPORT_SYMBOL drivers/net/wireless/rtlwifi/rtl_pci 0x0fee3b3a	rtl_pci_suspend
 EXPORT_SYMBOL drivers/net/wireless/rtlwifi/rtl_pci 0x1c2e780d	rtl_pci_resume
 EXPORT_SYMBOL drivers/net/wireless/rtlwifi/rtl_pci 0x8d9fa742	rtl_pci_disconnect
 EXPORT_SYMBOL drivers/net/wireless/rtlwifi/rtl_pci 0xf640db1b	rtl_pci_probe
-EXPORT_SYMBOL drivers/net/wireless/rtlwifi/rtl_usb 0x0493788f	rtl_usb_probe
-EXPORT_SYMBOL drivers/net/wireless/rtlwifi/rtl_usb 0x0b79b753	rtl_usb_resume
-EXPORT_SYMBOL drivers/net/wireless/rtlwifi/rtl_usb 0x3ba052bf	rtl_usb_suspend
-EXPORT_SYMBOL drivers/net/wireless/rtlwifi/rtl_usb 0xe2d39b0d	rtl_usb_disconnect
 EXPORT_SYMBOL drivers/net/wireless/rtlwifi/rtlwifi 0x000081e6	rtl_init_rfkill
 EXPORT_SYMBOL drivers/net/wireless/rtlwifi/rtlwifi 0x16d93ecb	rtl_get_tcb_desc
 EXPORT_SYMBOL drivers/net/wireless/rtlwifi/rtlwifi 0x17e323d5	rtl_cam_delete_one_entry

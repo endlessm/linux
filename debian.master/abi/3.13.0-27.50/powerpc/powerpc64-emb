@@ -2261,10 +2261,6 @@ EXPORT_SYMBOL drivers/net/wireless/rtlwifi/rtl8192c/rtl8192c-common 0xe71d81f7	r
 EXPORT_SYMBOL drivers/net/wireless/rtlwifi/rtl8192c/rtl8192c-common 0xf8c749be	rtl92c_phy_rf_config
 EXPORT_SYMBOL drivers/net/wireless/rtlwifi/rtl_pci 0x6ed7adf0	rtl_pci_probe
 EXPORT_SYMBOL drivers/net/wireless/rtlwifi/rtl_pci 0xfc563c79	rtl_pci_disconnect
-EXPORT_SYMBOL drivers/net/wireless/rtlwifi/rtl_usb 0x89ac22cb	rtl_usb_suspend
-EXPORT_SYMBOL drivers/net/wireless/rtlwifi/rtl_usb 0x8febd26c	rtl_usb_resume
-EXPORT_SYMBOL drivers/net/wireless/rtlwifi/rtl_usb 0x9c698f7d	rtl_usb_probe
-EXPORT_SYMBOL drivers/net/wireless/rtlwifi/rtl_usb 0xa2b1be26	rtl_usb_disconnect
 EXPORT_SYMBOL drivers/net/wireless/rtlwifi/rtlwifi 0x0bff73cb	rtl_signal_scale_mapping
 EXPORT_SYMBOL drivers/net/wireless/rtlwifi/rtlwifi 0x1c3ce807	efuse_read_1byte
 EXPORT_SYMBOL drivers/net/wireless/rtlwifi/rtlwifi 0x207fbb70	rtl_evm_db_to_percentage
