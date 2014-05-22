@@ -531,9 +531,11 @@ init_pipe_control(struct intel_ring_buffer *ring)
 		goto err;
 	}
 
-	i915_gem_object_set_cache_level(ring->scratch.obj, I915_CACHE_LLC);
+	ret = i915_gem_object_set_cache_level(ring->scratch.obj, I915_CACHE_LLC);
+	if (ret)
+		goto err_unref;
 
-	ret = i915_gem_obj_ggtt_pin(ring->scratch.obj, 4096, true, false);
+	ret = i915_gem_obj_ggtt_pin(ring->scratch.obj, 4096, 0);
 	if (ret)
 		goto err_unref;
 
@@ -549,7 +551,7 @@ init_pipe_control(struct intel_ring_buffer *ring)
 	return 0;
 
 err_unpin:
-	i915_gem_object_unpin(ring->scratch.obj);
+	i915_gem_object_ggtt_unpin(ring->scratch.obj);
 err_unref:
 	drm_gem_object_unreference(&ring->scratch.obj->base);
 err:
@@ -569,7 +571,7 @@ static int init_render_ring(struct intel_ring_buffer *ring)
 	 * to use MI_WAIT_FOR_EVENT within the CS. It should already be
 	 * programmed to '1' on all products.
 	 *
-	 * WaDisableAsyncFlipPerfMode:snb,ivb,hsw,vlv
+	 * WaDisableAsyncFlipPerfMode:snb,ivb,hsw,vlv,bdw
 	 */
 	if (INTEL_INFO(dev)->gen >= 6)
 		I915_WRITE(MI_MODE, _MASKED_BIT_ENABLE(ASYNC_FLIP_PERF_DISABLE));
@@ -625,7 +627,7 @@ static void render_ring_cleanup(struct intel_ring_buffer *ring)
 
 	if (INTEL_INFO(dev)->gen >= 5) {
 		kunmap(sg_page(ring->scratch.obj->pages->sgl));
-		i915_gem_object_unpin(ring->scratch.obj);
+		i915_gem_object_ggtt_unpin(ring->scratch.obj);
 	}
 
 	drm_gem_object_unreference(&ring->scratch.obj->base);
@@ -1259,7 +1261,7 @@ static void cleanup_status_page(struct intel_ring_buffer *ring)
 		return;
 
 	kunmap(sg_page(obj->pages->sgl));
-	i915_gem_object_unpin(obj);
+	i915_gem_object_ggtt_unpin(obj);
 	drm_gem_object_unreference(&obj->base);
 	ring->status_page.obj = NULL;
 }
@@ -1277,12 +1279,13 @@ static int init_status_page(struct intel_ring_buffer *ring)
 		goto err;
 	}
 
-	i915_gem_object_set_cache_level(obj, I915_CACHE_LLC);
-
-	ret = i915_gem_obj_ggtt_pin(obj, 4096, true, false);
-	if (ret != 0) {
+	ret = i915_gem_object_set_cache_level(obj, I915_CACHE_LLC);
+	if (ret)
 		goto err_unref;
-	}
+
+	ret = i915_gem_obj_ggtt_pin(obj, 4096, 0);
+	if (ret)
+		goto err_unref;
 
 	ring->status_page.gfx_addr = i915_gem_obj_ggtt_offset(obj);
 	ring->status_page.page_addr = kmap(sg_page(obj->pages->sgl));
@@ -1299,7 +1302,7 @@ static int init_status_page(struct intel_ring_buffer *ring)
 	return 0;
 
 err_unpin:
-	i915_gem_object_unpin(obj);
+	i915_gem_object_ggtt_unpin(obj);
 err_unref:
 	drm_gem_object_unreference(&obj->base);
 err:
@@ -1362,7 +1365,7 @@ static int intel_init_ring_buffer(struct drm_device *dev,
 
 	ring->obj = obj;
 
-	ret = i915_gem_obj_ggtt_pin(obj, PAGE_SIZE, true, false);
+	ret = i915_gem_obj_ggtt_pin(obj, PAGE_SIZE, PIN_MAPPABLE);
 	if (ret)
 		goto err_unref;
 
@@ -1391,12 +1394,14 @@ static int intel_init_ring_buffer(struct drm_device *dev,
 	if (IS_I830(ring->dev) || IS_845G(ring->dev))
 		ring->effective_size -= 128;
 
+	i915_cmd_parser_init_ring(ring);
+
 	return 0;
 
 err_unmap:
 	iounmap(ring->virtual_start);
 err_unpin:
-	i915_gem_object_unpin(obj);
+	i915_gem_object_ggtt_unpin(obj);
 err_unref:
 	drm_gem_object_unreference(&obj->base);
 	ring->obj = NULL;
@@ -1424,7 +1429,7 @@ void intel_cleanup_ring_buffer(struct intel_ring_buffer *ring)
 
 	iounmap(ring->virtual_start);
 
-	i915_gem_object_unpin(ring->obj);
+	i915_gem_object_ggtt_unpin(ring->obj);
 	drm_gem_object_unreference(&ring->obj->base);
 	ring->obj = NULL;
 	ring->preallocated_lazy_request = NULL;
@@ -1436,28 +1441,16 @@ void intel_cleanup_ring_buffer(struct intel_ring_buffer *ring)
 	cleanup_status_page(ring);
 }
 
-static int intel_ring_wait_seqno(struct intel_ring_buffer *ring, u32 seqno)
-{
-	int ret;
-
-	ret = i915_wait_seqno(ring, seqno);
-	if (!ret)
-		i915_gem_retire_requests_ring(ring);
-
-	return ret;
-}
-
 static int intel_ring_wait_request(struct intel_ring_buffer *ring, int n)
 {
 	struct drm_i915_gem_request *request;
-	u32 seqno = 0;
+	u32 seqno = 0, tail;
 	int ret;
-
-	i915_gem_retire_requests_ring(ring);
 
 	if (ring->last_retired_head != -1) {
 		ring->head = ring->last_retired_head;
 		ring->last_retired_head = -1;
+
 		ring->space = ring_space(ring);
 		if (ring->space >= n)
 			return 0;
@@ -1474,6 +1467,7 @@ static int intel_ring_wait_request(struct intel_ring_buffer *ring, int n)
 			space += ring->size;
 		if (space >= n) {
 			seqno = request->seqno;
+			tail = request->tail;
 			break;
 		}
 
@@ -1488,15 +1482,11 @@ static int intel_ring_wait_request(struct intel_ring_buffer *ring, int n)
 	if (seqno == 0)
 		return -ENOSPC;
 
-	ret = intel_ring_wait_seqno(ring, seqno);
+	ret = i915_wait_seqno(ring, seqno);
 	if (ret)
 		return ret;
 
-	if (WARN_ON(ring->last_retired_head == -1))
-		return -ENOSPC;
-
-	ring->head = ring->last_retired_head;
-	ring->last_retired_head = -1;
+	ring->head = tail;
 	ring->space = ring_space(ring);
 	if (WARN_ON(ring->space < n))
 		return -ENOSPC;
@@ -1534,7 +1524,8 @@ static int ring_wait_for_space(struct intel_ring_buffer *ring, int n)
 			return 0;
 		}
 
-		if (dev->primary->master) {
+		if (!drm_core_check_feature(dev, DRIVER_MODESET) &&
+		    dev->primary->master) {
 			struct drm_i915_master_private *master_priv = dev->primary->master->driver_priv;
 			if (master_priv->sarea_priv)
 				master_priv->sarea_priv->perf_boxes |= I915_BOX_WAIT;
@@ -1656,27 +1647,6 @@ int intel_ring_begin(struct intel_ring_buffer *ring,
 		return ret;
 
 	ring->space -= num_dwords * sizeof(uint32_t);
-	return 0;
-}
-
-/* Align the ring tail to a cacheline boundary */
-int intel_ring_cacheline_align(struct intel_ring_buffer *ring)
-{
-	int num_dwords = (64 - (ring->tail & 63)) / sizeof(uint32_t);
-	int ret;
-
-	if (num_dwords == 0)
-		return 0;
-
-	ret = intel_ring_begin(ring, num_dwords);
-	if (ret)
-		return ret;
-
-	while (num_dwords--)
-		intel_ring_emit(ring, MI_NOOP);
-
-	intel_ring_advance(ring);
-
 	return 0;
 }
 
@@ -1960,7 +1930,7 @@ int intel_init_render_ring_buffer(struct drm_device *dev)
 			return -ENOMEM;
 		}
 
-		ret = i915_gem_obj_ggtt_pin(obj, 0, true, false);
+		ret = i915_gem_obj_ggtt_pin(obj, 0, 0);
 		if (ret != 0) {
 			drm_gem_object_unreference(&obj->base);
 			DRM_ERROR("Failed to ping batch bo\n");

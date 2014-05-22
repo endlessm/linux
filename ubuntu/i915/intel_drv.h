@@ -110,7 +110,7 @@ struct intel_framebuffer {
 
 struct intel_fbdev {
 	struct drm_fb_helper helper;
-	struct intel_framebuffer ifb;
+	struct intel_framebuffer *fb;
 	struct list_head fbdev_list;
 	struct drm_display_mode *our_mode;
 };
@@ -186,6 +186,14 @@ struct intel_connector {
 	/* Reads out the current hw, returning true if the connector is enabled
 	 * and active (i.e. dpms ON state). */
 	bool (*get_hw_state)(struct intel_connector *);
+
+	/*
+	 * Removes all interfaces through which the connector is accessible
+	 * - like sysfs, debugfs entries -, so that no new operations can be
+	 * started on the connector. Also makes sure all currently pending
+	 * operations finish before returing.
+	 */
+	void (*unregister)(struct intel_connector *);
 
 	/* Panel info for eDP and LVDS */
 	struct intel_panel panel;
@@ -359,6 +367,8 @@ struct intel_crtc {
 	bool cursor_visible;
 
 	struct intel_crtc_config config;
+	struct intel_crtc_config *new_config;
+	bool new_enabled;
 
 	uint32_t ddi_pll_sel;
 
@@ -485,8 +495,22 @@ struct intel_dp {
 	int backlight_off_delay;
 	struct delayed_work panel_vdd_work;
 	bool want_panel_vdd;
+	unsigned long last_power_cycle;
+	unsigned long last_power_on;
+	unsigned long last_backlight_off;
 	bool psr_setup_done;
+	bool use_tps3;
 	struct intel_connector *attached_connector;
+
+	uint32_t (*get_aux_clock_divider)(struct intel_dp *dp, int index);
+	/*
+	 * This function returns the value we have to program the AUX_CTL
+	 * register with to kick off an AUX transaction.
+	 */
+	uint32_t (*get_aux_send_ctl)(struct intel_dp *dp,
+				     bool has_aux_irq,
+				     int send_bytes,
+				     uint32_t aux_clock_divider);
 };
 
 struct intel_digital_port {
@@ -540,6 +564,7 @@ struct intel_unpin_work {
 struct intel_set_config {
 	struct drm_encoder **save_connector_encoders;
 	struct drm_crtc **save_encoder_crtcs;
+	bool *save_crtc_enabled;
 
 	bool fb_changed;
 	bool mode_changed;
@@ -584,6 +609,8 @@ hdmi_to_dig_port(struct intel_hdmi *intel_hdmi)
 /* i915_irq.c */
 bool intel_set_cpu_fifo_underrun_reporting(struct drm_device *dev,
 					   enum pipe pipe, bool enable);
+bool __intel_set_cpu_fifo_underrun_reporting(struct drm_device *dev,
+					     enum pipe pipe, bool enable);
 bool intel_set_pch_fifo_underrun_reporting(struct drm_device *dev,
 					   enum transcoder pch_transcoder,
 					   bool enable);
@@ -664,11 +691,10 @@ int intel_pin_and_fence_fb_obj(struct drm_device *dev,
 			       struct drm_i915_gem_object *obj,
 			       struct intel_ring_buffer *pipelined);
 void intel_unpin_fb_obj(struct drm_i915_gem_object *obj);
-int intel_framebuffer_init(struct drm_device *dev,
-			   struct intel_framebuffer *ifb,
+struct drm_framebuffer *
+__intel_framebuffer_create(struct drm_device *dev,
 			   struct drm_mode_fb_cmd2 *mode_cmd,
 			   struct drm_i915_gem_object *obj);
-void intel_framebuffer_fini(struct intel_framebuffer *fb);
 void intel_prepare_page_flip(struct drm_device *dev, int plane);
 void intel_finish_page_flip(struct drm_device *dev, int pipe);
 void intel_finish_page_flip_plane(struct drm_device *dev, int plane);
@@ -708,8 +734,12 @@ ironlake_check_encoder_dotclock(const struct intel_crtc_config *pipe_config,
 bool intel_crtc_active(struct drm_crtc *crtc);
 void hsw_enable_ips(struct intel_crtc *crtc);
 void hsw_disable_ips(struct intel_crtc *crtc);
-void intel_display_set_init_power(struct drm_device *dev, bool enable);
+void intel_display_set_init_power(struct drm_i915_private *dev, bool enable);
+enum intel_display_power_domain
+intel_display_port_power_domain(struct intel_encoder *intel_encoder);
 int valleyview_get_vco(struct drm_i915_private *dev_priv);
+void intel_mode_from_pipe_config(struct drm_display_mode *mode,
+				 struct intel_crtc_config *pipe_config);
 
 /* intel_dp.c */
 void intel_dp_init(struct drm_device *dev, int output_reg, enum port port);
@@ -721,15 +751,14 @@ void intel_dp_stop_link_train(struct intel_dp *intel_dp);
 void intel_dp_sink_dpms(struct intel_dp *intel_dp, int mode);
 void intel_dp_encoder_destroy(struct drm_encoder *encoder);
 void intel_dp_check_link_status(struct intel_dp *intel_dp);
+int intel_dp_sink_crc(struct intel_dp *intel_dp, u8 *crc);
 bool intel_dp_compute_config(struct intel_encoder *encoder,
 			     struct intel_crtc_config *pipe_config);
 bool intel_dp_is_edp(struct drm_device *dev, enum port port);
-void ironlake_edp_backlight_on(struct intel_dp *intel_dp);
-void ironlake_edp_backlight_off(struct intel_dp *intel_dp);
-void ironlake_edp_panel_on(struct intel_dp *intel_dp);
-void ironlake_edp_panel_off(struct intel_dp *intel_dp);
-void ironlake_edp_panel_vdd_on(struct intel_dp *intel_dp);
-void ironlake_edp_panel_vdd_off(struct intel_dp *intel_dp, bool sync);
+void intel_edp_backlight_on(struct intel_dp *intel_dp);
+void intel_edp_backlight_off(struct intel_dp *intel_dp);
+void intel_edp_panel_on(struct intel_dp *intel_dp);
+void intel_edp_panel_off(struct intel_dp *intel_dp);
 void intel_edp_psr_enable(struct intel_dp *intel_dp);
 void intel_edp_psr_disable(struct intel_dp *intel_dp);
 void intel_edp_psr_update(struct drm_device *dev);
@@ -808,7 +837,8 @@ int intel_overlay_attrs(struct drm_device *dev, void *data,
 
 /* intel_panel.c */
 int intel_panel_init(struct intel_panel *panel,
-		     struct drm_display_mode *fixed_mode);
+		     struct drm_display_mode *fixed_mode,
+		     struct drm_display_mode *downclock_mode);
 void intel_panel_fini(struct intel_panel *panel);
 void intel_fixed_panel_mode(const struct drm_display_mode *fixed_mode,
 			    struct drm_display_mode *adjusted_mode);
@@ -845,18 +875,17 @@ bool intel_fbc_enabled(struct drm_device *dev);
 void intel_update_fbc(struct drm_device *dev);
 void intel_gpu_ips_init(struct drm_i915_private *dev_priv);
 void intel_gpu_ips_teardown(void);
-int intel_power_domains_init(struct drm_device *dev);
-void intel_power_domains_remove(struct drm_device *dev);
-bool intel_display_power_enabled(struct drm_device *dev,
+int intel_power_domains_init(struct drm_i915_private *);
+void intel_power_domains_remove(struct drm_i915_private *);
+bool intel_display_power_enabled(struct drm_i915_private *dev_priv,
 				 enum intel_display_power_domain domain);
-bool intel_display_power_enabled_sw(struct drm_device *dev,
+bool intel_display_power_enabled_sw(struct drm_i915_private *dev_priv,
 				    enum intel_display_power_domain domain);
-void intel_display_power_get(struct drm_device *dev,
+void intel_display_power_get(struct drm_i915_private *dev_priv,
 			     enum intel_display_power_domain domain);
-void intel_display_power_put(struct drm_device *dev,
+void intel_display_power_put(struct drm_i915_private *dev_priv,
 			     enum intel_display_power_domain domain);
-void intel_power_domains_init_hw(struct drm_device *dev);
-void intel_set_power_well(struct drm_device *dev, bool enable);
+void intel_power_domains_init_hw(struct drm_i915_private *dev_priv);
 void intel_enable_gt_powersave(struct drm_device *dev);
 void intel_disable_gt_powersave(struct drm_device *dev);
 void ironlake_teardown_rc6(struct drm_device *dev);

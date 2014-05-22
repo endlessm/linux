@@ -227,8 +227,6 @@ struct opregion_asle {
 #define ACPI_DIGITAL_OUTPUT (3<<8)
 #define ACPI_LVDS_OUTPUT (4<<8)
 
-#define MAX_DSLP	1500
-
 #ifdef CONFIG_ACPI
 static int swsci(struct drm_device *dev, u32 function, u32 parm, u32 *parm_out)
 {
@@ -263,11 +261,10 @@ static int swsci(struct drm_device *dev, u32 function, u32 parm, u32 *parm_out)
 		/* The spec says 2ms should be the default, but it's too small
 		 * for some machines. */
 		dslp = 50;
-	} else if (dslp > MAX_DSLP) {
+	} else if (dslp > 500) {
 		/* Hey bios, trust must be earned. */
-		DRM_INFO_ONCE("ACPI BIOS requests an excessive sleep of %u ms, "
-			      "using %u ms instead\n", dslp, MAX_DSLP);
-		dslp = MAX_DSLP;
+		WARN_ONCE(1, "excessive driver sleep timeout (DSPL) %u\n", dslp);
+		dslp = 500;
 	}
 
 	/* The spec tells us to do this, but we are the only user... */
