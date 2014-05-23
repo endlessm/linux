@@ -31,6 +31,7 @@ arm64-obj-$(CONFIG_KGDB)		+= kgdb.o
 arm64-obj-$(CONFIG_EFI)			+= efi.o efi-stub.o efi-entry.o
 
 obj-$(CONFIG_PCI)			+= pcibios.o
+obj-$(CONFIG_PCI_MSI)                   += msi_bitmap.o
 obj-y					+= $(arm64-obj-y) vdso/
 obj-m					+= $(arm64-obj-m)
 head-y					:= head.o
