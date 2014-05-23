@@ -665,7 +665,7 @@ static int pci_dma_range_parser_init(struct of_pci_range_parser *parser,
 	parser->pna = of_n_addr_cells(node);
 	parser->np = parser->pna + na + ns;
 
-	parser->range = of_get_property(node, "dma-ranges", &rlen);
+	parser->range = of_get_property(node, "ib-ranges", &rlen);
 	if (!parser->range)
 		return -ENOENT;
 
@@ -682,11 +682,11 @@ static int xgene_pcie_parse_map_dma_ranges(struct xgene_pcie_port *port)
 	u8 ib_reg_mask = 0;
 
 	if (pci_dma_range_parser_init(&parser, np)) {
-		dev_err(dev, "missing dma-ranges property\n");
+		dev_err(dev, "missing ib-ranges property\n");
 		return -EINVAL;
 	}
 
-	/* Get the dma-ranges from DT */
+	/* Get the ib-ranges from DT */
 	for_each_of_pci_range(&parser, &range) {
 		u64 end = range.cpu_addr + range.size - 1;
 		dev_dbg(port->dev, "0x%08x 0x%016llx..0x%016llx -> 0x%016llx\n",
