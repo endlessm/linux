@@ -1937,7 +1937,6 @@ pn544_i2c
 pn_pep
 port100
 powermate
-powernv-cpufreq
 powernv-rng
 ppa
 ppdev
