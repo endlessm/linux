@@ -1093,7 +1093,6 @@ static void radeon_pm_resume_dpm(struct radeon_device *rdev)
 		}
 	} else {
 		rdev->pm.dpm_enabled = true;
-		radeon_pm_compute_clocks(rdev);
 	}
 }
 
