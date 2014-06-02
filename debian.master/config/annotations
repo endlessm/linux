@@ -1763,7 +1763,7 @@ CONFIG_BRIDGE_EBT_ULOG				n flag<DEPRECATED>
 CONFIG_IP_SET_MAX				256
 
 # Menu: Networking options >> Network packet filtering framework (Netfilter) >> IP virtual server support
-CONFIG_IP_VS_IPV6				n flag<DANGEROUS>
+CONFIG_IP_VS_IPV6				y
 CONFIG_IP_VS_TAB_BITS				12
 CONFIG_IP_VS_PROTO_TCP				y
 CONFIG_IP_VS_PROTO_UDP				y
