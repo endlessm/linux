@@ -117,7 +117,7 @@ ifeq ($(no_dumpfile),)
 	chmod 0600 $(pkgdir)/boot/vmcoreinfo-$(abi_release)-$*
 endif
 
-	$(build_cd) $(kmake) $(build_O) $(conc_level) modules_install \
+	$(build_cd) $(kmake) $(build_O) $(conc_level) modules_install $(vdso) \
 		INSTALL_MOD_STRIP=1 INSTALL_MOD_PATH=$(pkgdir)/ \
 		INSTALL_FW_PATH=$(pkgdir)/lib/firmware/$(abi_release)-$*
 
@@ -211,7 +211,7 @@ ifneq ($(skipdbg),true)
 	# Debug image is simple
 	install -m644 -D $(builddir)/build-$*/vmlinux \
 		$(dbgpkgdir)/usr/lib/debug/boot/vmlinux-$(abi_release)-$*
-	$(build_cd) $(kmake) $(build_O) modules_install \
+	$(build_cd) $(kmake) $(build_O) modules_install $(vdso) \
 		INSTALL_MOD_PATH=$(dbgpkgdir)/usr/lib/debug
 	# Add .gnu_debuglink sections to each stripped .ko
 	# pointing to unstripped verson
