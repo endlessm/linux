@@ -1,3 +1,10 @@
+linux (3.13.0-27.50endless2) eos; urgency=medium
+
+  * debian/rules: To preserve the changelog addition by OBS, keep
+    debian.master/changelog and debian/changelog in sync.
+
+ -- Dan Nicholson <nicholson@endlessm.com>  Thu, 05 Jun 2014 16:17:42 -0700
+
 linux (3.13.0-27.50endless1) eos; urgency=low
 
   [ Adam Lee ]
