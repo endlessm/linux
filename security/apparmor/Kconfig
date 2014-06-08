@@ -30,6 +30,41 @@ config SECURITY_APPARMOR_BOOTPARAM_VALUE
 
 	  If you are unsure how to answer this question, answer 1.
 
+config SECURITY_APPARMOR_STATS
+	bool "enable debug statistics"
+	depends on SECURITY_APPARMOR
+	select APPARMOR_LABEL_STATS
+	default n
+	help
+	  This enables keeping statistics on various internal structures
+	  and functions in apparmor.
+
+	  If you are unsure how to answer this question, answer N.
+
+config SECURITY_APPARMOR_UNCONFINED_INIT
+	bool "Set init to unconfined on boot"
+	depends on SECURITY_APPARMOR
+	default y
+	help
+	  This option determines policy behavior during early boot by
+	  placing the init process in the unconfined state, or the
+	  'default' profile.
+
+	  This option determines policy behavior during early boot by
+	  placing the init process in the unconfined state, or the
+	  'default' profile.
+
+	  'Y' means init and its children are not confined, unless the
+	  init process is re-execed after a policy load; loaded policy
+	  will only apply to processes started after the load.
+
+	  'N' means init and its children are confined in a profile
+	  named 'default', which can be replaced later and thus
+	  provide for confinement for processes started early at boot,
+	  though not confined during early boot.
+
+	  If you are unsure how to answer this question, answer Y.
+
 config SECURITY_APPARMOR_HASH
 	bool "SHA1 hash of loaded profiles"
 	depends on SECURITY_APPARMOR
