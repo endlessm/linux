@@ -84,7 +84,17 @@ clean: debian/control
 
 	# This gets rid of the d-i packages in control
 	cp -f $(DEBIAN)/control.stub $(DEBIAN)/control
-	cp $(DEBIAN)/changelog debian/changelog
+
+	# Hack: OBS adds a new version in debian/changelog. We want to
+	# preserve that, but most of the rules read from the master
+	# changelog. Keep them in sync here and preserve timestamps.
+	if [ ! -f debian/changelog ]; then \
+		cp -p $(DEBIAN)/changelog debian/changelog; \
+	elif [ $(DEBIAN)/changelog -nt debian/changelog ]; then \
+		cp -p $(DEBIAN)/changelog debian/changelog; \
+	elif [ debian/changelog -nt $(DEBIAN)/changelog ]; then \
+		cp -p debian/changelog $(DEBIAN)/changelog; \
+	fi
 
 	# Install the copyright information.
 	cp $(DEBIAN)/copyright debian/copyright
