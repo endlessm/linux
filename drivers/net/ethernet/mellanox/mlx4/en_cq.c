@@ -31,6 +31,7 @@
  *
  */
 
+#include <linux/interrupt.h>
 #include <linux/mlx4/cq.h>
 #include <linux/mlx4/qp.h>
 #include <linux/mlx4/cmd.h>
@@ -164,6 +165,13 @@ int mlx4_en_activate_cq(struct mlx4_en_priv *priv, struct mlx4_en_cq *cq,
 		netif_napi_add(cq->dev, &cq->napi, mlx4_en_poll_tx_cq,
 			       NAPI_POLL_WEIGHT);
 	} else {
+		struct mlx4_en_rx_ring *ring = priv->rx_ring[cq->ring];
+
+		err = irq_set_affinity_hint(cq->mcq.irq,
+					    ring->affinity_mask);
+		if (err)
+			mlx4_warn(mdev, "Failed setting affinity hint\n");
+
 		netif_napi_add(cq->dev, &cq->napi, mlx4_en_poll_rx_cq, 64);
 		napi_hash_add(&cq->napi);
 	}
@@ -180,8 +188,11 @@ void mlx4_en_destroy_cq(struct mlx4_en_priv *priv, struct mlx4_en_cq **pcq)
 
 	mlx4_en_unmap_buffer(&cq->wqres.buf);
 	mlx4_free_hwq_res(mdev->dev, &cq->wqres, cq->buf_size);
-	if (priv->mdev->dev->caps.comp_pool && cq->vector)
+	if (priv->mdev->dev->caps.comp_pool && cq->vector) {
+		if (!cq->is_tx)
+			irq_set_affinity_hint(cq->mcq.irq, NULL);
 		mlx4_release_eq(priv->mdev->dev, cq->vector);
+	}
 	cq->vector = 0;
 	cq->buf_size = 0;
 	cq->buf = NULL;
