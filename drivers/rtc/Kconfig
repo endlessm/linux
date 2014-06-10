@@ -880,17 +880,6 @@ config RTC_DRV_NUC900
 
 comment "on-CPU RTC drivers"
 
-config  RTC_DRV_XGENE
-        tristate "APM X-Gene RTC driver support"
-	depends on ARCH_XGENE
-        help
-          This selects the APM X-Gene SoC RTC driver support.
-          If you have a APM X-Gene Platform with RTC,
-          say Y or M here.
-
-          If unsure, say N.
-
-
 config RTC_DRV_DAVINCI
 	tristate "TI DaVinci RTC"
 	depends on ARCH_DAVINCI_DM365
