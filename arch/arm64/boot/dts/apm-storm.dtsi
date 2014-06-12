@@ -158,15 +158,10 @@
 				compatible = "apm,xgene-device-clock";
 				#clock-cells = <1>;
 				clocks = <&socplldiv2 0>;
-				clock-names = "socplldiv2";
+				clock-names = "qmlclk";
 				reg = <0x0 0x1703C000 0x0 0x1000>;
 				reg-names = "csr-reg";
 				clock-output-names = "qmlclk";
-				status = "ok";
-				csr-offset = <0x0>;
-				csr-mask = <0x3>;
-				enable-offset = <0x8>;
-				enable-mask = <0x3>;
 			};
 
 			ethclk: ethclk {
@@ -566,36 +561,6 @@
 			clocks = <&sata45clk 0>;
 			phys = <&phy3 0>;
 			phy-names = "sata-phy";
-		};
-
-		qmlite: qmtm@17030000 {
-			compatible = "apm,xgene-qmtm-lite";
-			reg = <0x0 0x17030000 0x0 0x10000>,
-			      <0x0 0x10000000 0x0 0x400000>;
-			slave-name = "CPU_QMTM3";
-			interrupts = <0x0 0x40 0x4>,
-				     <0x0 0x3c 0x4>;
-			status = "ok";
-			#clock-cells = <1>;
-			clocks = <&qmlclk 0>;
-		};
-
-		menet: ethernet@17020000 {
-			compatible = "apm,xgene-enet";
-			status = "disabled";
-			reg = <0x0 0x17020000 0x0 0x30>,
-			      <0x0 0x17020000 0x0 0x10000>,
-			      <0x0 0x17020000 0x0 0x20>;
-			slave-name = "RGMII";
-			interrupts = <0x0 0x38 0x4>,
-				     <0x0 0x39 0x4>,
-				     <0x0 0x3a 0x4>;
-			#clock-cells = <1>;
-			clocks = <&eth8clk 0>;
-			local-mac-address = <0x0 0x11 0x3a 0x8a 0x5a 0x78>;
-			max-frame-size = <0x233a>;
-			phyid = <3>;
-			phy-mode = "rgmii";
 		};
 
 		rtc: rtc@10510000 {
