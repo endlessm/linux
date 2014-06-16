@@ -244,6 +244,8 @@ endif
 	# Copy over the compilation version.
 	cp "$(builddir)/build-$*/include/generated/compile.h" \
 		"$(hdrdir)/include/generated/compile.h"
+	# Add UTS_UBUNTU_RELEASE_ABI since UTS_RELEASE is difficult to parse.
+	echo "#define UTS_UBUNTU_RELEASE_ABI $(abinum)" >> $(hdrdir)/include/generated/utsrelease.h
 	# powerpc kernel arch seems to need some .o files for external module linking. Add them in.
 ifeq ($(build_arch),powerpc)
 	mkdir -p $(hdrdir)/arch/powerpc/lib
