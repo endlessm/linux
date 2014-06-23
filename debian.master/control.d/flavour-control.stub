@@ -118,7 +118,7 @@ Description: Linux kernel version specific cloud tools for version PKGVER-ABINUM
  version locked tools for cloud for version PKGVER-ABINUM on
  =HUMAN=.
 
-Package: SRCPKGNAME-udebs-FLAVOUR
+Package: linux-udebs-FLAVOUR
 XC-Package-Type: udeb
 Section: debian-installer
 Architecture: ARCH

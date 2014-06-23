@@ -47,7 +47,7 @@ do-binary-udebs: debian/control
 	@gawk '										\
 		/^Package:/ {								\
 			package=$$2; flavour=""; parch="" }				\
-		(/Package-Type: udeb/ && package !~ /^'$(src_pkg_name)'-udebs-/) {      \
+		(/Package-Type: udeb/ && package !~ /^linux-udebs-/) {      \
 			match(package, "'$(release)'-'$(abinum)'-(.*)-di", bits);       \
 			flavour = bits[1];						\
 		}									\
@@ -60,7 +60,7 @@ do-binary-udebs: debian/control
 		}                                                      			\
 		END {                                                  			\
 			for (flavour in udebs) {					\
-				package="'$(src_pkg_name)'-udebs-" flavour;		\
+				package="linux-udebs-" flavour;		\
 				file="debian/" package ".substvars";			\
 				print("udeb:Depends=" udebs[flavour]) > file;		\
 				metas="'$(builddir)'/udeb-meta-packages";		\
