@@ -370,6 +370,7 @@ int ahci_do_softreset(struct ata_link *link, unsigned int *class,
 
 int ahci_stop_engine(struct ata_port *ap);
 void ahci_start_engine(struct ata_port *ap);
+int ahci_restart_engine(struct ata_port *ap);
 int ahci_check_ready(struct ata_link *link);
 int ahci_kick_engine(struct ata_port *ap);
 int ahci_port_resume(struct ata_port *ap);

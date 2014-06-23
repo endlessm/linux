@@ -736,6 +736,18 @@ static int ahci_set_lpm(struct ata_link *link, enum ata_lpm_policy policy,
 	return 0;
 }
 
+int ahci_restart_engine(struct ata_port *ap)
+{
+	struct ahci_host_priv *hpriv = ap->host->private_data;
+
+	ahci_stop_engine(ap);
+	ahci_start_fis_rx(ap);
+	hpriv->start_engine(ap);
+
+	return 0;
+}
+EXPORT_SYMBOL_GPL(ahci_restart_engine);
+
 #ifdef CONFIG_PM
 static void ahci_power_down(struct ata_port *ap)
 {
