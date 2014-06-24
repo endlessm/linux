@@ -152,7 +152,7 @@ static void tc2_pm_down(u64 residency)
 	if (last_man && __mcpm_outbound_enter_critical(cpu, cluster)) {
 		arch_spin_unlock(&tc2_pm_lock);
 
-		if (read_cpuid_part_number() == ARM_CPU_PART_CORTEX_A15) {
+		if (read_cpuid_part() == ARM_CPU_PART_CORTEX_A15) {
 			/*
 			 * On the Cortex-A15 we need to disable
 			 * L2 prefetching before flushing the cache.
