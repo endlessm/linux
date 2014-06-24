@@ -487,8 +487,13 @@ static int sdhci_s3c_probe(struct platform_device *pdev)
 		goto err_pdata_io_clk;
 	}
 
-	/* enable the local io clock and keep it running for the moment. */
-	clk_prepare_enable(sc->clk_io);
+	/*
+	 * Keep local I/O clock enabled for internal card detect pin
+	 * or runtime PM is disabled.
+	 */
+	if (pdata->cd_type == S3C_SDHCI_CD_INTERNAL
+	    || !IS_ENABLED(CONFIG_PM_RUNTIME))
+		clk_prepare_enable(sc->clk_io);
 
 	for (clks = 0, ptr = 0; ptr < MAX_BUS_CLK; ptr++) {
 		char name[14];
@@ -611,15 +616,13 @@ static int sdhci_s3c_probe(struct platform_device *pdev)
 		goto err_req_regs;
 	}
 
-#ifdef CONFIG_PM_RUNTIME
-	if (pdata->cd_type != S3C_SDHCI_CD_INTERNAL)
-		clk_disable_unprepare(sc->clk_io);
-#endif
 	return 0;
 
  err_req_regs:
  err_no_busclks:
-	clk_disable_unprepare(sc->clk_io);
+	if (pdata->cd_type == S3C_SDHCI_CD_INTERNAL
+	    || !IS_ENABLED(CONFIG_PM_RUNTIME))
+		clk_disable_unprepare(sc->clk_io);
 
  err_pdata_io_clk:
 	sdhci_free_host(host);
