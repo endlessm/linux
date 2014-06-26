@@ -1,8 +1,25 @@
-linux (3.13.0-27.50endless2) eos; urgency=medium
+linux (3.13.0-27.50endless3) eos; urgency=low
 
-  * debian/rules: To preserve the changelog addition by OBS, keep
-    debian.master/changelog and debian/changelog in sync.
-  * debian.master/abi: Move abi directory to current release version.
+  [ Dan Nicholson ]
+
+  * Add new rules target for generating endless release
+  * Add README.endless doc describing packaging process
+
+ -- Dan Nicholson <nicholson@endlessm.com>  Thu, 26 Jun 2014 10:03:58 -0700
+
+linux (3.13.0-27.50endless2) eos; urgency=low
+
+  [ Cosimo Cecchi ]
+
+  * fix ABI compat for generic-lpae ARMHF
+
+  [ Dan Nicholson ]
+
+  * debian: don't delete current ABI files in debian.master/abi during
+    clean
+  * debian: Don't overwrite changelog when OBS bumps the version
+  * debian: Rename abi directory to current endless release
+  * Make printchanges/insertchanges work with Endless release commits
 
  -- Dan Nicholson <nicholson@endlessm.com>  Thu, 05 Jun 2014 16:17:42 -0700
 
