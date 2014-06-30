@@ -8,6 +8,8 @@ Required Properties:
     * samsung,exynos4210-pd - for exynos4210 type power domain.
 - reg: physical base address of the controller and length of memory mapped
     region.
+Optional properties:
+- domain-always-on:	keeps the domain always enabled
 
 Optional Properties:
 - clocks: List of clock handles. The parent clocks of the input clocks to the
