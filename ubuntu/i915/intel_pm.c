@@ -5655,6 +5655,27 @@ void i915_bdw_release_power_well(void)
 }
 EXPORT_SYMBOL_GPL(i915_bdw_release_power_well);
 
+/*
+ * Private interface for the audio driver to get CDCLK in kHz.
+ *
+ * Caller must request power well using i915_bdw_request_power_well() prior to
+ * making the call.
+ */
+int i915_bdw_get_cdclk_freq(void)
+{
+	struct drm_i915_private *dev_priv;
+
+	if (!hsw_pwr)
+		return -ENODEV;
+
+	dev_priv = container_of(hsw_pwr, struct drm_i915_private,
+				power_domains);
+
+	return intel_ddi_get_cdclk_freq(dev_priv);
+}
+EXPORT_SYMBOL_GPL(i915_bdw_get_cdclk_freq);
+
+
 #define POWER_DOMAIN_MASK (BIT(POWER_DOMAIN_NUM) - 1)
 
 #define HSW_ALWAYS_ON_POWER_DOMAINS (			\
