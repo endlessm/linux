@@ -3904,7 +3904,8 @@ static int azx_probe_continue(struct azx *chip)
 	/* Request power well for Haswell HDA controller and codec */
 	if (chip->driver_caps & AZX_DCAPS_I915_POWERWELL) {
 #ifdef CONFIG_SND_HDA_I915
-		err = hda_i915_init();
+		bool is_broadwell = chip->driver_caps & AZX_DCAPS_INTEL_BROADWELL == AZX_DCAPS_INTEL_BROADWELL;
+		err = hda_i915_init(is_broadwell);
 		if (err < 0) {
 			snd_printk(KERN_ERR SFX "Error request power-well from i915\n");
 			goto out_free;

@@ -18,7 +18,7 @@
 
 #ifdef CONFIG_SND_HDA_I915
 void hda_display_power(bool enable);
-int hda_i915_init(void);
+int hda_i915_init(bool is_broadwell);
 int hda_i915_exit(void);
 #else
 static inline void hda_display_power(bool enable) {}
