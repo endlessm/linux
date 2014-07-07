@@ -973,6 +973,16 @@ linux (3.13.0-31.55) trusty; urgency=low
 
  -- Luis Henriques <luis.henriques@canonical.com>  Tue, 01 Jul 2014 15:10:43 +0100
 
+linux (3.13.0-30.55) trusty; urgency=low
+
+  [ Upstream Kernel Changes ]
+
+  * x86_64,ptrace: Enforce RIP <= TASK_SIZE_MAX (CVE-2014-4699)
+    - LP: #1337339
+    - CVE-2014-4699
+
+ -- Luis Henriques <luis.henriques@canonical.com>  Thu, 03 Jul 2014 16:15:57 +0100
+
 linux (3.13.0-30.54) trusty; urgency=low
 
   [ Adam Conrad ]

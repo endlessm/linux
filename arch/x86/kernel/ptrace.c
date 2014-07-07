@@ -452,6 +452,20 @@ static int putreg(struct task_struct *child,
 		if (child->thread.gs != value)
 			return do_arch_prctl(child, ARCH_SET_GS, value);
 		return 0;
+
+	case offsetof(struct user_regs_struct,ip):
+		/*
+		 * Protect against any attempt to set ip to an
+		 * impossible address.  There are dragons lurking if the
+		 * address is noncanonical.  (This explicitly allows
+		 * setting ip to TASK_SIZE_MAX, because user code can do
+		 * that all by itself by running off the end of its
+		 * address space.
+		 */
+		if (value > TASK_SIZE_MAX)
+			return -EIO;
+		break;
+
 #endif
 	}
 
