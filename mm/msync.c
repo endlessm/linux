@@ -9,6 +9,7 @@
  */
 #include <linux/fs.h>
 #include <linux/mm.h>
+#include <linux/mmfile.h>
 #include <linux/mman.h>
 #include <linux/file.h>
 #include <linux/syscalls.h>

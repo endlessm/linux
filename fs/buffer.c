@@ -22,6 +22,7 @@
 #include <linux/syscalls.h>
 #include <linux/fs.h>
 #include <linux/mm.h>
+#include <linux/mmfile.h>
 #include <linux/percpu.h>
 #include <linux/slab.h>
 #include <linux/capability.h>

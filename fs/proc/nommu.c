@@ -18,6 +18,7 @@
 #include <linux/mman.h>
 #include <linux/proc_fs.h>
 #include <linux/mm.h>
+#include <linux/mmfile.h>
 #include <linux/mmzone.h>
 #include <linux/pagemap.h>
 #include <linux/swap.h>

@@ -1,4 +1,5 @@
 #include <linux/mm.h>
+#include <linux/mmfile.h>
 #include <linux/vmacache.h>
 #include <linux/hugetlb.h>
 #include <linux/huge_mm.h>
