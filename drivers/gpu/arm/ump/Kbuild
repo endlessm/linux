@@ -10,7 +10,7 @@
 
 # Set default configuration to use, if Makefile didn't provide one.
 # Change this to use a different config.h
-CONFIG ?= default
+CONFIG ?= pb-virtex5
 
 # Validate selected config
 ifneq ($(shell [ -d $(src)/arch-$(CONFIG) ] && [ -f  $(src)/arch-$(CONFIG)/config.h ] && echo "OK"), OK)
