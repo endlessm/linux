@@ -7857,6 +7857,8 @@ int igb_reinit_queues(struct igb_adapter *adapter)
 
 	if (netif_running(netdev))
 		igb_close(netdev);
+	else
+		igb_reset(adapter);
 
 	igb_clear_interrupt_scheme(adapter);
 
