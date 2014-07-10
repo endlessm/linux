@@ -500,6 +500,22 @@ static struct dmi_system_id video_dmi_table[] __initdata = {
 	},
 	{
 	 .callback = video_set_use_native_backlight,
+	 .ident = "Dell Inspiron 5547",
+	 .matches = {
+		DMI_MATCH(DMI_SYS_VENDOR, "Dell Inc."),
+		DMI_MATCH(DMI_PRODUCT_NAME, "Inspiron 5547"),
+		},
+	},
+	{
+	 .callback = video_set_use_native_backlight,
+	 .ident = "Dell Inspiron 5447",
+	 .matches = {
+		DMI_MATCH(DMI_SYS_VENDOR, "Dell Inc."),
+		DMI_MATCH(DMI_PRODUCT_NAME, "Inspiron 5447"),
+		},
+	},
+	{
+	 .callback = video_set_use_native_backlight,
 	 .ident = "Acer Aspire 5733Z",
 	 .matches = {
 		DMI_MATCH(DMI_SYS_VENDOR, "Acer"),
