@@ -1045,6 +1045,9 @@ static int s5p_mfc_alloc_memdevs(struct s5p_mfc_dev *dev)
 	return 0;
 }
 
+extern struct device s5p_device_mfc_l;
+extern struct device s5p_device_mfc_r;
+
 /* MFC probe function */
 static int s5p_mfc_probe(struct platform_device *pdev)
 {
@@ -1097,9 +1100,8 @@ static int s5p_mfc_probe(struct platform_device *pdev)
 	}
 
 	if (pdev->dev.of_node) {
-		ret = s5p_mfc_alloc_memdevs(dev);
-		if (ret < 0)
-			goto err_res;
+		dev->mem_dev_l = &s5p_device_mfc_l;
+		dev->mem_dev_r = &s5p_device_mfc_r;
 	} else {
 		dev->mem_dev_l = device_find_child(&dev->plat_dev->dev,
 				"s5p-mfc-l", match_child);
