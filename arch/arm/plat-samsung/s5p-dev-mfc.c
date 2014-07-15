@@ -12,6 +12,7 @@
 #include <linux/interrupt.h>
 #include <linux/platform_device.h>
 #include <linux/dma-mapping.h>
+#include <linux/dma-contiguous.h>
 #include <linux/memblock.h>
 #include <linux/ioport.h>
 #include <linux/of_fdt.h>
@@ -64,40 +65,23 @@ struct platform_device s5p_device_mfc_r = {
 	},
 };
 #else
-static struct platform_device s5p_device_mfc_l;
-static struct platform_device s5p_device_mfc_r;
+struct device s5p_device_mfc_l;
+struct device s5p_device_mfc_r;
 #endif
-
-struct s5p_mfc_reserved_mem {
-	phys_addr_t	base;
-	unsigned long	size;
-	struct device	*dev;
-};
-
-static struct s5p_mfc_reserved_mem s5p_mfc_mem[2] __initdata;
-
 
 void __init s5p_mfc_reserve_mem(phys_addr_t rbase, unsigned int rsize,
 				phys_addr_t lbase, unsigned int lsize)
 {
-	int i;
+	device_initialize(&s5p_device_mfc_r);
+	s5p_device_mfc_r.coherent_dma_mask = DMA_BIT_MASK(32);
+	if (dma_declare_contiguous(&s5p_device_mfc_r, rsize, 0, 0))
+		pr_err("Failed to reserve memory for MFC device (%u bytes at 0x%08lx)\n", rsize, (unsigned long) rbase);
 
-	s5p_mfc_mem[0].dev = &s5p_device_mfc_r.dev;
-	s5p_mfc_mem[0].base = rbase;
-	s5p_mfc_mem[0].size = rsize;
+	device_initialize(&s5p_device_mfc_l);
+	s5p_device_mfc_l.coherent_dma_mask = DMA_BIT_MASK(32);
+	if (dma_declare_contiguous(&s5p_device_mfc_l, lsize, 0, 0))
+		pr_err("Failed to reserve memory for MFC device (%u bytes at 0x%08lx)\n", lsize, (unsigned long) lbase);
 
-	s5p_mfc_mem[1].dev = &s5p_device_mfc_l.dev;
-	s5p_mfc_mem[1].base = lbase;
-	s5p_mfc_mem[1].size = lsize;
-
-	for (i = 0; i < ARRAY_SIZE(s5p_mfc_mem); i++) {
-		struct s5p_mfc_reserved_mem *area = &s5p_mfc_mem[i];
-		if (memblock_remove(area->base, area->size)) {
-			printk(KERN_ERR "Failed to reserve memory for MFC device (%ld bytes at 0x%08lx)\n",
-			       area->size, (unsigned long) area->base);
-			area->base = 0;
-		}
-	}
 }
 
 #ifdef CONFIG_SAMSUNG_ATAGS
