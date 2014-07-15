@@ -86,6 +86,12 @@
 		};
 	};
 
+	codec@13400000 {
+		samsung,mfc-r = <0x43000000 0x10000000>;
+		samsung,mfc-l = <0x54000000 0x8000000>;
+		status = "okay";
+	};
+
 	lcd0-power-domain@10023C80 {
 		domain-always-on;
 	};
