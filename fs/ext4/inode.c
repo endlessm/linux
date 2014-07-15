@@ -3632,7 +3632,7 @@ int ext4_punch_hole(struct inode *inode, loff_t offset, loff_t length)
 		ret = ext4_ext_remove_space(inode, first_block,
 					    stop_block - 1);
 	else
-		ret = ext4_free_hole_blocks(handle, inode, first_block,
+		ret = ext4_ind_remove_space(handle, inode, first_block,
 					    stop_block);
 
 	ext4_discard_preallocations(inode);
