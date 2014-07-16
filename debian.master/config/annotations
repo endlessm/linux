@@ -427,7 +427,7 @@ set +all ?mark 'GPIO' !flag EXPERIMENTAL ?type tristate = m
 #  standard forms:
 set +pattern ^GPIO_ ?mark 'GPIO' ?type bool !flag EXPERIMENTAL = y
 #
-CONFIG_GPIO_SYSFS				n
+CONFIG_GPIO_SYSFS				y
 CONFIG_GPIOLIB					y
 CONFIG_GPIO_EM n note<h/w not encounted>
 CONFIG_GPIO_TWL4030				y note<boot essential on arm>
