@@ -111,6 +111,9 @@ IS_SAMSUNG_CPU(exynos5800, EXYNOS5800_SOC_ID, EXYNOS5_SOC_MASK)
 #define soc_is_exynos5() (soc_is_exynos5250() || soc_is_exynos5410() || \
 			  soc_is_exynos5420() || soc_is_exynos5800())
 
+extern u32 cp15_save_diag;
+extern u32 cp15_save_power;
+
 void mct_init(void __iomem *base, int irq_g0, int irq_l0, int irq_l1);
 
 struct map_desc;
@@ -138,6 +141,7 @@ static inline void exynos_pm_init(void) {}
 #endif
 
 extern void exynos_cpu_resume(void);
+extern void exynos_cpu_resume_ns(void);
 
 extern struct smp_operations exynos_smp_ops;
 
