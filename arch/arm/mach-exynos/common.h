@@ -113,6 +113,7 @@ IS_SAMSUNG_CPU(exynos5800, EXYNOS5800_SOC_ID, EXYNOS5_SOC_MASK)
 
 extern u32 cp15_save_diag;
 extern u32 cp15_save_power;
+extern unsigned long l2x0_regs_phys;
 
 void mct_init(void __iomem *base, int irq_g0, int irq_l0, int irq_l1);
 
