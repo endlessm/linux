@@ -2821,7 +2821,6 @@ rtc-pcap
 rtc-pcf2123
 rtc-pcf2127
 rtc-pcf50633
-rtc-pcf8523
 rtc-pcf8563
 rtc-pcf8583
 rtc-pl030
