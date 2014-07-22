@@ -150,7 +150,7 @@ e_free:
 		pr_err("h_get_24x7_catalog_page(ver=%lld, page=%lld) failed:"
 		       " rc=%ld\n",
 		       catalog_version_num, page_offset, hret);
-	kfree(page);
+	kmem_cache_free(hv_page_cache, page);
 
 	pr_devel("catalog_read: offset=%lld(%lld) count=%zu "
 			"catalog_len=%zu(%zu) => %zd\n", offset, page_offset,
