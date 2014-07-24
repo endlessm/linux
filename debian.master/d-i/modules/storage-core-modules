@@ -1,0 +1,10 @@
+# Core stacks
+usb-storage ?
+
+# Block level
+
+# Loop modules
+cryptoloop ?
+
+# Needs to be here for better cdrom initrd layout
+isofs ?
