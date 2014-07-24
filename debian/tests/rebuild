@@ -1,1 +1,3 @@
-#!/bin/true
+#!/bin/sh
+set -e
+dpkg-buildpackage -rfakeroot -us -uc -b
