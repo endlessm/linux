@@ -43,14 +43,13 @@ ifeq ($(do_doc_package_content),true)
 		install -d $(docdir)/$(doc_pkg_name)-tmp; \
 		$(kmake) O=$(docdir)/$(doc_pkg_name)-tmp htmldocs; \
 		install -d $(docdir)/html; \
-		rsync -aL $(docdir)/$(doc_pkg_name)-tmp/Documentation/DocBook/ \
+		rsync -aL $(docdir)/$(doc_pkg_name)-tmp/Documentation/output/ \
 			$(docdir)/html/; \
 		rm -rf $(docdir)/$(doc_pkg_name)-tmp; \
 	fi
 endif
 	# Copy the rest
 	cp -a Documentation/* $(docdir)
-	rm -rf $(docdir)/DocBook
 	find $(docdir) -name .gitignore | xargs rm -f
 endif
 
