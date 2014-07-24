@@ -53,6 +53,7 @@ install-%: bindoc = $(pkgdir)/usr/share/doc/$(bin_pkg_name)-$*
 install-%: dbgpkgdir = $(CURDIR)/debian/$(bin_pkg_name)-$*-dbgsym
 install-%: signed = $(CURDIR)/debian/$(bin_pkg_name)-signed
 install-%: toolspkgdir = $(CURDIR)/debian/$(tools_flavour_pkg_name)-$*
+install-%: cloudpkgdir = $(CURDIR)/debian/$(cloud_flavour_pkg_name)-$*
 install-%: basepkg = $(hdrs_pkg_name)
 install-%: indeppkg = $(indep_hdrs_pkg_name)
 install-%: kernfile = $(call custom_override,kernel_file,$*)
@@ -86,7 +87,6 @@ else
 	chmod 600 $(pkgdir)/boot/$(instfile)-$(abi_release)-$*
 endif
 
-ifeq ($(arch),amd64)
 ifeq ($(uefi_signed),true)
 	install -d $(signed)/$(release)-$(revision)
 	# Check to see if this supports handoff, if not do not sign it.
@@ -96,7 +96,6 @@ ifeq ($(uefi_signed),true)
 		cp -p $(pkgdir)/boot/$(instfile)-$(abi_release)-$* \
 			$(signed)/$(release)-$(revision)/$(instfile)-$(abi_release)-$*.efi; \
 	fi
-endif
 endif
 
 	install -m644 $(builddir)/build-$*/.config \
@@ -119,7 +118,7 @@ ifeq ($(no_dumpfile),)
 	chmod 0600 $(pkgdir)/boot/vmcoreinfo-$(abi_release)-$*
 endif
 
-	$(build_cd) $(kmake) $(build_O) $(conc_level) modules_install \
+	$(build_cd) $(kmake) $(build_O) $(conc_level) modules_install $(vdso) \
 		INSTALL_MOD_STRIP=1 INSTALL_MOD_PATH=$(pkgdir)/ \
 		INSTALL_FW_PATH=$(pkgdir)/lib/firmware/$(abi_release)-$*
 
@@ -213,7 +212,7 @@ ifneq ($(skipdbg),true)
 	# Debug image is simple
 	install -m644 -D $(builddir)/build-$*/vmlinux \
 		$(dbgpkgdir)/usr/lib/debug/boot/vmlinux-$(abi_release)-$*
-	$(build_cd) $(kmake) $(build_O) modules_install \
+	$(build_cd) $(kmake) $(build_O) modules_install $(vdso) \
 		INSTALL_MOD_PATH=$(dbgpkgdir)/usr/lib/debug
 	# Add .gnu_debuglink sections to each stripped .ko
 	# pointing to unstripped verson
@@ -246,8 +245,10 @@ endif
 	# Copy over the compilation version.
 	cp "$(builddir)/build-$*/include/generated/compile.h" \
 		"$(hdrdir)/include/generated/compile.h"
-	# powerpc seems to need some .o files for external module linking. Add them in.
-ifeq ($(arch),powerpc)
+	# Add UTS_UBUNTU_RELEASE_ABI since UTS_RELEASE is difficult to parse.
+	echo "#define UTS_UBUNTU_RELEASE_ABI $(abinum)" >> $(hdrdir)/include/generated/utsrelease.h
+	# powerpc kernel arch seems to need some .o files for external module linking. Add them in.
+ifeq ($(build_arch),powerpc)
 	mkdir -p $(hdrdir)/arch/powerpc/lib
 	cp $(builddir)/build-$*/arch/powerpc/lib/*.o $(hdrdir)/arch/powerpc/lib
 endif
@@ -296,9 +297,29 @@ endif
 		$(pkgdir)/lib/modules/$(abi_release)-$*
 	rmdir $(pkgdir)/lib/modules/$(abi_release)-$*/_
 
-	# Create the linux-tools version-flavour link
-	install -d $(toolspkgdir)/usr/lib/linux-tools
-	ln -s ../$(src_pkg_name)-tools-$(abi_release) $(toolspkgdir)/usr/lib/linux-tools/$(abi_release)-$*
+ifeq ($(do_linux_tools),true)
+	# Create the linux-tools tool links
+	install -d $(toolspkgdir)/usr/lib/linux-tools/$(abi_release)-$*
+ifeq ($(do_tools_cpupower),true)
+	ln -s ../../$(src_pkg_name)-tools-$(abi_release)/cpupower $(toolspkgdir)/usr/lib/linux-tools/$(abi_release)-$*
+endif
+ifeq ($(do_tools_perf),true)
+	ln -s ../../$(src_pkg_name)-tools-$(abi_release)/perf $(toolspkgdir)/usr/lib/linux-tools/$(abi_release)-$*
+endif
+ifeq ($(do_tools_x86),true)
+	ln -s ../../$(src_pkg_name)-tools-$(abi_release)/x86_energy_perf_policy $(toolspkgdir)/usr/lib/linux-tools/$(abi_release)-$*
+	ln -s ../../$(src_pkg_name)-tools-$(abi_release)/turbostat $(toolspkgdir)/usr/lib/linux-tools/$(abi_release)-$*
+endif
+endif
+ifeq ($(do_cloud_tools),true)
+ifeq ($(do_tools_hyperv),true)
+	# Create the linux-hyperv tool links
+	install -d $(cloudpkgdir)/usr/lib/linux-tools/$(abi_release)-$*
+	ln -s ../../$(src_pkg_name)-tools-$(abi_release)/hv_kvp_daemon $(cloudpkgdir)/usr/lib/linux-tools/$(abi_release)-$*
+	ln -s ../../$(src_pkg_name)-tools-$(abi_release)/hv_vss_daemon $(cloudpkgdir)/usr/lib/linux-tools/$(abi_release)-$*
+	ln -s ../../$(src_pkg_name)-tools-$(abi_release)/hv_fcopy_daemon $(cloudpkgdir)/usr/lib/linux-tools/$(abi_release)-$*
+endif
+endif
 
 headers_tmp := $(CURDIR)/debian/tmp-headers
 headers_dir := $(CURDIR)/debian/linux-libc-dev
@@ -358,6 +379,7 @@ binary-%: pkghdr = $(hdrs_pkg_name)-$*
 binary-%: dbgpkg = $(bin_pkg_name)-$*-dbgsym
 binary-%: dbgpkgdir = $(CURDIR)/debian/$(bin_pkg_name)-$*-dbgsym
 binary-%: pkgtools = $(tools_flavour_pkg_name)-$*
+binary-%: pkgcloud = $(cloud_flavour_pkg_name)-$*
 binary-%: target_flavour = $*
 binary-%: install-%
 	@echo Debug: $@
@@ -445,7 +467,7 @@ ifneq ($(skipdbg),true)
 	# into the debug system.
 endif
 
-ifeq ($(do_tools),true)
+ifeq ($(do_linux_tools),true)
 	dh_installchangelogs -p$(pkgtools)
 	dh_installdocs -p$(pkgtools)
 	dh_compress -p$(pkgtools)
@@ -455,6 +477,17 @@ ifeq ($(do_tools),true)
 	$(lockme) dh_gencontrol -p$(pkgtools)
 	dh_md5sums -p$(pkgtools)
 	dh_builddeb -p$(pkgtools)
+endif
+ifeq ($(do_cloud_tools),true)
+	dh_installchangelogs -p$(pkgcloud)
+	dh_installdocs -p$(pkgcloud)
+	dh_compress -p$(pkgcloud)
+	dh_fixperms -p$(pkgcloud)
+	dh_shlibdeps -p$(pkgcloud)
+	dh_installdeb -p$(pkgcloud)
+	$(lockme) dh_gencontrol -p$(pkgcloud)
+	dh_md5sums -p$(pkgcloud)
+	dh_builddeb -p$(pkgcloud)
 endif
 
 ifneq ($(full_build),false)
@@ -471,7 +504,7 @@ builddirpa = $(builddir)/tools-perarch
 
 $(stampdir)/stamp-prepare-perarch:
 	@echo Debug: $@
-ifeq ($(do_tools),true)
+ifeq ($(do_any_tools),true)
 	rm -rf $(builddirpa)
 	install -d $(builddirpa)
 	for i in *; do ln -s $(CURDIR)/$$i $(builddirpa); done
@@ -480,17 +513,17 @@ ifeq ($(do_tools),true)
 endif
 	touch $@
 
-$(stampdir)/stamp-build-perarch: $(stampdir)/stamp-prepare-perarch
+$(stampdir)/stamp-build-perarch: $(stampdir)/stamp-prepare-perarch install-arch-headers
 	@echo Debug: $@
-ifeq ($(do_tools),true)
-
+ifeq ($(do_linux_tools),true)
+ifeq ($(do_tools_cpupower),true)
 	# Allow for multiple installed versions of cpupower and libcpupower.so:
 	# Override LIB_MIN in order to to generate a versioned .so named
 	# libcpupower.so.$(abi_release) and link cpupower with that.
 	make -C $(builddirpa)/tools/power/cpupower \
 		CROSS_COMPILE=$(CROSS_COMPILE) \
 		LIB_MIN=$(abi_release) CPUFREQ_BENCH=false
-
+endif
 ifeq ($(do_tools_perf),true)
 	cd $(builddirpa)/tools/perf && \
 		make prefix=/usr HAVE_CPLUS_DEMANGLE=1 CROSS_COMPILE=$(CROSS_COMPILE) NO_LIBPYTHON=1 NO_LIBPERL=1 PYTHON=python2.7
@@ -499,27 +532,31 @@ ifeq ($(do_tools_x86),true)
 	cd $(builddirpa)/tools/power/x86/x86_energy_perf_policy && make CROSS_COMPILE=$(CROSS_COMPILE)
 	cd $(builddirpa)/tools/power/x86/turbostat && make CROSS_COMPILE=$(CROSS_COMPILE)
 endif
+endif
+ifeq ($(do_cloud_tools),true)
 ifeq ($(do_tools_hyperv),true)
-	cd $(builddirpa)/tools/hv && make CROSS_COMPILE=$(CROSS_COMPILE)
+	cd $(builddirpa)/tools/hv && make CFLAGS="-I$(headers_dir)/usr/include -I$(headers_dir)/usr/include/$(DEB_HOST_MULTIARCH)" CROSS_COMPILE=$(CROSS_COMPILE) hv_kvp_daemon hv_vss_daemon hv_fcopy_daemon
 endif
 endif
 	@touch $@
 
 install-perarch: toolspkgdir = $(CURDIR)/debian/$(tools_pkg_name)
+install-perarch: cloudpkgdir = $(CURDIR)/debian/$(cloud_pkg_name)
 install-perarch: $(stampdir)/stamp-build-perarch
 	@echo Debug: $@
 	# Add the tools.
-ifeq ($(do_tools),true)
+ifeq ($(do_linux_tools),true)
 	install -d $(toolspkgdir)/usr/lib
 	install -d $(toolspkgdir)/usr/lib/$(src_pkg_name)-tools-$(abi_release)
 
+ifeq ($(do_tools_cpupower),true)
 	install -m755 $(builddirpa)/tools/power/cpupower/cpupower \
 		$(toolspkgdir)/usr/lib/$(src_pkg_name)-tools-$(abi_release)
 	# Install only the full versioned libcpupower.so.$(abi_release), not
 	# the usual symlinks to it.
 	install -m644 $(builddirpa)/tools/power/cpupower/libcpupower.so.$(abi_release) \
 		$(toolspkgdir)/usr/lib/
-
+endif
 ifeq ($(do_tools_perf),true)
 	install -m755 $(builddirpa)/tools/perf/perf $(toolspkgdir)/usr/lib/$(src_pkg_name)-tools-$(abi_release)
 endif
@@ -529,18 +566,25 @@ ifeq ($(do_tools_x86),true)
 	install -m755 $(builddirpa)/tools/power/x86/turbostat/turbostat \
 		$(toolspkgdir)/usr/lib/$(src_pkg_name)-tools-$(abi_release)
 endif
+endif
+ifeq ($(do_cloud_tools),true)
 ifeq ($(do_tools_hyperv),true)
+	install -d $(cloudpkgdir)/usr/lib
+	install -d $(cloudpkgdir)/usr/lib/$(src_pkg_name)-tools-$(abi_release)
 	install -m755 $(builddirpa)/tools/hv/hv_kvp_daemon \
-		$(toolspkgdir)/usr/lib/$(src_pkg_name)-tools-$(abi_release)
+		$(cloudpkgdir)/usr/lib/$(src_pkg_name)-tools-$(abi_release)
 	install -m755 $(builddirpa)/tools/hv/hv_vss_daemon \
-		$(toolspkgdir)/usr/lib/$(src_pkg_name)-tools-$(abi_release)
+		$(cloudpkgdir)/usr/lib/$(src_pkg_name)-tools-$(abi_release)
+	install -m755 $(builddirpa)/tools/hv/hv_fcopy_daemon \
+		$(cloudpkgdir)/usr/lib/$(src_pkg_name)-tools-$(abi_release)
 endif
 endif
 
 binary-perarch: toolspkg = $(tools_pkg_name)
+binary-perarch: cloudpkg = $(cloud_pkg_name)
 binary-perarch: install-perarch
 	@echo Debug: $@
-ifeq ($(do_tools),true)
+ifeq ($(do_linux_tools),true)
 	dh_strip -p$(toolspkg)
 	dh_installchangelogs -p$(toolspkg)
 	dh_installdocs -p$(toolspkg)
@@ -552,19 +596,29 @@ ifeq ($(do_tools),true)
 	dh_md5sums -p$(toolspkg)
 	dh_builddeb -p$(toolspkg)
 endif
+ifeq ($(do_cloud_tools),true)
+	dh_strip -p$(cloudpkg)
+	dh_installchangelogs -p$(cloudpkg)
+	dh_installdocs -p$(cloudpkg)
+	dh_compress -p$(cloudpkg)
+	dh_fixperms -p$(cloudpkg)
+	dh_shlibdeps -p$(cloudpkg)
+	dh_installdeb -p$(cloudpkg)
+	$(lockme) dh_gencontrol -p$(cloudpkg)
+	dh_md5sums -p$(cloudpkg)
+	dh_builddeb -p$(cloudpkg)
+endif
 
 binary-debs: signed = $(CURDIR)/debian/$(bin_pkg_name)-signed
 binary-debs: signedv = $(CURDIR)/debian/$(bin_pkg_name)-signed/$(release)-$(revision)
 binary-debs: signed_tar = $(src_pkg_name)_$(release)-$(revision)_$(arch).tar.gz
 binary-debs: binary-perarch $(addprefix binary-,$(flavours))
 	@echo Debug: $@
-ifeq ($(arch),amd64)
 ifeq ($(uefi_signed),true)
 	echo $(release)-$(revision) > $(signedv)/version
 	cd $(signedv) && ls *.efi >flavours
 	cd $(signed) && tar czvf ../../../$(signed_tar) .
 	dpkg-distaddfile $(signed_tar) raw-uefi -
-endif
 endif
 
 build-arch-deps-$(do_flavour_image_package) += $(addprefix $(stampdir)/stamp-build-,$(flavours))

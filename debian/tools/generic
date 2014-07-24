@@ -16,14 +16,45 @@ if [ -f "$this" ]; then
 	exec "$this" "$@"
 fi
 
-# Give them a hint as to what to install.
-echo "`basename $0` not found for kernel $version" >&2
-if dpkg --compare-versions "$full_version" lt "3.11.0"; then
+# Before saucy kernels we had no flavour linkage.
+if dpkg --compare-versions "$version" lt "3.11.0"; then
 	flavour=''
 else
 	flavour="-$flavour"
 fi
-echo "You may need to install linux-tools-$version$flavour for this kernel." >&2
-echo "You may also wish to install linux-tools$flavour or" >&2
-echo "linux-image$flavour-lts-<series> to keep up to date." >&2
+# Hint at the cloud tools if they exist (trusty and later)
+if dpkg --compare-versions "$version" ge "3.13.0"; then
+	cld=""
+else
+	cld=":"
+fi
+# Work out if this is an LTS backport or not.
+codename=`lsb_release -cs`
+case "$codename" in
+precise)	base='3.2.0-9999' ;;
+trusty)		base='3.13.0-9999' ;;
+*)		base='' ;;
+esac
+std=""
+lts=":"
+if [ "$base" != "" ]; then
+	if dpkg --compare-versions "$version" gt "$base"; then
+		std=":"
+		lts=""
+	fi
+fi
+
+# Give them a hint as to what to install.
+		echo "WARNING: `basename $0` not found for kernel $version" >&2
+		echo "" >&2
+		echo "  You may need to install the following packages for this specific kernel:" >&2
+		echo "    linux-tools-$version$flavour" >&2
+$cld		echo "    linux-cloud-tools-$version$flavour" >&2
+		echo "" >&2
+		echo "  You may also want to install one of the following packages to keep up to date:" >&2
+$std		echo "    linux-tools$flavour" >&2
+$std $cld	echo "    linux-cloud-tools$flavour" >&2
+$lts		echo "    linux-tools$flavour-lts-<series>" >&2
+$lts $cld	echo "    linux-cloud-tools$flavour-lts-<series>" >&2
+
 exit 2
