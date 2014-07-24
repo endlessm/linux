@@ -1,0 +1,14 @@
+pata-modules
+firewire-core-modules
+plip-modules
+usb-modules
+pcmcia-storage-modules
+input-modules
+nic-pcmcia-modules
+pcmcia-modules
+nic-usb-modules
+nfs-modules
+speakup-modules
+ppp-modules
+sata-modules
+ipmi-modules
