@@ -46,7 +46,7 @@ for arch in $archs; do
 
 	# Map debian archs to kernel archs
 	case "$arch" in
-		ppc64)		kernarch="powerpc"	;;
+		ppc64|ppc64el)	kernarch="powerpc"	;;
 		amd64)		kernarch="x86_64"	;;
 		lpia)		kernarch="x86" 		;;
 		sparc)		kernarch="sparc64"	;;
