@@ -127,6 +127,7 @@ ifeq ($(do_tools_common),true)
 	install -m755 debian/tools/generic $(cloudsbin)/hv_kvp_daemon
 	install -m755 debian/tools/generic $(cloudsbin)/hv_vss_daemon
 	install -m755 debian/tools/generic $(cloudsbin)/hv_fcopy_daemon
+	install -m755 debian/tools/generic $(cloudsbin)/lsvmbus
 	install -m755 debian/cloud-tools/hv_get_dhcp_info $(cloudsbin)
 	install -m755 debian/cloud-tools/hv_get_dns_info $(cloudsbin)
 	install -m755 debian/cloud-tools/hv_set_ifconfig $(cloudsbin)

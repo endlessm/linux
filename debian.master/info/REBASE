@@ -1,0 +1,47 @@
+Could not apply b551f2a4439d2179b3732c2a28277d9245dbb150... NEEDED UBUNTU: SAUCE: xgmac_mdio: Silence read errors
+	commit 1fcf77c87ad659a92e1dcfb883388cb43baeaab6
+
+Could not apply 7cc84cf61b760725973c93b9c7e39d6f521bfe62... NEEDED Revert "net/mlx4_en: Fix bad use of dev_id"
+	commit ca9f9f703950e5cb300526549b4f1b0a6605a5c5
+
+error: could not apply ff7e372... overlay: add backwards compatible overlayfs format support
+Could not apply 3fd5011f880877a583b1ccefd06ad481452cdef7... NEEDED overlay: add backwards compatible overlayfs format support (fixes)
+	XXX: needed
+
+Could not apply 98c64db6cffd59a894d4a4492aea761fa6e6c51a... NEEDED UBUNTU: SAUCE: (no-up) apparmor: Sync to apparmor3 - RC1 snapshot
+Could not apply 892b8b7cfb14b9bdfbc9ac2fee8e751a67707542... NEEDED UBUNTU: SAUCE: Revert: fix: only allow a single threaded process to ...
+Could not apply e1b6a4b88bdb9cf858e068d0e3a6b7449d648513... NEEDED UBUNTU: SAUCE: (no-up) fix: bad unix_addr_fs macro
+Could not apply 9defa41f9126d026cd6a1ead03e6443e98e97108... NEEDED UBUNTU: apparmor -- follow change to this_cpu_ptr
+Could not apply 36ca906c4d4cf34bb5a750d1dbd3e4abe36a4684... NEEDED UBUNTU: SAUCE: (no-up): apparmor: fix mediation of fs unix sockets
+	XXX: needed (apparmor)
+	PORTED AND REAPPLIED
+
+Could not apply 4594c0a5b120fc92fb141c1cf9eef3e8d665e4e6... NEEDED UBUNTU: SAUCE: storvsc: force SPC-3 compliance on win8 and win8 r2 hosts
+	commit b0a93d96b2814c725161f91a4e35d0c29ec0f95b
+
+Could not apply d8db9694361b258427eab1846b211be332c4a1f9... NEEDED UBUNTU: SAUCE: efi: Expose underlying UEFI firmware platform size to userland
+	commit 2859dff97e54db4795b8b7d9606cb8efcec722ff
+
+Could not apply fe8ce4f67a26106dab3193b3515fe865e136ab4a... NEEDED UBUNTU: SAUCE: arm64 -- psci tell the compiler which registers we are needing values in
+	commit f5e0a12ca2d939e47995f73428d9bf1ad372b289
+
+Could not apply e9f926b44c895d39152d3f816ce9ff37780f77cb... NEEDED xen: correct bug in p2m list initialization
+	commit b8f05c8803fce899d79ca66f8d7f348cf15fb40e
+
+Could not apply 7ec323466d993094545e140cc44559cb1cccbd14... NEEDED tpm/ibmvtpm: Additional LE support for tpm_ibmvtpm_send
+	commit 62dfd912ab3b5405b6fe72d0135c37e9648071f1
+
+Could not apply 6b610659f8b313644c0012a511c6381e9fe7d881... NEEDED net/mlx4_core: Maintain a persistent memory for mlx4 device
+	commit 872bf2fb69d90e3619befee842fc26db39d8e475
+
+Could not apply 7e9a6608ca11948dd0996b6db99e498ca043a0cd... NEEDED tools/power turbostat: support additional Broadwell model
+	commit 48a0631c891ab581cc010b44655ad49ff6eb3325
+
+Could not apply 9a9ab8a2348c722405964a0c785c4b2a613d8782... NEEDED KVM: Add generic support for dirty page logging
+	commit ba0513b5b8ffbcb0cc89e2f172c0bcb70497ba2e
+
+Could not apply 9a9ab8a2348c722405964a0c785c4b2a613d8782... NEEDED KVM: Add generic support for dirty page logging
+	commit 3b0f1d01e501792d8d89ab4371bc9e8cd2a10032
+
+Could not apply 0335b4283d02dcd6e7d6b54e175801099873852e... NEEDED KVM: VMX: Add PML support in VMX
+	commit 843e4330573cc5261ae260ce0b83dc570d8cdc05

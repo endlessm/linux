@@ -1,4 +1,11 @@
-This is the list of patches/features which have been temporarily
-reverted or disabled for Q:
+UBUNTU: SAUCE: (no-up) dell-wmi: Demote unknown WMI event message to pr_debug
+UBUNTU: SAUCE: (no-up) arm64: dts: Add X-Gene reboot driver dts node
+UBUNTU: SAUCE: (no-up) Add documentation for generic SYSCON reboot driver.
+UBUNTU: SAUCE: fix perf_regs definitions for arm64
+UBUNTU: SAUCE: aufs3 -- (no-up) aufs3-mmap.patch
+Revert "UBUNTU: SAUCE: aufs3 -- (no-up) aufs3-mmap.patch"
+UBUNTU: SAUCE: aufs3 -- (no-up) aufs3-mmap.patch
+UBUNTU: SAUCE: aufs3 -- avoid aufs3-mmap.patch include hell for arm64
+UBUNTU: SAUCE: (no-up) irqchip:gic: change access of gicc_ctrl register to read modify write.
+UBUNTU: SAUCE: (no-up) PCI: Increase BAR size quirk for IBM ipr SAS Crocodile adapters
 
-UBUNTU: SAUCE: AppArmor: basic networking rules
