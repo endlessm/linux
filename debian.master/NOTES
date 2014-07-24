@@ -1,0 +1,4 @@
+eSCO patch removed. Replaced upstream with a disable_esco module parm.
+airprime: Module gone, use option driver instead
+AppArmor: Patch is all there and ported. Ooops when enabled, so default
+	off (still can be enabled apparmor=1)

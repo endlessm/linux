@@ -1,0 +1,7 @@
+efi-modules
+fb-modules
+acpi-modules
+serial-modules
+nic-pcmcia-modules
+pcmcia-modules
+pcmcia-storage-modules
