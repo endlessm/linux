@@ -1,4 +1,14 @@
-This is the list of patches/features which have been temporarily
-reverted or disabled for Q:
+UBUNTU: SAUCE: (no-up) Sony laptop: Some Sony Vaia laptops do not enable wwan power by default.
+UBUNTU: SAUCE: (no-up) vfs: Add a trace point in the mark_inode_dirty function
+UBUNTU: SAUCE: (no-up) tools/hv: add basic Makefile
+UBUNTU: SAUCE: hv: Add vss daemon to Makefile
+UBUNTU: SAUCE: powerpc/powernv: Add calls to support little endian
+UBUNTU: ubuntu: aufs3 -- (no-up) aufs3-mmap.patch
+UBUNTU: SAUCE: fsl_qbman: Add drivers for Freescale DPAA Qman & Bman
+UBUNTU: SAUCE: fsl_pme2: Add support for DPAA PME
+UBUNTU: SAUCE: fmd: FMD14 integration
+UBUNTU: SAUCE: net: Add support for handling queueing in hardware
+UBUNTU: SAUCE: net/flow: remove sleeping and deferral mechanism from flow_cache_flush
+UBUNTU: SAUCE: dpaa_eth: Ethernet driver for Freescale QorIQ DPA Architecture
+UBUNTU: SAUCE: fix fmd headers
 
-UBUNTU: SAUCE: AppArmor: basic networking rules
