@@ -1,4 +1,8 @@
-This is the list of patches/features which have been temporarily
-reverted or disabled for Q:
-
-UBUNTU: SAUCE: AppArmor: basic networking rules
+UBUNTU: SAUCE: Clear Linux: xor: skip benchmark/allocations for short-circuit path
+UBUNTU: SAUCE: Ibmvscsis: Code cleanup of print statements
+Revert "[SCSI] libiscsi: Reduce locking contention in fast path"
+UBUNTU: SAUCE: i2c: i801: Add support for Kaby Lake PCH-H
+UBUNTU: SAUCE: AUFS aufs4.x-rcN 20160912
+UBUNTU: SAUCE: suspicious unlocked ->status reading and writing in ipc/sem.c
+UBUNTU: SAUCE: (noup) ptrace: being capable wrt a process requires mapped uids/gids
+UBUNTU: SAUCE: Clear Linux: kvm: silence kvm unhandled rdmsr
