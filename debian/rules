@@ -35,14 +35,13 @@ include $(DROOT)/rules.d/1-maintainer.mk
 
 do_linux_tools=$(sort $(filter-out false,$(do_tools_usbip) $(do_tools_cpupower) $(do_tools_perf) $(do_tools_x86)))
 do_cloud_tools=$(sort $(filter-out false,$(do_tools_hyperv)))
-do_tools_common=true
+do_tools_common?=true
 
 # Don't build tools or udebs in a cross compile environment.
 ifneq ($(DEB_HOST_ARCH),$(DEB_BUILD_ARCH))
 	do_tools=false
 	disable_d_i=true
 	do_zfs=false
-	do_zfs_disable:=$(shell cat $(DROOT)/zfs-modules.ignore >>$(prev_abidir)/../modules.ignore)
 endif
 
 # Stages -- support both DEB_STAGE=stage1 and DEB_BUILD_PROFILE=bootstrap
@@ -66,6 +65,9 @@ ifeq ($(do_mainline_build),true)
 	do_tools=false
 	no_dumpfile=1
 	do_zfs=false
+	skipabi=true
+	skipmodule=true
+	skipretpoline=true
 endif
 
 # Disable tools build and packaging if do_tools != true
@@ -75,13 +77,18 @@ ifneq ($(do_tools),true)
 	do_tools_common=
 endif
 
+ifeq ($(do_zfs),false)
+	do_zfs_disable:=$(shell cat $(DROOT)/zfs-modules.ignore >>$(prev_abidir)/../modules.ignore)
+endif
+
 # Either tools package needs the common source preparation
 do_any_tools=$(sort $(filter-out false,$(do_linux_tools) $(do_cloud_tools)))
 
 # autopkgtest -- rebuild support
 #  only build the first flavour on the assumption it is representative
-ifeq ($(DEB_BUILD_PROFILE),autopkgtest)
+ifneq ($(filter autopkgtest,$(DEB_BUILD_PROFILES)),)
 flavours := $(firstword $(flavours))
+disable_d_i=true
 endif
 
 # Debian Build System targets
