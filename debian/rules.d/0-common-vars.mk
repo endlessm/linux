@@ -15,6 +15,12 @@ prev_revision := $(word $(words $(prev_revisions)),$(prev_revisions))
 
 prev_fullver ?= $(shell dpkg-parsechangelog -l$(DEBIAN)/changelog -o1 -c1 | sed -ne 's/^Version: *//p')
 
+# Get upstream version info
+upstream_version := $(shell sed -n 's/^VERSION = \(.*\)$$/\1/p' Makefile)
+upstream_patchlevel := $(shell sed -n 's/^PATCHLEVEL = \(.*\)$$/\1/p' Makefile)
+upstream_extraversion := $(shell sed -n 's/^EXTRAVERSION = \(.*\)$$/\1/p' Makefile)
+upstream_tag := "v$(upstream_version).$(upstream_patchlevel)$(upstream_extraversion)"
+
 family=ubuntu
 
 # This is an internally used mechanism for the daily kernel builds. It
@@ -30,6 +36,7 @@ AUTOBUILD=
 ifneq ($(AUTOBUILD),)
 skipabi		= true
 skipmodule	= true
+skipretpoline	= true
 skipdbg		= true
 gitver=$(shell if test -f .git/HEAD; then cat .git/HEAD; else uuidgen; fi)
 gitverpre=$(shell echo $(gitver) | cut -b -3)
@@ -226,7 +233,7 @@ kmake = make ARCH=$(build_arch) \
 	LOCALVERSION= localver-extra= \
 	CFLAGS_MODULE="-DPKG_ABI=$(abinum)"
 ifneq ($(LOCAL_ENV_CC),)
-kmake += CC=$(LOCAL_ENV_CC) DISTCC_HOSTS=$(LOCAL_ENV_DISTCC_HOSTS)
+kmake += CC="$(LOCAL_ENV_CC)" DISTCC_HOSTS="$(LOCAL_ENV_DISTCC_HOSTS)"
 endif
 
 # Locking is required in parallel builds to prevent loss of contents
