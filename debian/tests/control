@@ -1,3 +1,3 @@
 Tests: rebuild
-Depends: build-essential
-Restrictions: build-needed
+Depends: @builddeps@, fakeroot
+Restrictions: allow-stderr
