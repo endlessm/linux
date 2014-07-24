@@ -171,6 +171,9 @@ endif
 tools_pkg_name=$(src_pkg_name)-tools-$(abi_release)
 tools_common_pkg_name=$(src_pkg_name)-tools-common
 tools_flavour_pkg_name=linux-tools-$(abi_release)
+cloud_pkg_name=$(src_pkg_name)-cloud-tools-$(abi_release)
+cloud_common_pkg_name=$(src_pkg_name)-cloud-tools-common
+cloud_flavour_pkg_name=linux-cloud-tools-$(abi_release)
 
 # The general flavour specific image package.
 do_flavour_image_package=true
