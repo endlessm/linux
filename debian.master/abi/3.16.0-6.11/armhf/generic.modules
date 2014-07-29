@@ -1089,6 +1089,7 @@ gpio_wdt
 gpio-wm831x
 gpio-wm8350
 gpio-wm8994
+gpmi_nand
 g_printer
 grcan
 gre
@@ -1419,6 +1420,7 @@ imxfb
 imx-hdmi
 imx-ipu-v3
 imx-ipuv3-crtc
+imx_keypad
 imx-ldb
 imx-sdma
 imx_thermal

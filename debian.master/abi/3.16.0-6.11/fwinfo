@@ -173,7 +173,7 @@ firmware:       digiface_firmware.bin
 firmware:       digiface_firmware_rev11.bin
 firmware:       dvb-cx18-mpc718-mt352.fw
 firmware:       dvb-demod-m88ds3103.fw
-firmware:       dvb-demod-si2168-01.fw
+firmware:       dvb-demod-si2168-02.fw
 firmware:       dvb-fe-af9013.fw
 firmware:       dvb-fe-cx24117.fw
 firmware:       dvb-fe-drxj-mc-1.0.8.fw
