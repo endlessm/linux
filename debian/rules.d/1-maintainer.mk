@@ -97,7 +97,7 @@ printenv:
 
 printchanges:
 	@baseCommit=$$(git log --pretty=format:'%H %s' | \
-		gawk '/UBUNTU: '".*Ubuntu-$(prev_fullver)"'$$/ { print $$1; exit }'); \
+		gawk '/UBUNTU: '".*Ubuntu-`echo $(prev_fullver) | sed 's/+/\\\\+/'`"'$$/ { print $$1; exit }'); \
 		git log "$$baseCommit"..HEAD | \
 		perl -w -f $(DROOT)/scripts/misc/git-ubuntu-log $(ubuntu_log_opts)
 
