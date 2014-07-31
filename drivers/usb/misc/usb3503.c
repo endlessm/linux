@@ -88,7 +88,6 @@ static int usb3503_connect(struct usb3503 *hub)
 
 	usb3503_reset(hub, 1);
 
-#if 0
 	if (hub->regmap) {
 		/* SP_ILOCK: set connect_n, config_n for config */
 		err = regmap_write(hub->regmap, USB3503_SP_ILOCK,
@@ -128,7 +127,6 @@ static int usb3503_connect(struct usb3503 *hub)
 			return err;
 		}
 	}
-#endif
 
 	if (gpio_is_valid(hub->gpio_connect))
 		gpio_set_value_cansleep(hub->gpio_connect, 1);
@@ -201,8 +199,6 @@ static int usb3503_probe(struct usb3503 *hub)
 
 		if (!IS_ERR(clk)) {
 			u32 rate = 0;
-			unsigned long clkrate;
-
 			hub->clk = clk;
 
 			if (!of_property_read_u32(np, "refclk-frequency",
