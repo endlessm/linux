@@ -2464,6 +2464,7 @@ void mmc_rescan(struct work_struct *work)
 
 	if (!(host->caps & MMC_CAP_NONREMOVABLE) && host->ops->get_cd &&
 			host->ops->get_cd(host) == 0) {
+pr_info("get_cd returned 0\n");
 		mmc_claim_host(host);
 		mmc_power_off(host);
 		mmc_release_host(host);

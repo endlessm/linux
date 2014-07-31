@@ -140,7 +140,8 @@
 		pinctrl-names = "default";
 		vmmc-supply = <&ldo4_reg &ldo21_reg>;
 		cd-gpios = <&gpk2 2 0>;
-		cd-inverted;
+		/* #cd-inverted; */
+		/* broken-cd; */
 		status = "okay";
 	};
 
@@ -439,10 +440,10 @@
 		status = "okay";
 	};
 
-	hdmi_ddc: i2c@13880000 {
+	hdmi_ddc: i2c@138D0000 {
 		status = "okay";
 		pinctrl-names = "default";
-		pinctrl-0 = <&i2c2_bus>;
+		pinctrl-0 = <&i2c7_bus>;
 	};
 
 	i2c@138E0000 {
