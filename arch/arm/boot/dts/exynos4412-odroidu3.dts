@@ -36,6 +36,8 @@
 &usb3503 {
 	clock-names = "refclk";
 	clocks = <&pmu_system_controller 0>;
+	assigned-clocks = <&pmu_system_controller 0>;
+	assigned-clock-parents = <&clock CLK_XUSBXTI>;
 	refclk-frequency = <24000000>;
 };
 
