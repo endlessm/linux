@@ -181,6 +181,7 @@ static int usb3503_probe(struct usb3503 *hub)
 	u32 mode = USB3503_MODE_HUB;
 	const u32 *property;
 	int len;
+	int eth_gpio = 0;
 
 	if (pdata) {
 		hub->port_off_mask	= pdata->port_off_mask;
@@ -264,6 +265,8 @@ static int usb3503_probe(struct usb3503 *hub)
 			return -EPROBE_DEFER;
 		of_property_read_u32(np, "initial-mode", &mode);
 		hub->mode = mode;
+
+		eth_gpio = of_get_named_gpio(np, "ethernet-gpios", 0);
 	}
 
 	if (hub->port_off_mask && !hub->regmap)
@@ -303,6 +306,9 @@ static int usb3503_probe(struct usb3503 *hub)
 			return err;
 		}
 	}
+
+	pr_info("set eth gpio out low %d\n", eth_gpio);
+	err = devm_gpio_request_one(dev, eth_gpio, GPIOF_OUT_INIT_LOW, "usb ethernet init");
 
 	usb3503_switch_mode(hub, hub->mode);
 
