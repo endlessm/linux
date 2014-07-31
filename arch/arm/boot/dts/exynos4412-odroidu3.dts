@@ -40,6 +40,9 @@
 };
 
 &ehci {
+	port@0 {
+		status = "okay";
+	};
 	port@1 {
 		status = "okay";
 	};
