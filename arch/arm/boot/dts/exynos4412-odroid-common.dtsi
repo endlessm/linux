@@ -22,9 +22,9 @@
 		pinctrl-0 = <&gpio_power_key>;
 
 		power_key {
-			interrupt-parent = <&gpx1>;
+			interrupt-parent = <&gpx0>;
 			interrupts = <3 0>;
-			gpios = <&gpx1 3 1>;
+			gpios = <&gpx0 3 1>;
 			linux,code = <KEY_POWER>;
 			label = "power key";
 			debounce-interval = <10>;
@@ -499,7 +499,7 @@
 
 &pinctrl_1 {
 	gpio_power_key: power_key {
-		samsung,pins = "gpx1-3";
+		samsung,pins = "gpx0-3";
 		samsung,pin-pud = <0>;
 	};
 };
