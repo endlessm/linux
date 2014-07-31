@@ -188,6 +188,7 @@
 			compatible = "smsc,usb3503";
 			reg = <0x08>;
 
+			ethernet-gpios = <&gpl2 5 0>;
 			intn-gpios = <&gpx3 0 0>;
 			connect-gpios = <&gpx3 4 0>;
 			reset-gpios = <&gpx3 5 0>;
