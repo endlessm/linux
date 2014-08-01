@@ -68,7 +68,6 @@
 	mmc@12550000 {
 		pinctrl-0 = <&sd4_clk &sd4_cmd &sd4_bus4 &sd4_bus8>;
 		pinctrl-names = "default";
-		vmmc-supply = <&ldo20_reg &buck8_reg>;
 		status = "okay";
 
 		num-slots = <1>;
@@ -138,7 +137,6 @@
 		bus-width = <4>;
 		pinctrl-0 = <&sd2_clk &sd2_cmd &sd2_cd &sd2_bus4>;
 		pinctrl-names = "default";
-		vmmc-supply = <&ldo4_reg &ldo21_reg>;
 		cd-gpios = <&gpk2 2 0>;
 		/* #cd-inverted; */
 		/* broken-cd; */
@@ -217,26 +215,11 @@
 					regulator-always-on;
 				};
 
-				ldo2_reg: LDO2 {
-					regulator-name = "VDDQ_M1_2_1.8V";
-					regulator-min-microvolt = <1800000>;
-					regulator-max-microvolt = <1800000>;
-					regulator-always-on;
-				};
-
 				ldo3_reg: LDO3 {
 					regulator-name = "VDDQ_EXT_1.8V";
 					regulator-min-microvolt = <1800000>;
 					regulator-max-microvolt = <1800000>;
 					regulator-always-on;
-				};
-
-				ldo4_reg: LDO4 {
-					regulator-name = "VDDQ_MMC2_2.8V";
-					regulator-min-microvolt = <2800000>;
-					regulator-max-microvolt = <2800000>;
-					regulator-always-on;
-					regulator-boot-on;
 				};
 
 				ldo5_reg: LDO5 {
@@ -283,6 +266,7 @@
 				};
 
 				ldo12_reg: LDO12 {
+					/* USB OTG port in host mode, RTC, USB hub */
 					regulator-name = "VDD33_USB_3.3V";
 					regulator-min-microvolt = <3300000>;
 					regulator-max-microvolt = <3300000>;
@@ -322,25 +306,46 @@
 					regulator-boot-on;
 				};
 
+				ldo17_reg: LDO17 { /* FIXME for audio: hook up as regulator? currently turned on by uboot */
+					regulator-name = "LDO17_AUDIO_1.8V";
+					regulator-min-microvolt = <1800000>;
+					regulator-max-microvolt = <1800000>;
+					regulator-always-on;
+				};
+
+				ldo18_reg: LDO18 { /* FIXME for audio: hook up as regulator? currently turned on by uboot */
+					regulator-name = "LDO18_AUDIO_1.2V";
+					regulator-min-microvolt = <1200000>;
+					regulator-max-microvolt = <1200000>;
+					regulator-always-on;
+				};
+
 				ldo20_reg: LDO20 {
 					regulator-name = "LDO20_1.8V";
 					regulator-min-microvolt = <1800000>;
 					regulator-max-microvolt = <1800000>;
+					regulator-always-on; /* fundamental SoC power */
 					regulator-boot-on;
 				};
 
-				ldo21_reg: LDO21 {
-					regulator-name = "LDO21_3.3V";
+				ldo23_reg: LDO23 { /* FIXME wifi/BT power: hook up as regulator */
+					regulator-name = "LDO23";
 					regulator-min-microvolt = <3300000>;
 					regulator-max-microvolt = <3300000>;
 					regulator-always-on;
-					regulator-boot-on;
+				};
+
+				ldo24_reg: LDO24 { /* FIXME ethernet power: hook up as regulator */
+					regulator-name = "LDO24";
+					regulator-min-microvolt = <3300000>;
+					regulator-max-microvolt = <3300000>;
+					regulator-always-on;
 				};
 
 				ldo25_reg: LDO25 {
-					regulator-name = "VDDQ_LCD_1.8V";
-					regulator-min-microvolt = <1800000>;
-					regulator-max-microvolt = <1800000>;
+					regulator-name = "VDDQ_VGA_HDMI_3.3V";
+					regulator-min-microvolt = <3300000>;
+					regulator-max-microvolt = <3300000>;
 					regulator-always-on;
 					regulator-boot-on;
 				};
@@ -376,14 +381,6 @@
 					regulator-microvolt-offset = <50000>;
 				};
 
-				buck5_reg: BUCK5 {
-					regulator-name = "VDDQ_CKEM1_2_1.2V";
-					regulator-min-microvolt = <1200000>;
-					regulator-max-microvolt = <1200000>;
-					regulator-always-on;
-					regulator-boot-on;
-				};
-
 				buck6_reg: BUCK6 {
 					regulator-name = "BUCK6_1.35V";
 					regulator-min-microvolt = <1350000>;
@@ -400,9 +397,10 @@
 				};
 
 				buck8_reg: BUCK8 {
-					regulator-name = "BUCK8_2.8V";
-					regulator-min-microvolt = <2800000>;
-					regulator-max-microvolt = <2800000>;
+					regulator-name = "BUCK8_2.85V";
+					regulator-min-microvolt = <2850000>;
+					regulator-max-microvolt = <2850000>;
+					regulator-always-on; /* Might be used for eMMC in hardware rework. Remove this otherwise. */
 				};
 			};
 		};
