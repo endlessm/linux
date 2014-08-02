@@ -13,6 +13,7 @@
 #include <drm/drmP.h>
 #include <drm/drm_crtc_helper.h>
 #include <drm/drm_panel.h>
+#include <drm/drm_edid.h>
 
 #include <linux/regulator/consumer.h>
 
@@ -23,7 +24,7 @@
 
 struct exynos_dpi {
 	struct device *dev;
-	struct device_node *panel_node;
+	struct i2c_adapter *ddc_adpt;
 
 	struct drm_panel *panel;
 	struct drm_connector connector;
@@ -52,6 +53,13 @@ static void exynos_dpi_connector_destroy(struct drm_connector *connector)
 	drm_connector_cleanup(connector);
 }
 
+static int exynos_drm_connector_mode_valid(struct drm_connector *connector,
+					    struct drm_display_mode *mode)
+{
+	return MODE_OK;
+}
+
+
 static struct drm_connector_funcs exynos_dpi_connector_funcs = {
 	.dpms = drm_helper_connector_dpms,
 	.detect = exynos_dpi_detect,
@@ -62,26 +70,22 @@ static struct drm_connector_funcs exynos_dpi_connector_funcs = {
 static int exynos_dpi_get_modes(struct drm_connector *connector)
 {
 	struct exynos_dpi *ctx = connector_to_dpi(connector);
+	struct edid *edid;
 
-	/* fimd timings gets precedence over panel modes */
-	if (ctx->vm) {
-		struct drm_display_mode *mode;
+pr_info("exynos_dpi_get_modes!!\n");
+	if (!ctx->ddc_adpt)
+		return -ENODEV;
 
-		mode = drm_mode_create(connector->dev);
-		if (!mode) {
-			DRM_ERROR("failed to create a new display mode\n");
-			return 0;
-		}
-		drm_display_mode_from_videomode(ctx->vm, mode);
-		mode->type = DRM_MODE_TYPE_DRIVER | DRM_MODE_TYPE_PREFERRED;
-		drm_mode_probed_add(connector, mode);
-		return 1;
-	}
+	edid = drm_get_edid(connector, ctx->ddc_adpt);
+	if (!edid)
+		return -ENODEV;
 
-	if (ctx->panel)
-		return ctx->panel->funcs->get_modes(ctx->panel);
+	pr_info("VGA monitor : width[%d] x height[%d]\n",
+		edid->width_cm, edid->height_cm);
 
-	return 0;
+	drm_mode_connector_update_edid_property(connector, edid);
+
+	return drm_add_edid_modes(connector, edid);
 }
 
 static struct drm_encoder *
@@ -94,6 +98,7 @@ exynos_dpi_best_encoder(struct drm_connector *connector)
 
 static struct drm_connector_helper_funcs exynos_dpi_connector_helper_funcs = {
 	.get_modes = exynos_dpi_get_modes,
+	.mode_valid	= exynos_drm_connector_mode_valid,
 	.best_encoder = exynos_dpi_best_encoder,
 };
 
@@ -258,10 +263,21 @@ static int exynos_dpi_parse_dt(struct exynos_dpi *ctx)
 {
 	struct device *dev = ctx->dev;
 	struct device_node *dn = dev->of_node;
-	struct device_node *np;
+	struct device_node *ddc_node;
 
-	ctx->panel_node = exynos_dpi_of_find_panel_node(dev);
+	ddc_node = of_parse_phandle(dn, "ddc", 0);
+	if (!ddc_node) {
+		pr_err("Failed to find ddc\n");
+		return -ENODEV;
+	}
 
+	ctx->ddc_adpt = of_find_i2c_adapter_by_node(ddc_node);
+	if (!ctx->ddc_adpt) {
+		DRM_ERROR("Failed to get ddc i2c adapter by node\n");
+		return -EPROBE_DEFER;
+	}
+
+#if 0
 	np = of_get_child_by_name(dn, "display-timings");
 	if (np) {
 		struct videomode *vm;
@@ -286,6 +302,7 @@ static int exynos_dpi_parse_dt(struct exynos_dpi *ctx)
 
 	if (!ctx->panel_node)
 		return -EINVAL;
+#endif
 
 	return 0;
 }
@@ -294,6 +311,7 @@ struct exynos_drm_display *exynos_dpi_probe(struct device *dev)
 {
 	struct exynos_dpi *ctx;
 	int ret;
+pr_info("!!! dpi probe\n");
 
 	ret = exynos_drm_component_add(dev,
 					EXYNOS_DEVICE_TYPE_CONNECTOR,
@@ -311,10 +329,12 @@ struct exynos_drm_display *exynos_dpi_probe(struct device *dev)
 
 	ret = exynos_dpi_parse_dt(ctx);
 	if (ret < 0) {
+pr_info("!!! dpi dt parse failed\n");
 		devm_kfree(dev, ctx);
 		goto err_del_component;
 	}
 
+#if 0
 	if (ctx->panel_node) {
 		ctx->panel = of_drm_find_panel(ctx->panel_node);
 		if (!ctx->panel) {
@@ -323,7 +343,9 @@ struct exynos_drm_display *exynos_dpi_probe(struct device *dev)
 			return ERR_PTR(-EPROBE_DEFER);
 		}
 	}
+#endif
 
+pr_info("!!! dpi probe ok\n");
 	return &exynos_dpi_display;
 
 err_del_component:

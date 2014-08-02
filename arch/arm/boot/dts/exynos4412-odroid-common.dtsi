@@ -432,6 +432,15 @@
 		status = "okay";
 	};
 
+	fimd@11c00000 {
+		status = "disabled"; /* until have HPD.. */
+		ddc = <&vga_ddc>;
+
+		/* Vendor uboot sets fimd0 clock source from MPLL */
+		assigned-clocks = <&clock CLK_MOUT_FIMD0>;
+		assigned-clock-parents = <&clock CLK_MOUT_MPLL_USER_T>;
+	};
+
 	mixer: mixer@12C10000 {
 		status = "okay";
 	};
@@ -445,6 +454,12 @@
 		vdd_pll-supply = <&ldo8_reg>;
 		ddc = <&hdmi_ddc>;
 		status = "okay";
+	};
+
+	vga_ddc: i2c@138C0000 {
+		status = "okay";
+		pinctrl-names = "default";
+		pinctrl-0 = <&i2c6_bus>;
 	};
 
 	hdmi_ddc: i2c@138D0000 {
