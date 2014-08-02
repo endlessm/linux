@@ -236,6 +236,7 @@
 #define CLK_ACLK400_MCUISP	395 /* Exynos4x12 only */
 #define CLK_MOUT_HDMI		396
 #define CLK_MOUT_MIXER		397
+#define CLK_MOUT_FIMD0		398
 
 /* gate clocks - ppmu */
 #define CLK_PPMULEFT		400

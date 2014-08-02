@@ -13,8 +13,12 @@
 #include <drm/drmP.h>
 #include <drm/drm_crtc_helper.h>
 #include <drm/drm_panel.h>
+#include <drm/drm_edid.h>
 
 #include <linux/regulator/consumer.h>
+#include <linux/regmap.h>
+#include <linux/mfd/syscon.h>
+#include <linux/clk.h>
 
 #include <video/of_videomode.h>
 #include <video/videomode.h>
@@ -23,7 +27,8 @@
 
 struct exynos_dpi {
 	struct device *dev;
-	struct device_node *panel_node;
+	struct i2c_adapter *ddc_adpt;
+	struct clk *vclk;
 
 	struct drm_panel *panel;
 	struct drm_connector connector;
@@ -43,7 +48,10 @@ exynos_dpi_detect(struct drm_connector *connector, bool force)
 	if (ctx->panel && !ctx->panel->connector)
 		drm_panel_attach(ctx->panel, &ctx->connector);
 
-	return connector_status_connected;
+	if (ctx->ddc_adpt && drm_probe_ddc(ctx->ddc_adpt))
+		return connector_status_connected;
+
+	return connector_status_disconnected;
 }
 
 static void exynos_dpi_connector_destroy(struct drm_connector *connector)
@@ -51,6 +59,56 @@ static void exynos_dpi_connector_destroy(struct drm_connector *connector)
 	drm_connector_unregister(connector);
 	drm_connector_cleanup(connector);
 }
+
+static int exynos_drm_connector_mode_valid(struct drm_connector *connector,
+					    struct drm_display_mode *mode)
+{
+	struct exynos_dpi *ctx = connector_to_dpi(connector);
+	unsigned long ideal_clk = mode->clock * 1000;
+	int vsync_len, vbpd, vfpd, hsync_len, hbpd, hfpd;
+
+	/* For a display mode to be supported, the parameters must fit in the
+	 * register widths of the FIMD hardware, and we must be able to produce
+	 * an accurate pixel clock.
+	 *
+	 * Note that 1 is subtracted from many of these parameters before they
+	 * are submitted to the hardware.
+	 */
+
+	if (mode->hdisplay > 2048 || mode->vdisplay > 2048) {
+		DRM_DEBUG_KMS("%dx%d VGA unsupported: resolution out of range\n",
+			mode->hdisplay, mode->hdisplay);
+		return MODE_BAD;
+	}
+
+	vsync_len = mode->vsync_end - mode->vsync_start;
+	vbpd = mode->vtotal - mode->vsync_end;
+	vfpd = mode->vsync_start - mode->vdisplay;
+	hsync_len = mode->hsync_end - mode->hsync_start;
+	hbpd = mode->htotal - mode->hsync_end;
+	hfpd = mode->hsync_start - mode->hdisplay;
+
+	if (vsync_len > 256 || vbpd > 256 || vfpd > 256) {
+		DRM_DEBUG_KMS("%dx%d VGA unsupported: V params out of range (%d,%d,%d)\n",
+			mode->hdisplay, mode->vdisplay, vsync_len, vbpd, vfpd);
+		return MODE_BAD;
+	}
+
+	if (hsync_len > 256 || hbpd > 256 || hfpd > 256) {
+		DRM_DEBUG_KMS("%dx%d VGA unsupported: H params out of range (%d,%d,%d)\n",
+			mode->hdisplay, mode->vdisplay, hsync_len, hbpd, hfpd);
+		return MODE_BAD;
+	}
+
+	if (clk_round_rate(ctx->vclk, ideal_clk) != ideal_clk) {
+		DRM_DEBUG_KMS("%dx%d VGA unsupported: Requires pixel clock %ld\n",
+			mode->hdisplay, mode->vdisplay, ideal_clk);
+		return MODE_BAD;
+	}
+
+	return MODE_OK;
+}
+
 
 static struct drm_connector_funcs exynos_dpi_connector_funcs = {
 	.dpms = drm_helper_connector_dpms,
@@ -62,26 +120,21 @@ static struct drm_connector_funcs exynos_dpi_connector_funcs = {
 static int exynos_dpi_get_modes(struct drm_connector *connector)
 {
 	struct exynos_dpi *ctx = connector_to_dpi(connector);
+	struct edid *edid;
 
-	/* fimd timings gets precedence over panel modes */
-	if (ctx->vm) {
-		struct drm_display_mode *mode;
+	if (!ctx->ddc_adpt)
+		return -ENODEV;
 
-		mode = drm_mode_create(connector->dev);
-		if (!mode) {
-			DRM_ERROR("failed to create a new display mode\n");
-			return 0;
-		}
-		drm_display_mode_from_videomode(ctx->vm, mode);
-		mode->type = DRM_MODE_TYPE_DRIVER | DRM_MODE_TYPE_PREFERRED;
-		drm_mode_probed_add(connector, mode);
-		return 1;
-	}
+	edid = drm_get_edid(connector, ctx->ddc_adpt);
+	if (!edid)
+		return -ENODEV;
 
-	if (ctx->panel)
-		return ctx->panel->funcs->get_modes(ctx->panel);
+	DRM_DEBUG_KMS("VGA monitor : width[%d] x height[%d]\n",
+		edid->width_cm, edid->height_cm);
 
-	return 0;
+	drm_mode_connector_update_edid_property(connector, edid);
+
+	return drm_add_edid_modes(connector, edid);
 }
 
 static struct drm_encoder *
@@ -94,6 +147,7 @@ exynos_dpi_best_encoder(struct drm_connector *connector)
 
 static struct drm_connector_helper_funcs exynos_dpi_connector_helper_funcs = {
 	.get_modes = exynos_dpi_get_modes,
+	.mode_valid	= exynos_drm_connector_mode_valid,
 	.best_encoder = exynos_dpi_best_encoder,
 };
 
@@ -106,7 +160,7 @@ static int exynos_dpi_create_connector(struct exynos_drm_display *display,
 
 	ctx->encoder = encoder;
 
-	connector->polled = DRM_CONNECTOR_POLL_HPD;
+	connector->polled = DRM_CONNECTOR_POLL_CONNECT | DRM_CONNECTOR_POLL_DISCONNECT;
 
 	ret = drm_connector_init(encoder->dev, connector,
 				 &exynos_dpi_connector_funcs,
@@ -116,6 +170,7 @@ static int exynos_dpi_create_connector(struct exynos_drm_display *display,
 		return ret;
 	}
 
+	connector->status = exynos_dpi_detect(connector, true);
 	drm_connector_helper_add(connector, &exynos_dpi_connector_helper_funcs);
 	drm_connector_register(connector);
 	drm_mode_connector_attach_encoder(connector, encoder);
@@ -262,10 +317,21 @@ static int exynos_dpi_parse_dt(struct exynos_dpi *ctx)
 {
 	struct device *dev = ctx->dev;
 	struct device_node *dn = dev->of_node;
-	struct device_node *np;
+	struct device_node *ddc_node;
 
-	ctx->panel_node = exynos_dpi_of_find_panel_node(dev);
+	ddc_node = of_parse_phandle(dn, "ddc", 0);
+	if (!ddc_node) {
+		pr_err("Failed to find ddc\n");
+		return -ENODEV;
+	}
 
+	ctx->ddc_adpt = of_find_i2c_adapter_by_node(ddc_node);
+	if (!ctx->ddc_adpt) {
+		DRM_ERROR("Failed to get ddc i2c adapter by node\n");
+		return -EPROBE_DEFER;
+	}
+
+#if 0
 	np = of_get_child_by_name(dn, "display-timings");
 	if (np) {
 		struct videomode *vm;
@@ -290,12 +356,14 @@ static int exynos_dpi_parse_dt(struct exynos_dpi *ctx)
 
 	if (!ctx->panel_node)
 		return -EINVAL;
+#endif
 
 	return 0;
 }
 
 struct exynos_drm_display *exynos_dpi_probe(struct device *dev)
 {
+	struct regmap *sysreg;
 	struct exynos_dpi *ctx;
 	int ret;
 
@@ -313,12 +381,29 @@ struct exynos_drm_display *exynos_dpi_probe(struct device *dev)
 	exynos_dpi_display.ctx = ctx;
 	ctx->dpms_mode = DRM_MODE_DPMS_OFF;
 
+	ctx->vclk = devm_clk_get(dev, "vclk");
+	if (IS_ERR(ctx->vclk)) {
+		dev_err(dev, "failed to get video clock\n");
+		ret = PTR_ERR(ctx->vclk);
+		goto err_del_component;
+	}
+
 	ret = exynos_dpi_parse_dt(ctx);
 	if (ret < 0) {
 		devm_kfree(dev, ctx);
 		goto err_del_component;
 	}
 
+	sysreg = syscon_regmap_lookup_by_phandle(dev->of_node, "samsung,sysreg");
+	if (IS_ERR(sysreg)) {
+		dev_err(dev, "syscon regmap lookup failed.\n");
+		goto err_del_component;
+	}
+	/* Set output to bypass image enhacement units and go to screen.
+	 * Without this, there is no VGA output. */
+	regmap_write(sysreg, 0x210, 0x3);
+
+#if 0
 	if (ctx->panel_node) {
 		ctx->panel = of_drm_find_panel(ctx->panel_node);
 		if (!ctx->panel) {
@@ -327,6 +412,7 @@ struct exynos_drm_display *exynos_dpi_probe(struct device *dev)
 			return ERR_PTR(-EPROBE_DEFER);
 		}
 	}
+#endif
 
 	return &exynos_dpi_display;
 
