@@ -441,6 +441,15 @@
 		status = "okay";
 	};
 
+	fimd@11c00000 {
+		status = "disabled"; /* until have HPD.. */
+		ddc = <&vga_ddc>;
+
+		/* Vendor uboot sets fimd0 clock source from MPLL */
+		assigned-clocks = <&clock CLK_MOUT_FIMD0>;
+		assigned-clock-parents = <&clock CLK_MOUT_MPLL_USER_T>;
+	};
+
 	mixer: mixer@12C10000 {
 		status = "okay";
 	};
@@ -467,6 +476,13 @@
 		status = "okay";
 		pinctrl-names = "default";
 		pinctrl-0 = <&i2c7_bus>;
+		samsung,i2c-sda-delay = <100>;
+	};
+
+	vga_ddc: i2c@138C0000 {
+		status = "okay";
+		pinctrl-names = "default";
+		pinctrl-0 = <&i2c6_bus>;
 		samsung,i2c-sda-delay = <100>;
 	};
 
