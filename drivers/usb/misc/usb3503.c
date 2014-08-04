@@ -88,7 +88,7 @@ static int usb3503_connect(struct usb3503 *hub)
 
 	usb3503_reset(hub, 1);
 
-	if (hub->regmap) {
+	if (0 && hub->regmap) {
 		/* SP_ILOCK: set connect_n, config_n for config */
 		err = regmap_write(hub->regmap, USB3503_SP_ILOCK,
 			   (USB3503_SPILOCK_CONNECT
