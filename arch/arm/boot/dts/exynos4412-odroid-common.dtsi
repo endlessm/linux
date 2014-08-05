@@ -447,7 +447,7 @@
 		max98090: max98090@10 {
 			compatible = "maxim,max98090";
 			reg = <0x10>;
-			interrupt-parent = <&gpx0>;
+			interrupt-parent = <&gpx1>;
 			interrupts = <0 0>;
 		};
 	};
