@@ -2080,6 +2080,7 @@ static irqreturn_t max98090_interrupt(int irq, void *data)
 	int ret;
 	unsigned int mask;
 	unsigned int active;
+	unsigned int jackstat;
 
 	dev_dbg(codec->dev, "***** max98090_interrupt *****\n");
 
@@ -2101,12 +2102,22 @@ static irqreturn_t max98090_interrupt(int irq, void *data)
 		return IRQ_NONE;
 	}
 
-	dev_dbg(codec->dev, "active=0x%02x mask=0x%02x -> active=0x%02x\n",
-		active, mask, active & mask);
+	ret = regmap_read(max98090->regmap, M98090_REG_JACK_STATUS, &jackstat);
+
+	if (ret != 0) {
+		dev_err(codec->dev,
+			"failed to read M98090_REG_JACK_STATUS: %d\n",
+			ret);
+		return IRQ_NONE;
+	}
+
+
+	dev_dbg(codec->dev, "active=0x%02x mask=0x%02x -> active=0x%02x, jstat=%x\n",
+		active, mask, active & mask, jackstat);
 
 	active &= mask;
 
-	if (!active)
+	if (0 && !active)
 		return IRQ_NONE;
 
 	if (active & M98090_CLD_MASK)
@@ -2118,7 +2129,7 @@ static irqreturn_t max98090_interrupt(int irq, void *data)
 	if (active & M98090_ULK_MASK)
 		dev_err(codec->dev, "M98090_ULK_MASK\n");
 
-	if (active & M98090_JDET_MASK) {
+	if (1 || active & M98090_JDET_MASK) {
 		dev_dbg(codec->dev, "M98090_JDET_MASK\n");
 
 		pm_wakeup_event(codec->dev, 100);
@@ -2279,7 +2290,12 @@ static int max98090_probe(struct snd_soc_codec *codec)
 
 	/* Enable jack detection */
 	snd_soc_write(codec, M98090_REG_JACK_DETECT,
-		M98090_JDETEN_MASK | M98090_JDEB_25MS);
+		M98090_JDETEN_MASK | M98090_JDEB_200MS);
+
+	snd_soc_update_bits(codec, M98090_REG_INTERRUPT_S,
+		M98090_IJDET_MASK,
+		1 << M98090_IJDET_SHIFT);
+
 
 	/* Register for interrupts */
 	dev_dbg(codec->dev, "irq = %d\n", max98090->irq);
