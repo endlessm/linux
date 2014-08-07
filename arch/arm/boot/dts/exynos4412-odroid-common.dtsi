@@ -443,6 +443,7 @@
 		status = "okay";
 		pinctrl-names = "default";
 		pinctrl-0 = <&i2c2_bus>;
+		samsung,i2c-sda-delay = <100>;
 	};
 
 	i2c@138E0000 {
