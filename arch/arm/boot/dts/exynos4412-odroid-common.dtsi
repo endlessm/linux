@@ -498,12 +498,14 @@
 		status = "okay";
 		pinctrl-names = "default";
 		pinctrl-0 = <&i2c6_bus>;
+		samsung,i2c-sda-delay = <100>;
 	};
 
 	hdmi_ddc: i2c@138D0000 {
 		status = "okay";
 		pinctrl-names = "default";
 		pinctrl-0 = <&i2c7_bus>;
+		samsung,i2c-sda-delay = <100>;
 	};
 
 	i2c@138E0000 {
