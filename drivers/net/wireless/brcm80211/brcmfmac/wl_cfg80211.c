@@ -5207,6 +5207,7 @@ static s32 brcmf_construct_reginfo(struct brcmf_cfg80211_info *cfg,
 	bool update;
 	u32 array_size;
 
+msleep(5000); /* FIXME still needed? */
 	pbuf = kzalloc(BRCMF_DCMD_MEDLEN, GFP_KERNEL);
 
 	if (pbuf == NULL)
