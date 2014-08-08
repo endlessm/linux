@@ -16,6 +16,22 @@
 		reg = <0x0204F000 0x1000>;
 	};
 
+	pwm@139D0000 {
+		status = "okay";
+	};
+
+	pwmleds {
+		compatible = "pwm-leds";
+		pinctrl-names = "default";
+		pinctrl-0 = <&pwm0_out>;
+
+		front {
+			label = "white";
+			max-brightness = <500>;
+			pwms = <&pwm0 0 300000 0>;
+		};
+	};
+
 	gpio_keys {
 		compatible = "gpio-keys";
 		pinctrl-names = "default";
