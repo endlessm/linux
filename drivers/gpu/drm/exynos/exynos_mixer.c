@@ -1189,6 +1189,12 @@ int mixer_check_mode(struct drm_display_mode *mode)
 	if (w == 1440 && h == 576 && mode->flags & DRM_MODE_FLAG_INTERLACE)
 		return -EINVAL;
 
+	/* Tested on Hanns.G HSG1049, can't apply the timing workaround because
+	 * at 223 pixel offset the whole image jumps to be massively truncated
+	 * on the left side. */
+	if (w == 1440 && h == 900)
+		return -EINVAL;
+
 	return 0;
 }
 
