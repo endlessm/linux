@@ -41,14 +41,21 @@
 	refclk-frequency = <24000000>;
 };
 
+&ohci {
+	/* USB OTG port running as host mode, for USB 1.x device support */
+ 	port@0 {
+ 		status = "okay";
+ 	};
+};
+
 &ehci {
-	port@0 {
+	port@0 { /* USB OTG port running as host */
 		status = "okay";
 	};
-	port@1 {
+	port@1 { /* HSIC1 */
 		status = "okay";
 	};
-	port@2 {
+	port@2 { /* HSIC2 */
 		status = "okay";
 	};
 };

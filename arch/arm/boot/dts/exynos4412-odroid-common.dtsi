@@ -462,6 +462,10 @@
 		vusb_a-supply = <&ldo12_reg>;
 	};
 
+	ohci: ohci@12590000 {
+		status = "okay";
+	};
+
 	ehci: ehci@12580000 {
 		status = "okay";
 	};
