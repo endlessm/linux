@@ -151,7 +151,7 @@
 #define BRCMF_SDALIGN	(1 << 6)
 
 /* watchdog polling interval in ms */
-#define BRCMF_WD_POLL_MS	10
+#define BRCMF_WD_POLL_MS	20
 
 struct brcmf_sdreg {
 	int func;

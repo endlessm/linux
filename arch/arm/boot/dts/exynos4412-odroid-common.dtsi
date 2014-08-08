@@ -159,6 +159,17 @@
 		status = "okay";
 	};
 
+	sdhci@12540000 { /* wifi/BT */
+		bus-width = <4>;
+		pinctrl-0 = <&sd3_clk &sd3_cmd &sd3_cd &sd3_bus4>;
+		pinctrl-names = "default";
+		non-removable;
+		broken-cd;
+		status = "okay";
+		wlan-gpio = <&gpl2 4 0>; /* FIXME for reset */
+		bt-gpio = <&gpl2 2 0>; /* FIXME for reset */
+	};
+
 	serial@13800000 {
 		status = "okay";
 	};
@@ -342,6 +353,13 @@
 					regulator-max-microvolt = <1800000>;
 					regulator-always-on; /* fundamental SoC power */
 					regulator-boot-on;
+				};
+
+				ldo21_reg: LDO21 { /* FIXME wifi/BT power: hook up as regulator */
+					regulator-name = "LDO21";
+					regulator-min-microvolt = <3300000>;
+					regulator-max-microvolt = <3300000>;
+					regulator-always-on;
 				};
 
 				ldo23_reg: LDO23 { /* FIXME wifi/BT power: hook up as regulator */

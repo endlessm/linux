@@ -999,6 +999,7 @@ bool brcmf_chip_sr_capable(struct brcmf_chip *pub)
 	struct brcmf_chip_priv *chip;
 
 	brcmf_dbg(TRACE, "Enter\n");
+	return false; /* FIXME is this more stable now? */
 
 	/* old chips with PMU version less than 17 don't support save restore */
 	if (pub->pmurev < 17)
