@@ -153,9 +153,7 @@
 		bus-width = <4>;
 		pinctrl-0 = <&sd2_clk &sd2_cmd &sd2_cd &sd2_bus4>;
 		pinctrl-names = "default";
-		cd-gpios = <&gpk2 2 0>;
-		/* #cd-inverted; */
-		/* broken-cd; */
+		cd-gpios = <&gpk2 2 1>;
 		status = "okay";
 	};
 
