@@ -306,7 +306,7 @@ struct rte_console {
 #define BRCMF_IDLE_ACTIVE	0	/* Do not request any SD clock change
 					 * when idle
 					 */
-#define BRCMF_IDLE_INTERVAL	1
+#define BRCMF_IDLE_INTERVAL	20
 
 #define KSO_WAIT_US 50
 #define MAX_KSO_ATTEMPTS (PMU_MAX_TRANSITION_DLY/KSO_WAIT_US)
@@ -1010,7 +1010,7 @@ brcmf_sdio_bus_sleep(struct brcmf_sdio *bus, bool sleep, bool pendok)
 end:
 	/* control clocks */
 	if (sleep) {
-		if (!bus->sr_enabled)
+		if (0 && !bus->sr_enabled) /* FIXME is this more stable now? */
 			brcmf_sdio_clkctl(bus, CLK_NONE, pendok);
 	} else {
 		brcmf_sdio_clkctl(bus, CLK_AVAIL, pendok);
