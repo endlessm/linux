@@ -11,7 +11,7 @@ fi
 
 ver=$1
 revision=$2
-abi=$(echo $revision | gawk -F. '{print $1}')
+abi=$(echo $revision | sed -r -e 's/([^\+]*)\.[^\.]+(\+.*)?$/\1/')
 
 verabi=$ver-$abi
 verfull=$ver-$revision
