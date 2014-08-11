@@ -1,0 +1,572 @@
+/*
+ * Endless Mobile Sqwerty device tree source
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License version 2 as
+ * published by the Free Software Foundation.
+*/
+
+/dts-v1/;
+#include <dt-bindings/input/input.h>
+#include "exynos4412.dtsi"
+
+/ {
+	model = "Endless Mobile Sqwerty";
+	compatible = "endlessm,sqwerty", "samsung,exynos4412", "samsung,exynos4";
+
+	memory {
+		reg = <0x40000000 0x7FF00000>;
+	};
+
+	firmware@0204F000 {
+		compatible = "samsung,secure-firmware";
+		reg = <0x0204F000 0x1000>;
+	};
+
+	gpio_keys {
+		compatible = "gpio-keys";
+		pinctrl-names = "default";
+		pinctrl-0 = <&gpio_power_key>;
+
+		power_key {
+			interrupt-parent = <&gpx0>;
+			interrupts = <3 0>;
+			gpios = <&gpx0 3 1>;
+			linux,code = <KEY_POWER>;
+			label = "power key";
+			debounce-interval = <10>;
+			gpio-key,wakeup;
+		};
+	};
+
+	i2s0: i2s@03830000 {
+		pinctrl-0 = <&i2s0_bus>;
+		pinctrl-names = "default";
+		status = "okay";
+		clocks = <&clock_audss EXYNOS_I2S_BUS>,
+			 <&clock_audss EXYNOS_DOUT_AUD_BUS>;
+		clock-names = "iis", "i2s_opclk0";
+	};
+
+	clock: clock-controller@10030000 {
+		assigned-clocks = <&clock CLK_FOUT_EPLL>;
+		assigned-clock-rates = <192000000>;
+	};
+
+	sound: sound {
+		compatible = "samsung,odroidx2-audio";
+		samsung,i2s-controller = <&i2s0>;
+		samsung,audio-codec = <&max98090>;
+
+		assigned-clocks = <&clock_audss EXYNOS_MOUT_AUDSS>,
+				<&clock_audss EXYNOS_MOUT_I2S>,
+				<&clock_audss EXYNOS_DOUT_SRP>,
+				<&clock_audss EXYNOS_DOUT_AUD_BUS>;
+
+		assigned-clock-parents = <&clock CLK_FOUT_EPLL>,
+				<&clock_audss EXYNOS_MOUT_AUDSS>;
+
+		assigned-clock-rates = <0>,
+				<0>,
+				<192000000>,
+				<19200000>;
+	};
+
+	mmc@12550000 {
+		pinctrl-0 = <&sd4_clk &sd4_cmd &sd4_bus4 &sd4_bus8>;
+		pinctrl-names = "default";
+		status = "okay";
+
+		num-slots = <1>;
+		supports-highspeed;
+		broken-cd;
+		card-detect-delay = <200>;
+		samsung,dw-mshc-ciu-div = <3>;
+		samsung,dw-mshc-sdr-timing = <2 3>;
+		samsung,dw-mshc-ddr-timing = <1 2>;
+		samsung,dw-mshc-hwreset-gpio = <&gpk1 2 1>;
+
+		slot@0 {
+			reg = <0>;
+			bus-width = <8>;
+		};
+	};
+
+	codec@13400000 {
+		samsung,mfc-r = <0x43000000 0x10000000>;
+		samsung,mfc-l = <0x54000000 0x8000000>;
+		status = "okay";
+	};
+
+	lcd0-power-domain@10023C80 {
+		domain-always-on;
+	};
+
+	tv-power-domain@10023C20 {
+		domain-always-on;
+	};
+
+	watchdog@10060000 {
+		status = "okay";
+	};
+
+	rtc@10070000 {
+		status = "okay";
+	};
+
+	g2d@10800000 {
+		status = "okay";
+	};
+
+	camera {
+		status = "okay";
+		pinctrl-names = "default";
+		pinctrl-0 = <>;
+
+		fimc_0: fimc@11800000 {
+			status = "okay";
+		};
+
+		fimc_1: fimc@11810000 {
+			status = "okay";
+		};
+
+		fimc_2: fimc@11820000 {
+			status = "okay";
+		};
+
+		fimc_3: fimc@11830000 {
+			status = "okay";
+		};
+	};
+
+	sdhci@12530000 {
+		bus-width = <4>;
+		pinctrl-0 = <&sd2_clk &sd2_cmd &sd2_cd &sd2_bus4>;
+		pinctrl-names = "default";
+		cd-gpios = <&gpk2 2 1>;
+		status = "okay";
+	};
+
+	serial@13800000 {
+		status = "okay";
+	};
+
+	serial@13810000 {
+		status = "okay";
+	};
+
+	fixed-rate-clocks {
+		xxti {
+			compatible = "samsung,clock-xxti";
+			clock-frequency = <0>;
+		};
+
+		xusbxti {
+			compatible = "samsung,clock-xusbxti";
+			clock-frequency = <24000000>;
+		};
+	};
+
+	pinctrl@11000000 {
+		max77686_irq: max77686-irq {
+			samsung,pins = "gpx0-4";
+			samsung,pin-function = <0>;
+			samsung,pin-pud = <0>;
+			samsung,pin-drv = <0>;
+		};
+	};
+
+	i2c@13880000 {
+		pinctrl-0 = <&i2c2_bus>;
+		pinctrl-names = "default";
+		samsung,i2c-sda-delay = <100>;
+		samsung,i2c-max-bus-freq = <400000>;
+		status = "okay";
+
+		usb3503: usb3503@08 {
+			compatible = "smsc,usb3503";
+			reg = <0x08>;
+
+			intn-gpios = <&gpx3 0 0>;
+			connect-gpios = <&gpx3 4 0>;
+			reset-gpios = <&gpx3 5 0>;
+			initial-mode = <1>;
+		};
+	};
+
+	i2c@13860000 {
+		pinctrl-0 = <&i2c0_bus>;
+		pinctrl-names = "default";
+		samsung,i2c-sda-delay = <100>;
+		samsung,i2c-max-bus-freq = <400000>;
+		status = "okay";
+
+		max77686: pmic@09 {
+			compatible = "maxim,max77686";
+			interrupt-parent = <&gpx0>;
+			interrupts = <4 0>;
+			pinctrl-names = "default";
+			pinctrl-0 = <&max77686_irq>;
+			reg = <0x09>;
+			#clock-cells = <1>;
+
+			voltage-regulators {
+				ldo1_reg: LDO1 {
+					regulator-name = "VDD_ALIVE_1.0V";
+					regulator-min-microvolt = <1000000>;
+					regulator-max-microvolt = <1000000>;
+					regulator-always-on;
+				};
+
+				ldo3_reg: LDO3 {
+					regulator-name = "VDDQ_EXT_1.8V";
+					regulator-min-microvolt = <1800000>;
+					regulator-max-microvolt = <1800000>;
+					regulator-always-on;
+				};
+
+				ldo5_reg: LDO5 {
+					regulator-name = "VDDQ_MMC1_3_1.8V";
+					regulator-min-microvolt = <1800000>;
+					regulator-max-microvolt = <1800000>;
+					regulator-always-on;
+					regulator-boot-on;
+				};
+
+				ldo6_reg: LDO6 {
+					regulator-name = "VDD10_MPLL_1.0V";
+					regulator-min-microvolt = <1000000>;
+					regulator-max-microvolt = <1000000>;
+					regulator-always-on;
+				};
+
+				ldo7_reg: LDO7 {
+					regulator-name = "VDD10_XPLL_1.0V";
+					regulator-min-microvolt = <1000000>;
+					regulator-max-microvolt = <1000000>;
+					regulator-always-on;
+				};
+
+				ldo8_reg: ldo@8 {
+					regulator-compatible = "LDO8";
+					regulator-name = "VDD10_HDMI_1.0V";
+					regulator-min-microvolt = <1000000>;
+					regulator-max-microvolt = <1000000>;
+				};
+
+				ldo10_reg: ldo@10 {
+					regulator-compatible = "LDO10";
+					regulator-name = "VDDQ_MIPIHSI_1.8V";
+					regulator-min-microvolt = <1800000>;
+					regulator-max-microvolt = <1800000>;
+				};
+
+				ldo11_reg: LDO11 {
+					regulator-name = "VDD18_ABB1_1.8V";
+					regulator-min-microvolt = <1800000>;
+					regulator-max-microvolt = <1800000>;
+					regulator-always-on;
+				};
+
+				ldo12_reg: LDO12 {
+					/* USB OTG port in host mode, RTC, USB hub */
+					regulator-name = "VDD33_USB_3.3V";
+					regulator-min-microvolt = <3300000>;
+					regulator-max-microvolt = <3300000>;
+					regulator-always-on;
+					regulator-boot-on;
+				};
+
+				ldo13_reg: LDO13 {
+					regulator-name = "VDDQ_C2C_W_1.8V";
+					regulator-min-microvolt = <1800000>;
+					regulator-max-microvolt = <1800000>;
+					regulator-always-on;
+					regulator-boot-on;
+				};
+
+				ldo14_reg: LDO14 {
+					regulator-name = "VDD18_ABB0_2_1.8V";
+					regulator-min-microvolt = <1800000>;
+					regulator-max-microvolt = <1800000>;
+					regulator-always-on;
+					regulator-boot-on;
+				};
+
+				ldo15_reg: LDO15 {
+					regulator-name = "VDD10_HSIC_1.0V";
+					regulator-min-microvolt = <1000000>;
+					regulator-max-microvolt = <1000000>;
+					regulator-always-on;
+					regulator-boot-on;
+				};
+
+				ldo16_reg: LDO16 {
+					regulator-name = "VDD18_HSIC_1.8V";
+					regulator-min-microvolt = <1800000>;
+					regulator-max-microvolt = <1800000>;
+					regulator-always-on;
+					regulator-boot-on;
+				};
+
+				ldo17_reg: LDO17 { /* FIXME for audio: hook up as regulator? currently turned on by uboot */
+					regulator-name = "LDO17_AUDIO_1.8V";
+					regulator-min-microvolt = <1800000>;
+					regulator-max-microvolt = <1800000>;
+					regulator-always-on;
+				};
+
+				ldo18_reg: LDO18 { /* FIXME for audio: hook up as regulator? currently turned on by uboot */
+					regulator-name = "LDO18_AUDIO_1.2V";
+					regulator-min-microvolt = <1200000>;
+					regulator-max-microvolt = <1200000>;
+					regulator-always-on;
+				};
+
+				ldo20_reg: LDO20 {
+					regulator-name = "LDO20_1.8V";
+					regulator-min-microvolt = <1800000>;
+					regulator-max-microvolt = <1800000>;
+					regulator-always-on; /* fundamental SoC power */
+					regulator-boot-on;
+				};
+
+				ldo23_reg: LDO23 { /* FIXME wifi/BT power: hook up as regulator */
+					regulator-name = "LDO23";
+					regulator-min-microvolt = <3300000>;
+					regulator-max-microvolt = <3300000>;
+					regulator-always-on;
+				};
+
+				ldo24_reg: LDO24 { /* FIXME ethernet power: hook up as regulator */
+					regulator-name = "LDO24";
+					regulator-min-microvolt = <3300000>;
+					regulator-max-microvolt = <3300000>;
+					regulator-always-on;
+				};
+
+				ldo25_reg: LDO25 {
+					regulator-name = "VDDQ_VGA_HDMI_3.3V";
+					regulator-min-microvolt = <3300000>;
+					regulator-max-microvolt = <3300000>;
+					regulator-always-on;
+					regulator-boot-on;
+				};
+
+				buck1_reg: BUCK1 {
+					regulator-name = "vdd_mif";
+					regulator-min-microvolt = <1000000>;
+					regulator-max-microvolt = <1000000>;
+					regulator-always-on;
+					regulator-boot-on;
+				};
+
+				buck2_reg: BUCK2 {
+					regulator-name = "vdd_arm";
+					regulator-min-microvolt = <900000>;
+					regulator-max-microvolt = <1350000>;
+					regulator-always-on;
+					regulator-boot-on;
+				};
+
+				buck3_reg: BUCK3 {
+					regulator-name = "vdd_int";
+					regulator-min-microvolt = <1000000>;
+					regulator-max-microvolt = <1000000>;
+					regulator-always-on;
+					regulator-boot-on;
+				};
+
+				buck4_reg: BUCK4 {
+					regulator-name = "vdd_g3d";
+					regulator-min-microvolt = <950000>;
+					regulator-max-microvolt = <1150000>;
+					regulator-microvolt-offset = <50000>;
+				};
+
+				buck6_reg: BUCK6 {
+					regulator-name = "BUCK6_1.35V";
+					regulator-min-microvolt = <1350000>;
+					regulator-max-microvolt = <1350000>;
+					regulator-always-on;
+					regulator-boot-on;
+				};
+
+				buck7_reg: BUCK7 {
+					regulator-name = "BUCK7_2.0V";
+					regulator-min-microvolt = <2000000>;
+					regulator-max-microvolt = <2000000>;
+					regulator-always-on;
+				};
+
+				buck8_reg: BUCK8 {
+					regulator-name = "BUCK8_2.85V";
+					regulator-min-microvolt = <2850000>;
+					regulator-max-microvolt = <2850000>;
+					regulator-always-on; /* Might be used for eMMC in hardware rework. Remove this otherwise. */
+				};
+			};
+		};
+	};
+
+	i2c@13870000 {
+		pinctrl-names = "default";
+		pinctrl-0 = <&i2c1_bus>;
+		status = "okay";
+		max98090: max98090@10 {
+			compatible = "maxim,max98090";
+			reg = <0x10>;
+			interrupt-parent = <&gpx1>;
+			interrupts = <0 0>;
+		};
+	};
+
+	exynos-usbphy@125B0000 {
+		status = "okay";
+	};
+
+	hsotg@12480000 {
+		status = "okay";
+		vusb_d-supply = <&ldo15_reg>;
+		vusb_a-supply = <&ldo12_reg>;
+	};
+
+	ehci: ehci@12580000 {
+		status = "okay";
+	};
+
+	ohci: ohci@12590000 {
+		status = "okay";
+	};
+
+	mixer: mixer@12C10000 {
+		status = "okay";
+	};
+
+	hdmi@12D00000 {
+		hpd-gpio = <&gpx3 7 0>;
+		pinctrl-names = "default";
+		pinctrl-0 = <&hdmi_hpd>;
+		vdd-supply = <&ldo8_reg>;
+		vdd_osc-supply = <&ldo10_reg>;
+		vdd_pll-supply = <&ldo8_reg>;
+		ddc = <&hdmi_ddc>;
+		status = "okay";
+	};
+
+	vga_ddc: i2c@138C0000 {
+		status = "okay";
+		pinctrl-names = "default";
+		pinctrl-0 = <&i2c6_bus>;
+		samsung,i2c-sda-delay = <100>;
+	};
+
+	hdmi_ddc: i2c@138D0000 {
+		status = "okay";
+		pinctrl-names = "default";
+		pinctrl-0 = <&i2c7_bus>;
+		samsung,i2c-sda-delay = <100>;
+	};
+
+	i2c@138E0000 {
+		status = "okay";
+	};
+
+	mali@13000000 {
+		compatible = "arm,mali400-mp4";
+		#address-cells = <1>;
+		#size-cells = <1>;
+
+		shared-memory-size = <0x10000000>;
+
+		/* mali dvfs */
+		utilization-interval = <1000>;
+
+		samsung,power-domain = <&pd_g3d>;
+		status = "okay";
+
+		clocks = <&clock CLK_FOUT_VPLL>, <&clock CLK_SCLK_VPLL>, <&clock CLK_MOUT_G3D1>, <&clock CLK_SCLK_G3D>, <&clock CLK_MOUT_G3D>;
+		clock-names = "fout_vpll", "sclk_vpll", "mout_g3d1", "sclk_g3d", "mout_g3d";
+
+		reg = <0x13001000 0x200>, <0x13000000 0x100>, <0x13003000 0x100>,
+			<0x13008000 0x1100>, <0x13004000 0x100>, <0x1300A000 0x1100>,
+			<0x13005000 0x100>, <0x1300C000 0x1100>, <0x13006000 0x100>,
+			<0x1300E000 0x1100>, <0x13007000 0x100>, <0x13012000 0x100>;
+		reg-names = "l2", "gp", "gp_mmu", "pp_0", "pp_mmu_0", "pp_1", "pp_mmu_1",
+			"pp_2", "pp_mmu_2", "pp_3", "pp_mmu_3", "dma";
+
+		interrupts = <0 127 0>, <0 122 0>, <0 123 0>, <0 118 0>, <0 124 0>,
+			<0 119 0>, <0 125 0>, <0 120 0>, <0 126 0>, <0 121 0>;
+		interrupt-names = "gp", "gp_mmu", "pp_0", "pp_mmu_0", "pp_1", "pp_mmu_1",
+			"pp_2", "pp_mmu_2", "pp_3", "pp_mmu_3";
+
+	};
+};
+
+&pinctrl_1 {
+	hdmi_hpd: hdmi-hpd {
+		samsung,pins = "gpx3-7";
+		samsung,pin-pud = <1>;
+	};
+
+	gpio_power_key: power_key {
+		samsung,pins = "gpx0-3";
+		samsung,pin-pud = <0>;
+	};
+};
+
+&usb3503 {
+	clock-names = "refclk";
+
+	/* Set parent clock XUSBXTI, running at 24MHz. */
+	clocks = <&pmu_system_controller 0>;
+	refclk-frequency = <24000000>;
+	assigned-clocks = <&pmu_system_controller 0>;
+	assigned-clock-parents = <&clock CLK_XUSBXTI>;
+};
+
+&ohci {
+	/* USB OTG port running as host mode, for USB 1.x device support */
+	port@0 {
+		status = "okay";
+	};
+};
+
+&ehci {
+	port@1 { /* USB OTG port running in host mode */
+		status = "okay";
+	};
+	port@1 { /* HSIC1 */
+		status = "okay";
+	};
+	port@2 { /* HSIC2 */
+		status = "okay";
+	};
+};
+
+&sound {
+	compatible = "samsung,odroidu3-audio";
+	samsung,model = "Odroid-U3";
+	samsung,audio-routing =
+		"Headphone Jack", "HPL",
+		"Headphone Jack", "HPR",
+		"Headphone Jack", "MICBIAS",
+		"IN1", "Headphone Jack",
+		"Speakers", "SPKL",
+		"Speakers", "SPKR";
+};
+
+/* SampleA SDIO signal integrity tweaks */
+&sd3_clk {
+	samsung,pin-drv = <1>;
+};
+
+&sd3_cmd {
+	samsung,pin-pud = <3>;
+	samsung,pin-drv = <1>;
+};
+
+&sd3_bus4 {
+	samsung,pin-drv = <0>;
+};
