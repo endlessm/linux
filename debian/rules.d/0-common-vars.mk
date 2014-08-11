@@ -61,11 +61,11 @@ ifeq ($(full_build),false)
 skipdbg=true
 endif
 
-abinum		:= $(shell echo $(revision) | sed -e 's/\..*//')$(abi_suffix)
-prev_abinum	:= $(shell echo $(prev_revision) | sed -e 's/\..*//')$(abi_suffix)
+abinum		:= $(shell echo $(revision) | sed -r -e 's/([^\+]*)\.[^\.]+(\+.*)?$$/\1/')$(abi_suffix)
+prev_abinum	:= $(shell echo $(prev_revision) | sed -r -e 's/([^\+]*)\.[^\.]+(\+.*)?$$/\1/')$(abi_suffix)
 abi_release	:= $(release)-$(abinum)
 
-uploadnum	:= $(shell echo $(revision) | sed -e 's/.*\.//')
+uploadnum	:= $(shell echo $(revision) | sed -r -e 's/[^\+]*\.([^\.]+(\+.*)?$$)/\1/')
 ifneq ($(full_build),false)
   uploadnum	:= $(uploadnum)-Ubuntu
 endif
