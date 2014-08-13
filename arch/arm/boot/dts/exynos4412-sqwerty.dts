@@ -477,7 +477,10 @@
 
 	fimd@11c00000 {
 		status = "disabled"; /* until have HPD.. */
+		pinctrl-0 = <&lcd_clk &lcd_data24>;
+		pinctrl-names = "default";
 		ddc = <&vga_ddc>;
+		samsung,sysreg = <&sys_reg>;
 
 		/* Vendor uboot sets fimd0 clock source from MPLL */
 		assigned-clocks = <&clock CLK_MOUT_FIMD0>;

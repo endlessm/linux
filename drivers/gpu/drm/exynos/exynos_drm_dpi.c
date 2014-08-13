@@ -16,6 +16,8 @@
 #include <drm/drm_edid.h>
 
 #include <linux/regulator/consumer.h>
+#include <linux/regmap.h>
+#include <linux/mfd/syscon.h>
 
 #include <video/of_videomode.h>
 #include <video/videomode.h>
@@ -309,6 +311,7 @@ static int exynos_dpi_parse_dt(struct exynos_dpi *ctx)
 
 struct exynos_drm_display *exynos_dpi_probe(struct device *dev)
 {
+	struct regmap *sysreg;
 	struct exynos_dpi *ctx;
 	int ret;
 pr_info("!!! dpi probe\n");
@@ -333,6 +336,14 @@ pr_info("!!! dpi dt parse failed\n");
 		devm_kfree(dev, ctx);
 		goto err_del_component;
 	}
+
+	sysreg = syscon_regmap_lookup_by_phandle(dev->of_node, "samsung,sysreg");
+	if (IS_ERR(sysreg)) {
+		dev_err(dev, "syscon regmap lookup failed.\n");
+		goto err_del_component;
+	}
+	/* Set output to bypass image enhacement units and go to screen */
+	regmap_write(sysreg, 0x210, 0x3);
 
 #if 0
 	if (ctx->panel_node) {
