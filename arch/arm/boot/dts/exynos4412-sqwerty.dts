@@ -476,7 +476,7 @@
 	};
 
 	fimd@11c00000 {
-		status = "disabled"; /* until have HPD.. */
+		status = "okay";
 		pinctrl-0 = <&lcd_clk &lcd_data24>;
 		pinctrl-names = "default";
 		ddc = <&vga_ddc>;

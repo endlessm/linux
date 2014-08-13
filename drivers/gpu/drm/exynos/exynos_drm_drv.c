@@ -93,9 +93,6 @@ static int exynos_drm_load(struct drm_device *dev, unsigned long flags)
 			goto err_mode_config_cleanup;
 	}
 
-	/* init kms poll for handling hpd */
-	drm_kms_helper_poll_init(dev);
-
 	ret = drm_vblank_init(dev, MAX_CRTC);
 	if (ret)
 		goto err_mode_config_cleanup;
@@ -116,6 +113,9 @@ static int exynos_drm_load(struct drm_device *dev, unsigned long flags)
 	ret = exynos_drm_device_subdrv_probe(dev);
 	if (ret)
 		goto err_unbind_all;
+
+	/* init kms poll for handling hpd */
+	drm_kms_helper_poll_init(dev);
 
 	/* force connectors detection */
 	drm_helper_hpd_irq_event(dev);

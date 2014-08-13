@@ -46,7 +46,10 @@ exynos_dpi_detect(struct drm_connector *connector, bool force)
 	if (ctx->panel && !ctx->panel->connector)
 		drm_panel_attach(ctx->panel, &ctx->connector);
 
-	return connector_status_connected;
+	if (ctx->ddc_adpt && drm_probe_ddc(ctx->ddc_adpt))
+		return connector_status_connected;
+
+	return connector_status_disconnected;
 }
 
 static void exynos_dpi_connector_destroy(struct drm_connector *connector)
@@ -113,7 +116,7 @@ static int exynos_dpi_create_connector(struct exynos_drm_display *display,
 
 	ctx->encoder = encoder;
 
-	connector->polled = DRM_CONNECTOR_POLL_HPD;
+	connector->polled = DRM_CONNECTOR_POLL_CONNECT | DRM_CONNECTOR_POLL_DISCONNECT;
 
 	ret = drm_connector_init(encoder->dev, connector,
 				 &exynos_dpi_connector_funcs,
@@ -123,6 +126,7 @@ static int exynos_dpi_create_connector(struct exynos_drm_display *display,
 		return ret;
 	}
 
+	connector->status = exynos_dpi_detect(connector, true);
 	drm_connector_helper_add(connector, &exynos_dpi_connector_helper_funcs);
 	drm_sysfs_connector_add(connector);
 	drm_mode_connector_attach_encoder(connector, encoder);
