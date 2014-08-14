@@ -31,11 +31,6 @@
 
 #include <asm/io.h>
 
-#define VPLLSRCCLK_NAME 	"vpll_src"
-#define GPUMOUT1CLK_NAME	"mout_g3d1"
-
-#define MPLLCLK_NAME 		"mout_mpll"
-#define GPUMOUT0CLK_NAME 	"mout_g3d0"
 #define CLK_DIV_STAT_G3D 	0x1003C62C
 #define CLK_DESC 		"clk-divider-status"
 
@@ -45,8 +40,6 @@ typedef struct mali_runtime_resumeTag{
 }mali_runtime_resume_table;
 
 mali_runtime_resume_table mali_runtime_resume = {400, 1100000};
-
-static unsigned int GPU_MHZ	= 1000000;
 
 static struct clk *sclk_g3d_clock = NULL;
 
@@ -152,45 +145,10 @@ void mali_regulator_set_voltage(int min_uV, int max_uV)
 }
 #endif
 
-mali_bool mali_clk_set_rate(unsigned int clk, unsigned int mhz)
+mali_bool mali_clk_enable(void)
 {
 	struct device *dev = &mali_platform_device->dev;
-	struct clk *fout_vpll_clock, *sclk_vpll_clock;
-	struct clk *mout_g3d1_clock, *mout_g3d_clock;
 	unsigned long rate;
-
-#ifndef CONFIG_MALI_DVFS
-	clk = mali_gpu_clk;
-#endif
-
-	/* The original Mali platform code from HK runs Mali from VPLL but
-	 * with (disabled) codepaths for MPLL. For simplicity here we just
-	 * run straight from VPLL. */
-
-	// FIXME we leak clocks here in error path, oh well
-	fout_vpll_clock = clk_get(dev, "fout_vpll");
-	if (IS_ERR(fout_vpll_clock)) {
-		MALI_PRINT( ("MALI Error : failed to get source fout_vpll_clock\n"));
-		return MALI_FALSE;
-	}
-
-	sclk_vpll_clock = clk_get(dev, "sclk_vpll");
-	if (IS_ERR(sclk_vpll_clock)) {
-		MALI_PRINT( ("MALI Error : failed to get source sclk_vpll_clock\n"));
-		return MALI_FALSE;
-	}
-
-	mout_g3d1_clock = clk_get(dev, "mout_g3d1");
-	if (IS_ERR(mout_g3d1_clock)) {
-		MALI_PRINT( ( "MALI Error : failed to get source mali parent clock\n"));
-		return MALI_FALSE;
-	}
-
-	mout_g3d_clock = clk_get(dev, "mout_g3d");
-	if (IS_ERR(mout_g3d_clock)) {
-		MALI_PRINT( ( "MALI Error : failed to get source mali parent clock\n"));
-		return MALI_FALSE;
-	}
 
 	sclk_g3d_clock = clk_get(dev, "sclk_g3d");
 	if (IS_ERR(sclk_g3d_clock)) {
@@ -200,43 +158,19 @@ mali_bool mali_clk_set_rate(unsigned int clk, unsigned int mhz)
 
 	_mali_osk_mutex_wait(mali_dvfs_lock);
 
-	rate = (unsigned long)clk * (unsigned long)mhz;
-	MALI_DEBUG_PRINT(2,("= clk_set_rate : %d , %d \n",clk, mhz ));
-
-	/* set VPLL to desired Mali frequency */
-	clk_set_rate(fout_vpll_clock, (unsigned int)clk * GPU_MHZ);
-
-	/* Propogate VPLL output signal through SCLK_VPLL, through MOUT_G3D1,
-	 * through MOUT_G3D, through DIV_G3D hopefully with divider 1, to
-	 * SCLK_G3D which we then enable. */
-	/* FIXME: is it normal to do this in a driver? or would we expect
-	 * common clock layer to figure it out? */
-	clk_set_parent(sclk_vpll_clock, fout_vpll_clock);
-	clk_set_parent(mout_g3d1_clock, sclk_vpll_clock);
-	clk_set_parent(mout_g3d_clock, mout_g3d1_clock);
-
 	if (clk_prepare_enable(sclk_g3d_clock) < 0)
 	{
 		printk("~~~~~~~~ERROR: [%s] %d\n ",__func__,__LINE__);
 		return MALI_FALSE;
 	}
 
-	/* We assume that CLK_SET_RATE_PARENT flag will cause DIV_G3D to have
-	 * value 1 here */
-	clk_set_rate(sclk_g3d_clock, rate);
 	rate = clk_get_rate(sclk_g3d_clock);
+	mali_gpu_clk = (int)(rate / 1000000);
 
-	mali_gpu_clk = (int)(rate / mhz);
-
-	GPU_MHZ = mhz;
 	MALI_DEBUG_PRINT(2,("= clk_get_rate: %d \n",mali_gpu_clk));
 
 	_mali_osk_mutex_signal(mali_dvfs_lock);
 
-	clk_put(fout_vpll_clock);
-	clk_put(sclk_vpll_clock);
-	clk_put(mout_g3d1_clock);
-	clk_put(mout_g3d_clock);
 	return MALI_TRUE;
 }
 
@@ -254,7 +188,7 @@ static mali_bool init_mali_clock(void)
 	if (mali_dvfs_lock == NULL)
 		return _MALI_OSK_ERR_FAULT;
 
-	if (mali_clk_set_rate(mali_gpu_clk, GPU_MHZ) == MALI_FALSE)
+	if (mali_clk_enable() == MALI_FALSE)
 		return MALI_FALSE;
 
 	MALI_PRINT(("init_mali_clock\n"));
