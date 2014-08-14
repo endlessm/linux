@@ -482,9 +482,12 @@
 		ddc = <&vga_ddc>;
 		samsung,sysreg = <&sys_reg>;
 
+		clocks = <&clock CLK_SCLK_FIMD0>, <&clock CLK_FIMD0>, <&clock CLK_FOUT_VPLL>;
+		clock-names = "sclk_fimd", "fimd", "vclk";
+
 		/* Vendor uboot sets fimd0 clock source from MPLL */
 		assigned-clocks = <&clock CLK_MOUT_FIMD0>;
-		assigned-clock-parents = <&clock CLK_MOUT_MPLL_USER_T>;
+		assigned-clock-parents = <&clock CLK_SCLK_VPLL>;
 	};
 
 	mixer: mixer@12C10000 {

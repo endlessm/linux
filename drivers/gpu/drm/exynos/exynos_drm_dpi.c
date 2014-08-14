@@ -18,6 +18,7 @@
 #include <linux/regulator/consumer.h>
 #include <linux/regmap.h>
 #include <linux/mfd/syscon.h>
+#include <linux/clk.h>
 
 #include <video/of_videomode.h>
 #include <video/videomode.h>
@@ -27,6 +28,7 @@
 struct exynos_dpi {
 	struct device *dev;
 	struct i2c_adapter *ddc_adpt;
+	struct clk *vclk;
 
 	struct drm_panel *panel;
 	struct drm_connector connector;
@@ -61,6 +63,13 @@ static void exynos_dpi_connector_destroy(struct drm_connector *connector)
 static int exynos_drm_connector_mode_valid(struct drm_connector *connector,
 					    struct drm_display_mode *mode)
 {
+	struct exynos_dpi *ctx = connector_to_dpi(connector);
+	unsigned long ideal_clk = mode->clock * 1000;
+
+	if (clk_round_rate(ctx->vclk, ideal_clk) != ideal_clk) {
+		pr_info("Unsupported pixel clock %ld\n", ideal_clk);
+		return MODE_BAD;
+	}
 	return MODE_OK;
 }
 
@@ -333,6 +342,13 @@ pr_info("!!! dpi probe\n");
 	ctx->dev = dev;
 	exynos_dpi_display.ctx = ctx;
 	ctx->dpms_mode = DRM_MODE_DPMS_OFF;
+
+	ctx->vclk = devm_clk_get(dev, "vclk");
+	if (IS_ERR(ctx->vclk)) {
+		dev_err(dev, "failed to get video clock\n");
+		ret = PTR_ERR(ctx->vclk);
+		goto err_del_component;
+	}
 
 	ret = exynos_dpi_parse_dt(ctx);
 	if (ret < 0) {

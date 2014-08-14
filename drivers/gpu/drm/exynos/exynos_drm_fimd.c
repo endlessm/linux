@@ -112,6 +112,7 @@ struct fimd_context {
 	struct drm_device		*drm_dev;
 	struct clk			*bus_clk;
 	struct clk			*lcd_clk;
+	struct clk			*vclk;
 	void __iomem			*regs;
 	struct drm_display_mode		mode;
 	struct fimd_win_data		win_data[WINDOWS_NR];
@@ -241,23 +242,16 @@ static void fimd_mgr_remove(struct exynos_drm_manager *mgr)
 static u32 fimd_calc_clkdiv(struct fimd_context *ctx,
 		const struct drm_display_mode *mode)
 {
-	//unsigned long ideal_clk = mode->htotal * mode->vtotal * mode->vrefresh;
 	unsigned long ideal_clk = mode->clock * 1000;
-	struct clk *clk = ctx->lcd_clk;
-	u32 clkdiv;
 
-//pr_info("fimd_calc_clkdiv: clk %s parent %s\n", clk->name, clk->parent->name);
+	/* Reconfigure VPLL for required pixel clock */
+	pr_info("fimd set vclk %ld\n", ideal_clk);
+	clk_set_rate(ctx->vclk, ideal_clk);
 
-clk_set_rate(clk, 800000000);
+	/* Ensure divider is set to 1 */
+	clk_set_rate(ctx->lcd_clk, ideal_clk);
 
-	/* Find the clock divider value that gets us closest to ideal_clk */
-	clkdiv = DIV_ROUND_UP(clk_get_rate(ctx->lcd_clk), ideal_clk) - 1;
-	// FIXME divide to get closest clock, but make sure vrefresh >= 60
-	// FIXME check monitor limits
-
-//pr_info("!!! fimd_calc_clkdiv clk=%ld ideal=%ld div=%d result=%d\n", clk_get_rate(ctx->lcd_clk), ideal_clk, clkdiv, clk_get_rate(ctx->lcd_clk) / clkdiv);
-
-	return (clkdiv < 0x100) ? clkdiv : 0xff;
+	return 1;
 }
 
 static bool fimd_mode_fixup(struct exynos_drm_manager *mgr,
@@ -987,6 +981,13 @@ pr_info("fimd probe\n");
 	if (IS_ERR(ctx->lcd_clk)) {
 		dev_err(dev, "failed to get lcd clock\n");
 		ret = PTR_ERR(ctx->lcd_clk);
+		goto err_del_component;
+	}
+
+	ctx->vclk = devm_clk_get(dev, "vclk");
+	if (IS_ERR(ctx->vclk)) {
+		dev_err(dev, "failed to get video clock\n");
+		ret = PTR_ERR(ctx->vclk);
 		goto err_del_component;
 	}
 
