@@ -1,9 +1,9 @@
-linux (3.13.0-35.61) trusty; urgency=low
+linux (3.13.0-35.62) trusty; urgency=low
 
   [ Joseph Salisbury ]
 
   * Release Tracking Bug
-    - LP: #1356986
+    - LP: #1357148
 
   [ Brad Figg ]
 
