@@ -717,8 +717,7 @@ struct i915_hw_ppgtt {
 
 	int (*enable)(struct i915_hw_ppgtt *ppgtt);
 	int (*switch_mm)(struct i915_hw_ppgtt *ppgtt,
-			 struct intel_ring_buffer *ring,
-			 bool synchronous);
+			 struct intel_ring_buffer *ring);
 	void (*debug_dump)(struct i915_hw_ppgtt *ppgtt, struct seq_file *m);
 };
 
@@ -1251,6 +1250,9 @@ struct i915_gpu_error {
 
 	/* For missed irq/seqno simulation. */
 	unsigned int test_irq_rings;
+
+	/* Used to prevent gem_check_wedged returning -EAGAIN during gpu reset   */
+	bool reload_in_reset;
 };
 
 enum modeset_restore {

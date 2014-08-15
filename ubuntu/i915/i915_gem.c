@@ -1077,7 +1077,9 @@ i915_gem_check_wedge(struct i915_gpu_error *error,
 		if (i915_terminally_wedged(error))
 			return -EIO;
 
-		return -EAGAIN;
+		/* Check if GPU Reset is in progress */
+		if (!error->reload_in_reset)
+			return -EAGAIN;
 	}
 
 	return 0;

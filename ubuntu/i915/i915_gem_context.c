@@ -353,30 +353,17 @@ void i915_gem_context_reset(struct drm_device *dev)
 	struct drm_i915_private *dev_priv = dev->dev_private;
 	int i;
 
-	/* Prevent the hardware from restoring the last context (which hung) on
-	 * the next switch */
 	for (i = 0; i < I915_NUM_RINGS; i++) {
 		struct intel_ring_buffer *ring = &dev_priv->ring[i];
-		struct i915_hw_context *dctx = ring->default_context;
+		struct i915_hw_context *lctx = ring->last_context;
 
-		/* Do a fake switch to the default context */
-		if (ring->last_context == dctx)
-			continue;
+		if (lctx) {
+			if (lctx->obj && i == RCS)
+				i915_gem_object_ggtt_unpin(lctx->obj);
 
-		if (!ring->last_context)
-			continue;
-
-		if (dctx->obj && i == RCS) {
-			WARN_ON(i915_gem_obj_ggtt_pin(dctx->obj,
-						      get_context_alignment(dev), 0));
-			/* Fake a finish/inactive */
-			dctx->obj->base.write_domain = 0;
-			dctx->obj->active = 0;
+			i915_gem_context_unreference(lctx);
+			ring->last_context = NULL;
 		}
-
-		i915_gem_context_unreference(ring->last_context);
-		i915_gem_context_reference(dctx);
-		ring->last_context = dctx;
 	}
 }
 
@@ -468,10 +455,6 @@ int i915_gem_context_enable(struct drm_i915_private *dev_priv)
 		struct i915_hw_ppgtt *ppgtt = dev_priv->mm.aliasing_ppgtt;
 		ppgtt->enable(ppgtt);
 	}
-
-	/* FIXME: We should make this work, even in reset */
-	if (i915_reset_in_progress(&dev_priv->gpu_error))
-		return 0;
 
 	BUG_ON(!dev_priv->ring[RCS].default_context);
 
@@ -621,7 +604,7 @@ static int do_switch(struct intel_ring_buffer *ring,
 	from = ring->last_context;
 
 	if (USES_FULL_PPGTT(ring->dev)) {
-		ret = ppgtt->switch_mm(ppgtt, ring, false);
+		ret = ppgtt->switch_mm(ppgtt, ring);
 		if (ret)
 			goto unpin_out;
 	}
