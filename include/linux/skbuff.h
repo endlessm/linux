@@ -751,6 +751,7 @@ static inline __u32 skb_get_hash(struct sk_buff *skb)
 
 	return skb->rxhash;
 }
+#define skb_get_rxhash	skb_get_hash
 
 static inline void skb_clear_hash(struct sk_buff *skb)
 {
