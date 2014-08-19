@@ -145,6 +145,16 @@ static unsigned int xgene_ahci_qc_issue(struct ata_queued_cmd *qc)
 	return rc;
 }
 
+static int xgene_ahci_is_memram_inited(struct xgene_ahci_context *ctx)
+{
+	void __iomem *diagcsr = ctx->csr_diag;
+
+	if (readl(diagcsr + CFG_MEM_RAM_SHUTDOWN) == 0 &&
+	    readl(diagcsr + BLOCK_MEM_RDY) == 0xFFFFFFFF)
+		return 1;
+	return 0;
+}
+
 /**
  * xgene_ahci_read_id - Read ID data from the specified device
  * @dev: device
@@ -468,6 +478,11 @@ static int xgene_ahci_probe(struct platform_device *pdev)
 		return -ENODEV;
 	}
 
+	if (xgene_ahci_is_memram_inited(ctx)) {
+		dev_info(dev, "skip clock and PHY initialization\n");
+		goto skip_clk_phy;
+	}
+
 	/* Due to errata, HW requires full toggle transition */
 	rc = ahci_platform_enable_clks(hpriv);
 	if (rc)
@@ -480,6 +495,8 @@ static int xgene_ahci_probe(struct platform_device *pdev)
 
 	/* Configure the host controller */
 	xgene_ahci_hw_init(hpriv);
+
+skip_clk_phy:
 
 	/*
 	 * Setup DMA mask. This is preliminary until the DMA range is sorted
