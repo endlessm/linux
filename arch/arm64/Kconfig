@@ -1451,6 +1451,7 @@ config XEN
 config ARCH_FORCE_MAX_ORDER
 	int
 	default "14" if ARM64_64K_PAGES
+	default "13" if (ARCH_THUNDER && ARM64_4K_PAGES)
 	default "12" if ARM64_16K_PAGES
 	default "11"
 	help
