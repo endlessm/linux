@@ -25,6 +25,7 @@
 #include <linux/platform_device.h>
 #include <linux/interrupt.h>
 #include <linux/irq.h>
+#include <linux/irqchip/chained_irq.h>
 #include <linux/irqdomain.h>
 #include <linux/bootmem.h>
 #include <linux/msi.h>
@@ -306,7 +307,6 @@ exit:
 static void xgene_msi_cascade(unsigned int irq, struct irq_desc *desc)
 {
 	struct irq_chip *chip = irq_desc_get_chip(desc);
-	struct irq_data *idata = irq_desc_get_irq_data(desc);
 	struct xgene_msi_cascade_data *cascade_data;
 	struct xgene_msi *msi_data;
 	unsigned int cascade_irq;
@@ -317,21 +317,17 @@ static void xgene_msi_cascade(unsigned int irq, struct irq_desc *desc)
 	u32 msi_intr_reg;
 
 	pr_debug("\nENTER %s, irq=%u\n", __func__, irq);
+
+	chained_irq_enter(chip, desc);
 	cascade_data = irq_get_handler_data(irq);
 	msi_data = cascade_data->msi_data;
 	pr_debug("xgene_msi : 0x%p, irq = %u\n", msi_data, irq);
-
-	raw_spin_lock(&desc->lock);
-	if (unlikely(irqd_irq_inprogress(idata)))
-		goto unlock;
 
 	msi_intr_reg = cascade_data->index;
 	pr_debug("msi_intr_reg : %d\n", msi_intr_reg);
 
 	if (msi_intr_reg >= NR_MSI_REG)
 		cascade_irq = 0;
-
-	irqd_set_chained_irq_inprogress(idata);
 
 	switch (msi_data->feature & XGENE_PIC_IP_MASK) {
 	case XGENE_PIC_IP_GIC:
@@ -361,16 +357,8 @@ static void xgene_msi_cascade(unsigned int irq, struct irq_desc *desc)
 		msi_intr_reg_value &= ~(1 << msir_index);
 		pr_debug("msi_intr_reg_value : 0x%08x\n", msi_intr_reg_value);
 	}
-	irqd_clr_chained_irq_inprogress(idata);
 
-	switch (msi_data->feature & XGENE_PIC_IP_MASK) {
-	case XGENE_PIC_IP_GIC:
-		chip->irq_eoi(idata);
-		break;
-	}
-
-unlock:
-	raw_spin_unlock(&desc->lock);
+	chained_irq_exit(chip, desc);
 	pr_debug("EXIT\n");
 }
 
