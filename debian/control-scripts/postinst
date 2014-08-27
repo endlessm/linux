@@ -930,11 +930,13 @@ else {
 if (-e "$dtb-$version") {
   if (! defined $ARGV[1] || ! $ARGV[1] || $ARGV[1] =~ m/<unknown>/og) {
 	image_magic($dtb, $image_dest);
+	system("ln -s /boot/dtb-$version /lib/firmware/$version/device-tree");
   }
   else {
 	if (! -e "$dtb") {
 	  handle_missing_link($dtb, $image_dest, "$dtb-$version", 
 						  $realimageloc);
+	  system("ln -s /boot/dtb-$version /lib/firmware/$version/device-tree");
 	}
 	else {
 	  print STDERR
