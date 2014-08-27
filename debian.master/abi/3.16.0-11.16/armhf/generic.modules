@@ -3650,7 +3650,6 @@ twl4030-vibra
 twl4030_wdt
 twl6030-gpadc
 twl6040-vibra
-twl-regulator
 twofish_common
 twofish_generic
 typhoon

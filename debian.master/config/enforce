@@ -87,6 +87,11 @@ value CONFIG_VFAT_FS y
  value CONFIG_GPIO_TWL4030 m | \
  !exists CONFIG_GPIO_TWL4030
 
+# REGULATOR_TWL4030 is a boot requisite for omap4
+(flavour generic & arch armhf &/ value CONFIG_REGULATOR_TWL4030 y) | \
+ value CONFIG_REGULATOR_TWL4030 m | \
+ !exists CONFIG_REGULATOR_TWL4030
+
 # Ensure CONFIG_THERM_ADT746X is y for powerpc-smp flavours.
 # See LP:923094
 (flavour powerpc-smp &/ value CONFIG_THERM_ADT746X y) | \
