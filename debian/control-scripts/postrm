@@ -248,7 +248,7 @@ sub image_magic {
     my $vmlinuz_target = readlink "$kimage";
     my $real_target = '';
     $real_target = abs_path($vmlinuz_target) if defined ($vmlinuz_target);
-    if (!defined($vmlinuz_target) || ! -f "$real_target") {
+    if (!defined($vmlinuz_target) || (! -f "$real_target" && ! -d "$real_target")) {
       # what, a dangling symlink?
       warn "The link "  . $image_dest . "$kimage is a damaged link\n";
       # Remove the dangling link
