@@ -767,7 +767,7 @@ sub image_magic {
   # Well, in any case, if the destination (the symlink we are trying
   # to create) is a directory, we should do nothing, except throw a
   # diagnostic.
-  if (-d "$kimage" ) {
+  if (-d "$kimage" && ! -l "$kimage") {
     die ("Hmm. $kimage is a directory, which I did not expect.  I am\n" .
          "trying to create a symbolic link with that name linked to \n" .
          "$image_dest . Since a directory exists here, my assumptions \n" .
