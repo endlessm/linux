@@ -8,3 +8,4 @@ sl811-hcd ?
 u132-hcd ?
 uhci-hcd ?
 xhci-hcd ?
+ehci-tegra ?

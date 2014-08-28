@@ -22,3 +22,8 @@ tps65090-charger ?
 tps65090-regulator ?
 tps6586x-regulator ?
 tps65910-regulator ?
+host1x ?
+tegra-drm ?
+pwm_bl ?
+pwm-tegra ?
+panel-simple ?
