@@ -105,10 +105,10 @@ endif
 	install -m600 $(builddir)/build-$*/System.map \
 		$(pkgdir)/boot/System.map-$(abi_release)-$*
 	if [ "$(dtb_files)" ]; then \
-		install -d $(pkgdir)/boot/dtb-$(abi_release)-$*; \
+		install -d $(pkgdir)/lib/firmware/$(abi_release)-$*/device-tree; \
 		for dtb_file in $(dtb_files); do \
 			install -m644 $(builddir)/build-$*/arch/$(build_arch)/boot/dts/$$dtb_file \
-				$(pkgdir)/boot/dtb-$(abi_release)-$*/$$dtb_file; \
+				$(pkgdir)/lib/firmware/$(abi_release)-$*/device-tree/$$dtb_file; \
 			echo "device-tree/$$dtb_file ?" >> $(DEBIAN)/d-i/firmware/kernel-image; \
 		done; \
 	fi
