@@ -350,7 +350,6 @@ if ($ARGV[0] !~ /upgrade/) {
   image_magic("initrd.img.old", $image_dest) if $initrd;
   image_magic("dtb",     $image_dest);
   image_magic("dtb.old", $image_dest);
-  system("rm -f /lib/firmware/$version/device-tree");
 }
 
 exit 0;
