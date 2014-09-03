@@ -871,7 +871,6 @@ eeprom_93xx46
 eeti_ts
 efs
 egalax_ts
-ehci-exynos
 ehci-msm
 ehci-omap
 ehset
@@ -2241,7 +2240,6 @@ ocfs2_stack_o2cb
 ocfs2_stack_user
 ocrdma
 of_xilinx_wdt
-ohci-exynos
 ohci-pci
 old_belkin-sir
 omap
@@ -2413,8 +2411,6 @@ phram
 phy-am335x
 phy-am335x-control
 phy-bcm-kona-usb2
-phy-exynos5-usbdrd
-phy-exynos-usb2
 phy-gpio-vbus-usb
 phy-isp1301
 phy-msm-usb
