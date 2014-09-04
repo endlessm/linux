@@ -303,7 +303,7 @@ MODULE_DEVICE_TABLE(pci, pciidlist);
 void intel_detect_pch(struct drm_device *dev)
 {
 	struct drm_i915_private *dev_priv = dev->dev_private;
-	struct pci_dev *pch;
+	struct pci_dev *pch = NULL;
 
 	/* In all current cases, num_pipes is equivalent to the PCH_NOP setting
 	 * (which really amounts to a PCH but no South Display).
@@ -324,12 +324,9 @@ void intel_detect_pch(struct drm_device *dev)
 	 * all the ISA bridge devices and check for the first match, instead
 	 * of only checking the first one.
 	 */
-	pch = pci_get_class(PCI_CLASS_BRIDGE_ISA << 8, NULL);
-	while (pch) {
-		struct pci_dev *curr = pch;
+	while ((pch = pci_get_class(PCI_CLASS_BRIDGE_ISA << 8, pch))) {
 		if (pch->vendor == PCI_VENDOR_ID_INTEL) {
-			unsigned short id;
-			id = pch->device & INTEL_PCH_DEVICE_ID_MASK;
+			unsigned short id = pch->device & INTEL_PCH_DEVICE_ID_MASK;
 			dev_priv->pch_id = id;
 
 			if (id == INTEL_PCH_IBX_DEVICE_ID_TYPE) {
@@ -361,18 +358,16 @@ void intel_detect_pch(struct drm_device *dev)
 				DRM_DEBUG_KMS("Found LynxPoint LP PCH\n");
 				WARN_ON(!IS_HASWELL(dev));
 				WARN_ON(!IS_ULT(dev));
-			} else {
-				goto check_next;
-			}
-			pci_dev_put(pch);
+			} else
+				continue;
+
 			break;
 		}
-check_next:
-		pch = pci_get_class(PCI_CLASS_BRIDGE_ISA << 8, curr);
-		pci_dev_put(curr);
 	}
 	if (!pch)
-		DRM_DEBUG_KMS("No PCH found?\n");
+		DRM_DEBUG_KMS("No PCH found.\n");
+
+	pci_dev_put(pch);
 }
 
 bool i915_semaphore_is_enabled(struct drm_device *dev)
@@ -410,7 +405,6 @@ static int i915_drm_freeze(struct drm_device *dev)
 
 	/* We do a lot of poking in a lot of registers, make sure they work
 	 * properly. */
-	hsw_disable_package_c8(dev_priv);
 	intel_display_set_init_power(dev_priv, true);
 
 	drm_kms_helper_poll_disable(dev);
@@ -449,6 +443,7 @@ static int i915_drm_freeze(struct drm_device *dev)
 	i915_save_state(dev);
 
 	intel_opregion_fini(dev);
+	intel_uncore_fini(dev);
 
 	console_lock();
 	intel_fbdev_set_suspend(dev, FBINFO_STATE_SUSPENDED);
@@ -590,10 +585,6 @@ static int __i915_drm_thaw(struct drm_device *dev, bool restore_gtt_mappings)
 		schedule_work(&dev_priv->console_resume_work);
 	}
 
-	/* Undo what we did at i915_drm_freeze so the refcount goes back to the
-	 * expected level. */
-	hsw_enable_package_c8(dev_priv);
-
 	mutex_lock(&dev_priv->modeset_restore_lock);
 	dev_priv->modeset_restore = MODESET_DONE;
 	mutex_unlock(&dev_priv->modeset_restore_lock);
@@ -675,7 +666,7 @@ static int i915_resume_legacy(struct drm_device *dev)
  */
 int i915_reset(struct drm_device *dev)
 {
-	drm_i915_private_t *dev_priv = dev->dev_private;
+	struct drm_i915_private *dev_priv = dev->dev_private;
 	bool simulated;
 	int ret;
 
@@ -775,7 +766,6 @@ static int i915_pci_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
 
 	driver.driver_features &= ~(DRIVER_USE_AGP);
 
-	return drm_get_pci_dev(pdev, ent, &driver);
 	ret = drm_get_pci_dev(pdev, ent, &driver);
 
 	if (!ret)
@@ -894,6 +884,9 @@ static int i915_runtime_suspend(struct device *device)
 
 	DRM_DEBUG_KMS("Suspending device\n");
 
+	if (HAS_PC8(dev))
+		hsw_enable_pc8(dev_priv);
+
 	i915_gem_release_all_mmaps(dev_priv);
 
 	del_timer_sync(&dev_priv->gpu_error.hangcheck_timer);
@@ -908,6 +901,7 @@ static int i915_runtime_suspend(struct device *device)
 	 */
 	intel_opregion_notify_adapter(dev, PCI_D1);
 
+	DRM_DEBUG_KMS("Device suspended\n");
 	return 0;
 }
 
@@ -924,6 +918,10 @@ static int i915_runtime_resume(struct device *device)
 	intel_opregion_notify_adapter(dev, PCI_D0);
 	dev_priv->pm.suspended = false;
 
+	if (HAS_PC8(dev))
+		hsw_disable_pc8(dev_priv);
+
+	DRM_DEBUG_KMS("Device resumed\n");
 	return 0;
 }
 

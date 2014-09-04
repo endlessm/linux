@@ -146,7 +146,10 @@ static void i915_error_vprintf(struct drm_i915_error_state_buf *e,
 		va_list tmp;
 
 		va_copy(tmp, args);
-		if (!__i915_error_seek(e, vsnprintf(NULL, 0, f, tmp)))
+		len = vsnprintf(NULL, 0, f, tmp);
+		va_end(tmp);
+
+		if (!__i915_error_seek(e, len))
 			return;
 	}
 
@@ -244,12 +247,12 @@ static void i915_ring_error_state(struct drm_i915_error_state_buf *m,
 	err_printf(m, "  TAIL: 0x%08x\n", ring->tail);
 	err_printf(m, "  CTL: 0x%08x\n", ring->ctl);
 	err_printf(m, "  HWS: 0x%08x\n", ring->hws);
-	err_printf(m, "  ACTHD: 0x%08llx\n", ring->acthd);
+	err_printf(m, "  ACTHD: 0x%08x %08x\n", (u32)(ring->acthd>>32), (u32)ring->acthd);
 	err_printf(m, "  IPEIR: 0x%08x\n", ring->ipeir);
 	err_printf(m, "  IPEHR: 0x%08x\n", ring->ipehr);
 	err_printf(m, "  INSTDONE: 0x%08x\n", ring->instdone);
 	if (INTEL_INFO(dev)->gen >= 4) {
-		err_printf(m, "  BBADDR: 0x%08llx\n", ring->bbaddr);
+		err_printf(m, "  BBADDR: 0x%08x %08x\n", (u32)(ring->bbaddr>>32), (u32)ring->bbaddr);
 		err_printf(m, "  BB_STATE: 0x%08x\n", ring->bbstate);
 		err_printf(m, "  INSTPS: 0x%08x\n", ring->instps);
 	}
@@ -319,7 +322,7 @@ int i915_error_state_to_str(struct drm_i915_error_state_buf *m,
 			    const struct i915_error_state_file_priv *error_priv)
 {
 	struct drm_device *dev = error_priv->dev;
-	drm_i915_private_t *dev_priv = dev->dev_private;
+	struct drm_i915_private *dev_priv = dev->dev_private;
 	struct drm_i915_error_state *error = error_priv->error;
 	int i, j, offset, elt;
 	int max_hangcheck_score;
@@ -847,10 +850,12 @@ static void i915_record_ring_state(struct drm_device *dev,
 			}
 			break;
 		case 7:
-			ering->vm_info.pp_dir_base = RING_PP_DIR_BASE(ring);
+			ering->vm_info.pp_dir_base =
+				I915_READ(RING_PP_DIR_BASE(ring));
 			break;
 		case 6:
-			ering->vm_info.pp_dir_base = RING_PP_DIR_BASE_READ(ring);
+			ering->vm_info.pp_dir_base =
+				I915_READ(RING_PP_DIR_BASE_READ(ring));
 			break;
 		}
 	}
@@ -889,6 +894,8 @@ static void i915_gem_record_rings(struct drm_device *dev,
 	for (i = 0; i < I915_NUM_RINGS; i++) {
 		struct intel_ring_buffer *ring = &dev_priv->ring[i];
 
+		error->ring[i].pid = -1;
+
 		if (ring->dev == NULL)
 			continue;
 
@@ -896,7 +903,6 @@ static void i915_gem_record_rings(struct drm_device *dev,
 
 		i915_record_ring_state(dev, ring, &error->ring[i]);
 
-		error->ring[i].pid = -1;
 		request = i915_gem_find_active_request(ring);
 		if (request) {
 			/* We need to copy these to an anonymous buffer

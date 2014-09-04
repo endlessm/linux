@@ -242,18 +242,6 @@ struct intel_ddi_plls {
 #define WATCH_LISTS	0
 #define WATCH_GTT	0
 
-#define I915_GEM_PHYS_CURSOR_0 1
-#define I915_GEM_PHYS_CURSOR_1 2
-#define I915_GEM_PHYS_OVERLAY_REGS 3
-#define I915_MAX_PHYS_OBJECT (I915_GEM_PHYS_OVERLAY_REGS)
-
-struct drm_i915_gem_phys_object {
-	int id;
-	struct page **page_list;
-	drm_dma_handle_t *handle;
-	struct drm_i915_gem_object *cur_obj;
-};
-
 struct opregion_header;
 struct opregion_acpi;
 struct opregion_swsci;
@@ -406,6 +394,7 @@ struct drm_i915_error_state {
 
 struct intel_connector;
 struct intel_crtc_config;
+struct intel_plane_config;
 struct intel_crtc;
 struct intel_limit;
 struct dpll;
@@ -444,6 +433,8 @@ struct drm_i915_display_funcs {
 	 * fills out the pipe-config with the hw state. */
 	bool (*get_pipe_config)(struct intel_crtc *,
 				struct intel_crtc_config *);
+	void (*get_plane_config)(struct intel_crtc *,
+				 struct intel_plane_config *);
 	int (*crtc_mode_set)(struct drm_crtc *crtc,
 			     int x, int y,
 			     struct drm_framebuffer *old_fb);
@@ -459,8 +450,9 @@ struct drm_i915_display_funcs {
 			  struct drm_framebuffer *fb,
 			  struct drm_i915_gem_object *obj,
 			  uint32_t flags);
-	int (*update_plane)(struct drm_crtc *crtc, struct drm_framebuffer *fb,
-			    int x, int y);
+	int (*update_primary_plane)(struct drm_crtc *crtc,
+				    struct drm_framebuffer *fb,
+				    int x, int y);
 	void (*hpd_irq_setup)(struct drm_device *dev);
 	/* clock updates for mode set */
 	/* cursor updates */
@@ -721,6 +713,8 @@ struct i915_hw_ppgtt {
 		dma_addr_t *gen8_pt_dma_addr[4];
 	};
 
+	struct i915_hw_context *ctx;
+
 	int (*enable)(struct i915_hw_ppgtt *ppgtt);
 	int (*switch_mm)(struct i915_hw_ppgtt *ppgtt,
 			 struct intel_ring_buffer *ring,
@@ -809,6 +803,7 @@ enum intel_sbi_destination {
 #define QUIRK_PIPEA_FORCE (1<<0)
 #define QUIRK_LVDS_SSC_DISABLE (1<<1)
 #define QUIRK_INVERT_BRIGHTNESS (1<<2)
+#define QUIRK_BACKLIGHT_PRESENT (1<<3)
 
 struct intel_fbdev;
 struct intel_fbc_work;
@@ -976,16 +971,24 @@ struct intel_gen6_power_mgmt {
 	struct work_struct work;
 	u32 pm_iir;
 
-	u8 cur_delay;
-	u8 min_delay;
-	u8 max_delay;
-	u8 rpe_delay;
-	u8 rp1_delay;
-	u8 rp0_delay;
-	u8 hw_max;
-
-	bool rp_up_masked;
-	bool rp_down_masked;
+	/* Frequencies are stored in potentially platform dependent multiples.
+	 * In other words, *_freq needs to be multiplied by X to be interesting.
+	 * Soft limits are those which are used for the dynamic reclocking done
+	 * by the driver (raise frequencies under heavy loads, and lower for
+	 * lighter loads). Hard limits are those imposed by the hardware.
+	 *
+	 * A distinction is made for overclocking, which is never enabled by
+	 * default, and is considered to be above the hard limit if it's
+	 * possible at all.
+	 */
+	u8 cur_freq;		/* Current frequency (cached, may not == HW) */
+	u8 min_freq_softlimit;	/* Minimum frequency permitted by the driver */
+	u8 max_freq_softlimit;	/* Max frequency permitted by the driver */
+	u8 max_freq;		/* Maximum frequency, RP0 if not overclocking */
+	u8 min_freq;		/* AKA RPn. Minimum frequency */
+	u8 efficient_freq;	/* AKA RPe. Pre-determined balanced frequency */
+	u8 rp1_freq;		/* "less than" RP0 power/freqency */
+	u8 rp0_freq;		/* Non-overclocked max frequency. */
 
 	int last_adj;
 	enum { LOW_POWER, BETWEEN, HIGH_POWER } power;
@@ -1173,9 +1176,6 @@ struct i915_gem_mm {
 	/** Bit 6 swizzling required for Y tiling */
 	uint32_t bit_6_swizzle_y;
 
-	/* storage for physical objects */
-	struct drm_i915_gem_phys_object *phys_objs[I915_MAX_PHYS_OBJECT];
-
 	/* accounting, useful for userland debugging */
 	spinlock_t object_stat_lock;
 	size_t object_memory;
@@ -1294,6 +1294,7 @@ struct intel_vbt_data {
 
 	struct {
 		u16 pwm_freq_hz;
+		bool present;
 		bool active_low_pwm;
 	} backlight;
 
@@ -1333,43 +1334,19 @@ struct ilk_wm_values {
 };
 
 /*
- * This struct tracks the state needed for the Package C8+ feature.
+ * This struct helps tracking the state needed for runtime PM, which puts the
+ * device in PCI D3 state. Notice that when this happens, nothing on the
+ * graphics device works, even register access, so we don't get interrupts nor
+ * anything else.
  *
- * Package states C8 and deeper are really deep PC states that can only be
- * reached when all the devices on the system allow it, so even if the graphics
- * device allows PC8+, it doesn't mean the system will actually get to these
- * states.
+ * Every piece of our code that needs to actually touch the hardware needs to
+ * either call intel_runtime_pm_get or call intel_display_power_get with the
+ * appropriate power domain.
  *
- * Our driver only allows PC8+ when all the outputs are disabled, the power well
- * is disabled and the GPU is idle. When these conditions are met, we manually
- * do the other conditions: disable the interrupts, clocks and switch LCPLL
- * refclk to Fclk.
- *
- * When we really reach PC8 or deeper states (not just when we allow it) we lose
- * the state of some registers, so when we come back from PC8+ we need to
- * restore this state. We don't get into PC8+ if we're not in RC6, so we don't
- * need to take care of the registers kept by RC6.
- *
- * The interrupt disabling is part of the requirements. We can only leave the
- * PCH HPD interrupts enabled. If we're in PC8+ and we get another interrupt we
- * can lock the machine.
- *
- * Ideally every piece of our code that needs PC8+ disabled would call
- * hsw_disable_package_c8, which would increment disable_count and prevent the
- * system from reaching PC8+. But we don't have a symmetric way to do this for
- * everything, so we have the requirements_met variable. When we switch
- * requirements_met to true we decrease disable_count, and increase it in the
- * opposite case. The requirements_met variable is true when all the CRTCs,
- * encoders and the power well are disabled.
- *
- * In addition to everything, we only actually enable PC8+ if disable_count
- * stays at zero for at least some seconds. This is implemented with the
- * enable_work variable. We do this so we don't enable/disable PC8 dozens of
- * consecutive times when all screens are disabled and some background app
- * queries the state of our connectors, or we have some application constantly
- * waking up to use the GPU. Only after the enable_work function actually
- * enables PC8+ the "enable" variable will become true, which means that it can
- * be false even if disable_count is 0.
+ * Our driver uses the autosuspend delay feature, which means we'll only really
+ * suspend if we stay with zero refcount for a certain amount of time. The
+ * default value is currently very conservative (see intel_init_runtime_pm), but
+ * it can be changed with the standard runtime PM files from sysfs.
  *
  * The irqs_disabled variable becomes true exactly after we disable the IRQs and
  * goes back to false exactly before we reenable the IRQs. We use this variable
@@ -1379,16 +1356,11 @@ struct ilk_wm_values {
  * inside struct regsave so when we restore the IRQs they will contain the
  * latest expected values.
  *
- * For more, read "Display Sequences for Package C8" on our documentation.
+ * For more, read the Documentation/power/runtime_pm.txt.
  */
-struct i915_package_c8 {
-	bool requirements_met;
+struct i915_runtime_pm {
+	bool suspended;
 	bool irqs_disabled;
-	/* Only true after the delayed work task actually enables it. */
-	bool enabled;
-	int disable_count;
-	struct mutex lock;
-	struct delayed_work enable_work;
 
 	struct {
 		uint32_t deimr;
@@ -1397,10 +1369,6 @@ struct i915_package_c8 {
 		uint32_t gtier;
 		uint32_t gen6_pmimr;
 	} regsave;
-};
-
-struct i915_runtime_pm {
-	bool suspended;
 };
 
 enum intel_pipe_crc_source {
@@ -1484,6 +1452,7 @@ typedef struct drm_i915_private {
 	};
 	u32 gt_irq_mask;
 	u32 pm_irq_mask;
+	u32 pm_rps_events;
 	u32 pipestat_irq_mask[I915_MAX_PIPES];
 
 	struct work_struct hotplug_work;
@@ -1610,6 +1579,7 @@ typedef struct drm_i915_private {
 
 	u32 fdi_rx_config;
 
+	u32 suspend_count;
 	struct i915_suspend_saved_registers regfile;
 
 	struct {
@@ -1629,8 +1599,6 @@ typedef struct drm_i915_private {
 		struct ilk_wm_values hw;
 	} wm;
 
-	struct i915_package_c8 pc8;
-
 	struct i915_runtime_pm pm;
 
 	/* Old dri1 support infrastructure, beware the dragons ya fools entering
@@ -1638,8 +1606,6 @@ typedef struct drm_i915_private {
 	struct i915_dri1_state dri1;
 	/* Old ums support infrastructure, same warning applies. */
 	struct i915_ums_state ums;
-
-	u32 suspend_count;
 } drm_i915_private_t;
 
 static inline struct drm_i915_private *to_i915(const struct drm_device *dev)
@@ -1789,7 +1755,7 @@ struct drm_i915_gem_object {
 	struct drm_file *pin_filp;
 
 	/** for phy allocated objects */
-	struct drm_i915_gem_phys_object *phys_obj;
+	drm_dma_handle_t *phys_handle;
 };
 
 #define to_intel_bo(x) container_of(x, struct drm_i915_gem_object, base)
@@ -1974,6 +1940,9 @@ struct drm_i915_cmd_table {
 #define IS_ULT(dev)		(IS_HSW_ULT(dev) || IS_BDW_ULT(dev))
 #define IS_HSW_GT3(dev)		(IS_HASWELL(dev) && \
 				 ((dev)->pdev->device & 0x00F0) == 0x0020)
+/* ULX machines are also considered ULT. */
+#define IS_HSW_ULX(dev)		((dev)->pdev->device == 0x0A0E || \
+				 (dev)->pdev->device == 0x0A1E)
 #define IS_PRELIMINARY_HW(intel_info) ((intel_info)->is_preliminary)
 
 /*
@@ -2013,6 +1982,14 @@ struct drm_i915_cmd_table {
 
 /* Early gen2 have a totally busted CS tlb and require pinned batches. */
 #define HAS_BROKEN_CS_TLB(dev)		(IS_I830(dev) || IS_845G(dev))
+/*
+ * dp aux and gmbus irq on gen4 seems to be able to generate legacy interrupts
+ * even when in MSI mode. This results in spurious interrupt warnings if the
+ * legacy irq no. is shared with another device. The kernel then disables that
+ * interrupt source and so prevents the other device from working properly.
+ */
+#define HAS_AUX_IRQ(dev) (INTEL_INFO(dev)->gen >= 5)
+#define HAS_GMBUS_IRQ(dev) (INTEL_INFO(dev)->gen >= 5)
 
 /* With the 945 and later, Y tiling got adjusted so that it was 32 128-byte
  * rows, which changed the alignment requirements and fence programming.
@@ -2084,8 +2061,6 @@ struct i915_params {
 	unsigned int preliminary_hw_support;
 	int disable_power_well;
 	int enable_ips;
-	int enable_pc8;
-	int pc8_timeout;
 	int invert_brightness;
 	int enable_cmd_parser;
 	/* leave bools at the end to not create holes */
@@ -2143,11 +2118,11 @@ extern void intel_uncore_check_errors(struct drm_device *dev);
 extern void intel_uncore_fini(struct drm_device *dev);
 
 void
-i915_enable_pipestat(drm_i915_private_t *dev_priv, enum pipe pipe,
+i915_enable_pipestat(struct drm_i915_private *dev_priv, enum pipe pipe,
 		     u32 status_mask);
 
 void
-i915_disable_pipestat(drm_i915_private_t *dev_priv, enum pipe pipe,
+i915_disable_pipestat(struct drm_i915_private *dev_priv, enum pipe pipe,
 		      u32 status_mask);
 
 void valleyview_enable_display_irqs(struct drm_i915_private *dev_priv);
@@ -2215,10 +2190,12 @@ void i915_gem_vma_destroy(struct i915_vma *vma);
 #define PIN_MAPPABLE 0x1
 #define PIN_NONBLOCK 0x2
 #define PIN_GLOBAL 0x4
+#define PIN_OFFSET_BIAS 0x8
+#define PIN_OFFSET_MASK (~4095)
 int __must_check i915_gem_object_pin(struct drm_i915_gem_object *obj,
 				     struct i915_address_space *vm,
 				     uint32_t alignment,
-				     unsigned flags);
+				     uint64_t flags);
 int __must_check i915_vma_unbind(struct i915_vma *vma);
 int i915_gem_object_put_pages(struct drm_i915_gem_object *obj);
 void i915_gem_release_all_mmaps(struct drm_i915_private *dev_priv);
@@ -2345,13 +2322,8 @@ i915_gem_object_pin_to_display_plane(struct drm_i915_gem_object *obj,
 				     u32 alignment,
 				     struct intel_ring_buffer *pipelined);
 void i915_gem_object_unpin_from_display_plane(struct drm_i915_gem_object *obj);
-int i915_gem_attach_phys_object(struct drm_device *dev,
-				struct drm_i915_gem_object *obj,
-				int id,
+int i915_gem_object_attach_phys(struct drm_i915_gem_object *obj,
 				int align);
-void i915_gem_detach_phys_object(struct drm_device *dev,
-				 struct drm_i915_gem_object *obj);
-void i915_gem_free_all_phys_object(struct drm_device *dev);
 int i915_gem_open(struct drm_device *dev, struct drm_file *file);
 void i915_gem_release(struct drm_device *dev, struct drm_file *file);
 
@@ -2446,20 +2418,18 @@ int i915_gem_context_open(struct drm_device *dev, struct drm_file *file);
 int i915_gem_context_enable(struct drm_i915_private *dev_priv);
 void i915_gem_context_close(struct drm_device *dev, struct drm_file *file);
 int i915_switch_context(struct intel_ring_buffer *ring,
-			struct drm_file *file, struct i915_hw_context *to);
+			struct i915_hw_context *to);
 struct i915_hw_context *
 i915_gem_context_get(struct drm_i915_file_private *file_priv, u32 id);
 void i915_gem_context_free(struct kref *ctx_ref);
 static inline void i915_gem_context_reference(struct i915_hw_context *ctx)
 {
-	if (ctx->obj && HAS_HW_CONTEXTS(ctx->obj->base.dev))
-		kref_get(&ctx->ref);
+	kref_get(&ctx->ref);
 }
 
 static inline void i915_gem_context_unreference(struct i915_hw_context *ctx)
 {
-	if (ctx->obj && HAS_HW_CONTEXTS(ctx->obj->base.dev))
-		kref_put(&ctx->ref, i915_gem_context_free);
+	kref_put(&ctx->ref, i915_gem_context_free);
 }
 
 static inline bool i915_gem_context_is_default(const struct i915_hw_context *c)
@@ -2480,6 +2450,8 @@ int __must_check i915_gem_evict_something(struct drm_device *dev,
 					  int min_size,
 					  unsigned alignment,
 					  unsigned cache_level,
+					  unsigned long start,
+					  unsigned long end,
 					  unsigned flags);
 int i915_gem_evict_vm(struct i915_address_space *vm, bool do_idle);
 int i915_gem_evict_everything(struct drm_device *dev);
@@ -2519,7 +2491,7 @@ void i915_gem_object_release_stolen(struct drm_i915_gem_object *obj);
 /* i915_gem_tiling.c */
 static inline bool i915_gem_object_needs_bit17_swizzle(struct drm_i915_gem_object *obj)
 {
-	drm_i915_private_t *dev_priv = obj->base.dev->dev_private;
+	struct drm_i915_private *dev_priv = obj->base.dev->dev_private;
 
 	return dev_priv->mm.bit_6_swizzle_x == I915_BIT_6_SWIZZLE_9_10_17 &&
 		obj->tiling_mode != I915_TILING_NONE;
@@ -2607,8 +2579,8 @@ extern void intel_i2c_reset(struct drm_device *dev);
 
 /* intel_opregion.c */
 struct intel_encoder;
-extern int intel_opregion_setup(struct drm_device *dev);
 #ifdef CONFIG_ACPI
+extern int intel_opregion_setup(struct drm_device *dev);
 extern void intel_opregion_init(struct drm_device *dev);
 extern void intel_opregion_fini(struct drm_device *dev);
 extern void intel_opregion_asle_intr(struct drm_device *dev);
@@ -2617,6 +2589,7 @@ extern int intel_opregion_notify_encoder(struct intel_encoder *intel_encoder,
 extern int intel_opregion_notify_adapter(struct drm_device *dev,
 					 pci_power_t state);
 #else
+static inline int intel_opregion_setup(struct drm_device *dev) { return 0; }
 static inline void intel_opregion_init(struct drm_device *dev) { return; }
 static inline void intel_opregion_fini(struct drm_device *dev) { return; }
 static inline void intel_opregion_asle_intr(struct drm_device *dev) { return; }
@@ -2750,6 +2723,12 @@ void vlv_force_wake_put(struct drm_i915_private *dev_priv, int fw_engine);
 #define I915_READ_NOTRACE(reg)		dev_priv->uncore.funcs.mmio_readl(dev_priv, (reg), false)
 #define I915_WRITE_NOTRACE(reg, val)	dev_priv->uncore.funcs.mmio_writel(dev_priv, (reg), (val), false)
 
+/* Be very careful with read/write 64-bit values. On 32-bit machines, they
+ * will be implemented using 2 32-bit writes in an arbitrary order with
+ * an arbitrary delay between them. This can cause the hardware to
+ * act upon the intermediate value, possibly leading to corruption and
+ * machine death. You have been warned.
+ */
 #define I915_WRITE64(reg, val)	dev_priv->uncore.funcs.mmio_writeq(dev_priv, (reg), (val), true)
 #define I915_READ64(reg)	dev_priv->uncore.funcs.mmio_readq(dev_priv, (reg), true)
 

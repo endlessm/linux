@@ -42,8 +42,8 @@ i915_bdw-y += intel_renderstate_gen6.o \
 i915_bdw-y += intel_bios.o \
 	  intel_display.o \
 	  intel_modes.o \
-	  intel_opregion.o \
 	  intel_overlay.o \
+	  intel_opregion.o \
 	  intel_sideband.o \
 	  intel_sprite.o
 i915_bdw-$(CONFIG_ACPI)		+= intel_acpi.o

@@ -34,25 +34,35 @@ static void gen8_setup_private_ppat(struct drm_i915_private *dev_priv);
 
 bool intel_enable_ppgtt(struct drm_device *dev, bool full)
 {
-	if (i915.enable_ppgtt == 0 || !HAS_ALIASING_PPGTT(dev))
+	if (i915.enable_ppgtt == 0)
 		return false;
 
 	if (i915.enable_ppgtt == 1 && full)
 		return false;
 
+	return true;
+}
+
+static int sanitize_enable_ppgtt(struct drm_device *dev, int enable_ppgtt)
+{
+	if (enable_ppgtt == 0 || !HAS_ALIASING_PPGTT(dev))
+		return 0;
+
+	if (enable_ppgtt == 1)
+		return 1;
+
+	if (enable_ppgtt == 2 && HAS_PPGTT(dev))
+		return 2;
+
 #ifdef CONFIG_INTEL_IOMMU
 	/* Disable ppgtt on SNB if VT-d is on. */
 	if (INTEL_INFO(dev)->gen == 6 && intel_iommu_gfx_mapped) {
 		DRM_INFO("Disabling PPGTT because VT-d is on\n");
-		return false;
+		return 0;
 	}
 #endif
 
-	/* Full ppgtt disabled by default for now due to issues. */
-	if (full)
-		return false; /* HAS_PPGTT(dev) */
-	else
-		return HAS_ALIASING_PPGTT(dev);
+	return HAS_ALIASING_PPGTT(dev) ? 1 : 0;
 }
 
 #define GEN6_PPGTT_PD_ENTRIES 512
@@ -888,7 +898,7 @@ err_out:
 static int gen7_ppgtt_enable(struct i915_hw_ppgtt *ppgtt)
 {
 	struct drm_device *dev = ppgtt->base.dev;
-	drm_i915_private_t *dev_priv = dev->dev_private;
+	struct drm_i915_private *dev_priv = dev->dev_private;
 	struct intel_ring_buffer *ring;
 	uint32_t ecochk, ecobits;
 	int i;
@@ -927,7 +937,7 @@ static int gen7_ppgtt_enable(struct i915_hw_ppgtt *ppgtt)
 static int gen6_ppgtt_enable(struct i915_hw_ppgtt *ppgtt)
 {
 	struct drm_device *dev = ppgtt->base.dev;
-	drm_i915_private_t *dev_priv = dev->dev_private;
+	struct drm_i915_private *dev_priv = dev->dev_private;
 	struct intel_ring_buffer *ring;
 	uint32_t ecochk, gab_ctl, ecobits;
 	int i;
@@ -1078,7 +1088,9 @@ alloc:
 	if (ret == -ENOSPC && !retried) {
 		ret = i915_gem_evict_something(dev, &dev_priv->gtt.base,
 					       GEN6_PD_SIZE, GEN6_PD_ALIGN,
-					       I915_CACHE_NONE, 0);
+					       I915_CACHE_NONE,
+					       0, dev_priv->gtt.base.total,
+					       0);
 		if (ret)
 			return ret;
 
@@ -1245,8 +1257,6 @@ ppgtt_bind_vma(struct i915_vma *vma,
 	       enum i915_cache_level cache_level,
 	       u32 flags)
 {
-	WARN_ON(flags);
-
 	vma->vm->insert_entries(vma->vm, vma->obj->pages, vma->node.start,
 				cache_level);
 }
@@ -1341,7 +1351,7 @@ void i915_gem_suspend_gtt_mappings(struct drm_device *dev)
 	dev_priv->gtt.base.clear_range(&dev_priv->gtt.base,
 				       dev_priv->gtt.base.start,
 				       dev_priv->gtt.base.total,
-				       false);
+				       true);
 }
 
 void i915_gem_restore_gtt_mappings(struct drm_device *dev)
@@ -1800,6 +1810,13 @@ static inline unsigned int gen8_get_total_gtt_size(u16 bdw_gmch_ctl)
 	bdw_gmch_ctl &= BDW_GMCH_GGMS_MASK;
 	if (bdw_gmch_ctl)
 		bdw_gmch_ctl = 1 << bdw_gmch_ctl;
+
+#ifdef CONFIG_X86_32
+	/* Limit 32b platforms to a 2GB GGTT: 4 << 20 / pte size * PAGE_SIZE */
+	if (bdw_gmch_ctl > 4)
+		bdw_gmch_ctl = 4;
+#endif
+
 	return bdw_gmch_ctl << 20;
 }
 
@@ -1821,14 +1838,14 @@ static int ggtt_probe_common(struct drm_device *dev,
 			     size_t gtt_size)
 {
 	struct drm_i915_private *dev_priv = dev->dev_private;
-	phys_addr_t gtt_bus_addr;
+	phys_addr_t gtt_phys_addr;
 	int ret;
 
 	/* For Modern GENs the PTEs and register space are split in the BAR */
-	gtt_bus_addr = pci_resource_start(dev->pdev, 0) +
+	gtt_phys_addr = pci_resource_start(dev->pdev, 0) +
 		(pci_resource_len(dev->pdev, 0) / 2);
 
-	dev_priv->gtt.gsm = ioremap_wc(gtt_bus_addr, gtt_size);
+	dev_priv->gtt.gsm = ioremap_wc(gtt_phys_addr, gtt_size);
 	if (!dev_priv->gtt.gsm) {
 		DRM_ERROR("Failed to map the gtt page table\n");
 		return -ENOMEM;
@@ -2032,6 +2049,14 @@ int i915_gem_gtt_init(struct drm_device *dev)
 		 gtt->base.total >> 20);
 	DRM_DEBUG_DRIVER("GMADR size = %ldM\n", gtt->mappable_end >> 20);
 	DRM_DEBUG_DRIVER("GTT stolen size = %zdM\n", gtt->stolen_size >> 20);
+	/*
+	 * i915.enable_ppgtt is read-only, so do an early pass to validate the
+	 * user's requested state against the hardware/driver capabilities.  We
+	 * do this now so that we can print out any log messages once rather
+	 * than every time we check intel_enable_ppgtt().
+	 */
+	i915.enable_ppgtt = sanitize_enable_ppgtt(dev, i915.enable_ppgtt);
+	DRM_DEBUG_DRIVER("ppgtt mode: %i\n", i915.enable_ppgtt);
 
 	return 0;
 }

@@ -821,11 +821,11 @@ static void intel_disable_hdmi(struct intel_encoder *encoder)
 	}
 }
 
-static int hdmi_portclock_limit(struct intel_hdmi *hdmi)
+static int hdmi_portclock_limit(struct intel_hdmi *hdmi, bool respect_dvi_limit)
 {
 	struct drm_device *dev = intel_hdmi_to_dev(hdmi);
 
-	if (IS_G4X(dev))
+	if ((respect_dvi_limit && !hdmi->has_hdmi_sink) || IS_G4X(dev))
 		return 165000;
 	else if (IS_HASWELL(dev) || INTEL_INFO(dev)->gen >= 8)
 		return 300000;
@@ -837,7 +837,8 @@ static enum drm_mode_status
 intel_hdmi_mode_valid(struct drm_connector *connector,
 		      struct drm_display_mode *mode)
 {
-	if (mode->clock > hdmi_portclock_limit(intel_attached_hdmi(connector)))
+	if (mode->clock > hdmi_portclock_limit(intel_attached_hdmi(connector),
+					       true))
 		return MODE_CLOCK_HIGH;
 	if (mode->clock < 20000)
 		return MODE_CLOCK_LOW;
@@ -848,6 +849,30 @@ intel_hdmi_mode_valid(struct drm_connector *connector,
 	return MODE_OK;
 }
 
+static bool hdmi_12bpc_possible(struct intel_crtc *crtc)
+{
+	struct drm_device *dev = crtc->base.dev;
+	struct intel_encoder *encoder;
+	int count = 0, count_hdmi = 0;
+
+	if (!HAS_PCH_SPLIT(dev))
+		return false;
+
+	list_for_each_entry(encoder, &dev->mode_config.encoder_list, base.head) {
+		if (encoder->new_crtc != crtc)
+			continue;
+
+		count_hdmi += encoder->type == INTEL_OUTPUT_HDMI;
+		count++;
+	}
+
+	/*
+	 * HDMI 12bpc affects the clocks, so it's only possible
+	 * when not cloning with other encoder types.
+	 */
+	return count_hdmi > 0 && count_hdmi == count;
+}
+
 bool intel_hdmi_compute_config(struct intel_encoder *encoder,
 			       struct intel_crtc_config *pipe_config)
 {
@@ -855,7 +880,7 @@ bool intel_hdmi_compute_config(struct intel_encoder *encoder,
 	struct drm_device *dev = encoder->base.dev;
 	struct drm_display_mode *adjusted_mode = &pipe_config->adjusted_mode;
 	int clock_12bpc = pipe_config->adjusted_mode.crtc_clock * 3 / 2;
-	int portclock_limit = hdmi_portclock_limit(intel_hdmi);
+	int portclock_limit = hdmi_portclock_limit(intel_hdmi, false);
 	int desired_bpp;
 
 	if (intel_hdmi->color_range_auto) {
@@ -879,8 +904,9 @@ bool intel_hdmi_compute_config(struct intel_encoder *encoder,
 	 * outputs. We also need to check that the higher clock still fits
 	 * within limits.
 	 */
-	if (pipe_config->pipe_bpp > 8*3 && clock_12bpc <= portclock_limit
-	    && HAS_PCH_SPLIT(dev)) {
+	if (pipe_config->pipe_bpp > 8*3 && intel_hdmi->has_hdmi_sink &&
+	    clock_12bpc <= portclock_limit &&
+	    hdmi_12bpc_possible(encoder->new_crtc)) {
 		DRM_DEBUG_KMS("picking bpc to 12 for HDMI output\n");
 		desired_bpp = 12*3;
 
@@ -1318,7 +1344,14 @@ void intel_hdmi_init(struct drm_device *dev, int hdmi_reg, enum port port)
 
 	intel_encoder->type = INTEL_OUTPUT_HDMI;
 	intel_encoder->crtc_mask = (1 << 0) | (1 << 1) | (1 << 2);
-	intel_encoder->cloneable = false;
+	intel_encoder->cloneable = 1 << INTEL_OUTPUT_ANALOG;
+	/*
+	 * BSpec is unclear about HDMI+HDMI cloning on g4x, but it seems
+	 * to work on real hardware. And since g4x can send infoframes to
+	 * only one port anyway, nothing is lost by allowing it.
+	 */
+	if (IS_G4X(dev))
+		intel_encoder->cloneable |= 1 << INTEL_OUTPUT_HDMI;
 
 	intel_dig_port->port = port;
 	intel_dig_port->hdmi.hdmi_reg = hdmi_reg;

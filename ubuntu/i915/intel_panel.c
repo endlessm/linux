@@ -492,6 +492,7 @@ void intel_panel_set_backlight(struct intel_connector *connector, u32 level,
 	enum pipe pipe = intel_get_pipe_from_connector(connector);
 	u32 freq;
 	unsigned long flags;
+	u64 n;
 
 	if (!panel->backlight.present || pipe == INVALID_PIPE)
 		return;
@@ -502,10 +503,9 @@ void intel_panel_set_backlight(struct intel_connector *connector, u32 level,
 
 	/* scale to hardware max, but be careful to not overflow */
 	freq = panel->backlight.max;
-	if (freq < max)
-		level = level * freq / max;
-	else
-		level = freq / max * level;
+	n = (u64)level * freq;
+	do_div(n, max);
+	level = n;
 
 	panel->backlight.level = level;
 	if (panel->backlight.device)
@@ -689,7 +689,7 @@ static void i9xx_enable_backlight(struct intel_connector *connector)
 		freq /= 0xff;
 
 	ctl = freq << 17;
-	if (IS_GEN2(dev) && panel->backlight.combination_mode)
+	if (panel->backlight.combination_mode)
 		ctl |= BLM_LEGACY_MODE;
 	if (IS_PINEVIEW(dev) && panel->backlight.active_low_pwm)
 		ctl |= BLM_POLARITY_PNV;
@@ -723,9 +723,6 @@ static void i965_enable_backlight(struct intel_connector *connector)
 	ctl = freq << 16;
 	I915_WRITE(BLC_PWM_CTL, ctl);
 
-	/* XXX: combine this into above write? */
-	intel_panel_actually_set_backlight(connector, panel->backlight.level);
-
 	ctl2 = BLM_PIPE(pipe);
 	if (panel->backlight.combination_mode)
 		ctl2 |= BLM_COMBINATION_MODE;
@@ -734,6 +731,8 @@ static void i965_enable_backlight(struct intel_connector *connector)
 	I915_WRITE(BLC_PWM_CTL2, ctl2);
 	POSTING_READ(BLC_PWM_CTL2);
 	I915_WRITE(BLC_PWM_CTL2, ctl2 | BLM_PWM_ENABLE);
+
+	intel_panel_actually_set_backlight(connector, panel->backlight.level);
 }
 
 static void vlv_enable_backlight(struct intel_connector *connector)
@@ -970,7 +969,7 @@ static int i9xx_setup_backlight(struct intel_connector *connector)
 
 	ctl = I915_READ(BLC_PWM_CTL);
 
-	if (IS_GEN2(dev))
+	if (IS_GEN2(dev) || IS_I915GM(dev) || IS_I945GM(dev))
 		panel->backlight.combination_mode = ctl & BLM_LEGACY_MODE;
 
 	if (IS_PINEVIEW(dev))
@@ -1064,6 +1063,15 @@ int intel_panel_setup_backlight(struct drm_connector *connector)
 	struct intel_panel *panel = &intel_connector->panel;
 	unsigned long flags;
 	int ret;
+
+	if (!dev_priv->vbt.backlight.present) {
+		if (dev_priv->quirks & QUIRK_BACKLIGHT_PRESENT) {
+			DRM_DEBUG_KMS("no backlight present per VBT, but present per quirk\n");
+		} else {
+			DRM_DEBUG_KMS("no backlight present per VBT\n");
+			return 0;
+		}
+	}
 
 	/* set level and max in panel struct */
 	spin_lock_irqsave(&dev_priv->backlight_lock, flags);
