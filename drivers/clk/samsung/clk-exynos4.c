@@ -1307,7 +1307,7 @@ static struct samsung_pll_rate_table exynos4x12_vpll_rates[] __initdata = {
 	PLL_36XX_RATE(350000000, 175, 3, 2,     0),
 	PLL_36XX_RATE(266000000, 133, 3, 2,     0),
 	PLL_36XX_RATE(160000000, 160, 3, 3,     0),
-	PLL_36XX_RATE(148000000,  74, 3, 2,     0),
+	PLL_36XX_RATE(148500000,  74, 3, 2, 16384),
 	PLL_36XX_RATE(135000000,  68, 3, 2, 32768),
 	PLL_36XX_RATE(108000000,  54, 3, 2,     0),
 	PLL_36XX_RATE(106031250,  53, 3, 2,  1024),
