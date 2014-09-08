@@ -168,7 +168,6 @@
 		bus-width = <4>;
 		pinctrl-0 = <&sd3_clk &sd3_cmd &sd3_cd &sd3_bus4>;
 		pinctrl-names = "default";
-		non-removable;
 		broken-cd;
 		status = "okay";
 		wlan-gpio = <&gpl2 4 0>; /* FIXME: for reset */
