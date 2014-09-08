@@ -74,12 +74,12 @@ void __init s5p_mfc_reserve_mem(phys_addr_t rbase, unsigned int rsize,
 {
 	device_initialize(&s5p_device_mfc_r);
 	s5p_device_mfc_r.coherent_dma_mask = DMA_BIT_MASK(32);
-	if (dma_declare_contiguous(&s5p_device_mfc_r, rsize, 0, 0))
+	if (dma_declare_contiguous(&s5p_device_mfc_r, rsize, 0, __pa(high_memory)))
 		pr_err("Failed to reserve memory for MFC device (%u bytes at 0x%08lx)\n", rsize, (unsigned long) rbase);
 
 	device_initialize(&s5p_device_mfc_l);
 	s5p_device_mfc_l.coherent_dma_mask = DMA_BIT_MASK(32);
-	if (dma_declare_contiguous(&s5p_device_mfc_l, lsize, 0, 0))
+	if (dma_declare_contiguous(&s5p_device_mfc_l, lsize, 0, __pa(high_memory)))
 		pr_err("Failed to reserve memory for MFC device (%u bytes at 0x%08lx)\n", lsize, (unsigned long) lbase);
 
 }
