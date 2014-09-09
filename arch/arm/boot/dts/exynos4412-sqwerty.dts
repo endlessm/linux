@@ -542,11 +542,11 @@
 		samsung,power-domain = <&pd_g3d>;
 		status = "okay";
 
-		/* Propagate EPLL clock through MOUT_G3D1, through MOUT_G3D,
-		 * through DIV_G3D with divider 1, to SCLK_G3D. */
-		assigned-clocks = <&clock CLK_MOUT_G3D1>, <&clock CLK_MOUT_G3D>, <&clock CLK_FOUT_EPLL>, <&clock CLK_SCLK_G3D>;
-		assigned-clock-parents = <&clock CLK_SCLK_EPLL>, <&clock CLK_MOUT_G3D1>;
-		assigned-clock-rates = <0>, <0>, <480000000>, <480000000>;
+		/* Propagate APLL clock through MOUT_G3D0, through MOUT_G3D,
+		 * through DIV_G3D with divider 3, to SCLK_G3D. */
+		assigned-clocks = <&clock CLK_MOUT_G3D0>, <&clock CLK_MOUT_G3D>, <&clock CLK_SCLK_G3D>;
+		assigned-clock-parents = <&clock CLK_SCLK_APLL>, <&clock CLK_MOUT_G3D0>;
+		assigned-clock-rates = <0>, <0>, <466666667>;
 
 		clocks = <&clock CLK_SCLK_G3D>;
 		clock-names = "sclk_g3d";
