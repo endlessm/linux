@@ -245,7 +245,6 @@ static u32 fimd_calc_clkdiv(struct fimd_context *ctx,
 	unsigned long ideal_clk = mode->clock * 1000;
 
 	/* Reconfigure VPLL for required pixel clock */
-	pr_info("fimd set vclk %ld\n", ideal_clk);
 	clk_set_rate(ctx->vclk, ideal_clk);
 
 	/* Ensure divider is set to 1 */
@@ -281,9 +280,6 @@ static void fimd_commit(struct exynos_drm_manager *mgr)
 	struct fimd_driver_data *driver_data;
 	u32 val, clkdiv, vidcon1;
 	int vsync_len, vbpd, vfpd, hsync_len, hbpd, hfpd;
-//printascii("fimd_commit now\n");
-//pr_info("fimd_commit now!\n");
-//msleep(1000);
 
 	driver_data = ctx->driver_data;
 	if (ctx->suspended)
@@ -341,13 +337,7 @@ static void fimd_commit(struct exynos_drm_manager *mgr)
 	if (clkdiv > 1)
 		val |= VIDCON0_CLKVAL_F(clkdiv - 1) | VIDCON0_CLKDIR;
 
-pr_info("fimd_commit set vidcon0 to %x\n", val);
 	writel(val, ctx->regs + VIDCON0);
-
-//printascii("fimd_commit done!\n");
-//pr_info("fimd_commit done!\n");
-//msleep(1000);
-
 }
 
 static int fimd_enable_vblank(struct exynos_drm_manager *mgr)
@@ -370,7 +360,6 @@ static int fimd_enable_vblank(struct exynos_drm_manager *mgr)
 		val |= VIDINTCON0_FRAMESEL1_NONE;
 
 		writel(val, ctx->regs + VIDINTCON0);
-pr_info("VBLANK ON\n");
 	}
 
 	return 0;
@@ -391,7 +380,6 @@ static void fimd_disable_vblank(struct exynos_drm_manager *mgr)
 		val &= ~VIDINTCON0_INT_ENABLE;
 
 		writel(val, ctx->regs + VIDINTCON0);
-pr_info("VBLANK OFF\n");
 	}
 }
 
@@ -880,7 +868,6 @@ static irqreturn_t fimd_irq_handler(int irq, void *dev_id)
 	u32 val;
 
 	val = readl(ctx->regs + VIDINTCON1);
-//pr_info("fimd_irq_handler %x\n", val);
 
 	if (val & VIDINTCON1_INT_FRAME)
 		/* VSYNC interrupt */
@@ -944,7 +931,6 @@ static int fimd_probe(struct platform_device *pdev)
 	struct fimd_context *ctx;
 	struct resource *res;
 	int ret = -EINVAL;
-pr_info("fimd probe\n");
 
 	ret = exynos_drm_component_add(&pdev->dev, EXYNOS_DEVICE_TYPE_CRTC,
 					fimd_manager.type);

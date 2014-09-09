@@ -86,7 +86,6 @@ static int exynos_dpi_get_modes(struct drm_connector *connector)
 	struct exynos_dpi *ctx = connector_to_dpi(connector);
 	struct edid *edid;
 
-pr_info("exynos_dpi_get_modes!!\n");
 	if (!ctx->ddc_adpt)
 		return -ENODEV;
 
@@ -327,7 +326,6 @@ struct exynos_drm_display *exynos_dpi_probe(struct device *dev)
 	struct regmap *sysreg;
 	struct exynos_dpi *ctx;
 	int ret;
-pr_info("!!! dpi probe\n");
 
 	ret = exynos_drm_component_add(dev,
 					EXYNOS_DEVICE_TYPE_CONNECTOR,
@@ -352,7 +350,6 @@ pr_info("!!! dpi probe\n");
 
 	ret = exynos_dpi_parse_dt(ctx);
 	if (ret < 0) {
-pr_info("!!! dpi dt parse failed\n");
 		devm_kfree(dev, ctx);
 		goto err_del_component;
 	}
@@ -376,7 +373,6 @@ pr_info("!!! dpi dt parse failed\n");
 	}
 #endif
 
-pr_info("!!! dpi probe ok\n");
 	return &exynos_dpi_display;
 
 err_del_component:
