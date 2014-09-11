@@ -1962,6 +1962,9 @@ bool inode_owner_or_capable(const struct inode *inode)
 	ns = current_user_ns();
 	if (ns_capable(ns, CAP_FOWNER) && kuid_has_mapping(ns, inode->i_uid))
 		return true;
+
+	if (ns_capable(inode->i_sb->s_user_ns, CAP_FOWNER))
+		return true;
 	return false;
 }
 EXPORT_SYMBOL(inode_owner_or_capable);
