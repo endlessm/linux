@@ -3830,6 +3830,7 @@ xfrm_algo
 xfrm_ipcomp
 xfrm_user
 xfs
+xgene-enet
 xgifb
 xgmac
 xillybus_core

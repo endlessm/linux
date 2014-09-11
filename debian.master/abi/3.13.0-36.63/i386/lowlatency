@@ -10301,6 +10301,7 @@ EXPORT_SYMBOL_GPL arch/x86/kvm/kvm 0xa76ff9dd	kvm_inject_nmi
 EXPORT_SYMBOL_GPL arch/x86/kvm/kvm 0xa87e87a7	kvm_irq_has_notifier
 EXPORT_SYMBOL_GPL arch/x86/kvm/kvm 0xa9687f89	kvm_clear_guest
 EXPORT_SYMBOL_GPL arch/x86/kvm/kvm 0xa97fda14	kvm_vcpu_yield_to
+EXPORT_SYMBOL_GPL arch/x86/kvm/kvm 0xaa29197e	kvm_x86_ops
 EXPORT_SYMBOL_GPL arch/x86/kvm/kvm 0xaac7c868	__tracepoint_kvm_nested_intr_vmexit
 EXPORT_SYMBOL_GPL arch/x86/kvm/kvm 0xac7d7e00	kvm_mmu_unload
 EXPORT_SYMBOL_GPL arch/x86/kvm/kvm 0xacf7f97c	gfn_to_pfn_memslot_atomic
@@ -10320,7 +10321,6 @@ EXPORT_SYMBOL_GPL arch/x86/kvm/kvm 0xcd3af1de	kvm_mmu_unprotect_page
 EXPORT_SYMBOL_GPL arch/x86/kvm/kvm 0xcff941f4	load_pdptrs
 EXPORT_SYMBOL_GPL arch/x86/kvm/kvm 0xd0459e67	kvm_has_tsc_control
 EXPORT_SYMBOL_GPL arch/x86/kvm/kvm 0xd0b2727a	kvm_mmu_set_mask_ptes
-EXPORT_SYMBOL_GPL arch/x86/kvm/kvm 0xd15c7b88	kvm_x86_ops
 EXPORT_SYMBOL_GPL arch/x86/kvm/kvm 0xd3addeb0	kvm_get_dirty_log
 EXPORT_SYMBOL_GPL arch/x86/kvm/kvm 0xd67d32df	kvm_lmsw
 EXPORT_SYMBOL_GPL arch/x86/kvm/kvm 0xd6fc654e	kvm_set_rflags

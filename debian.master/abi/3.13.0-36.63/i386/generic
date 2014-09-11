@@ -10324,9 +10324,9 @@ EXPORT_SYMBOL_GPL arch/x86/kvm/kvm 0xd76b4fd5	kvm_get_dr
 EXPORT_SYMBOL_GPL arch/x86/kvm/kvm 0xd820dccd	kvm_mmu_unprotect_page
 EXPORT_SYMBOL_GPL arch/x86/kvm/kvm 0xd9bf9ee7	kvm_set_dr
 EXPORT_SYMBOL_GPL arch/x86/kvm/kvm 0xddbc5034	kvm_lmsw
-EXPORT_SYMBOL_GPL arch/x86/kvm/kvm 0xe0815c9b	kvm_x86_ops
 EXPORT_SYMBOL_GPL arch/x86/kvm/kvm 0xe267c617	kvm_set_rflags
 EXPORT_SYMBOL_GPL arch/x86/kvm/kvm 0xe5941b3a	kvm_write_tsc
+EXPORT_SYMBOL_GPL arch/x86/kvm/kvm 0xe9484f0c	kvm_x86_ops
 EXPORT_SYMBOL_GPL arch/x86/kvm/kvm 0xe9790e86	__tracepoint_kvm_cr
 EXPORT_SYMBOL_GPL arch/x86/kvm/kvm 0xea0c5b03	gfn_to_pfn
 EXPORT_SYMBOL_GPL arch/x86/kvm/kvm 0xef59c107	kvm_cpuid

@@ -9739,14 +9739,6 @@ EXPORT_SYMBOL_GPL drivers/misc/lis3lv02d/lis3lv02d 0xab9fe576	lis3lv02d_joystick
 EXPORT_SYMBOL_GPL drivers/misc/lis3lv02d/lis3lv02d 0xc5be198d	lis3lv02d_remove_fs
 EXPORT_SYMBOL_GPL drivers/misc/ti-st/st_drv 0x42b7cffd	st_register
 EXPORT_SYMBOL_GPL drivers/misc/ti-st/st_drv 0xb2aed73d	st_unregister
-EXPORT_SYMBOL_GPL drivers/misc/xgene/qmtm/xgene-qmtm 0x0a0bcb8d	xgene_qmtm_intr_coalesce
-EXPORT_SYMBOL_GPL drivers/misc/xgene/qmtm/xgene-qmtm 0x12e33cec	xgene_qmtm_set_qinfo
-EXPORT_SYMBOL_GPL drivers/misc/xgene/qmtm/xgene-qmtm 0x2649e94b	xgene_qmtm_fp_dealloc_msg
-EXPORT_SYMBOL_GPL drivers/misc/xgene/qmtm/xgene-qmtm 0x321ef310	xgene_qmtm_enqueue_msg
-EXPORT_SYMBOL_GPL drivers/misc/xgene/qmtm/xgene-qmtm 0x396eb161	xgene_qmtm_get_sdev
-EXPORT_SYMBOL_GPL drivers/misc/xgene/qmtm/xgene-qmtm 0x4b60c0c3	xgene_qmtm_dequeue_msg
-EXPORT_SYMBOL_GPL drivers/misc/xgene/qmtm/xgene-qmtm 0x706523e0	xgene_qmtm_clr_qinfo
-EXPORT_SYMBOL_GPL drivers/misc/xgene/qmtm/xgene-qmtm 0x8b58b502	xgene_qmtm_read_qstate
 EXPORT_SYMBOL_GPL drivers/mmc/host/sdhci 0x003d361f	sdhci_send_command
 EXPORT_SYMBOL_GPL drivers/mmc/host/sdhci 0x0191ca7e	sdhci_free_host
 EXPORT_SYMBOL_GPL drivers/mmc/host/sdhci 0x9c5de3dc	sdhci_remove_host

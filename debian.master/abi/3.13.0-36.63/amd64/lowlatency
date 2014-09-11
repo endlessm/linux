@@ -10113,6 +10113,7 @@ EXPORT_SYMBOL_GPL arch/x86/crypto/twofish-x86_64-3way 0xe5d17870	lrw_twofish_exi
 EXPORT_SYMBOL_GPL arch/x86/crypto/twofish-x86_64-3way 0xf2e80e9c	__twofish_enc_blk_3way
 EXPORT_SYMBOL_GPL arch/x86/crypto/twofish-x86_64-3way 0xfa45b5c5	lrw_twofish_setkey
 EXPORT_SYMBOL_GPL arch/x86/kvm/kvm 0x00aaf935	kvm_disable_tdp
+EXPORT_SYMBOL_GPL arch/x86/kvm/kvm 0x02052d80	kvm_x86_ops
 EXPORT_SYMBOL_GPL arch/x86/kvm/kvm 0x0699be92	kvm_vcpu_cache
 EXPORT_SYMBOL_GPL arch/x86/kvm/kvm 0x094512e4	x86_emulate_instruction
 EXPORT_SYMBOL_GPL arch/x86/kvm/kvm 0x0f7fe994	kvm_is_visible_gfn
@@ -10174,7 +10175,6 @@ EXPORT_SYMBOL_GPL arch/x86/kvm/kvm 0x7c502ab9	__tracepoint_kvm_nested_intr_vmexi
 EXPORT_SYMBOL_GPL arch/x86/kvm/kvm 0x7d30632f	kvm_write_guest_page
 EXPORT_SYMBOL_GPL arch/x86/kvm/kvm 0x7d5b4a02	kvm_set_cr8
 EXPORT_SYMBOL_GPL arch/x86/kvm/kvm 0x7f2c1163	__tracepoint_kvm_nested_vmexit
-EXPORT_SYMBOL_GPL arch/x86/kvm/kvm 0x81c6506e	kvm_x86_ops
 EXPORT_SYMBOL_GPL arch/x86/kvm/kvm 0x831327da	kvm_max_guest_tsc_khz
 EXPORT_SYMBOL_GPL arch/x86/kvm/kvm 0x83bbf70c	kvm_mmu_unload
 EXPORT_SYMBOL_GPL arch/x86/kvm/kvm 0x8551f3da	kvm_emulate_hypercall
