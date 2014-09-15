@@ -158,17 +158,9 @@ exynos_drm_crtc_mode_set(struct drm_crtc *crtc, struct drm_display_mode *mode,
 		crtc_uv = exynos_crtc->underscan_vborder;
 	}
 
-	ret = exynos_plane_mode_set(plane, crtc, crtc->primary->fb,
+	return exynos_plane_mode_set(plane, crtc, crtc->primary->fb,
 		crtc_uh, crtc_uv, crtc_w, crtc_h,
 		x, y, crtc_w, crtc_h);
-	if (ret)
-		return ret;
-
-	plane->crtc = crtc;
-	plane->fb = crtc->primary->fb;
-	drm_framebuffer_reference(plane->fb);
-
-	return 0;
 }
 
 static int exynos_drm_crtc_mode_set_commit(struct drm_crtc *crtc, int x, int y,

@@ -139,6 +139,14 @@ int exynos_plane_mode_set(struct drm_plane *plane, struct drm_crtc *crtc,
 			overlay->crtc_x, overlay->crtc_y,
 			overlay->crtc_width, overlay->crtc_height);
 
+	if (plane->fb)
+		drm_framebuffer_unreference(plane->fb);
+
+	drm_framebuffer_reference(fb);
+
+	plane->fb = fb;
+	plane->crtc = crtc;
+
 	exynos_drm_crtc_plane_mode_set(crtc, overlay);
 
 	return 0;
