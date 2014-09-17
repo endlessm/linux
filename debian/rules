@@ -57,6 +57,7 @@ endif
 ifneq ($(do_tools),true)
 	do_linux_tools=
 	do_cloud_tools=
+	do_tools_common=
 endif
 
 # Either tools package needs the common source preparation
