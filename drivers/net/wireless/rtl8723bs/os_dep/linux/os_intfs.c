@@ -611,7 +611,16 @@ unsigned int rtw_classify8021d(struct sk_buff *skb)
 	return dscp >> 5;
 }
 
-static u16 rtw_select_queue(struct net_device *dev, struct sk_buff *skb)
+ 
+static u16 rtw_select_queue(struct net_device *dev, struct sk_buff *skb
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(3, 13, 0) 	
+				, void *accel_priv
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(3, 14, 0) 
+				, select_queue_fallback_t fallback
+#endif
+
+#endif
+)
 {
 	_adapter	*padapter = rtw_netdev_priv(dev);
 	struct mlme_priv *pmlmepriv = &padapter->mlmepriv;
@@ -655,10 +664,13 @@ u16 rtw_recv_select_queue(struct sk_buff *skb)
 }
 
 #endif
-
-static int rtw_ndev_notifier_call(struct notifier_block * nb, unsigned long state, void *ndev)
+static int rtw_ndev_notifier_call(struct notifier_block * nb, unsigned long state, void *ptr)
 {
-	struct net_device *dev = ndev;
+#if (LINUX_VERSION_CODE>=KERNEL_VERSION(3,11,0))
+	struct net_device *dev = netdev_notifier_info_to_dev(ptr);
+#else
+	struct net_device *dev = ptr;
+#endif
 
 #if (LINUX_VERSION_CODE>=KERNEL_VERSION(2,6,29))
 	if (dev->netdev_ops->ndo_do_ioctl != rtw_ioctl)
@@ -1054,6 +1066,8 @@ struct dvobj_priv *devobj_init(void)
 
 	ATOMIC_SET(&pdvobj->disable_func, 0);
 
+	_rtw_spinlock_init(&pdvobj->cam_ctl.lock);
+
 	return pdvobj;
 
 }
@@ -1069,6 +1083,8 @@ void devobj_deinit(struct dvobj_priv *pdvobj)
 	_rtw_mutex_free(&pdvobj->h2c_fwcmd_mutex);
 	_rtw_mutex_free(&pdvobj->setch_mutex);
 	_rtw_mutex_free(&pdvobj->setbw_mutex);
+
+	_rtw_spinlock_free(&pdvobj->cam_ctl.lock);
 
 	rtw_mfree((u8*)pdvobj, sizeof(*pdvobj));
 }	
