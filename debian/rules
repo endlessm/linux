@@ -41,7 +41,10 @@ endif
 ifeq ($(DEB_STAGE),stage1)
     DEB_BUILD_PROFILE=bootstrap
 endif
-ifeq ($(DEB_BUILD_PROFILE),bootstrap)
+ifneq ($(DEB_BUILD_PROFILE),)
+    DEB_BUILD_PROFILES=$(DEB_BUILD_PROFILE)
+endif
+ifneq ($(filter bootstrap,$(DEB_BUILD_PROFILES)),)
     do_tools=false
     do_doc_package=false
     do_source_package=false
