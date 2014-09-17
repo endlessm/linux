@@ -93,6 +93,7 @@ install-tools: cloudman = $(CURDIR)/debian/$(cloudpkg)/usr/share/man
 install-tools: install-source $(stampdir)/stamp-build-perarch
 	@echo Debug: $@
 
+ifeq ($(do_tools_common),true)
 	rm -rf $(builddir)/tools
 	install -d $(builddir)/tools
 	for i in *; do $(LN) $(CURDIR)/$$i $(builddir)/tools/; done
@@ -138,7 +139,7 @@ install-tools: install-source $(stampdir)/stamp-build-perarch
 	dh_installinit -p$(cloudpkg) --name hv-vss-daemon
 	dh_installinit -p$(cloudpkg) --name hv-fcopy-daemon
 	dh_systemd_start
-
+endif
 
 install-indep: install-tools
 	@echo Debug: $@
