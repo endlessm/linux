@@ -32,10 +32,9 @@
 		pinctrl-names = "default";
 		pinctrl-0 = <&pwm0_out>;
 
-		front {
-			label = "white";
-			max-brightness = <500>;
+		white {
 			pwms = <&pwm0 0 300000 0>;
+			linux,default-trigger = "default-on";
 		};
 	};
 
