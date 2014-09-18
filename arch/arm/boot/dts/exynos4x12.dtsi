@@ -182,6 +182,8 @@
 			samsung,mainscaler-ext;
 			samsung,isp-wb;
 			samsung,cam-if;
+			assigned-clocks = <&clock CLK_MOUT_FIMC0>;
+			assigned-clock-parents = <&clock CLK_MOUT_MPLL_USER_T>;
 		};
 
 		fimc_1: fimc@11810000 {
@@ -190,6 +192,8 @@
 			samsung,mainscaler-ext;
 			samsung,isp-wb;
 			samsung,cam-if;
+			assigned-clocks = <&clock CLK_MOUT_FIMC1>;
+			assigned-clock-parents = <&clock CLK_MOUT_MPLL_USER_T>;
 		};
 
 		fimc_2: fimc@11820000 {
@@ -199,6 +203,8 @@
 			samsung,isp-wb;
 			samsung,lcd-wb;
 			samsung,cam-if;
+			assigned-clocks = <&clock CLK_MOUT_FIMC2>;
+			assigned-clock-parents = <&clock CLK_MOUT_MPLL_USER_T>;
 		};
 
 		fimc_3: fimc@11830000 {
@@ -208,6 +214,8 @@
 			samsung,mainscaler-ext;
 			samsung,isp-wb;
 			samsung,lcd-wb;
+			assigned-clocks = <&clock CLK_MOUT_FIMC3>;
+			assigned-clock-parents = <&clock CLK_MOUT_MPLL_USER_T>;
 		};
 
 		fimc_lite_0: fimc-lite@12390000 {
