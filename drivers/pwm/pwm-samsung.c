@@ -325,8 +325,6 @@ static int pwm_samsung_config(struct pwm_chip *chip, struct pwm_device *pwm,
 
 	/* Decrement to get tick numbers, instead of tick counts. */
 	--tcnt;
-	/* -1UL will give 100% duty. */
-	--tcmp;
 
 	dev_dbg(our_chip->chip.dev,
 				"tin_ns=%u, tcmp=%u/%u\n", tin_ns, tcmp, tcnt);
