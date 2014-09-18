@@ -2270,7 +2270,6 @@ ocfs2_stack_user
 ocrdma
 of_xilinx_wdt
 ohci-omap3
-ohci-pci
 old_belkin-sir
 omap
 omap2

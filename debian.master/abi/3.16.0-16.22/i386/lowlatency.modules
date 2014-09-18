@@ -2468,7 +2468,6 @@ ocfs2_stack_o2cb
 ocfs2_stack_user
 ocrdma
 of_xilinx_wdt
-ohci-pci
 old_belkin-sir
 omfs
 omninet
