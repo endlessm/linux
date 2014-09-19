@@ -1329,8 +1329,6 @@ static void mixer_unbind(struct device *dev, struct device *master, void *data)
 	mixer_mgr_remove(mgr);
 
 	pm_runtime_disable(dev);
-
-	crtc->funcs->destroy(crtc);
 }
 
 static const struct component_ops mixer_component_ops = {

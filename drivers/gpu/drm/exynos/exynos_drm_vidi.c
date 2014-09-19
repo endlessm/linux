@@ -657,7 +657,6 @@ static int vidi_remove(struct platform_device *pdev)
 		return -EINVAL;
 	}
 
-	crtc->funcs->destroy(crtc);
 	encoder->funcs->destroy(encoder);
 	drm_connector_cleanup(&ctx->connector);
 

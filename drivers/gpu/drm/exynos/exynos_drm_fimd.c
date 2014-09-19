@@ -916,8 +916,6 @@ static void fimd_unbind(struct device *dev, struct device *master,
 		exynos_dpi_remove(dev);
 
 	fimd_mgr_remove(mgr);
-
-	crtc->funcs->destroy(crtc);
 }
 
 static const struct component_ops fimd_component_ops = {
