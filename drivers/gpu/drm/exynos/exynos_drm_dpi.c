@@ -65,11 +65,47 @@ static int exynos_drm_connector_mode_valid(struct drm_connector *connector,
 {
 	struct exynos_dpi *ctx = connector_to_dpi(connector);
 	unsigned long ideal_clk = mode->clock * 1000;
+	int vsync_len, vbpd, vfpd, hsync_len, hbpd, hfpd;
 
-	if (clk_round_rate(ctx->vclk, ideal_clk) != ideal_clk) {
-		pr_info("Unsupported pixel clock %ld\n", ideal_clk);
+	/* For a display mode to be supported, the parameters must fit in the
+	 * register widths of the FIMD hardware, and we must be able to produce
+	 * an accurate pixel clock.
+	 *
+	 * Note that 1 is subtracted from many of these parameters before they
+	 * are submitted to the hardware.
+	 */
+
+	if (mode->hdisplay > 2048 || mode->vdisplay > 2048) {
+		pr_info("%dx%d VGA unsupported: resolution out of range\n",
+			mode->hdisplay, mode->hdisplay);
 		return MODE_BAD;
 	}
+
+	vsync_len = mode->crtc_vsync_end - mode->crtc_vsync_start;
+	vbpd = mode->crtc_vtotal - mode->crtc_vsync_end;
+	vfpd = mode->crtc_vsync_start - mode->crtc_vdisplay;
+	hsync_len = mode->crtc_hsync_end - mode->crtc_hsync_start;
+	hbpd = mode->crtc_htotal - mode->crtc_hsync_end;
+	hfpd = mode->crtc_hsync_start - mode->crtc_hdisplay;
+
+	if (vsync_len > 256 || vbpd > 256 || vfpd > 256) {
+		pr_info("%dx%d VGA unsupported: V params out of range (%d,%d,%d)\n",
+			mode->hdisplay, mode->vdisplay, vsync_len, vbpd, vfpd);
+		return MODE_BAD;
+	}
+
+	if (hsync_len > 256 || hbpd > 256 || hfpd > 256) {
+		pr_info("%dx%d VGA unsupported: H params out of range (%d,%d,%d)\n",
+			mode->hdisplay, mode->vdisplay, hsync_len, hbpd, hfpd);
+		return MODE_BAD;
+	}
+
+	if (clk_round_rate(ctx->vclk, ideal_clk) != ideal_clk) {
+		pr_info("%dx%d VGA unsupported: Requires pixel clock %ld\n",
+			mode->hdisplay, mode->vdisplay, ideal_clk);
+		return MODE_BAD;
+	}
+
 	return MODE_OK;
 }
 
