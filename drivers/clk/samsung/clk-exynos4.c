@@ -1314,6 +1314,7 @@ static struct samsung_pll_rate_table exynos4x12_vpll_rates[] __initdata = {
 	PLL_36XX_RATE(108000000,  54, 3, 2,     0),
 	PLL_36XX_RATE(106031250,  53, 3, 2,  1024),
 	PLL_36XX_RATE( 85500000,  43, 3, 2, 49152),
+	PLL_36XX_RATE( 78800000,  39, 3, 2, 26214),
 	PLL_36XX_RATE( 78750000,  39, 3, 2, 24576),
 	PLL_36XX_RATE( 74250000,  37, 3, 2,  8192),
 	PLL_36XX_RATE( 65000000,  33, 3, 2, 32768),
@@ -1321,6 +1322,7 @@ static struct samsung_pll_rate_table exynos4x12_vpll_rates[] __initdata = {
 	PLL_36XX_RATE( 49500000,  50, 3, 3, 32768),
 	PLL_36XX_RATE( 40000000,  40, 3, 3,     0),
 	PLL_36XX_RATE( 31500000,  32, 3, 3, 32768),
+	PLL_36XX_RATE( 25200000,  25, 3, 3, 13107),
 	PLL_36XX_RATE( 25175000,  25, 3, 3, 11469),
 	{ /* sentinel */ }
 };
