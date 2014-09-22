@@ -2187,7 +2187,6 @@ rtc-v3020
 rtc-wm831x
 rtc-wm8350
 rtc-x1205
-rtc-xgene
 rti800
 rti802
 rtl2830
