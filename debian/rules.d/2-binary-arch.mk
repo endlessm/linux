@@ -300,6 +300,10 @@ endif
 ifeq ($(do_linux_tools),true)
 	# Create the linux-tools tool links
 	install -d $(toolspkgdir)/usr/lib/linux-tools/$(abi_release)-$*
+ifeq ($(do_tools_usbip),true)
+	ln -s ../../$(src_pkg_name)-tools-$(abi_release)/usbip $(toolspkgdir)/usr/lib/linux-tools/$(abi_release)-$*
+	ln -s ../../$(src_pkg_name)-tools-$(abi_release)/usbipd $(toolspkgdir)/usr/lib/linux-tools/$(abi_release)-$*
+endif
 ifeq ($(do_tools_cpupower),true)
 	ln -s ../../$(src_pkg_name)-tools-$(abi_release)/cpupower $(toolspkgdir)/usr/lib/linux-tools/$(abi_release)-$*
 endif
@@ -516,6 +520,13 @@ endif
 $(stampdir)/stamp-build-perarch: $(stampdir)/stamp-prepare-perarch install-arch-headers
 	@echo Debug: $@
 ifeq ($(do_linux_tools),true)
+ifeq ($(do_tools_usbip),true)
+	chmod 755 $(builddirpa)/tools/usb/usbip/autogen.sh
+	cd $(builddirpa)/tools/usb/usbip && ./autogen.sh
+	chmod 755 $(builddirpa)/tools/usb/usbip/configure
+	cd $(builddirpa)/tools/usb/usbip && ./configure --prefix=$(builddirpa)/tools/usb/usbip/bin
+	cd $(builddirpa)/tools/usb/usbip && make install CFLAGS="-g -O2 -static" CROSS_COMPILE=$(CROSS_COMPILE)
+endif
 ifeq ($(do_tools_cpupower),true)
 	# Allow for multiple installed versions of cpupower and libcpupower.so:
 	# Override LIB_MIN in order to to generate a versioned .so named
@@ -548,7 +559,12 @@ install-perarch: $(stampdir)/stamp-build-perarch
 ifeq ($(do_linux_tools),true)
 	install -d $(toolspkgdir)/usr/lib
 	install -d $(toolspkgdir)/usr/lib/$(src_pkg_name)-tools-$(abi_release)
-
+ifeq ($(do_tools_usbip),true)
+	install -m755 $(builddirpa)/tools/usb/usbip/bin/sbin/usbip \
+		$(toolspkgdir)/usr/lib/$(src_pkg_name)-tools-$(abi_release)
+	install -m755 $(builddirpa)/tools/usb/usbip/bin/sbin/usbipd \
+		$(toolspkgdir)/usr/lib/$(src_pkg_name)-tools-$(abi_release)
+endif
 ifeq ($(do_tools_cpupower),true)
 	install -m755 $(builddirpa)/tools/power/cpupower/cpupower \
 		$(toolspkgdir)/usr/lib/$(src_pkg_name)-tools-$(abi_release)
