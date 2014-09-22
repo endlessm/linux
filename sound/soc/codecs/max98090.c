@@ -2212,6 +2212,7 @@ static struct snd_soc_dai_driver max98090_dai[] = {
 		.rates = MAX98090_RATES,
 		.formats = MAX98090_FORMATS,
 	},
+#if 0
 	.capture = {
 		.stream_name = "HiFi Capture",
 		.channels_min = 1,
@@ -2219,6 +2220,7 @@ static struct snd_soc_dai_driver max98090_dai[] = {
 		.rates = MAX98090_RATES,
 		.formats = MAX98090_FORMATS,
 	},
+#endif
 	 .ops = &max98090_dai_ops,
 }
 };
