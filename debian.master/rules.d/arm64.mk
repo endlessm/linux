@@ -11,6 +11,7 @@ no_dumpfile = true
 loader		= grub
 vdso		= vdso_install
 
+do_tools_usbip  = true
 do_tools_cpupower = true
 do_tools_perf   = true
 

@@ -24,6 +24,7 @@ vdso		= vdso_install
 custom_flavours	=
 
 no_dumpfile		= true
+do_tools_usbip          = true
 do_tools_cpupower	= true
 do_tools_perf		= true
 
