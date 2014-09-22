@@ -262,6 +262,10 @@ static void pwm_samsung_disable(struct pwm_chip *chip, struct pwm_device *pwm)
 
 	spin_lock_irqsave(&samsung_pwm_lock, flags);
 
+	/* For some reason, the following power-off sequence returns the output
+	 * to a high voltage unless we set the following magic value */
+	writel(~0, our_chip->base + REG_TCMPB(pwm->hwpwm));
+
 	tcon = readl(our_chip->base + REG_TCON);
 	tcon &= ~TCON_AUTORELOAD(tcon_chan);
 	writel(tcon, our_chip->base + REG_TCON);
