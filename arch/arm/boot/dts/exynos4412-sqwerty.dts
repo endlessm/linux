@@ -620,6 +620,11 @@
 		"Speakers", "SPKR";
 };
 
+&tmu {
+	status = "okay";
+	vtmu-supply = <&ldo10_reg>;
+};
+
 /* SampleA SDIO signal integrity tweaks */
 &sd3_clk {
 	samsung,pin-drv = <1>;
