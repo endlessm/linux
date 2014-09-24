@@ -103,6 +103,11 @@ value CONFIG_VFAT_FS y
  value CONFIG_NVRAM m | \
  !exists CONFIG_NVRAM
 
+# Ensure CRASH_DUMP is n for powerpc-smp and powerpc-e500mc, LP:1363180
+(flavour powerpc-smp powerpc-e500mc &/ value CONFIG_CRASH_DUMP n) | \
+ value CRASH_DUMP y | \
+ !exists CRASH_DUMP
+
 # Ensure CONFIG_STUB_POULSBO is disabled if CONFIG_DRM_PSB is enabled
 # See LP:899244
 (!exists CONFIG_DRM_PSB | value CONFIG_DRM_PSB n) | \
