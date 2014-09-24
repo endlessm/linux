@@ -770,10 +770,12 @@ static void i2s_shutdown(struct snd_pcm_substream *substream,
 
 	spin_unlock_irqrestore(&lock, flags);
 
+#if 0
 	/* Gate CDCLK by default */
 	if (!is_opened(other))
 		i2s_set_sysclk(dai, SAMSUNG_I2S_CDCLK,
 				0, SND_SOC_CLOCK_IN);
+#endif
 }
 
 static int config_setup(struct i2s_dai *i2s)
