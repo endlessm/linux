@@ -610,7 +610,7 @@
 
 &sound {
 	compatible = "samsung,odroidu3-audio";
-	samsung,model = "Odroid-U3";
+	samsung,model = "Sqwerty";
 	samsung,audio-routing =
 		"Headphone Jack", "HPL",
 		"Headphone Jack", "HPR",
