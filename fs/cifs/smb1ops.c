@@ -579,7 +579,7 @@ cifs_query_path_info(const unsigned int xid, struct cifs_tcon *tcon,
 			cifs_sb->mnt_cifs_flags & CIFS_MOUNT_MAP_SPECIAL_CHR);
 		if (tmprc == -EOPNOTSUPP)
 			*symlink = true;
-		else
+		else if (tmprc == 0)
 			CIFSSMBClose(xid, tcon, netfid);
 	}
 
