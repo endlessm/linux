@@ -1,3 +1,12 @@
+linux (3.16.0-18.25) utopic; urgency=low
+
+  [ Tim Gardner ]
+
+  * Release Tracking Bug
+    - LP: #1373682
+
+ -- Tim Gardner <tim.gardner@canonical.com>  Wed, 24 Sep 2014 19:23:23 -0600
+
 linux (3.16.0-18.24) utopic; urgency=low
 
   [ Andy Whitcroft ]
