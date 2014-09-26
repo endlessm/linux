@@ -400,3 +400,8 @@
 		samsung,pin-drv = <0>;
 	};
 };
+
+&tmu {
+	status = "okay";
+	vtmu-supply = <&ldo10_reg>;
+};
