@@ -605,6 +605,9 @@ static int __init hci_uart_init(void)
 #ifdef CONFIG_BT_HCIUART_3WIRE
 	h5_init();
 #endif
+#ifdef CONFIG_BT_HCIUART_RTKH5
+	h5_init();
+#endif
 
 	return 0;
 }
@@ -626,6 +629,9 @@ static void __exit hci_uart_exit(void)
 	ath_deinit();
 #endif
 #ifdef CONFIG_BT_HCIUART_3WIRE
+	h5_deinit();
+#endif
+#ifdef CONFIG_BT_HCIUART_RTKH5
 	h5_deinit();
 #endif
 
