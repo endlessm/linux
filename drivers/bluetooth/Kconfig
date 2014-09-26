@@ -243,4 +243,14 @@ config BT_WILINK
 	  Say Y here to compile support for Texas Instrument's WiLink7 driver
 	  into the kernel or say M to compile it as module (btwilink).
 
+config BT_HCIUART_RTKH5
+	bool "Realtek H5 protocol support"
+	depends on BT_HCIUART
+	help
+	  Realtek H5 is serial protocol for communication 
+	  between Realtek Bluetooth device and host. This protocol is required for 
+	  Realtek uart h5 bluetooth controller
+
+	  Say Y here to compile support for Realtek HCI H5 protocol.
+
 endmenu
