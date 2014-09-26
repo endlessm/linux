@@ -77,7 +77,7 @@ ifeq ($(do_source_package_content),true)
 		-path './debian/tmp' -prune -o \
 		-print | \
 		cpio -pd --preserve-modification-time $(srcdir)
-	ln -s $(srcpkg)/$(srcpkg).tar.bz2 $(srcdir)/..
+	$(LN) $(srcpkg)/$(srcpkg).tar.bz2 $(srcdir)/..
 endif
 endif
 
@@ -95,7 +95,7 @@ install-tools: install-source $(stampdir)/stamp-build-perarch
 ifeq ($(do_tools_common),true)
 	rm -rf $(builddir)/tools
 	install -d $(builddir)/tools
-	for i in *; do ln -s $(CURDIR)/$$i $(builddir)/tools/; done
+	for i in *; do $(LN) $(CURDIR)/$$i $(builddir)/tools/; done
 	rm $(builddir)/tools/tools
 	rsync -a tools/ $(builddir)/tools/tools/
 

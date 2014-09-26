@@ -229,6 +229,9 @@ lockme_file = $(CURDIR)/debian/.LOCK
 lockme_cmd = flock -w 60
 lockme = $(lockme_cmd) $(lockme_file)
 
+# Don't fail if a link already exists.
+LN = ln -sf
+
 # Checks if a var is overriden by the custom rules. Called with var and
 # flavour as arguments.
 custom_override = \
