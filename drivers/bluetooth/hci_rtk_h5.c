@@ -618,7 +618,7 @@ static void h5_complete_rx_pkt(struct hci_uart *hu)
 		/* Pull out H5 hdr */
 		skb_pull(h5->rx_skb, 4);
 
-		hci_recv_frame(h5->rx_skb);
+		hci_recv_frame(hu->hdev, h5->rx_skb);
 	}
 
 	h5->rx_state = H5_W4_PKT_DELIMITER;
@@ -739,7 +739,6 @@ static int h5_recv(struct hci_uart *hu, void *data, int count)
 					h5->rx_count = 0;
 					return 0;
 				}
-				h5->rx_skb->dev = (void *) hu->hdev;
 				break;
 			}
 			break;
@@ -824,7 +823,7 @@ static struct hci_uart_proto h5 = {
 	.flush		= h5_flush
 };
 
-int h5_init(void)
+int rtk_h5_init(void)
 {
 	int err = hci_uart_register_proto(&h5);
 
@@ -836,7 +835,7 @@ int h5_init(void)
 	return err;
 }
 
-int h5_deinit(void)
+int rtk_h5_deinit(void)
 {
 	return hci_uart_unregister_proto(&h5);
 }
