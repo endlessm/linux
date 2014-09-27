@@ -28,6 +28,9 @@ value CONFIG_DEBUG_INFO y
 (arch armel armhf &/ value CONFIG_DEFAULT_MMAP_MIN_ADDR 32768) | \
  value CONFIG_DEFAULT_MMAP_MIN_ADDR 65536
 
+#LP#1374440
+!exists CONFIG_HOTPLUG_PCI_PCIE | (arch ppc64el &/ value CONFIG_HOTPLUG_PCI_PCIE n) | value CONFIG_HOTPLUG_PCI_PCIE y
+
 # upstart requires DEVTMPFS be enabled and mounted by default.
 value CONFIG_DEVTMPFS y
 value CONFIG_DEVTMPFS_MOUNT y
