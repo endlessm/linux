@@ -21,20 +21,37 @@ struct odroidx2_drv_data {
 /* The I2S CDCLK output clock frequency for the MAX98090 codec */
 #define MAX98090_MCLK 19200000
 
+static int odroidx2_startup(struct snd_pcm_substream *substream)
+{
+	struct snd_soc_pcm_runtime *rtd = substream->private_data;
+
+	if (rtd->cpu_dai->active)
+		return 0;
+
+	return snd_soc_dai_set_sysclk(rtd->cpu_dai, SAMSUNG_I2S_CDCLK,
+				      0, SND_SOC_CLOCK_OUT);
+}
+
+static void odroidx2_shutdown(struct snd_pcm_substream *substream)
+{
+	struct snd_soc_pcm_runtime *rtd = substream->private_data;
+
+	if (!rtd->cpu_dai->active)
+		snd_soc_dai_set_sysclk(rtd->cpu_dai, SAMSUNG_I2S_CDCLK,
+				       0, SND_SOC_CLOCK_IN);
+}
+
+static const struct snd_soc_ops odroidx2_ops = {
+	.startup = odroidx2_startup,
+	.shutdown = odroidx2_shutdown,
+};
+
 static int odroidx2_late_probe(struct snd_soc_card *card)
 {
 	struct snd_soc_dai *codec_dai = card->rtd[0].codec_dai;
-	struct snd_soc_dai *cpu_dai = card->rtd[0].cpu_dai;
-	int ret;
 
-	ret = snd_soc_dai_set_sysclk(codec_dai, 0, MAX98090_MCLK,
+	return snd_soc_dai_set_sysclk(codec_dai, 0, MAX98090_MCLK,
 						SND_SOC_CLOCK_IN);
-	if (ret < 0)
-		return ret;
-
-	/* Set the cpu DAI configuration in order to use CDCLK */
-	return snd_soc_dai_set_sysclk(cpu_dai, SAMSUNG_I2S_CDCLK,
-					0, SND_SOC_CLOCK_OUT);
 }
 
 static const struct snd_soc_dapm_widget odroidx2_dapm_widgets[] = {
@@ -55,6 +72,7 @@ static struct snd_soc_dai_link odroidx2_dai[] = {
 		.codec_dai_name	= "HiFi",
 		.dai_fmt	= SND_SOC_DAIFMT_I2S | SND_SOC_DAIFMT_NB_NF |
 				  SND_SOC_DAIFMT_CBM_CFM,
+		.ops		= &odroidx2_ops,
 	}
 };
 
