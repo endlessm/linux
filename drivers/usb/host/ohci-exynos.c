@@ -77,18 +77,15 @@ static int exynos_ohci_get_phy(struct device *dev,
 		ret = of_property_read_u32(child, "reg", &phy_number);
 		if (ret) {
 			dev_err(dev, "Failed to parse device tree\n");
-			of_node_put(child);
 			return ret;
 		}
 
 		if (phy_number >= PHY_NUMBER) {
 			dev_err(dev, "Invalid number of PHYs\n");
-			of_node_put(child);
 			return -EINVAL;
 		}
 
 		phy = devm_of_phy_get(dev, child, NULL);
-		of_node_put(child);
 		if (IS_ERR(phy)) {
 			ret = PTR_ERR(phy);
 			if (ret != -ENOSYS && ret != -ENODEV) {
