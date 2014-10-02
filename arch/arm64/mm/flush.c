@@ -111,6 +111,7 @@ void pmdp_splitting_flush(struct vm_area_struct *vma, unsigned long address,
 			  pmd_t *pmdp)
 {
 	pmd_t pmd = pmd_mksplitting(*pmdp);
+
 	VM_BUG_ON(address & ~PMD_MASK);
 	set_pmd_at(vma->vm_mm, address, pmdp, pmd);
 
