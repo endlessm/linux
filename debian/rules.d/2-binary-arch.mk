@@ -174,7 +174,7 @@ ifeq ($(do_extras_package),true)
 		for script in postinst postrm ; do				\
 			sed -e 's/=V/$(abi_release)-$*/g' -e 's/=K/$(instfile)/g'		\
 			    -e 's/=L/$(loader)/g'         -e 's@=B@$(build_arch)@g'		\
-			    debian/control-scripts/$$script > $(pkgdir_ex)/DEBIAN/$$script; \
+			    debian/control-scripts/extra-post > $(pkgdir_ex)/DEBIAN/$$script; \
 			chmod 755 $(pkgdir_ex)/DEBIAN/$$script;			\
 		done;								\
 	fi
