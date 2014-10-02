@@ -1004,6 +1004,7 @@ bool current_in_userns(const struct user_namespace *target_ns)
 	}
 	return false;
 }
+EXPORT_SYMBOL(current_in_userns);
 
 static inline struct user_namespace *to_user_ns(struct ns_common *ns)
 {
