@@ -665,7 +665,7 @@ struct page *get_dump_page(unsigned long addr)
 }
 #endif /* CONFIG_ELF_CORE */
 
-/**
+/*
  * Generic RCU Fast GUP
  *
  * get_user_pages_fast attempts to pin user pages by walking the page
@@ -918,8 +918,8 @@ static int gup_pud_range(pgd_t *pgdp, unsigned long addr, unsigned long end,
 }
 
 /*
- * Like get_user_pages_fast() except its IRQ-safe in that it won't fall
- * back to the regular GUP. It will only return non-negative values.
+ * Like get_user_pages_fast() except it's IRQ-safe in that it won't fall back to
+ * the regular GUP. It will only return non-negative values.
  */
 int __get_user_pages_fast(unsigned long start, int nr_pages, int write,
 			  struct page **pages)
@@ -940,8 +940,8 @@ int __get_user_pages_fast(unsigned long start, int nr_pages, int write,
 		return 0;
 
 	/*
-	 * Disable interrupts, we use the nested form as we can already
-	 * have interrupts disabled by get_futex_key.
+	 * Disable interrupts.  We use the nested form as we can already have
+	 * interrupts disabled by get_futex_key.
 	 *
 	 * With interrupts disabled, we block page table pages from being
 	 * freed from under us. See mmu_gather_tlb in asm-generic/tlb.h
