@@ -2,7 +2,7 @@
 set -e
 
 case "$0::$1" in
-*.postinst::configure|*.postrm::remove|*.postrm::purge)
+*.postinst::configure|*.postrm::remove)
 	depmod -a -F /boot/System.map-=V =V || true
 	for dir in "/etc/kernel/postinst.d" "/etc/kernel/postinst.d/=V"
 	do
