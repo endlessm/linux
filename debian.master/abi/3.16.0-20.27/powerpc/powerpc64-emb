@@ -6382,6 +6382,7 @@ EXPORT_SYMBOL vmlinux 0x2482e688	vsprintf
 EXPORT_SYMBOL vmlinux 0x2484adc3	__kfifo_to_user_r
 EXPORT_SYMBOL vmlinux 0x249818d4	blk_mq_start_stopped_hw_queues
 EXPORT_SYMBOL vmlinux 0x24990af0	__dynamic_dev_dbg
+EXPORT_SYMBOL vmlinux 0x249b6b9c	msi_bitmap_alloc_hwirqs
 EXPORT_SYMBOL vmlinux 0x249f0d29	vm_insert_mixed
 EXPORT_SYMBOL vmlinux 0x24e67592	sg_miter_skip
 EXPORT_SYMBOL vmlinux 0x24f00380	ida_init
@@ -8746,6 +8747,7 @@ EXPORT_SYMBOL vmlinux 0xb67499e1	netdev_lower_get_next_private
 EXPORT_SYMBOL vmlinux 0xb678366f	int_sqrt
 EXPORT_SYMBOL vmlinux 0xb67bc6f8	nobh_write_end
 EXPORT_SYMBOL vmlinux 0xb6936ffe	_bcd2bin
+EXPORT_SYMBOL vmlinux 0xb69b389f	msi_bitmap_free_hwirqs
 EXPORT_SYMBOL vmlinux 0xb69f664a	neigh_lookup_nodev
 EXPORT_SYMBOL vmlinux 0xb6a68816	find_last_bit
 EXPORT_SYMBOL vmlinux 0xb6af26d0	tso_build_data

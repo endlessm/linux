@@ -6658,6 +6658,7 @@ EXPORT_SYMBOL vmlinux 0x35774e42	uart_remove_one_port
 EXPORT_SYMBOL vmlinux 0x3581879f	filemap_write_and_wait
 EXPORT_SYMBOL vmlinux 0x358a4179	mmc_interrupt_hpi
 EXPORT_SYMBOL vmlinux 0x35a05014	i2c_put_adapter
+EXPORT_SYMBOL vmlinux 0x35aa6f89	msi_bitmap_alloc_hwirqs
 EXPORT_SYMBOL vmlinux 0x35b01b78	pipe_lock
 EXPORT_SYMBOL vmlinux 0x35c32767	xor_altivec_2
 EXPORT_SYMBOL vmlinux 0x35d2e554	max8925_reg_write
@@ -9169,6 +9170,7 @@ EXPORT_SYMBOL vmlinux 0xd0181f4f	__bitmap_xor
 EXPORT_SYMBOL vmlinux 0xd024d761	input_mt_destroy_slots
 EXPORT_SYMBOL vmlinux 0xd031b465	agp_collect_device_status
 EXPORT_SYMBOL vmlinux 0xd039efbf	skb_orphan_partial
+EXPORT_SYMBOL vmlinux 0xd03ba6a3	msi_bitmap_free_hwirqs
 EXPORT_SYMBOL vmlinux 0xd06d6950	pci_bus_write_config_byte
 EXPORT_SYMBOL vmlinux 0xd0720a17	on_each_cpu_cond
 EXPORT_SYMBOL vmlinux 0xd0826a61	sdev_enable_disk_events

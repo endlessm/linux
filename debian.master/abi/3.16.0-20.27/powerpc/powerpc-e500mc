@@ -6675,6 +6675,7 @@ EXPORT_SYMBOL vmlinux 0x35533ee7	mach_twr_p1025
 EXPORT_SYMBOL vmlinux 0x357e4716	forget_all_cached_acls
 EXPORT_SYMBOL vmlinux 0x358f92ac	security_inode_notifysecctx
 EXPORT_SYMBOL vmlinux 0x35a277f6	dev_addr_del
+EXPORT_SYMBOL vmlinux 0x35aa6f89	msi_bitmap_alloc_hwirqs
 EXPORT_SYMBOL vmlinux 0x35b0f6bd	scsi_remove_device
 EXPORT_SYMBOL vmlinux 0x35b410b2	mmc_can_trim
 EXPORT_SYMBOL vmlinux 0x35b8f0ee	sock_kmalloc
@@ -9159,6 +9160,7 @@ EXPORT_SYMBOL vmlinux 0xcffbfc6d	dev_change_flags
 EXPORT_SYMBOL vmlinux 0xd003cd3a	pci_enable_device
 EXPORT_SYMBOL vmlinux 0xd0181f4f	__bitmap_xor
 EXPORT_SYMBOL vmlinux 0xd03b7054	inode_dio_wait
+EXPORT_SYMBOL vmlinux 0xd03ba6a3	msi_bitmap_free_hwirqs
 EXPORT_SYMBOL vmlinux 0xd0669eb9	pci_write_vpd
 EXPORT_SYMBOL vmlinux 0xd06fa520	xfrm6_protocol_register
 EXPORT_SYMBOL vmlinux 0xd0720a17	on_each_cpu_cond
