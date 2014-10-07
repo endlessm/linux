@@ -99,7 +99,6 @@
 		samsung,dw-mshc-ciu-div = <3>;
 		samsung,dw-mshc-sdr-timing = <2 3>;
 		samsung,dw-mshc-ddr-timing = <1 2>;
-		samsung,dw-mshc-hwreset-gpio = <&gpk1 2 1>;
 
 		slot@0 {
 			reg = <0>;
@@ -433,13 +432,6 @@
 					regulator-min-microvolt = <2000000>;
 					regulator-max-microvolt = <2000000>;
 					regulator-always-on;
-				};
-
-				buck8_reg: BUCK8 {
-					regulator-name = "BUCK8_2.85V";
-					regulator-min-microvolt = <2850000>;
-					regulator-max-microvolt = <2850000>;
-					regulator-always-on; /* Might be used for eMMC in hardware rework. Remove this otherwise. */
 				};
 			};
 		};
