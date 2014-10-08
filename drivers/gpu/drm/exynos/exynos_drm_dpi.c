@@ -81,12 +81,12 @@ static int exynos_drm_connector_mode_valid(struct drm_connector *connector,
 		return MODE_BAD;
 	}
 
-	vsync_len = mode->crtc_vsync_end - mode->crtc_vsync_start;
-	vbpd = mode->crtc_vtotal - mode->crtc_vsync_end;
-	vfpd = mode->crtc_vsync_start - mode->crtc_vdisplay;
-	hsync_len = mode->crtc_hsync_end - mode->crtc_hsync_start;
-	hbpd = mode->crtc_htotal - mode->crtc_hsync_end;
-	hfpd = mode->crtc_hsync_start - mode->crtc_hdisplay;
+	vsync_len = mode->vsync_end - mode->vsync_start;
+	vbpd = mode->vtotal - mode->vsync_end;
+	vfpd = mode->vsync_start - mode->vdisplay;
+	hsync_len = mode->hsync_end - mode->hsync_start;
+	hbpd = mode->htotal - mode->hsync_end;
+	hfpd = mode->hsync_start - mode->hdisplay;
 
 	if (vsync_len > 256 || vbpd > 256 || vfpd > 256) {
 		pr_info("%dx%d VGA unsupported: V params out of range (%d,%d,%d)\n",
