@@ -1,3 +1,11 @@
+linux (3.13.0-27.50endless7) eos; urgency=low
+
+  [ Dan Nicholson ]
+
+  * x86/reboot: Use bios reboot for GIGABYTE BRIX BXBT-2807
+
+ -- Dan Nicholson <nicholson@endlessm.com>  Wed, 08 Oct 2014 12:12:08 -0700
+
 linux (3.13.0-27.50endless6) eos; urgency=low
 
   [ Jasper St. Pierre ]
