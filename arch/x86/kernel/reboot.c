@@ -439,6 +439,16 @@ static const struct dmi_system_id reboot_dmi_table[] __initconst = {
 		},
 	},
 
+	/* GIGABYTE */
+	{	/* Workaround hard disk crash on ACPI reboot */
+		.callback = set_bios_reboot,
+		.ident = "GIGABYTE BRIX BXBT-2807",
+		.matches = {
+			DMI_MATCH(DMI_SYS_VENDOR, "GIGABYTE"),
+			DMI_MATCH(DMI_PRODUCT_NAME, "GB-BXBT-2807"),
+		},
+	},
+
 	/* Hewlett-Packard */
 	{	/* Handle problems with rebooting on HP laptops */
 		.callback = set_bios_reboot,
