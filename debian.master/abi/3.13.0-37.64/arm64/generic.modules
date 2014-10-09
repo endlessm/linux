@@ -2745,6 +2745,7 @@ xfrm_ipcomp
 xfrm_user
 xfs
 xgene-enet
+xgene-rng
 xgifb
 xgmac
 xilinx_uartps
