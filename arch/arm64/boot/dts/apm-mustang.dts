@@ -40,3 +40,7 @@
 &pcie0 {
 	status = "ok";
 };
+
+&xgenet {
+	status = "ok";
+};
