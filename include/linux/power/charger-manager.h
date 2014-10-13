@@ -248,7 +248,6 @@ struct charger_manager {
 	struct charger_desc *desc;
 
 	struct power_supply *fuel_gauge;
-	struct power_supply **charger_stat;
 
 	bool charger_enabled;
 
