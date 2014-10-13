@@ -740,7 +740,9 @@ static int intel_pstate_init_cpu(unsigned int cpunum)
 	if (!id)
 		return -ENODEV;
 
-	all_cpu_data[cpunum] = kzalloc(sizeof(struct cpudata), GFP_KERNEL);
+	if (!all_cpu_data[cpunum])
+		all_cpu_data[cpunum] = kzalloc(sizeof(struct cpudata),
+					       GFP_KERNEL);
 	if (!all_cpu_data[cpunum])
 		return -ENOMEM;
 
@@ -828,8 +830,6 @@ static int intel_pstate_cpu_exit(struct cpufreq_policy *policy)
 	int cpu = policy->cpu;
 
 	del_timer(&all_cpu_data[cpu]->timer);
-	kfree(all_cpu_data[cpu]);
-	all_cpu_data[cpu] = NULL;
 	return 0;
 }
 
