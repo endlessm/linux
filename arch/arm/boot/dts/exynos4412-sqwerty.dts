@@ -112,6 +112,13 @@
 		};
 	};
 
+	wifi_reg: regulator-wifi {
+		compatible = "regulator-fixed";
+		regulator-name = "WL_REG_ON";
+		gpio = <&gpl2 4 0>;
+		enable-active-high;
+	};
+
 	sdhci@12530000 {
 		bus-width = <4>;
 		pinctrl-0 = <&sd2_clk &sd2_cmd &sd2_cd &sd2_bus4>;
@@ -120,16 +127,13 @@
 		status = "okay";
 	};
 
-	sdhci@12540000 { /* wifi/BT */
+	sdhci@12540000 { /* wifi */
 		bus-width = <4>;
 		pinctrl-0 = <&sd3_clk &sd3_cmd &sd3_cd &sd3_bus4>;
 		pinctrl-names = "default";
-		/* Temporarily droped non-removable flag until communication is OK;
-		 * results in continued probing, good for HW diag */
-		broken-cd;
+		non-removable;
 		status = "okay";
-		wlan-gpio = <&gpl2 4 0>; /* FIXME: for reset */
-		bt-gpio = <&gpl2 2 0>; /* FIXME: for reset */
+		vqmmc-supply = <&wifi_reg>;
 	};
 
 	fixed-rate-clocks {
