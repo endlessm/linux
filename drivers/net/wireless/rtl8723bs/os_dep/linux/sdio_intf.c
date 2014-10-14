@@ -55,6 +55,8 @@ static const struct sdio_device_id sdio_ids[] =
 //	{ /* end: all zeroes */				},
 };
 
+MODULE_DEVICE_TABLE(sdio, sdio_ids);
+
 static int rtw_drv_init(struct sdio_func *func, const struct sdio_device_id *id);
 static void rtw_dev_remove(struct sdio_func *func);
 static int rtw_sdio_resume(struct device *dev);
