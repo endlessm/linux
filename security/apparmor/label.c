@@ -1212,7 +1212,7 @@ do {					\
  * aa_modename_snprint - print the mode name of a profile or label to a buffer
  * @str: buffer to write to (MAY BE NULL if @size == 0)
  * @size: size of buffer
- * @ns: namespace profile is being viewed from (NOT NULL)
+ * @ns: namespace profile is being viewed from
  * @label: label to print the mode of (NOT NULL)
  *
  * Returns: size of name written or would be written if larger than
@@ -1229,6 +1229,9 @@ static int aa_modename_snprint(char *str, size_t size, struct aa_namespace *ns,
 	struct label_it i;
 	int total = 0;
 	size_t len;
+
+	if (!ns)
+		ns = labels_ns(label);
 
 	label_for_each(i, label, profile) {
 		const char *modestr;
@@ -1250,7 +1253,7 @@ static int aa_modename_snprint(char *str, size_t size, struct aa_namespace *ns,
  * aa_modechr_snprint - print the mode chr of a profile or labels to a buffer
  * @str: buffer to write to (MAY BE NULL if @size == 0)
  * @size: size of buffer
- * @ns: namespace profile is being viewed from (NOT NULL)
+ * @ns: namespace profile is being viewed from
  * @label: label to print the mode chr of (NOT NULL)
  *
  * Returns: size of mode string written or would be written if larger than
@@ -1267,6 +1270,9 @@ static int aa_modechr_snprint(char *str, size_t size, struct aa_namespace *ns,
 	struct label_it i;
 	int total = 0;
 	size_t len;
+
+	if (!ns)
+		ns = labels_ns(label);
 
 	len = snprintf(str, size, "(");
 	update_for_len(total, len, size, str);
@@ -1289,7 +1295,7 @@ static int aa_modechr_snprint(char *str, size_t size, struct aa_namespace *ns,
  * aa_mode_snprint - print the mode of a profile or label to a buffer
  * @str: buffer to write to (MAY BE NULL if @size == 0)
  * @size: size of buffer
- * @ns: namespace profile is being viewed from (NOT NULL)
+ * @ns: namespace profile is being viewed from
  * @label: label to print the mode of (NOT NULL)
  * @count: number of label entries to be printed (<= 0 if unknown)
  *
@@ -1305,6 +1311,9 @@ static int aa_mode_snprint(char *str, size_t size, struct aa_namespace *ns,
 {
 	struct aa_profile *profile;
 	struct label_it i;
+
+	if (!ns)
+		ns = labels_ns(label);
 
 	if (count <= 0) {
 		count = 0;
@@ -1327,7 +1336,7 @@ static int aa_mode_snprint(char *str, size_t size, struct aa_namespace *ns,
  * aa_snprint_profile - print a profile name to a buffer
  * @str: buffer to write to. (MAY BE NULL if @size == 0)
  * @size: size of buffer
- * @ns: namespace profile is being viewed from (NOT NULL)
+ * @ns: namespace profile is being viewed from
  * @profile: profile to view (NOT NULL)
  * @mode: whether to include the mode string
  *
@@ -1339,12 +1348,15 @@ static int aa_mode_snprint(char *str, size_t size, struct aa_namespace *ns,
 int aa_profile_snprint(char *str, size_t size, struct aa_namespace *ns,
 		       struct aa_profile *profile, bool mode)
 {
-	const char *ns_name = aa_ns_name(ns, profile->ns);
+	const char *ns_name;
 
 	AA_BUG(!str && size != 0);
-	AA_BUG(!ns);
 	AA_BUG(!profile);
 
+	if (!ns)
+		ns = profiles_ns(profile);
+
+	ns_name = aa_ns_name(ns, profile->ns);
 	if (!ns_name)
 		return 0;
 
@@ -1367,7 +1379,7 @@ int aa_profile_snprint(char *str, size_t size, struct aa_namespace *ns,
  * aa_label_snprint - print a label name to a string buffer
  * @str: buffer to write to. (MAY BE NULL if @size == 0)
  * @size: size of buffer
- * @ns: namespace profile is being viewed from (NOT NULL)
+ * @ns: namespace profile is being viewed from
  * @label: label to view (NOT NULL)
  * @mode: whether to include the mode string
  *
@@ -1389,8 +1401,10 @@ int aa_label_snprint(char *str, size_t size, struct aa_namespace *ns,
 	size_t len;
 
 	AA_BUG(!str && size != 0);
-	AA_BUG(!ns);
 	AA_BUG(!label);
+
+	if (!ns)
+		ns = labels_ns(label);
 
 	label_for_each(i, label, profile) {
 		if (aa_ns_visible(ns, profile->ns)) {
@@ -1426,7 +1440,7 @@ int aa_label_snprint(char *str, size_t size, struct aa_namespace *ns,
 /**
  * aa_label_asprint - allocate a string buffer and print label into it
  * @strp: Returns - the allocated buffer with the label name. (NOT NULL)
- * @ns: namespace profile is being viewed from (NOT NULL)
+ * @ns: namespace profile is being viewed from
  * @label: label to view (NOT NULL)
  * @mode: whether to include the mode string
  * @gfp: kernel memory allocation type
@@ -1440,7 +1454,6 @@ int aa_label_asprint(char **strp, struct aa_namespace *ns,
 	int size;
 
 	AA_BUG(!strp);
-	AA_BUG(!ns);
 	AA_BUG(!label);
 
 	size = aa_label_snprint(NULL, 0, ns, label, mode);
@@ -1456,7 +1469,7 @@ int aa_label_asprint(char **strp, struct aa_namespace *ns,
 /**
  * aa_label_acntsprint - allocate a __counted string buffer and print label
  * @strp: buffer to write to. (MAY BE NULL if @size == 0)
- * @ns: namespace profile is being viewed from (NOT NULL)
+ * @ns: namespace profile is being viewed from
  * @label: label to view (NOT NULL)
  * @mode: whether to include the mode string
  * @gfp: kernel memory allocation type
@@ -1470,7 +1483,6 @@ int aa_label_acntsprint(char __counted **strp, struct aa_namespace *ns,
 	int size;
 
 	AA_BUG(!strp);
-	AA_BUG(!ns);
 	AA_BUG(!label);
 
 	size = aa_label_snprint(NULL, 0, ns, label, mode);
@@ -1492,8 +1504,10 @@ void aa_label_audit(struct audit_buffer *ab, struct aa_namespace *ns,
 	int len;
 
 	AA_BUG(!ab);
-	AA_BUG(!ns);
 	AA_BUG(!label);
+
+	if (!ns)
+		ns = labels_ns(label);
 
 	if (label_name_visible(ns, label)) {
 		str = (char *) label->hname;
@@ -1521,8 +1535,10 @@ void aa_label_seq_print(struct seq_file *f, struct aa_namespace *ns,
 			struct aa_label *label, bool mode, gfp_t gfp)
 {
 	AA_BUG(!f);
-	AA_BUG(!ns);
 	AA_BUG(!label);
+
+	if (!ns)
+		ns = labels_ns(label);
 
 	if (!label_name_visible(ns, label)) {
 		char *str;
@@ -1547,8 +1563,10 @@ void aa_label_printk(struct aa_namespace *ns, struct aa_label *label, bool mode,
 	char *str;
 	int len;
 
-	AA_BUG(!ns);
 	AA_BUG(!label);
+
+	if (!ns)
+		ns = labels_ns(label);
 
 	if (!label_name_visible(ns, label)) {
 		labelstats_inc(printk_name_alloc);
