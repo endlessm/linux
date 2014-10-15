@@ -221,11 +221,12 @@ static void exynos_dpi_mode_set(struct exynos_drm_display *display,
 	/* At 1280x1024@60Hz and higher there is not enough memory bandwidth
 	 * available for the display controller when the GPU is busy. So we
 	 * apply a "QoS" scheme.
-	 * I found these numbers through guesswork. The GPU performance is
-	 * degraded by about 30%, but there are no flickers.
+	 * I found some numbers through guesswork, then they were tweaked by
+	 * Samsung to result in the values below. The GPU performance is
+	 * degraded by about 15%, but there are no flickers.
 	 */
 	if (mode->clock >= 135000)
-		exynos4412_qos(3, 3);
+		exynos4412_qos(5, 3);
 	else
 		exynos4412_qos(0, 0);
 }

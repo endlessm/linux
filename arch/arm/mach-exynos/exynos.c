@@ -409,9 +409,19 @@ static void __init exynos_dt_fixup(void)
  * [4] MFC_R Block: "1" Full Resource, "0" Tidemark
  * [5] MAUDIO Block: "1" Full Resource, "0" Tidemark
  *
- * We have no docs for the AC registers (offset +4 from the above).
+ * We have no docs for the TM registers (offset +4 from the above), but it
+ * would appear that the AC registers divide the functions into 2 groups:
+ * high priority (when AC bits are set) and low priority (AC bits unset), as
+ * above. Then the TM register acts as an integer and controls the degree of
+ * disparity between the 2 groups:
+ *  - A lower TM value means that the high priority function group is given
+ *    more memory bandwidth, and the other function group is penalised more.
+ *  - A higher TM value means that the high priority function group is only
+ *    given a bit more memory bandwidth than normal, and the other function
+ *    group is not penalised so heavily.
+ *
  * We currently only write to the left bus registers.
-*/
+ */
 void exynos4412_qos(u8 tm, u8 ac)
 {
 	void __iomem *qos_gdl_base = ioremap(0x11600400, 8);
