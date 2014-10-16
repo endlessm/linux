@@ -239,8 +239,8 @@ void halbtcoutsrc_LeaveLowPower(PBTC_COEXIST pBtCoexist)
 	PHAL_DATA_TYPE pHalData;
 	struct pwrctrl_priv *pwrctrl;
 	s32 ready;
-	u32 stime;
-	s32 utime;
+	unsigned long stime;
+	unsigned long utime;
 	u32 timeout; // unit: ms
 
 
@@ -254,13 +254,13 @@ void halbtcoutsrc_LeaveLowPower(PBTC_COEXIST pBtCoexist)
 	timeout = 30;
 #endif // !LPS_RPWM_WAIT_MS
 
-	stime = rtw_get_current_time();
+	stime = jiffies;
 	do {
 		ready = rtw_register_task_alive(padapter, BTCOEX_ALIVE);
 		if (_SUCCESS == ready)
 			break;
 
-		utime = rtw_get_passing_time_ms(stime);
+		utime = jiffies_to_msecs(jiffies - stime);
 		if (utime > timeout)
 			break;
 

@@ -576,7 +576,7 @@ struct mlme_ext_priv
 #endif //CONFIG_IEEE80211W
 	//_timer		ADDBA_timer;
 	u16			chan_scan_time;
-	u32 last_scan_time;
+	unsigned long last_scan_time;
 	u8	scan_abort;
 	u8	tx_rate; // TXRATE when USERATE is set.
 
@@ -649,7 +649,7 @@ u8 rtw_get_oper_choffset(_adapter *adapter);
 void rtw_set_oper_choffset(_adapter *adapter, u8 offset);
 u8	rtw_get_center_ch(u8 channel, u8 chnl_bw, u8 chnl_offset);
 u32 rtw_get_on_oper_ch_time(_adapter *adapter);
-u32 rtw_get_on_cur_ch_time(_adapter *adapter);
+unsigned long rtw_get_on_cur_ch_time(_adapter *adapter);
 
 u8 rtw_get_offset_by_ch(u8 channel);
 

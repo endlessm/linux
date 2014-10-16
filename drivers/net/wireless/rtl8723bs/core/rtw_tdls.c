@@ -136,7 +136,7 @@ int issue_nulldata_to_TDLS_peer_STA(_adapter *padapter, unsigned char *da, unsig
 {
 	int ret;
 	int i = 0;
-	u32 start = rtw_get_current_time();
+	unsigned long start = jiffies;
 	struct mlme_ext_priv	*pmlmeext = &(padapter->mlmeextpriv);
 	struct mlme_ext_info	*pmlmeinfo = &(pmlmeext->mlmext_info);
 
@@ -180,11 +180,11 @@ int issue_nulldata_to_TDLS_peer_STA(_adapter *padapter, unsigned char *da, unsig
 		if (da)
 			DBG_871X(FUNC_ADPT_FMT" to "MAC_FMT", ch:%u%s, %d/%d in %u ms\n",
 				FUNC_ADPT_ARG(padapter), MAC_ARG(da), rtw_get_oper_ch(padapter),
-				ret==_SUCCESS?", acked":"", i, try_cnt, rtw_get_passing_time_ms(start));
+				ret==_SUCCESS?", acked":"", i, try_cnt, jiffies_to_msecs(jiffies - start));
 		else
 			DBG_871X(FUNC_ADPT_FMT", ch:%u%s, %d/%d in %u ms\n",
 				FUNC_ADPT_ARG(padapter), rtw_get_oper_ch(padapter),
-				ret==_SUCCESS?", acked":"", i, try_cnt, rtw_get_passing_time_ms(start));
+				ret==_SUCCESS?", acked":"", i, try_cnt, jiffies_to_msecs(jiffies - start));
 	}
 exit:
 	return ret;
@@ -2081,13 +2081,13 @@ void rtw_build_tdls_setup_req_ies(_adapter * padapter, struct xmit_frame * pxmit
 	u8 iedata=0;
 	u8 sup_ch[ 30 * 2 ] = {0x00 }, sup_ch_idx = 0, idx_5g = 2;	//For supported channel
 	u8 timeout_itvl[5];	//set timeout interval to maximum value
-	u32 time;
+	unsigned long time;
 	u8 *pframe_head;
 
 	//SNonce	
 	if(pattrib->encrypt){
 		for(i=0;i<8;i++){
-			time=rtw_get_current_time();
+			time=jiffies;
 			_rtw_memcpy(&ptdls_sta->SNonce[4*i], (u8 *)&time, 4);
 		}
 	}
@@ -2214,7 +2214,7 @@ void rtw_build_tdls_setup_rsp_ies(_adapter * padapter, struct xmit_frame * pxmit
 	u8 ANonce[32];	//maybe it can put in ontdls_req
 	u8 k;		//for random ANonce
 	u8  *pftie=NULL, *ptimeout_ie=NULL, *plinkid_ie=NULL, *prsnie=NULL, *pftie_mic=NULL;
-	u32 time;
+	unsigned long time;
 	u8 *pframe_head;
 
 	ptdls_sta = rtw_get_stainfo( &(padapter->stapriv) , pattrib->dst);
@@ -2227,7 +2227,7 @@ void rtw_build_tdls_setup_rsp_ies(_adapter * padapter, struct xmit_frame * pxmit
 
 	if(pattrib->encrypt){
 		for(k=0;k<8;k++){
-			time=rtw_get_current_time();
+			time=jiffies;
 			_rtw_memcpy(&ptdls_sta->ANonce[4*k], (u8*)&time, 4);
 		}
 	}

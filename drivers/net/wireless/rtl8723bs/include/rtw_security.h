@@ -193,7 +193,7 @@ struct security_priv
 
 
 	//for tkip countermeasure
-	u32 last_mic_err_time;	
+	unsigned long last_mic_err_time;	
 	u8	btkip_countermeasure;
 	u8	btkip_wait_report;
 	u32 btkip_countermeasure_time;

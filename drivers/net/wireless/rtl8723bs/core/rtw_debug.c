@@ -503,7 +503,7 @@ int proc_get_survey_info(struct seq_file *m, void *v)
 			(int)pnetwork->network.Rssi,
 			notify_signal,
 			notify_noise,
-			rtw_get_passing_time_ms((u32)pnetwork->last_scanned),
+			jiffies_to_msecs(jiffies - pnetwork->last_scanned),
 			//translate_percentage_to_dbm(pnetwork->network.PhyInfo.SignalStrength),
 			pnetwork->network.Ssid.Ssid);
 		plist = get_next(plist);

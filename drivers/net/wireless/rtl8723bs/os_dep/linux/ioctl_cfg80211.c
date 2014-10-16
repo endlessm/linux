@@ -20,6 +20,7 @@
 #define  _IOCTL_CFG80211_C_
 
 #include <drv_types.h>
+#include <linux/jiffies.h>
 
 #ifdef CONFIG_IOCTL_CFG80211
 
@@ -2296,11 +2297,11 @@ if (padapter->registrypriv.mp_mode == 1)
 	if (pmlmepriv->LinkDetectInfo.bBusyTraffic == _TRUE)
 	{
 #if 1 // Miracast can't do AP scan
-		static u32 lastscantime = 0;
-		u32 passtime;
+		static unsigned long lastscantime = 0;
+		unsigned long passtime;
 
-		passtime = rtw_get_passing_time_ms(lastscantime);
-		lastscantime = rtw_get_current_time();
+		passtime = jiffies_to_msecs(jiffies - lastscantime);
+		lastscantime = jiffies;
 		if (passtime > 12000)
 #endif
 		{
@@ -2320,11 +2321,11 @@ if (padapter->registrypriv.mp_mode == 1)
 	if(pbuddy_mlmepriv && (pbuddy_mlmepriv->LinkDetectInfo.bBusyTraffic == _TRUE))	
 	{
 #if 1 // Miracast can't do AP scan
-		static u32 buddylastscantime = 0;
-		u32 passtime;
+		static unsigned long buddylastscantime = 0;
+		unsigned long passtime;
 
-		passtime = rtw_get_passing_time_ms(buddylastscantime);
-		buddylastscantime = rtw_get_current_time();
+		passtime = jiffies_to_msecs(jiffies - buddylastscantime);
+		buddylastscantime = jiffies;
 		if ((passtime > 12000)
 //#ifdef CONFIG_P2P
 //			||(!rtw_p2p_chk_state(&padapter->wdinfo, P2P_STATE_NONE))
@@ -4732,7 +4733,7 @@ static s32 cfg80211_rtw_remain_on_channel(struct wiphy *wiphy,
 	}
 
 	pcfg80211_wdinfo->is_ro_ch = _TRUE;
-	pcfg80211_wdinfo->last_ro_ch_time = rtw_get_current_time();
+	pcfg80211_wdinfo->last_ro_ch_time = jiffies;
 
 	if(_FAIL == rtw_pwr_wakeup(padapter)) {
 		err = -EFAULT;
@@ -4873,7 +4874,7 @@ static s32 cfg80211_rtw_remain_on_channel(struct wiphy *wiphy,
 exit:
 	if (err) {
 		pcfg80211_wdinfo->is_ro_ch = _FALSE;
-		pcfg80211_wdinfo->last_ro_ch_time = rtw_get_current_time();
+		pcfg80211_wdinfo->last_ro_ch_time = jiffies;
 	}
 
 	return err;
@@ -4937,7 +4938,7 @@ static s32 cfg80211_rtw_cancel_remain_on_channel(struct wiphy *wiphy,
 	}
 
 	pcfg80211_wdinfo->is_ro_ch = _FALSE;
-	pcfg80211_wdinfo->last_ro_ch_time = rtw_get_current_time();
+	pcfg80211_wdinfo->last_ro_ch_time = jiffies;
 
 exit:
 	return err;
@@ -5157,7 +5158,7 @@ static int cfg80211_rtw_mgmt_tx(struct wiphy *wiphy,
 	u8 tx_ch = (u8)ieee80211_frequency_to_channel(chan->center_freq);
 	u8 category, action;
 	int type = (-1);
-	u32 start = rtw_get_current_time();
+	unsigned long start = jiffies;
 	_adapter *padapter;
 	struct rtw_wdev_priv *pwdev_priv;
 
@@ -5230,7 +5231,7 @@ dump:
 
 	if (tx_ret != _SUCCESS || dump_cnt > 1) {
 		DBG_871X(FUNC_ADPT_FMT" %s (%d/%d) in %d ms\n", FUNC_ADPT_ARG(padapter),
-			tx_ret==_SUCCESS?"OK":"FAIL", dump_cnt, dump_limit, rtw_get_passing_time_ms(start));
+			tx_ret==_SUCCESS?"OK":"FAIL", dump_cnt, dump_limit, jiffies_to_msecs(jiffies - start));
 	}
 
 	switch (type) {

@@ -300,7 +300,7 @@ static s32 polling_fwdl_chksum(_adapter *adapter, u32 min_cnt, u32 timeout_ms)
 {
 	s32 ret = _FAIL;
 	u32 value32;
-	u32 start = rtw_get_current_time();
+	unsigned long start = jiffies;
 	u32 cnt = 0;
 
 	/* polling CheckSum report */
@@ -310,7 +310,7 @@ static s32 polling_fwdl_chksum(_adapter *adapter, u32 min_cnt, u32 timeout_ms)
 		if (value32 & FWDL_ChkSum_rpt || adapter->bSurpriseRemoved || adapter->bDriverStopped)
 			break;
 		rtw_yield_os();
-	} while (rtw_get_passing_time_ms(start) < timeout_ms || cnt < min_cnt);
+	} while (jiffies_to_msecs(jiffies - start) < timeout_ms || cnt < min_cnt);
 
 	if (!(value32 & FWDL_ChkSum_rpt)) {
 		goto exit;
@@ -326,7 +326,7 @@ static s32 polling_fwdl_chksum(_adapter *adapter, u32 min_cnt, u32 timeout_ms)
 
 exit:
 	DBG_871X("%s: Checksum report %s! (%u, %dms), REG_MCUFWDL:0x%08x\n", __FUNCTION__
-	, (ret==_SUCCESS)?"OK":"Fail", cnt, rtw_get_passing_time_ms(start), value32);
+	, (ret==_SUCCESS)?"OK":"Fail", cnt, jiffies_to_msecs(jiffies - start), value32);
 
 	return ret;
 }
@@ -336,7 +336,7 @@ static s32 _FWFreeToGo(_adapter *adapter, u32 min_cnt, u32 timeout_ms)
 {
 	s32 ret = _FAIL;
 	u32	value32;
-	u32 start = rtw_get_current_time();
+	unsigned long start = jiffies;
 	u32 cnt = 0;
 
 	value32 = rtw_read32(adapter, REG_MCUFWDL);
@@ -353,7 +353,7 @@ static s32 _FWFreeToGo(_adapter *adapter, u32 min_cnt, u32 timeout_ms)
 		if (value32 & WINTINI_RDY || adapter->bSurpriseRemoved || adapter->bDriverStopped)
 			break;
 		rtw_yield_os();
-	} while (rtw_get_passing_time_ms(start) < timeout_ms || cnt < min_cnt);
+	} while (jiffies_to_msecs(jiffies - start) < timeout_ms || cnt < min_cnt);
 
 	if (!(value32 & WINTINI_RDY)) {
 		goto exit;
@@ -369,7 +369,7 @@ static s32 _FWFreeToGo(_adapter *adapter, u32 min_cnt, u32 timeout_ms)
 
 exit:
 	DBG_871X("%s: Polling FW ready %s! (%u, %dms), REG_MCUFWDL:0x%08x\n", __FUNCTION__
-		, (ret==_SUCCESS)?"OK":"Fail", cnt, rtw_get_passing_time_ms(start), value32);
+		, (ret==_SUCCESS)?"OK":"Fail", cnt, jiffies_to_msecs(jiffies - start), value32);
 
 	return ret;
 }
@@ -952,7 +952,7 @@ s32 rtl8723b_FirmwareDownload(PADAPTER padapter, BOOLEAN  bUsedWoWLANFw)
 {
 	s32	rtStatus = _SUCCESS;
 	u8 write_fw = 0;
-	u32 fwdl_start_time;
+	unsigned long fwdl_start_time;
 	PHAL_DATA_TYPE	pHalData = GET_HAL_DATA(padapter);
 	s8 			R8723BFwImageFileName[] ={RTL8723B_FW_IMG};
 	u8			*FwImage;
@@ -1121,9 +1121,9 @@ s32 rtl8723b_FirmwareDownload(PADAPTER padapter, BOOLEAN  bUsedWoWLANFw)
 	}
 
 	_FWDownloadEnable(padapter, _TRUE);
-	fwdl_start_time = rtw_get_current_time();
+	fwdl_start_time = jiffies;
 	while(!padapter->bDriverStopped && !padapter->bSurpriseRemoved
-			&& (write_fw++ < 3 || rtw_get_passing_time_ms(fwdl_start_time) < 500))
+			&& (write_fw++ < 3 || jiffies_to_msecs(jiffies - fwdl_start_time) < 500))
 	{
 		/* reset FWDL chksum */
 		rtw_write8(padapter, REG_MCUFWDL, rtw_read8(padapter, REG_MCUFWDL)|FWDL_ChkSum_rpt);
@@ -1157,7 +1157,7 @@ fwdl_stat:
 	DBG_871X("FWDL %s. write_fw:%u, %dms\n"
 		, (rtStatus == _SUCCESS)?"success":"fail"
 		, write_fw
-		, rtw_get_passing_time_ms(fwdl_start_time)
+		, jiffies_to_msecs(jiffies - fwdl_start_time)
 	);
 
 exit:
@@ -3407,7 +3407,7 @@ u8 GetEEPROMSize8723B(PADAPTER padapter)
 //-------------------------------------------------------------------------
 s32 rtl8723b_InitLLTTable(PADAPTER padapter)
 {
-	u32 start, passing_time;
+	unsigned long start, passing_time;
 	u32 val32;
 	s32 ret;
 
@@ -3418,7 +3418,7 @@ s32 rtl8723b_InitLLTTable(PADAPTER padapter)
 	val32 |= BIT_AUTO_INIT_LLT;
 	rtw_write32(padapter, REG_AUTO_LLT, val32);
 
-	start = rtw_get_current_time();
+	start = jiffies;
 
 	do {
 		val32 = rtw_read32(padapter, REG_AUTO_LLT);
@@ -3428,7 +3428,7 @@ s32 rtl8723b_InitLLTTable(PADAPTER padapter)
 			break;
 		}
 
-		passing_time = rtw_get_passing_time_ms(start);
+		passing_time = jiffies_to_msecs(jiffies - start);
 		if (passing_time > 1000)
 		{
 			DBG_8192C("%s: FAIL!! REG_AUTO_LLT(0x%X)=%08x\n",

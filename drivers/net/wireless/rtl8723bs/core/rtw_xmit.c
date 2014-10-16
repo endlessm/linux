@@ -3729,7 +3729,7 @@ static void do_queue_select(_adapter	*padapter, struct pkt_attrib *pattrib)
  */
 s32 rtw_xmit(_adapter *padapter, _pkt **ppkt)
 {
-	static u32 start = 0;
+	static unsigned long start = 0;
 	static u32 drop_cnt = 0;
 #ifdef CONFIG_AP_MODE
 	_irqL irqL0;
@@ -3746,14 +3746,14 @@ s32 rtw_xmit(_adapter *padapter, _pkt **ppkt)
 	DBG_COUNTER(padapter->tx_logs.core_tx);
 
 	if (start == 0)
-		start = rtw_get_current_time();
+		start = jiffies;
 
 	pxmitframe = rtw_alloc_xmitframe(pxmitpriv);
 
-	if (rtw_get_passing_time_ms(start) > 2000) {
+	if (jiffies_to_msecs(jiffies - start) > 2000) {
 		if (drop_cnt)
 			DBG_871X("DBG_TX_DROP_FRAME %s no more pxmitframe, drop_cnt:%u\n", __FUNCTION__, drop_cnt);
-		start = rtw_get_current_time();
+		start = jiffies;
 		drop_cnt = 0;
 	}
 
@@ -4696,7 +4696,7 @@ thread_return rtw_xmit_thread(thread_context context)
 void rtw_sctx_init(struct submit_ctx *sctx, int timeout_ms)
 {
 	sctx->timeout_ms = timeout_ms;
-	sctx->submit_time= rtw_get_current_time();
+	sctx->submit_time= jiffies;
 #ifdef PLATFORM_LINUX /* TODO: add condition wating interface for other os */
 	init_completion(&sctx->done);
 #endif
@@ -4780,7 +4780,7 @@ int rtw_ack_tx_polling(struct xmit_priv *pxmitpriv, u32 timeout_ms)
 	struct submit_ctx *pack_tx_ops = &pxmitpriv->ack_tx_ops;
 	_adapter *adapter = container_of(pxmitpriv, _adapter, xmitpriv);
 
-	pack_tx_ops->submit_time = rtw_get_current_time();
+	pack_tx_ops->submit_time = jiffies;
 	pack_tx_ops->timeout_ms = timeout_ms;
 	pack_tx_ops->status = RTW_SCTX_SUBMITTED;
 
@@ -4799,7 +4799,7 @@ int rtw_ack_tx_polling(struct xmit_priv *pxmitpriv, u32 timeout_ms)
 		}
 		
 		rtw_msleep_os(10);
-	} while (rtw_get_passing_time_ms(pack_tx_ops->submit_time) < timeout_ms);
+	} while (jiffies_to_msecs(jiffies - pack_tx_ops->submit_time) < timeout_ms);
 
 	if (pack_tx_ops->status == RTW_SCTX_SUBMITTED) {
 		pack_tx_ops->status = RTW_SCTX_DONE_TIMEOUT;
@@ -4820,7 +4820,7 @@ int rtw_ack_tx_wait(struct xmit_priv *pxmitpriv, u32 timeout_ms)
 #else
 	struct submit_ctx *pack_tx_ops = &pxmitpriv->ack_tx_ops;
 
-	pack_tx_ops->submit_time = rtw_get_current_time();
+	pack_tx_ops->submit_time = jiffies;
 	pack_tx_ops->timeout_ms = timeout_ms;
 	pack_tx_ops->status = RTW_SCTX_SUBMITTED;
 

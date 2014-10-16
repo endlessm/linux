@@ -444,7 +444,7 @@ void rtw_mstat_dump(void *sel)
 
 void rtw_mstat_update(const enum mstat_f flags, const MSTAT_STATUS status, u32 sz)
 {
-	static u32 update_time = 0;
+	static unsigned long update_time = 0;
 	int peak, alloc;
 	int i;
 
@@ -502,7 +502,7 @@ void rtw_mstat_update(const enum mstat_f flags, const MSTAT_STATUS status, u32 s
 
 	//if (rtw_get_passing_time_ms(update_time) > 5000) {
 	//	rtw_mstat_dump(RTW_DBGDUMP);
-		update_time=rtw_get_current_time();
+		update_time=jiffies;
 	//}
 }
 
@@ -1293,7 +1293,7 @@ u32 rtw_end_of_queue_search(_list *head, _list *plist)
 		return _FALSE;
 }
 
-
+#if 0 /* avoid broken jiffies calcs */
 u32	rtw_get_current_time(void)
 {
 	
@@ -1311,6 +1311,7 @@ u32	rtw_get_current_time(void)
 	return (u32)(SystemTime.LowPart);// count of 100-nanosecond intervals 
 #endif
 }
+#endif
 
 inline u32 rtw_systime_to_ms(u32 systime)
 {
@@ -1325,6 +1326,7 @@ inline u32 rtw_systime_to_ms(u32 systime)
 #endif
 }
 
+#if 0 /* avoid broken jiffies calcs */
 inline u32 rtw_ms_to_systime(u32 ms)
 {
 #ifdef PLATFORM_LINUX
@@ -1353,6 +1355,7 @@ inline s32 rtw_get_passing_time_ms(u32 start)
 	return rtw_systime_to_ms((u32)(SystemTime.LowPart) - start) ;
 #endif
 }
+#endif
 
 inline s32 rtw_get_time_interval_ms(u32 start, u32 end)
 {

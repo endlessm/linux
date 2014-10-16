@@ -438,7 +438,7 @@ enum {
 };
 
 struct  submit_ctx{
-	u32 submit_time; /* */
+	unsigned long submit_time; /* */
 	u32 timeout_ms; /* <0: not synchronous, 0: wait forever, >0: up to ms waiting */
 	int status; /* status for operation */
 #ifdef PLATFORM_LINUX

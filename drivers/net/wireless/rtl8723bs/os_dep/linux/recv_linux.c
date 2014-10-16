@@ -20,6 +20,7 @@
 #define _RECV_OSDEP_C_
 
 #include <drv_types.h>
+#include <linux/jiffies.h>
 
 int rtw_os_alloc_recvframe(_adapter *padapter, union recv_frame *precvframe, u8 *pdata, _pkt *pskb)
 {
@@ -419,15 +420,15 @@ void rtw_handle_tkip_mic_err(_adapter *padapter,u8 bgroup)
 	struct iw_michaelmicfailure    ev;
 	struct mlme_priv*              pmlmepriv  = &padapter->mlmepriv;
 	struct security_priv	*psecuritypriv = &padapter->securitypriv;	
-	u32 cur_time = 0;
+	unsigned long cur_time = 0;
 
 	if( psecuritypriv->last_mic_err_time == 0 )
 	{
-		psecuritypriv->last_mic_err_time = rtw_get_current_time();
+		psecuritypriv->last_mic_err_time = jiffies;
 	}
 	else
 	{
-		cur_time = rtw_get_current_time();
+		cur_time = jiffies;
 
 		if( cur_time - psecuritypriv->last_mic_err_time < 60*HZ )
 		{
@@ -437,7 +438,7 @@ void rtw_handle_tkip_mic_err(_adapter *padapter,u8 bgroup)
 		}
 		else
 		{
-			psecuritypriv->last_mic_err_time = rtw_get_current_time();
+			psecuritypriv->last_mic_err_time = jiffies;
 		}
 	}
 

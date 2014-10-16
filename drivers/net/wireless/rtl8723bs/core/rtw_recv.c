@@ -20,6 +20,7 @@
 #define _RTW_RECV_C_
 
 #include <drv_types.h>
+#include <linux/jiffies.h>
 
 #if defined (PLATFORM_LINUX) && defined (PLATFORM_WINDOWS)
 
@@ -1499,13 +1500,13 @@ _func_enter_;
 			{
 	
 				//for AP multicast issue , modify by yiwei 
-				static u32 send_issue_deauth_time=0;
+				static unsigned long send_issue_deauth_time=0;
 			
-				//DBG_871X("After send deauth , %u ms has elapsed.\n", rtw_get_passing_time_ms(send_issue_deauth_time));
+				//DBG_871X("After send deauth , %u ms has elapsed.\n", jiffies_to_msecs(jiffies - send_issue_deauth_time));
 				
-				if(rtw_get_passing_time_ms(send_issue_deauth_time) > 10000 || send_issue_deauth_time == 0 )
+				if(jiffies_to_msecs(jiffies - send_issue_deauth_time) > 10000 || send_issue_deauth_time == 0 )
 				{
-					send_issue_deauth_time = rtw_get_current_time(); 
+					send_issue_deauth_time = jiffies;
 					
 					DBG_871X("issue_deauth to the ap=" MAC_FMT " for the reason(7)\n", MAC_ARG(pattrib->bssid));
 					
@@ -4001,7 +4002,7 @@ void rtw_signal_stat_timer_hdl(RTW_TIMER_HDL_ARGS){
 
 		if (num_signal_strength == 0) {
 			if (rtw_get_on_cur_ch_time(adapter) == 0
-				|| rtw_get_passing_time_ms(rtw_get_on_cur_ch_time(adapter)) < 2 * adapter->mlmeextpriv.mlmext_info.bcn_interval
+				|| jiffies_to_msecs(jiffies - rtw_get_on_cur_ch_time(adapter)) < 2 * adapter->mlmeextpriv.mlmext_info.bcn_interval
 			) {
 				goto set_timer;
 			}
@@ -4049,7 +4050,7 @@ void rtw_signal_stat_timer_hdl(RTW_TIMER_HDL_ARGS){
 			, recvpriv->rssi
 			, recvpriv->signal_qual
 			, num_signal_strength, num_signal_qual
-			, rtw_get_on_cur_ch_time(adapter) ? rtw_get_passing_time_ms(rtw_get_on_cur_ch_time(adapter)) : 0
+			, rtw_get_on_cur_ch_time(adapter) ? jiffies_to_msecs(jiffies - rtw_get_on_cur_ch_time(adapter)) : 0
 		);
 		#endif
 	}

@@ -20,6 +20,7 @@
 #define _IOCTL_LINUX_C_
 
 #include <drv_types.h>
+#include <linux/jiffies.h>
 
 //#ifdef CONFIG_MP_INCLUDED
 #include <rtw_mp_ioctl.h>
@@ -8998,7 +8999,7 @@ static int rtw_wowlan_ctrl(struct net_device *dev,
 #endif
 	struct sta_info	*psta = NULL;
 	int ret = 0;
-	u32 start_time = rtw_get_current_time();
+	unsigned long start_time = jiffies;
 	poidparam.subcode = 0;
 
 	DBG_871X("+rtw_wowlan_ctrl: %s\n", extra);
@@ -9051,7 +9052,7 @@ static int rtw_wowlan_ctrl(struct net_device *dev,
 _rtw_wowlan_ctrl_exit_free:
 	DBG_871X("-rtw_wowlan_ctrl( subcode = %d)\n", poidparam.subcode);
 	DBG_871X_LEVEL(_drv_always_, "%s in %d ms\n", __func__,
-			rtw_get_passing_time_ms(start_time));
+			jiffies_to_msecs(jiffies - start_time));
 _rtw_wowlan_ctrl_exit:
 	return ret;
 }
@@ -9068,7 +9069,7 @@ static int rtw_ap_wowlan_ctrl(struct net_device *dev,
 	struct mlme_priv *pmlmepriv = &padapter->mlmepriv;
 	struct sta_info	*psta = NULL;
 	int ret = 0;
-	u32 start_time = rtw_get_current_time();
+	unsigned long start_time = jiffies;
 	poidparam.subcode = 0;
 
 	DBG_871X("+rtw_ap_wowlan_ctrl: %s\n", extra);
@@ -9147,7 +9148,7 @@ static int rtw_ap_wowlan_ctrl(struct net_device *dev,
 _rtw_ap_wowlan_ctrl_exit_free:
 	DBG_871X("-rtw_ap_wowlan_ctrl( subcode = %d)\n", poidparam.subcode);
 	DBG_871X_LEVEL(_drv_always_, "%s in %d ms\n", __func__,
-			rtw_get_passing_time_ms(start_time));
+			jiffies_to_msecs(jiffies - start_time));
 _rtw_ap_wowlan_ctrl_exit:
 	return ret;
 }

@@ -20,6 +20,7 @@
 #define _RTW_P2P_C_
 
 #include <drv_types.h>
+#include <linux/jiffies.h>
 
 #ifdef CONFIG_P2P
 
@@ -3610,7 +3611,7 @@ _func_enter_;
 #endif
 
 	pcfg80211_wdinfo->is_ro_ch = _FALSE;
-	pcfg80211_wdinfo->last_ro_ch_time = rtw_get_current_time();
+	pcfg80211_wdinfo->last_ro_ch_time = jiffies;
 
 	DBG_871X("cfg80211_remain_on_channel_expired, ch=%d, bw=%d, offset=%d\n", 
 		rtw_get_oper_ch(padapter), rtw_get_oper_bw(padapter), rtw_get_oper_choffset(padapter));
@@ -5011,7 +5012,7 @@ void init_wifidirect_info( _adapter* padapter, enum P2P_ROLE role)
 
 	rtw_p2p_findphase_ex_set(pwdinfo, P2P_FINDPHASE_EX_NONE);
 
-	pwdinfo->listen_dwell = ( u8 ) (( rtw_get_current_time() % 3 ) + 1);
+	pwdinfo->listen_dwell = ( u8 ) (( jiffies % 3 ) + 1);
 	//DBG_8192C( "[%s] listen_dwell time is %d00ms\n", __FUNCTION__, pwdinfo->listen_dwell );
 
 	_rtw_memset( &pwdinfo->tx_prov_disc_info, 0x00, sizeof( struct tx_provdisc_req_info ) );

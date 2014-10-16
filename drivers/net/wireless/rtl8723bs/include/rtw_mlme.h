@@ -255,7 +255,7 @@ struct cfg80211_wifidirect_info{
 	enum nl80211_channel_type	remain_on_ch_type;
 	u64						remain_on_ch_cookie;
 	bool is_ro_ch;
-	u32 last_ro_ch_time; /* this will be updated at the beginning and end of ro_ch */
+	unsigned long last_ro_ch_time; /* this will be updated at the beginning and end of ro_ch */
 };
 #endif //CONFIG_IOCTL_CFG80211
 
@@ -447,7 +447,7 @@ struct mlme_priv {
 	uint assoc_by_rssi;
 
 	_timer scan_to_timer; // driver itself handles scan_timeout status.
-	u32 scan_start_time; // used to evaluate the time spent in scanning
+	unsigned long scan_start_time; // used to evaluate the time spent in scanning
 
 	#ifdef CONFIG_SET_SCAN_DENY_TIMER
 	_timer set_scan_deny_timer;
@@ -620,7 +620,7 @@ struct mlme_priv {
 #endif
 
 	u8 	NumOfBcnInfoChkFail;
-	u32	timeBcnInfoChkStart;
+	unsigned long	timeBcnInfoChkStart;
 };
 
 #define rtw_mlme_set_auto_scan_int(adapter, ms) \

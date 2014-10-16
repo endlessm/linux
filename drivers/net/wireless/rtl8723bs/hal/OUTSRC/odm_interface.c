@@ -802,7 +802,7 @@ ODM_GetCurrentTime(
 #if(DM_ODM_SUPPORT_TYPE & (ODM_AP|ODM_ADSL))
 	return  0;
 #elif(DM_ODM_SUPPORT_TYPE & ODM_CE)
-	return rtw_get_current_time();
+	return jiffies;
 #elif(DM_ODM_SUPPORT_TYPE & ODM_WIN)	
 	return  0;
 #endif
@@ -817,7 +817,7 @@ ODM_GetProgressingTime(
 #if(DM_ODM_SUPPORT_TYPE & (ODM_AP|ODM_ADSL))
 	return  0;
 #elif(DM_ODM_SUPPORT_TYPE & ODM_CE)
-	return rtw_get_passing_time_ms(Start_Time);
+	return jiffies_to_msecs(jiffies - Start_Time);
 #elif(DM_ODM_SUPPORT_TYPE & ODM_WIN)	
 	return  0;
 #endif

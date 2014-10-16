@@ -1959,7 +1959,7 @@ void Hal_ReadMACAddrFromFile(
 	mm_segment_t fs;
 	u8 source_addr[18];
 	loff_t pos = 0;
-	u32	curtime = rtw_get_current_time();
+	unsigned long	curtime = jiffies;
 	EEPROM_EFUSE_PRIV *pEEPROM = GET_EEPROM_EFUSE_PRIV(padapter);
 	u8 *head, *end;
 

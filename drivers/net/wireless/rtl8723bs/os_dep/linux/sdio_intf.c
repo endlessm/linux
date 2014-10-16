@@ -21,6 +21,7 @@
 
 #include <drv_types.h>
 #include <platform_ops.h>
+#include <linux/jiffies.h>
 
 #ifndef CONFIG_SDIO_HCI
 #error "CONFIG_SDIO_HCI shall be on!\n"
@@ -872,7 +873,7 @@ static int rtw_sdio_resume(struct device *dev)
 #endif
 		}
 	}
-	pmlmeext->last_scan_time = rtw_get_current_time();
+	pmlmeext->last_scan_time = jiffies;
 	DBG_871X("<========  %s return %d\n", __FUNCTION__, ret);
 	return ret;
 

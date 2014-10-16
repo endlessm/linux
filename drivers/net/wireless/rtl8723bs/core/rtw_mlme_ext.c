@@ -5663,7 +5663,7 @@ int issue_probereq_p2p_ex(_adapter *adapter, u8 *da, int try_cnt, int wait_ms)
 {
 	int ret;
 	int i = 0;
-	u32 start = rtw_get_current_time();
+	unsigned long start = jiffies;
 
 	do
 	{
@@ -5690,11 +5690,11 @@ int issue_probereq_p2p_ex(_adapter *adapter, u8 *da, int try_cnt, int wait_ms)
 		if (da)
 			DBG_871X(FUNC_ADPT_FMT" to "MAC_FMT", ch:%u%s, %d/%d in %u ms\n",
 				FUNC_ADPT_ARG(adapter), MAC_ARG(da), rtw_get_oper_ch(adapter),
-				ret==_SUCCESS?", acked":"", i, try_cnt, rtw_get_passing_time_ms(start));
+				ret==_SUCCESS?", acked":"", i, try_cnt, jiffies_to_msecs(start));
 		else
 			DBG_871X(FUNC_ADPT_FMT", ch:%u%s, %d/%d in %u ms\n",
 				FUNC_ADPT_ARG(adapter), rtw_get_oper_ch(adapter),
-				ret==_SUCCESS?", acked":"", i, try_cnt, rtw_get_passing_time_ms(start));
+				ret==_SUCCESS?", acked":"", i, try_cnt, jiffies_to_msecs(start));
 	}
 exit:
 	return ret;
@@ -7433,7 +7433,7 @@ int issue_probereq_ex(_adapter *padapter, NDIS_802_11_SSID *pssid, u8 *da, u8 ch
 {
 	int ret;
 	int i = 0;
-	u32 start = rtw_get_current_time();
+	unsigned long start = jiffies;
 
 	do
 	{
@@ -7460,11 +7460,11 @@ int issue_probereq_ex(_adapter *padapter, NDIS_802_11_SSID *pssid, u8 *da, u8 ch
 		if (da)
 			DBG_871X(FUNC_ADPT_FMT" to "MAC_FMT", ch:%u%s, %d/%d in %u ms\n",
 				FUNC_ADPT_ARG(padapter), MAC_ARG(da), rtw_get_oper_ch(padapter),
-				ret==_SUCCESS?", acked":"", i, try_cnt, rtw_get_passing_time_ms(start));
+				ret==_SUCCESS?", acked":"", i, try_cnt, jiffies_to_msecs(jiffies - start));
 		else
 			DBG_871X(FUNC_ADPT_FMT", ch:%u%s, %d/%d in %u ms\n",
 				FUNC_ADPT_ARG(padapter), rtw_get_oper_ch(padapter),
-				ret==_SUCCESS?", acked":"", i, try_cnt, rtw_get_passing_time_ms(start));
+				ret==_SUCCESS?", acked":"", i, try_cnt, jiffies_to_msecs(jiffies - start));
 	}
 exit:
 	return ret;
@@ -8379,7 +8379,7 @@ int issue_nulldata(_adapter *padapter, unsigned char *da, unsigned int power_mod
 {
 	int ret;
 	int i = 0;
-	u32 start = rtw_get_current_time();
+	unsigned long start = jiffies;
 	struct mlme_ext_priv	*pmlmeext = &(padapter->mlmeextpriv);
 	struct mlme_ext_info	*pmlmeinfo = &(pmlmeext->mlmext_info);
 	struct sta_info *psta;
@@ -8425,11 +8425,11 @@ int issue_nulldata(_adapter *padapter, unsigned char *da, unsigned int power_mod
 		if (da)
 			DBG_871X(FUNC_ADPT_FMT" to "MAC_FMT", ch:%u%s, %d/%d in %u ms\n",
 				FUNC_ADPT_ARG(padapter), MAC_ARG(da), rtw_get_oper_ch(padapter),
-				ret==_SUCCESS?", acked":"", i, try_cnt, rtw_get_passing_time_ms(start));
+				ret==_SUCCESS?", acked":"", i, try_cnt, jiffies_to_msecs(jiffies - start));
 		else
 			DBG_871X(FUNC_ADPT_FMT", ch:%u%s, %d/%d in %u ms\n",
 				FUNC_ADPT_ARG(padapter), rtw_get_oper_ch(padapter),
-				ret==_SUCCESS?", acked":"", i, try_cnt, rtw_get_passing_time_ms(start));
+				ret==_SUCCESS?", acked":"", i, try_cnt, jiffies_to_msecs(jiffies - start));
 	}
 exit:
 	return ret;
@@ -8551,7 +8551,7 @@ int issue_qos_nulldata(_adapter *padapter, unsigned char *da, u16 tid, int try_c
 {
 	int ret;
 	int i = 0;
-	u32 start = rtw_get_current_time();
+	unsigned long start = jiffies;
 	struct mlme_ext_priv	*pmlmeext = &(padapter->mlmeextpriv);
 	struct mlme_ext_info	*pmlmeinfo = &(pmlmeext->mlmext_info);
 
@@ -8584,11 +8584,11 @@ int issue_qos_nulldata(_adapter *padapter, unsigned char *da, u16 tid, int try_c
 		if (da)
 			DBG_871X(FUNC_ADPT_FMT" to "MAC_FMT", ch:%u%s, %d/%d in %u ms\n",
 				FUNC_ADPT_ARG(padapter), MAC_ARG(da), rtw_get_oper_ch(padapter),
-				ret==_SUCCESS?", acked":"", i, try_cnt, rtw_get_passing_time_ms(start));
+				ret==_SUCCESS?", acked":"", i, try_cnt, jiffies_to_msecs(jiffies - start));
 		else
 			DBG_871X(FUNC_ADPT_FMT", ch:%u%s, %d/%d in %u ms\n",
 				FUNC_ADPT_ARG(padapter), rtw_get_oper_ch(padapter),
-				ret==_SUCCESS?", acked":"", i, try_cnt, rtw_get_passing_time_ms(start));
+				ret==_SUCCESS?", acked":"", i, try_cnt, jiffies_to_msecs(jiffies - start));
 	}
 exit:
 	return ret;
@@ -8679,7 +8679,7 @@ int issue_deauth_ex(_adapter *padapter, u8 *da, unsigned short reason, int try_c
 {
 	int ret;
 	int i = 0;
-	u32 start = rtw_get_current_time();
+	unsigned long start = jiffies;
 
 	do
 	{
@@ -8706,11 +8706,11 @@ int issue_deauth_ex(_adapter *padapter, u8 *da, unsigned short reason, int try_c
 		if (da)
 			DBG_871X(FUNC_ADPT_FMT" to "MAC_FMT", ch:%u%s, %d/%d in %u ms\n",
 				FUNC_ADPT_ARG(padapter), MAC_ARG(da), rtw_get_oper_ch(padapter),
-				ret==_SUCCESS?", acked":"", i, try_cnt, rtw_get_passing_time_ms(start));
+				ret==_SUCCESS?", acked":"", i, try_cnt, jiffies_to_msecs(jiffies - start));
 		else
 			DBG_871X(FUNC_ADPT_FMT", ch:%u%s, %d/%d in %u ms\n",
 				FUNC_ADPT_ARG(padapter), rtw_get_oper_ch(padapter),
-				ret==_SUCCESS?", acked":"", i, try_cnt, rtw_get_passing_time_ms(start));
+				ret==_SUCCESS?", acked":"", i, try_cnt, jiffies_to_msecs(jiffies - start));
 	}
 exit:
 	return ret;
@@ -9283,7 +9283,7 @@ unsigned int send_beacon(_adapter *padapter)
 #endif
 
 #if defined(CONFIG_USB_HCI) || defined(CONFIG_SDIO_HCI) || defined(CONFIG_GSPI_HCI)
-	u32 start = rtw_get_current_time();
+	unsigned long start = jiffies;
 
 	rtw_hal_set_hwreg(padapter, HW_VAR_BCN_VALID, NULL);
 	rtw_hal_set_hwreg(padapter, HW_VAR_DL_BCN_SEL, NULL);
@@ -9306,17 +9306,17 @@ unsigned int send_beacon(_adapter *padapter)
 	
 	if(_FALSE == bxmitok)
 	{
-		DBG_871X("%s fail! %u ms\n", __FUNCTION__, rtw_get_passing_time_ms(start));
+		DBG_871X("%s fail! %u ms\n", __FUNCTION__, jiffies_to_msecs(jiffies - start));
 		return _FAIL;
 	}
 	else
 	{
-		u32 passing_time = rtw_get_passing_time_ms(start);
+		unsigned long passing_time = jiffies_to_msecs(jiffies - start);
 
 		if(passing_time > 100 || issue > 3)
-			DBG_871X("%s success, issue:%d, poll:%d, %u ms\n", __FUNCTION__, issue, poll, rtw_get_passing_time_ms(start));
+			DBG_871X("%s success, issue:%d, poll:%d, %lu ms\n", __FUNCTION__, issue, poll, passing_time);
 		//else
-		//	DBG_871X("%s success, issue:%d, poll:%d, %u ms\n", __FUNCTION__, issue, poll, rtw_get_passing_time_ms(start));
+		//	DBG_871X("%s success, issue:%d, poll:%d, %u ms\n", __FUNCTION__, issue, poll, passing_time);
 		
 		return _SUCCESS;
 	}
@@ -9413,7 +9413,7 @@ void site_survey(_adapter *padapter)
 		, FUNC_ADPT_ARG(padapter)
 		, survey_channel
 		, pwdinfo->find_phase_state_exchange_cnt, pmlmeext->sitesurvey_res.channel_idx
-		, rtw_get_passing_time_ms(padapter->mlmepriv.scan_start_time)
+		, jiffies_to_msecs(jiffies - padapter->mlmepriv.scan_start_time)
 		, ScanType?'A':'P', pmlmeext->sitesurvey_res.scan_mode?'A':'P'
 		, pmlmeext->sitesurvey_res.ssid[0].SsidLength?'S':' ' 
 		);
@@ -9422,7 +9422,7 @@ void site_survey(_adapter *padapter)
                 , FUNC_ADPT_ARG(padapter)
                 , survey_channel
                 , pmlmeext->sitesurvey_res.channel_idx
-                , rtw_get_passing_time_ms(padapter->mlmepriv.scan_start_time)
+                , jiffies_to_msecs(jiffies - padapter->mlmepriv.scan_start_time)
                 , ScanType?'A':'P', pmlmeext->sitesurvey_res.scan_mode?'A':'P'
                 , pmlmeext->sitesurvey_res.ssid[0].SsidLength?'S':' '
                 );
@@ -12507,9 +12507,9 @@ int rtw_scan_ch_decision(_adapter *padapter, struct rtw_ieee80211_channel *out,
 		u32 interval;
 
 		if (pmlmeext->last_scan_time == 0)
-			pmlmeext->last_scan_time = rtw_get_current_time();
+			pmlmeext->last_scan_time = jiffies;
 
-		interval = rtw_get_passing_time_ms(pmlmeext->last_scan_time);
+		interval = jiffies_to_msecs(jiffies - pmlmeext->last_scan_time);
 		if ((interval > ALLOW_SCAN_INTERVAL)
 #if 0 // Miracast can't do AP scan
 			|| (padapter->mlmepriv.LinkDetectInfo.bBusyTraffic == _TRUE)
@@ -12539,7 +12539,7 @@ int rtw_scan_ch_decision(_adapter *padapter, struct rtw_ieee80211_channel *out,
 			token  = (token+1)%SCAN_DIVISION_NUM;
 		}
 
-		pmlmeext->last_scan_time = rtw_get_current_time();
+		pmlmeext->last_scan_time = jiffies;
 	}
 #endif //CONFIG_SCAN_SPARSE
 

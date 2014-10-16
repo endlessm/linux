@@ -20,6 +20,7 @@
 #define _RTW_CMD_C_
 
 #include <drv_types.h>
+#include <linux/jiffies.h>
 
 /*
 Caller and the rtw_cmd_thread can protect cmd_q by spin_lock.
@@ -445,8 +446,8 @@ thread_return rtw_cmd_thread(thread_context context)
 	u8 ret;
 	struct cmd_obj *pcmd;
 	u8 *pcmdbuf, *prspbuf;
-	u32 cmd_start_time;
-	u32 cmd_process_time;
+	unsigned long cmd_start_time;
+	unsigned long cmd_process_time;
 	u8 (*cmd_hdl)(_adapter *padapter, u8* pbuf);
 	void (*pcmd_callback)(_adapter *dev, struct cmd_obj *pcmd);
 	PADAPTER padapter = (PADAPTER)context;
@@ -515,7 +516,7 @@ _next:
 			continue;
 		}
 
-		cmd_start_time = rtw_get_current_time();
+		cmd_start_time = jiffies;
 
 		if( _FAIL == rtw_cmd_filter(pcmdpriv, pcmd) )
 		{
@@ -563,20 +564,20 @@ post_process:
 		_exit_critical_mutex(&(pcmd->padapter->cmdpriv.sctx_mutex), NULL);
 
 
-		if((cmd_process_time = rtw_get_passing_time_ms(cmd_start_time)) > 1000)
+		if((cmd_process_time = jiffies_to_msecs(jiffies - cmd_start_time)) > 1000)
 		{
 			if (pcmd->cmdcode == GEN_CMD_CODE(_Set_Drv_Extra)) {
 				struct drvextra_cmd_parm *drvextra_parm = (struct drvextra_cmd_parm *)pcmdbuf;
-				DBG_871X(ADPT_FMT" cmd=%d,%d,%d process_time=%d > 1 sec\n",
+				DBG_871X(ADPT_FMT" cmd=%d,%d,%d process_time=%lu > 1 sec\n",
 					ADPT_ARG(pcmd->padapter), pcmd->cmdcode, drvextra_parm->ec_id, drvextra_parm->type, cmd_process_time);
 				//rtw_warn_on(1);
 			} else if(pcmd->cmdcode == GEN_CMD_CODE(_Set_MLME_EVT)){
 				struct C2HEvent_Header *pc2h_evt_hdr = (struct C2HEvent_Header *)pcmdbuf;
-				DBG_871X(ADPT_FMT" cmd=%d,%d, process_time=%d > 1 sec\n",
+				DBG_871X(ADPT_FMT" cmd=%d,%d, process_time=%lu > 1 sec\n",
 					ADPT_ARG(pcmd->padapter), pcmd->cmdcode, pc2h_evt_hdr->ID, cmd_process_time);
 				//rtw_warn_on(1);
 			} else {
-				DBG_871X(ADPT_FMT" cmd=%d, process_time=%d > 1 sec\n",
+				DBG_871X(ADPT_FMT" cmd=%d, process_time=%lu > 1 sec\n",
 					ADPT_ARG(pcmd->padapter), pcmd->cmdcode, cmd_process_time);
 				//rtw_warn_on(1);
 			}
@@ -841,7 +842,7 @@ _func_enter_;
 
 	if(res == _SUCCESS) {
 
-		pmlmepriv->scan_start_time = rtw_get_current_time();
+		pmlmepriv->scan_start_time = jiffies;
 
 #ifdef CONFIG_STA_MODE_SCAN_UNDER_AP_MODE
 		if((padapter->pbuddy_adapter->mlmeextpriv.mlmext_info.state&0x03) == WIFI_FW_AP_STATE)
@@ -2628,7 +2629,7 @@ _func_enter_;
 			break;
 		case LPS_CTRL_SPECIAL_PACKET:
 			//DBG_871X("LPS_CTRL_SPECIAL_PACKET \n");
-			pwrpriv->DelayLPSLastTimeStamp = rtw_get_current_time();
+			pwrpriv->DelayLPSLastTimeStamp = jiffies;
 #ifdef CONFIG_BT_COEXIST
 			rtw_btcoex_SpecialPacketNotify(padapter, PACKET_DHCP);
 #endif // CONFIG_BT_COEXIST
@@ -3075,7 +3076,7 @@ static void rtw_chk_hi_queue_hdl(_adapter *padapter)
 {
 	struct sta_info *psta_bmc;
 	struct sta_priv *pstapriv = &padapter->stapriv;
-	u32 start = rtw_get_current_time();
+	unsigned long start = jiffies;
 	u8 empty = _FALSE;
 
 	psta_bmc = rtw_get_bcmc_stainfo(padapter);
@@ -3084,7 +3085,7 @@ static void rtw_chk_hi_queue_hdl(_adapter *padapter)
 
 	rtw_hal_get_hwreg(padapter, HW_VAR_CHK_HI_QUEUE_EMPTY, &empty);
 
-	while(_FALSE == empty && rtw_get_passing_time_ms(start) < g_wait_hiq_empty)
+	while(_FALSE == empty && jiffies_to_msecs(jiffies - start) < g_wait_hiq_empty)
 	{
 		rtw_msleep_os(100);
 		rtw_hal_get_hwreg(padapter, HW_VAR_CHK_HI_QUEUE_EMPTY, &empty);
@@ -3726,7 +3727,7 @@ _func_enter_;
 				_exit_critical_bh(&(pmlmepriv->scanned_queue.lock), &irqL);
 				goto createbss_cmd_fail;
 			}
-			pwlan->last_scanned = rtw_get_current_time();			
+			pwlan->last_scanned = jiffies;
 		}	
 		else
 		{

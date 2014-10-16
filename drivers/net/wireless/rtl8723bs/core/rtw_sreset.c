@@ -323,7 +323,7 @@ void sreset_reset(_adapter *padapter)
 	struct mlme_priv	*pmlmepriv = &(padapter->mlmepriv);
 	struct xmit_priv	*pxmitpriv = &padapter->xmitpriv;
 	_irqL irqL;
-	u32 start = rtw_get_current_time();
+	unsigned long start = jiffies;
 	struct dvobj_priv *psdpriv = padapter->dvobj;
 	struct debug_priv *pdbgpriv = &psdpriv->drv_dbg;
 
@@ -360,7 +360,7 @@ void sreset_reset(_adapter *padapter)
 
 	_exit_pwrlock(&pwrpriv->lock);
 
-	DBG_871X("%s done in %d ms\n", __FUNCTION__, rtw_get_passing_time_ms(start));
+	DBG_871X("%s done in %d ms\n", __FUNCTION__, jiffies_to_msecs(jiffies - start));
 	pdbgpriv->dbg_sreset_cnt++;
 #endif
 }

@@ -20,6 +20,7 @@
 #define _RTW_MLME_C_
 
 #include <drv_types.h>
+#include <linux/jiffies.h>
 
 
 extern void indicate_wx_scan_complete_event(_adapter *padapter);
@@ -244,7 +245,7 @@ _func_enter_;
 	RT_TRACE(_module_rtl871x_mlme_c_, _drv_info_, ("_rtw_alloc_network: ptr=%p\n", plist));
 	pnetwork->network_type = 0;
 	pnetwork->fixed = _FALSE;
-	pnetwork->last_scanned = rtw_get_current_time();
+	pnetwork->last_scanned = jiffies;
 	pnetwork->aid=0;	
 	pnetwork->join_res=0;
 
@@ -260,7 +261,7 @@ _func_exit_;
 
 void _rtw_free_network(struct	mlme_priv *pmlmepriv ,struct wlan_network *pnetwork, u8 isfreeall)
 {
-	u32 delta_time;
+	unsigned int delta_time;
 	u32 lifetime = SCANQUEUE_LIFETIME;
 	_irqL irqL;	
 	_queue *free_queue = &(pmlmepriv->free_bss_pool);
@@ -279,7 +280,7 @@ _func_enter_;
 
 	if(!isfreeall)
 	{
-		delta_time = (u32) rtw_get_passing_time_ms(pnetwork->last_scanned);
+		delta_time = jiffies_to_msecs(jiffies - pnetwork->last_scanned);
 		if(delta_time < lifetime)// unit:msec
 			goto exit;
 	}
@@ -438,7 +439,7 @@ _func_exit_;
 
 void rtw_generate_random_ibss(u8* pibss)
 {
-	u32	curtime = rtw_get_current_time();
+	unsigned long curtime = jiffies;
 
 _func_enter_;
 	pibss[0] = 0x02;  //in ad-hoc mode bit1 must set to 1
@@ -934,10 +935,9 @@ _func_enter_;
 			rtw_hal_get_def_var(adapter, HAL_DEF_CURRENT_ANTENNA, &(target->PhyInfo.Optimum_antenna));
 #endif
 			_rtw_memcpy(&(pnetwork->network), target,  get_WLAN_BSSID_EX_sz(target));
-			//pnetwork->last_scanned = rtw_get_current_time();
 			// variable initialize
 			pnetwork->fixed = _FALSE;
-			pnetwork->last_scanned = rtw_get_current_time();
+			pnetwork->last_scanned = jiffies;
 
 			pnetwork->network_type = 0;	
 			pnetwork->aid=0;		
@@ -965,7 +965,7 @@ _func_enter_;
 #endif
 			_rtw_memcpy(&(pnetwork->network), target, bssid_ex_sz );
 
-			pnetwork->last_scanned = rtw_get_current_time();
+			pnetwork->last_scanned = jiffies;
 
 			/* bss info not receving from the right channel */
 			if (pnetwork->network.PhyInfo.SignalQuality == 101)
@@ -982,7 +982,7 @@ _func_enter_;
 		 */
 		bool update_ie = _TRUE;
 
-		pnetwork->last_scanned = rtw_get_current_time();
+		pnetwork->last_scanned = jiffies;
 
 		//target.Reserved[0]==1, means that scaned network is a bcn frame.
 		if((pnetwork->network.IELength>target->IELength) && (target->Reserved[0]==1))
@@ -1340,7 +1340,7 @@ _func_enter_;
 		}
 	}
 	
-	//DBG_871X("scan complete in %dms\n",rtw_get_passing_time_ms(pmlmepriv->scan_start_time));
+	//DBG_871X("scan complete in %dms\n",jiffies_to_msecs(jiffies - pmlmepriv->scan_start_time));
 
 	_exit_critical_bh(&pmlmepriv->lock, &irqL);
 
@@ -1727,14 +1727,14 @@ inline void rtw_indicate_scan_done( _adapter *padapter, bool aborted)
 void rtw_scan_abort(_adapter *adapter)
 {
 	u32 cnt=0;
-	u32 start;
+	unsigned long start;
 	struct mlme_priv	*pmlmepriv = &(adapter->mlmepriv);
 	struct mlme_ext_priv	*pmlmeext = &(adapter->mlmeextpriv);
 
-	start = rtw_get_current_time();
+	start = jiffies;
 	pmlmeext->scan_abort = _TRUE;
 	while (check_fwstate(pmlmepriv, _FW_UNDER_SURVEY)
-		&& rtw_get_passing_time_ms(start) <= 200) {
+		&& jiffies_to_msecs(start) <= 200) {
 
 		if (adapter->bDriverStopped || adapter->bSurpriseRemoved)
 			break;
@@ -2751,7 +2751,7 @@ static void rtw_auto_scan_handler(_adapter *padapter)
 	rtw_mlme_reset_auto_scan_int(padapter);
 
 	if (pmlmepriv->auto_scan_int_ms != 0
-		&& rtw_get_passing_time_ms(pmlmepriv->scan_start_time) > pmlmepriv->auto_scan_int_ms) {
+		&& jiffies_to_msecs(jiffies - pmlmepriv->scan_start_time) > pmlmepriv->auto_scan_int_ms) {
 
 		if (!padapter->registrypriv.wifi_spec) {
 			if (check_fwstate(pmlmepriv, _FW_UNDER_SURVEY|_FW_UNDER_LINKING) == _TRUE) 
@@ -2979,7 +2979,7 @@ static int rtw_check_roaming_candidate(struct mlme_priv *mlme
 		MAC_ARG(competitor->network.MacAddress),
 		competitor->network.Configuration.DSConfig,
 		(int)competitor->network.Rssi,
-		rtw_get_passing_time_ms(competitor->last_scanned)
+		jiffies_to_msecs(jiffies - competitor->last_scanned)
 	);
 
 	/* got specific addr to roam */
@@ -2990,7 +2990,7 @@ static int rtw_check_roaming_candidate(struct mlme_priv *mlme
 			goto exit;
 	}
 	#if 1
-	if(rtw_get_passing_time_ms((u32)competitor->last_scanned) >= mlme->roam_scanr_exp_ms)
+	if(jiffies_to_msecs(jiffies - competitor->last_scanned) >= mlme->roam_scanr_exp_ms)
 		goto exit;
 
 	if (competitor->network.Rssi - mlme->cur_network_scanned->network.Rssi < mlme->roam_rssi_diff_th)
@@ -3110,7 +3110,7 @@ static int rtw_check_join_candidate(struct mlme_priv *mlme
 
 #ifdef  CONFIG_LAYER2_ROAMING
 	if(rtw_to_roam(adapter) > 0) {
-		if(	rtw_get_passing_time_ms((u32)competitor->last_scanned) >= mlme->roam_scanr_exp_ms
+		if(jiffies_to_msecs(jiffies - competitor->last_scanned) >= mlme->roam_scanr_exp_ms
 			|| is_same_ess(&competitor->network, &mlme->cur_network.network) == _FALSE
 		)
 			goto exit;

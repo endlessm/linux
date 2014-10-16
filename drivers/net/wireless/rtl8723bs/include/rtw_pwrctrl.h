@@ -284,7 +284,7 @@ struct pwrctrl_priv
 	u8	ips_org_mode; 
 	u8	ips_mode_req; // used to accept the mode setting request, will update to ipsmode later
 	uint bips_processing;
-	u32 ips_deny_time; /* will deny IPS when system time is smaller than this */
+	unsigned long ips_deny_time; /* will deny IPS when system time is smaller than this */
 	u8 pre_ips_type;// 0: default flow, 1: carddisbale flow
 
 	// ps_deny: if 0, power save is free to go; otherwise deny all kinds of power save.
@@ -301,7 +301,7 @@ struct pwrctrl_priv
 	u8	power_mgnt;
 	u8	org_power_mgnt;
 	u8	bFwCurrentInPSMode;
-	u32	DelayLPSLastTimeStamp;
+	unsigned long	DelayLPSLastTimeStamp;
 	s32		pnp_current_pwr_state;
 	u8		pnp_bstop_trx;
 

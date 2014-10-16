@@ -21,6 +21,7 @@
 
 #include <drv_types.h>
 #include <hal_data.h>
+#include <linux/jiffies.h>
 
 
 /*------------------------Define local variable------------------------------*/
@@ -192,7 +193,6 @@ ReadEFuseByte(
 	u32	value32;
 	u8	readbyte;
 	u16	retry;
-	//u32 start=rtw_get_current_time();
 
 	if(bPseudoTest)
 	{
@@ -232,7 +232,7 @@ ReadEFuseByte(
 	value32 = rtw_read32(Adapter, EFUSE_CTRL);
 	
 	*pbuf = (u8)(value32 & 0xff);
-	//DBG_871X("ReadEFuseByte _offset:%08u, in %d ms\n",_offset ,rtw_get_passing_time_ms(start));
+	//DBG_871X("ReadEFuseByte _offset:%08u, in %d ms\n",_offset ,jiffies_to_msecs(jiffies - start));
 	
 }
 
@@ -1332,7 +1332,7 @@ void Rtw_Hal_ReadMACAddrFromFile(PADAPTER padapter)
 	mm_segment_t fs;
 	u8 source_addr[18];
 	loff_t pos = 0;
-	u32 curtime = rtw_get_current_time();
+	unsigned long curtime = jiffies;
 	EEPROM_EFUSE_PRIV *pEEPROM = GET_EEPROM_EFUSE_PRIV(padapter);
 	u8 *head, *end;
 

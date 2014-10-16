@@ -513,7 +513,7 @@ inline void rtw_set_oper_ch(_adapter *adapter, u8 ch)
 	struct dvobj_priv *dvobj = adapter_to_dvobj(adapter);
 	
 	if (dvobj->oper_channel != ch) {
-		dvobj->on_oper_ch_time = rtw_get_current_time();
+		dvobj->on_oper_ch_time = jiffies;
 
 #ifdef DBG_CH_SWITCH
 		cnt += snprintf(msg+cnt, len-cnt, "switch to ch %3u", ch);
@@ -649,7 +649,7 @@ inline u32 rtw_get_on_oper_ch_time(_adapter *adapter)
 	return adapter_to_dvobj(adapter)->on_oper_ch_time;
 }
 
-inline u32 rtw_get_on_cur_ch_time(_adapter *adapter)
+inline unsigned long rtw_get_on_cur_ch_time(_adapter *adapter)
 {
 	if (adapter->mlmeextpriv.cur_channel == adapter_to_dvobj(adapter)->oper_channel)
 		return adapter_to_dvobj(adapter)->on_oper_ch_time;
@@ -2039,7 +2039,7 @@ int rtw_check_bcn_info(ADAPTER *Adapter, u8 *pframe, u32 packet_len)
 		return _TRUE;
 	}
 
-	if ((pmlmepriv->timeBcnInfoChkStart != 0) && (rtw_get_passing_time_ms(pmlmepriv->timeBcnInfoChkStart) > DISCONNECT_BY_CHK_BCN_FAIL_OBSERV_PERIOD_IN_MS))
+	if ((pmlmepriv->timeBcnInfoChkStart != 0) && (jiffies_to_msecs(jiffies - pmlmepriv->timeBcnInfoChkStart) > DISCONNECT_BY_CHK_BCN_FAIL_OBSERV_PERIOD_IN_MS))
 	{
 		pmlmepriv->timeBcnInfoChkStart = 0;
 		pmlmepriv->NumOfBcnInfoChkFail = 0;
@@ -2212,17 +2212,17 @@ _mismatch:
 
 	if (pmlmepriv->NumOfBcnInfoChkFail == 0)
 	{
-		pmlmepriv->timeBcnInfoChkStart = rtw_get_current_time();
+		pmlmepriv->timeBcnInfoChkStart = jiffies;
 	}
 
 	pmlmepriv->NumOfBcnInfoChkFail++;
 	DBG_871X("%s by "ADPT_FMT" - NumOfChkFail = %d (SeqNum of this Beacon frame = %d).\n", __func__, ADPT_ARG(Adapter), pmlmepriv->NumOfBcnInfoChkFail, GetSequence(pframe));
 
-	if ((pmlmepriv->timeBcnInfoChkStart != 0) && (rtw_get_passing_time_ms(pmlmepriv->timeBcnInfoChkStart) <= DISCONNECT_BY_CHK_BCN_FAIL_OBSERV_PERIOD_IN_MS) 
+	if ((pmlmepriv->timeBcnInfoChkStart != 0) && (jiffies_to_msecs(jiffies - pmlmepriv->timeBcnInfoChkStart) <= DISCONNECT_BY_CHK_BCN_FAIL_OBSERV_PERIOD_IN_MS) 
 		&& (pmlmepriv->NumOfBcnInfoChkFail >= DISCONNECT_BY_CHK_BCN_FAIL_THRESHOLD))
 	{
 		DBG_871X("%s by "ADPT_FMT" - NumOfChkFail = %d >= threshold : %d (in %d ms), return FAIL.\n", __func__, ADPT_ARG(Adapter), pmlmepriv->NumOfBcnInfoChkFail, 
-			DISCONNECT_BY_CHK_BCN_FAIL_THRESHOLD, rtw_get_passing_time_ms(pmlmepriv->timeBcnInfoChkStart));
+			DISCONNECT_BY_CHK_BCN_FAIL_THRESHOLD, jiffies_to_msecs(jiffies - pmlmepriv->timeBcnInfoChkStart));
 		pmlmepriv->timeBcnInfoChkStart = 0;
 		pmlmepriv->NumOfBcnInfoChkFail = 0;
 		return _FAIL;

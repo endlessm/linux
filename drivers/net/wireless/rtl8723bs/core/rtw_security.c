@@ -883,7 +883,7 @@ _func_enter_;
 
 			if(IS_MCAST(prxattrib->ra))
 			{
-				static u32 start = 0;
+				static unsigned long start = 0;
 				static u32 no_gkey_bc_cnt = 0;
 				static u32 no_gkey_mc_cnt = 0;
 
@@ -892,19 +892,19 @@ _func_enter_;
 					res=_FAIL;
 
 					if (start == 0)
-						start = rtw_get_current_time();
+						start = jiffies;
 
 					if (is_broadcast_mac_addr(prxattrib->ra))
 						no_gkey_bc_cnt++;
 					else
 						no_gkey_mc_cnt++;
 
-					if (rtw_get_passing_time_ms(start) > 1000) {
+					if (jiffies_to_msecs(jiffies - start) > 1000) {
 						if (no_gkey_bc_cnt || no_gkey_mc_cnt) {
 							DBG_871X_LEVEL(_drv_always_, FUNC_ADPT_FMT" no_gkey_bc_cnt:%u, no_gkey_mc_cnt:%u\n",
 								FUNC_ADPT_ARG(padapter), no_gkey_bc_cnt, no_gkey_mc_cnt);
 						}
-						start = rtw_get_current_time();
+						start = jiffies;
 						no_gkey_bc_cnt = 0;
 						no_gkey_mc_cnt = 0;
 					}
@@ -2085,7 +2085,7 @@ _func_enter_;
 
 			if(IS_MCAST(prxattrib->ra))
 			{
-				static u32 start = 0;
+				static unsigned long start = 0;
 				static u32 no_gkey_bc_cnt = 0;
 				static u32 no_gkey_mc_cnt = 0;
 
@@ -2096,19 +2096,19 @@ _func_enter_;
 					res=_FAIL;
 
 					if (start == 0)
-						start = rtw_get_current_time();
+						start = jiffies;
 
 					if (is_broadcast_mac_addr(prxattrib->ra))
 						no_gkey_bc_cnt++;
 					else
 						no_gkey_mc_cnt++;
 
-					if (rtw_get_passing_time_ms(start) > 1000) {
+					if (jiffies_to_msecs(jiffies - start) > 1000) {
 						if (no_gkey_bc_cnt || no_gkey_mc_cnt) {
 							DBG_871X_LEVEL(_drv_always_, FUNC_ADPT_FMT" no_gkey_bc_cnt:%u, no_gkey_mc_cnt:%u\n",
 								FUNC_ADPT_ARG(padapter), no_gkey_bc_cnt, no_gkey_mc_cnt);
 						}
-						start = rtw_get_current_time();
+						start = jiffies;
 						no_gkey_bc_cnt = 0;
 						no_gkey_mc_cnt = 0;
 					}
@@ -3212,14 +3212,14 @@ u8 rtw_handle_tkip_countermeasure(_adapter* adapter, const char *caller)
 	u8 status = _SUCCESS;
 
 	if (securitypriv->btkip_countermeasure == _TRUE) {
-		u32 passing_ms = rtw_get_passing_time_ms(securitypriv->btkip_countermeasure_time);
+		unsigned long passing_ms = jiffies_to_msecs(jiffies - securitypriv->btkip_countermeasure_time);
 		if (passing_ms > 60*1000) {
-			DBG_871X_LEVEL(_drv_always_, "%s("ADPT_FMT") countermeasure time:%ds > 60s \n",
+			DBG_871X_LEVEL(_drv_always_, "%s("ADPT_FMT") countermeasure time:%lus > 60s \n",
 				caller, ADPT_ARG(adapter), passing_ms/1000);
 			securitypriv->btkip_countermeasure = _FALSE;
 			securitypriv->btkip_countermeasure_time = 0;
 		} else {
-			DBG_871X_LEVEL(_drv_always_, "%s("ADPT_FMT") countermeasure time:%ds < 60s \n",
+			DBG_871X_LEVEL(_drv_always_, "%s("ADPT_FMT") countermeasure time:%lus < 60s \n",
 				caller, ADPT_ARG(adapter), passing_ms/1000);
 			status = _FAIL;
 		}

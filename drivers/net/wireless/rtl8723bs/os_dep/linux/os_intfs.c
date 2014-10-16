@@ -2381,7 +2381,7 @@ int rtw_ips_pwr_up(_adapter *padapter)
 #ifdef DBG_CONFIG_ERROR_DETECT
 	struct sreset_priv *psrtpriv = &pHalData->srestpriv;
 #endif//#ifdef DBG_CONFIG_ERROR_DETECT
-	u32 start_time = rtw_get_current_time();
+	unsigned long start_time = jiffies;
 	DBG_871X("===>  rtw_ips_pwr_up..............\n");
 
 #if defined(CONFIG_SWLPS_IN_IPS) || defined(CONFIG_FWLPS_IN_IPS)
@@ -2395,14 +2395,14 @@ int rtw_ips_pwr_up(_adapter *padapter)
 
 	rtw_led_control(padapter, LED_CTL_NO_LINK);
 
- 	DBG_871X("<===  rtw_ips_pwr_up.............. in %dms\n", rtw_get_passing_time_ms(start_time));
+ 	DBG_871X("<===  rtw_ips_pwr_up.............. in %dms\n", jiffies_to_msecs(jiffies - start_time));
 	return result;
 
 }
 
 void rtw_ips_pwr_down(_adapter *padapter)
 {
-	u32 start_time = rtw_get_current_time();
+	unsigned long start_time = jiffies;
 	DBG_871X("===> rtw_ips_pwr_down...................\n");
 
 	padapter->bCardDisableWOHSM = _TRUE;
@@ -2410,7 +2410,7 @@ void rtw_ips_pwr_down(_adapter *padapter)
 
 	rtw_ips_dev_unload(padapter);
 	padapter->bCardDisableWOHSM = _FALSE;
-	DBG_871X("<=== rtw_ips_pwr_down..................... in %dms\n", rtw_get_passing_time_ms(start_time));
+	DBG_871X("<=== rtw_ips_pwr_down..................... in %dms\n", jiffies_to_msecs(jiffies - start_time));
 }
 #endif
 void rtw_ips_dev_unload(_adapter *padapter)
@@ -3292,7 +3292,7 @@ int rtw_suspend_common(_adapter *padapter)
 	struct mlme_priv *pmlmepriv = &padapter->mlmepriv;
 	
 	int ret = 0;
-	u32 start_time = rtw_get_current_time();
+	unsigned long start_time = jiffies;
 
 	DBG_871X_LEVEL(_drv_always_, " suspend start\n");
 	DBG_871X("==> %s (%s:%d)\n",__FUNCTION__, current->comm, current->pid);
@@ -3394,11 +3394,11 @@ int rtw_suspend_common(_adapter *padapter)
 	}
 
 	DBG_871X_LEVEL(_drv_always_, "rtw suspend success in %d ms\n",
-		rtw_get_passing_time_ms(start_time));
+		jiffies_to_msecs(jiffies - start_time));
 
 exit:
 	DBG_871X("<===  %s return %d.............. in %dms\n", __FUNCTION__
-		, ret, rtw_get_passing_time_ms(start_time));
+		, ret, jiffies_to_msecs(jiffies - start_time));
 
 	return ret;	
 }
@@ -3863,7 +3863,7 @@ _func_exit_;
 int rtw_resume_common(_adapter *padapter)
 {
 	int ret = 0;
-	u32 start_time = rtw_get_current_time();
+	unsigned long start_time = jiffies;
 	struct pwrctrl_priv *pwrpriv = adapter_to_pwrctl(padapter);
 	struct mlme_priv *pmlmepriv = &padapter->mlmepriv;
 	
@@ -3920,7 +3920,7 @@ int rtw_resume_common(_adapter *padapter)
 	#endif
 	}
 	DBG_871X_LEVEL(_drv_always_, "%s:%d in %d ms\n", __FUNCTION__ ,ret,
-		rtw_get_passing_time_ms(start_time));
+		jiffies_to_msecs(jiffies - start_time));
 
 	_func_exit_;
 	

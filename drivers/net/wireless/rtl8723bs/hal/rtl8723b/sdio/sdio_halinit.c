@@ -1021,7 +1021,7 @@ static u32 rtl8723bs_hal_init(PADAPTER padapter)
 	if (adapter_to_pwrctl(padapter)->bips_processing == _TRUE && psrtpriv->silent_reset_inprogress == _FALSE
 		&& adapter_to_pwrctl(padapter)->pre_ips_type == 0)
 	{
-		u32 start_time;
+		unsigned long start_time;
 		u8 cpwm_orig, cpwm_now;
 		u8 val8, bMacPwrCtrlOn = _TRUE;
 
@@ -1041,7 +1041,7 @@ static u32 rtl8723bs_hal_init(PADAPTER padapter)
 		adapter_to_pwrctl(padapter)->tog = (val8 + 0x80) & 0x80;
 
 		//do polling cpwm
-		start_time = rtw_get_current_time();		
+		start_time = jiffies;
 		do {
 
 			rtw_mdelay_os(1);
@@ -1056,7 +1056,7 @@ static u32 rtl8723bs_hal_init(PADAPTER padapter)
 				break;
 			}
 
-			if (rtw_get_passing_time_ms(start_time) > 100)
+			if (jiffies_to_msecs(jiffies - start_time) > 100)
 			{
 				DBG_871X("%s: polling cpwm timeout when leaving IPS in FWLPS state\n", __FUNCTION__);
 				break;
@@ -1334,7 +1334,7 @@ static u32 rtl8723bs_hal_init(PADAPTER padapter)
 		if(pwrctrlpriv->rf_pwrstate == rf_on)
 		{
 			struct pwrctrl_priv *pwrpriv;
-			u32 start_time;
+			unsigned long start_time;
 			u8 restore_iqk_rst;
 			u8 b2Ant;
 			u8 h2cCmdBuf;
@@ -1347,13 +1347,13 @@ static u32 rtl8723bs_hal_init(PADAPTER padapter)
 			h2cCmdBuf = 1;
 			FillH2CCmd8723B(padapter, H2C_8723B_BT_WLAN_CALIBRATION, 1, &h2cCmdBuf);
 
-			start_time = rtw_get_current_time();
+			start_time = jiffies;
 			do {
 				if (rtw_read8(padapter, 0x1e7) & 0x01)
 					break;
 
 				rtw_msleep_os(50);
-			} while (rtw_get_passing_time_ms(start_time) <= 400);
+			} while (jiffies_to_msecs(jiffies - start_time) <= 400);
 
 #ifdef CONFIG_BT_COEXIST
 			rtw_btcoex_IQKNotify(padapter, _TRUE);
@@ -1748,7 +1748,7 @@ Hal_ReadMACAddrFromFile_8723BS(
 	mm_segment_t fs;
 	u8 source_addr[18];
 	loff_t pos = 0;
-	u32	curtime = rtw_get_current_time();
+	unsigned long	curtime = jiffies;
 	EEPROM_EFUSE_PRIV *pEEPROM = GET_EEPROM_EFUSE_PRIV(padapter);
 	u8 *head, *end;
 
@@ -1946,7 +1946,7 @@ _InitOtherVariable(
 static s32 _ReadAdapterInfo8723BS(PADAPTER padapter)
 {
     u8 val8;
-	u32 start;
+	unsigned long start;
 
 	RT_TRACE(_module_hci_hal_init_c_, _drv_info_, ("+_ReadAdapterInfo8723BS\n"));
 
@@ -1961,7 +1961,7 @@ static s32 _ReadAdapterInfo8723BS(PADAPTER padapter)
 	rtw_write8(padapter, 0x4e, val8);
 
 
-	start = rtw_get_current_time();
+	start = jiffies;
 
 	_EfuseCellSel(padapter);
 	_ReadRFType(padapter);
@@ -1975,7 +1975,7 @@ static s32 _ReadAdapterInfo8723BS(PADAPTER padapter)
 	}	
 	
 
-	MSG_8192C("<==== _ReadAdapterInfo8723BS in %d ms\n", rtw_get_passing_time_ms(start));
+	MSG_8192C("<==== _ReadAdapterInfo8723BS in %d ms\n", jiffies_to_msecs(jiffies - start));
 
 	return _SUCCESS;
 }
