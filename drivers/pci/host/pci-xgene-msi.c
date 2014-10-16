@@ -110,7 +110,6 @@ static inline u32 xgene_msi_intr_read(phys_addr_t __iomem *base,
 				      unsigned int reg)
 {
 	u32 irq_reg = MSI1INT0 + (reg << 16);
-	pr_debug("base = %p irq_reg = 0x%x , reg = 0x%x\n", base, irq_reg, reg);
 	return readl((void *)((phys_addr_t) base + irq_reg));
 }
 
@@ -118,8 +117,6 @@ static inline u32 xgene_msi_read(phys_addr_t __iomem *base, unsigned int group,
 			         unsigned int reg)
 {
 	u32 irq_reg = MSI0IR0 + (group << 19) + (reg << 16);
-	pr_debug("base %p irq_reg 0x%x, group 0x%x, reg 0x%x\n",
-		base, irq_reg, group, reg);
 	return readl((void *)((phys_addr_t) base + irq_reg));
 }
 
@@ -316,15 +313,11 @@ static void xgene_msi_cascade(unsigned int irq, struct irq_desc *desc)
 	u32 msi_intr_reg_value = 0;
 	u32 msi_intr_reg;
 
-	pr_debug("\nENTER %s, irq=%u\n", __func__, irq);
-
 	chained_irq_enter(chip, desc);
 	cascade_data = irq_get_handler_data(irq);
 	msi_data = cascade_data->msi_data;
-	pr_debug("xgene_msi : 0x%p, irq = %u\n", msi_data, irq);
 
 	msi_intr_reg = cascade_data->index;
-	pr_debug("msi_intr_reg : %d\n", msi_intr_reg);
 
 	if (msi_intr_reg >= NR_MSI_REG)
 		cascade_irq = 0;
@@ -333,33 +326,26 @@ static void xgene_msi_cascade(unsigned int irq, struct irq_desc *desc)
 	case XGENE_PIC_IP_GIC:
 		msi_intr_reg_value = xgene_msi_intr_read(msi_data->msi_regs,
 						       msi_intr_reg);
-		pr_debug("msi_intr_reg_value : 0x%08x\n", msi_intr_reg_value);
 		break;
 	}
 
 	while (msi_intr_reg_value) {
 		msir_index = ffs(msi_intr_reg_value) - 1;
-		pr_debug("msir_index : %d\n", msir_index);
 		msir_value = xgene_msi_read(msi_data->msi_regs, msi_intr_reg,
 					  msir_index);
 		while (msir_value) {
 			intr_index = ffs(msir_value) - 1;
-			pr_debug("intr_index : %d\n", intr_index);
 			cascade_irq = irq_linear_revmap(msi_data->irqhost,
 				 msir_index * IRQS_PER_MSI_INDEX * NR_MSI_REG +
 				 intr_index * NR_MSI_REG + msi_intr_reg);
-			pr_debug("cascade_irq : %d\n", cascade_irq);
 			if (cascade_irq != 0)
 				generic_handle_irq(cascade_irq);
 			msir_value &= ~(1 << intr_index);
-			pr_debug("msir_value : 0x%08x\n", msir_value);
 		}
 		msi_intr_reg_value &= ~(1 << msir_index);
-		pr_debug("msi_intr_reg_value : 0x%08x\n", msi_intr_reg_value);
 	}
 
 	chained_irq_exit(chip, desc);
-	pr_debug("EXIT\n");
 }
 
 static int xgene_msi_remove(struct platform_device *pdev)
