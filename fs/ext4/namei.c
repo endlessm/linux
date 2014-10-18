@@ -3194,8 +3194,8 @@ static int ext4_link(struct dentry *old_dentry,
 		return err;
 
 	if ((ext4_test_inode_flag(dir, EXT4_INODE_PROJINHERIT)) &&
-	    (!projid_eq(EXT4_I(dir)->i_projid,
-			EXT4_I(old_dentry->d_inode)->i_projid)))
+	    (!projid_valid_eq(EXT4_I(dir)->i_projid,
+			      EXT4_I(old_dentry->d_inode)->i_projid)))
 		return -EXDEV;
 
 	err = dquot_initialize(dir);
@@ -3485,8 +3485,8 @@ static int ext4_rename(struct inode *old_dir, struct dentry *old_dentry,
 	}
 
 	if ((ext4_test_inode_flag(new_dir, EXT4_INODE_PROJINHERIT)) &&
-	    (!projid_eq(EXT4_I(new_dir)->i_projid,
-			EXT4_I(old_dentry->d_inode)->i_projid)))
+	    (!projid_valid_eq(EXT4_I(new_dir)->i_projid,
+			      EXT4_I(old_dentry->d_inode)->i_projid)))
 		return -EXDEV;
 
 	retval = dquot_initialize(old.dir);
@@ -3683,11 +3683,11 @@ static int ext4_cross_rename(struct inode *old_dir, struct dentry *old_dentry,
 	struct timespec64 ctime;
 
 	if ((ext4_test_inode_flag(new_dir, EXT4_INODE_PROJINHERIT) &&
-	     !projid_eq(EXT4_I(new_dir)->i_projid,
-			EXT4_I(old_dentry->d_inode)->i_projid)) ||
+	     !projid_valid_eq(EXT4_I(new_dir)->i_projid,
+			      EXT4_I(old_dentry->d_inode)->i_projid)) ||
 	    (ext4_test_inode_flag(old_dir, EXT4_INODE_PROJINHERIT) &&
-	     !projid_eq(EXT4_I(old_dir)->i_projid,
-			EXT4_I(new_dentry->d_inode)->i_projid)))
+	     !projid_valid_eq(EXT4_I(old_dir)->i_projid,
+			      EXT4_I(new_dentry->d_inode)->i_projid)))
 		return -EXDEV;
 
 	retval = dquot_initialize(old.dir);
