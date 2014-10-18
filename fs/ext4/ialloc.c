@@ -769,6 +769,10 @@ struct inode *__ext4_new_inode(handle_t *handle, struct inode *dir,
 	if (unlikely(ext4_forced_shutdown(EXT4_SB(dir->i_sb))))
 		return ERR_PTR(-EIO);
 
+	/* Supplied owner must be valid */
+	if (owner && (owner[0] == (uid_t)-1 || owner[1] == (uid_t)-1))
+		return ERR_PTR(-EOVERFLOW);
+
 	if ((ext4_encrypted_inode(dir) ||
 	     DUMMY_ENCRYPTION_ENABLED(EXT4_SB(dir->i_sb))) &&
 	    (S_ISREG(mode) || S_ISDIR(mode) || S_ISLNK(mode))) {
@@ -781,7 +785,6 @@ struct inode *__ext4_new_inode(handle_t *handle, struct inode *dir,
 			nblocks += EXT4_DATA_TRANS_BLOCKS(dir->i_sb);
 		encrypt = 1;
 	}
-
 	sb = dir->i_sb;
 	ngroups = ext4_get_groups_count(sb);
 	trace_ext4_request_inode(dir, mode);
@@ -811,7 +814,7 @@ struct inode *__ext4_new_inode(handle_t *handle, struct inode *dir,
 	    ext4_test_inode_flag(dir, EXT4_INODE_PROJINHERIT))
 		ei->i_projid = EXT4_I(dir)->i_projid;
 	else
-		ei->i_projid = make_kprojid(&init_user_ns, EXT4_DEF_PROJID);
+		ei->i_projid = make_kprojid(sb->s_user_ns, EXT4_DEF_PROJID);
 
 	err = dquot_initialize(inode);
 	if (err)
