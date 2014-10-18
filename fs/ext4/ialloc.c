@@ -764,6 +764,10 @@ struct inode *__ext4_new_inode(handle_t *handle, struct inode *dir,
 	if (!dir || !dir->i_nlink)
 		return ERR_PTR(-EPERM);
 
+	/* Supplied owner must be valid */
+	if (owner && (owner[0] == (uid_t)-1 || owner[1] == (uid_t)-1))
+		return ERR_PTR(-EOVERFLOW);
+
 	if ((ext4_encrypted_inode(dir) ||
 	     DUMMY_ENCRYPTION_ENABLED(EXT4_SB(dir->i_sb))) &&
 	    (S_ISREG(mode) || S_ISDIR(mode) || S_ISLNK(mode))) {
@@ -776,7 +780,6 @@ struct inode *__ext4_new_inode(handle_t *handle, struct inode *dir,
 			nblocks += EXT4_DATA_TRANS_BLOCKS(dir->i_sb);
 		encrypt = 1;
 	}
-
 	sb = dir->i_sb;
 	ngroups = ext4_get_groups_count(sb);
 	trace_ext4_request_inode(dir, mode);
