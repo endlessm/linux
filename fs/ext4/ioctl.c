@@ -253,7 +253,7 @@ long ext4_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
 		 * This test looks nicer. Thanks to Pauline Middelink
 		 */
 		if ((flags ^ oldflags) & (EXT4_APPEND_FL | EXT4_IMMUTABLE_FL)) {
-			if (!capable(CAP_LINUX_IMMUTABLE))
+			if (!ns_capable(sb->s_user_ns, CAP_LINUX_IMMUTABLE))
 				goto flags_out;
 		}
 
@@ -262,7 +262,7 @@ long ext4_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
 		 * the relevant capability.
 		 */
 		if ((jflag ^ oldflags) & (EXT4_JOURNAL_DATA_FL)) {
-			if (!capable(CAP_SYS_RESOURCE))
+			if (!ns_capable(sb->s_user_ns, CAP_SYS_RESOURCE))
 				goto flags_out;
 		}
 		if ((flags ^ oldflags) & EXT4_EXTENTS_FL)
@@ -593,7 +593,7 @@ resizefs_out:
 		struct fstrim_range range;
 		int ret = 0;
 
-		if (!capable(CAP_SYS_ADMIN))
+		if (!ns_capable(sb->s_user_ns, CAP_SYS_ADMIN))
 			return -EPERM;
 
 		if (!blk_queue_discard(q))
