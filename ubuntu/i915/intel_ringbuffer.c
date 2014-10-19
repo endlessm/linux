@@ -370,7 +370,7 @@ gen7_render_ring_flush(struct intel_ring_buffer *ring,
 }
 
 static int
-gen8_emit_pipe_control(struct intel_engine_cs *ring,
+gen8_emit_pipe_control(struct intel_ring_buffer *ring,
 		       u32 flags, u32 scratch_addr)
 {
 	int ret;
