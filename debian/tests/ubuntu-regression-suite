@@ -1,0 +1,4 @@
+#!/bin/sh
+set -e
+git clone git://kernel.ubuntu.com/ubuntu/kernel-testing
+kernel-testing/run-dep8-tests
