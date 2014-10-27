@@ -103,6 +103,7 @@ install-tools: install-source $(stampdir)/stamp-build-perarch
 	install -d $(toolsman)/man1
 
 	install -m755 debian/tools/generic $(toolsbin)/usbip
+	install -m755 debian/tools/generic $(toolsbin)/usbipd
 	install -m644 $(CURDIR)/tools/usb/usbip/doc/*.8 $(toolsman)/man1/
 
 	install -m755 debian/tools/generic $(toolsbin)/cpupower
