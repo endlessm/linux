@@ -42,8 +42,9 @@ ifeq ($(do_doc_package_content),true)
 	if [ -z "$(AUTOBUILD)" ]; then \
 		install -d $(docdir)/$(doc_pkg_name)-tmp; \
 		$(kmake) O=$(docdir)/$(doc_pkg_name)-tmp htmldocs; \
-		mv $(docdir)/$(doc_pkg_name)-tmp/Documentation/DocBook \
-			$(docdir)/html; \
+		install -d $(docdir)/html; \
+		rsync -aL $(docdir)/$(doc_pkg_name)-tmp/Documentation/DocBook/ \
+			$(docdir)/html/; \
 		rm -rf $(docdir)/$(doc_pkg_name)-tmp; \
 	fi
 endif
