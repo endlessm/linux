@@ -2268,8 +2268,8 @@ EXPORT_SYMBOL drivers/net/wireless/orinoco/orinoco 0xe1f16a64	__orinoco_ev_info
 EXPORT_SYMBOL drivers/net/wireless/orinoco/orinoco 0xfe35c881	orinoco_get_stats
 EXPORT_SYMBOL drivers/net/wireless/orinoco/orinoco 0xfe5449e9	__orinoco_ev_rx
 EXPORT_SYMBOL drivers/net/wireless/orinoco/orinoco 0xffe27bca	orinoco_interrupt
-EXPORT_SYMBOL drivers/net/wireless/rtlwifi/btcoexist/btcoexist 0x3fe8ed58	rtl_btc_get_ops_pointer
-EXPORT_SYMBOL drivers/net/wireless/rtlwifi/rtl8192c/rtl8192c-common 0x05c592d9	rtl92c_phy_set_io_cmd
+EXPORT_SYMBOL drivers/net/wireless/rtlwifi/btcoexist/btcoexist 0x0d90c3f7	rtl_btc_get_ops_pointer
+EXPORT_SYMBOL drivers/net/wireless/rtlwifi/rtl8192c/rtl8192c-common 0xe07dc06a	rtl92c_phy_set_io_cmd
 EXPORT_SYMBOL drivers/net/wireless/rtlwifi/rtl8192c/rtl8192c-common 0x09fd8184	rtl92ce_phy_set_rf_on
 EXPORT_SYMBOL drivers/net/wireless/rtlwifi/rtl8192c/rtl8192c-common 0x0c506329	rtl92c_phy_update_txpower_dbm
 EXPORT_SYMBOL drivers/net/wireless/rtlwifi/rtl8192c/rtl8192c-common 0x0d6bd57f	rtl92c_set_fw_joinbss_report_cmd
@@ -2281,7 +2281,6 @@ EXPORT_SYMBOL drivers/net/wireless/rtlwifi/rtl8192c/rtl8192c-common 0x28e83adc	r
 EXPORT_SYMBOL drivers/net/wireless/rtlwifi/rtl8192c/rtl8192c-common 0x2d161f75	rtl92c_phy_set_bw_mode
 EXPORT_SYMBOL drivers/net/wireless/rtlwifi/rtl8192c/rtl8192c-common 0x2e88548b	rtl92c_phy_lc_calibrate
 EXPORT_SYMBOL drivers/net/wireless/rtlwifi/rtl8192c/rtl8192c-common 0x35ed354a	rtl92c_download_fw
-EXPORT_SYMBOL drivers/net/wireless/rtlwifi/rtl8192c/rtl8192c-common 0x41d37732	_rtl92c_phy_dbm_to_txpwr_Idx
 EXPORT_SYMBOL drivers/net/wireless/rtlwifi/rtl8192c/rtl8192c-common 0x4db8b7bf	rtl92c_dm_watchdog
 EXPORT_SYMBOL drivers/net/wireless/rtlwifi/rtl8192c/rtl8192c-common 0x54bfac10	rtl92c_dm_bt_coexist
 EXPORT_SYMBOL drivers/net/wireless/rtlwifi/rtl8192c/rtl8192c-common 0x56c45e98	rtl92c_dm_rf_saving
@@ -2296,7 +2295,7 @@ EXPORT_SYMBOL drivers/net/wireless/rtlwifi/rtl8192c/rtl8192c-common 0x900aba5a	r
 EXPORT_SYMBOL drivers/net/wireless/rtlwifi/rtl8192c/rtl8192c-common 0x9232e9e1	_rtl92c_phy_rf_serial_write
 EXPORT_SYMBOL drivers/net/wireless/rtlwifi/rtl8192c/rtl8192c-common 0x9ad90d56	_rtl92c_phy_fw_rf_serial_read
 EXPORT_SYMBOL drivers/net/wireless/rtlwifi/rtl8192c/rtl8192c-common 0x9f915739	_rtl92c_phy_bb8192c_config_parafile
-EXPORT_SYMBOL drivers/net/wireless/rtlwifi/rtl8192c/rtl8192c-common 0xa6c527b3	_rtl92c_phy_txpwr_idx_to_dbm
+EXPORT_SYMBOL drivers/net/wireless/rtlwifi/rtl8192c/rtl8192c-common 0x6cdc676f	_rtl92c_phy_txpwr_idx_to_dbm
 EXPORT_SYMBOL drivers/net/wireless/rtlwifi/rtl8192c/rtl8192c-common 0xa81bdeec	rtl92c_dm_write_dig
 EXPORT_SYMBOL drivers/net/wireless/rtlwifi/rtl8192c/rtl8192c-common 0xa8cd8d89	rtl92c_phy_set_io
 EXPORT_SYMBOL drivers/net/wireless/rtlwifi/rtl8192c/rtl8192c-common 0xb3314d48	_rtl92c_phy_calculate_bit_shift
@@ -2324,7 +2323,7 @@ EXPORT_SYMBOL drivers/net/wireless/rtlwifi/rtlwifi 0x3ec5a333	rtl_fw_cb
 EXPORT_SYMBOL drivers/net/wireless/rtlwifi/rtlwifi 0x4cb80b21	rtl_cam_empty_entry
 EXPORT_SYMBOL drivers/net/wireless/rtlwifi/rtlwifi 0x5d61d559	rtl_cam_add_one_entry
 EXPORT_SYMBOL drivers/net/wireless/rtlwifi/rtlwifi 0x68ccd349	rtl_cam_del_entry
-EXPORT_SYMBOL drivers/net/wireless/rtlwifi/rtlwifi 0x70de4e6b	rtl_ps_set_rf_state
+EXPORT_SYMBOL drivers/net/wireless/rtlwifi/rtlwifi 0xfe9e3931	rtl_ps_set_rf_state
 EXPORT_SYMBOL drivers/net/wireless/rtlwifi/rtlwifi 0x79188a02	rtl_query_rxpwrpercentage
 EXPORT_SYMBOL drivers/net/wireless/rtlwifi/rtlwifi 0x83ac9e1f	rtl_signal_scale_mapping
 EXPORT_SYMBOL drivers/net/wireless/rtlwifi/rtlwifi 0x8732fca2	rtl_send_smps_action
@@ -2333,9 +2332,9 @@ EXPORT_SYMBOL drivers/net/wireless/rtlwifi/rtlwifi 0xa002699a	rtl_ps_disable_nic
 EXPORT_SYMBOL drivers/net/wireless/rtlwifi/rtlwifi 0xa42ea162	rtl_cam_reset_all_entry
 EXPORT_SYMBOL drivers/net/wireless/rtlwifi/rtlwifi 0xb5c71ada	rtl_phy_scan_operation_backup
 EXPORT_SYMBOL drivers/net/wireless/rtlwifi/rtlwifi 0xc02a8855	efuse_read_1byte
-EXPORT_SYMBOL drivers/net/wireless/rtlwifi/rtlwifi 0xd7b9f792	rtl_process_phyinfo
+EXPORT_SYMBOL drivers/net/wireless/rtlwifi/rtlwifi 0x97af4ba8	rtl_process_phyinfo
 EXPORT_SYMBOL drivers/net/wireless/rtlwifi/rtlwifi 0xdcbd3ad4	rtlwifi_rate_mapping
-EXPORT_SYMBOL drivers/net/wireless/rtlwifi/rtlwifi 0xdd5ce9bd	rtl_get_tcb_desc
+EXPORT_SYMBOL drivers/net/wireless/rtlwifi/rtlwifi 0xb91b4dd7	rtl_get_tcb_desc
 EXPORT_SYMBOL drivers/net/wireless/rtlwifi/rtlwifi 0xee6d627c	rtl_cam_mark_invalid
 EXPORT_SYMBOL drivers/net/wireless/ti/wlcore/wlcore 0x0bea59d9	wl1271_free_tx_id
 EXPORT_SYMBOL drivers/net/wireless/ti/wlcore/wlcore 0x27f005f1	wlcore_calc_packet_alignment
@@ -11991,13 +11990,13 @@ EXPORT_SYMBOL_GPL drivers/net/wireless/rtlwifi/rtl8723com/rtl8723-common 0x805b2
 EXPORT_SYMBOL_GPL drivers/net/wireless/rtlwifi/rtl8723com/rtl8723-common 0x83c1d8d2	rtl8723_phy_reload_mac_registers
 EXPORT_SYMBOL_GPL drivers/net/wireless/rtlwifi/rtl8723com/rtl8723-common 0x898ab61a	rtl8723_cmd_send_packet
 EXPORT_SYMBOL_GPL drivers/net/wireless/rtlwifi/rtl8723com/rtl8723-common 0x8c1689af	rtl8723_phy_path_adda_on
-EXPORT_SYMBOL_GPL drivers/net/wireless/rtlwifi/rtl8723com/rtl8723-common 0x91397cec	rtl8723_write_fw
+EXPORT_SYMBOL_GPL drivers/net/wireless/rtlwifi/rtl8723com/rtl8723-common 0x58ffce36	rtl8723_write_fw
 EXPORT_SYMBOL_GPL drivers/net/wireless/rtlwifi/rtl8723com/rtl8723-common 0x93433917	rtl8723_phy_init_bb_rf_reg_def
 EXPORT_SYMBOL_GPL drivers/net/wireless/rtlwifi/rtl8723com/rtl8723-common 0x95ca44cd	rtl8723be_firmware_selfreset
-EXPORT_SYMBOL_GPL drivers/net/wireless/rtlwifi/rtl8723com/rtl8723-common 0xaa052219	rtl8723_download_fw
+EXPORT_SYMBOL_GPL drivers/net/wireless/rtlwifi/rtl8723com/rtl8723-common 0x2f0af1c2	rtl8723_download_fw
 EXPORT_SYMBOL_GPL drivers/net/wireless/rtlwifi/rtl8723com/rtl8723-common 0xae87efe5	rtl8723_dm_init_edca_turbo
 EXPORT_SYMBOL_GPL drivers/net/wireless/rtlwifi/rtl8723com/rtl8723-common 0xaf4d6d94	rtl8723_phy_calculate_bit_shift
-EXPORT_SYMBOL_GPL drivers/net/wireless/rtlwifi/rtl8723com/rtl8723-common 0xb1fd8ce6	rtl8723_fw_free_to_go
+EXPORT_SYMBOL_GPL drivers/net/wireless/rtlwifi/rtl8723com/rtl8723-common 0x57780920	rtl8723_fw_free_to_go
 EXPORT_SYMBOL_GPL drivers/net/wireless/rtlwifi/rtl8723com/rtl8723-common 0xbae8df00	rtl8723_phy_save_mac_registers
 EXPORT_SYMBOL_GPL drivers/net/wireless/rtlwifi/rtl8723com/rtl8723-common 0xbeca7c51	rtl8723_fw_block_write
 EXPORT_SYMBOL_GPL drivers/net/wireless/rtlwifi/rtl8723com/rtl8723-common 0xc0dcee12	rtl8723_phy_set_bb_reg
@@ -12005,7 +12004,7 @@ EXPORT_SYMBOL_GPL drivers/net/wireless/rtlwifi/rtl8723com/rtl8723-common 0xd668d
 EXPORT_SYMBOL_GPL drivers/net/wireless/rtlwifi/rtl8723com/rtl8723-common 0xdec4ef89	rtl8723_dm_init_dynamic_bb_powersaving
 EXPORT_SYMBOL_GPL drivers/net/wireless/rtlwifi/rtl8723com/rtl8723-common 0xeac5ab39	rtl8723_phy_rf_serial_read
 EXPORT_SYMBOL_GPL drivers/net/wireless/rtlwifi/rtl8723com/rtl8723-common 0xed7ebc72	rtl8723ae_firmware_selfreset
-EXPORT_SYMBOL_GPL drivers/net/wireless/rtlwifi/rtl8723com/rtl8723-common 0xf0c8dc97	rtl8723_phy_txpwr_idx_to_dbm
+EXPORT_SYMBOL_GPL drivers/net/wireless/rtlwifi/rtl8723com/rtl8723-common 0x5ff2c8c4	rtl8723_phy_txpwr_idx_to_dbm
 EXPORT_SYMBOL_GPL drivers/net/wireless/rtlwifi/rtl8723com/rtl8723-common 0xfd4e915a	rtl8723_phy_reload_adda_registers
 EXPORT_SYMBOL_GPL drivers/net/wireless/rtlwifi/rtlwifi 0x02e70d4c	rtl_deinit_rfkill
 EXPORT_SYMBOL_GPL drivers/net/wireless/rtlwifi/rtlwifi 0x155227f2	rtl_tx_mgmt_proc
