@@ -38,6 +38,7 @@
 #include "dm.h"
 #include "mac.h"
 #include "trx.h"
+#include "../rtl8192c/fw_common.h"
 
 static int _ConfigVerTOutEP(struct ieee80211_hw *hw)
 {
@@ -495,7 +496,7 @@ static void _rtl_tx_desc_checksum(u8 *txdesc)
 
 void rtl92cu_tx_fill_desc(struct ieee80211_hw *hw,
 			  struct ieee80211_hdr *hdr, u8 *pdesc_tx,
-			  struct ieee80211_tx_info *info,
+			  u8 *pbd_desc_tx, struct ieee80211_tx_info *info,
 			  struct ieee80211_sta *sta,
 			  struct sk_buff *skb,
 			  u8 queue_index,
