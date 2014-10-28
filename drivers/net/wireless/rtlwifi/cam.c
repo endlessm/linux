@@ -292,7 +292,7 @@ u8 rtl_cam_get_free_entry(struct ieee80211_hw *hw, u8 *sta_addr)
 	/* Does STA already exist? */
 	for (i = 4; i < TOTAL_CAM_ENTRY; i++) {
 		addr = rtlpriv->sec.hwsec_cam_sta_addr[i];
-		if (ether_addr_equal_unaligned(addr, sta_addr))
+		if (memcmp(addr, sta_addr, ETH_ALEN) == 0)
 			return i;
 	}
 	/* Get a free CAM entry. */
@@ -334,7 +334,7 @@ void rtl_cam_del_entry(struct ieee80211_hw *hw, u8 *sta_addr)
 		addr = rtlpriv->sec.hwsec_cam_sta_addr[i];
 		bitmap = (rtlpriv->sec.hwsec_cam_bitmap) >> i;
 		if (((bitmap & BIT(0)) == BIT(0)) &&
-		    (ether_addr_equal_unaligned(addr, sta_addr))) {
+		    (memcmp(addr, sta_addr, ETH_ALEN) == 0)) {
 			/* Remove from HW Security CAM */
 			eth_zero_addr(rtlpriv->sec.hwsec_cam_sta_addr[i]);
 			rtlpriv->sec.hwsec_cam_bitmap &= ~(BIT(0) << i);

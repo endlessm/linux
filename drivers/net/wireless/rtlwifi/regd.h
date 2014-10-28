@@ -26,10 +26,6 @@
 #ifndef __RTL_REGD_H__
 #define __RTL_REGD_H__
 
-/* for kernel 3.14 , both value are changed to IEEE80211_CHAN_NO_IR*/
-#define IEEE80211_CHAN_NO_IBSS IEEE80211_CHAN_NO_IR
-#define IEEE80211_CHAN_PASSIVE_SCAN IEEE80211_CHAN_NO_IR
-
 struct country_code_to_enum_rd {
 	u16 countrycode;
 	const char *iso_name;
