@@ -10242,7 +10242,6 @@ EXPORT_SYMBOL_GPL arch/x86/kvm/kvm 0x39b9a93c	kvm_release_page_dirty
 EXPORT_SYMBOL_GPL arch/x86/kvm/kvm 0x3bb1dc88	kvm_inject_pending_timer_irqs
 EXPORT_SYMBOL_GPL arch/x86/kvm/kvm 0x3ced8b35	kvm_set_cr0
 EXPORT_SYMBOL_GPL arch/x86/kvm/kvm 0x3d96f5f1	kvm_vcpu_init
-EXPORT_SYMBOL_GPL arch/x86/kvm/kvm 0x3de08404	kvm_set_shared_msr
 EXPORT_SYMBOL_GPL arch/x86/kvm/kvm 0x3ebeee04	kvm_release_page_clean
 EXPORT_SYMBOL_GPL arch/x86/kvm/kvm 0x3ee59a92	__tracepoint_kvm_skinit
 EXPORT_SYMBOL_GPL arch/x86/kvm/kvm 0x42c6a446	kvm_after_handle_nmi
@@ -10268,6 +10267,7 @@ EXPORT_SYMBOL_GPL arch/x86/kvm/kvm 0x5d5385a3	kvm_put_kvm
 EXPORT_SYMBOL_GPL arch/x86/kvm/kvm 0x5ee1501f	kvm_clear_guest_page
 EXPORT_SYMBOL_GPL arch/x86/kvm/kvm 0x607377e5	kvm_vcpu_uninit
 EXPORT_SYMBOL_GPL arch/x86/kvm/kvm 0x613203d5	kvm_set_msr_common
+EXPORT_SYMBOL_GPL arch/x86/kvm/kvm 0x64020e10	kvm_set_shared_msr
 EXPORT_SYMBOL_GPL arch/x86/kvm/kvm 0x65b445f4	kvm_mmu_flush_tlb
 EXPORT_SYMBOL_GPL arch/x86/kvm/kvm 0x669da1fd	kvm_set_pfn_dirty
 EXPORT_SYMBOL_GPL arch/x86/kvm/kvm 0x6bb7b57b	kvm_init_shadow_mmu
@@ -10275,6 +10275,7 @@ EXPORT_SYMBOL_GPL arch/x86/kvm/kvm 0x7250822b	gfn_to_pfn_async
 EXPORT_SYMBOL_GPL arch/x86/kvm/kvm 0x737526e0	kvm_get_dirty_log
 EXPORT_SYMBOL_GPL arch/x86/kvm/kvm 0x7aa64803	kvm_release_pfn_clean
 EXPORT_SYMBOL_GPL arch/x86/kvm/kvm 0x7b2c6db0	kvm_valid_efer
+EXPORT_SYMBOL_GPL arch/x86/kvm/kvm 0x7c632d0f	kvm_set_msr
 EXPORT_SYMBOL_GPL arch/x86/kvm/kvm 0x7d58259d	kvm_get_msr_common
 EXPORT_SYMBOL_GPL arch/x86/kvm/kvm 0x7d5f92a3	kvm_before_handle_nmi
 EXPORT_SYMBOL_GPL arch/x86/kvm/kvm 0x806f524f	x86_emulate_instruction

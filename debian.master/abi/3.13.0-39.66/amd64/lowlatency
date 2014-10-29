@@ -10147,7 +10147,6 @@ EXPORT_SYMBOL_GPL arch/x86/kvm/kvm 0x33019bee	kvm_emulate_halt
 EXPORT_SYMBOL_GPL arch/x86/kvm/kvm 0x34471442	kvm_set_xcr
 EXPORT_SYMBOL_GPL arch/x86/kvm/kvm 0x350af123	kvm_vcpu_block
 EXPORT_SYMBOL_GPL arch/x86/kvm/kvm 0x3b5dd35e	__tracepoint_kvm_msr
-EXPORT_SYMBOL_GPL arch/x86/kvm/kvm 0x3de08404	kvm_set_shared_msr
 EXPORT_SYMBOL_GPL arch/x86/kvm/kvm 0x3ecf5463	gfn_to_pfn
 EXPORT_SYMBOL_GPL arch/x86/kvm/kvm 0x3fb720bb	kvm_mmu_sync_roots
 EXPORT_SYMBOL_GPL arch/x86/kvm/kvm 0x485c5fcb	fx_init
@@ -10164,6 +10163,7 @@ EXPORT_SYMBOL_GPL arch/x86/kvm/kvm 0x5affc494	kvm_set_msr_common
 EXPORT_SYMBOL_GPL arch/x86/kvm/kvm 0x5bb18099	kvm_gfn_to_hva_cache_init
 EXPORT_SYMBOL_GPL arch/x86/kvm/kvm 0x603caea4	kvm_get_kvm
 EXPORT_SYMBOL_GPL arch/x86/kvm/kvm 0x6113cc95	kvm_emulate_cpuid
+EXPORT_SYMBOL_GPL arch/x86/kvm/kvm 0x64020e10	kvm_set_shared_msr
 EXPORT_SYMBOL_GPL arch/x86/kvm/kvm 0x64a34f49	__tracepoint_kvm_nested_vmexit_inject
 EXPORT_SYMBOL_GPL arch/x86/kvm/kvm 0x66753ad1	kvm_vcpu_uninit
 EXPORT_SYMBOL_GPL arch/x86/kvm/kvm 0x669da1fd	kvm_set_pfn_dirty
@@ -10240,6 +10240,7 @@ EXPORT_SYMBOL_GPL arch/x86/kvm/kvm 0xd0459e67	kvm_has_tsc_control
 EXPORT_SYMBOL_GPL arch/x86/kvm/kvm 0xd0b2727a	kvm_mmu_set_mask_ptes
 EXPORT_SYMBOL_GPL arch/x86/kvm/kvm 0xd69d1320	kvm_inject_nmi
 EXPORT_SYMBOL_GPL arch/x86/kvm/kvm 0xd7d20a37	kvm_complete_insn_gp
+EXPORT_SYMBOL_GPL arch/x86/kvm/kvm 0xde8a6f22	kvm_set_msr
 EXPORT_SYMBOL_GPL arch/x86/kvm/kvm 0xdeb0d256	kvm_arch_has_noncoherent_dma
 EXPORT_SYMBOL_GPL arch/x86/kvm/kvm 0xdeb9e564	__tracepoint_kvm_invlpga
 EXPORT_SYMBOL_GPL arch/x86/kvm/kvm 0xdec54e73	kvm_require_cpl
