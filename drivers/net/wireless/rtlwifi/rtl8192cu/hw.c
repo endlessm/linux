@@ -36,8 +36,11 @@
 #include "reg.h"
 #include "def.h"
 #include "phy.h"
+#include "../rtl8192c/phy_common.h"
 #include "mac.h"
 #include "dm.h"
+#include "../rtl8192c/dm_common.h"
+#include "../rtl8192c/fw_common.h"
 #include "hw.h"
 #include "../rtl8192ce/hw.h"
 #include "trx.h"
@@ -180,7 +183,7 @@ static void _rtl92cu_read_txpower_info_from_hwpg(struct ieee80211_hw *hw,
 				eprom_chnl_txpwr_ht40_2sdf[rf_path][i]);
 	for (rf_path = 0; rf_path < 2; rf_path++) {
 		for (i = 0; i < 14; i++) {
-			index = _rtl92c_get_chnl_group((u8) i);
+			index = rtl92c_get_chnl_group((u8)i);
 			rtlefuse->txpwrlevel_cck[rf_path][i] =
 			    rtlefuse->eeprom_chnlarea_txpwr_cck[rf_path][index];
 			rtlefuse->txpwrlevel_ht40_1s[rf_path][i] =
@@ -222,7 +225,7 @@ static void _rtl92cu_read_txpower_info_from_hwpg(struct ieee80211_hw *hw,
 	}
 	for (rf_path = 0; rf_path < 2; rf_path++) {
 		for (i = 0; i < 14; i++) {
-			index = _rtl92c_get_chnl_group((u8) i);
+			index = rtl92c_get_chnl_group((u8)i);
 			if (rf_path == RF90_PATH_A) {
 				rtlefuse->pwrgroup_ht20[rf_path][i] =
 				    (rtlefuse->eeprom_pwrlimit_ht20[index]
@@ -249,7 +252,7 @@ static void _rtl92cu_read_txpower_info_from_hwpg(struct ieee80211_hw *hw,
 		}
 	}
 	for (i = 0; i < 14; i++) {
-		index = _rtl92c_get_chnl_group((u8) i);
+		index = rtl92c_get_chnl_group((u8)i);
 		if (!autoload_fail)
 			tempval = hwinfo[EEPROM_TXPOWERHT20DIFF + index];
 		else
@@ -261,7 +264,7 @@ static void _rtl92cu_read_txpower_info_from_hwpg(struct ieee80211_hw *hw,
 			rtlefuse->txpwr_ht20diff[RF90_PATH_A][i] |= 0xF0;
 		if (rtlefuse->txpwr_ht20diff[RF90_PATH_B][i] & BIT(3))
 			rtlefuse->txpwr_ht20diff[RF90_PATH_B][i] |= 0xF0;
-		index = _rtl92c_get_chnl_group((u8) i);
+		index = rtl92c_get_chnl_group((u8)i);
 		if (!autoload_fail)
 			tempval = hwinfo[EEPROM_TXPOWER_OFDMDIFF + index];
 		else
@@ -511,7 +514,7 @@ static int _rtl92cu_init_power_on(struct ieee80211_hw *hw)
 			pr_info("MAC auto ON okay!\n");
 			break;
 		}
-		if (pollingCount++ > 100) {
+		if (pollingCount++ > 1000) {
 			RT_TRACE(rtlpriv, COMP_INIT, DBG_EMERG,
 				 "Failed to polling REG_APS_FSMCO[APFM_ONMAC] done!\n");
 			return -ENODEV;
@@ -985,19 +988,30 @@ int rtl92cu_hw_init(struct ieee80211_hw *hw)
 	struct rtl_ps_ctl *ppsc = rtl_psc(rtl_priv(hw));
 	int err = 0;
 	static bool iqk_initialized;
+	unsigned long flags;
+
+	/* As this function can take a very long time (up to 350 ms)
+	 * and can be called with irqs disabled, reenable the irqs
+	 * to let the other devices continue being serviced.
+	 *
+	 * It is safe doing so since our own interrupts will only be enabled
+	 * in a subsequent step.
+	 */
+	local_save_flags(flags);
+	local_irq_enable();
 
 	rtlhal->hw_type = HARDWARE_TYPE_RTL8192CU;
 	err = _rtl92cu_init_mac(hw);
 	if (err) {
 		RT_TRACE(rtlpriv, COMP_ERR, DBG_EMERG, "init mac failed!\n");
-		return err;
+		goto exit;
 	}
 	err = rtl92c_download_fw(hw);
 	if (err) {
 		RT_TRACE(rtlpriv, COMP_ERR, DBG_WARNING,
 			 "Failed to download FW. Init HW without FW now..\n");
 		err = 1;
-		return err;
+		goto exit;
 	}
 	rtlhal->last_hmeboxnum = 0; /* h2c */
 	_rtl92cu_phy_param_tab_init(hw);
@@ -1022,7 +1036,7 @@ int rtl92cu_hw_init(struct ieee80211_hw *hw)
 	if (ppsc->rfpwr_state == ERFON) {
 		rtl92c_phy_set_rfpath_switch(hw, 1);
 		if (iqk_initialized) {
-			rtl92c_phy_iq_calibrate(hw, false);
+			rtl92c_phy_iq_calibrate(hw, true);
 		} else {
 			rtl92c_phy_iq_calibrate(hw, false);
 			iqk_initialized = true;
@@ -1034,6 +1048,8 @@ int rtl92cu_hw_init(struct ieee80211_hw *hw)
 	_InitPABias(hw);
 	_update_mac_setting(hw);
 	rtl92c_dm_init(hw);
+exit:
+	local_irq_restore(flags);
 	return err;
 }
 
@@ -1156,13 +1172,13 @@ n. LEDCFG 0x4C[15:0] = 0x8080
 	/* 1. Disable GPIO[7:0] */
 	rtl_write_word(rtlpriv, REG_GPIO_PIN_CTRL+2, 0x0000);
 	value32 = rtl_read_dword(rtlpriv, REG_GPIO_PIN_CTRL) & 0xFFFF00FF;
-	value8 = (u8) (value32&0x000000FF);
+	value8 = (u8)(value32&0x000000FF);
 	value32 |= ((value8<<8) | 0x00FF0000);
 	rtl_write_dword(rtlpriv, REG_GPIO_PIN_CTRL, value32);
 	/* 2. Disable GPIO[10:8] */
 	rtl_write_byte(rtlpriv, REG_GPIO_MUXCFG+3, 0x00);
 	value16 = rtl_read_word(rtlpriv, REG_GPIO_MUXCFG+2) & 0xFF0F;
-	value8 = (u8) (value16&0x000F);
+	value8 = (u8)(value16&0x000F);
 	value16 |= ((value8<<4) | 0x0780);
 	rtl_write_word(rtlpriv, REG_GPIO_PIN_CTRL+2, value16);
 	/* 3. Disable LED0 & 1 */
@@ -1232,7 +1248,7 @@ static void _rtl92cu_set_bcn_ctrl_reg(struct ieee80211_hw *hw,
 
 	rtlusb->reg_bcn_ctrl_val |= set_bits;
 	rtlusb->reg_bcn_ctrl_val &= ~clear_bits;
-	rtl_write_byte(rtlpriv, REG_BCN_CTRL, (u8) rtlusb->reg_bcn_ctrl_val);
+	rtl_write_byte(rtlpriv, REG_BCN_CTRL, (u8)rtlusb->reg_bcn_ctrl_val);
 }
 
 static void _rtl92cu_stop_tx_beacon(struct ieee80211_hw *hw)
@@ -1347,7 +1363,7 @@ static int _rtl92cu_set_media_status(struct ieee80211_hw *hw,
 	}
 	rtl_write_byte(rtlpriv, (MSR), bt_msr);
 	rtlpriv->cfg->ops->led_control(hw, ledaction);
-	if ((bt_msr & 0xfc) == MSR_AP)
+	if ((bt_msr & MSR_MASK) == MSR_AP)
 		rtl_write_byte(rtlpriv, REG_BCNTCFG + 1, 0x00);
 	else
 		rtl_write_byte(rtlpriv, REG_BCNTCFG + 1, 0x66);
@@ -1379,10 +1395,12 @@ void rtl92cu_set_check_bssid(struct ieee80211_hw *hw, bool check_bssid)
 {
 	struct rtl_priv *rtlpriv = rtl_priv(hw);
 	struct rtl_hal *rtlhal = rtl_hal(rtlpriv);
-	u32 reg_rcr = rtl_read_dword(rtlpriv, REG_RCR);
+	u32 reg_rcr;
 
 	if (rtlpriv->psc.rfpwr_state != ERFON)
 		return;
+
+	rtlpriv->cfg->ops->get_hw_reg(hw, HW_VAR_RCR, (u8 *)(&reg_rcr));
 
 	if (check_bssid) {
 		u8 tmp;
