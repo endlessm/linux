@@ -10260,7 +10260,6 @@ EXPORT_SYMBOL_GPL arch/x86/kvm/kvm 0x3671ca9d	kvm_is_visible_gfn
 EXPORT_SYMBOL_GPL arch/x86/kvm/kvm 0x39501ddc	kvm_gfn_to_hva_cache_init
 EXPORT_SYMBOL_GPL arch/x86/kvm/kvm 0x3a577cdf	kvm_write_guest_virt_system
 EXPORT_SYMBOL_GPL arch/x86/kvm/kvm 0x3b5dd35e	__tracepoint_kvm_msr
-EXPORT_SYMBOL_GPL arch/x86/kvm/kvm 0x3de08404	kvm_set_shared_msr
 EXPORT_SYMBOL_GPL arch/x86/kvm/kvm 0x3fb1336d	kvm_set_xcr
 EXPORT_SYMBOL_GPL arch/x86/kvm/kvm 0x3fd357f1	kvm_clear_guest
 EXPORT_SYMBOL_GPL arch/x86/kvm/kvm 0x4124fbd0	kvm_mmu_unprotect_page
@@ -10278,6 +10277,7 @@ EXPORT_SYMBOL_GPL arch/x86/kvm/kvm 0x53a2a3f7	__tracepoint_kvm_inj_virq
 EXPORT_SYMBOL_GPL arch/x86/kvm/kvm 0x561c3a9c	kvm_set_rflags
 EXPORT_SYMBOL_GPL arch/x86/kvm/kvm 0x5e49c763	kvm_require_cpl
 EXPORT_SYMBOL_GPL arch/x86/kvm/kvm 0x62bb2de8	kvm_put_kvm
+EXPORT_SYMBOL_GPL arch/x86/kvm/kvm 0x64020e10	kvm_set_shared_msr
 EXPORT_SYMBOL_GPL arch/x86/kvm/kvm 0x64518b8d	kvm_io_bus_write
 EXPORT_SYMBOL_GPL arch/x86/kvm/kvm 0x64a34f49	__tracepoint_kvm_nested_vmexit_inject
 EXPORT_SYMBOL_GPL arch/x86/kvm/kvm 0x64ad879b	kvm_emulate_hypercall
@@ -10365,6 +10365,7 @@ EXPORT_SYMBOL_GPL arch/x86/kvm/kvm 0xed799de9	kvm_mmu_page_fault
 EXPORT_SYMBOL_GPL arch/x86/kvm/kvm 0xf0e041ec	kvm_set_cr3
 EXPORT_SYMBOL_GPL arch/x86/kvm/kvm 0xf2496374	kvm_set_dr
 EXPORT_SYMBOL_GPL arch/x86/kvm/kvm 0xf400b7b6	kvm_lapic_set_eoi
+EXPORT_SYMBOL_GPL arch/x86/kvm/kvm 0xf8d720b0	kvm_set_msr
 EXPORT_SYMBOL_GPL arch/x86/kvm/kvm 0xfb06ec37	kvm_set_msr_common
 EXPORT_SYMBOL_GPL crypto/ablk_helper 0x1ef734c9	ablk_encrypt
 EXPORT_SYMBOL_GPL crypto/ablk_helper 0x59c4e00b	ablk_init_common

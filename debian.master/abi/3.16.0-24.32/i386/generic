@@ -10373,7 +10373,6 @@ EXPORT_SYMBOL_GPL arch/x86/kvm/kvm 0x389829ba	kvm_queue_exception_e
 EXPORT_SYMBOL_GPL arch/x86/kvm/kvm 0x3b02fb82	kvm_set_xcr
 EXPORT_SYMBOL_GPL arch/x86/kvm/kvm 0x3b67984a	gfn_to_pfn_atomic
 EXPORT_SYMBOL_GPL arch/x86/kvm/kvm 0x3c91366e	kvm_emulate_halt
-EXPORT_SYMBOL_GPL arch/x86/kvm/kvm 0x3de08404	kvm_set_shared_msr
 EXPORT_SYMBOL_GPL arch/x86/kvm/kvm 0x3ee59a92	__tracepoint_kvm_skinit
 EXPORT_SYMBOL_GPL arch/x86/kvm/kvm 0x3faf5f03	kvm_arch_register_noncoherent_dma
 EXPORT_SYMBOL_GPL arch/x86/kvm/kvm 0x41e39e2f	kvm_is_visible_gfn
@@ -10388,6 +10387,7 @@ EXPORT_SYMBOL_GPL arch/x86/kvm/kvm 0x4a8e7aa4	kvm_write_guest_cached
 EXPORT_SYMBOL_GPL arch/x86/kvm/kvm 0x4db62514	kvm_get_dr
 EXPORT_SYMBOL_GPL arch/x86/kvm/kvm 0x5716f3bb	gfn_to_pfn_prot
 EXPORT_SYMBOL_GPL arch/x86/kvm/kvm 0x5aa06c8a	cpuid_maxphyaddr
+EXPORT_SYMBOL_GPL arch/x86/kvm/kvm 0x64020e10	kvm_set_shared_msr
 EXPORT_SYMBOL_GPL arch/x86/kvm/kvm 0x653f738d	kvm_apic_update_irr
 EXPORT_SYMBOL_GPL arch/x86/kvm/kvm 0x669da1fd	kvm_set_pfn_dirty
 EXPORT_SYMBOL_GPL arch/x86/kvm/kvm 0x694aa0d2	fx_init
@@ -10427,6 +10427,7 @@ EXPORT_SYMBOL_GPL arch/x86/kvm/kvm 0x9a216313	kvm_define_shared_msr
 EXPORT_SYMBOL_GPL arch/x86/kvm/kvm 0xa0ec3a0a	gfn_to_hva_memslot
 EXPORT_SYMBOL_GPL arch/x86/kvm/kvm 0xa2d30ccc	gfn_to_page
 EXPORT_SYMBOL_GPL arch/x86/kvm/kvm 0xa3be6826	kvm_get_msr_common
+EXPORT_SYMBOL_GPL arch/x86/kvm/kvm 0xa676f5e3	kvm_set_msr
 EXPORT_SYMBOL_GPL arch/x86/kvm/kvm 0xa75f4525	kvm_fast_pio_out
 EXPORT_SYMBOL_GPL arch/x86/kvm/kvm 0xaa86907e	kvm_init_shadow_ept_mmu
 EXPORT_SYMBOL_GPL arch/x86/kvm/kvm 0xaac7c868	__tracepoint_kvm_nested_intr_vmexit

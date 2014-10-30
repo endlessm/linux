@@ -10254,7 +10254,6 @@ EXPORT_SYMBOL_GPL arch/x86/kvm/kvm 0x3a577cdf	kvm_write_guest_virt_system
 EXPORT_SYMBOL_GPL arch/x86/kvm/kvm 0x3b5dd35e	__tracepoint_kvm_msr
 EXPORT_SYMBOL_GPL arch/x86/kvm/kvm 0x3cb96d3b	gfn_to_page
 EXPORT_SYMBOL_GPL arch/x86/kvm/kvm 0x3d207802	kvm_is_linear_rip
-EXPORT_SYMBOL_GPL arch/x86/kvm/kvm 0x3de08404	kvm_set_shared_msr
 EXPORT_SYMBOL_GPL arch/x86/kvm/kvm 0x3e75d4c4	kvm_read_guest_cached
 EXPORT_SYMBOL_GPL arch/x86/kvm/kvm 0x3f5aef3f	kvm_write_tsc
 EXPORT_SYMBOL_GPL arch/x86/kvm/kvm 0x42fb2635	load_pdptrs
@@ -10271,10 +10270,12 @@ EXPORT_SYMBOL_GPL arch/x86/kvm/kvm 0x529f7fd8	kvm_mmu_page_fault
 EXPORT_SYMBOL_GPL arch/x86/kvm/kvm 0x53348454	kvm_irq_has_notifier
 EXPORT_SYMBOL_GPL arch/x86/kvm/kvm 0x53a2a3f7	__tracepoint_kvm_inj_virq
 EXPORT_SYMBOL_GPL arch/x86/kvm/kvm 0x53a7f341	kvm_arch_register_noncoherent_dma
+EXPORT_SYMBOL_GPL arch/x86/kvm/kvm 0x57089096	kvm_set_msr
 EXPORT_SYMBOL_GPL arch/x86/kvm/kvm 0x588c6a29	kvm_apic_update_irr
 EXPORT_SYMBOL_GPL arch/x86/kvm/kvm 0x5e3a35b7	kvm_get_dr
 EXPORT_SYMBOL_GPL arch/x86/kvm/kvm 0x5e7c2412	kvm_init
 EXPORT_SYMBOL_GPL arch/x86/kvm/kvm 0x625ec356	kvm_lapic_set_eoi
+EXPORT_SYMBOL_GPL arch/x86/kvm/kvm 0x64020e10	kvm_set_shared_msr
 EXPORT_SYMBOL_GPL arch/x86/kvm/kvm 0x64a34f49	__tracepoint_kvm_nested_vmexit_inject
 EXPORT_SYMBOL_GPL arch/x86/kvm/kvm 0x669da1fd	kvm_set_pfn_dirty
 EXPORT_SYMBOL_GPL arch/x86/kvm/kvm 0x66d9cddd	kvm_set_cr3

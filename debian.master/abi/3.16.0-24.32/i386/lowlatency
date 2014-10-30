@@ -10378,7 +10378,6 @@ EXPORT_SYMBOL_GPL arch/x86/kvm/kvm 0x33c5e076	gfn_to_memslot
 EXPORT_SYMBOL_GPL arch/x86/kvm/kvm 0x36f6da14	kvm_set_msr_common
 EXPORT_SYMBOL_GPL arch/x86/kvm/kvm 0x3782e681	kvm_fast_pio_out
 EXPORT_SYMBOL_GPL arch/x86/kvm/kvm 0x3a1863db	kvm_x86_ops
-EXPORT_SYMBOL_GPL arch/x86/kvm/kvm 0x3de08404	kvm_set_shared_msr
 EXPORT_SYMBOL_GPL arch/x86/kvm/kvm 0x3e0d9e7b	kvm_write_tsc
 EXPORT_SYMBOL_GPL arch/x86/kvm/kvm 0x3ee59a92	__tracepoint_kvm_skinit
 EXPORT_SYMBOL_GPL arch/x86/kvm/kvm 0x42b2a8b0	gfn_to_page
@@ -10407,6 +10406,8 @@ EXPORT_SYMBOL_GPL arch/x86/kvm/kvm 0x5ba5b754	mark_page_dirty
 EXPORT_SYMBOL_GPL arch/x86/kvm/kvm 0x5f1e8bcc	kvm_cpu_get_interrupt
 EXPORT_SYMBOL_GPL arch/x86/kvm/kvm 0x5f45b1f7	kvm_flush_remote_tlbs
 EXPORT_SYMBOL_GPL arch/x86/kvm/kvm 0x617abf22	kvm_vcpu_init
+EXPORT_SYMBOL_GPL arch/x86/kvm/kvm 0x64020e10	kvm_set_shared_msr
+EXPORT_SYMBOL_GPL arch/x86/kvm/kvm 0x64a69f28	kvm_set_msr
 EXPORT_SYMBOL_GPL arch/x86/kvm/kvm 0x65915e11	kvm_emulate_halt
 EXPORT_SYMBOL_GPL arch/x86/kvm/kvm 0x669da1fd	kvm_set_pfn_dirty
 EXPORT_SYMBOL_GPL arch/x86/kvm/kvm 0x69bd3dec	cpuid_maxphyaddr
