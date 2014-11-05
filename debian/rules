@@ -26,6 +26,10 @@ include $(DROOT)/rules.d/0-common-vars.mk
 # Pull in some arch specific stuff
 -include $(DEBIAN)/rules.d/$(arch).mk
 
+# Pull in some branch specific stuff. Used by LTS backport
+# branches to override master branch settings such as do_tools_common.
+-include $(DEBIAN)/rules.d/hooks.mk
+
 # Maintainer targets
 include $(DROOT)/rules.d/1-maintainer.mk
 
