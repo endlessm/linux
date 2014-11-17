@@ -268,7 +268,7 @@ static struct rtl_mod_params rtl8723be_mod_params = {
 	.sw_crypto = false,
 	.inactiveps = true,
 	.swctrl_lps = false,
-	.fwctrl_lps = true,
+	.fwctrl_lps = false,
 	.msi_support = false,
 	.aspm_support = 1,
 	.disable_watchdog = false,
@@ -403,7 +403,7 @@ module_param_named(ant_sel, rtl8723be_mod_params.ant_sel, int, 0444);
 MODULE_PARM_DESC(swenc, "Set to 1 for software crypto (default 0)\n");
 MODULE_PARM_DESC(ips, "Set to 0 to not use link power save (default 1)\n");
 MODULE_PARM_DESC(swlps, "Set to 1 to use SW control power save (default 0)\n");
-MODULE_PARM_DESC(fwlps, "Set to 1 to use FW control power save (default 1)\n");
+MODULE_PARM_DESC(fwlps, "Set to 1 to use FW control power save (default 0)\n");
 MODULE_PARM_DESC(msi, "Set to 1 to use MSI interrupts mode (default 0)\n");
 MODULE_PARM_DESC(aspm, "Set to 1 to enable ASPM (default 1)\n");
 MODULE_PARM_DESC(debug_level, "Set debug level (0-5) (default 0)");
