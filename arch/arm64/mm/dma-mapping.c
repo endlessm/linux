@@ -342,7 +342,7 @@ static int __init swiotlb_late_init(void)
 	bus_register_notifier(&platform_bus_type, &platform_bus_nb);
 	bus_register_notifier(&amba_bustype, &amba_bus_nb);
 
-	dma_ops = &noncoherent_swiotlb_dma_ops;
+	dma_ops = &coherent_swiotlb_dma_ops;
 
 	return swiotlb_late_init_with_default_size(swiotlb_size);
 }
