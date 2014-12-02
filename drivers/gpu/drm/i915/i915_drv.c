@@ -383,9 +383,7 @@ static const struct intel_device_info intel_broadwell_m_info = {
 	INTEL_IVB_M_IDS(&intel_ivybridge_m_info),	\
 	INTEL_IVB_D_IDS(&intel_ivybridge_d_info),	\
 	INTEL_HSW_D_IDS(&intel_haswell_d_info), \
-	INTEL_HSW_M_IDS(&intel_haswell_m_info), \
-	INTEL_VLV_M_IDS(&intel_valleyview_m_info),	\
-	INTEL_VLV_D_IDS(&intel_valleyview_d_info)
+	INTEL_HSW_M_IDS(&intel_haswell_m_info)
 
 static const struct pci_device_id pciidlist[] = {		/* aka */
 	INTEL_PCI_IDS,

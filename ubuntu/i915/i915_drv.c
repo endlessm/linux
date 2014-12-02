@@ -288,6 +288,8 @@ static const struct intel_device_info intel_broadwell_m_info = {
  * PCI ID matches, otherwise we'll use the wrong info struct above.
  */
 #define INTEL_PCI_IDS \
+	INTEL_VLV_M_IDS(&intel_valleyview_m_info),      \
+	INTEL_VLV_D_IDS(&intel_valleyview_d_info),      \
 	INTEL_BDW_M_IDS(&intel_broadwell_m_info),	\
 	INTEL_BDW_D_IDS(&intel_broadwell_d_info)
 
