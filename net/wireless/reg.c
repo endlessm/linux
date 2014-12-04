@@ -1455,7 +1455,7 @@ static enum reg_request_treatment
 __regulatory_hint(struct wiphy *wiphy,
 		  struct regulatory_request *pending_request)
 {
-	const struct ieee80211_regdomain *regd;
+	const struct ieee80211_regdomain *regd, *tmp;
 	bool intersect = false;
 	enum reg_request_treatment treatment;
 	struct regulatory_request *lr;
@@ -1491,7 +1491,9 @@ __regulatory_hint(struct wiphy *wiphy,
 				return REG_REQ_IGNORE;
 			}
 			treatment = REG_REQ_ALREADY_SET;
+			tmp = get_wiphy_regdom(wiphy);
 			rcu_assign_pointer(wiphy->regd, regd);
+			rcu_free_regdom(tmp);
 			goto new_request;
 		}
 		kfree(pending_request);
