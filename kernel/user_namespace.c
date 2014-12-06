@@ -816,11 +816,6 @@ static bool new_idmap_permitted(const struct file *file,
 			if (uid_eq(uid, cred->euid))
 				return true;
 		}
-		else if (cap_setid == CAP_SETGID) {
-			kgid_t gid = make_kgid(ns->parent, id);
-			if (gid_eq(gid, file->f_cred->fsgid))
-				return true;
-		}
 	}
 
 	/* Allow anyone to set a mapping that doesn't require privilege */
