@@ -162,7 +162,13 @@ struct paca_struct {
 	 * early exception handler for use by high level C handler
 	 */
 	struct opal_machine_check_event *opal_mc_evt;
+	/* Per-core mask tracking idle threads and a lock bit-[L][TTTTTTTT] */
+	u32 *core_idle_state_ptr;
+	u8 thread_idle_state;		/* PNV_THREAD_RUNNING/NAP/SLEEP	*/
+	/* Mask to indicate thread id in core */
+	u8 thread_mask;
 #endif
+
 #ifdef CONFIG_PPC_BOOK3S_64
 	/* Exclusive emergency stack pointer for machine check exception. */
 	void *mc_emergency_sp;
