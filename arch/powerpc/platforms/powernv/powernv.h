@@ -23,6 +23,8 @@ static inline int pnv_pci_dma_set_mask(struct pci_dev *pdev, u64 dma_mask)
 }
 #endif
 
+extern u32 pnv_get_supported_cpuidle_states(void);
+
 extern void pnv_lpc_init(void);
 
 bool cpu_core_split_required(void);
