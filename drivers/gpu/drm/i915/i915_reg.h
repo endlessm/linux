@@ -74,6 +74,7 @@
 #define   I915_GC_RENDER_CLOCK_200_MHZ	(1 << 0)
 #define   I915_GC_RENDER_CLOCK_333_MHZ	(4 << 0)
 #define LBB	0xf4
+#define GCDGMBUS 0xcc
 
 /* Graphics reset regs */
 #define I965_GDRST 0xc0 /* PCI config register */

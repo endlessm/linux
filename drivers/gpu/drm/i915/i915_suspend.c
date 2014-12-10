@@ -397,6 +397,10 @@ int i915_save_state(struct drm_device *dev)
 
 	intel_disable_gt_powersave(dev);
 
+	if (IS_GEN4(dev))
+		pci_read_config_word(dev->pdev, GCDGMBUS,
+				     &dev_priv->regfile.saveGCDGMBUS);
+
 	/* Cache mode state */
 	if (INTEL_INFO(dev)->gen < 7)
 		dev_priv->regfile.saveCACHE_MODE_0 = I915_READ(CACHE_MODE_0);
@@ -429,6 +433,10 @@ int i915_restore_state(struct drm_device *dev)
 	mutex_lock(&dev->struct_mutex);
 
 	i915_gem_restore_fences(dev);
+
+	if (IS_GEN4(dev))
+		pci_write_config_word(dev->pdev, GCDGMBUS,
+				      dev_priv->regfile.saveGCDGMBUS);
 	i915_restore_display(dev);
 
 	if (!drm_core_check_feature(dev, DRIVER_MODESET)) {
