@@ -178,17 +178,9 @@
 	};
 
 	mali@13000000 {
-		compatible = "arm,mali400-mp4";
-		#address-cells = <1>;
-		#size-cells = <1>;
-
-		shared-memory-size = <0x10000000>;
-
-		/* mali dvfs */
-		utilization-interval = <1000>;
+		compatible = "arm,mali-400", "arm,mali-utgard";
 
 		samsung,power-domain = <&pd_g3d>;
-		status = "okay";
 
 		/* Propagate APLL output clock to SCLK_G3D, and select an appropriate
 		 * speed with the help of DIV_G3D. */
@@ -199,18 +191,12 @@
 		clocks = <&clock CLK_SCLK_G3D>;
 		clock-names = "sclk_g3d";
 
-		reg = <0x13001000 0x200>, <0x13000000 0x100>, <0x13003000 0x100>,
-			<0x13008000 0x1100>, <0x13004000 0x100>, <0x1300A000 0x1100>,
-			<0x13005000 0x100>, <0x1300C000 0x1100>, <0x13006000 0x100>,
-			<0x1300E000 0x1100>, <0x13007000 0x100>, <0x13012000 0x100>;
-		reg-names = "l2", "gp", "gp_mmu", "pp_0", "pp_mmu_0", "pp_1", "pp_mmu_1",
-			"pp_2", "pp_mmu_2", "pp_3", "pp_mmu_3", "dma";
+		reg = <0x13000000 0x30000>;
 
 		interrupts = <0 127 0>, <0 122 0>, <0 123 0>, <0 118 0>, <0 124 0>,
 			<0 119 0>, <0 125 0>, <0 120 0>, <0 126 0>, <0 121 0>;
-		interrupt-names = "gp", "gp_mmu", "pp_0", "pp_mmu_0", "pp_1", "pp_mmu_1",
-			"pp_2", "pp_mmu_2", "pp_3", "pp_mmu_3";
-
+		interrupt-names = "IRQGP", "IRQGPMMU", "IRQPP0", "IRQPPMMU0", "IRQPP1", "IRQPPMMU1",
+			"IRQPP2", "IRQPPMMU2", "IRQPP3", "IRQPPMMU3";
 	};
 };
 
