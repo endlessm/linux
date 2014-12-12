@@ -694,6 +694,14 @@ static struct dmi_system_id video_dmi_table[] __initdata = {
 		DMI_MATCH(DMI_PRODUCT_NAME, "HP ENVY 15 Notebook PC"),
 		},
 	},
+	{
+	.callback = video_set_use_native_backlight,
+	.ident = "HP ProBook 6570b",
+	.matches = {
+		DMI_MATCH(DMI_SYS_VENDOR, "Hewlett-Packard"),
+		DMI_MATCH(DMI_PRODUCT_NAME, "HP ProBook 6570b"),
+		},
+	},
 	{}
 };
 
