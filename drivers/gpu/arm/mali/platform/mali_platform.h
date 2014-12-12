@@ -35,6 +35,9 @@ typedef enum mali_power_mode_tag
 	MALI_POWER_MODE_DEEP_SLEEP,
 } mali_power_mode;
 
+int mali_platform_device_init(struct platform_device *device);
+int mali_platform_device_deinit(struct platform_device *device);
+
 /** @brief Platform specific setup and initialisation of MALI
  *
  * This is called from the entrypoint of the driver to initialize the platform

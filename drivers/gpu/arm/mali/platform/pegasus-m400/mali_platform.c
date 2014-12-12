@@ -76,6 +76,27 @@ mali_io_address clk_register_map=0;
 
 _mali_osk_mutex_t *mali_dvfs_lock = 0;
 
+/*
+ * TODO: Properly complete this function. It is left as a stub in order to
+ * enable compilation in the core. The mali platform init code should be moved
+ * here.
+ */
+int mali_platform_device_init(struct platform_device *device)
+{
+	return 0;
+}
+
+/*
+ * TODO: Properly complete this function. It is left as a stub in order to
+ * enable compilation in the core. The mali platform deinit code should be moved
+ * here.
+ */
+int mali_platform_device_deinit(struct platform_device *device)
+{
+	// Stub.
+	return 0;
+}
+
 void mali_set_runtime_resume_params(int clk, int volt)
 {
 	mali_runtime_resume.clk = clk;
