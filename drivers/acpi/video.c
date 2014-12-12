@@ -604,6 +604,14 @@ static struct dmi_system_id video_dmi_table[] __initdata = {
 		DMI_MATCH(DMI_PRODUCT_NAME, "HP EliteBook 8780w"),
 		},
 	},
+	{
+	.callback = video_set_use_native_backlight,
+	.ident = "HP ProBook 6570b",
+	.matches = {
+		DMI_MATCH(DMI_SYS_VENDOR, "Hewlett-Packard"),
+		DMI_MATCH(DMI_PRODUCT_NAME, "HP ProBook 6570b"),
+		},
+	},
 	{}
 };
 
