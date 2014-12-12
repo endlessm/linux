@@ -82,7 +82,7 @@ config MALI_PMU_PARALLEL_POWER_UP
 
 config MALI_DT
 	bool "Using device tree to initialize module"
-	depends on MALI400 && CONFIG_OF
+	depends on MALI400 && OF
 	default n
 	---help---
 	  This enable the Mali driver to choose the device tree path to get platform resoures
