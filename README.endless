@@ -1,0 +1,84 @@
+Overview
+========
+Our process for handling linux for Endless is a little different than
+our other packages. Although the source is in github, we're not having
+it built by jenkins and submitted to OBS. Instead, a debian source
+package should be created on the local user's machine and committed to
+OBS by the user.
+
+Since we're using Ubuntu's kernel from git as our base, we try to stick
+to their process so that the existing tooling works correctly.
+Documentation on the Ubuntu kernel process can be found here:
+
+https://wiki.ubuntu.com/KernelTeam/KernelMaintenance
+
+Making changes
+==============
+Normal changes are made in git without updating the debian changelog. In
+order to have our changes be recorded by the debian packaging as not
+coming from upstream, prepend the commit subject with "UBUNTU: ".
+
+Preparing a new source package
+==============================
+Details of Ubuntu's uploading process are provided here:
+
+https://wiki.ubuntu.com/KernelTeam/KernelMaintenance#Preparing_an_upload
+
+There are some changes in our process from that document. When you're
+ready to upload a new revision to OBS, run:
+
+  ./debian/rules insertchanges
+
+This will add all the git log entries to debian.master/changelog. Open
+that file to ensure that the version and entries are correct.
+
+Prior to releasing, we have to move the ABI files to the current
+version. For example, if the previous version was 3.13.0-1.1endless1,
+then the current version is 3.13.0-1.1endless2. When OBS starts a build,
+it adds another suffix to the version number. Therefore, from its
+perspective, the previous version is our current version,
+3.13.0-1.1endless2. When the build completes, the Ubuntu tooling
+compares that the ABI of the built version to the previous version. With
+that in mind, run:
+
+  git mv debian.master/abi/3.13.0-1.1endless{1,2}
+
+Now you're ready to make the commit marking the new version. The format
+of the message is important for detecting changes between versions.
+
+  git add debian.master/changelog
+  git commit -m "UBUNTU: release 3.13.0-1.1endless2"
+
+Ensure the checkout is clean and all control files have been created.
+
+  fakeroot ./debian/rules clean
+
+Create the debian source package for OBS. Since this is a git checkout,
+we want to ignore the git files in the generated source.
+
+  dpkg-buildpackage -S -us -uc -I.git -I.gitignore -i'\.git.*'
+
+Commit the source package to OBS as normal.
+
+Preparing for the next version
+==============================
+Immediately after uploading the current release, the changelog needs to
+be prepped for the next release. We assume that only the local endless
+version will be incremented. Run:
+
+  ./debian/rules startnewendless
+
+This should create placeholder changelog entry for the next revision,
+3.13.0-1.1endless3 using the example version above. Commit this change
+and add "Ignore: yes" in the commit message so it doesn't get added to
+the debian changelog later.
+
+  git add debian.master/changelog
+  msg=$(echo -e 'UBUNTU: Start new release\n\nIgnore: yes')
+  git commit -m "$msg"
+
+Now you can run
+
+  ./debian/rules printchanges
+
+at any time to see the changes since the last version.

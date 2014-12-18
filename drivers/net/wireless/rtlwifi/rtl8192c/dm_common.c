@@ -567,7 +567,7 @@ static void rtl92c_dm_dig(struct ieee80211_hw *hw)
 
 	if (rtlpriv->dm.dm_initialgain_enable == false)
 		return;
-	if (!rtlpriv->dm.dm_flag & DYNAMIC_FUNC_DIG)
+	if (!(rtlpriv->dm.dm_flag & DYNAMIC_FUNC_DIG))
 		return;
 
 	rtl92c_dm_ctrl_initgain_by_twoport(hw);
@@ -1771,7 +1771,7 @@ static void rtl92c_check_bt_change(struct ieee80211_hw *hw)
 	struct rtl_hal *rtlhal = rtl_hal(rtl_priv(hw));
 	u8 tmp1byte = 0;
 
-	if (IS_81xxC_VENDOR_UMC_B_CUT(rtlhal->version) &&
+	if (IS_81XXC_VENDOR_UMC_B_CUT(rtlhal->version) &&
 	    rtlpcipriv->bt_coexist.bt_coexistence)
 		tmp1byte |= BIT(5);
 	if (rtlpcipriv->bt_coexist.bt_cur_state) {

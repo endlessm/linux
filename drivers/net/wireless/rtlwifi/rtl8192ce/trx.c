@@ -125,7 +125,7 @@ static void _rtl92ce_query_rxphystatus(struct ieee80211_hw *hw,
 	u32 rssi, total_rssi = 0;
 	bool is_cck_rate;
 
-	is_cck_rate = RX_HAL_IS_CCK_RATE(pdesc);
+	is_cck_rate = RX_HAL_IS_CCK_RATE(pdesc->rxmcs);
 	pstats->packet_matchbssid = packet_match_bssid;
 	pstats->packet_toself = packet_toself;
 	pstats->is_cck = is_cck_rate;
@@ -361,7 +361,7 @@ bool rtl92ce_rx_query_desc(struct ieee80211_hw *hw,
 	stats->rx_is40Mhzpacket = (bool) GET_RX_DESC_BW(pdesc);
 	stats->is_ht = (bool)GET_RX_DESC_RXHT(pdesc);
 
-	stats->is_cck = RX_HAL_IS_CCK_RATE(pdesc);
+	stats->is_cck = RX_HAL_IS_CCK_RATE(pdesc->rxmcs);
 
 	rx_status->freq = hw->conf.chandef.chan->center_freq;
 	rx_status->band = hw->conf.chandef.chan->band;
@@ -389,10 +389,6 @@ bool rtl92ce_rx_query_desc(struct ieee80211_hw *hw,
 	 * to decrypt it
 	 */
 	if (stats->decrypted) {
-		if (!hdr) {
-			/* In testing, hdr was NULL here */
-			return false;
-		}
 		if ((_ieee80211_is_robust_mgmt_frame(hdr)) &&
 		    (ieee80211_has_protected(hdr->frame_control)))
 			rx_status->flag &= ~RX_FLAG_DECRYPTED;
@@ -426,7 +422,7 @@ bool rtl92ce_rx_query_desc(struct ieee80211_hw *hw,
 
 void rtl92ce_tx_fill_desc(struct ieee80211_hw *hw,
 			  struct ieee80211_hdr *hdr, u8 *pdesc_tx,
-			  struct ieee80211_tx_info *info,
+			  u8 *pbd_desc_tx, struct ieee80211_tx_info *info,
 			  struct ieee80211_sta *sta,
 			  struct sk_buff *skb,
 			  u8 hw_queue, struct rtl_tcb_desc *tcb_desc)
@@ -666,7 +662,8 @@ void rtl92ce_tx_fill_cmddesc(struct ieee80211_hw *hw,
 		      "H2C Tx Cmd Content", pdesc, TX_DESC_SIZE);
 }
 
-void rtl92ce_set_desc(u8 *pdesc, bool istx, u8 desc_name, u8 *val)
+void rtl92ce_set_desc(struct ieee80211_hw *hw, u8 *pdesc, bool istx,
+		      u8 desc_name, u8 *val)
 {
 	if (istx) {
 		switch (desc_name) {

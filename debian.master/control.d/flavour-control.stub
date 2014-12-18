@@ -27,7 +27,7 @@ Section: kernel
 Priority: optional
 Pre-Depends: dpkg (>= 1.10.24)
 Provides: linux-image, linux-image-3.0, fuse-module, =PROVIDES=
-Depends: ${misc:Depends}, ${shlibs:Depends}, initramfs-tools (>= 0.36ubuntu6), module-init-tools (>= 3.3-pre11-4ubuntu3)
+Depends: ${misc:Depends}, ${shlibs:Depends}, initramfs-tools (>= 0.36ubuntu6) | linux-initramfs-tool, module-init-tools (>= 3.3-pre11-4ubuntu3)
 Conflicts: hotplug (<< 0.0.20040105-1)
 Recommends: BOOTLOADER
 Suggests: fdutils, SRCPKGNAME-doc-PKGVER | SRCPKGNAME-source-PKGVER, SRCPKGNAME-tools, linux-headers-PKGVER-ABINUM-FLAVOUR

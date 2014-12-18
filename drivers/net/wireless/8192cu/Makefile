@@ -1,0 +1,57 @@
+EXTRA_CFLAGS += -DCONFIG_POWER_SAVING
+EXTRA_CFLAGS += -DCONFIG_LITTLE_ENDIAN
+EXTRA_CFLAGS += -I$(src)/include
+
+8192cu-y += os_dep/osdep_service.o
+8192cu-y += os_dep/linux/os_intfs.o
+8192cu-y += os_dep/linux/usb_intf.o
+8192cu-y += os_dep/linux/usb_ops_linux.o
+8192cu-y += os_dep/linux/ioctl_linux.o
+8192cu-y += os_dep/linux/xmit_linux.o
+8192cu-y += os_dep/linux/mlme_linux.o
+8192cu-y += os_dep/linux/recv_linux.o
+8192cu-y += os_dep/linux/ioctl_cfg80211.o
+8192cu-y += os_dep/linux/rtw_android.o
+
+8192cu-y += hal/hal_intf.o
+8192cu-y += hal/hal_com.o
+8192cu-y += hal/dm.o
+8192cu-y += hal/rtl8192c/rtl8192c_hal_init.o
+8192cu-y += hal/rtl8192c/rtl8192c_phycfg.o
+8192cu-y += hal/rtl8192c/rtl8192c_rf6052.o
+8192cu-y += hal/rtl8192c/rtl8192c_dm.o
+8192cu-y += hal/rtl8192c/rtl8192c_rxdesc.o
+8192cu-y += hal/rtl8192c/rtl8192c_cmd.o
+8192cu-y += hal/rtl8192c/rtl8192c_sreset.o
+8192cu-y += hal/rtl8192c/rtl8192c_xmit.o
+8192cu-y += hal/rtl8192c/usb/usb_halinit.o
+8192cu-y += hal/rtl8192c/usb/rtl8192cu_led.o
+8192cu-y += hal/rtl8192c/usb/rtl8192cu_xmit.o
+8192cu-y += hal/rtl8192c/usb/rtl8192cu_recv.o
+8192cu-y += hal/rtl8192c/usb/usb_ops_linux.o
+8192cu-y += hal/rtl8192c/usb/Hal8192CUHWImg.o
+
+8192cu-y += core/rtw_cmd.o
+8192cu-y += core/rtw_security.o
+8192cu-y += core/rtw_debug.o
+8192cu-y += core/rtw_io.o
+8192cu-y += core/rtw_ioctl_query.o
+8192cu-y += core/rtw_ioctl_set.o
+8192cu-y += core/rtw_ieee80211.o
+8192cu-y += core/rtw_mlme.o
+8192cu-y += core/rtw_mlme_ext.o
+8192cu-y += core/rtw_wlan_util.o
+8192cu-y += core/rtw_pwrctrl.o
+8192cu-y += core/rtw_rf.o
+8192cu-y += core/rtw_recv.o
+8192cu-y += core/rtw_sta_mgt.o
+8192cu-y += core/rtw_ap.o
+8192cu-y += core/rtw_xmit.o
+8192cu-y += core/rtw_p2p.o
+8192cu-y += core/rtw_tdls.o
+8192cu-y += core/rtw_br_ext.o
+8192cu-y += core/rtw_iol.o
+8192cu-y += core/rtw_sreset.o
+8192cu-y += core/efuse/rtw_efuse.o
+
+obj-$(CONFIG_8192CU) := 8192cu.o
