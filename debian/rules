@@ -41,10 +41,12 @@ endif
 # Endless setup.
 # - No ABI checks.
 # - No cloud tools.
+# - No udebs.
 ifeq ($(DISTRO),Endless)
 skipabi = true
 skipmodule = true
 do_cloud_tools = false
+do_udebs = false
 endif
 
 # Backwards compatiblility, do_tools=false|0 should disable all tools.
