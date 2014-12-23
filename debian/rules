@@ -8,6 +8,7 @@
 #
 
 DEBIAN=$(shell awk -F= '($$1 == "DEBIAN") { print $$2 }' <debian/debian.env)
+DISTRO=$(shell lsb_release -is)
 
 # dpkg-buildpackage passes options that are incomptatible
 # with the kernel build.
@@ -35,6 +36,13 @@ do_cloud_tools=$(sort $(filter-out false,$(do_tools_hyperv)))
 # Don't build tools in a cross compile environment.
 ifneq ($(DEB_HOST_ARCH),$(DEB_BUILD_ARCH))
 	do_tools=false
+endif
+
+# Endless setup.
+# - No ABI checks.
+ifeq ($(DISTRO),Endless)
+skipabi = true
+skipmodule = true
 endif
 
 # Backwards compatiblility, do_tools=false|0 should disable all tools.
