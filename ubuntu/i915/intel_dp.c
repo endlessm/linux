@@ -1409,6 +1409,13 @@ void intel_dp_sink_dpms(struct intel_dp *intel_dp, int mode)
 			msleep(1);
 		}
 	}
+
+	if (ret == 1) {
+		if (mode == DRM_MODE_DPMS_ON)
+			intel_dp->sink_dpms_on = true;
+		else
+			intel_dp->sink_dpms_on = false;
+	}
 }
 
 static bool intel_dp_get_hw_state(struct intel_encoder *encoder,
@@ -2993,8 +3000,16 @@ intel_dp_detect_dpcd(struct intel_dp *intel_dp)
 {
 	uint8_t *dpcd = intel_dp->dpcd;
 	uint8_t type;
+	bool dpcd_ret;
 
-	if (!intel_dp_get_dpcd(intel_dp))
+	dpcd_ret = intel_dp_get_dpcd(intel_dp);
+	if (!dpcd_ret && !intel_dp->sink_dpms_on) {
+		intel_dp_sink_dpms(intel_dp, DRM_MODE_DPMS_ON);
+		dpcd_ret = intel_dp_get_dpcd(intel_dp);
+		intel_dp_sink_dpms(intel_dp, DRM_MODE_DPMS_OFF);
+	}
+
+	if (!dpcd_ret)
 		return connector_status_disconnected;
 
 	/* if there's no downstream port, we're done */
