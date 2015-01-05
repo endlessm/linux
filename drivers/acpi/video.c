@@ -711,6 +711,15 @@ static struct dmi_system_id video_dmi_table[] __initdata = {
 		},
 	},
 	{
+	 /* https://bugzilla.redhat.com/show_bug.cgi?id=1163574 */
+	 .callback = video_disable_native_backlight,
+	 .ident = "Dell XPS15 L521X",
+	 .matches = {
+		DMI_MATCH(DMI_SYS_VENDOR, "Dell Inc."),
+		DMI_MATCH(DMI_PRODUCT_NAME, "XPS L521X"),
+		},
+	},
+	{
 	.callback = video_set_use_native_backlight,
 	.ident = "HP ProBook 6570b",
 	.matches = {
