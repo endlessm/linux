@@ -65,7 +65,7 @@ abinum		:= $(shell echo $(revision) | sed -r -e 's/([^\+~]*)\.[^\.]+(~.*)?(\+.*)
 prev_abinum	:= $(shell echo $(prev_revision) | sed -r -e 's/([^\+~]*)\.[^\.]+(~.*)?(\+.*)?$$/\1/')$(abi_suffix)
 abi_release	:= $(release)-$(abinum)
 
-uploadnum	:= $(shell echo $(revision) | sed -r -e 's/[^\+~]*\.([^\.~]+)(~.*)?(\+.*)?$$/\1/')
+uploadnum	:= $(shell echo $(revision) | sed -r -e 's/[^\+~]*\.([^\.~]+(~.*)?(\+.*)?$$)/\1/')
 ifneq ($(full_build),false)
   uploadnum	:= $(uploadnum)-Ubuntu
 endif
