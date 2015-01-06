@@ -43,7 +43,7 @@ $(stampdir)/stamp-build-%: bldimg = $(call custom_override,build_image,$*)
 $(stampdir)/stamp-build-%: dtb_target = $(dtb_files_$*)
 $(stampdir)/stamp-build-%: $(stampdir)/stamp-prepare-%
 	@echo Debug: $@ build_image $(build_image) bldimg $(bldimg)
-	$(build_cd) $(kmake) $(build_O) $(conc_level) $(bldimg) modules $(dtb_target)
+	$(build_cd) $(kmake) $(build_O) $(conc_level) $(bldimg) modules $(if $(dtb_target),dtbs)
 	@touch $@
 
 # Install the finished build
@@ -107,6 +107,7 @@ endif
 	if [ "$(dtb_files)" ]; then \
 		install -d $(pkgdir)/lib/firmware/$(abi_release)-$*/device-tree; \
 		for dtb_file in $(dtb_files); do \
+			install -d `dirname $(pkgdir)/lib/firmware/$(abi_release)-$*/device-tree/$$dtb_file`; \
 			install -m644 $(builddir)/build-$*/arch/$(build_arch)/boot/dts/$$dtb_file \
 				$(pkgdir)/lib/firmware/$(abi_release)-$*/device-tree/$$dtb_file; \
 			echo "device-tree/$$dtb_file ?" >> $(DEBIAN)/d-i/firmware/kernel-image; \
