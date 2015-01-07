@@ -36,6 +36,8 @@ static inline void __iomem *cpu_boot_reg_base(void)
 {
 	if (soc_is_exynos4210() && samsung_rev() == EXYNOS4210_REV_1_1)
 		return S5P_INFORM5;
+	else if (soc_is_exynos5440())
+		return S5P_VA_CHIPID + 0x560;
 	return sysram_base_addr;
 }
 
@@ -110,7 +112,7 @@ static int exynos_boot_secondary(unsigned int cpu, struct task_struct *idle)
 	 */
 	write_pen_release(core_id);
 
-	if (!exynos_cpu_power_state(core_id)) {
+	if (!soc_is_exynos5440() && !exynos_cpu_power_state(core_id)) {
 		exynos_cpu_power_up(core_id);
 		timeout = 10;
 
