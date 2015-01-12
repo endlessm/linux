@@ -40,10 +40,9 @@ build-%: $(stampdir)/stamp-build-%
 # Do the actual build, including image and modules
 $(stampdir)/stamp-build-%: target_flavour = $*
 $(stampdir)/stamp-build-%: bldimg = $(call custom_override,build_image,$*)
-$(stampdir)/stamp-build-%: dtb_target = $(dtb_files_$*)
 $(stampdir)/stamp-build-%: $(stampdir)/stamp-prepare-%
 	@echo Debug: $@ build_image $(build_image) bldimg $(bldimg)
-	$(build_cd) $(kmake) $(build_O) $(conc_level) $(bldimg) modules $(if $(dtb_target),dtbs)
+	$(build_cd) $(kmake) $(build_O) $(conc_level) $(bldimg) modules $(if $(filter true,$(do_dtbs)),dtbs)
 	@touch $@
 
 # Install the finished build
@@ -60,7 +59,6 @@ install-%: kernfile = $(call custom_override,kernel_file,$*)
 install-%: instfile = $(call custom_override,install_file,$*)
 install-%: hdrdir = $(CURDIR)/debian/$(basepkg)-$*/usr/src/$(basepkg)-$*
 install-%: target_flavour = $*
-install-%: dtb_files = $(dtb_files_$*)
 install-%: CONFIG_MODULE_SIG_HASH=sha512
 install-%: MODSECKEY=$(builddir)/build-$*/signing_key.priv
 install-%: MODPUBKEY=$(builddir)/build-$*/signing_key.x509
@@ -104,13 +102,12 @@ endif
 		$(pkgdir)/boot/abi-$(abi_release)-$*
 	install -m600 $(builddir)/build-$*/System.map \
 		$(pkgdir)/boot/System.map-$(abi_release)-$*
-	if [ "$(dtb_files)" ]; then \
-		install -d $(pkgdir)/lib/firmware/$(abi_release)-$*/device-tree; \
-		for dtb_file in $(dtb_files); do \
-			install -d `dirname $(pkgdir)/lib/firmware/$(abi_release)-$*/device-tree/$$dtb_file`; \
-			install -m644 $(builddir)/build-$*/arch/$(build_arch)/boot/dts/$$dtb_file \
-				$(pkgdir)/lib/firmware/$(abi_release)-$*/device-tree/$$dtb_file; \
-			echo "device-tree/$$dtb_file ?" >> $(DEBIAN)/d-i/firmware/kernel-image; \
+	if [ "$(filter true,$(do_dtbs))" ]; then \
+		$(build_cd) $(kmake) $(build_O) $(conc_level) dtbs_install \
+			INSTALL_DTBS_PATH=$(pkgdir)/lib/firmware/$(abi_release)-$*/device-tree; \
+		( cd $(pkgdir)/lib/firmware/$(abi_release)-$*/ && find device-tree -print ) | \
+		while read dtb_file; do \
+			echo "$$dtb_file ?" >> $(DEBIAN)/d-i/firmware/kernel-image; \
 		done; \
 	fi
 ifeq ($(no_dumpfile),)
