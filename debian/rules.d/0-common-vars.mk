@@ -181,6 +181,9 @@ do_flavour_image_package=true
 # The general flavour specific header package.
 do_flavour_header_package=true
 
+# DTBs
+do_dtbs=false
+
 # Support parallel=<n> in DEB_BUILD_OPTIONS (see #209008)
 #
 # These 2 environment variables set the -j value of the kernel build. For example,
