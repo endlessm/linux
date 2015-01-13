@@ -12532,6 +12532,7 @@ EXPORT_SYMBOL_GPL vmlinux 0x42af63c4	ata_sff_data_xfer_noirq
 EXPORT_SYMBOL_GPL vmlinux 0x42c6ce57	__crypto_alloc_tfm
 EXPORT_SYMBOL_GPL vmlinux 0x42e94aab	regulator_set_current_limit
 EXPORT_SYMBOL_GPL vmlinux 0x430e5257	of_alias_get_id
+EXPORT_SYMBOL_GPL vmlinux 0x431e1907	of_property_read_string_helper
 EXPORT_SYMBOL_GPL vmlinux 0x435d5ebf	locks_release_private
 EXPORT_SYMBOL_GPL vmlinux 0x43a53735	__alloc_workqueue_key
 EXPORT_SYMBOL_GPL vmlinux 0x43af0cb9	get_kernel_page
@@ -13438,7 +13439,6 @@ EXPORT_SYMBOL_GPL vmlinux 0x985c0700	unregister_hw_breakpoint
 EXPORT_SYMBOL_GPL vmlinux 0x9879932b	crypto_register_notifier
 EXPORT_SYMBOL_GPL vmlinux 0x98c4da49	__udp6_lib_lookup
 EXPORT_SYMBOL_GPL vmlinux 0x98fa1e20	dm_get_reserved_rq_based_ios
-EXPORT_SYMBOL_GPL vmlinux 0x991484c4	of_property_count_strings
 EXPORT_SYMBOL_GPL vmlinux 0x9932a517	perf_event_release_kernel
 EXPORT_SYMBOL_GPL vmlinux 0x995d1071	prof_on
 EXPORT_SYMBOL_GPL vmlinux 0x9973add9	__cookie_v6_check
@@ -14240,7 +14240,6 @@ EXPORT_SYMBOL_GPL vmlinux 0xe818b32b	ata_bmdma_interrupt
 EXPORT_SYMBOL_GPL vmlinux 0xe823b640	ip6_redirect
 EXPORT_SYMBOL_GPL vmlinux 0xe82a6204	fb_deferred_io_cleanup
 EXPORT_SYMBOL_GPL vmlinux 0xe83e78d0	xenbus_map_ring
-EXPORT_SYMBOL_GPL vmlinux 0xe8400441	of_property_read_string_index
 EXPORT_SYMBOL_GPL vmlinux 0xe84ce53e	regulator_get_linear_step
 EXPORT_SYMBOL_GPL vmlinux 0xe85441eb	inet_csk_listen_stop
 EXPORT_SYMBOL_GPL vmlinux 0xe864d55e	__netpoll_free_async

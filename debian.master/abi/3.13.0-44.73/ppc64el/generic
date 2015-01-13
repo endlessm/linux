@@ -11457,6 +11457,7 @@ EXPORT_SYMBOL_GPL vmlinux 0x42baef15	netdev_rx_handler_register
 EXPORT_SYMBOL_GPL vmlinux 0x42fe04cd	ide_input_data
 EXPORT_SYMBOL_GPL vmlinux 0x43003d5b	use_mm
 EXPORT_SYMBOL_GPL vmlinux 0x430e5257	of_alias_get_id
+EXPORT_SYMBOL_GPL vmlinux 0x431e1907	of_property_read_string_helper
 EXPORT_SYMBOL_GPL vmlinux 0x432ae832	ata_sas_port_init
 EXPORT_SYMBOL_GPL vmlinux 0x4334d6e2	rtc_irq_set_state
 EXPORT_SYMBOL_GPL vmlinux 0x4346a41f	screen_glyph
@@ -12463,7 +12464,6 @@ EXPORT_SYMBOL_GPL vmlinux 0x98d3a5d5	ohci_suspend
 EXPORT_SYMBOL_GPL vmlinux 0x98ecc38c	devres_release
 EXPORT_SYMBOL_GPL vmlinux 0x98fa1e20	dm_get_reserved_rq_based_ios
 EXPORT_SYMBOL_GPL vmlinux 0x9912b57b	uninhibit_secondary_onlining
-EXPORT_SYMBOL_GPL vmlinux 0x991484c4	of_property_count_strings
 EXPORT_SYMBOL_GPL vmlinux 0x9924c496	__usb_get_extra_descriptor
 EXPORT_SYMBOL_GPL vmlinux 0x992503b0	crypto_init_spawn
 EXPORT_SYMBOL_GPL vmlinux 0x9927962b	shash_register_instance
@@ -13332,7 +13332,6 @@ EXPORT_SYMBOL_GPL vmlinux 0xe7ea331b	ide_bus_type
 EXPORT_SYMBOL_GPL vmlinux 0xe7ffe877	pcpu_base_addr
 EXPORT_SYMBOL_GPL vmlinux 0xe818b32b	ata_bmdma_interrupt
 EXPORT_SYMBOL_GPL vmlinux 0xe8385317	attribute_container_unregister
-EXPORT_SYMBOL_GPL vmlinux 0xe8400441	of_property_read_string_index
 EXPORT_SYMBOL_GPL vmlinux 0xe84f6e5c	pciserial_remove_ports
 EXPORT_SYMBOL_GPL vmlinux 0xe85c55e7	btree_destroy
 EXPORT_SYMBOL_GPL vmlinux 0xe862c4b7	dpm_suspend_start
