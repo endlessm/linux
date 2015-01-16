@@ -1,0 +1,3 @@
+# force "dpkg-source -I -i" behavior
+diff-ignore
+tar-ignore
