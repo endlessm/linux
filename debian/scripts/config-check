@@ -410,4 +410,62 @@ while (<CHECKS>) {
 close(CHECKS);
 
 print "$P: $pass/$total checks passed -- exit $exit_val\n";
+
+# ANNOTATIONS: check any annotations marked for enforcement
+my $pass = 0;
+my $total = 0;
+my $annotations = "$commonconfig/annotations";
+my ($config, $value, $options, $option, $value, $check, $policy);
+print "$P: $annotations loading annotations\n";
+open(ANNOTATIONS, "<$annotations") || die "$P: $annotations: open failed -- $! -- aborting\n";
+while (<ANNOTATIONS>) {
+	/^#/ && next;
+	chomp;
+	/^$/ && next;
+
+	$check = 0;
+	($config, $value, $options) = split(' ', $_, 3);
+	$policy = { '*' => $value };
+	while ($options =~ /\s*(\S+)<(.*?)?>/g) {
+		($option, $value) = ($1, $2);
+
+		if ($option eq 'mark' && $value eq 'ENFORCED') {
+			$check = 1;
+
+		} elsif ($option eq 'policy') {
+			if ($value =~ /^{/) {
+				$value =~ s/:/=>/g;
+				$policy = eval($value);
+			} else {
+				$policy = undef;
+			}
+		}
+	}
+	if ($check == 1 && $policy == undef) {
+		print "$P: INVALID $_\n";
+		$total++;
+	}
+	if ($check) {
+		my $is = '-';
+		$is = $values{$config} if (defined $values{$config});
+
+		my $value = '-';
+		for my $which ("$arch-$flavour", "$arch-*", "*-$flavour", "$arch", "*") {
+			if (defined $policy->{$which}) {
+				$value = $policy->{$which};
+				last;
+			}
+		}
+		if ($is eq $value) {
+			$pass++;
+		} else {
+			print "$P: FAIL ($is != $value): $_\n";
+			$exit_val = $fail_exit;
+		}
+		$total++;
+	}
+}
+close(ANNOTATIONS);
+
+print "$P: $pass/$total checks passed -- exit $exit_val\n";
 exit $exit_val;
