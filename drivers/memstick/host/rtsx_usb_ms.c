@@ -706,7 +706,8 @@ poll_again:
 		if (host->eject)
 			break;
 
-		msleep(1000);
+		if (msleep_interruptible(1000))
+			flush_signals(current);
 	}
 
 	complete(&host->detect_ms_exit);
