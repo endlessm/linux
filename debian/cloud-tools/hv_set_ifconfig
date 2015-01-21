@@ -127,14 +127,16 @@ else:
 		if6_count += 1
 
 	output = ["auto "+" ".join(autolist)] + output
-output=["# The following stanza(s) added by hv_set_ifconfig"] + output
-output+=["#End of hv_set_ifconfig stanzas"]
 print "==================================="
 print output
 print "==================================="
 
 
 ''' Time to clean out the existing interface file'''
+
+# Markers.
+start_mark = "# The following stanza(s) added by hv_set_ifconfig"
+end_mark = "#End of hv_set_ifconfig stanzas"
 
 f=open(if_filename,"r")
 flines=f.readlines()
@@ -143,6 +145,7 @@ newfile=[]
 pitchstanza=0
 inastanza=0
 stanza=[]
+prev_line=None
 for line in flines:
 	if line.startswith("auto"):
 		if inastanza:
@@ -173,6 +176,16 @@ for line in flines:
 				pitchstanza=1
 		if not pitchstanza:
 			stanza+=[line.strip()]
+        elif line.strip() in (start_mark, end_mark):
+		if inastanza:
+			if not pitchstanza:
+				newfile.extend(stanza)
+			stanza=[]
+                inastanza = 0
+                pitchstanza = 0
+                # Deduplicate markers.
+                if line != prev_line:
+                    newfile += [line.strip()]
 	else:
 		if inastanza:
 			if not pitchstanza:
@@ -180,21 +193,26 @@ for line in flines:
 		else:
 			if not pitchstanza:
 				newfile += [line.strip()]
+        prev_line=line
 
 
-for line in newfile:
-	print line
-for line in output:
-	print line
 
+def emit(line):
+        print(line)
+	os.write(fd, line + "\n")
 
+# Insert the new output at the end and inside the existing markers if found.
+emitted = False
 fd, path = tempfile.mkstemp()
 for line in newfile:
-	os.write(fd,line)
-	os.write(fd,"\n")
-for line in output:
-	os.write(fd,line)
-	os.write(fd,"\n")
+        if line == end_mark:
+                emit("\n".join(output))
+                emitted = True
+        emit(line)
+if not emitted:
+        emit(start_mark)
+        emit("\n".join(output))
+        emit(end_mark)
 os.close(fd)
 
 shutil.copy(path,if_filename)
