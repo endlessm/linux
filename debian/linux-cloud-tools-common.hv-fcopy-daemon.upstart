@@ -19,4 +19,4 @@ pre-start script
 	fi
 end script
 
-exec /usr/sbin/hv_fcopy_daemon
+exec /usr/sbin/hv_fcopy_daemon -n
