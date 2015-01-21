@@ -7,7 +7,7 @@ ConditionVirtualization=microsoft
 
 [Service]
 Type=forking
-ExecStart=/usr/sbin/hv_fcopy_daemon
+ExecStart=/usr/sbin/hv_fcopy_daemon -n
 
 [Install]
 WantedBy=multi-user.target
