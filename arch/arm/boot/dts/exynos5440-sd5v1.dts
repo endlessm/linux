@@ -28,8 +28,10 @@
 	};
 
 	gmac: ethernet@00230000 {
-		fixed_phy;
-		phy_addr = <1>;
+		fixed-link {
+			speed = <1000>;
+			full-duplex;
+		};
 	};
 
 	spi {
