@@ -828,8 +828,11 @@ static int stmmac_init_phy(struct net_device *dev)
 	 * 0 rather than 0xffff. Catch this here and treat 0 as a non-existent
 	 * device as well.
 	 * Note: phydev->phy_id is the result of reading the UID PHY registers.
+	 * But phy_id returned from fixed phy is always zero, so bypass the
+	 * check for fixed phy.
 	 */
-	if (phydev->phy_id == 0) {
+	if (phydev->phy_id == 0 && (!priv->plat->phy_bus_name ||
+			strcmp(priv->plat->phy_bus_name,"fixed"))) {
 		phy_disconnect(phydev);
 		return -ENODEV;
 	}

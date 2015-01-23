@@ -27,6 +27,7 @@
 #include <linux/of.h>
 #include <linux/of_net.h>
 #include <linux/of_device.h>
+#include <linux/of_mdio.h>
 #include "stmmac.h"
 
 static const struct of_device_id stmmac_dt_ids[] = {
@@ -133,6 +134,15 @@ static int stmmac_probe_config_dt(struct platform_device *pdev,
 		of_property_read_u32(np, "max-frame-size", &plat->maxmtu);
 		plat->has_gmac = 1;
 		plat->pmt = 1;
+	}
+
+	if (of_phy_is_fixed_link(np)) {
+		int ret = of_phy_register_fixed_link(np);
+		if (ret) {
+			dev_err(&pdev->dev, "failed to register fixed PHY\n");
+			return ret;
+		}
+		plat->phy_bus_name = "fixed";
 	}
 
 	if (of_device_is_compatible(np, "snps,dwmac-3.610") ||
