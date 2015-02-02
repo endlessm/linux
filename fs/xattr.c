@@ -352,8 +352,12 @@ setxattr(struct dentry *d, const char __user *name, const void __user *value,
 			goto out;
 		}
 		if ((strcmp(kname, XATTR_NAME_POSIX_ACL_ACCESS) == 0) ||
-		    (strcmp(kname, XATTR_NAME_POSIX_ACL_DEFAULT) == 0))
-			posix_acl_fix_xattr_from_user(kvalue, size);
+		    (strcmp(kname, XATTR_NAME_POSIX_ACL_DEFAULT) == 0)) {
+			error = posix_acl_fix_xattr_from_user(d->d_sb->s_user_ns,
+							      kvalue, size);
+			if (error)
+				goto out;
+		}
 	}
 
 	error = vfs_setxattr(d, kname, kvalue, size, flags);
@@ -453,9 +457,14 @@ getxattr(struct dentry *d, const char __user *name, void __user *value,
 	error = vfs_getxattr(d, kname, kvalue, size);
 	if (error > 0) {
 		if ((strcmp(kname, XATTR_NAME_POSIX_ACL_ACCESS) == 0) ||
-		    (strcmp(kname, XATTR_NAME_POSIX_ACL_DEFAULT) == 0))
-			posix_acl_fix_xattr_to_user(kvalue, size);
-		if (size && copy_to_user(value, kvalue, error))
+		    (strcmp(kname, XATTR_NAME_POSIX_ACL_DEFAULT) == 0)) {
+			int ret;
+			ret = posix_acl_fix_xattr_to_user(d->d_sb->s_user_ns,
+							  kvalue, size);
+			if (ret)
+				error = ret;
+		}
+		if (error > 0 && size && copy_to_user(value, kvalue, error))
 			error = -EFAULT;
 	} else if (error == -ERANGE && size >= XATTR_SIZE_MAX) {
 		/* The file system tried to returned a value bigger
