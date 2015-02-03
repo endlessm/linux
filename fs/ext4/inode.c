@@ -3520,6 +3520,10 @@ int ext4_punch_hole(struct inode *inode, loff_t offset, loff_t length)
 	unsigned int credits;
 	int ret = 0;
 
+	/* WORKAROUND: EXTENTS required (LP: #1292234) */
+	if (!(ext4_test_inode_flag(inode, EXT4_INODE_EXTENTS)))
+		return -EOPNOTSUPP;
+
 	if (!S_ISREG(inode->i_mode))
 		return -EOPNOTSUPP;
 
