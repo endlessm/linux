@@ -56,15 +56,20 @@ static int v1_read_dqblk(struct dquot *dquot)
 {
 	int type = dquot->dq_id.type;
 	struct v1_disk_dqblk dqblk;
+	qid_t qid;
 
 	if (!sb_dqopt(dquot->dq_sb)->files[type])
 		return -EINVAL;
+
+	qid = from_kqid(dquot->dq_sb->s_user_ns, dquot->dq_id);
+	if (qid == (qid_t)-1)
+		return -EOVERFLOW;
 
 	/* Set structure to 0s in case read fails/is after end of file */
 	memset(&dqblk, 0, sizeof(struct v1_disk_dqblk));
 	dquot->dq_sb->s_op->quota_read(dquot->dq_sb, type, (char *)&dqblk,
 			sizeof(struct v1_disk_dqblk),
-			v1_dqoff(from_kqid(&init_user_ns, dquot->dq_id)));
+			v1_dqoff(qid));
 
 	v1_disk2mem_dqblk(&dquot->dq_dqb, &dqblk);
 	if (dquot->dq_dqb.dqb_bhardlimit == 0 &&
@@ -82,6 +87,10 @@ static int v1_commit_dqblk(struct dquot *dquot)
 	short type = dquot->dq_id.type;
 	ssize_t ret;
 	struct v1_disk_dqblk dqblk;
+	qid_t qid = from_kqid(dquot->dq_sb->s_user_ns, dquot->dq_id);
+
+	if (qid == (qid_t)-1)
+		return -EOVERFLOW;
 
 	v1_mem2disk_dqblk(&dqblk, &dquot->dq_dqb);
 	if (((type == USRQUOTA) && uid_eq(dquot->dq_id.uid, GLOBAL_ROOT_UID)) ||
@@ -95,7 +104,7 @@ static int v1_commit_dqblk(struct dquot *dquot)
 	if (sb_dqopt(dquot->dq_sb)->files[type])
 		ret = dquot->dq_sb->s_op->quota_write(dquot->dq_sb, type,
 			(char *)&dqblk, sizeof(struct v1_disk_dqblk),
-			v1_dqoff(from_kqid(&init_user_ns, dquot->dq_id)));
+			v1_dqoff(qid));
 	if (ret != sizeof(struct v1_disk_dqblk)) {
 		quota_error(dquot->dq_sb, "dquota write failed");
 		if (ret >= 0)

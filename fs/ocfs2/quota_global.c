@@ -66,7 +66,7 @@
 
 static void qsync_work_fn(struct work_struct *work);
 
-static void ocfs2_global_disk2memdqb(struct dquot *dquot, void *dp)
+static int ocfs2_global_disk2memdqb(struct dquot *dquot, void *dp)
 {
 	struct ocfs2_global_disk_dqblk *d = dp;
 	struct mem_dqblk *m = &dquot->dq_dqb;
@@ -89,9 +89,10 @@ static void ocfs2_global_disk2memdqb(struct dquot *dquot, void *dp)
 	if (!test_bit(DQ_LASTSET_B + QIF_ITIME_B, &dquot->dq_flags))
 		m->dqb_itime = le64_to_cpu(d->dqb_itime);
 	OCFS2_DQUOT(dquot)->dq_use_count = le32_to_cpu(d->dqb_use_count);
+	return 0;
 }
 
-static void ocfs2_global_mem2diskdqb(void *dp, struct dquot *dquot)
+static int ocfs2_global_mem2diskdqb(void *dp, struct dquot *dquot)
 {
 	struct ocfs2_global_disk_dqblk *d = dp;
 	struct mem_dqblk *m = &dquot->dq_dqb;
@@ -107,6 +108,7 @@ static void ocfs2_global_mem2diskdqb(void *dp, struct dquot *dquot)
 	d->dqb_btime = cpu_to_le64(m->dqb_btime);
 	d->dqb_itime = cpu_to_le64(m->dqb_itime);
 	d->dqb_pad1 = d->dqb_pad2 = 0;
+	return 0;
 }
 
 static int ocfs2_global_is_id(void *dp, struct dquot *dquot)
