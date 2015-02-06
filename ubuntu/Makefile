@@ -16,6 +16,12 @@ obj-$(CONFIG_DM_RAID45)		+= dm-raid4-5/
 ##
 ##
 ##
+ifneq ($(filter $(ARCH), i386 x86_64),)
+obj-y                         += vbox/
+endif
+##
+##
+##
 
 # This is a stupid trick to get kbuild to create ubuntu/built-in.o
 obj- += foo.o
