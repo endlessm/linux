@@ -623,6 +623,15 @@ static void __init opal_dump_region_init(void)
 		pr_warn("DUMP: Failed to register kernel log buffer. "
 			"rc = %d\n", rc);
 }
+
+static void opal_i2c_create_devs(void)
+{
+	struct device_node *np;
+
+	for_each_compatible_node(np, NULL, "ibm,opal-i2c")
+		of_platform_device_create(np, NULL, NULL);
+}
+
 static int __init opal_init(void)
 {
 	struct device_node *np, *consoles;
@@ -648,6 +657,9 @@ static int __init opal_init(void)
 		}
 		of_node_put(consoles);
 	}
+
+	/* Create i2c platform devices */
+	opal_i2c_create_devs();
 
 	/* Find all OPAL interrupts and request them */
 	irqs = of_get_property(opal_node, "opal-interrupts", &irqlen);
@@ -784,3 +796,5 @@ void opal_free_sg_list(struct opal_sg_list *sg)
 			sg = NULL;
 	}
 }
+
+EXPORT_SYMBOL_GPL(opal_i2c_request);
