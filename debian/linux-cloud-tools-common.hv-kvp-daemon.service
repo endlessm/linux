@@ -6,7 +6,6 @@ Description=Hyper-V KVP Protocol Daemon
 ConditionVirtualization=microsoft
 
 [Service]
-Type=forking
 ExecStart=/usr/sbin/hv_kvp_daemon -n
 
 [Install]
