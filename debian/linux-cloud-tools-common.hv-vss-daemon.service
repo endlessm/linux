@@ -6,7 +6,6 @@ Description=Hyper-V VSS Protocol Daemon
 ConditionVirtualization=microsoft
 
 [Service]
-Type=forking
 ExecStart=/usr/sbin/hv_vss_daemon -n
 
 [Install]
