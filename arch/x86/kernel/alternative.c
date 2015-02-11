@@ -626,7 +626,9 @@ void __init alternative_instructions(void)
 	 * patching.
 	 */
 
+	printk("Applying alternatives\n");
 	apply_alternatives(__alt_instructions, __alt_instructions_end);
+	printk("Applying alternatives done\n");
 
 #ifdef CONFIG_SMP
 	/* Patch to UP if other cpus not imminent. */
@@ -636,6 +638,8 @@ void __init alternative_instructions(void)
 					    __smp_locks, __smp_locks_end,
 					    _text, _etext);
 	}
+
+	printk("Applying alternatives smp done\n");
 
 	if (!uniproc_patched || num_possible_cpus() == 1)
 		free_init_pages("SMP alternatives",
