@@ -768,7 +768,7 @@ static int __init_or_module do_one_initcall_debug(initcall_t fn)
 	unsigned long long duration;
 	int ret;
 
-	printk(KERN_DEBUG "calling  %pF @ %i\n", fn, task_pid_nr(current));
+	printk(KERN_DEBUG "calling  %pF @ %i\n", fn, raw_smp_processor_id());
 	calltime = ktime_get();
 	ret = fn();
 	rettime = ktime_get();
