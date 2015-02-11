@@ -1435,6 +1435,9 @@ unsigned long calibrate_delay_is_known(void)
 	if (!tsc_disabled && !cpu_has(&cpu_data(cpu), X86_FEATURE_CONSTANT_TSC))
 		return 0;
 
+	if (cpu != 0)
+		return cpu_data(0).loops_per_jiffy;
+
 	if (!mask)
 		return 0;
 
