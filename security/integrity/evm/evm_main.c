@@ -279,7 +279,7 @@ static int evm_protect_xattr(struct dentry *dentry, const char *xattr_name,
 	enum integrity_status evm_status;
 
 	if (strcmp(xattr_name, XATTR_NAME_EVM) == 0) {
-		if (!capable(CAP_SYS_ADMIN))
+		if (!ns_capable(dentry->d_sb->s_user_ns, CAP_SYS_ADMIN))
 			return -EPERM;
 	} else if (!evm_protected_xattr(xattr_name)) {
 		if (!posix_xattr_acl(xattr_name))
