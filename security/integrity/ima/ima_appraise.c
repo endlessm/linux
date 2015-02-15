@@ -345,7 +345,7 @@ static int ima_protect_xattr(struct dentry *dentry, const char *xattr_name,
 			     const void *xattr_value, size_t xattr_value_len)
 {
 	if (strcmp(xattr_name, XATTR_NAME_IMA) == 0) {
-		if (!capable(CAP_SYS_ADMIN))
+		if (!ns_capable(dentry->d_sb->s_user_ns, CAP_SYS_ADMIN))
 			return -EPERM;
 		return 1;
 	}
