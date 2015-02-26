@@ -1,3 +1,17 @@
+linux (3.13.0-46.76) trusty; urgency=low
+
+  [ Kamal Mostafa ]
+
+  * Release Tracking Bug
+    - LP: #1426060
+
+  [ Upstream Kernel Changes ]
+
+  * clocksource: arch_timer: Only use the virtual counter (CNTVCT) on arm64
+    - LP: #1426043
+
+ -- Kamal Mostafa <kamal@canonical.com>  Thu, 26 Feb 2015 09:53:44 -0800
+
 linux (3.13.0-46.75) trusty; urgency=low
 
   [ Seth Forshee ]
