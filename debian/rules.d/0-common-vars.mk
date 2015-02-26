@@ -68,7 +68,7 @@ abi_release	:= $(release)-$(abinum)
 
 uploadnum	:= $(shell echo $(revision) | sed -r -e 's/[^\+]*\.([^\.]+(\+.*)?$$)/\1/')
 ifneq ($(full_build),false)
-  uploadnum	:= $(uploadnum)-Ubuntu
+  uploadnum	:= $(uploadnum)-$(DISTRO)
 endif
 
 # XXX: linux-libc-dev got bumped to -803.N inadvertantly by a ti-omap4 upload
