@@ -624,7 +624,7 @@ build-arch-deps-$(do_flavour_image_package) += $(addprefix $(stampdir)/stamp-bui
 build-arch: $(build-arch-deps-true)
 	@echo Debug: $@
 
-ifeq ($(AUTOBUILD),)
+ifneq ($(do_udebs),false)
 binary-arch-deps-$(do_flavour_image_package) += binary-udebs
 else
 binary-arch-deps-$(do_flavour_image_package) = binary-debs

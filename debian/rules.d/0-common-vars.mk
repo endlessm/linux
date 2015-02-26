@@ -28,6 +28,7 @@ ifneq ($(AUTOBUILD),)
 skipabi		= true
 skipmodule	= true
 skipdbg		= true
+do_udebs	= false
 gitver=$(shell if test -f .git/HEAD; then cat .git/HEAD; else uuidgen; fi)
 gitverpre=$(shell echo $(gitver) | cut -b -3)
 gitverpost=$(shell echo $(gitver) | cut -b 38-40)
