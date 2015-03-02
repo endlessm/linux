@@ -1,3 +1,10 @@
+# Ignore vbox symlinks, we will regenerate these at clean (LP:1426113)
+extend-diff-ignore=ubuntu/vbox/vboxvideo/include
+extend-diff-ignore=ubuntu/vbox/vboxguest/r0drv
+extend-diff-ignore=ubuntu/vbox/vboxguest/include
+extend-diff-ignore=ubuntu/vbox/vboxsf/r0drv
+extend-diff-ignore=ubuntu/vbox/vboxsf/include
+
 # force "dpkg-source -I -i" behavior
 diff-ignore
 tar-ignore
