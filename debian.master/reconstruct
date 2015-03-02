@@ -1,0 +1,7 @@
+# Reconstruct vbox symlinks (LP:1426113)
+[ ! -L ubuntu/vbox/vboxguest/include ] && ln -sf ../include ubuntu/vbox/vboxguest/include
+[ ! -L ubuntu/vbox/vboxguest/r0drv ] && ln -sf ../r0drv ubuntu/vbox/vboxguest/r0drv
+[ ! -L ubuntu/vbox/vboxsf/include ] && ln -sf ../include ubuntu/vbox/vboxsf/include
+[ ! -L ubuntu/vbox/vboxsf/r0drv ] && ln -sf ../r0drv ubuntu/vbox/vboxsf/r0drv
+[ ! -L ubuntu/vbox/vboxvideo/include ] && ln -sf ../include ubuntu/vbox/vboxvideo/include
+exit 0
