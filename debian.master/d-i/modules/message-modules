@@ -4,6 +4,7 @@ mptfc ?
 mptlan ?
 mptsas ?
 mpt2sas ?
+mpt3sas ?
 mptscsih ?
 mptspi ?
 i2o_block ?

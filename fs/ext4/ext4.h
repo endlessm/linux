@@ -1979,10 +1979,6 @@ extern int ext4_wait_block_bitmap(struct super_block *sb,
 				  struct buffer_head *bh);
 extern struct buffer_head *ext4_read_block_bitmap(struct super_block *sb,
 						  ext4_group_t block_group);
-extern void ext4_init_block_bitmap(struct super_block *sb,
-				   struct buffer_head *bh,
-				   ext4_group_t group,
-				   struct ext4_group_desc *desc);
 extern unsigned ext4_free_clusters_after_init(struct super_block *sb,
 					      ext4_group_t block_group,
 					      struct ext4_group_desc *gdp);
@@ -2110,6 +2106,7 @@ int do_journal_get_write_access(handle_t *handle,
 #define CONVERT_INLINE_DATA	 2
 
 extern struct inode *ext4_iget(struct super_block *, unsigned long);
+extern struct inode *ext4_iget_normal(struct super_block *, unsigned long);
 extern int  ext4_write_inode(struct inode *, struct writeback_control *);
 extern int  ext4_setattr(struct dentry *, struct iattr *);
 extern int  ext4_getattr(struct vfsmount *mnt, struct dentry *dentry,
@@ -2151,8 +2148,8 @@ extern ssize_t ext4_ind_direct_IO(int rw, struct kiocb *iocb,
 extern int ext4_ind_calc_metadata_amount(struct inode *inode, sector_t lblock);
 extern int ext4_ind_trans_blocks(struct inode *inode, int nrblocks);
 extern void ext4_ind_truncate(handle_t *, struct inode *inode);
-extern int ext4_free_hole_blocks(handle_t *handle, struct inode *inode,
-				 ext4_lblk_t first, ext4_lblk_t stop);
+extern int ext4_ind_remove_space(handle_t *handle, struct inode *inode,
+				 ext4_lblk_t start, ext4_lblk_t end);
 
 /* ioctl.c */
 extern long ext4_ioctl(struct file *, unsigned int, unsigned long);
@@ -2340,10 +2337,18 @@ extern int ext4_register_li_request(struct super_block *sb,
 static inline int ext4_has_group_desc_csum(struct super_block *sb)
 {
 	return EXT4_HAS_RO_COMPAT_FEATURE(sb,
-					  EXT4_FEATURE_RO_COMPAT_GDT_CSUM |
-					  EXT4_FEATURE_RO_COMPAT_METADATA_CSUM);
+					  EXT4_FEATURE_RO_COMPAT_GDT_CSUM) ||
+	       (EXT4_SB(sb)->s_chksum_driver != NULL);
 }
 
+static inline int ext4_has_metadata_csum(struct super_block *sb)
+{
+	WARN_ON_ONCE(EXT4_HAS_RO_COMPAT_FEATURE(sb,
+			EXT4_FEATURE_RO_COMPAT_METADATA_CSUM) &&
+		     !EXT4_SB(sb)->s_chksum_driver);
+
+	return (EXT4_SB(sb)->s_chksum_driver != NULL);
+}
 static inline ext4_fsblk_t ext4_blocks_count(struct ext4_super_block *es)
 {
 	return ((ext4_fsblk_t)le32_to_cpu(es->s_blocks_count_hi) << 32) |
@@ -2457,23 +2462,6 @@ static inline void ext4_update_i_disksize(struct inode *inode, loff_t newsize)
 	WARN_ON_ONCE(S_ISREG(inode->i_mode) &&
 		     !mutex_is_locked(&inode->i_mutex));
 	down_write(&EXT4_I(inode)->i_data_sem);
-	if (newsize > EXT4_I(inode)->i_disksize)
-		EXT4_I(inode)->i_disksize = newsize;
-	up_write(&EXT4_I(inode)->i_data_sem);
-}
-
-/*
- * Update i_disksize after writeback has been started. Races with truncate
- * are avoided by checking i_size under i_data_sem.
- */
-static inline void ext4_wb_update_i_disksize(struct inode *inode, loff_t newsize)
-{
-	loff_t i_size;
-
-	down_write(&EXT4_I(inode)->i_data_sem);
-	i_size = i_size_read(inode);
-	if (newsize > i_size)
-		newsize = i_size;
 	if (newsize > EXT4_I(inode)->i_disksize)
 		EXT4_I(inode)->i_disksize = newsize;
 	up_write(&EXT4_I(inode)->i_data_sem);
@@ -2781,7 +2769,8 @@ extern void ext4_io_submit(struct ext4_io_submit *io);
 extern int ext4_bio_write_page(struct ext4_io_submit *io,
 			       struct page *page,
 			       int len,
-			       struct writeback_control *wbc);
+			       struct writeback_control *wbc,
+			       bool keep_towrite);
 
 /* mmp.c */
 extern int ext4_multi_mount_protect(struct super_block *, ext4_fsblk_t);

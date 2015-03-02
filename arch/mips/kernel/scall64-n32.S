@@ -418,4 +418,8 @@ EXPORT(sysn32_call_table)
 	PTR	compat_sys_process_vm_writev	/* 6310 */
 	PTR	sys_kcmp
 	PTR	sys_finit_module
+	PTR	sys_ni_syscall			/* sched_setattr */
+	PTR	sys_ni_syscall			/* sched_getattr */
+	PTR	sys_ni_syscall			/* 6315 */ /* renameat2 */
+	PTR	sys_seccomp
 	.size	sysn32_call_table,.-sysn32_call_table

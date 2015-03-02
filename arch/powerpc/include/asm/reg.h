@@ -118,8 +118,10 @@
 #define __MSR		(MSR_ME | MSR_RI | MSR_IR | MSR_DR | MSR_ISF |MSR_HV)
 #ifdef __BIG_ENDIAN__
 #define MSR_		__MSR
+#define MSR_IDLE	(MSR_ME | MSR_SF | MSR_HV)
 #else
 #define MSR_		(__MSR | MSR_LE)
+#define MSR_IDLE	(MSR_ME | MSR_SF | MSR_HV | MSR_LE)
 #endif
 #define MSR_KERNEL	(MSR_ | MSR_64BIT)
 #define MSR_USER32	(MSR_ | MSR_PR | MSR_EE)
@@ -213,6 +215,7 @@
 #define SPRN_ACOP	0x1F	/* Available Coprocessor Register */
 #define SPRN_TFIAR	0x81	/* Transaction Failure Inst Addr   */
 #define SPRN_TEXASR	0x82	/* Transaction EXception & Summary */
+#define   TEXASR_FS	__MASK(63-36)	/* Transaction Failure Summary */
 #define SPRN_TEXASRU	0x83	/* ''	   ''	   ''	 Upper 32  */
 #define SPRN_TFHAR	0x80	/* Transaction Failure Handler Addr */
 #define SPRN_CTRLF	0x088
@@ -647,12 +650,14 @@
 #define   MMCR0_PMXE	0x04000000UL /* performance monitor exception enable */
 #define   MMCR0_FCECE	0x02000000UL /* freeze ctrs on enabled cond or event */
 #define   MMCR0_TBEE	0x00400000UL /* time base exception enable */
+#define   MMCR0_BHRBA	0x00200000UL /* BHRB Access allowed in userspace */
 #define   MMCR0_EBE	0x00100000UL /* Event based branch enable */
 #define   MMCR0_PMCC	0x000c0000UL /* PMC control */
 #define   MMCR0_PMCC_U6	0x00080000UL /* PMC1-6 are R/W by user (PR) */
 #define   MMCR0_PMC1CE	0x00008000UL /* PMC1 count enable*/
 #define   MMCR0_PMCjCE	0x00004000UL /* PMCj count enable*/
 #define   MMCR0_TRIGGER	0x00002000UL /* TRIGGER enable */
+#define   MMCR0_PMAO_SYNC 0x00000800UL /* PMU interrupt is synchronous */
 #define   MMCR0_PMAO	0x00000080UL /* performance monitor alert has occurred, set to 0 after handling exception */
 #define   MMCR0_SHRFC	0x00000040UL /* SHRre freeze conditions between threads */
 #define   MMCR0_FC56	0x00000010UL /* freeze counters 5 and 6 */
@@ -686,6 +691,7 @@
 #define SPRN_EBBHR	804	/* Event based branch handler register */
 #define SPRN_EBBRR	805	/* Event based branch return register */
 #define SPRN_BESCR	806	/* Branch event status and control register */
+#define   BESCR_GE	0x8000000000000000ULL /* Global Enable */
 
 #define SPRN_PMC1	787
 #define SPRN_PMC2	788

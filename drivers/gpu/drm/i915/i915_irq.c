@@ -1236,9 +1236,20 @@ static inline void intel_hpd_irq_handler(struct drm_device *dev,
 	spin_lock(&dev_priv->irq_lock);
 	for (i = 1; i < HPD_NUM_PINS; i++) {
 
-		WARN(((hpd[i] & hotplug_trigger) &&
-		      dev_priv->hpd_stats[i].hpd_mark != HPD_ENABLED),
-		     "Received HPD interrupt although disabled\n");
+		if (hpd[i] & hotplug_trigger &&
+		    dev_priv->hpd_stats[i].hpd_mark == HPD_DISABLED) {
+			/*
+			 * On GMCH platforms the interrupt mask bits only
+			 * prevent irq generation, not the setting of the
+			 * hotplug bits itself. So only WARN about unexpected
+			 * interrupts on saner platforms.
+			 */
+			WARN_ONCE(INTEL_INFO(dev)->gen >= 5 && !IS_VALLEYVIEW(dev),
+				  "Received HPD interrupt (0x%08x) on pin %d (0x%08x) although disabled\n",
+				  hotplug_trigger, i, hpd[i]);
+
+			continue;
+		}
 
 		if (!(hpd[i] & hotplug_trigger) ||
 		    dev_priv->hpd_stats[i].hpd_mark != HPD_ENABLED)
@@ -2383,20 +2394,27 @@ static int semaphore_passed(struct intel_ring_buffer *ring)
 {
 	struct drm_i915_private *dev_priv = ring->dev->dev_private;
 	struct intel_ring_buffer *signaller;
-	u32 seqno, ctl;
+	u32 seqno;
 
-	ring->hangcheck.deadlock = true;
+	ring->hangcheck.deadlock++;
 
 	signaller = semaphore_waits_for(ring, &seqno);
-	if (signaller == NULL || signaller->hangcheck.deadlock)
+	if (signaller == NULL)
 		return -1;
+
+	/* Prevent pathological recursion due to driver bugs */
+	if (signaller->hangcheck.deadlock >= I915_NUM_RINGS)
+		return -1;
+
+	if (i915_seqno_passed(signaller->get_seqno(signaller, false), seqno))
+		return 1;
 
 	/* cursory check for an unkickable deadlock */
-	ctl = I915_READ_CTL(signaller);
-	if (ctl & RING_WAIT_SEMAPHORE && semaphore_passed(signaller) < 0)
+	if (I915_READ_CTL(signaller) & RING_WAIT_SEMAPHORE &&
+	    semaphore_passed(signaller) < 0)
 		return -1;
 
-	return i915_seqno_passed(signaller->get_seqno(signaller, false), seqno);
+	return 0;
 }
 
 static void semaphore_clear_deadlocks(struct drm_i915_private *dev_priv)
@@ -2405,7 +2423,7 @@ static void semaphore_clear_deadlocks(struct drm_i915_private *dev_priv)
 	int i;
 
 	for_each_ring(ring, dev_priv, i)
-		ring->hangcheck.deadlock = false;
+		ring->hangcheck.deadlock = 0;
 }
 
 static enum intel_ring_hangcheck_action

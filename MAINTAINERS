@@ -665,21 +665,11 @@ S:	Maintained
 F:	drivers/net/appletalk/
 F:	net/appletalk/
 
-APPLIEDMICRO (APM) X-GENE SOC QUEUE MANAGER/TRAFFIC MANAGER (QMTM) DRIVER
-M:	Ravi Patel <rapatel@apm.com>
-M:	Keyur Chudgar <kchudgar@apm.com>
-S:	Maintained
-F:	drivers/misc/xgene/
-F:	include/misc/xgene/xgene_qmtm.h
-F:	Documentation/devicetree/bindings/misc/apm-xgene-qmtm.txt
-F:	Documentation/misc-devices/apm-xgene-qmtm
-
-APPLIEDMICRO (APM) X-GENE SOC ETHERNET DRIVER
-M:	Keyur Chudgar <kchudgar@apm.com>
+APPLIED MICRO (APM) X-GENE SOC ETHERNET DRIVER
 M:	Iyappan Subramanian <isubramanian@apm.com>
-M:	Ravi Patel <rapatel@apm.com>
-S:	Maintained
-F:	drivers/net/ethernet/apm/
+M:	Keyur Chudgar <kchudgar@apm.com>
+S:	Supported
+F:	drivers/net/ethernet/apm/xgene/
 F:	Documentation/devicetree/bindings/net/apm-xgene-enet.txt
 
 APTINA CAMERA SENSOR PLL
@@ -4496,7 +4486,7 @@ M:	Deepak Saxena <dsaxena@plexity.net>
 S:	Maintained
 F:	drivers/char/hw_random/ixp4xx-rng.c
 
-INTEL ETHERNET DRIVERS (e100/e1000/e1000e/igb/igbvf/ixgb/ixgbe/ixgbevf/i40e)
+INTEL ETHERNET DRIVERS (e100/e1000/e1000e/igb/igbvf/ixgb/ixgbe/ixgbevf/i40e/i40evf)
 M:	Jeff Kirsher <jeffrey.t.kirsher@intel.com>
 M:	Jesse Brandeburg <jesse.brandeburg@intel.com>
 M:	Bruce Allan <bruce.w.allan@intel.com>
@@ -4505,6 +4495,7 @@ M:	Don Skidmore <donald.c.skidmore@intel.com>
 M:	Greg Rose <gregory.v.rose@intel.com>
 M:	Alex Duyck <alexander.h.duyck@intel.com>
 M:	John Ronciak <john.ronciak@intel.com>
+M:	Mitch Williams <mitch.a.williams@intel.com>
 L:	e1000-devel@lists.sourceforge.net
 W:	http://www.intel.com/support/feedback.htm
 W:	http://e1000.sourceforge.net/
@@ -4520,6 +4511,7 @@ F:	Documentation/networking/ixgb.txt
 F:	Documentation/networking/ixgbe.txt
 F:	Documentation/networking/ixgbevf.txt
 F:	Documentation/networking/i40e.txt
+F:	Documentation/networking/i40evf.txt
 F:	drivers/net/ethernet/intel/
 
 INTEL-MID GPIO DRIVER

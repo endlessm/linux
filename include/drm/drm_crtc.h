@@ -905,6 +905,9 @@ struct drm_mode_config {
 
 	/* whether async page flip is supported or not */
 	bool async_page_flip;
+
+	/* cursor size */
+	uint32_t cursor_width, cursor_height;
 };
 
 #define obj_to_crtc(x) container_of(x, struct drm_crtc, base)
@@ -989,6 +992,7 @@ extern void drm_encoder_cleanup(struct drm_encoder *encoder);
 
 extern const char *drm_get_connector_name(const struct drm_connector *connector);
 extern const char *drm_get_connector_status_name(enum drm_connector_status status);
+extern const char *drm_get_subpixel_order_name(enum subpixel_order order);
 extern const char *drm_get_dpms_name(int val);
 extern const char *drm_get_dvi_i_subconnector_name(int val);
 extern const char *drm_get_dvi_i_select_name(int val);

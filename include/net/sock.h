@@ -231,7 +231,6 @@ struct cg_proto;
   *	@sk_receive_queue: incoming packets
   *	@sk_wmem_alloc: transmit queue bytes committed
   *	@sk_write_queue: Packet sending queue
-  *	@sk_async_wait_queue: DMA copied packets
   *	@sk_omem_alloc: "o" is "option" or "other"
   *	@sk_wmem_queued: persistent queue size
   *	@sk_forward_alloc: space allocated forward
@@ -353,10 +352,6 @@ struct sock {
 
 	struct sk_filter __rcu	*sk_filter;
 	struct socket_wq __rcu	*sk_wq;
-
-#ifdef CONFIG_NET_DMA
-	struct sk_buff_head	sk_async_wait_queue;
-#endif
 
 #ifdef CONFIG_XFRM
 	struct xfrm_policy	*sk_policy[2];
@@ -955,7 +950,6 @@ struct proto {
 						struct sk_buff *skb);
 
 	void		(*release_cb)(struct sock *sk);
-	void		(*mtu_reduced)(struct sock *sk);
 
 	/* Keeping track of sk's, looking them up, and port selection methods. */
 	void			(*hash)(struct sock *sk);
@@ -1743,8 +1737,8 @@ sk_dst_get(struct sock *sk)
 
 	rcu_read_lock();
 	dst = rcu_dereference(sk->sk_dst_cache);
-	if (dst)
-		dst_hold(dst);
+	if (dst && !atomic_inc_not_zero(&dst->__refcnt))
+		dst = NULL;
 	rcu_read_unlock();
 	return dst;
 }
@@ -1781,9 +1775,11 @@ __sk_dst_set(struct sock *sk, struct dst_entry *dst)
 static inline void
 sk_dst_set(struct sock *sk, struct dst_entry *dst)
 {
-	spin_lock(&sk->sk_dst_lock);
-	__sk_dst_set(sk, dst);
-	spin_unlock(&sk->sk_dst_lock);
+	struct dst_entry *old_dst;
+
+	sk_tx_queue_clear(sk);
+	old_dst = xchg((__force struct dst_entry **)&sk->sk_dst_cache, dst);
+	dst_release(old_dst);
 }
 
 static inline void
@@ -1795,9 +1791,7 @@ __sk_dst_reset(struct sock *sk)
 static inline void
 sk_dst_reset(struct sock *sk)
 {
-	spin_lock(&sk->sk_dst_lock);
-	__sk_dst_reset(sk);
-	spin_unlock(&sk->sk_dst_lock);
+	sk_dst_set(sk, NULL);
 }
 
 struct dst_entry *__sk_dst_check(struct sock *sk, u32 cookie);
@@ -2203,27 +2197,15 @@ void sock_tx_timestamp(struct sock *sk, __u8 *tx_flags);
  * sk_eat_skb - Release a skb if it is no longer needed
  * @sk: socket to eat this skb from
  * @skb: socket buffer to eat
- * @copied_early: flag indicating whether DMA operations copied this data early
  *
  * This routine must be called with interrupts disabled or with the socket
  * locked so that the sk_buff queue operation is ok.
 */
-#ifdef CONFIG_NET_DMA
-static inline void sk_eat_skb(struct sock *sk, struct sk_buff *skb, bool copied_early)
-{
-	__skb_unlink(skb, &sk->sk_receive_queue);
-	if (!copied_early)
-		__kfree_skb(skb);
-	else
-		__skb_queue_tail(&sk->sk_async_wait_queue, skb);
-}
-#else
-static inline void sk_eat_skb(struct sock *sk, struct sk_buff *skb, bool copied_early)
+static inline void sk_eat_skb(struct sock *sk, struct sk_buff *skb)
 {
 	__skb_unlink(skb, &sk->sk_receive_queue);
 	__kfree_skb(skb);
 }
-#endif
 
 static inline
 struct net *sock_net(const struct sock *sk)
@@ -2266,6 +2248,11 @@ int sock_get_timestamp(struct sock *, struct timeval __user *);
 int sock_get_timestampns(struct sock *, struct timespec __user *);
 int sock_recv_errqueue(struct sock *sk, struct msghdr *msg, int len, int level,
 		       int type);
+
+bool sk_ns_capable(const struct sock *sk,
+		   struct user_namespace *user_ns, int cap);
+bool sk_capable(const struct sock *sk, int cap);
+bool sk_net_capable(const struct sock *sk, int cap);
 
 /*
  *	Enable debug/info messages

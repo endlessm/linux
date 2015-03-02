@@ -124,15 +124,15 @@ struct dentry {
 	void *d_fsdata;			/* fs-specific data */
 
 	struct list_head d_lru;		/* LRU list */
+	struct list_head d_child;	/* child of parent list */
+	struct list_head d_subdirs;	/* our children */
 	/*
-	 * d_child and d_rcu can share memory
+	 * d_alias and d_rcu can share memory
 	 */
 	union {
-		struct list_head d_child;	/* child of parent list */
+		struct hlist_node d_alias;	/* inode alias list */
 	 	struct rcu_head d_rcu;
 	} d_u;
-	struct list_head d_subdirs;	/* our children */
-	struct hlist_node d_alias;	/* inode alias list */
 };
 
 /*
@@ -220,6 +220,8 @@ struct dentry_operations {
 #define DCACHE_AUTODIR_TYPE		0x00200000 /* Lookupless directory (presumed automount) */
 #define DCACHE_SYMLINK_TYPE		0x00300000 /* Symlink */
 #define DCACHE_FILE_TYPE		0x00400000 /* Other file type */
+
+#define DCACHE_MAY_FREE			0x00800000
 
 extern seqlock_t rename_lock;
 
@@ -429,7 +431,7 @@ static inline unsigned __d_entry_type(const struct dentry *dentry)
 	return dentry->d_flags & DCACHE_ENTRY_TYPE;
 }
 
-static inline bool d_is_directory(const struct dentry *dentry)
+static inline bool d_can_lookup(const struct dentry *dentry)
 {
 	return __d_entry_type(dentry) == DCACHE_DIRECTORY_TYPE;
 }
@@ -437,6 +439,11 @@ static inline bool d_is_directory(const struct dentry *dentry)
 static inline bool d_is_autodir(const struct dentry *dentry)
 {
 	return __d_entry_type(dentry) == DCACHE_AUTODIR_TYPE;
+}
+
+static inline bool d_is_dir(const struct dentry *dentry)
+{
+	return d_can_lookup(dentry) || d_is_autodir(dentry);
 }
 
 static inline bool d_is_symlink(const struct dentry *dentry)

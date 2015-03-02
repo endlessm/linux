@@ -17,10 +17,6 @@
 	model = "APM X-Gene Mustang board";
 	compatible = "apm,mustang", "apm,xgene-storm";
 
-        aliases {
-                ethernet0 = &menet;
-        };
-
 	chosen { };
 
 	memory {
@@ -29,14 +25,22 @@
 	};
 };
 
-&menet {
-        status = "ok";
-};
-
 &pcie0clk {
 	status = "ok";
 };
 
 &pcie0 {
+	status = "ok";
+};
+
+&menet {
+	status = "ok";
+};
+
+&sgenet0 {
+	status = "ok";
+};
+
+&xgenet {
 	status = "ok";
 };

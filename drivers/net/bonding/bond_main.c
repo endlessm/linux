@@ -1090,10 +1090,14 @@ static netdev_features_t bond_fix_features(struct net_device *dev,
 				 NETIF_F_FRAGLIST | NETIF_F_ALL_TSO | \
 				 NETIF_F_HIGHDMA | NETIF_F_LRO)
 
+#define BOND_ENC_FEATURES	(NETIF_F_ALL_CSUM | NETIF_F_SG | NETIF_F_RXCSUM |\
+				 NETIF_F_TSO | NETIF_F_GSO_UDP_TUNNEL)
+
 static void bond_compute_features(struct bonding *bond)
 {
 	unsigned int flags, dst_release_flag = IFF_XMIT_DST_RELEASE;
 	netdev_features_t vlan_features = BOND_VLAN_FEATURES;
+	netdev_features_t enc_features  = BOND_ENC_FEATURES;
 	struct net_device *bond_dev = bond->dev;
 	struct list_head *iter;
 	struct slave *slave;
@@ -1108,6 +1112,9 @@ static void bond_compute_features(struct bonding *bond)
 		vlan_features = netdev_increment_features(vlan_features,
 			slave->dev->vlan_features, BOND_VLAN_FEATURES);
 
+		enc_features = netdev_increment_features(enc_features,
+							 slave->dev->hw_enc_features,
+							 BOND_ENC_FEATURES);
 		dst_release_flag &= slave->dev->priv_flags;
 		if (slave->dev->hard_header_len > max_hard_header_len)
 			max_hard_header_len = slave->dev->hard_header_len;
@@ -1118,6 +1125,7 @@ static void bond_compute_features(struct bonding *bond)
 
 done:
 	bond_dev->vlan_features = vlan_features;
+	bond_dev->hw_enc_features = enc_features;
 	bond_dev->hard_header_len = max_hard_header_len;
 	bond_dev->gso_max_segs = gso_max_segs;
 	netif_set_gso_max_size(bond_dev, gso_max_size);
@@ -3630,8 +3638,14 @@ static int bond_xmit_roundrobin(struct sk_buff *skb, struct net_device *bond_dev
 		else
 			bond_xmit_slave_id(bond, skb, 0);
 	} else {
-		slave_id = bond_rr_gen_slave_id(bond);
-		bond_xmit_slave_id(bond, skb, slave_id % bond->slave_cnt);
+		int slave_cnt = ACCESS_ONCE(bond->slave_cnt);
+
+		if (likely(slave_cnt)) {
+			slave_id = bond_rr_gen_slave_id(bond);
+			bond_xmit_slave_id(bond, skb, slave_id % slave_cnt);
+		} else {
+			dev_kfree_skb_any(skb);
+		}
 	}
 
 	return NETDEV_TX_OK;
@@ -3662,8 +3676,13 @@ static int bond_xmit_activebackup(struct sk_buff *skb, struct net_device *bond_d
 static int bond_xmit_xor(struct sk_buff *skb, struct net_device *bond_dev)
 {
 	struct bonding *bond = netdev_priv(bond_dev);
+	int slave_cnt = ACCESS_ONCE(bond->slave_cnt);
 
-	bond_xmit_slave_id(bond, skb, bond_xmit_hash(bond, skb, bond->slave_cnt));
+	if (likely(slave_cnt))
+		bond_xmit_slave_id(bond, skb,
+				   bond_xmit_hash(bond, skb, bond->slave_cnt));
+	else
+		dev_kfree_skb_any(skb);
 
 	return NETDEV_TX_OK;
 }
@@ -3947,6 +3966,7 @@ void bond_setup(struct net_device *bond_dev)
 				NETIF_F_HW_VLAN_CTAG_FILTER;
 
 	bond_dev->hw_features &= ~(NETIF_F_ALL_CSUM & ~NETIF_F_HW_CSUM);
+	bond_dev->hw_features |= NETIF_F_GSO_UDP_TUNNEL;
 	bond_dev->features |= bond_dev->hw_features;
 }
 
@@ -4512,6 +4532,7 @@ static int __init bonding_init(void)
 out:
 	return res;
 err:
+	bond_destroy_debugfs();
 	bond_netlink_fini();
 err_link:
 	unregister_pernet_subsys(&bond_net_ops);

@@ -559,6 +559,19 @@ static int preA3Chip;
 MODULE_PARM_DESC(preA3Chip, "Enable pre-A3 chip support (1=enable 0=disable)");
 module_param_named(preA3Chip, preA3Chip, int, 0444);
 
+static int is_custom_eval_board(void)
+{
+	struct device_node *root = of_find_node_by_path("/");
+	const char *model;
+
+	if (!root)
+		return 0;
+	model = of_get_property(root, "model", NULL);
+	if (model == NULL)
+		return 0;
+	return strstr(model, "Mustang") ? 0 : 1;
+}
+
 static void sds_wr(void __iomem *csr_base, u32 indirect_cmd_reg,
 		   u32 indirect_data_reg, u32 addr, u32 data)
 {
@@ -880,7 +893,11 @@ static void xgene_phy_sata_cfg_cmu_core(struct xgene_phy_ctx *ctx,
 
 		if (!preA3Chip) {
 			cmu_rd(ctx, cmu_type, CMU_REG10, &val);
-			val = CMU_REG10_VREG_REFSEL_SET(val, 0x1);
+			if (!is_custom_eval_board()) {
+				val = CMU_REG10_VREG_REFSEL_SET(val, 0x1);
+			} else {
+				val = CMU_REG10_VREG_REFSEL_SET(val, 0x0);
+			}
 			cmu_wr(ctx, cmu_type, CMU_REG10, val);
 		}
 	}
@@ -905,10 +922,11 @@ static void xgene_phy_sata_cfg_cmu_core(struct xgene_phy_ctx *ctx,
 
 	cmu_rd(ctx, cmu_type, CMU_REG32, &val);
 	val = CMU_REG32_PVT_CAL_WAIT_SEL_SET(val, 0x3);
-	if (cmu_type == REF_CMU || preA3Chip)
+	if (cmu_type == REF_CMU || preA3Chip || is_custom_eval_board()) {
 		val = CMU_REG32_IREF_ADJ_SET(val, 0x3);
-	else
+	} else {
 		val = CMU_REG32_IREF_ADJ_SET(val, 0x1);
+	}
 	cmu_wr(ctx, cmu_type, CMU_REG32, val);
 
 	/* Set VCO calibration threshold */

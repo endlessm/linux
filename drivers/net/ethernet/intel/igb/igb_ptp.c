@@ -387,7 +387,7 @@ void igb_ptp_tx_work(struct work_struct *work)
 		dev_kfree_skb_any(adapter->ptp_tx_skb);
 		adapter->ptp_tx_skb = NULL;
 		adapter->tx_hwtstamp_timeouts++;
-		dev_warn(&adapter->pdev->dev, "clearing Tx timestamp hang");
+		dev_warn(&adapter->pdev->dev, "clearing Tx timestamp hang\n");
 		return;
 	}
 
@@ -454,7 +454,7 @@ void igb_ptp_rx_hang(struct igb_adapter *adapter)
 		rd32(E1000_RXSTMPH);
 		adapter->last_rx_ptp_check = jiffies;
 		adapter->rx_hwtstamp_cleared++;
-		dev_warn(&adapter->pdev->dev, "clearing Rx timestamp hang");
+		dev_warn(&adapter->pdev->dev, "clearing Rx timestamp hang\n");
 	}
 }
 

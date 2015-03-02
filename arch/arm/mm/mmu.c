@@ -466,6 +466,16 @@ static void __init build_mem_type_table(void)
 	s2_device_pgprot = mem_types[MT_DEVICE].prot_pte_s2;
 
 	/*
+	 * We don't use domains on ARMv6 (since this causes problems with
+	 * v6/v7 kernels), so we must use a separate memory type for user
+	 * r/o, kernel r/w to map the vectors page.
+	 */
+#ifndef CONFIG_ARM_LPAE
+	if (cpu_arch == CPU_ARCH_ARMv6)
+		vecs_pgprot |= L_PTE_MT_VECTORS;
+#endif
+
+	/*
 	 * ARMv6 and above have extended page tables.
 	 */
 	if (cpu_arch >= CPU_ARCH_ARMv6 && (cr & CR_XP)) {
@@ -1342,8 +1352,8 @@ void __init early_paging_init(const struct machine_desc *mdesc,
 		return;
 
 	/* remap kernel code and data */
-	map_start = init_mm.start_code;
-	map_end   = init_mm.brk;
+	map_start = init_mm.start_code & PMD_MASK;
+	map_end   = ALIGN(init_mm.brk, PMD_SIZE);
 
 	/* get a handle on things... */
 	pgd0 = pgd_offset_k(0);
@@ -1378,7 +1388,7 @@ void __init early_paging_init(const struct machine_desc *mdesc,
 	}
 
 	/* remap pmds for kernel mapping */
-	phys = __pa(map_start) & PMD_MASK;
+	phys = __pa(map_start);
 	do {
 		*pmdk++ = __pmd(phys | pmdprot);
 		phys += PMD_SIZE;

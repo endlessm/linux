@@ -178,6 +178,14 @@ static struct dmi_system_id video_detect_dmi_table[] = {
 	},
 	{
 	.callback = video_detect_force_vendor,
+	.ident = "Dell Inspiron 5737",
+	.matches = {
+		DMI_MATCH(DMI_SYS_VENDOR, "Dell Inc."),
+		DMI_MATCH(DMI_PRODUCT_NAME, "Inspiron 5737"),
+		},
+	},
+	{
+	.callback = video_detect_force_vendor,
 	.ident = "GIGABYTE GB-BXBT-2807",
 	.matches = {
 		DMI_MATCH(DMI_SYS_VENDOR, "GIGABYTE"),

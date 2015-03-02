@@ -20,11 +20,10 @@
 #include <asm/page.h>
 #include <asm/processor.h>
 
-#include <asm-generic/pgtable-nopud.h>
-
 /* The kernel image occupies 0x4000000 to 0x6000000 (4MB --> 96MB).
  * The page copy blockops can use 0x6000000 to 0x8000000.
- * The TSB is mapped in the 0x8000000 to 0xa000000 range.
+ * The 8K TSB is mapped in the 0x8000000 to 0x8400000 range.
+ * The 4M TSB is mapped in the 0x8400000 to 0x8800000 range.
  * The PROM resides in an area spanning 0xf0000000 to 0x100000000.
  * The vmalloc area spans 0x100000000 to 0x200000000.
  * Since modules need to be in the lowest 32-bits of the address space,
@@ -33,17 +32,15 @@
  * 0x400000000.
  */
 #define	TLBTEMP_BASE		_AC(0x0000000006000000,UL)
-#define	TSBMAP_BASE		_AC(0x0000000008000000,UL)
+#define	TSBMAP_8K_BASE		_AC(0x0000000008000000,UL)
+#define	TSBMAP_4M_BASE		_AC(0x0000000008400000,UL)
 #define MODULES_VADDR		_AC(0x0000000010000000,UL)
 #define MODULES_LEN		_AC(0x00000000e0000000,UL)
 #define MODULES_END		_AC(0x00000000f0000000,UL)
 #define LOW_OBP_ADDRESS		_AC(0x00000000f0000000,UL)
 #define HI_OBP_ADDRESS		_AC(0x0000000100000000,UL)
 #define VMALLOC_START		_AC(0x0000000100000000,UL)
-#define VMALLOC_END		_AC(0x0000010000000000,UL)
-#define VMEMMAP_BASE		_AC(0x0000010000000000,UL)
-
-#define vmemmap			((struct page *)VMEMMAP_BASE)
+#define VMEMMAP_BASE		VMALLOC_END
 
 /* PMD_SHIFT determines the size of the area a second-level page
  * table can map
@@ -53,13 +50,25 @@
 #define PMD_MASK	(~(PMD_SIZE-1))
 #define PMD_BITS	(PAGE_SHIFT - 3)
 
-/* PGDIR_SHIFT determines what a third-level page table entry can map */
-#define PGDIR_SHIFT	(PAGE_SHIFT + (PAGE_SHIFT-3) + PMD_BITS)
+/* PUD_SHIFT determines the size of the area a third-level page
+ * table can map
+ */
+#define PUD_SHIFT	(PMD_SHIFT + PMD_BITS)
+#define PUD_SIZE	(_AC(1,UL) << PUD_SHIFT)
+#define PUD_MASK	(~(PUD_SIZE-1))
+#define PUD_BITS	(PAGE_SHIFT - 3)
+
+/* PGDIR_SHIFT determines what a fourth-level page table entry can map */
+#define PGDIR_SHIFT	(PUD_SHIFT + PUD_BITS)
 #define PGDIR_SIZE	(_AC(1,UL) << PGDIR_SHIFT)
 #define PGDIR_MASK	(~(PGDIR_SIZE-1))
 #define PGDIR_BITS	(PAGE_SHIFT - 3)
 
-#if (PGDIR_SHIFT + PGDIR_BITS) != 43
+#if (MAX_PHYS_ADDRESS_BITS > PGDIR_SHIFT + PGDIR_BITS)
+#error MAX_PHYS_ADDRESS_BITS exceeds what kernel page tables can support
+#endif
+
+#if (PGDIR_SHIFT + PGDIR_BITS) != 53
 #error Page table parameters do not cover virtual address space properly.
 #endif
 
@@ -69,19 +78,32 @@
 
 #ifndef __ASSEMBLY__
 
+extern unsigned long VMALLOC_END;
+
+#define vmemmap			((struct page *)VMEMMAP_BASE)
+
 #include <linux/sched.h>
+
+bool kern_addr_valid(unsigned long addr);
 
 /* Entries per page directory level. */
 #define PTRS_PER_PTE	(1UL << (PAGE_SHIFT-3))
 #define PTRS_PER_PMD	(1UL << PMD_BITS)
+#define PTRS_PER_PUD	(1UL << PUD_BITS)
 #define PTRS_PER_PGD	(1UL << PGDIR_BITS)
 
 /* Kernel has a separate 44bit address space. */
 #define FIRST_USER_ADDRESS	0
 
-#define pte_ERROR(e)	__builtin_trap()
-#define pmd_ERROR(e)	__builtin_trap()
-#define pgd_ERROR(e)	__builtin_trap()
+#define pmd_ERROR(e)							\
+	pr_err("%s:%d: bad pmd %p(%016lx) seen at (%pS)\n",		\
+	       __FILE__, __LINE__, &(e), pmd_val(e), __builtin_return_address(0))
+#define pud_ERROR(e)							\
+	pr_err("%s:%d: bad pud %p(%016lx) seen at (%pS)\n",		\
+	       __FILE__, __LINE__, &(e), pud_val(e), __builtin_return_address(0))
+#define pgd_ERROR(e)							\
+	pr_err("%s:%d: bad pgd %p(%016lx) seen at (%pS)\n",		\
+	       __FILE__, __LINE__, &(e), pgd_val(e), __builtin_return_address(0))
 
 #endif /* !(__ASSEMBLY__) */
 
@@ -90,6 +112,7 @@
 #define _PAGE_R	  	  _AC(0x8000000000000000,UL) /* Keep ref bit uptodate*/
 #define _PAGE_SPECIAL     _AC(0x0200000000000000,UL) /* Special page         */
 #define _PAGE_PMD_HUGE    _AC(0x0100000000000000,UL) /* Huge page            */
+#define _PAGE_PUD_HUGE    _PAGE_PMD_HUGE
 
 /* Advertise support for _PAGE_SPECIAL */
 #define __HAVE_ARCH_PTE_SPECIAL
@@ -258,8 +281,8 @@ static inline pte_t pte_modify(pte_t pte, pgprot_t prot)
 {
 	unsigned long mask, tmp;
 
-	/* SUN4U: 0x600307ffffffecb8 (negated == 0x9ffcf80000001347)
-	 * SUN4V: 0x30ffffffffffee17 (negated == 0xcf000000000011e8)
+	/* SUN4U: 0x630107ffffffec38 (negated == 0x9cfef800000013c7)
+	 * SUN4V: 0x33ffffffffffee07 (negated == 0xcc000000000011f8)
 	 *
 	 * Even if we use negation tricks the result is still a 6
 	 * instruction sequence, so don't try to play fancy and just
@@ -289,10 +312,10 @@ static inline pte_t pte_modify(pte_t pte, pgprot_t prot)
 	"	.previous\n"
 	: "=r" (mask), "=r" (tmp)
 	: "i" (_PAGE_PADDR_4U | _PAGE_MODIFIED_4U | _PAGE_ACCESSED_4U |
-	       _PAGE_CP_4U | _PAGE_CV_4U | _PAGE_E_4U | _PAGE_PRESENT_4U |
+	       _PAGE_CP_4U | _PAGE_CV_4U | _PAGE_E_4U |
 	       _PAGE_SPECIAL | _PAGE_PMD_HUGE | _PAGE_SZALL_4U),
 	  "i" (_PAGE_PADDR_4V | _PAGE_MODIFIED_4V | _PAGE_ACCESSED_4V |
-	       _PAGE_CP_4V | _PAGE_CV_4V | _PAGE_E_4V | _PAGE_PRESENT_4V |
+	       _PAGE_CP_4V | _PAGE_CV_4V | _PAGE_E_4V |
 	       _PAGE_SPECIAL | _PAGE_PMD_HUGE | _PAGE_SZALL_4V));
 
 	return __pte((pte_val(pte) & mask) | (pgprot_val(prot) & ~mask));
@@ -633,7 +656,14 @@ static inline unsigned long pmd_large(pmd_t pmd)
 {
 	pte_t pte = __pte(pmd_val(pmd));
 
-	return (pte_val(pte) & _PAGE_PMD_HUGE) && pte_present(pte);
+	return pte_val(pte) & _PAGE_PMD_HUGE;
+}
+
+static inline unsigned long pmd_pfn(pmd_t pmd)
+{
+	pte_t pte = __pte(pmd_val(pmd));
+
+	return pte_pfn(pte);
 }
 
 #ifdef CONFIG_TRANSPARENT_HUGEPAGE
@@ -649,13 +679,6 @@ static inline unsigned long pmd_write(pmd_t pmd)
 	pte_t pte = __pte(pmd_val(pmd));
 
 	return pte_write(pte);
-}
-
-static inline unsigned long pmd_pfn(pmd_t pmd)
-{
-	pte_t pte = __pte(pmd_val(pmd));
-
-	return pte_pfn(pte);
 }
 
 static inline unsigned long pmd_trans_huge(pmd_t pmd)
@@ -719,20 +742,6 @@ static inline pmd_t pmd_mkwrite(pmd_t pmd)
 	return __pmd(pte_val(pte));
 }
 
-static inline pmd_t pmd_mknotpresent(pmd_t pmd)
-{
-	unsigned long mask;
-
-	if (tlb_type == hypervisor)
-		mask = _PAGE_PRESENT_4V;
-	else
-		mask = _PAGE_PRESENT_4U;
-
-	pmd_val(pmd) &= ~mask;
-
-	return pmd;
-}
-
 static inline pmd_t pmd_mksplitting(pmd_t pmd)
 {
 	pte_t pte = __pte(pmd_val(pmd));
@@ -756,6 +765,22 @@ static inline int pmd_present(pmd_t pmd)
 }
 
 #define pmd_none(pmd)			(!pmd_val(pmd))
+
+/* pmd_bad() is only called on non-trans-huge PMDs.  Our encoding is
+ * very simple, it's just the physical address.  PTE tables are of
+ * size PAGE_SIZE so make sure the sub-PAGE_SIZE bits are clear and
+ * the top bits outside of the range of any physical address size we
+ * support are clear as well.  We also validate the physical itself.
+ */
+#define pmd_bad(pmd)			(pmd_val(pmd) & ~PAGE_MASK)
+
+#define pud_none(pud)			(!pud_val(pud))
+
+#define pud_bad(pud)			(pud_val(pud) & ~PAGE_MASK)
+
+#define pgd_none(pgd)			(!pgd_val(pgd))
+
+#define pgd_bad(pgd)			(pgd_val(pgd) & ~PAGE_MASK)
 
 #ifdef CONFIG_TRANSPARENT_HUGEPAGE
 extern void set_pmd_at(struct mm_struct *mm, unsigned long addr,
@@ -790,15 +815,33 @@ static inline unsigned long __pmd_page(pmd_t pmd)
 #define pud_page_vaddr(pud)		\
 	((unsigned long) __va(pud_val(pud)))
 #define pud_page(pud) 			virt_to_page((void *)pud_page_vaddr(pud))
-#define pmd_bad(pmd)			(0)
 #define pmd_clear(pmdp)			(pmd_val(*(pmdp)) = 0UL)
-#define pud_none(pud)			(!pud_val(pud))
-#define pud_bad(pud)			(0)
 #define pud_present(pud)		(pud_val(pud) != 0U)
 #define pud_clear(pudp)			(pud_val(*(pudp)) = 0UL)
+#define pgd_page_vaddr(pgd)		\
+	((unsigned long) __va(pgd_val(pgd)))
+#define pgd_present(pgd)		(pgd_val(pgd) != 0U)
+#define pgd_clear(pgdp)			(pgd_val(*(pgd)) = 0UL)
+
+static inline unsigned long pud_large(pud_t pud)
+{
+	pte_t pte = __pte(pud_val(pud));
+
+	return pte_val(pte) & _PAGE_PMD_HUGE;
+}
+
+static inline unsigned long pud_pfn(pud_t pud)
+{
+	pte_t pte = __pte(pud_val(pud));
+
+	return pte_pfn(pte);
+}
 
 /* Same in both SUN4V and SUN4U.  */
 #define pte_none(pte) 			(!pte_val(pte))
+
+#define pgd_set(pgdp, pudp)	\
+	(pgd_val(*(pgdp)) = (__pa((unsigned long) (pudp))))
 
 /* to find an entry in a page-table-directory. */
 #define pgd_index(address)	(((address) >> PGDIR_SHIFT) & (PTRS_PER_PGD - 1))
@@ -806,6 +849,11 @@ static inline unsigned long __pmd_page(pmd_t pmd)
 
 /* to find an entry in a kernel page-table-directory */
 #define pgd_offset_k(address) pgd_offset(&init_mm, address)
+
+/* Find an entry in the third-level page table.. */
+#define pud_index(address)	(((address) >> PUD_SHIFT) & (PTRS_PER_PUD - 1))
+#define pud_offset(pgdp, address)	\
+	((pud_t *) pgd_page_vaddr(*(pgdp)) + pud_index(address))
 
 /* Find an entry in the second-level page table.. */
 #define pmd_offset(pudp, address)	\
@@ -879,7 +927,6 @@ static inline void __set_pte_at(struct mm_struct *mm, unsigned long addr,
 #endif
 
 extern pgd_t swapper_pg_dir[PTRS_PER_PGD];
-extern pmd_t swapper_low_pmd_dir[PTRS_PER_PMD];
 
 extern void paging_init(void);
 extern unsigned long find_ecache_flush_span(unsigned long size);
@@ -892,6 +939,10 @@ extern void update_mmu_cache(struct vm_area_struct *, unsigned long, pte_t *);
 #ifdef CONFIG_TRANSPARENT_HUGEPAGE
 extern void update_mmu_cache_pmd(struct vm_area_struct *vma, unsigned long addr,
 				 pmd_t *pmd);
+
+#define __HAVE_ARCH_PMDP_INVALIDATE
+extern void pmdp_invalidate(struct vm_area_struct *vma, unsigned long address,
+			    pmd_t *pmdp);
 
 #define __HAVE_ARCH_PGTABLE_DEPOSIT
 extern void pgtable_trans_huge_deposit(struct mm_struct *mm, pmd_t *pmdp,
@@ -918,18 +969,6 @@ extern unsigned long pte_file(pte_t);
 #define pte_to_pgoff(pte)	(pte_val(pte) >> PAGE_SHIFT)
 extern pte_t pgoff_to_pte(unsigned long);
 #define PTE_FILE_MAX_BITS	(64UL - PAGE_SHIFT - 1UL)
-
-extern unsigned long sparc64_valid_addr_bitmap[];
-
-/* Needs to be defined here and not in linux/mm.h, as it is arch dependent */
-static inline bool kern_addr_valid(unsigned long addr)
-{
-	unsigned long paddr = __pa(addr);
-
-	if ((paddr >> 41UL) != 0UL)
-		return false;
-	return test_bit(paddr >> 22, sparc64_valid_addr_bitmap);
-}
 
 extern int page_in_phys_avail(unsigned long paddr);
 

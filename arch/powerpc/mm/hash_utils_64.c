@@ -206,6 +206,20 @@ int htab_bolt_mapping(unsigned long vstart, unsigned long vend,
 		if (overlaps_kernel_text(vaddr, vaddr + step))
 			tprot &= ~HPTE_R_N;
 
+		/*
+		 * If relocatable, check if it overlaps interrupt vectors that
+		 * are copied down to real 0. For relocatable kernel
+		 * (e.g. kdump case) we copy interrupt vectors down to real
+		 * address 0. Mark that region as executable. This is
+		 * because on p8 system with relocation on exception feature
+		 * enabled, exceptions are raised with MMU (IR=DR=1) ON. Hence
+		 * in order to execute the interrupt handlers in virtual
+		 * mode the vector region need to be marked as executable.
+		 */
+		if ((PHYSICAL_START > MEMORY_START) &&
+			overlaps_interrupt_vector_text(vaddr, vaddr + step))
+				tprot &= ~HPTE_R_N;
+
 		hash = hpt_hash(vpn, shift, ssize);
 		hpteg = ((hash & htab_hash_mask) * HPTES_PER_GROUP);
 
@@ -945,6 +959,22 @@ void hash_failure_debug(unsigned long ea, unsigned long access,
 		trap, vsid, ssize, psize, lpsize, pte);
 }
 
+static void check_paca_psize(unsigned long ea, struct mm_struct *mm,
+			     int psize, bool user_region)
+{
+	if (user_region) {
+		if (psize != get_paca_psize(ea)) {
+			get_paca()->context = mm->context;
+			slb_flush_and_rebolt();
+		}
+	} else if (get_paca()->vmalloc_sllp !=
+		   mmu_psize_defs[mmu_vmalloc_psize].sllp) {
+		get_paca()->vmalloc_sllp =
+			mmu_psize_defs[mmu_vmalloc_psize].sllp;
+		slb_vmalloc_update();
+	}
+}
+
 /* Result code is:
  *  0 - handled
  *  1 - normal page fault
@@ -1066,6 +1096,8 @@ int hash_page(unsigned long ea, unsigned long access, unsigned long trap)
 			WARN_ON(1);
 		}
 #endif
+		check_paca_psize(ea, mm, psize, user_region);
+
 		goto bail;
 	}
 
@@ -1106,17 +1138,8 @@ int hash_page(unsigned long ea, unsigned long access, unsigned long trap)
 #endif
 		}
 	}
-	if (user_region) {
-		if (psize != get_paca_psize(ea)) {
-			get_paca()->context = mm->context;
-			slb_flush_and_rebolt();
-		}
-	} else if (get_paca()->vmalloc_sllp !=
-		   mmu_psize_defs[mmu_vmalloc_psize].sllp) {
-		get_paca()->vmalloc_sllp =
-			mmu_psize_defs[mmu_vmalloc_psize].sllp;
-		slb_vmalloc_update();
-	}
+
+	check_paca_psize(ea, mm, psize, user_region);
 #endif /* CONFIG_PPC_64K_PAGES */
 
 #ifdef CONFIG_PPC_HAS_HASH_64K

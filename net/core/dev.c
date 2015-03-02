@@ -1203,7 +1203,11 @@ EXPORT_SYMBOL(netdev_features_change);
 void netdev_state_change(struct net_device *dev)
 {
 	if (dev->flags & IFF_UP) {
-		call_netdevice_notifiers(NETDEV_CHANGE, dev);
+		struct netdev_notifier_change_info change_info;
+
+		change_info.flags_changed = 0;
+		call_netdevice_notifiers_info(NETDEV_CHANGE, dev,
+					      &change_info.info);
 		rtmsg_ifinfo(RTM_NEWLINK, dev, 0, GFP_KERNEL);
 	}
 }
@@ -1262,7 +1266,6 @@ static int __dev_open(struct net_device *dev)
 		clear_bit(__LINK_STATE_START, &dev->state);
 	else {
 		dev->flags |= IFF_UP;
-		net_dmaengine_get();
 		dev_set_rx_mode(dev);
 		dev_activate(dev);
 		add_device_randomness(dev->dev_addr, dev->addr_len);
@@ -1338,7 +1341,6 @@ static int __dev_close_many(struct list_head *head)
 			ops->ndo_stop(dev);
 
 		dev->flags &= ~IFF_UP;
-		net_dmaengine_put();
 	}
 
 	return 0;
@@ -1698,6 +1700,7 @@ int dev_forward_skb(struct net_device *dev, struct sk_buff *skb)
 
 	skb_scrub_packet(skb, true);
 	skb->protocol = eth_type_trans(skb, dev);
+	skb_postpull_rcsum(skb, eth_hdr(skb), ETH_HLEN);
 
 	return netif_rx(skb);
 }
@@ -2501,11 +2504,14 @@ netdev_features_t netif_skb_dev_features(struct sk_buff *skb,
 	if (skb_shinfo(skb)->gso_segs > dev->gso_max_segs)
 		features &= ~NETIF_F_GSO_MASK;
 
-	if (protocol == htons(ETH_P_8021Q) || protocol == htons(ETH_P_8021AD)) {
-		struct vlan_ethhdr *veh = (struct vlan_ethhdr *)skb->data;
-		protocol = veh->h_vlan_encapsulated_proto;
-	} else if (!vlan_tx_tag_present(skb)) {
-		return harmonize_features(skb, dev, features);
+	if (!vlan_tx_tag_present(skb)) {
+		if (unlikely(protocol == htons(ETH_P_8021Q) ||
+			     protocol == htons(ETH_P_8021AD))) {
+			struct vlan_ethhdr *veh = (struct vlan_ethhdr *)skb->data;
+			protocol = veh->h_vlan_encapsulated_proto;
+		} else {
+			return harmonize_features(skb, dev, features);
+		}
 	}
 
 	features &= (dev->vlan_features | NETIF_F_HW_VLAN_CTAG_TX |
@@ -3018,7 +3024,7 @@ static int get_rps_cpu(struct net_device *dev, struct sk_buff *skb,
 	}
 
 	skb_reset_network_header(skb);
-	if (!skb_get_rxhash(skb))
+	if (!skb_get_hash(skb))
 		goto done;
 
 	flow_table = rcu_dereference(rxqueue->rps_flow_table);
@@ -3163,7 +3169,7 @@ static bool skb_flow_limit(struct sk_buff *skb, unsigned int qlen)
 	rcu_read_lock();
 	fl = rcu_dereference(sd->flow_limit);
 	if (fl) {
-		new_flow = skb_get_rxhash(skb) & (fl->num_buckets - 1);
+		new_flow = skb_get_hash(skb) & (fl->num_buckets - 1);
 		old_flow = fl->history[fl->history_head];
 		fl->history[fl->history_head] = new_flow;
 
@@ -3817,10 +3823,10 @@ static void gro_list_prepare(struct napi_struct *napi, struct sk_buff *skb)
 		diffs |= p->vlan_tci ^ skb->vlan_tci;
 		if (maclen == ETH_HLEN)
 			diffs |= compare_ether_header(skb_mac_header(p),
-						      skb_gro_mac_header(skb));
+						      skb_mac_header(skb));
 		else if (!diffs)
 			diffs = memcmp(skb_mac_header(p),
-				       skb_gro_mac_header(skb),
+				       skb_mac_header(skb),
 				       maclen);
 		NAPI_GRO_CB(p)->same_flow = !diffs;
 		NAPI_GRO_CB(p)->flush = 0;
@@ -3844,6 +3850,27 @@ static void skb_gro_reset_offset(struct sk_buff *skb)
 	}
 }
 
+static void gro_pull_from_frag0(struct sk_buff *skb, int grow)
+{
+	struct skb_shared_info *pinfo = skb_shinfo(skb);
+
+	BUG_ON(skb->end - skb->tail < grow);
+
+	memcpy(skb_tail_pointer(skb), NAPI_GRO_CB(skb)->frag0, grow);
+
+	skb->data_len -= grow;
+	skb->tail += grow;
+
+	pinfo->frags[0].page_offset += grow;
+	skb_frag_size_sub(&pinfo->frags[0], grow);
+
+	if (unlikely(!skb_frag_size(&pinfo->frags[0]))) {
+	       skb_frag_unref(skb, 0);
+	       memmove(pinfo->frags, pinfo->frags + 1,
+		       --pinfo->nr_frags * sizeof(pinfo->frags[0]));
+	}
+}
+
 static enum gro_result dev_gro_receive(struct napi_struct *napi, struct sk_buff *skb)
 {
 	struct sk_buff **pp = NULL;
@@ -3852,6 +3879,7 @@ static enum gro_result dev_gro_receive(struct napi_struct *napi, struct sk_buff 
 	struct list_head *head = &offload_base;
 	int same_flow;
 	enum gro_result ret;
+	int grow;
 
 	if (!(skb->dev->features & NETIF_F_GRO) || netpoll_rx_on(skb))
 		goto normal;
@@ -3859,7 +3887,6 @@ static enum gro_result dev_gro_receive(struct napi_struct *napi, struct sk_buff 
 	if (skb_is_gso(skb) || skb_has_frag_list(skb))
 		goto normal;
 
-	skb_gro_reset_offset(skb);
 	gro_list_prepare(napi, skb);
 	NAPI_GRO_CB(skb)->csum = skb->csum; /* Needed for CHECKSUM_COMPLETE */
 
@@ -3917,33 +3944,16 @@ static enum gro_result dev_gro_receive(struct napi_struct *napi, struct sk_buff 
 	}
 	NAPI_GRO_CB(skb)->count = 1;
 	NAPI_GRO_CB(skb)->age = jiffies;
+	NAPI_GRO_CB(skb)->last = skb;
 	skb_shinfo(skb)->gso_size = skb_gro_len(skb);
 	skb->next = napi->gro_list;
 	napi->gro_list = skb;
 	ret = GRO_HELD;
 
 pull:
-	if (skb_headlen(skb) < skb_gro_offset(skb)) {
-		int grow = skb_gro_offset(skb) - skb_headlen(skb);
-
-		BUG_ON(skb->end - skb->tail < grow);
-
-		memcpy(skb_tail_pointer(skb), NAPI_GRO_CB(skb)->frag0, grow);
-
-		skb->tail += grow;
-		skb->data_len -= grow;
-
-		skb_shinfo(skb)->frags[0].page_offset += grow;
-		skb_frag_size_sub(&skb_shinfo(skb)->frags[0], grow);
-
-		if (unlikely(!skb_frag_size(&skb_shinfo(skb)->frags[0]))) {
-			skb_frag_unref(skb, 0);
-			memmove(skb_shinfo(skb)->frags,
-				skb_shinfo(skb)->frags + 1,
-				--skb_shinfo(skb)->nr_frags * sizeof(skb_frag_t));
-		}
-	}
-
+	grow = skb_gro_offset(skb) - skb_headlen(skb);
+	if (grow > 0)
+		gro_pull_from_frag0(skb, grow);
 ok:
 	return ret;
 
@@ -4009,6 +4019,8 @@ static gro_result_t napi_skb_finish(gro_result_t ret, struct sk_buff *skb)
 
 gro_result_t napi_gro_receive(struct napi_struct *napi, struct sk_buff *skb)
 {
+	skb_gro_reset_offset(skb);
+
 	return napi_skb_finish(dev_gro_receive(napi, skb), skb);
 }
 EXPORT_SYMBOL(napi_gro_receive);
@@ -4021,6 +4033,9 @@ static void napi_reuse_skb(struct napi_struct *napi, struct sk_buff *skb)
 	skb->vlan_tci = 0;
 	skb->dev = napi->dev;
 	skb->skb_iif = 0;
+	skb->encapsulation = 0;
+	skb_shinfo(skb)->gso_type = 0;
+	skb->truesize = SKB_TRUESIZE(skb_end_offset(skb));
 
 	napi->skb = skb;
 }
@@ -4038,12 +4053,16 @@ struct sk_buff *napi_get_frags(struct napi_struct *napi)
 }
 EXPORT_SYMBOL(napi_get_frags);
 
-static gro_result_t napi_frags_finish(struct napi_struct *napi, struct sk_buff *skb,
-			       gro_result_t ret)
+static gro_result_t napi_frags_finish(struct napi_struct *napi,
+				      struct sk_buff *skb,
+				      gro_result_t ret)
 {
 	switch (ret) {
 	case GRO_NORMAL:
-		if (netif_receive_skb(skb))
+	case GRO_HELD:
+		__skb_push(skb, ETH_HLEN);
+		skb->protocol = eth_type_trans(skb, skb->dev);
+		if (ret == GRO_NORMAL && netif_receive_skb(skb))
 			ret = GRO_DROP;
 		break;
 
@@ -4052,7 +4071,6 @@ static gro_result_t napi_frags_finish(struct napi_struct *napi, struct sk_buff *
 		napi_reuse_skb(napi, skb);
 		break;
 
-	case GRO_HELD:
 	case GRO_MERGED:
 		break;
 	}
@@ -4063,14 +4081,34 @@ static gro_result_t napi_frags_finish(struct napi_struct *napi, struct sk_buff *
 static struct sk_buff *napi_frags_skb(struct napi_struct *napi)
 {
 	struct sk_buff *skb = napi->skb;
+	const struct ethhdr *eth;
+	unsigned int hlen = sizeof(*eth);
 
 	napi->skb = NULL;
 
-	if (unlikely(!pskb_may_pull(skb, sizeof(struct ethhdr)))) {
-		napi_reuse_skb(napi, skb);
-		return NULL;
+	skb_reset_mac_header(skb);
+	skb_gro_reset_offset(skb);
+
+	eth = skb_gro_header_fast(skb, 0);
+	if (unlikely(skb_gro_header_hard(skb, hlen))) {
+		eth = skb_gro_header_slow(skb, hlen, 0);
+		if (unlikely(!eth)) {
+			napi_reuse_skb(napi, skb);
+			return NULL;
+		}
+	} else {
+		gro_pull_from_frag0(skb, hlen);
+		NAPI_GRO_CB(skb)->frag0 += hlen;
+		NAPI_GRO_CB(skb)->frag0_len -= hlen;
 	}
-	skb->protocol = eth_type_trans(skb, skb->dev);
+	__skb_pull(skb, hlen);
+
+	/*
+	 * This works because the only protocols we care about don't require
+	 * special handling.
+	 * We'll fix it up properly in napi_frags_finish()
+	 */
+	skb->protocol = eth->h_proto;
 
 	return skb;
 }
@@ -4380,14 +4418,6 @@ static void net_rx_action(struct softirq_action *h)
 out:
 	net_rps_action_and_irq_enable(sd);
 
-#ifdef CONFIG_NET_DMA
-	/*
-	 * There may not be any more sk_buffs coming right now, so push
-	 * any pending DMA copies to hardware
-	 */
-	dma_issue_pending_all();
-#endif
-
 	return;
 
 softnet_break:
@@ -4587,6 +4617,32 @@ void *netdev_lower_get_next_private_rcu(struct net_device *dev,
 	return lower->private;
 }
 EXPORT_SYMBOL(netdev_lower_get_next_private_rcu);
+
+/**
+ * netdev_lower_get_next - Get the next device from the lower neighbour
+ *                         list
+ * @dev: device
+ * @iter: list_head ** of the current position
+ *
+ * Gets the next netdev_adjacent from the dev's lower neighbour
+ * list, starting from iter position. The caller must hold RTNL lock or
+ * its own locking that guarantees that the neighbour lower
+ * list will remain unchainged.
+ */
+void *netdev_lower_get_next(struct net_device *dev, struct list_head **iter)
+{
+	struct netdev_adjacent *lower;
+
+	lower = list_entry((*iter)->next, struct netdev_adjacent, list);
+
+	if (&lower->list == &dev->adj_list.lower)
+		return NULL;
+
+	*iter = &lower->list;
+
+	return lower->dev;
+}
+EXPORT_SYMBOL(netdev_lower_get_next);
 
 /**
  * netdev_master_upper_dev_get_rcu - Get master upper device
@@ -5009,6 +5065,30 @@ void *netdev_lower_dev_get_private(struct net_device *dev,
 	return lower->private;
 }
 EXPORT_SYMBOL(netdev_lower_dev_get_private);
+
+
+int dev_get_nest_level(struct net_device *dev,
+		       bool (*type_check)(struct net_device *dev))
+{
+	struct net_device *lower = NULL;
+	struct list_head *iter;
+	int max_nest = -1;
+	int nest;
+
+	ASSERT_RTNL();
+
+	netdev_for_each_lower_dev(dev, lower, iter) {
+		nest = dev_get_nest_level(lower, type_check);
+		if (max_nest < nest)
+			max_nest = nest;
+	}
+
+	if (type_check(dev))
+		max_nest++;
+
+	return max_nest;
+}
+EXPORT_SYMBOL(dev_get_nest_level);
 
 static void dev_change_rx_flags(struct net_device *dev, int flags)
 {
@@ -5458,7 +5538,7 @@ static int dev_new_index(struct net *net)
 
 /* Delayed registration/unregisteration */
 static LIST_HEAD(net_todo_list);
-static DECLARE_WAIT_QUEUE_HEAD(netdev_unregistering_wq);
+DECLARE_WAIT_QUEUE_HEAD(netdev_unregistering_wq);
 
 static void net_set_todo(struct net_device *dev)
 {
@@ -6436,6 +6516,9 @@ EXPORT_SYMBOL(unregister_netdevice_queue);
 /**
  *	unregister_netdevice_many - unregister many devices
  *	@head: list of devices
+ *
+ *  Note: As most callers use a stack allocated list_head,
+ *  we force a list_del() to make sure stack wont be corrupted later.
  */
 void unregister_netdevice_many(struct list_head *head)
 {
@@ -6445,6 +6528,7 @@ void unregister_netdevice_many(struct list_head *head)
 		rollback_registered_many(head);
 		list_for_each_entry(dev, head, unreg_list)
 			net_set_todo(dev);
+		list_del(head);
 	}
 }
 EXPORT_SYMBOL(unregister_netdevice_many);
@@ -6900,7 +6984,6 @@ static void __net_exit default_device_exit_batch(struct list_head *net_list)
 		}
 	}
 	unregister_netdevice_many(&dev_kill_list);
-	list_del(&dev_kill_list);
 	rtnl_unlock();
 }
 

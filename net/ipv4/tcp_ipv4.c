@@ -72,7 +72,6 @@
 #include <net/inet_common.h>
 #include <net/timewait_sock.h>
 #include <net/xfrm.h>
-#include <net/netdma.h>
 #include <net/secure_seq.h>
 #include <net/tcp_memcontrol.h>
 #include <net/busy_poll.h>
@@ -269,7 +268,7 @@ EXPORT_SYMBOL(tcp_v4_connect);
  * It can be called through tcp_release_cb() if socket was owned by user
  * at the time tcp_v4_err() was called to handle ICMP message.
  */
-static void tcp_v4_mtu_reduced(struct sock *sk)
+void tcp_v4_mtu_reduced(struct sock *sk)
 {
 	struct dst_entry *dst;
 	struct inet_sock *inet = inet_sk(sk);
@@ -300,6 +299,7 @@ static void tcp_v4_mtu_reduced(struct sock *sk)
 		tcp_simple_retransmit(sk);
 	} /* else let the usual retransmit timer handle it */
 }
+EXPORT_SYMBOL(tcp_v4_mtu_reduced);
 
 static void do_redirect(struct sk_buff *skb, struct sock *sk)
 {
@@ -2000,18 +2000,8 @@ process:
 	bh_lock_sock_nested(sk);
 	ret = 0;
 	if (!sock_owned_by_user(sk)) {
-#ifdef CONFIG_NET_DMA
-		struct tcp_sock *tp = tcp_sk(sk);
-		if (!tp->ucopy.dma_chan && tp->ucopy.pinned_list)
-			tp->ucopy.dma_chan = net_dma_find_channel();
-		if (tp->ucopy.dma_chan)
+		if (!tcp_prequeue(sk, skb))
 			ret = tcp_v4_do_rcv(sk, skb);
-		else
-#endif
-		{
-			if (!tcp_prequeue(sk, skb))
-				ret = tcp_v4_do_rcv(sk, skb);
-		}
 	} else if (unlikely(sk_add_backlog(sk, skb,
 					   sk->sk_rcvbuf + sk->sk_sndbuf))) {
 		bh_unlock_sock(sk);
@@ -2118,6 +2108,7 @@ const struct inet_connection_sock_af_ops ipv4_specific = {
 	.compat_setsockopt = compat_ip_setsockopt,
 	.compat_getsockopt = compat_ip_getsockopt,
 #endif
+	.mtu_reduced	   = tcp_v4_mtu_reduced,
 };
 EXPORT_SYMBOL(ipv4_specific);
 
@@ -2168,11 +2159,6 @@ void tcp_v4_destroy_sock(struct sock *sk)
 		kfree_rcu(tp->md5sig_info, rcu);
 		tp->md5sig_info = NULL;
 	}
-#endif
-
-#ifdef CONFIG_NET_DMA
-	/* Cleans up our sk_async_wait_queue */
-	__skb_queue_purge(&sk->sk_async_wait_queue);
 #endif
 
 	/* Clean prequeue, it must be empty really */
@@ -2737,7 +2723,6 @@ struct proto tcp_prot = {
 	.sendpage		= tcp_sendpage,
 	.backlog_rcv		= tcp_v4_do_rcv,
 	.release_cb		= tcp_release_cb,
-	.mtu_reduced		= tcp_v4_mtu_reduced,
 	.hash			= inet_hash,
 	.unhash			= inet_unhash,
 	.get_port		= inet_csk_get_port,

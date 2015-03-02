@@ -42,6 +42,9 @@ static int do_execute_actions(struct datapath *dp, struct sk_buff *skb,
 
 static int make_writable(struct sk_buff *skb, int write_len)
 {
+	if (!pskb_may_pull(skb, write_len))
+		return -ENOMEM;
+
 	if (!skb_cloned(skb) || skb_clone_writable(skb, write_len))
 		return 0;
 
@@ -70,6 +73,8 @@ static int __pop_vlan_tci(struct sk_buff *skb, __be16 *current_tci)
 
 	vlan_set_encap_proto(skb, vhdr);
 	skb->mac_header += VLAN_HLEN;
+	if (skb_network_offset(skb) < ETH_HLEN)
+		skb_set_network_header(skb, ETH_HLEN);
 	skb_reset_mac_len(skb);
 
 	return 0;
@@ -165,7 +170,7 @@ static void set_ip_addr(struct sk_buff *skb, struct iphdr *nh,
 	}
 
 	csum_replace4(&nh->check, *addr, new_addr);
-	skb->rxhash = 0;
+	skb_clear_hash(skb);
 	*addr = new_addr;
 }
 
@@ -199,7 +204,7 @@ static void set_ipv6_addr(struct sk_buff *skb, u8 l4_proto,
 	if (recalculate_csum)
 		update_ipv6_checksum(skb, l4_proto, addr, new_addr);
 
-	skb->rxhash = 0;
+	skb_clear_hash(skb);
 	memcpy(addr, new_addr, sizeof(__be32[4]));
 }
 
@@ -296,7 +301,7 @@ static void set_tp_port(struct sk_buff *skb, __be16 *port,
 {
 	inet_proto_csum_replace2(check, skb, *port, new_port, 0);
 	*port = new_port;
-	skb->rxhash = 0;
+	skb_clear_hash(skb);
 }
 
 static void set_udp_port(struct sk_buff *skb, __be16 *port, __be16 new_port)
@@ -310,7 +315,7 @@ static void set_udp_port(struct sk_buff *skb, __be16 *port, __be16 new_port)
 			uh->check = CSUM_MANGLED_0;
 	} else {
 		*port = new_port;
-		skb->rxhash = 0;
+		skb_clear_hash(skb);
 	}
 }
 
@@ -381,7 +386,7 @@ static int set_sctp(struct sk_buff *skb,
 		/* Carry any checksum errors through. */
 		sh->checksum = old_csum ^ old_correct_csum ^ new_csum;
 
-		skb->rxhash = 0;
+		skb_clear_hash(skb);
 	}
 
 	return 0;

@@ -117,7 +117,7 @@ ifeq ($(no_dumpfile),)
 	chmod 0600 $(pkgdir)/boot/vmcoreinfo-$(abi_release)-$*
 endif
 
-	$(build_cd) $(kmake) $(build_O) $(conc_level) modules_install \
+	$(build_cd) $(kmake) $(build_O) $(conc_level) modules_install $(vdso) \
 		INSTALL_MOD_STRIP=1 INSTALL_MOD_PATH=$(pkgdir)/ \
 		INSTALL_FW_PATH=$(pkgdir)/lib/firmware/$(abi_release)-$*
 
@@ -173,7 +173,7 @@ ifeq ($(do_extras_package),true)
 		for script in postinst postrm ; do				\
 			sed -e 's/=V/$(abi_release)-$*/g' -e 's/=K/$(instfile)/g'		\
 			    -e 's/=L/$(loader)/g'         -e 's@=B@$(build_arch)@g'		\
-			    debian/control-scripts/$$script > $(pkgdir_ex)/DEBIAN/$$script; \
+			    debian/control-scripts/extra-post > $(pkgdir_ex)/DEBIAN/$$script; \
 			chmod 755 $(pkgdir_ex)/DEBIAN/$$script;			\
 		done;								\
 	fi
@@ -211,7 +211,7 @@ ifneq ($(skipdbg),true)
 	# Debug image is simple
 	install -m644 -D $(builddir)/build-$*/vmlinux \
 		$(dbgpkgdir)/usr/lib/debug/boot/vmlinux-$(abi_release)-$*
-	$(build_cd) $(kmake) $(build_O) modules_install \
+	$(build_cd) $(kmake) $(build_O) modules_install $(vdso) \
 		INSTALL_MOD_PATH=$(dbgpkgdir)/usr/lib/debug
 	# Add .gnu_debuglink sections to each stripped .ko
 	# pointing to unstripped verson
@@ -244,8 +244,10 @@ endif
 	# Copy over the compilation version.
 	cp "$(builddir)/build-$*/include/generated/compile.h" \
 		"$(hdrdir)/include/generated/compile.h"
-	# powerpc seems to need some .o files for external module linking. Add them in.
-ifeq ($(arch),powerpc)
+	# Add UTS_UBUNTU_RELEASE_ABI since UTS_RELEASE is difficult to parse.
+	echo "#define UTS_UBUNTU_RELEASE_ABI $(abinum)" >> $(hdrdir)/include/generated/utsrelease.h
+	# powerpc kernel arch seems to need some .o files for external module linking. Add them in.
+ifeq ($(build_arch),powerpc)
 	mkdir -p $(hdrdir)/arch/powerpc/lib
 	cp $(builddir)/build-$*/arch/powerpc/lib/*.o $(hdrdir)/arch/powerpc/lib
 endif

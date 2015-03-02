@@ -93,6 +93,8 @@
  * OS related constants and tunables
  */
 
+#define MLX4_EN_PRIV_FLAGS_BLUEFLAME 1
+
 #define MLX4_EN_WATCHDOG_TIMEOUT	(15 * HZ)
 
 /* Use the maximum between 16384 and a single page */
@@ -119,6 +121,7 @@ enum {
 #define MLX4_EN_MIN_TX_SIZE	(4096 / TXBB_SIZE)
 
 #define MLX4_EN_SMALL_PKT_SIZE		64
+#define MLX4_EN_MIN_TX_RING_P_UP	1
 #define MLX4_EN_MAX_TX_RING_P_UP	32
 #define MLX4_EN_NUM_UP			8
 #define MLX4_EN_DEF_TX_RING_SIZE	512
@@ -278,6 +281,7 @@ struct mlx4_en_tx_ring {
 	unsigned long wake_queue;
 	struct mlx4_bf bf;
 	bool bf_enabled;
+	bool bf_alloced;
 	struct netdev_queue *tx_queue;
 	int hwtstamp_tx_type;
 	int inline_thold;
@@ -313,13 +317,13 @@ struct mlx4_en_rx_ring {
 	unsigned long csum_ok;
 	unsigned long csum_none;
 	int hwtstamp_rx_filter;
+	cpumask_var_t affinity_mask;
 };
 
 struct mlx4_en_cq {
 	struct mlx4_cq          mcq;
 	struct mlx4_hwq_resources wqres;
 	int                     ring;
-	spinlock_t              lock;
 	struct net_device      *dev;
 	struct napi_struct	napi;
 	int size;
@@ -343,6 +347,7 @@ struct mlx4_en_cq {
 #define CQ_USER_PEND (MLX4_EN_CQ_STATE_POLL | MLX4_EN_CQ_STATE_POLL_YIELD)
 	spinlock_t poll_lock; /* protects from LLS/napi conflicts */
 #endif  /* CONFIG_NET_RX_BUSY_POLL */
+	struct irq_desc *irq_desc;
 };
 
 struct mlx4_en_port_profile {
@@ -406,10 +411,16 @@ struct mlx4_en_rss_map {
 	enum mlx4_qp_state indir_state;
 };
 
+enum mlx4_en_port_flag {
+	MLX4_EN_PORT_ANC = 1<<0, /* Auto-negotiation complete */
+	MLX4_EN_PORT_ANE = 1<<1, /* Auto-negotiation enabled */
+};
+
 struct mlx4_en_port_state {
 	int link_state;
 	int link_speed;
-	int transciver;
+	int transceiver;
+	u32 flags;
 };
 
 struct mlx4_en_pkt_stats {
@@ -532,11 +543,12 @@ struct mlx4_en_priv {
 	int registered;
 	int allocated;
 	int stride;
-	unsigned char prev_mac[ETH_ALEN + 2];
+	unsigned char current_mac[ETH_ALEN + 2];
 	int mac_index;
 	unsigned max_mtu;
 	int base_qpn;
 	int cqe_factor;
+	int cqe_size;
 
 	struct mlx4_en_rss_map rss_map;
 	__be32 ctrl_flags;
@@ -590,6 +602,8 @@ struct mlx4_en_priv {
 #endif
 	u64 tunnel_reg_id;
 	__be16 vxlan_port;
+
+	u32 pflags;
 };
 
 enum mlx4_en_wol {
@@ -603,6 +617,11 @@ struct mlx4_mac_entry {
 	u64 reg_id;
 	struct rcu_head rcu;
 };
+
+static inline struct mlx4_cqe *mlx4_en_get_cqe(void *buf, int idx, int cqe_sz)
+{
+	return buf + idx * cqe_sz;
+}
 
 #ifdef CONFIG_NET_RX_BUSY_POLL
 static inline void mlx4_en_cq_init_lock(struct mlx4_en_cq *cq)
@@ -804,6 +823,13 @@ void mlx4_en_cleanup_filters(struct mlx4_en_priv *priv);
 void mlx4_en_ex_selftest(struct net_device *dev, u32 *flags, u64 *buf);
 void mlx4_en_ptp_overflow_check(struct mlx4_en_dev *mdev);
 
+#define DEV_FEATURE_CHANGED(dev, new_features, feature) \
+	((dev->features & feature) ^ (new_features & feature))
+
+int mlx4_en_reset_config(struct net_device *dev,
+			 struct hwtstamp_config ts_config,
+			 netdev_features_t new_features);
+
 /*
  * Functions for time stamping
  */
@@ -813,9 +839,6 @@ void mlx4_en_fill_hwtstamps(struct mlx4_en_dev *mdev,
 			    u64 timestamp);
 void mlx4_en_init_timestamp(struct mlx4_en_dev *mdev);
 void mlx4_en_remove_timestamp(struct mlx4_en_dev *mdev);
-int mlx4_en_timestamp_config(struct net_device *dev,
-			     int tx_type,
-			     int rx_filter);
 
 /* Globals
  */

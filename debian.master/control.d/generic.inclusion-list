@@ -30,6 +30,7 @@ drivers/infiniband/core/rdma_cm.ko
 drivers/input/evbug.ko
 drivers/input/gameport/gameport.ko
 drivers/input/mouse/psmouse.ko
+drivers/input/serio/hyperv-keyboard.ko
 drivers/input/serio/serio_raw.ko
 drivers/input/serio/serport.ko
 drivers/input/joydev.ko

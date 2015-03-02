@@ -1253,12 +1253,12 @@ static struct mlx4_cmd_info cmd_info[] = {
 	},
 	{
 		.opcode = MLX4_CMD_UPDATE_QP,
-		.has_inbox = false,
+		.has_inbox = true,
 		.has_outbox = false,
 		.out_is_imm = false,
 		.encode_slave_id = false,
 		.verify = NULL,
-		.wrapper = mlx4_CMD_EPERM_wrapper
+		.wrapper = mlx4_UPDATE_QP_wrapper
 	},
 	{
 		.opcode = MLX4_CMD_GET_OP_REQ,
@@ -1295,6 +1295,15 @@ static struct mlx4_cmd_info cmd_info[] = {
 		.encode_slave_id = false,
 		.verify = NULL,
 		.wrapper = mlx4_QUERY_IF_STAT_wrapper
+	},
+	{
+		.opcode = MLX4_CMD_ACCESS_REG,
+		.has_inbox = true,
+		.has_outbox = true,
+		.out_is_imm = false,
+		.encode_slave_id = false,
+		.verify = NULL,
+		.wrapper = mlx4_ACCESS_REG_wrapper,
 	},
 	/* Native multicast commands are not available for guests */
 	{

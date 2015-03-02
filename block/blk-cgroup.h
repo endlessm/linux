@@ -18,6 +18,7 @@
 #include <linux/seq_file.h>
 #include <linux/radix-tree.h>
 #include <linux/blkdev.h>
+#include <linux/atomic.h>
 
 /* Max limits for throttle policy */
 #define THROTL_IOPS_MAX		UINT_MAX
@@ -104,7 +105,7 @@ struct blkcg_gq {
 	struct request_list		rl;
 
 	/* reference count */
-	int				refcnt;
+	atomic_t			refcnt;
 
 	/* is this blkg online? protected by both blkcg and q locks */
 	bool				online;
@@ -253,13 +254,12 @@ static inline int blkg_path(struct blkcg_gq *blkg, char *buf, int buflen)
  * blkg_get - get a blkg reference
  * @blkg: blkg to get
  *
- * The caller should be holding queue_lock and an existing reference.
+ * The caller should be holding an existing reference.
  */
 static inline void blkg_get(struct blkcg_gq *blkg)
 {
-	lockdep_assert_held(blkg->q->queue_lock);
-	WARN_ON_ONCE(!blkg->refcnt);
-	blkg->refcnt++;
+	WARN_ON_ONCE(atomic_read(&blkg->refcnt) <= 0);
+	atomic_inc(&blkg->refcnt);
 }
 
 void __blkg_release_rcu(struct rcu_head *rcu);
@@ -267,14 +267,11 @@ void __blkg_release_rcu(struct rcu_head *rcu);
 /**
  * blkg_put - put a blkg reference
  * @blkg: blkg to put
- *
- * The caller should be holding queue_lock.
  */
 static inline void blkg_put(struct blkcg_gq *blkg)
 {
-	lockdep_assert_held(blkg->q->queue_lock);
-	WARN_ON_ONCE(blkg->refcnt <= 0);
-	if (!--blkg->refcnt)
+	WARN_ON_ONCE(atomic_read(&blkg->refcnt) <= 0);
+	if (atomic_dec_and_test(&blkg->refcnt))
 		call_rcu(&blkg->rcu_head, __blkg_release_rcu);
 }
 
@@ -435,9 +432,9 @@ static inline uint64_t blkg_stat_read(struct blkg_stat *stat)
 	uint64_t v;
 
 	do {
-		start = u64_stats_fetch_begin_bh(&stat->syncp);
+		start = u64_stats_fetch_begin_irq(&stat->syncp);
 		v = stat->cnt;
-	} while (u64_stats_fetch_retry_bh(&stat->syncp, start));
+	} while (u64_stats_fetch_retry_irq(&stat->syncp, start));
 
 	return v;
 }
@@ -508,9 +505,9 @@ static inline struct blkg_rwstat blkg_rwstat_read(struct blkg_rwstat *rwstat)
 	struct blkg_rwstat tmp;
 
 	do {
-		start = u64_stats_fetch_begin_bh(&rwstat->syncp);
+		start = u64_stats_fetch_begin_irq(&rwstat->syncp);
 		tmp = *rwstat;
-	} while (u64_stats_fetch_retry_bh(&rwstat->syncp, start));
+	} while (u64_stats_fetch_retry_irq(&rwstat->syncp, start));
 
 	return tmp;
 }

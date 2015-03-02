@@ -75,6 +75,16 @@ void mlx4_init_vlan_table(struct mlx4_dev *dev, struct mlx4_vlan_table *table)
 	table->total = 0;
 }
 
+void mlx4_init_roce_gid_table(struct mlx4_dev *dev,
+			      struct mlx4_roce_gid_table *table)
+{
+	int i;
+
+	mutex_init(&table->mutex);
+	for (i = 0; i < MLX4_ROCE_MAX_GIDS; i++)
+		memset(table->roce_gids[i].raw, 0, MLX4_ROCE_GID_ENTRY_SIZE);
+}
+
 static int validate_index(struct mlx4_dev *dev,
 			  struct mlx4_mac_table *table, int index)
 {
@@ -584,6 +594,84 @@ int mlx4_get_base_gid_ix(struct mlx4_dev *dev, int slave, int port)
 }
 EXPORT_SYMBOL_GPL(mlx4_get_base_gid_ix);
 
+static int mlx4_reset_roce_port_gids(struct mlx4_dev *dev, int slave,
+				     int port, struct mlx4_cmd_mailbox *mailbox)
+{
+	struct mlx4_roce_gid_entry *gid_entry_mbox;
+	struct mlx4_priv *priv = mlx4_priv(dev);
+	int num_gids, base, offset;
+	int i, err;
+
+	num_gids = mlx4_get_slave_num_gids(dev, slave, port);
+	base = mlx4_get_base_gid_ix(dev, slave, port);
+
+	memset(mailbox->buf, 0, MLX4_MAILBOX_SIZE);
+
+	mutex_lock(&(priv->port[port].gid_table.mutex));
+	/* Zero-out gids belonging to that slave in the port GID table */
+	for (i = 0, offset = base; i < num_gids; offset++, i++)
+		memcpy(priv->port[port].gid_table.roce_gids[offset].raw,
+		       zgid_entry.raw, MLX4_ROCE_GID_ENTRY_SIZE);
+
+	/* Now, copy roce port gids table to mailbox for passing to FW */
+	gid_entry_mbox = (struct mlx4_roce_gid_entry *)mailbox->buf;
+	for (i = 0; i < MLX4_ROCE_MAX_GIDS; gid_entry_mbox++, i++)
+		memcpy(gid_entry_mbox->raw,
+		       priv->port[port].gid_table.roce_gids[i].raw,
+		       MLX4_ROCE_GID_ENTRY_SIZE);
+
+	err = mlx4_cmd(dev, mailbox->dma,
+		       ((u32)port) | (MLX4_SET_PORT_GID_TABLE << 8), 1,
+		       MLX4_CMD_SET_PORT, MLX4_CMD_TIME_CLASS_B,
+		       MLX4_CMD_NATIVE);
+	mutex_unlock(&(priv->port[port].gid_table.mutex));
+	return err;
+}
+
+
+void mlx4_reset_roce_gids(struct mlx4_dev *dev, int slave)
+{
+	struct mlx4_active_ports actv_ports;
+	struct mlx4_cmd_mailbox *mailbox;
+	int num_eth_ports, err;
+	int i;
+
+	if (slave < 0 || slave > dev->num_vfs)
+		return;
+
+	actv_ports = mlx4_get_active_ports(dev, slave);
+
+	for (i = 0, num_eth_ports = 0; i < dev->caps.num_ports; i++) {
+		if (test_bit(i, actv_ports.ports)) {
+			if (dev->caps.port_type[i + 1] != MLX4_PORT_TYPE_ETH)
+				continue;
+			num_eth_ports++;
+		}
+	}
+
+	if (!num_eth_ports)
+		return;
+
+	/* have ETH ports.  Alloc mailbox for SET_PORT command */
+	mailbox = mlx4_alloc_cmd_mailbox(dev);
+	if (IS_ERR(mailbox))
+		return;
+
+	for (i = 0; i < dev->caps.num_ports; i++) {
+		if (test_bit(i, actv_ports.ports)) {
+			if (dev->caps.port_type[i + 1] != MLX4_PORT_TYPE_ETH)
+				continue;
+			err = mlx4_reset_roce_port_gids(dev, slave, i + 1, mailbox);
+			if (err)
+				mlx4_warn(dev, "Could not reset ETH port GID table for slave %d, port %d (%d)\n",
+					  slave, i + 1, err);
+		}
+	}
+
+	mlx4_free_cmd_mailbox(dev, mailbox);
+	return;
+}
+
 static int mlx4_common_set_port(struct mlx4_dev *dev, int slave, u32 in_mod,
 				u8 op_mod, struct mlx4_cmd_mailbox *inbox)
 {
@@ -692,10 +780,12 @@ static int mlx4_common_set_port(struct mlx4_dev *dev, int slave, u32 in_mod,
 			/* 2. Check that do not have duplicates in OTHER
 			 *    entries in the port GID table
 			 */
+
+			mutex_lock(&(priv->port[port].gid_table.mutex));
 			for (i = 0; i < MLX4_ROCE_MAX_GIDS; i++) {
 				if (i >= base && i < base + num_gids)
 					continue; /* don't compare to slave's current gids */
-				gid_entry_tbl = &priv->roce_gids[port - 1][i];
+				gid_entry_tbl = &priv->port[port].gid_table.roce_gids[i];
 				if (!memcmp(gid_entry_tbl->raw, zgid_entry.raw, sizeof(zgid_entry)))
 					continue;
 				gid_entry_mbox = (struct mlx4_roce_gid_entry *)(inbox->buf);
@@ -709,6 +799,7 @@ static int mlx4_common_set_port(struct mlx4_dev *dev, int slave, u32 in_mod,
 						mlx4_warn(dev, "requested gid entry for slave:%d "
 							  "is a duplicate of gid at index %d\n",
 							  slave, i);
+						mutex_unlock(&(priv->port[port].gid_table.mutex));
 						return -EINVAL;
 					}
 				}
@@ -717,16 +808,24 @@ static int mlx4_common_set_port(struct mlx4_dev *dev, int slave, u32 in_mod,
 			/* insert slave GIDs with memcpy, starting at slave's base index */
 			gid_entry_mbox = (struct mlx4_roce_gid_entry *)(inbox->buf);
 			for (i = 0, offset = base; i < num_gids; gid_entry_mbox++, offset++, i++)
-				memcpy(priv->roce_gids[port - 1][offset].raw, gid_entry_mbox->raw, 16);
+				memcpy(priv->port[port].gid_table.roce_gids[offset].raw,
+				       gid_entry_mbox->raw, MLX4_ROCE_GID_ENTRY_SIZE);
 
 			/* Now, copy roce port gids table to current mailbox for passing to FW */
 			gid_entry_mbox = (struct mlx4_roce_gid_entry *)(inbox->buf);
 			for (i = 0; i < MLX4_ROCE_MAX_GIDS; gid_entry_mbox++, i++)
-				memcpy(gid_entry_mbox->raw, priv->roce_gids[port - 1][i].raw, 16);
+				memcpy(gid_entry_mbox->raw,
+				       priv->port[port].gid_table.roce_gids[i].raw,
+				       MLX4_ROCE_GID_ENTRY_SIZE);
 
-			break;
+			err = mlx4_cmd(dev, inbox->dma, in_mod & 0xffff, op_mod,
+				       MLX4_CMD_SET_PORT, MLX4_CMD_TIME_CLASS_B,
+				       MLX4_CMD_NATIVE);
+			mutex_unlock(&(priv->port[port].gid_table.mutex));
+			return err;
 		}
-		return mlx4_cmd(dev, inbox->dma, in_mod, op_mod,
+
+		return mlx4_cmd(dev, inbox->dma, in_mod & 0xffff, op_mod,
 				MLX4_CMD_SET_PORT, MLX4_CMD_TIME_CLASS_B,
 				MLX4_CMD_NATIVE);
 	}
@@ -1099,13 +1198,17 @@ int mlx4_get_slave_from_roce_gid(struct mlx4_dev *dev, int port, u8 *gid,
 	num_vfs = bitmap_weight(slaves_pport.slaves, dev->num_vfs + 1) - 1;
 
 	for (i = 0; i < MLX4_ROCE_MAX_GIDS; i++) {
-		if (!memcmp(priv->roce_gids[port - 1][i].raw, gid, 16)) {
+		if (!memcmp(priv->port[port].gid_table.roce_gids[i].raw, gid,
+			    MLX4_ROCE_GID_ENTRY_SIZE)) {
 			found_ix = i;
 			break;
 		}
 	}
 
 	if (found_ix >= 0) {
+		/* Calculate a slave_gid which is the slave number in the gid
+		 * table and not a globally unique slave number.
+		 */
 		if (found_ix < MLX4_ROCE_PF_GIDS)
 			slave_gid = 0;
 		else if (found_ix < MLX4_ROCE_PF_GIDS + (vf_gids % num_vfs) *
@@ -1118,41 +1221,43 @@ int mlx4_get_slave_from_roce_gid(struct mlx4_dev *dev, int port, u8 *gid,
 			  ((vf_gids % num_vfs) * ((vf_gids / num_vfs + 1)))) /
 			 (vf_gids / num_vfs)) + vf_gids % num_vfs + 1;
 
+		/* Calculate the globally unique slave id */
 		if (slave_gid) {
 			struct mlx4_active_ports exclusive_ports;
 			struct mlx4_active_ports actv_ports;
 			struct mlx4_slaves_pport slaves_pport_actv;
 			unsigned max_port_p_one;
-			int num_slaves_before = 1;
+			int num_vfs_before = 0;
+			int candidate_slave_gid;
 
+			/* Calculate how many VFs are on the previous port, if exists */
 			for (i = 1; i < port; i++) {
 				bitmap_zero(exclusive_ports.ports, dev->caps.num_ports);
-				set_bit(i, exclusive_ports.ports);
+				set_bit(i - 1, exclusive_ports.ports);
 				slaves_pport_actv =
 					mlx4_phys_to_slaves_pport_actv(
 							dev, &exclusive_ports);
-				num_slaves_before += bitmap_weight(
+				num_vfs_before += bitmap_weight(
 						slaves_pport_actv.slaves,
 						dev->num_vfs + 1);
 			}
 
-			if (slave_gid < num_slaves_before) {
-				bitmap_zero(exclusive_ports.ports, dev->caps.num_ports);
-				set_bit(port - 1, exclusive_ports.ports);
-				slaves_pport_actv =
-					mlx4_phys_to_slaves_pport_actv(
-							dev, &exclusive_ports);
-				slave_gid += bitmap_weight(
-						slaves_pport_actv.slaves,
-						dev->num_vfs + 1) -
-						num_slaves_before;
-			}
-			actv_ports = mlx4_get_active_ports(dev, slave_gid);
+			/* candidate_slave_gid isn't necessarily the correct slave, but
+			 * it has the same number of ports and is assigned to the same
+			 * ports as the real slave we're looking for. On dual port VF,
+			 * slave_gid = [single port VFs on port <port>] +
+			 * [offset of the current slave from the first dual port VF] +
+			 * 1 (for the PF).
+			 */
+			candidate_slave_gid = slave_gid + num_vfs_before;
+
+			actv_ports = mlx4_get_active_ports(dev, candidate_slave_gid);
 			max_port_p_one = find_first_bit(
 				actv_ports.ports, dev->caps.num_ports) +
 				bitmap_weight(actv_ports.ports,
 					      dev->caps.num_ports) + 1;
 
+			/* Calculate the real slave number */
 			for (i = 1; i < max_port_p_one; i++) {
 				if (i == port)
 					continue;
@@ -1182,7 +1287,164 @@ int mlx4_get_roce_gid_from_slave(struct mlx4_dev *dev, int port, int slave_id,
 	if (!mlx4_is_master(dev))
 		return -EINVAL;
 
-	memcpy(gid, priv->roce_gids[port - 1][slave_id].raw, 16);
+	memcpy(gid, priv->port[port].gid_table.roce_gids[slave_id].raw,
+	       MLX4_ROCE_GID_ENTRY_SIZE);
 	return 0;
 }
 EXPORT_SYMBOL(mlx4_get_roce_gid_from_slave);
+
+/* Cable Module Info */
+#define MODULE_INFO_MAX_READ 48
+
+#define I2C_ADDR_LOW  0x50
+#define I2C_ADDR_HIGH 0x51
+#define I2C_PAGE_SIZE 256
+
+/* Module Info Data */
+struct mlx4_cable_info {
+	u8	i2c_addr;
+	u8	page_num;
+	__be16	dev_mem_address;
+	__be16	reserved1;
+	__be16	size;
+	__be32	reserved2[2];
+	u8	data[MODULE_INFO_MAX_READ];
+};
+
+enum cable_info_err {
+	 CABLE_INF_INV_PORT      = 0x1,
+	 CABLE_INF_OP_NOSUP      = 0x2,
+	 CABLE_INF_NOT_CONN      = 0x3,
+	 CABLE_INF_NO_EEPRM      = 0x4,
+	 CABLE_INF_PAGE_ERR      = 0x5,
+	 CABLE_INF_INV_ADDR      = 0x6,
+	 CABLE_INF_I2C_ADDR      = 0x7,
+	 CABLE_INF_QSFP_VIO      = 0x8,
+	 CABLE_INF_I2C_BUSY      = 0x9,
+};
+
+#define MAD_STATUS_2_CABLE_ERR(mad_status) ((mad_status >> 8) & 0xFF)
+
+static inline const char *cable_info_mad_err_str(u16 mad_status)
+{
+	u8 err = MAD_STATUS_2_CABLE_ERR(mad_status);
+
+	switch (err) {
+	case CABLE_INF_INV_PORT:
+		return "invalid port selected";
+	case CABLE_INF_OP_NOSUP:
+		return "operation not supported for this port (the port is of type CX4 or internal)";
+	case CABLE_INF_NOT_CONN:
+		return "cable is not connected";
+	case CABLE_INF_NO_EEPRM:
+		return "the connected cable has no EPROM (passive copper cable)";
+	case CABLE_INF_PAGE_ERR:
+		return "page number is greater than 15";
+	case CABLE_INF_INV_ADDR:
+		return "invalid device_address or size (that is, size equals 0 or address+size is greater than 256)";
+	case CABLE_INF_I2C_ADDR:
+		return "invalid I2C slave address";
+	case CABLE_INF_QSFP_VIO:
+		return "at least one cable violates the QSFP specification and ignores the modsel signal";
+	case CABLE_INF_I2C_BUSY:
+		return "I2C bus is constantly busy";
+	}
+	return "Unknown Error";
+}
+
+/**
+ * mlx4_get_module_info - Read cable module eeprom data
+ * @dev: mlx4_dev.
+ * @port: port number.
+ * @offset: byte offset in eeprom to start reading data from.
+ * @size: num of bytes to read.
+ * @data: output buffer to put the requested data into.
+ *
+ * Reads cable module eeprom data, puts the outcome data into
+ * data pointer paramer.
+ * Returns num of read bytes on success or a negative error
+ * code.
+ */
+int mlx4_get_module_info(struct mlx4_dev *dev, u8 port,
+			 u16 offset, u16 size, u8 *data)
+{
+	struct mlx4_cmd_mailbox *inbox, *outbox;
+	struct mlx4_mad_ifc *inmad, *outmad;
+	struct mlx4_cable_info *cable_info;
+	u16 i2c_addr;
+	int ret;
+
+	if (size > MODULE_INFO_MAX_READ)
+		size = MODULE_INFO_MAX_READ;
+
+	inbox = mlx4_alloc_cmd_mailbox(dev);
+	if (IS_ERR(inbox))
+		return PTR_ERR(inbox);
+
+	outbox = mlx4_alloc_cmd_mailbox(dev);
+	if (IS_ERR(outbox)) {
+		mlx4_free_cmd_mailbox(dev, inbox);
+		return PTR_ERR(outbox);
+	}
+
+	inmad = (struct mlx4_mad_ifc *)(inbox->buf);
+	outmad = (struct mlx4_mad_ifc *)(outbox->buf);
+
+	inmad->method = 0x1; /* Get */
+	inmad->class_version = 0x1;
+	inmad->mgmt_class = 0x1;
+	inmad->base_version = 0x1;
+	inmad->attr_id = cpu_to_be16(0xFF60); /* Module Info */
+
+	if (offset < I2C_PAGE_SIZE && offset + size > I2C_PAGE_SIZE)
+		/* Cross pages reads are not allowed
+		 * read until offset 256 in low page
+		 */
+		size -= offset + size - I2C_PAGE_SIZE;
+
+	i2c_addr = I2C_ADDR_LOW;
+	if (offset >= I2C_PAGE_SIZE) {
+		/* Reset offset to high page */
+		i2c_addr = I2C_ADDR_HIGH;
+		offset -= I2C_PAGE_SIZE;
+	}
+
+	cable_info = (struct mlx4_cable_info *)inmad->data;
+	cable_info->dev_mem_address = cpu_to_be16(offset);
+	cable_info->page_num = 0;
+	cable_info->i2c_addr = i2c_addr;
+	cable_info->size = cpu_to_be16(size);
+
+	ret = mlx4_cmd_box(dev, inbox->dma, outbox->dma, port, 3,
+			   MLX4_CMD_MAD_IFC, MLX4_CMD_TIME_CLASS_C,
+			   MLX4_CMD_NATIVE);
+	if (ret)
+		goto out;
+
+	if (be16_to_cpu(outmad->status)) {
+		/* Mad returned with bad status */
+		ret = be16_to_cpu(outmad->status);
+		mlx4_warn(dev,
+			  "MLX4_CMD_MAD_IFC Get Module info attr(%x) port(%d) i2c_addr(%x) offset(%d) size(%d): Response Mad Status(%x) - %s\n",
+			  0xFF60, port, i2c_addr, offset, size,
+			  ret, cable_info_mad_err_str(ret));
+
+		if (i2c_addr == I2C_ADDR_HIGH &&
+		    MAD_STATUS_2_CABLE_ERR(ret) == CABLE_INF_I2C_ADDR)
+			/* Some SFP cables do not support i2c slave
+			 * address 0x51 (high page), abort silently.
+			 */
+			ret = 0;
+		else
+			ret = -ret;
+		goto out;
+	}
+	cable_info = (struct mlx4_cable_info *)outmad->data;
+	memcpy(data, cable_info->data, size);
+	ret = size;
+out:
+	mlx4_free_cmd_mailbox(dev, inbox);
+	mlx4_free_cmd_mailbox(dev, outbox);
+	return ret;
+}
+EXPORT_SYMBOL(mlx4_get_module_info);

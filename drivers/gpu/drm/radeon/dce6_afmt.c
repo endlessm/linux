@@ -155,7 +155,7 @@ void dce6_afmt_write_speaker_allocation(struct drm_encoder *encoder)
 	struct drm_connector *connector;
 	struct radeon_connector *radeon_connector = NULL;
 	u32 offset, tmp;
-	u8 *sadb;
+	u8 *sadb = NULL;
 	int sad_count;
 
 	if (!dig || !dig->afmt || !dig->afmt->pin)
@@ -174,9 +174,9 @@ void dce6_afmt_write_speaker_allocation(struct drm_encoder *encoder)
 	}
 
 	sad_count = drm_edid_to_speaker_allocation(radeon_connector->edid, &sadb);
-	if (sad_count <= 0) {
-		DRM_ERROR("Couldn't read Speaker Allocation Data Block: %d\n", sad_count);
-		return;
+	if (sad_count < 0) {
+		DRM_DEBUG("Couldn't read Speaker Allocation Data Block: %d\n", sad_count);
+		sad_count = 0;
 	}
 
 	/* program the speaker allocation */
@@ -307,11 +307,17 @@ int dce6_audio_init(struct radeon_device *rdev)
 
 	rdev->audio.enabled = true;
 
-	if (ASIC_IS_DCE8(rdev))
+	if (ASIC_IS_DCE81(rdev)) /* KV: 4 streams, 7 endpoints */
+		rdev->audio.num_pins = 7;
+	else if (ASIC_IS_DCE83(rdev)) /* KB: 2 streams, 3 endpoints */
+		rdev->audio.num_pins = 3;
+	else if (ASIC_IS_DCE8(rdev)) /* BN/HW: 6 streams, 7 endpoints */
+		rdev->audio.num_pins = 7;
+	else if (ASIC_IS_DCE61(rdev)) /* TN: 4 streams, 6 endpoints */
 		rdev->audio.num_pins = 6;
-	else if (ASIC_IS_DCE61(rdev))
-		rdev->audio.num_pins = 4;
-	else
+	else if (ASIC_IS_DCE64(rdev)) /* OL: 2 streams, 2 endpoints */
+		rdev->audio.num_pins = 2;
+	else /* SI: 6 streams, 6 endpoints */
 		rdev->audio.num_pins = 6;
 
 	for (i = 0; i < rdev->audio.num_pins; i++) {

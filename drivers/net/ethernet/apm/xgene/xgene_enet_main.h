@@ -1,19 +1,22 @@
-/* AppliedMicro X-Gene SoC Ethernet Driver
+/* Applied Micro X-Gene SoC Ethernet Driver
  *
- * Copyright (c) 2013, Applied Micro Circuits Corporation
- * Authors:	Ravi Patel <rapatel@apm.com>
- *		Iyappan Subramanian <isubramanian@apm.com>
- *		Fushen Chen <fchen@apm.com>
- *		Keyur Chudgar <kchudgar@apm.com>
+ * Copyright (c) 2014, Applied Micro Circuits Corporation
+ * Authors: Iyappan Subramanian <isubramanian@apm.com>
+ *	    Ravi Patel <rapatel@apm.com>
+ *	    Keyur Chudgar <kchudgar@apm.com>
  *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License version 2 as published by
- * the Free Software Foundation.
+ * This program is free software; you can redistribute  it and/or modify it
+ * under  the terms of  the GNU General  Public License as published by the
+ * Free Software Foundation;  either version 2 of the  License, or (at your
+ * option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
 #ifndef __XGENE_ENET_MAIN_H__
@@ -21,157 +24,144 @@
 
 #include <linux/clk.h>
 #include <linux/of_platform.h>
-#include <linux/of_irq.h>
+#include <linux/of_net.h>
+#include <linux/of_mdio.h>
 #include <linux/module.h>
 #include <net/ip.h>
-#include <linux/tcp.h>
-#include <linux/interrupt.h>
+#include <linux/prefetch.h>
 #include <linux/if_vlan.h>
 #include <linux/phy.h>
-#include <linux/netdevice.h>
-#include <linux/io.h>
-#include <misc/xgene/xgene_qmtm.h>
-#include "xgene_enet_common.h"
+#include <linux/interrupt.h>
+#include "xgene_enet_hw.h"
 
-#define XGENE_ENET_DRIVER_NAME "xgene-enet"
-#define XGENE_ENET_DRIVER_VERSION "1.0"
-#define XGENE_ENET_DRIVER_DESC "APM X-Gene SoC Ethernet driver"
+#define XGENE_DRV_VERSION	"v1.0"
+#define XGENE_ENET_MAX_MTU	1536
+#define SKB_BUFFER_SIZE		(XGENE_ENET_MAX_MTU - NET_IP_ALIGN)
+#define NUM_PKT_BUF	64
+#define NUM_BUFPOOL	32
+#define START_ETH_BUFNUM	2
+#define START_BP_BUFNUM		0x22
+#define START_RING_NUM		8
 
-#define XGENE_ENET_MIN_MTU		64
-#define XGENE_ENET_MAX_MTU		10000
+#define PHY_POLL_LINK_ON	(10 * HZ)
+#define PHY_POLL_LINK_OFF	(PHY_POLL_LINK_ON / 5)
 
-/* Note: PKT_BUF_SIZE & PKT_NXTBUF_SIZE has to be one of the following:
- * 256, 1K, 2K, 4K, 16K for ethernet to work with optimum performance.
- */
-#define XGENE_ENET_PKT_BUF_SIZE		2048
-#define XGENE_NUM_PKT_BUF		256
-
-/* define Enet system struct */
-struct xgene_enet_dev {
-	int refcnt;
-	struct timer_list link_poll_timer;
-	int ipp_loaded;
-	int ipp_hw_mtu;
-};
-
-enum xgene_enet_phy_poll_interval {
-	PHY_POLL_LINK_ON = HZ,
-	PHY_POLL_LINK_OFF = (HZ / 5)
-};
-
-enum xgene_enet_debug_cmd {
-	XGENE_ENET_READ_CMD,
-	XGENE_ENET_WRITE_CMD,
-	XGENE_ENET_MAX_CMD
-};
-
-#define MAX_TX_QUEUES 1
-#define MAX_RX_QUEUES 1
-
-/* This is soft flow context of queue */
-struct xgene_enet_qcontext {
-	struct xgene_enet_pdev *pdev;
-	struct xgene_qmtm_qdesc *qdesc;
-	struct xgene_qmtm_msg_ext8 *msg8;
-	u32 *nummsgs;
-	unsigned int queue_index;
-	unsigned int eqnum;
-	u32 buf_size;
-	unsigned int c2e_count;
-	struct sk_buff * (*skb);
-	struct xgene_enet_qcontext *c2e_skb;
-	struct xgene_enet_qcontext *c2e_page;
+/* software context of a descriptor ring */
+struct xgene_enet_desc_ring {
+	struct net_device *ndev;
+	u16 id;
+	u16 num;
+	u16 head;
+	u16 tail;
+	u16 slots;
+	u16 irq;
+	u32 size;
+	u32 state[NUM_RING_CONFIG];
+	void __iomem *cmd_base;
+	void __iomem *cmd;
+	dma_addr_t dma;
+	u16 dst_ring_num;
+	u8 nbufpool;
+	struct sk_buff *(*rx_skb);
+	struct sk_buff *(*cp_skb);
+	enum xgene_enet_ring_cfgsize cfgsize;
+	struct xgene_enet_desc_ring *cp_ring;
+	struct xgene_enet_desc_ring *buf_pool;
 	struct napi_struct napi;
-	char irq_name[16];
+	union {
+		void *desc_addr;
+		struct xgene_enet_raw_desc *raw_desc;
+		struct xgene_enet_raw_desc16 *raw_desc16;
+	};
 };
 
-/* Queues related parameters per Enet port */
-#define ENET_MAX_PBN	8
-#define ENET_MAX_QSEL	8
-
-struct eth_wqids {
-	u16 qtype;
-	u16 qid;
-	u16 arb;
-	u16 qcount;
-	u16 qsel[ENET_MAX_QSEL];
+struct xgene_mac_ops {
+	void (*init)(struct xgene_enet_pdata *pdata);
+	void (*reset)(struct xgene_enet_pdata *pdata);
+	void (*tx_enable)(struct xgene_enet_pdata *pdata);
+	void (*rx_enable)(struct xgene_enet_pdata *pdata);
+	void (*tx_disable)(struct xgene_enet_pdata *pdata);
+	void (*rx_disable)(struct xgene_enet_pdata *pdata);
+	void (*set_mac_addr)(struct xgene_enet_pdata *pdata);
+	void (*link_state)(struct work_struct *work);
 };
 
-struct eth_fqids {
-	u16 qid;
-	u16 pbn;
+struct xgene_port_ops {
+	int (*reset)(struct xgene_enet_pdata *pdata);
+	void (*cle_bypass)(struct xgene_enet_pdata *pdata,
+			   u32 dst_ring_num, u16 bufpool_id);
+	void (*shutdown)(struct xgene_enet_pdata *pdata);
 };
 
-struct eth_queue_ids {
-	u16 default_tx_qid;
-	u16 tx_count;
-	u16 tx_idx;
-	struct eth_wqids tx[ENET_MAX_PBN];
-	u16 default_rx_qid;
-	u16 rx_count;
-	u16 rx_idx;
-	struct eth_wqids rx[ENET_MAX_PBN];
-	u16 default_rx_fp_qid;
-	u16 default_rx_fp_pbn;
-	struct eth_fqids rx_fp[ENET_MAX_PBN];
-	u16 default_rx_nxtfp_qid;
-	u16 default_rx_nxtfp_pbn;
-	struct eth_fqids rx_nxtfp[ENET_MAX_PBN];
-	struct eth_fqids hw_fp;
-	u16 default_hw_tx_qid;
-	struct eth_fqids hw_tx[ENET_MAX_PBN];
-	struct eth_wqids comp[ENET_MAX_PBN];
-	u16 default_comp_qid;
-	u32 qm_ip;
-};
-
-struct xgene_enet_platform_data {
-	const char *sname;
-	int irq;
-	u32 phy_id;
-	u8 ethaddr[6];
-};
-
-/* APM ethernet per port data */
-struct xgene_enet_pdev {
+/* ethernet private data */
+struct xgene_enet_pdata {
 	struct net_device *ndev;
 	struct mii_bus *mdio_bus;
 	struct phy_device *phy_dev;
-	int phy_link;
 	int phy_speed;
 	struct clk *clk;
-	struct device_node *node;
-	struct platform_device *plat_dev;
-	struct xgene_qmtm_sdev *sdev;
-	struct xgene_enet_qcontext *tx[MAX_TX_QUEUES];
-	struct xgene_enet_qcontext *rx_skb_pool[MAX_RX_QUEUES];
-	u32 num_tx_queues;
-	struct xgene_enet_qcontext *rx[MAX_RX_QUEUES];
-	struct xgene_enet_qcontext *tx_completion[MAX_TX_QUEUES];
-	u32 num_rx_queues;
-	struct net_device_stats nstats;
-	struct xgene_enet_detailed_stats stats;
+	struct platform_device *pdev;
+	struct xgene_enet_desc_ring *tx_ring;
+	struct xgene_enet_desc_ring *rx_ring;
 	char *dev_name;
-	int uc_count;
-	struct eth_queue_ids qm_queues;
-	u32 rx_buff_cnt, tx_cqt_low, tx_cqt_hi;
-	int mss;
-	unsigned int enet_err_irq;
-	unsigned int enet_mac_err_irq;
-	unsigned int enet_qmi_err_irq;
-	struct xgene_enet_priv priv;
+	u32 rx_buff_cnt;
+	u32 tx_qcnt_hi;
+	u32 cp_qcnt_hi;
+	u32 cp_qcnt_low;
+	u32 rx_irq;
+	void __iomem *eth_csr_addr;
+	void __iomem *eth_ring_if_addr;
+	void __iomem *eth_diag_csr_addr;
+	void __iomem *mcx_mac_addr;
+	void __iomem *mcx_mac_csr_addr;
+	void __iomem *base_addr;
+	void __iomem *ring_csr_addr;
+	void __iomem *ring_cmd_addr;
+	int phy_mode;
+	enum xgene_enet_rm rm;
+	struct rtnl_link_stats64 stats;
+	struct xgene_mac_ops *mac_ops;
+	struct xgene_port_ops *port_ops;
+	struct delayed_work link_work;
 };
 
-/* Ethernet raw register write, read routines */
-void xgene_enet_wr32(void *addr, u32 data);
-void xgene_enet_rd32(void *addr, u32 *data);
+struct xgene_indirect_ctl {
+	void __iomem *addr;
+	void __iomem *ctl;
+	void __iomem *cmd;
+	void __iomem *cmd_done;
+};
 
-u32 xgene_enet_get_port(struct xgene_enet_pdev *pdev);
+/* Set the specified value into a bit-field defined by its starting position
+ * and length within a single u64.
+ */
+static inline u64 xgene_enet_set_field_value(int pos, int len, u64 val)
+{
+	return (val & ((1ULL << len) - 1)) << pos;
+}
 
-void xgene_enet_init_priv(struct xgene_enet_priv *priv);
+#define SET_VAL(field, val) \
+		xgene_enet_set_field_value(field ## _POS, field ## _LEN, val)
 
-int xgene_enet_parse_error(u8 LErr, int qid);
-void xgene_enet_register_err_irqs(struct net_device *ndev);
+#define SET_BIT(field) \
+		xgene_enet_set_field_value(field ## _POS, 1, 1)
 
-extern const struct ethtool_ops xgene_ethtool_ops;
+/* Get the value from a bit-field defined by its starting position
+ * and length within the specified u64.
+ */
+static inline u64 xgene_enet_get_field_value(int pos, int len, u64 src)
+{
+	return (src >> pos) & ((1ULL << len) - 1);
+}
+
+#define GET_VAL(field, src) \
+		xgene_enet_get_field_value(field ## _POS, field ## _LEN, src)
+
+static inline struct device *ndev_to_dev(struct net_device *ndev)
+{
+	return ndev->dev.parent;
+}
+
+void xgene_enet_set_ethtool_ops(struct net_device *netdev);
+
 #endif /* __XGENE_ENET_MAIN_H__ */

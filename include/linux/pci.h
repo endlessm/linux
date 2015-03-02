@@ -323,6 +323,7 @@ struct pci_dev {
 	unsigned int	is_added:1;
 	unsigned int	is_busmaster:1; /* device is busmaster */
 	unsigned int	no_msi:1;	/* device may not use msi */
+	unsigned int	no_64bit_msi:1; /* device may only use 32-bit MSIs */
 	unsigned int	block_cfg_access:1;	/* config space access is blocked */
 	unsigned int	broken_parity_status:1;	/* Device generates false positive parity */
 	unsigned int	irq_reroute_variant:2;	/* device needs IRQ rerouting variant */
@@ -1195,6 +1196,17 @@ static inline int pci_msi_enabled(void)
 {
 	return 0;
 }
+
+static inline int pci_enable_msi_range(struct pci_dev *dev, int minvec,
+				       int maxvec)
+{
+	return -ENOSYS;
+}
+static inline int pci_enable_msix_range(struct pci_dev *dev,
+		      struct msix_entry *entries, int minvec, int maxvec)
+{
+	return -ENOSYS;
+}
 #else
 int pci_enable_msi_block(struct pci_dev *dev, unsigned int nvec);
 int pci_enable_msi_block_auto(struct pci_dev *dev, unsigned int *maxvec);
@@ -1207,6 +1219,9 @@ void pci_disable_msix(struct pci_dev *dev);
 void msi_remove_pci_irq_vectors(struct pci_dev *dev);
 void pci_restore_msi_state(struct pci_dev *dev);
 int pci_msi_enabled(void);
+int pci_enable_msi_range(struct pci_dev *dev, int minvec, int maxvec);
+int pci_enable_msix_range(struct pci_dev *dev, struct msix_entry *entries,
+			  int minvec, int maxvec);
 #endif
 
 #ifdef CONFIG_PCIEPORTBUS

@@ -190,7 +190,8 @@ static enum hrtimer_restart cppi41_recheck_tx_req(struct hrtimer *timer)
 		}
 	}
 
-	if (!list_empty(&controller->early_tx_list)) {
+	if (!list_empty(&controller->early_tx_list) &&
+	    !hrtimer_is_queued(&controller->early_tx)) {
 		ret = HRTIMER_RESTART;
 		hrtimer_forward_now(&controller->early_tx,
 				ktime_set(0, 150 * NSEC_PER_USEC));
@@ -266,7 +267,7 @@ static void cppi41_dma_callback(void *private_data)
 		}
 		list_add_tail(&cppi41_channel->tx_check,
 				&controller->early_tx_list);
-		if (!hrtimer_active(&controller->early_tx)) {
+		if (!hrtimer_is_queued(&controller->early_tx)) {
 			hrtimer_start_range_ns(&controller->early_tx,
 				ktime_set(0, 140 * NSEC_PER_USEC),
 				40 * NSEC_PER_USEC,

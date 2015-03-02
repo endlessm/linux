@@ -322,12 +322,11 @@ static inline void __skb_tunnel_rx(struct sk_buff *skb, struct net_device *dev,
 	skb->dev = dev;
 
 	/*
-	 * Clear rxhash so that we can recalulate the hash for the
+	 * Clear hash so that we can recalulate the hash for the
 	 * encapsulated packet, unless we have already determine the hash
 	 * over the L4 4-tuple.
 	 */
-	if (!skb->l4_rxhash)
-		skb->rxhash = 0;
+	skb_clear_hash_if_not_l4(skb);
 	skb_set_queue_mapping(skb, 0);
 	skb_scrub_packet(skb, !net_eq(net, dev_net(dev)));
 }
@@ -467,6 +466,7 @@ void dst_init(void);
 /* Flags for xfrm_lookup flags argument. */
 enum {
 	XFRM_LOOKUP_ICMP = 1 << 0,
+	XFRM_LOOKUP_QUEUE = 1 << 1,
 };
 
 struct flowi;
@@ -477,7 +477,16 @@ static inline struct dst_entry *xfrm_lookup(struct net *net,
 					    int flags)
 {
 	return dst_orig;
-} 
+}
+
+static inline struct dst_entry *xfrm_lookup_route(struct net *net,
+						  struct dst_entry *dst_orig,
+						  const struct flowi *fl,
+						  struct sock *sk,
+						  int flags)
+{
+	return dst_orig;
+}
 
 static inline struct xfrm_state *dst_xfrm(const struct dst_entry *dst)
 {
@@ -488,6 +497,10 @@ static inline struct xfrm_state *dst_xfrm(const struct dst_entry *dst)
 struct dst_entry *xfrm_lookup(struct net *net, struct dst_entry *dst_orig,
 			      const struct flowi *fl, struct sock *sk,
 			      int flags);
+
+struct dst_entry *xfrm_lookup_route(struct net *net, struct dst_entry *dst_orig,
+				    const struct flowi *fl, struct sock *sk,
+				    int flags);
 
 /* skb attached with this dst needs transformation if dst->xfrm is valid */
 static inline struct xfrm_state *dst_xfrm(const struct dst_entry *dst)

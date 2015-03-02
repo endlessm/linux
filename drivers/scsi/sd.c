@@ -830,7 +830,7 @@ static int sd_setup_write_same_cmnd(struct scsi_device *sdp, struct request *rq)
 
 static int scsi_setup_flush_cmnd(struct scsi_device *sdp, struct request *rq)
 {
-	rq->timeout *= SD_FLUSH_TIMEOUT_MULTIPLIER;
+	rq->timeout = rq->q->rq_timeout * SD_FLUSH_TIMEOUT_MULTIPLIER;
 	rq->retries = SD_MAX_RETRIES;
 	rq->cmd[0] = SYNCHRONIZE_CACHE;
 	rq->cmd_len = 10;
@@ -2454,7 +2454,10 @@ sd_read_cache_type(struct scsi_disk *sdkp, unsigned char *buffer)
 		}
 
 		sdkp->DPOFUA = (data.device_specific & 0x10) != 0;
-		if (sdkp->DPOFUA && !sdkp->device->use_10_for_rw) {
+		if (sdp->broken_fua) {
+			sd_printk(KERN_NOTICE, sdkp, "Disabling FUA\n");
+			sdkp->DPOFUA = 0;
+		} else if (sdkp->DPOFUA && !sdkp->device->use_10_for_rw) {
 			sd_printk(KERN_NOTICE, sdkp,
 				  "Uses READ/WRITE(6), disabling FUA\n");
 			sdkp->DPOFUA = 0;
@@ -2688,6 +2691,11 @@ static void sd_read_write_same(struct scsi_disk *sdkp, unsigned char *buffer)
 
 static int sd_try_extended_inquiry(struct scsi_device *sdp)
 {
+	/* Attempt VPD inquiry if the device blacklist explicitly calls
+	 * for it.
+	 */
+	if (sdp->try_vpd_pages)
+		return 1;
 	/*
 	 * Although VPD inquiries can go to SCSI-2 type devices,
 	 * some USB ones crash on receiving them, and the pages

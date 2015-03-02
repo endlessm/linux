@@ -179,6 +179,8 @@ static void blk_mq_rq_ctx_init(struct request_queue *q, struct blk_mq_ctx *ctx,
 
 	rq->mq_ctx = ctx;
 	rq->cmd_flags = rw_flags;
+	rq->start_time = jiffies;
+	set_start_time_ns(rq);
 	ctx->rq_dispatched[rw_is_sync(rw_flags)]++;
 }
 
@@ -299,7 +301,7 @@ void blk_mq_complete_request(struct request *rq, int error)
 	struct bio *bio = rq->bio;
 	unsigned int bytes = 0;
 
-	trace_block_rq_complete(rq->q, rq);
+	trace_block_rq_complete(rq->q, rq, blk_rq_bytes(rq));
 
 	while (bio) {
 		struct bio *next = bio->bi_next;

@@ -59,7 +59,6 @@
 #include <net/snmp.h>
 #include <net/dsfield.h>
 #include <net/timewait_sock.h>
-#include <net/netdma.h>
 #include <net/inet_common.h>
 #include <net/secure_seq.h>
 #include <net/tcp_memcontrol.h>
@@ -1503,18 +1502,8 @@ process:
 	bh_lock_sock_nested(sk);
 	ret = 0;
 	if (!sock_owned_by_user(sk)) {
-#ifdef CONFIG_NET_DMA
-		struct tcp_sock *tp = tcp_sk(sk);
-		if (!tp->ucopy.dma_chan && tp->ucopy.pinned_list)
-			tp->ucopy.dma_chan = net_dma_find_channel();
-		if (tp->ucopy.dma_chan)
+		if (!tcp_prequeue(sk, skb))
 			ret = tcp_v6_do_rcv(sk, skb);
-		else
-#endif
-		{
-			if (!tcp_prequeue(sk, skb))
-				ret = tcp_v6_do_rcv(sk, skb);
-		}
 	} else if (unlikely(sk_add_backlog(sk, skb,
 					   sk->sk_rcvbuf + sk->sk_sndbuf))) {
 		bh_unlock_sock(sk);
@@ -1651,6 +1640,7 @@ static const struct inet_connection_sock_af_ops ipv6_specific = {
 	.compat_setsockopt = compat_ipv6_setsockopt,
 	.compat_getsockopt = compat_ipv6_getsockopt,
 #endif
+	.mtu_reduced	   = tcp_v4_mtu_reduced,
 };
 
 #ifdef CONFIG_TCP_MD5SIG
@@ -1682,6 +1672,7 @@ static const struct inet_connection_sock_af_ops ipv6_mapped = {
 	.compat_setsockopt = compat_ipv6_setsockopt,
 	.compat_getsockopt = compat_ipv6_getsockopt,
 #endif
+	.mtu_reduced	   = tcp_v6_mtu_reduced,
 };
 
 #ifdef CONFIG_TCP_MD5SIG
@@ -1918,7 +1909,6 @@ struct proto tcpv6_prot = {
 	.sendpage		= tcp_sendpage,
 	.backlog_rcv		= tcp_v6_do_rcv,
 	.release_cb		= tcp_release_cb,
-	.mtu_reduced		= tcp_v6_mtu_reduced,
 	.hash			= tcp_v6_hash,
 	.unhash			= inet_unhash,
 	.get_port		= inet_csk_get_port,

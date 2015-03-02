@@ -225,14 +225,19 @@ static inline void serial_omap_enable_wakeirq(struct uart_omap_port *up,
 	if (enable)
 		enable_irq(up->wakeirq);
 	else
-		disable_irq(up->wakeirq);
+		disable_irq_nosync(up->wakeirq);
 }
 
 static void serial_omap_enable_wakeup(struct uart_omap_port *up, bool enable)
 {
 	struct omap_uart_port_info *pdata = dev_get_platdata(up->dev);
 
+	if (enable == up->wakeups_enabled)
+		return;
+
 	serial_omap_enable_wakeirq(up, enable);
+	up->wakeups_enabled = enable;
+
 	if (!pdata || !pdata->enable_wakeup)
 		return;
 
@@ -255,8 +260,16 @@ serial_omap_baud_is_mode16(struct uart_port *port, unsigned int baud)
 {
 	unsigned int n13 = port->uartclk / (13 * baud);
 	unsigned int n16 = port->uartclk / (16 * baud);
-	int baudAbsDiff13 = baud - (port->uartclk / (13 * n13));
-	int baudAbsDiff16 = baud - (port->uartclk / (16 * n16));
+	int baudAbsDiff13;
+	int baudAbsDiff16;
+
+	if (n13 == 0)
+		n13 = 1;
+	if (n16 == 0)
+		n16 = 1;
+
+	baudAbsDiff13 = baud - (port->uartclk / (13 * n13));
+	baudAbsDiff16 = baud - (port->uartclk / (16 * n16));
 	if (baudAbsDiff13 < 0)
 		baudAbsDiff13 = -baudAbsDiff13;
 	if (baudAbsDiff16 < 0)
@@ -1488,12 +1501,20 @@ static int serial_omap_suspend(struct device *dev)
 	uart_suspend_port(&serial_omap_reg, &up->port);
 	flush_work(&up->qos_work);
 
+	if (device_may_wakeup(dev))
+		serial_omap_enable_wakeup(up, true);
+	else
+		serial_omap_enable_wakeup(up, false);
+
 	return 0;
 }
 
 static int serial_omap_resume(struct device *dev)
 {
 	struct uart_omap_port *up = dev_get_drvdata(dev);
+
+	if (device_may_wakeup(dev))
+		serial_omap_enable_wakeup(up, false);
 
 	uart_resume_port(&serial_omap_reg, &up->port);
 
@@ -1867,17 +1888,7 @@ static int serial_omap_runtime_suspend(struct device *dev)
 
 	up->context_loss_cnt = serial_omap_get_context_loss_count(up);
 
-	if (device_may_wakeup(dev)) {
-		if (!up->wakeups_enabled) {
-			serial_omap_enable_wakeup(up, true);
-			up->wakeups_enabled = true;
-		}
-	} else {
-		if (up->wakeups_enabled) {
-			serial_omap_enable_wakeup(up, false);
-			up->wakeups_enabled = false;
-		}
-	}
+	serial_omap_enable_wakeup(up, true);
 
 	up->latency = PM_QOS_CPU_DMA_LAT_DEFAULT_VALUE;
 	schedule_work(&up->qos_work);
@@ -1890,6 +1901,8 @@ static int serial_omap_runtime_resume(struct device *dev)
 	struct uart_omap_port *up = dev_get_drvdata(dev);
 
 	int loss_cnt = serial_omap_get_context_loss_count(up);
+
+	serial_omap_enable_wakeup(up, false);
 
 	if (loss_cnt < 0) {
 		dev_dbg(dev, "serial_omap_get_context_loss_count failed : %d\n",

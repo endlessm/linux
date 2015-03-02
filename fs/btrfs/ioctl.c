@@ -1011,7 +1011,7 @@ out:
 static int cluster_pages_for_defrag(struct inode *inode,
 				    struct page **pages,
 				    unsigned long start_index,
-				    int num_pages)
+				    unsigned long num_pages)
 {
 	unsigned long file_end;
 	u64 isize = i_size_read(inode);
@@ -1169,8 +1169,8 @@ int btrfs_defrag_file(struct inode *inode, struct file *file,
 	int defrag_count = 0;
 	int compress_type = BTRFS_COMPRESS_ZLIB;
 	int extent_thresh = range->extent_thresh;
-	int max_cluster = (256 * 1024) >> PAGE_CACHE_SHIFT;
-	int cluster = max_cluster;
+	unsigned long max_cluster = (256 * 1024) >> PAGE_CACHE_SHIFT;
+	unsigned long cluster = max_cluster;
 	u64 new_align = ~((u64)128 * 1024 - 1);
 	struct page **pages = NULL;
 
@@ -3041,8 +3041,9 @@ static int btrfs_clone(struct inode *src, struct inode *inode,
 							 new_key.offset + datal,
 							 1);
 				if (ret) {
-					btrfs_abort_transaction(trans, root,
-								ret);
+					if (ret != -EINVAL)
+						btrfs_abort_transaction(trans,
+								root, ret);
 					btrfs_end_transaction(trans, root);
 					goto out;
 				}
@@ -3127,8 +3128,9 @@ static noinline long btrfs_ioctl_clone(struct file *file, unsigned long srcfd,
 	 *   decompress into destination's address_space (the file offset
 	 *   may change, so source mapping won't do), then recompress (or
 	 *   otherwise reinsert) a subrange.
-	 * - allow ranges within the same file to be cloned (provided
-	 *   they don't overlap)?
+	 *
+	 * - split destination inode's inline extents.  The inline extents can
+	 *   be either compressed or non-compressed.
 	 */
 
 	/* the destination must be opened for writing */

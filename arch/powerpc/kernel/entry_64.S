@@ -432,12 +432,6 @@ BEGIN_FTR_SECTION
 	std	r24,THREAD_VRSAVE(r3)
 END_FTR_SECTION_IFSET(CPU_FTR_ALTIVEC)
 #endif /* CONFIG_ALTIVEC */
-#ifdef CONFIG_PPC64
-BEGIN_FTR_SECTION
-	mfspr	r25,SPRN_DSCR
-	std	r25,THREAD_DSCR(r3)
-END_FTR_SECTION_IFSET(CPU_FTR_DSCR)
-#endif
 	and.	r0,r0,r22
 	beq+	1f
 	andc	r22,r22,r0
@@ -674,7 +668,13 @@ _GLOBAL(ret_from_except_lite)
 3:
 #endif
 	bl	.save_nvgprs
+	/*
+	 * Use a non volatile GPR to save and restore our thread_info flags
+	 * across the call to restore_interrupts.
+	 */
+	mr	r30,r4
 	bl	.restore_interrupts
+	mr	r4,r30
 	addi	r3,r1,STACK_FRAME_OVERHEAD
 	bl	.do_notify_resume
 	b	.ret_from_except

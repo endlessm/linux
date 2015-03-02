@@ -980,7 +980,7 @@ static void cgroup_d_remove_dir(struct dentry *dentry)
 	parent = dentry->d_parent;
 	spin_lock(&parent->d_lock);
 	spin_lock_nested(&dentry->d_lock, DENTRY_D_LOCK_NESTED);
-	list_del_init(&dentry->d_u.d_child);
+	list_del_init(&dentry->d_child);
 	spin_unlock(&dentry->d_lock);
 	spin_unlock(&parent->d_lock);
 	remove_dir(dentry);
@@ -4349,6 +4349,11 @@ static long cgroup_create(struct cgroup *parent, struct dentry *dentry,
 	int err;
 	struct cgroup_subsys *ss;
 	struct super_block *sb = root->sb;
+
+	/* Do not accept '\n' to prevent making /proc/<pid>/cgroup unparsable.
+	 */
+	if (strchr(dentry->d_name.name, '\n'))
+		return -EINVAL;
 
 	/* allocate the cgroup and its ID, 0 is reserved for the root */
 	cgrp = kzalloc(sizeof(*cgrp), GFP_KERNEL);

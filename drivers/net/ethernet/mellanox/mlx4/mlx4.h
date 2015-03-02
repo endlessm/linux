@@ -282,6 +282,9 @@ struct mlx4_icm_table {
 #define MLX4_MPT_STATUS_SW		0xF0
 #define MLX4_MPT_STATUS_HW		0x00
 
+#define MLX4_CQE_SIZE_MASK_STRIDE	0x3
+#define MLX4_EQE_SIZE_MASK_STRIDE	0x30
+
 /*
  * Must be packed because mtt_seg is 64 bits but only aligned to 32 bits.
  */
@@ -695,6 +698,17 @@ struct mlx4_mac_table {
 	int			max;
 };
 
+#define MLX4_ROCE_GID_ENTRY_SIZE	16
+
+struct mlx4_roce_gid_entry {
+	u8 raw[MLX4_ROCE_GID_ENTRY_SIZE];
+};
+
+struct mlx4_roce_gid_table {
+	struct mlx4_roce_gid_entry	roce_gids[MLX4_ROCE_MAX_GIDS];
+	struct mutex			mutex;
+};
+
 #define MLX4_MAX_VLAN_NUM	128
 #define MLX4_VLAN_TABLE_SIZE	(MLX4_MAX_VLAN_NUM << 2)
 
@@ -758,6 +772,7 @@ struct mlx4_port_info {
 	struct device_attribute port_mtu_attr;
 	struct mlx4_mac_table	mac_table;
 	struct mlx4_vlan_table	vlan_table;
+	struct mlx4_roce_gid_table gid_table;
 	int			base_qpn;
 };
 
@@ -788,10 +803,6 @@ enum {
 	MLX4_USE_RR	= 1,
 };
 
-struct mlx4_roce_gid_entry {
-	u8 raw[16];
-};
-
 struct mlx4_priv {
 	struct mlx4_dev		dev;
 
@@ -800,6 +811,7 @@ struct mlx4_priv {
 	spinlock_t		ctx_lock;
 
 	int			pci_dev_data;
+	int                     removed;
 
 	struct list_head        pgdir_list;
 	struct mutex            pgdir_mutex;
@@ -838,7 +850,6 @@ struct mlx4_priv {
 	int			fs_hash_mode;
 	u8 virt2phys_pkey[MLX4_MFUNC_MAX][MLX4_MAX_PORTS][MLX4_MAX_PORT_PKEYS];
 	__be64			slave_node_guids[MLX4_MFUNC_MAX];
-	struct mlx4_roce_gid_entry roce_gids[MLX4_MAX_PORTS][MLX4_ROCE_MAX_GIDS];
 
 	atomic_t		opreq_count;
 	struct work_struct	opreq_task;
@@ -1139,6 +1150,8 @@ int mlx4_change_port_types(struct mlx4_dev *dev,
 
 void mlx4_init_mac_table(struct mlx4_dev *dev, struct mlx4_mac_table *table);
 void mlx4_init_vlan_table(struct mlx4_dev *dev, struct mlx4_vlan_table *table);
+void mlx4_init_roce_gid_table(struct mlx4_dev *dev,
+			      struct mlx4_roce_gid_table *table);
 void __mlx4_unregister_vlan(struct mlx4_dev *dev, u8 port, u16 vlan);
 int __mlx4_register_vlan(struct mlx4_dev *dev, u8 port, u16 vlan, int *index);
 
@@ -1148,6 +1161,7 @@ int mlx4_get_slave_from_resource_id(struct mlx4_dev *dev,
 				    enum mlx4_resource resource_type,
 				    u64 resource_id, int *slave);
 void mlx4_delete_all_resources_for_slave(struct mlx4_dev *dev, int slave_id);
+void mlx4_reset_roce_gids(struct mlx4_dev *dev, int slave);
 int mlx4_init_resource_tracker(struct mlx4_dev *dev);
 
 void mlx4_free_resource_tracker(struct mlx4_dev *dev,
@@ -1189,6 +1203,12 @@ int mlx4_get_slave_pkey_gid_tbl_len(struct mlx4_dev *dev, u8 port,
 				    int *gid_tbl_len, int *pkey_tbl_len);
 
 int mlx4_QP_ATTACH_wrapper(struct mlx4_dev *dev, int slave,
+			   struct mlx4_vhcr *vhcr,
+			   struct mlx4_cmd_mailbox *inbox,
+			   struct mlx4_cmd_mailbox *outbox,
+			   struct mlx4_cmd_info *cmd);
+
+int mlx4_UPDATE_QP_wrapper(struct mlx4_dev *dev, int slave,
 			   struct mlx4_vhcr *vhcr,
 			   struct mlx4_cmd_mailbox *inbox,
 			   struct mlx4_cmd_mailbox *outbox,
@@ -1247,6 +1267,11 @@ int mlx4_QP_FLOW_STEERING_DETACH_wrapper(struct mlx4_dev *dev, int slave,
 					 struct mlx4_cmd_mailbox *inbox,
 					 struct mlx4_cmd_mailbox *outbox,
 					 struct mlx4_cmd_info *cmd);
+int mlx4_ACCESS_REG_wrapper(struct mlx4_dev *dev, int slave,
+			    struct mlx4_vhcr *vhcr,
+			    struct mlx4_cmd_mailbox *inbox,
+			    struct mlx4_cmd_mailbox *outbox,
+			    struct mlx4_cmd_info *cmd);
 
 int mlx4_get_mgm_entry_size(struct mlx4_dev *dev);
 int mlx4_get_qp_per_mgm(struct mlx4_dev *dev);

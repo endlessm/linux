@@ -251,6 +251,9 @@ struct mem_cgroup {
 	/* vmpressure notifications */
 	struct vmpressure vmpressure;
 
+	/* css_online() has been completed */
+	int initialized;
+
 	/*
 	 * the counter to account for mem+swap usage.
 	 */
@@ -1108,9 +1111,23 @@ skip_node:
 	 * skipping css reference should be safe.
 	 */
 	if (next_css) {
-		if ((next_css == &root->css) ||
-		    ((next_css->flags & CSS_ONLINE) && css_tryget(next_css)))
-			return mem_cgroup_from_css(next_css);
+		struct mem_cgroup *memcg = mem_cgroup_from_css(next_css);
+
+		if (next_css == &root->css)
+			return memcg;
+
+		if (css_tryget(next_css)) {
+			if (memcg->initialized) {
+				/*
+				 * Make sure the memcg is initialized:
+				 * mem_cgroup_css_online() orders the the
+				 * initialization against setting the flag.
+				 */
+				smp_rmb();
+				return memcg;
+			}
+			css_put(next_css);
+		}
 
 		prev_css = next_css;
 		goto skip_node;
@@ -2706,8 +2723,9 @@ static int __mem_cgroup_try_charge(struct mm_struct *mm,
 	 * in system level. So, allow to go ahead dying process in addition to
 	 * MEMDIE process.
 	 */
-	if (unlikely(test_thread_flag(TIF_MEMDIE)
-		     || fatal_signal_pending(current)))
+	if (unlikely(test_thread_flag(TIF_MEMDIE) ||
+		     fatal_signal_pending(current) ||
+		     current->flags & PF_EXITING))
 		goto bypass;
 
 	if (unlikely(task_in_memcg_oom(current)))
@@ -5655,8 +5673,12 @@ static int mem_cgroup_oom_notify_cb(struct mem_cgroup *memcg)
 {
 	struct mem_cgroup_eventfd_list *ev;
 
+	spin_lock(&memcg_oom_lock);
+
 	list_for_each_entry(ev, &memcg->oom_notify, list)
 		eventfd_signal(ev->eventfd, 1);
+
+	spin_unlock(&memcg_oom_lock);
 	return 0;
 }
 
@@ -6336,6 +6358,16 @@ mem_cgroup_css_online(struct cgroup_subsys_state *css)
 
 	error = memcg_init_kmem(memcg, &mem_cgroup_subsys);
 	mutex_unlock(&memcg_create_mutex);
+
+	if (!error) {
+		/*
+		 * Make sure the memcg is initialized: mem_cgroup_iter()
+		 * orders reading memcg->initialized against its callers
+		 * reading the memcg members.
+		 */
+		smp_wmb();
+		memcg->initialized = 1;
+	}
 	return error;
 }
 

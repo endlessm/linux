@@ -45,12 +45,13 @@ struct mcheck_recoverable_range {
 static struct mcheck_recoverable_range *mc_recoverable_range;
 static int mc_recoverable_range_len;
 
-static struct device_node *opal_node;
+struct device_node *opal_node;
 static DEFINE_SPINLOCK(opal_write_lock);
 extern u64 opal_mc_secondary_handler[];
 static unsigned int *opal_irqs;
 static unsigned int opal_irq_count;
 static ATOMIC_NOTIFIER_HEAD(opal_notifier_head);
+static struct atomic_notifier_head opal_msg_notifier_head[OPAL_MSG_TYPE_MAX];
 static DEFINE_SPINLOCK(opal_notifier_lock);
 static uint64_t last_notified_mask = 0x0ul;
 static atomic_t opal_notifier_hold = ATOMIC_INIT(0);
@@ -248,20 +249,109 @@ void opal_notifier_update_evt(uint64_t evt_mask,
 void opal_notifier_enable(void)
 {
 	int64_t rc;
-	uint64_t evt = 0;
+	__be64 evt = 0;
 
 	atomic_set(&opal_notifier_hold, 0);
 
 	/* Process pending events */
 	rc = opal_poll_events(&evt);
 	if (rc == OPAL_SUCCESS && evt)
-		opal_do_notifier(evt);
+		opal_do_notifier(be64_to_cpu(evt));
 }
 
 void opal_notifier_disable(void)
 {
 	atomic_set(&opal_notifier_hold, 1);
 }
+
+/*
+ * Opal message notifier based on message type. Allow subscribers to get
+ * notified for specific messgae type.
+ */
+int opal_message_notifier_register(enum OpalMessageType msg_type,
+					struct notifier_block *nb)
+{
+	if (!nb) {
+		pr_warning("%s: Invalid argument (%p)\n",
+			   __func__, nb);
+		return -EINVAL;
+	}
+	if (msg_type > OPAL_MSG_TYPE_MAX) {
+		pr_warning("%s: Invalid message type argument (%d)\n",
+			   __func__, msg_type);
+		return -EINVAL;
+	}
+	return atomic_notifier_chain_register(
+				&opal_msg_notifier_head[msg_type], nb);
+}
+
+static void opal_message_do_notify(uint32_t msg_type, void *msg)
+{
+	/* notify subscribers */
+	atomic_notifier_call_chain(&opal_msg_notifier_head[msg_type],
+					msg_type, msg);
+}
+
+static void opal_handle_message(void)
+{
+	s64 ret;
+	/*
+	 * TODO: pre-allocate a message buffer depending on opal-msg-size
+	 * value in /proc/device-tree.
+	 */
+	static struct opal_msg msg;
+
+	ret = opal_get_msg(__pa(&msg), sizeof(msg));
+	/* No opal message pending. */
+	if (ret == OPAL_RESOURCE)
+		return;
+
+	/* check for errors. */
+	if (ret) {
+		pr_warning("%s: Failed to retrive opal message, err=%lld\n",
+				__func__, ret);
+		return;
+	}
+
+	/* Sanity check */
+	if (msg.msg_type > OPAL_MSG_TYPE_MAX) {
+		pr_warning("%s: Unknown message type: %u\n",
+				__func__, msg.msg_type);
+		return;
+	}
+	opal_message_do_notify(msg.msg_type, (void *)&msg);
+}
+
+static int opal_message_notify(struct notifier_block *nb,
+			  unsigned long events, void *change)
+{
+	if (events & OPAL_EVENT_MSG_PENDING)
+		opal_handle_message();
+	return 0;
+}
+
+static struct notifier_block opal_message_nb = {
+	.notifier_call	= opal_message_notify,
+	.next		= NULL,
+	.priority	= 0,
+};
+
+static int __init opal_message_init(void)
+{
+	int ret, i;
+
+	for (i = 0; i < OPAL_MSG_TYPE_MAX; i++)
+		ATOMIC_INIT_NOTIFIER_HEAD(&opal_msg_notifier_head[i]);
+
+	ret = opal_notifier_register(&opal_message_nb);
+	if (ret) {
+		pr_err("%s: Can't register OPAL event notifier (%d)\n",
+		       __func__, ret);
+		return ret;
+	}
+	return 0;
+}
+early_initcall(opal_message_init);
 
 int opal_get_chars(uint32_t vtermno, char *buf, int count)
 {
@@ -444,7 +534,7 @@ static irqreturn_t opal_interrupt(int irq, void *data)
 
 	opal_handle_interrupt(virq_to_hw(irq), &events);
 
-	opal_do_notifier(events);
+	opal_do_notifier(be64_to_cpu(events));
 
 	return IRQ_HANDLED;
 }
@@ -509,8 +599,14 @@ static int __init opal_init(void)
 	/* Create "opal" kobject under /sys/firmware */
 	rc = opal_sysfs_init();
 	if (rc == 0) {
+		/* Setup error log interface */
+		rc = opal_elog_init();
 		/* Setup code update interface */
 		opal_flash_init();
+		/* Setup platform dump extract interface */
+		opal_platform_dump_init();
+		/* Setup message log interface. */
+		opal_msglog_init();
 	}
 
 	return 0;
@@ -525,5 +621,68 @@ void opal_shutdown(void)
 		if (opal_irqs[i])
 			free_irq(opal_irqs[i], NULL);
 		opal_irqs[i] = 0;
+	}
+}
+
+/* Convert a region of vmalloc memory to an opal sg list */
+struct opal_sg_list *opal_vmalloc_to_sg_list(void *vmalloc_addr,
+					     unsigned long vmalloc_size)
+{
+	struct opal_sg_list *sg, *first = NULL;
+	unsigned long i = 0;
+
+	sg = kzalloc(PAGE_SIZE, GFP_KERNEL);
+	if (!sg)
+		goto nomem;
+
+	first = sg;
+
+	while (vmalloc_size > 0) {
+		uint64_t data = vmalloc_to_pfn(vmalloc_addr) << PAGE_SHIFT;
+		uint64_t length = min(vmalloc_size, PAGE_SIZE);
+
+		sg->entry[i].data = cpu_to_be64(data);
+		sg->entry[i].length = cpu_to_be64(length);
+		i++;
+
+		if (i >= SG_ENTRIES_PER_NODE) {
+			struct opal_sg_list *next;
+
+			next = kzalloc(PAGE_SIZE, GFP_KERNEL);
+			if (!next)
+				goto nomem;
+
+			sg->length = cpu_to_be64(
+					i * sizeof(struct opal_sg_entry) + 16);
+			i = 0;
+			sg->next = cpu_to_be64(__pa(next));
+			sg = next;
+		}
+
+		vmalloc_addr += length;
+		vmalloc_size -= length;
+	}
+
+	sg->length = cpu_to_be64(i * sizeof(struct opal_sg_entry) + 16);
+
+	return first;
+
+nomem:
+	pr_err("%s : Failed to allocate memory\n", __func__);
+	opal_free_sg_list(first);
+	return NULL;
+}
+
+void opal_free_sg_list(struct opal_sg_list *sg)
+{
+	while (sg) {
+		uint64_t next = be64_to_cpu(sg->next);
+
+		kfree(sg);
+
+		if (next)
+			sg = __va(next);
+		else
+			sg = NULL;
 	}
 }

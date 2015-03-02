@@ -904,6 +904,15 @@ ath_tx_get_tid_subframe(struct ath_softc *sc, struct ath_txq *txq,
 
 		tx_info = IEEE80211_SKB_CB(skb);
 		tx_info->flags &= ~IEEE80211_TX_CTL_CLEAR_PS_FILT;
+
+		/*
+		 * No aggregation session is running, but there may be frames
+		 * from a previous session or a failed attempt in the queue.
+		 * Send them out as normal data frames
+		 */
+		if (!tid->active)
+			tx_info->flags &= ~IEEE80211_TX_CTL_AMPDU;
+
 		if (!(tx_info->flags & IEEE80211_TX_CTL_AMPDU)) {
 			bf->bf_state.bf_type = 0;
 			return bf;
@@ -1712,7 +1721,7 @@ int ath_cabq_update(struct ath_softc *sc)
 
 	ath9k_hw_get_txq_props(sc->sc_ah, qnum, &qi);
 
-	qi.tqi_readyTime = (cur_conf->beacon_interval *
+	qi.tqi_readyTime = (TU_TO_USEC(cur_conf->beacon_interval) *
 			    ATH_CABQ_READY_TIME) / 100;
 	ath_txq_update(sc, qnum, &qi);
 
@@ -2074,7 +2083,7 @@ static struct ath_buf *ath_tx_setup_buffer(struct ath_softc *sc,
 
 	ATH_TXBUF_RESET(bf);
 
-	if (tid) {
+	if (tid && ieee80211_is_data_present(hdr->frame_control)) {
 		fragno = le16_to_cpu(hdr->seq_ctrl) & IEEE80211_SCTL_FRAG;
 		seqno = tid->seq_next;
 		hdr->seq_ctrl = cpu_to_le16(tid->seq_next << IEEE80211_SEQ_SEQ_SHIFT);
@@ -2197,7 +2206,7 @@ int ath_tx_start(struct ieee80211_hw *hw, struct sk_buff *skb,
 		txq->stopped = true;
 	}
 
-	if (txctl->an)
+	if (txctl->an && ieee80211_is_data_present(hdr->frame_control))
 		tid = ath_get_skb_tid(sc, txctl->an, skb);
 
 	if (info->flags & IEEE80211_TX_CTL_PS_RESPONSE) {

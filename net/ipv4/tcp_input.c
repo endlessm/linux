@@ -73,7 +73,6 @@
 #include <net/inet_common.h>
 #include <linux/ipsec.h>
 #include <asm/unaligned.h>
-#include <net/netdma.h>
 
 int sysctl_tcp_timestamps __read_mostly = 1;
 int sysctl_tcp_window_scaling __read_mostly = 1;
@@ -1111,7 +1110,7 @@ static bool tcp_check_dsack(struct sock *sk, const struct sk_buff *ack_skb,
 	}
 
 	/* D-SACK for already forgotten data... Do dumb counting. */
-	if (dup_sack && tp->undo_marker && tp->undo_retrans &&
+	if (dup_sack && tp->undo_marker && tp->undo_retrans > 0 &&
 	    !after(end_seq_0, prior_snd_una) &&
 	    after(end_seq_0, tp->undo_marker))
 		tp->undo_retrans--;
@@ -1167,7 +1166,7 @@ static int tcp_match_skb_to_sack(struct sock *sk, struct sk_buff *skb,
 			unsigned int new_len = (pkt_len / mss) * mss;
 			if (!in_sack && new_len < pkt_len) {
 				new_len += mss;
-				if (new_len > skb->len)
+				if (new_len >= skb->len)
 					return 0;
 			}
 			pkt_len = new_len;
@@ -1191,7 +1190,7 @@ static u8 tcp_sacktag_one(struct sock *sk,
 
 	/* Account D-SACK for retransmitted packet. */
 	if (dup_sack && (sacked & TCPCB_RETRANS)) {
-		if (tp->undo_marker && tp->undo_retrans &&
+		if (tp->undo_marker && tp->undo_retrans > 0 &&
 		    after(end_seq, tp->undo_marker))
 			tp->undo_retrans--;
 		if (sacked & TCPCB_SACKED_ACKED)
@@ -1892,7 +1891,7 @@ static void tcp_clear_retrans_partial(struct tcp_sock *tp)
 	tp->lost_out = 0;
 
 	tp->undo_marker = 0;
-	tp->undo_retrans = 0;
+	tp->undo_retrans = -1;
 }
 
 void tcp_clear_retrans(struct tcp_sock *tp)
@@ -2660,7 +2659,7 @@ static void tcp_enter_recovery(struct sock *sk, bool ece_ack)
 
 	tp->prior_ssthresh = 0;
 	tp->undo_marker = tp->snd_una;
-	tp->undo_retrans = tp->retrans_out;
+	tp->undo_retrans = tp->retrans_out ? : -1;
 
 	if (inet_csk(sk)->icsk_ca_state < TCP_CA_CWR) {
 		if (!ece_ack)
@@ -2675,18 +2674,16 @@ static void tcp_enter_recovery(struct sock *sk, bool ece_ack)
  */
 static void tcp_process_loss(struct sock *sk, int flag, bool is_dupack)
 {
-	struct inet_connection_sock *icsk = inet_csk(sk);
 	struct tcp_sock *tp = tcp_sk(sk);
 	bool recovered = !before(tp->snd_una, tp->high_seq);
 
 	if (tp->frto) { /* F-RTO RFC5682 sec 3.1 (sack enhanced version). */
-		if (flag & FLAG_ORIG_SACK_ACKED) {
-			/* Step 3.b. A timeout is spurious if not all data are
-			 * lost, i.e., never-retransmitted data are (s)acked.
-			 */
-			tcp_try_undo_loss(sk, true);
+		/* Step 3.b. A timeout is spurious if not all data are
+		 * lost, i.e., never-retransmitted data are (s)acked.
+		 */
+		if (tcp_try_undo_loss(sk, flag & FLAG_ORIG_SACK_ACKED))
 			return;
-		}
+
 		if (after(tp->snd_nxt, tp->high_seq) &&
 		    (flag & FLAG_DATA_SACKED || is_dupack)) {
 			tp->frto = 0; /* Loss was real: 2nd part of step 3.a */
@@ -2702,12 +2699,9 @@ static void tcp_process_loss(struct sock *sk, int flag, bool is_dupack)
 
 	if (recovered) {
 		/* F-RTO RFC5682 sec 3.1 step 2.a and 1st part of step 3.a */
-		icsk->icsk_retransmits = 0;
 		tcp_try_undo_recovery(sk);
 		return;
 	}
-	if (flag & FLAG_DATA_ACKED)
-		icsk->icsk_retransmits = 0;
 	if (tcp_is_reno(tp)) {
 		/* A Reno DUPACK means new data in F-RTO step 2.b above are
 		 * delivered. Lower inflight to clock out (re)tranmissions.
@@ -3396,8 +3390,10 @@ static int tcp_ack(struct sock *sk, const struct sk_buff *skb, int flag)
 	    icsk->icsk_pending == ICSK_TIME_LOSS_PROBE)
 		tcp_rearm_rto(sk);
 
-	if (after(ack, prior_snd_una))
+	if (after(ack, prior_snd_una)) {
 		flag |= FLAG_SND_UNA_ADVANCED;
+		icsk->icsk_retransmits = 0;
+	}
 
 	prior_fackets = tp->fackets_out;
 	prior_in_flight = tcp_packets_in_flight(tp);
@@ -4967,53 +4963,6 @@ static inline bool tcp_checksum_complete_user(struct sock *sk,
 	       __tcp_checksum_complete_user(sk, skb);
 }
 
-#ifdef CONFIG_NET_DMA
-static bool tcp_dma_try_early_copy(struct sock *sk, struct sk_buff *skb,
-				  int hlen)
-{
-	struct tcp_sock *tp = tcp_sk(sk);
-	int chunk = skb->len - hlen;
-	int dma_cookie;
-	bool copied_early = false;
-
-	if (tp->ucopy.wakeup)
-		return false;
-
-	if (!tp->ucopy.dma_chan && tp->ucopy.pinned_list)
-		tp->ucopy.dma_chan = net_dma_find_channel();
-
-	if (tp->ucopy.dma_chan && skb_csum_unnecessary(skb)) {
-
-		dma_cookie = dma_skb_copy_datagram_iovec(tp->ucopy.dma_chan,
-							 skb, hlen,
-							 tp->ucopy.iov, chunk,
-							 tp->ucopy.pinned_list);
-
-		if (dma_cookie < 0)
-			goto out;
-
-		tp->ucopy.dma_cookie = dma_cookie;
-		copied_early = true;
-
-		tp->ucopy.len -= chunk;
-		tp->copied_seq += chunk;
-		tcp_rcv_space_adjust(sk);
-
-		if ((tp->ucopy.len == 0) ||
-		    (tcp_flag_word(tcp_hdr(skb)) & TCP_FLAG_PSH) ||
-		    (atomic_read(&sk->sk_rmem_alloc) > (sk->sk_rcvbuf >> 1))) {
-			tp->ucopy.wakeup = 1;
-			sk->sk_data_ready(sk, 0);
-		}
-	} else if (chunk > 0) {
-		tp->ucopy.wakeup = 1;
-		sk->sk_data_ready(sk, 0);
-	}
-out:
-	return copied_early;
-}
-#endif /* CONFIG_NET_DMA */
-
 /* Does PAWS and seqno based validation of an incoming segment, flags will
  * play significant role here.
  */
@@ -5198,14 +5147,6 @@ void tcp_rcv_established(struct sock *sk, struct sk_buff *skb,
 
 			if (tp->copied_seq == tp->rcv_nxt &&
 			    len - tcp_header_len <= tp->ucopy.len) {
-#ifdef CONFIG_NET_DMA
-				if (tp->ucopy.task == current &&
-				    sock_owned_by_user(sk) &&
-				    tcp_dma_try_early_copy(sk, skb, tcp_header_len)) {
-					copied_early = 1;
-					eaten = 1;
-				}
-#endif
 				if (tp->ucopy.task == current &&
 				    sock_owned_by_user(sk) && !copied_early) {
 					__set_current_state(TASK_RUNNING);
@@ -5271,11 +5212,6 @@ void tcp_rcv_established(struct sock *sk, struct sk_buff *skb,
 			if (!copied_early || tp->rcv_nxt != tp->rcv_wup)
 				__tcp_ack_snd_check(sk, 0);
 no_ack:
-#ifdef CONFIG_NET_DMA
-			if (copied_early)
-				__skb_queue_tail(&sk->sk_async_wait_queue, skb);
-			else
-#endif
 			if (eaten)
 				kfree_skb_partial(skb, fragstolen);
 			sk->sk_data_ready(sk, 0);

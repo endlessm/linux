@@ -27,7 +27,6 @@
 #include <linux/cache.h>
 #include <linux/percpu.h>
 #include <linux/skbuff.h>
-#include <linux/dmaengine.h>
 #include <linux/crypto.h>
 #include <linux/cryptohash.h>
 #include <linux/kref.h>
@@ -267,7 +266,6 @@ extern int sysctl_tcp_adv_win_scale;
 extern int sysctl_tcp_tw_reuse;
 extern int sysctl_tcp_frto;
 extern int sysctl_tcp_low_latency;
-extern int sysctl_tcp_dma_copybreak;
 extern int sysctl_tcp_nometrics_save;
 extern int sysctl_tcp_moderate_rcvbuf;
 extern int sysctl_tcp_tso_win_divisor;
@@ -452,6 +450,7 @@ const u8 *tcp_parse_md5sig_option(const struct tcphdr *th);
  */
 
 void tcp_v4_send_check(struct sock *sk, struct sk_buff *skb);
+void tcp_v4_mtu_reduced(struct sock *sk);
 int tcp_v4_conn_request(struct sock *sk, struct sk_buff *skb);
 struct sock *tcp_create_openreq_child(struct sock *sk,
 				      struct request_sock *req,
@@ -722,8 +721,10 @@ struct tcp_skb_cb {
 #define TCPCB_SACKED_RETRANS	0x02	/* SKB retransmitted		*/
 #define TCPCB_LOST		0x04	/* SKB is lost			*/
 #define TCPCB_TAGBITS		0x07	/* All tag bits			*/
+#define TCPCB_REPAIRED		0x10	/* SKB repaired (no skb_mstamp)	*/
 #define TCPCB_EVER_RETRANS	0x80	/* Ever retransmitted frame	*/
-#define TCPCB_RETRANS		(TCPCB_SACKED_RETRANS|TCPCB_EVER_RETRANS)
+#define TCPCB_RETRANS		(TCPCB_SACKED_RETRANS|TCPCB_EVER_RETRANS| \
+				TCPCB_REPAIRED)
 
 	__u8		ip_dsfield;	/* IPv4 tos or IPv6 dsfield	*/
 	/* 1 byte hole */
@@ -1033,12 +1034,6 @@ static inline void tcp_prequeue_init(struct tcp_sock *tp)
 	tp->ucopy.len = 0;
 	tp->ucopy.memory = 0;
 	skb_queue_head_init(&tp->ucopy.prequeue);
-#ifdef CONFIG_NET_DMA
-	tp->ucopy.dma_chan = NULL;
-	tp->ucopy.wakeup = 0;
-	tp->ucopy.pinned_list = NULL;
-	tp->ucopy.dma_cookie = 0;
-#endif
 }
 
 bool tcp_prequeue(struct sock *sk, struct sk_buff *skb);

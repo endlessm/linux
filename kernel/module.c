@@ -815,11 +815,6 @@ SYSCALL_DEFINE2(delete_module, const char __user *, name_user,
 		return -EFAULT;
 	name[MODULE_NAME_LEN-1] = '\0';
 
-	if (!(flags & O_NONBLOCK)) {
-		printk(KERN_WARNING
-		       "waiting module removal not supported: please upgrade");
-	}
-
 	if (mutex_lock_interruptible(&module_mutex) != 0)
 		return -EINTR;
 
@@ -1015,6 +1010,8 @@ static size_t module_flags_taint(struct module *mod, char *buf)
 		buf[l++] = 'F';
 	if (mod->taints & (1 << TAINT_CRAP))
 		buf[l++] = 'C';
+	if (mod->taints & (1 << TAINT_UNSIGNED_MODULE))
+		buf[l++] = 'X';
 	/*
 	 * TAINT_FORCED_RMMOD: could be added.
 	 * TAINT_CPU_OUT_OF_SPEC, TAINT_MACHINE_CHECK, TAINT_BAD_PAGE don't
@@ -1846,7 +1843,9 @@ static void free_module(struct module *mod)
 
 	/* We leave it in list to prevent duplicate loads, but make sure
 	 * that noone uses it while it's being deconstructed. */
+	mutex_lock(&module_mutex);
 	mod->state = MODULE_STATE_UNFORMED;
+	mutex_unlock(&module_mutex);
 
 	/* Remove dynamic debug info */
 	ddebug_remove_module(mod->name);
@@ -3216,7 +3215,7 @@ static int load_module(struct load_info *info, const char __user *uargs,
 		pr_notice_once("%s: module verification failed: signature "
 			       "and/or  required key missing - tainting "
 			       "kernel\n", mod->name);
-		add_taint_module(mod, TAINT_FORCED_MODULE, LOCKDEP_STILL_OK);
+		add_taint_module(mod, TAINT_UNSIGNED_MODULE, LOCKDEP_STILL_OK);
 	}
 #endif
 
@@ -3266,6 +3265,9 @@ static int load_module(struct load_info *info, const char __user *uargs,
 	}
 
 	dynamic_debug_setup(info->debug, info->num_debug);
+
+	/* Ftrace init must be called in the MODULE_STATE_UNFORMED state */
+	ftrace_module_init(mod);
 
 	/* Finally it's fully formed, ready to start executing. */
 	err = complete_formation(mod, info);

@@ -326,7 +326,7 @@ static void dce3_2_afmt_write_speaker_allocation(struct drm_encoder *encoder)
 	struct drm_connector *connector;
 	struct radeon_connector *radeon_connector = NULL;
 	u32 tmp;
-	u8 *sadb;
+	u8 *sadb = NULL;
 	int sad_count;
 
 	/* XXX: setting this register causes hangs on some asics */

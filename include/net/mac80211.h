@@ -1459,8 +1459,6 @@ struct ieee80211_tx_control {
  * @IEEE80211_HW_CONNECTION_MONITOR:
  *	The hardware performs its own connection monitoring, including
  *	periodic keep-alives to the AP and probing the AP on beacon loss.
- *	When this flag is set, signaling beacon-loss will cause an immediate
- *	change to disassociated state.
  *
  * @IEEE80211_HW_NEED_DTIM_BEFORE_ASSOC:
  *	This device needs to get data from beacon before association (i.e.
@@ -2546,6 +2544,7 @@ enum ieee80211_roc_type {
  *	of queues to flush, which is useful if different virtual interfaces
  *	use different hardware queues; it may also indicate all queues.
  *	If the parameter @drop is set to %true, pending frames may be dropped.
+ *	Note that vif can be NULL.
  *	The callback can sleep.
  *
  * @channel_switch: Drivers that need (or want) to offload the channel
@@ -2809,7 +2808,8 @@ struct ieee80211_ops {
 			     struct netlink_callback *cb,
 			     void *data, int len);
 #endif
-	void (*flush)(struct ieee80211_hw *hw, u32 queues, bool drop);
+	void (*flush)(struct ieee80211_hw *hw, struct ieee80211_vif *vif,
+		      u32 queues, bool drop);
 	void (*channel_switch)(struct ieee80211_hw *hw,
 			       struct ieee80211_channel_switch *ch_switch);
 	int (*napi_poll)(struct ieee80211_hw *hw, int budget);

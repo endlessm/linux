@@ -563,6 +563,20 @@ out_unroll:
 	return ret;
 }
 
+static int msi_verify_entries(struct pci_dev *dev)
+{
+	struct msi_desc *entry;
+
+	list_for_each_entry(entry, &dev->msi_list, list) {
+		if (!dev->no_64bit_msi || !entry->msg.address_hi)
+			continue;
+		dev_err(&dev->dev, "Device has broken 64-bit MSI but arch"
+			" tried to assign one above 4G\n");
+		return -EIO;
+	}
+	return 0;
+}
+
 /**
  * msi_capability_init - configure device's MSI capability structure
  * @dev: pointer to the pci_dev data structure of MSI device function
@@ -610,6 +624,13 @@ static int msi_capability_init(struct pci_dev *dev, int nvec)
 
 	/* Configure MSI capability structure */
 	ret = arch_setup_msi_irqs(dev, nvec, PCI_CAP_ID_MSI);
+	if (ret) {
+		msi_mask_irq(entry, mask, ~mask);
+		free_msi_irqs(dev);
+		return ret;
+	}
+
+	ret = msi_verify_entries(dev);
 	if (ret) {
 		msi_mask_irq(entry, mask, ~mask);
 		free_msi_irqs(dev);
@@ -728,6 +749,11 @@ static int msix_capability_init(struct pci_dev *dev,
 		return ret;
 
 	ret = arch_setup_msi_irqs(dev, nvec, PCI_CAP_ID_MSIX);
+	if (ret)
+		goto error;
+
+	/* Check if all MSI entries honor device restrictions */
+	ret = msi_verify_entries(dev);
 	if (ret)
 		goto error;
 
@@ -1079,3 +1105,77 @@ void pci_msi_init_pci_dev(struct pci_dev *dev)
 	if (dev->msix_cap)
 		msix_set_enable(dev, 0);
 }
+
+/**
+ * pci_enable_msi_range - configure device's MSI capability structure
+ * @dev: device to configure
+ * @minvec: minimal number of interrupts to configure
+ * @maxvec: maximum number of interrupts to configure
+ *
+ * This function tries to allocate a maximum possible number of interrupts in a
+ * range between @minvec and @maxvec. It returns a negative errno if an error
+ * occurs. If it succeeds, it returns the actual number of interrupts allocated
+ * and updates the @dev's irq member to the lowest new interrupt number;
+ * the other interrupt numbers allocated to this device are consecutive.
+ **/
+int pci_enable_msi_range(struct pci_dev *dev, int minvec, int maxvec)
+{
+	int nvec = maxvec;
+	int rc;
+
+	if (maxvec < minvec)
+		return -ERANGE;
+
+	do {
+		rc = pci_enable_msi_block(dev, nvec);
+		if (rc < 0) {
+			return rc;
+		} else if (rc > 0) {
+			if (rc < minvec)
+				return -ENOSPC;
+			nvec = rc;
+		}
+	} while (rc);
+
+	return nvec;
+}
+EXPORT_SYMBOL(pci_enable_msi_range);
+
+/**
+ * pci_enable_msix_range - configure device's MSI-X capability structure
+ * @dev: pointer to the pci_dev data structure of MSI-X device function
+ * @entries: pointer to an array of MSI-X entries
+ * @minvec: minimum number of MSI-X irqs requested
+ * @maxvec: maximum number of MSI-X irqs requested
+ *
+ * Setup the MSI-X capability structure of device function with a maximum
+ * possible number of interrupts in the range between @minvec and @maxvec
+ * upon its software driver call to request for MSI-X mode enabled on its
+ * hardware device function. It returns a negative errno if an error occurs.
+ * If it succeeds, it returns the actual number of interrupts allocated and
+ * indicates the successful configuration of MSI-X capability structure
+ * with new allocated MSI-X interrupts.
+ **/
+int pci_enable_msix_range(struct pci_dev *dev, struct msix_entry *entries,
+			       int minvec, int maxvec)
+{
+	int nvec = maxvec;
+	int rc;
+
+	if (maxvec < minvec)
+		return -ERANGE;
+
+	do {
+		rc = pci_enable_msix(dev, entries, nvec);
+		if (rc < 0) {
+			return rc;
+		} else if (rc > 0) {
+			if (rc < minvec)
+				return -ENOSPC;
+			nvec = rc;
+		}
+	} while (rc);
+
+	return nvec;
+}
+EXPORT_SYMBOL(pci_enable_msix_range);

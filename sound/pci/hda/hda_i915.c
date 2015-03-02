@@ -20,6 +20,7 @@
 #include <linux/module.h>
 #include <sound/core.h>
 #include <drm/i915_powerwell.h>
+#include <drm/i915_powerwell_bdw.h>
 #include "hda_i915.h"
 
 static void (*get_power)(void);
@@ -38,17 +39,23 @@ void hda_display_power(bool enable)
 		put_power();
 }
 
-int hda_i915_init(void)
+int hda_i915_init(bool is_broadwell)
 {
 	int err = 0;
 
-	get_power = symbol_request(i915_request_power_well);
+	if (is_broadwell)
+		get_power = symbol_request(i915_bdw_request_power_well);
+	else
+		get_power = symbol_request(i915_request_power_well);
 	if (!get_power) {
 		snd_printk(KERN_WARNING "hda-i915: get_power symbol get fail\n");
 		return -ENODEV;
 	}
 
-	put_power = symbol_request(i915_release_power_well);
+	if (is_broadwell)
+		put_power = symbol_request(i915_bdw_release_power_well);
+	else
+		put_power = symbol_request(i915_release_power_well);
 	if (!put_power) {
 		symbol_put(i915_request_power_well);
 		get_power = NULL;

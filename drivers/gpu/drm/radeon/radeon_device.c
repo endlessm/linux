@@ -102,11 +102,14 @@ static const char radeon_family_name[][16] = {
 	"LAST",
 };
 
-#if defined(CONFIG_VGA_SWITCHEROO)
-bool radeon_is_px(void);
-#else
-static inline bool radeon_is_px(void) { return false; }
-#endif
+bool radeon_is_px(struct drm_device *dev)
+{
+	struct radeon_device *rdev = dev->dev_private;
+
+	if (rdev->flags & RADEON_IS_PX)
+		return true;
+	return false;
+}
 
 /**
  * radeon_program_register_sequence - program an array of registers.
@@ -1077,7 +1080,7 @@ static void radeon_switcheroo_set_state(struct pci_dev *pdev, enum vga_switchero
 {
 	struct drm_device *dev = pci_get_drvdata(pdev);
 
-	if (radeon_is_px() && state == VGA_SWITCHEROO_OFF)
+	if (radeon_is_px(dev) && state == VGA_SWITCHEROO_OFF)
 		return;
 
 	if (state == VGA_SWITCHEROO_ON) {
@@ -1298,9 +1301,7 @@ int radeon_device_init(struct radeon_device *rdev,
 	 * ignore it */
 	vga_client_register(rdev->pdev, rdev, NULL, radeon_vga_set_decode);
 
-	if (radeon_runtime_pm == 1)
-		runtime = true;
-	if ((radeon_runtime_pm == -1) && radeon_is_px())
+	if (rdev->flags & RADEON_IS_PX)
 		runtime = true;
 	vga_switcheroo_register_client(rdev->pdev, &radeon_switcheroo_ops, runtime);
 	if (runtime)
@@ -1308,7 +1309,7 @@ int radeon_device_init(struct radeon_device *rdev,
 
 	r = radeon_init(rdev);
 	if (r)
-		return r;
+		goto failed;
 
 	r = radeon_ib_ring_tests(rdev);
 	if (r)
@@ -1328,7 +1329,7 @@ int radeon_device_init(struct radeon_device *rdev,
 		radeon_agp_disable(rdev);
 		r = radeon_init(rdev);
 		if (r)
-			return r;
+			goto failed;
 	}
 	if ((radeon_testing & 1)) {
 		if (rdev->accel_working)
@@ -1349,6 +1350,11 @@ int radeon_device_init(struct radeon_device *rdev,
 			DRM_INFO("radeon: acceleration disabled, skipping benchmarks\n");
 	}
 	return 0;
+
+failed:
+	if (runtime)
+		vga_switcheroo_fini_domain_pm_ops(rdev->dev);
+	return r;
 }
 
 static void radeon_debugfs_remove_files(struct radeon_device *rdev);
@@ -1369,6 +1375,8 @@ void radeon_device_fini(struct radeon_device *rdev)
 	radeon_bo_evict_vram(rdev);
 	radeon_fini(rdev);
 	vga_switcheroo_unregister_client(rdev->pdev);
+	if (rdev->flags & RADEON_IS_PX)
+		vga_switcheroo_fini_domain_pm_ops(rdev->dev);
 	vga_client_register(rdev->pdev, NULL, NULL, NULL);
 	if (rdev->rio_mem)
 		pci_iounmap(rdev->pdev, rdev->rio_mem);
@@ -1546,6 +1554,11 @@ int radeon_resume_kms(struct drm_device *dev, bool resume, bool fbcon)
 	}
 
 	drm_kms_helper_poll_enable(dev);
+
+	/* set the power state here in case we are a PX system or headless */
+	if ((rdev->pm.pm_method == PM_METHOD_DPM) && rdev->pm.dpm_enabled)
+		radeon_pm_compute_clocks(rdev);
+
 	return 0;
 }
 

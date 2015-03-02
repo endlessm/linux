@@ -1023,6 +1023,9 @@ int bch_cached_dev_attach(struct cached_dev *dc, struct cache_set *c)
 	 */
 	atomic_set(&dc->count, 1);
 
+	if (bch_cached_dev_writeback_start(dc))
+		return -ENOMEM;
+
 	if (BDEV_STATE(&dc->sb) == BDEV_STATE_DIRTY) {
 		bch_sectors_dirty_init(dc);
 		atomic_set(&dc->has_dirty, 1);
@@ -1052,7 +1055,8 @@ static void cached_dev_free(struct closure *cl)
 	struct cached_dev *dc = container_of(cl, struct cached_dev, disk.cl);
 
 	cancel_delayed_work_sync(&dc->writeback_rate_update);
-	kthread_stop(dc->writeback_thread);
+	if (!IS_ERR_OR_NULL(dc->writeback_thread))
+		kthread_stop(dc->writeback_thread);
 
 	mutex_lock(&bch_register_lock);
 

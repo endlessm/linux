@@ -97,6 +97,7 @@ static void * r1buf_pool_alloc(gfp_t gfp_flags, void *data)
 	struct pool_info *pi = data;
 	struct r1bio *r1_bio;
 	struct bio *bio;
+	int need_pages;
 	int i, j;
 
 	r1_bio = r1bio_pool_alloc(gfp_flags, pi);
@@ -119,15 +120,15 @@ static void * r1buf_pool_alloc(gfp_t gfp_flags, void *data)
 	 * RESYNC_PAGES for each bio.
 	 */
 	if (test_bit(MD_RECOVERY_REQUESTED, &pi->mddev->recovery))
-		j = pi->raid_disks;
+		need_pages = pi->raid_disks;
 	else
-		j = 1;
-	while(j--) {
+		need_pages = 1;
+	for (j = 0; j < need_pages; j++) {
 		bio = r1_bio->bios[j];
 		bio->bi_vcnt = RESYNC_PAGES;
 
 		if (bio_alloc_pages(bio, gfp_flags))
-			goto out_free_bio;
+			goto out_free_pages;
 	}
 	/* If not user-requests, copy the page pointers to all bios */
 	if (!test_bit(MD_RECOVERY_REQUESTED, &pi->mddev->recovery)) {
@@ -140,6 +141,14 @@ static void * r1buf_pool_alloc(gfp_t gfp_flags, void *data)
 	r1_bio->master_bio = NULL;
 
 	return r1_bio;
+
+out_free_pages:
+	while (--j >= 0) {
+		struct bio_vec *bv;
+
+		bio_for_each_segment_all(bv, r1_bio->bios[j], i)
+			__free_page(bv->bv_page);
+	}
 
 out_free_bio:
 	while (++j < pi->raid_disks)
@@ -533,11 +542,7 @@ static int read_balance(struct r1conf *conf, struct r1bio *r1_bio, int *max_sect
 	has_nonrot_disk = 0;
 	choose_next_idle = 0;
 
-	if (conf->mddev->recovery_cp < MaxSector &&
-	    (this_sector + sectors >= conf->next_resync))
-		choose_first = 1;
-	else
-		choose_first = 0;
+	choose_first = (conf->mddev->recovery_cp < this_sector + sectors);
 
 	for (disk = 0 ; disk < conf->raid_disks * 2 ; disk++) {
 		sector_t dist;
@@ -824,7 +829,7 @@ static void flush_pending_writes(struct r1conf *conf)
  *    there is no normal IO happeing.  It must arrange to call
  *    lower_barrier when the particular background IO completes.
  */
-static void raise_barrier(struct r1conf *conf)
+static void raise_barrier(struct r1conf *conf, sector_t sector_nr)
 {
 	spin_lock_irq(&conf->resync_lock);
 
@@ -834,6 +839,7 @@ static void raise_barrier(struct r1conf *conf)
 
 	/* block any new IO from starting */
 	conf->barrier++;
+	conf->next_resync = sector_nr;
 
 	/* For these conditions we must wait:
 	 * A: while the array is in frozen state
@@ -842,14 +848,17 @@ static void raise_barrier(struct r1conf *conf)
 	 * C: next_resync + RESYNC_SECTORS > start_next_window, meaning
 	 *    next resync will reach to the window which normal bios are
 	 *    handling.
+	 * D: while there are any active requests in the current window.
 	 */
 	wait_event_lock_irq(conf->wait_barrier,
 			    !conf->array_frozen &&
 			    conf->barrier < RESYNC_DEPTH &&
+			    conf->current_window_requests == 0 &&
 			    (conf->start_next_window >=
 			     conf->next_resync + RESYNC_SECTORS),
 			    conf->resync_lock);
 
+	conf->nr_pending++;
 	spin_unlock_irq(&conf->resync_lock);
 }
 
@@ -859,6 +868,7 @@ static void lower_barrier(struct r1conf *conf)
 	BUG_ON(conf->barrier <= 0);
 	spin_lock_irqsave(&conf->resync_lock, flags);
 	conf->barrier--;
+	conf->nr_pending--;
 	spin_unlock_irqrestore(&conf->resync_lock, flags);
 	wake_up(&conf->wait_barrier);
 }
@@ -870,12 +880,10 @@ static bool need_to_wait_for_sync(struct r1conf *conf, struct bio *bio)
 	if (conf->array_frozen || !bio)
 		wait = true;
 	else if (conf->barrier && bio_data_dir(bio) == WRITE) {
-		if (conf->next_resync < RESYNC_WINDOW_SECTORS)
-			wait = true;
-		else if ((conf->next_resync - RESYNC_WINDOW_SECTORS
-				>= bio_end_sector(bio)) ||
-			 (conf->next_resync + NEXT_NORMALIO_DISTANCE
-				<= bio->bi_sector))
+		if ((conf->mddev->curr_resync_completed
+		     >= bio_end_sector(bio)) ||
+		    (conf->next_resync + NEXT_NORMALIO_DISTANCE
+		     <= bio->bi_sector))
 			wait = false;
 		else
 			wait = true;
@@ -912,8 +920,8 @@ static sector_t wait_barrier(struct r1conf *conf, struct bio *bio)
 	}
 
 	if (bio && bio_data_dir(bio) == WRITE) {
-		if (conf->next_resync + NEXT_NORMALIO_DISTANCE
-		    <= bio->bi_sector) {
+		if (bio->bi_sector >=
+		    conf->mddev->curr_resync_completed) {
 			if (conf->start_next_window == MaxSector)
 				conf->start_next_window =
 					conf->next_resync +
@@ -1178,6 +1186,7 @@ read_again:
 				   atomic_read(&bitmap->behind_writes) == 0);
 		}
 		r1_bio->read_disk = rdisk;
+		r1_bio->start_next_window = 0;
 
 		read_bio = bio_clone_mddev(bio, GFP_NOIO, mddev);
 		bio_trim(read_bio, r1_bio->sector - bio->bi_sector,
@@ -1491,12 +1500,12 @@ static void error(struct mddev *mddev, struct md_rdev *rdev)
 		mddev->degraded++;
 		set_bit(Faulty, &rdev->flags);
 		spin_unlock_irqrestore(&conf->device_lock, flags);
-		/*
-		 * if recovery is running, make sure it aborts.
-		 */
-		set_bit(MD_RECOVERY_INTR, &mddev->recovery);
 	} else
 		set_bit(Faulty, &rdev->flags);
+	/*
+	 * if recovery is running, make sure it aborts.
+	 */
+	set_bit(MD_RECOVERY_INTR, &mddev->recovery);
 	set_bit(MD_CHANGE_DEVS, &mddev->flags);
 	printk(KERN_ALERT
 	       "md/raid1:%s: Disk failure on %s, disabling device.\n"
@@ -1538,8 +1547,13 @@ static void close_sync(struct r1conf *conf)
 	mempool_destroy(conf->r1buf_pool);
 	conf->r1buf_pool = NULL;
 
+	spin_lock_irq(&conf->resync_lock);
 	conf->next_resync = 0;
 	conf->start_next_window = MaxSector;
+	conf->current_window_requests +=
+		conf->next_window_requests;
+	conf->next_window_requests = 0;
+	spin_unlock_irq(&conf->resync_lock);
 }
 
 static int raid1_spare_active(struct mddev *mddev)
@@ -2140,7 +2154,7 @@ static void fix_read_error(struct r1conf *conf, int read_disk,
 			d--;
 			rdev = conf->mirrors[d].rdev;
 			if (rdev &&
-			    test_bit(In_sync, &rdev->flags))
+			    !test_bit(Faulty, &rdev->flags))
 				r1_sync_page_io(rdev, sect, s,
 						conf->tmppage, WRITE);
 		}
@@ -2152,7 +2166,7 @@ static void fix_read_error(struct r1conf *conf, int read_disk,
 			d--;
 			rdev = conf->mirrors[d].rdev;
 			if (rdev &&
-			    test_bit(In_sync, &rdev->flags)) {
+			    !test_bit(Faulty, &rdev->flags)) {
 				if (r1_sync_page_io(rdev, sect, s,
 						    conf->tmppage, READ)) {
 					atomic_add(s, &rdev->corrected_errors);
@@ -2529,9 +2543,8 @@ static sector_t sync_request(struct mddev *mddev, sector_t sector_nr, int *skipp
 
 	bitmap_cond_end_sync(mddev->bitmap, sector_nr);
 	r1_bio = mempool_alloc(conf->r1buf_pool, GFP_NOIO);
-	raise_barrier(conf);
 
-	conf->next_resync = sector_nr;
+	raise_barrier(conf, sector_nr);
 
 	rcu_read_lock();
 	/*
