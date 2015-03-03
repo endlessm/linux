@@ -328,6 +328,7 @@ au0828
 au8522_common
 au8522_decoder
 au8522_dig
+aufs
 auo_k1900fb
 auo_k1901fb
 auo_k190x
