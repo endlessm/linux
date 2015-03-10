@@ -66,7 +66,7 @@ abi_release	:= $(DEB_VERSION_UPSTREAM)-$(abinum)
 
 uploadnum	:= $(patsubst $(abinum).%,%,$(DEB_REVISION))
 ifneq ($(do_full_build),false)
-  uploadnum	:= $(uploadnum)-Ubuntu
+  uploadnum	:= $(uploadnum)-Endless
 endif
 
 DEB_HOST_MULTIARCH = $(shell dpkg-architecture -qDEB_HOST_MULTIARCH)
@@ -111,15 +111,9 @@ hdrs_pkg_name=linux-headers-$(abi_release)
 rust_pkg_name=linux-lib-rust-$(abi_release)
 indep_hdrs_pkg_name=$(DEB_SOURCE)-headers-$(abi_release)
 
-#
-# Similarly with the linux-source package, you need not build it as a developer. Its
-# somewhat I/O intensive and utterly useless.
-#
+# linux-source is used to build cross-compilers, default to building it.
 do_source_package=true
 do_source_package_content=true
-ifeq ($(do_full_build),false)
-do_source_package_content=false
-endif
 
 # common headers normally is built as an indep package, but may be arch
 do_common_headers_indep=true
