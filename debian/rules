@@ -132,7 +132,7 @@ $(DEBIAN)/control.stub: $(DEBIAN)/d-i/kernel-versions.in	\
 		-e 's/=HUMAN=/$(human_arch)/g'                                    \
 	  > $$new;								\
 	done
-	flavours="$(wildcard $(DEBIAN)/control.d/vars.* $(DEBIAN)/sub-flavours/*.vars)";\
+	flavours="$(sort $(wildcard $(DEBIAN)/control.d/vars.* $(DEBIAN)/sub-flavours/*.vars))";\
 	for i in $$flavours; do							\
 	  $(SHELL) $(DROOT)/scripts/control-create $$i |				\
 		sed -e 's/PKGVER/$(release)/g'                                  \
@@ -271,4 +271,4 @@ debian/control: $(DEBIAN)/control.stub
 	fi
 
 	cp $(DEBIAN)/control.stub debian/control.stub
-	cd $(builddir) && kernel-wedge gen-control > $(CURDIR)/debian/control
+	cd $(builddir) && LANG=C kernel-wedge gen-control > $(CURDIR)/debian/control
