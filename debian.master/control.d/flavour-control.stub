@@ -30,7 +30,8 @@ Provides: linux-image, fuse-module, =PROVIDES=${linux:rprovides}
 Depends: ${misc:Depends}, ${shlibs:Depends}, initramfs-tools | linux-initramfs-tool, kmod
 Recommends: BOOTLOADER
 Suggests: fdutils, SRCPKGNAME-doc-PKGVER | SRCPKGNAME-source-PKGVER, SRCPKGNAME-tools, linux-headers-PKGVER-ABINUM-FLAVOUR
-Conflicts: flash-kernel (<< 3.0~rc.4ubuntu64) [arm64]
+Conflicts: flash-kernel (<< 3.0~rc.4ubuntu64) [arm64], linux-signed-image-PKGVER-ABINUM-FLAVOUR
+Replaces: linux-signed-image-PKGVER-ABINUM-FLAVOUR
 Description: Linux kernel image for version PKGVER on DESC
  This package contains the Linux kernel image for version PKGVER on
  DESC.
@@ -52,7 +53,7 @@ Build-Profiles: <!stage1>
 Architecture: ARCH
 Section: kernel
 Priority: optional
-Depends: ${misc:Depends}, ${shlibs:Depends}, linux-image-PKGVER-ABINUM-FLAVOUR, crda | wireless-crda
+Depends: ${misc:Depends}, ${shlibs:Depends}, linux-signed-image-PKGVER-ABINUM-FLAVOUR [amd64] | linux-image-PKGVER-ABINUM-FLAVOUR, crda | wireless-crda
 Description: Linux kernel extra modules for version PKGVER on DESC
  This package contains the Linux kernel extra modules for version PKGVER on
  DESC.
