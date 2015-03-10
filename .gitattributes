@@ -3,3 +3,4 @@
 *.dts diff=dts
 *.dts[io] diff=dts
 *.rs diff=rust
+debian.master/changelog merge=dpkg-mergechangelogs
