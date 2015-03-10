@@ -87,7 +87,7 @@ abi_release	:= $(release)-$(abinum)
 
 uploadnum	:= $(shell echo $(revision) | sed -r -e 's/[^\+~]*\.([^\.~]+(~.*)?(\+.*)?$$)/\1/')
 ifneq ($(full_build),false)
-  uploadnum	:= $(uploadnum)-Ubuntu
+  uploadnum	:= $(uploadnum)-Endless
 endif
 
 # XXX: linux-libc-dev got bumped to -803.N inadvertantly by a ti-omap4 upload
@@ -165,15 +165,9 @@ do_doc_package_content=false
 endif
 doc_pkg_name=$(src_pkg_name)-doc
 
-#
-# Similarly with the linux-source package, you need not build it as a developer. Its
-# somewhat I/O intensive and utterly useless.
-#
+# linux-source is used to build cross-compilers, default to building it.
 do_source_package=true
 do_source_package_content=true
-ifeq ($(full_build),false)
-do_source_package_content=false
-endif
 
 # linux-libc-dev may not be needed, default to building it only for the
 # primary variant
