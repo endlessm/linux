@@ -72,6 +72,7 @@ Module.symvers
 # git files that we don't want to ignore even if they are dot-files
 #
 !.gitignore
+!.gitattributes
 !.mailmap
 !.cocciconfig
 
