@@ -8,45 +8,42 @@ Build-Depends:
  dh-systemd,
  cpio,
  kernel-wedge,
- kmod <!stage1>,
- makedumpfile [amd64 i386] <!stage1>,
- libelf-dev <!stage1>,
- libnewt-dev <!stage1>,
- libiberty-dev <!stage1>,
- rsync <!stage1>,
- libdw-dev <!stage1>,
- libpci-dev <!stage1>,
- pkg-config <!stage1>,
- flex <!stage1>,
- bison <!stage1>,
- libunwind8-dev [amd64 arm64 armhf i386 ppc64el] <!stage1>,
- liblzma-dev <!stage1>,
- openssl <!stage1>,
- libssl-dev <!stage1>,
- libaudit-dev <!stage1>,
- bc <!stage1>,
- python-dev <!stage1>,
- gawk <!stage1>,
- libudev-dev <!stage1>,
- autoconf <!stage1>,
- automake <!stage1>,
- libtool <!stage1>,
- uuid-dev <!stage1>,
- binutils-dev <!stage1>,
+ kmod,
+ makedumpfile [amd64 i386],
+ libelf-dev,
+ libnewt-dev,
+ libiberty-dev,
+ rsync,
+ libdw-dev,
+ libpci-dev,
+ pkg-config,
+ flex,
+ bison,
+ libunwind8-dev [amd64 arm64 armhf i386 ppc64el],
+ liblzma-dev,
+ openssl,
+ libssl-dev,
+ libaudit-dev,
+ bc,
+ python-dev,
+ gawk,
+ libudev-dev,
+ autoconf,
+ automake,
+ libtool,
+ uuid-dev,
+ binutils-dev,
 Build-Depends-Indep:
- xmlto <!stage1>,
- docbook-utils <!stage1>,
- ghostscript <!stage1>,
- transfig <!stage1>,
- bzip2 <!stage1>,
- sharutils <!stage1>,
- asciidoc <!stage1>,
+ xmlto,
+ transfig,
+ bzip2,
+ sharutils,
+ asciidoc,
 Vcs-Git: git://git.launchpad.net/~ubuntu-kernel/ubuntu/+source/linux/+git/zesty
 XS-Testsuite: autopkgtest
 #XS-Testsuite-Depends: gcc-4.7 binutils
 
 Package: linux-source-PKGVER
-Build-Profiles: <!stage1>
 Architecture: all
 Section: devel
 Priority: optional
@@ -70,7 +67,6 @@ Description: Linux kernel source for version PKGVER with Ubuntu patches
  package instead.
 
 Package: SRCPKGNAME-doc
-Build-Profiles: <!stage1>
 Architecture: all
 Section: doc
 Priority: optional
@@ -83,7 +79,6 @@ Description: Linux kernel specific documentation for version PKGVER
  contained in each file.
 
 Package: SRCPKGNAME-headers-PKGVER-ABINUM
-Build-Profiles: <!stage1>
 Architecture: all
 Multi-Arch: foreign
 Section: devel
@@ -108,7 +103,6 @@ Description: Linux Kernel Headers for development
  your kernel. Use SRCPKGNAME-headers-* packages for that.
 
 Package: SRCPKGNAME-tools-common
-Build-Profiles: <!stage1>
 Architecture: all
 Multi-Arch: foreign
 Section: kernel
@@ -120,7 +114,6 @@ Description: Linux kernel version specific tools for version PKGVER
  version PGKVER.
 
 Package: SRCPKGNAME-tools-PKGVER-ABINUM
-Build-Profiles: <!stage1>
 Architecture: i386 amd64 armhf arm64 ppc64el s390x
 Section: devel
 Priority: optional
@@ -133,7 +126,6 @@ Description: Linux kernel version specific tools for version PKGVER-ABINUM
  You probably want to install linux-tools-PKGVER-ABINUM-<flavour>.
 
 Package: SRCPKGNAME-cloud-tools-common
-Build-Profiles: <!stage1>
 Architecture: all
 Multi-Arch: foreign
 Section: kernel
@@ -144,7 +136,6 @@ Description: Linux kernel version specific cloud tools for version PKGVER
  version locked tools for cloud tools for version PGKVER.
 
 Package: SRCPKGNAME-cloud-tools-PKGVER-ABINUM
-Build-Profiles: <!stage1>
 Architecture: i386 amd64 armhf
 Section: devel
 Priority: optional
