@@ -38,6 +38,14 @@ do_cloud_tools=$(sort $(filter-out false,$(do_tools_hyperv)))
 do_tools_common?=true
 do_tools_host?=false
 
+# Endless customizations
+skipabi=true
+skipmodule=true
+skipretpoline=true
+do_cloud_tools=false
+do_doc_package=false
+do_zfs=false
+
 # Don't build tools or udebs in a cross compile environment.
 ifneq ($(DEB_HOST_ARCH),$(DEB_BUILD_ARCH))
 	do_tools=false
@@ -48,6 +56,7 @@ endif
 
 # Are any of the kernel signing options enabled.
 any_signed=$(sort $(filter-out false,$(uefi_signed) $(opal_signed)))
+any_signed=false
 ifeq ($(any_signed),true)
 bin_pkg_name=$(bin_pkg_name_unsigned)
 else
@@ -131,7 +140,17 @@ clean: debian/control
 
 	# This gets rid of the d-i packages in control
 	cp -f $(DEBIAN)/control.stub $(DROOT)/control
-	cp $(DEBIAN)/changelog debian/changelog
+
+	# Hack: OBS adds a new version in debian/changelog. We want to
+	# preserve that, but most of the rules read from the master
+	# changelog. Keep them in sync here and preserve timestamps.
+	if [ ! -f debian/changelog ]; then \
+		cp -p $(DEBIAN)/changelog debian/changelog; \
+	elif [ $(DEBIAN)/changelog -nt debian/changelog ]; then \
+		cp -p $(DEBIAN)/changelog debian/changelog; \
+	elif [ debian/changelog -nt $(DEBIAN)/changelog ]; then \
+		cp -p debian/changelog $(DEBIAN)/changelog; \
+	fi
 
 	# Install the copyright information.
 	cp $(DEBIAN)/copyright debian/copyright
