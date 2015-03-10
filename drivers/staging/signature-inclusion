@@ -17,3 +17,6 @@ rtllib_crypt_ccmp.ko
 rtllib_crypt_tkip.ko
 rtllib_crypt_wep.ko
 rtllib.ko
+r8723bs.ko
+r8822be.ko
+vboxvideo.ko
