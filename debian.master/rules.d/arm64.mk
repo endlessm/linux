@@ -1,11 +1,11 @@
 build_arch	= arm64
 defconfig	= defconfig
-flavours	= generic generic-64k
+flavours	= generic
 build_image	= Image.gz
 kernel_file	= arch/$(build_arch)/boot/Image.gz
 install_file	= vmlinuz
 no_dumpfile = true
-uefi_signed     = true
+uefi_signed     = false
 
 vdso		= vdso_install
 
