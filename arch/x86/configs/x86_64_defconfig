@@ -308,3 +308,105 @@ CONFIG_SECURITY_SELINUX=y
 CONFIG_SECURITY_SELINUX_BOOTPARAM=y
 CONFIG_SECURITY_SELINUX_DISABLE=y
 # CONFIG_CRYPTO_ANSI_CPRNG is not set
+
+# Endless developer kernel customizations
+#
+# Options to enable here:
+#  1. Drivers for the devices included in Endless products/prototypes
+#  2. General options needed for system boot
+#  3. Important core options that bring the development kernel closer to the
+#     shipped distro kernel
+#
+# For external devices, its OK to expect the developer to turn on an option
+# or 2 for the hardware they are working with that day.
+#
+# The resultant kernel should be able to boot a system without requiring any
+# modules to be loaded in the initramfs.
+
+# General
+CONFIG_UEVENT_HELPER_PATH=""
+CONFIG_EFI_STUB=y
+CONFIG_RETPOLINE=n
+
+# Endless VPN
+CONFIG_TUN=y
+
+# For ostree admin unlock
+CONFIG_OVERLAY_FS=y
+
+# For hdajackretask
+CONFIG_SND_HDA_RECONFIG=y
+
+# Subsytems needed for hardware device selection below
+CONFIG_MMC=y
+CONFIG_BT=y
+CONFIG_MEDIA_SUPPORT=y
+CONFIG_MEDIA_USB_SUPPORT=y
+CONFIG_MEDIA_CAMERA_SUPPORT=y
+
+# Bay Trail M fundamentals (EC-200 and more)
+CONFIG_USB_XHCI_HCD=y
+
+# Cherry Trail fundamentals (ECS EF20 and more)
+CONFIG_PINCTRL_CHERRYVIEW=y
+
+# Intel Skylake (SPT) fundamentals (Asus X456UA and more)
+CONFIG_IDMA64=y
+CONFIG_X86_INTEL_LPSS=y
+CONFIG_MFD_INTEL_LPSS_ACPI=y
+CONFIG_MFD_INTEL_LPSS_PCI=y
+CONFIG_I2C_DESIGNWARE_PLATFORM=y
+
+# Asus laptop fundamentals
+CONFIG_ACPI_WMI=y
+CONFIG_ASUS_WMI=y
+CONFIG_ASUS_NB_WMI=y
+CONFIG_ASUS_WIRELESS=y
+CONFIG_RFKILL_LEDS=y
+
+# EC-200 uses eMMC disk
+CONFIG_MMC_SDHCI=y
+CONFIG_MMC_SDHCI_PCI=y
+CONFIG_MMC_SDHCI_ACPI=y
+
+# EC-200 microSD slot
+CONFIG_MFD_RTSX_USB=y
+CONFIG_MMC_REALTEK_USB=y
+
+# GB-BXBT-2807 bluetooth, also optionally available on EC-200
+CONFIG_BT_HCIBTUSB=y
+
+# NL3 webcam
+CONFIG_USB_VIDEO_CLASS=y
+
+# NL3 sound
+CONFIG_SND_HDA_CODEC_REALTEK=y
+CONFIG_SND_HDA_CODEC_HDMI=y
+CONFIG_SND_DYNAMIC_MINORS=y
+
+# NL3 WiFi media button
+CONFIG_ACPI_CMPC=y
+
+# Asus X456UA touchpad
+CONFIG_I2C_HID=y
+CONFIG_MOUSE_ELAN_I2C=y
+CONFIG_MOUSE_ELAN_I2C_I2C=y
+
+# Asus E402NA touchpad
+CONFIG_HID_MULTITOUCH=y
+
+# AMD A8/A10 fundamentals
+CONFIG_DRM_RADEON=y
+CONFIG_DRM_AMDGPU=y
+
+# Weibu F3C
+CONFIG_USB_RTL8152=y
+CONFIG_SND_SOC=y
+CONFIG_SND_SOC_INTEL_BYT_CHT_ES8316_MACH=y
+
+# Asus P4540UQ
+CONFIG_SCSI_LOWLEVEL=y
+CONFIG_SCSI_AMPE_STOR=y
+
+# Asus UX392FN and others
+CONFIG_BLK_DEV_NVME=y
