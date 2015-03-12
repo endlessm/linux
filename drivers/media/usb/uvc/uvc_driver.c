@@ -1791,6 +1791,30 @@ error:
 }
 
 /*
+ * This Realtek camera has a broken descriptor. The output terminal
+ * references a non-existent source. The rest of the simple chain is
+ * fine. Fix the OT to chain on to the end.
+ */
+static void uvc_handle_rtl57a7(struct uvc_device *dev)
+{
+	struct uvc_entity *term;
+
+	term = uvc_entity_by_id(dev, 3);
+	if (!term) {
+		uvc_printk(KERN_INFO, "RTL57A7: no entity with id 3\n");
+		return;
+	}
+
+	if (!UVC_ENTITY_IS_OTERM(term)) {
+		uvc_printk(KERN_INFO, "RTL57A7: entity 3 is not OT\n");
+		return;
+	}
+
+	term->baSourceID[0] = 4;
+	uvc_printk(KERN_INFO, "Applied RTL57A7 chain quirk.\n");
+}
+
+/*
  * Scan the device for video chains and register video devices.
  *
  * Chains are scanned starting at their output terminals and walked backwards.
@@ -1799,6 +1823,9 @@ static int uvc_scan_device(struct uvc_device *dev)
 {
 	struct uvc_video_chain *chain;
 	struct uvc_entity *term;
+
+	if (dev->quirks & UVC_QUIRK_RTL57A7)
+		uvc_handle_rtl57a7(dev);
 
 	list_for_each_entry(term, &dev->entities, list) {
 		if (!UVC_ENTITY_IS_OTERM(term))
@@ -2638,6 +2665,15 @@ static const struct usb_device_id uvc_ids[] = {
 	  .bInterfaceSubClass	= 1,
 	  .bInterfaceProtocol	= 0,
 	  .driver_info		= (kernel_ulong_t)&uvc_quirk_probe_minmax },
+	/* Realtek camera in Quanta NL3 laptop */
+	{ .match_flags		= USB_DEVICE_ID_MATCH_DEVICE
+				| USB_DEVICE_ID_MATCH_INT_INFO,
+	  .idVendor		= 0x0bda,
+	  .idProduct		= 0x57a7,
+	  .bInterfaceClass	= USB_CLASS_VIDEO,
+	  .bInterfaceSubClass	= 1,
+	  .bInterfaceProtocol	= 0,
+	  .driver_info		= UVC_INFO_QUIRK(UVC_QUIRK_RTL57A7) },
 	/* MT6227 */
 	{ .match_flags		= USB_DEVICE_ID_MATCH_DEVICE
 				| USB_DEVICE_ID_MATCH_INT_INFO,
