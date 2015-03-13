@@ -279,6 +279,7 @@ static int	rtw_proc_cnt = 0;
 
 void rtw_proc_init_one(struct net_device *dev)
 {
+#if 0
 	struct proc_dir_entry *dir_dev = NULL;
 	struct proc_dir_entry *entry=NULL;
 	_adapter	*padapter = rtw_netdev_priv(dev);
@@ -646,11 +647,13 @@ void rtw_proc_init_one(struct net_device *dev)
 	}
 	entry->write_proc = proc_set_dm_adaptivity;
 #endif /* CONFIG_DM_ADAPTIVITY */
+#endif
 
 }
 
 void rtw_proc_remove_one(struct net_device *dev)
 {
+#if 0
 	struct proc_dir_entry *dir_dev = NULL;
 	_adapter	*padapter = rtw_netdev_priv(dev);
 	u8 rf_type;
@@ -750,6 +753,7 @@ void rtw_proc_remove_one(struct net_device *dev)
 			rtw_proc = NULL;
 		}
 	}
+#endif
 }
 #endif
 
@@ -945,7 +949,7 @@ unsigned int rtw_classify8021d(struct sk_buff *skb)
 	return dscp >> 5;
 }
 
-static u16 rtw_select_queue(struct net_device *dev, struct sk_buff *skb)
+static u16 rtw_select_queue(struct net_device *dev, struct sk_buff *skb, void *accel_priv, select_queue_fallback_t fallback)
 {
 	_adapter	*padapter = rtw_netdev_priv(dev);
 	struct mlme_priv *pmlmepriv = &padapter->mlmepriv;
