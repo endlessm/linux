@@ -1,6 +1,8 @@
-config RTL8192CU
+config 8192CU
 	tristate "Realtek 8192C USB WiFi"
 	depends on USB
+	depends on CFG80211_WEXT
+	select WIRELESS_EXT
 	---help---
 	  Help message of RTL8192CU
 
