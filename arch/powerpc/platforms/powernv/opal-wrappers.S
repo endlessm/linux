@@ -20,7 +20,7 @@
  * - Get r11 feed up by Dave so I can have better register usage
  */
 #define OPAL_CALL(name, token)		\
- _GLOBAL(name);				\
+ _GLOBAL_TOC(name);			\
 	mflr	r0;			\
 	mfcr	r12;			\
 	std	r0,16(r1);		\
