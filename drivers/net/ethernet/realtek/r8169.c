@@ -30,6 +30,7 @@
 #include <linux/prefetch.h>
 #include <linux/ipv6.h>
 #include <net/ip6_checksum.h>
+#include <linux/dmi.h>
 
 #define MODULENAME "r8169"
 
@@ -79,13 +80,15 @@ static const int multicast_filter_limit = 32;
 
 #define RTL8169_TX_TIMEOUT	(6*HZ)
 
+static int use_pio;
+
 /* write/read MMIO register */
-#define RTL_W8(tp, reg, val8)	writeb((val8), tp->mmio_addr + (reg))
-#define RTL_W16(tp, reg, val16)	writew((val16), tp->mmio_addr + (reg))
-#define RTL_W32(tp, reg, val32)	writel((val32), tp->mmio_addr + (reg))
-#define RTL_R8(tp, reg)		readb(tp->mmio_addr + (reg))
-#define RTL_R16(tp, reg)		readw(tp->mmio_addr + (reg))
-#define RTL_R32(tp, reg)		readl(tp->mmio_addr + (reg))
+#define RTL_W8(tp, reg, val8)       iowrite8 ((val8), tp->mmio_addr + (reg))
+#define RTL_W16(tp, reg, val16)     iowrite16 ((val16), tp->mmio_addr + (reg))
+#define RTL_W32(tp, reg, val32)     iowrite32 ((val32), tp->mmio_addr + (reg))
+#define RTL_R8(tp, reg)             ioread8 (tp->mmio_addr + (reg))
+#define RTL_R16(tp, reg)            ioread16 (tp->mmio_addr + (reg))
+#define RTL_R32(tp, reg)            ioread32 (tp->mmio_addr + (reg))
 
 enum mac_version {
 	RTL_GIGA_MAC_VER_01 = 0,
@@ -1577,6 +1580,8 @@ static void rtl8169_get_drvinfo(struct net_device *dev,
 
 static int rtl8169_get_regs_len(struct net_device *dev)
 {
+	if (use_pio)
+		return 0;
 	return R8169_REGS_SIZE;
 }
 
@@ -1650,6 +1655,9 @@ static void rtl8169_get_regs(struct net_device *dev, struct ethtool_regs *regs,
 	u32 __iomem *data = tp->mmio_addr;
 	u32 *dw = p;
 	int i;
+
+	if (use_pio)
+		return;
 
 	rtl_lock_work(tp);
 	for (i = 0; i < R8169_REGS_SIZE; i += 4)
@@ -7268,6 +7276,24 @@ static void rtl_disable_clk(void *data)
 	clk_disable_unprepare(data);
 }
 
+static int rtl_flag_use_pio(const struct dmi_system_id *id)
+{
+	use_pio = 1;
+	return 0;
+}
+
+static struct dmi_system_id rtl_dmi_table[] __initdata = {
+	{
+		rtl_flag_use_pio, "Endless ELT-NL3",
+		{
+		     DMI_MATCH(DMI_SYS_VENDOR, "Endless"),
+		     DMI_MATCH(DMI_PRODUCT_NAME, "ELT-NL3"),
+		},
+		NULL,
+	},
+	{}
+};
+
 static int rtl_init_one(struct pci_dev *pdev, const struct pci_device_id *ent)
 {
 	const struct rtl_cfg_info *cfg = rtl_cfg_infos + ent->driver_data;
@@ -7275,6 +7301,16 @@ static int rtl_init_one(struct pci_dev *pdev, const struct pci_device_id *ent)
 	struct net_device *dev;
 	int chipset, region, i;
 	int jumbo_max, rc;
+	unsigned long region_type;
+	static const struct {
+		unsigned long mask;
+		const char *type;
+	} res[] = {
+		{ IORESOURCE_MEM, "MMIO" },
+		{ IORESOURCE_IO,  "PIO" }
+	};
+
+	dmi_check_system(rtl_dmi_table);
 
 	dev = devm_alloc_etherdev(&pdev->dev, sizeof (*tp));
 	if (!dev)
@@ -7324,8 +7360,13 @@ static int rtl_init_one(struct pci_dev *pdev, const struct pci_device_id *ent)
 	if (pcim_set_mwi(pdev) < 0)
 		dev_info(&pdev->dev, "Mem-Wr-Inval unavailable\n");
 
-	/* use first MMIO region */
-	region = ffs(pci_select_bars(pdev, IORESOURCE_MEM)) - 1;
+	if (use_pio)
+		region_type = IORESOURCE_IO;
+	else
+		region_type = IORESOURCE_MEM;
+
+	/* use first region */
+	region = ffs(pci_select_bars(pdev, region_type)) - 1;
 	if (region < 0) {
 		dev_err(&pdev->dev, "no MMIO resource found\n");
 		return -ENODEV;
