@@ -28,6 +28,7 @@
 #include <linux/firmware.h>
 #include <linux/pci-aspm.h>
 #include <linux/prefetch.h>
+#include <linux/dmi.h>
 
 #include <asm/io.h>
 #include <asm/irq.h>
@@ -93,13 +94,15 @@ static const int multicast_filter_limit = 32;
 #define RTL8169_TX_TIMEOUT	(6*HZ)
 #define RTL8169_PHY_TIMEOUT	(10*HZ)
 
+static int use_pio;
+
 /* write/read MMIO register */
-#define RTL_W8(reg, val8)	writeb ((val8), ioaddr + (reg))
-#define RTL_W16(reg, val16)	writew ((val16), ioaddr + (reg))
-#define RTL_W32(reg, val32)	writel ((val32), ioaddr + (reg))
-#define RTL_R8(reg)		readb (ioaddr + (reg))
-#define RTL_R16(reg)		readw (ioaddr + (reg))
-#define RTL_R32(reg)		readl (ioaddr + (reg))
+#define RTL_W8(reg, val8)       iowrite8 ((val8), ioaddr + (reg))
+#define RTL_W16(reg, val16)     iowrite16 ((val16), ioaddr + (reg))
+#define RTL_W32(reg, val32)     iowrite32 ((val32), ioaddr + (reg))
+#define RTL_R8(reg)             ioread8 (ioaddr + (reg))
+#define RTL_R16(reg)            ioread16 (ioaddr + (reg))
+#define RTL_R32(reg)            ioread32 (ioaddr + (reg))
 
 enum mac_version {
 	RTL_GIGA_MAC_VER_01 = 0,
@@ -1640,6 +1643,8 @@ static void rtl8169_get_drvinfo(struct net_device *dev,
 
 static int rtl8169_get_regs_len(struct net_device *dev)
 {
+	if (use_pio)
+		return 0;
 	return R8169_REGS_SIZE;
 }
 
@@ -1900,6 +1905,9 @@ static void rtl8169_get_regs(struct net_device *dev, struct ethtool_regs *regs,
 	u32 __iomem *data = tp->mmio_addr;
 	u32 *dw = p;
 	int i;
+
+	if (use_pio)
+		return;
 
 	rtl_lock_work(tp);
 	for (i = 0; i < R8169_REGS_SIZE; i += 4)
@@ -6840,6 +6848,7 @@ static const struct net_device_ops rtl_netdev_ops = {
 static const struct rtl_cfg_info {
 	void (*hw_start)(struct net_device *);
 	unsigned int region;
+	unsigned int pio_region;
 	unsigned int align;
 	u16 event_slow;
 	unsigned features;
@@ -6848,6 +6857,7 @@ static const struct rtl_cfg_info {
 	[RTL_CFG_0] = {
 		.hw_start	= rtl_hw_start_8169,
 		.region		= 1,
+		.pio_region	= 0,
 		.align		= 0,
 		.event_slow	= SYSErr | LinkChg | RxOverflow | RxFIFOOver,
 		.features	= RTL_FEATURE_GMII,
@@ -6856,6 +6866,7 @@ static const struct rtl_cfg_info {
 	[RTL_CFG_1] = {
 		.hw_start	= rtl_hw_start_8168,
 		.region		= 2,
+		.pio_region	= 0,
 		.align		= 8,
 		.event_slow	= SYSErr | LinkChg | RxOverflow,
 		.features	= RTL_FEATURE_GMII | RTL_FEATURE_MSI,
@@ -6864,6 +6875,7 @@ static const struct rtl_cfg_info {
 	[RTL_CFG_2] = {
 		.hw_start	= rtl_hw_start_8101,
 		.region		= 2,
+		.pio_region	= 0,
 		.align		= 8,
 		.event_slow	= SYSErr | LinkChg | RxOverflow | RxFIFOOver |
 				  PCSTimeout,
@@ -6958,17 +6970,45 @@ static void rtl_hw_initialize(struct rtl8169_private *tp)
 	}
 }
 
+static int rtl_flag_use_pio(const struct dmi_system_id *id)
+{
+	use_pio = 1;
+	return 0;
+}
+
+static struct dmi_system_id rtl_dmi_table[] __initdata = {
+	{
+		rtl_flag_use_pio, "Quanta NL3",
+		{ DMI_MATCH(DMI_BIOS_VERSION, "NL3.86A.0030.A7") },
+		NULL,
+	},
+};
+
 static int
 rtl_init_one(struct pci_dev *pdev, const struct pci_device_id *ent)
 {
 	const struct rtl_cfg_info *cfg = rtl_cfg_infos + ent->driver_data;
-	const unsigned int region = cfg->region;
+	unsigned int region;
 	struct rtl8169_private *tp;
 	struct mii_if_info *mii;
 	struct net_device *dev;
 	void __iomem *ioaddr;
 	int chipset, i;
 	int rc;
+	static const struct {
+		unsigned long mask;
+		char *type;
+	} res[] = {
+		{ IORESOURCE_MEM, "MMIO" },
+		{ IORESOURCE_IO,  "PIO" }
+	};
+
+	dmi_check_system(rtl_dmi_table);
+
+	if (use_pio)
+		region = cfg->pio_region;
+	else
+		region = cfg->region;
 
 	if (netif_msg_drv(&debug)) {
 		printk(KERN_INFO "%s Gigabit Ethernet driver %s loaded\n",
@@ -7011,11 +7051,10 @@ rtl_init_one(struct pci_dev *pdev, const struct pci_device_id *ent)
 	if (pci_set_mwi(pdev) < 0)
 		netif_info(tp, probe, dev, "Mem-Wr-Inval unavailable\n");
 
-	/* make sure PCI base addr 1 is MMIO */
-	if (!(pci_resource_flags(pdev, region) & IORESOURCE_MEM)) {
+	if (!(pci_resource_flags(pdev, region) & res[use_pio].mask)) {
 		netif_err(tp, probe, dev,
-			  "region #%d not an MMIO resource, aborting\n",
-			  region);
+			  "region #%d not an %s resource, aborting\n",
+			  region, res[use_pio].type);
 		rc = -ENODEV;
 		goto err_out_mwi_2;
 	}
@@ -7048,10 +7087,9 @@ rtl_init_one(struct pci_dev *pdev, const struct pci_device_id *ent)
 		}
 	}
 
-	/* ioremap MMIO region */
-	ioaddr = ioremap(pci_resource_start(pdev, region), R8169_REGS_SIZE);
+	ioaddr = pci_iomap(pdev, region, R8169_REGS_SIZE);
 	if (!ioaddr) {
-		netif_err(tp, probe, dev, "cannot remap MMIO, aborting\n");
+		netif_err(tp, probe, dev, "cannot map %s, aborting\n", res[use_pio].type);
 		rc = -EIO;
 		goto err_out_free_res_3;
 	}
