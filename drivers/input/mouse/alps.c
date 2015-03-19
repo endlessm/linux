@@ -15,6 +15,7 @@
  * the Free Software Foundation.
  */
 
+#include <linux/dmi.h>
 #include <linux/slab.h>
 #include <linux/input.h>
 #include <linux/input/mt.h>
@@ -576,6 +577,8 @@ static void alps_decode_dolphin(struct alps_fields *f, unsigned char *p,
 		f->x = ((p[1] & 0x7f) | ((p[4] & 0x0f) << 7));
 		f->y = ((p[2] & 0x7f) | ((p[4] & 0xf0) << 3));
 		f->z = (p[0] & 4) ? 0 : p[5] & 0x7f;
+		if (priv->quirks & ALPS_QUIRK_LOW_PRESSURE)
+			f->z *= 2;
 		alps_decode_buttons_v3(f, p);
 	} else {
 		f->fingers = ((p[0] & 0x6) >> 1 |
@@ -2078,6 +2081,11 @@ static void alps_set_abs_params_mt(struct alps_data *priv,
 	input_set_abs_params(dev1, ABS_Y, 0, priv->y_max, 0, 0);
 }
 
+static struct dmi_system_id low_pressure_dmi_ids[] = {
+	{ .matches = { DMI_MATCH(DMI_BIOS_VERSION, "QQ111") } },
+	{},
+};
+
 int alps_init(struct psmouse *psmouse)
 {
 	struct alps_data *priv;
@@ -2141,6 +2149,9 @@ int alps_init(struct psmouse *psmouse)
 	} else {
 		dev1->keybit[BIT_WORD(BTN_MIDDLE)] |= BIT_MASK(BTN_MIDDLE);
 	}
+
+	if (dmi_check_system(low_pressure_dmi_ids))
+		priv->quirks |= ALPS_QUIRK_LOW_PRESSURE;
 
 	snprintf(priv->phys, sizeof(priv->phys), "%s/input1", psmouse->ps2dev.serio->phys);
 	dev2->phys = priv->phys;
