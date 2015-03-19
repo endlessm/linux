@@ -325,6 +325,7 @@ struct alps_data {
 };
 
 #define ALPS_QUIRK_TRACKSTICK_BUTTONS	1 /* trakcstick buttons in trackstick packet */
+#define ALPS_QUIRK_LOW_PRESSURE		2 /* pressure values need to be scaled */
 
 #ifdef CONFIG_MOUSE_PS2_ALPS
 int alps_detect(struct psmouse *psmouse, bool set_properties);
