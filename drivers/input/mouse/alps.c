@@ -15,6 +15,7 @@
  * the Free Software Foundation.
  */
 
+#include <linux/dmi.h>
 #include <linux/slab.h>
 #include <linux/input.h>
 #include <linux/input/mt.h>
@@ -700,6 +701,8 @@ static int alps_decode_dolphin(struct alps_fields *f, unsigned char *p,
 		f->st.x = ((p[1] & 0x7f) | ((p[4] & 0x0f) << 7));
 		f->st.y = ((p[2] & 0x7f) | ((p[4] & 0xf0) << 3));
 		f->pressure = (p[0] & 4) ? 0 : p[5] & 0x7f;
+		if (priv->quirks & ALPS_QUIRK_LOW_PRESSURE)
+			f->pressure *= 2;
 		alps_decode_buttons_v3(f, p);
 	} else {
 		f->fingers = ((p[0] & 0x6) >> 1 |
@@ -2996,7 +2999,7 @@ static void alps_set_abs_params_semi_mt(struct alps_data *priv,
 }
 
 static void alps_set_abs_params_v7(struct alps_data *priv,
-				   struct input_dev *dev1)
+                                   struct input_dev *dev1)
 {
 	alps_set_abs_params_mt_common(priv, dev1);
 	set_bit(BTN_TOOL_QUINTTAP, dev1->keybit);
@@ -3019,6 +3022,15 @@ static void alps_set_abs_params_ss4_v2(struct alps_data *priv,
 			    INPUT_MT_POINTER | INPUT_MT_DROP_UNUSED |
 				INPUT_MT_TRACK);
 }
+
+static struct dmi_system_id low_pressure_dmi_ids[] = {
+        { .matches = {
+                     DMI_MATCH(DMI_SYS_VENDOR, "Endless"),
+                     DMI_MATCH(DMI_PRODUCT_NAME, "ELT-JWM"),
+                }
+        },
+        {},
+};
 
 int alps_init(struct psmouse *psmouse)
 {
@@ -3072,6 +3084,9 @@ int alps_init(struct psmouse *psmouse)
 	} else {
 		dev1->keybit[BIT_WORD(BTN_MIDDLE)] |= BIT_MASK(BTN_MIDDLE);
 	}
+
+        if (dmi_check_system(low_pressure_dmi_ids))
+                priv->quirks |= ALPS_QUIRK_LOW_PRESSURE;
 
 	if (priv->flags & ALPS_DUALPOINT) {
 		struct input_dev *dev2;
