@@ -6979,7 +6979,7 @@ static int rtl_flag_use_pio(const struct dmi_system_id *id)
 static struct dmi_system_id rtl_dmi_table[] __initdata = {
 	{
 		rtl_flag_use_pio, "Quanta NL3",
-		{ DMI_MATCH(DMI_BIOS_VERSION, "NL3.86A.0030.A7") },
+		{ DMI_MATCH(DMI_BIOS_VERSION, "NL3.86A.E030.C4") },
 		NULL,
 	},
 };
