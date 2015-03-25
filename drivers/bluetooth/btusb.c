@@ -38,6 +38,7 @@ static bool disable_scofix;
 static bool force_scofix;
 
 static bool reset = 1;
+static int debug = 0;
 
 static struct usb_driver btusb_driver;
 
@@ -50,7 +51,28 @@ static struct usb_driver btusb_driver;
 #define BTUSB_WRONG_SCO_MTU	0x40
 #define BTUSB_ATH3012		0x80
 #define BTUSB_INTEL		0x100
-#define BTUSB_BCM_PATCHRAM	0x800
+#define BTUSB_BCM_PATCHRAM	0x200
+
+#define BTUSB_RTL		0x400
+
+#ifdef BT_DBG
+#undef BT_DBG
+#endif
+#define BT_DBG(fmt, arg...)			\
+	if (debug >= 2)				\
+		pr_info("test_btusb: %s " fmt "\n" , __func__ , ## arg)
+
+#ifdef BT_INFO
+#undef BT_INFO
+#endif
+#define BT_INFO(fmt, arg...)			\
+	if (debug >= 1)				\
+		pr_info("test_btusb: %s " fmt "\n" , __func__ , ## arg)
+#ifdef BT_ERR
+#undef BT_ERR
+#endif
+#define BT_ERR(fmt, arg...)			\
+	pr_err("test_btusb: %s " fmt "\n" , __func__ , ## arg)
 
 static const struct usb_device_id btusb_table[] = {
 	/* Generic Bluetooth USB device */
@@ -125,6 +147,12 @@ static const struct usb_device_id btusb_table[] = {
 	/* Belkin F8065bf - Broadcom based */
 	{ USB_VENDOR_AND_INTERFACE_INFO(0x050d, 0xff, 0x01, 0x01) },
 
+	/* Realtek bluetooth -generic modules*/
+	{ USB_VENDOR_AND_INTERFACE_INFO(0x0bda, 0xe0, 0x01, 0x01) },
+	/* Realtek bluetooth -with vendor specific id*/
+	{ USB_VENDOR_AND_INTERFACE_INFO(0x0bd5, 0xe0, 0x01, 0x01) },
+	{ USB_VENDOR_AND_INTERFACE_INFO(0x13d3, 0xe0, 0x01, 0x01) },
+	{ USB_VENDOR_AND_INTERFACE_INFO(0x0489, 0xe0, 0x01, 0x01) },
 	{ }	/* Terminating entry */
 };
 
@@ -237,6 +265,53 @@ static const struct usb_device_id blacklist_table[] = {
 	{ USB_DEVICE(0x8087, 0x07dc), .driver_info = BTUSB_INTEL },
 	{ USB_DEVICE(0x8087, 0x0a2a), .driver_info = BTUSB_INTEL },
 
+	/* Realtek Bluetooth device */
+	/* 8723AE */
+	{ USB_DEVICE(0x0bda, 0x0723), .driver_info = BTUSB_RTL },
+	{ USB_DEVICE(0x0bda, 0xa723), .driver_info = BTUSB_IGNORE },
+	{ USB_DEVICE(0x0bda, 0x8723), .driver_info = BTUSB_RTL },
+	{ USB_DEVICE(0x0930, 0x021d), .driver_info = BTUSB_RTL },
+	{ USB_DEVICE(0x13d3, 0x3394), .driver_info = BTUSB_RTL },
+	/* 8723AU */
+	{ USB_DEVICE(0x0bda, 0x0724), .driver_info = BTUSB_RTL },
+	{ USB_DEVICE(0x0bda, 0x1724), .driver_info = BTUSB_RTL },
+	{ USB_DEVICE(0x0bda, 0xa724), .driver_info = BTUSB_RTL },
+	{ USB_DEVICE(0x0bda, 0x8725), .driver_info = BTUSB_RTL },
+	{ USB_DEVICE(0x0bda, 0x872a), .driver_info = BTUSB_RTL },
+	{ USB_DEVICE(0x0bda, 0x872b), .driver_info = BTUSB_RTL },
+	/* 8723BE */
+	{ USB_DEVICE(0x0bda, 0xb728), .driver_info = BTUSB_RTL },
+	{ USB_DEVICE(0x0bda, 0xb723), .driver_info = BTUSB_RTL },
+	{ USB_DEVICE(0x0bda, 0xb72B), .driver_info = BTUSB_RTL },
+	{ USB_DEVICE(0x0bda, 0xb001), .driver_info = BTUSB_RTL },
+	{ USB_DEVICE(0x0bda, 0xb002), .driver_info = BTUSB_RTL },
+	{ USB_DEVICE(0x0bda, 0xb003), .driver_info = BTUSB_RTL },
+	{ USB_DEVICE(0x0bda, 0xb004), .driver_info = BTUSB_RTL },
+	{ USB_DEVICE(0x0bda, 0xb005), .driver_info = BTUSB_RTL },
+	{ USB_DEVICE(0x13d3, 0x3410), .driver_info = BTUSB_RTL },
+	{ USB_DEVICE(0x13d3, 0x3416), .driver_info = BTUSB_RTL },
+	{ USB_DEVICE(0x13d3, 0x3459), .driver_info = BTUSB_RTL },
+	{ USB_DEVICE(0x0489, 0xe085), .driver_info = BTUSB_RTL },
+	{ USB_DEVICE(0x0489, 0xe08b), .driver_info = BTUSB_RTL },
+	/* 8723BU */
+	{ USB_DEVICE(0x0bda, 0xb720), .driver_info = BTUSB_RTL },
+	{ USB_DEVICE(0x0bda, 0xb72a), .driver_info = BTUSB_RTL },
+	/* 8821AE */
+	{ USB_DEVICE(0x0bda, 0x0821), .driver_info = BTUSB_RTL },
+	{ USB_DEVICE(0x0bda, 0x8821), .driver_info = BTUSB_RTL },
+	{ USB_DEVICE(0x13d3, 0x3414), .driver_info = BTUSB_RTL },
+	{ USB_DEVICE(0x13d3, 0x3458), .driver_info = BTUSB_RTL },
+	{ USB_DEVICE(0x13d3, 0x3461), .driver_info = BTUSB_RTL },
+	{ USB_DEVICE(0x13d3, 0x3462), .driver_info = BTUSB_RTL },
+	{ USB_DEVICE(0x0b05, 0x17dc), .driver_info = BTUSB_RTL },
+	/* 8821AU */
+	{ USB_DEVICE(0x0bda, 0x0823), .driver_info = BTUSB_RTL },
+	/* 8761AU */
+	{ USB_DEVICE(0x0bda, 0xA761), .driver_info = BTUSB_RTL },
+	{ USB_DEVICE(0x0bda, 0x8760), .driver_info = BTUSB_RTL },
+	{ USB_DEVICE(0x0bda, 0x8761), .driver_info = BTUSB_RTL },
+	{ USB_DEVICE(0x0bda, 0xB761), .driver_info = BTUSB_RTL },
+	{ USB_DEVICE(0x0bda, 0x8A60), .driver_info = BTUSB_RTL },
 	{ }	/* Terminating entry */
 };
 
@@ -1352,6 +1427,405 @@ exit_mfg_deactivate:
 	return 0;
 }
 
+/* signature: Realtek */
+const uint8_t RTK_EPATCH_SIGNATURE[8] = {0x52, 0x65, 0x61, 0x6C, 0x74, 0x65, 0x63, 0x68};
+/* Extension Section IGNATURE*/
+const uint8_t EXTENSION_SECTION_SIGNATURE[4] = {0x51, 0x04, 0xFD, 0x77};
+/* Extension Section IGNATURE*/
+const uint8_t RTK_CONFIG_SIGNATURE[6] = {0x55, 0xab, 0x23, 0x87, 0x04, 0x00};
+const uint8_t CONFIG_S0_ANTTENA[4] = {0xE3, 0x01, 0x01, 0x04};
+const uint8_t CONFIG_S1_ANTTENA[4] = {0xE3, 0x01, 0x01, 0x00};
+
+#define USE_S0_ANTTENA	1
+#define ROM_LMP_8723A	0x1200
+#define ROM_LMP_3499	0x3499
+#define ROM_LMP_8723B    0x8723
+#define ROM_LMP_8821A    0X8821
+#define ROM_LMP_8761A    0X8761
+uint16_t project_id[] = {
+	ROM_LMP_8723A ,
+	ROM_LMP_8723B,
+	ROM_LMP_8821A,
+	ROM_LMP_8761A
+};
+
+struct rtl_rom_version_evt {
+	uint8_t status;
+	uint8_t version;
+} __packed;
+
+struct rtk_epatch_entry {
+	uint16_t chip_id;
+	uint16_t patch_length;
+	uint32_t start_offset;
+	uint32_t coex_version;
+	uint32_t svn_version;
+	uint32_t fw_version;
+} __packed;
+
+struct rtk_epatch {
+	uint8_t signature[8];
+	uint32_t fw_version;
+	uint16_t number_of_total_patch;
+	struct rtk_epatch_entry entry[0];
+} __packed;
+
+static int btusb_setup_rtl_get_oldfw(const struct firmware *fw, uint8_t **buf,
+				     int *buf_len)
+{
+	BT_INFO("%s", __func__);
+	/*check file length*/
+	if (fw->size < 8) {
+		BT_ERR("%s: file size %d error", __func__, (int)fw->size);
+		return -1;
+	}
+	/*check signature*/
+	if (!memcmp(fw->data, RTK_EPATCH_SIGNATURE, 8)) {
+			BT_ERR("%s: 8723a check signature error", __func__);
+			return -1;
+	}
+	*buf = kzalloc(fw->size, GFP_KERNEL);
+	if (!(*buf)) {
+		BT_ERR("%s: Failed to allocate mem for fw&config", __func__);
+		return -1;
+	}
+
+	memcpy(*buf, fw->data, fw->size);
+	*buf_len =  fw->size;
+	return 0;
+}
+
+static struct rtk_epatch_entry *get_fw_patch_entry(struct rtk_epatch *patch_info,
+						   uint16_t rom_ver)
+{
+	int patch_num = patch_info->number_of_total_patch;
+	uint8_t *patch_buf = (uint8_t *)patch_info;
+	struct rtk_epatch_entry *p_entry = NULL;
+	int coex_date;
+	int coex_ver;
+	int i;
+
+	for (i = 0; i < patch_num; i++) {
+		if (*(uint16_t *)(patch_buf + 14 + 2*i) == rom_ver + 1) {
+			p_entry = kzalloc(sizeof(*p_entry), GFP_KERNEL);
+			if (!p_entry) {
+				BT_ERR("%s: Failed to allocate mem for patch entry",
+				       __func__);
+				return NULL;
+			}
+			p_entry->chip_id = rom_ver + 1;
+			p_entry->patch_length = *(uint16_t *)(patch_buf +
+						14 + 2*patch_num + 2*i);
+			p_entry->start_offset = *(uint32_t *)(patch_buf +
+						14 + 4*patch_num + 4*i);
+			p_entry->coex_version = *(uint32_t *)(patch_buf +
+						p_entry->start_offset +
+						p_entry->patch_length - 12);
+			p_entry->svn_version = *(uint32_t *)(patch_buf +
+						p_entry->start_offset +
+						p_entry->patch_length - 8);
+			p_entry->fw_version = *(uint32_t *)(patch_buf +
+					      p_entry->start_offset +
+					      p_entry->patch_length - 4);
+			coex_date = ((p_entry->coex_version >> 16) & 0x7ff) +
+				    ((p_entry->coex_version >> 27) * 10000);
+			coex_ver = p_entry->coex_version & 0xffff;
+
+			BT_INFO("%s: chip id %d, patch length 0x%04x, patch offset 0x%08x,\n coex version 20%06d-0x%04x, svn version 0x%08x, fw version 0x%08x",
+				__func__, p_entry->chip_id,
+				p_entry->patch_length, p_entry->start_offset,
+				coex_date, coex_ver, p_entry->svn_version,
+				p_entry->fw_version);
+			break;
+		}
+	}
+
+	return p_entry;
+}
+
+static int btusb_setup_rtl_get_newfw(struct hci_dev *hdev,
+				     const struct firmware *fw,
+				     uint8_t **buf, int *buf_len,
+				     uint16_t lmp_version)
+{
+	struct sk_buff *skb;
+	uint16_t rom_ver;
+	const uint8_t *temp;
+	uint8_t opcode, len;
+	uint8_t data;
+	struct rtk_epatch *patch_info = NULL;
+	struct rtk_epatch_entry *patch_entry = NULL;
+	struct rtl_rom_version_evt *rom_evt;
+
+	BT_DBG("%s start", __func__);
+	/*read rom version*/
+	skb = __hci_cmd_sync(hdev, 0xfc6d, 0, NULL, HCI_INIT_TIMEOUT);
+	if (IS_ERR(skb)) {
+		rom_ver = 0;
+	} else {
+		if (skb->len != sizeof(*rom_evt)) {
+			BT_ERR("Realtek rom version event length mismatch");
+			kfree_skb(skb);
+			return -EIO;
+		}
+
+		rom_evt = (struct rtl_rom_version_evt *)skb->data;
+		if (rom_evt->status) {
+			BT_ERR("RTL fw version event failed (%02x)",
+			       rom_evt->status);
+			kfree_skb(skb);
+			rom_evt->version = 0;
+		}
+		rom_ver = rom_evt->version;
+		kfree_skb(skb);
+	}
+	BT_INFO("read rom version: %d", rom_ver);
+
+	/*check file length*/
+	if (fw->size < 20) {
+		BT_ERR("%s: file size %d error", __func__, (int)fw->size);
+		return -1;
+	}
+	/*check signature*/
+	temp = fw->data;
+	if (memcmp(temp, RTK_EPATCH_SIGNATURE, 8)) {
+		BT_ERR("%s: Check signature error", __func__);
+		return -1;
+	}
+	/*check Extension Section*/
+	if (memcmp(temp + fw->size-4, EXTENSION_SECTION_SIGNATURE, 4)) {
+		BT_ERR("%s: Failed to check extension section signature",
+		       __func__);
+		return -1;
+	}
+
+	temp = fw->data + fw->size - 5;
+	while (*temp != 0xFF) {
+		opcode = *temp;
+		len = *(temp-1);
+		data = *(temp-2);
+		if (*temp == 0x00) {
+			if (lmp_version != project_id[data]) {
+				BT_ERR("%s: Default lmp_version 0x%04x, project_id 0x%04x -> not match",
+				       __func__,
+				       lmp_version, project_id[data]);
+				return -1;
+			}
+			BT_DBG("%s: opcode = 0x%x, length = 0x%x, data = 0x%x",
+			       __func__, opcode, len, data);
+		}
+		temp -= len + 2;
+	}
+
+	/* Get right epatch entry */
+	patch_info = (struct rtk_epatch *)fw->data;
+	BT_INFO("%s:fw_version 0x%x, number_of_total_patch %d", __func__,
+		patch_info->fw_version, patch_info->number_of_total_patch);
+
+	patch_entry = get_fw_patch_entry(patch_info, rom_ver);
+	if (patch_entry == NULL) {
+		bt_err("%s: Failed to get fw patch entry", __func__);
+		return -1;
+	}
+	/*replace version informations*/
+	*buf = kzalloc(patch_entry->patch_length+10, GFP_KERNEL);
+	if (!(*buf)) {
+		BT_ERR("%s: Failed to allocate mem for fw&config", __func__);
+		return -1;
+	}
+	temp = fw->data+patch_entry->start_offset;
+	memcpy(*buf, temp, patch_entry->patch_length);
+	memcpy(*buf+patch_entry->patch_length-4,
+	       &patch_info->fw_version, 4);
+	*buf_len = patch_entry->patch_length;
+
+	/*for 8723B, use S0 Anttena for bluetooth*/
+	if (lmp_version == ROM_LMP_8723B) {
+		memcpy(*buf+patch_entry->patch_length,
+		       RTK_CONFIG_SIGNATURE, 6);
+		if (USE_S0_ANTTENA)
+			memcpy(*buf+patch_entry->patch_length+6,
+			       CONFIG_S0_ANTTENA, 4);
+		else
+			memcpy(*buf+patch_entry->patch_length+6,
+			       CONFIG_S1_ANTTENA, 4);
+		*buf_len += 10;
+		BT_DBG("USE_S0_ANTTENA");
+	}
+
+	BT_DBG("%s end", __func__);
+	return 0;
+}
+
+#define PATCH_SEG_MAX	252
+struct download_cp {
+	uint8_t index;
+	uint8_t data[PATCH_SEG_MAX];
+} __packed;
+
+struct download_rp {
+	uint8_t status;
+	uint8_t index;
+} __packed;
+
+static int btusb_setup_rtl_patching(struct hci_dev *hdev,
+				    uint8_t *fw_data , int fw_len)
+{
+	uint8_t *pcur = NULL;
+	struct sk_buff *skb;
+	int i, frag_num, frag_len;
+	struct hci_command_hdr cmd;
+	struct download_cp cmd_para;
+	struct download_rp *evt_para;
+
+	if (!fw_data)
+		return -1;
+
+	cmd.opcode = 0xfc20;
+	cmd.plen = sizeof(struct download_cp);
+	frag_num = fw_len / PATCH_SEG_MAX + 1;
+	frag_len = PATCH_SEG_MAX;
+	pcur = fw_data;
+
+	BT_DBG("%s start :pcur =%p, fw_len = %d, frag_num =%d, frag_len =%d ",
+		__func__, pcur, fw_len, frag_num, frag_len);
+
+	for (i = 0; i < frag_num; i++) {
+		cmd_para.index = i;
+		if (i == (frag_num - 1)) {
+			frag_len = fw_len % PATCH_SEG_MAX;
+			cmd.plen = 1+frag_len;
+			cmd_para.index |= 0x80;
+			BT_DBG("last:frag_len = %d", frag_len);
+		}
+		BT_DBG("cmd_para.index = 0x%x, frag_len = %d",
+		       cmd_para.index, frag_len);
+
+		memcpy(cmd_para.data, pcur, frag_len);
+		pcur += frag_len;
+
+		skb = __hci_cmd_sync(hdev, cmd.opcode, cmd.plen, &cmd_para,
+				     HCI_INIT_TIMEOUT);
+		if (IS_ERR(skb)) {
+			BT_ERR("reading Realtek patch command failed (%ld)",
+			       PTR_ERR(skb));
+			return PTR_ERR(skb);
+		}
+		if (skb->len != sizeof(struct download_rp)) {
+			BT_ERR("Realtek patch event length mismatch skb->len =%d",
+			       skb->len);
+			kfree_skb(skb);
+			return -EIO;
+		}
+
+		evt_para = (struct download_rp *)skb->data;
+		if (evt_para->status) {
+			BT_ERR("Realtek patch event failed (%02x)",
+			       evt_para->status);
+			kfree_skb(skb);
+			return -bt_to_errno(evt_para->status);
+		}
+		BT_INFO("Receive acked index %d", evt_para->index);
+		kfree_skb(skb);
+	}
+
+	BT_DBG("%s end ", __func__);
+	return 0;
+}
+
+static int btusb_setup_rtl(struct hci_dev *hdev)
+{
+	struct hci_rp_read_local_version *ver;
+	struct sk_buff *skb;
+	char fwname[16];
+	const struct firmware *fw;
+	uint8_t *fw_ptr = NULL;
+	int ret = 0, fw_len = 0;
+	uint16_t lmp_version;
+
+	BT_DBG("%s start", __func__);
+
+	/*read local version to check module type and whether patched or not*/
+	skb = __hci_cmd_sync(hdev, HCI_OP_READ_LOCAL_VERSION, 0, NULL,
+			     HCI_INIT_TIMEOUT);
+	if (IS_ERR(skb)) {
+		BT_ERR("reading Realtek fw version command failed (%ld)",
+		       PTR_ERR(skb));
+		return PTR_ERR(skb);
+	}
+	if (skb->len != sizeof(struct hci_rp_read_local_version)) {
+		BT_ERR("Realtek fw version event length mismatch");
+		kfree_skb(skb);
+		return -EIO;
+	}
+	ver = (struct hci_rp_read_local_version *)skb->data;
+	if (ver->status) {
+		BT_ERR("Realtek fw version event failed (%02x)",
+		       ver->status);
+		kfree_skb(skb);
+		return -bt_to_errno(ver->status);
+	}
+
+	if (ver->lmp_subver == 0x4ce1)
+		ver->lmp_subver = 0x8723;
+	pr_info("%s: read local version:\n hci_rev =%04x, hci_ver =%04x, lmp_subver =%04x, lmp_ver =%04X, manufacturer =%04X",
+		hdev->name, ver->hci_rev, ver->hci_ver,
+		ver->lmp_subver, ver->lmp_ver,
+		ver->manufacturer);
+
+	lmp_version = ver->lmp_subver;
+	kfree_skb(skb);
+
+	switch (lmp_version) {
+	case ROM_LMP_8723A:
+	case ROM_LMP_3499:
+		snprintf(fwname, sizeof(fwname), "rtl8723a_fw");
+		break;
+	case ROM_LMP_8723B:
+		snprintf(fwname, sizeof(fwname), "rtl8723b_fw");
+		break;
+	case ROM_LMP_8821A:
+		snprintf(fwname, sizeof(fwname), "rtl8821a_fw");
+		break;
+	case ROM_LMP_8761A:
+		snprintf(fwname, sizeof(fwname), "rtl8761a_fw");
+		break;
+	default:
+		pr_err("btusb: lmp_version 0x%x not recognized\n", lmp_version);
+		return 0;
+	}
+
+	/*get firmware patch according to local version*/
+	pr_info("Realtek Bluetooth firmware file: %s", fwname);
+
+	ret = request_firmware(&fw, fwname, &hdev->dev);
+	if (ret < 0) {
+		BT_ERR("failed to open Realtek firmware file: %s(%d)",
+		       fwname, ret);
+		return ret;
+	}
+	BT_DBG("%s fw->data =%p fw->size = %d ", __func__, fw->data,
+	       (int)fw->size);
+
+	/*For 8723a, use old style patch*/
+	if ((lmp_version == ROM_LMP_8723A) || (lmp_version == ROM_LMP_3499))
+		ret = btusb_setup_rtl_get_oldfw(fw, &fw_ptr, &fw_len);
+	/*For other module, use new style patch*/
+	else
+		ret = btusb_setup_rtl_get_newfw(hdev, fw, &fw_ptr,
+						&fw_len, lmp_version);
+	if (ret < 0) {
+		release_firmware(fw);
+		return ret;
+	}
+	/*download firmware to controller*/
+	ret = btusb_setup_rtl_patching(hdev, fw_ptr, fw_len);
+
+	release_firmware(fw);
+	kfree(fw_ptr);
+	return ret;
+}
+
 static int btusb_setup_patchram_packet(struct hci_dev *hdev, u16 opcode, u32 plen, const void *param)
 {
 	struct sk_buff *skb;
@@ -1528,6 +2002,15 @@ static int btusb_probe(struct usb_interface *intf,
 
 	if (id->driver_info & BTUSB_BCM_PATCHRAM)
 		hdev->setup = btusb_setup_patchram;
+
+	if (id->driver_info & BTUSB_RTL) {
+		set_bit(HCI_QUIRK_RESET_ON_CLOSE, &hdev->quirks);
+		if (!device_may_wakeup(&(data->udev->dev)))
+			intf->needs_binding = 1;
+
+		hdev->setup = btusb_setup_rtl;
+	}
+
 
 	/* Interface numbers are hardcoded in the specification */
 	data->isoc = usb_ifnum_to_if(data->udev, 1);
