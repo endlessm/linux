@@ -7,7 +7,8 @@
 # usage: $0 ROOT INCLUSION_LIST
 # example: $0 \
 #       debian/build/build-virtual-ALL debian/build/build-virtual \
-#	debian.master/control.d/virtual.inclusion-list
+#	debian.master/control.d/virtual.inclusion-list \
+#	virtual.depmap
 master=0
 if [ "$1" = "--master" ]; then
 	master=1
@@ -17,6 +18,9 @@ fi
 ROOT=$1
 NROOT=$2
 ILIST=$3
+DEPMAP=$4
+
+tmp="/tmp/module-inclusion.$$"
 
 #
 # Prep a destination directory.
@@ -47,8 +51,9 @@ mkdir -p ${NROOT}
 			;;
 		esac
 	done <"${ILIST}"
+} >"$tmp"
+
 # Copy over the listed modules.
-} | \
 while read i
 do
 	# If this is already moved over, all is good.
@@ -64,6 +69,36 @@ do
 	else
 		echo "Warning: Could not find ${ROOT}/$i" 1>&2
 	fi
+done <"$tmp"
+
+# Copy over any dependancies, note if those are missing
+# we know they are in a pre-requisite package as they must
+# have existed at depmap generation time, and can only have
+# moved into a package.
+let n=0 || true
+while [ -s "$tmp" ]
+do
+	let n="$n+1" || true
+	[ "$n" = "20" ] && break || true
+
+	echo "NOTE: pass $n: dependency scan" 1>&2
+
+	while read i
+	do
+		grep "^$i " "$DEPMAP" | \
+		while read m d
+		do
+			if [ -f "${ROOT}/$d" ]; then
+				echo "NOTE: pass $n: ${i} pulls in ${d}" 1>&2
+				echo "$d"
+				mkdir -p "${NROOT}/`dirname $d`"
+				mv "${ROOT}/$d" "${NROOT}/$d"
+			fi
+		done
+	done <"$tmp" >"$tmp.new"
+	mv -f "$tmp.new" "$tmp"
 done
+
+rm -f "$tmp"
 
 exit 0
