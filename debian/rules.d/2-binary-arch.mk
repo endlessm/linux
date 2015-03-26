@@ -84,6 +84,7 @@ install-%: target_flavour = $*
 install-%: MODHASHALGO=sha512
 install-%: MODSECKEY=$(builddir)/build-$*/certs/signing_key.pem
 install-%: MODPUBKEY=$(builddir)/build-$*/certs/signing_key.x509
+install-%: build_dir=$(builddir)/build-$*
 install-%: splopts  = INSTALL_MOD_STRIP=1
 install-%: splopts += INSTALL_MOD_PATH=$(pkgdir)/
 install-%: splopts += INSTALL_MOD_DIR=zfs
@@ -178,13 +179,17 @@ ifeq ($(do_extras_package),true)
 	# Remove all modules not in the inclusion list.
 	#
 	if [ -f $(DEBIAN)/control.d/$(target_flavour).inclusion-list ] ; then \
+		/sbin/depmod -v -b $(pkgdir) $(abi_release)-$* | \
+			sed -e "s@$(pkgdir)/lib/modules/$(abi_release)-$*/kernel/@@g" | \
+			awk '{ print $$1 " " $$NF}' >$(build_dir)/module-inclusion.depmap; \
 		mkdir -p $(pkgdir_ex)/lib/modules/$(abi_release)-$*; \
 		mv $(pkgdir)/lib/modules/$(abi_release)-$*/kernel \
 			$(pkgdir_ex)/lib/modules/$(abi_release)-$*/kernel; \
 		$(SHELL) $(DROOT)/scripts/module-inclusion --master \
 			$(pkgdir_ex)/lib/modules/$(abi_release)-$*/kernel \
 			$(pkgdir)/lib/modules/$(abi_release)-$*/kernel \
-			$(DEBIAN)/control.d/$(target_flavour).inclusion-list 2>&1 | \
+			$(DEBIAN)/control.d/$(target_flavour).inclusion-list \
+			$(build_dir)/module-inclusion.depmap 2>&1 | \
 				tee $(target_flavour).inclusion-list.log; \
 		/sbin/depmod -b $(pkgdir) -ea -F $(pkgdir)/boot/System.map-$(abi_release)-$* \
 			$(abi_release)-$* 2>&1 |tee $(target_flavour).depmod.log; \
