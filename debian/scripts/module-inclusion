@@ -5,7 +5,7 @@
 # The includsion list format must be a bash regular expression.
 #
 # usage: $0 ROOT INCLUSION_LIST
-# example: $0 debian/build/build-virtual \
+# example: $0 \
 #       debian/build/build-virtual-ALL debian/build/build-virtual \
 #	debian.master/control.d/virtual.inclusion-list
 master=0
@@ -23,38 +23,44 @@ ILIST=$3
 #
 mkdir -p ${NROOT}
 
-# Copy over the framework...
-if  [ "$master" -eq 1 ]; then
-	(cd ${ROOT}; find . ! -name "*.ko" -type f) | \
-	while read f
-	do
-		mkdir -p ${NROOT}/`dirname $f`
-		mv ${ROOT}/$f ${NROOT}/$f
-	done
-fi
-
-cat ${ILIST} |while read i
-do
-	#
-	# 'find' blurts a warning if it cannot find any ko files.
-	#
-	if echo "$i" | grep '\*' > /dev/null
-	then
-		(cd ${ROOT}; eval find "${i}" -name "*.ko") |while read f
-		do
-			mkdir -p ${NROOT}/`dirname $f`
-			mv ${ROOT}/$f ${NROOT}/$f
-		done
-	else
-		if [ -f "${ROOT}/$i" ]
-		then
-			mkdir -p ${NROOT}/`dirname $i`
-			mv ${ROOT}/$i ${NROOT}/$i
-		else
-			echo Warning: Could not find ${ROOT}/$i
-		fi
+{
+	# Copy over the framework into the master package.
+	if  [ "$master" -eq 1 ]; then
+		(cd ${ROOT}; find . ! -name "*.ko" -type f)
 	fi
 
+	# Copy over modules by name or pattern.
+	while read i
+	do
+		#
+		# 'find' blurts a warning if it cannot find any ko files.
+		#
+		case "$i" in
+		*\**)
+			(cd ${ROOT}; eval find "${i}" -name "*.ko" || true)
+			;;
+		*)
+			echo "$i"
+			;;
+		esac
+	done <"${ILIST}"
+# Copy over the listed modules.
+} | \
+while read i
+do
+	# If this is already moved over, all is good.
+	if [ -f "${NROOT}/$i" ]; then
+		:
+
+	# If present in the source, moved it over.
+	elif [ -f "${ROOT}/$i" ]; then
+		mkdir -p "${NROOT}/`dirname $i`"
+		mv "${ROOT}/$i" "${NROOT}/$i"
+
+	# Otherwise, it is missing.
+	else
+		echo "Warning: Could not find ${ROOT}/$i" 1>&2
+	fi
 done
 
 exit 0
