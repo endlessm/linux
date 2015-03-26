@@ -24,8 +24,8 @@ value CONFIG_DEBUG_INFO y
 # For architectures which support this option ensure it is disabled.
 !exists CONFIG_COMPAT_VDSO | value CONFIG_COMPAT_VDSO n
 !exists CONFIG_ACPI_CUSTOM_METHOD | value CONFIG_ACPI_CUSTOM_METHOD n
-# Default to 32768 on ARM, 65536 for everything else.
-(arch armel armhf &/ value CONFIG_DEFAULT_MMAP_MIN_ADDR 32768) | \
+# Default to 32768 on ARM, 65536 for everything else -- arm64 and armhf must match (LP:1418140)
+(arch armel armhf arm64 &/ value CONFIG_DEFAULT_MMAP_MIN_ADDR 32768) | \
  value CONFIG_DEFAULT_MMAP_MIN_ADDR 65536
 
 #LP#1105230 and LP#1385510
