@@ -165,6 +165,6 @@ net/sunrpc/auth_gss/auth_rpcgss.ko
 net/sunrpc/auth_gss/rpcsec_gss_krb5.ko
 net/sunrpc/sunrpc.ko
 sound/soundcore.ko
-sound/core/*
+! find sound/core -name oss -prune -o -name *.ko -print
 sound/pci/snd-ens1370.ko
 sound/drivers/pcsp/snd-pcsp.ko
