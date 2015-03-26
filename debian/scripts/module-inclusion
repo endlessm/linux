@@ -30,12 +30,15 @@ mkdir -p ${NROOT}
 	fi
 
 	# Copy over modules by name or pattern.
-	while read i
+	while read -r i
 	do
 		#
 		# 'find' blurts a warning if it cannot find any ko files.
 		#
 		case "$i" in
+		\!*)
+			(cd ${ROOT}; ${i#!} || true)
+			;;
 		*\**)
 			(cd ${ROOT}; eval find "${i}" -name "*.ko" || true)
 			;;
