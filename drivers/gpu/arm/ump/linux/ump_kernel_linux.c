@@ -107,7 +107,7 @@ static int ump_initialize_module(void)
 {
 	_mali_osk_errcode_t err;
 
-	DBG_MSG(2, ("Inserting UMP device driver. Compiled: %s, time: %s\n", __DATE__, __TIME__));
+	//DBG_MSG(2, ("Inserting UMP device driver. Compiled: %s, time: %s\n", __DATE__, __TIME__));
 
 	err = ump_kernel_constructor();
 	if (_MALI_OSK_ERR_OK != err) {
