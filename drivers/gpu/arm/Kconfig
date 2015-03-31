@@ -1,2 +1,0 @@
-source "drivers/gpu/arm/mali/Kconfig"
-source "drivers/gpu/arm/ump/Kconfig"
