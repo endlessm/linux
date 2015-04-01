@@ -51,6 +51,11 @@ struct ip_tunnel_dst {
 	__be32				 saddr;
 };
 
+/* Underlay address prefix for ipip fan mode */
+struct ip_tunnel_fan {
+	u32			underlay;
+};
+
 struct ip_tunnel {
 	struct ip_tunnel __rcu	*next;
 	struct hlist_node hash_node;
@@ -82,6 +87,7 @@ struct ip_tunnel {
 #endif
 	struct ip_tunnel_prl_entry __rcu *prl;	/* potential router list */
 	unsigned int		prl_count;	/* # of entries in PRL */
+	struct ip_tunnel_fan	fan;
 	int			ip_tnl_net_id;
 	struct gro_cells	gro_cells;
 };

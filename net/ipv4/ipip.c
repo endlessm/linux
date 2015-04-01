@@ -209,13 +209,38 @@ drop:
 }
 
 /*
+ * Determine fan tunnel endpoint to send packet to, based on the inner IP
+ * address.  For an overlay (inner) address Y.A.B.C, the transformation is
+ * F.G.A.B, where "F" and "G" are the first two octets of the underlay
+ * network (the network portion of a /16), "A" and "B" are the low order
+ * two octets of the underlay network host (the host portion of a /16),
+ * and "Y" is a configured first octet of the overlay network.
+ *
+ * E.g., underlay host 10.88.3.4 with an overlay of 99 would host overlay
+ * subnet 99.3.4.0/24.  An overlay network datagram from 99.3.4.5 to
+ * 99.6.7.8, would be directed to underlay host 10.88.6.7, which hosts
+ * overlay network 99.6.7.0/24.
+ */
+static void ipip_build_fan_iphdr(struct ip_tunnel *tunnel, struct sk_buff *skb, struct iphdr *iph)
+{
+	u32 daddr;
+
+	*iph = tunnel->parms.iph;
+
+	daddr = ntohl(ip_hdr(skb)->daddr);
+	iph->daddr = htonl((tunnel->fan.underlay & 0xffff0000) |
+			   ((daddr >> 8) & 0x0000ffff));
+}
+
+/*
  *	This function assumes it is being called from dev_queue_xmit()
  *	and that skb is filled properly by that function.
  */
 static netdev_tx_t ipip_tunnel_xmit(struct sk_buff *skb, struct net_device *dev)
 {
 	struct ip_tunnel *tunnel = netdev_priv(dev);
-	const struct iphdr  *tiph = &tunnel->parms.iph;
+	const struct iphdr *tiph;
+	struct iphdr fiph;
 
 	if (unlikely(skb->protocol != htons(ETH_P_IP)))
 		goto tx_error;
@@ -223,6 +248,13 @@ static netdev_tx_t ipip_tunnel_xmit(struct sk_buff *skb, struct net_device *dev)
 	skb = iptunnel_handle_offloads(skb, false, SKB_GSO_IPIP);
 	if (IS_ERR(skb))
 		goto out;
+
+	if (tunnel->fan.underlay) {
+		ipip_build_fan_iphdr(tunnel, skb, &fiph);
+		tiph = &fiph;
+	} else {
+		tiph = &tunnel->parms.iph;
+	}
 
 	skb_set_inner_ipproto(skb, IPPROTO_IPIP);
 
@@ -377,21 +409,44 @@ static bool ipip_netlink_encap_parms(struct nlattr *data[],
 	return ret;
 }
 
+static int ipip_netlink_fan(struct nlattr *data[], struct ip_tunnel *t,
+			    struct ip_tunnel_parm *parms)
+{
+	u32 net = t->fan.underlay;
+
+	if (!data[IFLA_IPTUN_FAN_UNDERLAY])
+		goto err_check;
+
+	net = ntohl(nla_get_be32(data[IFLA_IPTUN_FAN_UNDERLAY])) & 0xffff0000;
+
+err_check:
+	if (parms->iph.daddr && net)
+		return -EINVAL;
+
+	t->fan.underlay = net;
+
+	return 0;
+}
+
 static int ipip_newlink(struct net *src_net, struct net_device *dev,
 			struct nlattr *tb[], struct nlattr *data[])
 {
 	struct ip_tunnel_parm p;
 	struct ip_tunnel_encap ipencap;
+	struct ip_tunnel *t = netdev_priv(dev);
+	int err;
 
 	if (ipip_netlink_encap_parms(data, &ipencap)) {
-		struct ip_tunnel *t = netdev_priv(dev);
-		int err = ip_tunnel_encap_setup(t, &ipencap);
+		err = ip_tunnel_encap_setup(t, &ipencap);
 
 		if (err < 0)
 			return err;
 	}
 
 	ipip_netlink_parms(data, &p);
+	err = ipip_netlink_fan(data, t, &p);
+	if (err < 0)
+		return err;
 	return ip_tunnel_newlink(dev, tb, &p);
 }
 
@@ -400,16 +455,20 @@ static int ipip_changelink(struct net_device *dev, struct nlattr *tb[],
 {
 	struct ip_tunnel_parm p;
 	struct ip_tunnel_encap ipencap;
+	struct ip_tunnel *t = netdev_priv(dev);
+	int err;
 
 	if (ipip_netlink_encap_parms(data, &ipencap)) {
-		struct ip_tunnel *t = netdev_priv(dev);
-		int err = ip_tunnel_encap_setup(t, &ipencap);
+		err = ip_tunnel_encap_setup(t, &ipencap);
 
 		if (err < 0)
 			return err;
 	}
 
 	ipip_netlink_parms(data, &p);
+	err = ipip_netlink_fan(data, t, &p);
+	if (err < 0)
+		return err;
 
 	if (((dev->flags & IFF_POINTOPOINT) && !p.iph.daddr) ||
 	    (!(dev->flags & IFF_POINTOPOINT) && p.iph.daddr))
@@ -441,6 +500,8 @@ static size_t ipip_get_size(const struct net_device *dev)
 		nla_total_size(2) +
 		/* IFLA_IPTUN_ENCAP_DPORT */
 		nla_total_size(2) +
+		/* IFLA_IPTUN_FAN_UNDERLAY */
+		nla_total_size(4) +
 		0;
 }
 
@@ -468,6 +529,11 @@ static int ipip_fill_info(struct sk_buff *skb, const struct net_device *dev)
 			tunnel->encap.flags))
 		goto nla_put_failure;
 
+	if (tunnel->fan.underlay)
+		if (nla_put_be32(skb, IFLA_IPTUN_FAN_UNDERLAY,
+				 htonl(tunnel->fan.underlay)))
+			goto nla_put_failure;
+
 	return 0;
 
 nla_put_failure:
@@ -485,6 +551,9 @@ static const struct nla_policy ipip_policy[IFLA_IPTUN_MAX + 1] = {
 	[IFLA_IPTUN_ENCAP_FLAGS]	= { .type = NLA_U16 },
 	[IFLA_IPTUN_ENCAP_SPORT]	= { .type = NLA_U16 },
 	[IFLA_IPTUN_ENCAP_DPORT]	= { .type = NLA_U16 },
+
+	[__IFLA_IPTUN_VENDOR_BREAK ... IFLA_IPTUN_MAX]	= { .type = NLA_BINARY },
+	[IFLA_IPTUN_FAN_UNDERLAY]	= { .type = NLA_U32 },
 };
 
 static struct rtnl_link_ops ipip_link_ops __read_mostly = {
@@ -525,6 +594,23 @@ static struct pernet_operations ipip_net_ops = {
 	.size = sizeof(struct ip_tunnel_net),
 };
 
+#ifdef CONFIG_SYSCTL
+static struct ctl_table_header *ipip_fan_header;
+static unsigned int ipip_fan_version = 1;
+
+static struct ctl_table ipip_fan_sysctls[] = {
+	{
+		.procname	= "version",
+		.data		= &ipip_fan_version,
+		.maxlen		= sizeof(ipip_fan_version),
+		.mode		= 0444,
+		.proc_handler	= proc_dointvec,
+	},
+	{},
+};
+
+#endif /* CONFIG_SYSCTL */
+
 static int __init ipip_init(void)
 {
 	int err;
@@ -543,9 +629,22 @@ static int __init ipip_init(void)
 	if (err < 0)
 		goto rtnl_link_failed;
 
+#ifdef CONFIG_SYSCTL
+	ipip_fan_header = register_net_sysctl(&init_net, "net/fan",
+					      ipip_fan_sysctls);
+	if (!ipip_fan_header) {
+		err = -ENOMEM;
+		goto sysctl_failed;
+	}
+#endif /* CONFIG_SYSCTL */
+
 out:
 	return err;
 
+#ifdef CONFIG_SYSCTL
+sysctl_failed:
+	rtnl_link_unregister(&ipip_link_ops);
+#endif /* CONFIG_SYSCTL */
 rtnl_link_failed:
 	xfrm4_tunnel_deregister(&ipip_handler, AF_INET);
 xfrm_tunnel_failed:
@@ -555,6 +654,9 @@ xfrm_tunnel_failed:
 
 static void __exit ipip_fini(void)
 {
+#ifdef CONFIG_SYSCTL
+	unregister_net_sysctl_table(ipip_fan_header);
+#endif /* CONFIG_SYSCTL */
 	rtnl_link_unregister(&ipip_link_ops);
 	if (xfrm4_tunnel_deregister(&ipip_handler, AF_INET))
 		pr_info("%s: can't deregister tunnel\n", __func__);
