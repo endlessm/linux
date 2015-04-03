@@ -161,11 +161,14 @@ binary-indep: install-indep
 	dh_compress -i
 	dh_fixperms -i
 ifeq ($(do_tools_common),true)
-	dh_systemd_enable
-	dh_installinit -p$(cloudpkg) --name hv-kvp-daemon
-	dh_installinit -p$(cloudpkg) --name hv-vss-daemon
-	dh_installinit -p$(cloudpkg) --name hv-fcopy-daemon
-	dh_systemd_start
+	dh_installinit -p$(cloudpkg) -n --name hv-kvp-daemon
+	dh_installinit -p$(cloudpkg) -n --name hv-vss-daemon
+	dh_installinit -p$(cloudpkg) -n --name hv-fcopy-daemon
+	dh_systemd_enable -p$(cloudpkg)
+	dh_installinit -p$(cloudpkg) -o --name hv-kvp-daemon
+	dh_installinit -p$(cloudpkg) -o --name hv-vss-daemon
+	dh_installinit -p$(cloudpkg) -o --name hv-fcopy-daemon
+	dh_systemd_start -p$(cloudpkg)
 endif
 	dh_installdeb -i
 	$(lockme) dh_gencontrol -i
