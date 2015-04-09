@@ -4380,7 +4380,7 @@ static const struct hda_fixup alc269_fixups[] = {
 	[ALC269VC_FIXUP_NL3_SECOND_JACK] = {
 		.type = HDA_FIXUP_PINS,
 		.v.pins = (const struct hda_pintbl[]) {
-			{ 0x1a, 0x01014412 },
+			{ 0x1a, 0x222140af },
 			{ },
 		},
 	},
