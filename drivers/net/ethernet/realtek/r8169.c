@@ -6982,6 +6982,15 @@ static struct dmi_system_id rtl_dmi_table[] __initdata = {
 		{ DMI_MATCH(DMI_BIOS_VERSION, "NL3.86A.E030.C4") },
 		NULL,
 	},
+	{
+		rtl_flag_use_pio, "Endless ELT-NL3",
+		{
+		     DMI_MATCH(DMI_SYS_VENDOR, "Endless"),
+		     DMI_MATCH(DMI_PRODUCT_NAME, "ELT-NL3"),
+		},
+		NULL,
+	},
+	{}
 };
 
 static int
