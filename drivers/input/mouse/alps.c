@@ -2083,6 +2083,11 @@ static void alps_set_abs_params_mt(struct alps_data *priv,
 
 static struct dmi_system_id low_pressure_dmi_ids[] = {
 	{ .matches = { DMI_MATCH(DMI_BIOS_VERSION, "QQ111") } },
+	{ .matches = {
+		     DMI_MATCH(DMI_SYS_VENDOR, "Endless"),
+		     DMI_MATCH(DMI_PRODUCT_NAME, "ELT-JWM"),
+		}
+	},
 	{},
 };
 
