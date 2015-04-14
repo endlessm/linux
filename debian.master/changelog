@@ -429,6 +429,15 @@ linux (3.16.0-35.46) utopic; urgency=low
 
  -- Brad Figg <brad.figg@canonical.com>  Thu, 09 Apr 2015 12:01:11 -0700
 
+linux (3.16.0-34.47) utopic; urgency=low
+
+  [ Upstream Kernel Changes ]
+
+  * powerpc/perf: Cap 64bit userspace backtraces to PERF_MAX_STACK_DEPTH
+    - LP: #1442180
+
+ -- Luis Henriques <luis.henriques@canonical.com>  Fri, 10 Apr 2015 16:39:29 +0100
+
 linux (3.16.0-34.45) utopic; urgency=low
 
   [ Luis Henriques ]
