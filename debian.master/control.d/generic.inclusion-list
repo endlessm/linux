@@ -21,6 +21,8 @@ drivers/char/lp.ko
 drivers/char/nvram.ko
 drivers/char/ppdev.ko
 drivers/char/raw.ko
+drivers/hid/hid.ko
+drivers/hid/hid-hyperv.ko
 drivers/hv/*
 drivers/infiniband/core/ib_core.ko
 drivers/infiniband/core/ib_addr.ko
@@ -98,6 +100,7 @@ drivers/video/fbdev/cirrusfb.ko
 drivers/video/fbdev/core/syscopyarea.ko
 drivers/video/fbdev/core/sysfillrect.ko
 drivers/video/fbdev/core/sysimgblt.ko
+drivers/video/fbdev/hyperv_fb.ko
 drivers/video/fbdev/vga16fb.ko
 drivers/video/vgastate.ko
 drivers/video/fbdev/xen-fbfront.ko
