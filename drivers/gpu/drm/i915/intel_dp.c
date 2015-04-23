@@ -1164,10 +1164,7 @@ static  u32 ironlake_get_pp_control(struct intel_dp *intel_dp)
 static bool _edp_panel_vdd_on(struct intel_dp *intel_dp)
 {
 	struct drm_device *dev = intel_dp_to_dev(intel_dp);
-	struct intel_digital_port *intel_dig_port = dp_to_dig_port(intel_dp);
-	struct intel_encoder *intel_encoder = &intel_dig_port->base;
 	struct drm_i915_private *dev_priv = dev->dev_private;
-	enum intel_display_power_domain power_domain;
 	u32 pp;
 	u32 pp_stat_reg, pp_ctrl_reg;
 	bool need_to_disable = !intel_dp->want_panel_vdd;
@@ -1180,8 +1177,7 @@ static bool _edp_panel_vdd_on(struct intel_dp *intel_dp)
 	if (edp_have_panel_vdd(intel_dp))
 		return need_to_disable;
 
-	power_domain = intel_display_port_power_domain(intel_encoder);
-	intel_display_power_get(dev_priv, power_domain);
+	intel_runtime_pm_get(dev_priv);
 
 	DRM_DEBUG_KMS("Turning eDP VDD on\n");
 
@@ -1228,11 +1224,6 @@ static void edp_panel_vdd_off_sync(struct intel_dp *intel_dp)
 	WARN_ON(!drm_modeset_is_locked(&dev->mode_config.connection_mutex));
 
 	if (!intel_dp->want_panel_vdd && edp_have_panel_vdd(intel_dp)) {
-		struct intel_digital_port *intel_dig_port =
-						dp_to_dig_port(intel_dp);
-		struct intel_encoder *intel_encoder = &intel_dig_port->base;
-		enum intel_display_power_domain power_domain;
-
 		DRM_DEBUG_KMS("Turning eDP VDD off\n");
 
 		pp = ironlake_get_pp_control(intel_dp);
@@ -1251,8 +1242,7 @@ static void edp_panel_vdd_off_sync(struct intel_dp *intel_dp)
 		if ((pp & POWER_TARGET_ON) == 0)
 			intel_dp->last_power_cycle = jiffies;
 
-		power_domain = intel_display_port_power_domain(intel_encoder);
-		intel_display_power_put(dev_priv, power_domain);
+		intel_runtime_pm_put(dev_priv);
 	}
 }
 
@@ -1336,11 +1326,8 @@ void intel_edp_panel_on(struct intel_dp *intel_dp)
 
 void intel_edp_panel_off(struct intel_dp *intel_dp)
 {
-	struct intel_digital_port *intel_dig_port = dp_to_dig_port(intel_dp);
-	struct intel_encoder *intel_encoder = &intel_dig_port->base;
 	struct drm_device *dev = intel_dp_to_dev(intel_dp);
 	struct drm_i915_private *dev_priv = dev->dev_private;
-	enum intel_display_power_domain power_domain;
 	u32 pp;
 	u32 pp_ctrl_reg;
 
@@ -1354,10 +1341,7 @@ void intel_edp_panel_off(struct intel_dp *intel_dp)
 	WARN(!intel_dp->want_panel_vdd, "Need VDD to turn off panel\n");
 
 	pp = ironlake_get_pp_control(intel_dp);
-	/* We need to switch off panel power _and_ force vdd, for otherwise some
-	 * panels get very unhappy and cease to work. */
-	pp &= ~(POWER_TARGET_ON | PANEL_POWER_RESET | EDP_FORCE_VDD |
-		EDP_BLC_ENABLE);
+	pp &= ~(POWER_TARGET_ON | PANEL_POWER_RESET | EDP_BLC_ENABLE);
 
 	pp_ctrl_reg = _pp_ctrl_reg(intel_dp);
 
@@ -1370,8 +1354,7 @@ void intel_edp_panel_off(struct intel_dp *intel_dp)
 	wait_panel_off(intel_dp);
 
 	/* We got a reference when we enabled the VDD. */
-	power_domain = intel_display_port_power_domain(intel_encoder);
-	intel_display_power_put(dev_priv, power_domain);
+	intel_runtime_pm_put(dev_priv);
 }
 
 void intel_edp_backlight_on(struct intel_dp *intel_dp)
