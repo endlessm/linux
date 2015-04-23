@@ -359,3 +359,6 @@ CONFIG_SND_HDA_CODEC_HDMI=y
 
 # NL3 WiFi media button
 CONFIG_ACPI_CMPC=y
+
+# Endless VPN
+CONFIG_TUN=y
