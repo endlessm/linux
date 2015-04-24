@@ -4856,6 +4856,23 @@ static void alc233_alc662_fixup_lenovo_dual_codecs(struct hda_codec *codec,
 /* for dell wmi mic mute led */
 #include "dell_wmi_helper.c"
 
+static void alc269vc_nl3_fixup_automute(struct hda_codec *codec,
+					const struct hda_fixup *fix, int action)
+{
+	struct snd_kcontrol *kctl;
+	struct snd_ctl_elem_value *uctl;
+
+	kctl = snd_hda_find_mixer_ctl(codec, "Auto-Mute Mode");
+	if (!kctl)
+		return;
+	uctl = kzalloc(sizeof(*uctl), GFP_KERNEL);
+	if (!uctl)
+		return;
+	uctl->value.enumerated.item[0] = 1;
+	kctl->put(kctl, uctl);
+	kfree(uctl);
+}
+
 enum {
 	ALC269_FIXUP_SONY_VAIO,
 	ALC275_FIXUP_SONY_VAIO_GPIO2,
@@ -4966,6 +4983,7 @@ enum {
 	ALC233_FIXUP_LENOVO_MULTI_CODECS,
 	ALC294_FIXUP_LENOVO_MIC_LOCATION,
 	ALC269VC_FIXUP_NL3_SECOND_JACK,
+	ALC269VC_FIXUP_NL3_AUTOMUTE,
 };
 
 static const struct hda_fixup alc269_fixups[] = {
@@ -5757,6 +5775,14 @@ static const struct hda_fixup alc269_fixups[] = {
 			{ 0x1a, 0x222140af },
 			{ },
 		},
+		.chained = true,
+		.chain_id = ALC269VC_FIXUP_NL3_AUTOMUTE
+	},
+	[ALC269VC_FIXUP_NL3_AUTOMUTE] = {
+		.type = HDA_FIXUP_FUNC,
+		.v.func = alc269vc_nl3_fixup_automute,
+		.chained = true,
+		.chain_id = ALC269_FIXUP_PINCFG_NO_HP_TO_LINEOUT
 	},
 };
 
