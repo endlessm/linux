@@ -858,6 +858,24 @@ struct file *dentry_open(const struct path *path, int flags,
 }
 EXPORT_SYMBOL(dentry_open);
 
+void f_covering_path(struct file *filp, struct path *path)
+{
+	if (filp->f_covering_path.dentry)
+		*path = filp->f_covering_path;
+	else
+		*path = filp->f_path;
+}
+EXPORT_SYMBOL(f_covering_path);
+
+char *file_path(struct file *filp, char *buf, int buflen)
+{
+	struct path path;
+
+	f_covering_path(filp, &path);
+	return d_path(&path, buf, buflen);
+}
+EXPORT_SYMBOL(file_path);
+
 /**
  * vfs_open - open the file at the given path
  * @path: path to open
@@ -868,13 +886,19 @@ int vfs_open(const struct path *path, struct file *filp,
 	     const struct cred *cred)
 {
 	struct inode *inode = path->dentry->d_inode;
+	int err;
 
-	if (inode->i_op->dentry_open)
-		return inode->i_op->dentry_open(path->dentry, filp, cred);
-	else {
+	if (inode->i_op->dentry_open) {
+		err = inode->i_op->dentry_open(path->dentry, filp, cred);
+		if (!err && filp->f_path.dentry != path->dentry) {
+			filp->f_covering_path = *path;
+			path_get(&filp->f_covering_path);
+		}
+	} else {
 		filp->f_path = *path;
-		return do_dentry_open(filp, NULL, cred);
+		err = do_dentry_open(filp, NULL, cred);
 	}
+	return err;
 }
 EXPORT_SYMBOL(vfs_open);
 
