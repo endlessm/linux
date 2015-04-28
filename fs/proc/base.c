@@ -1423,8 +1423,8 @@ static int proc_exe_link(struct dentry *dentry, struct path *exe_path)
 	exe_file = get_mm_exe_file(mm);
 	mmput(mm);
 	if (exe_file) {
-		*exe_path = exe_file->f_path;
-		path_get(&exe_file->f_path);
+		f_covering_path(exe_file, exe_path);
+		path_get(exe_path);
 		fput(exe_file);
 		return 0;
 	} else
@@ -1799,7 +1799,7 @@ static int proc_map_files_get_link(struct dentry *dentry, struct path *path)
 	down_read(&mm->mmap_sem);
 	vma = find_exact_vma(mm, vm_start, vm_end);
 	if (vma && vma->vm_file) {
-		*path = vma->vm_file->f_path;
+		f_covering_path(vma->vm_file, path);
 		path_get(path);
 		rc = 0;
 	}
