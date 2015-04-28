@@ -254,6 +254,7 @@ static void __fput(struct file *file)
 		i_readcount_dec(inode);
 	if (file->f_mode & FMODE_WRITE)
 		drop_file_write_access(file);
+	path_put(&file->f_covering_path);
 	file->f_path.dentry = NULL;
 	file->f_path.mnt = NULL;
 	file->f_inode = NULL;
