@@ -893,7 +893,7 @@ CONFIG_ACPI_APEI_PCIEAER                        policy<{'amd64': 'y', 'arm64': '
 CONFIG_ACPI_APEI_SEA                            policy<{'arm64': 'y'}>
 CONFIG_ACPI_APMT                                policy<{'arm64': 'y'}>
 CONFIG_ACPI_BATTERY                             policy<{'amd64': 'y', 'arm64': 'y', 'riscv64': 'y'}>
-CONFIG_ACPI_BGRT                                policy<{'amd64': 'y', 'arm64': 'y', 'riscv64': 'y'}>
+CONFIG_ACPI_BGRT                                policy<{'amd64': 'n', 'arm64': 'n', 'riscv64': 'n'}>
 CONFIG_ACPI_BUTTON                              policy<{'amd64': 'y', 'arm64': 'y', 'riscv64': 'y'}>
 CONFIG_ACPI_CCA_REQUIRED                        policy<{'arm64': 'y'}>
 CONFIG_ACPI_CMPC                                policy<{'amd64': 'm'}>
@@ -1281,7 +1281,8 @@ CONFIG_ARCH_ASPEED                              policy<{'armhf': 'y'}>
 CONFIG_ARCH_AT91                                policy<{'armhf': 'n'}>
 CONFIG_ARCH_AXIADO                              policy<{'arm64': 'y'}>
 CONFIG_ARCH_AXXIA                               policy<{'armhf': 'y'}>
-CONFIG_ARCH_BCM                                 policy<{'arm64': 'n', 'armhf': 'n'}>
+CONFIG_ARCH_BCM                                 policy<{'arm64': 'y', 'armhf': 'n'}>
+CONFIG_ARCH_BCM2835                             policy<{'arm64': 'y'}>
 CONFIG_ARCH_BERLIN                              policy<{'arm64': 'y', 'armhf': 'y'}>
 CONFIG_ARCH_BINFMT_ELF_EXTRA_PHDRS              policy<{'arm64': 'y'}>
 CONFIG_ARCH_BINFMT_ELF_STATE                    policy<{'arm64': 'y', 's390x': '-'}>
@@ -1871,6 +1872,7 @@ CONFIG_ARM_PTDUMP_DEBUGFS                       policy<{'armhf': 'n'}>
 CONFIG_ARM_QCOM_CPUFREQ_HW                      policy<{'arm64': 'm', 'armhf': 'm'}>
 CONFIG_ARM_QCOM_CPUFREQ_NVMEM                   policy<{'arm64': 'm', 'armhf': 'm'}>
 CONFIG_ARM_QCOM_SPM_CPUIDLE                     policy<{'armhf': 'y'}>
+CONFIG_ARM_RASPBERRYPI_CPUFREQ                  policy<{'arm64': 'm'}>
 CONFIG_ARM_RK3399_DMC_DEVFREQ                   policy<{'arm64': 'm', 'armhf': 'm'}>
 CONFIG_ARM_SBSA_WATCHDOG                        policy<{'arm64': 'm'}>
 CONFIG_ARM_SCMI_CPUFREQ                         policy<{'arm64': 'm', 'armhf': 'm'}>
@@ -2085,7 +2087,7 @@ CONFIG_AUDIT_ARCH                               policy<{'amd64': 'y', 'ppc64el':
 CONFIG_AUDIT_ARCH_COMPAT_GENERIC                policy<{'arm64': 'y'}>
 CONFIG_AUDIT_COMPAT_GENERIC                     policy<{'arm64': 'y', 'arm64-generic-64k': '-'}>
 CONFIG_AUDIT_GENERIC                            policy<{'arm64': 'y', 'armhf': 'y', 'riscv64': 'y'}>
-CONFIG_AUTOFS_FS                                policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm', 's390x': 'y'}>
+CONFIG_AUTOFS_FS                                policy<{'amd64': 'y', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm', 's390x': 'y'}>
 CONFIG_AUTO_ZRELADDR                            policy<{'armhf': 'y'}>
 CONFIG_AUXDISPLAY                               policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y', 's390x': 'n'}>
 CONFIG_AUXILIARY_BUS                            policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y', 's390x': 'y'}>
@@ -2258,6 +2260,11 @@ CONFIG_BCM_KONA_USB2_PHY                        policy<{'amd64': 'm', 'arm64': '
 CONFIG_BCM_NET_PHYLIB                           policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm', 's390x': 'm'}>
 CONFIG_BCM_NET_PHYPTP                           policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm', 's390x': 'm'}>
 CONFIG_BCM_SBA_RAID                             policy<{'arm64': 'm'}>
+CONFIG_BCM2711_THERMAL                          policy<{'arm64': 'm'}>
+CONFIG_BCM2835_THERMAL                          policy<{'arm64': 'm'}>
+CONFIG_BCM2835_MBOX                             policy<{'arm64': 'y'}>
+CONFIG_BCM2835_WDT                              policy<{'arm64': 'm'}>
+CONFIG_BCM_VIDEOCORE                            policy<{'arm64': 'n'}>
 CONFIG_BCM_VK                                   policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm', 's390x': 'n'}>
 CONFIG_BCM_VK_TTY                               policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y'}>
 CONFIG_BD79703                                  policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm'}>
@@ -2869,6 +2876,8 @@ CONFIG_CLKSRC_STM32_LP                          policy<{'arm64': 'y'}>
 CONFIG_CLKSRC_TI_32K                            policy<{'armhf': 'y'}>
 CONFIG_CLKSRC_VERSATILE                         policy<{'armhf': 'y'}>
 CONFIG_CLK_ACTIONS                              policy<{'arm64': 'y', 'armhf': 'y'}>
+CONFIG_CLK_BCM2711_DVP                          policy<{'arm64': 'm'}>
+CONFIG_CLK_BCM2835                              policy<{'arm64': 'y'}>
 CONFIG_CLK_EMEV2                                policy<{'armhf': 'y'}>
 CONFIG_CLK_GFM_LPASS_SM8250                     policy<{'arm64': 'm', 'armhf': '-'}>
 CONFIG_CLK_GLYMUR_DISPCC                        policy<{'arm64': 'm'}>
@@ -2941,6 +2950,7 @@ CONFIG_CLK_R9A09G056                            policy<{'arm64': 'y'}>
 CONFIG_CLK_R9A09G057                            policy<{'arm64': 'y'}>
 CONFIG_CLK_R9A09G077                            policy<{'arm64': 'y'}>
 CONFIG_CLK_R9A09G087                            policy<{'arm64': 'y'}>
+CONFIG_CLK_RASPBERRYPI                          policy<{'arm64': 'm'}>
 CONFIG_CLK_RCAR_CPG_LIB                         policy<{'arm64': 'y'}>
 CONFIG_CLK_RCAR_GEN2_CPG                        policy<{'armhf': 'y'}>
 CONFIG_CLK_RCAR_GEN3_CPG                        policy<{'arm64': 'y'}>
@@ -4091,6 +4101,7 @@ CONFIG_DMAR_TABLE                               policy<{'amd64': 'y'}>
 CONFIG_DMATEST                                  policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'ppc64el': 'n', 'riscv64': 'n', 's390x': '-'}>
 CONFIG_DMA_ACPI                                 policy<{'amd64': 'y', 'arm64': 'y', 'riscv64': 'y'}>
 CONFIG_DMA_API_DEBUG                            policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'ppc64el': 'n', 'riscv64': 'n', 's390x': 'n'}>
+CONFIG_DMA_BCM2835                              policy<{'arm64': 'y'}>
 CONFIG_DMA_BOUNCE_UNALIGNED_KMALLOC             policy<{'arm64': 'y', 'riscv64': 'y'}>
 CONFIG_DMA_COHERENT_POOL                        policy<{'amd64': 'y', 'arm64': 'y', 'riscv64': 'y'}>
 CONFIG_DMA_DECLARE_COHERENT                     policy<{'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y'}>
@@ -4599,6 +4610,9 @@ CONFIG_DRM_TTM_HELPER                           policy<{'amd64': 'm', 'arm64': '
 CONFIG_DRM_TVE200                               policy<{'armhf': 'm'}>
 CONFIG_DRM_TYR                                  policy<{'arm64': 'm'}>
 CONFIG_DRM_UDL                                  policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm', 's390x': '-'}>
+CONFIG_DRM_V3D                                  policy<{'arm64': 'm'}>
+CONFIG_DRM_VC4                                  policy<{'arm64': 'm'}>
+CONFIG_DRM_VC4_HDMI_CEC                         policy<{'arm64': 'y'}>
 CONFIG_DRM_VGEM                                 policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm', 's390x': 'n'}>
 CONFIG_DRM_VIRTIO_GPU                           policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm', 's390x': 'm'}>
 CONFIG_DRM_VIRTIO_GPU_KMS                       policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y', 's390x': 'y'}>
@@ -5747,6 +5761,7 @@ CONFIG_GPIO_PL061                               policy<{'arm64': 'y', 'armhf': '
 CONFIG_GPIO_PMIC_EIC_SPRD                       policy<{'arm64': 'm'}>
 CONFIG_GPIO_POLARFIRE_SOC                       policy<{'amd64': 'n', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y', 's390x': 'n'}>
 CONFIG_GPIO_PXA                                 policy<{'arm64': 'y', 'armhf': 'y'}>
+CONFIG_GPIO_RASPBERRYPI_EXP                     policy<{'arm64': 'm'}>
 CONFIG_GPIO_RC5T583                             policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y'}>
 CONFIG_GPIO_RCAR                                policy<{'arm64': 'm', 'armhf': 'm'}>
 CONFIG_GPIO_RDA                                 policy<{'armhf': 'y'}>
@@ -6419,6 +6434,10 @@ CONFIG_I2C_AT91                                 policy<{'arm64': 'm'}>
 CONFIG_I2C_AT91_SLAVE_EXPERIMENTAL              policy<{'arm64': 'n'}>
 CONFIG_I2C_ATR                                  policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm', 's390x': '-'}>
 CONFIG_I2C_AXXIA                                policy<{'armhf': 'm'}>
+CONFIG_I2C_BCM2835                              policy<{'arm64': 'm'}>
+CONFIG_SPI_BCM2835                              policy<{'arm64': 'm'}>
+CONFIG_SPI_BCM2835AUX                           policy<{'arm64': 'm'}>
+CONFIG_SPI_BCM_QSPI                             policy<{'arm64': 'm'}>
 CONFIG_I2C_BOARDINFO                            policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y', 's390x': 'y'}>
 CONFIG_I2C_CADENCE                              policy<{'arm64': 'n', 'riscv64': 'm'}>
 CONFIG_I2C_CBUS_GPIO                            policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm', 's390x': 'n'}>
@@ -8580,6 +8599,7 @@ CONFIG_MMC35240                                 policy<{'amd64': 'm', 'arm64': '
 CONFIG_MMCONF_FAM10H                            policy<{'amd64': 'y'}>
 CONFIG_MMC_ALCOR                                policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm'}>
 CONFIG_MMC_ARMMMCI                              policy<{'arm64': 'y', 'armhf': 'y', 'riscv64': '-'}>
+CONFIG_MMC_BCM2835                              policy<{'arm64': 'm'}>
 CONFIG_MMC_BLOCK_MINORS                         policy<{'amd64': '8', 'arm64': '8', 'armhf': '8', 'ppc64el': '8', 'riscv64': '8'}>
 CONFIG_MMC_CAVIUM_THUNDERX                      policy<{'arm64': 'm'}>
 CONFIG_MMC_CB710                                policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm', 's390x': '-'}>
@@ -8619,6 +8639,7 @@ CONFIG_MMC_SDHCI_EXTERNAL_DMA                   policy<{'arm64': '-', 'armhf': '
 CONFIG_MMC_SDHCI_F_SDH30                        policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm'}>
 CONFIG_MMC_SDHCI_IO_ACCESSORS                   policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y'}>
 CONFIG_MMC_SDHCI_MILBEAUT                       policy<{'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm'}>
+CONFIG_MMC_SDHCI_IPROC                          policy<{'arm64': 'm'}>
 CONFIG_MMC_SDHCI_MSM                            policy<{'arm64': 'm', 'armhf': 'm'}>
 CONFIG_MMC_SDHCI_NPCM                           policy<{'arm64': 'm', 'armhf': 'm'}>
 CONFIG_MMC_SDHCI_OF_ARASAN                      policy<{'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm'}>
@@ -10113,6 +10134,7 @@ CONFIG_PCIE_AMD_MDB                             policy<{'arm64': 'y'}>
 CONFIG_PCIE_APPLE                               policy<{'arm64': 'm'}>
 CONFIG_PCIE_APPLE_MSI_DOORBELL_ADDR             policy<{'arm64': '0xfffff000'}>
 CONFIG_PCIE_ARMADA_8K                           policy<{'arm64': 'y', 'armhf': 'y'}>
+CONFIG_PCIE_BRCMSTB                             policy<{'arm64': 'm'}>
 CONFIG_PCIE_BUS_DEFAULT                         policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y', 's390x': 'y'}>
 CONFIG_PCIE_BUS_PEER2PEER                       policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'ppc64el': 'n', 'riscv64': 'n', 's390x': 'n'}>
 CONFIG_PCIE_BUS_PERFORMANCE                     policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'ppc64el': 'n', 'riscv64': 'n', 's390x': 'n'}>
@@ -10470,7 +10492,7 @@ CONFIG_PINCTRL_BERLIN_BG2CD                     policy<{'armhf': 'y'}>
 CONFIG_PINCTRL_BERLIN_BG2Q                      policy<{'armhf': 'y'}>
 CONFIG_PINCTRL_BERLIN_BG4CT                     policy<{'arm64': 'y', 'armhf': 'y'}>
 CONFIG_PINCTRL_BM1880                           policy<{'arm64': 'y'}>
-CONFIG_PINCTRL_BROXTON                          policy<{'amd64': 'm'}>
+CONFIG_PINCTRL_BROXTON                          policy<{'amd64': 'y'}>
 CONFIG_PINCTRL_CANNONLAKE                       policy<{'amd64': 'm'}>
 CONFIG_PINCTRL_CEDARFORK                        policy<{'amd64': 'm'}>
 CONFIG_PINCTRL_CS42L43                          policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm'}>
@@ -10746,7 +10768,7 @@ CONFIG_PINCTRL_SUN8I_H3_R                       policy<{'arm64': 'y', 'armhf': '
 CONFIG_PINCTRL_SUN8I_V3S                        policy<{'arm64': 'y', 'armhf': '-', 'riscv64': '-'}>
 CONFIG_PINCTRL_SUN9I_A80                        policy<{'arm64': 'y', 'armhf': '-', 'riscv64': '-'}>
 CONFIG_PINCTRL_SUN9I_A80_R                      policy<{'arm64': 'y', 'armhf': '-', 'riscv64': '-'}>
-CONFIG_PINCTRL_SUNRISEPOINT                     policy<{'amd64': 'm'}>
+CONFIG_PINCTRL_SUNRISEPOINT                     policy<{'amd64': 'y'}>
 CONFIG_PINCTRL_SUNXI                            policy<{'arm64': 'y', 'riscv64': '-'}>
 CONFIG_PINCTRL_SX150X                           policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y'}>
 CONFIG_PINCTRL_TEGRA                            policy<{'arm64': 'y', 'armhf': 'y'}>
@@ -11093,6 +11115,7 @@ CONFIG_PWM_ATMEL_HLCDC_PWM                      policy<{'arm64': 'm', 'armhf': '
 CONFIG_PWM_ATMEL_TCB                            policy<{'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm'}>
 CONFIG_PWM_AXI_PWMGEN                           policy<{'arm64': 'm', 'armhf': 'm'}>
 CONFIG_PWM_BERLIN                               policy<{'arm64': 'm', 'armhf': 'm'}>
+CONFIG_PWM_BCM2835                              policy<{'arm64': 'm'}>
 CONFIG_PWM_CLK                                  policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm'}>
 CONFIG_PWM_CRC                                  policy<{'amd64': 'y'}>
 CONFIG_PWM_CROS_EC                              policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm'}>
@@ -11121,6 +11144,7 @@ CONFIG_PWM_OMAP_DMTIMER                         policy<{'arm64': 'm', 'armhf': '
 CONFIG_PWM_PCA9685                              policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm', 's390x': '-'}>
 CONFIG_PWM_PROVIDE_GPIO                         policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y'}>
 CONFIG_PWM_PXA                                  policy<{'arm64': 'm', 'armhf': 'm', 'riscv64': '-'}>
+CONFIG_PWM_RASPBERRYPI_POE                      policy<{'arm64': 'm'}>
 CONFIG_PWM_RENESAS_RCAR                         policy<{'arm64': 'm', 'armhf': 'm'}>
 CONFIG_PWM_RENESAS_RZG2L_GPT                    policy<{'arm64': 'm'}>
 CONFIG_PWM_RENESAS_RZ_MTU3                      policy<{'arm64': 'm'}>
@@ -11357,6 +11381,8 @@ CONFIG_RATIONAL                                 policy<{'amd64': 'y', 'arm64': '
 CONFIG_RAVB                                     policy<{'arm64': 'm', 'armhf': 'm'}>
 CONFIG_RAVE_SP_CORE                             policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm', 's390x': 'n'}>
 CONFIG_RAVE_SP_WATCHDOG                         policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm'}>
+CONFIG_RASPBERRYPI_FIRMWARE                     policy<{'arm64': 'y'}>
+CONFIG_RASPBERRYPI_POWER                        policy<{'arm64': 'y'}>
 CONFIG_RBTREE_TEST                              policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'ppc64el': 'n', 'riscv64': 'n', 's390x': 'n'}>
 CONFIG_RCAR_DMAC                                policy<{'arm64': 'm', 'armhf': 'm'}>
 CONFIG_RCAR_GEN3_THERMAL                        policy<{'arm64': 'm', 'armhf': 'm'}>
@@ -11662,6 +11688,7 @@ CONFIG_RESET_NPCM                               policy<{'arm64': 'y', 'armhf': '
 CONFIG_RESET_NUVOTON_MA35D1                     policy<{'arm64': 'y'}>
 CONFIG_RESET_QCOM_AOSS                          policy<{'arm64': 'y', 'armhf': 'y'}>
 CONFIG_RESET_QCOM_PDC                           policy<{'arm64': 'm', 'armhf': 'm'}>
+CONFIG_RESET_RASPBERRYPI                        policy<{'arm64': 'm'}>
 CONFIG_RESET_RZG2L_USBPHY_CTRL                  policy<{'arm64': 'y'}>
 CONFIG_RESET_RZV2H_USB2PHY                      policy<{'arm64': 'm', 'armhf': 'm'}>
 CONFIG_RESET_SCMI                               policy<{'arm64': 'm', 'armhf': 'm'}>
@@ -12433,7 +12460,7 @@ CONFIG_SECURITY_APPARMOR_HASH_DEFAULT           policy<{'amd64': 'y', 'arm64': '
 CONFIG_SECURITY_APPARMOR_INTROSPECT_POLICY      policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y', 's390x': 'y'}>
 CONFIG_SECURITY_APPARMOR_PARANOID_LOAD          policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y', 's390x': 'y'}>
 CONFIG_SECURITY_APPARMOR_RESTRICT_USERNS        policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'ppc64el': 'n', 'riscv64': 'n', 's390x': 'n'}>
-CONFIG_SECURITY_DMESG_RESTRICT                  policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y', 's390x': 'y'}>
+CONFIG_SECURITY_DMESG_RESTRICT                  policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'ppc64el': 'n', 'riscv64': 'n', 's390x': 'n'}>
 CONFIG_SECURITY_INFINIBAND                      policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y', 's390x': 'y'}>
 CONFIG_SECURITY_IPE                             policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y', 's390x': 'y'}>
 CONFIG_SECURITY_LANDLOCK                        policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y', 's390x': 'y'}>
@@ -12719,6 +12746,7 @@ CONFIG_SENSORS_PWM_FAN                          policy<{'amd64': 'm', 'arm64': '
 CONFIG_SENSORS_PXE1610                          policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm'}>
 CONFIG_SENSORS_Q54SJ108A2                       policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'n', 'riscv64': 'm', 's390x': '-'}>
 CONFIG_SENSORS_QNAP_MCU_HWMON                   policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm'}>
+CONFIG_SENSORS_RASPBERRYPI_HWMON                policy<{'arm64': 'm'}>
 CONFIG_SENSORS_RM3100                           policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm'}>
 CONFIG_SENSORS_RM3100_I2C                       policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm'}>
 CONFIG_SENSORS_RM3100_SPI                       policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm'}>
@@ -12796,6 +12824,7 @@ CONFIG_SENSORS_ZL6100                           policy<{'amd64': 'm', 'arm64': '
 CONFIG_SERIAL_8250                              policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y'}>
 CONFIG_SERIAL_8250_16550A_VARIANTS              policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y'}>
 CONFIG_SERIAL_8250_ASPEED_VUART                 policy<{'armhf': 'm'}>
+CONFIG_SERIAL_8250_BCM2835AUX                   policy<{'arm64': 'm'}>
 CONFIG_SERIAL_8250_CONSOLE                      policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y'}>
 CONFIG_SERIAL_8250_CS                           policy<{'amd64': 'm'}>
 CONFIG_SERIAL_8250_DEPRECATED_OPTIONS           policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'ppc64el': 'n', 'riscv64': 'n'}>
@@ -13123,6 +13152,7 @@ CONFIG_SND_AUDIO_GRAPH_CARD2_CUSTOM_SAMPLE      policy<{'arm64': 'm', 'armhf': '
 CONFIG_SND_AW2                                  policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm'}>
 CONFIG_SND_AZT3328                              policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm'}>
 CONFIG_SND_BCD2000                              policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm'}>
+CONFIG_SND_BCM2835_SOC_I2S                      policy<{'arm64': 'm'}>
 CONFIG_SND_BCM63XX_I2S_WHISTLER                 policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm'}>
 CONFIG_SND_BEBOB                                policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm'}>
 CONFIG_SND_BT87X                                policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm'}>
@@ -14916,6 +14946,7 @@ CONFIG_TOUCHSCREEN_NOVATEK_NVT_TS               policy<{'amd64': 'm', 'arm64': '
 CONFIG_TOUCHSCREEN_PCAP                         policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm', 's390x': '-'}>
 CONFIG_TOUCHSCREEN_PENMOUNT                     policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm', 's390x': '-'}>
 CONFIG_TOUCHSCREEN_PIXCIR                       policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm', 's390x': '-'}>
+CONFIG_TOUCHSCREEN_RASPBERRYPI_FW               policy<{'arm64': 'm'}>
 CONFIG_TOUCHSCREEN_RM_TS                        policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm', 's390x': '-'}>
 CONFIG_TOUCHSCREEN_ROHM_BU21023                 policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm', 's390x': '-'}>
 CONFIG_TOUCHSCREEN_S6SY761                      policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm', 's390x': '-'}>
@@ -14995,7 +15026,7 @@ CONFIG_TRACE_MMIO_ACCESS                        policy<{'arm64': 'y', 's390x': '
 CONFIG_TRACING                                  policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y', 's390x': 'y'}>
 CONFIG_TRACING_MAP                              policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y', 's390x': 'y'}>
 CONFIG_TRACING_SUPPORT                          policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y', 's390x': 'y'}>
-CONFIG_TRANSPARENT_HUGEPAGE                     policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y', 's390x': 'y'}>
+CONFIG_TRANSPARENT_HUGEPAGE                     policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'ppc64el': 'n', 'riscv64': 'n', 's390x': 'n'}>
 CONFIG_TRANSPARENT_HUGEPAGE_ALWAYS              policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'ppc64el': 'y', 'riscv64': 'n', 's390x': 'n'}>
 CONFIG_TRANSPARENT_HUGEPAGE_MADVISE             policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'n', 'riscv64': 'y', 's390x': 'y'}>
 CONFIG_TRANSPARENT_HUGEPAGE_NEVER               policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'ppc64el': 'n', 'riscv64': 'n', 's390x': 'n'}>
