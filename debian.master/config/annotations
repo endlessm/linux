@@ -911,7 +911,7 @@ CONFIG_SERIAL_8250_EXTENDED                     policy<{'amd64': 'y', 'arm64': '
 CONFIG_SERIAL_8250_SHARE_IRQ                    policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y'}>
 CONFIG_SERIAL_8250_DETECT_IRQ                   policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'ppc64el': 'n'}>
 CONFIG_SERIAL_8250_RSA                          policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y'}>
-CONFIG_SERIAL_8250_BCM2835AUX                   policy<{'arm64': 'n'}>
+CONFIG_SERIAL_8250_BCM2835AUX                   policy<{'arm64': 'm'}>
 
 # Menu: Device Drivers >> Character devices >> Enable TTY >> Serial drivers >> 8250/16550 and compatible serial support >> Extended 8250/16550 serial driver options >> Support more than 4 legacy serial ports
 CONFIG_SERIAL_8250_MANY_PORTS                   policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y'}>
@@ -1420,11 +1420,7 @@ CONFIG_INTEL_QEP                                policy<{'amd64': 'm', 'arm64': '
 
 # Menu: Device Drivers >> DAX: direct access to differentiated memory
 CONFIG_DAX                                      policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 's390x': 'y'}>
-CONFIG_DEV_DAX                                  policy<{'amd64': 'm', 'arm64': 'm', 'armhf-generic-lpae': 'm', 'ppc64el': 'm', 's390x': 'm'}>
-CONFIG_DEV_DAX_PMEM                             policy<{'amd64': 'm', 'arm64': 'm', 'ppc64el': 'm'}>
 CONFIG_DEV_DAX_HMEM                             policy<{'amd64': 'm', 'arm64': 'm'}>
-CONFIG_DEV_DAX_KMEM                             policy<{'amd64': 'm', 'arm64': 'm', 'ppc64el': 'm', 's390x': 'm'}>
-CONFIG_DEV_DAX_PMEM_COMPAT                      policy<{'amd64': 'm', 'arm64': 'm', 'ppc64el': 'm'}>
 
 # Menu: Device Drivers >> DMA Engine support
 CONFIG_DMADEVICES                               policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 's390x': 'n'}>
@@ -7435,7 +7431,7 @@ CONFIG_PINCTRL_BAYTRAIL                         policy<{'amd64': 'y'}>
 CONFIG_PINCTRL_CHERRYVIEW                       policy<{'amd64': 'y'}>
 CONFIG_PINCTRL_LYNXPOINT                        policy<{'amd64': 'm'}>
 CONFIG_PINCTRL_ALDERLAKE                        policy<{'amd64': 'm'}>
-CONFIG_PINCTRL_BROXTON                          policy<{'amd64': 'm'}>
+CONFIG_PINCTRL_BROXTON                          policy<{'amd64': 'y'}>
 CONFIG_PINCTRL_CANNONLAKE                       policy<{'amd64': 'm'}>
 CONFIG_PINCTRL_CEDARFORK                        policy<{'amd64': 'm'}>
 CONFIG_PINCTRL_DENVERTON                        policy<{'amd64': 'm'}>
@@ -7446,7 +7442,7 @@ CONFIG_PINCTRL_ICELAKE                          policy<{'amd64': 'm'}>
 CONFIG_PINCTRL_JASPERLAKE                       policy<{'amd64': 'm'}>
 CONFIG_PINCTRL_LAKEFIELD                        policy<{'amd64': 'm'}>
 CONFIG_PINCTRL_LEWISBURG                        policy<{'amd64': 'm'}>
-CONFIG_PINCTRL_SUNRISEPOINT                     policy<{'amd64': 'm'}>
+CONFIG_PINCTRL_SUNRISEPOINT                     policy<{'amd64': 'y'}>
 CONFIG_PINCTRL_TIGERLAKE                        policy<{'amd64': 'm'}>
 CONFIG_PINCTRL_NPCM7XX                          policy<{'armhf': 'y'}>
 CONFIG_PINCTRL_QCOM_SPMI_PMIC                   policy<{'arm64': 'm', 'armhf': 'm'}>
@@ -9442,7 +9438,7 @@ CONFIG_ASHMEM                                   policy<{'amd64': 'm', 'arm64': '
 CONFIG_BCM_VIDEOCORE                            policy<{'arm64': 'm'}>
 CONFIG_BCM2835_VCHIQ                            policy<{'arm64': 'm'}>
 CONFIG_VCHIQ_CDEV                               policy<{'arm64': 'y'}>
-CONFIG_SND_BCM2835                              policy<{'arm64': 'm'}>
+CONFIG_SND_BCM2835                              policy<{'arm64': 'n'}>
 CONFIG_VIDEO_BCM2835                            policy<{'arm64': 'm'}>
 CONFIG_BCM2835_VCHIQ_MMAL                       policy<{'arm64': 'm'}>
 
@@ -10803,8 +10799,8 @@ CONFIG_INOTIFY_USER                             policy<{'amd64': 'y', 'arm64': '
 CONFIG_FANOTIFY                                 policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 's390x': 'y'}>
 CONFIG_FANOTIFY_ACCESS_PERMISSIONS              policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 's390x': 'y'}>
 CONFIG_QUOTA_NETLINK_INTERFACE                  policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 's390x': 'y'}>
-CONFIG_AUTOFS4_FS                               policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 's390x': 'y'}>
-CONFIG_AUTOFS_FS                                policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 's390x': 'y'}>
+CONFIG_AUTOFS4_FS                               policy<{'amd64': 'y', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 's390x': 'y'}>
+CONFIG_AUTOFS_FS                                policy<{'amd64': 'y', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 's390x': 'y'}>
 CONFIG_FUSE_FS                                  policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 's390x': 'y'}>
 CONFIG_CUSE                                     policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 's390x': 'm'}>
 CONFIG_VIRTIO_FS                                policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 's390x': 'm'}>
@@ -11862,7 +11858,6 @@ CONFIG_TEST_LIVEPATCH                           policy<{'amd64': 'n', 'ppc64el':
 CONFIG_TEST_OBJAGG                              policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'ppc64el': 'n', 's390x': 'n'}>
 CONFIG_TEST_STACKINIT                           policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'ppc64el': 'n', 's390x': 'n'}>
 CONFIG_TEST_MEMINIT                             policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'ppc64el': 'n', 's390x': 'n'}>
-CONFIG_TEST_HMM                                 policy<{'amd64': 'n', 'arm64': 'n', 'ppc64el': 'n'}>
 CONFIG_TEST_FREE_PAGES                          policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'ppc64el': 'n', 's390x': 'n'}>
 CONFIG_TEST_FPU                                 policy<{'amd64': 'n'}>
 CONFIG_TEST_CLOCKSOURCE_WATCHDOG                policy<{'amd64': 'n'}>
@@ -11909,7 +11904,6 @@ CONFIG_TEST_LIVEPATCH                           flag<TESTING>
 CONFIG_TEST_OBJAGG                              flag<TESTING>
 CONFIG_TEST_STACKINIT                           flag<TESTING>
 CONFIG_TEST_MEMINIT                             flag<TESTING>
-CONFIG_TEST_HMM                                 flag<TESTING>
 CONFIG_TEST_FPU                                 flag<TESTING>
 
 # Menu: Kernel hacking >> Kernel debugging
@@ -12184,7 +12178,7 @@ CONFIG_KSM                                      policy<{'amd64': 'y', 'arm64': '
 CONFIG_DEFAULT_MMAP_MIN_ADDR                    policy<{'amd64': '65536', 'arm64': '32768', 'armhf': '32768', 'ppc64el': '65536', 's390x': '65536'}>
 CONFIG_MEMORY_FAILURE                           policy<{'amd64': 'y', 'arm64': 'y', 'ppc64el': 'y'}>
 CONFIG_HWPOISON_INJECT                          policy<{'amd64': 'm', 'arm64': 'm', 'ppc64el': 'm'}>
-CONFIG_TRANSPARENT_HUGEPAGE                     policy<{'amd64': 'y', 'arm64': 'y', 'armhf-generic-lpae': 'y', 'ppc64el': 'y', 's390x': 'y'}>
+CONFIG_TRANSPARENT_HUGEPAGE                     policy<{'amd64': 'n', 'arm64': 'n', 'armhf-generic-lpae': 'n', 'ppc64el': 'n', 's390x': 'n'}>
 CONFIG_CLEANCACHE                               policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 's390x': 'y'}>
 CONFIG_FRONTSWAP                                policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 's390x': 'y'}>
 CONFIG_MEM_SOFT_DIRTY                           policy<{'amd64': 'y', 'ppc64el': 'n', 's390x': 'y'}>
@@ -12201,7 +12195,6 @@ CONFIG_ZONE_DEVICE                              policy<{'amd64': 'y', 'arm64': '
 CONFIG_DEVICE_PRIVATE                           policy<{'amd64': 'y', 'arm64': 'y', 'ppc64el': 'y'}>
 CONFIG_PERCPU_STATS                             policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'ppc64el': 'n', 's390x': 'n'}>
 CONFIG_GUP_TEST                                 policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'ppc64el': 'n', 's390x': 'n'}>
-CONFIG_READ_ONLY_THP_FOR_FS                     policy<{'amd64': 'n', 'arm64': 'n', 'armhf-generic-lpae': 'n', 'ppc64el': 'n', 's390x': 'n'}>
 #
 CONFIG_ZONE_DMA                                 note<LP:1628523>
 CONFIG_DEFAULT_MMAP_MIN_ADDR                    mark<ENFORCED> note<LP:1418140 LP:1531327>
@@ -12243,10 +12236,6 @@ CONFIG_DAMON                                    policy<{'amd64': 'n', 'arm64': '
 # Menu: Memory Management options >> Memory model
 CONFIG_FLATMEM_MANUAL                           policy<{'armhf': 'n'}>
 CONFIG_SPARSEMEM_MANUAL                         policy<{'amd64': 'y', 'armhf': 'y', 'ppc64el': 'y'}>
-
-# Menu: Memory Management options >> Transparent Hugepage Support sysfs defaults
-CONFIG_TRANSPARENT_HUGEPAGE_ALWAYS              policy<{'amd64': 'n', 'arm64': 'n', 'armhf-generic-lpae': 'n', 'ppc64el': 'y', 's390x': 'n'}>
-CONFIG_TRANSPARENT_HUGEPAGE_MADVISE             policy<{'amd64': 'y', 'arm64': 'y', 'armhf-generic-lpae': 'y', 'ppc64el': 'n', 's390x': 'y'}>
 
 # Menu: Memory setup >> Architecture: s390
 CONFIG_MAX_PHYSMEM_BITS                         policy<{'s390x': '46'}>
@@ -13985,7 +13974,7 @@ CONFIG_LEGACY_VSYSCALL_NONE                     policy<{'amd64': 'n'}>
 CONFIG_LEGACY_VSYSCALL_XONLY                    flag<REVIEW>
 
 # Menu: Security options
-CONFIG_SECURITY_DMESG_RESTRICT                  policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 's390x': 'y'}>
+CONFIG_SECURITY_DMESG_RESTRICT                  policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'ppc64el': 'n', 's390x': 'n'}>
 CONFIG_SECURITY_PERF_EVENTS_RESTRICT            policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 's390x': 'y'}>
 CONFIG_SECURITYFS                               policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 's390x': 'y'}>
 CONFIG_PAGE_TABLE_ISOLATION                     policy<{'amd64': 'y'}>
