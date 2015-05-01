@@ -5403,7 +5403,7 @@ CONFIG_RTL8723BE                                policy<{'amd64': 'm', 'arm64': '
 CONFIG_RTL8188EE                                policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'powerpc': 'm', 'ppc64el': 'm'}>
 CONFIG_RTL8192EE                                policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'powerpc': 'm', 'ppc64el': 'm'}>
 CONFIG_RTL8821AE                                policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'powerpc': 'm', 'ppc64el': 'm'}>
-CONFIG_RTL8192CU                                policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'powerpc': 'm', 'ppc64el': 'm'}>
+CONFIG_RTL8192CU                                policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'i386': 'n', 'powerpc': 'n', 'ppc64el': 'n'}>
 CONFIG_RTLWIFI_DEBUG                            policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'i386': 'n', 'powerpc': 'n', 'ppc64el': 'n'}>
 
 # Menu: Device Drivers >> Network device support >> Wireless LAN >> Redpine Signals Inc 91x WLAN driver support
@@ -5539,10 +5539,10 @@ CONFIG_PINCTRL_IMX6UL                           policy<{'armhf-generic': 'y'}>
 CONFIG_PINCTRL_IMX7D                            policy<{'armhf-generic': 'y'}>
 CONFIG_PINCTRL_VF610                            policy<{'armhf-generic': 'y'}>
 CONFIG_PINCTRL_BAYTRAIL                         policy<{'amd64': 'y', 'arm64': 'y', 'i386': 'y'}>
-CONFIG_PINCTRL_CHERRYVIEW                       policy<{'amd64': 'y', 'arm64': 'm', 'i386': 'm'}>
+CONFIG_PINCTRL_CHERRYVIEW                       policy<{'amd64': 'y', 'arm64': 'm', 'i386': 'y'}>
 CONFIG_PINCTRL_MERRIFIELD                       policy<{'i386': 'n'}>
-CONFIG_PINCTRL_BROXTON                          policy<{'amd64': 'm', 'arm64': 'm', 'i386': 'm'}>
-CONFIG_PINCTRL_SUNRISEPOINT                     policy<{'amd64': 'm', 'arm64': 'm', 'i386': 'm'}>
+CONFIG_PINCTRL_BROXTON                          policy<{'amd64': 'y', 'arm64': 'm', 'i386': 'y'}>
+CONFIG_PINCTRL_SUNRISEPOINT                     policy<{'amd64': 'y', 'arm64': 'm', 'i386': 'y'}>
 CONFIG_PINCTRL_APQ8064                          policy<{'arm64': 'm', 'armhf': 'm'}>
 CONFIG_PINCTRL_APQ8084                          policy<{'arm64': 'm', 'armhf': 'm'}>
 CONFIG_PINCTRL_IPQ4019                          policy<{'arm64': 'm', 'armhf': 'm'}>
@@ -8052,7 +8052,7 @@ CONFIG_INOTIFY_USER                             policy<{'amd64': 'y', 'arm64': '
 CONFIG_FANOTIFY                                 policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'powerpc': 'y', 'ppc64el': 'y', 's390x': 'y'}>
 CONFIG_FANOTIFY_ACCESS_PERMISSIONS              policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'powerpc': 'y', 'ppc64el': 'y', 's390x': 'y'}>
 CONFIG_QUOTA_NETLINK_INTERFACE                  policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'powerpc': 'y', 'ppc64el': 'y', 's390x': 'y'}>
-CONFIG_AUTOFS4_FS                               policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'powerpc': 'm', 'ppc64el': 'm', 's390x': 'y'}>
+CONFIG_AUTOFS4_FS                               policy<{'amd64': 'y', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'powerpc': 'm', 'ppc64el': 'm', 's390x': 'y'}>
 CONFIG_FUSE_FS                                  policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'powerpc': 'y', 'ppc64el': 'y', 's390x': 'y'}>
 CONFIG_CUSE                                     policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'powerpc': 'm', 'ppc64el': 'm', 's390x': 'm'}>
 CONFIG_OVERLAY_FS                               policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'powerpc': 'm', 'ppc64el': 'm', 's390x': 'm'}>
