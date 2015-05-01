@@ -1787,7 +1787,7 @@ CONFIG_DUMMY_CONSOLE_ROWS                       policy<{'amd64': '25', 'arm64': 
 CONFIG_FRAMEBUFFER_CONSOLE                      policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'ppc64el': 'y', 's390x': 'y'}>
 CONFIG_FRAMEBUFFER_CONSOLE_DETECT_PRIMARY       policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'ppc64el': 'y', 's390x': 'y'}>
 CONFIG_FRAMEBUFFER_CONSOLE_ROTATION             policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'ppc64el': 'y', 's390x': 'y'}>
-CONFIG_FRAMEBUFFER_CONSOLE_DEFERRED_TAKEOVER    policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'i386': 'n', 'ppc64el': 'n', 's390x': 'n'}>
+CONFIG_FRAMEBUFFER_CONSOLE_DEFERRED_TAKEOVER    policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'ppc64el': 'y', 's390x': 'y'}>
 
 # Menu: Device Drivers >> Graphics support >> Direct Rendering Manager (XFree86 4.1.0 and higher DRI support)
 CONFIG_DRM                                      policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'ppc64el': 'm', 's390x': 'm'}>
@@ -6183,6 +6183,10 @@ CONFIG_RTL8188EE                                policy<{'amd64': 'm', 'arm64': '
 CONFIG_RTL8192EE                                policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'ppc64el': 'm'}>
 CONFIG_RTL8821AE                                policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'ppc64el': 'm'}>
 CONFIG_RTL8192CU                                policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'ppc64el': 'm'}>
+CONFIG_RTL8822BE                                policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'ppc64el': 'm'}>
+CONFIG_RTL8821CE                                policy<{'amd64': 'm', 'arm64': 'n', 'armhf': 'n', 'i386': 'm', 'ppc64el': 'm'}>
+CONFIG_RTL8723BU                                policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'ppc64el': 'm'}>
+CONFIG_RTL8723DE                                policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'ppc64el': 'm'}>
 CONFIG_RTLWIFI_DEBUG                            policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'i386': 'n', 'ppc64el': 'n'}>
 
 # Menu: Device Drivers >> Network device support >> Wireless LAN >> Redpine Signals Inc 91x WLAN driver support
@@ -6540,14 +6544,14 @@ CONFIG_PINCTRL_VF610                            policy<{'armhf-generic': 'y'}>
 CONFIG_PINCTRL_BAYTRAIL                         policy<{'amd64': 'y', 'i386': 'y'}>
 CONFIG_PINCTRL_CHERRYVIEW                       policy<{'amd64': 'y', 'i386': 'm'}>
 CONFIG_PINCTRL_MERRIFIELD                       policy<{'i386': 'n'}>
-CONFIG_PINCTRL_BROXTON                          policy<{'amd64': 'm', 'i386': 'm'}>
+CONFIG_PINCTRL_BROXTON                          policy<{'amd64': 'y', 'i386': 'y'}>
 CONFIG_PINCTRL_CANNONLAKE                       policy<{'amd64': 'm', 'i386': 'm'}>
 CONFIG_PINCTRL_CEDARFORK                        policy<{'amd64': 'm', 'i386': 'm'}>
 CONFIG_PINCTRL_DENVERTON                        policy<{'amd64': 'm', 'i386': 'm'}>
 CONFIG_PINCTRL_GEMINILAKE                       policy<{'amd64': 'm', 'i386': 'm'}>
 CONFIG_PINCTRL_ICELAKE                          policy<{'amd64': 'm', 'i386': 'm'}>
 CONFIG_PINCTRL_LEWISBURG                        policy<{'amd64': 'm', 'i386': 'm'}>
-CONFIG_PINCTRL_SUNRISEPOINT                     policy<{'amd64': 'm', 'i386': 'm'}>
+CONFIG_PINCTRL_SUNRISEPOINT                     policy<{'amd64': 'y', 'i386': 'y'}>
 CONFIG_PINCTRL_NPCM7XX                          policy<{'armhf': 'y'}>
 CONFIG_PINCTRL_APQ8064                          policy<{'arm64': 'm', 'armhf': 'm'}>
 CONFIG_PINCTRL_APQ8084                          policy<{'arm64': 'm', 'armhf': 'm'}>
@@ -7128,6 +7132,7 @@ CONFIG_ISCSI_TCP                                policy<{'amd64': 'm', 'arm64': '
 CONFIG_ISCSI_BOOT_SYSFS                         policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'ppc64el': 'm', 's390x': 'm'}>
 CONFIG_SCSI_CXGB3_ISCSI                         policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'ppc64el': 'm', 's390x': 'n'}>
 CONFIG_SCSI_CXGB4_ISCSI                         policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'ppc64el': 'm', 's390x': 'n'}>
+CONFIG_SCSI_AMPE_STOR                           policy<{'amd64': 'm', 'arm64': 'n', 'armhf': 'n', 'i386': 'n', 'ppc64el': 'n', 's390x': 'n'}>
 CONFIG_SCSI_BNX2_ISCSI                          policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'ppc64el': 'm', 's390x': 'n'}>
 CONFIG_SCSI_BNX2X_FCOE                          policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'ppc64el': 'm', 's390x': 'n'}>
 CONFIG_BE2ISCSI                                 policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'ppc64el': 'm', 's390x': 'n'}>
@@ -9265,6 +9270,7 @@ CONFIG_WATCHDOG_NOWAYOUT                        policy<{'amd64': 'n', 'arm64': '
 CONFIG_WATCHDOG_HANDLE_BOOT_ENABLED             policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'ppc64el': 'y', 's390x': 'y'}>
 CONFIG_WATCHDOG_OPEN_TIMEOUT                    policy<{'amd64': '0', 'arm64': '0', 'armhf': '0', 'i386': '0', 'ppc64el': '0', 's390x': '0'}>
 CONFIG_WATCHDOG_SYSFS                           policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'ppc64el': 'y', 's390x': 'y'}>
+CONFIG_ENDLESS_WATCHDOG                         policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'ppc64el': 'm', 's390x': 'm'}>
 CONFIG_SOFT_WATCHDOG                            policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'ppc64el': 'm', 's390x': 'm'}>
 CONFIG_SOFT_WATCHDOG_PRETIMEOUT                 policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'ppc64el': 'y', 's390x': 'y'}>
 CONFIG_BD70528_WATCHDOG                         policy<{'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm'}>
@@ -9633,8 +9639,8 @@ CONFIG_INOTIFY_USER                             policy<{'amd64': 'y', 'arm64': '
 CONFIG_FANOTIFY                                 policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'ppc64el': 'y', 's390x': 'y'}>
 CONFIG_FANOTIFY_ACCESS_PERMISSIONS              policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'ppc64el': 'y', 's390x': 'y'}>
 CONFIG_QUOTA_NETLINK_INTERFACE                  policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'ppc64el': 'y', 's390x': 'y'}>
-CONFIG_AUTOFS4_FS                               policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'ppc64el': 'm', 's390x': 'y'}>
-CONFIG_AUTOFS_FS                                policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'ppc64el': 'm', 's390x': 'y'}>
+CONFIG_AUTOFS4_FS                               policy<{'amd64': 'y', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'ppc64el': 'm', 's390x': 'y'}>
+CONFIG_AUTOFS_FS                                policy<{'amd64': 'y', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'ppc64el': 'm', 's390x': 'y'}>
 CONFIG_FUSE_FS                                  policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'ppc64el': 'y', 's390x': 'y'}>
 CONFIG_CUSE                                     policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'ppc64el': 'm', 's390x': 'm'}>
 CONFIG_SHIFT_FS                                 policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'ppc64el': 'm', 's390x': 'm'}>
@@ -12625,7 +12631,7 @@ CONFIG_LOCK_DOWN_KERNEL                         policy<{'amd64': 'y', 'arm64': '
 CONFIG_LOCK_DOWN_KERNEL_FORCE                   policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'i386': 'n', 's390x': 'n'}>
 CONFIG_ALLOW_LOCKDOWN_LIFT_BY_SYSRQ             policy<{'amd64': 'y', 'i386': 'y'}>
 CONFIG_LOCK_DOWN_IN_EFI_SECURE_BOOT             policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y'}>
-CONFIG_LSM                                      policy<{'amd64': '"yama,loadpin,integrity,apparmor"', 'arm64': '"yama,loadpin,integrity,apparmor"', 'armhf': '"yama,loadpin,integrity,apparmor"', 'i386': '"yama,loadpin,integrity,apparmor"', 'ppc64el': '"yama,loadpin,integrity,apparmor"', 's390x': '"yama,loadpin,integrity,apparmor"'}>
+CONFIG_LSM                                      policy<{'amd64': '"endlesspayg,yama,loadpin,integrity,apparmor"', 'arm64': '"endlesspayg,yama,loadpin,integrity,apparmor"', 'armhf': '"endlesspayg,yama,loadpin,integrity,apparmor"', 'i386': '"endlesspayg,yama,loadpin,integrity,apparmor"', 'ppc64el': '"endlesspayg,yama,loadpin,integrity,apparmor"', 's390x': '"endlesspayg,yama,loadpin,integrity,apparmor"'}>
 #
 CONFIG_LOCK_DOWN_IN_EFI_SECURE_BOOT             mark<ENFORCED>
 CONFIG_LOCK_DOWN_KERNEL                         mark<ENFORCED> flag<REVIEW>
