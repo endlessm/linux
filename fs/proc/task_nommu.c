@@ -165,7 +165,7 @@ static int nommu_vma_show(struct seq_file *m, struct vm_area_struct *vma,
 
 	if (file) {
 		seq_pad(m, ' ');
-		seq_path(m, &file->f_path, "");
+		seq_file_path(m, file, "");
 	} else if (mm) {
 		pid_t tid = vm_is_stack(priv->task, vma, is_pid);
 
