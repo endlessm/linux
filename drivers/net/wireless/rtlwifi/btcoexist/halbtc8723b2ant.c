@@ -1286,8 +1286,8 @@ static void btc8723b2ant_ps_tdma(struct btc_coexist *btcoexist, bool force_exec,
 						    0x12, 0xe1, 0x90);
 			break;
 		case 3:
-			btc8723b2ant_set_fw_ps_tdma(btcoexist, 0xe3, 0x1c,
-						    0x3, 0xf1, 0x90);
+			//btc8723b2ant_set_fw_ps_tdma(btcoexist, 0xe3, 0x1c,
+			//			    0x3, 0xf1, 0x90);
 			break;
 		case 4:
 			btc8723b2ant_set_fw_ps_tdma(btcoexist, 0xe3, 0x10,

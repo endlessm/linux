@@ -296,6 +296,7 @@ static const struct usb_device_id blacklist_table[] = {
 #define BTUSB_ISOC_RUNNING	2
 #define BTUSB_SUSPENDING	3
 #define BTUSB_DID_ISO_RESUME	4
+#define BTUSB_NEED_RESET_RESUME 5
 
 struct btusb_data {
 	struct hci_dev       *hdev;
@@ -2097,8 +2098,10 @@ static int btusb_probe(struct usb_interface *intf,
 	/* Interface numbers are hardcoded in the specification */
 	data->isoc = usb_ifnum_to_if(data->udev, 1);
 
-	if (id->driver_info & BTUSB_REALTEK)
+	if (id->driver_info & BTUSB_REALTEK) {
 		hdev->setup = btusb_setup_realtek;
+		set_bit(BTUSB_NEED_RESET_RESUME, &data->flags);
+	}
 
 	if (!reset)
 		set_bit(HCI_QUIRK_RESET_ON_CLOSE, &hdev->quirks);
@@ -2221,6 +2224,20 @@ static int btusb_suspend(struct usb_interface *intf, pm_message_t message)
 
 	btusb_stop_traffic(data);
 	usb_kill_anchored_urbs(&data->tx_anchor);
+
+	/* For an ordinary suspend (where you would expect the device to be
+	 * powered down or put in low-power mode), Realtek devices lose their
+	 * updated firmware, but the hub doesn't notice any status change.
+	 * Explicitly request a reset on resume.
+	 *
+	 * For the case where the device is powered during suspend, assume
+	 * this is not needed (like the vendor code). In my testing of this
+	 * case, the device fails to remain powered during suspend and hence is
+	 * automatically reset during resume.
+	 */
+	if (test_bit(BTUSB_NEED_RESET_RESUME, &data->flags) &&
+	    !device_may_wakeup(&data->udev->dev))
+		data->udev->reset_resume = 1;
 
 	return 0;
 }
