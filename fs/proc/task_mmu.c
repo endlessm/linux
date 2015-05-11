@@ -297,7 +297,7 @@ show_map_vma(struct seq_file *m, struct vm_area_struct *vma, int is_pid)
 	 */
 	if (file) {
 		seq_pad(m, ' ');
-		seq_path(m, &file->f_path, "\n");
+		seq_file_path(m, file, "\n");
 		goto done;
 	}
 
@@ -1411,7 +1411,7 @@ static int show_numa_map(struct seq_file *m, void *v, int is_pid)
 	if (file) {
 		file = vma_pr_or_file(vma);
 		seq_printf(m, " file=");
-		seq_path(m, &file->f_path, "\n\t= ");
+		seq_file_path(m, file, "\n\t= ");
 	} else if (vma->vm_start <= mm->brk && vma->vm_end >= mm->start_brk) {
 		seq_printf(m, " heap");
 	} else {

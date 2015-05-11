@@ -814,6 +814,7 @@ struct file {
 #ifdef CONFIG_DEBUG_WRITECOUNT
 	unsigned long f_mnt_write_state;
 #endif
+	struct path		f_covering_path;
 };
 
 struct file_handle {
@@ -2395,6 +2396,9 @@ extern struct file * open_exec(const char *);
 /* fs/dcache.c -- generic fs support functions */
 extern int is_subdir(struct dentry *, struct dentry *);
 extern int path_is_under(struct path *, struct path *);
+
+extern char *file_path(struct file *, char *, int);
+extern void f_covering_path(struct file *, struct path *);
 
 #include <linux/err.h>
 
