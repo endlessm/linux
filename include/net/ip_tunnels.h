@@ -51,9 +51,18 @@ struct ip_tunnel_dst {
 	__be32				 saddr;
 };
 
-/* Underlay address prefix for ipip fan mode */
+/* A fan overlay /8 (250.0.0.0/8, for example) maps to exactly one /16
+ * underlay (10.88.0.0/16, for example).  Multiple local addresses within
+ * the /16 may be used, but a particular overlay may not span
+ * multiple underlay subnets.
+ *
+ * We store one underlay, indexed by the overlay's high order octet.
+ */
+#define FAN_OVERLAY_CNT		256
+
 struct ip_tunnel_fan {
-	u32			underlay;
+/*	u32 __rcu	*map;*/
+	u32		map[FAN_OVERLAY_CNT];
 };
 
 struct ip_tunnel {
@@ -107,6 +116,8 @@ struct ip_tunnel {
 #define TUNNEL_VXLAN_OPT	__cpu_to_be16(0x1000)
 
 #define TUNNEL_OPTIONS_PRESENT	(TUNNEL_GENEVE_OPT | TUNNEL_VXLAN_OPT)
+
+#define TUNNEL_FAN		__cpu_to_be16(0x4000)
 
 struct tnl_ptk_info {
 	__be16 flags;
