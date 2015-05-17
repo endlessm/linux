@@ -105,11 +105,12 @@ static int apparmor_ptrace_access_check(struct task_struct *child,
 	struct aa_label *tracer, *tracee;
 	int error;
 	
-	tracer = aa_current_label();
+	tracer = aa_begin_current_label(DO_UPDATE);
 	tracee = aa_get_task_label(child);
 	error = aa_may_ptrace(tracer, tracee,
 		  mode == PTRACE_MODE_READ ? AA_PTRACE_READ : AA_PTRACE_TRACE);
 	aa_put_label(tracee);
+	aa_end_current_label(tracer);
 	return error;
 }
 
@@ -118,10 +119,12 @@ static int apparmor_ptrace_traceme(struct task_struct *parent)
 	struct aa_label *tracer, *tracee;
 	int error;
 	
-	tracee = aa_current_label();
+	tracee = aa_begin_current_label(DO_UPDATE);
 	tracer = aa_get_task_label(parent);
 	error = aa_may_ptrace(tracer, tracee, AA_PTRACE_TRACE);
 	aa_put_label(tracer);
+	aa_end_current_label(tracee);
+
 	return error;
 }
 
@@ -187,7 +190,7 @@ static int common_perm(int op, struct path *path, u32 mask,
 	struct aa_label *label;
 	int error = 0;
 
-	label = aa_begin_current_label();
+	label = aa_begin_current_label(NO_UPDATE);
 	if (!unconfined(label))
 		error = aa_path_perm(op, label, path, 0, mask, cond);
 	aa_end_current_label(label);
@@ -342,9 +345,11 @@ static int apparmor_path_link(struct dentry *old_dentry, struct path *new_dir,
 	if (!path_mediated_fs(old_dentry))
 		return 0;
 
-	label = aa_current_label();
+	label = aa_begin_current_label(DO_UPDATE);
 	if (!unconfined(label))
 		error = aa_path_link(label, old_dentry, new_dir, new_dentry);
+	aa_end_current_label(label);
+
 	return error;
 }
 
@@ -357,7 +362,7 @@ static int apparmor_path_rename(struct path *old_dir, struct dentry *old_dentry,
 	if (!path_mediated_fs(old_dentry))
 		return 0;
 
-	label = aa_current_label();
+	label = aa_begin_current_label(DO_UPDATE);
 	if (!unconfined(label)) {
 		struct path old_path = { old_dir->mnt, old_dentry };
 		struct path new_path = { new_dir->mnt, new_dentry };
@@ -375,6 +380,8 @@ static int apparmor_path_rename(struct path *old_dir, struct dentry *old_dentry,
 					     AA_MAY_CREATE, &cond);
 
 	}
+	aa_end_current_label(label);
+
 	return error;
 }
 
@@ -439,12 +446,16 @@ static int apparmor_file_open(struct file *file, const struct cred *cred)
 
 static int apparmor_file_alloc_security(struct file *file)
 {
-	/* freed by apparmor_file_free_security */
-	file->f_security = aa_alloc_file_cxt(aa_current_label(), GFP_KERNEL);
-	if (!file_cxt(file))
-		return -ENOMEM;
-	return 0;
+	int error = 0;
 
+	/* freed by apparmor_file_free_security */
+	struct aa_label *label = aa_begin_current_label(DO_UPDATE);
+	file->f_security = aa_alloc_file_cxt(label, GFP_KERNEL);
+	if (!file_cxt(file))
+		error = -ENOMEM;
+	aa_end_current_label(label);
+
+	return error;
 }
 
 static void apparmor_file_free_security(struct file *file)
@@ -457,7 +468,7 @@ static int common_file_perm(int op, struct file *file, u32 mask)
 	struct aa_label *label;
 	int error = 0;
 
-	label = aa_begin_current_label();
+	label = aa_begin_current_label(NO_UPDATE);
 	error = aa_file_perm(op, label, file, mask);
 	aa_end_current_label(label);
 
@@ -531,7 +542,7 @@ static int apparmor_sb_mount(const char *dev_name, struct path *path,
 
 	flags &= ~AA_MS_IGNORE_MASK;
 
-	label = aa_begin_current_label();
+	label = aa_begin_current_label(NO_UPDATE);
 	if (!unconfined(label)) {
 		if (flags & MS_REMOUNT)
 			error = aa_remount(label, path, flags, data);
@@ -556,7 +567,7 @@ static int apparmor_sb_umount(struct vfsmount *mnt, int flags)
 	struct aa_label *label;
 	int error = 0;
 
-	label = aa_begin_current_label();
+	label = aa_begin_current_label(NO_UPDATE);
 	if (!unconfined(label))
 		error = aa_umount(label, mnt, flags);
 	aa_end_current_label(label);
@@ -569,7 +580,7 @@ static int apparmor_sb_pivotroot(struct path *old_path, struct path *new_path)
 	struct aa_label *label;
 	int error = 0;
 
-	label = aa_begin_current_label();
+	label = aa_begin_current_label(NO_UPDATE);
 	if (!unconfined(label))
 		error = aa_pivotroot(label, old_path, new_path);
 	aa_end_current_label(label);
@@ -668,10 +679,11 @@ static int apparmor_setprocattr(struct task_struct *task, char *name,
 	return error;
 
 fail:
-	aad(&sa)->label = aa_current_label();
+	aad(&sa)->label = aa_begin_current_label(DO_UPDATE);
 	aad(&sa)->info = name;
 	aad(&sa)->error = -EINVAL;
 	aa_audit_msg(AUDIT_APPARMOR_DENIED, &sa, NULL);
+	aa_end_current_label(aad(&sa)->label);
 	return -EINVAL;
 }
 
@@ -710,7 +722,7 @@ void apparmor_bprm_committed_creds(struct linux_binprm *bprm)
 static int apparmor_task_setrlimit(struct task_struct *task,
 		unsigned int resource, struct rlimit *new_rlim)
 {
-	struct aa_label *label = aa_begin_current_label();
+	struct aa_label *label = aa_begin_current_label(NO_UPDATE);
 	int error = 0;
 
 	if (!unconfined(label))
@@ -790,7 +802,7 @@ static int apparmor_unix_stream_connect(struct sock *sk, struct sock *peer_sk,
 	struct path *path;
 	int error;
 
-	label = aa_begin_current_label();
+	label = aa_begin_current_label(NO_UPDATE);
 	error = aa_unix_peer_perm(label, OP_CONNECT,
 				(AA_MAY_CONNECT | AA_MAY_SEND | AA_MAY_RECEIVE),
 				  sk, peer_sk, NULL);
@@ -843,7 +855,7 @@ static int apparmor_unix_stream_connect(struct sock *sk, struct sock *peer_sk,
 static int apparmor_unix_may_send(struct socket *sock, struct socket *peer)
 {
 	struct aa_sk_cxt *peer_cxt = SK_CXT(peer->sk);
-	struct aa_label *label = aa_begin_current_label();
+	struct aa_label *label = aa_begin_current_label(NO_UPDATE);
 	int error;
 
 	error = xcheck(aa_unix_peer_perm(label, OP_SENDMSG, AA_MAY_SEND,
@@ -861,12 +873,14 @@ static int apparmor_unix_may_send(struct socket *sock, struct socket *peer)
 static int apparmor_socket_create(int family, int type, int protocol, int kern)
 {
 	struct aa_label *label;
+	int error = 0;
 
-	label = aa_current_label();
-	if (kern || unconfined(label))
-		return 0;
+	label = aa_begin_current_label(DO_UPDATE);
+	if (!(kern || unconfined(label)))
+		error = aa_sock_create_perm(label, family, type, protocol);
+	aa_end_current_label(label);
 
-	return aa_sock_create_perm(label, family, type, protocol);
+	return error;
 }
 
 /**
@@ -887,7 +901,7 @@ static int apparmor_socket_post_create(struct socket *sock, int family,
 	if (kern)
 		label = aa_get_label(&current_ns()->unconfined->label);
 	else
-		label = aa_get_label(aa_current_label());
+		label = aa_get_current_label();
 
 	if (sock->sk) {
 		struct aa_sk_cxt *cxt = SK_CXT(sock->sk);
@@ -1056,7 +1070,7 @@ static int apparmor_socket_getpeersec_stream(struct socket *sock,
 {
 	char *name;
 	int slen, error = 0;
-	struct aa_label *label = aa_current_label();
+	struct aa_label *label = aa_begin_current_label(DO_UPDATE);
 	struct aa_label *peer = sk_peer_label(sock->sk);
 
 	if (IS_ERR(peer))
@@ -1079,6 +1093,7 @@ static int apparmor_socket_getpeersec_stream(struct socket *sock,
 		kfree(name);
 
 	}
+	aa_end_current_label(label);
 
 	return error;
 }
@@ -1128,7 +1143,7 @@ static int apparmor_task_kill(struct task_struct *target, struct siginfo *info,
 		 *  Dealing with USB IO specific behavior
 		 */
 		return 0;
-	cl = aa_begin_current_label();
+	cl = aa_begin_current_label(NO_UPDATE);
 	tl = aa_get_task_label(target);
 	error = aa_may_signal(cl, tl, sig);
 	aa_put_label(tl);
