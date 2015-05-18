@@ -43,6 +43,7 @@ struct ovl_readdir_data {
 	struct ovl_cache_entry *first_maybe_whiteout;
 	int count;
 	int err;
+	int is_legacy;
 };
 
 struct ovl_dir_file {
@@ -98,7 +99,7 @@ static struct ovl_cache_entry *ovl_cache_entry_new(struct ovl_readdir_data *rdd,
 	p->ino = ino;
 	p->is_whiteout = false;
 
-	if (d_type == DT_CHR) {
+	if ((d_type == DT_CHR && !rdd->is_legacy) || (d_type == DT_LNK && rdd->is_legacy)) {
 		p->next_maybe_whiteout = rdd->first_maybe_whiteout;
 		rdd->first_maybe_whiteout = p;
 	}
@@ -224,7 +225,7 @@ static int ovl_check_whiteouts(struct dentry *dir, struct ovl_readdir_data *rdd)
 			rdd->first_maybe_whiteout = p->next_maybe_whiteout;
 			dentry = lookup_one_len(p->name, dir, p->len);
 			if (!IS_ERR(dentry)) {
-				p->is_whiteout = ovl_is_whiteout(dentry);
+				p->is_whiteout = ovl_is_whiteout(dentry, rdd->is_legacy);
 				dput(dentry);
 			}
 		}
@@ -290,6 +291,7 @@ static int ovl_dir_read_merged(struct dentry *dentry, struct list_head *list)
 		.list = list,
 		.root = RB_ROOT,
 		.is_merge = false,
+		.is_legacy = ovl_config_legacy(dentry),
 	};
 	int idx, next;
 
