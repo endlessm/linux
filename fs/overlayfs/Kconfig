@@ -8,3 +8,10 @@ config OVERLAY_FS
 	  merged with the 'upper' object.
 
 	  For more information see Documentation/filesystems/overlayfs.txt
+
+config OVERLAY_FS_V1
+	bool "Overlayfs filesystem (V1) format support"
+	help
+	  Support the older whiteout format overlayfs filesystems via
+	  the overlay module.  This is needed to support legacy kernels
+	  built using the original overlayfs patch set.

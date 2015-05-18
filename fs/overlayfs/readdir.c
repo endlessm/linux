@@ -42,6 +42,7 @@ struct ovl_readdir_data {
 	struct dentry *dir;
 	int count;
 	int err;
+	int is_legacy;
 };
 
 struct ovl_dir_file {
@@ -81,7 +82,8 @@ static struct ovl_cache_entry *ovl_cache_entry_find(struct rb_root *root,
 
 static struct ovl_cache_entry *ovl_cache_entry_new(struct dentry *dir,
 						   const char *name, int len,
-						   u64 ino, unsigned int d_type)
+						   u64 ino, unsigned int d_type,
+						   int is_legacy)
 {
 	struct ovl_cache_entry *p;
 	size_t size = offsetof(struct ovl_cache_entry, name[len + 1]);
@@ -97,7 +99,7 @@ static struct ovl_cache_entry *ovl_cache_entry_new(struct dentry *dir,
 	p->ino = ino;
 	p->is_whiteout = false;
 
-	if (d_type == DT_CHR) {
+	if ((d_type == DT_CHR && !is_legacy) || (d_type == DT_LNK && is_legacy)) {
 		struct dentry *dentry;
 		const struct cred *old_cred;
 		struct cred *override_cred;
@@ -116,7 +118,7 @@ static struct ovl_cache_entry *ovl_cache_entry_new(struct dentry *dir,
 
 		dentry = lookup_one_len(name, dir, len);
 		if (!IS_ERR(dentry)) {
-			p->is_whiteout = ovl_is_whiteout(dentry);
+			p->is_whiteout = ovl_is_whiteout(dentry, is_legacy);
 			dput(dentry);
 		}
 		revert_creds(old_cred);
@@ -148,7 +150,7 @@ static int ovl_cache_entry_add_rb(struct ovl_readdir_data *rdd,
 			return 0;
 	}
 
-	p = ovl_cache_entry_new(rdd->dir, name, len, ino, d_type);
+	p = ovl_cache_entry_new(rdd->dir, name, len, ino, d_type, rdd->is_legacy);
 	if (p == NULL)
 		return -ENOMEM;
 
@@ -169,7 +171,7 @@ static int ovl_fill_lower(struct ovl_readdir_data *rdd,
 	if (p) {
 		list_move_tail(&p->l_node, &rdd->middle);
 	} else {
-		p = ovl_cache_entry_new(rdd->dir, name, namelen, ino, d_type);
+		p = ovl_cache_entry_new(rdd->dir, name, namelen, ino, d_type, rdd->is_legacy);
 		if (p == NULL)
 			rdd->err = -ENOMEM;
 		else
@@ -269,6 +271,7 @@ static int ovl_dir_read_merged(struct dentry *dentry, struct list_head *list)
 		.list = list,
 		.root = RB_ROOT,
 		.is_merge = false,
+		.is_legacy = ovl_config_legacy(dentry),
 	};
 	int idx, next;
 
