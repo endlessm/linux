@@ -91,6 +91,8 @@ static const struct dp_link_dpll chv_dpll[] = {
 		{ .p1 = 2, .p2 = 1, .n = 1, .m1 = 2, .m2 = 0x6c00000 } }
 };
 
+static const int bxt_rates[] = { 162000, 216000, 243000, 270000,
+				  324000, 432000, 540000 };
 static const int skl_rates[] = { 162000, 216000, 270000,
 				  324000, 432000, 540000 };
 static const int default_rates[] = { 162000, 270000, 540000 };
@@ -1209,7 +1211,10 @@ static bool intel_dp_source_supports_hbr2(struct drm_device *dev)
 static int
 intel_dp_source_rates(struct drm_device *dev, const int **source_rates)
 {
-	if (IS_SKYLAKE(dev)) {
+	if (IS_BROXTON(dev)) {
+		*source_rates = bxt_rates;
+		return ARRAY_SIZE(bxt_rates);
+	} else if (IS_SKYLAKE(dev)) {
 		*source_rates = skl_rates;
 		return ARRAY_SIZE(skl_rates);
 	}
