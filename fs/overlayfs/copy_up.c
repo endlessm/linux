@@ -298,8 +298,16 @@ int ovl_copy_up_one(struct dentry *parent, struct dentry *dentry,
 	if (WARN_ON(!workdir))
 		return -EROFS;
 
+	err = ovl_dentry_root_may(dentry, lowerpath, MAY_READ);
+	if (err)
+		return err;
+
 	ovl_path_upper(parent, &parentpath);
 	upperdir = parentpath.dentry;
+
+	err = ovl_dentry_root_may(dentry, &parentpath, MAY_WRITE);
+	if (err)
+		return err;
 
 	err = vfs_getattr(&parentpath, &pstat);
 	if (err)
