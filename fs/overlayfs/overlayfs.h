@@ -175,6 +175,7 @@ struct file *ovl_path_open(struct path *path, int flags);
 
 struct dentry *ovl_upper_create(struct dentry *upperdir, struct dentry *dentry,
 				struct kstat *stat, const char *link);
+int ovl_dentry_root_may(struct dentry *dentry, struct path *realpath, int mode);
 
 /* readdir.c */
 extern const struct file_operations ovl_dir_operations;
