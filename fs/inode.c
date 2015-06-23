@@ -58,6 +58,7 @@ static struct hlist_head *inode_hashtable __read_mostly;
 static __cacheline_aligned_in_smp DEFINE_SPINLOCK(inode_hash_lock);
 
 __cacheline_aligned_in_smp DEFINE_SPINLOCK(inode_sb_list_lock);
+EXPORT_SYMBOL(inode_sb_list_lock);
 
 /*
  * Empty aops. Can be used for the cases where the user does not
@@ -830,6 +831,8 @@ unsigned int get_next_ino(void)
 	unsigned int *p = &get_cpu_var(last_ino);
 	unsigned int res = *p;
 
+start:
+
 #ifdef CONFIG_SMP
 	if (unlikely((res & (LAST_INO_BATCH-1)) == 0)) {
 		static atomic_t shared_last_ino;
@@ -839,7 +842,9 @@ unsigned int get_next_ino(void)
 	}
 #endif
 
-	*p = ++res;
+	if (unlikely(!++res))
+		goto start;	/* never zero */
+	*p = res;
 	put_cpu_var(last_ino);
 	return res;
 }
