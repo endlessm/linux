@@ -13294,8 +13294,12 @@ intel_check_primary_plane(struct drm_plane *plane,
 
 		intel_crtc->atomic.update_fbc = true;
 
-		if (intel_wm_need_update(plane, &state->base))
-			intel_crtc->atomic.update_wm = true;
+		if (state->visible && !old_state->visible)
+			intel_crtc->atomic.update_wm_pre = true;
+		else if (!state->visible && old_state->visible)
+			intel_crtc->atomic.update_wm_post = true;
+		else if (intel_wm_need_update(plane, &state->base))
+			intel_crtc->atomic.update_wm_pre = true;
 	}
 
 	if (INTEL_INFO(dev)->gen >= 9) {
@@ -13392,7 +13396,7 @@ static void intel_begin_crtc_commit(struct drm_crtc *crtc)
 	if (intel_crtc->atomic.pre_disable_primary)
 		intel_pre_disable_primary(crtc);
 
-	if (intel_crtc->atomic.update_wm)
+	if (intel_crtc->atomic.update_wm_pre)
 		intel_update_watermarks(crtc);
 
 	intel_runtime_pm_get(dev_priv);
@@ -13421,6 +13425,9 @@ static void intel_finish_crtc_commit(struct drm_crtc *crtc)
 		intel_wait_for_vblank(dev, intel_crtc->pipe);
 
 	intel_frontbuffer_flip(dev, intel_crtc->atomic.fb_bits);
+
+	if (intel_crtc->atomic.update_wm_post)
+	        intel_update_watermarks(crtc);
 
 	if (intel_crtc->atomic.update_fbc) {
 		mutex_lock(&dev->struct_mutex);
@@ -13593,7 +13600,7 @@ intel_check_cursor_plane(struct drm_plane *plane,
 finish:
 	if (intel_crtc->active) {
 		if (plane->state->crtc_w != state->base.crtc_w)
-			intel_crtc->atomic.update_wm = true;
+			intel_crtc->atomic.update_wm_post = true;
 
 		intel_crtc->atomic.fb_bits |=
 			INTEL_FRONTBUFFER_CURSOR(intel_crtc->pipe);

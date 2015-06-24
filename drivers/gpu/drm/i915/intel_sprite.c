@@ -927,7 +927,7 @@ finish:
 			INTEL_FRONTBUFFER_SPRITE(intel_crtc->pipe);
 
 		if (intel_wm_need_update(plane, &state->base))
-			intel_crtc->atomic.update_wm = true;
+			intel_crtc->atomic.update_wm_pre = true;
 
 		if (!state->visible) {
 			/*
