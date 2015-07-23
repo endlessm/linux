@@ -5744,7 +5744,7 @@ static int get_bitmap_file(struct mddev *mddev, void __user * arg)
 	/* bitmap disabled, zero the first byte and copy out */
 	if (!mddev->bitmap_info.file)
 		file->pathname[0] = '\0';
-	else if ((ptr = file_path(mddev->bitmap_info.file,
+	else if ((ptr = d_path(&mddev->bitmap_info.file->f_path,
 			       file->pathname, sizeof(file->pathname))),
 		 IS_ERR(ptr))
 		err = PTR_ERR(ptr);

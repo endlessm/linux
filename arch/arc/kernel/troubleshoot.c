@@ -67,12 +67,15 @@ static void print_task_path_n_nm(struct task_struct *tsk, char *buf)
 	mmput(mm);
 
 	if (exe_file) {
-		path_nm = file_path(exe_file, buf, 255);
+		path = exe_file->f_path;
+		path_get(&exe_file->f_path);
 		fput(exe_file);
+		path_nm = d_path(&path, buf, 255);
+		path_put(&path);
 	}
 
 done:
-	pr_info("Path: %s\n", !IS_ERR(path_nm) ? path_nm : "?");
+	pr_info("Path: %s\n", path_nm);
 }
 
 static void show_faulting_vma(unsigned long address, char *buf)
@@ -96,7 +99,8 @@ static void show_faulting_vma(unsigned long address, char *buf)
 	if (vma && (vma->vm_start <= address)) {
 		struct file *file = vma->vm_file;
 		if (file) {
-			nm = file_path(file, buf, PAGE_SIZE - 1);
+			struct path *path = &file->f_path;
+			nm = d_path(path, buf, PAGE_SIZE - 1);
 			inode = file_inode(vma->vm_file);
 			dev = inode->i_sb->s_dev;
 			ino = inode->i_ino;
