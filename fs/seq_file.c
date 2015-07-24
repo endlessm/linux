@@ -497,7 +497,10 @@ EXPORT_SYMBOL(seq_path);
  */
 int seq_file_path(struct seq_file *m, struct file *file, const char *esc)
 {
-	return seq_path(m, &file->f_path, esc);
+	struct path path;
+
+	f_covering_path(file, &path);
+	return seq_path(m, &path, esc);
 }
 EXPORT_SYMBOL(seq_file_path);
 

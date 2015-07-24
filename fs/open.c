@@ -683,18 +683,18 @@ int open_check_o_direct(struct file *f)
 EXPORT_SYMBOL(open_check_o_direct);
 
 static int do_dentry_open(struct file *f,
-			  struct inode *inode,
 			  int (*open)(struct inode *, struct file *),
 			  const struct cred *cred)
 {
 	static const struct file_operations empty_fops = {};
+	struct inode *inode;
 	int error;
 
 	f->f_mode = OPEN_FMODE(f->f_flags) | FMODE_LSEEK |
 				FMODE_PREAD | FMODE_PWRITE;
 
 	path_get(&f->f_path);
-	f->f_inode = inode;
+	inode = f->f_inode = f->f_path.dentry->d_inode;
 	f->f_mapping = inode->i_mapping;
 
 	if (unlikely(f->f_flags & O_PATH)) {
@@ -798,8 +798,7 @@ int finish_open(struct file *file, struct dentry *dentry,
 	BUG_ON(*opened & FILE_OPENED); /* once it's opened, it's opened */
 
 	file->f_path.dentry = dentry;
-	error = do_dentry_open(file, d_backing_inode(dentry), open,
-			       current_cred());
+	error = do_dentry_open(file, open, current_cred());
 	if (!error)
 		*opened |= FILE_OPENED;
 
@@ -827,34 +826,6 @@ int finish_no_open(struct file *file, struct dentry *dentry)
 	return 1;
 }
 EXPORT_SYMBOL(finish_no_open);
-
-char *file_path(struct file *filp, char *buf, int buflen)
-{
-	return d_path(&filp->f_path, buf, buflen);
-}
-EXPORT_SYMBOL(file_path);
-
-/**
- * vfs_open - open the file at the given path
- * @path: path to open
- * @file: newly allocated file with f_flag initialized
- * @cred: credentials to use
- */
-int vfs_open(const struct path *path, struct file *file,
-	     const struct cred *cred)
-{
-	struct dentry *dentry = path->dentry;
-	struct inode *inode = dentry->d_inode;
-
-	file->f_path = *path;
-	if (dentry->d_flags & DCACHE_OP_SELECT_INODE) {
-		inode = dentry->d_op->d_select_inode(dentry, file->f_flags);
-		if (IS_ERR(inode))
-			return PTR_ERR(inode);
-	}
-
-	return do_dentry_open(file, inode, NULL, cred);
-}
 
 struct file *dentry_open(const struct path *path, int flags,
 			 const struct cred *cred)
@@ -886,6 +857,50 @@ struct file *dentry_open(const struct path *path, int flags,
 	return f;
 }
 EXPORT_SYMBOL(dentry_open);
+
+void f_covering_path(struct file *filp, struct path *path)
+{
+	if (filp->f_covering_path.dentry)
+		*path = filp->f_covering_path;
+	else
+		*path = filp->f_path;
+}
+EXPORT_SYMBOL(f_covering_path);
+
+char *file_path(struct file *filp, char *buf, int buflen)
+{
+	struct path path;
+
+	f_covering_path(filp, &path);
+	return d_path(&path, buf, buflen);
+}
+EXPORT_SYMBOL(file_path);
+
+/**
+ * vfs_open - open the file at the given path
+ * @path: path to open
+ * @filp: newly allocated file with f_flag initialized
+ * @cred: credentials to use
+ */
+int vfs_open(const struct path *path, struct file *filp,
+	     const struct cred *cred)
+{
+	struct inode *inode = path->dentry->d_inode;
+	int err;
+
+	if (inode->i_op->dentry_open) {
+		err = inode->i_op->dentry_open(path->dentry, filp, cred);
+		if (!err && filp->f_path.dentry != path->dentry) {
+			filp->f_covering_path = *path;
+			path_get(&filp->f_covering_path);
+		}
+	} else {
+		filp->f_path = *path;
+		err = do_dentry_open(filp, NULL, cred);
+	}
+	return err;
+}
+EXPORT_SYMBOL(vfs_open);
 
 static inline int build_open_flags(int flags, umode_t mode, struct open_flags *op)
 {
