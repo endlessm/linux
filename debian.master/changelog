@@ -19,7 +19,150 @@ linux (4.2.0-0.1) UNRELEASED; urgency=low
 
  -- Tim Gardner <tim.gardner@canonical.com>  Mon, 06 Jul 2015 13:06:16 -0600
 
+linux (4.1.0-3.3) wily; urgency=low
+
+  [ Andy Whitcroft ]
+
+  * Release Tracking Bug
+    - LP: #1478897
+
+  [ Colin Ian King ]
+
+  * SAUCE: KEYS: ensure we free the assoc array edit if edit is valid
+    - CVE-2015-1333
+
+  [ Seth Forshee ]
+
+  * SAUCE: overlayfs: Enable user namespace mounts for the "overlay" fstype
+    - LP: #1478578
+
+  [ Upstream Kernel Changes ]
+
+  * sched/stop_machine: Fix deadlock between multiple stop_two_cpus()
+    - LP: #1461620
+  * x86/nmi: Enable nested do_nmi() handling for 64-bit kernels
+  * x86/nmi/64: Remove asm code that saves cr2
+  * x86/nmi/64: Switch stacks on userspace NMI entry
+  * x86/nmi/64: Reorder nested NMI checks
+  * x86/nmi/64: Use DF to avoid userspace RSP confusing nested NMI
+    detection
+
+ -- Andy Whitcroft <apw@canonical.com>  Tue, 28 Jul 2015 11:59:03 +0100
+
 linux (4.1.0-2.4) wily; urgency=low
+
+  [ Andy Whitcroft ]
+
+  * SAUCE: overlayfs: when copying up and reading directories ensure
+    mounter had permissions V2
+    - CVE-2015-1328
+
+  [ Leann Ogasawara ]
+
+  * Release Tracking Bug
+    - LP: #1465419
+
+ -- Leann Ogasawara <leann.ogasawara@canonical.com>  Mon, 15 Jun 2015 14:09:22 -0700
+
+linux (4.1.0-2.2) wily; urgency=low
+
+  [ Tim Gardner ]
+
+  * rebase to v4.1.3
+  * [Config] Add i40e[vf] to d-i
+    - LP: #1476393
+
+  [ Upstream Kernel Changes ]
+
+  * rebase to v4.1.3
+    - LP: #1427680
+    - LP: #1462614
+    - LP: #1394368
+
+ -- Tim Gardner <tim.gardner@canonical.com>  Wed, 22 Jul 2015 09:13:02 -0600
+
+linux (4.1.0-1.1) wily; urgency=low
+
+  [ Andy Whitcroft ]
+
+  * SAUCE: overlay: add backwards compatible overlayfs format support V3
+    - LP: #1395877, #1410480
+  * SAUCE: overlayfs: when copying up and reading directories ensure
+    mounter had permissions V2
+    - CVE-2015-1328
+  * [Packaging] fix up Vcs-Git: to point to launchpad
+  * [Config] correct linux-initramfs-tool virtual linkage
+    - LP: #1474810
+
+  [ Chris J Arges ]
+
+  * [Config] Add dm-service-time to multipath-modules
+    - LP: #1469240
+  * [Config] Add MTD_POWERNV_FLASH and OPAL_PRD
+    - LP: #1464560
+
+  [ Jay Vosburgh ]
+
+  * SAUCE: fan: Proof of concept implementation (v2)
+    - LP: #1439706
+  * SAUCE: fan: tunnel multiple mapping mode (v3)
+    - LP: #1470091
+
+  [ Leann Ogasawara ]
+
+  * Revert "SAUCE: ext4: disable ext4_punch_hole for indirect filesystems"
+  * Revert "SAUCE: intel_pstate: inform user that thermald is worth
+    considering"
+  * Revert "SAUCE: Work around broken ACPI backlight on Dell Inspiron 5537"
+  * Revert "SAUCE: dm-crypt: never use write same"
+  * Release Tracking Bug
+    - LP: #1476333
+
+  [ Tim Gardner ]
+
+  * Rebase to v4.1
+    - LP: #1443371
+  * [Config] Enable Apparmor
+  * [Config] CONFIG_OVERLAY_FS_V1=y
+  * [Config] DEFAULT_IOSCHED="deadline" for ppc64el
+    - LP: #1469829
+  * [Config] CONFIG_VM86=n
+    - LP: #1473447
+  * [Config] ACORN_PARTITION=n
+    - LP: #1453117
+
+  [ Timo Aaltonen ]
+
+  * [Config] Disable CONFIG_DRM_I915_PRELIMINARY_HW_SUPPORT
+    - LP: #1473319
+
+  [ Upstream Kernel Changes ]
+
+  * efi: efivar_create_sysfs_entry() should return negative error codes
+  * efi: Add esrt support
+  * x86, doc: Remove cmdline_size from list of fields to be filled in for
+    EFI handover
+  * efi/esrt: Fix some compiler warnings
+  * efi: dmi: List SMBIOS3 table before SMBIOS table
+  * efi: Add 'systab' information to Documentation/ABI
+  * ALSA: hda - restore the MIC FIXUP for some Dell machines
+    - LP: #1473560
+  * mtd: powernv: Add powernv flash MTD abstraction driver
+    - LP: #1464560
+  * powerpc/powernv: Expose OPAL APIs required by PRD interface
+    - LP: #1464560
+  * powerpc/powernv: Add opal-prd channel
+    - LP: #1464560
+  * powerpc/powernv: fix construction of opal PRD messages
+    - LP: #1464560
+  * powerpc/include: Add opal-prd to installed uapi headers
+    - LP: #1464560
+  * powerpc/powernv: Fix vma page prot flags in opal-prd driver
+    - LP: #1464560
+
+ -- Leann Ogasawara <leann.ogasawara@canonical.com>  Mon, 20 Jul 2015 10:16:06 -0700
+
+linux (4.0.0-2.4) wily; urgency=low
 
   [ Andy Whitcroft ]
 
@@ -11992,3 +12135,4 @@ linux (2.6.30-1.1) karmic; urgency=low
   * Initial release after rebasing against v2.6.30-rc3
 
  --  Tim Gardner <tim.gardner@canonical.com>  Thu, 12 Mar 2009 19:16:07 -0600
+
