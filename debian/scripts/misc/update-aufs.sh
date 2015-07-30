@@ -15,9 +15,15 @@ then
 	exit 1
 fi
 
-rm -rf ${AUFS}
-git clone https://github.com/sfjro/aufs4-standalone.git ${AUFS}
-(cd ${AUFS}; git checkout -b aufs4.x-rcN remotes/origin/aufs4.x-rcN)
+clean=0
+if [ "$#" = 1 ]; then
+	AUFS="$1"
+else
+	clean=1
+	rm -rf ${AUFS}
+	git clone https://github.com/sfjro/aufs4-standalone.git ${AUFS}
+	(cd ${AUFS}; git checkout -b aufs4.x-rcN remotes/origin/aufs4.x-rcN)
+fi
 
 cp ${AUFS}/include/uapi/linux/aufs_type.h include/uapi/linux
 rsync -av ${AUFS}/fs/ fs/
@@ -28,7 +34,7 @@ PATCHES="${PATCHES} aufs4-base.patch"
 PATCHES="${PATCHES} aufs4-mmap.patch"
 PATCHES="${PATCHES} aufs4-standalone.patch"
 PATCHES="${PATCHES} aufs4-loopback.patch"
-PATCHES="${PATCHES} vfs-ino.patch"
+#PATCHES="${PATCHES} vfs-ino.patch"
 PATCHES="${PATCHES} tmpfs-idr.patch"
 
 for i in ${PATCHES}
@@ -36,7 +42,7 @@ do
 	patch -p1 < ${AUFS}/$i
 done
 
-rm -rf ${AUFS}
+[ "$clean" = 1 ] && rm -rf ${AUFS}
 git add mm/prfile.c
 git add -u
 find . -name "*.orig" | xargs rm
