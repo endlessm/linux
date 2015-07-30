@@ -110,9 +110,13 @@ static unsigned long shmem_default_max_blocks(void)
 	return totalram_pages / 2;
 }
 
-static unsigned long shmem_default_max_inodes(void)
+static int shmem_default_max_inodes(void)
 {
-	return min(totalram_pages - totalhigh_pages, totalram_pages / 2);
+	unsigned long ul;
+
+	ul = INT_MAX;
+	ul = min3(ul, totalram_pages - totalhigh_pages, totalram_pages / 2);
+	return ul;
 }
 #endif
 
@@ -587,6 +591,7 @@ static int shmem_setattr(struct dentry *dentry, struct iattr *attr)
 static void shmem_evict_inode(struct inode *inode)
 {
 	struct shmem_inode_info *info = SHMEM_I(inode);
+	struct shmem_sb_info *sbinfo = SHMEM_SB(inode->i_sb);
 
 	if (inode->i_mapping->a_ops == &shmem_aops) {
 		shmem_unacct_size(info->flags, inode->i_size);
@@ -602,6 +607,11 @@ static void shmem_evict_inode(struct inode *inode)
 
 	simple_xattrs_free(&info->xattrs);
 	WARN_ON(inode->i_blocks);
+	if (!sbinfo->idr_nouse && inode->i_ino) {
+		mutex_lock(&sbinfo->idr_lock);
+		idr_remove(&sbinfo->idr, inode->i_ino);
+		mutex_unlock(&sbinfo->idr_lock);
+	}
 	shmem_free_inode(inode->i_sb);
 	clear_inode(inode);
 }
@@ -1401,13 +1411,13 @@ static struct inode *shmem_get_inode(struct super_block *sb, const struct inode 
 	struct inode *inode;
 	struct shmem_inode_info *info;
 	struct shmem_sb_info *sbinfo = SHMEM_SB(sb);
+	int ino;
 
 	if (shmem_reserve_inode(sb))
 		return NULL;
 
 	inode = new_inode(sb);
 	if (inode) {
-		inode->i_ino = get_next_ino();
 		inode_init_owner(inode, dir, mode);
 		inode->i_blocks = 0;
 		inode->i_atime = inode->i_mtime = inode->i_ctime = CURRENT_TIME;
@@ -1448,6 +1458,25 @@ static struct inode *shmem_get_inode(struct super_block *sb, const struct inode 
 			mpol_shared_policy_init(&info->policy, NULL);
 			break;
 		}
+
+		if (!sbinfo->idr_nouse) {
+			/* inum 0 and 1 are unused */
+			mutex_lock(&sbinfo->idr_lock);
+			ino = idr_alloc(&sbinfo->idr, inode, 2, INT_MAX,
+					GFP_NOFS);
+			if (ino > 0) {
+				inode->i_ino = ino;
+				mutex_unlock(&sbinfo->idr_lock);
+				__insert_inode_hash(inode, inode->i_ino);
+			} else {
+				inode->i_ino = 0;
+				mutex_unlock(&sbinfo->idr_lock);
+				iput(inode);
+				/* shmem_free_inode() will be called */
+				inode = NULL;
+			}
+		} else
+			inode->i_ino = get_next_ino();
 	} else
 		shmem_free_inode(sb);
 	return inode;
@@ -2665,8 +2694,7 @@ static struct dentry *shmem_get_parent(struct dentry *child)
 static int shmem_match(struct inode *ino, void *vfh)
 {
 	__u32 *fh = vfh;
-	__u64 inum = fh[2];
-	inum = (inum << 32) | fh[1];
+	__u64 inum = fh[1];
 	return ino->i_ino == inum && fh[0] == ino->i_generation;
 }
 
@@ -2677,14 +2705,11 @@ static struct dentry *shmem_fh_to_dentry(struct super_block *sb,
 	struct dentry *dentry = NULL;
 	u64 inum;
 
-	if (fh_len < 3)
+	if (fh_len < 2)
 		return NULL;
 
-	inum = fid->raw[2];
-	inum = (inum << 32) | fid->raw[1];
-
-	inode = ilookup5(sb, (unsigned long)(inum + fid->raw[0]),
-			shmem_match, fid->raw);
+	inum = fid->raw[1];
+	inode = ilookup5(sb, inum, shmem_match, fid->raw);
 	if (inode) {
 		dentry = d_find_alias(inode);
 		iput(inode);
@@ -2696,30 +2721,15 @@ static struct dentry *shmem_fh_to_dentry(struct super_block *sb,
 static int shmem_encode_fh(struct inode *inode, __u32 *fh, int *len,
 				struct inode *parent)
 {
-	if (*len < 3) {
-		*len = 3;
+	if (*len < 2) {
+		*len = 2;
 		return FILEID_INVALID;
-	}
-
-	if (inode_unhashed(inode)) {
-		/* Unfortunately insert_inode_hash is not idempotent,
-		 * so as we hash inodes here rather than at creation
-		 * time, we need a lock to ensure we only try
-		 * to do it once
-		 */
-		static DEFINE_SPINLOCK(lock);
-		spin_lock(&lock);
-		if (inode_unhashed(inode))
-			__insert_inode_hash(inode,
-					    inode->i_ino + inode->i_generation);
-		spin_unlock(&lock);
 	}
 
 	fh[0] = inode->i_generation;
 	fh[1] = inode->i_ino;
-	fh[2] = ((__u64)inode->i_ino) >> 32;
 
-	*len = 3;
+	*len = 2;
 	return 1;
 }
 
@@ -2784,7 +2794,7 @@ static int shmem_parse_options(char *options, struct shmem_sb_info *sbinfo,
 				goto bad_val;
 		} else if (!strcmp(this_char,"nr_inodes")) {
 			sbinfo->max_inodes = memparse(value, &rest);
-			if (*rest)
+			if (*rest || sbinfo->max_inodes < 2)
 				goto bad_val;
 		} else if (!strcmp(this_char,"mode")) {
 			if (remount)
@@ -2837,7 +2847,7 @@ static int shmem_remount_fs(struct super_block *sb, int *flags, char *data)
 {
 	struct shmem_sb_info *sbinfo = SHMEM_SB(sb);
 	struct shmem_sb_info config = *sbinfo;
-	unsigned long inodes;
+	int inodes;
 	int error = -EINVAL;
 
 	config.mpol = NULL;
@@ -2885,7 +2895,7 @@ static int shmem_show_options(struct seq_file *seq, struct dentry *root)
 		seq_printf(seq, ",size=%luk",
 			sbinfo->max_blocks << (PAGE_CACHE_SHIFT - 10));
 	if (sbinfo->max_inodes != shmem_default_max_inodes())
-		seq_printf(seq, ",nr_inodes=%lu", sbinfo->max_inodes);
+		seq_printf(seq, ",nr_inodes=%d", sbinfo->max_inodes);
 	if (sbinfo->mode != (S_IRWXUGO | S_ISVTX))
 		seq_printf(seq, ",mode=%03ho", sbinfo->mode);
 	if (!uid_eq(sbinfo->uid, GLOBAL_ROOT_UID))
@@ -2974,6 +2984,8 @@ static void shmem_put_super(struct super_block *sb)
 {
 	struct shmem_sb_info *sbinfo = SHMEM_SB(sb);
 
+	if (!sbinfo->idr_nouse)
+		idr_destroy(&sbinfo->idr);
 	percpu_counter_destroy(&sbinfo->used_blocks);
 	mpol_put(sbinfo->mpol);
 	kfree(sbinfo);
@@ -2992,6 +3004,8 @@ int shmem_fill_super(struct super_block *sb, void *data, int silent)
 	if (!sbinfo)
 		return -ENOMEM;
 
+	mutex_init(&sbinfo->idr_lock);
+	idr_init(&sbinfo->idr);
 	sbinfo->mode = S_IRWXUGO | S_ISVTX;
 	sbinfo->uid = current_fsuid();
 	sbinfo->gid = current_fsgid();
@@ -3093,6 +3107,15 @@ static int shmem_init_inodecache(void)
 static void shmem_destroy_inodecache(void)
 {
 	kmem_cache_destroy(shmem_inode_cachep);
+}
+
+static __init void shmem_no_idr(struct super_block *sb)
+{
+	struct shmem_sb_info *sbinfo;
+
+	sbinfo = SHMEM_SB(sb);
+	sbinfo->idr_nouse = true;
+	idr_destroy(&sbinfo->idr);
 }
 
 static const struct address_space_operations shmem_aops = {
@@ -3230,6 +3253,7 @@ int __init shmem_init(void)
 		printk(KERN_ERR "Could not kern_mount tmpfs\n");
 		goto out1;
 	}
+	shmem_no_idr(shm_mnt->mnt_sb);
 	return 0;
 
 out1:
