@@ -35,6 +35,7 @@
 #include <linux/completion.h>
 #include <linux/of.h>
 #include <linux/regulator/consumer.h>
+#include <linux/gpio/consumer.h>
 #include <asm/unaligned.h>
 
 #include "elan_i2c.h"
@@ -1012,6 +1013,24 @@ static int elan_probe(struct i2c_client *client,
 	 * the rest will use the default falling edge interrupts.
 	 */
 	irqflags = client->dev.of_node ? 0 : IRQF_TRIGGER_FALLING;
+
+	if (client->irq < 0) {
+		struct gpio_desc *desc;
+
+		desc = devm_gpiod_get(&client->dev, NULL, GPIOD_IN);
+		if (IS_ERR(desc)) {
+			dev_err(&client->dev, "Failed to get GPIO interrupt\n");
+			return PTR_ERR(desc);
+		}
+
+		client->irq = gpiod_to_irq(desc);
+		if (client->irq < 0) {
+			/* no need to call gpio_put() here, desc will be
+			 * automatically disposed on driver detach */
+			dev_err(&client->dev, "Failed to convert GPIO to IRQ\n");
+			return client->irq;
+		}
+	}
 
 	error = devm_request_threaded_irq(&client->dev, client->irq,
 					  NULL, elan_isr,
