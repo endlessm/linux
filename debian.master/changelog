@@ -9,17 +9,8 @@ linux (4.2.0-0.1) UNRELEASED; urgency=low
   * rebase to v4.2-rc4
     - LP: #1476987
     - LP: #1476888
-
-  [ Upstream Kernel Changes ]
-
   * rebase to v4.2-rc3
-
-  [ Upstream Kernel Changes ]
-
   * rebase to v4.2-rc2
-
-  [ Upstream Kernel Changes ]
-
   * rebase to v4.2-rc1
     - LP: #1394368
     - LP: #1427680
