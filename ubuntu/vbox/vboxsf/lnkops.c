@@ -20,7 +20,11 @@
 
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 0)
 
+# if LINUX_VERSION_CODE >= KERNEL_VERSION(4, 2, 0)
+static const char *sf_follow_link(struct dentry *dentry, void **cookie)
+# else
 static void *sf_follow_link(struct dentry *dentry, struct nameidata *nd)
+# endif
 {
     struct inode *inode = dentry->d_inode;
     struct sf_glob_info *sf_g = GET_GLOB_INFO(inode->i_sb);
@@ -40,22 +44,32 @@ static void *sf_follow_link(struct dentry *dentry, struct nameidata *nd)
             error = -EPROTO;
         }
     }
+# if LINUX_VERSION_CODE >= KERNEL_VERSION(4, 2, 0)
+    return error ? ERR_PTR(error) : (*cookie = path);
+# else
     nd_set_link(nd, error ? ERR_PTR(error) : path);
     return NULL;
+# endif
 }
 
+# if LINUX_VERSION_CODE < KERNEL_VERSION(4, 2, 0)
 static void sf_put_link(struct dentry *dentry, struct nameidata *nd, void *cookie)
 {
     char *page = nd_get_link(nd);
     if (!IS_ERR(page))
         free_page((unsigned long)page);
 }
+#endif
 
 struct inode_operations sf_lnk_iops =
 {
     .readlink       = generic_readlink,
     .follow_link    = sf_follow_link,
+# if LINUX_VERSION_CODE >= KERNEL_VERSION(4, 2, 0)
+    .put_link       = free_page_put_link,
+# else
     .put_link       = sf_put_link
+# endif
 };
 
 #endif
