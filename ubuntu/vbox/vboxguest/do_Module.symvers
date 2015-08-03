@@ -1,0 +1,33 @@
+#!/bin/sh
+
+#
+# This script is used when building kernel modules from DKMS. I don't
+# know how to solve the problem of inter-module dependencies better.
+#
+# Copyright (C) 2008-2015 Oracle Corporation
+#
+# This file is part of VirtualBox Open Source Edition (OSE), as
+# available from http://www.virtualbox.org. This file is free software;
+# you can redistribute it and/or modify it under the terms of the GNU
+# General Public License (GPL) as published by the Free Software
+# Foundation, in version 2 as it comes in the "COPYING" file of the
+# VirtualBox OSE distribution. VirtualBox OSE is distributed in the
+# hope that it will be useful, but WITHOUT ANY WARRANTY of any kind.
+#
+
+SYMFILE="/tmp/$1-Module.symvers"
+case "$2" in
+  save)
+    if [ -f "$3" ]; then
+      cp "$3" "$SYMFILE"
+    fi
+    ;;
+  restore)
+    if [ -f "$SYMFILE" ]; then
+      cp "$SYMFILE" "$3"
+    fi
+    ;;
+  *)
+    echo "Usage: <modname> save|restore <location of Module.symvers>"
+    ;;
+esac
