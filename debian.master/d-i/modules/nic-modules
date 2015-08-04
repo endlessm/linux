@@ -135,6 +135,7 @@ rt2500pci ?
 rt2800pci ?
 rt61pci ?
 s2io ?
+sfc ?
 shaper ?
 sis190 ?
 sis900 ?
