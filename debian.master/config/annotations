@@ -3841,7 +3841,7 @@ CONFIG_MTRR_SANITIZER_SPARE_REG_NR_DEFAULT      p policy<{'amd64': '1', 'i386': 
 CONFIG_X86_PAT                                  p policy<{'amd64': 'y', 'i386': 'y'}>
 CONFIG_ARCH_RANDOM                              p policy<{'amd64': 'y', 'i386': 'y', 'powerpc-powerpc64-emb': 'n', 'powerpc-powerpc64-smp': 'y', 'powerpc-powerpc-e500mc': 'n', 'powerpc-powerpc-smp': 'n', 'ppc64el': 'y'}>
 CONFIG_X86_SMAP                                 p policy<{'amd64': 'y', 'i386': 'y'}>
-CONFIG_X86_INTEL_MPX                            p policy<{'amd64': 'n', 'i386': 'n'}>
+CONFIG_X86_INTEL_MPX                            p policy<{'amd64': 'y', 'i386': 'y'}>
 CONFIG_EFI                                      p policy<{'amd64': 'y', 'arm64': 'y', 'i386': 'y'}>
 CONFIG_EFI_STUB                                 p policy<{'amd64': 'y', 'arm64': 'y', 'i386': 'y'}>
 CONFIG_EFI_MIXED                                p policy<{'amd64': 'y'}>
