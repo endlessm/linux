@@ -586,6 +586,21 @@ config EEEPC_WMI
 	  If you have an ACPI-WMI compatible Eee PC laptop (>= 1000), say Y or M
 	  here.
 
+config ASUS_WRC
+	tristate "ASUS Wireless Radio Control Driver"
+	depends on ACPI
+	depends on INPUT
+	select INPUT_SPARSEKMAP
+	---help---
+	  This is a driver for the wireless radio control (airplane mode hotkey)
+	  found on some Asus laptops, also known as ATK4002 or ASHS.
+
+	  Say Y or M here if you have an ASUS notebook with an airplane mode
+	  hotkey.
+
+	  If you choose to compile this driver as a module the module will be
+	  called asus-wrc.
+
 config ACPI_WMI
 	tristate "WMI"
 	depends on ACPI
