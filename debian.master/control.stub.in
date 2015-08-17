@@ -92,7 +92,7 @@ Description: Linux kernel version specific tools for version PKGVER-ABINUM
  version locked tools (such as perf and x86_energy_perf_policy) for
  version PKGVER-ABINUM on
  =HUMAN=.
- You probabally want to install linux-tools-PKGVER-ABINUM-<flavour>.
+ You probabaly want to install linux-tools-PKGVER-ABINUM-<flavour>.
 
 Package: SRCPKGNAME-cloud-tools-common
 Architecture: all
@@ -115,5 +115,5 @@ Description: Linux kernel version specific cloud tools for version PKGVER-ABINUM
  This package provides the architecture dependant parts for kernel
  version locked tools for cloud tools for version PKGVER-ABINUM on
  =HUMAN=.
- You probabally want to install linux-cloud-tools-PKGVER-ABINUM-<flavour>.
+ You probabaly want to install linux-cloud-tools-PKGVER-ABINUM-<flavour>.
 
