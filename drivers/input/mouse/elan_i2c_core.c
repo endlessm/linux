@@ -84,8 +84,6 @@ struct elan_tp_data {
 	int			pressure_adjustment;
 	u8			mode;
 	u8			ic_type;
-	u16			fw_vaildpage_count;
-	u16			fw_signature_address;
 
 	bool			irq_wake;
 
@@ -261,14 +259,6 @@ static int elan_query_device_info(struct elan_tp_data *data)
 	if (error)
 		return error;
 
-	error = elan_get_fwinfo(data->ic_type, &data->fw_vaildpage_count,
-				&data->fw_signature_address);
-	if (error) {
-		dev_err(&data->client->dev,
-			"unknown ic type %d\n", data->ic_type);
-		return error;
-	}
-
 	return 0;
 }
 
@@ -336,7 +326,7 @@ static int elan_write_fw_block(struct elan_tp_data *data,
 }
 
 static int __elan_update_firmware(struct elan_tp_data *data,
-				  const struct firmware *fw)
+				  const struct firmware *fw, u16 fw_vaildpage_count)
 {
 	struct i2c_client *client = data->client;
 	struct device *dev = &client->dev;
@@ -353,7 +343,7 @@ static int __elan_update_firmware(struct elan_tp_data *data,
 	iap_start_addr = get_unaligned_le16(&fw->data[ETP_IAP_START_ADDR * 2]);
 
 	boot_page_count = (iap_start_addr * 2) / ETP_FW_PAGE_SIZE;
-	for (i = boot_page_count; i < data->fw_vaildpage_count; i++) {
+	for (i = boot_page_count; i < fw_vaildpage_count; i++) {
 		u16 checksum = 0;
 		const u8 *page = &fw->data[i * ETP_FW_PAGE_SIZE];
 
@@ -390,7 +380,7 @@ static int __elan_update_firmware(struct elan_tp_data *data,
 }
 
 static int elan_update_firmware(struct elan_tp_data *data,
-				const struct firmware *fw)
+				const struct firmware *fw, u16 fw_vaildpage_count)
 {
 	struct i2c_client *client = data->client;
 	int retval;
@@ -400,7 +390,7 @@ static int elan_update_firmware(struct elan_tp_data *data,
 	disable_irq(client->irq);
 	data->in_fw_update = true;
 
-	retval = __elan_update_firmware(data, fw);
+	retval = __elan_update_firmware(data, fw, fw_vaildpage_count);
 	if (retval) {
 		dev_err(&client->dev, "firmware update failed: %d\n", retval);
 		data->ops->iap_reset(client);
@@ -482,6 +472,16 @@ static ssize_t elan_sysfs_update_fw(struct device *dev,
 	int error;
 	const u8 *fw_signature;
 	static const u8 signature[] = {0xAA, 0x55, 0xCC, 0x33, 0xFF, 0xFF};
+	u16	fw_vaildpage_count;
+	u16 fw_signature_address;
+
+	error = elan_get_fwinfo(data->ic_type, &fw_vaildpage_count,
+				&fw_signature_address);
+	if (error) {
+		dev_err(&data->client->dev,
+			"unknown ic type %d\n", data->ic_type);
+		return error;
+	}
 
 	/* Look for a firmware with the product id appended. */
 	fw_name = kasprintf(GFP_KERNEL, ETP_FW_NAME, data->product_id);
@@ -499,7 +499,7 @@ static ssize_t elan_sysfs_update_fw(struct device *dev,
 	}
 
 	/* Firmware file must match signature data */
-	fw_signature = &fw->data[data->fw_signature_address];
+	fw_signature = &fw->data[fw_signature_address];
 	if (memcmp(fw_signature, signature, sizeof(signature)) != 0) {
 		dev_err(dev, "signature mismatch (expected %*ph, got %*ph)\n",
 			(int)sizeof(signature), signature,
@@ -512,7 +512,7 @@ static ssize_t elan_sysfs_update_fw(struct device *dev,
 	if (error)
 		goto out_release_fw;
 
-	error = elan_update_firmware(data, fw);
+	error = elan_update_firmware(data, fw, fw_vaildpage_count);
 
 	mutex_unlock(&data->sysfs_mutex);
 
