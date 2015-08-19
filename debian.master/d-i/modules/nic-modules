@@ -113,6 +113,8 @@ netxen_nic ?
 ni5010 ?
 ni52 ?
 ni65 ?
+nicpf ?
+nicvf ?
 niu ?
 ns83820 ?
 olympic ?
