@@ -51,6 +51,7 @@ for arch in $archs; do
 		lpia)		kernarch="x86" 		;;
 		sparc)		kernarch="sparc64"	;;
 		armel|armhf)	kernarch="arm"		;;
+		s390x)		kernarch="s390"		;;
 		*)		kernarch="$arch"	;;
 	esac
 
