@@ -96,6 +96,9 @@ static int elan_get_fwinfo(u8 ic_type, u16 *vaildpage_count,
 			   u16 *signature_address)
 {
 	switch(ic_type) {
+	case 0x08:
+		*vaildpage_count = 512;
+		break;
 	case 0x09:
 		*vaildpage_count = 768;
 		break;
@@ -1166,6 +1169,8 @@ MODULE_DEVICE_TABLE(i2c, elan_id);
 static const struct acpi_device_id elan_acpi_id[] = {
 	{ "ELAN0000", 0 },
 	{ "ELAN1000", 0 },
+	{ "ELAN0100", 0 },
+	{ "ELAN0600", 0 },
 	{ }
 };
 MODULE_DEVICE_TABLE(acpi, elan_acpi_id);
