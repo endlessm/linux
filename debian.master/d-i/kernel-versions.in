@@ -10,6 +10,8 @@ arm64	PKGVER-ABINUM	generic		PKGVER-ABINUM-generic		-	-
 
 ppc64el	PKGVER-ABINUM	generic		PKGVER-ABINUM-generic		-	-
 
+s390x	PKGVER-ABINUM	generic		PKGVER-ABINUM-generic		-	-
+
 # Ports
 # arch	version		flavour		installedname			suffix	bdep
 powerpc	PKGVER-ABINUM	powerpc-smp	PKGVER-ABINUM-powerpc-smp	-	-
