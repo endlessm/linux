@@ -232,7 +232,7 @@ for ((I).i = (I).j = 0;							\
 
 #define label_for_each_not_in_set(I, SET, SUB, P)			\
 	for ((I).i = (I).j = 0;						\
-	     ((P) = aa_label_next_not_in_set(&(I), (SET), (SUB)));	\
+	     ((P) = __aa_label_next_not_in_set(&(I), (SET), (SUB)));	\
 	     )
 
 #define fn_for_each_XXX(L, P, FN, ...)					\
@@ -288,7 +288,7 @@ bool aa_label_init(struct aa_label *label, int size);
 struct aa_label *aa_label_alloc(int size, gfp_t gfp);
 
 bool aa_label_is_subset(struct aa_label *set, struct aa_label *sub);
-struct aa_profile * aa_label_next_not_in_set(struct label_it *I,
+struct aa_profile *__aa_label_next_not_in_set(struct label_it *I,
 					     struct aa_label *set,
 					     struct aa_label *sub);
 bool aa_label_remove(struct aa_labelset *ls, struct aa_label *label);

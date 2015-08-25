@@ -151,9 +151,9 @@ static int profile_cmp(struct aa_profile *a, struct aa_profile *b);
  * Returns: profile in @sub that is not in @set, with iterator set pos after
  *     else NULL if @sub is a subset of @set
  */
-struct aa_profile * aa_label_next_not_in_set(struct label_it *I,
-					     struct aa_label *set,
-					     struct aa_label *sub)
+struct aa_profile *__aa_label_next_not_in_set(struct label_it *I,
+					      struct aa_label *set,
+					      struct aa_label *sub)
 {
 	AA_BUG(!set);
 	AA_BUG(!I);
@@ -198,7 +198,7 @@ bool aa_label_is_subset(struct aa_label *set, struct aa_label *sub)
 	if (sub == set)
 		return true;
 
-	return aa_label_next_not_in_set(&i, set, sub) == NULL;
+	return __aa_label_next_not_in_set(&i, set, sub) == NULL;
 }
 
 void aa_label_destroy(struct aa_label *label)
