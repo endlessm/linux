@@ -5339,6 +5339,8 @@ static const struct hda_fixup alc269_fixups[] = {
 	[ALC269VC_FIXUP_NL3_AUTOMUTE] = {
 		.type = HDA_FIXUP_FUNC,
 		.v.func = alc269vc_nl3_fixup_automute,
+		.chained = true,
+		.chain_id = ALC269_FIXUP_PINCFG_NO_HP_TO_LINEOUT
 	},
 };
 
