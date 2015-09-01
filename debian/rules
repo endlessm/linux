@@ -44,12 +44,12 @@ endif
 
 # Stages -- support both DEB_STAGE=stage1 and DEB_BUILD_PROFILE=bootstrap
 ifeq ($(DEB_STAGE),stage1)
-    DEB_BUILD_PROFILE=bootstrap
+    DEB_BUILD_PROFILES=stage1
 endif
 ifneq ($(DEB_BUILD_PROFILE),)
     DEB_BUILD_PROFILES=$(DEB_BUILD_PROFILE)
 endif
-ifneq ($(filter bootstrap,$(DEB_BUILD_PROFILES)),)
+ifneq ($(filter stage1,$(DEB_BUILD_PROFILES)),)
     do_tools=false
     do_doc_package=false
     do_source_package=false
