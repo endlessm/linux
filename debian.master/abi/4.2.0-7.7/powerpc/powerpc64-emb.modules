@@ -2448,8 +2448,6 @@ null_blk
 nvidiafb
 nvme
 nx-compress
-nx-compress-crypto
-nx-compress-platform
 nxp-nci
 nxp-nci_i2c
 nxt200x
