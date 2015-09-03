@@ -95,14 +95,14 @@ clean: debian/control
 	rm -rf $(DEBIAN)/linux-*
 
 	# This gets rid of the d-i packages in control
-	cp -f $(DEBIAN)/control.stub $(DEBIAN)/control
+	cp -f $(DEBIAN)/control.stub $(DROOT)/control
 	cp $(DEBIAN)/changelog debian/changelog
 
 	# Install the copyright information.
 	cp $(DEBIAN)/copyright debian/copyright
 
 distclean: clean
-	rm -rf $(DEBIAN)/control $(DEBIAN)/control.stub \
+	rm -rf $(DROOT)/control $(DROOT)/control.stub $(DEBIAN)/control.stub \
 		$(DEBIAN)/d-i/kernel-versions debian/changelog \
 		debian/control debian/control.stub debian/copyright
 
@@ -142,7 +142,6 @@ $(DEBIAN)/control.stub: $(DEBIAN)/d-i/kernel-versions.in	\
 		-e 's/=HUMAN=/$(human_arch)/g'                                    \
 		>> $(DEBIAN)/control.stub;						\
 	done
-	cp $(DEBIAN)/control.stub $(DEBIAN)/control
 
 .PHONY: debian/control
 debian/control: $(DEBIAN)/control.stub
@@ -271,5 +270,6 @@ debian/control: $(DEBIAN)/control.stub
 			$(builddir)/firmware/$(build_arch);		\
 	fi
 
-	cp $(DEBIAN)/control.stub debian/control.stub
-	cd $(builddir) && LANG=C kernel-wedge gen-control > $(CURDIR)/debian/control
+	echo "# placebo control.stub for kernel-wedge flow change" >debian/control.stub
+	cp $(DEBIAN)/control.stub debian/control
+	cd $(builddir) && LANG=C kernel-wedge gen-control >> $(CURDIR)/debian/control
