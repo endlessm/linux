@@ -2263,6 +2263,43 @@ DECLARE_PCI_FIXUP_FINAL(PCI_VENDOR_ID_VIA, PCI_DEVICE_ID_VIA_VT3364, quirk_disab
 DECLARE_PCI_FIXUP_FINAL(PCI_VENDOR_ID_VIA, PCI_DEVICE_ID_VIA_8380_0, quirk_disable_all_msi);
 DECLARE_PCI_FIXUP_FINAL(PCI_VENDOR_ID_SI, 0x0761, quirk_disable_all_msi);
 
+static const struct dmi_system_id broken_msi_table[] = {
+	{
+		/* Asus laptop with PCIe AER spam when MSI is enabled. */
+		.ident = "ASUSTeK COMPUTER INC. X456UA",
+		.matches = {
+			DMI_MATCH(DMI_SYS_VENDOR, "ASUSTeK COMPUTER INC."),
+			DMI_MATCH(DMI_PRODUCT_NAME, "X456UA"),
+		},
+	},
+	{
+		/* Asus laptop with PCIe AER spam when MSI is enabled. */
+		.ident = "ASUSTeK COMPUTER INC. X456UF",
+		.matches = {
+			DMI_MATCH(DMI_SYS_VENDOR, "ASUSTeK COMPUTER INC."),
+			DMI_MATCH(DMI_PRODUCT_NAME, "X456UF"),
+		},
+	},
+	{
+		/* Asus laptop with PCIe AER spam when MSI is enabled. */
+		.ident = "ASUSTeK COMPUTER INC. X555UB",
+		.matches = {
+			DMI_MATCH(DMI_SYS_VENDOR, "ASUSTeK COMPUTER INC."),
+			DMI_MATCH(DMI_PRODUCT_NAME, "X555UB"),
+		},
+	},
+	{}
+};
+static void quirk_disable_all_msi2(struct pci_dev *dev)
+{
+	if (!dmi_check_system(broken_msi_table))
+		return;
+
+	pci_no_msi();
+	dev_warn(&dev->dev, "MSI disabled on this platform due to quirk\n");
+}
+DECLARE_PCI_FIXUP_FINAL(PCI_VENDOR_ID_INTEL, 0x9d15, quirk_disable_all_msi2);
+
 /* Disable MSI on chipsets that are known to not support it */
 static void quirk_disable_msi(struct pci_dev *dev)
 {
