@@ -63,6 +63,7 @@ while (<ANNOTATIONS>) {
 			if ($value =~ /^{/) {
 				$value =~ s/:/=>/g;
 				$policy = eval($value);
+				warn "$@" if ($@);
 			} else {
 				$policy = undef;
 			}
