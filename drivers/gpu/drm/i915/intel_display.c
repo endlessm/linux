@@ -2237,6 +2237,32 @@ static void intel_enable_primary_hw_plane(struct drm_plane *plane,
 					       crtc->x, crtc->y);
 }
 
+/**
+ * intel_disable_primary_hw_plane - disable the primary hardware plane
+ * @plane: plane to be disabled
+ * @crtc: crtc for the plane
+ *
+ * Disable @plane on @crtc, making sure that the pipe is running first.
+ */
+static void intel_disable_primary_hw_plane(struct drm_plane *plane,
+					   struct drm_crtc *crtc)
+{
+	struct drm_device *dev = plane->dev;
+	struct drm_i915_private *dev_priv = dev->dev_private;
+	struct intel_crtc *intel_crtc = to_intel_crtc(crtc);
+
+	if (WARN_ON(!intel_crtc->active))
+		return;
+
+	if (!intel_crtc->primary_enabled)
+		return;
+
+	intel_crtc->primary_enabled = false;
+
+	dev_priv->display.update_primary_plane(crtc, plane->fb,
+					       crtc->x, crtc->y);
+}
+
 static bool need_vtd_wa(struct drm_device *dev)
 {
 #ifdef CONFIG_INTEL_IOMMU
@@ -4598,6 +4624,38 @@ static void intel_enable_sprite_planes(struct drm_crtc *crtc)
 	}
 }
 
+/*
+ * Disable a plane internally without actually modifying the plane's state.
+ * This will allow us to easily restore the plane later by just reprogramming
+ * its state.
+ */
+static void disable_plane_internal(struct drm_plane *plane)
+{
+	struct intel_plane *intel_plane = to_intel_plane(plane);
+	struct drm_plane_state *state =
+		plane->funcs->atomic_duplicate_state(plane);
+	struct intel_plane_state *intel_state = to_intel_plane_state(state);
+
+	intel_state->visible = false;
+	intel_plane->commit_plane(plane, intel_state);
+
+	intel_plane_destroy_state(plane, state);
+}
+
+static void intel_disable_sprite_planes(struct drm_crtc *crtc)
+{
+	struct drm_device *dev = crtc->dev;
+	enum pipe pipe = to_intel_crtc(crtc)->pipe;
+	struct drm_plane *plane;
+	struct intel_plane *intel_plane;
+
+	drm_for_each_legacy_plane(plane, &dev->mode_config.plane_list) {
+		intel_plane = to_intel_plane(plane);
+		if (plane->fb && intel_plane->pipe == pipe)
+			disable_plane_internal(plane);
+	}
+}
+
 void hsw_enable_ips(struct intel_crtc *crtc)
 {
 	struct drm_device *dev = crtc->base.dev;
@@ -4851,7 +4909,6 @@ static void intel_crtc_disable_planes(struct drm_crtc *crtc)
 {
 	struct drm_device *dev = crtc->dev;
 	struct intel_crtc *intel_crtc = to_intel_crtc(crtc);
-	struct intel_plane *intel_plane;
 	int pipe = intel_crtc->pipe;
 
 	if (!intel_crtc->active)
@@ -4863,14 +4920,9 @@ static void intel_crtc_disable_planes(struct drm_crtc *crtc)
 
 	intel_crtc_dpms_overlay_disable(intel_crtc);
 	intel_crtc->primary_enabled = false;
-	for_each_intel_plane(dev, intel_plane) {
-		if (intel_plane->pipe == pipe) {
-			struct drm_crtc *from = intel_plane->base.crtc;
-
-			intel_plane->disable_plane(&intel_plane->base,
-						   from ?: crtc, true);
-		}
-	}
+	intel_crtc_update_cursor(crtc, false);
+	intel_disable_sprite_planes(crtc);
+	intel_disable_primary_hw_plane(crtc->primary, crtc);
 
 	/*
 	 * FIXME: Once we grow proper nuclear flip support out of this we need
@@ -13327,14 +13379,24 @@ intel_commit_primary_plane(struct drm_plane *plane,
 	crtc->y = src->y1 >> 16;
 
 	if (intel_crtc->active) {
-		intel_crtc->primary_enabled = state->visible;
-
-		if (state->visible)
+		if (state->visible) {
 			/* FIXME: kill this fastboot hack */
 			intel_update_pipe_size(intel_crtc);
 
-		dev_priv->display.update_primary_plane(crtc, plane->fb,
-						       crtc->x, crtc->y);
+			intel_crtc->primary_enabled = true;
+
+			dev_priv->display.update_primary_plane(crtc, plane->fb,
+					crtc->x, crtc->y);
+		} else {
+			/*
+			 * If clipping results in a non-visible primary plane,
+			 * we'll disable the primary plane.  Note that this is
+			 * a bit different than what happens if userspace
+			 * explicitly disables the plane by passing fb=0
+			 * because plane->fb still gets set and pinned.
+			 */
+			intel_disable_primary_hw_plane(plane, crtc);
+		}
 	}
 }
 
