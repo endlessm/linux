@@ -340,7 +340,7 @@ CONFIG_HW_RANDOM_ATMEL				n note<depends on CONFIG_ARCH_AT91SAM9G45>
 # Menu: Device Drivers >> Character devices >> IPMI top-level message handler
 #CONFIG_IPMI_HANDLER				y
 CONFIG_IPMI_PANIC_EVENT				n
-CONFIG_IPMI_SI_PROBE_DEFAULTS			y
+CONFIG_IPMI_SI_PROBE_DEFAULTS			p policy<(arch armhf arm64 &/ value n) | value y> note<Probing for a BMC in I/O space is not supported on ARM and can cause various faults.>
 
 # Menu: Device Drivers >> Character devices >> PCMCIA character devices
 
