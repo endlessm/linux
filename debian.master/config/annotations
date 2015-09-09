@@ -495,7 +495,7 @@ CONFIG_GPIO_EM n note<h/w not encounted>
 CONFIG_GPIO_GENERIC_PLATFORM			p policy<{'armhf': 'y', 'arm64': 'y', '*', 'm'}>
 CONFIG_GPIO_LYNXPOINT				y
 CONFIG_GPIO_TWL6040				p policy<{'armhf': 'y', '*': 'm'}>
-CONFIG_GPIO_TWL4030				p mark<ENFORCED> policy<{'armhf': 'y', '*': 'm'}> note<LP:#921934>
+CONFIG_GPIO_TWL4030				p mark<ENFORCED> policy<{'armhf': 'y', 's390x': '-', '*': 'm'}> note<LP:#921934>
 CONFIG_GPIO_SYSFS				y note<LP#1342153>
 
 # Menu: Device Drivers >> Generic Driver Options
@@ -601,7 +601,7 @@ CONFIG_LOGO					n
 # Menu: Device Drivers >> Graphics support >> Console display driver support
 CONFIG_VGA_CONSOLE				y
 CONFIG_VGACON_SOFT_SCROLLBACK			n
-CONFIG_FRAMEBUFFER_CONSOLE			y mark<ENFORCED> note<boot essential for grub2 console>
+CONFIG_FRAMEBUFFER_CONSOLE			p policy<{'s390x': '-', '*': 'y'}> mark<ENFORCED> note<boot essential for grub2 console>
 CONFIG_FRAMEBUFFER_CONSOLE_DETECT_PRIMARY	y
 CONFIG_FRAMEBUFFER_CONSOLE_ROTATION		y
 
@@ -615,7 +615,7 @@ CONFIG_DRM_RCAR_LVDS				y
 CONFIG_DRM_OMAP					n
 CONFIG_DRM_MSM_FBDEV				n
 CONFIG_DRM_MSM_REGISTER_LOGGING			y
-CONFIG_DRM_MGAG200				n mark<ENFORCED> note<CONFIG_DRM_MGAG200, experimental driver hangs boot on HP Proliant Gen8 LP:1042903>
+CONFIG_DRM_MGAG200				p policy<{'s390x': '-', '*': 'n'}> mark<ENFORCED> note<CONFIG_DRM_MGAG200, experimental driver hangs boot on HP Proliant Gen8 LP:1042903>
 CONFIG_DRM_BOCHS				n note<LP#1378648>
 CONFIG_DRM_RCAR_HDMI				y
 CONFIG_DRM_STI					n note<CONFIG_FW_LOADER_USER_HELPER_FALLBACK LP#1398458>
@@ -990,7 +990,7 @@ CONFIG_MOUSE_ELAN_I2C_SMBUS			y
 # Menu: Device Drivers >> Input device support >> Generic input layer (needed for keyboard, mouse, ...) >> Miscellaneous devices
 CONFIG_INPUT_MISC				y
 CONFIG_INPUT_KXTJ9_POLLED_MODE			n
-CONFIG_INPUT_UINPUT				y mark<ENFORCED> note<LP:584812>
+CONFIG_INPUT_UINPUT				p policy<{'s390x': '-', '*': 'y'}> mark<ENFORCED> note<LP:584812>
 
 # Menu: Device Drivers >> Input device support >> Generic input layer (needed for keyboard, mouse, ...) >> Mouse interface
 CONFIG_INPUT_MOUSEDEV				y
@@ -1970,7 +1970,7 @@ CONFIG_SSB_DRIVER_GPIO				y
 
 # Menu: Device Drivers >> Sound card support
 CONFIG_SOUND					p policy<{'armhf': 'y', '*': 'm'}> note<not autoloadable on omap>
-CONFIG_SOUND_OSS_CORE_PRECLAIM			n mark<ENFORCED> note<LP#1105230 LP#1385510>
+CONFIG_SOUND_OSS_CORE_PRECLAIM			p policy<{'s390x': '-', '*': 'n'}> mark<ENFORCED> note<LP#1105230 LP#1385510>
 
 # Menu: Device Drivers >> Sound card support >> Advanced Linux Sound Architecture
 CONFIG_SND					p policy<{'armhf': 'y', '*': 'm'}> note<not autoloadable on omap>
@@ -2400,7 +2400,7 @@ CONFIG_VIRT_DRIVERS				y
 CONFIG_REGULATOR				y
 CONFIG_REGULATOR_FIXED_VOLTAGE			p policy<{'armhf': 'y', '*': 'm'}> note<boot essential on arm>
 CONFIG_REGULATOR_TI_ABB				p policy<{'armhf': 'y'}>
-CONFIG_REGULATOR_TWL4030			p mark<ENFORCED> policy<{'armhf-generic': 'y', '*': 'm'}> note<boot requisite for omap4>
+CONFIG_REGULATOR_TWL4030			p mark<ENFORCED> policy<{'armhf-generic': 'y', 's390x': '-', '*': 'm'}> note<boot requisite for omap4>
 
 # Menu: Device Drivers >> Watchdog Timer Support
 CONFIG_WATCHDOG					y
@@ -2892,7 +2892,7 @@ CONFIG_TREE_RCU                                 p policy<{'amd64-generic': 'y', 
 CONFIG_PREEMPT_RCU                              p policy<{'amd64-lowlatency': 'y', 'i386-lowlatency': 'y'}>
 
 # Menu: General setup >> Stack Protector buffer overflow detection
-CONFIG_CC_STACKPROTECTOR_STRONG			p mark<ENFORCED> policy<{'powerpc': '-', 'ppc64el': '-', '*': 'y'}>
+CONFIG_CC_STACKPROTECTOR_STRONG			p mark<ENFORCED> policy<{'s390x': '-', 'powerpc': '-', 'ppc64el': '-', '*': 'y'}>
 
 # Menu: General setup >> Stack Protector buffer overflow detection >> Architecture: arm
 
@@ -3752,7 +3752,7 @@ CONFIG_COMPACTION                               y
 CONFIG_MIGRATION                                y
 CONFIG_BOUNCE                                   y
 CONFIG_KSM                                      y
-CONFIG_DEFAULT_MMAP_MIN_ADDR                    p mark<ENFORCED> policy<{'amd64': '65536', 'arm64': '32768', 'armhf': '32768', 'i386': '65536', 'powerpc': '65536', 'ppc64el': '65536'}> note<LP:1418140>
+CONFIG_DEFAULT_MMAP_MIN_ADDR                    p mark<ENFORCED> policy<{'amd64': '65536', 'arm64': '32768', 'armhf': '32768', 'i386': '65536', 'powerpc': '65536', 'ppc64el': '65536', 's390x': 4096}> note<LP:1418140>
 CONFIG_MEMORY_FAILURE                           p policy<{'amd64': 'y', 'powerpc-powerpc64-smp': 'y', 'ppc64el': 'y'}>
 CONFIG_HWPOISON_INJECT                          p policy<{'amd64': 'm', 'powerpc-powerpc64-smp': 'm', 'ppc64el': 'm'}>
 CONFIG_TRANSPARENT_HUGEPAGE                     p policy<{'amd64': 'y', 'arm64': 'y', 'armhf-generic-lpae': 'y', 'i386': 'y', 'ppc64el': 'y'}>
