@@ -1103,9 +1103,12 @@ static void i8042_dritek_enable(void)
  * before suspending.
  */
 
-static int i8042_controller_resume(bool force_reset)
+static int i8042_controller_resume(bool force_reset, bool soft_resume)
 {
 	int error;
+
+	if (soft_resume)
+		goto soft;
 
 	error = i8042_controller_check();
 	if (error)
@@ -1150,6 +1153,7 @@ static int i8042_controller_resume(bool force_reset)
 	if (i8042_ports[I8042_KBD_PORT_NO].serio)
 		i8042_enable_kbd_port();
 
+soft:
 	i8042_interrupt(0, NULL);
 
 	return 0;
@@ -1164,14 +1168,14 @@ static int i8042_pm_suspend(struct device *dev)
 {
 	int i;
 
-	i8042_controller_reset(true);
+	// i8042_controller_reset(true);
 
 	/* Set up serio interrupts for system wakeup. */
 	for (i = 0; i < I8042_NUM_PORTS; i++) {
 		struct serio *serio = i8042_ports[i].serio;
 
-		if (serio && device_may_wakeup(&serio->dev))
-			enable_irq_wake(i8042_ports[i].irq);
+		if (serio)
+			disable_irq(i8042_ports[i].irq);
 	}
 
 	return 0;
@@ -1181,19 +1185,26 @@ static int i8042_pm_resume(struct device *dev)
 {
 	int i;
 
-	for (i = 0; i < I8042_NUM_PORTS; i++) {
-		struct serio *serio = i8042_ports[i].serio;
+	// for (i = 0; i < I8042_NUM_PORTS; i++) {
+	// 	struct serio *serio = i8042_ports[i].serio;
 
-		if (serio && device_may_wakeup(&serio->dev))
-			disable_irq_wake(i8042_ports[i].irq);
-	}
+	// 	if (serio && device_may_wakeup(&serio->dev))
+	// 		disable_irq_wake(i8042_ports[i].irq);
+	// }
 
 	/*
 	 * On resume from S2R we always try to reset the controller
 	 * to bring it in a sane state. (In case of S2D we expect
 	 * BIOS to reset the controller for us.)
 	 */
-	return i8042_controller_resume(true);
+	int r = i8042_controller_resume(true, true);
+
+	for (i = 0; i < I8042_NUM_PORTS; i++) {
+		struct serio *serio = i8042_ports[i].serio;
+
+		if (serio)
+			enable_irq(i8042_ports[i].irq);
+	}
 }
 
 static int i8042_pm_thaw(struct device *dev)
@@ -1212,7 +1223,7 @@ static int i8042_pm_reset(struct device *dev)
 
 static int i8042_pm_restore(struct device *dev)
 {
-	return i8042_controller_resume(false);
+	return i8042_controller_resume(false, false);
 }
 
 static const struct dev_pm_ops i8042_pm_ops = {
