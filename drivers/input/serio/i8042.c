@@ -1205,6 +1205,7 @@ static int i8042_pm_resume(struct device *dev)
 		if (serio)
 			enable_irq(i8042_ports[i].irq);
 	}
+	return r;
 }
 
 static int i8042_pm_thaw(struct device *dev)
