@@ -375,6 +375,7 @@ CONFIG_SERIAL_8250_NR_UARTS			48
 CONFIG_SERIAL_8250_RUNTIME_UARTS		32
 CONFIG_SERIAL_8250_EM				n
 CONFIG_SERIAL_8250_MT6577			y
+CONFIG_SERIAL_8250_DW				p policy<(arch arm64 &/ value y) | value m> note<Otherwise can't boot APM xgene2 via UEFI+ACPI>
 
 # Menu: Device Drivers >> Character devices >> Serial drivers >> 8250/16550 and compatible serial support >> Extended 8250/16550 serial driver options
 CONFIG_SERIAL_8250_EXTENDED			y
