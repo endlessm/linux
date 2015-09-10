@@ -2001,6 +2001,11 @@ static bool drm_mode_expose_to_userspace(const struct drm_display_mode *mode,
 	if (!file_priv->stereo_allowed && drm_mode_is_stereo(mode))
 		return false;
 
+	/* XXX: Our desktop doesn't work very well on modes above 1920x1200,
+	 * so just tell userspace to ignore those for now. */
+	if (mode->htotal > 1920 || mode->vtotal > 1200)
+		return false;
+
 	return true;
 }
 
