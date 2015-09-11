@@ -510,6 +510,7 @@ struct intel_crtc {
 	 */
 	bool active;
 	unsigned long enabled_power_domains;
+	bool primary_enabled; /* is the primary plane (partially) visible? */
 	bool lowfreq_avail;
 	struct intel_overlay *overlay;
 	struct intel_unpin_work *unpin_work;
