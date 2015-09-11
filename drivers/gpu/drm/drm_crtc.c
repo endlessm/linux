@@ -2003,7 +2003,7 @@ static bool drm_mode_expose_to_userspace(const struct drm_display_mode *mode,
 
 	/* XXX: Our desktop doesn't work very well on modes above 1920x1200,
 	 * so just tell userspace to ignore those for now. */
-	if (mode->htotal > 1920 || mode->vtotal > 1200)
+	if (mode->hdisplay > 1920 || mode->vdisplay > 1200)
 		return false;
 
 	return true;
