@@ -1,9 +1,11 @@
-linux (4.2.0-10.10) wily; urgency=low
+linux (4.2.0-10.11) wily; urgency=low
 
-  [ Tim Gardner ]
+  [ Andy Whitcroft ]
 
   * Release Tracking Bug
-    - LP: #1494403
+    - LP: #1495208
+  * No change rebuild to avoid issues with leading zero bytes on
+    internal module signing key.  (see launchpad bug 1494943)
 
   [ Ming Lei ]
 
@@ -115,7 +117,7 @@ linux (4.2.0-10.10) wily; urgency=low
   * drm/i915: set FDI translations to NULL on SKL
     - LP: #1494163
 
- -- Tim Gardner <tim.gardner@canonical.com>  Thu, 10 Sep 2015 06:20:30 -0600
+ -- Andy Whitcroft <apw@canonical.com>  Sun, 13 Sep 2015 11:32:02 +0100
 
 linux (4.2.0-9.9) wily; urgency=low
 
