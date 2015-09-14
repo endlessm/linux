@@ -1,3 +1,363 @@
+linux (4.2.0-10.11) wily; urgency=low
+
+  [ Andy Whitcroft ]
+
+  * Release Tracking Bug
+    - LP: #1495208
+  * No change rebuild to avoid issues with leading zero bytes on
+    internal module signing key.  (see launchpad bug 1494943)
+
+  [ Ming Lei ]
+
+  * [Config] SERIAL_8250_DW=y for arm64
+
+  [ Upstream Kernel Changes ]
+
+  * drm/i915: Move WaBarrierPerformanceFixDisable:skl to skl code from chv
+    code
+    - LP: #1484486
+  * drm/i915/gen8: Add infrastructure to initialize WA batch buffers
+    - LP: #1484486
+  * drm/i915/gen8: Re-order init pipe_control in lrc mode
+    - LP: #1484486
+  * drm/i915/gen8: Add WaDisableCtxRestoreArbitration workaround
+    - LP: #1484486
+  * drm/i915/gen8: Add WaFlushCoherentL3CacheLinesAtContextSwitch
+    workaround
+    - LP: #1484486
+  * drm/i915: Bail out early if WA batch is not available for given Gen
+    - LP: #1484486
+  * drm/i915/gen8: Add WaClearSlmSpaceAtContextSwitch workaround
+    - LP: #1484486
+  * drm/i915: Update WaFlushCoherentL3CacheLinesAtContextSwitch
+    - LP: #1484486
+  * drm/i915/gen9: Implement WaDisableKillLogic for gen 9
+    - LP: #1484486
+  * drm/i915: Enable WA batch buffers for Gen9
+    - LP: #1484486
+  * drm/i915/gen9: Add WaDisableCtxRestoreArbitration workaround
+    - LP: #1484486
+  * drm/i915: Update wa_ctx_emit() macro as per kernel coding guidelines
+    - LP: #1484486
+  * drm/i915/gen9: Add WaFlushCoherentL3CacheLinesAtContextSwitch
+    workaround
+    - LP: #1484486
+  * drm/i915/gen9: Add
+    WaSetDisablePixMaskCammingAndRhwoInCommonSliceChicken
+    - LP: #1484486
+  * drm/i915:skl: Add WaEnableGapsTsvCreditFix
+    - LP: #1484486
+  * drm/i915/skl: revert duplicated WaBarrierPerformanceFixDisable:skl
+    - LP: #1484486
+  * drm/i915/skl: Don't expose the top most plane on gen9 display
+    - LP: #1484486
+  * drm/i915/skl WaDisableSbeCacheDispatchPortSharing
+    - LP: #1484486
+  * drm/i915/skl: WaIgnoreDDIAStrap is forever, always init DDI A
+    - LP: #1484486
+  * drm/i915: reduce indent in i9xx_hpd_irq_handler
+    - LP: #1484531
+  * drm/i915: reduce duplicate conditions in i9xx_hpd_irq_handler
+    - LP: #1484531
+  * drm/i915: reduce indent in intel_hpd_irq_handler
+    - LP: #1484531
+  * drm/i915: group all hotplug related fields into a new struct in
+    dev_priv
+    - LP: #1484531
+  * drm/i915: add for_each_hpd_pin to iterate over hotplug pins
+    - LP: #1484531
+  * drm/i915: simplify conditions for skipping the 2nd hpd loop iterations
+    - LP: #1484531
+  * drm/i915: put back the indent in intel_hpd_irq_handler
+    - LP: #1484531
+  * drm/i915: merge the two hpd loops in intel_hpd_irq_handler to one
+    - LP: #1484531
+  * drm/i915: simplify condition for digital port
+    - LP: #1484531
+  * drm/i915: abstract away platform specific parts from hpd handling
+    - LP: #1484531
+  * drm/i915: Handle HPD when it has actually occurred
+    - LP: #1484531
+  * drm/i915: Set power domain for DDI-E
+    - LP: #1484531
+  * drm/i915: Set alternate aux for DDI-E
+    - LP: #1484531
+  * drm/i915/skl: enable DDI-E hotplug
+    - LP: #1484531
+  * drm/i915/bxt: fix DDI PHY vswing scale value setting
+    - LP: #1494163
+  * drm/i915/skl: Buffer translation improvements
+    - LP: #1494163
+  * drm/i915: Per-DDI I_boost override
+    - LP: #1494163
+  * drm/i915: fix VBT parsing for SDVO child device mapping
+    - LP: #1494163
+  * drm/i915/bxt: edp1.4 Intermediate Freq support
+    - LP: #1494163
+  * drm/i915: fix link rates reported for SKL
+    - LP: #1494163
+  * drm/i915: Allow parsing of variable size child device entries from VBT
+    - LP: #1494163
+  * drm/i915/skl: Update DDI buffer translation programming.
+    - LP: #1494163
+  * drm/i915: Enable HDMI on DDI-E
+    - LP: #1484531
+  * drm/i915/skl: Enable DDI-E
+    - LP: #1484531
+  * drm/i915: eDP can be present on DDI-E
+    - LP: #1484531
+  * drm/i915/skl: Adding DDI_E power well domain
+    - LP: #1484531
+  * drm/i915: set CDCLK if DPLL0 enabled during resuming from S3
+    - LP: #1490035
+  * drm/i915: Split atomic wm update to pre and post variants
+    - LP: #1493746
+  * drm/i915/skl: Drop the preliminary_hw_support flag
+    - LP: #1486868
+  * drm/i915: set FDI translations to NULL on SKL
+    - LP: #1494163
+
+ -- Andy Whitcroft <apw@canonical.com>  Sun, 13 Sep 2015 11:32:02 +0100
+
+linux (4.2.0-9.9) wily; urgency=low
+
+  [ Tim Gardner ]
+
+  * Release Tracking Bug
+    - LP: #1493970
+  * [Config] CONFIG_MFD_INTEL_LPSS=m
+    - LP: #1397876
+
+  [ dann frazier ]
+
+  * [Config] Disable CONFIG_IPMI_SI_PROBE_DEFAULTS on armhf and arm64
+    - LP: #1388952
+
+  [ Michael Ellerman ]
+
+  * SAUCE: crypto: vmx - VMX crypto should depend on CONFIG_VSX
+    Fixes FTBS on 32 bit powerpc, patch sent upstream.
+
+  [ Upstream Kernel Changes ]
+
+  * thermal/powerclamp: add cpu id for skylake h/s
+    - LP: #1398269
+  * perf/x86/intel/uncore: Add Broadwell-DE uncore support
+    - LP: #1397852
+  * mfd: watchdog: iTCO_wdt: Expose watchdog properties using platform data
+    - LP: #1460905
+  * i2c: i801: Create iTCO device on newer Intel PCHs
+    - LP: #1460905
+  * watchdog: iTCO_wdt: Add support for TCO on Intel Sunrisepoint
+    - LP: #1460905
+  * perf/x86: Add a native_perf_sched_clock_from_tsc()
+    - LP: #1397867
+  * perf/x86/intel: Add support for PEBSv3 profiling
+    - LP: #1397867
+  * perf/x86/intel/lbr: Allow time stamp for free running PEBSv3
+    - LP: #1397867
+  * x86: Add new MSRs and MSR bits used for Intel Skylake PMU support
+    - LP: #1397867
+  * perf: Add cycles to branch_info
+    - LP: #1397867
+  * perf/x86/intel/lbr: Add support for LBRv5
+    - LP: #1397867
+  * perf/x86/intel: Handle new arch perfmon v4 status bits
+    - LP: #1397867
+  * perf/x86/intel: Move PMU ACK to after LBR read
+    - LP: #1397867
+  * perf/x86/intel/lbr: Optimize v4 LBR unfreezing
+    - LP: #1397867
+  * perf/x86/intel: Add Intel Skylake PMU support
+    - LP: #1397867
+  * perf/x86/intel/lbr: Use correct index to save/restore LBR_INFO with
+    call stack
+    - LP: #1397867
+  * perf/x86/intel/lbr: Limit LBR accesses to TOS in callstack mode
+    - LP: #1397867
+  * perf/x86: Make merge_attr() global to use from perf_event_intel
+    - LP: #1397867
+  * perf/x86/intel: Use 0x11 as extra reg test value
+    - LP: #1397867
+  * perf tools: Add support for cycles, weight branch_info field
+    - LP: #1397867
+  * perf report: Add flag for non ANY branch mode
+    - LP: #1397867
+  * perf report: Add infrastructure for a cycles histogram
+    - LP: #1397867
+  * perf report: Add processing for cycle histograms
+    - LP: #1397867
+  * perf annotate: Compute IPC and basic block cycles
+    - LP: #1397867
+  * perf annotate: Finally display IPC and cycle accounting
+    - LP: #1397867
+  * perf top: Add branch annotation code to top
+    - LP: #1397867
+  * perf report: Display cycles in branch sort mode
+    - LP: #1397867
+  * perf annotate: Fix 32-bit compilation error in util/annotate.c
+    - LP: #1397867
+  * PM / QoS: Make it possible to expose device latency tolerance to
+    userspace
+    - LP: #1460908
+  * ACPI / PM: Attach ACPI power domain only once
+    - LP: #1460908
+  * Driver core: wakeup the parent device before trying probe
+    - LP: #1460908
+  * klist: implement klist_prev()
+    - LP: #1460908
+  * driver core: implement device_for_each_child_reverse()
+    - LP: #1460908
+  * mfd: make mfd_remove_devices() iterate in reverse order
+    - LP: #1460908
+  * dmaengine: add a driver for Intel integrated DMA 64-bit
+    - LP: #1460908
+  * mfd: Add support for Intel Sunrisepoint LPSS devices
+    - LP: #1460908
+  * spi: pxa2xx: Add support for Intel Sunrisepoint
+    - LP: #1397876
+  * spi: spi-pxa2xx: Remove unused legacy PXA DMA API channel numbers
+    - LP: #1397876
+  * spi: pxa2xx: Add terminating entry for pxa2xx_spi_pci_compound_match
+    - LP: #1397876
+  * spi: spi-pxa2xx: Remove unused legacy null dma buffer and allocation
+    for it
+    - LP: #1397876
+  * intel_idle: Skylake Client Support
+    - LP: #1397877
+  * powerpc/kernel: Switch to using MAX_ERRNO
+    - LP: #1458876
+  * powerpc/kernel: Change the do_syscall_trace_enter() API
+    - LP: #1458876
+  * powerpc: Drop unused syscall_get_error()
+    - LP: #1458876
+  * powerpc: Don't negate error in syscall_set_return_value()
+    - LP: #1458876
+  * powerpc: Rework syscall_get_arguments() so there is only one loop
+    - LP: #1458876
+  * powerpc: Use orig_gpr3 in syscall_get_arguments()
+    - LP: #1458876
+  * powerpc: Change syscall_get_nr() to return int
+    - LP: #1458876
+  * powerpc/kernel: Add SIG_SYS support for compat tasks
+    - LP: #1458876
+  * powerpc/kernel: Enable seccomp filter
+    - LP: #1458876
+  * selftests/seccomp: Make seccomp tests work on big endian
+    - LP: #1458876
+  * selftests/seccomp: Add powerpc support
+    - LP: #1458876
+  * eCryptfs: Invalidate dcache entries when lower i_nlink is zero
+
+ -- Tim Gardner <tim.gardner@canonical.com>  Tue, 08 Sep 2015 19:17:57 -0600
+
+linux (4.2.0-8.8) wily; urgency=low
+
+  [ Tim Gardner ]
+
+  * Release Tracking Bug
+    - LP: #1493357
+  * [Config] CONFIG_CRYPTO_DEV_NX_COMPRESS_CRYPTO obsolete
+    - LP: #1488495
+  * [Config] CONFIG_CXLFLASH=m
+  * [Config] CONFIG_CXL_EEH=y for ppc64el, powerpc64-smp
+
+
+  [ Andy Whitcroft ]
+
+  * [Packaging] standardise on stage1 for the bootstrap stage in line with debian
+  * [Packaging] mark up control for stage1
+  * [Config] kernel-versions -- clean up deps field
+  * [Config] s390x -- build linux-libc-dev
+    - LP: #1488653
+  * [Packaging] control -- prepare for new kernel-wedge semantics
+
+  [ Upstream Kernel Changes ]
+
+  * crypto: vmx - Fixing AES-CTR counter bug
+    - LP: #1484519
+  * crypto: vmx - Fixing GHASH Key issue on little endian
+    - LP: #1484519
+  * powerpc: Uncomment and make enable_kernel_vsx() routine available
+    - LP: #1484519
+  * crypto: vmx - Adding enable_kernel_vsx() to access VSX instructions
+    - LP: #1484519
+  * crypto: nx - nx842_OF_upd_status should return ENODEV if device is not
+    'okay'
+    - LP: #1488495
+  * crypto: nx - rename nx842_{init, exit} to nx842_pseries_{init, exit}
+    - LP: #1488495
+  * crypto: nx - do not emit extra output if status is disabled
+    - LP: #1488495
+  * crypto: nx - reduce chattiness of platform drivers
+    - LP: #1488495
+  * crypto: nx/842 - Fix context corruption
+    - LP: #1488495
+  * crypto: nx - remove __init/__exit from VIO functions
+    - LP: #1488495
+  * crypto: nx - remove pSeries NX 'status' field
+    - LP: #1488495
+  * crypto: nx - move kzalloc() out of spinlock
+    - LP: #1488495
+  * crypto: nx - don't register pSeries driver if ENODEV
+    - LP: #1488495
+  * crypto: nx - use common code for both NX decompress success cases
+    - LP: #1488495
+  * crypto: nx - merge nx-compress and nx-compress-crypto
+    - LP: #1488495
+  * crypto: nx - rename nx-842-crypto.c to nx-842.c
+    - LP: #1488495
+  * crypto: nx - make platform drivers directly register with crypto
+    - LP: #1488495
+  * cxlflash: Base support for IBM CXL Flash Adapter
+    - LP: #1449121
+  * cxlflash: Base error recovery support
+    - LP: #1449121
+  * cxlflash: Superpipe support
+    - LP: #1449121
+  * cxlflash: Virtual LUN support
+    - LP: #1449121
+  * cxlflash: off by one bug in cxlflash_show_port_status()
+    - LP: #1449121
+  * cxlflash: shift wrapping bug in afu_link_reset()
+    - LP: #1449121
+  * cxlflash: Remove unused variable from queuecommand
+    - LP: #1449121
+  * powerpc/powernv: move dma_get_required_mask from pnv_phb to
+    pci_controller_ops
+  * powerpc/eeh: Probe after unbalanced kref check
+  * misc: cxl: clean up afu_read_config()
+  * cxl: Add explicit precision specifiers
+  * cxl: use more common format specifier
+  * cxl: Destroy cxl_adapter_idr on module_exit
+  * cxl: Destroy afu->contexts_idr on release of an afu
+  * cxl: Don't ignore add_process_element() result when attaching context
+  * cxl: Compile with -Werror
+  * cxl: sparse: Make declarations static
+  * cxl: sparse: Silence iomem warning in debugfs file creation
+  * cxl: Convert MMIO read/write macros to inline functions
+  * cxl: Drop commands if the PCI channel is not in normal state
+  * cxl: Allocate and release the SPA with the AFU
+  * cxl: Make IRQ release idempotent
+  * cxl: Clean up adapter MMIO unmap path.
+  * cxl: Refactor adaptor init/teardown
+  * cxl: Refactor AFU init/teardown
+  * cxl: Don't remove AFUs/vPHBs in cxl_reset
+  * cxl: Allow the kernel to trust that an image won't change on PERST.
+  * cxl: EEH support
+  * cxl: Add CONFIG_CXL_EEH symbol
+  * cxl: Plug irq_bitmap getting leaked in cxl_context
+  * cxl: Add alternate MMIO error handling
+  * cxl: Allow release of contexts which have been OPENED but not STARTED
+  * cxl: Remove use of macro DEFINE_PCI_DEVICE_TABLE
+  * cxl: Release irqs if memory allocation fails
+  * cxl: Remove racy attempt to force EEH invocation in reset
+  * cxl: Fix + cleanup error paths in cxl_dev_context_init
+  * cxl: Fix force unmapping mmaps of contexts allocated through the kernel api
+  * cxl: Set up and enable PSL Timebase
+
+ -- Tim Gardner <tim.gardner@canonical.com>  Tue, 01 Sep 2015 07:38:43 -0600
+
 linux (4.2.0-7.7) wily; urgency=low
 
   [ Tim Gardner ]

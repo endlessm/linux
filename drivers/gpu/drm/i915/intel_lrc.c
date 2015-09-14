@@ -211,6 +211,7 @@ enum {
 	FAULT_AND_CONTINUE /* Unsupported */
 };
 #define GEN8_CTX_ID_SHIFT 32
+#define CTX_RCS_INDIRECT_CTX_OFFSET_DEFAULT  0x17
 
 static int intel_lr_context_pin(struct intel_engine_cs *ring,
 		struct intel_context *ctx);
@@ -1079,6 +1080,353 @@ static int intel_logical_ring_workarounds_emit(struct intel_engine_cs *ring,
 	return 0;
 }
 
+#define wa_ctx_emit(batch, index, cmd)					\
+	do {								\
+		int __index = (index)++;				\
+		if (WARN_ON(__index >= (PAGE_SIZE / sizeof(uint32_t)))) { \
+			return -ENOSPC;					\
+		}							\
+		batch[__index] = (cmd);					\
+	} while (0)
+
+
+/*
+ * In this WA we need to set GEN8_L3SQCREG4[21:21] and reset it after
+ * PIPE_CONTROL instruction. This is required for the flush to happen correctly
+ * but there is a slight complication as this is applied in WA batch where the
+ * values are only initialized once so we cannot take register value at the
+ * beginning and reuse it further; hence we save its value to memory, upload a
+ * constant value with bit21 set and then we restore it back with the saved value.
+ * To simplify the WA, a constant value is formed by using the default value
+ * of this register. This shouldn't be a problem because we are only modifying
+ * it for a short period and this batch in non-premptible. We can ofcourse
+ * use additional instructions that read the actual value of the register
+ * at that time and set our bit of interest but it makes the WA complicated.
+ *
+ * This WA is also required for Gen9 so extracting as a function avoids
+ * code duplication.
+ */
+static inline int gen8_emit_flush_coherentl3_wa(struct intel_engine_cs *ring,
+						uint32_t *const batch,
+						uint32_t index)
+{
+	uint32_t l3sqc4_flush = (0x40400000 | GEN8_LQSC_FLUSH_COHERENT_LINES);
+
+	/*
+	 * WaDisableLSQCROPERFforOCL:skl
+	 * This WA is implemented in skl_init_clock_gating() but since
+	 * this batch updates GEN8_L3SQCREG4 with default value we need to
+	 * set this bit here to retain the WA during flush.
+	 */
+	if (IS_SKYLAKE(ring->dev) && INTEL_REVID(ring->dev) <= SKL_REVID_E0)
+		l3sqc4_flush |= GEN8_LQSC_RO_PERF_DIS;
+
+	wa_ctx_emit(batch, index, (MI_STORE_REGISTER_MEM_GEN8(1) |
+				   MI_SRM_LRM_GLOBAL_GTT));
+	wa_ctx_emit(batch, index, GEN8_L3SQCREG4);
+	wa_ctx_emit(batch, index, ring->scratch.gtt_offset + 256);
+	wa_ctx_emit(batch, index, 0);
+
+	wa_ctx_emit(batch, index, MI_LOAD_REGISTER_IMM(1));
+	wa_ctx_emit(batch, index, GEN8_L3SQCREG4);
+	wa_ctx_emit(batch, index, l3sqc4_flush);
+
+	wa_ctx_emit(batch, index, GFX_OP_PIPE_CONTROL(6));
+	wa_ctx_emit(batch, index, (PIPE_CONTROL_CS_STALL |
+				   PIPE_CONTROL_DC_FLUSH_ENABLE));
+	wa_ctx_emit(batch, index, 0);
+	wa_ctx_emit(batch, index, 0);
+	wa_ctx_emit(batch, index, 0);
+	wa_ctx_emit(batch, index, 0);
+
+	wa_ctx_emit(batch, index, (MI_LOAD_REGISTER_MEM_GEN8(1) |
+				   MI_SRM_LRM_GLOBAL_GTT));
+	wa_ctx_emit(batch, index, GEN8_L3SQCREG4);
+	wa_ctx_emit(batch, index, ring->scratch.gtt_offset + 256);
+	wa_ctx_emit(batch, index, 0);
+
+	return index;
+}
+
+static inline uint32_t wa_ctx_start(struct i915_wa_ctx_bb *wa_ctx,
+				    uint32_t offset,
+				    uint32_t start_alignment)
+{
+	return wa_ctx->offset = ALIGN(offset, start_alignment);
+}
+
+static inline int wa_ctx_end(struct i915_wa_ctx_bb *wa_ctx,
+			     uint32_t offset,
+			     uint32_t size_alignment)
+{
+	wa_ctx->size = offset - wa_ctx->offset;
+
+	WARN(wa_ctx->size % size_alignment,
+	     "wa_ctx_bb failed sanity checks: size %d is not aligned to %d\n",
+	     wa_ctx->size, size_alignment);
+	return 0;
+}
+
+/**
+ * gen8_init_indirectctx_bb() - initialize indirect ctx batch with WA
+ *
+ * @ring: only applicable for RCS
+ * @wa_ctx: structure representing wa_ctx
+ *  offset: specifies start of the batch, should be cache-aligned. This is updated
+ *    with the offset value received as input.
+ *  size: size of the batch in DWORDS but HW expects in terms of cachelines
+ * @batch: page in which WA are loaded
+ * @offset: This field specifies the start of the batch, it should be
+ *  cache-aligned otherwise it is adjusted accordingly.
+ *  Typically we only have one indirect_ctx and per_ctx batch buffer which are
+ *  initialized at the beginning and shared across all contexts but this field
+ *  helps us to have multiple batches at different offsets and select them based
+ *  on a criteria. At the moment this batch always start at the beginning of the page
+ *  and at this point we don't have multiple wa_ctx batch buffers.
+ *
+ *  The number of WA applied are not known at the beginning; we use this field
+ *  to return the no of DWORDS written.
+
+ *  It is to be noted that this batch does not contain MI_BATCH_BUFFER_END
+ *  so it adds NOOPs as padding to make it cacheline aligned.
+ *  MI_BATCH_BUFFER_END will be added to perctx batch and both of them together
+ *  makes a complete batch buffer.
+ *
+ * Return: non-zero if we exceed the PAGE_SIZE limit.
+ */
+
+static int gen8_init_indirectctx_bb(struct intel_engine_cs *ring,
+				    struct i915_wa_ctx_bb *wa_ctx,
+				    uint32_t *const batch,
+				    uint32_t *offset)
+{
+	uint32_t scratch_addr;
+	uint32_t index = wa_ctx_start(wa_ctx, *offset, CACHELINE_DWORDS);
+
+	/* WaDisableCtxRestoreArbitration:bdw,chv */
+	wa_ctx_emit(batch, index, MI_ARB_ON_OFF | MI_ARB_DISABLE);
+
+	/* WaFlushCoherentL3CacheLinesAtContextSwitch:bdw */
+	if (IS_BROADWELL(ring->dev)) {
+		index = gen8_emit_flush_coherentl3_wa(ring, batch, index);
+		if (index < 0)
+			return index;
+	}
+
+	/* WaClearSlmSpaceAtContextSwitch:bdw,chv */
+	/* Actual scratch location is at 128 bytes offset */
+	scratch_addr = ring->scratch.gtt_offset + 2*CACHELINE_BYTES;
+
+	wa_ctx_emit(batch, index, GFX_OP_PIPE_CONTROL(6));
+	wa_ctx_emit(batch, index, (PIPE_CONTROL_FLUSH_L3 |
+				   PIPE_CONTROL_GLOBAL_GTT_IVB |
+				   PIPE_CONTROL_CS_STALL |
+				   PIPE_CONTROL_QW_WRITE));
+	wa_ctx_emit(batch, index, scratch_addr);
+	wa_ctx_emit(batch, index, 0);
+	wa_ctx_emit(batch, index, 0);
+	wa_ctx_emit(batch, index, 0);
+
+	/* Pad to end of cacheline */
+	while (index % CACHELINE_DWORDS)
+		wa_ctx_emit(batch, index, MI_NOOP);
+
+	/*
+	 * MI_BATCH_BUFFER_END is not required in Indirect ctx BB because
+	 * execution depends on the length specified in terms of cache lines
+	 * in the register CTX_RCS_INDIRECT_CTX
+	 */
+
+	return wa_ctx_end(wa_ctx, *offset = index, CACHELINE_DWORDS);
+}
+
+/**
+ * gen8_init_perctx_bb() - initialize per ctx batch with WA
+ *
+ * @ring: only applicable for RCS
+ * @wa_ctx: structure representing wa_ctx
+ *  offset: specifies start of the batch, should be cache-aligned.
+ *  size: size of the batch in DWORDS but HW expects in terms of cachelines
+ * @offset: This field specifies the start of this batch.
+ *   This batch is started immediately after indirect_ctx batch. Since we ensure
+ *   that indirect_ctx ends on a cacheline this batch is aligned automatically.
+ *
+ *   The number of DWORDS written are returned using this field.
+ *
+ *  This batch is terminated with MI_BATCH_BUFFER_END and so we need not add padding
+ *  to align it with cacheline as padding after MI_BATCH_BUFFER_END is redundant.
+ */
+static int gen8_init_perctx_bb(struct intel_engine_cs *ring,
+			       struct i915_wa_ctx_bb *wa_ctx,
+			       uint32_t *const batch,
+			       uint32_t *offset)
+{
+	uint32_t index = wa_ctx_start(wa_ctx, *offset, CACHELINE_DWORDS);
+
+	/* WaDisableCtxRestoreArbitration:bdw,chv */
+	wa_ctx_emit(batch, index, MI_ARB_ON_OFF | MI_ARB_ENABLE);
+
+	wa_ctx_emit(batch, index, MI_BATCH_BUFFER_END);
+
+	return wa_ctx_end(wa_ctx, *offset = index, 1);
+}
+
+static int gen9_init_indirectctx_bb(struct intel_engine_cs *ring,
+				    struct i915_wa_ctx_bb *wa_ctx,
+				    uint32_t *const batch,
+				    uint32_t *offset)
+{
+	int ret;
+	struct drm_device *dev = ring->dev;
+	uint32_t index = wa_ctx_start(wa_ctx, *offset, CACHELINE_DWORDS);
+
+	/* WaDisableCtxRestoreArbitration:skl,bxt */
+	if ((IS_SKYLAKE(dev) && (INTEL_REVID(dev) <= SKL_REVID_D0)) ||
+	    (IS_BROXTON(dev) && (INTEL_REVID(dev) == BXT_REVID_A0)))
+		wa_ctx_emit(batch, index, MI_ARB_ON_OFF | MI_ARB_DISABLE);
+
+	/* WaFlushCoherentL3CacheLinesAtContextSwitch:skl,bxt */
+	ret = gen8_emit_flush_coherentl3_wa(ring, batch, index);
+	if (ret < 0)
+		return ret;
+	index = ret;
+
+	/* Pad to end of cacheline */
+	while (index % CACHELINE_DWORDS)
+		wa_ctx_emit(batch, index, MI_NOOP);
+
+	return wa_ctx_end(wa_ctx, *offset = index, CACHELINE_DWORDS);
+}
+
+static int gen9_init_perctx_bb(struct intel_engine_cs *ring,
+			       struct i915_wa_ctx_bb *wa_ctx,
+			       uint32_t *const batch,
+			       uint32_t *offset)
+{
+	struct drm_device *dev = ring->dev;
+	uint32_t index = wa_ctx_start(wa_ctx, *offset, CACHELINE_DWORDS);
+
+	/* WaSetDisablePixMaskCammingAndRhwoInCommonSliceChicken:skl,bxt */
+	if ((IS_SKYLAKE(dev) && (INTEL_REVID(dev) <= SKL_REVID_B0)) ||
+	    (IS_BROXTON(dev) && (INTEL_REVID(dev) == BXT_REVID_A0))) {
+		wa_ctx_emit(batch, index, MI_LOAD_REGISTER_IMM(1));
+		wa_ctx_emit(batch, index, GEN9_SLICE_COMMON_ECO_CHICKEN0);
+		wa_ctx_emit(batch, index,
+			    _MASKED_BIT_ENABLE(DISABLE_PIXEL_MASK_CAMMING));
+		wa_ctx_emit(batch, index, MI_NOOP);
+	}
+
+	/* WaDisableCtxRestoreArbitration:skl,bxt */
+	if ((IS_SKYLAKE(dev) && (INTEL_REVID(dev) <= SKL_REVID_D0)) ||
+	    (IS_BROXTON(dev) && (INTEL_REVID(dev) == BXT_REVID_A0)))
+		wa_ctx_emit(batch, index, MI_ARB_ON_OFF | MI_ARB_ENABLE);
+
+	wa_ctx_emit(batch, index, MI_BATCH_BUFFER_END);
+
+	return wa_ctx_end(wa_ctx, *offset = index, 1);
+}
+
+static int lrc_setup_wa_ctx_obj(struct intel_engine_cs *ring, u32 size)
+{
+	int ret;
+
+	ring->wa_ctx.obj = i915_gem_alloc_object(ring->dev, PAGE_ALIGN(size));
+	if (!ring->wa_ctx.obj) {
+		DRM_DEBUG_DRIVER("alloc LRC WA ctx backing obj failed.\n");
+		return -ENOMEM;
+	}
+
+	ret = i915_gem_obj_ggtt_pin(ring->wa_ctx.obj, PAGE_SIZE, 0);
+	if (ret) {
+		DRM_DEBUG_DRIVER("pin LRC WA ctx backing obj failed: %d\n",
+				 ret);
+		drm_gem_object_unreference(&ring->wa_ctx.obj->base);
+		return ret;
+	}
+
+	return 0;
+}
+
+static void lrc_destroy_wa_ctx_obj(struct intel_engine_cs *ring)
+{
+	if (ring->wa_ctx.obj) {
+		i915_gem_object_ggtt_unpin(ring->wa_ctx.obj);
+		drm_gem_object_unreference(&ring->wa_ctx.obj->base);
+		ring->wa_ctx.obj = NULL;
+	}
+}
+
+static int intel_init_workaround_bb(struct intel_engine_cs *ring)
+{
+	int ret;
+	uint32_t *batch;
+	uint32_t offset;
+	struct page *page;
+	struct i915_ctx_workarounds *wa_ctx = &ring->wa_ctx;
+
+	WARN_ON(ring->id != RCS);
+
+	/* update this when WA for higher Gen are added */
+	if (INTEL_INFO(ring->dev)->gen > 9) {
+		DRM_ERROR("WA batch buffer is not initialized for Gen%d\n",
+			  INTEL_INFO(ring->dev)->gen);
+		return 0;
+	}
+
+	/* some WA perform writes to scratch page, ensure it is valid */
+	if (ring->scratch.obj == NULL) {
+		DRM_ERROR("scratch page not allocated for %s\n", ring->name);
+		return -EINVAL;
+	}
+
+	ret = lrc_setup_wa_ctx_obj(ring, PAGE_SIZE);
+	if (ret) {
+		DRM_DEBUG_DRIVER("Failed to setup context WA page: %d\n", ret);
+		return ret;
+	}
+
+	page = i915_gem_object_get_page(wa_ctx->obj, 0);
+	batch = kmap_atomic(page);
+	offset = 0;
+
+	if (INTEL_INFO(ring->dev)->gen == 8) {
+		ret = gen8_init_indirectctx_bb(ring,
+					       &wa_ctx->indirect_ctx,
+					       batch,
+					       &offset);
+		if (ret)
+			goto out;
+
+		ret = gen8_init_perctx_bb(ring,
+					  &wa_ctx->per_ctx,
+					  batch,
+					  &offset);
+		if (ret)
+			goto out;
+	} else if (INTEL_INFO(ring->dev)->gen == 9) {
+		ret = gen9_init_indirectctx_bb(ring,
+					       &wa_ctx->indirect_ctx,
+					       batch,
+					       &offset);
+		if (ret)
+			goto out;
+
+		ret = gen9_init_perctx_bb(ring,
+					  &wa_ctx->per_ctx,
+					  batch,
+					  &offset);
+		if (ret)
+			goto out;
+	}
+
+out:
+	kunmap_atomic(batch);
+	if (ret)
+		lrc_destroy_wa_ctx_obj(ring);
+
+	return ret;
+}
+
 static int gen8_init_common_ring(struct intel_engine_cs *ring)
 {
 	struct drm_device *dev = ring->dev;
@@ -1419,6 +1767,8 @@ void intel_logical_ring_cleanup(struct intel_engine_cs *ring)
 		kunmap(sg_page(ring->status_page.obj->pages->sgl));
 		ring->status_page.obj = NULL;
 	}
+
+	lrc_destroy_wa_ctx_obj(ring);
 }
 
 static int logical_ring_init(struct drm_device *dev, struct intel_engine_cs *ring)
@@ -1478,11 +1828,28 @@ static int logical_render_ring_init(struct drm_device *dev)
 	ring->emit_bb_start = gen8_emit_bb_start;
 
 	ring->dev = dev;
-	ret = logical_ring_init(dev, ring);
+
+	ret = intel_init_pipe_control(ring);
 	if (ret)
 		return ret;
 
-	return intel_init_pipe_control(ring);
+	ret = intel_init_workaround_bb(ring);
+	if (ret) {
+		/*
+		 * We continue even if we fail to initialize WA batch
+		 * because we only expect rare glitches but nothing
+		 * critical to prevent us from using GPU
+		 */
+		DRM_ERROR("WA batch buffer initialization failed: %d\n",
+			  ret);
+	}
+
+	ret = logical_ring_init(dev, ring);
+	if (ret) {
+		lrc_destroy_wa_ctx_obj(ring);
+	}
+
+	return ret;
 }
 
 static int logical_bsd_ring_init(struct drm_device *dev)
@@ -1762,15 +2129,27 @@ populate_lr_context(struct intel_context *ctx, struct drm_i915_gem_object *ctx_o
 	reg_state[CTX_SECOND_BB_STATE] = ring->mmio_base + 0x118;
 	reg_state[CTX_SECOND_BB_STATE+1] = 0;
 	if (ring->id == RCS) {
-		/* TODO: according to BSpec, the register state context
-		 * for CHV does not have these. OTOH, these registers do
-		 * exist in CHV. I'm waiting for a clarification */
 		reg_state[CTX_BB_PER_CTX_PTR] = ring->mmio_base + 0x1c0;
 		reg_state[CTX_BB_PER_CTX_PTR+1] = 0;
 		reg_state[CTX_RCS_INDIRECT_CTX] = ring->mmio_base + 0x1c4;
 		reg_state[CTX_RCS_INDIRECT_CTX+1] = 0;
 		reg_state[CTX_RCS_INDIRECT_CTX_OFFSET] = ring->mmio_base + 0x1c8;
 		reg_state[CTX_RCS_INDIRECT_CTX_OFFSET+1] = 0;
+		if (ring->wa_ctx.obj) {
+			struct i915_ctx_workarounds *wa_ctx = &ring->wa_ctx;
+			uint32_t ggtt_offset = i915_gem_obj_ggtt_offset(wa_ctx->obj);
+
+			reg_state[CTX_RCS_INDIRECT_CTX+1] =
+				(ggtt_offset + wa_ctx->indirect_ctx.offset * sizeof(uint32_t)) |
+				(wa_ctx->indirect_ctx.size / CACHELINE_DWORDS);
+
+			reg_state[CTX_RCS_INDIRECT_CTX_OFFSET+1] =
+				CTX_RCS_INDIRECT_CTX_OFFSET_DEFAULT << 6;
+
+			reg_state[CTX_BB_PER_CTX_PTR+1] =
+				(ggtt_offset + wa_ctx->per_ctx.offset * sizeof(uint32_t)) |
+				0x01;
+		}
 	}
 	reg_state[CTX_LRI_HEADER_1] = MI_LOAD_REGISTER_IMM(9);
 	reg_state[CTX_LRI_HEADER_1] |= MI_LRI_FORCE_POSTED;

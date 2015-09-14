@@ -182,6 +182,7 @@ enum intel_display_power_domain {
 	POWER_DOMAIN_PORT_DDI_C_4_LANES,
 	POWER_DOMAIN_PORT_DDI_D_2_LANES,
 	POWER_DOMAIN_PORT_DDI_D_4_LANES,
+	POWER_DOMAIN_PORT_DDI_E_2_LANES,
 	POWER_DOMAIN_PORT_DSI,
 	POWER_DOMAIN_PORT_CRT,
 	POWER_DOMAIN_PORT_OTHER,
@@ -214,7 +215,41 @@ enum hpd_pin {
 	HPD_PORT_B,
 	HPD_PORT_C,
 	HPD_PORT_D,
+	HPD_PORT_E,
 	HPD_NUM_PINS
+};
+
+#define for_each_hpd_pin(__pin) \
+	for ((__pin) = (HPD_NONE + 1); (__pin) < HPD_NUM_PINS; (__pin)++)
+
+struct i915_hotplug {
+	struct work_struct hotplug_work;
+
+	struct {
+		unsigned long last_jiffies;
+		int count;
+		enum {
+			HPD_ENABLED = 0,
+			HPD_DISABLED = 1,
+			HPD_MARK_DISABLED = 2
+		} state;
+	} stats[HPD_NUM_PINS];
+	u32 event_bits;
+	struct delayed_work reenable_work;
+
+	struct intel_digital_port *irq_port[I915_MAX_PORTS];
+	u32 long_port_mask;
+	u32 short_port_mask;
+	struct work_struct dig_port_work;
+
+	/*
+	 * if we get a HPD irq from DP and a HPD irq from non-DP
+	 * the non-DP HPD could block the workqueue on a mode config
+	 * mutex getting, that userspace may have taken. However
+	 * userspace is waiting on the DP workqueue to run which is
+	 * blocked behind the non-DP one.
+	 */
+	struct workqueue_struct *dp_wq;
 };
 
 #define I915_GEM_GPU_DOMAINS \
@@ -1349,6 +1384,15 @@ enum modeset_restore {
 	MODESET_SUSPENDED,
 };
 
+#define DP_AUX_A 0x40
+#define DP_AUX_B 0x10
+#define DP_AUX_C 0x20
+#define DP_AUX_D 0x30
+
+#define DDC_PIN_B  0x05
+#define DDC_PIN_C  0x04
+#define DDC_PIN_D  0x06
+
 struct ddi_vbt_port_info {
 	/*
 	 * This is an index in the HDMI/DVI DDI buffer translation table.
@@ -1361,6 +1405,12 @@ struct ddi_vbt_port_info {
 	uint8_t supports_dvi:1;
 	uint8_t supports_hdmi:1;
 	uint8_t supports_dp:1;
+
+	uint8_t alternate_aux_channel;
+	uint8_t alternate_ddc_pin;
+
+	uint8_t dp_boost_level;
+	uint8_t hdmi_boost_level;
 };
 
 enum psr_lines_to_wait {
@@ -1675,19 +1725,7 @@ struct drm_i915_private {
 	u32 pm_rps_events;
 	u32 pipestat_irq_mask[I915_MAX_PIPES];
 
-	struct work_struct hotplug_work;
-	struct {
-		unsigned long hpd_last_jiffies;
-		int hpd_cnt;
-		enum {
-			HPD_ENABLED = 0,
-			HPD_DISABLED = 1,
-			HPD_MARK_DISABLED = 2
-		} hpd_mark;
-	} hpd_stats[HPD_NUM_PINS];
-	u32 hpd_event_bits;
-	struct delayed_work hotplug_reenable_work;
-
+	struct i915_hotplug hotplug;
 	struct i915_fbc fbc;
 	struct i915_drrs drrs;
 	struct intel_opregion opregion;
@@ -1852,20 +1890,6 @@ struct drm_i915_private {
 	} wm;
 
 	struct i915_runtime_pm pm;
-
-	struct intel_digital_port *hpd_irq_port[I915_MAX_PORTS];
-	u32 long_hpd_port_mask;
-	u32 short_hpd_port_mask;
-	struct work_struct dig_port_work;
-
-	/*
-	 * if we get a HPD irq from DP and a HPD irq from non-DP
-	 * the non-DP HPD could block the workqueue on a mode config
-	 * mutex getting, that userspace may have taken. However
-	 * userspace is waiting on the DP workqueue to run which is
-	 * blocked behind the non-DP one.
-	 */
-	struct workqueue_struct *dp_wq;
 
 	/* Abstract the submission mechanism (legacy ringbuffer or execlists) away */
 	struct {
@@ -2395,6 +2419,14 @@ struct drm_i915_cmd_table {
 /* ULX machines are also considered ULT. */
 #define IS_HSW_ULX(dev)		(INTEL_DEVID(dev) == 0x0A0E || \
 				 INTEL_DEVID(dev) == 0x0A1E)
+#define IS_SKL_ULT(dev)		(INTEL_DEVID(dev) == 0x1906 || \
+				 INTEL_DEVID(dev) == 0x1913 || \
+				 INTEL_DEVID(dev) == 0x1916 || \
+				 INTEL_DEVID(dev) == 0x1921 || \
+				 INTEL_DEVID(dev) == 0x1926)
+#define IS_SKL_ULX(dev)		(INTEL_DEVID(dev) == 0x190E || \
+				 INTEL_DEVID(dev) == 0x1915 || \
+				 INTEL_DEVID(dev) == 0x191E)
 #define IS_PRELIMINARY_HW(intel_info) ((intel_info)->is_preliminary)
 
 #define SKL_REVID_A0		(0x0)

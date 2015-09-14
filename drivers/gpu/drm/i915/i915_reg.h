@@ -155,6 +155,7 @@
 #define GAM_ECOCHK			0x4090
 #define   BDW_DISABLE_HDC_INVALIDATION	(1<<25)
 #define   ECOCHK_SNB_BIT		(1<<10)
+#define   ECOCHK_DIS_TLB		(1<<8)
 #define   HSW_ECOCHK_ARB_PRIO_SOL	(1<<6)
 #define   ECOCHK_PPGTT_CACHE64B		(0x3<<3)
 #define   ECOCHK_PPGTT_CACHE4B		(0x0<<3)
@@ -347,6 +348,8 @@
 #define   MI_INVALIDATE_BSD		(1<<7)
 #define   MI_FLUSH_DW_USE_GTT		(1<<2)
 #define   MI_FLUSH_DW_USE_PPGTT		(0<<2)
+#define MI_LOAD_REGISTER_MEM(x) MI_INSTR(0x29, 2*(x)-1)
+#define MI_LOAD_REGISTER_MEM_GEN8(x) MI_INSTR(0x29, 3*(x)-1)
 #define MI_BATCH_BUFFER		MI_INSTR(0x30, 1)
 #define   MI_BATCH_NON_SECURE		(1)
 /* for snb/ivb/vlv this also means "batch in ppgtt" when ppgtt is enabled. */
@@ -410,6 +413,7 @@
 #define   DISPLAY_PLANE_A           (0<<20)
 #define   DISPLAY_PLANE_B           (1<<20)
 #define GFX_OP_PIPE_CONTROL(len)	((0x3<<29)|(0x3<<27)|(0x2<<24)|(len-2))
+#define   PIPE_CONTROL_FLUSH_L3				(1<<27)
 #define   PIPE_CONTROL_GLOBAL_GTT_IVB			(1<<24) /* gen7+ */
 #define   PIPE_CONTROL_MMIO_WRITE			(1<<23)
 #define   PIPE_CONTROL_STORE_DATA_INDEX			(1<<21)
@@ -426,6 +430,7 @@
 #define   PIPE_CONTROL_INDIRECT_STATE_DISABLE		(1<<9)
 #define   PIPE_CONTROL_NOTIFY				(1<<8)
 #define   PIPE_CONTROL_FLUSH_ENABLE			(1<<7) /* gen7+ */
+#define   PIPE_CONTROL_DC_FLUSH_ENABLE			(1<<5)
 #define   PIPE_CONTROL_VF_CACHE_INVALIDATE		(1<<4)
 #define   PIPE_CONTROL_CONST_CACHE_INVALIDATE		(1<<3)
 #define   PIPE_CONTROL_STATE_CACHE_INVALIDATE		(1<<2)
@@ -449,7 +454,6 @@
 #define MI_CLFLUSH              MI_INSTR(0x27, 0)
 #define MI_REPORT_PERF_COUNT    MI_INSTR(0x28, 0)
 #define   MI_REPORT_PERF_COUNT_GGTT (1<<0)
-#define MI_LOAD_REGISTER_MEM    MI_INSTR(0x29, 0)
 #define MI_LOAD_REGISTER_REG    MI_INSTR(0x2A, 0)
 #define MI_RS_STORE_DATA_IMM    MI_INSTR(0x2B, 0)
 #define MI_LOAD_URB_MEM         MI_INSTR(0x2C, 0)
@@ -1376,6 +1380,18 @@ enum skl_disp_power_wells {
 							_PORT_TX_DW14_LN0_B,   \
 							_PORT_TX_DW14_LN0_C) + \
 					 _BXT_LANE_OFFSET(lane))
+
+/* UAIMI scratch pad register 1 */
+#define UAIMI_SPR1			0x4F074
+/* SKL VccIO mask */
+#define SKL_VCCIO_MASK			0x1
+/* SKL balance leg register */
+#define DISPIO_CR_TX_BMU_CR0		0x6C00C
+/* I_boost values */
+#define BALANCE_LEG_SHIFT(port)		(8+3*(port))
+#define BALANCE_LEG_MASK(port)		(7<<(8+3*(port)))
+/* Balance leg disable bits */
+#define BALANCE_LEG_DISABLE_SHIFT	23
 
 /*
  * Fence registers
@@ -5791,6 +5807,7 @@ enum skl_disp_power_wells {
 
 #define GEN8_L3SQCREG4				0xb118
 #define  GEN8_LQSC_RO_PERF_DIS			(1<<27)
+#define  GEN8_LQSC_FLUSH_COHERENT_LINES		(1<<21)
 
 /* GEN8 chicken */
 #define HDC_CHICKEN0				0x7300
@@ -5868,6 +5885,7 @@ enum skl_disp_power_wells {
 #define SDE_AUXC_CPT		(1 << 26)
 #define SDE_AUXB_CPT		(1 << 25)
 #define SDE_AUX_MASK_CPT	(7 << 25)
+#define SDE_PORTE_HOTPLUG_SPT	(1 << 25)
 #define SDE_PORTD_HOTPLUG_CPT	(1 << 23)
 #define SDE_PORTC_HOTPLUG_CPT	(1 << 22)
 #define SDE_PORTB_HOTPLUG_CPT	(1 << 21)
@@ -5875,6 +5893,10 @@ enum skl_disp_power_wells {
 #define SDE_SDVOB_HOTPLUG_CPT	(1 << 18)
 #define SDE_HOTPLUG_MASK_CPT	(SDE_CRT_HOTPLUG_CPT |		\
 				 SDE_SDVOB_HOTPLUG_CPT |	\
+				 SDE_PORTD_HOTPLUG_CPT |	\
+				 SDE_PORTC_HOTPLUG_CPT |	\
+				 SDE_PORTB_HOTPLUG_CPT)
+#define SDE_HOTPLUG_MASK_SPT	(SDE_PORTE_HOTPLUG_SPT |	\
 				 SDE_PORTD_HOTPLUG_CPT |	\
 				 SDE_PORTC_HOTPLUG_CPT |	\
 				 SDE_PORTB_HOTPLUG_CPT)
@@ -5943,6 +5965,13 @@ enum skl_disp_power_wells {
 #define  PORTB_HOTPLUG_NO_DETECT	(0 << 0)
 #define  PORTB_HOTPLUG_SHORT_DETECT	(1 << 0)
 #define  PORTB_HOTPLUG_LONG_DETECT	(2 << 0)
+
+#define PCH_PORT_HOTPLUG2        0xc403C		/* SHOTPLUG_CTL2 */
+#define PORTE_HOTPLUG_ENABLE            (1 << 4)
+#define PORTE_HOTPLUG_STATUS_MASK	(0x3 << 0)
+#define  PORTE_HOTPLUG_NO_DETECT	(0 << 0)
+#define  PORTE_HOTPLUG_SHORT_DETECT	(1 << 0)
+#define  PORTE_HOTPLUG_LONG_DETECT	(2 << 0)
 
 #define PCH_GPIOA               0xc5010
 #define PCH_GPIOB               0xc5014
@@ -6755,6 +6784,9 @@ enum skl_disp_power_wells {
 
 #define GEN7_MISCCPCTL			(0x9424)
 #define   GEN7_DOP_CLOCK_GATE_ENABLE	(1<<0)
+
+#define GEN8_GARBCNTL                   0xB004
+#define   GEN9_GAPS_TSV_CREDIT_DISABLE  (1<<7)
 
 /* IVYBRIDGE DPF */
 #define GEN7_L3CDERRST1			0xB008 /* L3CD Error Status 1 */
