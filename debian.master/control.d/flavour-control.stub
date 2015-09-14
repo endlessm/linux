@@ -22,6 +22,7 @@
 # XXX: Leave the blank line before the first package!!
 
 Package: linux-image-PKGVER-ABINUM-FLAVOUR
+Build-Profiles: <!stage1>
 Architecture: ARCH
 Section: kernel
 Priority: optional
@@ -48,6 +49,7 @@ Description: Linux kernel image for version PKGVER on DESC
  correctly, and that supporting packages are also installed.
 
 Package: linux-image-extra-PKGVER-ABINUM-FLAVOUR
+Build-Profiles: <!stage1>
 Architecture: ARCH
 Section: kernel
 Priority: optional
@@ -69,6 +71,7 @@ Description: Linux kernel extra modules for version PKGVER on DESC
  correctly, and that supporting packages are also installed.
 
 Package: linux-headers-PKGVER-ABINUM-FLAVOUR
+Build-Profiles: <!stage1>
 Architecture: ARCH
 Section: devel
 Priority: optional
@@ -82,6 +85,7 @@ Description: Linux kernel headers for version PKGVER on DESC
  /usr/share/doc/linux-headers-PKGVER-ABINUM/debian.README.gz for details.
 
 Package: linux-image-PKGVER-ABINUM-FLAVOUR-dbgsym
+Build-Profiles: <!stage1>
 Architecture: ARCH
 Section: devel
 Priority: optional
@@ -98,6 +102,7 @@ Description: Linux kernel debug image for version PKGVER on DESC
  unstripped modules.
 
 Package: linux-tools-PKGVER-ABINUM-FLAVOUR
+Build-Profiles: <!stage1>
 Architecture: ARCH
 Section: devel
 Priority: optional
@@ -109,6 +114,7 @@ Description: Linux kernel version specific tools for version PKGVER-ABINUM
  =HUMAN=.
 
 Package: linux-cloud-tools-PKGVER-ABINUM-FLAVOUR
+Build-Profiles: <!stage1>
 Architecture: ARCH
 Section: devel
 Priority: optional
@@ -119,6 +125,7 @@ Description: Linux kernel version specific cloud tools for version PKGVER-ABINUM
  =HUMAN=.
 
 Package: linux-udebs-FLAVOUR
+Build-Profiles: <!stage1>
 XC-Package-Type: udeb
 Section: debian-installer
 Architecture: ARCH

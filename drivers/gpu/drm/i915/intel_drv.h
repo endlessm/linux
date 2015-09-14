@@ -487,7 +487,7 @@ struct intel_crtc_atomic_commit {
 	bool disable_fbc;
 	bool disable_ips;
 	bool pre_disable_primary;
-	bool update_wm;
+	bool update_wm_pre, update_wm_post;
 	unsigned disabled_planes;
 
 	/* Sleepable operations to perform after commit */
@@ -941,8 +941,7 @@ void intel_ddi_init_dp_buf_reg(struct intel_encoder *encoder);
 void intel_ddi_clock_get(struct intel_encoder *encoder,
 			 struct intel_crtc_state *pipe_config);
 void intel_ddi_set_vc_payload_alloc(struct drm_crtc *crtc, bool state);
-void bxt_ddi_vswing_sequence(struct drm_device *dev, u32 level,
-				enum port port, int type);
+uint32_t ddi_signal_levels(struct intel_dp *intel_dp);
 
 /* intel_frontbuffer.c */
 void intel_fb_obj_invalidate(struct drm_i915_gem_object *obj,
