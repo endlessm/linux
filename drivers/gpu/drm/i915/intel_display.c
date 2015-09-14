@@ -14737,6 +14737,9 @@ void intel_modeset_init(struct drm_device *dev)
 	intel_init_display(dev);
 	intel_init_audio(dev);
 
+	/* XXX: Make our max resolution 1920x1200, since anything above
+	 * that will cause Hi-DPI mode, and we can't support that yet. */
+#if 0
 	if (IS_GEN2(dev)) {
 		dev->mode_config.max_width = 2048;
 		dev->mode_config.max_height = 2048;
@@ -14747,6 +14750,10 @@ void intel_modeset_init(struct drm_device *dev)
 		dev->mode_config.max_width = 8192;
 		dev->mode_config.max_height = 8192;
 	}
+#endif
+
+	dev->mode_config.max_width = 1920;
+	dev->mode_config.max_height = 1200;
 
 	if (IS_845G(dev) || IS_I865G(dev)) {
 		dev->mode_config.cursor_width = IS_845G(dev) ? 64 : 512;
