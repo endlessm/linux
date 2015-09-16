@@ -3,6 +3,12 @@ build_arch      = s390
 header_arch     = $(build_arch)
 defconfig       = defconfig
 flavours        = generic
+build_image	= image
+kernel_file	= arch/$(build_arch)/boot/image
+install_file	= vmlinuz
 
-do_flavour_image_package = false
+vdso		= vdso_install
+no_dumpfile	= true
+
+do_extras_package = true
 do_zfs		= true
