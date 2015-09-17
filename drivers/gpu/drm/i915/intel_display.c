@@ -4866,7 +4866,7 @@ static void intel_crtc_disable_planes(struct drm_crtc *crtc)
 
 	intel_crtc_dpms_overlay_disable(intel_crtc);
 	for_each_intel_plane(dev, intel_plane) {
-		if (intel_plane->pipe == pipe) {
+		if (intel_plane->pipe == pipe && intel_plane->base.fb) {
 			struct drm_crtc *from = intel_plane->base.crtc;
 
 			intel_plane->disable_plane(&intel_plane->base,
