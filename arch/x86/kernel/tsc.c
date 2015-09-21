@@ -12,6 +12,7 @@
 #include <linux/percpu.h>
 #include <linux/timex.h>
 #include <linux/static_key.h>
+#include <linux/dmi.h>
 
 #include <asm/hpet.h>
 #include <asm/timer.h>
@@ -1142,8 +1143,33 @@ out:
 }
 
 
+static int quirk_notsc(const struct dmi_system_id *d)
+{
+	notsc_setup(NULL);
+	return 0;
+}
+
+static const struct dmi_system_id tsc_quirk_table[] = {
+	{
+		.callback = quirk_notsc,
+		.ident = "ASUS E202SA",
+		.matches = {
+			DMI_MATCH(DMI_SYS_VENDOR, "ASUSTeK COMPUTER INC."),
+			DMI_MATCH(DMI_PRODUCT_NAME, "E202SA"),
+		},
+	},
+	{}
+};
+
+static int check_tsc_quirks(void)
+{
+	dmi_check_system(tsc_quirk_table);
+}
+
 static int __init init_tsc_clocksource(void)
 {
+	check_tsc_quirks();
+
 	if (!cpu_has_tsc || tsc_disabled > 0 || !tsc_khz)
 		return 0;
 
