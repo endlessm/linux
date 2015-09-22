@@ -1161,7 +1161,7 @@ static const struct dmi_system_id tsc_quirk_table[] = {
 	{}
 };
 
-static int check_tsc_quirks(void)
+static void check_tsc_quirks(void)
 {
 	dmi_check_system(tsc_quirk_table);
 }
