@@ -24,6 +24,8 @@ CONFIG_SCHED_DEBUG				y
 # Menu: ROOT
 CONFIG_RELOCATABLE                              p policy<{'amd64': 'y', 'i386': 'y', 'powerpc-powerpc64-emb': 'y', 'powerpc-powerpc64-smp': 'y', 'ppc64el': 'y'}>
 
+# Menu: ARM Accelerated Cryptographic Algorithms >> Architecture: arm
+
 # Menu: Advanced setup >> Architecture: powerpc
 
 # Menu: Advanced setup >> Prompt for advanced kernel configuration options
@@ -59,8 +61,6 @@ CONFIG_ARM_APPENDED_DTB				p policy<{'armhf': 'y'}>
 CONFIG_ARM_ATAG_DTB_COMPAT			p policy<{'armhf-generic': 'y', 'armhf-generic-lpae': 'n'}> mark<REVIEW>
 CONFIG_ATAGS_PROC				p policy<{'armhf': 'y'}>
 CONFIG_AUTO_ZRELADDR				p policy<{'armhf': 'y'}>
-
-# Menu: Boot options >> Include SD/MMC loader in zImage (EXPERIMENTAL) >> Architecture: arm
 
 # Menu: Boot options >> Kernel command line type
 CONFIG_CMDLINE_FORCE				n
@@ -211,7 +211,6 @@ CONFIG_CRYPTO_DEV_FSL_CAAM_INTC_COUNT_THLD	D
 CONFIG_CRYPTO_DEV_FSL_CAAM_INTC_TIME_THLD	D
 
 # Menu: Cryptographic API >> NIST SP800-90A DRBG
-CONFIG_CRYPTO_DRBG_HMAC                         y
 CONFIG_CRYPTO_DRBG_HASH                         y
 CONFIG_CRYPTO_DRBG_CTR                          y
 
@@ -272,7 +271,6 @@ CONFIG_PARIDE_EPATC8				y
 CONFIG_BLK_DEV_RAM				y note<dependancy of boot essential>
 CONFIG_BLK_DEV_RAM_COUNT			16
 CONFIG_BLK_DEV_RAM_SIZE				65536 mark<ENFORCED> note<Ramdisk size should be a minimum of 64M> mark<REVIEW>
-CONFIG_BLK_DEV_XIP				n note<prevents use of HIGHMEM for ram disks>
 
 # Menu: Device Drivers >> Block devices >> Support for DASD devices
 
@@ -289,7 +287,6 @@ CONFIG_VEXPRESS_CONFIG				y
 CONFIG_BRCMSTB_GISB_ARB				y
 CONFIG_IMX_WEIM					y
 CONFIG_OMAP_INTERCONNECT			y note<boot essential on omap>
-CONFIG_ARM_CCI					y
 CONFIG_ARM_CCN					y
 
 # Menu: Device Drivers >> Character devices
@@ -422,7 +419,6 @@ CONFIG_COMMON_CLK_VERSATILE			y
 CONFIG_COMMON_CLK_XGENE				y
 CONFIG_CLK_SP810				y
 CONFIG_CLK_VEXPRESS_OSC				y
-CONFIG_CLK_PPC_CORENET				y
 
 # Menu: Device Drivers >> Common Clock Framework >> Support for Qualcomm's clock controllers
 
@@ -491,12 +487,24 @@ set +pattern ^GPIO_ ?mark 'GPIO' ?type bool !flag EXPERIMENTAL = y
 #
 CONFIG_GPIO_SYSFS				n
 CONFIG_GPIOLIB					y
+CONFIG_GPIO_SYSFS				y note<LP#1342153>
+
+# Menu: Device Drivers >> GPIO Support >> I2C GPIO expanders
+
+# Menu: Device Drivers >> GPIO Support >> MFD GPIO expanders
+CONFIG_GPIO_TWL6040				p policy<{'armhf': 'y', '*': 'm'}>
+CONFIG_GPIO_TWL4030				p mark<ENFORCED> policy<{'armhf': 'y', 's390x': '-', '*': 'm'}> note<LP:#921934>
+
+# Menu: Device Drivers >> GPIO Support >> Memory mapped GPIO drivers
 CONFIG_GPIO_EM n note<h/w not encounted>
 CONFIG_GPIO_GENERIC_PLATFORM			p policy<{'armhf': 'y', 'arm64': 'y', '*', 'm'}>
 CONFIG_GPIO_LYNXPOINT				y
-CONFIG_GPIO_TWL6040				p policy<{'armhf': 'y', '*': 'm'}>
-CONFIG_GPIO_TWL4030				p mark<ENFORCED> policy<{'armhf': 'y', 's390x': '-', '*': 'm'}> note<LP:#921934>
-CONFIG_GPIO_SYSFS				y note<LP#1342153>
+
+# Menu: Device Drivers >> GPIO Support >> PCI GPIO expanders
+
+# Menu: Device Drivers >> GPIO Support >> SPI GPIO expanders
+
+# Menu: Device Drivers >> GPIO Support >> USB GPIO expanders
 
 # Menu: Device Drivers >> Generic Driver Options
 CONFIG_UEVENT_HELPER				y
@@ -530,6 +538,8 @@ CONFIG_DEVFREQ_GOV_POWERSAVE			y
 CONFIG_DEVFREQ_GOV_USERSPACE			y
 CONFIG_ARM_EXYNOS5_BUS_DEVFREQ			p policy<{'armhf': 'n'}>
 
+# Menu: Device Drivers >> Generic Dynamic Voltage and Frequency Scaling (DVFS) support >> DEVFREQ-Event device Support
+
 # Menu: Device Drivers >> Generic Target Core Mod (TCM) and ConfigFS Infrastructure
 
 # Menu: Device Drivers >> Generic Thermal sysfs driver
@@ -540,7 +550,6 @@ CONFIG_THERMAL_GOV_FAIR_SHARE                   y
 CONFIG_THERMAL_GOV_STEP_WISE                    y
 CONFIG_THERMAL_GOV_BANG_BANG                    y
 CONFIG_THERMAL_GOV_USER_SPACE                   y
-CONFIG_CPU_THERMAL                              p policy<{'arm64': 'y', 'armhf': 'y', 'powerpc': 'y', 'ppc64el': 'y'}>
 CONFIG_CLOCK_THERMAL                            p policy<{'arm64': 'n', 'armhf': 'n', 'powerpc-powerpc64-emb': 'n', 'powerpc-powerpc-e500mc': 'n'}>
 CONFIG_THERMAL_EMULATION                        y
 CONFIG_ARMADA_THERMAL                           p policy<{'armhf': 'y'}>
@@ -553,7 +562,6 @@ CONFIG_THERMAL_DEFAULT_GOV_STEP_WISE		y
 
 # Menu: Device Drivers >> Generic Thermal sysfs driver >> Samsung thermal drivers
 CONFIG_EXYNOS_THERMAL				p policy<{'armhf': 'y'}>
-CONFIG_EXYNOS_THERMAL_CORE			p policy<{'armhf': 'y'}>
 
 # Menu: Device Drivers >> Generic Thermal sysfs driver >> Texas Instruments thermal drivers
 
@@ -561,6 +569,9 @@ CONFIG_EXYNOS_THERMAL_CORE			p policy<{'armhf': 'y'}>
 CONFIG_OMAP4_THERMAL				y
 CONFIG_DRA752_THERMAL				y
 CONFIG_TI_THERMAL				y
+
+# Menu: Device Drivers >> Generic Thermal sysfs driver >> generic cpu cooling support
+CONFIG_CPU_THERMAL                              p policy<{'arm64': 'y', 'armhf': 'y', 'powerpc': 'y', 'ppc64el': 'y'}>
 
 # Menu: Device Drivers >> Generic powercap sysfs driver
 CONFIG_POWERCAP					y
@@ -613,27 +624,25 @@ CONFIG_DRM					m
 CONFIG_DRM_VMWGFX_FBCON				y
 CONFIG_DRM_RCAR_LVDS				y
 CONFIG_DRM_OMAP					n
-CONFIG_DRM_MSM_FBDEV				n
-CONFIG_DRM_MSM_REGISTER_LOGGING			y
 CONFIG_DRM_MGAG200				p policy<{'s390x': '-', '*': 'n'}> mark<ENFORCED> note<CONFIG_DRM_MGAG200, experimental driver hangs boot on HP Proliant Gen8 LP:1042903>
 CONFIG_DRM_BOCHS				n note<LP#1378648>
 CONFIG_DRM_RCAR_HDMI				y
 CONFIG_DRM_STI					n note<CONFIG_FW_LOADER_USER_HELPER_FALLBACK LP#1398458>
 
+# Menu: Device Drivers >> Graphics support >> Direct Rendering Manager >> Direct Rendering Manager (XFree86 4.1.0 and higher DRI support) >> ATI Radeon
+
 # Menu: Device Drivers >> Graphics support >> Direct Rendering Manager >> Direct Rendering Manager (XFree86 4.1.0 and higher DRI support) >> DRM Support for Freescale i.MX
 
 # Menu: Device Drivers >> Graphics support >> Direct Rendering Manager >> Direct Rendering Manager (XFree86 4.1.0 and higher DRI support) >> DRM Support for Samsung SoC EXYNOS Series
-CONFIG_DRM_EXYNOS_IOMMU				p policy<{'armhf': 'n'}>
-CONFIG_DRM_EXYNOS_DMABUF			p policy<{'armhf': 'n'}>
 CONFIG_DRM_EXYNOS_HDMI				p policy<{'armhf': 'n'}>
 CONFIG_DRM_EXYNOS_VIDI				p policy<{'armhf': 'n'}>
 CONFIG_DRM_EXYNOS_G2D				p policy<{'armhf': 'n'}>
-
-# Menu: Device Drivers >> Graphics support >> Direct Rendering Manager >> Direct Rendering Manager (XFree86 4.1.0 and higher DRI support) >> DRM Support for Samsung SoC EXYNOS Series >> Exynos DRM FIMD
 CONFIG_DRM_EXYNOS_FIMD				p policy<{'armhf': 'n'}>
 
 # Menu: Device Drivers >> Graphics support >> Direct Rendering Manager >> Direct Rendering Manager (XFree86 4.1.0 and higher DRI support) >> DRM Support for Samsung SoC EXYNOS Series >> Exynos DRM IPP
 CONFIG_DRM_EXYNOS_IPP				p policy<{'armhf': 'n'}>
+
+# Menu: Device Drivers >> Graphics support >> Direct Rendering Manager >> Direct Rendering Manager (XFree86 4.1.0 and higher DRI support) >> DRM Support for Samsung SoC EXYNOS Series >> Exynos7 DRM DECON
 
 # Menu: Device Drivers >> Graphics support >> Direct Rendering Manager >> Direct Rendering Manager (XFree86 4.1.0 and higher DRI support) >> Display Panels
 
@@ -647,6 +656,10 @@ CONFIG_DRM_I915_PRELIMINARY_HW_SUPPORT		n note<LP:1473319>
 CONFIG_DRM_GMA600				y
 CONFIG_DRM_GMA3600				y
 CONFIG_DRM_MEDFIELD				y
+
+# Menu: Device Drivers >> Graphics support >> Direct Rendering Manager >> Direct Rendering Manager (XFree86 4.1.0 and higher DRI support) >> MSM DRM
+CONFIG_DRM_MSM_FBDEV				n
+CONFIG_DRM_MSM_REGISTER_LOGGING			y
 
 # Menu: Device Drivers >> Graphics support >> Direct Rendering Manager >> Direct Rendering Manager (XFree86 4.1.0 and higher DRI support) >> NVIDIA Tegra DRM
 CONFIG_DRM_TEGRA_FBDEV				y
@@ -781,11 +794,9 @@ CONFIG_HID_PICOLCD_CIR				y
 
 # Menu: Device Drivers >> HID support >> USB HID support
 CONFIG_HID_PID					y
-
-# Menu: Device Drivers >> HID support >> USB HID support >> USB HID transport layer
 CONFIG_USB_HIDDEV				y
 
-# Menu: Device Drivers >> HID support >> USB HID support >> USB HID transport layer >> USB HID Boot Protocol drivers
+# Menu: Device Drivers >> HID support >> USB HID support >> USB HID Boot Protocol drivers
 
 # Menu: Device Drivers >> HSI support
 
@@ -819,15 +830,7 @@ CONFIG_I2C_OMAP                                 p policy<{'armhf': 'y'}>
 CONFIG_I2C_S3C2410                              p policy<{'armhf': 'y'}>
 CONFIG_I2C_OPAL                                 p policy<{'powerpc-powerpc64-smp': 'y', 'ppc64el': 'y'}>
 
-# Menu: Device Drivers >> I2C support >> I2C support >> I2C bus multiplexing support
-
-# Menu: Device Drivers >> I2C support >> I2C support >> I2C bus multiplexing support >> Multiplexer I2C Chip support
-
-# Menu: Device Drivers >> I2O device support
-CONFIG_I2O_LCT_NOTIFY_ON_CHANGES		y
-CONFIG_I2O_EXT_ADAPTEC				y
-CONFIG_I2O_EXT_ADAPTEC_DMA64			y
-CONFIG_I2O_CONFIG_OLD_IOCTL			n
+# Menu: Device Drivers >> I2C support >> I2C support >> Multiplexer I2C Chip support
 
 # Menu: Device Drivers >> IEEE 1394 (FireWire) support
 
@@ -845,6 +848,8 @@ CONFIG_TEGRA_IOMMU_SMMU				y
 CONFIG_IPMMU_VMSA				y
 CONFIG_ARM_SMMU					n
 CONFIG_FSL_PAMU					n
+
+# Menu: Device Drivers >> IOMMU Hardware Support >> Generic IOMMU Pagetable Support
 
 # Menu: Device Drivers >> IOMMU Hardware Support >> IPMMU/IPMMUI address space size
 CONFIG_SHMOBILE_IOMMU_ADDRSIZE_2048MB		y
@@ -905,6 +910,8 @@ CONFIG_GIGASET_CAPI				n
 # Menu: Device Drivers >> Industrial I/O support
 CONFIG_IIO_BUFFER				y
 CONFIG_IIO_BUFFER_CB				y
+CONFIG_IIO_TRIGGER				y
+CONFIG_IIO_CONSUMERS_PER_TRIGGER		D
 
 # Menu: Device Drivers >> Industrial I/O support >> Accelerometers
 
@@ -915,12 +922,6 @@ CONFIG_IIO_BUFFER_CB				y
 # Menu: Device Drivers >> Industrial I/O support >> Digital gyroscope sensors
 
 # Menu: Device Drivers >> Industrial I/O support >> Digital to analog converters
-
-# Menu: Device Drivers >> Industrial I/O support >> Enable triggered sampling support
-CONFIG_IIO_TRIGGER				y
-CONFIG_IIO_CONSUMERS_PER_TRIGGER		D
-
-# Menu: Device Drivers >> Industrial I/O support >> Enable triggered sampling support >> Triggers - standalone
 
 # Menu: Device Drivers >> Industrial I/O support >> Frequency Synthesizers DDS/PLL
 
@@ -944,7 +945,13 @@ CONFIG_IIO_CONSUMERS_PER_TRIGGER		D
 
 # Menu: Device Drivers >> Industrial I/O support >> Pressure sensors
 
+# Menu: Device Drivers >> Industrial I/O support >> Proximity sensors
+
+# Menu: Device Drivers >> Industrial I/O support >> SSP Sensor Common
+
 # Menu: Device Drivers >> Industrial I/O support >> Temperature sensors
+
+# Menu: Device Drivers >> Industrial I/O support >> Triggers - standalone
 
 # Menu: Device Drivers >> IndustryPack bus support
 
@@ -1029,12 +1036,16 @@ CONFIG_LEDS_PCA9532_GPIO			y
 CONFIG_LEDS_ASIC3				y
 CONFIG_LEDS_SYSCON				y
 
+# Menu: Device Drivers >> LED Support >> LED Class Support >> LED Flash Class Support
+
 # Menu: Device Drivers >> LED Support >> LED Class Support >> LED Trigger support
 #CONFIG_LEDS_TRIGGER_HEARTBEAT p policy<(arch armel armhf &/ value y) | value m> note<enables early heartbeat LEDs>
 CONFIG_LEDS_TRIGGERS				y
 CONFIG_LEDS_TRIGGER_CPU				y
 
 # Menu: Device Drivers >> MCB support
+
+# Menu: Device Drivers >> MIPS Platform Specific Device Drivers
 
 # Menu: Device Drivers >> MMC/SD/SDIO card support
 #CONFIG_MMC_OMAP					p policy<(arch armel armhf &/ value y) | value m> note<boot essential on OMAP4>
@@ -1190,6 +1201,8 @@ CONFIG_VEXPRESS_SYSCFG				p policy<{'armhf': 'y', 'arm64': 'y'}>
 CONFIG_GENWQE                                   p policy<{'amd64': 'm', 'arm64': 'm', 'powerpc-powerpc64-emb': 'm', 'powerpc-powerpc64-smp': 'm', 'ppc64el': 'm'}>
 CONFIG_GENWQE_PLATFORM_ERROR_RECOVERY           p policy<{'amd64': '0', 'arm64': '0', 'powerpc-powerpc64-emb': '0', 'powerpc-powerpc64-smp': '0', 'ppc64el': '0'}>
 
+# Menu: Device Drivers >> Misc devices >> SCIF Bus Driver
+
 # Menu: Device Drivers >> Misc devices >> Silicon Labs C2 port support
 
 # Menu: Device Drivers >> Misc devices >> Texas Instruments shared transport line discipline
@@ -1209,13 +1222,11 @@ CONFIG_TWL6040_CORE				y
 CONFIG_PMIC_ADP5520				y
 CONFIG_PMIC_DA903X				y
 CONFIG_EZX_PCAP					y
+CONFIG_MFD_STMPE				y
 
 # Menu: Device Drivers >> Multifunction device drivers >> Multimedia Capabilities Port drivers
 
-# Menu: Device Drivers >> Multifunction device drivers >> STMicroelectronics STMPE
-CONFIG_MFD_STMPE				y
-
-# Menu: Device Drivers >> Multifunction device drivers >> STMicroelectronics STMPE >> STMicroelectronics STMPE Interface Drivers
+# Menu: Device Drivers >> Multifunction device drivers >> STMicroelectronics STMPE Interface Drivers
 CONFIG_STMPE_I2C				y
 CONFIG_STMPE_SPI				y
 
@@ -1230,25 +1241,14 @@ CONFIG_DVB_MAX_ADAPTERS				8
 CONFIG_DVB_DYNAMIC_MINORS			y
 CONFIG_SMS_SIANO_RC				y
 CONFIG_SMS_SIANO_DEBUGFS			y
-
-# Menu: Device Drivers >> Multimedia support >> AM/FM radio receivers/transmitters support
 CONFIG_MEDIA_RADIO_SUPPORT			y
-
-# Menu: Device Drivers >> Multimedia support >> AM/FM radio receivers/transmitters support >> Radio Adapters
-CONFIG_RADIO_ADAPTERS				y
-CONFIG_RADIO_SI470X				y
-
-# Menu: Device Drivers >> Multimedia support >> AM/FM radio receivers/transmitters support >> Radio Adapters >> ISA radio devices
-CONFIG_V4L_RADIO_ISA_DRIVERS			y
-
-# Menu: Device Drivers >> Multimedia support >> AM/FM radio receivers/transmitters support >> Radio Adapters >> Silicon Labs Si4713 FM Radio with RDS Transmitter support
-
-# Menu: Device Drivers >> Multimedia support >> AM/FM radio receivers/transmitters support >> Radio Adapters >> Texas Instruments WL128x FM driver (ST based)
+CONFIG_MEDIA_CONTROLLER				y
+CONFIG_VIDEO_V4L2_SUBDEV_API			y
+CONFIG_MEDIA_SDR_SUPPORT                        y
+CONFIG_MEDIA_SUBDRV_AUTOSELECT			y
 
 # Menu: Device Drivers >> Multimedia support >> Cameras/video grabbers support
 CONFIG_MEDIA_CAMERA_SUPPORT			y
-CONFIG_MEDIA_CONTROLLER				y
-CONFIG_VIDEO_V4L2_SUBDEV_API			y
 
 # Menu: Device Drivers >> Multimedia support >> Cameras/video grabbers support >> Media test drivers
 CONFIG_V4L_TEST_DRIVERS				y
@@ -1269,6 +1269,8 @@ CONFIG_VIDEO_SAMSUNG_S5P_TV			p policy<{'armhf': 'y'}>
 
 # Menu: Device Drivers >> Multimedia support >> Customise DVB Frontends
 CONFIG_DVB_DUMMY_FE n note<expert use only>
+
+# Menu: Device Drivers >> Multimedia support >> Customize TV tuners
 
 # Menu: Device Drivers >> Multimedia support >> Encoders, decoders, sensors and other helper chips
 
@@ -1309,6 +1311,17 @@ CONFIG_DVB_USB_DIBUSB_MB_FAULTY			n
 
 # Menu: Device Drivers >> Multimedia support >> Media USB Adapters >> Support for various USB DVB devices v2
 
+# Menu: Device Drivers >> Multimedia support >> Radio Adapters
+CONFIG_RADIO_ADAPTERS				y
+CONFIG_RADIO_SI470X				y
+
+# Menu: Device Drivers >> Multimedia support >> Radio Adapters >> ISA radio devices
+CONFIG_V4L_RADIO_ISA_DRIVERS			y
+
+# Menu: Device Drivers >> Multimedia support >> Radio Adapters >> Silicon Labs Si4713 FM Radio with RDS Transmitter support
+
+# Menu: Device Drivers >> Multimedia support >> Radio Adapters >> Texas Instruments WL128x FM driver (ST based)
+
 # Menu: Device Drivers >> Multimedia support >> Remote Controller devices
 CONFIG_RC_DEVICES				y
 CONFIG_IR_IMG_RAW				n
@@ -1326,12 +1339,6 @@ CONFIG_RC_DECODERS				y
 
 # Menu: Device Drivers >> Multimedia support >> Sensors used on soc_camera driver
 
-# Menu: Device Drivers >> Multimedia support >> Software defined radio support
-CONFIG_MEDIA_SDR_SUPPORT                        y
-CONFIG_MEDIA_SUBDRV_AUTOSELECT			y
-
-# Menu: Device Drivers >> Multimedia support >> Software defined radio support >> Customize TV tuners
-
 # Menu: Device Drivers >> Multiple devices driver support (RAID and LVM)
 set +tree 'Device Drivers>>MD' ?flag EXPERIMENTAL ?type bool = n
 set +tree 'Device Drivers>>MD' ?flag EXPERIMENTAL ?type tristate = m note<experimental opt-in>
@@ -1343,9 +1350,13 @@ CONFIG_MD					y
 CONFIG_BLK_DEV_DM				y mark<ENFORCED> note<LP:#560717>
 CONFIG_DM_UEVENT				y
 
+# Menu: Device Drivers >> Multiple devices driver support (RAID and LVM) >> Device mapper support >> Cache target (EXPERIMENTAL)
+
 # Menu: Device Drivers >> Multiple devices driver support (RAID and LVM) >> RAID support
 CONFIG_BLK_DEV_MD				y
 CONFIG_MD_AUTODETECT				y
+
+# Menu: Device Drivers >> NVDIMM (Non-Volatile Memory Device) Support
 
 # Menu: Device Drivers >> Network device support
 set +pattern '^NET_VENDOR_'                     = y
@@ -1375,6 +1386,8 @@ CONFIG_ATM_FORE200E_DEBUG			D
 
 # Menu: Device Drivers >> Network device support >> ATM drivers >> Fine-tune burst settings
 CONFIG_ATM_ENI_TUNE_BURST			n
+
+# Menu: Device Drivers >> Network device support >> CAIF virtio transport driver
 
 # Menu: Device Drivers >> Network device support >> Distributed Switch Architecture drivers
 
@@ -1414,10 +1427,6 @@ CONFIG_PCMCIA_FMVJ18X                           p policy<{'amd64': 'm', 'i386': 
 CONFIG_NET_VENDOR_HISILICON                     p policy<{'armhf': 'y'}>
 CONFIG_HIX5HD2_GMAC                             p policy<{'armhf': 'm'}>
 CONFIG_NET_VENDOR_HP                            y
-CONFIG_NET_VENDOR_MELLANOX                      y
-CONFIG_MLX4_EN_DCB                              y
-CONFIG_MLX4_EN_VXLAN                            y
-CONFIG_MLX4_DEBUG                               y
 CONFIG_NET_VENDOR_MICROCHIP                     y
 CONFIG_ENC28J60_WRITEVERIFY                     n
 CONFIG_NET_VENDOR_MYRI                          y
@@ -1460,6 +1469,8 @@ CONFIG_MACE_AAUI_PORT				n
 # Menu: Device Drivers >> Network device support >> Ethernet driver support >> Broadcom devices
 CONFIG_TIGON3					p policy<{'ppc64el': 'y', '*': 'm'}> mark<REVIEW>
 CONFIG_BNX2X_SRIOV				y
+
+# Menu: Device Drivers >> Network device support >> Ethernet driver support >> Cavium ethernet drivers
 
 # Menu: Device Drivers >> Network device support >> Ethernet driver support >> Chelsio devices
 CONFIG_CHELSIO_T1_1G				y
@@ -1504,6 +1515,12 @@ CONFIG_I40E_FCOE				y
 # Menu: Device Drivers >> Network device support >> Ethernet driver support >> Marvell devices
 CONFIG_SKGE_GENESIS				y
 
+# Menu: Device Drivers >> Network device support >> Ethernet driver support >> Mellanox devices
+CONFIG_NET_VENDOR_MELLANOX                      y
+CONFIG_MLX4_EN_DCB                              y
+CONFIG_MLX4_EN_VXLAN                            y
+CONFIG_MLX4_DEBUG                               y
+
 # Menu: Device Drivers >> Network device support >> Ethernet driver support >> Micrel devices
 
 # Menu: Device Drivers >> Network device support >> Ethernet driver support >> National Semi-conductor 8390 devices
@@ -1527,6 +1544,8 @@ CONFIG_8139_OLD_RX_RESET			n
 
 # Menu: Device Drivers >> Network device support >> Ethernet driver support >> SMC (SMSC)/Western Digital devices
 CONFIG_SMC91X					p policy<{'arm64': 'y', 'armhf': 'm'}>
+
+# Menu: Device Drivers >> Network device support >> Ethernet driver support >> STMMAC Platform bus support
 
 # Menu: Device Drivers >> Network device support >> Ethernet driver support >> Solarflare SFC4000/SFC9000/SFC9100-family support
 CONFIG_SFC_MTD					y
@@ -1618,6 +1637,8 @@ CONFIG_ATH5K_PCI                                y
 CONFIG_ATH9K_BTCOEX_SUPPORT                     y
 CONFIG_ATH9K_HTC_DEBUGFS                        y
 CONFIG_WCN36XX_DEBUGFS                          n
+CONFIG_WIL6210_ISR_COR                          y
+CONFIG_WIL6210_TRACING                          y
 
 # Menu: Device Drivers >> Network device support >> Wireless LAN >> Atheros Wireless Cards >> Atheros 5xxx wireless cards support
 CONFIG_ATH5K_DEBUG                              n
@@ -1647,10 +1668,6 @@ CONFIG_ATH6KL_TRACING				n
 CONFIG_CARL9170_LEDS				y
 CONFIG_CARL9170_DEBUGFS				n
 CONFIG_CARL9170_HWRNG				y
-
-# Menu: Device Drivers >> Network device support >> Wireless LAN >> Atheros Wireless Cards >> Wilocity 60g WiFi card wil6210 support
-CONFIG_WIL6210_ISR_COR                          y
-CONFIG_WIL6210_TRACING                          y
 
 # Menu: Device Drivers >> Network device support >> Wireless LAN >> Broadcom 43xx wireless support (mac80211 stack)
 CONFIG_B43_PCMCIA				n
@@ -1700,6 +1717,8 @@ CONFIG_LIBERTAS_MESH				y
 
 # Menu: Device Drivers >> Network device support >> Wireless LAN >> Marvell WiFi-Ex Driver
 
+# Menu: Device Drivers >> Network device support >> Wireless LAN >> Mediatek Wireless LAN support
+
 # Menu: Device Drivers >> Network device support >> Wireless LAN >> Ralink driver support
 CONFIG_RT2X00_LIB_DEBUGFS			n
 
@@ -1734,6 +1753,8 @@ CONFIG_WILINK_PLATFORM_DATA			y
 
 # Menu: Device Drivers >> Network device support >> Wireless LAN >> iwl3945 / iwl4965 Debugging Options
 CONFIG_IWLEGACY_DEBUGFS				y
+
+# Menu: Device Drivers >> Non-Transparent Bridge support
 
 # Menu: Device Drivers >> PHY Subsystem
 CONFIG_GENERIC_PHY				y
@@ -1827,6 +1848,10 @@ CONFIG_RTC_DRV_DS1374_WDT			y
 CONFIG_RTC_DRV_PCF8523				p policy<{'armhf-generic': 'y', '*': 'm'}>
 CONFIG_RTC_DRV_OPAL				p policy<{'powerpc-powerpc64-smp': 'y', 'ppc64el-generic': 'y'}>
 CONFIG_RTC_DRV_MV				p policy<{'armhf': 'y'}>
+
+# Menu: Device Drivers >> Real Time Clock >> Dallas/Maxim DS1685 Family
+
+# Menu: Device Drivers >> Real Time Clock >> Dallas/Maxim DS1685 Family >> Subtype
 
 # Menu: Device Drivers >> Remoteproc drivers
 
@@ -1982,6 +2007,7 @@ CONFIG_SND_MAX_CARDS				32
 CONFIG_SND_SUPPORT_OLD_API			y
 CONFIG_SND_VERBOSE_PROCFS			y
 CONFIG_SND_VERBOSE_PRINTK			n
+CONFIG_SND_HDA_PREALLOC_SIZE			D
 
 # Menu: Device Drivers >> Sound card support >> Advanced Linux Sound Architecture >> ALSA for SoC audio support
 CONFIG_SND_SOC					p policy<(arch armel armhf &/ value y) | value m> note<not autoloadable on omap>
@@ -2008,9 +2034,9 @@ CONFIG_SND_SOC_IMX_SGTL5000			p policy<{'armhf': 'y'}>
 
 # Menu: Device Drivers >> Sound card support >> Advanced Linux Sound Architecture >> ALSA for SoC audio support >> SoC Audio for Freescale MXS CPUs
 
-# Menu: Device Drivers >> Sound card support >> Advanced Linux Sound Architecture >> ALSA for SoC audio support >> SoC Audio for TI DAVINCI
+# Menu: Device Drivers >> Sound card support >> Advanced Linux Sound Architecture >> ALSA for SoC audio support >> SoC Audio for Texas Instruments chips using eDMA
 
-# Menu: Device Drivers >> Sound card support >> Advanced Linux Sound Architecture >> ALSA for SoC audio support >> SoC Audio for TI DAVINCI >> DM365 codec select
+# Menu: Device Drivers >> Sound card support >> Advanced Linux Sound Architecture >> ALSA for SoC audio support >> SoC Audio for Texas Instruments chips using eDMA >> DM365 codec select
 
 # Menu: Device Drivers >> Sound card support >> Advanced Linux Sound Architecture >> ALSA for SoC audio support >> SoC Audio for the Atmel System-on-Chip
 
@@ -2049,12 +2075,10 @@ CONFIG_SND_AC97_POWER_SAVE			y
 CONFIG_SND_AC97_POWER_SAVE_DEFAULT		D
 
 # Menu: Device Drivers >> Sound card support >> Advanced Linux Sound Architecture >> HD-Audio
-CONFIG_SND_HDA_PREALLOC_SIZE			D
 CONFIG_SND_HDA_HWDEP				y
 CONFIG_SND_HDA_RECONFIG				y note<allows fixes to be tested live>
 CONFIG_SND_HDA_INPUT_BEEP			y
 CONFIG_SND_HDA_INPUT_BEEP_MODE			0
-CONFIG_SND_HDA_INPUT_JACK			y
 CONFIG_SND_HDA_PATCH_LOADER			y
 CONFIG_SND_HDA_CODEC_CA0132_DSP			y
 CONFIG_SND_HDA_POWER_SAVE_DEFAULT		D
@@ -2176,20 +2200,12 @@ CONFIG_IIO_SIMPLE_DUMMY_BUFFER			n note<dummy driver>
 
 # Menu: Device Drivers >> Staging drivers >> IIO staging drivers >> Resolver to digital converters
 
-# Menu: Device Drivers >> Staging drivers >> Line6 USB support
-CONFIG_LINE6_USB_IMPULSE_RESPONSE		n
-
 # Menu: Device Drivers >> Staging drivers >> Lustre file system client support
 CONFIG_LUSTRE_OBD_MAX_IOCTL_BUFFER		D
 
 # Menu: Device Drivers >> Staging drivers >> Media staging drivers
 CONFIG_STAGING_MEDIA				y
-CONFIG_DT3155_CCIR				n note<US centric>
-CONFIG_DT3155_STREAMING				y
 CONFIG_VIDEO_OMAP4				n
-
-# Menu: Device Drivers >> Staging drivers >> Media staging drivers >> ISA and parallel port devices
-CONFIG_MEDIA_PARPORT_SUPPORT			y
 
 # Menu: Device Drivers >> Staging drivers >> Media staging drivers >> Linux Infrared Remote Control IR receiver/transmitter drivers
 CONFIG_LIRC_STAGING				y
@@ -2212,15 +2228,16 @@ CONFIG_PANEL_CHANGE_MESSAGE			n
 
 # Menu: Device Drivers >> Staging drivers >> Support for rtllib wireless devices
 
+# Menu: Device Drivers >> Staging drivers >> Support for small TFT LCD display modules
+
 # Menu: Device Drivers >> Staging drivers >> Unisys SPAR driver support
 CONFIG_UNISYSSPAR                               p policy<{'amd64': 'y'}>
-CONFIG_UNISYS_VISORUTIL                         p policy<{'amd64': 'm'}>
-CONFIG_UNISYS_VISORCHANNEL                      p policy<{'amd64': 'm'}>
-CONFIG_UNISYS_VISORCHIPSET                      p policy<{'amd64': 'm'}>
-CONFIG_UNISYS_CHANNELSTUB                       p policy<{'amd64': 'm'}>
-CONFIG_UNISYS_UISLIB                            p policy<{'amd64': 'm'}>
-CONFIG_UNISYS_VIRTPCI                           p policy<{'amd64': 'm'}>
-CONFIG_UNISYS_VIRTHBA                           p policy<{'amd64': 'm'}>
+
+# Menu: Device Drivers >> Staging drivers >> WILC1000 support (WiFi only)
+
+# Menu: Device Drivers >> Staging drivers >> WILC1000 support (WiFi only) >> Bus Type
+
+# Menu: Device Drivers >> Staging drivers >> WILC1000 support (WiFi only) >> Memory Allocation
 
 # Menu: Device Drivers >> TI VLYNQ
 
@@ -2252,7 +2269,6 @@ CONFIG_USB_HCD_TEST_MODE			n
 
 # Menu: Device Drivers >> USB support >> Support for Host-side USB >> DesignWare USB2 DRD Core Support
 CONFIG_USB_DWC2					y
-CONFIG_USB_DWC2_PLATFORM			y
 CONFIG_USB_DWC2_PCI				y
 CONFIG_USB_DWC2_TRACK_MISSED_SOFS		n
 
@@ -2265,7 +2281,6 @@ CONFIG_USB_DWC2_DUAL_ROLE                       p policy<{'armhf': 'y'}>
 CONFIG_USB_DWC3_OMAP                            p policy<{'armhf': 'm'}>
 CONFIG_USB_DWC3_EXYNOS                          p policy<{'armhf': 'm'}>
 CONFIG_USB_DWC3_QCOM                            p policy<{'armhf': 'm'}>
-CONFIG_DWC3_HOST_USB3_LPM_ENABLE                y
 
 # Menu: Device Drivers >> USB support >> Support for Host-side USB >> DesignWare USB3 DRD Core Support >> DWC3 Mode Selection
 CONFIG_USB_DWC3_DUAL_ROLE			y
@@ -2279,6 +2294,8 @@ CONFIG_USB_EHCI_TT_NEWSCHED			y
 CONFIG_XPS_USB_HCD_XILINX			y
 CONFIG_USB_EHCI_FSL				y
 CONFIG_USB_EHCI_HCD_PPC_OF			y
+
+# Menu: Device Drivers >> USB support >> Support for Host-side USB >> ISP1760 Mode Selection
 
 # Menu: Device Drivers >> USB support >> Support for Host-side USB >> Inventra Highspeed Dual Role Controller (TI, ADI, ...)
 CONFIG_USB_MUSB_HDRC				p policy<(arch armel armhf &/ value y) | value m> note<not autoloadable on omap>
@@ -2486,7 +2503,7 @@ set +tree 'Enable the block layer>>Partition Types' ?pattern _DISKLABEL$ !flag E
 # Menu: Enable the block layer >> Partition Types >> Advanced partition selection
 CONFIG_PARTITION_ADVANCED			y
 
-# Menu: Disable the block layer >> Partition Types >> Advanced partition selection >> Acorn partition support
+# Menu: Enable the block layer >> Partition Types >> Advanced partition selection >> Acorn partition support
 CONFIG_ACORN_PARTITION_CUMANA			n
 CONFIG_ACORN_PARTITION_EESOX			n
 CONFIG_ACORN_PARTITION_ICS			n
@@ -2568,6 +2585,12 @@ CONFIG_NTFS_RW					n
 
 # Menu: File systems >> Distributed Lock Manager (DLM)
 
+# Menu: File systems >> F2FS filesystem support
+CONFIG_F2FS_STAT_FS				y
+CONFIG_F2FS_CHECK_FS				n
+
+# Menu: File systems >> F2FS filesystem support >> F2FS extended attributes
+
 # Menu: File systems >> JFS filesystem support
 CONFIG_JFS_STATISTICS				y
 
@@ -2576,14 +2599,25 @@ CONFIG_MISC_FILESYSTEMS				y
 CONFIG_ECRYPT_FS				y mark<ENFORCED> note<not autoloadable>
 CONFIG_ECRYPT_FS_MESSAGING			y
 CONFIG_LOGFS					n note<highly discouraged for use>
-CONFIG_EFIVAR_FS				y note<needed for variable EFI update>
 CONFIG_UBIFS_FS_ADVANCED_COMPR			n
 CONFIG_UBIFS_FS_LZO				y
 CONFIG_UBIFS_FS_ZLIB				y
 
-# Menu: File systems >> Miscellaneous filesystems >> F2FS filesystem support (EXPERIMENTAL)
-CONFIG_F2FS_STAT_FS				y
-CONFIG_F2FS_CHECK_FS				n
+# Menu: File systems >> Miscellaneous filesystems >> Aufs (Advanced multi layered unification filesystem) support
+CONFIG_AUFS_HNOTIFY                             n
+CONFIG_AUFS_EXPORT                              y
+CONFIG_AUFS_XATTR                               y
+CONFIG_AUFS_FHSM                                n
+CONFIG_AUFS_RDU                                 n
+CONFIG_AUFS_SHWH                                n
+CONFIG_AUFS_BR_RAMFS                            n
+CONFIG_AUFS_BR_FUSE                             n
+CONFIG_AUFS_BR_HFSPLUS                          n
+
+# Menu: File systems >> Miscellaneous filesystems >> Aufs (Advanced multi layered unification filesystem) support >> Maximum number of branches
+CONFIG_AUFS_BRANCH_MAX_127			y
+
+# Menu: File systems >> Miscellaneous filesystems >> Aufs (Advanced multi layered unification filesystem) support >> method
 
 # Menu: File systems >> Miscellaneous filesystems >> Journalling Flash File System v2 (JFFS2) support
 CONFIG_JFFS2_FS_DEBUG				0
@@ -2636,9 +2670,6 @@ CONFIG_NLS_DEFAULT				"utf8"
 CONFIG_NETWORK_FILESYSTEMS			y
 CONFIG_NFSD_V3					y
 CONFIG_NFSD_V3_ACL				y
-CONFIG_NFSD_V4					y
-CONFIG_NFSD_V4_SECURITY_LABEL			y
-CONFIG_NFSD_FAULT_INJECTION			n
 CONFIG_SUNRPC_DEBUG				y
 CONFIG_CEPH_FSCACHE				y
 CONFIG_AFS_FSCACHE				y
@@ -2676,6 +2707,11 @@ CONFIG_NFS_V4_2					y
 CONFIG_NFS_V4_1_IMPLEMENTATION_ID_DOMAIN	"kernel.org"
 CONFIG_NFS_V4_1_MIGRATION			y
 
+# Menu: File systems >> Network File Systems >> NFS server support for NFS version 4
+CONFIG_NFSD_V4					y
+CONFIG_NFSD_V4_SECURITY_LABEL			y
+CONFIG_NFSD_FAULT_INJECTION			n
+
 # Menu: File systems >> Network File Systems >> Plan 9 Resource Sharing Support (9P2000)
 CONFIG_9P_FSCACHE				y
 
@@ -2684,6 +2720,7 @@ CONFIG_OCFS2_FS_STATS				y
 CONFIG_OCFS2_DEBUG_MASKLOG			y
 
 # Menu: File systems >> Pseudo filesystems
+CONFIG_EFIVAR_FS				y note<needed for variable EFI update>
 CONFIG_TMPFS_POSIX_ACL				y mark<ENFORCED> note<some /dev nodes require POSIX ACLs, like /dev/dsp>
 CONFIG_SYSFS					y
 CONFIG_TMPFS					y
@@ -2723,6 +2760,7 @@ CONFIG_DMIID                                    p policy<{'amd64': 'y', 'arm64':
 CONFIG_DMI_SYSFS                                p policy<{'amd64': 'm', 'arm64': 'm', 'i386': 'm'}>
 CONFIG_ISCSI_IBFT_FIND                          p policy<{'amd64': 'y', 'i386': 'y'}>
 CONFIG_ISCSI_IBFT                               p policy<{'amd64': 'm', 'i386': 'm'}>
+CONFIG_GOOGLE_FIRMWARE				n
 
 # Menu: Firmware Drivers >> EFI (Extensible Firmware Interface) Support
 CONFIG_EFI_VARS					p mark<ENFORCED> policy<{'amd64': 'y', 'arm64': 'y', 'i386': 'y'}> note<EFI boot requirement (d-i) LP:#837332>
@@ -2730,9 +2768,6 @@ CONFIG_EFI_VARS_PSTORE_DEFAULT_DISABLE		p policy<{'amd64': 'n', 'arm64': 'n', 'i
 CONFIG_EFI_RUNTIME_MAP				p policy<{'amd64': 'y', 'i386': 'y'}>
 
 # Menu: Firmware Drivers >> Google Firmware Drivers
-CONFIG_GOOGLE_FIRMWARE				n
-
-# Menu: Firmware Drivers >> Google Firmware Drivers >> Google Firmware Drivers
 
 # Menu: Floating point emulation >> Architecture: arm
 CONFIG_VFP					p policy<{'armhf': 'y'}>
@@ -2764,7 +2799,6 @@ CONFIG_SCHED_AUTOGROUP                          y
 CONFIG_SYSFS_DEPRECATED                         n mark<ENFORCED> note<ensure nothing is using these deprecated interfaces>
 CONFIG_SYSFS_DEPRECATED_V2                      p policy<{'*': '-'}> mark<ENFORCED> note<ensure nothing is using these deprecated interfaces>
 CONFIG_RELAY                                    y
-CONFIG_INIT_FALLBACK                            y
 CONFIG_CC_OPTIMIZE_FOR_SIZE                     n
 CONFIG_EMBEDDED                                 n
 CONFIG_COMPAT_BRK                               n mark<SECURITY> mark<ENFORCED> note<disables brk ASLR>
@@ -2775,6 +2809,7 @@ CONFIG_OPROFILE                                 p policy<{'amd64': 'm', 'armhf':
 CONFIG_OPROFILE_EVENT_MULTIPLEX                 p policy<{'amd64': 'n', 'i386': 'n'}>
 CONFIG_KPROBES                                  p policy<{'amd64': 'y', 'armhf': 'y', 'i386': 'y', 'powerpc': 'y', 'ppc64el': 'y'}>
 CONFIG_LOCALVERSION_AUTO			n mark<ENFORCED> note<triggers packaging failures>
+CONFIG_BPF_SYSCALL                              y
 
 # Menu: General setup >> CPU/Task time and stats accounting
 CONFIG_BSD_PROCESS_ACCT				y
@@ -2809,7 +2844,6 @@ CONFIG_EPOLL                                    y
 CONFIG_SIGNALFD                                 y
 CONFIG_TIMERFD                                  y
 CONFIG_EVENTFD                                  y
-CONFIG_BPF_SYSCALL                              y
 CONFIG_SHMEM                                    y
 CONFIG_AIO                                      y
 CONFIG_ADVISE_SYSCALLS                          y
@@ -2874,22 +2908,17 @@ CONFIG_PID_NS					y
 CONFIG_NET_NS					y
 
 # Menu: General setup >> RCU Subsystem
-CONFIG_TASKS_RCU				n
-CONFIG_RCU_USER_QS				p policy<{'amd64': 'y', 'armhf': 'n', 'powerpc': 'y', 'ppc64el': 'n'}>
 CONFIG_CONTEXT_TRACKING_FORCE			n note<LP:1349028>
-CONFIG_RCU_FANOUT				p policy<{'amd64': '64', 'arm64': '64', 'armhf': '32', 'i386': '32', 'powerpc-powerpc64-emb': '32', 'powerpc-powerpc64-smp': '64', 'powerpc-powerpc-e500mc': '32', 'powerpc-powerpc-smp': '32', 'ppc64el': '64'}>
-CONFIG_RCU_FANOUT_LEAF				16
-CONFIG_RCU_FANOUT_EXACT				n
-CONFIG_RCU_FAST_NO_HZ				p policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'powerpc': 'y', 'ppc64el': 'n'}>
-CONFIG_RCU_BOOST				p policy<{'amd64': 'n', 'i386': 'n'}>
 CONFIG_RCU_NOCB_CPU				p policy<{'amd64': 'y', 'arm64': 'n', 'armhf': 'n', 'i386': 'n', 'powerpc-powerpc64-emb': 'n', 'powerpc-powerpc64-smp': 'y', 'powerpc-powerpc-e500mc': 'n', 'powerpc-powerpc-smp': 'n', 'ppc64el': 'n'}>
 
 # Menu: General setup >> RCU Subsystem >> Build-forced no-CBs CPUs
 CONFIG_RCU_NOCB_CPU_ALL				p policy<{'amd64': 'y', 'powerpc': 'y'}>
 
-# Menu: General setup >> RCU Subsystem >> RCU Implementation
-CONFIG_TREE_RCU                                 p policy<{'amd64-generic': 'y', 'arm64': 'y', 'armhf': 'y', 'i386-generic': 'y', 'powerpc': 'y', 'ppc64el': 'y'}>
-CONFIG_PREEMPT_RCU                              p policy<{'amd64-lowlatency': 'y', 'i386-lowlatency': 'y'}>
+# Menu: General setup >> RCU Subsystem >> Make expert-level adjustments to RCU configuration
+CONFIG_RCU_FANOUT				p policy<{'amd64': '64', 'arm64': '64', 'armhf': '32', 'i386': '32', 'powerpc-powerpc64-emb': '32', 'powerpc-powerpc64-smp': '64', 'powerpc-powerpc-e500mc': '32', 'powerpc-powerpc-smp': '32', 'ppc64el': '64'}>
+CONFIG_RCU_FANOUT_LEAF				16
+CONFIG_RCU_FAST_NO_HZ				p policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'powerpc': 'y', 'ppc64el': 'n'}>
+CONFIG_RCU_BOOST				p policy<{'amd64': 'n', 'i386': 'n'}>
 
 # Menu: General setup >> Stack Protector buffer overflow detection
 CONFIG_CC_STACKPROTECTOR_STRONG			p mark<ENFORCED> policy<{'s390x': '-', 'powerpc': '-', 'ppc64el': '-', '*': 'y'}>
@@ -2921,6 +2950,7 @@ CONFIG_DEBUG_RODATA				p mark<ENFORCED> policy<{'amd64': 'y', 'i386': 'y', 'arm6
 CONFIG_DEBUG_SET_MODULE_RONX			p mark<ENFORCED> policy<{'powerpc': '-', 'ppc64el': '-', '*': 'y'}>
 CONFIG_EARLY_PRINTK				y
 CONFIG_DEBUG_RODATA				p policy<{'amd64': 'y', 'i386': 'y', 'armhf': 'y'}>
+CONFIG_MEMTEST                                  p policy<{'amd64': 'y', 'i386': 'y'}>
 
 # Menu: Kernel hacking >> Architecture: arm
 CONFIG_ARM_PTDUMP				p policy<{'armhf': 'n'}>
@@ -2956,6 +2986,8 @@ CONFIG_IOMMU_STRESS				p policy<{'amd64': 'n', 'i386': 'n'}>
 CONFIG_OPTIMIZE_INLINING			p policy<{'amd64': 'y', 'i386': 'y'}>
 CONFIG_X86_PTDUMP				n
 CONFIG_X86_DECODER_SELFTEST			n flag<TESTING>
+CONFIG_EARLY_PRINTK_DBGP			p policy<{'amd64': 'y', 'i386': 'y'}>
+CONFIG_EARLY_PRINTK_EFI				p policy<{'amd64': 'y', 'i386': 'y'}>
 
 # Menu: Kernel hacking >> Compile-time checks and compiler options
 CONFIG_ENABLE_WARN_DEPRECATED			n
@@ -2974,10 +3006,10 @@ CONFIG_DEBUG_INFO_REDUCED                       n
 CONFIG_DEBUG_INFO_SPLIT                         n note<LP:1413646 and LP:1413664>
 CONFIG_DEBUG_INFO_DWARF4                        y
 
-# Menu: Kernel hacking >> CoreSight Tracing Support >> Architecture: arm
+# Menu: Kernel hacking >> CoreSight Tracing Support
 CONFIG_CORESIGHT                                p policy<{'armhf': 'n'}>
 
-# Menu: Kernel hacking >> CoreSight Tracing Support >> CoreSight Link and Sink drivers >> Architecture: arm
+# Menu: Kernel hacking >> CoreSight Tracing Support >> CoreSight Link and Sink drivers
 
 # Menu: Kernel hacking >> Debug Lockups and Hangs
 CONFIG_LOCKUP_DETECTOR				y
@@ -2988,13 +3020,6 @@ CONFIG_DEFAULT_HUNG_TASK_TIMEOUT		120
 CONFIG_BOOTPARAM_HUNG_TASK_PANIC		n
 
 # Menu: Kernel hacking >> Early debugging console >> Architecture: powerpc
-
-# Menu: Kernel hacking >> Early printk
-
-# Menu: Kernel hacking >> Early printk >> Architecture: x86
-CONFIG_EARLY_PRINTK_INTEL_MID			p policy<{'i386': 'y'}>
-CONFIG_EARLY_PRINTK_DBGP			p policy<{'amd64': 'y', 'i386': 'y'}>
-CONFIG_EARLY_PRINTK_EFI				p policy<{'amd64': 'y', 'i386': 'y'}>
 
 # Menu: Kernel hacking >> IO delay type >> Architecture: x86
 CONFIG_IO_DELAY_0XED				p policy<{'amd64': 'y', 'i386': 'y'}>
@@ -3035,6 +3060,8 @@ CONFIG_SLUB_STATS				n
 
 # Menu: Kernel hacking >> Memory Debugging >> Debug object operations
 
+# Menu: Kernel hacking >> Memory Debugging >> Instrumentation type
+
 # Menu: Kernel hacking >> Memory Debugging >> Kernel memory leak detector
 
 # Menu: Kernel hacking >> Memory Debugging >> kmemcheck: trap use of uninitialized memory
@@ -3043,10 +3070,12 @@ CONFIG_SLUB_STATS				n
 
 # Menu: Kernel hacking >> RCU Debugging
 CONFIG_SPARSE_RCU_POINTER			n
-CONFIG_RCU_TORTURE_TEST				n flag<TESTING>
 CONFIG_RCU_CPU_STALL_TIMEOUT			p policy<{'amd64': '60', 'arm64': '60', 'armhf': '60', 'i386': '60', 'powerpc': '21', 'ppc64el': '21'}>
 CONFIG_RCU_CPU_STALL_INFO			n
 CONFIG_RCU_TRACE				n
+
+# Menu: Kernel hacking >> RCU Debugging >> torture tests for RCU
+CONFIG_RCU_TORTURE_TEST				n flag<TESTING>
 
 # Menu: Kernel hacking >> Runtime Testing
 CONFIG_LKDTM					n flag<TESTING>
@@ -3162,6 +3191,8 @@ CONFIG_BT_HCIUART_ATH3K				y
 CONFIG_BT_HCIUART_LL				y
 CONFIG_BT_HCIUART_3WIRE				y
 
+# Menu: Networking support >> Bluetooth subsystem support >> Bluetooth device drivers >> HCI USB driver
+
 # Menu: Networking support >> CAIF support
 
 # Menu: Networking support >> CAN bus subsystem support
@@ -3227,6 +3258,10 @@ CONFIG_CGROUP_NET_PRIO                          y
 CONFIG_CGROUP_NET_CLASSID                       y
 CONFIG_BPF_JIT                                  p policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'powerpc-powerpc64-emb': 'y', 'powerpc-powerpc64-smp': 'y', 'ppc64el': 'y'}>
 
+# Menu: Networking support >> Networking options >> 6LoWPAN Support
+
+# Menu: Networking support >> Networking options >> 6LoWPAN Support >> Next Header Compression Support
+
 # Menu: Networking support >> Networking options >> Appletalk interfaces support
 CONFIG_IPDDP_ENCAP				y
 CONFIG_COPS_DAYNA				y
@@ -3242,13 +3277,13 @@ CONFIG_BATMAN_ADV_DAT				y
 CONFIG_BATMAN_ADV_NC				y
 CONFIG_BATMAN_ADV_MCAST				y
 
+# Menu: Networking support >> Networking options >> IEEE Std 802.15.4 Low-Rate Wireless Personal Area Networks support
+
+# Menu: Networking support >> Networking options >> MultiProtocol Label Switching
+
 # Menu: Networking support >> Networking options >> Network packet filtering framework (Netfilter)
 CONFIG_NETFILTER				y mark<Subsystem>
-
-# Menu: Networking support >> Networking options >> Network packet filtering framework (Netfilter) >> Advanced netfilter configuration
 CONFIG_NETFILTER_ADVANCED			y
-
-# Menu: Networking support >> Networking options >> Network packet filtering framework (Netfilter) >> Advanced netfilter configuration >> DECnet: Netfilter Configuration
 
 # Menu: Networking support >> Networking options >> Network packet filtering framework (Netfilter) >> Core Netfilter Configuration
 
@@ -3265,6 +3300,8 @@ CONFIG_NF_CONNTRACK_TIMESTAMP			y
 CONFIG_NETFILTER_NETLINK_QUEUE_CT		y
 
 # Menu: Networking support >> Networking options >> Network packet filtering framework (Netfilter) >> Core Netfilter Configuration >> Netfilter nf_tables support
+
+# Menu: Networking support >> Networking options >> Network packet filtering framework (Netfilter) >> DECnet: Netfilter Configuration
 
 # Menu: Networking support >> Networking options >> Network packet filtering framework (Netfilter) >> Ethernet Bridge nf_tables support
 
@@ -3394,7 +3431,6 @@ CONFIG_SCTP_DEFAULT_COOKIE_HMAC_SHA1		y
 
 # Menu: Networking support >> Networking options >> TCP/IP networking >> The TIPC Protocol
 CONFIG_TIPC					m note<network protocol -- opt-in>
-CONFIG_TIPC_PORTS				D
 CONFIG_TIPC_MEDIA_IB				y
 
 # Menu: Networking support >> Plan 9 Resource Sharing Support (9P2000)
@@ -3515,13 +3551,11 @@ CONFIG_APM_ALLOW_INTS				n
 
 # Menu: Power management and ACPI options >> Architecture: powerpc
 CONFIG_PPC_POWERNV				p policy<{'powerpc': 'y', 'ppc64el': 'y'}>
-CONFIG_PPC_POWERNV_RTAS				p policy<{'powerpc': 'y', 'ppc64el': 'y'}>
 CONFIG_PPC_CHRP					p policy<{'powerpc': 'y'}>
 CONFIG_PPC_PMAC					p policy<{'powerpc': 'y', 'ppc64el': 'n'}>
 CONFIG_PPC_PMAC32_PSURGE			p policy<{'powerpc': 'y'}>
 CONFIG_PPC_MAPLE				p policy<{'powerpc': 'y', 'ppc64el': 'n'}>
 CONFIG_PPC_IBM_CELL_BLADE			p policy<{'powerpc': 'n', 'ppc64el': 'n'}>
-CONFIG_PPC_CELLEB				p policy<{'powerpc': 'n', 'ppc64el': 'n'}>
 CONFIG_PPC_CELL_QPACE				p policy<{'powerpc': 'n', 'ppc64el': 'n'}>
 CONFIG_EPAPR_PARAVIRT				p policy<{'powerpc': 'y', 'ppc64el': 'y'}>
 CONFIG_PPC_OF_BOOT_TRAMPOLINE			p policy<{'powerpc-powerpc64-emb': 'n', 'powerpc-powerpc64-smp': 'y', 'powerpc-powerpc-smp': 'y', 'ppc64el': 'y'}>
@@ -3537,6 +3571,8 @@ CONFIG_TAU_AVERAGE				p policy<{'powerpc': 'n'}>
 CONFIG_QUICC_ENGINE				p policy<{'powerpc': 'n'}>
 CONFIG_CPM2					p policy<{'powerpc': 'y'}>
 CONFIG_SIMPLE_GPIO				p policy<{'powerpc': 'y', 'ppc64el': 'n'}>
+CONFIG_PPC_PASEMI				p policy<{'powerpc': 'y', 'ppc64el': 'n'}>
+CONFIG_PPC_PS3					p policy<{'powerpc': 'y', 'ppc64el': 'n'}>
 
 # Menu: Power management and ACPI options >> Architecture: x86
 
@@ -3554,7 +3590,6 @@ CONFIG_CPU_FREQ_GOV_CONSERVATIVE		y note<not autoloadable>
 CONFIG_CPUFREQ_DT				y note<not autoloadable>
 CONFIG_ARM_OMAP2PLUS_CPUFREQ			p policy<{'armhf': 'y'}>
 CONFIG_ARM_TEGRA_CPUFREQ			p policy<{'armhf': 'y'}>
-CONFIG_ARM_EXYNOS5250_CPUFREQ			p policy<{'armhf': 'n'}>
 CONFIG_ARM_EXYNOS5440_CPUFREQ			p policy<{'armhf': 'n'}>
 CONFIG_CPU_FREQ_MAPLE				y
 CONFIG_CPU_FREQ_PMAC				y
@@ -3580,6 +3615,9 @@ CONFIG_X86_POWERNOW_K8				y note<not autoloadable>
 # Menu: Power management and ACPI options >> CPU Frequency scaling >> CPU Frequency scaling >> Default CPUFreq governor
 CONFIG_CPU_FREQ_DEFAULT_GOV_PERFORMANCE		y note<for bootspeed>
 
+# Menu: Power management and ACPI options >> CPU Frequency scaling >> CPU Frequency scaling >> SAMSUNG EXYNOS CPUfreq Driver
+CONFIG_ARM_EXYNOS5250_CPUFREQ			p policy<{'armhf': 'n'}>
+
 # Menu: Power management and ACPI options >> CPU Idle
 
 # Menu: Power management and ACPI options >> CPU Idle >> CPU idle PM support
@@ -3596,9 +3634,6 @@ CONFIG_ARM_HIGHBANK_CPUIDLE                     p policy<{'armhf-generic': 'n', 
 CONFIG_ARM_EXYNOS_CPUIDLE                       p policy<{'armhf': 'y'}>
 CONFIG_ARM_MVEBU_V7_CPUIDLE                     p policy<{'armhf': 'y'}>
 
-# Menu: Power management and ACPI options >> CPU Idle >> CPU idle PM support >> ARM64 CPU Idle Drivers
-CONFIG_ARM64_CPUIDLE                            p policy<{'arm64': 'y'}>
-
 # Menu: Power management and ACPI options >> CPU Idle >> CPU idle PM support >> MIPS CPU Idle Drivers
 
 # Menu: Power management and ACPI options >> CPU Idle >> CPU idle PM support >> POWERPC CPU Idle Drivers
@@ -3612,8 +3647,6 @@ CONFIG_POWERNV_CPUIDLE				y
 # Menu: Power management and ACPI options >> CPUIdle driver >> CPU Idle >> CPU idle PM support
 
 # Menu: Power management and ACPI options >> CPUIdle driver >> CPU Idle >> CPU idle PM support >> ARM CPU Idle Drivers
-
-# Menu: Power management and ACPI options >> CPUIdle driver >> CPU Idle >> CPU idle PM support >> ARM64 CPU Idle Drivers
 
 # Menu: Power management and ACPI options >> CPUIdle driver >> CPU Idle >> CPU idle PM support >> MIPS CPU Idle Drivers
 
@@ -3687,21 +3720,15 @@ CONFIG_DTL					p policy<{'ppc64el': 'y'}>
 
 # Menu: Power management and ACPI options >> Memory power savings
 
-# Menu: Power management and ACPI options >> PA Semi SoC-based platforms >> Architecture: powerpc
-CONFIG_PPC_PASEMI				p policy<{'powerpc': 'y', 'ppc64el': 'n'}>
-
-# Menu: Power management and ACPI options >> PA Semi SoC-based platforms >> PA Semi PWRficient options >> Architecture: powerpc
+# Menu: Power management and ACPI options >> PA Semi PWRficient options >> Architecture: powerpc
 CONFIG_PPC_PASEMI_IOMMU				p policy<{'powerpc': 'y'}>
 CONFIG_PPC_PASEMI_IOMMU_DMA_FORCE		p policy<{'powerpc': 'n'}>
 
-# Menu: Power management and ACPI options >> Sony PS3 >> Architecture: powerpc
-CONFIG_PPC_PS3					p policy<{'powerpc': 'y', 'ppc64el': 'n'}>
-
-# Menu: Power management and ACPI options >> Sony PS3 >> PS3 Platform Options >> Architecture: powerpc
+# Menu: Power management and ACPI options >> PS3 Platform Options >> Architecture: powerpc
 CONFIG_PS3_DYNAMIC_DMA				p policy<{'powerpc': 'n'}>
 CONFIG_PS3GELIC_UDBG				p policy<{'powerpc': 'n'}>
 
-# Menu: Power management and ACPI options >> Sony PS3 >> PS3 Platform Options >> PS3 Advanced configuration options >> Architecture: powerpc
+# Menu: Power management and ACPI options >> PS3 Platform Options >> PS3 Advanced configuration options >> Architecture: powerpc
 CONFIG_PS3_ADVANCED				p policy<{'powerpc': 'n'}>
 CONFIG_PS3_HTAB_SIZE				p policy<{'powerpc': '20'}>
 CONFIG_PS3_PS3AV				p policy<{'powerpc': 'y'}>
@@ -3738,7 +3765,6 @@ CONFIG_PPC_BOOK3S_64				p policy<{'powerpc-powerpc64-emb': 'n', 'powerpc-powerpc
 CONFIG_PPC_BOOK3E_64				p policy<{'powerpc-powerpc64-emb': 'y', 'powerpc-powerpc64-smp': 'n', 'ppc64el': 'n'}>
 
 # Menu: Processor type and features
-CONFIG_SCHED_MC                                 p policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y'}>
 CONFIG_SCHED_SMT                                p policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'n', 'i386': 'y', 'powerpc-powerpc64-emb': 'n', 'powerpc-powerpc64-smp': 'y', 'ppc64el': 'y'}>
 CONFIG_HOTPLUG_CPU                              p policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'powerpc-powerpc64-smp': 'y', 'powerpc-powerpc-e500mc': 'y', 'powerpc-powerpc-smp': 'y', 'ppc64el': 'y'}>
 CONFIG_HIGHMEM                                  p policy<{'armhf': 'y', 'i386': 'y', 'powerpc-powerpc-e500mc': 'y', 'powerpc-powerpc-smp': 'y'}>
@@ -3758,9 +3784,6 @@ CONFIG_HWPOISON_INJECT                          p policy<{'amd64': 'm', 'powerpc
 CONFIG_TRANSPARENT_HUGEPAGE                     p policy<{'amd64': 'y', 'arm64': 'y', 'armhf-generic-lpae': 'y', 'i386': 'y', 'ppc64el': 'y'}>
 CONFIG_CLEANCACHE                               y
 CONFIG_FRONTSWAP                                y
-CONFIG_CMA                                      y
-CONFIG_CMA_DEBUG                                n
-CONFIG_CMA_AREAS                                7
 CONFIG_MEM_SOFT_DIRTY                           p policy<{'amd64': 'y'}>
 CONFIG_ZSWAP                                    y
 CONFIG_ZPOOL                                    y
@@ -3774,7 +3797,6 @@ CONFIG_MATH_EMULATION                           p policy<{'i386': 'n', 'powerpc-
 CONFIG_NUMA                                     p policy<{'amd64': 'y', 'powerpc-powerpc64-emb': 'n', 'powerpc-powerpc64-smp': 'y', 'ppc64el': 'y'}>
 CONFIG_CMDLINE_BOOL                             p policy<{'amd64': 'n', 'i386': 'n', 'powerpc': 'n', 'ppc64el': 'n'}>
 CONFIG_XEN					p policy<(arch i386 amd64 arm64 &/ value y) | value n>
-CONFIG_SCHED_MC					y
 CONFIG_SCHED_SMT				p policy<(arch armhf &/ value n) | (flavour powerpc64-emb &/ value n) | value y>
 CONFIG_HOTPLUG_CPU				y
 CONFIG_NUMA					p policy<{'powerpc-powerpc64-emb': 'n', '*': 'y'}>
@@ -3812,7 +3834,6 @@ CONFIG_IOSF_MBI                                 p policy<{'amd64': 'm', 'i386': 
 CONFIG_IOSF_MBI_DEBUG                           p policy<{'amd64': 'y', 'i386': 'y'}>
 CONFIG_X86_32_IRIS                              p policy<{'i386': 'm'}>
 CONFIG_SCHED_OMIT_FRAME_POINTER                 p policy<{'amd64': 'y', 'i386': 'y', 'powerpc': 'y', 'ppc64el': 'y'}>
-CONFIG_MEMTEST                                  p policy<{'amd64': 'y', 'i386': 'y'}>
 CONFIG_X86_GENERIC                              p policy<{'i386': 'y'}>
 CONFIG_X86_PPRO_FENCE                           p policy<{'i386': 'y'}>
 CONFIG_HPET_TIMER                               p policy<{'amd64': 'y', 'i386': 'y'}>
@@ -3830,7 +3851,6 @@ CONFIG_X86_REBOOTFIXUPS                         p policy<{'i386': 'y'}>
 CONFIG_X86_MSR                                  p policy<{'amd64': 'm', 'i386': 'm'}>
 CONFIG_X86_CPUID                                p policy<{'amd64': 'm', 'i386': 'm'}>
 CONFIG_X86_PAE                                  p policy<{'i386': 'y'}>
-CONFIG_DIRECT_GBPAGES                           p policy<{'amd64': 'y'}>
 CONFIG_ARCH_MEMORY_PROBE                        p policy<{'amd64': 'y', 'powerpc-powerpc64-smp': 'y', 'ppc64el': 'y'}>
 CONFIG_X86_CHECK_BIOS_CORRUPTION                p policy<{'amd64': 'y', 'i386': 'y'}>
 CONFIG_X86_BOOTPARAM_MEMORY_CORRUPTION_CHECK    p policy<{'amd64': 'y', 'i386': 'y'}>
@@ -3857,6 +3877,11 @@ CONFIG_MICROCODE                                p policy<{'amd64': 'y', 'i386': 
 CONFIG_MICROCODE_INTEL                          p policy<{'amd64': 'y', 'i386': 'y'}>
 CONFIG_MICROCODE_AMD                            p policy<{'amd64': 'y', 'i386': 'y'}>
 CONFIG_MICROCODE_EARLY                          p policy<{'amd64': 'y', 'i386': 'y'}>
+
+# Menu: Processor type and features >> Contiguous Memory Allocator
+CONFIG_CMA                                      y
+CONFIG_CMA_DEBUG                                n
+CONFIG_CMA_AREAS                                7
 
 # Menu: Processor type and features >> Device power management core functionality
 
@@ -3931,6 +3956,8 @@ CONFIG_CPU_SUP_TRANSMETA_32                     p policy<{'i386': 'y'}>
 CONFIG_CPU_SUP_UMC_32                           p policy<{'i386': 'y'}>
 
 # Menu: Processor type and features >> Symmetric Multi-Processing
+CONFIG_SCHED_MC                                 p policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y'}>
+CONFIG_SCHED_MC					y
 
 # Menu: Processor type and features >> Symmetric Multi-Processing >> Architecture: arm
 CONFIG_SMP_ON_UP				p policy<{'armhf': 'y'}>
@@ -3977,7 +4004,6 @@ CONFIG_PERSISTENT_KEYRINGS			y
 CONFIG_BIG_KEYS					y
 CONFIG_TRUSTED_KEYS				y
 CONFIG_ENCRYPTED_KEYS				y
-CONFIG_KEYS_DEBUG_PROC_KEYS			y
 
 # Menu: Security options >> Enable different security models
 CONFIG_SECURITY					y mark<ENFORCED>
@@ -4040,10 +4066,6 @@ CONFIG_SECURITY_TOMOYO_ACTIVATION_TRIGGER       "/sbin/init"
 
 # Menu: System Type
 
-# Menu: System Type >> ARM Ltd. Integrator family >> Architecture: arm
-
-# Menu: System Type >> ARM Ltd. Integrator family >> Integrator Options >> Architecture: arm
-
 # Menu: System Type >> ARM Ltd. Versatile Express family >> Architecture: arm
 CONFIG_ARCH_VEXPRESS				p policy<{'arm64': 'y', 'armhf': 'y'}>
 CONFIG_ARCH_VEXPRESS_CORTEX_A5_A9_ERRATA	p policy<{'armhf': 'y'}>
@@ -4057,6 +4079,9 @@ CONFIG_ARCH_MULTIPLATFORM			p policy<{'armhf': 'y'}>
 # Menu: System Type >> Allwinner SoCs >> Architecture: arm
 CONFIG_ARCH_SUNXI				n
 
+# Menu: System Type >> Altera SOCFPGA family >> Architecture: arm
+CONFIG_ARCH_SOCFPGA				p policy<{'armhf': 'n'}>
+
 # Menu: System Type >> Amlogic Meson SoCs >> Architecture: arm
 CONFIG_ARCH_MESON                               p policy<{'armhf': 'y'}>
 CONFIG_MACH_MESON6                              p policy<{'armhf': 'y'}>
@@ -4069,9 +4094,6 @@ CONFIG_ARCH_AXXIA				p policy<{'armhf': 'y'}>
 CONFIG_ARCH_HIGHBANK				p policy<{'armhf': 'y'}>
 CONFIG_ARCH_KEYSTONE				p policy<{'armhf': 'n'}>
 CONFIG_ARCH_ROCKCHIP				p policy<{'armhf': 'n'}>
-CONFIG_ARCH_SOCFPGA				p policy<{'armhf': 'n'}>
-CONFIG_ARCH_R8A7790				p policy<{'armhf': 'y'}>
-CONFIG_MACH_LAGER				p policy<{'armhf': 'y'}>
 CONFIG_ARCH_WM8850				p policy<{'armhf': 'n'}>
 CONFIG_ARCH_ZYNQ				p policy<{'armhf': 'n'}>
 CONFIG_ARM_THUMB				p policy<{'armhf': 'y'}>
@@ -4086,7 +4108,6 @@ CONFIG_ARM_ERRATA_764369			p policy<{'armhf': 'y'}>
 CONFIG_ARM_ERRATA_775420			p policy<{'armhf': 'y'}>
 CONFIG_ARM_ERRATA_798181			p policy<{'armhf': 'y'}>
 CONFIG_ARM_ERRATA_773022			p policy<{'armhf': 'y'}>
-CONFIG_ARCH_MEDIATEK                            p policy<{'armhf': 'y'}>
 CONFIG_ARCH_S5PV210                             p policy<{'armhf': 'n'}>
 CONFIG_ARCH_R8A7740                             p policy<{'armhf': 'y'}>
 CONFIG_ARCH_R8A7779                             p policy<{'armhf': 'y'}>
@@ -4094,12 +4115,10 @@ CONFIG_MACH_MARZEN                              p policy<{'armhf': 'y'}>
 CONFIG_CACHE_FEROCEON_L2                        p policy<{'armhf': 'y'}>
 CONFIG_CACHE_FEROCEON_L2_WRITETHROUGH           p policy<{'armhf': 'n'}>
 CONFIG_CACHE_TAUROS2                            p policy<{'armhf': 'y'}>
-CONFIG_ARM_KERNMEM_PERMS                        p policy<{'armhf': 'n'}>
 CONFIG_PJ4B_ERRATA_4742                         p policy<{'armhf': 'y'}>
+CONFIG_ARCH_HISI                                p policy<{'armhf': 'y'}>
 
-# Menu: System Type >> Atmel AT91 System-on-Chip >> Architecture: arm
-
-# Menu: System Type >> Atmel AT91 System-on-Chip >> Core type >> Architecture: arm
+# Menu: System Type >> Atmel SoCs >> Architecture: arm
 
 # Menu: System Type >> Broadcom SoC Support >> Architecture: arm
 CONFIG_ARCH_BCM					p policy<{'armhf': 'n'}>
@@ -4140,15 +4159,10 @@ CONFIG_SOC_VF610				p policy<{'armhf': 'y'}>
 CONFIG_SOC_IMX51                                p policy<{'armhf': 'y'}>
 CONFIG_SOC_LS1021A                              p policy<{'armhf': 'n'}>
 
-# Menu: System Type >> Freescale i.MX family >> Baseboard >> Architecture: arm
-
 # Menu: System Type >> Freescale i.MX family >> Clocksource for scheduler clock >> Architecture: arm
 CONFIG_VF_USE_ARM_GLOBAL_TIMER                  p policy<{'armhf': 'y'}>
 
-# Menu: System Type >> Hisilicon SoC Support >> Architecture: arm
-CONFIG_ARCH_HISI                                p policy<{'armhf': 'y'}>
-
-# Menu: System Type >> Hisilicon SoC Support >> Hisilicon platform type >> Architecture: arm
+# Menu: System Type >> Hisilicon platform type >> Architecture: arm
 CONFIG_ARCH_HIP04                               p policy<{'armhf': 'y'}>
 CONFIG_ARCH_HIX5HD2                             p policy<{'armhf': 'y'}>
 CONFIG_ARCH_HI3xxx				p policy<{'armhf': 'y'}>
@@ -4158,6 +4172,8 @@ CONFIG_ARCH_HI3xxx				p policy<{'armhf': 'y'}>
 # Menu: System Type >> IOP32x Implementation Options >> Architecture: arm
 
 # Menu: System Type >> IOP33x Implementation Options >> Architecture: arm
+
+# Menu: System Type >> Integrator Options >> Architecture: arm
 
 # Menu: System Type >> Intel IXP4xx Implementation Options >> Architecture: arm
 
@@ -4181,14 +4197,18 @@ CONFIG_ARCH_HI3xxx				p policy<{'armhf': 'y'}>
 
 # Menu: System Type >> Kendin/Micrel KS8695 Implementations >> Architecture: arm
 
+# Menu: System Type >> MMU-based Paged Memory Management Support
+
 # Menu: System Type >> MMU-based Paged Memory Management Support >> Architecture: arm
 #CONFIG_ARM_LPAE				p policy<{'armhf-generic': 'n', 'armhf-generic-lpae': 'y'}>
+CONFIG_ARM_KERNMEM_PERMS                        p policy<{'armhf': 'n'}>
 CONFIG_ARM_LPAE					p policy<{'armhf-generic': 'n', 'armhf-generic-lpae': 'y'}>
 CONFIG_KUSER_HELPERS				p policy<{'armhf': 'y'}>
 CONFIG_MMU					y
 CONFIG_CPU_ICACHE_DISABLE			p policy<{'armhf': 'n'}>
 
 # Menu: System Type >> MMU-based Paged Memory Management Support >> Renesas ARM SoCs >> Architecture: arm
+CONFIG_ARCH_R8A7790				p policy<{'armhf': 'y'}>
 CONFIG_ARCH_R7S72100				p policy<{'armhf': 'y'}>
 CONFIG_ARCH_R8A7791				p policy<{'armhf': 'y'}>
 CONFIG_ARCH_SHMOBILE_MULTI			p policy<{'armhf': 'y'}>
@@ -4222,6 +4242,9 @@ CONFIG_MACH_DOVE                                p policy<{'armhf': 'y'}>
 
 # Menu: System Type >> Marvell PXA168/910/MMP2 Implmentations >> Architecture: arm
 
+# Menu: System Type >> Mediatek MT65xx & MT81xx SoC >> Architecture: arm
+CONFIG_ARCH_MEDIATEK                            p policy<{'armhf': 'y'}>
+
 # Menu: System Type >> Multiple platform selection >> Architecture: arm
 CONFIG_ARCH_MULTI_V6			n
 CONFIG_ARCH_MULTI_V7			y
@@ -4240,10 +4263,6 @@ CONFIG_ARCH_TEGRA_124_SOC			p policy<{'armhf': 'y'}>
 # Menu: System Type >> NetX Implementations >> Architecture: arm
 
 # Menu: System Type >> Orion Implementations >> Architecture: arm
-
-# Menu: System Type >> Qualcomm MSM Board Type >> Architecture: arm
-
-# Menu: System Type >> Qualcomm MSM SoC Type >> Architecture: arm
 
 # Menu: System Type >> Qualcomm Support >> Architecture: arm
 CONFIG_ARCH_QCOM				p policy<{'armhf': 'y'}>
@@ -4350,20 +4369,12 @@ CONFIG_SOC_HAS_OMAP2_SDRC			p policy<{'armhf': 'y'}>
 CONFIG_SOC_HAS_REALTIME_COUNTER			p policy<{'armhf': 'y'}>
 CONFIG_SOC_OMAP3430				p policy<{'armhf': 'y'}>
 CONFIG_SOC_TI81XX				p policy<{'armhf': 'y'}>
-CONFIG_MACH_OMAP3_BEAGLE			p policy<{'armhf': 'y'}>
-CONFIG_MACH_DEVKIT8000				p policy<{'armhf': 'n'}>
 CONFIG_MACH_OMAP_LDP				p policy<{'armhf': 'y'}>
 CONFIG_MACH_OMAP3530_LV_SOM			p policy<{'armhf': 'y'}>
 CONFIG_MACH_OMAP3_TORPEDO			p policy<{'armhf': 'y'}>
-CONFIG_MACH_OVERO				p policy<{'armhf': 'y'}>
 CONFIG_MACH_OMAP3517EVM				p policy<{'armhf': 'n'}>
-CONFIG_MACH_CRANEBOARD				p policy<{'armhf': 'n'}>
 CONFIG_MACH_OMAP3_PANDORA			p policy<{'armhf': 'y'}>
-CONFIG_MACH_TOUCHBOOK				p policy<{'armhf': 'y'}>
 CONFIG_MACH_NOKIA_RX51				p policy<{'armhf': 'n'}>
-CONFIG_MACH_CM_T35				p policy<{'armhf': 'n'}>
-CONFIG_MACH_CM_T3517				p policy<{'armhf': 'y'}>
-CONFIG_MACH_SBC3530				p policy<{'armhf': 'y'}>
 CONFIG_OMAP3_SDRC_AC_TIMING			p policy<{'armhf': 'n'}>
 
 # Menu: System Type >> TI OMAP1 specific features >> Architecture: arm
@@ -4381,22 +4392,6 @@ CONFIG_SHMOBILE_TIMER_HZ			D
 # Menu: System Type >> W90P910 Machines >> Architecture: arm
 
 # Menu: Ubuntu Supplied Third-Party Device Drivers
-
-# Menu: Ubuntu Supplied Third-Party Device Drivers >> Aufs (Advanced multi layered unification filesystem) support
-CONFIG_AUFS_HNOTIFY                             n
-CONFIG_AUFS_EXPORT                              y
-CONFIG_AUFS_XATTR                               y
-CONFIG_AUFS_FHSM                                n
-CONFIG_AUFS_RDU                                 n
-CONFIG_AUFS_SHWH                                n
-CONFIG_AUFS_BR_RAMFS                            n
-CONFIG_AUFS_BR_FUSE                             n
-CONFIG_AUFS_BR_HFSPLUS                          n
-
-# Menu: Ubuntu Supplied Third-Party Device Drivers >> Aufs (Advanced multi layered unification filesystem) support >> Maximum number of branches
-CONFIG_AUFS_BRANCH_MAX_127			y
-
-# Menu: Ubuntu Supplied Third-Party Device Drivers >> Aufs (Advanced multi layered unification filesystem) support >> method
 
 # Menu: Virtualization
 CONFIG_VIRTUALIZATION				y
