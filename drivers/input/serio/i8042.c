@@ -25,6 +25,7 @@
 #include <linux/i8042.h>
 #include <linux/slab.h>
 #include <linux/suspend.h>
+#include <linux/dmi.h>
 
 #include <asm/io.h>
 
@@ -140,6 +141,7 @@ static bool i8042_aux_irq_registered;
 static unsigned char i8042_suppress_kbd_ack;
 static struct platform_device *i8042_platform_device;
 static struct notifier_block i8042_kbd_bind_notifier_block;
+static bool i8042_noselftest;
 
 static irqreturn_t i8042_interrupt(int irq, void *dev_id);
 static bool (*i8042_platform_filter)(unsigned char data, unsigned char str,
@@ -891,6 +893,13 @@ static int i8042_controller_selftest(void)
 	int i = 0;
 
 	/*
+	 * On some hardware just running the self test causes problems.
+	 * In that case, don't run the test and just assume success.
+	 */
+	if (i8042_noselftest)
+		return 0;
+
+	/*
 	 * We try this 5 times; on some really fragile systems this does not
 	 * take the first time...
 	 */
@@ -1547,6 +1556,16 @@ static int i8042_remove(struct platform_device *dev)
 	return 0;
 }
 
+static const struct dmi_system_id i8042_dmi_noselftest_table[] __initconst = {
+	{
+		.matches = {
+			DMI_MATCH(DMI_SYS_VENDOR, "ASUSTeK COMPUTER INC."),
+			DMI_MATCH(DMI_PRODUCT_NAME, "X455LAB"),
+		},
+	},
+	{}
+};
+
 static struct platform_driver i8042_driver = {
 	.driver		= {
 		.name	= "i8042",
@@ -1568,6 +1587,8 @@ static int __init i8042_init(void)
 	int err;
 
 	dbg_init();
+	if (dmi_check_system(i8042_dmi_noselftest_table))
+		i8042_noselftest = true;
 
 	err = i8042_platform_init();
 	if (err)
