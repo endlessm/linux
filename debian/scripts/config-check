@@ -44,15 +44,27 @@ my $total = 0;
 my $annotations = "$commonconfig/annotations";
 my ($config, $value, $options, $option, $value, $check, $policy);
 print "$P: $annotations loading annotations\n";
+my %annot;
 open(ANNOTATIONS, "<$annotations") || die "$P: $annotations: open failed -- $! -- aborting\n";
 while (<ANNOTATIONS>) {
 	/^#/ && next;
 	chomp;
 	/^$/ && next;
 
-	$check = 0;
+	/^CONFIG_/ || next;
+
 	($config, $value, $options) = split(' ', $_, 3);
-	$policy = { '*' => $value };
+
+	$annot{$config} = $annot{$config} . ' ' . $options;
+}
+close(ANNOTATIONS);
+
+my $config;
+for $config (keys %annot) {
+	$check = 0;
+	$options = $annot{$config};
+
+	$policy = undef;
 	while ($options =~ /\s*(\S+)<(.*?)?>/g) {
 		($option, $value) = ($1, $2);
 
@@ -69,9 +81,10 @@ while (<ANNOTATIONS>) {
 			}
 		}
 	}
-	if ($check == 1 && $policy == undef) {
-		print "$P: INVALID $_\n";
+	if ($check == 1 && !defined($policy)) {
+		print "$P: INVALID POLICY (use policy<{...}>) $config$options\n";
 		$total++;
+		$check = 0;
 	}
 	if ($check) {
 		my $is = '-';
@@ -87,13 +100,12 @@ while (<ANNOTATIONS>) {
 		if ($is eq $value) {
 			$pass++;
 		} else {
-			print "$P: FAIL ($is != $value): $_\n";
+			print "$P: FAIL ($is != $value): $config$options\n";
 			$exit_val = $fail_exit;
 		}
 		$total++;
 	}
 }
-close(ANNOTATIONS);
 
 print "$P: $pass/$total checks passed -- exit $exit_val\n";
 exit $exit_val;
