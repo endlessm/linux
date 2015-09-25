@@ -2611,3 +2611,243 @@ CONFIG_CRYPTO_CBC=y
 CONFIG_ENCRYPTED_KEYS=y
 CONFIG_DEFAULT_SECURITY_APPARMOR=y
 # CONFIG_OF is not set
+
+
+## Bus options (PCI etc.) >> PCI support >> PCI Express Port Bus support
+# CONFIG_PCIEAER_INJECT is not set
+CONFIG_PCIEASPM_DEBUG=y
+
+## Cryptographic API
+CONFIG_CRYPTO_MANAGER_DISABLE_TESTS=y
+CONFIG_CRYPTO_CRYPTD=m
+CONFIG_CRYPTO_MCRYPTD=m
+CONFIG_CRYPTO_FIPS=n
+
+## Cryptographic API >> Asymmetric (public-key cryptographic) key type
+CONFIG_ASYMMETRIC_KEY_TYPE=y
+CONFIG_ASYMMETRIC_PUBLIC_KEY_SUBTYPE=y
+CONFIG_PUBLIC_KEY_ALGO_RSA=y
+CONFIG_X509_CERTIFICATE_PARSER=y
+CONFIG_PKCS7_TEST_KEY=m
+
+## Device Drivers >> Block devices >> RAM block device support
+CONFIG_BLK_DEV_RAM=y
+
+## Device Drivers >> Character devices >> Enable TTY
+CONFIG_LEGACY_PTYS=y
+
+## Device Drivers >> Character devices >> Hardware Random Number Generator Core support
+CONFIG_HW_RANDOM=y
+
+## Device Drivers >> Generic Driver Options
+CONFIG_UEVENT_HELPER=y
+CONFIG_ALLOW_DEV_COREDUMP=y
+
+## Device Drivers >> InfiniBand support
+# CONFIG_INFINIBAND_MTHCA_DEBUG is not set
+# CONFIG_INFINIBAND_IPOIB_DEBUG is not set
+
+## Device Drivers >> Multiple devices driver support (RAID and LVM) >> RAID support
+CONFIG_BLK_DEV_MD=y
+CONFIG_MD_MULTIPATH=y
+CONFIG_MD_CLUSTER=y
+
+## Device Drivers >> Network device support >> Ethernet driver support >> Mellanox devices
+CONFIG_MLX4_DEBUG=y
+
+## Device Drivers >> Network device support >> Network core driver support
+CONFIG_EQUALIZER=m
+CONFIG_NET_FC=y
+CONFIG_TUN=y
+CONFIG_VIRTIO_NET=m
+
+## Drivers >> Virtio drivers
+CONFIG_VIRTIO_PCI=y
+CONFIG_VIRTIO_BALLOON=y
+CONFIG_VIRTIO_MMIO=y
+CONFIG_VIRTIO_MMIO_CMDLINE_DEVICES=y
+
+## Device Drivers >> Virtualization drivers
+CONFIG_VIRT_DRIVERS=y
+
+## Enable loadable module support
+CONFIG_MODULE_FORCE_LOAD=n
+CONFIG_MODULE_FORCE_UNLOAD=n
+CONFIG_MODULE_SRCVERSION_ALL=y
+
+## Enable loadable module support >> Module signature verification
+CONFIG_MODULE_SIG=y
+CONFIG_MODULE_SIG_FORCE=n
+CONFIG_MODULE_SIG_ALL=y
+
+## Enable the block layer
+CONFIG_BLK_CMDLINE_PARSER=y
+
+## File systems
+CONFIG_NILFS2_FS=m
+CONFIG_FS_DAX=y
+CONFIG_FUSE_FS=y
+
+## File systems >> Distributed Lock Manager (DLM)
+CONFIG_DLM_DEBUG=n
+
+## General setup >> Configure standard kernel features (expert users)
+CONFIG_SGETMASK_SYSCALL=y
+CONFIG_SYSFS_SYSCALL=y
+CONFIG_SYSCTL_SYSCALL=y
+
+## Device Drivers >> SCSI device support >> SCSI device support
+CONFIG_SCSI=y
+CONFIG_BLK_DEV_SD=y
+CONFIG_BLK_DEV_SR=y
+CONFIG_CHR_DEV_SG=y
+
+## General setup >> Control Group support >> Group CPU scheduler
+# CONFIG_RT_GROUP_SCHED is not set
+
+## General setup >> Timers subsystem
+CONFIG_NO_HZ=y
+
+## Kernel hacking
+# CONFIG_PANIC_ON_OOPS is not set
+CONFIG_TEST_LKM=m
+CONFIG_TEST_USER_COPY=m
+CONFIG_TEST_BPF=m
+CONFIG_TEST_FIRMWARE=m
+CONFIG_TEST_UDELAY=m
+CONFIG_MEMTEST=y
+
+## Kernel hacking >> Compile-time checks and compiler options
+# CONFIG_ENABLE_MUST_CHECK is not set
+# CONFIG_STRIP_ASM_SYMS is not set
+CONFIG_UNUSED_SYMBOLS=y
+# CONFIG_HEADERS_CHECK is not set
+# CONFIG_DEBUG_SECTION_MISMATCH is not set
+
+## Kernel hacking >> Compile-time checks and compiler options >> Compile the kernel with debug info
+CONFIG_DEBUG_INFO_DWARF4=y
+CONFIG_GDB_SCRIPTS=y
+
+## Kernel hacking >> Kernel debugging
+CONFIG_SCHEDSTATS=y
+CONFIG_SCHED_STACK_END_CHECK=y
+# CONFIG_DEBUG_STRICT_USER_COPY_CHECKS is not set
+
+## Kernel hacking >> Kernel debugging >> Notifier error injection
+CONFIG_NOTIFIER_ERROR_INJECTION=m
+
+## Kernel hacking >> Lock Debugging (spinlocks, mutexes, etc...)
+CONFIG_LOCK_TORTURE_TEST=m
+
+## Kernel hacking >> Memory Debugging
+# CONFIG_DEBUG_MEMORY_INIT is not set
+
+## Kernel hacking >> Runtime Testing
+CONFIG_RBTREE_TEST=m
+CONFIG_INTERVAL_TREE_TEST=m
+CONFIG_PERCPU_TEST=m
+CONFIG_ASYNC_RAID6_TEST=m
+CONFIG_TEST_HEXDUMP=m
+CONFIG_TEST_STRING_HELPERS=m
+CONFIG_TEST_KSTRTOX=m
+
+## Kernel hacking >> Tracers
+CONFIG_FTRACE_SYSCALLS=y
+
+## Kernel hacking >> Tracers >> Kernel Function Tracer
+CONFIG_FUNCTION_PROFILER=y
+
+## Library routines
+CONFIG_CRC16=y
+CONFIG_DDR=y
+
+## Networking support
+CONFIG_CEPH_LIB_USE_DNS_RESOLVER=y
+
+## Networking support >> Networking options
+# CONFIG_XFRM_SUB_POLICY is not set
+# CONFIG_XFRM_MIGRATE is not set
+CONFIG_XFRM_STATISTICS=y
+# CONFIG_NET_KEY_MIGRATE is not set
+CONFIG_DNS_RESOLVER=y
+
+## Networking support >> Networking options >> MultiProtocol Label Switching
+CONFIG_NET_MPLS_GSO=m
+
+## Networking support >> Networking options >> Network packet filtering framework (Netfilter) >> Core Netfilter Configuration >> Netfilter connection tracking support
+# CONFIG_NF_CONNTRACK_PROCFS is not set
+
+## Networking support >> Networking options >> Network testing
+CONFIG_NET_TCPPROBE=m
+CONFIG_NET_DROP_MONITOR=n
+
+## Networking support >> Networking options >> QoS and/or fair queueing >> Universal 32bit comparisons w/ hashing (U32)
+# CONFIG_CLS_U32_PERF is not set
+# CONFIG_NET_CLS_IND is not set
+
+## Networking support >> Networking options >> TCP/IP networking
+CONFIG_INET_LRO=y
+
+## Networking support >> Networking options >> TCP/IP networking >> IP: kernel level autoconfiguration
+CONFIG_IP_PNP=y
+
+## Networking support >> Networking options >> TCP/IP networking >> IP: multicast routing
+# CONFIG_IP_MROUTE_MULTIPLE_TABLES is not set
+
+## Networking support >> Networking options >> TCP/IP networking >> The IPv6 protocol
+# CONFIG_IPV6_OPTIMISTIC_DAD is not set
+CONFIG_IPV6_MIP6=m
+
+## Networking support >> Networking options >> TCP/IP networking >> The SCTP Protocol >> Default SCTP cookie HMAC encoding
+# CONFIG_SCTP_DEFAULT_COOKIE_HMAC_MD5 is not set
+CONFIG_SCTP_DEFAULT_COOKIE_HMAC_SHA1=y
+
+## Power management and ACPI options >> Device power management core functionality
+CONFIG_WQ_POWER_EFFICIENT_DEFAULT=y
+
+## Processor type and features
+CONFIG_ZBUD=y
+CONFIG_ZSMALLOC=y
+
+## Processor type and features >> Preemption Model
+# CONFIG_PREEMPT_NONE is not set
+CONFIG_PREEMPT_VOLUNTARY=y
+
+## Security options >> Enable access key retention support
+CONFIG_PERSISTENT_KEYRINGS=y
+CONFIG_BIG_KEYS=y
+
+## Security options >> Enable different security models >> Integrity subsystem
+CONFIG_INTEGRITY_SIGNATURE=y
+CONFIG_EVM=y
+
+## Security options >> Enable different security models >> Integrity subsystem >> Integrity Measurement Architecture(IMA)
+CONFIG_IMA=y
+
+## File systems >> Miscellaneous filesystems >> SquashFS 4.0 - Squashed file system support >> Decompressor parallelisation options
+# CONFIG_SQUASHFS_DECOMP_SINGLE is not set
+CONFIG_SQUASHFS_DECOMP_MULTI_PERCPU=y
+
+## File systems >> Native language support
+CONFIG_NLS_CODEPAGE_437=y
+
+## File systems >> Network File Systems
+CONFIG_CODA_FS=m
+
+## File systems >> Network File Systems >> CIFS support (advanced network filesystem, SMBFS successor)
+CONFIG_CIFS_SMB311=y
+CONFIG_CIFS_FSCACHE=y
+
+## File systems >> Network File Systems >> NFS client support >> NFS client support for NFSv4.1
+CONFIG_NFS_V4_1_MIGRATION=y
+
+## File systems >> Quota support
+CONFIG_PRINT_QUOTA_WARNING=n
+CONFIG_QFMT_V1=m
+
+## File systems >> The Extended 4 (ext4) filesystem
+CONFIG_EXT4_FS=y
+CONFIG_EXT4_ENCRYPTION=m
+
+## File systems >> DOS/FAT/NT Filesystems
+CONFIG_FAT_DEFAULT_IOCHARSET="iso8859-1"
