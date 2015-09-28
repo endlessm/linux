@@ -45,15 +45,25 @@ my $annotations = "$commonconfig/annotations";
 my ($config, $value, $options, $option, $value, $check, $policy);
 print "$P: $annotations loading annotations\n";
 my %annot;
+my $form = 1;
 open(ANNOTATIONS, "<$annotations") || die "$P: $annotations: open failed -- $! -- aborting\n";
 while (<ANNOTATIONS>) {
+	if (/^# FORMAT: (\S+)/) {
+		die "$P: $1: unknown annotations format\n" if ($1 != 2);
+		$form = $1;
+	}
+
 	/^#/ && next;
 	chomp;
 	/^$/ && next;
 
 	/^CONFIG_/ || next;
 
-	($config, $value, $options) = split(' ', $_, 3);
+	if ($form == 1) {
+		($config, $value, $options) = split(' ', $_, 3);
+	} elsif ($form == 2) {
+		($config, $options) = split(' ', $_, 2);
+	}
 
 	$annot{$config} = $annot{$config} . ' ' . $options;
 }
