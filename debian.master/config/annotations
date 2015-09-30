@@ -1,6 +1,6 @@
 # Menu: HEADER
 # FORMAT: 2
-# ARCH: x86 arm powerpc
+# ARCH: x86 arm powerpc s390
 
 # Mark debugging symbols.
 #  exceptions
