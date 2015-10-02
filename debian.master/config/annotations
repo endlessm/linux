@@ -2664,6 +2664,7 @@ CONFIG_HYPERV_KEYBOARD                          policy<{'amd64': 'm', 'i386': 'm
 
 # Menu: Device Drivers >> LED Support
 CONFIG_NEW_LEDS                                 policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'powerpc': 'y', 'ppc64el': 'y', 's390x': 'n'}>
+CONFIG_LEDS_LP55XX_COMMON                       policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'powerpc': 'm', 'ppc64el': 'm'}>
 
 # Menu: Device Drivers >> LED Support >> LED Class Support
 CONFIG_LEDS_CLASS                               policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'powerpc': 'y', 'ppc64el': 'y'}>
@@ -9304,10 +9305,6 @@ CONFIG_PPC_BOOK3S_64                            policy<{'powerpc-powerpc64-emb':
 CONFIG_PPC_BOOK3E_64                            policy<{'powerpc-powerpc64-emb': 'y', 'powerpc-powerpc64-smp': 'n', 'ppc64el': 'n'}>
 
 # Menu: Processor type and features
-CONFIG_SCHED_SMT                                policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'n', 'i386': 'y', 'powerpc-powerpc64-emb': 'n', 'powerpc-powerpc64-smp': 'y', 'ppc64el': 'y', 's390x': 'y'}>
-CONFIG_HOTPLUG_CPU                              policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'powerpc-powerpc64-smp': 'y', 'powerpc-powerpc-e500mc': 'y', 'powerpc-powerpc-smp': 'y', 'ppc64el': 'y', 's390x': 'y'}>
-CONFIG_HIGHMEM                                  policy<{'armhf': 'y', 'i386': 'y', 'powerpc-powerpc-e500mc': 'y', 'powerpc-powerpc-smp': 'y'}>
-CONFIG_HIGHPTE                                  policy<{'armhf': 'y', 'i386': 'y'}>
 CONFIG_SPARSEMEM_VMEMMAP                        policy<{'amd64': 'y', 'arm64': 'y', 'powerpc-powerpc64-emb': 'y', 'powerpc-powerpc64-smp': 'y', 'ppc64el': 'y', 's390x': 'y'}>
 CONFIG_MOVABLE_NODE                             policy<{'amd64': 'y'}>
 CONFIG_MEMORY_HOTPLUG                           policy<{'amd64': 'y', 'i386': 'y', 'powerpc-powerpc64-smp': 'y', 'ppc64el': 'y', 's390x': 'y'}>
@@ -9331,11 +9328,15 @@ CONFIG_ZSMALLOC                                 policy<{'amd64': 'y', 'arm64': '
 CONFIG_PGTABLE_MAPPING                          policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'powerpc': 'y', 'ppc64el': 'y', 's390x': 'n'}>
 CONFIG_ZSMALLOC_STAT                            policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'i386': 'n', 'powerpc': 'n', 'ppc64el': 'n', 's390x': 'n'}>
 CONFIG_DEFERRED_STRUCT_PAGE_INIT                policy<{'amd64': 'n', 'i386': 'n'}>
-CONFIG_FORCE_MAX_ZONEORDER                      policy<{'arm64': '11', 'armhf-generic': '12', 'armhf-generic-lpae': '11', 'powerpc-powerpc64-emb': '13', 'powerpc-powerpc64-smp': '13', 'powerpc-powerpc-e500mc': '11', 'powerpc-powerpc-smp': '11', 'ppc64el': '9', 's390x': '9'}>
-CONFIG_XEN                                      policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'n', 'i386': 'y'}>
+CONFIG_HIGHPTE                                  policy<{'armhf': 'y', 'i386': 'y'}>
 CONFIG_MATH_EMULATION                           policy<{'i386': 'n', 'powerpc-powerpc64-emb': 'y', 'powerpc-powerpc-e500mc': 'y'}>
-CONFIG_NUMA                                     policy<{'amd64': 'y', 'powerpc-powerpc64-emb': 'n', 'powerpc-powerpc64-smp': 'y', 'ppc64el': 'y'}>
 CONFIG_CMDLINE_BOOL                             policy<{'amd64': 'n', 'i386': 'n', 'powerpc': 'n', 'ppc64el': 'n'}>
+CONFIG_HIGHMEM                                  policy<{'armhf': 'y', 'i386': 'y', 'powerpc-powerpc-e500mc': 'y', 'powerpc-powerpc-smp': 'y'}>
+CONFIG_HOTPLUG_CPU                              policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'powerpc-powerpc64-smp': 'y', 'powerpc-powerpc-e500mc': 'y', 'powerpc-powerpc-smp': 'y', 'ppc64el': 'y', 's390x': 'y'}>
+CONFIG_NUMA                                     policy<{'amd64': 'y', 'arm64': 'y', 'powerpc-powerpc64-emb': 'n', 'powerpc-powerpc64-smp': 'y', 'ppc64el': 'y'}>
+CONFIG_FORCE_MAX_ZONEORDER                      policy<{'arm64': '11', 'armhf-generic': '12', 'armhf-generic-lpae': '11', 'powerpc-powerpc64-emb': '13', 'powerpc-powerpc64-smp': '13', 'powerpc-powerpc-e500mc': '11', 'powerpc-powerpc-smp': '11', 'ppc64el': '9', 's390x': '9'}>
+CONFIG_SCHED_SMT                                policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'n', 'i386': 'y', 'powerpc-powerpc64-emb': 'n', 'powerpc-powerpc64-smp': 'y', 'ppc64el': 'y', 's390x': 'y'}>
+CONFIG_XEN                                      policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'n', 'i386': 'y'}>
 #
 CONFIG_DEFAULT_MMAP_MIN_ADDR                    mark<ENFORCED> note<LP:1418140>
 
@@ -9568,7 +9569,7 @@ CONFIG_SCHED_TOPOLOGY                           policy<{'s390x': 'y'}>
 # Menu: Processor type and features >> Symmetric multi-processing support >> Architecture: x86
 CONFIG_X86_BIGSMP                               policy<{'i386': 'n'}>
 CONFIG_MAXSMP                                   policy<{'amd64': 'n'}>
-CONFIG_NODES_SHIFT                              policy<{'amd64': '6', 'powerpc-powerpc64-smp': '8', 'ppc64el': '8'}>
+CONFIG_NODES_SHIFT                              policy<{'amd64': '6', 'arm64': '2', 'powerpc-powerpc64-smp': '8', 'ppc64el': '8'}>
 CONFIG_BOOTPARAM_HOTPLUG_CPU0                   policy<{'amd64': 'n', 'i386': 'n'}>
 CONFIG_DEBUG_HOTPLUG_CPU0                       policy<{'amd64': 'n', 'i386': 'n'}>
 
