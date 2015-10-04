@@ -652,7 +652,7 @@ struct aa_label *aa_label_find(struct aa_labelset *ls, struct aa_label *l)
  * @replace: whether this insertion should replace an existing entry if present
  * Requires: @ls->lock
  *           caller to hold a valid ref on l
- *
+ *           if @replace is true l has a preallocated replacedby associated
  * Returns: @l if successful in inserting @l - with additional refcount
  *          else ref counted equivalent label that is already in the set,
             the else condition only happens if @replace is false
@@ -676,9 +676,18 @@ static struct aa_label *__aa_label_insert(struct aa_labelset *ls,
 		parent = *new;
 		if (result == 0) {
 			labelsetstats_inc(ls, existing);
-			if (!replace && aa_get_label_not0(this))
-				return this;
-			/* *this is either queued for destruction or being replaced */
+			if (!replace) {
+				if (aa_get_label_not0(this))
+					return this;
+				/* queued for destruction, in place replace */
+			} else {
+				if (this->replacedby) {
+					free_replacedby(l->replacedby);
+					l->replacedby = aa_get_replacedby(this->replacedby);
+					__aa_update_replacedby(this, l);
+				} else
+					this->replacedby = aa_get_replacedby(l->replacedby);
+			}
 			AA_BUG(!__aa_label_replace(ls, this, l));
 			return aa_get_label(l);
 		} else if (result < 0)
@@ -901,6 +910,8 @@ static int aa_sort_and_merge_profiles(int n, struct aa_profile **ps)
  * @a: label to merge with @b  (NOT NULL)
  * @b: label to merge with @a  (NOT NULL)
  *
+ * Requires: preallocated replacedby
+ *
  * Returns: ref counted label either l if merge is unique
  *          a if b is a subset of a
  *          b if a is a subset of b
@@ -1090,6 +1101,7 @@ struct aa_label *aa_label_merge(struct aa_label *a, struct aa_label *b,
 
 	if (!label) {
 		struct aa_label *new;
+		struct aa_replacedby *r;
 
 		a = aa_get_newest_label(a);
 		b = aa_get_newest_label(b);
@@ -1100,7 +1112,13 @@ struct aa_label *aa_label_merge(struct aa_label *a, struct aa_label *b,
 		new = aa_label_alloc(a->size + b->size, gfp);
 		if (!new)
 			goto out;
-
+		r = aa_alloc_replacedby(new);
+		if (!r) {
+			aa_label_free(new);
+			goto out;
+		}
+		/* only label update will set replacedby so ns lock is enough */
+		new->replacedby = r;
 		write_lock_irqsave(&ls->lock, flags);
 		label = __label_merge_insert(ls, new, a, b);
 		write_unlock_irqrestore(&ls->lock, flags);
