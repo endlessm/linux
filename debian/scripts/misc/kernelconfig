@@ -24,7 +24,6 @@ case "$mode" in
 esac
 kerneldir="`pwd`"
 confdir="$kerneldir/${DEBIAN}/config"
-sharedconfdir="$kerneldir/debian.master/config"
 variant="$2"
 
 . $DEBIAN/etc/kernelconfig
@@ -158,7 +157,7 @@ for arch in $archs; do
 		flavour="${config##*.}"
 		if [ -f $archconfdir/$config ]; then
 			fullconf="$tmpdir/CONFIGS/$arch-$config"
-			"$bindir/../config-check" "$fullconf" "$arch" "$flavour" "$sharedconfdir" "0" || let "fail=$fail+1"
+			"$bindir/../config-check" "$fullconf" "$arch" "$flavour" "$confdir" "0" || let "fail=$fail+1"
 		fi
 	done
 done
