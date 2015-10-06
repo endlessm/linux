@@ -23,5 +23,5 @@ checks-%: module-check-% abi-check-%
 config-prepare-check-%: $(stampdir)/stamp-prepare-tree-%
 	@echo Debug: $@
 	@perl -f $(DROOT)/scripts/config-check \
-		$(builddir)/build-$*/.config "$(arch)" "$*" "$(sharedconfdir)" "$(skipconfig)"
+		$(builddir)/build-$*/.config "$(arch)" "$*" "$(commonconfdir)" "$(skipconfig)"
 
