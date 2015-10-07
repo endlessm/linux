@@ -1160,11 +1160,11 @@ struct aa_label *aa_label_vec_merge(struct aa_profile **vec, int len,
 	if (!new)
 		return NULL;
 
-	write_lock_irqsave(&ls->lock, flags);
 	for (i = 0; i < len; i++) {
 		new->ent[i] = aa_get_profile(vec[i]);
-		label = __aa_label_insert(ls, new, false);
 	}
+	write_lock_irqsave(&ls->lock, flags);
+	label = __aa_label_insert(ls, new, false);
 	write_unlock_irqrestore(&ls->lock, flags);
 	if (label != new)
 		/* not fully constructed don't put */
