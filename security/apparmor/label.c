@@ -1123,9 +1123,13 @@ struct aa_label *aa_label_merge(struct aa_label *a, struct aa_label *b,
 		}
 		/* only label update will set replacedby so ns lock is enough */
 		new->replacedby = r;
+
+		mutex_lock(&labels_ns(a)->lock);
 		write_lock_irqsave(&ls->lock, flags);
 		label = __label_merge_insert(ls, new, a, b);
 		write_unlock_irqrestore(&ls->lock, flags);
+		mutex_unlock(&labels_ns(a)->lock);
+
 		if (label != new) {
 			/* new may not be fully setup so no put_label */
 			aa_label_free(new);
@@ -1167,9 +1171,11 @@ struct aa_label *aa_label_vec_merge(struct aa_profile **vec, int len,
 	for (i = 0; i < len; i++) {
 		new->ent[i] = aa_get_profile(vec[i]);
 	}
+	mutex_lock(&labels_ns(new)->lock);
 	write_lock_irqsave(&ls->lock, flags);
 	label = __aa_label_insert(ls, new, false);
 	write_unlock_irqrestore(&ls->lock, flags);
+	mutex_unlock(&labels_ns(new)->lock);
 	if (label != new)
 		/* not fully constructed don't put */
 		aa_label_free(new);
