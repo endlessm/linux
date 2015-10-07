@@ -234,16 +234,22 @@ void aa_label_free(struct aa_label *label)
 	kfree(label);
 }
 
-static void label_free_rcu(struct rcu_head *head)
+static void label_free_switch(struct aa_label *l)
 {
-	struct aa_label *l = container_of(head, struct aa_label, rcu);
-
 	if (l->flags & FLAG_NS_COUNT)
 		aa_free_namespace(labels_ns(l));
 	else if (label_isprofile(l))
 		aa_free_profile(labels_profile(l));
 	else
 		aa_label_free(l);
+}
+
+static void label_free_rcu(struct rcu_head *head)
+{
+	struct aa_label *l = container_of(head, struct aa_label, rcu);
+
+	(void) aa_label_remove(labels_set(l), l);
+	label_free_switch(l);
 }
 
 bool aa_label_remove(struct aa_labelset *ls, struct aa_label *label);
@@ -254,11 +260,9 @@ void aa_label_kref(struct kref *kref)
 
 	if (!ns) {
 		/* never live, no rcu callback needed, just using the fn */
-		label_free_rcu(&l->rcu);
+		label_free_switch(l);
 		return;
 	}
-
-	(void) aa_label_remove(&ns->labels, l);
 
 	/* TODO: if compound label and not invalid add to reclaim cache */
 	call_rcu(&l->rcu, label_free_rcu);
