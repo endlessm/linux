@@ -491,7 +491,7 @@ static int nx842_powernv_compress(const unsigned char *in, unsigned int inlen,
 				  void *wmem)
 {
 	return nx842_powernv_function(in, inlen, out, outlenp,
-				      wmem, CCW_FC_842_COMP_CRC);
+				      wmem, CCW_FC_842_COMP_NOCRC);
 }
 
 /**
@@ -519,7 +519,7 @@ static int nx842_powernv_decompress(const unsigned char *in, unsigned int inlen,
 				    void *wmem)
 {
 	return nx842_powernv_function(in, inlen, out, outlenp,
-				      wmem, CCW_FC_842_DECOMP_CRC);
+				      wmem, CCW_FC_842_DECOMP_NOCRC);
 }
 
 static int __init nx842_powernv_probe(struct device_node *dn)
