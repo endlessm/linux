@@ -138,24 +138,6 @@ static inline struct aa_label *aa_get_current_label(void)
 }
 
 /**
- * aa_begin_current_label - find newest version of the current tasks label
- *
- * Returns: newest version of confining label (NOT NULL)
- *
- * This fn will not update the tasks cred, so it is safe inside of locks
- *
- * The returned reference must be put with aa_end_current_label()
- */
-static inline struct aa_label *aa_begin_current_label(void)
-{
-	struct aa_label *l = aa_current_raw_label();
-
-	if (label_invalid(l))
-		l = aa_get_newest_label(l);
-	return l;
-}
-
-/**
  * aa_end_current_label - put a reference found with aa_begin_current_label
  * @label: label reference to put
  *
@@ -169,28 +151,34 @@ static inline void aa_end_current_label(struct aa_label *label)
 }
 
 /**
- * aa_current_label - find the current tasks confining label and update it
+ * aa_begin_current_label - find the current tasks confining label and update it
+ * @update: whether the current label can be updated
  *
  * Returns: up to date confining label or the ns unconfined label (NOT NULL)
  *
- * This fn will update the tasks cred structure if the label has been
- * replaced.  Not safe to call inside locks
+ * If @update is true this fn will update the tasks cred structure if the
+ *   label has been replaced.  Not safe to call inside locks
+ * else
+ *   just return the up to date label
+ *
+ * The returned reference must be put with aa_end_current_label()
  */
-static inline struct aa_label *aa_current_label(void)
+static inline struct aa_label *aa_begin_current_label(bool update)
 {
-	const struct aa_task_cxt *cxt = current_cxt();
-	struct aa_label *label;
-	BUG_ON(!cxt || !cxt->label);
+	struct aa_label *label = aa_current_raw_label();
 
-	if (label_invalid(cxt->label)) {
-		label = aa_get_newest_label(cxt->label);
-		aa_replace_current_label(label);
-		aa_put_label(label);
-		cxt = current_cxt();
+	if (label_invalid(label)) {
+		label = aa_get_newest_label(label);
+		if (update && aa_replace_current_label(label) == 0)
+			/* task cred will keep the reference */
+			aa_put_label(label);
 	}
 
-	return cxt->label;
+	return label;
 }
+
+#define NO_UPDATE false
+#define DO_UPDATE true
 
 /**
  * aa_clear_task_cxt_trans - clear transition tracking info from the cxt

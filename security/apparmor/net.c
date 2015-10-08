@@ -253,13 +253,17 @@ static int aa_label_sk_perm(struct aa_label *label, int op, u32 request,
 static int aa_sk_perm(int op, u32 request, struct sock *sk)
 {
 	struct aa_label *label;
+	int error;
 
 	AA_BUG(!sk);
 	AA_BUG(in_interrupt());
 
 	/* TODO: switch to begin_current_label ???? */
-	label = aa_current_label();
-	return aa_label_sk_perm(label, op, request, sk);
+	label = aa_begin_current_label(DO_UPDATE);
+	error = aa_label_sk_perm(label, op, request, sk);
+	aa_end_current_label(label);
+
+	return error;
 }
 
 #define af_select(FAMILY, FN, DEF_FN)		\

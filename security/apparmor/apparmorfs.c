@@ -212,7 +212,7 @@ static ssize_t query_label(char *buf, size_t buf_len,
 			   char *query, size_t query_len)
 {
 	struct aa_profile *profile;
-	struct aa_label *label;
+	struct aa_label *label, *curr;
 	char *label_name, *match_str;
 	size_t label_name_len, match_len;
 	struct aa_perms perms;
@@ -236,8 +236,9 @@ static ssize_t query_label(char *buf, size_t buf_len,
 	match_str = label_name + label_name_len + 1;
 	match_len = query_len - label_name_len - 1;
 
-	label = aa_label_parse(aa_current_label(), label_name, GFP_KERNEL,
-			       false);
+	curr = aa_begin_current_label(DO_UPDATE);
+	label = aa_label_parse(curr, label_name, GFP_KERNEL, false);
+	aa_end_current_label(curr);
 	if (IS_ERR(label))
 		return PTR_ERR(label);
 
@@ -874,7 +875,7 @@ static struct aa_profile *next_profile(struct aa_namespace *root,
 static void *p_start(struct seq_file *f, loff_t *pos)
 {
 	struct aa_profile *profile = NULL;
-	struct aa_namespace *root = labels_ns(aa_current_label());
+	struct aa_namespace *root = current_ns();
 	loff_t l = *pos;
 	f->private = aa_get_namespace(root);
 
