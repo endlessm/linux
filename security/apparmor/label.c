@@ -78,7 +78,7 @@ void __aa_update_replacedby(struct aa_label *orig, struct aa_label *new)
 
 	AA_BUG(!orig);
 	AA_BUG(!new);
-	AA_BUG(!mutex_is_locked(&labels_ns(orig)->lock));
+	AA_BUG(!write_is_locked(&labels_set(orig)->lock));
 
 	tmp = rcu_dereference_protected(orig->replacedby->label,
 					&labels_ns(orig)->lock);
@@ -356,6 +356,7 @@ bool aa_label_remove(struct aa_labelset *ls, struct aa_label *l)
 	bool res;
 
 	write_lock_irqsave(&ls->lock, flags);
+	__aa_update_replacedby(l, &labels_ns(l)->unconfined->label);
 	res = __aa_label_remove(ls, l);
 	write_unlock_irqrestore(&ls->lock, flags);
 
@@ -425,25 +426,42 @@ struct aa_label *aa_label_remove_and_insert(struct aa_labelset *ls,
 
 /**
  * aa_label_replace - replace a label @old with a new version @new
- * @ls: labelset being manipulated
  * @old: label to replace
  * @new: label replacing @old
  *
  * Returns: true if @old was in tree and replaced
  *     else @old was not in tree, and @new was not inserted
  */
-bool aa_label_replace(struct aa_labelset *ls, struct aa_label *old,
-		      struct aa_label *new)
+bool aa_label_replace(struct aa_label *old, struct aa_label *new)
 {
-	struct aa_label *l;
 	unsigned long flags;
 	bool res;
 
-	write_lock_irqsave(&ls->lock, flags);
-	l = __aa_label_remove_and_insert(ls, old, new, true);
-	res = (l == new);
-	write_unlock_irqrestore(&ls->lock, flags);
-	aa_put_label(l);
+	if (old->hname == new->hname && labels_ns(old) == labels_ns(new)) {
+		write_lock_irqsave(&labels_set(old)->lock, flags);
+		if (old->replacedby != new->replacedby) {
+			free_replacedby(new->replacedby);
+			new->replacedby = aa_get_replacedby(old->replacedby);
+		}
+		__aa_update_replacedby(old, new);
+		res = __aa_label_replace(labels_set(old), old, new);
+		write_unlock_irqrestore(&labels_set(old)->lock, flags);
+	} else {
+		struct aa_label *l;
+		struct aa_labelset *ls = labels_set(old);
+		write_lock_irqsave(&ls->lock, flags);
+		__aa_update_replacedby(old, new);
+		res = __aa_label_remove(ls, old);
+		if (labels_ns(old) != labels_ns(new)) {
+			write_unlock_irqrestore(&ls->lock, flags);
+			ls = labels_set(new);
+			write_lock_irqsave(&ls->lock, flags);
+		}
+		l = __aa_label_insert(ls, new, true);
+		res = (l == new);
+		write_unlock_irqrestore(&ls->lock, flags);
+		aa_put_label(l);
+	}
 
 	return res;
 }
@@ -1124,11 +1142,9 @@ struct aa_label *aa_label_merge(struct aa_label *a, struct aa_label *b,
 		/* only label update will set replacedby so ns lock is enough */
 		new->replacedby = r;
 
-		mutex_lock(&labels_ns(a)->lock);
 		write_lock_irqsave(&ls->lock, flags);
 		label = __label_merge_insert(ls, new, a, b);
 		write_unlock_irqrestore(&ls->lock, flags);
-		mutex_unlock(&labels_ns(a)->lock);
 
 		if (label != new) {
 			/* new may not be fully setup so no put_label */
@@ -1171,11 +1187,9 @@ struct aa_label *aa_label_vec_merge(struct aa_profile **vec, int len,
 	for (i = 0; i < len; i++) {
 		new->ent[i] = aa_get_profile(vec[i]);
 	}
-	mutex_lock(&labels_ns(new)->lock);
 	write_lock_irqsave(&ls->lock, flags);
 	label = __aa_label_insert(ls, new, false);
 	write_unlock_irqrestore(&ls->lock, flags);
-	mutex_unlock(&labels_ns(new)->lock);
 	if (label != new)
 		/* not fully constructed don't put */
 		aa_label_free(new);

@@ -296,8 +296,7 @@ struct aa_label *aa_label_insert(struct aa_labelset *ls, struct aa_label *l);
 struct aa_label *aa_label_remove_and_insert(struct aa_labelset *ls,
 					    struct aa_label *remove,
 					    struct aa_label *insert);
-bool aa_label_replace(struct aa_labelset *ls, struct aa_label *old,
-		      struct aa_label *new);
+bool aa_label_replace(struct aa_label *old, struct aa_label *new);
 bool aa_label_make_newest(struct aa_labelset *ls, struct aa_label *old,
 			  struct aa_label *new);
 
