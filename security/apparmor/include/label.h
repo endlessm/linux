@@ -405,7 +405,7 @@ static inline void aa_put_label(struct aa_label *l)
 }
 
 
-struct aa_replacedby *aa_alloc_replacedby(struct aa_label *l);
+struct aa_replacedby *aa_alloc_replacedby(struct aa_label *l, gfp_t gfp);
 void aa_free_replacedby_kref(struct kref *kref);
 
 static inline struct aa_replacedby *aa_get_replacedby(struct aa_replacedby *r)
