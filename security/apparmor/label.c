@@ -59,11 +59,11 @@ void aa_free_replacedby_kref(struct kref *kref)
 	free_replacedby(r);
 }
 
-struct aa_replacedby *aa_alloc_replacedby(struct aa_label *l)
+struct aa_replacedby *aa_alloc_replacedby(struct aa_label *l, gfp_t gfp)
 {
 	struct aa_replacedby *r;
 
-	r = kzalloc(sizeof(struct aa_replacedby), GFP_KERNEL);
+	r = kzalloc(sizeof(struct aa_replacedby), gfp);
 	if (r) {
 		kref_init(&r->count);
 		rcu_assign_pointer(r->label, aa_get_label(l));
@@ -1134,7 +1134,7 @@ struct aa_label *aa_label_merge(struct aa_label *a, struct aa_label *b,
 		new = aa_label_alloc(a->size + b->size, gfp);
 		if (!new)
 			goto out;
-		r = aa_alloc_replacedby(new);
+		r = aa_alloc_replacedby(new, gfp);
 		if (!r) {
 			aa_label_free(new);
 			goto out;
@@ -1814,7 +1814,7 @@ static struct aa_label *__label_update(struct aa_label *label)
 		return NULL;
 
 	if (!label->replacedby) {
-		struct aa_replacedby *r = aa_alloc_replacedby(l);
+		struct aa_replacedby *r = aa_alloc_replacedby(l, GFP_KERNEL);
 		if (!r) {
 			aa_put_label(l);
 			return NULL;

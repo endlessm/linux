@@ -300,7 +300,7 @@ static struct aa_namespace *alloc_namespace(const char *prefix,
 	ns->unconfined = aa_alloc_profile("unconfined");
 	if (!ns->unconfined)
 		goto fail_unconfined;
-	ns->unconfined->label.replacedby = aa_alloc_replacedby(NULL);
+	ns->unconfined->label.replacedby = aa_alloc_replacedby(NULL, GFP_KERNEL);
 	if (!ns->unconfined->label.replacedby)
 		goto fail_replacedby;
 
@@ -716,7 +716,7 @@ struct aa_profile *aa_new_null_profile(struct aa_profile *parent, int hat)
 	if (!profile)
 		goto fail;
 
-	profile->label.replacedby = aa_alloc_replacedby(NULL);
+	profile->label.replacedby = aa_alloc_replacedby(NULL, GFP_KERNEL);
 	if (!profile->label.replacedby)
 		goto fail;
 
@@ -757,7 +757,7 @@ struct aa_label *aa_setup_default_label(void)
 	profile->ns = aa_get_namespace(root_ns);
 
 	/* replacedby being set needed by fs interface */
-	profile->label.replacedby = aa_alloc_replacedby(&profile->label);
+	profile->label.replacedby = aa_alloc_replacedby(&profile->label, GFP_KERNEL);
 	if (!profile->label.replacedby) {
 		aa_free_profile(profile);
 		return NULL;
@@ -1232,7 +1232,7 @@ ssize_t aa_replace_profiles(void *udata, size_t size, bool noreplace)
 
 	/* create new fs entries for introspection if needed */
 	list_for_each_entry(ent, &lh, list) {
-		struct aa_replacedby *r = aa_alloc_replacedby(&ent->new->label);
+		struct aa_replacedby *r = aa_alloc_replacedby(&ent->new->label, GFP_KERNEL);
 		if (!r) {
 			info = "failed to create";
 			error = -ENOMEM;
