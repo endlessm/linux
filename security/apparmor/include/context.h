@@ -162,6 +162,8 @@ static inline void aa_end_current_label(struct aa_label *label)
  *   just return the up to date label
  *
  * The returned reference must be put with aa_end_current_label()
+ * This must NOT be used if the task cred could be updated within the
+ * critical section between aa_begin_current_label() .. aa_end_current_label()
  */
 static inline struct aa_label *aa_begin_current_label(bool update)
 {
