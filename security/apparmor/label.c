@@ -1858,7 +1858,7 @@ static struct aa_label *__label_update(struct aa_label *label)
 		goto insert;
 	}
 insert:
-	tmp = __aa_label_remove_and_insert(labels_set(label), label, l, true);
+	tmp = __aa_label_insert(labels_set(label), l, true);
 	if (tmp != l) {
 		aa_label_free(l);
 		l = tmp;
