@@ -1875,7 +1875,8 @@ other_ls_insert:
 	if (tmp != l) {
 		aa_put_label(l);
 		l = tmp;
-	}
+	} else
+		aa_put_label(l);	/* extra ref */
 
 	return l;
 }
