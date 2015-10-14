@@ -227,6 +227,10 @@ void aa_label_destroy(struct aa_label *label)
 			label->ent[i.i] = LABEL_POISON + i.i;
 		}
 	}
+
+	if (rcu_dereference_protected(label->replacedby->label, true) == label)
+		rcu_assign_pointer(label->replacedby->label, NULL);
+
 	aa_free_sid(label->sid);
 	aa_put_replacedby(label->replacedby);
 	label->replacedby = REPLACEDBY_POISON + 1;
