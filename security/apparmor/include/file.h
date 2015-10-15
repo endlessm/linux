@@ -204,6 +204,8 @@ struct aa_file_rules {
 	/* TODO: add delegate table */
 };
 
+struct file_perms aa_compute_fperms(struct aa_dfa *dfa, unsigned int state,
+				    struct path_cond *cond);
 unsigned int aa_str_perms(struct aa_dfa *dfa, unsigned int start,
 			  const char *name, struct path_cond *cond,
 			  struct file_perms *perms);
