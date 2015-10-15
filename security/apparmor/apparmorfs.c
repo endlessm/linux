@@ -250,17 +250,27 @@ static ssize_t query_label(char *buf, size_t buf_len,
 			dfa = profile->file.dfa;
 			state = aa_dfa_match_len(dfa, profile->file.start,
 						 match_str + 1, match_len - 1);
+			aa_perms_clear(&tmp);
+			if (state) {
+				struct file_perms fperms = { };
+				struct path_cond cond = { };
+				fperms = aa_compute_fperms(dfa, state, &cond);
+				tmp.allow = fperms.allow;
+				tmp.audit = fperms.audit;
+				tmp.quiet = fperms.quiet;
+				tmp.kill = fperms.kill;
+			}
 		} else if (profile->policy.dfa) {
 			if (!PROFILE_MEDIATES_SAFE(profile, *match_str))
 				continue;	/* no change to current perms */
 			dfa = profile->policy.dfa;
 			state = aa_dfa_match_len(dfa, profile->policy.start[0],
 						 match_str, match_len);
+			if (state)
+				aa_compute_perms(dfa, state, &tmp);
+			else
+				aa_perms_clear(&tmp);
 		}
-		if (state)
-			aa_compute_perms(dfa, state, &tmp);
-		else
-			aa_perms_clear(&tmp);
 		aa_apply_modes_to_perms(profile, &tmp);
 		aa_perms_accum_raw(&perms, &tmp);
 	}

@@ -208,7 +208,7 @@ static u32 map_old_perms(u32 old)
 }
 
 /**
- * compute_perms - convert dfa compressed perms to internal perms
+ * aa_compute_fperms - convert dfa compressed perms to internal perms
  * @dfa: dfa to compute perms for   (NOT NULL)
  * @state: state in dfa
  * @cond:  conditions to consider  (NOT NULL)
@@ -218,8 +218,8 @@ static u32 map_old_perms(u32 old)
  *
  * Returns: computed permission set
  */
-static struct file_perms compute_perms(struct aa_dfa *dfa, unsigned int state,
-				       struct path_cond *cond)
+struct file_perms aa_compute_fperms(struct aa_dfa *dfa, unsigned int state,
+				    struct path_cond *cond)
 {
 	struct file_perms perms;
 
@@ -273,7 +273,7 @@ unsigned int aa_str_perms(struct aa_dfa *dfa, unsigned int start,
 	}
 
 	state = aa_dfa_match(dfa, start, name);
-	*perms = compute_perms(dfa, state, cond);
+	*perms = aa_compute_fperms(dfa, state, cond);
 
 	return state;
 }
