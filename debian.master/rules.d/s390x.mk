@@ -5,3 +5,4 @@ defconfig       = defconfig
 flavours        = generic
 
 do_flavour_image_package = false
+do_zfs		= true
