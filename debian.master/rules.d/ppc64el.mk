@@ -16,3 +16,4 @@ do_tools_cpupower = true
 do_tools_perf	  = true
 
 #do_flavour_image_package = false
+do_zfs		= true
