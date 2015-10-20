@@ -22,6 +22,7 @@ Build-Depends:
  bison <!stage1>,
  libunwind8-dev <!stage1>,
  openssl <!stage1>,
+ libssl-dev <!stage1>,
  libaudit-dev <!stage1>,
  bc <!stage1>,
  python-dev <!stage1>,
