@@ -239,7 +239,7 @@ ifneq ($(skipdbg),true)
 			$(CROSS_COMPILE)objcopy \
 				--add-gnu-debuglink=$(dbgpkgdir)/usr/lib/debug/$$module \
 				$(pkgdir)/$$module; \
-			scripts/sign-file $(CONFIG_MODULE_SIG_HASH) $(MODSECKEY) $(MODPUBKEY) \
+			$(builddir)/build-$*/scripts/sign-file $(CONFIG_MODULE_SIG_HASH) $(MODSECKEY) $(MODPUBKEY) \
 				$(pkgdir)/$$module; \
 		fi; \
 	done
