@@ -59,9 +59,9 @@ install-%: kernfile = $(call custom_override,kernel_file,$*)
 install-%: instfile = $(call custom_override,install_file,$*)
 install-%: hdrdir = $(CURDIR)/debian/$(basepkg)-$*/usr/src/$(basepkg)-$*
 install-%: target_flavour = $*
-install-%: CONFIG_MODULE_SIG_HASH=sha512
-install-%: MODSECKEY=$(builddir)/build-$*/signing_key.priv
-install-%: MODPUBKEY=$(builddir)/build-$*/signing_key.x509
+install-%: MODHASHALGO=sha512
+install-%: MODSECKEY=$(builddir)/build-$*/certs/signing_key.pem
+install-%: MODPUBKEY=$(builddir)/build-$*/certs/signing_key.x509
 install-%: checks-%
 	@echo Debug: $@ kernel_file $(kernel_file) kernfile $(kernfile) install_file $(install_file) instfile $(instfile)
 	dh_testdir
@@ -239,7 +239,9 @@ ifneq ($(skipdbg),true)
 			$(CROSS_COMPILE)objcopy \
 				--add-gnu-debuglink=$(dbgpkgdir)/usr/lib/debug/$$module \
 				$(pkgdir)/$$module; \
-			$(builddir)/build-$*/scripts/sign-file $(CONFIG_MODULE_SIG_HASH) $(MODSECKEY) $(MODPUBKEY) \
+			$(builddir)/build-$*/scripts/sign-file $(MODHASHALGO) \
+				$(MODSECKEY) \
+				$(MODPUBKEY) \
 				$(pkgdir)/$$module; \
 		fi; \
 	done
