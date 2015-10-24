@@ -39,10 +39,32 @@ build-%: $(stampdir)/stamp-build-%
 
 # Do the actual build, including image and modules
 $(stampdir)/stamp-build-%: target_flavour = $*
+$(stampdir)/stamp-build-%: splopts  = --with-linux=$(CURDIR)
+$(stampdir)/stamp-build-%: splopts += --with-linux-obj=$(builddir)/build-$*
+$(stampdir)/stamp-build-%: zfsopts  = $(splopts)
+$(stampdir)/stamp-build-%: zfsopts += --with-spl=$(builddir)/build-$*/spl
+$(stampdir)/stamp-build-%: zfsopts += --with-spl-obj=$(builddir)/build-$*/spl
+$(stampdir)/stamp-build-%: zfsopts += --prefix=/usr --with-config=kernel
 $(stampdir)/stamp-build-%: bldimg = $(call custom_override,build_image,$*)
 $(stampdir)/stamp-build-%: $(stampdir)/stamp-prepare-%
 	@echo Debug: $@ build_image $(build_image) bldimg $(bldimg)
 	$(build_cd) $(kmake) $(build_O) $(conc_level) $(bldimg) modules $(if $(filter true,$(do_dtbs)),dtbs)
+ifeq ($(do_zfs),true)
+	#
+	# SPL/ZFS wants a fully built kernel before you can configure and build.
+	# It seems to be impossible to tease out the application configuration
+	# from the modules, but at least one can build just the modules.
+	#
+	install -d $(builddir)/build-$*/spl
+	rsync -a --exclude=dkms.conf --delete spl/ $(builddir)/build-$*/spl/
+	cd $(builddir)/build-$*/spl; sh autogen.sh; sh configure $(splopts)
+	$(kmake) -C $(builddir)/build-$*/spl/module $(conc_level)
+
+	install -d $(builddir)/build-$*/zfs
+	rsync -a --exclude=dkms.conf --delete zfs/ $(builddir)/build-$*/zfs/
+	cd $(builddir)/build-$*/zfs; sh autogen.sh; sh configure $(zfsopts)
+	$(kmake) -C $(builddir)/build-$*/zfs/module $(conc_level)
+endif
 	@touch $@
 
 # Install the finished build
@@ -62,6 +84,11 @@ install-%: target_flavour = $*
 install-%: MODHASHALGO=sha512
 install-%: MODSECKEY=$(builddir)/build-$*/certs/signing_key.pem
 install-%: MODPUBKEY=$(builddir)/build-$*/certs/signing_key.x509
+install-%: splopts  = INSTALL_MOD_STRIP=1
+install-%: splopts += INSTALL_MOD_PATH=$(pkgdir)/
+install-%: splopts += INSTALL_MOD_DIR=zfs
+install-%: splopts += $(conc_level)
+install-%: zfsopts  = $(splopts)
 install-%: checks-%
 	@echo Debug: $@ kernel_file $(kernel_file) kernfile $(kernfile) install_file $(install_file) instfile $(instfile)
 	dh_testdir
@@ -119,6 +146,12 @@ endif
 	$(build_cd) $(kmake) $(build_O) $(conc_level) modules_install $(vdso) \
 		INSTALL_MOD_STRIP=1 INSTALL_MOD_PATH=$(pkgdir)/ \
 		INSTALL_FW_PATH=$(pkgdir)/lib/firmware/$(abi_release)-$*
+ifeq ($(do_zfs),true)
+	cd $(builddir)/build-$*/spl/module; \
+		$(kmake) -C $(builddir)/build-$* SUBDIRS=`pwd` modules_install $(splopts)
+	cd $(builddir)/build-$*/zfs/module; \
+		$(kmake) -C $(builddir)/build-$* SUBDIRS=`pwd` modules_install $(zfsopts)
+endif
 
 	#
 	# Build module blacklists:
