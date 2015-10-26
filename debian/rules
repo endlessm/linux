@@ -57,6 +57,14 @@ ifneq ($(filter stage1,$(DEB_BUILD_PROFILES)),)
     do_flavour_header_package=false
 endif
 
+# Being used to build a mainline build -- turn off things which do not work.
+ifeq ($(do_mainline_build),true)
+	do_extras_package=false
+	do_tools=false
+	no_dumpfile=1
+	do_zfs=false
+endif
+
 # Disable tools build and packaging if do_tools != true
 ifneq ($(do_tools),true)
 	do_linux_tools=
