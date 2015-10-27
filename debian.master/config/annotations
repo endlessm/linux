@@ -178,7 +178,7 @@ CONFIG_PCI_IMX6                                 policy<{'armhf-generic': 'y'}>
 CONFIG_PCI_TEGRA                                policy<{'armhf-generic': 'y'}>
 CONFIG_PCI_RCAR_GEN2                            policy<{'armhf': 'y'}>
 CONFIG_PCI_RCAR_GEN2_PCIE                       policy<{'armhf': 'y'}>
-CONFIG_PCI_HOST_GENERIC                         policy<{'armhf': 'y'}>
+CONFIG_PCI_HOST_GENERIC                         policy<{'arm64': 'y', 'armhf': 'y'}>
 CONFIG_PCI_XGENE                                policy<{'arm64': 'y'}>
 CONFIG_PCI_XGENE_MSI                            policy<{'arm64': 'y'}>
 CONFIG_PCI_LAYERSCAPE                           policy<{'armhf': 'n'}>
@@ -4389,6 +4389,7 @@ CONFIG_DP83867_PHY                              policy<{'amd64': 'm', 'arm64': '
 CONFIG_FIXED_PHY                                policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'powerpc': 'y', 'ppc64el': 'y'}>
 CONFIG_MDIO_BITBANG                             policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'powerpc': 'm', 'ppc64el': 'm'}>
 CONFIG_MDIO_GPIO                                policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'powerpc': 'm', 'ppc64el': 'm'}>
+CONFIG_MDIO_OCTEON                              policy<{'amd64': 'm', 'arm64': 'm', 'powerpc-powerpc64-emb': 'm', 'powerpc-powerpc64-smp': 'm', 'ppc64el': 'm'}>
 CONFIG_MDIO_BUS_MUX_GPIO                        policy<{'arm64': 'm', 'armhf': 'm', 'powerpc': 'm', 'ppc64el': 'm'}>
 CONFIG_MDIO_BUS_MUX_MMIOREG                     policy<{'arm64': 'm', 'armhf': 'm', 'powerpc': 'm', 'ppc64el': 'm'}>
 CONFIG_MDIO_BCM_UNIMAC                          policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'powerpc': 'm', 'ppc64el': 'm'}>
