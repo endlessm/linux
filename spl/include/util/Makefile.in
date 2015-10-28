@@ -332,6 +332,7 @@ pdfdir = @pdfdir@
 prefix = @prefix@
 program_transform_name = @program_transform_name@
 psdir = @psdir@
+runstatedir = @runstatedir@
 sbindir = @sbindir@
 sharedstatedir = @sharedstatedir@
 srcdir = @srcdir@
@@ -347,7 +348,7 @@ top_srcdir = @top_srcdir@
 COMMON_H = 
 KERNEL_H = \
 	$(top_srcdir)/include/util/qsort.h \
-        $(top_srcdir)/include/util/sscanf.h
+	$(top_srcdir)/include/util/sscanf.h
 
 USER_H = 
 EXTRA_DIST = $(COMMON_H) $(KERNEL_H) $(USER_H)

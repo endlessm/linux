@@ -3,14 +3,17 @@
 /* Define to 1 to enabled dmu tx validation */
 #undef DEBUG_DMU_TX
 
+/* bio_end_io_t wants 1 arg */
+#undef HAVE_1ARG_BIO_END_IO_T
+
 /* invalidate_bdev() wants 1 arg */
 #undef HAVE_1ARG_INVALIDATE_BDEV
 
+/* kmap_atomic wants 1 args */
+#undef HAVE_1ARG_KMAP_ATOMIC
+
 /* bdi_setup_and_register() wants 2 args */
 #undef HAVE_2ARGS_BDI_SETUP_AND_REGISTER
-
-/* bio_end_io_t wants 2 args */
-#undef HAVE_2ARGS_BIO_END_IO_T
 
 /* bdi_setup_and_register() wants 3 args */
 #undef HAVE_3ARGS_BDI_SETUP_AND_REGISTER
@@ -39,35 +42,17 @@
 /* bio has bi_iter */
 #undef HAVE_BIO_BVEC_ITER
 
-/* REQ_FAILFAST_MASK is defined */
-#undef HAVE_BIO_REQ_FAILFAST_MASK
+/* BIO_RW_BARRIER is defined */
+#undef HAVE_BIO_RW_BARRIER
 
-/* BIO_RW_FAILFAST is defined */
-#undef HAVE_BIO_RW_FAILFAST
+/* BIO_RW_DISCARD is defined */
+#undef HAVE_BIO_RW_DISCARD
 
 /* BIO_RW_FAILFAST_* are defined */
 #undef HAVE_BIO_RW_FAILFAST_DTD
 
-/* BIO_RW_SYNC is defined */
-#undef HAVE_BIO_RW_SYNC
-
-/* BIO_RW_SYNCIO is defined */
-#undef HAVE_BIO_RW_SYNCIO
-
 /* blkdev_get_by_path() is available */
 #undef HAVE_BLKDEV_GET_BY_PATH
-
-/* blk_end_request() is available */
-#undef HAVE_BLK_END_REQUEST
-
-/* blk_end_request() is GPL-only */
-#undef HAVE_BLK_END_REQUEST_GPL_ONLY
-
-/* blk_fetch_request() is available */
-#undef HAVE_BLK_FETCH_REQUEST
-
-/* blk_queue_discard() is available */
-#undef HAVE_BLK_QUEUE_DISCARD
 
 /* blk_queue_flush() is available */
 #undef HAVE_BLK_QUEUE_FLUSH
@@ -75,35 +60,11 @@
 /* blk_queue_flush() is GPL-only */
 #undef HAVE_BLK_QUEUE_FLUSH_GPL_ONLY
 
-/* blk_queue_io_opt() is available */
-#undef HAVE_BLK_QUEUE_IO_OPT
-
 /* blk_queue_max_hw_sectors() is available */
 #undef HAVE_BLK_QUEUE_MAX_HW_SECTORS
 
 /* blk_queue_max_segments() is available */
 #undef HAVE_BLK_QUEUE_MAX_SEGMENTS
-
-/* blk_queue_nonrot() is available */
-#undef HAVE_BLK_QUEUE_NONROT
-
-/* blk_queue_physical_block_size() is available */
-#undef HAVE_BLK_QUEUE_PHYSICAL_BLOCK_SIZE
-
-/* blk_requeue_request() is available */
-#undef HAVE_BLK_REQUEUE_REQUEST
-
-/* blk_rq_bytes() is available */
-#undef HAVE_BLK_RQ_BYTES
-
-/* blk_rq_bytes() is GPL-only */
-#undef HAVE_BLK_RQ_BYTES_GPL_ONLY
-
-/* blk_rq_pos() is available */
-#undef HAVE_BLK_RQ_POS
-
-/* blk_rq_sectors() is available */
-#undef HAVE_BLK_RQ_SECTORS
 
 /* struct block_device_operations.release returns void */
 #undef HAVE_BLOCK_DEVICE_OPERATIONS_RELEASE_VOID
@@ -134,6 +95,12 @@
 
 /* iops->create() passes nameidata */
 #undef HAVE_CREATE_NAMEIDATA
+
+/* current->bio_list exists */
+#undef HAVE_CURRENT_BIO_LIST
+
+/* current->bio_tail exists */
+#undef HAVE_CURRENT_BIO_TAIL
 
 /* current_umask() exists */
 #undef HAVE_CURRENT_UMASK
@@ -192,6 +159,9 @@
 /* kernel defines fmode_t */
 #undef HAVE_FMODE_T
 
+/* follow_down_one() is available */
+#undef HAVE_FOLLOW_DOWN_ONE
+
 /* iops->follow_link() nameidata */
 #undef HAVE_FOLLOW_LINK_NAMEIDATA
 
@@ -206,6 +176,9 @@
 
 /* fops->fsync() with dentry */
 #undef HAVE_FSYNC_WITH_DENTRY
+
+/* generic_start_io_acct()/generic_end_io_acct() avaliable */
+#undef HAVE_GENERIC_IO_ACCT
 
 /* iops->get_acl() exists */
 #undef HAVE_GET_ACL
@@ -255,6 +228,9 @@
 /* lseek_execute() is available */
 #undef HAVE_LSEEK_EXECUTE
 
+/* Noting that make_request_fn() returns int */
+#undef HAVE_MAKE_REQUEST_FN_RET_INT
+
 /* Define to 1 if you have the <memory.h> header file. */
 #undef HAVE_MEMORY_H
 
@@ -300,20 +276,8 @@
 /* iops->put_link() nameidata */
 #undef HAVE_PUT_LINK_NAMEIDATA
 
-/* REQ_SYNC is defined */
-#undef HAVE_REQ_SYNC
-
-/* rq_for_each_segment() is available */
-#undef HAVE_RQ_FOR_EACH_SEGMENT
-
-/* rq_for_each_segment() wants bio_vec */
-#undef HAVE_RQ_FOR_EACH_SEGMENT_BV
-
-/* rq_for_each_segment() wants bio_vec * */
-#undef HAVE_RQ_FOR_EACH_SEGMENT_BVP
-
-/* rq_is_sync() is available */
-#undef HAVE_RQ_IS_SYNC
+/* REQ_FAILFAST_MASK is defined */
+#undef HAVE_REQ_FAILFAST_MASK
 
 /* set_nlink() is available */
 #undef HAVE_SET_NLINK
@@ -372,6 +336,9 @@
 /* Define to the sub-directory in which libtool stores uninstalled libraries.
    */
 #undef LT_OBJDIR
+
+/* make_request_fn() returns void */
+#undef MAKE_REQUEST_FN_RET
 
 /* Name of package */
 #undef PACKAGE

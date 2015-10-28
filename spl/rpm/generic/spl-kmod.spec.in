@@ -160,9 +160,18 @@ chmod u+x ${RPM_BUILD_ROOT}%{kmodinstdir_prefix}/*/extra/*/*/*
 rm -rf $RPM_BUILD_ROOT
 
 %changelog
-* Wed Jun  24 2015 Ned Bass <bass6@llnl.gov> - 0.6.4.2-1
-- No changes from 0.6.4-1
-- Bump version to match ZFS release
+* Tue Oct 13 2015 Ned Bass <bass6@llnl.gov> - 0.6.5.3-1
+- Fix CPU hotplug zfsonlinux/spl#482
+- Disable dynamic taskqs by default to avoid deadlock zfsonlinux/spl#484
+* Tue Sep 29 2015 Ned Bass <bass6@llnl.gov> - 0.6.5.2-1
+- Released 0.6.5.2-1
+- Fix PAX Patch/Grsec SLAB_USERCOPY panic zfsonlinux/zfs#3796
+- Always remove during dkms uninstall/update zfsonlinux/spl#476
+* Thu Sep 19 2015 Ned Bass <bass6@llnl.gov> - 0.6.5.1-1
+- Released 0.6.5.1-1, no changes from spl-0.6.5
+* Thu Sep 10 2015 Brian Behlendorf <behlendorf1@llnl.gov> - 0.6.5-1
+- Released 0.6.5-1, detailed release notes are available at:
+- https://github.com/zfsonlinux/zfs/releases/tag/zfs-0.6.5
 * Wed Apr  8 2015 Brian Behlendorf <behlendorf1@llnl.gov> - 0.6.4-1
 - Released 0.6.4-1
 * Thu Jun 12 2014 Brian Behlendorf <behlendorf1@llnl.gov> - 0.6.3-1
