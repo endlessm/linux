@@ -97,11 +97,11 @@ POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
 target_triplet = @target@
-@CONFIG_USER_TRUE@am__append_1 = dracut udev etc man scripts lib cmd contrib
+@CONFIG_USER_TRUE@am__append_1 = udev etc man scripts lib cmd contrib
 @CONFIG_KERNEL_TRUE@am__append_2 = module
 subdir = .
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
-am__aclocal_m4_deps =  \
+am__aclocal_m4_deps = $(top_srcdir)/config/always-no-bool-compare.m4 \
 	$(top_srcdir)/config/always-no-unused-but-set-variable.m4 \
 	$(top_srcdir)/config/dkms.m4 \
 	$(top_srcdir)/config/kernel-acl.m4 \
@@ -113,20 +113,11 @@ am__aclocal_m4_deps =  \
 	$(top_srcdir)/config/kernel-bio-bvec-iter.m4 \
 	$(top_srcdir)/config/kernel-bio-end-io-t-args.m4 \
 	$(top_srcdir)/config/kernel-bio-failfast.m4 \
-	$(top_srcdir)/config/kernel-bio-rw-syncio.m4 \
-	$(top_srcdir)/config/kernel-blk-end-request.m4 \
-	$(top_srcdir)/config/kernel-blk-fetch-request.m4 \
-	$(top_srcdir)/config/kernel-blk-queue-discard.m4 \
+	$(top_srcdir)/config/kernel-bio-rw-barrier.m4 \
+	$(top_srcdir)/config/kernel-bio-rw-discard.m4 \
 	$(top_srcdir)/config/kernel-blk-queue-flush.m4 \
-	$(top_srcdir)/config/kernel-blk-queue-io-opt.m4 \
 	$(top_srcdir)/config/kernel-blk-queue-max-hw-sectors.m4 \
 	$(top_srcdir)/config/kernel-blk-queue-max-segments.m4 \
-	$(top_srcdir)/config/kernel-blk-queue-nonrot.m4 \
-	$(top_srcdir)/config/kernel-blk-queue-physical-block-size.m4 \
-	$(top_srcdir)/config/kernel-blk-requeue-request.m4 \
-	$(top_srcdir)/config/kernel-blk-rq-bytes.m4 \
-	$(top_srcdir)/config/kernel-blk-rq-pos.m4 \
-	$(top_srcdir)/config/kernel-blk-rq-sectors.m4 \
 	$(top_srcdir)/config/kernel-blkdev-get-by-path.m4 \
 	$(top_srcdir)/config/kernel-blkdev-get.m4 \
 	$(top_srcdir)/config/kernel-block-device-operations-release-void.m4 \
@@ -134,6 +125,7 @@ am__aclocal_m4_deps =  \
 	$(top_srcdir)/config/kernel-clear-inode.m4 \
 	$(top_srcdir)/config/kernel-commit-metadata.m4 \
 	$(top_srcdir)/config/kernel-create-nameidata.m4 \
+	$(top_srcdir)/config/kernel-current_bio_tail.m4 \
 	$(top_srcdir)/config/kernel-d-make-root.m4 \
 	$(top_srcdir)/config/kernel-d-obtain-alias.m4 \
 	$(top_srcdir)/config/kernel-d-prune-aliases.m4 \
@@ -147,23 +139,25 @@ am__aclocal_m4_deps =  \
 	$(top_srcdir)/config/kernel-fallocate.m4 \
 	$(top_srcdir)/config/kernel-file-inode.m4 \
 	$(top_srcdir)/config/kernel-fmode-t.m4 \
+	$(top_srcdir)/config/kernel-follow-down-one.m4 \
 	$(top_srcdir)/config/kernel-follow-link-nameidata.m4 \
 	$(top_srcdir)/config/kernel-fsync.m4 \
+	$(top_srcdir)/config/kernel-generic_io_acct.m4 \
 	$(top_srcdir)/config/kernel-get-disk-ro.m4 \
 	$(top_srcdir)/config/kernel-get-gendisk.m4 \
 	$(top_srcdir)/config/kernel-insert-inode-locked.m4 \
 	$(top_srcdir)/config/kernel-invalidate-bdev-args.m4 \
 	$(top_srcdir)/config/kernel-is_owner_or_cap.m4 \
+	$(top_srcdir)/config/kernel-kmap-atomic-args.m4 \
 	$(top_srcdir)/config/kernel-kobj-name-len.m4 \
 	$(top_srcdir)/config/kernel-lookup-bdev.m4 \
 	$(top_srcdir)/config/kernel-lookup-nameidata.m4 \
 	$(top_srcdir)/config/kernel-lseek-execute.m4 \
+	$(top_srcdir)/config/kernel-mk-request-fn.m4 \
 	$(top_srcdir)/config/kernel-mkdir-umode-t.m4 \
 	$(top_srcdir)/config/kernel-mount-nodev.m4 \
 	$(top_srcdir)/config/kernel-open-bdev-exclusive.m4 \
 	$(top_srcdir)/config/kernel-put-link-nameidata.m4 \
-	$(top_srcdir)/config/kernel-rq-for-each_segment.m4 \
-	$(top_srcdir)/config/kernel-rq-is_sync.m4 \
 	$(top_srcdir)/config/kernel-security-inode-init.m4 \
 	$(top_srcdir)/config/kernel-set-nlink.m4 \
 	$(top_srcdir)/config/kernel-sget-args.m4 \
@@ -292,24 +286,23 @@ am__define_uniq_tagged_files = \
 ETAGS = etags
 CTAGS = ctags
 CSCOPE = cscope
-DIST_SUBDIRS = include rpm dracut udev etc man scripts lib cmd contrib \
-	module
-am__DIST_COMMON = $(srcdir)/Makefile.in \
+DIST_SUBDIRS = include rpm udev etc man scripts lib cmd contrib module
+am__DIST_COMMON = $(srcdir)/Makefile.in $(srcdir)/config/deb.am \
+	$(srcdir)/config/rpm.am $(srcdir)/config/tgz.am \
 	$(srcdir)/zfs-script-config.sh.in $(srcdir)/zfs.release.in \
 	$(srcdir)/zfs_config.h.in $(top_srcdir)/config/compile \
 	$(top_srcdir)/config/config.guess \
-	$(top_srcdir)/config/config.sub $(top_srcdir)/config/deb.am \
+	$(top_srcdir)/config/config.sub \
 	$(top_srcdir)/config/install-sh $(top_srcdir)/config/ltmain.sh \
-	$(top_srcdir)/config/missing $(top_srcdir)/config/rpm.am \
-	$(top_srcdir)/config/tgz.am $(top_srcdir)/module/Makefile.in \
+	$(top_srcdir)/config/missing $(top_srcdir)/module/Makefile.in \
 	$(top_srcdir)/module/avl/Makefile.in \
 	$(top_srcdir)/module/nvpair/Makefile.in \
 	$(top_srcdir)/module/unicode/Makefile.in \
 	$(top_srcdir)/module/zcommon/Makefile.in \
 	$(top_srcdir)/module/zfs/Makefile.in \
 	$(top_srcdir)/module/zpios/Makefile.in AUTHORS config/compile \
-	config/config.guess config/config.sub config/depcomp \
-	config/install-sh config/ltmain.sh config/missing
+	config/config.guess config/config.sub config/install-sh \
+	config/ltmain.sh config/missing
 DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
 distdir = $(PACKAGE)-$(VERSION)
 top_distdir = $(distdir)
@@ -375,9 +368,11 @@ DEBUG_CFLAGS = @DEBUG_CFLAGS@
 DEBUG_DMU_TX = @DEBUG_DMU_TX@
 DEBUG_STACKFLAGS = @DEBUG_STACKFLAGS@
 DEBUG_ZFS = @DEBUG_ZFS@
+DEFAULT_INITCONF_DIR = @DEFAULT_INITCONF_DIR@
 DEFAULT_INIT_DIR = @DEFAULT_INIT_DIR@
 DEFAULT_INIT_SCRIPT = @DEFAULT_INIT_SCRIPT@
 DEFAULT_PACKAGE = @DEFAULT_PACKAGE@
+DEFINE_INITRAMFS = @DEFINE_INITRAMFS@
 DEFS = @DEFS@
 DEPDIR = @DEPDIR@
 DLLTOOL = @DLLTOOL@
@@ -427,6 +422,7 @@ MANIFEST_TOOL = @MANIFEST_TOOL@
 MKDIR_P = @MKDIR_P@
 NM = @NM@
 NMEDIT = @NMEDIT@
+NO_BOOL_COMPARE = @NO_BOOL_COMPARE@
 NO_UNUSED_BUT_SET_VARIABLE = @NO_UNUSED_BUT_SET_VARIABLE@
 OBJDUMP = @OBJDUMP@
 OBJEXT = @OBJEXT@
@@ -561,7 +557,7 @@ all: zfs_config.h
 .SUFFIXES:
 am--refresh: Makefile
 	@:
-$(srcdir)/Makefile.in: @MAINTAINER_MODE_TRUE@ $(srcdir)/Makefile.am $(top_srcdir)/config/rpm.am $(top_srcdir)/config/deb.am $(top_srcdir)/config/tgz.am $(am__configure_deps)
+$(srcdir)/Makefile.in: @MAINTAINER_MODE_TRUE@ $(srcdir)/Makefile.am $(srcdir)/config/rpm.am $(srcdir)/config/deb.am $(srcdir)/config/tgz.am $(am__configure_deps)
 	@for dep in $?; do \
 	  case '$(am__configure_deps)' in \
 	    *$$dep*) \
@@ -583,7 +579,7 @@ Makefile: $(srcdir)/Makefile.in $(top_builddir)/config.status
 	    echo ' cd $(top_builddir) && $(SHELL) ./config.status $@ $(am__depfiles_maybe)'; \
 	    cd $(top_builddir) && $(SHELL) ./config.status $@ $(am__depfiles_maybe);; \
 	esac;
-$(top_srcdir)/config/rpm.am $(top_srcdir)/config/deb.am $(top_srcdir)/config/tgz.am $(am__empty):
+$(srcdir)/config/rpm.am $(srcdir)/config/deb.am $(srcdir)/config/tgz.am $(am__empty):
 
 $(top_builddir)/config.status: $(top_srcdir)/configure $(CONFIG_STATUS_DEPENDENCIES)
 	$(SHELL) ./config.status --recheck
@@ -1150,7 +1146,7 @@ rpm-local:
 	mkdir -p $(rpmbuild)/SPECS && \
 	cp ${RPM_SPEC_DIR}/$(rpmspec) $(rpmbuild)/SPECS && \
 	mkdir -p $(rpmbuild)/SOURCES && \
-	cp scripts/kmodtool $(rpmbuild)/SOURCES && \
+	cp $(top_srcdir)/scripts/kmodtool $(rpmbuild)/SOURCES && \
 	cp $(distdir).tar.gz $(rpmbuild)/SOURCES)
 
 srpm-common: dist
@@ -1220,9 +1216,12 @@ deb-utils: deb-local rpm-utils
 @CONFIG_USER_TRUE@	pkg6=libzfs2-devel-$${version}.$${arch}.rpm; \
 @CONFIG_USER_TRUE@	pkg7=$${name}-test-$${version}.$${arch}.rpm; \
 @CONFIG_USER_TRUE@	pkg8=$${name}-dracut-$${version}.$${arch}.rpm; \
+@CONFIG_USER_TRUE@	pkg9=$${name}-initramfs-$${version}.$${arch}.rpm; \
 @CONFIG_USER_TRUE@	fakeroot $(ALIEN) --bump=0 --scripts --to-deb \
-@CONFIG_USER_TRUE@	    $$pkg1 $$pkg2 $$pkg3 $$pkg4 $$pkg5 $$pkg6 $$pkg7 $$pkg8; \
-@CONFIG_USER_TRUE@	$(RM) $$pkg1 $$pkg2 $$pkg3 $$pkg4 $$pkg5 $$pkg6 $$pkg7 $$pkg8;
+@CONFIG_USER_TRUE@	    $$pkg1 $$pkg2 $$pkg3 $$pkg4 $$pkg5 $$pkg6 $$pkg7 \
+@CONFIG_USER_TRUE@	    $$pkg8 $$pkg9;
+@CONFIG_USER_TRUE@	$(RM) $$pkg1 $$pkg2 $$pkg3 $$pkg4 $$pkg5 $$pkg6 $$pkg7 \
+@CONFIG_USER_TRUE@	    $$pkg8 $$pkg9;
 
 deb: deb-kmod deb-utils
 tgz-local:
@@ -1270,16 +1269,28 @@ dist-hook:
 	sed -i 's/Release:[[:print:]]*/Release:      $(RELEASE)/' \
 		$(distdir)/META
 
-checkstyle:
+checkstyle: cstyle shellcheck
+
+cstyle:
 	@find ${top_srcdir} -name '*.[hc]' ! -name 'zfs_config.*' \
 		! -name '*.mod.c' -type f -exec scripts/cstyle.pl {} \+
 
+shellcheck:
+	@if type shellcheck > /dev/null 2>&1; then \
+		(find ${top_srcdir} -type f -name '*.sh.in' -o -type f \
+		 -name '*.sh'; find etc/init.d/zfs*.in -type f) | \
+		 grep -v 'zfs-script-config' | \
+		 while read file; do \
+			shellcheck --format gcc "$$file"; \
+		 done; \
+	 fi
+
 ctags:
-	$(RM) $(top_srcdir)/tags
+	$(RM) tags
 	find $(top_srcdir) -name .git -prune -o -name '*.[hc]' | xargs ctags
 
 etags:
-	$(RM) $(top_srcdir)/TAGS
+	$(RM) TAGS
 	find $(top_srcdir) -name .pc -prune -o -name '*.[hc]' | xargs etags -a
 
 tags: ctags etags

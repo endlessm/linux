@@ -78,6 +78,7 @@
 #define proc_pageout			NULL
 #define curproc				current
 #define max_ncpus			num_possible_cpus()
+#define boot_ncpus			num_online_cpus()
 #define CPU_SEQID			smp_processor_id()
 #define _NOTE(x)
 #define is_system_labeled()		0
@@ -92,8 +93,9 @@
  *
  * Treat shim tasks as SCHED_NORMAL tasks
  */
-#define minclsyspri			(MAX_RT_PRIO)
-#define maxclsyspri			(MAX_PRIO-1)
+#define minclsyspri			(MAX_PRIO-1)
+#define maxclsyspri			(MAX_RT_PRIO)
+#define defclsyspri			(DEFAULT_PRIO)
 
 #ifndef NICE_TO_PRIO
 #define NICE_TO_PRIO(nice)		(MAX_RT_PRIO + (nice) + 20)

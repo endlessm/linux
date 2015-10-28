@@ -28,6 +28,7 @@
 #include <sys/vmem.h>
 #include <sys/random.h>
 #include <sys/taskq.h>
+#include <sys/time.h>
 #include <sys/timer.h>
 #include <linux/delay.h>
 #include "splat-internal.h"
@@ -74,6 +75,10 @@
 #define SPLAT_TASKQ_TEST10_ID		0x020a
 #define SPLAT_TASKQ_TEST10_NAME		"cancel"
 #define SPLAT_TASKQ_TEST10_DESC		"Cancel task execution"
+
+#define SPLAT_TASKQ_TEST11_ID		0x020b
+#define SPLAT_TASKQ_TEST11_NAME		"dynamic"
+#define SPLAT_TASKQ_TEST11_DESC		"Dynamic task queue thread creation"
 
 #define SPLAT_TASKQ_ORDER_MAX		8
 #define SPLAT_TASKQ_DEPTH_MAX		16
@@ -129,7 +134,7 @@ splat_taskq_test1_impl(struct file *file, void *arg, boolean_t prealloc)
 		     "Taskq '%s' creating (%s dispatch)\n",
 	             SPLAT_TASKQ_TEST1_NAME,
 		     prealloc ? "prealloc" : "dynamic");
-	if ((tq = taskq_create(SPLAT_TASKQ_TEST1_NAME, 1, maxclsyspri,
+	if ((tq = taskq_create(SPLAT_TASKQ_TEST1_NAME, 1, defclsyspri,
 			       50, INT_MAX, TASKQ_PREPOPULATE)) == NULL) {
 		splat_vprint(file, SPLAT_TASKQ_TEST1_NAME,
 		           "Taskq '%s' create failed\n",
@@ -264,7 +269,7 @@ splat_taskq_test2_impl(struct file *file, void *arg, boolean_t prealloc) {
 			     prealloc ? "prealloc" : "dynamic");
 		if ((tq[i] = taskq_create(SPLAT_TASKQ_TEST2_NAME,
 			                  TEST2_THREADS_PER_TASKQ,
-					  maxclsyspri, 50, INT_MAX,
+					  defclsyspri, 50, INT_MAX,
 					  TASKQ_PREPOPULATE)) == NULL) {
 			splat_vprint(file, SPLAT_TASKQ_TEST2_NAME,
 			           "Taskq '%s/%d' create failed\n",
@@ -489,7 +494,7 @@ splat_taskq_test4_common(struct file *file, void *arg, int minalloc,
 		     SPLAT_TASKQ_TEST4_NAME,
 		     prealloc ? "prealloc" : "dynamic",
 		     minalloc, maxalloc, nr_tasks);
-	if ((tq = taskq_create(SPLAT_TASKQ_TEST4_NAME, 1, maxclsyspri,
+	if ((tq = taskq_create(SPLAT_TASKQ_TEST4_NAME, 1, defclsyspri,
 		               minalloc, maxalloc, TASKQ_PREPOPULATE)) == NULL) {
 		splat_vprint(file, SPLAT_TASKQ_TEST4_NAME,
 		             "Taskq '%s' create failed\n",
@@ -588,10 +593,10 @@ splat_taskq_test4(struct file *file, void *arg)
  * next pending task as soon as it completes its current task.  This
  * means that tasks do not strictly complete in order in which they
  * were dispatched (increasing task id).  This is fine but we need to
- * verify that taskq_wait_all() blocks until the passed task id and all
- * lower task ids complete.  We do this by dispatching the following
+ * verify taskq_wait_outstanding() blocks until the passed task id and
+ * all lower task ids complete.  We do this by dispatching the following
  * specific sequence of tasks each of which block for N time units.
- * We then use taskq_wait_all() to unblock at specific task id and
+ * We then use taskq_wait_outstanding() to unblock at specific task id and
  * verify the only the expected task ids have completed and in the
  * correct order.  The two cases of interest are:
  *
@@ -602,17 +607,17 @@ splat_taskq_test4(struct file *file, void *arg)
  *
  * The following table shows each task id and how they will be
  * scheduled.  Each rows represent one time unit and each column
- * one of the three worker threads.  The places taskq_wait_all()
+ * one of the three worker threads.  The places taskq_wait_outstanding()
  * must unblock for a specific id are identified as well as the
  * task ids which must have completed and their order.
  *
- *       +-----+       <--- taskq_wait_all(tq, 8) unblocks
+ *       +-----+       <--- taskq_wait_outstanding(tq, 8) unblocks
  *       |     |            Required Completion Order: 1,2,4,5,3,8,6,7
  * +-----+     |
  * |     |     |
  * |     |     +-----+
  * |     |     |  8  |
- * |     |     +-----+ <--- taskq_wait_all(tq, 3) unblocks
+ * |     |     +-----+ <--- taskq_wait_outstanding(tq, 3) unblocks
  * |     |  7  |     |      Required Completion Order: 1,2,4,5,3
  * |     +-----+     |
  * |  6  |     |     |
@@ -707,7 +712,7 @@ splat_taskq_test5_impl(struct file *file, void *arg, boolean_t prealloc)
 		     "Taskq '%s' creating (%s dispatch)\n",
 		     SPLAT_TASKQ_TEST5_NAME,
 		     prealloc ? "prealloc" : "dynamic");
-	if ((tq = taskq_create(SPLAT_TASKQ_TEST5_NAME, 3, maxclsyspri,
+	if ((tq = taskq_create(SPLAT_TASKQ_TEST5_NAME, 3, defclsyspri,
 		               50, INT_MAX, TASKQ_PREPOPULATE)) == NULL) {
 		splat_vprint(file, SPLAT_TASKQ_TEST5_NAME,
 		             "Taskq '%s' create failed\n",
@@ -755,13 +760,13 @@ splat_taskq_test5_impl(struct file *file, void *arg, boolean_t prealloc)
 
 	splat_vprint(file, SPLAT_TASKQ_TEST5_NAME, "Taskq '%s' "
 		     "waiting for taskqid %d completion\n", tq_arg.name, 3);
-	taskq_wait_all(tq, 3);
+	taskq_wait_outstanding(tq, 3);
 	if ((rc = splat_taskq_test_order(&tq_arg, order1)))
 		goto out;
 
 	splat_vprint(file, SPLAT_TASKQ_TEST5_NAME, "Taskq '%s' "
 		     "waiting for taskqid %d completion\n", tq_arg.name, 8);
-	taskq_wait_all(tq, 8);
+	taskq_wait_outstanding(tq, 8);
 	rc = splat_taskq_test_order(&tq_arg, order2);
 
 out:
@@ -868,7 +873,7 @@ splat_taskq_test6_impl(struct file *file, void *arg, boolean_t prealloc)
 		     "Taskq '%s' creating (%s dispatch)\n",
 		     SPLAT_TASKQ_TEST6_NAME,
 		     prealloc ? "prealloc" : "dynamic");
-	if ((tq = taskq_create(SPLAT_TASKQ_TEST6_NAME, 3, maxclsyspri,
+	if ((tq = taskq_create(SPLAT_TASKQ_TEST6_NAME, 3, defclsyspri,
 		               50, INT_MAX, TASKQ_PREPOPULATE)) == NULL) {
 		splat_vprint(file, SPLAT_TASKQ_TEST6_NAME,
 		             "Taskq '%s' create failed\n",
@@ -923,7 +928,7 @@ splat_taskq_test6_impl(struct file *file, void *arg, boolean_t prealloc)
 	splat_vprint(file, SPLAT_TASKQ_TEST6_NAME, "Taskq '%s' "
 		     "waiting for taskqid %d completion\n", tq_arg.name,
 		     SPLAT_TASKQ_ORDER_MAX);
-	taskq_wait_all(tq, SPLAT_TASKQ_ORDER_MAX);
+	taskq_wait_outstanding(tq, SPLAT_TASKQ_ORDER_MAX);
 	rc = splat_taskq_test_order(&tq_arg, order);
 
 out:
@@ -1000,7 +1005,7 @@ splat_taskq_test7_impl(struct file *file, void *arg, boolean_t prealloc)
 	             "Taskq '%s' creating (%s dispatch)\n",
 	             SPLAT_TASKQ_TEST7_NAME,
 	             prealloc ? "prealloc" :  "dynamic");
-	if ((tq = taskq_create(SPLAT_TASKQ_TEST7_NAME, 1, maxclsyspri,
+	if ((tq = taskq_create(SPLAT_TASKQ_TEST7_NAME, 1, defclsyspri,
 	                       50, INT_MAX, TASKQ_PREPOPULATE)) == NULL) {
 		splat_vprint(file, SPLAT_TASKQ_TEST7_NAME,
 		             "Taskq '%s' create failed\n",
@@ -1030,7 +1035,7 @@ splat_taskq_test7_impl(struct file *file, void *arg, boolean_t prealloc)
 	if (tq_arg->flag == 0) {
 		splat_vprint(file, SPLAT_TASKQ_TEST7_NAME,
 		             "Taskq '%s' waiting\n", tq_arg->name);
-		taskq_wait_all(tq, SPLAT_TASKQ_DEPTH_MAX);
+		taskq_wait_outstanding(tq, SPLAT_TASKQ_DEPTH_MAX);
 	}
 
 	error = (tq_arg->depth == SPLAT_TASKQ_DEPTH_MAX ? 0 : -EINVAL);
@@ -1052,11 +1057,104 @@ splat_taskq_test7(struct file *file, void *arg)
 
 	rc = splat_taskq_test7_impl(file, arg, B_FALSE);
 	if (rc)
-		return rc;
+		return (rc);
 
 	rc = splat_taskq_test7_impl(file, arg, B_TRUE);
 
-	return rc;
+	return (rc);
+}
+
+static void
+splat_taskq_throughput_func(void *arg)
+{
+	splat_taskq_arg_t *tq_arg = (splat_taskq_arg_t *)arg;
+	ASSERT(tq_arg);
+
+	atomic_inc(tq_arg->count);
+}
+
+static int
+splat_taskq_throughput(struct file *file, void *arg, const char *name,
+    int nthreads, int minalloc, int maxalloc, int flags, int tasks,
+    struct timespec *delta)
+{
+	taskq_t *tq;
+	taskqid_t id;
+	splat_taskq_arg_t tq_arg;
+	taskq_ent_t **tqes;
+	atomic_t count;
+	struct timespec start, stop;
+	int i, j, rc = 0;
+
+	tqes = vmalloc(sizeof (*tqes) * tasks);
+	if (tqes == NULL)
+		return (-ENOMEM);
+
+	memset(tqes, 0, sizeof (*tqes) * tasks);
+
+	splat_vprint(file, name, "Taskq '%s' creating (%d/%d/%d/%d)\n",
+	    name, nthreads, minalloc, maxalloc, tasks);
+	if ((tq = taskq_create(name, nthreads, defclsyspri,
+	    minalloc, maxalloc, flags)) == NULL) {
+		splat_vprint(file, name, "Taskq '%s' create failed\n", name);
+		rc = -EINVAL;
+		goto out_free;
+	}
+
+	tq_arg.file = file;
+	tq_arg.name = name;
+	tq_arg.count = &count;
+	atomic_set(tq_arg.count, 0);
+
+	getnstimeofday(&start);
+
+	for (i = 0; i < tasks; i++) {
+		tqes[i] = kmalloc(sizeof (taskq_ent_t), GFP_KERNEL);
+		if (tqes[i] == NULL) {
+			rc = -ENOMEM;
+			goto out;
+		}
+
+		taskq_init_ent(tqes[i]);
+		taskq_dispatch_ent(tq, splat_taskq_throughput_func,
+		    &tq_arg, TQ_SLEEP, tqes[i]);
+		id = tqes[i]->tqent_id;
+
+		if (id == 0) {
+			splat_vprint(file, name, "Taskq '%s' function '%s' "
+			    "dispatch %d failed\n", tq_arg.name,
+			    sym2str(splat_taskq_throughput_func), i);
+			rc = -EINVAL;
+			goto out;
+		}
+	}
+
+	splat_vprint(file, name, "Taskq '%s' waiting for %d dispatches\n",
+	    tq_arg.name, tasks);
+
+	taskq_wait(tq);
+
+	if (delta != NULL) {
+		getnstimeofday(&stop);
+		*delta = timespec_sub(stop, start);
+	}
+
+	splat_vprint(file, name, "Taskq '%s' %d/%d dispatches finished\n",
+	    tq_arg.name, atomic_read(tq_arg.count), tasks);
+
+	if (atomic_read(tq_arg.count) != tasks)
+		rc = -ERANGE;
+
+out:
+	splat_vprint(file, name, "Taskq '%s' destroying\n", tq_arg.name);
+	taskq_destroy(tq);
+out_free:
+	for (j = 0; j < tasks && tqes[j] != NULL; j++)
+		kfree(tqes[j]);
+
+	vfree(tqes);
+
+	return (rc);
 }
 
 /*
@@ -1065,107 +1163,15 @@ splat_taskq_test7(struct file *file, void *arg)
  * pass.  The purpose is to provide a benchmark for measuring the
  * effectiveness of taskq optimizations.
  */
-static void
-splat_taskq_test8_func(void *arg)
-{
-	splat_taskq_arg_t *tq_arg = (splat_taskq_arg_t *)arg;
-	ASSERT(tq_arg);
-
-	atomic_inc(tq_arg->count);
-}
-
-#define TEST8_NUM_TASKS			0x20000
-#define TEST8_THREADS_PER_TASKQ		100
-
-static int
-splat_taskq_test8_common(struct file *file, void *arg, int minalloc,
-                         int maxalloc)
-{
-	taskq_t *tq;
-	taskqid_t id;
-	splat_taskq_arg_t tq_arg;
-	taskq_ent_t **tqes;
-	atomic_t count;
-	int i, j, rc = 0;
-
-	tqes = vmalloc(sizeof(*tqes) * TEST8_NUM_TASKS);
-	if (tqes == NULL)
-		return -ENOMEM;
-	memset(tqes, 0, sizeof(*tqes) * TEST8_NUM_TASKS);
-
-	splat_vprint(file, SPLAT_TASKQ_TEST8_NAME,
-		     "Taskq '%s' creating (%d/%d/%d)\n",
-		     SPLAT_TASKQ_TEST8_NAME,
-		     minalloc, maxalloc, TEST8_NUM_TASKS);
-	if ((tq = taskq_create(SPLAT_TASKQ_TEST8_NAME, TEST8_THREADS_PER_TASKQ,
-			       maxclsyspri, minalloc, maxalloc,
-			       TASKQ_PREPOPULATE)) == NULL) {
-		splat_vprint(file, SPLAT_TASKQ_TEST8_NAME,
-		             "Taskq '%s' create failed\n",
-		             SPLAT_TASKQ_TEST8_NAME);
-		rc = -EINVAL;
-		goto out_free;
-	}
-
-	tq_arg.file = file;
-	tq_arg.name = SPLAT_TASKQ_TEST8_NAME;
-	tq_arg.count = &count;
-	atomic_set(tq_arg.count, 0);
-
-	for (i = 0; i < TEST8_NUM_TASKS; i++) {
-		tqes[i] = kmalloc(sizeof(taskq_ent_t), GFP_KERNEL);
-		if (tqes[i] == NULL) {
-			rc = -ENOMEM;
-			goto out;
-		}
-		taskq_init_ent(tqes[i]);
-
-		taskq_dispatch_ent(tq, splat_taskq_test8_func,
-				   &tq_arg, TQ_SLEEP, tqes[i]);
-
-		id = tqes[i]->tqent_id;
-
-		if (id == 0) {
-			splat_vprint(file, SPLAT_TASKQ_TEST8_NAME,
-			        "Taskq '%s' function '%s' dispatch "
-				"%d failed\n", tq_arg.name,
-				sym2str(splat_taskq_test8_func), i);
-				rc = -EINVAL;
-				goto out;
-		}
-	}
-
-	splat_vprint(file, SPLAT_TASKQ_TEST8_NAME, "Taskq '%s' "
-		     "waiting for %d dispatches\n", tq_arg.name,
-		     TEST8_NUM_TASKS);
-	taskq_wait(tq);
-	splat_vprint(file, SPLAT_TASKQ_TEST8_NAME, "Taskq '%s' "
-		     "%d/%d dispatches finished\n", tq_arg.name,
-		     atomic_read(tq_arg.count), TEST8_NUM_TASKS);
-
-	if (atomic_read(tq_arg.count) != TEST8_NUM_TASKS)
-		rc = -ERANGE;
-
-out:
-	splat_vprint(file, SPLAT_TASKQ_TEST8_NAME, "Taskq '%s' destroying\n",
-	           tq_arg.name);
-	taskq_destroy(tq);
-out_free:
-	for (j = 0; j < TEST8_NUM_TASKS && tqes[j] != NULL; j++)
-		kfree(tqes[j]);
-	vfree(tqes);
-
-	return rc;
-}
+#define	TEST8_NUM_TASKS			0x20000
+#define	TEST8_THREADS_PER_TASKQ		100
 
 static int
 splat_taskq_test8(struct file *file, void *arg)
 {
-	int rc;
-
-	rc = splat_taskq_test8_common(file, arg, 1, 100);
-
-	return rc;
+	return (splat_taskq_throughput(file, arg,
+	    SPLAT_TASKQ_TEST8_NAME, TEST8_THREADS_PER_TASKQ,
+	    1, INT_MAX, TASKQ_PREPOPULATE, TEST8_NUM_TASKS, NULL));
 }
 
 /*
@@ -1197,7 +1203,7 @@ splat_taskq_test9(struct file *file, void *arg)
 	splat_vprint(file, SPLAT_TASKQ_TEST9_NAME,
 	    "Taskq '%s' creating (%s dispatch) (%d/%d/%d)\n",
 	    SPLAT_TASKQ_TEST9_NAME, "delay", minalloc, maxalloc, nr_tasks);
-	if ((tq = taskq_create(SPLAT_TASKQ_TEST9_NAME, 3, maxclsyspri,
+	if ((tq = taskq_create(SPLAT_TASKQ_TEST9_NAME, 3, defclsyspri,
 	    minalloc, maxalloc, TASKQ_PREPOPULATE)) == NULL) {
 		splat_vprint(file, SPLAT_TASKQ_TEST9_NAME,
 		    "Taskq '%s' create failed\n", SPLAT_TASKQ_TEST9_NAME);
@@ -1297,7 +1303,7 @@ splat_taskq_test10(struct file *file, void *arg)
 	splat_vprint(file, SPLAT_TASKQ_TEST10_NAME,
 	    "Taskq '%s' creating (%s dispatch) (%d/%d/%d)\n",
 	    SPLAT_TASKQ_TEST10_NAME, "delay", minalloc, maxalloc, nr_tasks);
-	if ((tq = taskq_create(SPLAT_TASKQ_TEST10_NAME, 3, maxclsyspri,
+	if ((tq = taskq_create(SPLAT_TASKQ_TEST10_NAME, 3, defclsyspri,
 	    minalloc, maxalloc, TASKQ_PREPOPULATE)) == NULL) {
 		splat_vprint(file, SPLAT_TASKQ_TEST10_NAME,
 		    "Taskq '%s' create failed\n", SPLAT_TASKQ_TEST10_NAME);
@@ -1433,6 +1439,46 @@ out_free:
 	return rc;
 }
 
+/*
+ * Create a dynamic taskq with 100 threads and dispatch a huge number of
+ * trivial tasks.  This will cause the taskq to grow quickly to its max
+ * thread count.  This test should always pass.  The purpose is to provide
+ * a benchmark for measuring the performance of dynamic taskqs.
+ */
+#define	TEST11_NUM_TASKS			100000
+#define	TEST11_THREADS_PER_TASKQ		100
+
+static int
+splat_taskq_test11(struct file *file, void *arg)
+{
+	struct timespec normal, dynamic;
+	int error;
+
+	error = splat_taskq_throughput(file, arg, SPLAT_TASKQ_TEST11_NAME,
+	    TEST11_THREADS_PER_TASKQ, 1, INT_MAX,
+	    TASKQ_PREPOPULATE, TEST11_NUM_TASKS, &normal);
+	if (error)
+		return (error);
+
+	error = splat_taskq_throughput(file, arg, SPLAT_TASKQ_TEST11_NAME,
+	    TEST11_THREADS_PER_TASKQ, 1, INT_MAX,
+	    TASKQ_PREPOPULATE | TASKQ_DYNAMIC, TEST11_NUM_TASKS, &dynamic);
+	if (error)
+		return (error);
+
+	splat_vprint(file, SPLAT_TASKQ_TEST11_NAME,
+	    "Timing taskq_wait(): normal=%ld.%09lds, dynamic=%ld.%09lds\n",
+	    normal.tv_sec, normal.tv_nsec,
+	    dynamic.tv_sec, dynamic.tv_nsec);
+
+	/* A 10x increase in runtime is used to indicate a core problem. */
+	if ((dynamic.tv_sec * NANOSEC + dynamic.tv_nsec) >
+	    ((normal.tv_sec * NANOSEC + normal.tv_nsec) * 10))
+		error = -ETIME;
+
+	return (error);
+}
+
 splat_subsystem_t *
 splat_taskq_init(void)
 {
@@ -1470,6 +1516,8 @@ splat_taskq_init(void)
 	              SPLAT_TASKQ_TEST9_ID, splat_taskq_test9);
 	SPLAT_TEST_INIT(sub, SPLAT_TASKQ_TEST10_NAME, SPLAT_TASKQ_TEST10_DESC,
 	              SPLAT_TASKQ_TEST10_ID, splat_taskq_test10);
+	SPLAT_TEST_INIT(sub, SPLAT_TASKQ_TEST11_NAME, SPLAT_TASKQ_TEST11_DESC,
+	              SPLAT_TASKQ_TEST11_ID, splat_taskq_test11);
 
         return sub;
 }
@@ -1478,6 +1526,7 @@ void
 splat_taskq_fini(splat_subsystem_t *sub)
 {
         ASSERT(sub);
+	SPLAT_TEST_FINI(sub, SPLAT_TASKQ_TEST11_ID);
 	SPLAT_TEST_FINI(sub, SPLAT_TASKQ_TEST10_ID);
 	SPLAT_TEST_FINI(sub, SPLAT_TASKQ_TEST9_ID);
 	SPLAT_TEST_FINI(sub, SPLAT_TASKQ_TEST8_ID);

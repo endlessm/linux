@@ -33,7 +33,6 @@ AC_DEFUN([SPL_AC_CONFIG_KERNEL], [
 	SPL_AC_FS_STRUCT_SPINLOCK
 	SPL_AC_KUIDGID_T
 	SPL_AC_PUT_TASK_STRUCT
-	SPL_AC_EXPORTED_RWSEM_IS_LOCKED
 	SPL_AC_KERNEL_FALLOCATE
 	SPL_AC_CONFIG_ZLIB_INFLATE
 	SPL_AC_CONFIG_ZLIB_DEFLATE
@@ -453,15 +452,14 @@ dnl #
 dnl # Enabled by default it provides a minimal level of memory tracking.
 dnl # A total count of bytes allocated is kept for each alloc and free.
 dnl # Then at module unload time a report to the console will be printed
-dnl # if memory was leaked.  Additionally, /proc/spl/kmem/slab will exist
-dnl # and provide an easy way to inspect the kmem based slab.
+dnl # if memory was leaked.
 dnl #
 AC_DEFUN([SPL_AC_DEBUG_KMEM], [
 	AC_ARG_ENABLE([debug-kmem],
 		[AS_HELP_STRING([--enable-debug-kmem],
-		[Enable basic kmem accounting @<:@default=yes@:>@])],
+		[Enable basic kmem accounting @<:@default=no@:>@])],
 		[],
-		[enable_debug_kmem=yes])
+		[enable_debug_kmem=no])
 
 	AS_IF([test "x$enable_debug_kmem" = xyes],
 	[
@@ -1199,27 +1197,6 @@ AC_DEFUN([SPL_AC_KERNEL_FALLOCATE], [
 	SPL_AC_KERNEL_FILE_FALLOCATE
 	SPL_AC_KERNEL_INODE_FALLOCATE
 	SPL_AC_PAX_KERNEL_FILE_FALLOCATE
-])
-
-dnl #
-dnl # 2.6.33 API change. Also backported in RHEL5 as of 2.6.18-190.el5.
-dnl # Earlier versions of rwsem_is_locked() were inline and had a race
-dnl # condition.  The fixed version is exported as a symbol.  The race
-dnl # condition is fixed by acquiring sem->wait_lock, so we must not
-dnl # call that version while holding sem->wait_lock.
-dnl #
-AC_DEFUN([SPL_AC_EXPORTED_RWSEM_IS_LOCKED],
-	[AC_MSG_CHECKING([whether rwsem_is_locked() acquires sem->wait_lock])
-	SPL_LINUX_TRY_COMPILE_SYMBOL([
-		#include <linux/rwsem.h>
-		int rwsem_is_locked(struct rw_semaphore *sem) { return 0; }
-	], [], [rwsem_is_locked], [lib/rwsem-spinlock.c], [
-		AC_MSG_RESULT(yes)
-		AC_DEFINE(RWSEM_IS_LOCKED_TAKES_WAIT_LOCK, 1,
-		          [rwsem_is_locked() acquires sem->wait_lock])
-	], [
-		AC_MSG_RESULT(no)
-	])
 ])
 
 dnl #
