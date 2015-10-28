@@ -3,13 +3,13 @@
 # Update spl/zfs from the Ubuntu archive. You will have to manually check
 # to see if the version has been updated.
 #
-SPL_MAJOR_VER=0.6.4.2
-SPL_MINOR_VER=0ubuntu1
-SPL_DKMS=http://archive.ubuntu.com/ubuntu/pool/universe/s/spl-linux/spl-dkms_${SPL_MAJOR_VER}-${SPL_MINOR_VER}_amd64.deb
+SPL_MAJOR_VER=${_SPL_MAJOR_VER:-0.6.4.2}
+SPL_MINOR_VER=${_SPL_MINOR_VER:-0ubuntu1}
+SPL_DKMS=${_SPL_DKMS:-http://archive.ubuntu.com/ubuntu/pool/universe/s/spl-linux/spl-dkms_${SPL_MAJOR_VER}-${SPL_MINOR_VER}_amd64.deb}
 
-ZFS_MAJOR_VER=0.6.4.2
-ZFS_MINOR_VER=0ubuntu1
-ZFS_DKMS=http://archive.ubuntu.com/ubuntu/pool/universe/z/zfs-linux/zfs-dkms_${ZFS_MAJOR_VER}-${ZFS_MINOR_VER}_amd64.deb
+ZFS_MAJOR_VER=${_ZFS_MAJOR_VER:-0.6.4.2}
+ZFS_MINOR_VER=${_ZFS_MINOR_VER:-0ubuntu1}
+ZFS_DKMS=${_ZFS_DKMS:-http://archive.ubuntu.com/ubuntu/pool/universe/z/zfs-linux/zfs-dkms_${ZFS_MAJOR_VER}-${ZFS_MINOR_VER}_amd64.deb}
 
 function update_from_archive {
 
