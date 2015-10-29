@@ -21,6 +21,7 @@ drivers/char/lp.ko
 drivers/char/nvram.ko
 drivers/char/ppdev.ko
 drivers/char/raw.ko
+drivers/firmware/iscsi_ibft.ko
 drivers/hid/hid.ko
 drivers/hid/hid-hyperv.ko
 drivers/hv/*
@@ -80,6 +81,7 @@ drivers/ptp/ptp.ko
 drivers/net/ethernet/dec/tulip/*
 drivers/scsi/BusLogic.ko
 drivers/scsi/scsi_dh.ko
+drivers/scsi/iscsi_boot_sysfs.ko
 drivers/scsi/iscsi_tcp.ko
 drivers/scsi/libiscsi.ko
 drivers/scsi/libiscsi_tcp.ko
