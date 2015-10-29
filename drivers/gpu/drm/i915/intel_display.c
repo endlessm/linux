@@ -5014,11 +5014,8 @@ static void haswell_crtc_enable(struct drm_crtc *crtc)
 			encoder->pre_enable(encoder);
 	}
 
-	if (intel_crtc->config->has_pch_encoder) {
-		intel_set_pch_fifo_underrun_reporting(dev_priv, TRANSCODER_A,
-						      true);
+	if (intel_crtc->config->has_pch_encoder)
 		dev_priv->display.fdi_link_train(crtc);
-	}
 
 	if (!is_dsi)
 		intel_ddi_enable_pipe_clock(intel_crtc);
@@ -5054,6 +5051,10 @@ static void haswell_crtc_enable(struct drm_crtc *crtc)
 		encoder->enable(encoder);
 		intel_opregion_notify_encoder(encoder, true);
 	}
+
+	if (intel_crtc->config->has_pch_encoder)
+		intel_set_pch_fifo_underrun_reporting(dev_priv, TRANSCODER_A,
+						      true);
 
 	/* If we change the relative order between pipe/planes enabling, we need
 	 * to change the workaround. */
@@ -5139,6 +5140,10 @@ static void haswell_crtc_disable(struct drm_crtc *crtc)
 	enum transcoder cpu_transcoder = intel_crtc->config->cpu_transcoder;
 	bool is_dsi = intel_pipe_has_type(intel_crtc, INTEL_OUTPUT_DSI);
 
+	if (intel_crtc->config->has_pch_encoder)
+		intel_set_pch_fifo_underrun_reporting(dev_priv, TRANSCODER_A,
+						      false);
+
 	for_each_encoder_on_crtc(dev, crtc, encoder) {
 		intel_opregion_notify_encoder(encoder, false);
 		encoder->disable(encoder);
@@ -5147,9 +5152,6 @@ static void haswell_crtc_disable(struct drm_crtc *crtc)
 	drm_crtc_vblank_off(crtc);
 	assert_vblank_disabled(crtc);
 
-	if (intel_crtc->config->has_pch_encoder)
-		intel_set_pch_fifo_underrun_reporting(dev_priv, TRANSCODER_A,
-						      false);
 	intel_disable_pipe(intel_crtc);
 
 	if (intel_crtc->config->dp_encoder_is_mst)
