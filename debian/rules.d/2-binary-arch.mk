@@ -39,31 +39,34 @@ build-%: $(stampdir)/stamp-build-%
 
 # Do the actual build, including image and modules
 $(stampdir)/stamp-build-%: target_flavour = $*
-$(stampdir)/stamp-build-%: splopts  = --with-linux=$(CURDIR)
-$(stampdir)/stamp-build-%: splopts += --with-linux-obj=$(builddir)/build-$*
-$(stampdir)/stamp-build-%: zfsopts  = $(splopts)
-$(stampdir)/stamp-build-%: zfsopts += --with-spl=$(builddir)/build-$*/spl
-$(stampdir)/stamp-build-%: zfsopts += --with-spl-obj=$(builddir)/build-$*/spl
-$(stampdir)/stamp-build-%: zfsopts += --prefix=/usr --with-config=kernel
+$(stampdir)/stamp-build-%: SPL_MODULE_CFLAGS += -I$(builddir)/build-$*/spl/include
+$(stampdir)/stamp-build-%: SPL_MODULE_CFLAGS += -include $(builddir)/build-$*/spl/spl_config.h
+$(stampdir)/stamp-build-%: SPL_MODULE_CFLAGS += -D_KERNEL -DNDEBUG
+$(stampdir)/stamp-build-%: spl_opts += SUBDIRS=$(builddir)/build-$*/spl/module
+$(stampdir)/stamp-build-%: spl_opts += SPL_MODULE_CFLAGS="$(SPL_MODULE_CFLAGS)"
+$(stampdir)/stamp-build-%: spl_opts += CONFIG_SPL=m
+$(stampdir)/stamp-build-%: ZFS_MODULE_CFLAGS += -include $(builddir)/build-$*/spl/spl_config.h
+$(stampdir)/stamp-build-%: ZFS_MODULE_CFLAGS += -include $(builddir)/build-$*/zfs/zfs_config.h
+$(stampdir)/stamp-build-%: ZFS_MODULE_CFLAGS += -I$(builddir)/build-$*/zfs/include
+$(stampdir)/stamp-build-%: ZFS_MODULE_CFLAGS += -I$(builddir)/build-$*/spl/include
+$(stampdir)/stamp-build-%: ZFS_MODULE_CFLAGS += -I$(builddir)/build-$*/spl
+$(stampdir)/stamp-build-%: ZFS_MODULE_CFLAGS += -DHAVE_SPL
+$(stampdir)/stamp-build-%: ZFS_MODULE_CFLAGS += -D_KERNEL -DNDEBUG
+$(stampdir)/stamp-build-%: zfs_opts += SUBDIRS=$(builddir)/build-$*/zfs/module
+$(stampdir)/stamp-build-%: zfs_opts += ZFS_MODULE_CFLAGS="$(ZFS_MODULE_CFLAGS)"
+$(stampdir)/stamp-build-%: zfs_opts += CONFIG_ZFS=m
 $(stampdir)/stamp-build-%: bldimg = $(call custom_override,build_image,$*)
 $(stampdir)/stamp-build-%: $(stampdir)/stamp-prepare-%
 	@echo Debug: $@ build_image $(build_image) bldimg $(bldimg)
 	$(build_cd) $(kmake) $(build_O) $(conc_level) $(bldimg) modules $(if $(filter true,$(do_dtbs)),dtbs)
 ifeq ($(do_zfs),true)
-	#
-	# SPL/ZFS wants a fully built kernel before you can configure and build.
-	# It seems to be impossible to tease out the application configuration
-	# from the modules, but at least one can build just the modules.
-	#
 	install -d $(builddir)/build-$*/spl
-	rsync -a --exclude=dkms.conf --delete spl/ $(builddir)/build-$*/spl/
-	cd $(builddir)/build-$*/spl; sh autogen.sh; sh configure $(splopts)
-	$(kmake) -C $(builddir)/build-$*/spl/module $(conc_level)
+	rsync -a --delete spl/ $(builddir)/build-$*/spl/
+	$(build_cd) $(kmake) $(build_O) $(conc_level) $(bldimg) modules $(spl_opts)
 
 	install -d $(builddir)/build-$*/zfs
-	rsync -a --exclude=dkms.conf --delete zfs/ $(builddir)/build-$*/zfs/
-	cd $(builddir)/build-$*/zfs; sh autogen.sh; sh configure $(zfsopts)
-	$(kmake) -C $(builddir)/build-$*/zfs/module $(conc_level)
+	rsync -a --delete zfs/ $(builddir)/build-$*/zfs/
+	$(build_cd) $(kmake) $(build_O) $(conc_level) $(bldimg) modules $(zfs_opts)
 endif
 	@touch $@
 
@@ -89,6 +92,15 @@ install-%: splopts += INSTALL_MOD_PATH=$(pkgdir)/
 install-%: splopts += INSTALL_MOD_DIR=zfs
 install-%: splopts += $(conc_level)
 install-%: zfsopts  = $(splopts)
+install-%: kmake_install_opts  = INSTALL_MOD_STRIP=1
+install-%: kmake_install_opts += INSTALL_MOD_PATH=$(pkgdir)/
+install-%: kmake_install_opts += INSTALL_FW_PATH=$(pkgdir)/lib/firmware/$(abi_release)-$*
+install-%: spl_install_opts  = $(kmake_install_opts)
+install-%: spl_install_opts += INSTALL_MOD_DIR=zfs
+install-%: spl_install_opts += SUBDIRS=$(builddir)/build-$*/spl/module CONFIG_SPL=m
+install-%: zfs_install_opts  = $(kmake_install_opts)
+install-%: zfs_install_opts += INSTALL_MOD_DIR=zfs
+install-%: zfs_install_opts += SUBDIRS=$(builddir)/build-$*/zfs/module CONFIG_ZFS=m
 install-%: checks-%
 	@echo Debug: $@ kernel_file $(kernel_file) kernfile $(kernfile) install_file $(install_file) instfile $(instfile)
 	dh_testdir
@@ -143,14 +155,10 @@ ifeq ($(no_dumpfile),)
 	chmod 0600 $(pkgdir)/boot/vmcoreinfo-$(abi_release)-$*
 endif
 
-	$(build_cd) $(kmake) $(build_O) $(conc_level) modules_install $(vdso) \
-		INSTALL_MOD_STRIP=1 INSTALL_MOD_PATH=$(pkgdir)/ \
-		INSTALL_FW_PATH=$(pkgdir)/lib/firmware/$(abi_release)-$*
+	$(build_cd) $(kmake) $(build_O) $(conc_level) modules_install $(vdso) $(kmake_install_opts)
 ifeq ($(do_zfs),true)
-	cd $(builddir)/build-$*/spl/module; \
-		$(kmake) -C $(builddir)/build-$* SUBDIRS=`pwd` modules_install $(splopts)
-	cd $(builddir)/build-$*/zfs/module; \
-		$(kmake) -C $(builddir)/build-$* SUBDIRS=`pwd` modules_install $(zfsopts)
+	$(build_cd) $(kmake) $(build_O) $(conc_level) modules_install $(spl_install_opts)
+	$(build_cd) $(kmake) $(build_O) $(conc_level) modules_install $(zfs_install_opts)
 endif
 
 	#
