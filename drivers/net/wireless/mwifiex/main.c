@@ -674,8 +674,10 @@ static int mwifiex_init_hw_fw(struct mwifiex_adapter *adapter)
 static int
 mwifiex_open(struct net_device *dev)
 {
-	netif_carrier_off(dev);
+	struct mwifiex_private *priv = mwifiex_netdev_get_priv(dev);
 
+	netif_carrier_off(dev);
+	mwifiex_set_led(priv->adapter, MWIFIEX_LED_ON);
 	return 0;
 }
 
@@ -695,6 +697,7 @@ mwifiex_close(struct net_device *dev)
 		priv->scan_aborting = true;
 	}
 
+	mwifiex_set_led(priv->adapter, MWIFIEX_LED_OFF);
 	return 0;
 }
 
