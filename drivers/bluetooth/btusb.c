@@ -24,6 +24,7 @@
 #include <linux/module.h>
 #include <linux/usb.h>
 #include <linux/firmware.h>
+#include <linux/dmi.h>
 #include <asm/unaligned.h>
 
 #include <net/bluetooth/bluetooth.h>
@@ -62,6 +63,8 @@ static struct usb_driver btusb_driver;
 #define BTUSB_REALTEK		0x20000
 #define BTUSB_BCM2045		0x40000
 #define BTUSB_IFNUM_2		0x80000
+
+#define BTUSB_MARVELL_LED_COMMAND	0xfc77
 
 static const struct usb_device_id btusb_table[] = {
 	/* Generic Bluetooth USB device */
@@ -404,6 +407,11 @@ struct btusb_data {
 	int suspend_count;
 
 	int (*recv_event)(struct hci_dev *hdev, struct sk_buff *skb);
+
+	bool is_edge_gateway;
+	int marvell_cmd_in_progress;
+	wait_queue_head_t marvell_wait_q;
+
 	int (*recv_bulk)(struct btusb_data *data, void *buffer, int count);
 
 	int (*setup_on_usb)(struct hci_dev *hdev);
@@ -609,10 +617,31 @@ static void btusb_intr_complete(struct urb *urb)
 	if (urb->status == 0) {
 		hdev->stat.byte_rx += urb->actual_length;
 
-		if (btusb_recv_intr(data, urb->transfer_buffer,
-				    urb->actual_length) < 0) {
-			BT_ERR("%s corrupted event packet", hdev->name);
-			hdev->stat.err_rx++;
+		if (data->is_edge_gateway && data->marvell_cmd_in_progress) {
+			struct hci_ev_cmd_complete *ev;
+			struct hci_event_hdr *hdr;
+			bool consume_ev = false;
+
+			hdr = urb->transfer_buffer;
+			if (hdr->evt == HCI_EV_CMD_COMPLETE) {
+				ev = (void *)((u8 *)hdr + HCI_EVENT_HDR_SIZE);
+				if (__le16_to_cpu(ev->opcode) == BTUSB_MARVELL_LED_COMMAND) {
+					consume_ev = true;
+					data->marvell_cmd_in_progress = false;
+					wake_up_interruptible(&data->marvell_wait_q);
+				}
+			}
+
+			if (!consume_ev && btusb_recv_intr(data, urb->transfer_buffer, urb->actual_length) < 0) {
+				BT_ERR("%s corrupted event packet", hdev->name);
+				hdev->stat.err_rx++;
+			}
+		} else {
+			if (btusb_recv_intr(data, urb->transfer_buffer,
+					    urb->actual_length) < 0) {
+				BT_ERR("%s corrupted event packet", hdev->name);
+				hdev->stat.err_rx++;
+			}
 		}
 	} else if (urb->status == -ENOENT) {
 		/* Avoid suspend failed when usb_kill_urb */
@@ -1027,6 +1056,38 @@ done:
 	kfree_skb(skb);
 }
 
+static int btusb_send_frame(struct hci_dev *hdev, struct sk_buff *skb);
+
+static void btusb_marvell_config_led(struct hci_dev *hdev, bool status)
+{
+	u8 config_led[] = { 0x09, 0x00, 0x01, 0x01 };
+	int len = HCI_COMMAND_HDR_SIZE + sizeof(config_led);
+	struct hci_command_hdr *hdr;
+	struct sk_buff *skb;
+	struct btusb_data *data = hci_get_drvdata(hdev);
+
+	if ((!data->is_edge_gateway) || data->marvell_cmd_in_progress)
+		return;
+
+	skb = bt_skb_alloc(len, GFP_ATOMIC);
+	if (!skb)
+		return;
+
+	hdr = (struct hci_command_hdr *)skb_put(skb, HCI_COMMAND_HDR_SIZE);
+	hdr->opcode = cpu_to_le16(BTUSB_MARVELL_LED_COMMAND);
+	hdr->plen = sizeof(config_led);
+
+	if (status)
+		config_led[1] = 0x01;
+
+	memcpy(skb_put(skb, sizeof(config_led)), config_led, sizeof(config_led));
+	bt_cb(skb)->pkt_type = HCI_COMMAND_PKT;
+
+	data->marvell_cmd_in_progress = true;
+	btusb_send_frame(hdev, skb);
+	wait_event_interruptible_timeout(data->marvell_wait_q, !data->marvell_cmd_in_progress, HZ);
+}
+
 static int btusb_open(struct hci_dev *hdev)
 {
 	struct btusb_data *data = hci_get_drvdata(hdev);
@@ -1072,6 +1133,9 @@ static int btusb_open(struct hci_dev *hdev)
 
 done:
 	usb_autopm_put_interface(data->intf);
+
+	if (data->is_edge_gateway)
+		btusb_marvell_config_led(hdev, true);
 	return 0;
 
 failed:
@@ -1094,6 +1158,14 @@ static int btusb_close(struct hci_dev *hdev)
 	int err;
 
 	BT_DBG("%s", hdev->name);
+
+	if (data->is_edge_gateway && usb_get_intfdata(data->intf))
+		btusb_marvell_config_led(hdev, false);
+
+	if (data->is_edge_gateway) {
+		data->marvell_cmd_in_progress = false;
+		wake_up_interruptible(&data->marvell_wait_q);
+	}
 
 	cancel_work_sync(&data->work);
 	cancel_work_sync(&data->waker);
@@ -2944,8 +3016,13 @@ static int btusb_probe(struct usb_interface *intf,
 		set_bit(HCI_QUIRK_NON_PERSISTENT_DIAG, &hdev->quirks);
 	}
 
-	if (id->driver_info & BTUSB_MARVELL)
+	if (id->driver_info & BTUSB_MARVELL) {
 		hdev->set_bdaddr = btusb_set_bdaddr_marvell;
+		if (dmi_match(DMI_PRODUCT_NAME, "Edge Gateway 5000") ||
+			dmi_match(DMI_PRODUCT_NAME, "Edge Gateway 5100"))
+			data->is_edge_gateway = true;
+		init_waitqueue_head(&data->marvell_wait_q);
+	}
 
 	if (id->driver_info & BTUSB_SWAVE) {
 		set_bit(HCI_QUIRK_FIXUP_INQUIRY_MODE, &hdev->quirks);
@@ -3126,6 +3203,11 @@ static int btusb_suspend(struct usb_interface *intf, pm_message_t message)
 		spin_unlock_irq(&data->txlock);
 		data->suspend_count--;
 		return -EBUSY;
+	}
+
+	if (data->is_edge_gateway) {
+		data->marvell_cmd_in_progress = 0;
+		wake_up_interruptible(&data->marvell_wait_q);
 	}
 
 	cancel_work_sync(&data->work);
