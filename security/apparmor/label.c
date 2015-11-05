@@ -1099,7 +1099,7 @@ struct aa_label *aa_label_merge(struct aa_label *a, struct aa_label *b,
 		 */
 		new = aa_label_alloc(a->size + b->size, gfp);
 		if (!new)
-			return NULL;
+			goto out;
 
 		write_lock_irqsave(&ls->lock, flags);
 		label = __label_merge_insert(ls, new, a, b);
@@ -1110,6 +1110,7 @@ struct aa_label *aa_label_merge(struct aa_label *a, struct aa_label *b,
 			new = NULL;
 		}
 		aa_put_label(new);
+	out:
 		aa_put_label(a);
 		aa_put_label(b);
 	}
