@@ -1,3 +1,13 @@
+linux (4.3.0-0.7) xenial; urgency=low
+
+  [ Tim Gardner ]
+
+  * Revert "Bypass spl/zfs config"
+    Causes unresolved symbols on load.
+  * [Config] Enable ZFS for powerpc64-smp
+
+ -- Tim Gardner <tim.gardner@canonical.com>  Thu, 05 Nov 2015 11:42:37 -0600
+
 linux (4.3.0-0.6) xenial; urgency=low
 
   [ Tim Gardner ]
