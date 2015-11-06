@@ -2892,7 +2892,7 @@ CONFIG_TREE_RCU                                 p policy<{'amd64-generic': 'y', 
 CONFIG_PREEMPT_RCU                              p policy<{'amd64-lowlatency': 'y', 'i386-lowlatency': 'y'}>
 
 # Menu: General setup >> Stack Protector buffer overflow detection
-CONFIG_CC_STACKPROTECTOR_REGULAR		p mark<ENFORCED> policy<{'powerpc': '-', 'ppc64el': '-', '*': 'y'}>
+CONFIG_CC_STACKPROTECTOR_STRONG			p mark<ENFORCED> policy<{'powerpc': '-', 'ppc64el': '-', '*': 'y'}>
 
 # Menu: General setup >> Stack Protector buffer overflow detection >> Architecture: arm
 
