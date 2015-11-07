@@ -3445,6 +3445,8 @@ CONFIG_MEDIA_TUNER_MXL301RF                     policy<{'amd64': 'm', 'arm64': '
 CONFIG_MEDIA_TUNER_QM1D1C0042                   policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'powerpc': 'm', 'ppc64el': 'm'}>
 
 # Menu: Device Drivers >> Multimedia support >> DVB platform devices
+#
+CONFIG_DVB_C8SECTPFE				mark<REVIEW>
 
 # Menu: Device Drivers >> Multimedia support >> Encoders, decoders, sensors and other helper chips
 CONFIG_VIDEO_TVAUDIO                            policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'powerpc': 'm', 'ppc64el': 'm'}>
@@ -3859,6 +3861,8 @@ CONFIG_ND_BLK                                   policy<{'amd64': 'm', 'arm64': '
 CONFIG_BTT                                      policy<{'amd64': 'y', 'arm64': 'y', 'armhf-generic-lpae': 'y', 'i386': 'y', 'powerpc-powerpc64-emb': 'y', 'powerpc-powerpc64-smp': 'y', 'powerpc-powerpc-e500mc': 'y', 'ppc64el': 'y'}>
 
 # Menu: Device Drivers >> NVMEM Support
+#
+CONFIG_NVMEM					mark<REVIEW> note<Q: is this appropriate for s390x>
 
 # Menu: Device Drivers >> Network device support
 CONFIG_NETDEVICES                               policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'powerpc': 'y', 'ppc64el': 'y', 's390x': 'y'}>
@@ -4052,6 +4056,8 @@ CONFIG_PCMCIA_3C574                             policy<{'amd64': 'm', 'i386': 'm
 CONFIG_PCMCIA_3C589                             policy<{'amd64': 'm', 'i386': 'm', 'powerpc': 'm'}>
 CONFIG_VORTEX                                   policy<{'amd64': 'm', 'arm64': 'm', 'i386': 'm', 'powerpc': 'm', 'ppc64el': 'm'}>
 CONFIG_TYPHOON                                  policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'powerpc': 'm', 'ppc64el': 'm'}>
+#
+CONFIG_NET_VENDOR_SYNOPSYS			mark<REVIEW> note<check s390x>
 
 # Menu: Device Drivers >> Network device support >> Ethernet driver support >> AMD devices
 CONFIG_NET_VENDOR_AMD                           policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'powerpc': 'y', 'ppc64el': 'y', 's390x': 'n'}>
@@ -9337,6 +9343,7 @@ CONFIG_SCHED_SMT                                policy<{'amd64': 'y', 'arm64': '
 CONFIG_XEN                                      policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'n', 'i386': 'y'}>
 #
 CONFIG_DEFAULT_MMAP_MIN_ADDR                    mark<ENFORCED> note<LP:1418140>
+CONFIG_IDLE_PAGE_TRACKING			mark<REVIEW> note<is there a cost associated with this?>
 
 # Menu: Processor type and features >> Architecture: arm
 CONFIG_HAVE_ARM_ARCH_TIMER                      policy<{'armhf': 'y'}>
@@ -9417,6 +9424,9 @@ CONFIG_RANDOMIZE_BASE                           policy<{'amd64': 'y', 'i386': 'y
 CONFIG_COMPAT_VDSO                              policy<{'amd64': 'n', 'i386': 'n'}>
 #
 CONFIG_COMPAT_VDSO                              mark<ENFORCED>
+CONFIG_X86_LEGACY_VM86				mark<REVIEW> note<Q: did we not just turn this back on on earlier releases?>
+CONFIG_KEXEC_BZIMAGE_VERIFY_SIG			mark<REVIEW> note<Q: check this is in sync with the kexec/kdump userspace>
+CONFIG_MODIFY_LDT_SYSCALL			mark<REVIEW> note<Q: check this with security>
 
 # Menu: Processor type and features >> CPU microcode loading support >> Architecture: x86
 CONFIG_MICROCODE                                policy<{'amd64': 'y', 'i386': 'y'}>
@@ -9458,6 +9468,8 @@ CONFIG_PARAVIRT_TIME_ACCOUNTING                 policy<{'amd64': 'n', 'i386': 'n
 # Menu: Processor type and features >> Linux guest support >> Enable paravirtualization code >> Xen guest support >> Architecture: x86
 CONFIG_XEN_DEBUG_FS                             policy<{'amd64': 'n', 'i386': 'n'}>
 CONFIG_XEN_PVH                                  policy<{'amd64': 'y'}>
+#
+CONFIG_XEN_512GB				mark<REVIEW> note<Q: is this related to the utlemming questions on memory size?>
 
 # Menu: Processor type and features >> Machine Check / overheating reporting >> Architecture: x86
 CONFIG_X86_MCE                                  policy<{'amd64': 'y', 'i386': 'y'}>
