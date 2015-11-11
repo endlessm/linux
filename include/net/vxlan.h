@@ -234,6 +234,8 @@ struct vxlan_dev {
 	struct vxlan_rdst default_dst;	/* default destination */
 	u32		  flags;	/* VXLAN_F_* in vxlan.h */
 
+	struct ip_tunnel_fan fan;
+
 	struct timer_list age_timer;
 	spinlock_t	  hash_lock;
 	unsigned int	  addrcnt;
