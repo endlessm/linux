@@ -108,9 +108,18 @@ struct metadata_dst;
  */
 #define FAN_OVERLAY_CNT		256
 
+struct ip_fan_map {
+	__be32			underlay;
+	__be32			overlay;
+	u16			underlay_prefix;
+	u16			overlay_prefix;
+	u32			overlay_mask;
+	struct list_head	list;
+	struct rcu_head		rcu;
+};
+
 struct ip_tunnel_fan {
-/*	u32 __rcu	*map;*/
-	u32		map[FAN_OVERLAY_CNT];
+	struct list_head	fan_maps;
 };
 
 struct ip_tunnel {
@@ -167,7 +176,11 @@ struct ip_tunnel {
 #define TUNNEL_NOCACHE		__cpu_to_be16(0x2000)
 
 #define TUNNEL_OPTIONS_PRESENT	(TUNNEL_GENEVE_OPT | TUNNEL_VXLAN_OPT)
-#define TUNNEL_FAN		__cpu_to_be16(0x4000)
+
+static inline int fan_has_map(const struct ip_tunnel_fan *fan)
+{
+	return !list_empty(&fan->fan_maps);
+}
 
 struct tnl_ptk_info {
 	__be16 flags;
