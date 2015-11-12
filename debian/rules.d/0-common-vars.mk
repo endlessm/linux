@@ -107,6 +107,13 @@ ifneq ($(DEB_BUILD_GNU_TYPE),$(DEB_HOST_GNU_TYPE))
 	CROSS_COMPILE ?= $(DEB_HOST_GNU_TYPE)-
 endif
 
+#
+# The SPL/ZFS config is not cross compile smart yet.
+#
+ifneq ($(CROSS_COMPILE),)
+	do_zfs = false
+endif
+
 abidir		:= $(CURDIR)/$(DEBIAN)/abi/$(release)-$(revision)/$(arch)
 prev_abidir	:= $(CURDIR)/$(DEBIAN)/abi/$(release)-$(prev_revision)/$(arch)
 commonconfdir	:= $(CURDIR)/$(DEBIAN)/config
