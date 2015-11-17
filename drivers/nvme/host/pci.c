@@ -53,6 +53,9 @@
 #define SQ_SIZE(depth)		(depth * sizeof(struct nvme_command))
 #define CQ_SIZE(depth)		(depth * sizeof(struct nvme_completion))
 
+/* Google Vendor ID is not in include/linux/pci_ids.h */
+#define PCI_VENDOR_ID_GOOGLE 0x1AE0
+
 /*
  * We handle AEN commands ourselves and don't even let the
  * block layer know about them.
@@ -104,6 +107,12 @@ struct nvme_dev {
 	u32 cmbloc;
 	struct nvme_ctrl ctrl;
 	struct completion ioq_wait;
+#ifdef CONFIG_NVME_VENDOR_EXT_GOOGLE
+	u32 *db_mem;
+	dma_addr_t doorbell;
+	u32 *ei_mem;
+	dma_addr_t eventidx;
+#endif
 };
 
 static inline struct nvme_dev *to_nvme_dev(struct nvme_ctrl *ctrl)
@@ -134,6 +143,12 @@ struct nvme_queue {
 	u16 qid;
 	u8 cq_phase;
 	u8 cqe_seen;
+#ifdef CONFIG_NVME_VENDOR_EXT_GOOGLE
+	u32 *sq_doorbell_addr;
+	u32 *sq_eventidx_addr;
+	u32 *cq_doorbell_addr;
+	u32 *cq_eventidx_addr;
+#endif
 };
 
 /*
@@ -172,6 +187,9 @@ static inline void _nvme_check_size(void)
 	BUILD_BUG_ON(sizeof(struct nvme_id_ns) != 4096);
 	BUILD_BUG_ON(sizeof(struct nvme_lba_range_type) != 64);
 	BUILD_BUG_ON(sizeof(struct nvme_smart_log) != 512);
+#ifdef CONFIG_NVME_VENDOR_EXT_GOOGLE
+	BUILD_BUG_ON(sizeof(struct nvme_doorbell_memory) != 64);
+#endif
 }
 
 /*
@@ -279,6 +297,51 @@ static int nvme_pci_map_queues(struct blk_mq_tag_set *set)
 	return blk_mq_pci_map_queues(set, to_pci_dev(dev->dev));
 }
 
+#ifdef CONFIG_NVME_VENDOR_EXT_GOOGLE
+static int nvme_vendor_memory_size(struct nvme_dev *dev)
+{
+	return ((num_possible_cpus() + 1) * 8 * dev->db_stride);
+}
+
+static int nvme_set_doorbell_memory(struct nvme_dev *dev)
+{
+	struct nvme_command c;
+
+	memset(&c, 0, sizeof(c));
+	c.doorbell_memory.opcode = nvme_admin_doorbell_memory;
+	c.doorbell_memory.prp1 = cpu_to_le64(dev->doorbell);
+	c.doorbell_memory.prp2 = cpu_to_le64(dev->eventidx);
+
+	return nvme_submit_sync_cmd(dev->ctrl.admin_q, &c, NULL, 0);
+}
+
+static inline int nvme_ext_need_event(u16 event_idx, u16 new_idx, u16 old)
+{
+	/* Borrowed from vring_need_event */
+	return (u16)(new_idx - event_idx - 1) < (u16)(new_idx - old);
+}
+
+static void nvme_ext_write_doorbell(u16 value, u32 __iomem* q_db,
+			   u32* db_addr, volatile u32* event_idx)
+{
+	u16 old_value;
+	if (!db_addr)
+		goto ring_doorbell;
+
+	old_value = *db_addr;
+	*db_addr = value;
+
+	rmb();
+	if (!nvme_ext_need_event(*event_idx, value, old_value))
+		goto no_doorbell;
+
+ring_doorbell:
+	writel(value, q_db);
+no_doorbell:
+	return;
+}
+#endif
+
 /**
  * __nvme_submit_cmd() - Copy a command into a queue and ring the doorbell
  * @nvmeq: The queue to use
@@ -296,9 +359,19 @@ static void __nvme_submit_cmd(struct nvme_queue *nvmeq,
 	else
 		memcpy(&nvmeq->sq_cmds[tail], cmd, sizeof(*cmd));
 
+#ifdef CONFIG_NVME_VENDOR_EXT_GOOGLE
+	if (nvmeq->sq_doorbell_addr)
+		wmb();
+#endif
+
 	if (++tail == nvmeq->q_depth)
 		tail = 0;
+#ifdef CONFIG_NVME_VENDOR_EXT_GOOGLE
+	nvme_ext_write_doorbell(tail, nvmeq->q_db,
+		nvmeq->sq_doorbell_addr, nvmeq->sq_eventidx_addr);
+#else
 	writel(tail, nvmeq->q_db);
+#endif
 	nvmeq->sq_tail = tail;
 }
 
@@ -677,6 +750,10 @@ static void __nvme_process_cq(struct nvme_queue *nvmeq, unsigned int *tag)
 		struct nvme_completion cqe = nvmeq->cqes[head];
 		struct request *req;
 
+#ifdef CONFIG_NVME_VENDOR_EXT_GOOGLE
+		if (to_pci_dev(nvmeq->dev->dev)->vendor == PCI_VENDOR_ID_GOOGLE)
+			rmb();
+#endif
 		if (++head == nvmeq->q_depth) {
 			head = 0;
 			phase = !phase;
@@ -714,7 +791,14 @@ static void __nvme_process_cq(struct nvme_queue *nvmeq, unsigned int *tag)
 		return;
 
 	if (likely(nvmeq->cq_vector >= 0))
+#ifdef CONFIG_NVME_VENDOR_EXT_GOOGLE
+		nvme_ext_write_doorbell(head,
+			nvmeq->q_db + nvmeq->dev->db_stride,
+			nvmeq->cq_doorbell_addr,
+			nvmeq->cq_eventidx_addr);
+#else
 		writel(head, nvmeq->q_db + nvmeq->dev->db_stride);
+#endif
 	nvmeq->cq_head = head;
 	nvmeq->cq_phase = phase;
 
@@ -1068,6 +1152,17 @@ static struct nvme_queue *nvme_alloc_queue(struct nvme_dev *dev, int qid,
 	dev->queues[qid] = nvmeq;
 	dev->queue_count++;
 
+#ifdef CONFIG_NVME_VENDOR_EXT_GOOGLE
+	if (dev->db_mem && dev->ei_mem && qid != 0) {
+		nvmeq->sq_doorbell_addr = &dev->db_mem[qid * 2 * dev->db_stride];
+		nvmeq->cq_doorbell_addr =
+			&dev->db_mem[(qid * 2 + 1) * dev->db_stride];
+		nvmeq->sq_eventidx_addr = &dev->ei_mem[qid * 2 * dev->db_stride];
+		nvmeq->cq_eventidx_addr =
+			&dev->ei_mem[(qid * 2 + 1) * dev->db_stride];
+	}
+#endif
+
 	return nvmeq;
 
  free_cqdma:
@@ -1097,6 +1192,16 @@ static void nvme_init_queue(struct nvme_queue *nvmeq, u16 qid)
 	nvmeq->cq_head = 0;
 	nvmeq->cq_phase = 1;
 	nvmeq->q_db = &dev->dbs[qid * 2 * dev->db_stride];
+#ifdef CONFIG_NVME_VENDOR_EXT_GOOGLE
+	if (to_pci_dev(dev->dev)->vendor == PCI_VENDOR_ID_GOOGLE && qid != 0) {
+		nvmeq->sq_doorbell_addr = &dev->db_mem[qid * 2 * dev->db_stride];
+		nvmeq->cq_doorbell_addr =
+			&dev->db_mem[(qid * 2 + 1) * dev->db_stride];
+		nvmeq->sq_eventidx_addr = &dev->ei_mem[qid * 2 * dev->db_stride];
+		nvmeq->cq_eventidx_addr =
+			&dev->ei_mem[(qid * 2 + 1) * dev->db_stride];
+	}
+#endif
 	memset((void *)nvmeq->cqes, 0, CQ_SIZE(nvmeq->q_depth));
 	dev->online_queues++;
 	spin_unlock_irq(&nvmeq->q_lock);
@@ -1570,6 +1675,19 @@ static int nvme_dev_add(struct nvme_dev *dev)
 		if (blk_mq_alloc_tag_set(&dev->tagset))
 			return 0;
 		dev->ctrl.tagset = &dev->tagset;
+
+#ifdef CONFIG_NVME_VENDOR_EXT_GOOGLE
+		if (to_pci_dev(dev->dev)->vendor == PCI_VENDOR_ID_GOOGLE) {
+			int res = nvme_set_doorbell_memory(dev);
+			if (res) {
+				// Free memory and continue on.
+				dma_free_coherent(dev->dev, 8192, dev->db_mem, dev->doorbell);
+				dma_free_coherent(dev->dev, 8192, dev->ei_mem, dev->doorbell);
+				dev->db_mem = 0;
+				dev->ei_mem = 0;
+			}
+		}
+#endif
 	} else {
 		blk_mq_update_nr_hw_queues(&dev->tagset, dev->online_queues - 1);
 
@@ -1647,7 +1765,30 @@ static int nvme_pci_enable(struct nvme_dev *dev)
 
 	pci_enable_pcie_error_reporting(pdev);
 	pci_save_state(pdev);
+
+#ifdef CONFIG_NVME_VENDOR_EXT_GOOGLE
+	if (pdev->vendor == PCI_VENDOR_ID_GOOGLE) {
+		int mem_size = nvme_vendor_memory_size(dev);
+		dev->db_mem = dma_alloc_coherent(&pdev->dev, mem_size, &dev->doorbell, GFP_KERNEL);
+		if (!dev->db_mem) {
+			result = -ENOMEM;
+			goto disable;
+		}
+		dev->ei_mem = dma_alloc_coherent(&pdev->dev, mem_size, &dev->eventidx, GFP_KERNEL);
+		if (!dev->ei_mem) {
+			result = -ENOMEM;
+			goto dma_free;
+		}
+	}
+#endif
+
 	return 0;
+
+#ifdef CONFIG_NVME_VENDOR_EXT_GOOGLE
+  dma_free:
+	dma_free_coherent(&pdev->dev, nvme_vendor_memory_size(dev), dev->db_mem, dev->doorbell);
+	dev->db_mem = 0;
+#endif
 
  disable:
 	pci_disable_device(pdev);
@@ -1664,6 +1805,14 @@ static void nvme_dev_unmap(struct nvme_dev *dev)
 static void nvme_pci_disable(struct nvme_dev *dev)
 {
 	struct pci_dev *pdev = to_pci_dev(dev->dev);
+#ifdef CONFIG_NVME_VENDOR_EXT_GOOGLE
+	int mem_size = nvme_vendor_memory_size(dev);
+
+	if (dev->db_mem)
+		dma_free_coherent(&pdev->dev, mem_size, dev->db_mem, dev->doorbell);
+	if (dev->ei_mem)
+		dma_free_coherent(&pdev->dev, mem_size, dev->ei_mem, dev->eventidx);
+#endif
 
 	pci_free_irq_vectors(pdev);
 

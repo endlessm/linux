@@ -606,6 +606,9 @@ enum nvme_admin_opcode {
 	nvme_admin_format_nvm		= 0x80,
 	nvme_admin_security_send	= 0x81,
 	nvme_admin_security_recv	= 0x82,
+#ifdef CONFIG_NVME_VENDOR_EXT_GOOGLE
+	nvme_admin_doorbell_memory	= 0xC0,
+#endif
 };
 
 enum {
@@ -874,6 +877,18 @@ struct nvmf_property_get_command {
 	__u8		resv4[16];
 };
 
+#ifdef CONFIG_NVME_VENDOR_EXT_GOOGLE
+struct nvme_doorbell_memory {
+	__u8			opcode;
+	__u8			flags;
+	__u16			command_id;
+	__u32			rsvd1[5];
+	__le64			prp1;
+	__le64			prp2;
+	__u32			rsvd12[6];
+};
+#endif
+
 struct nvme_command {
 	union {
 		struct nvme_common_command common;
@@ -888,6 +903,9 @@ struct nvme_command {
 		struct nvme_dsm_cmd dsm;
 		struct nvme_write_zeroes_cmd write_zeroes;
 		struct nvme_abort_cmd abort;
+#ifdef CONFIG_NVME_VENDOR_EXT_GOOGLE
+		struct nvme_doorbell_memory doorbell_memory;
+#endif
 		struct nvme_get_log_page_command get_log_page;
 		struct nvmf_common_command fabrics;
 		struct nvmf_connect_command connect;
@@ -978,6 +996,9 @@ enum {
 	NVME_SC_INVALID_PI		= 0x181,
 	NVME_SC_READ_ONLY		= 0x182,
 	NVME_SC_ONCS_NOT_SUPPORTED	= 0x183,
+#ifdef CONFIG_NVME_VENDOR_EXT_GOOGLE
+	NVME_SC_DOORBELL_MEMORY_INVALID	= 0x1C0,
+#endif
 
 	/*
 	 * I/O Command Set Specific - Fabrics commands:
