@@ -1324,9 +1324,11 @@ CONFIG_DRM_I915_PRELIMINARY_HW_SUPPORT          note<LP:1473319>
 
 # Menu: Device Drivers >> Graphics support >> Direct Rendering Manager (XFree86 4.1.0 and higher DRI support) >> AMD GPU
 CONFIG_DRM_AMDGPU                               policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'powerpc': 'm', 'ppc64el': 'm'}>
-CONFIG_DRM_AMDGPU_CIK                           policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'powerpc': 'y', 'ppc64el': 'y'}>
+CONFIG_DRM_AMDGPU_CIK                           policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'i386': 'n', 'powerpc': 'n', 'ppc64el': 'n'}>
 CONFIG_DRM_AMDGPU_USERPTR                       policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'powerpc': 'y', 'ppc64el': 'y'}>
 CONFIG_HSA_AMD                                  policy<{'amd64': 'm'}>
+#
+CONFIG_DRM_AMDGPU_CIK				note<LP:1510405>
 
 # Menu: Device Drivers >> Graphics support >> Direct Rendering Manager (XFree86 4.1.0 and higher DRI support) >> DRM Support for Freescale i.MX
 CONFIG_DRM_IMX                                  policy<{'armhf': 'm'}>
