@@ -427,6 +427,8 @@ static dev_t __init parse_root_device(char *root_device_name)
  */
 void __init prepare_namespace(void)
 {
+	int err;
+
 	if (root_delay) {
 		printk(KERN_INFO "Waiting %d sec before mounting root device...\n",
 		       root_delay);
@@ -457,6 +459,13 @@ out:
 	devtmpfs_mount();
 	init_mount(".", "/", NULL, MS_MOVE, NULL);
 	init_chroot(".");
+#ifdef CONFIG_BLOCK
+	/* recreate the /dev/root */
+	err = create_dev("/dev/root", ROOT_DEV);
+
+	if (err < 0)
+		pr_emerg("Failed to create /dev/root: %d\n", err);
+#endif
 }
 
 static bool is_tmpfs;
