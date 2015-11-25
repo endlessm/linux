@@ -4,6 +4,16 @@ Provides_amd64: efi-modules, ext3-modules, ext4-modules
 Provides_i386: efi-modules, ext3-modules, ext4-modules
 Provides_ppc64el: ext3-modules, ext4-modules, fat-modules
 
+Package: dasd-modules
+Depends: kernel-image, storage-core-modules
+Priority: standard
+Description: DASD storage support
+
+Package: dasd-extra-modules
+Depends: dasd-modules
+Priority: extra
+Description: DASD storage support -- extras
+
 Package: fat-modules
 Depends: kernel-image
 Priority: standard
