@@ -37,9 +37,10 @@ do_linux_tools=$(sort $(filter-out false,$(do_tools_usbip) $(do_tools_cpupower) 
 do_cloud_tools=$(sort $(filter-out false,$(do_tools_hyperv)))
 do_tools_common=true
 
-# Don't build tools in a cross compile environment.
+# Don't build tools or udebs in a cross compile environment.
 ifneq ($(DEB_HOST_ARCH),$(DEB_BUILD_ARCH))
 	do_tools=false
+	disable_d_i=true
 	do_zfs=false
 endif
 do_zfs=false
