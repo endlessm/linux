@@ -103,7 +103,7 @@ ecoscsi ?
 oak ?
 powertec ?
 eesox ?
-ibmvscsic ?
+ibmvscsi ?
 ibmvfc ?
 libsas ?
 lpfc ?
