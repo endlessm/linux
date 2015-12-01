@@ -61,6 +61,7 @@
 #include <linux/notifier.h>
 #include <linux/cpu.h>
 #include <linux/module.h>
+#include <linux/dmi.h>
 #include <asm/cpu_device_id.h>
 #include <asm/mwait.h>
 #include <asm/msr.h>
@@ -925,6 +926,16 @@ static const struct x86_cpu_id intel_idle_ids[] __initconst = {
 };
 MODULE_DEVICE_TABLE(x86cpu, intel_idle_ids);
 
+static const struct dmi_system_id idle_blacklist[] __initconst = {
+	{
+		.matches = {
+			DMI_MATCH(DMI_SYS_VENDOR, "ASUSTeK COMPUTER INC."),
+			DMI_MATCH(DMI_PRODUCT_NAME, "N552VW"),
+		},
+	},
+	{}
+};
+
 /*
  * intel_idle_probe()
  */
@@ -936,6 +947,11 @@ static int __init intel_idle_probe(void)
 	if (max_cstate == 0) {
 		pr_debug(PREFIX "disabled\n");
 		return -EPERM;
+	}
+
+	if (dmi_check_system(idle_blacklist)) {
+		pr_debug(PREFIX "disabled on this hardware model\n");
+		return -ENODEV;
 	}
 
 	id = x86_match_cpu(intel_idle_ids);
