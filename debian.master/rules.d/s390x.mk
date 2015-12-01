@@ -12,3 +12,7 @@ no_dumpfile	= true
 
 do_extras_package = true
 do_zfs		= false
+
+# Ignore abi until we are generating them in LaunchPad
+skipabi         = true
+skipmodule      = true
