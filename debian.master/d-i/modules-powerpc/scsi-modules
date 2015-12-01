@@ -59,7 +59,7 @@ wd7000 ?
 mca_53c9x ?
 ibmmca ?
 ibmvfc ?
-ibmvscsic ?
+ibmvscsi ?
 eata ?
 dc395x ?
 tmscsim ?
