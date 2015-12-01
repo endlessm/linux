@@ -59,6 +59,7 @@ drivers/net/dummy.ko
 drivers/net/ethernet/intel/e1000/e1000.ko
 drivers/net/ethernet/intel/e1000e/e1000e.ko
 drivers/net/eql.ko
+drivers/net/ethernet/ibm/*
 drivers/net/ifb.ko
 drivers/net/ethernet/intel/igbvf/igbvf.ko
 drivers/net/ethernet/intel/ixgbevf/ixgbevf.ko
@@ -97,6 +98,7 @@ drivers/scsi/scsi_transport_sas.ko
 drivers/scsi/vmw_pvscsi.ko
 drivers/scsi/hv_storvsc.ko
 drivers/scsi/virtio_scsi.ko
+drivers/scsi/ibmvscsi/*
 drivers/target/target_core*.ko
 drivers/uio/uio.ko
 drivers/vhost/*
