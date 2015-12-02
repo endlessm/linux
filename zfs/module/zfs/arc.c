@@ -3373,6 +3373,11 @@ arc_kmem_reap_now(void)
 	}
 
 	for (i = 0; i < SPA_MAXBLOCKSIZE >> SPA_MINBLOCKSHIFT; i++) {
+#ifdef _ILP32
+		/* reach upper limit of cache size on 32-bit */
+		if (zio_buf_cache[i] == NULL)
+			break;
+#endif
 		if (zio_buf_cache[i] != prev_cache) {
 			prev_cache = zio_buf_cache[i];
 			kmem_cache_reap_now(zio_buf_cache[i]);
@@ -3757,7 +3762,8 @@ arc_adapt(int bytes, arc_state_t *state)
 	 * If we're within (2 * maxblocksize) bytes of the target
 	 * cache size, increment the target cache size
 	 */
-	VERIFY3U(arc_c, >=, 2ULL << SPA_MAXBLOCKSHIFT);
+	ASSERT3U(arc_c, >=, 2ULL << SPA_MAXBLOCKSHIFT);
+	arc_c = MAX(arc_c, 2ULL << SPA_MAXBLOCKSHIFT);
 	if (arc_size >= arc_c - (2ULL << SPA_MAXBLOCKSHIFT)) {
 		atomic_add_64(&arc_c, (int64_t)bytes);
 		if (arc_c > arc_c_max)
@@ -5244,7 +5250,7 @@ arc_tuning_update(void)
 		arc_c_max = zfs_arc_max;
 		arc_c = arc_c_max;
 		arc_p = (arc_c >> 1);
-		arc_meta_limit = MIN(arc_meta_limit, arc_c_max);
+		arc_meta_limit = MIN(arc_meta_limit, (3 * arc_c_max) / 4);
 	}
 
 	/* Valid range: 32M - <arc_c_max> */
@@ -5473,11 +5479,11 @@ arc_init(void)
 	 * zfs_dirty_data_max_max (default 25% of physical memory).
 	 */
 	if (zfs_dirty_data_max_max == 0)
-		zfs_dirty_data_max_max = physmem * PAGESIZE *
+		zfs_dirty_data_max_max = (uint64_t)physmem * PAGESIZE *
 		    zfs_dirty_data_max_max_percent / 100;
 
 	if (zfs_dirty_data_max == 0) {
-		zfs_dirty_data_max = physmem * PAGESIZE *
+		zfs_dirty_data_max = (uint64_t)physmem * PAGESIZE *
 		    zfs_dirty_data_max_percent / 100;
 		zfs_dirty_data_max = MIN(zfs_dirty_data_max,
 		    zfs_dirty_data_max_max);

@@ -1,10 +1,9 @@
 dnl #
 dnl # DESCRIPTION:
-dnl # Read meta data from the META file or the debian/changelog file if it
-dnl # exists.  When building from a git repository the ZFS_META_RELEASE field
-dnl # will be overwritten if there is an annotated tag matching the form
-dnl # ZFS_META_NAME-ZFS_META_VERSION-*.  This allows for working builds to be
-dnl # uniquely identified using the git commit hash.
+dnl # Read meta data from the META file.  When building from a git repository
+dnl # the ZFS_META_RELEASE field will be overwritten if there is an annotated
+dnl # tag matching the form ZFS_META_NAME-ZFS_META_VERSION-*.  This allows
+dnl # for working builds to be uniquely identified using the git commit hash.
 dnl #
 dnl #    The META file format is as follows:
 dnl #      ^[ ]*KEY:[ \t]+VALUE$
@@ -50,7 +49,6 @@ AC_DEFUN([ZFS_AC_META], [
 	_zfs_ac_meta_type="none"
 	if test -f "$META"; then
 		_zfs_ac_meta_type="META file"
-		_dpkg_parsechangelog=$(dpkg-parsechangelog 2>/dev/null)
 
 		ZFS_META_NAME=_ZFS_AC_META_GETVAL([(Name|Project|Package)]);
 		if test -n "$ZFS_META_NAME"; then
@@ -68,30 +66,8 @@ AC_DEFUN([ZFS_AC_META], [
 			AC_SUBST([ZFS_META_VERSION])
 		fi
 
-		if test -n "${_dpkg_parsechangelog}"; then
-			_dpkg_version=$(echo "${_dpkg_parsechangelog}" \
-				| $AWK '$[]1 == "Version:" { print $[]2; }' \
-				| cut -d- -f1)
-			if test "${_dpkg_version}" != "$ZFS_META_VERSION"; then
-				AC_MSG_ERROR([
-	*** Version $ZFS_META_VERSION in the META file is different than
-	*** version $_dpkg_version in the debian/changelog file. DKMS and DEB
-	*** packaging require that these files have the same version.
-				])
-			fi
-		fi
-
 		ZFS_META_RELEASE=_ZFS_AC_META_GETVAL([Release]);
-
-		if test -n "${_dpkg_parsechangelog}"; then
-			_dpkg_release=$(echo "${_dpkg_parsechangelog}" \
-				| $AWK '$[]1 == "Version:" { print $[]2; }' \
-				| cut -d- -f2-)
-			if test -n "${_dpkg_release}"; then
-				ZFS_META_RELEASE=${_dpkg_release}
-				_zfs_ac_meta_type="dpkg-parsechangelog"
-			fi
-		elif test ! -f ".nogitrelease" && git rev-parse --git-dir > /dev/null 2>&1; then
+		if test ! -f ".nogitrelease" && git rev-parse --git-dir > /dev/null 2>&1; then
 			_match="${ZFS_META_NAME}-${ZFS_META_VERSION}"
 			_alias=$(git describe --match=${_match} 2>/dev/null)
 			_release=$(echo ${_alias}|cut -f3- -d'-'|sed 's/-/_/g')

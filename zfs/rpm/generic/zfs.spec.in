@@ -1,2 +1,366 @@
-%:
-	#
+%global _sbindir    /sbin
+%global _libdir     /%{_lib}
+
+# Set the default udev directory based on distribution.
+%if %{undefined _udevdir}
+%if 0%{?fedora} >= 17 || 0%{?rhel} >= 7 || 0%{?centos} >= 7
+%global _udevdir    %{_prefix}/lib/udev
+%else
+%global _udevdir    /lib/udev
+%endif
+%endif
+
+# Set the default udevrule directory based on distribution.
+%if %{undefined _udevruledir}
+%if 0%{?fedora} >= 17 || 0%{?rhel} >= 7 || 0%{?centos} >= 7
+%global _udevruledir    %{_prefix}/lib/udev/rules.d
+%else
+%global _udevruledir    /lib/udev/rules.d
+%endif
+%endif
+
+# Set the default dracut directory based on distribution.
+%if %{undefined _dracutdir}
+%if 0%{?fedora} >= 17 || 0%{?rhel} >= 7 || 0%{?centos} >= 7
+%global _dracutdir  %{_prefix}/lib/dracut
+%else
+%global _dracutdir  %{_prefix}/share/dracut
+%endif
+%endif
+
+# Set the default _initconfdir when undefined.
+%if %{undefined _initconfdir}
+%global _initconfdir /etc/sysconfig
+%endif
+
+%bcond_with    debug
+%bcond_with    blkid
+%bcond_with    systemd
+
+# Generic enable switch for systemd
+%if %{with systemd}
+%define _systemd 1
+%endif
+
+# RHEL >= 7 comes with systemd
+%if 0%{?rhel} >= 7
+%define _systemd 1
+%endif
+
+# Fedora >= 15 comes with systemd, but only >= 18 has
+# the proper macros
+%if 0%{?fedora} >= 18
+%define _systemd 1
+%endif
+
+# opensuse >= 12.1 comes with systemd, but only >= 13.1
+# has the proper macros
+%if 0%{?suse_version} >= 1310
+%define _systemd 1
+%endif
+
+Name:           @PACKAGE@
+Version:        @VERSION@
+Release:        @RELEASE@%{?dist}
+Summary:        Commands to control the kernel modules and libraries
+
+Group:          System Environment/Kernel
+License:        @ZFS_META_LICENSE@
+URL:            http://zfsonlinux.org/
+Source0:        %{name}-%{version}.tar.gz
+BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
+ExclusiveArch:  i386 i686 x86_64
+
+# May build but untested on ppc/ppc64
+ExcludeArch:    ppc ppc64
+
+Requires:       spl = %{version}
+Requires:       libzpool2 = %{version}
+Requires:       libnvpair1 = %{version}
+Requires:       libuutil1 = %{version}
+Requires:       libzfs2 = %{version}
+Requires:       %{name}-kmod = %{version}
+Provides:       %{name}-kmod-common = %{version}
+
+# zfs-fuse provides the same commands and man pages that ZoL does. Renaming
+# those on either side would conflict with all available documentation.
+Conflicts:      zfs-fuse
+
+%if 0%{?rhel}%{?fedora}%{?suse_version}
+BuildRequires:  zlib-devel
+BuildRequires:  libuuid-devel
+%if %{with blkid}
+BuildRequires:  libblkid-devel
+%endif
+%endif
+%if 0%{?_systemd}
+Requires(post): systemd
+Requires(preun): systemd
+Requires(postun): systemd
+BuildRequires: systemd
+%endif
+
+%description
+This package contains the ZFS command line utilities.
+
+%package -n libzpool2
+Summary:        Native ZFS pool library for Linux
+Group:          System Environment/Kernel
+
+%description -n libzpool2
+This package contains the zpool library, which provides support
+for managing zpools
+
+%post -n libzpool2 -p /sbin/ldconfig
+%postun -n libzpool2 -p /sbin/ldconfig
+
+%package -n libnvpair1
+Summary:        Solaris name-value library for Linux
+Group:          System Environment/Kernel
+
+%description -n libnvpair1
+This package contains routines for packing and unpacking name-value
+pairs.  This functionality is used to portably transport data across
+process boundaries, between kernel and user space, and can be used
+to write self describing data structures on disk.
+
+%post -n libnvpair1 -p /sbin/ldconfig
+%postun -n libnvpair1 -p /sbin/ldconfig
+
+%package -n libuutil1
+Summary:        Solaris userland utility library for Linux
+Group:          System Environment/Kernel
+
+%description -n libuutil1
+This library provides a variety of compatibility functions for ZFS on Linux:
+ * libspl: The Solaris Porting Layer userland library, which provides APIs
+   that make it possible to run Solaris user code in a Linux environment
+   with relatively minimal modification.
+ * libavl: The Adelson-Velskii Landis balanced binary tree manipulation
+   library.
+ * libefi: The Extensible Firmware Interface library for GUID disk
+   partitioning.
+ * libshare: NFS, SMB, and iSCSI service integration for ZFS.
+
+%post -n libuutil1 -p /sbin/ldconfig
+%postun -n libuutil1 -p /sbin/ldconfig
+
+%package -n libzfs2
+Summary:        Native ZFS filesystem library for Linux
+Group:          System Environment/Kernel
+
+%description -n libzfs2
+This package provides support for managing ZFS filesystems
+
+%post -n libzfs2 -p /sbin/ldconfig
+%postun -n libzfs2 -p /sbin/ldconfig
+
+%package -n libzfs2-devel
+Summary:        Development headers
+Group:          System Environment/Kernel
+Requires:       libzfs2 = %{version}
+Requires:       libzpool2 = %{version}
+Requires:       libnvpair1 = %{version}
+Requires:       libuutil1 = %{version}
+Provides:       libzpool2-devel
+Provides:       libnvpair1-devel
+Provides:       libuutil1-devel
+Obsoletes:      zfs-devel
+
+%description -n libzfs2-devel
+This package contains the header files needed for building additional
+applications against the ZFS libraries.
+
+%package test
+Summary:        Test infrastructure
+Group:          System Environment/Kernel
+Requires:       %{name}%{?_isa} = %{version}-%{release}
+Requires:       parted
+Requires:       lsscsi
+Requires:       mdadm
+Requires:       bc
+
+%description test
+This package contains test infrastructure and support scripts for
+validating the file system.
+
+%package dracut
+Summary:        Dracut module
+Group:          System Environment/Kernel
+Requires:       %{name}%{?_isa} = %{version}-%{release}
+Requires:       dracut
+
+%description dracut
+This package contains a dracut module used to construct an initramfs
+image which is ZFS aware.
+
+%if 0%{?_initramfs}
+%package initramfs
+Summary:        Initramfs module
+Group:          System Environment/Kernel
+Requires:       %{name}%{?_isa} = %{version}-%{release}
+Requires:       %{name} = %{version}-%{release}
+Requires:       initramfs-tools
+
+%description initramfs
+This package contains a initramfs module used to construct an initramfs
+image which is ZFS aware.
+%endif
+
+%prep
+%if %{with debug}
+    %define debug --enable-debug
+%else
+    %define debug --disable-debug
+%endif
+%if %{with blkid}
+    %define blkid --with-blkid
+%else
+    %define blkid --without-blkid
+%endif
+%if 0%{?_systemd}
+    %define systemd --enable-systemd --with-systemdunitdir=%{_unitdir} --with-systemdpresetdir=%{_presetdir} --disable-sysvinit
+%else
+    %define systemd --enable-sysvinit --disable-systemd
+%endif
+
+%setup -q
+
+%build
+%configure \
+    --with-config=user \
+    --with-udevdir=%{_udevdir} \
+    --with-udevruledir=%{_udevruledir} \
+    --with-dracutdir=%{_dracutdir} \
+    --disable-static \
+    %{debug} \
+    %{blkid} \
+    %{systemd}
+make %{?_smp_mflags}
+
+%install
+%{__rm} -rf $RPM_BUILD_ROOT
+make install DESTDIR=%{?buildroot}
+find %{?buildroot}%{_libdir} -name '*.la' -exec rm -f {} \;
+
+%post
+%if 0%{?_systemd}
+%systemd_post zfs.target
+%else
+if [ -x /sbin/chkconfig ]; then
+    /sbin/chkconfig --add zfs-import
+    /sbin/chkconfig --add zfs-mount
+    /sbin/chkconfig --add zfs-share
+    /sbin/chkconfig --add zfs-zed
+fi
+%endif
+exit 0
+
+%preun
+%if 0%{?_systemd}
+%systemd_preun zfs.target
+%else
+if [ $1 -eq 0 ] && [ -x /sbin/chkconfig ]; then
+    /sbin/chkconfig --del zfs-import
+    /sbin/chkconfig --del zfs-mount
+    /sbin/chkconfig --del zfs-share
+    /sbin/chkconfig --del zfs-zed
+fi
+%endif
+exit 0
+
+%postun
+%if 0%{?_systemd}
+%systemd_postun zfs.target
+%endif
+
+%files
+%{_sbindir}/*
+%{_bindir}/*
+%{_libexecdir}/%{name}
+%{_mandir}/man1/*
+%{_mandir}/man5/*
+%{_mandir}/man8/*
+%{_udevdir}/vdev_id
+%{_udevdir}/zvol_id
+%{_udevdir}/rules.d/*
+%if 0%{?_systemd}
+/usr/lib/modules-load.d/*
+%{_unitdir}/*
+%{_presetdir}/*
+%else
+%config(noreplace) %{_sysconfdir}/init.d/*
+%config(noreplace) %{_initconfdir}/zfs
+%endif
+%config(noreplace) %{_sysconfdir}/%{name}
+
+%files -n libzpool2
+%{_libdir}/libzpool.so.*
+
+%files -n libnvpair1
+%{_libdir}/libnvpair.so.*
+
+%files -n libuutil1
+%{_libdir}/libuutil.so.*
+
+%files -n libzfs2
+%{_libdir}/libzfs*.so.*
+
+%files -n libzfs2-devel
+%{_datadir}/pkgconfig/libzfs.pc
+%{_datadir}/pkgconfig/libzfs_core.pc
+%{_libdir}/*.so
+%{_includedir}/*
+%doc AUTHORS COPYRIGHT DISCLAIMER
+%doc OPENSOLARIS.LICENSE README.markdown
+
+%files test
+%{_datadir}/%{name}
+
+%files dracut
+%doc contrib/dracut/README.dracut.markdown
+%{_dracutdir}/modules.d/*
+
+%if 0%{?_initramfs}
+%files initramfs
+%doc contrib/initramfs/README.initramfs.markdown
+/usr/share/initramfs-tools/*
+%else
+# Since we're not building the initramfs package,
+# ignore those files.
+%exclude /usr/share/initramfs-tools
+%endif
+
+%changelog
+* Tue Oct 13 2015 Ned Bass <bass6@llnl.gov> - 0.6.5.3-1
+- Don't import all visible pools in zfs-import init script zfsonlinux/zfs#3777
+- Fix use-after-free in vdev_disk_physio_completion zfsonlinux/zfs#3920
+- Fix avl_is_empty(&dn->dn_dbufs) assertion zfsonlinux/zfs#3865
+* Wed Sep 30 2015 Ned Bass <bass6@llnl.gov> - 0.6.5.2-1
+- Init script fixes zfsonlinux/zfs#3816
+- Fix uioskip crash when skip to end zfsonlinux/zfs#3806 zfsonlinux/zfs#3850
+- Userspace can trigger an assertion zfsonlinux/zfs#3792
+- Fix quota userused underflow bug zfsonlinux/zfs#3789
+- Fix performance regression from unwanted synchronous I/O zfsonlinux/zfs#3780
+- Fix deadlock during ARC reclaim zfsonlinux/zfs#3808 zfsonlinux/zfs#3834
+- Fix deadlock with zfs receive and clamscan zfsonlinux/zfs#3719
+- Allow NFS activity to defer snapshot unmounts zfsonlinux/zfs#3794
+- Linux 4.3 compatibility zfsonlinux/zfs#3799
+- Zed reload fixes zfsonlinux/zfs#3773
+- Fix PAX Patch/Grsec SLAB_USERCOPY panic zfsonlinux/zfs#3796
+- Always remove during dkms uninstall/update zfsonlinux/spl#476
+* Sat Sep 19 2015 Ned Bass <bass6@llnl.gov> - 0.6.5.1-1
+- Fix zvol corruption with TRIM/discard zfsonlinux/zfs#3798
+- Fix NULL as mount(2) syscall data parameter zfsonlinux/zfs#3804
+- Fix xattr=sa dataset property not honored zfsonlinux/zfs#3787
+* Fri Sep 11 2015 Brian Behlendorf <behlendorf1@llnl.gov> - 0.6.5-1
+- Released 0.6.5-1, detailed release notes are available at:
+- https://github.com/zfsonlinux/zfs/releases/tag/zfs-0.6.5
+* Wed Apr  8 2015 Brian Behlendorf <behlendorf1@llnl.gov> - 0.6.4-1
+- Released 0.6.4-1
+* Thu Jun 12 2014 Brian Behlendorf <behlendorf1@llnl.gov> - 0.6.3-1
+- Released 0.6.3-1
+* Wed Aug 21 2013 Brian Behlendorf <behlendorf1@llnl.gov> - 0.6.2-1
+- Released 0.6.2-1
+* Fri Mar 22 2013 Brian Behlendorf <behlendorf1@llnl.gov> - 0.6.1-1
+- First official stable release.

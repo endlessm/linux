@@ -43,7 +43,6 @@ ifneq ($(DEB_HOST_ARCH),$(DEB_BUILD_ARCH))
 	disable_d_i=true
 	do_zfs=false
 endif
-do_zfs=false
 
 # Stages -- support both DEB_STAGE=stage1 and DEB_BUILD_PROFILE=bootstrap
 ifeq ($(DEB_STAGE),stage1)
