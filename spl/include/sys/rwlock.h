@@ -30,54 +30,57 @@
 #include <linux/rwsem_compat.h>
 
 typedef enum {
-        RW_DRIVER  = 2,
-        RW_DEFAULT = 4
+	RW_DRIVER	= 2,
+	RW_DEFAULT	= 4
 } krw_type_t;
 
 typedef enum {
-        RW_NONE   = 0,
-        RW_WRITER = 1,
-        RW_READER = 2
+	RW_NONE		= 0,
+	RW_WRITER	= 1,
+	RW_READER	= 2
 } krw_t;
 
+/*
+ * If CONFIG_RWSEM_SPIN_ON_OWNER is defined, rw_semaphore will have an owner
+ * field, so we don't need our own.
+ */
 typedef struct {
-        struct rw_semaphore rw_rwlock;
-        kthread_t *rw_owner;
+	struct rw_semaphore rw_rwlock;
+#ifndef CONFIG_RWSEM_SPIN_ON_OWNER
+	kthread_t *rw_owner;
+#endif
 } krwlock_t;
 
-#define SEM(rwp)                        ((struct rw_semaphore *)(rwp))
+#define SEM(rwp)	(&(rwp)->rw_rwlock)
 
 static inline void
 spl_rw_set_owner(krwlock_t *rwp)
 {
-        unsigned long flags;
-
-        spl_rwsem_lock_irqsave(&SEM(rwp)->wait_lock, flags);
-        rwp->rw_owner = current;
-        spl_rwsem_unlock_irqrestore(&SEM(rwp)->wait_lock, flags);
+/*
+ * If CONFIG_RWSEM_SPIN_ON_OWNER is defined, down_write, up_write,
+ * downgrade_write and __init_rwsem will set/clear owner for us.
+ */
+#ifndef CONFIG_RWSEM_SPIN_ON_OWNER
+	rwp->rw_owner = current;
+#endif
 }
 
 static inline void
 spl_rw_clear_owner(krwlock_t *rwp)
 {
-        unsigned long flags;
-
-        spl_rwsem_lock_irqsave(&SEM(rwp)->wait_lock, flags);
-        rwp->rw_owner = NULL;
-        spl_rwsem_unlock_irqrestore(&SEM(rwp)->wait_lock, flags);
+#ifndef CONFIG_RWSEM_SPIN_ON_OWNER
+	rwp->rw_owner = NULL;
+#endif
 }
 
 static inline kthread_t *
 rw_owner(krwlock_t *rwp)
 {
-        unsigned long flags;
-        kthread_t *owner;
-
-        spl_rwsem_lock_irqsave(&SEM(rwp)->wait_lock, flags);
-        owner = rwp->rw_owner;
-        spl_rwsem_unlock_irqrestore(&SEM(rwp)->wait_lock, flags);
-
-        return owner;
+#ifdef CONFIG_RWSEM_SPIN_ON_OWNER
+	return SEM(rwp)->owner;
+#else
+	return rwp->rw_owner;
+#endif
 }
 
 static inline int
@@ -89,7 +92,7 @@ RW_READ_HELD(krwlock_t *rwp)
 static inline int
 RW_WRITE_HELD(krwlock_t *rwp)
 {
-	return (spl_rwsem_is_locked(SEM(rwp)) && rw_owner(rwp) == current);
+	return (rw_owner(rwp) == current);
 }
 
 static inline int
@@ -104,70 +107,73 @@ RW_LOCK_HELD(krwlock_t *rwp)
  * will be correctly located in the users code which is important
  * for the built in kernel lock analysis tools
  */
-#define rw_init(rwp, name, type, arg)                                   \
-({                                                                      \
-        static struct lock_class_key __key;                             \
-                                                                        \
-        __init_rwsem(SEM(rwp), #rwp, &__key);                           \
-        spl_rw_clear_owner(rwp);                                        \
+#define rw_init(rwp, name, type, arg)					\
+({									\
+	static struct lock_class_key __key;				\
+									\
+	__init_rwsem(SEM(rwp), #rwp, &__key);				\
+	spl_rw_clear_owner(rwp);					\
 })
 
-#define rw_destroy(rwp)                                                 \
-({                                                                      \
-        VERIFY(!RW_LOCK_HELD(rwp));                                     \
+#define rw_destroy(rwp)							\
+({									\
+	VERIFY(!RW_LOCK_HELD(rwp));					\
 })
 
-#define rw_tryenter(rwp, rw)                                            \
-({                                                                      \
-        int _rc_ = 0;                                                   \
-                                                                        \
-        switch (rw) {                                                   \
-        case RW_READER:                                                 \
-                _rc_ = down_read_trylock(SEM(rwp));                     \
-                break;                                                  \
-        case RW_WRITER:                                                 \
-                if ((_rc_ = down_write_trylock(SEM(rwp))))              \
-                        spl_rw_set_owner(rwp);                          \
-                break;                                                  \
-        default:                                                        \
-                VERIFY(0);                                              \
-        }                                                               \
-        _rc_;                                                           \
+#define rw_tryenter(rwp, rw)						\
+({									\
+	int _rc_ = 0;							\
+									\
+	switch (rw) {							\
+	case RW_READER:							\
+		_rc_ = down_read_trylock(SEM(rwp));			\
+		break;							\
+	case RW_WRITER:							\
+		if ((_rc_ = down_write_trylock(SEM(rwp))))		\
+			spl_rw_set_owner(rwp);				\
+		break;							\
+	default:							\
+		VERIFY(0);						\
+	}								\
+	_rc_;								\
 })
 
-#define rw_enter(rwp, rw)                                               \
-({                                                                      \
-        switch (rw) {                                                   \
-        case RW_READER:                                                 \
-                down_read(SEM(rwp));                                    \
-                break;                                                  \
-        case RW_WRITER:                                                 \
-                down_write(SEM(rwp));                                   \
-                spl_rw_set_owner(rwp);                                  \
-                break;                                                  \
-        default:                                                        \
-                VERIFY(0);                                              \
-        }                                                               \
+#define rw_enter(rwp, rw)						\
+({									\
+	switch (rw) {							\
+	case RW_READER:							\
+		down_read(SEM(rwp));					\
+		break;							\
+	case RW_WRITER:							\
+		down_write(SEM(rwp));					\
+		spl_rw_set_owner(rwp);					\
+		break;							\
+	default:							\
+		VERIFY(0);						\
+	}								\
 })
 
-#define rw_exit(rwp)                                                    \
-({                                                                      \
-        if (RW_WRITE_HELD(rwp)) {                                       \
-                spl_rw_clear_owner(rwp);                                \
-                up_write(SEM(rwp));                                     \
-        } else {                                                        \
-                ASSERT(RW_READ_HELD(rwp));                              \
-                up_read(SEM(rwp));                                      \
-        }                                                               \
+#define rw_exit(rwp)							\
+({									\
+	if (RW_WRITE_HELD(rwp)) {					\
+		spl_rw_clear_owner(rwp);				\
+		up_write(SEM(rwp));					\
+	} else {							\
+		ASSERT(RW_READ_HELD(rwp));				\
+		up_read(SEM(rwp));					\
+	}								\
 })
 
-#define rw_downgrade(rwp)                                               \
-({                                                                      \
-        spl_rw_clear_owner(rwp);                                        \
-        downgrade_write(SEM(rwp));                                      \
+#define rw_downgrade(rwp)						\
+({									\
+	spl_rw_clear_owner(rwp);					\
+	downgrade_write(SEM(rwp));					\
 })
 
 #if defined(CONFIG_RWSEM_GENERIC_SPINLOCK)
+#ifdef CONFIG_RWSEM_SPIN_ON_OWNER
+#error spinlock rwsem should not have spin on owner
+#endif
 /*
  * For the generic implementations of rw-semaphores the following is
  * true.  If your semaphore implementation internally represents the
@@ -180,20 +186,20 @@ RW_LOCK_HELD(krwlock_t *rwp)
 extern void __up_read_locked(struct rw_semaphore *);
 extern int __down_write_trylock_locked(struct rw_semaphore *);
 
-#define rw_tryupgrade(rwp)                                              \
-({                                                                      \
-        unsigned long _flags_;                                          \
-        int _rc_ = 0;                                                   \
-                                                                        \
-        spl_rwsem_lock_irqsave(&SEM(rwp)->wait_lock, _flags_);           \
-        if ((list_empty(&SEM(rwp)->wait_list)) &&                       \
-            (SEM(rwp)->activity == 1)) {                                \
-                __up_read_locked(SEM(rwp));                             \
-                VERIFY(_rc_ = __down_write_trylock_locked(SEM(rwp)));   \
-                (rwp)->rw_owner = current;                              \
-        }                                                               \
-        spl_rwsem_unlock_irqrestore(&SEM(rwp)->wait_lock, _flags_);      \
-        _rc_;                                                           \
+#define rw_tryupgrade(rwp)						\
+({									\
+	unsigned long _flags_;						\
+	int _rc_ = 0;							\
+									\
+	spl_rwsem_lock_irqsave(&SEM(rwp)->wait_lock, _flags_);		\
+	if ((list_empty(&SEM(rwp)->wait_list)) &&			\
+	    (SEM(rwp)->activity == 1)) {				\
+		__up_read_locked(SEM(rwp));				\
+		VERIFY(_rc_ = __down_write_trylock_locked(SEM(rwp)));	\
+		(rwp)->rw_owner = current;				\
+	}								\
+	spl_rwsem_unlock_irqrestore(&SEM(rwp)->wait_lock, _flags_);	\
+	_rc_;								\
 })
 #else
 /*
@@ -203,7 +209,7 @@ extern int __down_write_trylock_locked(struct rw_semaphore *);
  * rwsem would be safe.  For now that's not worth the trouble so in this
  * case rw_tryupgrade() has just been disabled.
  */
-#define rw_tryupgrade(rwp)      ({ 0; })
+#define rw_tryupgrade(rwp)	({ 0; })
 #endif
 
 int spl_rw_init(void);
