@@ -217,6 +217,9 @@ static u16 netvsc_select_queue(struct net_device *ndev, struct sk_buff *skb,
 	q_idx = nvsc_dev->send_table[hash % VRSS_SEND_TAB_SIZE] %
 		ndev->real_num_tx_queues;
 
+	if (!nvsc_dev->chn_table[q_idx])
+		q_idx = 0;
+
 	return q_idx;
 }
 
