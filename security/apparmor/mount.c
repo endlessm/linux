@@ -472,7 +472,7 @@ int aa_move_mount(struct aa_label *label, struct path *path,
 			     buffer, &name, &info,
 			     labels_profile(label)->disconnected);
 	if (error)
-		goto error;
+		goto out;
 
 	error = aa_path_name(&old_path, path_flags(labels_profile(label),
 						   &old_path),
