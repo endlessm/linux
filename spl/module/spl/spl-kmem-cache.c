@@ -87,7 +87,7 @@ MODULE_PARM_DESC(spl_kmem_cache_expire, "By age (0x1) or low memory (0x2)");
 unsigned int spl_kmem_cache_magazine_size = 0;
 module_param(spl_kmem_cache_magazine_size, uint, 0444);
 MODULE_PARM_DESC(spl_kmem_cache_magazine_size,
-	"Default magazine size (2-256), set automatically (0)\n");
+	"Default magazine size (2-256), set automatically (0)");
 
 /*
  * The default behavior is to report the number of objects remaining in the
@@ -1634,16 +1634,11 @@ spl_kmem_cache_reap_now(spl_kmem_cache_t *skc, int count)
 	atomic_inc(&skc->skc_ref);
 
 	/*
-	 * Execute the registered reclaim callback if it exists.  The
-	 * per-cpu caches will be drained when is set KMC_EXPIRE_MEM.
+	 * Execute the registered reclaim callback if it exists.
 	 */
 	if (skc->skc_flags & KMC_SLAB) {
 		if (skc->skc_reclaim)
 			skc->skc_reclaim(skc->skc_private);
-
-		if (spl_kmem_cache_expire & KMC_EXPIRE_MEM)
-			kmem_cache_shrink(skc->skc_linux_cache);
-
 		goto out;
 	}
 
