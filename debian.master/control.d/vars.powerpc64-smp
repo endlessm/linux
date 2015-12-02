@@ -2,6 +2,6 @@ supported="64-bit PowerPC SMP"
 target="Geared toward desktop or server systems."
 desc="64-bit PowerPC SMP"
 bootloader="yaboot"
-provides="redhat-cluster-modules, ivtv-modules"
+provides="redhat-cluster-modules, ivtv-modules, spl-dkms, zfs-dkms"
 arch="powerpc"
 do_zfs=true
