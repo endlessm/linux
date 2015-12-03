@@ -1,5 +1,6 @@
 arch/*/{crypto,kernel,oprofile}
 arch/*/kvm/kvm.ko
+arch/s390/*
 arch/x86/kvm/kvm-intel.ko
 arch/x86/kvm/kvm-amd.ko
 crypto/*
@@ -43,7 +44,7 @@ drivers/input/touchscreen/usbtouchscreen.ko
 drivers/input/misc/xen-kbdfront.ko
 drivers/md/*
 drivers/message/fusion*
-drivers/s390/block/*
+drivers/s390/*
 drivers/scsi/scsi_transport_spi.ko
 drivers/misc/vmw_balloon.ko
 drivers/misc/vmw_vmci/vmw_vmci.ko
