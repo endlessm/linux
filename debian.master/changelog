@@ -1,3 +1,15 @@
+linux (4.4.0-0.4) xenial; urgency=low
+
+  [ Upstream Kernel Changes ]
+
+  * cgroup: make css_set pin its css's to avoid use-afer-free
+  * cgroup_freezer: simplify propagation of CGROUP_FROZEN clearing in
+    freezer_attach()
+  * cgroup: fix handling of multi-destination migration from
+    subtree_control enabling
+
+ -- Tim Gardner <tim.gardner@canonical.com>  Tue, 08 Dec 2015 11:20:41 -0700
+
 linux (4.4.0-0.3) xenial; urgency=low
 
   [ Upstream Kernel Changes ]
