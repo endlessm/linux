@@ -17,7 +17,3 @@ do_tools_cpupower = true
 do_tools_perf     = true
 
 do_zfs		= false
-
-# Ignore abi until we are generating them in LaunchPad
-skipabi         = true
-skipmodule      = true
