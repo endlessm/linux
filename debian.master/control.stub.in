@@ -126,7 +126,7 @@ Description: Linux kernel version specific tools for version PKGVER
 
 Package: SRCPKGNAME-tools-PKGVER-ABINUM
 Build-Profiles: <!stage1>
-Architecture: i386 amd64 armhf arm64 powerpc ppc64el
+Architecture: i386 amd64 armhf arm64 powerpc ppc64el s390x
 Section: devel
 Priority: optional
 Depends: ${misc:Depends}, ${shlibs:Depends}, SRCPKGNAME-tools-common

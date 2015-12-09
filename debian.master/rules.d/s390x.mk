@@ -11,6 +11,11 @@ vdso		= vdso_install
 no_dumpfile	= true
 
 do_extras_package = true
+
+do_tools_usbip    = true
+do_tools_cpupower = true
+do_tools_perf     = true
+
 do_zfs		= false
 
 # Ignore abi until we are generating them in LaunchPad
