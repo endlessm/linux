@@ -14,6 +14,7 @@ getall amd64 generic lowlatency
 getall i386 generic lowlatency
 getall arm64 generic
 getall ppc64el generic
+getall s390x generic
 
 # Ports arches and flavours.
 getall powerpc powerpc-smp powerpc64-smp powerpc-e500mc powerpc64-emb
