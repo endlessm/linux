@@ -43,11 +43,13 @@ brcmfmac ?
 brcmsmac ?
 xgmac ?
 cassini ?
+ccwgroup ?
 com20020 ?
 com20020-pci ?
 com90io ?
 com90xx ?
 cs89x0 ?
+ctcm ?
 de2104x ?
 de4x5 ?
 de600 ?
@@ -72,6 +74,7 @@ eth16i ?
 ewrk3 ?
 fealnx ?
 forcedeth ?
+fsm ?
 ibmveth ?
 igb ?
 ps3_gelic ?
@@ -95,6 +98,7 @@ ixgb ?
 ixgbe ?
 lance ?
 lanstreamer ?
+lcs ?
 lasi_82596 ?
 lne390 ?
 lp486e ?
@@ -110,6 +114,7 @@ ne2 ?
 ne2k-pci ?
 ne3210 ?
 netconsole ?
+netiucv ?
 netxen_nic ?
 ni5010 ?
 ni52 ?
@@ -124,6 +129,9 @@ orinoco_pci ?
 orinoco_plx ?
 orinoco_tmd ?
 pcnet32 ?
+qeth ?
+qeth_l2 ?
+qeth_l3 ?
 qlcnic ?
 r815x ?
 r8169 ?
