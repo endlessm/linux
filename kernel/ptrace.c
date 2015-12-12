@@ -207,12 +207,32 @@ static int ptrace_check_attach(struct task_struct *child, bool ignore_state)
 	return ret;
 }
 
-static int ptrace_has_cap(struct user_namespace *ns, unsigned int mode)
+static bool ptrace_has_cap(const struct cred *tcred, unsigned int mode)
 {
+	struct user_namespace *tns = tcred->user_ns;
+	struct user_namespace *curns = current_cred()->user_ns;
+
+	/* When a root-owned process enters a user namespace created by a
+	 * malicious user, the user shouldn't be able to execute code under
+	 * uid 0 by attaching to the root-owned process via ptrace.
+	 * Therefore, similar to the capable_wrt_inode_uidgid() check,
+	 * verify that all the uids and gids of the target process are
+	 * mapped into the current namespace.
+	 * No fsuid/fsgid check because __ptrace_may_access doesn't do it
+	 * either.
+	 */
+	if (!kuid_has_mapping(curns, tcred->euid) ||
+			!kuid_has_mapping(curns, tcred->suid) ||
+			!kuid_has_mapping(curns, tcred->uid)  ||
+			!kgid_has_mapping(curns, tcred->egid) ||
+			!kgid_has_mapping(curns, tcred->sgid) ||
+			!kgid_has_mapping(curns, tcred->gid))
+		return false;
+
 	if (mode & PTRACE_MODE_NOAUDIT)
-		return has_ns_capability_noaudit(current, ns, CAP_SYS_PTRACE);
+		return has_ns_capability_noaudit(current, tns, CAP_SYS_PTRACE);
 	else
-		return has_ns_capability(current, ns, CAP_SYS_PTRACE);
+		return has_ns_capability(current, tns, CAP_SYS_PTRACE);
 }
 
 /* Returns 0 on success, -errno on denial. */
@@ -241,7 +261,7 @@ static int __ptrace_may_access(struct task_struct *task, unsigned int mode)
 	    gid_eq(cred->gid, tcred->sgid) &&
 	    gid_eq(cred->gid, tcred->gid))
 		goto ok;
-	if (ptrace_has_cap(tcred->user_ns, mode))
+	if (ptrace_has_cap(tcred, mode))
 		goto ok;
 	rcu_read_unlock();
 	return -EPERM;
@@ -252,7 +272,7 @@ ok:
 		dumpable = get_dumpable(task->mm);
 	rcu_read_lock();
 	if (dumpable != SUID_DUMP_USER &&
-	    !ptrace_has_cap(__task_cred(task)->user_ns, mode)) {
+	    !ptrace_has_cap(__task_cred(task), mode)) {
 		rcu_read_unlock();
 		return -EPERM;
 	}
