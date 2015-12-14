@@ -1169,8 +1169,8 @@ static int mmc_sd_runtime_resume(struct mmc_host *host)
 		return 0;
 
 	err = _mmc_sd_resume(host);
-	if (err)
-		pr_err("%s: error %d doing aggressive resume\n",
+	if (err && err != -ENOMEDIUM)
+		pr_err("%s: error %d doing runtime resume\n",
 			mmc_hostname(host), err);
 
 	return 0;
