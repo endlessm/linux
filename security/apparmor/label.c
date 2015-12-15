@@ -47,7 +47,7 @@ static void free_replacedby(struct aa_replacedby *r)
 		/* r->label will not updated any more as r is dead */
 		aa_put_label(rcu_dereference_protected(r->label, true));
 		memset(r, 0, sizeof(*r));
-		r->label = REPLACEDBY_POISON;
+		r->label = (struct aa_label *) REPLACEDBY_POISON;
 		kfree(r);
 	}
 }
@@ -224,7 +224,7 @@ void aa_label_destroy(struct aa_label *label)
 
 		label_for_each(i, label, profile) {
 			aa_put_profile(profile);
-			label->ent[i.i] = LABEL_POISON + i.i;
+			label->ent[i.i] = (struct aa_profile *) (LABEL_POISON + (long) i.i);
 		}
 	}
 
@@ -233,7 +233,7 @@ void aa_label_destroy(struct aa_label *label)
 
 	aa_free_sid(label->sid);
 	aa_put_replacedby(label->replacedby);
-	label->replacedby = REPLACEDBY_POISON + 1;
+	label->replacedby = (struct aa_replacedby *) REPLACEDBY_POISON + 1;
 }
 
 void aa_label_free(struct aa_label *label)
