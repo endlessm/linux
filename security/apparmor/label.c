@@ -333,13 +333,16 @@ fail:
 	return NULL;
 }
 
-static bool __aa_label_remove(struct aa_labelset *ls, struct aa_label *label)
+static bool __aa_label_remove(struct aa_labelset *ls, struct aa_label *label,
+			      struct aa_label *new)
 {
 	AA_BUG(!ls);
 	AA_BUG(!label);
 	AA_BUG(!write_is_locked(&ls->lock));
 	AA_BUG(labels_set(label) != ls);
 
+	if (new)
+		__aa_update_replacedby(label, new);
 	if (label_invalid(label))
 		labelstats_dec(invalid_intree);
 	else
@@ -369,8 +372,7 @@ bool aa_label_remove(struct aa_labelset *ls, struct aa_label *l)
 	bool res;
 
 	write_lock_irqsave(&ls->lock, flags);
-	__aa_update_replacedby(l, &labels_ns(l)->unconfined->label);
-	res = __aa_label_remove(ls, l);
+	res = __aa_label_remove(ls, l, &labels_ns(l)->unconfined->label);
 	write_unlock_irqrestore(&ls->lock, flags);
 
 	return res;
@@ -419,7 +421,7 @@ static struct aa_label *__aa_label_remove_and_insert(struct aa_labelset *ls,
 	AA_BUG(labels_set(remove) != ls);
 	AA_BUG(insert->flags & FLAG_IN_TREE);
 
-	__aa_label_remove(ls, remove);
+	__aa_label_remove(ls, remove, insert);
 	return __aa_label_insert(ls, insert, replace);
 }
 
@@ -462,8 +464,7 @@ bool aa_label_replace(struct aa_label *old, struct aa_label *new)
 		struct aa_label *l;
 		struct aa_labelset *ls = labels_set(old);
 		write_lock_irqsave(&ls->lock, flags);
-		__aa_update_replacedby(old, new);
-		res = __aa_label_remove(ls, old);
+		res = __aa_label_remove(ls, old, new);
 		if (labels_ns(old) != labels_ns(new)) {
 			write_unlock_irqrestore(&ls->lock, flags);
 			ls = labels_set(new);
@@ -1724,7 +1725,11 @@ void aa_labelset_destroy(struct aa_labelset *ls)
 	write_lock_irqsave(&ls->lock, flags);
 	for (node = rb_first(&ls->root); node; node = rb_first(&ls->root)) {
 		struct aa_label *this = rb_entry(node, struct aa_label, node);
-		__aa_label_remove(ls, this);
+		if (ls != &root_ns->labels)
+			__aa_label_remove(ls, this,
+				  &labels_ns(this)->parent->unconfined->label);
+		else
+			__aa_label_remove(ls, this, NULL);
 	}
 	write_unlock_irqrestore(&ls->lock, flags);
 }
