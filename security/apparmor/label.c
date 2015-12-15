@@ -1844,7 +1844,7 @@ static struct aa_label *__label_update(struct aa_label *label)
 	if (invcount) {
 		l->size -= aa_sort_and_merge_profiles(l->size, &l->ent[0]);
 		if (labels_set(label) != labels_set(l)) {
-			aa_label_remove(labels_set(label), label);
+			__aa_label_remove(labels_set(label), label, l);
 			write_unlock_irqrestore(&ls->lock, flags);
 			tmp = aa_label_insert(labels_set(l), l);
 			goto out;
