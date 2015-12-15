@@ -87,7 +87,7 @@ void __aa_update_replacedby(struct aa_label *orig, struct aa_label *new)
 	aa_put_label(tmp);
 }
 
-void __share_replacedby(struct aa_label *old, struct aa_label *new)
+static void __share_replacedby(struct aa_label *old, struct aa_label *new)
 {
 	struct aa_replacedby *r = new->replacedby;
 	new->replacedby = aa_get_replacedby(old->replacedby);
