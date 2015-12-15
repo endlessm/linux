@@ -1769,9 +1769,6 @@ static struct aa_label *labelset_next_invalid(struct aa_labelset *ls)
 	read_lock_irqsave(&ls->lock, flags);
 
 	__labelset_for_each(ls, node) {
-		struct aa_profile *p;
-		struct label_it i;
-
 		label = rb_entry(node, struct aa_label, node);
 		if ((label_invalid(label) || vec_invalid(label->ent, label->size)) &&
 		    aa_get_label_not0(label))
@@ -1847,6 +1844,11 @@ static struct aa_label *__label_update(struct aa_label *label)
 			__aa_label_remove(labels_set(label), label, l);
 			write_unlock_irqrestore(&ls->lock, flags);
 			tmp = aa_label_insert(labels_set(l), l);
+			if (tmp != l) {
+				write_lock_irqsave(&ls->lock, flags);
+				__aa_update_replacedby(label, tmp);
+				write_unlock_irqrestore(&ls->lock, flags);
+			}
 			goto out;
 		}
 	} else
