@@ -448,7 +448,7 @@ CONFIG_BLK_CPQ_CISS_DA                          policy<{'amd64': 'm', 'arm64': '
 CONFIG_CISS_SCSI_TAPE                           policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'powerpc': 'y', 'ppc64el': 'y'}>
 CONFIG_BLK_DEV_DAC960                           policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'powerpc': 'm', 'ppc64el': 'm', 's390x': 'n'}>
 CONFIG_BLK_DEV_UMEM                             policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'powerpc': 'm', 'ppc64el': 'm', 's390x': 'n'}>
-CONFIG_BLK_DEV_LOOP                             policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'powerpc': 'y', 'ppc64el': 'y', 's390x': 'm'}>
+CONFIG_BLK_DEV_LOOP                             policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'powerpc': 'y', 'ppc64el': 'y', 's390x': 'y'}>
 CONFIG_BLK_DEV_LOOP_MIN_COUNT                   policy<{'amd64': '8', 'arm64': '8', 'armhf': '8', 'i386': '8', 'powerpc': '8', 'ppc64el': '8', 's390x': '8'}>
 CONFIG_BLK_DEV_CRYPTOLOOP                       policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'powerpc': 'm', 'ppc64el': 'm', 's390x': 'n'}>
 CONFIG_BLK_DEV_DRBD                             policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'powerpc': 'm', 'ppc64el': 'm', 's390x': 'm'}>
