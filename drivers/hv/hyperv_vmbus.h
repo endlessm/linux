@@ -496,6 +496,8 @@ extern int hv_post_message(union hv_connection_id connection_id,
 			 enum hv_message_type message_type,
 			 void *payload, size_t payload_size);
 
+extern int hv_signal_event(void *con_id);
+
 extern int hv_synic_alloc(void);
 
 extern void hv_synic_free(void);
@@ -667,7 +669,7 @@ void vmbus_disconnect(void);
 
 int vmbus_post_msg(void *buffer, size_t buflen);
 
-void vmbus_set_event(struct vmbus_channel *channel);
+int vmbus_set_event(struct vmbus_channel *channel);
 
 void vmbus_on_event(unsigned long data);
 void vmbus_on_msg_dpc(unsigned long data);
