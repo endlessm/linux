@@ -1487,9 +1487,10 @@ static int mwifiex_cmd_cfg_data(struct mwifiex_private *priv,
 {
 	struct mwifiex_adapter *adapter = priv->adapter;
 	struct property *prop = data_buf;
-	u32 len;
+	u32 len = 0;
 	u8 *data = (u8 *)cmd + S_DS_GEN;
 	int ret;
+	const struct firmware *cal_data = adapter->cal_data;
 
 	if (prop) {
 		len = prop->length;
@@ -1500,11 +1501,19 @@ static int mwifiex_cmd_cfg_data(struct mwifiex_private *priv,
 		mwifiex_dbg(adapter, INFO,
 			    "download cfg_data from device tree: %s\n",
 			    prop->name);
-	} else if (adapter->cal_data->data && adapter->cal_data->size > 0) {
-		len = mwifiex_parse_cal_cfg((u8 *)adapter->cal_data->data,
-					    adapter->cal_data->size, data);
-		mwifiex_dbg(adapter, INFO,
-			    "download cfg_data from config file\n");
+	} else if (cal_data) {
+		if (cal_data->data && cal_data->size > 0) {
+			len = mwifiex_parse_cal_cfg((u8 *)cal_data->data,
+						    cal_data->size, data);
+			mwifiex_dbg(adapter, INFO,
+				    "download cfg_data from config file\n");
+		} else {
+			return -1;
+		}
+	} else if (adapter->cfg_data && adapter->cfg_len > 0) {
+		len = mwifiex_parse_cal_cfg(adapter->cfg_data,
+					    adapter->cfg_len, data);
+		mwifiex_dbg(adapter, INFO, "download cfg_data from iw vendor command\n");
 	} else {
 		return -1;
 	}

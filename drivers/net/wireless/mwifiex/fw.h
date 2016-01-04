@@ -1212,6 +1212,7 @@ enum SNMP_MIB_INDEX {
 	FRAG_THRESH_I = 8,
 	DOT11D_I = 9,
 	DOT11H_I = 10,
+	TURBO_MODE_I = 39,
 };
 
 enum mwifiex_assocmd_failurepoint {

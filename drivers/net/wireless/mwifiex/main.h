@@ -994,6 +994,8 @@ struct mwifiex_adapter {
 	u8 active_scan_triggered;
 	bool usb_mc_status;
 	bool usb_mc_setup;
+	u8 *cfg_data;
+	int cfg_len;
 };
 
 void mwifiex_process_tx_queue(struct mwifiex_adapter *adapter);
@@ -1568,6 +1570,8 @@ void mwifiex_process_tx_pause_event(struct mwifiex_private *priv,
 void mwifiex_process_multi_chan_event(struct mwifiex_private *priv,
 				      struct sk_buff *event_skb);
 void mwifiex_multi_chan_resync(struct mwifiex_adapter *adapter);
+
+void marvell_set_vendor_commands(struct wiphy *wiphy);
 
 #ifdef CONFIG_DEBUG_FS
 void mwifiex_debugfs_init(void);

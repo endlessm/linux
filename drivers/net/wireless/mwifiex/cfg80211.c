@@ -3842,6 +3842,8 @@ int mwifiex_register_cfg80211(struct mwifiex_adapter *adapter)
 	if (adapter->fw_api_ver == MWIFIEX_FW_V15)
 		wiphy->features |= NL80211_FEATURE_SK_TX_STATUS;
 
+	marvell_set_vendor_commands(wiphy);
+
 	/* Reserve space for mwifiex specific private data for BSS */
 	wiphy->bss_priv_size = sizeof(struct mwifiex_bss_priv);
 
