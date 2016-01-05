@@ -23,6 +23,12 @@
 #include <linux/sort.h>
 #include <linux/nstree.h>
 
+/*
+ * sysctl determining whether unprivileged users may unshare a new
+ * userns.  Allowed by default
+ */
+int unprivileged_userns_clone = 1;
+
 static struct kmem_cache *user_ns_cachep __ro_after_init;
 static DEFINE_MUTEX(userns_state_mutex);
 
