@@ -5,6 +5,20 @@ extend-diff-ignore=ubuntu/vbox/vboxguest/include
 extend-diff-ignore=ubuntu/vbox/vboxsf/r0drv
 extend-diff-ignore=ubuntu/vbox/vboxsf/include
 
+extend-diff-ignore=spl/rpm/redhat/spl-dkms.spec.in
+extend-diff-ignore=spl/rpm/redhat/spl.spec.in
+extend-diff-ignore=zfs/rpm/redhat/zfs-dkms.spec.in
+extend-diff-ignore=zfs/rpm/redhat/zfs.spec.in
+extend-diff-ignore=zfs/cmd/zed/zed.d/checksum-notify.sh
+extend-diff-ignore=zfs/cmd/zed/zed.d/checksum-spare.sh
+extend-diff-ignore=zfs/cmd/zed/zed.d/data-notify.sh
+extend-diff-ignore=zfs/cmd/zed/zed.d/resilver.finish-notify.sh
+extend-diff-ignore=zfs/scripts/zpios-test/large-thread-survey.sh
+extend-diff-ignore=zfs/scripts/zpios-test/large.sh
+extend-diff-ignore=zfs/scripts/zpios-test/medium.sh
+extend-diff-ignore=zfs/scripts/zpios-test/small.sh
+extend-diff-ignore=zfs/scripts/zpios-test/tiny.sh
+
 # force "dpkg-source -I -i" behavior
 diff-ignore
 tar-ignore
