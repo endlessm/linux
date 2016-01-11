@@ -4,4 +4,20 @@
 [ ! -L ubuntu/vbox/vboxsf/include ] && ln -sf ../include ubuntu/vbox/vboxsf/include
 [ ! -L ubuntu/vbox/vboxsf/r0drv ] && ln -sf ../r0drv ubuntu/vbox/vboxsf/r0drv
 [ ! -L ubuntu/vbox/vboxvideo/include ] && ln -sf ../include ubuntu/vbox/vboxvideo/include
+
+# Reconstruct spl/zfs symlinks
+[ ! -L spl/rpm/redhat/spl-dkms.spec.in ] && ln -sf ../generic/spl-dkms.spec.in
+[ ! -L spl/rpm/redhat/spl.spec.in ] && ln -sf ../generic/spl.spec.in
+
+[ ! -L zfs/rpm/redhat/zfs-dkms.spec.in ] && ln -sf ../generic/zfs-dkms.spec.in
+[ ! -L zfs/rpm/redhat/zfs.spec.in ] && ln -sf ../generic/zfs.spec.in
+[ ! -L zfs/cmd/zed/zed.d/checksum-notify.sh ] && ln -sf io-notify.sh
+[ ! -L zfs/cmd/zed/zed.d/checksum-spare.sh ] && ln -sf io-spare.sh
+[ ! -L zfs/cmd/zed/zed.d/data-notify.sh ] && ln -sf io-notify.sh
+[ ! -L zfs/cmd/zed/zed.d/resilver.finish-notify.sh ] && ln -sf scrub.finish-notify.sh
+[ ! -L zfs/scripts/zpios-test/large-thread-survey.sh ] && ln -sf 1x256th-65536rc-4rs-1cs-4off.sh
+[ ! -L zfs/scripts/zpios-test/large.sh ] && ln -sf 256th-65536rc-4rs-1cs-4off.sh
+[ ! -L zfs/scripts/zpios-test/medium.sh ] && ln -sf 16th-8192rc-4rs-1cs-4off.sh
+[ ! -L zfs/scripts/zpios-test/small.sh ] && ln -sf 4th-1024rc-4rs-1cs-4off.sh
+[ ! -L zfs/scripts/zpios-test/tiny.sh ] && ln -sf 1th-16rc-4rs-1cs-4off.sh
 exit 0
