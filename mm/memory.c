@@ -2035,7 +2035,7 @@ static inline int wp_page_reuse(struct mm_struct *mm,
 		}
 
 		if (!page_mkwrite)
-			vma_file_update_time(vma);
+			file_update_time(vma->vm_file);
 	}
 
 	return VM_FAULT_WRITE;

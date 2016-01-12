@@ -147,7 +147,6 @@ over:
 	}
 	return ERR_PTR(-ENFILE);
 }
-EXPORT_SYMBOL(get_empty_filp);
 
 /**
  * alloc_file - allocate and initialize a 'struct file'
@@ -309,7 +308,6 @@ void put_filp(struct file *file)
 		file_free(file);
 	}
 }
-EXPORT_SYMBOL(put_filp);
 
 void __init files_init(void)
 { 
