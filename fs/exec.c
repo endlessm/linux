@@ -107,13 +107,6 @@ bool path_noexec(const struct path *path)
 }
 EXPORT_SYMBOL(path_noexec);
 
-bool path_nosuid(const struct path *path)
-{
-	return !mnt_may_suid(path->mnt) ||
-	       (path->mnt->mnt_sb->s_iflags & SB_I_NOSUID);
-}
-EXPORT_SYMBOL(path_nosuid);
-
 #ifdef CONFIG_USELIB
 /*
  * Note that a shared library must be both readable and executable due to
