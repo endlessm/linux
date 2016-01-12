@@ -1205,6 +1205,22 @@ static efi_status_t exit_boot(struct boot_params *boot_params,
 	return EFI_SUCCESS;
 }
 
+#define MEMORY_ONLY_RESET_CONTROL_GUID \
+	EFI_GUID (0xe20939be, 0x32d4, 0x41be, 0xa1, 0x50, 0x89, 0x7f, 0x85, 0xd4, 0x98, 0x29)
+
+static void enable_reset_attack_mitigation(void)
+{
+	u8 val = 1;
+	efi_guid_t var_guid = MEMORY_ONLY_RESET_CONTROL_GUID;
+
+	/* Ignore the return value here - there's not really a lot we can do */
+	efi_early->call((unsigned long)sys_table->runtime->set_variable,
+			L"MemoryOverwriteRequestControl", &var_guid,
+			EFI_VARIABLE_NON_VOLATILE |
+			EFI_VARIABLE_BOOTSERVICE_ACCESS |
+			EFI_VARIABLE_RUNTIME_ACCESS, sizeof(val), val);
+}
+
 /*
  * On success we return a pointer to a boot_params structure, and NULL
  * on failure.
@@ -1237,6 +1253,12 @@ struct boot_params *efi_main(struct efi_config *c,
 		setup_boot_services64(efi_early);
 	else
 		setup_boot_services32(efi_early);
+
+	/*
+	 * Ask the firmware to clear memory if we don't have a clean
+	 * shutdown
+	 */
+	enable_reset_attack_mitigation();
 
 	sanitize_boot_params(boot_params);
 
