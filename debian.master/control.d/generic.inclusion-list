@@ -83,7 +83,10 @@ drivers/pps/pps_core.ko
 drivers/ptp/ptp.ko
 drivers/net/ethernet/dec/tulip/*
 drivers/scsi/BusLogic.ko
-drivers/scsi/scsi_dh.ko
+drivers/scsi/device_handler/scsi_dh_emc.ko
+drivers/scsi/device_handler/scsi_dh_alua.ko
+drivers/scsi/device_handler/scsi_dh_rdac.ko
+drivers/scsi/device_handler/scsi_dh_hp_sw.ko
 drivers/scsi/iscsi_boot_sysfs.ko
 drivers/scsi/iscsi_tcp.ko
 drivers/scsi/libiscsi.ko
