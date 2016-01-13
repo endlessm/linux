@@ -14,7 +14,6 @@ drivers/ata/libahci_platform.ko
 drivers/block/nbd.ko
 drivers/block/floppy.ko
 drivers/block/cryptoloop.ko
-drivers/block/nvme.ko
 drivers/block/rbd.ko
 drivers/char/hangcheck-timer.ko
 drivers/char/hw_random/virtio-rng.ko
@@ -44,6 +43,7 @@ drivers/input/touchscreen/usbtouchscreen.ko
 drivers/input/misc/xen-kbdfront.ko
 drivers/md/*
 drivers/message/fusion*
+drivers/nvme/host/nvme.ko
 drivers/s390/*
 drivers/scsi/scsi_transport_spi.ko
 drivers/misc/vmw_balloon.ko
