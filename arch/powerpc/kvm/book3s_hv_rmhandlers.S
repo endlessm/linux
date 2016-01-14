@@ -440,6 +440,12 @@ kvm_no_guest:
  * whole-core mode, so we need to nap.
  */
 kvm_unsplit_nap:
+	/* Before we head down to nap, check if HMI is pending and handle it */
+	cmpwi	r12, BOOK3S_INTERRUPT_HMI
+	bne	55f
+	li	r3, 0			/* NULL argument */
+	bl	hmi_exception_realmode
+55:
 	/*
 	 * Ensure that secondary doesn't nap when it has
 	 * its vcore pointer set.
