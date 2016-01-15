@@ -87,7 +87,7 @@ install-%: MODPUBKEY=$(builddir)/build-$*/certs/signing_key.x509
 install-%: build_dir=$(builddir)/build-$*
 install-%: splopts  = INSTALL_MOD_STRIP=1
 install-%: splopts += INSTALL_MOD_PATH=$(pkgdir)/
-install-%: splopts += INSTALL_MOD_DIR=zfs
+install-%: splopts += INSTALL_MOD_DIR=kernel/zfs
 install-%: splopts += $(conc_level)
 install-%: zfsopts  = $(splopts)
 install-%: checks-%
