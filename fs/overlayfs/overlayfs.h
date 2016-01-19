@@ -259,7 +259,12 @@ static inline int ovl_do_setxattr(struct ovl_fs *ofs, struct dentry *dentry,
 				  const char *name, const void *value,
 				  size_t size, int flags)
 {
-	int err = vfs_setxattr(ovl_upper_mnt_userns(ofs), dentry, name, value, size, flags);
+	struct inode *inode = dentry->d_inode;
+	int err;
+
+	inode_lock(inode);
+	err = __vfs_setxattr_noperm(&init_user_ns, dentry, name, value, size, flags);
+	inode_unlock(inode);
 
 	pr_debug("setxattr(%pd2, \"%s\", \"%*pE\", %zu, %d) = %i\n",
 		 dentry, name, min((int)size, 48), value, size, flags, err);
@@ -276,7 +281,13 @@ static inline int ovl_setxattr(struct ovl_fs *ofs, struct dentry *dentry,
 static inline int ovl_do_removexattr(struct ovl_fs *ofs, struct dentry *dentry,
 				     const char *name)
 {
-	int err = vfs_removexattr(ovl_upper_mnt_userns(ofs), dentry, name);
+	struct inode *inode = dentry->d_inode;
+	int err;
+
+	inode_lock(inode);
+	err = __vfs_removexattr_noperm(&init_user_ns, dentry, name);
+	inode_unlock(inode);
+
 	pr_debug("removexattr(%pd2, \"%s\") = %i\n", dentry, name, err);
 	return err;
 }
