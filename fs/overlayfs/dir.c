@@ -60,7 +60,7 @@ int ovl_do_whiteout_v1(struct inode *workdir,
 	if (err)
 		return err;
 
-	err = vfs_setxattr(dentry, ovl_whiteout_xattr, "y", 1, 0);
+	err = ovl_do_setxattr(dentry, ovl_whiteout_xattr, "y", 1, 0);
 	if (err)
 		vfs_unlink(workdir, dentry, NULL);
 
