@@ -149,6 +149,7 @@ static inline int ovl_do_whiteout(struct inode *dir, struct dentry *dentry,
 	return ovl_do_whiteout_v2(dir, dentry);
 }
 
+struct cred *ovl_prepare_creds(struct super_block *sb);
 enum ovl_path_type ovl_path_type(struct dentry *dentry);
 u64 ovl_dentry_version_get(struct dentry *dentry);
 void ovl_dentry_version_inc(struct dentry *dentry);

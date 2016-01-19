@@ -65,6 +65,27 @@ struct ovl_entry {
 
 #define OVL_MAX_STACK 500
 
+/*
+ * Returns a set of credentials suitable for overlayfs internal
+ * operations which require elevated capabilities, equivalent to those
+ * of the user which mounted the superblock. Caller must put the
+ * returned credentials.
+ */
+struct cred *ovl_prepare_creds(struct super_block *sb)
+{
+	struct ovl_fs *ofs = sb->s_fs_info;
+	struct cred *new_cred;
+
+	if (sb->s_magic != OVERLAYFS_SUPER_MAGIC)
+		return NULL;
+
+	new_cred = clone_cred(ofs->mounter_creds);
+	if (!new_cred)
+		return NULL;
+
+	return new_cred;
+}
+
 static struct dentry *__ovl_dentry_lower(struct ovl_entry *oe)
 {
 	return oe->numlower ? oe->lowerstack[0].dentry : NULL;

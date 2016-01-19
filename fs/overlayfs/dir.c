@@ -12,6 +12,7 @@
 #include <linux/xattr.h>
 #include <linux/security.h>
 #include <linux/cred.h>
+#include <linux/sched.h>
 #include "overlayfs.h"
 
 void ovl_cleanup(struct inode *wdir, struct dentry *wdentry)
@@ -349,6 +350,11 @@ static int ovl_create_over_whiteout(struct dentry *dentry, struct inode *inode,
 	struct inode *wdir = workdir->d_inode;
 	struct dentry *upperdir = ovl_dentry_upper(dentry->d_parent);
 	struct inode *udir = upperdir->d_inode;
+	struct iattr attr = {
+		.ia_valid = ATTR_UID | ATTR_GID,
+		.ia_uid = stat->uid,
+		.ia_gid = stat->gid,
+	};
 	struct dentry *upper;
 	struct dentry *newdentry;
 	int err;
@@ -374,6 +380,11 @@ static int ovl_create_over_whiteout(struct dentry *dentry, struct inode *inode,
 	err = ovl_create_real(wdir, newdentry, stat, link, hardlink, true);
 	if (err)
 		goto out_dput2;
+	mutex_lock(&newdentry->d_inode->i_mutex);
+	err = notify_change(newdentry, &attr, NULL);
+	mutex_unlock(&newdentry->d_inode->i_mutex);
+	if (err)
+		goto out_cleanup;
 
 	if (S_ISDIR(stat->mode)) {
 		err = ovl_set_opaque(newdentry);
@@ -418,6 +429,8 @@ static int ovl_create_or_link(struct dentry *dentry, int mode, dev_t rdev,
 	struct kstat stat = {
 		.mode = mode,
 		.rdev = rdev,
+		.uid  = current->cred->fsuid,
+		.gid  = current->cred->fsgid,
 	};
 
 	err = -ENOMEM;
@@ -436,18 +449,9 @@ static int ovl_create_or_link(struct dentry *dentry, int mode, dev_t rdev,
 		struct cred *override_cred;
 
 		err = -ENOMEM;
-		override_cred = prepare_creds();
+		override_cred = ovl_prepare_creds(dentry->d_sb);
 		if (!override_cred)
 			goto out_iput;
-
-		/*
-		 * CAP_SYS_ADMIN for setting opaque xattr
-		 * CAP_DAC_OVERRIDE for create in workdir, rename
-		 * CAP_FOWNER for removing whiteout from sticky dir
-		 */
-		cap_raise(override_cred->cap_effective, CAP_SYS_ADMIN);
-		cap_raise(override_cred->cap_effective, CAP_DAC_OVERRIDE);
-		cap_raise(override_cred->cap_effective, CAP_FOWNER);
 		old_cred = override_creds(override_cred);
 
 		err = ovl_create_over_whiteout(dentry, inode, &stat, link,
@@ -688,22 +692,9 @@ static int ovl_do_remove(struct dentry *dentry, bool is_dir)
 		struct cred *override_cred;
 
 		err = -ENOMEM;
-		override_cred = prepare_creds();
+		override_cred = ovl_prepare_creds(dentry->d_sb);
 		if (!override_cred)
 			goto out_drop_write;
-
-		/*
-		 * CAP_SYS_ADMIN for setting xattr on whiteout, opaque dir
-		 * CAP_DAC_OVERRIDE for create in workdir, rename
-		 * CAP_FOWNER for removing whiteout from sticky dir
-		 * CAP_FSETID for chmod of opaque dir
-		 * CAP_CHOWN for chown of opaque dir
-		 */
-		cap_raise(override_cred->cap_effective, CAP_SYS_ADMIN);
-		cap_raise(override_cred->cap_effective, CAP_DAC_OVERRIDE);
-		cap_raise(override_cred->cap_effective, CAP_FOWNER);
-		cap_raise(override_cred->cap_effective, CAP_FSETID);
-		cap_raise(override_cred->cap_effective, CAP_CHOWN);
 		old_cred = override_creds(override_cred);
 
 		err = ovl_remove_and_whiteout(dentry, is_dir);
@@ -864,22 +855,9 @@ static int ovl_rename2(struct inode *olddir, struct dentry *old,
 
 	if (old_opaque || new_opaque) {
 		err = -ENOMEM;
-		override_cred = prepare_creds();
+		override_cred = ovl_prepare_creds(old->d_sb);
 		if (!override_cred)
 			goto out_drop_write;
-
-		/*
-		 * CAP_SYS_ADMIN for setting xattr on whiteout, opaque dir
-		 * CAP_DAC_OVERRIDE for create in workdir
-		 * CAP_FOWNER for removing whiteout from sticky dir
-		 * CAP_FSETID for chmod of opaque dir
-		 * CAP_CHOWN for chown of opaque dir
-		 */
-		cap_raise(override_cred->cap_effective, CAP_SYS_ADMIN);
-		cap_raise(override_cred->cap_effective, CAP_DAC_OVERRIDE);
-		cap_raise(override_cred->cap_effective, CAP_FOWNER);
-		cap_raise(override_cred->cap_effective, CAP_FSETID);
-		cap_raise(override_cred->cap_effective, CAP_CHOWN);
 		old_cred = override_creds(override_cred);
 	}
 
