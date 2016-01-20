@@ -1812,7 +1812,7 @@ static struct aa_label *__label_update(struct aa_label *label)
 		return NULL;
 
 	if (!label->replacedby) {
-		struct aa_replacedby *r = aa_alloc_replacedby(l, GFP_KERNEL);
+		struct aa_replacedby *r = aa_alloc_replacedby(label, GFP_KERNEL);
 		if (!r) {
 			aa_put_label(l);
 			return NULL;
@@ -1824,13 +1824,8 @@ static struct aa_label *__label_update(struct aa_label *label)
 	/* while holding the ns_lock will stop profile replacement, removal,
 	 * and label updates, label merging and removal can be occuring
 	 */
-
 	ls = labels_set(label);
 	write_lock_irqsave(&ls->lock, flags);
-	/* circular ref only broken by replace or remove */
-	l->replacedby = aa_get_replacedby(label->replacedby);
-	__aa_update_replacedby(label, l);
-
 	label_for_each(i, label, p) {
 		l->ent[i.i] = aa_get_newest_profile(p);
 		if (&l->ent[i.i]->label.replacedby != &p->label.replacedby)
@@ -1841,23 +1836,19 @@ static struct aa_label *__label_update(struct aa_label *label)
 	if (invcount) {
 		l->size -= aa_sort_and_merge_profiles(l->size, &l->ent[0]);
 		if (labels_set(label) != labels_set(l)) {
-			__aa_label_remove(labels_set(label), label, l);
 			write_unlock_irqrestore(&ls->lock, flags);
 			tmp = aa_label_insert(labels_set(l), l);
-			if (tmp != l) {
-				write_lock_irqsave(&ls->lock, flags);
-				__aa_update_replacedby(label, tmp);
-				write_unlock_irqrestore(&ls->lock, flags);
-			}
-			goto out;
+			write_lock_irqsave(&ls->lock, flags);
+			goto remove;
 		}
 	} else
 		AA_BUG(labels_ns(label) != labels_ns(l));
 
 	tmp = __aa_label_insert(labels_set(label), l, true);
+remove:
+	/* ensure label is removed, and redirected correctly */
+	__aa_label_remove(labels_set(label), label, tmp);
 	write_unlock_irqrestore(&ls->lock, flags);
-
-out:
 	aa_put_label(l);
 
 	return tmp;
