@@ -1635,6 +1635,13 @@ static int ovl_get_layers(struct super_block *sb, struct ovl_fs *ofs,
 		 */
 		mnt->mnt_flags |= MNT_READONLY | MNT_NOATIME;
 
+		/*
+		 * If any lower mount is nosuid, force the ovl sb to also
+		 * be nosuid.
+		 */
+		if (mnt->mnt_flags & MNT_NOSUID)
+			sb->s_iflags |= SB_I_NOSUID;
+
 		layers[ofs->numlayer].trap = trap;
 		layers[ofs->numlayer].mnt = mnt;
 		layers[ofs->numlayer].idx = ofs->numlayer;
@@ -1942,6 +1949,13 @@ static int ovl_fill_super(struct super_block *sb, void *data, int silent)
 
 		if (!ofs->workdir)
 			sb->s_flags |= SB_RDONLY;
+
+		/*
+		 * If the upper mount is nosuid, force the ovl sb to also
+		 * be nosuid.
+		 */
+		if (ovl_upper_mnt(ofs)->mnt_flags & MNT_NOSUID)
+			sb->s_iflags |= SB_I_NOSUID;
 
 		sb->s_stack_depth = ovl_upper_mnt(ofs)->mnt_sb->s_stack_depth;
 		sb->s_time_gran = ovl_upper_mnt(ofs)->mnt_sb->s_time_gran;
