@@ -448,7 +448,7 @@ static int get_file_caps(struct linux_binprm *bprm, bool *effective, bool *has_c
 	if (!file_caps_enabled)
 		return 0;
 
-	if (!mnt_may_suid(bprm->file->f_path.mnt))
+	if (path_nosuid(&bprm->file->f_path))
 		return 0;
 
 	/*
