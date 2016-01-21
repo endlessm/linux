@@ -2174,9 +2174,9 @@ EXPORT_SYMBOL(drm_fb_helper_hotplug_event);
  * but the module doesn't depend on any fb console symbols.  At least
  * attempt to load fbcon to avoid leaving the system without a usable console.
  */
-#if defined(CONFIG_FRAMEBUFFER_CONSOLE_MODULE) && !defined(CONFIG_EXPERT)
-static int __init drm_fb_helper_modinit(void)
+int __init drm_fb_helper_modinit(void)
 {
+#if defined(CONFIG_FRAMEBUFFER_CONSOLE_MODULE) && !defined(CONFIG_EXPERT)
 	const char *name = "fbcon";
 	struct module *fbcon;
 
@@ -2186,8 +2186,7 @@ static int __init drm_fb_helper_modinit(void)
 
 	if (!fbcon)
 		request_module_nowait(name);
+#endif
 	return 0;
 }
-
-module_init(drm_fb_helper_modinit);
-#endif
+EXPORT_SYMBOL(drm_fb_helper_modinit);

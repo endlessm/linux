@@ -63,9 +63,6 @@
  * but need to implement the atomic interface instead, potentially using the
  * atomic helpers for that.
  */
-MODULE_AUTHOR("David Airlie, Jesse Barnes");
-MODULE_DESCRIPTION("DRM KMS helper");
-MODULE_LICENSE("GPL and additional rights");
 
 /**
  * drm_helper_move_panel_connectors_to_head() - move panels to the front in the
