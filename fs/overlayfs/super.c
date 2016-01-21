@@ -1191,8 +1191,8 @@ static int ovl_get_fsid(struct ovl_fs *ofs, struct super_block *sb)
 	return ofs->numlowerfs;
 }
 
-static int ovl_get_lower_layers(struct ovl_fs *ofs, struct path *stack,
-				unsigned int numlower)
+static int ovl_get_lower_layers(struct super_block *sb, struct ovl_fs *ofs,
+				struct path *stack, unsigned int numlower)
 {
 	int err;
 	unsigned int i;
@@ -1228,6 +1228,13 @@ static int ovl_get_lower_layers(struct ovl_fs *ofs, struct path *stack,
 		 * will fail instead of modifying lower fs.
 		 */
 		mnt->mnt_flags |= MNT_READONLY | MNT_NOATIME;
+
+		/*
+		 * If any lower mount is nosuid, force the ovl sb to also
+		 * be nosuid.
+		 */
+		if (mnt->mnt_flags & MNT_NOSUID)
+			sb->s_iflags |= SB_I_NOSUID;
 
 		ofs->lower_layers[ofs->numlower].mnt = mnt;
 		ofs->lower_layers[ofs->numlower].idx = i + 1;
@@ -1323,7 +1330,7 @@ static struct ovl_entry *ovl_get_lowerstack(struct super_block *sb,
 		goto out_err;
 	}
 
-	err = ovl_get_lower_layers(ofs, stack, numlower);
+	err = ovl_get_lower_layers(sb, ofs, stack, numlower);
 	if (err)
 		goto out_err;
 
@@ -1409,6 +1416,13 @@ static int ovl_fill_super(struct super_block *sb, void *data, int silent)
 
 		if (!ofs->workdir)
 			sb->s_flags |= SB_RDONLY;
+
+		/*
+		 * If the upper mount is nosuid, force the ovl sb to also
+		 * be nosuid.
+		 */
+		if (ofs->upper_mnt->mnt_flags & MNT_NOSUID)
+			sb->s_iflags |= SB_I_NOSUID;
 
 		sb->s_stack_depth = ofs->upper_mnt->mnt_sb->s_stack_depth;
 		sb->s_time_gran = ofs->upper_mnt->mnt_sb->s_time_gran;
