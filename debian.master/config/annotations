@@ -9515,7 +9515,7 @@ CONFIG_STACK_GUARD                              policy<{'s390x': '256'}>
 CONFIG_WARN_DYNAMIC_STACK                       policy<{'s390x': 'n'}>
 
 # Menu: Processor type and features >> Architecture: x86
-CONFIG_ZONE_DMA                                 policy<{'amd64': 'n', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'powerpc': 'y', 'ppc64el': 'y', 's390x': 'y'}>
+CONFIG_ZONE_DMA                                 policy<{'amd64-generic': 'n', 'amd64-lowlatency': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'powerpc': 'y', 'ppc64el': 'y', 's390x': 'y'}>
 CONFIG_X86_FEATURE_NAMES                        policy<{'amd64': 'y', 'i386': 'y'}>
 CONFIG_X86_X2APIC                               policy<{'amd64': 'y'}>
 CONFIG_X86_MPPARSE                              policy<{'amd64': 'y', 'i386': 'y'}>
