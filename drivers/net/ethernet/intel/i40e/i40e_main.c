@@ -8617,9 +8617,6 @@ static void i40e_add_vxlan_port(struct net_device *netdev,
 	u8 next_idx;
 	u8 idx;
 
-	if (sa_family == AF_INET6)
-		return;
-
 	idx = i40e_get_udp_port_idx(pf, port);
 
 	/* Check if port already exists */
@@ -8659,9 +8656,6 @@ static void i40e_del_vxlan_port(struct net_device *netdev,
 	struct i40e_pf *pf = vsi->back;
 	u8 idx;
 
-	if (sa_family == AF_INET6)
-		return;
-
 	idx = i40e_get_udp_port_idx(pf, port);
 
 	/* Check if port already exists */
@@ -8696,9 +8690,6 @@ static void i40e_add_geneve_port(struct net_device *netdev,
 	u8 idx;
 
 	if (!(pf->flags & I40E_FLAG_GENEVE_OFFLOAD_CAPABLE))
-		return;
-
-	if (sa_family == AF_INET6)
 		return;
 
 	idx = i40e_get_udp_port_idx(pf, port);
@@ -8741,9 +8732,6 @@ static void i40e_del_geneve_port(struct net_device *netdev,
 	struct i40e_vsi *vsi = np->vsi;
 	struct i40e_pf *pf = vsi->back;
 	u8 idx;
-
-	if (sa_family == AF_INET6)
-		return;
 
 	if (!(pf->flags & I40E_FLAG_GENEVE_OFFLOAD_CAPABLE))
 		return;
