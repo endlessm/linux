@@ -45,6 +45,10 @@ static inline int unix_fs_perm(int op, u32 mask, struct aa_label *label,
 		/* socket path has been cleared because it is being shutdown
 		 * can only fall back to original sun_path request
 		 */
+		struct aa_sk_cxt *cxt = SK_CXT(&u->sk);
+		if (cxt->path.dentry)
+			return aa_path_perm(op, label, &cxt->path, flags, mask,
+					    &cond);
 		return fn_for_each_confined(label, profile,
 			((flags | profile->path_flags) & PATH_MEDIATE_DELETED) ?
 				__aa_path_perm(op, profile,

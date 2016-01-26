@@ -747,6 +747,7 @@ static void apparmor_sk_free_security(struct sock *sk)
 	SK_CXT(sk) = NULL;
 	aa_put_label(cxt->label);
 	aa_put_label(cxt->peer);
+	path_put(&cxt->path);
 	kfree(cxt);
 }
 
@@ -761,6 +762,17 @@ static void apparmor_sk_clone_security(const struct sock *sk,
 
 	new->label = aa_get_label(cxt->label);
 	new->peer = aa_get_label(cxt->peer);
+	new->path = cxt->path;
+	path_get(&new->path);
+}
+
+static struct path *UNIX_FS_CONN_PATH(struct sock *sk, struct sock *newsk)
+{
+	if (sk->sk_family == PF_UNIX && UNIX_FS(sk))
+		return &unix_sk(sk)->path;
+	else if (newsk->sk_family == PF_UNIX && UNIX_FS(newsk))
+		return &unix_sk(newsk)->path;
+	return NULL;
 }
 
 /**
@@ -775,6 +787,7 @@ static int apparmor_unix_stream_connect(struct sock *sk, struct sock *peer_sk,
 	struct aa_sk_cxt *peer_cxt = SK_CXT(peer_sk);
 	struct aa_sk_cxt *new_cxt = SK_CXT(newsk);
 	struct aa_label *label;
+	struct path *path;
 	int error;
 
 	label = aa_begin_current_label();
@@ -810,6 +823,13 @@ static int apparmor_unix_stream_connect(struct sock *sk, struct sock *peer_sk,
 	new_cxt->peer = aa_get_label(sk_cxt->label);
 	sk_cxt->peer = aa_get_label(peer_cxt->label);
 
+	path = UNIX_FS_CONN_PATH(sk, peer_sk);
+	if (path) {
+		new_cxt->path = *path;
+		sk_cxt->path = *path;
+		path_get(path);
+		path_get(path);
+	}
 	return 0;
 }
 
