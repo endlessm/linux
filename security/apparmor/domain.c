@@ -474,9 +474,9 @@ int apparmor_bprm_set_creds(struct linux_binprm *bprm)
 	 * fail the exec.
 	 */
 	if (bprm->unsafe & LSM_UNSAFE_NO_NEW_PRIVS) {
-		aa_put_profile(new_profile);
 		error = -EPERM;
-		goto cleanup;
+		info = "no new privs";
+		goto audit;
 	}
 
 	if (!new_profile)
@@ -489,10 +489,8 @@ int apparmor_bprm_set_creds(struct linux_binprm *bprm)
 
 	if (bprm->unsafe & (LSM_UNSAFE_PTRACE | LSM_UNSAFE_PTRACE_CAP)) {
 		error = may_change_ptraced_domain(new_profile, &info);
-		if (error) {
-			aa_put_profile(new_profile);
+		if (error)
 			goto audit;
-		}
 	}
 
 	/* Determine if secure exec is needed.
@@ -513,7 +511,6 @@ int apparmor_bprm_set_creds(struct linux_binprm *bprm)
 		bprm->unsafe |= AA_SECURE_X_NEEDED;
 	}
 apply:
-	target = new_profile->base.hname;
 	/* when transitioning profiles clear unsafe personality bits */
 	bprm->per_clear |= PER_CLEAR_ON_SETID;
 
@@ -526,9 +523,12 @@ x_clear:
 	aa_clear_task_cxt_trans(cxt);
 
 audit:
+	if (new_profile)
+		target = new_profile->base.hname;
 	error = aa_audit_file(profile, &perms, OP_EXEC, MAY_EXEC, name, target,
 			      cond.uid, info, error);
-
+	if (new_profile && &new_profile->label != cxt->label)
+		aa_put_profile(new_profile);
 cleanup:
 	aa_put_label(label);
 	put_buffers(buffer);
