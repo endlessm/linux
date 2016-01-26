@@ -1,0 +1,6 @@
+arch="i386"
+supported="Generic 64"
+target="Provides a 64bit kernel for 32bit systems."
+desc="=HUMAN= SMP"
+bootloader="grub-pc [i386 amd64 x32] | grub-efi-amd64 [amd64 x32] | grub-efi-ia32 [i386 amd64 x32] | grub [i386 amd64 x32] | lilo (>= 19.1) [i386 amd64 x32] | flash-kernel [armhf arm64] | grub-ieee1275 [ppc64el]"
+provides="kvm-api-4, redhat-cluster-modules, ivtv-modules, spl-dkms, zfs-dkms"
