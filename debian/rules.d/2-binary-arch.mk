@@ -25,6 +25,8 @@ $(stampdir)/stamp-prepare-tree-%: $(commonconfdir)/config.common.$(family) $(arc
 	touch $(builddir)/build-$*/ubuntu-build
 	[ "$(do_full_source)" != 'true' ] && true || \
 		rsync -a --exclude debian --exclude debian.master --exclude $(DEBIAN) * $(builddir)/build-$*
+	# create config.flavour.generic-64
+	cat $(commonconfdir)/amd64/config.common.amd64 $(commonconfdir)/amd64/config.flavour.generic > $(archconfdir)/config.flavour.generic-64
 	cat $^ | sed -e 's/.*CONFIG_VERSION_SIGNATURE.*/CONFIG_VERSION_SIGNATURE="Ubuntu $(release)-$(revision)-$* $(raw_kernelversion)"/' > $(builddir)/build-$*/.config
 	find $(builddir)/build-$* -name "*.ko" | xargs rm -f
 	$(build_cd) $(kmake) $(build_O) -j1 silentoldconfig prepare scripts
