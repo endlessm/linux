@@ -610,6 +610,15 @@ static int dm_blk_ioctl(struct block_device *bdev, fmode_t mode,
 	if (r < 0)
 		return r;
 
+	if (tgt->type->target_ioctl) {
+		int res = tgt->type->target_ioctl(tgt, cmd, arg);
+
+		if (res != -ENOTTY) {
+			r = res;
+			goto out;
+		}
+	}
+
 	if (r > 0) {
 		/*
 		 * Target determined this ioctl is being issued against

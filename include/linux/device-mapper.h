@@ -81,6 +81,8 @@ typedef int (*dm_message_fn) (struct dm_target *ti, unsigned argc, char **argv);
 
 typedef int (*dm_prepare_ioctl_fn) (struct dm_target *ti,
 			    struct block_device **bdev, fmode_t *mode);
+typedef int (*dm_target_ioctl_fn) (struct dm_target *ti, unsigned int cmd,
+				   unsigned long arg);
 
 /*
  * These iteration functions are typically used to check (and combine)
@@ -157,6 +159,7 @@ struct target_type {
 	dm_status_fn status;
 	dm_message_fn message;
 	dm_prepare_ioctl_fn prepare_ioctl;
+	dm_target_ioctl_fn target_ioctl;
 	dm_busy_fn busy;
 	dm_iterate_devices_fn iterate_devices;
 	dm_io_hints_fn io_hints;
