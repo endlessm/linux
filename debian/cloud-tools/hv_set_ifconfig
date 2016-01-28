@@ -1,4 +1,24 @@
-#! /usr/bin/env python
+#!/usr/bin/python3
+#
+# hv_set_ifconfig <config> -- take the hv_kvp_daemon generated configuration
+#                             file and apply it to the Ubuntu configuration.
+#
+
+# CONFIG example:
+# HWADDR=11:22:33:44:55:66
+# DEVICE=foo1
+# DHCP=yes
+
+# CONFIG example:
+# HWADDR=11:22:33:44:55:66
+# DEVICE=foo1
+# IPADDR=192.168.99.10
+# GATEWAY=192.168.99.1
+# DNS1=192.168.88.250
+# IPADDR2=192.168.99.11
+# IPV6ADDR=2001:DB8:99::10
+# IPV6NETMASK=64
+# IPV6_DEFAULTGW=2001:DB8:99::10
 
 # set interfaces in hv_kvp_daemon style
 import fileinput
@@ -11,10 +31,11 @@ import subprocess
 
 if_filename="/etc/network/interfaces"
 
-'''Get quiet'''
+# Drop our output (XXX?)
 sys.stdout = open(os.devnull, 'w')
 sys.stderr = open(os.devnull, 'w')
 
+# Confirm we can open the network configuration.
 try:
 	if_file=open(if_filename,"r+")
 except IOError as e:
@@ -22,21 +43,26 @@ except IOError as e:
 else:
 	if_file.close()
 
-
-def kvp_dict(file):
-	return dict(line.strip().split("=") for line in file)
-
-
-#setting the hwaddress to something azure is not expecting is fatal networking 
-
+# Usage: hv_set_ifconfig <config>
 if len(sys.argv) != 2 :
 	exit(errno.EINVAL)
 
+#
+# Here is the format of the ip configuration file:
+#
+# HWADDR=macaddr
+# DEVICE=interface name
+# BOOTPROTO=<protocol> (where <protocol> is "dhcp" if DHCP is configured
+#                       or "none" if no boot-time protocol should be used)
+#
 kvp=dict(line.strip().split("=") for line in fileinput.input())
 
+# Setting the hwaddress to something azure is not expecting is fatal
+# to networking.
 if not "HWADDR" in kvp :
 	exit(errno.EPROTO)
 
+# Confirm we have a device specified.
 if not "DEVICE" in kvp :
 	exit(1)
 
@@ -48,10 +74,10 @@ if "DHCP" in kvp and kvp["DHCP"]=="yes" :
 	output += ["iface " + basename  + " inet dhcp"]
 	output += [""]
 else:
-	''' Matchup the interface specific lines '''
+	# Matchup the interface specific lines
 
-	'''DNS entries will go with the first interface
-	and there can be a max of three'''
+	# DNS entries will go with the first interface
+	# and there can be a max of three
 	autolist=[]
 	dns=[]
 	if "DNS1" in kvp :
@@ -62,27 +88,14 @@ else:
 				dns+=[kvp["DNS3"]]
 
 
-	'''
-	    No real max for the number of interface + aliases ... 
-	    only required is the address (but mate everything up that comes in. '''
+	# No real max for the number of interface + aliases ... 
+	# only required is the address (but mate everything up that comes in.
 
-	'''ipv4 first'''
-
+	# IPv4
 	v4names=[name for name in kvp.keys() if name.startswith("IPADDR")]
 	v4names.sort()
 
-	v6names=[name for name in kvp.keys() if name.startswith("IPV6ADDR")]
-	v6names.sort()
-
-	'''IPV6 requires a netmask'''
-	'''If an ipv6 exists, you'll want to turn off /proc/sys/net/ipv6/conf/all/autoconf with
-	up echo 0 > /proc/sys/net/ipv6/conf/all/autoconf'''
-
-	'''Counter needs to increment as soon as any interface is set.'''
-
-
 	if_count=0
-
 	for v4 in v4names:
 		ifname=basename
 		suffix=""
@@ -101,6 +114,13 @@ else:
 			output += ["\tdns-nameservers " + ' '.join(dns)]
 		output += [""]
 		if_count+=1
+
+
+	# IPv6 requires a netmask
+	# If an ipv6 exists, you'll want to turn off /proc/sys/net/ipv6/conf/all/autoconf with
+	# echo 0 > /proc/sys/net/ipv6/conf/all/autoconf
+	v6names=[name for name in kvp.keys() if name.startswith("IPV6ADDR")]
+	v6names.sort()
 
 	if6_count=0
 	if6_used=0
@@ -126,10 +146,12 @@ else:
 			if6_used += 1
 		if6_count += 1
 
+	# Mark this new interface for automatic up.
 	output = ["auto "+" ".join(autolist)] + output
-print "==================================="
-print output
-print "==================================="
+
+print("===================================")
+print(output)
+print("===================================")
 
 
 ''' Time to clean out the existing interface file'''
@@ -176,16 +198,16 @@ for line in flines:
 				pitchstanza=1
 		if not pitchstanza:
 			stanza+=[line.strip()]
-        elif line.strip() in (start_mark, end_mark):
+	elif line.strip() in (start_mark, end_mark):
 		if inastanza:
 			if not pitchstanza:
 				newfile.extend(stanza)
 			stanza=[]
-                inastanza = 0
-                pitchstanza = 0
-                # Deduplicate markers.
-                if line != prev_line:
-                    newfile += [line.strip()]
+		inastanza = 0
+		pitchstanza = 0
+		# Deduplicate markers.
+		if line != prev_line:
+		    newfile += [line.strip()]
 	else:
 		if inastanza:
 			if not pitchstanza:
@@ -193,50 +215,49 @@ for line in flines:
 		else:
 			if not pitchstanza:
 				newfile += [line.strip()]
-        prev_line=line
+	prev_line=line
 
 
 
 def emit(line):
-        print(line)
-	os.write(fd, line + "\n")
+	print(line)
+	output = line + "\n"
+	os.write(fd, output.encode('utf-8'))
 
 # Insert the new output at the end and inside the existing markers if found.
 emitted = False
 fd, path = tempfile.mkstemp()
 for line in newfile:
-        if line == end_mark:
-                emit("\n".join(output))
-                emitted = True
-        emit(line)
+	if line == end_mark:
+		emit("\n".join(output))
+		emitted = True
+	emit(line)
 if not emitted:
-        emit(start_mark)
-        emit("\n".join(output))
-        emit(end_mark)
+	emit(start_mark)
+	emit("\n".join(output))
+	emit(end_mark)
 os.close(fd)
 
 shutil.copy(path,if_filename)
-os.chmod(if_filename,0644)
-#print "TMPFILE is at: " + path
-#print "Copied file is at: " + if_filename
+os.chmod(if_filename,0o644)
 
+#print("TMPFILE is at: " + path)
+#print("Copied file is at: " + if_filename)
 
 try:
     retcode = subprocess.call("ifdown "+basename , shell=True)
     if retcode < 0:
-        print >>sys.stderr, "Child was terminated by signal", -retcode
+        print("Child was terminated by signal", -retcode, file=sys.stderr)
     else:
-        print >>sys.stderr, "Child returned", retcode
+        print("Child returned", retcode, file=sys.stderr)
 except OSError as e:
-    print >>sys.stderr, "Execution failed:", e
+    print("Execution failed:", e, file=sys.stderr)
 
 try:
     retcode = subprocess.call("ifup "+basename , shell=True)
     if retcode < 0:
-        print >>sys.stderr, "Child was terminated by signal", -retcode
+        print("Child was terminated by signal", -retcode, file=sys.stderr)
     else:
-        print >>sys.stderr, "Child returned", retcode
+        print("Child returned", retcode, file=sys.stderr)
 except OSError as e:
-    print >>sys.stderr, "Execution failed:", e
-
-
+    print("Execution failed:", e, file=sys.stderr)
