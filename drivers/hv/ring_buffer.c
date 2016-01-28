@@ -387,7 +387,6 @@ int hv_ringbuffer_read(struct hv_ring_buffer_info *inring_info,
 	u32 bytes_avail_toread;
 	u32 next_read_location = 0;
 	u64 prev_indices = 0;
-	unsigned long flags;
 	struct vmpacket_descriptor desc;
 	u32 offset;
 	u32 packetlen;
@@ -396,7 +395,6 @@ int hv_ringbuffer_read(struct hv_ring_buffer_info *inring_info,
 	if (buflen <= 0)
 		return -EINVAL;
 
-	spin_lock_irqsave(&inring_info->ring_lock, flags);
 
 	*buffer_actual_len = 0;
 	*requestid = 0;
@@ -411,7 +409,7 @@ int hv_ringbuffer_read(struct hv_ring_buffer_info *inring_info,
 		 * No error is set when there is even no header, drivers are
 		 * supposed to analyze buffer_actual_len.
 		 */
-		goto out_unlock;
+		return ret;
 	}
 
 	next_read_location = hv_get_next_read_location(inring_info);
@@ -424,15 +422,11 @@ int hv_ringbuffer_read(struct hv_ring_buffer_info *inring_info,
 	*buffer_actual_len = packetlen;
 	*requestid = desc.trans_id;
 
-	if (bytes_avail_toread < packetlen + offset) {
-		ret = -EAGAIN;
-		goto out_unlock;
-	}
+	if (bytes_avail_toread < packetlen + offset)
+		return -EAGAIN;
 
-	if (packetlen > buflen) {
-		ret = -ENOBUFS;
-		goto out_unlock;
-	}
+	if (packetlen > buflen)
+		return -ENOBUFS;
 
 	next_read_location =
 		hv_get_next_readlocation_withoffset(inring_info, offset);
@@ -459,7 +453,5 @@ int hv_ringbuffer_read(struct hv_ring_buffer_info *inring_info,
 
 	*signal = hv_need_to_signal_on_read(inring_info);
 
-out_unlock:
-	spin_unlock_irqrestore(&inring_info->ring_lock, flags);
 	return ret;
 }
