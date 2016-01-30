@@ -381,13 +381,13 @@ int aa_bind_mount(struct aa_label *label, struct path *path,
 
 	flags &= MS_REC | MS_BIND;
 
-	get_buffers(buffer, old_buffer);
-	error = aa_path_name(path, path_flags(labels_profile(label), path), buffer, &name,
-			     &info, labels_profile(label)->disconnected);
+	error = kern_path(dev_name, LOOKUP_FOLLOW|LOOKUP_AUTOMOUNT, &old_path);
 	if (error)
 		goto error;
 
-	error = kern_path(dev_name, LOOKUP_FOLLOW|LOOKUP_AUTOMOUNT, &old_path);
+	get_buffers(buffer, old_buffer);
+	error = aa_path_name(path, path_flags(labels_profile(label), path), buffer, &name,
+			     &info, labels_profile(label)->disconnected);
 	if (error)
 		goto error;
 
@@ -463,14 +463,14 @@ int aa_move_mount(struct aa_label *label, struct path *path,
 	if (!orig_name || !*orig_name)
 		return -EINVAL;
 
+	error = kern_path(orig_name, LOOKUP_FOLLOW, &old_path);
+	if (error)
+		goto error;
+
 	get_buffers(buffer, old_buffer);
 	error = aa_path_name(path, path_flags(labels_profile(label), path),
 			     buffer, &name, &info,
 			     labels_profile(label)->disconnected);
-	if (error)
-		goto error;
-
-	error = kern_path(orig_name, LOOKUP_FOLLOW, &old_path);
 	if (error)
 		goto error;
 
@@ -508,22 +508,20 @@ int aa_new_mount(struct aa_label *label, const char *orig_dev_name,
 	const char *name = NULL, *dev_name = NULL, *info = NULL;
 	bool binary = true;
 	int error;
+	int requires_dev;
+	struct file_system_type *fstype;
+	struct path dev_path;
 
 	dev_name = orig_dev_name;
-	get_buffers(buffer, dev_buffer);
 	if (type) {
-		int requires_dev;
-		struct file_system_type *fstype = get_fs_type(type);
+		fstype = get_fs_type(type);
 		if (!fstype)
 			return -ENODEV;
-
 		binary = fstype->fs_flags & FS_BINARY_MOUNTDATA;
 		requires_dev = fstype->fs_flags & FS_REQUIRES_DEV;
 		put_filesystem(fstype);
 
 		if (requires_dev) {
-			struct path dev_path;
-
 			if (!dev_name || !*dev_name) {
 				error = -ENOENT;
 				goto out;
@@ -532,16 +530,19 @@ int aa_new_mount(struct aa_label *label, const char *orig_dev_name,
 			error = kern_path(dev_name, LOOKUP_FOLLOW, &dev_path);
 			if (error)
 				goto error;
-
-			error = aa_path_name(&dev_path,
-					     path_flags(labels_profile(label),
-							&dev_path),
-					     dev_buffer, &dev_name, &info,
-					     labels_profile(label)->disconnected);
-			path_put(&dev_path);
-			if (error)
-				goto error;
 		}
+	}
+
+	get_buffers(buffer, dev_buffer);
+	if (type) {
+		error = aa_path_name(&dev_path,
+				     path_flags(labels_profile(label),
+						&dev_path),
+				     dev_buffer, &dev_name, &info,
+				     labels_profile(label)->disconnected);
+		path_put(&dev_path);
+		if (error)
+			goto error;
 	}
 
 	error = aa_path_name(path, path_flags(labels_profile(label), path),
