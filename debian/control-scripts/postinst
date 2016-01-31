@@ -856,7 +856,8 @@ if ($initrd) {
     image_magic("initrd.img", $image_dest);
   }
   else {
-    if (! -e "initrd.img") {
+    lstat("initrd.img");
+    if (! -e _) {
       handle_missing_link("initrd.img", $image_dest, "initrd.img-$version",
                           $realimageloc);
     }
@@ -914,7 +915,8 @@ if (! defined $ARGV[1] || ! $ARGV[1] || $ARGV[1] =~ m/<unknown>/og) {
   image_magic($kimage, $image_dest);
 }
 else {
-  if (! -e "$kimage") {
+  lstat("$kimage");
+  if (! -e _) {
     handle_missing_link($kimage, $image_dest, "$kimage-$version", 
                         $realimageloc);
   }
