@@ -1185,8 +1185,17 @@ static void nvme_ns_remove(struct nvme_ns *ns)
 
 	lockdep_assert_held(&ns->ctrl->namespaces_mutex);
 
-	if (kill)
+	if (kill) {
 		blk_set_queue_dying(ns->queue);
+
+		/*
+		 * The controller was shutdown first if we got here through
+		 * device removal. The shutdown may requeue outstanding
+		 * requests. These need to be aborted immediately so
+		 * del_gendisk doesn't block indefinitely for their completion.
+		 */
+		blk_mq_abort_requeue_list(ns->queue);
+	}
 	if (ns->disk->flags & GENHD_FL_UP) {
 		if (blk_get_integrity(ns->disk))
 			blk_integrity_unregister(ns->disk);
