@@ -36,6 +36,10 @@ CONFIG_LOWMEM_CAM_NUM                           policy<{'powerpc-powerpc-e500mc'
 CONFIG_ARM_DMA_IOMMU_ALIGNMENT                  policy<{'armhf': '8'}>
 CONFIG_ARM_PATCH_PHYS_VIRT                      policy<{'armhf': 'y'}>
 
+# Menu: Architecture: arm64
+CONFIG_ARM64_VA_BITS                            policy<{'arm64': '48'}>
+CONFIG_ARM64_VA_BITS                            mark<ENFORCED> note<Cavium ThunderX 2-socket needs a minimum of 41 bits of VA>
+
 # Menu: Architecture: powerpc
 CONFIG_PPC64                                    policy<{'powerpc-powerpc64-emb': 'y', 'powerpc-powerpc64-smp': 'y', 'powerpc-powerpc-e500mc': 'n', 'powerpc-powerpc-smp': 'n', 'ppc64el': 'y'}>
 CONFIG_NR_IRQS                                  policy<{'powerpc': '512', 'ppc64el': '512'}>
