@@ -38,8 +38,7 @@ CONFIG_ARM_PATCH_PHYS_VIRT                      policy<{'armhf': 'y'}>
 
 # Menu: Architecture: arm64
 CONFIG_ARM64_VA_BITS                            policy<{'arm64': '48'}>
-#
-#CONFIG_ARM64_VA_BITS                            mark<ENFORCED> note<Cavium ThunderX 2-socket needs a minimum of 41 bits of VA>
+CONFIG_ARM64_VA_BITS                            mark<ENFORCED> note<Cavium ThunderX 2-socket needs a minimum of 41 bits of VA>
 
 # Menu: Architecture: powerpc
 CONFIG_PPC64                                    policy<{'powerpc-powerpc64-emb': 'y', 'powerpc-generic': 'y', 'powerpc-powerpc-e500mc': 'n', 'powerpc-powerpc-smp': 'n', 'ppc64el': 'y'}>
