@@ -31,6 +31,7 @@
 #include <linux/swap.h>
 #include <linux/mm_compat.h>
 #include <linux/wait_compat.h>
+#include <linux/prefetch.h>
 
 /*
  * Within the scope of spl-kmem.c file the kmem_cache_* definitions
@@ -87,7 +88,7 @@ MODULE_PARM_DESC(spl_kmem_cache_expire, "By age (0x1) or low memory (0x2)");
 unsigned int spl_kmem_cache_magazine_size = 0;
 module_param(spl_kmem_cache_magazine_size, uint, 0444);
 MODULE_PARM_DESC(spl_kmem_cache_magazine_size,
-	"Default magazine size (2-256), set automatically (0)");
+	"Default magazine size (2-256), set automatically (0)\n");
 
 /*
  * The default behavior is to report the number of objects remaining in the
@@ -200,7 +201,7 @@ kv_alloc(spl_kmem_cache_t *skc, int size, int flags)
 		ASSERT(ISP2(size));
 		ptr = (void *)__get_free_pages(lflags, get_order(size));
 	} else {
-		ptr = spl_vmalloc(size, lflags | __GFP_HIGHMEM, PAGE_KERNEL);
+		ptr = __vmalloc(size, lflags | __GFP_HIGHMEM, PAGE_KERNEL);
 	}
 
 	/* Resulting allocated memory will be page aligned */
@@ -1155,15 +1156,10 @@ spl_cache_grow_work(void *data)
 	spl_kmem_cache_t *skc = ska->ska_cache;
 	spl_kmem_slab_t *sks;
 
-#if defined(PF_MEMALLOC_NOIO)
-	unsigned noio_flag = memalloc_noio_save();
-	sks = spl_slab_alloc(skc, ska->ska_flags);
-	memalloc_noio_restore(noio_flag);
-#else
 	fstrans_cookie_t cookie = spl_fstrans_mark();
 	sks = spl_slab_alloc(skc, ska->ska_flags);
 	spl_fstrans_unmark(cookie);
-#endif
+
 	spin_lock(&skc->skc_lock);
 	if (sks) {
 		skc->skc_slab_total++;
@@ -1634,11 +1630,16 @@ spl_kmem_cache_reap_now(spl_kmem_cache_t *skc, int count)
 	atomic_inc(&skc->skc_ref);
 
 	/*
-	 * Execute the registered reclaim callback if it exists.
+	 * Execute the registered reclaim callback if it exists.  The
+	 * per-cpu caches will be drained when is set KMC_EXPIRE_MEM.
 	 */
 	if (skc->skc_flags & KMC_SLAB) {
 		if (skc->skc_reclaim)
 			skc->skc_reclaim(skc->skc_private);
+
+		if (spl_kmem_cache_expire & KMC_EXPIRE_MEM)
+			kmem_cache_shrink(skc->skc_linux_cache);
+
 		goto out;
 	}
 
