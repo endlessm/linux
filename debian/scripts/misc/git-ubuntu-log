@@ -1,232 +1,90 @@
-#!/usr/bin/perl -w
+#!/usr/bin/python3
 
-use strict;
-use Text::Wrap;
+import os
+import sys
 
-my $kernel_auth = "Upstream Kernel Changes";
+import urllib.request
+import json
 
-my (%map, @reverts);
-my $pstate = 1;
-my $no_kern_log = 0;
-my $print_shas = 0;
-my $first_print = 1;
+# Suck up the git log output and extract the information we need.
+bugs = []
+entries = []
+entry = None
+subject_wait = False
+for line in sys.stdin:
+    if line.startswith('commit '):
+        if entry and 'ignore' not in entry:
+            entries.append(entry)
+        entry = {}
+        subject_wait = True
 
-while (@ARGV) {
-	my $opt = $ARGV[0];
-	shift;
-	if ($opt eq "--no-kern-log") {
-		$no_kern_log = 1;
-	} elsif ($opt eq "--print-shas") {
-		$print_shas = 1;
-	} else {
-		print STDERR "Unknown options: $opt\n";
-		exit(1);
-	}
-}
+    elif line.startswith('Author: '):
+        bits = line.strip().split(maxsplit=1)
+        entry['author'] = bits[1]
 
-sub check_reverts($) {
-	my ($entry) = @_;
-	my ($check);
+    elif subject_wait and line.startswith('    '):
+        subject_wait = False
+        entry['subject'] = line.strip()
 
-	foreach $check (reverse @reverts) {
-		my $desc = "Revert \"" . $entry->{'desc'} . "\"";
-		if ($check->{'desc'} eq $desc) {
-			@reverts = grep($_->{'desc'} ne $desc, @reverts);
-			return 1;
-		}
-	}
+    elif line.startswith('    BugLink: ') and 'launchpad.net' in line:
+        bits = line.strip().split(maxsplit=1)
+        bits = bits[1].split('/')
+        entry.setdefault('bugs', []).append(bits[-1])
 
-	return 0;
-}
+        # Accumulate bug numbers.
+        if bits[-1] not in bugs:
+            bugs.append(bits[-1])
 
-sub add_entry($) {
-	my ($entry) = @_;
-	my $key = $entry->{'author'};
+    elif line.startswith('    Ignore:'):
+        entry['ignore'] = True
 
-        # store description in array, in email->{desc list} map
-        if (exists $map{$key}) {
-                # grab ref
-                my $obj = $map{$key};
 
-                # add desc to array
-                push(@$obj, $entry);
-        } else {
-                # create new array, containing 1 item
-                my @arr = ($entry);
+entries.reverse()
 
-                # store ref to array
-                $map{$key} = \@arr;
-        }
-}
+# Go through the entries and clear out authors for upstream commits.
+for entry in entries:
+    if entry['subject'].startswith('UBUNTU:'):
+        entry['subject'] = entry['subject'][7:].strip()
+    else:
+        del entry['author']
 
-sub shortlog_entry($$$$$) {
-	my ($name, $desc, $bug, $cve, $commit) = @_;
-	my $entry;
+# Lump everything without a bug at the bottom.
+bugs.append('__packaging__')
+bugs.append('__mainline__')
 
-	$desc =~ s#/pub/scm/linux/kernel/git/#/.../#g;
-	$desc =~ s#\[PATCH\] ##g;
+first = True
+for bug in bugs:
+    if not first:
+        print('')
+    first = False
 
-	$desc =~ s#^\s*##g;
-	$desc =~ s# *UBUNTU: ##g;
+    if bug == '__packaging__':
+        title = 'Miscellaneous Ubuntu changes'
+    elif bug == '__mainline__':
+        title = 'Miscellaneous upstream changes'
+    else:
+        bug_info = None
 
-	$entry->{'desc'} = $desc;
-	if ($bug ne '') {
-		$entry->{'bugno'} = $bug;
-	}
-	$entry->{'cve'} = $cve;
-	$entry->{'commit'} = $commit;
-	$entry->{'author'} = $name;
+        #urllib.request.urlcleanup()
+        request = urllib.request.Request('https://api.launchpad.net/devel/bugs/' + bug)
+        request.add_header('Cache-Control', 'max-age=0')
+        with urllib.request.urlopen(request) as response:
+            data = response.read()
+            bug_info = json.loads(data.decode('utf-8'))
+        
+        title = bug_info['title']
+        if 'description' in bug_info:
+            for line in bug_info['description'].split('\n'):
+                if line.startswith('Kernel-Description:'):
+                    title = line.split(' ', 1)[1]
 
-	if ($desc =~ /^Revert "/) {
-		push(@reverts, $entry);
-		return;
-	}
+        title += ' (LP: #' + bug + ')'
 
-	return if check_reverts($entry);
+    print('  * ' + title)
 
-	add_entry($entry);
-}
+    for entry in entries:
+        if (bug == '__packaging__' and 'bugs' not in entry and 'author' in entry) or \
+           (bug == '__mainline__' and 'bugs' not in entry and 'author' not in entry) or \
+           ('bugs' in entry and bug in entry['bugs']):
+            print('    - ' + entry['subject'])
 
-# sort comparison function
-sub by_name($$) {
-	my ($a, $b) = @_;
-
-	uc($a) cmp uc($b);
-}
-
-sub shortlog_output {
-	my ($obj, $key, $entry);
-
-	foreach $key (sort by_name keys %map) {
-		next if $key eq $kernel_auth and $no_kern_log;
-
-		print "\n" unless $first_print;
-		$first_print = 0;
-
-		# output author
-		printf "  [ %s ]\n\n", $key;
-
-		# output author's 1-line summaries
-		$obj = $map{$key};
-		foreach $entry (reverse @$obj) {
-			print wrap("  * ", "    ", $entry->{'desc'}) . "\n";
-			# For non upstream changes, add other info.
-			if ($key ne $kernel_auth) {
-				if ($print_shas) {
-					print "    - GIT-SHA " . $entry->{'commit'} .
-						"\n";
-				}
-			}
-			if (defined($entry->{'bugno'})) {
-				print "    - LP: #" .  $entry->{'bugno'} . "\n";
-			}
-			if (defined($entry->{'cve'})) {
-				print "    - " . $entry->{'cve'} . "\n";
-			}
-		}
-	}
-}
-
-sub changelog_input {
-	my ($author, $desc, $commit, $entry, $cve);
-
-	while (<STDIN>) {
-		# get commit
-		if ($pstate == 1) {
-			next unless /^commit (.*)/;
-
-			$commit = $1;
-
-			$pstate++;
-		}
-
-		# get author and email
-		elsif ($pstate == 2) {
-			my ($email);
-
-			next unless /^[Aa]uthor:?\s*(.*?)\s*<(.*)>/;
-
-			$author = $1;
-			$email = $2;
-			$desc = undef;
-			$cve = undef;
-
-			# cset author fixups
-			if (!$author) {
-				$author = $email;
-			}
-			$pstate++;
-		}
-
-		# skip to blank line
-		elsif ($pstate == 3) {
-			next unless /^\s*$/;
-			$pstate++;
-		}
-
-		# skip to non-blank line
-		elsif ($pstate == 4) {
-			next unless /^\s*?(.*)/;
-			my $ignore = 0;
-			my $do_ignore = 0;
-			my $bug = undef;
-			my %bugz = ();
-			my $k;
-
-			# skip lines that are obviously not
-			# a 1-line cset description
-			next if /^\s*From: /;
-
-			chomp;
-			$desc = $1;
-
-			if ($desc =~ /^ *(Revert "|)UBUNTU:/) {
-				$do_ignore = 1;
-			} else {
-				$do_ignore = 0;
-				$author = $kernel_auth;
-				$ignore = 1 if $desc =~ /Merge /;
-			}
-			while (<STDIN>) {
-				$ignore  =  1 if ($do_ignore && /^ *Ignore: yes/i);
-				if    (/^ *Bug: *(#|)([0-9#,\s]*)\s*$/i) {
-					foreach $k (split('(,|\s)\s*(#|)', $2)) {
-						$bugz{$k} = 1 if (($k ne '') and ($k =~ /[0-9]+/));
-					}
-				}
-				elsif (/^ *BugLink: *http.*:\/\/.*\/([0-9]+)/i) {
-					$bugz{$1} = 1;
-				}
-				elsif (/^ *(CVE-.*)/) {
-					$cve = $1
-				}
-				last if /^commit /;
-			}
-
-                        $bug = join(", #", sort keys(%bugz));
-			if (!$ignore) {
-				&shortlog_entry($author, $desc, $bug,
-						$cve, $commit, 0);
-			}
-
-			$pstate = 1;
-			if ($_ && /^commit (.*)/) {
-				$commit = $1;
-				$pstate++;
-			}
-		}
-	
-		else {
-			die "invalid parse state $pstate";
-		}
-	}
-
-	foreach $entry (@reverts) {
-		add_entry($entry);
-	}	
-}
-
-&changelog_input;
-&shortlog_output;
-
-exit(0);
