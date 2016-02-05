@@ -99,7 +99,7 @@ printchanges:
 	@baseCommit=$$(git log --pretty=format:'%H %s' | \
 		gawk '/UBUNTU: '".*Ubuntu-`echo $(prev_fullver) | sed 's/+/\\\\+/'`"'$$/ { print $$1; exit }'); \
 		git log "$$baseCommit"..HEAD | \
-		perl -w -f $(DROOT)/scripts/misc/git-ubuntu-log $(ubuntu_log_opts)
+		$(DROOT)/scripts/misc/git-ubuntu-log $(ubuntu_log_opts)
 
 insertchanges:
 	@perl -w -f $(DROOT)/scripts/misc/insert-changes.pl $(DROOT) $(DEBIAN) 
