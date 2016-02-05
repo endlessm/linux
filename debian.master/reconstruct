@@ -6,15 +6,6 @@
 [ ! -L ubuntu/vbox/vboxvideo/include ] && ln -sf ../include ubuntu/vbox/vboxvideo/include
 
 # Reconstruct spl/zfs symlinks
-[ ! -L spl/rpm/redhat/spl-dkms.spec.in ] && (cd spl/rpm/redhat; ln -sf ../generic/spl-dkms.spec.in)
-[ ! -L spl/rpm/redhat/spl.spec.in ] && (cd spl/rpm/redhat; ln -sf ../generic/spl.spec.in)
-
-[ ! -L zfs/rpm/redhat/zfs-dkms.spec.in ] && (cd zfs/rpm/redhat; ln -sf ../generic/zfs-dkms.spec.in)
-[ ! -L zfs/rpm/redhat/zfs.spec.in ] && (cd zfs/rpm/redhat; ln -sf ../generic/zfs.spec.in)
-[ ! -L zfs/cmd/zed/zed.d/checksum-notify.sh ] && (cd zfs/cmd/zed/zed.d; ln -sf io-notify.sh checksum-notify.sh)
-[ ! -L zfs/cmd/zed/zed.d/checksum-spare.sh ] && (cd zfs/cmd/zed/zed.d; ln -sf io-spare.sh checksum-spare.sh)
-[ ! -L zfs/cmd/zed/zed.d/data-notify.sh ] && (cd zfs/cmd/zed/zed.d; ln -sf io-notify.sh data-notify.sh)
-[ ! -L zfs/cmd/zed/zed.d/resilver.finish-notify.sh ] && (cd zfs/cmd/zed/zed.d; ln -sf scrub.finish-notify.sh resilver.finish-notify.sh)
 [ ! -L zfs/scripts/zpios-test/large-thread-survey.sh ] && (cd zfs/scripts/zpios-test; ln -sf 1x256th-65536rc-4rs-1cs-4off.sh large-thread-survey.sh)
 [ ! -L zfs/scripts/zpios-test/large.sh ] && (cd zfs/scripts/zpios-test; ln -sf 256th-65536rc-4rs-1cs-4off.sh large.sh);
 [ ! -L zfs/scripts/zpios-test/medium.sh ] && (cd zfs/scripts/zpios-test; ln -sf 16th-8192rc-4rs-1cs-4off.sh medium.sh)
