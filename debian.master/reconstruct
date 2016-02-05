@@ -6,6 +6,12 @@
 [ ! -L ubuntu/vbox/vboxvideo/include ] && ln -sf ../include ubuntu/vbox/vboxvideo/include
 
 # Reconstruct spl/zfs symlinks
+[ ! -L spl/rpm/redhat/spl-dkms.spec.in ] && (cd spl/rpm/redhat; ln -sf ../generic/spl-dkms.spec.in)
+[ ! -L spl/rpm/redhat/spl.spec.in ] && (cd spl/rpm/redhat; ln -sf ../generic/spl.spec.in)
+
+[ ! -L zfs/rpm/redhat/zfs-dkms.spec.in ] && (cd zfs/rpm/redhat; ln -sf ../generic/zfs-dkms.spec.in)
+[ ! -L zfs/rpm/redhat/zfs.spec.in ] && (cd zfs/rpm/redhat; ln -sf ../generic/zfs.spec.in)
+
 [ ! -L zfs/scripts/zpios-test/large-thread-survey.sh ] && (cd zfs/scripts/zpios-test; ln -sf 1x256th-65536rc-4rs-1cs-4off.sh large-thread-survey.sh)
 [ ! -L zfs/scripts/zpios-test/large.sh ] && (cd zfs/scripts/zpios-test; ln -sf 256th-65536rc-4rs-1cs-4off.sh large.sh);
 [ ! -L zfs/scripts/zpios-test/medium.sh ] && (cd zfs/scripts/zpios-test; ln -sf 16th-8192rc-4rs-1cs-4off.sh medium.sh)
