@@ -774,7 +774,7 @@ struct aa_label *aa_label_insert(struct aa_labelset *ls, struct aa_label *l)
 	return label;
 }
 
-struct aa_label *aa_label_vec_find_or_create(struct aa_labelset *ls,
+static struct aa_label *aa_label_vec_find_or_create(struct aa_labelset *ls,
 					     struct aa_profile **vec, int len)
 {
 	struct aa_label *label = aa_label_vec_find(ls, vec, len);
