@@ -1,9 +1,10 @@
-linux (4.4.0-4.18) xenial; urgency=low
+linux (4.4.0-4.19) xenial; urgency=low
 
   * update ZFS and SPL to 0.6.5.4 (LP: #1542296)
     - [Config] update spl/zfs version
     - SAUCE: (noup) Update spl to 0.6.5.4-0ubuntu2, zfs to 0.6.5.4-0ubuntu1
     - [Config] reconstruct -- drop links for zfs userspace components
+    - [Config] reconstruct -- drop links for zfs userspace components -- restore spec links
 
   * recvmsg() fails SCM_CREDENTIALS request with EOPNOTSUPP. (LP: #1540731)
     - Revert "af_unix: Revert 'lock_interruptible' in stream receive code"
