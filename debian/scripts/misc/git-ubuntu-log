@@ -52,12 +52,8 @@ for entry in entries:
 bugs.append('__packaging__')
 bugs.append('__mainline__')
 
-first = True
+emit_nl = False
 for bug in bugs:
-    if not first:
-        print('')
-    first = False
-
     if bug == '__packaging__':
         title = 'Miscellaneous Ubuntu changes'
     elif bug == '__mainline__':
@@ -80,11 +76,17 @@ for bug in bugs:
 
         title += ' (LP: #' + bug + ')'
 
-    print('  * ' + title)
-
+    emit_title = True
     for entry in entries:
         if (bug == '__packaging__' and 'bugs' not in entry and 'author' in entry) or \
            (bug == '__mainline__' and 'bugs' not in entry and 'author' not in entry) or \
            ('bugs' in entry and bug in entry['bugs']):
+            if emit_title:
+                if emit_nl:
+                    print('')
+                emit_nl = True
+
+                print('  * ' + title)
+                emit_title = False
             print('    - ' + entry['subject'])
 
