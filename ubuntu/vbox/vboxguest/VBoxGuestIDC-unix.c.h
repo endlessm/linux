@@ -1,4 +1,4 @@
-/* $Rev: 98751 $ */
+/* $Rev: 103598 $ */
 /** @file
  * VBoxGuest - Inter Driver Communication, unix implementation.
  *
@@ -68,7 +68,7 @@ DECLEXPORT(void *) VBOXCALL VBoxGuestIDCOpen(uint32_t *pu32Version)
     mutex_exit(&g_LdiMtx);
 #endif
 
-    rc = VbgdCommonCreateKernelSession(&g_DevExt, &pSession);
+    rc = VGDrvCommonCreateKernelSession(&g_DevExt, &pSession);
     if (RT_SUCCESS(rc))
     {
         *pu32Version = VMMDEV_VERSION;
@@ -88,7 +88,7 @@ DECLEXPORT(void *) VBOXCALL VBoxGuestIDCOpen(uint32_t *pu32Version)
     mutex_exit(&g_LdiMtx);
 #endif
 
-    LogRel(("VBoxGuestIDCOpen: VbgdCommonCreateKernelSession failed. rc=%d\n", rc));
+    LogRel(("VBoxGuestIDCOpen: VGDrvCommonCreateKernelSession failed. rc=%d\n", rc));
     return NULL;
 }
 
@@ -97,15 +97,15 @@ DECLEXPORT(void *) VBOXCALL VBoxGuestIDCOpen(uint32_t *pu32Version)
  * Close an IDC connection.
  *
  * @returns VBox error code.
- * @param   pvState             Opaque pointer to the session object.
+ * @param   pvSession           Opaque pointer to the session object.
  */
 DECLEXPORT(int) VBOXCALL VBoxGuestIDCClose(void *pvSession)
 {
     PVBOXGUESTSESSION pSession = (PVBOXGUESTSESSION)pvSession;
-    LogFlow(("VBoxGuestIDCClose:\n"));
+    LogFlow(("VBoxGuestIDCClose: pvSession=%p\n", pvSession));
 
     AssertPtrReturn(pSession, VERR_INVALID_POINTER);
-    VbgdCommonCloseSession(&g_DevExt, pSession);
+    VGDrvCommonCloseSession(&g_DevExt, pSession);
 
 #ifdef RT_OS_SOLARIS
     mutex_enter(&g_LdiMtx);
@@ -140,9 +140,8 @@ DECLEXPORT(int) VBOXCALL VBoxGuestIDCCall(void *pvSession, unsigned iCmd, void *
     LogFlow(("VBoxGuestIDCCall: %pvSession=%p Cmd=%u pvData=%p cbData=%d\n", pvSession, iCmd, pvData, cbData));
 
     AssertPtrReturn(pSession, VERR_INVALID_POINTER);
-    AssertMsgReturn(pSession->pDevExt == &g_DevExt,
-                    ("SC: %p != %p\n", pSession->pDevExt, &g_DevExt), VERR_INVALID_HANDLE);
+    AssertMsgReturn(pSession->pDevExt == &g_DevExt, ("SC: %p != %p\n", pSession->pDevExt, &g_DevExt), VERR_INVALID_HANDLE);
 
-    return VbgdCommonIoCtl(iCmd, &g_DevExt, pSession, pvData, cbData, pcbDataReturned);
+    return VGDrvCommonIoCtl(iCmd, &g_DevExt, pSession, pvData, cbData, pcbDataReturned);
 }
 

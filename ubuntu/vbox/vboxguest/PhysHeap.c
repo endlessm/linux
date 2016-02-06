@@ -512,7 +512,7 @@ DECLVBGL(uint32_t) VbglPhysHeapGetPhysAddr (void *p)
     return physAddr;
 }
 
-DECLVBGL(void) VbglPhysHeapFree (void *p)
+DECLVBGL(void) VbglPhysHeapFree(void *p)
 {
     VBGLPHYSHEAPBLOCK *pBlock;
     VBGLPHYSHEAPBLOCK *pNeighbour;

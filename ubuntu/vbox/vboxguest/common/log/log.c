@@ -25,9 +25,9 @@
  */
 
 
-/*******************************************************************************
-*   Header Files                                                               *
-*******************************************************************************/
+/*********************************************************************************************************************************
+*   Header Files                                                                                                                 *
+*********************************************************************************************************************************/
 #include <iprt/log.h>
 #include "internal/iprt.h"
 
@@ -62,9 +62,9 @@
 #endif
 
 
-/*******************************************************************************
-*   Defined Constants And Macros                                               *
-*******************************************************************************/
+/*********************************************************************************************************************************
+*   Defined Constants And Macros                                                                                                 *
+*********************************************************************************************************************************/
 /** @def RTLOG_RINGBUF_DEFAULT_SIZE
  * The default ring buffer size. */
 /** @def RTLOG_RINGBUF_MAX_SIZE
@@ -89,9 +89,9 @@ AssertCompile(sizeof(RTLOG_RINGBUF_EYE_CATCHER) == 16);
 AssertCompile(sizeof(RTLOG_RINGBUF_EYE_CATCHER_END) == 16);
 
 
-/*******************************************************************************
-*   Structures and Typedefs                                                    *
-*******************************************************************************/
+/*********************************************************************************************************************************
+*   Structures and Typedefs                                                                                                      *
+*********************************************************************************************************************************/
 /**
  * Arguments passed to the output function.
  */
@@ -216,9 +216,9 @@ AssertCompileMemberAlignment(RTLOGGERINTERNAL, cbRingBufUnflushed, sizeof(uint64
 #endif /* !IN_RC */
 
 
-/*******************************************************************************
-*   Internal Functions                                                         *
-*******************************************************************************/
+/*********************************************************************************************************************************
+*   Internal Functions                                                                                                           *
+*********************************************************************************************************************************/
 #ifndef IN_RC
 static unsigned rtlogGroupFlags(const char *psz);
 #endif
@@ -242,9 +242,9 @@ static void rtlogLoggerExFLocked(PRTLOGGER pLogger, unsigned fFlags, unsigned iG
 #endif
 
 
-/*******************************************************************************
-*   Global Variables                                                           *
-*******************************************************************************/
+/*********************************************************************************************************************************
+*   Global Variables                                                                                                             *
+*********************************************************************************************************************************/
 #ifdef IN_RC
 /** Default logger instance. Make it weak because our RC module loader does not
  *  necessarily resolve this symbol and the compiler _must_ check if this is
@@ -3065,13 +3065,13 @@ static void rtR0LogLoggerExFallback(uint32_t fDestFlags, uint32_t fFlags, PRTLOG
  * vprintf like function for writing to the default log.
  *
  * @param   pszFormat   Printf like format string.
- * @param   args        Optional arguments as specified in pszFormat.
+ * @param   va          Optional arguments as specified in pszFormat.
  *
  * @remark The API doesn't support formatting of floating point numbers at the moment.
  */
-RTDECL(void) RTLogPrintfV(const char *pszFormat, va_list args)
+RTDECL(void) RTLogPrintfV(const char *pszFormat, va_list va)
 {
-    RTLogLoggerV(NULL, pszFormat, args);
+    RTLogLoggerV(NULL, pszFormat, va);
 }
 RT_EXPORT_SYMBOL(RTLogPrintfV);
 
@@ -3145,7 +3145,7 @@ static int rtlogFileOpen(PRTLOGGER pLogger, char *pszErrorMsg, size_t cchErrorMs
  * Used by the rtlogFlush() function as well as RTLogCreateExV.
  *
  * @param   pLogger     The logger instance to update. NULL is not allowed!
- * @param   uTimeSlit   Current time slot (for tikme based rotation).
+ * @param   uTimeSlot   Current time slot (for tikme based rotation).
  * @param   fFirst      Flag whether this is the beginning of logging, i.e.
  *                      called from RTLogCreateExV.  Prevents pfnPhase from
  *                      being called.

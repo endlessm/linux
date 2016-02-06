@@ -98,7 +98,7 @@ RTDECL(void)    RTAssertMsg1Weak(const char *pszExpr, unsigned uLine, const char
  * @param   pszFormat   Printf like format string.
  * @param   ...         Arguments to that string.
  */
-RTDECL(void)    RTAssertMsg2(const char *pszFormat, ...);
+RTDECL(void)    RTAssertMsg2(const char *pszFormat, ...) RT_IPRT_FORMAT_ATTR(1, 2);
 /**
  * Weak version of RTAssertMsg2 that forwards to RTAssertMsg2WeakV.
  *
@@ -106,7 +106,7 @@ RTDECL(void)    RTAssertMsg2(const char *pszFormat, ...);
  *
  * @copydoc RTAssertMsg2
  */
-RTDECL(void)    RTAssertMsg2Weak(const char *pszFormat, ...);
+RTDECL(void)    RTAssertMsg2Weak(const char *pszFormat, ...) RT_IPRT_FORMAT_ATTR(1, 2);
 
 /**
  * The 2nd (optional) part of an assert message.
@@ -114,14 +114,14 @@ RTDECL(void)    RTAssertMsg2Weak(const char *pszFormat, ...);
  * @param   pszFormat   Printf like format string.
  * @param   va          Arguments to that string.
  */
-RTDECL(void)    RTAssertMsg2V(const char *pszFormat, va_list va);
+RTDECL(void)    RTAssertMsg2V(const char *pszFormat, va_list va) RT_IPRT_FORMAT_ATTR(1, 0);
 /**
  * Weak version of RTAssertMsg2V that can be overridden locally in a module to
  * modify, redirect or otherwise mess with the assertion output.
  *
  * @copydoc RTAssertMsg2V
  */
-RTDECL(void)    RTAssertMsg2WeakV(const char *pszFormat, va_list va);
+RTDECL(void)    RTAssertMsg2WeakV(const char *pszFormat, va_list va) RT_IPRT_FORMAT_ATTR(1, 0);
 
 /**
  * Additional information which should be appended to the 2nd part of an
@@ -130,7 +130,7 @@ RTDECL(void)    RTAssertMsg2WeakV(const char *pszFormat, va_list va);
  * @param   pszFormat   Printf like format string.
  * @param   ...         Arguments to that string.
  */
-RTDECL(void)    RTAssertMsg2Add(const char *pszFormat, ...);
+RTDECL(void)    RTAssertMsg2Add(const char *pszFormat, ...) RT_IPRT_FORMAT_ATTR(1, 2);
 /**
  * Weak version of RTAssertMsg2Add that forwards to RTAssertMsg2AddWeakV.
  *
@@ -138,7 +138,7 @@ RTDECL(void)    RTAssertMsg2Add(const char *pszFormat, ...);
  *
  * @copydoc RTAssertMsg2Add
  */
-RTDECL(void)    RTAssertMsg2AddWeak(const char *pszFormat, ...);
+RTDECL(void)    RTAssertMsg2AddWeak(const char *pszFormat, ...) RT_IPRT_FORMAT_ATTR(1, 2);
 
 /**
  * Additional information which should be appended to the 2nd part of an
@@ -147,14 +147,14 @@ RTDECL(void)    RTAssertMsg2AddWeak(const char *pszFormat, ...);
  * @param   pszFormat   Printf like format string.
  * @param   va          Arguments to that string.
  */
-RTDECL(void)    RTAssertMsg2AddV(const char *pszFormat, va_list va);
+RTDECL(void)    RTAssertMsg2AddV(const char *pszFormat, va_list va) RT_IPRT_FORMAT_ATTR(1, 0);
 /**
  * Weak version of RTAssertMsg2AddV that can be overridden locally in a module
  * to modify, redirect or otherwise mess with the assertion output.
  *
  * @copydoc RTAssertMsg2AddV
  */
-RTDECL(void)    RTAssertMsg2AddWeakV(const char *pszFormat, va_list va);
+RTDECL(void)    RTAssertMsg2AddWeakV(const char *pszFormat, va_list va) RT_IPRT_FORMAT_ATTR(1, 0);
 
 #ifdef IN_RING0
 /**
@@ -1589,7 +1589,7 @@ RT_C_DECLS_END
         return (rc); \
     } while (0)
 
-/** @def AssertLogRelMsgFailedReturn
+/** @def AssertLogRelMsgFailedReturnStmt
  * An assertion failed, execute @a stmt and return @a rc.
  * Strict builds will hit a breakpoint, non-strict will only do LogRel.
  *
@@ -1621,7 +1621,7 @@ RT_C_DECLS_END
         return; \
     } while (0)
 
-/** @def AssertLogRelMsgFailedReturnVoid
+/** @def AssertLogRelMsgFailedReturnVoidStmt
  * An assertion failed, execute @a stmt and return void.
  * Strict builds will hit a breakpoint, non-strict will only do LogRel.
  *
@@ -2095,7 +2095,7 @@ RT_C_DECLS_END
  */
 #define AssertRCReturn(rc, rcRet)   AssertMsgRCReturn(rc, ("%Rra\n", (rc)), rcRet)
 
-/** @def AssertRCReturn
+/** @def AssertRCReturnStmt
  * Asserts a iprt status code successful, bitch (RT_STRICT mode only), execute
  * @a stmt and returns @a rcRet if it isn't.
  *
@@ -2115,7 +2115,7 @@ RT_C_DECLS_END
  */
 #define AssertRCReturnVoid(rc)      AssertMsgRCReturnVoid(rc, ("%Rra\n", (rc)))
 
-/** @def AssertReturnVoidStmt
+/** @def AssertRCReturnVoidStmt
  * Asserts a iprt status code successful, bitch (RT_STRICT mode only), and
  * execute the given statement/return if it isn't.
  *

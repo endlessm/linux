@@ -50,7 +50,7 @@
  * @param   fWriteAccess    Lock for read-write (true) or readonly (false).
  * @param   fFlags          HGCM call flags, VBGLR0_HGCM_F_XXX.
  */
-int vbglLockLinear (void **ppvCtx, void *pv, uint32_t u32Size, bool fWriteAccess, uint32_t fFlags)
+int vbglLockLinear(void **ppvCtx, void *pv, uint32_t u32Size, bool fWriteAccess, uint32_t fFlags)
 {
     int         rc      = VINF_SUCCESS;
 #ifndef RT_OS_WINDOWS
@@ -73,7 +73,7 @@ int vbglLockLinear (void **ppvCtx, void *pv, uint32_t u32Size, bool fWriteAccess
     /** @todo just use IPRT here. the extra allocation shouldn't matter much...
      *        Then we can move all this up one level even. */
 #ifdef RT_OS_WINDOWS
-    PMDL pMdl = IoAllocateMdl (pv, u32Size, FALSE, FALSE, NULL);
+    PMDL pMdl = IoAllocateMdl(pv, u32Size, FALSE, FALSE, NULL);
 
     if (pMdl == NULL)
     {
@@ -84,16 +84,16 @@ int vbglLockLinear (void **ppvCtx, void *pv, uint32_t u32Size, bool fWriteAccess
     {
         __try {
             /* Calls to MmProbeAndLockPages must be enclosed in a try/except block. */
-            MmProbeAndLockPages (pMdl,
-                                 /** @todo (fFlags & VBGLR0_HGCMCALL_F_MODE_MASK) == VBGLR0_HGCMCALL_F_USER? UserMode: KernelMode */
-                                 KernelMode,
-                                 (fWriteAccess) ? IoModifyAccess : IoReadAccess);
+            MmProbeAndLockPages(pMdl,
+                                /** @todo (fFlags & VBGLR0_HGCMCALL_F_MODE_MASK) == VBGLR0_HGCMCALL_F_USER? UserMode: KernelMode */
+                                KernelMode,
+                                (fWriteAccess) ? IoModifyAccess : IoReadAccess);
 
             *ppvCtx = pMdl;
 
         } __except(EXCEPTION_EXECUTE_HANDLER) {
 
-            IoFreeMdl (pMdl);
+            IoFreeMdl(pMdl);
             /** @todo  */
             rc = VERR_INVALID_PARAMETER;
             AssertMsgFailed(("MmProbeAndLockPages %p %x failed!!\n", pv, u32Size));
@@ -123,7 +123,7 @@ int vbglLockLinear (void **ppvCtx, void *pv, uint32_t u32Size, bool fWriteAccess
     return rc;
 }
 
-void vbglUnlockLinear (void *pvCtx, void *pv, uint32_t u32Size)
+void vbglUnlockLinear(void *pvCtx, void *pv, uint32_t u32Size)
 {
 #ifdef RT_OS_WINDOWS
     PMDL pMdl = (PMDL)pvCtx;
@@ -131,8 +131,8 @@ void vbglUnlockLinear (void *pvCtx, void *pv, uint32_t u32Size)
     Assert(pMdl);
     if (pMdl != NULL)
     {
-        MmUnlockPages (pMdl);
-        IoFreeMdl (pMdl);
+        MmUnlockPages(pMdl);
+        IoFreeMdl(pMdl);
     }
 
 #else
@@ -163,13 +163,13 @@ RT_C_DECLS_END
 # if !defined(RT_OS_OS2) \
   && !defined(RT_OS_WINDOWS)
 RT_C_DECLS_BEGIN
-extern DECLVBGL(void *) VBoxGuestIDCOpen (uint32_t *pu32Version);
-extern DECLVBGL(void)   VBoxGuestIDCClose (void *pvOpaque);
-extern DECLVBGL(int)    VBoxGuestIDCCall (void *pvOpaque, unsigned int iCmd, void *pvData, size_t cbSize, size_t *pcbReturn);
+extern DECLVBGL(void *) VBoxGuestIDCOpen(uint32_t *pu32Version);
+extern DECLVBGL(void)   VBoxGuestIDCClose(void *pvOpaque);
+extern DECLVBGL(int)    VBoxGuestIDCCall(void *pvOpaque, unsigned int iCmd, void *pvData, size_t cbSize, size_t *pcbReturn);
 RT_C_DECLS_END
 # endif
 
-bool vbglDriverIsOpened (VBGLDRIVER *pDriver)
+bool vbglDriverIsOpened(VBGLDRIVER *pDriver)
 {
 # ifdef RT_OS_WINDOWS
     return pDriver->pFileObject != NULL;
@@ -180,19 +180,17 @@ bool vbglDriverIsOpened (VBGLDRIVER *pDriver)
 # endif
 }
 
-int vbglDriverOpen (VBGLDRIVER *pDriver)
+int vbglDriverOpen(VBGLDRIVER *pDriver)
 {
 # ifdef RT_OS_WINDOWS
     UNICODE_STRING uszDeviceName;
-    RtlInitUnicodeString (&uszDeviceName, L"\\Device\\VBoxGuest");
+    RtlInitUnicodeString(&uszDeviceName, L"\\Device\\VBoxGuest");
 
     PDEVICE_OBJECT pDeviceObject = NULL;
     PFILE_OBJECT pFileObject = NULL;
 
-    NTSTATUS rc = IoGetDeviceObjectPointer (&uszDeviceName, FILE_ALL_ACCESS,
-                                            &pFileObject, &pDeviceObject);
-
-    if (NT_SUCCESS (rc))
+    NTSTATUS rc = IoGetDeviceObjectPointer(&uszDeviceName, FILE_ALL_ACCESS, &pFileObject, &pDeviceObject);
+    if (NT_SUCCESS(rc))
     {
         Log(("vbglDriverOpen VBoxGuest successful pDeviceObject=%x\n", pDeviceObject));
         pDriver->pDeviceObject = pDeviceObject;
@@ -207,9 +205,9 @@ int vbglDriverOpen (VBGLDRIVER *pDriver)
     /*
      * Just check whether the connection was made or not.
      */
-    if (    g_VBoxGuestIDC.u32Version == VMMDEV_VERSION
-        &&  VALID_PTR(g_VBoxGuestIDC.u32Session)
-        &&  VALID_PTR(g_VBoxGuestIDC.pfnServiceEP))
+    if (   g_VBoxGuestIDC.u32Version == VMMDEV_VERSION
+        && RT_VALID_PTR(g_VBoxGuestIDC.u32Session)
+        && RT_VALID_PTR(g_VBoxGuestIDC.pfnServiceEP))
     {
         pDriver->u32Session = g_VBoxGuestIDC.u32Session;
         return VINF_SUCCESS;
@@ -220,9 +218,9 @@ int vbglDriverOpen (VBGLDRIVER *pDriver)
 
 # else
     uint32_t u32VMMDevVersion;
-    pDriver->pvOpaque = VBoxGuestIDCOpen (&u32VMMDevVersion);
-    if (    pDriver->pvOpaque
-        &&  u32VMMDevVersion == VMMDEV_VERSION)
+    pDriver->pvOpaque = VBoxGuestIDCOpen(&u32VMMDevVersion);
+    if (   pDriver->pvOpaque
+        && u32VMMDevVersion == VMMDEV_VERSION)
         return VINF_SUCCESS;
 
     Log(("vbglDriverOpen: failed\n"));
@@ -231,34 +229,32 @@ int vbglDriverOpen (VBGLDRIVER *pDriver)
 }
 
 # ifdef RT_OS_WINDOWS
-static NTSTATUS vbglDriverIOCtlCompletion (IN PDEVICE_OBJECT DeviceObject,
-                                           IN PIRP Irp,
-                                           IN PVOID Context)
+static NTSTATUS vbglDriverIOCtlCompletion(IN PDEVICE_OBJECT DeviceObject, IN PIRP Irp, IN PVOID Context)
 {
     Log(("VBGL completion %x\n", Irp));
 
     KEVENT *pEvent = (KEVENT *)Context;
-    KeSetEvent (pEvent, IO_NO_INCREMENT, FALSE);
+    KeSetEvent(pEvent, IO_NO_INCREMENT, FALSE);
 
     return STATUS_MORE_PROCESSING_REQUIRED;
 }
 # endif
 
-int vbglDriverIOCtl (VBGLDRIVER *pDriver, uint32_t u32Function, void *pvData, uint32_t cbData)
+int vbglDriverIOCtl(VBGLDRIVER *pDriver, uint32_t u32Function, void *pvData, uint32_t cbData)
 {
     Log(("vbglDriverIOCtl: pDriver: %p, Func: %x, pvData: %p, cbData: %d\n", pDriver, u32Function, pvData, cbData));
 
 # ifdef RT_OS_WINDOWS
     KEVENT Event;
 
-    KeInitializeEvent (&Event, NotificationEvent, FALSE);
+    KeInitializeEvent(&Event, NotificationEvent, FALSE);
 
     /* Have to use the IoAllocateIRP method because this code is generic and
      * must work in any thread context.
      * The IoBuildDeviceIoControlRequest, which was used here, does not work
      * when APCs are disabled, for example.
      */
-    PIRP irp = IoAllocateIrp (pDriver->pDeviceObject->StackSize, FALSE);
+    PIRP irp = IoAllocateIrp(pDriver->pDeviceObject->StackSize, FALSE);
 
     Log(("vbglDriverIOCtl: irp %p, IRQL = %d\n", irp, KeGetCurrentIrql()));
 
@@ -272,7 +268,7 @@ int vbglDriverIOCtl (VBGLDRIVER *pDriver, uint32_t u32Function, void *pvData, ui
      * Setup the IRP_MJ_DEVICE_CONTROL IRP.
      */
 
-    PIO_STACK_LOCATION nextStack = IoGetNextIrpStackLocation (irp);
+    PIO_STACK_LOCATION nextStack = IoGetNextIrpStackLocation(irp);
 
     nextStack->MajorFunction = IRP_MJ_DEVICE_CONTROL;
     nextStack->MinorFunction = 0;
@@ -286,25 +282,21 @@ int vbglDriverIOCtl (VBGLDRIVER *pDriver, uint32_t u32Function, void *pvData, ui
     irp->MdlAddress = NULL;
 
     /* A completion routine is required to signal the Event. */
-    IoSetCompletionRoutine (irp, vbglDriverIOCtlCompletion, &Event, TRUE, TRUE, TRUE);
+    IoSetCompletionRoutine(irp, vbglDriverIOCtlCompletion, &Event, TRUE, TRUE, TRUE);
 
-    NTSTATUS rc = IoCallDriver (pDriver->pDeviceObject, irp);
+    NTSTATUS rc = IoCallDriver(pDriver->pDeviceObject, irp);
 
     if (NT_SUCCESS (rc))
     {
         /* Wait the event to be signalled by the completion routine. */
-        KeWaitForSingleObject (&Event,
-                               Executive,
-                               KernelMode,
-                               FALSE,
-                               NULL);
+        KeWaitForSingleObject(&Event, Executive, KernelMode, FALSE, NULL);
 
         rc = irp->IoStatus.Status;
 
         Log(("vbglDriverIOCtl: wait completed IRQL = %d\n", KeGetCurrentIrql()));
     }
 
-    IoFreeIrp (irp);
+    IoFreeIrp(irp);
 
     if (rc != STATUS_SUCCESS)
         Log(("vbglDriverIOCtl: ntstatus=%x\n", rc));
@@ -330,11 +322,11 @@ int vbglDriverIOCtl (VBGLDRIVER *pDriver, uint32_t u32Function, void *pvData, ui
 # endif
 }
 
-void vbglDriverClose (VBGLDRIVER *pDriver)
+void vbglDriverClose(VBGLDRIVER *pDriver)
 {
 # ifdef RT_OS_WINDOWS
     Log(("vbglDriverClose pDeviceObject=%x\n", pDriver->pDeviceObject));
-    ObDereferenceObject (pDriver->pFileObject);
+    ObDereferenceObject(pDriver->pFileObject);
     pDriver->pFileObject = NULL;
     pDriver->pDeviceObject = NULL;
 
@@ -342,7 +334,7 @@ void vbglDriverClose (VBGLDRIVER *pDriver)
     pDriver->u32Session = 0;
 
 # else
-    VBoxGuestIDCClose (pDriver->pvOpaque);
+    VBoxGuestIDCClose(pDriver->pvOpaque);
     pDriver->pvOpaque = NULL;
 # endif
 }

@@ -25,9 +25,9 @@
  */
 
 
-/*******************************************************************************
-*   Header Files                                                               *
-*******************************************************************************/
+/*********************************************************************************************************************************
+*   Header Files                                                                                                                 *
+*********************************************************************************************************************************/
 #define RTSEMEVENT_WITHOUT_REMAPPING
 #include "the-linux-kernel.h"
 #include "internal/iprt.h"
@@ -43,9 +43,9 @@
 #include "internal/magics.h"
 
 
-/*******************************************************************************
-*   Structures and Typedefs                                                    *
-*******************************************************************************/
+/*********************************************************************************************************************************
+*   Structures and Typedefs                                                                                                      *
+*********************************************************************************************************************************/
 /**
  * Linux event semaphore.
  */
@@ -72,6 +72,7 @@ RTDECL(int)  RTSemEventCreate(PRTSEMEVENT phEventSem)
 RTDECL(int)  RTSemEventCreateEx(PRTSEMEVENT phEventSem, uint32_t fFlags, RTLOCKVALCLASS hClass, const char *pszNameFmt, ...)
 {
     PRTSEMEVENTINTERNAL pThis;
+    IPRT_LINUX_SAVE_EFL_AC();
 
     AssertReturn(!(fFlags & ~(RTSEMEVENT_FLAGS_NO_LOCK_VAL | RTSEMEVENT_FLAGS_BOOTSTRAP_HACK)), VERR_INVALID_PARAMETER);
     Assert(!(fFlags & RTSEMEVENT_FLAGS_BOOTSTRAP_HACK) || (fFlags & RTSEMEVENT_FLAGS_NO_LOCK_VAL));
@@ -86,6 +87,7 @@ RTDECL(int)  RTSemEventCreateEx(PRTSEMEVENT phEventSem, uint32_t fFlags, RTLOCKV
     init_waitqueue_head(&pThis->Head);
 
     *phEventSem = pThis;
+    IPRT_LINUX_RESTORE_EFL_AC();
     return VINF_SUCCESS;
 }
 RT_EXPORT_SYMBOL(RTSemEventCreate);
@@ -117,6 +119,8 @@ DECLINLINE(void) rtR0SemEventLnxRelease(PRTSEMEVENTINTERNAL pThis)
 
 RTDECL(int)  RTSemEventDestroy(RTSEMEVENT hEventSem)
 {
+    IPRT_LINUX_SAVE_EFL_AC();
+
     /*
      * Validate input.
      */
@@ -134,6 +138,8 @@ RTDECL(int)  RTSemEventDestroy(RTSEMEVENT hEventSem)
     Assert(!waitqueue_active(&pThis->Head));
     wake_up_all(&pThis->Head);
     rtR0SemEventLnxRelease(pThis);
+
+    IPRT_LINUX_RESTORE_EFL_AC();
     return VINF_SUCCESS;
 }
 RT_EXPORT_SYMBOL(RTSemEventDestroy);
@@ -141,6 +147,8 @@ RT_EXPORT_SYMBOL(RTSemEventDestroy);
 
 RTDECL(int)  RTSemEventSignal(RTSEMEVENT hEventSem)
 {
+    IPRT_LINUX_SAVE_EFL_AC();
+
     /*
      * Validate input.
      */
@@ -156,6 +164,7 @@ RTDECL(int)  RTSemEventSignal(RTSEMEVENT hEventSem)
     wake_up(&pThis->Head);
 
     rtR0SemEventLnxRelease(pThis);
+    IPRT_LINUX_RESTORE_EFL_AC();
     return VINF_SUCCESS;
 }
 RT_EXPORT_SYMBOL(RTSemEventSignal);
@@ -194,6 +203,7 @@ static int rtR0SemEventLnxWait(PRTSEMEVENTINTERNAL pThis, uint32_t fFlags, uint6
         /*
          * We have to wait.
          */
+        IPRT_LINUX_SAVE_EFL_AC();
         RTR0SEMLNXWAIT Wait;
         rc = rtR0SemLnxWaitInit(&Wait, fFlags, uTimeout, &pThis->Head);
         if (RT_SUCCESS(rc))
@@ -230,6 +240,7 @@ static int rtR0SemEventLnxWait(PRTSEMEVENTINTERNAL pThis, uint32_t fFlags, uint6
             rtR0SemLnxWaitDelete(&Wait);
             IPRT_DEBUG_SEMS_STATE_RC(pThis, 'E', rc);
         }
+        IPRT_LINUX_RESTORE_EFL_AC();
     }
 
     rtR0SemEventLnxRelease(pThis);

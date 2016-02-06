@@ -25,17 +25,17 @@
  */
 
 
-/*******************************************************************************
-*   Defined Constants                                                          *
-*******************************************************************************/
+/*********************************************************************************************************************************
+*   Defined Constants                                                                                                            *
+*********************************************************************************************************************************/
 #define ISDIGIT(c) ((c) >= '0' && (c) <= '9')
 /*#define MAX(a, b)  ((a) >= (b) ? (a) : (b))
 #define MIN(a, b)  ((a) < (b) ? (a) : (b)) */
 
 
-/*******************************************************************************
-*   Header Files                                                               *
-*******************************************************************************/
+/*********************************************************************************************************************************
+*   Header Files                                                                                                                 *
+*********************************************************************************************************************************/
 #define LOG_GROUP RTLOGGROUP_STRING
 #include <iprt/string.h>
 #include "internal/iprt.h"
@@ -63,9 +63,9 @@ typedef struct
 } KSIZE64;
 
 
-/*******************************************************************************
-*   Internal Functions                                                         *
-*******************************************************************************/
+/*********************************************************************************************************************************
+*   Internal Functions                                                                                                           *
+*********************************************************************************************************************************/
 static unsigned _strnlen(const char *psz, unsigned cchMax);
 static unsigned _strnlenUtf16(PCRTUTF16 pwsz, unsigned cchMax);
 static int rtStrFormatNumber(char *psz, KSIZE64 ullValue, unsigned int uiBase, signed int cchWidth, signed int cchPrecision, unsigned int fFlags);
@@ -554,7 +554,7 @@ RTDECL(size_t) RTStrFormatV(PFNRTSTROUTPUT pfnOutput, void *pvArgOutput, PFNSTRF
                             cchWidth -= cchStr;
                             while (cchStr-- > 0)
                             {
-/**@todo #ifndef IN_RC*/
+/**@todo \#ifndef IN_RC*/
 #ifdef IN_RING3
                                 RTUNICP Cp;
                                 RTUtf16GetCpEx(&pwszStr, &Cp);
@@ -588,7 +588,7 @@ RTDECL(size_t) RTStrFormatV(PFNRTSTROUTPUT pfnOutput, void *pvArgOutput, PFNSTRF
                             cchWidth -= cchStr;
                             while (cchStr-- > 0)
                             {
-/**@todo #ifndef IN_RC*/
+/**@todo \#ifndef IN_RC*/
 #ifdef IN_RING3
                                 char szUtf8[8]; /* Cp=0x7fffffff -> 6 bytes. */
                                 char *pszEnd = RTStrPutCp(szUtf8, *puszStr++);

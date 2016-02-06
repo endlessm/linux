@@ -70,7 +70,7 @@ RT_C_DECLS_END
 #  endif
 #  include <sys/types.h>
 #  ifndef offsetof
-#   error "offsetof is not defined..."
+#   error "offsetof is not defined!"
 #  endif
 
 # elif defined(RT_OS_FREEBSD) && HC_ARCH_BITS == 64 && defined(RT_ARCH_X86)
@@ -2175,6 +2175,21 @@ typedef const RTUTF16  *PCRTUTF16;
 
 
 /**
+ * String tuple to go with the RT_STR_TUPLE macro.
+ */
+typedef struct RTSTRTUPLE
+{
+    /** The string. */
+    const char *psz;
+    /** The string length. */
+    size_t      cch;
+} RTSTRTUPLE;
+/** Pointer to a string tuple. */
+typedef RTSTRTUPLE *PRTSTRTUPLE;
+/** Pointer to a const string tuple. */
+typedef RTSTRTUPLE const *PCRTSTRTUPLE;
+
+/**
  * Wait for ever if we have to.
  */
 #define RT_INDEFINITE_WAIT      (~0U)
@@ -2198,7 +2213,7 @@ typedef FNRTPROGRESS *PFNRTPROGRESS;
  * @param   pszFormat       The format string.
  * @param   va              Arguments for the format string.
  */
-typedef DECLCALLBACK(void) FNRTDUMPPRINTFV(void *pvUser, const char *pszFormat, va_list va);
+typedef DECLCALLBACK(void) FNRTDUMPPRINTFV(void *pvUser, const char *pszFormat, va_list va) RT_IPRT_FORMAT_ATTR(2, 0);
 /** Pointer to a generic printf-like function for dumping. */
 typedef FNRTDUMPPRINTFV *PFNRTDUMPPRINTFV;
 
@@ -2415,7 +2430,7 @@ typedef const RTRANGE *PCRTRANGE;
  */
 typedef union RTPTRUNION
 {
-    /** Pointer into the void... */
+    /** Pointer into the void. */
     void                   *pv;
     /** As a signed integer. */
     intptr_t                i;
@@ -2454,7 +2469,7 @@ typedef RTPTRUNION *PRTPTRUNION;
  */
 typedef union RTCPTRUNION
 {
-    /** Pointer into the void... */
+    /** Pointer into the void. */
     void const             *pv;
     /** As a signed integer. */
     intptr_t                i;
@@ -2493,7 +2508,7 @@ typedef RTCPTRUNION *PRTCPTRUNION;
  */
 typedef union RTVPTRUNION
 {
-    /** Pointer into the void... */
+    /** Pointer into the void. */
     void volatile          *pv;
     /** As a signed integer. */
     intptr_t                i;
@@ -2532,7 +2547,7 @@ typedef RTVPTRUNION *PRTVPTRUNION;
  */
 typedef union RTCVPTRUNION
 {
-    /** Pointer into the void... */
+    /** Pointer into the void. */
     void const volatile            *pv;
     /** As a signed integer. */
     intptr_t                        i;

@@ -30,7 +30,7 @@
 #include <iprt/types.h>
 
 
-/** @defgroup grp_types     Basic VBox Types
+/** @defgroup grp_types     VBox Basic Types
  * @{
  */
 

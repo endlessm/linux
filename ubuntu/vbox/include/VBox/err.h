@@ -30,7 +30,7 @@
 #include <iprt/err.h>
 
 
-/** @defgroup grp_err       Error Codes
+/** @defgroup grp_err       VBox Error Codes
  * @{
  */
 
@@ -246,6 +246,8 @@
 #define VERR_EM_CANNOT_EXEC_GUEST           (-1156)
 /** Reason for leaving RC: Inject a TRPM event. */
 #define VINF_EM_RAW_INJECT_TRPM_EVENT       1157
+/** Guest tried to trigger a CPU hang.  The guest is probably up to no good. */
+#define VERR_EM_GUEST_CPU_HANG              (-1158)
 /** @} */
 
 
@@ -491,7 +493,7 @@
 #define VINF_PGM_PHYS_TLB_CATCH_WRITE           1635
 /** Catch write access and route it thru PGM. */
 #define VERR_PGM_PHYS_TLB_CATCH_WRITE           (-1635)
-/** No CR3 root shadow page table.. */
+/** No CR3 root shadow page table. */
 #define VERR_PGM_NO_CR3_SHADOW_ROOT             (-1636)
 /** Trying to free a page with an invalid Page ID. */
 #define VERR_PGM_PHYS_INVALID_PAGE_ID           (-1637)
@@ -1143,8 +1145,8 @@
 #define VERR_VMM_RING3_CALL_DISABLED        (-2703)
 /** The VMMR0.r0 module version does not match VBoxVMM.dll/so/dylib.
  * If you just upgraded VirtualBox, please terminate all VMs and make sure
- * VBoxNetDHCP is not running.  Then try again.  If this error persists, try
- * re-installing VirtualBox. */
+ * that neither VBoxNetDHCP nor VBoxNetNAT is running.  Then try again.
+ * If this error persists, try re-installing VirtualBox. */
 #define VERR_VMM_R0_VERSION_MISMATCH        (-2704)
 /** The VMMRC.rc module version does not match VBoxVMM.dll/so/dylib.
  * Re-install if you are a user.  Developers should make sure the build is
@@ -1172,6 +1174,9 @@
 #define VERR_VMM_SWITCHER_STUB              (-2715)
 /** HM returned in the wrong state. */
 #define VERR_VMM_WRONG_HM_VMCPU_STATE       (-2716)
+/** SMAP enabled, but the AC flag was found to be clear - check the kernel
+ * log for details. */
+#define VERR_VMM_SMAP_BUT_AC_CLEAR          (-2717)
 /** @} */
 
 
@@ -1618,6 +1623,15 @@
 #define VERR_VD_DMG_XML_PARSE_ERROR                 (-3284)
 /** Unable to locate a usable DMG file within the XAR archive. */
 #define VERR_VD_DMG_NOT_FOUND_INSIDE_XAR            (-3285)
+/** The size of the raw image is not dividable by 512 */
+#define VERR_VD_RAW_SIZE_MODULO_512                 (-3286)
+/** The size of the raw image is not dividable by 2048 */
+#define VERR_VD_RAW_SIZE_MODULO_2048                (-3287)
+/** The size of the raw optical image is too small (<= 32K) */
+#define VERR_VD_RAW_SIZE_OPTICAL_TOO_SMALL          (-3288)
+/** The size of the raw floppy image is too big (>2.88MB) */
+#define VERR_VD_RAW_SIZE_FLOPPY_TOO_BIG             (-3289)
+
 /** @} */
 
 
@@ -1808,6 +1822,10 @@
 #define VWRN_SUPDRV_TSC_DELTA_MEASUREMENT_FAILED     3746
 /** A TSC-delta measurement request is currently being serviced. */
 #define VERR_SUPDRV_TSC_DELTA_MEASUREMENT_BUSY      (-3747)
+/** The process trying to open VBoxDrv is not a budding VM process (1). */
+#define VERR_SUPDRV_NOT_BUDDING_VM_PROCESS_1        (-3748)
+/** The process trying to open VBoxDrv is not a budding VM process (2). */
+#define VERR_SUPDRV_NOT_BUDDING_VM_PROCESS_2        (-3749)
 /** @} */
 
 
@@ -2017,9 +2035,9 @@
 /** Internal VMX processing error no 5. */
 #define VERR_VMX_IPE_5                              (-4027)
 /** VT-x features for all modes (SMX and non-SMX) disabled by the BIOS. */
-#define VERR_VMX_MSR_ALL_VMXON_DISABLED             (-4028)
+#define VERR_VMX_MSR_ALL_VMX_DISABLED               (-4028)
 /** VT-x features disabled by the BIOS. */
-#define VERR_VMX_MSR_VMXON_DISABLED                 (-4029)
+#define VERR_VMX_MSR_VMX_DISABLED                   (-4029)
 /** VM-Entry Controls internal cache invalid. */
 #define VERR_VMX_ENTRY_CTLS_CACHE_INVALID           (-4030)
 /** VM-Exit Controls internal cache invalid. */
@@ -2032,6 +2050,10 @@
 /** VM-Execution Secondary Processor-based Controls internal
  *  cache invalid. */
 #define VERR_VMX_PROC_EXEC2_CTLS_CACHE_INVALID      (-4034)
+/** Failed to set VMXON enable bit while enabling VT-x through the MSR. */
+#define VERR_VMX_MSR_VMX_ENABLE_FAILED              (-4035)
+/** Failed to enable VMXON-in-SMX bit while enabling VT-x through the MSR. */
+#define VERR_VMX_MSR_SMX_VMX_ENABLE_FAILED          (-4036)
 /** @} */
 
 
@@ -2338,7 +2360,7 @@
 #define VINF_DBGC_BP_NO_COMMAND                     5406
 /** Generic debugger command failure. */
 #define VERR_DBGC_COMMAND_FAILED                    (-5407)
-/** Logic bug in the DBGC code.. */
+/** Logic bug in the DBGC code. */
 #define VERR_DBGC_IPE                               (-5408)
 
 /** The lowest parse status code.   */
@@ -2652,6 +2674,7 @@
 #define VERR_GIM_HYPERCALL_ACCESS_DENIED            (-6311)
 /** @} */
 
+
 /** @name Main API Status Codes
  * @{
  */
@@ -2663,11 +2686,22 @@
 #define VERR_MAIN_CONFIG_CONSTRUCTOR_IPE            (-6401)
 /** @} */
 
+
 /** @name VBox Drag and Drop Status Codes
  * @{
  */
 /** Guest side reported an error. */
 #define VERR_GSTDND_GUEST_ERROR                     (-6500)
+/** @} */
+
+
+/** @name Audio Status Codes
+ * @{
+ */
+/** Host backend couldn't be initialized.  Happen if the audio server is not
+ *  reachable, audio hardware is not available or similar.  We should use the
+ *  NULL audio driver. */
+#define VERR_AUDIO_BACKEND_INIT_FAILED              (-6600)
 /** @} */
 
 

@@ -24,8 +24,8 @@
  * terms and conditions of either the GPL or the CDDL or both.
  */
 
-#ifndef __VBoxGuestLib_SysHlp_h
-#define __VBoxGuestLib_SysHlp_h
+#ifndef ___VBoxGuestLib_SysHlp_h
+#define ___VBoxGuestLib_SysHlp_h
 
 #include <iprt/types.h>
 
@@ -55,8 +55,8 @@ RT_C_DECLS_END
 /* XP DDK #defines ExFreePool to ExFreePoolWithTag. The latter does not exist on NT4, so...
  * The same for ExAllocatePool.
  */
-#undef ExAllocatePool
-#undef ExFreePool
+# undef ExAllocatePool
+# undef ExFreePool
 #endif
 
 typedef struct _VBGLDRIVER
@@ -71,8 +71,8 @@ typedef struct _VBGLDRIVER
 #endif
 } VBGLDRIVER;
 
-int vbglLockLinear (void **ppvCtx, void *pv, uint32_t u32Size, bool fWriteAccess, uint32_t fFlags);
-void vbglUnlockLinear (void *pvCtx, void *pv, uint32_t u32Size);
+int  vbglLockLinear(void **ppvCtx, void *pv, uint32_t cb, bool fWriteAccess, uint32_t fFlags);
+void vbglUnlockLinear(void *pvCtx, void *pv, uint32_t cb);
 
 
 #ifndef VBGL_VBOXGUEST
@@ -82,9 +82,9 @@ void vbglUnlockLinear (void *pvCtx, void *pv, uint32_t u32Size);
  *
  * @param pDriver      Pointer to the driver structure.
  *
- * @return VBox error code
+ * @return VBox status code
  */
-int vbglDriverOpen (VBGLDRIVER *pDriver);
+int vbglDriverOpen(VBGLDRIVER *pDriver);
 
 /**
  * Answers whether the VBoxGuest driver is opened
@@ -93,7 +93,7 @@ int vbglDriverOpen (VBGLDRIVER *pDriver);
  *
  * @return true - if opened, false - otherwise
  */
-bool vbglDriverIsOpened (VBGLDRIVER *pDriver);
+bool vbglDriverIsOpened(VBGLDRIVER *pDriver);
 
 /**
  * Call VBoxGuest driver.
@@ -103,20 +103,20 @@ bool vbglDriverIsOpened (VBGLDRIVER *pDriver);
  * @param pvData       Pointer to supplied in/out data buffer.
  * @param cbData       Size of data buffer.
  *
- * @return VBox error code
+ * @returns VBox status code
  */
-int vbglDriverIOCtl (VBGLDRIVER *pDriver, uint32_t u32Function, void *pvData, uint32_t cbData);
+int vbglDriverIOCtl(VBGLDRIVER *pDriver, uint32_t u32Function, void *pvData, uint32_t cbData);
 
 /**
  * Close VBoxGuest driver.
  *
  * @param pDriver      Pointer to the driver structure.
  *
- * @return VBox error code
+ * @returns VBox status code
  */
-void vbglDriverClose (VBGLDRIVER *pDriver);
+void vbglDriverClose(VBGLDRIVER *pDriver);
 
 #endif
 
-#endif /* !__VBoxGuestLib_SysHlp_h */
+#endif
 

@@ -180,7 +180,7 @@ RTDECL(size_t) RTHeapSimpleGetFreeSize(RTHEAPSIMPLE Heap);
  * @param   pszFormat   IPRT format string.
  * @param   ...         Format arguments.
  */
-typedef DECLCALLBACK(void) FNRTHEAPSIMPLEPRINTF(const char *pszFormat, ...);
+typedef DECLCALLBACK(void) FNRTHEAPSIMPLEPRINTF(const char *pszFormat, ...) RT_IPRT_FORMAT_ATTR(1, 2);
 /** Pointer to a FNRTHEAPSIMPLEPRINTF function. */
 typedef FNRTHEAPSIMPLEPRINTF *PFNRTHEAPSIMPLEPRINTF;
 
@@ -335,7 +335,7 @@ RTDECL(size_t) RTHeapOffsetGetFreeSize(RTHEAPOFFSET hHeap);
  * @param   pszFormat   IPRT format string.
  * @param   ...         Format arguments.
  */
-typedef DECLCALLBACK(void) FNRTHEAPOFFSETPRINTF(const char *pszFormat, ...);
+typedef DECLCALLBACK(void) FNRTHEAPOFFSETPRINTF(const char *pszFormat, ...) RT_IPRT_FORMAT_ATTR(1, 2);
 /** Pointer to a FNRTHEAPOFFSETPRINTF function. */
 typedef FNRTHEAPOFFSETPRINTF *PFNRTHEAPOFFSETPRINTF;
 

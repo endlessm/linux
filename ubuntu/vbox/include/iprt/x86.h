@@ -1069,6 +1069,9 @@ AssertCompile(X86_DR7_ANY_RW_IO(UINT32_C(0x00040000)) == 0);
 /** BIOS update signature (microcode). */
 #define MSR_IA32_BIOS_SIGN_ID               0x8B
 
+/** SMM monitor control. */
+#define MSR_IA32_SMM_MONITOR_CTL            0x9B
+
 /** General performance counter no. 0. */
 #define MSR_IA32_PMC0                       0xC1
 /** General performance counter no. 1. */

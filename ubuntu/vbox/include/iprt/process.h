@@ -159,7 +159,7 @@ RTR3DECL(int)   RTProcCreate(const char *pszExec, const char * const *papszArgs,
  *                      guest.
  * @param   pszAsUser   User to run the process as.  Pass NULL to use the same
  *                      user as the current process.
- *                      Windows: Use user@domain format to specify a domain.
+ *                      Windows: Use user\@domain format to specify a domain.
  * @param   pszPassword Password to use to authenticate @a pszAsUser.  Must be
  *                      NULL wif pszAsUser is NULL.  Whether this is actually
  *                      used or not depends on the platform.
@@ -186,7 +186,7 @@ RTR3DECL(int)   RTProcCreateEx(const char *pszExec, const char * const *papszArg
  * be possible to wait for it, i.e. @a phProcess shall be NULL. */
 #define RTPROC_FLAGS_DETACHED               RT_BIT(0)
 /** Don't show the started process.
- * This is a window (and maybe OS/2) concept, do not use on other platforms. */
+ * This is a Windows (and maybe OS/2) concept, do not use on other platforms. */
 #define RTPROC_FLAGS_HIDDEN                 RT_BIT(1)
 /** Use special code path for starting child processes from a service (daemon).
  * This is a windows concept for dealing with the so called "Session 0"
@@ -197,9 +197,13 @@ RTR3DECL(int)   RTProcCreateEx(const char *pszExec, const char * const *papszArg
  * on Solaris.  Without this flag the contract id is always changed, as that's
  * the more frequently used case. */
 #define RTPROC_FLAGS_SAME_CONTRACT          RT_BIT(3)
-/** Do not load user profile data when executing a process.
- * This bit at the moment only is valid on Windows. */
-#define RTPROC_FLAGS_NO_PROFILE             RT_BIT(4)
+/** Load user profile data when executing a process.
+ * This redefines the meaning of RTENV_DEFAULT to the profile environment.
+ * @remarks On non-windows platforms, the resulting environment maybe very
+ *          different from what you see in your shell.  Among other reasons,
+ *          we cannot run shell profile scripts which typically sets up the
+ *          environment. */
+#define RTPROC_FLAGS_PROFILE                RT_BIT(4)
 /** Create process without a console window.
  * This is a Windows (and OS/2) concept, do not use on other platforms. */
 #define RTPROC_FLAGS_NO_WINDOW              RT_BIT(5)
@@ -210,8 +214,11 @@ RTR3DECL(int)   RTProcCreateEx(const char *pszExec, const char * const *papszArg
  * just join up argv with a space between each.  Ignored on platforms
  * passing argument the vector. */
 #define RTPROC_FLAGS_UNQUOTED_ARGS          RT_BIT(7)
+/** Consider hEnv an environment change record to be applied to RTENV_DEFAULT.
+ * If hEnv is RTENV_DEFAULT, the flag has no effect. */
+#define RTPROC_FLAGS_ENV_CHANGE_RECORD      RT_BIT(8)
 /** Valid flag mask. */
-#define RTPROC_FLAGS_VALID_MASK             UINT32_C(0xff)
+#define RTPROC_FLAGS_VALID_MASK             UINT32_C(0x1ff)
 /** @}  */
 
 
@@ -333,9 +340,9 @@ RTR3DECL(char *) RTProcGetExecutablePath(char *pszExecPath, size_t cbExecPath);
  * @returns IPRT status code.  On success it is normal for the caller to exit
  *          the process by returning from main().
  *
- * @param   papszArgs       The argument vector of the calling process.
- * @param   pszDaemonized   The daemonized option.  This is appended to the end
- *                          of the parameter list of the daemonized process.
+ * @param   papszArgs           The argument vector of the calling process.
+ * @param   pszDaemonizedOpt    The daemonized option.  This is appended to the
+ *                              end of the parameter list of the daemonized process.
  */
 RTR3DECL(int)   RTProcDaemonize(const char * const *papszArgs, const char *pszDaemonizedOpt);
 
@@ -384,14 +391,14 @@ RTR3DECL(int) RTProcQueryParent(RTPROCESS hProcess, PRTPROCESS phParent);
  * @returns IPRT status code.
  * @retval VERR_BUFFER_OVERFLOW if the given buffer size is to small for the username.
  * @param   hProcess     The process handle to query the username for.
+ *                       NIL_PROCESS is an alias for the current process.
  * @param   pszUser      Where to store the user name on success.
  * @param   cbUser       The size of the user name buffer.
  * @param   pcbUser      Where to store the username length on success
  *                       or the required buffer size if VERR_BUFFER_OVERFLOW
  *                       is returned.
  */
-RTR3DECL(int)   RTProcQueryUsername(RTPROCESS hProcess, char *pszUser, size_t cbUser,
-                                    size_t *pcbUser);
+RTR3DECL(int)   RTProcQueryUsername(RTPROCESS hProcess, char *pszUser, size_t cbUser, size_t *pcbUser);
 
 /**
  * Query the username of the given process allocating the string for the username.

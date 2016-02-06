@@ -58,6 +58,8 @@
 # define __X86__
 # define RT_ARCH_AMD64
 # define RT_ARCH_X86
+# define RT_ARCH_SPARC
+# define RT_ARCH_SPARC64
 # define IN_RING0
 # define IN_RING3
 # define IN_RC
@@ -72,7 +74,7 @@
 # define RT_LOCK_NO_STRICT
 # define RT_LOCK_STRICT_ORDER
 # define RT_LOCK_NO_STRICT_ORDER
-# define Breakpoint
+# define RT_BREAKPOINT
 # define RT_NO_DEPRECATED_MACROS
 # define RT_EXCEPTIONS_ENABLED
 # define RT_BIG_ENDIAN
@@ -80,6 +82,8 @@
 # define RT_COMPILER_GROKS_64BIT_BITFIELDS
 # define RT_COMPILER_WITH_80BIT_LONG_DOUBLE
 # define RT_NO_VISIBILITY_HIDDEN
+# define RT_GCC_SUPPORTS_VISIBILITY_HIDDEN
+# define RT_COMPILER_SUPPORTS_LAMBDA
 #endif /* DOXYGEN_RUNNING */
 
 /** @def RT_ARCH_X86
@@ -338,7 +342,7 @@
  * Replace: # elif defined(RT_OS_\1)\n#  define RT_OPSYS RT_OPSYS_\1
  */
 #ifndef RT_OPSYS
-# if defined(RT_OS_UNKNOWN)
+# if defined(RT_OS_UNKNOWN) || defined(DOXYGEN_RUNNING)
 #  define RT_OPSYS RT_OPSYS_UNKNOWN
 # elif defined(RT_OS_AGNOSTIC)
 #  define RT_OPSYS RT_OPSYS_AGNOSTIC
@@ -876,16 +880,37 @@
 # define RT_EXCEPTIONS_ENABLED
 #endif
 
-/** @def RT_NO_THROW
+/** @def RT_NO_THROW_PROTO
  * How to express that a function doesn't throw C++ exceptions
  * and the compiler can thus save itself the bother of trying
  * to catch any of them. Put this between the closing parenthesis
  * and the semicolon in function prototypes (and implementation if C++).
+ *
+ * @remarks May not work on C++ methods, mainly intented for C-style APIs.
+ *
+ * @remarks The use of the nothrow attribute with GCC is because old compilers
+ *          (4.1.1, 32-bit) leaking the nothrow into global space or something
+ *          when used with RTDECL or similar.  Using this forces use to have two
+ *          macros, as the nothrow attribute is not for the function definition.
  */
 #ifdef RT_EXCEPTIONS_ENABLED
-# define RT_NO_THROW            throw()
+# ifdef __GNUC__
+#  define RT_NO_THROW_PROTO     __attribute__((__nothrow__))
+# else
+#  define RT_NO_THROW_PROTO     throw()
+# endif
 #else
-# define RT_NO_THROW
+# define RT_NO_THROW_PROTO
+#endif
+
+/** @def RT_NO_THROW_DEF
+ * The counter part to RT_NO_THROW_PROTO that is added to the function
+ * definition.
+ */
+#if defined(RT_EXCEPTIONS_ENABLED) && !defined(__GNUC__)
+# define RT_NO_THROW_DEF        RT_NO_THROW_PROTO
+#else
+# define RT_NO_THROW_DEF
 #endif
 
 /** @def RT_THROW
@@ -914,6 +939,31 @@
 # define RT_THROW(type)
 #endif
 
+/** @def RT_IPRT_FORMAT_ATTR
+ * Identifies a function taking an IPRT format string.
+ * @param   a_iFmt  The index (1-based) of the format string argument.
+ * @param   a_iArgs The index (1-based) of the first format argument, use 0 for
+ *                  va_list.
+ */
+#if defined(__GNUC__) && defined(WITH_IPRT_FORMAT_ATTRIBUTE)
+# define RT_IPRT_FORMAT_ATTR(a_iFmt, a_iArgs)   __attribute__((__iprt_format__(a_iFmt, a_iArgs)))
+#else
+# define RT_IPRT_FORMAT_ATTR(a_iFmt, a_iArgs)
+#endif
+
+/** @def RT_IPRT_FORMAT_ATTR_MAYBE_NULL
+ * Identifies a function taking an IPRT format string, NULL is allowed.
+ * @param   a_iFmt  The index (1-based) of the format string argument.
+ * @param   a_iArgs The index (1-based) of the first format argument, use 0 for
+ *                  va_list.
+ */
+#if defined(__GNUC__) && defined(WITH_IPRT_FORMAT_ATTRIBUTE)
+# define RT_IPRT_FORMAT_ATTR_MAYBE_NULL(a_iFmt, a_iArgs)   __attribute__((__iprt_format_maybe_null__(a_iFmt, a_iArgs)))
+#else
+# define RT_IPRT_FORMAT_ATTR_MAYBE_NULL(a_iFmt, a_iArgs)
+#endif
+
+
 /** @def RT_GCC_SUPPORTS_VISIBILITY_HIDDEN
  * Indicates that the "hidden" visibility attribute can be used (GCC) */
 #if defined(__GNUC__)
@@ -924,13 +974,16 @@
 
 /** @def RTCALL
  * The standard calling convention for the Runtime interfaces.
+ *
+ * @remarks The regparm(0) in the X86/GNUC variant deals with -mregparm=x use in
+ *          the linux kernel and potentially elsewhere (3rd party).
  */
 #ifdef _MSC_VER
-# define RTCALL     __cdecl
+# define RTCALL                 __cdecl
 #elif defined(RT_OS_OS2)
-# define RTCALL     __cdecl
-#elif defined(__GNUC__) && defined(IN_RING0) && defined(RT_ARCH_X86) /** @todo consider dropping IN_RING0 here. */
-# define RTCALL     __attribute__((cdecl,regparm(0))) /* regparm(0) deals with -mregparm=x use in the linux kernel. */
+# define RTCALL                 __cdecl
+#elif defined(__GNUC__) && defined(RT_ARCH_X86)
+# define RTCALL                 __attribute__((cdecl,regparm(0)))
 #else
 # define RTCALL
 #endif
@@ -998,32 +1051,16 @@
  * @param   type    The return type of the function declaration.
  */
 #ifdef __cplusplus
-# if defined(_MSC_VER) || defined(RT_OS_OS2)
-#  define DECLASM(type)          extern "C" type __cdecl
-# elif defined(__GNUC__) && defined(RT_ARCH_X86)
-#  define DECLASM(type)          extern "C" type __attribute__((cdecl,regparm(0)))
-# else
-#  define DECLASM(type)          extern "C" type
-# endif
+# define DECLASM(type)           extern "C" type RTCALL
 #else
-# if defined(_MSC_VER) || defined(RT_OS_OS2)
-#  define DECLASM(type)          type __cdecl
-# elif defined(__GNUC__) && defined(RT_ARCH_X86)
-#  define DECLASM(type)          type __attribute__((cdecl,regparm(0)))
-# else
-#  define DECLASM(type)          type
-# endif
+# define DECLASM(type)           type RTCALL
 #endif
 
 /** @def DECLASMTYPE
  * How to declare an internal assembly function type.
  * @param   type    The return type of the function.
  */
-# if defined(_MSC_VER) || defined(RT_OS_OS2)
-# define DECLASMTYPE(type)      type __cdecl
-#else
-# define DECLASMTYPE(type)      type
-#endif
+#define DECLASMTYPE(type)       type RTCALL
 
 /** @def DECLNORETURN
  * How to declare a function which does not return.
@@ -1379,8 +1416,21 @@
 #define RT_STR(str)             #str
 /** @def RT_XSTR
  * Returns the expanded argument as a string.
- * @param   str     Argument to expand and stringy. */
+ * @param   str     Argument to expand and stringify. */
 #define RT_XSTR(str)            RT_STR(str)
+
+/** @def RT_LSTR_2
+ * Helper for RT_WSTR that gets the expanded @a str.
+ * @param   str     String litteral to prefix with 'L'.  */
+#define RT_LSTR_2(str)          L##str
+/** @def RT_LSTR
+ * Returns the expanded argument with a L string prefix.
+ *
+ * Intended for converting ASCII string \#defines into wide char string
+ * litterals on Windows.
+ *
+ * @param   str     String litteral to . */
+#define RT_LSTR(str)            RT_LSTR_2(str)
 
 /** @def RT_CONCAT
  * Concatenate the expanded arguments without any extra spaces in between.
@@ -1392,7 +1442,7 @@
 /** RT_CONCAT helper, don't use.  */
 #define RT_CONCAT_HLP(a,b)          a##b
 
-/** @def RT_CONCAT
+/** @def RT_CONCAT3
  * Concatenate the expanded arguments without any extra spaces in between.
  *
  * @param   a       The 1st part.
@@ -1403,12 +1453,13 @@
 /** RT_CONCAT3 helper, don't use.  */
 #define RT_CONCAT3_HLP(a,b,c)       a##b##c
 
-/** @def RT_CONCAT
+/** @def RT_CONCAT4
  * Concatenate the expanded arguments without any extra spaces in between.
  *
  * @param   a       The 1st part.
  * @param   b       The 2nd part.
  * @param   c       The 3rd part.
+ * @param   d       The 4th part.
  */
 #define RT_CONCAT4(a,b,c,d)         RT_CONCAT4_HLP(a,b,c,d)
 /** RT_CONCAT4 helper, don't use.  */
@@ -1418,6 +1469,7 @@
  * String constant tuple - string constant, strlen(string constant).
  *
  * @param   a_szConst   String constant.
+ * @sa      RTSTRTUPLE
  */
 #define RT_STR_TUPLE(a_szConst)  a_szConst, (sizeof(a_szConst) - 1)
 

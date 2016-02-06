@@ -25,9 +25,9 @@
  */
 
 
-/*******************************************************************************
-*   Header Files                                                               *
-*******************************************************************************/
+/*********************************************************************************************************************************
+*   Header Files                                                                                                                 *
+*********************************************************************************************************************************/
 #include "the-linux-kernel.h"
 #include "internal/iprt.h"
 #include <iprt/spinlock.h>
@@ -44,9 +44,9 @@
 #include "internal/magics.h"
 
 
-/*******************************************************************************
-*   Structures and Typedefs                                                    *
-*******************************************************************************/
+/*********************************************************************************************************************************
+*   Structures and Typedefs                                                                                                      *
+*********************************************************************************************************************************/
 /**
  * Wrapper for the spinlock_t structure.
  */
@@ -73,6 +73,7 @@ typedef struct RTSPINLOCKINTERNAL
 
 RTDECL(int)  RTSpinlockCreate(PRTSPINLOCK pSpinlock, uint32_t fFlags, const char *pszName)
 {
+    IPRT_LINUX_SAVE_EFL_AC();
     PRTSPINLOCKINTERNAL pThis;
     AssertReturn(fFlags == RTSPINLOCK_FLAGS_INTERRUPT_SAFE || fFlags == RTSPINLOCK_FLAGS_INTERRUPT_UNSAFE, VERR_INVALID_PARAMETER);
 
@@ -97,6 +98,7 @@ RTDECL(int)  RTSpinlockCreate(PRTSPINLOCK pSpinlock, uint32_t fFlags, const char
     spin_lock_init(&pThis->Spinlock);
 
     *pSpinlock = pThis;
+    IPRT_LINUX_RESTORE_EFL_AC();
     return VINF_SUCCESS;
 }
 RT_EXPORT_SYMBOL(RTSpinlockCreate);
@@ -126,6 +128,7 @@ RT_EXPORT_SYMBOL(RTSpinlockDestroy);
 RTDECL(void) RTSpinlockAcquire(RTSPINLOCK Spinlock)
 {
     PRTSPINLOCKINTERNAL pThis = (PRTSPINLOCKINTERNAL)Spinlock;
+    IPRT_LINUX_SAVE_EFL_AC();
     RT_ASSERT_PREEMPT_CPUID_VAR();
     AssertMsg(pThis && pThis->u32Magic == RTSPINLOCK_MAGIC,
               ("pThis=%p u32Magic=%08x\n", pThis, pThis ? (int)pThis->u32Magic : 0));
@@ -145,6 +148,7 @@ RTDECL(void) RTSpinlockAcquire(RTSPINLOCK Spinlock)
     lockdep_on();
 #endif
 
+    IPRT_LINUX_RESTORE_EFL_ONLY_AC();
     RT_ASSERT_PREEMPT_CPUID_SPIN_ACQUIRED(pThis);
 }
 RT_EXPORT_SYMBOL(RTSpinlockAcquire);
@@ -153,6 +157,7 @@ RT_EXPORT_SYMBOL(RTSpinlockAcquire);
 RTDECL(void) RTSpinlockRelease(RTSPINLOCK Spinlock)
 {
     PRTSPINLOCKINTERNAL pThis = (PRTSPINLOCKINTERNAL)Spinlock;
+    IPRT_LINUX_SAVE_EFL_AC();           /* spin_unlock* may preempt and trash eflags.ac. */
     RT_ASSERT_PREEMPT_CPUID_SPIN_RELEASE_VARS();
     AssertMsg(pThis && pThis->u32Magic == RTSPINLOCK_MAGIC,
               ("pThis=%p u32Magic=%08x\n", pThis, pThis ? (int)pThis->u32Magic : 0));
@@ -173,6 +178,7 @@ RTDECL(void) RTSpinlockRelease(RTSPINLOCK Spinlock)
     lockdep_on();
 #endif
 
+    IPRT_LINUX_RESTORE_EFL_ONLY_AC();
     RT_ASSERT_PREEMPT_CPUID();
 }
 RT_EXPORT_SYMBOL(RTSpinlockRelease);

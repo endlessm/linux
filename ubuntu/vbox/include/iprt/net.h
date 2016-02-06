@@ -46,8 +46,8 @@ RT_C_DECLS_BEGIN
  * @returns VINF_SUCCESS on success, VERR_GETOPT_INVALID_ARGUMENT_FORMAT on
  *          failure.
  *
- * @param   pszValue        The value to convert.
- * @param   pAddr           Where to store the result.
+ * @param   pszAddr         The address string to convert.
+ * @param   pMacAddr        Where to store the result.
  */
 RTDECL(int) RTNetStrToMacAddr(const char *pszAddr, PRTMAC pMacAddr);
 
@@ -68,6 +68,14 @@ typedef RTNETADDRIPV4 const *PCRTNETADDRIPV4;
  * @param   pcszAddr        String which may be an IPv4 address.
  */
 RTDECL(bool) RTNetIsIPv4AddrStr(const char *pcszAddr);
+
+/**
+ * Tests if the given string is a wildcard IPv4 address.
+ *
+ * @returns boolean.
+ * @param   pcszAddr        String which may be an IPv4 address.
+ */
+RTDECL(bool) RTNetStrIsIPv4AddrAny(const char *pcszAddr);
 
 /**
  * Parses dotted-decimal IPv4 address into RTNETADDRIPV4 representation.
@@ -111,6 +119,14 @@ typedef RTNETADDRIPV6 const *PCRTNETADDRIPV6;
  * @param   pszAddress          String which may be an IPv6 address.
  */
 RTDECL(bool) RTNetIsIPv6AddrStr(const char *pszAddress);
+
+/**
+ * Tests if the given string is a wildcard IPv6 address.
+ *
+ * @returns @c true if it is, @c false if not.
+ * @param   pszAddress          String which may be an IPv6 address.
+ */
+RTDECL(bool) RTNetStrIsIPv6AddrAny(const char *pszAddress);
 
 /**
  * Parses IPv6 address into RTNETADDRIPV6 representation.

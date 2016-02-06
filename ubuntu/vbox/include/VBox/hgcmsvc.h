@@ -72,7 +72,7 @@ struct VBOXHGCMCALLHANDLE_TYPEDEF;
 typedef struct VBOXHGCMCALLHANDLE_TYPEDEF *VBOXHGCMCALLHANDLE;
 
 /** Service helpers pointers table. */
-typedef struct _VBOXHGCMSVCHELPERS
+typedef struct VBOXHGCMSVCHELPERS
 {
     /** The service has processed the Call request. */
     DECLR3CALLBACKMEMBER(void, pfnCallComplete, (VBOXHGCMCALLHANDLE callHandle, int32_t rc));
@@ -354,10 +354,11 @@ typedef FNHGCMSVCEXT *PFNHGCMSVCEXT;
  */
 
 /* The structure is used in separately compiled binaries so an explicit packing is required. */
-#pragma pack(1)
-typedef struct _VBOXHGCMSVCFNTABLE
+#pragma pack(1) /** @todo r=bird: The pragma pack(1) is not at all required!! */
+typedef struct VBOXHGCMSVCFNTABLE
 {
-    /** Filled by HGCM */
+    /** @name Filled by HGCM
+     * @{ */
 
     /** Size of the structure. */
     uint32_t                 cbSize;
@@ -366,8 +367,10 @@ typedef struct _VBOXHGCMSVCFNTABLE
     uint32_t                 u32Version;
 
     PVBOXHGCMSVCHELPERS      pHelpers;
+    /** @} */
 
-    /** Filled by the service. */
+    /** @name Filled in by the service.
+     * @{ */
 
     /** Size of client information the service want to have. */
     uint32_t                 cbClient;
@@ -407,6 +410,7 @@ typedef struct _VBOXHGCMSVCFNTABLE
     /** User/instance data pointer for the service. */
     void *pvService;
 
+    /** @} */
 } VBOXHGCMSVCFNTABLE;
 #pragma pack()
 

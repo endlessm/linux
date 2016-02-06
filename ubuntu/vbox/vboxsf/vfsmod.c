@@ -38,7 +38,7 @@ MODULE_VERSION(VBOX_VERSION_STRING " (interface " RT_XSTR(VMMDEV_VERSION) ")");
 #endif
 
 /* globals */
-VBSFCLIENT client_handle;
+VBGLSFCLIENT client_handle;
 
 /* forward declarations */
 static struct super_operations sf_super_ops;
@@ -144,13 +144,13 @@ static int sf_glob_alloc(struct vbsf_mount_info_new *info, struct sf_glob_info *
 #undef _IS_EMPTY
     }
 
-    rc = vboxCallMapFolder(&client_handle, str_name, &sf_g->map);
+    rc = VbglR0SfMapFolder(&client_handle, str_name, &sf_g->map);
     kfree(str_name);
 
     if (RT_FAILURE(rc))
     {
         err = -EPROTO;
-        LogFunc(("vboxCallMapFolder failed rc=%d\n", rc));
+        LogFunc(("VbglR0SfMapFolder failed rc=%d\n", rc));
         goto fail2;
     }
 
@@ -193,9 +193,9 @@ sf_glob_free(struct sf_glob_info *sf_g)
     int rc;
 
     TRACE();
-    rc = vboxCallUnmapFolder(&client_handle, &sf_g->map);
+    rc = VbglR0SfUnmapFolder(&client_handle, &sf_g->map);
     if (RT_FAILURE(rc))
-        LogFunc(("vboxCallUnmapFolder failed rc=%d\n", rc));
+        LogFunc(("VbglR0SfUnmapFolder failed rc=%d\n", rc));
 
     if (sf_g->nls)
         unload_nls(sf_g->nls);
@@ -594,26 +594,26 @@ static int __init init(void)
         return err;
     }
 
-    rcVBox = vboxInit();
+    rcVBox = VbglR0SfInit();
     if (RT_FAILURE(rcVBox))
     {
-        LogRelFunc(("vboxInit failed, rc=%d\n", rcVBox));
+        LogRelFunc(("VbglR0SfInit failed, rc=%d\n", rcVBox));
         rcRet = -EPROTO;
         goto fail0;
     }
 
-    rcVBox = vboxConnect(&client_handle);
+    rcVBox = VbglR0SfConnect(&client_handle);
     if (RT_FAILURE(rcVBox))
     {
-        LogRelFunc(("vboxConnect failed, rc=%d\n", rcVBox));
+        LogRelFunc(("VbglR0SfConnect failed, rc=%d\n", rcVBox));
         rcRet = -EPROTO;
         goto fail1;
     }
 
-    rcVBox = vboxCallSetUtf8(&client_handle);
+    rcVBox = VbglR0SfSetUtf8(&client_handle);
     if (RT_FAILURE(rcVBox))
     {
-        LogRelFunc(("vboxCallSetUtf8 failed, rc=%d\n", rcVBox));
+        LogRelFunc(("VbglR0SfSetUtf8 failed, rc=%d\n", rcVBox));
         rcRet = -EPROTO;
         goto fail2;
     }
@@ -621,7 +621,7 @@ static int __init init(void)
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 0)
     if (!follow_symlinks)
     {
-        rcVBox = vboxCallSetSymlinks(&client_handle);
+        rcVBox = VbglR0SfSetSymlinks(&client_handle);
         if (RT_FAILURE(rcVBox))
         {
             printk(KERN_WARNING
@@ -638,10 +638,10 @@ static int __init init(void)
     return 0;
 
 fail2:
-    vboxDisconnect(&client_handle);
+    VbglR0SfDisconnect(&client_handle);
 
 fail1:
-    vboxUninit();
+    VbglR0SfTerm();
 
 fail0:
     unregister_filesystem(&vboxsf_fs_type);
@@ -652,8 +652,8 @@ static void __exit fini(void)
 {
     TRACE();
 
-    vboxDisconnect(&client_handle);
-    vboxUninit();
+    VbglR0SfDisconnect(&client_handle);
+    VbglR0SfTerm();
     unregister_filesystem(&vboxsf_fs_type);
 }
 

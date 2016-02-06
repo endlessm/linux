@@ -298,7 +298,7 @@ typedef DECLCALLBACKPTR(int, PFNRTTHREADCREATE)(PRTTHREAD pThread, PFNRTTHREAD p
  * @param   va          Format arguments.
  */
 RTDECL(int) RTThreadCreateV(PRTTHREAD pThread, PFNRTTHREAD pfnThread, void *pvUser, size_t cbStack,
-                            RTTHREADTYPE enmType, uint32_t fFlags, const char *pszNameFmt, va_list va);
+                            RTTHREADTYPE enmType, uint32_t fFlags, const char *pszNameFmt, va_list va) RT_IPRT_FORMAT_ATTR(7, 0);
 
 /**
  * Create a new thread.
@@ -316,7 +316,7 @@ RTDECL(int) RTThreadCreateV(PRTTHREAD pThread, PFNRTTHREAD pfnThread, void *pvUs
  * @param   ...         Format arguments.
  */
 RTDECL(int) RTThreadCreateF(PRTTHREAD pThread, PFNRTTHREAD pfnThread, void *pvUser, size_t cbStack,
-                            RTTHREADTYPE enmType, uint32_t fFlags, const char *pszNameFmt, ...);
+                            RTTHREADTYPE enmType, uint32_t fFlags, const char *pszNameFmt, ...) RT_IPRT_FORMAT_ATTR(7, 8);
 
 /**
  * Gets the native thread id of a IPRT thread.

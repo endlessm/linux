@@ -69,6 +69,17 @@ typedef RTLISTANCHOR *PRTLISTANCHOR;
 /** Pointer to a const doubly linked list anchor. */
 typedef RTLISTANCHOR const *PCRTLISTANCHOR;
 
+/** Version of RTLISTNODE for holding a ring-3 only list in data which gets
+ * shared between multiple contexts */
+#if defined(IN_RING3)
+typedef RTLISTNODE RTLISTNODER3;
+#else
+typedef struct { RTR3PTR aOffLimits[2]; } RTLISTNODER3;
+#endif
+/** Version of RTLISTANCHOR for holding a ring-3 only list in data which gets
+ * shared between multiple contexts */
+typedef RTLISTNODER3 RTLISTANCHORR3;
+
 
 /**
  * Initialize a list.
@@ -152,8 +163,8 @@ DECLINLINE(void) RTListNodeRemove(PRTLISTNODE pNode)
 /**
  * Checks if a node is the last element in the list.
  *
- * @retval  @c true if the node is the last element in the list.
- * @retval  @c false otherwise
+ * @retval  true if the node is the last element in the list.
+ * @retval  false otherwise
  *
  * @param   pList               The list.
  * @param   pNode               The node to check.
@@ -163,8 +174,8 @@ DECLINLINE(void) RTListNodeRemove(PRTLISTNODE pNode)
 /**
  * Checks if a node is the first element in the list.
  *
- * @retval  @c true if the node is the first element in the list.
- * @retval  @c false otherwise.
+ * @retval  true if the node is the first element in the list.
+ * @retval  false otherwise.
  *
  * @param   pList               The list.
  * @param   pNode               The node to check.
@@ -174,11 +185,11 @@ DECLINLINE(void) RTListNodeRemove(PRTLISTNODE pNode)
 /**
  * Checks if a type converted node is actually the dummy element (@a pList).
  *
- * @retval  @c true if the node is the dummy element in the list.
- * @retval  @c false otherwise.
+ * @retval  true if the node is the dummy element in the list.
+ * @retval  false otherwise.
  *
  * @param   pList               The list.
- * @param   pNodeStruct         The node structure to check.  Typically
+ * @param   pNode               The node structure to check.  Typically
  *                              something obtained from RTListNodeGetNext() or
  *                              RTListNodeGetPrev().  This is NOT a PRTLISTNODE
  *                              but something that contains a RTLISTNODE member!
@@ -194,8 +205,8 @@ DECLINLINE(void) RTListNodeRemove(PRTLISTNODE pNode)
 /**
  * Checks if a list is empty.
  *
- * @retval  @c true if the list is empty.
- * @retval  @c false otherwise.
+ * @retval  true if the list is empty.
+ * @retval  false otherwise.
  *
  * @param   pList               The list to check.
  */

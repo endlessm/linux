@@ -25,9 +25,9 @@
  */
 
 
-/*******************************************************************************
-*   Header Files                                                               *
-*******************************************************************************/
+/*********************************************************************************************************************************
+*   Header Files                                                                                                                 *
+*********************************************************************************************************************************/
 #include "the-linux-kernel.h"
 #include "internal/iprt.h"
 
@@ -37,8 +37,13 @@
 
 RTR0DECL(int) RTR0MemUserCopyFrom(void *pvDst, RTR3PTR R3PtrSrc, size_t cb)
 {
+    IPRT_LINUX_SAVE_EFL_AC();
     if (RT_LIKELY(copy_from_user(pvDst, (void *)R3PtrSrc, cb) == 0))
+    {
+        IPRT_LINUX_RESTORE_EFL_AC();
         return VINF_SUCCESS;
+    }
+    IPRT_LINUX_RESTORE_EFL_AC();
     return VERR_ACCESS_DENIED;
 }
 RT_EXPORT_SYMBOL(RTR0MemUserCopyFrom);
@@ -46,8 +51,13 @@ RT_EXPORT_SYMBOL(RTR0MemUserCopyFrom);
 
 RTR0DECL(int) RTR0MemUserCopyTo(RTR3PTR R3PtrDst, void const *pvSrc, size_t cb)
 {
+    IPRT_LINUX_SAVE_EFL_AC();
     if (RT_LIKELY(copy_to_user((void *)R3PtrDst, pvSrc, cb) == 0))
+    {
+        IPRT_LINUX_RESTORE_EFL_AC();
         return VINF_SUCCESS;
+    }
+    IPRT_LINUX_RESTORE_EFL_AC();
     return VERR_ACCESS_DENIED;
 }
 RT_EXPORT_SYMBOL(RTR0MemUserCopyTo);
@@ -55,7 +65,10 @@ RT_EXPORT_SYMBOL(RTR0MemUserCopyTo);
 
 RTR0DECL(bool) RTR0MemUserIsValidAddr(RTR3PTR R3Ptr)
 {
-    return access_ok(VERIFY_READ, (void *)R3Ptr, 1);
+    IPRT_LINUX_SAVE_EFL_AC();
+    bool fRc = access_ok(VERIFY_READ, (void *)R3Ptr, 1);
+    IPRT_LINUX_RESTORE_EFL_AC();
+    return fRc;
 }
 RT_EXPORT_SYMBOL(RTR0MemUserIsValidAddr);
 
@@ -113,6 +126,7 @@ static int rtR0MemKernelCopyLnxWorker(void *pvDst, void const *pvSrc, size_t cb)
 #  endif
 # endif /* !_ASM_EXTABLE */
     int rc;
+    IPRT_LINUX_SAVE_EFL_AC(); /* paranoia */
     if (!cb)
         return VINF_SUCCESS;
 
@@ -135,6 +149,7 @@ static int rtR0MemKernelCopyLnxWorker(void *pvDst, void const *pvSrc, size_t cb)
                             "2" (pvSrc),
                             "3" (cb)
                           : "memory");
+    IPRT_LINUX_RESTORE_EFL_AC();
     return rc;
 #else
     return VERR_NOT_SUPPORTED;

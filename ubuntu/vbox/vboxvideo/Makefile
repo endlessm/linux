@@ -1,8 +1,11 @@
 KBUILD_EXTMOD=${srctree}/ubuntu/vbox
-#
+# $Id: Makefile.module $
+## @file
 # VirtualBox Guest Additions Module Makefile.
 #
 # (For 2.6.x this file must be 'Makefile'!)
+#
+
 #
 # Copyright (C) 2006-2011 Oracle Corporation
 #
@@ -51,3 +54,4 @@ endif
 MOD_CLEAN  = . linux r0drv r0drv/linux
 
 include $(obj)/Makefile.include.footer
+

@@ -25,9 +25,9 @@
  */
 
 
-/*******************************************************************************
-*   Header Files                                                               *
-*******************************************************************************/
+/*********************************************************************************************************************************
+*   Header Files                                                                                                                 *
+*********************************************************************************************************************************/
 #include <iprt/err.h>
 #include "internal/iprt.h"
 
@@ -119,7 +119,7 @@ RTDECL(int)  RTErrConvertFromErrno(unsigned uNativeCode)
         case EINVAL:            return VERR_INVALID_PARAMETER;
 #endif
 #ifdef ENFILE
-        case ENFILE:            return VERR_TOO_MANY_OPEN_FILES; /**@Todo fix duplicate error */
+        case ENFILE:            return VERR_TOO_MANY_OPEN_FILES; /** @todo fix duplicate error */
 #endif
 #ifdef EMFILE
         case EMFILE:            return VERR_TOO_MANY_OPEN_FILES;

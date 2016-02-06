@@ -182,9 +182,9 @@ int sf_stat(const char *caller, struct sf_glob_info *sf_g,
     RT_ZERO(params);
     params.Handle = SHFL_HANDLE_NIL;
     params.CreateFlags = SHFL_CF_LOOKUP | SHFL_CF_ACT_FAIL_IF_NEW;
-    LogFunc(("sf_stat: calling vboxCallCreate, file %s, flags %#x\n",
+    LogFunc(("sf_stat: calling VbglR0SfCreate, file %s, flags %#x\n",
              path->String.utf8, params.CreateFlags));
-    rc = vboxCallCreate(&client_handle, &sf_g->map, path, &params);
+    rc = VbglR0SfCreate(&client_handle, &sf_g->map, path, &params);
     if (rc == VERR_INVALID_NAME)
     {
         /* this can happen for names like 'foo*' on a Windows host */
@@ -192,14 +192,14 @@ int sf_stat(const char *caller, struct sf_glob_info *sf_g,
     }
     if (RT_FAILURE(rc))
     {
-        LogFunc(("vboxCallCreate(%s) failed.  caller=%s, rc=%Rrc\n",
+        LogFunc(("VbglR0SfCreate(%s) failed.  caller=%s, rc=%Rrc\n",
                     path->String.utf8, rc, caller));
         return -EPROTO;
     }
     if (params.Result != SHFL_FILE_EXISTS)
     {
         if (!ok_to_fail)
-            LogFunc(("vboxCallCreate(%s) file does not exist.  caller=%s, result=%d\n",
+            LogFunc(("VbglR0SfCreate(%s) file does not exist.  caller=%s, result=%d\n",
                         path->String.utf8, params.Result, caller));
         return -ENOENT;
     }
@@ -328,10 +328,10 @@ int sf_setattr(struct dentry *dentry, struct iattr *iattr)
     if (iattr->ia_valid & ATTR_SIZE)
         params.CreateFlags |= SHFL_CF_ACCESS_WRITE;
 
-    rc = vboxCallCreate(&client_handle, &sf_g->map, sf_i->path, &params);
+    rc = VbglR0SfCreate(&client_handle, &sf_g->map, sf_i->path, &params);
     if (RT_FAILURE(rc))
     {
-        LogFunc(("vboxCallCreate(%s) failed rc=%Rrc\n",
+        LogFunc(("VbglR0SfCreate(%s) failed rc=%Rrc\n",
                  sf_i->path->String.utf8, rc));
         err = -RTErrConvertToErrno(rc);
         goto fail2;
@@ -378,12 +378,12 @@ int sf_setattr(struct dentry *dentry, struct iattr *iattr)
         /* ignore ctime (inode change time) as it can't be set from userland anyway */
 
         cbBuffer = sizeof(info);
-        rc = vboxCallFSInfo(&client_handle, &sf_g->map, params.Handle,
-                SHFL_INFO_SET | SHFL_INFO_FILE, &cbBuffer,
-                (PSHFLDIRINFO)&info);
+        rc = VbglR0SfFsInfo(&client_handle, &sf_g->map, params.Handle,
+                            SHFL_INFO_SET | SHFL_INFO_FILE, &cbBuffer,
+                            (PSHFLDIRINFO)&info);
         if (RT_FAILURE(rc))
         {
-            LogFunc(("vboxCallFSInfo(%s, FILE) failed rc=%Rrc\n",
+            LogFunc(("VbglR0SfFsInfo(%s, FILE) failed rc=%Rrc\n",
                         sf_i->path->String.utf8, rc));
             err = -RTErrConvertToErrno(rc);
             goto fail1;
@@ -395,28 +395,28 @@ int sf_setattr(struct dentry *dentry, struct iattr *iattr)
         RT_ZERO(info);
         info.cbObject = iattr->ia_size;
         cbBuffer = sizeof(info);
-        rc = vboxCallFSInfo(&client_handle, &sf_g->map, params.Handle,
+        rc = VbglR0SfFsInfo(&client_handle, &sf_g->map, params.Handle,
                             SHFL_INFO_SET | SHFL_INFO_SIZE, &cbBuffer,
                             (PSHFLDIRINFO)&info);
         if (RT_FAILURE(rc))
         {
-            LogFunc(("vboxCallFSInfo(%s, SIZE) failed rc=%Rrc\n",
+            LogFunc(("VbglR0SfFsInfo(%s, SIZE) failed rc=%Rrc\n",
                         sf_i->path->String.utf8, rc));
             err = -RTErrConvertToErrno(rc);
             goto fail1;
         }
     }
 
-    rc = vboxCallClose(&client_handle, &sf_g->map, params.Handle);
+    rc = VbglR0SfClose(&client_handle, &sf_g->map, params.Handle);
     if (RT_FAILURE(rc))
-        LogFunc(("vboxCallClose(%s) failed rc=%Rrc\n", sf_i->path->String.utf8, rc));
+        LogFunc(("VbglR0SfClose(%s) failed rc=%Rrc\n", sf_i->path->String.utf8, rc));
 
     return sf_inode_revalidate(dentry);
 
 fail1:
-    rc = vboxCallClose(&client_handle, &sf_g->map, params.Handle);
+    rc = VbglR0SfClose(&client_handle, &sf_g->map, params.Handle);
     if (RT_FAILURE(rc))
-        LogFunc(("vboxCallClose(%s) failed rc=%Rrc\n", sf_i->path->String.utf8, rc));
+        LogFunc(("VbglR0SfClose(%s) failed rc=%Rrc\n", sf_i->path->String.utf8, rc));
 
 fail2:
     return err;
@@ -793,7 +793,7 @@ int sf_dir_read_all(struct sf_glob_info *sf_g, struct sf_inode_info *sf_i,
         buf = b->buf;
         cbSize = b->cbFree;
 
-        rc = vboxCallDirInfo(&client_handle, &sf_g->map, handle, mask,
+        rc = VbglR0SfDirInfo(&client_handle, &sf_g->map, handle, mask,
                              0, 0, &cbSize, buf, &cEntries);
         switch (rc)
         {
@@ -807,7 +807,7 @@ int sf_dir_read_all(struct sf_glob_info *sf_g, struct sf_inode_info *sf_i,
                 break;
             default:
                 err = -RTErrConvertToErrno(rc);
-                LogFunc(("vboxCallDirInfo failed rc=%Rrc\n", rc));
+                LogFunc(("VbglR0SfDirInfo failed rc=%Rrc\n", rc));
                 goto fail1;
         }
 
@@ -836,7 +836,7 @@ int sf_get_volume_info(struct super_block *sb, STRUCT_STATFS *stat)
 
     sf_g = GET_GLOB_INFO(sb);
     cbBuffer = sizeof(SHFLVolumeInfo);
-    rc = vboxCallFSInfo(&client_handle, &sf_g->map, 0, SHFL_INFO_GET | SHFL_INFO_VOLUME,
+    rc = VbglR0SfFsInfo(&client_handle, &sf_g->map, 0, SHFL_INFO_GET | SHFL_INFO_VOLUME,
                         &cbBuffer, (PSHFLDIRINFO)&SHFLVolumeInfo);
     if (RT_FAILURE(rc))
         return -RTErrConvertToErrno(rc);
