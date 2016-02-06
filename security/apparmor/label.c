@@ -306,7 +306,7 @@ bool aa_label_init(struct aa_label *label, int size)
  * Returns: new label
  *     else NULL if failed
  */
-struct aa_label *aa_label_alloc(int size, gfp_t gfp)
+struct aa_label *aa_label_alloc(int size, struct aa_replacedby *r, gfp_t gfp)
 {
 	struct aa_label *label;
 
@@ -321,6 +321,14 @@ struct aa_label *aa_label_alloc(int size, gfp_t gfp)
 
 	if (!aa_label_init(label, size))
 		goto fail;
+	if (!r) {
+		r = aa_alloc_replacedby(label, gfp);
+		if (!r)
+			goto fail;
+	} else
+		aa_get_replacedby(r);
+	/* just set new's replacedby, don't redirect here if it was passed in */
+	label->replacedby = r;
 
 	labelstats_inc(allocated);
 
@@ -1131,7 +1139,6 @@ struct aa_label *aa_label_merge(struct aa_label *a, struct aa_label *b,
 
 	if (!label) {
 		struct aa_label *new;
-		struct aa_replacedby *r;
 
 		a = aa_get_newest_label(a);
 		b = aa_get_newest_label(b);
@@ -1139,16 +1146,9 @@ struct aa_label *aa_label_merge(struct aa_label *a, struct aa_label *b,
 		/* could use label_merge_len(a, b), but requires double
 		 * comparison for small savings
 		 */
-		new = aa_label_alloc(a->size + b->size, gfp);
+		new = aa_label_alloc(a->size + b->size, NULL, gfp);
 		if (!new)
 			goto out;
-		r = aa_alloc_replacedby(new, gfp);
-		if (!r) {
-			aa_label_free(new);
-			goto out;
-		}
-		/* only label update will set replacedby so ns lock is enough */
-		new->replacedby = r;
 
 		write_lock_irqsave(&ls->lock, flags);
 		label = __label_merge_insert(ls, new, a, b);
@@ -1182,7 +1182,7 @@ struct aa_label *aa_label_vec_merge(struct aa_profile **vec, int len,
 	/* TODO: enable when read side is lockless
 	 * check if label exists before taking locks
 	 */
-	new = aa_label_alloc(len, gfp);
+	new = aa_label_alloc(len, NULL, gfp);
 	if (!new)
 		return NULL;
 
@@ -1807,19 +1807,9 @@ static struct aa_label *__label_update(struct aa_label *label)
 	AA_BUG(!label);
 	AA_BUG(!mutex_is_locked(&labels_ns(label)->lock));
 
-	l = aa_label_alloc(label->size, GFP_KERNEL);
+	l = aa_label_alloc(label->size, label->replacedby, GFP_KERNEL);
 	if (!l)
 		return NULL;
-
-	if (!label->replacedby) {
-		struct aa_replacedby *r = aa_alloc_replacedby(label, GFP_KERNEL);
-		if (!r) {
-			aa_put_label(l);
-			return NULL;
-		}
-		/* only label update will set replacedby so ns lock is enough */
-		label->replacedby = r;
-	}
 
 	/* while holding the ns_lock will stop profile replacement, removal,
 	 * and label updates, label merging and removal can be occuring
