@@ -110,6 +110,10 @@ static void ext4_clear_request_list(void);
  * transaction start -> page lock(s) -> i_data_sem (rw)
  */
 
+static bool userns_mounts = false;
+module_param(userns_mounts, bool, 0644);
+MODULE_PARM_DESC(userns_mounts, "Allow mounts from unprivileged user namespaces");
+
 #if !defined(CONFIG_EXT2_FS) && !defined(CONFIG_EXT2_FS_MODULE) && defined(CONFIG_EXT4_USE_FOR_EXT2)
 static struct file_system_type ext2_fs_type = {
 	.owner		= THIS_MODULE,
@@ -3293,6 +3297,9 @@ static int ext4_fill_super(struct super_block *sb, void *data, int silent)
 	int err = 0;
 	unsigned int journal_ioprio = DEFAULT_JOURNAL_IOPRIO;
 	ext4_group_t first_not_zeroed;
+
+	if (!userns_mounts && !capable(CAP_SYS_ADMIN))
+		return -EPERM;
 
 	sbi = kzalloc(sizeof(*sbi), GFP_KERNEL);
 	if (!sbi)
