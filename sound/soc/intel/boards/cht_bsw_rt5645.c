@@ -359,7 +359,7 @@ static int snd_cht_mc_probe(struct platform_device *pdev)
 	card->dev = &pdev->dev;
 	sprintf(codec_name, "i2c-%s:00", drv->acpi_card->codec_id);
 	/* set correct codec name */
-	strcpy((char *)card->dai_link[2].codec_name, codec_name);
+	card->dai_link[2].codec_name = kstrdup(codec_name, GFP_KERNEL);
 	snd_soc_card_set_drvdata(card, drv);
 	ret_val = devm_snd_soc_register_card(&pdev->dev, card);
 	if (ret_val) {
