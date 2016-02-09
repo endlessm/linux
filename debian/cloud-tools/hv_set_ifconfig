@@ -55,6 +55,23 @@ if len(sys.argv) != 2 :
 # BOOTPROTO=<protocol> (where <protocol> is "dhcp" if DHCP is configured
 #                       or "none" if no boot-time protocol should be used)
 #
+# IPADDR0=ipaddr1
+# IPADDR1=ipaddr2
+# IPADDRx=ipaddry (where y = x + 1)
+#
+# NETMASK0=netmask1
+# NETMASKx=netmasky (where y = x + 1)
+#
+# GATEWAY=ipaddr1
+# GATEWAYx=ipaddry (where y = x + 1)
+#
+# DNSx=ipaddrx (where first DNS address is tagged as DNS1 etc)
+#
+# IPV6 addresses will be tagged as IPV6ADDR, IPV6 gateway will be
+# tagged as IPV6_DEFAULTGW and IPV6 NETMASK will be tagged as
+# IPV6NETMASK.
+#
+
 kvp=dict(line.strip().split("=") for line in fileinput.input())
 
 # Setting the hwaddress to something azure is not expecting is fatal
@@ -69,92 +86,96 @@ if not "DEVICE" in kvp :
 output=[]
 basename=kvp["DEVICE"]
 
-if "DHCP" in kvp and kvp["DHCP"]=="yes" :
+# DNS entries will go with the first interface and there can be a max
+# of three.  These will be emitted with the first interface.
+dns = []
+for count in (1, 2, 3):
+    key = "DNS" + str(count)
+    if key in kvp:
+        dns += [kvp[key]]
+dns_emitted = False
+
+# IPV4 may either be dhcp or static.
+if ("DHCP" in kvp and kvp["DHCP"] == "yes") or \
+   ("BOOTPROTO" in kvp and kvp["BOOTPROTO"] == "dhcp"):
     output += ["auto " + basename]
     output += ["iface " + basename  + " inet dhcp"]
     output += [""]
 else:
+    autolist = []
     # Matchup the interface specific lines
-
-    # DNS entries will go with the first interface
-    # and there can be a max of three
-    autolist=[]
-    dns=[]
-    if "DNS1" in kvp :
-        dns+=[kvp["DNS1"]]
-        if "DNS2" in kvp :
-            dns+=[kvp["DNS2"]]
-            if "DNS3" in kvp :
-                dns+=[kvp["DNS3"]]
-
 
     # No real max for the number of interface + aliases ...
     # only required is the address (but mate everything up that comes in.
 
-    # IPv4
-    v4names=[name for name in kvp.keys() if name.startswith("IPADDR")]
+    # IPv4 -- ensure we sort by numeric suffixes.
+    v4names = [ int(name[6:]) for name in kvp.keys() if name.startswith("IPADDR") ]
     v4names.sort()
 
-    if_count=0
-    for v4 in v4names:
-        ifname=basename
-        suffix=""
-        if if_count :
-            ifname+=":" + str(if_count)
-            suffix="_"+str(if_count)
+    for if_count in v4names:
+        ifname = basename
+        which = str(if_count)
+
+        if if_count:
+            ifname += ":" + str(if_count)
+            which_gw = which
+        else:
+            which_gw = ""
+
         if not ifname in autolist:
             autolist += [ifname]
-        output += [ "iface " + ifname + " inet static"]
-        output += [ "\t" + "address " + kvp[v4]]
-        if "NETMASK"+suffix in kvp.keys():
-            output += ["\tnetmask " + kvp["NETMASK"+suffix]]
-        if "GATEWAY"+suffix in kvp.keys():
-            output += ["\tgateway " + kvp["GATEWAY"+suffix]]
-        if not if_count :
+
+        output += [ "iface " + ifname + " inet static" ]
+        output += [ "\t" + "address " + kvp["IPADDR" + which] ]
+        if "NETMASK" + which in kvp:
+            output += [ "\tnetmask " + kvp["NETMASK" + which] ]
+        if "GATEWAY" + which_gw in kvp:
+            output += ["\tgateway " + kvp["GATEWAY" + which_gw]]
+
+        if not dns_emitted:
+            dns_emitted = True
             output += ["\tdns-nameservers " + ' '.join(dns)]
         output += [""]
-        if_count+=1
 
+# IPv6 requires a netmask
+# If an ipv6 exists, you'll want to turn off /proc/sys/net/ipv6/conf/all/autoconf with
+# echo 0 > /proc/sys/net/ipv6/conf/all/autoconf
+v6names = [ int(name[8:]) for name in kvp.keys() if name.startswith("IPV6ADDR") ]
+v6names.sort()
 
-    # IPv6 requires a netmask
-    # If an ipv6 exists, you'll want to turn off /proc/sys/net/ipv6/conf/all/autoconf with
-    # echo 0 > /proc/sys/net/ipv6/conf/all/autoconf
-    v6names=[name for name in kvp.keys() if name.startswith("IPV6ADDR")]
-    v6names.sort()
+for if6_count in v6names:
+    ifname = basename
+    which = str(if6_count)
 
-    if6_count=0
-    if6_used=0
-    for v6 in v6names:
-        ifname=basename
-        suffix=""
-        if if6_used :
-            ifname+=":" + str(if6_used)
-        if if6_count :
-            suffix="_" + str(if6_count)
-        if not ifname in autolist:
-            autolist += [ifname]
-        if "IPV6NETMASK"+suffix in kvp.keys():
-            output += [ "iface " + ifname + " inet6 static"]
-            output += [ "\taddress " + kvp[v6]]
-            output += [ "\tnetmask " + kvp["IPV6NETMASK"+suffix]]
-            if "IPV6_DEFAULTGW"+suffix in kvp.keys():
-                output += [ "\tgateway " + kvp["IPV6_DEFAULTGW"+suffix] ]
-            if not if_count :
-                output += ["\tdns-nameservers " + ' '.join(dns)]
-            output += [""]
-            if_count += 1
-            if6_used += 1
-        if6_count += 1
+    if if6_count:
+        ifname += ":" + str(if6_count)
+        which_gw = which
+    else:
+        which_gw = ""
 
-    # Mark this new interface for automatic up.
-    output = ["auto "+" ".join(autolist)] + output
+    if not ifname in autolist:
+        autolist += [ifname]
+
+    if "IPV6NETMASK" + which in kvp:
+        output += [ "iface " + ifname + " inet6 static"]
+        output += [ "\taddress " + kvp["IPV6ADDR" + which]]
+        output += [ "\tnetmask " + kvp["IPV6NETMASK" + which]]
+        if "IPV6_DEFAULTGW" + which_gw in kvp:
+            output += [ "\tgateway " + kvp["IPV6_DEFAULTGW" + which_gw] ]
+        if not dns_emitted:
+            dns_emitted = True
+            output += ["\tdns-nameservers " + ' '.join(dns)]
+        output += [""]
+
+# Mark this new interface for automatic up.
+output = ["auto "+" ".join(autolist)] + output
 
 print("===================================")
 print(output)
 print("===================================")
 
 
-''' Time to clean out the existing interface file'''
+# Time to clean out the existing interface file
 
 # Markers.
 start_mark = "# The following stanza(s) added by hv_set_ifconfig"
