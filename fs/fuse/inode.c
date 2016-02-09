@@ -48,6 +48,10 @@ MODULE_PARM_DESC(max_user_congthresh,
  "Global limit for the maximum congestion threshold an "
  "unprivileged user can set");
 
+static bool userns_mounts;
+module_param(userns_mounts, bool, 0644);
+MODULE_PARM_DESC(userns_mounts, "Allow mounts from unprivileged user namespaces");
+
 #define FUSE_SUPER_MAGIC 0x65735546
 
 #define FUSE_DEFAULT_BLKSIZE 512
@@ -1046,6 +1050,9 @@ static int fuse_fill_super(struct super_block *sb, void *data, int silent)
 	struct fuse_req *init_req;
 	int err;
 	int is_bdev = sb->s_bdev != NULL;
+
+	if (!userns_mounts && !capable(CAP_SYS_ADMIN))
+		return -EPERM;
 
 	err = -EINVAL;
 	if (sb->s_flags & MS_MANDLOCK)
