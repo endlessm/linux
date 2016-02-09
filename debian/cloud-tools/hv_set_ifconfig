@@ -37,15 +37,15 @@ sys.stderr = open(os.devnull, 'w')
 
 # Confirm we can open the network configuration.
 try:
-	if_file=open(if_filename,"r+")
+    if_file=open(if_filename,"r+")
 except IOError as e:
-	exit(e.errno)
+    exit(e.errno)
 else:
-	if_file.close()
+    if_file.close()
 
 # Usage: hv_set_ifconfig <config>
 if len(sys.argv) != 2 :
-	exit(errno.EINVAL)
+    exit(errno.EINVAL)
 
 #
 # Here is the format of the ip configuration file:
@@ -60,94 +60,94 @@ kvp=dict(line.strip().split("=") for line in fileinput.input())
 # Setting the hwaddress to something azure is not expecting is fatal
 # to networking.
 if not "HWADDR" in kvp :
-	exit(errno.EPROTO)
+    exit(errno.EPROTO)
 
 # Confirm we have a device specified.
 if not "DEVICE" in kvp :
-	exit(1)
+    exit(1)
 
 output=[]
 basename=kvp["DEVICE"]
 
 if "DHCP" in kvp and kvp["DHCP"]=="yes" :
-	output += ["auto " + basename]
-	output += ["iface " + basename  + " inet dhcp"]
-	output += [""]
+    output += ["auto " + basename]
+    output += ["iface " + basename  + " inet dhcp"]
+    output += [""]
 else:
-	# Matchup the interface specific lines
+    # Matchup the interface specific lines
 
-	# DNS entries will go with the first interface
-	# and there can be a max of three
-	autolist=[]
-	dns=[]
-	if "DNS1" in kvp :
-		dns+=[kvp["DNS1"]]
-		if "DNS2" in kvp :
-			dns+=[kvp["DNS2"]]
-			if "DNS3" in kvp :
-				dns+=[kvp["DNS3"]]
-
-
-	# No real max for the number of interface + aliases ... 
-	# only required is the address (but mate everything up that comes in.
-
-	# IPv4
-	v4names=[name for name in kvp.keys() if name.startswith("IPADDR")]
-	v4names.sort()
-
-	if_count=0
-	for v4 in v4names:
-		ifname=basename
-		suffix=""
-		if if_count :
-			ifname+=":" + str(if_count)
-			suffix="_"+str(if_count)
-		if not ifname in autolist:
-			autolist += [ifname]
-		output += [ "iface " + ifname + " inet static"]
-		output += [ "\t" + "address " + kvp[v4]]
-		if "NETMASK"+suffix in kvp.keys():
-			output += ["\tnetmask " + kvp["NETMASK"+suffix]]
-		if "GATEWAY"+suffix in kvp.keys():
-			output += ["\tgateway " + kvp["GATEWAY"+suffix]]
-		if not if_count :
-			output += ["\tdns-nameservers " + ' '.join(dns)]
-		output += [""]
-		if_count+=1
+    # DNS entries will go with the first interface
+    # and there can be a max of three
+    autolist=[]
+    dns=[]
+    if "DNS1" in kvp :
+        dns+=[kvp["DNS1"]]
+        if "DNS2" in kvp :
+            dns+=[kvp["DNS2"]]
+            if "DNS3" in kvp :
+                dns+=[kvp["DNS3"]]
 
 
-	# IPv6 requires a netmask
-	# If an ipv6 exists, you'll want to turn off /proc/sys/net/ipv6/conf/all/autoconf with
-	# echo 0 > /proc/sys/net/ipv6/conf/all/autoconf
-	v6names=[name for name in kvp.keys() if name.startswith("IPV6ADDR")]
-	v6names.sort()
+    # No real max for the number of interface + aliases ...
+    # only required is the address (but mate everything up that comes in.
 
-	if6_count=0
-	if6_used=0
-	for v6 in v6names:
-		ifname=basename
-		suffix=""
-		if if6_used :
-			ifname+=":" + str(if6_used)
-		if if6_count :
-			suffix="_" + str(if6_count)
-		if not ifname in autolist:
-			autolist += [ifname]
-		if "IPV6NETMASK"+suffix in kvp.keys():
-			output += [ "iface " + ifname + " inet6 static"]
-			output += [ "\taddress " + kvp[v6]]
-			output += [ "\tnetmask " + kvp["IPV6NETMASK"+suffix]]
-			if "IPV6_DEFAULTGW"+suffix in kvp.keys():
-				output += [ "\tgateway " + kvp["IPV6_DEFAULTGW"+suffix] ]
-			if not if_count :
-				output += ["\tdns-nameservers " + ' '.join(dns)]
-			output += [""]
-			if_count += 1
-			if6_used += 1
-		if6_count += 1
+    # IPv4
+    v4names=[name for name in kvp.keys() if name.startswith("IPADDR")]
+    v4names.sort()
 
-	# Mark this new interface for automatic up.
-	output = ["auto "+" ".join(autolist)] + output
+    if_count=0
+    for v4 in v4names:
+        ifname=basename
+        suffix=""
+        if if_count :
+            ifname+=":" + str(if_count)
+            suffix="_"+str(if_count)
+        if not ifname in autolist:
+            autolist += [ifname]
+        output += [ "iface " + ifname + " inet static"]
+        output += [ "\t" + "address " + kvp[v4]]
+        if "NETMASK"+suffix in kvp.keys():
+            output += ["\tnetmask " + kvp["NETMASK"+suffix]]
+        if "GATEWAY"+suffix in kvp.keys():
+            output += ["\tgateway " + kvp["GATEWAY"+suffix]]
+        if not if_count :
+            output += ["\tdns-nameservers " + ' '.join(dns)]
+        output += [""]
+        if_count+=1
+
+
+    # IPv6 requires a netmask
+    # If an ipv6 exists, you'll want to turn off /proc/sys/net/ipv6/conf/all/autoconf with
+    # echo 0 > /proc/sys/net/ipv6/conf/all/autoconf
+    v6names=[name for name in kvp.keys() if name.startswith("IPV6ADDR")]
+    v6names.sort()
+
+    if6_count=0
+    if6_used=0
+    for v6 in v6names:
+        ifname=basename
+        suffix=""
+        if if6_used :
+            ifname+=":" + str(if6_used)
+        if if6_count :
+            suffix="_" + str(if6_count)
+        if not ifname in autolist:
+            autolist += [ifname]
+        if "IPV6NETMASK"+suffix in kvp.keys():
+            output += [ "iface " + ifname + " inet6 static"]
+            output += [ "\taddress " + kvp[v6]]
+            output += [ "\tnetmask " + kvp["IPV6NETMASK"+suffix]]
+            if "IPV6_DEFAULTGW"+suffix in kvp.keys():
+                output += [ "\tgateway " + kvp["IPV6_DEFAULTGW"+suffix] ]
+            if not if_count :
+                output += ["\tdns-nameservers " + ' '.join(dns)]
+            output += [""]
+            if_count += 1
+            if6_used += 1
+        if6_count += 1
+
+    # Mark this new interface for automatic up.
+    output = ["auto "+" ".join(autolist)] + output
 
 print("===================================")
 print(output)
@@ -169,73 +169,73 @@ inastanza=0
 stanza=[]
 prev_line=None
 for line in flines:
-	if line.startswith("auto"):
-		if inastanza:
-			if not pitchstanza:
-				newfile.extend(stanza)
-			stanza=[]
-		inastanza=0
-		newline=""
-		autoline=line.strip().split(" ")
-		for word in autoline:
-			if (not word == basename) and (not word.startswith(basename+":")):
-				newline+=word + " "
-		newline = newline.strip()
-		if not newline == "auto":
-			newfile += [newline.strip()]
-	elif line.startswith(("iface","mapping","source")):
-		'''Read a stanza'''
-		'''A Stanza can also start with allow- ie allow-hotplug'''
-		if inastanza:
-			if not pitchstanza:
-				newfile.extend(stanza)
-			stanza=[]
-		inastanza=1
-		pitchstanza=0
-		autoline=line.strip().split(" ")
-		for word in autoline:
-			if (word == basename) or (word.startswith(basename+":")):
-				pitchstanza=1
-		if not pitchstanza:
-			stanza+=[line.strip()]
-	elif line.strip() in (start_mark, end_mark):
-		if inastanza:
-			if not pitchstanza:
-				newfile.extend(stanza)
-			stanza=[]
-		inastanza = 0
-		pitchstanza = 0
-		# Deduplicate markers.
-		if line != prev_line:
-		    newfile += [line.strip()]
-	else:
-		if inastanza:
-			if not pitchstanza:
-				stanza+=[line.strip()]
-		else:
-			if not pitchstanza:
-				newfile += [line.strip()]
-	prev_line=line
+    if line.startswith("auto"):
+        if inastanza:
+            if not pitchstanza:
+                newfile.extend(stanza)
+            stanza=[]
+        inastanza=0
+        newline=""
+        autoline=line.strip().split(" ")
+        for word in autoline:
+            if (not word == basename) and (not word.startswith(basename+":")):
+                newline+=word + " "
+        newline = newline.strip()
+        if not newline == "auto":
+            newfile += [newline.strip()]
+    elif line.startswith(("iface","mapping","source")):
+        '''Read a stanza'''
+        '''A Stanza can also start with allow- ie allow-hotplug'''
+        if inastanza:
+            if not pitchstanza:
+                newfile.extend(stanza)
+            stanza=[]
+        inastanza=1
+        pitchstanza=0
+        autoline=line.strip().split(" ")
+        for word in autoline:
+            if (word == basename) or (word.startswith(basename+":")):
+                pitchstanza=1
+        if not pitchstanza:
+            stanza+=[line.strip()]
+    elif line.strip() in (start_mark, end_mark):
+        if inastanza:
+            if not pitchstanza:
+                newfile.extend(stanza)
+            stanza=[]
+        inastanza = 0
+        pitchstanza = 0
+        # Deduplicate markers.
+        if line != prev_line:
+            newfile += [line.strip()]
+    else:
+        if inastanza:
+            if not pitchstanza:
+                stanza+=[line.strip()]
+        else:
+            if not pitchstanza:
+                newfile += [line.strip()]
+    prev_line=line
 
 
 
 def emit(line):
-	print(line)
-	output = line + "\n"
-	os.write(fd, output.encode('utf-8'))
+    print(line)
+    output = line + "\n"
+    os.write(fd, output.encode('utf-8'))
 
 # Insert the new output at the end and inside the existing markers if found.
 emitted = False
 fd, path = tempfile.mkstemp()
 for line in newfile:
-	if line == end_mark:
-		emit("\n".join(output))
-		emitted = True
-	emit(line)
+    if line == end_mark:
+        emit("\n".join(output))
+        emitted = True
+    emit(line)
 if not emitted:
-	emit(start_mark)
-	emit("\n".join(output))
-	emit(end_mark)
+    emit(start_mark)
+    emit("\n".join(output))
+    emit(end_mark)
 os.close(fd)
 
 shutil.copy(path,if_filename)
