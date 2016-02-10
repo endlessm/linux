@@ -345,8 +345,7 @@
 /* __posix_acl_chmod() exists */
 #undef HAVE___POSIX_ACL_CHMOD
 
-/* Define to the sub-directory in which libtool stores uninstalled libraries.
-   */
+/* Define to the sub-directory where libtool stores uninstalled libraries. */
 #undef LT_OBJDIR
 
 /* make_request_fn() returns blk_qc_t */
