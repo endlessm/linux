@@ -97,12 +97,13 @@ static int mlx4_en_low_latency_recv(struct napi_struct *napi)
 }
 #endif	/* CONFIG_NET_RX_BUSY_POLL */
 
-static int __mlx4_en_setup_tc(struct net_device *dev, u32 handle, u8 up)
+static int __mlx4_en_setup_tc(struct net_device *dev, u32 handle, __be16 proto,
+			      struct tc_to_netdev *tc)
 {
-	if (handle != TC_H_ROOT)
+	if (handle != TC_H_ROOT || tc->type != TC_SETUP_MQPRIO)
 		return -EINVAL;
 
-	return mlx4_en_setup_tc(dev, up);
+	return mlx4_en_setup_tc(dev, tc->tc);
 }
 
 #ifdef CONFIG_RFS_ACCEL
