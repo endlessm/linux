@@ -3042,6 +3042,16 @@ int rt5645_set_jack_detect(struct snd_soc_codec *codec,
 }
 EXPORT_SYMBOL_GPL(rt5645_set_jack_detect);
 
+static const struct dmi_system_id invert_hp_detect_dmi_table[] = {
+	{
+		.ident = "EF20EA",
+		.matches = {
+			DMI_MATCH(DMI_PRODUCT_NAME, "EF20EA"),
+		}
+	},
+	{ }
+};
+
 static void rt5645_jack_detect_work(struct work_struct *work)
 {
 	struct rt5645_priv *rt5645 =
@@ -3055,6 +3065,8 @@ static void rt5645_jack_detect_work(struct work_struct *work)
 	case 0: /* Not using rt5645 JD */
 		if (rt5645->gpiod_hp_det) {
 			gpio_state = gpiod_get_value(rt5645->gpiod_hp_det);
+			if (dmi_check_system(invert_hp_detect_dmi_table))
+				gpio_state ^= 1;
 			dev_dbg(rt5645->codec->dev, "gpio_state = %d\n",
 				gpio_state);
 			report = rt5645_jack_detect(rt5645->codec, gpio_state);
@@ -3430,7 +3442,6 @@ static struct dmi_system_id dmi_platform_intel_broadwell[] = {
 	},
 	{ }
 };
-
 
 static int rt5645_parse_dt(struct rt5645_priv *rt5645, struct device *dev)
 {
