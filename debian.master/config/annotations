@@ -2017,7 +2017,7 @@ CONFIG_EXYNOS_IOMMU_DEBUG                       policy<{'armhf': 'n'}>
 CONFIG_SHMOBILE_IOMMU                           policy<{'armhf': 'y'}>
 CONFIG_IPMMU_VMSA                               policy<{'armhf-generic-lpae': 'y'}>
 CONFIG_SPAPR_TCE_IOMMU                          policy<{'powerpc-powerpc64-smp': 'y', 'ppc64el': 'y'}>
-CONFIG_ARM_SMMU                                 policy<{'arm64': 'n', 'armhf': 'n'}>
+CONFIG_ARM_SMMU                                 policy<{'arm64': 'y', 'armhf': 'n'}>
 CONFIG_ARM_SMMU_V3                              policy<{'arm64': 'y'}>
 #
 CONFIG_INTEL_IOMMU_DEFAULT_ON                   note<the IOMMU can trigger boot failures> flag<REVIEW>
