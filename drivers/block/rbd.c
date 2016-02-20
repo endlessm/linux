@@ -89,7 +89,7 @@ static int atomic_dec_return_safe(atomic_t *v)
 #define RBD_MINORS_PER_MAJOR		256
 #define RBD_SINGLE_MAJOR_PART_SHIFT	4
 
-#define RBD_MAX_PARENT_CHAIN_LEN	16
+#define RBD_MAX_PARENT_CHAIN_LEN	128
 
 #define RBD_SNAP_DEV_NAME_PREFIX	"snap_"
 #define RBD_MAX_SNAP_NAME_LEN	\
