@@ -85,6 +85,8 @@ device). Don't do this unless you cannot get the event in any other way.
 
 RFKill provides per-switch LED triggers, which can be used to drive LEDs
 according to the switch state (LED_FULL when blocked, LED_OFF otherwise).
+An airplane-mode indicator LED trigger is also available, which triggers
+LED_FULL when all radios known by RFKill are blocked, and LED_OFF otherwise.
 
 
 5. Userspace support
