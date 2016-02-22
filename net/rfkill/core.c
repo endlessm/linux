@@ -126,6 +126,30 @@ static bool rfkill_epo_lock_active;
 
 
 #ifdef CONFIG_RFKILL_LEDS
+static struct led_trigger rfkill_apm_led_trigger;
+
+static void rfkill_apm_led_trigger_event(bool state)
+{
+	led_trigger_event(&rfkill_apm_led_trigger, state ? LED_FULL : LED_OFF);
+}
+
+static void rfkill_apm_led_trigger_activate(struct led_classdev *led)
+{
+	rfkill_apm_led_trigger_event(!rfkill_default_state);
+}
+
+static int rfkill_apm_led_trigger_register(void)
+{
+	rfkill_apm_led_trigger.name = "rfkill-airplane-mode";
+	rfkill_apm_led_trigger.activate = rfkill_apm_led_trigger_activate;
+	return led_trigger_register(&rfkill_apm_led_trigger);
+}
+
+static void rfkill_apm_led_trigger_unregister(void)
+{
+	led_trigger_unregister(&rfkill_apm_led_trigger);
+}
+
 static void rfkill_led_trigger_event(struct rfkill *rfkill)
 {
 	struct led_trigger *trigger;
@@ -221,6 +245,19 @@ static void rfkill_any_led_trigger_unregister(void)
 	cancel_work_sync(&rfkill_any_work);
 }
 #else
+static void rfkill_apm_led_trigger_event(bool state)
+{
+}
+
+static int rfkill_apm_led_trigger_register(void)
+{
+	return 0;
+}
+
+static void rfkill_apm_led_trigger_unregister(void)
+{
+}
+
 static void rfkill_led_trigger_event(struct rfkill *rfkill)
 {
 }
@@ -371,6 +408,7 @@ static void rfkill_update_global_state(enum rfkill_type type, bool blocked)
 
 	for (i = 0; i < NUM_RFKILL_TYPES; i++)
 		rfkill_global_states[i].cur = blocked;
+	rfkill_apm_led_trigger_event(blocked);
 }
 
 #ifdef CONFIG_RFKILL_INPUT
@@ -1322,6 +1360,10 @@ static int __init rfkill_init(void)
 {
 	int error;
 
+	error = rfkill_apm_led_trigger_register();
+	if (error)
+		return error;
+
 	rfkill_update_global_state(RFKILL_TYPE_ALL, !rfkill_default_state);
 
 	error = class_register(&rfkill_class);
@@ -1353,6 +1395,7 @@ error_led_trigger:
 error_misc:
 	class_unregister(&rfkill_class);
 error_class:
+	rfkill_apm_led_trigger_unregister();
 	return error;
 }
 subsys_initcall(rfkill_init);
@@ -1365,5 +1408,6 @@ static void __exit rfkill_exit(void)
 	rfkill_any_led_trigger_unregister();
 	misc_deregister(&rfkill_miscdev);
 	class_unregister(&rfkill_class);
+	rfkill_apm_led_trigger_unregister();
 }
 module_exit(rfkill_exit);
