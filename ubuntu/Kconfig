@@ -14,5 +14,12 @@ source "ubuntu/dm-raid4-5/Kconfig"
 ##
 ##
 ##
+source "ubuntu/i915/Kconfig"
+##
+##
+##
+##
+##
+##
 
 endmenu
