@@ -64,18 +64,22 @@ for bug in bugs:
     else:
         bug_info = None
 
-        #urllib.request.urlcleanup()
-        request = urllib.request.Request('https://api.launchpad.net/devel/bugs/' + bug)
-        request.add_header('Cache-Control', 'max-age=0')
-        with urllib.request.urlopen(request) as response:
-            data = response.read()
-            bug_info = json.loads(data.decode('utf-8'))
-        
-        title = bug_info['title']
-        if 'description' in bug_info:
-            for line in bug_info['description'].split('\n'):
-                if line.startswith('Kernel-Description:'):
-                    title = line.split(' ', 1)[1]
+        try:
+            #urllib.request.urlcleanup()
+            request = urllib.request.Request('https://api.launchpad.net/devel/bugs/' + bug)
+            request.add_header('Cache-Control', 'max-age=0')
+            with urllib.request.urlopen(request) as response:
+                data = response.read()
+                bug_info = json.loads(data.decode('utf-8'))
+            
+            title = bug_info['title']
+            if 'description' in bug_info:
+                for line in bug_info['description'].split('\n'):
+                    if line.startswith('Kernel-Description:'):
+                        title = line.split(' ', 1)[1]
+
+        except urllib.error.HTTPError:
+            title = 'INVALID or PRIVATE BUG'
 
         title += ' (LP: #' + bug + ')'
 
