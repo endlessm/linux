@@ -1,4 +1,4 @@
-config DRM_I915
+config DRM_I915_BPO
 	tristate "Intel 8xx/9xx/G3x/G4x/HD Graphics"
 	depends on DRM
 	depends on X86 && PCI
