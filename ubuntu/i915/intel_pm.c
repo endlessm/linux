@@ -5855,12 +5855,12 @@ unsigned long i915_gfx_val(struct drm_i915_private *dev_priv)
 }
 
 /**
- * i915_read_mch_val - return value for IPS use
+ * i915_bpo_read_mch_val - return value for IPS use
  *
  * Calculate and return a value for the IPS driver to use when deciding whether
  * we have thermal and power headroom to increase CPU or GPU power budget.
  */
-unsigned long i915_read_mch_val(void)
+unsigned long i915_bpo_read_mch_val(void)
 {
 	struct drm_i915_private *dev_priv;
 	unsigned long chipset_val, graphics_val, ret = 0;
@@ -5880,14 +5880,14 @@ out_unlock:
 
 	return ret;
 }
-EXPORT_SYMBOL_GPL(i915_read_mch_val);
+EXPORT_SYMBOL_GPL(i915_bpo_read_mch_val);
 
 /**
- * i915_gpu_raise - raise GPU frequency limit
+ * i915_bpo_gpu_raise - raise GPU frequency limit
  *
  * Raise the limit; IPS indicates we have thermal headroom.
  */
-bool i915_gpu_raise(void)
+bool i915_bpo_gpu_raise(void)
 {
 	struct drm_i915_private *dev_priv;
 	bool ret = true;
@@ -5907,15 +5907,15 @@ out_unlock:
 
 	return ret;
 }
-EXPORT_SYMBOL_GPL(i915_gpu_raise);
+EXPORT_SYMBOL_GPL(i915_bpo_gpu_raise);
 
 /**
- * i915_gpu_lower - lower GPU frequency limit
+ * i915_bpo_gpu_lower - lower GPU frequency limit
  *
  * IPS indicates we're close to a thermal limit, so throttle back the GPU
  * frequency maximum.
  */
-bool i915_gpu_lower(void)
+bool i915_bpo_gpu_lower(void)
 {
 	struct drm_i915_private *dev_priv;
 	bool ret = true;
@@ -5935,14 +5935,14 @@ out_unlock:
 
 	return ret;
 }
-EXPORT_SYMBOL_GPL(i915_gpu_lower);
+EXPORT_SYMBOL_GPL(i915_bpo_gpu_lower);
 
 /**
- * i915_gpu_busy - indicate GPU business to IPS
+ * i915_bpo_gpu_busy - indicate GPU business to IPS
  *
  * Tell the IPS driver whether or not the GPU is busy.
  */
-bool i915_gpu_busy(void)
+bool i915_bpo_gpu_busy(void)
 {
 	struct drm_i915_private *dev_priv;
 	struct intel_engine_cs *ring;
@@ -5962,15 +5962,15 @@ out_unlock:
 
 	return ret;
 }
-EXPORT_SYMBOL_GPL(i915_gpu_busy);
+EXPORT_SYMBOL_GPL(i915_bpo_gpu_busy);
 
 /**
- * i915_gpu_turbo_disable - disable graphics turbo
+ * i915_bpo_gpu_turbo_disable - disable graphics turbo
  *
  * Disable graphics turbo by resetting the max frequency and setting the
  * current frequency to the default.
  */
-bool i915_gpu_turbo_disable(void)
+bool i915_bpo_gpu_turbo_disable(void)
 {
 	struct drm_i915_private *dev_priv;
 	bool ret = true;
@@ -5992,7 +5992,7 @@ out_unlock:
 
 	return ret;
 }
-EXPORT_SYMBOL_GPL(i915_gpu_turbo_disable);
+EXPORT_SYMBOL_GPL(i915_bpo_gpu_turbo_disable);
 
 /**
  * Tells the intel_ips driver that the i915 driver is now loaded, if

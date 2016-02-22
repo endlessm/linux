@@ -74,6 +74,7 @@
 #include <linux/timer.h>
 #include <linux/dmi.h>
 #include <drm/i915_drm.h>
+#include <drm/i915_drm_bpo.h>
 #include <asm/msr.h>
 #include <asm/processor.h>
 #include "intel_ips.h"
@@ -250,6 +251,9 @@
 
 static const int IPS_ADJUST_PERIOD = 5000; /* ms */
 static bool late_i915_load = false;
+
+int i915_bpo_enabled = 0;
+EXPORT_SYMBOL(i915_bpo_enabled);
 
 /* For initial average collection */
 static const int IPS_SAMPLE_PERIOD = 200; /* ms */
@@ -1421,8 +1425,43 @@ out:
  * enable graphics turbo, otherwise we must disable it to avoid exceeding
  * thermal and power limits in the MCP.
  */
+static bool ips_get_i915_bpo_syms(struct ips_driver *ips)
+{
+	ips->read_mch_val = symbol_get(i915_bpo_read_mch_val);
+	if (!ips->read_mch_val)
+		goto out_err;
+	ips->gpu_raise = symbol_get(i915_bpo_gpu_raise);
+	if (!ips->gpu_raise)
+		goto out_put_mch;
+	ips->gpu_lower = symbol_get(i915_bpo_gpu_lower);
+	if (!ips->gpu_lower)
+		goto out_put_raise;
+	ips->gpu_busy = symbol_get(i915_bpo_gpu_busy);
+	if (!ips->gpu_busy)
+		goto out_put_lower;
+	ips->gpu_turbo_disable = symbol_get(i915_bpo_gpu_turbo_disable);
+	if (!ips->gpu_turbo_disable)
+		goto out_put_busy;
+
+	return true;
+
+out_put_busy:
+	symbol_put(i915_bpo_gpu_busy);
+out_put_lower:
+	symbol_put(i915_bpo_gpu_lower);
+out_put_raise:
+	symbol_put(i915_bpo_gpu_raise);
+out_put_mch:
+	symbol_put(i915_bpo_read_mch_val);
+out_err:
+	return false;
+}
+
 static bool ips_get_i915_syms(struct ips_driver *ips)
 {
+	if (ips_get_i915_bpo_syms(ips) != false)
+		return true;
+
 	ips->read_mch_val = symbol_get(i915_read_mch_val);
 	if (!ips->read_mch_val)
 		goto out_err;
