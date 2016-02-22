@@ -2061,7 +2061,12 @@ static int azx_probe_continue(struct azx *chip)
 		if (CONTROLLER_IN_GPU(pci))
 			hda->need_i915_power = 1;
 
-		err = snd_hdac_i915_init(bus);
+		if (((chip->driver_caps & AZX_DCAPS_INTEL_SKYLAKE) == AZX_DCAPS_INTEL_SKYLAKE) || \
+			((chip->driver_caps & AZX_DCAPS_INTEL_BROXTON) == AZX_DCAPS_INTEL_BROXTON))
+			err = snd_hdac_i915_init_bpo(bus);
+		else
+			err = snd_hdac_i915_init(bus);
+
 		if (err < 0) {
 			/* if the controller is bound only with HDMI/DP
 			 * (for HSW and BDW), we need to abort the probe;
