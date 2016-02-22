@@ -28,7 +28,7 @@
 #include <linux/cpufreq.h>
 #include "i915_drv.h"
 #include "intel_drv.h"
-#include "../../../platform/x86/intel_ips.h"
+#include "../../drivers/platform/x86/intel_ips.h"
 #include <linux/module.h>
 
 /**
