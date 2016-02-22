@@ -730,6 +730,31 @@ sub handle_non_symlinks {
     }
   }
   ##,####
+  # case Five!?!
+  #`####
+  elsif ($do_symlink) {
+    # Ok then. this ought to be a symlink, and hence fair game
+    # don't clobber $kimage.old quite yet
+    my $Old = $realimageloc;
+    my $cwd;
+    chomp($cwd=`pwd`);
+    if (test_relative ('Old Dir' => $Old, 'New Dir' => $cwd,
+                       'Test File' => "$image_name")) {
+      $Old   =~ s|^/*||o;
+    }
+    # Special case is they are in the same dir
+    my $rel_path = spath('Old' => "$Old", 'New' => "$cwd" );
+    $Old ="" if $rel_path =~ m/^\s*$/o;
+
+    warn "symlink " . $Old . "$image_name " . "$kimage" if $DEBUG;
+    if (! symlink($Old . "$image_name", "$kimage")) {
+      warn "mv $kimage.$$ $kimage" if $DEBUG;
+      rename("$kimage.$$", "$kimage");
+      die("Failed to link " . $realimageloc . "$image_name to "
+          . $image_dest . "$kimage");
+    }
+  }
+  ##,####
   # case Four
   #`####
   else {
