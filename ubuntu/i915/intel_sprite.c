@@ -1110,7 +1110,7 @@ intel_plane_init(struct drm_device *dev, enum pipe pipe, int plane)
 	ret = drm_universal_plane_init(dev, &intel_plane->base, possible_crtcs,
 				       &intel_plane_funcs,
 				       plane_formats, num_plane_formats,
-				       DRM_PLANE_TYPE_OVERLAY, NULL);
+				       DRM_PLANE_TYPE_OVERLAY);
 	if (ret) {
 		kfree(intel_plane);
 		goto out;
