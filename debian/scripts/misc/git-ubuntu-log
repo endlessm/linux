@@ -44,6 +44,9 @@ for line in sys.stdin:
         entry['ignore'] = True
 
 
+if entry and 'ignore' not in entry:
+    entries.append(entry)
+
 entries.reverse()
 
 # Go through the entries and clear out authors for upstream commits.
