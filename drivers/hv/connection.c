@@ -244,7 +244,7 @@ void vmbus_disconnect(void)
 	/*
 	 * First send the unload request to the host.
 	 */
-	vmbus_initiate_unload();
+	vmbus_initiate_unload(false);
 
 	if (vmbus_connection.work_queue) {
 		drain_workqueue(vmbus_connection.work_queue);
