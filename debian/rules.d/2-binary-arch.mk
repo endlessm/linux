@@ -569,9 +569,7 @@ $(stampdir)/stamp-prepare-perarch:
 ifeq ($(do_any_tools),true)
 	rm -rf $(builddirpa)
 	install -d $(builddirpa)
-	for i in *; do $(LN) $(CURDIR)/$$i $(builddirpa); done
-	rm $(builddirpa)/tools
-	rsync -a tools/ $(builddirpa)/tools/
+	rsync -a --exclude debian --exclude debian.master --exclude $(DEBIAN) --exclude .git -a ./ $(builddirpa)/
 endif
 	touch $@
 
@@ -594,8 +592,15 @@ ifeq ($(do_tools_cpupower),true)
 		LIB_MIN=$(abi_release) CPUFREQ_BENCH=false
 endif
 ifeq ($(do_tools_perf),true)
+	cd $(builddirpa) && $(kmake) $(defconfig)
+	mv $(builddirpa)/.config $(builddirpa)/.config.old
+	sed -e 's/^# \(CONFIG_MODVERSIONS\) is not set$$/\1=y/' \
+	  -e 's/.*CONFIG_LOCALVERSION_AUTO.*/# CONFIG_LOCALVERSION_AUTO is not set/' \
+	  $(builddirpa)/.config.old > $(builddirpa)/.config
+	cd $(builddirpa) && $(kmake) silentoldconfig
+	cd $(builddirpa) && $(kmake) prepare
 	cd $(builddirpa)/tools/perf && \
-		make prefix=/usr HAVE_CPLUS_DEMANGLE=1 CROSS_COMPILE=$(CROSS_COMPILE) NO_LIBPYTHON=1 NO_LIBPERL=1 PYTHON=python2.7
+		$(kmake) prefix=/usr HAVE_CPLUS_DEMANGLE=1 CROSS_COMPILE=$(CROSS_COMPILE) NO_LIBPYTHON=1 NO_LIBPERL=1 PYTHON=python2.7
 endif
 ifeq ($(do_tools_x86),true)
 	cd $(builddirpa)/tools/power/x86/x86_energy_perf_policy && make CROSS_COMPILE=$(CROSS_COMPILE)
