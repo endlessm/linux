@@ -48,6 +48,66 @@
 #define _COMPONENT          ACPI_UTILITIES
 ACPI_MODULE_NAME("utids")
 
+acpi_status
+acpi_ut_execute_WHID(struct acpi_namespace_node *device_node,
+		    struct acpi_pnp_device_id **return_id)
+{
+	union acpi_operand_object *obj_desc;
+	struct acpi_pnp_device_id *hid;
+	u32 length;
+	acpi_status status;
+
+	ACPI_FUNCTION_TRACE(ut_execute_HID);
+
+	status = acpi_ut_evaluate_object(device_node, "WHID",
+					 ACPI_BTYPE_INTEGER | ACPI_BTYPE_STRING,
+					 &obj_desc);
+	if (ACPI_FAILURE(status)) {
+		return_ACPI_STATUS(status);
+	}
+
+	/* Get the size of the String to be returned, includes null terminator */
+
+	if (obj_desc->common.type == ACPI_TYPE_INTEGER) {
+		length = ACPI_EISAID_STRING_SIZE;
+	} else {
+		length = obj_desc->string.length + 1;
+	}
+
+	/* Allocate a buffer for the HID */
+
+	hid =
+	    ACPI_ALLOCATE_ZEROED(sizeof(struct acpi_pnp_device_id) +
+				 (acpi_size) length);
+	if (!hid) {
+		status = AE_NO_MEMORY;
+		goto cleanup;
+	}
+
+	/* Area for the string starts after PNP_DEVICE_ID struct */
+
+	hid->string =
+	    ACPI_ADD_PTR(char, hid, sizeof(struct acpi_pnp_device_id));
+
+	/* Convert EISAID to a string or simply copy existing string */
+
+	if (obj_desc->common.type == ACPI_TYPE_INTEGER) {
+		acpi_ex_eisa_id_to_string(hid->string, obj_desc->integer.value);
+	} else {
+		strcpy(hid->string, obj_desc->string.pointer);
+	}
+
+	hid->length = length;
+	*return_id = hid;
+
+cleanup:
+
+	/* On exit, we must delete the return object */
+
+	acpi_ut_remove_reference(obj_desc);
+	return_ACPI_STATUS(status);
+}
+
 /*******************************************************************************
  *
  * FUNCTION:    acpi_ut_execute_HID
