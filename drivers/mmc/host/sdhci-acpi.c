@@ -36,6 +36,9 @@
 #include <linux/pm.h>
 #include <linux/pm_runtime.h>
 #include <linux/delay.h>
+#include <linux/gpio.h>
+#include <linux/gpio/consumer.h>
+#include <linux/gpio/machine.h>
 
 #include <linux/mmc/host.h>
 #include <linux/mmc/pm.h>
@@ -172,6 +175,8 @@ static int sdhci_acpi_sdio_probe_slot(struct platform_device *pdev,
 {
 	struct sdhci_acpi_host *c = platform_get_drvdata(pdev);
 	struct sdhci_host *host;
+	struct device *dev = &pdev->dev;
+	struct gpio_desc *sdiowifi_on;
 
 	if (!c || !c->host)
 		return 0;
@@ -179,6 +184,17 @@ static int sdhci_acpi_sdio_probe_slot(struct platform_device *pdev,
 	host = c->host;
 
 	/* Platform specific code during sdio probe slot goes here */
+
+	sdiowifi_on = gpiod_get(dev, "WL_REG_ON", GPIO_ACTIVE_HIGH);
+
+	if (!sdiowifi_on) {
+		printk("%s: invalid GPIO\n", __func__);
+	} else {
+		gpiod_direction_output(sdiowifi_on, 0);
+		gpiod_set_value_cansleep(sdiowifi_on, 0);
+		mdelay(300);
+		gpiod_set_value_cansleep(sdiowifi_on, 1);
+	}
 
 	return 0;
 }
@@ -245,6 +261,7 @@ static const struct sdhci_acpi_uid_slot sdhci_acpi_uids[] = {
 	{ "80865ACC", NULL, &sdhci_acpi_slot_int_emmc },
 	{ "80865AD0", NULL, &sdhci_acpi_slot_int_sdio },
 	{ "80860F14" , "1" , &sdhci_acpi_slot_int_emmc },
+	{ "80860F14" , "2" , &sdhci_acpi_slot_int_sdio },
 	{ "80860F14" , "3" , &sdhci_acpi_slot_int_sd   },
 	{ "80860F16" , NULL, &sdhci_acpi_slot_int_sd   },
 	{ "INT33BB"  , "2" , &sdhci_acpi_slot_int_sdio },
@@ -465,6 +482,14 @@ static const struct dev_pm_ops sdhci_acpi_pm_ops = {
 			sdhci_acpi_runtime_resume, NULL)
 };
 
+static struct gpiod_lookup_table sdio_gpios_table = {
+	.dev_id	= "80860F14:01",
+	.table = {
+		GPIO_LOOKUP("INT33FF:01", 17, "WL_REG_ON", GPIO_ACTIVE_HIGH),
+		{ },
+	},
+};
+
 static struct platform_driver sdhci_acpi_driver = {
 	.driver = {
 		.name			= "sdhci-acpi",
@@ -475,7 +500,18 @@ static struct platform_driver sdhci_acpi_driver = {
 	.remove	= sdhci_acpi_remove,
 };
 
-module_platform_driver(sdhci_acpi_driver);
+int __init sdhci_acpi_driver_init(void)
+{
+	gpiod_add_lookup_table(&sdio_gpios_table);
+	return platform_driver_register(&sdhci_acpi_driver);
+}
+module_init(sdhci_acpi_driver_init);
+
+void __exit sdhci_acpi_driver_exit(void)
+{
+	platform_driver_unregister(&sdhci_acpi_driver);
+}
+module_exit(sdhci_acpi_driver_exit);
 
 MODULE_DESCRIPTION("Secure Digital Host Controller Interface ACPI driver");
 MODULE_AUTHOR("Adrian Hunter");
