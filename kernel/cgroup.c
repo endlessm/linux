@@ -5951,9 +5951,8 @@ struct cgroup_namespace *
 copy_cgroup_ns(unsigned long flags, struct user_namespace *user_ns,
 	       struct cgroup_namespace *old_ns)
 {
-	struct cgroup_namespace *new_ns = NULL;
-	struct css_set *cset = NULL;
-	int err;
+	struct cgroup_namespace *new_ns;
+	struct css_set *cset;
 
 	BUG_ON(!old_ns);
 
@@ -5963,9 +5962,8 @@ copy_cgroup_ns(unsigned long flags, struct user_namespace *user_ns,
 	}
 
 	/* Allow only sysadmin to create cgroup namespace. */
-	err = -EPERM;
 	if (!ns_capable(user_ns, CAP_SYS_ADMIN))
-		goto err_out;
+		return ERR_PTR(-EPERM);
 
 	mutex_lock(&cgroup_mutex);
 	spin_lock_bh(&css_set_lock);
@@ -5976,21 +5974,16 @@ copy_cgroup_ns(unsigned long flags, struct user_namespace *user_ns,
 	spin_unlock_bh(&css_set_lock);
 	mutex_unlock(&cgroup_mutex);
 
-	err = -ENOMEM;
 	new_ns = alloc_cgroup_ns();
-	if (!new_ns)
-		goto err_out;
+	if (IS_ERR(new_ns)) {
+		put_css_set(cset);
+		return new_ns;
+	}
 
 	new_ns->user_ns = get_user_ns(user_ns);
 	new_ns->root_cset = cset;
 
 	return new_ns;
-
-err_out:
-	if (cset)
-		put_css_set(cset);
-	kfree(new_ns);
-	return ERR_PTR(err);
 }
 
 static inline struct cgroup_namespace *to_cg_ns(struct ns_common *ns)
