@@ -348,6 +348,18 @@ acpi_get_object_info(acpi_handle handle,
 			valid |= ACPI_VALID_UID;
 		}
 
+		/* HACK: Execute the Device.WHID method */
+
+		if (!(valid & ACPI_VALID_HID)) {
+			status = acpi_ut_execute_WHID(node, &hid);
+
+			 /* We are interested in the device with _UID == 0x02 */
+			if (ACPI_SUCCESS(status) && !strcmp(uid->string, "2")) {
+				info_size += hid->length;
+				valid |= ACPI_VALID_HID;
+			}
+		}
+
 		/* Execute the Device._SUB method */
 
 		status = acpi_ut_execute_SUB(node, &sub);

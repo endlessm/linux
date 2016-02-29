@@ -368,6 +368,10 @@ acpi_ut_execute_HID(struct acpi_namespace_node *device_node,
 		    struct acpi_pnp_device_id ** return_id);
 
 acpi_status
+acpi_ut_execute_WHID(struct acpi_namespace_node *device_node,
+		     struct acpi_pnp_device_id ** return_id);
+
+acpi_status
 acpi_ut_execute_UID(struct acpi_namespace_node *device_node,
 		    struct acpi_pnp_device_id ** return_id);
 
