@@ -603,6 +603,42 @@ i915_disable_pipestat(struct drm_i915_private *dev_priv, enum pipe pipe,
 	__i915_disable_pipestat(dev_priv, pipe, enable_mask, status_mask);
 }
 
+/* Added for HDMI AUDIO */
+void
+i915_enable_lpe_pipestat(struct drm_i915_private *dev_priv, int pipe)
+{
+	u32 mask;
+
+	mask = dev_priv->hdmi_audio_interrupt_mask;
+	mask |= I915_HDMI_AUDIO_UNDERRUN | I915_HDMI_AUDIO_BUFFER_DONE;
+	/* Enable the interrupt, clear any pending status */
+	if (IS_CHERRYVIEW(dev_priv->dev)) {
+		I915_WRITE(I915_LPE_AUDIO_HDMI_STATUS_C, mask);
+		POSTING_READ(I915_LPE_AUDIO_HDMI_STATUS_C);
+	} else {
+		I915_WRITE(I915_LPE_AUDIO_HDMI_STATUS_A, mask);
+		POSTING_READ(I915_LPE_AUDIO_HDMI_STATUS_A);
+	}
+}
+
+void
+i915_disable_lpe_pipestat(struct drm_i915_private *dev_priv, int pipe)
+{
+	u32 mask;
+
+	mask = dev_priv->hdmi_audio_interrupt_mask;
+	mask |= I915_HDMI_AUDIO_UNDERRUN | I915_HDMI_AUDIO_BUFFER_DONE;
+	/* Disable the interrupt, clear any pending status */
+	if (IS_CHERRYVIEW(dev_priv->dev)) {
+		I915_WRITE(I915_LPE_AUDIO_HDMI_STATUS_C, mask);
+		POSTING_READ(I915_LPE_AUDIO_HDMI_STATUS_C);
+
+	} else {
+		I915_WRITE(I915_LPE_AUDIO_HDMI_STATUS_A, mask);
+		POSTING_READ(I915_LPE_AUDIO_HDMI_STATUS_A);
+	}
+}
+
 /**
  * i915_enable_asle_pipestat - enable ASLE pipestat for OpRegion
  * @dev: drm device
@@ -1651,6 +1687,24 @@ static bool intel_pipe_handle_vblank(struct drm_device *dev, enum pipe pipe)
 	return true;
 }
 
+static inline
+void i915_notify_audio_buffer_status(struct drm_device *dev, const i915_reg_t reg)
+{
+	u32 lpe_stream = 0;
+	struct drm_i915_private *dev_priv = dev->dev_private;
+	lpe_stream = I915_READ(reg);
+	if (lpe_stream & I915_HDMI_AUDIO_UNDERRUN) {
+		I915_WRITE(reg, I915_HDMI_AUDIO_UNDERRUN);
+		mid_hdmi_audio_signal_event(dev,
+			HAD_EVENT_AUDIO_BUFFER_UNDERRUN);
+	}
+	if (lpe_stream & I915_HDMI_AUDIO_BUFFER_DONE) {
+		I915_WRITE(reg, I915_HDMI_AUDIO_BUFFER_DONE);
+		mid_hdmi_audio_signal_event(dev,
+			HAD_EVENT_AUDIO_BUFFER_DONE);
+	}
+}
+
 static void valleyview_pipestat_irq_ack(struct drm_device *dev, u32 iir,
 					u32 pipe_stats[I915_MAX_PIPES])
 {
@@ -1731,6 +1785,23 @@ static void valleyview_pipestat_irq_handler(struct drm_device *dev,
 
 		if (pipe_stats[pipe] & PIPE_FIFO_UNDERRUN_STATUS)
 			intel_cpu_fifo_underrun_irq_handler(dev_priv, pipe);
+	}
+
+	if (IS_CHERRYVIEW(dev)) {
+		// FIXME: plb: why are pipes and status mapped this way?
+		if (pipe_stats[pipe] & I915_LPE_PIPE_C_INTERRUPT)
+			i915_notify_audio_buffer_status(dev,
+						I915_LPE_AUDIO_HDMI_STATUS_C);
+		if (pipe_stats[pipe] & I915_LPE_PIPE_B_INTERRUPT)
+			i915_notify_audio_buffer_status(dev,
+						I915_LPE_AUDIO_HDMI_STATUS_B);
+		if (pipe_stats[pipe] & I915_LPE_PIPE_A_INTERRUPT)
+			i915_notify_audio_buffer_status(dev,
+						I915_LPE_AUDIO_HDMI_STATUS_A);
+	} else {
+		if (pipe_stats[pipe] & I915_LPE_PIPE_B_INTERRUPT)
+			i915_notify_audio_buffer_status(dev,
+						I915_LPE_AUDIO_HDMI_STATUS_A);
 	}
 
 	if (pipe_stats[0] & PIPE_GMBUS_INTERRUPT_STATUS)
@@ -2861,6 +2932,72 @@ static void gen8_disable_vblank(struct drm_device *dev, unsigned int pipe)
 	spin_unlock_irqrestore(&dev_priv->irq_lock, irqflags);
 }
 
+/* Added for HDMI Audio */
+int i915_enable_hdmi_audio_int(struct drm_device *dev)
+{
+	struct drm_i915_private *dev_priv = (struct drm_i915_private *) dev->dev_private;
+	unsigned long irqflags;
+	u32 imr, int_bit;
+	int pipe = 1;
+
+	spin_lock_irqsave(&dev_priv->irq_lock, irqflags);
+	i915_enable_lpe_pipestat(dev_priv, pipe);
+
+	imr = I915_READ(VLV_IMR);
+
+	if (IS_CHERRYVIEW(dev_priv->dev)) {
+		// FIXME: plb: looks wrong
+
+		//imr &= ~I915_LPE_PIPE_C_INTERRUPT;
+		int_bit = (pipe ? (I915_LPE_PIPE_B_INTERRUPT >>
+				((pipe - 1) * 9)) :
+				I915_LPE_PIPE_A_INTERRUPT);
+		imr &= ~int_bit;
+	} else {
+		/* Audio is on Stream A but uses HDMI PIPE B */
+		imr &= ~I915_LPE_PIPE_B_INTERRUPT;
+	}
+
+	I915_WRITE(VLV_IMR, imr);
+	I915_WRITE(VLV_IER, ~imr);
+	POSTING_READ(VLV_IER);
+	spin_unlock_irqrestore(&dev_priv->irq_lock, irqflags);
+
+	return 0;
+}
+
+/* Added for HDMI Audio */
+int i915_disable_hdmi_audio_int(struct drm_device *dev)
+{
+	struct drm_i915_private *dev_priv = (struct drm_i915_private *) dev->dev_private;
+	unsigned long irqflags;
+	u32 imr, int_bit;
+	int pipe = 1;
+
+	spin_lock_irqsave(&dev_priv->irq_lock, irqflags);
+	imr = I915_READ(VLV_IMR);
+
+	if (IS_CHERRYVIEW(dev_priv->dev)) {
+		// FIXME: plb: looks wrong, should have other interrupts as well?
+		//imr |= I915_LPE_PIPE_C_INTERRUPT;
+		int_bit = (pipe ? (I915_LPE_PIPE_B_INTERRUPT >>
+					((pipe - 1) * 9)) :
+					I915_LPE_PIPE_A_INTERRUPT);
+		imr |= int_bit;
+	}
+	else
+		imr |= I915_LPE_PIPE_B_INTERRUPT;
+
+	I915_WRITE(VLV_IER, ~imr);
+	I915_WRITE(VLV_IMR, imr);
+	POSTING_READ(VLV_IMR);
+
+	i915_disable_lpe_pipestat(dev_priv, pipe);
+	spin_unlock_irqrestore(&dev_priv->irq_lock, irqflags);
+
+	return 0;
+}
+
 static bool
 ring_idle(struct intel_engine_cs *engine, u32 seqno)
 {
@@ -3371,6 +3508,7 @@ static void vlv_display_irq_postinstall(struct drm_i915_private *dev_priv)
 	u32 pipestat_mask;
 	u32 enable_mask;
 	enum pipe pipe;
+	u32 lpe_status_clear;
 
 	pipestat_mask = PLANE_FLIP_DONE_INT_STATUS_VLV |
 			PIPE_CRC_DONE_INTERRUPT_STATUS;
@@ -3385,11 +3523,22 @@ static void vlv_display_irq_postinstall(struct drm_i915_private *dev_priv)
 	if (IS_CHERRYVIEW(dev_priv))
 		enable_mask |= I915_DISPLAY_PIPE_C_EVENT_INTERRUPT;
 
+	if (IS_CHERRYVIEW(dev_priv->dev))
+		// FIXME: plb: looks wrong: what about other interrupts
+		enable_mask |= I915_LPE_PIPE_C_INTERRUPT;
+
 	WARN_ON(dev_priv->irq_mask != ~0);
 
 	dev_priv->irq_mask = ~enable_mask;
 
 	GEN5_IRQ_INIT(VLV_, dev_priv->irq_mask, enable_mask);
+
+	lpe_status_clear = I915_HDMI_AUDIO_UNDERRUN |
+			I915_HDMI_AUDIO_BUFFER_DONE;
+	I915_WRITE(I915_LPE_AUDIO_HDMI_STATUS_A, lpe_status_clear);
+	I915_WRITE(I915_LPE_AUDIO_HDMI_STATUS_B, lpe_status_clear);
+	if (IS_CHERRYVIEW(dev_priv->dev))
+		I915_WRITE(I915_LPE_AUDIO_HDMI_STATUS_C, lpe_status_clear);
 }
 
 /* drm_dma.h hooks
