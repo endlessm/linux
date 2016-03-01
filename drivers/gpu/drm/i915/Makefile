@@ -12,7 +12,8 @@ i915-y := i915_drv.o \
 	  i915_sysfs.o \
 	  intel_csr.o \
 	  intel_pm.o \
-	  intel_runtime_pm.o
+	  intel_runtime_pm.o \
+	  hdmi_audio_if.o
 
 i915-$(CONFIG_COMPAT)   += i915_ioc32.o
 i915-$(CONFIG_DEBUG_FS) += i915_debugfs.o
@@ -37,6 +38,7 @@ i915-y += i915_cmd_parser.o \
 	  i915_trace_points.o \
 	  intel_lrc.o \
 	  intel_mocs.o \
+	  i915_rpm.o \
 	  intel_ringbuffer.o \
 	  intel_uncore.o
 
