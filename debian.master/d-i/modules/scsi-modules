@@ -121,6 +121,7 @@ be2iscsi ?
 isci ?
 mlx4_ib ?
 mlx5_ib ?
+zfcp ?
 
 # device handlers
 scsi_dh_alua ?
