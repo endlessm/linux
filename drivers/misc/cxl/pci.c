@@ -690,7 +690,8 @@ static int cxl_read_afu_descriptor(struct cxl_afu *afu)
 
 static int cxl_afu_descriptor_looks_ok(struct cxl_afu *afu)
 {
-	int i;
+	int i, rc;
+	u32 val;
 
 	if (afu->psa && afu->adapter->ps_size <
 			(afu->pp_offset + afu->pp_size*afu->max_procs_virtualised)) {
@@ -702,7 +703,8 @@ static int cxl_afu_descriptor_looks_ok(struct cxl_afu *afu)
 		dev_warn(&afu->dev, "AFU uses < PAGE_SIZE per-process PSA!");
 
 	for (i = 0; i < afu->crs_num; i++) {
-		if ((cxl_afu_cr_read32(afu, i, 0) == 0)) {
+		rc = cxl_ops->afu_cr_read32(afu, i, 0, &val);
+		if (rc || val == 0) {
 			dev_err(&afu->dev, "ABORTING: AFU configuration record %i is invalid\n", i);
 			return -EINVAL;
 		}
@@ -723,7 +725,7 @@ static int sanitise_afu_regs(struct cxl_afu *afu)
 	reg = cxl_p2n_read(afu, CXL_AFU_Cntl_An);
 	if ((reg & CXL_AFU_Cntl_An_ES_MASK) != CXL_AFU_Cntl_An_ES_Disabled) {
 		dev_warn(&afu->dev, "WARNING: AFU was not disabled: %#016llx\n", reg);
-		if (__cxl_afu_reset(afu))
+		if (cxl_ops->afu_reset(afu))
 			return -EIO;
 		if (cxl_afu_disable(afu))
 			return -EIO;
@@ -819,7 +821,7 @@ static int cxl_configure_afu(struct cxl_afu *afu, struct cxl *adapter, struct pc
 		goto err1;
 
 	/* We need to reset the AFU before we can read the AFU descriptor */
-	if ((rc = __cxl_afu_reset(afu)))
+	if ((rc = cxl_ops->afu_reset(afu)))
 		goto err1;
 
 	if (cxl_verbose)
@@ -920,7 +922,7 @@ static void cxl_remove_afu(struct cxl_afu *afu)
 	spin_unlock(&afu->adapter->afu_list_lock);
 
 	cxl_context_detach_all(afu);
-	cxl_afu_deactivate_mode(afu);
+	cxl_ops->afu_deactivate_mode(afu, afu->current_mode);
 
 	cxl_deconfigure_afu(afu);
 	device_unregister(&afu->dev);
@@ -1442,7 +1444,7 @@ static pci_ers_result_t cxl_pci_error_detected(struct pci_dev *pdev,
 			return result;
 
 		cxl_context_detach_all(afu);
-		cxl_afu_deactivate_mode(afu);
+		cxl_ops->afu_deactivate_mode(afu, afu->current_mode);
 		cxl_deconfigure_afu(afu);
 	}
 	cxl_deconfigure_adapter(adapter);
@@ -1489,7 +1491,7 @@ static pci_ers_result_t cxl_pci_slot_reset(struct pci_dev *pdev)
 
 			afu_dev->dev.archdata.cxl_ctx = ctx;
 
-			if (cxl_afu_check_and_enable(afu))
+			if (cxl_ops->afu_check_and_enable(afu))
 				goto err;
 
 			afu_dev->error_state = pci_channel_io_normal;
