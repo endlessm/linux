@@ -23,6 +23,7 @@
 #ifndef _HWMGR_H_
 #define _HWMGR_H_
 
+#include <linux/errno.h>
 #include "amd_powerplay.h"
 #include "pp_instance.h"
 #include "hardwaremanager.h"
