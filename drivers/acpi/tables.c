@@ -25,6 +25,7 @@
 
 #include <linux/init.h>
 #include <linux/kernel.h>
+#include <linux/module.h>
 #include <linux/smp.h>
 #include <linux/string.h>
 #include <linux/types.h>
@@ -541,6 +542,11 @@ void __init acpi_table_upgrade(void)
 	}
 	if (table_nr == 0)
 		return;
+
+	if (secure_modules()) {
+		pr_notice(PREFIX "module signing is enforced, ignoring table override\n");
+		return;
+	}
 
 	acpi_tables_addr =
 		memblock_find_in_range(0, ACPI_TABLE_UPGRADE_MAX_PHYS,
