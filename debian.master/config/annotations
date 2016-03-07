@@ -4108,10 +4108,8 @@ CONFIG_WIZNET_W5100                             policy<{'amd64': 'm', 'arm64': '
 CONFIG_WIZNET_W5300                             policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'powerpc': 'm', 'ppc64el': 'm'}>
 CONFIG_NET_VENDOR_XIRCOM                        policy<{'amd64': 'y', 'i386': 'y', 'powerpc': 'y'}>
 CONFIG_PCMCIA_XIRC2PS                           policy<{'amd64': 'm', 'i386': 'm', 'powerpc': 'm'}>
-CONFIG_NET_VENDOR_SYNOPSYS                      policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'powerpc': 'y', 'ppc64el': 'y', 's390x': 'y'}>
+CONFIG_NET_VENDOR_SYNOPSYS                      policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'powerpc': 'y', 'ppc64el': 'y', 's390x': 'n'}>
 CONFIG_SYNOPSYS_DWC_ETH_QOS                     policy<{'arm64': 'm', 'armhf': 'm', 'powerpc': 'm', 'ppc64el': 'm'}>
-#
-CONFIG_NET_VENDOR_SYNOPSYS			flag<REVIEW> note<check s390x>
 
 # Menu: Device Drivers >> Network device support >> Ethernet driver support >> 3Com devices
 CONFIG_NET_VENDOR_3COM                          policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'powerpc': 'y', 'ppc64el': 'y', 's390x': 'n'}>
