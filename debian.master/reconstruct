@@ -17,4 +17,20 @@
 [ ! -L zfs/scripts/zpios-test/medium.sh ] && (cd zfs/scripts/zpios-test; ln -sf 16th-8192rc-4rs-1cs-4off.sh medium.sh)
 [ ! -L zfs/scripts/zpios-test/small.sh ] && (cd zfs/scripts/zpios-test; ln -sf 4th-1024rc-4rs-1cs-4off.sh small.sh)
 [ ! -L zfs/scripts/zpios-test/tiny.sh ] && (cd zfs/scripts/zpios-test; ln -sf 1th-16rc-4rs-1cs-4off.sh tiny.sh)
+
+#
+# Fix 'dpkg-source: warning: ignoring deletion of file, use --include-removal'
+#
+rm -f drivers/gpu/drm/amd/amdgpu/smu7_fusion.h
+rm -f drivers/gpu/drm/amd/amdgpu/fiji_ppsmc.h
+rm -f drivers/gpu/drm/amd/amdgpu/smu8_fusion.h
+rm -f drivers/gpu/drm/amd/amdgpu/tonga_ppsmc.h
+rm -f drivers/gpu/drm/amd/amdgpu/smu7.h
+rm -f drivers/gpu/drm/amd/amdgpu/cz_ppsmc.h
+rm -f drivers/gpu/drm/amd/amdgpu/fiji_smumgr.h
+rm -f drivers/gpu/drm/amd/amdgpu/smu_ucode_xfer_cz.h
+rm -f drivers/gpu/drm/amd/amdgpu/smu8.h
+rm -f drivers/gpu/drm/amd/amdgpu/amdgpu_acpi.h
+rm -f drivers/gpu/drm/amd/amdgpu/tonga_smumgr.h
+rm -f drivers/gpu/drm/amd/amdgpu/smu7_discrete.h
 exit 0
