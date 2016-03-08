@@ -9647,8 +9647,8 @@ CONFIG_PPC_4K_PAGES                             policy<{'powerpc': 'y', 'ppc64el
 CONFIG_PPC_64K_PAGES                            policy<{'powerpc-powerpc64-smp': 'n', 'ppc64el': 'y'}>
 
 # Menu: Processor type and features >> Preemption Model
-CONFIG_PREEMPT_NONE                             policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'i386': 'n', 'powerpc': 'n', 'ppc64el': 'n', 's390x': 'n'}>
-CONFIG_PREEMPT_VOLUNTARY                        policy<{'amd64-generic': 'y', 'amd64-lowlatency': 'n', 'arm64': 'y', 'armhf': 'y', 'i386-generic': 'y', 'i386-lowlatency': 'n', 'powerpc': 'y', 'ppc64el': 'y', 's390x': 'y'}>
+CONFIG_PREEMPT_NONE                             policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'i386': 'n', 'powerpc': 'n', 'ppc64el': 'n', 's390x': 'y'}>
+CONFIG_PREEMPT_VOLUNTARY                        policy<{'amd64-generic': 'y', 'amd64-lowlatency': 'n', 'arm64': 'y', 'armhf': 'y', 'i386-generic': 'y', 'i386-lowlatency': 'n', 'powerpc': 'y', 'ppc64el': 'y', 's390x': 'n'}>
 CONFIG_PREEMPT                                  policy<{'amd64-generic': 'n', 'amd64-lowlatency': 'y', 'arm64': 'n', 'armhf': 'n', 'i386-generic': 'n', 'i386-lowlatency': 'y', 'powerpc': 'n', 'ppc64el': 'n', 's390x': 'n'}>
 
 # Menu: Processor type and features >> Processor family
