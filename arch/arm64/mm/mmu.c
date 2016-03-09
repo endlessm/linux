@@ -439,18 +439,23 @@ void fixup_init(void)
 }
 
 /*
- * paging_init() sets up the page tables, initialises the zone memory
- * maps and sets up the zero page.
+ * paging_init_map_mem() sets up the page tables so that memblock
+ * memory is usable.
  */
-void __init paging_init(void)
+void __init paging_init_map_mem(void)
 {
-	void *zero_page;
-
 	map_mem();
 	fixup_executable();
+}
 
+/*
+ * paging_init_rest() finishes setting up the page tables, initializes
+ * the zone memory maps and sets up the zero page.
+ */
+void __init paging_init_rest(void)
+{
 	/* allocate the zero page. */
-	zero_page = early_alloc(PAGE_SIZE);
+	void *zero_page = early_alloc(PAGE_SIZE);
 
 	bootmem_init();
 
