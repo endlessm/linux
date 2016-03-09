@@ -26,10 +26,8 @@ Build-Profiles: <!stage1>
 Architecture: ARCH
 Section: kernel
 Priority: optional
-Pre-Depends: dpkg (>= 1.10.24)
 Provides: linux-image, fuse-module, =PROVIDES==RPROVIDES=
-Depends: ${misc:Depends}, ${shlibs:Depends}, initramfs-tools (>= 0.36ubuntu6) | linux-initramfs-tool, kmod
-Conflicts: hotplug (<< 0.0.20040105-1)
+Depends: ${misc:Depends}, ${shlibs:Depends}, initramfs-tools | linux-initramfs-tool, kmod
 Recommends: BOOTLOADER
 Suggests: fdutils, SRCPKGNAME-doc-PKGVER | SRCPKGNAME-source-PKGVER, SRCPKGNAME-tools, linux-headers-PKGVER-ABINUM-FLAVOUR
 Description: Linux kernel image for version PKGVER on DESC
@@ -53,7 +51,7 @@ Build-Profiles: <!stage1>
 Architecture: ARCH
 Section: kernel
 Priority: optional
-Depends: ${misc:Depends}, ${shlibs:Depends}, linux-image-PKGVER-ABINUM-FLAVOUR, crda (>=1.1.1-1ubuntu2) | wireless-crda
+Depends: ${misc:Depends}, ${shlibs:Depends}, linux-image-PKGVER-ABINUM-FLAVOUR, crda | wireless-crda
 Description: Linux kernel extra modules for version PKGVER on DESC
  This package contains the Linux kernel extra modules for version PKGVER on
  DESC.
