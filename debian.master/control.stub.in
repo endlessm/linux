@@ -52,7 +52,7 @@ Architecture: all
 Section: devel
 Priority: optional
 Provides: SRCPKGNAME-source, SRCPKGNAME-source-3
-Depends: ${misc:Depends}, binutils, bzip2, coreutils | fileutils (>= 4.0)
+Depends: ${misc:Depends}, binutils, bzip2, coreutils
 Recommends: libc-dev, gcc, make
 Suggests: libncurses-dev | ncurses-dev, kernel-package, libqt3-dev
 Description: Linux kernel source for version PKGVER with Ubuntu patches
@@ -76,8 +76,6 @@ Architecture: all
 Section: doc
 Priority: optional
 Depends: ${misc:Depends}
-Conflicts: SRCPKGNAME-doc-3
-Replaces: SRCPKGNAME-doc-3
 Description: Linux kernel specific documentation for version PKGVER
  This package provides the various documents in the PKGVER kernel
  Documentation/ subdirectory.  These document kernel subsystems, APIs, device
@@ -91,7 +89,7 @@ Architecture: all
 Multi-Arch: foreign
 Section: devel
 Priority: optional
-Depends: ${misc:Depends}, coreutils | fileutils (>= 4.0)
+Depends: ${misc:Depends}, coreutils
 Description: Header files related to Linux kernel version PKGVER
  This package provides kernel header files for version PKGVER, for sites
  that want the latest kernel headers. Please read
@@ -100,8 +98,8 @@ Description: Header files related to Linux kernel version PKGVER
 Package: SRCPKGNAME-libc-dev
 Architecture: i386 amd64 armhf arm64 x32 powerpc ppc64el s390x
 Depends: ${misc:Depends}
-Conflicts: libc6-dev (<< 2.3.2.ds1-6), libc6.1-dev (<< 2.3.2.ds1-6), dvb-dev (<< 1.0.1-6), amd64-libs-dev (<= 1.1), SRCPKGNAME-kernel-headers
-Replaces: libc6-dev (<< 2.3.2.ds1-6), libc6.1-dev (<< 2.3.2.ds1-6), dvb-dev (<< 1.0.1-6), SRCPKGNAME-kernel-headers, libdrm-dev
+Conflicts: SRCPKGNAME-kernel-headers
+Replaces: SRCPKGNAME-kernel-headers
 Provides: SRCPKGNAME-kernel-headers
 Multi-Arch: same
 Description: Linux Kernel Headers for development
@@ -117,7 +115,6 @@ Multi-Arch: foreign
 Section: kernel
 Priority: optional
 Depends: ${misc:Depends}
-Replaces: SRCPKGNAME-tools (<= 2.6.32-16.25)
 Description: Linux kernel version specific tools for version PKGVER
  This package provides the architecture independent parts for kernel
  version locked tools (such as perf and x86_energy_perf_policy) for
@@ -142,8 +139,6 @@ Architecture: all
 Multi-Arch: foreign
 Section: kernel
 Priority: optional
-Breaks: SRCPKGNAME-tools-common (<< 3.13.0-8.28), hv-kvp-daemon-init (<< 3.13)
-Replaces: SRCPKGNAME-tools-common (<< 3.13.0-8.28), hv-kvp-daemon-init (<< 3.13)
 Depends: ${misc:Depends}
 Description: Linux kernel version specific cloud tools for version PKGVER
  This package provides the architecture independent parts for kernel
