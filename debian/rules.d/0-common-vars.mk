@@ -1,3 +1,6 @@
+# Used when you need to 'escape' a comma.
+comma = ,
+
 #
 # The source package name will be the first token from $(DEBIAN)/changelog
 #
