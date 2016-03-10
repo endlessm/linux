@@ -28,4 +28,12 @@ do_tools_usbip          = true
 do_tools_cpupower	= true
 do_tools_perf		= true
 
+# Default to true and disable to ensure that the crossbuild
+# override still has priority.
+do_zfs			= true
+do_zfs_powerpc-smp	= false
+#do_zfs_powerpc64-smp	= true
+do_zfs_powerpc-e500mc	= false
+do_zfs_powerpc64-emb	= false
+
 family			= ubuntu
