@@ -4,4 +4,3 @@ desc="64-bit PowerPC SMP"
 bootloader="yaboot"
 provides="redhat-cluster-modules, ivtv-modules"
 arch="powerpc"
-do_zfs=true
