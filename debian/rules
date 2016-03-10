@@ -88,12 +88,6 @@ binary: binary-indep binary-arch
 
 build: build-arch build-indep
 
-# If we are building zfs update the provides.
-rprovides=
-ifeq ($(do_zfs),true)
-rprovides:=$(rprovides), spl-dkms, zfs-dkms
-endif
-
 clean: debian/control
 	dh_testdir
 	dh_testroot
@@ -153,7 +147,6 @@ $(DEBIAN)/control.stub: $(DEBIAN)/d-i/kernel-versions.in	\
 	        -e 's/ABINUM/$(abinum)/g'                                       \
 		-e 's/SRCPKGNAME/$(src_pkg_name)/g'                             \
 		-e 's/=HUMAN=/$(human_arch)/g'                                    \
-		-e 's/=RPROVIDES=/$(rprovides)/g'                               \
 	  > $$new;								\
 	done
 	flavours="$(sort $(wildcard $(DEBIAN)/control.d/vars.* $(DEBIAN)/sub-flavours/*.vars))";\
@@ -163,7 +156,6 @@ $(DEBIAN)/control.stub: $(DEBIAN)/d-i/kernel-versions.in	\
 		-e 's/ABINUM/$(abinum)/g'                                       \
 		-e 's/SRCPKGNAME/$(src_pkg_name)/g'                             \
 		-e 's/=HUMAN=/$(human_arch)/g'                                    \
-		-e 's/=RPROVIDES=/$(rprovides)/g'                               \
 		>> $(DEBIAN)/control.stub;						\
 	done
 

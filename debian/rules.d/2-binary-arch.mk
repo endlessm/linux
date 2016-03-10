@@ -37,19 +37,7 @@ prepare-%: $(stampdir)/stamp-prepare-%
 build-%: $(stampdir)/stamp-build-%
 	@echo Debug: $@
 
-# Do the actual build, including image and modules
-$(stampdir)/stamp-build-%: target_flavour = $*
-$(stampdir)/stamp-build-%: splopts  = --with-linux=$(CURDIR)
-$(stampdir)/stamp-build-%: splopts += --with-linux-obj=$(builddir)/build-$*
-$(stampdir)/stamp-build-%: zfsopts  = $(splopts)
-$(stampdir)/stamp-build-%: zfsopts += --with-spl=$(builddir)/build-$*/spl
-$(stampdir)/stamp-build-%: zfsopts += --with-spl-obj=$(builddir)/build-$*/spl
-$(stampdir)/stamp-build-%: zfsopts += --prefix=/usr --with-config=kernel
-$(stampdir)/stamp-build-%: bldimg = $(call custom_override,build_image,$*)
-$(stampdir)/stamp-build-%: $(stampdir)/stamp-prepare-%
-	@echo Debug: $@ build_image $(build_image) bldimg $(bldimg)
-	$(build_cd) $(kmake) $(build_O) $(conc_level) $(bldimg) modules $(if $(filter true,$(do_dtbs)),dtbs)
-ifeq ($(do_zfs),true)
+define build_zfs =
 	#
 	# SPL/ZFS wants a fully built kernel before you can configure and build.
 	# It seems to be impossible to tease out the application configuration
@@ -64,8 +52,32 @@ ifeq ($(do_zfs),true)
 	rsync -a --exclude=dkms.conf --delete zfs/ $(builddir)/build-$*/zfs/
 	cd $(builddir)/build-$*/zfs; sh autogen.sh; sh configure $(zfsopts)
 	$(kmake) -C $(builddir)/build-$*/zfs/module $(conc_level)
-endif
+endef
+
+# Do the actual build, including image and modules
+$(stampdir)/stamp-build-%: target_flavour = $*
+$(stampdir)/stamp-build-%: splopts  = --with-linux=$(CURDIR)
+$(stampdir)/stamp-build-%: splopts += --with-linux-obj=$(builddir)/build-$*
+$(stampdir)/stamp-build-%: zfsopts  = $(splopts)
+$(stampdir)/stamp-build-%: zfsopts += --with-spl=$(builddir)/build-$*/spl
+$(stampdir)/stamp-build-%: zfsopts += --with-spl-obj=$(builddir)/build-$*/spl
+$(stampdir)/stamp-build-%: zfsopts += --prefix=/usr --with-config=kernel
+$(stampdir)/stamp-build-%: bldimg = $(call custom_override,build_image,$*)
+$(stampdir)/stamp-build-%: enable_zfs = $(call custom_override,do_zfs,$*)
+$(stampdir)/stamp-build-%: $(stampdir)/stamp-prepare-%
+	@echo Debug: $@ build_image $(build_image) bldimg $(bldimg)
+	$(build_cd) $(kmake) $(build_O) $(conc_level) $(bldimg) modules $(if $(filter true,$(do_dtbs)),dtbs)
+
+	$(if $(filter true,$(enable_zfs)),$(call build_zfs))
+
 	@touch $@
+
+define install_zfs =
+	cd $(builddir)/build-$*/spl/module; \
+		$(kmake) -C $(builddir)/build-$* SUBDIRS=`pwd` modules_install $(splopts)
+	cd $(builddir)/build-$*/zfs/module; \
+		$(kmake) -C $(builddir)/build-$* SUBDIRS=`pwd` modules_install $(zfsopts)
+endef
 
 # Install the finished build
 install-%: pkgdir = $(CURDIR)/debian/$(bin_pkg_name)-$*
@@ -85,6 +97,7 @@ install-%: MODHASHALGO=sha512
 install-%: MODSECKEY=$(builddir)/build-$*/certs/signing_key.pem
 install-%: MODPUBKEY=$(builddir)/build-$*/certs/signing_key.x509
 install-%: build_dir=$(builddir)/build-$*
+install-%: enable_zfs = $(call custom_override,do_zfs,$*)
 install-%: splopts  = INSTALL_MOD_STRIP=1
 install-%: splopts += INSTALL_MOD_PATH=$(pkgdir)/
 install-%: splopts += INSTALL_MOD_DIR=kernel/zfs
@@ -147,12 +160,8 @@ endif
 	$(build_cd) $(kmake) $(build_O) $(conc_level) modules_install $(vdso) \
 		INSTALL_MOD_STRIP=1 INSTALL_MOD_PATH=$(pkgdir)/ \
 		INSTALL_FW_PATH=$(pkgdir)/lib/firmware/$(abi_release)-$*
-ifeq ($(do_zfs),true)
-	cd $(builddir)/build-$*/spl/module; \
-		$(kmake) -C $(builddir)/build-$* SUBDIRS=`pwd` modules_install $(splopts)
-	cd $(builddir)/build-$*/zfs/module; \
-		$(kmake) -C $(builddir)/build-$* SUBDIRS=`pwd` modules_install $(zfsopts)
-endif
+
+	$(if $(filter true,$(enable_zfs)),$(call install_zfs))
 
 	#
 	# Build module blacklists:
@@ -442,6 +451,7 @@ binary-%: dbgpkg = $(bin_pkg_name)-$*-dbgsym
 binary-%: dbgpkgdir = $(CURDIR)/debian/$(bin_pkg_name)-$*-dbgsym
 binary-%: pkgtools = $(tools_flavour_pkg_name)-$*
 binary-%: pkgcloud = $(cloud_flavour_pkg_name)-$*
+binary-%: rprovides = $(if $(filter true,$(call custom_override,do_zfs,$*)),$(comma) spl-dkms$(comma) zfs-dkms)
 binary-%: target_flavour = $*
 binary-%: install-%
 	@echo Debug: $@
@@ -454,7 +464,7 @@ binary-%: install-%
 	dh_fixperms -p$(pkgimg) -X/boot/
 	dh_installdeb -p$(pkgimg)
 	dh_shlibdeps -p$(pkgimg)
-	$(lockme) dh_gencontrol -p$(pkgimg)
+	$(lockme) dh_gencontrol -p$(pkgimg) -- -Vlinux:rprovides='$(rprovides)'
 	dh_md5sums -p$(pkgimg)
 	dh_builddeb -p$(pkgimg) -- -Zbzip2 -z9
 
