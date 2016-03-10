@@ -101,7 +101,7 @@ printchanges:
 		git log "$$baseCommit"..HEAD | \
 		$(DROOT)/scripts/misc/git-ubuntu-log $(ubuntu_log_opts)
 
-insertchanges:
+insertchanges: autoreconstruct
 	@perl -w -f $(DROOT)/scripts/misc/insert-changes.pl $(DROOT) $(DEBIAN) 
 
 autoreconstruct:
