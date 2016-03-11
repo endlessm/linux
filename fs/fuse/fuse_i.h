@@ -24,6 +24,7 @@
 #include <linux/workqueue.h>
 #include <linux/pid_namespace.h>
 #include <linux/user_namespace.h>
+#include <linux/kref.h>
 
 /** Max number of pages that can be used in a single read request */
 #define FUSE_MAX_PAGES_PER_REQ 32
@@ -245,6 +246,7 @@ struct fuse_args {
 
 /** The request IO state (for asynchronous processing) */
 struct fuse_io_priv {
+	struct kref refcnt;
 	int async;
 	spinlock_t lock;
 	unsigned reqs;
@@ -257,6 +259,13 @@ struct fuse_io_priv {
 	struct file *file;
 	struct completion *done;
 };
+
+#define FUSE_IO_PRIV_SYNC(f) \
+{					\
+	.refcnt = { ATOMIC_INIT(1) },	\
+	.async = 0,			\
+	.file = f,			\
+}
 
 /**
  * Request flags
