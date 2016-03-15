@@ -474,6 +474,10 @@ retry:
 				continue;
 			if (user_ns != old->s_user_ns) {
 				spin_unlock(&sb_lock);
+				if (s) {
+					up_write(&s->s_umount);
+					destroy_super(s);
+				}
 				return ERR_PTR(-EBUSY);
 			}
 			if (!grab_super(old))
