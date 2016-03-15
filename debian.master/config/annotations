@@ -6839,7 +6839,8 @@ CONFIG_VIRTIO_PCI                               policy<{'amd64': 'y', 'arm64': '
 CONFIG_VIRTIO_PCI_LEGACY                        policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'powerpc': 'y', 'ppc64el': 'y', 's390x': 'y'}>
 CONFIG_VIRTIO_BALLOON                           policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'powerpc': 'y', 'ppc64el': 'y', 's390x': 'y'}>
 CONFIG_VIRTIO_INPUT                             policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'powerpc': 'm', 'ppc64el': 'm'}>
-CONFIG_VIRTIO_MMIO                              policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'powerpc': 'y', 'ppc64el': 'y', 's390x': 'y'}>
+CONFIG_VIRTIO_MMIO                              policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'powerpc': 'y', 'ppc64el': 'y', 's390x': 'n'}>
+CONFIG_VIRTIO_MMIO				note<LP#1557689 CONFIG_VIRTIO_MMIO=n for s390x>
 CONFIG_VIRTIO_MMIO_CMDLINE_DEVICES              policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'powerpc': 'y', 'ppc64el': 'y', 's390x': 'y'}>
 #
 CONFIG_VIRTIO_PCI                               mark<review>
