@@ -31,6 +31,7 @@
 #include <sys/dmu_objset.h>
 #include <sys/vfs.h>
 #include <sys/zpl.h>
+#include <sys/file.h>
 
 
 static struct dentry *
@@ -44,13 +45,26 @@ zpl_lookup(struct inode *dir, struct dentry *dentry, unsigned int flags)
 	struct inode *ip;
 	int error;
 	fstrans_cookie_t cookie;
+	pathname_t *ppn = NULL;
+	pathname_t pn;
+	int zfs_flags = 0;
+	zfs_sb_t *zsb = dentry->d_sb->s_fs_info;
 
 	if (dlen(dentry) > ZFS_MAXNAMELEN)
 		return (ERR_PTR(-ENAMETOOLONG));
 
 	crhold(cr);
 	cookie = spl_fstrans_mark();
-	error = -zfs_lookup(dir, dname(dentry), &ip, 0, cr, NULL, NULL);
+
+	/* If we are a case insensitive fs, we need the real name */
+	if (zsb->z_case == ZFS_CASE_INSENSITIVE) {
+		zfs_flags = FIGNORECASE;
+		pn.pn_bufsize = ZFS_MAXNAMELEN;
+		pn.pn_buf = kmem_zalloc(ZFS_MAXNAMELEN, KM_SLEEP);
+		ppn = &pn;
+	}
+
+	error = -zfs_lookup(dir, dname(dentry), &ip, zfs_flags, cr, NULL, ppn);
 	spl_fstrans_unmark(cookie);
 	ASSERT3S(error, <=, 0);
 	crfree(cr);
@@ -63,13 +77,39 @@ zpl_lookup(struct inode *dir, struct dentry *dentry, unsigned int flags)
 	spin_unlock(&dentry->d_lock);
 
 	if (error) {
+		/*
+		 * If we have a case sensitive fs, we do not want to
+		 * insert negative entries, so return NULL for ENOENT.
+		 * Fall through if the error is not ENOENT. Also free memory.
+		 */
+		if (ppn) {
+			kmem_free(pn.pn_buf, ZFS_MAXNAMELEN);
+			if (error == -ENOENT)
+				return (NULL);
+		}
+
 		if (error == -ENOENT)
 			return (d_splice_alias(NULL, dentry));
 		else
 			return (ERR_PTR(error));
 	}
 
-	return (d_splice_alias(ip, dentry));
+	/*
+	 * If we are case insensitive, call the correct function
+	 * to install the name.
+	 */
+	if (ppn) {
+		struct dentry *new_dentry;
+		struct qstr ci_name;
+
+		ci_name.name = pn.pn_buf;
+		ci_name.len = strlen(pn.pn_buf);
+		new_dentry = d_add_ci(dentry, ip, &ci_name);
+		kmem_free(pn.pn_buf, ZFS_MAXNAMELEN);
+		return (new_dentry);
+	} else {
+		return (d_splice_alias(ip, dentry));
+	}
 }
 
 void
@@ -177,10 +217,19 @@ zpl_unlink(struct inode *dir, struct dentry *dentry)
 	cred_t *cr = CRED();
 	int error;
 	fstrans_cookie_t cookie;
+	zfs_sb_t *zsb = dentry->d_sb->s_fs_info;
 
 	crhold(cr);
 	cookie = spl_fstrans_mark();
 	error = -zfs_remove(dir, dname(dentry), cr);
+
+	/*
+	 * For a CI FS we must invalidate the dentry to prevent the
+	 * creation of negative entries.
+	 */
+	if (error == 0 && zsb->z_case == ZFS_CASE_INSENSITIVE)
+		d_invalidate(dentry);
+
 	spl_fstrans_unmark(cookie);
 	crfree(cr);
 	ASSERT3S(error, <=, 0);
@@ -228,10 +277,19 @@ zpl_rmdir(struct inode * dir, struct dentry *dentry)
 	cred_t *cr = CRED();
 	int error;
 	fstrans_cookie_t cookie;
+	zfs_sb_t *zsb = dentry->d_sb->s_fs_info;
 
 	crhold(cr);
 	cookie = spl_fstrans_mark();
 	error = -zfs_rmdir(dir, dname(dentry), NULL, cr, 0);
+
+	/*
+	 * For a CI FS we must invalidate the dentry to prevent the
+	 * creation of negative entries.
+	 */
+	if (error == 0 && zsb->z_case == ZFS_CASE_INSENSITIVE)
+		d_invalidate(dentry);
+
 	spl_fstrans_unmark(cookie);
 	crfree(cr);
 	ASSERT3S(error, <=, 0);
@@ -339,26 +397,42 @@ zpl_symlink(struct inode *dir, struct dentry *dentry, const char *name)
 	return (error);
 }
 
-#ifdef HAVE_FOLLOW_LINK_NAMEIDATA
-static void *
-zpl_follow_link(struct dentry *dentry, struct nameidata *nd)
-#else
-const char *
-zpl_follow_link(struct dentry *dentry, void **symlink_cookie)
-#endif
+#if defined(HAVE_PUT_LINK_COOKIE)
+static void
+zpl_put_link(struct inode *unused, void *cookie)
 {
+	kmem_free(cookie, MAXPATHLEN);
+}
+#elif defined(HAVE_PUT_LINK_NAMEIDATA)
+static void
+zpl_put_link(struct dentry *dentry, struct nameidata *nd, void *ptr)
+{
+	const char *link = nd_get_link(nd);
+
+	if (!IS_ERR(link))
+		kmem_free(link, MAXPATHLEN);
+}
+#elif defined(HAVE_PUT_LINK_DELAYED)
+static void
+zpl_put_link(void *ptr)
+{
+	kmem_free(ptr, MAXPATHLEN);
+}
+#endif
+
+static int
+zpl_get_link_common(struct dentry *dentry, struct inode *ip, char **link)
+{
+	fstrans_cookie_t cookie;
 	cred_t *cr = CRED();
-	struct inode *ip = dentry->d_inode;
 	struct iovec iov;
 	uio_t uio;
-	char *link;
 	int error;
-	fstrans_cookie_t cookie;
 
 	crhold(cr);
-
+	*link = NULL;
 	iov.iov_len = MAXPATHLEN;
-	iov.iov_base = link = kmem_zalloc(MAXPATHLEN, KM_SLEEP);
+	iov.iov_base = kmem_zalloc(MAXPATHLEN, KM_SLEEP);
 
 	uio.uio_iov = &iov;
 	uio.uio_iovcnt = 1;
@@ -369,41 +443,78 @@ zpl_follow_link(struct dentry *dentry, void **symlink_cookie)
 	cookie = spl_fstrans_mark();
 	error = -zfs_readlink(ip, &uio, cr);
 	spl_fstrans_unmark(cookie);
-
-	if (error)
-		kmem_free(link, MAXPATHLEN);
-
 	crfree(cr);
 
-#ifdef HAVE_FOLLOW_LINK_NAMEIDATA
+	if (error)
+		kmem_free(iov.iov_base, MAXPATHLEN);
+	else
+		*link = iov.iov_base;
+
+	return (error);
+}
+
+#if defined(HAVE_GET_LINK_DELAYED)
+const char *
+zpl_get_link(struct dentry *dentry, struct inode *inode,
+    struct delayed_call *done)
+{
+	char *link = NULL;
+	int error;
+
+	if (!dentry)
+		return (ERR_PTR(-ECHILD));
+
+	error = zpl_get_link_common(dentry, inode, &link);
+	if (error)
+		return (ERR_PTR(error));
+
+	set_delayed_call(done, zpl_put_link, link);
+
+	return (link);
+}
+#elif defined(HAVE_GET_LINK_COOKIE)
+const char *
+zpl_get_link(struct dentry *dentry, struct inode *inode, void **cookie)
+{
+	char *link = NULL;
+	int error;
+
+	if (!dentry)
+		return (ERR_PTR(-ECHILD));
+
+	error = zpl_get_link_common(dentry, inode, &link);
+	if (error)
+		return (ERR_PTR(error));
+
+	return (*cookie = link);
+}
+#elif defined(HAVE_FOLLOW_LINK_COOKIE)
+const char *
+zpl_follow_link(struct dentry *dentry, void **cookie)
+{
+	char *link = NULL;
+	int error;
+
+	error = zpl_get_link_common(dentry, dentry->d_inode, &link);
+	if (error)
+		return (ERR_PTR(error));
+
+	return (*cookie = link);
+}
+#elif defined(HAVE_FOLLOW_LINK_NAMEIDATA)
+static void *
+zpl_follow_link(struct dentry *dentry, struct nameidata *nd)
+{
+	char *link = NULL;
+	int error;
+
+	error = zpl_get_link_common(dentry, dentry->d_inode, &link);
 	if (error)
 		nd_set_link(nd, ERR_PTR(error));
 	else
 		nd_set_link(nd, link);
 
 	return (NULL);
-#else
-	if (error)
-		return (ERR_PTR(error));
-	else
-		return (*symlink_cookie = link);
-#endif
-}
-
-#ifdef HAVE_PUT_LINK_NAMEIDATA
-static void
-zpl_put_link(struct dentry *dentry, struct nameidata *nd, void *ptr)
-{
-	const char *link = nd_get_link(nd);
-
-	if (!IS_ERR(link))
-		kmem_free(link, MAXPATHLEN);
-}
-#else
-static void
-zpl_put_link(struct inode *unused, void *symlink_cookie)
-{
-	kmem_free(symlink_cookie, MAXPATHLEN);
 }
 #endif
 
@@ -591,8 +702,14 @@ const struct inode_operations zpl_dir_inode_operations = {
 
 const struct inode_operations zpl_symlink_inode_operations = {
 	.readlink	= generic_readlink,
+#if defined(HAVE_GET_LINK_DELAYED) || defined(HAVE_GET_LINK_COOKIE)
+	.get_link	= zpl_get_link,
+#elif defined(HAVE_FOLLOW_LINK_COOKIE) || defined(HAVE_FOLLOW_LINK_NAMEIDATA)
 	.follow_link	= zpl_follow_link,
+#endif
+#if defined(HAVE_PUT_LINK_COOKIE) || defined(HAVE_PUT_LINK_NAMEIDATA)
 	.put_link	= zpl_put_link,
+#endif
 	.setattr	= zpl_setattr,
 	.getattr	= zpl_getattr,
 	.setxattr	= generic_setxattr,
