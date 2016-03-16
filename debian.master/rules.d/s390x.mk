@@ -16,4 +16,4 @@ do_tools_usbip    = true
 do_tools_cpupower = true
 do_tools_perf     = true
 
-do_zfs		= false
+do_zfs		= true
