@@ -23,6 +23,7 @@
 #include <linux/sysctl.h>
 #include <linux/audit.h>
 #include <linux/user_namespace.h>
+#include <linux/kmemleak.h>
 #include <net/sock.h>
 
 #include "include/af_unix.h"
@@ -1508,6 +1509,46 @@ static int __init alloc_buffers(void)
 	return 0;
 }
 
+#ifdef CONFIG_SYSCTL
+static int apparmor_dointvec(struct ctl_table *table, int write,
+			     void __user *buffer, size_t *lenp, loff_t *ppos)
+{
+	if (!policy_admin_capable())
+		return -EPERM;
+	if (!apparmor_enabled)
+		return -EINVAL;
+
+	return proc_dointvec(table, write, buffer, lenp, ppos);
+}
+
+static struct ctl_path apparmor_sysctl_path[] = {
+	{ .procname = "kernel", },
+	{ }
+};
+
+static struct ctl_table apparmor_sysctl_table[] = {
+	{
+		.procname	= "unprivileged_userns_apparmor_policy",
+		.data		= &unprivileged_userns_apparmor_policy,
+		.maxlen		= sizeof(int),
+		.mode		= 0600,
+		.proc_handler	= apparmor_dointvec,
+	},
+	{ }
+};
+
+static int __init apparmor_init_sysctl(void)
+{
+	return register_sysctl_paths(apparmor_sysctl_path,
+				     apparmor_sysctl_table) ? 0 : -ENOMEM;
+}
+#else
+static inline int apparmor_init_sysctl(void)
+{
+	return 0;
+}
+#endif /* CONFIG_SYSCTL */
+
 static int __init apparmor_init(void)
 {
 	int error;
@@ -1528,6 +1569,13 @@ static int __init apparmor_init(void)
 	if (error) {
 		AA_ERROR("Unable to allocate default profile namespace\n");
 		goto alloc_out;
+	}
+
+	error = apparmor_init_sysctl();
+	if (error) {
+		AA_ERROR("Unable to register sysctls\n");
+		goto alloc_out;
+
 	}
 
 	error = alloc_buffers();

@@ -90,6 +90,7 @@
 #include "include/policy_unpack.h"
 #include "include/resource.h"
 
+int unprivileged_userns_apparmor_policy = 0;
 
 /* Note: mode names must be unique in the first character because of
  *       modechrs used to print modes on compound labels on some interfaces
@@ -624,7 +625,8 @@ bool policy_admin_capable(void)
 
 	if (ns_capable(user_ns, CAP_MAC_ADMIN) &&
 	    (user_ns == &init_user_ns ||
-	     (user_ns->level == 1 && ns != root_ns)))
+	     (unprivileged_userns_apparmor_policy != 0 &&
+	      user_ns->level == 1 && ns != root_ns)))
 		response = true;
 	aa_put_ns(ns);
 
