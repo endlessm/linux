@@ -36,7 +36,7 @@
 int aa_getprocattr(struct aa_label *label, char **string)
 {
 	struct aa_namespace *ns = labels_ns(label);
-	struct aa_namespace *current_ns = current_ns();
+	struct aa_namespace *current_ns = labels_ns(aa_current_label());
 	int len;
 
 	if (!aa_ns_visible(current_ns, ns))

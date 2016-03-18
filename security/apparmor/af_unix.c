@@ -288,11 +288,7 @@ static int unix_label_sock_perm(struct aa_label *label, int op, u32 request,
 /* revaliation, get/set attr */
 int aa_unix_sock_perm(int op, u32 request, struct socket *sock)
 {
-	struct aa_label *label = aa_begin_current_label(DO_UPDATE);
-	int error = unix_label_sock_perm(label, op, request, sock);
-	aa_end_current_label(label);
-
-	return error;
+	return unix_label_sock_perm(aa_current_label(), op, request, sock);
 }
 
 static int profile_bind_perm(struct aa_profile *profile, struct sock *sk,
@@ -329,17 +325,14 @@ int aa_unix_bind_perm(struct socket *sock, struct sockaddr *address,
 		      int addrlen)
 {
 	struct aa_profile *profile;
-	struct aa_label *label = aa_begin_current_label(DO_UPDATE);
-	int error = 0;
+	struct aa_label *label = aa_current_label();
 
 	 /* fs bind is handled by mknod */
-	if (!(unconfined(label) || unix_addr_fs(address, addrlen)))
-		error = fn_for_each_confined(label, profile,
-				profile_bind_perm(profile, sock->sk, address,
-						  addrlen));
-	aa_end_current_label(label);
+	if (unconfined(label) || unix_addr_fs(address, addrlen))
+		return 0;
 
-	return error;
+	return fn_for_each_confined(label, profile,
+			profile_bind_perm(profile, sock->sk, address, addrlen));
 }
 
 int aa_unix_connect_perm(struct socket *sock, struct sockaddr *address,
@@ -386,16 +379,13 @@ static int profile_listen_perm(struct aa_profile *profile, struct sock *sk,
 int aa_unix_listen_perm(struct socket *sock, int backlog)
 {
 	struct aa_profile *profile;
-	struct aa_label *label = aa_begin_current_label(DO_UPDATE);
-	int error = 0;
+	struct aa_label *label = aa_current_label();
 
-	if (!(unconfined(label) || UNIX_FS(sock->sk)))
-		error = fn_for_each_confined(label, profile,
-				profile_listen_perm(profile, sock->sk,
-						    backlog));
-	aa_end_current_label(label);
+	if (unconfined(label) || UNIX_FS(sock->sk))
+		return 0;
 
-	return error;
+	return fn_for_each_confined(label, profile,
+			profile_listen_perm(profile, sock->sk, backlog));
 }
 
 
@@ -428,16 +418,13 @@ static inline int profile_accept_perm(struct aa_profile *profile,
 int aa_unix_accept_perm(struct socket *sock, struct socket *newsock)
 {
 	struct aa_profile *profile;
-	struct aa_label *label = aa_begin_current_label(DO_UPDATE);
-	int error = 0;
+	struct aa_label *label = aa_current_label();
 
-	if (!(unconfined(label) || UNIX_FS(sock->sk)))
-		error = fn_for_each_confined(label, profile,
-				profile_accept_perm(profile, sock->sk,
-						    newsock->sk));
-	aa_end_current_label(label);
+	if (unconfined(label) || UNIX_FS(sock->sk))
+		return 0;
 
-	return error;
+	return fn_for_each_confined(label, profile,
+			profile_accept_perm(profile, sock->sk, newsock->sk));
 }
 
 
@@ -486,16 +473,14 @@ int aa_unix_opt_perm(int op, u32 request, struct socket *sock, int level,
 		     int optname)
 {
 	struct aa_profile *profile;
-	struct aa_label *label = aa_begin_current_label(DO_UPDATE);
-	int error = 0;
+	struct aa_label *label = aa_current_label();
 
-	if (!(unconfined(label) || UNIX_FS(sock->sk)))
-		error = fn_for_each_confined(label, profile,
-				profile_opt_perm(profile, op, request,
-						 sock->sk, level, optname));
-	aa_end_current_label(label);
+	if (unconfined(label) || UNIX_FS(sock->sk))
+		return 0;
 
-	return error;
+	return fn_for_each_confined(label, profile,
+			profile_opt_perm(profile, op, request, sock->sk,
+					 level, optname));
 }
 
 /* null peer_label is allowed, in which case the peer_sk label is used */
