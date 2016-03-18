@@ -9,6 +9,7 @@ import json
 
 import textwrap
 
+sys.stdin = codecs.getreader("utf-8")(sys.stdin.detach())
 sys.stdout = codecs.getwriter("utf-8")(sys.stdout.detach())
 
 # Suck up the git log output and extract the information we need.
