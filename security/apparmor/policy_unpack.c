@@ -26,17 +26,8 @@
 #include "include/context.h"
 #include "include/crypto.h"
 #include "include/match.h"
-#include "include/path.h"
 #include "include/policy.h"
 #include "include/policy_unpack.h"
-
-#define K_ABI_MASK 0x3ff
-#define FORCE_COMPLAIN_FLAG 0x800
-#define VERSION_CMP(OP, X, Y) (((X) & K_ABI_MASK) OP ((Y) & K_ABI_MASK))
-
-#define v5	5	/* base version */
-#define v6	6	/* per entry policydb mediation check */
-#define v7	7	/* full network masking */
 
 /*
  * The AppArmor interface treats data as a type byte followed by the
@@ -79,13 +70,13 @@ struct aa_ext {
 static void audit_cb(struct audit_buffer *ab, void *va)
 {
 	struct common_audit_data *sa = va;
-	if (aad(sa)->target) {
-		const struct aa_profile *name = aad(sa)->target;
+	if (sa->aad->iface.target) {
+		struct aa_profile *name = sa->aad->iface.target;
 		audit_log_format(ab, " name=");
 		audit_log_untrustedstring(ab, name->base.hname);
 	}
-	if (aad(sa)->iface.pos)
-		audit_log_format(ab, " offset=%ld", aad(sa)->iface.pos);
+	if (sa->aad->iface.pos)
+		audit_log_format(ab, " offset=%ld", sa->aad->iface.pos);
 }
 
 /**
@@ -101,16 +92,20 @@ static void audit_cb(struct audit_buffer *ab, void *va)
 static int audit_iface(struct aa_profile *new, const char *name,
 		       const char *info, struct aa_ext *e, int error)
 {
-	struct aa_profile *profile = labels_profile(aa_current_raw_label());
-	DEFINE_AUDIT_DATA(sa, LSM_AUDIT_DATA_NONE, 0);
+	struct aa_profile *profile = __aa_current_profile();
+	struct common_audit_data sa;
+	struct apparmor_audit_data aad = {0,};
+	sa.type = LSM_AUDIT_DATA_NONE;
+	sa.aad = &aad;
 	if (e)
-		aad(&sa)->iface.pos = e->pos - e->start;
-	aad(&sa)->target = new;
-	aad(&sa)->name = name;
-	aad(&sa)->info = info;
-	aad(&sa)->error = error;
+		aad.iface.pos = e->pos - e->start;
+	aad.iface.target = new;
+	aad.name = name;
+	aad.info = info;
+	aad.error = error;
 
-	return aa_audit(AUDIT_APPARMOR_STATUS, profile, &sa, audit_cb);
+	return aa_audit(AUDIT_APPARMOR_STATUS, profile, GFP_KERNEL, &sa,
+			audit_cb);
 }
 
 /* test if read will be in packed data bounds */
@@ -195,19 +190,6 @@ static bool unpack_nameX(struct aa_ext *e, enum aa_code code, const char *name)
 
 fail:
 	e->pos = pos;
-	return 0;
-}
-
-static bool unpack_u16(struct aa_ext *e, u16 *data, const char *name)
-{
-	if (unpack_nameX(e, AA_U16, name)) {
-		if (!inbounds(e, sizeof(u16)))
-			return 0;
-		if (data)
-			*data = le16_to_cpu(get_unaligned((u16 *) e->pos));
-		e->pos += sizeof(u16);
-		return 1;
-	}
 	return 0;
 }
 
@@ -494,7 +476,6 @@ static struct aa_profile *unpack_profile(struct aa_ext *e)
 {
 	struct aa_profile *profile = NULL;
 	const char *name = NULL;
-	size_t size = 0;
 	int i, error = -EPROTO;
 	kernel_cap_t tmpcap;
 	u32 tmp;
@@ -529,19 +510,16 @@ static struct aa_profile *unpack_profile(struct aa_ext *e)
 		profile->xmatch_len = tmp;
 	}
 
-	/* disconnected attachment string is optional */
-	(void) unpack_str(e, &profile->disconnected, "disconnected");
-
 	/* per profile debug flags (complain, audit) */
 	if (!unpack_nameX(e, AA_STRUCT, "flags"))
 		goto fail;
 	if (!unpack_u32(e, &tmp, NULL))
 		goto fail;
 	if (tmp & PACKED_FLAG_HAT)
-		profile->label.flags |= FLAG_HAT;
+		profile->flags |= PFLAG_HAT;
 	if (!unpack_u32(e, &tmp, NULL))
 		goto fail;
-	if (tmp == PACKED_MODE_COMPLAIN || (e->version & FORCE_COMPLAIN_FLAG))
+	if (tmp == PACKED_MODE_COMPLAIN)
 		profile->mode = APPARMOR_COMPLAIN;
 	else if (tmp == PACKED_MODE_KILL)
 		profile->mode = APPARMOR_KILL;
@@ -556,9 +534,11 @@ static struct aa_profile *unpack_profile(struct aa_ext *e)
 		goto fail;
 
 	/* path_flags is optional */
-	if (!unpack_u32(e, &profile->path_flags, "path_flags"))
+	if (unpack_u32(e, &profile->path_flags, "path_flags"))
+		profile->path_flags |= profile->flags & PFLAG_MEDIATE_DELETED;
+	else
 		/* set a default value if path_flags field is not present */
-		profile->path_flags = PATH_MEDIATE_DELETED;
+		profile->path_flags = PFLAG_MEDIATE_DELETED;
 
 	if (!unpack_u32(e, &(profile->caps.allow.cap[0]), NULL))
 		goto fail;
@@ -596,37 +576,6 @@ static struct aa_profile *unpack_profile(struct aa_ext *e)
 	if (!unpack_rlimits(e, profile))
 		goto fail;
 
-	size = unpack_array(e, "net_allowed_af");
-	if (size) {
-
-		for (i = 0; i < size; i++) {
-			/* discard extraneous rules that this kernel will
-			 * never request
-			 */
-			if (i >= AF_MAX) {
-				u16 tmp;
-				if (!unpack_u16(e, &tmp, NULL) ||
-				    !unpack_u16(e, &tmp, NULL) ||
-				    !unpack_u16(e, &tmp, NULL))
-					goto fail;
-				continue;
-			}
-			if (!unpack_u16(e, &profile->net.allow[i], NULL))
-				goto fail;
-			if (!unpack_u16(e, &profile->net.audit[i], NULL))
-				goto fail;
-			if (!unpack_u16(e, &profile->net.quiet[i], NULL))
-				goto fail;
-		}
-		if (!unpack_nameX(e, AA_ARRAYEND, NULL))
-			goto fail;
-	}
-	if (VERSION_CMP(<, e->version, v7)) {
-		/* old policy always allowed these too */
-		profile->net.allow[AF_UNIX] = 0xffff;
-		profile->net.allow[AF_NETLINK] = 0xffff;
-	}
-
 	if (unpack_nameX(e, AA_STRUCT, "policydb")) {
 		/* generic policy dfa - optional and may be NULL */
 		profile->policy.dfa = unpack_dfa(e);
@@ -655,15 +604,11 @@ static struct aa_profile *unpack_profile(struct aa_ext *e)
 		error = PTR_ERR(profile->file.dfa);
 		profile->file.dfa = NULL;
 		goto fail;
-	} else if (profile->file.dfa) {
-		if (!unpack_u32(e, &profile->file.start, "dfa_start"))
-			/* default start state */
-			profile->file.start = DFA_START;
-	} else if (profile->policy.dfa &&
-		   profile->policy.start[AA_CLASS_FILE]) {
-		profile->file.dfa = aa_get_dfa(profile->policy.dfa);
-		profile->file.start = profile->policy.start[AA_CLASS_FILE];
 	}
+
+	if (!unpack_u32(e, &profile->file.start, "dfa_start"))
+		/* default start state */
+		profile->file.start = DFA_START;
 
 	if (!unpack_trans_table(e, profile))
 		goto fail;
@@ -705,17 +650,15 @@ static int verify_header(struct aa_ext *e, int required, const char **ns)
 				    error);
 			return error;
 		}
+
+		/* check that the interface version is currently supported */
+		if (e->version != 5) {
+			audit_iface(NULL, NULL, "unsupported interface version",
+				    e, error);
+			return error;
+		}
 	}
 
-	/* Check that the interface version is currently supported.
-	 * if not specified use previous version
-	 * Mask off everything that is not kernel abi version
-	 */
-	if (VERSION_CMP(<, e->version, v5) && VERSION_CMP(>, e->version, v7)) {
-		audit_iface(NULL, NULL, "unsupported interface version",
-			    e, error);
-		return error;
-	}
 
 	/* read the namespace if present */
 	if (unpack_str(e, &name, "namespace")) {

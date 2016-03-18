@@ -22,7 +22,8 @@
 #include <linux/slab.h>
 
 #include "file.h"
-#include "label.h"
+
+struct aa_profile;
 
 extern const char *const audit_mode_names[];
 #define AUDIT_MAX_INDEX 5
@@ -66,16 +67,10 @@ enum aa_ops {
 	OP_GETATTR,
 	OP_OPEN,
 
-	OP_FRECEIVE,
 	OP_FPERM,
 	OP_FLOCK,
 	OP_FMMAP,
 	OP_FMPROT,
-	OP_INHERIT,
-
-	OP_PIVOTROOT,
-	OP_MOUNT,
-	OP_UMOUNT,
 
 	OP_CREATE,
 	OP_POST_CREATE,
@@ -89,10 +84,9 @@ enum aa_ops {
 	OP_GETPEERNAME,
 	OP_GETSOCKOPT,
 	OP_SETSOCKOPT,
-	OP_SHUTDOWN,
+	OP_SOCK_SHUTDOWN,
 
 	OP_PTRACE,
-	OP_SIGNAL,
 
 	OP_EXEC,
 	OP_CHANGE_HAT,
@@ -112,68 +106,36 @@ struct apparmor_audit_data {
 	int error;
 	int op;
 	int type;
-	struct aa_label *label;
+	void *profile;
 	const char *name;
 	const char *info;
-	u32 request;
-	u32 denied;
 	union {
+		void *target;
 		struct {
-			const void *target;
-			union {
-				struct {
-					long pos;
-				} iface;
-				struct {
-					kuid_t ouid;
-				} fs;
-				struct {
-					int type, protocol;
-					struct sock *peer_sk;
-					void *addr;
-					int addrlen;
-				} net;
-				int signal;
-			};
-		};
+			long pos;
+			void *target;
+		} iface;
 		struct {
 			int rlim;
 			unsigned long max;
 		} rlim;
 		struct {
-			const char *src_name;
-			const char *type;
-			const char *trans;
-			const char *data;
-			unsigned long flags;
-		} mnt;
+			const char *target;
+			u32 request;
+			u32 denied;
+			kuid_t ouid;
+		} fs;
 	};
 };
 
-/* macros for dealing with  apparmor_audit_data structure */
-#define aad(SA) (SA)->apparmor_audit_data
-#define DEFINE_AUDIT_DATA(NAME, T, X)					\
-	/* TODO: cleanup audit init so we don't need _aad = {0,} */	\
-	struct apparmor_audit_data NAME ## _aad = { .op = (X), };	\
-	struct common_audit_data NAME =					\
-	{								\
-	.type = (T),							\
-	.u.tsk = NULL,							\
-	};								\
-	NAME.apparmor_audit_data = &(NAME ## _aad)
+/* define a short hand for apparmor_audit_data structure */
+#define aad apparmor_audit_data
 
 void aa_audit_msg(int type, struct common_audit_data *sa,
 		  void (*cb) (struct audit_buffer *, void *));
-int aa_audit(int type, struct aa_profile *profile, struct common_audit_data *sa,
+int aa_audit(int type, struct aa_profile *profile, gfp_t gfp,
+	     struct common_audit_data *sa,
 	     void (*cb) (struct audit_buffer *, void *));
-
-#define aa_audit_error(ERROR, SA, CB)				\
-({								\
-	aad((SA))->error = (ERROR);				\
-	aa_audit_msg(AUDIT_APPARMOR_ERROR, (SA), (CB));		\
-	aad((SA))->error;					\
-})
-
 
 static inline int complain_error(int error)
 {
