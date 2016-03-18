@@ -87,14 +87,6 @@ void __aa_update_replacedby(struct aa_label *orig, struct aa_label *new)
 	aa_put_label(tmp);
 }
 
-void __share_replacedby(struct aa_label *old, struct aa_label *new)
-{
-	struct aa_replacedby *r = new->replacedby;
-	new->replacedby = aa_get_replacedby(old->replacedby);
-	__aa_update_replacedby(old, new);
-	aa_put_replacedby(r);
-}
-
 /* helper fn for label_for_each_confined */
 int aa_label_next_confined(struct aa_label *l, int i)
 {
@@ -448,9 +440,10 @@ bool aa_label_replace(struct aa_label *old, struct aa_label *new)
 	if (old->hname == new->hname && labels_ns(old) == labels_ns(new)) {
 		write_lock_irqsave(&labels_set(old)->lock, flags);
 		if (old->replacedby != new->replacedby) {
-			__share_replacedby(old, new);
-		} else
-			__aa_update_replacedby(old, new);
+			free_replacedby(new->replacedby);
+			new->replacedby = aa_get_replacedby(old->replacedby);
+		}
+		__aa_update_replacedby(old, new);
 		res = __aa_label_replace(labels_set(old), old, new);
 		write_unlock_irqrestore(&labels_set(old)->lock, flags);
 	} else {
@@ -711,7 +704,9 @@ static struct aa_label *__aa_label_insert(struct aa_labelset *ls,
 				/* queued for destruction, in place replace */
 			} else {
 				if (this->replacedby) {
-					__share_replacedby(this, l);
+					free_replacedby(l->replacedby);
+					l->replacedby = aa_get_replacedby(this->replacedby);
+					__aa_update_replacedby(this, l);
 				} else
 					this->replacedby = aa_get_replacedby(l->replacedby);
 			}
