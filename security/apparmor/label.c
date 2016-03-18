@@ -1782,22 +1782,15 @@ static struct aa_label *__label_update(struct aa_label *label)
 	if (invcount) {
 		l->size -= aa_sort_and_merge_profiles(l->size, &l->ent[0]);
 		if (labels_set(label) == labels_set(l)) {
-			goto insert;
+			AA_BUG(__aa_label_remove_and_insert(labels_set(label), label, l) != l);
 		} else {
 			aa_label_remove(labels_set(label), label);
 			goto other_ls_insert;
 		}
 	} else {
 		AA_BUG(labels_ns(label) != labels_ns(l));
-		goto insert;
+		AA_BUG(__aa_label_remove_and_insert(labels_set(label), label, l) != l);
 	}
-insert:
-	tmp = __aa_label_remove_and_insert(labels_set(label), label, l);
-	if (tmp != l) {
-		aa_get_label(tmp);
-		aa_label_free(l);
-	 }
-
 	write_unlock_irqrestore(&ls->lock, flags);
 
 	return l;
