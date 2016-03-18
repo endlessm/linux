@@ -383,7 +383,7 @@ int aa_bind_mount(struct aa_label *label, struct path *path,
 
 	error = kern_path(dev_name, LOOKUP_FOLLOW|LOOKUP_AUTOMOUNT, &old_path);
 	if (error)
-		return error;
+		goto error;
 
 	get_buffers(buffer, old_buffer);
 	error = aa_path_name(path, path_flags(labels_profile(label), path), buffer, &name,
@@ -465,7 +465,7 @@ int aa_move_mount(struct aa_label *label, struct path *path,
 
 	error = kern_path(orig_name, LOOKUP_FOLLOW, &old_path);
 	if (error)
-		return error;
+		goto error;
 
 	get_buffers(buffer, old_buffer);
 	error = aa_path_name(path, path_flags(labels_profile(label), path),
@@ -508,12 +508,12 @@ int aa_new_mount(struct aa_label *label, const char *orig_dev_name,
 	const char *name = NULL, *dev_name = NULL, *info = NULL;
 	bool binary = true;
 	int error;
-	int requires_dev = 0;
+	int requires_dev;
+	struct file_system_type *fstype;
 	struct path dev_path;
 
 	dev_name = orig_dev_name;
 	if (type) {
-		struct file_system_type *fstype;
 		fstype = get_fs_type(type);
 		if (!fstype)
 			return -ENODEV;
@@ -522,17 +522,19 @@ int aa_new_mount(struct aa_label *label, const char *orig_dev_name,
 		put_filesystem(fstype);
 
 		if (requires_dev) {
-			if (!dev_name || !*dev_name)
-				return -ENOENT;
+			if (!dev_name || !*dev_name) {
+				error = -ENOENT;
+				goto out;
+			}
 
 			error = kern_path(dev_name, LOOKUP_FOLLOW, &dev_path);
 			if (error)
-				return error;
+				goto error;
 		}
 	}
 
 	get_buffers(buffer, dev_buffer);
-	if (type && requires_dev) {
+	if (type) {
 		error = aa_path_name(&dev_path,
 				     path_flags(labels_profile(label),
 						&dev_path),
@@ -556,6 +558,7 @@ int aa_new_mount(struct aa_label *label, const char *orig_dev_name,
 cleanup:
 	put_buffers(buffer, dev_buffer);
 
+out:
 	return error;
 
 error:
