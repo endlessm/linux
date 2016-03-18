@@ -731,7 +731,7 @@ int apparmor_bprm_set_creds(struct linux_binprm *bprm)
 	 * subsets are allowed even when no_new_privs is set because this
 	 * aways results in a further reduction of permissions.
 	 */
-	if (bprm->unsafe & LSM_UNSAFE_NO_NEW_PRIVS &&
+	if ((bprm->unsafe & LSM_UNSAFE_NO_NEW_PRIVS) &&
 	    !unconfined(label) && !aa_label_is_subset(new, label)) {
 		error = -EPERM;
 		info = "no new privs";
