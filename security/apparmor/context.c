@@ -100,9 +100,6 @@ int aa_replace_current_label(struct aa_label *label)
 	if (cxt->label == label)
 		return 0;
 
-	if (current_cred() != current_real_cred())
-		return -EBUSY;
-
 	new  = prepare_creds();
 	if (!new)
 		return -ENOMEM;
