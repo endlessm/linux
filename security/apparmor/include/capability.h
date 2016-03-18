@@ -19,12 +19,11 @@
 
 #include "apparmorfs.h"
 
-struct aa_label;
+struct aa_profile;
 
 /* aa_caps - confinement data for capabilities
  * @allowed: capabilities mask
  * @audit: caps that are to be audited
- * @denied: caps that are explicitly denied
  * @quiet: caps that should not be audited
  * @kill: caps that when requested will result in the task being killed
  * @extended: caps that are subject finer grained mediation
@@ -32,7 +31,6 @@ struct aa_label;
 struct aa_caps {
 	kernel_cap_t allow;
 	kernel_cap_t audit;
-	kernel_cap_t denied;
 	kernel_cap_t quiet;
 	kernel_cap_t kill;
 	kernel_cap_t extended;
@@ -40,7 +38,7 @@ struct aa_caps {
 
 extern struct aa_fs_entry aa_fs_entry_caps[];
 
-int aa_capable(struct aa_label *label, int cap, int audit);
+int aa_capable(struct aa_profile *profile, int cap, int audit);
 
 static inline void aa_free_cap_rules(struct aa_caps *caps)
 {
