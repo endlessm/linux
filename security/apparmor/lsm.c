@@ -580,10 +580,10 @@ static int apparmor_sb_pivotroot(struct path *old_path, struct path *new_path)
 	struct aa_label *label;
 	int error = 0;
 
-	label = aa_get_current_label();
+	label = aa_begin_current_label(NO_UPDATE);
 	if (!unconfined(label))
 		error = aa_pivotroot(label, old_path, new_path);
-	aa_put_label(label);
+	aa_end_current_label(label);
 
 	return error;
 }
