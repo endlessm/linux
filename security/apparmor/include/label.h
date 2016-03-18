@@ -384,17 +384,8 @@ static inline struct aa_label *aa_get_newest_label(struct aa_label *l)
 	if (!l)
 		return NULL;
 
-	if (label_invalid(l)) {
-		struct aa_label *tmp;
-		AA_BUG(!l->replacedby);
-		AA_BUG(!l->replacedby->label);
-		/* BUG: only way this can happen is @l ref count and its
-		 * replacement count have gone to 0 and are on their way
-		 * to destruction. ie. we have a refcounting error
-		 */
-		AA_BUG(!(tmp = aa_get_label_rcu(&l->replacedby->label)));
-		return tmp;
-	}
+	if (label_invalid(l))
+		return aa_get_label_rcu(&l->replacedby->label);
 
 	return aa_get_label(l);
 }
