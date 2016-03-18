@@ -260,8 +260,7 @@ static void label_free_rcu(struct rcu_head *head)
 {
 	struct aa_label *l = container_of(head, struct aa_label, rcu);
 
-	if (l->flags & FLAG_IN_TREE)
-		(void) aa_label_remove(labels_set(l), l);
+	(void) aa_label_remove(labels_set(l), l);
 	label_free_switch(l);
 }
 
