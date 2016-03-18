@@ -16,7 +16,6 @@
 #define __AA_NET_H
 
 #include <net/sock.h>
-#include <linux/path.h>
 
 #include "apparmorfs.h"
 #include "label.h"
@@ -53,7 +52,6 @@
 struct aa_sk_cxt {
 	struct aa_label *label;
 	struct aa_label *peer;
-	struct path path;
 };
 
 #define SK_CXT(X) (X)->sk_security
