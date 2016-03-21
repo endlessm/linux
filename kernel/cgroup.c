@@ -1589,7 +1589,32 @@ static int rebind_subsystems(struct cgroup_root *dst_root,
 	return 0;
 }
 
-static int cgroup_show_options(struct seq_file *seq,
+static void cgroup_show_nsroot(struct seq_file *seq, struct dentry *dentry,
+			       struct kernfs_root *kf_root)
+{
+	struct kernfs_node *d_kn = dentry->d_fsdata;
+	char *nsroot;
+	int len, ret;
+
+	if (!kf_root)
+		return;
+	len = kernfs_path_from_node(d_kn, kf_root->kn, NULL, 0);
+	if (len <= 0)
+		return;
+	nsroot = kzalloc(len + 1, GFP_ATOMIC);
+	if (!nsroot)
+		return;
+	ret = kernfs_path_from_node(d_kn, kf_root->kn, nsroot, len + 1);
+	if (ret <= 0 || ret > len)
+		goto out;
+
+	seq_show_option(seq, "nsroot", nsroot);
+
+out:
+	kfree(nsroot);
+}
+
+static int cgroup_show_options(struct seq_file *seq, struct dentry *dentry,
 			       struct kernfs_root *kf_root)
 {
 	struct cgroup_root *root = cgroup_root_from_kf(kf_root);
@@ -1615,6 +1640,8 @@ static int cgroup_show_options(struct seq_file *seq,
 		seq_puts(seq, ",clone_children");
 	if (strlen(root->name))
 		seq_show_option(seq, "name", root->name);
+	cgroup_show_nsroot(seq, dentry, kf_root);
+
 	return 0;
 }
 
