@@ -36,7 +36,7 @@ static int kernfs_sop_show_options(struct seq_file *sf, struct dentry *dentry)
 	struct kernfs_syscall_ops *scops = root->syscall_ops;
 
 	if (scops && scops->show_options)
-		return scops->show_options(sf, root);
+		return scops->show_options(sf, dentry, root);
 	return 0;
 }
 

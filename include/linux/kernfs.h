@@ -145,7 +145,8 @@ struct kernfs_node {
  */
 struct kernfs_syscall_ops {
 	int (*remount_fs)(struct kernfs_root *root, int *flags, char *data);
-	int (*show_options)(struct seq_file *sf, struct kernfs_root *root);
+	int (*show_options)(struct seq_file *sf, struct dentry *dentry,
+			    struct kernfs_root *root);
 
 	int (*mkdir)(struct kernfs_node *parent, const char *name,
 		     umode_t mode);
