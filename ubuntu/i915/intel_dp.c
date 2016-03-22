@@ -1192,7 +1192,6 @@ intel_dp_aux_fini(struct intel_dp *intel_dp)
 static int
 intel_dp_aux_init(struct intel_dp *intel_dp, struct intel_connector *connector)
 {
-	struct drm_device *dev = intel_dp_to_dev(intel_dp);
 	struct intel_digital_port *intel_dig_port = dp_to_dig_port(intel_dp);
 	enum port port = intel_dig_port->port;
 	int ret;
@@ -1203,7 +1202,7 @@ intel_dp_aux_init(struct intel_dp *intel_dp, struct intel_connector *connector)
 	if (!intel_dp->aux.name)
 		return -ENOMEM;
 
-	intel_dp->aux.dev = dev->dev;
+	intel_dp->aux.dev = connector->base.kdev;
 	intel_dp->aux.transfer = intel_dp_aux_transfer;
 
 	DRM_DEBUG_KMS("registering %s bus for %s\n",
@@ -1218,16 +1217,6 @@ intel_dp_aux_init(struct intel_dp *intel_dp, struct intel_connector *connector)
 		return ret;
 	}
 
-	ret = sysfs_create_link(&connector->base.kdev->kobj,
-				&intel_dp->aux.ddc.dev.kobj,
-				intel_dp->aux.ddc.dev.kobj.name);
-	if (ret < 0) {
-		DRM_ERROR("sysfs_create_link() for %s failed (%d)\n",
-			  intel_dp->aux.name, ret);
-		intel_dp_aux_fini(intel_dp);
-		return ret;
-	}
-
 	return 0;
 }
 
@@ -1236,9 +1225,7 @@ intel_dp_connector_unregister(struct intel_connector *intel_connector)
 {
 	struct intel_dp *intel_dp = intel_attached_dp(&intel_connector->base);
 
-	if (!intel_connector->mst_port)
-		sysfs_remove_link(&intel_connector->base.kdev->kobj,
-				  intel_dp->aux.ddc.dev.kobj.name);
+	intel_dp_aux_fini(intel_dp);
 	intel_connector_unregister(intel_connector);
 }
 
@@ -2369,15 +2356,18 @@ static bool intel_dp_get_hw_state(struct intel_encoder *encoder,
 	struct drm_i915_private *dev_priv = dev->dev_private;
 	enum intel_display_power_domain power_domain;
 	u32 tmp;
+	bool ret;
 
 	power_domain = intel_display_port_power_domain(encoder);
-	if (!intel_display_power_is_enabled(dev_priv, power_domain))
+	if (!intel_display_power_get_if_enabled(dev_priv, power_domain))
 		return false;
+
+	ret = false;
 
 	tmp = I915_READ(intel_dp->output_reg);
 
 	if (!(tmp & DP_PORT_EN))
-		return false;
+		goto out;
 
 	if (IS_GEN7(dev) && port == PORT_A) {
 		*pipe = PORT_TO_PIPE_CPT(tmp);
@@ -2388,7 +2378,9 @@ static bool intel_dp_get_hw_state(struct intel_encoder *encoder,
 			u32 trans_dp = I915_READ(TRANS_DP_CTL(p));
 			if (TRANS_DP_PIPE_TO_PORT(trans_dp) == port) {
 				*pipe = p;
-				return true;
+				ret = true;
+
+				goto out;
 			}
 		}
 
@@ -2400,7 +2392,12 @@ static bool intel_dp_get_hw_state(struct intel_encoder *encoder,
 		*pipe = PORT_TO_PIPE(tmp);
 	}
 
-	return true;
+	ret = true;
+
+out:
+	intel_display_power_put(dev_priv, power_domain);
+
+	return ret;
 }
 
 static void intel_dp_get_config(struct intel_encoder *encoder,
@@ -4500,20 +4497,20 @@ static bool g4x_digital_port_connected(struct drm_i915_private *dev_priv,
 	return I915_READ(PORT_HOTPLUG_STAT) & bit;
 }
 
-static bool vlv_digital_port_connected(struct drm_i915_private *dev_priv,
-				       struct intel_digital_port *port)
+static bool gm45_digital_port_connected(struct drm_i915_private *dev_priv,
+					struct intel_digital_port *port)
 {
 	u32 bit;
 
 	switch (port->port) {
 	case PORT_B:
-		bit = PORTB_HOTPLUG_LIVE_STATUS_VLV;
+		bit = PORTB_HOTPLUG_LIVE_STATUS_GM45;
 		break;
 	case PORT_C:
-		bit = PORTC_HOTPLUG_LIVE_STATUS_VLV;
+		bit = PORTC_HOTPLUG_LIVE_STATUS_GM45;
 		break;
 	case PORT_D:
-		bit = PORTD_HOTPLUG_LIVE_STATUS_VLV;
+		bit = PORTD_HOTPLUG_LIVE_STATUS_GM45;
 		break;
 	default:
 		MISSING_CASE(port->port);
@@ -4561,12 +4558,12 @@ bool intel_digital_port_connected(struct drm_i915_private *dev_priv,
 {
 	if (HAS_PCH_IBX(dev_priv))
 		return ibx_digital_port_connected(dev_priv, port);
-	if (HAS_PCH_SPLIT(dev_priv))
+	else if (HAS_PCH_SPLIT(dev_priv))
 		return cpt_digital_port_connected(dev_priv, port);
 	else if (IS_BROXTON(dev_priv))
 		return bxt_digital_port_connected(dev_priv, port);
-	else if (IS_VALLEYVIEW(dev_priv) || IS_CHERRYVIEW(dev_priv))
-		return vlv_digital_port_connected(dev_priv, port);
+	else if (IS_GM45(dev_priv))
+		return gm45_digital_port_connected(dev_priv, port);
 	else
 		return g4x_digital_port_connected(dev_priv, port);
 }
@@ -4881,7 +4878,6 @@ void intel_dp_encoder_destroy(struct drm_encoder *encoder)
 	struct intel_digital_port *intel_dig_port = enc_to_dig_port(encoder);
 	struct intel_dp *intel_dp = &intel_dig_port->dp;
 
-	intel_dp_aux_fini(intel_dp);
 	intel_dp_mst_encoder_cleanup(intel_dig_port);
 	if (is_edp(intel_dp)) {
 		cancel_delayed_work_sync(&intel_dp->panel_vdd_work);
@@ -6047,7 +6043,6 @@ intel_dp_init(struct drm_device *dev,
 	}
 
 	intel_dig_port->port = port;
-	dev_priv->dig_port_map[port] = intel_encoder;
 	intel_dig_port->dp.output_reg = output_reg;
 	intel_dig_port->max_lanes = 4;
 
