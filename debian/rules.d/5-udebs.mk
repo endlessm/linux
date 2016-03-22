@@ -14,8 +14,9 @@ do-binary-udebs: debian/control
 	# unpack the kernels into a temporary directory
 	mkdir -p debian/d-i-${arch}
 
-	imagelist=$$(cat $(CURDIR)/$(DEBIAN)/d-i/kernel-versions | grep ^${arch} | gawk '{print $$4}') && \
-	for i in $$imagelist; do \
+	imagelist=$$(cat $(CURDIR)/$(DEBIAN)/d-i/kernel-versions | grep ^${arch} | gawk '{print $$3}') && \
+	for f in $$imagelist; do \
+	  i=$(release)-$(abinum)-$$f; \
 	  dpkg -x $$(ls ../linux-image-$$i\_$(release)-$(revision)_${arch}.deb) \
 		debian/d-i-${arch}; \
 	  if [ -f ../linux-image-extra-$$i\_$(release)-$(revision)_${arch}.deb ] ; then \
@@ -32,7 +33,7 @@ do-binary-udebs: debian/control
 	export KW_DEFCONFIG_DIR=$(CURDIR)/$(DEBIAN)/d-i && \
 	export KW_CONFIG_DIR=$(CURDIR)/$(DEBIAN)/d-i && \
 	export SOURCEDIR=$(CURDIR)/debian/d-i-${arch} && \
-	  kernel-wedge install-files && \
+	  kernel-wedge install-files $(release)-$(abinum) && \
 	  kernel-wedge check
 
         # Build just the udebs
