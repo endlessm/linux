@@ -1393,13 +1393,6 @@ CONFIG_DRM_TEGRA_FBDEV                          policy<{'armhf-generic': 'y'}>
 CONFIG_DRM_TEGRA_DEBUG                          policy<{'armhf-generic': 'n'}>
 CONFIG_DRM_TEGRA_STAGING                        policy<{'armhf-generic': 'y'}>
 
-# Menu: Device Drivers >> Graphics support >> Direct Rendering Manager (XFree86 4.1.0 and higher DRI support) >> Nouveau (NVIDIA) cards
-CONFIG_DRM_NOUVEAU                              policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'powerpc': 'm', 'ppc64el': 'm'}>
-CONFIG_NOUVEAU_PLATFORM_DRIVER                  policy<{'armhf-generic': 'y'}>
-CONFIG_NOUVEAU_DEBUG                            policy<{'amd64': '5', 'arm64': '5', 'armhf': '5', 'i386': '5', 'powerpc': '5', 'ppc64el': '5'}>
-CONFIG_NOUVEAU_DEBUG_DEFAULT                    policy<{'amd64': '3', 'arm64': '3', 'armhf': '3', 'i386': '3', 'powerpc': '3', 'ppc64el': '3'}>
-CONFIG_DRM_NOUVEAU_BACKLIGHT                    policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'powerpc': 'y', 'ppc64el': 'y'}>
-
 # Menu: Device Drivers >> Graphics support >> Frame buffer Devices
 CONFIG_FB_SH_MOBILE_MERAM                       policy<{'armhf': 'm'}>
 
