@@ -14,7 +14,7 @@ do-binary-udebs: debian/control
 	# unpack the kernels into a temporary directory
 	mkdir -p debian/d-i-${arch}
 
-	imagelist=$$(cat $(builddir)/kernel-versions | grep ^${arch} | gawk '{print $$4}') && \
+	imagelist=$$(cat $(CURDIR)/$(DEBIAN)/d-i/kernel-versions | grep ^${arch} | gawk '{print $$4}') && \
 	for i in $$imagelist; do \
 	  dpkg -x $$(ls ../linux-image-$$i\_$(release)-$(revision)_${arch}.deb) \
 		debian/d-i-${arch}; \
@@ -26,11 +26,12 @@ do-binary-udebs: debian/control
 	done
 
 	# kernel-wedge will error if no modules unless this is touched
-	touch $(CURDIR)/debian/build/no-modules
+	touch $(DEBIAN)/d-i/no-modules
 
-	touch ignore-dups
+	touch $(CURDIR)/$(DEBIAN)/d-i/ignore-dups
+	export KW_DEFCONFIG_DIR=$(CURDIR)/$(DEBIAN)/d-i && \
+	export KW_CONFIG_DIR=$(CURDIR)/$(DEBIAN)/d-i && \
 	export SOURCEDIR=$(CURDIR)/debian/d-i-${arch} && \
-	  cd $(builddir) && \
 	  kernel-wedge install-files && \
 	  kernel-wedge check
 
