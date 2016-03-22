@@ -118,7 +118,7 @@ clean: debian/control
 	cp $(DEBIAN)/copyright debian/copyright
 
 	# If we have a reconstruct script use it.
-	[ -f $(DEBIAN)/reconstruct ] && bash -x $(DEBIAN)/reconstruct
+	[ -f $(DEBIAN)/reconstruct ] && bash $(DEBIAN)/reconstruct
 
 distclean: clean
 	rm -rf $(DROOT)/control $(DROOT)/control.stub $(DEBIAN)/control.stub \
