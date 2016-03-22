@@ -115,8 +115,7 @@ clean: debian/control
 	[ -f $(DEBIAN)/reconstruct ] && bash $(DEBIAN)/reconstruct
 
 	# Remove generated intermediate files
-	rm -f $(DROOT)/control.stub $(DEBIAN)/control.stub \
-		$(DEBIAN)/d-i/kernel-versions
+	rm -f $(DROOT)/control.stub $(DEBIAN)/control.stub
 
 distclean: clean
 	rm -rf $(DROOT)/control debian/changelog \
@@ -136,12 +135,12 @@ include $(DROOT)/rules.d/4-checks.mk
 
 # Misc stuff
 .PHONY: $(DEBIAN)/control.stub
-$(DEBIAN)/control.stub: $(DEBIAN)/d-i/kernel-versions.in	\
+$(DEBIAN)/control.stub: 				\
 		$(DROOT)/scripts/control-create		\
 		$(DEBIAN)/control.stub.in			\
 		$(DEBIAN)/changelog			\
 		$(wildcard $(DEBIAN)/control.d/* $(DEBIAN)/sub-flavours/*.vars)
-	for i in $(DEBIAN)/d-i/kernel-versions.in $(DEBIAN)/control.stub.in; do	\
+	for i in $(DEBIAN)/control.stub.in; do					\
 	  new=`echo $$i | sed 's/\.in$$//'`;					\
 	  cat $$i | sed -e 's/PKGVER/$(release)/g'                              \
 	        -e 's/ABINUM/$(abinum)/g'                                       \
@@ -165,6 +164,6 @@ debian/control: $(DEBIAN)/control.stub
 	cp $(DEBIAN)/control.stub debian/control
 	export KW_DEFCONFIG_DIR=$(DEBIAN)/d-i && \
 	export KW_CONFIG_DIR=$(DEBIAN)/d-i && \
-	LANG=C kernel-wedge gen-control | \
+	LANG=C kernel-wedge gen-control $(release)-$(abinum) | \
 		perl -f $(DROOT)/scripts/misc/kernel-wedge-arch.pl $(arch) \
 		>>$(CURDIR)/debian/control
