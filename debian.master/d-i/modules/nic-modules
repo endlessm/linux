@@ -18,6 +18,7 @@ airo ?
 airport ?
 alx ?
 amd8111e ?
+aquantia ?
 arc4 ?
 arcnet ?
 arc-rawmode ?
@@ -34,6 +35,7 @@ atl2 ?
 atmel ?
 atmel_pci ?
 b44 ?
+bcm87xx ?
 be2net ?
 bmac ?
 bnx2 ?
@@ -41,6 +43,7 @@ bnx2x ?
 bonding ?
 brcmfmac ?
 brcmsmac ?
+broadcom ?
 xgmac ?
 cassini ?
 ccwgroup ?
@@ -103,6 +106,8 @@ lasi_82596 ?
 lne390 ?
 lp486e ?
 mace ?
+marvell ?
+mdio-thunder ?
 mlx4_core ?
 mlx4_en ?
 mlx5_core ?
@@ -136,6 +141,7 @@ qlcnic ?
 r815x ?
 r8169 ?
 rate_control ?
+realtek ?
 rfc1051 ?
 rfc1201 ?
 rrunner ?
