@@ -33,6 +33,7 @@ do_tools_perf		= true
 do_zfs			= true
 do_zfs_powerpc-smp	= false
 #do_zfs_powerpc64-smp	= true
+do_zfs_powerpc64-smp	= false # disable until we finish debugging issues
 do_zfs_powerpc-e500mc	= false
 do_zfs_powerpc64-emb	= false
 
