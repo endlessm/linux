@@ -625,6 +625,23 @@ bool policy_admin_capable(void)
 
 	if (ns_capable(user_ns, CAP_MAC_ADMIN) &&
 	    (user_ns == &init_user_ns ||
+	     (user_ns->level == 1 && ns != root_ns)))
+		response = true;
+	aa_put_ns(ns);
+
+	return response;
+}
+
+bool aa_may_open_profiles(void)
+{
+	struct user_namespace *user_ns = current_user_ns();
+	struct aa_ns *ns = aa_get_current_ns();
+	bool root_in_user_ns = uid_eq(current_euid(), make_kuid(user_ns, 0)) ||
+			       in_egroup_p(make_kgid(user_ns, 0));
+	bool response = false;
+
+	if (root_in_user_ns &&
+	    (user_ns == &init_user_ns ||
 	     (unprivileged_userns_apparmor_policy != 0 &&
 	      user_ns->level == 1 && ns != root_ns)))
 		response = true;
