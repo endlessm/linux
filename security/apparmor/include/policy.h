@@ -282,6 +282,7 @@ static inline int AUDIT_MODE(struct aa_profile *profile)
 
 bool policy_view_capable(void);
 bool policy_admin_capable(void);
+bool aa_may_open_profiles(void);
 int aa_may_manage_policy(struct aa_label *label, u32 mask);
 
 #endif /* __AA_POLICY_H */
