@@ -159,7 +159,8 @@ RTR3DECL(int)   RTProcCreate(const char *pszExec, const char * const *papszArgs,
  *                      guest.
  * @param   pszAsUser   User to run the process as.  Pass NULL to use the same
  *                      user as the current process.
- *                      Windows: Use user\@domain format to specify a domain.
+ *                      Windows: Use user\@domain (UPN, User Principal Name)
+ *                      format to specify a domain.
  * @param   pszPassword Password to use to authenticate @a pszAsUser.  Must be
  *                      NULL wif pszAsUser is NULL.  Whether this is actually
  *                      used or not depends on the platform.
