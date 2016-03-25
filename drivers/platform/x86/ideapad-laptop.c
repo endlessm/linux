@@ -569,7 +569,7 @@ static const struct key_entry ideapad_keymap[] = {
 	{ KE_KEY, 7,  { KEY_CAMERA } },
 	{ KE_KEY, 8,  { KEY_MICMUTE } },
 	{ KE_KEY, 11, { KEY_F16 } },
-	{ KE_KEY, 13, { KEY_WLAN } },
+	{ KE_KEY, 13, { KEY_RFKILL } },
 	{ KE_KEY, 16, { KEY_PROG1 } },
 	{ KE_KEY, 17, { KEY_PROG2 } },
 	{ KE_KEY, 64, { KEY_PROG3 } },
