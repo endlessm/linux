@@ -312,10 +312,10 @@ static const struct dmi_system_id asus_quirks[] = {
 	},
 	{
 		.callback = dmi_matched,
-		.ident = "ASUSTeK COMPUTER INC. X552VW",
+		.ident = "ASUSTeK COMPUTER INC. N552VW",
 		.matches = {
 			DMI_MATCH(DMI_SYS_VENDOR, "ASUSTeK COMPUTER INC."),
-			DMI_MATCH(DMI_PRODUCT_NAME, "X552VW"),
+			DMI_MATCH(DMI_PRODUCT_NAME, "N552VW"),
 		},
 		.driver_data = &quirk_no_rfkill,
 	},
