@@ -711,6 +711,8 @@ int proc_setattr(struct dentry *dentry, struct iattr *attr)
 
 	if (attr->ia_valid & ATTR_MODE)
 		return -EPERM;
+	if (!uid_valid(inode->i_uid) || !gid_valid(inode->i_gid))
+		return -EPERM;
 
 	error = inode_change_ok(inode, attr);
 	if (error)

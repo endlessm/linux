@@ -117,6 +117,8 @@ int kernfs_iop_setattr(struct dentry *dentry, struct iattr *iattr)
 
 	if (!kn)
 		return -EINVAL;
+	if (!uid_valid(inode->i_uid) || !gid_valid(inode->i_gid))
+		return -EPERM;
 
 	mutex_lock(&kernfs_mutex);
 	error = inode_change_ok(inode, iattr);

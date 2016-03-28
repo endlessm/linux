@@ -105,6 +105,9 @@ static int proc_notify_change(struct dentry *dentry, struct iattr *iattr)
 	struct proc_dir_entry *de = PDE(inode);
 	int error;
 
+	if (!uid_valid(inode->i_uid) || !gid_valid(inode->i_gid))
+		return -EPERM;
+
 	error = inode_change_ok(inode, iattr);
 	if (error)
 		return error;
