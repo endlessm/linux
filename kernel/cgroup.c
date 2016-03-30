@@ -1680,6 +1680,10 @@ static int parse_cgroupfs_options(char *data, struct cgroup_sb_opts *opts)
 			opts->none = true;
 			continue;
 		}
+		if (!strncmp(token, "nsroot=", 7)) {
+			/* ignore nsroot= copied from mountinfo */
+			continue;
+		}
 		if (!strcmp(token, "all")) {
 			/* Mutually exclusive option 'all' + subsystem name */
 			if (one_ss)
