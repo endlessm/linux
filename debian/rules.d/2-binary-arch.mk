@@ -15,6 +15,8 @@ ifneq ($(gcc),)
 kmake += CC=$(CROSS_COMPILE)$(gcc)
 endif
 
+shlibdeps_opts = $(if $(CROSS_COMPILE),-- -l$(CROSS_COMPILE:%-=/usr/%)/lib)
+
 $(stampdir)/stamp-prepare-%: config-prepare-check-%
 	@echo Debug: $@
 	@touch $@
@@ -463,7 +465,7 @@ binary-%: install-%
 	dh_compress -p$(pkgimg)
 	dh_fixperms -p$(pkgimg) -X/boot/
 	dh_installdeb -p$(pkgimg)
-	dh_shlibdeps -p$(pkgimg)
+	dh_shlibdeps -p$(pkgimg) $(shlibdeps_opts)
 	$(lockme) dh_gencontrol -p$(pkgimg) -- -Vlinux:rprovides='$(rprovides)'
 	dh_md5sums -p$(pkgimg)
 	dh_builddeb -p$(pkgimg) -- -Zbzip2 -z9
@@ -475,7 +477,7 @@ ifeq ($(do_extras_package),true)
 		dh_compress -p$(pkgimg_ex); \
 		dh_fixperms -p$(pkgimg_ex) -X/boot/; \
 		dh_installdeb -p$(pkgimg_ex); \
-		dh_shlibdeps -p$(pkgimg_ex); \
+		dh_shlibdeps -p$(pkgimg_ex) $(shlibdeps_opts); \
 		$(lockme) dh_gencontrol -p$(pkgimg_ex); \
 		dh_md5sums -p$(pkgimg_ex); \
 		dh_builddeb -p$(pkgimg_ex) -- -Zbzip2 -z9; \
@@ -486,7 +488,7 @@ endif
 	dh_installdocs -p$(pkghdr)
 	dh_compress -p$(pkghdr)
 	dh_fixperms -p$(pkghdr)
-	dh_shlibdeps -p$(pkghdr)
+	dh_shlibdeps -p$(pkghdr) $(shlibdeps_opts)
 	dh_installdeb -p$(pkghdr)
 	$(lockme) dh_gencontrol -p$(pkghdr)
 	dh_md5sums -p$(pkghdr)
@@ -499,7 +501,7 @@ ifneq ($(skipsub),true)
 		dh_installdocs -p$$pkg;			\
 		dh_compress -p$$pkg;			\
 		dh_fixperms -p$$pkg -X/boot/;		\
-		dh_shlibdeps -p$$pkg;			\
+		dh_shlibdeps -p$$pkg $(shlibdeps_opts);	\
 		dh_installdeb -p$$pkg;			\
 		$(lockme) dh_gencontrol -p$$pkg;			\
 		dh_md5sums -p$$pkg;			\
@@ -544,7 +546,7 @@ ifeq ($(do_linux_tools),true)
 	dh_installdocs -p$(pkgtools)
 	dh_compress -p$(pkgtools)
 	dh_fixperms -p$(pkgtools)
-	dh_shlibdeps -p$(pkgtools)
+	dh_shlibdeps -p$(pkgtools) $(shlibdeps_opts)
 	dh_installdeb -p$(pkgtools)
 	$(lockme) dh_gencontrol -p$(pkgtools)
 	dh_md5sums -p$(pkgtools)
@@ -555,7 +557,7 @@ ifeq ($(do_cloud_tools),true)
 	dh_installdocs -p$(pkgcloud)
 	dh_compress -p$(pkgcloud)
 	dh_fixperms -p$(pkgcloud)
-	dh_shlibdeps -p$(pkgcloud)
+	dh_shlibdeps -p$(pkgcloud) $(shlibdeps_opts)
 	dh_installdeb -p$(pkgcloud)
 	$(lockme) dh_gencontrol -p$(pkgcloud)
 	dh_md5sums -p$(pkgcloud)
@@ -680,7 +682,7 @@ ifeq ($(do_linux_tools),true)
 	dh_installdocs -p$(toolspkg)
 	dh_compress -p$(toolspkg)
 	dh_fixperms -p$(toolspkg)
-	dh_shlibdeps -p$(toolspkg)
+	dh_shlibdeps -p$(toolspkg) $(shlibdeps_opts)
 	dh_installdeb -p$(toolspkg)
 	$(lockme) dh_gencontrol -p$(toolspkg)
 	dh_md5sums -p$(toolspkg)
@@ -692,7 +694,7 @@ ifeq ($(do_cloud_tools),true)
 	dh_installdocs -p$(cloudpkg)
 	dh_compress -p$(cloudpkg)
 	dh_fixperms -p$(cloudpkg)
-	dh_shlibdeps -p$(cloudpkg)
+	dh_shlibdeps -p$(cloudpkg) $(shlibdeps_opts)
 	dh_installdeb -p$(cloudpkg)
 	$(lockme) dh_gencontrol -p$(cloudpkg)
 	dh_md5sums -p$(cloudpkg)
