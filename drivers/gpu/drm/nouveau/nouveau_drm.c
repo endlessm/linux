@@ -1061,6 +1061,17 @@ err_free:
 	return ERR_PTR(err);
 }
 
+static const struct dmi_system_id nouveau_modeset_0[] = {
+	{
+		.ident = "ASUSTeK COMPUTER INC. N552VW", /* Lenovo Yoga 900 */
+		.matches = {
+			DMI_MATCH(DMI_SYS_VENDOR, "ASUSTeK COMPUTER INC."),
+			DMI_MATCH(DMI_PRODUCT_NAME, "N552VW"),
+		},
+	},
+	{ }
+};
+
 static int __init
 nouveau_drm_init(void)
 {
@@ -1068,6 +1079,9 @@ nouveau_drm_init(void)
 	driver_pci.set_busid = drm_pci_set_busid;
 	driver_platform = driver_stub;
 	driver_platform.set_busid = drm_platform_set_busid;
+
+	if (dmi_check_system(nouveau_modeset_0))
+		nouveau_modeset = 0;
 
 	nouveau_display_options();
 
