@@ -89,6 +89,10 @@ MODULE_PARM_DESC(runpm, "disable (0), force enable (1), optimus only default (-1
 static int nouveau_runtime_pm = -1;
 module_param_named(runpm, nouveau_runtime_pm, int, 0400);
 
+MODULE_PARM_DESC(disable_dmi_quirks, "disable DMI quirks allowing other module parameters to take effect");
+static int disable_dmi_quirks = 0;
+module_param_named(disable_dmi_quirks, disable_dmi_quirks, int, 0400);
+
 static struct drm_driver driver_stub;
 static struct drm_driver driver_pci;
 static struct drm_driver driver_platform;
@@ -460,9 +464,209 @@ nouveau_accel_init(struct nouveau_drm *drm)
 	nouveau_bo_move_init(drm);
 }
 
+static const struct dmi_system_id nouveau_blacklist[] = {
+	{
+		.ident = "ASUSTeK COMPUTER INC. N552VW",
+		.matches = {
+			DMI_MATCH(DMI_SYS_VENDOR, "ASUSTeK COMPUTER INC."),
+			DMI_MATCH(DMI_PRODUCT_NAME, "N552VW"),
+		},
+	},
+	{
+		.ident = "Acer Aspire Z20-730",
+		.matches = {
+			DMI_MATCH(DMI_SYS_VENDOR, "Acer"),
+			DMI_MATCH(DMI_PRODUCT_NAME, "Aspire Z20-730"),
+		},
+	},
+	{
+		.ident = "Acer Aspire Z20-780",
+		.matches = {
+			DMI_MATCH(DMI_SYS_VENDOR, "Acer"),
+			DMI_MATCH(DMI_PRODUCT_NAME, "Aspire Z20-780"),
+		},
+	},
+	{
+		.ident = "ASUSTeK COMPUTER INC. ZenBook Pro 15 UX550GE",
+		.matches = {
+			DMI_MATCH(DMI_SYS_VENDOR, "ASUSTeK COMPUTER INC."),
+			DMI_MATCH(DMI_PRODUCT_NAME, "ZenBook Pro 15 UX550GE"),
+		},
+	},
+	{
+		.ident = "ASUSTeK COMPUTER INC. ZenBook Pro 15 UX550GEX",
+		.matches = {
+			DMI_MATCH(DMI_SYS_VENDOR, "ASUSTeK COMPUTER INC."),
+			DMI_MATCH(DMI_PRODUCT_NAME, "ZenBook Pro 15 UX550GEX"),
+		},
+	},
+	{ }
+};
+
+static const struct dmi_system_id runpm_blacklist[] = {
+	{
+		.ident = "Acer Nitro N50-100",
+		.matches = {
+			DMI_MATCH(DMI_SYS_VENDOR, "Acer"),
+			DMI_MATCH(DMI_PRODUCT_NAME, "Nitro N50-100"),
+		},
+	},
+	{
+		.ident = "Acer Nitro N50-600",
+		.matches = {
+			DMI_MATCH(DMI_SYS_VENDOR, "Acer"),
+			DMI_MATCH(DMI_PRODUCT_NAME, "Nitro N50-600"),
+		},
+	},
+	{
+		.ident = "Acer Predator Orion 5-100",
+		.matches = {
+			DMI_MATCH(DMI_SYS_VENDOR, "Acer"),
+			DMI_MATCH(DMI_PRODUCT_NAME, "Predator Orion 5-100"),
+		},
+	},
+	{
+		.ident = "ASUSTeK COMPUTER INC. GL552VXK",
+		.matches = {
+			DMI_MATCH(DMI_SYS_VENDOR, "ASUSTeK COMPUTER INC."),
+			DMI_MATCH(DMI_PRODUCT_NAME, "GL552VXK"),
+		},
+	},
+	{
+		.ident = "ASUSTeK COMPUTER INC. K401UQK",
+		.matches = {
+			DMI_MATCH(DMI_SYS_VENDOR, "ASUSTeK COMPUTER INC."),
+			DMI_MATCH(DMI_PRODUCT_NAME, "K401UQK"),
+		},
+	},
+	{
+		.ident = "ASUSTeK COMPUTER INC. X530UN",
+		.matches = {
+			DMI_MATCH(DMI_BOARD_VENDOR, "ASUSTeK COMPUTER INC."),
+			DMI_MATCH(DMI_BOARD_NAME, "X530UN"),
+		},
+	},
+	{
+		.ident = "ASUSTeK COMPUTER INC. X550VXK",
+		.matches = {
+			DMI_MATCH(DMI_SYS_VENDOR, "ASUSTeK COMPUTER INC."),
+			DMI_MATCH(DMI_PRODUCT_NAME, "X550VXK"),
+		},
+	},
+	{
+		.ident = "ASUSTeK COMPUTER INC. X705FD",
+		.matches = {
+			DMI_MATCH(DMI_BOARD_VENDOR, "ASUSTeK COMPUTER INC."),
+			DMI_MATCH(DMI_BOARD_NAME, "X705FD"),
+		},
+	},
+	{ }
+};
+
+static const struct dmi_system_id gp107_runpm_blacklist[] = {
+	{
+		.ident = "ASUS laptop",
+		.matches = {
+			DMI_MATCH(DMI_SYS_VENDOR, "ASUSTeK COMPUTER INC."),
+			DMI_MATCH(DMI_CHASSIS_TYPE, "10"), /* Notebook */
+		},
+	},
+	{ }
+};
+
+static const struct dmi_system_id gm108_accel_blacklist[] = {
+	{
+		.ident = "ASUS laptop",
+		.matches = {
+			DMI_MATCH(DMI_SYS_VENDOR, "ASUSTeK COMPUTER INC."),
+			DMI_MATCH(DMI_CHASSIS_TYPE, "10"), /* Notebook */
+		},
+	},
+	{ }
+};
+
+static const struct dmi_system_id gp107_accel_blacklist[] = {
+	{
+		.ident = "Acer laptop",
+		.matches = {
+			DMI_MATCH(DMI_SYS_VENDOR, "Acer"),
+			DMI_MATCH(DMI_CHASSIS_TYPE, "10"), /* Notebook */
+		},
+	},
+	{ }
+};
+
+static const struct dmi_system_id accel_blacklist[] = {
+	{
+		.ident = "Acer Nitro N50-100",
+		.matches = {
+			DMI_MATCH(DMI_SYS_VENDOR, "Acer"),
+			DMI_MATCH(DMI_PRODUCT_NAME, "Nitro N50-100"),
+		},
+	},
+	{
+		.ident = "Acer Nitro N50-600",
+		.matches = {
+			DMI_MATCH(DMI_SYS_VENDOR, "Acer"),
+			DMI_MATCH(DMI_PRODUCT_NAME, "Nitro N50-600"),
+		},
+	},
+	{
+		.ident = "Acer Predator Orion 5-100",
+		.matches = {
+			DMI_MATCH(DMI_SYS_VENDOR, "Acer"),
+			DMI_MATCH(DMI_PRODUCT_NAME, "Predator Orion 5-100"),
+		},
+	},
+	{
+		.ident = "ASUSTeK COMPUTER INC. ASUS Gaming FX570UD",
+		.matches = {
+			DMI_MATCH(DMI_SYS_VENDOR, "ASUSTeK COMPUTER INC."),
+			DMI_MATCH(DMI_PRODUCT_NAME, "ASUS Gaming FX570UD"),
+		},
+	},
+	{
+		.ident = "ASUSTeK COMPUTER INC. ASUS UX533FD",
+		.matches = {
+			DMI_MATCH(DMI_BOARD_VENDOR, "ASUSTeK COMPUTER INC."),
+			DMI_MATCH(DMI_BOARD_NAME, "UX533FD"),
+		},
+	},
+	{
+		.ident = "ASUSTeK COMPUTER INC. ASUS X530UN",
+		.matches = {
+			DMI_MATCH(DMI_BOARD_VENDOR, "ASUSTeK COMPUTER INC."),
+			DMI_MATCH(DMI_BOARD_NAME, "X530UN"),
+		},
+	},
+	{
+		.ident = "ASUSTeK COMPUTER INC. ASUS X560UD",
+		.matches = {
+			DMI_MATCH(DMI_BOARD_VENDOR, "ASUSTeK COMPUTER INC."),
+			DMI_MATCH(DMI_BOARD_NAME, "X560UD"),
+		},
+	},
+	{
+		.ident = "ASUSTeK COMPUTER INC. ASUS X570ZD",
+		.matches = {
+			DMI_MATCH(DMI_BOARD_VENDOR, "ASUSTeK COMPUTER INC."),
+			DMI_MATCH(DMI_BOARD_NAME, "X570ZD"),
+		},
+	},
+	{
+		.ident = "ASUSTeK COMPUTER INC. ASUS X705FD",
+		.matches = {
+			DMI_MATCH(DMI_BOARD_VENDOR, "ASUSTeK COMPUTER INC."),
+			DMI_MATCH(DMI_BOARD_NAME, "X705FD"),
+		},
+	},
+	{ }
+};
+
 static int
 nouveau_drm_device_init(struct drm_device *dev)
 {
+	const struct dmi_system_id *dmi_id;
 	struct nouveau_drm *drm;
 	int ret;
 
@@ -493,6 +697,39 @@ nouveau_drm_device_init(struct drm_device *dev)
 	 */
 	if (drm->client.device.info.chipset == 0xc1)
 		nvif_mask(&drm->client.device.object, 0x00088080, 0x00000800, 0x00000000);
+
+	if (!disable_dmi_quirks && drm->client.device.info.chipset == 0x137 &&
+	    (dmi_id = dmi_first_match(gp107_runpm_blacklist))) {
+		NV_INFO(drm, "%s with chipset 0x%X, disabling runtime PM\n",
+			dmi_id->ident, drm->client.device.info.chipset);
+		nouveau_runtime_pm = 0;
+	}
+
+	if (!disable_dmi_quirks &&
+	    (dmi_id = dmi_first_match(runpm_blacklist))) {
+		NV_INFO(drm, "Disabling runtime PM on %s\n", dmi_id->ident);
+		nouveau_runtime_pm = 0;
+	}
+
+	if (!disable_dmi_quirks && drm->client.device.info.chipset == 0x118 &&
+	    (dmi_id = dmi_first_match(gm108_accel_blacklist))) {
+		nouveau_noaccel = 1;
+		NV_INFO(drm, "%s with chipset 0x%X, disabling acceleration\n",
+			dmi_id->ident, drm->client.device.info.chipset);
+	}
+
+	if (!disable_dmi_quirks && drm->client.device.info.chipset == 0x137 &&
+	    (dmi_id = dmi_first_match(gp107_accel_blacklist))) {
+		NV_INFO(drm, "%s with chipset 0x%X, disabling acceleration\n",
+			dmi_id->ident, drm->client.device.info.chipset);
+		nouveau_noaccel = 1;
+	}
+
+	if (!disable_dmi_quirks &&
+	    (dmi_id = dmi_first_match(accel_blacklist))) {
+		NV_INFO(drm, "Disabling acceleration on %s\n", dmi_id->ident);
+		nouveau_noaccel = 1;
+	}
 
 	nouveau_vga_init(drm);
 
@@ -1192,10 +1429,17 @@ err_free:
 static int __init
 nouveau_drm_init(void)
 {
+	const struct dmi_system_id *dmi_id;
 	driver_pci = driver_stub;
 	driver_platform = driver_stub;
 
 	nouveau_display_options();
+
+	if (!disable_dmi_quirks &&
+	    (dmi_id = dmi_first_match(nouveau_blacklist))) {
+		DRM_INFO("Blacklisted on %s, disabling\n", dmi_id->ident);
+		nouveau_modeset = 0;
+	}
 
 	if (nouveau_modeset == -1) {
 		if (vgacon_text_force())
