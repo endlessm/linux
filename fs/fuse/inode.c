@@ -478,8 +478,6 @@ static int parse_fuse_opt(char *opt, struct fuse_mount_data *d, int is_bdev,
 	memset(d, 0, sizeof(struct fuse_mount_data));
 	d->max_read = ~0;
 	d->blksize = FUSE_DEFAULT_BLKSIZE;
-	d->user_id = make_kuid(user_ns, 0);
-	d->group_id = make_kgid(user_ns, 0);
 
 	while ((p = strsep(&opt, ",")) != NULL) {
 		int token;
