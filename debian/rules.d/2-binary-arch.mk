@@ -599,6 +599,7 @@ ifeq ($(do_tools_cpupower),true)
 	# libcpupower.so.$(abi_release) and link cpupower with that.
 	make -C $(builddirpa)/tools/power/cpupower \
 		CROSS_COMPILE=$(CROSS_COMPILE) \
+		CROSS=$(CROSS_COMPILE) \
 		LIB_MIN=$(abi_release) CPUFREQ_BENCH=false
 endif
 ifeq ($(do_tools_perf),true)
