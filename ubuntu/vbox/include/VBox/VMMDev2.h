@@ -28,6 +28,12 @@
 
 #include <iprt/assert.h>
 
+
+/** @addtogroup grp_vmmdev
+ * @{
+ */
+
+
 /**
  * Seamless mode.
  *
@@ -109,6 +115,8 @@ AssertCompileSize(HGCMServiceLocation, 128+4);
 /* forward declarations: */
 struct VMMDevReqMousePointer;
 struct VMMDevMemory;
+
+/** @} */
 
 #endif
 

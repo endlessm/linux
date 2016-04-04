@@ -113,6 +113,8 @@ clean: debian/control
 
 	# This gets rid of the d-i packages in control
 	cp -f $(DEBIAN)/control.stub $(DROOT)/control
+	cp $(DEBIAN)/changelog debian/changelog
+	
 
 	# Hack: OBS adds a new version in debian/changelog. We want to
 	# preserve that, but most of the rules read from the master
@@ -129,11 +131,14 @@ clean: debian/control
 	cp $(DEBIAN)/copyright debian/copyright
 
 	# If we have a reconstruct script use it.
-	[ -f $(DEBIAN)/reconstruct ] && bash -x $(DEBIAN)/reconstruct
+	[ -f $(DEBIAN)/reconstruct ] && bash $(DEBIAN)/reconstruct
+
+	# Remove generated intermediate files
+	rm -f $(DROOT)/control.stub $(DEBIAN)/control.stub \
+		$(DEBIAN)/d-i/kernel-versions
 
 distclean: clean
-	rm -rf $(DROOT)/control $(DROOT)/control.stub $(DEBIAN)/control.stub \
-		$(DEBIAN)/d-i/kernel-versions debian/changelog \
+	rm -rf $(DROOT)/control debian/changelog \
 		debian/control debian/control.stub debian/copyright
 
 # Builds the image, arch headers and debug packages

@@ -20,14 +20,13 @@
 #include <linux/sched.h>
 
 #include "label.h"
-#include "policy.h"
+#include "policy_ns.h"
 
-#define cred_cxt(X) (X)->security
-#define current_cxt() cred_cxt(current_cred())
-#define current_ns() labels_ns(aa_current_raw_label())
+#define cred_ctx(X) (X)->security
+#define current_ctx() cred_ctx(current_cred())
 
 /**
- * struct aa_task_cxt - primary label for confined tasks
+ * struct aa_task_ctx - primary label for confined tasks
  * @label: the current label   (NOT NULL)
  * @exec: label to transition to on next exec  (MAYBE NULL)
  * @previous: label the task may return to     (MAYBE NULL)
@@ -38,19 +37,19 @@
  *
  * TODO: make so a task can be confined by a stack of contexts
  */
-struct aa_task_cxt {
+struct aa_task_ctx {
 	struct aa_label *label;
 	struct aa_label *onexec;
 	struct aa_label *previous;
 	u64 token;
 };
 
-struct aa_task_cxt *aa_alloc_task_context(gfp_t flags);
-void aa_free_task_context(struct aa_task_cxt *cxt);
-void aa_dup_task_context(struct aa_task_cxt *new,
-			 const struct aa_task_cxt *old);
+struct aa_task_ctx *aa_alloc_task_context(gfp_t flags);
+void aa_free_task_context(struct aa_task_ctx *ctx);
+void aa_dup_task_context(struct aa_task_ctx *new,
+			 const struct aa_task_ctx *old);
 int aa_replace_current_label(struct aa_label *label);
-int aa_set_current_onexec(struct aa_label *label);
+int aa_set_current_onexec(struct aa_label *label, bool stack);
 int aa_set_current_hat(struct aa_label *label, u64 token);
 int aa_restore_previous_label(u64 cookie);
 struct aa_label *aa_get_task_label(struct task_struct *task);
@@ -66,9 +65,9 @@ struct aa_label *aa_get_task_label(struct task_struct *task);
  */
 static inline struct aa_label *aa_cred_raw_label(const struct cred *cred)
 {
-	struct aa_task_cxt *cxt = cred_cxt(cred);
-	BUG_ON(!cxt || !cxt->label);
-	return cxt->label;
+	struct aa_task_ctx *ctx = cred_ctx(cred);
+	BUG_ON(!ctx || !ctx->label);
+	return ctx->label;
 }
 
 /**
@@ -132,27 +131,9 @@ static inline struct aa_label *aa_get_current_label(void)
 {
 	struct aa_label *l = aa_current_raw_label();
 
-	if (label_invalid(l))
+	if (label_is_stale(l))
 		return aa_get_newest_label(l);
 	return aa_get_label(l);
-}
-
-/**
- * aa_begin_current_label - find newest version of the current tasks label
- *
- * Returns: newest version of confining label (NOT NULL)
- *
- * This fn will not update the tasks cred, so it is safe inside of locks
- *
- * The returned reference must be put with aa_end_current_label()
- */
-static inline struct aa_label *aa_begin_current_label(void)
-{
-	struct aa_label *l = aa_current_raw_label();
-
-	if (label_invalid(l))
-		l = aa_get_newest_label(l);
-	return l;
 }
 
 /**
@@ -169,40 +150,57 @@ static inline void aa_end_current_label(struct aa_label *label)
 }
 
 /**
- * aa_current_label - find the current tasks confining label and update it
+ * aa_begin_current_label - find the current tasks confining label and update it
+ * @update: whether the current label can be updated
  *
  * Returns: up to date confining label or the ns unconfined label (NOT NULL)
  *
- * This fn will update the tasks cred structure if the label has been
- * replaced.  Not safe to call inside locks
+ * If @update is true this fn will update the tasks cred structure if the
+ *   label has been replaced.  Not safe to call inside locks
+ * else
+ *   just return the up to date label
+ *
+ * The returned reference must be put with aa_end_current_label()
+ * This must NOT be used if the task cred could be updated within the
+ * critical section between aa_begin_current_label() .. aa_end_current_label()
  */
-static inline struct aa_label *aa_current_label(void)
+static inline struct aa_label *aa_begin_current_label(bool update)
 {
-	const struct aa_task_cxt *cxt = current_cxt();
-	struct aa_label *label;
-	BUG_ON(!cxt || !cxt->label);
+	struct aa_label *label = aa_current_raw_label();
 
-	if (label_invalid(cxt->label)) {
-		label = aa_get_newest_label(cxt->label);
-		aa_replace_current_label(label);
-		aa_put_label(label);
-		cxt = current_cxt();
+	if (label_is_stale(label)) {
+		label = aa_get_newest_label(label);
+		if (update && aa_replace_current_label(label) == 0)
+			/* task cred will keep the reference */
+			aa_put_label(label);
 	}
 
-	return cxt->label;
+	return label;
+}
+
+#define NO_UPDATE false
+#define DO_UPDATE true
+
+static inline struct aa_ns *aa_get_current_ns(void)
+{
+	struct aa_label *label = aa_begin_current_label(NO_UPDATE);
+	struct aa_ns *ns = aa_get_ns(labels_ns(label));
+	aa_end_current_label(label);
+
+	return ns;
 }
 
 /**
- * aa_clear_task_cxt_trans - clear transition tracking info from the cxt
- * @cxt: task context to clear (NOT NULL)
+ * aa_clear_task_ctx_trans - clear transition tracking info from the ctx
+ * @ctx: task context to clear (NOT NULL)
  */
-static inline void aa_clear_task_cxt_trans(struct aa_task_cxt *cxt)
+static inline void aa_clear_task_ctx_trans(struct aa_task_ctx *ctx)
 {
-	aa_put_label(cxt->previous);
-	aa_put_label(cxt->onexec);
-	cxt->previous = NULL;
-	cxt->onexec = NULL;
-	cxt->token = 0;
+	aa_put_label(ctx->previous);
+	aa_put_label(ctx->onexec);
+	ctx->previous = NULL;
+	ctx->onexec = NULL;
+	ctx->token = 0;
 }
 
 #endif /* __AA_CONTEXT_H */

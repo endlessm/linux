@@ -76,6 +76,7 @@
 #include <linux/slab.h>
 #include <linux/spinlock.h>
 #include <linux/string.h>
+#include <linux/user_namespace.h>
 
 #include "include/apparmor.h"
 #include "include/capability.h"
@@ -89,9 +90,7 @@
 #include "include/policy_unpack.h"
 #include "include/resource.h"
 
-
-/* root profile namespace */
-struct aa_namespace *root_ns;
+int unprivileged_userns_apparmor_policy = 0;
 
 /* Note: mode names must be unique in the first character because of
  *       modechrs used to print modes on compound labels on some interfaces
@@ -103,353 +102,6 @@ const char *const aa_profile_mode_names[] = {
 	"unconfined",
 };
 
-/**
- * hname_tail - find the last component of an hname
- * @name: hname to find the base profile name component of  (NOT NULL)
- *
- * Returns: the tail (base profile name) name component of an hname
- */
-static const char *hname_tail(const char *hname)
-{
-	char *split;
-	hname = strim((char *)hname);
-	for (split = strstr(hname, "//"); split; split = strstr(hname, "//"))
-		hname = split + 2;
-
-	return hname;
-}
-
-/**
- * policy_init - initialize a policy structure
- * @policy: policy to initialize  (NOT NULL)
- * @prefix: prefix name if any is required.  (MAYBE NULL)
- * @name: name of the policy, init will make a copy of it  (NOT NULL)
- *
- * Note: this fn creates a copy of strings passed in
- *
- * Returns: true if policy init successful
- */
-static bool policy_init(struct aa_policy *policy, const char *prefix,
-			const char *name)
-{
-	char *hname;
-
-	/* freed by policy_free */
-	if (prefix) {
-		hname = aa_str_alloc(strlen(prefix) + strlen(name) + 3,
-				     GFP_KERNEL);
-		if (hname)
-			sprintf(hname, "%s//%s", prefix, name);
-	} else {
-		hname = aa_str_alloc(strlen(name) + 1, GFP_KERNEL);
-		if (hname)
-			strcpy(hname, name);
-	}
-	if (!hname)
-		return 0;
-	policy->hname = hname;
-	/* base.name is a substring of fqname */
-	policy->name = (char *)hname_tail(policy->hname);
-	INIT_LIST_HEAD(&policy->list);
-	INIT_LIST_HEAD(&policy->profiles);
-
-	return 1;
-}
-
-/**
- * policy_destroy - free the elements referenced by @policy
- * @policy: policy that is to have its elements freed  (NOT NULL)
- */
-static void policy_destroy(struct aa_policy *policy)
-{
-	/* still contains profiles -- invalid */
-	if (on_list_rcu(&policy->profiles)) {
-		AA_ERROR("%s: internal error, "
-			 "policy '%s' still contains profiles\n",
-			 __func__, policy->name);
-		BUG();
-	}
-	if (on_list_rcu(&policy->list)) {
-		AA_ERROR("%s: internal error, policy '%s' still on list\n",
-			 __func__, policy->name);
-		BUG();
-	}
-
-	/* don't free name as its a subset of hname */
-	aa_put_str(policy->hname);
-}
-
-/**
- * __policy_find - find a policy by @name on a policy list
- * @head: list to search  (NOT NULL)
- * @name: name to search for  (NOT NULL)
- *
- * Requires: rcu_read_lock be held
- *
- * Returns: unrefcounted policy that match @name or NULL if not found
- */
-static struct aa_policy *__policy_find(struct list_head *head, const char *name)
-{
-	struct aa_policy *policy;
-
-	list_for_each_entry_rcu(policy, head, list) {
-		if (!strcmp(policy->name, name))
-			return policy;
-	}
-	return NULL;
-}
-
-/**
- * __policy_strn_find - find a policy that's name matches @len chars of @str
- * @head: list to search  (NOT NULL)
- * @str: string to search for  (NOT NULL)
- * @len: length of match required
- *
- * Requires: rcu_read_lock be held
- *
- * Returns: unrefcounted policy that match @str or NULL if not found
- *
- * if @len == strlen(@strlen) then this is equiv to __policy_find
- * other wise it allows searching for policy by a partial match of name
- */
-static struct aa_policy *__policy_strn_find(struct list_head *head,
-					    const char *str, int len)
-{
-	struct aa_policy *policy;
-
-	list_for_each_entry_rcu(policy, head, list) {
-		if (aa_strneq(policy->name, str, len))
-			return policy;
-	}
-
-	return NULL;
-}
-
-/*
- * Routines for AppArmor namespaces
- */
-
-const char *aa_hidden_ns_name = "---";
-/**
- * aa_ns_visible - test if @view is visible from @curr
- * @curr: namespace to treat as the parent (NOT NULL)
- * @view:  namespace to test if visible from @curr (NOT NULL)
- *
- * Returns: true if @view is visible from @curr else false
- */
-bool aa_ns_visible(struct aa_namespace *curr, struct aa_namespace *view)
-{
-	if (curr == view)
-		return true;
-
-	for ( ; view; view = view->parent) {
-		if (view->parent == curr)
-			return true;
-	}
-	return false;
-}
-
-/**
- * aa_na_name - Find the ns name to display for @view from @curr
- * @curr - current namespace (NOT NULL)
- * @view - namespace attempting to view (NOT NULL)
- *
- * Returns: name of @view visible from @curr
- */
-const char *aa_ns_name(struct aa_namespace *curr, struct aa_namespace *view)
-{
-	/* if view == curr then the namespace name isn't displayed */
-	if (curr == view)
-		return "";
-
-	if (aa_ns_visible(curr, view)) {
-		/* at this point if a ns is visible it is in a view ns
-		 * thus the curr ns.hname is a prefix of its name.
-		 * Only output the virtualized portion of the name
-		 * Add + 2 to skip over // separating curr hname prefix
-		 * from the visible tail of the views hname
-		 */
-		return view->base.hname + strlen(curr->base.hname) + 2;
-	} else
-		return aa_hidden_ns_name;
-}
-
-/**
- * alloc_namespace - allocate, initialize and return a new namespace
- * @prefix: parent namespace name (MAYBE NULL)
- * @name: a preallocated name  (NOT NULL)
- *
- * Returns: refcounted namespace or NULL on failure.
- */
-static struct aa_namespace *alloc_namespace(const char *prefix,
-					    const char *name)
-{
-	struct aa_namespace *ns;
-
-	ns = kzalloc(sizeof(*ns), GFP_KERNEL);
-	AA_DEBUG("%s(%p)\n", __func__, ns);
-	if (!ns)
-		return NULL;
-	if (!policy_init(&ns->base, prefix, name))
-		goto fail_ns;
-
-	INIT_LIST_HEAD(&ns->sub_ns);
-	mutex_init(&ns->lock);
-
-	/* released by free_namespace */
-	ns->unconfined = aa_alloc_profile("unconfined");
-	if (!ns->unconfined)
-		goto fail_unconfined;
-	ns->unconfined->label.replacedby = aa_alloc_replacedby(NULL);
-	if (!ns->unconfined->label.replacedby)
-		goto fail_replacedby;
-
-	ns->unconfined->label.flags |= FLAG_IX_ON_NAME_ERROR |
-		FLAG_IMMUTIBLE | FLAG_NS_COUNT | FLAG_UNCONFINED;
-	ns->unconfined->mode = APPARMOR_UNCONFINED;
-
-	/* ns and ns->unconfined share ns->unconfined refcount */
-	ns->unconfined->ns = ns;
-
-	atomic_set(&ns->uniq_null, 0);
-
-	aa_labelset_init(&ns->labels);
-
-	return ns;
-
-fail_replacedby:
-	aa_free_profile(ns->unconfined);
-
-fail_unconfined:
-	kzfree(ns->base.hname);
-fail_ns:
-	kzfree(ns);
-	return NULL;
-}
-
-/**
- * aa_free_namespace - free a profile namespace
- * @ns: the namespace to free  (MAYBE NULL)
- *
- * Requires: All references to the namespace must have been put, if the
- *           namespace was referenced by a profile confining a task,
- */
-void aa_free_namespace(struct aa_namespace *ns)
-{
-	if (!ns)
-		return;
-
-	policy_destroy(&ns->base);
-	aa_labelset_destroy(&ns->labels);
-	aa_put_namespace(ns->parent);
-
-	ns->unconfined->ns = NULL;
-	aa_free_profile(ns->unconfined);
-	kzfree(ns);
-}
-
-/**
- * __aa_findn_namespace - find a namespace on a list by @name
- * @head: list to search for namespace on  (NOT NULL)
- * @name: name of namespace to look for  (NOT NULL)
- * @n: length of @name
- * Returns: unrefcounted namespace
- *
- * Requires: rcu_read_lock be held
- */
-static struct aa_namespace *__aa_findn_namespace(struct list_head *head,
-						 const char *name, size_t n)
-{
-	return (struct aa_namespace *)__policy_strn_find(head, name, n);
-}
-
-/**
- * aa_find_namespace  -  look up a profile namespace on the namespace list
- * @root: namespace to search in  (NOT NULL)
- * @name: name of namespace to find  (NOT NULL)
- * @n: length of @name
- *
- * Returns: a refcounted namespace on the list, or NULL if no namespace
- *          called @name exists.
- *
- * refcount released by caller
- */
-struct aa_namespace *aa_findn_namespace(struct aa_namespace *root,
-					const char *name, size_t n)
-{
-	struct aa_namespace *ns = NULL;
-
-	rcu_read_lock();
-	ns = aa_get_namespace(__aa_findn_namespace(&root->sub_ns, name, n));
-	rcu_read_unlock();
-
-	return ns;
-}
-
-/**
- * aa_find_namespace  -  look up a profile namespace on the namespace list
- * @root: namespace to search in  (NOT NULL)
- * @name: name of namespace to find  (NOT NULL)
- *
- * Returns: a refcounted namespace on the list, or NULL if no namespace
- *          called @name exists.
- *
- * refcount released by caller
- */
-struct aa_namespace *aa_find_namespace(struct aa_namespace *root,
-				       const char *name)
-{
-	return aa_findn_namespace(root, name, strlen(name));
-}
-
-/**
- * aa_prepare_namespace - find an existing or create a new namespace of @name
- * @name: the namespace to find or add  (MAYBE NULL)
- *
- * Returns: refcounted namespace or NULL if failed to create one
- */
-static struct aa_namespace *aa_prepare_namespace(const char *name)
-{
-	struct aa_namespace *ns, *root;
-
-	root = labels_ns(aa_current_label());
-
-	mutex_lock(&root->lock);
-
-	/* if name isn't specified the profile is loaded to the current ns */
-	if (!name) {
-		/* released by caller */
-		ns = aa_get_namespace(root);
-		goto out;
-	}
-
-	/* try and find the specified ns and if it doesn't exist create it */
-	/* released by caller */
-	ns = aa_get_namespace(__aa_findn_namespace(&root->sub_ns, name,
-						   strlen(name)));
-	if (!ns) {
-		ns = alloc_namespace(root->base.hname, name);
-		if (!ns)
-			goto out;
-		if (__aa_fs_namespace_mkdir(ns, ns_subns_dir(root), name)) {
-			AA_ERROR("Failed to create interface for ns %s\n",
-				 ns->base.name);
-			aa_free_namespace(ns);
-			ns = NULL;
-			goto out;
-		}
-		ns->parent = aa_get_namespace(root);
-		ns->level = root->level + 1;
-		list_add_rcu(&ns->base.list, &root->sub_ns);
-		/* add list ref */
-		aa_get_namespace(ns);
-	}
-out:
-	mutex_unlock(&root->lock);
-
-	/* return ref */
-	return ns;
-}
 
 /**
  * __add_profile - add a profiles to list and label tree
@@ -499,7 +151,7 @@ static void __list_remove_profile(struct aa_profile *profile)
 	aa_put_profile(profile);
 }
 
-static void __profile_list_release(struct list_head *head);
+void __aa_profile_list_release(struct list_head *head);
 
 /**
  * __remove_profile - remove old profile, and children
@@ -514,107 +166,24 @@ static void __remove_profile(struct aa_profile *profile)
 	AA_BUG(!mutex_is_locked(&profile->ns->lock));
 
 	/* release any children lists first */
-	__profile_list_release(&profile->base.profiles);
+	__aa_profile_list_release(&profile->base.profiles);
 	/* released by free_profile */
-	aa_label_remove(&profile->ns->labels, &profile->label);
-	__aa_update_replacedby(&profile->label,
-			       &profile->ns->unconfined->label);
+	aa_label_remove(&profile->label);
 	__aa_fs_profile_rmdir(profile);
 	__list_remove_profile(profile);
 }
 
 /**
- * __profile_list_release - remove all profiles on the list and put refs
+ * __aa_profile_list_release - remove all profiles on the list and put refs
  * @head: list of profiles  (NOT NULL)
  *
  * Requires: namespace lock be held
  */
-static void __profile_list_release(struct list_head *head)
+void __aa_profile_list_release(struct list_head *head)
 {
 	struct aa_profile *profile, *tmp;
 	list_for_each_entry_safe(profile, tmp, head, base.list)
 		__remove_profile(profile);
-}
-
-static void __ns_list_release(struct list_head *head);
-
-/**
- * destroy_namespace - remove everything contained by @ns
- * @ns: namespace to have it contents removed  (NOT NULL)
- */
-static void destroy_namespace(struct aa_namespace *ns)
-{
-	if (!ns)
-		return;
-
-	mutex_lock(&ns->lock);
-	/* release all profiles in this namespace */
-	__profile_list_release(&ns->base.profiles);
-
-	/* release all sub namespaces */
-	__ns_list_release(&ns->sub_ns);
-
-	if (ns->parent)
-		__aa_update_replacedby(&ns->unconfined->label,
-				       &ns->parent->unconfined->label);
-	__aa_fs_namespace_rmdir(ns);
-	mutex_unlock(&ns->lock);
-}
-
-/**
- * __remove_namespace - remove a namespace and all its children
- * @ns: namespace to be removed  (NOT NULL)
- *
- * Requires: ns->parent->lock be held and ns removed from parent.
- */
-static void __remove_namespace(struct aa_namespace *ns)
-{
-	/* remove ns from namespace list */
-	list_del_rcu(&ns->base.list);
-	destroy_namespace(ns);
-	aa_put_namespace(ns);
-}
-
-/**
- * __ns_list_release - remove all profile namespaces on the list put refs
- * @head: list of profile namespaces  (NOT NULL)
- *
- * Requires: namespace lock be held
- */
-static void __ns_list_release(struct list_head *head)
-{
-	struct aa_namespace *ns, *tmp;
-	list_for_each_entry_safe(ns, tmp, head, base.list)
-		__remove_namespace(ns);
-
-}
-
-/**
- * aa_alloc_root_ns - allocate the root profile namespace
- *
- * Returns: %0 on success else error
- *
- */
-int __init aa_alloc_root_ns(void)
-{
-	/* released by aa_free_root_ns - used as list ref*/
-	root_ns = alloc_namespace(NULL, "root");
-	if (!root_ns)
-		return -ENOMEM;
-
-	return 0;
-}
-
- /**
-  * aa_free_root_ns - free the root profile namespace
-  */
-void __init aa_free_root_ns(void)
- {
-	 struct aa_namespace *ns = root_ns;
-	 root_ns = NULL;
-
-	 destroy_namespace(ns);
-	 aa_put_namespace(ns);
 }
 
 
@@ -636,10 +205,10 @@ void aa_free_profile(struct aa_profile *profile)
 		return;
 
 	/* free children profiles */
-	policy_destroy(&profile->base);
+	aa_policy_destroy(&profile->base);
 	aa_put_profile(rcu_access_pointer(profile->parent));
 
-	aa_put_namespace(profile->ns);
+	aa_put_ns(profile->ns);
 	kzfree(profile->rename);
 
 	aa_free_file_rules(&profile->file);
@@ -658,42 +227,59 @@ void aa_free_profile(struct aa_profile *profile)
 /**
  * aa_alloc_profile - allocate, initialize and return a new profile
  * @hname: name of the profile  (NOT NULL)
+ * @gfp: allocation type
  *
  * Returns: refcount profile or NULL on failure
  */
-struct aa_profile *aa_alloc_profile(const char *hname)
+struct aa_profile *aa_alloc_profile(const char *hname, struct aa_proxy *proxy,
+				    gfp_t gfp)
 {
 	struct aa_profile *profile;
 
 	/* freed by free_profile - usually through aa_put_profile */
-	profile = kzalloc(sizeof(*profile), GFP_KERNEL);
+	profile = kzalloc(sizeof(*profile) + sizeof (struct aa_profile *) * 2,
+			  gfp);
 	if (!profile)
 		return NULL;
 
-	if (!policy_init(&profile->base, NULL, hname))
+	if (!aa_policy_init(&profile->base, NULL, hname, gfp))
 		goto fail;
 	if (!aa_label_init(&profile->label, 1))
 		goto fail;
+
+	/* update being set needed by fs interface */
+	if (!proxy) {
+		proxy = aa_alloc_proxy(&profile->label, gfp);
+		if (!proxy)
+			goto fail;
+	} else
+		aa_get_proxy(proxy);
+	profile->label.proxy = proxy;
+
 	profile->label.hname = profile->base.hname;
 	profile->label.flags |= FLAG_PROFILE;
-	profile->label.ent[0] = profile;
+	profile->label.vec[0] = profile;
 
 	/* refcount released by caller */
 	return profile;
 
 fail:
-	kzfree(profile);
+	aa_free_profile(profile);
 
 	return NULL;
 }
 
 /**
- * aa_new_null_profile - create a new null-X learning profile
+ * aa_null_profile - create or find a null-X learning profile
  * @parent: profile that caused this profile to be created (NOT NULL)
  * @hat: true if the null- learning profile is a hat
+ * @base: name to base the null profile off of
+ * @gfp: type of allocation
  *
- * Create a null- complain mode profile used in learning mode.  The name of
- * the profile is unique and follows the format of parent//null-<uniq>.
+ * Find/Create a null- complain mode profile used in learning mode.  The
+ * name of the profile is unique and follows the format of parent//null-XXX.
+ * where XXX is based on the @name or if that fails or is not supplied
+ * a unique number
  *
  * null profiles are added to the profile list but the list does not
  * hold a count on them so that they are automatically released when
@@ -701,25 +287,38 @@ fail:
  *
  * Returns: new refcounted profile else NULL on failure
  */
-struct aa_profile *aa_new_null_profile(struct aa_profile *parent, int hat)
+struct aa_profile *aa_null_profile(struct aa_profile *parent, bool hat,
+				   const char *base, gfp_t gfp)
 {
-	struct aa_profile *profile = NULL;
+	struct aa_profile *profile;
 	char *name;
-	int uniq = atomic_inc_return(&parent->ns->uniq_null);
 
-	/* freed below */
-	name = kmalloc(strlen(parent->base.hname) + 2 + 7 + 8, GFP_KERNEL);
+	AA_BUG(!parent);
+
+	if (base) {
+		name = kmalloc(strlen(parent->base.hname) + 8 + strlen(base),
+			       gfp);
+		if (name) {
+			sprintf(name, "%s//null-%s", parent->base.hname, base);
+			goto name;
+		}
+		/* fall through to try shorter uniq */
+	}
+
+	name = kmalloc(strlen(parent->base.hname) + 2 + 7 + 8, gfp);
 	if (!name)
-		goto fail;
-	sprintf(name, "%s//null-%x", parent->base.hname, uniq);
+		return NULL;
+	sprintf(name, "%s//null-%x", parent->base.hname,
+		atomic_inc_return(&parent->ns->uniq_null));
 
-	profile = aa_alloc_profile(name);
-	kfree(name);
+name:
+	/* lookup to see if this is a dup creation */
+	profile = aa_find_child(parent, basename(name));
+	if (profile)
+		goto out;
+
+	profile = aa_alloc_profile(name, NULL, gfp);
 	if (!profile)
-		goto fail;
-
-	profile->label.replacedby = aa_alloc_replacedby(NULL);
-	if (!profile->label.replacedby)
 		goto fail;
 
 	profile->mode = APPARMOR_COMPLAIN;
@@ -729,13 +328,17 @@ struct aa_profile *aa_new_null_profile(struct aa_profile *parent, int hat)
 
 	/* released on free_profile */
 	rcu_assign_pointer(profile->parent, aa_get_profile(parent));
-	profile->ns = aa_get_namespace(parent->ns);
+	profile->ns = aa_get_ns(parent->ns);
+	profile->file.dfa = aa_get_dfa(nulldfa);
+	profile->policy.dfa = aa_get_dfa(nulldfa);
 
 	mutex_lock(&profile->ns->lock);
 	__add_profile(&parent->base.profiles, profile);
 	mutex_unlock(&profile->ns->lock);
 
 	/* refcount released by caller */
+out:
+	kfree(name);
 	return profile;
 
 fail:
@@ -748,7 +351,8 @@ fail:
  */
 struct aa_label *aa_setup_default_label(void)
 {
-	struct aa_profile *profile = aa_alloc_profile("default");
+	struct aa_profile *profile = aa_alloc_profile("default", NULL,
+						      GFP_KERNEL);
 	if (!profile)
 		return NULL;
 
@@ -756,14 +360,8 @@ struct aa_label *aa_setup_default_label(void)
 	profile->label.flags |= FLAG_IX_ON_NAME_ERROR | FLAG_UNCONFINED;
 	profile->mode = APPARMOR_UNCONFINED;
 
-	profile->ns = aa_get_namespace(root_ns);
+	profile->ns = aa_get_ns(root_ns);
 
-	/* replacedby being set needed by fs interface */
-	profile->label.replacedby = aa_alloc_replacedby(&profile->label);
-	if (!profile->label.replacedby) {
-		aa_free_profile(profile);
-		return NULL;
-	}
 	__add_profile(&root_ns->base.profiles, profile);
 
 	return &profile->label;
@@ -813,7 +411,9 @@ struct aa_profile *aa_find_child(struct aa_profile *parent, const char *name)
 	struct aa_profile *profile;
 
 	rcu_read_lock();
-	profile = aa_get_profile(__find_child(&parent->base.profiles, name));
+	do {
+		profile = __find_child(&parent->base.profiles, name);
+	} while (profile && !aa_get_profile_not0(profile));
 	rcu_read_unlock();
 
 	/* refcount released by caller */
@@ -833,8 +433,7 @@ struct aa_profile *aa_find_child(struct aa_profile *parent, const char *name)
  *
  * Returns: unrefcounted policy or NULL if not found
  */
-static struct aa_policy *__lookup_parent(struct aa_namespace *ns,
-					 const char *hname)
+static struct aa_policy *__lookup_parent(struct aa_ns *ns, const char *hname)
 {
 	struct aa_policy *policy;
 	struct aa_profile *profile = NULL;
@@ -872,22 +471,22 @@ static struct aa_profile *__lookupn_profile(struct aa_policy *base,
 					    const char *hname, size_t n)
 {
 	struct aa_profile *profile = NULL;
-	const char *split, *name = hname;
+	const char *split;
 
-	for (split = strstr(hname, "//"); split && (split - hname <= n);) {
-		profile = __strn_find_child(&base->profiles, name,
-					    split - name);
+	for (split = strnstr(hname, "//", n); split;
+	     split = strnstr(hname, "//", n)) {
+		profile = __strn_find_child(&base->profiles, hname,
+					    split - hname);
 		if (!profile)
 			return NULL;
 
 		base = &profile->base;
-		name = split + 2;
-		split = strstr(name, "//");
+		n -= split + 2 - hname;
+		hname = split + 2;
 	}
 
-	if (name - hname <= n)
-		return __strn_find_child(&base->profiles, name,
-					 n - (name - hname));
+	if (n)
+		return __strn_find_child(&base->profiles, hname, n);
 	return NULL;
 }
 
@@ -905,8 +504,8 @@ static struct aa_profile *__lookup_profile(struct aa_policy *base,
  *
  * Returns: refcounted profile or NULL if not found
  */
-struct aa_profile *aa_lookupn_profile(struct aa_namespace *ns,
-				      const char *hname, size_t n)
+struct aa_profile *aa_lookupn_profile(struct aa_ns *ns, const char *hname,
+				      size_t n)
 {
 	struct aa_profile *profile;
 
@@ -924,28 +523,35 @@ struct aa_profile *aa_lookupn_profile(struct aa_namespace *ns,
 	return profile;
 }
 
-struct aa_profile *aa_lookup_profile(struct aa_namespace *ns, const char *hname)
+struct aa_profile *aa_lookup_profile(struct aa_ns *ns, const char *hname)
 {
 	return aa_lookupn_profile(ns, hname, strlen(hname));
 }
 
-struct aa_profile *aa_fqlookupn_profile(struct aa_label *base, char *fqname,
-					size_t n)
+struct aa_profile *aa_fqlookupn_profile(struct aa_label *base,
+					const char *fqname, size_t n)
 {
 	struct aa_profile *profile;
-	struct aa_namespace *ns;
-	char *name, *ns_name;
+	struct aa_ns *ns;
+	const char *name, *ns_name;
 	size_t ns_len;
 
 	name = aa_splitn_fqname(fqname, n, &ns_name, &ns_len);
 	if (ns_name) {
-		ns = aa_findn_namespace(labels_ns(base), ns_name, ns_len);
+		ns = aa_findn_ns(labels_ns(base), ns_name, ns_len);
 		if (!ns)
 			return NULL;
 	} else
-		ns = aa_get_namespace(labels_ns(base));
-	profile = aa_lookupn_profile(ns, name, n - (name - fqname));
-	aa_put_namespace(ns);
+		ns = aa_get_ns(labels_ns(base));
+
+	if (name)
+		profile = aa_lookupn_profile(ns, name, n - (name - fqname));
+	else if (ns)
+		/* default profile for ns, currently unconfined */
+		profile = aa_get_newest_profile(ns->unconfined);
+	else
+		profile = NULL;
+	aa_put_ns(ns);
 
        return profile;
 }
@@ -973,54 +579,113 @@ static int replacement_allowed(struct aa_profile *profile, int noreplace,
 	return 0;
 }
 
+/* audit callback for net specific fields */
+static void audit_cb(struct audit_buffer *ab, void *va)
+{
+	struct common_audit_data *sa = va;
+
+	if (aad(sa)->iface.ns) {
+		audit_log_format(ab, " ns=");
+		audit_log_untrustedstring(ab, aad(sa)->iface.ns);
+	}
+}
+
 /**
- * aa_audit_policy - Do auditing of policy changes
+ * audit_policy - Do auditing of policy changes
+ * @label: label to check if it can manage policy
  * @op: policy operation being performed
- * @name: name of profile being manipulated (NOT NULL)
+ * @profile: name of profile being manipulated (NOT NULL)
  * @info: any extra information to be audited (MAYBE NULL)
  * @error: error code
  *
  * Returns: the error to be returned after audit is done
  */
-static int audit_policy(int op, const char *name, const char *info,
-			int error)
+static int audit_policy(struct aa_label *label, const char *op,
+			const char *ns_name, const char *name,
+			const char *info, int error)
 {
 	DEFINE_AUDIT_DATA(sa, LSM_AUDIT_DATA_NONE, op);
 	//	aad(&sa)->op = op;
+	aad(&sa)->iface.ns = ns_name;
 	aad(&sa)->name = name;
 	aad(&sa)->info = info;
 	aad(&sa)->error = error;
+	aad(&sa)->label = label;
+	
+	aa_audit_msg(AUDIT_APPARMOR_STATUS, &sa, audit_cb);
 
-	return aa_audit(AUDIT_APPARMOR_STATUS,
-			labels_profile(aa_current_raw_label()), &sa, NULL);
+	return error;
+}
+
+bool policy_admin_capable(void)
+{
+	struct user_namespace *user_ns = current_user_ns();
+	struct aa_ns *ns = aa_get_current_ns();
+	bool response = false;
+
+	if (ns_capable(user_ns, CAP_MAC_ADMIN) &&
+	    (user_ns == &init_user_ns ||
+	     (unprivileged_userns_apparmor_policy != 0 &&
+	      user_ns->level == 1 && ns != root_ns)))
+		response = true;
+	aa_put_ns(ns);
+
+	return response;
+}
+
+bool aa_may_open_profiles(void)
+{
+	struct user_namespace *user_ns = current_user_ns();
+	struct aa_ns *ns = aa_get_current_ns();
+	bool root_in_user_ns = uid_eq(current_euid(), make_kuid(user_ns, 0)) ||
+			       in_egroup_p(make_kgid(user_ns, 0));
+	bool response = false;
+
+	if (root_in_user_ns &&
+	    (user_ns == &init_user_ns ||
+	     (unprivileged_userns_apparmor_policy != 0 &&
+	      user_ns->level == 1 && ns != root_ns)))
+		response = true;
+	aa_put_ns(ns);
+
+	return response;
 }
 
 /**
  * aa_may_manage_policy - can the current task manage policy
+ * @label: label to check if it can manage policy
  * @op: the policy manipulation operation being done
  *
- * Returns: true if the task is allowed to manipulate policy
+ * Returns: 0 if the task is allowed to manipulate policy else error
  */
-bool aa_may_manage_policy(int op)
+int aa_may_manage_policy(struct aa_label *label, u32 mask)
 {
+	const char *op;
+
+	if (mask & AA_MAY_REMOVE_POLICY)
+		op = OP_PROF_RM;
+	else if (mask & AA_MAY_REPLACE_POLICY)
+		op = OP_PROF_REPL;
+	else
+		op = OP_PROF_LOAD;
+
 	/* check if loading policy is locked out */
-	if (aa_g_lock_policy) {
-		audit_policy(op, NULL, "policy_locked", -EACCES);
-		return 0;
-	}
+	if (aa_g_lock_policy)
+		return audit_policy(label, op, NULL, NULL, "policy_locked",
+				    -EACCES);
 
-	if (!capable(CAP_MAC_ADMIN)) {
-		audit_policy(op, NULL, "not policy admin", -EACCES);
-		return 0;
-	}
+	if (!policy_admin_capable())
+		return audit_policy(label, op, NULL, NULL, "not policy admin",
+				    -EACCES);
 
-	return 1;
+	/* TODO: add fine grained mediation of policy loads */
+	return 0;
 }
 
 static struct aa_profile *__list_lookup_parent(struct list_head *lh,
 					       struct aa_profile *profile)
 {
-	const char *base = hname_tail(profile->base.hname);
+	const char *base = basename(profile->base.hname);
 	long len = base - profile->base.hname;
 	struct aa_load_ent *ent;
 
@@ -1044,7 +709,6 @@ static struct aa_profile *__list_lookup_parent(struct list_head *lh,
  * __replace_profile - replace @old with @new on a list
  * @old: profile to be replaced  (NOT NULL)
  * @new: profile to replace @old with  (NOT NULL)
- * @share_replacedby: transfer @old->replacedby to @new
  *
  * Will duplicate and refcount elements that @new inherits from @old
  * and will inherit @old children.
@@ -1053,8 +717,7 @@ static struct aa_profile *__list_lookup_parent(struct list_head *lh,
  *
  * Requires: namespace list lock be held, or list not be shared
  */
-static void __replace_profile(struct aa_profile *old, struct aa_profile *new,
-			      bool share_replacedby)
+static void __replace_profile(struct aa_profile *old, struct aa_profile *new)
 {
 	struct aa_profile *child, *tmp;
 
@@ -1069,7 +732,7 @@ static void __replace_profile(struct aa_profile *old, struct aa_profile *new,
 			p = __find_child(&new->base.profiles, child->base.name);
 			if (p) {
 				/* @p replaces @child  */
-				__replace_profile(child, p, share_replacedby);
+				__replace_profile(child, p);
 				continue;
 			}
 
@@ -1087,13 +750,8 @@ static void __replace_profile(struct aa_profile *old, struct aa_profile *new,
 		struct aa_profile *parent = aa_deref_parent(old);
 		rcu_assign_pointer(new->parent, aa_get_profile(parent));
 	}
-	__aa_update_replacedby(&old->label, &new->label);
-	if (share_replacedby)
-		new->label.replacedby = aa_get_replacedby(old->label.replacedby);
-	else if (!rcu_access_pointer(new->label.replacedby->label))
-		/* aafs interface uses replacedby */
-		rcu_assign_pointer(new->label.replacedby->label,
-				   aa_get_label(&new->label));
+	aa_label_replace(&old->label, &new->label);
+	/* migrate dents must come after label replacement b/c update */
 	__aa_fs_profile_migrate_dents(old, new);
 
 	if (list_empty(&new->base.list)) {
@@ -1115,7 +773,7 @@ static void __replace_profile(struct aa_profile *old, struct aa_profile *new,
  *
  * Returns: profile to replace (no ref) on success else ptr error
  */
-static int __lookup_replace(struct aa_namespace *ns, const char *hname,
+static int __lookup_replace(struct aa_ns *ns, const char *hname,
 			    bool noreplace, struct aa_profile **p,
 			    const char **info)
 {
@@ -1162,23 +820,26 @@ static struct aa_profile *update_to_newest_parent(struct aa_profile *new)
 
 /**
  * aa_replace_profiles - replace profile(s) on the profile list
+ * @label: label that is attempting to load/replace policy
+ * @mask: permission mask
  * @udata: serialized data stream  (NOT NULL)
  * @size: size of the serialized data stream
- * @noreplace: true if only doing addition, no replacement allowed
  *
  * unpack and replace a profile on the profile list and uses of that profile
- * by any aa_task_cxt.  If the profile does not exist on the profile list
+ * by any aa_task_ctx.  If the profile does not exist on the profile list
  * it is added.
  *
  * Returns: size of data consumed else error code on failure.
  */
-ssize_t aa_replace_profiles(void *udata, size_t size, bool noreplace)
+ssize_t aa_replace_profiles(struct aa_label *label, u32 mask, void *udata,
+			    size_t size)
 {
 	const char *ns_name, *name = NULL, *info = NULL;
-	struct aa_namespace *ns = NULL;
+	struct aa_ns *ns = NULL;
 	struct aa_load_ent *ent, *tmp;
-	int op = OP_PROF_REPL;
-	ssize_t error;
+	const char *op = mask & AA_MAY_REPLACE_POLICY ? OP_PROF_REPL : OP_PROF_LOAD;
+	ssize_t count, error;
+
 	LIST_HEAD(lh);
 
 	/* released below */
@@ -1186,14 +847,39 @@ ssize_t aa_replace_profiles(void *udata, size_t size, bool noreplace)
 	if (error)
 		goto out;
 
-	/* released below */
-	ns = aa_prepare_namespace(ns_name);
-	if (!ns) {
-		info = "failed to prepare namespace";
-		error = -ENOMEM;
-		name = ns_name;
-		goto fail;
+	/* ensure that profiles are all for the same ns
+	 * TODO: update locking to remove this constaint. All profiles in
+	 *       the load set must succeed as a set or the load will
+	 *       fail. Sort ent list and take ns locks in hierarchy order
+	 */
+	count = 0;
+	list_for_each_entry(ent, &lh, list) {
+		if (ns_name) {
+			if (ent->ns_name &&
+			    strcmp(ent->ns_name, ns_name) != 0) {
+				info = "policy load has mixed namespaces";
+				error = -EACCES;
+				goto fail;
+			}
+		} else if (ent->ns_name) {
+			if (count) {
+				info = "policy load has mixed namespaces";
+				error = -EACCES;
+				goto fail;
+			}
+			ns_name = ent->ns_name;
+		} else
+			count++;
 	}
+	if (ns_name) {
+		ns = aa_prepare_ns(labels_ns(label), ns_name);
+		if (!ns) {
+			info = "failed to prepare namespace";
+			error = -ENOMEM;
+			goto fail;
+		}
+	} else
+		ns = aa_get_ns(labels_ns(label));
 
 	mutex_lock(&ns->lock);
 	/* setup parent and ns info */
@@ -1201,21 +887,22 @@ ssize_t aa_replace_profiles(void *udata, size_t size, bool noreplace)
 		struct aa_policy *policy;
 
 		name = ent->new->base.hname;
-		error = __lookup_replace(ns, ent->new->base.hname, noreplace,
+		error = __lookup_replace(ns, ent->new->base.hname,
+					 !(mask & AA_MAY_REPLACE_POLICY),
 					 &ent->old, &info);
 		if (error)
 			goto fail_lock;
 
 		if (ent->new->rename) {
 			error = __lookup_replace(ns, ent->new->rename,
-						 noreplace, &ent->rename,
-						 &info);
+						!(mask & AA_MAY_REPLACE_POLICY),
+						&ent->rename, &info);
 			if (error)
 				goto fail_lock;
 		}
 
 		/* released when @new is freed */
-		ent->new->ns = aa_get_namespace(ns);
+		ent->new->ns = aa_get_ns(ns);
 
 		if (ent->old || ent->rename)
 			continue;
@@ -1241,24 +928,8 @@ ssize_t aa_replace_profiles(void *udata, size_t size, bool noreplace)
 
 	/* create new fs entries for introspection if needed */
 	list_for_each_entry(ent, &lh, list) {
-		struct aa_replacedby *r;
-		if (ent->old) {
-			/* inherit old interface files */
-
-			/* if (ent->rename)
-				TODO: support rename */
-		/* } else if (ent->rename) {
-			TODO: support rename */
-		} else {
+		if (!ent->old) {
 			struct dentry *parent;
-			r = aa_alloc_replacedby(NULL);
-			if (!r) {
-				info = "failed to create";
-				error = -ENOMEM;
-				goto fail_lock;
-			}
-			ent->new->label.replacedby = r;
-
 			if (rcu_access_pointer(ent->new->parent)) {
 				struct aa_profile *p;
 				p = aa_deref_parent(ent->new);
@@ -1279,23 +950,16 @@ ssize_t aa_replace_profiles(void *udata, size_t size, bool noreplace)
 		list_del_init(&ent->list);
 		op = (!ent->old && !ent->rename) ? OP_PROF_LOAD : OP_PROF_REPL;
 
-		audit_policy(op, ent->new->base.name, NULL, error);
+		audit_policy(label, op, ns_name, ent->new->base.hname, NULL, error);
 
 		if (ent->old) {
 			share_name(ent->old, ent->new);
-			__replace_profile(ent->old, ent->new, 1);
-			aa_label_replace(&ns->labels, &ent->old->label,
-					 &ent->new->label);
-			if (ent->rename) {
-				/* aafs interface uses replacedby */
-				rcu_assign_pointer(ent->new->label.replacedby->label,
-						   aa_get_label(&ent->new->label));
-				__replace_profile(ent->rename, ent->new, 0);
-			}
+			__replace_profile(ent->old, ent->new);
+			if (ent->rename)
+				__replace_profile(ent->rename, ent->new);
 		} else if (ent->rename) {
-			/* aafs interface uses replacedby */
-			rcu_assign_pointer(ent->new->label.replacedby->label,
-					   aa_get_label(&ent->new->label));
+			/* TODO: case not actually supported yet */
+			;
 		} else {
 			struct list_head *lh;
 			if (rcu_access_pointer(ent->new->parent)) {
@@ -1304,19 +968,15 @@ ssize_t aa_replace_profiles(void *udata, size_t size, bool noreplace)
                                lh = &parent->base.profiles;
 			} else
 				lh = &ns->base.profiles;
-
-			/* aafs interface uses replacedby */
-			rcu_assign_pointer(ent->new->label.replacedby->label,
-					   aa_get_label(&ent->new->label));
 			__add_profile(lh, ent->new);
 		}
 		aa_load_ent_free(ent);
 	}
-	__aa_labelset_update_all(ns);
+	__aa_labelset_update_subtree(ns);
 	mutex_unlock(&ns->lock);
 
 out:
-	aa_put_namespace(ns);
+	aa_put_ns(ns);
 
 	if (error)
 		return error;
@@ -1325,7 +985,7 @@ out:
 fail_lock:
 	mutex_unlock(&ns->lock);
 fail:
-	error = audit_policy(op, name, info, error);
+	error = audit_policy(label, op, ns_name, name, info, error);
 
 	list_for_each_entry_safe(ent, tmp, &lh, list) {
 		list_del_init(&ent->list);
@@ -1337,6 +997,7 @@ fail:
 
 /**
  * aa_remove_profiles - remove profile(s) from the system
+ * @label: label attempting to remove policy
  * @fqname: name of the profile or namespace to remove  (NOT NULL)
  * @size: size of the name
  *
@@ -1347,11 +1008,12 @@ fail:
  *
  * Returns: size of data consume else error code if fails
  */
-ssize_t aa_remove_profiles(char *fqname, size_t size)
+ssize_t aa_remove_profiles(struct aa_label *label, char *fqname, size_t size)
 {
-	struct aa_namespace *root, *ns = NULL;
+	struct aa_ns *root = NULL, *ns = NULL;
 	struct aa_profile *profile = NULL;
 	const char *name = fqname, *info = NULL;
+	char *ns_name = NULL;
 	ssize_t error = 0;
 
 	if (*fqname == 0) {
@@ -1360,13 +1022,12 @@ ssize_t aa_remove_profiles(char *fqname, size_t size)
 		goto fail;
 	}
 
-	root = labels_ns(aa_current_label());
+	root = labels_ns(label);
 
 	if (fqname[0] == ':') {
-		char *ns_name;
 		name = aa_split_fqname(fqname, &ns_name);
 		/* released below */
-		ns = aa_find_namespace(root, ns_name);
+		ns = aa_find_ns(root, ns_name);
 		if (!ns) {
 			info = "namespace does not exist";
 			error = -ENOENT;
@@ -1374,12 +1035,12 @@ ssize_t aa_remove_profiles(char *fqname, size_t size)
 		}
 	} else
 		/* released below */
-		ns = aa_get_namespace(root);
+		ns = aa_get_ns(root);
 
 	if (!name) {
 		/* remove namespace - can only happen if fqname[0] == ':' */
 		mutex_lock(&ns->parent->lock);
-		__remove_namespace(ns);
+		__aa_remove_ns(ns);
 		mutex_unlock(&ns->parent->lock);
 	} else {
 		/* remove profile */
@@ -1392,21 +1053,19 @@ ssize_t aa_remove_profiles(char *fqname, size_t size)
 		}
 		name = profile->base.hname;
 		__remove_profile(profile);
-		__aa_labelset_update_all(ns);
+		__aa_labelset_update_subtree(ns);
 		mutex_unlock(&ns->lock);
 	}
 
 	/* don't fail removal if audit fails */
-	(void) audit_policy(OP_PROF_RM, name, info, error);
-	aa_put_namespace(ns);
+	(void) audit_policy(label, OP_PROF_RM, ns_name, name, info, error);
 	aa_put_profile(profile);
 	return size;
 
 fail_ns_lock:
 	mutex_unlock(&ns->lock);
-	aa_put_namespace(ns);
 
 fail:
-	(void) audit_policy(OP_PROF_RM, name, info, error);
+	(void) audit_policy(label, OP_PROF_RM, ns_name, name, info, error);
 	return error;
 }

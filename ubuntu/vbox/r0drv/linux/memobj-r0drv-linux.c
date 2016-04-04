@@ -25,9 +25,9 @@
  */
 
 
-/*******************************************************************************
-*   Header Files                                                               *
-*******************************************************************************/
+/*********************************************************************************************************************************
+*   Header Files                                                                                                                 *
+*********************************************************************************************************************************/
 #include "the-linux-kernel.h"
 
 #include <iprt/memobj.h>
@@ -39,9 +39,9 @@
 #include "internal/memobj.h"
 
 
-/*******************************************************************************
-*   Defined Constants And Macros                                               *
-*******************************************************************************/
+/*********************************************************************************************************************************
+*   Defined Constants And Macros                                                                                                 *
+*********************************************************************************************************************************/
 /* early 2.6 kernels */
 #ifndef PAGE_SHARED_EXEC
 # define PAGE_SHARED_EXEC PAGE_SHARED
@@ -66,9 +66,9 @@
 #endif
 
 
-/*******************************************************************************
-*   Structures and Typedefs                                                    *
-*******************************************************************************/
+/*********************************************************************************************************************************
+*   Structures and Typedefs                                                                                                      *
+*********************************************************************************************************************************/
 /**
  * The Darwin version of the memory object structure.
  */
@@ -547,6 +547,7 @@ static void rtR0MemObjLinuxVUnmap(PRTR0MEMOBJLNX pMemLnx)
 
 DECLHIDDEN(int) rtR0MemObjNativeFree(RTR0MEMOBJ pMem)
 {
+    IPRT_LINUX_SAVE_EFL_AC();
     PRTR0MEMOBJLNX pMemLnx = (PRTR0MEMOBJLNX)pMem;
 
     /*
@@ -625,12 +626,14 @@ DECLHIDDEN(int) rtR0MemObjNativeFree(RTR0MEMOBJ pMem)
             AssertMsgFailed(("enmType=%d\n", pMemLnx->Core.enmType));
             return VERR_INTERNAL_ERROR;
     }
+    IPRT_LINUX_RESTORE_EFL_ONLY_AC();
     return VINF_SUCCESS;
 }
 
 
 DECLHIDDEN(int) rtR0MemObjNativeAllocPage(PPRTR0MEMOBJINTERNAL ppMem, size_t cb, bool fExecutable)
 {
+    IPRT_LINUX_SAVE_EFL_AC();
     PRTR0MEMOBJLNX pMemLnx;
     int rc;
 
@@ -647,6 +650,7 @@ DECLHIDDEN(int) rtR0MemObjNativeAllocPage(PPRTR0MEMOBJINTERNAL ppMem, size_t cb,
         if (RT_SUCCESS(rc))
         {
             *ppMem = &pMemLnx->Core;
+            IPRT_LINUX_RESTORE_EFL_AC();
             return rc;
         }
 
@@ -654,12 +658,14 @@ DECLHIDDEN(int) rtR0MemObjNativeAllocPage(PPRTR0MEMOBJINTERNAL ppMem, size_t cb,
         rtR0MemObjDelete(&pMemLnx->Core);
     }
 
+    IPRT_LINUX_RESTORE_EFL_AC();
     return rc;
 }
 
 
 DECLHIDDEN(int) rtR0MemObjNativeAllocLow(PPRTR0MEMOBJINTERNAL ppMem, size_t cb, bool fExecutable)
 {
+    IPRT_LINUX_SAVE_EFL_AC();
     PRTR0MEMOBJLNX pMemLnx;
     int rc;
 
@@ -687,6 +693,7 @@ DECLHIDDEN(int) rtR0MemObjNativeAllocLow(PPRTR0MEMOBJINTERNAL ppMem, size_t cb, 
         if (RT_SUCCESS(rc))
         {
             *ppMem = &pMemLnx->Core;
+            IPRT_LINUX_RESTORE_EFL_AC();
             return rc;
         }
 
@@ -694,12 +701,14 @@ DECLHIDDEN(int) rtR0MemObjNativeAllocLow(PPRTR0MEMOBJINTERNAL ppMem, size_t cb, 
         rtR0MemObjDelete(&pMemLnx->Core);
     }
 
+    IPRT_LINUX_RESTORE_EFL_AC();
     return rc;
 }
 
 
 DECLHIDDEN(int) rtR0MemObjNativeAllocCont(PPRTR0MEMOBJINTERNAL ppMem, size_t cb, bool fExecutable)
 {
+    IPRT_LINUX_SAVE_EFL_AC();
     PRTR0MEMOBJLNX pMemLnx;
     int rc;
 
@@ -730,6 +739,7 @@ DECLHIDDEN(int) rtR0MemObjNativeAllocCont(PPRTR0MEMOBJINTERNAL ppMem, size_t cb,
 #endif
             pMemLnx->Core.u.Cont.Phys = page_to_phys(pMemLnx->apPages[0]);
             *ppMem = &pMemLnx->Core;
+            IPRT_LINUX_RESTORE_EFL_AC();
             return rc;
         }
 
@@ -737,6 +747,7 @@ DECLHIDDEN(int) rtR0MemObjNativeAllocCont(PPRTR0MEMOBJINTERNAL ppMem, size_t cb,
         rtR0MemObjDelete(&pMemLnx->Core);
     }
 
+    IPRT_LINUX_RESTORE_EFL_AC();
     return rc;
 }
 
@@ -744,7 +755,7 @@ DECLHIDDEN(int) rtR0MemObjNativeAllocCont(PPRTR0MEMOBJINTERNAL ppMem, size_t cb,
 /**
  * Worker for rtR0MemObjLinuxAllocPhysSub that tries one allocation strategy.
  *
- * @returns IPRT status.
+ * @returns IPRT status code.
  * @param   ppMemLnx    Where to
  * @param   enmType     The object type.
  * @param   cb          The size of the allocation.
@@ -796,7 +807,7 @@ static int rtR0MemObjLinuxAllocPhysSub2(PPRTR0MEMOBJINTERNAL ppMem, RTR0MEMOBJTY
 /**
  * Worker for rtR0MemObjNativeAllocPhys and rtR0MemObjNativeAllocPhysNC.
  *
- * @returns IPRT status.
+ * @returns IPRT status code.
  * @param   ppMem       Where to store the memory object pointer on success.
  * @param   enmType     The object type.
  * @param   cb          The size of the allocation.
@@ -808,6 +819,7 @@ static int rtR0MemObjLinuxAllocPhysSub(PPRTR0MEMOBJINTERNAL ppMem, RTR0MEMOBJTYP
                                        size_t cb, size_t uAlignment, RTHCPHYS PhysHighest)
 {
     int rc;
+    IPRT_LINUX_SAVE_EFL_AC();
 
     /*
      * There are two clear cases and that's the <=16MB and anything-goes ones.
@@ -843,6 +855,7 @@ static int rtR0MemObjLinuxAllocPhysSub(PPRTR0MEMOBJINTERNAL ppMem, RTR0MEMOBJTYP
             /* ZONE_DMA: 0-16MB */
             rc = rtR0MemObjLinuxAllocPhysSub2(ppMem, enmType, cb, uAlignment, PhysHighest, GFP_DMA);
     }
+    IPRT_LINUX_RESTORE_EFL_AC();
     return rc;
 }
 
@@ -953,6 +966,8 @@ DECLHIDDEN(int) rtR0MemObjNativeAllocPhysNC(PPRTR0MEMOBJINTERNAL ppMem, size_t c
 
 DECLHIDDEN(int) rtR0MemObjNativeEnterPhys(PPRTR0MEMOBJINTERNAL ppMem, RTHCPHYS Phys, size_t cb, uint32_t uCachePolicy)
 {
+    IPRT_LINUX_SAVE_EFL_AC();
+
     /*
      * All we need to do here is to validate that we can use
      * ioremap on the specified address (32/64-bit dma_addr_t).
@@ -963,19 +978,24 @@ DECLHIDDEN(int) rtR0MemObjNativeEnterPhys(PPRTR0MEMOBJINTERNAL ppMem, RTHCPHYS P
 
     pMemLnx = (PRTR0MEMOBJLNX)rtR0MemObjNew(sizeof(*pMemLnx), RTR0MEMOBJTYPE_PHYS, NULL, cb);
     if (!pMemLnx)
+    {
+        IPRT_LINUX_RESTORE_EFL_AC();
         return VERR_NO_MEMORY;
+    }
 
     pMemLnx->Core.u.Phys.PhysBase = PhysAddr;
     pMemLnx->Core.u.Phys.fAllocated = false;
     pMemLnx->Core.u.Phys.uCachePolicy = uCachePolicy;
     Assert(!pMemLnx->cPages);
     *ppMem = &pMemLnx->Core;
+    IPRT_LINUX_RESTORE_EFL_AC();
     return VINF_SUCCESS;
 }
 
 
 DECLHIDDEN(int) rtR0MemObjNativeLockUser(PPRTR0MEMOBJINTERNAL ppMem, RTR3PTR R3Ptr, size_t cb, uint32_t fAccess, RTR0PROCESS R0Process)
 {
+    IPRT_LINUX_SAVE_EFL_AC();
     const int cPages = cb >> PAGE_SHIFT;
     struct task_struct *pTask = rtR0ProcessToLinuxTask(R0Process);
     struct vm_area_struct **papVMAs;
@@ -996,7 +1016,10 @@ DECLHIDDEN(int) rtR0MemObjNativeLockUser(PPRTR0MEMOBJINTERNAL ppMem, RTR3PTR R3P
      */
     pMemLnx = (PRTR0MEMOBJLNX)rtR0MemObjNew(RT_OFFSETOF(RTR0MEMOBJLNX, apPages[cPages]), RTR0MEMOBJTYPE_LOCK, (void *)R3Ptr, cb);
     if (!pMemLnx)
+    {
+        IPRT_LINUX_RESTORE_EFL_AC();
         return VERR_NO_MEMORY;
+    }
 
     papVMAs = (struct vm_area_struct **)RTMemAlloc(sizeof(*papVMAs) * cPages);
     if (papVMAs)
@@ -1047,6 +1070,7 @@ DECLHIDDEN(int) rtR0MemObjNativeLockUser(PPRTR0MEMOBJINTERNAL ppMem, RTR3PTR R3P
             Assert(!pMemLnx->fMappedToRing0);
             *ppMem = &pMemLnx->Core;
 
+            IPRT_LINUX_RESTORE_EFL_AC();
             return VINF_SUCCESS;
         }
 
@@ -1067,12 +1091,14 @@ DECLHIDDEN(int) rtR0MemObjNativeLockUser(PPRTR0MEMOBJINTERNAL ppMem, RTR3PTR R3P
     }
 
     rtR0MemObjDelete(&pMemLnx->Core);
+    IPRT_LINUX_RESTORE_EFL_AC();
     return rc;
 }
 
 
 DECLHIDDEN(int) rtR0MemObjNativeLockKernel(PPRTR0MEMOBJINTERNAL ppMem, void *pv, size_t cb, uint32_t fAccess)
 {
+    IPRT_LINUX_SAVE_EFL_AC();
     void           *pvLast = (uint8_t *)pv + cb - 1;
     size_t const    cPages = cb >> PAGE_SHIFT;
     PRTR0MEMOBJLNX  pMemLnx;
@@ -1105,7 +1131,10 @@ DECLHIDDEN(int) rtR0MemObjNativeLockKernel(PPRTR0MEMOBJINTERNAL ppMem, void *pv,
      */
     pMemLnx = (PRTR0MEMOBJLNX)rtR0MemObjNew(RT_OFFSETOF(RTR0MEMOBJLNX, apPages[cPages]), RTR0MEMOBJTYPE_LOCK, pv, cb);
     if (!pMemLnx)
+    {
+        IPRT_LINUX_RESTORE_EFL_AC();
         return VERR_NO_MEMORY;
+    }
 
     /*
      * Gather the pages.
@@ -1146,10 +1175,12 @@ DECLHIDDEN(int) rtR0MemObjNativeLockKernel(PPRTR0MEMOBJINTERNAL ppMem, void *pv,
         Assert(!pMemLnx->fMappedToRing0);
         *ppMem = &pMemLnx->Core;
 
+        IPRT_LINUX_RESTORE_EFL_AC();
         return VINF_SUCCESS;
     }
 
     rtR0MemObjDelete(&pMemLnx->Core);
+    IPRT_LINUX_RESTORE_EFL_AC();
     return rc;
 }
 
@@ -1157,6 +1188,7 @@ DECLHIDDEN(int) rtR0MemObjNativeLockKernel(PPRTR0MEMOBJINTERNAL ppMem, void *pv,
 DECLHIDDEN(int) rtR0MemObjNativeReserveKernel(PPRTR0MEMOBJINTERNAL ppMem, void *pvFixed, size_t cb, size_t uAlignment)
 {
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(2, 4, 22)
+    IPRT_LINUX_SAVE_EFL_AC();
     const size_t cPages = cb >> PAGE_SHIFT;
     struct page *pDummyPage;
     struct page **papPages;
@@ -1171,36 +1203,39 @@ DECLHIDDEN(int) rtR0MemObjNativeReserveKernel(PPRTR0MEMOBJINTERNAL ppMem, void *
      * the dummy page is mapped all over the reserved area.
      */
     pDummyPage = alloc_page(GFP_HIGHUSER | __GFP_NOWARN);
-    if (!pDummyPage)
-        return VERR_NO_MEMORY;
-    papPages = RTMemAlloc(sizeof(*papPages) * cPages);
-    if (papPages)
+    if (pDummyPage)
     {
-        void *pv;
-        size_t iPage = cPages;
-        while (iPage-- > 0)
-            papPages[iPage] = pDummyPage;
-# ifdef VM_MAP
-        pv = vmap(papPages, cPages, VM_MAP, PAGE_KERNEL_RO);
-# else
-        pv = vmap(papPages, cPages, VM_ALLOC, PAGE_KERNEL_RO);
-# endif
-        RTMemFree(papPages);
-        if (pv)
+        papPages = RTMemAlloc(sizeof(*papPages) * cPages);
+        if (papPages)
         {
-            PRTR0MEMOBJLNX pMemLnx = (PRTR0MEMOBJLNX)rtR0MemObjNew(sizeof(*pMemLnx), RTR0MEMOBJTYPE_RES_VIRT, pv, cb);
-            if (pMemLnx)
+            void *pv;
+            size_t iPage = cPages;
+            while (iPage-- > 0)
+                papPages[iPage] = pDummyPage;
+# ifdef VM_MAP
+            pv = vmap(papPages, cPages, VM_MAP, PAGE_KERNEL_RO);
+# else
+            pv = vmap(papPages, cPages, VM_ALLOC, PAGE_KERNEL_RO);
+# endif
+            RTMemFree(papPages);
+            if (pv)
             {
-                pMemLnx->Core.u.ResVirt.R0Process = NIL_RTR0PROCESS;
-                pMemLnx->cPages = 1;
-                pMemLnx->apPages[0] = pDummyPage;
-                *ppMem = &pMemLnx->Core;
-                return VINF_SUCCESS;
+                PRTR0MEMOBJLNX pMemLnx = (PRTR0MEMOBJLNX)rtR0MemObjNew(sizeof(*pMemLnx), RTR0MEMOBJTYPE_RES_VIRT, pv, cb);
+                if (pMemLnx)
+                {
+                    pMemLnx->Core.u.ResVirt.R0Process = NIL_RTR0PROCESS;
+                    pMemLnx->cPages = 1;
+                    pMemLnx->apPages[0] = pDummyPage;
+                    *ppMem = &pMemLnx->Core;
+                    IPRT_LINUX_RESTORE_EFL_AC();
+                    return VINF_SUCCESS;
+                }
+                vunmap(pv);
             }
-            vunmap(pv);
         }
+        __free_page(pDummyPage);
     }
-    __free_page(pDummyPage);
+    IPRT_LINUX_RESTORE_EFL_AC();
     return VERR_NO_MEMORY;
 
 #else   /* < 2.4.22 */
@@ -1215,6 +1250,7 @@ DECLHIDDEN(int) rtR0MemObjNativeReserveKernel(PPRTR0MEMOBJINTERNAL ppMem, void *
 
 DECLHIDDEN(int) rtR0MemObjNativeReserveUser(PPRTR0MEMOBJINTERNAL ppMem, RTR3PTR R3PtrFixed, size_t cb, size_t uAlignment, RTR0PROCESS R0Process)
 {
+    IPRT_LINUX_SAVE_EFL_AC();
     PRTR0MEMOBJLNX      pMemLnx;
     void               *pv;
     struct task_struct *pTask = rtR0ProcessToLinuxTask(R0Process);
@@ -1232,17 +1268,22 @@ DECLHIDDEN(int) rtR0MemObjNativeReserveUser(PPRTR0MEMOBJINTERNAL ppMem, RTR3PTR 
      */
     pv = rtR0MemObjLinuxDoMmap(R3PtrFixed, cb, uAlignment, pTask, RTMEM_PROT_NONE);
     if (pv == (void *)-1)
+    {
+        IPRT_LINUX_RESTORE_EFL_AC();
         return VERR_NO_MEMORY;
+    }
 
     pMemLnx = (PRTR0MEMOBJLNX)rtR0MemObjNew(sizeof(*pMemLnx), RTR0MEMOBJTYPE_RES_VIRT, pv, cb);
     if (!pMemLnx)
     {
         rtR0MemObjLinuxDoMunmap(pv, cb, pTask);
+        IPRT_LINUX_RESTORE_EFL_AC();
         return VERR_NO_MEMORY;
     }
 
     pMemLnx->Core.u.ResVirt.R0Process = R0Process;
     *ppMem = &pMemLnx->Core;
+    IPRT_LINUX_RESTORE_EFL_AC();
     return VINF_SUCCESS;
 }
 
@@ -1254,6 +1295,7 @@ DECLHIDDEN(int) rtR0MemObjNativeMapKernel(PPRTR0MEMOBJINTERNAL ppMem, RTR0MEMOBJ
     int rc = VERR_NO_MEMORY;
     PRTR0MEMOBJLNX pMemLnxToMap = (PRTR0MEMOBJLNX)pMemToMap;
     PRTR0MEMOBJLNX pMemLnx;
+    IPRT_LINUX_SAVE_EFL_AC();
 
     /* Fail if requested to do something we can't. */
     AssertMsgReturn(!offSub && !cbSub, ("%#x %#x\n", offSub, cbSub), VERR_NOT_SUPPORTED);
@@ -1325,11 +1367,13 @@ DECLHIDDEN(int) rtR0MemObjNativeMapKernel(PPRTR0MEMOBJINTERNAL ppMem, RTR0MEMOBJ
         {
             pMemLnx->Core.u.Mapping.R0Process = NIL_RTR0PROCESS;
             *ppMem = &pMemLnx->Core;
+            IPRT_LINUX_RESTORE_EFL_AC();
             return VINF_SUCCESS;
         }
         rtR0MemObjDelete(&pMemLnx->Core);
     }
 
+    IPRT_LINUX_RESTORE_EFL_AC();
     return rc;
 }
 
@@ -1394,6 +1438,7 @@ DECLHIDDEN(int) rtR0MemObjNativeMapUser(PPRTR0MEMOBJINTERNAL ppMem, RTR0MEMOBJ p
     struct page        *pDummyPage;
     RTHCPHYS            DummyPhys;
 #endif
+    IPRT_LINUX_SAVE_EFL_AC();
 
     /*
      * Check for restrictions.
@@ -1409,7 +1454,10 @@ DECLHIDDEN(int) rtR0MemObjNativeMapUser(PPRTR0MEMOBJINTERNAL ppMem, RTR0MEMOBJ p
      */
     pDummyPage = alloc_page(GFP_USER | __GFP_NOWARN);
     if (!pDummyPage)
+    {
+        IPRT_LINUX_RESTORE_EFL_AC();
         return VERR_NO_MEMORY;
+    }
     SetPageReserved(pDummyPage);
     DummyPhys = page_to_phys(pDummyPage);
 #endif
@@ -1563,6 +1611,7 @@ DECLHIDDEN(int) rtR0MemObjNativeMapUser(PPRTR0MEMOBJINTERNAL ppMem, RTR0MEMOBJ p
                 pMemLnx->Core.pv = pv;
                 pMemLnx->Core.u.Mapping.R0Process = R0Process;
                 *ppMem = &pMemLnx->Core;
+                IPRT_LINUX_RESTORE_EFL_AC();
                 return VINF_SUCCESS;
             }
 
@@ -1577,6 +1626,7 @@ DECLHIDDEN(int) rtR0MemObjNativeMapUser(PPRTR0MEMOBJINTERNAL ppMem, RTR0MEMOBJ p
     __free_page(pDummyPage);
 #endif
 
+    IPRT_LINUX_RESTORE_EFL_AC();
     return rc;
 }
 

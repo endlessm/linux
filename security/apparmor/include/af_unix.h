@@ -82,27 +82,20 @@ do {									\
 #define print_sock_addr(U) \
 do {			       \
 	printk("%s:\n", __FUNCTION__);					\
-	printk("    sock %s:", sock_cxt && sock_cxt->label && sock_cxt->label->hname ? sock_cxt->label->hname : "<null>"); print_sk(sock); \
-	printk("    other %s:", other_cxt && other_cxt->label && other_cxt->label->hname ? other_cxt->label->hname : "<null>"); print_sk(other); \
-	printk("    new %s", new_cxt && new_cxt->label && new_cxt->label->hname ? new_cxt->label->hname : "<null>"); print_sk(newsk); \
+	printk("    sock %s:", sock_ctx && sock_ctx->label ? aa_label_printk(sock_ctx->label, GFP_ATOMIC); : "<null>"); print_sk(sock); \
+	printk("    other %s:", other_ctx && other_ctx->label ? aa_label_printk(other_ctx->label, GFP_ATOMIC); : "<null>"); print_sk(other); \
+	printk("    new %s", new_ctx && new_ctx->label ? aa_label_printk(new_ctx->label, GFP_ATOMIC); : "<null>"); print_sk(newsk); \
 } while (0)
 
 
-#define DEFINE_AUDIT_UNIX(NAME, OP, SK, T, P)				  \
-	struct lsm_network_audit NAME ## _net = { .sk = (SK),		  \
-						  .family = (AF_UNIX)};	  \
-	DEFINE_AUDIT_DATA(NAME,	LSM_AUDIT_DATA_NONE, OP);		  \
-	NAME.u.net = &(NAME ## _net);					  \
-	aad(&NAME)->net.type = (T);					  \
-	aad(&NAME)->net.protocol = (P)
 
 
-int aa_unix_peer_perm(struct aa_label *label, int op, u32 request,
+int aa_unix_peer_perm(struct aa_label *label, const char *op, u32 request,
 		      struct sock *sk, struct sock *peer_sk,
 		      struct aa_label *peer_label);
-int aa_unix_label_sk_perm(struct aa_label *label, int op, u32 request,
+int aa_unix_label_sk_perm(struct aa_label *label, const char *op, u32 request,
 			  struct sock *sk);
-int aa_unix_sock_perm(int op, u32 request, struct socket *sock);
+int aa_unix_sock_perm(const char *op, u32 request, struct socket *sock);
 int aa_unix_create_perm(struct aa_label *label, int family, int type,
 			int protocol);
 int aa_unix_bind_perm(struct socket *sock, struct sockaddr *address,
@@ -111,11 +104,11 @@ int aa_unix_connect_perm(struct socket *sock, struct sockaddr *address,
 			 int addrlen);
 int aa_unix_listen_perm(struct socket *sock, int backlog);
 int aa_unix_accept_perm(struct socket *sock, struct socket *newsock);
-int aa_unix_msg_perm(int op, u32 request, struct socket *sock,
+int aa_unix_msg_perm(const char *op, u32 request, struct socket *sock,
 		     struct msghdr *msg, int size);
-int aa_unix_opt_perm(int op, u32 request, struct socket *sock, int level,
+int aa_unix_opt_perm(const char *op, u32 request, struct socket *sock, int level,
 		     int optname);
-int aa_unix_file_perm(struct aa_label *label, int op, u32 request,
+int aa_unix_file_perm(struct aa_label *label, const char *op, u32 request,
 		      struct socket *sock);
 
 #endif /* __AA_AF_UNIX_H */

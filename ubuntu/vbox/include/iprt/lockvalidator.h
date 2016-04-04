@@ -264,8 +264,8 @@ RTDECL(int) RTLockValidatorRecMakeSiblings(PRTLOCKVALRECCORE pRec1, PRTLOCKVALRE
  *                              optional (NULL). Max length is 32 bytes.
  * @param   ...                 Format string arguments.
  */
-RTDECL(void) RTLockValidatorRecExclInit(PRTLOCKVALRECEXCL pRec, RTLOCKVALCLASS hClass, uint32_t uSubClass,
-                                        void *hLock, bool fEnabled, const char *pszNameFmt, ...);
+RTDECL(void) RTLockValidatorRecExclInit(PRTLOCKVALRECEXCL pRec, RTLOCKVALCLASS hClass, uint32_t uSubClass, void *hLock,
+                                        bool fEnabled, const char *pszNameFmt, ...) RT_IPRT_FORMAT_ATTR_MAYBE_NULL(6, 7);
 /**
  * Initialize a lock validator record.
  *
@@ -285,8 +285,8 @@ RTDECL(void) RTLockValidatorRecExclInit(PRTLOCKVALRECEXCL pRec, RTLOCKVALCLASS h
  *                              optional (NULL). Max length is 32 bytes.
  * @param   va                  Format string arguments.
  */
-RTDECL(void) RTLockValidatorRecExclInitV(PRTLOCKVALRECEXCL pRec, RTLOCKVALCLASS hClass, uint32_t uSubClass,
-                                         void *hLock, bool fEnabled, const char *pszNameFmt, va_list va);
+RTDECL(void) RTLockValidatorRecExclInitV(PRTLOCKVALRECEXCL pRec, RTLOCKVALCLASS hClass, uint32_t uSubClass, void *hLock,
+                                         bool fEnabled, const char *pszNameFmt, va_list va) RT_IPRT_FORMAT_ATTR_MAYBE_NULL(6, 0);
 /**
  * Uninitialize a lock validator record previously initialized by
  * RTLockRecValidatorInit.
@@ -316,8 +316,8 @@ RTDECL(void) RTLockValidatorRecExclDelete(PRTLOCKVALRECEXCL pRec);
  *                              optional (NULL). Max length is 32 bytes.
  * @param   ...                 Format string arguments.
  */
-RTDECL(int)  RTLockValidatorRecExclCreate(PRTLOCKVALRECEXCL *ppRec, RTLOCKVALCLASS hClass, uint32_t uSubClass,
-                                          void *hLock, bool fEnabled, const char *pszNameFmt, ...);
+RTDECL(int)  RTLockValidatorRecExclCreate(PRTLOCKVALRECEXCL *ppRec, RTLOCKVALCLASS hClass, uint32_t uSubClass, void *hLock,
+                                          bool fEnabled, const char *pszNameFmt, ...) RT_IPRT_FORMAT_ATTR_MAYBE_NULL(6, 7);
 
 /**
  * Create and initialize a lock validator record.
@@ -340,8 +340,8 @@ RTDECL(int)  RTLockValidatorRecExclCreate(PRTLOCKVALRECEXCL *ppRec, RTLOCKVALCLA
  *                              optional (NULL). Max length is 32 bytes.
  * @param   va                  Format string arguments.
  */
-RTDECL(int)  RTLockValidatorRecExclCreateV(PRTLOCKVALRECEXCL *ppRec, RTLOCKVALCLASS hClass, uint32_t uSubClass,
-                                           void *hLock, bool fEnabled, const char *pszNameFmt, va_list va);
+RTDECL(int)  RTLockValidatorRecExclCreateV(PRTLOCKVALRECEXCL *ppRec, RTLOCKVALCLASS hClass, uint32_t uSubClass, void *hLock,
+                                           bool fEnabled, const char *pszNameFmt, va_list va) RT_IPRT_FORMAT_ATTR_MAYBE_NULL(6, 0);
 
 /**
  * Deinitialize and destroy a record created by RTLockValidatorRecExclCreate.
@@ -564,7 +564,8 @@ RTDECL(int) RTLockValidatorRecExclCheckOrderAndBlocking(PRTLOCKVALRECEXCL pRec, 
  * @param   ...                 Format string arguments.
  */
 RTDECL(void) RTLockValidatorRecSharedInit(PRTLOCKVALRECSHRD pRec, RTLOCKVALCLASS hClass, uint32_t uSubClass,
-                                          void *hLock, bool fSignaller, bool fEnabled, const char *pszNameFmt, ...);
+                                          void *hLock, bool fSignaller, bool fEnabled,
+                                          const char *pszNameFmt, ...) RT_IPRT_FORMAT_ATTR_MAYBE_NULL(7, 8);
 
 /**
  * Initialize a lock validator record for a shared lock.
@@ -589,7 +590,8 @@ RTDECL(void) RTLockValidatorRecSharedInit(PRTLOCKVALRECSHRD pRec, RTLOCKVALCLASS
  * @param   va                  Format string arguments.
  */
 RTDECL(void) RTLockValidatorRecSharedInitV(PRTLOCKVALRECSHRD pRec, RTLOCKVALCLASS hClass, uint32_t uSubClass,
-                                           void *hLock, bool fSignaller, bool fEnabled, const char *pszNameFmt, va_list va);
+                                           void *hLock, bool fSignaller, bool fEnabled,
+                                           const char *pszNameFmt, va_list va) RT_IPRT_FORMAT_ATTR_MAYBE_NULL(7, 0);
 
 /**
  * Uninitialize a lock validator record previously initialized by
@@ -624,7 +626,8 @@ RTDECL(void) RTLockValidatorRecSharedDelete(PRTLOCKVALRECSHRD pRec);
  * @param   ...                 Format string arguments.
  */
 RTDECL(int) RTLockValidatorRecSharedCreate(PRTLOCKVALRECSHRD *ppRec, RTLOCKVALCLASS hClass, uint32_t uSubClass,
-                                           void *pvLock, bool fSignaller, bool fEnabled, const char *pszNameFmt, ...);
+                                           void *pvLock, bool fSignaller, bool fEnabled,
+                                           const char *pszNameFmt, ...) RT_IPRT_FORMAT_ATTR_MAYBE_NULL(7, 8);
 
 /**
  * Create and initialize a lock validator record for a shared lock.
@@ -651,7 +654,8 @@ RTDECL(int) RTLockValidatorRecSharedCreate(PRTLOCKVALRECSHRD *ppRec, RTLOCKVALCL
  * @param   va                  Format string arguments.
  */
 RTDECL(int) RTLockValidatorRecSharedCreateV(PRTLOCKVALRECSHRD *ppRec, RTLOCKVALCLASS hClass, uint32_t uSubClass,
-                                            void *pvLock, bool fSignaller, bool fEnabled, const char *pszNameFmt, va_list va);
+                                            void *pvLock, bool fSignaller, bool fEnabled,
+                                            const char *pszNameFmt, va_list va) RT_IPRT_FORMAT_ATTR_MAYBE_NULL(7, 0);
 
 /**
  * Deinitialize and destroy a record created by RTLockValidatorRecSharedCreate.
@@ -689,6 +693,7 @@ RTDECL(uint32_t) RTLockValidatorRecSharedSetSubClass(PRTLOCKVALRECSHRD pRec, uin
  * @param   hThreadSelf         The handle of the calling thread.  If not known,
  *                              pass NIL_RTTHREAD and we'll figure it out.
  * @param   pSrcPos             The source position of the lock operation.
+ * @param   cMillies            Intended sleep time in milliseconds.
  */
 RTDECL(int)  RTLockValidatorRecSharedCheckOrder(PRTLOCKVALRECSHRD pRec, RTTHREAD hThreadSelf,
                                                 PCRTLOCKVALSRCPOS pSrcPos, RTMSINTERVAL cMillies);
@@ -711,6 +716,7 @@ RTDECL(int)  RTLockValidatorRecSharedCheckOrder(PRTLOCKVALRECSHRD pRec, RTTHREAD
  * @param   hThreadSelf         The current thread.  Shall not be NIL_RTTHREAD!
  * @param   pSrcPos             The source position of the lock operation.
  * @param   fRecursiveOk        Whether it's ok to recurse.
+ * @param   cMillies            Intended sleep time in milliseconds.
  * @param   enmSleepState       The sleep state to enter on successful return.
  * @param   fReallySleeping     Is it really going to sleep now or not.  Use
  *                              false before calls to other IPRT synchronization
@@ -729,6 +735,7 @@ RTDECL(int) RTLockValidatorRecSharedCheckBlocking(PRTLOCKVALRECSHRD pRec, RTTHRE
  * @param   hThreadSelf         The current thread.  Shall not be NIL_RTTHREAD!
  * @param   pSrcPos             The source position of the lock operation.
  * @param   fRecursiveOk        Whether it's ok to recurse.
+ * @param   cMillies            Intended sleep time in milliseconds.
  * @param   enmSleepState       The sleep state to enter on successful return.
  * @param   fReallySleeping     Is it really going to sleep now or not.  Use
  *                              false before calls to other IPRT synchronization
@@ -944,7 +951,7 @@ RTDECL(bool) RTLockValidatorHoldsLocksInSubClass(RTTHREAD hCurrentThread, RTLOCK
 RTDECL(int) RTLockValidatorClassCreateEx(PRTLOCKVALCLASS phClass, PCRTLOCKVALSRCPOS pSrcPos,
                                          bool fAutodidact, bool fRecursionOk, bool fStrictReleaseOrder,
                                          RTMSINTERVAL cMsMinDeadlock, RTMSINTERVAL cMsMinOrder,
-                                         const char *pszNameFmt, ...);
+                                         const char *pszNameFmt, ...) RT_IPRT_FORMAT_ATTR_MAYBE_NULL(8, 9);
 
 /**
  * Creates a new lock validator class, all properties specified.
@@ -973,7 +980,7 @@ RTDECL(int) RTLockValidatorClassCreateEx(PRTLOCKVALCLASS phClass, PCRTLOCKVALSRC
 RTDECL(int) RTLockValidatorClassCreateExV(PRTLOCKVALCLASS phClass, PCRTLOCKVALSRCPOS pSrcPos,
                                           bool fAutodidact, bool fRecursionOk, bool fStrictReleaseOrder,
                                           RTMSINTERVAL cMsMinDeadlock, RTMSINTERVAL cMsMinOrder,
-                                          const char *pszNameFmt, va_list va);
+                                          const char *pszNameFmt, va_list va) RT_IPRT_FORMAT_ATTR_MAYBE_NULL(8, 0);
 
 /**
  * Creates a new lock validator class.
@@ -983,14 +990,14 @@ RTDECL(int) RTLockValidatorClassCreateExV(PRTLOCKVALCLASS phClass, PCRTLOCKVALSR
  * @param   fAutodidact         Whether the class should be allowed to teach
  *                              itself new locking order rules (true), or if the
  *                              user will teach it all it needs to know (false).
- * @param   pszFile             The source position of the call, file.
- * @param   iLine               The source position of the call, line.
- * @param   pszFunction         The source position of the call, function.
+ * @param   SRC_POS             The source position where call is being made from.
+ *                              Use RT_SRC_POS when possible.  Optional.
  * @param   pszNameFmt          Class name format string, optional (NULL).  Max
  *                              length is 32 bytes.
  * @param   ...                 Format string arguments.
  */
-RTDECL(int) RTLockValidatorClassCreate(PRTLOCKVALCLASS phClass, bool fAutodidact, RT_SRC_POS_DECL, const char *pszNameFmt, ...);
+RTDECL(int) RTLockValidatorClassCreate(PRTLOCKVALCLASS phClass, bool fAutodidact, RT_SRC_POS_DECL,
+                                       const char *pszNameFmt, ...) RT_IPRT_FORMAT_ATTR_MAYBE_NULL(6, 7);
 
 /**
  * Creates a new lock validator class with a reference that is consumed by the
@@ -1001,14 +1008,14 @@ RTDECL(int) RTLockValidatorClassCreate(PRTLOCKVALCLASS phClass, bool fAutodidact
  * @returns Class handle with a reference that is automatically consumed by the
  *          first retainer.  NIL_RTLOCKVALCLASS if we run into trouble.
  *
- * @param   pszFile             The source position of the call, file.
- * @param   iLine               The source position of the call, line.
- * @param   pszFunction         The source position of the call, function.
+ * @param   SRC_POS             The source position where call is being made from.
+ *                              Use RT_SRC_POS when possible.  Optional.
  * @param   pszNameFmt          Class name format string, optional (NULL).  Max
  *                              length is 32 bytes.
  * @param   ...                 Format string arguments.
  */
-RTDECL(RTLOCKVALCLASS) RTLockValidatorClassCreateUnique(RT_SRC_POS_DECL, const char *pszNameFmt, ...);
+RTDECL(RTLOCKVALCLASS) RTLockValidatorClassCreateUnique(RT_SRC_POS_DECL,
+                                                        const char *pszNameFmt, ...) RT_IPRT_FORMAT_ATTR_MAYBE_NULL(4, 5);
 
 /**
  * Finds a class for the specified source position.
@@ -1022,14 +1029,14 @@ RTDECL(RTLOCKVALCLASS) RTLockValidatorClassFindForSrcPos(PRTLOCKVALSRCPOS pSrcPo
  * Finds or creates a class given the source position.
  *
  * @returns Class handle (not retained!) or NIL_RTLOCKVALCLASS.
- * @param   pszFile             The source file.
- * @param   iLine               The line in that source file.
- * @param   pszFunction         The function name.
+ * @param   SRC_POS             The source position where call is being made from.
+ *                              Use RT_SRC_POS when possible.  Optional.
  * @param   pszNameFmt          Class name format string, optional (NULL).  Max
  *                              length is 32 bytes.
  * @param   ...                 Format string arguments.
  */
-RTDECL(RTLOCKVALCLASS) RTLockValidatorClassForSrcPos(RT_SRC_POS_DECL, const char *pszNameFmt, ...);
+RTDECL(RTLOCKVALCLASS) RTLockValidatorClassForSrcPos(RT_SRC_POS_DECL,
+                                                     const char *pszNameFmt, ...) RT_IPRT_FORMAT_ATTR_MAYBE_NULL(4, 5);
 
 /**
  * Retains a reference to a lock validator class.
@@ -1050,7 +1057,7 @@ RTDECL(uint32_t) RTLockValidatorClassRelease(RTLOCKVALCLASS hClass);
 
 /**
  * Teaches the class @a hClass that locks in the class @a hPriorClass can be
- * held when taking a lock of class @hClass
+ * held when taking a lock of class @a hClass
  *
  * @returns IPRT status.
  * @param   hClass              Handle to the pupil class.
@@ -1065,7 +1072,7 @@ RTDECL(int) RTLockValidatorClassAddPriorClass(RTLOCKVALCLASS hClass, RTLOCKVALCL
  *
  * @returns IPRT status.
  * @param   hClass              Handle to the class to change.
- * @param   fEnable             Enable it (true) or disable it (false).
+ * @param   fEnabled            Enable it (true) or disable it (false).
  */
 RTDECL(int) RTLockValidatorClassEnforceStrictReleaseOrder(RTLOCKVALCLASS hClass, bool fEnabled);
 

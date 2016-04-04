@@ -32,6 +32,8 @@
 #ifdef VBOX_WITH_HGCM
 # include <VBox/VMMDev2.h>
 
+/** @addtogroup grp_vmmdev
+ * @{ */
 
 /**
  * HGCM connect info structure.
@@ -101,6 +103,8 @@ typedef struct VBoxGuestHGCMCallInfoTimed
 } VBoxGuestHGCMCallInfoTimed;
 AssertCompileSize(VBoxGuestHGCMCallInfoTimed, 8+16);
 # pragma pack()
+
+/** @} */
 
 #endif /* VBOX_WITH_HGCM */
 

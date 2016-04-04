@@ -86,19 +86,13 @@ struct aa_perms {
 	/* Reserved:
 	 * u32 subtree;	/ * set only when allow is set * /
 	 */
+	u16 xindex;
 };
 
 #define ALL_PERMS_MASK 0xffffffff
+extern struct aa_perms nullperms;
+extern struct aa_perms allperms;
 
-#define aa_perms_clear(X) memset((X), 0, sizeof(*(X)));
-#define aa_perms_all(X)						\
-	do {							\
-		aa_perms_clear(X);				\
-		(X)->allow = ALL_PERMS_MASK;			\
-		/* the following are only used for denials */	\
-		(X)->quiet = ALL_PERMS_MASK;			\
-		(X)->hide = ALL_PERMS_MASK;			\
-	} while (0)
 
 #define xcheck(FN1, FN2)	\
 ({				\
@@ -147,15 +141,14 @@ void aa_compute_perms(struct aa_dfa *dfa, unsigned int state,
 		      struct aa_perms *perms);
 void aa_perms_accum(struct aa_perms *accum, struct aa_perms *addend);
 void aa_perms_accum_raw(struct aa_perms *accum, struct aa_perms *addend);
-void aa_profile_match_label(struct aa_profile *profile, const char *label,
-			    int type, struct aa_perms *perms);
+void aa_profile_match_label(struct aa_profile *profile, struct aa_label *label,
+			    int type, u32 request, struct aa_perms *perms);
 int aa_profile_label_perm(struct aa_profile *profile, struct aa_profile *target,
 			  u32 request, int type, u32 *deny,
 			  struct common_audit_data *sa);
 int aa_check_perms(struct aa_profile *profile, struct aa_perms *perms,
 		   u32 request, struct common_audit_data *sa,
 		   void (*cb) (struct audit_buffer *, void *));
-const char *aa_peer_name(struct aa_profile *peer);
 
 
 static inline int aa_xlabel_perm(struct aa_profile *profile,

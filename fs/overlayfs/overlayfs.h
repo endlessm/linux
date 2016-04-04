@@ -95,7 +95,14 @@ static inline int ovl_do_symlink(struct inode *dir, struct dentry *dentry,
 static inline int ovl_do_setxattr(struct dentry *dentry, const char *name,
 				  const void *value, size_t size, int flags)
 {
-	int err = vfs_setxattr(dentry, name, value, size, flags);
+	struct inode *inode = dentry->d_inode;
+	int err = -EOPNOTSUPP;
+
+	mutex_lock(&inode->i_mutex);
+	if (inode->i_op->setxattr)
+		err = inode->i_op->setxattr(dentry, name, value, size, flags);
+	mutex_unlock(&inode->i_mutex);
+
 	pr_debug("setxattr(%pd2, \"%s\", \"%*s\", 0x%x) = %i\n",
 		 dentry, name, (int) size, (char *) value, flags, err);
 	return err;
@@ -103,7 +110,14 @@ static inline int ovl_do_setxattr(struct dentry *dentry, const char *name,
 
 static inline int ovl_do_removexattr(struct dentry *dentry, const char *name)
 {
-	int err = vfs_removexattr(dentry, name);
+	struct inode *inode = dentry->d_inode;
+	int err = -EOPNOTSUPP;
+
+	mutex_lock(&inode->i_mutex);
+	if (inode->i_op->removexattr)
+		err = inode->i_op->removexattr(dentry, name);
+	mutex_unlock(&inode->i_mutex);
+
 	pr_debug("removexattr(%pd2, \"%s\") = %i\n", dentry, name, err);
 	return err;
 }
@@ -149,6 +163,7 @@ static inline int ovl_do_whiteout(struct inode *dir, struct dentry *dentry,
 	return ovl_do_whiteout_v2(dir, dentry);
 }
 
+struct cred *ovl_prepare_creds(struct super_block *sb);
 enum ovl_path_type ovl_path_type(struct dentry *dentry);
 u64 ovl_dentry_version_get(struct dentry *dentry);
 void ovl_dentry_version_inc(struct dentry *dentry);

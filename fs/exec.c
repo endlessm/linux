@@ -107,6 +107,13 @@ bool path_noexec(const struct path *path)
 }
 EXPORT_SYMBOL(path_noexec);
 
+bool path_nosuid(const struct path *path)
+{
+	return !mnt_may_suid(path->mnt) ||
+	       (path->mnt->mnt_sb->s_iflags & SB_I_NOSUID);
+}
+EXPORT_SYMBOL(path_nosuid);
+
 #ifdef CONFIG_USELIB
 /*
  * Note that a shared library must be both readable and executable due to
@@ -798,6 +805,8 @@ static struct file *do_open_execat(int fd, struct filename *name, int flags)
 
 	trace_open_exec(name->name);
 
+	trace_open_exec(name->name);
+
 out:
 	return file;
 
@@ -1300,7 +1309,7 @@ static void bprm_fill_uid(struct linux_binprm *bprm)
 	bprm->cred->euid = current_euid();
 	bprm->cred->egid = current_egid();
 
-	if (bprm->file->f_path.mnt->mnt_flags & MNT_NOSUID)
+	if (path_nosuid(&bprm->file->f_path))
 		return;
 
 	if (task_no_new_privs(current))

@@ -32,6 +32,7 @@
 
 #include <linux/mlx5/flow_table.h>
 #include "en.h"
+#include "eswitch.h"
 
 struct mlx5e_rq_param {
 	u32                        rqc[MLX5_ST_SZ_DW(rqc)];
@@ -63,7 +64,7 @@ static void mlx5e_update_carrier(struct mlx5e_priv *priv)
 	u8 port_state;
 
 	port_state = mlx5_query_vport_state(mdev,
-		MLX5_QUERY_VPORT_STATE_IN_OP_MOD_VNIC_VPORT);
+		MLX5_QUERY_VPORT_STATE_IN_OP_MOD_VNIC_VPORT, 0);
 
 	if (port_state == VPORT_STATE_UP)
 		netif_carrier_on(priv->netdev);
@@ -746,7 +747,7 @@ static int mlx5e_create_cq(struct mlx5e_channel *c,
 	struct mlx5_core_dev *mdev = priv->mdev;
 	struct mlx5_core_cq *mcq = &cq->mcq;
 	int eqn_not_used;
-	int irqn;
+	unsigned int irqn;
 	int err;
 	u32 i;
 
@@ -800,7 +801,7 @@ static int mlx5e_enable_cq(struct mlx5e_cq *cq, struct mlx5e_cq_param *param)
 	void *in;
 	void *cqc;
 	int inlen;
-	int irqn_not_used;
+	unsigned int irqn_not_used;
 	int eqn;
 	int err;
 
@@ -863,12 +864,10 @@ static int mlx5e_open_cq(struct mlx5e_channel *c,
 	if (err)
 		goto err_destroy_cq;
 
-	err = mlx5_core_modify_cq_moderation(mdev, &cq->mcq,
-					     moderation_usecs,
-					     moderation_frames);
-	if (err)
-		goto err_destroy_cq;
-
+	if (MLX5_CAP_GEN(mdev, cq_moderation))
+		mlx5_core_modify_cq_moderation(mdev, &cq->mcq,
+					       moderation_usecs,
+					       moderation_frames);
 	return 0;
 
 err_destroy_cq:
@@ -1504,7 +1503,7 @@ static int mlx5e_create_drop_cq(struct mlx5e_priv *priv,
 	struct mlx5_core_dev *mdev = priv->mdev;
 	struct mlx5_core_cq *mcq = &cq->mcq;
 	int eqn_not_used;
-	int irqn;
+	unsigned int irqn;
 	int err;
 
 	err = mlx5_cqwq_create(mdev, &param->wq, param->cqc, &cq->wq,
@@ -1926,6 +1925,79 @@ static int mlx5e_change_mtu(struct net_device *netdev, int new_mtu)
 	return err;
 }
 
+static int mlx5e_set_vf_mac(struct net_device *dev, int vf, u8 *mac)
+{
+	struct mlx5e_priv *priv = netdev_priv(dev);
+	struct mlx5_core_dev *mdev = priv->mdev;
+
+	return mlx5_eswitch_set_vport_mac(mdev->priv.eswitch, vf + 1, mac);
+}
+
+static int mlx5e_set_vf_vlan(struct net_device *dev, int vf, u16 vlan, u8 qos)
+{
+	struct mlx5e_priv *priv = netdev_priv(dev);
+	struct mlx5_core_dev *mdev = priv->mdev;
+
+	return mlx5_eswitch_set_vport_vlan(mdev->priv.eswitch, vf + 1,
+					   vlan, qos);
+}
+
+static int mlx5_vport_link2ifla(u8 esw_link)
+{
+	switch (esw_link) {
+	case MLX5_ESW_VPORT_ADMIN_STATE_DOWN:
+		return IFLA_VF_LINK_STATE_DISABLE;
+	case MLX5_ESW_VPORT_ADMIN_STATE_UP:
+		return IFLA_VF_LINK_STATE_ENABLE;
+	}
+	return IFLA_VF_LINK_STATE_AUTO;
+}
+
+static int mlx5_ifla_link2vport(u8 ifla_link)
+{
+	switch (ifla_link) {
+	case IFLA_VF_LINK_STATE_DISABLE:
+		return MLX5_ESW_VPORT_ADMIN_STATE_DOWN;
+	case IFLA_VF_LINK_STATE_ENABLE:
+		return MLX5_ESW_VPORT_ADMIN_STATE_UP;
+	}
+	return MLX5_ESW_VPORT_ADMIN_STATE_AUTO;
+}
+
+static int mlx5e_set_vf_link_state(struct net_device *dev, int vf,
+				   int link_state)
+{
+	struct mlx5e_priv *priv = netdev_priv(dev);
+	struct mlx5_core_dev *mdev = priv->mdev;
+
+	return mlx5_eswitch_set_vport_state(mdev->priv.eswitch, vf + 1,
+					    mlx5_ifla_link2vport(link_state));
+}
+
+static int mlx5e_get_vf_config(struct net_device *dev,
+			       int vf, struct ifla_vf_info *ivi)
+{
+	struct mlx5e_priv *priv = netdev_priv(dev);
+	struct mlx5_core_dev *mdev = priv->mdev;
+	int err;
+
+	err = mlx5_eswitch_get_vport_config(mdev->priv.eswitch, vf + 1, ivi);
+	if (err)
+		return err;
+	ivi->linkstate = mlx5_vport_link2ifla(ivi->linkstate);
+	return 0;
+}
+
+static int mlx5e_get_vf_stats(struct net_device *dev,
+			      int vf, struct ifla_vf_stats *vf_stats)
+{
+	struct mlx5e_priv *priv = netdev_priv(dev);
+	struct mlx5_core_dev *mdev = priv->mdev;
+
+	return mlx5_eswitch_get_vport_stats(mdev->priv.eswitch, vf + 1,
+					    vf_stats);
+}
+
 static struct net_device_ops mlx5e_netdev_ops = {
 	.ndo_open                = mlx5e_open,
 	.ndo_stop                = mlx5e_close,
@@ -1936,7 +2008,7 @@ static struct net_device_ops mlx5e_netdev_ops = {
 	.ndo_vlan_rx_add_vid	 = mlx5e_vlan_rx_add_vid,
 	.ndo_vlan_rx_kill_vid	 = mlx5e_vlan_rx_kill_vid,
 	.ndo_set_features        = mlx5e_set_features,
-	.ndo_change_mtu		 = mlx5e_change_mtu,
+	.ndo_change_mtu		 = mlx5e_change_mtu
 };
 
 static int mlx5e_check_required_hca_cap(struct mlx5_core_dev *mdev)
@@ -1958,6 +2030,8 @@ static int mlx5e_check_required_hca_cap(struct mlx5_core_dev *mdev)
 	}
 	if (!MLX5_CAP_ETH(mdev, self_lb_en_modifiable))
 		mlx5_core_warn(mdev, "Self loop back prevention is not supported\n");
+	if (!MLX5_CAP_GEN(mdev, cq_moderation))
+		mlx5_core_warn(mdev, "CQ modiration is not supported\n");
 
 	return 0;
 }
@@ -2023,7 +2097,12 @@ static void mlx5e_set_netdev_dev_addr(struct net_device *netdev)
 {
 	struct mlx5e_priv *priv = netdev_priv(netdev);
 
-	mlx5_query_nic_vport_mac_address(priv->mdev, netdev->dev_addr);
+	mlx5_query_nic_vport_mac_address(priv->mdev, 0, netdev->dev_addr);
+	if (is_zero_ether_addr(netdev->dev_addr) &&
+	    !MLX5_CAP_GEN(priv->mdev, vport_group_manager)) {
+		eth_hw_addr_random(netdev);
+		mlx5_core_info(priv->mdev, "Assigned random MAC address %pM\n", netdev->dev_addr);
+	}
 }
 
 static void mlx5e_build_netdev(struct net_device *netdev)
@@ -2035,6 +2114,14 @@ static void mlx5e_build_netdev(struct net_device *netdev)
 
 	if (priv->params.num_tc > 1)
 		mlx5e_netdev_ops.ndo_select_queue = mlx5e_select_queue;
+
+	if (MLX5_CAP_GEN(mdev, vport_group_manager)) {
+		mlx5e_netdev_ops.ndo_set_vf_mac = mlx5e_set_vf_mac;
+		mlx5e_netdev_ops.ndo_set_vf_vlan = mlx5e_set_vf_vlan;
+		mlx5e_netdev_ops.ndo_get_vf_config = mlx5e_get_vf_config;
+		mlx5e_netdev_ops.ndo_set_vf_link_state = mlx5e_set_vf_link_state;
+		mlx5e_netdev_ops.ndo_get_vf_stats = mlx5e_get_vf_stats;
+	}
 
 	netdev->netdev_ops        = &mlx5e_netdev_ops;
 	netdev->watchdog_timeo    = 15 * HZ;

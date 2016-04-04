@@ -77,6 +77,7 @@ drivers/net/veth.ko
 drivers/net/vmxnet3/vmxnet3.ko
 drivers/net/vxlan.ko
 drivers/net/xen-netback/*
+drivers/platform/x86/pvpanic.ko
 drivers/parport/parport.ko
 drivers/parport/parport_pc.ko
 drivers/pps/pps_core.ko

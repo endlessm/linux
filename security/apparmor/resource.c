@@ -75,6 +75,7 @@ static int profile_setrlimit(struct aa_profile *profile, unsigned int resource,
 			     struct rlimit *new_rlim)
 {
 	int e = 0;
+
 	if (profile->rlimits.mask & (1 << resource) && new_rlim->rlim_max >
 	    profile->rlimits.limits[resource].rlim_max)
 		e = -EACCES;
@@ -96,26 +97,29 @@ int aa_task_setrlimit(struct aa_label *label, struct task_struct *task,
 		      unsigned int resource, struct rlimit *new_rlim)
 {
 	struct aa_profile *profile;
-	struct aa_label *task_label;
+	struct aa_label *peer;
 	int error = 0;
 
 	rcu_read_lock();
-	task_label = aa_get_newest_cred_label(__task_cred(task));
+	peer = aa_get_newest_cred_label(__task_cred(task));
 	rcu_read_unlock();
 
 	/* TODO: extend resource control to handle other (non current)
 	 * profiles.  AppArmor rules currently have the implicit assumption
 	 * that the task is setting the resource of a task confined with
-	 * the same profile.
+	 * the same profile or that the task setting the resource of another
+	 * task has CAP_SYS_RESOURCE.
 	 */
-	if (label != task_label)
+
+	if (label != peer &&
+	    !aa_capable(label, CAP_SYS_RESOURCE, SECURITY_CAP_NOAUDIT))
 		error = fn_for_each(label, profile,
 				audit_resource(profile, resource,
 					       new_rlim->rlim_max, EACCES));
 	else
 		error = fn_for_each_confined(label, profile,
 				profile_setrlimit(profile, resource, new_rlim));
-	aa_put_label(task_label);
+	aa_put_label(peer);
 
 	return error;
 }

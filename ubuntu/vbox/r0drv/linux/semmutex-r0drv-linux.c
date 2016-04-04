@@ -25,9 +25,9 @@
  */
 
 
-/*******************************************************************************
-*   Header Files                                                               *
-*******************************************************************************/
+/*********************************************************************************************************************************
+*   Header Files                                                                                                                 *
+*********************************************************************************************************************************/
 #define RTSEMMUTEX_WITHOUT_REMAPPING
 #include "the-linux-kernel.h"
 #include "internal/iprt.h"
@@ -42,9 +42,9 @@
 #include "internal/magics.h"
 
 
-/*******************************************************************************
-*   Structures and Typedefs                                                    *
-*******************************************************************************/
+/*********************************************************************************************************************************
+*   Structures and Typedefs                                                                                                      *
+*********************************************************************************************************************************/
 typedef struct RTSEMMUTEXLNXWAITER
 {
     /** The list entry. */
@@ -86,26 +86,33 @@ typedef struct RTSEMMUTEXINTERNAL
 
 RTDECL(int) RTSemMutexCreate(PRTSEMMUTEX phMtx)
 {
+    int rc = VINF_SUCCESS;
+    IPRT_LINUX_SAVE_EFL_AC();
+
     /*
      * Allocate.
      */
     PRTSEMMUTEXINTERNAL pThis;
     pThis = (PRTSEMMUTEXINTERNAL)RTMemAlloc(sizeof(*pThis));
-    if (!pThis)
-        return VERR_NO_MEMORY;
+    if (pThis)
+    {
+        /*
+         * Initialize.
+         */
+        pThis->u32Magic     = RTSEMMUTEX_MAGIC;
+        pThis->cRecursions  = 0;
+        pThis->pOwnerTask   = NULL;
+        pThis->cRefs        = 1;
+        RTListInit(&pThis->WaiterList);
+        spin_lock_init(&pThis->Spinlock);
 
-    /*
-     * Initialize.
-     */
-    pThis->u32Magic     = RTSEMMUTEX_MAGIC;
-    pThis->cRecursions  = 0;
-    pThis->pOwnerTask   = NULL;
-    pThis->cRefs        = 1;
-    RTListInit(&pThis->WaiterList);
-    spin_lock_init(&pThis->Spinlock);
+        *phMtx = pThis;
+    }
+    else
+        rc = VERR_NO_MEMORY;
 
-    *phMtx = pThis;
-    return VINF_SUCCESS;
+    IPRT_LINUX_RESTORE_EFL_AC();
+    return rc;
 }
 RT_EXPORT_SYMBOL(RTSemMutexCreate);
 
@@ -129,6 +136,8 @@ RTDECL(int) RTSemMutexDestroy(RTSEMMUTEX hMtx)
      */
     AssertReturn(ASMAtomicCmpXchgU32(&pThis->u32Magic, RTSEMMUTEX_MAGIC_DEAD, RTSEMMUTEX_MAGIC), VERR_INVALID_HANDLE);
 
+    IPRT_LINUX_SAVE_EFL_AC();
+
     spin_lock_irqsave(&pThis->Spinlock, fSavedIrq);
     RTListForEach(&pThis->WaiterList, pCur, RTSEMMUTEXLNXWAITER, ListEntry)
     {
@@ -143,6 +152,8 @@ RTDECL(int) RTSemMutexDestroy(RTSEMMUTEX hMtx)
         spin_unlock_irqrestore(&pThis->Spinlock, fSavedIrq);
         RTMemFree(pThis);
     }
+
+    IPRT_LINUX_RESTORE_EFL_AC();
 
     return VINF_SUCCESS;
 }
@@ -250,6 +261,7 @@ DECLINLINE(int) rtSemMutexLinuxRequest(RTSEMMUTEX hMutexSem, RTMSINTERVAL cMilli
     struct task_struct *pSelf = current;
     unsigned long       fSavedIrq;
     int                 rc;
+    IPRT_LINUX_SAVE_EFL_AC();
 
     /*
      * Validate.
@@ -289,10 +301,15 @@ DECLINLINE(int) rtSemMutexLinuxRequest(RTSEMMUTEX hMutexSem, RTMSINTERVAL cMilli
      * No, so go to sleep.
      */
     else
-        return rtSemMutexLinuxRequestSleep(pThis, cMillies, fInterruptible, fSavedIrq);
+    {
+        rc = rtSemMutexLinuxRequestSleep(pThis, cMillies, fInterruptible, fSavedIrq);
+        IPRT_LINUX_RESTORE_EFL_ONLY_AC();
+        return rc;
+    }
 
     IPRT_DEBUG_SEMS_STATE_RC(pThis, 'M', rc);
     spin_unlock_irqrestore(&pThis->Spinlock, fSavedIrq);
+    IPRT_LINUX_RESTORE_EFL_ONLY_AC();
     return rc;
 }
 
@@ -331,6 +348,7 @@ RTDECL(int) RTSemMutexRelease(RTSEMMUTEX hMtx)
     struct task_struct *pSelf = current;
     unsigned long       fSavedIrq;
     int                 rc;
+    IPRT_LINUX_SAVE_EFL_AC();
 
     /*
      * Validate.
@@ -366,6 +384,7 @@ RTDECL(int) RTSemMutexRelease(RTSEMMUTEX hMtx)
     spin_unlock_irqrestore(&pThis->Spinlock, fSavedIrq);
 
     AssertRC(rc);
+    IPRT_LINUX_RESTORE_EFL_AC();
     return rc;
 }
 RT_EXPORT_SYMBOL(RTSemMutexRelease);
@@ -376,6 +395,7 @@ RTDECL(bool) RTSemMutexIsOwned(RTSEMMUTEX hMutexSem)
     PRTSEMMUTEXINTERNAL pThis = hMutexSem;
     unsigned long       fSavedIrq;
     bool                fOwned;
+    IPRT_LINUX_SAVE_EFL_AC();
 
     /*
      * Validate.
@@ -391,6 +411,7 @@ RTDECL(bool) RTSemMutexIsOwned(RTSEMMUTEX hMutexSem)
     fOwned = pThis->pOwnerTask != NULL;
     spin_unlock_irqrestore(&pThis->Spinlock, fSavedIrq);
 
+    IPRT_LINUX_RESTORE_EFL_AC();
     return fOwned;
 
 }

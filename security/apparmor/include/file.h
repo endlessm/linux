@@ -33,56 +33,56 @@ struct path;
 				 AA_MAY_CHMOD | AA_MAY_CHOWN | AA_MAY_LOCK | \
 				 AA_EXEC_MMAP | AA_MAY_LINK)
 
-#define file_cxt(X) ((struct aa_file_cxt *)(X)->f_security)
+#define file_ctx(X) ((struct aa_file_ctx *)(X)->f_security)
 
-/* struct aa_file_cxt - the AppArmor context the file was opened in
- * @lock: lock to update the cxt
- * @label: label currently cached on the cxt
+/* struct aa_file_ctx - the AppArmor context the file was opened in
+ * @lock: lock to update the ctx
+ * @label: label currently cached on the ctx
  * @perms: the permission the file was opened with
  */
-struct aa_file_cxt {
+struct aa_file_ctx {
 	spinlock_t lock;
 	struct aa_label __rcu *label;
 	u32 allow;
 };
 
 /**
- * aa_alloc_file_cxt - allocate file_cxt
+ * aa_alloc_file_ctx - allocate file_ctx
  * @label: initial label of task creating the file
  * @gfp: gfp flags for allocation
  *
- * Returns: file_cxt or NULL on failure
+ * Returns: file_ctx or NULL on failure
  */
-static inline struct aa_file_cxt *aa_alloc_file_cxt(struct aa_label *label, gfp_t gfp)
+static inline struct aa_file_ctx *aa_alloc_file_ctx(struct aa_label *label, gfp_t gfp)
 {
-	struct aa_file_cxt *cxt;
+	struct aa_file_ctx *ctx;
 
-	cxt = kzalloc(sizeof(struct aa_file_cxt), gfp);
-	if (cxt) {
-		spin_lock_init(&cxt->lock);
-		rcu_assign_pointer(cxt->label, aa_get_label(label));
+	ctx = kzalloc(sizeof(struct aa_file_ctx), gfp);
+	if (ctx) {
+		spin_lock_init(&ctx->lock);
+		rcu_assign_pointer(ctx->label, aa_get_label(label));
 	}
-	return cxt;
+	return ctx;
 }
 
 /**
- * aa_free_file_cxt - free a file_cxt
- * @cxt: file_cxt to free  (MAYBE_NULL)
+ * aa_free_file_ctx - free a file_ctx
+ * @ctx: file_ctx to free  (MAYBE_NULL)
  */
-static inline void aa_free_file_cxt(struct aa_file_cxt *cxt)
+static inline void aa_free_file_ctx(struct aa_file_ctx *ctx)
 {
-	if (cxt) {
-		aa_put_label(rcu_access_pointer(cxt->label));
-		kzfree(cxt);
+	if (ctx) {
+		aa_put_label(rcu_access_pointer(ctx->label));
+		kzfree(ctx);
 	}
 }
 
-static inline struct aa_label *aa_get_file_label(struct aa_file_cxt *cxt)
+static inline struct aa_label *aa_get_file_label(struct aa_file_ctx *ctx)
 {
-	return aa_get_label_rcu(&cxt->label);
+	return aa_get_label_rcu(&ctx->label);
 }
 
-#define inode_cxt(X) (X)->i_security
+#define inode_ctx(X) (X)->i_security
 
 /*
  * The xindex is broken into 3 parts
@@ -111,25 +111,6 @@ struct path_cond {
 	kuid_t uid;
 	umode_t mode;
 };
-
-/* struct file_perms - file permission
- * @allow: mask of permissions that are allowed
- * @audit: mask of permissions to force an audit message for
- * @quiet: mask of permissions to quiet audit messages for
- * @kill: mask of permissions that when matched will kill the task
- * @xindex: exec transition index if @allow contains MAY_EXEC
- *
- * The @audit and @queit mask should be mutually exclusive.
- */
-struct file_perms {
-	u32 allow;
-	u32 audit;
-	u32 quiet;
-	u32 kill;
-	u16 xindex;
-};
-
-extern struct file_perms nullperms;
 
 #define COMBINED_PERM_MASK(X) ((X).allow | (X).audit | (X).quiet | (X).kill)
 
@@ -181,8 +162,8 @@ static inline u16 dfa_map_xindex(u16 mask)
 #define dfa_other_xindex(dfa, state) \
 	dfa_map_xindex((ACCEPT_TABLE(dfa)[state] >> 14) & 0x3fff)
 
-int aa_audit_file(struct aa_profile *profile, struct file_perms *perms,
-		  int op, u32 request, const char *name, const char *target,
+int aa_audit_file(struct aa_profile *profile, struct aa_perms *perms,
+		  const char *op, u32 request, const char *name, const char *target, struct aa_label *tlabel,
 		  kuid_t ouid, const char *info, int error);
 
 /**
@@ -204,20 +185,22 @@ struct aa_file_rules {
 	/* TODO: add delegate table */
 };
 
+struct aa_perms aa_compute_fperms(struct aa_dfa *dfa, unsigned int state,
+				    struct path_cond *cond);
 unsigned int aa_str_perms(struct aa_dfa *dfa, unsigned int start,
 			  const char *name, struct path_cond *cond,
-			  struct file_perms *perms);
+			  struct aa_perms *perms);
 
-int __aa_path_perm(int op, struct aa_profile *profile, const char *name,
+int __aa_path_perm(const char *op, struct aa_profile *profile, const char *name,
 		   u32 request, struct path_cond *cond, int flags,
-		   struct file_perms *perms);
-int aa_path_perm(int op, struct aa_label *label, struct path *path,
+		   struct aa_perms *perms);
+int aa_path_perm(const char *op, struct aa_label *label, struct path *path,
 		 int flags, u32 request, struct path_cond *cond);
 
 int aa_path_link(struct aa_label *label, struct dentry *old_dentry,
 		 struct path *new_dir, struct dentry *new_dentry);
 
-int aa_file_perm(int op, struct aa_label *label, struct file *file,
+int aa_file_perm(const char *op, struct aa_label *label, struct file *file,
 		 u32 request);
 
 void aa_inherit_files(const struct cred *cred, struct files_struct *files);

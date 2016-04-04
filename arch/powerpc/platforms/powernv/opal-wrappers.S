@@ -64,7 +64,6 @@ END_FTR_SECTION(0, 1);						\
 	OPAL_BRANCH(opal_tracepoint_entry) \
 	mfcr	r12;			\
 	stw	r12,8(r1);		\
-	std	r1,PACAR1(r13);		\
 	li	r11,0;			\
 	mfmsr	r12;			\
 	ori	r11,r11,MSR_EE;		\
@@ -127,7 +126,6 @@ opal_tracepoint_entry:
 	mfcr	r12
 	std	r11,16(r1)
 	stw	r12,8(r1)
-	std	r1,PACAR1(r13)
 	li	r11,0
 	mfmsr	r12
 	ori	r11,r11,MSR_EE
@@ -301,3 +299,4 @@ OPAL_CALL(opal_flash_erase,			OPAL_FLASH_ERASE);
 OPAL_CALL(opal_prd_msg,				OPAL_PRD_MSG);
 OPAL_CALL(opal_leds_get_ind,			OPAL_LEDS_GET_INDICATOR);
 OPAL_CALL(opal_leds_set_ind,			OPAL_LEDS_SET_INDICATOR);
+OPAL_CALL(opal_console_flush,			OPAL_CONSOLE_FLUSH);

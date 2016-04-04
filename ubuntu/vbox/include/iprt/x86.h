@@ -1069,6 +1069,9 @@ AssertCompile(X86_DR7_ANY_RW_IO(UINT32_C(0x00040000)) == 0);
 /** BIOS update signature (microcode). */
 #define MSR_IA32_BIOS_SIGN_ID               0x8B
 
+/** SMM monitor control. */
+#define MSR_IA32_SMM_MONITOR_CTL            0x9B
+
 /** General performance counter no. 0. */
 #define MSR_IA32_PMC0                       0xC1
 /** General performance counter no. 1. */
@@ -1247,9 +1250,98 @@ AssertCompile(X86_DR7_ANY_RW_IO(UINT32_C(0x00040000)) == 0);
 #define MSR_IA32_DS_AREA                    0x600
 /** Running Average Power Limit (RAPL) power units. */
 #define MSR_RAPL_POWER_UNIT                 0x606
-/** X2APIC MSR ranges. */
+
+/** X2APIC MSR range start. */
 #define MSR_IA32_X2APIC_START               0x800
+/** X2APIC MSR -  APIC ID Register. */
+#define MSR_IA32_X2APIC_ID                  0x802
+/** X2APIC MSR -  APIC Version Register. */
+#define MSR_IA32_X2APIC_VERSION             0x803
+/** X2APIC MSR -  Task Priority Register. */
 #define MSR_IA32_X2APIC_TPR                 0x808
+/** X2APIC MSR -  Processor Priority register. */
+#define MSR_IA32_X2APIC_PPR                 0x80A
+/** X2APIC MSR -  End Of Interrupt register. */
+#define MSR_IA32_X2APIC_EOI                 0x80B
+/** X2APIC MSR -  Logical Destination Register. */
+#define MSR_IA32_X2APIC_LDR                 0x80D
+/** X2APIC MSR -  Spurious Interrupt Vector Register. */
+#define MSR_IA32_X2APIC_SVR                 0x80F
+/** X2APIC MSR -  In-service Register (bits 31:0). */
+#define MSR_IA32_X2APIC_ISR0                0x810
+/** X2APIC MSR -  In-service Register (bits 63:32). */
+#define MSR_IA32_X2APIC_ISR1                0x811
+/** X2APIC MSR -  In-service Register (bits 95:64). */
+#define MSR_IA32_X2APIC_ISR2                0x812
+/** X2APIC MSR -  In-service Register (bits 127:96). */
+#define MSR_IA32_X2APIC_ISR3                0x813
+/** X2APIC MSR -  In-service Register (bits 159:128). */
+#define MSR_IA32_X2APIC_ISR4                0x814
+/** X2APIC MSR -  In-service Register (bits 191:160). */
+#define MSR_IA32_X2APIC_ISR5                0x815
+/** X2APIC MSR -  In-service Register (bits 223:192). */
+#define MSR_IA32_X2APIC_ISR6                0x816
+/** X2APIC MSR -  In-service Register (bits 255:224). */
+#define MSR_IA32_X2APIC_ISR7                0x817
+/** X2APIC MSR -  Trigger Mode Register (bits 31:0). */
+#define MSR_IA32_X2APIC_TMR0                0x818
+/** X2APIC MSR -  Trigger Mode Register (bits 63:32). */
+#define MSR_IA32_X2APIC_TMR1                0x819
+/** X2APIC MSR -  Trigger Mode Register (bits 95:64). */
+#define MSR_IA32_X2APIC_TMR2                0x81A
+/** X2APIC MSR -  Trigger Mode Register (bits 127:96). */
+#define MSR_IA32_X2APIC_TMR3                0x81B
+/** X2APIC MSR -  Trigger Mode Register (bits 159:128). */
+#define MSR_IA32_X2APIC_TMR4                0x81C
+/** X2APIC MSR -  Trigger Mode Register (bits 191:160). */
+#define MSR_IA32_X2APIC_TMR5                0x81D
+/** X2APIC MSR -  Trigger Mode Register (bits 223:192). */
+#define MSR_IA32_X2APIC_TMR6                0x81E
+/** X2APIC MSR -  Trigger Mode Register (bits 255:224). */
+#define MSR_IA32_X2APIC_TMR7                0x81F
+/** X2APIC MSR -  Interrupt Request Register (bits 31:0). */
+#define MSR_IA32_X2APIC_IRR0                0x820
+/** X2APIC MSR -  Interrupt Request Register (bits 63:32). */
+#define MSR_IA32_X2APIC_IRR1                0x821
+/** X2APIC MSR -  Interrupt Request Register (bits 95:64). */
+#define MSR_IA32_X2APIC_IRR2                0x822
+/** X2APIC MSR -  Interrupt Request Register (bits 127:96). */
+#define MSR_IA32_X2APIC_IRR3                0x823
+/** X2APIC MSR -  Interrupt Request Register (bits 159:128). */
+#define MSR_IA32_X2APIC_IRR4                0x824
+/** X2APIC MSR -  Interrupt Request Register (bits 191:160). */
+#define MSR_IA32_X2APIC_IRR5                0x825
+/** X2APIC MSR -  Interrupt Request Register (bits 223:192). */
+#define MSR_IA32_X2APIC_IRR6                0x826
+/** X2APIC MSR -  Interrupt Request Register (bits 255:224). */
+#define MSR_IA32_X2APIC_IRR7                0x827
+/** X2APIC MSR -  Error Status Register. */
+#define MSR_IA32_X2APIC_ESR                 0x828
+/** X2APIC MSR - LVT CMCI Register. */
+#define MSR_IA32_X2APIC_LVT_CMCI            0x82F
+/** X2APIC MSR -  Interrupt Command Register. */
+#define MSR_IA32_X2APIC_ICR                 0x830
+/** X2APIC MSR -  LVT Timer Register. */
+#define MSR_IA32_X2APIC_LVT_TIMER           0x832
+/** X2APIC MSR -  LVT Thermal Sensor Register. */
+#define MSR_IA32_X2APIC_LVT_THERMAL         0x833
+/** X2APIC MSR -  LVT Performance Counter Register. */
+#define MSR_IA32_X2APIC_LVT_PERF            0x834
+/** X2APIC MSR -  LVT LINT0 Register. */
+#define MSR_IA32_X2APIC_LVT_LINT0           0x835
+/** X2APIC MSR -  LVT LINT1 Register. */
+#define MSR_IA32_X2APIC_LVT_LINT1           0x836
+/** X2APIC MSR -  LVT Error Register . */
+#define MSR_IA32_X2APIC_LVT_ERROR           0x837
+/** X2APIC MSR -  Timer Initial Count Register. */
+#define MSR_IA32_X2APIC_TIMER_ICR           0x838
+/** X2APIC MSR -  Timer Current Count Register. */
+#define MSR_IA32_X2APIC_TIMER_CCR           0x839
+/** X2APIC MSR -  Timer Divide Configuration Register. */
+#define MSR_IA32_X2APIC_TIMER_DFR           0x83E
+/** X2APIC MSR - Self IPI. */
+#define MSR_IA32_X2APIC_SELF_IPI            0x83F
+/** X2APIC MSR range end. */
 #define MSR_IA32_X2APIC_END                 0xBFF
 
 /** K6 EFER - Extended Feature Enable Register. */

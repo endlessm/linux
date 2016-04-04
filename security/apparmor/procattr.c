@@ -35,26 +35,38 @@
  */
 int aa_getprocattr(struct aa_label *label, char **string)
 {
-	struct aa_namespace *ns = labels_ns(label);
-	struct aa_namespace *current_ns = labels_ns(aa_current_label());
+	struct aa_ns *ns = labels_ns(label);
+	struct aa_ns *current_ns = aa_get_current_ns();
 	int len;
 
-	if (!aa_ns_visible(current_ns, ns))
+	if (!aa_ns_visible(current_ns, ns, true)) {
+		aa_put_ns(current_ns);
 		return -EACCES;
+	}
 
-	len = aa_label_snprint(NULL, 0, current_ns, label, true);
+	len = aa_label_snxprint(NULL, 0, current_ns, label,
+				FLAG_SHOW_MODE | FLAG_VIEW_SUBNS |
+				FLAG_HIDDEN_UNCONFINED);
 	AA_BUG(len < 0);
 
 	*string = kmalloc(len + 2, GFP_KERNEL);
-	if (!*string)
+	if (!*string) {
+		aa_put_ns(current_ns);
 		return -ENOMEM;
+	}
 
-	len = aa_label_snprint(*string, len + 2, current_ns, label, true);
-	if (len < 0)
+	len = aa_label_snxprint(*string, len + 2, current_ns, label,
+				FLAG_SHOW_MODE | FLAG_VIEW_SUBNS |
+				FLAG_HIDDEN_UNCONFINED);
+	if (len < 0) {
+		aa_put_ns(current_ns);
 		return len;
+	}
+
 	(*string)[len] = '\n';
 	(*string)[len + 1] = 0;
 
+	aa_put_ns(current_ns);
 	return len + 1;
 }
 
@@ -66,13 +78,13 @@ int aa_getprocattr(struct aa_label *label, char **string)
  *
  * Returns: start position of name after token else NULL on failure
  */
-static char *split_token_from_name(int op, char *args, u64 * token)
+static char *split_token_from_name(const char *op, char *args, u64 * token)
 {
 	char *name;
 
 	*token = simple_strtoull(args, &name, 16);
 	if ((name == args) || *name != '^') {
-		AA_ERROR("%s: Invalid input '%s'", op_table[op], args);
+		AA_ERROR("%s: Invalid input '%s'", op, args);
 		return ERR_PTR(-EINVAL);
 	}
 
@@ -126,20 +138,4 @@ int aa_setprocattr_changehat(char *args, size_t size, int test)
 			 __func__, current->pid, token, count, "<NULL>");
 
 	return aa_change_hat(hats, count, token, test);
-}
-
-/**
- * aa_setprocattr_changeprofile - handle procattr interface to changeprofile
- * @fqname: args received from writting to /proc/<pid>/attr/current (NOT NULL)
- * @onexec: true if change_profile should be delayed until exec
- * @test: true if this is a test of change_profile permissions
- *
- * Returns: %0 or error code if change_profile fails
- */
-int aa_setprocattr_changeprofile(char *fqname, bool onexec, int test)
-{
-	char *name, *ns_name;
-
-	name = aa_split_fqname(fqname, &ns_name);
-	return aa_change_profile(ns_name, name, onexec, test);
 }

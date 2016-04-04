@@ -437,13 +437,18 @@ EXPORT_SYMBOL(file_ns_capable);
  *
  * Return true if the current task has the given capability targeted at
  * its own user namespace and that the given inode's uid and gid are
- * mapped into the current user namespace.
+ * mapped into the current user namespace, or if the current task has
+ * the capability towards the user namespace of the inode's superblock.
  */
 bool capable_wrt_inode_uidgid(const struct inode *inode, int cap)
 {
-	struct user_namespace *ns = current_user_ns();
+	struct user_namespace *ns;
 
-	return ns_capable(ns, cap) && kuid_has_mapping(ns, inode->i_uid) &&
-		kgid_has_mapping(ns, inode->i_gid);
+	ns = current_user_ns();
+	if (ns_capable(ns, cap) && kuid_has_mapping(ns, inode->i_uid) &&
+	    kgid_has_mapping(ns, inode->i_gid))
+		return true;
+
+	return ns_capable(inode->i_sb->s_user_ns, cap);
 }
 EXPORT_SYMBOL(capable_wrt_inode_uidgid);

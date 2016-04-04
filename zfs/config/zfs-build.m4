@@ -87,8 +87,8 @@ AC_DEFUN([ZFS_AC_CONFIG], [
 	ZFS_AC_CONFIG_ALWAYS
 
 	case "$ZFS_CONFIG" in
-		kernel) ZFS_AC_CONFIG_KERNEL ;;
 		user)	ZFS_AC_CONFIG_USER   ;;
+		kernel) ZFS_AC_CONFIG_KERNEL ;;
 		all)    ZFS_AC_CONFIG_KERNEL
 			ZFS_AC_CONFIG_USER   ;;
 		srpm)                        ;;

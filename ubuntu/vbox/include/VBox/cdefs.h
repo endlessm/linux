@@ -29,6 +29,10 @@
 #include <iprt/cdefs.h>
 
 
+/** @defgroup VBox Common Defintions and Macros
+ * @{
+ */
+
 /** @def VBOX_WITH_STATISTICS
  * When defined all statistics will be included in the build.
  * This is enabled by default in all debug builds.
@@ -442,6 +446,12 @@
 # define VBOXDDU_DECL(type) DECLIMPORT(type) VBOXCALL
 #endif
 
+/** @} */
+
+
+/** @defgroup grp_devdrv    Device Emulations and Drivers
+ * @{ */
+/** @} */
 
 #endif
 

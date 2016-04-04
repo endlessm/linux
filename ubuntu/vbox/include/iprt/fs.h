@@ -116,6 +116,8 @@ RT_C_DECLS_BEGIN
 #define RTFS_TYPE_WHITEOUT          0160000U
 /** Type mask (S_IFMT). */
 #define RTFS_TYPE_MASK              0170000U
+/** The shift count to convert between RTFS_TYPE_MASK and DIRENTRYTYPE. */
+#define RTFS_TYPE_DIRENTRYTYPE_SHIFT    12
 
 /** Unix attribute mask. */
 #define RTFS_UNIX_MASK              0xffffU
@@ -592,6 +594,17 @@ typedef RTFSPROPERTIES const *PCRTFSPROPERTIES;
  */
 RTR3DECL(int) RTFsQueryProperties(const char *pszFsPath, PRTFSPROPERTIES pProperties);
 
+/**
+ * Checks if the given volume is case sensitive or not.
+ *
+ * This may be misleading in some cases as we lack the necessary APIs to query
+ * the information on some system (or choose not to use them) and are instead
+ * returning the general position on case sensitive file name of the system.
+ *
+ * @returns @c true if case sensitive, @c false if not.
+ * @param   pszFsPath       Path within the mounted file system.
+ */
+RTR3DECL(bool) RTFsIsCaseSensitive(const char *pszFsPath);
 
 /**
  * Mountpoint enumerator callback.

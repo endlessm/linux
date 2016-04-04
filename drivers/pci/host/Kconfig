@@ -54,9 +54,13 @@ config PCI_RCAR_GEN2_PCIE
 	help
 	  Say Y here if you want PCIe controller support on R-Car Gen2 SoCs.
 
+config PCI_HOST_COMMON
+	bool
+
 config PCI_HOST_GENERIC
 	bool "Generic PCI host controller"
 	depends on (ARM || ARM64) && OF
+	select PCI_HOST_COMMON
 	help
 	  Say Y here if you want to support a simple generic PCI host
 	  controller, such as the one emulated by kvmtool.
@@ -172,5 +176,19 @@ config PCI_HISI
 	select PCIE_DW
 	help
 	  Say Y here if you want PCIe controller support on HiSilicon HIP05 SoC
+
+config PCI_HOST_THUNDER_PEM
+	bool "Cavium Thunder PCIe controller to off-chip devices"
+	depends on OF && ARM64
+	select PCI_HOST_COMMON
+	help
+	  Say Y here if you want PCIe support for CN88XX Cavium Thunder SoCs.
+
+config PCI_HOST_THUNDER_ECAM
+	bool "Cavium Thunder ECAM controller to on-chip devices on pass-1.x silicon"
+	depends on OF && ARM64
+	select PCI_HOST_COMMON
+	help
+	  Say Y here if you want ECAM support for CN88XX-Pass-1.x Cavium Thunder SoCs.
 
 endmenu

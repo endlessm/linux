@@ -25,9 +25,9 @@
  */
 
 
-/*******************************************************************************
-*   Header Files                                                               *
-*******************************************************************************/
+/*********************************************************************************************************************************
+*   Header Files                                                                                                                 *
+*********************************************************************************************************************************/
 #include "the-linux-kernel.h"
 #include "internal/iprt.h"
 #include <iprt/thread.h>
@@ -41,9 +41,9 @@
 #include <iprt/mp.h>
 
 
-/*******************************************************************************
-*   Global Variables                                                           *
-*******************************************************************************/
+/*********************************************************************************************************************************
+*   Global Variables                                                                                                             *
+*********************************************************************************************************************************/
 #ifndef CONFIG_PREEMPT
 /** Per-cpu preemption counters. */
 static int32_t volatile g_acPreemptDisabled[NR_CPUS];
@@ -59,9 +59,11 @@ RT_EXPORT_SYMBOL(RTThreadNativeSelf);
 
 static int rtR0ThreadLnxSleepCommon(RTMSINTERVAL cMillies)
 {
+    IPRT_LINUX_SAVE_EFL_AC();
     long cJiffies = msecs_to_jiffies(cMillies);
     set_current_state(TASK_INTERRUPTIBLE);
     cJiffies = schedule_timeout(cJiffies);
+    IPRT_LINUX_RESTORE_EFL_AC();
     if (!cJiffies)
         return VINF_SUCCESS;
     return VERR_INTERRUPTED;
@@ -84,6 +86,7 @@ RT_EXPORT_SYMBOL(RTThreadSleepNoLog);
 
 RTDECL(bool) RTThreadYield(void)
 {
+    IPRT_LINUX_SAVE_EFL_AC();
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(2, 4, 20)
     yield();
 #else
@@ -92,6 +95,7 @@ RTDECL(bool) RTThreadYield(void)
     sys_sched_yield();
     schedule();
 #endif
+    IPRT_LINUX_RESTORE_EFL_AC();
     return true;
 }
 RT_EXPORT_SYMBOL(RTThreadYield);

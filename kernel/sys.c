@@ -1868,11 +1868,13 @@ static int prctl_set_mm_map(int opt, const void __user *addr, unsigned long data
 		user_auxv[AT_VECTOR_SIZE - 1] = AT_NULL;
 	}
 
-	if (prctl_map.exe_fd != (u32)-1)
+	if (prctl_map.exe_fd != (u32)-1) {
 		error = prctl_set_mm_exe_file(mm, prctl_map.exe_fd);
-	down_read(&mm->mmap_sem);
-	if (error)
-		goto out;
+		if (error)
+			return error;
+	}
+
+	down_write(&mm->mmap_sem);
 
 	/*
 	 * We don't validate if these members are pointing to
@@ -1909,10 +1911,8 @@ static int prctl_set_mm_map(int opt, const void __user *addr, unsigned long data
 	if (prctl_map.auxv_size)
 		memcpy(mm->saved_auxv, user_auxv, sizeof(user_auxv));
 
-	error = 0;
-out:
-	up_read(&mm->mmap_sem);
-	return error;
+	up_write(&mm->mmap_sem);
+	return 0;
 }
 #endif /* CONFIG_CHECKPOINT_RESTORE */
 
@@ -1978,7 +1978,7 @@ static int prctl_set_mm(int opt, unsigned long addr,
 
 	error = -EINVAL;
 
-	down_read(&mm->mmap_sem);
+	down_write(&mm->mmap_sem);
 	vma = find_vma(mm, addr);
 
 	prctl_map.start_code	= mm->start_code;
@@ -2071,7 +2071,7 @@ static int prctl_set_mm(int opt, unsigned long addr,
 
 	error = 0;
 out:
-	up_read(&mm->mmap_sem);
+	up_write(&mm->mmap_sem);
 	return error;
 }
 

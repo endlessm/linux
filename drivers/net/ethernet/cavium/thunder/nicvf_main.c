@@ -525,14 +525,22 @@ static void nicvf_snd_pkt_handler(struct net_device *netdev,
 		   __func__, cqe_tx->sq_qs, cqe_tx->sq_idx,
 		   cqe_tx->sqe_ptr, hdr->subdesc_cnt);
 
-	nicvf_put_sq_desc(sq, hdr->subdesc_cnt + 1);
 	nicvf_check_cqe_tx_errs(nic, cq, cqe_tx);
 	skb = (struct sk_buff *)sq->skbuff[cqe_tx->sqe_ptr];
-	/* For TSO offloaded packets only one head SKB needs to be freed */
+	/* For TSO offloaded packets only one SQE will have a valid SKB */
 	if (skb) {
+		nicvf_put_sq_desc(sq, hdr->subdesc_cnt + 1);
 		prefetch(skb);
 		dev_consume_skb_any(skb);
 		sq->skbuff[cqe_tx->sqe_ptr] = (u64)NULL;
+	} else {
+		/* In case of HW TSO, HW sends a CQE for each segment of a TSO
+		 * packet instead of a single CQE for the whole TSO packet
+		 * transmitted. Each of this CQE points to the same SQE, so
+		 * avoid freeing same SQE multiple times.
+		 */
+		if (!nic->hw_tso)
+			nicvf_put_sq_desc(sq, hdr->subdesc_cnt + 1);
 	}
 }
 
@@ -820,7 +828,7 @@ static irqreturn_t nicvf_intr_handler(int irq, void *cq_irq)
 	nicvf_disable_intr(nic, NICVF_INTR_CQ, qidx);
 
 	/* Schedule NAPI */
-	napi_schedule(&cq_poll->napi);
+	napi_schedule_irqoff(&cq_poll->napi);
 
 	/* Clear interrupt */
 	nicvf_clear_intr(nic, NICVF_INTR_CQ, qidx);
@@ -891,6 +899,31 @@ static void nicvf_disable_msix(struct nicvf *nic)
 	}
 }
 
+static void nicvf_set_irq_affinity(struct nicvf *nic)
+{
+	int vec, cpu;
+	int irqnum;
+
+	for (vec = 0; vec < nic->num_vec; vec++) {
+		if (!nic->irq_allocated[vec])
+			continue;
+
+		if (!zalloc_cpumask_var(&nic->affinity_mask[vec], GFP_KERNEL))
+			return;
+		 /* CQ interrupts */
+		if (vec < NICVF_INTR_ID_SQ)
+			/* Leave CPU0 for RBDR and other interrupts */
+			cpu = nicvf_netdev_qidx(nic, vec) + 1;
+		else
+			cpu = 0;
+
+		cpumask_set_cpu(cpumask_local_spread(cpu, nic->node),
+				nic->affinity_mask[vec]);
+		irqnum = nic->msix_entries[vec].vector;
+		irq_set_affinity_hint(irqnum, nic->affinity_mask[vec]);
+	}
+}
+
 static int nicvf_register_interrupts(struct nicvf *nic)
 {
 	int irq, ret = 0;
@@ -936,8 +969,13 @@ static int nicvf_register_interrupts(struct nicvf *nic)
 	ret = request_irq(nic->msix_entries[irq].vector,
 			  nicvf_qs_err_intr_handler,
 			  0, nic->irq_name[irq], nic);
-	if (!ret)
-		nic->irq_allocated[irq] = true;
+	if (ret)
+		goto err;
+
+	nic->irq_allocated[irq] = true;
+
+	/* Set IRQ affinities */
+	nicvf_set_irq_affinity(nic);
 
 err:
 	if (ret)
@@ -954,6 +992,9 @@ static void nicvf_unregister_interrupts(struct nicvf *nic)
 	for (irq = 0; irq < nic->num_vec; irq++) {
 		if (!nic->irq_allocated[irq])
 			continue;
+
+		irq_set_affinity_hint(nic->msix_entries[irq].vector, NULL);
+		free_cpumask_var(nic->affinity_mask[irq]);
 
 		if (irq < NICVF_INTR_ID_SQ)
 			free_irq(nic->msix_entries[irq].vector, nic->napi[irq]);
@@ -1386,6 +1427,7 @@ static void nicvf_tx_timeout(struct net_device *dev)
 		netdev_warn(dev, "%s: Transmit timed out, resetting\n",
 			    dev->name);
 
+	nic->drv_stats.tx_timeout++;
 	schedule_work(&nic->reset_task);
 }
 
@@ -1548,6 +1590,9 @@ static int nicvf_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
 	netdev->hw_features |= NETIF_F_LOOPBACK;
 
 	netdev->vlan_features = NETIF_F_SG | NETIF_F_IP_CSUM | NETIF_F_TSO;
+
+	if (!pass1_silicon(nic->pdev))
+		nic->hw_tso = true;
 
 	netdev->netdev_ops = &nicvf_netdev_ops;
 	netdev->watchdog_timeo = NICVF_TX_TIMEOUT;

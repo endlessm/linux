@@ -27,9 +27,10 @@
 /* Entire file is ifdef'ed with VBGL_VBOXGUEST */
 #ifdef VBGL_VBOXGUEST
 
-/*******************************************************************************
-*   Header Files                                                               *
-*******************************************************************************/
+
+/*********************************************************************************************************************************
+*   Header Files                                                                                                                 *
+*********************************************************************************************************************************/
 #define LOG_GROUP LOG_GROUP_HGCM
 
 #include "VBGLInternal.h"
@@ -42,9 +43,10 @@
 #include <iprt/thread.h>
 #include <iprt/time.h>
 
-/*******************************************************************************
-*   Defined Constants And Macros                                               *
-*******************************************************************************/
+
+/*********************************************************************************************************************************
+*   Defined Constants And Macros                                                                                                 *
+*********************************************************************************************************************************/
 /** The max parameter buffer size for a user request. */
 #define VBGLR0_MAX_HGCM_USER_PARM       (24*_1M)
 /** The max parameter buffer size for a kernel request. */
@@ -57,9 +59,9 @@
 #endif
 
 
-/*******************************************************************************
-*   Structures and Typedefs                                                    *
-*******************************************************************************/
+/*********************************************************************************************************************************
+*   Structures and Typedefs                                                                                                      *
+*********************************************************************************************************************************/
 /**
  * Lock info structure used by VbglR0HGCMInternalCall and its helpers.
  */
@@ -484,7 +486,7 @@ static void vbglR0HGCMInternalInitCall(VMMDevHGCMCall *pHGCMCall, VBoxGuestHGCMC
     HGCMFunctionParameter const *pSrcParm = VBOXGUEST_HGCM_CALL_PARMS(pCallInfo);
     HGCMFunctionParameter       *pDstParm = VMMDEV_HGCM_CALL_PARMS(pHGCMCall);
     uint32_t    cParms   = pCallInfo->cParms;
-    uint32_t    offExtra = (uintptr_t)(pDstParm + cParms) - (uintptr_t)pHGCMCall;
+    uint32_t    offExtra = (uint32_t)((uintptr_t)(pDstParm + cParms) - (uintptr_t)pHGCMCall);
     uint32_t    iLockBuf = 0;
     uint32_t    iParm;
 
@@ -572,7 +574,7 @@ static void vbglR0HGCMInternalInitCall(VMMDevHGCMCall *pHGCMCall, VBoxGuestHGCMC
                         else
 #endif
                             pDstPgLst->offFirstPage = pSrcParm->u.Pointer.u.linearAddr & PAGE_OFFSET_MASK;
-                        pDstPgLst->cPages           = cPages; Assert(pDstPgLst->cPages == cPages);
+                        pDstPgLst->cPages           = (uint32_t)cPages; Assert(pDstPgLst->cPages == cPages);
                         for (iPage = 0; iPage < cPages; iPage++)
                         {
                             pDstPgLst->aPages[iPage] = RTR0MemObjGetPagePhysAddr(hObj, iPage);

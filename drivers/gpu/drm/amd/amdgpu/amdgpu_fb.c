@@ -264,7 +264,7 @@ out_unref:
 
 	}
 	if (fb && ret) {
-		drm_gem_object_unreference(gobj);
+		drm_gem_object_unreference_unlocked(gobj);
 		drm_framebuffer_unregister_private(fb);
 		drm_framebuffer_cleanup(fb);
 		kfree(fb);
@@ -332,6 +332,10 @@ int amdgpu_fbdev_init(struct amdgpu_device *adev)
 
 	/* don't init fbdev on hw without DCE */
 	if (!adev->mode_info.mode_config_initialized)
+		return 0;
+
+	/* don't init fbdev if there are no connectors */
+	if (list_empty(&adev->ddev->mode_config.connector_list))
 		return 0;
 
 	/* select 8 bpp console on low vram cards */

@@ -27,10 +27,9 @@
 #include "VBGLInternal.h"
 
 
-DECLVBGL(int) VbglQueryVMMDevMemory (VMMDevMemory **ppVMMDevMemory)
+DECLVBGL(int) VbglQueryVMMDevMemory(VMMDevMemory **ppVMMDevMemory)
 {
-    int rc = vbglR0Enter ();
-
+    int rc = vbglR0Enter();
     if (RT_FAILURE(rc))
         return rc;
 

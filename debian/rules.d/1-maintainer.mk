@@ -1,7 +1,7 @@
 # The following targets are for the maintainer only! do not run if you don't
 # know what they do.
 
-.PHONY: printenv updateconfigs printchanges insertchanges startnewrelease diffupstream help updateportsconfigs editportsconfigs
+.PHONY: printenv updateconfigs printchanges insertchanges startnewrelease diffupstream help updateportsconfigs editportsconfigs autoreconstruct
 
 help:
 	@echo "These are the targets in addition to the normal $(DEBIAN) ones:"
@@ -99,10 +99,13 @@ printchanges:
 	@baseCommit=$$(git log --pretty=format:'%H %s' | \
 		gawk '/UBUNTU: '".*Ubuntu-`echo $(prev_fullver) | sed 's/+/\\\\+/'`"'$$/ { print $$1; exit }'); \
 		git log "$$baseCommit"..HEAD | \
-		perl -w -f $(DROOT)/scripts/misc/git-ubuntu-log $(ubuntu_log_opts)
+		$(DROOT)/scripts/misc/git-ubuntu-log $(ubuntu_log_opts)
 
-insertchanges:
+insertchanges: autoreconstruct
 	@perl -w -f $(DROOT)/scripts/misc/insert-changes.pl $(DROOT) $(DEBIAN) 
+
+autoreconstruct:
+	$(DROOT)/scripts/misc/gen-auto-reconstruct $(release) >$(DEBIAN)/reconstruct
 
 diffupstream:
 	@git diff-tree -p refs/remotes/linux-2.6/master..HEAD $(shell ls | grep -vE '^(ubuntu|$(DEBIAN)|\.git.*)')

@@ -21,8 +21,14 @@
 #include "include/apparmor.h"
 #include "include/audit.h"
 #include "include/label.h"
+#include "include/lib.h"
 #include "include/perms.h"
 #include "include/policy.h"
+
+struct aa_perms nullperms;
+struct aa_perms allperms = { .allow = ALL_PERMS_MASK,
+			     .quiet = ALL_PERMS_MASK,
+			     .hide = ALL_PERMS_MASK };
 
 /**
  * aa_split_fqname - split a fqname into a profile and namespace name
@@ -70,7 +76,7 @@ char *aa_split_fqname(char *fqname, char **ns_name)
  * if all whitespace will return NULL
  */
 
-static char *skipn_spaces(const char *str, size_t n)
+static const char *skipn_spaces(const char *str, size_t n)
 {
 	for (;n && isspace(*str); --n)
 		++str;
@@ -79,21 +85,22 @@ static char *skipn_spaces(const char *str, size_t n)
 	return NULL;
 }
 
-char *aa_splitn_fqname(char *fqname, size_t n, char **ns_name, size_t *ns_len)
+const char *aa_splitn_fqname(const char *fqname, size_t n, const char **ns_name,
+			     size_t *ns_len)
 {
-	char *end = fqname + n;
-	char *name = skipn_spaces(fqname, n);
+	const char *end = fqname + n;
+	const char *name = skipn_spaces(fqname, n);
 	if (!name)
 		return NULL;
 	*ns_name = NULL;
 	*ns_len = 0;
 	if (name[0] == ':') {
-		char *split = strnchr(name + 1, end - name - 1, ':');
+		char *split = strnchr(&name[1], end - &name[1], ':');
 		*ns_name = skipn_spaces(&name[1], end - &name[1]);
 		if (!*ns_name)
 			return NULL;
 		if (split) {
-			*ns_len = split - *ns_name - 1;
+			*ns_len = split - *ns_name;
 			if (*ns_len == 0)
 				*ns_name = NULL;
 			split++;
@@ -119,7 +126,7 @@ char *aa_splitn_fqname(char *fqname, size_t n, char **ns_name, size_t *ns_len)
 void aa_info_message(const char *str)
 {
 	if (audit_enabled) {
-	  DEFINE_AUDIT_DATA(sa, LSM_AUDIT_DATA_NONE, 0);
+		DEFINE_AUDIT_DATA(sa, LSM_AUDIT_DATA_NONE, NULL);
 		aad(&sa)->info = str;
 		aa_audit_msg(AUDIT_APPARMOR_STATUS, &sa, NULL);
 	}
@@ -286,14 +293,9 @@ static void aa_audit_perms_cb(struct audit_buffer *ab, void *va)
 				   PERMS_CHRS_MASK, aa_file_perm_names,
 				   PERMS_NAMES_MASK);
 	}
-	audit_log_format(ab, " target=");
-	audit_log_untrustedstring(ab, aad(sa)->target);
-}
-
-void map_old_policy_perms(struct aa_dfa *dfa, unsigned int state,
-			  struct aa_perms *perms)
-{
-
+	audit_log_format(ab, " peer=");
+	aa_label_xaudit(ab, labels_ns(aad(sa)->label), aad(sa)->peer,
+				      FLAGS_NONE, GFP_ATOMIC);
 }
 
 /**
@@ -396,32 +398,29 @@ void aa_perms_accum(struct aa_perms *accum, struct aa_perms *addend)
 	accum->prompt |= addend->prompt & ~accum->allow & ~accum->deny;
 }
 
-void aa_profile_match_label(struct aa_profile *profile, const char *label,
-			    int type, struct aa_perms *perms)
+void aa_profile_match_label(struct aa_profile *profile, struct aa_label *label,
+			    int type, u32 request, struct aa_perms *perms)
 {
 	/* TODO: doesn't yet handle extended types */
 	unsigned int state;
-	if (profile->policy.dfa) {
-		state = aa_dfa_next(profile->policy.dfa,
-				    profile->policy.start[AA_CLASS_LABEL],
-				    type);
-		state = aa_dfa_match(profile->policy.dfa, state, label);
-		aa_compute_perms(profile->policy.dfa, state, perms);
-	} else
-		memset(perms, 0, sizeof(*perms));
+	state = aa_dfa_next(profile->policy.dfa,
+			    profile->policy.start[AA_CLASS_LABEL],
+			    type);
+	aa_label_match(profile, label, state, false, request, perms);
 }
 
 
+/* currently unused */
 int aa_profile_label_perm(struct aa_profile *profile, struct aa_profile *target,
 			  u32 request, int type, u32 *deny,
 			  struct common_audit_data *sa)
 {
 	struct aa_perms perms;
 	aad(sa)->label = &profile->label;
-	aad(sa)->target = target;
+	aad(sa)->peer = &target->label;
 	aad(sa)->request = request;
 
-	aa_profile_match_label(profile, target->base.hname, type, &perms);
+	aa_profile_match_label(profile, &target->label, type, request, &perms);
 	aa_apply_modes_to_perms(profile, &perms);
 	*deny |= request & perms.deny;
 	return aa_check_perms(profile, &perms, request, sa, aa_audit_perms_cb);
@@ -476,7 +475,7 @@ int aa_check_perms(struct aa_profile *profile, struct aa_perms *perms,
 			error = -ENOENT;
 
 		denied &= ~perms->quiet;
-		if (type != AUDIT_APPARMOR_ALLOWED && (!sa || !denied))
+		if (!sa || !denied)
 			return error;
 	}
 
@@ -515,10 +514,52 @@ const char *aa_imode_name(umode_t mode)
 	return "unknown";
 }
 
-const char *aa_peer_name(struct aa_profile *peer)
+/**
+ * aa_policy_init - initialize a policy structure
+ * @policy: policy to initialize  (NOT NULL)
+ * @prefix: prefix name if any is required.  (MAYBE NULL)
+ * @name: name of the policy, init will make a copy of it  (NOT NULL)
+ * @gfp: allocation mode
+ *
+ * Note: this fn creates a copy of strings passed in
+ *
+ * Returns: true if policy init successful
+ */
+bool aa_policy_init(struct aa_policy *policy, const char *prefix,
+		    const char *name, gfp_t gfp)
 {
-	if (profile_unconfined(peer))
-		return "unconfined";
+	char *hname;
 
-	return peer->base.hname;
+	/* freed by policy_free */
+	if (prefix) {
+		hname = aa_str_alloc(strlen(prefix) + strlen(name) + 3, gfp);
+		if (hname)
+			sprintf(hname, "%s//%s", prefix, name);
+	} else {
+		hname = aa_str_alloc(strlen(name) + 1, gfp);
+		if (hname)
+			strcpy(hname, name);
+	}
+	if (!hname)
+		return 0;
+	policy->hname = hname;
+	/* base.name is a substring of fqname */
+	policy->name = (char *) basename(policy->hname);
+	INIT_LIST_HEAD(&policy->list);
+	INIT_LIST_HEAD(&policy->profiles);
+
+	return 1;
+}
+
+/**
+ * aa_policy_destroy - free the elements referenced by @policy
+ * @policy: policy that is to have its elements freed  (NOT NULL)
+ */
+void aa_policy_destroy(struct aa_policy *policy)
+{
+	AA_BUG(on_list_rcu(&policy->profiles));
+	AA_BUG(on_list_rcu(&policy->list));
+
+	/* don't free name as its a subset of hname */
+	aa_put_str(policy->hname);
 }
