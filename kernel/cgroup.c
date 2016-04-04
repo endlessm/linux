@@ -1940,6 +1940,7 @@ static void init_cgroup_root(struct cgroup_root *root,
 {
 	struct cgroup *cgrp = &root->cgrp;
 
+	kref_init(&root->kref);
 	INIT_LIST_HEAD(&root->root_list);
 	atomic_set(&root->nr_cgrps, 1);
 	cgrp->root = root;
@@ -2044,11 +2045,28 @@ out:
 	return ret;
 }
 
+static void cgroup_release_root(struct kref *kref)
+{
+	struct cgroup_root *root = container_of(kref, struct cgroup_root, kref);
+
+	/*
+	 * If @root doesn't have any mounts or children, start killing it.
+	 * This prevents new mounts by disabling percpu_ref_tryget_live().
+	 * cgroup_mount() may wait for @root's release.
+	 *
+	 * And don't kill the default root.
+	 */
+	if (!list_empty(&root->cgrp.self.children) ||
+	    root == &cgrp_dfl_root)
+		cgroup_put(&root->cgrp);
+	else
+		percpu_ref_kill(&root->cgrp.self.refcnt);
+}
+
 static struct dentry *cgroup_mount(struct file_system_type *fs_type,
 			 int flags, const char *unused_dev_name,
 			 void *data)
 {
-	struct super_block *pinned_sb = NULL;
 	struct cgroup_namespace *ns = current->nsproxy->cgroup_ns;
 	struct cgroup_subsys *ss;
 	struct cgroup_root *root;
@@ -2144,22 +2162,12 @@ static struct dentry *cgroup_mount(struct file_system_type *fs_type,
 
 		/*
 		 * We want to reuse @root whose lifetime is governed by its
-		 * ->cgrp.  Let's check whether @root is alive and keep it
-		 * that way.  As cgroup_kill_sb() can happen anytime, we
-		 * want to block it by pinning the sb so that @root doesn't
-		 * get killed before mount is complete.
-		 *
-		 * With the sb pinned, tryget_live can reliably indicate
-		 * whether @root can be reused.  If it's being killed,
-		 * drain it.  We can use wait_queue for the wait but this
-		 * path is super cold.  Let's just sleep a bit and retry.
+		 * refcnt.  If the refcnt is already zero then it's too late;
+		 * sleep a bit and retry.  Otherwise we get a reference and
+		 * can reuse the root.
 		 */
-		pinned_sb = kernfs_pin_sb(root->kf_root, NULL);
-		if (IS_ERR(pinned_sb) ||
-		    !percpu_ref_tryget_live(&root->cgrp.self.refcnt)) {
+		if (!kref_get_unless_zero(&root->kref)) {
 			mutex_unlock(&cgroup_mutex);
-			if (!IS_ERR_OR_NULL(pinned_sb))
-				deactivate_super(pinned_sb);
 			msleep(10);
 			ret = restart_syscall();
 			goto out_free;
@@ -2212,8 +2220,8 @@ out_free:
 		return ERR_PTR(ret);
 	}
 
-	dentry = kernfs_mount(fs_type, flags, root->kf_root,
-			      CGROUP_SUPER_MAGIC, &new_sb);
+	dentry = kernfs_mount_ns(fs_type, flags, root->kf_root,
+				 CGROUP_SUPER_MAGIC, &new_sb, ns);
 
 	/*
 	 * In non-init cgroup namespace, instead of root cgroup's
@@ -2237,17 +2245,12 @@ out_free:
 		dentry = nsdentry;
 	}
 
-	if (IS_ERR(dentry) || !new_sb)
-		cgroup_put(&root->cgrp);
-
 	/*
-	 * If @pinned_sb, we're reusing an existing root and holding an
-	 * extra ref on its sb.  Mount is complete.  Put the extra ref.
+	 * On failure put the cgroup_root. If this is the last reference
+	 * cgroup_release_root will put the cgroup.
 	 */
-	if (pinned_sb) {
-		WARN_ON(new_sb);
-		deactivate_super(pinned_sb);
-	}
+	if (IS_ERR(dentry))
+		kref_put(&root->kref, cgroup_release_root);
 
 	put_cgroup_ns(ns);
 	return dentry;
@@ -2258,19 +2261,7 @@ static void cgroup_kill_sb(struct super_block *sb)
 	struct kernfs_root *kf_root = kernfs_root_from_sb(sb);
 	struct cgroup_root *root = cgroup_root_from_kf(kf_root);
 
-	/*
-	 * If @root doesn't have any mounts or children, start killing it.
-	 * This prevents new mounts by disabling percpu_ref_tryget_live().
-	 * cgroup_mount() may wait for @root's release.
-	 *
-	 * And don't kill the default root.
-	 */
-	if (!list_empty(&root->cgrp.self.children) ||
-	    root == &cgrp_dfl_root)
-		cgroup_put(&root->cgrp);
-	else
-		percpu_ref_kill(&root->cgrp.self.refcnt);
-
+	kref_put(&root->kref, cgroup_release_root);
 	kernfs_kill_sb(sb);
 }
 

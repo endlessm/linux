@@ -16,6 +16,7 @@
 #include <linux/percpu-refcount.h>
 #include <linux/percpu-rwsem.h>
 #include <linux/workqueue.h>
+#include <linux/kref.h>
 
 #ifdef CONFIG_CGROUPS
 
@@ -300,6 +301,9 @@ struct cgroup {
  */
 struct cgroup_root {
 	struct kernfs_root *kf_root;
+
+	/* Reference count for superblocks sharing this cgroup_root */
+	struct kref kref;
 
 	/* The bitmask of subsystems attached to this hierarchy */
 	unsigned int subsys_mask;
