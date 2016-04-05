@@ -1252,17 +1252,7 @@ EXPORT_SYMBOL_GPL(vmbus_allocate_mmio);
  */
 void vmbus_free_mmio(resource_size_t start, resource_size_t size)
 {
-	struct resource *iter;
-
-	down(&hyperv_mmio_lock);
-	for (iter = hyperv_mmio; iter; iter = iter->sibling) {
-		if ((iter->start >= start + size) || (iter->end <= start))
-			continue;
-
-		__release_region(iter, start, size);
-	}
 	release_mem_region(start, size);
-	up(&hyperv_mmio_lock);
 
 }
 EXPORT_SYMBOL_GPL(vmbus_free_mmio);
