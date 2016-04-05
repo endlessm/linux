@@ -30,8 +30,11 @@
 #include "include/context.h"
 #include "include/crypto.h"
 #include "include/ipc.h"
+#include "include/policy_ns.h"
+#include "include/label.h"
 #include "include/policy.h"
 #include "include/resource.h"
+#include "include/lib.h"
 
 /**
  * aa_mangle_name - mangle a profile name to std profile layout form
@@ -74,7 +77,6 @@ static int mangle_name(const char *name, char *target)
 
 /**
  * aa_simple_write_to_buffer - common routine for getting policy from user
- * @op: operation doing the user buffer copy
  * @userbuf: user buffer to copy data from  (NOT NULL)
  * @alloc_size: size of user buffer (REQUIRES: @alloc_size >= @copy_size)
  * @copy_size: size of data to copy from user buffer
@@ -83,7 +85,7 @@ static int mangle_name(const char *name, char *target)
  * Returns: kernel buffer containing copy of user buffer data or an
  *          ERR_PTR on failure.
  */
-static char *aa_simple_write_to_buffer(int op, const char __user *userbuf,
+static char *aa_simple_write_to_buffer(const char __user *userbuf,
 				       size_t alloc_size, size_t copy_size,
 				       loff_t *pos)
 {
@@ -94,13 +96,6 @@ static char *aa_simple_write_to_buffer(int op, const char __user *userbuf,
 	if (*pos != 0)
 		/* only writes from pos 0, that is complete writes */
 		return ERR_PTR(-ESPIPE);
-
-	/*
-	 * Don't allow profile load/replace/remove from profiles that don't
-	 * have CAP_MAC_ADMIN
-	 */
-	if (!aa_may_manage_policy(op))
-		return ERR_PTR(-EACCES);
 
 	/* freed by caller to simple_write_to_buffer */
 	data = kvmalloc(alloc_size);
@@ -115,23 +110,38 @@ static char *aa_simple_write_to_buffer(int op, const char __user *userbuf,
 	return data;
 }
 
+static ssize_t policy_update(u32 mask, const char __user *buf, size_t size,
+			 loff_t *pos)
+{
+	struct aa_label *label;
+	ssize_t error;
+	char *data;
+
+	label = aa_begin_current_label(DO_UPDATE);
+
+	/* high level check about policy management - fine grained in
+	 * below after unpack
+	 */
+	error = aa_may_manage_policy(label, mask);
+	if (error)
+		return error;
+
+	data = aa_simple_write_to_buffer(buf, size, size, pos);
+	error = PTR_ERR(data);
+	if (!IS_ERR(data)) {
+		error = aa_replace_profiles(label, mask, data, size);
+		kvfree(data);
+	}
+	aa_end_current_label(label);
+
+	return error;
+}
 
 /* .load file hook fn to load policy */
 static ssize_t profile_load(struct file *f, const char __user *buf, size_t size,
 			    loff_t *pos)
 {
-	char *data;
-	ssize_t error;
-
-	data = aa_simple_write_to_buffer(OP_PROF_LOAD, buf, size, size, pos);
-
-	error = PTR_ERR(data);
-	if (!IS_ERR(data)) {
-		error = aa_replace_profiles(data, size, PROF_ADD);
-		kvfree(data);
-	}
-
-	return error;
+	return policy_update(AA_MAY_LOAD_POLICY, buf, size, pos);
 }
 
 static const struct file_operations aa_fs_profile_load = {
@@ -143,17 +153,8 @@ static const struct file_operations aa_fs_profile_load = {
 static ssize_t profile_replace(struct file *f, const char __user *buf,
 			       size_t size, loff_t *pos)
 {
-	char *data;
-	ssize_t error;
-
-	data = aa_simple_write_to_buffer(OP_PROF_REPL, buf, size, size, pos);
-	error = PTR_ERR(data);
-	if (!IS_ERR(data)) {
-		error = aa_replace_profiles(data, size, PROF_REPLACE);
-		kvfree(data);
-	}
-
-	return error;
+	return policy_update(AA_MAY_LOAD_POLICY | AA_MAY_REPLACE_POLICY,
+			     buf, size, pos);
 }
 
 static const struct file_operations aa_fs_profile_replace = {
@@ -165,21 +166,31 @@ static const struct file_operations aa_fs_profile_replace = {
 static ssize_t profile_remove(struct file *f, const char __user *buf,
 			      size_t size, loff_t *pos)
 {
-	char *data;
+	struct aa_label *label;
 	ssize_t error;
+	char *data;
+
+	label = aa_begin_current_label(DO_UPDATE);
+	/* high level check about policy management - fine grained in
+	 * below after unpack
+	 */
+	error = aa_may_manage_policy(label, AA_MAY_REMOVE_POLICY);
+	if (error)
+		return error;
 
 	/*
 	 * aa_remove_profile needs a null terminated string so 1 extra
 	 * byte is allocated and the copied data is null terminated.
 	 */
-	data = aa_simple_write_to_buffer(OP_PROF_RM, buf, size + 1, size, pos);
+	data = aa_simple_write_to_buffer(buf, size + 1, size, pos);
 
 	error = PTR_ERR(data);
 	if (!IS_ERR(data)) {
 		data[size] = 0;
-		error = aa_remove_profiles(data, size);
+		error = aa_remove_profiles(label, data, size);
 		kvfree(data);
 	}
+	aa_end_current_label(label);
 
 	return error;
 }
@@ -188,6 +199,40 @@ static const struct file_operations aa_fs_profile_remove = {
 	.write = profile_remove,
 	.llseek = default_llseek,
 };
+
+
+static void profile_query_cb(struct aa_profile *profile, struct aa_perms *perms,
+			     const char *match_str, size_t match_len)
+{
+	struct aa_perms tmp;
+	struct aa_dfa *dfa;
+	unsigned int state = 0;
+
+	if (profile_unconfined(profile))
+		return;
+	if (profile->file.dfa && *match_str == AA_CLASS_FILE) {
+		dfa = profile->file.dfa;
+		state = aa_dfa_match_len(dfa, profile->file.start,
+					 match_str + 1, match_len - 1);
+		tmp = nullperms;
+		if (state) {
+			struct path_cond cond = { };
+			tmp = aa_compute_fperms(dfa, state, &cond);
+		}
+	} else if (profile->policy.dfa) {
+		if (!PROFILE_MEDIATES_SAFE(profile, *match_str))
+			return;	/* no change to current perms */
+		dfa = profile->policy.dfa;
+		state = aa_dfa_match_len(dfa, profile->policy.start[0],
+					 match_str, match_len);
+		if (state)
+			aa_compute_perms(dfa, state, &tmp);
+		else
+			tmp = nullperms;
+	}
+	aa_apply_modes_to_perms(profile, &tmp);
+	aa_perms_accum_raw(perms, &tmp);
+}
 
 /**
  * query_label - queries a label and writes permissions to buf
@@ -209,14 +254,13 @@ static const struct file_operations aa_fs_profile_remove = {
  * Returns: number of characters written to buf or -errno on failure
  */
 static ssize_t query_label(char *buf, size_t buf_len,
-			   char *query, size_t query_len)
+			   char *query, size_t query_len, bool ns_only)
 {
 	struct aa_profile *profile;
-	struct aa_label *label;
+	struct aa_label *label, *curr;
 	char *label_name, *match_str;
 	size_t label_name_len, match_len;
 	struct aa_perms perms;
-	unsigned int state = 0;
 	struct label_it i;
 
 	if (!query_len)
@@ -236,32 +280,21 @@ static ssize_t query_label(char *buf, size_t buf_len,
 	match_str = label_name + label_name_len + 1;
 	match_len = query_len - label_name_len - 1;
 
-	label = aa_label_parse(aa_current_label(), label_name, GFP_KERNEL,
-			       false);
+	curr = aa_begin_current_label(DO_UPDATE);
+	label = aa_label_parse(curr, label_name, GFP_KERNEL, false, false);
+	aa_end_current_label(curr);
 	if (IS_ERR(label))
 		return PTR_ERR(label);
 
-	aa_perms_all(&perms);
-	label_for_each_confined(i, label, profile) {
-		struct aa_perms tmp;
-		struct aa_dfa *dfa;
-		if (profile->file.dfa && *match_str == AA_CLASS_FILE) {
-			dfa = profile->file.dfa;
-			state = aa_dfa_match_len(dfa, profile->file.start,
-						 match_str + 1, match_len - 1);
-		} else if (profile->policy.dfa) {
-			if (!PROFILE_MEDIATES_SAFE(profile, *match_str))
-				continue;	/* no change to current perms */
-			dfa = profile->policy.dfa;
-			state = aa_dfa_match_len(dfa, profile->policy.start[0],
-						 match_str, match_len);
+	perms = allperms;
+	if (ns_only) {
+		label_for_each_in_ns(i, labels_ns(label), label, profile) {
+			profile_query_cb(profile, &perms, match_str, match_len);
 		}
-		if (state)
-			aa_compute_perms(dfa, state, &tmp);
-		else
-			aa_perms_clear(&tmp);
-		aa_apply_modes_to_perms(profile, &tmp);
-		aa_perms_accum_raw(&perms, &tmp);
+	} else {
+		label_for_each(i, label, profile) {
+			profile_query_cb(profile, &perms, match_str, match_len);
+		}
 	}
 	aa_put_label(label);
 
@@ -274,6 +307,8 @@ static ssize_t query_label(char *buf, size_t buf_len,
 #define QUERY_CMD_LABEL_LEN	6
 #define QUERY_CMD_PROFILE	"profile\0"
 #define QUERY_CMD_PROFILE_LEN	8
+#define QUERY_CMD_LABELALL	"labelall\0"
+#define QUERY_CMD_LABELALL_LEN	9
 
 /**
  * aa_write_access - generic permissions query
@@ -306,12 +341,17 @@ static ssize_t aa_write_access(struct file *file, const char __user *ubuf,
 	    !memcmp(buf, QUERY_CMD_PROFILE, QUERY_CMD_PROFILE_LEN)) {
 		len = query_label(buf, SIMPLE_TRANSACTION_LIMIT,
 				  buf + QUERY_CMD_PROFILE_LEN,
-				  count - QUERY_CMD_PROFILE_LEN);
+				  count - QUERY_CMD_PROFILE_LEN, true);
 	} else if (count > QUERY_CMD_LABEL_LEN &&
 		   !memcmp(buf, QUERY_CMD_LABEL, QUERY_CMD_LABEL_LEN)) {
 		len = query_label(buf, SIMPLE_TRANSACTION_LIMIT,
 				  buf + QUERY_CMD_LABEL_LEN,
-				  count - QUERY_CMD_LABEL_LEN);
+				  count - QUERY_CMD_LABEL_LEN, true);
+	} else if (count > QUERY_CMD_LABELALL_LEN &&
+		   !memcmp(buf, QUERY_CMD_LABELALL, QUERY_CMD_LABELALL_LEN)) {
+		len = query_label(buf, SIMPLE_TRANSACTION_LIMIT,
+				  buf + QUERY_CMD_LABELALL_LEN,
+				  count - QUERY_CMD_LABELALL_LEN, false);
 	} else
 		len = -EINVAL;
 
@@ -371,12 +411,12 @@ const struct file_operations aa_fs_seq_file_ops = {
 static int aa_fs_seq_profile_open(struct inode *inode, struct file *file,
 				  int (*show)(struct seq_file *, void *))
 {
-	struct aa_replacedby *r = aa_get_replacedby(inode->i_private);
-	int error = single_open(file, show, r);
+	struct aa_proxy *proxy = aa_get_proxy(inode->i_private);
+	int error = single_open(file, show, proxy);
 
 	if (error) {
 		file->private_data = NULL;
-		aa_put_replacedby(r);
+		aa_put_proxy(proxy);
 	}
 
 	return error;
@@ -386,14 +426,14 @@ static int aa_fs_seq_profile_release(struct inode *inode, struct file *file)
 {
 	struct seq_file *seq = (struct seq_file *) file->private_data;
 	if (seq)
-		aa_put_replacedby(seq->private);
+		aa_put_proxy(seq->private);
 	return single_release(inode, file);
 }
 
 static int aa_fs_seq_profname_show(struct seq_file *seq, void *v)
 {
-	struct aa_replacedby *r = seq->private;
-	struct aa_label *label = aa_get_label_rcu(&r->label);
+	struct aa_proxy *proxy = seq->private;
+	struct aa_label *label = aa_get_label_rcu(&proxy->label);
 	struct aa_profile *profile = labels_profile(label);
 	seq_printf(seq, "%s\n", profile->base.name);
 	aa_put_label(label);
@@ -416,8 +456,8 @@ static const struct file_operations aa_fs_profname_fops = {
 
 static int aa_fs_seq_profmode_show(struct seq_file *seq, void *v)
 {
-	struct aa_replacedby *r = seq->private;
-	struct aa_label *label = aa_get_label_rcu(&r->label);
+	struct aa_proxy *proxy = seq->private;
+	struct aa_label *label = aa_get_label_rcu(&proxy->label);
 	struct aa_profile *profile = labels_profile(label);
 	seq_printf(seq, "%s\n", aa_profile_mode_names[profile->mode]);
 	aa_put_label(label);
@@ -440,8 +480,8 @@ static const struct file_operations aa_fs_profmode_fops = {
 
 static int aa_fs_seq_profattach_show(struct seq_file *seq, void *v)
 {
-	struct aa_replacedby *r = seq->private;
-	struct aa_label *label = aa_get_label_rcu(&r->label);
+	struct aa_proxy *proxy = seq->private;
+	struct aa_label *label = aa_get_label_rcu(&proxy->label);
 	struct aa_profile *profile = labels_profile(label);
 	if (profile->attach)
 		seq_printf(seq, "%s\n", profile->attach);
@@ -469,8 +509,8 @@ static const struct file_operations aa_fs_profattach_fops = {
 
 static int aa_fs_seq_hash_show(struct seq_file *seq, void *v)
 {
-	struct aa_replacedby *r = seq->private;
-	struct aa_label *label = aa_get_label_rcu(&r->label);
+	struct aa_proxy *proxy = seq->private;
+	struct aa_label *label = aa_get_label_rcu(&proxy->label);
 	struct aa_profile *profile = labels_profile(label);
 	unsigned int i, size = aa_hash_size();
 
@@ -479,6 +519,7 @@ static int aa_fs_seq_hash_show(struct seq_file *seq, void *v)
 			seq_printf(seq, "%.2x", profile->hash[i]);
 		seq_puts(seq, "\n");
 	}
+	aa_put_label(label);
 
 	return 0;
 }
@@ -515,13 +556,13 @@ void __aa_fs_profile_rmdir(struct aa_profile *profile)
 		__aa_fs_profile_rmdir(child);
 
 	for (i = AAFS_PROF_SIZEOF - 1; i >= 0; --i) {
-		struct aa_replacedby *r;
+		struct aa_proxy *proxy;
 		if (!profile->dents[i])
 			continue;
 
-		r = d_inode(profile->dents[i])->i_private;
+		proxy = d_inode(profile->dents[i])->i_private;
 		securityfs_remove(profile->dents[i]);
-		aa_put_replacedby(r);
+		aa_put_proxy(proxy);
 		profile->dents[i] = NULL;
 	}
 }
@@ -551,12 +592,12 @@ static struct dentry *create_profile_file(struct dentry *dir, const char *name,
 					  struct aa_profile *profile,
 					  const struct file_operations *fops)
 {
-	struct aa_replacedby *r = aa_get_replacedby(profile->label.replacedby);
+	struct aa_proxy *proxy = aa_get_proxy(profile->label.proxy);
 	struct dentry *dent;
 
-	dent = securityfs_create_file(name, S_IFREG | 0444, dir, r, fops);
+	dent = securityfs_create_file(name, S_IFREG | 0444, dir, proxy, fops);
 	if (IS_ERR(dent))
-		aa_put_replacedby(r);
+		aa_put_proxy(proxy);
 
 	return dent;
 }
@@ -648,9 +689,9 @@ fail2:
  *
  * Requires: @ns->lock held
  */
-void __aa_fs_namespace_rmdir(struct aa_namespace *ns)
+void __aa_fs_ns_rmdir(struct aa_ns *ns)
 {
-	struct aa_namespace *sub;
+	struct aa_ns *sub;
 	struct aa_profile *child;
 	int i;
 
@@ -663,7 +704,7 @@ void __aa_fs_namespace_rmdir(struct aa_namespace *ns)
 
 	list_for_each_entry(sub, &ns->sub_ns, base.list) {
 		mutex_lock(&sub->lock);
-		__aa_fs_namespace_rmdir(sub);
+		__aa_fs_ns_rmdir(sub);
 		mutex_unlock(&sub->lock);
 	}
 
@@ -677,10 +718,9 @@ void __aa_fs_namespace_rmdir(struct aa_namespace *ns)
  *
  * Requires: @ns->lock held
  */
-int __aa_fs_namespace_mkdir(struct aa_namespace *ns, struct dentry *parent,
-			    const char *name)
+int __aa_fs_ns_mkdir(struct aa_ns *ns, struct dentry *parent, const char *name)
 {
-	struct aa_namespace *sub;
+	struct aa_ns *sub;
 	struct aa_profile *child;
 	struct dentry *dent, *dir;
 	int error;
@@ -715,7 +755,7 @@ int __aa_fs_namespace_mkdir(struct aa_namespace *ns, struct dentry *parent,
 
 	list_for_each_entry(sub, &ns->sub_ns, base.list) {
 		mutex_lock(&sub->lock);
-		error = __aa_fs_namespace_mkdir(sub, ns_subns_dir(ns), NULL);
+		error = __aa_fs_ns_mkdir(sub, ns_subns_dir(ns), NULL);
 		mutex_unlock(&sub->lock);
 		if (error)
 			goto fail2;
@@ -727,7 +767,7 @@ fail:
 	error = PTR_ERR(dent);
 
 fail2:
-	__aa_fs_namespace_rmdir(ns);
+	__aa_fs_ns_rmdir(ns);
 
 	return error;
 }
@@ -738,7 +778,7 @@ fail2:
 #define list_entry_is_head(pos, head, member) (&pos->member == (head))
 
 /**
- * __next_namespace - find the next namespace to list
+ * __next_ns - find the next namespace to list
  * @root: root namespace to stop search at (NOT NULL)
  * @ns: current ns position (NOT NULL)
  *
@@ -749,10 +789,9 @@ fail2:
  * Requires: ns->parent->lock to be held
  * NOTE: will not unlock root->lock
  */
-static struct aa_namespace *__next_namespace(struct aa_namespace *root,
-					     struct aa_namespace *ns)
+static struct aa_ns *__next_ns(struct aa_ns *root, struct aa_ns *ns)
 {
-	struct aa_namespace *parent, *next;
+	struct aa_ns *parent, *next;
 
 	AA_BUG(!root);
 	AA_BUG(!ns);
@@ -789,13 +828,12 @@ static struct aa_namespace *__next_namespace(struct aa_namespace *root,
  * Returns: unrefcounted profile or NULL if no profile
  * Requires: ns.lock to be held
  */
-static struct aa_profile *__first_profile(struct aa_namespace *root,
-					  struct aa_namespace *ns)
+static struct aa_profile *__first_profile(struct aa_ns *root, struct aa_ns *ns)
 {
 	AA_BUG(!root);
 	AA_BUG(ns && !mutex_is_locked(&ns->lock));
 
-	for (; ns; ns = __next_namespace(root, ns)) {
+	for (; ns; ns = __next_ns(root, ns)) {
 		if (!list_empty(&ns->base.profiles))
 			return list_first_entry(&ns->base.profiles,
 						struct aa_profile, base.list);
@@ -815,7 +853,7 @@ static struct aa_profile *__first_profile(struct aa_namespace *root,
 static struct aa_profile *__next_profile(struct aa_profile *p)
 {
 	struct aa_profile *parent;
-	struct aa_namespace *ns = p->ns;
+	struct aa_ns *ns = p->ns;
 
 	AA_BUG(!mutex_is_locked(&profiles_ns(p)->lock));
 
@@ -851,7 +889,7 @@ static struct aa_profile *__next_profile(struct aa_profile *p)
  *
  * Returns: next profile or NULL if there isn't one
  */
-static struct aa_profile *next_profile(struct aa_namespace *root,
+static struct aa_profile *next_profile(struct aa_ns *root,
 				       struct aa_profile *profile)
 {
 	struct aa_profile *next = __next_profile(profile);
@@ -859,7 +897,7 @@ static struct aa_profile *next_profile(struct aa_namespace *root,
 		return next;
 
 	/* finished all profiles in namespace move to next namespace */
-	return __first_profile(root, __next_namespace(root, profile->ns));
+	return __first_profile(root, __next_ns(root, profile->ns));
 }
 
 /**
@@ -874,10 +912,9 @@ static struct aa_profile *next_profile(struct aa_namespace *root,
 static void *p_start(struct seq_file *f, loff_t *pos)
 {
 	struct aa_profile *profile = NULL;
-	struct aa_namespace *root = labels_ns(aa_current_label());
+	struct aa_ns *root = aa_get_current_ns();
 	loff_t l = *pos;
-	f->private = aa_get_namespace(root);
-
+	f->private = root;
 
 	/* find the first profile */
 	mutex_lock(&root->lock);
@@ -903,7 +940,7 @@ static void *p_start(struct seq_file *f, loff_t *pos)
 static void *p_next(struct seq_file *f, void *p, loff_t *pos)
 {
 	struct aa_profile *profile = p;
-	struct aa_namespace *ns = f->private;
+	struct aa_ns *ns = f->private;
 	(*pos)++;
 
 	return next_profile(ns, profile);
@@ -919,14 +956,14 @@ static void *p_next(struct seq_file *f, void *p, loff_t *pos)
 static void p_stop(struct seq_file *f, void *p)
 {
 	struct aa_profile *profile = p;
-	struct aa_namespace *root = f->private, *ns;
+	struct aa_ns *root = f->private, *ns;
 
 	if (profile) {
 		for (ns = profile->ns; ns && ns != root; ns = ns->parent)
 			mutex_unlock(&ns->lock);
 	}
 	mutex_unlock(&root->lock);
-	aa_put_namespace(root);
+	aa_put_ns(root);
 }
 
 /**
@@ -939,12 +976,11 @@ static void p_stop(struct seq_file *f, void *p)
 static int seq_show_profile(struct seq_file *f, void *p)
 {
 	struct aa_profile *profile = (struct aa_profile *)p;
-	struct aa_namespace *root = f->private;
+	struct aa_ns *root = f->private;
 
-	if (profile->ns != root)
-		seq_printf(f, ":%s://", aa_ns_name(root, profile->ns));
-	seq_printf(f, "%s (%s)\n", profile->base.hname,
-		   aa_profile_mode_names[profile->mode]);
+	aa_label_seq_xprint(f, root, &profile->label,
+			    FLAG_SHOW_MODE | FLAG_VIEW_SUBNS, GFP_KERNEL);
+	seq_printf(f, "\n");
 
 	return 0;
 }
@@ -958,6 +994,9 @@ static const struct seq_operations aa_fs_profiles_op = {
 
 static int profiles_open(struct inode *inode, struct file *file)
 {
+	if (!aa_may_open_profiles())
+		return -EACCES;
+
 	return seq_open(file, &aa_fs_profiles_op);
 }
 
@@ -996,6 +1035,7 @@ static struct aa_fs_entry aa_fs_entry_domain[] = {
 	AA_FS_FILE_BOOLEAN("change_hatv",	1),
 	AA_FS_FILE_BOOLEAN("change_onexec",	1),
 	AA_FS_FILE_BOOLEAN("change_profile",	1),
+	AA_FS_FILE_BOOLEAN("stack",		1),
 	{ }
 };
 
@@ -1017,7 +1057,7 @@ static struct aa_fs_entry aa_fs_entry_mount[] = {
 	{ }
 };
 
-static struct aa_fs_entry aa_fs_entry_namespaces[] = {
+static struct aa_fs_entry aa_fs_entry_ns[] = {
 	AA_FS_FILE_BOOLEAN("profile",		1),
 	AA_FS_FILE_BOOLEAN("pivot_root",	1),
 	{ }
@@ -1034,7 +1074,7 @@ static struct aa_fs_entry aa_fs_entry_features[] = {
 	AA_FS_DIR("file",			aa_fs_entry_file),
 	AA_FS_DIR("network",			aa_fs_entry_network),
 	AA_FS_DIR("mount",			aa_fs_entry_mount),
-	AA_FS_DIR("namespaces",			aa_fs_entry_namespaces),
+	AA_FS_DIR("namespaces",			aa_fs_entry_ns),
 	AA_FS_FILE_U64("capability",		VFS_CAP_FLAGS_MASK),
 	AA_FS_DIR("rlimit",			aa_fs_entry_rlimit),
 	AA_FS_DIR("caps",			aa_fs_entry_caps),
@@ -1045,11 +1085,11 @@ static struct aa_fs_entry aa_fs_entry_features[] = {
 };
 
 static struct aa_fs_entry aa_fs_entry_apparmor[] = {
-	AA_FS_FILE_FOPS(".load", 0640, &aa_fs_profile_load),
-	AA_FS_FILE_FOPS(".replace", 0640, &aa_fs_profile_replace),
-	AA_FS_FILE_FOPS(".remove", 0640, &aa_fs_profile_remove),
+	AA_FS_FILE_FOPS(".load", 0666, &aa_fs_profile_load),
+	AA_FS_FILE_FOPS(".replace", 0666, &aa_fs_profile_replace),
+	AA_FS_FILE_FOPS(".remove", 0666, &aa_fs_profile_remove),
 	AA_FS_FILE_FOPS(".access", 0666, &aa_fs_access),
-	AA_FS_FILE_FOPS("profiles", 0640, &aa_fs_profiles_fops),
+	AA_FS_FILE_FOPS("profiles", 0444, &aa_fs_profiles_fops),
 	AA_FS_DIR("features", aa_fs_entry_features),
 	{ }
 };
@@ -1228,8 +1268,7 @@ static int __init aa_create_aafs(void)
 		goto error;
 
 	mutex_lock(&root_ns->lock);
-	error = __aa_fs_namespace_mkdir(root_ns, aa_fs_entry.dentry,
-					"policy");
+	error = __aa_fs_ns_mkdir(root_ns, aa_fs_entry.dentry, "policy");
 	mutex_unlock(&root_ns->lock);
 
 	if (error)

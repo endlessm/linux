@@ -149,58 +149,19 @@ void audit_net_cb(struct audit_buffer *ab, void *va)
 						   aad(sa)->net.peer_sk);
 		}
 	}
-	if (aad(sa)->target) {
+	if (aad(sa)->peer) {
 		audit_log_format(ab, " peer=");
-		audit_log_untrustedstring(ab, aad(sa)->target);
+		aa_label_xaudit(ab, labels_ns(aad(sa)->label), aad(sa)->peer,
+				FLAGS_NONE, GFP_ATOMIC);
 	}
 }
 
-/**
- * audit_net - audit network access
- * @profile: profile being enforced  (NOT NULL)
- * @op: operation being checked
- * @family: network family
- * @type:   network type
- * @protocol: network protocol
- * @sk: socket auditing is being applied to
- * @error: error code for failure else 0
- *
- * Returns: %0 or sa->error else other errorcode on failure
- */
-static int audit_net(struct aa_profile *profile, int op, u16 family, int type,
-		     int protocol, struct sock *sk, int error)
+
+/* Generic af perm */
+int aa_profile_af_perm(struct aa_profile *profile, struct common_audit_data *sa,
+		       u32 request, u16 family, int type)
 {
-	int audit_type = AUDIT_APPARMOR_AUTO;
-	DEFINE_AUDIT_NET(sa, op, sk, family, type, protocol);
-	aad(&sa)->error = error;
-
-	if (likely(!aad(&sa)->error)) {
-		u16 audit_mask = profile->net.audit[sa.u.net->family];
-		if (likely((AUDIT_MODE(profile) != AUDIT_ALL) &&
-			   !(1 << aad(&sa)->net.type & audit_mask)))
-			return 0;
-		audit_type = AUDIT_APPARMOR_AUDIT;
-	} else {
-		u16 quiet_mask = profile->net.quiet[sa.u.net->family];
-		u16 kill_mask = 0;
-		u16 denied = (1 << aad(&sa)->net.type);
-
-		if (denied & kill_mask)
-			audit_type = AUDIT_APPARMOR_KILL;
-
-		if ((denied & quiet_mask) &&
-		    AUDIT_MODE(profile) != AUDIT_NOQUIET &&
-		    AUDIT_MODE(profile) != AUDIT_ALL)
-		  return COMPLAIN_MODE(profile) ? 0 : aad(&sa)->error;
-	}
-
-	return aa_audit(audit_type, profile, &sa, audit_net_cb);
-}
-
-static inline int aa_af_mask_perm(struct aa_profile *profile, u16 family,
-				  int type)
-{
-	u16 family_mask;
+	struct aa_perms perms = { };
 
 	AA_BUG(family >= AF_MAX);
 	AA_BUG(type < 0 && type >= SOCK_MAX);
@@ -208,34 +169,32 @@ static inline int aa_af_mask_perm(struct aa_profile *profile, u16 family,
 	if (profile_unconfined(profile))
 		return 0;
 
-	family_mask = profile->net.allow[family];
-	return (family_mask & (1 << type)) ? 0 : -EACCES;
+	perms.allow = (profile->net.allow[family] & (1 << type)) ?
+		ALL_PERMS_MASK : 0;
+	perms.audit = (profile->net.audit[family] & (1 << type)) ?
+		ALL_PERMS_MASK : 0;
+	perms.quiet = (profile->net.quiet[family] & (1 << type)) ?
+		ALL_PERMS_MASK : 0;
+	aa_apply_modes_to_perms(profile, &perms);
 
+	return aa_check_perms(profile, &perms, request, sa, audit_net_cb);
 }
 
-/* Generic af perm */
-int aa_profile_af_perm(struct aa_profile *profile, int op, u16 family,
-		       int type, int protocol, struct sock *sk)
-{
-	int error = aa_af_mask_perm(profile, family, type);
-
-	return audit_net(profile, op, family, type, protocol, sk, error);
-}
-
-int aa_af_perm(struct aa_label *label, int op, u32 request, u16 family,
-	       int type, int protocol, struct sock *sk)
+static int aa_af_perm(struct aa_label *label, const char *op, u32 request,
+		      u16 family, int type, int protocol)
 {
 	struct aa_profile *profile;
+	DEFINE_AUDIT_NET(sa, op, NULL, family, type, protocol);
 
 	return fn_for_each_confined(label, profile,
-			aa_profile_af_perm(profile, op, family, type, protocol,
-					   sk));
+			aa_profile_af_perm(profile, &sa, request, family, type));
 }
 
-static int aa_label_sk_perm(struct aa_label *label, int op, u32 request,
+static int aa_label_sk_perm(struct aa_label *label, const char *op, u32 request,
 			    struct sock *sk)
 {
 	struct aa_profile *profile;
+	DEFINE_AUDIT_SK(sa, op, sk);
 
 	AA_BUG(!label);
 	AA_BUG(!sk);
@@ -244,22 +203,23 @@ static int aa_label_sk_perm(struct aa_label *label, int op, u32 request,
 		return 0;
 
 	return fn_for_each_confined(label, profile,
-			aa_profile_af_perm(profile, op, sk->sk_family,
-					   sk->sk_type, sk->sk_protocol,
-					   sk));
-
+			aa_profile_af_sk_perm(profile, &sa, request, sk));
 }
 
-static int aa_sk_perm(int op, u32 request, struct sock *sk)
+static int aa_sk_perm(const char *op, u32 request, struct sock *sk)
 {
 	struct aa_label *label;
+	int error;
 
 	AA_BUG(!sk);
 	AA_BUG(in_interrupt());
 
 	/* TODO: switch to begin_current_label ???? */
-	label = aa_current_label();
-	return aa_label_sk_perm(label, op, request, sk);
+	label = aa_begin_current_label(DO_UPDATE);
+	error = aa_label_sk_perm(label, op, request, sk);
+	aa_end_current_label(label);
+
+	return error;
 }
 
 #define af_select(FAMILY, FN, DEF_FN)		\
@@ -278,7 +238,7 @@ static int aa_sk_perm(int op, u32 request, struct sock *sk)
 /* TODO: push into lsm.c ???? */
 
 /* revaliation, get/set attr, shutdown */
-int aa_sock_perm(int op, u32 request, struct socket *sock)
+int aa_sock_perm(const char *op, u32 request, struct socket *sock)
 {
 	AA_BUG(!sock);
 	AA_BUG(!sock->sk);
@@ -299,7 +259,7 @@ int aa_sock_create_perm(struct aa_label *label, int family, int type,
 	return af_select(family,
 			 create_perm(label, family, type, protocol),
 			 aa_af_perm(label, OP_CREATE, AA_MAY_CREATE, family,
-				    type, protocol, NULL));
+				    type, protocol));
 }
 
 int aa_sock_bind_perm(struct socket *sock, struct sockaddr *address,
@@ -357,7 +317,7 @@ int aa_sock_accept_perm(struct socket *sock, struct socket *newsock)
 }
 
 /* sendmsg, recvmsg */
-int aa_sock_msg_perm(int op, u32 request, struct socket *sock,
+int aa_sock_msg_perm(const char *op, u32 request, struct socket *sock,
 		     struct msghdr *msg, int size)
 {
 	AA_BUG(!sock);
@@ -372,7 +332,7 @@ int aa_sock_msg_perm(int op, u32 request, struct socket *sock,
 }
 
 /* revaliation, get/set attr, opt */
-int aa_sock_opt_perm(int op, u32 request, struct socket *sock, int level,
+int aa_sock_opt_perm(const char *op, u32 request, struct socket *sock, int level,
 		     int optname)
 {
 	AA_BUG(!sock);
@@ -384,7 +344,7 @@ int aa_sock_opt_perm(int op, u32 request, struct socket *sock, int level,
 			 aa_sk_perm(op, request, sock->sk));
 }
 
-int aa_sock_file_perm(struct aa_label *label, int op, u32 request,
+int aa_sock_file_perm(struct aa_label *label, const char *op, u32 request,
 		      struct socket *sock)
 {
 	AA_BUG(!label);

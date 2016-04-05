@@ -366,6 +366,17 @@ static inline bool unconditional(const struct arpt_arp *arp)
 	return memcmp(arp, &uncond, sizeof(uncond)) == 0;
 }
 
+static bool next_offset_ok(const struct xt_table_info *t, unsigned int newpos)
+{
+	if (newpos > t->size - sizeof(struct arpt_entry))
+		return false;
+
+	if (newpos % __alignof__(struct arpt_entry) != 0)
+		return false;
+
+	return true;
+}
+
 /* Figures out from what hook each rule can be called: returns 0 if
  * there are loops.  Puts hook bitmask in comefrom.
  */
@@ -437,6 +448,8 @@ static int mark_source_chains(const struct xt_table_info *newinfo,
 
 				/* Move along one */
 				size = e->next_offset;
+				if (!next_offset_ok(newinfo, pos + size))
+					return 0;
 				e = (struct arpt_entry *)
 					(entry0 + pos + size);
 				e->counters.pcnt = pos;
@@ -447,14 +460,6 @@ static int mark_source_chains(const struct xt_table_info *newinfo,
 				if (strcmp(t->target.u.user.name,
 					   XT_STANDARD_TARGET) == 0 &&
 				    newpos >= 0) {
-					if (newpos > newinfo->size -
-						sizeof(struct arpt_entry)) {
-						duprintf("mark_source_chains: "
-							"bad verdict (%i)\n",
-								newpos);
-						return 0;
-					}
-
 					/* This a jump; chase it. */
 					duprintf("Jump rule %u -> %u\n",
 						 pos, newpos);
@@ -462,6 +467,10 @@ static int mark_source_chains(const struct xt_table_info *newinfo,
 					/* ... this is a fallthru */
 					newpos = pos + e->next_offset;
 				}
+
+				if (!next_offset_ok(newinfo, newpos))
+					return 0;
+
 				e = (struct arpt_entry *)
 					(entry0 + newpos);
 				e->counters.pcnt = pos;

@@ -24,9 +24,7 @@
 #include "include/match.h"
 #include "include/path.h"
 #include "include/policy.h"
-
-struct file_perms nullperms;
-
+#include "include/label.h"
 
 static u32 map_mask_to_chr_mask(u32 mask)
 {
@@ -77,9 +75,13 @@ static void file_audit_cb(struct audit_buffer *ab, void *va)
 				 from_kuid(&init_user_ns, aad(sa)->fs.ouid));
 	}
 
-	if (aad(sa)->target) {
+	if (aad(sa)->peer) {
 		audit_log_format(ab, " target=");
-		audit_log_untrustedstring(ab, aad(sa)->target);
+		aa_label_xaudit(ab, labels_ns(aad(sa)->label), aad(sa)->peer,
+				FLAG_VIEW_SUBNS, GFP_ATOMIC);
+	} else if (aad(sa)->fs.target) {
+		audit_log_format(ab, " target=");
+		audit_log_untrustedstring(ab, aad(sa)->fs.target);
 	}
 }
 
@@ -91,14 +93,16 @@ static void file_audit_cb(struct audit_buffer *ab, void *va)
  * @request: permissions requested
  * @name: name of object being mediated (MAYBE NULL)
  * @target: name of target (MAYBE NULL)
+ * @tlabel: target label (MAY BE NULL)
  * @ouid: object uid
  * @info: extra information message (MAYBE NULL)
  * @error: 0 if operation allowed else failure error code
  *
  * Returns: %0 or error on failure
  */
-int aa_audit_file(struct aa_profile *profile, struct file_perms *perms,
-		  int op, u32 request, const char *name, const char *target,
+int aa_audit_file(struct aa_profile *profile, struct aa_perms *perms,
+		  const char *op, u32 request, const char *name,
+		  const char *target, struct aa_label *tlabel,
 		  kuid_t ouid, const char *info, int error)
 {
 	int type = AUDIT_APPARMOR_AUTO;
@@ -106,7 +110,8 @@ int aa_audit_file(struct aa_profile *profile, struct file_perms *perms,
 	DEFINE_AUDIT_DATA(sa, LSM_AUDIT_DATA_NONE, op);
 	aad(&sa)->request = request;
 	aad(&sa)->name = name;
-	aad(&sa)->target = target;
+	aad(&sa)->fs.target = target;
+	aad(&sa)->peer = tlabel;
 	aad(&sa)->fs.ouid = ouid;
 	aad(&sa)->info = info;
 	aad(&sa)->error = error;
@@ -127,6 +132,7 @@ int aa_audit_file(struct aa_profile *profile, struct file_perms *perms,
 	} else {
 		/* only report permissions that were denied */
 		aad(&sa)->request = aad(&sa)->request & ~perms->allow;
+		AA_BUG(!aad(&sa)->request);
 
 		if (aad(&sa)->request & perms->kill)
 			type = AUDIT_APPARMOR_KILL;
@@ -138,7 +144,7 @@ int aa_audit_file(struct aa_profile *profile, struct file_perms *perms,
 			aad(&sa)->request &= ~perms->quiet;
 
 		if (!aad(&sa)->request)
-			return COMPLAIN_MODE(profile) ? 0 : aad(&sa)->error;
+			return aad(&sa)->error;
 	}
 
 	aad(&sa)->denied = aad(&sa)->request & ~perms->allow;
@@ -158,7 +164,7 @@ static inline bool is_deleted(struct dentry *dentry)
 	return 0;
 }
 
-static int path_name(int op, struct aa_label *label, struct path *path,
+static int path_name(const char *op, struct aa_label *label, struct path *path,
 		     int flags, char *buffer, const char**name,
 		     struct path_cond *cond, u32 request, bool delegate_deleted)
 {
@@ -172,7 +178,7 @@ static int path_name(int op, struct aa_label *label, struct path *path,
 			return 0;
 		fn_for_each_confined(label, profile,
 			aa_audit_file(profile, &nullperms, op, request, *name,
-				      NULL, cond->uid, info, error));
+				      NULL, NULL, cond->uid, info, error));
 		return error;
 	}
 
@@ -208,7 +214,7 @@ static u32 map_old_perms(u32 old)
 }
 
 /**
- * compute_perms - convert dfa compressed perms to internal perms
+ * aa_compute_fperms - convert dfa compressed perms to internal perms
  * @dfa: dfa to compute perms for   (NOT NULL)
  * @state: state in dfa
  * @cond:  conditions to consider  (NOT NULL)
@@ -218,17 +224,21 @@ static u32 map_old_perms(u32 old)
  *
  * Returns: computed permission set
  */
-static struct file_perms compute_perms(struct aa_dfa *dfa, unsigned int state,
-				       struct path_cond *cond)
+struct aa_perms aa_compute_fperms(struct aa_dfa *dfa, unsigned int state,
+				  struct path_cond *cond)
 {
-	struct file_perms perms;
+	struct aa_perms perms;
 
 	/* FIXME: change over to new dfa format
 	 * currently file perms are encoded in the dfa, new format
 	 * splits the permissions from the dfa.  This mapping can be
 	 * done at profile load
 	 */
-	perms.kill = 0;
+	perms.deny = 0;
+	perms.kill = perms.stop = 0;
+	perms.complain = perms.cond = 0;
+	perms.hide = 0;
+	perms.prompt = 0;
 
 	if (uid_eq(current_fsuid(), cond->uid)) {
 		perms.allow = map_old_perms(dfa_user_allow(dfa, state));
@@ -264,23 +274,18 @@ static struct file_perms compute_perms(struct aa_dfa *dfa, unsigned int state,
  */
 unsigned int aa_str_perms(struct aa_dfa *dfa, unsigned int start,
 			  const char *name, struct path_cond *cond,
-			  struct file_perms *perms)
+			  struct aa_perms *perms)
 {
 	unsigned int state;
-	if (!dfa) {
-		*perms = nullperms;
-		return DFA_NOMATCH;
-	}
-
 	state = aa_dfa_match(dfa, start, name);
-	*perms = compute_perms(dfa, state, cond);
+	*perms = aa_compute_fperms(dfa, state, cond);
 
 	return state;
 }
 
-int __aa_path_perm(int op, struct aa_profile *profile, const char *name,
+int __aa_path_perm(const char *op, struct aa_profile *profile, const char *name,
 		   u32 request, struct path_cond *cond, int flags,
-		   struct file_perms *perms)
+		   struct aa_perms *perms)
 {
 	int e = 0;
 	if (profile_unconfined(profile) ||
@@ -289,7 +294,7 @@ int __aa_path_perm(int op, struct aa_profile *profile, const char *name,
 	aa_str_perms(profile->file.dfa, profile->file.start, name, cond, perms);
 	if (request & ~perms->allow)
 		e = -EACCES;
-	return aa_audit_file(profile, perms, op, request, name, NULL,
+	return aa_audit_file(profile, perms, op, request, name, NULL, NULL,
 			     cond->uid, NULL, e);
 }
 
@@ -304,10 +309,10 @@ int __aa_path_perm(int op, struct aa_profile *profile, const char *name,
  *
  * Returns: %0 else error if access denied or other error
  */
-int aa_path_perm(int op, struct aa_label *label, struct path *path,
+int aa_path_perm(const char *op, struct aa_label *label, struct path *path,
 		 int flags, u32 request, struct path_cond *cond)
 {
-	struct file_perms perms = {};
+	struct aa_perms perms = {};
 	char *buffer = NULL;
 	const char *name;
 	struct aa_profile *profile;
@@ -352,7 +357,7 @@ static inline bool xindex_is_subset(u32 link, u32 target)
 static int profile_path_link(struct aa_profile *profile, const char *lname,
 			     const char *tname, struct path_cond *cond)
 {
-	struct file_perms lperms, perms;
+	struct aa_perms lperms, perms;
 	const char *info = NULL;
 	u32 request = AA_MAY_LINK;
 	unsigned int state;
@@ -378,6 +383,7 @@ static int profile_path_link(struct aa_profile *profile, const char *lname,
 
 	if (!(perms.allow & AA_MAY_LINK)) {
 		info = "target restricted";
+		lperms = perms;
 		goto audit;
 	}
 
@@ -411,7 +417,7 @@ done_tests:
 
 audit:
 	return aa_audit_file(profile, &lperms, OP_LINK, request, lname, tname,
-			     cond->uid, info, e);
+			     NULL, cond->uid, info, e);
 }
 
 /**
@@ -472,33 +478,33 @@ out:
 	return error;
 }
 
-static void update_file_cxt(struct aa_file_cxt *fcxt, struct aa_label *label,
+static void update_file_ctx(struct aa_file_ctx *fctx, struct aa_label *label,
 			    u32 request)
 {
 	struct aa_label *l, *old;
 
-	/* update caching of label on file_cxt */
-	spin_lock(&fcxt->lock);
-	old = rcu_dereference_protected(fcxt->label,
-					spin_is_locked(&fcxt->lock));
+	/* update caching of label on file_ctx */
+	spin_lock(&fctx->lock);
+	old = rcu_dereference_protected(fctx->label,
+					spin_is_locked(&fctx->lock));
 	l = aa_label_merge(old, label, GFP_ATOMIC);
 	if (l) {
 		if (l != old) {
-			rcu_assign_pointer(fcxt->label, l);
+			rcu_assign_pointer(fctx->label, l);
 			aa_put_label(old);
 		} else
 			aa_put_label(l);
-		fcxt->allow |= request;
+		fctx->allow |= request;
 	}
-	spin_unlock(&fcxt->lock);
+	spin_unlock(&fctx->lock);
 }
 
-static int __file_path_perm(int op, struct aa_label *label,
+static int __file_path_perm(const char *op, struct aa_label *label,
 			    struct aa_label *flabel, struct file *file,
 			    u32 request, u32 denied)
 {
 	struct aa_profile *profile;
-	struct file_perms perms = {};
+	struct aa_perms perms = {};
 	struct path_cond cond = {
 		.uid = file_inode(file)->i_uid,
 		.mode = file_inode(file)->i_mode
@@ -546,7 +552,7 @@ static int __file_path_perm(int op, struct aa_label *label,
 					       &cond, 0, &perms)));
 	}
 	if (!error)
-		update_file_cxt(file_cxt(file), label, request);
+		update_file_ctx(file_ctx(file), label, request);
 
 out:
 	put_buffers(buffer);
@@ -554,7 +560,7 @@ out:
 	return error;
 }
 
-static int __file_sock_perm(int op, struct aa_label *label,
+static int __file_sock_perm(const char *op, struct aa_label *label,
 			    struct aa_label *flabel, struct file *file,
 			    u32 request, u32 denied)
 {
@@ -575,7 +581,7 @@ static int __file_sock_perm(int op, struct aa_label *label,
 		last_error(error, aa_sock_file_perm(flabel, op, request, sock));
 	}
 	if (!error)
-		update_file_cxt(file_cxt(file), label, request);
+		update_file_ctx(file_ctx(file), label, request);
 
 	return error;
 }
@@ -589,10 +595,10 @@ static int __file_sock_perm(int op, struct aa_label *label,
  *
  * Returns: %0 if access allowed else error
  */
-int aa_file_perm(int op, struct aa_label *label, struct file *file,
+int aa_file_perm(const char *op, struct aa_label *label, struct file *file,
 		 u32 request)
 {
-	struct aa_file_cxt *fcxt;
+	struct aa_file_ctx *fctx;
 	struct aa_label *flabel;
 	u32 denied;
 	int error = 0;
@@ -600,10 +606,10 @@ int aa_file_perm(int op, struct aa_label *label, struct file *file,
 	AA_BUG(!label);
 	AA_BUG(!file);
 
-	fcxt = file_cxt(file);
+	fctx = file_ctx(file);
 
 	rcu_read_lock();
-	flabel  = rcu_dereference(fcxt->label);
+	flabel  = rcu_dereference(fctx->label);
 	AA_BUG(!flabel);
 
 	/* revalidate access, if task is unconfined, or the cached cred
@@ -613,7 +619,7 @@ int aa_file_perm(int op, struct aa_label *label, struct file *file,
 	 * Note: the test for !unconfined(flabel) is to handle file
 	 *       delegation from unconfined tasks
 	 */
-	denied = request & ~fcxt->allow;
+	denied = request & ~fctx->allow;
 	if (unconfined(label) || unconfined(flabel) ||
 	    (!denied && aa_label_is_subset(flabel, label)))
 		goto done;

@@ -9,6 +9,7 @@
 
 #include <linux/fs.h>
 #include <linux/namei.h>
+#include <linux/pagemap.h>
 #include <linux/xattr.h>
 #include <linux/security.h>
 #include <linux/mount.h>
@@ -64,6 +65,27 @@ struct ovl_entry {
 
 #define OVL_MAX_STACK 500
 
+/*
+ * Returns a set of credentials suitable for overlayfs internal
+ * operations which require elevated capabilities, equivalent to those
+ * of the user which mounted the superblock. Caller must put the
+ * returned credentials.
+ */
+struct cred *ovl_prepare_creds(struct super_block *sb)
+{
+	struct ovl_fs *ofs = sb->s_fs_info;
+	struct cred *new_cred;
+
+	if (sb->s_magic != OVERLAYFS_SUPER_MAGIC)
+		return NULL;
+
+	new_cred = clone_cred(ofs->mounter_creds);
+	if (!new_cred)
+		return NULL;
+
+	return new_cred;
+}
+
 static struct dentry *__ovl_dentry_lower(struct ovl_entry *oe)
 {
 	return oe->numlower ? oe->lowerstack[0].dentry : NULL;
@@ -77,12 +99,14 @@ enum ovl_path_type ovl_path_type(struct dentry *dentry)
 	if (oe->__upperdentry) {
 		type = __OVL_PATH_UPPER;
 
-		if (oe->numlower) {
-			if (S_ISDIR(dentry->d_inode->i_mode))
-				type |= __OVL_PATH_MERGE;
-		} else if (!oe->opaque) {
+		/*
+		 * Non-dir dentry can hold lower dentry from previous
+		 * location. Its purity depends only on opaque flag.
+		 */
+		if (oe->numlower && S_ISDIR(dentry->d_inode->i_mode))
+			type |= __OVL_PATH_MERGE;
+		else if (!oe->opaque)
 			type |= __OVL_PATH_PURE;
-		}
 	} else {
 		if (oe->numlower > 1)
 			type |= __OVL_PATH_MERGE;
@@ -382,6 +406,7 @@ static const struct dentry_operations ovl_dentry_operations = {
 
 static const struct dentry_operations ovl_reval_dentry_operations = {
 	.d_release = ovl_dentry_release,
+	.d_select_inode = ovl_d_select_inode,
 	.d_revalidate = ovl_dentry_revalidate,
 	.d_weak_revalidate = ovl_dentry_weak_revalidate,
 };
@@ -973,6 +998,7 @@ static int ovl_fill_super(struct super_block *sb, void *data, int silent)
 	}
 
 	sb->s_stack_depth = 0;
+	sb->s_maxbytes = MAX_LFS_FILESIZE;
 	if (ufs->config.upperdir) {
 		if (!ufs->config.workdir) {
 			pr_err("overlayfs: missing 'workdir'\n");
@@ -1051,6 +1077,9 @@ static int ovl_fill_super(struct super_block *sb, void *data, int silent)
 			goto out_put_lowerpath;
 		}
 
+		if (ufs->upper_mnt->mnt_flags & MNT_NOSUID)
+			sb->s_iflags |= SB_I_NOSUID;
+
 		ufs->workdir = ovl_workdir_create(ufs->upper_mnt, workpath.dentry);
 		err = PTR_ERR(ufs->workdir);
 		if (IS_ERR(ufs->workdir)) {
@@ -1078,6 +1107,9 @@ static int ovl_fill_super(struct super_block *sb, void *data, int silent)
 		 * will fail instead of modifying lower fs.
 		 */
 		mnt->mnt_flags |= MNT_READONLY;
+
+		if (mnt->mnt_flags & MNT_NOSUID)
+			sb->s_iflags |= SB_I_NOSUID;
 
 		ufs->lower_mnt[ufs->numlower] = mnt;
 		ufs->numlower++;
@@ -1120,6 +1152,9 @@ static int ovl_fill_super(struct super_block *sb, void *data, int silent)
 	kfree(stack);
 
 	root_dentry->d_fsdata = oe;
+
+	ovl_copyattr(ovl_dentry_real(root_dentry)->d_inode,
+		     root_dentry->d_inode);
 
 	sb->s_magic = OVERLAYFS_SUPER_MAGIC;
 	sb->s_op = &ovl_super_operations;

@@ -78,11 +78,14 @@ obj-m += $(MODULE).o
 $(MODULE):
 	$(MAKE) KBUILD_VERBOSE=$(KBUILD_VERBOSE) CONFIG_MODULE_SIG= -C $(KERN_DIR) SUBDIRS=$(CURDIR) SRCROOT=$(CURDIR) modules
 
+modules_install:
+	$(MAKE) KBUILD_VERBOSE=$(KBUILD_VERBOSE) CONFIG_MODULE_SIG= -C $(KERN_DIR) SUBDIRS=$(CURDIR) SRCROOT=$(CURDIR) modules_install
+
 endif
 
 install: $(MODULE)
 	@mkdir -p $(MODULE_DIR); \
-	install -m 0664 -o root -g root $(MODULE).$(MODULE_EXT) $(MODULE_DIR); \
+	install -m 0644 -o root -g root $(MODULE).$(MODULE_EXT) $(MODULE_DIR); \
 	PATH="$(PATH):/bin:/sbin" depmod -a;
 
 endif # eq($(MAKECMDGOALS),clean)

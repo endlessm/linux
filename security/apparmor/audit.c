@@ -18,67 +18,8 @@
 #include "include/apparmor.h"
 #include "include/audit.h"
 #include "include/policy.h"
+#include "include/policy_ns.h"
 
-const char *const op_table[] = {
-	"null",
-
-	"sysctl",
-	"capable",
-
-	"unlink",
-	"mkdir",
-	"rmdir",
-	"mknod",
-	"truncate",
-	"link",
-	"symlink",
-	"rename_src",
-	"rename_dest",
-	"chmod",
-	"chown",
-	"getattr",
-	"open",
-
-	"file_receive",
-	"file_perm",
-	"file_lock",
-	"file_mmap",
-	"file_mprotect",
-	"file_inherit",
-
-	"pivotroot",
-	"mount",
-	"umount",
-
-	"create",
-	"post_create",
-	"bind",
-	"connect",
-	"listen",
-	"accept",
-	"sendmsg",
-	"recvmsg",
-	"getsockname",
-	"getpeername",
-	"getsockopt",
-	"setsockopt",
-	"socket_shutdown",
-
-	"ptrace",
-	"signal",
-
-	"exec",
-	"change_hat",
-	"change_profile",
-	"change_onexec",
-
-	"setprocattr",
-	"setrlimit",
-
-	"profile_replace",
-	"profile_load",
-	"profile_remove"
-};
 
 const char *const audit_mode_names[] = {
 	"normal",
@@ -126,7 +67,7 @@ static void audit_pre(struct audit_buffer *ab, void *ca)
 
 	if (aad(sa)->op) {
 		audit_log_format(ab, " operation=");
-		audit_log_string(ab, op_table[aad(sa)->op]);
+		audit_log_string(ab, aad(sa)->op);
 	}
 
 	if (aad(sa)->info) {
@@ -149,7 +90,8 @@ static void audit_pre(struct audit_buffer *ab, void *ca)
 			audit_log_untrustedstring(ab, profile->base.hname);
 		} else {
 			audit_log_format(ab, " label=");
-			aa_label_audit(ab, root_ns, label, false, GFP_ATOMIC);
+			aa_label_xaudit(ab, root_ns, label, FLAG_VIEW_SUBNS,
+					GFP_ATOMIC);
 		}
 	}
 

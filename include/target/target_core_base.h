@@ -138,6 +138,8 @@ enum se_cmd_flags_table {
 	SCF_COMPARE_AND_WRITE		= 0x00080000,
 	SCF_COMPARE_AND_WRITE_POST	= 0x00100000,
 	SCF_PASSTHROUGH_PROT_SG_TO_MEM_NOALLOC = 0x00200000,
+	SCF_ACK_KREF			= 0x00400000,
+	SCF_USE_CPUID			= 0x00800000,
 };
 
 /* struct se_dev_entry->lun_flags and struct se_lun->lun_access */
@@ -185,6 +187,7 @@ enum target_sc_flags_table {
 	TARGET_SCF_BIDI_OP		= 0x01,
 	TARGET_SCF_ACK_KREF		= 0x02,
 	TARGET_SCF_UNKNOWN_SIZE		= 0x04,
+	TARGET_SCF_USE_CPUID	= 0x08,
 };
 
 /* fabric independent task management function values */
@@ -490,6 +493,8 @@ struct se_cmd {
 #define CMD_T_DEV_ACTIVE	(1 << 7)
 #define CMD_T_REQUEST_STOP	(1 << 8)
 #define CMD_T_BUSY		(1 << 9)
+#define CMD_T_TAS		(1 << 10)
+#define CMD_T_FABRIC_STOP	(1 << 11)
 	spinlock_t		t_state_lock;
 	struct kref		cmd_kref;
 	struct completion	t_transport_stop_comp;
@@ -526,6 +531,7 @@ struct se_cmd {
 	unsigned int		t_prot_nents;
 	sense_reason_t		pi_err;
 	sector_t		bad_sector;
+	int			cpuid;
 };
 
 struct se_ua {

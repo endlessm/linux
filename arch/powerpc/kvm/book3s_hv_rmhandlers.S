@@ -29,6 +29,7 @@
 #include <asm/kvm_book3s_asm.h>
 #include <asm/mmu-hash64.h>
 #include <asm/tm.h>
+#include <asm/opal.h>
 
 #define VCPU_GPRS_TM(reg) (((reg) * ULONG_SIZE) + VCPU_GPR_TM)
 
@@ -373,6 +374,18 @@ kvm_secondary_got_guest:
 	lwsync
 	std	r0, HSTATE_KVM_VCORE(r13)
 
+	/*
+	 * All secondaries exiting guest will fall through this path.
+	 * Before proceeding, just check for HMI interrupt and
+	 * invoke opal hmi handler. By now we are sure that the
+	 * primary thread on this core/subcore has already made partition
+	 * switch/TB resync and we are good to call opal hmi handler.
+	 */
+	cmpwi	r12, BOOK3S_INTERRUPT_HMI
+	bne	kvm_no_guest
+
+	li	r3,0			/* NULL argument */
+	bl	hmi_exception_realmode
 /*
  * At this point we have finished executing in the guest.
  * We need to wait for hwthread_req to become zero, since
@@ -427,6 +440,12 @@ kvm_no_guest:
  * whole-core mode, so we need to nap.
  */
 kvm_unsplit_nap:
+	/* Before we head down to nap, check if HMI is pending and handle it */
+	cmpwi	r12, BOOK3S_INTERRUPT_HMI
+	bne	55f
+	li	r3, 0			/* NULL argument */
+	bl	hmi_exception_realmode
+55:
 	/*
 	 * Ensure that secondary doesn't nap when it has
 	 * its vcore pointer set.
@@ -601,6 +620,11 @@ BEGIN_FTR_SECTION
 	mtspr	SPRN_DPDES, r8
 END_FTR_SECTION_IFSET(CPU_FTR_ARCH_207S)
 
+	/* Mark the subcore state as inside guest */
+	bl	kvmppc_subcore_enter_guest
+	nop
+	ld	r5, HSTATE_KVM_VCORE(r13)
+	ld	r4, HSTATE_KVM_VCPU(r13)
 	li	r0,1
 	stb	r0,VCORE_IN_GUEST(r5)	/* signal secondaries to continue */
 
@@ -1370,6 +1394,20 @@ END_FTR_SECTION_IFCLR(CPU_FTR_ARCH_207S)
 	std	r6, VCPU_ACOP(r9)
 	stw	r7, VCPU_GUEST_PID(r9)
 	std	r8, VCPU_WORT(r9)
+	/*
+	 * Restore various registers to 0, where non-zero values
+	 * set by the guest could disrupt the host.
+	 */
+	li	r0, 0
+	mtspr	SPRN_IAMR, r0
+	mtspr	SPRN_CIABR, r0
+	mtspr	SPRN_DAWRX, r0
+	mtspr	SPRN_TCSCR, r0
+	mtspr	SPRN_WORT, r0
+	/* Set MMCRS to 1<<31 to freeze and disable the SPMC counters */
+	li	r0, 1
+	sldi	r0, r0, 31
+	mtspr	SPRN_MMCRS, r0
 8:
 
 	/* Save and reset AMR and UAMOR before turning on the MMU */
@@ -1669,6 +1707,24 @@ BEGIN_FTR_SECTION
 	mtspr	SPRN_DPDES, r8
 END_FTR_SECTION_IFSET(CPU_FTR_ARCH_207S)
 
+	/* If HMI, call kvmppc_realmode_hmi_handler() */
+	cmpwi	r12, BOOK3S_INTERRUPT_HMI
+	bne	27f
+	mr	r3, r9		/* get vcpu pointer */
+	bl	kvmppc_realmode_hmi_handler
+	nop
+	li	r12, BOOK3S_INTERRUPT_HMI
+	/*
+	 * At this point kvmppc_realmode_hmi_handler would have resync-ed
+	 * the TB. Hence it is not required to subtract guest timebase
+	 * offset from timebase. So, skip it.
+	 *
+	 * Also, do not call kvmppc_subcore_exit_guest() because it has
+	 * been invoked as part of kvmppc_realmode_hmi_handler().
+	 */
+	b	30f
+
+27:
 	/* Subtract timebase offset from timebase */
 	ld	r8,VCORE_TB_OFFSET(r5)
 	cmpdi	r8,0
@@ -1684,8 +1740,13 @@ END_FTR_SECTION_IFSET(CPU_FTR_ARCH_207S)
 	addis	r8,r8,0x100		/* if so, increment upper 40 bits */
 	mtspr	SPRN_TBU40,r8
 
+17:	bl	kvmppc_subcore_exit_guest
+	nop
+30:	ld	r5,HSTATE_KVM_VCORE(r13)
+	ld	r4,VCORE_KVM(r5)	/* pointer to struct kvm */
+
 	/* Reset PCR */
-17:	ld	r0, VCORE_PCR(r5)
+	ld	r0, VCORE_PCR(r5)
 	cmpdi	r0, 0
 	beq	18f
 	li	r0, 0
@@ -2153,7 +2214,7 @@ END_FTR_SECTION_IFSET(CPU_FTR_ARCH_207S)
 
 	/* Emulate H_SET_DABR/X on P8 for the sake of compat mode guests */
 2:	rlwimi	r5, r4, 5, DAWRX_DR | DAWRX_DW
-	rlwimi	r5, r4, 1, DAWRX_WT
+	rlwimi	r5, r4, 2, DAWRX_WT
 	clrrdi	r4, r4, 3
 	std	r4, VCPU_DAWR(r3)
 	std	r5, VCPU_DAWRX(r3)
@@ -2445,6 +2506,8 @@ BEGIN_FTR_SECTION
 	cmpwi	r6, 3			/* hypervisor doorbell? */
 	beq	3f
 END_FTR_SECTION_IFSET(CPU_FTR_ARCH_207S)
+	cmpwi	r6, 0xa			/* Hypervisor maintenance ? */
+	beq	4f
 	li	r3, 1			/* anything else, return 1 */
 0:	blr
 
@@ -2464,6 +2527,11 @@ END_FTR_SECTION_IFSET(CPU_FTR_ARCH_207S)
 	bnelr
 	/* if not, return -1 */
 	li	r3, -1
+	blr
+
+	/* Woken up due to Hypervisor maintenance interrupt */
+4:	li	r12, BOOK3S_INTERRUPT_HMI
+	li	r3, 1
 	blr
 
 /*

@@ -340,6 +340,10 @@ void i915_gem_context_reset(struct drm_device *dev)
 			i915_gem_context_unreference(lctx);
 			ring->last_context = NULL;
 		}
+
+		/* Force the GPU state to be reinitialised on enabling */
+		if (ring->default_context)
+			ring->default_context->legacy_hw_ctx.initialized = false;
 	}
 }
 
@@ -708,7 +712,7 @@ static int do_switch(struct drm_i915_gem_request *req)
 	if (ret)
 		goto unpin_out;
 
-	if (!to->legacy_hw_ctx.initialized) {
+	if (!to->legacy_hw_ctx.initialized || i915_gem_context_is_default(to)) {
 		hw_flags |= MI_RESTORE_INHIBIT;
 		/* NB: If we inhibit the restore, the context is not allowed to
 		 * die because future work may end up depending on valid address
@@ -922,6 +926,14 @@ int i915_gem_context_getparam_ioctl(struct drm_device *dev, void *data,
 		break;
 	case I915_CONTEXT_PARAM_NO_ZEROMAP:
 		args->value = ctx->flags & CONTEXT_NO_ZEROMAP;
+		break;
+	case I915_CONTEXT_PARAM_GTT_SIZE:
+		if (ctx->ppgtt)
+			args->value = ctx->ppgtt->base.total;
+		else if (to_i915(dev)->mm.aliasing_ppgtt)
+			args->value = to_i915(dev)->mm.aliasing_ppgtt->base.total;
+		else
+			args->value = to_i915(dev)->gtt.base.total;
 		break;
 	default:
 		ret = -EINVAL;

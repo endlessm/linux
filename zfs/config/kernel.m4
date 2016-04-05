@@ -58,7 +58,7 @@ AC_DEFUN([ZFS_AC_CONFIG_KERNEL], [
 	ZFS_AC_KERNEL_MKDIR_UMODE_T
 	ZFS_AC_KERNEL_LOOKUP_NAMEIDATA
 	ZFS_AC_KERNEL_CREATE_NAMEIDATA
-	ZFS_AC_KERNEL_FOLLOW_LINK
+	ZFS_AC_KERNEL_GET_LINK
 	ZFS_AC_KERNEL_PUT_LINK
 	ZFS_AC_KERNEL_TRUNCATE_RANGE
 	ZFS_AC_KERNEL_AUTOMOUNT
@@ -448,16 +448,18 @@ dnl # detected at configure time and cause a build failure.  Otherwise
 dnl # modules may be successfully built that behave incorrectly.
 dnl #
 AC_DEFUN([ZFS_AC_KERNEL_CONFIG], [
-	AC_RUN_IFELSE([
-		AC_LANG_PROGRAM([
-			#include "$LINUX/include/linux/license.h"
+	AS_IF([test "x$cross_compiling" != xyes], [
+		AC_RUN_IFELSE([
+			AC_LANG_PROGRAM([
+				#include "$LINUX/include/linux/license.h"
+			], [
+				return !license_is_gpl_compatible("$ZFS_META_LICENSE");
+			])
 		], [
-			return !license_is_gpl_compatible("$ZFS_META_LICENSE");
+			AC_DEFINE([ZFS_IS_GPL_COMPATIBLE], [1],
+			    [Define to 1 if GPL-only symbols can be used])
+		], [
 		])
-	], [
-		AC_DEFINE([ZFS_IS_GPL_COMPATIBLE], [1],
-		    [Define to 1 if GPL-only symbols can be used])
-	], [
 	])
 
 	ZFS_AC_KERNEL_CONFIG_DEBUG_LOCK_ALLOC

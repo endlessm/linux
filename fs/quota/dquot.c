@@ -741,7 +741,7 @@ void dqput(struct dquot *dquot)
 	if (!atomic_read(&dquot->dq_count)) {
 		quota_error(dquot->dq_sb, "trying to free free dquot of %s %d",
 			    quotatypes[dquot->dq_id.type],
-			    from_kqid(&init_user_ns, dquot->dq_id));
+			    from_kqid(dquot->dq_sb->s_user_ns, dquot->dq_id));
 		BUG();
 	}
 #endif

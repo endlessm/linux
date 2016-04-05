@@ -88,6 +88,7 @@ static __init int load_system_certificate_list(void)
 		if (IS_ERR(key)) {
 			pr_err("Problem loading in-kernel X.509 certificate (%ld)\n",
 			       PTR_ERR(key));
+			WARN_ON_ONCE(1);
 		} else {
 			set_bit(KEY_FLAG_BUILTIN, &key_ref_to_ptr(key)->flags);
 			pr_notice("Loaded X.509 cert '%s'\n",

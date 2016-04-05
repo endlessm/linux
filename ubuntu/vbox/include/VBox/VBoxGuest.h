@@ -35,7 +35,14 @@
 #include <VBox/VBoxGuest2.h>
 
 
-/** @defgroup grp_vboxguest     VirtualBox Guest Additions Driver Interface
+/** @defgroup grp_vboxguest  VirtualBox Guest Additions Device Driver
+ *
+ * Also know as VBoxGuest.
+ *
+ * @{
+ */
+
+/** @defgroup grp_vboxguest_ioc  VirtualBox Guest Additions Driver Interface
  * @{
  */
 
@@ -553,5 +560,6 @@ typedef VBOXGUESTOS2IDCCONNECT *PVBOXGUESTOS2IDCCONNECT;
 
 /** @} */
 
+/** @} */
 #endif
 

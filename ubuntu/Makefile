@@ -22,6 +22,13 @@ endif
 ##
 ##
 ##
+obj-$(CONFIG_DRM_I915_BPO)	+= i915/
+##
+##
+##
+##
+##
+##
 
 # This is a stupid trick to get kbuild to create ubuntu/built-in.o
 obj- += foo.o

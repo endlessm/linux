@@ -25,9 +25,9 @@
  */
 
 
-/*******************************************************************************
-*   Header Files                                                               *
-*******************************************************************************/
+/*********************************************************************************************************************************
+*   Header Files                                                                                                                 *
+*********************************************************************************************************************************/
 #include "the-linux-kernel.h"
 #include "internal/iprt.h"
 
@@ -137,16 +137,20 @@ DECLHIDDEN(int) rtThreadNativeCreate(PRTTHREADINT pThreadInt, PRTNATIVETHREAD pN
 {
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 4)
     struct task_struct *NativeThread;
+    IPRT_LINUX_SAVE_EFL_AC();
 
     RT_ASSERT_PREEMPTIBLE();
 
     NativeThread = kthread_run(rtThreadNativeMain, pThreadInt, "iprt-%s", pThreadInt->szName);
 
-    if (IS_ERR(NativeThread))
-        return VERR_GENERAL_FAILURE;
-
-    *pNativeThread = (RTNATIVETHREAD)NativeThread;
-    return VINF_SUCCESS;
+    if (!IS_ERR(NativeThread))
+    {
+        *pNativeThread = (RTNATIVETHREAD)NativeThread;
+        IPRT_LINUX_RESTORE_EFL_AC();
+        return VINF_SUCCESS;
+    }
+    IPRT_LINUX_RESTORE_EFL_AC();
+    return VERR_GENERAL_FAILURE;
 #else
     return VERR_NOT_IMPLEMENTED;
 #endif

@@ -60,7 +60,8 @@ static void audit_ptrace_cb(struct audit_buffer *ab, void *va)
 		}
 	}
 	audit_log_format(ab, " peer=");
-	audit_log_untrustedstring(ab, aad(sa)->target);
+	aa_label_xaudit(ab, labels_ns(aad(sa)->label), aad(sa)->peer,
+			FLAGS_NONE, GFP_ATOMIC);
 }
 
 /* TODO: conditionals */
@@ -68,15 +69,15 @@ static int profile_ptrace_perm(struct aa_profile *profile,
 			       struct aa_profile *peer, u32 request,
 			       struct common_audit_data *sa)
 {
-	struct aa_perms perms;
+  struct aa_perms perms = { };
 
 	/* need because of peer in cross check */
 	if (profile_unconfined(profile) ||
 	    !PROFILE_MEDIATES(profile, AA_CLASS_PTRACE))
                 return 0;
 
-	aad(sa)->target = peer->base.hname;
-	aa_profile_match_label(profile, aa_peer_name(peer), AA_CLASS_PTRACE,
+	aad(sa)->peer = &peer->label;
+	aa_profile_match_label(profile, &peer->label, AA_CLASS_PTRACE, request,
 			       &perms);
 	aa_apply_modes_to_perms(profile, &perms);
 	return aa_check_perms(profile, &perms, request, sa, audit_ptrace_cb);
@@ -96,7 +97,7 @@ static int cross_ptrace_perm(struct aa_profile *tracer,
 		return 0;
 
 	aad(sa)->label = &tracer->label;
-	aad(sa)->target = tracee->base.hname;
+	aad(sa)->peer = &tracee->label;
 	aad(sa)->request = 0;
 	aad(sa)->error = aa_capable(&tracer->label, CAP_SYS_PTRACE, 1);
 	return aa_audit(AUDIT_APPARMOR_AUTO, tracer, sa, audit_ptrace_cb);
@@ -167,7 +168,8 @@ static void audit_signal_cb(struct audit_buffer *ab, void *va)
 		audit_log_format(ab, " signal=rtmin+%d",
 				 aad(sa)->signal - 128);
 	audit_log_format(ab, " peer=");
-	audit_log_untrustedstring(ab, aad(sa)->target);
+	aa_label_xaudit(ab, labels_ns(aad(sa)->label), aad(sa)->peer,
+			FLAGS_NONE, GFP_ATOMIC);
 }
 
 /* TODO: update to handle compound name&name2, conditionals */
@@ -175,15 +177,12 @@ static void profile_match_signal(struct aa_profile *profile, const char *label,
 				 int signal, struct aa_perms *perms)
 {
 	unsigned int state;
-	if (profile->policy.dfa) {
-		/* TODO: secondary cache check <profile, profile, perm> */
-		state = aa_dfa_next(profile->policy.dfa,
-				    profile->policy.start[AA_CLASS_SIGNAL],
-				    signal);
-		state = aa_dfa_match(profile->policy.dfa, state, label);
-		aa_compute_perms(profile->policy.dfa, state, perms);
-	} else
-		memset(perms, 0, sizeof(*perms));
+	/* TODO: secondary cache check <profile, profile, perm> */
+	state = aa_dfa_next(profile->policy.dfa,
+			    profile->policy.start[AA_CLASS_SIGNAL],
+			    signal);
+	state = aa_dfa_match(profile->policy.dfa, state, label);
+	aa_compute_perms(profile->policy.dfa, state, perms);
 }
 
 static int profile_signal_perm(struct aa_profile *profile,
@@ -196,7 +195,7 @@ static int profile_signal_perm(struct aa_profile *profile,
 	    !PROFILE_MEDIATES(profile, AA_CLASS_SIGNAL))
 		return 0;
 
-	aad(sa)->target = peer->base.hname;
+	aad(sa)->peer = &peer->label;
 	profile_match_signal(profile, aa_peer_name(peer), aad(sa)->signal,
 			     &perms);
 	aa_apply_modes_to_perms(profile, &perms);

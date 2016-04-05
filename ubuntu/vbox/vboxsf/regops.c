@@ -63,11 +63,11 @@ static int sf_reg_read_aux(const char *caller, struct sf_glob_info *sf_g,
     /** @todo bird: yes, kmap() and kmalloc() input only. Since the buffer is
      *        contiguous in physical memory (kmalloc or single page), we should
      *        use a physical address here to speed things up. */
-    int rc = vboxCallRead(&client_handle, &sf_g->map, sf_r->handle,
+    int rc = VbglR0SfRead(&client_handle, &sf_g->map, sf_r->handle,
                           pos, nread, buf, false /* already locked? */);
     if (RT_FAILURE(rc))
     {
-        LogFunc(("vboxCallRead failed. caller=%s, rc=%Rrc\n", caller, rc));
+        LogFunc(("VbglR0SfRead failed. caller=%s, rc=%Rrc\n", caller, rc));
         return -EPROTO;
     }
     return 0;
@@ -80,11 +80,11 @@ static int sf_reg_write_aux(const char *caller, struct sf_glob_info *sf_g,
     /** @todo bird: yes, kmap() and kmalloc() input only. Since the buffer is
      *        contiguous in physical memory (kmalloc or single page), we should
      *        use a physical address here to speed things up. */
-    int rc = vboxCallWrite(&client_handle, &sf_g->map, sf_r->handle,
+    int rc = VbglR0SfWrite(&client_handle, &sf_g->map, sf_r->handle,
                            pos, nwritten, buf, false /* already locked? */);
     if (RT_FAILURE(rc))
     {
-        LogFunc(("vboxCallWrite failed. caller=%s, rc=%Rrc\n",
+        LogFunc(("VbglR0SfWrite failed. caller=%s, rc=%Rrc\n",
                     caller, rc));
         return -EPROTO;
     }
@@ -373,12 +373,12 @@ static int sf_reg_open(struct inode *inode, struct file *file)
     }
 
     params.Info.Attr.fMode = inode->i_mode;
-    LogFunc(("sf_reg_open: calling vboxCallCreate, file %s, flags=%#x, %#x\n",
+    LogFunc(("sf_reg_open: calling VbglR0SfCreate, file %s, flags=%#x, %#x\n",
               sf_i->path->String.utf8 , file->f_flags, params.CreateFlags));
-    rc = vboxCallCreate(&client_handle, &sf_g->map, sf_i->path, &params);
+    rc = VbglR0SfCreate(&client_handle, &sf_g->map, sf_i->path, &params);
     if (RT_FAILURE(rc))
     {
-        LogFunc(("vboxCallCreate failed flags=%d,%#x rc=%Rrc\n",
+        LogFunc(("VbglR0SfCreate failed flags=%d,%#x rc=%Rrc\n",
                   file->f_flags, params.CreateFlags, rc));
         kfree(sf_r);
         return -RTErrConvertToErrno(rc);
@@ -438,9 +438,9 @@ static int sf_reg_release(struct inode *inode, struct file *file)
         && filemap_fdatawrite(inode->i_mapping) != -EIO)
         filemap_fdatawait(inode->i_mapping);
 #endif
-    rc = vboxCallClose(&client_handle, &sf_g->map, sf_r->handle);
+    rc = VbglR0SfClose(&client_handle, &sf_g->map, sf_r->handle);
     if (RT_FAILURE(rc))
-        LogFunc(("vboxCallClose failed rc=%Rrc\n", rc));
+        LogFunc(("VbglR0SfClose failed rc=%Rrc\n", rc));
 
     kfree(sf_r);
     sf_i->file = NULL;
@@ -481,7 +481,7 @@ static struct page *sf_reg_nopage(struct vm_area_struct *vma, unsigned long vadd
     }
 #endif
 
-    /* Don't use GFP_HIGHUSER as long as sf_reg_read_aux() calls vboxCallRead()
+    /* Don't use GFP_HIGHUSER as long as sf_reg_read_aux() calls VbglR0SfRead()
      * which works on virtual addresses. On Linux cannot reliably determine the
      * physical address for high memory, see rtR0MemObjNativeLockKernel(). */
     page = alloc_page(GFP_USER);

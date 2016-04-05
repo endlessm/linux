@@ -25,9 +25,9 @@
  */
 
 
-/*******************************************************************************
-*   Header Files                                                               *
-*******************************************************************************/
+/*********************************************************************************************************************************
+*   Header Files                                                                                                                 *
+*********************************************************************************************************************************/
 #define LOG_GROUP RTLOGGROUP_TIME
 #include "the-linux-kernel.h"
 #include "internal/iprt.h"
@@ -169,14 +169,17 @@ RT_EXPORT_SYMBOL(RTTimeSystemMilliTS);
 
 RTDECL(PRTTIMESPEC) RTTimeNow(PRTTIMESPEC pTime)
 {
+    IPRT_LINUX_SAVE_EFL_AC();
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 16)
     struct timespec Ts;
     ktime_get_real_ts(&Ts);
+    IPRT_LINUX_RESTORE_EFL_AC();
     return RTTimeSpecSetTimespec(pTime, &Ts);
 
 #else   /* < 2.6.16 */
     struct timeval Tv;
     do_gettimeofday(&Tv);
+    IPRT_LINUX_RESTORE_EFL_AC();
     return RTTimeSpecSetTimeval(pTime, &Tv);
 #endif
 }

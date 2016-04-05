@@ -36,7 +36,7 @@
 #include <iprt/log.h>
 
 
-/** @defgroup grp_rt_vbox_log    VirtualBox Logging
+/** @defgroup grp_rt_vbox_log    VBox Logging
  * @ingroup grp_rt_vbox
  * @{
  */
@@ -740,7 +740,7 @@ typedef enum LOGGROUP
     /** USB webcam. */
     LOG_GROUP_USB_WEBCAM,
     /** VBox Guest Additions Driver (VBoxGuest). */
-    LOG_GROUP_VBGD,
+    LOG_GROUP_VGDRV,
     /** VBox Guest Additions Library. */
     LOG_GROUP_VBGL,
     /** Generic virtual disk layer. */
@@ -1138,7 +1138,7 @@ typedef enum LOGGROUP
     "USB_MSD",      \
     "USB_REMOTE",   \
     "USB_WEBCAM",   \
-    "VBGD",         \
+    "VGDRV",        \
     "VBGL",         \
     "VD",           \
     "VD_DMG",       \

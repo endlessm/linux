@@ -36,6 +36,10 @@ CONFIG_LOWMEM_CAM_NUM                           policy<{'powerpc-powerpc-e500mc'
 CONFIG_ARM_DMA_IOMMU_ALIGNMENT                  policy<{'armhf': '8'}>
 CONFIG_ARM_PATCH_PHYS_VIRT                      policy<{'armhf': 'y'}>
 
+# Menu: Architecture: arm64
+CONFIG_ARM64_VA_BITS                            policy<{'arm64': '48'}>
+CONFIG_ARM64_VA_BITS                            mark<ENFORCED> note<Cavium ThunderX 2-socket needs a minimum of 41 bits of VA>
+
 # Menu: Architecture: powerpc
 CONFIG_PPC64                                    policy<{'powerpc-powerpc64-emb': 'y', 'powerpc-powerpc64-smp': 'y', 'powerpc-powerpc-e500mc': 'n', 'powerpc-powerpc-smp': 'n', 'ppc64el': 'y'}>
 CONFIG_NR_IRQS                                  policy<{'powerpc': '512', 'ppc64el': '512'}>
@@ -2013,7 +2017,7 @@ CONFIG_EXYNOS_IOMMU_DEBUG                       policy<{'armhf': 'n'}>
 CONFIG_SHMOBILE_IOMMU                           policy<{'armhf': 'y'}>
 CONFIG_IPMMU_VMSA                               policy<{'armhf-generic-lpae': 'y'}>
 CONFIG_SPAPR_TCE_IOMMU                          policy<{'powerpc-powerpc64-smp': 'y', 'ppc64el': 'y'}>
-CONFIG_ARM_SMMU                                 policy<{'arm64': 'n', 'armhf': 'n'}>
+CONFIG_ARM_SMMU                                 policy<{'arm64': 'y', 'armhf': 'n'}>
 CONFIG_ARM_SMMU_V3                              policy<{'arm64': 'y'}>
 #
 CONFIG_INTEL_IOMMU_DEFAULT_ON                   note<the IOMMU can trigger boot failures> flag<REVIEW>
@@ -3915,7 +3919,7 @@ CONFIG_ND_BLK                                   policy<{'amd64': 'm', 'arm64': '
 CONFIG_BTT                                      policy<{'amd64': 'y', 'arm64': 'y', 'armhf-generic-lpae': 'y', 'i386': 'y', 'powerpc-powerpc64-emb': 'y', 'powerpc-powerpc64-smp': 'y', 'powerpc-powerpc-e500mc': 'y', 'ppc64el': 'y'}>
 
 # Menu: Device Drivers >> NVMEM Support
-CONFIG_NVMEM                                    policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'powerpc': 'm', 'ppc64el': 'm', 's390x': 'm'}>
+CONFIG_NVMEM                                    policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'powerpc': 'm', 'ppc64el': 'm', 's390x': 'n'}>
 CONFIG_QCOM_QFPROM                              policy<{'arm64': 'm', 'armhf': 'm'}>
 #
 CONFIG_NVMEM					flag<REVIEW> note<Q: is this appropriate for s390x>
@@ -4035,7 +4039,7 @@ CONFIG_NET_VENDOR_DLINK                         policy<{'amd64': 'y', 'arm64': '
 CONFIG_DL2K                                     policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'powerpc': 'm', 'ppc64el': 'm'}>
 CONFIG_SUNDANCE                                 policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'powerpc': 'm', 'ppc64el': 'm'}>
 CONFIG_SUNDANCE_MMIO                            policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'i386': 'n', 'powerpc': 'n', 'ppc64el': 'n'}>
-CONFIG_NET_VENDOR_EMULEX                        policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'powerpc': 'y', 'ppc64el': 'y', 's390x': 'y'}>
+CONFIG_NET_VENDOR_EMULEX                        policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'powerpc': 'y', 'ppc64el': 'y', 's390x': 'n'}>
 CONFIG_BE2NET                                   policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'powerpc': 'm', 'ppc64el': 'm', 's390x': 'm'}>
 CONFIG_BE2NET_HWMON                             policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'powerpc': 'y', 'ppc64el': 'y'}>
 CONFIG_BE2NET_VXLAN                             policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'powerpc': 'y', 'ppc64el': 'y', 's390x': 'y'}>
@@ -4104,10 +4108,8 @@ CONFIG_WIZNET_W5100                             policy<{'amd64': 'm', 'arm64': '
 CONFIG_WIZNET_W5300                             policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'powerpc': 'm', 'ppc64el': 'm'}>
 CONFIG_NET_VENDOR_XIRCOM                        policy<{'amd64': 'y', 'i386': 'y', 'powerpc': 'y'}>
 CONFIG_PCMCIA_XIRC2PS                           policy<{'amd64': 'm', 'i386': 'm', 'powerpc': 'm'}>
-CONFIG_NET_VENDOR_SYNOPSYS                      policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'powerpc': 'y', 'ppc64el': 'y', 's390x': 'y'}>
+CONFIG_NET_VENDOR_SYNOPSYS                      policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'powerpc': 'y', 'ppc64el': 'y', 's390x': 'n'}>
 CONFIG_SYNOPSYS_DWC_ETH_QOS                     policy<{'arm64': 'm', 'armhf': 'm', 'powerpc': 'm', 'ppc64el': 'm'}>
-#
-CONFIG_NET_VENDOR_SYNOPSYS			flag<REVIEW> note<check s390x>
 
 # Menu: Device Drivers >> Network device support >> Ethernet driver support >> 3Com devices
 CONFIG_NET_VENDOR_3COM                          policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'powerpc': 'y', 'ppc64el': 'y', 's390x': 'n'}>
@@ -6837,7 +6839,8 @@ CONFIG_VIRTIO_PCI                               policy<{'amd64': 'y', 'arm64': '
 CONFIG_VIRTIO_PCI_LEGACY                        policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'powerpc': 'y', 'ppc64el': 'y', 's390x': 'y'}>
 CONFIG_VIRTIO_BALLOON                           policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'powerpc': 'y', 'ppc64el': 'y', 's390x': 'y'}>
 CONFIG_VIRTIO_INPUT                             policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'powerpc': 'm', 'ppc64el': 'm'}>
-CONFIG_VIRTIO_MMIO                              policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'powerpc': 'y', 'ppc64el': 'y', 's390x': 'y'}>
+CONFIG_VIRTIO_MMIO                              policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'powerpc': 'y', 'ppc64el': 'y', 's390x': 'n'}>
+CONFIG_VIRTIO_MMIO				note<LP#1557689 CONFIG_VIRTIO_MMIO=n for s390x>
 CONFIG_VIRTIO_MMIO_CMDLINE_DEVICES              policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'powerpc': 'y', 'ppc64el': 'y', 's390x': 'y'}>
 #
 CONFIG_VIRTIO_PCI                               mark<review>
@@ -7543,10 +7546,10 @@ CONFIG_NFSD_V4_SECURITY_LABEL                   policy<{'amd64': 'y', 'arm64': '
 CONFIG_NFSD_FAULT_INJECTION                     policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'i386': 'n', 'powerpc': 'n', 'ppc64el': 'n', 's390x': 'n'}>
 
 # Menu: File systems >> Network File Systems >> Plan 9 Resource Sharing Support (9P2000)
-CONFIG_9P_FS                                    policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'powerpc': 'm', 'ppc64el': 'm'}>
-CONFIG_9P_FSCACHE                               policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'powerpc': 'y', 'ppc64el': 'y'}>
-CONFIG_9P_FS_POSIX_ACL                          policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'powerpc': 'y', 'ppc64el': 'y'}>
-CONFIG_9P_FS_SECURITY                           policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'powerpc': 'y', 'ppc64el': 'y'}>
+CONFIG_9P_FS                                    policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'powerpc': 'm', 'ppc64el': 'm', 's390x': 'm'}>
+CONFIG_9P_FSCACHE                               policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'powerpc': 'y', 'ppc64el': 'y', 's390x': 'y'}>
+CONFIG_9P_FS_POSIX_ACL                          policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'powerpc': 'y', 'ppc64el': 'y', 's390x': 'y'}>
+CONFIG_9P_FS_SECURITY                           policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'powerpc': 'y', 'ppc64el': 'y', 's390x': 'y'}>
 
 # Menu: File systems >> OCFS2 file system support
 CONFIG_OCFS2_FS                                 policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'powerpc': 'm', 'ppc64el': 'm', 's390x': 'm'}>
@@ -7654,7 +7657,7 @@ CONFIG_IKCONFIG                                 policy<{'amd64': 'n', 'arm64': '
 CONFIG_LOG_BUF_SHIFT                            policy<{'amd64': '18', 'arm64': '14', 'armhf': '17', 'i386': '17', 'powerpc': '17', 'ppc64el': '17', 's390x': '17'}>
 CONFIG_LOG_CPU_MAX_BUF_SHIFT                    policy<{'amd64': '12', 'arm64': '12', 'armhf': '12', 'i386': '12', 'powerpc': '12', 'ppc64el': '12', 's390x': '12'}>
 CONFIG_NUMA_BALANCING                           policy<{'amd64': 'y', 'powerpc-powerpc64-smp': 'y', 'ppc64el': 'y'}>
-CONFIG_NUMA_BALANCING_DEFAULT_ENABLED           policy<{'amd64': 'y', 'powerpc-powerpc64-smp': 'y', 'ppc64el': 'y'}>
+CONFIG_NUMA_BALANCING_DEFAULT_ENABLED           policy<{'amd64': 'y', 'powerpc-powerpc64-smp': 'y', 'ppc64el': 'y', 's390x': 'n'}>
 CONFIG_CHECKPOINT_RESTORE                       policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'powerpc': 'y', 'ppc64el': 'y', 's390x': 'y'}>
 CONFIG_SCHED_AUTOGROUP                          policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'powerpc': 'y', 'ppc64el': 'y', 's390x': 'y'}>
 CONFIG_SYSFS_DEPRECATED                         policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'i386': 'n', 'powerpc': 'n', 'ppc64el': 'n', 's390x': 'n'}>
@@ -7677,6 +7680,7 @@ CONFIG_SYSFS_DEPRECATED                         mark<ENFORCED> note<ensure nothi
 CONFIG_COMPAT_BRK                               mark<ENFORCED> note<disables brk ASLR>
 CONFIG_LOCALVERSION_AUTO                        mark<ENFORCED> note<triggers packaging failures>
 CONFIG_JUMP_LABEL                               flag<REVIEW>
+CONFIG_NUMA_BALANCING_DEFAULT_ENABLE            note<LP:1557690>
 
 # Menu: General setup >> CPU/Task time and stats accounting
 CONFIG_BSD_PROCESS_ACCT                         policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'powerpc': 'y', 'ppc64el': 'y', 's390x': 'y'}>
@@ -8903,10 +8907,9 @@ CONFIG_IP_ROUTE_MULTIPATH                       policy<{'amd64': 'y', 'arm64': '
 CONFIG_IP_ROUTE_VERBOSE                         policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'powerpc': 'y', 'ppc64el': 'y', 's390x': 'y'}>
 
 # Menu: Networking support >> Networking options >> TCP/IP networking >> IP: kernel level autoconfiguration
-CONFIG_IP_PNP                                   policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'powerpc': 'y', 'ppc64el': 'y', 's390x': 'y'}>
-CONFIG_IP_PNP_DHCP                              policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'powerpc': 'y', 'ppc64el': 'y', 's390x': 'y'}>
-CONFIG_IP_PNP_BOOTP                             policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'i386': 'n', 'powerpc': 'n', 'ppc64el': 'n', 's390x': 'n'}>
-CONFIG_IP_PNP_RARP                              policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'i386': 'n', 'powerpc': 'n', 'ppc64el': 'n', 's390x': 'n'}>
+CONFIG_IP_PNP                                   policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'i386': 'n', 'powerpc': 'n', 'ppc64el': 'n', 's390x': 'n'}>
+#
+CONFIG_IP_PNP					note<LP:1259861>
 
 # Menu: Networking support >> Networking options >> TCP/IP networking >> IP: multicast routing
 CONFIG_IP_MROUTE                                policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'powerpc': 'y', 'ppc64el': 'y', 's390x': 'y'}>
@@ -9016,10 +9019,12 @@ CONFIG_TIPC_MEDIA_IB                            policy<{'amd64': 'y', 'arm64': '
 CONFIG_TIPC_MEDIA_UDP                           policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'powerpc': 'y', 'ppc64el': 'y', 's390x': 'y'}>
 
 # Menu: Networking support >> Plan 9 Resource Sharing Support (9P2000)
-CONFIG_NET_9P                                   policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'powerpc': 'm', 'ppc64el': 'm', 's390x': 'n'}>
-CONFIG_NET_9P_VIRTIO                            policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'powerpc': 'm', 'ppc64el': 'm'}>
-CONFIG_NET_9P_RDMA                              policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'powerpc': 'm', 'ppc64el': 'm'}>
-CONFIG_NET_9P_DEBUG                             policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'i386': 'n', 'powerpc': 'n', 'ppc64el': 'n'}>
+CONFIG_NET_9P                                   policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'powerpc': 'm', 'ppc64el': 'm', 's390x': 'm'}>
+CONFIG_NET_9P_VIRTIO                            policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'powerpc': 'm', 'ppc64el': 'm', 's390x': 'm'}>
+CONFIG_NET_9P_RDMA                              policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'powerpc': 'm', 'ppc64el': 'm', 's390x': 'm'}>
+CONFIG_NET_9P_DEBUG                             policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'i386': 'n', 'powerpc': 'n', 'ppc64el': 'n', 's390x': 'n'}>
+#
+CONFIG_NET_9P                                   note<LP:1557994>
 
 # Menu: Networking support >> RF switch subsystem support
 CONFIG_RFKILL                                   policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'powerpc': 'y', 'ppc64el': 'y', 's390x': 'n'}>
@@ -9457,7 +9462,7 @@ CONFIG_COMPACTION                               policy<{'amd64': 'y', 'arm64': '
 CONFIG_MIGRATION                                policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'powerpc': 'y', 'ppc64el': 'y', 's390x': 'y'}>
 CONFIG_BOUNCE                                   policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'powerpc': 'y', 'ppc64el': 'y', 's390x': 'n'}>
 CONFIG_KSM                                      policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'powerpc': 'y', 'ppc64el': 'y', 's390x': 'y'}>
-CONFIG_DEFAULT_MMAP_MIN_ADDR                    policy<{'amd64': '65536', 'arm64': '32768', 'armhf': '32768', 'i386': '65536', 'powerpc': '65536', 'ppc64el': '65536', 's390x': '4096'}>
+CONFIG_DEFAULT_MMAP_MIN_ADDR                    policy<{'amd64': '65536', 'arm64': '32768', 'armhf': '32768', 'i386': '65536', 'powerpc': '65536', 'ppc64el': '65536', 's390x': '65536'}>
 CONFIG_MEMORY_FAILURE                           policy<{'amd64': 'y', 'powerpc-powerpc64-smp': 'y', 'ppc64el': 'y'}>
 CONFIG_HWPOISON_INJECT                          policy<{'amd64': 'm', 'powerpc-powerpc64-smp': 'm', 'ppc64el': 'm'}>
 CONFIG_TRANSPARENT_HUGEPAGE                     policy<{'amd64': 'y', 'arm64': 'y', 'armhf-generic-lpae': 'y', 'i386': 'y', 'ppc64el': 'y', 's390x': 'y'}>
@@ -9477,7 +9482,7 @@ CONFIG_MATH_EMULATION                           policy<{'i386': 'n', 'powerpc-po
 CONFIG_CMDLINE_BOOL                             policy<{'amd64': 'n', 'i386': 'n', 'powerpc': 'n', 'ppc64el': 'n'}>
 CONFIG_HIGHMEM                                  policy<{'armhf': 'y', 'i386': 'y', 'powerpc-powerpc-e500mc': 'y', 'powerpc-powerpc-smp': 'y'}>
 CONFIG_HOTPLUG_CPU                              policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'powerpc-powerpc64-smp': 'y', 'powerpc-powerpc-e500mc': 'y', 'powerpc-powerpc-smp': 'y', 'ppc64el': 'y', 's390x': 'y'}>
-CONFIG_NUMA                                     policy<{'amd64': 'y', 'powerpc-powerpc64-emb': 'n', 'powerpc-powerpc64-smp': 'y', 'ppc64el': 'y', 's390x': 'n'}>
+CONFIG_NUMA                                     policy<{'amd64': 'y', 'powerpc-powerpc64-emb': 'n', 'powerpc-powerpc64-smp': 'y', 'ppc64el': 'y', 's390x': 'y'}>
 CONFIG_FORCE_MAX_ZONEORDER                      policy<{'arm64': '11', 'armhf-generic': '12', 'armhf-generic-lpae': '11', 'powerpc-powerpc64-emb': '13', 'powerpc-powerpc64-smp': '13', 'powerpc-powerpc-e500mc': '11', 'powerpc-powerpc-smp': '11', 'ppc64el': '9', 's390x': '9'}>
 CONFIG_SCHED_SMT                                policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'n', 'i386': 'y', 'powerpc-powerpc64-emb': 'n', 'powerpc-powerpc64-smp': 'y', 'ppc64el': 'y', 's390x': 'y'}>
 CONFIG_XEN                                      policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'n', 'i386': 'y'}>
@@ -9515,7 +9520,7 @@ CONFIG_STACK_GUARD                              policy<{'s390x': '256'}>
 CONFIG_WARN_DYNAMIC_STACK                       policy<{'s390x': 'n'}>
 
 # Menu: Processor type and features >> Architecture: x86
-CONFIG_ZONE_DMA                                 policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'powerpc': 'y', 'ppc64el': 'y', 's390x': 'y'}>
+CONFIG_ZONE_DMA                                 policy<{'amd64-generic': 'n', 'amd64-lowlatency': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'powerpc': 'y', 'ppc64el': 'y', 's390x': 'y'}>
 CONFIG_X86_FEATURE_NAMES                        policy<{'amd64': 'y', 'i386': 'y'}>
 CONFIG_X86_X2APIC                               policy<{'amd64': 'y'}>
 CONFIG_X86_MPPARSE                              policy<{'amd64': 'y', 'i386': 'y'}>
@@ -9645,8 +9650,8 @@ CONFIG_PPC_4K_PAGES                             policy<{'powerpc': 'y', 'ppc64el
 CONFIG_PPC_64K_PAGES                            policy<{'powerpc-powerpc64-smp': 'n', 'ppc64el': 'y'}>
 
 # Menu: Processor type and features >> Preemption Model
-CONFIG_PREEMPT_NONE                             policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'i386': 'n', 'powerpc': 'n', 'ppc64el': 'n', 's390x': 'n'}>
-CONFIG_PREEMPT_VOLUNTARY                        policy<{'amd64-generic': 'y', 'amd64-lowlatency': 'n', 'arm64': 'y', 'armhf': 'y', 'i386-generic': 'y', 'i386-lowlatency': 'n', 'powerpc': 'y', 'ppc64el': 'y', 's390x': 'y'}>
+CONFIG_PREEMPT_NONE                             policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'i386': 'n', 'powerpc': 'n', 'ppc64el': 'n', 's390x': 'y'}>
+CONFIG_PREEMPT_VOLUNTARY                        policy<{'amd64-generic': 'y', 'amd64-lowlatency': 'n', 'arm64': 'y', 'armhf': 'y', 'i386-generic': 'y', 'i386-lowlatency': 'n', 'powerpc': 'y', 'ppc64el': 'y', 's390x': 'n'}>
 CONFIG_PREEMPT                                  policy<{'amd64-generic': 'n', 'amd64-lowlatency': 'y', 'arm64': 'n', 'armhf': 'n', 'i386-generic': 'n', 'i386-lowlatency': 'y', 'powerpc': 'n', 'ppc64el': 'n', 's390x': 'n'}>
 
 # Menu: Processor type and features >> Processor family
@@ -9719,7 +9724,7 @@ CONFIG_BL_SWITCHER                              policy<{'armhf': 'y'}>
 CONFIG_BL_SWITCHER_DUMMY_IF                     policy<{'armhf': 'm'}>
 
 # Menu: Processor type and features >> Symmetric multi-processing support
-CONFIG_NODES_SHIFT                              policy<{'amd64': '6', 'powerpc-powerpc64-smp': '8', 'ppc64el': '8'}>
+CONFIG_NODES_SHIFT                              policy<{'amd64': '6', 'powerpc-powerpc64-smp': '8', 'ppc64el': '8', 's390x': '4'}>
 
 # Menu: Processor type and features >> Symmetric multi-processing support >> Architecture: s390
 CONFIG_SCHED_TOPOLOGY                           policy<{'s390x': 'y'}>
@@ -9731,7 +9736,8 @@ CONFIG_BOOTPARAM_HOTPLUG_CPU0                   policy<{'amd64': 'n', 'i386': 'n
 CONFIG_DEBUG_HOTPLUG_CPU0                       policy<{'amd64': 'n', 'i386': 'n'}>
 
 # Menu: Processor type and features >> Symmetric multi-processing support >> Numa Memory Allocation and Scheduler Support
-CONFIG_NUMA_EMU                                 policy<{'amd64': 'n'}>
+CONFIG_NUMA_EMU                                 policy<{'amd64': 'n', 's390x': 'y'}>
+CONFIG_NUMA_EMU                                 note<LP:1557690>
 
 # Menu: Processor type and features >> Symmetric multi-processing support >> Numa Memory Allocation and Scheduler Support >> Architecture: x86
 CONFIG_AMD_NUMA                                 policy<{'amd64': 'y'}>

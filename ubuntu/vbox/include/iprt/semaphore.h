@@ -130,7 +130,8 @@ RTDECL(int)  RTSemEventCreate(PRTSEMEVENT phEventSem);
  *                              optional (NULL).  Max length is 32 bytes.
  * @param   ...                 Format string arguments.
  */
-RTDECL(int)  RTSemEventCreateEx(PRTSEMEVENT phEventSem, uint32_t fFlags, RTLOCKVALCLASS hClass, const char *pszNameFmt, ...);
+RTDECL(int)  RTSemEventCreateEx(PRTSEMEVENT phEventSem, uint32_t fFlags, RTLOCKVALCLASS hClass,
+                                const char *pszNameFmt, ...) RT_IPRT_FORMAT_ATTR_MAYBE_NULL(4, 5);
 
 /** @name RTSemMutexCreateEx flags
  * @{ */
@@ -213,11 +214,8 @@ RTDECL(int)  RTSemEventWaitEx(RTSEMEVENT hEventSem, uint32_t fFlags, uint64_t uT
  * @param   uTimeout            See RTSemEventWaitEx.
  * @param   uId                 Some kind of locking location ID.  Typically a
  *                              return address up the stack.  Optional (0).
- * @param   pszFile             The file where the lock is being acquired from.
- *                              Optional.
- * @param   iLine               The line number in that file.  Optional (0).
- * @param   pszFunction         The function where the lock is being acquired
- *                              from.  Optional.
+ * @param   SRC_POS             The source position where call is being made
+ *                              from.  Use RT_SRC_POS when possible.  Optional.
  */
 RTDECL(int)  RTSemEventWaitExDebug(RTSEMEVENT hEventSem, uint32_t fFlags, uint64_t uTimeout,
                                    RTHCUINTPTR uId, RT_SRC_POS_DECL);
@@ -300,7 +298,7 @@ RTDECL(int)  RTSemEventMultiCreate(PRTSEMEVENTMULTI phEventMultiSem);
  * @param   ...                 Format string arguments.
  */
 RTDECL(int)  RTSemEventMultiCreateEx(PRTSEMEVENTMULTI phEventMultiSem, uint32_t fFlags, RTLOCKVALCLASS hClass,
-                                     const char *pszNameFmt, ...);
+                                     const char *pszNameFmt, ...) RT_IPRT_FORMAT_ATTR_MAYBE_NULL(4, 5);
 
 /** @name RTSemMutexCreateEx flags
  * @{ */
@@ -388,11 +386,8 @@ RTDECL(int)  RTSemEventMultiWaitEx(RTSEMEVENTMULTI hEventMultiSem, uint32_t fFla
  * @param   uTimeout            See RTSemEventMultiWaitEx.
  * @param   uId                 Some kind of locking location ID.  Typically a
  *                              return address up the stack.  Optional (0).
- * @param   pszFile             The file where the lock is being acquired from.
- *                              Optional.
- * @param   iLine               The line number in that file.  Optional (0).
- * @param   pszFunction         The function where the lock is being acquired
- *                              from.  Optional.
+ * @param   SRC_POS             The source position where call is being made
+ *                              from.  Use RT_SRC_POS when possible.  Optional.
  */
 RTDECL(int)  RTSemEventMultiWaitExDebug(RTSEMEVENTMULTI hEventMultiSem, uint32_t fFlags, uint64_t uTimeout,
                                         RTHCUINTPTR uId, RT_SRC_POS_DECL);
@@ -466,8 +461,8 @@ RTDECL(int)  RTSemMutexCreate(PRTSEMMUTEX phMutexSem);
  * Creates a read/write semaphore.
  *
  * @returns iprt status code.
- * @param   phRWSem             Where to store the handle to the newly created
- *                              RW semaphore.
+ * @param   phMutexSem          Where to store the handle to the newly created
+ *                              mutex semaphore.
  * @param   fFlags              Flags, any combination of the
  *                              RTSEMMUTEX_FLAGS_XXX \#defines.
  * @param   hClass              The class (no reference consumed).  If NIL, no
@@ -480,8 +475,8 @@ RTDECL(int)  RTSemMutexCreate(PRTSEMMUTEX phMutexSem);
  *                              optional (NULL).  Max length is 32 bytes.
  * @param   ...                 Format string arguments.
  */
-RTDECL(int) RTSemMutexCreateEx(PRTSEMMUTEX phMutexSem, uint32_t fFlags,
-                               RTLOCKVALCLASS hClass, uint32_t uSubClass, const char *pszNameFmt, ...);
+RTDECL(int) RTSemMutexCreateEx(PRTSEMMUTEX phMutexSem, uint32_t fFlags, RTLOCKVALCLASS hClass, uint32_t uSubClass,
+                               const char *pszNameFmt, ...) RT_IPRT_FORMAT_ATTR_MAYBE_NULL(5, 6);
 
 /** @name RTSemMutexCreateEx flags
  * @{ */
@@ -554,11 +549,8 @@ RTDECL(int)  RTSemMutexRequestNoResume(RTSEMMUTEX hMutexSem, RTMSINTERVAL cMilli
  * @param   cMillies            The number of milliseconds to wait.
  * @param   uId                 Some kind of locking location ID.  Typically a
  *                              return address up the stack.  Optional (0).
- * @param   pszFile             The file where the lock is being acquired from.
- *                              Optional.
- * @param   iLine               The line number in that file.  Optional (0).
- * @param   pszFunction         The function where the lock is being acquired
- *                              from.  Optional.
+ * @param   SRC_POS             The source position where call is being made
+ *                              from.  Use RT_SRC_POS when possible.  Optional.
  */
 RTDECL(int)  RTSemMutexRequestDebug(RTSEMMUTEX hMutexSem, RTMSINTERVAL cMillies, RTHCUINTPTR uId, RT_SRC_POS_DECL);
 
@@ -570,11 +562,8 @@ RTDECL(int)  RTSemMutexRequestDebug(RTSEMMUTEX hMutexSem, RTMSINTERVAL cMillies,
  * @param   cMillies            The number of milliseconds to wait.
  * @param   uId                 Some kind of locking location ID.  Typically a
  *                              return address up the stack.  Optional (0).
- * @param   pszFile             The file where the lock is being acquired from.
- *                              Optional.
- * @param   iLine               The line number in that file.  Optional (0).
- * @param   pszFunction         The function where the lock is being acquired
- *                              from.  Optional.
+ * @param   SRC_POS             The source position where call is being made
+ *                              from.  Use RT_SRC_POS when possible.  Optional.
  */
 RTDECL(int)  RTSemMutexRequestNoResumeDebug(RTSEMMUTEX hMutexSem, RTMSINTERVAL cMillies, RTHCUINTPTR uId, RT_SRC_POS_DECL);
 
@@ -606,11 +595,8 @@ RTDECL(int)  RTSemMutexRequestEx(RTSEMMUTEX hMutexSem, uint32_t fFlags, uint64_t
  * @param   uTimeout            See RTSemMutexRequestEx.
  * @param   uId                 Some kind of locking location ID.  Typically a
  *                              return address up the stack.  Optional (0).
- * @param   pszFile             The file where the lock is being acquired from.
- *                              Optional.
- * @param   iLine               The line number in that file.  Optional (0).
- * @param   pszFunction         The function where the lock is being acquired
- *                              from.  Optional.
+ * @param   SRC_POS             The source position where call is being made
+ *                              from.  Use RT_SRC_POS when possible.  Optional.
  */
 RTDECL(int)  RTSemMutexRequestExDebug(RTSEMMUTEX hMutexSem, uint32_t fFlags, uint64_t uTimeout,
                                       RTHCUINTPTR uId, RT_SRC_POS_DECL);
@@ -844,8 +830,8 @@ RTDECL(int)   RTSemRWCreate(PRTSEMRW phRWSem);
  *                              optional (NULL).  Max length is 32 bytes.
  * @param   ...                 Format string arguments.
  */
-RTDECL(int)   RTSemRWCreateEx(PRTSEMRW phRWSem, uint32_t fFlags,
-                              RTLOCKVALCLASS hClass, uint32_t uSubClass, const char *pszNameFmt, ...);
+RTDECL(int)   RTSemRWCreateEx(PRTSEMRW phRWSem, uint32_t fFlags, RTLOCKVALCLASS hClass, uint32_t uSubClass,
+                              const char *pszNameFmt, ...) RT_IPRT_FORMAT_ATTR_MAYBE_NULL(5, 6);
 
 /** @name RTSemRWCreateEx flags
  * @{ */
@@ -914,11 +900,8 @@ RTDECL(int)   RTSemRWRequestReadNoResume(RTSEMRW hRWSem, RTMSINTERVAL cMillies);
  * @param   cMillies            The number of milliseconds to wait.
  * @param   uId                 Some kind of locking location ID.  Typically a
  *                              return address up the stack.  Optional (0).
- * @param   pszFile             The file where the lock is being acquired from.
- *                              Optional.
- * @param   iLine               The line number in that file.  Optional (0).
- * @param   pszFunction         The function where the lock is being acquired
- *                              from.  Optional.
+ * @param   SRC_POS             The source position where call is being made
+ *                              from.  Use RT_SRC_POS when possible.  Optional.
  */
 RTDECL(int)   RTSemRWRequestReadDebug(RTSEMRW hRWSem, RTMSINTERVAL cMillies, RTHCUINTPTR uId, RT_SRC_POS_DECL);
 
@@ -934,11 +917,8 @@ RTDECL(int)   RTSemRWRequestReadDebug(RTSEMRW hRWSem, RTMSINTERVAL cMillies, RTH
  * @param   cMillies            The number of milliseconds to wait.
  * @param   uId                 Some kind of locking location ID.  Typically a
  *                              return address up the stack.  Optional (0).
- * @param   pszFile             The file where the lock is being acquired from.
- *                              Optional.
- * @param   iLine               The line number in that file.  Optional (0).
- * @param   pszFunction         The function where the lock is being acquired
- *                              from.  Optional.
+ * @param   SRC_POS             The source position where call is being made
+ *                              from.  Use RT_SRC_POS when possible.  Optional.
  */
 RTDECL(int)   RTSemRWRequestReadNoResumeDebug(RTSEMRW hRWSem, RTMSINTERVAL cMillies, RTHCUINTPTR uId, RT_SRC_POS_DECL);
 
@@ -977,11 +957,8 @@ RTDECL(int)   RTSemRWRequestReadEx(RTSEMRW hRWSem, uint32_t fFlags, uint64_t uTi
  * @param   uTimeout            See RTSemRWRequestReadEx.
  * @param   uId                 Some kind of locking location ID.  Typically a
  *                              return address up the stack.  Optional (0).
- * @param   pszFile             The file where the lock is being acquired from.
- *                              Optional.
- * @param   iLine               The line number in that file.  Optional (0).
- * @param   pszFunction         The function where the lock is being acquired
- *                              from.  Optional.
+ * @param   SRC_POS             The source position where call is being made
+ *                              from.  Use RT_SRC_POS when possible.  Optional.
  */
 RTDECL(int)   RTSemRWRequestReadExDebug(RTSEMRW hRWSem, uint32_t fFlags, uint64_t uTimeout,
                                         RTHCUINTPTR uId, RT_SRC_POS_DECL);
@@ -1031,11 +1008,8 @@ RTDECL(int)   RTSemRWRequestWriteNoResume(RTSEMRW hRWSem, RTMSINTERVAL cMillies)
  * @param   cMillies            The number of milliseconds to wait.
  * @param   uId                 Some kind of locking location ID.  Typically a
  *                              return address up the stack.  Optional (0).
- * @param   pszFile             The file where the lock is being acquired from.
- *                              Optional.
- * @param   iLine               The line number in that file.  Optional (0).
- * @param   pszFunction         The function where the lock is being acquired
- *                              from.  Optional.
+ * @param   SRC_POS             The source position where call is being made
+ *                              from.  Use RT_SRC_POS when possible.  Optional.
  */
 RTDECL(int)  RTSemRWRequestWriteDebug(RTSEMRW hRWSem, RTMSINTERVAL cMillies, RTHCUINTPTR uId, RT_SRC_POS_DECL);
 
@@ -1047,11 +1021,8 @@ RTDECL(int)  RTSemRWRequestWriteDebug(RTSEMRW hRWSem, RTMSINTERVAL cMillies, RTH
  * @param   cMillies            The number of milliseconds to wait.
  * @param   uId                 Some kind of locking location ID.  Typically a
  *                              return address up the stack.  Optional (0).
- * @param   pszFile             The file where the lock is being acquired from.
- *                              Optional.
- * @param   iLine               The line number in that file.  Optional (0).
- * @param   pszFunction         The function where the lock is being acquired
- *                              from.  Optional.
+ * @param   SRC_POS             The source position where call is being made
+ *                              from.  Use RT_SRC_POS when possible.  Optional.
  */
 RTDECL(int)  RTSemRWRequestWriteNoResumeDebug(RTSEMRW hRWSem, RTMSINTERVAL cMillies, RTHCUINTPTR uId, RT_SRC_POS_DECL);
 
@@ -1086,11 +1057,8 @@ RTDECL(int)   RTSemRWRequestWriteEx(RTSEMRW hRWSem, uint32_t fFlags, uint64_t uT
  * @param   uTimeout            See RTSemRWRequestWriteEx.
  * @param   uId                 Some kind of locking location ID.  Typically a
  *                              return address up the stack.  Optional (0).
- * @param   pszFile             The file where the lock is being acquired from.
- *                              Optional.
- * @param   iLine               The line number in that file.  Optional (0).
- * @param   pszFunction         The function where the lock is being acquired
- *                              from.  Optional.
+ * @param   SRC_POS             The source position where call is being made
+ *                              from.  Use RT_SRC_POS when possible.  Optional.
  */
 RTDECL(int)  RTSemRWRequestWriteExDebug(RTSEMRW hRWSem, uint32_t fFlags, uint64_t uTimeout,
                                         RTHCUINTPTR uId, RT_SRC_POS_DECL);

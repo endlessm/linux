@@ -23,11 +23,11 @@ MODULE_LICENSE("GPL");
 
 #define __QUOTA_V2_PARANOIA
 
-static void v2r0_mem2diskdqb(void *dp, struct dquot *dquot);
-static void v2r0_disk2memdqb(struct dquot *dquot, void *dp);
+static int v2r0_mem2diskdqb(void *dp, struct dquot *dquot);
+static int v2r0_disk2memdqb(struct dquot *dquot, void *dp);
 static int v2r0_is_id(void *dp, struct dquot *dquot);
-static void v2r1_mem2diskdqb(void *dp, struct dquot *dquot);
-static void v2r1_disk2memdqb(struct dquot *dquot, void *dp);
+static int v2r1_mem2diskdqb(void *dp, struct dquot *dquot);
+static int v2r1_disk2memdqb(struct dquot *dquot, void *dp);
 static int v2r1_is_id(void *dp, struct dquot *dquot);
 
 static struct qtree_fmt_operations v2r0_qtree_ops = {
@@ -177,7 +177,7 @@ static int v2_write_file_info(struct super_block *sb, int type)
 	return 0;
 }
 
-static void v2r0_disk2memdqb(struct dquot *dquot, void *dp)
+static int v2r0_disk2memdqb(struct dquot *dquot, void *dp)
 {
 	struct v2r0_disk_dqblk *d = dp, empty;
 	struct mem_dqblk *m = &dquot->dq_dqb;
@@ -195,14 +195,19 @@ static void v2r0_disk2memdqb(struct dquot *dquot, void *dp)
 	empty.dqb_itime = cpu_to_le64(1);
 	if (!memcmp(&empty, dp, sizeof(struct v2r0_disk_dqblk)))
 		m->dqb_itime = 0;
+	return 0;
 }
 
-static void v2r0_mem2diskdqb(void *dp, struct dquot *dquot)
+static int v2r0_mem2diskdqb(void *dp, struct dquot *dquot)
 {
 	struct v2r0_disk_dqblk *d = dp;
 	struct mem_dqblk *m = &dquot->dq_dqb;
 	struct qtree_mem_dqinfo *info =
 			sb_dqinfo(dquot->dq_sb, dquot->dq_id.type)->dqi_priv;
+	qid_t qid = from_kqid(dquot->dq_sb->s_user_ns, dquot->dq_id);
+
+	if (qid == (qid_t)-1)
+		return -EOVERFLOW;
 
 	d->dqb_ihardlimit = cpu_to_le32(m->dqb_ihardlimit);
 	d->dqb_isoftlimit = cpu_to_le32(m->dqb_isoftlimit);
@@ -212,9 +217,10 @@ static void v2r0_mem2diskdqb(void *dp, struct dquot *dquot)
 	d->dqb_bsoftlimit = cpu_to_le32(v2_stoqb(m->dqb_bsoftlimit));
 	d->dqb_curspace = cpu_to_le64(m->dqb_curspace);
 	d->dqb_btime = cpu_to_le64(m->dqb_btime);
-	d->dqb_id = cpu_to_le32(from_kqid(&init_user_ns, dquot->dq_id));
+	d->dqb_id = cpu_to_le32(qid);
 	if (qtree_entry_unused(info, dp))
 		d->dqb_itime = cpu_to_le64(1);
+	return 0;
 }
 
 static int v2r0_is_id(void *dp, struct dquot *dquot)
@@ -222,15 +228,18 @@ static int v2r0_is_id(void *dp, struct dquot *dquot)
 	struct v2r0_disk_dqblk *d = dp;
 	struct qtree_mem_dqinfo *info =
 			sb_dqinfo(dquot->dq_sb, dquot->dq_id.type)->dqi_priv;
+	struct kqid qid;
 
 	if (qtree_entry_unused(info, dp))
 		return 0;
-	return qid_eq(make_kqid(&init_user_ns, dquot->dq_id.type,
-				le32_to_cpu(d->dqb_id)),
-		      dquot->dq_id);
+	qid = make_kqid(dquot->dq_sb->s_user_ns, dquot->dq_id.type,
+			le32_to_cpu(d->dqb_id));
+	if (!qid_valid(qid))
+		return 0;
+	return qid_eq(qid, dquot->dq_id);
 }
 
-static void v2r1_disk2memdqb(struct dquot *dquot, void *dp)
+static int v2r1_disk2memdqb(struct dquot *dquot, void *dp)
 {
 	struct v2r1_disk_dqblk *d = dp, empty;
 	struct mem_dqblk *m = &dquot->dq_dqb;
@@ -248,14 +257,19 @@ static void v2r1_disk2memdqb(struct dquot *dquot, void *dp)
 	empty.dqb_itime = cpu_to_le64(1);
 	if (!memcmp(&empty, dp, sizeof(struct v2r1_disk_dqblk)))
 		m->dqb_itime = 0;
+	return 0;
 }
 
-static void v2r1_mem2diskdqb(void *dp, struct dquot *dquot)
+static int v2r1_mem2diskdqb(void *dp, struct dquot *dquot)
 {
 	struct v2r1_disk_dqblk *d = dp;
 	struct mem_dqblk *m = &dquot->dq_dqb;
 	struct qtree_mem_dqinfo *info =
 			sb_dqinfo(dquot->dq_sb, dquot->dq_id.type)->dqi_priv;
+	qid_t qid = from_kqid(dquot->dq_sb->s_user_ns, dquot->dq_id);
+
+	if (qid == (qid_t)-1)
+		return -EOVERFLOW;
 
 	d->dqb_ihardlimit = cpu_to_le64(m->dqb_ihardlimit);
 	d->dqb_isoftlimit = cpu_to_le64(m->dqb_isoftlimit);
@@ -265,9 +279,10 @@ static void v2r1_mem2diskdqb(void *dp, struct dquot *dquot)
 	d->dqb_bsoftlimit = cpu_to_le64(v2_stoqb(m->dqb_bsoftlimit));
 	d->dqb_curspace = cpu_to_le64(m->dqb_curspace);
 	d->dqb_btime = cpu_to_le64(m->dqb_btime);
-	d->dqb_id = cpu_to_le32(from_kqid(&init_user_ns, dquot->dq_id));
+	d->dqb_id = cpu_to_le32(qid);
 	if (qtree_entry_unused(info, dp))
 		d->dqb_itime = cpu_to_le64(1);
+	return 0;
 }
 
 static int v2r1_is_id(void *dp, struct dquot *dquot)
@@ -278,7 +293,7 @@ static int v2r1_is_id(void *dp, struct dquot *dquot)
 
 	if (qtree_entry_unused(info, dp))
 		return 0;
-	return qid_eq(make_kqid(&init_user_ns, dquot->dq_id.type,
+	return qid_eq(make_kqid(dquot->dq_sb->s_user_ns, dquot->dq_id.type,
 				le32_to_cpu(d->dqb_id)),
 		      dquot->dq_id);
 }

@@ -380,7 +380,7 @@ int dm_get_device(struct dm_target *ti, const char *path, fmode_t mode,
 	BUG_ON(!t);
 
 	/* convert the path to a device */
-	bdev = lookup_bdev(path);
+	bdev = lookup_bdev(path, 0);
 	if (IS_ERR(bdev)) {
 		dev = name_to_dev_t(path);
 		if (!dev)

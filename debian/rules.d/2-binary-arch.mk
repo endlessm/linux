@@ -15,6 +15,8 @@ ifneq ($(gcc),)
 kmake += CC=$(CROSS_COMPILE)$(gcc)
 endif
 
+shlibdeps_opts = $(if $(CROSS_COMPILE),-- -l$(CROSS_COMPILE:%-=/usr/%)/lib)
+
 $(stampdir)/stamp-prepare-%: config-prepare-check-%
 	@echo Debug: $@
 	@touch $@
@@ -25,8 +27,6 @@ $(stampdir)/stamp-prepare-tree-%: $(commonconfdir)/config.common.$(family) $(arc
 	touch $(builddir)/build-$*/ubuntu-build
 	[ "$(do_full_source)" != 'true' ] && true || \
 		rsync -a --exclude debian --exclude debian.master --exclude $(DEBIAN) * $(builddir)/build-$*
-	# create config.flavour.generic-64
-	cat $(commonconfdir)/amd64/config.common.amd64 $(commonconfdir)/amd64/config.flavour.generic > $(archconfdir)/config.flavour.generic-64
 	cat $^ | sed -e 's/.*CONFIG_VERSION_SIGNATURE.*/CONFIG_VERSION_SIGNATURE="Ubuntu $(release)-$(revision)-$* $(raw_kernelversion)"/' > $(builddir)/build-$*/.config
 	find $(builddir)/build-$* -name "*.ko" | xargs rm -f
 	$(build_cd) $(kmake) $(build_O) -j1 silentoldconfig prepare scripts
@@ -39,19 +39,7 @@ prepare-%: $(stampdir)/stamp-prepare-%
 build-%: $(stampdir)/stamp-build-%
 	@echo Debug: $@
 
-# Do the actual build, including image and modules
-$(stampdir)/stamp-build-%: target_flavour = $*
-$(stampdir)/stamp-build-%: splopts  = --with-linux=$(CURDIR)
-$(stampdir)/stamp-build-%: splopts += --with-linux-obj=$(builddir)/build-$*
-$(stampdir)/stamp-build-%: zfsopts  = $(splopts)
-$(stampdir)/stamp-build-%: zfsopts += --with-spl=$(builddir)/build-$*/spl
-$(stampdir)/stamp-build-%: zfsopts += --with-spl-obj=$(builddir)/build-$*/spl
-$(stampdir)/stamp-build-%: zfsopts += --prefix=/usr --with-config=kernel
-$(stampdir)/stamp-build-%: bldimg = $(call custom_override,build_image,$*)
-$(stampdir)/stamp-build-%: $(stampdir)/stamp-prepare-%
-	@echo Debug: $@ build_image $(build_image) bldimg $(bldimg)
-	$(build_cd) $(kmake) $(build_O) $(conc_level) $(bldimg) modules $(if $(filter true,$(do_dtbs)),dtbs)
-ifeq ($(do_zfs),true)
+define build_zfs =
 	#
 	# SPL/ZFS wants a fully built kernel before you can configure and build.
 	# It seems to be impossible to tease out the application configuration
@@ -66,8 +54,32 @@ ifeq ($(do_zfs),true)
 	rsync -a --exclude=dkms.conf --delete zfs/ $(builddir)/build-$*/zfs/
 	cd $(builddir)/build-$*/zfs; sh autogen.sh; sh configure $(zfsopts)
 	$(kmake) -C $(builddir)/build-$*/zfs/module $(conc_level)
-endif
+endef
+
+# Do the actual build, including image and modules
+$(stampdir)/stamp-build-%: target_flavour = $*
+$(stampdir)/stamp-build-%: splopts  = --with-linux=$(CURDIR)
+$(stampdir)/stamp-build-%: splopts += --with-linux-obj=$(builddir)/build-$*
+$(stampdir)/stamp-build-%: zfsopts  = $(splopts)
+$(stampdir)/stamp-build-%: zfsopts += --with-spl=$(builddir)/build-$*/spl
+$(stampdir)/stamp-build-%: zfsopts += --with-spl-obj=$(builddir)/build-$*/spl
+$(stampdir)/stamp-build-%: zfsopts += --prefix=/usr --with-config=kernel
+$(stampdir)/stamp-build-%: bldimg = $(call custom_override,build_image,$*)
+$(stampdir)/stamp-build-%: enable_zfs = $(call custom_override,do_zfs,$*)
+$(stampdir)/stamp-build-%: $(stampdir)/stamp-prepare-%
+	@echo Debug: $@ build_image $(build_image) bldimg $(bldimg)
+	$(build_cd) $(kmake) $(build_O) $(conc_level) $(bldimg) modules $(if $(filter true,$(do_dtbs)),dtbs)
+
+	$(if $(filter true,$(enable_zfs)),$(call build_zfs))
+
 	@touch $@
+
+define install_zfs =
+	cd $(builddir)/build-$*/spl/module; \
+		$(kmake) -C $(builddir)/build-$* SUBDIRS=`pwd` modules_install $(splopts)
+	cd $(builddir)/build-$*/zfs/module; \
+		$(kmake) -C $(builddir)/build-$* SUBDIRS=`pwd` modules_install $(zfsopts)
+endef
 
 # Install the finished build
 install-%: pkgdir = $(CURDIR)/debian/$(bin_pkg_name)-$*
@@ -87,6 +99,7 @@ install-%: MODHASHALGO=sha512
 install-%: MODSECKEY=$(builddir)/build-$*/certs/signing_key.pem
 install-%: MODPUBKEY=$(builddir)/build-$*/certs/signing_key.x509
 install-%: build_dir=$(builddir)/build-$*
+install-%: enable_zfs = $(call custom_override,do_zfs,$*)
 install-%: splopts  = INSTALL_MOD_STRIP=1
 install-%: splopts += INSTALL_MOD_PATH=$(pkgdir)/
 install-%: splopts += INSTALL_MOD_DIR=kernel/zfs
@@ -149,12 +162,8 @@ endif
 	$(build_cd) $(kmake) $(build_O) $(conc_level) modules_install $(vdso) \
 		INSTALL_MOD_STRIP=1 INSTALL_MOD_PATH=$(pkgdir)/ \
 		INSTALL_FW_PATH=$(pkgdir)/lib/firmware/$(abi_release)-$*
-ifeq ($(do_zfs),true)
-	cd $(builddir)/build-$*/spl/module; \
-		$(kmake) -C $(builddir)/build-$* SUBDIRS=`pwd` modules_install $(splopts)
-	cd $(builddir)/build-$*/zfs/module; \
-		$(kmake) -C $(builddir)/build-$* SUBDIRS=`pwd` modules_install $(zfsopts)
-endif
+
+	$(if $(filter true,$(enable_zfs)),$(call install_zfs))
 
 	#
 	# Build module blacklists:
@@ -444,6 +453,7 @@ binary-%: dbgpkg = $(bin_pkg_name)-$*-dbgsym
 binary-%: dbgpkgdir = $(CURDIR)/debian/$(bin_pkg_name)-$*-dbgsym
 binary-%: pkgtools = $(tools_flavour_pkg_name)-$*
 binary-%: pkgcloud = $(cloud_flavour_pkg_name)-$*
+binary-%: rprovides = $(if $(filter true,$(call custom_override,do_zfs,$*)),$(comma) spl-dkms$(comma) zfs-dkms)
 binary-%: target_flavour = $*
 binary-%: install-%
 	@echo Debug: $@
@@ -455,8 +465,8 @@ binary-%: install-%
 	dh_compress -p$(pkgimg)
 	dh_fixperms -p$(pkgimg) -X/boot/
 	dh_installdeb -p$(pkgimg)
-	dh_shlibdeps -p$(pkgimg)
-	$(lockme) dh_gencontrol -p$(pkgimg)
+	dh_shlibdeps -p$(pkgimg) $(shlibdeps_opts)
+	$(lockme) dh_gencontrol -p$(pkgimg) -- -Vlinux:rprovides='$(rprovides)'
 	dh_md5sums -p$(pkgimg)
 	dh_builddeb -p$(pkgimg) -- -Zbzip2 -z9
 
@@ -467,7 +477,7 @@ ifeq ($(do_extras_package),true)
 		dh_compress -p$(pkgimg_ex); \
 		dh_fixperms -p$(pkgimg_ex) -X/boot/; \
 		dh_installdeb -p$(pkgimg_ex); \
-		dh_shlibdeps -p$(pkgimg_ex); \
+		dh_shlibdeps -p$(pkgimg_ex) $(shlibdeps_opts); \
 		$(lockme) dh_gencontrol -p$(pkgimg_ex); \
 		dh_md5sums -p$(pkgimg_ex); \
 		dh_builddeb -p$(pkgimg_ex) -- -Zbzip2 -z9; \
@@ -478,7 +488,7 @@ endif
 	dh_installdocs -p$(pkghdr)
 	dh_compress -p$(pkghdr)
 	dh_fixperms -p$(pkghdr)
-	dh_shlibdeps -p$(pkghdr)
+	dh_shlibdeps -p$(pkghdr) $(shlibdeps_opts)
 	dh_installdeb -p$(pkghdr)
 	$(lockme) dh_gencontrol -p$(pkghdr)
 	dh_md5sums -p$(pkghdr)
@@ -491,7 +501,7 @@ ifneq ($(skipsub),true)
 		dh_installdocs -p$$pkg;			\
 		dh_compress -p$$pkg;			\
 		dh_fixperms -p$$pkg -X/boot/;		\
-		dh_shlibdeps -p$$pkg;			\
+		dh_shlibdeps -p$$pkg $(shlibdeps_opts);	\
 		dh_installdeb -p$$pkg;			\
 		$(lockme) dh_gencontrol -p$$pkg;			\
 		dh_md5sums -p$$pkg;			\
@@ -536,7 +546,7 @@ ifeq ($(do_linux_tools),true)
 	dh_installdocs -p$(pkgtools)
 	dh_compress -p$(pkgtools)
 	dh_fixperms -p$(pkgtools)
-	dh_shlibdeps -p$(pkgtools)
+	dh_shlibdeps -p$(pkgtools) $(shlibdeps_opts)
 	dh_installdeb -p$(pkgtools)
 	$(lockme) dh_gencontrol -p$(pkgtools)
 	dh_md5sums -p$(pkgtools)
@@ -547,7 +557,7 @@ ifeq ($(do_cloud_tools),true)
 	dh_installdocs -p$(pkgcloud)
 	dh_compress -p$(pkgcloud)
 	dh_fixperms -p$(pkgcloud)
-	dh_shlibdeps -p$(pkgcloud)
+	dh_shlibdeps -p$(pkgcloud) $(shlibdeps_opts)
 	dh_installdeb -p$(pkgcloud)
 	$(lockme) dh_gencontrol -p$(pkgcloud)
 	dh_md5sums -p$(pkgcloud)
@@ -571,9 +581,7 @@ $(stampdir)/stamp-prepare-perarch:
 ifeq ($(do_any_tools),true)
 	rm -rf $(builddirpa)
 	install -d $(builddirpa)
-	for i in *; do $(LN) $(CURDIR)/$$i $(builddirpa); done
-	rm $(builddirpa)/tools
-	rsync -a tools/ $(builddirpa)/tools/
+	rsync -a --exclude debian --exclude debian.master --exclude $(DEBIAN) --exclude .git -a ./ $(builddirpa)/
 endif
 	touch $@
 
@@ -593,11 +601,19 @@ ifeq ($(do_tools_cpupower),true)
 	# libcpupower.so.$(abi_release) and link cpupower with that.
 	make -C $(builddirpa)/tools/power/cpupower \
 		CROSS_COMPILE=$(CROSS_COMPILE) \
+		CROSS=$(CROSS_COMPILE) \
 		LIB_MIN=$(abi_release) CPUFREQ_BENCH=false
 endif
 ifeq ($(do_tools_perf),true)
+	cd $(builddirpa) && $(kmake) $(defconfig)
+	mv $(builddirpa)/.config $(builddirpa)/.config.old
+	sed -e 's/^# \(CONFIG_MODVERSIONS\) is not set$$/\1=y/' \
+	  -e 's/.*CONFIG_LOCALVERSION_AUTO.*/# CONFIG_LOCALVERSION_AUTO is not set/' \
+	  $(builddirpa)/.config.old > $(builddirpa)/.config
+	cd $(builddirpa) && $(kmake) silentoldconfig
+	cd $(builddirpa) && $(kmake) prepare
 	cd $(builddirpa)/tools/perf && \
-		make prefix=/usr HAVE_CPLUS_DEMANGLE=1 CROSS_COMPILE=$(CROSS_COMPILE) NO_LIBPYTHON=1 NO_LIBPERL=1 PYTHON=python2.7
+		$(kmake) prefix=/usr HAVE_CPLUS_DEMANGLE=1 CROSS_COMPILE=$(CROSS_COMPILE) NO_LIBPYTHON=1 NO_LIBPERL=1 PYTHON=python2.7
 endif
 ifeq ($(do_tools_x86),true)
 	cd $(builddirpa)/tools/power/x86/x86_energy_perf_policy && make CROSS_COMPILE=$(CROSS_COMPILE)
@@ -666,7 +682,7 @@ ifeq ($(do_linux_tools),true)
 	dh_installdocs -p$(toolspkg)
 	dh_compress -p$(toolspkg)
 	dh_fixperms -p$(toolspkg)
-	dh_shlibdeps -p$(toolspkg)
+	dh_shlibdeps -p$(toolspkg) $(shlibdeps_opts)
 	dh_installdeb -p$(toolspkg)
 	$(lockme) dh_gencontrol -p$(toolspkg)
 	dh_md5sums -p$(toolspkg)
@@ -678,7 +694,7 @@ ifeq ($(do_cloud_tools),true)
 	dh_installdocs -p$(cloudpkg)
 	dh_compress -p$(cloudpkg)
 	dh_fixperms -p$(cloudpkg)
-	dh_shlibdeps -p$(cloudpkg)
+	dh_shlibdeps -p$(cloudpkg) $(shlibdeps_opts)
 	dh_installdeb -p$(cloudpkg)
 	$(lockme) dh_gencontrol -p$(cloudpkg)
 	dh_md5sums -p$(cloudpkg)
@@ -701,7 +717,11 @@ build-arch-deps-$(do_flavour_image_package) += $(addprefix $(stampdir)/stamp-bui
 build-arch: $(build-arch-deps-true)
 	@echo Debug: $@
 
+ifeq ($(AUTOBUILD),)
+binary-arch-deps-$(do_flavour_image_package) += binary-udebs
+else
 binary-arch-deps-$(do_flavour_image_package) = binary-debs
+endif
 binary-arch-deps-$(do_libc_dev_package) += binary-arch-headers
 ifneq ($(do_common_headers_indep),true)
 binary-arch-deps-$(do_flavour_header_package) += binary-headers

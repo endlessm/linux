@@ -1,5 +1,5 @@
-/** @file $Id: vboxvideo_drm.c $
- *
+/* $Id: vboxvideo_drm.c $ */
+/** @file
  * VirtualBox Additions Linux kernel driver, DRM support
  */
 
@@ -70,6 +70,26 @@
 # define DRM_NEW_BUS_INIT 1
 #endif
 
+#if LINUX_VERSION_CODE < KERNEL_VERSION(3, 18, 0)
+# ifdef RHEL_RELEASE_CODE
+#  if RHEL_RELEASE_CODE < RHEL_RELEASE_VERSION(7, 2)
+#   define DRM_HAVE_DRM_MAP
+#  endif
+# else
+#  define DRM_HAVE_DRM_MAP
+# endif
+#endif
+
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(3, 18, 0)
+# define DRM_WANTS_SET_BUSID
+#else
+# ifdef RHEL_RELEASE_CODE
+#  if RHEL_RELEASE_CODE >= RHEL_RELEASE_VERSION(7, 2)
+#   define DRM_WANTS_SET_BUSID
+#  endif
+# endif
+#endif
+
 static struct pci_device_id pciidlist[] = {
         vboxvideo_PCI_IDS
 };
@@ -89,7 +109,7 @@ static struct file_operations driver_fops =
         .open = drm_open,
         .release = drm_release,
         .unlocked_ioctl = drm_ioctl,
-# if LINUX_VERSION_CODE < KERNEL_VERSION(3, 18, 0)
+# ifdef DRM_HAVE_DRM_MAP
         /* This shouldn't be necessary even for old kernels as there is
          * nothing sensible to mmap. But we play safe and keep it for
          * legacy reasons. */
@@ -103,7 +123,7 @@ static struct drm_driver driver =
 {
     /* .driver_features = DRIVER_USE_MTRR, */
     .load = vboxvideo_driver_load,
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(3, 18, 0)
+#ifdef DRM_WANTS_SET_BUSID
     /* If this is missing a warning gets printed to dmesg.  We will not
      * attempt to make kernels work to which the change (915b4d11b) got back-
      * ported, as the problem is only cosmetic. */

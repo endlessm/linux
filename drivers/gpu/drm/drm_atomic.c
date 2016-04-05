@@ -1039,10 +1039,21 @@ drm_atomic_set_crtc_for_connector(struct drm_connector_state *conn_state,
 {
 	struct drm_crtc_state *crtc_state;
 
+	if (conn_state->crtc && conn_state->crtc != crtc) {
+		crtc_state = drm_atomic_get_existing_crtc_state(conn_state->state,
+								conn_state->crtc);
+
+		crtc_state->connector_mask &=
+			~(1 << drm_connector_index(conn_state->connector));
+	}
+
 	if (crtc) {
 		crtc_state = drm_atomic_get_crtc_state(conn_state->state, crtc);
 		if (IS_ERR(crtc_state))
 			return PTR_ERR(crtc_state);
+
+		crtc_state->connector_mask |=
+			1 << drm_connector_index(conn_state->connector);
 	}
 
 	conn_state->crtc = crtc;
@@ -1191,12 +1202,7 @@ void drm_atomic_legacy_backoff(struct drm_atomic_state *state)
 retry:
 	drm_modeset_backoff(state->acquire_ctx);
 
-	ret = drm_modeset_lock(&state->dev->mode_config.connection_mutex,
-			       state->acquire_ctx);
-	if (ret)
-		goto retry;
-	ret = drm_modeset_lock_all_crtcs(state->dev,
-					 state->acquire_ctx);
+	ret = drm_modeset_lock_all_ctx(state->dev, state->acquire_ctx);
 	if (ret)
 		goto retry;
 }

@@ -400,44 +400,37 @@ static const struct intel_device_info intel_broxton_info = {
  * and subvendor IDs, we need it to come before the more general IVB
  * PCI ID matches, otherwise we'll use the wrong info struct above.
  */
-#define INTEL_PCI_IDS \
-	INTEL_I830_IDS(&intel_i830_info),	\
-	INTEL_I845G_IDS(&intel_845g_info),	\
-	INTEL_I85X_IDS(&intel_i85x_info),	\
-	INTEL_I865G_IDS(&intel_i865g_info),	\
-	INTEL_I915G_IDS(&intel_i915g_info),	\
-	INTEL_I915GM_IDS(&intel_i915gm_info),	\
-	INTEL_I945G_IDS(&intel_i945g_info),	\
-	INTEL_I945GM_IDS(&intel_i945gm_info),	\
-	INTEL_I965G_IDS(&intel_i965g_info),	\
-	INTEL_G33_IDS(&intel_g33_info),		\
-	INTEL_I965GM_IDS(&intel_i965gm_info),	\
-	INTEL_GM45_IDS(&intel_gm45_info), 	\
-	INTEL_G45_IDS(&intel_g45_info), 	\
-	INTEL_PINEVIEW_IDS(&intel_pineview_info),	\
-	INTEL_IRONLAKE_D_IDS(&intel_ironlake_d_info),	\
-	INTEL_IRONLAKE_M_IDS(&intel_ironlake_m_info),	\
-	INTEL_SNB_D_IDS(&intel_sandybridge_d_info),	\
-	INTEL_SNB_M_IDS(&intel_sandybridge_m_info),	\
-	INTEL_IVB_Q_IDS(&intel_ivybridge_q_info), /* must be first IVB */ \
-	INTEL_IVB_M_IDS(&intel_ivybridge_m_info),	\
-	INTEL_IVB_D_IDS(&intel_ivybridge_d_info),	\
-	INTEL_HSW_D_IDS(&intel_haswell_d_info), \
-	INTEL_HSW_M_IDS(&intel_haswell_m_info), \
-	INTEL_VLV_M_IDS(&intel_valleyview_m_info),	\
-	INTEL_VLV_D_IDS(&intel_valleyview_d_info),	\
-	INTEL_BDW_GT12M_IDS(&intel_broadwell_m_info),	\
-	INTEL_BDW_GT12D_IDS(&intel_broadwell_d_info),	\
-	INTEL_BDW_GT3M_IDS(&intel_broadwell_gt3m_info),	\
-	INTEL_BDW_GT3D_IDS(&intel_broadwell_gt3d_info), \
-	INTEL_CHV_IDS(&intel_cherryview_info),	\
-	INTEL_SKL_GT1_IDS(&intel_skylake_info),	\
-	INTEL_SKL_GT2_IDS(&intel_skylake_info),	\
-	INTEL_SKL_GT3_IDS(&intel_skylake_gt3_info),	\
-	INTEL_BXT_IDS(&intel_broxton_info)
-
-static const struct pci_device_id pciidlist[] = {		/* aka */
-	INTEL_PCI_IDS,
+static const struct pci_device_id pciidlist[] = {
+	INTEL_I830_IDS(&intel_i830_info),
+	INTEL_I845G_IDS(&intel_845g_info),
+	INTEL_I85X_IDS(&intel_i85x_info),
+	INTEL_I865G_IDS(&intel_i865g_info),
+	INTEL_I915G_IDS(&intel_i915g_info),
+	INTEL_I915GM_IDS(&intel_i915gm_info),
+	INTEL_I945G_IDS(&intel_i945g_info),
+	INTEL_I945GM_IDS(&intel_i945gm_info),
+	INTEL_I965G_IDS(&intel_i965g_info),
+	INTEL_G33_IDS(&intel_g33_info),
+	INTEL_I965GM_IDS(&intel_i965gm_info),
+	INTEL_GM45_IDS(&intel_gm45_info),
+	INTEL_G45_IDS(&intel_g45_info),
+	INTEL_PINEVIEW_IDS(&intel_pineview_info),
+	INTEL_IRONLAKE_D_IDS(&intel_ironlake_d_info),
+	INTEL_IRONLAKE_M_IDS(&intel_ironlake_m_info),
+	INTEL_SNB_D_IDS(&intel_sandybridge_d_info),
+	INTEL_SNB_M_IDS(&intel_sandybridge_m_info),
+	INTEL_IVB_Q_IDS(&intel_ivybridge_q_info), /* must be first IVB */
+	INTEL_IVB_M_IDS(&intel_ivybridge_m_info),
+	INTEL_IVB_D_IDS(&intel_ivybridge_d_info),
+	INTEL_HSW_D_IDS(&intel_haswell_d_info),
+	INTEL_HSW_M_IDS(&intel_haswell_m_info),
+	INTEL_VLV_M_IDS(&intel_valleyview_m_info),
+	INTEL_VLV_D_IDS(&intel_valleyview_d_info),
+	INTEL_BDW_GT12M_IDS(&intel_broadwell_m_info),
+	INTEL_BDW_GT12D_IDS(&intel_broadwell_d_info),
+	INTEL_BDW_GT3M_IDS(&intel_broadwell_gt3m_info),
+	INTEL_BDW_GT3D_IDS(&intel_broadwell_gt3d_info),
+	INTEL_CHV_IDS(&intel_cherryview_info),
 	{0, 0, 0}
 };
 
@@ -531,7 +524,10 @@ void intel_detect_pch(struct drm_device *dev)
 				dev_priv->pch_type = PCH_SPT;
 				DRM_DEBUG_KMS("Found SunrisePoint LP PCH\n");
 				WARN_ON(!IS_SKYLAKE(dev));
-			} else if (id == INTEL_PCH_P2X_DEVICE_ID_TYPE) {
+			} else if ((id == INTEL_PCH_P2X_DEVICE_ID_TYPE) ||
+				   ((id == INTEL_PCH_QEMU_DEVICE_ID_TYPE) &&
+				    pch->subsystem_vendor == 0x1af4 &&
+				    pch->subsystem_device == 0x1100)) {
 				dev_priv->pch_type = intel_virt_detect_pch(dev);
 			} else
 				continue;

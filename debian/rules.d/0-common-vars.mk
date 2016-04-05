@@ -1,3 +1,6 @@
+# Used when you need to 'escape' a comma.
+comma = ,
+
 #
 # The source package name will be the first token from $(DEBIAN)/changelog
 #
@@ -215,7 +218,7 @@ endif
 conc_level		= -j$(CONCURRENCY_LEVEL)
 
 # target_flavour is filled in for each step
-kmake = make \
+kmake = make ARCH=$(build_arch) \
 	CROSS_COMPILE=$(CROSS_COMPILE) \
 	KERNELVERSION=$(abi_release)-$(target_flavour) \
 	CONFIG_DEBUG_SECTION_MISMATCH=y \

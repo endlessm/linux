@@ -18,8 +18,8 @@ struct dquot;
 
 /* Operations */
 struct qtree_fmt_operations {
-	void (*mem2disk_dqblk)(void *disk, struct dquot *dquot);	/* Convert given entry from in memory format to disk one */
-	void (*disk2mem_dqblk)(struct dquot *dquot, void *disk);	/* Convert given entry from disk format to in memory one */
+	int (*mem2disk_dqblk)(void *disk, struct dquot *dquot);	/* Convert given entry from in memory format to disk one */
+	int (*disk2mem_dqblk)(struct dquot *dquot, void *disk);	/* Convert given entry from disk format to in memory one */
 	int (*is_id)(void *disk, struct dquot *dquot);	/* Is this structure for given id? */
 };
 

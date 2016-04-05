@@ -7,50 +7,52 @@ Build-Depends:
  debhelper (>= 5),
  dh-systemd,
  cpio,
- kernel-wedge (>= 2.24ubuntu1),
- kmod,
- makedumpfile [amd64 i386],
- libelf-dev,
- libnewt-dev,
- libiberty-dev,
- rsync,
- libdw-dev,
- libpci-dev,
- dpkg (>= 1.16.0~ubuntu4),
- pkg-config,
- flex,
- bison,
- libunwind8-dev [amd64 arm64 armhf i386 powerpc ppc64el],
- openssl,
- libssl-dev,
- libaudit-dev,
- bc,
- python-dev,
- gawk,
- device-tree-compiler [powerpc],
- u-boot-tools [powerpc],
- libc6-dev-ppc64 [powerpc],
- libudev-dev,
- autoconf,
- automake,
- libtool,
- uuid-dev,
+ kernel-wedge,
+ kmod <!stage1>,
+ makedumpfile [amd64 i386] <!stage1>,
+ libelf-dev <!stage1>,
+ libnewt-dev <!stage1>,
+ libiberty-dev <!stage1>,
+ rsync <!stage1>,
+ libdw-dev <!stage1>,
+ libpci-dev <!stage1>,
+ pkg-config <!stage1>,
+ flex <!stage1>,
+ bison <!stage1>,
+ libunwind8-dev [amd64 arm64 armhf i386 powerpc ppc64el] <!stage1>,
+ openssl <!stage1>,
+ libssl-dev <!stage1>,
+ libaudit-dev <!stage1>,
+ bc <!stage1>,
+ python-dev <!stage1>,
+ gawk <!stage1>,
+ device-tree-compiler [powerpc] <!stage1>,
+ u-boot-tools [powerpc] <!stage1>,
+ libc6-dev-ppc64 [powerpc] <!stage1>,
+ libudev-dev <!stage1>,
+ autoconf <!stage1>,
+ automake <!stage1>,
+ libtool <!stage1>,
+ uuid-dev <!stage1>,
 Build-Depends-Indep:
- xmlto,
- transfig,
- bzip2,
- sharutils,
- asciidoc,
-Vcs-Git: git://git.launchpad.net/~ubuntu-kernel/ubuntu/+source/linux/+git/wily
+ xmlto <!stage1>,
+ docbook-utils <!stage1>,
+ ghostscript <!stage1>,
+ transfig <!stage1>,
+ bzip2 <!stage1>,
+ sharutils <!stage1>,
+ asciidoc <!stage1>,
+Vcs-Git: git://git.launchpad.net/~ubuntu-kernel/ubuntu/+source/linux/+git/xenial
 XS-Testsuite: autopkgtest
 #XS-Testsuite-Depends: gcc-4.7 binutils
 
 Package: SRCPKGNAME-source-PKGVER
+Build-Profiles: <!stage1>
 Architecture: all
 Section: devel
 Priority: optional
 Provides: SRCPKGNAME-source, SRCPKGNAME-source-3
-Depends: ${misc:Depends}, binutils, bzip2, coreutils | fileutils (>= 4.0)
+Depends: ${misc:Depends}, binutils, bzip2, coreutils
 Recommends: libc-dev, gcc, make
 Suggests: libncurses-dev | ncurses-dev, kernel-package, libqt3-dev
 Description: Linux kernel source for version PKGVER with Ubuntu patches
@@ -69,12 +71,11 @@ Description: Linux kernel source for version PKGVER with Ubuntu patches
  package instead.
 
 Package: SRCPKGNAME-doc
+Build-Profiles: <!stage1>
 Architecture: all
 Section: doc
 Priority: optional
 Depends: ${misc:Depends}
-Conflicts: SRCPKGNAME-doc-3
-Replaces: SRCPKGNAME-doc-3
 Description: Linux kernel specific documentation for version PKGVER
  This package provides the various documents in the PKGVER kernel
  Documentation/ subdirectory.  These document kernel subsystems, APIs, device
@@ -83,11 +84,12 @@ Description: Linux kernel specific documentation for version PKGVER
  contained in each file.
 
 Package: SRCPKGNAME-headers-PKGVER-ABINUM
+Build-Profiles: <!stage1>
 Architecture: all
 Multi-Arch: foreign
 Section: devel
 Priority: optional
-Depends: ${misc:Depends}, coreutils | fileutils (>= 4.0)
+Depends: ${misc:Depends}, coreutils
 Description: Header files related to Linux kernel version PKGVER
  This package provides kernel header files for version PKGVER, for sites
  that want the latest kernel headers. Please read
@@ -96,8 +98,8 @@ Description: Header files related to Linux kernel version PKGVER
 Package: SRCPKGNAME-libc-dev
 Architecture: i386 amd64 armhf arm64 x32 powerpc ppc64el s390x
 Depends: ${misc:Depends}
-Conflicts: libc6-dev (<< 2.3.2.ds1-6), libc6.1-dev (<< 2.3.2.ds1-6), dvb-dev (<< 1.0.1-6), amd64-libs-dev (<= 1.1), SRCPKGNAME-kernel-headers
-Replaces: libc6-dev (<< 2.3.2.ds1-6), libc6.1-dev (<< 2.3.2.ds1-6), dvb-dev (<< 1.0.1-6), SRCPKGNAME-kernel-headers, libdrm-dev
+Conflicts: SRCPKGNAME-kernel-headers
+Replaces: SRCPKGNAME-kernel-headers
 Provides: SRCPKGNAME-kernel-headers
 Multi-Arch: same
 Description: Linux Kernel Headers for development
@@ -107,18 +109,19 @@ Description: Linux Kernel Headers for development
  your kernel. Use SRCPKGNAME-headers-* packages for that.
 
 Package: SRCPKGNAME-tools-common
+Build-Profiles: <!stage1>
 Architecture: all
 Multi-Arch: foreign
 Section: kernel
 Priority: optional
 Depends: ${misc:Depends}
-Replaces: SRCPKGNAME-tools (<= 2.6.32-16.25)
 Description: Linux kernel version specific tools for version PKGVER
  This package provides the architecture independent parts for kernel
  version locked tools (such as perf and x86_energy_perf_policy) for
  version PGKVER.
 
 Package: SRCPKGNAME-tools-PKGVER-ABINUM
+Build-Profiles: <!stage1>
 Architecture: i386 amd64 armhf arm64 powerpc ppc64el s390x
 Section: devel
 Priority: optional
@@ -128,21 +131,21 @@ Description: Linux kernel version specific tools for version PKGVER-ABINUM
  version locked tools (such as perf and x86_energy_perf_policy) for
  version PKGVER-ABINUM on
  =HUMAN=.
- You probabaly want to install linux-tools-PKGVER-ABINUM-<flavour>.
+ You probably want to install linux-tools-PKGVER-ABINUM-<flavour>.
 
 Package: SRCPKGNAME-cloud-tools-common
+Build-Profiles: <!stage1>
 Architecture: all
 Multi-Arch: foreign
 Section: kernel
 Priority: optional
-Breaks: SRCPKGNAME-tools-common (<< 3.13.0-8.28), hv-kvp-daemon-init (<< 3.13)
-Replaces: SRCPKGNAME-tools-common (<< 3.13.0-8.28), hv-kvp-daemon-init (<< 3.13)
 Depends: ${misc:Depends}
 Description: Linux kernel version specific cloud tools for version PKGVER
  This package provides the architecture independent parts for kernel
  version locked tools for cloud tools for version PGKVER.
 
 Package: SRCPKGNAME-cloud-tools-PKGVER-ABINUM
+Build-Profiles: <!stage1>
 Architecture: i386 amd64 armhf
 Section: devel
 Priority: optional
@@ -151,5 +154,5 @@ Description: Linux kernel version specific cloud tools for version PKGVER-ABINUM
  This package provides the architecture dependant parts for kernel
  version locked tools for cloud tools for version PKGVER-ABINUM on
  =HUMAN=.
- You probabaly want to install linux-cloud-tools-PKGVER-ABINUM-<flavour>.
+ You probably want to install linux-cloud-tools-PKGVER-ABINUM-<flavour>.
 

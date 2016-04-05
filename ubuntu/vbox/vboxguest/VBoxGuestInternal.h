@@ -1,6 +1,6 @@
 /* $Id: VBoxGuestInternal.h $ */
 /** @file
- * VBoxGuest - Guest Additions Driver.
+ * VBoxGuest - Guest Additions Driver, Internal Header.
  */
 
 /*
@@ -36,7 +36,7 @@
 #include <VBox/VBoxGuest.h>
 #include <VBox/VBoxGuestLib.h>
 
-/** @def VBOXGUEST_USE_WAKE_UP_LIST
+/** @def VBOXGUEST_USE_DEFERRED_WAKE_UP
  * Defer wake-up of waiting thread when defined. */
 #if defined(RT_OS_DARWIN) || defined(RT_OS_SOLARIS) || defined(RT_OS_WINDOWS) || defined(DOXYGEN_RUNNING)
 # define VBOXGUEST_USE_DEFERRED_WAKE_UP
@@ -64,11 +64,11 @@ typedef struct VBOXGUESTWAIT
     /** The events we received. */
     uint32_t volatile           fResEvents;
 #ifdef VBOXGUEST_USE_DEFERRED_WAKE_UP
-    /** Set by VbgdCommonWaitDoWakeUps before leaving the spinlock to call
+    /** Set by VGDrvCommonWaitDoWakeUps before leaving the spinlock to call
      *  RTSemEventMultiSignal. */
     bool volatile               fPendingWakeUp;
     /** Set by the requestor thread if it got the spinlock before the
-     * signaller.  Deals with the race in VbgdCommonWaitDoWakeUps. */
+     * signaller.  Deals with the race in VGDrvCommonWaitDoWakeUps. */
     bool volatile               fFreeMe;
 #endif
     /** The event semaphore. */
@@ -87,7 +87,7 @@ typedef struct VBOXGUESTWAIT
  */
 typedef struct VBOXGUESTMEMBALLOON
 {
-    /** Mutex protecting the members below from concurrent access.. */
+    /** Mutex protecting the members below from concurrent access. */
     RTSEMFASTMUTEX              hMtx;
     /** The current number of chunks in the balloon. */
     uint32_t                    cChunks;
@@ -313,22 +313,22 @@ typedef struct VBOXGUESTSESSION
 
 RT_C_DECLS_BEGIN
 
-int  VbgdCommonInitDevExt(PVBOXGUESTDEVEXT pDevExt, uint16_t IOPortBase, void *pvMMIOBase, uint32_t cbMMIO,
-                          VBOXOSTYPE enmOSType, uint32_t fEvents);
-bool VbgdCommonISR(PVBOXGUESTDEVEXT pDevExt);
-void VbgdCommonDeleteDevExt(PVBOXGUESTDEVEXT pDevExt);
-int  VbgdCommonReinitDevExtAfterHibernation(PVBOXGUESTDEVEXT pDevExt, VBOXOSTYPE enmOSType);
+int  VGDrvCommonInitDevExt(PVBOXGUESTDEVEXT pDevExt, uint16_t IOPortBase, void *pvMMIOBase, uint32_t cbMMIO,
+                           VBOXOSTYPE enmOSType, uint32_t fEvents);
+bool VGDrvCommonISR(PVBOXGUESTDEVEXT pDevExt);
+void VGDrvCommonDeleteDevExt(PVBOXGUESTDEVEXT pDevExt);
+int  VGDrvCommonReinitDevExtAfterHibernation(PVBOXGUESTDEVEXT pDevExt, VBOXOSTYPE enmOSType);
 #ifdef VBOXGUEST_USE_DEFERRED_WAKE_UP
-void VbgdCommonWaitDoWakeUps(PVBOXGUESTDEVEXT pDevExt);
+void VGDrvCommonWaitDoWakeUps(PVBOXGUESTDEVEXT pDevExt);
 #endif
 
-int  VbgdCommonCreateUserSession(PVBOXGUESTDEVEXT pDevExt, PVBOXGUESTSESSION *ppSession);
-int  VbgdCommonCreateKernelSession(PVBOXGUESTDEVEXT pDevExt, PVBOXGUESTSESSION *ppSession);
-void VbgdCommonCloseSession(PVBOXGUESTDEVEXT pDevExt, PVBOXGUESTSESSION pSession);
+int  VGDrvCommonCreateUserSession(PVBOXGUESTDEVEXT pDevExt, PVBOXGUESTSESSION *ppSession);
+int  VGDrvCommonCreateKernelSession(PVBOXGUESTDEVEXT pDevExt, PVBOXGUESTSESSION *ppSession);
+void VGDrvCommonCloseSession(PVBOXGUESTDEVEXT pDevExt, PVBOXGUESTSESSION pSession);
 
-int  VbgdCommonIoCtlFast(unsigned iFunction, PVBOXGUESTDEVEXT pDevExt, PVBOXGUESTSESSION pSession);
-int  VbgdCommonIoCtl(unsigned iFunction, PVBOXGUESTDEVEXT pDevExt, PVBOXGUESTSESSION pSession,
-                     void *pvData, size_t cbData, size_t *pcbDataReturned);
+int  VGDrvCommonIoCtlFast(unsigned iFunction, PVBOXGUESTDEVEXT pDevExt, PVBOXGUESTSESSION pSession);
+int  VGDrvCommonIoCtl(unsigned iFunction, PVBOXGUESTDEVEXT pDevExt, PVBOXGUESTSESSION pSession,
+                      void *pvData, size_t cbData, size_t *pcbDataReturned);
 
 /**
  * ISR callback for notifying threads polling for mouse events.
@@ -338,11 +338,11 @@ int  VbgdCommonIoCtl(unsigned iFunction, PVBOXGUESTDEVEXT pDevExt, PVBOXGUESTSES
  *
  * @param   pDevExt     The device extension.
  */
-void VbgdNativeISRMousePollEvent(PVBOXGUESTDEVEXT pDevExt);
+void VGDrvNativeISRMousePollEvent(PVBOXGUESTDEVEXT pDevExt);
 
 
 #ifdef VBOX_WITH_DPC_LATENCY_CHECKER
-int VbgdNtIOCtl_DpcLatencyChecker(void);
+int VGDrvNtIOCtl_DpcLatencyChecker(void);
 #endif
 
 RT_C_DECLS_END

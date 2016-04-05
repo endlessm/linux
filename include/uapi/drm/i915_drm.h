@@ -356,6 +356,7 @@ typedef struct drm_i915_irq_wait {
 #define I915_PARAM_EU_TOTAL		 34
 #define I915_PARAM_HAS_GPU_RESET	 35
 #define I915_PARAM_HAS_RESOURCE_STREAMER 36
+#define I915_PARAM_HAS_EXEC_SOFTPIN     37
 
 typedef struct drm_i915_getparam {
 	__s32 param;
@@ -682,8 +683,12 @@ struct drm_i915_gem_exec_object2 {
 	__u64 alignment;
 
 	/**
-	 * Returned value of the updated offset of the object, for future
-	 * presumed_offset writes.
+	 * When the EXEC_OBJECT_PINNED flag is specified this is populated by
+	 * the user with the GTT offset at which this object will be pinned.
+	 * When the I915_EXEC_NO_RELOC flag is specified this must contain the
+	 * presumed_offset of the object.
+	 * During execbuffer2 the kernel populates it with the value of the
+	 * current GTT offset of the object, for future presumed_offset writes.
 	 */
 	__u64 offset;
 
@@ -691,7 +696,8 @@ struct drm_i915_gem_exec_object2 {
 #define EXEC_OBJECT_NEEDS_GTT	(1<<1)
 #define EXEC_OBJECT_WRITE	(1<<2)
 #define EXEC_OBJECT_SUPPORTS_48B_ADDRESS (1<<3)
-#define __EXEC_OBJECT_UNKNOWN_FLAGS -(EXEC_OBJECT_SUPPORTS_48B_ADDRESS<<1)
+#define EXEC_OBJECT_PINNED     (1<<4)
+#define __EXEC_OBJECT_UNKNOWN_FLAGS -(EXEC_OBJECT_PINNED<<1)
 	__u64 flags;
 
 	__u64 rsvd1;
@@ -766,10 +772,12 @@ struct drm_i915_gem_execbuffer2 {
 #define I915_EXEC_HANDLE_LUT		(1<<12)
 
 /** Used for switching BSD rings on the platforms with two BSD rings */
-#define I915_EXEC_BSD_MASK		(3<<13)
-#define I915_EXEC_BSD_DEFAULT		(0<<13) /* default ping-pong mode */
-#define I915_EXEC_BSD_RING1		(1<<13)
-#define I915_EXEC_BSD_RING2		(2<<13)
+#define I915_EXEC_BSD_SHIFT     (13)
+#define I915_EXEC_BSD_MASK	(3 << I915_EXEC_BSD_SHIFT)
+/* default ping-pong mode */
+#define I915_EXEC_BSD_DEFAULT	(0 << I915_EXEC_BSD_SHIFT)
+#define I915_EXEC_BSD_RING1	(1 << I915_EXEC_BSD_SHIFT)
+#define I915_EXEC_BSD_RING2	(2 << I915_EXEC_BSD_SHIFT)
 
 /** Tell the kernel that the batchbuffer is processed by
  *  the resource streamer.
@@ -1125,8 +1133,9 @@ struct drm_i915_gem_context_param {
 	__u32 ctx_id;
 	__u32 size;
 	__u64 param;
-#define I915_CONTEXT_PARAM_BAN_PERIOD 0x1
-#define I915_CONTEXT_PARAM_NO_ZEROMAP 0x2
+#define I915_CONTEXT_PARAM_BAN_PERIOD	0x1
+#define I915_CONTEXT_PARAM_NO_ZEROMAP	0x2
+#define I915_CONTEXT_PARAM_GTT_SIZE	0x3
 	__u64 value;
 };
 

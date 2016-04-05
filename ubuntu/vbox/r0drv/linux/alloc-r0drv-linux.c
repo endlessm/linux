@@ -25,9 +25,9 @@
  */
 
 
-/*******************************************************************************
-*   Header Files                                                               *
-*******************************************************************************/
+/*********************************************************************************************************************************
+*   Header Files                                                                                                                 *
+*********************************************************************************************************************************/
 #include "the-linux-kernel.h"
 #include "internal/iprt.h"
 #include <iprt/mem.h>
@@ -63,9 +63,9 @@
 #endif
 
 
-/*******************************************************************************
-*   Structures and Typedefs                                                    *
-*******************************************************************************/
+/*********************************************************************************************************************************
+*   Structures and Typedefs                                                                                                      *
+*********************************************************************************************************************************/
 #ifdef RTMEMALLOC_EXEC_VM_AREA
 /**
  * Extended header used for headers marked with RTMEMHDR_FLAG_EXEC_VM_AREA.
@@ -87,9 +87,9 @@ typedef RTMEMLNXHDREX *PRTMEMLNXHDREX;
 #endif
 
 
-/*******************************************************************************
-*   Global Variables                                                           *
-*******************************************************************************/
+/*********************************************************************************************************************************
+*   Global Variables                                                                                                             *
+*********************************************************************************************************************************/
 #ifdef RTMEMALLOC_EXEC_HEAP
 /** The heap. */
 static RTHEAPSIMPLE g_HeapExec = NIL_RTHEAPSIMPLE;
@@ -234,6 +234,7 @@ static PRTMEMHDR rtR0MemAllocExecVmArea(size_t cb)
 DECLHIDDEN(int) rtR0MemAllocEx(size_t cb, uint32_t fFlags, PRTMEMHDR *ppHdr)
 {
     PRTMEMHDR pHdr;
+    IPRT_LINUX_SAVE_EFL_AC();
 
     /*
      * Allocate.
@@ -297,7 +298,10 @@ DECLHIDDEN(int) rtR0MemAllocEx(size_t cb, uint32_t fFlags, PRTMEMHDR *ppHdr)
             pHdr = vmalloc(cb + sizeof(*pHdr));
     }
     if (RT_UNLIKELY(!pHdr))
+    {
+        IPRT_LINUX_RESTORE_EFL_AC();
         return VERR_NO_MEMORY;
+    }
 
     /*
      * Initialize.
@@ -308,6 +312,7 @@ DECLHIDDEN(int) rtR0MemAllocEx(size_t cb, uint32_t fFlags, PRTMEMHDR *ppHdr)
     pHdr->cbReq     = cb;
 
     *ppHdr = pHdr;
+    IPRT_LINUX_RESTORE_EFL_AC();
     return VINF_SUCCESS;
 }
 
@@ -317,6 +322,8 @@ DECLHIDDEN(int) rtR0MemAllocEx(size_t cb, uint32_t fFlags, PRTMEMHDR *ppHdr)
  */
 DECLHIDDEN(void) rtR0MemFree(PRTMEMHDR pHdr)
 {
+    IPRT_LINUX_SAVE_EFL_AC();
+
     pHdr->u32Magic += 1;
     if (pHdr->fFlags & RTMEMHDR_FLAG_KMALLOC)
         kfree(pHdr);
@@ -345,6 +352,8 @@ DECLHIDDEN(void) rtR0MemFree(PRTMEMHDR pHdr)
 #endif
     else
         vfree(pHdr);
+
+    IPRT_LINUX_RESTORE_EFL_AC();
 }
 
 
@@ -383,6 +392,8 @@ RTR0DECL(void *) RTMemContAlloc(PRTCCPHYS pPhys, size_t cb)
     int             cOrder;
     unsigned        cPages;
     struct page    *paPages;
+    void           *pvRet;
+    IPRT_LINUX_SAVE_EFL_AC();
 
     /*
      * validate input.
@@ -434,10 +445,13 @@ RTR0DECL(void *) RTMemContAlloc(PRTCCPHYS pPhys, size_t cb)
 #endif
         }
         *pPhys = page_to_phys(paPages);
-        return phys_to_virt(page_to_phys(paPages));
+        pvRet = phys_to_virt(page_to_phys(paPages));
     }
+    else
+        pvRet = NULL;
 
-    return NULL;
+    IPRT_LINUX_RESTORE_EFL_AC();
+    return pvRet;
 }
 RT_EXPORT_SYMBOL(RTMemContAlloc);
 
@@ -456,6 +470,7 @@ RTR0DECL(void) RTMemContFree(void *pv, size_t cb)
         unsigned        cPages;
         unsigned        iPage;
         struct page    *paPages;
+        IPRT_LINUX_SAVE_EFL_AC();
 
         /* validate */
         AssertMsg(!((uintptr_t)pv & PAGE_OFFSET_MASK), ("pv=%p\n", pv));
@@ -478,6 +493,7 @@ RTR0DECL(void) RTMemContFree(void *pv, size_t cb)
 #endif
         }
         __free_pages(paPages, cOrder);
+        IPRT_LINUX_RESTORE_EFL_AC();
     }
 }
 RT_EXPORT_SYMBOL(RTMemContFree);
