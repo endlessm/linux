@@ -32,3 +32,10 @@ umem ?
 virtio_blk ?
 xen-blkfront ?
 mtip32xx ?
+mmc_block ?
+sdhci ?
+sdhci-pci ?
+sdhci-acpi ?
+tifm_sd ?
+dw_mmc ?
+dw_mmc_pltfm ?
