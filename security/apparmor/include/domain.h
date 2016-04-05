@@ -15,7 +15,7 @@
 #include <linux/binfmts.h>
 #include <linux/types.h>
 
-#include "include/label.h"
+#include "label.h"
 
 #ifndef __AA_DOMAIN_H
 #define __AA_DOMAIN_H
