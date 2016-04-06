@@ -9920,7 +9920,7 @@ CONFIG_ARCH_DIGICOLOR                           policy<{'armhf': 'n'}>
 CONFIG_ARCH_HIGHBANK                            policy<{'armhf': 'y'}>
 CONFIG_ARCH_HISI                                policy<{'arm64': 'y', 'armhf': 'y'}>
 CONFIG_ARCH_KEYSTONE                            policy<{'armhf': 'n'}>
-CONFIG_ARCH_ROCKCHIP                            policy<{'arm64': 'n', 'armhf': 'n'}>
+CONFIG_ARCH_ROCKCHIP                            policy<{'arm64': 'n', 'armhf': 'y'}>
 CONFIG_ARCH_S5PV210                             policy<{'armhf': 'n'}>
 CONFIG_ARCH_R8A7778                             policy<{'armhf': 'y'}>
 CONFIG_ARCH_R8A7779                             policy<{'armhf': 'y'}>
@@ -9943,6 +9943,8 @@ CONFIG_ARM_ERRATA_764369                        policy<{'armhf': 'y'}>
 CONFIG_ARM_ERRATA_775420                        policy<{'armhf': 'y'}>
 CONFIG_ARM_ERRATA_798181                        policy<{'armhf': 'y'}>
 CONFIG_ARM_ERRATA_773022                        policy<{'armhf': 'y'}>
+#
+CONFIG_ARCH_ROCKCHIP				note<LP:1566283>
 
 # Menu: System Type >> Atmel SoCs >> Architecture: arm
 CONFIG_ARCH_AT91                                policy<{'armhf': 'n'}>
