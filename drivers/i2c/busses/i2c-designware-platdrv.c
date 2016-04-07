@@ -90,6 +90,17 @@ static void dw_i2c_acpi_params(struct platform_device *pdev, char method[],
 	kfree(buf.pointer);
 }
 
+static const struct dmi_system_id sda_hold_time_30[] = {
+	{
+		.ident = "LENOVO 80MK", /* Lenovo Yoga 900 */
+		.matches = {
+			DMI_MATCH(DMI_SYS_VENDOR, "LENOVO"),
+			DMI_MATCH(DMI_PRODUCT_NAME, "80MK"),
+		},
+	},
+	{ }
+};
+
 static int dw_i2c_acpi_configure(struct platform_device *pdev)
 {
 	struct dw_i2c_dev *dev = platform_get_drvdata(pdev);
@@ -106,6 +117,9 @@ static int dw_i2c_acpi_configure(struct platform_device *pdev)
 	dw_i2c_acpi_params(pdev, "SSCN", &dev->ss_hcnt, &dev->ss_lcnt, NULL);
 	dw_i2c_acpi_params(pdev, "FMCN", &dev->fs_hcnt, &dev->fs_lcnt,
 			   &dev->sda_hold_time);
+
+	if (dmi_check_system(sda_hold_time_30))
+		dev->sda_hold_time = 30;
 
 	id = acpi_match_device(pdev->dev.driver->acpi_match_table, &pdev->dev);
 	if (id && id->driver_data)
