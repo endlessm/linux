@@ -32,6 +32,8 @@ drivers/infiniband/core/ib_mad.ko
 drivers/infiniband/core/ib_sa.ko
 drivers/infiniband/core/iw_cm.ko
 drivers/infiniband/core/rdma_cm.ko
+drivers/infiniband/ulp/iser/ib_iser.ko
+drivers/infiniband/ulp/isert/ib_isert.ko
 drivers/input/evbug.ko
 drivers/input/gameport/gameport.ko
 drivers/input/mouse/psmouse.ko
