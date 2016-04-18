@@ -576,14 +576,15 @@ static int get_secure_boot(void)
 
 	/* If it fails, we don't care why.  Default to secure */
 	if (status != EFI_SUCCESS)
-		return 1;
+		return EFI_SECURE_BOOT;
 
 	if (!(attr & EFI_VARIABLE_RUNTIME_ACCESS)) {
-		if (moksbstate == 1)
-			return 0;
+		if (moksbstate == 1) {
+			return EFI_MOKSBSTATE_DISABLED;
+		}
 	}
 
-	return 1;
+	return EFI_SECURE_BOOT;
 }
 
 

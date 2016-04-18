@@ -1074,6 +1074,7 @@ extern int __init efi_setup_pcdp_console(char *);
 #define EFI_DBG			8	/* Print additional debug info at runtime */
 #define EFI_NX_PE_DATA		9	/* Can runtime data regions be mapped non-executable? */
 #define EFI_SECURE_BOOT		10	/* Are we in Secure Boot mode? */
+#define EFI_MOKSBSTATE_DISABLED	11	/* Secure boot mode disabled in the MOK */
 
 #ifdef CONFIG_EFI
 /*
