@@ -528,11 +528,6 @@ static void fuse_release_user_pages(struct fuse_req *req, int write)
 	}
 }
 
-static void fuse_io_release(struct kref *kref)
-{
-	kfree(container_of(kref, struct fuse_io_priv, refcnt));
-}
-
 static ssize_t fuse_get_res_by_io(struct fuse_io_priv *io)
 {
 	if (io->err)
@@ -590,9 +585,8 @@ static void fuse_aio_complete(struct fuse_io_priv *io, int err, ssize_t pos)
 		}
 
 		io->iocb->ki_complete(io->iocb, res, 0);
+		kfree(io);
 	}
-
-	kref_put(&io->refcnt, fuse_io_release);
 }
 
 static void fuse_aio_complete_req(struct fuse_conn *fc, struct fuse_req *req)
@@ -619,7 +613,6 @@ static size_t fuse_async_req_send(struct fuse_conn *fc, struct fuse_req *req,
 		size_t num_bytes, struct fuse_io_priv *io)
 {
 	spin_lock(&io->lock);
-	kref_get(&io->refcnt);
 	io->size += num_bytes;
 	io->reqs++;
 	spin_unlock(&io->lock);
@@ -698,7 +691,7 @@ static void fuse_short_read(struct fuse_req *req, struct inode *inode,
 
 static int fuse_do_readpage(struct file *file, struct page *page)
 {
-	struct fuse_io_priv io = FUSE_IO_PRIV_SYNC(file);
+	struct fuse_io_priv io = { .async = 0, .file = file };
 	struct inode *inode = page->mapping->host;
 	struct fuse_conn *fc = get_fuse_conn(inode);
 	struct fuse_req *req;
@@ -991,7 +984,7 @@ static size_t fuse_send_write_pages(struct fuse_req *req, struct file *file,
 	size_t res;
 	unsigned offset;
 	unsigned i;
-	struct fuse_io_priv io = FUSE_IO_PRIV_SYNC(file);
+	struct fuse_io_priv io = { .async = 0, .file = file };
 
 	for (i = 0; i < req->num_pages; i++)
 		fuse_wait_on_page_writeback(inode, req->pages[i]->index);
@@ -1405,7 +1398,7 @@ static ssize_t __fuse_direct_read(struct fuse_io_priv *io,
 
 static ssize_t fuse_direct_read_iter(struct kiocb *iocb, struct iov_iter *to)
 {
-	struct fuse_io_priv io = FUSE_IO_PRIV_SYNC(iocb->ki_filp);
+	struct fuse_io_priv io = { .async = 0, .file = iocb->ki_filp };
 	return __fuse_direct_read(&io, to, &iocb->ki_pos);
 }
 
@@ -1413,7 +1406,7 @@ static ssize_t fuse_direct_write_iter(struct kiocb *iocb, struct iov_iter *from)
 {
 	struct file *file = iocb->ki_filp;
 	struct inode *inode = file_inode(file);
-	struct fuse_io_priv io = FUSE_IO_PRIV_SYNC(file);
+	struct fuse_io_priv io = { .async = 0, .file = file };
 	ssize_t res;
 
 	if (is_bad_inode(inode))
@@ -2826,7 +2819,6 @@ fuse_direct_IO(struct kiocb *iocb, struct iov_iter *iter, loff_t offset)
 	if (!io)
 		return -ENOMEM;
 	spin_lock_init(&io->lock);
-	kref_init(&io->refcnt);
 	io->reqs = 1;
 	io->bytes = -1;
 	io->size = 0;
@@ -2850,14 +2842,8 @@ fuse_direct_IO(struct kiocb *iocb, struct iov_iter *iter, loff_t offset)
 	    iov_iter_rw(iter) == WRITE)
 		io->async = false;
 
-	if (io->async && is_sync) {
-		/*
-		 * Additional reference to keep io around after
-		 * calling fuse_aio_complete()
-		 */
-		kref_get(&io->refcnt);
+	if (io->async && is_sync)
 		io->done = &wait;
-	}
 
 	if (iov_iter_rw(iter) == WRITE) {
 		ret = fuse_direct_io(io, iter, &pos, FUSE_DIO_WRITE);
@@ -2877,7 +2863,7 @@ fuse_direct_IO(struct kiocb *iocb, struct iov_iter *iter, loff_t offset)
 		ret = fuse_get_res_by_io(io);
 	}
 
-	kref_put(&io->refcnt, fuse_io_release);
+	kfree(io);
 
 	if (iov_iter_rw(iter) == WRITE) {
 		if (ret > 0)
