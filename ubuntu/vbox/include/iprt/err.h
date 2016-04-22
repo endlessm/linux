@@ -1452,6 +1452,8 @@ RT_C_DECLS_END
 #define VERR_LDRPE_LOAD_CONFIG_SIZE             (-626)
 /** The PE loader encountered a lock prefix table, a feature which hasn't been implemented yet. */
 #define VERR_LDRPE_LOCK_PREFIX_TABLE            (-627)
+/** The PE loader encountered some Guard CF stuff in the load config.   */
+#define VERR_LDRPE_GUARD_CF_STUFF               (-628)
 /** The ELF loader doesn't handle foreign endianness. */
 #define VERR_LDRELF_ODD_ENDIAN                  (-630)
 /** The ELF image is 'dynamic', the ELF loader can only deal with 'relocatable' images at present. */
