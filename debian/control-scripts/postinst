@@ -862,67 +862,6 @@ sub find_initrd_tool {
       split (/[:,\s]+/, $ramdisk);
 }
 
-# The initrd symlink should probably be in the same dir that the
-# symlinks are in
-if ($initrd) {
-  my $success = 0;
-
-  # Update-initramfs is called slightly different than mkinitrd and
-  # mkinitramfs. XXX It should really be made compatible with this stuff
-  # some how.
-  my $upgrading = 1;
-  if (! defined $ARGV[1] || ! $ARGV[1] || $ARGV[1] =~ m/<unknown>/og) {
-    $upgrading = 0;
-  }
-  my $ret = system("$ramdisk " . ($upgrading ? "-u" : "-c") . " -k " . $version . " >&2");
-  $success = 1 unless $ret;
-  die "Failed to create initrd image.\n" unless $success;
-  if (! defined $ARGV[1] || ! $ARGV[1] || $ARGV[1] =~ m/<unknown>/og) {
-    image_magic("initrd.img", $image_dest);
-  }
-  else {
-    lstat("initrd.img");
-    if (! -e _) {
-      handle_missing_link("initrd.img", $image_dest, "initrd.img-$version",
-                          $realimageloc);
-    }
-    else {
-      print STDERR
-        "Not updating initrd symbolic links since we are being updated/reinstalled \n";
-      print STDERR
-        "($ARGV[1] was configured last, according to dpkg)\n";
-    }
-  }
-
-  if ($initrd && -l "initrd" ) {
-    unlink "initrd";
-  }
-
-  if ($initrd && -l "$image_dir/initrd" && ! $link_in_boot) {
-    unlink "$image_dir/initrd";
-  }
-}
-else {                        # Not making an initrd emage
-  if (-l "initrd.img") {
-    # Ooh, last image was an initrd image? in any case, we should move it. 
-    my $target = readlink "initrd.img";
-    my $real_target = '';
-    $real_target = abs_path($target) if defined ($target);
-
-    if (!defined($target) || ! -f "$real_target") {
-      # Eh. dangling link. can safely be removed.
-      unlink("initrd.img");
-    } else {
-      if (-l "initrd.img.old" || ! -e "initrd.img.old" ) {
-        rename("initrd.img", "initrd.img.old");
-      } else {
-        warn "initrd.img.old is not a symlink, not clobbering\n";
-        unlink("initrd.img");
-      }
-    }
-  }
-}
-
 # Warn of a reboot
 if (-x $notifier) {
   system($notifier);
