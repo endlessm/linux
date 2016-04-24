@@ -105,7 +105,7 @@ insertchanges: autoreconstruct
 	@perl -w -f $(DROOT)/scripts/misc/insert-changes.pl $(DROOT) $(DEBIAN) 
 
 autoreconstruct:
-	$(DROOT)/scripts/misc/gen-auto-reconstruct $(release) >$(DEBIAN)/reconstruct
+	$(DROOT)/scripts/misc/gen-auto-reconstruct $(release) $(DEBIAN)/reconstruct $(DROOT)/source/options
 
 diffupstream:
 	@git diff-tree -p refs/remotes/linux-2.6/master..HEAD $(shell ls | grep -vE '^(ubuntu|$(DEBIAN)|\.git.*)')
