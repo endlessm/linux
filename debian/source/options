@@ -1,4 +1,5 @@
 # Ignore vbox symlinks, we will regenerate these at clean (LP:1426113)
+## autoreconstruct -- begin
 extend-diff-ignore=ubuntu/vbox/vboxvideo/include
 extend-diff-ignore=ubuntu/vbox/vboxguest/r0drv
 extend-diff-ignore=ubuntu/vbox/vboxguest/include
@@ -18,6 +19,7 @@ extend-diff-ignore=zfs/scripts/zpios-test/large.sh
 extend-diff-ignore=zfs/scripts/zpios-test/medium.sh
 extend-diff-ignore=zfs/scripts/zpios-test/small.sh
 extend-diff-ignore=zfs/scripts/zpios-test/tiny.sh
+## autoreconstruct -- end
 
 # force "dpkg-source -I -i" behavior
 diff-ignore
