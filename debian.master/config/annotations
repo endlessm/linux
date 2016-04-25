@@ -9539,7 +9539,7 @@ CONFIG_GART_IOMMU                               policy<{'amd64': 'y'}>
 CONFIG_CALGARY_IOMMU                            policy<{'amd64': 'y'}>
 CONFIG_CALGARY_IOMMU_ENABLED_BY_DEFAULT         policy<{'amd64': 'y'}>
 CONFIG_X86_REROUTE_FOR_BROKEN_BOOT_IRQS         policy<{'amd64': 'y', 'i386': 'y'}>
-CONFIG_X86_LEGACY_VM86                          policy<{'i386': 'n'}>
+CONFIG_X86_LEGACY_VM86                          policy<{'i386': 'y'}>
 CONFIG_X86_16BIT                                policy<{'amd64': 'y', 'i386': 'y'}>
 CONFIG_X86_VSYSCALL_EMULATION                   policy<{'amd64': 'y'}>
 CONFIG_TOSHIBA                                  policy<{'i386': 'n'}>
@@ -9573,7 +9573,7 @@ CONFIG_COMPAT_VDSO                              policy<{'amd64': 'n', 'i386': 'n
 CONFIG_MODIFY_LDT_SYSCALL                       policy<{'amd64': 'y', 'i386': 'y'}>
 #
 CONFIG_COMPAT_VDSO                              mark<ENFORCED>
-CONFIG_X86_LEGACY_VM86				flag<REVIEW> note<Q: did we not just turn this back on on earlier releases?>
+CONFIG_X86_LEGACY_VM86				note<LP:1499089>
 CONFIG_KEXEC_BZIMAGE_VERIFY_SIG			flag<REVIEW> note<Q: check this is in sync with the kexec/kdump userspace>
 CONFIG_MODIFY_LDT_SYSCALL			flag<REVIEW> note<Q: check this with security>
 
