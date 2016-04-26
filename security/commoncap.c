@@ -931,7 +931,7 @@ int cap_inode_setxattr(struct dentry *dentry, const char *name,
 	if (strcmp(name, XATTR_NAME_CAPS) == 0)
 		return 0;
 
-	if (!capable(CAP_SYS_ADMIN))
+	if (!ns_capable(dentry->d_sb->s_user_ns, CAP_SYS_ADMIN))
 		return -EPERM;
 	return 0;
 }
@@ -964,7 +964,7 @@ int cap_inode_removexattr(struct dentry *dentry, const char *name)
 		return 0;
 	}
 
-	if (!capable(CAP_SYS_ADMIN))
+	if (!ns_capable(dentry->d_sb->s_user_ns, CAP_SYS_ADMIN))
 		return -EPERM;
 	return 0;
 }
