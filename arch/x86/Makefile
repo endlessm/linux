@@ -27,6 +27,7 @@ REALMODE_CFLAGS	:= $(M16_CFLAGS) -g -Os -D__KERNEL__ \
 		   -mno-mmx -mno-sse \
 		   $(call cc-option, -ffreestanding) \
 		   $(call cc-option, -fno-stack-protector) \
+		   $(call cc-option, -fno-pie) \
 		   $(call cc-option, -mpreferred-stack-boundary=2)
 export REALMODE_CFLAGS
 
@@ -129,7 +130,7 @@ endif
 # Make sure compiler does not have buggy stack-protector support.
 ifdef CONFIG_CC_STACKPROTECTOR
 	cc_has_sp := $(srctree)/scripts/gcc-x86_$(BITS)-has-stack-protector.sh
-        ifneq ($(shell $(CONFIG_SHELL) $(cc_has_sp) $(CC) $(KBUILD_CPPFLAGS) $(biarch)),y)
+        ifneq ($(shell $(CONFIG_SHELL) $(cc_has_sp) $(CC) -fno-pie $(KBUILD_CPPFLAGS) $(biarch)),y)
                 $(warning stack-protector enabled but compiler support broken)
         endif
 endif
