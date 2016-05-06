@@ -20,6 +20,7 @@ Build-Depends:
  flex <!stage1>,
  bison <!stage1>,
  libunwind8-dev [amd64 arm64 armhf i386 powerpc ppc64el] <!stage1>,
+ liblzma-dev <!stage1>,
  openssl <!stage1>,
  libssl-dev <!stage1>,
  libaudit-dev <!stage1>,
