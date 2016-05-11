@@ -40,6 +40,7 @@
 #include <linux/io-mapping.h>
 #include <linux/sched.h>
 #include <rdma/ib_user_verbs.h>
+#include <linux/mlx5/port.h>
 #include <linux/mlx5/vport.h>
 #include <rdma/ib_smi.h>
 #include <rdma/ib_umem.h>

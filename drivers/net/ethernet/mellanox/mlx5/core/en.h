@@ -35,6 +35,7 @@
 #include <linux/mlx5/driver.h>
 #include <linux/mlx5/qp.h>
 #include <linux/mlx5/cq.h>
+#include <linux/mlx5/port.h>
 #include <linux/mlx5/vport.h>
 #include "wq.h"
 #include "transobj.h"
