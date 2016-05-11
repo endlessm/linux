@@ -2,7 +2,7 @@ human_arch	= PowerPC (32 bit userspace)
 build_arch	= powerpc
 header_arch	= $(build_arch)
 defconfig	= pmac32_defconfig
-flavours	= powerpc-smp powerpc64-smp powerpc-e500mc powerpc64-emb
+flavours	= powerpc-smp generic powerpc-e500mc powerpc64-emb
 build_image	= zImage
 kernel_file	= $(shell if [ ! -f $(builddir)/build-$*/vmlinux.strip ] && \
 		    [ -f $(builddir)/build-$*/vmlinux.strip.gz ]; then \
@@ -32,7 +32,7 @@ do_tools_perf		= true
 # override still has priority.
 do_zfs			= true
 do_zfs_powerpc-smp	= false
-# do_zfs_powerpc64-smp	= true
+# do_zfs_generic	= true
 do_zfs_powerpc-e500mc	= false
 do_zfs_powerpc64-emb	= false
 do_extras_package	= true

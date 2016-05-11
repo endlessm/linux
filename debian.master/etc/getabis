@@ -17,4 +17,4 @@ getall ppc64el generic
 getall s390x generic
 
 # Ports arches and flavours.
-getall powerpc powerpc-smp powerpc64-smp powerpc-e500mc powerpc64-emb
+getall powerpc powerpc-smp generic powerpc-e500mc powerpc64-emb
