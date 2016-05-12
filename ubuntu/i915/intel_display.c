@@ -13583,6 +13583,7 @@ static int intel_atomic_commit(struct drm_device *dev,
 
 	drm_atomic_helper_swap_state(dev, state);
 	dev_priv->wm.config = to_intel_atomic_state(state)->wm_config;
+	dev_priv->wm.distrust_bios_wm = false;
 
 	if (intel_state->modeset) {
 		memcpy(dev_priv->min_pixclk, intel_state->min_pixclk,
