@@ -166,14 +166,17 @@ net/key/*
 net/lapb/*
 net/llc/*
 net/netfilter/*
+net/netlink/netlink_diag.ko
 net/netrom/*
 net/openvswitch/*
+net/packet/af_packet_diag.ko
 net/phonet/*
 net/rose/*
 net/rxrpc/*
 net/sched/*
 net/sctp/*
 net/tipc/*
+net/unix/unix_diag.ko
 net/vmw_vsock/*
 net/x25/*
 net/xfrm/*
