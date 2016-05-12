@@ -42,6 +42,7 @@ ifneq ($(DEB_HOST_ARCH),$(DEB_BUILD_ARCH))
 	do_tools=false
 	disable_d_i=true
 	do_zfs=false
+	do_zfs_disable:=$(shell cat $(DROOT)/zfs-modules.ignore >>$(prev_abidir)/../modules.ignore)
 endif
 
 # Stages -- support both DEB_STAGE=stage1 and DEB_BUILD_PROFILE=bootstrap
