@@ -107,6 +107,7 @@ struct ideapad_private {
 	unsigned long cfg;
 	bool has_hw_rfkill_switch;
 	const char *fnesc_guid;
+	bool has_tp_ctrl;
 };
 
 static bool no_bt_rfkill;
@@ -900,6 +901,9 @@ static void ideapad_sync_touchpad_state(struct ideapad_private *priv)
 {
 	unsigned long value;
 
+	if (!priv->has_tp_ctrl)
+		return;
+
 	/* Without reading from EC touchpad LED doesn't switch state */
 	if (!read_ec_data(priv->adev->handle, VPCCMD_R_TOUCHPAD, &value)) {
 		/* Some IdeaPads don't really turn off touchpad - they only
@@ -1261,6 +1265,27 @@ static const struct dmi_system_id no_hw_rfkill_list[] = {
 	{}
 };
 
+/*
+ * Avoid sending wrong KEY_TOUCHPAD_ON / KEY_TOUCHPAD_OFF events to userspace.
+ */
+static const struct dmi_system_id no_tp_ctrl_list[] = {
+	{
+		.ident = "Lenovo 80HE", /* Yoga 3 Pro 2 */
+		.matches = {
+			DMI_MATCH(DMI_SYS_VENDOR, "LENOVO"),
+			DMI_MATCH(DMI_PRODUCT_NAME, "80HE"),
+		},
+	},
+	{
+		.ident = "Lenovo 80MK", /* Yoga 900 */
+		.matches = {
+			DMI_MATCH(DMI_SYS_VENDOR, "LENOVO"),
+			DMI_MATCH(DMI_PRODUCT_NAME, "80MK"),
+		},
+	},
+	{}
+};
+
 static int ideapad_acpi_add(struct platform_device *pdev)
 {
 	int ret, i;
@@ -1284,6 +1309,7 @@ static int ideapad_acpi_add(struct platform_device *pdev)
 	priv->adev = adev;
 	priv->platform_device = pdev;
 	priv->has_hw_rfkill_switch = !dmi_check_system(no_hw_rfkill_list);
+	priv->has_tp_ctrl = !dmi_check_system(no_tp_ctrl_list);
 
 	ret = ideapad_sysfs_init(priv);
 	if (ret)
