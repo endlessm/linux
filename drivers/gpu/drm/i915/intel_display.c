@@ -12061,7 +12061,7 @@ static int intel_crtc_atomic_check(struct drm_crtc *crtc,
 		}
 	} else if (dev_priv->display.compute_intermediate_wm) {
 		if (HAS_PCH_SPLIT(dev_priv) && INTEL_GEN(dev_priv) < 9)
-			pipe_config->wm.intermediate = pipe_config->wm.optimal.ilk;
+			pipe_config->wm.ilk.intermediate = pipe_config->wm.ilk.optimal;
 	}
 
 	if (INTEL_INFO(dev)->gen >= 9) {
