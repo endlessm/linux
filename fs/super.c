@@ -951,12 +951,14 @@ static int ns_set_super(struct super_block *sb, void *data)
 	return set_anon_super(sb, NULL);
 }
 
-struct dentry *mount_ns(struct file_system_type *fs_type, int flags,
-	void *data, int (*fill_super)(struct super_block *, void *, int))
+struct dentry *mount_ns_userns(struct file_system_type *fs_type, int flags,
+	struct user_namespace *user_ns, void *data,
+	int (*fill_super)(struct super_block *, void *, int))
 {
 	struct super_block *sb;
 
-	sb = sget(fs_type, ns_test_super, ns_set_super, flags, data);
+	sb = sget_userns(fs_type, ns_test_super, ns_set_super, flags, user_ns,
+			 data);
 	if (IS_ERR(sb))
 		return ERR_CAST(sb);
 
@@ -972,6 +974,14 @@ struct dentry *mount_ns(struct file_system_type *fs_type, int flags,
 	}
 
 	return dget(sb->s_root);
+}
+EXPORT_SYMBOL(mount_ns_userns);
+
+struct dentry *mount_ns(struct file_system_type *fs_type, int flags,
+	void *data, int (*fill_super)(struct super_block *, void *, int))
+{
+	return mount_ns_userns(fs_type, flags, current_user_ns(), data,
+			       fill_super);
 }
 
 EXPORT_SYMBOL(mount_ns);
