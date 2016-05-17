@@ -21,7 +21,7 @@ function update_from_archive {
 	wget -O ${DEST_DIR}.deb ${URL}
 	dpkg -x ${DEST_DIR}.deb ${DEST_DIR}.tmp
 	mkdir -p ${DEST_DIR}
-	rsync -a --delete ${DEST_DIR}.tmp/usr/src/${DEST_DIR}-${VER}*/ ${DEST_DIR}/
+	rsync -aL --delete ${DEST_DIR}.tmp/usr/src/${DEST_DIR}-${VER}*/ ${DEST_DIR}/
 	rm -rf ${DEST_DIR}.deb ${DEST_DIR}.tmp
 	find ${DEST_DIR} -type f | while read f;do git add -f $f;done
 }
