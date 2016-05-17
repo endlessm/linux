@@ -15,12 +15,14 @@ drivers/block/nbd.ko
 drivers/block/floppy.ko
 drivers/block/cryptoloop.ko
 drivers/block/rbd.ko
+drivers/block/virtio_blk.ko
 drivers/char/hangcheck-timer.ko
 drivers/char/hw_random/virtio-rng.ko
 drivers/char/lp.ko
 drivers/char/nvram.ko
 drivers/char/ppdev.ko
 drivers/char/raw.ko
+drivers/char/virtio_console.ko
 drivers/firmware/iscsi_ibft.ko
 drivers/hid/hid.ko
 drivers/hid/hid-hyperv.ko
@@ -76,6 +78,7 @@ drivers/net/hyperv/hv_netvsc.ko
 drivers/net/ppp/*
 drivers/net/slip/*
 drivers/net/veth.ko
+drivers/net/virtio_net.ko
 drivers/net/vmxnet3/vmxnet3.ko
 drivers/net/vxlan.ko
 drivers/net/xen-netback/*
@@ -118,6 +121,7 @@ drivers/video/fbdev/vga16fb.ko
 drivers/video/vgastate.ko
 drivers/video/fbdev/xen-fbfront.ko
 drivers/video/fbdev/core/fb_sys_fops.ko
+drivers/virtio/*
 drivers/watchdog/softdog.ko
 drivers/xen/*
 fs/9p/*

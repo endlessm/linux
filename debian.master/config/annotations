@@ -474,7 +474,7 @@ CONFIG_SCM_BLOCK                                policy<{'s390x': 'm'}>
 CONFIG_SCM_BLOCK_CLUSTER_WRITE                  policy<{'s390x': 'y'}>
 CONFIG_XEN_BLKDEV_FRONTEND                      policy<{'amd64': 'y', 'arm64': 'y', 'i386': 'y'}>
 CONFIG_XEN_BLKDEV_BACKEND                       policy<{'amd64': 'm', 'arm64': 'm', 'i386': 'm'}>
-CONFIG_VIRTIO_BLK                               policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'powerpc': 'y', 'ppc64el': 'y', 's390x': 'y'}>
+CONFIG_VIRTIO_BLK                               policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'powerpc': 'm', 'ppc64el': 'm', 's390x': 'm'}>
 CONFIG_BLK_DEV_HD                               policy<{'amd64': 'n', 'i386': 'n', 'powerpc': 'n', 'ppc64el': 'n'}>
 CONFIG_BLK_DEV_RBD                              policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'powerpc': 'm', 'ppc64el': 'm', 's390x': 'm'}>
 CONFIG_BLK_DEV_RSXX                             policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'powerpc': 'm', 'ppc64el': 'm', 's390x': 'n'}>
@@ -482,7 +482,7 @@ CONFIG_BLK_DEV_RSXX                             policy<{'amd64': 'm', 'arm64': '
 CONFIG_BLK_DEV_UMEM                             note<experimental NVRAM disk driver -- opt-in>
 CONFIG_CDROM_PKTCDVD_WCACHE                     mark<DANGEROUS>
 CONFIG_XEN_BLKDEV_FRONTEND                      note<not autoloadable -- XEN paravirt support>
-CONFIG_VIRTIO_BLK                               note<KVM paravirt support -- not autoloadable>
+CONFIG_VIRTIO_BLK                               note<KVM paravirt support -- not autoloadable, LP#1475078>
 CONFIG_BLK_DEV_HD                               note<very old disk device support> mark<ANCIENT>
 
 # Menu: Device Drivers >> Block devices >> Parallel port IDE device support
@@ -564,7 +564,7 @@ CONFIG_HVC_XEN_FRONTEND                         policy<{'amd64': 'y', 'arm64': '
 CONFIG_HVC_UDBG                                 policy<{'powerpc': 'y', 'ppc64el': 'y'}>
 CONFIG_HVC_DCC                                  policy<{'armhf': 'n'}>
 CONFIG_HVCS                                     policy<{'powerpc-generic': 'm', 'ppc64el': 'm'}>
-CONFIG_VIRTIO_CONSOLE                           policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'powerpc': 'y', 'ppc64el': 'y', 's390x': 'y'}>
+CONFIG_VIRTIO_CONSOLE                           policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'powerpc': 'm', 'ppc64el': 'm', 's390x': 'y'}>
 CONFIG_IBM_BSR                                  policy<{'powerpc-generic': 'm', 'ppc64el': 'm'}>
 CONFIG_NVRAM                                    policy<{'amd64': 'm', 'armhf': 'm', 'i386': 'm', 'powerpc-powerpc-e500mc': 'y', 'powerpc-powerpc-smp': 'y'}>
 CONFIG_DTLK                                     policy<{'i386': 'm'}>
@@ -610,6 +610,7 @@ CONFIG_XILLYBUS_OF                              policy<{'arm64': 'm', 'armhf': '
 #
 CONFIG_DEVKMEM                                  mark<ENFORCED> note</dev/kmem is a large attack vector>
 CONFIG_NVRAM                                    mark<ENFORCED> note<boot essential on powerpc LP:942193>
+CONFIG_VIRTIO_CONSOLE				note<LP#1475078>
 
 # Menu: Device Drivers >> Character devices >> Enable TTY
 CONFIG_TTY                                      policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'powerpc': 'y', 'ppc64el': 'y', 's390x': 'y'}>
@@ -4416,11 +4417,11 @@ CONFIG_RIONET_RX_SIZE                           policy<{'amd64': '128', 'i386': 
 CONFIG_TUN                                      policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'powerpc': 'y', 'ppc64el': 'y', 's390x': 'y'}>
 CONFIG_TUN_VNET_CROSS_LE                        policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'i386': 'n', 'powerpc': 'n', 'ppc64el': 'n', 's390x': 'n'}>
 CONFIG_VETH                                     policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'powerpc': 'm', 'ppc64el': 'm', 's390x': 'm'}>
-CONFIG_VIRTIO_NET                               policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'powerpc': 'y', 'ppc64el': 'y', 's390x': 'y'}>
+CONFIG_VIRTIO_NET                               policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'powerpc': 'm', 'ppc64el': 'm', 's390x': 'm'}>
 CONFIG_NLMON                                    policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'powerpc': 'm', 'ppc64el': 'm', 's390x': 'm'}>
 CONFIG_NET_VRF                                  policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'powerpc': 'm', 'ppc64el': 'm', 's390x': 'm'}>
 #
-CONFIG_VIRTIO_NET                               note<KVM paravirt support -- not autoloadable> flag<REVIEW>
+CONFIG_VIRTIO_NET                               note<KVM paravirt support -- not autoloadable, LP#1475078> flag<REVIEW>
 
 # Menu: Device Drivers >> Network device support >> Network core driver support >> Ethernet team driver support
 CONFIG_NET_TEAM                                 policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'powerpc': 'm', 'ppc64el': 'm', 's390x': 'm'}>
@@ -4462,7 +4463,7 @@ CONFIG_MDIO_OCTEON                              policy<{'amd64': 'm', 'arm64': '
 CONFIG_MDIO_BUS_MUX_GPIO                        policy<{'arm64': 'm', 'armhf': 'm', 'powerpc': 'm', 'ppc64el': 'm'}>
 CONFIG_MDIO_BUS_MUX_MMIOREG                     policy<{'arm64': 'm', 'armhf': 'm', 'powerpc': 'm', 'ppc64el': 'm'}>
 CONFIG_MDIO_BCM_UNIMAC                          policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'powerpc': 'm', 'ppc64el': 'm'}>
-
+'y'
 # Menu: Device Drivers >> Network device support >> PPP (point-to-point protocol) support
 CONFIG_PPP                                      policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'powerpc': 'y', 'ppc64el': 'y', 's390x': 'n'}>
 CONFIG_PPP_BSDCOMP                              policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'powerpc': 'm', 'ppc64el': 'm'}>
@@ -6835,15 +6836,15 @@ CONFIG_VME_USER                                 policy<{'amd64': 'm', 'arm64': '
 CONFIG_VME_PIO2                                 policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'powerpc': 'm', 'ppc64el': 'm'}>
 
 # Menu: Device Drivers >> Virtio drivers
-CONFIG_VIRTIO_PCI                               policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'powerpc': 'y', 'ppc64el': 'y', 's390x': 'y'}>
+CONFIG_VIRTIO_PCI                               policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'powerpc': 'm', 'ppc64el': 'm', 's390x': 'm'}>
 CONFIG_VIRTIO_PCI_LEGACY                        policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'powerpc': 'y', 'ppc64el': 'y', 's390x': 'y'}>
 CONFIG_VIRTIO_BALLOON                           policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'powerpc': 'y', 'ppc64el': 'y', 's390x': 'y'}>
 CONFIG_VIRTIO_INPUT                             policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'powerpc': 'm', 'ppc64el': 'm'}>
-CONFIG_VIRTIO_MMIO                              policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'powerpc': 'y', 'ppc64el': 'y', 's390x': 'n'}>
-CONFIG_VIRTIO_MMIO				note<LP#1557689 CONFIG_VIRTIO_MMIO=n for s390x>
+CONFIG_VIRTIO_MMIO                              policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'powerpc': 'm', 'ppc64el': 'm', 's390x': 'n'}>
+CONFIG_VIRTIO_MMIO				note<LP#1557689 CONFIG_VIRTIO_MMIO=n for s390x, LP#1475078>
 CONFIG_VIRTIO_MMIO_CMDLINE_DEVICES              policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'powerpc': 'y', 'ppc64el': 'y', 's390x': 'y'}>
 #
-CONFIG_VIRTIO_PCI                               mark<review>
+CONFIG_VIRTIO_PCI                               mark<review, LP#1475078>
 
 # Menu: Device Drivers >> Virtualization drivers
 CONFIG_VIRT_DRIVERS                             policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'powerpc': 'y', 'ppc64el': 'y', 's390x': 'y'}>
