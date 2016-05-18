@@ -13,7 +13,9 @@ drivers/ata/libahci.ko
 drivers/ata/libahci_platform.ko
 drivers/block/nbd.ko
 drivers/block/floppy.ko
+drivers/block/brd.ko
 drivers/block/cryptoloop.ko
+drivers/block/loop.ko
 drivers/block/rbd.ko
 drivers/block/virtio_blk.ko
 drivers/char/hangcheck-timer.ko
@@ -105,10 +107,13 @@ drivers/scsi/raid_class.ko
 drivers/scsi/scsi_transport_fc.ko
 drivers/scsi/scsi_transport_iscsi.ko
 drivers/scsi/scsi_transport_sas.ko
+drivers/scsi/sd_mod.ko
+drivers/scsi/sr_mod.ko
 drivers/scsi/vmw_pvscsi.ko
 drivers/scsi/hv_storvsc.ko
 drivers/scsi/virtio_scsi.ko
 drivers/scsi/ibmvscsi/*
+drivers/s390/block/xpram.ko
 drivers/target/target_core*.ko
 drivers/uio/uio.ko
 drivers/vhost/*
