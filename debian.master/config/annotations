@@ -1210,20 +1210,25 @@ CONFIG_IMX_IPUV3_CORE                           policy<{'armhf': 'm'}>
 CONFIG_DRM_LOAD_EDID_FIRMWARE                   policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'powerpc': 'y', 'ppc64el': 'y'}>
 
 # Menu: Device Drivers >> Graphics support >> /dev/agpgart (AGP Support)
-CONFIG_AGP                                      policy<{'amd64': 'y', 'i386': 'y', 'powerpc': 'y', 'ppc64el': 'y'}>
+CONFIG_AGP                                      policy<{'amd64': 'm', 'i386': 'm', 'powerpc': 'm', 'ppc64el': 'm'}>
 CONFIG_AGP_ALI                                  policy<{'i386': 'm'}>
 CONFIG_AGP_ATI                                  policy<{'i386': 'm'}>
-CONFIG_AGP_AMD                                  policy<{'i386': 'y'}>
-CONFIG_AGP_AMD64                                policy<{'amd64': 'y', 'i386': 'y'}>
-CONFIG_AGP_INTEL                                policy<{'amd64': 'y', 'i386': 'y'}>
-CONFIG_AGP_NVIDIA                               policy<{'i386': 'y'}>
+CONFIG_AGP_AMD                                  policy<{'i386': 'm'}>
+CONFIG_AGP_AMD64                                policy<{'amd64': 'm', 'i386': 'm'}>
+CONFIG_AGP_INTEL                                policy<{'amd64': 'm', 'i386': 'm'}>
+CONFIG_AGP_NVIDIA                               policy<{'i386': 'm'}>
 CONFIG_AGP_SIS                                  policy<{'amd64': 'm', 'i386': 'm'}>
 CONFIG_AGP_SWORKS                               policy<{'i386': 'm'}>
-CONFIG_AGP_VIA                                  policy<{'amd64': 'y', 'i386': 'y'}>
+CONFIG_AGP_VIA                                  policy<{'amd64': 'm', 'i386': 'm'}>
 CONFIG_AGP_UNINORTH                             policy<{'powerpc-generic': 'm', 'powerpc-powerpc-smp': 'm'}>
 CONFIG_AGP_EFFICEON                             policy<{'i386': 'm'}>
 #
-CONFIG_AGP                                      note<not autoloadable> flag<REVIEW>
+CONFIG_AGP                                      note<LP:#1475078>
+CONFIG_AGP_AMD					note<LP:#1475078>
+CONFIG_AGP_AMD64				note<LP:#1475078>
+CONFIG_AGP_INTEL				note<LP:#1475078>
+CONFIG_AGP_NVIDIA				note<LP:#1475078>
+CONFIG_AGP_VIA					note<LP:#1475078>
 
 # Menu: Device Drivers >> Graphics support >> Backlight & LCD device support
 CONFIG_BACKLIGHT_LCD_SUPPORT                    policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'powerpc': 'y', 'ppc64el': 'y', 's390x': 'n'}>
