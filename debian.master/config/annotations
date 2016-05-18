@@ -1122,12 +1122,17 @@ CONFIG_FW_LOADER_USER_HELPER_FALLBACK           mark<ENFORCED> note<LP#1398458>
 
 # Menu: Device Drivers >> Generic Dynamic Voltage and Frequency Scaling (DVFS) support
 CONFIG_PM_DEVFREQ                               policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'powerpc': 'y', 'ppc64el': 'y', 's390x': 'n'}>
-CONFIG_DEVFREQ_GOV_SIMPLE_ONDEMAND              policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'powerpc': 'y', 'ppc64el': 'y'}>
-CONFIG_DEVFREQ_GOV_PERFORMANCE                  policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'powerpc': 'y', 'ppc64el': 'y'}>
-CONFIG_DEVFREQ_GOV_POWERSAVE                    policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'powerpc': 'y', 'ppc64el': 'y'}>
-CONFIG_DEVFREQ_GOV_USERSPACE                    policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'powerpc': 'y', 'ppc64el': 'y'}>
+CONFIG_DEVFREQ_GOV_SIMPLE_ONDEMAND              policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'powerpc': 'm', 'ppc64el': 'm'}>
+CONFIG_DEVFREQ_GOV_PERFORMANCE                  policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'powerpc': 'm', 'ppc64el': 'm'}>
+CONFIG_DEVFREQ_GOV_POWERSAVE                    policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'powerpc': 'm', 'ppc64el': 'm'}>
+CONFIG_DEVFREQ_GOV_USERSPACE                    policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'powerpc': 'm', 'ppc64el': 'm'}>
 CONFIG_ARM_EXYNOS5_BUS_DEVFREQ                  policy<{'armhf': 'n'}>
 CONFIG_ARM_TEGRA_DEVFREQ                        policy<{'armhf-generic': 'm'}>
+#
+CONFIG_DEVFREQ_GOV_SIMPLE_ONDEMAND              note<LP:#1475078>
+CONFIG_DEVFREQ_GOV_PERFORMANCE                  note<LP:#1475078>
+CONFIG_DEVFREQ_GOV_POWERSAVE                    note<LP:#1475078>
+CONFIG_DEVFREQ_GOV_USERSPACE                    note<LP:#1475078>
 
 # Menu: Device Drivers >> Generic Dynamic Voltage and Frequency Scaling (DVFS) support >> DEVFREQ-Event device Support
 CONFIG_PM_DEVFREQ_EVENT                         policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'powerpc': 'y', 'ppc64el': 'y'}>
