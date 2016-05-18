@@ -139,6 +139,7 @@ fs/cachefiles/cachefiles.ko
 fs/ceph/*
 fs/configfs/*
 fs/dlm/dlm.ko
+fs/ecryptfs/*
 fs/exofs/libore.ko
 fs/fat/*
 fs/nls/nls_iso8859-1.ko
