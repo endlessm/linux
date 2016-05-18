@@ -9222,10 +9222,10 @@ CONFIG_CPU_FREQ                                 policy<{'amd64': 'y', 'arm64': '
 CONFIG_CPU_FREQ_STAT                            policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'powerpc': 'y', 'ppc64el': 'y'}>
 CONFIG_CPU_FREQ_STAT_DETAILS                    policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'powerpc': 'y', 'ppc64el': 'y'}>
 CONFIG_CPU_FREQ_GOV_PERFORMANCE                 policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'powerpc': 'y', 'ppc64el': 'y'}>
-CONFIG_CPU_FREQ_GOV_POWERSAVE                   policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'powerpc': 'y', 'ppc64el': 'y'}>
-CONFIG_CPU_FREQ_GOV_USERSPACE                   policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'powerpc': 'y', 'ppc64el': 'y'}>
-CONFIG_CPU_FREQ_GOV_ONDEMAND                    policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'powerpc': 'y', 'ppc64el': 'y'}>
-CONFIG_CPU_FREQ_GOV_CONSERVATIVE                policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'powerpc': 'y', 'ppc64el': 'y'}>
+CONFIG_CPU_FREQ_GOV_POWERSAVE                   policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'powerpc': 'y', 'ppc64el': 'y'}>
+CONFIG_CPU_FREQ_GOV_USERSPACE                   policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'powerpc': 'y', 'ppc64el': 'y'}>
+CONFIG_CPU_FREQ_GOV_ONDEMAND                    policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'powerpc': 'y', 'ppc64el': 'y'}>
+CONFIG_CPU_FREQ_GOV_CONSERVATIVE                policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'powerpc': 'y', 'ppc64el': 'y'}>
 CONFIG_X86_INTEL_PSTATE                         policy<{'amd64': 'y', 'i386': 'y'}>
 CONFIG_X86_PCC_CPUFREQ                          policy<{'amd64': 'm', 'i386': 'm'}>
 CONFIG_X86_SFI_CPUFREQ                          policy<{'i386': 'm'}>
@@ -9259,10 +9259,10 @@ CONFIG_QORIQ_CPUFREQ                            policy<{'armhf': 'm', 'powerpc-p
 #
 CONFIG_CPU_FREQ_STAT                            note<dependancy of boot essential>
 CONFIG_CPU_FREQ_GOV_PERFORMANCE                 note<not autoloadable>
-CONFIG_CPU_FREQ_GOV_POWERSAVE                   note<not autoloadable>
-CONFIG_CPU_FREQ_GOV_USERSPACE                   note<not autoloadable>
-CONFIG_CPU_FREQ_GOV_ONDEMAND                    note<not autoloadable>
-CONFIG_CPU_FREQ_GOV_CONSERVATIVE                note<not autoloadable>
+CONFIG_CPU_FREQ_GOV_POWERSAVE                   note<LP:#1475078>
+CONFIG_CPU_FREQ_GOV_USERSPACE                   note<LP:#1475078>
+CONFIG_CPU_FREQ_GOV_ONDEMAND                    note<LP:#1475078>
+CONFIG_CPU_FREQ_GOV_CONSERVATIVE                note<LP:#1475078>
 CONFIG_X86_PCC_CPUFREQ                          note<LP:#1475078>
 CONFIG_X86_SPEEDSTEP_CENTRINO                   note<LP:#1475078>
 CONFIG_X86_SPEEDSTEP_ICH                        note<not autoloadable>
