@@ -9123,16 +9123,16 @@ CONFIG_ACPI                                     policy<{'amd64': 'y', 'arm64': '
 CONFIG_ACPI_PROCFS_POWER                        policy<{'amd64': 'n', 'i386': 'n'}>
 CONFIG_ACPI_REV_OVERRIDE_POSSIBLE               policy<{'amd64': 'y', 'i386': 'y'}>
 CONFIG_ACPI_EC_DEBUGFS                          policy<{'amd64': 'm', 'arm64': 'm', 'i386': 'm'}>
-CONFIG_ACPI_AC                                  policy<{'amd64': 'y', 'i386': 'y'}>
-CONFIG_ACPI_BATTERY                             policy<{'amd64': 'y', 'i386': 'y'}>
-CONFIG_ACPI_BUTTON                              policy<{'amd64': 'y', 'arm64': 'y', 'i386': 'y'}>
+CONFIG_ACPI_AC                                  policy<{'amd64': 'm', 'i386': 'm'}>
+CONFIG_ACPI_BATTERY                             policy<{'amd64': 'm', 'i386': 'm'}>
+CONFIG_ACPI_BUTTON                              policy<{'amd64': 'm', 'arm64': 'm', 'i386': 'm'}>
 CONFIG_ACPI_VIDEO                               policy<{'amd64': 'm', 'i386': 'm'}>
-CONFIG_ACPI_FAN                                 policy<{'amd64': 'y', 'arm64': 'y', 'i386': 'y'}>
+CONFIG_ACPI_FAN                                 policy<{'amd64': 'm', 'arm64': 'm', 'i386': 'm'}>
 CONFIG_ACPI_DOCK                                policy<{'amd64': 'y', 'arm64': 'y', 'i386': 'y'}>
-CONFIG_ACPI_PROCESSOR                           policy<{'amd64': 'y', 'i386': 'y'}>
+CONFIG_ACPI_PROCESSOR                           policy<{'amd64': 'm', 'i386': 'm'}>
 CONFIG_ACPI_IPMI                                policy<{'amd64': 'm', 'arm64': 'm', 'i386': 'm'}>
 CONFIG_ACPI_PROCESSOR_AGGREGATOR                policy<{'amd64': 'm', 'i386': 'm'}>
-CONFIG_ACPI_THERMAL                             policy<{'amd64': 'y', 'i386': 'y'}>
+CONFIG_ACPI_THERMAL                             policy<{'amd64': 'm', 'i386': 'm'}>
 CONFIG_ACPI_NUMA                                policy<{'amd64': 'y'}>
 CONFIG_ACPI_CUSTOM_DSDT_FILE                    policy<{'amd64': '""', 'i386': '""'}>
 CONFIG_ACPI_INITRD_TABLE_OVERRIDE               policy<{'amd64': 'n', 'i386': 'n'}>
@@ -9142,7 +9142,7 @@ CONFIG_X86_PM_TIMER                             policy<{'amd64': 'y', 'i386': 'y
 CONFIG_ACPI_CONTAINER                           policy<{'amd64': 'y', 'arm64': 'y', 'i386': 'y'}>
 CONFIG_ACPI_HOTPLUG_MEMORY                      policy<{'amd64': 'y', 'i386': 'y'}>
 CONFIG_ACPI_SBS                                 policy<{'amd64': 'm', 'i386': 'm'}>
-CONFIG_ACPI_HED                                 policy<{'amd64': 'y', 'arm64': 'y', 'i386': 'y'}>
+CONFIG_ACPI_HED                                 policy<{'amd64': 'm', 'arm64': 'm', 'i386': 'y'}>
 CONFIG_ACPI_CUSTOM_METHOD                       policy<{'amd64': 'n', 'arm64': 'n', 'i386': 'n'}>
 CONFIG_ACPI_BGRT                                policy<{'amd64': 'y', 'i386': 'y'}>
 CONFIG_ACPI_REDUCED_HARDWARE_ONLY               policy<{'amd64': 'n', 'arm64': 'y', 'i386': 'n'}>
@@ -9153,6 +9153,13 @@ CONFIG_ACPI_EXTLOG                              policy<{'amd64': 'm', 'i386': 'm
 CONFIG_ACPI_PROCFS_POWER                        mark<DEPRECATED>
 CONFIG_ACPI_CUSTOM_METHOD                       mark<ENFORCED> note<SECURITY: allows arbitrary execution>
 CONFIG_ACPI_CUSTOM_DSDT_FILE                    note<might allow hardware damage>
+CONFIG_ACPI_AC					note<LP:#1475078>
+CONFIG_ACPI_BATTERY				note<LP:#1475078>
+CONFIG_ACPI_BUTTON				note<LP:#1475078>
+CONFIG_ACPI_FAN					note<LP:#1475078>
+CONFIG_ACPI_PROCESSOR				note<LP:#1475078>
+CONFIG_ACPI_THERMAL				note<LP:#1475078>
+CONFIG_ACPI_HED					note<LP:#1475078>
 
 # Menu: Power management and ACPI options >> ACPI (Advanced Configuration and Power Interface) Support >> ACPI Platform Error Interface (APEI)
 CONFIG_ACPI_APEI                                policy<{'amd64': 'y', 'i386': 'y'}>
@@ -9220,12 +9227,12 @@ CONFIG_CPU_FREQ_GOV_USERSPACE                   policy<{'amd64': 'y', 'arm64': '
 CONFIG_CPU_FREQ_GOV_ONDEMAND                    policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'powerpc': 'y', 'ppc64el': 'y'}>
 CONFIG_CPU_FREQ_GOV_CONSERVATIVE                policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'powerpc': 'y', 'ppc64el': 'y'}>
 CONFIG_X86_INTEL_PSTATE                         policy<{'amd64': 'y', 'i386': 'y'}>
-CONFIG_X86_PCC_CPUFREQ                          policy<{'amd64': 'y', 'i386': 'y'}>
+CONFIG_X86_PCC_CPUFREQ                          policy<{'amd64': 'm', 'i386': 'm'}>
 CONFIG_X86_SFI_CPUFREQ                          policy<{'i386': 'm'}>
 CONFIG_X86_POWERNOW_K6                          policy<{'i386': 'm'}>
 CONFIG_X86_POWERNOW_K7                          policy<{'i386': 'm'}>
 CONFIG_X86_GX_SUSPMOD                           policy<{'i386': 'm'}>
-CONFIG_X86_SPEEDSTEP_CENTRINO                   policy<{'amd64': 'y', 'i386': 'y'}>
+CONFIG_X86_SPEEDSTEP_CENTRINO                   policy<{'amd64': 'm', 'i386': 'y'}>
 CONFIG_X86_SPEEDSTEP_CENTRINO_TABLE             policy<{'i386': 'y'}>
 CONFIG_X86_SPEEDSTEP_ICH                        policy<{'i386': 'y'}>
 CONFIG_X86_SPEEDSTEP_SMI                        policy<{'i386': 'y'}>
@@ -9256,20 +9263,20 @@ CONFIG_CPU_FREQ_GOV_POWERSAVE                   note<not autoloadable>
 CONFIG_CPU_FREQ_GOV_USERSPACE                   note<not autoloadable>
 CONFIG_CPU_FREQ_GOV_ONDEMAND                    note<not autoloadable>
 CONFIG_CPU_FREQ_GOV_CONSERVATIVE                note<not autoloadable>
-CONFIG_X86_PCC_CPUFREQ                          note<not autoloadable>
-CONFIG_X86_SPEEDSTEP_CENTRINO                   note<not autoloadable>
+CONFIG_X86_PCC_CPUFREQ                          note<LP:#1475078>
+CONFIG_X86_SPEEDSTEP_CENTRINO                   note<LP:#1475078>
 CONFIG_X86_SPEEDSTEP_ICH                        note<not autoloadable>
 CONFIG_X86_SPEEDSTEP_SMI                        note<not autoloadable>
 CONFIG_X86_CPUFREQ_NFORCE2                      note<not autoloadable>
 
 # Menu: Power management and ACPI options >> CPU Frequency scaling >> CPU Frequency scaling >> ACPI Processor P-States driver
-CONFIG_X86_ACPI_CPUFREQ                         policy<{'amd64': 'y', 'i386': 'y'}>
+CONFIG_X86_ACPI_CPUFREQ                         policy<{'amd64': 'm', 'i386': 'm'}>
 CONFIG_X86_ACPI_CPUFREQ_CPB                     policy<{'amd64': 'y', 'i386': 'y'}>
-CONFIG_X86_POWERNOW_K8                          policy<{'amd64': 'y', 'i386': 'y'}>
+CONFIG_X86_POWERNOW_K8                          policy<{'amd64': 'm', 'i386': 'm'}>
 CONFIG_X86_AMD_FREQ_SENSITIVITY                 policy<{'amd64': 'm', 'i386': 'm'}>
 #
-CONFIG_X86_ACPI_CPUFREQ                         note<not autoloadable>
-CONFIG_X86_POWERNOW_K8                          note<not autoloadable>
+CONFIG_X86_ACPI_CPUFREQ                         note<LP:#1475078>
+CONFIG_X86_POWERNOW_K8                          note<LP:#1475078>
 
 # Menu: Power management and ACPI options >> CPU Frequency scaling >> CPU Frequency scaling >> CPUfreq driver for Samsung S3C24XX series CPUs (EXPERIMENTAL)
 
