@@ -9,6 +9,7 @@ drivers/char/ipmi/ipmi_msghandler.ko
 drivers/ata/ahci_platform.ko
 drivers/ata/ahci.ko
 drivers/ata/acard-ahci.ko
+drivers/ata/ata_generic.ko
 drivers/ata/libahci.ko
 drivers/ata/libahci_platform.ko
 drivers/block/nbd.ko

@@ -5459,7 +5459,7 @@ CONFIG_SPMI                                     policy<{'amd64': 'm', 'arm64': '
 CONFIG_SPMI_MSM_PMIC_ARB                        policy<{'arm64': 'm', 'armhf': 'm'}>
 
 # Menu: Device Drivers >> Serial ATA and Parallel ATA drivers (libata)
-CONFIG_ATA                                      policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'powerpc': 'y', 'ppc64el': 'y'}>
+CONFIG_ATA                                      policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'powerpc': 'm', 'ppc64el': 'm'}>
 CONFIG_ATA_VERBOSE_ERROR                        policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'powerpc': 'y', 'ppc64el': 'y'}>
 CONFIG_ATA_ACPI                                 policy<{'amd64': 'y', 'arm64': 'y', 'i386': 'y'}>
 CONFIG_SATA_ZPODD                               policy<{'amd64': 'y', 'arm64': 'y', 'i386': 'y'}>
@@ -5477,6 +5477,7 @@ CONFIG_SATA_ACARD_AHCI                          policy<{'amd64': 'm', 'arm64': '
 CONFIG_SATA_SIL24                               policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'powerpc': 'm', 'ppc64el': 'm'}>
 #
 CONFIG_SATA_AHCI_PLATFORM                       note<boot essential on highbank>
+CONFIG_ATA					note<LP:#1475078>
 
 # Menu: Device Drivers >> Serial ATA and Parallel ATA drivers (libata) >> ATA SFF support (for legacy IDE and PATA)
 CONFIG_ATA_SFF                                  policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'powerpc': 'y', 'ppc64el': 'y'}>
