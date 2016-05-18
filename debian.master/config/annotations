@@ -472,7 +472,7 @@ CONFIG_BLK_DEV_XPRAM                            policy<{'s390x': 'n'}>
 CONFIG_DCSSBLK                                  policy<{'s390x': 'm'}>
 CONFIG_SCM_BLOCK                                policy<{'s390x': 'm'}>
 CONFIG_SCM_BLOCK_CLUSTER_WRITE                  policy<{'s390x': 'y'}>
-CONFIG_XEN_BLKDEV_FRONTEND                      policy<{'amd64': 'y', 'arm64': 'y', 'i386': 'y'}>
+CONFIG_XEN_BLKDEV_FRONTEND                      policy<{'amd64': 'm', 'arm64': 'm', 'i386': 'm'}>
 CONFIG_XEN_BLKDEV_BACKEND                       policy<{'amd64': 'm', 'arm64': 'm', 'i386': 'm'}>
 CONFIG_VIRTIO_BLK                               policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'powerpc': 'm', 'ppc64el': 'm', 's390x': 'm'}>
 CONFIG_BLK_DEV_HD                               policy<{'amd64': 'n', 'i386': 'n', 'powerpc': 'n', 'ppc64el': 'n'}>
@@ -481,7 +481,7 @@ CONFIG_BLK_DEV_RSXX                             policy<{'amd64': 'm', 'arm64': '
 #
 CONFIG_BLK_DEV_UMEM                             note<experimental NVRAM disk driver -- opt-in>
 CONFIG_CDROM_PKTCDVD_WCACHE                     mark<DANGEROUS>
-CONFIG_XEN_BLKDEV_FRONTEND                      note<not autoloadable -- XEN paravirt support>
+CONFIG_XEN_BLKDEV_FRONTEND                      note<LP:#1475078>
 CONFIG_VIRTIO_BLK                               note<KVM paravirt support -- not autoloadable, LP#1475078>
 CONFIG_BLK_DEV_HD                               note<very old disk device support> mark<ANCIENT>
 
@@ -3944,14 +3944,14 @@ CONFIG_HIPPI                                    policy<{'amd64': 'n', 'arm64': '
 CONFIG_NET_SB1000                               policy<{'amd64': 'm', 'arm64': 'm', 'i386': 'm'}>
 CONFIG_MICREL_KS8995MA                          policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'powerpc': 'm', 'ppc64el': 'm'}>
 CONFIG_PLIP                                     policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'powerpc': 'm', 'ppc64el': 'm'}>
-CONFIG_XEN_NETDEV_FRONTEND                      policy<{'amd64': 'y', 'arm64': 'y', 'i386': 'y'}>
+CONFIG_XEN_NETDEV_FRONTEND                      policy<{'amd64': 'm', 'arm64': 'm', 'i386': 'm'}>
 CONFIG_XEN_NETDEV_BACKEND                       policy<{'amd64': 'm', 'arm64': 'm', 'i386': 'm'}>
 CONFIG_VMXNET3                                  policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'powerpc': 'm', 'ppc64el': 'm', 's390x': 'n'}>
 CONFIG_FUJITSU_ES                               policy<{'amd64': 'm', 'arm64': 'm', 'i386': 'm'}>
 CONFIG_HYPERV_NET                               policy<{'amd64': 'm', 'i386': 'm'}>
 #
 CONFIG_HIPPI                                    note<DEPRECATED>
-CONFIG_XEN_NETDEV_FRONTEND                      note<not autoloadable -- XEN paravirt support>
+CONFIG_XEN_NETDEV_FRONTEND                      note<LP:#1475078>
 CONFIG_DEFXX_MMIO                               flag<REVIEW>
 
 # Menu: Device Drivers >> Network device support >> ARCnet support
@@ -7109,11 +7109,11 @@ CONFIG_XEN_GNTDEV                               policy<{'amd64': 'm', 'arm64': '
 CONFIG_XEN_GRANT_DEV_ALLOC                      policy<{'amd64': 'm', 'arm64': 'm', 'i386': 'm'}>
 CONFIG_XEN_PCIDEV_BACKEND                       policy<{'amd64': 'm', 'i386': 'm'}>
 CONFIG_XEN_SCSI_BACKEND                         policy<{'amd64': 'm', 'arm64': 'm', 'i386': 'm'}>
-CONFIG_XEN_ACPI_PROCESSOR                       policy<{'amd64': 'y', 'i386': 'y'}>
+CONFIG_XEN_ACPI_PROCESSOR                       policy<{'amd64': 'm', 'i386': 'm'}>
 CONFIG_XEN_MCE_LOG                              policy<{'amd64': 'y'}>
 CONFIG_XEN_SYMS                                 policy<{'amd64': 'y', 'i386': 'y'}>
 #
-CONFIG_XEN_ACPI_PROCESSOR                       mark<ENFORCED> <boot essential on XEN host>
+CONFIG_XEN_ACPI_PROCESSOR                       note<LP:#1475078>
 
 # Menu: Device Drivers >> Xen driver support >> Xen memory balloon driver
 CONFIG_XEN_BALLOON                              policy<{'amd64': 'y', 'arm64': 'y', 'i386': 'y'}>

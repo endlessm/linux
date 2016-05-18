@@ -19,6 +19,7 @@ drivers/block/cryptoloop.ko
 drivers/block/loop.ko
 drivers/block/rbd.ko
 drivers/block/virtio_blk.ko
+drivers/block/xen-blkfront.ko
 drivers/char/hangcheck-timer.ko
 drivers/char/hw_random/virtio-rng.ko
 drivers/char/lp.ko
@@ -85,6 +86,7 @@ drivers/net/virtio_net.ko
 drivers/net/vmxnet3/vmxnet3.ko
 drivers/net/vxlan.ko
 drivers/net/xen-netback/*
+drivers/net/xen-netfront.ko
 drivers/platform/x86/pvpanic.ko
 drivers/parport/parport.ko
 drivers/parport/parport_pc.ko
