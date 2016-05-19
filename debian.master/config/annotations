@@ -247,7 +247,7 @@ CONFIG_CRYPTO_ECHAINIV                          policy<{'amd64': 'm', 'arm64': '
 CONFIG_CRYPTO_CBC                               policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'powerpc': 'y', 'ppc64el': 'y', 's390x': 'y'}>
 CONFIG_CRYPTO_CTR                               policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'powerpc': 'm', 'ppc64el': 'm', 's390x': 'm'}>
 CONFIG_CRYPTO_CTS                               policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'powerpc': 'm', 'ppc64el': 'm', 's390x': 'm'}>
-CONFIG_CRYPTO_ECB                               policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'powerpc': 'y', 'ppc64el': 'y', 's390x': 'y'}>
+CONFIG_CRYPTO_ECB                               policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'powerpc': 'm', 'ppc64el': 'm', 's390x': 'm'}>
 CONFIG_CRYPTO_LRW                               policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'powerpc': 'm', 'ppc64el': 'm', 's390x': 'm'}>
 CONFIG_CRYPTO_PCBC                              policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'powerpc': 'm', 'ppc64el': 'm', 's390x': 'm'}>
 CONFIG_CRYPTO_XTS                               policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'powerpc': 'm', 'ppc64el': 'm', 's390x': 'm'}>
@@ -336,6 +336,7 @@ CONFIG_CRYPTO_USER_API_AEAD                     policy<{'amd64': 'm', 'arm64': '
 CONFIG_CRYPTO_MANAGER_DISABLE_TESTS             flag<TESTING>
 CONFIG_CRYPTO_TEST                              flag<TESTING>
 CONFIG_CRYPTO_SHA512                            note<module signing>
+CONFIG_CRYPTO_ECB				note<LP#1475078>
 
 # Menu: Cryptographic API >> Asymmetric (public-key cryptographic) key type
 CONFIG_ASYMMETRIC_KEY_TYPE                      policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'powerpc': 'y', 'ppc64el': 'y', 's390x': 'y'}>
@@ -358,7 +359,7 @@ CONFIG_SYSTEM_TRUSTED_KEYS                      policy<{'amd64': '""', 'arm64': 
 
 # Menu: Cryptographic API >> Hardware crypto devices
 CONFIG_CRYPTO_HW                                policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'powerpc': 'y', 'ppc64el': 'y', 's390x': 'y'}>
-CONFIG_CRYPTO_DEV_PADLOCK                       policy<{'amd64': 'y', 'i386': 'y'}>
+CONFIG_CRYPTO_DEV_PADLOCK                       policy<{'amd64': 'm', 'i386': 'm'}>
 CONFIG_CRYPTO_DEV_PADLOCK_AES                   policy<{'amd64': 'm', 'i386': 'm'}>
 CONFIG_CRYPTO_DEV_PADLOCK_SHA                   policy<{'amd64': 'm', 'i386': 'm'}>
 CONFIG_CRYPTO_DEV_GEODE                         policy<{'i386': 'm'}>
@@ -396,6 +397,8 @@ CONFIG_CRYPTO_DEV_QAT_DH895xCCVF                policy<{'amd64': 'm', 'i386': 'm
 CONFIG_CRYPTO_DEV_QCE                           policy<{'arm64': 'm', 'armhf': 'm'}>
 CONFIG_CRYPTO_DEV_VMX                           policy<{'powerpc-generic': 'y', 'ppc64el': 'y'}>
 CONFIG_CRYPTO_DEV_VMX_ENCRYPT                   policy<{'powerpc-generic': 'm', 'ppc64el': 'm'}>
+#
+CONFIG_CRYPTO_DEV_PADLOCK			note<LP#1475078>
 
 # Menu: Cryptographic API >> Hardware crypto devices >> Freescale CAAM Job Ring driver backend
 CONFIG_CRYPTO_DEV_FSL_CAAM_JR                   policy<{'armhf-generic': 'm', 'powerpc-powerpc64-emb': 'm', 'powerpc-powerpc-e500mc': 'm'}>
@@ -484,6 +487,7 @@ CONFIG_CDROM_PKTCDVD_WCACHE                     mark<DANGEROUS>
 CONFIG_XEN_BLKDEV_FRONTEND                      note<LP:#1475078>
 CONFIG_VIRTIO_BLK                               note<KVM paravirt support -- not autoloadable, LP#1475078>
 CONFIG_BLK_DEV_HD                               note<very old disk device support> mark<ANCIENT>
+CONFIG_BLK_DEV_CRYPTOLOOP			note<LP#1475078>
 
 # Menu: Device Drivers >> Block devices >> Parallel port IDE device support
 CONFIG_PARIDE                                   policy<{'amd64': 'm', 'armhf': 'm', 'i386': 'm', 'powerpc': 'm', 'ppc64el': 'm'}>
@@ -6055,11 +6059,12 @@ CONFIG_LNET_XPRT_IB                             policy<{'amd64': 'm', 'arm64': '
 CONFIG_DGNC                                     policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'powerpc': 'm', 'ppc64el': 'm'}>
 CONFIG_DGAP                                     policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'powerpc': 'm', 'ppc64el': 'm'}>
 CONFIG_GS_FPGABOOT                              policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'powerpc': 'm', 'ppc64el': 'm'}>
-CONFIG_CRYPTO_SKEIN                             policy<{'amd64': 'y'}>
+CONFIG_CRYPTO_SKEIN                             policy<{'amd64': 'm'}>
 CONFIG_COMMON_CLK_XLNX_CLKWZRD                  policy<{'arm64': 'n', 'armhf': 'n', 'powerpc-powerpc64-emb': 'n', 'powerpc-powerpc-e500mc': 'n'}>
 CONFIG_FSL_MC_BUS                               policy<{'arm64': 'm'}>
 #
 CONFIG_STAGING                                  flag<REVIEW>
+CONFIG_CRYPTO_SKEIN				note<LP#1475078>
 
 # Menu: Device Drivers >> Staging drivers >> Android
 
