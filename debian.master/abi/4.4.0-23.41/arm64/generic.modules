@@ -3076,7 +3076,6 @@ rtc-ds1742
 rtc-ds2404
 rtc-ds3232
 rtc-ds3234
-rtc-efi
 rtc-em3027
 rtc-fm3130
 rtc-hid-sensor-time
