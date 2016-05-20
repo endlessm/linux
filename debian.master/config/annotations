@@ -7413,7 +7413,7 @@ CONFIG_JFFS2_CMODE_FAVOURLZO                    policy<{'amd64': 'y', 'arm64': '
 
 # Menu: File systems >> Miscellaneous filesystems >> Persistent store support
 CONFIG_PSTORE                                   policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'powerpc': 'y', 'ppc64el': 'y', 's390x': 'n'}>
-CONFIG_PSTORE_CONSOLE                           policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'y', 'i386': 'n', 'powerpc': 'n', 'ppc64el': 'n'}>
+CONFIG_PSTORE_CONSOLE                           policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'powerpc': 'y', 'ppc64el': 'y', 's390x': 'n'}>
 CONFIG_PSTORE_PMSG                              policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'i386': 'n', 'powerpc': 'n', 'ppc64el': 'n'}>
 CONFIG_PSTORE_FTRACE                            policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'i386': 'n', 'powerpc': 'n', 'ppc64el': 'n'}>
 CONFIG_PSTORE_RAM                               policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'y', 'i386': 'm', 'powerpc': 'm', 'ppc64el': 'm'}>
