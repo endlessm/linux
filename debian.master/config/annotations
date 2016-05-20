@@ -9173,7 +9173,9 @@ CONFIG_ACPI_APEI_GHES                           policy<{'amd64': 'y', 'i386': 'y
 CONFIG_ACPI_APEI_PCIEAER                        policy<{'amd64': 'y', 'i386': 'y'}>
 CONFIG_ACPI_APEI_MEMORY_FAILURE                 policy<{'amd64': 'y'}>
 CONFIG_ACPI_APEI_EINJ                           policy<{'amd64': 'm', 'i386': 'm'}>
-CONFIG_ACPI_APEI_ERST_DEBUG                     policy<{'amd64': 'n', 'i386': 'n'}>
+CONFIG_ACPI_APEI_ERST_DEBUG                     policy<{'amd64': 'm', 'i386': 'm'}>
+#
+CONFIG_ACPI_APEI_ERST_DEBUG			note<APEI_EINJ isn't much good without the ability to debug>
 
 # Menu: Power management and ACPI options >> ACPI (Advanced Configuration and Power Interface) Support >> PMIC (Power Management Integrated Circuit) operation region support
 CONFIG_PMIC_OPREGION                            policy<{'amd64': 'n', 'arm64': 'n', 'i386': 'n'}>
