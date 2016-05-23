@@ -115,9 +115,12 @@ __package_prefixes="linux-image"
 
 . $DEBIAN/etc/getabis
 
-compilers=`cat $abidir/*/*.compiler | sort -u | wc -l`
+# Extract compiler source package version from e.g.:
+#   GCC: (Ubuntu/Linaro 4.8.2-19ubuntu1) 4.8.2
+compilers=`sed 's/^.*(.* \(.*\)).*$/\1/' $abidir/*/*.compiler | sort -u | wc -l`
 if [ "$compilers" != 1 ]; then
-	echo "WARNING: inconsistant compiler versions detected" 1>&2
+	echo "WARNING: inconsistent compiler versions detected:" 1>&2
+	sort -u $abidir/*/*.compiler | sed 's/^/WARNING:    /' 1>&2
 fi
 
 sort < $fwinfo | uniq > fwinfo.tmp
