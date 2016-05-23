@@ -1991,10 +1991,8 @@ static struct aa_label *__label_update(struct aa_label *label)
 {
 	struct aa_label *new, *tmp;
 	struct aa_labelset *ls;
-	struct aa_profile *p;
-	struct label_it i;
 	unsigned long flags;
-	int invcount = 0;
+	int i, invcount = 0;
 
 	AA_BUG(!label);
 	AA_BUG(!mutex_is_locked(&labels_ns(label)->lock));
@@ -2008,9 +2006,9 @@ static struct aa_label *__label_update(struct aa_label *label)
 	 */
 	ls = labels_set(label);
 	write_lock_irqsave(&ls->lock, flags);
-	label_for_each(i, label, p) {
-		new->vec[i.i] = aa_get_newest_profile(p);
-		if (new->vec[i.i]->label.proxy != p->label.proxy)
+	for (i = 0; i < label->size; i++) {
+		new->vec[i] = aa_get_newest_profile(label->vec[i]);
+		if (new->vec[i]->label.proxy != label->vec[i]->label.proxy)
 			invcount++;
 	}
 
