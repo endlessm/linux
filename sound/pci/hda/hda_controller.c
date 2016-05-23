@@ -197,6 +197,7 @@ static int azx_pcm_prepare(struct snd_pcm_substream *substream)
 	if ((chip->driver_caps & AZX_DCAPS_CTX_WORKAROUND) &&
 	    stream_tag > chip->capture_streams)
 		stream_tag -= chip->capture_streams;
+printk("%s calling snd_hda_codec_prepare\n", __func__);
 	err = snd_hda_codec_prepare(apcm->codec, hinfo, stream_tag,
 				     azx_dev->core.format_val, substream);
 
@@ -559,6 +560,7 @@ int snd_hda_attach_pcm_stream(struct hda_bus *_bus, struct hda_codec *codec,
 		pcm->dev_class = SNDRV_PCM_CLASS_MODEM;
 	list_add_tail(&apcm->list, &chip->pcm_list);
 	cpcm->pcm = pcm;
+printk("%s attaching prepare\n", __func__);
 	for (s = 0; s < 2; s++) {
 		if (cpcm->stream[s].substreams)
 			snd_pcm_set_ops(pcm, s, &azx_pcm_ops);
@@ -992,7 +994,7 @@ static int probe_codec(struct azx *chip, int addr)
 	mutex_unlock(&bus->cmd_mutex);
 	if (err < 0 || res == -1)
 		return -EIO;
-	dev_dbg(chip->card->dev, "codec #%d probed OK\n", addr);
+printk("%s codec #%d probed OK\n", __func__, addr);
 	return 0;
 }
 
@@ -1094,8 +1096,7 @@ int azx_probe_codecs(struct azx *chip, unsigned int max_slots)
 				/* Some BIOSen give you wrong codec addresses
 				 * that don't exist
 				 */
-				dev_warn(chip->card->dev,
-					 "Codec #%d probe error; disabling it...\n", c);
+printk( "Codec #%d probe error; disabling it...\n", c);
 				bus->codec_mask &= ~(1 << c);
 				/* More badly, accessing to a non-existing
 				 * codec often screws up the controller chip,
@@ -1117,13 +1118,14 @@ int azx_probe_codecs(struct azx *chip, unsigned int max_slots)
 			err = snd_hda_codec_new(&chip->bus, chip->card, c, &codec);
 			if (err < 0)
 				continue;
+printk("%s create codec instance: %s\n", __func__, codec->card->driver);
 			codec->jackpoll_interval = get_jackpoll_interval(chip);
 			codec->beep_mode = chip->beep_mode;
 			codecs++;
 		}
 	}
 	if (!codecs) {
-		dev_err(chip->card->dev, "no codecs initialized\n");
+printk("no codecs initialized\n");
 		return -ENXIO;
 	}
 	return 0;

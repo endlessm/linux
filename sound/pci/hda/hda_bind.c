@@ -81,21 +81,26 @@ static int hda_codec_driver_probe(struct device *dev)
 	hda_codec_patch_t patch;
 	int err;
 
+printk("%s: check codec preset\n", __func__);
 	if (WARN_ON(!codec->preset))
 		return -EINVAL;
 
+printk("%s: set name %s\n", __func__, codec->preset->name);
 	err = snd_hda_codec_set_name(codec, codec->preset->name);
 	if (err < 0)
 		goto error;
+printk("%s: remap init\n", __func__);
 	err = snd_hdac_regmap_init(&codec->core);
 	if (err < 0)
 		goto error;
 
+printk("%s: module get\n", __func__);
 	if (!try_module_get(owner)) {
 		err = -EINVAL;
 		goto error;
 	}
 
+printk("%s: get patch\n", __func__);
 	patch = (hda_codec_patch_t)codec->preset->driver_data;
 	if (patch) {
 		err = patch(codec);
@@ -103,6 +108,7 @@ static int hda_codec_driver_probe(struct device *dev)
 			goto error_module;
 	}
 
+printk("%s: doing snd_hda_codec_build_pcms\n", __func__);
 	err = snd_hda_codec_build_pcms(codec);
 	if (err < 0)
 		goto error_module;
@@ -239,17 +245,20 @@ static bool is_likely_hdmi_codec(struct hda_codec *codec)
 
 static int codec_bind_generic(struct hda_codec *codec)
 {
+printk("%s: probe id %d\n", __func__, codec->probe_id);
 	if (codec->probe_id)
 		return -ENODEV;
 
 	if (is_likely_hdmi_codec(codec)) {
 		codec->probe_id = HDA_CODEC_ID_GENERIC_HDMI;
+printk("%s likely HDMI request codec module\n", __func__);
 		request_codec_module(codec);
 		if (codec_probed(codec))
 			return 0;
 	}
 
 	codec->probe_id = HDA_CODEC_ID_GENERIC;
+printk("%s request codec module\n", __func__);
 	request_codec_module(codec);
 	if (codec_probed(codec))
 		return 0;

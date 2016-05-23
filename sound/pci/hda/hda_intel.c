@@ -1141,8 +1141,7 @@ static void azx_vs_set_state(struct pci_dev *pci,
 	if (!hda->probe_continued) {
 		chip->disabled = disabled;
 		if (!disabled) {
-			dev_info(chip->card->dev,
-				 "Start delayed initialization\n");
+			printk( "Start delayed initialization\n");
 			if (azx_probe_continue(chip) < 0) {
 				dev_err(chip->card->dev, "initialization error\n");
 				hda->init_failed = true;
@@ -1574,6 +1573,7 @@ static int azx_create(struct snd_card *card, struct pci_dev *pci,
 	if (err < 0)
 		return err;
 
+printk("%s after enable device\n", __func__);
 	hda = kzalloc(sizeof(*hda), GFP_KERNEL);
 	if (!hda) {
 		pci_disable_device(pci);
@@ -1601,6 +1601,7 @@ static int azx_create(struct snd_card *card, struct pci_dev *pci,
 	check_probe_mask(chip, dev);
 
 	chip->single_cmd = single_cmd;
+printk("%s before check snoop avail\n", __func__);
 	azx_check_snoop_available(chip);
 
 	if (bdl_pos_adj[dev] < 0) {
@@ -1616,6 +1617,7 @@ static int azx_create(struct snd_card *card, struct pci_dev *pci,
 	}
 	chip->bdl_pos_adj = bdl_pos_adj;
 
+printk("%s doing bus init\n", __func__);
 	err = azx_bus_init(chip, model[dev], &pci_hda_io_ops);
 	if (err < 0) {
 		kfree(hda);
@@ -1623,6 +1625,7 @@ static int azx_create(struct snd_card *card, struct pci_dev *pci,
 		return err;
 	}
 
+printk("%s new snd device\n", __func__);
 	err = snd_device_new(card, SNDRV_DEV_LOWLEVEL, chip, &ops);
 	if (err < 0) {
 		dev_err(card->dev, "Error creating device [card]!\n");
@@ -1631,6 +1634,7 @@ static int azx_create(struct snd_card *card, struct pci_dev *pci,
 	}
 
 	/* continue probing in work context as may trigger request module */
+printk("%s init work\n", __func__);
 	INIT_WORK(&hda->probe_work, azx_probe_work);
 
 	*rchip = chip;
@@ -2054,6 +2058,7 @@ static int azx_probe_continue(struct azx *chip)
 	 * this power. For other platforms, like Baytrail/Braswell, only the
 	 * display codec needs the power and it can be released after probe.
 	 */
+printk("%s do check caps %08x\n", __func__, chip->driver_caps);
 	if (chip->driver_caps & AZX_DCAPS_I915_POWERWELL) {
 		/* HSW/BDW controllers need this power */
 		if (CONTROLLER_IN_GPU(pci))
@@ -2086,6 +2091,7 @@ static int azx_probe_continue(struct azx *chip)
 	}
 
  skip_i915:
+printk("%s do first init\n", __func__);
 	err = azx_first_init(chip);
 	if (err < 0)
 		goto out_free;
@@ -2095,6 +2101,7 @@ static int azx_probe_continue(struct azx *chip)
 #endif
 
 	/* create codec instances */
+printk("%s do azx_probe_codecs\n", __func__);
 	err = azx_probe_codecs(chip, azx_max_codecs[chip->driver_type]);
 	if (err < 0)
 		goto out_free;
@@ -2112,16 +2119,19 @@ static int azx_probe_continue(struct azx *chip)
 	}
 #endif
 	if ((probe_only[dev] & 1) == 0) {
+printk("%s do azx_codec_configure\n", __func__);
 		err = azx_codec_configure(chip);
 		if (err < 0)
 			goto out_free;
 	}
 
+printk("%s do snd_card_register\n", __func__);
 	err = snd_card_register(chip->card);
 	if (err < 0)
 		goto out_free;
 
 	chip->running = 1;
+printk("%s do add card list\n", __func__);
 	azx_add_card_list(chip);
 	snd_hda_set_power_save(&chip->bus, power_save * 1000);
 	if (azx_has_pm_runtime(chip) || hda->use_vga_switcheroo)
@@ -2287,6 +2297,7 @@ static const struct pci_device_id azx_ids[] = {
 	  .driver_data = AZX_DRIVER_ATIHDMI | AZX_DCAPS_PRESET_ATI_HDMI },
 	{ PCI_DEVICE(0x1002, 0x970f),
 	  .driver_data = AZX_DRIVER_ATIHDMI | AZX_DCAPS_PRESET_ATI_HDMI },
+// add check here
 	{ PCI_DEVICE(0x1002, 0x9840),
 	  .driver_data = AZX_DRIVER_ATIHDMI_NS | AZX_DCAPS_PRESET_ATI_HDMI_NS },
 	{ PCI_DEVICE(0x1002, 0xaa00),

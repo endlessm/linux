@@ -886,6 +886,7 @@ int snd_hda_codec_new(struct hda_bus *bus, struct snd_card *card,
 	snd_component_add(card, component);
 
 	err = snd_device_new(card, SNDRV_DEV_CODEC, codec, &dev_ops);
+printk("%s: do snd_device_new HDA:%08x,%08x,%08x err %d\n", __func__, codec->core.vendor_id, codec->core.subsystem_id, codec->core.revision_id, err);
 	if (err < 0)
 		goto error;
 
@@ -989,8 +990,7 @@ void snd_hda_codec_setup_stream(struct hda_codec *codec, hda_nid_t nid,
 	if (!nid)
 		return;
 
-	codec_dbg(codec,
-		  "hda_codec_setup_stream: NID=0x%x, stream=0x%x, channel=%d, format=0x%x\n",
+	printk("hda_codec_setup_stream: NID=0x%x, stream=0x%x, channel=%d, format=0x%x\n",
 		  nid, stream_tag, channel_id, format);
 	p = get_hda_cvt_setup(codec, nid);
 	if (!p)
@@ -3191,11 +3191,15 @@ int snd_hda_codec_prepare(struct hda_codec *codec,
 {
 	int ret;
 	mutex_lock(&codec->bus->prepare_mutex);
-	if (hinfo->ops.prepare)
+	if (hinfo->ops.prepare) {
+printk("%s: calling hda_pcm_stream ops prepare\n", __func__);
 		ret = hinfo->ops.prepare(hinfo, codec, stream, format,
 					 substream);
-	else
+	}
+	else {
+printk("%s: no hda_pcm_stream ops prepare\n", __func__);
 		ret = -ENODEV;
+	}
 	if (ret >= 0)
 		purify_inactive_streams(codec);
 	mutex_unlock(&codec->bus->prepare_mutex);
@@ -3287,6 +3291,7 @@ int snd_hda_codec_parse_pcms(struct hda_codec *codec)
 	if (!codec->patch_ops.build_pcms)
 		return 0;
 
+printk("%s: go to codec build_pcms\n", __func__);
 	err = codec->patch_ops.build_pcms(codec);
 	if (err < 0) {
 		codec_err(codec, "cannot build PCMs for #%d (error %d)\n",
@@ -3322,6 +3327,7 @@ int snd_hda_codec_build_pcms(struct hda_codec *codec)
 	struct hda_pcm *cpcm;
 	int dev, err;
 
+printk("%s: parse_pcms first\n", __func__);
 	err = snd_hda_codec_parse_pcms(codec);
 	if (err < 0)
 		return err;
