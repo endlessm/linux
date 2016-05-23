@@ -1993,7 +1993,7 @@ static struct aa_label *__label_update(struct aa_label *label)
 	write_lock_irqsave(&ls->lock, flags);
 	label_for_each(i, label, p) {
 		new->vec[i.i] = aa_get_newest_profile(p);
-		if (&new->vec[i.i]->label.proxy != &p->label.proxy)
+		if (new->vec[i.i]->label.proxy != p->label.proxy)
 			invcount++;
 	}
 
