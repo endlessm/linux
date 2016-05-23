@@ -644,7 +644,8 @@ static struct aa_label *handle_onexec(struct aa_label *label,
 		if (error)
 			return ERR_PTR(error);
 		new = fn_label_build_in_ns(label, profile, GFP_ATOMIC,
-					   aa_label_merge(label, onexec,
+					   aa_label_merge(&profile->label,
+							  onexec,
 							  GFP_ATOMIC),
 					   profile_transition(profile, xname,
 							      cond, unsafe));
