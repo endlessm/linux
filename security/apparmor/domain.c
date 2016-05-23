@@ -517,7 +517,7 @@ static struct aa_label *profile_transition(struct aa_profile *profile,
 	if (perms.allow & MAY_EXEC) {
 		/* exec permission determine how to transition */
 		new = x_to_label(profile, name, perms.xindex, &target, &info);
-		if (new == &profile->label && info) {
+		if (new && new->proxy == profile->label.proxy && info) {
 			/* hack ix fallback - improve how this is detected */
 			goto audit;
 		} else if (!new) {
@@ -759,7 +759,7 @@ int apparmor_bprm_set_creds(struct linux_binprm *bprm)
 		bprm->unsafe |= AA_SECURE_X_NEEDED;
 	}
 
-	if (label != new) {
+	if (label->proxy != new->proxy) {
 		/* when transitioning clear unsafe personality bits */
 		if (DEBUG_ON) {
 			dbg_printk("apparmor: clearing unsafe personality "
