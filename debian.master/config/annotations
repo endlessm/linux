@@ -2716,7 +2716,7 @@ CONFIG_NEW_LEDS                                 policy<{'amd64': 'y', 'arm64': '
 CONFIG_LEDS_LP55XX_COMMON                       policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'powerpc': 'm', 'ppc64el': 'm'}>
 
 # Menu: Device Drivers >> LED Support >> LED Class Support
-CONFIG_LEDS_CLASS                               policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'powerpc': 'y', 'ppc64el': 'y'}>
+CONFIG_LEDS_CLASS                               policy<{'amd64': 'm', 'arm64': 'y', 'armhf': 'y', 'i386': 'm', 'powerpc': 'y', 'ppc64el': 'm'}>
 CONFIG_LEDS_88PM860X                            policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'powerpc': 'm', 'ppc64el': 'm'}>
 CONFIG_LEDS_BCM6328                             policy<{'arm64': 'm', 'armhf': 'm', 'powerpc': 'm', 'ppc64el': 'm'}>
 CONFIG_LEDS_BCM6358                             policy<{'arm64': 'm', 'armhf': 'm', 'powerpc': 'm', 'ppc64el': 'm'}>
@@ -2762,6 +2762,8 @@ CONFIG_LEDS_MENF21BMC                           policy<{'amd64': 'm', 'arm64': '
 CONFIG_LEDS_BLINKM                              policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'powerpc': 'm', 'ppc64el': 'm'}>
 CONFIG_LEDS_POWERNV                             policy<{'powerpc-generic': 'm', 'ppc64el': 'm'}>
 CONFIG_LEDS_SYSCON                              policy<{'arm64': 'y', 'armhf': 'y', 'powerpc': 'y', 'ppc64el': 'y'}>
+#
+CONFIG_LEDS_CLASS				note<LP#1475078>
 
 # Menu: Device Drivers >> LED Support >> LED Class Support >> LED Flash Class Support
 CONFIG_LEDS_CLASS_FLASH                         policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'powerpc': 'm', 'ppc64el': 'm'}>
