@@ -78,6 +78,7 @@ drivers/net/macvtap.ko
 drivers/net/ethernet/8390/ne2k-pci.ko
 drivers/net/netconsole.ko
 drivers/net/ethernet/amd/pcnet32.ko
+drivers/net/fddi/*
 drivers/net/hyperv/hv_netvsc.ko
 drivers/net/ppp/*
 drivers/net/slip/*

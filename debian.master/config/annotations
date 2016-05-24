@@ -3945,7 +3945,7 @@ CONFIG_CAIF_TTY                                 policy<{'amd64': 'm', 'arm64': '
 CONFIG_CAIF_SPI_SLAVE                           policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'powerpc': 'm', 'ppc64el': 'm'}>
 CONFIG_CAIF_SPI_SYNC                            policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'i386': 'n', 'powerpc': 'n', 'ppc64el': 'n'}>
 CONFIG_CAIF_HSI                                 policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'powerpc': 'm', 'ppc64el': 'm'}>
-CONFIG_FDDI                                     policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'powerpc': 'y', 'ppc64el': 'y', 's390x': 'n'}>
+CONFIG_FDDI                                     policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'powerpc': 'm', 'ppc64el': 'm', 's390x': 'n'}>
 CONFIG_DEFXX                                    policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'powerpc': 'm', 'ppc64el': 'm'}>
 CONFIG_DEFXX_MMIO                               policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'i386': 'n', 'powerpc': 'n', 'ppc64el': 'n'}>
 CONFIG_SKFP                                     policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'powerpc': 'm', 'ppc64el': 'm'}>
@@ -3962,6 +3962,7 @@ CONFIG_HYPERV_NET                               policy<{'amd64': 'm', 'i386': 'm
 CONFIG_HIPPI                                    note<DEPRECATED>
 CONFIG_XEN_NETDEV_FRONTEND                      note<LP:#1475078>
 CONFIG_DEFXX_MMIO                               flag<REVIEW>
+CONFIG_FDDI					note<LP:#1475078>
 
 # Menu: Device Drivers >> Network device support >> ARCnet support
 CONFIG_ARCNET                                   policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'powerpc': 'm', 'ppc64el': 'm', 's390x': 'n'}>
