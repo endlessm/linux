@@ -4429,7 +4429,7 @@ CONFIG_NTB_NETDEV                               policy<{'amd64': 'm', 'arm64': '
 CONFIG_RIONET                                   policy<{'amd64': 'm', 'i386': 'm', 'powerpc': 'm', 'ppc64el': 'm'}>
 CONFIG_RIONET_TX_SIZE                           policy<{'amd64': '128', 'i386': '128', 'powerpc': '128', 'ppc64el': '128'}>
 CONFIG_RIONET_RX_SIZE                           policy<{'amd64': '128', 'i386': '128', 'powerpc': '128', 'ppc64el': '128'}>
-CONFIG_TUN                                      policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'powerpc': 'y', 'ppc64el': 'y', 's390x': 'y'}>
+CONFIG_TUN                                      policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'powerpc': 'm', 'ppc64el': 'm', 's390x': 'm'}>
 CONFIG_TUN_VNET_CROSS_LE                        policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'i386': 'n', 'powerpc': 'n', 'ppc64el': 'n', 's390x': 'n'}>
 CONFIG_VETH                                     policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'powerpc': 'm', 'ppc64el': 'm', 's390x': 'm'}>
 CONFIG_VIRTIO_NET                               policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'powerpc': 'm', 'ppc64el': 'm', 's390x': 'm'}>
@@ -4437,6 +4437,7 @@ CONFIG_NLMON                                    policy<{'amd64': 'm', 'arm64': '
 CONFIG_NET_VRF                                  policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'powerpc': 'm', 'ppc64el': 'm', 's390x': 'm'}>
 #
 CONFIG_VIRTIO_NET                               note<KVM paravirt support -- not autoloadable, LP#1475078> flag<REVIEW>
+CONFIG_TUN					note<LP#1475078>
 
 # Menu: Device Drivers >> Network device support >> Network core driver support >> Ethernet team driver support
 CONFIG_NET_TEAM                                 policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'powerpc': 'm', 'ppc64el': 'm', 's390x': 'm'}>
