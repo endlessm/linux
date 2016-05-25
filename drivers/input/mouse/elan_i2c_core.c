@@ -49,7 +49,8 @@
 
 #define ETP_MAX_FINGERS		5
 #define ETP_FINGER_DATA_LEN	5
-#define ETP_REPORT_ID		0x5D
+#define ETP_REPORT_ID_MOUSE_MODE	0x1	/* standard 3 bytes mouse mode */
+#define ETP_REPORT_ID_ABS_MODE		0x5D
 #define ETP_REPORT_ID_OFFSET	2
 #define ETP_TOUCH_INFO_OFFSET	3
 #define ETP_FINGER_DATA_OFFSET	4
@@ -886,9 +887,20 @@ static irqreturn_t elan_isr(int irq, void *dev_id)
 	if (error)
 		goto out;
 
-	if (report[ETP_REPORT_ID_OFFSET] != ETP_REPORT_ID)
+	if (report[ETP_REPORT_ID_OFFSET] != ETP_REPORT_ID_ABS_MODE) {
 		dev_err(dev, "invalid report id data (%x)\n",
 			report[ETP_REPORT_ID_OFFSET]);
+		/* ELAN touchpads connected via i2c do not work correctly on
+		 * a warm reboot. It will enter into standard mouse mode for
+		 * unknown reason. Workaround it by reset it to ABS mode when
+	         * this error occured.
+		 */
+                if (report[ETP_REPORT_ID_OFFSET] == ETP_REPORT_ID_MOUSE_MODE) {
+			dev_warn(dev, "reset to ABS mode\n");
+                        data->mode |= ETP_ENABLE_ABS;
+                        data->ops->set_mode(data->client, data->mode);
+                }
+	}
 	else
 		elan_report_absolute(data, report);
 
