@@ -28,6 +28,7 @@
 
 #define ETP_FEATURE_REPORT_MK	BIT(0)
 
+#define ETP_REPORT_ID_MOUSE_MODE	0x1	/* standard 3 bytes mouse mode */
 #define ETP_REPORT_ID		0x5D
 #define ETP_TP_REPORT_ID	0x5E
 #define ETP_TP_REPORT_ID2	0x5F
