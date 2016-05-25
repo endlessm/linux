@@ -210,18 +210,18 @@ static int __elan_initialize(struct elan_tp_data *data)
 		return error;
 	}
 
-	error = data->ops->sleep_control(client, false);
-	if (error) {
-		dev_err(&client->dev,
-			"failed to wake device up: %d\n", error);
-		return error;
-	}
-
 	data->mode |= ETP_ENABLE_ABS;
 	error = data->ops->set_mode(client, data->mode);
 	if (error) {
 		dev_err(&client->dev,
 			"failed to switch to absolute mode: %d\n", error);
+		return error;
+	}
+
+	error = data->ops->sleep_control(client, false);
+	if (error) {
+		dev_err(&client->dev,
+			"failed to wake device up: %d\n", error);
 		return error;
 	}
 
