@@ -1,0 +1,6 @@
+config VBOX_GUEST
+	bool "VirtualBox guest drivers"
+	select DRM_TTM
+	default y
+	---help---
+	Enable VirtualBox guest drivers
