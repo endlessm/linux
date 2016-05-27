@@ -16,7 +16,7 @@ obj-$(CONFIG_DM_RAID45)		+= dm-raid4-5/
 ##
 ##
 ##
-ifneq ($(filter $(ARCH), i386 x86_64),)
+ifeq ($(SRCARCH),x86)
 obj-y                         += vbox/
 endif
 ##
