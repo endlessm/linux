@@ -674,7 +674,7 @@ RT_C_DECLS_END
 
 /** @def AssertBreak
  * Assert that an expression is true and breaks if it isn't.
- * In RT_STRICT mode it will hit a breakpoint before returning.
+ * In RT_STRICT mode it will hit a breakpoint before breaking.
  *
  * @param   expr    Expression which should be true.
  */
@@ -694,6 +694,30 @@ RT_C_DECLS_END
     { /* likely */ } \
     else \
         break
+#endif
+
+/** @def AssertContinue
+ * Assert that an expression is true and continue if it isn't.
+ * In RT_STRICT mode it will hit a breakpoint before continuing.
+ *
+ * @param   expr    Expression which should be true.
+ */
+#ifdef RT_STRICT
+# define AssertContinue(expr) \
+    if (RT_LIKELY(!!(expr))) \
+    { /* likely */ } \
+    else if (1) \
+    { \
+        RTAssertMsg1Weak(#expr, __LINE__, __FILE__, __PRETTY_FUNCTION__); \
+        RTAssertPanic(); \
+        continue; \
+    } else do {} while (0)
+#else
+# define AssertContinue(expr) \
+    if (RT_LIKELY(!!(expr))) \
+    { /* likely */ } \
+    else \
+        continue
 #endif
 
 /** @def AssertBreakStmt

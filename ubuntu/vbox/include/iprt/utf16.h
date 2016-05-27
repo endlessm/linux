@@ -81,6 +81,78 @@ RT_C_DECLS_BEGIN
  */
 RTDECL(PRTUTF16) RTUtf16AllocTag(size_t cb, const char *pszTag);
 
+/**
+ * Reallocates the specified UTF-16 string (default tag).
+ *
+ * You should normally not use this function, except if there is some very
+ * custom string handling you need doing that isn't covered by any of the other
+ * APIs.
+ *
+ * @returns VINF_SUCCESS.
+ * @retval  VERR_NO_UTF16_MEMORY if we failed to reallocate the string, @a
+ *          *ppwsz remains unchanged.
+ *
+ * @param   ppwsz               Pointer to the string variable containing the
+ *                              input and output string.
+ *
+ *                              When not freeing the string, the result will
+ *                              always have the last RTUTF16 set to the
+ *                              terminator character so that when used for
+ *                              string truncation the result will be a valid
+ *                              C-style string (your job to keep it a valid
+ *                              UTF-16 string).
+ *
+ *                              When the input string is NULL and we're supposed
+ *                              to reallocate, the returned string will also
+ *                              have the first RTUTF16 set to the terminator
+ *                              char so it will be a valid C-style string.
+ *
+ * @param   cbNew               When @a cbNew is zero, we'll behave like
+ *                              RTUtf16Free and @a *ppwsz will be set to NULL.
+ *
+ *                              When not zero, this will be rounded up to a
+ *                              multiple of two, and used as the new size of the
+ *                              memory backing the string, i.e. it includes the
+ *                              terminator (RTUTF16) char.
+ */
+#define RTUtf16Realloc(ppwsz, cb)       RTUtf16ReallocTag((ppwsz), (cb), RTSTR_TAG)
+
+/**
+ * Reallocates the specified UTF-16 string (custom tag).
+ *
+ * You should normally not use this function, except if there is some very
+ * custom string handling you need doing that isn't covered by any of the other
+ * APIs.
+ *
+ * @returns VINF_SUCCESS.
+ * @retval  VERR_NO_UTF16_MEMORY if we failed to reallocate the string, @a
+ *          *ppwsz remains unchanged.
+ *
+ * @param   ppwsz               Pointer to the string variable containing the
+ *                              input and output string.
+ *
+ *                              When not freeing the string, the result will
+ *                              always have the last RTUTF16 set to the
+ *                              terminator character so that when used for
+ *                              string truncation the result will be a valid
+ *                              C-style string (your job to keep it a valid
+ *                              UTF-16 string).
+ *
+ *                              When the input string is NULL and we're supposed
+ *                              to reallocate, the returned string will also
+ *                              have the first RTUTF16 set to the terminator
+ *                              char so it will be a valid C-style string.
+ *
+ * @param   cbNew               When @a cbNew is zero, we'll behave like
+ *                              RTUtf16Free and @a *ppwsz will be set to NULL.
+ *
+ *                              When not zero, this will be rounded up to a
+ *                              multiple of two, and used as the new size of the
+ *                              memory backing the string, i.e. it includes the
+ *                              terminator (RTUTF16) char.
+ * @param   pszTag              Allocation tag used for statistics and such.
+ */
+RTDECL(int) RTUtf16ReallocTag(PRTUTF16 *ppwsz, size_t cbNew, const char *pszTag);
 
 /**
  * Free a UTF-16 string allocated by RTStrToUtf16(), RTStrToUtf16Ex(),
@@ -332,6 +404,19 @@ RTDECL(int) RTUtf16Cmp(PCRTUTF16 pwsz1, PCRTUTF16 pwsz2);
 RTDECL(int) RTUtf16CmpAscii(PCRTUTF16 pwsz1, const char *psz2);
 
 /**
+ * Performs a case sensitive string compare between an UTF-16 string and a UTF-8
+ * string.
+ *
+ * @returns < 0 if the first string less than the second string.s
+ * @returns 0 if the first string identical to the second string.
+ * @returns > 0 if the first string greater than the second string.
+ * @param   pwsz1       First UTF-16 string. Null is allowed.
+ * @param   psz2        Second string, UTF-8. Null is allowed.
+ * @remarks NULL and empty strings are treated equally.
+ */
+RTDECL(int) RTUtf16CmpUtf8(PCRTUTF16 pwsz1, const char *psz2);
+
+/**
  * Performs a case insensitive string compare between two UTF-16 strings.
  *
  * This is a simplified compare, as only the simplified lower/upper case folding
@@ -345,6 +430,19 @@ RTDECL(int) RTUtf16CmpAscii(PCRTUTF16 pwsz1, const char *psz2);
  * @param   pwsz2       Second UTF-16 string. Null is allowed.
  */
 RTDECL(int) RTUtf16ICmp(PCRTUTF16 pwsz1, PCRTUTF16 pwsz2);
+
+/**
+ * Performs a case insensitive string compare between an UTF-16 string and a
+ * UTF-8 string.
+ *
+ * @returns < 0 if the first string less than the second string.s
+ * @returns 0 if the first string identical to the second string.
+ * @returns > 0 if the first string greater than the second string.
+ * @param   pwsz1       First UTF-16 string. Null is allowed.
+ * @param   psz2        Second string, UTF-8. Null is allowed.
+ * @remarks NULL and empty strings are treated equally.
+ */
+RTDECL(int) RTUtf16ICmpUtf8(PCRTUTF16 pwsz1, const char *psz2);
 
 /**
  * Performs a case insensitive string compare between an UTF-16 string and an

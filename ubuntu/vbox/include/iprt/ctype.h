@@ -73,6 +73,8 @@ DECL_FORCE_INLINE(bool) RTLocCIsBlank(int ch)
  *
  * @returns true / false.
  * @param   ch      The character to test.
+ *
+ * @note    Will return true of ch is '\0'!
  */
 DECL_FORCE_INLINE(bool) RTLocCIsCntrl(int ch)
 {

@@ -1804,6 +1804,15 @@ config SYSTEM_DATA_VERIFICATION
 	  module verification, kexec image verification and firmware blob
 	  verification.
 
+config SYSTEM_BLACKLIST_KEYRING
+	bool "Provide system-wide ring of blacklisted keys"
+	depends on KEYS
+	help
+	  Provide a system keyring to which blacklisted keys can be added.
+	  Keys in the keyring are considered entirely untrusted.  Keys in this
+	  keyring are used by the module signature checking to reject loading
+	  of modules signed with a blacklisted key.
+
 config PROFILING
 	bool "Profiling support"
 	help
@@ -1944,6 +1953,15 @@ config MODULE_SIG_ALL
 
 comment "Do not forget to sign required modules with scripts/sign-file"
 	depends on MODULE_SIG_FORCE && !MODULE_SIG_ALL
+
+config MODULE_SIG_UEFI
+	bool "Allow modules signed with certs stored in UEFI"
+	depends on MODULE_SIG && SYSTEM_BLACKLIST_KEYRING && EFI
+	select EFI_SIGNATURE_LIST_PARSER
+	help
+	  This will import certificates stored in UEFI and allow modules
+	  signed with those to be loaded.  It will also disallow loading
+	  of modules stored in the UEFI dbx variable.
 
 choice
 	prompt "Which hash algorithm should modules be signed with?"

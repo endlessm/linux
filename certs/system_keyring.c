@@ -20,6 +20,9 @@
 
 struct key *system_trusted_keyring;
 EXPORT_SYMBOL_GPL(system_trusted_keyring);
+#ifdef CONFIG_SYSTEM_BLACKLIST_KEYRING
+struct key *system_blacklist_keyring;
+#endif
 
 extern __initconst const u8 system_certificate_list[];
 extern __initconst const unsigned long system_certificate_list_size;
@@ -41,6 +44,20 @@ static __init int system_trusted_keyring_init(void)
 		panic("Can't allocate system trusted keyring\n");
 
 	set_bit(KEY_FLAG_TRUSTED_ONLY, &system_trusted_keyring->flags);
+
+	#ifdef CONFIG_SYSTEM_BLACKLIST_KEYRING
+	system_blacklist_keyring = keyring_alloc(".system_blacklist_keyring",
+				    KUIDT_INIT(0), KGIDT_INIT(0),
+				    current_cred(),
+				    (KEY_POS_ALL & ~KEY_POS_SETATTR) |
+				    KEY_USR_VIEW | KEY_USR_READ,
+				    KEY_ALLOC_NOT_IN_QUOTA, NULL);
+	if (IS_ERR(system_blacklist_keyring))
+		panic("Can't allocate system blacklist keyring\n");
+
+	set_bit(KEY_FLAG_TRUSTED_ONLY, &system_blacklist_keyring->flags);
+#endif
+
 	return 0;
 }
 
@@ -84,13 +101,13 @@ static __init int load_system_certificate_list(void)
 					   ((KEY_POS_ALL & ~KEY_POS_SETATTR) |
 					   KEY_USR_VIEW | KEY_USR_READ),
 					   KEY_ALLOC_NOT_IN_QUOTA |
-					   KEY_ALLOC_TRUSTED);
+					   KEY_ALLOC_TRUSTED |
+					   KEY_ALLOC_BUILT_IN);
 		if (IS_ERR(key)) {
 			pr_err("Problem loading in-kernel X.509 certificate (%ld)\n",
 			       PTR_ERR(key));
 			WARN_ON_ONCE(1);
 		} else {
-			set_bit(KEY_FLAG_BUILTIN, &key_ref_to_ptr(key)->flags);
 			pr_notice("Loaded X.509 cert '%s'\n",
 				  key_ref_to_ptr(key)->description);
 			key_ref_put(key);
@@ -138,6 +155,16 @@ int system_verify_data(const void *data, unsigned long len,
 	ret = pkcs7_verify(pkcs7, usage);
 	if (ret < 0)
 		goto error;
+
+#ifdef CONFIG_SYSTEM_BLACKLIST_KEYRING
+	ret = pkcs7_validate_trust(pkcs7, system_blacklist_keyring, &trusted);
+	if (!ret) {
+		/* module is signed with a cert in the blacklist.  reject */
+		pr_err("Module key is in the blacklist\n");
+		ret = -EKEYREJECTED;
+		goto error;
+	}
+#endif
 
 	ret = pkcs7_validate_trust(pkcs7, system_trusted_keyring, &trusted);
 	if (ret < 0)
