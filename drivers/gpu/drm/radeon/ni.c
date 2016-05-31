@@ -2079,7 +2079,7 @@ static int cayman_startup(struct radeon_device *rdev)
 							   TN_RING_TYPE_VCE2_INDEX);
 
 		if (r) {
-			dev_err(rdev->dev, "VCE init error (%d).\n", r);
+			dev_warn(rdev->dev, "VCE init error (%d).\n", r);
 			rdev->ring[TN_RING_TYPE_VCE1_INDEX].ring_size = 0;
 			rdev->ring[TN_RING_TYPE_VCE2_INDEX].ring_size = 0;
 		}
