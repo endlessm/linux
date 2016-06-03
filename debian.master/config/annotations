@@ -8469,6 +8469,8 @@ CONFIG_HSR                                      policy<{'amd64': 'm', 'arm64': '
 CONFIG_CGROUP_NET_PRIO                          policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'powerpc': 'y', 'ppc64el': 'y', 's390x': 'y'}>
 CONFIG_CGROUP_NET_CLASSID                       policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'powerpc': 'y', 'ppc64el': 'y', 's390x': 'y'}>
 CONFIG_BPF_JIT                                  policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'powerpc': 'y', 'ppc64el': 'y', 's390x': 'y'}>
+#
+CONFIG_UNIX					mark<ENFORCED>note<udev fails unless this is built in>
 
 # Menu: Networking support >> Networking options >> 6LoWPAN Support
 CONFIG_6LOWPAN                                  policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'powerpc': 'm', 'ppc64el': 'm', 's390x': 'n'}>
