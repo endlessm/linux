@@ -124,5 +124,4 @@ rm -f 'firmware/yam/9600.bin.ihex'
 rm -f 'firmware/yamaha/ds1_ctrl.fw.ihex'
 rm -f 'firmware/yamaha/ds1_dsp.fw.ihex'
 rm -f 'firmware/yamaha/ds1e_ctrl.fw.ihex'
-rm -f 'include/linux/rio_mport_cdev.h'
 exit 0
