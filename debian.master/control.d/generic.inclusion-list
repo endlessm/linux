@@ -190,7 +190,7 @@ net/rxrpc/*
 net/sched/*
 net/sctp/*
 net/tipc/*
-net/unix/*
+net/unix/unix_diag.ko
 net/vmw_vsock/*
 net/x25/*
 net/xfrm/*
