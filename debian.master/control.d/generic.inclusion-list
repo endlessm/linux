@@ -28,6 +28,7 @@ drivers/char/ppdev.ko
 drivers/char/raw.ko
 drivers/char/virtio_console.ko
 drivers/firmware/iscsi_ibft.ko
+drivers/firmware/efi/*
 drivers/hid/hid.ko
 drivers/hid/hid-hyperv.ko
 drivers/hv/*
@@ -121,15 +122,8 @@ drivers/s390/block/xpram.ko
 drivers/target/target_core*.ko
 drivers/uio/uio.ko
 drivers/vhost/*
-drivers/video/fbdev/cirrusfb.ko
-drivers/video/fbdev/core/syscopyarea.ko
-drivers/video/fbdev/core/sysfillrect.ko
-drivers/video/fbdev/core/sysimgblt.ko
-drivers/video/fbdev/hyperv_fb.ko
-drivers/video/fbdev/vga16fb.ko
+drivers/video/fbdev/*
 drivers/video/vgastate.ko
-drivers/video/fbdev/xen-fbfront.ko
-drivers/video/fbdev/core/fb_sys_fops.ko
 drivers/virtio/*
 drivers/watchdog/softdog.ko
 drivers/xen/*
@@ -141,7 +135,9 @@ fs/ceph/*
 fs/configfs/*
 fs/dlm/dlm.ko
 fs/ecryptfs/*
+fs/efivarfs/*
 fs/exofs/libore.ko
+fs/ext4/*
 fs/fat/*
 fs/nls/nls_iso8859-1.ko
 fs/isofs/*
