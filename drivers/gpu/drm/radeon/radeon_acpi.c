@@ -744,9 +744,10 @@ int radeon_acpi_init(struct radeon_device *rdev)
 		if (!target) {
 			/* Brightness change notification is enabled, but we
 			 * didn't find a backlight controller, this should
-			 * never happen.
+			 * not happen unless there is another card controlling
+			 * the backlight.
 			 */
-			DRM_ERROR("Cannot find a backlight controller\n");
+			dev_warn(rdev->dev, "Cannot find a backlight controller\n");
 		}
 	}
 
