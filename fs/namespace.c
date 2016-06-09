@@ -2378,7 +2378,7 @@ unlock:
 	return err;
 }
 
-static bool fs_fully_visible(struct file_system_type *fs_type, int *new_mnt_flags);
+static bool mount_too_revealing(struct vfsmount *mnt, int *new_mnt_flags);
 
 /*
  * create a new mount for userspace and request it to be added into the
@@ -2411,12 +2411,6 @@ static int do_new_mount(struct path *path, const char *fstype, int flags,
 			flags |= MS_NODEV;
 			mnt_flags |= MNT_NODEV | MNT_LOCK_NODEV;
 		}
-		if (type->fs_flags & FS_USERNS_VISIBLE) {
-			if (!fs_fully_visible(type, &mnt_flags)) {
-				put_filesystem(type);
-				return -EPERM;
-			}
-		}
 	}
 
 	mnt = vfs_kern_mount(type, flags, name, data);
@@ -2427,6 +2421,11 @@ static int do_new_mount(struct path *path, const char *fstype, int flags,
 	put_filesystem(type);
 	if (IS_ERR(mnt))
 		return PTR_ERR(mnt);
+
+	if (mount_too_revealing(mnt, &mnt_flags)) {
+		mntput(mnt);
+		return -EPERM;
+	}
 
 	err = do_add_mount(real_mount(mnt), path, mnt_flags);
 	if (err)
@@ -3219,22 +3218,19 @@ bool current_chrooted(void)
 	return chrooted;
 }
 
-static bool fs_fully_visible(struct file_system_type *type, int *new_mnt_flags)
+static bool mnt_already_visible(struct mnt_namespace *ns, struct vfsmount *new,
+				int *new_mnt_flags)
 {
-	struct mnt_namespace *ns = current->nsproxy->mnt_ns;
 	int new_flags = *new_mnt_flags;
 	struct mount *mnt;
 	bool visible = false;
-
-	if (unlikely(!ns))
-		return false;
 
 	down_read(&namespace_sem);
 	list_for_each_entry(mnt, &ns->list, mnt_list) {
 		struct mount *child;
 		int mnt_flags;
 
-		if (mnt->mnt.mnt_sb->s_type != type)
+		if (mnt->mnt.mnt_sb->s_type != new->mnt_sb->s_type)
 			continue;
 
 		/* This mount is not fully visible if it's root directory
@@ -3299,6 +3295,22 @@ static bool fs_fully_visible(struct file_system_type *type, int *new_mnt_flags)
 found:
 	up_read(&namespace_sem);
 	return visible;
+}
+
+static bool mount_too_revealing(struct vfsmount *mnt, int *new_mnt_flags)
+{
+	struct mnt_namespace *ns = current->nsproxy->mnt_ns;
+	unsigned long s_iflags;
+
+	if (ns->user_ns == &init_user_ns)
+		return false;
+
+	/* Can this filesystem be too revealing? */
+	s_iflags = mnt->mnt_sb->s_iflags;
+	if (!(s_iflags & SB_I_USERNS_VISIBLE))
+		return false;
+
+	return !mnt_already_visible(ns, mnt, new_mnt_flags);
 }
 
 static struct ns_common *mntns_get(struct task_struct *task)
