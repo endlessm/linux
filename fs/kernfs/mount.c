@@ -153,6 +153,8 @@ static int kernfs_fill_super(struct super_block *sb, unsigned long magic)
 	struct dentry *root;
 
 	info->sb = sb;
+	/* Userspace would break if executables appear on sysfs */
+	sb->s_iflags |= SB_I_NOEXEC;
 	sb->s_blocksize = PAGE_CACHE_SIZE;
 	sb->s_blocksize_bits = PAGE_CACHE_SHIFT;
 	sb->s_magic = magic;
