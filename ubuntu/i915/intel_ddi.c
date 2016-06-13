@@ -2670,7 +2670,6 @@ static void skl_shared_dplls_init(struct drm_i915_private *dev_priv)
 static void broxton_phy_init(struct drm_i915_private *dev_priv,
 			     enum dpio_phy phy)
 {
-	enum port port;
 	uint32_t val;
 
 	val = I915_READ(BXT_P_CR_GT_DISP_PWRON);
@@ -2680,24 +2679,6 @@ static void broxton_phy_init(struct drm_i915_private *dev_priv,
 	/* Considering 10ms timeout until BSpec is updated */
 	if (wait_for(I915_READ(BXT_PORT_CL1CM_DW0(phy)) & PHY_POWER_GOOD, 10))
 		DRM_ERROR("timeout during PHY%d power on\n", phy);
-
-	for (port =  (phy == DPIO_PHY0 ? PORT_B : PORT_A);
-	     port <= (phy == DPIO_PHY0 ? PORT_C : PORT_A); port++) {
-		int lane;
-
-		for (lane = 0; lane < 4; lane++) {
-			val = I915_READ(BXT_PORT_TX_DW14_LN(port, lane));
-			/*
-			 * Note that on CHV this flag is called UPAR, but has
-			 * the same function.
-			 */
-			val &= ~LATENCY_OPTIM;
-			if (lane != 1)
-				val |= LATENCY_OPTIM;
-
-			I915_WRITE(BXT_PORT_TX_DW14_LN(port, lane), val);
-		}
-	}
 
 	/* Program PLL Rcomp code offset */
 	val = I915_READ(BXT_PORT_CL1CM_DW9(phy));
@@ -3034,6 +3015,67 @@ void intel_ddi_pll_init(struct drm_device *dev)
 	}
 }
 
+static uint8_t
+bxt_ddi_phy_calc_lane_lat_optim_mask(struct intel_encoder *encoder,
+				     struct intel_crtc_state *pipe_config)
+{
+	switch (pipe_config->lane_count) {
+	case 1:
+		return 0;
+	case 2:
+		return BIT(2) | BIT(0);
+	case 4:
+		return BIT(3) | BIT(2) | BIT(0);
+	default:
+		MISSING_CASE(pipe_config->lane_count);
+
+		return 0;
+	}
+}
+
+static void bxt_ddi_pre_pll_enable(struct intel_encoder *encoder)
+{
+	struct intel_digital_port *dport = enc_to_dig_port(&encoder->base);
+	struct drm_i915_private *dev_priv = to_i915(dport->base.base.dev);
+	enum port port = dport->port;
+	struct intel_crtc *intel_crtc = to_intel_crtc(encoder->base.crtc);
+	int lane;
+
+	for (lane = 0; lane < 4; lane++) {
+		u32 val = I915_READ(BXT_PORT_TX_DW14_LN(port, lane));
+
+		/*
+		 * Note that on CHV this flag is called UPAR, but has
+		 * the same function.
+		 */
+		val &= ~LATENCY_OPTIM;
+		if (intel_crtc->config->lane_lat_optim_mask & BIT(lane))
+			val |= LATENCY_OPTIM;
+
+		I915_WRITE(BXT_PORT_TX_DW14_LN(port, lane), val);
+	}
+}
+
+static uint8_t
+bxt_ddi_phy_get_lane_lat_optim_mask(struct intel_encoder *encoder)
+{
+	struct intel_digital_port *dport = enc_to_dig_port(&encoder->base);
+	struct drm_i915_private *dev_priv = to_i915(dport->base.base.dev);
+	enum port port = dport->port;
+	int lane;
+	uint8_t mask;
+
+	mask = 0;
+	for (lane = 0; lane < 4; lane++) {
+		u32 val = I915_READ(BXT_PORT_TX_DW14_LN(port, lane));
+
+		if (val & LATENCY_OPTIM)
+			mask |= BIT(lane);
+	}
+
+	return mask;
+}
+
 void intel_ddi_prepare_link_retrain(struct intel_dp *intel_dp)
 {
 	struct intel_digital_port *intel_dig_port = dp_to_dig_port(intel_dp);
@@ -3207,13 +3249,19 @@ void intel_ddi_get_config(struct intel_encoder *encoder,
 	}
 
 	intel_ddi_clock_get(encoder, pipe_config);
+
+	if (IS_BROXTON(dev_priv))
+		pipe_config->lane_lat_optim_mask =
+			bxt_ddi_phy_get_lane_lat_optim_mask(encoder);
 }
 
 static bool intel_ddi_compute_config(struct intel_encoder *encoder,
 				     struct intel_crtc_state *pipe_config)
 {
+	struct drm_i915_private *dev_priv = encoder->base.dev->dev_private;
 	int type = encoder->type;
 	int port = intel_ddi_get_encoder_port(encoder);
+	int ret;
 
 	WARN(type == INTEL_OUTPUT_UNKNOWN, "compute_config() on unknown output!\n");
 
@@ -3221,9 +3269,16 @@ static bool intel_ddi_compute_config(struct intel_encoder *encoder,
 		pipe_config->cpu_transcoder = TRANSCODER_EDP;
 
 	if (type == INTEL_OUTPUT_HDMI)
-		return intel_hdmi_compute_config(encoder, pipe_config);
+		ret = intel_hdmi_compute_config(encoder, pipe_config);
 	else
-		return intel_dp_compute_config(encoder, pipe_config);
+		ret = intel_dp_compute_config(encoder, pipe_config);
+
+	if (IS_BROXTON(dev_priv) && ret)
+		pipe_config->lane_lat_optim_mask =
+			bxt_ddi_phy_calc_lane_lat_optim_mask(encoder,
+							     pipe_config);
+
+	return ret;
 }
 
 static const struct drm_encoder_funcs intel_ddi_funcs = {
@@ -3322,6 +3377,8 @@ void intel_ddi_init(struct drm_device *dev, enum port port)
 
 	intel_encoder->compute_config = intel_ddi_compute_config;
 	intel_encoder->enable = intel_enable_ddi;
+	if (IS_BROXTON(dev_priv))
+		intel_encoder->pre_pll_enable = bxt_ddi_pre_pll_enable;
 	intel_encoder->pre_enable = intel_ddi_pre_enable;
 	intel_encoder->disable = intel_disable_ddi;
 	intel_encoder->post_disable = intel_ddi_post_disable;
