@@ -1167,6 +1167,7 @@ void __init setup_arch(char **cmdline_p)
 		pr_info("Secure boot enabled\n");
 	}
 	else if (boot_params.secure_boot == EFI_MOKSBSTATE_DISABLED) {
+		set_bit(EFI_MOKSBSTATE_DISABLED, &efi.flags);
 		boot_params.secure_boot = 0;
 		pr_info("Secure boot MOKSBState disabled\n");
     }
