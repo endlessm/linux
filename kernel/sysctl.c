@@ -66,6 +66,7 @@
 #include <linux/kexec.h>
 #include <linux/bpf.h>
 #include <linux/mount.h>
+#include <linux/efi.h>
 
 #include <linux/uaccess.h>
 #include <asm/processor.h>
@@ -283,7 +284,37 @@ static int min_extfrag_threshold;
 static int max_extfrag_threshold = 1000;
 #endif
 
+static unsigned int secure_boot_enabled;
+int secure_boot_proc_handler(struct ctl_table *table, int write,
+	void __user *buffer, size_t *lenp, loff_t *ppos)
+{
+	secure_boot_enabled = efi_enabled(EFI_SECURE_BOOT);
+	return proc_dointvec(table, write, buffer, lenp, ppos);
+}
+
+static unsigned int moksbstate_disabled;
+int moksbstate_disabled_proc_handler(struct ctl_table *table, int write,
+	void __user *buffer, size_t *lenp, loff_t *ppos)
+{
+	moksbstate_disabled = efi_enabled(EFI_MOKSBSTATE_DISABLED);
+	return proc_dointvec(table, write, buffer, lenp, ppos);
+}
+
 static struct ctl_table kern_table[] = {
+	{
+		.procname   = "secure_boot",
+		.data       = &secure_boot_enabled,
+		.maxlen     = sizeof(unsigned int),
+		.mode       = 0444,
+		.proc_handler   = secure_boot_proc_handler,
+	},
+	{
+		.procname   = "moksbstate_disabled",
+		.data       = &moksbstate_disabled,
+		.maxlen     = sizeof(unsigned int),
+		.mode       = 0444,
+		.proc_handler   = moksbstate_disabled_proc_handler,
+	},
 	{
 		.procname	= "sched_child_runs_first",
 		.data		= &sysctl_sched_child_runs_first,
