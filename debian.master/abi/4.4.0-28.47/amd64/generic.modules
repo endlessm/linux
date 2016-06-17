@@ -3830,7 +3830,6 @@ spi-zynqmp-gqspi
 spl
 splat
 spmi
-squashfs
 sr9700
 sr9800
 ssb

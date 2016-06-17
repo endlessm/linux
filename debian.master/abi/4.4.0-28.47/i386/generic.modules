@@ -3964,7 +3964,6 @@ spi-topcliff-pch
 spi-xcomm
 spi-zynqmp-gqspi
 spmi
-squashfs
 sr9700
 sr9800
 ssb

@@ -7407,7 +7407,7 @@ CONFIG_ROMFS_BACKED_BY_MTD                      policy<{'amd64': 'n', 'arm64': '
 CONFIG_ROMFS_BACKED_BY_BOTH                     policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'i386': 'n', 'powerpc': 'n', 'ppc64el': 'n'}>
 
 # Menu: File systems >> Miscellaneous filesystems >> SquashFS 4.0 - Squashed file system support
-CONFIG_SQUASHFS                                 policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'powerpc': 'm', 'ppc64el': 'm', 's390x': 'm'}>
+CONFIG_SQUASHFS                                 policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'powerpc': 'y', 'ppc64el': 'y', 's390x': 'y'}>
 CONFIG_SQUASHFS_XATTR                           policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'powerpc': 'y', 'ppc64el': 'y', 's390x': 'y'}>
 CONFIG_SQUASHFS_ZLIB                            policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'powerpc': 'y', 'ppc64el': 'y', 's390x': 'y'}>
 CONFIG_SQUASHFS_LZ4                             policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'powerpc': 'y', 'ppc64el': 'y', 's390x': 'y'}>
@@ -7418,6 +7418,7 @@ CONFIG_SQUASHFS_EMBEDDED                        policy<{'amd64': 'n', 'arm64': '
 CONFIG_SQUASHFS_FRAGMENT_CACHE_SIZE             policy<{'amd64': '3', 'arm64': '3', 'armhf': '3', 'i386': '3', 'powerpc': '3', 'ppc64el': '3', 's390x': '3'}>
 #
 CONFIG_SQUASHFS_4K_DEVBLK_SIZE                  note<non-default block size>
+CONFIG_SQUASHFS					mark<ENFORCED> note<LP#1593134>
 
 # Menu: File systems >> Miscellaneous filesystems >> SquashFS 4.0 - Squashed file system support >> Decompressor parallelisation options
 CONFIG_SQUASHFS_DECOMP_SINGLE                   policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'i386': 'n', 'powerpc': 'n', 'ppc64el': 'n', 's390x': 'n'}>

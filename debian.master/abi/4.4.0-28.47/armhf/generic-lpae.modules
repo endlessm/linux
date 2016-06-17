@@ -3818,7 +3818,6 @@ spi-xcomm
 spi-zynqmp-gqspi
 spmi
 spmi-pmic-arb
-squashfs
 sr9700
 sr9800
 ssb

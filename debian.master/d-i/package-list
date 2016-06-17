@@ -188,12 +188,6 @@ Priority: extra
 Description: Mouse support
  This package contains mouse drivers for the Linux kernel.
 
-Package: squashfs-modules
-Depends: kernel-image
-Priority: extra
-Description: squashfs modules
- This package contains squashfs modules.
-
 Package: vlan-modules
 Depends: kernel-image
 Priority: extra
