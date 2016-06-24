@@ -186,8 +186,7 @@ static int kernfs_test_super(struct super_block *sb, void *data)
 	struct kernfs_super_info *sb_info = kernfs_info(sb);
 	struct kernfs_super_info *info = data;
 
-	return sb_info->root == info->root && sb_info->ns == info->ns &&
-	       sb->s_user_ns == current_user_ns();
+	return sb_info->root == info->root && sb_info->ns == info->ns;
 }
 
 static int kernfs_set_super(struct super_block *sb, void *data)
