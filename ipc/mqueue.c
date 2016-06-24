@@ -326,10 +326,8 @@ static struct dentry *mqueue_mount(struct file_system_type *fs_type,
 			 int flags, const char *dev_name,
 			 void *data)
 {
-	struct ipc_namespace *ns = data;
-
 	if (!(flags & MS_KERNMOUNT)) {
-		ns = current->nsproxy->ipc_ns;
+		struct ipc_namespace *ns = current->nsproxy->ipc_ns;
 		/* Don't allow mounting unless the caller has CAP_SYS_ADMIN
 		 * over the ipc namespace.
 		 */
@@ -338,8 +336,7 @@ static struct dentry *mqueue_mount(struct file_system_type *fs_type,
 
 		data = ns;
 	}
-	return mount_ns_userns(fs_type, flags, ns->user_ns, data,
-			       mqueue_fill_super);
+	return mount_ns(fs_type, flags, data, mqueue_fill_super);
 }
 
 static void init_once(void *foo)
