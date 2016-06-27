@@ -4022,9 +4022,11 @@ EXPORT_SYMBOL net/netfilter/x_tables 0x6291ea04	xt_unregister_target
 EXPORT_SYMBOL net/netfilter/x_tables 0x635132cd	xt_register_target
 EXPORT_SYMBOL net/netfilter/x_tables 0x84f8cfb4	xt_unregister_targets
 EXPORT_SYMBOL net/netfilter/x_tables 0x9bc4e6c0	xt_register_match
+EXPORT_SYMBOL net/netfilter/x_tables 0xa25fc115	xt_compat_check_entry_offsets
 EXPORT_SYMBOL net/netfilter/x_tables 0xa4619638	xt_find_match
 EXPORT_SYMBOL net/netfilter/x_tables 0xa48b3a97	xt_free_table_info
 EXPORT_SYMBOL net/netfilter/x_tables 0xc4906590	xt_find_target
+EXPORT_SYMBOL net/netfilter/x_tables 0xd87ae60d	xt_check_entry_offsets
 EXPORT_SYMBOL net/netfilter/x_tables 0xe882f546	xt_register_matches
 EXPORT_SYMBOL net/nfc/hci/hci 0x006f9748	nfc_hci_reset_pipes_per_host
 EXPORT_SYMBOL net/nfc/hci/hci 0x065a505a	nfc_hci_disconnect_all_gates
@@ -12641,7 +12643,7 @@ EXPORT_SYMBOL_GPL net/netfilter/nft_reject 0xddf15889	nft_reject_icmp_code
 EXPORT_SYMBOL_GPL net/netfilter/nft_reject 0xe8cdab4e	nft_reject_icmpv6_code
 EXPORT_SYMBOL_GPL net/netfilter/x_tables 0x02d42701	xt_compat_target_from_user
 EXPORT_SYMBOL_GPL net/netfilter/x_tables 0x161d1417	xt_compat_unlock
-EXPORT_SYMBOL_GPL net/netfilter/x_tables 0x1d9d427b	xt_compat_match_from_user
+EXPORT_SYMBOL_GPL net/netfilter/x_tables 0x24c8e482	xt_copy_counters_from_user
 EXPORT_SYMBOL_GPL net/netfilter/x_tables 0x40728a63	xt_find_revision
 EXPORT_SYMBOL_GPL net/netfilter/x_tables 0x4f224327	xt_table_unlock
 EXPORT_SYMBOL_GPL net/netfilter/x_tables 0x5f82f1f7	xt_compat_flush_offsets
@@ -12654,6 +12656,7 @@ EXPORT_SYMBOL_GPL net/netfilter/x_tables 0x7c859495	xt_register_table
 EXPORT_SYMBOL_GPL net/netfilter/x_tables 0x807d2b2c	xt_recseq
 EXPORT_SYMBOL_GPL net/netfilter/x_tables 0x842c4911	xt_compat_target_to_user
 EXPORT_SYMBOL_GPL net/netfilter/x_tables 0x865a48b9	xt_check_target
+EXPORT_SYMBOL_GPL net/netfilter/x_tables 0x874b102f	xt_compat_match_from_user
 EXPORT_SYMBOL_GPL net/netfilter/x_tables 0x95a0a695	xt_hook_unlink
 EXPORT_SYMBOL_GPL net/netfilter/x_tables 0xb8176c7a	xt_compat_match_offset
 EXPORT_SYMBOL_GPL net/netfilter/x_tables 0xc6a3638f	xt_request_find_target

@@ -4061,9 +4061,11 @@ EXPORT_SYMBOL net/netfilter/x_tables 0x5e1b2ca2	xt_register_target
 EXPORT_SYMBOL net/netfilter/x_tables 0x75c067ba	xt_register_targets
 EXPORT_SYMBOL net/netfilter/x_tables 0x79e22213	xt_unregister_matches
 EXPORT_SYMBOL net/netfilter/x_tables 0x7c37f405	xt_find_match
+EXPORT_SYMBOL net/netfilter/x_tables 0xa25fc115	xt_compat_check_entry_offsets
 EXPORT_SYMBOL net/netfilter/x_tables 0xa48b3a97	xt_free_table_info
 EXPORT_SYMBOL net/netfilter/x_tables 0xcd1b9a00	xt_register_matches
 EXPORT_SYMBOL net/netfilter/x_tables 0xd2b84c58	xt_unregister_match
+EXPORT_SYMBOL net/netfilter/x_tables 0xd87ae60d	xt_check_entry_offsets
 EXPORT_SYMBOL net/netfilter/x_tables 0xeaaf0b5f	xt_register_match
 EXPORT_SYMBOL net/netfilter/x_tables 0xf1cadfdc	xt_unregister_targets
 EXPORT_SYMBOL net/netfilter/x_tables 0xf9e25641	xt_unregister_target
@@ -13757,9 +13759,11 @@ EXPORT_SYMBOL_GPL net/netfilter/nft_reject 0xe8cdab4e	nft_reject_icmpv6_code
 EXPORT_SYMBOL_GPL net/netfilter/x_tables 0x161d1417	xt_compat_unlock
 EXPORT_SYMBOL_GPL net/netfilter/x_tables 0x1dcfcbaa	xt_proto_init
 EXPORT_SYMBOL_GPL net/netfilter/x_tables 0x242f306a	xt_replace_table
+EXPORT_SYMBOL_GPL net/netfilter/x_tables 0x24c8e482	xt_copy_counters_from_user
 EXPORT_SYMBOL_GPL net/netfilter/x_tables 0x40728a63	xt_find_revision
 EXPORT_SYMBOL_GPL net/netfilter/x_tables 0x4211e723	xt_compat_match_to_user
 EXPORT_SYMBOL_GPL net/netfilter/x_tables 0x4b9e6447	xt_table_unlock
+EXPORT_SYMBOL_GPL net/netfilter/x_tables 0x4c8d530d	xt_compat_match_from_user
 EXPORT_SYMBOL_GPL net/netfilter/x_tables 0x5b9fb14e	xt_hook_unlink
 EXPORT_SYMBOL_GPL net/netfilter/x_tables 0x5f82f1f7	xt_compat_flush_offsets
 EXPORT_SYMBOL_GPL net/netfilter/x_tables 0x62826cc5	xt_compat_target_to_user
@@ -13772,7 +13776,6 @@ EXPORT_SYMBOL_GPL net/netfilter/x_tables 0x8612f998	xt_unregister_table
 EXPORT_SYMBOL_GPL net/netfilter/x_tables 0xa472f24d	xt_proto_fini
 EXPORT_SYMBOL_GPL net/netfilter/x_tables 0xb32af6ad	xt_request_find_match
 EXPORT_SYMBOL_GPL net/netfilter/x_tables 0xbca474e0	xt_register_table
-EXPORT_SYMBOL_GPL net/netfilter/x_tables 0xcef3a073	xt_compat_match_from_user
 EXPORT_SYMBOL_GPL net/netfilter/x_tables 0xd0a0e7fb	xt_request_find_target
 EXPORT_SYMBOL_GPL net/netfilter/x_tables 0xd18bf3d1	xt_check_match
 EXPORT_SYMBOL_GPL net/netfilter/x_tables 0xd53db64f	xt_hook_link
