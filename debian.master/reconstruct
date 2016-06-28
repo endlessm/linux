@@ -7,13 +7,6 @@
 [ ! -L 'ubuntu/vbox/vboxsf/r0drv' ] && ln -sf '../r0drv' 'ubuntu/vbox/vboxsf/r0drv'
 [ ! -L 'ubuntu/vbox/vboxvideo/include' ] && ln -sf '../include' 'ubuntu/vbox/vboxvideo/include'
 [ ! -L 'ubuntu/vbox/vboxvideo/r0drv' ] && ln -sf '../r0drv' 'ubuntu/vbox/vboxvideo/r0drv'
-[ ! -L 'zfs/rpm/redhat/zfs-dkms.spec.in' ] && ln -sf '../generic/zfs-dkms.spec.in' 'zfs/rpm/redhat/zfs-dkms.spec.in'
-[ ! -L 'zfs/rpm/redhat/zfs.spec.in' ] && ln -sf '../generic/zfs.spec.in' 'zfs/rpm/redhat/zfs.spec.in'
-[ ! -L 'zfs/scripts/zpios-test/large-thread-survey.sh' ] && ln -sf '1x256th-65536rc-4rs-1cs-4off.sh' 'zfs/scripts/zpios-test/large-thread-survey.sh'
-[ ! -L 'zfs/scripts/zpios-test/large.sh' ] && ln -sf '256th-65536rc-4rs-1cs-4off.sh' 'zfs/scripts/zpios-test/large.sh'
-[ ! -L 'zfs/scripts/zpios-test/medium.sh' ] && ln -sf '16th-8192rc-4rs-1cs-4off.sh' 'zfs/scripts/zpios-test/medium.sh'
-[ ! -L 'zfs/scripts/zpios-test/small.sh' ] && ln -sf '4th-1024rc-4rs-1cs-4off.sh' 'zfs/scripts/zpios-test/small.sh'
-[ ! -L 'zfs/scripts/zpios-test/tiny.sh' ] && ln -sf '1th-16rc-4rs-1cs-4off.sh' 'zfs/scripts/zpios-test/tiny.sh'
 # Remove any files deleted from the orig.
 rm -f 'arch/x86/kernel/cpu/intel_pt.h'
 rm -f 'arch/x86/kernel/cpu/perf_event.c'
