@@ -1693,6 +1693,7 @@ int3403_thermal
 int340x_thermal_zone
 int51x1
 intelfb
+intel-hid
 intel_ips
 intel-lpss
 intel-lpss-acpi
