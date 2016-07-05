@@ -685,8 +685,11 @@ static void pty_unix98_shutdown(struct tty_struct *tty)
 		ptmx_inode = tty->driver_data;
 	else
 		ptmx_inode = tty->link->driver_data;
-	devpts_kill_index(ptmx_inode, tty->index);
-	devpts_del_ref(ptmx_inode);
+
+	if (ptmx_inode) {
+		devpts_kill_index(ptmx_inode, tty->index);
+		devpts_del_ref(ptmx_inode);
+	}
 }
 
 static const struct tty_operations ptm_unix98_ops = {
