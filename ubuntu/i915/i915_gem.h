@@ -1,5 +1,5 @@
 /*
- * Copyright © 2015 Intel Corporation
+ * Copyright © 2016 Intel Corporation
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
@@ -22,48 +22,13 @@
  *
  */
 
-#ifndef _I915_PARAMS_H_
-#define _I915_PARAMS_H_
+#ifndef __I915_GEM_H__
+#define __I915_GEM_H__
 
-#include <linux/cache.h> /* for __read_mostly */
-
-struct i915_params {
-	int modeset;
-	int panel_ignore_lid;
-	int semaphores;
-	int lvds_channel_mode;
-	int panel_use_ssc;
-	int vbt_sdvo_panel_type;
-	int enable_rc6;
-	int enable_dc;
-	int enable_fbc;
-	int enable_ppgtt;
-	int enable_execlists;
-	int enable_psr;
-	unsigned int preliminary_hw_support;
-	int disable_power_well;
-	int enable_ips;
-	int invert_brightness;
-	int enable_cmd_parser;
-	int guc_log_level;
-	int use_mmio_flip;
-	int mmio_debug;
-	int edp_vswing;
-	unsigned int inject_load_failure;
-	/* leave bools at the end to not create holes */
-	bool enable_hangcheck;
-	bool fastboot;
-	bool prefault_disable;
-	bool load_detect_test;
-	bool reset;
-	bool disable_display;
-	bool enable_guc_submission;
-	bool verbose_state_checks;
-	bool nuclear_pageflip;
-	bool enable_dp_mst;
-};
-
-extern struct i915_params i915 __read_mostly;
-
+#ifdef CONFIG_DRM_I915_DEBUG_GEM
+#define GEM_BUG_ON(expr) BUG_ON(expr)
+#else
+#define GEM_BUG_ON(expr)
 #endif
 
+#endif /* __I915_GEM_H__ */
