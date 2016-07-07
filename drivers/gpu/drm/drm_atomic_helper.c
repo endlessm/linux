@@ -471,7 +471,8 @@ drm_atomic_helper_check_modeset(struct drm_device *dev,
 	 * crtc only changed its mode but has the same set of connectors.
 	 */
 	for_each_crtc_in_state(state, crtc, crtc_state, i) {
-		int num_connectors;
+		bool has_connectors =
+			!!crtc_state->connector_mask;
 
 		/*
 		 * We must set ->active_changed after walking connectors for
@@ -500,10 +501,7 @@ drm_atomic_helper_check_modeset(struct drm_device *dev,
 		if (ret != 0)
 			return ret;
 
-		num_connectors = drm_atomic_connectors_for_crtc(state,
-								crtc);
-
-		if (crtc_state->enable != !!num_connectors) {
+		if (crtc_state->enable != has_connectors) {
 			DRM_DEBUG_ATOMIC("[CRTC:%d] enabled/connectors mismatch\n",
 					 crtc->base.id);
 
@@ -1735,7 +1733,7 @@ static int update_output_state(struct drm_atomic_state *state,
 		if (crtc == set->crtc)
 			continue;
 
-		if (!drm_atomic_connectors_for_crtc(state, crtc)) {
+		if (!crtc_state->connector_mask) {
 			ret = drm_atomic_set_mode_prop_for_crtc(crtc_state,
 								NULL);
 			if (ret < 0)
@@ -2582,6 +2580,28 @@ void drm_atomic_helper_plane_destroy_state(struct drm_plane *plane,
 EXPORT_SYMBOL(drm_atomic_helper_plane_destroy_state);
 
 /**
+ * __drm_atomic_helper_connector_reset - reset state on connector
+ * @connector: drm connector
+ * @conn_state: connector state to assign
+ *
+ * Initializes the newly allocated @conn_state and assigns it to
+ * #connector ->state, usually required when initializing the drivers
+ * or when called from the ->reset hook.
+ *
+ * This is useful for drivers that subclass the connector state.
+ */
+void
+__drm_atomic_helper_connector_reset(struct drm_connector *connector,
+				    struct drm_connector_state *conn_state)
+{
+	if (conn_state)
+		conn_state->connector = connector;
+
+	connector->state = conn_state;
+}
+EXPORT_SYMBOL(__drm_atomic_helper_connector_reset);
+
+/**
  * drm_atomic_helper_connector_reset - default ->reset hook for connectors
  * @connector: drm connector
  *
@@ -2591,11 +2611,11 @@ EXPORT_SYMBOL(drm_atomic_helper_plane_destroy_state);
  */
 void drm_atomic_helper_connector_reset(struct drm_connector *connector)
 {
-	kfree(connector->state);
-	connector->state = kzalloc(sizeof(*connector->state), GFP_KERNEL);
+	struct drm_connector_state *conn_state =
+		kzalloc(sizeof(*conn_state), GFP_KERNEL);
 
-	if (connector->state)
-		connector->state->connector = connector;
+	kfree(connector->state);
+	__drm_atomic_helper_connector_reset(connector, conn_state);
 }
 EXPORT_SYMBOL(drm_atomic_helper_connector_reset);
 

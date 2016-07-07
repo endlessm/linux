@@ -120,6 +120,7 @@ struct nvme_dev {
 	unsigned long flags;
 
 #define NVME_CTRL_RESETTING    0
+#define NVME_CTRL_REMOVING     1
 
 	struct nvme_ctrl ctrl;
 	struct completion ioq_wait;
@@ -286,6 +287,17 @@ static int nvme_init_request(void *data, struct request *req,
 	return 0;
 }
 
+static void nvme_queue_scan(struct nvme_dev *dev)
+{
+	/*
+	 * Do not queue new scan work when a controller is reset during
+	 * removal.
+	 */
+	if (test_bit(NVME_CTRL_REMOVING, &dev->flags))
+		return;
+	queue_work(nvme_workq, &dev->scan_work);
+}
+
 static void nvme_complete_async_event(struct nvme_dev *dev,
 		struct nvme_completion *cqe)
 {
@@ -300,7 +312,7 @@ static void nvme_complete_async_event(struct nvme_dev *dev,
 	switch (result & 0xff07) {
 	case NVME_AER_NOTICE_NS_CHANGED:
 		dev_info(dev->dev, "rescanning\n");
-		queue_work(nvme_workq, &dev->scan_work);
+		nvme_queue_scan(dev);
 	default:
 		dev_warn(dev->dev, "async event result %08x\n", result);
 	}
@@ -678,6 +690,14 @@ static int nvme_queue_rq(struct blk_mq_hw_ctx *hctx,
 	blk_mq_start_request(req);
 
 	spin_lock_irq(&nvmeq->q_lock);
+	if (unlikely(nvmeq->cq_vector < 0)) {
+		if (ns && !test_bit(NVME_NS_DEAD, &ns->flags))
+			ret = BLK_MQ_RQ_QUEUE_BUSY;
+		else
+			ret = BLK_MQ_RQ_QUEUE_ERROR;
+		spin_unlock_irq(&nvmeq->q_lock);
+		goto out;
+	}
 	__nvme_submit_cmd(nvmeq, &cmnd);
 	nvme_process_cq(nvmeq);
 	spin_unlock_irq(&nvmeq->q_lock);
@@ -1245,6 +1265,12 @@ static struct blk_mq_ops nvme_mq_ops = {
 static void nvme_dev_remove_admin(struct nvme_dev *dev)
 {
 	if (dev->ctrl.admin_q && !blk_queue_dying(dev->ctrl.admin_q)) {
+		/*
+		 * If the controller was reset during removal, it's possible
+		 * user requests may be waiting on a stopped queue. Start the
+		 * queue to flush these to completion.
+		 */
+		blk_mq_start_stopped_hw_queues(dev->ctrl.admin_q, true);
 		blk_cleanup_queue(dev->ctrl.admin_q);
 		blk_mq_free_tag_set(&dev->admin_tagset);
 	}
@@ -1685,7 +1711,7 @@ static int nvme_dev_add(struct nvme_dev *dev)
 			return 0;
 		dev->ctrl.tagset = &dev->tagset;
 	}
-	queue_work(nvme_workq, &dev->scan_work);
+	nvme_queue_scan(dev);
 	return 0;
 }
 
@@ -1973,6 +1999,7 @@ static void nvme_remove_dead_ctrl_work(struct work_struct *work)
 	struct nvme_dev *dev = container_of(work, struct nvme_dev, remove_work);
 	struct pci_dev *pdev = to_pci_dev(dev->dev);
 
+	nvme_kill_queues(&dev->ctrl);
 	if (pci_get_drvdata(pdev))
 		pci_stop_and_remove_bus_device_locked(pdev);
 	nvme_put_ctrl(&dev->ctrl);
@@ -1982,6 +2009,7 @@ static void nvme_remove_dead_ctrl(struct nvme_dev *dev)
 {
 	dev_warn(dev->dev, "Removing after probe failure\n");
 	kref_get(&dev->ctrl.kref);
+	nvme_dev_disable(dev, false);
 	if (!schedule_work(&dev->remove_work))
 		nvme_put_ctrl(&dev->ctrl);
 }
@@ -2115,6 +2143,7 @@ static void nvme_remove(struct pci_dev *pdev)
 	list_del_init(&dev->node);
 	spin_unlock(&dev_list_lock);
 
+	set_bit(NVME_CTRL_REMOVING, &dev->flags);
 	pci_set_drvdata(pdev, NULL);
 	flush_work(&dev->reset_work);
 	flush_work(&dev->scan_work);

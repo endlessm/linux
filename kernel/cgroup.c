@@ -1172,6 +1172,41 @@ static void cgroup_destroy_root(struct cgroup_root *root)
 	cgroup_free_root(root);
 }
 
+/*
+ * look up cgroup associated with current task's cgroup namespace on the
+ * specified hierarchy
+ */
+static struct cgroup *
+current_cgns_cgroup_from_root(struct cgroup_root *root)
+{
+	struct cgroup *res = NULL;
+	struct css_set *cset;
+
+	lockdep_assert_held(&css_set_lock);
+
+	rcu_read_lock();
+
+	cset = current->nsproxy->cgroup_ns->root_cset;
+	if (cset == &init_css_set) {
+		res = &root->cgrp;
+	} else {
+		struct cgrp_cset_link *link;
+
+		list_for_each_entry(link, &cset->cgrp_links, cgrp_link) {
+			struct cgroup *c = link->cgrp;
+
+			if (c->root == root) {
+				res = c;
+				break;
+			}
+		}
+	}
+	rcu_read_unlock();
+
+	BUG_ON(!res);
+	return res;
+}
+
 /* look up cgroup associated with given css_set on the specified hierarchy */
 static struct cgroup *cset_cgroup_from_root(struct css_set *cset,
 					    struct cgroup_root *root)
@@ -1589,32 +1624,34 @@ static int rebind_subsystems(struct cgroup_root *dst_root,
 	return 0;
 }
 
-static void cgroup_show_nsroot(struct seq_file *seq, struct dentry *dentry,
-			       struct kernfs_root *kf_root)
+static int cgroup_show_path(struct seq_file *sf, struct kernfs_node *kf_node,
+			    struct kernfs_root *kf_root)
 {
-	struct kernfs_node *d_kn = dentry->d_fsdata;
-	char *nsroot;
-	int len, ret;
+	int len = 0;
+	char *buf = NULL;
+	struct cgroup_root *kf_cgroot = cgroup_root_from_kf(kf_root);
+	struct cgroup *ns_cgroup;
 
-	if (!kf_root)
-		return;
-	len = kernfs_path_from_node(d_kn, kf_root->kn, NULL, 0);
-	if (len <= 0)
-		return;
-	nsroot = kzalloc(len + 1, GFP_ATOMIC);
-	if (!nsroot)
-		return;
-	ret = kernfs_path_from_node(d_kn, kf_root->kn, nsroot, len + 1);
-	if (ret <= 0 || ret > len)
-		goto out;
+	buf = kmalloc(PATH_MAX, GFP_KERNEL);
+	if (!buf)
+		return -ENOMEM;
 
-	seq_show_option(seq, "nsroot", nsroot);
+	spin_lock_bh(&css_set_lock);
+	ns_cgroup = current_cgns_cgroup_from_root(kf_cgroot);
+	len = kernfs_path_from_node(kf_node, ns_cgroup->kn, buf, PATH_MAX);
+	spin_unlock_bh(&css_set_lock);
 
-out:
-	kfree(nsroot);
+	if (len >= PATH_MAX)
+		len = -ERANGE;
+	else if (len > 0) {
+		seq_escape(sf, buf, " \t\n\\");
+		len = 0;
+	}
+	kfree(buf);
+	return len;
 }
 
-static int cgroup_show_options(struct seq_file *seq, struct dentry *dentry,
+static int cgroup_show_options(struct seq_file *seq,
 			       struct kernfs_root *kf_root)
 {
 	struct cgroup_root *root = cgroup_root_from_kf(kf_root);
@@ -1640,8 +1677,6 @@ static int cgroup_show_options(struct seq_file *seq, struct dentry *dentry,
 		seq_puts(seq, ",clone_children");
 	if (strlen(root->name))
 		seq_show_option(seq, "name", root->name);
-	cgroup_show_nsroot(seq, dentry, kf_root);
-
 	return 0;
 }
 
@@ -1678,10 +1713,6 @@ static int parse_cgroupfs_options(char *data, struct cgroup_sb_opts *opts)
 		if (!strcmp(token, "none")) {
 			/* Explicitly have no subsystems */
 			opts->none = true;
-			continue;
-		}
-		if (!strncmp(token, "nsroot=", 7)) {
-			/* ignore nsroot= copied from mountinfo */
 			continue;
 		}
 		if (!strcmp(token, "all")) {
@@ -2833,9 +2864,10 @@ static ssize_t __cgroup_procs_write(struct kernfs_open_file *of, char *buf,
 				    size_t nbytes, loff_t off, bool threadgroup)
 {
 	struct task_struct *tsk;
+	struct cgroup_subsys *ss;
 	struct cgroup *cgrp;
 	pid_t pid;
-	int ret;
+	int ssid, ret;
 
 	if (kstrtoint(strstrip(buf), 0, &pid) || pid < 0)
 		return -EINVAL;
@@ -2883,8 +2915,10 @@ out_unlock_rcu:
 	rcu_read_unlock();
 out_unlock_threadgroup:
 	percpu_up_write(&cgroup_threadgroup_rwsem);
+	for_each_subsys(ss, ssid)
+		if (ss->post_attach)
+			ss->post_attach();
 	cgroup_kn_unlock(of->kn);
-	cpuset_post_attach_flush();
 	return ret ?: nbytes;
 }
 
@@ -4801,14 +4835,15 @@ static void css_free_work_fn(struct work_struct *work)
 
 	if (ss) {
 		/* css free path */
+		struct cgroup_subsys_state *parent = css->parent;
 		int id = css->id;
-
-		if (css->parent)
-			css_put(css->parent);
 
 		ss->css_free(css);
 		cgroup_idr_remove(&ss->css_idr, id);
 		cgroup_put(cgrp);
+
+		if (parent)
+			css_put(parent);
 	} else {
 		/* cgroup free path */
 		atomic_dec(&cgrp->root->nr_cgrps);
@@ -5323,6 +5358,7 @@ static struct kernfs_syscall_ops cgroup_kf_syscall_ops = {
 	.mkdir			= cgroup_mkdir,
 	.rmdir			= cgroup_rmdir,
 	.rename			= cgroup_rename,
+	.show_path		= cgroup_show_path,
 };
 
 static void __init cgroup_init_subsys(struct cgroup_subsys *ss, bool early)

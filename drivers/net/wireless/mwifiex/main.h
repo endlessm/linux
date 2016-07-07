@@ -84,7 +84,7 @@ enum {
 
 #define MWIFIEX_KEY_BUFFER_SIZE			16
 #define MWIFIEX_DEFAULT_LISTEN_INTERVAL 10
-#define MWIFIEX_MAX_REGION_CODE         7
+#define MWIFIEX_MAX_REGION_CODE         9
 
 #define DEFAULT_BCN_AVG_FACTOR          8
 #define DEFAULT_DATA_AVG_FACTOR         8
@@ -114,6 +114,10 @@ enum {
 #define MWIFIEX_OUI_PRESENT				1
 
 #define PKT_TYPE_MGMT	0xE5
+
+#define MWIFIEX_LED_ON		1
+#define MWIFIEX_LED_OFF		0
+#define MWIFIEX_LED_MAX		3
 
 /*
  * Do not check for data_received for USB, as data_received
@@ -667,6 +671,7 @@ struct mwifiex_private {
 	struct mwifiex_ds_mem_rw mem_rw;
 	struct sk_buff_head bypass_txq;
 	struct mwifiex_user_scan_chan hidden_chan[MWIFIEX_USER_SCAN_CHAN_MAX];
+	bool is_edge_gateway;
 };
 
 
@@ -994,6 +999,8 @@ struct mwifiex_adapter {
 	u8 active_scan_triggered;
 	bool usb_mc_status;
 	bool usb_mc_setup;
+	u8 *cfg_data;
+	int cfg_len;
 };
 
 void mwifiex_process_tx_queue(struct mwifiex_adapter *adapter);
@@ -1375,6 +1382,7 @@ int mwifiex_wait_queue_complete(struct mwifiex_adapter *adapter,
 				struct cmd_ctrl_node *cmd_queued);
 int mwifiex_bss_start(struct mwifiex_private *priv, struct cfg80211_bss *bss,
 		      struct cfg80211_ssid *req_ssid);
+int mwifiex_set_led(struct mwifiex_adapter *adapter, int on);
 int mwifiex_cancel_hs(struct mwifiex_private *priv, int cmd_type);
 int mwifiex_enable_hs(struct mwifiex_adapter *adapter);
 int mwifiex_disable_auto_ds(struct mwifiex_private *priv);
@@ -1568,6 +1576,8 @@ void mwifiex_process_tx_pause_event(struct mwifiex_private *priv,
 void mwifiex_process_multi_chan_event(struct mwifiex_private *priv,
 				      struct sk_buff *event_skb);
 void mwifiex_multi_chan_resync(struct mwifiex_adapter *adapter);
+
+void marvell_set_vendor_commands(struct wiphy *wiphy);
 
 #ifdef CONFIG_DEBUG_FS
 void mwifiex_debugfs_init(void);

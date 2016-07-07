@@ -1371,7 +1371,7 @@ static int mlx5e_set_dev_port_mtu(struct net_device *netdev)
 {
 	struct mlx5e_priv *priv = netdev_priv(netdev);
 	struct mlx5_core_dev *mdev = priv->mdev;
-	int hw_mtu;
+	u16 hw_mtu;
 	int err;
 
 	err = mlx5_set_port_mtu(mdev, MLX5E_SW2HW_MTU(netdev->mtu), 1);
@@ -1890,22 +1890,27 @@ static int mlx5e_set_features(struct net_device *netdev,
 	return err;
 }
 
+#define MXL5_HW_MIN_MTU 64
+#define MXL5E_MIN_MTU (MXL5_HW_MIN_MTU + ETH_FCS_LEN)
+
 static int mlx5e_change_mtu(struct net_device *netdev, int new_mtu)
 {
 	struct mlx5e_priv *priv = netdev_priv(netdev);
 	struct mlx5_core_dev *mdev = priv->mdev;
 	bool was_opened;
-	int max_mtu;
+	u16 max_mtu;
+	u16 min_mtu;
 	int err = 0;
 
 	mlx5_query_port_max_mtu(mdev, &max_mtu, 1);
 
 	max_mtu = MLX5E_HW2SW_MTU(max_mtu);
+	min_mtu = MLX5E_HW2SW_MTU(MXL5E_MIN_MTU);
 
-	if (new_mtu > max_mtu) {
+	if (new_mtu > max_mtu || new_mtu < min_mtu) {
 		netdev_err(netdev,
-			   "%s: Bad MTU (%d) > (%d) Max\n",
-			   __func__, new_mtu, max_mtu);
+			   "%s: Bad MTU (%d), valid range is: [%d..%d]\n",
+			   __func__, new_mtu, min_mtu, max_mtu);
 		return -EINVAL;
 	}
 
@@ -2323,7 +2328,16 @@ static void mlx5e_destroy_netdev(struct mlx5_core_dev *mdev, void *vpriv)
 	schedule_work(&priv->set_rx_mode_work);
 	mlx5e_disable_async_events(priv);
 	flush_scheduled_work();
-	unregister_netdev(netdev);
+	if (test_bit(MLX5_INTERFACE_STATE_SHUTDOWN, &mdev->intf_state)) {
+		netif_device_detach(netdev);
+		mutex_lock(&priv->state_lock);
+		if (test_bit(MLX5E_STATE_OPENED, &priv->state))
+			mlx5e_close_locked(netdev);
+		mutex_unlock(&priv->state_lock);
+	} else {
+		unregister_netdev(netdev);
+	}
+
 	mlx5e_destroy_flow_tables(priv);
 	mlx5e_destroy_tirs(priv);
 	mlx5e_destroy_rqt(priv, MLX5E_SINGLE_RQ_RQT);
@@ -2334,7 +2348,9 @@ static void mlx5e_destroy_netdev(struct mlx5_core_dev *mdev, void *vpriv)
 	mlx5_dealloc_transport_domain(priv->mdev, priv->tdn);
 	mlx5_core_dealloc_pd(priv->mdev, priv->pdn);
 	mlx5_unmap_free_uar(priv->mdev, &priv->cq_uar);
-	free_netdev(netdev);
+
+	if (!test_bit(MLX5_INTERFACE_STATE_SHUTDOWN, &mdev->intf_state))
+		free_netdev(netdev);
 }
 
 static void *mlx5e_get_netdev(void *vpriv)

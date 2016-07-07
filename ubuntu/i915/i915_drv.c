@@ -333,7 +333,6 @@ static const struct intel_device_info intel_skylake_gt3_info = {
 };
 
 static const struct intel_device_info intel_broxton_info = {
-	.is_preliminary = 1,
 	.is_broxton = 1,
 	.gen = 9,
 	.need_gfx_hws = 1, .has_hotplug = 1,
@@ -348,14 +347,12 @@ static const struct intel_device_info intel_broxton_info = {
 
 static const struct intel_device_info intel_kabylake_info = {
 	HSW_FEATURES,
-	.is_preliminary = 1,
 	.is_kabylake = 1,
 	.gen = 9,
 };
 
 static const struct intel_device_info intel_kabylake_gt3_info = {
 	HSW_FEATURES,
-	.is_preliminary = 1,
 	.is_kabylake = 1,
 	.gen = 9,
 	.ring_mask = RENDER_RING | BSD_RING | BLT_RING | VEBOX_RING | BSD2_RING,
@@ -727,9 +724,9 @@ static int i915_drm_resume(struct drm_device *dev)
 		dev_priv->display.hpd_irq_setup(dev);
 	spin_unlock_irq(&dev_priv->irq_lock);
 
-	intel_display_resume(dev);
-
 	intel_dp_mst_resume(dev);
+
+	intel_display_resume(dev);
 
 	/*
 	 * ... but also need to make sure that hotplug processing
@@ -761,7 +758,7 @@ static int i915_drm_resume(struct drm_device *dev)
 static int i915_drm_resume_early(struct drm_device *dev)
 {
 	struct drm_i915_private *dev_priv = dev->dev_private;
-	int ret = 0;
+	int ret;
 
 	/*
 	 * We have a resume ordering issue with the snd-hda driver also
@@ -771,6 +768,36 @@ static int i915_drm_resume_early(struct drm_device *dev)
 	 *
 	 * FIXME: This should be solved with a special hdmi sink device or
 	 * similar so that power domains can be employed.
+	 */
+
+	/*
+	 * Note that we need to set the power state explicitly, since we
+	 * powered off the device during freeze and the PCI core won't power
+	 * it back up for us during thaw. Powering off the device during
+	 * freeze is not a hard requirement though, and during the
+	 * suspend/resume phases the PCI core makes sure we get here with the
+	 * device powered on. So in case we change our freeze logic and keep
+	 * the device powered we can also remove the following set power state
+	 * call.
+	 */
+	ret = pci_set_power_state(dev->pdev, PCI_D0);
+	if (ret) {
+		DRM_ERROR("failed to set PCI D0 power state (%d)\n", ret);
+		goto out;
+	}
+
+	/*
+	 * Note that pci_enable_device() first enables any parent bridge
+	 * device and only then sets the power state for this device. The
+	 * bridge enabling is a nop though, since bridge devices are resumed
+	 * first. The order of enabling power and enabling the device is
+	 * imposed by the PCI core as described above, so here we preserve the
+	 * same order for the freeze/thaw phases.
+	 *
+	 * TODO: eventually we should remove pci_disable_device() /
+	 * pci_enable_enable_device() from suspend/resume. Due to how they
+	 * depend on the device enable refcount we can't anyway depend on them
+	 * disabling/enabling the device.
 	 */
 	if (pci_enable_device(dev->pdev)) {
 		ret = -EIO;

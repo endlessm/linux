@@ -2644,6 +2644,7 @@ SYSCALL_DEFINE5(remap_file_pages, unsigned long, start, unsigned long, size,
 	struct vm_area_struct *vma;
 	unsigned long populate = 0;
 	unsigned long ret = -EINVAL;
+	struct file *file, *prfile;
 
 	pr_warn_once("%s (%d) uses deprecated remap_file_pages() syscall. "
 			"See Documentation/vm/remap_file_pages.txt.\n",
@@ -2712,9 +2713,26 @@ SYSCALL_DEFINE5(remap_file_pages, unsigned long, start, unsigned long, size,
 	}
 
 	vma_get_file(vma);
+	file = vma->vm_file;
+	prfile = vma->vm_prfile;
 	ret = do_mmap_pgoff(vma->vm_file, start, size,
 			prot, flags, pgoff, &populate);
-	vma_fput(vma);
+	if (!IS_ERR_VALUE(ret) && file && prfile) {
+		struct vm_area_struct *new_vma;
+
+		new_vma = find_vma(mm, ret);
+		if (!new_vma->vm_prfile)
+			new_vma->vm_prfile = prfile;
+		if (new_vma != vma)
+			get_file(prfile);
+	}
+	/*
+	 * two fput()s instead of vma_fput(vma),
+	 * coz vma may not be available anymore.
+	 */
+	fput(file);
+	if (prfile)
+		fput(prfile);
 out:
 	up_write(&mm->mmap_sem);
 	if (populate)
