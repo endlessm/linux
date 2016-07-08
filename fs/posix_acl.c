@@ -661,58 +661,68 @@ EXPORT_SYMBOL(posix_acl_update_mode);
 /*
  * Fix up the uids and gids in posix acl extended attributes in place.
  */
-static void posix_acl_fix_xattr_userns(
+int posix_acl_fix_xattr_userns(
 	struct user_namespace *to, struct user_namespace *from,
 	void *value, size_t size)
 {
 	struct posix_acl_xattr_header *header = value;
 	struct posix_acl_xattr_entry *entry = (void *)(header + 1), *end;
 	int count;
-	kuid_t uid;
-	kgid_t gid;
+	kuid_t kuid;
+	kgid_t kgid;
+	uid_t uid;
+	gid_t gid;
+	int ret = 0;
 
+	if (to == from)
+		return 0;
 	if (!value)
-		return;
+		return 0;
 	if (size < sizeof(struct posix_acl_xattr_header))
-		return;
+		return -EINVAL;
 	if (header->a_version != cpu_to_le32(POSIX_ACL_XATTR_VERSION))
-		return;
+		return -EINVAL;
 
 	count = posix_acl_xattr_count(size);
 	if (count < 0)
-		return;
+		return -EINVAL;
 	if (count == 0)
-		return;
+		return 0;
 
 	for (end = entry + count; entry != end; entry++) {
 		switch(le16_to_cpu(entry->e_tag)) {
 		case ACL_USER:
-			uid = make_kuid(from, le32_to_cpu(entry->e_id));
-			entry->e_id = cpu_to_le32(from_kuid(to, uid));
+			kuid = make_kuid(from, le32_to_cpu(entry->e_id));
+			uid = from_kuid(to, kuid);
+			entry->e_id = cpu_to_le32(uid);
+			if (uid == (uid_t)-1)
+				ret = -EOVERFLOW;
 			break;
 		case ACL_GROUP:
-			gid = make_kgid(from, le32_to_cpu(entry->e_id));
-			entry->e_id = cpu_to_le32(from_kgid(to, gid));
+			kgid = make_kgid(from, le32_to_cpu(entry->e_id));
+			gid = from_kgid(to, kgid);
+			entry->e_id = cpu_to_le32(gid);
+			if (gid == (gid_t)-1)
+				ret = -EOVERFLOW;
 			break;
 		default:
 			break;
 		}
 	}
+
+	return ret;
 }
+EXPORT_SYMBOL(posix_acl_fix_xattr_userns);
 
 void posix_acl_fix_xattr_from_user(void *value, size_t size)
 {
 	struct user_namespace *user_ns = current_user_ns();
-	if (user_ns == &init_user_ns)
-		return;
 	posix_acl_fix_xattr_userns(&init_user_ns, user_ns, value, size);
 }
 
 void posix_acl_fix_xattr_to_user(void *value, size_t size)
 {
 	struct user_namespace *user_ns = current_user_ns();
-	if (user_ns == &init_user_ns)
-		return;
 	posix_acl_fix_xattr_userns(user_ns, &init_user_ns, value, size);
 }
 
