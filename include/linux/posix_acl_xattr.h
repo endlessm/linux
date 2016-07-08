@@ -32,9 +32,18 @@ posix_acl_xattr_count(size_t size)
 }
 
 #ifdef CONFIG_FS_POSIX_ACL
+int posix_acl_fix_xattr_userns(struct user_namespace *to,
+			       struct user_namespace *from,
+			       void *value, size_t size);
 void posix_acl_fix_xattr_from_user(void *value, size_t size);
 void posix_acl_fix_xattr_to_user(void *value, size_t size);
 #else
+static inline int posix_acl_fix_xattr_userns(struct user_namespace *to,
+					     struct user_namespace *from,
+					     void *value, size_t size)
+{
+	return 0;
+}
 static inline void posix_acl_fix_xattr_from_user(void *value, size_t size)
 {
 }
