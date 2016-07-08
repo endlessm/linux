@@ -2304,6 +2304,15 @@ static const struct dmi_system_id broken_msi_table[] = {
 			DMI_MATCH(DMI_PRODUCT_NAME, "X541UV"),
 		},
 	},
+	{
+		/* Asus laptop with PCIe AER spam when MSI is enabled. */
+		.ident = "ASUSTeK COMPUTER INC. X555UQ",
+		.matches = {
+			DMI_MATCH(DMI_SYS_VENDOR, "ASUSTeK COMPUTER INC."),
+			DMI_MATCH(DMI_PRODUCT_NAME, "X555UQ"),
+		},
+	},
+
 	{}
 };
 static void quirk_disable_all_msi2(struct pci_dev *dev)
