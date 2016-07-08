@@ -1535,25 +1535,31 @@ static const char *label_modename(struct aa_ns *ns, struct aa_label *label,
 {
 	struct aa_profile *profile;
 	struct label_it i;
-	const char *modestr = NULL;
-	int count = 0;
+	int mode = -1, count = 0;
 
 	label_for_each(i, label, profile) {
 		if (aa_ns_visible(ns, profile->ns, flags & FLAG_VIEW_SUBNS)) {
-			const char *tmp_modestr;
+			if (profile->mode == APPARMOR_UNCONFINED)
+				/* special case unconfined so stacks with
+				 * unconfined don't report as mixed. ie.
+				 * profile_foo//&:ns1://unconfined (mixed)
+				 */
+				continue;
 			count++;
-			tmp_modestr = aa_profile_mode_names[profile->mode];
-			if (!modestr)
-				modestr = tmp_modestr;
-			else if (modestr != tmp_modestr)
+			if (mode == -1)
+				mode = profile->mode;
+			else if (mode != profile->mode)
 				return "mixed";
 		}
 	}
 
 	if (count == 0)
 		return "-";
+	if (mode == -1)
+		/* everything was unconfined */
+		mode = APPARMOR_UNCONFINED;
 
-	return modestr;
+	return aa_profile_mode_names[mode];
 }
 
 /* if any visible label is not unconfined the display_mode returns true */
