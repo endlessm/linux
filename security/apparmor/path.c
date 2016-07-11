@@ -152,6 +152,9 @@ static int d_namespace_path(const struct path *path, char *buf, char **name,
 
 	*name = res;
 
+	if (!connected)
+		error = disconnect(path, buf, name, flags, disconnected);
+
 	/* Handle two cases:
 	 * 1. A deleted dentry && profile is not allowing mediation of deleted
 	 * 2. On some filesystems, newly allocated dentries appear to the
@@ -163,9 +166,6 @@ static int d_namespace_path(const struct path *path, char *buf, char **name,
 			error = -ENOENT;
 			goto out;
 	}
-
-	if (!connected)
-		error = disconnect(path, buf, name, flags, disconnected);
 
 out:
 	/*
