@@ -16,6 +16,18 @@
 #define MBI_MASK_LO		0x000000FF
 #define MBI_ENABLE		0xF0
 
+/* IOSF SB read/write opcodes */
+#define MBI_MMIO_READ		0x00
+#define MBI_MMIO_WRITE		0x01
+#define MBI_CFG_READ		0x04
+#define MBI_CFG_WRITE		0x05
+#define MBI_CR_READ		0x06
+#define MBI_CR_WRITE		0x07
+#define MBI_REG_READ		0x10
+#define MBI_REG_WRITE		0x11
+#define MBI_ESRAM_READ		0x12
+#define MBI_ESRAM_WRITE		0x13
+
 /* Baytrail available units */
 #define BT_MBI_UNIT_AUNIT	0x00
 #define BT_MBI_UNIT_SMC		0x01
