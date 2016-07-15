@@ -206,7 +206,7 @@ static int sdhci_acpi_sdio_probe_slot(struct platform_device *pdev,
 	struct sdhci_acpi_host *c = platform_get_drvdata(pdev);
 	struct sdhci_host *host;
 	struct device *dev = &pdev->dev;
-	struct gpio_desc *sdiowifi_on;
+	struct gpio_desc *sdiowifi_on, *sdiobt_on;
 
 	if (!c || !c->host)
 		return 0;
@@ -215,15 +215,26 @@ static int sdhci_acpi_sdio_probe_slot(struct platform_device *pdev,
 
 	/* Platform specific code during sdio probe slot goes here */
 	sdiowifi_on = gpiod_get(dev, "MF_ISH_GPIO_7", GPIO_ACTIVE_HIGH);
+	sdiobt_on = gpiod_get(dev, "GPIO_DFX_5", GPIO_ACTIVE_HIGH);
 
 	if (!sdiowifi_on) {
-		printk("%s: invalud GPIO\n", __func__);
+		printk("%s: invaldd GPIO for WiFi\n", __func__);
 	}
 	else {
 		gpiod_direction_output(sdiowifi_on, 0);
 		gpiod_set_value_cansleep(sdiowifi_on, 0);
 		mdelay(300);
 		gpiod_set_value_cansleep(sdiowifi_on, 1);
+	}
+
+	if (!sdiobt_on) {
+		printk("%s: invaldd GPIO for BT\n", __func__);
+	}
+	else {
+		gpiod_direction_output(sdiobt_on, 0);
+		gpiod_set_value_cansleep(sdiobt_on, 0);
+		mdelay(300);
+		gpiod_set_value_cansleep(sdiobt_on, 1);
 	}
 
 	return 0;
@@ -519,7 +530,7 @@ static struct gpiod_lookup_table sdio_gpios_table = {
 	.dev_id = "80860F14:01",
 	.table = {
 		GPIO_LOOKUP("INT33FF:02", 13, "MF_ISH_GPIO_7", GPIO_ACTIVE_HIGH),
-		//GPIO_LOOKUP("INT33FF:02", 10, "SDHB_ISR", GPIO_ACTIVE_HIGH),
+		GPIO_LOOKUP("INT33FF:01", 4, "GPIO_DFX_5", GPIO_ACTIVE_HIGH),
 		{},
 	},
 };

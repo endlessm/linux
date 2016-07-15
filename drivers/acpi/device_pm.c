@@ -189,7 +189,7 @@ int acpi_device_set_power(struct acpi_device *device, int state)
 	}
 
 	if (!strcmp("80860F14", acpi_device_hid(device)) && !strcmp("2", device->pnp.unique_id)) {
-		dev_warn(&device->dev, "80860F14 uid 2 do not need to do power transition\n");
+		//dev_info(&device->dev, "80860F14 uid 2 do not need to do power transition\n");
 		goto end;
 	}
 	/*
