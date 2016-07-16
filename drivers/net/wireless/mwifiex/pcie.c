@@ -17,6 +17,7 @@
  * this warranty disclaimer.
  */
 
+#include <linux/dmi.h>
 #include <linux/firmware.h>
 
 #include "decl.h"
@@ -189,6 +190,7 @@ static int mwifiex_pcie_probe(struct pci_dev *pdev,
 					const struct pci_device_id *ent)
 {
 	struct pcie_service_card *card;
+	struct mwifiex_private *priv;
 
 	pr_debug("info: vendor=0x%4.04X device=0x%4.04X rev=%d\n",
 		 pdev->vendor, pdev->device, pdev->revision);
@@ -216,6 +218,10 @@ static int mwifiex_pcie_probe(struct pci_dev *pdev,
 		return -1;
 	}
 
+	priv = mwifiex_get_priv(card->adapter, MWIFIEX_BSS_ROLE_STA);
+	if (dmi_match(DMI_PRODUCT_NAME, "Edge Gateway 5000") ||
+		dmi_match(DMI_PRODUCT_NAME, "Edge Gateway 5100"))
+		priv->is_edge_gateway = true;
 	return 0;
 }
 

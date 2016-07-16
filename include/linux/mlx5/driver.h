@@ -510,8 +510,9 @@ enum mlx5_device_state {
 };
 
 enum mlx5_interface_state {
-	MLX5_INTERFACE_STATE_DOWN,
-	MLX5_INTERFACE_STATE_UP,
+	MLX5_INTERFACE_STATE_DOWN = BIT(0),
+	MLX5_INTERFACE_STATE_UP = BIT(1),
+	MLX5_INTERFACE_STATE_SHUTDOWN = BIT(2),
 };
 
 enum mlx5_pci_status {
@@ -535,7 +536,7 @@ struct mlx5_core_dev {
 	enum mlx5_device_state	state;
 	/* sync interface state */
 	struct mutex		intf_state_mutex;
-	enum mlx5_interface_state interface_state;
+	unsigned long		intf_state;
 	void			(*event) (struct mlx5_core_dev *dev,
 					  enum mlx5_dev_event event,
 					  unsigned long param);
@@ -791,37 +792,6 @@ void mlx5_qp_debugfs_cleanup(struct mlx5_core_dev *dev);
 int mlx5_core_access_reg(struct mlx5_core_dev *dev, void *data_in,
 			 int size_in, void *data_out, int size_out,
 			 u16 reg_num, int arg, int write);
-
-int mlx5_set_port_caps(struct mlx5_core_dev *dev, u8 port_num, u32 caps);
-int mlx5_query_port_ptys(struct mlx5_core_dev *dev, u32 *ptys,
-			 int ptys_size, int proto_mask, u8 local_port);
-int mlx5_query_port_proto_cap(struct mlx5_core_dev *dev,
-			      u32 *proto_cap, int proto_mask);
-int mlx5_query_port_proto_admin(struct mlx5_core_dev *dev,
-				u32 *proto_admin, int proto_mask);
-int mlx5_query_port_link_width_oper(struct mlx5_core_dev *dev,
-				    u8 *link_width_oper, u8 local_port);
-int mlx5_query_port_proto_oper(struct mlx5_core_dev *dev,
-			       u8 *proto_oper, int proto_mask,
-			       u8 local_port);
-int mlx5_set_port_proto(struct mlx5_core_dev *dev, u32 proto_admin,
-			int proto_mask);
-int mlx5_set_port_admin_status(struct mlx5_core_dev *dev,
-			       enum mlx5_port_status status);
-int mlx5_query_port_admin_status(struct mlx5_core_dev *dev,
-				 enum mlx5_port_status *status);
-
-int mlx5_set_port_mtu(struct mlx5_core_dev *dev, int mtu, u8 port);
-void mlx5_query_port_max_mtu(struct mlx5_core_dev *dev, int *max_mtu, u8 port);
-void mlx5_query_port_oper_mtu(struct mlx5_core_dev *dev, int *oper_mtu,
-			      u8 port);
-
-int mlx5_query_port_vl_hw_cap(struct mlx5_core_dev *dev,
-			      u8 *vl_hw_cap, u8 local_port);
-
-int mlx5_set_port_pause(struct mlx5_core_dev *dev, u32 rx_pause, u32 tx_pause);
-int mlx5_query_port_pause(struct mlx5_core_dev *dev,
-			  u32 *rx_pause, u32 *tx_pause);
 
 int mlx5_debug_eq_add(struct mlx5_core_dev *dev, struct mlx5_eq *eq);
 void mlx5_debug_eq_remove(struct mlx5_core_dev *dev, struct mlx5_eq *eq);

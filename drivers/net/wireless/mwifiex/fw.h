@@ -185,6 +185,7 @@ enum MWIFIEX_802_11_PRIVACY_FILTER {
 #define TLV_TYPE_CHANNEL_STATS      (PROPRIETARY_TLV_BASE_ID + 198)
 #define TLV_BTCOEX_WL_AGGR_WINSIZE  (PROPRIETARY_TLV_BASE_ID + 202)
 #define TLV_BTCOEX_WL_SCANTIME      (PROPRIETARY_TLV_BASE_ID + 203)
+#define TLV_TYPE_LED_CONTROL        (PROPRIETARY_TLV_BASE_ID + 205)
 #define TLV_TYPE_BSS_MODE           (PROPRIETARY_TLV_BASE_ID + 206)
 
 #define MWIFIEX_TX_DATA_BUF_SIZE_2K        2048
@@ -329,6 +330,7 @@ enum MWIFIEX_802_11_PRIVACY_FILTER {
 #define HostCmd_CMD_802_11_AD_HOC_JOIN                0x002c
 #define HostCmd_CMD_802_11_AD_HOC_STOP                0x0040
 #define HostCmd_CMD_802_11_MAC_ADDRESS                0x004D
+#define HostCmd_CMD_802_11_LED_CONTROL			0X004E
 #define HostCmd_CMD_802_11D_DOMAIN_INFO               0x005b
 #define HostCmd_CMD_802_11_KEY_MATERIAL               0x005e
 #define HostCmd_CMD_802_11_BG_SCAN_QUERY              0x006c
@@ -1080,6 +1082,16 @@ struct ieee_types_oper_mode_ntf {
 	u8 oper_mode;
 } __packed;
 
+struct mwifiex_led_param {
+	__le16 mode;
+	__le16 on;
+} __packed;
+
+struct mwifiex_ie_types_led_param {
+	struct mwifiex_ie_types_header header;
+	struct mwifiex_led_param led_cfg;
+} __packed;
+
 struct host_cmd_ds_802_11_ad_hoc_start {
 	u8 ssid[IEEE80211_MAX_SSID_LEN];
 	u8 bss_mode;
@@ -1092,9 +1104,15 @@ struct host_cmd_ds_802_11_ad_hoc_start {
 	u8 data_rate[HOSTCMD_SUPPORTED_RATES];
 } __packed;
 
-struct host_cmd_ds_802_11_ad_hoc_result {
+struct host_cmd_ds_802_11_ad_hoc_start_result {
 	u8 pad[3];
 	u8 bssid[ETH_ALEN];
+	u8 pad2[2];
+	u8 result;
+} __packed;
+
+struct host_cmd_ds_802_11_ad_hoc_join_result {
+	u8 result;
 } __packed;
 
 struct adhoc_bss_desc {
@@ -1197,6 +1215,11 @@ struct host_cmd_ds_802_11_hs_cfg_enh {
 	} params;
 } __packed;
 
+struct host_cmd_ds_802_11_led_control {
+	__le16 action;
+	__le16 num_led;
+} __packed;
+
 enum SNMP_MIB_INDEX {
 	OP_RATE_SET_I = 1,
 	DTIM_PERIOD_I = 3,
@@ -1206,6 +1229,7 @@ enum SNMP_MIB_INDEX {
 	FRAG_THRESH_I = 8,
 	DOT11D_I = 9,
 	DOT11H_I = 10,
+	TURBO_MODE_I = 39,
 };
 
 enum mwifiex_assocmd_failurepoint {
@@ -2124,7 +2148,8 @@ struct host_cmd_ds_command {
 		struct host_cmd_ds_802_11_associate_rsp associate_rsp;
 		struct host_cmd_ds_802_11_deauthenticate deauth;
 		struct host_cmd_ds_802_11_ad_hoc_start adhoc_start;
-		struct host_cmd_ds_802_11_ad_hoc_result adhoc_result;
+		struct host_cmd_ds_802_11_ad_hoc_start_result start_result;
+		struct host_cmd_ds_802_11_ad_hoc_join_result join_result;
 		struct host_cmd_ds_802_11_ad_hoc_join adhoc_join;
 		struct host_cmd_ds_802_11d_domain_info domain_info;
 		struct host_cmd_ds_802_11d_domain_info_rsp domain_info_resp;
@@ -2163,6 +2188,7 @@ struct host_cmd_ds_command {
 		struct host_cmd_sdio_sp_rx_aggr_cfg sdio_rx_aggr_cfg;
 		struct host_cmd_ds_multi_chan_policy mc_policy;
 		struct host_cmd_ds_robust_coex coex;
+		struct host_cmd_ds_802_11_led_control led_cfg;
 	} params;
 } __packed;
 

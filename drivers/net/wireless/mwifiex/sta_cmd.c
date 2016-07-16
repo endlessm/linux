@@ -393,6 +393,31 @@ mwifiex_cmd_802_11_hs_cfg(struct mwifiex_private *priv,
 	return 0;
 }
 
+static int mwifiex_cmd_802_11_led_cfg(struct mwifiex_private *priv,
+					struct host_cmd_ds_command *cmd,
+					u16 cmd_action,
+					struct mwifiex_led_param *ledcfg_param)
+{
+	struct host_cmd_ds_802_11_led_control *led_cfg = &cmd->params.led_cfg;
+	struct mwifiex_ie_types_led_param *led_tlv;
+	u8 *pos;
+
+	cmd->command = cpu_to_le16(HostCmd_CMD_802_11_LED_CONTROL);
+	cmd->size = cpu_to_le16(S_DS_GEN);
+	le16_add_cpu(&cmd->size, sizeof(struct host_cmd_ds_802_11_led_control));
+
+	led_cfg->action = cpu_to_le16(cmd_action);
+	led_cfg->num_led = cpu_to_le16(MWIFIEX_LED_MAX);
+
+	pos = (u8 *)led_cfg + sizeof(struct host_cmd_ds_802_11_led_control);
+	led_tlv = (void *)pos;
+	led_tlv->header.type = cpu_to_le16(TLV_TYPE_LED_CONTROL);
+	led_tlv->header.len = cpu_to_le16(sizeof(struct mwifiex_led_param));
+	memcpy(&led_tlv->led_cfg, ledcfg_param, sizeof(struct mwifiex_led_param));
+	le16_add_cpu(&cmd->size, sizeof(struct mwifiex_ie_types_led_param));
+	return 0;
+}
+
 /*
  * This function prepares command to set/get MAC address.
  *
@@ -1487,9 +1512,10 @@ static int mwifiex_cmd_cfg_data(struct mwifiex_private *priv,
 {
 	struct mwifiex_adapter *adapter = priv->adapter;
 	struct property *prop = data_buf;
-	u32 len;
+	u32 len = 0;
 	u8 *data = (u8 *)cmd + S_DS_GEN;
 	int ret;
+	const struct firmware *cal_data = adapter->cal_data;
 
 	if (prop) {
 		len = prop->length;
@@ -1500,11 +1526,19 @@ static int mwifiex_cmd_cfg_data(struct mwifiex_private *priv,
 		mwifiex_dbg(adapter, INFO,
 			    "download cfg_data from device tree: %s\n",
 			    prop->name);
-	} else if (adapter->cal_data->data && adapter->cal_data->size > 0) {
-		len = mwifiex_parse_cal_cfg((u8 *)adapter->cal_data->data,
-					    adapter->cal_data->size, data);
-		mwifiex_dbg(adapter, INFO,
-			    "download cfg_data from config file\n");
+	} else if (cal_data) {
+		if (cal_data->data && cal_data->size > 0) {
+			len = mwifiex_parse_cal_cfg((u8 *)cal_data->data,
+						    cal_data->size, data);
+			mwifiex_dbg(adapter, INFO,
+				    "download cfg_data from config file\n");
+		} else {
+			return -1;
+		}
+	} else if (adapter->cfg_data && adapter->cfg_len > 0) {
+		len = mwifiex_parse_cal_cfg(adapter->cfg_data,
+					    adapter->cfg_len, data);
+		mwifiex_dbg(adapter, INFO, "download cfg_data from iw vendor command\n");
 	} else {
 		return -1;
 	}
@@ -1869,6 +1903,10 @@ int mwifiex_sta_prepare_cmd(struct mwifiex_private *priv, uint16_t cmd_no,
 	case HostCmd_CMD_802_11_HS_CFG_ENH:
 		ret = mwifiex_cmd_802_11_hs_cfg(priv, cmd_ptr, cmd_action,
 				(struct mwifiex_hs_config_param *) data_buf);
+		break;
+	case HostCmd_CMD_802_11_LED_CONTROL:
+		ret = mwifiex_cmd_802_11_led_cfg(priv, cmd_ptr, cmd_action,
+						data_buf);
 		break;
 	case HostCmd_CMD_802_11_SCAN:
 		ret = mwifiex_cmd_802_11_scan(cmd_ptr, data_buf);
