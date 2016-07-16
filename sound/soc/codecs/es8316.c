@@ -20,6 +20,7 @@
 #include <linux/platform_device.h>
 #include <linux/slab.h>
 #include <linux/of_gpio.h>
+#include <linux/acpi.h>
 #include <sound/core.h>
 #include <sound/pcm.h>
 #include <sound/pcm_params.h>
@@ -1397,8 +1398,6 @@ static int es8316_i2c_probe(struct i2c_client *i2c_client,
 		return ret;
 	}
 
-
-
 	return ret;
 }
 
@@ -1408,6 +1407,14 @@ static  int es8316_i2c_remove(struct i2c_client *client)
 	kfree(i2c_get_clientdata(client));
 	return 0;
 }
+
+#ifdef CONFIG_ACPI
+static struct acpi_device_id es8316_acpi_match[] = {
+        { "ESSX8316", 0 },
+        {},
+};
+MODULE_DEVICE_TABLE(acpi, rt5645_acpi_match);
+#endif
 
 static const unsigned short normal_i2c[] = {0x10, I2C_CLIENT_END};
 static const struct i2c_device_id es8316_i2c_id[] = {
@@ -1421,7 +1428,7 @@ MODULE_DEVICE_TABLE(i2c, es8316_i2c_id);
 static struct i2c_driver es8316_i2c_driver = {
 	.driver = {
 		.name = "es8316",
-		.owner = THIS_MODULE,
+		.acpi_match_table = ACPI_PTR(es8316_acpi_match),
 	},
 	.shutdown = es8316_i2c_shutdown,
 	.probe = es8316_i2c_probe,
@@ -1430,32 +1437,9 @@ static struct i2c_driver es8316_i2c_driver = {
 	.class = I2C_CLASS_HWMON,
 	.address_list = normal_i2c,
 };
-#endif
 
-static int __init es8316_init(void)
-{
-	DBG("--%s--start--\n", __func__);
-#if defined(CONFIG_I2C) || defined(CONFIG_I2C_MODULE)
-	return i2c_add_driver(&es8316_i2c_driver);
+module_i2c_driver(es8316_i2c_driver);
 #endif
-#if defined(CONFIG_SPI_MASTER)
-	return spi_register_driver(&es8316_spi_driver);
-#endif
-}
-
-static void __exit es8316_exit(void)
-{
-#if defined(CONFIG_I2C) || defined(CONFIG_I2C_MODULE)
-	return i2c_del_driver(&es8316_i2c_driver);
-#endif
-#if defined(CONFIG_SPI_MASTER)
-	return spi_unregister_driver(&es8316_spi_driver);
-#endif
-}
-
-
-module_init(es8316_init);
-module_exit(es8316_exit);
 
 MODULE_DESCRIPTION("ASoC es8316 driver");
 MODULE_AUTHOR("Will <will@everset-semi.com>");

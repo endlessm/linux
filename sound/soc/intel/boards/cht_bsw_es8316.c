@@ -105,12 +105,22 @@ static int cht_aif1_hw_params(struct snd_pcm_substream *substream,
 
 static int cht_codec_init(struct snd_soc_pcm_runtime *runtime)
 {
-	int ret = 0;
-	int jack_type;
+	int ret;
+        int jack_type;
+        struct cht_mc_private *ctx = snd_soc_card_get_drvdata(runtime->card);
+        struct snd_soc_jack *jack = &ctx->jack;
 
-	dev_err(runtime->dev, "Need Headset jack creation ?\n", ret);
+        jack_type = SND_JACK_HEADPHONE | SND_JACK_MICROPHONE;
 
-	return ret;
+        ret = snd_soc_card_jack_new(runtime->card, "Headset Jack",
+                                        jack_type, jack, NULL, 0);
+
+        if (ret) {
+                dev_err(runtime->dev, "Headset Jack creation failed %d\n", ret);
+                return ret;
+        }
+
+        return ret;
 }
 
 static int cht_codec_fixup(struct snd_soc_pcm_runtime *rtd,
@@ -239,7 +249,7 @@ static int snd_cht_mc_probe(struct platform_device *pdev)
 		}
 	}
 	card->dev = &pdev->dev;
-	sprintf(codec_name, "i2c-%s:00", drv->acpi_card->codec_id);
+	sprintf(codec_name, "i2c-%s:01", drv->acpi_card->codec_id);
 	/* set correct codec name */
 	card->dai_link[2].codec_name = kstrdup(codec_name, GFP_KERNEL);
 	snd_soc_card_set_drvdata(card, drv);
