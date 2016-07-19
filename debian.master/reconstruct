@@ -1,6 +1,4 @@
 # Recreate any symlinks created since the orig.
-[ ! -L 'spl/rpm/redhat/spl-dkms.spec.in' ] && ln -sf '../generic/spl-dkms.spec.in' 'spl/rpm/redhat/spl-dkms.spec.in'
-[ ! -L 'spl/rpm/redhat/spl.spec.in' ] && ln -sf '../generic/spl.spec.in' 'spl/rpm/redhat/spl.spec.in'
 [ ! -L 'ubuntu/vbox/vboxguest/include' ] && ln -sf '../include' 'ubuntu/vbox/vboxguest/include'
 [ ! -L 'ubuntu/vbox/vboxguest/r0drv' ] && ln -sf '../r0drv' 'ubuntu/vbox/vboxguest/r0drv'
 [ ! -L 'ubuntu/vbox/vboxsf/include' ] && ln -sf '../include' 'ubuntu/vbox/vboxsf/include'
