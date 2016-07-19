@@ -12,17 +12,22 @@ import textwrap
 sys.stdin = codecs.getreader("utf-8")(sys.stdin.detach())
 sys.stdout = codecs.getwriter("utf-8")(sys.stdout.detach())
 
+entries = []
+def add_entry(entry):
+    if entry and 'ignore' not in entry:
+        if 'bugs' not in entry and 'cves' in entry:
+            for cve in entry['cves']:
+                if cve not in bugs:
+                    bugs.append(cve)
+        entries.append(entry)
+
 # Suck up the git log output and extract the information we need.
 bugs = []
-entries = []
 entry = None
 subject_wait = False
 for line in sys.stdin:
     if line.startswith('commit '):
-        if entry and 'ignore' not in entry:
-            if 'bugs' not in entry and 'cves' in entry:
-                bugs += entry['cves']
-            entries.append(entry)
+        add_entry(entry)
         entry = {}
         subject_wait = True
 
@@ -49,11 +54,7 @@ for line in sys.stdin:
     elif line.startswith('    Ignore:'):
         entry['ignore'] = True
 
-
-if entry and 'ignore' not in entry:
-    if 'bugs' not in entry and 'cves' in entry:
-        bugs += entry['cves']
-    entries.append(entry)
+add_entry(entry)
 
 entries.reverse()
 
