@@ -20,6 +20,8 @@ subject_wait = False
 for line in sys.stdin:
     if line.startswith('commit '):
         if entry and 'ignore' not in entry:
+            if 'bugs' not in entry and 'cves' in entry:
+                bugs += entry['cves']
             entries.append(entry)
         entry = {}
         subject_wait = True
@@ -41,11 +43,16 @@ for line in sys.stdin:
         if bits[-1] not in bugs:
             bugs.append(bits[-1])
 
+    elif line.startswith('    CVE-'):
+        entry.setdefault('cves', []).append(line.strip())
+
     elif line.startswith('    Ignore:'):
         entry['ignore'] = True
 
 
 if entry and 'ignore' not in entry:
+    if 'bugs' not in entry and 'cves' in entry:
+        bugs += entry['cves']
     entries.append(entry)
 
 entries.reverse()
@@ -67,6 +74,8 @@ for bug in bugs:
         title = 'Miscellaneous Ubuntu changes'
     elif bug == '__mainline__':
         title = 'Miscellaneous upstream changes'
+    elif bug.startswith('CVE-'):
+        title = bug
     else:
         bug_info = None
 
@@ -91,9 +100,10 @@ for bug in bugs:
 
     emit_title = True
     for entry in entries:
-        if (bug == '__packaging__' and 'bugs' not in entry and 'author' in entry) or \
-           (bug == '__mainline__' and 'bugs' not in entry and 'author' not in entry) or \
-           ('bugs' in entry and bug in entry['bugs']):
+        if (bug == '__packaging__' and 'bugs' not in entry and 'cves' not in entry and 'author' in entry) or \
+           (bug == '__mainline__' and 'bugs' not in entry and 'cves' not in entry and 'author' not in entry) or \
+           ('bugs' in entry and bug in entry['bugs']) or \
+           ('cves' in entry and bug in entry['cves']):
             if emit_title:
                 if emit_nl:
                     print('')
