@@ -46,6 +46,7 @@
 #include <linux/notifier.h>
 #include <linux/cpu.h>
 #include <linux/moduleparam.h>
+#include <linux/dmi.h>
 #include <asm/cpu_device_id.h>
 #include <asm/intel-family.h>
 #include <asm/mwait.h>
@@ -1588,6 +1589,16 @@ static void __init intel_idle_cpuidle_devices_uninit(void)
 		cpuidle_unregister_device(per_cpu_ptr(intel_idle_cpuidle_devices, i));
 }
 
+static const struct dmi_system_id idle_cstate[] __initconst = {
+	{
+		.matches = {
+			DMI_MATCH(DMI_SYS_VENDOR, "ASUSTeK COMPUTER INC."),
+			DMI_MATCH(DMI_PRODUCT_NAME, "Z550MA"),
+		},
+	},
+	{}
+};
+
 static int __init intel_idle_init(void)
 {
 	const struct x86_cpu_id *id;
@@ -1601,6 +1612,11 @@ static int __init intel_idle_init(void)
 	if (max_cstate == 0) {
 		pr_debug("disabled\n");
 		return -EPERM;
+	}
+
+	if (dmi_check_system(idle_cstate)) {
+		pr_debug("forcing intel_idle.max_cstate = 1\n");
+		max_cstate = 1;
 	}
 
 	id = x86_match_cpu(intel_idle_ids);
