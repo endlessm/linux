@@ -388,6 +388,7 @@ firmware:       i6050-fw-usb-1.5.sbcf
 firmware:       i915/bxt_dmc_ver1.bin
 firmware:       i915/skl_dmc_ver1.bin
 firmware:       i915/skl_guc_ver4.bin
+firmware:       i915/skl_guc_ver6.bin
 firmware:       icom_asc.bin
 firmware:       icom_call_setup.bin
 firmware:       icom_res_dce.bin

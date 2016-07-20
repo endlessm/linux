@@ -1499,6 +1499,7 @@ hid-xinmo
 hid-zpff
 hid-zydacron
 hih6130
+hio
 hisax
 hisax_fcpcipnp
 hisax_isac
@@ -1613,7 +1614,6 @@ i7300_edac
 i7300_idle
 i740fb
 i7core_edac
-i810
 i82092
 i82975x_edac
 i915
