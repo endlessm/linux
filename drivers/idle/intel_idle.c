@@ -936,6 +936,16 @@ static const struct dmi_system_id idle_blacklist[] __initconst = {
 	{}
 };
 
+static const struct dmi_system_id idle_disable_c6[] __initconst = {
+	{
+		.matches = {
+			DMI_MATCH(DMI_SYS_VENDOR, "ASUSTeK COMPUTER INC."),
+			DMI_MATCH(DMI_PRODUCT_NAME, "Z550MA"),
+		},
+	},
+	{}
+};
+
 /*
  * intel_idle_probe()
  */
@@ -977,6 +987,14 @@ static int __init intel_idle_probe(void)
 
 	icpu = (const struct idle_cpu *)id->driver_data;
 	cpuidle_state_table = icpu->state_table;
+
+	if (dmi_check_system(idle_disable_c6)) {
+		int cstate;
+
+		for (cstate = 0; cstate < CPUIDLE_STATE_MAX; ++cstate)
+			if (!strncmp(cpuidle_state_table[cstate].name, "C6", 2))
+				cpuidle_state_table[cstate].disabled = 1;
+	}
 
 	if (boot_cpu_has(X86_FEATURE_ARAT))	/* Always Reliable APIC Timer */
 		lapic_timer_reliable_states = LAPIC_TIMER_ALWAYS_RELIABLE;
