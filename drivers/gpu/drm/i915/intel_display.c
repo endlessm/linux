@@ -14084,6 +14084,20 @@ static bool intel_crt_present(struct drm_device *dev)
 	return true;
 }
 
+/*
+ * Workaround for VGA not detected issue on ASUS X441SA
+ */
+static const struct dmi_system_id dp_force_init[] = {
+	{
+		.matches = {
+			DMI_MATCH(DMI_SYS_VENDOR, "ASUSTeK COMPUTER INC."),
+			DMI_MATCH(DMI_PRODUCT_NAME, "X441SA"),
+		},
+	},
+	{}
+};
+ 
+
 static void intel_setup_outputs(struct drm_device *dev)
 {
 	struct drm_i915_private *dev_priv = dev->dev_private;
@@ -14177,7 +14191,8 @@ static void intel_setup_outputs(struct drm_device *dev)
 		    !intel_dp_is_edp(dev, PORT_B))
 			intel_hdmi_init(dev, VLV_HDMIB, PORT_B);
 		if (I915_READ(VLV_DP_B) & DP_DETECTED ||
-		    intel_dp_is_edp(dev, PORT_B))
+		    intel_dp_is_edp(dev, PORT_B) ||
+		    dmi_check_system(dp_force_init))
 			intel_dp_init(dev, VLV_DP_B, PORT_B);
 
 		if (I915_READ(VLV_HDMIC) & SDVO_DETECTED &&
