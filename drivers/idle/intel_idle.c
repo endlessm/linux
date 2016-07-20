@@ -936,6 +936,16 @@ static const struct dmi_system_id idle_blacklist[] __initconst = {
 	{}
 };
 
+static const struct dmi_system_id idle_cstate[] __initconst = {
+	{
+		.matches = {
+			DMI_MATCH(DMI_SYS_VENDOR, "ASUSTeK COMPUTER INC."),
+			DMI_MATCH(DMI_PRODUCT_NAME, "Z550MA"),
+		},
+	},
+	{}
+};
+
 /*
  * intel_idle_probe()
  */
@@ -952,6 +962,11 @@ static int __init intel_idle_probe(void)
 	if (dmi_check_system(idle_blacklist)) {
 		pr_debug(PREFIX "disabled on this hardware model\n");
 		return -ENODEV;
+	}
+
+	if (dmi_check_system(idle_cstate)) {
+		pr_debug(PREFIX "forcing intel_idle.max_cstate = 1\n");
+		max_cstate = 1;
 	}
 
 	id = x86_match_cpu(intel_idle_ids);
