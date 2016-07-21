@@ -259,9 +259,13 @@ static void destroy_ns(struct aa_ns *ns)
 	/* release all sub namespaces */
 	__ns_list_release(&ns->sub_ns);
 
-	if (ns->parent)
+	if (ns->parent) {
+		unsigned long flags;
+		write_lock_irqsave(&ns->labels.lock, flags);
 		__aa_proxy_redirect(ns_unconfined(ns),
 				    ns_unconfined(ns->parent));
+		write_unlock_irqrestore(&ns->labels.lock, flags);
+	}
 	__aa_fs_ns_rmdir(ns);
 	mutex_unlock(&ns->lock);
 }
