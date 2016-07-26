@@ -287,4 +287,5 @@
 #define X86_BUG_CLFLUSH_MONITOR	X86_BUG(7) /* AAI65, CLFLUSH required before MONITOR */
 #define X86_BUG_SYSRET_SS_ATTRS	X86_BUG(8) /* SYSRET doesn't fix up SS attrs */
 
+#define X86_BUG_MONITOR		X86_BUG(12) /* IPI required to wake up remote CPU */
 #endif /* _ASM_X86_CPUFEATURES_H */
