@@ -46,7 +46,7 @@ struct loop_device {
 	int		(*ioctl)(struct loop_device *, int cmd, 
 				 unsigned long arg); 
 
-	struct file *	lo_backing_file;
+	struct file *	lo_backing_file, *lo_backing_virt_file;
 	struct block_device *lo_device;
 	unsigned	lo_blocksize;
 	void		*key_data; 
