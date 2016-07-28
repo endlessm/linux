@@ -8,16 +8,9 @@ parts:
   kernel:
     plugin: kernel
     source: .
-    source-branch: master
     source-type: git
     kdefconfig: ['--makefile=debian/snapcraft.mk', 'branch=master','flavour=generic', 'config']
     kconfigs:
       - CONFIG_LOCALVERSION="-xenial_generic"
       - CONFIG_DEBUG_INFO=n
-    kernel-initrd-modules:
-      - squashfs
-    kernel-initrd-firmware:
-      - lib/firmware/e100/d101m_ucode.bin
-      - lib/firmware/e100/d101s_ucode.bin
-      - lib/firmware/e100/d102e_ucode.bin
     kernel-image-target: bzImage
