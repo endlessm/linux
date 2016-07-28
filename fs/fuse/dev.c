@@ -186,8 +186,7 @@ static struct fuse_req *__fuse_get_req(struct fuse_conn *fc, unsigned npages,
 	__set_bit(FR_WAITING, &req->flags);
 	if (for_background)
 		__set_bit(FR_BACKGROUND, &req->flags);
-	if (req->in.h.pid == 0 || req->in.h.uid == (uid_t)-1 ||
-	    req->in.h.gid == (gid_t)-1) {
+	if (req->in.h.uid == (uid_t)-1 || req->in.h.gid == (gid_t)-1) {
 		fuse_put_request(fc, req);
 		return ERR_PTR(-EOVERFLOW);
 	}
