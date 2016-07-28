@@ -102,6 +102,19 @@ const char *const aa_profile_mode_names[] = {
 	"unconfined",
 };
 
+/**
+ * aa_free_data - free a data blob
+ * @ptr: data to free
+ * @arg: unused
+ */
+static void aa_free_data(void *ptr, void *arg)
+{
+	struct aa_data *data = ptr;
+
+	kzfree(data->data);
+	kzfree(data->key);
+	kzfree(data);
+}
 
 /**
  * __add_profile - add a profiles to list and label tree
@@ -199,6 +212,8 @@ void __aa_profile_list_release(struct list_head *head)
  */
 void aa_free_profile(struct aa_profile *profile)
 {
+	struct rhashtable *rht;
+
 	AA_DEBUG("%s(%p)\n", __func__, profile);
 
 	if (!profile)
@@ -219,6 +234,13 @@ void aa_free_profile(struct aa_profile *profile)
 	kzfree(profile->dirname);
 	aa_put_dfa(profile->xmatch);
 	aa_put_dfa(profile->policy.dfa);
+
+	if (profile->data) {
+		rht = profile->data;
+		profile->data = NULL;
+		rhashtable_free_and_destroy(rht, aa_free_data, NULL);
+		kzfree(rht);
+	}
 
 	kzfree(profile->hash);
 	kzfree(profile);
