@@ -235,6 +235,98 @@ static void profile_query_cb(struct aa_profile *profile, struct aa_perms *perms,
 }
 
 /**
+ * query_data - queries a policy and writes its data to buf
+ * @buf: the resulting data is stored here (NOT NULL)
+ * @buf_len: size of buf
+ * @query: query string used to retrieve data
+ * @query_len: size of query including second NUL byte
+ *
+ * The buffers pointed to by buf and query may overlap. The query buffer is
+ * parsed before buf is written to.
+ *
+ * The query should look like "<LABEL>\0<KEY>\0", where <LABEL> is the name of
+ * the security confinement context and <KEY> is the name of the data to
+ * retrieve. <LABEL> and <KEY> must not be NUL-terminated.
+ *
+ * Don't expect the contents of buf to be preserved on failure.
+ *
+ * Returns: number of characters written to buf or -errno on failure
+ */
+static ssize_t query_data(char *buf, size_t buf_len,
+			  char *query, size_t query_len)
+{
+	char *out;
+	const char *key;
+	struct label_it i;
+	struct aa_label *label, *curr;
+	struct aa_profile *profile;
+	struct aa_data *data;
+	u32 bytes;
+	u32 blocks;
+	u32 size;
+
+	if (!query_len)
+		return -EINVAL; /* need a query */
+
+	key = query + strnlen(query, query_len) + 1;
+	if (key + 1 >= query + query_len)
+		return -EINVAL; /* not enough space for a non-empty key */
+	if (key + strnlen(key, query + query_len - key) >= query + query_len)
+		return -EINVAL; /* must end with NUL */
+
+	if (buf_len < sizeof(bytes) + sizeof(blocks))
+		return -EINVAL; /* not enough space */
+
+	curr = aa_begin_current_label(DO_UPDATE);
+	label = aa_label_parse(curr, query, GFP_KERNEL, false, false);
+	aa_end_current_label(curr);
+	if (IS_ERR(label))
+		return PTR_ERR(label);
+
+	/* We are going to leave space for two numbers. The first is the total
+	 * number of bytes we are writing after the first number. This is so
+	 * users can read the full output without reallocation.
+	 *
+	 * The second number is the number of data blocks we're writing. An
+	 * application might be confined by multiple policies having data in
+	 * the same key.
+	 */
+	memset(buf, 0, sizeof(bytes) + sizeof(blocks));
+	out = buf + sizeof(bytes) + sizeof(blocks);
+
+	blocks = 0;
+	label_for_each_confined(i, label, profile) {
+		if (!profile->data)
+			continue;
+
+		data = rhashtable_lookup_fast(profile->data, &key,
+					      profile->data->p);
+
+		if (data) {
+			if (out + sizeof(size) + data->size > buf + buf_len) {
+				aa_put_label(label);
+				return -EINVAL; /* not enough space */
+			}
+			size = __cpu_to_le32(data->size);
+			memcpy(out, &size, sizeof(size));
+			out += sizeof(size);
+			memcpy(out, data->data, data->size);
+			out += data->size;
+			blocks++;
+		}
+	}
+	aa_put_label(label);
+
+	bytes = out - buf - sizeof(bytes);
+	bytes = __cpu_to_le32(bytes);
+	blocks = __cpu_to_le32(blocks);
+	memcpy(buf, &bytes, sizeof(bytes));
+	memcpy(buf + sizeof(bytes), &blocks, sizeof(blocks));
+
+	return out - buf;
+}
+
+/**
  * query_label - queries a label and writes permissions to buf
  * @buf: the resulting permissions string is stored here (NOT NULL)
  * @buf_len: size of buf
@@ -309,18 +401,27 @@ static ssize_t query_label(char *buf, size_t buf_len,
 #define QUERY_CMD_PROFILE_LEN	8
 #define QUERY_CMD_LABELALL	"labelall\0"
 #define QUERY_CMD_LABELALL_LEN	9
+#define QUERY_CMD_DATA		"data\0"
+#define QUERY_CMD_DATA_LEN	5
 
 /**
- * aa_write_access - generic permissions query
+ * aa_write_access - generic permissions and data query
  * @file: pointer to open apparmorfs/access file
  * @ubuf: user buffer containing the complete query string (NOT NULL)
  * @count: size of ubuf
  * @ppos: position in the file (MUST BE ZERO)
  *
- * Allows for one permission query per open(), write(), and read() sequence.
- * The only query currently supported is a label-based query. For this query
- * ubuf must begin with "label\0", followed by the profile query specific
- * format described in the query_label() function documentation.
+ * Allows for one permissions or data query per open(), write(), and read()
+ * sequence. The only queries currently supported are label-based queries for
+ * permissions or data.
+ *
+ * For permissions queries, ubuf must begin with "label\0", followed by the
+ * profile query specific format described in the query_label() function
+ * documentation.
+ *
+ * For data queries, ubuf must have the form "data\0<LABEL>\0<KEY>\0", where
+ * <LABEL> is the name of the security confinement context and <KEY> is the
+ * name of the data to retrieve.
  *
  * Returns: number of bytes written or -errno on failure
  */
@@ -352,6 +453,11 @@ static ssize_t aa_write_access(struct file *file, const char __user *ubuf,
 		len = query_label(buf, SIMPLE_TRANSACTION_LIMIT,
 				  buf + QUERY_CMD_LABELALL_LEN,
 				  count - QUERY_CMD_LABELALL_LEN, false);
+	} else if (count > QUERY_CMD_DATA_LEN &&
+		   !memcmp(buf, QUERY_CMD_DATA, QUERY_CMD_DATA_LEN)) {
+		len = query_data(buf, SIMPLE_TRANSACTION_LIMIT,
+				 buf + QUERY_CMD_DATA_LEN,
+				 count - QUERY_CMD_DATA_LEN);
 	} else
 		len = -EINVAL;
 
