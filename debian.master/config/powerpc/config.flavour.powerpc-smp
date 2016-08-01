@@ -702,7 +702,6 @@ CONFIG_PHYLIB=m
 # CONFIG_PHY_PXA_28NM_HSIC is not set
 # CONFIG_PHY_PXA_28NM_USB2 is not set
 # CONFIG_PKCS7_TEST_KEY is not set
-# CONFIG_PLIP is not set
 # CONFIG_PMBUS is not set
 # CONFIG_PMIC_ADP5520 is not set
 # CONFIG_PMIC_DA903X is not set
