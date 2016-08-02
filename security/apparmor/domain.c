@@ -488,27 +488,41 @@ static struct aa_label *x_to_label(struct aa_profile *profile,
 }
 
 static struct aa_label *profile_transition(struct aa_profile *profile,
-					   const char *name,
-					   struct path_cond *cond,
+					   const struct linux_binprm *bprm,
+					   char *buffer, struct path_cond *cond,
 					   bool *secure_exec)
 {
 	struct aa_label *new = NULL;
-	const char *info = NULL;
+	const char *info = NULL, *name = NULL, *target = NULL;
 	unsigned int state = profile->file.start;
 	struct aa_perms perms = {};
-	const char *target = NULL;
 	int error = 0;
+
+	AA_BUG(!profile);
+	AA_BUG(!bprm);
+	AA_BUG(!buffer);
+
+	error = aa_path_name(&bprm->file->f_path, profile->path_flags, buffer,
+			     &name, &info, profile->disconnected);
+	if (error) {
+		if (profile_unconfined(profile) ||
+		    (profile->label.flags & FLAG_IX_ON_NAME_ERROR)) {
+			AA_DEBUG("name lookup ix on error");
+			error = 0;
+			new = aa_get_newest_label(&profile->label);
+		}
+		name = bprm->filename;
+		goto audit;
+	}
 
 	if (profile_unconfined(profile)) {
 		new = find_attach(profile->ns, &profile->ns->base.profiles,
 				  name);
 		if (new) {
 			AA_DEBUG("unconfined attached to new label");
-
 			return new;
 		}
 		AA_DEBUG("unconfined exec no attachment");
-
 		return aa_get_newest_label(&profile->label);
 	}
 
@@ -565,13 +579,19 @@ audit:
 }
 
 static int profile_onexec(struct aa_profile *profile, struct aa_label *onexec,
-			  bool stack, const char *xname, struct path_cond *cond,
+			  bool stack, const struct linux_binprm *bprm,
+			  char *buffer, struct path_cond *cond,
 			  bool *secure_exec)
 {
 	unsigned int state = profile->file.start;
 	struct aa_perms perms = {};
-	const char *info = "change_profile onexec";
+	const char *xname = NULL, *info = "change_profile onexec";
 	int error = -EACCES;
+
+	AA_BUG(!profile);
+	AA_BUG(!onexec);
+	AA_BUG(!bprm);
+	AA_BUG(!buffer);
 
 	if (profile_unconfined(profile)) {
 		/* change_profile on exec already granted */
@@ -581,6 +601,18 @@ static int profile_onexec(struct aa_profile *profile, struct aa_label *onexec,
 		 * in a further reduction of permissions.
 		 */
 		return 0;
+	}
+
+	error = aa_path_name(&bprm->file->f_path, profile->path_flags, buffer,
+			     &xname, &info, profile->disconnected);
+	if (error) {
+		if (profile_unconfined(profile) ||
+		    (profile->label.flags & FLAG_IX_ON_NAME_ERROR)) {
+			AA_DEBUG("name lookup ix on error");
+			error = 0;
+		}
+		xname = bprm->filename;
+		goto audit;
 	}
 
 	/* find exec permissions for name */
@@ -618,46 +650,52 @@ audit:
 
 static struct aa_label *handle_onexec(struct aa_label *label,
 				      struct aa_label *onexec, bool stack,
-				      const char *xname,
-				      struct path_cond *cond,
+				      const struct linux_binprm *bprm,
+				      char *buffer, struct path_cond *cond,
 				      bool *unsafe)
 {
 	struct aa_profile *profile;
 	struct aa_label *new;
 	int error;
 
+	AA_BUG(!label);
+	AA_BUG(!onexec);
+	AA_BUG(!bprm);
+	AA_BUG(!buffer);
+
 	if (!stack) {
 		error = fn_for_each_in_ns(label, profile,
 				profile_onexec(profile, onexec, stack,
-					       xname, cond, unsafe));
+					       bprm, buffer, cond, unsafe));
 		if (error)
 			return ERR_PTR(error);
 		new = fn_label_build_in_ns(label, profile, GFP_ATOMIC,
-					   aa_get_newest_label(onexec),
-					   profile_transition(profile, xname,
-							      cond, unsafe));
+				aa_get_newest_label(onexec),
+				profile_transition(profile, bprm, buffer,
+						   cond, unsafe));
+
 	} else {
 		/* TODO: determine how much we want to losen this */
 		error = fn_for_each_in_ns(label, profile,
-				profile_onexec(profile, onexec, stack, xname,
-					       cond, unsafe));
+				profile_onexec(profile, onexec, stack, bprm,
+					       buffer, cond, unsafe));
 		if (error)
 			return ERR_PTR(error);
 		new = fn_label_build_in_ns(label, profile, GFP_ATOMIC,
-					   aa_label_merge(&profile->label,
-							  onexec,
-							  GFP_ATOMIC),
-					   profile_transition(profile, xname,
-							      cond, unsafe));
+				aa_label_merge(&profile->label, onexec,
+					       GFP_ATOMIC),
+				profile_transition(profile, bprm, buffer,
+						   cond, unsafe));
 	}
 
 	if (new)
 		return new;
 
+	/* TODO: get rid of GLOBAL_ROOT_UID */
 	error = fn_for_each_in_ns(label, profile,
 			aa_audit_file(profile, &nullperms, OP_CHANGE_ONEXEC,
-				      AA_MAY_ONEXEC, xname, NULL, onexec,
-				      GLOBAL_ROOT_UID,
+				      AA_MAY_ONEXEC, bprm->filename, NULL,
+				      onexec, GLOBAL_ROOT_UID,
 				      "failed to build target label", -ENOMEM));
 	return ERR_PTR(error);
 }
@@ -676,7 +714,6 @@ int apparmor_bprm_set_creds(struct linux_binprm *bprm)
 	struct aa_label *label, *new = NULL;
 	struct aa_profile *profile;
 	char *buffer = NULL;
-	const char *xname = NULL;
 	const char *info = NULL;
 	int error = 0;
 	bool unsafe = false;
@@ -692,28 +729,17 @@ int apparmor_bprm_set_creds(struct linux_binprm *bprm)
 	AA_BUG(!ctx);
 
 	label = aa_get_newest_label(ctx->label);
-	profile = labels_profile(label);
 
-	/* buffer freed below, xname is pointer into buffer */
+	/* buffer freed below, name is pointer into buffer */
 	get_buffers(buffer);
-	error = aa_path_name(&bprm->file->f_path, profile->path_flags, buffer,
-			     &xname, &info, profile->disconnected);
-	if (error) {
-		if (profile_unconfined(profile) ||
-		    (profile->label.flags & FLAG_IX_ON_NAME_ERROR))
-			error = 0;
-		xname = bprm->filename;
-		goto audit;
-	}
-
 	/* Test for onexec first as onexec override other x transitions. */
 	if (ctx->onexec)
-		new = handle_onexec(label, ctx->onexec, ctx->token, xname,
-				    &cond, &unsafe);
+		new = handle_onexec(label, ctx->onexec, ctx->token,
+				    bprm, buffer, &cond, &unsafe);
 	else
 		new = fn_label_build(label, profile, GFP_ATOMIC,
-				profile_transition(profile, xname, &cond,
-						   &unsafe));
+				profile_transition(profile, bprm, buffer,
+						   &cond, &unsafe));
 
 	AA_BUG(!new);
 	if (IS_ERR(new)) {
@@ -753,7 +779,7 @@ int apparmor_bprm_set_creds(struct linux_binprm *bprm)
 	if (unsafe) {
 		if (DEBUG_ON) {
 			dbg_printk("scrubbing environment variables for %s "
-				   "label=", xname);
+				   "label=", bprm->filename);
 			aa_label_printk(new, GFP_ATOMIC);
 			dbg_printk("\n");
 		}
@@ -764,7 +790,7 @@ int apparmor_bprm_set_creds(struct linux_binprm *bprm)
 		/* when transitioning clear unsafe personality bits */
 		if (DEBUG_ON) {
 			dbg_printk("apparmor: clearing unsafe personality "
-				   "bits. %s label=", xname);
+				   "bits. %s label=", bprm->filename);
 			aa_label_printk(new, GFP_ATOMIC);
 			dbg_printk("\n");
 		}
@@ -786,7 +812,7 @@ done:
 audit:
 	error = fn_for_each(label, profile,
 			aa_audit_file(profile, &nullperms, OP_EXEC, MAY_EXEC,
-				      xname, NULL, new,
+				      bprm->filename, NULL, new,
 				      file_inode(bprm->file)->i_uid, info,
 				      error));
 	aa_put_label(new);
