@@ -167,17 +167,13 @@ static inline bool is_deleted(struct dentry *dentry)
 
 static int path_name(const char *op, struct aa_label *label,
 		     const struct path *path, int flags, char *buffer,
-		     const char**name, struct path_cond *cond, u32 request,
-		     bool delegate_deleted)
+		     const char**name, struct path_cond *cond, u32 request)
 {
 	struct aa_profile *profile;
 	const char *info = NULL;
 	int error = aa_path_name(path, flags, buffer, name, &info,
 				 labels_profile(label)->disconnected);
 	if (error) {
-		if (error == -ENOENT && is_deleted(path->dentry) &&
-		    delegate_deleted)
-			return 0;
 		fn_for_each_confined(label, profile,
 			aa_audit_file(profile, &nullperms, op, request, *name,
 				      NULL, NULL, cond->uid, info, error));
@@ -326,8 +322,8 @@ int aa_path_perm(const char *op, struct aa_label *label,
 		(S_ISDIR(cond->mode) ? PATH_IS_DIR : 0);
 	get_buffers(buffer);
 
-	error = path_name(op, label, path, flags, buffer, &name, cond,
-			  request, true);
+	error = path_name(op, label, path, flags | PATH_DELEGATE_DELETED,
+			  buffer, &name, cond, request);
 	if (!error)
 		error = fn_for_each_confined(label, profile,
 				__aa_path_perm(op, profile, name, request, cond,
@@ -461,14 +457,14 @@ int aa_path_link(struct aa_label *label, struct dentry *old_dentry,
 	get_buffers(buffer, buffer2);
 	error = path_name(OP_LINK, label, &link,
 			  labels_profile(label)->path_flags, buffer,
-			  &lname, &cond, AA_MAY_LINK, false);
+			  &lname, &cond, AA_MAY_LINK);
 	if (error)
 		goto out;
 
 	/* buffer2 freed below, tname is pointer in buffer2 */
 	error = path_name(OP_LINK, label, &target,
 			  labels_profile(label)->path_flags, buffer2, &tname,
-			  &cond, AA_MAY_LINK, false);
+			  &cond, AA_MAY_LINK);
 	if (error)
 		goto out;
 
@@ -526,17 +522,9 @@ static int __file_path_perm(const char *op, struct aa_label *label,
 		(S_ISDIR(cond.mode) ? PATH_IS_DIR : 0);
 	get_buffers(buffer);
 
-	error = path_name(op, label, &file->f_path, flags, buffer, &name, &cond,
-			  request, true);
-	if (error) {
-		if (error == 1)
-			/* Access to open files that are deleted are
-			 * given a pass (implicit delegation)
-			 */
-			/* TODO not needed when full perms cached */
-			error = 0;
-		goto out;
-	}
+	error = path_name(op, label, &file->f_path,
+			  flags | PATH_DELEGATE_DELETED, buffer, &name, &cond,
+			  request);
 
 	/* check every profile in task label not in current cache */
 	error = fn_for_each_not_in_set(flabel, label, profile,
@@ -557,7 +545,6 @@ static int __file_path_perm(const char *op, struct aa_label *label,
 	if (!error)
 		update_file_ctx(file_ctx(file), label, request);
 
-out:
 	put_buffers(buffer);
 
 	return error;
