@@ -162,7 +162,7 @@ static int d_namespace_path(const struct path *path, char *buf, char **name,
 	 *    allocated.
 	 */
 	if (d_unlinked(path->dentry) && d_is_positive(path->dentry) &&
-	    !(flags & PATH_MEDIATE_DELETED)) {
+	    !(flags & (PATH_MEDIATE_DELETED | PATH_DELEGATE_DELETED))) {
 			error = -ENOENT;
 			goto out;
 	}
