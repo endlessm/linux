@@ -58,6 +58,10 @@ static void gen9_init_clock_gating(struct drm_device *dev)
 {
 	struct drm_i915_private *dev_priv = dev->dev_private;
 
+	/* See Bspec note for PSR2_CTL bit 31, Wa#828:skl,bxt,kbl */
+	I915_WRITE(CHICKEN_PAR1_1,
+		   I915_READ(CHICKEN_PAR1_1) | SKL_EDP_PSR_FIX_RDWRAP);
+
 	I915_WRITE(GEN8_CONFIG0,
 		   I915_READ(GEN8_CONFIG0) | GEN9_DEFAULT_FIXES);
 
@@ -6749,10 +6753,6 @@ static void skylake_init_clock_gating(struct drm_device *dev)
 
 	gen9_init_clock_gating(dev);
 
-	/* WAC6entrylatency:skl */
-	I915_WRITE(FBC_LLC_READ_CTRL, I915_READ(FBC_LLC_READ_CTRL) |
-		   FBC_LLC_FULLY_OPEN);
-
 	/* WaFbcNukeOnHostModify:skl */
 	I915_WRITE(ILK_DPFC_CHICKEN, I915_READ(ILK_DPFC_CHICKEN) |
 		   ILK_DPFC_NUKE_ON_ANY_MODIFICATION);
@@ -6814,10 +6814,6 @@ static void broadwell_init_clock_gating(struct drm_device *dev)
 	 * are ever enabled GTT cache may need to be disabled.
 	 */
 	I915_WRITE(HSW_GTT_CACHE_EN, GTT_CACHE_EN_ALL);
-
-	/* WaKVMNotificationOnConfigChange:bdw */
-	I915_WRITE(CHICKEN_PAR2_1, I915_READ(CHICKEN_PAR2_1)
-		   | KVM_CONFIG_CHANGE_NOTIFICATION_SELECT);
 
 	lpt_init_clock_gating(dev);
 }

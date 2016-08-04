@@ -1103,6 +1103,7 @@ static inline int gen8_emit_flush_coherentl3_wa(struct intel_engine_cs *engine,
 						uint32_t *const batch,
 						uint32_t index)
 {
+	struct drm_i915_private *dev_priv = engine->dev->dev_private;
 	uint32_t l3sqc4_flush = (0x40400000 | GEN8_LQSC_FLUSH_COHERENT_LINES);
 
 	/*
@@ -1111,9 +1112,8 @@ static inline int gen8_emit_flush_coherentl3_wa(struct intel_engine_cs *engine,
 	 * this batch updates GEN8_L3SQCREG4 with default value we need to
 	 * set this bit here to retain the WA during flush.
 	 */
-
-	if (IS_SKL_REVID(engine->dev, 0, SKL_REVID_E0) ||
-	    IS_KBL_REVID(engine->dev, 0, KBL_REVID_E0))
+	if (IS_SKL_REVID(dev_priv, 0, SKL_REVID_E0) ||
+	    IS_KBL_REVID(dev_priv, 0, KBL_REVID_E0))
 		l3sqc4_flush |= GEN8_LQSC_RO_PERF_DIS;
 
 	wa_ctx_emit(batch, index, (MI_STORE_REGISTER_MEM_GEN8 |
@@ -1275,6 +1275,7 @@ static int gen9_init_indirectctx_bb(struct intel_engine_cs *engine,
 {
 	int ret;
 	struct drm_device *dev = engine->dev;
+	struct drm_i915_private *dev_priv = dev->dev_private;
 	uint32_t index = wa_ctx_start(wa_ctx, *offset, CACHELINE_DWORDS);
 
 	/* WaDisableCtxRestoreArbitration:skl,bxt */
@@ -1290,7 +1291,7 @@ static int gen9_init_indirectctx_bb(struct intel_engine_cs *engine,
 
 	/* WaClearSlmSpaceAtContextSwitch:kbl */
 	/* Actual scratch location is at 128 bytes offset */
-	if (IS_KBL_REVID(engine->dev, 0, KBL_REVID_A0)) {
+	if (IS_KBL_REVID(dev_priv, 0, KBL_REVID_A0)) {
 		uint32_t scratch_addr
 			= engine->scratch.gtt_offset + 2*CACHELINE_BYTES;
 
