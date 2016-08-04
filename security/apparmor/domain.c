@@ -931,12 +931,20 @@ static struct aa_label *change_hat(struct aa_label *label, const char *hats[],
 	error = -ECHILD;
 
 fail:
-	fn_for_each_in_ns(label, profile,
-		/* no target as it has failed to be found or built */
+	label_for_each_in_ns(it, labels_ns(label), label, profile) {
+		/*
+		 * no target as it has failed to be found or built
+		 *
+		 * change_hat uses probing and should not log failures
+		 * related to missing hats
+		 */
 		/* TODO: get rid of GLOBAL_ROOT_UID */
-		aa_audit_file(profile, &nullperms, OP_CHANGE_HAT,
-			      AA_MAY_CHANGEHAT, name, NULL, NULL,
-			      GLOBAL_ROOT_UID, info, error));
+		if (count > 1 || COMPLAIN_MODE(profile)) {
+			aa_audit_file(profile, &nullperms, OP_CHANGE_HAT,
+				      AA_MAY_CHANGEHAT, name, NULL, NULL,
+				      GLOBAL_ROOT_UID, info, error);
+		}
+	}
 	return (ERR_PTR(error));
 
 build:
