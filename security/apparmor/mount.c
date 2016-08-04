@@ -638,8 +638,13 @@ out:
 	return error;
 }
 
-static int profile_pivotroot(struct aa_profile *profile, const char *new_name,
-			     const char *old_name, struct aa_label **trans)
+/* helper fn for transition on pivotroot
+ *
+ * Returns: label for transition or ERR_PTR. Does not return NULL
+ */
+static struct aa_label *build_pivotroot(struct aa_profile *profile,
+					const char *new_name,
+					const char *old_name)
 {
 	struct aa_label *target = NULL;
 	const char *trans_name = NULL;
@@ -651,7 +656,6 @@ static int profile_pivotroot(struct aa_profile *profile, const char *new_name,
 	AA_BUG(!profile);
 	AA_BUG(!new_name);
 	AA_BUG(!old_name);
-	AA_BUG(!trans);
 
 	/* TODO: actual domain transition computation for multiple
 	 *  profiles
@@ -664,24 +668,25 @@ static int profile_pivotroot(struct aa_profile *profile, const char *new_name,
 	perms = compute_mnt_perms(profile->policy.dfa, state);
 
 	if (AA_MAY_PIVOTROOT & perms.allow) {
+		error = 0;
 		if ((perms.xindex & AA_X_TYPE_MASK) == AA_X_TABLE) {
 			target = x_table_lookup(profile, perms.xindex,
 						&trans_name);
 			if (!target)
 				error = -ENOENT;
-			else
-				*trans = target;
-		} else
-			error = 0;
+		}
 	}
 
 	error = audit_mount(profile, OP_PIVOTROOT, new_name, old_name,
 			    NULL, trans_name, 0, NULL, AA_MAY_PIVOTROOT,
 			    &perms, info, error);
-	if (!*trans)
+	if (error) {
 		aa_put_label(target);
+		return ERR_PTR(error);
+	} else if (target)
+		return target;
 
-	return error;
+	return aa_get_label(&profile->label);
 }
 
 int aa_pivotroot(struct aa_label *label, const struct path *old_path,
@@ -703,25 +708,36 @@ int aa_pivotroot(struct aa_label *label, const struct path *old_path,
 			     old_buffer, &old_name, &info,
 			     labels_profile(label)->disconnected);
 	if (error)
-		goto error;
+		goto fail;
 	error = aa_path_name(new_path, path_flags(labels_profile(label),
 						  new_path),
 			     new_buffer, &new_name, &info,
 			     labels_profile(label)->disconnected);
 	if (error)
-		goto error;
-	error = fn_for_each(label, profile,
-			profile_pivotroot(profile, new_name, old_name,
-					  &target));
+		goto fail;
+
+	target = fn_label_build(label, profile, GFP_ATOMIC,
+			build_pivotroot(profile, new_name, old_name));
+	if (!target) {
+		info = "label build failed";
+		error = -ENOMEM;
+		goto fail;
+	} else if (!IS_ERR(target)) {
+		error = aa_replace_current_label(target);
+		if (error) {
+			/* TODO: audit target */
+			aa_put_label(target);
+			goto out;
+		}
+	} else
+		/* already audited error */
+		error = PTR_ERR(target);
 out:
 	put_buffers(old_buffer, new_buffer);
 
-	if (target)
-		error = aa_replace_current_label(target);
-
 	return error;
 
-error:
+fail:
 	error = fn_for_each(label, profile,
 			audit_mount(profile, OP_PIVOTROOT, new_name, old_name,
 				    NULL, NULL,
