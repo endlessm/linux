@@ -1034,6 +1034,7 @@ static struct aa_fs_entry aa_fs_entry_domain[] = {
 	AA_FS_FILE_BOOLEAN("change_onexec",	1),
 	AA_FS_FILE_BOOLEAN("change_profile",	1),
 	AA_FS_FILE_BOOLEAN("stack",		1),
+	AA_FS_FILE_STRING("version", "1.1"),
 	{ }
 };
 
