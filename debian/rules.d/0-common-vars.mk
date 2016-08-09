@@ -141,15 +141,9 @@ do_doc_package_content=false
 endif
 doc_pkg_name=$(src_pkg_name)-doc
 
-#
-# Similarly with the linux-source package, you need not build it as a developer. Its
-# somewhat I/O intensive and utterly useless.
-#
+# linux-source is used to build cross-compilers, default to building it.
 do_source_package=true
 do_source_package_content=true
-ifeq ($(full_build),false)
-do_source_package_content=false
-endif
 
 # linux-libc-dev may not be needed, default to building it.
 do_libc_dev_package=true
