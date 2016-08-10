@@ -41,7 +41,6 @@ do_tools_common=true
 skipabi=true
 skipmodule=true
 do_cloud_tools=false
-do_source_package=false
 do_doc_package=false
 
 # Don't build tools or udebs in a cross compile environment.
