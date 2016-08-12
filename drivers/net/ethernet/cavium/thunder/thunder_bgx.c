@@ -436,12 +436,14 @@ static int bgx_lmac_xaui_init(struct bgx *bgx, int lmacid, int lmac_type)
 
 	bgx_reg_modify(bgx, lmacid, BGX_SPUX_CONTROL1, SPU_CTL_LOW_POWER);
 	/* Set interleaved running disparity for RXAUI */
-	if (bgx->lmac_type != BGX_MODE_RXAUI)
-		bgx_reg_modify(bgx, lmacid,
-			       BGX_SPUX_MISC_CONTROL, SPU_MISC_CTL_RX_DIS);
-	else
+	if (bgx->lmac_type == BGX_MODE_RXAUI)
 		bgx_reg_modify(bgx, lmacid, BGX_SPUX_MISC_CONTROL,
-			       SPU_MISC_CTL_RX_DIS | SPU_MISC_CTL_INTLV_RDISP);
+			       SPU_MISC_CTL_INTLV_RDISP);
+
+	/* Clear receive packet disable */
+	cfg = bgx_reg_read(bgx, lmacid, BGX_SPUX_MISC_CONTROL);
+	cfg &= ~SPU_MISC_CTL_RX_DIS;
+	bgx_reg_write(bgx, lmacid, BGX_SPUX_MISC_CONTROL, cfg);
 
 	/* clear all interrupts */
 	cfg = bgx_reg_read(bgx, lmacid, BGX_SMUX_RX_INT);
@@ -514,7 +516,6 @@ static int bgx_xaui_check_link(struct lmac *lmac)
 	int lmac_type = bgx->lmac_type;
 	u64 cfg;
 
-	bgx_reg_modify(bgx, lmacid, BGX_SPUX_MISC_CONTROL, SPU_MISC_CTL_RX_DIS);
 	if (bgx->use_training) {
 		cfg = bgx_reg_read(bgx, lmacid, BGX_SPUX_INT);
 		if (!(cfg & (1ull << 13))) {
@@ -583,11 +584,6 @@ static int bgx_xaui_check_link(struct lmac *lmac)
 		dev_err(&bgx->pdev->dev, "SMU TX not idle\n");
 		return -1;
 	}
-
-	/* Clear receive packet disable */
-	cfg = bgx_reg_read(bgx, lmacid, BGX_SPUX_MISC_CONTROL);
-	cfg &= ~SPU_MISC_CTL_RX_DIS;
-	bgx_reg_write(bgx, lmacid, BGX_SPUX_MISC_CONTROL, cfg);
 
 	/* Check for MAC RX faults */
 	cfg = bgx_reg_read(bgx, lmacid, BGX_SMUX_RX_CTL);
