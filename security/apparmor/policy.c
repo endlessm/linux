@@ -90,7 +90,7 @@
 #include "include/policy_unpack.h"
 #include "include/resource.h"
 
-int unprivileged_userns_apparmor_policy = 0;
+int unprivileged_userns_apparmor_policy = 1;
 
 /* Note: mode names must be unique in the first character because of
  *       modechrs used to print modes on compound labels on some interfaces
