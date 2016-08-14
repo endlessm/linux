@@ -992,7 +992,7 @@ static const struct seq_operations aa_fs_profiles_op = {
 
 static int profiles_open(struct inode *inode, struct file *file)
 {
-	if (!aa_may_open_profiles())
+	if (!policy_view_capable())
 		return -EACCES;
 
 	return seq_open(file, &aa_fs_profiles_op);
