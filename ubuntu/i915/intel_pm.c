@@ -3766,6 +3766,10 @@ skl_compute_ddb(struct drm_atomic_state *state)
 		ret = skl_allocate_pipe_ddb(cstate, ddb);
 		if (ret)
 			return ret;
+
+		ret = drm_atomic_add_affected_planes(state, &intel_crtc->base);
+		if (ret)
+			return ret;
 	}
 
 	return 0;
