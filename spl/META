@@ -1,0 +1,8 @@
+Meta:         1
+Name:         spl
+Branch:       1.0
+Version:      0.7.9
+Release:      3ubuntu2
+Release-Tags: relext
+License:      GPL
+Author:       OpenZFS on Linux
