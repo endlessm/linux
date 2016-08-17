@@ -246,7 +246,8 @@ acpi_ds_load1_begin_op(struct acpi_walk_state *walk_state,
 					  acpi_ut_get_type_name(node->type)));
 
 			node->type = ACPI_TYPE_ANY;
-			walk_state->scope_info->common.value = ACPI_TYPE_ANY;
+			if (walk_state->scope_info)
+				walk_state->scope_info->common.value = ACPI_TYPE_ANY;
 			break;
 
 		case ACPI_TYPE_METHOD:
