@@ -1061,8 +1061,11 @@ static struct aa_label *label_merge_insert(struct aa_label *new,
 	AA_BUG(new->size < a->size + b->size);
 
 	label_for_each_in_merge(i, a, b, next) {
+		AA_BUG(!next);
 		if (profile_is_stale(next)) {
 			new->vec[k] = aa_get_newest_profile(next);
+			AA_BUG(!new->vec[k]->label.proxy);
+			AA_BUG(!new->vec[k]->label.proxy->label);
 			if (next->label.proxy != new->vec[k]->label.proxy)
 				invcount++;
 			k++;
@@ -2007,7 +2010,11 @@ static struct aa_label *__label_update(struct aa_label *label)
 	ls = labels_set(label);
 	write_lock_irqsave(&ls->lock, flags);
 	for (i = 0; i < label->size; i++) {
+		AA_BUG(!label->vec[i]);
 		new->vec[i] = aa_get_newest_profile(label->vec[i]);
+		AA_BUG(!new->vec[i]);
+		AA_BUG(!new->vec[i]->label.proxy);
+		AA_BUG(!new->vec[i]->label.proxy->label);
 		if (new->vec[i]->label.proxy != label->vec[i]->label.proxy)
 			invcount++;
 	}
