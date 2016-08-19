@@ -2849,6 +2849,26 @@ static void quirk_hotplug_bridge(struct pci_dev *dev)
 DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_HINT, 0x0020, quirk_hotplug_bridge);
 
 /*
+ * Apple: Avoid programming the memory/io aperture of 00:1c.0
+ *
+ * BIOS does not declare any resource for 00:1c.0, but with
+ * hotplug flag set, thus the OS allocates:
+ * [mem 0x7fa00000 - 0x7fbfffff]
+ * [mem 0x7fc00000-0x7fdfffff 64bit pref]
+ * which is conflict with an unreported device, which
+ * causes unpredictable result such as accessing io port.
+ * So clear the hotplug flag to work around it.
+ */
+static void quirk_apple_mbp_poweroff(struct pci_dev *dev)
+{
+	if (dmi_match(DMI_PRODUCT_NAME, "MacBookPro11,4") ||
+	    dmi_match(DMI_PRODUCT_NAME, "MacBookPro11,5"))
+		dev->is_hotplug_bridge = 0;
+}
+
+DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_INTEL, 0x8c10, quirk_apple_mbp_poweroff);
+
+/*
  * This is a quirk for the Ricoh MMC controller found as a part of
  * some mulifunction chips.
 
