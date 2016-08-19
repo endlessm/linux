@@ -3521,6 +3521,8 @@ static int kvmppc_set_passthru_irq(struct kvm *kvm, int host_irq, int guest_gsi)
 	if (i == pimap->n_mapped)
 		pimap->n_mapped++;
 
+	kvmppc_xics_set_mapped(kvm, guest_gsi, desc->irq_data.hwirq);
+
 	mutex_unlock(&kvm->lock);
 
 	return 0;
@@ -3556,6 +3558,8 @@ static int kvmppc_clr_passthru_irq(struct kvm *kvm, int host_irq, int guest_gsi)
 		mutex_unlock(&kvm->lock);
 		return -ENODEV;
 	}
+
+	kvmppc_xics_clr_mapped(kvm, guest_gsi, pimap->mapped[i].r_hwirq);
 
 	/* invalidate the entry */
 	pimap->mapped[i].r_hwirq = 0;
