@@ -1077,6 +1077,12 @@ static struct aa_label *label_merge_insert(struct aa_label *new,
 	if (invcount) {
 		new->size -= aa_vec_unique(&new->vec[0], new->size,
 					   VEC_FLAG_TERMINATE);
+		/* TODO: deal with reference labels */
+		if (new->size == 1) {
+			label = aa_get_label(&new->vec[0]->label);
+			aa_put_label(new);
+			return label;
+		}
 	} else if (!stale) {
 		/* merge could be same as a || b, note: it is not possible
 		 * for new->size == a->size == b->size unless a == b */
@@ -1876,6 +1882,11 @@ struct aa_label *aa_label_parse(struct aa_label *base, const char *str,
 		return &vec[0]->label;
 
 	len -= aa_vec_unique(vec, len, VEC_FLAG_TERMINATE);
+	/* TODO: deal with reference labels */
+	if (len == 1) {
+		label = aa_get_label(&vec[0]->label);
+		goto out;
+	}
 
 	if (create)
 		label = aa_vec_find_or_create_label(vec, len, gfp);
@@ -2001,6 +2012,12 @@ static struct aa_label *__label_update(struct aa_label *label)
 	if (invcount) {
 		new->size -= aa_vec_unique(&new->vec[0], new->size,
 					   VEC_FLAG_TERMINATE);
+		/* TODO: deal with reference labels */
+		if (new->size == 1) {
+			tmp = aa_get_label(&new->vec[0]->label);
+			AA_BUG(tmp == label);
+			goto remove;
+		}
 		if (labels_set(label) != labels_set(new)) {
 			write_unlock_irqrestore(&ls->lock, flags);
 			tmp = aa_label_insert(labels_set(new), new);
