@@ -112,8 +112,8 @@ static int ns_cmp(struct aa_ns *a, struct aa_ns *b)
 
 	AA_BUG(!a);
 	AA_BUG(!b);
-	AA_BUG(!a->base.name);
-	AA_BUG(!b->base.name);
+	AA_BUG(!a->base.hname);
+	AA_BUG(!b->base.hname);
 
 	if (a == b)
 		return 0;
@@ -122,7 +122,7 @@ static int ns_cmp(struct aa_ns *a, struct aa_ns *b)
 	if (res)
 		return res;
 
-	return strcmp(a->base.name, b->base.name);
+	return strcmp(a->base.hname, b->base.hname);
 }
 
 /**
