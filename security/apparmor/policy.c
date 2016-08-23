@@ -617,7 +617,7 @@ static int audit_policy(struct aa_label *label, const char *op,
 	return error;
 }
 
-bool policy_admin_capable(void)
+bool policy_view_capable(void)
 {
 	struct user_namespace *user_ns = current_user_ns();
 	struct aa_ns *ns = aa_get_current_ns();
@@ -631,6 +631,11 @@ bool policy_admin_capable(void)
 	aa_put_ns(ns);
 
 	return response;
+}
+
+bool policy_admin_capable(void)
+{
+	return policy_view_capable() && !aa_g_lock_policy;
 }
 
 bool aa_may_open_profiles(void)
