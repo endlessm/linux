@@ -1170,9 +1170,8 @@ static void netvsc_free_netdev(struct net_device *netdev)
 static struct net_device *get_netvsc_net_device(char *mac)
 {
 	struct net_device *dev, *found = NULL;
-	int rtnl_locked;
 
-	rtnl_locked = rtnl_trylock();
+	ASSERT_RTNL();
 
 	for_each_netdev(&init_net, dev) {
 		if (memcmp(dev->dev_addr, mac, ETH_ALEN) == 0) {
@@ -1182,8 +1181,6 @@ static struct net_device *get_netvsc_net_device(char *mac)
 			break;
 		}
 	}
-	if (rtnl_locked)
-		rtnl_unlock();
 
 	return found;
 }
