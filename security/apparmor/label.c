@@ -229,7 +229,7 @@ static inline int unique(struct aa_profile **vec, int n)
 	AA_BUG(!vec);
 
 	pos = 0;
-	for (i = 1; 1 < n; i++) {
+	for (i = 1; i < n; i++) {
 		int res = profile_cmp(vec[pos], vec[i]);
 		AA_BUG(res > 0, "vec not sorted");
 		if (res == 0) {
