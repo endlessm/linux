@@ -16,11 +16,23 @@ int fuse_setxattr(struct inode *inode, const char *name, const void *value,
 {
 	struct fuse_conn *fc = get_fuse_conn(inode);
 	FUSE_ARGS(args);
+	void *buf = NULL;
 	struct fuse_setxattr_in inarg;
 	int err;
 
 	if (fc->no_setxattr)
 		return -EOPNOTSUPP;
+
+	if (!strcmp(name, XATTR_NAME_POSIX_ACL_ACCESS) ||
+		    !strcmp(name, XATTR_NAME_POSIX_ACL_DEFAULT)) {
+		buf = kmemdup(value, size, GFP_KERNEL);
+		if (!buf)
+			return -ENOMEM;
+		err = posix_acl_fix_xattr_userns(inode->i_sb->s_user_ns,
+						 &init_user_ns, buf, size);
+		if (err)
+			goto out;
+	}
 
 	memset(&inarg, 0, sizeof(inarg));
 	inarg.size = size;
@@ -33,7 +45,7 @@ int fuse_setxattr(struct inode *inode, const char *name, const void *value,
 	args.in.args[1].size = strlen(name) + 1;
 	args.in.args[1].value = name;
 	args.in.args[2].size = size;
-	args.in.args[2].value = value;
+	args.in.args[2].value = buf ? buf : value;
 	err = fuse_simple_request(fc, &args);
 	if (err == -ENOSYS) {
 		fc->no_setxattr = 1;
@@ -43,6 +55,9 @@ int fuse_setxattr(struct inode *inode, const char *name, const void *value,
 		fuse_invalidate_attr(inode);
 		fuse_update_ctime(inode);
 	}
+
+out:
+	kfree(buf);
 	return err;
 }
 
@@ -80,6 +95,16 @@ ssize_t fuse_getxattr(struct inode *inode, const char *name, void *value,
 	ret = fuse_simple_request(fc, &args);
 	if (!ret && !size)
 		ret = min_t(ssize_t, outarg.size, XATTR_SIZE_MAX);
+	if (!ret) {
+		if (!size) {
+			ret = outarg.size;
+		} else if (!strcmp(name, XATTR_NAME_POSIX_ACL_ACCESS) ||
+			   !strcmp(name, XATTR_NAME_POSIX_ACL_DEFAULT)) {
+			ret = posix_acl_fix_xattr_userns(&init_user_ns,
+							 inode->i_sb->s_user_ns,
+							 value, size);
+		}
+	}
 	if (ret == -ENOSYS) {
 		fc->no_getxattr = 1;
 		ret = -EOPNOTSUPP;
