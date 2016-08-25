@@ -913,6 +913,8 @@ static void vlv_display_power_well_deinit(struct drm_i915_private *dev_priv)
 	spin_unlock_irq(&dev_priv->irq_lock);
 
 	vlv_power_sequencer_reset(dev_priv);
+
+	intel_hpd_poll_init(dev_priv);
 }
 
 static void vlv_display_power_well_enable(struct drm_i915_private *dev_priv,
