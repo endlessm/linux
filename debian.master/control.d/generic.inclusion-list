@@ -88,6 +88,7 @@ drivers/net/ethernet/ibm/*
 drivers/net/ifb.ko
 drivers/net/ethernet/intel/igbvf/igbvf.ko
 drivers/net/ethernet/intel/ixgbevf/ixgbevf.ko
+drivers/net/ethernet/amazon/ena/ena.ko
 drivers/net/geneve.ko
 drivers/net/macvlan.ko
 drivers/net/macvtap.ko
