@@ -161,6 +161,14 @@ static struct genl_family tcmu_genl_family __ro_after_init = {
 	.netnsok = true,
 };
 
+/* Sense Key = 2 (Not Ready)
+ * ASC/ASCQ = 0x0800 (Logical Unit Communication Failure)
+ */
+static const char lu_comm_failure_sense[18] = {
+	0x70, 0x00, 0x02, 0x00, 0x00, 0x00, 0x00, 0x0a,
+	0x00, 0x00, 0x00, 0x00, 0x08, 0x00, 0x00, 0x00,
+	0x00, 0x00 };
+
 static struct tcmu_cmd *tcmu_alloc_cmd(struct se_cmd *se_cmd)
 {
 	struct se_device *se_dev = se_cmd->se_dev;
@@ -631,9 +639,11 @@ static void tcmu_handle_completion(struct tcmu_cmd *cmd, struct tcmu_cmd_entry *
 		pr_warn("TCMU: Userspace set UNKNOWN_OP flag on se_cmd %p\n",
 			cmd->se_cmd);
 		entry->rsp.scsi_status = SAM_STAT_CHECK_CONDITION;
+		memcpy(se_cmd->sense_buffer, lu_comm_failure_sense,
+		       sizeof(lu_comm_failure_sense));
 	} else if (entry->rsp.scsi_status == SAM_STAT_CHECK_CONDITION) {
 		memcpy(se_cmd->sense_buffer, entry->rsp.sense_buffer,
-			       se_cmd->scsi_sense_length);
+			       TRANSPORT_SENSE_BUFFER);
 		free_data_area(udev, cmd);
 	} else if (se_cmd->se_cmd_flags & SCF_BIDI) {
 		/* Get Data-In buffer before clean up */
@@ -726,6 +736,8 @@ static int tcmu_check_expired_cmd(int id, void *p, void *data)
 		return 0;
 
 	set_bit(TCMU_CMD_BIT_EXPIRED, &cmd->flags);
+	memcpy(cmd->se_cmd->sense_buffer, lu_comm_failure_sense,
+	       sizeof(lu_comm_failure_sense));
 	target_complete_cmd(cmd->se_cmd, SAM_STAT_CHECK_CONDITION);
 	cmd->se_cmd = NULL;
 
@@ -1203,6 +1215,17 @@ tcmu_parse_cdb(struct se_cmd *cmd)
 	return passthrough_parse_cdb(cmd, tcmu_queue_cmd);
 }
 
+static void tcmu_transport_complete(struct se_cmd *cmd, struct scatterlist *sg,
+				    unsigned char *sense_buffer)
+{
+	if (cmd->scsi_status == SAM_STAT_CHECK_CONDITION)
+		/* Setting this flag will prevent target_complete_cmd from
+		 * calling target_complete_failure_work, which would overwrite
+		 * the sense data we already set.
+		 */
+		cmd->se_cmd_flags |= SCF_TRANSPORT_TASK_SENSE;
+}
+
 static ssize_t tcmu_cmd_time_out_show(struct config_item *item, char *page)
 {
 	struct se_dev_attrib *da = container_of(to_config_group(item),
@@ -1249,6 +1272,7 @@ static struct target_backend_ops tcmu_ops = {
 	.configure_device	= tcmu_configure_device,
 	.free_device		= tcmu_free_device,
 	.parse_cdb		= tcmu_parse_cdb,
+	.transport_complete	= tcmu_transport_complete,
 	.set_configfs_dev_params = tcmu_set_configfs_dev_params,
 	.show_configfs_dev_params = tcmu_show_configfs_dev_params,
 	.get_device_type	= sbc_get_device_type,
