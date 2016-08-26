@@ -24,7 +24,7 @@
 #include <linux/module.h>
 #include <linux/usb.h>
 #include <linux/firmware.h>
-#include <linux/dmi.h>
+#include <linux/pci.h>
 #include <asm/unaligned.h>
 
 #include <net/bluetooth/bluetooth.h>
@@ -2975,8 +2975,8 @@ static int btusb_probe(struct usb_interface *intf,
 
 	if (id->driver_info & BTUSB_MARVELL) {
 		hdev->set_bdaddr = btusb_set_bdaddr_marvell;
-		if (dmi_match(DMI_PRODUCT_NAME, "Edge Gateway 5000") ||
-			dmi_match(DMI_PRODUCT_NAME, "Edge Gateway 5100")) {
+		if (pci_get_subsys(PCI_ANY_ID, PCI_ANY_ID, 0x1028, 0x0720, NULL) ||
+			pci_get_subsys(PCI_ANY_ID, PCI_ANY_ID, 0x1028, 0x0733, NULL)) {
 			hdev->post_open = btusb_edge_post_open;
 			hdev->shutdown = btusb_edge_shutdown;
 		}
