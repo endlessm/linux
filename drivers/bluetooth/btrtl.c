@@ -19,6 +19,7 @@
 #include <linux/firmware.h>
 #include <asm/unaligned.h>
 #include <linux/usb.h>
+#include <linux/dmi.h>
 
 #include <net/bluetooth/bluetooth.h>
 #include <net/bluetooth/hci_core.h>
@@ -34,6 +35,11 @@
 #define RTL_ROM_LMP_8821A	0x8821
 #define RTL_ROM_LMP_8761A	0x8761
 #define RTL_ROM_LMP_8822B	0x8822
+
+/* Antenna selection bytes: Realtek*/
+const uint8_t RTK_CONFIG_SIGNATURE[6] = {0x55, 0xab, 0x23, 0x87, 0x04, 0x00};
+const uint8_t CONFIG_S0_ANTTENA[4] = {0xE3, 0x01, 0x01, 0x04};
+const uint8_t CONFIG_S1_ANTTENA[4] = {0xE3, 0x01, 0x01, 0x00};
 
 static int rtl_read_rom_version(struct hci_dev *hdev, u8 *version)
 {
@@ -63,6 +69,20 @@ static int rtl_read_rom_version(struct hci_dev *hdev, u8 *version)
 	kfree_skb(skb);
 	return 0;
 }
+
+/*
+ * Workaround for Bluetooth on Foxconn InFocus MT13
+ */
+static const struct dmi_system_id bt_force_S0_antenna[] = {
+	{
+		.matches = {
+			DMI_MATCH(DMI_SYS_VENDOR, "Foxconn"),
+			DMI_MATCH(DMI_PRODUCT_NAME, "Braswell"),
+			DMI_MATCH(DMI_BOARD_NAME, "0E68"),		
+		},
+	},
+	{}
+};
 
 static int rtl8723b_parse_firmware(struct hci_dev *hdev, u16 lmp_subver,
 				   const struct firmware *fw,
@@ -211,6 +231,18 @@ static int rtl8723b_parse_firmware(struct hci_dev *hdev, u16 lmp_subver,
 		return -ENOMEM;
 
 	memcpy(buf + patch_length - 4, &epatch_info->fw_version, 4);
+	
+	/* Workaround for Foxconn MT13. 
+	 * The default BT antenna port for this laptop is not populated,
+	 * so we force Antenna S0.
+	 */
+	if (dmi_check_system(bt_force_S0_antenna)) {
+		BT_DBG("Using S0 antenna");
+		buf = krealloc(buf, patch_length + 10, GFP_KERNEL);
+		memcpy(buf + patch_length, RTK_CONFIG_SIGNATURE, 6);
+		memcpy(buf + patch_length + 6, CONFIG_S0_ANTTENA, 4);
+		len += 10;
+	}
 
 	*_buf = buf;
 	return len;
