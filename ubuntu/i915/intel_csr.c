@@ -41,15 +41,22 @@
  * be moved to FW_FAILED.
  */
 
-#define I915_CSR_SKL "i915/skl_dmc_ver1.bin"
-#define I915_CSR_BXT "i915/bxt_dmc_ver1.bin"
+#define I915_CSR_KBL "i915/kbl_dmc_ver1_01.bin"
+MODULE_FIRMWARE(I915_CSR_KBL);
+#define KBL_CSR_VERSION_REQUIRED	CSR_VERSION(1, 1)
+
+#define I915_CSR_SKL "i915/skl_dmc_ver1_26.bin"
+MODULE_FIRMWARE(I915_CSR_SKL);
+#define SKL_CSR_VERSION_REQUIRED	CSR_VERSION(1, 26)
+
+#define I915_CSR_BXT "i915/bxt_dmc_ver1_07.bin"
+MODULE_FIRMWARE(I915_CSR_BXT);
+#define BXT_CSR_VERSION_REQUIRED	CSR_VERSION(1, 7)
 
 #define FIRMWARE_URL  "https://01.org/linuxgraphics/intel-linux-graphics-firmwares"
 
-MODULE_FIRMWARE(I915_CSR_SKL);
-MODULE_FIRMWARE(I915_CSR_BXT);
 
-#define SKL_CSR_VERSION_REQUIRED	CSR_VERSION(1, 23)
+
 
 #define CSR_MAX_FW_SIZE			0x2FFF
 #define CSR_DEFAULT_FW_OFFSET		0xFFFFFFFF
@@ -168,12 +175,10 @@ struct stepping_info {
 	char substepping;
 };
 
-/*
- * Kabylake derivated from Skylake H0, so SKL H0
- * is the right firmware for KBL A0 (revid 0).
- */
 static const struct stepping_info kbl_stepping_info[] = {
-	{'H', '0'}, {'I', '0'}
+	{'A', '0'}, {'B', '0'}, {'C', '0'},
+	{'D', '0'}, {'E', '0'}, {'F', '0'},
+	{'G', '0'}, {'H', '0'}, {'I', '0'},
 };
 
 static const struct stepping_info skl_stepping_info[] = {
@@ -188,28 +193,31 @@ static const struct stepping_info bxt_stepping_info[] = {
 	{'B', '0'}, {'B', '1'}, {'B', '2'}
 };
 
-static const struct stepping_info *intel_get_stepping_info(struct drm_device *dev)
+static const struct stepping_info no_stepping_info = { '*', '*' };
+
+static const struct stepping_info *
+intel_get_stepping_info(struct drm_i915_private *dev_priv)
 {
 	const struct stepping_info *si;
 	unsigned int size;
 
-	if (IS_KABYLAKE(dev)) {
+	if (IS_KABYLAKE(dev_priv)) {
 		size = ARRAY_SIZE(kbl_stepping_info);
 		si = kbl_stepping_info;
-	} else if (IS_SKYLAKE(dev)) {
+	} else if (IS_SKYLAKE(dev_priv)) {
 		size = ARRAY_SIZE(skl_stepping_info);
 		si = skl_stepping_info;
-	} else if (IS_BROXTON(dev)) {
+	} else if (IS_BROXTON(dev_priv)) {
 		size = ARRAY_SIZE(bxt_stepping_info);
 		si = bxt_stepping_info;
 	} else {
-		return NULL;
+		size = 0;
 	}
 
-	if (INTEL_REVID(dev) < size)
-		return si + INTEL_REVID(dev);
+	if (INTEL_REVID(dev_priv) < size)
+		return si + INTEL_REVID(dev_priv);
 
-	return NULL;
+	return &no_stepping_info;
 }
 
 /**
@@ -252,27 +260,18 @@ bool intel_csr_load_program(struct drm_i915_private *dev_priv)
 static uint32_t *parse_csr_fw(struct drm_i915_private *dev_priv,
 			      const struct firmware *fw)
 {
-	struct drm_device *dev = dev_priv->dev;
 	struct intel_css_header *css_header;
 	struct intel_package_header *package_header;
 	struct intel_dmc_header *dmc_header;
 	struct intel_csr *csr = &dev_priv->csr;
-	const struct stepping_info *stepping_info = intel_get_stepping_info(dev);
-	char stepping, substepping;
+	const struct stepping_info *si = intel_get_stepping_info(dev_priv);
 	uint32_t dmc_offset = CSR_DEFAULT_FW_OFFSET, readcount = 0, nbytes;
 	uint32_t i;
 	uint32_t *dmc_payload;
+	uint32_t required_min_version;
 
 	if (!fw)
 		return NULL;
-
-	if (!stepping_info) {
-		DRM_ERROR("Unknown stepping info, firmware loading failed\n");
-		return NULL;
-	}
-
-	stepping = stepping_info->stepping;
-	substepping = stepping_info->substepping;
 
 	/* Extract CSS Header information*/
 	css_header = (struct intel_css_header *)fw->data;
@@ -285,15 +284,25 @@ static uint32_t *parse_csr_fw(struct drm_i915_private *dev_priv,
 
 	csr->version = css_header->version;
 
-	if ((IS_SKYLAKE(dev) || IS_KABYLAKE(dev)) &&
-	    csr->version < SKL_CSR_VERSION_REQUIRED) {
-		DRM_INFO("Refusing to load old Skylake DMC firmware v%u.%u,"
+	if (IS_KABYLAKE(dev_priv)) {
+		required_min_version = KBL_CSR_VERSION_REQUIRED;
+	} else if (IS_SKYLAKE(dev_priv)) {
+		required_min_version = SKL_CSR_VERSION_REQUIRED;
+	} else if (IS_BROXTON(dev_priv)) {
+		required_min_version = BXT_CSR_VERSION_REQUIRED;
+	} else {
+		MISSING_CASE(INTEL_REVID(dev_priv));
+		required_min_version = 0;
+	}
+
+	if (csr->version < required_min_version) {
+		DRM_INFO("Refusing to load old DMC firmware v%u.%u,"
 			 " please upgrade to v%u.%u or later"
 			   " [" FIRMWARE_URL "].\n",
 			 CSR_VERSION_MAJOR(csr->version),
 			 CSR_VERSION_MINOR(csr->version),
-			 CSR_VERSION_MAJOR(SKL_CSR_VERSION_REQUIRED),
-			 CSR_VERSION_MINOR(SKL_CSR_VERSION_REQUIRED));
+			 CSR_VERSION_MAJOR(required_min_version),
+			 CSR_VERSION_MINOR(required_min_version));
 		return NULL;
 	}
 
@@ -313,11 +322,11 @@ static uint32_t *parse_csr_fw(struct drm_i915_private *dev_priv,
 	/* Search for dmc_offset to find firware binary. */
 	for (i = 0; i < package_header->num_entries; i++) {
 		if (package_header->fw_info[i].substepping == '*' &&
-		    stepping == package_header->fw_info[i].stepping) {
+		    si->stepping == package_header->fw_info[i].stepping) {
 			dmc_offset = package_header->fw_info[i].offset;
 			break;
-		} else if (stepping == package_header->fw_info[i].stepping &&
-			substepping == package_header->fw_info[i].substepping) {
+		} else if (si->stepping == package_header->fw_info[i].stepping &&
+			   si->substepping == package_header->fw_info[i].substepping) {
 			dmc_offset = package_header->fw_info[i].offset;
 			break;
 		} else if (package_header->fw_info[i].stepping == '*' &&
@@ -325,7 +334,8 @@ static uint32_t *parse_csr_fw(struct drm_i915_private *dev_priv,
 			dmc_offset = package_header->fw_info[i].offset;
 	}
 	if (dmc_offset == CSR_DEFAULT_FW_OFFSET) {
-		DRM_ERROR("Firmware not supported for %c stepping\n", stepping);
+		DRM_ERROR("Firmware not supported for %c stepping\n",
+			  si->stepping);
 		return NULL;
 	}
 	readcount += dmc_offset;
@@ -371,9 +381,7 @@ static uint32_t *parse_csr_fw(struct drm_i915_private *dev_priv,
 		return NULL;
 	}
 
-	memcpy(dmc_payload, &fw->data[readcount], nbytes);
-
-	return dmc_payload;
+	return memcpy(dmc_payload, &fw->data[readcount], nbytes);
 }
 
 static void csr_load_work_fn(struct work_struct *work)
@@ -432,7 +440,9 @@ void intel_csr_ucode_init(struct drm_i915_private *dev_priv)
 	if (!HAS_CSR(dev_priv))
 		return;
 
-	if (IS_SKYLAKE(dev_priv) || IS_KABYLAKE(dev_priv))
+	if (IS_KABYLAKE(dev_priv))
+		csr->fw_path = I915_CSR_KBL;
+	else if (IS_SKYLAKE(dev_priv))
 		csr->fw_path = I915_CSR_SKL;
 	else if (IS_BROXTON(dev_priv))
 		csr->fw_path = I915_CSR_BXT;
