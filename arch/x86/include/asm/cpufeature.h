@@ -85,152 +85,39 @@ extern const char * const x86_bug_flags[NBUGINTS*32];
 } while (0)
 
 #define cpu_has_fpu		boot_cpu_has(X86_FEATURE_FPU)
-#define cpu_has_de		boot_cpu_has(X86_FEATURE_DE)
 #define cpu_has_pse		boot_cpu_has(X86_FEATURE_PSE)
 #define cpu_has_tsc		boot_cpu_has(X86_FEATURE_TSC)
 #define cpu_has_pge		boot_cpu_has(X86_FEATURE_PGE)
 #define cpu_has_apic		boot_cpu_has(X86_FEATURE_APIC)
-#define cpu_has_sep		boot_cpu_has(X86_FEATURE_SEP)
-#define cpu_has_mtrr		boot_cpu_has(X86_FEATURE_MTRR)
-#define cpu_has_mmx		boot_cpu_has(X86_FEATURE_MMX)
 #define cpu_has_fxsr		boot_cpu_has(X86_FEATURE_FXSR)
 #define cpu_has_xmm		boot_cpu_has(X86_FEATURE_XMM)
 #define cpu_has_xmm2		boot_cpu_has(X86_FEATURE_XMM2)
-#define cpu_has_xmm3		boot_cpu_has(X86_FEATURE_XMM3)
-#define cpu_has_ssse3		boot_cpu_has(X86_FEATURE_SSSE3)
 #define cpu_has_aes		boot_cpu_has(X86_FEATURE_AES)
 #define cpu_has_avx		boot_cpu_has(X86_FEATURE_AVX)
 #define cpu_has_avx2		boot_cpu_has(X86_FEATURE_AVX2)
-#define cpu_has_ht		boot_cpu_has(X86_FEATURE_HT)
-#define cpu_has_nx		boot_cpu_has(X86_FEATURE_NX)
-#define cpu_has_xstore		boot_cpu_has(X86_FEATURE_XSTORE)
-#define cpu_has_xstore_enabled	boot_cpu_has(X86_FEATURE_XSTORE_EN)
-#define cpu_has_xcrypt		boot_cpu_has(X86_FEATURE_XCRYPT)
-#define cpu_has_xcrypt_enabled	boot_cpu_has(X86_FEATURE_XCRYPT_EN)
-#define cpu_has_ace2		boot_cpu_has(X86_FEATURE_ACE2)
-#define cpu_has_ace2_enabled	boot_cpu_has(X86_FEATURE_ACE2_EN)
-#define cpu_has_phe		boot_cpu_has(X86_FEATURE_PHE)
-#define cpu_has_phe_enabled	boot_cpu_has(X86_FEATURE_PHE_EN)
-#define cpu_has_pmm		boot_cpu_has(X86_FEATURE_PMM)
-#define cpu_has_pmm_enabled	boot_cpu_has(X86_FEATURE_PMM_EN)
-#define cpu_has_ds		boot_cpu_has(X86_FEATURE_DS)
-#define cpu_has_pebs		boot_cpu_has(X86_FEATURE_PEBS)
 #define cpu_has_clflush		boot_cpu_has(X86_FEATURE_CLFLUSH)
-#define cpu_has_bts		boot_cpu_has(X86_FEATURE_BTS)
 #define cpu_has_gbpages		boot_cpu_has(X86_FEATURE_GBPAGES)
 #define cpu_has_arch_perfmon	boot_cpu_has(X86_FEATURE_ARCH_PERFMON)
 #define cpu_has_pat		boot_cpu_has(X86_FEATURE_PAT)
-#define cpu_has_xmm4_1		boot_cpu_has(X86_FEATURE_XMM4_1)
-#define cpu_has_xmm4_2		boot_cpu_has(X86_FEATURE_XMM4_2)
 #define cpu_has_x2apic		boot_cpu_has(X86_FEATURE_X2APIC)
 #define cpu_has_xsave		boot_cpu_has(X86_FEATURE_XSAVE)
-#define cpu_has_xsaveopt	boot_cpu_has(X86_FEATURE_XSAVEOPT)
 #define cpu_has_xsaves		boot_cpu_has(X86_FEATURE_XSAVES)
 #define cpu_has_osxsave		boot_cpu_has(X86_FEATURE_OSXSAVE)
 #define cpu_has_hypervisor	boot_cpu_has(X86_FEATURE_HYPERVISOR)
-#define cpu_has_pclmulqdq	boot_cpu_has(X86_FEATURE_PCLMULQDQ)
-#define cpu_has_perfctr_core	boot_cpu_has(X86_FEATURE_PERFCTR_CORE)
-#define cpu_has_perfctr_nb	boot_cpu_has(X86_FEATURE_PERFCTR_NB)
-#define cpu_has_perfctr_l2	boot_cpu_has(X86_FEATURE_PERFCTR_L2)
-#define cpu_has_cx8		boot_cpu_has(X86_FEATURE_CX8)
-#define cpu_has_cx16		boot_cpu_has(X86_FEATURE_CX16)
-#define cpu_has_eager_fpu	boot_cpu_has(X86_FEATURE_EAGER_FPU)
-#define cpu_has_topoext		boot_cpu_has(X86_FEATURE_TOPOEXT)
-#define cpu_has_bpext		boot_cpu_has(X86_FEATURE_BPEXT)
+/*
+ * Do not add any more of those clumsy macros - use static_cpu_has() for
+ * fast paths and boot_cpu_has() otherwise!
+ */
 
-#if __GNUC__ >= 4
-extern void warn_pre_alternatives(void);
-extern bool __static_cpu_has_safe(u16 bit);
+#if __GNUC__ >= 4 && defined(CONFIG_X86_FAST_FEATURE_TESTS)
+extern bool __static_cpu_has(u16 bit);
 
 /*
  * Static testing of CPU features.  Used the same as boot_cpu_has().
  * These are only valid after alternatives have run, but will statically
  * patch the target code for additional performance.
  */
-static __always_inline __pure bool __static_cpu_has(u16 bit)
-{
-#ifdef CC_HAVE_ASM_GOTO
-
-#ifdef CONFIG_X86_DEBUG_STATIC_CPU_HAS
-
-		/*
-		 * Catch too early usage of this before alternatives
-		 * have run.
-		 */
-		asm_volatile_goto("1: jmp %l[t_warn]\n"
-			 "2:\n"
-			 ".section .altinstructions,\"a\"\n"
-			 " .long 1b - .\n"
-			 " .long 0\n"		/* no replacement */
-			 " .word %P0\n"		/* 1: do replace */
-			 " .byte 2b - 1b\n"	/* source len */
-			 " .byte 0\n"		/* replacement len */
-			 " .byte 0\n"		/* pad len */
-			 ".previous\n"
-			 /* skipping size check since replacement size = 0 */
-			 : : "i" (X86_FEATURE_ALWAYS) : : t_warn);
-
-#endif
-
-		asm_volatile_goto("1: jmp %l[t_no]\n"
-			 "2:\n"
-			 ".section .altinstructions,\"a\"\n"
-			 " .long 1b - .\n"
-			 " .long 0\n"		/* no replacement */
-			 " .word %P0\n"		/* feature bit */
-			 " .byte 2b - 1b\n"	/* source len */
-			 " .byte 0\n"		/* replacement len */
-			 " .byte 0\n"		/* pad len */
-			 ".previous\n"
-			 /* skipping size check since replacement size = 0 */
-			 : : "i" (bit) : : t_no);
-		return true;
-	t_no:
-		return false;
-
-#ifdef CONFIG_X86_DEBUG_STATIC_CPU_HAS
-	t_warn:
-		warn_pre_alternatives();
-		return false;
-#endif
-
-#else /* CC_HAVE_ASM_GOTO */
-
-		u8 flag;
-		/* Open-coded due to __stringify() in ALTERNATIVE() */
-		asm volatile("1: movb $0,%0\n"
-			     "2:\n"
-			     ".section .altinstructions,\"a\"\n"
-			     " .long 1b - .\n"
-			     " .long 3f - .\n"
-			     " .word %P1\n"		/* feature bit */
-			     " .byte 2b - 1b\n"		/* source len */
-			     " .byte 4f - 3f\n"		/* replacement len */
-			     " .byte 0\n"		/* pad len */
-			     ".previous\n"
-			     ".section .discard,\"aw\",@progbits\n"
-			     " .byte 0xff + (4f-3f) - (2b-1b)\n" /* size check */
-			     ".previous\n"
-			     ".section .altinstr_replacement,\"ax\"\n"
-			     "3: movb $1,%0\n"
-			     "4:\n"
-			     ".previous\n"
-			     : "=qm" (flag) : "i" (bit));
-		return flag;
-
-#endif /* CC_HAVE_ASM_GOTO */
-}
-
-#define static_cpu_has(bit)					\
-(								\
-	__builtin_constant_p(boot_cpu_has(bit)) ?		\
-		boot_cpu_has(bit) :				\
-	__builtin_constant_p(bit) ?				\
-		__static_cpu_has(bit) :				\
-		boot_cpu_has(bit)				\
-)
-
-static __always_inline __pure bool _static_cpu_has_safe(u16 bit)
+static __always_inline __pure bool _static_cpu_has(u16 bit)
 {
 #ifdef CC_HAVE_ASM_GOTO
 		asm_volatile_goto("1: jmp %l[t_dynamic]\n"
@@ -264,7 +151,7 @@ static __always_inline __pure bool _static_cpu_has_safe(u16 bit)
 	t_no:
 		return false;
 	t_dynamic:
-		return __static_cpu_has_safe(bit);
+		return __static_cpu_has(bit);
 #else
 		u8 flag;
 		/* Open-coded due to __stringify() in ALTERNATIVE() */
@@ -302,22 +189,21 @@ static __always_inline __pure bool _static_cpu_has_safe(u16 bit)
 			     ".previous\n"
 			     : "=qm" (flag)
 			     : "i" (bit), "i" (X86_FEATURE_ALWAYS));
-		return (flag == 2 ? __static_cpu_has_safe(bit) : flag);
+		return (flag == 2 ? __static_cpu_has(bit) : flag);
 #endif /* CC_HAVE_ASM_GOTO */
 }
 
-#define static_cpu_has_safe(bit)				\
+#define static_cpu_has(bit)					\
 (								\
 	__builtin_constant_p(boot_cpu_has(bit)) ?		\
 		boot_cpu_has(bit) :				\
-		_static_cpu_has_safe(bit)			\
+		_static_cpu_has(bit)				\
 )
 #else
 /*
  * gcc 3.x is too stupid to do the static test; fall back to dynamic.
  */
 #define static_cpu_has(bit)		boot_cpu_has(bit)
-#define static_cpu_has_safe(bit)	boot_cpu_has(bit)
 #endif
 
 #define cpu_has_bug(c, bit)		cpu_has(c, (bit))
@@ -325,7 +211,6 @@ static __always_inline __pure bool _static_cpu_has_safe(u16 bit)
 #define clear_cpu_bug(c, bit)		clear_cpu_cap(c, (bit))
 
 #define static_cpu_has_bug(bit)		static_cpu_has((bit))
-#define static_cpu_has_bug_safe(bit)	static_cpu_has_safe((bit))
 #define boot_cpu_has_bug(bit)		cpu_has_bug(&boot_cpu_data, (bit))
 
 #define MAX_CPU_FEATURES		(NCAPINTS * 32)
