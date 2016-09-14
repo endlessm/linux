@@ -243,6 +243,8 @@ void aa_free_profile(struct aa_profile *profile)
 	}
 
 	kzfree(profile->hash);
+	aa_put_loaddata(profile->rawdata);
+
 	kzfree(profile);
 }
 
@@ -840,7 +842,6 @@ static struct aa_profile *update_to_newest_parent(struct aa_profile *new)
  * @label: label that is attempting to load/replace policy
  * @mask: permission mask
  * @udata: serialized data stream  (NOT NULL)
- * @size: size of the serialized data stream
  *
  * unpack and replace a profile on the profile list and uses of that profile
  * by any aa_task_ctx.  If the profile does not exist on the profile list
@@ -848,8 +849,8 @@ static struct aa_profile *update_to_newest_parent(struct aa_profile *new)
  *
  * Returns: size of data consumed else error code on failure.
  */
-ssize_t aa_replace_profiles(struct aa_label *label, u32 mask, void *udata,
-			    size_t size)
+ssize_t aa_replace_profiles(struct aa_label *label, u32 mask,
+			    struct aa_loaddata *udata)
 {
 	const char *ns_name, *info = NULL;
 	struct aa_ns *ns = NULL;
@@ -860,7 +861,7 @@ ssize_t aa_replace_profiles(struct aa_label *label, u32 mask, void *udata,
 	LIST_HEAD(lh);
 
 	/* released below */
-	error = aa_unpack(udata, size, &lh, &ns_name);
+	error = aa_unpack(udata, &lh, &ns_name);
 	if (error)
 		goto out;
 
@@ -903,6 +904,7 @@ ssize_t aa_replace_profiles(struct aa_label *label, u32 mask, void *udata,
 	list_for_each_entry(ent, &lh, list) {
 		struct aa_policy *policy;
 
+		ent->new->rawdata = aa_get_loaddata(udata);
 		error = __lookup_replace(ns, ent->new->base.hname,
 					 !(mask & AA_MAY_REPLACE_POLICY),
 					 &ent->old, &info);
@@ -995,7 +997,7 @@ out:
 
 	if (error)
 		return error;
-	return size;
+	return udata->size;
 
 fail_lock:
 	mutex_unlock(&ns->lock);
