@@ -123,6 +123,7 @@ isci ?
 mlx4_ib ?
 mlx5_ib ?
 zfcp ?
+sd_mod ?
 
 # device handlers
 scsi_dh_alua ?
