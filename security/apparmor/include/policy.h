@@ -149,6 +149,7 @@ struct aa_profile {
 	struct aa_net net;
 	struct aa_rlimit rlimits;
 
+	struct aa_loaddata *rawdata;
 	unsigned char *hash;
 	char *dirname;
 	struct dentry *dents[AAFS_PROF_SIZEOF];
@@ -184,8 +185,8 @@ struct aa_profile *aa_fqlookupn_profile(struct aa_label *base,
 					const char *fqname, size_t n);
 struct aa_profile *aa_match_profile(struct aa_ns *ns, const char *name);
 
-ssize_t aa_replace_profiles(struct aa_label *label, u32 mask, void *udata,
-			    size_t size);
+ssize_t aa_replace_profiles(struct aa_label *label, u32 mask,
+			    struct aa_loaddata *udata);
 ssize_t aa_remove_profiles(struct aa_label *label, char *name, size_t size);
 void __aa_profile_list_release(struct list_head *head);
 

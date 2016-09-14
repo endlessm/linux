@@ -35,6 +35,7 @@
 #include "include/policy.h"
 #include "include/resource.h"
 #include "include/lib.h"
+#include "include/policy_unpack.h"
 
 /**
  * aa_mangle_name - mangle a profile name to std profile layout form
@@ -85,11 +86,12 @@ static int mangle_name(const char *name, char *target)
  * Returns: kernel buffer containing copy of user buffer data or an
  *          ERR_PTR on failure.
  */
-static char *aa_simple_write_to_buffer(const char __user *userbuf,
-				       size_t alloc_size, size_t copy_size,
-				       loff_t *pos)
+static struct aa_loaddata *aa_simple_write_to_buffer(const char __user *userbuf,
+						     size_t alloc_size,
+						     size_t copy_size,
+						     loff_t *pos)
 {
-	char *data;
+	struct aa_loaddata *data;
 
 	BUG_ON(copy_size > alloc_size);
 
@@ -98,11 +100,15 @@ static char *aa_simple_write_to_buffer(const char __user *userbuf,
 		return ERR_PTR(-ESPIPE);
 
 	/* freed by caller to simple_write_to_buffer */
-	data = kvmalloc(alloc_size);
+	data = kvmalloc(sizeof(*data) + alloc_size);
 	if (data == NULL)
 		return ERR_PTR(-ENOMEM);
+	kref_init(&data->count);
+	data->size = copy_size;
+	data->hash = NULL;
+	data->abi = 0;
 
-	if (copy_from_user(data, userbuf, copy_size)) {
+	if (copy_from_user(data->data, userbuf, copy_size)) {
 		kvfree(data);
 		return ERR_PTR(-EFAULT);
 	}
@@ -115,7 +121,7 @@ static ssize_t policy_update(u32 mask, const char __user *buf, size_t size,
 {
 	struct aa_label *label;
 	ssize_t error;
-	char *data;
+	struct aa_loaddata *data;
 
 	label = aa_begin_current_label(DO_UPDATE);
 
@@ -129,8 +135,8 @@ static ssize_t policy_update(u32 mask, const char __user *buf, size_t size,
 	data = aa_simple_write_to_buffer(buf, size, size, pos);
 	error = PTR_ERR(data);
 	if (!IS_ERR(data)) {
-		error = aa_replace_profiles(label, mask, data, size);
-		kvfree(data);
+		error = aa_replace_profiles(label, mask, data);
+		aa_put_loaddata(data);
 	}
 	aa_end_current_label(label);
 
@@ -166,9 +172,9 @@ static const struct file_operations aa_fs_profile_replace = {
 static ssize_t profile_remove(struct file *f, const char __user *buf,
 			      size_t size, loff_t *pos)
 {
+	struct aa_loaddata *data;
 	struct aa_label *label;
 	ssize_t error;
-	char *data;
 
 	label = aa_begin_current_label(DO_UPDATE);
 	/* high level check about policy management - fine grained in
@@ -186,9 +192,9 @@ static ssize_t profile_remove(struct file *f, const char __user *buf,
 
 	error = PTR_ERR(data);
 	if (!IS_ERR(data)) {
-		data[size] = 0;
-		error = aa_remove_profiles(label, data, size);
-		kvfree(data);
+		data->data[size] = 0;
+		error = aa_remove_profiles(label, data->data, size);
+		aa_put_loaddata(data);
 	}
 	aa_end_current_label(label);
 
@@ -643,6 +649,102 @@ static const struct file_operations aa_fs_seq_hash_fops = {
 	.release	= single_release,
 };
 
+static int rawdata_release(struct inode *inode, struct file *file)
+{
+	/* TODO: switch to loaddata when profile switched to symlink */
+	aa_put_proxy(file->private_data);
+
+	return 0;
+}
+
+static int aa_fs_seq_raw_abi_show(struct seq_file *seq, void *v)
+{
+	struct aa_proxy *proxy = seq->private;
+	struct aa_label *label = aa_get_label_rcu(&proxy->label);
+	struct aa_profile *profile = labels_profile(label);
+
+	if (profile->rawdata->abi) {
+		seq_printf(seq, "v%d", profile->rawdata->abi);
+		seq_puts(seq, "\n");
+	}
+	aa_put_label(label);
+
+	return 0;
+}
+
+static int aa_fs_seq_raw_abi_open(struct inode *inode, struct file *file)
+{
+	return aa_fs_seq_profile_open(inode, file, aa_fs_seq_raw_abi_show);
+}
+
+static const struct file_operations aa_fs_seq_raw_abi_fops = {
+	.owner		= THIS_MODULE,
+	.open		= aa_fs_seq_raw_abi_open,
+	.read		= seq_read,
+	.llseek		= seq_lseek,
+	.release	= aa_fs_seq_profile_release,
+};
+
+static int aa_fs_seq_raw_hash_show(struct seq_file *seq, void *v)
+{
+	struct aa_proxy *proxy = seq->private;
+	struct aa_label *label = aa_get_label_rcu(&proxy->label);
+	struct aa_profile *profile = labels_profile(label);
+	unsigned int i, size = aa_hash_size();
+
+	if (profile->rawdata->hash) {
+		for (i = 0; i < size; i++)
+			seq_printf(seq, "%.2x", profile->rawdata->hash[i]);
+		seq_puts(seq, "\n");
+	}
+	aa_put_label(label);
+
+	return 0;
+}
+
+static int aa_fs_seq_raw_hash_open(struct inode *inode, struct file *file)
+{
+	return aa_fs_seq_profile_open(inode, file, aa_fs_seq_raw_hash_show);
+}
+
+static const struct file_operations aa_fs_seq_raw_hash_fops = {
+	.owner		= THIS_MODULE,
+	.open		= aa_fs_seq_raw_hash_open,
+	.read		= seq_read,
+	.llseek		= seq_lseek,
+	.release	= aa_fs_seq_profile_release,
+};
+
+static ssize_t rawdata_read(struct file *file, char __user *buf, size_t size,
+			    loff_t *ppos)
+{
+	struct aa_proxy *proxy = file->private_data;
+	struct aa_label *label = aa_get_label_rcu(&proxy->label);
+	struct aa_profile *profile = labels_profile(label);
+
+	ssize_t ret = simple_read_from_buffer(buf, size, ppos, profile->rawdata->data, profile->rawdata->size);
+	aa_put_label(label);
+
+	return ret;
+}
+
+static int rawdata_open(struct inode *inode, struct file *file)
+{
+	if (!policy_view_capable())
+		return -EACCES;
+
+	file->private_data = aa_get_proxy(inode->i_private);
+
+	return 0;
+}
+
+static const struct file_operations aa_fs_rawdata_fops = {
+	.open = rawdata_open,
+	.read = rawdata_read,
+	.llseek = generic_file_llseek,
+	.release = rawdata_release,
+};
+
 /** fns to setup dynamic per profile/namespace files **/
 
 /**
@@ -774,6 +876,29 @@ int __aa_fs_profile_mkdir(struct aa_profile *profile, struct dentry *parent)
 		profile->dents[AAFS_PROF_HASH] = dent;
 	}
 
+	if (profile->rawdata) {
+		dent = create_profile_file(dir, "raw_hash", profile,
+					   &aa_fs_seq_raw_hash_fops);
+		if (IS_ERR(dent))
+			goto fail;
+		profile->dents[AAFS_PROF_RAW_HASH] = dent;
+
+		dent = create_profile_file(dir, "raw_abi", profile,
+					   &aa_fs_seq_raw_abi_fops);
+		if (IS_ERR(dent))
+			goto fail;
+		profile->dents[AAFS_PROF_RAW_ABI] = dent;
+
+		dent = securityfs_create_file("raw_data", S_IFREG | 0444, dir,
+					      profile->label.proxy,
+					      &aa_fs_rawdata_fops);
+		if (IS_ERR(dent))
+			goto fail;
+		profile->dents[AAFS_PROF_RAW_DATA] = dent;
+		d_inode(dent)->i_size = profile->rawdata->size;
+		aa_get_proxy(profile->label.proxy);
+	}
+
 	list_for_each_entry(child, &profile->base.profiles, base.list) {
 		error = __aa_fs_profile_mkdir(child, prof_child_dir(profile));
 		if (error)
@@ -847,6 +972,11 @@ int __aa_fs_ns_mkdir(struct aa_ns *ns, struct dentry *parent, const char *name)
 	if (IS_ERR(dent))
 		goto fail;
 	ns_subprofs_dir(ns) = dent;
+
+	dent = securityfs_create_dir("raw_data", dir);
+	if (IS_ERR(dent))
+		goto fail;
+	ns_subdata_dir(ns) = dent;
 
 	dent = securityfs_create_dir("namespaces", dir);
 	if (IS_ERR(dent))
