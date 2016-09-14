@@ -125,6 +125,15 @@ static int audit_iface(struct aa_profile *new, const char *ns_name,
 	return aa_audit(AUDIT_APPARMOR_STATUS, profile, &sa, audit_cb);
 }
 
+void aa_loaddata_kref(struct kref *kref)
+{
+	struct aa_loaddata *d = container_of(kref, struct aa_loaddata, count);
+	if (d) {
+		kzfree(d->hash);
+		kvfree(d);
+	}
+}
+
 /* test if read will be in packed data bounds */
 static bool inbounds(struct aa_ext *e, size_t size)
 {
@@ -894,7 +903,6 @@ struct aa_load_ent *aa_load_ent_alloc(void)
 /**
  * aa_unpack - unpack packed binary profile(s) data loaded from user space
  * @udata: user data copied to kmem  (NOT NULL)
- * @size: the size of the user data
  * @lh: list to place unpacked profiles in a aa_repl_ws
  * @ns: Returns namespace profile is in if specified else NULL (NOT NULL)
  *
@@ -904,15 +912,15 @@ struct aa_load_ent *aa_load_ent_alloc(void)
  *
  * Returns: profile(s) on @lh else error pointer if fails to unpack
  */
-int aa_unpack(void *udata, size_t size, struct list_head *lh, const char **ns)
+int aa_unpack(struct aa_loaddata *udata, struct list_head *lh, const char **ns)
 {
 	struct aa_load_ent *tmp, *ent;
 	struct aa_profile *profile = NULL;
 	int error;
 	struct aa_ext e = {
-		.start = udata,
-		.end = udata + size,
-		.pos = udata,
+		.start = udata->data,
+		.end = udata->data + udata->size,
+		.pos = udata->data,
 	};
 
 	*ns = NULL;
@@ -922,7 +930,6 @@ int aa_unpack(void *udata, size_t size, struct list_head *lh, const char **ns)
 		error = verify_header(&e, e.pos == e.start, ns);
 		if (error)
 			goto fail;
-
 		start = e.pos;
 		profile = unpack_profile(&e, &ns_name);
 		if (IS_ERR(profile)) {
@@ -950,7 +957,15 @@ int aa_unpack(void *udata, size_t size, struct list_head *lh, const char **ns)
 		ent->ns_name = ns_name;
 		list_add_tail(&ent->list, lh);
 	}
-
+	udata->abi = e.version & K_ABI_MASK;
+	if (aa_g_hash_policy) {
+		udata->hash = aa_calc_hash(udata->data, udata->size);
+		if (IS_ERR(udata->hash)) {
+			error = PTR_ERR(udata->hash);
+			udata->hash = NULL;
+			goto fail;
+		}
+	}
 	return 0;
 
 fail_profile:
