@@ -280,7 +280,6 @@ static inline int AUDIT_MODE(struct aa_profile *profile)
 	return profile->audit;
 }
 
-bool policy_view_capable(void);
 bool policy_admin_capable(void);
 bool aa_may_open_profiles(void);
 int aa_may_manage_policy(struct aa_label *label, u32 mask);
