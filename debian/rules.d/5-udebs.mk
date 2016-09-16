@@ -6,6 +6,7 @@ ifeq ($(disable_d_i),)
 		do-binary-udebs
 endif
 
+do-binary-udebs: linux_udeb_name=$(shell if echo $(src_pkg_name)|grep -q linux-lts; then echo $(src_pkg_name); else echo linux; fi)
 do-binary-udebs: debian/control
 	@echo Debug: $@
 	dh_testdir
@@ -49,7 +50,7 @@ do-binary-udebs: debian/control
 	@gawk '										\
 		/^Package:/ {								\
 			package=$$2; flavour=""; parch="" }				\
-		(/Package-Type: udeb/ && package !~ /^$(src_pkg_name)-udebs-/) {      \
+		(/Package-Type: udeb/ && package !~ /^$(linux_udeb_name)-udebs-/) {      \
 			match(package, "'$(release)'-'$(abinum)'-(.*)-di", bits);       \
 			flavour = bits[1];						\
 		}									\
@@ -62,7 +63,7 @@ do-binary-udebs: debian/control
 		}                                                      			\
 		END {                                                  			\
 			for (flavour in udebs) {					\
-				package="$(src_pkg_name)-udebs-" flavour;		\
+				package="$(linux_udeb_name)-udebs-" flavour;		\
 				file="debian/" package ".substvars";			\
 				print("udeb:Depends=" udebs[flavour]) > file;		\
 				metas="'$(builddir)'/udeb-meta-packages";		\
