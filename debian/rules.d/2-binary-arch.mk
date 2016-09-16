@@ -150,7 +150,7 @@ endif
 			INSTALL_DTBS_PATH=$(pkgdir)/lib/firmware/$(abi_release)-$*/device-tree; \
 		( cd $(pkgdir)/lib/firmware/$(abi_release)-$*/ && find device-tree -print ) | \
 		while read dtb_file; do \
-			echo "$$dtb_file ?" >> $(DEBIAN)/d-i/firmware/kernel-image; \
+			echo "$$dtb_file ?" >> $(DEBIAN)/d-i/firmware/$(arch)/kernel-image; \
 		done; \
 	fi
 ifeq ($(no_dumpfile),)

@@ -97,7 +97,7 @@ clean: debian/control
 	# d-i stuff
 	rm -rf $(DEBIAN)/d-i-$(arch)
 	# Generated on the fly.
-	rm -f $(DEBIAN)/d-i/firmware/kernel-image
+	rm -f $(DEBIAN)/d-i/firmware/$(arch)/kernel-image
 
 	# normal build junk
 	rm -rf $(DEBIAN)/abi/$(release)-$(revision)
