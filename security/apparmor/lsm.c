@@ -1336,6 +1336,8 @@ static int param_set_aalockpolicy(const char *val, const struct kernel_param *kp
 {
 	if (!policy_admin_capable())
 		return -EPERM;
+	if (aa_g_lock_policy)
+		return -EACCES;
 	return param_set_bool(val, kp);
 }
 
