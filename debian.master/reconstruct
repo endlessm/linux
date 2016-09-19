@@ -1,4 +1,7 @@
 # Recreate any symlinks created since the orig.
+[ ! -L 'arch/arm64/boot/dts/broadcom/bcm2835-rpi.dtsi' ] && ln -sf '../../../../arm/boot/dts/bcm2835-rpi.dtsi' 'arch/arm64/boot/dts/broadcom/bcm2835-rpi.dtsi'
+[ ! -L 'arch/arm64/boot/dts/broadcom/bcm283x-rpi-smsc9514.dtsi' ] && ln -sf '../../../../arm/boot/dts/bcm283x-rpi-smsc9514.dtsi' 'arch/arm64/boot/dts/broadcom/bcm283x-rpi-smsc9514.dtsi'
+[ ! -L 'arch/arm64/boot/dts/broadcom/bcm283x.dtsi' ] && ln -sf '../../../../arm/boot/dts/bcm283x.dtsi' 'arch/arm64/boot/dts/broadcom/bcm283x.dtsi'
 [ ! -L 'ubuntu/vbox/vboxguest/include' ] && ln -sf '../include' 'ubuntu/vbox/vboxguest/include'
 [ ! -L 'ubuntu/vbox/vboxguest/r0drv' ] && ln -sf '../r0drv' 'ubuntu/vbox/vboxguest/r0drv'
 [ ! -L 'ubuntu/vbox/vboxsf/include' ] && ln -sf '../include' 'ubuntu/vbox/vboxsf/include'
