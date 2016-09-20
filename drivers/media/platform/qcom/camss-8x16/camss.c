@@ -634,6 +634,8 @@ static int camss_probe(struct platform_device *pdev)
 	ret = camss_of_parse_ports(dev, &camss->notifier);
 	if (ret < 0)
 		return ret;
+	else if (ret == 0)
+		return -ENODEV;
 
 	ret = camss_init_subdevices(camss);
 	if (ret < 0)
