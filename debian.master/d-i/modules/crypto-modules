@@ -20,6 +20,9 @@ camellia ?
 cast5 ?
 cast6 ?
 ccm ?
+crc32_generic ?
+crc32c_generic ?
+crc32-vx_s390 ?
 cryptd ?
 cryptoloop ?
 crypto_null ?
