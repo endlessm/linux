@@ -255,11 +255,29 @@ struct intel_atomic_state {
 
 	bool dpll_set, modeset;
 
+	/*
+	 * Does this transaction change the pipes that are active?  This mask
+	 * tracks which CRTC's have changed their active state at the end of
+	 * the transaction (not counting the temporary disable during modesets).
+	 * This mask should only be non-zero when intel_state->modeset is true,
+	 * but the converse is not necessarily true; simply changing a mode may
+	 * not flip the final active status of any CRTC's
+	 */
+	unsigned int active_pipe_changes;
+
 	unsigned int active_crtcs;
 	unsigned int min_pixclk[I915_MAX_PIPES];
 
 	struct intel_shared_dpll_config shared_dpll[I915_NUM_PLLS];
-	struct intel_wm_config wm_config;
+
+	/*
+	 * Current watermarks can't be trusted during hardware readout, so
+	 * don't bother calculating intermediate watermarks.
+	 */
+	bool skip_intermediate_wm;
+
+	/* Gen9+ only */
+	struct skl_wm_values wm_results;
 };
 
 struct intel_plane_state {
@@ -360,6 +378,48 @@ struct skl_pipe_wm {
 	struct skl_wm_level wm[8];
 	struct skl_wm_level trans_wm;
 	uint32_t linetime;
+};
+
+struct intel_crtc_wm_state {
+	union {
+		struct {
+			/*
+			 * Intermediate watermarks; these can be
+			 * programmed immediately since they satisfy
+			 * both the current configuration we're
+			 * switching away from and the new
+			 * configuration we're switching to.
+			 */
+			struct intel_pipe_wm intermediate;
+
+			/*
+			 * Optimal watermarks, programmed post-vblank
+			 * when this state is committed.
+			 */
+			struct intel_pipe_wm optimal;
+		} ilk;
+
+		struct {
+			/* gen9+ only needs 1-step wm programming */
+			struct skl_pipe_wm optimal;
+
+			/* cached plane data rate */
+			unsigned plane_data_rate[I915_MAX_PLANES];
+			unsigned plane_y_data_rate[I915_MAX_PLANES];
+
+			/* minimum block allocation */
+			uint16_t minimum_blocks[I915_MAX_PLANES];
+			uint16_t minimum_y_blocks[I915_MAX_PLANES];
+		} skl;
+	};
+
+	/*
+	 * Platforms with two-step watermark programming will need to
+	 * update watermark programming post-vblank to switch from the
+	 * safe intermediate watermarks to the optimal final
+	 * watermarks.
+	 */
+	bool need_postvbl_update;
 };
 
 struct intel_crtc_state {
@@ -514,16 +574,7 @@ struct intel_crtc_state {
 	/* IVB sprite scaling w/a (WaCxSRDisabledForSpriteScaling:ivb) */
 	bool disable_lp_wm;
 
-	struct {
-		/*
-		 * optimal watermarks, programmed post-vblank when this state
-		 * is committed
-		 */
-		union {
-			struct intel_pipe_wm ilk;
-			struct skl_pipe_wm skl;
-		} optimal;
-	} wm;
+	struct intel_crtc_wm_state wm;
 };
 
 struct vlv_wm_state {
@@ -606,6 +657,7 @@ struct intel_crtc {
 			struct intel_pipe_wm ilk;
 			struct skl_pipe_wm skl;
 		} active;
+
 		/* allow CxSR on this pipe */
 		bool cxsr_allowed;
 	} wm;
@@ -1573,6 +1625,7 @@ void skl_wm_get_hw_state(struct drm_device *dev);
 void skl_ddb_get_hw_state(struct drm_i915_private *dev_priv,
 			  struct skl_ddb_allocation *ddb /* out */);
 uint32_t ilk_pipe_pixel_rate(const struct intel_crtc_state *pipe_config);
+bool ilk_disable_lp_wm(struct drm_device *dev);
 int sanitize_rc6_option(const struct drm_device *dev, int enable_rc6);
 
 /* intel_sdvo.c */

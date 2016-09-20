@@ -281,6 +281,12 @@ struct i915_hotplug {
 			    &dev->mode_config.plane_list,	\
 			    base.head)
 
+#define for_each_intel_plane_mask(dev, intel_plane, plane_mask)		\
+	list_for_each_entry(intel_plane, &dev->mode_config.plane_list,	\
+			    base.head)					\
+		for_each_if ((plane_mask) &				\
+			     (1 << drm_plane_index(&intel_plane->base)))
+
 #define for_each_intel_plane_on_crtc(dev, intel_crtc, intel_plane)	\
 	list_for_each_entry(intel_plane,				\
 			    &(dev)->mode_config.plane_list,		\
@@ -289,6 +295,10 @@ struct i915_hotplug {
 
 #define for_each_intel_crtc(dev, intel_crtc) \
 	list_for_each_entry(intel_crtc, &dev->mode_config.crtc_list, base.head)
+
+#define for_each_intel_crtc_mask(dev, intel_crtc, crtc_mask) \
+	list_for_each_entry(intel_crtc, &dev->mode_config.crtc_list, base.head) \
+		for_each_if ((crtc_mask) & (1 << drm_crtc_index(&intel_crtc->base)))
 
 #define for_each_intel_encoder(dev, intel_encoder)		\
 	list_for_each_entry(intel_encoder,			\
@@ -631,7 +641,12 @@ struct drm_i915_display_funcs {
 			  struct dpll *best_clock);
 	int (*compute_pipe_wm)(struct intel_crtc *crtc,
 			       struct drm_atomic_state *state);
-	void (*program_watermarks)(struct intel_crtc_state *cstate);
+	int (*compute_intermediate_wm)(struct drm_device *dev,
+				       struct intel_crtc *intel_crtc,
+				       struct intel_crtc_state *newstate);
+	void (*initial_watermarks)(struct intel_crtc_state *cstate);
+	void (*optimize_watermarks)(struct intel_crtc_state *cstate);
+	int (*compute_global_watermarks)(struct drm_atomic_state *state);
 	void (*update_wm)(struct drm_crtc *crtc);
 	int (*modeset_calc_cdclk)(struct drm_atomic_state *state);
 	void (*modeset_commit_cdclk)(struct drm_atomic_state *state);
@@ -1604,7 +1619,7 @@ struct skl_ddb_allocation {
 };
 
 struct skl_wm_values {
-	bool dirty[I915_MAX_PIPES];
+	unsigned dirty_pipes;
 	struct skl_ddb_allocation ddb;
 	uint32_t wm_linetime[I915_MAX_PIPES];
 	uint32_t plane[I915_MAX_PIPES][I915_MAX_PLANES][8];
@@ -1962,9 +1977,6 @@ struct drm_i915_private {
 		 */
 		uint16_t skl_latency[8];
 
-		/* Committed wm config */
-		struct intel_wm_config config;
-
 		/*
 		 * The skl_wm_values structure is a bit too big for stack
 		 * allocation, so we keep the staging struct where we store
@@ -1980,6 +1992,20 @@ struct drm_i915_private {
 		};
 
 		uint8_t max_level;
+
+		/*
+		 * Should be held around atomic WM register writing; also
+		 * protects * intel_crtc->wm.active and
+		 * cstate->wm.need_postvbl_update.
+		 */
+		struct mutex wm_mutex;
+
+		/*
+		 * Set during HW readout of watermarks/DDB.  Some platforms
+		 * need to know when we're still using BIOS-provided values
+		 * (which we don't fully trust).
+		 */
+		bool distrust_bios_wm;
 	} wm;
 
 	struct i915_runtime_pm pm;
