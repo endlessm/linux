@@ -140,6 +140,7 @@ fs/exofs/libore.ko
 fs/ext4/*
 fs/fat/*
 fs/fuse/*
+fs/nls/nls_cp437.ko
 fs/nls/nls_iso8859-1.ko
 fs/isofs/*
 fs/cifs/*
