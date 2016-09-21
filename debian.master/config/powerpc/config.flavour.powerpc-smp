@@ -630,7 +630,6 @@ CONFIG_NR_CPUS=4
 # CONFIG_NTB is not set
 # CONFIG_NVM is not set
 CONFIG_OF_MDIO=m
-# CONFIG_OF_OVERLAY is not set
 # CONFIG_OPT3001 is not set
 # CONFIG_ORANGEFS_FS is not set
 # CONFIG_OSF_PARTITION is not set
