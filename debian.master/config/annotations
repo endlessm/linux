@@ -1040,14 +1040,14 @@ CONFIG_GPIO_TIMBERDALE                          policy<{'i386': 'y'}>
 CONFIG_GPIO_TPS6586X                            policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'powerpc': 'y', 'ppc64el': 'y'}>
 CONFIG_GPIO_TPS65910                            policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'powerpc': 'y', 'ppc64el': 'y'}>
 CONFIG_GPIO_TPS65912                            policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'powerpc': 'm', 'ppc64el': 'm'}>
-CONFIG_GPIO_TWL4030                             policy<{'amd64': '-', 'arm64': '-', 'armhf': 'y', 'i386': '-', 'powerpc-powerpc-generic': 'm', 'powerpc-powerpc-smp': '-', 'powerpc-powerpc-e500mc': 'm', 'powerpc-powerpc64-emb': 'm','ppc64el': '-', 's390x': '-'}>
+CONFIG_GPIO_TWL4030                             policy<{'amd64': 'm', 'arm64': '-', 'armhf': 'y', 'i386': 'm', 'powerpc-powerpc-generic': '-', 'powerpc-powerpc-smp': 'm', 'powerpc-powerpc-e500mc': 'm', 'powerpc-powerpc64-emb': 'm','ppc64el': 'm', 's390x': '-'}>
 CONFIG_GPIO_TWL6040                             policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'y', 'i386': 'm', 'powerpc': 'm', 'ppc64el': 'm'}>
 CONFIG_GPIO_UCB1400                             policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'powerpc': 'm', 'ppc64el': 'm'}>
 CONFIG_GPIO_WM831X                              policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'powerpc': 'm', 'ppc64el': 'm'}>
 CONFIG_GPIO_WM8350                              policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'powerpc': 'm', 'ppc64el': 'm'}>
 CONFIG_GPIO_WM8994                              policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'powerpc': 'm', 'ppc64el': 'm'}>
 #
-CONFIG_GPIO_TWL4030                             mark<ENFORCED> note<LP:#921934>
+#CONFIG_GPIO_TWL4030                             mark<ENFORCED> note<LP:#921934>
 
 # Menu: Device Drivers >> GPIO Support >> Memory mapped GPIO drivers
 CONFIG_GPIO_74XX_MMIO                           policy<{'arm64': 'm', 'armhf': 'm', 'powerpc': 'm', 'ppc64el': 'm'}>
@@ -6570,7 +6570,7 @@ CONFIG_USB_EHCI_MSM                             policy<{'arm64': 'm', 'armhf': '
 CONFIG_USB_EHCI_TEGRA                           policy<{'armhf-generic': 'm'}>
 CONFIG_USB_EHCI_HCD_PPC_OF                      policy<{'powerpc': 'y', 'ppc64el': 'y'}>
 CONFIG_USB_EHCI_EXYNOS                          policy<{'armhf': 'y'}>
-CONFIG_USB_EHCI_HCD_PLATFORM			policy<{'amd64': 'n', 'arm64': 'm', 'armhf': 'm', 'i386': 'n', 'powerpc-powerpc64-emb': 'm', 'powerpc-generic': 'n', 'powerpc-powerpc-e500mc': 'm', 'powerpc-powerpc-smp': 'n', 'ppc64el': 'n', 's390x': '-'}>
+CONFIG_USB_EHCI_HCD_PLATFORM			policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'powerpc-powerpc64-emb': 'm', 'powerpc-generic': 'm', 'powerpc-powerpc-e500mc': 'm', 'powerpc-powerpc-smp': 'm', 'ppc64el': 'm', 's390x': '-'}>
 #
 CONFIG_USB_EHCI_HCD_PLATFORM                    mark<ENFORCED> note<Don't use the generic ehci/ohci code on omap, it doesn't work> flag<REVIEW>
 CONFIG_USB_EHCI_HCD                             note<ensures USB 2.0/1.1 probe ordering> flag<REVIEW>
@@ -6962,7 +6962,7 @@ CONFIG_REGULATOR_TPS6586X                       policy<{'amd64': 'm', 'arm64': '
 CONFIG_REGULATOR_TPS65910                       policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'powerpc': 'm', 'ppc64el': 'm'}>
 CONFIG_REGULATOR_TPS65912                       policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'powerpc': 'm', 'ppc64el': 'm'}>
 CONFIG_REGULATOR_TPS80031                       policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'powerpc': 'm', 'ppc64el': 'm'}>
-CONFIG_REGULATOR_TWL4030                        policy<{'amd64': '-', 'arm64': '-', 'armhf-generic': 'y', 'armhf-generic-lpae': 'm', 'i386': '-', 'powerpc': '-', 'powerpc-powerpc-e500mc': 'm', 'powerpc-powerpc64-emb': 'm', 'ppc64el': '-'}>
+CONFIG_REGULATOR_TWL4030                        policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'y', 'i386': 'm', 'powerpc': 'm', 'ppc64el': 'm'}>
 CONFIG_REGULATOR_VEXPRESS                       policy<{'arm64': 'm', 'armhf': 'm'}>
 CONFIG_REGULATOR_WM831X                         policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'powerpc': 'm', 'ppc64el': 'm'}>
 CONFIG_REGULATOR_WM8350                         policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'powerpc': 'm', 'ppc64el': 'm'}>
@@ -6970,7 +6970,7 @@ CONFIG_REGULATOR_WM8400                         policy<{'amd64': 'm', 'arm64': '
 CONFIG_REGULATOR_WM8994                         policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'powerpc': 'm', 'ppc64el': 'm'}>
 #
 CONFIG_REGULATOR_FIXED_VOLTAGE                  note<boot essential on arm>
-CONFIG_REGULATOR_TWL4030                        mark<ENFORCED> note<boot requisite for omap4>
+#CONFIG_REGULATOR_TWL4030                        mark<ENFORCED> note<boot requisite for omap4>
 
 # Menu: Device Drivers >> Watchdog Timer Support
 CONFIG_WATCHDOG                                 policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'powerpc': 'y', 'ppc64el': 'y', 's390x': 'y'}>
