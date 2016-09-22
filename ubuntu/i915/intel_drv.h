@@ -438,7 +438,7 @@ struct intel_crtc_state {
 
 	bool update_pipe; /* can a fast modeset be performed? */
 	bool disable_cxsr;
-	bool wm_changed; /* watermarks are updated */
+	bool update_wm_pre, update_wm_post; /* watermarks are updated */
 	bool fb_changed; /* fb on any of the planes is changed */
 
 	/* Pipe source size (ie. panel fitter input size)
@@ -1667,6 +1667,18 @@ intel_atomic_get_crtc_state(struct drm_atomic_state *state,
 
 	return to_intel_crtc_state(crtc_state);
 }
+
+static inline struct intel_plane_state *
+intel_atomic_get_existing_plane_state(struct drm_atomic_state *state,
+				      struct intel_plane *plane)
+{
+	struct drm_plane_state *plane_state;
+
+	plane_state = drm_atomic_get_existing_plane_state(state, &plane->base);
+
+	return to_intel_plane_state(plane_state);
+}
+
 int intel_atomic_setup_scalers(struct drm_device *dev,
 	struct intel_crtc *intel_crtc,
 	struct intel_crtc_state *crtc_state);
