@@ -150,7 +150,7 @@ CONFIG_PCI_CNB20LE_QUIRK                        policy<{'amd64': 'n', 'i386': 'n
 
 # Menu: Bus options (PCI etc.) >> PCI support >> PCI Express Port Bus support
 CONFIG_PCIEPORTBUS                              policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'powerpc': 'y', 'ppc64el': 'y', 's390x': 'y'}>
-CONFIG_HOTPLUG_PCI_PCIE                         policy<{'amd64': 'y', 'armhf': '-', 'arm64': '-', 'i386': 'y', 'powerpc': 'y', 'powerpc-powerpc-smp': '-', 'ppc64el': 'n', 's390x': 'y'}>
+CONFIG_HOTPLUG_PCI_PCIE                         policy<{'amd64': 'y', 'armhf': 'y', 'arm64': 'y', 'i386': 'y', 'powerpc': 'y', 'powerpc-powerpc-smp': 'y', 'ppc64el': 'n', 's390x': 'y'}>
 CONFIG_PCIEAER                                  policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'powerpc': 'y', 'ppc64el': 'y', 's390x': 'y'}>
 CONFIG_PCIE_ECRC                                policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'i386': 'n', 'powerpc': 'n', 'ppc64el': 'n', 's390x': 'n'}>
 CONFIG_PCIEAER_INJECT                           policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'i386': 'n', 'powerpc': 'n', 'ppc64el': 'n', 's390x': 'n'}>
