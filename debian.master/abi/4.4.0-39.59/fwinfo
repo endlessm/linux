@@ -558,6 +558,7 @@ firmware:       prism2_ru.fw
 firmware:       prism_ap_fw.bin
 firmware:       prism_sta_fw.bin
 firmware:       qat_895xcc.bin
+firmware:       qed/qed_init_values_zipped-8.4.2.0.bin
 firmware:       ql2100_fw.bin
 firmware:       ql2200_fw.bin
 firmware:       ql2300_fw.bin
