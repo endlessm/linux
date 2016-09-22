@@ -7715,6 +7715,7 @@ CONFIG_COMPAT_BRK                               mark<ENFORCED> note<disables brk
 CONFIG_LOCALVERSION_AUTO                        mark<ENFORCED> note<triggers packaging failures>
 CONFIG_JUMP_LABEL                               flag<REVIEW>
 CONFIG_NUMA_BALANCING_DEFAULT_ENABLE            note<LP:1557690>
+CONFIG_USERFAULTFD				mark<ENFORCED> note<LP:1626149>
 
 # Menu: General setup >> CPU/Task time and stats accounting
 CONFIG_BSD_PROCESS_ACCT                         policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'powerpc': 'y', 'ppc64el': 'y', 's390x': 'y'}>
