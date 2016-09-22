@@ -1558,9 +1558,17 @@ static int i8042_remove(struct platform_device *dev)
 
 static const struct dmi_system_id i8042_dmi_noselftest_table[] __initconst = {
 	{
+		.ident = "ASUS X455LAB",
 		.matches = {
 			DMI_MATCH(DMI_SYS_VENDOR, "ASUSTeK COMPUTER INC."),
 			DMI_MATCH(DMI_PRODUCT_NAME, "X455LAB"),
+		},
+	},
+	{
+		.ident = "ASUS Z450LA",
+		.matches = {
+			DMI_MATCH(DMI_SYS_VENDOR, "ASUSTeK COMPUTER INC."),
+			DMI_MATCH(DMI_PRODUCT_NAME, "Z450LA"),
 		},
 	},
 	{}
