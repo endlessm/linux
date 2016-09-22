@@ -148,26 +148,6 @@ void aa_free_ns(struct aa_ns *ns)
 }
 
 /**
- * __aa_findn_ns - find a namespace on a list by @name
- * @head: list to search for namespace on  (NOT NULL)
- * @name: name of namespace to look for  (NOT NULL)
- * @n: length of @name
- * Returns: unrefcounted namespace
- *
- * Requires: rcu_read_lock be held
- */
-static struct aa_ns *__aa_findn_ns(struct list_head *head, const char *name,
-				   size_t n)
-{
-	return (struct aa_ns *)__policy_strn_find(head, name, n);
-}
-
-static struct aa_ns *__aa_find_ns(struct list_head *head, const char *name)
-{
-	return __aa_findn_ns(head, name, strlen(name));
-}
-
-/**
  * aa_find_ns  -  look up a profile namespace on the namespace list
  * @root: namespace to search in  (NOT NULL)
  * @name: name of namespace to find  (NOT NULL)
@@ -204,22 +184,27 @@ struct aa_ns *aa_find_ns(struct aa_ns *root, const char *name)
 	return aa_findn_ns(root, name, strlen(name));
 }
 
-static struct aa_ns *__aa_create_ns(struct aa_ns *parent, const char *name)
+static struct aa_ns *__aa_create_ns(struct aa_ns *parent, const char *name,
+				    struct dentry *dir)
 {
 	struct aa_ns *ns;
+	int error;
 
+	AA_BUG(!parent);
+	AA_BUG(!name);
 	AA_BUG(!mutex_is_locked(&parent->lock));
 
 	ns = alloc_ns(parent->base.hname, name);
 	if (!ns)
 		return NULL;
 	mutex_lock(&ns->lock);
-	if (__aa_fs_ns_mkdir(ns, ns_subns_dir(parent), name)) {
+	error = __aa_fs_ns_mkdir(ns, ns_subns_dir(parent), name, dir);
+	if (error) {
 		AA_ERROR("Failed to create interface for ns %s\n",
 			 ns->base.name);
 		mutex_unlock(&ns->lock);
 		aa_free_ns(ns);
-		return ERR_PTR(-ENOMEM);
+		return ERR_PTR(error);
 	} else {
 		ns->parent = aa_get_ns(parent);
 		ns->level = parent->level + 1;
@@ -232,7 +217,16 @@ static struct aa_ns *__aa_create_ns(struct aa_ns *parent, const char *name)
 	return ns;
 }
 
-struct aa_ns *aa_create_ns(struct aa_ns *parent, const char *name)
+/**
+ * aa_create_ns - create an ns, fail if it already exists
+ * @parent: the parent of the namespace being created
+ * @name: the name of the namespace
+ * @dir: if not null the dir to put the ns entries in
+ *
+ * Returns: the a refcounted ns that has been add or an ERR_PTR
+ */
+struct aa_ns *aa_create_ns(struct aa_ns *parent, const char *name,
+			   struct dentry *dir)
 {
 	struct aa_ns *ns;
 
@@ -241,14 +235,11 @@ struct aa_ns *aa_create_ns(struct aa_ns *parent, const char *name)
 	/* released by caller */
 	ns = aa_get_ns(__aa_find_ns(&parent->sub_ns, name));
 	if (!ns)
-{
-printk("apparmor creating ns %s\n", name);
-		ns = __aa_create_ns(parent, name);
-}
+		ns = __aa_create_ns(parent, name, dir);
 	else
 		ns = ERR_PTR(-EEXIST);
 	mutex_unlock(&parent->lock);
-printk("apparmor unlocking parent ns\n");
+
 	/* return ref */
 	return ns;
 }
@@ -269,7 +260,7 @@ struct aa_ns *aa_prepare_ns(struct aa_ns *parent, const char *name)
 	/* released by caller */
 	ns = aa_get_ns(__aa_find_ns(&parent->sub_ns, name));
 	if (!ns)
-		ns = __aa_create_ns(parent, name);
+		ns = __aa_create_ns(parent, name, NULL);
 	mutex_unlock(&parent->lock);
 
 	/* return ref */
