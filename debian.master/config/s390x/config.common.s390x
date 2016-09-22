@@ -801,9 +801,7 @@ CONFIG_SERIO_SERPORT=y
 # CONFIG_SI7020 is not set
 # CONFIG_SIGNED_PE_FILE_VERIFICATION is not set
 # CONFIG_SIS900 is not set
-CONFIG_SLAB=y
 # CONFIG_SLIP is not set
-# CONFIG_SLUB is not set
 # CONFIG_SMSC911X is not set
 # CONFIG_SM_FTL is not set
 # CONFIG_SND_ALI5451 is not set
