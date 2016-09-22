@@ -7734,6 +7734,8 @@ CONFIG_IRQ_TIME_ACCOUNTING                      policy<{'amd64': 'n', 'armhf': '
 CONFIG_SLAB                                     policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'i386': 'n', 'powerpc': 'n', 'ppc64el': 'n', 's390x': 'n'}>
 CONFIG_SLUB                                     policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'powerpc': 'y', 'ppc64el': 'y', 's390x': 'y'}>
 CONFIG_SLOB                                     policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'i386': 'n', 'powerpc': 'n', 'ppc64el': 'n', 's390x': 'n'}>
+#
+CONFIG_SLUB					mark<ENFORCED> note<LP:1626564>
 
 # Menu: General setup >> Configure standard kernel features (expert users)
 CONFIG_EXPERT                                   policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'powerpc': 'y', 'ppc64el': 'y', 's390x': 'y'}>
