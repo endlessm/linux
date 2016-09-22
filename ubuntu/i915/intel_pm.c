@@ -3530,8 +3530,6 @@ static void skl_write_wm_values(struct drm_i915_private *dev_priv,
 
 		if ((new->dirty_pipes & drm_crtc_mask(&crtc->base)) == 0)
 			continue;
-		if (!crtc->active)
-			continue;
 
 		I915_WRITE(PIPE_WM_LINETIME(pipe), new->wm_linetime[pipe]);
 
@@ -3852,7 +3850,7 @@ skl_compute_wm(struct drm_atomic_state *state)
 			/* This pipe's WM's did not change */
 			continue;
 
-		intel_cstate->wm_changed = true;
+		intel_cstate->update_wm_pre = true;
 		skl_compute_wm_results(crtc->dev, pipe_wm, results, intel_crtc);
 	}
 
