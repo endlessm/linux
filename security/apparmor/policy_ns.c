@@ -199,43 +199,73 @@ struct aa_ns *aa_find_ns(struct aa_ns *root, const char *name)
 	return aa_findn_ns(root, name, strlen(name));
 }
 
-/**
- * aa_prepare_ns - find an existing or create a new namespace of @name
- * @root: ns to treat as root
- * @name: the namespace to find or add  (NOT NULL)
- *
- * Returns: refcounted namespace or NULL if failed to create one
- */
-struct aa_ns *aa_prepare_ns(struct aa_ns *root, const char *name)
+static struct aa_ns *__aa_create_ns(struct aa_ns *parent, const char *name)
 {
 	struct aa_ns *ns;
 
-	mutex_lock(&root->lock);
-	/* try and find the specified ns and if it doesn't exist create it */
-	/* released by caller */
-	ns = aa_get_ns(__aa_findn_ns(&root->sub_ns, name, strlen(name)));
-	if (!ns) {
-		ns = alloc_ns(root->base.hname, name);
-		if (!ns)
-			goto out;
-		mutex_lock(&ns->lock);
-		if (__aa_fs_ns_mkdir(ns, ns_subns_dir(root), name)) {
-			AA_ERROR("Failed to create interface for ns %s\n",
-				 ns->base.name);
-			mutex_unlock(&ns->lock);
-			aa_free_ns(ns);
-			ns = NULL;
-			goto out;
-		}
-		ns->parent = aa_get_ns(root);
-		ns->level = root->level + 1;
-		list_add_rcu(&ns->base.list, &root->sub_ns);
+	AA_BUG(!mutex_is_locked(&parent->lock));
+
+	ns = alloc_ns(parent->base.hname, name);
+	if (!ns)
+		return NULL;
+	mutex_lock(&ns->lock);
+	if (__aa_fs_ns_mkdir(ns, ns_subns_dir(parent), name)) {
+		AA_ERROR("Failed to create interface for ns %s\n",
+			 ns->base.name);
+		mutex_unlock(&ns->lock);
+		aa_free_ns(ns);
+		return ERR_PTR(-ENOMEM);
+	} else {
+		ns->parent = aa_get_ns(parent);
+		ns->level = parent->level + 1;
+		list_add_rcu(&ns->base.list, &parent->sub_ns);
 		/* add list ref */
 		aa_get_ns(ns);
-		mutex_unlock(&ns->lock);
 	}
-out:
-	mutex_unlock(&root->lock);
+	mutex_unlock(&ns->lock);
+
+	return ns;
+}
+
+struct aa_ns *aa_create_ns(struct aa_ns *parent, const char *name)
+{
+	struct aa_ns *ns;
+
+	mutex_lock(&parent->lock);
+	/* try and find the specified ns */
+	/* released by caller */
+	ns = aa_get_ns(__aa_find_ns(&parent->sub_ns, name));
+	if (!ns)
+{
+printk("apparmor creating ns %s\n", name);
+		ns = __aa_create_ns(parent, name);
+}
+	else
+		ns = ERR_PTR(-EEXIST);
+	mutex_unlock(&parent->lock);
+printk("apparmor unlocking parent ns\n");
+	/* return ref */
+	return ns;
+}
+
+/**
+ * aa_prepare_ns - find an existing or create a new namespace of @name
+ * @parent: ns to treat as parent
+ * @name: the namespace to find or add  (NOT NULL)
+ *
+ * Returns: refcounted namespace or PTR_ERR if failed to create one
+ */
+struct aa_ns *aa_prepare_ns(struct aa_ns *parent, const char *name)
+{
+	struct aa_ns *ns;
+
+	mutex_lock(&parent->lock);
+	/* try and find the specified ns and if it doesn't exist create it */
+	/* released by caller */
+	ns = aa_get_ns(__aa_find_ns(&parent->sub_ns, name));
+	if (!ns)
+		ns = __aa_create_ns(parent, name);
+	mutex_unlock(&parent->lock);
 
 	/* return ref */
 	return ns;
