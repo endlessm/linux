@@ -23,6 +23,7 @@
 #include <linux/capability.h>
 #include <linux/rcupdate.h>
 #include <uapi/linux/major.h>
+#include <linux/fs.h>
 
 #include "include/apparmor.h"
 #include "include/apparmorfs.h"
@@ -916,6 +917,88 @@ fail2:
 	return error;
 }
 
+static int ns_mkdir_op(struct inode *dir, struct dentry *dentry, umode_t mode)
+{
+	struct aa_ns *ns, *parent;
+	/* TODO: improve permission check */
+	struct aa_label *label = aa_begin_current_label(DO_UPDATE);
+	int error = aa_may_manage_policy(label, AA_MAY_LOAD_POLICY);
+	aa_end_current_label(label);
+	if (error)
+		return error;
+
+	parent = aa_get_ns(dir->i_private);
+	AA_BUG(d_inode(ns_subns_dir(parent)) != dir);
+
+	/* we have to unlock and then relock to get locking order right
+	 * for pin_fs
+	 */
+	inode_unlock(dir);
+	securityfs_pin_fs();
+	inode_lock_nested(dir, I_MUTEX_PARENT);
+
+	error = __securityfs_setup_d_inode(dir, dentry, mode | S_IFDIR,  NULL,
+					   NULL, NULL);
+	if (error)
+		return error;
+
+	ns = aa_create_ns(parent, ACCESS_ONCE(dentry->d_name.name), dentry);
+	if (IS_ERR(ns)) {
+		error = PTR_ERR(ns);
+		ns = NULL;
+	}
+
+	aa_put_ns(ns);		/* list ref remains */
+	aa_put_ns(parent);
+
+	return error;
+}
+
+static int ns_rmdir_op(struct inode *dir, struct dentry *dentry)
+{
+	struct aa_ns *ns, *parent;
+	/* TODO: improve permission check */
+	struct aa_label *label = aa_begin_current_label(DO_UPDATE);
+	int error = aa_may_manage_policy(label, AA_MAY_LOAD_POLICY);
+	aa_end_current_label(label);
+	if (error)
+		return error;
+
+	 parent = aa_get_ns(dir->i_private);
+	/* rmdir calls the generic securityfs functions to remove files
+	 * from the apparmor dir. It is up to the apparmor ns locking
+	 * to avoid races.
+	 */
+	inode_unlock(dir);
+	inode_unlock(dentry->d_inode);
+
+	mutex_lock(&parent->lock);
+	ns = aa_get_ns(__aa_findn_ns(&parent->sub_ns, dentry->d_name.name,
+				     dentry->d_name.len));
+	if (!ns) {
+		error = -ENOENT;
+		goto out;
+	}
+	AA_BUG(ns_dir(ns) != dentry);
+
+	__aa_remove_ns(ns);
+	aa_put_ns(ns);
+
+out:
+	mutex_unlock(&parent->lock);
+	inode_lock_nested(dir, I_MUTEX_PARENT);
+	inode_lock(dentry->d_inode);
+	aa_put_ns(parent);
+
+	return error;
+}
+
+static const struct inode_operations ns_dir_inode_operations = {
+	.lookup		= simple_lookup,
+	.mkdir		= ns_mkdir_op,
+	.rmdir		= ns_rmdir_op,
+};
+
 /**
  *
  * Requires: @ns->lock held
@@ -939,21 +1022,57 @@ void __aa_fs_ns_rmdir(struct aa_ns *ns)
 		mutex_unlock(&sub->lock);
 	}
 
+	if (ns_subns_dir(ns)) {
+		sub = d_inode(ns_subns_dir(ns))->i_private;
+		aa_put_ns(sub);
+	}
 	for (i = AAFS_NS_SIZEOF - 1; i >= 0; --i) {
 		securityfs_remove(ns->dents[i]);
 		ns->dents[i] = NULL;
 	}
 }
 
+/* assumes cleanup in caller */
+static int __aa_fs_ns_mkdir_entries(struct aa_ns *ns, struct dentry *dir)
+{
+	struct dentry *dent;
+
+	AA_BUG(!ns);
+	AA_BUG(!dir);
+
+	dent = securityfs_create_dir("profiles", dir);
+	if (IS_ERR(dent))
+		return PTR_ERR(dent);
+	ns_subprofs_dir(ns) = dent;
+
+	dent = securityfs_create_dir("raw_data", dir);
+	if (IS_ERR(dent))
+		return PTR_ERR(dent);
+	ns_subdata_dir(ns) = dent;
+
+	/* use create_dentry so we can supply private data */
+	dent = securityfs_create_dentry("namespaces",
+					S_IFDIR | S_IRWXU | S_IRUGO | S_IXUGO,
+					dir, ns, NULL,
+					&ns_dir_inode_operations);
+	if (IS_ERR(dent))
+		return PTR_ERR(dent);
+	aa_get_ns(ns);
+	ns_subns_dir(ns) = dent;
+
+	return 0;
+}
+
 /**
  *
  * Requires: @ns->lock held
  */
-int __aa_fs_ns_mkdir(struct aa_ns *ns, struct dentry *parent, const char *name)
+int __aa_fs_ns_mkdir(struct aa_ns *ns, struct dentry *parent, const char *name,
+		     struct dentry *dent)
 {
 	struct aa_ns *sub;
 	struct aa_profile *child;
-	struct dentry *dent, *dir;
+	struct dentry *dir;
 	int error;
 
 	AA_BUG(!ns);
@@ -963,35 +1082,29 @@ int __aa_fs_ns_mkdir(struct aa_ns *ns, struct dentry *parent, const char *name)
 	if (!name)
 		name = ns->base.name;
 
-	dent = securityfs_create_dir(name, parent);
-	if (IS_ERR(dent))
-		goto fail;
+	if (!dent) {
+		/* create ns dir if it doesn't already exist */
+		dent = securityfs_create_dir(name, parent);
+		if (IS_ERR(dent))
+			goto fail;
+	} else
+		dget(dent);
 	ns_dir(ns) = dir = dent;
+	error = __aa_fs_ns_mkdir_entries(ns, dir);
+	if (error)
+		goto fail2;
 
-	dent = securityfs_create_dir("profiles", dir);
-	if (IS_ERR(dent))
-		goto fail;
-	ns_subprofs_dir(ns) = dent;
-
-	dent = securityfs_create_dir("raw_data", dir);
-	if (IS_ERR(dent))
-		goto fail;
-	ns_subdata_dir(ns) = dent;
-
-	dent = securityfs_create_dir("namespaces", dir);
-	if (IS_ERR(dent))
-		goto fail;
-	ns_subns_dir(ns) = dent;
-
+	/* profiles */
 	list_for_each_entry(child, &ns->base.profiles, base.list) {
 		error = __aa_fs_profile_mkdir(child, ns_subprofs_dir(ns));
 		if (error)
 			goto fail2;
 	}
 
+	/* subnamespaces */
 	list_for_each_entry(sub, &ns->sub_ns, base.list) {
 		mutex_lock(&sub->lock);
-		error = __aa_fs_ns_mkdir(sub, ns_subns_dir(ns), NULL);
+		error = __aa_fs_ns_mkdir(sub, ns_subns_dir(ns), NULL, NULL);
 		mutex_unlock(&sub->lock);
 		if (error)
 			goto fail2;
@@ -1503,7 +1616,7 @@ static int __init aa_create_aafs(void)
 		goto error;
 
 	mutex_lock(&root_ns->lock);
-	error = __aa_fs_ns_mkdir(root_ns, aa_fs_entry.dentry, "policy");
+	error = __aa_fs_ns_mkdir(root_ns, aa_fs_entry.dentry, "policy", NULL);
 	mutex_unlock(&root_ns->lock);
 
 	if (error)

@@ -891,9 +891,10 @@ ssize_t aa_replace_profiles(struct aa_label *label, u32 mask,
 	}
 	if (ns_name) {
 		ns = aa_prepare_ns(labels_ns(label), ns_name);
-		if (!ns) {
+		if (IS_ERR(ns)) {
 			info = "failed to prepare namespace";
-			error = -ENOMEM;
+			error = PTR_ERR(ns);
+			ns = NULL;
 			goto fail;
 		}
 	} else
