@@ -162,6 +162,11 @@ static struct aa_ns *__aa_findn_ns(struct list_head *head, const char *name,
 	return (struct aa_ns *)__policy_strn_find(head, name, n);
 }
 
+static struct aa_ns *__aa_find_ns(struct list_head *head, const char *name)
+{
+	return __aa_findn_ns(head, name, strlen(name));
+}
+
 /**
  * aa_find_ns  -  look up a profile namespace on the namespace list
  * @root: namespace to search in  (NOT NULL)
