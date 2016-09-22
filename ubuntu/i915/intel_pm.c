@@ -3367,7 +3367,9 @@ skl_compute_wm_level(const struct drm_i915_private *dev_priv,
 		plane = &intel_plane->base;
 		intel_pstate = NULL;
 		if (state)
-			intel_pstate = to_intel_plane_state(intel_plane->base.state);
+			intel_pstate =
+				intel_atomic_get_existing_plane_state(state,
+								      intel_plane);
 
 		/*
 		 * Note: If we start supporting multiple pending atomic commits
