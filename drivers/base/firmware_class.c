@@ -1258,7 +1258,6 @@ request_firmware(const struct firmware **firmware_p, const char *name,
 {
 	int ret;
 
-	printk("request_firmware: %s\n", name);
 	/* Need to pin this module until return */
 	__module_get(THIS_MODULE);
 	ret = _request_firmware(firmware_p, name, device, NULL, 0,
