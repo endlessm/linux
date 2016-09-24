@@ -4,6 +4,7 @@ scsi_transport_spi ?
 scsi_transport_fc ?
 scsi_transport_iscsi ?
 scsi_transport_sas ?
+sr_mod ?
 iscsi_tcp ?
 libiscsi ?
 amiga7xx ?
