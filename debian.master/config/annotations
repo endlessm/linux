@@ -5214,6 +5214,8 @@ CONFIG_SCSI_SCAN_ASYNC                          policy<{'amd64': 'y', 'arm64': '
 #
 CONFIG_SCSI                                     flag<REVIEW>
 CONFIG_CHR_DEV_SG                               note<not autoloadable>
+CONFIG_BLK_DEV_SD				mark<ENFORCED> note <LP:1627330>
+CONFIG_BLK_DEV_SR				mark<ENFORCED> note <LP:1627330>
 
 # Menu: Device Drivers >> SCSI device support >> SCSI device support >> OSD-Initiator library
 CONFIG_SCSI_OSD_INITIATOR                       policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'powerpc': 'm', 'ppc64el': 'm', 's390x': 'm'}>
