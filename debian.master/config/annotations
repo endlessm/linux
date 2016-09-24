@@ -6501,7 +6501,7 @@ CONFIG_USB_OTG                                  note<triggers breakage on x86 LP
 CONFIG_USB_OTG_WHITELIST                        note<OTG white/blacklists are disabled>
 CONFIG_USB_OTG_BLACKLIST_HUB                    note<OTG white/blacklists are disabled>
 CONFIG_USB_OTG_FSM                              note<selects USB_OTG LP:1047527, LP:1411295>>
-CONFIG_USB_UHCI_HCD                             note<ensures USB 2.0/1.1 probe ordering> flag<REVIEW>
+CONFIG_USB_UHCI_HCD                             mark<ENFORCED> note<ensures USB 2.0/1.1 probe ordering> flag<REVIEW>
 CONFIG_USB_HCD_BCMA                             note<USB_{O,E}HCI_HCD_PLATFORM must be off on omap>
 CONFIG_USB_HCD_SSB                              note<USB_{O,E}HCI_HCD_PLATFORM must be off on omap>
 
@@ -6545,7 +6545,7 @@ CONFIG_USB_EHCI_EXYNOS                          policy<{'armhf': 'y'}>
 CONFIG_USB_EHCI_HCD_PLATFORM                    policy<{'amd64': 'y', 'arm64': 'm', 'armhf': 'n', 'i386': 'y', 'powerpc': 'y', 'ppc64el': 'm'}>
 #
 CONFIG_USB_EHCI_HCD_PLATFORM                    mark<ENFORCED> note<Don't use the generic ehci/ohci code on omap, it doesn't work> flag<REVIEW>
-CONFIG_USB_EHCI_HCD                             note<ensures USB 2.0/1.1 probe ordering> flag<REVIEW>
+CONFIG_USB_EHCI_HCD                             mark<ENFORCED> note<ensures USB 2.0/1.1 probe ordering> flag<REVIEW>
 
 # Menu: Device Drivers >> USB support >> Support for Host-side USB >> ISP1760 Mode Selection
 CONFIG_USB_ISP1760_HOST_ROLE                    policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'i386': 'n', 'powerpc': 'n', 'ppc64el': 'n'}>
@@ -6580,7 +6580,7 @@ CONFIG_USB_OHCI_HCD_PCI                         policy<{'amd64': 'y', 'arm64': '
 CONFIG_USB_OHCI_EXYNOS                          policy<{'armhf': 'y'}>
 CONFIG_USB_OHCI_HCD_PLATFORM                    policy<{'amd64': 'y', 'arm64': 'm', 'armhf': 'n', 'i386': 'y', 'powerpc': 'y', 'ppc64el': 'm'}>
 #
-CONFIG_USB_OHCI_HCD                             note<ensures USB 2.0/1.1 probe ordering>
+CONFIG_USB_OHCI_HCD                             mark<ENFORCED>note<ensures USB 2.0/1.1 probe ordering>
 CONFIG_USB_OHCI_HCD_PPC_OF_LE                   flag<REVIEW>
 
 # Menu: Device Drivers >> USB support >> Support for Host-side USB >> USB DSL modem support
@@ -6692,7 +6692,7 @@ CONFIG_USB_XHCI_PLATFORM                        policy<{'amd64': 'm', 'arm64': '
 CONFIG_USB_XHCI_MVEBU                           policy<{'armhf': 'm'}>
 CONFIG_USB_XHCI_RCAR                            policy<{'armhf': 'm'}>
 #
-CONFIG_USB_XHCI_HCD                             note<ensures USB 2.0/1.1 probe ordering> flag<REVIEW>
+CONFIG_USB_XHCI_HCD                             mark<ENFORCED> note<ensures USB 2.0/1.1 probe ordering> flag<REVIEW>
 
 # Menu: Device Drivers >> USB support >> USB Gadget Support
 CONFIG_USB_GADGET                               policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'y', 'i386': 'm', 'powerpc': 'm', 'ppc64el': 'm'}>
