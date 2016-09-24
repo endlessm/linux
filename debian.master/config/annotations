@@ -5555,6 +5555,7 @@ CONFIG_PATA_ACPI                                policy<{'amd64': 'm', 'arm64': '
 CONFIG_ATA_GENERIC                              policy<{'amd64': 'y', 'arm64': 'm', 'armhf': 'm', 'i386': 'y', 'powerpc': 'm', 'ppc64el': 'm'}>
 #
 CONFIG_PATA_HPT3X3_DMA                          note<DMA mode is documented problematic>
+CONFIG_ATA_PIIX					mark<ENFORCED> note<LP:1627324>
 
 # Menu: Device Drivers >> Sonics Silicon Backplane
 CONFIG_SSB_PCIHOST                              policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'powerpc': 'y', 'ppc64el': 'y'}>

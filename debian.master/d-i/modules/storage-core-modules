@@ -2,6 +2,7 @@
 usb-storage ?
 
 # Block level
+ata_piix ?
 
 # Loop modules
 cryptoloop ?
