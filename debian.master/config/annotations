@@ -7861,7 +7861,7 @@ CONFIG_MEMTEST                                  policy<{'amd64': 'y', 'arm64': '
 CONFIG_TEST_STATIC_KEYS                         policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'powerpc': 'm', 'ppc64el': 'm', 's390x': 'm'}>
 CONFIG_STRICT_DEVMEM                            policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'powerpc': 'y', 'ppc64el': 'y', 's390x': 'y'}>
 CONFIG_EARLY_PRINTK                             policy<{'amd64': 'y', 'i386': 'y', 'powerpc': 'y', 'ppc64el': 'y'}>
-CONFIG_DEBUG_RODATA                             policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y'}>
+CONFIG_DEBUG_RODATA                             policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 's390x': 'y'}>
 CONFIG_DEBUG_SET_MODULE_RONX                    policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 's390x': 'y'}>
 #
 CONFIG_PANIC_ON_OOPS                            note<keep working if at all possible>
