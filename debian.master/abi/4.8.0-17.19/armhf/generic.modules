@@ -4356,10 +4356,8 @@ tps65086
 tps65086-regulator
 tps65090-charger
 tps65090-regulator
-tps65217
 tps65217_bl
 tps65217_charger
-tps65217-regulator
 tps65218
 tps65218-pwrbutton
 tps65218-regulator
