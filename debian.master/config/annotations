@@ -3237,7 +3237,7 @@ CONFIG_TPS6105X                                 policy<{'amd64': 'm', 'arm64': '
 CONFIG_TPS65010                                 policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'powerpc': 'm', 'ppc64el': 'm'}>
 CONFIG_TPS6507X                                 policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'powerpc': 'm', 'ppc64el': 'm'}>
 CONFIG_MFD_TPS65090                             policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'powerpc': 'y', 'ppc64el': 'y'}>
-CONFIG_MFD_TPS65217                             policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'powerpc': 'm', 'ppc64el': 'm'}>
+CONFIG_MFD_TPS65217                             policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'y', 'i386': 'm', 'powerpc': 'm', 'ppc64el': 'm'}>
 CONFIG_MFD_TPS65218                             policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'powerpc': 'm', 'ppc64el': 'm'}>
 CONFIG_MFD_TPS6586X                             policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'powerpc': 'y', 'ppc64el': 'y'}>
 CONFIG_MFD_TPS65910                             policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'powerpc': 'y', 'ppc64el': 'y'}>
@@ -3271,6 +3271,7 @@ CONFIG_MFD_WM8994                               policy<{'amd64': 'm', 'arm64': '
 CONFIG_MFD_VEXPRESS_SYSREG                      policy<{'arm64': 'y', 'armhf': 'y'}>
 #
 CONFIG_MFD_SM501                                note<boot essential on OMAP4>
+CONFIG_MFD_TPS65217                             mark<ENFORCE> note<boot essential on AM335x>
 
 # Menu: Device Drivers >> Multifunction device drivers >> Multimedia Capabilities Port drivers
 
@@ -6930,7 +6931,7 @@ CONFIG_REGULATOR_TPS62360                       policy<{'amd64': 'm', 'arm64': '
 CONFIG_REGULATOR_TPS65023                       policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'powerpc': 'm', 'ppc64el': 'm'}>
 CONFIG_REGULATOR_TPS6507X                       policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'powerpc': 'm', 'ppc64el': 'm'}>
 CONFIG_REGULATOR_TPS65090                       policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'powerpc': 'm', 'ppc64el': 'm'}>
-CONFIG_REGULATOR_TPS65217                       policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'powerpc': 'm', 'ppc64el': 'm'}>
+CONFIG_REGULATOR_TPS65217                       policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'y', 'i386': 'm', 'powerpc': 'm', 'ppc64el': 'm'}>
 CONFIG_REGULATOR_TPS65218                       policy<{'arm64': 'm', 'armhf': 'm', 'powerpc': 'm', 'ppc64el': 'm'}>
 CONFIG_REGULATOR_TPS6524X                       policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'powerpc': 'm', 'ppc64el': 'm'}>
 CONFIG_REGULATOR_TPS6586X                       policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'powerpc': 'm', 'ppc64el': 'm'}>
@@ -6946,6 +6947,7 @@ CONFIG_REGULATOR_WM8994                         policy<{'amd64': 'm', 'arm64': '
 #
 CONFIG_REGULATOR_FIXED_VOLTAGE                  note<boot essential on arm>
 CONFIG_REGULATOR_TWL4030                        mark<ENFORCED> note<boot requisite for omap4>
+CONFIG_REGULATOR_TPS65217                       mark<ENFORCED> note<boot essential on AM335x>
 
 # Menu: Device Drivers >> Watchdog Timer Support
 CONFIG_WATCHDOG                                 policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'powerpc': 'y', 'ppc64el': 'y', 's390x': 'y'}>
