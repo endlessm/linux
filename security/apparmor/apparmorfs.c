@@ -119,7 +119,7 @@ static struct aa_loaddata *aa_simple_write_to_buffer(const char __user *userbuf,
 }
 
 static ssize_t policy_update(u32 mask, const char __user *buf, size_t size,
-			 loff_t *pos)
+			     loff_t *pos, struct aa_ns *ns)
 {
 	struct aa_label *label;
 	ssize_t error;
@@ -130,14 +130,15 @@ static ssize_t policy_update(u32 mask, const char __user *buf, size_t size,
 	/* high level check about policy management - fine grained in
 	 * below after unpack
 	 */
-	error = aa_may_manage_policy(label, NULL, mask);
+	error = aa_may_manage_policy(label, ns, mask);
 	if (error)
 		return error;
 
 	data = aa_simple_write_to_buffer(buf, size, size, pos);
 	error = PTR_ERR(data);
 	if (!IS_ERR(data)) {
-		error = aa_replace_profiles(label, mask, data);
+		error = aa_replace_profiles(ns ? ns : labels_ns(label), label,
+					    mask, data);
 		aa_put_loaddata(data);
 	}
 	aa_end_current_label(label);
@@ -149,7 +150,11 @@ static ssize_t policy_update(u32 mask, const char __user *buf, size_t size,
 static ssize_t profile_load(struct file *f, const char __user *buf, size_t size,
 			    loff_t *pos)
 {
-	return policy_update(AA_MAY_LOAD_POLICY, buf, size, pos);
+	struct aa_ns *ns = aa_get_ns(f->f_inode->i_private);
+	int error = policy_update(AA_MAY_LOAD_POLICY, buf, size, pos, ns);
+	aa_put_ns(ns);
+
+	return error;
 }
 
 static const struct file_operations aa_fs_profile_load = {
@@ -161,8 +166,12 @@ static const struct file_operations aa_fs_profile_load = {
 static ssize_t profile_replace(struct file *f, const char __user *buf,
 			       size_t size, loff_t *pos)
 {
-	return policy_update(AA_MAY_LOAD_POLICY | AA_MAY_REPLACE_POLICY,
-			     buf, size, pos);
+	struct aa_ns *ns = aa_get_ns(f->f_inode->i_private);
+	int error = policy_update(AA_MAY_LOAD_POLICY | AA_MAY_REPLACE_POLICY,
+				  buf, size, pos, ns);
+	aa_put_ns(ns);
+
+	return error;
 }
 
 static const struct file_operations aa_fs_profile_replace = {
@@ -177,14 +186,15 @@ static ssize_t profile_remove(struct file *f, const char __user *buf,
 	struct aa_loaddata *data;
 	struct aa_label *label;
 	ssize_t error;
+	struct aa_ns *ns = aa_get_ns(f->f_inode->i_private);
 
 	label = aa_begin_current_label(DO_UPDATE);
 	/* high level check about policy management - fine grained in
 	 * below after unpack
 	 */
-	error = aa_may_manage_policy(label, NULL, AA_MAY_REMOVE_POLICY);
+	error = aa_may_manage_policy(label, ns, AA_MAY_REMOVE_POLICY);
 	if (error)
-		return error;
+		goto out;
 
 	/*
 	 * aa_remove_profile needs a null terminated string so 1 extra
@@ -195,11 +205,13 @@ static ssize_t profile_remove(struct file *f, const char __user *buf,
 	error = PTR_ERR(data);
 	if (!IS_ERR(data)) {
 		data->data[size] = 0;
-		error = aa_remove_profiles(label, data->data, size);
+		error = aa_remove_profiles(ns ? ns : labels_ns(label), label,
+					   data->data, size);
 		aa_put_loaddata(data);
 	}
+ out:
 	aa_end_current_label(label);
-
+	aa_put_ns(ns);
 	return error;
 }
 
@@ -1127,6 +1139,19 @@ void __aa_fs_ns_rmdir(struct aa_ns *ns)
 		sub = d_inode(ns_subns_dir(ns))->i_private;
 		aa_put_ns(sub);
 	}
+	if (ns_subload(ns)) {
+		sub = d_inode(ns_subload(ns))->i_private;
+		aa_put_ns(sub);
+	}
+	if (ns_subreplace(ns)) {
+		sub = d_inode(ns_subreplace(ns))->i_private;
+		aa_put_ns(sub);
+	}
+	if (ns_subremove(ns)) {
+		sub = d_inode(ns_subremove(ns))->i_private;
+		aa_put_ns(sub);
+	}
+
 	for (i = AAFS_NS_SIZEOF - 1; i >= 0; --i) {
 		securityfs_remove(ns->dents[i]);
 		ns->dents[i] = NULL;
@@ -1151,7 +1176,28 @@ static int __aa_fs_ns_mkdir_entries(struct aa_ns *ns, struct dentry *dir)
 		return PTR_ERR(dent);
 	ns_subdata_dir(ns) = dent;
 
-	/* use create_dentry so we can supply private data */
+	dent = securityfs_create_file(".load", 0666, dir, ns,
+				      &aa_fs_profile_load);
+	if (IS_ERR(dent))
+		return PTR_ERR(dent);
+	aa_get_ns(ns);
+	ns_subload(ns) = dent;
+
+	dent = securityfs_create_file(".replace", 0666, dir, ns,
+				      &aa_fs_profile_replace);
+	if (IS_ERR(dent))
+		return PTR_ERR(dent);
+	aa_get_ns(ns);
+	ns_subreplace(ns) = dent;
+
+	dent = securityfs_create_file(".remove", 0666, dir, ns,
+				      &aa_fs_profile_remove);
+	if (IS_ERR(dent))
+		return PTR_ERR(dent);
+	aa_get_ns(ns);
+	ns_subremove(ns) = dent;
+
+	  /* use create_dentry so we can supply private data */
 	dent = securityfs_create_dentry("namespaces",
 					S_IFDIR | S_IRWXU | S_IRUGO | S_IXUGO,
 					dir, ns, NULL,
@@ -1534,9 +1580,6 @@ static struct aa_fs_entry aa_fs_entry_features[] = {
 };
 
 static struct aa_fs_entry aa_fs_entry_apparmor[] = {
-	AA_FS_FILE_FOPS(".load", 0666, &aa_fs_profile_load),
-	AA_FS_FILE_FOPS(".replace", 0666, &aa_fs_profile_replace),
-	AA_FS_FILE_FOPS(".remove", 0666, &aa_fs_profile_remove),
 	AA_FS_FILE_FOPS(".access", 0666, &aa_fs_access),
 	AA_FS_FILE_FOPS(".stacked", 0666, &aa_fs_stacked),
 	AA_FS_FILE_FOPS(".ns_stacked", 0666, &aa_fs_ns_stacked),
@@ -1705,6 +1748,7 @@ out:
  */
 static int __init aa_create_aafs(void)
 {
+	struct dentry *dent;
 	int error;
 
 	if (!apparmor_initialized)
@@ -1719,6 +1763,30 @@ static int __init aa_create_aafs(void)
 	error = aafs_create_dir(&aa_fs_entry, NULL);
 	if (error)
 		goto error;
+
+	dent = securityfs_create_file(".load", 0666, aa_fs_entry.dentry,
+				      NULL, &aa_fs_profile_load);
+	if (IS_ERR(dent)) {
+		error = PTR_ERR(dent);
+		goto error;
+	}
+	ns_subload(root_ns) = dent;
+
+	dent = securityfs_create_file(".replace", 0666, aa_fs_entry.dentry,
+				      NULL, &aa_fs_profile_replace);
+	if (IS_ERR(dent)) {
+		error = PTR_ERR(dent);
+		goto error;
+	}
+	ns_subreplace(root_ns) = dent;
+
+	dent = securityfs_create_file(".remove", 0666, aa_fs_entry.dentry,
+				      NULL, &aa_fs_profile_remove);
+	if (IS_ERR(dent)) {
+		error = PTR_ERR(dent);
+		goto error;
+	}
+	ns_subremove(root_ns) = dent;
 
 	mutex_lock(&root_ns->lock);
 	error = __aa_fs_ns_mkdir(root_ns, aa_fs_entry.dentry, "policy", NULL);
