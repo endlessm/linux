@@ -4218,6 +4218,9 @@ CONFIG_FS_ENET_MDIO_FCC                         policy<{'powerpc-powerpc-e500mc'
 CONFIG_NET_VENDOR_IBM                           policy<{'powerpc-generic': 'y', 'ppc64el': 'y'}>
 CONFIG_IBMVETH                                  policy<{'powerpc-generic': 'm', 'ppc64el': 'y'}>
 CONFIG_EHEA                                     policy<{'ppc64el': 'y'}>
+CONFIG_IBMVNIC                                  policy<{'powerpc-generic': 'm', 'ppc64el': 'm'}>
+#
+CONFIG_IBMVNIC                            	mark<ENFORCED> note<LP:#1628187>
 
 # Menu: Device Drivers >> Network device support >> Ethernet driver support >> IBM devices >> IBM EMAC Ethernet support
 
