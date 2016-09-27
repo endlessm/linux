@@ -130,7 +130,7 @@ static ssize_t policy_update(u32 mask, const char __user *buf, size_t size,
 	/* high level check about policy management - fine grained in
 	 * below after unpack
 	 */
-	error = aa_may_manage_policy(label, mask);
+	error = aa_may_manage_policy(label, NULL, mask);
 	if (error)
 		return error;
 
@@ -182,7 +182,7 @@ static ssize_t profile_remove(struct file *f, const char __user *buf,
 	/* high level check about policy management - fine grained in
 	 * below after unpack
 	 */
-	error = aa_may_manage_policy(label, AA_MAY_REMOVE_POLICY);
+	error = aa_may_manage_policy(label, NULL, AA_MAY_REMOVE_POLICY);
 	if (error)
 		return error;
 
@@ -832,7 +832,7 @@ static ssize_t rawdata_read(struct file *file, char __user *buf, size_t size,
 
 static int rawdata_open(struct inode *inode, struct file *file)
 {
-	if (!policy_view_capable())
+	if (!policy_view_capable(NULL))
 		return -EACCES;
 
 	file->private_data = aa_get_proxy(inode->i_private);
@@ -1023,7 +1023,7 @@ static int ns_mkdir_op(struct inode *dir, struct dentry *dentry, umode_t mode)
 	struct aa_ns *ns, *parent;
 	/* TODO: improve permission check */
 	struct aa_label *label = aa_begin_current_label(DO_UPDATE);
-	int error = aa_may_manage_policy(label, AA_MAY_LOAD_POLICY);
+	int error = aa_may_manage_policy(label, NULL, AA_MAY_LOAD_POLICY);
 	aa_end_current_label(label);
 	if (error)
 		return error;
@@ -1060,7 +1060,7 @@ static int ns_rmdir_op(struct inode *dir, struct dentry *dentry)
 	struct aa_ns *ns, *parent;
 	/* TODO: improve permission check */
 	struct aa_label *label = aa_begin_current_label(DO_UPDATE);
-	int error = aa_may_manage_policy(label, AA_MAY_LOAD_POLICY);
+	int error = aa_may_manage_policy(label, NULL, AA_MAY_LOAD_POLICY);
 	aa_end_current_label(label);
 	if (error)
 		return error;
@@ -1442,7 +1442,7 @@ static const struct seq_operations aa_fs_profiles_op = {
 
 static int profiles_open(struct inode *inode, struct file *file)
 {
-	if (!policy_view_capable())
+	if (!policy_view_capable(NULL))
 		return -EACCES;
 
 	return seq_open(file, &aa_fs_profiles_op);
