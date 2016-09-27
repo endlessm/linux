@@ -87,6 +87,7 @@
 #include "include/match.h"
 #include "include/path.h"
 #include "include/policy.h"
+#include "include/policy_ns.h"
 #include "include/policy_unpack.h"
 #include "include/resource.h"
 
@@ -849,6 +850,7 @@ static struct aa_profile *update_to_newest_parent(struct aa_profile *new)
 
 /**
  * aa_replace_profiles - replace profile(s) on the profile list
+ * @view: namespace load is viewed from
  * @label: label that is attempting to load/replace policy
  * @mask: permission mask
  * @udata: serialized data stream  (NOT NULL)
@@ -859,8 +861,8 @@ static struct aa_profile *update_to_newest_parent(struct aa_profile *new)
  *
  * Returns: size of data consumed else error code on failure.
  */
-ssize_t aa_replace_profiles(struct aa_label *label, u32 mask,
-			    struct aa_loaddata *udata)
+ssize_t aa_replace_profiles(struct aa_ns *view, struct aa_label *label,
+			    u32 mask, struct aa_loaddata *udata)
 {
 	const char *ns_name, *info = NULL;
 	struct aa_ns *ns = NULL;
@@ -900,7 +902,7 @@ ssize_t aa_replace_profiles(struct aa_label *label, u32 mask,
 			count++;
 	}
 	if (ns_name) {
-		ns = aa_prepare_ns(labels_ns(label), ns_name);
+		ns = aa_prepare_ns(view, ns_name);
 		if (IS_ERR(ns)) {
 			info = "failed to prepare namespace";
 			error = PTR_ERR(ns);
@@ -908,7 +910,7 @@ ssize_t aa_replace_profiles(struct aa_label *label, u32 mask,
 			goto fail;
 		}
 	} else
-		ns = aa_get_ns(labels_ns(label));
+		ns = aa_get_ns(view);
 
 	mutex_lock(&ns->lock);
 	/* setup parent and ns info */
@@ -1038,6 +1040,7 @@ fail:
 
 /**
  * aa_remove_profiles - remove profile(s) from the system
+ * @view: namespace the remove is being done from
  * @label: label attempting to remove policy
  * @fqname: name of the profile or namespace to remove  (NOT NULL)
  * @size: size of the name
@@ -1049,7 +1052,8 @@ fail:
  *
  * Returns: size of data consume else error code if fails
  */
-ssize_t aa_remove_profiles(struct aa_label *label, char *fqname, size_t size)
+ssize_t aa_remove_profiles(struct aa_ns *view, struct aa_label *label,
+			   char *fqname, size_t size)
 {
 	struct aa_ns *root = NULL, *ns = NULL;
 	struct aa_profile *profile = NULL;
@@ -1063,7 +1067,7 @@ ssize_t aa_remove_profiles(struct aa_label *label, char *fqname, size_t size)
 		goto fail;
 	}
 
-	root = labels_ns(label);
+	root = view;
 
 	if (fqname[0] == ':') {
 		name = aa_split_fqname(fqname, &ns_name);
