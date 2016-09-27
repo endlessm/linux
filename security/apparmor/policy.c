@@ -641,25 +641,35 @@ static int audit_policy(struct aa_label *label, const char *op,
 	return error;
 }
 
-bool policy_view_capable(void)
+/**
+ * policy_view_capable - check if viewing policy in at @ns is allowed
+ * ns: namespace being viewed by current task (may be NULL)
+ * Returns: true if viewing policy is allowed
+ *
+ * If @ns is NULL then the namespace being viewed is assumed to be the
+ * tasks current namespace.
+ */
+bool policy_view_capable(struct aa_ns *ns)
 {
 	struct user_namespace *user_ns = current_user_ns();
-	struct aa_ns *ns = aa_get_current_ns();
+	struct aa_ns *view_ns = aa_get_current_ns();
 	bool root_in_user_ns = uid_eq(current_euid(), make_kuid(user_ns, 0)) ||
 			       in_egroup_p(make_kgid(user_ns, 0));
 	bool response = false;
+	if (!ns)
+		ns = view_ns;
 
-	if (root_in_user_ns &&
+	if (root_in_user_ns && aa_ns_visible(view_ns, ns, true) &&
 	    (user_ns == &init_user_ns ||
 	     (unprivileged_userns_apparmor_policy != 0 &&
-	      user_ns->level == ns->level)))
+	      user_ns->level == view_ns->level)))
 		response = true;
-	aa_put_ns(ns);
+	aa_put_ns(view_ns);
 
 	return response;
 }
 
-bool policy_admin_capable(void)
+bool policy_admin_capable(struct aa_ns *ns)
 {
 	struct user_namespace *user_ns = current_user_ns();
 	bool capable = ns_capable(user_ns, CAP_MAC_ADMIN);
@@ -667,7 +677,7 @@ bool policy_admin_capable(void)
 	AA_DEBUG("cap_mac_admin? %d\n", capable);
 	AA_DEBUG("policy locked? %d\n", aa_g_lock_policy);
 
-	return policy_view_capable() && capable && !aa_g_lock_policy;
+	return policy_view_capable(ns) && capable && !aa_g_lock_policy;
 }
 
 /**
@@ -677,7 +687,7 @@ bool policy_admin_capable(void)
  *
  * Returns: 0 if the task is allowed to manipulate policy else error
  */
-int aa_may_manage_policy(struct aa_label *label, u32 mask)
+int aa_may_manage_policy(struct aa_label *label, struct aa_ns *ns, u32 mask)
 {
 	const char *op;
 
@@ -693,7 +703,7 @@ int aa_may_manage_policy(struct aa_label *label, u32 mask)
 		return audit_policy(label, op, NULL, NULL, "policy_locked",
 				    -EACCES);
 
-	if (!policy_admin_capable())
+	if (!policy_admin_capable(ns))
 		return audit_policy(label, op, NULL, NULL, "not policy admin",
 				    -EACCES);
 
