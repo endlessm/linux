@@ -35,6 +35,7 @@
 #include "include/label.h"
 #include "include/policy.h"
 #include "include/resource.h"
+#include "include/label.h"
 #include "include/lib.h"
 #include "include/policy_unpack.h"
 
@@ -645,6 +646,106 @@ static int aa_fs_seq_hash_open(struct inode *inode, struct file *file)
 static const struct file_operations aa_fs_seq_hash_fops = {
 	.owner		= THIS_MODULE,
 	.open		= aa_fs_seq_hash_open,
+	.read		= seq_read,
+	.llseek		= seq_lseek,
+	.release	= single_release,
+};
+
+static int aa_fs_seq_show_stacked(struct seq_file *seq, void *v)
+{
+	struct aa_label *label = aa_begin_current_label(DO_UPDATE);
+	seq_printf(seq, "%s\n", label->size > 1 ? "yes" : "no");
+	aa_end_current_label(label);
+
+	return 0;
+}
+
+static int aa_fs_seq_open_stacked(struct inode *inode, struct file *file)
+{
+	return single_open(file, aa_fs_seq_show_stacked, inode->i_private);
+}
+
+static const struct file_operations aa_fs_stacked = {
+	.owner		= THIS_MODULE,
+	.open		= aa_fs_seq_open_stacked,
+	.read		= seq_read,
+	.llseek		= seq_lseek,
+	.release	= single_release,
+};
+
+static int aa_fs_seq_show_ns_stacked(struct seq_file *seq, void *v)
+{
+	struct aa_label *label = aa_begin_current_label(DO_UPDATE);
+	struct aa_profile *profile;
+	struct label_it it;
+	int count = 1;
+
+	if (label->size > 1) {
+		label_for_each(it, label, profile)
+			if (profile->ns != labels_ns(label)) {
+				count++;
+				break;
+			}
+	}
+
+	seq_printf(seq, "%s\n", count > 1 ? "yes" : "no");
+	aa_end_current_label(label);
+
+	return 0;
+}
+
+static int aa_fs_seq_open_ns_stacked(struct inode *inode, struct file *file)
+{
+	return single_open(file, aa_fs_seq_show_ns_stacked, inode->i_private);
+}
+
+static const struct file_operations aa_fs_ns_stacked = {
+	.owner		= THIS_MODULE,
+	.open		= aa_fs_seq_open_ns_stacked,
+	.read		= seq_read,
+	.llseek		= seq_lseek,
+	.release	= single_release,
+};
+
+static int aa_fs_seq_show_ns_level(struct seq_file *seq, void *v)
+{
+	struct aa_label *label = aa_begin_current_label(DO_UPDATE);
+	seq_printf(seq, "%d\n", labels_ns(label)->level);
+	aa_end_current_label(label);
+
+	return 0;
+}
+
+static int aa_fs_seq_open_ns_level(struct inode *inode, struct file *file)
+{
+	return single_open(file, aa_fs_seq_show_ns_level, inode->i_private);
+}
+
+static const struct file_operations aa_fs_ns_level = {
+	.owner		= THIS_MODULE,
+	.open		= aa_fs_seq_open_ns_level,
+	.read		= seq_read,
+	.llseek		= seq_lseek,
+	.release	= single_release,
+};
+
+static int aa_fs_seq_show_ns_name(struct seq_file *seq, void *v)
+{
+	struct aa_label *label = aa_begin_current_label(DO_UPDATE);
+	seq_printf(seq, "%s\n", labels_ns(label)->base.name);
+	aa_end_current_label(label);
+
+	return 0;
+}
+
+static int aa_fs_seq_open_ns_name(struct inode *inode, struct file *file)
+{
+	return single_open(file, aa_fs_seq_show_ns_name, inode->i_private);
+}
+
+static const struct file_operations aa_fs_ns_name = {
+	.owner		= THIS_MODULE,
+	.open		= aa_fs_seq_open_ns_name,
 	.read		= seq_read,
 	.llseek		= seq_lseek,
 	.release	= single_release,
@@ -1437,6 +1538,10 @@ static struct aa_fs_entry aa_fs_entry_apparmor[] = {
 	AA_FS_FILE_FOPS(".replace", 0666, &aa_fs_profile_replace),
 	AA_FS_FILE_FOPS(".remove", 0666, &aa_fs_profile_remove),
 	AA_FS_FILE_FOPS(".access", 0666, &aa_fs_access),
+	AA_FS_FILE_FOPS(".stacked", 0666, &aa_fs_stacked),
+	AA_FS_FILE_FOPS(".ns_stacked", 0666, &aa_fs_ns_stacked),
+	AA_FS_FILE_FOPS(".ns_level", 0666, &aa_fs_ns_level),
+	AA_FS_FILE_FOPS(".ns_name", 0666, &aa_fs_ns_name),
 	AA_FS_FILE_FOPS("profiles", 0444, &aa_fs_profiles_fops),
 	AA_FS_DIR("features", aa_fs_entry_features),
 	{ }
