@@ -596,9 +596,9 @@ int aa_umount(struct aa_label *label, struct vfsmount *mnt, int flags)
  * Returns: label for transition or ERR_PTR. Does not return NULL
  */
 static struct aa_label *build_pivotroot(struct aa_profile *profile,
-					struct path *new_path,
+					const struct path *new_path,
 					char *new_buffer,
-					struct path *old_path,
+					const struct path *old_path,
 					char *old_buffer)
 {
 	const char *old_name, *new_name = NULL, *info = NULL;
