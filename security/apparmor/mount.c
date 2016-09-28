@@ -612,6 +612,9 @@ static struct aa_label *build_pivotroot(struct aa_profile *profile,
 	AA_BUG(!new_path);
 	AA_BUG(!old_path);
 
+	if (profile_unconfined(profile))
+		return aa_get_newest_label(&profile->label);
+
 	error = aa_path_name(old_path, path_flags(profile, old_path),
 			     old_buffer, &old_name, &info,
 			     profile->disconnected);
@@ -651,7 +654,7 @@ audit:
 	} else if (target)
 		return target;
 
-	return aa_get_label(&profile->label);
+	return aa_get_newest_label(&profile->label);
 }
 
 int aa_pivotroot(struct aa_label *label, const struct path *old_path,
