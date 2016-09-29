@@ -120,8 +120,6 @@ static void nbd_size_update(struct nbd_device *nbd, struct block_device *bdev)
 	if (!nbd_is_connected(nbd))
 		return;
 
-	bdev->bd_inode->i_size = nbd->bytesize;
-	set_capacity(nbd->disk, nbd->bytesize >> 9);
 	kobject_uevent(&nbd_to_dev(nbd)->kobj, KOBJ_CHANGE);
 }
 
@@ -137,6 +135,8 @@ static int nbd_size_set(struct nbd_device *nbd, struct block_device *bdev,
 	nbd->blksize = blocksize;
 	nbd->bytesize = (loff_t)blocksize * (loff_t)nr_blocks;
 
+	bdev->bd_inode->i_size = nbd->bytesize;
+	set_capacity(nbd->disk, nbd->bytesize >> 9);
 	nbd_size_update(nbd, bdev);
 
 	return 0;
