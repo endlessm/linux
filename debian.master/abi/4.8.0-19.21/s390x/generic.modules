@@ -419,8 +419,6 @@ mlx5_core
 mlx5_ib
 mlxsw_core
 mlxsw_pci
-mlxsw_spectrum
-mlxsw_switchx2
 monreader
 monwriter
 mpls_iptunnel

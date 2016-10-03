@@ -432,6 +432,11 @@ b2c2-flexcop-usb
 b43
 b43legacy
 b44
+b53_common
+b53_mdio
+b53_mmap
+b53_spi
+b53_srab
 bas_gigaset
 batman-adv
 baycom_par
@@ -449,6 +454,7 @@ bcm87xx
 bcma
 bcma-hcd
 bcm-phy-lib
+bcm_sf2
 bd6107
 bdc
 bdc_pci
@@ -625,6 +631,7 @@ chacha20_generic
 chacha20poly1305
 chacha20-x86_64
 chaoskey
+chip
 chipreg
 chnl_net
 chromeos_laptop
@@ -948,6 +955,7 @@ ds2781_battery
 ds2782_battery
 ds3000
 ds620
+dsa_core
 dsbr100
 dscc4
 dss1_divert
@@ -2428,6 +2436,8 @@ mlx5_ib
 mlx90614
 mlxsw_core
 mlxsw_pci
+mlxsw_spectrum
+mlxsw_switchx2
 mma7455_core
 mma7455_i2c
 mma7455_spi
@@ -2518,6 +2528,7 @@ mtouch
 multipath
 multiq3
 musb_hdrc
+mv88e6060
 mvmdio
 mvsas
 mv_u3d_core
@@ -3301,6 +3312,7 @@ rmi_i2c
 rmi_spi
 rndis_host
 rndis_wlan
+rocker
 rocket
 rohm_bu21023
 romfs
