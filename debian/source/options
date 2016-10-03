@@ -1,9 +1,6 @@
 # Ignore vbox symlinks, we will regenerate these at clean (LP:1426113)
 ## autoreconstruct -- begin
 # Ignore any symlinks created since the orig which are rebuilt by reconstruct.
-extend-diff-ignore=arch/arm64/boot/dts/broadcom/bcm2835-rpi.dtsi
-extend-diff-ignore=arch/arm64/boot/dts/broadcom/bcm283x-rpi-smsc9514.dtsi
-extend-diff-ignore=arch/arm64/boot/dts/broadcom/bcm283x.dtsi
 extend-diff-ignore=ubuntu/vbox/vboxguest/include
 extend-diff-ignore=ubuntu/vbox/vboxguest/r0drv
 extend-diff-ignore=ubuntu/vbox/vboxsf/include
