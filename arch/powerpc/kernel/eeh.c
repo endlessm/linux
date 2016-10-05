@@ -1075,12 +1075,6 @@ void eeh_add_device_early(struct pci_dn *pdn)
 	if (!edev)
 		return;
 
-	/* Some platforms (like Cell) don't have EEH capabilities, so we
-	 * need to abort here. In case of pseries or powernv, we have EEH
-	 * so we can continue. */
-	if (!machine_is(pseries) && !machine_is(powernv))
-		return;
-
 	if (!eeh_has_flag(EEH_PROBE_MODE_DEVTREE))
 		return;
 

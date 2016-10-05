@@ -376,9 +376,13 @@ static int ext4_valid_extent(struct inode *inode, struct ext4_extent *ext)
 	ext4_fsblk_t block = ext4_ext_pblock(ext);
 	int len = ext4_ext_get_actual_len(ext);
 	ext4_lblk_t lblock = le32_to_cpu(ext->ee_block);
-	ext4_lblk_t last = lblock + len - 1;
 
-	if (len == 0 || lblock > last)
+	/*
+	 * We allow neither:
+	 *  - zero length
+	 *  - overflow/wrap-around
+	 */
+	if (lblock + len <= lblock)
 		return 0;
 	return ext4_data_block_valid(EXT4_SB(inode->i_sb), block, len);
 }
@@ -467,6 +471,10 @@ static int __ext4_ext_check(const char *function, unsigned int line,
 	}
 	if (!ext4_valid_extent_entries(inode, eh, depth)) {
 		error_msg = "invalid extent entries";
+		goto corrupted;
+	}
+	if (unlikely(depth > 32)) {
+		error_msg = "too large eh_depth";
 		goto corrupted;
 	}
 	/* Verify checksum on non-root extent tree nodes */
@@ -2293,59 +2301,69 @@ static int ext4_fill_fiemap_extents(struct inode *inode,
 }
 
 /*
+ * ext4_ext_determine_hole - determine hole around given block
+ * @inode:	inode we lookup in
+ * @path:	path in extent tree to @lblk
+ * @lblk:	pointer to logical block around which we want to determine hole
+ *
+ * Determine hole length (and start if easily possible) around given logical
+ * block. We don't try too hard to find the beginning of the hole but @path
+ * actually points to extent before @lblk, we provide it.
+ *
+ * The function returns the length of a hole starting at @lblk. We update @lblk
+ * to the beginning of the hole if we managed to find it.
+ */
+static ext4_lblk_t ext4_ext_determine_hole(struct inode *inode,
+					   struct ext4_ext_path *path,
+					   ext4_lblk_t *lblk)
+{
+	int depth = ext_depth(inode);
+	struct ext4_extent *ex;
+	ext4_lblk_t len;
+
+	ex = path[depth].p_ext;
+	if (ex == NULL) {
+		/* there is no extent yet, so gap is [0;-] */
+		*lblk = 0;
+		len = EXT_MAX_BLOCKS;
+	} else if (*lblk < le32_to_cpu(ex->ee_block)) {
+		len = le32_to_cpu(ex->ee_block) - *lblk;
+	} else if (*lblk >= le32_to_cpu(ex->ee_block)
+			+ ext4_ext_get_actual_len(ex)) {
+		ext4_lblk_t next;
+
+		*lblk = le32_to_cpu(ex->ee_block) + ext4_ext_get_actual_len(ex);
+		next = ext4_ext_next_allocated_block(path);
+		BUG_ON(next == *lblk);
+		len = next - *lblk;
+	} else {
+		BUG();
+	}
+	return len;
+}
+
+/*
  * ext4_ext_put_gap_in_cache:
  * calculate boundaries of the gap that the requested block fits into
  * and cache this gap
  */
 static void
-ext4_ext_put_gap_in_cache(struct inode *inode, struct ext4_ext_path *path,
-				ext4_lblk_t block)
+ext4_ext_put_gap_in_cache(struct inode *inode, ext4_lblk_t hole_start,
+			  ext4_lblk_t hole_len)
 {
-	int depth = ext_depth(inode);
-	ext4_lblk_t len;
-	ext4_lblk_t lblock;
-	struct ext4_extent *ex;
 	struct extent_status es;
 
-	ex = path[depth].p_ext;
-	if (ex == NULL) {
-		/* there is no extent yet, so gap is [0;-] */
-		lblock = 0;
-		len = EXT_MAX_BLOCKS;
-		ext_debug("cache gap(whole file):");
-	} else if (block < le32_to_cpu(ex->ee_block)) {
-		lblock = block;
-		len = le32_to_cpu(ex->ee_block) - block;
-		ext_debug("cache gap(before): %u [%u:%u]",
-				block,
-				le32_to_cpu(ex->ee_block),
-				 ext4_ext_get_actual_len(ex));
-	} else if (block >= le32_to_cpu(ex->ee_block)
-			+ ext4_ext_get_actual_len(ex)) {
-		ext4_lblk_t next;
-		lblock = le32_to_cpu(ex->ee_block)
-			+ ext4_ext_get_actual_len(ex);
-
-		next = ext4_ext_next_allocated_block(path);
-		ext_debug("cache gap(after): [%u:%u] %u",
-				le32_to_cpu(ex->ee_block),
-				ext4_ext_get_actual_len(ex),
-				block);
-		BUG_ON(next == lblock);
-		len = next - lblock;
-	} else {
-		BUG();
-	}
-
-	ext4_es_find_delayed_extent_range(inode, lblock, lblock + len - 1, &es);
+	ext4_es_find_delayed_extent_range(inode, hole_start,
+					  hole_start + hole_len - 1, &es);
 	if (es.es_len) {
 		/* There's delayed extent containing lblock? */
-		if (es.es_lblk <= lblock)
+		if (es.es_lblk <= hole_start)
 			return;
-		len = min(es.es_lblk - lblock, len);
+		hole_len = min(es.es_lblk - hole_start, hole_len);
 	}
-	ext_debug(" -> %u:%u\n", lblock, len);
-	ext4_es_insert_extent(inode, lblock, len, ~0, EXTENT_STATUS_HOLE);
+	ext_debug(" -> %u:%u\n", hole_start, hole_len);
+	ext4_es_insert_extent(inode, hole_start, hole_len, ~0,
+			      EXTENT_STATUS_HOLE);
 }
 
 /*
@@ -4368,11 +4386,22 @@ int ext4_ext_map_blocks(handle_t *handle, struct inode *inode,
 	 * we couldn't try to create block if create flag is zero
 	 */
 	if ((flags & EXT4_GET_BLOCKS_CREATE) == 0) {
+		ext4_lblk_t hole_start, hole_len;
+
+		hole_start = map->m_lblk;
+		hole_len = ext4_ext_determine_hole(inode, path, &hole_start);
 		/*
 		 * put just found gap into cache to speed up
 		 * subsequent requests
 		 */
-		ext4_ext_put_gap_in_cache(inode, path, map->m_lblk);
+		ext4_ext_put_gap_in_cache(inode, hole_start, hole_len);
+
+		/* Update hole_len to reflect hole size after map->m_lblk */
+		if (hole_start != map->m_lblk)
+			hole_len -= map->m_lblk - hole_start;
+		map->m_pblk = 0;
+		map->m_len = min_t(unsigned int, map->m_len, hole_len);
+
 		goto out2;
 	}
 

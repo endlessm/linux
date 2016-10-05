@@ -517,7 +517,7 @@ static struct aa_label *profile_transition(struct aa_profile *profile,
 	if (perms.allow & MAY_EXEC) {
 		/* exec permission determine how to transition */
 		new = x_to_label(profile, name, perms.xindex, &target, &info);
-		if (new == &profile->label && info) {
+		if (new && new->proxy == profile->label.proxy && info) {
 			/* hack ix fallback - improve how this is detected */
 			goto audit;
 		} else if (!new) {
@@ -644,7 +644,8 @@ static struct aa_label *handle_onexec(struct aa_label *label,
 		if (error)
 			return ERR_PTR(error);
 		new = fn_label_build_in_ns(label, profile, GFP_ATOMIC,
-					   aa_label_merge(label, onexec,
+					   aa_label_merge(&profile->label,
+							  onexec,
 							  GFP_ATOMIC),
 					   profile_transition(profile, xname,
 							      cond, unsafe));
@@ -759,7 +760,7 @@ int apparmor_bprm_set_creds(struct linux_binprm *bprm)
 		bprm->unsafe |= AA_SECURE_X_NEEDED;
 	}
 
-	if (label != new) {
+	if (label->proxy != new->proxy) {
 		/* when transitioning clear unsafe personality bits */
 		if (DEBUG_ON) {
 			dbg_printk("apparmor: clearing unsafe personality "
@@ -930,12 +931,20 @@ static struct aa_label *change_hat(struct aa_label *label, const char *hats[],
 	error = -ECHILD;
 
 fail:
-	fn_for_each_in_ns(label, profile,
-		/* no target as it has failed to be found or built */
+	label_for_each_in_ns(it, labels_ns(label), label, profile) {
+		/*
+		 * no target as it has failed to be found or built
+		 *
+		 * change_hat uses probing and should not log failures
+		 * related to missing hats
+		 */
 		/* TODO: get rid of GLOBAL_ROOT_UID */
-		aa_audit_file(profile, &nullperms, OP_CHANGE_HAT,
-			      AA_MAY_CHANGEHAT, name, NULL, NULL,
-			      GLOBAL_ROOT_UID, info, error));
+		if (count > 1 || COMPLAIN_MODE(profile)) {
+			aa_audit_file(profile, &nullperms, OP_CHANGE_HAT,
+				      AA_MAY_CHANGEHAT, name, NULL, NULL,
+				      GLOBAL_ROOT_UID, info, error);
+		}
+	}
 	return (ERR_PTR(error));
 
 build:

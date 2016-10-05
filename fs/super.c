@@ -531,7 +531,13 @@ struct super_block *sget(struct file_system_type *type,
 			int flags,
 			void *data)
 {
-	return sget_userns(type, test, set, flags, current_user_ns(), data);
+	struct user_namespace *user_ns = current_user_ns();
+
+	/* Ensure the requestor has permissions over the target filesystem */
+	if (!(flags & MS_KERNMOUNT) && !ns_capable(user_ns, CAP_SYS_ADMIN))
+		return ERR_PTR(-EPERM);
+
+	return sget_userns(type, test, set, flags, user_ns, data);
 }
 
 EXPORT_SYMBOL(sget);
@@ -951,14 +957,20 @@ static int ns_set_super(struct super_block *sb, void *data)
 	return set_anon_super(sb, NULL);
 }
 
-struct dentry *mount_ns_userns(struct file_system_type *fs_type, int flags,
-	struct user_namespace *user_ns, void *data,
+struct dentry *mount_ns(struct file_system_type *fs_type,
+	int flags, void *data, void *ns, struct user_namespace *user_ns,
 	int (*fill_super)(struct super_block *, void *, int))
 {
 	struct super_block *sb;
 
-	sb = sget_userns(fs_type, ns_test_super, ns_set_super, flags, user_ns,
-			 data);
+	/* Don't allow mounting unless the caller has CAP_SYS_ADMIN
+	 * over the namespace.
+	 */
+	if (!(flags & MS_KERNMOUNT) && !ns_capable(user_ns, CAP_SYS_ADMIN))
+		return ERR_PTR(-EPERM);
+
+	sb = sget_userns(fs_type, ns_test_super, ns_set_super, flags,
+			 user_ns, ns);
 	if (IS_ERR(sb))
 		return ERR_CAST(sb);
 
@@ -974,14 +986,6 @@ struct dentry *mount_ns_userns(struct file_system_type *fs_type, int flags,
 	}
 
 	return dget(sb->s_root);
-}
-EXPORT_SYMBOL(mount_ns_userns);
-
-struct dentry *mount_ns(struct file_system_type *fs_type, int flags,
-	void *data, int (*fill_super)(struct super_block *, void *, int))
-{
-	return mount_ns_userns(fs_type, flags, current_user_ns(), data,
-			       fill_super);
 }
 
 EXPORT_SYMBOL(mount_ns);

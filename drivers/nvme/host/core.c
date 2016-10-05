@@ -540,8 +540,14 @@ static void nvme_init_integrity(struct nvme_ns *ns)
 
 static void nvme_config_discard(struct nvme_ns *ns)
 {
+	struct nvme_ctrl *ctrl = ns->ctrl;
 	u32 logical_block_size = queue_logical_block_size(ns->queue);
-	ns->queue->limits.discard_zeroes_data = 0;
+
+	if (ctrl->quirks & NVME_QUIRK_DISCARD_ZEROES)
+		ns->queue->limits.discard_zeroes_data = 1;
+	else
+		ns->queue->limits.discard_zeroes_data = 0;
+
 	ns->queue->limits.discard_alignment = logical_block_size;
 	ns->queue->limits.discard_granularity = logical_block_size;
 	blk_queue_max_discard_sectors(ns->queue, 0xffffffff);
@@ -771,6 +777,15 @@ int nvme_disable_ctrl(struct nvme_ctrl *ctrl, u64 cap)
 	ret = ctrl->ops->reg_write32(ctrl, NVME_REG_CC, ctrl->ctrl_config);
 	if (ret)
 		return ret;
+
+	/* Checking for ctrl->tagset is a trick to avoid sleeping on module
+	 * load, since we only need the quirk on reset_controller. Notice
+	 * that the HGST device needs this delay only in firmware activation
+	 * procedure; unfortunately we have no (easy) way to verify this.
+	 */
+	if ((ctrl->quirks & NVME_QUIRK_DELAY_BEFORE_CHK_RDY) && ctrl->tagset)
+		msleep(NVME_QUIRK_DELAY_AMOUNT);
+
 	return nvme_wait_ready(ctrl, cap, false);
 }
 
