@@ -1532,6 +1532,8 @@ static int hci_dev_do_open(struct hci_dev *hdev)
 			mgmt_powered(hdev, 1);
 			hci_dev_unlock(hdev);
 		}
+		if (hdev->post_open)
+			hdev->post_open(hdev);
 	} else {
 		/* Init failed, cleanup */
 		flush_work(&hdev->tx_work);

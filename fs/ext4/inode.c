@@ -205,9 +205,9 @@ void ext4_evict_inode(struct inode *inode)
 		 * Note that directories do not have this problem because they
 		 * don't use page cache.
 		 */
-		if (ext4_should_journal_data(inode) &&
-		    (S_ISLNK(inode->i_mode) || S_ISREG(inode->i_mode)) &&
-		    inode->i_ino != EXT4_JOURNAL_INO) {
+		if (inode->i_ino != EXT4_JOURNAL_INO &&
+		    ext4_should_journal_data(inode) &&
+		    (S_ISLNK(inode->i_mode) || S_ISREG(inode->i_mode))) {
 			journal_t *journal = EXT4_SB(inode->i_sb)->s_journal;
 			tid_t commit_tid = EXT4_I(inode)->i_datasync_tid;
 
@@ -445,13 +445,13 @@ static void ext4_map_blocks_es_recheck(handle_t *handle,
  * Otherwise, call with ext4_ind_map_blocks() to handle indirect mapping
  * based files
  *
- * On success, it returns the number of blocks being mapped or allocated.
- * if create==0 and the blocks are pre-allocated and unwritten block,
- * the result buffer head is unmapped. If the create ==1, it will make sure
- * the buffer head is mapped.
+ * On success, it returns the number of blocks being mapped or allocated.  if
+ * create==0 and the blocks are pre-allocated and unwritten, the resulting @map
+ * is marked as unwritten. If the create == 1, it will mark @map as mapped.
  *
  * It returns 0 if plain look up failed (blocks have not been allocated), in
- * that case, buffer head is unmapped
+ * that case, @map is returned as unmapped but we still do fill map->m_len to
+ * indicate the length of a hole starting at map->m_lblk.
  *
  * It returns the error in case of allocation failure.
  */
@@ -494,6 +494,11 @@ int ext4_map_blocks(handle_t *handle, struct inode *inode,
 				retval = map->m_len;
 			map->m_len = retval;
 		} else if (ext4_es_is_delayed(&es) || ext4_es_is_hole(&es)) {
+			map->m_pblk = 0;
+			retval = es.es_len - (map->m_lblk - es.es_lblk);
+			if (retval > map->m_len)
+				retval = map->m_len;
+			map->m_len = retval;
 			retval = 0;
 		} else {
 			BUG_ON(1);
@@ -2589,13 +2594,36 @@ retry:
 				done = true;
 			}
 		}
-		ext4_journal_stop(handle);
+		/*
+		 * Caution: If the handle is synchronous,
+		 * ext4_journal_stop() can wait for transaction commit
+		 * to finish which may depend on writeback of pages to
+		 * complete or on page lock to be released.  In that
+		 * case, we have to wait until after after we have
+		 * submitted all the IO, released page locks we hold,
+		 * and dropped io_end reference (for extent conversion
+		 * to be able to complete) before stopping the handle.
+		 */
+		if (!ext4_handle_valid(handle) || handle->h_sync == 0) {
+			ext4_journal_stop(handle);
+			handle = NULL;
+		}
 		/* Submit prepared bio */
 		ext4_io_submit(&mpd.io_submit);
 		/* Unlock pages we didn't use */
 		mpage_release_unused_pages(&mpd, give_up_on_write);
-		/* Drop our io_end reference we got from init */
-		ext4_put_io_end(mpd.io_submit.io_end);
+		/*
+		 * Drop our io_end reference we got from init. We have
+		 * to be careful and use deferred io_end finishing if
+		 * we are still holding the transaction as we can
+		 * release the last reference to io_end which may end
+		 * up doing unwritten extent conversion.
+		 */
+		if (handle) {
+			ext4_put_io_end_defer(mpd.io_submit.io_end);
+			ext4_journal_stop(handle);
+		} else
+			ext4_put_io_end(mpd.io_submit.io_end);
 
 		if (ret == -ENOSPC && sbi->s_journal) {
 			/*
@@ -5429,3 +5457,71 @@ int ext4_filemap_fault(struct vm_area_struct *vma, struct vm_fault *vmf)
 
 	return err;
 }
+
+/*
+ * Find the first extent at or after @lblk in an inode that is not a hole.
+ * Search for @map_len blocks at most. The extent is returned in @result.
+ *
+ * The function returns 1 if we found an extent. The function returns 0 in
+ * case there is no extent at or after @lblk and in that case also sets
+ * @result->es_len to 0. In case of error, the error code is returned.
+ */
+int ext4_get_next_extent(struct inode *inode, ext4_lblk_t lblk,
+			 unsigned int map_len, struct extent_status *result)
+{
+	struct ext4_map_blocks map;
+	struct extent_status es = {};
+	int ret;
+
+	map.m_lblk = lblk;
+	map.m_len = map_len;
+
+	/*
+	 * For non-extent based files this loop may iterate several times since
+	 * we do not determine full hole size.
+	 */
+	while (map.m_len > 0) {
+		ret = ext4_map_blocks(NULL, inode, &map, 0);
+		if (ret < 0)
+			return ret;
+		/* There's extent covering m_lblk? Just return it. */
+		if (ret > 0) {
+			int status;
+
+			ext4_es_store_pblock(result, map.m_pblk);
+			result->es_lblk = map.m_lblk;
+			result->es_len = map.m_len;
+			if (map.m_flags & EXT4_MAP_UNWRITTEN)
+				status = EXTENT_STATUS_UNWRITTEN;
+			else
+				status = EXTENT_STATUS_WRITTEN;
+			ext4_es_store_status(result, status);
+			return 1;
+		}
+		ext4_es_find_delayed_extent_range(inode, map.m_lblk,
+						  map.m_lblk + map.m_len - 1,
+						  &es);
+		/* Is delalloc data before next block in extent tree? */
+		if (es.es_len && es.es_lblk < map.m_lblk + map.m_len) {
+			ext4_lblk_t offset = 0;
+
+			if (es.es_lblk < lblk)
+				offset = lblk - es.es_lblk;
+			result->es_lblk = es.es_lblk + offset;
+			ext4_es_store_pblock(result,
+					     ext4_es_pblock(&es) + offset);
+			result->es_len = es.es_len - offset;
+			ext4_es_store_status(result, ext4_es_status(&es));
+
+			return 1;
+		}
+		/* There's a hole at m_lblk, advance us after it */
+		map.m_lblk += map.m_len;
+		map_len -= map.m_len;
+		map.m_len = map_len;
+		cond_resched();
+	}
+	result->es_len = 0;
+	return 0;
+}
+

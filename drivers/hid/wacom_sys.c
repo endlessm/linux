@@ -152,6 +152,25 @@ static void wacom_feature_mapping(struct hid_device *hdev,
 		hid_data->inputmode = field->report->id;
 		hid_data->inputmode_index = usage->usage_index;
 		break;
+
+	case HID_UP_DIGITIZER:
+		if (field->report->id == 0x0B &&
+		    (field->application == WACOM_G9_DIGITIZER ||
+		     field->application == WACOM_G11_DIGITIZER)) {
+			wacom->wacom_wac.mode_report = field->report->id;
+			wacom->wacom_wac.mode_value = 0;
+		}
+		break;
+
+	case WACOM_G9_PAGE:
+	case WACOM_G11_PAGE:
+		if (field->report->id == 0x03 &&
+		    (field->application == WACOM_G9_TOUCHSCREEN ||
+		     field->application == WACOM_G11_TOUCHSCREEN)) {
+			wacom->wacom_wac.mode_report = field->report->id;
+			wacom->wacom_wac.mode_value = 0;
+		}
+		break;
 	}
 }
 
@@ -322,26 +341,41 @@ static int wacom_hid_set_device_mode(struct hid_device *hdev)
 	return 0;
 }
 
-static int wacom_set_device_mode(struct hid_device *hdev, int report_id,
-		int length, int mode)
+static int wacom_set_device_mode(struct hid_device *hdev,
+				 struct wacom_wac *wacom_wac)
 {
-	unsigned char *rep_data;
+	u8 *rep_data;
+	struct hid_report *r;
+	struct hid_report_enum *re;
+	int length;
 	int error = -ENOMEM, limit = 0;
 
-	rep_data = kzalloc(length, GFP_KERNEL);
+	if (wacom_wac->mode_report < 0)
+		return 0;
+
+	re = &(hdev->report_enum[HID_FEATURE_REPORT]);
+	r = re->report_id_hash[wacom_wac->mode_report];
+	if (!r)
+		return -EINVAL;
+
+	rep_data = hid_alloc_report_buf(r, GFP_KERNEL);
 	if (!rep_data)
-		return error;
+		return -ENOMEM;
+
+	length = hid_report_len(r);
 
 	do {
-		rep_data[0] = report_id;
-		rep_data[1] = mode;
+		rep_data[0] = wacom_wac->mode_report;
+		rep_data[1] = wacom_wac->mode_value;
 
 		error = wacom_set_report(hdev, HID_FEATURE_REPORT, rep_data,
 					 length, 1);
 		if (error >= 0)
 			error = wacom_get_report(hdev, HID_FEATURE_REPORT,
 			                         rep_data, length, 1);
-	} while (error >= 0 && rep_data[1] != mode && limit++ < WAC_MSG_RETRIES);
+	} while (error >= 0 &&
+		 rep_data[1] != wacom_wac->mode_report &&
+		 limit++ < WAC_MSG_RETRIES);
 
 	kfree(rep_data);
 
@@ -411,31 +445,40 @@ static int wacom_bt_query_tablet_data(struct hid_device *hdev, u8 speed,
 static int wacom_query_tablet_data(struct hid_device *hdev,
 		struct wacom_features *features)
 {
+	struct wacom *wacom = hid_get_drvdata(hdev);
+	struct wacom_wac *wacom_wac = &wacom->wacom_wac;
+
 	if (hdev->bus == BUS_BLUETOOTH)
 		return wacom_bt_query_tablet_data(hdev, 1, features);
 
-	if (features->type == HID_GENERIC)
-		return wacom_hid_set_device_mode(hdev);
-
-	if (features->device_type & WACOM_DEVICETYPE_TOUCH) {
-		if (features->type > TABLETPC) {
-			/* MT Tablet PC touch */
-			return wacom_set_device_mode(hdev, 3, 4, 4);
-		}
-		else if (features->type == WACOM_24HDT) {
-			return wacom_set_device_mode(hdev, 18, 3, 2);
-		}
-		else if (features->type == WACOM_27QHDT) {
-			return wacom_set_device_mode(hdev, 131, 3, 2);
-		}
-		else if (features->type == BAMBOO_PAD) {
-			return wacom_set_device_mode(hdev, 2, 2, 2);
-		}
-	} else if (features->device_type & WACOM_DEVICETYPE_PEN) {
-		if (features->type <= BAMBOO_PT) {
-			return wacom_set_device_mode(hdev, 2, 2, 2);
+	if (features->type != HID_GENERIC) {
+		if (features->device_type & WACOM_DEVICETYPE_TOUCH) {
+			if (features->type > TABLETPC) {
+				/* MT Tablet PC touch */
+				wacom_wac->mode_report = 3;
+				wacom_wac->mode_value = 4;
+			} else if (features->type == WACOM_24HDT) {
+				wacom_wac->mode_report = 18;
+				wacom_wac->mode_value = 2;
+			} else if (features->type == WACOM_27QHDT) {
+				wacom_wac->mode_report = 131;
+				wacom_wac->mode_value = 2;
+			} else if (features->type == BAMBOO_PAD) {
+				wacom_wac->mode_report = 2;
+				wacom_wac->mode_value = 2;
+			}
+		} else if (features->device_type & WACOM_DEVICETYPE_PEN) {
+			if (features->type <= BAMBOO_PT) {
+				wacom_wac->mode_report = 2;
+				wacom_wac->mode_value = 2;
+			}
 		}
 	}
+
+	wacom_set_device_mode(hdev, wacom_wac);
+
+	if (features->type == HID_GENERIC)
+		return wacom_hid_set_device_mode(hdev);
 
 	return 0;
 }
@@ -1686,61 +1729,21 @@ static void wacom_update_name(struct wacom *wacom)
 		"%s Pad", name);
 }
 
-static int wacom_probe(struct hid_device *hdev,
-		const struct hid_device_id *id)
+static int wacom_parse_and_register(struct wacom *wacom)
 {
-	struct usb_interface *intf = to_usb_interface(hdev->dev.parent);
-	struct usb_device *dev = interface_to_usbdev(intf);
-	struct wacom *wacom;
-	struct wacom_wac *wacom_wac;
-	struct wacom_features *features;
+	struct wacom_wac *wacom_wac = &wacom->wacom_wac;
+	struct wacom_features *features = &wacom_wac->features;
+	struct hid_device *hdev = wacom->hdev;
 	int error;
 	unsigned int connect_mask = HID_CONNECT_HIDRAW;
 
-	if (!id->driver_data)
-		return -EINVAL;
-
-	hdev->quirks |= HID_QUIRK_NO_INIT_REPORTS;
-
-	/* hid-core sets this quirk for the boot interface */
-	hdev->quirks &= ~HID_QUIRK_NOGET;
-
-	wacom = kzalloc(sizeof(struct wacom), GFP_KERNEL);
-	if (!wacom)
-		return -ENOMEM;
-
-	hid_set_drvdata(hdev, wacom);
-	wacom->hdev = hdev;
-
-	/* ask for the report descriptor to be loaded by HID */
-	error = hid_parse(hdev);
-	if (error) {
-		hid_err(hdev, "parse failed\n");
-		goto fail_parse;
-	}
-
-	wacom_wac = &wacom->wacom_wac;
-	wacom_wac->features = *((struct wacom_features *)id->driver_data);
-	features = &wacom_wac->features;
 	features->pktlen = wacom_compute_pktlen(hdev);
-	if (features->pktlen > WACOM_PKGLEN_MAX) {
-		error = -EINVAL;
-		goto fail_pktlen;
-	}
-
-	if (features->check_for_hid_type && features->hid_type != hdev->type) {
-		error = -ENODEV;
-		goto fail_type;
-	}
-
-	wacom->usbdev = dev;
-	wacom->intf = intf;
-	mutex_init(&wacom->lock);
-	INIT_WORK(&wacom->work, wacom_wireless_work);
+	if (features->pktlen > WACOM_PKGLEN_MAX)
+		return -EINVAL;
 
 	error = wacom_allocate_inputs(wacom);
 	if (error)
-		goto fail_allocate_inputs;
+		return error;
 
 	/*
 	 * Bamboo Pad has a generic hid handling for the Pen, and we switch it
@@ -1753,7 +1756,7 @@ static int wacom_probe(struct hid_device *hdev,
 		} else if ((features->pktlen != WACOM_PKGLEN_BPAD_TOUCH) &&
 			   (features->pktlen != WACOM_PKGLEN_BPAD_TOUCH_USB)) {
 			error = -ENODEV;
-			goto fail_shared_data;
+			goto fail_allocate_inputs;
 		}
 	}
 
@@ -1773,7 +1776,7 @@ static int wacom_probe(struct hid_device *hdev,
 			 error ? "Ignoring" : "Assuming pen");
 
 		if (error)
-			goto fail_shared_data;
+			goto fail_parsed;
 
 		features->device_type |= WACOM_DEVICETYPE_PEN;
 	}
@@ -1796,14 +1799,6 @@ static int wacom_probe(struct hid_device *hdev,
 	error = wacom_register_inputs(wacom);
 	if (error)
 		goto fail_register_inputs;
-
-	if (hdev->bus == BUS_BLUETOOTH) {
-		error = device_create_file(&hdev->dev, &dev_attr_speed);
-		if (error)
-			hid_warn(hdev,
-				 "can't create sysfs speed attribute err: %d\n",
-				 error);
-	}
 
 	if (features->type == HID_GENERIC)
 		connect_mask |= HID_CONNECT_DRIVER;
@@ -1845,18 +1840,83 @@ static int wacom_probe(struct hid_device *hdev,
 	return 0;
 
 fail_hw_start:
-	if (hdev->bus == BUS_BLUETOOTH)
-		device_remove_file(&hdev->dev, &dev_attr_speed);
+	hid_hw_stop(hdev);
 fail_register_inputs:
 	wacom_clean_inputs(wacom);
 	wacom_destroy_battery(wacom);
 fail_battery:
 	wacom_remove_shared_data(wacom);
 fail_shared_data:
-	wacom_clean_inputs(wacom);
+fail_parsed:
 fail_allocate_inputs:
+	wacom_clean_inputs(wacom);
+	return error;
+}
+
+static int wacom_probe(struct hid_device *hdev,
+		const struct hid_device_id *id)
+{
+	struct usb_interface *intf = to_usb_interface(hdev->dev.parent);
+	struct usb_device *dev = interface_to_usbdev(intf);
+	struct wacom *wacom;
+	struct wacom_wac *wacom_wac;
+	struct wacom_features *features;
+	int error;
+
+	if (!id->driver_data)
+		return -EINVAL;
+
+	hdev->quirks |= HID_QUIRK_NO_INIT_REPORTS;
+
+	/* hid-core sets this quirk for the boot interface */
+	hdev->quirks &= ~HID_QUIRK_NOGET;
+
+	wacom = kzalloc(sizeof(struct wacom), GFP_KERNEL);
+	if (!wacom)
+		return -ENOMEM;
+
+	hid_set_drvdata(hdev, wacom);
+	wacom->hdev = hdev;
+
+	wacom_wac = &wacom->wacom_wac;
+	wacom_wac->features = *((struct wacom_features *)id->driver_data);
+	features = &wacom_wac->features;
+
+	if (features->check_for_hid_type && features->hid_type != hdev->type) {
+		error = -ENODEV;
+		goto fail_type;
+	}
+
+	wacom_wac->hid_data.inputmode = -1;
+	wacom_wac->mode_report = -1;
+
+	wacom->usbdev = dev;
+	wacom->intf = intf;
+	mutex_init(&wacom->lock);
+	INIT_WORK(&wacom->work, wacom_wireless_work);
+
+	/* ask for the report descriptor to be loaded by HID */
+	error = hid_parse(hdev);
+	if (error) {
+		hid_err(hdev, "parse failed\n");
+		goto fail_parse;
+	}
+
+	error = wacom_parse_and_register(wacom);
+	if (error)
+		goto fail_parse;
+
+	if (hdev->bus == BUS_BLUETOOTH) {
+		error = device_create_file(&hdev->dev, &dev_attr_speed);
+		if (error)
+			hid_warn(hdev,
+				 "can't create sysfs speed attribute err: %d\n",
+				 error);
+	}
+
+	return 0;
+
 fail_type:
-fail_pktlen:
 fail_parse:
 	kfree(wacom);
 	hid_set_drvdata(hdev, NULL);

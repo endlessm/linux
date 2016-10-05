@@ -112,8 +112,8 @@ static int ns_cmp(struct aa_ns *a, struct aa_ns *b)
 
 	AA_BUG(!a);
 	AA_BUG(!b);
-	AA_BUG(!a->base.name);
-	AA_BUG(!b->base.name);
+	AA_BUG(!a->base.hname);
+	AA_BUG(!b->base.hname);
 
 	if (a == b)
 		return 0;
@@ -122,7 +122,7 @@ static int ns_cmp(struct aa_ns *a, struct aa_ns *b)
 	if (res)
 		return res;
 
-	return strcmp(a->base.name, b->base.name);
+	return strcmp(a->base.hname, b->base.hname);
 }
 
 /**
@@ -229,7 +229,7 @@ static inline int unique(struct aa_profile **vec, int n)
 	AA_BUG(!vec);
 
 	pos = 0;
-	for (i = 1; 1 < n; i++) {
+	for (i = 1; i < n; i++) {
 		int res = profile_cmp(vec[pos], vec[i]);
 		AA_BUG(res > 0, "vec not sorted");
 		if (res == 0) {
@@ -1077,6 +1077,12 @@ static struct aa_label *label_merge_insert(struct aa_label *new,
 	if (invcount) {
 		new->size -= aa_vec_unique(&new->vec[0], new->size,
 					   VEC_FLAG_TERMINATE);
+		/* TODO: deal with reference labels */
+		if (new->size == 1) {
+			label = aa_get_label(&new->vec[0]->label);
+			aa_put_label(new);
+			return label;
+		}
 	} else if (!stale) {
 		/* merge could be same as a || b, note: it is not possible
 		 * for new->size == a->size == b->size unless a == b */
@@ -1529,25 +1535,31 @@ static const char *label_modename(struct aa_ns *ns, struct aa_label *label,
 {
 	struct aa_profile *profile;
 	struct label_it i;
-	const char *modestr = NULL;
-	int count = 0;
+	int mode = -1, count = 0;
 
 	label_for_each(i, label, profile) {
 		if (aa_ns_visible(ns, profile->ns, flags & FLAG_VIEW_SUBNS)) {
-			const char *tmp_modestr;
+			if (profile->mode == APPARMOR_UNCONFINED)
+				/* special case unconfined so stacks with
+				 * unconfined don't report as mixed. ie.
+				 * profile_foo//&:ns1://unconfined (mixed)
+				 */
+				continue;
 			count++;
-			tmp_modestr = aa_profile_mode_names[profile->mode];
-			if (!modestr)
-				modestr = tmp_modestr;
-			else if (modestr != tmp_modestr)
+			if (mode == -1)
+				mode = profile->mode;
+			else if (mode != profile->mode)
 				return "mixed";
 		}
 	}
 
 	if (count == 0)
 		return "-";
+	if (mode == -1)
+		/* everything was unconfined */
+		mode = APPARMOR_UNCONFINED;
 
-	return modestr;
+	return aa_profile_mode_names[mode];
 }
 
 /* if any visible label is not unconfined the display_mode returns true */
@@ -1876,6 +1888,11 @@ struct aa_label *aa_label_parse(struct aa_label *base, const char *str,
 		return &vec[0]->label;
 
 	len -= aa_vec_unique(vec, len, VEC_FLAG_TERMINATE);
+	/* TODO: deal with reference labels */
+	if (len == 1) {
+		label = aa_get_label(&vec[0]->label);
+		goto out;
+	}
 
 	if (create)
 		label = aa_vec_find_or_create_label(vec, len, gfp);
@@ -1993,7 +2010,7 @@ static struct aa_label *__label_update(struct aa_label *label)
 	write_lock_irqsave(&ls->lock, flags);
 	label_for_each(i, label, p) {
 		new->vec[i.i] = aa_get_newest_profile(p);
-		if (&new->vec[i.i]->label.proxy != &p->label.proxy)
+		if (new->vec[i.i]->label.proxy != p->label.proxy)
 			invcount++;
 	}
 
@@ -2001,6 +2018,12 @@ static struct aa_label *__label_update(struct aa_label *label)
 	if (invcount) {
 		new->size -= aa_vec_unique(&new->vec[0], new->size,
 					   VEC_FLAG_TERMINATE);
+		/* TODO: deal with reference labels */
+		if (new->size == 1) {
+			tmp = aa_get_label(&new->vec[0]->label);
+			AA_BUG(tmp == label);
+			goto remove;
+		}
 		if (labels_set(label) != labels_set(new)) {
 			write_unlock_irqrestore(&ls->lock, flags);
 			tmp = aa_label_insert(labels_set(new), new);
