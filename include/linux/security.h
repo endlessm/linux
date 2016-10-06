@@ -1671,7 +1671,7 @@ static inline int __securityfs_setup_d_inode(struct inode *dir,
 					struct dentry *dentry,
 					umode_t mode, void *data,
 					const struct file_operations *fops,
-					const struct inode_operations *iops))
+					const struct inode_operations *iops)
 {
 	return -ENODEV;
 }
