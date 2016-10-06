@@ -59,7 +59,26 @@ enum nvme_quirks {
 	 * correctly.
 	 */
 	NVME_QUIRK_IDENTIFY_CNS			= (1 << 1),
+
+	/*
+	 * The controller deterministically returns O's on reads to discarded
+	 * logical blocks.
+	 */
+	NVME_QUIRK_DISCARD_ZEROES		= (1 << 2),
+
+	/*
+	 * The controller needs a delay before starts checking the device
+	 * readiness, which is done by reading the NVME_CSTS_RDY bit.
+	 */
+	NVME_QUIRK_DELAY_BEFORE_CHK_RDY		= (1 << 3),
 };
+
+/* The below value is the specific amount of delay needed before checking
+ * readiness in case of the PCI_DEVICE(0x1c58, 0x0003), which needs the
+ * NVME_QUIRK_DELAY_BEFORE_CHK_RDY quirk enabled. The value (in ms) was
+ * found empirically.
+ */
+#define NVME_QUIRK_DELAY_AMOUNT		2000
 
 struct nvme_ctrl {
 	const struct nvme_ctrl_ops *ops;

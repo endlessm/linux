@@ -3654,8 +3654,7 @@ static bool
 intel_dp_reset_link_train(struct intel_dp *intel_dp, uint32_t *DP,
 			uint8_t dp_train_pat)
 {
-	if (!intel_dp->train_set_valid)
-		memset(intel_dp->train_set, 0, sizeof(intel_dp->train_set));
+	memset(intel_dp->train_set, 0, sizeof(intel_dp->train_set));
 	intel_dp_set_signal_levels(intel_dp, DP);
 	return intel_dp_set_link_train(intel_dp, DP, dp_train_pat);
 }
@@ -3772,22 +3771,6 @@ intel_dp_link_training_clock_recovery(struct intel_dp *intel_dp)
 			break;
 		}
 
-		/*
-		 * if we used previously trained voltage and pre-emphasis values
-		 * and we don't get clock recovery, reset link training values
-		 */
-		if (intel_dp->train_set_valid) {
-			DRM_DEBUG_KMS("clock recovery not ok, reset");
-			/* clear the flag as we are not reusing train set */
-			intel_dp->train_set_valid = false;
-			if (!intel_dp_reset_link_train(intel_dp, &DP,
-						       DP_TRAINING_PATTERN_1 |
-						       DP_LINK_SCRAMBLING_DISABLE)) {
-				DRM_ERROR("failed to enable link training\n");
-				return;
-			}
-			continue;
-		}
 
 		/* Check to see if we've tried the max voltage */
 		for (i = 0; i < intel_dp->lane_count; i++)
@@ -3880,7 +3863,6 @@ intel_dp_link_training_channel_equalization(struct intel_dp *intel_dp)
 		/* Make sure clock is still ok */
 		if (!drm_dp_clock_recovery_ok(link_status,
 					      intel_dp->lane_count)) {
-			intel_dp->train_set_valid = false;
 			intel_dp_link_training_clock_recovery(intel_dp);
 			intel_dp_set_link_train(intel_dp, &DP,
 						training_pattern |
@@ -3897,7 +3879,6 @@ intel_dp_link_training_channel_equalization(struct intel_dp *intel_dp)
 
 		/* Try 5 times, then try clock recovery if that fails */
 		if (tries > 5) {
-			intel_dp->train_set_valid = false;
 			intel_dp_link_training_clock_recovery(intel_dp);
 			intel_dp_set_link_train(intel_dp, &DP,
 						training_pattern |
@@ -3919,10 +3900,8 @@ intel_dp_link_training_channel_equalization(struct intel_dp *intel_dp)
 
 	intel_dp->DP = DP;
 
-	if (channel_eq) {
-		intel_dp->train_set_valid = true;
+	if (channel_eq)
 		DRM_DEBUG_KMS("Channel EQ done. DP Training successful\n");
-	}
 }
 
 void intel_dp_stop_link_train(struct intel_dp *intel_dp)
@@ -5118,12 +5097,14 @@ static void intel_edp_panel_vdd_sanitize(struct intel_dp *intel_dp)
 
 void intel_dp_encoder_reset(struct drm_encoder *encoder)
 {
-	struct intel_dp *intel_dp;
+	struct drm_i915_private *dev_priv = to_i915(encoder->dev);
+	struct intel_dp *intel_dp = enc_to_intel_dp(encoder);
+
+	if (!HAS_DDI(dev_priv))
+		intel_dp->DP = I915_READ(intel_dp->output_reg);
 
 	if (to_intel_encoder(encoder)->type != INTEL_OUTPUT_EDP)
 		return;
-
-	intel_dp = enc_to_intel_dp(encoder);
 
 	pps_lock(intel_dp);
 
@@ -5196,9 +5177,6 @@ intel_dp_hpd_pulse(struct intel_digital_port *intel_dig_port, bool long_hpd)
 	intel_display_power_get(dev_priv, power_domain);
 
 	if (long_hpd) {
-		/* indicate that we need to restart link training */
-		intel_dp->train_set_valid = false;
-
 		if (!intel_digital_port_connected(dev_priv, intel_dig_port))
 			goto mst_fail;
 
@@ -6174,8 +6152,9 @@ intel_dp_init_connector(struct intel_digital_port *intel_dig_port,
 	return true;
 }
 
-bool
-intel_dp_init(struct drm_device *dev, int output_reg, enum port port)
+bool intel_dp_init(struct drm_device *dev,
+		   int output_reg,
+		   enum port port)
 {
 	struct drm_i915_private *dev_priv = dev->dev_private;
 	struct intel_digital_port *intel_dig_port;

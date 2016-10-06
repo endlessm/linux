@@ -2364,6 +2364,9 @@ static void intel_pin_eld_notify(void *audio_ptr, int port)
 	 */
 	if (snd_power_get_state(codec->card) != SNDRV_CTL_POWER_D0)
 		return;
+	/* ditto during suspend/resume process itself */
+	if (atomic_read(&(codec)->core.in_pm))
+		return;
 
 	check_presence_and_report(codec, pin_nid);
 }
@@ -2395,13 +2398,6 @@ static int patch_generic_hdmi(struct hda_codec *codec)
 			is_broxton(codec))
 		codec->core.link_power_control = 1;
 
-	if (is_haswell_plus(codec) || is_valleyview_plus(codec)) {
-		codec->depop_delay = 0;
-		spec->i915_audio_ops.audio_ptr = codec;
-		spec->i915_audio_ops.pin_eld_notify = intel_pin_eld_notify;
-		snd_hdac_i915_register_notifier(&spec->i915_audio_ops);
-	}
-
 	if (hdmi_parse_codec(codec) < 0) {
 		codec->spec = NULL;
 		kfree(spec);
@@ -2420,6 +2416,18 @@ static int patch_generic_hdmi(struct hda_codec *codec)
 	generic_hdmi_init_per_pins(codec);
 
 	init_channel_allocations();
+
+	if (is_haswell_plus(codec) || is_valleyview_plus(codec)) {
+		codec->depop_delay = 0;
+		spec->i915_audio_ops.audio_ptr = codec;
+		/* intel_audio_codec_enable() or intel_audio_codec_disable()
+		 * will call pin_eld_notify with using audio_ptr pointer
+		 * We need make sure audio_ptr is really setup
+		 */
+		wmb();
+		spec->i915_audio_ops.pin_eld_notify = intel_pin_eld_notify;
+		snd_hdac_i915_register_notifier(&spec->i915_audio_ops);
+	}
 
 	return 0;
 }

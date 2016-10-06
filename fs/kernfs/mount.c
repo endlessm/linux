@@ -153,6 +153,8 @@ static int kernfs_fill_super(struct super_block *sb, unsigned long magic)
 	struct dentry *root;
 
 	info->sb = sb;
+	/* Userspace would break if executables appear on sysfs */
+	sb->s_iflags |= SB_I_NOEXEC;
 	sb->s_blocksize = PAGE_CACHE_SIZE;
 	sb->s_blocksize_bits = PAGE_CACHE_SHIFT;
 	sb->s_magic = magic;
@@ -186,8 +188,7 @@ static int kernfs_test_super(struct super_block *sb, void *data)
 	struct kernfs_super_info *sb_info = kernfs_info(sb);
 	struct kernfs_super_info *info = data;
 
-	return sb_info->root == info->root && sb_info->ns == info->ns &&
-	       sb->s_user_ns == current_user_ns();
+	return sb_info->root == info->root && sb_info->ns == info->ns;
 }
 
 static int kernfs_set_super(struct super_block *sb, void *data)
@@ -243,7 +244,8 @@ struct dentry *kernfs_mount_ns(struct file_system_type *fs_type, int flags,
 	info->root = root;
 	info->ns = ns;
 
-	sb = sget(fs_type, kernfs_test_super, kernfs_set_super, flags, info);
+	sb = sget_userns(fs_type, kernfs_test_super, kernfs_set_super, flags,
+			 &init_user_ns, info);
 	if (IS_ERR(sb) || sb->s_fs_info != info)
 		kfree(info);
 	if (IS_ERR(sb))
