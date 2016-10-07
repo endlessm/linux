@@ -7683,7 +7683,7 @@ CONFIG_SLUB_CPU_PARTIAL                         policy<{'amd64': 'y', 'arm64': '
 CONFIG_PROFILING                                policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'powerpc': 'y', 'ppc64el': 'y', 's390x': 'y'}>
 CONFIG_OPROFILE                                 policy<{'amd64': 'm', 'armhf': 'm', 'i386': 'm', 'powerpc': 'm', 'ppc64el': 'm', 's390x': 'm'}>
 CONFIG_OPROFILE_EVENT_MULTIPLEX                 policy<{'amd64': 'n', 'i386': 'n'}>
-CONFIG_KPROBES                                  policy<{'amd64': 'y', 'armhf': 'y', 'i386': 'y', 'powerpc': 'y', 'ppc64el': 'y', 's390x': 'y'}>
+CONFIG_KPROBES                                  policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'powerpc': 'y', 'ppc64el': 'y', 's390x': 'y'}>
 CONFIG_JUMP_LABEL                               policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'n', 'i386': 'y', 'powerpc': 'y', 'ppc64el': 'y', 's390x': 'y'}>
 CONFIG_STATIC_KEYS_SELFTEST                     policy<{'amd64': 'n', 'arm64': 'n', 'i386': 'n', 'powerpc': 'n', 'ppc64el': 'n', 's390x': 'n'}>
 #
@@ -8077,7 +8077,7 @@ CONFIG_RCU_TORTURE_TEST                         policy<{'amd64': 'n', 'arm64': '
 # Menu: Kernel hacking >> Runtime Testing
 CONFIG_LKDTM                                    policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'i386': 'n', 'powerpc': 'n', 'ppc64el': 'n', 's390x': 'n'}>
 CONFIG_TEST_LIST_SORT                           policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'i386': 'n', 'powerpc': 'n', 'ppc64el': 'n', 's390x': 'n'}>
-CONFIG_KPROBES_SANITY_TEST                      policy<{'amd64': 'n', 'armhf': 'n', 'i386': 'n', 'powerpc': 'n', 'ppc64el': 'n', 's390x': 'n'}>
+CONFIG_KPROBES_SANITY_TEST                      policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'i386': 'n', 'powerpc': 'n', 'ppc64el': 'n', 's390x': 'n'}>
 CONFIG_BACKTRACE_SELF_TEST                      policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'i386': 'n', 'powerpc': 'n', 'ppc64el': 'n', 's390x': 'n'}>
 CONFIG_RBTREE_TEST                              policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'powerpc': 'm', 'ppc64el': 'm', 's390x': 'm'}>
 CONFIG_INTERVAL_TREE_TEST                       policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'powerpc': 'm', 'ppc64el': 'm', 's390x': 'm'}>
@@ -8109,7 +8109,7 @@ CONFIG_TRACER_SNAPSHOT                          policy<{'amd64': 'y', 'arm64': '
 CONFIG_TRACER_SNAPSHOT_PER_CPU_SWAP             policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'i386': 'n', 'powerpc': 'n', 'ppc64el': 'n', 's390x': 'n'}>
 CONFIG_STACK_TRACER                             policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'powerpc': 'y', 'ppc64el': 'y', 's390x': 'y'}>
 CONFIG_BLK_DEV_IO_TRACE                         policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'powerpc': 'y', 'ppc64el': 'y', 's390x': 'y'}>
-CONFIG_KPROBE_EVENT                             policy<{'amd64': 'y', 'armhf': 'y', 'i386': 'y', 'powerpc': 'y', 'ppc64el': 'y', 's390x': 'y'}>
+CONFIG_KPROBE_EVENT                             policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'powerpc': 'y', 'ppc64el': 'y', 's390x': 'y'}>
 CONFIG_UPROBE_EVENT                             policy<{'amd64': 'y', 'armhf': 'y', 'i386': 'y', 'powerpc': 'y', 'ppc64el': 'y', 's390x': 'y'}>
 CONFIG_FTRACE_STARTUP_TEST                      policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'i386': 'n', 'powerpc': 'n', 'ppc64el': 'n', 's390x': 'n'}>
 CONFIG_MMIOTRACE                                policy<{'amd64': 'y', 'i386': 'y'}>
@@ -8809,7 +8809,7 @@ CONFIG_NFT_REDIR_IPV6                           policy<{'amd64': 'm', 'arm64': '
 
 # Menu: Networking support >> Networking options >> Network testing
 CONFIG_NET_PKTGEN                               policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'powerpc': 'm', 'ppc64el': 'm', 's390x': 'm'}>
-CONFIG_NET_TCPPROBE                             policy<{'amd64': 'm', 'armhf': 'm', 'i386': 'm', 'powerpc': 'm', 'ppc64el': 'm', 's390x': 'm'}>
+CONFIG_NET_TCPPROBE                             policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'powerpc': 'm', 'ppc64el': 'm', 's390x': 'm'}>
 CONFIG_NET_DROP_MONITOR                         policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'i386': 'n', 'powerpc': 'n', 'ppc64el': 'n', 's390x': 'n'}>
 
 # Menu: Networking support >> Networking options >> QoS and/or fair queueing
