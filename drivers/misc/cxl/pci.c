@@ -357,7 +357,7 @@ static int init_implementation_adapter_regs(struct cxl *adapter, struct pci_dev 
 {
 	struct device_node *np;
 	const __be32 *prop;
-	u64 psl_dsnctl;
+	u64 psl_dsnctl, psl_fircntl;
 	u64 chipid;
 	u64 capp_unit_id;
 
@@ -386,8 +386,11 @@ static int init_implementation_adapter_regs(struct cxl *adapter, struct pci_dev 
 	cxl_p1_write(adapter, CXL_PSL_RESLCKTO, 0x20000000200ULL);
 	/* snoop write mask */
 	cxl_p1_write(adapter, CXL_PSL_SNWRALLOC, 0x00000000FFFFFFFFULL);
-	/* set fir_accum */
-	cxl_p1_write(adapter, CXL_PSL_FIR_CNTL, 0x0800000000000000ULL);
+	/* set fir_cntl to recommended value for production env */
+	psl_fircntl = (0x2ULL << (63-3)); /* ce_report */
+	psl_fircntl |= (0x1ULL << (63-6)); /* FIR_report */
+	psl_fircntl |= 0x1ULL; /* ce_thresh */
+	cxl_p1_write(adapter, CXL_PSL_FIR_CNTL, psl_fircntl);
 	/* for debugging with trace arrays */
 	cxl_p1_write(adapter, CXL_PSL_TRACE, 0x0000FF7C00000000ULL);
 
@@ -1281,6 +1284,30 @@ static void cxl_pci_remove_adapter(struct cxl *adapter)
 	device_unregister(&adapter->dev);
 }
 
+#define CXL_MAX_PCIEX_PARENT 2
+
+static int cxl_slot_is_switched(struct pci_dev *dev)
+{
+	struct device_node *np;
+	int depth = 0;
+	const __be32 *prop;
+
+	if (!(np = pci_device_to_OF_node(dev))) {
+		pr_err("cxl: np = NULL\n");
+		return -ENODEV;
+	}
+	of_node_get(np);
+	while (np) {
+		np = of_get_next_parent(np);
+		prop = of_get_property(np, "device_type", NULL);
+		if (!prop || strcmp((char *)prop, "pciex"))
+			break;
+		depth++;
+	}
+	of_node_put(np);
+	return (depth > CXL_MAX_PCIEX_PARENT);
+}
+
 static int cxl_probe(struct pci_dev *dev, const struct pci_device_id *id)
 {
 	struct cxl *adapter;
@@ -1289,6 +1316,11 @@ static int cxl_probe(struct pci_dev *dev, const struct pci_device_id *id)
 
 	if (cxl_pci_is_vphb_device(dev)) {
 		dev_dbg(&dev->dev, "cxl_init_adapter: Ignoring cxl vphb device\n");
+		return -ENODEV;
+	}
+
+	if (cxl_slot_is_switched(dev)) {
+		dev_info(&dev->dev, "Ignoring card on incompatible PCI slot\n");
 		return -ENODEV;
 	}
 

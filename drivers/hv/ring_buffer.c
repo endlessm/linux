@@ -107,10 +107,25 @@ static bool hv_need_to_signal_on_read(struct hv_ring_buffer_info *rbi)
 {
 	u32 cur_write_sz;
 	u32 r_size;
-	u32 write_loc = rbi->ring_buffer->write_index;
+	u32 write_loc;
 	u32 read_loc = rbi->ring_buffer->read_index;
-	u32 pending_sz = rbi->ring_buffer->pending_send_sz;
+	u32 pending_sz;
 
+	/*
+	 * Issue a full memory barrier before making the signaling decision.
+	 * Here is the reason for having this barrier:
+	 * If the reading of the pend_sz (in this function)
+	 * were to be reordered and read before we commit the new read
+	 * index (in the calling function)  we could
+	 * have a problem. If the host were to set the pending_sz after we
+	 * have sampled pending_sz and go to sleep before we commit the
+	 * read index, we could miss sending the interrupt. Issue a full
+	 * memory barrier to address this.
+	 */
+	mb();
+
+	pending_sz = rbi->ring_buffer->pending_send_sz;
+	write_loc = rbi->ring_buffer->write_index;
 	/* If the other end is not blocked on write don't bother. */
 	if (pending_sz == 0)
 		return false;

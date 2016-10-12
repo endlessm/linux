@@ -51,7 +51,7 @@ static struct fb_fix_screeninfo vesafb_fix = {
 };
 
 static int   inverse    __read_mostly;
-static int   mtrr       __read_mostly;		/* disable mtrr */
+static int   mtrr       __read_mostly = 3;	/* enable mtrr write-comb. */
 static int   vram_remap;			/* Set amount of memory to be used */
 static int   vram_total;			/* Set total amount of memory */
 static int   pmi_setpal __read_mostly = 1;	/* pmi for palette changes ??? */

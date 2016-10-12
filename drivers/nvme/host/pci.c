@@ -27,7 +27,6 @@
 #include <linux/interrupt.h>
 #include <linux/io.h>
 #include <linux/kdev_t.h>
-#include <linux/kthread.h>
 #include <linux/kernel.h>
 #include <linux/mm.h>
 #include <linux/module.h>
@@ -39,6 +38,7 @@
 #include <linux/sched.h>
 #include <linux/slab.h>
 #include <linux/t10-pi.h>
+#include <linux/timer.h>
 #include <linux/types.h>
 #include <linux/io-64-nonatomic-lo-hi.h>
 #include <asm/unaligned.h>
@@ -76,10 +76,7 @@ static bool use_cmb_sqes = true;
 module_param(use_cmb_sqes, bool, 0644);
 MODULE_PARM_DESC(use_cmb_sqes, "use controller's memory buffer for I/O SQes");
 
-static LIST_HEAD(dev_list);
-static struct task_struct *nvme_thread;
 static struct workqueue_struct *nvme_workq;
-static wait_queue_head_t nvme_kthread_wait;
 
 struct nvme_dev;
 struct nvme_queue;
@@ -93,7 +90,6 @@ static void nvme_dev_disable(struct nvme_dev *dev, bool shutdown);
  * Represents an NVM Express device.  Each nvme_dev is a PCI function.
  */
 struct nvme_dev {
-	struct list_head node;
 	struct nvme_queue **queues;
 	struct blk_mq_tag_set tagset;
 	struct blk_mq_tag_set admin_tagset;
@@ -111,6 +107,8 @@ struct nvme_dev {
 	struct work_struct reset_work;
 	struct work_struct scan_work;
 	struct work_struct remove_work;
+	struct work_struct async_work;
+	struct timer_list watchdog_timer;
 	struct mutex shutdown_lock;
 	bool subsystem;
 	void __iomem *cmb;
@@ -304,8 +302,11 @@ static void nvme_complete_async_event(struct nvme_dev *dev,
 	u16 status = le16_to_cpu(cqe->status) >> 1;
 	u32 result = le32_to_cpu(cqe->result);
 
-	if (status == NVME_SC_SUCCESS || status == NVME_SC_ABORT_REQ)
+	if (status == NVME_SC_SUCCESS || status == NVME_SC_ABORT_REQ) {
 		++dev->ctrl.event_limit;
+		queue_work(nvme_workq, &dev->async_work);
+	}
+
 	if (status != NVME_SC_SUCCESS)
 		return;
 
@@ -847,15 +848,22 @@ static int nvme_poll(struct blk_mq_hw_ctx *hctx, unsigned int tag)
 	return 0;
 }
 
-static void nvme_submit_async_event(struct nvme_dev *dev)
+static void nvme_async_event_work(struct work_struct *work)
 {
+	struct nvme_dev *dev = container_of(work, struct nvme_dev, async_work);
+	struct nvme_queue *nvmeq = dev->queues[0];
 	struct nvme_command c;
 
 	memset(&c, 0, sizeof(c));
 	c.common.opcode = nvme_admin_async_event;
-	c.common.command_id = NVME_AQ_BLKMQ_DEPTH + --dev->ctrl.event_limit;
 
-	__nvme_submit_cmd(dev->queues[0], &c);
+	spin_lock_irq(&nvmeq->q_lock);
+	while (dev->ctrl.event_limit > 0) {
+		c.common.command_id = NVME_AQ_BLKMQ_DEPTH +
+			--dev->ctrl.event_limit;
+		__nvme_submit_cmd(nvmeq, &c);
+	}
+	spin_unlock_irq(&nvmeq->q_lock);
 }
 
 static int adapter_delete_queue(struct nvme_dev *dev, u8 opcode, u16 id)
@@ -1174,9 +1182,6 @@ static struct nvme_queue *nvme_alloc_queue(struct nvme_dev *dev, int qid,
 	nvmeq->qid = qid;
 	nvmeq->cq_vector = -1;
 	dev->queues[qid] = nvmeq;
-
-	/* make sure queue descriptor is set before queue count, for kthread */
-	mb();
 	dev->queue_count++;
 
 	return nvmeq;
@@ -1361,48 +1366,48 @@ static int nvme_configure_admin_queue(struct nvme_dev *dev)
 	return result;
 }
 
-static int nvme_kthread(void *data)
+static bool nvme_should_reset(struct nvme_dev *dev, u32 csts)
 {
-	struct nvme_dev *dev, *next;
 
-	while (!kthread_should_stop()) {
-		set_current_state(TASK_INTERRUPTIBLE);
-		spin_lock(&dev_list_lock);
-		list_for_each_entry_safe(dev, next, &dev_list, node) {
-			int i;
-			u32 csts = readl(dev->bar + NVME_REG_CSTS);
+	/* If true, indicates loss of adapter communication, possibly by a
+	 * NVMe Subsystem reset.
+	 */
+	bool nssro = dev->subsystem && (csts & NVME_CSTS_NSSRO);
 
-			/*
-			 * Skip controllers currently under reset.
-			 */
-			if (work_pending(&dev->reset_work) || work_busy(&dev->reset_work))
-				continue;
+	/* If there is a reset ongoing, we shouldn't reset again. */
+	if (work_busy(&dev->reset_work))
+		return false;
 
-			if ((dev->subsystem && (csts & NVME_CSTS_NSSRO)) ||
-							csts & NVME_CSTS_CFS) {
-				if (queue_work(nvme_workq, &dev->reset_work)) {
-					dev_warn(dev->dev,
-						"Failed status: %x, reset controller\n",
-						readl(dev->bar + NVME_REG_CSTS));
-				}
-				continue;
-			}
-			for (i = 0; i < dev->queue_count; i++) {
-				struct nvme_queue *nvmeq = dev->queues[i];
-				if (!nvmeq)
-					continue;
-				spin_lock_irq(&nvmeq->q_lock);
-				nvme_process_cq(nvmeq);
+	/* We shouldn't reset unless the controller is on fatal error state
+	 * _or_ if we lost the communication with it.
+	 */
+	if (!(csts & NVME_CSTS_CFS) && !nssro)
+		return false;
 
-				while (i == 0 && dev->ctrl.event_limit > 0)
-					nvme_submit_async_event(dev);
-				spin_unlock_irq(&nvmeq->q_lock);
-			}
-		}
-		spin_unlock(&dev_list_lock);
-		schedule_timeout(round_jiffies_relative(HZ));
+	/* If PCI error recovery process is happening, we cannot reset or
+	 * the recovery mechanism will surely fail.
+	 */
+	if (pci_channel_offline(to_pci_dev(dev->dev)))
+		return false;
+
+	return true;
+}
+
+static void nvme_watchdog_timer(unsigned long data)
+{
+	struct nvme_dev *dev = (struct nvme_dev *)data;
+	u32 csts = readl(dev->bar + NVME_REG_CSTS);
+
+	/* Skip controllers under certain specific conditions. */
+	if (nvme_should_reset(dev, csts)) {
+		if (queue_work(nvme_workq, &dev->reset_work))
+			dev_warn(dev->dev,
+				"Failed status: 0x%x, reset controller.\n",
+				csts);
+		return;
 	}
-	return 0;
+
+	mod_timer(&dev->watchdog_timer, round_jiffies(jiffies + HZ));
 }
 
 static int nvme_create_io_queues(struct nvme_dev *dev)
@@ -1508,9 +1513,9 @@ static int nvme_setup_io_queues(struct nvme_dev *dev)
 	 * access to the admin queue, as that might be only way to fix them up.
 	 */
 	if (result > 0) {
-		dev_err(dev->dev, "Could not set queue count (%d)\n", result);
-		nr_io_queues = 0;
-		result = 0;
+		dev_err(dev->ctrl.device,
+			"Could not set queue count (%d)\n", result);
+		return 0;
 	}
 
 	if (dev->cmb && NVME_CMB_SQS(dev->cmbsz)) {
@@ -1544,7 +1549,9 @@ static int nvme_setup_io_queues(struct nvme_dev *dev)
 	 * If we enable msix early due to not intx, disable it again before
 	 * setting up the full range we need.
 	 */
-	if (!pdev->irq)
+	if (pdev->msi_enabled)
+		pci_disable_msi(pdev);
+	else if (pdev->msix_enabled)
 		pci_disable_msix(pdev);
 
 	for (i = 0; i < nr_io_queues; i++)
@@ -1668,15 +1675,10 @@ static void nvme_disable_io_queues(struct nvme_dev *dev)
 		reinit_completion(&dev->ioq_wait);
  retry:
 		timeout = ADMIN_TIMEOUT;
-		for (; i > 0; i--) {
-			struct nvme_queue *nvmeq = dev->queues[i];
-
-			if (!pass)
-				nvme_suspend_queue(nvmeq);
-			if (nvme_delete_queue(nvmeq, opcode))
+		for (; i > 0; i--, sent++)
+			if (nvme_delete_queue(dev->queues[i], opcode))
 				break;
-			++sent;
-		}
+
 		while (sent--) {
 			timeout = wait_for_completion_io_timeout(&dev->ioq_wait, timeout);
 			if (timeout == 0)
@@ -1724,7 +1726,6 @@ static int nvme_dev_map(struct nvme_dev *dev)
 	if (pci_enable_device_mem(pdev))
 		return result;
 
-	dev->entry[0].vector = pdev->irq;
 	pci_set_master(pdev);
 	bars = pci_select_bars(pdev, IORESOURCE_MEM);
 	if (!bars)
@@ -1747,13 +1748,18 @@ static int nvme_dev_map(struct nvme_dev *dev)
 	}
 
 	/*
-	 * Some devices don't advertse INTx interrupts, pre-enable a single
-	 * MSIX vec for setup. We'll adjust this later.
+	 * Some devices and/or platforms don't advertise or work with INTx
+	 * interrupts. Pre-enable a single MSIX or MSI vec for setup. We'll
+	 * adjust this later.
 	 */
-	if (!pdev->irq) {
-		result = pci_enable_msix(pdev, dev->entry, 1);
-		if (result < 0)
-			goto unmap;
+	if (pci_enable_msix(pdev, dev->entry, 1)) {
+		pci_enable_msi(pdev);
+		dev->entry[0].vector = pdev->irq;
+	}
+
+	if (!dev->entry[0].vector) {
+		result = -ENODEV;
+		goto unmap;
 	}
 
 	cap = lo_hi_readq(dev->bar + NVME_REG_CAP);
@@ -1811,67 +1817,24 @@ static void nvme_dev_unmap(struct nvme_dev *dev)
 	}
 }
 
-static int nvme_dev_list_add(struct nvme_dev *dev)
-{
-	bool start_thread = false;
-
-	spin_lock(&dev_list_lock);
-	if (list_empty(&dev_list) && IS_ERR_OR_NULL(nvme_thread)) {
-		start_thread = true;
-		nvme_thread = NULL;
-	}
-	list_add(&dev->node, &dev_list);
-	spin_unlock(&dev_list_lock);
-
-	if (start_thread) {
-		nvme_thread = kthread_run(nvme_kthread, NULL, "nvme");
-		wake_up_all(&nvme_kthread_wait);
-	} else
-		wait_event_killable(nvme_kthread_wait, nvme_thread);
-
-	if (IS_ERR_OR_NULL(nvme_thread))
-		return nvme_thread ? PTR_ERR(nvme_thread) : -EINTR;
-
-	return 0;
-}
-
-/*
-* Remove the node from the device list and check
-* for whether or not we need to stop the nvme_thread.
-*/
-static void nvme_dev_list_remove(struct nvme_dev *dev)
-{
-	struct task_struct *tmp = NULL;
-
-	spin_lock(&dev_list_lock);
-	list_del_init(&dev->node);
-	if (list_empty(&dev_list) && !IS_ERR_OR_NULL(nvme_thread)) {
-		tmp = nvme_thread;
-		nvme_thread = NULL;
-	}
-	spin_unlock(&dev_list_lock);
-
-	if (tmp)
-		kthread_stop(tmp);
-}
-
 static void nvme_dev_disable(struct nvme_dev *dev, bool shutdown)
 {
 	int i;
 	u32 csts = -1;
 
-	nvme_dev_list_remove(dev);
+	del_timer_sync(&dev->watchdog_timer);
 
 	mutex_lock(&dev->shutdown_lock);
 	if (dev->bar) {
 		nvme_stop_queues(&dev->ctrl);
 		csts = readl(dev->bar + NVME_REG_CSTS);
 	}
+
+	for (i = dev->queue_count - 1; i > 0; i--)
+		nvme_suspend_queue(dev->queues[i]);
+
 	if (csts & NVME_CSTS_CFS || !(csts & NVME_CSTS_RDY)) {
-		for (i = dev->queue_count - 1; i >= 0; i--) {
-			struct nvme_queue *nvmeq = dev->queues[i];
-			nvme_suspend_queue(nvmeq);
-		}
+		nvme_suspend_queue(dev->queues[0]);
 	} else {
 		nvme_disable_io_queues(dev);
 		nvme_disable_admin_queue(dev, shutdown);
@@ -1935,6 +1898,9 @@ static void nvme_reset_work(struct work_struct *work)
 	if (dev->bar)
 		nvme_dev_disable(dev, false);
 
+	if (test_bit(NVME_CTRL_REMOVING, &dev->flags))
+		goto out;
+
 	set_bit(NVME_CTRL_RESETTING, &dev->flags);
 
 	result = nvme_dev_map(dev);
@@ -1959,10 +1925,9 @@ static void nvme_reset_work(struct work_struct *work)
 		goto free_tags;
 
 	dev->ctrl.event_limit = NVME_NR_AEN_COMMANDS;
+	queue_work(nvme_workq, &dev->async_work);
 
-	result = nvme_dev_list_add(dev);
-	if (result)
-		goto remove;
+	mod_timer(&dev->watchdog_timer, round_jiffies(jiffies + HZ));
 
 	/*
 	 * Keep the controller around but remove all namespaces if we don't have
@@ -1979,8 +1944,6 @@ static void nvme_reset_work(struct work_struct *work)
 	clear_bit(NVME_CTRL_RESETTING, &dev->flags);
 	return;
 
- remove:
-	nvme_dev_list_remove(dev);
  free_tags:
 	nvme_dev_remove_admin(dev);
 	blk_put_queue(dev->ctrl.admin_q);
@@ -2089,10 +2052,12 @@ static int nvme_probe(struct pci_dev *pdev, const struct pci_device_id *id)
 	dev->dev = get_device(&pdev->dev);
 	pci_set_drvdata(pdev, dev);
 
-	INIT_LIST_HEAD(&dev->node);
 	INIT_WORK(&dev->scan_work, nvme_dev_scan);
 	INIT_WORK(&dev->reset_work, nvme_reset_work);
 	INIT_WORK(&dev->remove_work, nvme_remove_dead_ctrl_work);
+	INIT_WORK(&dev->async_work, nvme_async_event_work);
+	setup_timer(&dev->watchdog_timer, nvme_watchdog_timer,
+		(unsigned long)dev);
 	mutex_init(&dev->shutdown_lock);
 	init_completion(&dev->ioq_wait);
 
@@ -2139,12 +2104,9 @@ static void nvme_remove(struct pci_dev *pdev)
 {
 	struct nvme_dev *dev = pci_get_drvdata(pdev);
 
-	spin_lock(&dev_list_lock);
-	list_del_init(&dev->node);
-	spin_unlock(&dev_list_lock);
-
 	set_bit(NVME_CTRL_REMOVING, &dev->flags);
 	pci_set_drvdata(pdev, NULL);
+	flush_work(&dev->async_work);
 	flush_work(&dev->reset_work);
 	flush_work(&dev->scan_work);
 	nvme_remove_namespaces(&dev->ctrl);
@@ -2229,9 +2191,12 @@ static const struct pci_error_handlers nvme_err_handler = {
 
 static const struct pci_device_id nvme_id_table[] = {
 	{ PCI_VDEVICE(INTEL, 0x0953),
-		.driver_data = NVME_QUIRK_STRIPE_SIZE, },
+		.driver_data = NVME_QUIRK_STRIPE_SIZE |
+				NVME_QUIRK_DISCARD_ZEROES, },
 	{ PCI_VDEVICE(INTEL, 0x5845),	/* Qemu emulated controller */
 		.driver_data = NVME_QUIRK_IDENTIFY_CNS, },
+	{ PCI_DEVICE(0x1c58, 0x0003),	/* HGST adapter */
+		.driver_data = NVME_QUIRK_DELAY_BEFORE_CHK_RDY, },
 	{ PCI_DEVICE_CLASS(PCI_CLASS_STORAGE_EXPRESS, 0xffffff) },
 	{ PCI_DEVICE(PCI_VENDOR_ID_APPLE, 0x2001) },
 	{ 0, }
@@ -2253,8 +2218,6 @@ static struct pci_driver nvme_driver = {
 static int __init nvme_init(void)
 {
 	int result;
-
-	init_waitqueue_head(&nvme_kthread_wait);
 
 	nvme_workq = alloc_workqueue("nvme", WQ_UNBOUND | WQ_MEM_RECLAIM, 0);
 	if (!nvme_workq)
@@ -2281,7 +2244,6 @@ static void __exit nvme_exit(void)
 	pci_unregister_driver(&nvme_driver);
 	nvme_core_exit();
 	destroy_workqueue(nvme_workq);
-	BUG_ON(nvme_thread && !IS_ERR(nvme_thread));
 	_nvme_check_size();
 }
 
