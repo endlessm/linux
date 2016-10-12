@@ -46,6 +46,7 @@
 #include <linux/cpumask.h>
 
 #include <asm/mpspec.h>
+#include <asm/percpu.h>
 
 /* Mappings between logical cpu number and node number */
 DECLARE_EARLY_PER_CPU(int, x86_cpu_to_node_map);
