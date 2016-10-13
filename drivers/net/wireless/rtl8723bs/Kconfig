@@ -1,5 +1,6 @@
 config RTL8723BS
 	tristate "Realtek 8723B SDIO or SPI WiFi"
+	select WIRELESS_EXT
 	---help---
 	  Help message of RTL8723BS
 
