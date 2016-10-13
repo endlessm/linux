@@ -3094,13 +3094,6 @@ static bool zone_balanced(struct zone *zone, int order, int classzone_idx)
 {
 	unsigned long mark = high_wmark_pages(zone);
 
-	/*
-	 * if zone is so small that watermarks are the same, don't bother trying
-	 * to balance; kswapd would just spin continuously trying to balance it.
-	 */
-	if (low_wmark_pages(zone) == mark)
-		return true;
-
 	if (!zone_watermark_ok_safe(zone, order, mark, classzone_idx))
 		return false;
 
