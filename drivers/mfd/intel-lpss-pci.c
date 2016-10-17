@@ -130,9 +130,13 @@ static struct property_entry apl_i2c_properties[] = {
 	{ },
 };
 
+static struct property_set apl_i2c_pset = {
+	.properties = apl_i2c_properties,
+};
+
 static const struct intel_lpss_platform_info apl_i2c_info = {
 	.clk_rate = 133000000,
-	.properties = apl_i2c_properties,
+	.pset = &apl_i2c_pset,
 };
 
 static const struct intel_lpss_platform_info kbl_info = {
