@@ -6934,7 +6934,7 @@ CONFIG_REGULATOR_TPS62360                       policy<{'amd64': 'm', 'arm64': '
 CONFIG_REGULATOR_TPS65023                       policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'powerpc': 'm', 'ppc64el': 'm'}>
 CONFIG_REGULATOR_TPS6507X                       policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'powerpc': 'm', 'ppc64el': 'm'}>
 CONFIG_REGULATOR_TPS65090                       policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'powerpc': 'm', 'ppc64el': 'm'}>
-CONFIG_REGULATOR_TPS65217                       policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'y', 'i386': 'm', 'powerpc': 'm', 'ppc64el': 'm'}>
+CONFIG_REGULATOR_TPS65217                       policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'y', 'i386': 'm', 'powerpc': 'm', 'ppc64el': '-'}>
 CONFIG_REGULATOR_TPS65218                       policy<{'arm64': 'm', 'armhf': 'm', 'powerpc': 'm', 'ppc64el': 'm'}>
 CONFIG_REGULATOR_TPS6524X                       policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'powerpc': 'm', 'ppc64el': 'm'}>
 CONFIG_REGULATOR_TPS6586X                       policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'powerpc': 'm', 'ppc64el': 'm'}>
