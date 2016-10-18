@@ -71,6 +71,10 @@ static int __init load_uefi_certs(void)
 	if (!efi_enabled(EFI_SECURE_BOOT))
 		return 0;
 
+	/* Things blow up if efi runtime is disabled */
+	if (efi_runtime_disabled())
+		return 0;
+
 	keyring = get_system_keyring();
 	if (!keyring) {
 		pr_err("MODSIGN: Couldn't get system keyring\n");
