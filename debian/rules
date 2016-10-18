@@ -78,6 +78,12 @@ endif
 # Either tools package needs the common source preparation
 do_any_tools=$(sort $(filter-out false,$(do_linux_tools) $(do_cloud_tools)))
 
+# Temporarily disable ZFS and tools builds during the early -rc releases.
+do_zfs=false
+do_tools=false
+do_linux_tools=false
+do_tools_common=
+
 # autopkgtest -- rebuild support
 #  only build the first flavour on the assumption it is representative
 ifeq ($(DEB_BUILD_PROFILE),autopkgtest)
