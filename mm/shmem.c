@@ -2592,15 +2592,17 @@ static const struct xattr_handler *shmem_xattr_handlers[] = {
 	NULL
 };
 
-static int shmem_xattr_validate(const char *name)
+static int shmem_xattr_validate(struct dentry *dentry, const char *name)
 {
 	struct { const char *prefix; size_t len; } arr[] = {
+		{ XATTR_USER_PREFIX, XATTR_USER_PREFIX_LEN },
 		{ XATTR_SECURITY_PREFIX, XATTR_SECURITY_PREFIX_LEN },
 		{ XATTR_TRUSTED_PREFIX, XATTR_TRUSTED_PREFIX_LEN }
 	};
+	struct shmem_sb_info *sbinfo = SHMEM_SB(dentry->d_sb);
 	int i;
 
-	for (i = 0; i < ARRAY_SIZE(arr); i++) {
+	for (i = sbinfo->user_xattr ? 0 : 1; i < ARRAY_SIZE(arr); i++) {
 		size_t preflen = arr[i].len;
 		if (strncmp(name, arr[i].prefix, preflen) == 0) {
 			if (!name[preflen])
@@ -2625,7 +2627,7 @@ static ssize_t shmem_getxattr(struct dentry *dentry, const char *name,
 	if (!strncmp(name, XATTR_SYSTEM_PREFIX, XATTR_SYSTEM_PREFIX_LEN))
 		return generic_getxattr(dentry, name, buffer, size);
 
-	err = shmem_xattr_validate(name);
+	err = shmem_xattr_validate(dentry, name);
 	if (err)
 		return err;
 
@@ -2646,7 +2648,7 @@ static int shmem_setxattr(struct dentry *dentry, const char *name,
 	if (!strncmp(name, XATTR_SYSTEM_PREFIX, XATTR_SYSTEM_PREFIX_LEN))
 		return generic_setxattr(dentry, name, value, size, flags);
 
-	err = shmem_xattr_validate(name);
+	err = shmem_xattr_validate(dentry, name);
 	if (err)
 		return err;
 
@@ -2666,7 +2668,7 @@ static int shmem_removexattr(struct dentry *dentry, const char *name)
 	if (!strncmp(name, XATTR_SYSTEM_PREFIX, XATTR_SYSTEM_PREFIX_LEN))
 		return generic_removexattr(dentry, name);
 
-	err = shmem_xattr_validate(name);
+	err = shmem_xattr_validate(dentry, name);
 	if (err)
 		return err;
 
@@ -2785,6 +2787,11 @@ static int shmem_parse_options(char *options, struct shmem_sb_info *sbinfo,
 			continue;
 		if ((value = strchr(this_char,'=')) != NULL) {
 			*value++ = 0;
+		} else if (!strcmp(this_char,"user_xattr")) {
+			sbinfo->user_xattr = true;
+			if (value != NULL)
+				goto bad_val;
+			continue;
 		} else {
 			printk(KERN_ERR
 			    "tmpfs: No value for mount option '%s'\n",
@@ -2891,6 +2898,7 @@ static int shmem_remount_fs(struct super_block *sb, int *flags, char *data)
 	sbinfo->max_blocks  = config.max_blocks;
 	sbinfo->max_inodes  = config.max_inodes;
 	sbinfo->free_inodes = config.max_inodes - inodes;
+	sbinfo->user_xattr  = config.user_xattr;
 
 	/*
 	 * Preserve previous mempolicy unless mpol remount option was specified.

@@ -35,6 +35,7 @@ struct shmem_sb_info {
 	kgid_t gid;		    /* Mount gid for root directory */
 	umode_t mode;		    /* Mount mode for root directory */
 	struct mempolicy *mpol;     /* default memory policy for mappings */
+	bool user_xattr;	    /* allow xattrs in user. namespace? */
 };
 
 static inline struct shmem_inode_info *SHMEM_I(struct inode *inode)
