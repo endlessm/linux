@@ -20,7 +20,7 @@ nodist_kernel_HEADERS = spl.release spl_config.h module/$(LINUX_SYMBOLS)
 endif
 
 AUTOMAKE_OPTIONS = foreign
-EXTRA_DIST  = autogen.sh META DISCLAIMER copy-builtin COPYING
+EXTRA_DIST  = autogen.sh META DISCLAIMER copy-builtin
 EXTRA_DIST += config/config.awk config/rpm.am config/deb.am config/tgz.am
 
 distclean-local::
