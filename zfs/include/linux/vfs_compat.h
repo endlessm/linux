@@ -28,6 +28,7 @@
 #define	_ZFS_VFS_H
 
 #include <sys/taskq.h>
+#include <sys/cred.h>
 #include <linux/backing-dev.h>
 
 /*
@@ -352,6 +353,87 @@ static inline struct inode *file_inode(const struct file *f)
 #endif /* HAVE_FILE_INODE */
 
 /*
+ * 4.1 API change
+ * struct access file->f_path.dentry was replaced by accessor function
+ * file_dentry(f)
+ */
+#ifndef HAVE_FILE_DENTRY
+static inline struct dentry *file_dentry(const struct file *f)
+{
+	return (f->f_path.dentry);
+}
+#endif /* HAVE_FILE_DENTRY */
+
+#ifdef HAVE_KUID_HELPERS
+static inline uid_t zfs_uid_read_impl(struct inode *ip)
+{
+#ifdef HAVE_SUPER_USER_NS
+	return (from_kuid(ip->i_sb->s_user_ns, ip->i_uid));
+#else
+	return (from_kuid(kcred->user_ns, ip->i_uid));
+#endif
+}
+
+static inline uid_t zfs_uid_read(struct inode *ip)
+{
+	return (zfs_uid_read_impl(ip));
+}
+
+static inline gid_t zfs_gid_read_impl(struct inode *ip)
+{
+#ifdef HAVE_SUPER_USER_NS
+	return (from_kgid(ip->i_sb->s_user_ns, ip->i_gid));
+#else
+	return (from_kgid(kcred->user_ns, ip->i_gid));
+#endif
+}
+
+static inline gid_t zfs_gid_read(struct inode *ip)
+{
+	return (zfs_gid_read_impl(ip));
+}
+
+static inline void zfs_uid_write(struct inode *ip, uid_t uid)
+{
+#ifdef HAVE_SUPER_USER_NS
+	ip->i_uid = make_kuid(ip->i_sb->s_user_ns, uid);
+#else
+	ip->i_uid = make_kuid(kcred->user_ns, uid);
+#endif
+}
+
+static inline void zfs_gid_write(struct inode *ip, gid_t gid)
+{
+#ifdef HAVE_SUPER_USER_NS
+	ip->i_gid = make_kgid(ip->i_sb->s_user_ns, gid);
+#else
+	ip->i_gid = make_kgid(kcred->user_ns, gid);
+#endif
+}
+
+#else
+static inline uid_t zfs_uid_read(struct inode *ip)
+{
+	return (ip->i_uid);
+}
+
+static inline gid_t zfs_gid_read(struct inode *ip)
+{
+	return (ip->i_gid);
+}
+
+static inline void zfs_uid_write(struct inode *ip, uid_t uid)
+{
+	ip->i_uid = uid;
+}
+
+static inline void zfs_gid_write(struct inode *ip, gid_t gid)
+{
+	ip->i_gid = gid;
+}
+#endif
+
+/*
  * 2.6.38 API change
  */
 #ifdef HAVE_FOLLOW_DOWN_ONE
@@ -360,6 +442,17 @@ static inline struct inode *file_inode(const struct file *f)
 #else
 #define	zpl_follow_down_one(path)		follow_down(path)
 #define	zpl_follow_up(path)			follow_up(path)
+#endif
+
+/*
+ * 4.9 API change
+ */
+#ifndef HAVE_SETATTR_PREPARE
+static inline int
+setattr_prepare(struct dentry *dentry, struct iattr *ia)
+{
+	return (inode_change_ok(dentry->d_inode, ia));
+}
 #endif
 
 #endif /* _ZFS_VFS_H */

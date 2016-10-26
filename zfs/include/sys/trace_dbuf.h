@@ -42,7 +42,8 @@
  */
 
 #define	DBUF_TP_STRUCT_ENTRY					\
-	__field(const char *,	os_spa)				\
+	__string(os_spa,					\
+	    spa_name(DB_DNODE(db)->dn_objset->os_spa))		\
 	__field(uint64_t,	ds_object)			\
 	__field(uint64_t,	db_object)			\
 	__field(uint64_t,	db_level)			\
@@ -53,8 +54,8 @@
 	__field(int64_t,	db_holds)			\
 
 #define	DBUF_TP_FAST_ASSIGN					\
-	__entry->os_spa =					\
-	    spa_name(DB_DNODE(db)->dn_objset->os_spa);		\
+	__assign_str(os_spa,					\
+	    spa_name(DB_DNODE(db)->dn_objset->os_spa));		\
 								\
 	__entry->ds_object = db->db_objset->os_dsl_dataset ?	\
 	    db->db_objset->os_dsl_dataset->ds_object : 0;	\
@@ -72,7 +73,7 @@
 	"blkid %llu offset %llu size %llu state %llu holds %lld }"
 
 #define	DBUF_TP_PRINTK_ARGS					\
-	__entry->os_spa, __entry->ds_object,			\
+	__get_str(os_spa), __entry->ds_object,			\
 	__entry->db_object, __entry->db_level,			\
 	__entry->db_blkid, __entry->db_offset,			\
 	__entry->db_size, __entry->db_state, __entry->db_holds
@@ -90,6 +91,20 @@ DEFINE_EVENT(zfs_dbuf_class, name, \
 	TP_PROTO(dmu_buf_impl_t *db, zio_t *zio), \
 	TP_ARGS(db, zio))
 DEFINE_DBUF_EVENT(zfs_blocked__read);
+
+DECLARE_EVENT_CLASS(zfs_dbuf_evict_one_class,
+	TP_PROTO(dmu_buf_impl_t *db, multilist_sublist_t *mls),
+	TP_ARGS(db, mls),
+	TP_STRUCT__entry(DBUF_TP_STRUCT_ENTRY),
+	TP_fast_assign(DBUF_TP_FAST_ASSIGN),
+	TP_printk(DBUF_TP_PRINTK_FMT, DBUF_TP_PRINTK_ARGS)
+);
+
+#define	DEFINE_DBUF_EVICT_ONE_EVENT(name) \
+DEFINE_EVENT(zfs_dbuf_evict_one_class, name, \
+	TP_PROTO(dmu_buf_impl_t *db, multilist_sublist_t *mls), \
+	TP_ARGS(db, mls))
+DEFINE_DBUF_EVICT_ONE_EVENT(zfs_dbuf__evict__one);
 
 #endif /* _TRACE_DBUF_H */
 
