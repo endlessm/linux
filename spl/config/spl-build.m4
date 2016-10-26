@@ -47,8 +47,9 @@ AC_DEFUN([SPL_AC_CONFIG_KERNEL], [
 	SPL_AC_USLEEP_RANGE
 	SPL_AC_KMEM_CACHE_ALLOCFLAGS
 	SPL_AC_WAIT_ON_BIT
-	SPL_AC_INODE_LOCK
 	SPL_AC_MUTEX_OWNER
+	SPL_AC_INODE_LOCK
+	SPL_AC_GROUP_INFO_GID
 ])
 
 AC_DEFUN([SPL_AC_MODULE_SYMVERS], [
@@ -1523,6 +1524,35 @@ AC_DEFUN([SPL_AC_WAIT_ON_BIT], [
 ])
 
 dnl #
+dnl # Check whether mutex has owner with task_struct type.
+dnl #
+dnl # Note that before Linux 3.0, mutex owner is of type thread_info.
+dnl #
+dnl # Note that in Linux 3.18, the condition for owner is changed from
+dnl # defined(CONFIG_DEBUG_MUTEXES) || defined(CONFIG_SMP) to
+dnl # defined(CONFIG_DEBUG_MUTEXES) || defined(CONFIG_MUTEX_SPIN_ON_OWNER)
+dnl #
+AC_DEFUN([SPL_AC_MUTEX_OWNER], [
+	AC_MSG_CHECKING([whether mutex has owner])
+	tmp_flags="$EXTRA_KCFLAGS"
+	EXTRA_KCFLAGS="-Werror"
+	SPL_LINUX_TRY_COMPILE([
+		#include <linux/mutex.h>
+		#include <linux/spinlock.h>
+	],[
+		DEFINE_MUTEX(m);
+		struct task_struct *t __attribute__ ((unused));
+		t = m.owner;
+	],[
+		AC_MSG_RESULT(yes)
+		AC_DEFINE(HAVE_MUTEX_OWNER, 1, [yes])
+	],[
+		AC_MSG_RESULT(no)
+	])
+	EXTRA_KCFLAGS="$tmp_flags"
+])
+
+dnl #
 dnl # 4.7 API change
 dnl # i_mutex is changed to i_rwsem. Instead of directly using
 dnl # i_mutex/i_rwsem, we should use inode_lock() and inode_lock_shared()
@@ -1547,28 +1577,21 @@ AC_DEFUN([SPL_AC_INODE_LOCK], [
 ])
 
 dnl #
-dnl # Check whether mutex has owner with task_struct type.
+dnl # 4.9 API change
+dnl # group_info changed from 2d array via >blocks to 1d array via ->gid
 dnl #
-dnl # Note that before Linux 3.0, mutex owner is of type thread_info.
-dnl #
-dnl # Note that in Linux 3.18, the condition for owner is changed from
-dnl # defined(CONFIG_DEBUG_MUTEXES) || defined(CONFIG_SMP) to
-dnl # defined(CONFIG_DEBUG_MUTEXES) || defined(CONFIG_MUTEX_SPIN_ON_OWNER)
-dnl #
-AC_DEFUN([SPL_AC_MUTEX_OWNER], [
-	AC_MSG_CHECKING([whether mutex has owner])
+AC_DEFUN([SPL_AC_GROUP_INFO_GID], [
+	AC_MSG_CHECKING([whether group_info->gid exists])
 	tmp_flags="$EXTRA_KCFLAGS"
 	EXTRA_KCFLAGS="-Werror"
 	SPL_LINUX_TRY_COMPILE([
-		#include <linux/mutex.h>
-		#include <linux/spinlock.h>
+		#include <linux/cred.h>
 	],[
-		DEFINE_MUTEX(m);
-		struct task_struct *t __attribute__ ((unused));
-		t = m.owner;
+		struct group_info *gi = groups_alloc(1);
+		gi->gid[0] = KGIDT_INIT(0);
 	],[
 		AC_MSG_RESULT(yes)
-		AC_DEFINE(HAVE_MUTEX_OWNER, 1, [yes])
+		AC_DEFINE(HAVE_GROUP_INFO_GID, 1, [group_info->gid exists])
 	],[
 		AC_MSG_RESULT(no)
 	])

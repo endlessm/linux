@@ -22,48 +22,37 @@
  *  with the SPL.  If not, see <http://www.gnu.org/licenses/>.
 \*****************************************************************************/
 
-#ifndef _SPL_BYTEORDER_H
-#define _SPL_BYTEORDER_H
+#ifndef _SPL_DKIOC_UTIL_H
+#define	_SPL_DKIOC_UTIL_H
 
-#include <asm/byteorder.h>
-#include <sys/isa_defs.h>
+#include <sys/dkio.h>
 
-#define LE_16(x)	cpu_to_le16(x)
-#define LE_32(x)	cpu_to_le32(x)
-#define LE_64(x)	cpu_to_le64(x)
-#define BE_16(x)	cpu_to_be16(x)
-#define BE_32(x)	cpu_to_be32(x)
-#define BE_64(x)	cpu_to_be64(x)
+typedef struct dkioc_free_list_ext_s {
+	uint64_t		dfle_start;
+	uint64_t		dfle_length;
+} dkioc_free_list_ext_t;
 
-#define BE_IN8(xa) \
-	*((uint8_t *)(xa))
+typedef struct dkioc_free_list_s {
+	uint64_t		dfl_flags;
+	uint64_t		dfl_num_exts;
+	int64_t			dfl_offset;
 
-#define BE_IN16(xa) \
-	(((uint16_t)BE_IN8(xa) << 8) | BE_IN8((uint8_t *)(xa)+1))
+	/*
+	 * N.B. this is only an internal debugging API! This is only called
+	 * from debug builds of sd for pre-release checking. Remove before GA!
+	 */
+	void			(*dfl_ck_func)(uint64_t, uint64_t, void *);
+	void			*dfl_ck_arg;
 
-#define BE_IN32(xa) \
-	(((uint32_t)BE_IN16(xa) << 16) | BE_IN16((uint8_t *)(xa)+2))
+	dkioc_free_list_ext_t	dfl_exts[1];
+} dkioc_free_list_t;
 
-#ifdef _BIG_ENDIAN
-static __inline__ uint64_t
-htonll(uint64_t n) {
-	return (n);
+static inline void dfl_free(dkioc_free_list_t *dfl) {
+	vmem_free(dfl, DFL_SZ(dfl->dfl_num_exts));
 }
 
-static __inline__ uint64_t
-ntohll(uint64_t n) {
-	return (n);
-}
-#else
-static __inline__ uint64_t
-htonll(uint64_t n) {
-	return ((((uint64_t)htonl(n)) << 32) + htonl(n >> 32));
+static inline dkioc_free_list_t *dfl_alloc(uint64_t dfl_num_exts, int flags) {
+	return vmem_zalloc(DFL_SZ(dfl_num_exts), flags);
 }
 
-static __inline__ uint64_t
-ntohll(uint64_t n) {
-	return ((((uint64_t)ntohl(n)) << 32) + ntohl(n >> 32));
-}
-#endif
-
-#endif /* SPL_BYTEORDER_H */
+#endif /* _SPL_DKIOC_UTIL_H */
