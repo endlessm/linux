@@ -34,19 +34,12 @@ typedef struct cred cred_t;
 #define	kcred		((cred_t *)(init_task.cred))
 #define	CRED()		((cred_t *)current_cred())
 
-#ifdef HAVE_KUIDGID_T
+/* Linux 4.9 API change, GROUP_AT was removed */
+#ifndef GROUP_AT
+#define	GROUP_AT(gi, i)	((gi)->gid[i])
+#endif
 
-/*
- * Linux 3.8+ uses typedefs to redefine uid_t and gid_t. We have to rename the
- * typedefs to recover the original types. We then can use them provided that
- * we are careful about translating from k{g,u}id_t to the original versions
- * and vice versa.
- */
-#define	uid_t		xuid_t
-#define	gid_t		xgid_t
-#include <linux/uidgid.h>
-#undef uid_t
-#undef gid_t
+#ifdef HAVE_KUIDGID_T
 
 #define	KUID_TO_SUID(x)		(__kuid_val(x))
 #define	KGID_TO_SGID(x)		(__kgid_val(x))

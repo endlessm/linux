@@ -222,7 +222,6 @@ vn_rdwr(uio_rw_t uio, vnode_t *vp, void *addr, ssize_t len, offset_t off,
 	ASSERT(vp->v_file);
 	ASSERT(seg == UIO_SYSSPACE);
 	ASSERT((ioflag & ~FAPPEND) == 0);
-	ASSERT(x2 == RLIM64_INFINITY);
 
 	fp = vp->v_file;
 
@@ -573,6 +572,9 @@ int vn_space(vnode_t *vp, int cmd, struct flock *bfp, int flag,
     offset_t offset, void *x6, void *x7)
 {
 	int error = EOPNOTSUPP;
+#ifdef FALLOC_FL_PUNCH_HOLE
+	int fstrans;
+#endif
 
 	if (cmd != F_FREESP || bfp->l_whence != 0)
 		return (EOPNOTSUPP);
@@ -583,12 +585,24 @@ int vn_space(vnode_t *vp, int cmd, struct flock *bfp, int flag,
 
 #ifdef FALLOC_FL_PUNCH_HOLE
 	/*
+	 * May enter XFS which generates a warning when PF_FSTRANS is set.
+	 * To avoid this the flag is cleared over vfs_sync() and then reset.
+	 */
+	fstrans = spl_fstrans_check();
+	if (fstrans)
+		current->flags &= ~(PF_FSTRANS);
+
+	/*
 	 * When supported by the underlying file system preferentially
 	 * use the fallocate() callback to preallocate the space.
 	 */
 	error = -spl_filp_fallocate(vp->v_file,
 	    FALLOC_FL_KEEP_SIZE | FALLOC_FL_PUNCH_HOLE,
 	    bfp->l_start, bfp->l_len);
+
+	if (fstrans)
+		current->flags |= PF_FSTRANS;
+
 	if (error == 0)
 		return (0);
 #endif
@@ -657,6 +671,19 @@ vn_getf(int fd)
 
 	fp = file_find(fd, current);
 	if (fp) {
+		lfp = fget(fd);
+		fput(fp->f_file);
+		/*
+		 * areleasef() can cause us to see a stale reference when
+		 * userspace has reused a file descriptor before areleasef()
+		 * has run. fput() the stale reference and replace it. We
+		 * retain the original reference count such that the concurrent
+		 * areleasef() will decrement its reference and terminate.
+		 */
+		if (lfp != fp->f_file) {
+			fp->f_file = lfp;
+			fp->f_vnode->v_file = lfp;
+		}
 		atomic_inc(&fp->f_ref);
 		spin_unlock(&vn_file_lock);
 		return (fp);
