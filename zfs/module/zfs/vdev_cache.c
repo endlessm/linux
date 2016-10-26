@@ -23,7 +23,7 @@
  * Use is subject to license terms.
  */
 /*
- * Copyright (c) 2013 by Delphix. All rights reserved.
+ * Copyright (c) 2013, 2015 by Delphix. All rights reserved.
  */
 
 #include <sys/zfs_context.h>
@@ -102,31 +102,26 @@ static vdc_stats_t vdc_stats = {
 	{ "misses",		KSTAT_DATA_UINT64 }
 };
 
-#define	VDCSTAT_BUMP(stat)	atomic_add_64(&vdc_stats.stat.value.ui64, 1);
+#define	VDCSTAT_BUMP(stat)	atomic_inc_64(&vdc_stats.stat.value.ui64);
 
-static int
+static inline int
 vdev_cache_offset_compare(const void *a1, const void *a2)
 {
-	const vdev_cache_entry_t *ve1 = a1;
-	const vdev_cache_entry_t *ve2 = a2;
+	const vdev_cache_entry_t *ve1 = (const vdev_cache_entry_t *)a1;
+	const vdev_cache_entry_t *ve2 = (const vdev_cache_entry_t *)a2;
 
-	if (ve1->ve_offset < ve2->ve_offset)
-		return (-1);
-	if (ve1->ve_offset > ve2->ve_offset)
-		return (1);
-	return (0);
+	return (AVL_CMP(ve1->ve_offset, ve2->ve_offset));
 }
 
 static int
 vdev_cache_lastused_compare(const void *a1, const void *a2)
 {
-	const vdev_cache_entry_t *ve1 = a1;
-	const vdev_cache_entry_t *ve2 = a2;
+	const vdev_cache_entry_t *ve1 = (const vdev_cache_entry_t *)a1;
+	const vdev_cache_entry_t *ve2 = (const vdev_cache_entry_t *)a2;
 
-	if (ddi_time_before(ve1->ve_lastused, ve2->ve_lastused))
-		return (-1);
-	if (ddi_time_after(ve1->ve_lastused, ve2->ve_lastused))
-		return (1);
+	int cmp = AVL_CMP(ve1->ve_lastused, ve2->ve_lastused);
+	if (likely(cmp))
+		return (cmp);
 
 	/*
 	 * Among equally old entries, sort by offset to ensure uniqueness.
@@ -219,6 +214,7 @@ vdev_cache_fill(zio_t *fio)
 	vdev_cache_t *vc = &vd->vdev_cache;
 	vdev_cache_entry_t *ve = fio->io_private;
 	zio_t *pio;
+	zio_link_t *zl;
 
 	ASSERT(fio->io_size == VCBS);
 
@@ -238,7 +234,8 @@ vdev_cache_fill(zio_t *fio)
 	 * any reads that were queued up before the missed update are still
 	 * valid, so we can satisfy them from this line before we evict it.
 	 */
-	while ((pio = zio_walk_parents(fio)) != NULL)
+	zl = NULL;
+	while ((pio = zio_walk_parents(fio, &zl)) != NULL)
 		vdev_cache_hit(vc, ve, pio);
 
 	if (fio->io_error || ve->ve_missed_update)

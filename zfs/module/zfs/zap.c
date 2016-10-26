@@ -20,7 +20,7 @@
  */
 /*
  * Copyright (c) 2005, 2010, Oracle and/or its affiliates. All rights reserved.
- * Copyright (c) 2012, 2014 by Delphix. All rights reserved.
+ * Copyright (c) 2012, 2016 by Delphix. All rights reserved.
  * Copyright (c) 2014 Spectra Logic Corporation, All rights reserved.
  */
 
@@ -162,8 +162,9 @@ zap_table_grow(zap_t *zap, zap_table_phys_t *tbl,
 		newblk = zap_allocate_blocks(zap, tbl->zt_numblks * 2);
 		tbl->zt_nextblk = newblk;
 		ASSERT0(tbl->zt_blks_copied);
-		dmu_prefetch(zap->zap_objset, zap->zap_object,
-		    tbl->zt_blk << bs, tbl->zt_numblks << bs);
+		dmu_prefetch(zap->zap_objset, zap->zap_object, 0,
+		    tbl->zt_blk << bs, tbl->zt_numblks << bs,
+		    ZIO_PRIORITY_SYNC_READ);
 	}
 
 	/*
@@ -269,6 +270,7 @@ zap_table_load(zap_t *zap, zap_table_phys_t *tbl, uint64_t idx, uint64_t *valp)
 	uint64_t blk, off;
 	int err;
 	dmu_buf_t *db;
+	dnode_t *dn;
 	int bs = FZAP_BLOCK_SHIFT(zap);
 
 	ASSERT(RW_LOCK_HELD(&zap->zap_rwlock));
@@ -276,8 +278,15 @@ zap_table_load(zap_t *zap, zap_table_phys_t *tbl, uint64_t idx, uint64_t *valp)
 	blk = idx >> (bs-3);
 	off = idx & ((1<<(bs-3))-1);
 
-	err = dmu_buf_hold(zap->zap_objset, zap->zap_object,
+	/*
+	 * Note: this is equivalent to dmu_buf_hold(), but we use
+	 * _dnode_enter / _by_dnode because it's faster because we don't
+	 * have to hold the dnode.
+	 */
+	dn = dmu_buf_dnode_enter(zap->zap_dbuf);
+	err = dmu_buf_hold_by_dnode(dn,
 	    (tbl->zt_blk + blk) << bs, FTAG, &db, DMU_READ_NO_PREFETCH);
+	dmu_buf_dnode_exit(zap->zap_dbuf);
 	if (err)
 		return (err);
 	*valp = ((uint64_t *)db->db_data)[off];
@@ -291,9 +300,11 @@ zap_table_load(zap_t *zap, zap_table_phys_t *tbl, uint64_t idx, uint64_t *valp)
 		 */
 		blk = (idx*2) >> (bs-3);
 
-		err = dmu_buf_hold(zap->zap_objset, zap->zap_object,
+		dn = dmu_buf_dnode_enter(zap->zap_dbuf);
+		err = dmu_buf_hold_by_dnode(dn,
 		    (tbl->zt_nextblk + blk) << bs, FTAG, &db,
 		    DMU_READ_NO_PREFETCH);
+		dmu_buf_dnode_exit(zap->zap_dbuf);
 		if (err == 0)
 			dmu_buf_rele(db, FTAG);
 	}
@@ -404,7 +415,7 @@ zap_create_leaf(zap_t *zap, dmu_tx_t *tx)
 
 	ASSERT(RW_WRITE_HELD(&zap->zap_rwlock));
 
-	rw_init(&l->l_rwlock, NULL, RW_DEFAULT, NULL);
+	rw_init(&l->l_rwlock, NULL, RW_NOLOCKDEP, NULL);
 	rw_enter(&l->l_rwlock, RW_WRITER);
 	l->l_blkid = zap_allocate_blocks(zap, 1);
 	l->l_dbuf = NULL;
@@ -501,6 +512,7 @@ zap_get_leaf_byblk(zap_t *zap, uint64_t blkid, dmu_tx_t *tx, krw_t lt,
 	zap_leaf_t *l;
 	int bs = FZAP_BLOCK_SHIFT(zap);
 	int err;
+	dnode_t *dn;
 
 	ASSERT(RW_LOCK_HELD(&zap->zap_rwlock));
 
@@ -514,8 +526,10 @@ zap_get_leaf_byblk(zap_t *zap, uint64_t blkid, dmu_tx_t *tx, krw_t lt,
 	if (blkid == 0)
 		return (ENOENT);
 
-	err = dmu_buf_hold(zap->zap_objset, zap->zap_object,
+	dn = dmu_buf_dnode_enter(zap->zap_dbuf);
+	err = dmu_buf_hold_by_dnode(dn,
 	    blkid << bs, NULL, &db, DMU_READ_NO_PREFETCH);
+	dmu_buf_dnode_exit(zap->zap_dbuf);
 	if (err)
 		return (err);
 
@@ -584,7 +598,13 @@ zap_deref_leaf(zap_t *zap, uint64_t h, dmu_tx_t *tx, krw_t lt, zap_leaf_t **lp)
 
 	ASSERT(zap->zap_dbuf == NULL ||
 	    zap_f_phys(zap) == zap->zap_dbuf->db_data);
-	ASSERT3U(zap_f_phys(zap)->zap_magic, ==, ZAP_MAGIC);
+
+	/* Reality check for corrupt zap objects (leaf or header). */
+	if ((zap_f_phys(zap)->zap_block_type != ZBT_LEAF &&
+	    zap_f_phys(zap)->zap_block_type != ZBT_HEADER) ||
+	    zap_f_phys(zap)->zap_magic != ZAP_MAGIC) {
+		return (SET_ERROR(EIO));
+	}
 	idx = ZAP_HASH_IDX(h, zap_f_phys(zap)->zap_ptrtbl.zt_shift);
 	err = zap_idx_to_blk(zap, idx, &blk);
 	if (err != 0)
@@ -598,7 +618,8 @@ zap_deref_leaf(zap_t *zap, uint64_t h, dmu_tx_t *tx, krw_t lt, zap_leaf_t **lp)
 }
 
 static int
-zap_expand_leaf(zap_name_t *zn, zap_leaf_t *l, dmu_tx_t *tx, zap_leaf_t **lp)
+zap_expand_leaf(zap_name_t *zn, zap_leaf_t *l,
+    void *tag, dmu_tx_t *tx, zap_leaf_t **lp)
 {
 	zap_t *zap = zn->zn_zap;
 	uint64_t hash = zn->zn_hash;
@@ -620,9 +641,9 @@ zap_expand_leaf(zap_name_t *zn, zap_leaf_t *l, dmu_tx_t *tx, zap_leaf_t **lp)
 		uint64_t object = zap->zap_object;
 
 		zap_put_leaf(l);
-		zap_unlockdir(zap);
+		zap_unlockdir(zap, tag);
 		err = zap_lockdir(os, object, tx, RW_WRITER,
-		    FALSE, FALSE, &zn->zn_zap);
+		    FALSE, FALSE, tag, &zn->zn_zap);
 		zap = zn->zn_zap;
 		if (err)
 			return (err);
@@ -672,6 +693,8 @@ zap_expand_leaf(zap_name_t *zn, zap_leaf_t *l, dmu_tx_t *tx, zap_leaf_t **lp)
 		ASSERT0(err); /* we checked for i/o errors above */
 	}
 
+	ASSERT3U(zap_leaf_phys(l)->l_hdr.lh_prefix_len, >, 0);
+
 	if (hash & (1ULL << (64 - zap_leaf_phys(l)->l_hdr.lh_prefix_len))) {
 		/* we want the sibling */
 		zap_put_leaf(l);
@@ -685,7 +708,8 @@ zap_expand_leaf(zap_name_t *zn, zap_leaf_t *l, dmu_tx_t *tx, zap_leaf_t **lp)
 }
 
 static void
-zap_put_leaf_maybe_grow_ptrtbl(zap_name_t *zn, zap_leaf_t *l, dmu_tx_t *tx)
+zap_put_leaf_maybe_grow_ptrtbl(zap_name_t *zn, zap_leaf_t *l,
+    void *tag, dmu_tx_t *tx)
 {
 	zap_t *zap = zn->zn_zap;
 	int shift = zap_f_phys(zap)->zap_ptrtbl.zt_shift;
@@ -705,9 +729,9 @@ zap_put_leaf_maybe_grow_ptrtbl(zap_name_t *zn, zap_leaf_t *l, dmu_tx_t *tx)
 			objset_t *os = zap->zap_objset;
 			uint64_t zapobj = zap->zap_object;
 
-			zap_unlockdir(zap);
+			zap_unlockdir(zap, tag);
 			err = zap_lockdir(os, zapobj, tx,
-			    RW_WRITER, FALSE, FALSE, &zn->zn_zap);
+			    RW_WRITER, FALSE, FALSE, tag, &zn->zn_zap);
 			zap = zn->zn_zap;
 			if (err)
 				return;
@@ -797,7 +821,7 @@ fzap_lookup(zap_name_t *zn,
 int
 fzap_add_cd(zap_name_t *zn,
     uint64_t integer_size, uint64_t num_integers,
-    const void *val, uint32_t cd, dmu_tx_t *tx)
+    const void *val, uint32_t cd, void *tag, dmu_tx_t *tx)
 {
 	zap_leaf_t *l;
 	int err;
@@ -826,7 +850,7 @@ retry:
 	if (err == 0) {
 		zap_increment_num_entries(zap, 1, tx);
 	} else if (err == EAGAIN) {
-		err = zap_expand_leaf(zn, l, tx, &l);
+		err = zap_expand_leaf(zn, l, tag, tx, &l);
 		zap = zn->zn_zap;	/* zap_expand_leaf() may change zap */
 		if (err == 0)
 			goto retry;
@@ -834,26 +858,27 @@ retry:
 
 out:
 	if (zap != NULL)
-		zap_put_leaf_maybe_grow_ptrtbl(zn, l, tx);
+		zap_put_leaf_maybe_grow_ptrtbl(zn, l, tag, tx);
 	return (err);
 }
 
 int
 fzap_add(zap_name_t *zn,
     uint64_t integer_size, uint64_t num_integers,
-    const void *val, dmu_tx_t *tx)
+    const void *val, void *tag, dmu_tx_t *tx)
 {
 	int err = fzap_check(zn, integer_size, num_integers);
 	if (err != 0)
 		return (err);
 
 	return (fzap_add_cd(zn, integer_size, num_integers,
-	    val, ZAP_NEED_CD, tx));
+	    val, ZAP_NEED_CD, tag, tx));
 }
 
 int
 fzap_update(zap_name_t *zn,
-    int integer_size, uint64_t num_integers, const void *val, dmu_tx_t *tx)
+    int integer_size, uint64_t num_integers, const void *val,
+    void *tag, dmu_tx_t *tx)
 {
 	zap_leaf_t *l;
 	int err, create;
@@ -883,14 +908,14 @@ retry:
 	}
 
 	if (err == EAGAIN) {
-		err = zap_expand_leaf(zn, l, tx, &l);
+		err = zap_expand_leaf(zn, l, tag, tx, &l);
 		zap = zn->zn_zap;	/* zap_expand_leaf() may change zap */
 		if (err == 0)
 			goto retry;
 	}
 
 	if (zap != NULL)
-		zap_put_leaf_maybe_grow_ptrtbl(zn, l, tx);
+		zap_put_leaf_maybe_grow_ptrtbl(zn, l, tag, tx);
 	return (err);
 }
 
@@ -949,7 +974,8 @@ fzap_prefetch(zap_name_t *zn)
 	if (zap_idx_to_blk(zap, idx, &blk) != 0)
 		return;
 	bs = FZAP_BLOCK_SHIFT(zap);
-	dmu_prefetch(zap->zap_objset, zap->zap_object, blk << bs, 1 << bs);
+	dmu_prefetch(zap->zap_objset, zap->zap_object, 0, blk << bs, 1 << bs,
+	    ZIO_PRIORITY_SYNC_READ);
 }
 
 /*
@@ -960,11 +986,19 @@ uint64_t
 zap_create_link(objset_t *os, dmu_object_type_t ot, uint64_t parent_obj,
     const char *name, dmu_tx_t *tx)
 {
+	return (zap_create_link_dnsize(os, ot, parent_obj, name, 0, tx));
+}
+
+uint64_t
+zap_create_link_dnsize(objset_t *os, dmu_object_type_t ot, uint64_t parent_obj,
+    const char *name, int dnodesize, dmu_tx_t *tx)
+{
 	uint64_t new_obj;
 
-	VERIFY((new_obj = zap_create(os, ot, DMU_OT_NONE, 0, tx)) > 0);
-	VERIFY(zap_add(os, parent_obj, name, sizeof (uint64_t), 1, &new_obj,
-	    tx) == 0);
+	VERIFY((new_obj = zap_create_dnsize(os, ot, DMU_OT_NONE, 0,
+	    dnodesize, tx)) > 0);
+	VERIFY0(zap_add(os, parent_obj, name, sizeof (uint64_t), 1, &new_obj,
+	    tx));
 
 	return (new_obj);
 }
@@ -1198,17 +1232,23 @@ again:
 	err = zap_leaf_lookup_closest(l, zc->zc_hash, zc->zc_cd, &zeh);
 
 	if (err == ENOENT) {
-		uint64_t nocare =
-		    (1ULL << (64 - zap_leaf_phys(l)->l_hdr.lh_prefix_len)) - 1;
-		zc->zc_hash = (zc->zc_hash & ~nocare) + nocare + 1;
-		zc->zc_cd = 0;
-		if (zap_leaf_phys(l)->l_hdr.lh_prefix_len == 0 ||
-		    zc->zc_hash == 0) {
+		if (zap_leaf_phys(l)->l_hdr.lh_prefix_len == 0) {
 			zc->zc_hash = -1ULL;
+			zc->zc_cd = 0;
 		} else {
-			zap_put_leaf(zc->zc_leaf);
-			zc->zc_leaf = NULL;
-			goto again;
+			uint64_t nocare = (1ULL <<
+			    (64 - zap_leaf_phys(l)->l_hdr.lh_prefix_len)) - 1;
+
+			zc->zc_hash = (zc->zc_hash & ~nocare) + nocare + 1;
+			zc->zc_cd = 0;
+
+			if (zc->zc_hash == 0) {
+				zc->zc_hash = -1ULL;
+			} else {
+				zap_put_leaf(zc->zc_leaf);
+				zc->zc_leaf = NULL;
+				goto again;
+			}
 		}
 	}
 
@@ -1295,9 +1335,10 @@ fzap_get_stats(zap_t *zap, zap_stats_t *zs)
 	} else {
 		int b;
 
-		dmu_prefetch(zap->zap_objset, zap->zap_object,
+		dmu_prefetch(zap->zap_objset, zap->zap_object, 0,
 		    zap_f_phys(zap)->zap_ptrtbl.zt_blk << bs,
-		    zap_f_phys(zap)->zap_ptrtbl.zt_numblks << bs);
+		    zap_f_phys(zap)->zap_ptrtbl.zt_numblks << bs,
+		    ZIO_PRIORITY_SYNC_READ);
 
 		for (b = 0; b < zap_f_phys(zap)->zap_ptrtbl.zt_numblks;
 		    b++) {

@@ -34,6 +34,7 @@
 
 #include <linux/tracepoint.h>
 #include <sys/types.h>
+#include <sys/trace_common.h> /* For ZIO macros */
 
 /*
  * Generic support for one argument tracepoints of the form:
@@ -49,9 +50,10 @@ DECLARE_EVENT_CLASS(zfs_arc_buf_hdr_class,
 	    __array(uint64_t,		hdr_dva_word, 2)
 	    __field(uint64_t,		hdr_birth)
 	    __field(uint32_t,		hdr_flags)
-	    __field(uint32_t,		hdr_datacnt)
+	    __field(uint32_t,		hdr_bufcnt)
 	    __field(arc_buf_contents_t,	hdr_type)
-	    __field(uint64_t,		hdr_size)
+	    __field(uint16_t,		hdr_psize)
+	    __field(uint16_t,		hdr_lsize)
 	    __field(uint64_t,		hdr_spa)
 	    __field(arc_state_type_t,	hdr_state_type)
 	    __field(clock_t,		hdr_access)
@@ -67,8 +69,9 @@ DECLARE_EVENT_CLASS(zfs_arc_buf_hdr_class,
 	    __entry->hdr_dva_word[1]	= ab->b_dva.dva_word[1];
 	    __entry->hdr_birth		= ab->b_birth;
 	    __entry->hdr_flags		= ab->b_flags;
-	    __entry->hdr_datacnt	= ab->b_l1hdr.b_datacnt;
-	    __entry->hdr_size		= ab->b_size;
+	    __entry->hdr_bufcnt	= ab->b_l1hdr.b_bufcnt;
+	    __entry->hdr_psize		= ab->b_psize;
+	    __entry->hdr_lsize		= ab->b_lsize;
 	    __entry->hdr_spa		= ab->b_spa;
 	    __entry->hdr_state_type	= ab->b_l1hdr.b_state->arcs_state;
 	    __entry->hdr_access		= ab->b_l1hdr.b_arc_access;
@@ -80,13 +83,13 @@ DECLARE_EVENT_CLASS(zfs_arc_buf_hdr_class,
 	    __entry->hdr_refcount	= ab->b_l1hdr.b_refcnt.rc_count;
 	),
 	TP_printk("hdr { dva 0x%llx:0x%llx birth %llu "
-	    "flags 0x%x datacnt %u type %u size %llu spa %llu "
+	    "flags 0x%x bufcnt %u type %u psize %u lsize %u spa %llu "
 	    "state_type %u access %lu mru_hits %u mru_ghost_hits %u "
 	    "mfu_hits %u mfu_ghost_hits %u l2_hits %u refcount %lli }",
 	    __entry->hdr_dva_word[0], __entry->hdr_dva_word[1],
 	    __entry->hdr_birth, __entry->hdr_flags,
-	    __entry->hdr_datacnt, __entry->hdr_type, __entry->hdr_size,
-	    __entry->hdr_spa, __entry->hdr_state_type,
+	    __entry->hdr_bufcnt, __entry->hdr_type, __entry->hdr_psize,
+	    __entry->hdr_lsize, __entry->hdr_spa, __entry->hdr_state_type,
 	    __entry->hdr_access, __entry->hdr_mru_hits,
 	    __entry->hdr_mru_ghost_hits, __entry->hdr_mfu_hits,
 	    __entry->hdr_mfu_ghost_hits, __entry->hdr_l2_hits,
@@ -102,6 +105,8 @@ DEFINE_ARC_BUF_HDR_EVENT(zfs_arc__evict);
 DEFINE_ARC_BUF_HDR_EVENT(zfs_arc__delete);
 DEFINE_ARC_BUF_HDR_EVENT(zfs_new_state__mru);
 DEFINE_ARC_BUF_HDR_EVENT(zfs_new_state__mfu);
+DEFINE_ARC_BUF_HDR_EVENT(zfs_arc__sync__wait__for__async);
+DEFINE_ARC_BUF_HDR_EVENT(zfs_arc__demand__hit__predictive__prefetch);
 DEFINE_ARC_BUF_HDR_EVENT(zfs_l2arc__hit);
 DEFINE_ARC_BUF_HDR_EVENT(zfs_l2arc__miss);
 
@@ -112,86 +117,6 @@ DEFINE_ARC_BUF_HDR_EVENT(zfs_l2arc__miss);
  *     vdev_t *, ...,
  *     zio_t *, ...);
  */
-
-#define	ZIO_TP_STRUCT_ENTRY						\
-		__field(zio_type_t,		zio_type)		\
-		__field(int,			zio_cmd)		\
-		__field(zio_priority_t,		zio_priority)		\
-		__field(uint64_t,		zio_size)		\
-		__field(uint64_t,		zio_orig_size)		\
-		__field(uint64_t,		zio_offset)		\
-		__field(hrtime_t,		zio_timestamp)		\
-		__field(hrtime_t,		zio_delta)		\
-		__field(uint64_t,		zio_delay)		\
-		__field(enum zio_flag,		zio_flags)		\
-		__field(enum zio_stage,		zio_stage)		\
-		__field(enum zio_stage,		zio_pipeline)		\
-		__field(enum zio_flag,		zio_orig_flags)		\
-		__field(enum zio_stage,		zio_orig_stage)		\
-		__field(enum zio_stage,		zio_orig_pipeline)	\
-		__field(uint8_t,		zio_reexecute)		\
-		__field(uint64_t,		zio_txg)		\
-		__field(int,			zio_error)		\
-		__field(uint64_t,		zio_ena)		\
-									\
-		__field(enum zio_checksum,	zp_checksum)		\
-		__field(enum zio_compress,	zp_compress)		\
-		__field(dmu_object_type_t,	zp_type)		\
-		__field(uint8_t,		zp_level)		\
-		__field(uint8_t,		zp_copies)		\
-		__field(boolean_t,		zp_dedup)		\
-		__field(boolean_t,		zp_dedup_verify)	\
-		__field(boolean_t,		zp_nopwrite)
-
-#define	ZIO_TP_FAST_ASSIGN						    \
-		__entry->zio_type		= zio->io_type;		    \
-		__entry->zio_cmd		= zio->io_cmd;		    \
-		__entry->zio_priority		= zio->io_priority;	    \
-		__entry->zio_size		= zio->io_size;		    \
-		__entry->zio_orig_size		= zio->io_orig_size;	    \
-		__entry->zio_offset		= zio->io_offset;	    \
-		__entry->zio_timestamp		= zio->io_timestamp;	    \
-		__entry->zio_delta		= zio->io_delta;	    \
-		__entry->zio_delay		= zio->io_delay;	    \
-		__entry->zio_flags		= zio->io_flags;	    \
-		__entry->zio_stage		= zio->io_stage;	    \
-		__entry->zio_pipeline		= zio->io_pipeline;	    \
-		__entry->zio_orig_flags		= zio->io_orig_flags;	    \
-		__entry->zio_orig_stage		= zio->io_orig_stage;	    \
-		__entry->zio_orig_pipeline	= zio->io_orig_pipeline;    \
-		__entry->zio_reexecute		= zio->io_reexecute;	    \
-		__entry->zio_txg		= zio->io_txg;		    \
-		__entry->zio_error		= zio->io_error;	    \
-		__entry->zio_ena		= zio->io_ena;		    \
-									    \
-		__entry->zp_checksum		= zio->io_prop.zp_checksum; \
-		__entry->zp_compress		= zio->io_prop.zp_compress; \
-		__entry->zp_type		= zio->io_prop.zp_type;	    \
-		__entry->zp_level		= zio->io_prop.zp_level;    \
-		__entry->zp_copies		= zio->io_prop.zp_copies;   \
-		__entry->zp_dedup		= zio->io_prop.zp_dedup;    \
-		__entry->zp_nopwrite		= zio->io_prop.zp_nopwrite; \
-		__entry->zp_dedup_verify	= zio->io_prop.zp_dedup_verify;
-
-#define	ZIO_TP_PRINTK_FMT						\
-	"zio { type %u cmd %i prio %u size %llu orig_size %llu "	\
-	"offset %llu timestamp %llu delta %llu delay %llu "		\
-	"flags 0x%x stage 0x%x pipeline 0x%x orig_flags 0x%x "		\
-	"orig_stage 0x%x orig_pipeline 0x%x reexecute %u "		\
-	"txg %llu error %d ena %llu prop { checksum %u compress %u "	\
-	"type %u level %u copies %u dedup %u dedup_verify %u nopwrite %u } }"
-
-#define	ZIO_TP_PRINTK_ARGS						\
-	__entry->zio_type, __entry->zio_cmd, __entry->zio_priority,	\
-	__entry->zio_size, __entry->zio_orig_size, __entry->zio_offset,	\
-	__entry->zio_timestamp, __entry->zio_delta, __entry->zio_delay,	\
-	__entry->zio_flags, __entry->zio_stage, __entry->zio_pipeline,	\
-	__entry->zio_orig_flags, __entry->zio_orig_stage,		\
-	__entry->zio_orig_pipeline, __entry->zio_reexecute,		\
-	__entry->zio_txg, __entry->zio_error, __entry->zio_ena,		\
-	__entry->zp_checksum, __entry->zp_compress, __entry->zp_type,	\
-	__entry->zp_level, __entry->zp_copies, __entry->zp_dedup,	\
-	__entry->zp_dedup_verify, __entry->zp_nopwrite
 
 DECLARE_EVENT_CLASS(zfs_l2arc_rw_class,
 	TP_PROTO(vdev_t *vd, zio_t *zio),
@@ -262,9 +187,10 @@ DECLARE_EVENT_CLASS(zfs_arc_miss_class,
 	    __array(uint64_t,		hdr_dva_word, 2)
 	    __field(uint64_t,		hdr_birth)
 	    __field(uint32_t,		hdr_flags)
-	    __field(uint32_t,		hdr_datacnt)
+	    __field(uint32_t,		hdr_bufcnt)
 	    __field(arc_buf_contents_t,	hdr_type)
-	    __field(uint64_t,		hdr_size)
+	    __field(uint16_t,		hdr_psize)
+	    __field(uint16_t,		hdr_lsize)
 	    __field(uint64_t,		hdr_spa)
 	    __field(arc_state_type_t,	hdr_state_type)
 	    __field(clock_t,		hdr_access)
@@ -292,8 +218,9 @@ DECLARE_EVENT_CLASS(zfs_arc_miss_class,
 	    __entry->hdr_dva_word[1]	= hdr->b_dva.dva_word[1];
 	    __entry->hdr_birth		= hdr->b_birth;
 	    __entry->hdr_flags		= hdr->b_flags;
-	    __entry->hdr_datacnt	= hdr->b_l1hdr.b_datacnt;
-	    __entry->hdr_size		= hdr->b_size;
+	    __entry->hdr_bufcnt		= hdr->b_l1hdr.b_bufcnt;
+	    __entry->hdr_psize		= hdr->b_psize;
+	    __entry->hdr_lsize		= hdr->b_lsize;
 	    __entry->hdr_spa		= hdr->b_spa;
 	    __entry->hdr_state_type	= hdr->b_l1hdr.b_state->arcs_state;
 	    __entry->hdr_access		= hdr->b_l1hdr.b_arc_access;
@@ -323,7 +250,7 @@ DECLARE_EVENT_CLASS(zfs_arc_miss_class,
 	    __entry->zb_blkid		= zb->zb_blkid;
 	),
 	TP_printk("hdr { dva 0x%llx:0x%llx birth %llu "
-	    "flags 0x%x datacnt %u size %llu spa %llu state_type %u "
+	    "flags 0x%x bufcnt %u psize %u lsize %u spa %llu state_type %u "
 	    "access %lu mru_hits %u mru_ghost_hits %u mfu_hits %u "
 	    "mfu_ghost_hits %u l2_hits %u refcount %lli } "
 	    "bp { dva0 0x%llx:0x%llx dva1 0x%llx:0x%llx dva2 "
@@ -332,7 +259,7 @@ DECLARE_EVENT_CLASS(zfs_arc_miss_class,
 	    "blkid %llu }",
 	    __entry->hdr_dva_word[0], __entry->hdr_dva_word[1],
 	    __entry->hdr_birth, __entry->hdr_flags,
-	    __entry->hdr_datacnt, __entry->hdr_size,
+	    __entry->hdr_bufcnt, __entry->hdr_psize, __entry->hdr_lsize,
 	    __entry->hdr_spa, __entry->hdr_state_type, __entry->hdr_access,
 	    __entry->hdr_mru_hits, __entry->hdr_mru_ghost_hits,
 	    __entry->hdr_mfu_hits, __entry->hdr_mfu_ghost_hits,

@@ -21,7 +21,7 @@
 
 /*
  * Copyright (c) 2009, 2010, Oracle and/or its affiliates. All rights reserved.
- * Copyright (c) 2012, 2014 by Delphix. All rights reserved.
+ * Copyright (c) 2012, 2015 by Delphix. All rights reserved.
  */
 
 #include <sys/zfs_context.h>
@@ -62,7 +62,8 @@ ddt_object_create(ddt_t *ddt, enum ddt_type type, enum ddt_class class,
 	spa_t *spa = ddt->ddt_spa;
 	objset_t *os = ddt->ddt_os;
 	uint64_t *objectp = &ddt->ddt_object[type][class];
-	boolean_t prehash = zio_checksum_table[ddt->ddt_checksum].ci_dedup;
+	boolean_t prehash = zio_checksum_table[ddt->ddt_checksum].ci_flags &
+	    ZCHECKSUM_FLAG_DEDUP;
 	char name[DDT_NAMELEN];
 
 	ddt_object_name(ddt, type, class, name);
@@ -811,23 +812,32 @@ ddt_prefetch(spa_t *spa, const blkptr_t *bp)
 	}
 }
 
+/*
+ * Opaque struct used for ddt_key comparison
+ */
+#define	DDT_KEY_CMP_LEN	(sizeof (ddt_key_t) / sizeof (uint16_t))
+
+typedef struct ddt_key_cmp {
+	uint16_t	u16[DDT_KEY_CMP_LEN];
+} ddt_key_cmp_t;
+
 int
 ddt_entry_compare(const void *x1, const void *x2)
 {
 	const ddt_entry_t *dde1 = x1;
 	const ddt_entry_t *dde2 = x2;
-	const uint64_t *u1 = (const uint64_t *)&dde1->dde_key;
-	const uint64_t *u2 = (const uint64_t *)&dde2->dde_key;
+	const ddt_key_cmp_t *k1 = (const ddt_key_cmp_t *)&dde1->dde_key;
+	const ddt_key_cmp_t *k2 = (const ddt_key_cmp_t *)&dde2->dde_key;
+	int32_t cmp = 0;
 	int i;
 
-	for (i = 0; i < DDT_KEY_WORDS; i++) {
-		if (u1[i] < u2[i])
-			return (-1);
-		if (u1[i] > u2[i])
-			return (1);
+	for (i = 0; i < DDT_KEY_CMP_LEN; i++) {
+		cmp = (int32_t)k1->u16[i] - (int32_t)k2->u16[i];
+		if (likely(cmp))
+			break;
 	}
 
-	return (0);
+	return (AVL_ISIGN(cmp));
 }
 
 static ddt_t *

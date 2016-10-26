@@ -20,7 +20,7 @@
  */
 /*
  * Copyright (c) 2005, 2010, Oracle and/or its affiliates. All rights reserved.
- * Copyright (c) 2012 by Delphix. All rights reserved.
+ * Copyright (c) 2012, 2015 by Delphix. All rights reserved.
  */
 
 #ifndef	_SYS_FS_ZFS_ZNODE_H
@@ -139,17 +139,6 @@ extern "C" {
 #define	ZFS_SA_ATTRS		"SA_ATTRS"
 
 /*
- * Path component length
- *
- * The generic fs code uses MAXNAMELEN to represent
- * what the largest component length is.  Unfortunately,
- * this length includes the terminating NULL.  ZFS needs
- * to tell the users via pathconf() and statvfs() what the
- * true maximum length of a component is, excluding the NULL.
- */
-#define	ZFS_MAXNAMELEN	(MAXNAMELEN - 1)
-
-/*
  * Convert mode bits (zp_mode) to BSD-style DT_* values for storing in
  * the directory entries.  On Linux systems this value is already
  * defined correctly as part of the /usr/include/dirent.h header file.
@@ -196,13 +185,9 @@ typedef struct znode {
 	uint_t		z_blksz;	/* block size in bytes */
 	uint_t		z_seq;		/* modification sequence number */
 	uint64_t	z_mapcnt;	/* number of pages mapped to file */
-	uint64_t	z_gen;		/* generation (cached) */
+	uint64_t	z_dnodesize;	/* dnode size */
 	uint64_t	z_size;		/* file size (cached) */
-	uint64_t	z_atime[2];	/* atime (cached) */
-	uint64_t	z_links;	/* file links (cached) */
 	uint64_t	z_pflags;	/* pflags (cached) */
-	uint64_t	z_uid;		/* uid fuid (cached) */
-	uint64_t	z_gid;		/* gid fuid (cached) */
 	uint32_t	z_sync_cnt;	/* synchronous open count */
 	mode_t		z_mode;		/* mode (cached) */
 	kmutex_t	z_acl_lock;	/* acl data lock */
@@ -304,16 +289,12 @@ extern unsigned int zfs_object_mutex_size;
 #define	STATE_CHANGED		(ATTR_CTIME)
 #define	CONTENT_MODIFIED	(ATTR_MTIME | ATTR_CTIME)
 
-#define	ZFS_ACCESSTIME_STAMP(zsb, zp) \
-	if ((zsb)->z_atime && !(zfs_is_readonly(zsb))) \
-		zfs_tstamp_update_setup(zp, ACCESSED, NULL, NULL, B_FALSE);
-
 extern int	zfs_init_fs(zfs_sb_t *, znode_t **);
 extern void	zfs_set_dataprop(objset_t *);
 extern void	zfs_create_fs(objset_t *os, cred_t *cr, nvlist_t *,
     dmu_tx_t *tx);
 extern void	zfs_tstamp_update_setup(znode_t *, uint_t, uint64_t [2],
-    uint64_t [2], boolean_t);
+    uint64_t [2]);
 extern void	zfs_grow_blocksize(znode_t *, uint64_t, dmu_tx_t *);
 extern int	zfs_freesp(znode_t *, uint64_t, uint64_t, int, boolean_t);
 extern void	zfs_znode_init(void);
