@@ -6,6 +6,10 @@ linux (4.9.0-0.1) zesty; urgency=low
 
   [ Upstream Kernel Changes ]
 
+  * rebase to v4.9-rc2
+
+  [ Upstream Kernel Changes ]
+
   * rebase to v4.9-rc1
     - LP: #1465724
     - LP: #1535802
