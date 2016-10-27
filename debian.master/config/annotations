@@ -6827,12 +6827,15 @@ CONFIG_UIO_PRUSS                                policy<{'amd64': 'm', 'arm64': '
 CONFIG_UIO_MF624                                policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'powerpc': 'm', 'ppc64el': 'm'}>
 
 # Menu: Device Drivers >> VFIO Non-Privileged userspace driver framework
-CONFIG_VFIO                                     policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'powerpc-generic': 'm', 'ppc64el': 'm'}>
-CONFIG_VFIO_PCI                                 policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'powerpc-generic': 'm', 'ppc64el': 'm'}>
+CONFIG_VFIO                                     policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'powerpc-generic': 'm', 'ppc64el': 'y'}>
+CONFIG_VFIO_PCI                                 policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'powerpc-generic': 'm', 'ppc64el': 'y'}>
 CONFIG_VFIO_PCI_VGA                             policy<{'amd64': 'y', 'i386': 'y'}>
 CONFIG_VFIO_PLATFORM                            policy<{'arm64': 'm', 'armhf': 'm'}>
 CONFIG_VFIO_AMBA                                policy<{'arm64': 'm', 'armhf': 'm'}>
 CONFIG_VFIO_PLATFORM_CALXEDAXGMAC_RESET         policy<{'arm64': 'm', 'armhf': 'm'}>
+#
+CONFIG_VFIO					mark<ENFORCED>note<LP#1636733>
+CONFIG_VFIO_PCI					mark<ENFORCED>note<LP#1636733>
 
 # Menu: Device Drivers >> VME bridge support
 CONFIG_VME_BUS                                  policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'powerpc': 'y', 'ppc64el': 'y', 's390x': 'n'}>
