@@ -96,6 +96,7 @@ drivers/parport/parport_pc.ko
 drivers/pps/pps_core.ko
 drivers/ptp/ptp.ko
 drivers/net/ethernet/dec/tulip/*
+drivers/net/ethernet/mellanox/*
 drivers/scsi/BusLogic.ko
 drivers/scsi/device_handler/scsi_dh_emc.ko
 drivers/scsi/device_handler/scsi_dh_alua.ko
