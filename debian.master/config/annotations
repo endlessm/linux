@@ -4153,13 +4153,11 @@ CONFIG_B44                                      policy<{'amd64': 'm', 'arm64': '
 CONFIG_BCMGENET                                 policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'powerpc': 'm', 'ppc64el': 'm'}>
 CONFIG_BNX2                                     policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'powerpc': 'm', 'ppc64el': 'm'}>
 CONFIG_CNIC                                     policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'powerpc': 'm', 'ppc64el': 'm'}>
-CONFIG_TIGON3                                   policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'powerpc': 'm', 'ppc64el': 'y'}>
+CONFIG_TIGON3                                   policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'powerpc': 'm', 'ppc64el': 'm'}>
 CONFIG_BNX2X                                    policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'powerpc': 'm', 'ppc64el': 'm'}>
 CONFIG_BNX2X_SRIOV                              policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'powerpc': 'y', 'ppc64el': 'y'}>
 CONFIG_BNX2X_VXLAN                              policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'powerpc': 'y', 'ppc64el': 'y'}>
 CONFIG_SYSTEMPORT                               policy<{'arm64': 'm', 'armhf': 'm', 'powerpc': 'm', 'ppc64el': 'm'}>
-#
-CONFIG_TIGON3                                   flag<REVIEW>
 
 # Menu: Device Drivers >> Network device support >> Ethernet driver support >> Cavium ethernet drivers
 CONFIG_NET_VENDOR_CAVIUM                        policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'powerpc': 'y', 'ppc64el': 'y', 's390x': 'n'}>

@@ -59,6 +59,7 @@ drivers/misc/vmw_balloon.ko
 drivers/misc/vmw_vmci/vmw_vmci.ko
 drivers/net/caif/caif_virtio.ko
 drivers/net/mii.ko
+drivers/net/ethernet/broadcom/tg3.ko
 drivers/net/ethernet/8390/8390.ko
 drivers/net/ethernet/realtek/8139too.ko
 drivers/net/ethernet/realtek/8139cp.ko
