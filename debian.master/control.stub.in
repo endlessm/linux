@@ -126,7 +126,7 @@ Build-Profiles: <!stage1>
 Architecture: i386 amd64 armhf arm64 powerpc ppc64el s390x
 Section: devel
 Priority: optional
-Depends: ${misc:Depends}, ${shlibs:Depends}, SRCPKGNAME-tools-common
+Depends: ${misc:Depends}, ${shlibs:Depends}, linux-tools-common
 Description: Linux kernel version specific tools for version PKGVER-ABINUM
  This package provides the architecture dependant parts for kernel
  version locked tools (such as perf and x86_energy_perf_policy) for
@@ -150,7 +150,7 @@ Build-Profiles: <!stage1>
 Architecture: i386 amd64 armhf
 Section: devel
 Priority: optional
-Depends: ${misc:Depends}, ${shlibs:Depends}, SRCPKGNAME-cloud-tools-common
+Depends: ${misc:Depends}, ${shlibs:Depends}, linux-cloud-tools-common
 Description: Linux kernel version specific cloud tools for version PKGVER-ABINUM
  This package provides the architecture dependant parts for kernel
  version locked tools for cloud tools for version PKGVER-ABINUM on
