@@ -20,6 +20,8 @@
 #define ASUS_WIRELESS_LED_STATUS 0x2
 #define ASUS_WIRELESS_LED_OFF 0x4
 #define ASUS_WIRELESS_LED_ON 0x5
+#define ASUS_WIRELESS_LED_OFF_2 0x1
+#define ASUS_WIRELESS_LED_ON_2 0x0
 
 struct asus_wireless_data {
 	struct input_dev *idev;
@@ -54,7 +56,7 @@ static u64 asus_wireless_method(acpi_handle handle, const char *method,
 	return ret;
 }
 
-static enum led_brightness led_state_get(struct led_classdev *led)
+static enum led_brightness led_brightness_from_asus_wlan_led(struct led_classdev *led)
 {
 	struct asus_wireless_data *data;
 	int s;
@@ -62,9 +64,41 @@ static enum led_brightness led_state_get(struct led_classdev *led)
 	data = container_of(led, struct asus_wireless_data, led);
 	s = asus_wireless_method(acpi_device_handle(data->adev), "HSWC",
 				 ASUS_WIRELESS_LED_STATUS);
-	if (s == ASUS_WIRELESS_LED_ON)
-		return LED_FULL;
-	return LED_OFF;
+	if (s > ASUS_WIRELESS_LED_STATUS) {
+		if (s == ASUS_WIRELESS_LED_ON)
+			return LED_FULL;
+		return LED_OFF;
+	}
+	else {
+		if (s == ASUS_WIRELESS_LED_ON_2)
+			return LED_FULL;
+		return LED_OFF;
+	}
+}
+
+static int led_brightness_to_asus_wlan_led(struct led_classdev *led, enum led_brightness brightness)
+{
+	struct asus_wireless_data *data;
+	int s;
+
+	data = container_of(led, struct asus_wireless_data, led);
+	s = asus_wireless_method(acpi_device_handle(data->adev), "HSWC",
+				 ASUS_WIRELESS_LED_STATUS);
+	if (s > ASUS_WIRELESS_LED_STATUS) {
+		if (brightness == LED_FULL)
+			return ASUS_WIRELESS_LED_ON;
+		return ASUS_WIRELESS_LED_OFF;
+	}
+	else {
+		if (brightness == LED_FULL)
+			return ASUS_WIRELESS_LED_ON_2;
+		return ASUS_WIRELESS_LED_OFF_2;
+	}
+}
+
+static enum led_brightness led_state_get(struct led_classdev *led)
+{
+	return led_brightness_from_asus_wlan_led(led);
 }
 
 static void led_state_update(struct work_struct *work)
@@ -82,8 +116,7 @@ static void led_state_set(struct led_classdev *led,
 	struct asus_wireless_data *data;
 
 	data = container_of(led, struct asus_wireless_data, led);
-	data->led_state = value == LED_OFF ? ASUS_WIRELESS_LED_OFF :
-					     ASUS_WIRELESS_LED_ON;
+	data->led_state = led_brightness_to_asus_wlan_led(led, value);
 	queue_work(data->wq, &data->led_work);
 }
 
