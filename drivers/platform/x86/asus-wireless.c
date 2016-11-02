@@ -77,7 +77,7 @@ static void led_state_update(struct work_struct *work)
 }
 
 static void led_state_set(struct led_classdev *led,
-				  enum led_brightness value)
+			  enum led_brightness value)
 {
 	struct asus_wireless_data *data;
 
