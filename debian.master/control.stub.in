@@ -47,7 +47,7 @@ Vcs-Git: git://git.launchpad.net/~ubuntu-kernel/ubuntu/+source/linux/+git/zesty
 XS-Testsuite: autopkgtest
 #XS-Testsuite-Depends: gcc-4.7 binutils
 
-Package: SRCPKGNAME-source-PKGVER
+Package: linux-source-PKGVER
 Build-Profiles: <!stage1>
 Architecture: all
 Section: devel
