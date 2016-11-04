@@ -54,7 +54,7 @@ endif
 	find $(docdir) -name .gitignore | xargs rm -f
 endif
 
-srcpkg = $(src_pkg_name)-source-$(release)
+srcpkg = linux-source-$(release)
 srcdir = $(CURDIR)/debian/$(srcpkg)/usr/src/$(srcpkg)
 balldir = $(CURDIR)/debian/$(srcpkg)/usr/src/$(srcpkg)/$(srcpkg)
 install-source: install-doc
