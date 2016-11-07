@@ -134,6 +134,17 @@ config HID_APPLEIR
 
 	Say Y here if you want support for Apple infrared remote control.
 
+config HID_ASUS_GAMING_NB_KBD
+	tristate "ASUS gaming notebook keyboard"
+	depends on HID
+	---help---
+	Support for ASUS keyboard devices that are not fully compliant with 
+	HID standard.
+
+        Say Y if you want support for the non-compliant features of the Asus
+        gaming notebook keyboards, e.g:
+        - Asus Notebook GL553VD/GL553VE/GL753VD/GL753VE
+
 config HID_AUREAL
 	tristate "Aureal"
 	depends on HID
