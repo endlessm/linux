@@ -170,6 +170,7 @@ struct hid_item {
 #define HID_UP_LOGIVENDOR	0xffbc0000
 #define HID_UP_LOGIVENDOR2   0xff090000
 #define HID_UP_LOGIVENDOR3   0xff430000
+#define HID_UP_ITEVENDOR	0xff310000
 #define HID_UP_LNVENDOR		0xffa00000
 #define HID_UP_SENSOR		0x00200000
 
