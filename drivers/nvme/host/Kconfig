@@ -25,6 +25,13 @@ config BLK_DEV_NVME_SCSI
 	  emulation to provide stable device names for mount by id, like
 	  some OpenSuSE and SLES versions.
 
+config NVME_VENDOR_EXT_GOOGLE
+	bool "NVMe Vendor Extension for Improved Virtualization"
+	depends on BLK_DEV_NVME
+	---help---
+	  Google extension to reduce the number of MMIO doorbell
+	  writes for the NVMe driver
+
 config NVME_FABRICS
 	tristate
 
