@@ -55,7 +55,8 @@ static int ite_input_mapping(struct hid_device *hdev, struct hid_input *hi,
 }
 
 static const struct hid_device_id ite_devices[] = {
-	{ HID_USB_DEVICE(USB_VENDOR_ID_ASUSTEK, USB_DEVICE_ID_ASUSTEK_GAMING_NB_KBD) },
+	{ HID_USB_DEVICE(USB_VENDOR_ID_ASUSTEK, USB_DEVICE_ID_ASUSTEK_GAMING_NB_KBD1) },
+	{ HID_USB_DEVICE(USB_VENDOR_ID_ASUSTEK, USB_DEVICE_ID_ASUSTEK_GAMING_NB_KBD2) },
 	{ }
 };
 MODULE_DEVICE_TABLE(hid, ite_devices);
