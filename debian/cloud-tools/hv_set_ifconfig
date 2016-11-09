@@ -239,6 +239,9 @@ for line in flines:
                 newfile += [line.strip()]
     prev_line=line
 
+# Include pending stanza if any.
+if inastanza and not pitchstanza:
+    newfile.extend(stanza)
 
 
 def emit(line):
