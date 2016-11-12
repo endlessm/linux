@@ -515,7 +515,7 @@ static int profile_peer_perm(struct aa_profile *profile, const char *op, u32 req
 				      addr, len, &aad(sa)->info);
 		if (!peer_label)
 			peer_label = peer_ctx->label;
-		return fn_for_each(peer_label, peerp,
+		return fn_for_each_in_ns(peer_label, peerp,
 				   match_label(profile, peerp, state, request,
 					       sa));
 	}
