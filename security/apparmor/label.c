@@ -1083,7 +1083,6 @@ static struct aa_label *label_merge_insert(struct aa_label *new,
 		/* TODO: deal with reference labels */
 		if (new->size == 1) {
 			label = aa_get_label(&new->vec[0]->label);
-			aa_put_label(new);
 			return label;
 		}
 	} else if (!stale) {
