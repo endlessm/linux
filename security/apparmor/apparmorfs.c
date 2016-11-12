@@ -766,7 +766,7 @@ static const struct file_operations aa_fs_ns_name = {
 static int rawdata_release(struct inode *inode, struct file *file)
 {
 	/* TODO: switch to loaddata when profile switched to symlink */
-	aa_put_proxy(file->private_data);
+	aa_put_loaddata(file->private_data);
 
 	return 0;
 }
@@ -832,22 +832,24 @@ static const struct file_operations aa_fs_seq_raw_hash_fops = {
 static ssize_t rawdata_read(struct file *file, char __user *buf, size_t size,
 			    loff_t *ppos)
 {
-	struct aa_proxy *proxy = file->private_data;
-	struct aa_label *label = aa_get_label_rcu(&proxy->label);
-	struct aa_profile *profile = labels_profile(label);
+	struct aa_loaddata *rawdata = file->private_data;
 
-	ssize_t ret = simple_read_from_buffer(buf, size, ppos, profile->rawdata->data, profile->rawdata->size);
-	aa_put_label(label);
-
-	return ret;
+	return simple_read_from_buffer(buf, size, ppos, rawdata->data,
+				       rawdata->size);
 }
 
 static int rawdata_open(struct inode *inode, struct file *file)
 {
+	struct aa_proxy *proxy = inode->i_private;
+	struct aa_label *label;
+	struct aa_profile *profile;
+
 	if (!policy_view_capable(NULL))
 		return -EACCES;
-
-	file->private_data = aa_get_proxy(inode->i_private);
+	label = aa_get_label_rcu(&proxy->label);
+	profile = labels_profile(label);
+	file->private_data = aa_get_loaddata(profile->rawdata);
+	aa_put_label(label);
 
 	return 0;
 }
