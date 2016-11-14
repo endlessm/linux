@@ -2,7 +2,8 @@ human_arch	= PowerPC (32 bit userspace)
 build_arch	= powerpc
 header_arch	= $(build_arch)
 defconfig	= pmac32_defconfig
-flavours	= powerpc-smp generic powerpc-e500mc powerpc64-emb
+#flavours	= powerpc-smp generic powerpc-e500mc powerpc64-emb
+flavours	= powerpc-smp generic powerpc-e500mc 
 build_image	= zImage
 kernel_file	= $(shell if [ ! -f $(builddir)/build-$*/vmlinux.strip ] && \
 		    [ -f $(builddir)/build-$*/vmlinux.strip.gz ]; then \
