@@ -130,12 +130,6 @@ zpl_fsync(struct file *filp, struct dentry *dentry, int datasync)
 	return (error);
 }
 
-static int
-zpl_aio_fsync(struct kiocb *kiocb, int datasync)
-{
-	struct file *filp = kiocb->ki_filp;
-	return (zpl_fsync(filp, file_dentry(filp), datasync));
-}
 #elif defined(HAVE_FSYNC_WITHOUT_DENTRY)
 /*
  * Linux 2.6.35 - 3.0 API,
@@ -161,11 +155,6 @@ zpl_fsync(struct file *filp, int datasync)
 	return (error);
 }
 
-static int
-zpl_aio_fsync(struct kiocb *kiocb, int datasync)
-{
-	return (zpl_fsync(kiocb->ki_filp, datasync));
-}
 #elif defined(HAVE_FSYNC_RANGE)
 /*
  * Linux 3.1 - 3.x API,
@@ -196,11 +185,6 @@ zpl_fsync(struct file *filp, loff_t start, loff_t end, int datasync)
 	return (error);
 }
 
-static int
-zpl_aio_fsync(struct kiocb *kiocb, int datasync)
-{
-	return (zpl_fsync(kiocb->ki_filp, kiocb->ki_pos, -1, datasync));
-}
 #else
 #error "Unsupported fops->fsync() implementation"
 #endif
@@ -838,7 +822,6 @@ const struct file_operations zpl_file_operations = {
 #endif
 	.mmap		= zpl_mmap,
 	.fsync		= zpl_fsync,
-	.aio_fsync	= zpl_aio_fsync,
 #ifdef HAVE_FILE_FALLOCATE
 	.fallocate	= zpl_fallocate,
 #endif /* HAVE_FILE_FALLOCATE */
