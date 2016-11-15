@@ -50,7 +50,7 @@ CONFIG_64BIT                                    policy<{'amd64': 'y', 'arm64': '
 
 # Menu: Boot options
 CONFIG_CMDLINE                                  policy<{'arm64': '"console=ttyAMA0"', 'armhf': '""'}>
-CONFIG_KEXEC                                    policy<{'amd64': 'y', 'armhf': 'y', 'i386': 'y', 'powerpc-generic': 'y', 'powerpc-powerpc-e500mc': 'y', 'powerpc-powerpc-smp': 'y', 'ppc64el': 'y', 's390x': 'y'}>
+CONFIG_KEXEC                                    policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'powerpc-powerpc64-emb': 'y', 'powerpc-generic': 'y', 'powerpc-powerpc-e500mc': 'y', 'powerpc-powerpc-smp': 'y', 'ppc64el': 'y', 's390x': 'y'}>
 CONFIG_CRASH_DUMP                               policy<{'amd64': 'y', 'armhf': 'y', 'i386': 'y', 'powerpc-powerpc64-emb': 'y', 'powerpc-generic': 'y', 'powerpc-powerpc-e500mc': 'n', 'powerpc-powerpc-smp': 'n', 'ppc64el': 'y', 's390x': 'y'}>
 #
 CONFIG_CRASH_DUMP                               mark<ENFORCED> note<LP:1363180>
