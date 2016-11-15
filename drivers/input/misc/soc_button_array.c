@@ -18,6 +18,7 @@
 #include <linux/gpio/consumer.h>
 #include <linux/gpio_keys.h>
 #include <linux/platform_device.h>
+#include <linux/dmi.h>
 
 /*
  * Definition of buttons on the tablet. The ACPI index of each button
@@ -33,6 +34,12 @@ struct soc_button_info {
 	unsigned int event_code;
 	bool autorepeat;
 	bool wakeup;
+};
+
+static struct soc_button_info asus_vol_button_ACPI0011[] = {
+        { "volume_up", 0, EV_KEY, KEY_VOLUMEUP, true, false },
+        { "volume_down", 1, EV_KEY, KEY_VOLUMEDOWN, true, false },
+        { }
 };
 
 /*
@@ -150,6 +157,16 @@ static int soc_button_remove(struct platform_device *pdev)
 	return 0;
 }
 
+static const struct dmi_system_id ACPI0011_volume_adjust_only[] = {
+	{
+		.matches = {
+			DMI_MATCH(DMI_SYS_VENDOR, "ASUSTeK COMPUTER INC."),
+			DMI_MATCH(DMI_PRODUCT_NAME, "UX360UA"),
+		},
+	},
+	{}
+};
+
 static int soc_button_probe(struct platform_device *pdev)
 {
 	struct device *dev = &pdev->dev;
@@ -165,6 +182,9 @@ static int soc_button_probe(struct platform_device *pdev)
 		return -ENODEV;
 
 	button_info = (struct soc_button_info *)id->driver_data;
+	if (dmi_check_system(ACPI0011_volume_adjust_only)) {
+		button_info = asus_vol_button_ACPI0011;
+	}
 
 	priv = devm_kzalloc(&pdev->dev, sizeof(*priv), GFP_KERNEL);
 	if (!priv)
@@ -201,8 +221,13 @@ static struct soc_button_info soc_button_PNP0C40[] = {
 	{ }
 };
 
+static struct soc_button_info dummy_button_ACPI0011[] = {
+	{ }
+};
+
 static const struct acpi_device_id soc_button_acpi_match[] = {
 	{ "PNP0C40", (unsigned long)soc_button_PNP0C40 },
+	{ "ACPI0011", (unsigned long)dummy_button_ACPI0011},
 	{ }
 };
 
