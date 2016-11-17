@@ -20,6 +20,7 @@
 #include <linux/filter.h>
 #include <linux/version.h>
 #include <linux/kernel.h>
+#include <linux/module.h>
 
 DEFINE_PER_CPU(int, bpf_prog_active);
 
@@ -1015,6 +1016,9 @@ SYSCALL_DEFINE3(bpf, int, cmd, union bpf_attr __user *, uattr, unsigned int, siz
 
 	if (size > PAGE_SIZE)	/* silly large */
 		return -E2BIG;
+
+	if (secure_modules())
+		return -EPERM;
 
 	/* If we're handed a bigger struct than we know of,
 	 * ensure all the unknown bits are 0 - i.e. new
