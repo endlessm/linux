@@ -874,6 +874,8 @@ static void ieee80211_scan_state_set_channel(struct ieee80211_local *local,
 		break;
 	}
 
+	test_and_clear_bit(SCAN_SUSPEND_SCANNING, &local->scanning);
+
 	if (ieee80211_hw_config(local, IEEE80211_CONF_CHANGE_CHANNEL))
 		skip = 1;
 
@@ -917,6 +919,8 @@ static void ieee80211_scan_state_suspend(struct ieee80211_local *local,
 
 	/* disable PS */
 	ieee80211_offchannel_return(local);
+
+	__set_bit(SCAN_SUSPEND_SCANNING, &local->scanning);
 
 	*next_delay = HZ / 5;
 	/* afterwards, resume scan & go to next channel */
