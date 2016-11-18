@@ -1942,7 +1942,7 @@ CONFIG_I2C_CPM                                  policy<{'powerpc-powerpc-e500mc'
 CONFIG_I2C_DESIGNWARE_PLATFORM                  policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'powerpc': 'm', 'ppc64el': 'm'}>
 CONFIG_I2C_DESIGNWARE_PCI                       policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'powerpc': 'm', 'ppc64el': 'm'}>
 CONFIG_I2C_EG20T                                policy<{'i386': 'm'}>
-CONFIG_I2C_EMEV2                                policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'powerpc-powerpc64-emb': 'm', 'powerpc-powerpc-e500mc': 'm'}>
+CONFIG_I2C_EMEV2                                policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'm', 'i386': 'n', 'powerpc': 'n'}>
 CONFIG_I2C_EXYNOS5                              policy<{'armhf': 'm'}>
 CONFIG_I2C_GPIO                                 policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'powerpc': 'm', 'ppc64el': 'm'}>
 CONFIG_I2C_IMX                                  policy<{'arm64': 'm', 'armhf-generic': 'y'}>
