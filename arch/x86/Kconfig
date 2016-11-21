@@ -1887,6 +1887,18 @@ config EFI_MIXED
 
 	   If unsure, say N.
 
+config EFI_SECURE_BOOT_LOCK_DOWN
+	def_bool n
+	depends on EFI
+	prompt "Lock down the kernel when UEFI Secure Boot is enabled"
+	---help---
+	  UEFI Secure Boot provides a mechanism for ensuring that the firmware
+	  will only load signed bootloaders and kernels.  Certain use cases may
+	  also require that all kernel modules also be signed and that
+	  userspace is prevented from directly changing the running kernel
+	  image.  Say Y here to automatically lock down the kernel when a
+	  system boots with UEFI Secure Boot enabled.
+
 config SECCOMP
 	def_bool y
 	prompt "Enable seccomp to safely compute untrusted bytecode"
