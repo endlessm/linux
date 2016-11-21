@@ -71,6 +71,11 @@
 #include <linux/jiffies.h>
 #include <linux/security.h>
 
+#include <linux/fips.h>
+#include <linux/cred.h>
+#include <linux/sysrq.h>
+#include <linux/init_task.h>
+
 #include <linux/usb/xhci-dbgp.h>
 #include <video/edid.h>
 
@@ -1335,6 +1340,32 @@ void __init i386_reserve_resources(void)
 }
 
 #endif /* CONFIG_X86_32 */
+
+#ifdef CONFIG_EFI_ALLOW_SECURE_BOOT_EXIT
+
+static void sysrq_handle_secure_boot(int key)
+{
+	if (!efi_enabled(EFI_SECURE_BOOT))
+		return;
+
+	pr_info("Secure boot disabled\n");
+	lift_kernel_lockdown();
+}
+static struct sysrq_key_op secure_boot_sysrq_op = {
+	.handler	=	sysrq_handle_secure_boot,
+	.help_msg	=	"unSB(x)",
+	.action_msg	=	"Disabling Secure Boot restrictions",
+	.enable_mask	=	SYSRQ_DISABLE_USERSPACE,
+};
+static int __init secure_boot_sysrq(void)
+{
+	if (efi_enabled(EFI_SECURE_BOOT))
+		register_sysrq_key('x', &secure_boot_sysrq_op);
+	return 0;
+}
+late_initcall(secure_boot_sysrq);
+#endif /*CONFIG_EFI_ALLOW_SECURE_BOOT_EXIT*/
+
 
 static struct notifier_block kernel_offset_notifier = {
 	.notifier_call = dump_kernel_offset
