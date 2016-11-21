@@ -1,5 +1,6 @@
 # Recreate any symlinks created since the orig.
 # Remove any files deleted from the orig.
+rm -f 'Documentation/devicetree/bindings/ipmi/aspeed,ast2400-bt-bmc.txt'
 rm -f 'debian.master/abi/4.9.0-0.0/abiname'
 rm -f 'debian.master/abi/4.9.0-0.0/amd64/generic'
 rm -f 'debian.master/abi/4.9.0-0.0/amd64/generic.compiler'
