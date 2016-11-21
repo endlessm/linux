@@ -5047,7 +5047,7 @@ CONFIG_PWM_LP3943                               policy<{'amd64': 'm', 'arm64': '
 CONFIG_PWM_LPSS                                 policy<{'amd64': 'm', 'i386': 'm'}>
 CONFIG_PWM_LPSS_PCI                             policy<{'amd64': 'm', 'i386': 'm'}>
 CONFIG_PWM_LPSS_PLATFORM                        policy<{'amd64': 'm', 'i386': 'm'}>
-CONFIG_PWM_PCA9685                              policy<{'arm64': 'm', 'armhf': 'm', 'powerpc': 'm', 'ppc64el': 'm'}>
+CONFIG_PWM_PCA9685                              policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'powerpc': 'm', 'ppc64el': 'm'}>
 CONFIG_PWM_RENESAS_TPU                          policy<{'arm64': 'm', 'armhf': 'm'}>
 CONFIG_PWM_SAMSUNG                              policy<{'armhf': 'm'}>
 CONFIG_PWM_TEGRA                                policy<{'armhf-generic': 'm'}>
