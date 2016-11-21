@@ -299,6 +299,15 @@ extern int oops_may_print(void);
 void do_exit(long error_code) __noreturn;
 void complete_and_exit(struct completion *, long) __noreturn;
 
+#ifdef CONFIG_LOCK_DOWN_KERNEL
+extern bool kernel_is_locked_down(void);
+#else
+static inline bool kernel_is_locked_down(void)
+{
+	return false;
+}
+#endif
+
 #ifdef CONFIG_ARCH_HAS_REFCOUNT
 void refcount_error_report(struct pt_regs *regs, const char *err);
 #else
