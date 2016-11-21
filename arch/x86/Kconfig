@@ -1839,6 +1839,16 @@ config EFI_SECURE_BOOT_LOCK_DOWN
 	  image.  Say Y here to automatically lock down the kernel when a
 	  system boots with UEFI Secure Boot enabled.
 
+config EFI_ALLOW_SECURE_BOOT_EXIT
+	def_bool n
+	depends on EFI_SECURE_BOOT_LOCK_DOWN && MAGIC_SYSRQ
+	select ALLOW_LOCKDOWN_LIFT
+	prompt "Allow secure boot mode to be exited with SysRq+x on a keyboard"
+	---help---
+	  Allow secure boot mode to be exited and the kernel lockdown lifted by
+	  typing SysRq+x on a keyboard attached to the system (not permitted
+	  through procfs).
+
 config SECCOMP
 	def_bool y
 	prompt "Enable seccomp to safely compute untrusted bytecode"
