@@ -1183,6 +1183,7 @@ void __init setup_arch(char **cmdline_p)
 			pr_info("Secure boot disabled\n");
 			break;
 		case efi_secureboot_mode_enabled:
+			set_bit(EFI_SECURE_BOOT, &efi.flags);
 			pr_info("Secure boot enabled\n");
 			break;
 		default:
