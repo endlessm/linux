@@ -1731,5 +1731,16 @@ static inline void free_secdata(void *secdata)
 { }
 #endif /* CONFIG_SECURITY */
 
+#ifdef CONFIG_LOCK_DOWN_KERNEL
+extern void lock_kernel_down(void);
+#ifdef CONFIG_ALLOW_LOCKDOWN_LIFT
+extern void lift_kernel_lockdown(void);
+#endif
+#else
+static inline void lock_kernel_down(void)
+{
+}
+#endif
+
 #endif /* ! __LINUX_SECURITY_H */
 
