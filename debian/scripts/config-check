@@ -85,7 +85,7 @@ for $config (keys %annot) {
 			if ($value =~ /^{/) {
 				$value =~ s/:/=>/g;
 				$policy = eval($value);
-				warn "$@" if ($@);
+				warn "$config: $@" if ($@);
 			} else {
 				$policy = undef;
 			}
