@@ -65,6 +65,11 @@ BPF_CALL_3(bpf_probe_read, void *, dst, u32, size, const void *, unsafe_ptr)
 {
 	int ret;
 
+	if (kernel_is_locked_down()) {
+		memset(dst, 0, size);
+		return -EPERM;
+	}
+
 	ret = probe_kernel_read(dst, unsafe_ptr, size);
 	if (unlikely(ret < 0))
 		memset(dst, 0, size);
@@ -84,6 +89,9 @@ static const struct bpf_func_proto bpf_probe_read_proto = {
 BPF_CALL_3(bpf_probe_write_user, void *, unsafe_ptr, const void *, src,
 	   u32, size)
 {
+	if (kernel_is_locked_down())
+		return -EPERM;
+
 	/*
 	 * Ensure we're in user context which is safe for the helper to
 	 * run. This helper has no business in a kthread.
@@ -142,6 +150,9 @@ BPF_CALL_5(bpf_trace_printk, char *, fmt, u32, fmt_size, u64, arg1,
 	 */
 	if (fmt[--fmt_size] != 0)
 		return -EINVAL;
+
+	if (kernel_is_locked_down())
+		return __trace_printk(1, fmt, 0, 0, 0);
 
 	/* check format string for allowed specifiers */
 	for (i = 0; i < fmt_size; i++) {
