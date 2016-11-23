@@ -604,6 +604,31 @@ void setup_graphics(struct boot_params *boot_params)
 	}
 }
 
+#define MEMORY_ONLY_RESET_CONTROL_GUID \
+	EFI_GUID (0xe20939be, 0x32d4, 0x41be, 0xa1, 0x50, 0x89, 0x7f, 0x85, 0xd4, 0x98, 0x29)
+
+static void enable_reset_attack_mitigation(void)
+{
+	static const efi_guid_t var_guid = MEMORY_ONLY_RESET_CONTROL_GUID;
+	static const efi_char16_t MemoryOverwriteRequestControl_name[] = {
+		'M', 'e', 'm', 'o', 'r', 'y',
+		'O', 'v', 'e', 'r', 'w', 'r', 'i', 't', 'e',
+		'R', 'e', 'q', 'u', 'e', 's', 't',
+		'C', 'o', 'n', 't', 'r', 'o', 'l',
+		0
+	};
+	u8 val = 1;
+
+	/* Ignore the return value here - there's not really a lot we can do */
+	efi_call_runtime(set_variable,
+			(efi_char16_t *)MemoryOverwriteRequestControl_name,
+			(efi_guid_t *)&var_guid,
+			EFI_VARIABLE_NON_VOLATILE |
+			EFI_VARIABLE_BOOTSERVICE_ACCESS |
+			EFI_VARIABLE_RUNTIME_ACCESS,
+			sizeof(val), val);
+}
+
 /*
  * Because the x86 boot code expects to be passed a boot_params we
  * need to create one ourselves (usually the bootloader would create
@@ -987,6 +1012,9 @@ struct boot_params *efi_main(struct efi_config *c,
 		setup_boot_services64(efi_early);
 	else
 		setup_boot_services32(efi_early);
+
+	/* Ask the firmware to clear memory if we don't have a clean shutdown */
+	enable_reset_attack_mitigation();
 
 	/*
 	 * If the boot loader gave us a value for secure_boot then we use that,
