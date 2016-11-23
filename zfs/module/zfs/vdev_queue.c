@@ -33,7 +33,6 @@
 #include <sys/zio.h>
 #include <sys/avl.h>
 #include <sys/dsl_pool.h>
-#include <sys/metaslab_impl.h>
 #include <sys/spa.h>
 #include <sys/spa_impl.h>
 #include <sys/kstat.h>
@@ -172,35 +171,23 @@ int zfs_vdev_aggregation_limit = SPA_OLD_MAXBLOCKSIZE;
 int zfs_vdev_read_gap_limit = 32 << 10;
 int zfs_vdev_write_gap_limit = 4 << 10;
 
-/*
- * Define the queue depth percentage for each top-level. This percentage is
- * used in conjunction with zfs_vdev_async_max_active to determine how many
- * allocations a specific top-level vdev should handle. Once the queue depth
- * reaches zfs_vdev_queue_depth_pct * zfs_vdev_async_write_max_active / 100
- * then allocator will stop allocating blocks on that top-level device.
- * The default kernel setting is 1000% which will yield 100 allocations per
- * device. For userland testing, the default setting is 300% which equates
- * to 30 allocations per device.
- */
-#ifdef _KERNEL
-int zfs_vdev_queue_depth_pct = 1000;
-#else
-int zfs_vdev_queue_depth_pct = 300;
-#endif
-
-
 int
 vdev_queue_offset_compare(const void *x1, const void *x2)
 {
-	const zio_t *z1 = (const zio_t *)x1;
-	const zio_t *z2 = (const zio_t *)x2;
+	const zio_t *z1 = x1;
+	const zio_t *z2 = x2;
 
-	int cmp = AVL_CMP(z1->io_offset, z2->io_offset);
+	if (z1->io_offset < z2->io_offset)
+		return (-1);
+	if (z1->io_offset > z2->io_offset)
+		return (1);
 
-	if (likely(cmp))
-		return (cmp);
+	if (z1 < z2)
+		return (-1);
+	if (z1 > z2)
+		return (1);
 
-	return (AVL_PCMP(z1, z2));
+	return (0);
 }
 
 static inline avl_tree_t *
@@ -222,15 +209,20 @@ vdev_queue_type_tree(vdev_queue_t *vq, zio_type_t t)
 int
 vdev_queue_timestamp_compare(const void *x1, const void *x2)
 {
-	const zio_t *z1 = (const zio_t *)x1;
-	const zio_t *z2 = (const zio_t *)x2;
+	const zio_t *z1 = x1;
+	const zio_t *z2 = x2;
 
-	int cmp = AVL_CMP(z1->io_timestamp, z2->io_timestamp);
+	if (z1->io_timestamp < z2->io_timestamp)
+		return (-1);
+	if (z1->io_timestamp > z2->io_timestamp)
+		return (1);
 
-	if (likely(cmp))
-		return (cmp);
+	if (z1 < z2)
+		return (-1);
+	if (z1 > z2)
+		return (1);
 
-	return (AVL_PCMP(z1, z2));
+	return (0);
 }
 
 static int
@@ -391,8 +383,6 @@ vdev_queue_init(vdev_t *vd)
 		avl_create(vdev_queue_class_tree(vq, p), compfn,
 			sizeof (zio_t), offsetof(struct zio, io_queue_node));
 	}
-
-	vq->vq_lastoffset = 0;
 }
 
 void
@@ -494,8 +484,7 @@ vdev_queue_agg_io_done(zio_t *aio)
 {
 	if (aio->io_type == ZIO_TYPE_READ) {
 		zio_t *pio;
-		zio_link_t *zl = NULL;
-		while ((pio = zio_walk_parents(aio, &zl)) != NULL) {
+		while ((pio = zio_walk_parents(aio)) != NULL) {
 			bcopy((char *)aio->io_data + (pio->io_offset -
 			    aio->io_offset), pio->io_data, pio->io_size);
 		}
@@ -519,17 +508,20 @@ vdev_queue_aggregate(vdev_queue_t *vq, zio_t *zio)
 	zio_t *first, *last, *aio, *dio, *mandatory, *nio;
 	uint64_t maxgap = 0;
 	uint64_t size;
-	uint64_t limit;
 	boolean_t stretch = B_FALSE;
 	avl_tree_t *t = vdev_queue_type_tree(vq, zio->io_type);
 	enum zio_flag flags = zio->io_flags & ZIO_FLAG_AGG_INHERIT;
 	void *buf;
 
-	limit = MAX(MIN(zfs_vdev_aggregation_limit,
-	    spa_maxblocksize(vq->vq_vdev->vdev_spa)), 0);
-
-	if (zio->io_flags & ZIO_FLAG_DONT_AGGREGATE || limit == 0)
+	if (zio->io_flags & ZIO_FLAG_DONT_AGGREGATE)
 		return (NULL);
+
+	/*
+	 * Prevent users from setting the zfs_vdev_aggregation_limit
+	 * tuning larger than SPA_MAXBLOCKSIZE.
+	 */
+	zfs_vdev_aggregation_limit =
+	    MIN(zfs_vdev_aggregation_limit, SPA_MAXBLOCKSIZE);
 
 	first = last = zio;
 
@@ -557,7 +549,7 @@ vdev_queue_aggregate(vdev_queue_t *vq, zio_t *zio)
 	 */
 	while ((dio = AVL_PREV(t, first)) != NULL &&
 	    (dio->io_flags & ZIO_FLAG_AGG_INHERIT) == flags &&
-	    IO_SPAN(dio, last) <= limit &&
+	    IO_SPAN(dio, last) <= zfs_vdev_aggregation_limit &&
 	    IO_GAP(dio, first) <= maxgap) {
 		first = dio;
 		if (mandatory == NULL && !(first->io_flags & ZIO_FLAG_OPTIONAL))
@@ -578,7 +570,7 @@ vdev_queue_aggregate(vdev_queue_t *vq, zio_t *zio)
 	 */
 	while ((dio = AVL_NEXT(t, last)) != NULL &&
 	    (dio->io_flags & ZIO_FLAG_AGG_INHERIT) == flags &&
-	    IO_SPAN(first, dio) <= limit &&
+	    IO_SPAN(first, dio) <= zfs_vdev_aggregation_limit &&
 	    IO_GAP(last, dio) <= maxgap) {
 		last = dio;
 		if (!(last->io_flags & ZIO_FLAG_OPTIONAL))
@@ -624,7 +616,7 @@ vdev_queue_aggregate(vdev_queue_t *vq, zio_t *zio)
 		return (NULL);
 
 	size = IO_SPAN(first, last);
-	ASSERT3U(size, <=, limit);
+	ASSERT3U(size, <=, zfs_vdev_aggregation_limit);
 
 	buf = zio_buf_alloc_flags(size, KM_NOSLEEP);
 	if (buf == NULL)
@@ -771,6 +763,9 @@ vdev_queue_io_done(zio_t *zio)
 	vdev_queue_t *vq = &zio->io_vd->vdev_queue;
 	zio_t *nio;
 
+	if (zio_injection_enabled)
+		delay(SEC_TO_TICK(zio_handle_io_delay(zio)));
+
 	mutex_enter(&vq->vq_lock);
 
 	vdev_queue_pending_remove(vq, zio);
@@ -791,30 +786,6 @@ vdev_queue_io_done(zio_t *zio)
 	}
 
 	mutex_exit(&vq->vq_lock);
-}
-
-/*
- * As these three methods are only used for load calculations we're not
- * concerned if we get an incorrect value on 32bit platforms due to lack of
- * vq_lock mutex use here, instead we prefer to keep it lock free for
- * performance.
- */
-int
-vdev_queue_length(vdev_t *vd)
-{
-	return (avl_numnodes(&vd->vdev_queue.vq_active_tree));
-}
-
-uint64_t
-vdev_queue_lastoffset(vdev_t *vd)
-{
-	return (vd->vdev_queue.vq_lastoffset);
-}
-
-void
-vdev_queue_register_lastoffset(vdev_t *vd, zio_t *zio)
-{
-	vd->vdev_queue.vq_lastoffset = zio->io_offset + zio->io_size;
 }
 
 #if defined(_KERNEL) && defined(HAVE_SPL)
@@ -875,8 +846,4 @@ MODULE_PARM_DESC(zfs_vdev_sync_write_max_active,
 module_param(zfs_vdev_sync_write_min_active, int, 0644);
 MODULE_PARM_DESC(zfs_vdev_sync_write_min_active,
 	"Min active sync write I/Os per vdev");
-
-module_param(zfs_vdev_queue_depth_pct, int, 0644);
-MODULE_PARM_DESC(zfs_vdev_queue_depth_pct,
-	"Queue depth percentage for each top-level vdev");
 #endif

@@ -78,13 +78,14 @@ zpl_release(struct inode *ip, struct file *filp)
 static int
 zpl_iterate(struct file *filp, struct dir_context *ctx)
 {
+	struct dentry *dentry = filp->f_path.dentry;
 	cred_t *cr = CRED();
 	int error;
 	fstrans_cookie_t cookie;
 
 	crhold(cr);
 	cookie = spl_fstrans_mark();
-	error = -zfs_readdir(file_inode(filp), ctx, cr);
+	error = -zfs_readdir(dentry->d_inode, ctx, cr);
 	spl_fstrans_unmark(cookie);
 	crfree(cr);
 	ASSERT3S(error, <=, 0);
@@ -130,6 +131,15 @@ zpl_fsync(struct file *filp, struct dentry *dentry, int datasync)
 	return (error);
 }
 
+#ifdef HAVE_FILE_AIO_FSYNC
+static int
+zpl_aio_fsync(struct kiocb *kiocb, int datasync)
+{
+	struct file *filp = kiocb->ki_filp;
+	return (zpl_fsync(filp, filp->f_path.dentry, datasync));
+}
+#endif
+
 #elif defined(HAVE_FSYNC_WITHOUT_DENTRY)
 /*
  * Linux 2.6.35 - 3.0 API,
@@ -154,6 +164,14 @@ zpl_fsync(struct file *filp, int datasync)
 
 	return (error);
 }
+
+#ifdef HAVE_FILE_AIO_FSYNC
+static int
+zpl_aio_fsync(struct kiocb *kiocb, int datasync)
+{
+	return (zpl_fsync(kiocb->ki_filp, datasync));
+}
+#endif
 
 #elif defined(HAVE_FSYNC_RANGE)
 /*
@@ -184,6 +202,14 @@ zpl_fsync(struct file *filp, loff_t start, loff_t end, int datasync)
 
 	return (error);
 }
+
+#ifdef HAVE_FILE_AIO_FSYNC
+static int
+zpl_aio_fsync(struct kiocb *kiocb, int datasync)
+{
+	return (zpl_fsync(kiocb->ki_filp, kiocb->ki_pos, -1, datasync));
+}
+#endif
 
 #else
 #error "Unsupported fops->fsync() implementation"
@@ -244,7 +270,6 @@ zpl_read(struct file *filp, char __user *buf, size_t len, loff_t *ppos)
 	    UIO_USERSPACE, filp->f_flags, cr);
 	crfree(cr);
 
-	file_accessed(filp);
 	return (read);
 }
 
@@ -261,7 +286,6 @@ zpl_iter_read_common(struct kiocb *kiocb, const struct iovec *iovp,
 	    nr_segs, &kiocb->ki_pos, seg, filp->f_flags, cr, skip);
 	crfree(cr);
 
-	file_accessed(filp);
 	return (read);
 }
 
@@ -634,6 +658,8 @@ zpl_fallocate_common(struct inode *ip, int mode, loff_t offset, loff_t len)
 	if (mode != (FALLOC_FL_KEEP_SIZE | FALLOC_FL_PUNCH_HOLE))
 		return (error);
 
+	crhold(cr);
+
 	if (offset < 0 || len <= 0)
 		return (-EINVAL);
 
@@ -652,7 +678,6 @@ zpl_fallocate_common(struct inode *ip, int mode, loff_t offset, loff_t len)
 	bf.l_len = len;
 	bf.l_pid = 0;
 
-	crhold(cr);
 	cookie = spl_fstrans_mark();
 	error = -zfs_space(ip, F_FREESP, &bf, FWRITE, offset, cr);
 	spl_fstrans_unmark(cookie);
@@ -670,7 +695,7 @@ zpl_fallocate_common(struct inode *ip, int mode, loff_t offset, loff_t len)
 static long
 zpl_fallocate(struct file *filp, int mode, loff_t offset, loff_t len)
 {
-	return zpl_fallocate_common(file_inode(filp),
+	return zpl_fallocate_common(filp->f_path.dentry->d_inode,
 	    mode, offset, len);
 }
 #endif /* HAVE_FILE_FALLOCATE */
@@ -822,6 +847,9 @@ const struct file_operations zpl_file_operations = {
 #endif
 	.mmap		= zpl_mmap,
 	.fsync		= zpl_fsync,
+#ifdef HAVE_FILE_AIO_FSYNC
+	.aio_fsync	= zpl_aio_fsync,
+#endif
 #ifdef HAVE_FILE_FALLOCATE
 	.fallocate	= zpl_fallocate,
 #endif /* HAVE_FILE_FALLOCATE */

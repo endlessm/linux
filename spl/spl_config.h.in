@@ -57,6 +57,9 @@
 /* struct fs_struct uses spinlock_t */
 #undef HAVE_FS_STRUCT_SPINLOCK
 
+/* group_info->gid exists */
+#undef HAVE_GROUP_INFO_GID
+
 /* fops->fallocate() exists */
 #undef HAVE_INODE_FALLOCATE
 

@@ -25,16 +25,14 @@
 #ifndef _SPL_DKIO_H
 #define	_SPL_DKIO_H
 
-#define	DFL_SZ(num_exts) \
-	(sizeof (dkioc_free_list_t) + (num_exts - 1) * 16)
+struct dk_callback {
+	void (*dkc_callback)(void *dkc_cookie, int error);
+	void *dkc_cookie;
+	int dkc_flag;
+};
 
-#define	DKIOC		(0x04 << 8)
-#define	DKIOCFLUSHWRITECACHE	(DKIOC|34)	/* flush cache to phys medium */
-
-/*
- * ioctl to free space (e.g. SCSI UNMAP) off a disk.
- * Pass a dkioc_free_list_t containing a list of extents to be freed.
- */
-#define	DKIOCFREE	(DKIOC|50)
+#define	DKIOC			(0x04 << 8)
+#define	DKIOCFLUSHWRITECACHE	(DKIOC | 34)
+#define	DKIOCTRIM		(DKIOC | 35)
 
 #endif /* _SPL_DKIO_H */

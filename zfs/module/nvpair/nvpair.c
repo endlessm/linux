@@ -1260,8 +1260,6 @@ nvpair_type_is_array(nvpair_t *nvp)
 static int
 nvpair_value_common(nvpair_t *nvp, data_type_t type, uint_t *nelem, void *data)
 {
-	int value_sz;
-
 	if (nvp == NULL || nvpair_type(nvp) != type)
 		return (EINVAL);
 
@@ -1291,9 +1289,8 @@ nvpair_value_common(nvpair_t *nvp, data_type_t type, uint_t *nelem, void *data)
 #endif
 		if (data == NULL)
 			return (EINVAL);
-		if ((value_sz = i_get_value_size(type, NULL, 1)) < 0)
-			return (EINVAL);
-		bcopy(NVP_VALUE(nvp), data, (size_t)value_sz);
+		bcopy(NVP_VALUE(nvp), data,
+		    (size_t)i_get_value_size(type, NULL, 1));
 		if (nelem != NULL)
 			*nelem = 1;
 		break;
@@ -2032,7 +2029,7 @@ typedef struct {
 /*
  * nvs operations are:
  *   - nvs_nvlist
- *     encoding / decoding of an nvlist header (nvlist_t)
+ *     encoding / decoding of a nvlist header (nvlist_t)
  *     calculates the size used for header and end detection
  *
  *   - nvs_nvpair

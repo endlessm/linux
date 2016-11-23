@@ -71,10 +71,14 @@ static char *nulldomain = "";
 static int
 idx_compare(const void *arg1, const void *arg2)
 {
-	const fuid_domain_t *node1 = (const fuid_domain_t *)arg1;
-	const fuid_domain_t *node2 = (const fuid_domain_t *)arg2;
+	const fuid_domain_t *node1 = arg1;
+	const fuid_domain_t *node2 = arg2;
 
-	return (AVL_CMP(node1->f_idx, node2->f_idx));
+	if (node1->f_idx < node2->f_idx)
+		return (-1);
+	else if (node1->f_idx > node2->f_idx)
+		return (1);
+	return (0);
 }
 
 /*
@@ -83,13 +87,14 @@ idx_compare(const void *arg1, const void *arg2)
 static int
 domain_compare(const void *arg1, const void *arg2)
 {
-	const fuid_domain_t *node1 = (const fuid_domain_t *)arg1;
-	const fuid_domain_t *node2 = (const fuid_domain_t *)arg2;
+	const fuid_domain_t *node1 = arg1;
+	const fuid_domain_t *node2 = arg2;
 	int val;
 
 	val = strcmp(node1->f_ksid->kd_name, node2->f_ksid->kd_name);
-
-	return (AVL_ISIGN(val));
+	if (val == 0)
+		return (0);
+	return (val > 0 ? 1 : -1);
 }
 
 void
@@ -382,10 +387,8 @@ zfs_fuid_find_by_idx(zfs_sb_t *zsb, uint32_t idx)
 void
 zfs_fuid_map_ids(znode_t *zp, cred_t *cr, uid_t *uidp, uid_t *gidp)
 {
-	*uidp = zfs_fuid_map_id(ZTOZSB(zp), KUID_TO_SUID(ZTOI(zp)->i_uid),
-	    cr, ZFS_OWNER);
-	*gidp = zfs_fuid_map_id(ZTOZSB(zp), KGID_TO_SGID(ZTOI(zp)->i_gid),
-	    cr, ZFS_GROUP);
+	*uidp = zfs_fuid_map_id(ZTOZSB(zp), zp->z_uid, cr, ZFS_OWNER);
+	*gidp = zfs_fuid_map_id(ZTOZSB(zp), zp->z_gid, cr, ZFS_GROUP);
 }
 
 uid_t
@@ -691,7 +694,7 @@ zfs_fuid_info_free(zfs_fuid_info_t *fuidp)
 
 	if (fuidp->z_domain_table != NULL)
 		kmem_free(fuidp->z_domain_table,
-		    (sizeof (char *)) * fuidp->z_domain_cnt);
+		    (sizeof (char **)) * fuidp->z_domain_cnt);
 
 	while ((zdomain = list_head(&fuidp->z_domains)) != NULL) {
 		list_remove(&fuidp->z_domains, zdomain);

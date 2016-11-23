@@ -1,1 +1,2 @@
-../generic/zfs-dkms.spec.in
+%:
+	#

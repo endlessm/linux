@@ -1,5 +1,2 @@
-[Unit]
-Description=ZFS startup target
-
-[Install]
-WantedBy=multi-user.target
+%:
+	#

@@ -35,6 +35,11 @@ random_get_bytes(uint8_t *ptr, size_t len)
 	return 0;
 }
 
-extern int random_get_pseudo_bytes(uint8_t *ptr, size_t len);
+static __inline__ int
+random_get_pseudo_bytes(uint8_t *ptr, size_t len)
+{
+	get_random_bytes((void *)ptr,(int)len);
+	return 0;
+}
 
 #endif	/* _SPL_RANDOM_H */

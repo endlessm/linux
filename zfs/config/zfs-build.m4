@@ -63,11 +63,12 @@ AC_DEFUN([ZFS_AC_DEBUG_DMU_TX], [
 AC_DEFUN([ZFS_AC_CONFIG_ALWAYS], [
 	ZFS_AC_CONFIG_ALWAYS_NO_UNUSED_BUT_SET_VARIABLE
 	ZFS_AC_CONFIG_ALWAYS_NO_BOOL_COMPARE
-	ZFS_AC_CONFIG_ALWAYS_TOOLCHAIN_SIMD
-	ZFS_AC_CONFIG_ALWAYS_ARCH
 ])
 
 AC_DEFUN([ZFS_AC_CONFIG], [
+	TARGET_ASM_DIR=asm-generic
+	AC_SUBST(TARGET_ASM_DIR)
+
 	ZFS_CONFIG=all
 	AC_ARG_WITH([config],
 		AS_HELP_STRING([--with-config=CONFIG],
@@ -86,10 +87,10 @@ AC_DEFUN([ZFS_AC_CONFIG], [
 	ZFS_AC_CONFIG_ALWAYS
 
 	case "$ZFS_CONFIG" in
-		kernel) ZFS_AC_CONFIG_KERNEL ;;
 		user)	ZFS_AC_CONFIG_USER   ;;
-		all)    ZFS_AC_CONFIG_USER
-			ZFS_AC_CONFIG_KERNEL ;;
+		kernel) ZFS_AC_CONFIG_KERNEL ;;
+		all)    ZFS_AC_CONFIG_KERNEL
+			ZFS_AC_CONFIG_USER   ;;
 		srpm)                        ;;
 		*)
 		AC_MSG_RESULT([Error!])
@@ -98,12 +99,10 @@ AC_DEFUN([ZFS_AC_CONFIG], [
 	esac
 
 	AM_CONDITIONAL([CONFIG_USER],
-	    [test "$ZFS_CONFIG" = user -o "$ZFS_CONFIG" = all])
+		       [test "$ZFS_CONFIG" = user -o "$ZFS_CONFIG" = all])
 	AM_CONDITIONAL([CONFIG_KERNEL],
-	    [test "$ZFS_CONFIG" = kernel -o "$ZFS_CONFIG" = all] &&
-	    [test "x$enable_linux_builtin" != xyes ])
-	AM_CONDITIONAL([WANT_DEVNAME2DEVID],
-	    [test "x$user_libudev" = xyes ])
+		       [test "$ZFS_CONFIG" = kernel -o "$ZFS_CONFIG" = all] &&
+		       [test "x$enable_linux_builtin" != xyes ])
 ])
 
 dnl #
@@ -267,8 +266,6 @@ AC_DEFUN([ZFS_AC_DEFAULT_PACKAGE], [
 		VENDOR=ubuntu ;
 	elif test -f /etc/debian_version ; then
 		VENDOR=debian ;
-	elif test -f /etc/alpine-release ; then
-		VENDOR=alpine ;
 	else
 		VENDOR= ;
 	fi
@@ -281,7 +278,6 @@ AC_DEFUN([ZFS_AC_DEFAULT_PACKAGE], [
 		redhat)     DEFAULT_PACKAGE=rpm  ;;
 		fedora)     DEFAULT_PACKAGE=rpm  ;;
 		gentoo)     DEFAULT_PACKAGE=tgz  ;;
-		alpine)     DEFAULT_PACKAGE=tgz  ;;
 		arch)       DEFAULT_PACKAGE=tgz  ;;
 		sles)       DEFAULT_PACKAGE=rpm  ;;
 		slackware)  DEFAULT_PACKAGE=tgz  ;;
@@ -303,8 +299,7 @@ AC_DEFUN([ZFS_AC_DEFAULT_PACKAGE], [
 		toss)       DEFAULT_INIT_SCRIPT=redhat ;;
 		redhat)     DEFAULT_INIT_SCRIPT=redhat ;;
 		fedora)     DEFAULT_INIT_SCRIPT=fedora ;;
-		gentoo)     DEFAULT_INIT_SCRIPT=openrc ;;
-		alpine)     DEFAULT_INIT_SCRIPT=openrc ;;
+		gentoo)     DEFAULT_INIT_SCRIPT=gentoo ;;
 		arch)       DEFAULT_INIT_SCRIPT=lsb    ;;
 		sles)       DEFAULT_INIT_SCRIPT=lsb    ;;
 		slackware)  DEFAULT_INIT_SCRIPT=lsb    ;;
@@ -318,7 +313,6 @@ AC_DEFUN([ZFS_AC_DEFAULT_PACKAGE], [
 
 	AC_MSG_CHECKING([default init config direectory])
 	case "$VENDOR" in
-		alpine)     DEFAULT_INITCONF_DIR=/etc/conf.d    ;;
 		gentoo)     DEFAULT_INITCONF_DIR=/etc/conf.d    ;;
 		toss)       DEFAULT_INITCONF_DIR=/etc/sysconfig ;;
 		redhat)     DEFAULT_INITCONF_DIR=/etc/sysconfig ;;
