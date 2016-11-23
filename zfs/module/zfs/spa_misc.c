@@ -21,9 +21,8 @@
 /*
  * Copyright (c) 2005, 2010, Oracle and/or its affiliates. All rights reserved.
  * Copyright (c) 2011, 2015 by Delphix. All rights reserved.
- * Copyright 2015 Nexenta Systems, Inc.  All rights reserved.
+ * Copyright 2011 Nexenta Systems, Inc.  All rights reserved.
  * Copyright (c) 2014 Spectra Logic Corporation, All rights reserved.
- * Copyright 2013 Saso Kiselkov. All rights reserved.
  */
 
 #include <sys/zfs_context.h>
@@ -37,7 +36,6 @@
 #include <sys/zil.h>
 #include <sys/vdev_impl.h>
 #include <sys/vdev_file.h>
-#include <sys/vdev_raidz.h>
 #include <sys/metaslab.h>
 #include <sys/uberblock_impl.h>
 #include <sys/txg.h>
@@ -54,7 +52,7 @@
 #include <sys/ddt.h>
 #include <sys/kstat.h>
 #include "zfs_prop.h"
-#include <sys/zfeature.h>
+#include "zfeature_common.h"
 
 /*
  * SPA locking
@@ -387,16 +385,14 @@ spa_config_tryenter(spa_t *spa, int locks, void *tag, krw_t rw)
 		if (rw == RW_READER) {
 			if (scl->scl_writer || scl->scl_write_wanted) {
 				mutex_exit(&scl->scl_lock);
-				spa_config_exit(spa, locks & ((1 << i) - 1),
-				    tag);
+				spa_config_exit(spa, locks ^ (1 << i), tag);
 				return (0);
 			}
 		} else {
 			ASSERT(scl->scl_writer != curthread);
 			if (!refcount_is_zero(&scl->scl_count)) {
 				mutex_exit(&scl->scl_lock);
-				spa_config_exit(spa, locks & ((1 << i) - 1),
-				    tag);
+				spa_config_exit(spa, locks ^ (1 << i), tag);
 				return (0);
 			}
 			scl->scl_writer = curthread;
@@ -531,7 +527,7 @@ spa_deadman(void *arg)
 		vdev_deadman(spa->spa_root_vdev);
 
 	spa->spa_deadman_tqid = taskq_dispatch_delay(system_taskq,
-	    spa_deadman, spa, TQ_SLEEP, ddi_get_lbolt() +
+	    spa_deadman, spa, KM_SLEEP, ddi_get_lbolt() +
 	    NSEC_TO_TICK(spa->spa_deadman_synctime));
 }
 
@@ -559,12 +555,10 @@ spa_add(const char *name, nvlist_t *config, const char *altroot)
 	mutex_init(&spa->spa_history_lock, NULL, MUTEX_DEFAULT, NULL);
 	mutex_init(&spa->spa_proc_lock, NULL, MUTEX_DEFAULT, NULL);
 	mutex_init(&spa->spa_props_lock, NULL, MUTEX_DEFAULT, NULL);
-	mutex_init(&spa->spa_cksum_tmpls_lock, NULL, MUTEX_DEFAULT, NULL);
 	mutex_init(&spa->spa_scrub_lock, NULL, MUTEX_DEFAULT, NULL);
 	mutex_init(&spa->spa_suspend_lock, NULL, MUTEX_DEFAULT, NULL);
 	mutex_init(&spa->spa_vdev_top_lock, NULL, MUTEX_DEFAULT, NULL);
 	mutex_init(&spa->spa_feat_stats_lock, NULL, MUTEX_DEFAULT, NULL);
-	mutex_init(&spa->spa_alloc_lock, NULL, MUTEX_DEFAULT, NULL);
 
 	cv_init(&spa->spa_async_cv, NULL, CV_DEFAULT, NULL);
 	cv_init(&spa->spa_evicting_os_cv, NULL, CV_DEFAULT, NULL);
@@ -596,9 +590,6 @@ spa_add(const char *name, nvlist_t *config, const char *altroot)
 	 */
 	if (altroot)
 		spa->spa_root = spa_strdup(altroot);
-
-	avl_create(&spa->spa_alloc_tree, zio_timestamp_compare,
-	    sizeof (zio_t), offsetof(zio_t, io_alloc_node));
 
 	/*
 	 * Every pool starts with the default cachefile
@@ -677,7 +668,6 @@ spa_remove(spa_t *spa)
 		kmem_free(dp, sizeof (spa_config_dirent_t));
 	}
 
-	avl_destroy(&spa->spa_alloc_tree);
 	list_destroy(&spa->spa_config_list);
 
 	nvlist_free(spa->spa_label_features);
@@ -693,15 +683,12 @@ spa_remove(spa_t *spa)
 	for (t = 0; t < TXG_SIZE; t++)
 		bplist_destroy(&spa->spa_free_bplist[t]);
 
-	zio_checksum_templates_free(spa);
-
 	cv_destroy(&spa->spa_async_cv);
 	cv_destroy(&spa->spa_evicting_os_cv);
 	cv_destroy(&spa->spa_proc_cv);
 	cv_destroy(&spa->spa_scrub_io_cv);
 	cv_destroy(&spa->spa_suspend_cv);
 
-	mutex_destroy(&spa->spa_alloc_lock);
 	mutex_destroy(&spa->spa_async_lock);
 	mutex_destroy(&spa->spa_errlist_lock);
 	mutex_destroy(&spa->spa_errlog_lock);
@@ -709,7 +696,6 @@ spa_remove(spa_t *spa)
 	mutex_destroy(&spa->spa_history_lock);
 	mutex_destroy(&spa->spa_proc_lock);
 	mutex_destroy(&spa->spa_props_lock);
-	mutex_destroy(&spa->spa_cksum_tmpls_lock);
 	mutex_destroy(&spa->spa_scrub_lock);
 	mutex_destroy(&spa->spa_suspend_lock);
 	mutex_destroy(&spa->spa_vdev_top_lock);
@@ -808,13 +794,18 @@ typedef struct spa_aux {
 	int		aux_count;
 } spa_aux_t;
 
-static inline int
+static int
 spa_aux_compare(const void *a, const void *b)
 {
-	const spa_aux_t *sa = (const spa_aux_t *)a;
-	const spa_aux_t *sb = (const spa_aux_t *)b;
+	const spa_aux_t *sa = a;
+	const spa_aux_t *sb = b;
 
-	return (AVL_CMP(sa->aux_guid, sb->aux_guid));
+	if (sa->aux_guid < sb->aux_guid)
+		return (-1);
+	else if (sa->aux_guid > sb->aux_guid)
+		return (1);
+	else
+		return (0);
 }
 
 void
@@ -1780,8 +1771,11 @@ spa_name_compare(const void *a1, const void *a2)
 	int s;
 
 	s = strcmp(s1->spa_name, s2->spa_name);
-
-	return (AVL_ISIGN(s));
+	if (s > 0)
+		return (1);
+	if (s < 0)
+		return (-1);
+	return (0);
 }
 
 void
@@ -1835,7 +1829,6 @@ spa_init(int mode)
 	dmu_init();
 	zil_init();
 	vdev_cache_stat_init();
-	vdev_raidz_math_init();
 	zfs_prop_init();
 	zpool_prop_init();
 	zpool_feature_init();
@@ -1851,7 +1844,6 @@ spa_fini(void)
 	spa_evict_all();
 
 	vdev_cache_stat_fini();
-	vdev_raidz_math_fini();
 	zil_fini();
 	dmu_fini();
 	zio_fini();
@@ -2003,15 +1995,6 @@ spa_maxblocksize(spa_t *spa)
 		return (SPA_OLD_MAXBLOCKSIZE);
 }
 
-int
-spa_maxdnodesize(spa_t *spa)
-{
-	if (spa_feature_is_enabled(spa, SPA_FEATURE_LARGE_DNODE))
-		return (DNODE_MAX_SIZE);
-	else
-		return (DNODE_MIN_SIZE);
-}
-
 #if defined(_KERNEL) && defined(HAVE_SPL)
 /* Namespace manipulation */
 EXPORT_SYMBOL(spa_lookup);
@@ -2068,7 +2051,6 @@ EXPORT_SYMBOL(spa_bootfs);
 EXPORT_SYMBOL(spa_delegation);
 EXPORT_SYMBOL(spa_meta_objset);
 EXPORT_SYMBOL(spa_maxblocksize);
-EXPORT_SYMBOL(spa_maxdnodesize);
 
 /* Miscellaneous support routines */
 EXPORT_SYMBOL(spa_rename);

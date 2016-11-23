@@ -1,3 +1,3 @@
-SUBDIRS = 02zfsexpandknowledge 90zfs
+SUBDIRS = 90zfs
 
 EXTRA_DIST = README.dracut.markdown

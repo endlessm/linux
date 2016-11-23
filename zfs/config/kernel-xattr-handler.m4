@@ -114,7 +114,6 @@ AC_DEFUN([ZFS_AC_KERNEL_XATTR_HANDLER_GET], [
 		dnl # attr_handler, and handler_flags argument was removed and
 		dnl # should be accessed by handler->flags.
 		dnl #
-		AC_MSG_RESULT(no)
 		AC_MSG_CHECKING([whether xattr_handler->get() wants xattr_handler])
 		ZFS_LINUX_TRY_COMPILE([
 			#include <linux/xattr.h>
@@ -218,7 +217,6 @@ AC_DEFUN([ZFS_AC_KERNEL_XATTR_HANDLER_SET], [
 		dnl # xattr_handler, and handler_flags argument was removed and
 		dnl # should be accessed by handler->flags.
 		dnl #
-		AC_MSG_RESULT(no)
 		AC_MSG_CHECKING([whether xattr_handler->set() wants xattr_handler])
 		ZFS_LINUX_TRY_COMPILE([
 			#include <linux/xattr.h>

@@ -20,7 +20,7 @@
  */
 /*
  * Copyright (c) 2005, 2010, Oracle and/or its affiliates. All rights reserved.
- * Copyright (c) 2012, 2016 by Delphix. All rights reserved.
+ * Copyright (c) 2012, 2014 by Delphix. All rights reserved.
  * Copyright (c) 2013 by Saso Kiselkov. All rights reserved.
  * Copyright (c) 2013, Joyent, Inc. All rights reserved.
  * Copyright (c) 2014 Spectra Logic Corporation, All rights reserved.
@@ -31,7 +31,6 @@
 
 /* Portions Copyright 2010 Robert Milkowski */
 
-#include <sys/zfeature.h>
 #include <sys/cred.h>
 #include <sys/zfs_context.h>
 #include <sys/dmu_objset.h>
@@ -53,8 +52,6 @@
 #include <sys/zfs_onexit.h>
 #include <sys/dsl_destroy.h>
 #include <sys/vdev.h>
-#include <sys/policy.h>
-#include <sys/spa_impl.h>
 
 /*
  * Needed to close a window in dnode_move() that allows the objset to be freed
@@ -70,17 +67,7 @@ krwlock_t os_lock;
  */
 int dmu_find_threads = 0;
 
-/*
- * Backfill lower metadnode objects after this many have been freed.
- * Backfilling negatively impacts object creation rates, so only do it
- * if there are enough holes to fill.
- */
-int dmu_rescan_dnode_threshold = 1 << DN_MAX_INDBLKSHIFT;
-
 static void dmu_objset_find_dp_cb(void *arg);
-
-static void dmu_objset_upgrade(objset_t *os, dmu_objset_upgrade_cb_t cb);
-static void dmu_objset_upgrade_stop(objset_t *os);
 
 void
 dmu_objset_init(void)
@@ -141,12 +128,6 @@ dmu_objset_id(objset_t *os)
 	dsl_dataset_t *ds = os->os_dsl_dataset;
 
 	return (ds ? ds->ds_object : 0);
-}
-
-uint64_t
-dmu_objset_dnodesize(objset_t *os)
-{
-	return (os->os_dnodesize);
 }
 
 zfs_sync_type_t
@@ -279,34 +260,6 @@ redundant_metadata_changed_cb(void *arg, uint64_t newval)
 }
 
 static void
-dnodesize_changed_cb(void *arg, uint64_t newval)
-{
-	objset_t *os = arg;
-
-	switch (newval) {
-	case ZFS_DNSIZE_LEGACY:
-		os->os_dnodesize = DNODE_MIN_SIZE;
-		break;
-	case ZFS_DNSIZE_AUTO:
-		/*
-		 * Choose a dnode size that will work well for most
-		 * workloads if the user specified "auto". Future code
-		 * improvements could dynamically select a dnode size
-		 * based on observed workload patterns.
-		 */
-		os->os_dnodesize = DNODE_MIN_SIZE * 2;
-		break;
-	case ZFS_DNSIZE_1K:
-	case ZFS_DNSIZE_2K:
-	case ZFS_DNSIZE_4K:
-	case ZFS_DNSIZE_8K:
-	case ZFS_DNSIZE_16K:
-		os->os_dnodesize = newval;
-		break;
-	}
-}
-
-static void
 logbias_changed_cb(void *arg, uint64_t newval)
 {
 	objset_t *os = arg;
@@ -363,6 +316,8 @@ dmu_objset_open_impl(spa_t *spa, dsl_dataset_t *ds, blkptr_t *bp,
 
 		if (DMU_OS_IS_L2CACHEABLE(os))
 			aflags |= ARC_FLAG_L2CACHE;
+		if (DMU_OS_IS_L2COMPRESSIBLE(os))
+			aflags |= ARC_FLAG_L2COMPRESS;
 
 		dprintf_bp(os->os_rootbp, "reading %s", "");
 		err = arc_read(NULL, spa, os->os_rootbp,
@@ -379,12 +334,14 @@ dmu_objset_open_impl(spa_t *spa, dsl_dataset_t *ds, blkptr_t *bp,
 		/* Increase the blocksize if we are permitted. */
 		if (spa_version(spa) >= SPA_VERSION_USERSPACE &&
 		    arc_buf_size(os->os_phys_buf) < sizeof (objset_phys_t)) {
-			arc_buf_t *buf = arc_alloc_buf(spa, &os->os_phys_buf,
-			    ARC_BUFC_METADATA, sizeof (objset_phys_t));
+			arc_buf_t *buf = arc_buf_alloc(spa,
+			    sizeof (objset_phys_t), &os->os_phys_buf,
+			    ARC_BUFC_METADATA);
 			bzero(buf->b_data, sizeof (objset_phys_t));
 			bcopy(os->os_phys_buf->b_data, buf->b_data,
 			    arc_buf_size(os->os_phys_buf));
-			arc_buf_destroy(os->os_phys_buf, &os->os_phys_buf);
+			(void) arc_buf_remove_ref(os->os_phys_buf,
+			    &os->os_phys_buf);
 			os->os_phys_buf = buf;
 		}
 
@@ -393,8 +350,8 @@ dmu_objset_open_impl(spa_t *spa, dsl_dataset_t *ds, blkptr_t *bp,
 	} else {
 		int size = spa_version(spa) >= SPA_VERSION_USERSPACE ?
 		    sizeof (objset_phys_t) : OBJSET_OLD_PHYS_SIZE;
-		os->os_phys_buf = arc_alloc_buf(spa, &os->os_phys_buf,
-		    ARC_BUFC_METADATA, size);
+		os->os_phys_buf = arc_buf_alloc(spa, size,
+		    &os->os_phys_buf, ARC_BUFC_METADATA);
 		os->os_phys = os->os_phys_buf->b_data;
 		bzero(os->os_phys, size);
 	}
@@ -406,17 +363,6 @@ dmu_objset_open_impl(spa_t *spa, dsl_dataset_t *ds, blkptr_t *bp,
 	 * checksum/compression/copies.
 	 */
 	if (ds != NULL) {
-		boolean_t needlock = B_FALSE;
-
-		/*
-		 * Note: it's valid to open the objset if the dataset is
-		 * long-held, in which case the pool_config lock will not
-		 * be held.
-		 */
-		if (!dsl_pool_config_held(dmu_objset_pool(os))) {
-			needlock = B_TRUE;
-			dsl_pool_config_enter(dmu_objset_pool(os), FTAG);
-		}
 		err = dsl_prop_register(ds,
 		    zfs_prop_to_name(ZFS_PROP_PRIMARYCACHE),
 		    primary_cache_changed_cb, os);
@@ -467,16 +413,10 @@ dmu_objset_open_impl(spa_t *spa, dsl_dataset_t *ds, blkptr_t *bp,
 				    zfs_prop_to_name(ZFS_PROP_RECORDSIZE),
 				    recordsize_changed_cb, os);
 			}
-			if (err == 0) {
-				err = dsl_prop_register(ds,
-				    zfs_prop_to_name(ZFS_PROP_DNODESIZE),
-				    dnodesize_changed_cb, os);
-			}
 		}
-		if (needlock)
-			dsl_pool_config_exit(dmu_objset_pool(os), FTAG);
 		if (err != 0) {
-			arc_buf_destroy(os->os_phys_buf, &os->os_phys_buf);
+			VERIFY(arc_buf_remove_ref(os->os_phys_buf,
+			    &os->os_phys_buf));
 			kmem_free(os, sizeof (objset_t));
 			return (err);
 		}
@@ -491,7 +431,6 @@ dmu_objset_open_impl(spa_t *spa, dsl_dataset_t *ds, blkptr_t *bp,
 		os->os_sync = ZFS_SYNC_STANDARD;
 		os->os_primary_cache = ZFS_CACHE_ALL;
 		os->os_secondary_cache = ZFS_CACHE_ALL;
-		os->os_dnodesize = DNODE_MIN_SIZE;
 	}
 
 	if (ds == NULL || !ds->ds_is_snapshot)
@@ -524,8 +463,6 @@ dmu_objset_open_impl(spa_t *spa, dsl_dataset_t *ds, blkptr_t *bp,
 		    DMU_GROUPUSED_OBJECT, &os->os_groupused_dnode);
 	}
 
-	mutex_init(&os->os_upgrade_lock, NULL, MUTEX_DEFAULT, NULL);
-
 	*osp = os;
 	return (0);
 }
@@ -534,13 +471,6 @@ int
 dmu_objset_from_ds(dsl_dataset_t *ds, objset_t **osp)
 {
 	int err = 0;
-
-	/*
-	 * We shouldn't be doing anything with dsl_dataset_t's unless the
-	 * pool_config lock is held, or the dataset is long-held.
-	 */
-	ASSERT(dsl_pool_config_held(ds->ds_dir->dd_pool) ||
-	    dsl_dataset_long_held(ds));
 
 	mutex_enter(&ds->ds_opening_lock);
 	if (ds->ds_objset == NULL) {
@@ -632,9 +562,6 @@ dmu_objset_own(const char *name, dmu_objset_type_t type,
 	err = dmu_objset_own_impl(ds, type, readonly, tag, osp);
 	dsl_pool_rele(dp, FTAG);
 
-	if (err == 0 && dmu_objset_userobjspace_upgradable(*osp))
-		dmu_objset_userobjspace_upgrade(*osp);
-
 	return (err);
 }
 
@@ -676,7 +603,7 @@ dmu_objset_refresh_ownership(objset_t *os, void *tag)
 {
 	dsl_pool_t *dp;
 	dsl_dataset_t *ds, *newds;
-	char name[ZFS_MAX_DATASET_NAME_LEN];
+	char name[MAXNAMELEN];
 
 	ds = os->os_dsl_dataset;
 	VERIFY3P(ds, !=, NULL);
@@ -695,10 +622,6 @@ dmu_objset_refresh_ownership(objset_t *os, void *tag)
 void
 dmu_objset_disown(objset_t *os, void *tag)
 {
-	/*
-	 * Stop upgrading thread
-	 */
-	dmu_objset_upgrade_stop(os);
 	dsl_dataset_disown(os->os_dsl_dataset, tag);
 }
 
@@ -766,8 +689,40 @@ dmu_objset_evict(objset_t *os)
 	for (t = 0; t < TXG_SIZE; t++)
 		ASSERT(!dmu_objset_is_dirty(os, t));
 
-	if (ds)
-		dsl_prop_unregister_all(ds, os);
+	if (ds) {
+		if (!ds->ds_is_snapshot) {
+			VERIFY0(dsl_prop_unregister(ds,
+			    zfs_prop_to_name(ZFS_PROP_CHECKSUM),
+			    checksum_changed_cb, os));
+			VERIFY0(dsl_prop_unregister(ds,
+			    zfs_prop_to_name(ZFS_PROP_COMPRESSION),
+			    compression_changed_cb, os));
+			VERIFY0(dsl_prop_unregister(ds,
+			    zfs_prop_to_name(ZFS_PROP_COPIES),
+			    copies_changed_cb, os));
+			VERIFY0(dsl_prop_unregister(ds,
+			    zfs_prop_to_name(ZFS_PROP_DEDUP),
+			    dedup_changed_cb, os));
+			VERIFY0(dsl_prop_unregister(ds,
+			    zfs_prop_to_name(ZFS_PROP_LOGBIAS),
+			    logbias_changed_cb, os));
+			VERIFY0(dsl_prop_unregister(ds,
+			    zfs_prop_to_name(ZFS_PROP_SYNC),
+			    sync_changed_cb, os));
+			VERIFY0(dsl_prop_unregister(ds,
+			    zfs_prop_to_name(ZFS_PROP_REDUNDANT_METADATA),
+			    redundant_metadata_changed_cb, os));
+			VERIFY0(dsl_prop_unregister(ds,
+			    zfs_prop_to_name(ZFS_PROP_RECORDSIZE),
+			    recordsize_changed_cb, os));
+		}
+		VERIFY0(dsl_prop_unregister(ds,
+		    zfs_prop_to_name(ZFS_PROP_PRIMARYCACHE),
+		    primary_cache_changed_cb, os));
+		VERIFY0(dsl_prop_unregister(ds,
+		    zfs_prop_to_name(ZFS_PROP_SECONDARYCACHE),
+		    secondary_cache_changed_cb, os));
+	}
 
 	if (os->os_sa)
 		sa_tear_down(os);
@@ -796,7 +751,7 @@ dmu_objset_evict_done(objset_t *os)
 	}
 	zil_free(os->os_zil);
 
-	arc_buf_destroy(os->os_phys_buf, &os->os_phys_buf);
+	VERIFY(arc_buf_remove_ref(os->os_phys_buf, &os->os_phys_buf));
 
 	/*
 	 * This is a barrier to prevent the objset from going away in
@@ -837,8 +792,8 @@ dmu_objset_create_impl(spa_t *spa, dsl_dataset_t *ds, blkptr_t *bp,
 
 	mdn = DMU_META_DNODE(os);
 
-	dnode_allocate(mdn, DMU_OT_DNODE, DNODE_BLOCK_SIZE, DN_MAX_INDBLKSHIFT,
-	    DMU_OT_NONE, 0, DNODE_MIN_SLOTS, tx);
+	dnode_allocate(mdn, DMU_OT_DNODE, 1 << DNODE_BLOCK_SHIFT,
+	    DN_MAX_INDBLKSHIFT, DMU_OT_NONE, 0, tx);
 
 	/*
 	 * We don't want to have to increase the meta-dnode's nlevels
@@ -873,12 +828,6 @@ dmu_objset_create_impl(spa_t *spa, dsl_dataset_t *ds, blkptr_t *bp,
 	os->os_phys->os_type = type;
 	if (dmu_objset_userused_enabled(os)) {
 		os->os_phys->os_flags |= OBJSET_FLAG_USERACCOUNTING_COMPLETE;
-		if (dmu_objset_userobjused_enabled(os)) {
-			ds->ds_feature_activation_needed[
-			    SPA_FEATURE_USEROBJ_ACCOUNTING] = B_TRUE;
-			os->os_phys->os_flags |=
-			    OBJSET_FLAG_USEROBJACCOUNTING_COMPLETE;
-		}
 		os->os_flags = os->os_phys->os_flags;
 	}
 
@@ -909,9 +858,6 @@ dmu_objset_create_check(void *arg, dmu_tx_t *tx)
 
 	if (strchr(doca->doca_name, '@') != NULL)
 		return (SET_ERROR(EINVAL));
-
-	if (strlen(doca->doca_name) >= ZFS_MAX_DATASET_NAME_LEN)
-		return (SET_ERROR(ENAMETOOLONG));
 
 	error = dsl_dir_hold(dp, doca->doca_name, FTAG, &pdd, &tail);
 	if (error != 0)
@@ -999,9 +945,6 @@ dmu_objset_clone_check(void *arg, dmu_tx_t *tx)
 	if (strchr(doca->doca_clone, '@') != NULL)
 		return (SET_ERROR(EINVAL));
 
-	if (strlen(doca->doca_clone) >= ZFS_MAX_DATASET_NAME_LEN)
-		return (SET_ERROR(ENAMETOOLONG));
-
 	error = dsl_dir_hold(dp, doca->doca_clone, FTAG, &pdd, &tail);
 	if (error != 0)
 		return (error);
@@ -1041,7 +984,7 @@ dmu_objset_clone_sync(void *arg, dmu_tx_t *tx)
 	const char *tail;
 	dsl_dataset_t *origin, *ds;
 	uint64_t obj;
-	char namebuf[ZFS_MAX_DATASET_NAME_LEN];
+	char namebuf[MAXNAMELEN];
 
 	VERIFY0(dsl_dir_hold(dp, doca->doca_clone, FTAG, &pdd, &tail));
 	VERIFY0(dsl_dataset_hold(dp, doca->doca_origin, FTAG, &origin));
@@ -1085,60 +1028,6 @@ dmu_objset_snapshot_one(const char *fsname, const char *snapname)
 	err = dsl_dataset_snapshot(snaps, NULL, NULL);
 	fnvlist_free(snaps);
 	return (err);
-}
-
-static void
-dmu_objset_upgrade_task_cb(void *data)
-{
-	objset_t *os = data;
-
-	mutex_enter(&os->os_upgrade_lock);
-	os->os_upgrade_status = EINTR;
-	if (!os->os_upgrade_exit) {
-		mutex_exit(&os->os_upgrade_lock);
-
-		os->os_upgrade_status = os->os_upgrade_cb(os);
-		mutex_enter(&os->os_upgrade_lock);
-	}
-	os->os_upgrade_exit = B_TRUE;
-	os->os_upgrade_id = 0;
-	mutex_exit(&os->os_upgrade_lock);
-}
-
-static void
-dmu_objset_upgrade(objset_t *os, dmu_objset_upgrade_cb_t cb)
-{
-	if (os->os_upgrade_id != 0)
-		return;
-
-	mutex_enter(&os->os_upgrade_lock);
-	if (os->os_upgrade_id == 0 && os->os_upgrade_status == 0) {
-		os->os_upgrade_exit = B_FALSE;
-		os->os_upgrade_cb = cb;
-		os->os_upgrade_id = taskq_dispatch(
-		    os->os_spa->spa_upgrade_taskq,
-		    dmu_objset_upgrade_task_cb, os, TQ_SLEEP);
-		if (os->os_upgrade_id == 0)
-			os->os_upgrade_status = ENOMEM;
-	}
-	mutex_exit(&os->os_upgrade_lock);
-}
-
-static void
-dmu_objset_upgrade_stop(objset_t *os)
-{
-	mutex_enter(&os->os_upgrade_lock);
-	os->os_upgrade_exit = B_TRUE;
-	if (os->os_upgrade_id != 0) {
-		taskqid_t id = os->os_upgrade_id;
-
-		os->os_upgrade_id = 0;
-		mutex_exit(&os->os_upgrade_lock);
-
-		taskq_cancel_id(os->os_spa->spa_upgrade_taskq, id);
-	} else {
-		mutex_exit(&os->os_upgrade_lock);
-	}
 }
 
 static void
@@ -1248,12 +1137,13 @@ dmu_objset_sync(objset_t *os, zio_t *pio, dmu_tx_t *tx)
 	    ZB_ROOT_OBJECT, ZB_ROOT_LEVEL, ZB_ROOT_BLKID);
 	arc_release(os->os_phys_buf, &os->os_phys_buf);
 
-	dmu_write_policy(os, NULL, 0, 0, ZIO_COMPRESS_INHERIT, &zp);
+	dmu_write_policy(os, NULL, 0, 0, &zp);
 
 	zio = arc_write(pio, os->os_spa, tx->tx_txg,
 	    os->os_rootbp, os->os_phys_buf, DMU_OS_IS_L2CACHEABLE(os),
-	    &zp, dmu_objset_write_ready, NULL, NULL, dmu_objset_write_done,
-	    os, ZIO_PRIORITY_ASYNC_WRITE, ZIO_FLAG_MUSTSUCCEED, &zb);
+	    DMU_OS_IS_L2COMPRESSIBLE(os), &zp, dmu_objset_write_ready,
+	    NULL, dmu_objset_write_done, os, ZIO_PRIORITY_ASYNC_WRITE,
+	    ZIO_FLAG_MUSTSUCCEED, &zb);
 
 	/*
 	 * Sync special dnodes - the parent IO for the sync is the root block
@@ -1293,13 +1183,6 @@ dmu_objset_sync(objset_t *os, zio_t *pio, dmu_tx_t *tx)
 		if (dr->dr_zio)
 			zio_nowait(dr->dr_zio);
 	}
-
-	/* Enable dnode backfill if enough objects have been freed. */
-	if (os->os_freed_dnodes >= dmu_rescan_dnode_threshold) {
-		os->os_rescan_dnodes = B_TRUE;
-		os->os_freed_dnodes = 0;
-	}
-
 	/*
 	 * Free intent log blocks up to this tx.
 	 */
@@ -1331,123 +1214,18 @@ dmu_objset_userused_enabled(objset_t *os)
 	    DMU_USERUSED_DNODE(os) != NULL);
 }
 
-boolean_t
-dmu_objset_userobjused_enabled(objset_t *os)
-{
-	return (dmu_objset_userused_enabled(os) &&
-	    spa_feature_is_enabled(os->os_spa, SPA_FEATURE_USEROBJ_ACCOUNTING));
-}
-
-typedef struct userquota_node {
-	/* must be in the first filed, see userquota_update_cache() */
-	char		uqn_id[20 + DMU_OBJACCT_PREFIX_LEN];
-	int64_t		uqn_delta;
-	avl_node_t	uqn_node;
-} userquota_node_t;
-
-typedef struct userquota_cache {
-	avl_tree_t uqc_user_deltas;
-	avl_tree_t uqc_group_deltas;
-} userquota_cache_t;
-
-static int
-userquota_compare(const void *l, const void *r)
-{
-	const userquota_node_t *luqn = l;
-	const userquota_node_t *ruqn = r;
-	int rv;
-
-	/*
-	 * NB: can only access uqn_id because userquota_update_cache() doesn't
-	 * pass in an entire userquota_node_t.
-	 */
-	rv = strcmp(luqn->uqn_id, ruqn->uqn_id);
-
-	return (AVL_ISIGN(rv));
-}
-
 static void
-do_userquota_cacheflush(objset_t *os, userquota_cache_t *cache, dmu_tx_t *tx)
-{
-	void *cookie;
-	userquota_node_t *uqn;
-
-	ASSERT(dmu_tx_is_syncing(tx));
-
-	cookie = NULL;
-	while ((uqn = avl_destroy_nodes(&cache->uqc_user_deltas,
-	    &cookie)) != NULL) {
-		VERIFY0(zap_increment(os, DMU_USERUSED_OBJECT,
-		    uqn->uqn_id, uqn->uqn_delta, tx));
-		kmem_free(uqn, sizeof (*uqn));
-	}
-	avl_destroy(&cache->uqc_user_deltas);
-
-	cookie = NULL;
-	while ((uqn = avl_destroy_nodes(&cache->uqc_group_deltas,
-	    &cookie)) != NULL) {
-		VERIFY0(zap_increment(os, DMU_GROUPUSED_OBJECT,
-		    uqn->uqn_id, uqn->uqn_delta, tx));
-		kmem_free(uqn, sizeof (*uqn));
-	}
-	avl_destroy(&cache->uqc_group_deltas);
-}
-
-static void
-userquota_update_cache(avl_tree_t *avl, const char *id, int64_t delta)
-{
-	userquota_node_t *uqn;
-	avl_index_t idx;
-
-	ASSERT(strlen(id) < sizeof (uqn->uqn_id));
-	/*
-	 * Use id directly for searching because uqn_id is the first field of
-	 * userquota_node_t and fields after uqn_id won't be accessed in
-	 * avl_find().
-	 */
-	uqn = avl_find(avl, (const void *)id, &idx);
-	if (uqn == NULL) {
-		uqn = kmem_zalloc(sizeof (*uqn), KM_SLEEP);
-		strlcpy(uqn->uqn_id, id, sizeof (uqn->uqn_id));
-		avl_insert(avl, uqn, idx);
-	}
-	uqn->uqn_delta += delta;
-}
-
-static void
-do_userquota_update(userquota_cache_t *cache, uint64_t used, uint64_t flags,
-    uint64_t user, uint64_t group, boolean_t subtract)
+do_userquota_update(objset_t *os, uint64_t used, uint64_t flags,
+    uint64_t user, uint64_t group, boolean_t subtract, dmu_tx_t *tx)
 {
 	if ((flags & DNODE_FLAG_USERUSED_ACCOUNTED)) {
-		int64_t delta = DNODE_MIN_SIZE + used;
-		char name[20];
-
+		int64_t delta = DNODE_SIZE + used;
 		if (subtract)
 			delta = -delta;
-
-		(void) sprintf(name, "%llx", (longlong_t)user);
-		userquota_update_cache(&cache->uqc_user_deltas, name, delta);
-
-		(void) sprintf(name, "%llx", (longlong_t)group);
-		userquota_update_cache(&cache->uqc_group_deltas, name, delta);
-	}
-}
-
-static void
-do_userobjquota_update(userquota_cache_t *cache, uint64_t flags,
-    uint64_t user, uint64_t group, boolean_t subtract)
-{
-	if (flags & DNODE_FLAG_USEROBJUSED_ACCOUNTED) {
-		char name[20 + DMU_OBJACCT_PREFIX_LEN];
-		int delta = subtract ? -1 : 1;
-
-		(void) snprintf(name, sizeof (name), DMU_OBJACCT_PREFIX "%llx",
-		    (longlong_t)user);
-		userquota_update_cache(&cache->uqc_user_deltas, name, delta);
-
-		(void) snprintf(name, sizeof (name), DMU_OBJACCT_PREFIX "%llx",
-		    (longlong_t)group);
-		userquota_update_cache(&cache->uqc_group_deltas, name, delta);
+		VERIFY3U(0, ==, zap_increment_int(os, DMU_USERUSED_OBJECT,
+		    user, delta, tx));
+		VERIFY3U(0, ==, zap_increment_int(os, DMU_GROUPUSED_OBJECT,
+		    group, delta, tx));
 	}
 }
 
@@ -1456,14 +1234,8 @@ dmu_objset_do_userquota_updates(objset_t *os, dmu_tx_t *tx)
 {
 	dnode_t *dn;
 	list_t *list = &os->os_synced_dnodes;
-	userquota_cache_t cache = { { 0 } };
 
 	ASSERT(list_head(list) == NULL || dmu_objset_userused_enabled(os));
-
-	avl_create(&cache.uqc_user_deltas, userquota_compare,
-	    sizeof (userquota_node_t), offsetof(userquota_node_t, uqn_node));
-	avl_create(&cache.uqc_group_deltas, userquota_compare,
-	    sizeof (userquota_node_t), offsetof(userquota_node_t, uqn_node));
 
 	while ((dn = list_head(list))) {
 		int flags;
@@ -1474,27 +1246,32 @@ dmu_objset_do_userquota_updates(objset_t *os, dmu_tx_t *tx)
 
 		/* Allocate the user/groupused objects if necessary. */
 		if (DMU_USERUSED_DNODE(os)->dn_type == DMU_OT_NONE) {
-			VERIFY0(zap_create_claim(os, DMU_USERUSED_OBJECT,
+			VERIFY(0 == zap_create_claim(os,
+			    DMU_USERUSED_OBJECT,
 			    DMU_OT_USERGROUP_USED, DMU_OT_NONE, 0, tx));
-			VERIFY0(zap_create_claim(os, DMU_GROUPUSED_OBJECT,
+			VERIFY(0 == zap_create_claim(os,
+			    DMU_GROUPUSED_OBJECT,
 			    DMU_OT_USERGROUP_USED, DMU_OT_NONE, 0, tx));
 		}
+
+		/*
+		 * We intentionally modify the zap object even if the
+		 * net delta is zero.  Otherwise
+		 * the block of the zap obj could be shared between
+		 * datasets but need to be different between them after
+		 * a bprewrite.
+		 */
 
 		flags = dn->dn_id_flags;
 		ASSERT(flags);
 		if (flags & DN_ID_OLD_EXIST)  {
-			do_userquota_update(&cache,
-			    dn->dn_oldused, dn->dn_oldflags,
-			    dn->dn_olduid, dn->dn_oldgid, B_TRUE);
-			do_userobjquota_update(&cache, dn->dn_oldflags,
-			    dn->dn_olduid, dn->dn_oldgid, B_TRUE);
+			do_userquota_update(os, dn->dn_oldused, dn->dn_oldflags,
+			    dn->dn_olduid, dn->dn_oldgid, B_TRUE, tx);
 		}
 		if (flags & DN_ID_NEW_EXIST) {
-			do_userquota_update(&cache,
-			    DN_USED_BYTES(dn->dn_phys), dn->dn_phys->dn_flags,
-			    dn->dn_newuid, dn->dn_newgid, B_FALSE);
-			do_userobjquota_update(&cache, dn->dn_phys->dn_flags,
-			    dn->dn_newuid, dn->dn_newgid, B_FALSE);
+			do_userquota_update(os, DN_USED_BYTES(dn->dn_phys),
+			    dn->dn_phys->dn_flags,  dn->dn_newuid,
+			    dn->dn_newgid, B_FALSE, tx);
 		}
 
 		mutex_enter(&dn->dn_mtx);
@@ -1515,7 +1292,6 @@ dmu_objset_do_userquota_updates(objset_t *os, dmu_tx_t *tx)
 		list_remove(list, dn);
 		dnode_rele(dn, list);
 	}
-	do_userquota_cacheflush(os, &cache, tx);
 }
 
 /*
@@ -1667,18 +1443,18 @@ dmu_objset_userspace_present(objset_t *os)
 	    OBJSET_FLAG_USERACCOUNTING_COMPLETE);
 }
 
-boolean_t
-dmu_objset_userobjspace_present(objset_t *os)
-{
-	return (os->os_phys->os_flags &
-	    OBJSET_FLAG_USEROBJACCOUNTING_COMPLETE);
-}
-
-static int
-dmu_objset_space_upgrade(objset_t *os)
+int
+dmu_objset_userspace_upgrade(objset_t *os)
 {
 	uint64_t obj;
 	int err = 0;
+
+	if (dmu_objset_userspace_present(os))
+		return (0);
+	if (!dmu_objset_userused_enabled(os))
+		return (SET_ERROR(ENOTSUP));
+	if (dmu_objset_is_snapshot(os))
+		return (SET_ERROR(EINVAL));
 
 	/*
 	 * We simply need to mark every object dirty, so that it will be
@@ -1692,13 +1468,6 @@ dmu_objset_space_upgrade(objset_t *os)
 		dmu_tx_t *tx;
 		dmu_buf_t *db;
 		int objerr;
-
-		mutex_enter(&os->os_upgrade_lock);
-		if (os->os_upgrade_exit)
-			err = SET_ERROR(EINTR);
-		mutex_exit(&os->os_upgrade_lock);
-		if (err != 0)
-			return (err);
 
 		if (issig(JUSTLOOKING) && issig(FORREAL))
 			return (SET_ERROR(EINTR));
@@ -1717,58 +1486,10 @@ dmu_objset_space_upgrade(objset_t *os)
 		dmu_buf_rele(db, FTAG);
 		dmu_tx_commit(tx);
 	}
-	return (0);
-}
-
-int
-dmu_objset_userspace_upgrade(objset_t *os)
-{
-	int err = 0;
-
-	if (dmu_objset_userspace_present(os))
-		return (0);
-	if (dmu_objset_is_snapshot(os))
-		return (SET_ERROR(EINVAL));
-	if (!dmu_objset_userused_enabled(os))
-		return (SET_ERROR(ENOTSUP));
-
-	err = dmu_objset_space_upgrade(os);
-	if (err)
-		return (err);
 
 	os->os_flags |= OBJSET_FLAG_USERACCOUNTING_COMPLETE;
 	txg_wait_synced(dmu_objset_pool(os), 0);
 	return (0);
-}
-
-static int
-dmu_objset_userobjspace_upgrade_cb(objset_t *os)
-{
-	int err = 0;
-
-	if (dmu_objset_userobjspace_present(os))
-		return (0);
-	if (dmu_objset_is_snapshot(os))
-		return (SET_ERROR(EINVAL));
-	if (!dmu_objset_userobjused_enabled(os))
-		return (SET_ERROR(ENOTSUP));
-
-	dmu_objset_ds(os)->ds_feature_activation_needed[
-	    SPA_FEATURE_USEROBJ_ACCOUNTING] = B_TRUE;
-
-	err = dmu_objset_space_upgrade(os);
-	if (err)
-		return (err);
-
-	os->os_flags |= OBJSET_FLAG_USEROBJACCOUNTING_COMPLETE;
-	txg_wait_synced(dmu_objset_pool(os), 0);
-	return (0);
-}
-
-void
-dmu_objset_userobjspace_upgrade(objset_t *os)
-{
-	dmu_objset_upgrade(os, dmu_objset_userobjspace_upgrade_cb);
 }
 
 void
@@ -2100,7 +1821,6 @@ dmu_objset_find_dp(dsl_pool_t *dp, uint64_t ddobj,
 		 * thread suffices. For now, stay single threaded.
 		 */
 		dmu_objset_find_dp_impl(dcp);
-		mutex_destroy(&err_lock);
 
 		return (error);
 	}
@@ -2112,8 +1832,6 @@ dmu_objset_find_dp(dsl_pool_t *dp, uint64_t ddobj,
 	    INT_MAX, 0);
 	if (tq == NULL) {
 		kmem_free(dcp, sizeof (*dcp));
-		mutex_destroy(&err_lock);
-
 		return (SET_ERROR(ENOMEM));
 	}
 	dcp->dc_tq = tq;
@@ -2283,7 +2001,7 @@ dmu_objset_get_user(objset_t *os)
 
 /*
  * Determine name of filesystem, given name of snapshot.
- * buf must be at least ZFS_MAX_DATASET_NAME_LEN bytes
+ * buf must be at least MAXNAMELEN bytes
  */
 int
 dmu_fsname(const char *snapname, char *buf)
@@ -2291,7 +2009,7 @@ dmu_fsname(const char *snapname, char *buf)
 	char *atp = strchr(snapname, '@');
 	if (atp == NULL)
 		return (SET_ERROR(EINVAL));
-	if (atp - snapname >= ZFS_MAX_DATASET_NAME_LEN)
+	if (atp - snapname >= MAXNAMELEN)
 		return (SET_ERROR(ENAMETOOLONG));
 	(void) strlcpy(buf, snapname, atp - snapname + 1);
 	return (0);
@@ -2319,7 +2037,6 @@ EXPORT_SYMBOL(dmu_objset_find);
 EXPORT_SYMBOL(dmu_objset_byteswap);
 EXPORT_SYMBOL(dmu_objset_evict_dbufs);
 EXPORT_SYMBOL(dmu_objset_snap_cmtime);
-EXPORT_SYMBOL(dmu_objset_dnodesize);
 
 EXPORT_SYMBOL(dmu_objset_sync);
 EXPORT_SYMBOL(dmu_objset_is_dirty);
@@ -2332,7 +2049,4 @@ EXPORT_SYMBOL(dmu_objset_userquota_get_ids);
 EXPORT_SYMBOL(dmu_objset_userused_enabled);
 EXPORT_SYMBOL(dmu_objset_userspace_upgrade);
 EXPORT_SYMBOL(dmu_objset_userspace_present);
-EXPORT_SYMBOL(dmu_objset_userobjused_enabled);
-EXPORT_SYMBOL(dmu_objset_userobjspace_upgrade);
-EXPORT_SYMBOL(dmu_objset_userobjspace_present);
 #endif

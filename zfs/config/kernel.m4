@@ -1,5 +1,5 @@
 dnl #
-dnl # Default ZFS kernel configuration
+dnl # Default ZFS kernel configuration 
 dnl #
 AC_DEFUN([ZFS_AC_CONFIG_KERNEL], [
 	ZFS_AC_KERNEL
@@ -8,11 +8,11 @@ AC_DEFUN([ZFS_AC_CONFIG_KERNEL], [
 	ZFS_AC_KERNEL_CONFIG
 	ZFS_AC_KERNEL_DECLARE_EVENT_CLASS
 	ZFS_AC_KERNEL_CURRENT_BIO_TAIL
-	ZFS_AC_KERNEL_SUPER_USER_NS
 	ZFS_AC_KERNEL_SUBMIT_BIO
 	ZFS_AC_KERNEL_BDEV_BLOCK_DEVICE_OPERATIONS
 	ZFS_AC_KERNEL_BLOCK_DEVICE_OPERATIONS_RELEASE_VOID
 	ZFS_AC_KERNEL_TYPE_FMODE_T
+	ZFS_AC_KERNEL_KOBJ_NAME_LEN
 	ZFS_AC_KERNEL_3ARG_BLKDEV_GET
 	ZFS_AC_KERNEL_BLKDEV_GET_BY_PATH
 	ZFS_AC_KERNEL_OPEN_BDEV_EXCLUSIVE
@@ -33,8 +33,6 @@ AC_DEFUN([ZFS_AC_CONFIG_KERNEL], [
 	ZFS_AC_KERNEL_BLK_QUEUE_FLUSH
 	ZFS_AC_KERNEL_BLK_QUEUE_MAX_HW_SECTORS
 	ZFS_AC_KERNEL_BLK_QUEUE_MAX_SEGMENTS
-	ZFS_AC_KERNEL_BLK_QUEUE_HAVE_BIO_RW_UNPLUG
-	ZFS_AC_KERNEL_BLK_QUEUE_HAVE_BLK_PLUG
 	ZFS_AC_KERNEL_GET_DISK_RO
 	ZFS_AC_KERNEL_GET_GENDISK
 	ZFS_AC_KERNEL_DISCARD_GRANULARITY
@@ -57,13 +55,13 @@ AC_DEFUN([ZFS_AC_CONFIG_KERNEL], [
 	ZFS_AC_KERNE_GET_ACL_HANDLE_CACHE
 	ZFS_AC_KERNEL_SHOW_OPTIONS
 	ZFS_AC_KERNEL_FILE_INODE
-	ZFS_AC_KERNEL_FILE_DENTRY
 	ZFS_AC_KERNEL_FSYNC
 	ZFS_AC_KERNEL_EVICT_INODE
 	ZFS_AC_KERNEL_DIRTY_INODE_WITH_FLAGS
 	ZFS_AC_KERNEL_NR_CACHED_OBJECTS
 	ZFS_AC_KERNEL_FREE_CACHED_OBJECTS
 	ZFS_AC_KERNEL_FALLOCATE
+	ZFS_AC_KERNEL_AIO_FSYNC
 	ZFS_AC_KERNEL_MKDIR_UMODE_T
 	ZFS_AC_KERNEL_LOOKUP_NAMEIDATA
 	ZFS_AC_KERNEL_CREATE_NAMEIDATA
@@ -82,6 +80,7 @@ AC_DEFUN([ZFS_AC_CONFIG_KERNEL], [
 	ZFS_AC_KERNEL_D_SET_D_OP
 	ZFS_AC_KERNEL_D_REVALIDATE_NAMEIDATA
 	ZFS_AC_KERNEL_CONST_DENTRY_OPERATIONS
+	ZFS_AC_KERNEL_CHECK_DISK_SIZE_CHANGE
 	ZFS_AC_KERNEL_TRUNCATE_SETSIZE
 	ZFS_AC_KERNEL_6ARGS_SECURITY_INODE_INIT_SECURITY
 	ZFS_AC_KERNEL_CALLBACK_SECURITY_INODE_INIT_SECURITY
@@ -101,9 +100,6 @@ AC_DEFUN([ZFS_AC_CONFIG_KERNEL], [
 	ZFS_AC_KERNEL_FOLLOW_DOWN_ONE
 	ZFS_AC_KERNEL_MAKE_REQUEST_FN
 	ZFS_AC_KERNEL_GENERIC_IO_ACCT
-	ZFS_AC_KERNEL_FPU
-	ZFS_AC_KERNEL_KUID_HELPERS
-	ZFS_AC_KERNEL_MODULE_PARAM_CALL_CONST
 	ZFS_AC_KERNEL_RENAME_WANTS_FLAGS
 	ZFS_AC_KERNEL_HAVE_GENERIC_SETXATTR
 
@@ -267,9 +263,7 @@ AC_DEFUN([ZFS_AC_SPL], [
 	AC_ARG_WITH([spl],
 		AS_HELP_STRING([--with-spl=PATH],
 		[Path to spl source]),
-		AS_IF([test "$withval" = "yes"],
-			AC_MSG_ERROR([--with-spl=PATH requires a PATH]),
-			[splsrc="$withval"]))
+		[splsrc="$withval"])
 
 	AC_ARG_WITH([spl-obj],
 		AS_HELP_STRING([--with-spl-obj=PATH],
@@ -295,14 +289,6 @@ AC_DEFUN([ZFS_AC_SPL], [
 
 	AC_MSG_CHECKING([spl source directory])
 	AS_IF([test -z "${splsrc}"], [
-		[all_spl_sources="
-		${splsrc0}
-		${splsrc1}
-		${splsrc2}
-		${splsrc3}
-		${splsrc4}
-		${splsrc5}
-		${splsrc6}"],
 		AS_IF([ test -e "${splsrc0}/spl.release.in"], [
 			splsrc=${splsrc0}
 		], [ test -e "${splsrc1}/spl.release.in"], [
@@ -321,7 +307,6 @@ AC_DEFUN([ZFS_AC_SPL], [
 			splsrc="[Not found]"
 		])
 	], [
-		[all_spl_sources="$withval"],
 		AS_IF([test "$splsrc" = "NONE"], [
 			splbuild=NONE
 			splsrcver=NONE
@@ -333,10 +318,7 @@ AC_DEFUN([ZFS_AC_SPL], [
 		AC_MSG_ERROR([
 	*** Please make sure the kmod spl devel package for your distribution
 	*** is installed then try again.  If that fails you can specify the
-	*** location of the spl source with the '--with-spl=PATH' option.
-	*** The spl version must match the version of ZFS you are building,
-	*** ${VERSION}.  Failed to find spl.release.in in the following:
-	$all_spl_sources])
+	*** location of the spl source with the '--with-spl=PATH' option.])
 	])
 
 	dnl #
@@ -352,10 +334,6 @@ AC_DEFUN([ZFS_AC_SPL], [
 	dnl # SPL package.
 	dnl #
 	AC_MSG_CHECKING([spl build directory])
-
-	all_spl_config_locs="${splsrc}/${LINUX_VERSION}
-	${splsrc}"
-
 	while true; do
 		AS_IF([test -z "$splbuild"], [
 			AS_IF([ test -e "${splsrc}/${LINUX_VERSION}/spl_config.h" ], [
@@ -382,9 +360,7 @@ AC_DEFUN([ZFS_AC_SPL], [
 	*** Please make sure the kmod spl devel <kernel> package for your
 	*** distribution is installed then try again.  If that fails you
 	*** can specify the location of the spl objects with the
-	*** '--with-spl-obj=PATH' option.  Failed to find spl_config.h in
-	*** any of the following:
-	$all_spl_config_locs])
+	*** '--with-spl-obj=PATH' option.])
 	])
 
 	AC_MSG_CHECKING([spl source version])
@@ -496,33 +472,7 @@ AC_DEFUN([ZFS_AC_KERNEL_CONFIG], [
 		])
 	])
 
-	ZFS_AC_KERNEL_CONFIG_THREAD_SIZE
 	ZFS_AC_KERNEL_CONFIG_DEBUG_LOCK_ALLOC
-])
-
-dnl #
-dnl # Check configured THREAD_SIZE
-dnl #
-dnl # The stack size will vary by architecture, but as of Linux 3.15 on x86_64
-dnl # the default thread stack size was increased to 16K from 8K.  Therefore,
-dnl # on newer kernels and some architectures stack usage optimizations can be
-dnl # conditionally applied to improve performance without negatively impacting
-dnl # stability.
-dnl #
-AC_DEFUN([ZFS_AC_KERNEL_CONFIG_THREAD_SIZE], [
-	AC_MSG_CHECKING([whether kernel was built with 16K or larger stacks])
-	ZFS_LINUX_TRY_COMPILE([
-		#include <linux/module.h>
-	],[
-		#if (THREAD_SIZE < 16384)
-		#error "THREAD_SIZE is less than 16K"
-		#endif
-	],[
-		AC_MSG_RESULT([yes])
-		AC_DEFINE(HAVE_LARGE_STACKS, 1, [kernel has large stacks])
-	],[
-		AC_MSG_RESULT([no])
-	])
 ])
 
 dnl #
@@ -634,7 +584,7 @@ dnl #
 dnl # ZFS_LINUX_CONFIG
 dnl #
 AC_DEFUN([ZFS_LINUX_CONFIG],
-	[AC_MSG_CHECKING([whether kernel was built with CONFIG_$1])
+	[AC_MSG_CHECKING([whether Linux was built with CONFIG_$1])
 	ZFS_LINUX_TRY_COMPILE([
 		#include <linux/module.h>
 	],[

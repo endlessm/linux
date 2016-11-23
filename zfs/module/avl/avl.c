@@ -630,7 +630,7 @@ avl_insert_here(
 void
 avl_add(avl_tree_t *tree, void *new_node)
 {
-	avl_index_t where = 0;
+	avl_index_t where;
 
 	/*
 	 * This is unfortunate.  We want to call panic() here, even for

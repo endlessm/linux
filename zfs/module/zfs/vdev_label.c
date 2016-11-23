@@ -208,149 +208,6 @@ vdev_label_write(zio_t *zio, vdev_t *vd, int l, void *buf, uint64_t offset,
 }
 
 /*
- * Generate the nvlist representing this vdev's stats
- */
-void
-vdev_config_generate_stats(vdev_t *vd, nvlist_t *nv)
-{
-	nvlist_t *nvx;
-	vdev_stat_t *vs;
-	vdev_stat_ex_t *vsx;
-
-	vs = kmem_alloc(sizeof (*vs), KM_SLEEP);
-	vsx = kmem_alloc(sizeof (*vsx), KM_SLEEP);
-
-	vdev_get_stats_ex(vd, vs, vsx);
-	fnvlist_add_uint64_array(nv, ZPOOL_CONFIG_VDEV_STATS,
-	    (uint64_t *)vs, sizeof (*vs) / sizeof (uint64_t));
-
-	kmem_free(vs, sizeof (*vs));
-
-	/*
-	 * Add extended stats into a special extended stats nvlist.  This keeps
-	 * all the extended stats nicely grouped together.  The extended stats
-	 * nvlist is then added to the main nvlist.
-	 */
-	nvx = fnvlist_alloc();
-
-	/* ZIOs in flight to disk */
-	fnvlist_add_uint64(nvx, ZPOOL_CONFIG_VDEV_SYNC_R_ACTIVE_QUEUE,
-	    vsx->vsx_active_queue[ZIO_PRIORITY_SYNC_READ]);
-
-	fnvlist_add_uint64(nvx, ZPOOL_CONFIG_VDEV_SYNC_W_ACTIVE_QUEUE,
-	    vsx->vsx_active_queue[ZIO_PRIORITY_SYNC_WRITE]);
-
-	fnvlist_add_uint64(nvx, ZPOOL_CONFIG_VDEV_ASYNC_R_ACTIVE_QUEUE,
-	    vsx->vsx_active_queue[ZIO_PRIORITY_ASYNC_READ]);
-
-	fnvlist_add_uint64(nvx, ZPOOL_CONFIG_VDEV_ASYNC_W_ACTIVE_QUEUE,
-	    vsx->vsx_active_queue[ZIO_PRIORITY_ASYNC_WRITE]);
-
-	fnvlist_add_uint64(nvx, ZPOOL_CONFIG_VDEV_SCRUB_ACTIVE_QUEUE,
-	    vsx->vsx_active_queue[ZIO_PRIORITY_SCRUB]);
-
-	/* ZIOs pending */
-	fnvlist_add_uint64(nvx, ZPOOL_CONFIG_VDEV_SYNC_R_PEND_QUEUE,
-	    vsx->vsx_pend_queue[ZIO_PRIORITY_SYNC_READ]);
-
-	fnvlist_add_uint64(nvx, ZPOOL_CONFIG_VDEV_SYNC_W_PEND_QUEUE,
-	    vsx->vsx_pend_queue[ZIO_PRIORITY_SYNC_WRITE]);
-
-	fnvlist_add_uint64(nvx, ZPOOL_CONFIG_VDEV_ASYNC_R_PEND_QUEUE,
-	    vsx->vsx_pend_queue[ZIO_PRIORITY_ASYNC_READ]);
-
-	fnvlist_add_uint64(nvx, ZPOOL_CONFIG_VDEV_ASYNC_W_PEND_QUEUE,
-	    vsx->vsx_pend_queue[ZIO_PRIORITY_ASYNC_WRITE]);
-
-	fnvlist_add_uint64(nvx, ZPOOL_CONFIG_VDEV_SCRUB_PEND_QUEUE,
-	    vsx->vsx_pend_queue[ZIO_PRIORITY_SCRUB]);
-
-	/* Histograms */
-	fnvlist_add_uint64_array(nvx, ZPOOL_CONFIG_VDEV_TOT_R_LAT_HISTO,
-	    vsx->vsx_total_histo[ZIO_TYPE_READ],
-	    ARRAY_SIZE(vsx->vsx_total_histo[ZIO_TYPE_READ]));
-
-	fnvlist_add_uint64_array(nvx, ZPOOL_CONFIG_VDEV_TOT_W_LAT_HISTO,
-	    vsx->vsx_total_histo[ZIO_TYPE_WRITE],
-	    ARRAY_SIZE(vsx->vsx_total_histo[ZIO_TYPE_WRITE]));
-
-	fnvlist_add_uint64_array(nvx, ZPOOL_CONFIG_VDEV_DISK_R_LAT_HISTO,
-	    vsx->vsx_disk_histo[ZIO_TYPE_READ],
-	    ARRAY_SIZE(vsx->vsx_disk_histo[ZIO_TYPE_READ]));
-
-	fnvlist_add_uint64_array(nvx, ZPOOL_CONFIG_VDEV_DISK_W_LAT_HISTO,
-	    vsx->vsx_disk_histo[ZIO_TYPE_WRITE],
-	    ARRAY_SIZE(vsx->vsx_disk_histo[ZIO_TYPE_WRITE]));
-
-	fnvlist_add_uint64_array(nvx, ZPOOL_CONFIG_VDEV_SYNC_R_LAT_HISTO,
-	    vsx->vsx_queue_histo[ZIO_PRIORITY_SYNC_READ],
-	    ARRAY_SIZE(vsx->vsx_queue_histo[ZIO_PRIORITY_SYNC_READ]));
-
-	fnvlist_add_uint64_array(nvx, ZPOOL_CONFIG_VDEV_SYNC_W_LAT_HISTO,
-	    vsx->vsx_queue_histo[ZIO_PRIORITY_SYNC_WRITE],
-	    ARRAY_SIZE(vsx->vsx_queue_histo[ZIO_PRIORITY_SYNC_WRITE]));
-
-	fnvlist_add_uint64_array(nvx, ZPOOL_CONFIG_VDEV_ASYNC_R_LAT_HISTO,
-	    vsx->vsx_queue_histo[ZIO_PRIORITY_ASYNC_READ],
-	    ARRAY_SIZE(vsx->vsx_queue_histo[ZIO_PRIORITY_ASYNC_READ]));
-
-	fnvlist_add_uint64_array(nvx, ZPOOL_CONFIG_VDEV_ASYNC_W_LAT_HISTO,
-	    vsx->vsx_queue_histo[ZIO_PRIORITY_ASYNC_WRITE],
-	    ARRAY_SIZE(vsx->vsx_queue_histo[ZIO_PRIORITY_ASYNC_WRITE]));
-
-	fnvlist_add_uint64_array(nvx, ZPOOL_CONFIG_VDEV_SCRUB_LAT_HISTO,
-	    vsx->vsx_queue_histo[ZIO_PRIORITY_SCRUB],
-	    ARRAY_SIZE(vsx->vsx_queue_histo[ZIO_PRIORITY_SCRUB]));
-
-	/* Request sizes */
-	fnvlist_add_uint64_array(nvx, ZPOOL_CONFIG_VDEV_SYNC_IND_R_HISTO,
-	    vsx->vsx_ind_histo[ZIO_PRIORITY_SYNC_READ],
-	    ARRAY_SIZE(vsx->vsx_ind_histo[ZIO_PRIORITY_SYNC_READ]));
-
-	fnvlist_add_uint64_array(nvx, ZPOOL_CONFIG_VDEV_SYNC_IND_W_HISTO,
-	    vsx->vsx_ind_histo[ZIO_PRIORITY_SYNC_WRITE],
-	    ARRAY_SIZE(vsx->vsx_ind_histo[ZIO_PRIORITY_SYNC_WRITE]));
-
-	fnvlist_add_uint64_array(nvx, ZPOOL_CONFIG_VDEV_ASYNC_IND_R_HISTO,
-	    vsx->vsx_ind_histo[ZIO_PRIORITY_ASYNC_READ],
-	    ARRAY_SIZE(vsx->vsx_ind_histo[ZIO_PRIORITY_ASYNC_READ]));
-
-	fnvlist_add_uint64_array(nvx, ZPOOL_CONFIG_VDEV_ASYNC_IND_W_HISTO,
-	    vsx->vsx_ind_histo[ZIO_PRIORITY_ASYNC_WRITE],
-	    ARRAY_SIZE(vsx->vsx_ind_histo[ZIO_PRIORITY_ASYNC_WRITE]));
-
-	fnvlist_add_uint64_array(nvx, ZPOOL_CONFIG_VDEV_IND_SCRUB_HISTO,
-	    vsx->vsx_ind_histo[ZIO_PRIORITY_SCRUB],
-	    ARRAY_SIZE(vsx->vsx_ind_histo[ZIO_PRIORITY_SCRUB]));
-
-	fnvlist_add_uint64_array(nvx, ZPOOL_CONFIG_VDEV_SYNC_AGG_R_HISTO,
-	    vsx->vsx_agg_histo[ZIO_PRIORITY_SYNC_READ],
-	    ARRAY_SIZE(vsx->vsx_agg_histo[ZIO_PRIORITY_SYNC_READ]));
-
-	fnvlist_add_uint64_array(nvx, ZPOOL_CONFIG_VDEV_SYNC_AGG_W_HISTO,
-	    vsx->vsx_agg_histo[ZIO_PRIORITY_SYNC_WRITE],
-	    ARRAY_SIZE(vsx->vsx_agg_histo[ZIO_PRIORITY_SYNC_WRITE]));
-
-	fnvlist_add_uint64_array(nvx, ZPOOL_CONFIG_VDEV_ASYNC_AGG_R_HISTO,
-	    vsx->vsx_agg_histo[ZIO_PRIORITY_ASYNC_READ],
-	    ARRAY_SIZE(vsx->vsx_agg_histo[ZIO_PRIORITY_ASYNC_READ]));
-
-	fnvlist_add_uint64_array(nvx, ZPOOL_CONFIG_VDEV_ASYNC_AGG_W_HISTO,
-	    vsx->vsx_agg_histo[ZIO_PRIORITY_ASYNC_WRITE],
-	    ARRAY_SIZE(vsx->vsx_agg_histo[ZIO_PRIORITY_ASYNC_WRITE]));
-
-	fnvlist_add_uint64_array(nvx, ZPOOL_CONFIG_VDEV_AGG_SCRUB_HISTO,
-	    vsx->vsx_agg_histo[ZIO_PRIORITY_SCRUB],
-	    ARRAY_SIZE(vsx->vsx_agg_histo[ZIO_PRIORITY_SCRUB]));
-
-	/* Add extended stats nvlist to main nvlist */
-	fnvlist_add_nvlist(nv, ZPOOL_CONFIG_VDEV_STATS_EX, nvx);
-
-	fnvlist_free(nvx);
-	kmem_free(vsx, sizeof (*vsx));
-}
-
-/*
  * Generate the nvlist representing this vdev's config.
  */
 nvlist_t *
@@ -358,6 +215,7 @@ vdev_config_generate(spa_t *spa, vdev_t *vd, boolean_t getstats,
     vdev_config_flag_t flags)
 {
 	nvlist_t *nv = NULL;
+
 	nv = fnvlist_alloc();
 
 	fnvlist_add_string(nv, ZPOOL_CONFIG_TYPE, vd->vdev_ops->vdev_op_type);
@@ -374,10 +232,6 @@ vdev_config_generate(spa_t *spa, vdev_t *vd, boolean_t getstats,
 	if (vd->vdev_physpath != NULL)
 		fnvlist_add_string(nv, ZPOOL_CONFIG_PHYS_PATH,
 		    vd->vdev_physpath);
-
-	if (vd->vdev_enc_sysfs_path != NULL)
-		fnvlist_add_string(nv, ZPOOL_CONFIG_VDEV_ENC_SYSFS_PATH,
-		    vd->vdev_enc_sysfs_path);
 
 	if (vd->vdev_fru != NULL)
 		fnvlist_add_string(nv, ZPOOL_CONFIG_FRU, vd->vdev_fru);
@@ -437,24 +291,13 @@ vdev_config_generate(spa_t *spa, vdev_t *vd, boolean_t getstats,
 	if (vd->vdev_crtxg)
 		fnvlist_add_uint64(nv, ZPOOL_CONFIG_CREATE_TXG, vd->vdev_crtxg);
 
-	if (flags & VDEV_CONFIG_MOS) {
-		if (vd->vdev_leaf_zap != 0) {
-			ASSERT(vd->vdev_ops->vdev_op_leaf);
-			fnvlist_add_uint64(nv, ZPOOL_CONFIG_VDEV_LEAF_ZAP,
-			    vd->vdev_leaf_zap);
-		}
-
-		if (vd->vdev_top_zap != 0) {
-			ASSERT(vd == vd->vdev_top);
-			fnvlist_add_uint64(nv, ZPOOL_CONFIG_VDEV_TOP_ZAP,
-			    vd->vdev_top_zap);
-		}
-	}
-
 	if (getstats) {
+		vdev_stat_t vs;
 		pool_scan_stat_t ps;
 
-		vdev_config_generate_stats(vd, nv);
+		vdev_get_stats(vd, &vs);
+		fnvlist_add_uint64_array(nv, ZPOOL_CONFIG_VDEV_STATS,
+		    (uint64_t *)&vs, sizeof (vs) / sizeof (uint64_t));
 
 		/* provide either current or previous scan information */
 		if (spa_scan_get_stats(spa, &ps) == 0) {
@@ -1019,13 +862,19 @@ retry:
  * among uberblocks with equal txg, choose the one with the latest timestamp.
  */
 static int
-vdev_uberblock_compare(const uberblock_t *ub1, const uberblock_t *ub2)
+vdev_uberblock_compare(uberblock_t *ub1, uberblock_t *ub2)
 {
-	int cmp = AVL_CMP(ub1->ub_txg, ub2->ub_txg);
-	if (likely(cmp))
-		return (cmp);
+	if (ub1->ub_txg < ub2->ub_txg)
+		return (-1);
+	if (ub1->ub_txg > ub2->ub_txg)
+		return (1);
 
-	return (AVL_CMP(ub1->ub_timestamp, ub2->ub_timestamp));
+	if (ub1->ub_timestamp < ub2->ub_timestamp)
+		return (-1);
+	if (ub1->ub_timestamp > ub2->ub_timestamp)
+		return (1);
+
+	return (0);
 }
 
 struct ubl_cbdata {
@@ -1135,7 +984,7 @@ vdev_uberblock_sync_done(zio_t *zio)
 	uint64_t *good_writes = zio->io_private;
 
 	if (zio->io_error == 0 && zio->io_vd->vdev_top->vdev_ms_array != 0)
-		atomic_inc_64(good_writes);
+		atomic_add_64(good_writes, 1);
 }
 
 /*
@@ -1211,7 +1060,7 @@ vdev_label_sync_done(zio_t *zio)
 	uint64_t *good_writes = zio->io_private;
 
 	if (zio->io_error == 0)
-		atomic_inc_64(good_writes);
+		atomic_add_64(good_writes, 1);
 }
 
 /*
@@ -1338,16 +1187,15 @@ vdev_label_sync_list(spa_t *spa, int l, uint64_t txg, int flags)
  * at any time, you can just call it again, and it will resume its work.
  */
 int
-vdev_config_sync(vdev_t **svd, int svdcount, uint64_t txg)
+vdev_config_sync(vdev_t **svd, int svdcount, uint64_t txg, boolean_t tryhard)
 {
 	spa_t *spa = svd[0]->vdev_spa;
 	uberblock_t *ub = &spa->spa_uberblock;
 	vdev_t *vd;
 	zio_t *zio;
-	int error = 0;
+	int error;
 	int flags = ZIO_FLAG_CONFIG_WRITER | ZIO_FLAG_CANFAIL;
 
-retry:
 	/*
 	 * Normally, we don't want to try too hard to write every label and
 	 * uberblock.  If there is a flaky disk, we don't want the rest of the
@@ -1355,11 +1203,8 @@ retry:
 	 * single label out, we should retry with ZIO_FLAG_TRYHARD before
 	 * bailing out and declaring the pool faulted.
 	 */
-	if (error != 0) {
-		if ((flags & ZIO_FLAG_TRYHARD) != 0)
-			return (error);
+	if (tryhard)
 		flags |= ZIO_FLAG_TRYHARD;
-	}
 
 	ASSERT(ub->ub_txg <= txg);
 
@@ -1403,7 +1248,7 @@ retry:
 	 * are committed to stable storage before the uberblock update.
 	 */
 	if ((error = vdev_label_sync_list(spa, 0, txg, flags)) != 0)
-		goto retry;
+		return (error);
 
 	/*
 	 * Sync the uberblocks to all vdevs in svd[].
@@ -1421,7 +1266,7 @@ retry:
 	 *	to the new uberblocks.
 	 */
 	if ((error = vdev_uberblock_sync_list(svd, svdcount, ub, flags)) != 0)
-		goto retry;
+		return (error);
 
 	/*
 	 * Sync out odd labels for every dirty vdev.  If the system dies
@@ -1433,8 +1278,5 @@ retry:
 	 * to disk to ensure that all odd-label updates are committed to
 	 * stable storage before the next transaction group begins.
 	 */
-	if ((error = vdev_label_sync_list(spa, 1, txg, flags)) != 0)
-		goto retry;
-
-	return (0);
+	return (vdev_label_sync_list(spa, 1, txg, flags));
 }

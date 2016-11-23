@@ -44,20 +44,6 @@ Default value: \fB0x02\fR
 .sp
 .ne 2
 .na
-\fBspl_kmem_cache_kmem_threads\fR (uint)
-.ad
-.RS 12n
-The number of threads created for the spl_kmem_cache task queue.  This task
-queue is responsible for allocating new slabs for use by the kmem caches.
-For the majority of systems and workloads only a small number of threads are
-required.
-.sp
-Default value: \fB4\fR
-.RE
-
-.sp
-.ne 2
-.na
 \fBspl_kmem_cache_reclaim\fR (uint)
 .ad
 .RS 12n
@@ -248,20 +234,6 @@ The expected path to locate the system hostid when specified.  This value
 may be overridden for non-standard configurations.
 .sp
 Default value: \fB/etc/hostid\fR
-.RE
-
-.sp
-.ne 2
-.na
-\fBspl_taskq_kick\fR (uint)
-.ad
-.RS 12n
-Kick stuck taskq to spawn threads. When writing a non-zero value to it, it will
-scan all the taskqs. If any of them have a pending task more than 5 seconds old,
-it will kick it to spawn more threads. This can be used if you find a rare
-deadlock occurs because one or more taskqs didn't spawn a thread when it should.
-.sp
-Default value: \fB0\fR
 .RE
 
 .sp

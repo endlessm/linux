@@ -1,1 +1,2 @@
-../generic/zfs.spec.in
+%:
+	#

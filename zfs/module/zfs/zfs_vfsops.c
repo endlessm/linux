@@ -20,7 +20,7 @@
  */
 /*
  * Copyright (c) 2005, 2010, Oracle and/or its affiliates. All rights reserved.
- * Copyright (c) 2012, 2014 by Delphix. All rights reserved.
+ * Copyright (c) 2013 by Delphix. All rights reserved.
  */
 
 /* Portions Copyright 2010 Robert Milkowski */
@@ -341,7 +341,38 @@ zfs_register_callbacks(zfs_sb_t *zsb)
 	return (0);
 
 unregister:
-	dsl_prop_unregister_all(ds, zsb);
+	/*
+	 * We may attempt to unregister some callbacks that are not
+	 * registered, but this is OK; it will simply return ENOMSG,
+	 * which we will ignore.
+	 */
+	(void) dsl_prop_unregister(ds, zfs_prop_to_name(ZFS_PROP_ATIME),
+	    atime_changed_cb, zsb);
+	(void) dsl_prop_unregister(ds, zfs_prop_to_name(ZFS_PROP_RELATIME),
+	    relatime_changed_cb, zsb);
+	(void) dsl_prop_unregister(ds, zfs_prop_to_name(ZFS_PROP_XATTR),
+	    xattr_changed_cb, zsb);
+	(void) dsl_prop_unregister(ds, zfs_prop_to_name(ZFS_PROP_RECORDSIZE),
+	    blksz_changed_cb, zsb);
+	(void) dsl_prop_unregister(ds, zfs_prop_to_name(ZFS_PROP_READONLY),
+	    readonly_changed_cb, zsb);
+	(void) dsl_prop_unregister(ds, zfs_prop_to_name(ZFS_PROP_DEVICES),
+	    devices_changed_cb, zsb);
+	(void) dsl_prop_unregister(ds, zfs_prop_to_name(ZFS_PROP_SETUID),
+	    setuid_changed_cb, zsb);
+	(void) dsl_prop_unregister(ds, zfs_prop_to_name(ZFS_PROP_EXEC),
+	    exec_changed_cb, zsb);
+	(void) dsl_prop_unregister(ds, zfs_prop_to_name(ZFS_PROP_SNAPDIR),
+	    snapdir_changed_cb, zsb);
+	(void) dsl_prop_unregister(ds, zfs_prop_to_name(ZFS_PROP_ACLTYPE),
+	    acltype_changed_cb, zsb);
+	(void) dsl_prop_unregister(ds, zfs_prop_to_name(ZFS_PROP_ACLINHERIT),
+	    acl_inherit_changed_cb, zsb);
+	(void) dsl_prop_unregister(ds, zfs_prop_to_name(ZFS_PROP_VSCAN),
+	    vscan_changed_cb, zsb);
+	(void) dsl_prop_unregister(ds, zfs_prop_to_name(ZFS_PROP_NBMAND),
+	    nbmand_changed_cb, zsb);
+
 	return (error);
 }
 EXPORT_SYMBOL(zfs_register_callbacks);
@@ -431,22 +462,17 @@ zfs_userquota_prop_to_obj(zfs_sb_t *zsb, zfs_userquota_prop_t type)
 {
 	switch (type) {
 	case ZFS_PROP_USERUSED:
-	case ZFS_PROP_USEROBJUSED:
 		return (DMU_USERUSED_OBJECT);
 	case ZFS_PROP_GROUPUSED:
-	case ZFS_PROP_GROUPOBJUSED:
 		return (DMU_GROUPUSED_OBJECT);
 	case ZFS_PROP_USERQUOTA:
 		return (zsb->z_userquota_obj);
 	case ZFS_PROP_GROUPQUOTA:
 		return (zsb->z_groupquota_obj);
-	case ZFS_PROP_USEROBJQUOTA:
-		return (zsb->z_userobjquota_obj);
-	case ZFS_PROP_GROUPOBJQUOTA:
-		return (zsb->z_groupobjquota_obj);
 	default:
-		return (ZFS_NO_OBJECT);
+		return (SET_ERROR(ENOTSUP));
 	}
+	return (0);
 }
 
 int
@@ -458,24 +484,15 @@ zfs_userspace_many(zfs_sb_t *zsb, zfs_userquota_prop_t type,
 	zap_attribute_t za;
 	zfs_useracct_t *buf = vbuf;
 	uint64_t obj;
-	int offset = 0;
 
 	if (!dmu_objset_userspace_present(zsb->z_os))
 		return (SET_ERROR(ENOTSUP));
 
-	if ((type == ZFS_PROP_USEROBJUSED || type == ZFS_PROP_GROUPOBJUSED ||
-	    type == ZFS_PROP_USEROBJQUOTA || type == ZFS_PROP_GROUPOBJQUOTA) &&
-	    !dmu_objset_userobjspace_present(zsb->z_os))
-		return (SET_ERROR(ENOTSUP));
-
 	obj = zfs_userquota_prop_to_obj(zsb, type);
-	if (obj == ZFS_NO_OBJECT) {
+	if (obj == 0) {
 		*bufsizep = 0;
 		return (0);
 	}
-
-	if (type == ZFS_PROP_USEROBJUSED || type == ZFS_PROP_GROUPOBJUSED)
-		offset = DMU_OBJACCT_PREFIX_LEN;
 
 	for (zap_cursor_init_serialized(&zc, zsb->z_os, obj, *cookiep);
 	    (error = zap_cursor_retrieve(&zc, &za)) == 0;
@@ -484,15 +501,7 @@ zfs_userspace_many(zfs_sb_t *zsb, zfs_userquota_prop_t type,
 		    *bufsizep)
 			break;
 
-		/*
-		 * skip object quota (with zap name prefix DMU_OBJACCT_PREFIX)
-		 * when dealing with block quota and vice versa.
-		 */
-		if ((offset > 0) != (strncmp(za.za_name, DMU_OBJACCT_PREFIX,
-		    DMU_OBJACCT_PREFIX_LEN) == 0))
-			continue;
-
-		fuidstr_to_sid(zsb, za.za_name + offset,
+		fuidstr_to_sid(zsb, za.za_name,
 		    buf->zu_domain, sizeof (buf->zu_domain), &buf->zu_rid);
 
 		buf->zu_space = za.za_first_integer;
@@ -533,8 +542,7 @@ int
 zfs_userspace_one(zfs_sb_t *zsb, zfs_userquota_prop_t type,
     const char *domain, uint64_t rid, uint64_t *valp)
 {
-	char buf[20 + DMU_OBJACCT_PREFIX_LEN];
-	int offset = 0;
+	char buf[32];
 	int err;
 	uint64_t obj;
 
@@ -543,21 +551,11 @@ zfs_userspace_one(zfs_sb_t *zsb, zfs_userquota_prop_t type,
 	if (!dmu_objset_userspace_present(zsb->z_os))
 		return (SET_ERROR(ENOTSUP));
 
-	if ((type == ZFS_PROP_USEROBJUSED || type == ZFS_PROP_GROUPOBJUSED ||
-	    type == ZFS_PROP_USEROBJQUOTA || type == ZFS_PROP_GROUPOBJQUOTA) &&
-	    !dmu_objset_userobjspace_present(zsb->z_os))
-		return (SET_ERROR(ENOTSUP));
-
 	obj = zfs_userquota_prop_to_obj(zsb, type);
-	if (obj == ZFS_NO_OBJECT)
+	if (obj == 0)
 		return (0);
 
-	if (type == ZFS_PROP_USEROBJUSED || type == ZFS_PROP_GROUPOBJUSED) {
-		strlcpy(buf, DMU_OBJACCT_PREFIX, DMU_OBJACCT_PREFIX_LEN);
-		offset = DMU_OBJACCT_PREFIX_LEN;
-	}
-
-	err = id_to_fuidstr(zsb, domain, rid, buf + offset, B_FALSE);
+	err = id_to_fuidstr(zsb, domain, rid, buf, B_FALSE);
 	if (err)
 		return (err);
 
@@ -578,25 +576,14 @@ zfs_set_userquota(zfs_sb_t *zsb, zfs_userquota_prop_t type,
 	uint64_t *objp;
 	boolean_t fuid_dirtied;
 
+	if (type != ZFS_PROP_USERQUOTA && type != ZFS_PROP_GROUPQUOTA)
+		return (SET_ERROR(EINVAL));
+
 	if (zsb->z_version < ZPL_VERSION_USERSPACE)
 		return (SET_ERROR(ENOTSUP));
 
-	switch (type) {
-	case ZFS_PROP_USERQUOTA:
-		objp = &zsb->z_userquota_obj;
-		break;
-	case ZFS_PROP_GROUPQUOTA:
-		objp = &zsb->z_groupquota_obj;
-		break;
-	case ZFS_PROP_USEROBJQUOTA:
-		objp = &zsb->z_userobjquota_obj;
-		break;
-	case ZFS_PROP_GROUPOBJQUOTA:
-		objp = &zsb->z_groupobjquota_obj;
-		break;
-	default:
-		return (SET_ERROR(EINVAL));
-	}
+	objp = (type == ZFS_PROP_USERQUOTA) ? &zsb->z_userquota_obj :
+	    &zsb->z_groupquota_obj;
 
 	err = id_to_fuidstr(zsb, domain, rid, buf, B_TRUE);
 	if (err)
@@ -642,39 +629,9 @@ zfs_set_userquota(zfs_sb_t *zsb, zfs_userquota_prop_t type,
 EXPORT_SYMBOL(zfs_set_userquota);
 
 boolean_t
-zfs_fuid_overobjquota(zfs_sb_t *zsb, boolean_t isgroup, uint64_t fuid)
-{
-	char buf[20 + DMU_OBJACCT_PREFIX_LEN];
-	uint64_t used, quota, usedobj, quotaobj;
-	int err;
-
-	if (!dmu_objset_userobjspace_present(zsb->z_os)) {
-		if (dmu_objset_userobjspace_upgradable(zsb->z_os))
-			dmu_objset_userobjspace_upgrade(zsb->z_os);
-		return (B_FALSE);
-	}
-
-	usedobj = isgroup ? DMU_GROUPUSED_OBJECT : DMU_USERUSED_OBJECT;
-	quotaobj = isgroup ? zsb->z_groupobjquota_obj : zsb->z_userobjquota_obj;
-	if (quotaobj == 0 || zsb->z_replay)
-		return (B_FALSE);
-
-	(void) sprintf(buf, "%llx", (longlong_t)fuid);
-	err = zap_lookup(zsb->z_os, quotaobj, buf, 8, 1, &quota);
-	if (err != 0)
-		return (B_FALSE);
-
-	(void) sprintf(buf, DMU_OBJACCT_PREFIX "%llx", (longlong_t)fuid);
-	err = zap_lookup(zsb->z_os, usedobj, buf, 8, 1, &used);
-	if (err != 0)
-		return (B_FALSE);
-	return (used >= quota);
-}
-
-boolean_t
 zfs_fuid_overquota(zfs_sb_t *zsb, boolean_t isgroup, uint64_t fuid)
 {
-	char buf[20];
+	char buf[32];
 	uint64_t used, quota, usedobj, quotaobj;
 	int err;
 
@@ -701,11 +658,10 @@ zfs_owner_overquota(zfs_sb_t *zsb, znode_t *zp, boolean_t isgroup)
 {
 	uint64_t fuid;
 	uint64_t quotaobj;
-	struct inode *ip = ZTOI(zp);
 
 	quotaobj = isgroup ? zsb->z_groupquota_obj : zsb->z_userquota_obj;
 
-	fuid = isgroup ? KGID_TO_SGID(ip->i_gid) : KUID_TO_SUID(ip->i_uid);
+	fuid = isgroup ? zp->z_gid : zp->z_uid;
 
 	if (quotaobj == 0 || zsb->z_replay)
 		return (B_FALSE);
@@ -848,18 +804,6 @@ zfs_sb_create(const char *osname, zfs_mntopts_t *zmo, zfs_sb_t **zsbp)
 	error = zap_lookup(os, MASTER_NODE_OBJ,
 	    zfs_userquota_prop_prefixes[ZFS_PROP_GROUPQUOTA],
 	    8, 1, &zsb->z_groupquota_obj);
-	if (error && error != ENOENT)
-		goto out;
-
-	error = zap_lookup(os, MASTER_NODE_OBJ,
-	    zfs_userquota_prop_prefixes[ZFS_PROP_USEROBJQUOTA],
-	    8, 1, &zsb->z_userobjquota_obj);
-	if (error && error != ENOENT)
-		goto out;
-
-	error = zap_lookup(os, MASTER_NODE_OBJ,
-	    zfs_userquota_prop_prefixes[ZFS_PROP_GROUPOBJQUOTA],
-	    8, 1, &zsb->z_groupobjquota_obj);
 	if (error && error != ENOENT)
 		goto out;
 
@@ -1021,9 +965,52 @@ void
 zfs_unregister_callbacks(zfs_sb_t *zsb)
 {
 	objset_t *os = zsb->z_os;
+	struct dsl_dataset *ds;
 
-	if (!dmu_objset_is_snapshot(os))
-		dsl_prop_unregister_all(dmu_objset_ds(os), zsb);
+	/*
+	 * Unregister properties.
+	 */
+	if (!dmu_objset_is_snapshot(os)) {
+		ds = dmu_objset_ds(os);
+		VERIFY(dsl_prop_unregister(ds, "atime", atime_changed_cb,
+		    zsb) == 0);
+
+		VERIFY(dsl_prop_unregister(ds, "relatime", relatime_changed_cb,
+		    zsb) == 0);
+
+		VERIFY(dsl_prop_unregister(ds, "xattr", xattr_changed_cb,
+		    zsb) == 0);
+
+		VERIFY(dsl_prop_unregister(ds, "recordsize", blksz_changed_cb,
+		    zsb) == 0);
+
+		VERIFY(dsl_prop_unregister(ds, "readonly", readonly_changed_cb,
+		    zsb) == 0);
+
+		VERIFY(dsl_prop_unregister(ds, "devices", devices_changed_cb,
+		    zsb) == 0);
+
+		VERIFY(dsl_prop_unregister(ds, "setuid", setuid_changed_cb,
+		    zsb) == 0);
+
+		VERIFY(dsl_prop_unregister(ds, "exec", exec_changed_cb,
+		    zsb) == 0);
+
+		VERIFY(dsl_prop_unregister(ds, "snapdir", snapdir_changed_cb,
+		    zsb) == 0);
+
+		VERIFY(dsl_prop_unregister(ds, "acltype", acltype_changed_cb,
+		    zsb) == 0);
+
+		VERIFY(dsl_prop_unregister(ds, "aclinherit",
+		    acl_inherit_changed_cb, zsb) == 0);
+
+		VERIFY(dsl_prop_unregister(ds, "vscan",
+		    vscan_changed_cb, zsb) == 0);
+
+		VERIFY(dsl_prop_unregister(ds, "nbmand",
+		    nbmand_changed_cb, zsb) == 0);
+	}
 }
 EXPORT_SYMBOL(zfs_unregister_callbacks);
 
@@ -1107,7 +1094,7 @@ zfs_statvfs(struct dentry *dentry, struct kstatfs *statp)
 	statp->f_fsid.val[0] = (uint32_t)fsid;
 	statp->f_fsid.val[1] = (uint32_t)(fsid >> 32);
 	statp->f_type = ZFS_SUPER_MAGIC;
-	statp->f_namelen = MAXNAMELEN - 1;
+	statp->f_namelen = ZFS_MAXNAMELEN;
 
 	/*
 	 * We have all of 40 characters to stuff a string here.
@@ -1456,8 +1443,7 @@ zfs_domount(struct super_block *sb, zfs_mntopts_t *zmo, int silent)
 		dmu_objset_set_user(zsb->z_os, zsb);
 		mutex_exit(&zsb->z_os->os_user_ptr_lock);
 	} else {
-		if ((error = zfs_sb_setup(zsb, B_TRUE)))
-			goto out;
+		error = zfs_sb_setup(zsb, B_TRUE);
 	}
 
 	/* Allocate a root inode for the filesystem. */
@@ -1483,11 +1469,6 @@ out:
 	if (error) {
 		dmu_objset_disown(zsb->z_os, zsb);
 		zfs_sb_free(zsb);
-		/*
-		 * make sure we don't have dangling sb->s_fs_info which
-		 * zfs_preumount will use.
-		 */
-		sb->s_fs_info = NULL;
 	}
 
 	return (error);
@@ -1506,29 +1487,8 @@ zfs_preumount(struct super_block *sb)
 {
 	zfs_sb_t *zsb = sb->s_fs_info;
 
-	/* zsb is NULL when zfs_domount fails during mount */
-	if (zsb) {
+	if (zsb)
 		zfsctl_destroy(sb->s_fs_info);
-		/*
-		 * Wait for iput_async before entering evict_inodes in
-		 * generic_shutdown_super. The reason we must finish before
-		 * evict_inodes is when lazytime is on, or when zfs_purgedir
-		 * calls zfs_zget, iput would bump i_count from 0 to 1. This
-		 * would race with the i_count check in evict_inodes. This means
-		 * it could destroy the inode while we are still using it.
-		 *
-		 * We wait for two passes. xattr directories in the first pass
-		 * may add xattr entries in zfs_purgedir, so in the second pass
-		 * we wait for them. We don't use taskq_wait here because it is
-		 * a pool wide taskq. Other mounted filesystems can constantly
-		 * do iput_async and there's no guarantee when taskq will be
-		 * empty.
-		 */
-		taskq_wait_outstanding(dsl_pool_iput_taskq(
-		    dmu_objset_pool(zsb->z_os)), 0);
-		taskq_wait_outstanding(dsl_pool_iput_taskq(
-		    dmu_objset_pool(zsb->z_os)), 0);
-	}
 }
 EXPORT_SYMBOL(zfs_preumount);
 

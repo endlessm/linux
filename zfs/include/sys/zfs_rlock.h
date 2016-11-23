@@ -30,14 +30,11 @@
 extern "C" {
 #endif
 
+#ifdef _KERNEL
+
 #include <sys/list.h>
 #include <sys/avl.h>
-
-#ifdef _KERNEL
 #include <sys/condvar.h>
-#else
-#include <sys/zfs_context.h>
-#endif
 
 typedef enum {
 	RL_READER,
@@ -109,6 +106,7 @@ zfs_rlock_destroy(zfs_rlock_t *zrl)
 	avl_destroy(&zrl->zr_avl);
 	mutex_destroy(&zrl->zr_mutex);
 }
+#endif /* _KERNEL */
 
 #ifdef	__cplusplus
 }

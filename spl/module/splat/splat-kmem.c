@@ -590,9 +590,6 @@ splat_kmem_cache_test(struct file *file, void *arg, char *name,
 	kmem_cache_data_t **kcd = NULL;
 	int i, rc = 0, objs = 0;
 
-	/* Limit size for low memory machines (1/128 of memory) */
-	size = MIN(size, (physmem * PAGE_SIZE) >> 7);
-
 	splat_vprint(file, name,
 	    "Testing size=%d, align=%d, flags=0x%04x\n",
 	    size, align, flags);
@@ -622,7 +619,7 @@ splat_kmem_cache_test(struct file *file, void *arg, char *name,
 	 * it to a single slab for the purposes of this test.
 	 */
 #ifdef _LP64
-	objs = kcp->kcp_cache->skc_slab_objs * 4;
+	objs = SPL_KMEM_CACHE_OBJ_PER_SLAB * 4;
 #else
 	objs = 1;
 #endif
