@@ -3223,6 +3223,12 @@ static const struct dmi_system_id invert_hp_detect_dmi_table[] = {
 			DMI_MATCH(DMI_PRODUCT_NAME, "EF20EA"),
 		}
 	},
+	{
+		.ident = "EF20",
+		.matches = {
+			DMI_MATCH(DMI_PRODUCT_NAME, "EF20"),
+		}
+	},
 	{ }
 };
 
