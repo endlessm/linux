@@ -9538,7 +9538,7 @@ CONFIG_STACK_GUARD                              policy<{'s390x': '256'}>
 CONFIG_WARN_DYNAMIC_STACK                       policy<{'s390x': 'n'}>
 
 # Menu: Processor type and features >> Architecture: x86
-CONFIG_ZONE_DMA                                 policy<{'amd64-generic': 'n', 'amd64-lowlatency': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'powerpc': 'y', 'ppc64el': 'y', 's390x': 'y'}>
+CONFIG_ZONE_DMA                                 policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'powerpc': 'y', 'ppc64el': 'y', 's390x': 'y'}>
 CONFIG_X86_FEATURE_NAMES                        policy<{'amd64': 'y', 'i386': 'y'}>
 CONFIG_X86_X2APIC                               policy<{'amd64': 'y'}>
 CONFIG_X86_MPPARSE                              policy<{'amd64': 'y', 'i386': 'y'}>
@@ -9590,6 +9590,7 @@ CONFIG_RANDOMIZE_BASE                           policy<{'amd64': 'y', 'i386': 'y
 CONFIG_COMPAT_VDSO                              policy<{'amd64': 'n', 'i386': 'n'}>
 CONFIG_MODIFY_LDT_SYSCALL                       policy<{'amd64': 'y', 'i386': 'y'}>
 #
+CONFIG_ZONE_DMA                                 note<LP:1628523>
 CONFIG_COMPAT_VDSO                              mark<ENFORCED>
 CONFIG_X86_LEGACY_VM86				note<LP:1499089>
 CONFIG_KEXEC_BZIMAGE_VERIFY_SIG			flag<REVIEW> note<Q: check this is in sync with the kexec/kdump userspace>
