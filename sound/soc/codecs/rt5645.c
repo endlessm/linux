@@ -3216,7 +3216,7 @@ int rt5645_set_jack_detect(struct snd_soc_codec *codec,
 }
 EXPORT_SYMBOL_GPL(rt5645_set_jack_detect);
 
-static const struct dmi_system_id invert_hp_detect_dmi_table[] = {
+static const struct dmi_system_id ef20_detect_dmi_table[] = {
 	{
 		.ident = "EF20",
 		.matches = {
@@ -3239,7 +3239,7 @@ static void rt5645_jack_detect_work(struct work_struct *work)
 	case 0: /* Not using rt5645 JD */
 		if (rt5645->gpiod_hp_det) {
 			gpio_state = gpiod_get_value(rt5645->gpiod_hp_det);
-			if (dmi_check_system(invert_hp_detect_dmi_table))
+			if (dmi_check_system(ef20_detect_dmi_table))
 				gpio_state ^= 1;
 			dev_dbg(rt5645->codec->dev, "gpio_state = %d\n",
 				gpio_state);
@@ -3570,6 +3570,11 @@ static struct rt5645_platform_data general_platform_data = {
 	.jd_mode = 3,
 };
 
+static struct rt5645_platform_data ef20_platform_data = {
+	.dmic1_data_pin = RT5645_DMIC1_DISABLE,
+	.dmic2_data_pin = RT5645_DMIC_DATA_IN2P,
+};
+
 static const struct dmi_system_id dmi_platform_intel_braswell[] = {
 	{
 		.ident = "Intel Strago",
@@ -3659,6 +3664,8 @@ static int rt5645_i2c_probe(struct i2c_client *i2c,
 
 	if (pdata)
 		rt5645->pdata = *pdata;
+	else if (dmi_check_system(ef20_detect_dmi_table))
+		rt5645->pdata = ef20_platform_data;
 	else if (dmi_check_system(dmi_platform_intel_broadwell))
 		rt5645->pdata = buddy_platform_data;
 	else if (rt5645_check_dp(&i2c->dev))
