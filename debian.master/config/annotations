@@ -10196,7 +10196,7 @@ CONFIG_PM_DEBUG                                 flag<REVIEW>
 
 # Menu: Processor support
 CONFIG_SMP                                      policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'powerpc': 'y', 'ppc64el': 'y', 's390x': 'y'}>
-CONFIG_NR_CPUS                                  policy<{'amd64': '256', 'arm64': '128', 'armhf': '4', 'i386': '8', 'powerpc-generic': '1024', 'powerpc-powerpc64-emb': '8', 'powerpc-powerpc-e500mc': '8', 'powerpc-powerpc-smp': '4', 'ppc64el': '2048', 's390x': '256'}>
+CONFIG_NR_CPUS                                  policy<{'amd64': '8192', 'arm64': '128', 'armhf': '4', 'i386': '8', 'powerpc-generic': '1024', 'powerpc-powerpc64-emb': '8', 'powerpc-powerpc-e500mc': '8', 'powerpc-powerpc-smp': '4', 'ppc64el': '2048', 's390x': '256'}>
 
 # Menu: Processor support >> Architecture: powerpc
 CONFIG_PPC_E500MC                               policy<{'powerpc-powerpc64-emb': 'y', 'powerpc-powerpc-e500mc': 'y'}>
@@ -10535,7 +10535,7 @@ CONFIG_SCHED_TOPOLOGY                           policy<{'s390x': 'y'}>
 
 # Menu: Processor type and features >> Symmetric multi-processing support >> Architecture: x86
 CONFIG_X86_BIGSMP                               policy<{'i386': 'n'}>
-CONFIG_MAXSMP                                   policy<{'amd64': 'n'}>
+CONFIG_MAXSMP                                   policy<{'amd64': 'y'}>
 CONFIG_BOOTPARAM_HOTPLUG_CPU0                   policy<{'amd64': 'n', 'i386': 'n'}>
 CONFIG_DEBUG_HOTPLUG_CPU0                       policy<{'amd64': 'n', 'i386': 'n'}>
 
