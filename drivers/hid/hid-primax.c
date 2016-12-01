@@ -9,15 +9,46 @@
  */
 
 #include <linux/device.h>
+#include <linux/usb.h>
 #include <linux/hid.h>
 #include <linux/module.h>
 
 #include "hid-ids.h"
 
+static int pr_input_mapping(struct hid_device *hdev, struct hid_input *hi,
+                struct hid_field *field, struct hid_usage *usage,
+                unsigned long **bit, int *max)
+{
+	/* Primax wireless keyboard have HID_USAGE_PAGE field with
+         * HID_UP_LED instead of HID_UP_KEYBOARD. Correct the wrong
+	 * usage page and let the standard code to do the rest.
+	 */
+
+	if (field->application != HID_GD_KEYBOARD)
+		return 0;
+
+	if ((usage->hid & HID_USAGE_PAGE) != HID_UP_LED)
+		return 0;
+
+	usage->hid &= HID_USAGE;
+	usage->hid |= HID_UP_KEYBOARD;
+
+	return 0;
+}
+
 static int px_raw_event(struct hid_device *hid, struct hid_report *report,
 	 u8 *data, int size)
 {
 	int idx = size;
+
+        struct usb_interface *intf = to_usb_interface(hid->dev.parent);
+        unsigned short ifnum = intf->cur_altsetting->desc.bInterfaceNumber;
+
+	/* No need to do anything on interface other than keyboard */
+	if (ifnum != 0) {
+		dbg_hid("%s: ignoring ifnum %d\n", __func__, ifnum);
+		return 0;
+	}
 
 	switch (report->id) {
 	case 0:		/* keyboard input */
@@ -58,6 +89,8 @@ static int px_raw_event(struct hid_device *hid, struct hid_report *report,
 
 static const struct hid_device_id px_devices[] = {
 	{ HID_USB_DEVICE(USB_VENDOR_ID_PRIMAX, USB_DEVICE_ID_PRIMAX_KEYBOARD) },
+	{ HID_USB_DEVICE(USB_VENDOR_ID_PRIMAX, USB_DEVICE_ID_PRIMAX_WIRELESS_KBD_MOUSE_4E80) },
+	{ HID_USB_DEVICE(USB_VENDOR_ID_PRIMAX, USB_DEVICE_ID_PRIMAX_WIRELESS_KBD_MOUSE_4E57) },
 	{ }
 };
 MODULE_DEVICE_TABLE(hid, px_devices);
@@ -66,6 +99,7 @@ static struct hid_driver px_driver = {
 	.name = "primax",
 	.id_table = px_devices,
 	.raw_event = px_raw_event,
+	.input_mapping = pr_input_mapping,
 };
 module_hid_driver(px_driver);
 
