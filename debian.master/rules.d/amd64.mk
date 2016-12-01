@@ -1,5 +1,5 @@
 human_arch	= 64 bit x86
-build_arch	= x86_64
+build_arch	= x86
 header_arch	= $(build_arch)
 defconfig	= defconfig
 flavours	= generic lowlatency
