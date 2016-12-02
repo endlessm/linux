@@ -1003,19 +1003,6 @@ static int mmc_select_bus_width(struct mmc_card *card)
 	return err;
 }
 
-/* Caller must hold re-tuning */
-static int mmc_switch_status(struct mmc_card *card)
-{
-	u32 status;
-	int err;
-
-	err = mmc_send_status(card, &status);
-	if (err)
-		return err;
-
-	return mmc_switch_status_error(card->host, status);
-}
-
 /*
  * Switch to the high-speed mode
  */
@@ -1237,7 +1224,12 @@ int mmc_hs400_to_hs200(struct mmc_card *card)
 
 	mmc_set_timing(host, MMC_TIMING_MMC_HS200);
 
-	err = mmc_switch_status(card);
+	/*
+	 * For HS200, CRC errors are not a reliable way to know the switch
+	 * failed. If there really is a problem, we would expect tuning will
+	 * fail and the result ends up the same.
+	 */
+	err = __mmc_switch_status(card, false);
 	if (err)
 		goto out_err;
 
@@ -1394,7 +1386,13 @@ static int mmc_select_hs200(struct mmc_card *card)
 		old_timing = host->ios.timing;
 		mmc_set_timing(host, MMC_TIMING_MMC_HS200);
 
-		err = mmc_switch_status(card);
+		/*
+		 * For HS200, CRC errors are not a reliable way to know the
+		 * switch failed. If there really is a problem, we would expect
+		 * tuning will fail and the result ends up the same.
+		 */
+		err = __mmc_switch_status(card, false);
+
 		/*
 		 * mmc_select_timing() assumes timing has not changed if
 		 * it is a switch error.
