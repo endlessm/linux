@@ -19,6 +19,10 @@ obj-$(CONFIG_HIO)             += hio/
 ##
 ##
 ##
+obj-y				+= xr-usb-serial/
+##
+##
+##
 ##
 ##
 ##
