@@ -438,6 +438,13 @@ static struct dmi_system_id broken_lid_dmi_table[] = {
 		DMI_MATCH(DMI_PRODUCT_NAME, "EF20EA"),
 		},
 	},
+	{
+	 .callback = switch_lid_mode,
+	 .ident = "EF20",
+	 .matches = {
+		DMI_MATCH(DMI_PRODUCT_NAME, "EF20"),
+		},
+	},
 	{}
 };
 
