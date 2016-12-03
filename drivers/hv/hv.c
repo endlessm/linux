@@ -584,7 +584,7 @@ void hv_synic_clockevents_cleanup(void)
 	if (!(ms_hyperv.features & HV_X64_MSR_SYNTIMER_AVAILABLE))
 		return;
 
-	for_each_online_cpu(cpu)
+	for_each_present_cpu(cpu)
 		clockevents_unbind_device(hv_context.clk_evt[cpu], cpu);
 }
 
@@ -603,8 +603,10 @@ void hv_synic_cleanup(void *arg)
 		return;
 
 	/* Turn off clockevent device */
-	if (ms_hyperv.features & HV_X64_MSR_SYNTIMER_AVAILABLE)
+	if (ms_hyperv.features & HV_X64_MSR_SYNTIMER_AVAILABLE) {
+		clockevents_unbind_device(hv_context.clk_evt[cpu], cpu);
 		hv_ce_shutdown(hv_context.clk_evt[cpu]);
+	}
 
 	rdmsrl(HV_X64_MSR_SINT0 + VMBUS_MESSAGE_SINT, shared_sint.as_uint64);
 
