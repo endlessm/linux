@@ -335,6 +335,7 @@ static int match_mnt_path_str(struct aa_profile *profile, const struct path *mnt
 		goto audit;
 	if (IS_ERR(devname)) {
 		error = PTR_ERR(devname);
+		devname = NULL;
 		info = devinfo;
 		goto audit;
 	}
