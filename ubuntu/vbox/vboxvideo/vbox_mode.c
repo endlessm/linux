@@ -106,8 +106,6 @@ static void vbox_do_modeset(struct drm_crtc *crtc,
                                 crtc->x * bpp / 8 + crtc->y * pitch,
                                 pitch, width, height,
                                 vbox_crtc->blanked ? 0 : bpp, flags);
-    VBoxHGSMIReportFlagsLocation(&vbox->submit_info,   vbox->vram_map_start
-                                                     + vbox->host_flags_offset);
     LogFunc(("vboxvideo: %d\n", __LINE__));
 }
 
@@ -502,8 +500,20 @@ static int vbox_get_modes(struct drm_connector *connector)
     LogFunc(("vboxvideo: %d: connector=%p\n", __LINE__, connector));
     vbox_connector = to_vbox_connector(connector);
     vbox = connector->dev->dev_private;
+    /* Heuristic: we do not want to tell the host that we support dynamic
+     * resizing unless we feel confident that the user space client using
+     * the video driver can handle hot-plug events.  So the first time modes
+     * are queried after a "master" switch we tell the host that we do not,
+     * and immediately after we send the client a hot-plug notification as
+     * a test to see if they will respond and query again.
+     * That is also the reason why capabilities are reported to the host at
+     * this place in the code rather than elsewhere.
+     * We need to report the flags location before reporting the IRQ
+     * capability. */
+    VBoxHGSMIReportFlagsLocation(&vbox->submit_info,   vbox->vram_map_start
+                                                     + vbox->host_flags_offset);
     if (vbox_connector->vbox_crtc->crtc_id == 0)
-        vbox_enable_caps(vbox);
+        vbox_report_caps(vbox);
     if (!vbox->initial_mode_queried) {
         if (vbox_connector->vbox_crtc->crtc_id == 0) {
             vbox->initial_mode_queried = true;
@@ -720,7 +730,9 @@ static int vbox_cursor_set2(struct drm_crtc *crtc, struct drm_file *file_priv,
         return ret;
     if (   caps & VMMDEV_MOUSE_HOST_CANNOT_HWPOINTER
         || !(caps & VMMDEV_MOUSE_HOST_WANTS_ABSOLUTE))
-        return -EINVAL;
+        /* -EINVAL means cursor_set2() not supported, -EAGAIN means
+         * retry at once. */
+        return -EBUSY;
 
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(4, 7, 0)
     obj = drm_gem_object_lookup(file_priv, handle);

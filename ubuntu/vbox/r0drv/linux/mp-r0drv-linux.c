@@ -38,6 +38,11 @@
 #include <iprt/thread.h>
 #include "r0drv/mp-r0drv.h"
 
+#ifdef nr_cpumask_bits
+# define VBOX_NR_CPUMASK_BITS   nr_cpumask_bits
+#else
+# define VBOX_NR_CPUMASK_BITS   NR_CPUS
+#endif
 
 RTDECL(RTCPUID) RTMpCpuId(void)
 {
@@ -62,21 +67,21 @@ RT_EXPORT_SYMBOL(RTMpCurSetIndexAndId);
 
 RTDECL(int) RTMpCpuIdToSetIndex(RTCPUID idCpu)
 {
-    return idCpu < RTCPUSET_MAX_CPUS && idCpu < NR_CPUS ? (int)idCpu : -1;
+    return idCpu < RTCPUSET_MAX_CPUS && idCpu < VBOX_NR_CPUMASK_BITS ? (int)idCpu : -1;
 }
 RT_EXPORT_SYMBOL(RTMpCpuIdToSetIndex);
 
 
 RTDECL(RTCPUID) RTMpCpuIdFromSetIndex(int iCpu)
 {
-    return iCpu < NR_CPUS ? (RTCPUID)iCpu : NIL_RTCPUID;
+    return iCpu < VBOX_NR_CPUMASK_BITS ? (RTCPUID)iCpu : NIL_RTCPUID;
 }
 RT_EXPORT_SYMBOL(RTMpCpuIdFromSetIndex);
 
 
 RTDECL(RTCPUID) RTMpGetMaxCpuId(void)
 {
-    return NR_CPUS - 1; //???
+    return VBOX_NR_CPUMASK_BITS - 1; //???
 }
 RT_EXPORT_SYMBOL(RTMpGetMaxCpuId);
 
@@ -84,7 +89,7 @@ RT_EXPORT_SYMBOL(RTMpGetMaxCpuId);
 RTDECL(bool) RTMpIsCpuPossible(RTCPUID idCpu)
 {
 #if defined(CONFIG_SMP)
-    if (RT_UNLIKELY(idCpu >= NR_CPUS))
+    if (RT_UNLIKELY(idCpu >= VBOX_NR_CPUMASK_BITS))
         return false;
 
 # if defined(cpu_possible)
@@ -139,7 +144,7 @@ RT_EXPORT_SYMBOL(RTMpGetCount);
 RTDECL(bool) RTMpIsCpuOnline(RTCPUID idCpu)
 {
 #ifdef CONFIG_SMP
-    if (RT_UNLIKELY(idCpu >= NR_CPUS))
+    if (RT_UNLIKELY(idCpu >= VBOX_NR_CPUMASK_BITS))
         return false;
 # ifdef cpu_online
     return cpu_online(idCpu);

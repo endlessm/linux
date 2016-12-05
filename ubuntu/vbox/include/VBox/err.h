@@ -519,6 +519,8 @@
 #define VERR_PGM_INVALID_LARGE_PAGE_RANGE       (-1645)
 /** Don't mess around with ballooned pages. */
 #define VERR_PGM_PHYS_PAGE_BALLOONED            (-1646)
+/** Internal processing error \#1 in page access handler code. */
+#define VERR_PGM_HANDLER_IPE_1                  (-1647)
 
 
 /** pgmPhysPageMapCommon encountered PGMPAGETYPE_MMIO2_ALIAS_MMIO. */
@@ -587,9 +589,12 @@
 #define VERR_PGM_PCI_PASSTHRU_MISCONFIG         (-1682)
 /** Too many MMIO2 ranges. */
 #define VERR_PGM_TOO_MANY_MMIO2_RANGES          (-1683)
-/** Internal processing error in the PGM physial page mapping code dealing
+/** Internal processing error in the PGM physical page mapping code dealing
  * with MMIO2 pages. */
 #define VERR_PGM_PHYS_PAGE_MAP_MMIO2_IPE        (-1684)
+/** Internal processing error in the PGM physcal page handling code related to
+ *  MMIO/MMIO2. */
+#define VERR_PGM_PHYS_MMIO_EX_IPE               (-1685)
 /** @} */
 
 

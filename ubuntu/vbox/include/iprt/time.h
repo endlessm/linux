@@ -953,12 +953,14 @@ RTDECL(uint64_t) RTTimeNanoTSLFenceSyncInvarNoDelta(PRTTIMENANOTSDATA pData);
 #ifdef IN_RING3
 RTDECL(uint64_t) RTTimeNanoTSLegacyAsyncUseApicId(PRTTIMENANOTSDATA pData);
 RTDECL(uint64_t) RTTimeNanoTSLegacyAsyncUseRdtscp(PRTTIMENANOTSDATA pData);
+RTDECL(uint64_t) RTTimeNanoTSLegacyAsyncUseRdtscpGroupChNumCl(PRTTIMENANOTSDATA pData);
 RTDECL(uint64_t) RTTimeNanoTSLegacyAsyncUseIdtrLim(PRTTIMENANOTSDATA pData);
 RTDECL(uint64_t) RTTimeNanoTSLegacySyncInvarWithDeltaUseApicId(PRTTIMENANOTSDATA pData);
 RTDECL(uint64_t) RTTimeNanoTSLegacySyncInvarWithDeltaUseRdtscp(PRTTIMENANOTSDATA pData);
 RTDECL(uint64_t) RTTimeNanoTSLegacySyncInvarWithDeltaUseIdtrLim(PRTTIMENANOTSDATA pData);
 RTDECL(uint64_t) RTTimeNanoTSLFenceAsyncUseApicId(PRTTIMENANOTSDATA pData);
 RTDECL(uint64_t) RTTimeNanoTSLFenceAsyncUseRdtscp(PRTTIMENANOTSDATA pData);
+RTDECL(uint64_t) RTTimeNanoTSLFenceAsyncUseRdtscpGroupChNumCl(PRTTIMENANOTSDATA pData);
 RTDECL(uint64_t) RTTimeNanoTSLFenceAsyncUseIdtrLim(PRTTIMENANOTSDATA pData);
 RTDECL(uint64_t) RTTimeNanoTSLFenceSyncInvarWithDeltaUseApicId(PRTTIMENANOTSDATA pData);
 RTDECL(uint64_t) RTTimeNanoTSLFenceSyncInvarWithDeltaUseRdtscp(PRTTIMENANOTSDATA pData);

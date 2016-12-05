@@ -950,6 +950,8 @@ RT_C_DECLS_END
 /** Process does not have the increase quota (IQ) privilege needed for
  * creating a process as a given user. IQ is also called 'Increase quotas'. */
 #define VERR_PROC_IQ_PRIV_NOT_HELD          (-22413)
+/** The system has too many CPUs. */
+#define VERR_MP_TOO_MANY_CPUS               (-22414)
 /** @} */
 
 

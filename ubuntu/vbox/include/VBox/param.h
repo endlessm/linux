@@ -38,7 +38,11 @@
 
 /** The maximum number of pages that can be allocated and mapped
  * by various MM, PGM and SUP APIs. */
-#define VBOX_MAX_ALLOC_PAGE_COUNT   (256U * _1M / PAGE_SIZE)
+#if ARCH_BITS == 64
+# define VBOX_MAX_ALLOC_PAGE_COUNT   (_512M / PAGE_SIZE)
+#else
+# define VBOX_MAX_ALLOC_PAGE_COUNT   (_256M / PAGE_SIZE)
+#endif
 
 /** @def VBOX_WITH_PAGE_SHARING
  * Enables the page sharing code.
@@ -84,6 +88,17 @@
 #endif
 /** The default size of the below 4GB RAM hole. */
 #define MM_RAM_HOLE_SIZE_DEFAULT    (512U * _1M)
+/** The maximum 64-bit MMIO BAR size.
+ * @remarks There isn't really any limit here other than the size of the
+ *          tracking structures we need (around 1/256 of the size). */
+#if HC_ARCH_BITS == 64
+# define MM_MMIO_64_MAX             _1T
+#else
+# define MM_MMIO_64_MAX             (_1G64 * 16)
+#endif
+/** The maximum 32-bit MMIO BAR size. */
+#define MM_MMIO_32_MAX              _2G
+
 /** @} */
 
 

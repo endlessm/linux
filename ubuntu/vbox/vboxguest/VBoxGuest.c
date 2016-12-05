@@ -1463,6 +1463,8 @@ static void vgdrvWaitFreeUnlocked(PVBOXGUESTDEVEXT pDevExt, PVBOXGUESTWAIT pWait
  *
  * All entries in the wake-up list gets signalled and moved to the woken-up
  * list.
+ * At least on Windows this function can be invoked concurrently from
+ * different VCPUs. So, be thread-safe.
  *
  * @param   pDevExt         The device extension.
  */
@@ -1477,6 +1479,9 @@ void VGDrvCommonWaitDoWakeUps(PVBOXGUESTDEVEXT pDevExt)
             PVBOXGUESTWAIT pWait = RTListGetFirst(&pDevExt->WakeUpList, VBOXGUESTWAIT, ListNode);
             if (!pWait)
                 break;
+            /* Prevent other threads from accessing pWait when spinlock is released. */
+            RTListNodeRemove(&pWait->ListNode);
+
             pWait->fPendingWakeUp = true;
             RTSpinlockRelease(pDevExt->EventSpinlock);
 
@@ -1484,12 +1489,11 @@ void VGDrvCommonWaitDoWakeUps(PVBOXGUESTDEVEXT pDevExt)
             AssertRC(rc);
 
             RTSpinlockAcquire(pDevExt->EventSpinlock);
+            Assert(pWait->ListNode.pNext == NULL && pWait->ListNode.pPrev == NULL);
+            RTListAppend(&pDevExt->WokenUpList, &pWait->ListNode);
             pWait->fPendingWakeUp = false;
-            if (!pWait->fFreeMe)
-            {
-                RTListNodeRemove(&pWait->ListNode);
-                RTListAppend(&pDevExt->WokenUpList, &pWait->ListNode);
-            }
+            if (RT_LIKELY(!pWait->fFreeMe))
+            { /* likely */ }
             else
             {
                 pWait->fFreeMe = false;
@@ -1555,9 +1559,13 @@ int vgdrvIoCtl_SetMouseNotifyCallback(PVBOXGUESTDEVEXT pDevExt, VBoxGuestMouseSe
 {
     LogFlow(("VBOXGUEST_IOCTL_SET_MOUSE_NOTIFY_CALLBACK: pfnNotify=%p pvUser=%p\n", pNotify->pfnNotify, pNotify->pvUser));
 
+#ifdef VBOXGUEST_MOUSE_NOTIFY_CAN_PREEMPT
+    VGDrvNativeSetMouseNotifyCallback(pDevExt, pNotify);
+#else
     RTSpinlockAcquire(pDevExt->EventSpinlock);
     pDevExt->MouseNotifyCallback = *pNotify;
     RTSpinlockRelease(pDevExt->EventSpinlock);
+#endif
     return VINF_SUCCESS;
 }
 #endif
@@ -3635,6 +3643,23 @@ static int vgdrvDispatchEventsLocked(PVBOXGUESTDEVEXT pDevExt, uint32_t fEvents)
 
 
 /**
+ * Simply checks whether the IRQ is ours or not, does not do any interrupt
+ * procesing.
+ *
+ * @returns true if it was our interrupt, false if it wasn't.
+ * @param   pDevExt     The VBoxGuest device extension.
+ */
+bool VGDrvCommonIsOurIRQ(PVBOXGUESTDEVEXT pDevExt)
+{
+    RTSpinlockAcquire(pDevExt->EventSpinlock);
+    bool const fOurIrq = pDevExt->pVMMDevMemory->V.V1_04.fHaveEvents;
+    RTSpinlockRelease(pDevExt->EventSpinlock);
+
+    return fOurIrq;
+}
+
+
+/**
  * Common interrupt service routine.
  *
  * This deals with events and with waking up thread waiting for those events.
@@ -3684,7 +3709,7 @@ bool VGDrvCommonISR(PVBOXGUESTDEVEXT pDevExt)
             {
                 fMousePositionChanged = true;
                 fEvents &= ~VMMDEV_EVENT_MOUSE_POSITION_CHANGED;
-#ifndef RT_OS_WINDOWS
+#if !defined(RT_OS_WINDOWS) && !defined(VBOXGUEST_MOUSE_NOTIFY_CAN_PREEMPT)
                 if (pDevExt->MouseNotifyCallback.pfnNotify)
                     pDevExt->MouseNotifyCallback.pfnNotify(pDevExt->MouseNotifyCallback.pvUser);
 #endif
@@ -3729,6 +3754,16 @@ bool VGDrvCommonISR(PVBOXGUESTDEVEXT pDevExt)
         Log3(("VGDrvCommonISR: not ours\n"));
 
     RTSpinlockRelease(pDevExt->EventSpinlock);
+
+    /*
+     * Execute the mouse notification callback here if it cannot be executed while
+     * holding the interrupt safe spinlock, see @bugref{8639}.
+     */
+#if defined(VBOXGUEST_MOUSE_NOTIFY_CAN_PREEMPT)
+    if (   fMousePositionChanged
+        && pDevExt->MouseNotifyCallback.pfnNotify)
+        pDevExt->MouseNotifyCallback.pfnNotify(pDevExt->MouseNotifyCallback.pvUser);
+#endif
 
 #if defined(VBOXGUEST_USE_DEFERRED_WAKE_UP) && !defined(RT_OS_DARWIN) && !defined(RT_OS_WINDOWS)
     /*

@@ -42,6 +42,13 @@
 # define VBOXGUEST_USE_DEFERRED_WAKE_UP
 #endif
 
+/** @def VBOXGUEST_MOUSE_NOTIFY_CAN_PREEMPT
+ * The mouse notification callback can cause preemption and must not be invoked
+ * while holding a high-level spinlock.
+ */
+#if defined(RT_OS_SOLARIS) || defined(DOXYGEN_RUNNING)
+# define VBOXGUEST_MOUSE_NOTIFY_CAN_PREEMPT
+#endif
 
 /** Pointer to the VBoxGuest per session data. */
 typedef struct VBOXGUESTSESSION *PVBOXGUESTSESSION;
@@ -315,6 +322,7 @@ RT_C_DECLS_BEGIN
 
 int  VGDrvCommonInitDevExt(PVBOXGUESTDEVEXT pDevExt, uint16_t IOPortBase, void *pvMMIOBase, uint32_t cbMMIO,
                            VBOXOSTYPE enmOSType, uint32_t fEvents);
+bool VGDrvCommonIsOurIRQ(PVBOXGUESTDEVEXT pDevExt);
 bool VGDrvCommonISR(PVBOXGUESTDEVEXT pDevExt);
 void VGDrvCommonDeleteDevExt(PVBOXGUESTDEVEXT pDevExt);
 int  VGDrvCommonReinitDevExtAfterHibernation(PVBOXGUESTDEVEXT pDevExt, VBOXOSTYPE enmOSType);
@@ -343,6 +351,10 @@ void VGDrvNativeISRMousePollEvent(PVBOXGUESTDEVEXT pDevExt);
 
 #ifdef VBOX_WITH_DPC_LATENCY_CHECKER
 int VGDrvNtIOCtl_DpcLatencyChecker(void);
+#endif
+
+#ifdef VBOXGUEST_MOUSE_NOTIFY_CAN_PREEMPT
+int VGDrvNativeSetMouseNotifyCallback(PVBOXGUESTDEVEXT pDevExt, VBoxGuestMouseSetNotifyCallback *pNotify);
 #endif
 
 RT_C_DECLS_END

@@ -1302,6 +1302,8 @@
 # define RTMpGetCount                                   RT_MANGLER(RTMpGetCount)
 # define RTMpGetCurFrequency                            RT_MANGLER(RTMpGetCurFrequency)
 # define RTMpGetDescription                             RT_MANGLER(RTMpGetDescription)
+# define RTMpGetCpuGroupCounts                          RT_MANGLER(RTMpGetCpuGroupCounts)
+# define RTMpGetMaxCpuGroupCount                        RT_MANGLER(RTMpGetMaxCpuGroupCount)
 # define RTMpGetMaxCpuId                                RT_MANGLER(RTMpGetMaxCpuId)
 # define RTMpGetMaxFrequency                            RT_MANGLER(RTMpGetMaxFrequency)
 # define RTMpGetOnlineCount                             RT_MANGLER(RTMpGetOnlineCount)
@@ -1325,6 +1327,7 @@
 # define RTMpOnPairIsConcurrentExecSupported            RT_MANGLER(RTMpOnPairIsConcurrentExecSupported) /* r0drv */
 # define RTMpOnSpecific                                 RT_MANGLER(RTMpOnSpecific)             /* r0drv */
 # define RTMpPokeCpu                                    RT_MANGLER(RTMpPokeCpu)                /* r0drv */
+# define RTMpSetIndexFromCpuGroupMember                 RT_MANGLER(RTMpSetIndexFromCpuGroupMember)
 # define RTMsgError                                     RT_MANGLER(RTMsgError)
 # define RTMsgErrorExit                                 RT_MANGLER(RTMsgErrorExit)
 # define RTMsgErrorExitV                                RT_MANGLER(RTMsgErrorExitV)
@@ -2103,6 +2106,8 @@
 # define RTTimeNanoTSLegacyAsyncUseApicId_EndProc               RT_MANGLER(RTTimeNanoTSLegacyAsyncUseApicId_EndProc)
 # define RTTimeNanoTSLegacyAsyncUseRdtscp                       RT_MANGLER(RTTimeNanoTSLegacyAsyncUseRdtscp)
 # define RTTimeNanoTSLegacyAsyncUseRdtscp_EndProc               RT_MANGLER(RTTimeNanoTSLegacyAsyncUseRdtscp_EndProc)
+# define RTTimeNanoTSLegacyAsyncUseRdtscpGroupChNumCl           RT_MANGLER(RTTimeNanoTSLegacyAsyncUseRdtscpGroupChNumCl)
+# define RTTimeNanoTSLegacyAsyncUseRdtscpGroupChNumCl_EndProc   RT_MANGLER(RTTimeNanoTSLegacyAsyncUseRdtscpGroupChNumCl_EndProc)
 # define RTTimeNanoTSLegacyAsyncUseIdtrLim                      RT_MANGLER(RTTimeNanoTSLegacyAsyncUseIdtrLim)
 # define RTTimeNanoTSLegacyAsyncUseIdtrLim_EndProc              RT_MANGLER(RTTimeNanoTSLegacyAsyncUseIdtrLim_EndProc)
 # define RTTimeNanoTSLegacySyncInvarNoDelta                     RT_MANGLER(RTTimeNanoTSLegacySyncInvarNoDelta)
@@ -2121,6 +2126,8 @@
 # define RTTimeNanoTSLFenceAsyncUseApicId_EndProc               RT_MANGLER(RTTimeNanoTSLFenceAsyncUseApicId_EndProc)
 # define RTTimeNanoTSLFenceAsyncUseRdtscp                       RT_MANGLER(RTTimeNanoTSLFenceAsyncUseRdtscp)
 # define RTTimeNanoTSLFenceAsyncUseRdtscp_EndProc               RT_MANGLER(RTTimeNanoTSLFenceAsyncUseRdtscp_EndProc)
+# define RTTimeNanoTSLFenceAsyncUseRdtscpGroupChNumCl           RT_MANGLER(RTTimeNanoTSLFenceAsyncUseRdtscpGroupChNumCl)
+# define RTTimeNanoTSLFenceAsyncUseRdtscpGroupChNumCl_EndProc   RT_MANGLER(RTTimeNanoTSLFenceAsyncUseRdtscpGroupChNumCl_EndProc)
 # define RTTimeNanoTSLFenceAsyncUseIdtrLim                      RT_MANGLER(RTTimeNanoTSLFenceAsyncUseIdtrLim)
 # define RTTimeNanoTSLFenceAsyncUseIdtrLim_EndProc              RT_MANGLER(RTTimeNanoTSLFenceAsyncUseIdtrLim_EndProc)
 # define RTTimeNanoTSLFenceSyncInvarNoDelta                     RT_MANGLER(RTTimeNanoTSLFenceSyncInvarNoDelta)
