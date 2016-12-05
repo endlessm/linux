@@ -89,6 +89,37 @@ RTDECL(int) RTMpCpuIdToSetIndex(RTCPUID idCpu);
 RTDECL(RTCPUID) RTMpCpuIdFromSetIndex(int iCpu);
 
 /**
+ * Translates an NT process group member to a CPU set index.
+ *
+ * @returns CPU set index, -1 if not valid.
+ * @param   idxGroup        The CPU group.
+ * @param   idxMember       The CPU group member number.
+ *
+ * @remarks Only available on Windows.
+ */
+RTDECL(int) RTMpSetIndexFromCpuGroupMember(uint32_t idxGroup, uint32_t idxMember);
+
+/**
+ * Gets the member numbers for a CPU group.
+ *
+ * @returns Maximum number of group members.
+ * @param   idxGroup        The CPU group.
+ * @param   pcActive        Where to return the number of active members.
+ *
+ * @remarks Only available on Windows.
+ */
+RTDECL(uint32_t) RTMpGetCpuGroupCounts(uint32_t idxGroup, uint32_t *pcActive);
+
+/**
+ * Get the maximum number of CPU groups.
+ *
+ * @returns Maximum number of CPU groups.
+ *
+ * @remarks Only available on Windows.
+ */
+RTDECL(uint32_t) RTMpGetMaxCpuGroupCount(void);
+
+/**
  * Gets the max CPU identifier (inclusive).
  *
  * Intended for brute force enumerations, but use with

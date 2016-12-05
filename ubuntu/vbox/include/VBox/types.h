@@ -340,6 +340,9 @@ typedef R0PTRTYPE(PPDMDEVINS) PPDMDEVINSR0;
 /** RC pointer to a PDM Device Instance. */
 typedef RCPTRTYPE(PPDMDEVINS) PPDMDEVINSRC;
 
+/** Pointer to a PDM PCI device structure. */
+typedef struct PDMPCIDEV *PPDMPCIDEV;
+
 /** Pointer to a PDM USB Device Instance. */
 typedef struct PDMUSBINS *PPDMUSBINS;
 /** Pointer to a pointer to a PDM USB Device Instance. */

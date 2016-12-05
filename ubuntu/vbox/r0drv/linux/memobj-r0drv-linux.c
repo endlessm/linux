@@ -1049,8 +1049,14 @@ DECLHIDDEN(int) rtR0MemObjNativeLockUser(PPRTR0MEMOBJINTERNAL ppMem, RTR3PTR R3P
         if (R0Process == RTR0ProcHandleSelf())
             rc = get_user_pages(R3Ptr,                  /* Where from. */
                                 cPages,                 /* How many pages. */
+# if LINUX_VERSION_CODE >= KERNEL_VERSION(4, 9, 0)
+                                fWrite ? FOLL_WRITE |   /* Write to memory. */
+                                         FOLL_FORCE     /* force write access. */
+                                       : 0,             /* Write to memory. */
+# else
                                 fWrite,                 /* Write to memory. */
                                 fWrite,                 /* force write access. */
+# endif
                                 &pMemLnx->apPages[0],   /* Page array. */
                                 papVMAs);               /* vmas */
         /*
@@ -1063,8 +1069,14 @@ DECLHIDDEN(int) rtR0MemObjNativeLockUser(PPRTR0MEMOBJINTERNAL ppMem, RTR3PTR R3P
                                 pTask->mm,              /* Whose pages. */
                                 R3Ptr,                  /* Where from. */
                                 cPages,                 /* How many pages. */
+# if LINUX_VERSION_CODE >= KERNEL_VERSION(4, 9, 0)
+                                fWrite ? FOLL_WRITE |   /* Write to memory. */
+                                         FOLL_FORCE     /* force write access. */
+                                       : 0,             /* Write to memory. */
+# else
                                 fWrite,                 /* Write to memory. */
                                 fWrite,                 /* force write access. */
+# endif
                                 &pMemLnx->apPages[0],   /* Page array. */
                                 papVMAs);               /* vmas */
 #else /* LINUX_VERSION_CODE < KERNEL_VERSION(4, 6, 0) */
@@ -1072,8 +1084,14 @@ DECLHIDDEN(int) rtR0MemObjNativeLockUser(PPRTR0MEMOBJINTERNAL ppMem, RTR3PTR R3P
                                 pTask->mm,              /* Whose pages. */
                                 R3Ptr,                  /* Where from. */
                                 cPages,                 /* How many pages. */
+# if LINUX_VERSION_CODE >= KERNEL_VERSION(4, 9, 0)
+                                fWrite ? FOLL_WRITE |   /* Write to memory. */
+                                         FOLL_FORCE     /* force write access. */
+                                       : 0,             /* Write to memory. */
+# else
                                 fWrite,                 /* Write to memory. */
                                 fWrite,                 /* force write access. */
+# endif
                                 &pMemLnx->apPages[0],   /* Page array. */
                                 papVMAs);               /* vmas */
 #endif /* LINUX_VERSION_CODE < KERNEL_VERSION(4, 6, 0) */
