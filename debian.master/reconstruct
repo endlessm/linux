@@ -1,6 +1,8 @@
 # Recreate any symlinks created since the orig.
 # Remove any files deleted from the orig.
 rm -f 'Documentation/devicetree/bindings/ipmi/aspeed,ast2400-bt-bmc.txt'
+rm -f 'arch/arm/boot/dts/ntc-gr8-evb.dts'
+rm -f 'arch/arm/boot/dts/ntc-gr8.dtsi'
 rm -f 'arch/x86/platform/intel-mid/device_libs/platform_wdt.c'
 rm -f 'debian.master/abi/4.9.0-0.0/abiname'
 rm -f 'debian.master/abi/4.9.0-0.0/amd64/generic'
