@@ -264,8 +264,8 @@ ssize_t aufs_listxattr(struct dentry *dentry, char *list, size_t size)
 	return au_lgxattr(dentry, &arg);
 }
 
-ssize_t aufs_getxattr(struct dentry *dentry, struct inode *inode __maybe_unused,
-		      const char *name, void *value, size_t size)
+static ssize_t aufs_getxattr(struct dentry *dentry, const char *name,
+			     void *value, size_t size)
 {
 	struct au_lgxattr arg = {
 		.type = AU_XATTR_GET,
@@ -279,8 +279,9 @@ ssize_t aufs_getxattr(struct dentry *dentry, struct inode *inode __maybe_unused,
 	return au_lgxattr(dentry, &arg);
 }
 
-int aufs_setxattr(struct dentry *dentry, struct inode *inode, const char *name,
-		  const void *value, size_t size, int flags)
+static int aufs_setxattr(struct dentry *dentry, struct inode *inode,
+			 const char *name, const void *value, size_t size,
+			 int flags)
 {
 	struct au_srxattr arg = {
 		.type = AU_XATTR_SET,
@@ -295,7 +296,7 @@ int aufs_setxattr(struct dentry *dentry, struct inode *inode, const char *name,
 	return au_srxattr(dentry, inode, &arg);
 }
 
-int aufs_removexattr(struct dentry *dentry, const char *name)
+static int aufs_removexattr(struct dentry *dentry, const char *name)
 {
 	struct au_srxattr arg = {
 		.type = AU_XATTR_REMOVE,
@@ -307,41 +308,38 @@ int aufs_removexattr(struct dentry *dentry, const char *name)
 	return au_srxattr(dentry, d_inode(dentry), &arg);
 }
 
-/* ---------------------------------------------------------------------- */
-
-#if 0
-static size_t au_xattr_list(struct dentry *dentry, char *list, size_t list_size,
-			    const char *name, size_t name_len, int type)
+static int au_xattr_get(const struct xattr_handler *handler,
+			struct dentry *dentry, struct inode *inode,
+			const char *name, void *value, size_t size)
 {
-	return aufs_listxattr(dentry, list, list_size);
+	return aufs_getxattr(dentry, name, value, size);
 }
 
-static int au_xattr_get(struct dentry *dentry, const char *name, void *buffer,
-			size_t size, int type)
+static int au_xattr_set(const struct xattr_handler *handler,
+			struct dentry *dentry, struct inode *inode,
+			const char *name, const void *value, size_t size,
+			int flags)
 {
-	return aufs_getxattr(dentry, name, buffer, size);
-}
-
-static int au_xattr_set(struct dentry *dentry, const char *name,
-			const void *value, size_t size, int flags, int type)
-{
-	return aufs_setxattr(dentry, name, value, size, flags);
+	if (!value) {
+		if (WARN_ON(flags != XATTR_REPLACE))
+			return -EINVAL;
+		return aufs_removexattr(dentry, name);
+	}
+	return aufs_setxattr(dentry, inode, name, value, size, flags);
 }
 
 static const struct xattr_handler au_xattr_handler = {
-	/* no prefix, no flags */
-	.list	= au_xattr_list,
-	.get	= au_xattr_get,
-	.set	= au_xattr_set
-	/* why no remove? */
+	.prefix = "", /* match anything */
+	.get = au_xattr_get,
+	.set = au_xattr_set,
 };
 
 static const struct xattr_handler *au_xattr_handlers[] = {
-	&au_xattr_handler
+	&au_xattr_handler,
+	NULL
 };
 
 void au_xattr_init(struct super_block *sb)
 {
-	/* sb->s_xattr = au_xattr_handlers; */
+	sb->s_xattr = au_xattr_handlers;
 }
-#endif
