@@ -923,7 +923,7 @@ static int aufs_fill_super(struct super_block *sb, void *raw_data,
 	sb->s_maxbytes = 0;
 	sb->s_stack_depth = 1;
 	au_export_init(sb);
-	/* au_xattr_init(sb); */
+	au_xattr_init(sb);
 
 	err = alloc_root(sb);
 	if (unlikely(err)) {
