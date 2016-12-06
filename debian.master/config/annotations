@@ -11157,3 +11157,7 @@ CONFIG_APPLDATA_NET_SUM                         policy<{'s390x': 'm'}>
 #CONFIG_TOUCHSCREEN_EETI				p policy<(arch armel armhf &/ value n) | value m> flag<BUILD FAILURE> note<FTBS on ti-omap4>
 #CONFIG_SENSORS_AK8975				p policy<(arch armel armhf &/ value n) | value m> flag<BUILD FAILURE> note<FTBS on ti-omap4>
 #CONFIG_PPC_EPAPR_HV_BYTECHAN			n flag<BUILD FAILURE> note<FTBFS on ppc64el>
+
+CONFIG_ARM64_ERRATUM_843419			policy<{'arm64': 'y'}>
+#
+CONFIG_ARM64_ERRATUM_843419			mark<ENFORCED> note<LP#1647793>
