@@ -2091,7 +2091,7 @@ static void fault_dirty_shared_page(struct vm_area_struct *vma,
 	}
 
 	if (!page_mkwrite)
-		file_update_time(vma->vm_file);
+		vma_file_update_time(vma);
 }
 
 /*
