@@ -8,7 +8,8 @@ ccflags-$(CONFIG_PPC64)	:= $(NO_MINIMAL_TOC)
 
 obj-y				:= fault.o mem.o pgtable.o mmap.o \
 				   init_$(CONFIG_WORD_SIZE).o \
-				   pgtable_$(CONFIG_WORD_SIZE).o
+				   pgtable_$(CONFIG_WORD_SIZE).o \
+				   init-common.o
 obj-$(CONFIG_PPC_MMU_NOHASH)	+= mmu_context_nohash.o tlb_nohash.o \
 				   tlb_nohash_low.o
 obj-$(CONFIG_PPC_BOOK3E)	+= tlb_low_$(CONFIG_WORD_SIZE)e.o
