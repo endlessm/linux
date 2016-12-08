@@ -1634,6 +1634,7 @@ static inline void security_audit_rule_free(void *lsmrule)
 
 #ifdef CONFIG_SECURITYFS
 extern int securityfs_pin_fs(void);
+extern void securityfs_release_fs(void);
 extern int __securityfs_setup_d_inode(struct inode *dir, struct dentry *dentry,
 				      umode_t mode, void *data,
 				      const struct file_operations *fops,
@@ -1653,7 +1654,9 @@ static inline int securityfs_pin_fs(void)
 {
 	return -ENODEV;
 }
-
+static inline void securityfs_release_fs(void)
+{
+}
 static inline int __securityfs_setup_d_inode(struct inode *dir,
 					struct dentry *dentry,
 					umode_t mode, void *data,
