@@ -226,12 +226,13 @@ static struct aa_ns *__aa_create_ns(struct aa_ns *parent, const char *name,
  *
  * Returns: the a refcounted ns that has been add or an ERR_PTR
  */
-struct aa_ns *aa_create_ns(struct aa_ns *parent, const char *name,
-			   struct dentry *dir)
+struct aa_ns *__aa_find_or_create_ns(struct aa_ns *parent, const char *name,
+				     struct dentry *dir)
 {
 	struct aa_ns *ns;
 
-	mutex_lock(&parent->lock);
+	AA_BUG(!mutex_is_locked(&parent->lock));
+
 	/* try and find the specified ns */
 	/* released by caller */
 	ns = aa_get_ns(__aa_find_ns(&parent->sub_ns, name));
@@ -239,7 +240,6 @@ struct aa_ns *aa_create_ns(struct aa_ns *parent, const char *name,
 		ns = __aa_create_ns(parent, name, dir);
 	else
 		ns = ERR_PTR(-EEXIST);
-	mutex_unlock(&parent->lock);
 
 	/* return ref */
 	return ns;
