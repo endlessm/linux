@@ -888,6 +888,10 @@ static int aufs_setattr(struct dentry *dentry, struct iattr *ia)
 	inode = d_inode(dentry);
 	IMustLock(inode);
 
+	err = setattr_prepare(dentry, ia);
+	if (unlikely(err))
+		goto out;
+
 	err = -ENOMEM;
 	a = kzalloc(sizeof(*a), GFP_NOFS);
 	if (unlikely(!a))
