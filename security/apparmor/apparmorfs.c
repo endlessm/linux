@@ -1141,8 +1141,10 @@ static int ns_mkdir_op(struct inode *dir, struct dentry *dentry, umode_t mode)
 	 * for pin_fs
 	 */
 	inode_unlock(dir);
-	securityfs_pin_fs();
+	error = securityfs_pin_fs();
 	inode_lock_nested(dir, I_MUTEX_PARENT);
+	if (error)
+		return error;
 
 	error = __securityfs_setup_d_inode(dir, dentry, mode | S_IFDIR,  NULL,
 					   NULL, NULL);
