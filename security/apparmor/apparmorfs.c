@@ -1144,12 +1144,12 @@ static int ns_mkdir_op(struct inode *dir, struct dentry *dentry, umode_t mode)
 	error = securityfs_pin_fs();
 	inode_lock_nested(dir, I_MUTEX_PARENT);
 	if (error)
-		return error;
+		goto out;
 
 	error = __securityfs_setup_d_inode(dir, dentry, mode | S_IFDIR,  NULL,
 					   NULL, NULL);
 	if (error)
-		return error;
+		goto out;
 
 	ns = aa_create_ns(parent, ACCESS_ONCE(dentry->d_name.name), dentry);
 	if (IS_ERR(ns)) {
@@ -1158,6 +1158,7 @@ static int ns_mkdir_op(struct inode *dir, struct dentry *dentry, umode_t mode)
 	}
 
 	aa_put_ns(ns);		/* list ref remains */
+out:
 	aa_put_ns(parent);
 
 	return error;
