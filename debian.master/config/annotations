@@ -4645,7 +4645,7 @@ CONFIG_TULIP_NAPI                               flag<REVIEW>
 # Menu: Device Drivers >> Network device support >> Ethernet driver support >> Freescale devices
 CONFIG_NET_VENDOR_FREESCALE                     policy<{'arm64': 'y', 'armhf-generic': 'y', 'powerpc-powerpc64-emb': 'y', 'powerpc-powerpc-e500mc': 'y'}>
 CONFIG_FEC                                      policy<{'armhf-generic': 'y'}>
-CONFIG_FSL_FMAN                                 policy<{'powerpc-powerpc64-emb': 'm', 'powerpc-powerpc-e500mc': 'm'}>
+CONFIG_FSL_FMAN                                 policy<{'powerpc-powerpc64-emb': 'y', 'powerpc-powerpc-e500mc': 'y'}>
 CONFIG_FSL_PQ_MDIO                              policy<{'arm64': 'm', 'armhf-generic': 'm', 'powerpc-powerpc64-emb': 'm', 'powerpc-powerpc-e500mc': 'm'}>
 CONFIG_FSL_XGMAC_MDIO                           policy<{'arm64': 'y', 'armhf-generic': 'y', 'powerpc-powerpc64-emb': 'y', 'powerpc-powerpc-e500mc': 'y'}>
 CONFIG_UCC_GETH                                 policy<{'powerpc-powerpc-e500mc': 'm'}>
@@ -4657,6 +4657,7 @@ CONFIG_FS_ENET                                  policy<{'powerpc-powerpc-e500mc'
 CONFIG_FS_ENET_HAS_SCC                          policy<{'powerpc-powerpc-e500mc': 'y'}>
 CONFIG_FS_ENET_HAS_FCC                          policy<{'powerpc-powerpc-e500mc': 'y'}>
 CONFIG_FS_ENET_MDIO_FCC                         policy<{'powerpc-powerpc-e500mc': 'm'}>
+CONFIG_FSL_FMAN					mark<ENFORCED>note<Does not work well as a module>
 
 # Menu: Device Drivers >> Network device support >> Ethernet driver support >> Hisilicon devices
 CONFIG_NET_VENDOR_HISILICON                     policy<{'arm64': 'y', 'armhf': 'y'}>
