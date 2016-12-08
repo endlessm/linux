@@ -1109,6 +1109,7 @@ ems_usb
 em_text
 emu10k1-gp
 em_u32
+ena
 enc28j60
 enclosure
 encx24j600
@@ -1683,7 +1684,6 @@ i7300_edac
 i7300_idle
 i740fb
 i7core_edac
-i810
 i82092
 i82975x_edac
 i915
