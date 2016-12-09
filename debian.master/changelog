@@ -1,3 +1,20 @@
+linux (4.9.0-10.11) zesty; urgency=low
+
+  * d-i is missing usb support for platforms that use the xhci-platform driver
+    (LP: #1625222)
+    - d-i initrd needs additional usb modules to support the merlin platform
+
+  * Miscellaneous Ubuntu changes
+    - SAUCE: Import aufs driver
+    - SAUCE: aufs -- Convert to use xattr handlers
+    - SAUCE: aufs -- Add flags argument to aufs_rename()
+    - [Config] Enable aufs
+    - [Config] CONFIG_FSL_FMAN=y for powerpc
+    - SAUCE: powerpc64: Fix legacy cmpi mneomonic assumption
+    - [Config] Restore powerpc64-emb
+
+ -- Tim Gardner <tim.gardner@canonical.com>  Thu, 08 Dec 2016 20:38:12 -0700
+
 linux (4.9.0-9.10) zesty; urgency=low
 
   * Kernel Fixes to get TCMU File Backed Optical to work (LP: #1646204)
