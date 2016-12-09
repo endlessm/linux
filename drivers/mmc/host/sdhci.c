@@ -47,6 +47,28 @@ static void sdhci_finish_data(struct sdhci_host *);
 
 static void sdhci_enable_preset_value(struct sdhci_host *host, bool enable);
 
+#ifdef CONFIG_PM
+static int sdhci_runtime_pm_get(struct sdhci_host *host)
+{
+	return pm_runtime_get_sync(host->mmc->parent);
+}
+
+static int sdhci_runtime_pm_put(struct sdhci_host *host)
+{
+	pm_runtime_mark_last_busy(host->mmc->parent);
+	return pm_runtime_put_autosuspend(host->mmc->parent);
+}
+#else
+static inline int sdhci_runtime_pm_get(struct sdhci_host *host)
+{
+	return 0;
+}
+static inline int sdhci_runtime_pm_put(struct sdhci_host *host)
+{
+	return 0;
+}
+#endif
+
 static void sdhci_dumpregs(struct sdhci_host *host)
 {
 	pr_err(DRIVER_NAME ": =========== REGISTER DUMP (%s)===========\n",
