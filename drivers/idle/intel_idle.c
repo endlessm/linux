@@ -1110,6 +1110,15 @@ static const struct dmi_system_id idle_cstate[] __initconst = {
 	{}
 };
 
+static bool check_byt(void)
+{
+	static const struct x86_cpu_id byt[] = {
+		{ X86_VENDOR_INTEL, 6, INTEL_FAM6_ATOM_SILVERMONT1 },
+		{}
+	};
+	return x86_match_cpu(byt);
+}
+
 /*
  * intel_idle_probe()
  */
@@ -1140,6 +1149,11 @@ static int __init intel_idle_probe(void)
 			pr_debug(PREFIX "does not run on family %d model %d\n",
 				boot_cpu_data.x86, boot_cpu_data.x86_model);
 		return -ENODEV;
+	}
+
+	if (check_byt()) {
+		pr_debug(PREFIX "forcing intel_idle.max_cstate = 1 on BayTrail\n");
+		max_cstate = 1;
 	}
 
 	if (boot_cpu_data.cpuid_level < CPUID_MWAIT_LEAF)
