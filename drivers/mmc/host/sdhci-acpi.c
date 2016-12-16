@@ -36,6 +36,7 @@
 #include <linux/pm.h>
 #include <linux/pm_runtime.h>
 #include <linux/delay.h>
+#include <linux/dmi.h>
 
 #include <linux/mmc/host.h>
 #include <linux/mmc/pm.h>
@@ -92,6 +93,16 @@ static inline void *sdhci_acpi_priv(struct sdhci_acpi_host *c)
 {
 	return (void *)c->private;
 }
+
+static const struct dmi_system_id disable_rpm[] __initconst = {
+	{
+		.matches = {
+			DMI_MATCH(DMI_SYS_VENDOR, "ThinGlobal LLC"),
+			DMI_MATCH(DMI_PRODUCT_NAME, "Ultra MiniPC TG1"),
+		},
+	},
+	{}
+};
 
 static inline bool sdhci_acpi_flag(struct sdhci_acpi_host *c, unsigned int flag)
 {
@@ -789,6 +800,11 @@ static int sdhci_acpi_probe(struct platform_device *pdev)
 			dev_warn(dev, "failed to setup card detect gpio\n");
 			c->use_runtime_pm = false;
 		}
+	}
+
+	if (dmi_check_system(disable_rpm)) {
+		dev_dbg(dev, "disabling runtime pm on this machine\n");
+		c->use_runtime_pm = false;
 	}
 
 	err = sdhci_setup_host(host);
