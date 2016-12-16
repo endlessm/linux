@@ -88,6 +88,16 @@ static inline void *sdhci_acpi_priv(struct sdhci_acpi_host *c)
 	return (void *)c->private;
 }
 
+static const struct dmi_system_id disable_rpm[] __initconst = {
+	{
+		.matches = {
+			DMI_MATCH(DMI_SYS_VENDOR, "ThinGlobal LLC"),
+			DMI_MATCH(DMI_PRODUCT_NAME, "Ultra MiniPC TG1"),
+		},
+	},
+	{}
+};
+
 static inline bool sdhci_acpi_flag(struct sdhci_acpi_host *c, unsigned int flag)
 {
 	return c->slot && (c->slot->flags & flag);
@@ -813,6 +823,11 @@ static int sdhci_acpi_probe(struct platform_device *pdev)
 
 		if (quirks & DMI_QUIRK_SD_NO_WRITE_PROTECT)
 			host->mmc->caps2 |= MMC_CAP2_NO_WRITE_PROTECT;
+	}
+
+	if (dmi_check_system(disable_rpm)) {
+		dev_dbg(dev, "disabling runtime pm on this machine\n");
+		c->use_runtime_pm = false;
 	}
 
 	err = sdhci_setup_host(host);
