@@ -502,6 +502,7 @@ static const struct sdhci_pci_fixes sdhci_ni_byt_sdio = {
 static const struct sdhci_pci_fixes sdhci_intel_byt_sdio = {
 	.quirks		= SDHCI_QUIRK_NO_ENDATTR_IN_NOPDESC,
 	.quirks2	= SDHCI_QUIRK2_HOST_OFF_CARD_ON |
+			SDHCI_QUIRK2_CARD_ON_NEEDS_BUS_ON |
 			SDHCI_QUIRK2_PRESET_VALUE_BROKEN,
 	.allow_runtime_pm = true,
 	.probe_slot	= byt_sdio_probe_slot,
