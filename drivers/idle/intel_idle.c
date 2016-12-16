@@ -1114,6 +1114,12 @@ static const struct dmi_system_id idle_cstate[] __initconst = {
 			DMI_MATCH(DMI_PRODUCT_NAME, "Z550MA"),
 		},
 	},
+	{
+		.matches = {
+			DMI_MATCH(DMI_SYS_VENDOR, "ThinGlobal LLC"),
+			DMI_MATCH(DMI_PRODUCT_NAME, "Ultra MiniPC TG1"),
+		},
+	},
 	{}
 };
 
