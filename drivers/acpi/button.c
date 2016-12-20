@@ -30,6 +30,7 @@
 #include <linux/input.h>
 #include <linux/slab.h>
 #include <linux/acpi.h>
+#include <linux/dmi.h>
 #include <acpi/button.h>
 
 #define PREFIX "ACPI: "
@@ -448,6 +449,17 @@ static int acpi_button_resume(struct device *dev)
 }
 #endif
 
+static const struct dmi_system_id broken_lid_dmi_table[] = {
+	{
+		.ident = "EF20",
+		.matches = {
+			DMI_MATCH(DMI_PRODUCT_NAME, "EF20"),
+		},
+	},
+	{}
+};
+
+
 static int acpi_button_add(struct acpi_device *device)
 {
 	struct acpi_button *button;
@@ -455,6 +467,11 @@ static int acpi_button_add(struct acpi_device *device)
 	const char *hid = acpi_device_hid(device);
 	char *name, *class;
 	int error;
+
+	if (dmi_check_system(broken_lid_dmi_table)) {
+		pr_info("Applying ACPI_BUTTON_LID_INIT_OPEN quirk\n");
+		lid_init_state = ACPI_BUTTON_LID_INIT_OPEN;
+	}
 
 	button = kzalloc(sizeof(struct acpi_button), GFP_KERNEL);
 	if (!button)
