@@ -474,6 +474,22 @@ static int acpi_lid_input_open(struct input_dev *input)
 	return 0;
 }
 
+static const struct dmi_system_id broken_lid_dmi_table[] = {
+	{
+		.ident = "EF20",
+		.matches = {
+			DMI_MATCH(DMI_PRODUCT_NAME, "EF20"),
+		},
+	},
+	{
+		.ident = "EF20EA",
+		.matches = {
+			DMI_MATCH(DMI_PRODUCT_NAME, "EF20EA"),
+		},
+	},
+	{}
+};
+
 static int acpi_button_add(struct acpi_device *device)
 {
 	struct acpi_button *button;
@@ -484,6 +500,11 @@ static int acpi_button_add(struct acpi_device *device)
 
 	if (!strcmp(hid, ACPI_BUTTON_HID_LID) && dmi_check_system(lid_blacklst))
 		return -ENODEV;
+
+	if (dmi_check_system(broken_lid_dmi_table)) {
+		pr_info("Applying ACPI_BUTTON_LID_INIT_OPEN quirk\n");
+		lid_init_state = ACPI_BUTTON_LID_INIT_OPEN;
+	}
 
 	button = kzalloc(sizeof(struct acpi_button), GFP_KERNEL);
 	if (!button)
