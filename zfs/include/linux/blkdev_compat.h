@@ -263,9 +263,17 @@ bio_set_flags_failfast(struct block_device *bdev, int *flags)
  * 2.6.27 API change
  * The function was exported for use, prior to this it existed by the
  * symbol was not exported.
+ *
+ * Ubuntu Xenial commit 193fb6a2c94fab8eb8ce70a5da4d21c7d4023bee
+ * ("UBUNTU: SAUCE: block_dev: Support checking inode permissions in lookup_bdev()")
+ * added in a mask parameter which we set as zero.
  */
-#ifndef HAVE_LOOKUP_BDEV
-#define	lookup_bdev(path)		ERR_PTR(-ENOTSUP)
+#ifdef HAVE_LOOKUP_BDEV
+#define zfs_lookup_bdev(path)		lookup_bdev(path)
+#elif defined(HAVE_LOOKUP_BDEV_2ARGS)
+#define zfs_lookup_bdev(path)		lookup_bdev(path, 0)
+#else
+#define	zfs_lookup_bdev(path)		ERR_PTR(-ENOTSUP)
 #endif
 
 /*

@@ -2980,6 +2980,7 @@ static void skylake_update_primary_plane(struct drm_plane *plane,
 	struct intel_crtc *intel_crtc = to_intel_crtc(crtc_state->base.crtc);
 	struct drm_framebuffer *fb = plane_state->base.fb;
 	struct drm_i915_gem_object *obj = intel_fb_obj(fb);
+	const struct skl_wm_values *wm = &dev_priv->wm.skl_results;
 	int pipe = intel_crtc->pipe;
 	u32 plane_ctl, stride_div, stride;
 	u32 tile_height, plane_offset, plane_size;
@@ -3031,6 +3032,9 @@ static void skylake_update_primary_plane(struct drm_plane *plane,
 	intel_crtc->adjusted_x = x_offset;
 	intel_crtc->adjusted_y = y_offset;
 
+	if (wm->dirty_pipes & drm_crtc_mask(&intel_crtc->base))
+		skl_write_plane_wm(intel_crtc, wm, 0);
+
 	I915_WRITE(PLANE_CTL(pipe, 0), plane_ctl);
 	I915_WRITE(PLANE_OFFSET(pipe, 0), plane_offset);
 	I915_WRITE(PLANE_SIZE(pipe, 0), plane_size);
@@ -3061,7 +3065,15 @@ static void skylake_disable_primary_plane(struct drm_plane *primary,
 {
 	struct drm_device *dev = crtc->dev;
 	struct drm_i915_private *dev_priv = to_i915(dev);
-	int pipe = to_intel_crtc(crtc)->pipe;
+	struct intel_crtc *intel_crtc = to_intel_crtc(crtc);
+	int pipe = intel_crtc->pipe;
+
+	/*
+	 * We only populate skl_results on watermark updates, and if the
+	 * plane's visiblity isn't actually changing neither is its watermarks.
+	 */
+	if (!to_intel_plane_state(crtc->primary->state)->visible)
+		skl_write_plane_wm(intel_crtc, &dev_priv->wm.skl_results, 0);
 
 	I915_WRITE(PLANE_CTL(pipe, 0), 0);
 	I915_WRITE(PLANE_SURF(pipe, 0), 0);
@@ -9019,6 +9031,24 @@ static void ironlake_compute_dpll(struct intel_crtc *intel_crtc,
 	if (intel_crtc_has_dp_encoder(crtc_state))
 		dpll |= DPLL_SDVO_HIGH_SPEED;
 
+	/*
+	 * The high speed IO clock is only really required for
+	 * SDVO/HDMI/DP, but we also enable it for CRT to make it
+	 * possible to share the DPLL between CRT and HDMI. Enabling
+	 * the clock needlessly does no real harm, except use up a
+	 * bit of power potentially.
+	 *
+	 * We'll limit this to IVB with 3 pipes, since it has only two
+	 * DPLLs and so DPLL sharing is the only way to get three pipes
+	 * driving PCH ports at the same time. On SNB we could do this,
+	 * and potentially avoid enabling the second DPLL, but it's not
+	 * clear if it''s a win or loss power wise. No point in doing
+	 * this on ILK at all since it has a fixed DPLL<->pipe mapping.
+	 */
+	if (INTEL_INFO(dev_priv)->num_pipes == 3 &&
+	    intel_crtc_has_type(crtc_state, INTEL_OUTPUT_ANALOG))
+		dpll |= DPLL_SDVO_HIGH_SPEED;
+
 	/* compute bitmask from p1 value */
 	dpll |= (1 << (crtc_state->dpll.p1 - 1)) << DPLL_FPA01_P1_POST_DIV_SHIFT;
 	/* also FPA1 */
@@ -9731,6 +9761,29 @@ static void bxt_modeset_commit_cdclk(struct drm_atomic_state *old_state)
 	bxt_set_cdclk(to_i915(dev), req_cdclk);
 }
 
+static int bdw_adjust_min_pipe_pixel_rate(struct intel_crtc_state *crtc_state,
+					  int pixel_rate)
+{
+	struct drm_i915_private *dev_priv = to_i915(crtc_state->base.crtc->dev);
+
+	/* pixel rate mustn't exceed 95% of cdclk with IPS on BDW */
+	if (IS_BROADWELL(dev_priv) && crtc_state->ips_enabled)
+		pixel_rate = DIV_ROUND_UP(pixel_rate * 100, 95);
+
+	/* BSpec says "Do not use DisplayPort with CDCLK less than
+	 * 432 MHz, audio enabled, port width x4, and link rate
+	 * HBR2 (5.4 GHz), or else there may be audio corruption or
+	 * screen corruption."
+	 */
+	if (intel_crtc_has_dp_encoder(crtc_state) &&
+	    crtc_state->has_audio &&
+	    crtc_state->port_clock >= 540000 &&
+	    crtc_state->lane_count == 4)
+		pixel_rate = max(432000, pixel_rate);
+
+	return pixel_rate;
+}
+
 /* compute the max rate for new configuration */
 static int ilk_max_pixel_rate(struct drm_atomic_state *state)
 {
@@ -9756,9 +9809,9 @@ static int ilk_max_pixel_rate(struct drm_atomic_state *state)
 
 		pixel_rate = ilk_pipe_pixel_rate(crtc_state);
 
-		/* pixel rate mustn't exceed 95% of cdclk with IPS on BDW */
-		if (IS_BROADWELL(dev_priv) && crtc_state->ips_enabled)
-			pixel_rate = DIV_ROUND_UP(pixel_rate * 100, 95);
+		if (IS_BROADWELL(dev_priv) || IS_GEN9(dev_priv))
+			pixel_rate = bdw_adjust_min_pipe_pixel_rate(crtc_state,
+								    pixel_rate);
 
 		intel_state->min_pixclk[i] = pixel_rate;
 	}
@@ -10330,8 +10383,12 @@ static void i9xx_update_cursor(struct drm_crtc *crtc, u32 base,
 	struct drm_device *dev = crtc->dev;
 	struct drm_i915_private *dev_priv = to_i915(dev);
 	struct intel_crtc *intel_crtc = to_intel_crtc(crtc);
+	const struct skl_wm_values *wm = &dev_priv->wm.skl_results;
 	int pipe = intel_crtc->pipe;
 	uint32_t cntl = 0;
+
+	if (INTEL_GEN(dev_priv) >= 9 && wm->dirty_pipes & drm_crtc_mask(crtc))
+		skl_write_cursor_wm(intel_crtc, wm);
 
 	if (plane_state && plane_state->visible) {
 		cntl = MCURSOR_GAMMA_ENABLE;
@@ -12980,16 +13037,23 @@ static void verify_wm_state(struct drm_crtc *crtc,
 			  hw_entry->start, hw_entry->end);
 	}
 
-	/* cursor */
-	hw_entry = &hw_ddb.plane[pipe][PLANE_CURSOR];
-	sw_entry = &sw_ddb->plane[pipe][PLANE_CURSOR];
+	/*
+	 * cursor
+	 * If the cursor plane isn't active, we may not have updated it's ddb
+	 * allocation. In that case since the ddb allocation will be updated
+	 * once the plane becomes visible, we can skip this check
+	 */
+	if (intel_crtc->cursor_addr) {
+		hw_entry = &hw_ddb.plane[pipe][PLANE_CURSOR];
+		sw_entry = &sw_ddb->plane[pipe][PLANE_CURSOR];
 
-	if (!skl_ddb_entry_equal(hw_entry, sw_entry)) {
-		DRM_ERROR("mismatch in DDB state pipe %c cursor "
-			  "(expected (%u,%u), found (%u,%u))\n",
-			  pipe_name(pipe),
-			  sw_entry->start, sw_entry->end,
-			  hw_entry->start, hw_entry->end);
+		if (!skl_ddb_entry_equal(hw_entry, sw_entry)) {
+			DRM_ERROR("mismatch in DDB state pipe %c cursor "
+				  "(expected (%u,%u), found (%u,%u))\n",
+				  pipe_name(pipe),
+				  sw_entry->start, sw_entry->end,
+				  hw_entry->start, hw_entry->end);
+		}
 	}
 }
 
@@ -13695,6 +13759,111 @@ static bool needs_vblank_wait(struct intel_crtc_state *crtc_state)
 	return false;
 }
 
+static void intel_update_crtc(struct drm_crtc *crtc,
+			      struct drm_atomic_state *state,
+			      struct drm_crtc_state *old_crtc_state,
+			      unsigned int *crtc_vblank_mask)
+{
+	struct drm_device *dev = crtc->dev;
+	struct drm_i915_private *dev_priv = to_i915(dev);
+	struct intel_crtc *intel_crtc = to_intel_crtc(crtc);
+	struct intel_crtc_state *pipe_config = to_intel_crtc_state(crtc->state);
+	bool modeset = needs_modeset(crtc->state);
+
+	if (modeset) {
+		update_scanline_offset(intel_crtc);
+		dev_priv->display.crtc_enable(crtc);
+	} else {
+		intel_pre_plane_update(to_intel_crtc_state(old_crtc_state));
+	}
+
+	if (drm_atomic_get_existing_plane_state(state, crtc->primary)) {
+		intel_fbc_enable(
+		    intel_crtc, pipe_config,
+		    to_intel_plane_state(crtc->primary->state));
+	}
+
+	drm_atomic_helper_commit_planes_on_crtc(old_crtc_state);
+
+	if (needs_vblank_wait(pipe_config))
+		*crtc_vblank_mask |= drm_crtc_mask(crtc);
+}
+
+static void intel_update_crtcs(struct drm_atomic_state *state,
+			       unsigned int *crtc_vblank_mask)
+{
+	struct drm_crtc *crtc;
+	struct drm_crtc_state *old_crtc_state;
+	int i;
+
+	for_each_crtc_in_state(state, crtc, old_crtc_state, i) {
+		if (!crtc->state->active)
+			continue;
+
+		intel_update_crtc(crtc, state, old_crtc_state,
+				  crtc_vblank_mask);
+	}
+}
+
+static void skl_update_crtcs(struct drm_atomic_state *state,
+			     unsigned int *crtc_vblank_mask)
+{
+	struct drm_device *dev = state->dev;
+	struct drm_i915_private *dev_priv = to_i915(dev);
+	struct intel_atomic_state *intel_state = to_intel_atomic_state(state);
+	struct drm_crtc *crtc;
+	struct drm_crtc_state *old_crtc_state;
+	struct skl_ddb_allocation *new_ddb = &intel_state->wm_results.ddb;
+	struct skl_ddb_allocation *cur_ddb = &dev_priv->wm.skl_hw.ddb;
+	unsigned int updated = 0;
+	bool progress;
+	enum pipe pipe;
+
+	/*
+	 * Whenever the number of active pipes changes, we need to make sure we
+	 * update the pipes in the right order so that their ddb allocations
+	 * never overlap with eachother inbetween CRTC updates. Otherwise we'll
+	 * cause pipe underruns and other bad stuff.
+	 */
+	do {
+		int i;
+		progress = false;
+
+		for_each_crtc_in_state(state, crtc, old_crtc_state, i) {
+			bool vbl_wait = false;
+			unsigned int cmask = drm_crtc_mask(crtc);
+			pipe = to_intel_crtc(crtc)->pipe;
+
+			if (updated & cmask || !crtc->state->active)
+				continue;
+			if (skl_ddb_allocation_overlaps(state, cur_ddb, new_ddb,
+							pipe))
+				continue;
+
+			updated |= cmask;
+
+			/*
+			 * If this is an already active pipe, it's DDB changed,
+			 * and this isn't the last pipe that needs updating
+			 * then we need to wait for a vblank to pass for the
+			 * new ddb allocation to take effect.
+			 */
+			if (!skl_ddb_allocation_equals(cur_ddb, new_ddb, pipe) &&
+			    !crtc->state->active_changed &&
+			    intel_state->wm_results.dirty_pipes != updated)
+				vbl_wait = true;
+
+			intel_update_crtc(crtc, state, old_crtc_state,
+					  crtc_vblank_mask);
+
+			if (vbl_wait)
+				intel_wait_for_vblank(dev, pipe);
+
+			progress = true;
+		}
+	} while (progress);
+}
+
 static void intel_atomic_commit_tail(struct drm_atomic_state *state)
 {
 	struct drm_device *dev = state->dev;
@@ -13712,7 +13881,7 @@ static void intel_atomic_commit_tail(struct drm_atomic_state *state)
 
 	for_each_plane_in_state(state, plane, plane_state, i) {
 		struct intel_plane_state *intel_plane_state =
-			to_intel_plane_state(plane_state);
+			to_intel_plane_state(plane->state);
 
 		if (!intel_plane_state->wait_req)
 			continue;
@@ -13787,23 +13956,15 @@ static void intel_atomic_commit_tail(struct drm_atomic_state *state)
 		 * SKL workaround: bspec recommends we disable the SAGV when we
 		 * have more then one pipe enabled
 		 */
-		if (IS_SKYLAKE(dev_priv) && !skl_can_enable_sagv(state))
-			skl_disable_sagv(dev_priv);
+		if (!intel_can_enable_sagv(state))
+			intel_disable_sagv(dev_priv);
 
 		intel_modeset_verify_disabled(dev);
 	}
 
-	/* Now enable the clocks, plane, pipe, and connectors that we set up. */
+	/* Complete the events for pipes that have now been disabled */
 	for_each_crtc_in_state(state, crtc, old_crtc_state, i) {
-		struct intel_crtc *intel_crtc = to_intel_crtc(crtc);
 		bool modeset = needs_modeset(crtc->state);
-		struct intel_crtc_state *pipe_config =
-			to_intel_crtc_state(crtc->state);
-
-		if (modeset && crtc->state->active) {
-			update_scanline_offset(to_intel_crtc(crtc));
-			dev_priv->display.crtc_enable(crtc);
-		}
 
 		/* Complete events for now disable pipes here. */
 		if (modeset && !crtc->state->active && crtc->state->event) {
@@ -13813,20 +13974,10 @@ static void intel_atomic_commit_tail(struct drm_atomic_state *state)
 
 			crtc->state->event = NULL;
 		}
-
-		if (!modeset)
-			intel_pre_plane_update(to_intel_crtc_state(old_crtc_state));
-
-		if (crtc->state->active &&
-		    drm_atomic_get_existing_plane_state(state, crtc->primary))
-			intel_fbc_enable(intel_crtc, pipe_config, to_intel_plane_state(crtc->primary->state));
-
-		if (crtc->state->active)
-			drm_atomic_helper_commit_planes_on_crtc(old_crtc_state);
-
-		if (pipe_config->base.active && needs_vblank_wait(pipe_config))
-			crtc_vblank_mask |= 1 << i;
 	}
+
+	/* Now enable the clocks, plane, pipe, and connectors that we set up. */
+	dev_priv->display.update_crtcs(state, &crtc_vblank_mask);
 
 	/* FIXME: We should call drm_atomic_helper_commit_hw_done() here
 	 * already, but still need the state for the delayed optimization. To
@@ -13863,9 +14014,8 @@ static void intel_atomic_commit_tail(struct drm_atomic_state *state)
 		intel_modeset_verify_crtc(crtc, old_crtc_state, crtc->state);
 	}
 
-	if (IS_SKYLAKE(dev_priv) && intel_state->modeset &&
-	    skl_can_enable_sagv(state))
-		skl_enable_sagv(dev_priv);
+	if (intel_state->modeset && intel_can_enable_sagv(state))
+		intel_enable_sagv(dev_priv);
 
 	drm_atomic_helper_commit_hw_done(state);
 
@@ -14245,10 +14395,12 @@ static void intel_begin_crtc_commit(struct drm_crtc *crtc,
 				    struct drm_crtc_state *old_crtc_state)
 {
 	struct drm_device *dev = crtc->dev;
+	struct drm_i915_private *dev_priv = to_i915(dev);
 	struct intel_crtc *intel_crtc = to_intel_crtc(crtc);
 	struct intel_crtc_state *old_intel_state =
 		to_intel_crtc_state(old_crtc_state);
 	bool modeset = needs_modeset(crtc->state);
+	enum pipe pipe = intel_crtc->pipe;
 
 	/* Perform vblank evasion around commit operation */
 	intel_pipe_update_start(intel_crtc);
@@ -14263,8 +14415,12 @@ static void intel_begin_crtc_commit(struct drm_crtc *crtc,
 
 	if (to_intel_crtc_state(crtc->state)->update_pipe)
 		intel_update_pipe_config(intel_crtc, old_intel_state);
-	else if (INTEL_INFO(dev)->gen >= 9)
+	else if (INTEL_GEN(dev_priv) >= 9) {
 		skl_detach_scalers(intel_crtc);
+
+		I915_WRITE(PIPE_WM_LINETIME(pipe),
+			   dev_priv->wm.skl_hw.wm_linetime[pipe]);
+	}
 }
 
 static void intel_finish_crtc_commit(struct drm_crtc *crtc,
@@ -15447,6 +15603,11 @@ void intel_init_display_hooks(struct drm_i915_private *dev_priv)
 		dev_priv->display.modeset_calc_cdclk =
 			skl_modeset_calc_cdclk;
 	}
+
+	if (dev_priv->info.gen >= 9)
+		dev_priv->display.update_crtcs = skl_update_crtcs;
+	else
+		dev_priv->display.update_crtcs = intel_update_crtcs;
 
 	switch (INTEL_INFO(dev_priv)->gen) {
 	case 2:

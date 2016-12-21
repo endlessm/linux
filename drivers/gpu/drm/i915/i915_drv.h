@@ -632,6 +632,8 @@ struct drm_i915_display_funcs {
 				  struct intel_crtc_state *crtc_state);
 	void (*crtc_enable)(struct drm_crtc *crtc);
 	void (*crtc_disable)(struct drm_crtc *crtc);
+	void (*update_crtcs)(struct drm_atomic_state *state,
+			     unsigned int *crtc_vblank_mask);
 	void (*audio_codec_enable)(struct drm_connector *connector,
 				   struct intel_encoder *encoder,
 				   const struct drm_display_mode *adjusted_mode);
@@ -1978,11 +1980,11 @@ struct drm_i915_private {
 	struct vlv_s0ix_state vlv_s0ix_state;
 
 	enum {
-		I915_SKL_SAGV_UNKNOWN = 0,
-		I915_SKL_SAGV_DISABLED,
-		I915_SKL_SAGV_ENABLED,
-		I915_SKL_SAGV_NOT_CONTROLLED
-	} skl_sagv_status;
+		I915_SAGV_UNKNOWN = 0,
+		I915_SAGV_DISABLED,
+		I915_SAGV_ENABLED,
+		I915_SAGV_NOT_CONTROLLED
+	} sagv_status;
 
 	struct {
 		/*
@@ -2306,21 +2308,19 @@ struct drm_i915_gem_object {
 	/** Record of address bit 17 of each page at last unbind. */
 	unsigned long *bit_17;
 
-	union {
-		/** for phy allocated objects */
-		struct drm_dma_handle *phys_handle;
-
-		struct i915_gem_userptr {
-			uintptr_t ptr;
-			unsigned read_only :1;
-			unsigned workers :4;
+	struct i915_gem_userptr {
+		uintptr_t ptr;
+		unsigned read_only :1;
+		unsigned workers :4;
 #define I915_GEM_USERPTR_MAX_WORKERS 15
 
-			struct i915_mm_struct *mm;
-			struct i915_mmu_object *mmu_object;
-			struct work_struct *work;
-		} userptr;
-	};
+		struct i915_mm_struct *mm;
+		struct i915_mmu_object *mmu_object;
+		struct work_struct *work;
+	} userptr;
+
+	/** for phys allocated objects */
+	struct drm_dma_handle *phys_handle;
 };
 #define to_intel_bo(x) container_of(x, struct drm_i915_gem_object, base)
 

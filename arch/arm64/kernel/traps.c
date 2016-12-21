@@ -142,6 +142,11 @@ static void dump_backtrace(struct pt_regs *regs, struct task_struct *tsk)
 	unsigned long irq_stack_ptr;
 	int skip;
 
+	pr_debug("%s(regs = %p tsk = %p)\n", __func__, regs, tsk);
+
+	if (!tsk)
+		tsk = current;
+
 	/*
 	 * Switching between stacks is valid when tracing current and in
 	 * non-preemptible context.
@@ -150,11 +155,6 @@ static void dump_backtrace(struct pt_regs *regs, struct task_struct *tsk)
 		irq_stack_ptr = IRQ_STACK_PTR(smp_processor_id());
 	else
 		irq_stack_ptr = 0;
-
-	pr_debug("%s(regs = %p tsk = %p)\n", __func__, regs, tsk);
-
-	if (!tsk)
-		tsk = current;
 
 	if (tsk == current) {
 		frame.fp = (unsigned long)__builtin_frame_address(0);
@@ -434,18 +434,21 @@ void cpu_enable_cache_maint_trap(void *__unused)
 }
 
 #define __user_cache_maint(insn, address, res)			\
-	asm volatile (						\
-		"1:	" insn ", %1\n"				\
-		"	mov	%w0, #0\n"			\
-		"2:\n"						\
-		"	.pushsection .fixup,\"ax\"\n"		\
-		"	.align	2\n"				\
-		"3:	mov	%w0, %w2\n"			\
-		"	b	2b\n"				\
-		"	.popsection\n"				\
-		_ASM_EXTABLE(1b, 3b)				\
-		: "=r" (res)					\
-		: "r" (address), "i" (-EFAULT) )
+	if (untagged_addr(address) >= user_addr_max())		\
+		res = -EFAULT;					\
+	else							\
+		asm volatile (					\
+			"1:	" insn ", %1\n"			\
+			"	mov	%w0, #0\n"		\
+			"2:\n"					\
+			"	.pushsection .fixup,\"ax\"\n"	\
+			"	.align	2\n"			\
+			"3:	mov	%w0, %w2\n"		\
+			"	b	2b\n"			\
+			"	.popsection\n"			\
+			_ASM_EXTABLE(1b, 3b)			\
+			: "=r" (res)				\
+			: "r" (address), "i" (-EFAULT) )
 
 asmlinkage void __exception do_sysinstr(unsigned int esr, struct pt_regs *regs)
 {

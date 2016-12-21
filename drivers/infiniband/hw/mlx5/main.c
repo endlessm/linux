@@ -1843,6 +1843,7 @@ static struct mlx5_ib_flow_handler *create_leftovers_rule(struct mlx5_ib_dev *de
 						 &leftovers_specs[LEFTOVERS_UC].flow_attr,
 						 dst);
 		if (IS_ERR(handler_ucast)) {
+			mlx5_del_flow_rule(handler->rule);
 			kfree(handler);
 			handler = handler_ucast;
 		} else {
@@ -2099,14 +2100,14 @@ static void mlx5_ib_event(struct mlx5_core_dev *dev, void *context,
 {
 	struct mlx5_ib_dev *ibdev = (struct mlx5_ib_dev *)context;
 	struct ib_event ibev;
-
+	bool fatal = false;
 	u8 port = 0;
 
 	switch (event) {
 	case MLX5_DEV_EVENT_SYS_ERROR:
-		ibdev->ib_active = false;
 		ibev.event = IB_EVENT_DEVICE_FATAL;
 		mlx5_ib_handle_internal_error(ibdev);
+		fatal = true;
 		break;
 
 	case MLX5_DEV_EVENT_PORT_UP:
@@ -2153,6 +2154,9 @@ static void mlx5_ib_event(struct mlx5_core_dev *dev, void *context,
 
 	if (ibdev->ib_active)
 		ib_dispatch_event(&ibev);
+
+	if (fatal)
+		ibdev->ib_active = false;
 }
 
 static void get_ext_port_caps(struct mlx5_ib_dev *dev)
@@ -2834,7 +2838,7 @@ static void *mlx5_ib_add(struct mlx5_core_dev *mdev)
 	}
 	err = init_node_data(dev);
 	if (err)
-		goto err_dealloc;
+		goto err_free_port;
 
 	mutex_init(&dev->flow_db.lock);
 	mutex_init(&dev->cap_mask_mutex);
@@ -2844,7 +2848,7 @@ static void *mlx5_ib_add(struct mlx5_core_dev *mdev)
 	if (ll == IB_LINK_LAYER_ETHERNET) {
 		err = mlx5_enable_roce(dev);
 		if (err)
-			goto err_dealloc;
+			goto err_free_port;
 	}
 
 	err = create_dev_resources(&dev->devr);

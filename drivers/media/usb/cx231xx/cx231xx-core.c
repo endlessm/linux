@@ -712,6 +712,7 @@ int cx231xx_set_mode(struct cx231xx *dev, enum cx231xx_mode set_mode)
 			break;
 		case CX231XX_BOARD_CNXT_RDE_253S:
 		case CX231XX_BOARD_CNXT_RDU_253S:
+		case CX231XX_BOARD_PV_PLAYTV_USB_HYBRID:
 			errCode = cx231xx_set_agc_analog_digital_mux_select(dev, 1);
 			break;
 		case CX231XX_BOARD_HAUPPAUGE_EXETER:
@@ -738,7 +739,7 @@ int cx231xx_set_mode(struct cx231xx *dev, enum cx231xx_mode set_mode)
 		case CX231XX_BOARD_PV_PLAYTV_USB_HYBRID:
 		case CX231XX_BOARD_HAUPPAUGE_USB2_FM_PAL:
 		case CX231XX_BOARD_HAUPPAUGE_USB2_FM_NTSC:
-		errCode = cx231xx_set_agc_analog_digital_mux_select(dev, 0);
+			errCode = cx231xx_set_agc_analog_digital_mux_select(dev, 0);
 			break;
 		default:
 			break;
@@ -1301,15 +1302,29 @@ int cx231xx_dev_init(struct cx231xx *dev)
 	dev->i2c_bus[2].i2c_reserve = 0;
 
 	/* register I2C buses */
-	cx231xx_i2c_register(&dev->i2c_bus[0]);
-	cx231xx_i2c_register(&dev->i2c_bus[1]);
-	cx231xx_i2c_register(&dev->i2c_bus[2]);
-
-	errCode = cx231xx_i2c_mux_create(dev);
+	errCode = cx231xx_i2c_register(&dev->i2c_bus[0]);
 	if (errCode < 0)
 		return errCode;
-	cx231xx_i2c_mux_register(dev, 0);
-	cx231xx_i2c_mux_register(dev, 1);
+	errCode = cx231xx_i2c_register(&dev->i2c_bus[1]);
+	if (errCode < 0)
+		return errCode;
+	errCode = cx231xx_i2c_register(&dev->i2c_bus[2]);
+	if (errCode < 0)
+		return errCode;
+
+	errCode = cx231xx_i2c_mux_create(dev);
+	if (errCode < 0) {
+		dev_err(dev->dev,
+			"%s: Failed to create I2C mux\n", __func__);
+		return errCode;
+	}
+	errCode = cx231xx_i2c_mux_register(dev, 0);
+	if (errCode < 0)
+		return errCode;
+
+	errCode = cx231xx_i2c_mux_register(dev, 1);
+	if (errCode < 0)
+		return errCode;
 
 	/* scan the real bus segments in the order of physical port numbers */
 	cx231xx_do_i2c_scan(dev, I2C_0);

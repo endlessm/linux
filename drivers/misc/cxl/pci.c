@@ -1239,6 +1239,9 @@ int cxl_pci_reset(struct cxl *adapter)
 
 	dev_info(&dev->dev, "CXL reset\n");
 
+	/* the adapter is about to be reset, so ignore errors */
+	cxl_data_cache_flush(adapter);
+
 	/* pcie_warm_reset requests a fundamental pci reset which includes a
 	 * PERST assert/deassert.  PERST triggers a loading of the image
 	 * if "user" or "factory" is selected in sysfs */
@@ -1484,6 +1487,8 @@ static int cxl_configure_adapter(struct cxl *adapter, struct pci_dev *dev)
 	if ((rc = cxl_native_register_psl_err_irq(adapter)))
 		goto err;
 
+	/* Release the context lock as adapter is configured */
+	cxl_adapter_context_unlock(adapter);
 	return 0;
 
 err:

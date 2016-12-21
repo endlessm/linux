@@ -108,6 +108,7 @@ static void ipu_plane_atomic_set_base(struct ipu_plane *ipu_plane,
 {
 	struct drm_plane *plane = &ipu_plane->base;
 	struct drm_plane_state *state = plane->state;
+	struct drm_crtc_state *crtc_state = state->crtc->state;
 	struct drm_framebuffer *fb = state->fb;
 	unsigned long eba, ubo, vbo;
 	int active;
@@ -149,7 +150,7 @@ static void ipu_plane_atomic_set_base(struct ipu_plane *ipu_plane,
 		break;
 	}
 
-	if (old_state->fb) {
+	if (!drm_atomic_crtc_needs_modeset(crtc_state)) {
 		active = ipu_idmac_get_current_buffer(ipu_plane->ipu_ch);
 		ipu_cpmem_set_buffer(ipu_plane->ipu_ch, !active, eba);
 		ipu_idmac_select_buffer(ipu_plane->ipu_ch, !active);
@@ -359,7 +360,9 @@ static int ipu_plane_atomic_check(struct drm_plane *plane,
 		if ((ubo > 0xfffff8) || (vbo > 0xfffff8))
 			return -EINVAL;
 
-		if (old_fb) {
+		if (old_fb &&
+		    (old_fb->pixel_format == DRM_FORMAT_YUV420 ||
+		     old_fb->pixel_format == DRM_FORMAT_YVU420)) {
 			old_ubo = drm_plane_state_to_ubo(old_state);
 			old_vbo = drm_plane_state_to_vbo(old_state);
 			if (ubo != old_ubo || vbo != old_vbo)

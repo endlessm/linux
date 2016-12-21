@@ -754,15 +754,7 @@ EXPORT_SYMBOL(target_complete_cmd);
 
 void target_complete_cmd_with_length(struct se_cmd *cmd, u8 scsi_status, int length)
 {
-	if (scsi_status != SAM_STAT_GOOD) {
-		return;
-	}
-
-	/*
-	 * Calculate new residual count based upon length of SCSI data
-	 * transferred.
-	 */
-	if (length < cmd->data_length) {
+	if (scsi_status == SAM_STAT_GOOD && length < cmd->data_length) {
 		if (cmd->se_cmd_flags & SCF_UNDERFLOW_BIT) {
 			cmd->residual_count += cmd->data_length - length;
 		} else {
@@ -771,12 +763,6 @@ void target_complete_cmd_with_length(struct se_cmd *cmd, u8 scsi_status, int len
 		}
 
 		cmd->data_length = length;
-	} else if (length > cmd->data_length) {
-		cmd->se_cmd_flags |= SCF_OVERFLOW_BIT;
-		cmd->residual_count = length - cmd->data_length;
-	} else {
-		cmd->se_cmd_flags &= ~(SCF_OVERFLOW_BIT | SCF_UNDERFLOW_BIT);
-		cmd->residual_count = 0;
 	}
 
 	target_complete_cmd(cmd, scsi_status);
@@ -1706,6 +1692,7 @@ void transport_generic_request_failure(struct se_cmd *cmd,
 	case TCM_LOGICAL_BLOCK_GUARD_CHECK_FAILED:
 	case TCM_LOGICAL_BLOCK_APP_TAG_CHECK_FAILED:
 	case TCM_LOGICAL_BLOCK_REF_TAG_CHECK_FAILED:
+	case TCM_COPY_TARGET_DEVICE_NOT_REACHABLE:
 		break;
 	case TCM_OUT_OF_RESOURCES:
 		sense_reason = TCM_LOGICAL_UNIT_COMMUNICATION_FAILURE;
@@ -2547,8 +2534,10 @@ int target_get_sess_cmd(struct se_cmd *se_cmd, bool ack_kref)
 	 * fabric acknowledgement that requires two target_put_sess_cmd()
 	 * invocations before se_cmd descriptor release.
 	 */
-	if (ack_kref)
+	if (ack_kref) {
 		kref_get(&se_cmd->cmd_kref);
+		se_cmd->se_cmd_flags |= SCF_ACK_KREF;
+	}
 
 	spin_lock_irqsave(&se_sess->sess_cmd_lock, flags);
 	if (se_sess->sess_tearing_down) {
@@ -2870,6 +2859,12 @@ static const struct sense_info sense_info_table[] = {
 		.asc = 0x10,
 		.ascq = 0x03, /* LOGICAL BLOCK REFERENCE TAG CHECK FAILED */
 		.add_sector_info = true,
+	},
+	[TCM_COPY_TARGET_DEVICE_NOT_REACHABLE] = {
+		.key = COPY_ABORTED,
+		.asc = 0x0d,
+		.ascq = 0x02, /* COPY TARGET DEVICE NOT REACHABLE */
+
 	},
 	[TCM_LOGICAL_UNIT_COMMUNICATION_FAILURE] = {
 		/*

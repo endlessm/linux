@@ -99,6 +99,8 @@ int amdgpu_driver_load_kms(struct drm_device *dev, unsigned long flags)
 
 	if ((amdgpu_runtime_pm != 0) &&
 	    amdgpu_has_atpx() &&
+	    (amdgpu_is_atpx_hybrid() ||
+	     amdgpu_has_atpx_dgpu_power_cntl()) &&
 	    ((flags & AMD_IS_APU) == 0))
 		flags |= AMD_IS_PX;
 
@@ -292,7 +294,7 @@ static int amdgpu_info_ioctl(struct drm_device *dev, void *data, struct drm_file
 			type = AMD_IP_BLOCK_TYPE_UVD;
 			ring_mask = adev->uvd.ring.ready ? 1 : 0;
 			ib_start_alignment = AMDGPU_GPU_PAGE_SIZE;
-			ib_size_alignment = 8;
+			ib_size_alignment = 16;
 			break;
 		case AMDGPU_HW_IP_VCE:
 			type = AMD_IP_BLOCK_TYPE_VCE;

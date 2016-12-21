@@ -41,15 +41,15 @@ Build-Depends-Indep:
  bzip2,
  sharutils,
  asciidoc,
-Vcs-Git: git://git.launchpad.net/~ubuntu-kernel/ubuntu/+source/linux/+git/xenial
+Vcs-Git: git://git.launchpad.net/~ubuntu-kernel/ubuntu/+source/linux/+git/yakkety
 XS-Testsuite: autopkgtest
 #XS-Testsuite-Depends: gcc-4.7 binutils
 
-Package: SRCPKGNAME-source-PKGVER
+Package: linux-source-PKGVER
 Architecture: all
 Section: devel
 Priority: optional
-Provides: SRCPKGNAME-source, SRCPKGNAME-source-3
+Provides: linux-source, linux-source-3
 Depends: ${misc:Depends}, binutils, bzip2, coreutils
 Recommends: libc-dev, gcc, make
 Suggests: libncurses-dev | ncurses-dev, kernel-package, libqt3-dev
@@ -119,7 +119,7 @@ Package: SRCPKGNAME-tools-PKGVER-ABINUM
 Architecture: i386 amd64 armhf arm64 powerpc ppc64el s390x
 Section: devel
 Priority: optional
-Depends: ${misc:Depends}, ${shlibs:Depends}, SRCPKGNAME-tools-common
+Depends: ${misc:Depends}, ${shlibs:Depends}, linux-tools-common
 Description: Linux kernel version specific tools for version PKGVER-ABINUM
  This package provides the architecture dependant parts for kernel
  version locked tools (such as perf and x86_energy_perf_policy) for
@@ -141,7 +141,7 @@ Package: SRCPKGNAME-cloud-tools-PKGVER-ABINUM
 Architecture: i386 amd64 armhf
 Section: devel
 Priority: optional
-Depends: ${misc:Depends}, ${shlibs:Depends}, SRCPKGNAME-cloud-tools-common
+Depends: ${misc:Depends}, ${shlibs:Depends}, linux-cloud-tools-common
 Description: Linux kernel version specific cloud tools for version PKGVER-ABINUM
  This package provides the architecture dependant parts for kernel
  version locked tools for cloud tools for version PKGVER-ABINUM on

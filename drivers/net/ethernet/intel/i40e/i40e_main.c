@@ -7990,45 +7990,34 @@ static int i40e_setup_misc_vector(struct i40e_pf *pf)
 static int i40e_config_rss_aq(struct i40e_vsi *vsi, const u8 *seed,
 			      u8 *lut, u16 lut_size)
 {
-	struct i40e_aqc_get_set_rss_key_data rss_key;
 	struct i40e_pf *pf = vsi->back;
 	struct i40e_hw *hw = &pf->hw;
-	bool pf_lut = false;
-	u8 *rss_lut;
-	int ret, i;
+	int ret = 0;
 
-	memcpy(&rss_key, seed, sizeof(rss_key));
-
-	rss_lut = kzalloc(pf->rss_table_size, GFP_KERNEL);
-	if (!rss_lut)
-		return -ENOMEM;
-
-	/* Populate the LUT with max no. of queues in round robin fashion */
-	for (i = 0; i < vsi->rss_table_size; i++)
-		rss_lut[i] = i % vsi->rss_size;
-
-	ret = i40e_aq_set_rss_key(hw, vsi->id, &rss_key);
-	if (ret) {
-		dev_info(&pf->pdev->dev,
-			 "Cannot set RSS key, err %s aq_err %s\n",
-			 i40e_stat_str(&pf->hw, ret),
-			 i40e_aq_str(&pf->hw, pf->hw.aq.asq_last_status));
-		goto config_rss_aq_out;
+	if (seed) {
+		struct i40e_aqc_get_set_rss_key_data *seed_dw =
+			(struct i40e_aqc_get_set_rss_key_data *)seed;
+		ret = i40e_aq_set_rss_key(hw, vsi->id, seed_dw);
+		if (ret) {
+			dev_info(&pf->pdev->dev,
+				 "Cannot set RSS key, err %s aq_err %s\n",
+				 i40e_stat_str(hw, ret),
+				 i40e_aq_str(hw, hw->aq.asq_last_status));
+			return ret;
+		}
 	}
+	if (lut) {
+		bool pf_lut = vsi->type == I40E_VSI_MAIN ? true : false;
 
-	if (vsi->type == I40E_VSI_MAIN)
-		pf_lut = true;
-
-	ret = i40e_aq_set_rss_lut(hw, vsi->id, pf_lut, rss_lut,
-				  vsi->rss_table_size);
-	if (ret)
-		dev_info(&pf->pdev->dev,
-			 "Cannot set RSS lut, err %s aq_err %s\n",
-			 i40e_stat_str(&pf->hw, ret),
-			 i40e_aq_str(&pf->hw, pf->hw.aq.asq_last_status));
-
-config_rss_aq_out:
-	kfree(rss_lut);
+		ret = i40e_aq_set_rss_lut(hw, vsi->id, pf_lut, lut, lut_size);
+		if (ret) {
+			dev_info(&pf->pdev->dev,
+				 "Cannot set RSS lut, err %s aq_err %s\n",
+				 i40e_stat_str(hw, ret),
+				 i40e_aq_str(hw, hw->aq.asq_last_status));
+			return ret;
+		}
+	}
 	return ret;
 }
 
@@ -9012,7 +9001,7 @@ static int i40e_ndo_bridge_getlink(struct sk_buff *skb, u32 pid, u32 seq,
 		return 0;
 
 	return ndo_dflt_bridge_getlink(skb, pid, seq, dev, veb->bridge_mode,
-				       nlflags, 0, 0, filter_mask, NULL);
+				       0, 0, nlflags, filter_mask, NULL);
 }
 
 /* Hardware supports L4 tunnel length of 128B (=2^7) which includes
@@ -11359,6 +11348,12 @@ static pci_ers_result_t i40e_pci_error_detected(struct pci_dev *pdev,
 	struct i40e_pf *pf = pci_get_drvdata(pdev);
 
 	dev_info(&pdev->dev, "%s: error %d\n", __func__, error);
+
+	if (!pf) {
+		dev_info(&pdev->dev,
+			 "Cannot recover - error happened during device probe\n");
+		return PCI_ERS_RESULT_DISCONNECT;
+	}
 
 	/* shutdown all operations */
 	if (!test_bit(__I40E_SUSPENDED, &pf->state)) {

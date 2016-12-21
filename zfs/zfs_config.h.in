@@ -234,6 +234,9 @@
 /* lookup_bdev() is available */
 #undef HAVE_LOOKUP_BDEV
 
+/* lookup_bdev() with 2 args is available */
+#undef HAVE_LOOKUP_BDEV_2ARGS
+
 /* iops->lookup() passes nameidata */
 #undef HAVE_LOOKUP_NAMEIDATA
 

@@ -73,15 +73,24 @@ static void dm_old_start_queue(struct request_queue *q)
 	spin_unlock_irqrestore(q->queue_lock, flags);
 }
 
+static void dm_mq_start_queue(struct request_queue *q)
+{
+	unsigned long flags;
+
+	spin_lock_irqsave(q->queue_lock, flags);
+	queue_flag_clear(QUEUE_FLAG_STOPPED, q);
+	spin_unlock_irqrestore(q->queue_lock, flags);
+
+	blk_mq_start_stopped_hw_queues(q, true);
+	blk_mq_kick_requeue_list(q);
+}
+
 void dm_start_queue(struct request_queue *q)
 {
 	if (!q->mq_ops)
 		dm_old_start_queue(q);
-	else {
-		queue_flag_clear_unlocked(QUEUE_FLAG_STOPPED, q);
-		blk_mq_start_stopped_hw_queues(q, true);
-		blk_mq_kick_requeue_list(q);
-	}
+	else
+		dm_mq_start_queue(q);
 }
 
 static void dm_old_stop_queue(struct request_queue *q)
@@ -826,8 +835,11 @@ int dm_old_init_request_queue(struct mapped_device *md)
 	init_kthread_worker(&md->kworker);
 	md->kworker_task = kthread_run(kthread_worker_fn, &md->kworker,
 				       "kdmwork-%s", dm_device_name(md));
-	if (IS_ERR(md->kworker_task))
-		return PTR_ERR(md->kworker_task);
+	if (IS_ERR(md->kworker_task)) {
+		int error = PTR_ERR(md->kworker_task);
+		md->kworker_task = NULL;
+		return error;
+	}
 
 	elv_register_queue(md->queue);
 

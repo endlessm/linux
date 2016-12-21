@@ -236,6 +236,7 @@ struct intel_panel {
 		bool enabled;
 		bool combination_mode;	/* gen 2/4 only */
 		bool active_low_pwm;
+		bool alternate_pwm_increment;	/* lpt+ */
 
 		/* PWM chip */
 		bool util_pin_active_low;	/* bxt+ */
@@ -1400,8 +1401,6 @@ void intel_edp_drrs_disable(struct intel_dp *intel_dp);
 void intel_edp_drrs_invalidate(struct drm_device *dev,
 		unsigned frontbuffer_bits);
 void intel_edp_drrs_flush(struct drm_device *dev, unsigned frontbuffer_bits);
-bool intel_digital_port_connected(struct drm_i915_private *dev_priv,
-					 struct intel_digital_port *port);
 
 void
 intel_dp_program_link_training_pattern(struct intel_dp *intel_dp,
@@ -1729,9 +1728,21 @@ void ilk_wm_get_hw_state(struct drm_device *dev);
 void skl_wm_get_hw_state(struct drm_device *dev);
 void skl_ddb_get_hw_state(struct drm_i915_private *dev_priv,
 			  struct skl_ddb_allocation *ddb /* out */);
-bool skl_can_enable_sagv(struct drm_atomic_state *state);
-int skl_enable_sagv(struct drm_i915_private *dev_priv);
-int skl_disable_sagv(struct drm_i915_private *dev_priv);
+bool intel_can_enable_sagv(struct drm_atomic_state *state);
+int intel_enable_sagv(struct drm_i915_private *dev_priv);
+int intel_disable_sagv(struct drm_i915_private *dev_priv);
+bool skl_ddb_allocation_equals(const struct skl_ddb_allocation *old,
+			       const struct skl_ddb_allocation *new,
+			       enum pipe pipe);
+bool skl_ddb_allocation_overlaps(struct drm_atomic_state *state,
+				 const struct skl_ddb_allocation *old,
+				 const struct skl_ddb_allocation *new,
+				 enum pipe pipe);
+void skl_write_cursor_wm(struct intel_crtc *intel_crtc,
+			 const struct skl_wm_values *wm);
+void skl_write_plane_wm(struct intel_crtc *intel_crtc,
+			const struct skl_wm_values *wm,
+			int plane);
 uint32_t ilk_pipe_pixel_rate(const struct intel_crtc_state *pipe_config);
 bool ilk_disable_lp_wm(struct drm_device *dev);
 int sanitize_rc6_option(struct drm_i915_private *dev_priv, int enable_rc6);

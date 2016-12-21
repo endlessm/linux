@@ -142,7 +142,7 @@ ssize_t __mei_cl_recv(struct mei_cl *cl, u8 *buf, size_t length)
 		mutex_lock(&bus->device_lock);
 
 		if (!mei_cl_is_connected(cl)) {
-			rets = -EBUSY;
+			rets = -ENODEV;
 			goto out;
 		}
 	}
@@ -983,12 +983,10 @@ void mei_cl_bus_rescan_work(struct work_struct *work)
 		container_of(work, struct mei_device, bus_rescan_work);
 	struct mei_me_client *me_cl;
 
-	mutex_lock(&bus->device_lock);
 	me_cl = mei_me_cl_by_uuid(bus, &mei_amthif_guid);
 	if (me_cl)
 		mei_amthif_host_init(bus, me_cl);
 	mei_me_cl_put(me_cl);
-	mutex_unlock(&bus->device_lock);
 
 	mei_cl_bus_rescan(bus);
 }

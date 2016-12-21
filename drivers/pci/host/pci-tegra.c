@@ -621,7 +621,11 @@ static int tegra_pcie_setup(int nr, struct pci_sys_data *sys)
 	if (err < 0)
 		return err;
 
-	pci_add_resource_offset(&sys->resources, &pcie->pio, sys->io_offset);
+	err = pci_remap_iospace(&pcie->pio, pcie->io.start);
+	if (!err)
+		pci_add_resource_offset(&sys->resources, &pcie->pio,
+					sys->io_offset);
+
 	pci_add_resource_offset(&sys->resources, &pcie->mem, sys->mem_offset);
 	pci_add_resource_offset(&sys->resources, &pcie->prefetch,
 				sys->mem_offset);
@@ -631,7 +635,6 @@ static int tegra_pcie_setup(int nr, struct pci_sys_data *sys)
 	if (err < 0)
 		return err;
 
-	pci_remap_iospace(&pcie->pio, pcie->io.start);
 	return 1;
 }
 
@@ -856,7 +859,7 @@ static int tegra_pcie_phy_disable(struct tegra_pcie *pcie)
 	/* override IDDQ */
 	value = pads_readl(pcie, PADS_CTL);
 	value |= PADS_CTL_IDDQ_1L;
-	pads_writel(pcie, PADS_CTL, value);
+	pads_writel(pcie, value, PADS_CTL);
 
 	/* reset PLL */
 	value = pads_readl(pcie, soc->pads_pll_ctl);
