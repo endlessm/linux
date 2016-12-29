@@ -1,12 +1,16 @@
 /*
- *  HID driver for Asus notebook built-in keyboard.
- *  Fixes small logical maximum to match usage maximum.
+ *  HID driver for Asus notebook/ROG/AIO built-in keyboard.
+ *  Fixes small logical maximum to match usage maximum and support "special"
+ *  macrokey devices for hotkey handling.
  *
  *  Currently supported devices are:
  *    EeeBook X205TA
  *    VivoBook E200HA
+ *    ASUS laptops for "Republic of Gamers"
+ *    ASUS ZEN AIO wired keyboards
  *
  *  Copyright (c) 2016 Yusuke Fujimaki <usk.fujimaki@gmail.com>
+ *  Copyright (c) 2016 Chris Chiu <chiu@endlessm.com>
  *
  *  This module based on hid-ortek by
  *  Copyright (c) 2010 Johnathon Harris <jmharris@gmail.com>
@@ -26,6 +30,90 @@
 
 #include "hid-ids.h"
 
+#define asus_map_key_clear(c)       hid_map_usage_clear(hi, usage, bit, \
+                                                max, EV_KEY, (c))
+
+static int asus_input_mapping(struct hid_device *hdev, struct hid_input *hi,
+                struct hid_field *field, struct hid_usage *usage,
+                unsigned long **bit, int *max)
+{
+        if ((usage->hid & HID_USAGE_PAGE) != HID_UP_ASUS_ROG_HOTKEY
+           && (usage->hid & HID_USAGE_PAGE) != HID_UP_MSVENDOR)
+                return 0;
+
+        if ((usage->hid & HID_USAGE_PAGE) == HID_UP_ASUS_ROG_HOTKEY) {
+		set_bit(EV_REP, hi->input->evbit);
+		switch (usage->hid & HID_USAGE) {
+		/* Reported on ASUS Gaming model (Republic of Gamers)
+	         * keyboards.
+	         */
+		case 0x6c:
+			asus_map_key_clear(KEY_SLEEP);
+			break;
+		case 0x88:
+			asus_map_key_clear(KEY_WLAN);
+			break;
+		case 0xc5:
+			asus_map_key_clear(KEY_KBDILLUMDOWN);
+			break;
+		case 0xc4:
+			asus_map_key_clear(KEY_KBDILLUMUP);
+			break;
+		case 0x10:
+			asus_map_key_clear(KEY_BRIGHTNESSDOWN);
+			break;
+		case 0x20:
+			asus_map_key_clear(KEY_BRIGHTNESSUP);
+			break;
+		case 0x35:
+			asus_map_key_clear(KEY_DISPLAY_OFF);
+			break;
+		// KEY_F21 is for ASUS touchpad toggle
+		case 0x6b:
+			asus_map_key_clear(KEY_F21);
+			break;
+		case 0xb5:
+			asus_map_key_clear(KEY_CALC);
+			break;
+		// KEY_PROG1 for ROG key
+		case 0x38:
+			asus_map_key_clear(KEY_PROG1);
+			break;
+		// KEY_PROG2 for Fn+C ASUS Splendid
+		case 0xba:
+			asus_map_key_clear(KEY_PROG2);
+			break;
+		// KEY_PROG3 for Fn+Space Power4Gear Hybrid, may not be present
+		case 0x5c:
+			asus_map_key_clear(KEY_PROG3);
+			break;
+
+		default:
+			return 0;
+		}
+        }
+
+	// For ASUS ZEN AIO wired keyboards
+	if ((usage->hid & HID_USAGE_PAGE) == HID_UP_MSVENDOR) {
+		set_bit(EV_REP, hi->input->evbit);
+		switch (usage->hid & HID_USAGE) {
+		case 0xf1:
+			asus_map_key_clear(KEY_WLAN);
+			break;
+		case 0xf2:
+			asus_map_key_clear(KEY_BRIGHTNESSDOWN);
+			break;
+		case 0xf3:
+			asus_map_key_clear(KEY_BRIGHTNESSUP);
+			break;
+		default:
+			return 0;
+		}
+        }
+
+        return 1;
+}
+
 static __u8 *asus_report_fixup(struct hid_device *hdev, __u8 *rdesc,
 		unsigned int *rsize)
 {
@@ -38,6 +126,9 @@ static __u8 *asus_report_fixup(struct hid_device *hdev, __u8 *rdesc,
 
 static const struct hid_device_id asus_devices[] = {
 	{ HID_I2C_DEVICE(USB_VENDOR_ID_ASUSTEK, USB_DEVICE_ID_ASUSTEK_NOTEBOOK_KEYBOARD) },
+	{ HID_USB_DEVICE(USB_VENDOR_ID_ASUSTEK, USB_DEVICE_ID_ASUSTEK_ROG_MACROKEY1) },
+	{ HID_USB_DEVICE(USB_VENDOR_ID_ASUSTEK, USB_DEVICE_ID_ASUSTEK_ROG_MACROKEY2) },
+	{ HID_USB_DEVICE(USB_VENDOR_ID_JESS, USB_DEVICE_ID_ASUSTEK_ZEN_AIO_KBD) },
 	{ }
 };
 MODULE_DEVICE_TABLE(hid, asus_devices);
@@ -45,7 +136,8 @@ MODULE_DEVICE_TABLE(hid, asus_devices);
 static struct hid_driver asus_driver = {
 	.name = "asus",
 	.id_table = asus_devices,
-	.report_fixup = asus_report_fixup
+	.report_fixup = asus_report_fixup,
+	.input_mapping = asus_input_mapping,
 };
 module_hid_driver(asus_driver);
 
