@@ -1684,7 +1684,6 @@ i7300_edac
 i7300_idle
 i740fb
 i7core_edac
-i810
 i82092
 i82975x_edac
 i915
@@ -4712,6 +4711,7 @@ xirc2ps_cs
 xircom_cb
 xor
 xpad
+xr_usb_serial_common
 xsens_mt
 x_tables
 xt_addrtype
