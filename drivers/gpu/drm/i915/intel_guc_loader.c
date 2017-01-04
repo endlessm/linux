@@ -63,10 +63,8 @@
 MODULE_FIRMWARE(I915_SKL_GUC_UCODE);
 
 #define I915_BXT_GUC_UCODE "i915/bxt_guc_ver8_7.bin"
-MODULE_FIRMWARE(I915_BXT_GUC_UCODE);
 
 #define I915_KBL_GUC_UCODE "i915/kbl_guc_ver9_14.bin"
-MODULE_FIRMWARE(I915_KBL_GUC_UCODE);
 
 /* User-friendly representation of an enum */
 const char *intel_guc_fw_status_repr(enum intel_guc_fw_status status)
