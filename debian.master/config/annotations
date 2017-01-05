@@ -7565,7 +7565,7 @@ CONFIG_REGULATOR_TPS65023                       policy<{'amd64': 'm', 'arm64': '
 CONFIG_REGULATOR_TPS6507X                       policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'powerpc': 'm', 'ppc64el': 'm'}>
 CONFIG_REGULATOR_TPS65086                       policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'powerpc': 'm', 'ppc64el': 'm'}>
 CONFIG_REGULATOR_TPS65090                       policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'powerpc': 'm', 'ppc64el': 'm'}>
-CONFIG_REGULATOR_TPS65217                       policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'y', 'i386': 'm'}>
+CONFIG_REGULATOR_TPS65217                       policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'y', 'i386': 'm', 's390x': 'm'}>
 CONFIG_REGULATOR_TPS65218                       policy<{'arm64': 'm', 'armhf': 'm', 'powerpc': 'm', 'ppc64el': 'm'}>
 CONFIG_REGULATOR_TPS6524X                       policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'powerpc': 'm', 'ppc64el': 'm'}>
 CONFIG_REGULATOR_TPS6586X                       policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'powerpc': 'm', 'ppc64el': 'm'}>
@@ -7823,8 +7823,10 @@ CONFIG_BLK_DEV_BSGLIB                           policy<{'amd64': 'y', 'arm64': '
 CONFIG_BLK_DEV_INTEGRITY                        policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'powerpc': 'y', 'ppc64el': 'y', 's390x': 'y'}>
 CONFIG_BLK_DEV_THROTTLING                       policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'powerpc': 'y', 'ppc64el': 'y', 's390x': 'y'}>
 CONFIG_BLK_CMDLINE_PARSER                       policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'powerpc': 'y', 'ppc64el': 'y', 's390x': 'y'}>
+CONFIG_BLK_WBT_SQ                               policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'powerpc': 'y', 'ppc64el': 'y', 's390x': 'y'}>
 #
 CONFIG_BLK_DEV_THROTTLING                       note<CGROUP disk consumption control>
+CONFIG_BLK_WBT_SQ				flag<REVIEW>
 
 # Menu: Enable the block layer >> IO Schedulers
 CONFIG_IOSCHED_DEADLINE                         policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'powerpc': 'y', 'ppc64el': 'y', 's390x': 'y'}>
@@ -8523,9 +8525,9 @@ CONFIG_RCU_EXPERT                               flag<REVIEW>
 # Menu: General setup >> RCU Subsystem >> Make expert-level adjustments to RCU configuration >> Build-forced no-CBs CPUs
 
 # Menu: General setup >> Stack Protector buffer overflow detection
-CONFIG_CC_STACKPROTECTOR_NONE                   policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'i386': 'n'}>
-CONFIG_CC_STACKPROTECTOR_REGULAR                policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'i386': 'n'}>
-CONFIG_CC_STACKPROTECTOR_STRONG                 policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y'}>
+CONFIG_CC_STACKPROTECTOR_NONE                   policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'i386': 'n', 'powerpc': 'n', 'ppc64el': 'n'}>
+CONFIG_CC_STACKPROTECTOR_REGULAR                policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'i386': 'n', 'powerpc': 'n', 'ppc64el': 'n'}>
+CONFIG_CC_STACKPROTECTOR_STRONG                 policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'powerpc': 'y', 'ppc64el': 'y'}>
 #
 CONFIG_CC_STACKPROTECTOR_STRONG			mark<ENFORCED>
 
@@ -8564,12 +8566,14 @@ CONFIG_TEST_FIRMWARE                            policy<{'amd64': 'm', 'arm64': '
 CONFIG_TEST_UDELAY                              policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'powerpc': 'm', 'ppc64el': 'm', 's390x': 'm'}>
 CONFIG_MEMTEST                                  policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'powerpc': 'y', 'ppc64el': 'y', 's390x': 'y'}>
 CONFIG_TEST_STATIC_KEYS                         policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'powerpc': 'm', 'ppc64el': 'm', 's390x': 'm'}>
+CONFIG_BUG_ON_DATA_CORRUPTION                   policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'i386': 'n', 'powerpc': 'n', 'ppc64el': 'n', 's390x': 'n'}>
 CONFIG_STRICT_DEVMEM                            policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'powerpc': 'y', 'ppc64el': 'y', 's390x': 'y'}>
 CONFIG_IO_STRICT_DEVMEM                         policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'i386': 'n', 'powerpc': 'n', 'ppc64el': 'n', 's390x': 'n'}>
 CONFIG_EARLY_PRINTK                             policy<{'amd64': 'y', 'i386': 'y', 'powerpc': 'y', 'ppc64el': 'y'}>
 CONFIG_DEBUG_SET_MODULE_RONX                    policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 's390x': 'y'}>
 #
 CONFIG_PANIC_ON_OOPS                            note<keep working if at all possible>
+CONFIG_BUG_ON_DATA_CORRUPTION                   flag<REVIEW>
 CONFIG_STRICT_DEVMEM                            mark<ENFORCED>
 CONFIG_DEBUG_RODATA                             mark<ENFORCED>
 CONFIG_DEBUG_SET_MODULE_RONX                    mark<ENFORCED>
@@ -10302,6 +10306,7 @@ CONFIG_UACCESS_WITH_MEMCPY                      policy<{'armhf': 'n'}>
 # Menu: Processor type and features >> Architecture: powerpc
 CONFIG_PPC_TRANSACTIONAL_MEM                    policy<{'powerpc-generic': 'y', 'ppc64el': 'y'}>
 CONFIG_DISABLE_MPROFILE_KERNEL                  policy<{'ppc64el': 'n'}>
+CONFIG_USE_THIN_ARCHIVES                        policy<{'ppc64el': 'n'}>
 CONFIG_SWIOTLB                                  policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'powerpc': 'y', 'ppc64el': 'y'}>
 CONFIG_PPC64_SUPPORTS_MEMORY_FAILURE            policy<{'powerpc-generic': 'y', 'ppc64el': 'y'}>
 CONFIG_FA_DUMP                                  policy<{'powerpc-generic': 'y', 'ppc64el': 'y'}>
@@ -10310,6 +10315,8 @@ CONFIG_PPC_SUBPAGE_PROT                         policy<{'ppc64el': 'y'}>
 CONFIG_PPC_DENORMALISATION                      policy<{'powerpc-generic': 'n', 'ppc64el': 'y'}>
 CONFIG_EXTRA_TARGETS                            policy<{'powerpc': '""', 'ppc64el': '""'}>
 #
+CONFIG_USE_THIN_ARCHIVES                        flag<REVIEW>
+CONFIG_USE_THIN_ARCHIVES                        note<May want to test this option>
 CONFIG_FA_DUMP                                  note<LP:1415562>
 
 # Menu: Processor type and features >> Architecture: s390
@@ -10655,6 +10662,7 @@ CONFIG_EVM_X509_PATH                            note<LP:1643652>
 
 # Menu: Security options >> Enable different security models >> Integrity subsystem >> Integrity Measurement Architecture(IMA)
 CONFIG_IMA                                      policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'powerpc-generic': 'y', 'powerpc-powerpc64-emb': 'n', 'powerpc-powerpc-e500mc': 'y', 'powerpc-powerpc-smp': 'y', 'ppc64el': 'y', 's390x': 'y'}>
+CONFIG_IMA_KEXEC                                policy<{'powerpc': 'n', 'ppc64el': 'n'}>
 CONFIG_IMA_WRITE_POLICY                         policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'powerpc-generic': 'y', 'powerpc-powerpc-e500mc': 'y', 'powerpc-powerpc-smp': 'y', 'ppc64el': 'y', 's390x': 'y'}>
 CONFIG_IMA_READ_POLICY                          policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'powerpc-generic': 'y', 'powerpc-powerpc-e500mc': 'y', 'powerpc-powerpc-smp': 'y', 'ppc64el': 'y', 's390x': 'y'}>
 CONFIG_IMA_APPRAISE                             policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'powerpc-generic': 'y', 'powerpc-powerpc-e500mc': 'y', 'powerpc-powerpc-smp': 'y', 'ppc64el': 'y', 's390x': 'y'}>
@@ -10665,6 +10673,7 @@ CONFIG_IMA_X509_PATH                            policy<{'ppc64el': '"/etc/keys/x
 CONFIG_IMA_APPRAISE_SIGNED_INIT                 policy<{'ppc64el': 'y'}>
 #
 CONFIG_IMA                                      note<LP:1643652>
+CONFIG_IMA_KEXEC                                flag<REVIEW>
 CONFIG_IMA_READ_POLICY                          note<LP:1643652>
 CONFIG_IMA_APPRAISE                             note<LP:1643652>
 CONFIG_IMA_TRUSTED_KEYRING                      note<LP:1643652>
