@@ -385,9 +385,6 @@ static ssize_t read_kmem(struct file *file, char __user *buf,
 	char *kbuf; /* k-addr because vread() takes vmlist_lock rwlock */
 	int err = 0;
 
-	if (!pfn_valid(PFN_DOWN(p)))
-		return -EIO;
-
 	read = 0;
 	if (p < (unsigned long) high_memory) {
 		low_count = count;
@@ -416,6 +413,8 @@ static ssize_t read_kmem(struct file *file, char __user *buf,
 			 * by the kernel or data corruption may occur
 			 */
 			kbuf = xlate_dev_kmem_ptr((void *)p);
+			if (!virt_addr_valid(kbuf))
+				return -ENXIO;
 
 			if (copy_to_user(buf, kbuf, sz))
 				return -EFAULT;
@@ -486,6 +485,8 @@ static ssize_t do_write_kmem(unsigned long p, const char __user *buf,
 		 * corruption may occur.
 		 */
 		ptr = xlate_dev_kmem_ptr((void *)p);
+		if (!virt_addr_valid(ptr))
+			return -ENXIO;
 
 		copied = copy_from_user(ptr, buf, sz);
 		if (copied) {
@@ -516,8 +517,6 @@ static ssize_t write_kmem(struct file *file, const char __user *buf,
 	char *kbuf; /* k-addr because vwrite() takes vmlist_lock rwlock */
 	int err = 0;
 
-	if (!pfn_valid(PFN_DOWN(p)))
-		return -EIO;
 	if (secure_modules())
 		return -EPERM;
 
