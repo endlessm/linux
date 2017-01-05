@@ -1394,7 +1394,6 @@ struct inode_operations aufs_iop_nogetattr[AuIop_Last],
 		.listxattr	= aufs_listxattr,
 #endif
 
-		.readlink	= generic_readlink,
 		.get_link	= aufs_get_link,
 
 		/* .update_time	= aufs_update_time */
