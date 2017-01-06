@@ -10662,7 +10662,7 @@ CONFIG_EVM_X509_PATH                            note<LP:1643652>
 
 # Menu: Security options >> Enable different security models >> Integrity subsystem >> Integrity Measurement Architecture(IMA)
 CONFIG_IMA                                      policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'powerpc-generic': 'y', 'powerpc-powerpc64-emb': 'n', 'powerpc-powerpc-e500mc': 'y', 'powerpc-powerpc-smp': 'y', 'ppc64el': 'y', 's390x': 'y'}>
-CONFIG_IMA_KEXEC                                policy<{'powerpc': 'n', 'ppc64el': 'n'}>
+CONFIG_IMA_KEXEC                                policy<{'powerpc-generic': 'y', 'ppc64el': 'y'}>
 CONFIG_IMA_WRITE_POLICY                         policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'powerpc-generic': 'y', 'powerpc-powerpc-e500mc': 'y', 'powerpc-powerpc-smp': 'y', 'ppc64el': 'y', 's390x': 'y'}>
 CONFIG_IMA_READ_POLICY                          policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'powerpc-generic': 'y', 'powerpc-powerpc-e500mc': 'y', 'powerpc-powerpc-smp': 'y', 'ppc64el': 'y', 's390x': 'y'}>
 CONFIG_IMA_APPRAISE                             policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'powerpc-generic': 'y', 'powerpc-powerpc-e500mc': 'y', 'powerpc-powerpc-smp': 'y', 'ppc64el': 'y', 's390x': 'y'}>
@@ -10672,17 +10672,13 @@ CONFIG_IMA_LOAD_X509                            policy<{'amd64': 'n', 'arm64': '
 CONFIG_IMA_X509_PATH                            policy<{'ppc64el': '"/etc/keys/x509_ima.der"'}>
 CONFIG_IMA_APPRAISE_SIGNED_INIT                 policy<{'ppc64el': 'y'}>
 #
-CONFIG_IMA                                      note<LP:1643652>
-CONFIG_IMA_KEXEC                                flag<REVIEW>
-CONFIG_IMA_READ_POLICY                          note<LP:1643652>
-CONFIG_IMA_APPRAISE                             note<LP:1643652>
-CONFIG_IMA_TRUSTED_KEYRING                      note<LP:1643652>
-CONFIG_IMA_LOAD_X509                            note<LP:1643652>
-CONFIG_IMA_X509_PATH                            note<LP:1643652>
-CONFIG_IMA_MEASURE_PCR_IDX                      note<LP:1643652>
-CONFIG_IMA_LSM_RULES                            note<LP:1643652>
-CONFIG_IMA_DEFAULT_TEMPLATE                     note<LP:1643652>
-CONFIG_IMA_DEFAULT_HASH                         note<LP:1643652>
+CONFIG_IMA                                      mark<ENFORCED> note<LP:1643652>
+CONFIG_IMA_KEXEC                                mark<ENFORCED> note<LP:1643652>
+CONFIG_IMA_READ_POLICY                          mark<ENFORCED> note<LP:1643652>
+CONFIG_IMA_APPRAISE                             mark<ENFORCED> note<LP:1643652>
+CONFIG_IMA_TRUSTED_KEYRING                      mark<ENFORCED> note<LP:1643652>
+CONFIG_IMA_LOAD_X509                            mark<ENFORCED> note<LP:1643652>
+CONFIG_IMA_X509_PATH                            mark<ENFORCED> note<LP:1643652>
 
 # Menu: Security options >> Enable different security models >> Integrity subsystem >> Integrity Measurement Architecture(IMA) >> Default integrity hash algorithm
 CONFIG_IMA_DEFAULT_HASH_SHA1                    policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'powerpc-generic': 'y', 'powerpc-powerpc-e500mc': 'y', 'powerpc-powerpc-smp': 'y', 'ppc64el': 'n', 's390x': 'y'}>
