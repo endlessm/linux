@@ -1543,7 +1543,7 @@ static int chv_gpio_probe(struct chv_pinctrl *pctrl, int irq)
 	chv_writel(0xffff, pctrl->regs + CHV_INTSTAT);
 
 	ret = gpiochip_irqchip_add(chip, &chv_gpio_irqchip, 0,
-				   handle_bad_irq, IRQ_TYPE_NONE);
+				   handle_simple_irq, IRQ_TYPE_NONE);
 	if (ret) {
 		dev_err(pctrl->dev, "failed to add IRQ chip\n");
 		goto fail;
