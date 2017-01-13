@@ -1490,7 +1490,7 @@ static int nvme_setup_io_queues(struct nvme_dev *dev)
 	struct pci_dev *pdev = to_pci_dev(dev->dev);
 	int result, i, vecs, nr_io_queues, size;
 
-	nr_io_queues = dev->max_qid;
+	nr_io_queues = num_online_cpus();
 	result = nvme_set_queue_count(&dev->ctrl, &nr_io_queues);
 	if (result < 0)
 		return result;
@@ -1522,8 +1522,45 @@ static int nvme_setup_io_queues(struct nvme_dev *dev)
 		adminq->q_db = dev->dbs;
 	}
 
+	/* Deregister the admin queue's interrupt */
+	free_irq(dev->entry[0].vector, adminq);
+
+	/*
+	 * If we enable msix early due to not intx, disable it again before
+	 * setting up the full range we need.
+	 */
+	if (pdev->msi_enabled)
+		pci_disable_msi(pdev);
+	else if (pdev->msix_enabled)
+		pci_disable_msix(pdev);
+
+	for (i = 0; i < nr_io_queues; i++)
+		dev->entry[i].entry = i;
+	vecs = pci_enable_msix_range(pdev, dev->entry, 1, nr_io_queues);
+	if (vecs < 0) {
+		vecs = pci_enable_msi_range(pdev, 1, min(nr_io_queues, 32));
+		if (vecs < 0) {
+			vecs = 1;
+		} else {
+			for (i = 0; i < vecs; i++)
+				dev->entry[i].vector = i + pdev->irq;
+		}
+	}
+
+	/*
+	 * Should investigate if there's a performance win from allocating
+	 * more queues than interrupt vectors; it might allow the submission
+	 * path to scale better, even if the receive path is limited by the
+	 * number of interrupts.
+	 */
+	nr_io_queues = vecs;
 	dev->max_qid = nr_io_queues;
 
+	result = queue_request_irq(dev, adminq, adminq->irqname);
+	if (result) {
+		adminq->cq_vector = -1;
+		goto free_queues;
+	}
 	return nvme_create_io_queues(dev);
 
  free_queues:
@@ -1675,7 +1712,7 @@ static int nvme_dev_add(struct nvme_dev *dev)
 static int nvme_pci_enable(struct nvme_dev *dev)
 {
 	u64 cap;
-	int result = -ENOMEM, nr_io_queues, i, vecs;
+	int result = -ENOMEM;
 	struct pci_dev *pdev = to_pci_dev(dev->dev);
 
 	if (pci_enable_device_mem(pdev))
@@ -1692,29 +1729,20 @@ static int nvme_pci_enable(struct nvme_dev *dev)
 		goto disable;
 	}
 
-	nr_io_queues = num_possible_cpus();
-
-	for (i = 0; i < nr_io_queues; i++)
-		dev->entry[i].entry = i;
-	vecs = pci_enable_msix_range(pdev, dev->entry, 1, nr_io_queues);
-	if (vecs < 0) {
-		vecs = pci_enable_msi_range(pdev, 1, min(nr_io_queues, 32));
-		if (vecs < 0) {
-			result = vecs;
-			goto disable;
-		} else {
-			for (i = 0; i < vecs; i++)
-				dev->entry[i].vector = i + pdev->irq;
-		}
+	/*
+	 * Some devices and/or platforms don't advertise or work with INTx
+	 * interrupts. Pre-enable a single MSIX or MSI vec for setup. We'll
+	 * adjust this later.
+	 */
+	if (pci_enable_msix(pdev, dev->entry, 1)) {
+		pci_enable_msi(pdev);
+		dev->entry[0].vector = pdev->irq;
 	}
 
-	if (vecs < 1) {
-		dev_err(dev->ctrl.device, "Failed to get any MSI/MSIX interrupts\n");
-		result = -ENOSPC;
+	if (!dev->entry[0].vector) {
+		result = -ENODEV;
 		goto disable;
 	}
-
-	dev->max_qid = vecs;
 
 	cap = lo_hi_readq(dev->bar + NVME_REG_CAP);
 
