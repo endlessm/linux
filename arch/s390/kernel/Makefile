@@ -78,3 +78,6 @@ obj-$(findstring y, $(CONFIG_PROTECTED_VIRTUALIZATION_GUEST) $(CONFIG_PGSTE))	+=
 
 # vdso
 obj-y				+= vdso64/
+
+# kernel message catalog
+obj-$(CONFIG_KMSG_IDS)		+= kmsg.o
