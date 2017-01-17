@@ -1391,7 +1391,7 @@ static long ibmvscsis_adapter_info(struct scsi_info *vscsi,
 	}
 
 	info = dma_alloc_coherent(&vscsi->dma_dev->dev, sizeof(*info), &token,
-				  GFP_KERNEL);
+				  GFP_ATOMIC);
 	if (!info) {
 		dev_err(&vscsi->dev, "bad dma_alloc_coherent %p\n",
 			iue->target);
@@ -1509,7 +1509,7 @@ static int ibmvscsis_cap_mad(struct scsi_info *vscsi, struct iu_entry *iue)
 	}
 
 	cap = dma_alloc_coherent(&vscsi->dma_dev->dev, olen, &token,
-				 GFP_KERNEL);
+				 GFP_ATOMIC);
 	if (!cap) {
 		dev_err(&vscsi->dev, "bad dma_alloc_coherent %p\n",
 			iue->target);
