@@ -2090,6 +2090,29 @@ char *fwnode_string(char *buf, char *end, struct fwnode_handle *fwnode,
 	return widen_string(buf, buf - buf_start, end, spec);
 }
 
+#ifdef CONFIG_KMSG_IDS
+
+unsigned long long __jhash_string(const char *str);
+
+static noinline_for_stack
+char *jhash_string(char *buf, char *end, const char *str, const char *fmt)
+{
+	struct printf_spec spec;
+	unsigned long long num;
+
+	num = __jhash_string(str);
+
+	spec.type = FORMAT_TYPE_PTR;
+	spec.field_width = 6;
+	spec.flags = SMALL | ZEROPAD;
+	spec.base = 16;
+	spec.precision = -1;
+
+	return number(buf, end, num, spec);
+}
+
+#endif
+
 /*
  * Show a '%p' thing.  A kernel extension is that the '%p' is followed
  * by an extra set of alphanumeric characters that are extended format
@@ -2199,6 +2222,7 @@ char *fwnode_string(char *buf, char *end, struct fwnode_handle *fwnode,
  *		Without an option prints the full name of the node
  *		f full name
  *		P node name, including a possible unit address
+ * - 'j' Kernel message catalog jhash for System z
  * - 'x' For printing the address. Equivalent to "%lx".
  * - '[ku]s' For a BPF/tracing related format specifier, e.g. used out of
  *           bpf_trace_printk() where [ku] prefix specifies either kernel (k)
@@ -2295,6 +2319,10 @@ char *pointer(const char *fmt, char *buf, char *end, void *ptr,
 		default:
 			return error_string(buf, end, "(einval)", spec);
 		}
+#ifdef CONFIG_KMSG_IDS
+	case 'j':
+		return jhash_string(buf, end, ptr, fmt);
+#endif
 	}
 
 	/* default is to _not_ leak addresses, hash before printing */
