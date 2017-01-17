@@ -296,6 +296,27 @@ extern int kptr_restrict;
 #define pr_fmt(fmt) fmt
 #endif
 
+#if defined(__KMSG_CHECKER) && defined(KMSG_COMPONENT)
+
+/* generate magic string for scripts/kmsg-doc to parse */
+#define pr_printk_hash(level, format, ...) \
+	__KMSG_PRINT(level _FMT_ format _ARGS_ __VA_ARGS__ _END_)
+
+#elif defined(CONFIG_KMSG_IDS) && defined(KMSG_COMPONENT)
+
+/* format element '%pj' prints the six digit jhash of a string */
+#define _pr_printk_hash(pfx, fmt, ...) \
+	printk(pfx fmt, pfx fmt + __builtin_strlen(pfx), ##__VA_ARGS__)
+#define pr_printk_hash(level, format, ...) \
+	_pr_printk_hash(level KMSG_COMPONENT ".%pj: ", format, ##__VA_ARGS__)
+
+#else /* !defined(CONFIG_KMSG_IDS) */
+
+#define pr_printk_hash(level, format, ...) \
+	printk(level pr_fmt(format), ##__VA_ARGS__)
+
+#endif
+
 /**
  * pr_emerg - Print an emergency-level message
  * @fmt: format string
@@ -305,7 +326,7 @@ extern int kptr_restrict;
  * generate the format string.
  */
 #define pr_emerg(fmt, ...) \
-	printk(KERN_EMERG pr_fmt(fmt), ##__VA_ARGS__)
+	pr_printk_hash(KERN_EMERG, fmt, ##__VA_ARGS__)
 /**
  * pr_alert - Print an alert-level message
  * @fmt: format string
@@ -315,7 +336,7 @@ extern int kptr_restrict;
  * generate the format string.
  */
 #define pr_alert(fmt, ...) \
-	printk(KERN_ALERT pr_fmt(fmt), ##__VA_ARGS__)
+	pr_printk_hash(KERN_ALERT, fmt, ##__VA_ARGS__)
 /**
  * pr_crit - Print a critical-level message
  * @fmt: format string
@@ -325,7 +346,7 @@ extern int kptr_restrict;
  * generate the format string.
  */
 #define pr_crit(fmt, ...) \
-	printk(KERN_CRIT pr_fmt(fmt), ##__VA_ARGS__)
+	pr_printk_hash(KERN_CRIT, fmt, ##__VA_ARGS__)
 /**
  * pr_err - Print an error-level message
  * @fmt: format string
@@ -335,7 +356,7 @@ extern int kptr_restrict;
  * generate the format string.
  */
 #define pr_err(fmt, ...) \
-	printk(KERN_ERR pr_fmt(fmt), ##__VA_ARGS__)
+	pr_printk_hash(KERN_ERR, fmt, ##__VA_ARGS__)
 /**
  * pr_warn - Print a warning-level message
  * @fmt: format string
@@ -345,7 +366,7 @@ extern int kptr_restrict;
  * to generate the format string.
  */
 #define pr_warn(fmt, ...) \
-	printk(KERN_WARNING pr_fmt(fmt), ##__VA_ARGS__)
+	pr_printk_hash(KERN_WARNING, fmt, ##__VA_ARGS__)
 /**
  * pr_notice - Print a notice-level message
  * @fmt: format string
@@ -355,7 +376,7 @@ extern int kptr_restrict;
  * generate the format string.
  */
 #define pr_notice(fmt, ...) \
-	printk(KERN_NOTICE pr_fmt(fmt), ##__VA_ARGS__)
+	pr_printk_hash(KERN_NOTICE, fmt, ##__VA_ARGS__)
 /**
  * pr_info - Print an info-level message
  * @fmt: format string
@@ -365,7 +386,7 @@ extern int kptr_restrict;
  * generate the format string.
  */
 #define pr_info(fmt, ...) \
-	printk(KERN_INFO pr_fmt(fmt), ##__VA_ARGS__)
+	pr_printk_hash(KERN_INFO, fmt, ##__VA_ARGS__)
 
 /**
  * pr_cont - Continues a previous log message in the same line.

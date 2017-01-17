@@ -286,6 +286,7 @@ endif
 # Built-in and composite module parts
 $(obj)/%.o: $(src)/%.c $(recordmcount_source) $(objtool_dep) FORCE
 	$(call cmd,force_checksrc)
+	$(call cmd,force_check_kmsg)
 	$(call if_changed_rule,cc_o_c)
 
 cmd_mod = { \
@@ -495,6 +496,19 @@ __build: $(if $(KBUILD_BUILTIN), $(targets-for-builtin)) \
 	 $(subdir-ym) $(always-y)
 	@:
 
+endif
+
+# kmsg check tool
+ifneq ($(KBUILD_KMSG_CHECK),0)
+  ifeq ($(KBUILD_KMSG_CHECK),2)
+    kmsg_cmd := print
+    quiet_cmd_force_check_kmsg = KMSG_PRINT $<
+    $(shell [ -d $(objtree)/man ] || mkdir -p $(objtree)/man)
+  else
+    kmsg_cmd := check
+    quiet_cmd_force_check_kmsg = KMSG_CHECK $<
+  endif
+  cmd_force_check_kmsg = $(KMSG_CHECK) $(kmsg_cmd) $(CC) $(c_flags) $< ;
 endif
 
 # Descending
