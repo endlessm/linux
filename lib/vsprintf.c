@@ -1995,6 +1995,29 @@ static char *kobject_string(char *buf, char *end, void *ptr,
 	return error_string(buf, end, "(%pO?)", spec);
 }
 
+#ifdef CONFIG_KMSG_IDS
+
+unsigned long long __jhash_string(const char *str);
+
+static noinline_for_stack
+char *jhash_string(char *buf, char *end, const char *str, const char *fmt)
+{
+	struct printf_spec spec;
+	unsigned long long num;
+
+	num = __jhash_string(str);
+
+	spec.type = FORMAT_TYPE_PTR;
+	spec.field_width = 6;
+	spec.flags = SMALL | ZEROPAD;
+	spec.base = 16;
+	spec.precision = -1;
+
+	return number(buf, end, num, spec);
+}
+
+#endif
+
 /*
  * Show a '%p' thing.  A kernel extension is that the '%p' is followed
  * by an extra set of alphanumeric characters that are extended format
@@ -2099,6 +2122,7 @@ static char *kobject_string(char *buf, char *end, void *ptr,
  *                  F device node flags
  *                  c major compatible string
  *                  C full compatible string
+ * - 'j' Kernel message catalog jhash for System z
  * - 'x' For printing the address. Equivalent to "%lx".
  *
  * ** When making changes please also update:
@@ -2180,6 +2204,10 @@ char *pointer(const char *fmt, char *buf, char *end, void *ptr,
 		return kobject_string(buf, end, ptr, spec, fmt);
 	case 'x':
 		return pointer_string(buf, end, ptr, spec);
+#ifdef CONFIG_KMSG_IDS
+	case 'j':
+		return jhash_string(buf, end, ptr, fmt);
+#endif
 	}
 
 	/* default is to _not_ leak addresses, hash before printing */
