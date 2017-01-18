@@ -90,7 +90,6 @@ static const char *sf_get_link(struct dentry *dentry, struct inode *inode,
 
 struct inode_operations sf_lnk_iops =
 {
-    .readlink       = generic_readlink,
 # if LINUX_VERSION_CODE >= KERNEL_VERSION(4, 5, 0)
     .get_link       = sf_get_link
 # elif LINUX_VERSION_CODE >= KERNEL_VERSION(4, 2, 0)
