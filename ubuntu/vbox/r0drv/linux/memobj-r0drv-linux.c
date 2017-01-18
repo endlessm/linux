@@ -1078,7 +1078,11 @@ DECLHIDDEN(int) rtR0MemObjNativeLockUser(PPRTR0MEMOBJINTERNAL ppMem, RTR3PTR R3P
                                 fWrite,                 /* force write access. */
 # endif
                                 &pMemLnx->apPages[0],   /* Page array. */
-                                papVMAs);               /* vmas */
+                                papVMAs                 /* vmas */
+# if LINUX_VERSION_CODE >= KERNEL_VERSION(4, 10, 0)
+                                , NULL                  /* locked */
+# endif
+                                );
 #else /* LINUX_VERSION_CODE < KERNEL_VERSION(4, 6, 0) */
             rc = get_user_pages(pTask,                  /* Task for fault accounting. */
                                 pTask->mm,              /* Whose pages. */

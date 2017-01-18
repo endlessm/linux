@@ -245,7 +245,6 @@ static int vboxfb_create_object(struct vbox_fbdev *fbdev,
                    struct drm_gem_object **gobj_p)
 {
     struct drm_device *dev = fbdev->helper.dev;
-    u32 bpp, depth;
     u32 size;
     struct drm_gem_object *gobj;
 #if LINUX_VERSION_CODE < KERNEL_VERSION(3, 3, 0)
@@ -256,7 +255,6 @@ static int vboxfb_create_object(struct vbox_fbdev *fbdev,
 
     int ret = 0;
     LogFunc(("vboxvideo: %d\n", __LINE__));
-    drm_fb_get_bpp_depth(mode_cmd->pixel_format, &depth, &bpp);
 
     size = pitch * mode_cmd->height;
     ret = vbox_gem_create(dev, size, true, &gobj);

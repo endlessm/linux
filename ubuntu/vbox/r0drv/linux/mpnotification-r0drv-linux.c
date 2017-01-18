@@ -37,19 +37,58 @@
 #include <iprt/thread.h>
 #include "r0drv/mp-r0drv.h"
 
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(4, 10, 0)
 
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(2, 5, 71) && defined(CONFIG_SMP)
+static enum cpuhp_state g_rtR0MpOnline;
+
+/*
+ * Linux 4.10 completely removed CPU notifiers. So let's switch to CPU hotplug
+ * notification.
+ */
+
+static int rtR0MpNotificationLinuxOnline(unsigned int cpu)
+{
+    RTCPUID idCpu = RTMpCpuIdFromSetIndex(cpu);
+    rtMpNotificationDoCallbacks(RTMPEVENT_ONLINE, idCpu);
+    return 0;
+}
+
+static int rtR0MpNotificationLinuxOffline(unsigned int cpu)
+{
+    RTCPUID idCpu = RTMpCpuIdFromSetIndex(cpu);
+    rtMpNotificationDoCallbacks(RTMPEVENT_OFFLINE, idCpu);
+    return 0;
+}
+
+DECLHIDDEN(int) rtR0MpNotificationNativeInit(void)
+{
+    int rc;
+    IPRT_LINUX_SAVE_EFL_AC();
+    rc = cpuhp_setup_state_nocalls(CPUHP_AP_ONLINE_DYN, "vboxdrv:online",
+                                   rtR0MpNotificationLinuxOnline, rtR0MpNotificationLinuxOffline);
+    IPRT_LINUX_RESTORE_EFL_AC();
+    /*
+     * cpuhp_setup_state_nocalls() returns a positive state number for
+     * CPUHP_AP_ONLINE_DYN or -ENOSPC if there is no free slot available
+     * (see cpuhp_reserve_state / definition of CPUHP_AP_ONLINE_DYN).
+     */
+    AssertMsgReturn(rc > 0, ("%d\n", rc), RTErrConvertFromErrno(rc));
+    g_rtR0MpOnline = rc;
+    return VINF_SUCCESS;
+}
 
 
-/*********************************************************************************************************************************
-*   Internal Functions                                                                                                           *
-*********************************************************************************************************************************/
+DECLHIDDEN(void) rtR0MpNotificationNativeTerm(void)
+{
+    IPRT_LINUX_SAVE_EFL_AC();
+    cpuhp_remove_state_nocalls(g_rtR0MpOnline);
+    IPRT_LINUX_RESTORE_EFL_AC();
+}
+
+#elif LINUX_VERSION_CODE >= KERNEL_VERSION(2, 5, 71) && defined(CONFIG_SMP)
+
 static int rtMpNotificationLinuxCallback(struct notifier_block *pNotifierBlock, unsigned long ulNativeEvent, void *pvCpu);
 
-
-/*********************************************************************************************************************************
-*   Global Variables                                                                                                             *
-*********************************************************************************************************************************/
 /**
  * The notifier block we use for registering the callback.
  */

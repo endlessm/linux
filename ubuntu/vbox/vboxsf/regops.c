@@ -328,8 +328,7 @@ static int sf_reg_open(struct inode *inode, struct file *file)
         if (file->f_flags & O_TRUNC)
         {
             LogFunc(("O_TRUNC set\n"));
-            params.CreateFlags |= (  SHFL_CF_ACT_OVERWRITE_IF_EXISTS
-                                   | SHFL_CF_ACCESS_WRITE);
+            params.CreateFlags |= SHFL_CF_ACT_OVERWRITE_IF_EXISTS;
         }
         else
             params.CreateFlags |= SHFL_CF_ACT_OPEN_IF_EXISTS;
@@ -340,30 +339,26 @@ static int sf_reg_open(struct inode *inode, struct file *file)
         if (file->f_flags & O_TRUNC)
         {
             LogFunc(("O_TRUNC set\n"));
-            params.CreateFlags |= (  SHFL_CF_ACT_OVERWRITE_IF_EXISTS
-                    | SHFL_CF_ACCESS_WRITE);
+            params.CreateFlags |= SHFL_CF_ACT_OVERWRITE_IF_EXISTS;
         }
     }
 
-    if (!(params.CreateFlags & SHFL_CF_ACCESS_READWRITE))
+    switch (file->f_flags & O_ACCMODE)
     {
-        switch (file->f_flags & O_ACCMODE)
-        {
-            case O_RDONLY:
-                params.CreateFlags |= SHFL_CF_ACCESS_READ;
-                break;
+        case O_RDONLY:
+            params.CreateFlags |= SHFL_CF_ACCESS_READ;
+            break;
 
-            case O_WRONLY:
-                params.CreateFlags |= SHFL_CF_ACCESS_WRITE;
-                break;
+        case O_WRONLY:
+            params.CreateFlags |= SHFL_CF_ACCESS_WRITE;
+            break;
 
-            case O_RDWR:
-                params.CreateFlags |= SHFL_CF_ACCESS_READWRITE;
-                break;
+        case O_RDWR:
+            params.CreateFlags |= SHFL_CF_ACCESS_READWRITE;
+            break;
 
-            default:
-                BUG ();
-        }
+        default:
+            BUG ();
     }
 
     if (file->f_flags & O_APPEND)

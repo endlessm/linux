@@ -407,11 +407,9 @@ RTDECL(int) RTMpOnPair(RTCPUID idCpu1, RTCPUID idCpu2, uint32_t fFlags, PFNRTMPW
         cpu_set(idCpu2, DstCpuMask);
 #endif
 
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 29)
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 28)
         smp_call_function_many(&DstCpuMask, rtmpLinuxWrapperPostInc, &Args, !fCallSelf /* wait */);
         rc = 0;
-#elif LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 28)
-        rc = smp_call_function_many(&DstCpuMask, rtmpLinuxWrapperPostInc, &Args, !fCallSelf /* wait */);
 #elif LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 27)
         rc = smp_call_function_mask(DstCpuMask, rtmpLinuxWrapperPostInc, &Args, !fCallSelf /* wait */);
 #else /* older kernels */
