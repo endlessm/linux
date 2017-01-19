@@ -81,6 +81,7 @@ drivers/net/dummy.ko
 drivers/net/eql.ko
 drivers/net/ethernet/8390/8390.ko
 drivers/net/ethernet/8390/ne2k-pci.ko
+drivers/net/ethernet/amazon/ena/ena.ko
 drivers/net/ethernet/amd/pcnet32.ko
 drivers/net/ethernet/broadcom/bnx2x/*
 drivers/net/ethernet/broadcom/tg3.ko
