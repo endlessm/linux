@@ -1,5 +1,7 @@
 arch/*/{crypto,kernel,oprofile}
 arch/*/kvm/kvm.ko
+arch/powerpc/kvm/kvm-hv.ko
+arch/powerpc/kvm/kvm-pr.ko
 arch/powerpc/kvm/vfio.ko
 arch/powerpc/platforms/powernv/opal-prd.ko
 arch/s390/*
