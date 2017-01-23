@@ -156,6 +156,8 @@ MODULE_LICENSE("GPL");
 #define ASUS_FAN_CTRL_MANUAL		1
 #define ASUS_FAN_CTRL_AUTO		2
 
+static const char * const ashs_ids[] = { "ATK4001", "ATK4002", NULL };
+
 struct bios_args {
 	u32 arg0;
 	u32 arg1;
@@ -2034,6 +2036,16 @@ static int asus_wmi_fan_init(struct asus_wmi *asus)
 	return 0;
 }
 
+static bool ashs_present(void)
+{
+	int i = 0;
+	while (ashs_ids[i]) {
+		if (acpi_dev_found(ashs_ids[i++]))
+			return true;
+	}
+	return false;
+}
+
 /*
  * WMI Driver
  */
@@ -2078,6 +2090,13 @@ static int asus_wmi_add(struct platform_device *pdev)
 	if (err)
 		goto fail_leds;
 
+	asus_wmi_get_devstate(asus, ASUS_WMI_DEVID_WLAN, &result);
+	if (result & (ASUS_WMI_DSTS_PRESENCE_BIT | ASUS_WMI_DSTS_USER_BIT))
+		asus->driver->wlan_ctrl_by_user = 1;
+
+	if (asus->driver->wlan_ctrl_by_user && ashs_present())
+		asus->driver->quirks->no_rfkill = 1;
+
 	if (!asus->driver->quirks->no_rfkill) {
 		err = asus_wmi_rfkill_init(asus);
 		if (err)
@@ -2110,10 +2129,6 @@ static int asus_wmi_add(struct platform_device *pdev)
 	err = asus_wmi_debugfs_init(asus);
 	if (err)
 		goto fail_debugfs;
-
-	asus_wmi_get_devstate(asus, ASUS_WMI_DEVID_WLAN, &result);
-	if (result & (ASUS_WMI_DSTS_PRESENCE_BIT | ASUS_WMI_DSTS_USER_BIT))
-		asus->driver->wlan_ctrl_by_user = 1;
 
 	return 0;
 
