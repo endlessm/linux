@@ -59,6 +59,8 @@ bits 9,10,11: redirect counter -  redirect TTL. Loop avoidance
 #define MAX_RED_LOOP 4
 #endif
 
+#define TC_COOKIE_MAX_SIZE 16
+
 /* Action attributes */
 enum {
 	TCA_ACT_UNSPEC,
@@ -67,6 +69,7 @@ enum {
 	TCA_ACT_INDEX,
 	TCA_ACT_STATS,
 	TCA_ACT_PAD,
+	TCA_ACT_COOKIE,
 	__TCA_ACT_MAX
 };
 
