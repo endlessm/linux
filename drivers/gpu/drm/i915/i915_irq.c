@@ -1095,7 +1095,7 @@ static u32 vlv_wa_c0_ei(struct drm_i915_private *dev_priv, u32 pm_iir)
 	if (pm_iir & GEN6_PM_RP_DOWN_EI_EXPIRED) {
 		if (!vlv_c0_above(dev_priv,
 				  &dev_priv->rps.down_ei, &now,
-				  dev_priv->rps.down_threshold))
+				  VLV_RP_DOWN_EI_THRESHOLD))
 			events |= GEN6_PM_RP_DOWN_THRESHOLD;
 		dev_priv->rps.down_ei = now;
 	}
@@ -1103,7 +1103,7 @@ static u32 vlv_wa_c0_ei(struct drm_i915_private *dev_priv, u32 pm_iir)
 	if (pm_iir & GEN6_PM_RP_UP_EI_EXPIRED) {
 		if (vlv_c0_above(dev_priv,
 				 &dev_priv->rps.up_ei, &now,
-				 dev_priv->rps.up_threshold))
+				 VLV_RP_UP_EI_THRESHOLD))
 			events |= GEN6_PM_RP_UP_THRESHOLD;
 		dev_priv->rps.up_ei = now;
 	}

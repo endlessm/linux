@@ -4974,7 +4974,7 @@ static void valleyview_set_rps(struct drm_i915_private *dev_priv, u8 val)
 
 	if (val != dev_priv->rps.cur_freq) {
 		vlv_punit_write(dev_priv, PUNIT_REG_GPU_FREQ_REQ, val);
-		if (!IS_CHERRYVIEW(dev_priv))
+		if (!(IS_CHERRYVIEW(dev_priv) || IS_VALLEYVIEW(dev_priv)))
 			gen6_set_rps_thresholds(dev_priv, val);
 	}
 
