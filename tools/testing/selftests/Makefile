@@ -27,9 +27,9 @@ TARGETS += size
 TARGETS += static_keys
 TARGETS += sync
 TARGETS += sysctl
-ifneq (1, $(quicktest))
-TARGETS += timers
-endif
+#ifneq (1, $(quicktest))
+#TARGETS += timers
+#endif
 TARGETS += user
 TARGETS += vm
 TARGETS += x86
