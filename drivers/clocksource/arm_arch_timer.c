@@ -214,6 +214,13 @@ bool arch_timer_check_dt_erratum(const struct arch_timer_erratum_workaround *wa,
 	return of_property_read_bool(np, wa->id);
 }
 
+static
+bool arch_timer_check_global_cap_erratum(const struct arch_timer_erratum_workaround *wa,
+					 const void *arg)
+{
+	return cpus_have_cap((uintptr_t)wa->id);
+}
+
 static const struct arch_timer_erratum_workaround *
 arch_timer_iterate_errata(enum arch_timer_erratum_match_type type,
 			  ate_match_fn_t match_fn,
@@ -251,6 +258,9 @@ static void arch_timer_check_ool_workaround(enum arch_timer_erratum_match_type t
 	switch (type) {
 	case ate_match_dt:
 		match_fn = arch_timer_check_dt_erratum;
+		break;
+	case ate_match_global_cap_id:
+		match_fn = arch_timer_check_global_cap_erratum;
 		break;
 	}
 
@@ -1029,6 +1039,7 @@ static int __init arch_timer_of_init(struct device_node *np)
 
 	/* Check for globally applicable workarounds */
 	arch_timer_check_ool_workaround(ate_match_dt, np);
+	arch_timer_check_ool_workaround(ate_match_global_cap_id, NULL);
 
 	/*
 	 * If we cannot rely on firmware initializing the timer registers then
@@ -1184,6 +1195,9 @@ static int __init arch_timer_acpi_init(struct acpi_table_header *table)
 
 	/* Always-on capability */
 	arch_timer_c3stop = !(gtdt->non_secure_el1_flags & ACPI_GTDT_ALWAYS_ON);
+
+	/* Check for globally applicable workarounds */
+	arch_timer_check_ool_workaround(ate_match_global_cap_id, NULL);
 
 	arch_timer_init();
 	return 0;
