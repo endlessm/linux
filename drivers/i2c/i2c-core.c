@@ -145,6 +145,11 @@ static int acpi_i2c_get_info(struct acpi_device *adev,
 	struct acpi_i2c_lookup lookup;
 	int ret;
 
+	pr_debug("name=%s, hid=%s, acpi_bus_get_status=%d, "
+		 "!adev->status.present=%d, acpi_device_enumerated=%d\n",
+		 acpi_device_name(adev), acpi_device_hid(adev),
+		 acpi_bus_get_status(adev), !adev->status.present,
+		 acpi_device_enumerated(adev));
 	if (acpi_bus_get_status(adev) || !adev->status.present ||
 	    acpi_device_enumerated(adev))
 		return -EINVAL;
@@ -162,6 +167,8 @@ static int acpi_i2c_get_info(struct acpi_device *adev,
 				     acpi_i2c_fill_info, &lookup);
 	acpi_dev_free_resource_list(&resource_list);
 
+	pr_debug("I2cSerialBus acpi_dev_get_resources=%d, info->addr=%d\n",
+		 ret, info->addr);
 	if (ret < 0 || !info->addr)
 		return -EINVAL;
 
@@ -169,6 +176,7 @@ static int acpi_i2c_get_info(struct acpi_device *adev,
 
 	/* Then fill IRQ number if any */
 	ret = acpi_dev_get_resources(adev, &resource_list, NULL, NULL);
+	pr_debug("IRQ acpi_dev_get_resources=%d\n", ret);
 	if (ret < 0)
 		return -EINVAL;
 
@@ -190,6 +198,7 @@ static void acpi_i2c_register_device(struct i2c_adapter *adapter,
 				     struct acpi_device *adev,
 				     struct i2c_board_info *info)
 {
+	pr_debug("i2c board info name=%s\n", info->type);
 	adev->power.flags.ignore_parent = true;
 	acpi_device_set_enumerated(adev);
 
@@ -208,16 +217,27 @@ static acpi_status acpi_i2c_add_device(acpi_handle handle, u32 level,
 	struct acpi_device *adev;
 	acpi_handle adapter_handle;
 	struct i2c_board_info info;
+	char name[255] = { 0 };
+	struct acpi_buffer buffer = {sizeof(name), name};
+
+	acpi_get_name(handle, ACPI_FULL_PATHNAME, &buffer);
+	pr_debug("name=%s, handle=%p\n", name, handle);
 
 	if (acpi_bus_get_device(handle, &adev))
 		return AE_OK;
+	pr_debug("hid=%s, handle=%p, adev=%p\n",
+		 acpi_device_hid(adev), handle, adev);
 
 	if (acpi_i2c_get_info(adev, &info, &adapter_handle))
 		return AE_OK;
+	pr_debug("name=%s, hid=%s, i2c board info name=%s\n", name,
+		 acpi_device_hid(adev), info.type);
 
 	if (adapter_handle != ACPI_HANDLE(&adapter->dev))
 		return AE_OK;
 
+	pr_debug("name=%s, hid=%s, about to call acpi_i2c_register_device\n",
+		 name, acpi_device_hid(adev));
 	acpi_i2c_register_device(adapter, adev, &info);
 
 	return AE_OK;
@@ -237,6 +257,8 @@ static void acpi_i2c_register_devices(struct i2c_adapter *adap)
 {
 	acpi_status status;
 
+	dev_dbg(&adap->dev, "adapter [%s]\n", adap->name);
+
 	if (!has_acpi_companion(&adap->dev))
 		return;
 
@@ -244,6 +266,7 @@ static void acpi_i2c_register_devices(struct i2c_adapter *adap)
 				     ACPI_I2C_MAX_SCAN_DEPTH,
 				     acpi_i2c_add_device, NULL,
 				     adap, NULL);
+	dev_dbg(&adap->dev, "acpi_walk_namespace has returned %u\n", status);
 	if (ACPI_FAILURE(status))
 		dev_warn(&adap->dev, "failed to enumerate I2C slaves\n");
 }
@@ -289,18 +312,26 @@ static int acpi_i2c_notify(struct notifier_block *nb, unsigned long value,
 	struct i2c_adapter *adapter;
 	struct i2c_client *client;
 
+	pr_debug("hid=%s\n", acpi_device_hid(adev));
 	switch (value) {
 	case ACPI_RECONFIG_DEVICE_ADD:
+		pr_debug("hid=%s ACPI_RECONFIG_DEVICE_ADD\n",
+			 acpi_device_hid(adev));
 		if (acpi_i2c_get_info(adev, &info, &adapter_handle))
 			break;
 
+		pr_debug("hid=%s acpi_i2c_get_info returned zero\n",
+			 acpi_device_hid(adev));
 		adapter = acpi_i2c_find_adapter_by_handle(adapter_handle);
+		pr_debug("hid=%s adapter=%p\n", acpi_device_hid(adev), adapter);
 		if (!adapter)
 			break;
 
 		acpi_i2c_register_device(adapter, adev, &info);
 		break;
 	case ACPI_RECONFIG_DEVICE_REMOVE:
+		pr_debug("hid=%s ACPI_RECONFIG_DEVICE_REMOVE\n",
+			 acpi_device_hid(adev));
 		if (!acpi_device_enumerated(adev))
 			break;
 
