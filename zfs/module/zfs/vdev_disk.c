@@ -494,11 +494,6 @@ bio_map(struct bio *bio, void *bio_ptr, unsigned int bio_size)
 	return (bio_size);
 }
 
-#ifndef bio_set_op_attrs
-#define	bio_set_op_attrs(bio, rw, flags) \
-	do { (bio)->bi_rw |= (rw)|(flags); } while (0)
-#endif
-
 static inline void
 vdev_submit_bio_impl(struct bio *bio)
 {
@@ -676,7 +671,7 @@ vdev_disk_io_flush(struct block_device *bdev, zio_t *zio)
 	bio->bi_private = zio;
 	bio->bi_bdev = bdev;
 	zio->io_delay = jiffies_64;
-	bio_set_op_attrs(bio, 0, VDEV_WRITE_FLUSH_FUA);
+	bio_set_flush(bio);
 	vdev_submit_bio(bio);
 	invalidate_bdev(bdev);
 
@@ -729,18 +724,24 @@ vdev_disk_io_start(zio_t *zio)
 		return;
 	case ZIO_TYPE_WRITE:
 		rw = WRITE;
-		if ((pri == ZIO_PRIORITY_SYNC_WRITE) && (v->vdev_nonrot))
+		if ((pri == ZIO_PRIORITY_SYNC_WRITE) && (v->vdev_nonrot)) {
+#ifdef USE_REQ_FLAGS
+			flags = REQ_SYNC;
+#else
 			flags = WRITE_SYNC;
-		else
+#endif
+		} else {
 			flags = 0;
+		}
 		break;
 
 	case ZIO_TYPE_READ:
 		rw = READ;
+		flags = 0;
+#ifndef USE_REQ_FLAGS
 		if ((pri == ZIO_PRIORITY_SYNC_READ) && (v->vdev_nonrot))
 			flags = READ_SYNC;
-		else
-			flags = 0;
+#endif
 		break;
 
 	default:

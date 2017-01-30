@@ -57,6 +57,9 @@
 /* BIO_RW_FAILFAST_* are defined */
 #undef HAVE_BIO_RW_FAILFAST_DTD
 
+/* bio_set_op_attrs is available */
+#undef HAVE_BIO_SET_OP_ATTRS
+
 /* blkdev_get_by_path() is available */
 #undef HAVE_BLKDEV_GET_BY_PATH
 
@@ -185,6 +188,9 @@
 
 /* generic_start_io_acct()/generic_end_io_acct() avaliable */
 #undef HAVE_GENERIC_IO_ACCT
+
+/* generic_readlink is global */
+#undef HAVE_GENERIC_READLINK
 
 /* generic_setxattr() exists */
 #undef HAVE_GENERIC_SETXATTR
@@ -319,7 +325,7 @@
 #undef HAVE_REQ_OP_FLUSH
 
 /* REQ_OP_SECURE_ERASE is defined */
-#undef HAVE_REQ_OP_SECURE_DISCARD
+#undef HAVE_REQ_OP_SECURE_ERASE
 
 /* setattr_prepare() is available */
 #undef HAVE_SETATTR_PREPARE
@@ -452,6 +458,9 @@
 
 /* Define to 1 if you have the ANSI C header files. */
 #undef STDC_HEADERS
+
+/* use REQ_* flags directly */
+#undef USE_REQ_FLAGS
 
 /* Version number of package */
 #undef VERSION
