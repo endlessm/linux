@@ -8666,9 +8666,7 @@ CONFIG_RCU_EXPERT                               flag<REVIEW>
 # Menu: General setup >> Stack Protector buffer overflow detection
 CONFIG_CC_STACKPROTECTOR_NONE                   policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'i386': 'n', 'powerpc-generic': 'n', 'powerpc-powerpc64-emb': 'n', 'powerpc-powerpc-e500mc': 'n', 'powerpc-powerpc-smp': 'y', 'ppc64el': 'n'}>
 CONFIG_CC_STACKPROTECTOR_REGULAR                policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'i386': 'n', 'powerpc': 'n', 'ppc64el': 'n'}>
-CONFIG_CC_STACKPROTECTOR_STRONG                 policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'powerpc-generic': 'y', 'powerpc-powerpc64-emb': 'y', 'powerpc-powerpc-e500mc': 'y', 'powerpc-powerpc-smp': 'n', 'ppc64el': 'y'}>
-#
-CONFIG_CC_STACKPROTECTOR_STRONG			mark<ENFORCED> note<FTBFS on powerpc-smp in 4.10-rc2>
+CONFIG_CC_STACKPROTECTOR_STRONG                 policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y'}>
 
 # Menu: General setup >> Stack Protector buffer overflow detection >> Architecture: arm
 
