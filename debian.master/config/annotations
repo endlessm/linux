@@ -3020,7 +3020,7 @@ CONFIG_TOUCHSCREEN_ILI210X                      policy<{'amd64': 'm', 'arm64': '
 CONFIG_TOUCHSCREEN_IPROC                        policy<{'arm64': 'm'}>
 CONFIG_TOUCHSCREEN_GUNZE                        policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'powerpc': 'm', 'ppc64el': 'm'}>
 CONFIG_TOUCHSCREEN_EKTF2127                     policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'powerpc': 'm', 'ppc64el': 'm'}>
-CONFIG_TOUCHSCREEN_ELAN                         policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'powerpc': 'm', 'ppc64el': 'm'}>
+CONFIG_TOUCHSCREEN_ELAN                         policy<{'amd64': 'y', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'powerpc': 'm', 'ppc64el': 'm'}>
 CONFIG_TOUCHSCREEN_ELO                          policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'powerpc': 'm', 'ppc64el': 'm'}>
 CONFIG_TOUCHSCREEN_WACOM_W8001                  policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'powerpc': 'm', 'ppc64el': 'm'}>
 CONFIG_TOUCHSCREEN_WACOM_I2C                    policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'powerpc': 'm', 'ppc64el': 'm'}>
@@ -3063,6 +3063,8 @@ CONFIG_TOUCHSCREEN_TPS6507X                     policy<{'amd64': 'm', 'arm64': '
 CONFIG_TOUCHSCREEN_ZFORCE                       policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'powerpc': 'm', 'ppc64el': 'm'}>
 CONFIG_TOUCHSCREEN_COLIBRI_VF50                 policy<{'arm64': 'm', 'armhf': 'm', 'powerpc': 'm', 'ppc64el': 'm'}>
 CONFIG_TOUCHSCREEN_ROHM_BU21023                 policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'powerpc': 'm', 'ppc64el': 'm'}>
+#
+CONFIG_TOUCHSCREEN_ELAN				mark<ENFORCED> note<LP #1630238>
 
 # Menu: Device Drivers >> Input device support >> Generic input layer (needed for keyboard, mouse, ...) >> Touchscreens >> Support for WM97xx AC97 touchscreen controllers
 CONFIG_TOUCHSCREEN_WM97XX                       policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'powerpc': 'm', 'ppc64el': 'm'}>
@@ -5532,7 +5534,7 @@ CONFIG_PINCTRL_IMX6UL                           policy<{'armhf-generic': 'y'}>
 CONFIG_PINCTRL_IMX7D                            policy<{'armhf-generic': 'y'}>
 CONFIG_PINCTRL_VF610                            policy<{'armhf-generic': 'y'}>
 CONFIG_PINCTRL_BAYTRAIL                         policy<{'amd64': 'y', 'arm64': 'y', 'i386': 'y'}>
-CONFIG_PINCTRL_CHERRYVIEW                       policy<{'amd64': 'm', 'arm64': 'm', 'i386': 'm'}>
+CONFIG_PINCTRL_CHERRYVIEW                       policy<{'amd64': 'y', 'arm64': 'm', 'i386': 'm'}>
 CONFIG_PINCTRL_MERRIFIELD                       policy<{'i386': 'n'}>
 CONFIG_PINCTRL_BROXTON                          policy<{'amd64': 'm', 'arm64': 'm', 'i386': 'm'}>
 CONFIG_PINCTRL_SUNRISEPOINT                     policy<{'amd64': 'm', 'arm64': 'm', 'i386': 'm'}>
@@ -5561,6 +5563,7 @@ CONFIG_PINCTRL_MT6397                           policy<{'arm64': 'y', 'armhf': '
 #
 CONFIG_PINCTRL_MT8135                           flag<REVIEW>
 CONFIG_PINCTRL_MT8127                           flag<REVIEW>
+CONFIG_PINCTRL_CHERRYVIEW			mark<ENFORCED> note<LP #1630238>
 
 # Menu: Device Drivers >> Pin controllers >> Nomadik pin controller driver
 
