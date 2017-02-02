@@ -558,11 +558,12 @@ CONFIG_PARIDE_ON20                              policy<{'amd64': 'm', 'armhf': '
 CONFIG_PARIDE_ON26                              policy<{'amd64': 'm', 'armhf': 'm', 'i386': 'm', 'powerpc': 'm', 'ppc64el': 'm'}>
 
 # Menu: Device Drivers >> Block devices >> RAM block device support
-CONFIG_BLK_DEV_RAM                              policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'powerpc': 'y', 'ppc64el': 'y', 's390x': 'y'}>
+CONFIG_BLK_DEV_RAM                              policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'powerpc': 'm', 'ppc64el': 'm', 's390x': 'm'}>
 CONFIG_BLK_DEV_RAM_COUNT                        policy<{'amd64': '16', 'arm64': '16', 'armhf': '16', 'i386': '16', 'powerpc': '16', 'ppc64el': '16', 's390x': '16'}>
 CONFIG_BLK_DEV_RAM_SIZE                         policy<{'amd64': '65536', 'arm64': '65536', 'armhf': '65536', 'i386': '65536', 'powerpc': '65536', 'ppc64el': '65536', 's390x': '65536'}>
 CONFIG_BLK_DEV_RAM_DAX                          policy<{'amd64': 'y', 'arm64': 'y', 'i386': 'y', 'powerpc': 'y', 'ppc64el': 'y', 's390x': 'y'}>
 #
+CONFIG_BLK_DEV_RAM				note<LP #1593293>
 CONFIG_BLK_DEV_RAM_SIZE                         mark<ENFORCED> note<Ramdisk size should be a minimum of 64M> flag<REVIEW>
 
 # Menu: Device Drivers >> Block devices >> Support for DASD devices
