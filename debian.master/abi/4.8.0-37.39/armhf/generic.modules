@@ -1037,7 +1037,6 @@ ehci-omap
 ehci-tegra
 ehset
 elan_i2c
-elants_i2c
 elo
 em28xx
 em28xx-alsa

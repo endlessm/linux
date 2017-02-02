@@ -1084,7 +1084,6 @@ egalax_ts_serial
 ehset
 einj
 elan_i2c
-elants_i2c
 elo
 elsa_cs
 em28xx
@@ -3004,7 +3003,6 @@ phy-tahvo
 phy-tusb1210
 physmap
 pinctrl-broxton
-pinctrl-cherryview
 pinctrl-intel
 pinctrl-sunrisepoint
 pistachio-internal-dac

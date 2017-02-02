@@ -962,7 +962,6 @@ egalax_ts_serial
 ehci-platform
 ehset
 elan_i2c
-elants_i2c
 elo
 em28xx
 em28xx-alsa
