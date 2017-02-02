@@ -27,7 +27,6 @@
    I2C slave support (c) 2014 by Wolfram Sang <wsa@sang-engineering.com>
  */
 
-int dsd = 0;
 #define pr_fmt(fmt) "i2c-core: " fmt
 
 #include <dt-bindings/i2c/i2c.h>
@@ -144,18 +143,11 @@ static int acpi_i2c_get_info(struct acpi_device *adev,
 	struct list_head resource_list;
 	struct resource_entry *entry;
 	struct acpi_i2c_lookup lookup;
-	int status;
 	int ret;
 
-	pr_debug("name=%s, hid=%s\n",
-		 acpi_device_name(adev), acpi_device_hid(adev));
-
-	dsd = 1;
-	status = acpi_bus_get_status(adev);
-	dsd = 0;
-
-	pr_debug("acpi_bus_get_status=%d, "
+	pr_debug("name=%s, hid=%s, acpi_bus_get_status=%d, "
 		 "!adev->status.present=%d, acpi_device_enumerated=%d\n",
+		 acpi_device_name(adev), acpi_device_hid(adev),
 		 acpi_bus_get_status(adev), !adev->status.present,
 		 acpi_device_enumerated(adev));
 	if (acpi_bus_get_status(adev) || !adev->status.present ||

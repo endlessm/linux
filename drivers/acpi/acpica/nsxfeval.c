@@ -48,7 +48,6 @@
 #include "accommon.h"
 #include "acnamesp.h"
 #include "acinterp.h"
-extern int dsd;
 
 #define _COMPONENT          ACPI_NAMESPACE
 ACPI_MODULE_NAME("nsxfeval")
@@ -199,7 +198,6 @@ acpi_evaluate_object(acpi_handle handle,
 		status = AE_BAD_PARAMETER;
 		goto cleanup;
 	}
-if (dsd) pr_err("acpi_evaluate_object prefix_node %p/%4.4s full path %s\n", info->prefix_node, info->prefix_node->name.ascii, acpi_ns_get_normalized_pathname(info->prefix_node, TRUE));
 
 	/*
 	 * Get the actual namespace node for the target object.
@@ -367,7 +365,6 @@ if (dsd) pr_err("acpi_evaluate_object prefix_node %p/%4.4s full path %s\n", info
 
 	status = acpi_ns_evaluate(info);
 
-if (dsd) pr_err("acpi_evaluate_object resolved node %p/%4.4s full path %s\n", info->node, info->node->name.ascii, acpi_ns_get_normalized_pathname(info->node, TRUE));
 	/*
 	 * If we are expecting a return value, and all went well above,
 	 * copy the return value to an external object.
