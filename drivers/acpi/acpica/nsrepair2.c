@@ -411,8 +411,6 @@ acpi_ns_repair_CID(struct acpi_evaluate_info *info,
 
 			(*element_ptr)->common.reference_count =
 			    original_ref_count;
-
-			acpi_ut_remove_reference(original_element);
 		}
 
 		element_ptr++;
