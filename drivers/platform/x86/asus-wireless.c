@@ -17,11 +17,10 @@
 #include <linux/pci_ids.h>
 #include <linux/leds.h>
 
-#define ASUS_WIRELESS_LED_STATUS 0x2
-
 struct hswc_params {
 	u8 on;
 	u8 off;
+	u8 status;
 };
 
 struct asus_wireless_data {
@@ -34,16 +33,14 @@ struct asus_wireless_data {
 	int led_state;
 };
 
-/* Pair of values to be used as LED ON / OFF for different HIDs.
- * Please update this accordingly when adding a new HID to this driver */
 static const struct hswc_params id_params[] = {
-	{ 0x0, 0x1 },
-	{ 0x5, 0x4 },
+	{0x0, 0x1, 0x2},
+	{0x5, 0x4, 0x2},
 };
 
 static const struct acpi_device_id device_ids[] = {
-	{"ATK4001", 0},
-	{"ATK4002", 0},
+	{"ATK4001", (kernel_ulong_t)&id_params[0]},
+	{"ATK4002", (kernel_ulong_t)&id_params[1]},
 	{"", 0},
 };
 MODULE_DEVICE_TABLE(acpi, device_ids);
@@ -79,7 +76,7 @@ static enum led_brightness led_state_get(struct led_classdev *led)
 
 	data = container_of(led, struct asus_wireless_data, led);
 	s = asus_wireless_method(acpi_device_handle(data->adev), "HSWC",
-				 ASUS_WIRELESS_LED_STATUS);
+				 data->hswc_params->status);
 	if (s == data->hswc_params->on)
 		return LED_FULL;
 	return LED_OFF;
@@ -94,8 +91,7 @@ static void led_state_update(struct work_struct *work)
 			     data->led_state);
 }
 
-static void led_state_set(struct led_classdev *led,
-			  enum led_brightness value)
+static void led_state_set(struct led_classdev *led, enum led_brightness value)
 {
 	struct asus_wireless_data *data;
 
@@ -122,21 +118,15 @@ static void asus_wireless_notify(struct acpi_device *adev, u32 event)
 static int asus_wireless_add(struct acpi_device *adev)
 {
 	struct asus_wireless_data *data;
-	const char *hid;
-	int err, i;
+	const struct acpi_device_id *id, *device_id = NULL;
+	struct acpi_hardware_id *hwid;
+	int err;
 
 	data = devm_kzalloc(&adev->dev, sizeof(*data), GFP_KERNEL);
 	if (!data)
 		return -ENOMEM;
 	adev->driver_data = data;
-
-	hid = acpi_device_hid(adev);
-	for (i = 0; strcmp(device_ids[i].id, ""); i++) {
-		if (!strcmp(device_ids[i].id, hid)) {
-			data->hswc_params = &id_params[i];
-			break;
-		}
-	}
+	data->adev = adev;
 
 	data->idev = devm_input_allocate_device(&adev->dev);
 	if (!data->idev)
@@ -151,7 +141,18 @@ static int asus_wireless_add(struct acpi_device *adev)
 	if (err)
 		return err;
 
-	data->adev = adev;
+	list_for_each_entry(hwid, &adev->pnp.ids, list) {
+		for (id = device_ids; id->id[0]; id++) {
+			if (id->id[0] && !strcmp((char *) id->id, hwid->id)) {
+				device_id = id;
+				break;
+			}
+		}
+	}
+	if (!device_id)
+		return 0;
+
+	data->hswc_params = (const struct hswc_params *)device_id->driver_data;
 	data->wq = create_singlethread_workqueue("asus_wireless_workqueue");
 	if (!data->wq)
 		return -ENOMEM;
