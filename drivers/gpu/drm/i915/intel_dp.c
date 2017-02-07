@@ -4548,6 +4548,7 @@ intel_dp_long_pulse(struct intel_connector *intel_connector)
 	struct intel_digital_port *intel_dig_port = dp_to_dig_port(intel_dp);
 	struct intel_encoder *intel_encoder = &intel_dig_port->base;
 	struct drm_device *dev = connector->dev;
+	struct drm_i915_private *dev_priv = to_i915(dev);
 	enum drm_connector_status status;
 	u8 sink_irq_vector = 0;
 
@@ -4625,6 +4626,10 @@ intel_dp_long_pulse(struct intel_connector *intel_connector)
 		 * userspace component reacted to intermittent HPD dip.
 		 */
 		intel_dp_check_link_status(intel_dp);
+
+		/* Poll the EDID to update connection state */
+		if (dev_priv->quirk_weibu_f3c)
+			intel_dp_set_edid(intel_dp);
 	}
 
 	/*
@@ -4670,6 +4675,7 @@ intel_dp_detect(struct drm_connector *connector,
 {
 	struct intel_dp *intel_dp = intel_attached_dp(connector);
 	int status = connector->status;
+	struct drm_i915_private *dev_priv = to_i915(connector->dev);
 
 	DRM_DEBUG_KMS("[CONNECTOR:%d:%s]\n",
 		      connector->base.id, connector->name);
@@ -4679,6 +4685,11 @@ intel_dp_detect(struct drm_connector *connector,
 		status = intel_dp_long_pulse(intel_dp->attached_connector);
 
 	intel_dp->detect_done = false;
+
+	/* Quirk to set status as disconnected if we didn't get an EDID */
+	if (dev_priv->quirk_weibu_f3c &&
+	    to_intel_connector(connector)->detect_edid == NULL)
+		status = connector_status_disconnected;
 
 	return status;
 }
@@ -5974,6 +5985,12 @@ intel_dp_init_connector(struct intel_digital_port *intel_dig_port,
 	DRM_DEBUG_KMS("Adding %s connector on port %c\n",
 			type == DRM_MODE_CONNECTOR_eDP ? "eDP" : "DP",
 			port_name(port));
+
+	/* Poll the EDID to update connection state, since we don't know
+	 * how to access the hotplug state */
+	if (dev_priv->quirk_weibu_f3c)
+		intel_connector->polled = DRM_CONNECTOR_POLL_CONNECT |
+					  DRM_CONNECTOR_POLL_DISCONNECT;
 
 	drm_connector_init(dev, connector, &intel_dp_connector_funcs, type);
 	drm_connector_helper_add(connector, &intel_dp_connector_helper_funcs);
