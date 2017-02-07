@@ -27,6 +27,7 @@
  *
  */
 
+#include <linux/dmi.h>
 #include <linux/acpi.h>
 #include <linux/device.h>
 #include <linux/oom.h>
@@ -1318,6 +1319,24 @@ static void i915_welcome_messages(struct drm_i915_private *dev_priv)
 		DRM_INFO("DRM_I915_DEBUG_GEM enabled\n");
 }
 
+static const struct dmi_system_id weibu_f3c[] = {
+	{
+		.ident = "Weibu F3C",
+		.matches = {
+			DMI_MATCH(DMI_SYS_VENDOR, "Weibu"),
+			DMI_MATCH(DMI_PRODUCT_NAME, "F3C"),
+		},
+	},
+	{
+		.ident = "Endless EE-200",
+		.matches = {
+			DMI_MATCH(DMI_SYS_VENDOR, "Endless"),
+			DMI_MATCH(DMI_PRODUCT_NAME, "EE-200"),
+		},
+	},
+	{ }
+};
+
 /**
  * i915_driver_load - setup chip and create an initial config
  * @pdev: PCI device
@@ -1351,6 +1370,7 @@ int i915_driver_load(struct pci_dev *pdev, const struct pci_device_id *ent)
 
 	dev_priv->drm.pdev = pdev;
 	dev_priv->drm.dev_private = dev_priv;
+	dev_priv->quirk_weibu_f3c = !!dmi_check_system(weibu_f3c);
 
 	ret = pci_enable_device(pdev);
 	if (ret)
