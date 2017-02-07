@@ -1753,7 +1753,6 @@ irda
 irda-usb
 irlan
 irnet
-irqbypass
 irtty-sir
 iscsi_boot_sysfs
 iscsi_target_mod
