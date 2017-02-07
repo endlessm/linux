@@ -1662,6 +1662,12 @@ bool intel_bios_is_port_edp(struct drm_i915_private *dev_priv, enum port port)
 	};
 	int i;
 
+	/* Quirky VBT defines eDP internal panel instead of DP. We set it to
+	 * DP so that Linux queries the EDID and sets supported display modes
+	 * based on that, ignoring the bogus panel definition. */
+	if (dev_priv->quirk_weibu_f3c)
+		return false;
+
 	if (!dev_priv->vbt.child_dev_num)
 		return false;
 
