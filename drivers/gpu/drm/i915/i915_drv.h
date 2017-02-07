@@ -2010,6 +2010,17 @@ struct drm_i915_private {
 	 * NOTE: This is the dri1/ums dungeon, don't add stuff here. Your patch
 	 * will be rejected. Instead look for a better place.
 	 */
+
+	/* The Weibu F3C has a DP-to-VGA converter chip to enable the VGA port.
+	 * However the VBT lists it an internal eDP panel, and we don't know
+	 * how to access the VGA hotplug pin on the converter chip, so we
+	 * resort to polling the EDID and updating connector status based on
+	 * that.
+	 *
+	 * This flag should probably be kept inside intel_dp but we put it
+	 * here in the interests of making this patch as least invasive as
+	 * possible. */
+	bool quirk_weibu_f3c;
 };
 
 struct dram_channel_info {
