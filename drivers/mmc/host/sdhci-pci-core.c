@@ -467,16 +467,6 @@ static const struct sdhci_pci_fixes sdhci_intel_byt_sd = {
 	.ops		= &sdhci_intel_byt_ops,
 };
 
-static const struct sdhci_pci_fixes sdhci_acer_apl_emmc = {
-	.allow_runtime_pm = true,
-	.probe_slot	= byt_emmc_probe_slot,
-	.quirks		= SDHCI_QUIRK_NO_ENDATTR_IN_NOPDESC,
-	.quirks2	= SDHCI_QUIRK2_PRESET_VALUE_BROKEN |
-			  SDHCI_QUIRK2_BROKEN_HS200 |
-			  SDHCI_QUIRK2_CAPS_BIT63_FOR_HS400 |
-			  SDHCI_QUIRK2_STOP_WITH_TC,
-};
-
 /* Define Host controllers for Intel Merrifield platform */
 #define INTEL_MRFLD_EMMC_0	0
 #define INTEL_MRFLD_EMMC_1	1
@@ -1260,14 +1250,6 @@ static const struct pci_device_id pci_ids[] = {
 		.subvendor	= PCI_ANY_ID,
 		.subdevice	= PCI_ANY_ID,
 		.driver_data	= (kernel_ulong_t)&sdhci_intel_byt_sd,
-	},
-
-	{
-		.vendor		= PCI_VENDOR_ID_INTEL,
-		.device		= PCI_DEVICE_ID_INTEL_APL_EMMC,
-		.subvendor	= PCI_VENDOR_ID_AI,
-		.subdevice	= 0x110e,
-		.driver_data	= (kernel_ulong_t)&sdhci_acer_apl_emmc,
 	},
 
 	{
