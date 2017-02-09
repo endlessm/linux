@@ -186,6 +186,18 @@ config SND_SOC_INTEL_CHT_BSW_RT5645_MACH
 	  platforms with RT5645/5650 audio codec.
 	  If unsure select "N".
 
+config SND_SOC_INTEL_CHT_ES8316_MACH
+        tristate "ASoC Audio driver for Intel Cherrytrail with ES8316 codec"
+        depends on X86_INTEL_LPSS && I2C && ACPI
+        select SND_SOC_ES8316
+        select SND_SST_MFLD_PLATFORM
+        select SND_SST_IPC_ACPI
+        select SND_SOC_INTEL_SST_MATCH if ACPI
+        help
+          This adds support for ASoC machine driver for Intel(R) Cherrytrail
+          platforms with ES8316 audio codec.
+          If unsure select "N".
+
 config SND_SOC_INTEL_CHT_BSW_MAX98090_TI_MACH
 	tristate "ASoC Audio driver for Intel Cherrytrail & Braswell with MAX98090 & TI codec"
 	depends on X86_INTEL_LPSS && I2C && ACPI
