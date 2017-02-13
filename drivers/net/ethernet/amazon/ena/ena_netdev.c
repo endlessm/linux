@@ -2674,8 +2674,8 @@ static int ena_calc_io_queue_num(struct pci_dev *pdev,
 	return io_queue_num;
 }
 
-static int ena_set_push_mode(struct pci_dev *pdev, struct ena_com_dev *ena_dev,
-			     struct ena_com_dev_get_features_ctx *get_feat_ctx)
+static void ena_set_push_mode(struct pci_dev *pdev, struct ena_com_dev *ena_dev,
+			      struct ena_com_dev_get_features_ctx *get_feat_ctx)
 {
 	bool has_mem_bar;
 
@@ -2686,8 +2686,6 @@ static int ena_set_push_mode(struct pci_dev *pdev, struct ena_com_dev *ena_dev,
 		ena_dev->tx_mem_queue_type = ENA_ADMIN_PLACEMENT_POLICY_DEV;
 	else
 		ena_dev->tx_mem_queue_type = ENA_ADMIN_PLACEMENT_POLICY_HOST;
-
-	return 0;
 }
 
 static void ena_set_dev_offloads(struct ena_com_dev_get_features_ctx *feat,
@@ -2908,11 +2906,7 @@ static int ena_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
 		goto err_free_region;
 	}
 
-	rc = ena_set_push_mode(pdev, ena_dev, &get_feat_ctx);
-	if (rc) {
-		dev_err(&pdev->dev, "Invalid module param(push_mode)\n");
-		goto err_device_destroy;
-	}
+	ena_set_push_mode(pdev, ena_dev, &get_feat_ctx);
 
 	if (ena_dev->tx_mem_queue_type == ENA_ADMIN_PLACEMENT_POLICY_DEV) {
 		ena_dev->mem_bar = ioremap_wc(pci_resource_start(pdev, ENA_MEM_BAR),
