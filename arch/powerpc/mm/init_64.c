@@ -373,7 +373,8 @@ static void early_check_vec5(void)
 void __init mmu_early_init_devtree(void)
 {
 	/* Disable radix mode based on kernel command line. */
-	if (disable_radix)
+	/* We don't yet have the machinery to do radix as a guest. */
+	if (disable_radix || !(mfmsr() & MSR_HV))
 		cur_cpu_spec->mmu_features &= ~MMU_FTR_TYPE_RADIX;
 
 	/*
