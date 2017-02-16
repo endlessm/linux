@@ -125,6 +125,7 @@ mlx4_ib ?
 mlx5_ib ?
 zfcp ?
 sd_mod ?
+hisi_sas_v2_hw ?
 
 # device handlers
 scsi_dh_alua ?
