@@ -1085,7 +1085,7 @@ err_free:
 
 static const struct dmi_system_id nouveau_modeset_0[] = {
 	{
-		.ident = "ASUSTeK COMPUTER INC. N552VW", /* Lenovo Yoga 900 */
+		.ident = "ASUSTeK COMPUTER INC. N552VW",
 		.matches = {
 			DMI_MATCH(DMI_SYS_VENDOR, "ASUSTeK COMPUTER INC."),
 			DMI_MATCH(DMI_PRODUCT_NAME, "N552VW"),
