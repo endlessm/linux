@@ -12,11 +12,17 @@
 /* kmap_atomic wants 1 args */
 #undef HAVE_1ARG_KMAP_ATOMIC
 
+/* lookup_bdev() wants 1 arg */
+#undef HAVE_1ARG_LOOKUP_BDEV
+
 /* submit_bio() wants 1 arg */
 #undef HAVE_1ARG_SUBMIT_BIO
 
 /* bdi_setup_and_register() wants 2 args */
 #undef HAVE_2ARGS_BDI_SETUP_AND_REGISTER
+
+/* lookup_bdev() wants 2 args */
+#undef HAVE_2ARGS_LOOKUP_BDEV
 
 /* bdi_setup_and_register() wants 3 args */
 #undef HAVE_3ARGS_BDI_SETUP_AND_REGISTER
@@ -68,6 +74,12 @@
 
 /* blk_queue_flush() is GPL-only */
 #undef HAVE_BLK_QUEUE_FLUSH_GPL_ONLY
+
+/* BIO_RW_UNPLUG is available */
+#undef HAVE_BLK_QUEUE_HAVE_BIO_RW_UNPLUG
+
+/* struct blk_plug is available */
+#undef HAVE_BLK_QUEUE_HAVE_BLK_PLUG
 
 /* blk_queue_max_hw_sectors() is available */
 #undef HAVE_BLK_QUEUE_MAX_HW_SECTORS
@@ -195,6 +207,9 @@
 /* generic_setxattr() exists */
 #undef HAVE_GENERIC_SETXATTR
 
+/* generic_write_checks() takes kiocb */
+#undef HAVE_GENERIC_WRITE_CHECKS_KIOCB
+
 /* iops->get_acl() exists */
 #undef HAVE_GET_ACL
 
@@ -234,6 +249,9 @@
 /* kernel defines KOBJ_NAME_LEN */
 #undef HAVE_KOBJ_NAME_LEN
 
+/* kernel has large stacks */
+#undef HAVE_LARGE_STACKS
+
 /* Define if you have libblkid */
 #undef HAVE_LIBBLKID
 
@@ -242,12 +260,6 @@
 
 /* Define to 1 if you have the `z' library (-lz). */
 #undef HAVE_LIBZ
-
-/* lookup_bdev() is available */
-#undef HAVE_LOOKUP_BDEV
-
-/* lookup_bdev() with 2 args is available */
-#undef HAVE_LOOKUP_BDEV_2ARGS
 
 /* iops->lookup() passes nameidata */
 #undef HAVE_LOOKUP_NAMEIDATA
@@ -329,6 +341,12 @@
 
 /* setattr_prepare() is available */
 #undef HAVE_SETATTR_PREPARE
+
+/* iops->set_acl() exists */
+#undef HAVE_SET_ACL
+
+/* posix_acl_release() is usable */
+#undef HAVE_SET_CACHED_ACL_USABLE
 
 /* set_nlink() is available */
 #undef HAVE_SET_NLINK
@@ -458,9 +476,6 @@
 
 /* Define to 1 if you have the ANSI C header files. */
 #undef STDC_HEADERS
-
-/* use REQ_* flags directly */
-#undef USE_REQ_FLAGS
 
 /* Version number of package */
 #undef VERSION

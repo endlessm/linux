@@ -102,9 +102,13 @@ zpl_lookup(struct inode *dir, struct dentry *dentry, unsigned int flags)
 		struct dentry *new_dentry;
 		struct qstr ci_name;
 
-		ci_name.name = pn.pn_buf;
-		ci_name.len = strlen(pn.pn_buf);
-		new_dentry = d_add_ci(dentry, ip, &ci_name);
+		if (strcmp(dname(dentry), pn.pn_buf) == 0) {
+			new_dentry = d_splice_alias(ip,  dentry);
+		} else {
+			ci_name.name = pn.pn_buf;
+			ci_name.len = strlen(pn.pn_buf);
+			new_dentry = d_add_ci(dentry, ip, &ci_name);
+		}
 		kmem_free(pn.pn_buf, ZFS_MAXNAMELEN);
 		return (new_dentry);
 	} else {
@@ -334,6 +338,9 @@ zpl_setattr(struct dentry *dentry, struct iattr *ia)
 	vap->va_atime = ia->ia_atime;
 	vap->va_mtime = ia->ia_mtime;
 	vap->va_ctime = ia->ia_ctime;
+
+	if (vap->va_mask & ATTR_ATIME)
+		ip->i_atime = ia->ia_atime;
 
 	cookie = spl_fstrans_mark();
 	error = -zfs_setattr(ip, vap, 0, cr);
@@ -655,18 +662,6 @@ zpl_revalidate(struct dentry *dentry, unsigned int flags)
 }
 
 const struct inode_operations zpl_inode_operations = {
-	.create		= zpl_create,
-	.link		= zpl_link,
-	.unlink		= zpl_unlink,
-	.symlink	= zpl_symlink,
-	.mkdir		= zpl_mkdir,
-	.rmdir		= zpl_rmdir,
-	.mknod		= zpl_mknod,
-#ifdef HAVE_RENAME_WANTS_FLAGS
-	.rename		= zpl_rename2,
-#else
-	.rename		= zpl_rename,
-#endif
 	.setattr	= zpl_setattr,
 	.getattr	= zpl_getattr,
 #ifdef HAVE_GENERIC_SETXATTR
@@ -682,6 +677,9 @@ const struct inode_operations zpl_inode_operations = {
 	.fallocate	= zpl_fallocate,
 #endif /* HAVE_INODE_FALLOCATE */
 #if defined(CONFIG_FS_POSIX_ACL)
+#if defined(HAVE_SET_ACL)
+	.set_acl	= zpl_set_acl,
+#endif
 #if defined(HAVE_GET_ACL)
 	.get_acl	= zpl_get_acl,
 #elif defined(HAVE_CHECK_ACL)
@@ -715,6 +713,9 @@ const struct inode_operations zpl_dir_inode_operations = {
 #endif
 	.listxattr	= zpl_xattr_list,
 #if defined(CONFIG_FS_POSIX_ACL)
+#if defined(HAVE_SET_ACL)
+	.set_acl	= zpl_set_acl,
+#endif
 #if defined(HAVE_GET_ACL)
 	.get_acl	= zpl_get_acl,
 #elif defined(HAVE_CHECK_ACL)
@@ -757,6 +758,9 @@ const struct inode_operations zpl_special_inode_operations = {
 #endif
 	.listxattr	= zpl_xattr_list,
 #if defined(CONFIG_FS_POSIX_ACL)
+#if defined(HAVE_SET_ACL)
+	.set_acl	= zpl_set_acl,
+#endif
 #if defined(HAVE_GET_ACL)
 	.get_acl	= zpl_get_acl,
 #elif defined(HAVE_CHECK_ACL)

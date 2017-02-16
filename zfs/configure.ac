@@ -58,64 +58,6 @@ ZFS_AC_DEBUG_DMU_TX
 
 AC_CONFIG_FILES([ 
 	Makefile
-	udev/Makefile
-	udev/rules.d/Makefile
-	etc/Makefile
-	etc/init.d/Makefile
-	etc/zfs/Makefile
-	etc/systemd/Makefile
-	etc/systemd/system/Makefile
-	etc/modules-load.d/Makefile
-	man/Makefile
-	man/man1/Makefile
-	man/man5/Makefile
-	man/man8/Makefile
-	lib/Makefile
-	lib/libspl/Makefile
-	lib/libspl/asm-generic/Makefile
-	lib/libspl/asm-i386/Makefile
-	lib/libspl/asm-x86_64/Makefile
-	lib/libspl/include/Makefile
-	lib/libspl/include/ia32/Makefile
-	lib/libspl/include/ia32/sys/Makefile
-	lib/libspl/include/rpc/Makefile
-	lib/libspl/include/sys/Makefile
-	lib/libspl/include/sys/sysevent/Makefile
-	lib/libspl/include/sys/dktp/Makefile
-	lib/libspl/include/util/Makefile
-	lib/libavl/Makefile
-	lib/libefi/Makefile
-	lib/libnvpair/Makefile
-	lib/libunicode/Makefile
-	lib/libuutil/Makefile
-	lib/libzpool/Makefile
-	lib/libzfs/libzfs.pc
-	lib/libzfs/libzfs_core.pc
-	lib/libzfs/Makefile
-	lib/libzfs_core/Makefile
-	lib/libshare/Makefile
-	cmd/Makefile
-	cmd/zdb/Makefile
-	cmd/zhack/Makefile
-	cmd/zfs/Makefile
-	cmd/zinject/Makefile
-	cmd/zpool/Makefile
-	cmd/zstreamdump/Makefile
-	cmd/ztest/Makefile
-	cmd/zpios/Makefile
-	cmd/mount_zfs/Makefile
-	cmd/fsck_zfs/Makefile
-	cmd/zvol_id/Makefile
-	cmd/vdev_id/Makefile
-	cmd/arcstat/Makefile
-	cmd/dbufstat/Makefile
-	cmd/arc_summary/Makefile
-	cmd/zed/Makefile
-	contrib/Makefile
-	contrib/bash_completion.d/Makefile
-	contrib/dracut/Makefile
-	contrib/dracut/90zfs/Makefile
-	contrib/initramfs/Makefile
 	module/Makefile
 	module/avl/Makefile
 	module/nvpair/Makefile
@@ -129,21 +71,6 @@ AC_CONFIG_FILES([
 	include/sys/fs/Makefile
 	include/sys/fm/Makefile
 	include/sys/fm/fs/Makefile
-	scripts/Makefile
-	scripts/zpios-profile/Makefile
-	scripts/zpios-test/Makefile
-	scripts/zpool-config/Makefile
-	scripts/common.sh
-	rpm/Makefile
-	rpm/redhat/Makefile
-	rpm/redhat/zfs.spec
-	rpm/redhat/zfs-kmod.spec
-	rpm/redhat/zfs-dkms.spec
-	rpm/generic/Makefile
-	rpm/generic/zfs.spec
-	rpm/generic/zfs-kmod.spec
-	rpm/generic/zfs-dkms.spec
-	zfs-script-config.sh
 	zfs.release
 ])
 

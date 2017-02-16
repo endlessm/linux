@@ -261,20 +261,21 @@ bio_set_flags_failfast(struct block_device *bdev, int *flags)
 
 /*
  * 2.6.27 API change
- * The function was exported for use, prior to this it existed by the
+ * The function was exported for use, prior to this it existed but the
  * symbol was not exported.
  *
- * Ubuntu Xenial commit 193fb6a2c94fab8eb8ce70a5da4d21c7d4023bee
- * ("UBUNTU: SAUCE: block_dev: Support checking inode permissions in lookup_bdev()")
- * added in a mask parameter which we set as zero.
+ * 4.4.0-6.21 API change for Ubuntu
+ * lookup_bdev() gained a second argument, FMODE_*, to check inode permissions.
  */
-#ifdef HAVE_LOOKUP_BDEV
-#define zfs_lookup_bdev(path)		lookup_bdev(path)
-#elif defined(HAVE_LOOKUP_BDEV_2ARGS)
-#define zfs_lookup_bdev(path)		lookup_bdev(path, 0)
+#ifdef HAVE_1ARG_LOOKUP_BDEV
+#define	vdev_lookup_bdev(path)	lookup_bdev(path)
 #else
-#define	zfs_lookup_bdev(path)		ERR_PTR(-ENOTSUP)
-#endif
+#ifdef HAVE_2ARGS_LOOKUP_BDEV
+#define	vdev_lookup_bdev(path)	lookup_bdev(path, 0)
+#else
+#define	vdev_lookup_bdev(path)	ERR_PTR(-ENOTSUP)
+#endif /* HAVE_2ARGS_LOOKUP_BDEV */
+#endif /* HAVE_1ARG_LOOKUP_BDEV */
 
 /*
  * 2.6.30 API change
@@ -371,6 +372,10 @@ bio_set_flush(struct bio *bio)
  * and the new preflush behavior introduced in Linux 4.8.  This is correct
  * in all cases but may have a performance impact for some kernels.  It
  * has the advantage of minimizing kernel specific changes in the zvol code.
+ *
+ * Note that 2.6.32 era kernels provide both BIO_RW_BARRIER and REQ_FLUSH,
+ * where BIO_RW_BARRIER is the correct interface.  Therefore, it is important
+ * that the HAVE_BIO_RW_BARRIER check occur before the REQ_FLUSH check.
  */
 static inline boolean_t
 bio_is_flush(struct bio *bio)
@@ -381,10 +386,10 @@ bio_is_flush(struct bio *bio)
 	return (bio->bi_opf & REQ_PREFLUSH);
 #elif defined(REQ_PREFLUSH) && !defined(HAVE_BIO_BI_OPF)
 	return (bio->bi_rw & REQ_PREFLUSH);
-#elif defined(REQ_FLUSH)
-	return (bio->bi_rw & REQ_FLUSH);
 #elif defined(HAVE_BIO_RW_BARRIER)
 	return (bio->bi_rw & (1 << BIO_RW_BARRIER));
+#elif defined(REQ_FLUSH)
+	return (bio->bi_rw & REQ_FLUSH);
 #else
 #error	"Allowing the build will cause flush requests to be ignored. Please "
 	"file an issue report at: https://github.com/zfsonlinux/zfs/issues/new"
@@ -423,16 +428,20 @@ bio_is_fua(struct bio *bio)
  *
  * In all cases the normal I/O path is used for discards.  The only
  * difference is how the kernel tags individual I/Os as discards.
+ *
+ * Note that 2.6.32 era kernels provide both BIO_RW_DISCARD and REQ_DISCARD,
+ * where BIO_RW_DISCARD is the correct interface.  Therefore, it is important
+ * that the HAVE_BIO_RW_DISCARD check occur before the REQ_DISCARD check.
  */
 static inline boolean_t
 bio_is_discard(struct bio *bio)
 {
 #if defined(HAVE_REQ_OP_DISCARD)
 	return (bio_op(bio) == REQ_OP_DISCARD);
-#elif defined(REQ_DISCARD)
-	return (bio->bi_rw & REQ_DISCARD);
 #elif defined(HAVE_BIO_RW_DISCARD)
 	return (bio->bi_rw & (1 << BIO_RW_DISCARD));
+#elif defined(REQ_DISCARD)
+	return (bio->bi_rw & REQ_DISCARD);
 #else
 #error	"Allowing the build will cause discard requests to become writes "
 	"potentially triggering the DMU_MAX_ACCESS assertion. Please file "

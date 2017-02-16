@@ -4,12 +4,12 @@ include config/rpm.am
 include config/deb.am
 include config/tgz.am
 
-SUBDIRS = include rpm
+
 if CONFIG_USER
-SUBDIRS += udev etc man scripts lib cmd contrib
+
 endif
 if CONFIG_KERNEL
-SUBDIRS += module
+SUBDIRS = module include
 
 extradir = @prefix@/src/zfs-$(VERSION)
 extra_HEADERS = zfs.release.in zfs_config.h.in

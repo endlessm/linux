@@ -97,8 +97,6 @@ POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
 target_triplet = @target@
-@CONFIG_USER_TRUE@am__append_1 = udev etc man scripts lib cmd contrib
-@CONFIG_KERNEL_TRUE@am__append_2 = module
 subdir = .
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/config/always-no-bool-compare.m4 \
@@ -120,6 +118,7 @@ am__aclocal_m4_deps = $(top_srcdir)/config/always-no-bool-compare.m4 \
 	$(top_srcdir)/config/kernel-blk-queue-flush.m4 \
 	$(top_srcdir)/config/kernel-blk-queue-max-hw-sectors.m4 \
 	$(top_srcdir)/config/kernel-blk-queue-max-segments.m4 \
+	$(top_srcdir)/config/kernel-blk-queue-unplug.m4 \
 	$(top_srcdir)/config/kernel-blkdev-get-by-path.m4 \
 	$(top_srcdir)/config/kernel-blkdev-get.m4 \
 	$(top_srcdir)/config/kernel-block-device-operations-release-void.m4 \
@@ -162,7 +161,6 @@ am__aclocal_m4_deps = $(top_srcdir)/config/always-no-bool-compare.m4 \
 	$(top_srcdir)/config/kernel-open-bdev-exclusive.m4 \
 	$(top_srcdir)/config/kernel-put-link.m4 \
 	$(top_srcdir)/config/kernel-rename.m4 \
-	$(top_srcdir)/config/kernel-req-flags.m4 \
 	$(top_srcdir)/config/kernel-security-inode-init.m4 \
 	$(top_srcdir)/config/kernel-set-nlink.m4 \
 	$(top_srcdir)/config/kernel-setattr-prepare.m4 \
@@ -205,7 +203,7 @@ CONFIG_HEADER = zfs_config.h
 CONFIG_CLEAN_FILES = module/Makefile module/avl/Makefile \
 	module/nvpair/Makefile module/unicode/Makefile \
 	module/zcommon/Makefile module/zfs/Makefile \
-	module/zpios/Makefile zfs-script-config.sh zfs.release
+	module/zpios/Makefile zfs.release
 CONFIG_CLEAN_VPATH_FILES =
 AM_V_P = $(am__v_P_@AM_V@)
 am__v_P_ = $(am__v_P_@AM_DEFAULT_V@)
@@ -293,12 +291,11 @@ am__define_uniq_tagged_files = \
 ETAGS = etags
 CTAGS = ctags
 CSCOPE = cscope
-DIST_SUBDIRS = include rpm udev etc man scripts lib cmd contrib module
+DIST_SUBDIRS = module include
 am__DIST_COMMON = $(srcdir)/Makefile.in $(srcdir)/config/deb.am \
 	$(srcdir)/config/rpm.am $(srcdir)/config/tgz.am \
-	$(srcdir)/zfs-script-config.sh.in $(srcdir)/zfs.release.in \
-	$(srcdir)/zfs_config.h.in $(top_srcdir)/config/compile \
-	$(top_srcdir)/config/config.guess \
+	$(srcdir)/zfs.release.in $(srcdir)/zfs_config.h.in \
+	$(top_srcdir)/config/compile $(top_srcdir)/config/config.guess \
 	$(top_srcdir)/config/config.sub \
 	$(top_srcdir)/config/install-sh $(top_srcdir)/config/ltmain.sh \
 	$(top_srcdir)/config/missing $(top_srcdir)/module/Makefile.in \
@@ -550,7 +547,7 @@ top_srcdir = @top_srcdir@
 udevdir = @udevdir@
 udevruledir = @udevruledir@
 ACLOCAL_AMFLAGS = -I config
-SUBDIRS = include rpm $(am__append_1) $(am__append_2)
+@CONFIG_KERNEL_TRUE@SUBDIRS = module include
 @CONFIG_KERNEL_TRUE@extradir = @prefix@/src/zfs-$(VERSION)
 @CONFIG_KERNEL_TRUE@extra_HEADERS = zfs.release.in zfs_config.h.in
 @CONFIG_KERNEL_TRUE@kerneldir = @prefix@/src/zfs-$(VERSION)/$(LINUX_VERSION)
@@ -625,8 +622,6 @@ module/zcommon/Makefile: $(top_builddir)/config.status $(top_srcdir)/module/zcom
 module/zfs/Makefile: $(top_builddir)/config.status $(top_srcdir)/module/zfs/Makefile.in
 	cd $(top_builddir) && $(SHELL) ./config.status $@
 module/zpios/Makefile: $(top_builddir)/config.status $(top_srcdir)/module/zpios/Makefile.in
-	cd $(top_builddir) && $(SHELL) ./config.status $@
-zfs-script-config.sh: $(top_builddir)/config.status $(srcdir)/zfs-script-config.sh.in
 	cd $(top_builddir) && $(SHELL) ./config.status $@
 zfs.release: $(top_builddir)/config.status $(srcdir)/zfs.release.in
 	cd $(top_builddir) && $(SHELL) ./config.status $@
