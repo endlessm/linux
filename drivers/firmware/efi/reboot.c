@@ -4,6 +4,7 @@
  */
 #include <linux/efi.h>
 #include <linux/reboot.h>
+#include <linux/dmi.h>
 
 int efi_reboot_quirk_mode = -1;
 
@@ -43,6 +44,45 @@ void efi_reboot(enum reboot_mode reboot_mode, const char *__unused)
 	efi.reset_system(efi_mode, EFI_SUCCESS, 0, NULL);
 }
 
+static const struct dmi_system_id force_efi_poweroff[] = {
+        {
+                .ident = "Packard Bell Easynote ENLG81AP",
+                .matches = {
+                        DMI_MATCH(DMI_SYS_VENDOR, "Packard Bell"),
+                        DMI_MATCH(DMI_PRODUCT_NAME, "Easynote ENLG81AP"),
+                },
+        },
+        {
+                .ident = "Packard Bell Easynote ENTE69AP",
+                .matches = {
+                        DMI_MATCH(DMI_SYS_VENDOR, "Packard Bell"),
+                        DMI_MATCH(DMI_PRODUCT_NAME, "Easynote ENTE69AP"),
+                },
+        },
+        {
+                .ident = "Acer Aspire ES1-533",
+                .matches = {
+                        DMI_MATCH(DMI_SYS_VENDOR, "Acer"),
+                        DMI_MATCH(DMI_PRODUCT_NAME, "Aspire ES1-533"),
+                },
+        },
+        {
+                .ident = "Acer Aspire ES1-732",
+                .matches = {
+                        DMI_MATCH(DMI_SYS_VENDOR, "Acer"),
+                        DMI_MATCH(DMI_PRODUCT_NAME, "Aspire ES1-732"),
+                },
+        },
+        {}
+};
+
+bool efi_poweroff_forced(void)
+{
+	if (dmi_check_system(force_efi_poweroff))
+		return true;
+	return false;
+}
+
 bool __weak efi_poweroff_required(void)
 {
 	return false;
@@ -58,7 +98,7 @@ static int __init efi_shutdown_init(void)
 	if (!efi_enabled(EFI_RUNTIME_SERVICES))
 		return -ENODEV;
 
-	if (efi_poweroff_required())
+	if (efi_poweroff_required() || efi_poweroff_forced())
 		pm_power_off = efi_power_off;
 
 	return 0;
