@@ -1114,6 +1114,17 @@ static const struct dmi_system_id nouveau_modeset_0[] = {
 	{ }
 };
 
+static const struct dmi_system_id nouveau_rpm_0[] = {
+	{
+		.ident = "ASUSTeK COMPUTER INC. X756UQK",
+		.matches = {
+			DMI_MATCH(DMI_SYS_VENDOR, "ASUSTeK COMPUTER INC."),
+			DMI_MATCH(DMI_PRODUCT_NAME, "X756UQK"),
+		},
+	},
+	{ }
+};
+
 static int __init
 nouveau_drm_init(void)
 {
@@ -1123,6 +1134,9 @@ nouveau_drm_init(void)
 
 	if (dmi_check_system(nouveau_modeset_0))
 		nouveau_modeset = 0;
+
+	if (dmi_check_system(nouveau_rpm_0))
+		nouveau_runtime_pm = 0;
 
 	nouveau_display_options();
 
