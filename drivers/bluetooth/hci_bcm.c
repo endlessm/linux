@@ -622,10 +622,6 @@ static const struct acpi_gpio_params device_wakeup_gpios = { 0, 0, false };
 static const struct acpi_gpio_params shutdown_gpios = { 1, 0, false };
 static const struct acpi_gpio_params host_wakeup_gpios = { 2, 0, false };
 
-static const struct acpi_gpio_params ecs_device_wakeup_gpios = { 1, 0, false };
-static const struct acpi_gpio_params ecs_shutdown_gpios = { 2, 0, false };
-static const struct acpi_gpio_params ecs_host_wakeup_gpios = { 0, 0, false };
-
 static const struct acpi_gpio_mapping acpi_bcm_default_gpios[] = {
 	{ "device-wakeup-gpios", &device_wakeup_gpios, 1 },
 	{ "shutdown-gpios", &shutdown_gpios, 1 },
@@ -633,32 +629,8 @@ static const struct acpi_gpio_mapping acpi_bcm_default_gpios[] = {
 	{ },
 };
 
-static const struct acpi_gpio_mapping ecs_acpi_bcm_default_gpios[] = {
-	{ "device-wakeup-gpios", &ecs_device_wakeup_gpios, 1 },
-	{ "shutdown-gpios", &ecs_shutdown_gpios, 1 },
-	{ "host-wakeup-gpios", &ecs_host_wakeup_gpios, 1 },
-	{ },
-};
-
-
 #ifdef CONFIG_ACPI
 static u8 acpi_active_low = ACPI_ACTIVE_LOW;
-
-static const struct dmi_system_id ecs_wrong_gpios_dmi_table[] = {
-	{
-		.ident = "EF20EA",
-		.matches = {
-			DMI_MATCH(DMI_PRODUCT_NAME, "EF20EA"),
-		}
-	},
-	{
-		.ident = "EF20",
-		.matches = {
-			DMI_MATCH(DMI_PRODUCT_NAME, "EF20"),
-		}
-	},
-	{ }
-};
 
 /* IRQ polarity of some chipsets are not defined correctly in ACPI table. */
 static const struct dmi_system_id bcm_wrong_irq_dmi_table[] = {
@@ -716,12 +688,8 @@ static int bcm_acpi_probe(struct bcm_device *dev)
 
 	/* Retrieve GPIO data */
 	dev->name = dev_name(&pdev->dev);
-	if (dmi_check_system(ecs_wrong_gpios_dmi_table))
-		ret = acpi_dev_add_driver_gpios(ACPI_COMPANION(&pdev->dev),
-						ecs_acpi_bcm_default_gpios);
-	else
-		ret = acpi_dev_add_driver_gpios(ACPI_COMPANION(&pdev->dev),
-						acpi_bcm_default_gpios);
+	ret = acpi_dev_add_driver_gpios(ACPI_COMPANION(&pdev->dev),
+					acpi_bcm_default_gpios);
 	if (ret)
 		return ret;
 
@@ -860,7 +828,6 @@ static const struct acpi_device_id bcm_acpi_match[] = {
 	{ "BCM2E71", 0 },
 	{ "BCM2E7B", 0 },
 	{ "BCM2E7C", 0 },
-	{ "BCM2E96", 0 },
 	{ },
 };
 MODULE_DEVICE_TABLE(acpi, bcm_acpi_match);
