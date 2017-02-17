@@ -183,6 +183,9 @@
 /* generic_start_io_acct()/generic_end_io_acct() avaliable */
 #undef HAVE_GENERIC_IO_ACCT
 
+/* generic_write_checks() takes kiocb */
+#undef HAVE_GENERIC_WRITE_CHECKS_KIOCB
+
 /* iops->get_acl() exists */
 #undef HAVE_GET_ACL
 
