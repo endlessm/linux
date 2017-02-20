@@ -35,6 +35,7 @@
 #include <linux/slab.h>
 #include <linux/pm_runtime.h>
 #include "amdgpu_amdkfd.h"
+#include <linux/dmi.h>
 
 #if defined(CONFIG_VGA_SWITCHEROO)
 bool amdgpu_has_atpx(void);
@@ -77,6 +78,24 @@ done_free:
 	return 0;
 }
 
+static const struct dmi_system_id dmi_no_modeset[] = {
+	{
+		.ident = "Acer Aspire E5-553G",
+		.matches = {
+			DMI_MATCH(DMI_SYS_VENDOR, "Acer"),
+			DMI_MATCH(DMI_PRODUCT_NAME, "Aspire E5-553G"),
+		},
+	},
+	{
+		.ident = "Acer Aspire E5-523G",
+		.matches = {
+			DMI_MATCH(DMI_SYS_VENDOR, "Acer"),
+			DMI_MATCH(DMI_PRODUCT_NAME, "Aspire E5-523G"),
+		},
+	},
+	{}
+};
+
 /**
  * amdgpu_driver_load_kms - Main load function for KMS.
  *
@@ -103,6 +122,11 @@ int amdgpu_driver_load_kms(struct drm_device *dev, unsigned long flags)
 	     amdgpu_has_atpx_dgpu_power_cntl()) &&
 	    ((flags & AMD_IS_APU) == 0))
 		flags |= AMD_IS_PX;
+
+	if (dmi_check_system(dmi_no_modeset)) {
+		r = -EINVAL;
+		goto out;
+	}
 
 	/* amdgpu_device_init should report only fatal error
 	 * like memory allocation failure or iomapping failure,
