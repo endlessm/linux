@@ -2779,7 +2779,6 @@ EXPORT_SYMBOL drivers/net/wireless/realtek/rtlwifi/rtl_usb 0x02075450	rtl_usb_pr
 EXPORT_SYMBOL drivers/net/wireless/realtek/rtlwifi/rtl_usb 0x0b10e956	rtl_usb_disconnect
 EXPORT_SYMBOL drivers/net/wireless/realtek/rtlwifi/rtl_usb 0x441b1f8b	rtl_usb_resume
 EXPORT_SYMBOL drivers/net/wireless/realtek/rtlwifi/rtl_usb 0x70476ba1	rtl_usb_suspend
-EXPORT_SYMBOL drivers/net/wireless/realtek/rtlwifi/rtlwifi 0x01acca42	rtl_lps_leave
 EXPORT_SYMBOL drivers/net/wireless/realtek/rtlwifi/rtlwifi 0x1c257741	rtl_dm_diginit
 EXPORT_SYMBOL drivers/net/wireless/realtek/rtlwifi/rtlwifi 0x2aae15c7	rtl_get_tcb_desc
 EXPORT_SYMBOL drivers/net/wireless/realtek/rtlwifi/rtlwifi 0x2bd40513	rtlwifi_rate_mapping
@@ -2808,7 +2807,6 @@ EXPORT_SYMBOL drivers/net/wireless/realtek/rtlwifi/rtlwifi 0x98c730a6	rtl_send_s
 EXPORT_SYMBOL drivers/net/wireless/realtek/rtlwifi/rtlwifi 0xa947fb5c	rtl_process_phyinfo
 EXPORT_SYMBOL drivers/net/wireless/realtek/rtlwifi/rtlwifi 0xad041b34	channel5g
 EXPORT_SYMBOL drivers/net/wireless/realtek/rtlwifi/rtlwifi 0xbe0453fb	rtl_ps_disable_nic
-EXPORT_SYMBOL drivers/net/wireless/realtek/rtlwifi/rtlwifi 0xd291d9e6	rtl_lps_enter
 EXPORT_SYMBOL drivers/net/wireless/realtek/rtlwifi/rtlwifi 0xd3ae0933	rtl_bb_delay
 EXPORT_SYMBOL drivers/net/wireless/realtek/rtlwifi/rtlwifi 0xe2b0a9b7	rtl_wowlan_fw_cb
 EXPORT_SYMBOL drivers/net/wireless/realtek/rtlwifi/rtlwifi 0xe55865a2	rtl_ps_enable_nic
@@ -5464,6 +5462,7 @@ EXPORT_SYMBOL net/wireless/cfg80211 0xea46c92e	cfg80211_mgmt_tx_status
 EXPORT_SYMBOL net/wireless/cfg80211 0xeb795838	cfg80211_roamed
 EXPORT_SYMBOL net/wireless/cfg80211 0xec2e6895	cfg80211_report_obss_beacon
 EXPORT_SYMBOL net/wireless/cfg80211 0xed7135eb	cfg80211_gtk_rekey_notify
+EXPORT_SYMBOL net/wireless/cfg80211 0xeff700d3	cfg80211_abandon_assoc
 EXPORT_SYMBOL net/wireless/cfg80211 0xf0d36cf3	cfg80211_rx_spurious_frame
 EXPORT_SYMBOL net/wireless/cfg80211 0xf62488c5	cfg80211_del_sta_sinfo
 EXPORT_SYMBOL net/wireless/cfg80211 0xf6d31662	wiphy_register
@@ -7721,7 +7720,6 @@ EXPORT_SYMBOL vmlinux 0x6d896d4b	bio_endio
 EXPORT_SYMBOL vmlinux 0x6d8b1772	security_sb_clone_mnt_opts
 EXPORT_SYMBOL vmlinux 0x6da07f93	locks_mandatory_area
 EXPORT_SYMBOL vmlinux 0x6dae6039	xfrm_prepare_input
-EXPORT_SYMBOL vmlinux 0x6dd89388	__cpuhp_setup_state
 EXPORT_SYMBOL vmlinux 0x6de5d7c6	dentry_update_name_case
 EXPORT_SYMBOL vmlinux 0x6def2db2	half_md4_transform
 EXPORT_SYMBOL vmlinux 0x6df1aaf1	kernel_sigaction
@@ -8158,6 +8156,7 @@ EXPORT_SYMBOL vmlinux 0x84ddd282	find_lock_entry
 EXPORT_SYMBOL vmlinux 0x84eb1fa8	release_and_free_resource
 EXPORT_SYMBOL vmlinux 0x84ed7493	iov_iter_alignment
 EXPORT_SYMBOL vmlinux 0x84f0a050	xfrm4_protocol_deregister
+EXPORT_SYMBOL vmlinux 0x84f8f882	__cpuhp_setup_state
 EXPORT_SYMBOL vmlinux 0x84ffea8b	idr_preload
 EXPORT_SYMBOL vmlinux 0x851f48f0	blk_queue_end_tag
 EXPORT_SYMBOL vmlinux 0x8526e534	xfrm6_prepare_output
@@ -8278,6 +8277,7 @@ EXPORT_SYMBOL vmlinux 0x8ac942a7	blk_alloc_queue_node
 EXPORT_SYMBOL vmlinux 0x8acfe4f2	vme_irq_handler
 EXPORT_SYMBOL vmlinux 0x8adf70d2	submit_bio_wait
 EXPORT_SYMBOL vmlinux 0x8ae108bd	mark_buffer_async_write
+EXPORT_SYMBOL vmlinux 0x8ae99469	__cpuhp_remove_state
 EXPORT_SYMBOL vmlinux 0x8af4935f	radix_tree_gang_lookup
 EXPORT_SYMBOL vmlinux 0x8b147904	fb_find_mode
 EXPORT_SYMBOL vmlinux 0x8b27100f	mtd_concat_create
@@ -9069,7 +9069,6 @@ EXPORT_SYMBOL vmlinux 0xb611621f	dm_put_device
 EXPORT_SYMBOL vmlinux 0xb6189f43	fb_deferred_io_mmap
 EXPORT_SYMBOL vmlinux 0xb6228724	user_path_create
 EXPORT_SYMBOL vmlinux 0xb633f115	irq_poll_enable
-EXPORT_SYMBOL vmlinux 0xb649edf2	__cpuhp_remove_state
 EXPORT_SYMBOL vmlinux 0xb64df941	ab3100_event_unregister
 EXPORT_SYMBOL vmlinux 0xb65394d1	cookie_ecn_ok
 EXPORT_SYMBOL vmlinux 0xb658105f	udp_lib_setsockopt
@@ -12562,6 +12561,7 @@ EXPORT_SYMBOL_GPL drivers/net/wireless/realtek/rtlwifi/rtl8723com/rtl8723-common
 EXPORT_SYMBOL_GPL drivers/net/wireless/realtek/rtlwifi/rtl8723com/rtl8723-common 0xeacd8eeb	rtl8723_phy_path_a_fill_iqk_matrix
 EXPORT_SYMBOL_GPL drivers/net/wireless/realtek/rtlwifi/rtl8723com/rtl8723-common 0xeb4e20a7	rtl8723_download_fw
 EXPORT_SYMBOL_GPL drivers/net/wireless/realtek/rtlwifi/rtl8723com/rtl8723-common 0xecc1d00c	rtl8723_dm_init_dynamic_bb_powersaving
+EXPORT_SYMBOL_GPL drivers/net/wireless/realtek/rtlwifi/rtlwifi 0x01acca42	rtl_lps_leave
 EXPORT_SYMBOL_GPL drivers/net/wireless/realtek/rtlwifi/rtlwifi 0x0909d54e	rtl_ops
 EXPORT_SYMBOL_GPL drivers/net/wireless/realtek/rtlwifi/rtlwifi 0x241dedc1	rtl_tid_to_ac
 EXPORT_SYMBOL_GPL drivers/net/wireless/realtek/rtlwifi/rtlwifi 0x2921a4d4	rtl_btc_status_false
@@ -12579,6 +12579,7 @@ EXPORT_SYMBOL_GPL drivers/net/wireless/realtek/rtlwifi/rtlwifi 0xb76744c7	rtl_re
 EXPORT_SYMBOL_GPL drivers/net/wireless/realtek/rtlwifi/rtlwifi 0xbf04193f	rtl_p2p_info
 EXPORT_SYMBOL_GPL drivers/net/wireless/realtek/rtlwifi/rtlwifi 0xcb369f60	rtl_tx_mgmt_proc
 EXPORT_SYMBOL_GPL drivers/net/wireless/realtek/rtlwifi/rtlwifi 0xd12d20d5	rtl_attribute_group
+EXPORT_SYMBOL_GPL drivers/net/wireless/realtek/rtlwifi/rtlwifi 0xd291d9e6	rtl_lps_enter
 EXPORT_SYMBOL_GPL drivers/net/wireless/realtek/rtlwifi/rtlwifi 0xda5d7a9d	rtl_dbgp_flag_init
 EXPORT_SYMBOL_GPL drivers/net/wireless/realtek/rtlwifi/rtlwifi 0xe7e4fd22	rtl_init_rx_config
 EXPORT_SYMBOL_GPL drivers/net/wireless/realtek/rtlwifi/rtlwifi 0xeec14113	rtl_action_proc
@@ -14464,6 +14465,8 @@ EXPORT_SYMBOL_GPL net/netfilter/x_tables 0x57a4f168	xt_proto_init
 EXPORT_SYMBOL_GPL net/netfilter/x_tables 0x60479b50	xt_unregister_table
 EXPORT_SYMBOL_GPL net/netfilter/x_tables 0x7a33c122	xt_table_unlock
 EXPORT_SYMBOL_GPL net/netfilter/x_tables 0x807d2b2c	xt_recseq
+EXPORT_SYMBOL_GPL net/netfilter/x_tables 0x9c995c69	xt_percpu_counter_alloc
+EXPORT_SYMBOL_GPL net/netfilter/x_tables 0xbfacb837	xt_percpu_counter_free
 EXPORT_SYMBOL_GPL net/netfilter/x_tables 0xc65fff9c	xt_request_find_target
 EXPORT_SYMBOL_GPL net/netfilter/x_tables 0xd595c267	xt_hook_ops_alloc
 EXPORT_SYMBOL_GPL net/netfilter/x_tables 0xf6f9d5b9	xt_request_find_match
