@@ -1732,6 +1732,7 @@ static const struct usb_device_id acm_ids[] = {
 	{ USB_DEVICE(0x20df, 0x0001), /* Simtec Electronics Entropy Key */
 	.driver_info = QUIRK_CONTROL_LINE_STATE, },
 	{ USB_DEVICE(0x2184, 0x001c) },	/* GW Instek AFG-2225 */
+	{ USB_DEVICE(0x2184, 0x0036) },	/* GW Instek AFG-125 */
 	{ USB_DEVICE(0x22b8, 0x6425), /* Motorola MOTOMAGX phones */
 	},
 	/* Motorola H24 HSPA module: */
@@ -1874,6 +1875,20 @@ static const struct usb_device_id acm_ids[] = {
 	{ USB_DEVICE(0x058b, 0x0041),
 	.driver_info = IGNORE_DEVICE,
 	},
+
+	/* Exclude Exar USB serial ports */
+	{ USB_DEVICE(0x04e2, 0x1400), .driver_info = IGNORE_DEVICE, },
+	{ USB_DEVICE(0x04e2, 0x1401), .driver_info = IGNORE_DEVICE, },
+	{ USB_DEVICE(0x04e2, 0x1402), .driver_info = IGNORE_DEVICE, },
+	{ USB_DEVICE(0x04e2, 0x1403), .driver_info = IGNORE_DEVICE, },
+	{ USB_DEVICE(0x04e2, 0x1410), .driver_info = IGNORE_DEVICE, },
+	{ USB_DEVICE(0x04e2, 0x1411), .driver_info = IGNORE_DEVICE, },
+	{ USB_DEVICE(0x04e2, 0x1412), .driver_info = IGNORE_DEVICE, },
+	{ USB_DEVICE(0x04e2, 0x1414), .driver_info = IGNORE_DEVICE, },
+	{ USB_DEVICE(0x04e2, 0x1420), .driver_info = IGNORE_DEVICE, },
+	{ USB_DEVICE(0x04e2, 0x1421), .driver_info = IGNORE_DEVICE, },
+	{ USB_DEVICE(0x04e2, 0x1422), .driver_info = IGNORE_DEVICE, },
+	{ USB_DEVICE(0x04e2, 0x1424), .driver_info = IGNORE_DEVICE, },
 
 	/* control interfaces without any protocol set */
 	{ USB_INTERFACE_INFO(USB_CLASS_COMM, USB_CDC_SUBCLASS_ACM,

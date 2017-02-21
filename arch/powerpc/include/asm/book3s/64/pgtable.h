@@ -26,12 +26,22 @@
 #define _RPAGE_SW1		0x00800
 #define _RPAGE_SW2		0x00400
 #define _RPAGE_SW3		0x00200
+#define _RPAGE_RSV1		0x1000000000000000UL
+#define _RPAGE_RSV2		0x0800000000000000UL
+#define _RPAGE_RSV3		0x0400000000000000UL
+#define _RPAGE_RSV4		0x0200000000000000UL
+
 #ifdef CONFIG_MEM_SOFT_DIRTY
 #define _PAGE_SOFT_DIRTY	_RPAGE_SW3 /* software: software dirty tracking */
 #else
 #define _PAGE_SOFT_DIRTY	0x00000
 #endif
 #define _PAGE_SPECIAL		_RPAGE_SW2 /* software: special page */
+
+/*
+ * For P9 DD1 only, we need to track whether the pte's huge.
+ */
+#define _PAGE_LARGE	_RPAGE_RSV1
 
 
 #define _PAGE_PTE		(1ul << 62)	/* distinguishes PTEs from pointers */
@@ -567,10 +577,12 @@ static inline bool check_pte_access(unsigned long access, unsigned long ptev)
  * Generic functions with hash/radix callbacks
  */
 
-static inline void __ptep_set_access_flags(pte_t *ptep, pte_t entry)
+static inline void __ptep_set_access_flags(struct mm_struct *mm,
+					   pte_t *ptep, pte_t entry,
+					   unsigned long address)
 {
 	if (radix_enabled())
-		return radix__ptep_set_access_flags(ptep, entry);
+		return radix__ptep_set_access_flags(mm, ptep, entry, address);
 	return hash__ptep_set_access_flags(ptep, entry);
 }
 

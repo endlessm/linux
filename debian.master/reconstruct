@@ -6,6 +6,7 @@
 [ ! -L 'ubuntu/vbox/vboxvideo/include' ] && ln -sf '../include' 'ubuntu/vbox/vboxvideo/include'
 [ ! -L 'ubuntu/vbox/vboxvideo/r0drv' ] && ln -sf '../r0drv' 'ubuntu/vbox/vboxvideo/r0drv'
 # Remove any files deleted from the orig.
+rm -f 'arch/powerpc/include/asm/book3s/64/hugetlb-radix.h'
 rm -f 'arch/sparc/lib/user_fixup.c'
 rm -f 'firmware/acenic/tg1.bin.ihex'
 rm -f 'firmware/acenic/tg2.bin.ihex'

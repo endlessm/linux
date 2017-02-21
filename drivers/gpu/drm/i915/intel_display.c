@@ -11815,7 +11815,7 @@ static int intel_crtc_page_flip(struct drm_crtc *crtc,
 	intel_crtc->reset_counter = i915_reset_counter(&dev_priv->gpu_error);
 	if (__i915_reset_in_progress_or_wedged(intel_crtc->reset_counter)) {
 		ret = -EIO;
-		goto cleanup;
+		goto unlock;
 	}
 
 	atomic_inc(&intel_crtc->unpin_work_count);
@@ -11901,6 +11901,7 @@ cleanup_pending:
 	if (!IS_ERR_OR_NULL(request))
 		i915_add_request_no_flush(request);
 	atomic_dec(&intel_crtc->unpin_work_count);
+unlock:
 	mutex_unlock(&dev->struct_mutex);
 cleanup:
 	crtc->primary->fb = old_fb;
@@ -13517,8 +13518,9 @@ static int intel_modeset_checks(struct drm_atomic_state *state)
 
 		DRM_DEBUG_KMS("New cdclk calculated to be atomic %u, actual %u\n",
 			      intel_state->cdclk, intel_state->dev_cdclk);
-	} else
+	} else {
 		to_intel_atomic_state(state)->cdclk = dev_priv->atomic_cdclk_freq;
+	}
 
 	intel_modeset_clear_plls(state);
 
@@ -13619,8 +13621,9 @@ static int intel_atomic_check(struct drm_device *dev,
 
 		if (ret)
 			return ret;
-	} else
-		intel_state->cdclk = dev_priv->cdclk_freq;
+	} else {
+		intel_state->cdclk = dev_priv->atomic_cdclk_freq;
+	}
 
 	ret = drm_atomic_helper_check_planes(dev, state);
 	if (ret)
@@ -16002,6 +16005,7 @@ void intel_modeset_init(struct drm_device *dev)
 
 	intel_update_czclk(dev_priv);
 	intel_update_cdclk(dev);
+	dev_priv->atomic_cdclk_freq = dev_priv->cdclk_freq;
 
 	intel_shared_dpll_init(dev);
 

@@ -70,16 +70,19 @@ MODULE_AUTHOR("Qumranet");
 MODULE_LICENSE("GPL");
 
 /* Architectures should define their poll value according to the halt latency */
-static unsigned int halt_poll_ns = KVM_HALT_POLL_NS_DEFAULT;
+unsigned int halt_poll_ns = KVM_HALT_POLL_NS_DEFAULT;
 module_param(halt_poll_ns, uint, S_IRUGO | S_IWUSR);
+EXPORT_SYMBOL_GPL(halt_poll_ns);
 
 /* Default doubles per-vcpu halt_poll_ns. */
-static unsigned int halt_poll_ns_grow = 2;
+unsigned int halt_poll_ns_grow = 2;
 module_param(halt_poll_ns_grow, uint, S_IRUGO | S_IWUSR);
+EXPORT_SYMBOL_GPL(halt_poll_ns_grow);
 
 /* Default resets per-vcpu halt_poll_ns . */
-static unsigned int halt_poll_ns_shrink;
+unsigned int halt_poll_ns_shrink;
 module_param(halt_poll_ns_shrink, uint, S_IRUGO | S_IWUSR);
+EXPORT_SYMBOL_GPL(halt_poll_ns_shrink);
 
 /*
  * Ordering of locks:
@@ -2852,10 +2855,10 @@ static int kvm_ioctl_create_device(struct kvm *kvm,
 
 	ret = anon_inode_getfd(ops->name, &kvm_device_fops, dev, O_RDWR | O_CLOEXEC);
 	if (ret < 0) {
-		ops->destroy(dev);
 		mutex_lock(&kvm->lock);
 		list_del(&dev->vm_node);
 		mutex_unlock(&kvm->lock);
+		ops->destroy(dev);
 		return ret;
 	}
 
@@ -3619,7 +3622,7 @@ static int vm_stat_get_per_vm(void *data, u64 *val)
 {
 	struct kvm_stat_data *stat_data = (struct kvm_stat_data *)data;
 
-	*val = *(u32 *)((void *)stat_data->kvm + stat_data->offset);
+	*val = *(ulong *)((void *)stat_data->kvm + stat_data->offset);
 
 	return 0;
 }
@@ -3649,7 +3652,7 @@ static int vcpu_stat_get_per_vm(void *data, u64 *val)
 	*val = 0;
 
 	kvm_for_each_vcpu(i, vcpu, stat_data->kvm)
-		*val += *(u32 *)((void *)vcpu + stat_data->offset);
+		*val += *(u64 *)((void *)vcpu + stat_data->offset);
 
 	return 0;
 }

@@ -2173,7 +2173,7 @@ static int rmqueue_bulk(struct zone *zone, unsigned int order,
 			unsigned long count, struct list_head *list,
 			int migratetype, bool cold)
 {
-	int i;
+	int i, alloced = 0;
 
 	spin_lock(&zone->lock);
 	for (i = 0; i < count; ++i) {
@@ -2198,13 +2198,21 @@ static int rmqueue_bulk(struct zone *zone, unsigned int order,
 		else
 			list_add_tail(&page->lru, list);
 		list = &page->lru;
+		alloced++;
 		if (is_migrate_cma(get_pcppage_migratetype(page)))
 			__mod_zone_page_state(zone, NR_FREE_CMA_PAGES,
 					      -(1 << order));
 	}
+
+	/*
+	 * i pages were removed from the buddy list even if some leak due
+	 * to check_pcp_refill failing so adjust NR_FREE_PAGES based
+	 * on i. Do not confuse with 'alloced' which is the number of
+	 * pages added to the pcp list.
+	 */
 	__mod_zone_page_state(zone, NR_FREE_PAGES, -(i << order));
 	spin_unlock(&zone->lock);
-	return i;
+	return alloced;
 }
 
 #ifdef CONFIG_NUMA
@@ -3160,6 +3168,16 @@ should_compact_retry(struct alloc_context *ac, unsigned int order, int alloc_fla
 
 	if (!order || order > PAGE_ALLOC_COSTLY_ORDER)
 		return false;
+
+#ifdef CONFIG_COMPACTION
+	/*
+	 * This is a gross workaround to compensate a lack of reliable compaction
+	 * operation. We cannot simply go OOM with the current state of the compaction
+	 * code because this can lead to pre mature OOM declaration.
+	 */
+	if (order <= PAGE_ALLOC_COSTLY_ORDER)
+		return true;
+#endif
 
 	/*
 	 * There are setups with compaction disabled which would prefer to loop

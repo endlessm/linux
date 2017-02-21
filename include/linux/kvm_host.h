@@ -749,6 +749,9 @@ int kvm_arch_vcpu_setup(struct kvm_vcpu *vcpu);
 void kvm_arch_vcpu_postcreate(struct kvm_vcpu *vcpu);
 void kvm_arch_vcpu_destroy(struct kvm_vcpu *vcpu);
 
+bool kvm_arch_has_vcpu_debugfs(void);
+int kvm_arch_create_vcpu_debugfs(struct kvm_vcpu *vcpu);
+
 int kvm_arch_hardware_enable(void);
 void kvm_arch_hardware_disable(void);
 int kvm_arch_hardware_setup(void);
@@ -1102,6 +1105,10 @@ static inline bool kvm_check_request(int req, struct kvm_vcpu *vcpu)
 }
 
 extern bool kvm_rebooting;
+
+extern unsigned int halt_poll_ns;
+extern unsigned int halt_poll_ns_grow;
+extern unsigned int halt_poll_ns_shrink;
 
 struct kvm_device {
 	struct kvm_device_ops *ops;
