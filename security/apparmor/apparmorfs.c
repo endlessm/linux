@@ -221,6 +221,100 @@ static const struct file_operations aa_fs_profile_remove = {
 	.llseek = default_llseek,
 };
 
+struct aa_revision {
+	struct aa_ns *ns;
+	long last_read;
+};
+
+/* revision file hook fn for policy loads */
+static int ns_revision_release(struct inode *inode, struct file *file)
+{
+	struct aa_revision *rev = file->private_data;
+
+	if (rev) {
+		aa_put_ns(rev->ns);
+		kfree(rev);
+	}
+
+	return 0;
+}
+
+static ssize_t ns_revision_read(struct file *file, char __user *buf,
+				size_t size, loff_t *ppos)
+{
+	struct aa_revision *rev = file->private_data;
+	char buffer[32];
+	long last_read;
+	int avail;
+
+	mutex_lock(&rev->ns->lock);
+	last_read = rev->last_read;
+	if (last_read == rev->ns->revision) {
+		mutex_unlock(&rev->ns->lock);
+		if (file->f_flags & O_NONBLOCK)
+			return -EAGAIN;
+		if (wait_event_interruptible(rev->ns->wait,
+					     last_read !=
+					     READ_ONCE(rev->ns->revision)))
+			return -ERESTARTSYS;
+		mutex_lock(&rev->ns->lock);
+	}
+
+	avail = sprintf(buffer, "%ld\n", rev->ns->revision);
+	if (*ppos + size > avail) {
+		rev->last_read = rev->ns->revision;
+		*ppos = 0;
+	}
+	mutex_unlock(&rev->ns->lock);
+
+	return simple_read_from_buffer(buf, size, ppos, buffer, avail);
+}
+
+static int ns_revision_open(struct inode *inode, struct file *file)
+{
+	struct aa_revision *rev = kzalloc(sizeof(*rev), GFP_KERNEL);
+
+	if (!rev)
+		return -ENOMEM;
+
+	rev->ns = aa_get_ns(inode->i_private);
+	if (!rev->ns)
+		rev->ns = aa_get_current_ns();
+	file->private_data = rev;
+
+	return 0;
+}
+
+static unsigned int ns_revision_poll(struct file *file, poll_table *pt)
+{
+	struct aa_revision *rev = file->private_data;
+	unsigned int mask = 0;
+
+	if (rev) {
+		mutex_lock(&rev->ns->lock);
+		poll_wait(file, &rev->ns->wait, pt);
+		if (rev->last_read < rev->ns->revision)
+			mask |= POLLIN | POLLRDNORM;
+		mutex_unlock(&rev->ns->lock);
+	}
+
+	return mask;
+}
+
+void __aa_bump_ns_revision(struct aa_ns *ns)
+{
+	ns->revision++;
+	wake_up_interruptible(&ns->wait);
+}
+
+static const struct file_operations ns_revision_fops = {
+	.owner		= THIS_MODULE,
+	.open		= ns_revision_open,
+	.poll		= ns_revision_poll,
+	.read		= ns_revision_read,
+	.llseek		= generic_file_llseek,
+	.release	= ns_revision_release,
+};
 
 static void profile_query_cb(struct aa_profile *profile, struct aa_perms *perms,
 			     const char *match_str, size_t match_len)
@@ -1151,6 +1245,10 @@ void __aa_fs_ns_rmdir(struct aa_ns *ns)
 		sub = d_inode(ns_subremove(ns))->i_private;
 		aa_put_ns(sub);
 	}
+	if (ns_subrevision(ns)) {
+		sub = d_inode(ns_subrevision(ns))->i_private;
+		aa_put_ns(sub);
+	}
 
 	for (i = AAFS_NS_SIZEOF - 1; i >= 0; --i) {
 		securityfs_remove(ns->dents[i]);
@@ -1175,6 +1273,13 @@ static int __aa_fs_ns_mkdir_entries(struct aa_ns *ns, struct dentry *dir)
 	if (IS_ERR(dent))
 		return PTR_ERR(dent);
 	ns_subdata_dir(ns) = dent;
+
+	dent = securityfs_create_file("revision", 0444, dir, ns,
+				      &ns_revision_fops);
+	if (IS_ERR(dent))
+		return PTR_ERR(dent);
+	aa_get_ns(ns);
+	ns_subrevision(ns) = dent;
 
 	dent = securityfs_create_file(".load", 0640, dir, ns,
 				      &aa_fs_profile_load);
@@ -1800,6 +1905,14 @@ static int __init aa_create_aafs(void)
 		goto error;
 	}
 	ns_subremove(root_ns) = dent;
+
+	dent = securityfs_create_file("revision", 0444, aa_fs_entry.dentry,
+				      NULL, &ns_revision_fops);
+	if (IS_ERR(dent)) {
+		error = PTR_ERR(dent);
+		goto error;
+	}
+	ns_subrevision(root_ns) = dent;
 
 	mutex_lock(&root_ns->lock);
 	error = __aa_fs_ns_mkdir(root_ns, aa_fs_entry.dentry, "policy", NULL);
