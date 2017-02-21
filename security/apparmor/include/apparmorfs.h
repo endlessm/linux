@@ -74,6 +74,7 @@ enum aafs_ns_type {
 	AAFS_NS_LOAD,
 	AAFS_NS_REPLACE,
 	AAFS_NS_REMOVE,
+	AAFS_NS_REVISION,
 	AAFS_NS_COUNT,
 	AAFS_NS_MAX_COUNT,
 	AAFS_NS_SIZE,
@@ -102,10 +103,12 @@ enum aafs_prof_type {
 #define ns_subload(X) ((X)->dents[AAFS_NS_LOAD])
 #define ns_subreplace(X) ((X)->dents[AAFS_NS_REPLACE])
 #define ns_subremove(X) ((X)->dents[AAFS_NS_REMOVE])
+#define ns_subrevision(X) ((X)->dents[AAFS_NS_REVISION])
 
 #define prof_dir(X) ((X)->dents[AAFS_PROF_DIR])
 #define prof_child_dir(X) ((X)->dents[AAFS_PROF_PROFS])
 
+void __aa_bump_ns_revision(struct aa_ns *ns);
 void __aa_fs_profile_rmdir(struct aa_profile *profile);
 void __aa_fs_profile_migrate_dents(struct aa_profile *old,
 				   struct aa_profile *new);

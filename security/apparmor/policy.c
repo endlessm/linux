@@ -1010,6 +1010,7 @@ ssize_t aa_replace_profiles(struct aa_ns *view, struct aa_label *label,
 		aa_load_ent_free(ent);
 	}
 	__aa_labelset_update_subtree(ns);
+	__aa_bump_ns_revision(ns);
 	mutex_unlock(&ns->lock);
 
 out:
@@ -1094,6 +1095,7 @@ ssize_t aa_remove_profiles(struct aa_ns *view, struct aa_label *subj,
 		/* remove namespace - can only happen if fqname[0] == ':' */
 		mutex_lock(&ns->parent->lock);
 		__aa_remove_ns(ns);
+		__aa_bump_ns_revision(ns);
 		mutex_unlock(&ns->parent->lock);
 	} else {
 		/* remove profile */
@@ -1107,6 +1109,7 @@ ssize_t aa_remove_profiles(struct aa_ns *view, struct aa_label *subj,
 		name = profile->base.hname;
 		__remove_profile(profile);
 		__aa_labelset_update_subtree(ns);
+		__aa_bump_ns_revision(ns);
 		mutex_unlock(&ns->lock);
 	}
 
