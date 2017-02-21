@@ -42,6 +42,7 @@ enum arch_timer_erratum_match_type {
 	ate_match_dt,
 	ate_match_global_cap_id,
 	ate_match_local_cap_id,
+	ate_match_acpi_oem_info,
 };
 
 struct clock_event_device;
