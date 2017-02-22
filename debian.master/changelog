@@ -1,3 +1,10 @@
+linux (4.8.0-39.42) yakkety; urgency=low
+
+  * CVE-2017-6074 (LP: #1665935)
+    - dccp: fix freeing skb too early for IPV6_RECVPKTINFO
+
+ -- Stefan Bader <stefan.bader@canonical.com>  Mon, 20 Feb 2017 09:30:56 +0100
+
 linux (4.8.0-38.41) yakkety; urgency=low
 
   [ Thadeu Lima de Souza Cascardo ]
