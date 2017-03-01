@@ -5539,7 +5539,7 @@ CONFIG_PINCTRL_IMX6UL                           policy<{'armhf-generic': 'y'}>
 CONFIG_PINCTRL_IMX7D                            policy<{'armhf-generic': 'y'}>
 CONFIG_PINCTRL_VF610                            policy<{'armhf-generic': 'y'}>
 CONFIG_PINCTRL_BAYTRAIL                         policy<{'amd64': 'y', 'arm64': 'y', 'i386': 'y'}>
-CONFIG_PINCTRL_CHERRYVIEW                       policy<{'amd64': 'y', 'arm64': 'm', 'i386': 'y'}>
+CONFIG_PINCTRL_CHERRYVIEW                       policy<{'amd64': 'y', 'arm64': 'm', 'i386': 'm'}>
 CONFIG_PINCTRL_MERRIFIELD                       policy<{'i386': 'n'}>
 CONFIG_PINCTRL_BROXTON                          policy<{'amd64': 'y', 'arm64': 'm', 'i386': 'y'}>
 CONFIG_PINCTRL_SUNRISEPOINT                     policy<{'amd64': 'y', 'arm64': 'm', 'i386': 'y'}>
