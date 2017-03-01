@@ -216,21 +216,8 @@ static inline unsigned long fadump_calculate_reserve_size(void)
 	 * Check if the size is specified through fadump_reserve_mem= cmdline
 	 * option. If yes, then use that.
 	 */
-	if (fw_dump.reserve_bootvar) {
-		/*
-		 * Adjust if the boot memory size specified is above
-		 * the upper limit.
-		 */
-		if (fw_dump.reserve_bootvar >
-		    (memblock_end_of_DRAM() / MAX_BOOT_MEM_RATIO)) {
-			fw_dump.reserve_bootvar = (memblock_end_of_DRAM() /
-						   MAX_BOOT_MEM_RATIO);
-			pr_info("Adjusted boot memory size to %luMB\n",
-				(fw_dump.reserve_bootvar >> 20));
-		}
-
+	if (fw_dump.reserve_bootvar)
 		return fw_dump.reserve_bootvar;
-	}
 
 	/* divide by 20 to get 5% of value */
 	size = memblock_end_of_DRAM() / 20;
