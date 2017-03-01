@@ -789,7 +789,8 @@ static int bcache_device_init(struct bcache_device *d, unsigned block_size,
 	}
 
 	set_capacity(d->disk, sectors);
-	snprintf(d->disk->disk_name, DISK_NAME_LEN, "bcache%i", minor);
+	snprintf(d->disk->disk_name, DISK_NAME_LEN, "bcache%i",
+		 minor / BCACHE_MINORS);
 
 	d->disk->major		= bcache_major;
 	d->disk->first_minor	= minor;
