@@ -288,10 +288,12 @@ ifneq ($(skipdbg),true)
 			$(CROSS_COMPILE)objcopy \
 				--add-gnu-debuglink=$(dbgpkgdir)/usr/lib/debug/$$module \
 				$(pkgdir)/$$module; \
-			$(builddir)/build-$*/scripts/sign-file $(MODHASHALGO) \
-				$(MODSECKEY) \
-				$(MODPUBKEY) \
-				$(pkgdir)/$$module; \
+			if grep -q CONFIG_MODULE_SIG=y $(builddir)/build-$*/.config; then \
+				$(builddir)/build-$*/scripts/sign-file $(MODHASHALGO) \
+					$(MODSECKEY) \
+					$(MODPUBKEY) \
+					$(pkgdir)/$$module; \
+			fi; \
 		fi; \
 	done
 	rm -f $(dbgpkgdir)/usr/lib/debug/lib/modules/$(abi_release)-$*/build
