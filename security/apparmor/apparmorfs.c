@@ -1050,7 +1050,6 @@ static int ns_mkdir_op(struct inode *dir, struct dentry *dentry, umode_t mode)
 	 */
 	inode_unlock(dir);
 	error = securityfs_pin_fs();
-	mutex_lock(&parent->lock);
 	inode_lock_nested(dir, I_MUTEX_PARENT);
 	if (error)
 		goto out;
@@ -1060,8 +1059,7 @@ static int ns_mkdir_op(struct inode *dir, struct dentry *dentry, umode_t mode)
 	if (error)
 		goto out_pin;
 
-	ns = __aa_find_or_create_ns(parent, READ_ONCE(dentry->d_name.name),
-				    dentry);
+	ns = aa_create_ns(parent, ACCESS_ONCE(dentry->d_name.name), dentry);
 	if (IS_ERR(ns)) {
 		error = PTR_ERR(ns);
 		ns = NULL;
@@ -1071,7 +1069,6 @@ static int ns_mkdir_op(struct inode *dir, struct dentry *dentry, umode_t mode)
 out_pin:
 	securityfs_release_fs();
 out:
-	mutex_unlock(&parent->lock);
 	aa_put_ns(parent);
 
 	return error;
