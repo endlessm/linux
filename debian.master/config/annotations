@@ -434,13 +434,11 @@ CONFIG_CRYPTO_DEV_QAT_DH895xCCVF                policy<{'amd64': 'm', 'i386': 'm
 CONFIG_CRYPTO_DEV_QAT_C3XXXVF                   policy<{'amd64': 'n', 'i386': 'n'}>
 CONFIG_CRYPTO_DEV_QAT_C62XVF                    policy<{'amd64': 'n', 'i386': 'n'}>
 CONFIG_CRYPTO_DEV_QCE                           policy<{'arm64': 'm', 'armhf': 'm'}>
-CONFIG_CRYPTO_DEV_VMX                           policy<{'powerpc-generic': 'n', 'ppc64el': 'n'}>
+CONFIG_CRYPTO_DEV_VMX                           policy<{'powerpc-generic': 'y', 'ppc64el': 'y'}>
 CONFIG_CRYPTO_DEV_VMX_ENCRYPT                   policy<{'powerpc-generic': 'm', 'ppc64el': 'm'}>
 CONFIG_CRYPTO_DEV_ROCKCHIP                      policy<{'armhf': 'n'}>
 CONFIG_CRYPTO_DEV_CHELSIO                       policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'powerpc': 'm', 'ppc64el': 'm'}>
 CONFIG_CRYPTO_DEV_VIRTIO                        policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'powerpc': 'm', 'ppc64el': 'm', 's390x': 'm'}>
-#
-CONFIG_CRYPTO_DEV_VMX				mark<ENFORCED> note <LP #1666483>
 
 # Menu: Cryptographic API >> Hardware crypto devices >> Freescale CAAM Job Ring driver backend
 CONFIG_CRYPTO_DEV_FSL_CAAM_JR                   policy<{'arm64': 'm', 'armhf-generic': 'm', 'powerpc-powerpc64-emb': 'm', 'powerpc-powerpc-e500mc': 'm'}>
