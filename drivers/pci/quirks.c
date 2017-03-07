@@ -2339,6 +2339,7 @@ static void quirk_disable_rtl_aspm(struct pci_dev *dev)
 }
 DECLARE_PCI_FIXUP_FINAL(PCI_VENDOR_ID_INTEL, 0x9d15, quirk_disable_rtl_aspm);
 DECLARE_PCI_FIXUP_FINAL(PCI_VENDOR_ID_INTEL, 0xa117, quirk_disable_rtl_aspm);
+DECLARE_PCI_FIXUP_FINAL(PCI_VENDOR_ID_INTEL, 0xa115, quirk_disable_rtl_aspm);
 
 /*
  * The APC bridge device in AMD 780 family northbridges has some random
