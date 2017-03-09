@@ -3250,9 +3250,9 @@ typedef struct X86DESCGATE
     unsigned    u16Sel : 16;
     /** 20 - Number of parameters for a call-gate.
      * Ignored if interrupt-, trap- or task-gate. */
-    unsigned    u4ParmCount : 4;
-    /** 24 - Reserved / ignored. */
-    unsigned    u4Reserved : 4;
+    unsigned    u5ParmCount : 5;
+    /** 25 - Reserved / ignored. */
+    unsigned    u3Reserved : 3;
     /** 28 - Segment Type. */
     unsigned    u4Type : 4;
     /** 2c - Descriptor Type (0 = system). */

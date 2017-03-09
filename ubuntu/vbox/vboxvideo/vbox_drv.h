@@ -67,6 +67,9 @@
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(3, 18, 0)
 # include <drm/drm_gem.h>
 #endif
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(4, 11, 0)
+# include <drm/drm_encoder.h>
+#endif
 
 /* #include "vboxvideo.h" */
 
@@ -143,7 +146,11 @@ struct vbox_private {
 #undef CURSOR_DATA_SIZE
 
 int vbox_driver_load(struct drm_device *dev, unsigned long flags);
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(4, 11, 0)
+void vbox_driver_unload(struct drm_device *dev);
+#else
 int vbox_driver_unload(struct drm_device *dev);
+#endif
 void vbox_driver_lastclose(struct drm_device *dev);
 
 struct vbox_gem_object;

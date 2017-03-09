@@ -80,11 +80,15 @@ static void vbox_do_modeset(struct drm_crtc *crtc,
     width = mode->hdisplay ? mode->hdisplay : 640;
     height = mode->vdisplay ? mode->vdisplay : 480;
     crtc_id = vbox_crtc->crtc_id;
-    bpp = crtc->enabled ? CRTC_FB(crtc)->bits_per_pixel : 32;
-#if LINUX_VERSION_CODE < KERNEL_VERSION(3, 3, 0)
-    pitch = crtc->enabled ? CRTC_FB(crtc)->pitch : width * bpp / 8;
-#else
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(4, 11, 0)
+    bpp   = crtc->enabled ? CRTC_FB(crtc)->format->cpp[0] * 8 : 32;
     pitch = crtc->enabled ? CRTC_FB(crtc)->pitches[0] : width * bpp / 8;
+#elif LINUX_VERSION_CODE >= KERNEL_VERSION(3, 3, 0)
+    bpp   = crtc->enabled ? CRTC_FB(crtc)->bits_per_pixel : 32;
+    pitch = crtc->enabled ? CRTC_FB(crtc)->pitches[0] : width * bpp / 8;
+#else
+    bpp   = crtc->enabled ? CRTC_FB(crtc)->bits_per_pixel : 32;
+    pitch = crtc->enabled ? CRTC_FB(crtc)->pitch : width * bpp / 8;
 #endif
     /* This is the old way of setting graphics modes.  It assumed one screen
      * and a frame-buffer at the start of video RAM.  On older versions of
@@ -95,7 +99,12 @@ static void vbox_do_modeset(struct drm_crtc *crtc,
         && vbox_crtc->fb_offset / pitch < 0xffff - crtc->y
         && vbox_crtc->fb_offset % (bpp / 8) == 0)
         VBoxVideoSetModeRegisters(width, height, pitch * 8 / bpp,
-                          CRTC_FB(crtc)->bits_per_pixel, 0,
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(4, 11, 0)
+                          CRTC_FB(crtc)->format->cpp[0] * 8,
+#else
+                          CRTC_FB(crtc)->bits_per_pixel,
+#endif
+                          0,
                           vbox_crtc->fb_offset % pitch / bpp * 8 + crtc->x,
                           vbox_crtc->fb_offset / pitch + crtc->y);
     flags = VBVA_SCREEN_F_ACTIVE;

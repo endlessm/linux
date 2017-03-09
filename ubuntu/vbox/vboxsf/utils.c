@@ -290,9 +290,16 @@ sf_dentry_revalidate(struct dentry *dentry, int flags)
    has inode at all) from these new attributes we derive [kstat] via
    [generic_fillattr] */
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 0)
+# if LINUX_VERSION_CODE >= KERNEL_VERSION(4, 11, 0)
+int sf_getattr(const struct path *path, struct kstat *kstat, u32 request_mask, unsigned int flags)
+# else
 int sf_getattr(struct vfsmount *mnt, struct dentry *dentry, struct kstat *kstat)
+# endif
 {
     int err;
+# if LINUX_VERSION_CODE >= KERNEL_VERSION(4, 11, 0)
+    struct dentry *dentry = path->dentry;
+# endif
 
     TRACE();
     err = sf_inode_revalidate(dentry);

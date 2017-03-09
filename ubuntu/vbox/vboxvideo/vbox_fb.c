@@ -80,7 +80,11 @@ static void vbox_dirty_update(struct vbox_fbdev *fbdev,
     struct drm_gem_object *obj;
     struct vbox_bo *bo;
     int src_offset, dst_offset;
-    int bpp = (fbdev->afb.base.bits_per_pixel + 7)/8;
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(4, 11, 0)
+    int bpp = fbdev->afb.base.format->cpp[0];
+#else
+    int bpp = (fbdev->afb.base.bits_per_pixel + 7) / 8;
+#endif
     int ret = -EBUSY;
     bool unmap = false;
     bool store_for_later = false;
@@ -350,7 +354,11 @@ static int vboxfb_create(struct drm_fb_helper *helper,
     info->apertures->ranges[0].base = pci_resource_start(dev->pdev, 0);
     info->apertures->ranges[0].size = pci_resource_len(dev->pdev, 0);
 
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(4, 11, 0)
+    drm_fb_helper_fill_fix(info, fb->pitches[0], fb->format->depth);
+#else
     drm_fb_helper_fill_fix(info, fb->pitches[0], fb->depth);
+#endif
     drm_fb_helper_fill_var(info, &fbdev->helper, sizes->fb_width, sizes->fb_height);
 
     info->screen_base = sysram;
@@ -440,7 +448,11 @@ int vbox_fbdev_init(struct drm_device *dev)
 #else
     drm_fb_helper_prepare(dev, &fbdev->helper, &vbox_fb_helper_funcs);
 #endif
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(4, 11, 0)
+    ret = drm_fb_helper_init(dev, &fbdev->helper, vbox->num_crtcs);
+#else
     ret = drm_fb_helper_init(dev, &fbdev->helper, vbox->num_crtcs, vbox->num_crtcs);
+#endif
     if (ret)
         goto free;
 
