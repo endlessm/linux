@@ -61,7 +61,7 @@ config ARCH_HAS_FAST_MULTIPLIER
 
 config LIBIO
 	bool "Generic logical IO management"
-	def_bool y if PCI && (ARM || ARC || UNICORE32 || SPARC || S390 || CRIS || BLACKFIN || XTENSA || ARM64)
+	def_bool y if PCI && (ARM || UNICORE32 || MICROBLAZE || ARM64)
 	help
 	  For some architectures, there are no IO space. To support the
 	  accesses to legacy I/O devices on those architectures, kernel
