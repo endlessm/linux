@@ -72,6 +72,10 @@ extern struct libio_range
 *find_io_range_from_fwnode(struct fwnode_handle *fwnode);
 extern unsigned long libio_translate_hwaddr(struct fwnode_handle *fwnode,
 			resource_size_t hw_addr);
+extern struct libio_range *register_libio_range(struct libio_range *newrange);
+extern resource_size_t libio_to_hwaddr(unsigned long pio);
+
+extern unsigned long libio_translate_cpuaddr(resource_size_t hw_addr);
 #else
 static inline struct libio_range
 *find_io_range_from_fwnode(struct fwnode_handle *fwnode)
@@ -84,12 +88,23 @@ static inline unsigned long libio_translate_hwaddr(struct fwnode_handle *fwnode,
 {
 	return -1;
 }
+
+static inline struct libio_range 
+*register_libio_range(struct libio_range *newrange)
+{
+	return NULL;
+}
+
+static inline resource_size_t libio_to_hwaddr(unsigned long pio)
+{
+	return -1;
+}
+
+static inline unsigned long libio_translate_cpuaddr(resource_size_t hw_addr)
+{
+	return -1;
+}
 #endif
-
-extern struct libio_range *register_libio_range(struct libio_range *newrange);
-extern resource_size_t libio_to_hwaddr(unsigned long pio);
-
-extern unsigned long libio_translate_cpuaddr(resource_size_t hw_addr);
 
 #ifdef CONFIG_ACPI
 extern int acpi_set_libio_resource(struct device *child,
