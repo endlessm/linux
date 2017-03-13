@@ -20,6 +20,7 @@
 #include <linux/console.h>
 #include <linux/delay.h>
 #include <linux/io.h>
+#include <linux/libio.h>
 #include <linux/module.h>
 #include <linux/of.h>
 #include <linux/of_address.h>
@@ -461,6 +462,27 @@ static int hisilpc_host_io_register(struct device *dev)
 			return -EFAULT;
 	}
 
+	/*
+	 * For ACPI children, translate the bus-local I/O range to logical
+	 * I/O range and set it as the current resource before the children
+	 * are enumerated.
+	 */
+	if (has_acpi_companion(dev)) {
+		struct acpi_device *root, *child;
+
+		root = to_acpi_device_node(dev->fwnode);
+		/* For hisilpc, only care about the sons of host. */
+		list_for_each_entry(child, &root->children, node) {
+			int ret;
+
+			ret = acpi_set_libio_resource(&child->dev, &root->dev);
+			if (ret) {
+				dev_err(&child->dev, "set resource failed..\n");
+				return ret;
+			}
+		}
+	}
+
 	return 0;
 }
 
@@ -544,10 +566,16 @@ static const struct of_device_id hisilpc_of_match[] = {
 	{},
 };
 
+static const struct acpi_device_id hisilpc_acpi_match[] = {
+	{"HISI0191", },
+	{},
+};
+
 static struct platform_driver hisilpc_driver = {
 	.driver = {
 		.name           = "hisi_lpc",
 		.of_match_table = hisilpc_of_match,
+		.acpi_match_table = ACPI_PTR(hisilpc_acpi_match),
 	},
 	.probe = hisilpc_probe,
 };
