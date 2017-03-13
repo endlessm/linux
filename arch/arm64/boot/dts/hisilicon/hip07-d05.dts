@@ -84,3 +84,7 @@
 &sas1 {
 	status = "ok";
 };
+
+&ipmi0 {
+	status = "ok";
+};

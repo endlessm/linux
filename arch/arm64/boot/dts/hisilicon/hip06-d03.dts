@@ -52,3 +52,7 @@
 &usb_ehci {
 	status = "ok";
 };
+
+&ipmi0 {
+	status = "ok";
+};
