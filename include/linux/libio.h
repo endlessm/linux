@@ -20,6 +20,7 @@
 
 #ifdef __KERNEL__
 
+#include <linux/device.h>
 #include <linux/fwnode.h>
 
 /* This is compatible to PCI MMIO. */
@@ -90,5 +91,15 @@ extern resource_size_t libio_to_hwaddr(unsigned long pio);
 
 extern unsigned long libio_translate_cpuaddr(resource_size_t hw_addr);
 
+#ifdef CONFIG_ACPI
+extern int acpi_set_libio_resource(struct device *child,
+		struct device *hostdev);
+#else
+static inline int acpi_set_libio_resource(struct device *child,
+		struct device *hostdev)
+{
+	return -EFAULT;
+}
+#endif /* CONFIG_ACPI */
 #endif /* __KERNEL__ */
 #endif /* __LINUX_LIBIO_H */
