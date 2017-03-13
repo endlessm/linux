@@ -59,6 +59,20 @@ config ARCH_USE_CMPXCHG_LOCKREF
 config ARCH_HAS_FAST_MULTIPLIER
 	bool
 
+config LIBIO
+	bool "Generic logical IO management"
+	def_bool y if PCI && (ARM || ARC || UNICORE32 || SPARC || S390 || CRIS || BLACKFIN || XTENSA || ARM64)
+	help
+	  For some architectures, there are no IO space. To support the
+	  accesses to legacy I/O devices on those architectures, kernel
+	  implemented the memory mapped I/O mechanism based on bridge bus
+	  supports. But for some buses which do not support MMIO, the
+	  peripherals there should be accessed with device-specific way.
+	  To abstract those different I/O accesses into unified I/O accessors,
+	  this option provide a generic I/O space management way after mapping
+	  the device I/O to system logical/fake I/O and help to hide all the
+	  hardware detail.
+
 config CRC_CCITT
 	tristate "CRC-CCITT functions"
 	help

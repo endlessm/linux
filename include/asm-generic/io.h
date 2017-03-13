@@ -351,6 +351,8 @@ static inline void writesq(volatile void __iomem *addr, const void *buffer,
 #define IO_SPACE_LIMIT 0xffff
 #endif
 
+#include <linux/libio.h>
+
 /*
  * {in,out}{b,w,l}() access little endian I/O. {in,out}{b,w,l}_p() can be
  * implemented on hardware that needs an additional delay for I/O accesses to
@@ -358,51 +360,75 @@ static inline void writesq(volatile void __iomem *addr, const void *buffer,
  */
 
 #ifndef inb
+#ifdef CONFIG_LIBIO
+#define inb libio_inb
+#else
 #define inb inb
 static inline u8 inb(unsigned long addr)
 {
 	return readb(PCI_IOBASE + addr);
 }
+#endif /* CONFIG_LIBIO */
 #endif
 
 #ifndef inw
+#ifdef CONFIG_LIBIO
+#define inw libio_inw
+#else
 #define inw inw
 static inline u16 inw(unsigned long addr)
 {
 	return readw(PCI_IOBASE + addr);
 }
+#endif /* CONFIG_LIBIO */
 #endif
 
 #ifndef inl
+#ifdef CONFIG_LIBIO
+#define inl libio_inl
+#else
 #define inl inl
 static inline u32 inl(unsigned long addr)
 {
 	return readl(PCI_IOBASE + addr);
 }
+#endif /* CONFIG_LIBIO */
 #endif
 
 #ifndef outb
+#ifdef CONFIG_LIBIO
+#define outb libio_outb
+#else
 #define outb outb
 static inline void outb(u8 value, unsigned long addr)
 {
 	writeb(value, PCI_IOBASE + addr);
 }
+#endif /* CONFIG_LIBIO */
 #endif
 
 #ifndef outw
+#ifdef CONFIG_LIBIO
+#define outw libio_outw
+#else
 #define outw outw
 static inline void outw(u16 value, unsigned long addr)
 {
 	writew(value, PCI_IOBASE + addr);
 }
+#endif /* CONFIG_LIBIO */
 #endif
 
 #ifndef outl
+#ifdef CONFIG_LIBIO
+#define outl libio_outl
+#else
 #define outl outl
 static inline void outl(u32 value, unsigned long addr)
 {
 	writel(value, PCI_IOBASE + addr);
 }
+#endif /* CONFIG_LIBIO */
 #endif
 
 #ifndef inb_p
@@ -459,54 +485,78 @@ static inline void outl_p(u32 value, unsigned long addr)
  */
 
 #ifndef insb
+#ifdef CONFIG_LIBIO
+#define insb libio_insb
+#else
 #define insb insb
 static inline void insb(unsigned long addr, void *buffer, unsigned int count)
 {
 	readsb(PCI_IOBASE + addr, buffer, count);
 }
+#endif /* CONFIG_LIBIO */
 #endif
 
 #ifndef insw
+#ifdef CONFIG_LIBIO
+#define insw libio_insw
+#else
 #define insw insw
 static inline void insw(unsigned long addr, void *buffer, unsigned int count)
 {
 	readsw(PCI_IOBASE + addr, buffer, count);
 }
+#endif /* CONFIG_LIBIO */
 #endif
 
 #ifndef insl
+#ifdef CONFIG_LIBIO
+#define insl libio_insl
+#else
 #define insl insl
 static inline void insl(unsigned long addr, void *buffer, unsigned int count)
 {
 	readsl(PCI_IOBASE + addr, buffer, count);
 }
+#endif /* CONFIG_LIBIO */
 #endif
 
 #ifndef outsb
+#ifdef CONFIG_LIBIO
+#define outsb libio_outsb
+#else
 #define outsb outsb
 static inline void outsb(unsigned long addr, const void *buffer,
 			 unsigned int count)
 {
 	writesb(PCI_IOBASE + addr, buffer, count);
 }
+#endif /* CONFIG_LIBIO */
 #endif
 
 #ifndef outsw
+#ifdef CONFIG_LIBIO
+#define outsw libio_outsw
+#else
 #define outsw outsw
 static inline void outsw(unsigned long addr, const void *buffer,
 			 unsigned int count)
 {
 	writesw(PCI_IOBASE + addr, buffer, count);
 }
+#endif /* CONFIG_LIBIO */
 #endif
 
 #ifndef outsl
+#ifdef CONFIG_LIBIO
+#define outsl libio_outsl
+#else
 #define outsl outsl
 static inline void outsl(unsigned long addr, const void *buffer,
 			 unsigned int count)
 {
 	writesl(PCI_IOBASE + addr, buffer, count);
 }
+#endif /* CONFIG_LIBIO */
 #endif
 
 #ifndef insb_p
