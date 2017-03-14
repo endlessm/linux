@@ -53,7 +53,7 @@ Build-Profiles: <!stage1>
 Architecture: ARCH
 Section: kernel
 Priority: optional
-Depends: ${misc:Depends}, ${shlibs:Depends}, linux-signed-image-PKGVER-ABINUM-FLAVOUR [amd64] | linux-image-PKGVER-ABINUM-FLAVOUR, crda | wireless-crda
+Depends: ${misc:Depends}, ${shlibs:Depends}, linux-signed-image-PKGVER-ABINUM-FLAVOUR (= ${source:Version}) [amd64] | linux-image-PKGVER-ABINUM-FLAVOUR, crda | wireless-crda
 Description: Linux kernel extra modules for version PKGVER on DESC
  This package contains the Linux kernel extra modules for version PKGVER on
  DESC.
