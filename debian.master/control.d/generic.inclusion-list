@@ -171,6 +171,7 @@ drivers/virtio/*
 drivers/watchdog/softdog.ko
 drivers/xen/*
 fs/9p/*
+fs/aufs/aufs.ko
 fs/binfmt_misc.ko
 fs/btrfs/*
 fs/cachefiles/cachefiles.ko
