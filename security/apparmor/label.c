@@ -1850,6 +1850,23 @@ static int label_count_str_entries(const char *str)
 	return count;
 }
 
+/*
+ * ensure stacks with components like
+ *   :ns://A//&B
+ * have :ns: applied to both 'A' and 'B' by making the lookup relative
+ * to the base if the lookup specifies an ns, else making the stacked lookup
+ * relative to the last embedded ns in the string.
+ */
+static struct aa_profile *fqlookupn_profile(struct aa_label *base,
+					    struct aa_label *currentbase,
+					    const char *str, size_t n)
+{
+	const char *first = skipn_spaces(str, n);
+	if (first && *first == ':')
+		return aa_fqlookupn_profile(base, str, n);
+	return aa_fqlookupn_profile(currentbase, str, n);
+}
+
 /**
  * aa_label_parse - parse, validate and convert a text string to a label
  * @base: base label to use for lookups (NOT NULL)
@@ -1865,7 +1882,7 @@ struct aa_label *aa_label_parse(struct aa_label *base, const char *str,
 				gfp_t gfp, bool create, bool force_stack)
 {
 	DEFINE_VEC(profile, vec);
-	struct aa_label *label;
+	struct aa_label *label, *currbase = base;
 	int i, len, stack = 0, error;
 	char *split;
 
@@ -1889,15 +1906,21 @@ struct aa_label *aa_label_parse(struct aa_label *base, const char *str,
 		vec[i] = aa_get_profile(base->vec[i]);
 
 	for (split = strstr(str, "//&"), i = stack; split && i < len; i++) {
-		vec[i] = aa_fqlookupn_profile(base, str, split - str);
+		vec[i] = fqlookupn_profile(base, currbase, str, split - str);
 		if (!vec[i])
 			goto fail;
+		/*
+		 * if component specified a new ns it becomes the new base
+		 * so that subsequent lookups are relative to it
+		 */
+		if (vec[i]->ns != labels_ns(currbase))
+			currbase = &vec[i]->label;
 		str = split + 3;
 		split = strstr(str, "//&");
 	}
 	/* last element doesn't have a split so this should be the case but just to be safe */
 	if (i < len) {
-		vec[i] = aa_fqlookupn_profile(base, str, strlen(str));
+		vec[i] = fqlookupn_profile(base, currbase, str, strlen(str));
 		if (!vec[i])
 			goto fail;
 	}
