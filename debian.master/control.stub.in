@@ -19,7 +19,7 @@ Build-Depends:
  pkg-config <!stage1>,
  flex <!stage1>,
  bison <!stage1>,
- libunwind8-dev [amd64 arm64 armhf i386 powerpc ppc64el] <!stage1>,
+ libunwind8-dev [amd64 arm64 armhf i386 ppc64el] <!stage1>,
  liblzma-dev <!stage1>,
  openssl <!stage1>,
  libssl-dev <!stage1>,
@@ -27,9 +27,6 @@ Build-Depends:
  bc <!stage1>,
  python-dev <!stage1>,
  gawk <!stage1>,
- device-tree-compiler [powerpc] <!stage1>,
- u-boot-tools [powerpc] <!stage1>,
- libc6-dev-ppc64 [powerpc] <!stage1>,
  libudev-dev <!stage1>,
  autoconf <!stage1>,
  automake <!stage1>,
@@ -98,7 +95,7 @@ Description: Header files related to Linux kernel version PKGVER
  /usr/share/doc/SRCPKGNAME-headers-PKGVER-ABINUM/debian.README.gz for details
 
 Package: SRCPKGNAME-libc-dev
-Architecture: i386 amd64 armhf arm64 x32 powerpc ppc64el s390x
+Architecture: i386 amd64 armhf arm64 x32 ppc64el s390x
 Depends: ${misc:Depends}
 Conflicts: SRCPKGNAME-kernel-headers
 Replaces: SRCPKGNAME-kernel-headers
@@ -124,7 +121,7 @@ Description: Linux kernel version specific tools for version PKGVER
 
 Package: SRCPKGNAME-tools-PKGVER-ABINUM
 Build-Profiles: <!stage1>
-Architecture: i386 amd64 armhf arm64 powerpc ppc64el s390x
+Architecture: i386 amd64 armhf arm64 ppc64el s390x
 Section: devel
 Priority: optional
 Depends: ${misc:Depends}, ${shlibs:Depends}, linux-tools-common

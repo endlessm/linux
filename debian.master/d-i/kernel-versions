@@ -14,6 +14,3 @@ s390x	-		generic		-				-	-
 
 # Ports
 # arch	version		flavour		installedname			suffix	bdep
-powerpc	-		powerpc-smp	-				-	-
-powerpc	-		generic		-				-	-
-powerpc -		powerpc-e500mc	-				-	-
