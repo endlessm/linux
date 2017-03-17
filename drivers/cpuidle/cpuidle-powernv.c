@@ -175,6 +175,28 @@ static int powernv_cpuidle_driver_init(void)
 		drv->state_count += 1;
 	}
 
+	/*
+	 * On PowerNV platform cpu_present may be less that cpu_possible
+	 * in cases where firmware detects the cpu, but it is not available
+	 * for OS.  Such CPUs are not hotplugable at runtime on PowerNV
+	 * platform and hence sysfs files are not created for those.
+	 * Generic topology_init() would skip creating sysfs directories
+	 * for cpus that are not present and not hotplugable later at
+	 * runtime.
+	 *
+	 * drv->cpumask defaults to cpu_possible_mask in __cpuidle_driver_init().
+	 * This breaks cpuidle on powernv where sysfs files are not created for
+	 * cpus in cpu_possible_mask that cannot be hot-added.
+	 *
+	 * Hence at runtime sysfs nodes are present for cpus only in
+	 * cpu_present_mask. Trying cpuidle_register_device() on cpu without
+	 * sysfs node is incorrect.
+	 *
+	 * Hence pass correct cpu mask to generic cpuidle driver.
+	 */
+
+	drv->cpumask = (struct cpumask *)cpu_present_mask;
+
 	return 0;
 }
 
