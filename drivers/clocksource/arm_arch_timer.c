@@ -221,6 +221,13 @@ bool arch_timer_check_global_cap_erratum(const struct arch_timer_erratum_workaro
 	return cpus_have_cap((uintptr_t)wa->id);
 }
 
+static
+bool arch_timer_check_local_cap_erratum(const struct arch_timer_erratum_workaround *wa,
+					const void *arg)
+{
+	return this_cpu_has_cap((uintptr_t)wa->id);
+}
+
 static const struct arch_timer_erratum_workaround *
 arch_timer_iterate_errata(enum arch_timer_erratum_match_type type,
 			  ate_match_fn_t match_fn,
@@ -251,9 +258,7 @@ static void arch_timer_check_ool_workaround(enum arch_timer_erratum_match_type t
 {
 	const struct arch_timer_erratum_workaround *wa;
 	ate_match_fn_t match_fn = NULL;
-
-	if (static_branch_unlikely(&arch_timer_read_ool_enabled))
-		return;
+	bool local = false;
 
 	switch (type) {
 	case ate_match_dt:
@@ -262,14 +267,27 @@ static void arch_timer_check_ool_workaround(enum arch_timer_erratum_match_type t
 	case ate_match_global_cap_id:
 		match_fn = arch_timer_check_global_cap_erratum;
 		break;
+	case ate_match_local_cap_id:
+		match_fn = arch_timer_check_local_cap_erratum;
+		local = true;
+		break;
 	}
 
 	wa = arch_timer_iterate_errata(type, match_fn, arg);
 	if (!wa)
 		return;
 
+	if (static_branch_unlikely(&arch_timer_read_ool_enabled)) {
+		if (wa != timer_unstable_counter_workaround)
+			pr_warn("Can't enable workaround for %s (clashes with %s\n)",
+				wa->desc,
+				timer_unstable_counter_workaround->desc);
+		return;
+	}
+
 	arch_timer_enable_workaround(wa);
-	pr_info("Enabling global workaround for %s\n", wa->desc);
+	pr_info("Enabling %s workaround for %s\n",
+		local ? "local" : "global", wa->desc);
 }
 
 #else
@@ -528,6 +546,8 @@ static void __arch_timer_setup(unsigned type,
 		default:
 			BUG();
 		}
+
+		arch_timer_check_ool_workaround(ate_match_local_cap_id, NULL);
 
 		erratum_workaround_set_sne(clk);
 	} else {
