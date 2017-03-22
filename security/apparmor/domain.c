@@ -559,23 +559,6 @@ static struct aa_label *profile_transition(struct aa_profile *profile,
 	if (!new)
 		goto audit;
 
-	/* Policy has specified a domain transitions. if no_new_privs and
-	 * confined and not transitioning to the current domain fail.
-	 *
-	 * NOTE: Domain transitions from unconfined and to stritly stacked
-	 * subsets are allowed even when no_new_privs is set because this
-	 * aways results in a further reduction of permissions.
-	 */
-	if ((bprm->unsafe & LSM_UNSAFE_NO_NEW_PRIVS) &&
-	    !profile_unconfined(profile) &&
-	    !aa_label_is_subset(new, &profile->label)) {
-		error = -EPERM;
-		info = "no new privs";
-		aa_put_label(new);
-		new = NULL;
-		goto audit;
-	}
-
 	if (!(perms.xindex & AA_X_UNSAFE)) {
 		if (DEBUG_ON) {
 			dbg_printk("apparmor: scrubbing environment variables "
@@ -589,11 +572,8 @@ static struct aa_label *profile_transition(struct aa_profile *profile,
 audit:
 	aa_audit_file(profile, &perms, OP_EXEC, MAY_EXEC, name, target, new,
 		      cond->uid, info, error);
-	if (error) {
-		if (new)
-			aa_put_label(new);
+	if (!new)
 		return ERR_PTR(error);
-	}
 
 	return new;
 }
@@ -650,21 +630,6 @@ static int profile_onexec(struct aa_profile *profile, struct aa_label *onexec,
 				     state, &perms);
 	if (error)
 		goto audit;
-
-	/* Policy has specified a domain transitions. if no_new_privs and
-	 * confined and not transitioning to the current domain fail.
-	 *
-	 * NOTE: Domain transitions from unconfined and to stritly stacked
-	 * subsets are allowed even when no_new_privs is set because this
-	 * aways results in a further reduction of permissions.
-	 */
-	if ((bprm->unsafe & LSM_UNSAFE_NO_NEW_PRIVS) &&
-	    !profile_unconfined(profile) &&
-	    !aa_label_is_subset(onexec, &profile->label)) {
-		error = -EPERM;
-		info = "no new privs";
-		goto audit;
-	}
 
 	if (!(perms.xindex & AA_X_UNSAFE)) {
 		if (DEBUG_ON) {
@@ -785,7 +750,19 @@ int apparmor_bprm_set_creds(struct linux_binprm *bprm)
 		goto done;
 	}
 
-	/* TODO: Add ns level no_new_privs subset test */
+	/* Policy has specified a domain transitions. if no_new_privs and
+	 * confined and not transitioning to the current domain fail.
+	 *
+	 * NOTE: Domain transitions from unconfined and to stritly stacked
+	 * subsets are allowed even when no_new_privs is set because this
+	 * aways results in a further reduction of permissions.
+	 */
+	if ((bprm->unsafe & LSM_UNSAFE_NO_NEW_PRIVS) &&
+	    !unconfined(label) && !aa_label_is_subset(new, label)) {
+		error = -EPERM;
+		info = "no new privs";
+		goto audit;
+	}
 
 	if (bprm->unsafe & LSM_UNSAFE_SHARE) {
 		/* FIXME: currently don't mediate shared state */
@@ -1120,30 +1097,12 @@ static int change_profile_perms_wrapper(const char *op, const char *name,
 					struct aa_label *target, bool stack,
 					u32 request, struct aa_perms *perms)
 {
-	const char *info = NULL;
-	int error = 0;
-
-	/*
-	 * Fail explicitly requested domain transitions when no_new_privs
-	 * and not unconfined OR the transition results in a stack on
-	 * the current label.
-	 * Stacking domain transitions and transitions from unconfined are
-	 * allowed even when no_new_privs is set because this aways results
-	 * in a reduction of permissions.
-	 */
-	if (task_no_new_privs(current) && !stack &&
-	    !profile_unconfined(profile) &&
-	    !aa_label_is_subset(target, &profile->label)) {
-		info = "no new privs";
-		error = -EPERM;
-	}
-
-	if (!error)
-		error = change_profile_perms(profile, target, stack, request,
-					     profile->file.start, perms);
+	int error = change_profile_perms(profile, target,
+					 stack, request,
+					 profile->file.start, perms);
 	if (error)
 		error = aa_audit_file(profile, perms, op, request, name,
-				      NULL, target, GLOBAL_ROOT_UID, info,
+				      NULL, target, GLOBAL_ROOT_UID, NULL,
 				      error);
 
 	return error;
@@ -1221,6 +1180,21 @@ int aa_change_profile(const char *fqname, bool onexec,
 		}
 		target = &tprofile->label;
 		goto check;
+	}
+
+	/*
+	 * Fail explicitly requested domain transitions when no_new_privs
+	 * and not unconfined OR the transition results in a stack on
+	 * the current label.
+	 * Stacking domain transitions and transitions from unconfined are
+	 * allowed even when no_new_privs is set because this aways results
+	 * in a reduction of permissions.
+	 */
+	if (task_no_new_privs(current) && !stack && !unconfined(label) &&
+	    !aa_label_is_subset(target, label)) {
+		info = "no new privs";
+		error = -EPERM;
+		goto audit;
 	}
 
 	/* self directed transitions only apply to current policy ns */
