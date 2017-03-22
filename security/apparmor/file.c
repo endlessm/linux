@@ -536,23 +536,18 @@ static int __file_path_perm(const char *op, struct aa_label *label,
 	error = fn_for_each_not_in_set(flabel, label, profile,
 			profile_path_perm(op, profile, &file->f_path, buffer,
 					  request, &cond, flags, &perms));
-	if (denied && !error) {
+	if (denied) {
 		/* check every profile in file label that was not tested
 		 * in the initial check above.
 		 */
 		/* TODO: cache full perms so this only happens because of
 		 * conditionals */
 		/* TODO: don't audit here */
-		if (label == flabel)
-			error = fn_for_each(label, profile,
+		last_error(error,
+			fn_for_each_not_in_set(label, flabel, profile,
 				profile_path_perm(op, profile, &file->f_path,
 						  buffer, request, &cond, flags,
-						  &perms));
-		else
-			error = fn_for_each_not_in_set(label, flabel, profile,
-				profile_path_perm(op, profile, &file->f_path,
-						  buffer, request, &cond, flags,
-						  &perms));
+						  &perms)));
 	}
 	if (!error)
 		update_file_ctx(file_ctx(file), label, request);
