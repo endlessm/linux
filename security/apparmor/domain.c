@@ -496,7 +496,6 @@ static struct aa_label *profile_transition(struct aa_profile *profile,
 	const char *info = NULL, *name = NULL, *target = NULL;
 	unsigned int state = profile->file.start;
 	struct aa_perms perms = {};
-	bool nonewprivs = false;
 	int error = 0;
 
 	AA_BUG(!profile);
@@ -572,7 +571,8 @@ static struct aa_label *profile_transition(struct aa_profile *profile,
 	    !aa_label_is_subset(new, &profile->label)) {
 		error = -EPERM;
 		info = "no new privs";
-		nonewprivs = true;
+		aa_put_label(new);
+		new = NULL;
 		goto audit;
 	}
 
@@ -589,8 +589,9 @@ static struct aa_label *profile_transition(struct aa_profile *profile,
 audit:
 	aa_audit_file(profile, &perms, OP_EXEC, MAY_EXEC, name, target, new,
 		      cond->uid, info, error);
-	if (!new || nonewprivs) {
-		aa_put_label(new);
+	if (error) {
+		if (new)
+			aa_put_label(new);
 		return ERR_PTR(error);
 	}
 
