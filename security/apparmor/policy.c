@@ -350,7 +350,6 @@ name:
 	profile->label.flags |= FLAG_NULL;
 	if (hat)
 		profile->label.flags |= FLAG_HAT;
-	profile->path_flags = parent->path_flags;
 
 	/* released on free_profile */
 	rcu_assign_pointer(profile->parent, aa_get_profile(parent));
