@@ -1566,6 +1566,7 @@ static struct aa_fs_entry aa_fs_entry_dbus[] = {
 
 static struct aa_fs_entry aa_fs_entry_query_label[] = {
 	AA_FS_FILE_STRING("perms", "allow deny audit quiet"),
+	AA_FS_FILE_BOOLEAN("data",		1),
 	{ }
 };
 
