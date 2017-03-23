@@ -8591,13 +8591,13 @@ CONFIG_BUG_ON_DATA_CORRUPTION                   policy<{'amd64': 'n', 'arm64': '
 CONFIG_STRICT_DEVMEM                            policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'ppc64el': 'y', 's390x': 'y'}>
 CONFIG_IO_STRICT_DEVMEM                         policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'i386': 'n', 'ppc64el': 'n', 's390x': 'n'}>
 CONFIG_EARLY_PRINTK                             policy<{'amd64': 'y', 'i386': 'y', 'ppc64el': 'y'}>
-CONFIG_DEBUG_SET_MODULE_RONX                    policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 's390x': 'y'}>
+CONFIG_STRICT_MODULE_RWX                        policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 's390x': 'y'}>
 #
 CONFIG_PANIC_ON_OOPS                            note<keep working if at all possible>
 CONFIG_BUG_ON_DATA_CORRUPTION                   flag<REVIEW>
 CONFIG_STRICT_DEVMEM                            mark<ENFORCED>
-CONFIG_DEBUG_RODATA                             mark<ENFORCED>
-CONFIG_DEBUG_SET_MODULE_RONX                    mark<ENFORCED>
+CONFIG_STRICT_KERNEL_RWX                        mark<ENFORCED>
+CONFIG_STRICT_MODULE_RWX                        mark<ENFORCED>
 
 # Menu: Kernel hacking >> Architecture: arm
 CONFIG_ARM_PTDUMP                               policy<{'armhf': 'n'}>
@@ -10865,7 +10865,7 @@ CONFIG_MMU                                      policy<{'amd64': 'y', 'arm64': '
 CONFIG_ARM_LPAE                                 policy<{'armhf-generic': 'n', 'armhf-generic-lpae': 'y'}>
 CONFIG_KUSER_HELPERS                            policy<{'armhf': 'y'}>
 CONFIG_VDSO                                     policy<{'armhf': 'y'}>
-CONFIG_DEBUG_RODATA                             policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 's390x': 'y'}>
+CONFIG_STRICT_KERNEL_RWX                        policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 's390x': 'y'}>
 CONFIG_DEBUG_ALIGN_RODATA                       policy<{'arm64': 'n', 'armhf': 'y'}>
 #
 CONFIG_ARM_KERNMEM_PERMS                        flag<REVIEW>
