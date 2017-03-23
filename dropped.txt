@@ -1,8 +1,31 @@
-UBUNTU: SAUCE: Clear Linux: xor: skip benchmark/allocations for short-circuit path
-UBUNTU: SAUCE: Ibmvscsis: Code cleanup of print statements
-Revert "[SCSI] libiscsi: Reduce locking contention in fast path"
-UBUNTU: SAUCE: i2c: i801: Add support for Kaby Lake PCH-H
-UBUNTU: SAUCE: AUFS aufs4.x-rcN 20160912
-UBUNTU: SAUCE: suspicious unlocked ->status reading and writing in ipc/sem.c
-UBUNTU: SAUCE: (noup) ptrace: being capable wrt a process requires mapped uids/gids
-UBUNTU: SAUCE: Clear Linux: kvm: silence kvm unhandled rdmsr
+This is the list of patches/features which have been temporarily
+reverted or disabled for AA:
+
+All apparmor patches
+all namespace patches
+
+pick 562d218 UBUNTU: SAUCE: UEFI: Add secure_modules() call
+pick dc43f22 UBUNTU: SAUCE: UEFI: PCI: Lock down BAR access when module security is enabled
+pick e6540ba UBUNTU: SAUCE: UEFI: x86: Lock down IO port access when module security is enabled
+pick 3c2c82a UBUNTU: SAUCE: UEFI: ACPI: Limit access to custom_method
+pick 2b033c6 UBUNTU: SAUCE: UEFI: asus-wmi: Restrict debugfs interface when module loading is restricted
+pick 99f0760 UBUNTU: SAUCE: UEFI: Restrict /dev/mem and /dev/kmem when module loading is restricted
+pick 1b19d97 UBUNTU: SAUCE: UEFI: acpi: Ignore acpi_rsdp kernel parameter when module loading is restricted
+pick 4aaaeb2 UBUNTU: SAUCE: UEFI: kexec: Disable at runtime if the kernel enforces module loading restrictions
+pick 34c83a0 UBUNTU: SAUCE: UEFI: x86: Restrict MSR access when module loading is restricted
+pick 8c26f36 UBUNTU: SAUCE: UEFI: Add option to automatically enforce module signatures when in Secure Boot mode
+pick 6c2a2b4 UBUNTU: SAUCE: UEFI: efi: Disable secure boot if shim is in insecure mode
+pick 8f0fd62 UBUNTU: SAUCE: UEFI: efi: Add EFI_SECURE_BOOT bit
+pick d0dafc1 UBUNTU: SAUCE: UEFI: hibernate: Disable in a signed modules environment
+pick 3572a13 UBUNTU: SAUCE: UEFI: Add EFI signature data types
+pick 4ad036c8 UBUNTU: SAUCE: UEFI: Add an EFI signature blob parser and key loader.
+pick 16eb776 UBUNTU: SAUCE: UEFI: MODSIGN: Import certificates from UEFI Secure Boot
+pick 6179f40 UBUNTU: SAUCE: UEFI: MODSIGN: Support not importing certs from db
+pick 382359b UBUNTU: SAUCE: UEFI: kexec/uefi: copy secure_boot flag in boot params across kexec reboot
+pick 0242702 UBUNTU: SAUCE: UEFI: Display MOKSBState when disabled
+pick 3da7fb5 UBUNTU: SAUCE: UEFI: Add secure boot and MOK SB State disabled sysctl
+pick 177a18d UBUNTU: SAUCE: UEFI: KEYS: Add a system blacklist keyring
+UBUNTU: SAUCE: (no-up) include/linux/security.h -- fix syntax error with CONFIG_SECURITYFS=n
+UBUNTU: SAUCE: Return TCMU-generated sense data to fabric module
+UBUNTU: SAUCE: fan: add VXLAN implementation
+UBUNTU: SAUCE: nbd: Only delay uevent until connected
