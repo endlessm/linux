@@ -1564,6 +1564,15 @@ static struct aa_fs_entry aa_fs_entry_dbus[] = {
 	{ }
 };
 
+static struct aa_fs_entry aa_fs_entry_query_label[] = {
+	AA_FS_FILE_STRING("perms", "allow deny audit quiet"),
+	{ }
+};
+
+static struct aa_fs_entry aa_fs_entry_query[] = {
+	AA_FS_DIR("label",			aa_fs_entry_query_label),
+	{ }
+};
 static struct aa_fs_entry aa_fs_entry_features[] = {
 	AA_FS_DIR("policy",			aa_fs_entry_policy),
 	AA_FS_DIR("domain",			aa_fs_entry_domain),
@@ -1577,6 +1586,7 @@ static struct aa_fs_entry aa_fs_entry_features[] = {
 	AA_FS_DIR("ptrace",			aa_fs_entry_ptrace),
 	AA_FS_DIR("signal",			aa_fs_entry_signal),
 	AA_FS_DIR("dbus",			aa_fs_entry_dbus),
+	AA_FS_DIR("query",			aa_fs_entry_query),
 	{ }
 };
 
