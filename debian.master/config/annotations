@@ -9698,12 +9698,12 @@ CONFIG_INET_XFRM_MODE_TUNNEL                    policy<{'amd64': 'm', 'arm64': '
 CONFIG_INET_XFRM_MODE_BEET                      policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'ppc64el': 'm', 's390x': 'm'}>
 CONFIG_TCP_MD5SIG                               policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'ppc64el': 'y', 's390x': 'y'}>
 CONFIG_NETLABEL                                 policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'ppc64el': 'y', 's390x': 'y'}>
-CONFIG_NET_SWITCHDEV                            policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'n', 'i386': 'n', 'ppc64el': 'n', 's390x': 'n'}>
+CONFIG_NET_SWITCHDEV                            policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'ppc64el': 'y', 's390x': 'n'}>
 CONFIG_NET_L3_MASTER_DEV                        policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'ppc64el': 'y', 's390x': 'y'}>
 CONFIG_NET_NCSI                                 policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'ppc64el': 'y', 's390x': 'y'}>
 #
 CONFIG_SYN_COOKIES                              mark<ENFORCED>
-CONFIG_NET_SWITCHDEV				mark<ENFORCED> note<LP: #1628241>
+CONFIG_NET_SWITCHDEV				mark<ENFORCED> note<LP: #1628241, updated to 'y' for 4.11-rc3 except for s390x>
 
 # Menu: Networking support >> Networking options >> TCP/IP networking >> INET: socket monitoring interface
 CONFIG_INET_DIAG                                policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'ppc64el': 'm', 's390x': 'm'}>
