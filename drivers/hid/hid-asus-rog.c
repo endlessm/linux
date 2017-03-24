@@ -64,7 +64,7 @@ static int asus_rog_input_mapping(struct hid_device *hdev, struct hid_input *hi,
 		}
 	}
 
-	// For ASUS ZEN AIO customized wired keyboards
+	// For ASUS ZEN AIO customized wired/wireless keyboards
 	if ((usage->hid & HID_USAGE_PAGE) == HID_UP_MSVENDOR) {
 		set_bit(EV_REP, hi->input->evbit);
 		switch (usage->hid & HID_USAGE) {
@@ -88,7 +88,8 @@ static int asus_rog_input_mapping(struct hid_device *hdev, struct hid_input *hi,
 static const struct hid_device_id asus_rog_devices[] = {
 	{ HID_USB_DEVICE(USB_VENDOR_ID_ASUSTEK, USB_DEVICE_ID_ASUSTEK_ROG_MACROKEY1) },
 	{ HID_USB_DEVICE(USB_VENDOR_ID_ASUSTEK, USB_DEVICE_ID_ASUSTEK_ROG_MACROKEY2) },
-	{ HID_USB_DEVICE(USB_VENDOR_ID_JESS, USB_DEVICE_ID_ASUSTEK_ZEN_AIO_KBD) },
+	{ HID_USB_DEVICE(USB_VENDOR_ID_TURBOX, USB_DEVICE_ID_ASUSTEK_ZEN_AIO_KBD1) },
+	{ HID_USB_DEVICE(USB_VENDOR_ID_JESS, USB_DEVICE_ID_ASUSTEK_ZEN_AIO_KBD2) },
 	{ }
 };
 MODULE_DEVICE_TABLE(hid, asus_rog_devices);
