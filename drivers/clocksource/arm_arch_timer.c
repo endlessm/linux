@@ -505,6 +505,9 @@ static void arch_timer_check_ool_workaround(enum arch_timer_erratum_match_type t
 	case ate_match_acpi_oem_info:
 		match_fn = arch_timer_check_acpi_oem_erratum;
 		break;
+	default:
+		pr_err("arch_timer: Unknown erratum workaround type specified.\n");
+		return;
 	}
 
 	wa = arch_timer_iterate_errata(type, match_fn, arg);
