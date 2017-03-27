@@ -6,6 +6,11 @@ linux (4.11.0-0.1) UNRELEASED; urgency=low
 
   [ Upstream Kernel Changes ]
 
+  * rebase to v4.11-rc4
+    - LP: #1591053
+
+  [ Upstream Kernel Changes ]
+
   * rebase to v4.11-rc3
     - LP: #1630069
 
