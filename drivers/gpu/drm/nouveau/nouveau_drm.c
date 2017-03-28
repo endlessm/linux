@@ -1116,13 +1116,6 @@ static const struct dmi_system_id nouveau_modeset_0[] = {
 
 static const struct dmi_system_id nouveau_rpm_0[] = {
 	{
-		.ident = "ASUSTeK COMPUTER INC. X756UQK",
-		.matches = {
-			DMI_MATCH(DMI_SYS_VENDOR, "ASUSTeK COMPUTER INC."),
-			DMI_MATCH(DMI_PRODUCT_NAME, "X756UQK"),
-		},
-	},
-	{
 		.ident = "ASUSTeK COMPUTER INC. GL552VXK",
 		.matches = {
 			DMI_MATCH(DMI_SYS_VENDOR, "ASUSTeK COMPUTER INC."),
