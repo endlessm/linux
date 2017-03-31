@@ -5625,6 +5625,7 @@ CONFIG_SND_SOC_INTEL_BROADWELL_MACH             policy<{'amd64': 'm', 'i386': 'm
 CONFIG_SND_SOC_INTEL_BYTCR_RT5640_MACH          policy<{'amd64': 'm', 'i386': 'm'}>
 CONFIG_SND_SOC_INTEL_CHT_BSW_RT5672_MACH        policy<{'amd64': 'm', 'i386': 'm'}>
 CONFIG_SND_SOC_INTEL_CHT_BSW_RT5645_MACH        policy<{'amd64': 'm', 'i386': 'm'}>
+SND_SOC_INTEL_CHT_ES8316_MACH                   policy<{'amd64': 'm', 'i386': 'm'}>
 CONFIG_SND_SOC_INTEL_CHT_BSW_MAX98090_TI_MACH   policy<{'amd64': 'm', 'i386': 'm'}>
 CONFIG_SND_SOC_MEDIATEK                         policy<{'arm64': 'm', 'armhf': 'm'}>
 CONFIG_SND_SOC_MT8173_MAX98090                  policy<{'arm64': 'm', 'armhf': 'm'}>
