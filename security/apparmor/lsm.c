@@ -443,6 +443,9 @@ static int common_file_perm(const char *op, struct file *file, u32 mask)
 	struct aa_label *label;
 	int error = 0;
 
+	if (file->f_path.dentry == aa_null.dentry)
+		return -EACCES;
+
 	label = aa_begin_current_label(NO_UPDATE);
 	error = aa_file_perm(op, label, file, mask);
 	aa_end_current_label(label);
