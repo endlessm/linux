@@ -1104,11 +1104,13 @@ ssize_t aa_remove_profiles(struct aa_ns *view, struct aa_label *label,
 
 	/* don't fail removal if audit fails */
 	(void) audit_policy(label, OP_PROF_RM, ns_name, name, info, error);
+	aa_put_ns(ns);
 	aa_put_profile(profile);
 	return size;
 
 fail_ns_lock:
 	mutex_unlock(&ns->lock);
+	aa_put_ns(ns);
 
 fail:
 	(void) audit_policy(label, OP_PROF_RM, ns_name, name, info, error);
