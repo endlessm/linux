@@ -1,3 +1,194 @@
+linux (4.8.0-45.48) yakkety; urgency=low
+
+  * CVE-2017-7184
+    - xfrm_user: validate XFRM_MSG_NEWAE XFRMA_REPLAY_ESN_VAL replay_window
+    - xfrm_user: validate XFRM_MSG_NEWAE incoming ESN size harder
+
+ -- Stefan Bader <stefan.bader@canonical.com>  Fri, 24 Mar 2017 12:03:39 +0100
+
+linux (4.8.0-44.47) yakkety; urgency=low
+
+  * linux: 4.8.0-44.47 -proposed tracker (LP: #1674986)
+
+  * snaps with classic + jailmode confinement started to fail on zesty
+    (LP: #1666897)
+    - Revert "UBUNTU: SAUCE: apparmor: fix link auditing failure due to,
+      uninitialized var"
+    - Revert "UBUNTU: SAUCE: fix regression with domain change in complain mode"
+    - Revert "UBUNTU: SAUCE: apparmor: flock mediation is not being enforced on
+      cache check"
+    - Revert "UBUNTU: SAUCE: apparmor: null profiles should inherit parent control
+      flags"
+    - Revert "UBUNTU: SAUCE: apparmor: fix ns ref count link when removing
+      profiles from policy"
+    - Revert "UBUNTU: SAUCE: apparmor: Fix no_new_privs blocking change_onexec
+      when using stacked namespaces"
+    - Revert "UBUNTU: SAUCE: apparmor: fix oops in bind_mnt when dev_path lookup
+      fails"
+    - Revert "UBUNTU: SAUCE: apparmor: Don't audit denied access of special
+      apparmor .null file"
+    - Revert "UBUNTU: SAUCE: apparmor: fix label leak when new label is unused"
+    - Revert "UBUNTU: SAUCE: apparmor: fix reference count bug in
+      label_merge_insert()"
+    - Revert "UBUNTU: SAUCE: apparmor: fix replacement race in reading rawdata"
+    - Revert "UBUNTU: SAUCE: apparmor: fix cross ns perm of unix domain sockets"
+
+ -- Thadeu Lima de Souza Cascardo <cascardo@canonical.com>  Wed, 22 Mar 2017 10:22:27 -0300
+
+linux (4.8.0-42.45) yakkety; urgency=low
+
+  * linux: 4.8.0-42.45 -proposed tracker (LP: #1671176)
+
+  * Regression in 4.4.0-65-generic causes very frequent system crashes
+    (LP: #1669611)
+    - Revert "UBUNTU: SAUCE: apparmor: fix lock ordering for mkdir"
+    - Revert "UBUNTU: SAUCE: apparmor: fix leak on securityfs pin count"
+    - Revert "UBUNTU: SAUCE: apparmor: fix reference count leak when
+      securityfs_setup_d_inode() fails"
+    - Revert "UBUNTU: SAUCE: apparmor: fix not handling error case when
+      securityfs_pin_fs() fails"
+
+  * NFS client : permission denied when trying to access subshare, since kernel
+    4.4.0-31 (LP: #1649292)
+    - fs: Better permission checking for submounts
+
+  * shaking screen  (LP: #1651981)
+    - drm/radeon: drop verde dpm quirks
+
+  * [0bda:0328] Card reader failed after S3 (LP: #1664809)
+    - usb: hub: Wait for connection to be reestablished after port reset
+
+  * linux-lts-xenial 4.4.0-63.84~14.04.2 ADT test failure with linux-lts-xenial
+    4.4.0-63.84~14.04.2 (LP: #1664912)
+    - SAUCE: apparmor: fix link auditing failure due to, uninitialized var
+
+  * In Ubuntu 17.04 : after reboot getting message in console like Unable to
+    open file: /etc/keys/x509_ima.der (-2) (LP: #1656908)
+    - SAUCE: ima: Downgrade error to warning
+
+  * 16.04.2: Extra patches for POWER9 (LP: #1664564)
+    - powerpc/mm: Fix no execute fault handling on pre-POWER5
+    - powerpc/mm: Fix spurrious segfaults on radix with autonuma
+
+  * ibmvscsis: Add SGL LIMIT (LP: #1662551)
+    - ibmvscsis: Add SGL limit
+
+  * [Hyper-V] Bug fixes for storvsc (tagged queuing, error conditions)
+    (LP: #1663687)
+    - scsi: storvsc: Enable tracking of queue depth
+    - scsi: storvsc: Remove the restriction on max segment size
+    - scsi: storvsc: Enable multi-queue support
+    - scsi: storvsc: use tagged SRB requests if supported by the device
+    - scsi: storvsc: properly handle SRB_ERROR when sense message is present
+    - scsi: storvsc: properly set residual data length on errors
+
+  * Ubuntu16.10-KVM:Big configuration with multiple guests running SRIOV VFs
+    caused KVM host hung and all KVM guests down. (LP: #1651248)
+    - KVM: PPC: Book 3S: XICS cleanup: remove XICS_RM_REJECT
+    - KVM: PPC: Book 3S: XICS: correct the real mode ICP rejecting counter
+    - KVM: PPC: Book 3S: XICS: Fix potential issue with duplicate IRQ resends
+    - KVM: PPC: Book 3S: XICS: Implement ICS P/Q states
+    - KVM: PPC: Book 3S: XICS: Don't lock twice when checking for resend
+
+  * ISST-LTE:pNV: ppc64_cpu command is hung w HDs, SSDs and NVMe (LP: #1662666)
+    - blk-mq: Avoid memory reclaim when remapping queues
+    - blk-mq: Fix failed allocation path when mapping queues
+    - blk-mq: Always schedule hctx->next_cpu
+
+  * systemd-udevd hung in blk_mq_freeze_queue_wait testing unpartitioned NVMe
+    drive (LP: #1662673)
+    - percpu-refcount: fix reference leak during percpu-atomic transition
+
+  * [Yakkety SRU] Enable KEXEC support in ARM64 kernel (LP: #1662554)
+    - [Config] Enable KEXEC support in ARM64.
+
+  * [Hyper-V] Fix ring buffer handling to avoid host throttling (LP: #1661430)
+    - Drivers: hv: vmbus: On write cleanup the logic to interrupt the host
+    - Drivers: hv: vmbus: On the read path cleanup the logic to interrupt the host
+    - Drivers: hv: vmbus: finally fix hv_need_to_signal_on_read()
+
+  * brd module compiled as built-in (LP: #1593293)
+    - CONFIG_BLK_DEV_RAM=m
+
+  * regession tests failing after stackprofile test is run (LP: #1661030)
+    - SAUCE: fix regression with domain change in complain mode
+
+  * Permission denied and inconsistent behavior in complain mode with 'ip netns
+    list' command (LP: #1648903)
+    - SAUCE: fix regression with domain change in complain mode
+
+  * flock not mediated by 'k' (LP: #1658219)
+    - SAUCE: apparmor: flock mediation is not being enforced on cache check
+
+  * unexpected errno=13 and disconnected path when trying to open /proc/1/ns/mnt
+    from a unshared mount namespace (LP: #1656121)
+    - SAUCE: apparmor: null profiles should inherit parent control flags
+
+  * apparmor refcount leak of profile namespace when removing profiles
+    (LP: #1660849)
+    - SAUCE: apparmor: fix ns ref count link when removing profiles from policy
+
+  * tor in lxd: apparmor="DENIED" operation="change_onexec"
+    namespace="root//CONTAINERNAME_<var-lib-lxd>" profile="unconfined"
+    name="system_tor" (LP: #1648143)
+    - SAUCE: apparmor: Fix no_new_privs blocking change_onexec when using stacked
+      namespaces
+
+  * apparmor_parser hangs indefinitely when called by multiple threads
+    (LP: #1645037)
+    - SAUCE: apparmor: fix lock ordering for mkdir
+
+  * apparmor leaking securityfs pin count (LP: #1660846)
+    - SAUCE: apparmor: fix leak on securityfs pin count
+
+  * apparmor reference count leak when securityfs_setup_d_inode\ () fails
+    (LP: #1660845)
+    - SAUCE: apparmor: fix reference count leak when securityfs_setup_d_inode()
+      fails
+
+  * apparmor not checking error if security_pin_fs() fails (LP: #1660842)
+    - SAUCE: apparmor: fix not handling error case when securityfs_pin_fs() fails
+
+  * apparmor oops in bind_mnt when dev_path lookup fails (LP: #1660840)
+    - SAUCE: apparmor: fix oops in bind_mnt when dev_path lookup fails
+
+  * apparmor  auditing denied access of special apparmor .null fi\ le
+    (LP: #1660836)
+    - SAUCE: apparmor: Don't audit denied access of special apparmor .null file
+
+  * apparmor label leak when new label is unused (LP: #1660834)
+    - SAUCE: apparmor: fix label leak when new label is unused
+
+  * apparmor reference count bug in label_merge_insert() (LP: #1660833)
+    - SAUCE: apparmor: fix reference count bug in label_merge_insert()
+
+  * apparmor's raw_data file in securityfs is sometimes truncated (LP: #1638996)
+    - SAUCE: apparmor: fix replacement race in reading rawdata
+
+  * unix domain socket cross permission check failing with nested namespaces
+    (LP: #1660832)
+    - SAUCE: apparmor: fix cross ns perm of unix domain sockets
+
+  * Enable CONFIG_NET_DROP_MONITOR=m in Ubuntu Kernel (LP: #1660634)
+    - [Config] CONFIG_NET_DROP_MONITOR=m
+
+  * Linux kernel 4.8 hangs at boot up (LP: #1659340)
+    - SAUCE: x86/efi: Always map first physical page into EFI pagetables
+
+  * s390/kconfig: CONFIG_NUMA without CONFIG_NUMA_EMU does not make any sense on
+    s390x (LP: #1557690)
+    - [Config] CONFIG_NUMA_BALANCING=y
+    - [Config] CONFIG_NUMA=y, CONFIG_NUMA_EMU=y for s390x
+
+ -- Thadeu Lima de Souza Cascardo <cascardo@canonical.com>  Wed, 08 Mar 2017 14:37:04 -0300
+
+linux (4.8.0-41.44) yakkety; urgency=low
+
+  * CVE-2017-2636
+    - tty: n_hdlc: get rid of racy n_hdlc.tbuf
+
+ -- Stefan Bader <stefan.bader@canonical.com>  Fri, 03 Mar 2017 12:23:03 +0100
+
 linux (4.8.0-39.42) yakkety; urgency=low
 
   * CVE-2017-6074 (LP: #1665935)
