@@ -29,8 +29,8 @@ Priority: optional
 Provides: linux-image, fuse-module, =PROVIDES=${linux:rprovides}
 Depends: ${misc:Depends}, ${shlibs:Depends}, initramfs-tools | linux-initramfs-tool, kmod
 Recommends: BOOTLOADER
+Breaks: flash-kernel (<< 3.0~rc.4ubuntu64) [arm64]
 Suggests: fdutils, SRCPKGNAME-doc-PKGVER | SRCPKGNAME-source-PKGVER, SRCPKGNAME-tools, linux-headers-PKGVER-ABINUM-FLAVOUR
-Conflicts: flash-kernel (<< 3.0~rc.4ubuntu64) [arm64]
 Description: Linux kernel image for version PKGVER on DESC
  This package contains the Linux kernel image for version PKGVER on
  DESC.
