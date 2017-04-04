@@ -103,6 +103,30 @@ RTDECL(int) RTNetStrToIPv4AddrEx(const char *pcszAddr, PRTNETADDRIPV4 pAddr, cha
 RTDECL(int) RTNetStrToIPv4Addr(const char *pcszAddr, PRTNETADDRIPV4 pAddr);
 
 /**
+ * Verifies that RTNETADDRIPV4 is a valid contiguous netmask and
+ * computes its prefix length.
+ *
+ * @returns VINF_SUCCESS on success, VERR_INVALID_PARAMETER on
+ *          failure.
+ *
+ * @param   pMask           The netmask to verify and convert.
+ * @param   piPrefix        Where to store the prefix length. (Optional)
+ */
+RTDECL(int) RTNetMaskToPrefixIPv4(PCRTNETADDRIPV4 pMask, int *piPrefix);
+
+/**
+ * Computes netmask corresponding to the prefix length.
+ *
+ * @returns VINF_SUCCESS on success, VERR_INVALID_PARAMETER on
+ *          failure.
+ *
+ * @param   iPrefix         The prefix to convert.
+ * @param   pMask           Where to store the netmask.
+ */
+RTDECL(int) RTNetPrefixToMaskIPv4(int iPrefix, PRTNETADDRIPV4 pMask);
+
+
+/**
  * IPv6 address.
  */
 typedef RTUINT128U RTNETADDRIPV6;

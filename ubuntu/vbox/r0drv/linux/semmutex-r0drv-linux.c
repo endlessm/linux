@@ -206,7 +206,7 @@ static int rtSemMutexLinuxRequestSleep(PRTSEMMUTEXINTERNAL pThis, RTMSINTERVAL c
             break;
 
         /* Go to sleep. */
-        set_task_state(pSelf, fInterruptible ? TASK_INTERRUPTIBLE : TASK_UNINTERRUPTIBLE);
+        set_current_state(fInterruptible ? TASK_INTERRUPTIBLE : TASK_UNINTERRUPTIBLE);
         spin_unlock_irq(&pThis->Spinlock);
 
         lTimeout = schedule_timeout(lTimeout);

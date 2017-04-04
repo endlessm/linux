@@ -19,7 +19,7 @@ Build-Depends:
  pkg-config,
  flex,
  bison,
- libunwind8-dev [amd64 arm64 armhf i386 powerpc ppc64el],
+ libunwind8-dev [amd64 arm64 armhf i386 ppc64el],
  liblzma-dev,
  openssl,
  libssl-dev,
@@ -27,14 +27,12 @@ Build-Depends:
  bc,
  python-dev,
  gawk,
- device-tree-compiler [powerpc],
- u-boot-tools [powerpc],
- libc6-dev-ppc64 [powerpc],
  libudev-dev,
  autoconf,
  automake,
  libtool,
  uuid-dev,
+ binutils-dev,
 Build-Depends-Indep:
  xmlto,
  transfig,
@@ -45,7 +43,7 @@ Vcs-Git: git://git.launchpad.net/~ubuntu-kernel/ubuntu/+source/linux/+git/zesty
 XS-Testsuite: autopkgtest
 #XS-Testsuite-Depends: gcc-4.7 binutils
 
-Package: SRCPKGNAME-source-PKGVER
+Package: linux-source-PKGVER
 Architecture: all
 Section: devel
 Priority: optional
@@ -92,7 +90,7 @@ Description: Header files related to Linux kernel version PKGVER
  /usr/share/doc/SRCPKGNAME-headers-PKGVER-ABINUM/debian.README.gz for details
 
 Package: SRCPKGNAME-libc-dev
-Architecture: i386 amd64 armhf arm64 x32 powerpc ppc64el s390x
+Architecture: i386 amd64 armhf arm64 x32 ppc64el s390x
 Depends: ${misc:Depends}
 Conflicts: SRCPKGNAME-kernel-headers
 Replaces: SRCPKGNAME-kernel-headers
@@ -109,14 +107,14 @@ Architecture: all
 Multi-Arch: foreign
 Section: kernel
 Priority: optional
-Depends: ${misc:Depends}
+Depends: ${misc:Depends}, lsb-release
 Description: Linux kernel version specific tools for version PKGVER
  This package provides the architecture independent parts for kernel
  version locked tools (such as perf and x86_energy_perf_policy) for
  version PGKVER.
 
 Package: SRCPKGNAME-tools-PKGVER-ABINUM
-Architecture: i386 amd64 armhf arm64 powerpc ppc64el s390x
+Architecture: i386 amd64 armhf arm64 ppc64el s390x
 Section: devel
 Priority: optional
 Depends: ${misc:Depends}, ${shlibs:Depends}, linux-tools-common

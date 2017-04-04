@@ -67,6 +67,9 @@
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(3, 18, 0)
 # include <drm/drm_gem.h>
 #endif
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(4, 11, 0)
+# include <drm/drm_encoder.h>
+#endif
 
 /* #include "vboxvideo.h" */
 
@@ -143,7 +146,11 @@ struct vbox_private {
 #undef CURSOR_DATA_SIZE
 
 int vbox_driver_load(struct drm_device *dev, unsigned long flags);
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(4, 11, 0)
+void vbox_driver_unload(struct drm_device *dev);
+#else
 int vbox_driver_unload(struct drm_device *dev);
+#endif
 void vbox_driver_lastclose(struct drm_device *dev);
 
 struct vbox_gem_object;
@@ -312,6 +319,18 @@ static inline void vbox_bo_unreserve(struct vbox_bo *bo)
 void vbox_ttm_placement(struct vbox_bo *bo, int domain);
 int vbox_bo_push_sysram(struct vbox_bo *bo);
 int vbox_mmap(struct file *filp, struct vm_area_struct *vma);
+
+/*vbox_prime*/
+int vbox_gem_prime_pin(struct drm_gem_object *obj);
+void vbox_gem_prime_unpin(struct drm_gem_object *obj);
+struct sg_table *vbox_gem_prime_get_sg_table(struct drm_gem_object *obj);
+struct drm_gem_object *vbox_gem_prime_import_sg_table(
+        struct drm_device *dev, struct dma_buf_attachment *attach,
+        struct sg_table *table);
+void *vbox_gem_prime_vmap(struct drm_gem_object *obj);
+void vbox_gem_prime_vunmap(struct drm_gem_object *obj, void *vaddr);
+int vbox_gem_prime_mmap(struct drm_gem_object *obj,
+        struct vm_area_struct *area);
 
 /* vbox_irq.c */
 int vbox_irq_init(struct vbox_private *vbox);

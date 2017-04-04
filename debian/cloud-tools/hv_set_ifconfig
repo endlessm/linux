@@ -83,6 +83,7 @@ if not "HWADDR" in kvp :
 if not "DEVICE" in kvp :
     exit(1)
 
+autolist = []
 output=[]
 basename=kvp["DEVICE"]
 
@@ -98,11 +99,10 @@ dns_emitted = False
 # IPV4 may either be dhcp or static.
 if ("DHCP" in kvp and kvp["DHCP"] == "yes") or \
    ("BOOTPROTO" in kvp and kvp["BOOTPROTO"] == "dhcp"):
-    output += ["auto " + basename]
+    autolist.append(basename)
     output += ["iface " + basename  + " inet dhcp"]
     output += [""]
 else:
-    autolist = []
     # Matchup the interface specific lines
 
     # No real max for the number of interface + aliases ...
@@ -168,7 +168,8 @@ for if6_count in v6names:
         output += [""]
 
 # Mark this new interface for automatic up.
-output = ["auto "+" ".join(autolist)] + output
+if len(autolist):
+    output = ["auto "+" ".join(autolist)] + output
 
 print("===================================")
 print(output)
@@ -238,6 +239,9 @@ for line in flines:
                 newfile += [line.strip()]
     prev_line=line
 
+# Include pending stanza if any.
+if inastanza and not pitchstanza:
+    newfile.extend(stanza)
 
 
 def emit(line):

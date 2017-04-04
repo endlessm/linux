@@ -26,7 +26,7 @@ fi
 (
 	# Identify all new symlinks since the proffered tag.
 	echo "# Recreate any symlinks created since the orig."
-	git diff "$tag.." --raw | awk '(/^:000000 120000/ && $5 == "A") { print $NF }' | \
+	git diff "$tag.." --raw --no-renames | awk '(/^:000000 120000/ && $5 == "A") { print $NF }' | \
 	while read name
 	do
 		link=$( readlink "$name" )
@@ -36,7 +36,7 @@ fi
 
 	# Identify all removed files since the proffered tag.
 	echo "# Remove any files deleted from the orig."
-	git diff "$tag.." --raw | awk '(/^:/ && $5 == "D") { print $NF }' | \
+	git diff "$tag.." --raw --no-renames | awk '(/^:/ && $5 == "D") { print $NF }' | \
 	while read name
 	do
 		echo "rm -f '$name'"
@@ -49,7 +49,7 @@ fi
 (
 	# Identify all new symlinks since the proffered tag.
 	echo "# Ignore any symlinks created since the orig which are rebuilt by reconstruct."
-	git diff "$tag.." --raw | awk '(/^:000000 120000/ && $5 == "A") { print $NF }' | \
+	git diff "$tag.." --raw --no-renames | awk '(/^:000000 120000/ && $5 == "A") { print $NF }' | \
 	while read name
 	do
 		echo "extend-diff-ignore=$name"

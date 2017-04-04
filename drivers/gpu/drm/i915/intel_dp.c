@@ -2820,6 +2820,9 @@ static void vlv_detach_power_sequencer(struct intel_dp *intel_dp)
 	enum pipe pipe = intel_dp->pps_pipe;
 	i915_reg_t pp_on_reg = PP_ON_DELAYS(pipe);
 
+	if (WARN_ON(pipe != PIPE_A && pipe != PIPE_B))
+		return;
+
 	edp_panel_vdd_off_sync(intel_dp);
 
 	/*
@@ -2846,9 +2849,6 @@ static void vlv_steal_power_sequencer(struct drm_device *dev,
 	struct intel_encoder *encoder;
 
 	lockdep_assert_held(&dev_priv->pps_mutex);
-
-	if (WARN_ON(pipe != PIPE_A && pipe != PIPE_B))
-		return;
 
 	for_each_intel_encoder(dev, encoder) {
 		struct intel_dp *intel_dp;
@@ -4289,8 +4289,8 @@ static bool bxt_digital_port_connected(struct drm_i915_private *dev_priv,
  *
  * Return %true if @port is connected, %false otherwise.
  */
-static bool intel_digital_port_connected(struct drm_i915_private *dev_priv,
-					 struct intel_digital_port *port)
+bool intel_digital_port_connected(struct drm_i915_private *dev_priv,
+				  struct intel_digital_port *port)
 {
 	if (HAS_PCH_IBX(dev_priv))
 		return ibx_digital_port_connected(dev_priv, port);

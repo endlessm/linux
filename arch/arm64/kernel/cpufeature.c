@@ -654,15 +654,15 @@ static u64 __raw_read_system_reg(u32 sys_id)
 	case SYS_ID_ISAR2_EL1:		return read_cpuid(ID_ISAR2_EL1);
 	case SYS_ID_ISAR3_EL1:		return read_cpuid(ID_ISAR3_EL1);
 	case SYS_ID_ISAR4_EL1:		return read_cpuid(ID_ISAR4_EL1);
-	case SYS_ID_ISAR5_EL1:		return read_cpuid(ID_ISAR4_EL1);
+	case SYS_ID_ISAR5_EL1:		return read_cpuid(ID_ISAR5_EL1);
 	case SYS_MVFR0_EL1:		return read_cpuid(MVFR0_EL1);
 	case SYS_MVFR1_EL1:		return read_cpuid(MVFR1_EL1);
 	case SYS_MVFR2_EL1:		return read_cpuid(MVFR2_EL1);
 
 	case SYS_ID_AA64PFR0_EL1:	return read_cpuid(ID_AA64PFR0_EL1);
-	case SYS_ID_AA64PFR1_EL1:	return read_cpuid(ID_AA64PFR0_EL1);
+	case SYS_ID_AA64PFR1_EL1:	return read_cpuid(ID_AA64PFR1_EL1);
 	case SYS_ID_AA64DFR0_EL1:	return read_cpuid(ID_AA64DFR0_EL1);
-	case SYS_ID_AA64DFR1_EL1:	return read_cpuid(ID_AA64DFR0_EL1);
+	case SYS_ID_AA64DFR1_EL1:	return read_cpuid(ID_AA64DFR1_EL1);
 	case SYS_ID_AA64MMFR0_EL1:	return read_cpuid(ID_AA64MMFR0_EL1);
 	case SYS_ID_AA64MMFR1_EL1:	return read_cpuid(ID_AA64MMFR1_EL1);
 	case SYS_ID_AA64MMFR2_EL1:	return read_cpuid(ID_AA64MMFR2_EL1);
@@ -720,13 +720,11 @@ static bool has_useable_gicv3_cpuif(const struct arm64_cpu_capabilities *entry, 
 static bool has_no_hw_prefetch(const struct arm64_cpu_capabilities *entry, int __unused)
 {
 	u32 midr = read_cpuid_id();
-	u32 rv_min, rv_max;
 
 	/* Cavium ThunderX pass 1.x and 2.x */
-	rv_min = 0;
-	rv_max = (1 << MIDR_VARIANT_SHIFT) | MIDR_REVISION_MASK;
-
-	return MIDR_IS_CPU_MODEL_RANGE(midr, MIDR_THUNDERX, rv_min, rv_max);
+	return MIDR_IS_CPU_MODEL_RANGE(midr, MIDR_THUNDERX,
+		MIDR_CPU_VAR_REV(0, 0),
+		MIDR_CPU_VAR_REV(1, MIDR_REVISION_MASK));
 }
 
 static bool runs_at_el2(const struct arm64_cpu_capabilities *entry, int __unused)

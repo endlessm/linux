@@ -15,14 +15,13 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <linux/acpi.h>
+#include <linux/acpi_iort.h>
 #include <linux/bitmap.h>
 #include <linux/cpu.h>
 #include <linux/delay.h>
 #include <linux/dma-iommu.h>
 #include <linux/interrupt.h>
 #include <linux/irqdomain.h>
-#include <linux/acpi_iort.h>
 #include <linux/log2.h>
 #include <linux/mm.h>
 #include <linux/msi.h>
@@ -960,7 +959,7 @@ static bool its_parse_baser_device(struct its_node *its, struct its_baser *baser
 				   u32 psz, u32 *order)
 {
 	u64 esz = GITS_BASER_ENTRY_SIZE(its_read_baser(its, baser));
-	u64 val = GITS_BASER_InnerShareable | GITS_BASER_WaWb;
+	u64 val = GITS_BASER_InnerShareable | GITS_BASER_RaWaWb;
 	u32 ids = its->device_ids;
 	u32 new_order = *order;
 	bool indirect = false;
@@ -1025,7 +1024,7 @@ static int its_alloc_tables(struct its_node *its)
 	u64 typer = gic_read_typer(its->base + GITS_TYPER);
 	u32 ids = GITS_TYPER_DEVBITS(typer);
 	u64 shr = GITS_BASER_InnerShareable;
-	u64 cache = GITS_BASER_WaWb;
+	u64 cache = GITS_BASER_RaWaWb;
 	u32 psz = SZ_64K;
 	int err, i;
 
@@ -1122,7 +1121,7 @@ static void its_cpu_init_lpis(void)
 	/* set PROPBASE */
 	val = (page_to_phys(gic_rdists->prop_page) |
 	       GICR_PROPBASER_InnerShareable |
-	       GICR_PROPBASER_WaWb |
+	       GICR_PROPBASER_RaWaWb |
 	       ((LPI_NRBITS - 1) & GICR_PROPBASER_IDBITS_MASK));
 
 	gicr_write_propbaser(val, rbase + GICR_PROPBASER);
@@ -1147,7 +1146,7 @@ static void its_cpu_init_lpis(void)
 	/* set PENDBASE */
 	val = (page_to_phys(pend_page) |
 	       GICR_PENDBASER_InnerShareable |
-	       GICR_PENDBASER_WaWb);
+	       GICR_PENDBASER_RaWaWb);
 
 	gicr_write_pendbaser(val, rbase + GICR_PENDBASER);
 	tmp = gicr_read_pendbaser(rbase + GICR_PENDBASER);
@@ -1597,6 +1596,14 @@ static void __maybe_unused its_enable_quirk_cavium_23144(void *data)
 	its->flags |= ITS_FLAGS_WORKAROUND_CAVIUM_23144;
 }
 
+static void __maybe_unused its_enable_quirk_qdf2400_e0065(void *data)
+{
+	struct its_node *its = data;
+
+	/* On QDF2400, the size of the ITE is 16Bytes */
+	its->ite_size = 16;
+}
+
 static const struct gic_quirk its_quirks[] = {
 #ifdef CONFIG_CAVIUM_ERRATUM_22375
 	{
@@ -1612,6 +1619,14 @@ static const struct gic_quirk its_quirks[] = {
 		.iidr	= 0xa100034c,	/* ThunderX pass 1.x */
 		.mask	= 0xffff0fff,
 		.init	= its_enable_quirk_cavium_23144,
+	},
+#endif
+#ifdef CONFIG_QCOM_QDF2400_ERRATUM_0065
+	{
+		.desc	= "ITS: QDF2400 erratum 0065",
+		.iidr	= 0x00001070, /* QDF2400 ITS rev 1.x */
+		.mask	= 0xffffffff,
+		.init	= its_enable_quirk_qdf2400_e0065,
 	},
 #endif
 	{
@@ -1712,7 +1727,7 @@ static int __init its_probe_one(struct resource *res,
 		goto out_free_tables;
 
 	baser = (virt_to_phys(its->cmd_base)	|
-		 GITS_CBASER_WaWb		|
+		 GITS_CBASER_RaWaWb		|
 		 GITS_CBASER_InnerShareable	|
 		 (ITS_CMD_QUEUE_SZ / SZ_4K - 1)	|
 		 GITS_CBASER_VALID);

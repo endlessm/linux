@@ -444,7 +444,9 @@ static int sf_reg_release(struct inode *inode, struct file *file)
     return 0;
 }
 
-#if LINUX_VERSION_CODE > KERNEL_VERSION(2, 6, 25)
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(4, 11, 0)
+static int sf_reg_fault(struct vm_fault *vmf)
+#elif LINUX_VERSION_CODE > KERNEL_VERSION(2, 6, 25)
 static int sf_reg_fault(struct vm_area_struct *vma, struct vm_fault *vmf)
 #elif LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 0)
 static struct page *sf_reg_nopage(struct vm_area_struct *vma, unsigned long vaddr, int *type)
@@ -459,6 +461,9 @@ static struct page *sf_reg_nopage(struct vm_area_struct *vma, unsigned long vadd
     loff_t off;
     uint32_t nread = PAGE_SIZE;
     int err;
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(4, 11, 0)
+    struct vm_area_struct *vma = vmf->vma;
+#endif
     struct file *file = vma->vm_file;
     struct inode *inode = GET_F_DENTRY(file)->d_inode;
     struct sf_glob_info *sf_g = GET_GLOB_INFO(inode->i_sb);
@@ -539,7 +544,7 @@ static struct vm_operations_struct sf_vma_ops =
 #if LINUX_VERSION_CODE > KERNEL_VERSION(2, 6, 25)
     .fault = sf_reg_fault
 #else
-     .nopage = sf_reg_nopage
+    .nopage = sf_reg_nopage
 #endif
 };
 

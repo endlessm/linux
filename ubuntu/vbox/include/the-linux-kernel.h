@@ -103,6 +103,10 @@
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(3, 9, 0)
 # include <linux/sched/rt.h>
 #endif
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(4, 11, 0)
+# include <linux/sched/signal.h>
+# include <linux/sched/types.h>
+#endif
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 7)
 # include <linux/jiffies.h>
 #endif

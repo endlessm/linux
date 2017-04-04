@@ -3872,7 +3872,7 @@ DECLINLINE(void) ASMMemFill32(volatile void *pv, size_t cb, uint32_t u32)
  *
  * @todo Fix name, it is a predicate function but it's not returning boolean!
  */
-#if !defined(RT_OS_LINUX) || !defined(__KERNEL__)
+#if !defined(RDESKTOP) && (!defined(RT_OS_LINUX) || !defined(__KERNEL__))
 DECLASM(void *) ASMMemFirstNonZero(void const *pv, size_t cb);
 #else
 DECLINLINE(void *) ASMMemFirstNonZero(void const *pv, size_t cb)

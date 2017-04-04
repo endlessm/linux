@@ -11,4 +11,5 @@ xhci-hcd ?
 xhci-plat-hcd ?
 ehci-tegra ?
 ehci-msm ?
+ehci-platform ?
 uas ?
