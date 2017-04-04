@@ -1,3 +1,14 @@
+linux (4.8.0-46.49) yakkety; urgency=low
+
+  * linux: 4.8.0-46.49 -proposed tracker (LP: #1678046)
+
+  * Fix CVE-2017-7308 (LP: #1678009)
+    - net/packet: fix overflow in check for priv area size
+    - net/packet: fix overflow in check for tp_frame_nr
+    - net/packet: fix overflow in check for tp_reserve
+
+ -- Stefan Bader <stefan.bader@canonical.com>  Fri, 31 Mar 2017 09:13:32 +0200
+
 linux (4.8.0-45.48) yakkety; urgency=low
 
   * CVE-2017-7184
