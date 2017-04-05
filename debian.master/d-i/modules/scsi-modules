@@ -132,3 +132,5 @@ scsi_dh_alua ?
 scsi_dh_emc ?
 scsi_dh_rdac ?
 scsi_dh_hp_sw ?
+
+smartpqi ?
