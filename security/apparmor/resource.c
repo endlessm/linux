@@ -116,7 +116,7 @@ int aa_task_setrlimit(struct aa_label *label, struct task_struct *task,
 	    !aa_capable(label, CAP_SYS_RESOURCE, SECURITY_CAP_NOAUDIT))
 		error = fn_for_each(label, profile,
 				audit_resource(profile, resource,
-					       new_rlim->rlim_max, EACCES));
+					       new_rlim->rlim_max, -EACCES));
 	else
 		error = fn_for_each_confined(label, profile,
 				profile_setrlimit(profile, resource, new_rlim));
