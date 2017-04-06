@@ -133,6 +133,10 @@ struct apparmor_audit_data {
 					int addrlen;
 				} net;
 				int signal;
+				struct {
+					int rlim;
+					unsigned long max;
+				} rlim;
 			};
 		};
 		struct {
@@ -140,10 +144,6 @@ struct apparmor_audit_data {
 			const char *ns;
 			long pos;
 		} iface;
-		struct {
-			int rlim;
-			unsigned long max;
-		} rlim;
 		struct {
 			const char *src_name;
 			const char *type;

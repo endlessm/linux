@@ -36,6 +36,11 @@ static void audit_cb(struct audit_buffer *ab, void *va)
 
 	audit_log_format(ab, " rlimit=%s value=%lu",
 			 rlim_names[aad(sa)->rlim.rlim], aad(sa)->rlim.max);
+	if (aad(sa)->peer) {
+		audit_log_format(ab, " peer=");
+		aa_label_xaudit(ab, labels_ns(aad(sa)->label), aad(sa)->peer,
+				FLAGS_NONE, GFP_ATOMIC);
+	}
 }
 
 /**
@@ -48,13 +53,17 @@ static void audit_cb(struct audit_buffer *ab, void *va)
  * Returns: 0 or sa->error else other error code on failure
  */
 static int audit_resource(struct aa_profile *profile, unsigned int resource,
-			  unsigned long value, int error)
+			  unsigned long value, struct aa_label *peer,
+			  const char *info, int error)
 {
 	DEFINE_AUDIT_DATA(sa, LSM_AUDIT_DATA_NONE, OP_SETRLIMIT);
 
 	aad(&sa)->rlim.rlim = resource;
 	aad(&sa)->rlim.max = value;
+	aad(&sa)->peer = peer;
+	aad(&sa)->info = info;
 	aad(&sa)->error = error;
+
 	return aa_audit(AUDIT_APPARMOR_AUTO, profile, &sa, audit_cb);
 }
 
@@ -80,7 +89,8 @@ static int profile_setrlimit(struct aa_profile *profile, unsigned int resource,
 	if (profile->rlimits.mask & (1 << resource) && new_rlim->rlim_max >
 	    profile->rlimits.limits[resource].rlim_max)
 		e = -EACCES;
-	return audit_resource(profile, resource, new_rlim->rlim_max, e);
+	return audit_resource(profile, resource, new_rlim->rlim_max, NULL, NULL,
+			      e);
 }
 
 /**
@@ -116,7 +126,8 @@ int aa_task_setrlimit(struct aa_label *label, struct task_struct *task,
 	    !aa_capable(label, CAP_SYS_RESOURCE, SECURITY_CAP_NOAUDIT))
 		error = fn_for_each(label, profile,
 				audit_resource(profile, resource,
-					       new_rlim->rlim_max, -EACCES));
+					       new_rlim->rlim_max, peer,
+					       "cap_sys_resoure", -EACCES));
 	else
 		error = fn_for_each_confined(label, profile,
 				profile_setrlimit(profile, resource, new_rlim));
