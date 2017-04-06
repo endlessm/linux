@@ -10652,12 +10652,13 @@ CONFIG_IMA_SIG_TEMPLATE                         note<LP:1643652>
 CONFIG_SECURITY_SELINUX                         policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'ppc64el': 'y', 's390x': 'y'}>
 CONFIG_SECURITY_SELINUX_BOOTPARAM               policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'ppc64el': 'y', 's390x': 'n'}>
 CONFIG_SECURITY_SELINUX_BOOTPARAM_VALUE         policy<{'amd64': '0', 'arm64': '0', 'armhf': '0', 'i386': '0', 'ppc64el': '0'}>
-CONFIG_SECURITY_SELINUX_DISABLE                 policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'ppc64el': 'y', 's390x': 'n'}>
+CONFIG_SECURITY_SELINUX_DISABLE                 policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'i386': 'n', 'ppc64el': 'n', 's390x': 'n'}>
 CONFIG_SECURITY_SELINUX_DEVELOP                 policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'ppc64el': 'y', 's390x': 'y'}>
 CONFIG_SECURITY_SELINUX_AVC_STATS               policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'ppc64el': 'y', 's390x': 'y'}>
 CONFIG_SECURITY_SELINUX_CHECKREQPROT_VALUE      policy<{'amd64': '1', 'arm64': '1', 'armhf': '1', 'i386': '1', 'ppc64el': '1', 's390x': '1'}>
 #
 CONFIG_SECURITY_SELINUX                         mark<ENFORCED>
+CONFIG_SECURITY_SELINUX_DISABLE                 mark<ENFORCED>note<LP#1680315>
 
 # Menu: Security options >> Enable different security models >> Simplified Mandatory Access Control Kernel Support
 CONFIG_SECURITY_SMACK                           policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'ppc64el': 'y', 's390x': 'y'}>
