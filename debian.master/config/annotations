@@ -630,7 +630,7 @@ CONFIG_HVC_RTAS                                 policy<{'ppc64el': 'y'}>
 CONFIG_HVC_IUCV                                 policy<{'s390x': 'y'}>
 CONFIG_HVC_XEN                                  policy<{'amd64': 'y', 'arm64': 'y', 'i386': 'y'}>
 CONFIG_HVC_XEN_FRONTEND                         policy<{'amd64': 'y', 'arm64': 'y', 'i386': 'y'}>
-CONFIG_HVC_UDBG                                 policy<{'ppc64el': 'y'}>
+CONFIG_HVC_UDBG                                 policy<{'ppc64el': 'n'}>
 CONFIG_HVC_DCC                                  policy<{'arm64': 'n', 'armhf': 'n'}>
 CONFIG_HVCS                                     policy<{'ppc64el': 'm'}>
 CONFIG_VIRTIO_CONSOLE                           policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'ppc64el': 'y', 's390x': 'y'}>
@@ -11118,3 +11118,5 @@ CONFIG_QCOM_QDF2400_ERRATUM_0065		policy<{'arm64': 'y'}>
 CONFIG_ARM64_ERRATUM_843419			mark<ENFORCED> note<LP#1647793>
 CONFIG_ARM64_ERRATUM_858921			mark<ENFORCED> note<LP#1675509>
 CONFIG_QCOM_QDF2400_ERRATUM_0065		mark<ENFORCED> note<LP#1672486>
+#
+CONFIG_HVC_UDBG				mark<ENFORCED> note<LP#1680888>
