@@ -1,3 +1,4 @@
+#include <linux/vmalloc.h>
 #include "amcr_stor.h"
 
 
