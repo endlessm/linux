@@ -388,7 +388,7 @@ int sd_scsi_read_write_plus(struct scsi_cmnd *srb, struct _DEVICE_EXTENSION *pdx
 {
 	struct sd_host			*sd		= pdx->sd;
 	struct sd_command	cmd;
-	struct sd_data		data;
+	struct ampe_sd_data		data;
 	int		err;
 	u32		send_cmd = TRUE;
 
@@ -398,7 +398,7 @@ int sd_scsi_read_write_plus(struct scsi_cmnd *srb, struct _DEVICE_EXTENSION *pdx
 
 
 	memset(&cmd,  0, sizeof(struct sd_command));
-	memset(&data, 0, sizeof(struct sd_data));
+	memset(&data, 0, sizeof(struct ampe_sd_data));
 
 
 	/* initialize cmd parameters */
@@ -541,7 +541,7 @@ int sd_scsi_read_write(struct scsi_cmnd *srb, struct _DEVICE_EXTENSION *pdx, u32
 	struct sd_host			*sd		= pdx->sd;
 	struct sd_request	srq;
 	struct sd_command	cmd;
-	struct sd_data		data;
+	struct ampe_sd_data		data;
 	struct sd_command	stop;
 	int		err;
 
@@ -562,7 +562,7 @@ int sd_scsi_read_write(struct scsi_cmnd *srb, struct _DEVICE_EXTENSION *pdx, u32
 
 	memset(&srq,  0, sizeof(struct sd_request));
 	memset(&cmd,  0, sizeof(struct sd_command));
-	memset(&data, 0, sizeof(struct sd_data));
+	memset(&data, 0, sizeof(struct ampe_sd_data));
 	memset(&stop, 0, sizeof(struct sd_command));
 
 	TRACE1(("============================="));
@@ -680,7 +680,7 @@ void __________sd_irq__________(void)
 /*************************************************************************************************/
 void sd_transfer_pio_read(struct sd_host *sd)
 {
-	struct	sd_data		*data	= sd->data;
+	struct	ampe_sd_data		*data	= sd->data;
 
 	TRACE(("sdhci_pio_read_block ===>"));
 
@@ -773,7 +773,7 @@ void sd_transfer_pio_read(struct sd_host *sd)
 /*************************************************************************************************/
 void sd_transfer_pio_write(struct sd_host *sd)
 {
-	struct	sd_data		*data	= sd->data;
+	struct	ampe_sd_data		*data	= sd->data;
 	int blksize;
 	u32 value, chunk_remain;
 	u8 *buffer;
@@ -855,7 +855,7 @@ void sd_transfer_pio_write(struct sd_host *sd)
 }
 
 /*************************************************************************************************/
-void sd_transfer_data(struct sd_host *sd, struct sd_data *data)
+void sd_transfer_data(struct sd_host *sd, struct ampe_sd_data *data)
 {
 	u32 xfer_length;
 	u8 xfer_ctrl;
@@ -898,7 +898,7 @@ void sd_transfer_data(struct sd_host *sd, struct sd_data *data)
 /*************************************************************************************************/
 void sd_finish_data(struct sd_host *sd)
 {
-	struct sd_data *data;
+	struct ampe_sd_data *data;
 
 	TRACE(("sd_finish_data ===>"));
 
@@ -939,7 +939,7 @@ void sd_finish_data(struct sd_host *sd)
 }
 
 /*************************************************************************************************/
-void sd_prepare_data(struct sd_host *sd, struct sd_data *data)
+void sd_prepare_data(struct sd_host *sd, struct ampe_sd_data *data)
 {
 
 	TRACE(("sd_prepare_data ===>"));
@@ -1164,7 +1164,7 @@ void sdhci_irq_cmd(struct sd_host *sd, u32 intmask)
 /*************************************************************************************************/
 void sdhci_irq_data(struct sd_host *sd, u32 intmask)
 {
-	struct sd_data *data;
+	struct ampe_sd_data *data;
 
 	TRACE(("sdhci_irq_data ===>, intmask: %x", intmask));
 
@@ -1636,7 +1636,7 @@ void __________sd_card_command__________(void)
 }
 
 /*************************************************************************************************/
-int sd_wait_for_data(struct sd_host *sd, struct sd_data *data)
+int sd_wait_for_data(struct sd_host *sd, struct ampe_sd_data *data)
 {
 	struct sd_request srq;
 
@@ -2503,14 +2503,14 @@ int sd_send_cxd_data(struct sd_host *sd, u32 opcode, void *buf, u32 len)
 {
 	struct sd_request srq;
 	struct sd_command cmd;
-	struct sd_data data;
+	struct ampe_sd_data data;
 
 	TRACE2(("============================"));
 	TRACE2(("sd_send_cxd_data ===>"));
 
 	memset(&srq, 0, sizeof(struct sd_request));
 	memset(&cmd, 0, sizeof(struct sd_command));
-	memset(&data, 0, sizeof(struct sd_data));
+	memset(&data, 0, sizeof(struct ampe_sd_data));
 
 	srq.cmd		= &cmd;
 	srq.data	= &data;
@@ -2780,7 +2780,7 @@ int sd_app_send_scr(struct sd_host *sd)
 	struct sd_scr	*scr	= &scard->scr;
 	struct sd_request	srq;
 	struct sd_command	cmd;
-	struct sd_data		data;
+	struct ampe_sd_data		data;
 	u32 scr_struct;
 	u8 buf[8];
 	int err;
@@ -2796,7 +2796,7 @@ int sd_app_send_scr(struct sd_host *sd)
 
 	memset(&srq, 0, sizeof(struct sd_request));
 	memset(&cmd, 0, sizeof(struct sd_command));
-	memset(&data, 0, sizeof(struct sd_data));
+	memset(&data, 0, sizeof(struct ampe_sd_data));
 
 	srq.cmd		= &cmd;
 	srq.data	= &data;
@@ -2845,7 +2845,7 @@ int sd_app_send_status(struct sd_host *sd)
 	struct sd_card	*scard	= &sd->scard;
 	struct sd_request	srq;
 	struct sd_command	cmd;
-	struct sd_data		data;
+	struct ampe_sd_data		data;
 	u8 buf[64];
 	int err;
 
@@ -2860,7 +2860,7 @@ int sd_app_send_status(struct sd_host *sd)
 
 	memset(&srq, 0, sizeof(struct sd_request));
 	memset(&cmd, 0, sizeof(struct sd_command));
-	memset(&data, 0, sizeof(struct sd_data));
+	memset(&data, 0, sizeof(struct ampe_sd_data));
 
 	srq.cmd		= &cmd;
 
@@ -2897,7 +2897,7 @@ int sd_sd_switch(struct sd_host *sd, int mode, int group, u8 value, u8 *resp)
 {
 	struct sd_request srq;
 	struct sd_command cmd;
-	struct sd_data data;
+	struct ampe_sd_data data;
 
 	TRACE2(("==========================="));
 	TRACE2(("sd_sd_switch ===>, mode: %x, group: %x, value: %x", mode, group, value));
@@ -2907,7 +2907,7 @@ int sd_sd_switch(struct sd_host *sd, int mode, int group, u8 value, u8 *resp)
 
 	memset(&srq, 0, sizeof(struct sd_request));
 	memset(&cmd, 0, sizeof(struct sd_command));
-	memset(&data, 0, sizeof(struct sd_data));
+	memset(&data, 0, sizeof(struct ampe_sd_data));
 
 	srq.cmd = &cmd;
 	srq.data = &data;
@@ -3257,7 +3257,7 @@ int sd_mmc_check_bus(struct sd_host *sd)
 {
 	struct sd_request srq;
 	struct sd_command cmd;
-	struct sd_data data;
+	struct ampe_sd_data data;
 	u8 buf[SECTOR_SIZE];
 	int err;
 	u8 bus_mode, bus_width;
@@ -3270,7 +3270,7 @@ int sd_mmc_check_bus(struct sd_host *sd)
 
 	memset(&srq, 0, sizeof(struct sd_request));
 	memset(&cmd, 0, sizeof(struct sd_command));
-	memset(&data, 0, sizeof(struct sd_data));
+	memset(&data, 0, sizeof(struct ampe_sd_data));
 
 	memset(buf, 0, sizeof(buf));
 	buf[0] = 0x55;
@@ -3435,7 +3435,7 @@ int sd30_tuning_cmd(struct sd_host *sd)
 {
 	struct sd_request	srq;
 	struct sd_command	cmd;
-	struct sd_data		data;
+	struct ampe_sd_data		data;
 	u8 buf[TUNING_BLOCK_SIZE], i;
 
 	TRACE2(("=================================================="));
@@ -3444,7 +3444,7 @@ int sd30_tuning_cmd(struct sd_host *sd)
 
 	memset(&srq, 0, sizeof(struct sd_request));
 	memset(&cmd, 0, sizeof(struct sd_command));
-	memset(&data, 0, sizeof(struct sd_data));
+	memset(&data, 0, sizeof(struct ampe_sd_data));
 
 	srq.cmd		= &cmd;
 	srq.data	= &data;
