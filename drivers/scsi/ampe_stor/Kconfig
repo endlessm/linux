@@ -1,0 +1,5 @@
+config SCSI_AMPE_STOR
+	tristate "Alcor Micro AU6601/AU6621 card reader"
+	depends on PCI
+	---help---
+	  This driver supports Alcor Micro card readers
