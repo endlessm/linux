@@ -585,7 +585,6 @@ int msi_pro_stop(struct ms_host *ms);
 
 int msi_check_free_block_count(struct ms_host *ms, u16 segment);
 
-void ms_tasklet_timeout(unsigned long parm);
 void ms_set_timer(struct ms_host *ms);
 
 /*************************************************************************************************/
