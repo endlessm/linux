@@ -578,7 +578,7 @@ struct sd_command {
 };
 
 /***********************************************/
-struct sd_data {
+struct ampe_sd_data {
 /***********************************************/
 
 	u32		blksz;			/* data block size */
@@ -613,7 +613,7 @@ struct sd_request {
 /***********************************************/
 
 	struct sd_command	*cmd;
-	struct sd_data		*data;
+	struct ampe_sd_data		*data;
 	struct sd_command	*stop;
 
 	void			*done_data;	/* completion data */
@@ -658,7 +658,7 @@ struct sd_host {
 
 	struct sd_request	*srq;		/* Current request */
 	struct sd_command	*cmd;		/* Current command */
-	struct sd_data		*data;		/* Current data request */
+	struct ampe_sd_data		*data;		/* Current data request */
 	struct sd_command	*stop;		/* Current stop command */
 
 	u32		clock;		/* Current clock (MHz) */
@@ -748,7 +748,7 @@ int sd_stop_last_cmd(struct sd_host	*sd);
 
 int sd_scsi_read_write(struct scsi_cmnd *srb, struct _DEVICE_EXTENSION *pdx, u32 lba, u32 lba_len);
 
-void sd_prepare_data(struct sd_host *sd, struct sd_data *data);
+void sd_prepare_data(struct sd_host *sd, struct ampe_sd_data *data);
 
 void sd_dumpregs(struct sd_host *sd);
 int  sd_card_active_ctrl(struct sd_host *sd, u8 active);
@@ -756,7 +756,7 @@ void sd_reset(struct sd_host *sd);
 void sd_init_int(struct sd_host *sd);
 void sd_transfer_pio_read(struct sd_host *sd);
 void sd_transfer_pio_write(struct sd_host *sd);
-void sd_transfer_data(struct sd_host *sd, struct sd_data *data);
+void sd_transfer_data(struct sd_host *sd, struct ampe_sd_data *data);
 void sd_finish_data(struct sd_host *sd);
 void sd_send_command(struct sd_host *sd, struct sd_command *cmd, u8 is_stop);
 void sd_finish_command(struct sd_host *sd, struct sd_command *cmd);
@@ -781,7 +781,7 @@ int  sd_init_card(struct sd_host *sd);
 void sd_power_on(struct sd_host *sd);
 void sd_power_off(struct sd_host *sd);
 int  sd_go_idle(struct sd_host *sd);
-int  sd_wait_for_data(struct sd_host *sd, struct sd_data *data);
+int  sd_wait_for_data(struct sd_host *sd, struct ampe_sd_data *data);
 int  sd_wait_for_cmd(struct sd_host *sd, struct sd_command *cmd, int retries);
 void sd_wait_for_req(struct sd_host *sd, struct sd_request *srq);
 void sd_start_request(struct sd_host *sd, struct sd_request *srq);
