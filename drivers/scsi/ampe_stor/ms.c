@@ -1,3 +1,5 @@
+#include <linux/vmalloc.h>
+
 #include "amcr_stor.h"
 #include "ms-fmt.h"
 
