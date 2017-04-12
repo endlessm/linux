@@ -1,0 +1,134 @@
+
+#ifndef __AMCR_TRACE_H
+#define __AMCR_TRACE_H
+
+
+
+#define DEBUG_OUT		0
+#define	PRINT_TRACE		0
+#define	PRINT_TRACE1	0
+#define	PRINT_TRACE2	1
+#define	PRINT_TRACE3	1
+#define	PRINT_TRACE4	1
+
+#define	PRINT_TRACEZ	1
+
+#define	PRINT_TRACEX	1
+
+
+
+#define AMCR_STOR	"ampe_stor: "
+
+
+#undef	TRACE_SHOW
+#define TRACE_SHOW(x) \
+{ \
+	char * cp = strrchr(__FILE__, '/');\
+	printk("%s%10s (%5d): ", AMCR_STOR, ++cp, __LINE__); \
+	printk x; \
+	printk("\n"); \
+}
+
+#define PRINTK(x)		printk x
+#define TRACE_NULL(x)	(void)0
+
+
+
+#define TRACE	TRACE_NULL
+#define TRACE1	TRACE_NULL
+#define TRACE2  TRACE_NULL
+#define TRACE3	TRACE_NULL
+#define TRACE4	TRACE_NULL
+
+#define TRACEZ	TRACE_NULL
+#define TRACEW	TRACE_NULL
+
+#define TRACEX	TRACE_NULL
+#define TRACEY	TRACE_NULL
+
+#define DEBUGPN	TRACE_NULL
+#define DEBUG	TRACE_NULL
+
+/////////////////////////////////////////////////////////////////
+#if DEBUG_OUT
+/////////////////////////////////////////////////////////////////
+/////////////////////////////////////
+#if		PRINT_TRACE
+/////////////////////////////////////
+
+#undef	TRACE
+#define TRACE	TRACE_SHOW
+/////////////////////////////////////
+#endif
+
+
+/////////////////////////////////////
+#if PRINT_TRACE1
+/////////////////////////////////////
+#undef	TRACE1
+#define TRACE1		TRACE_SHOW
+
+#undef  DEBUGPN
+#define DEBUGPN		PRINTK
+
+#undef  DEBUG
+#define DEBUG(x)	x
+/////////////////////////////////////
+#endif
+
+/////////////////////////////////////
+#if PRINT_TRACE2
+/////////////////////////////////////
+#undef	TRACE2
+#define TRACE2		TRACE_SHOW
+/////////////////////////////////////
+#endif
+
+/////////////////////////////////////
+#if PRINT_TRACE3
+/////////////////////////////////////
+#undef	TRACE3
+#define TRACE3		TRACE_SHOW
+/////////////////////////////////////
+#endif
+
+/////////////////////////////////////
+#if PRINT_TRACE4
+/////////////////////////////////////
+#undef	TRACE4
+#define TRACE4		TRACE_SHOW
+/////////////////////////////////////
+#endif
+
+/////////////////////////////////////
+#if PRINT_TRACEX
+/////////////////////////////////////
+#undef	TRACEX
+#define TRACEX		TRACE_SHOW
+
+#undef	TRACEY
+#define TRACEY		TRACE_SHOW
+
+/////////////////////////////////////
+#endif
+
+/////////////////////////////////////
+#if PRINT_TRACEZ
+/////////////////////////////////////
+#undef	TRACEW
+#define TRACEW		TRACE_SHOW
+
+#undef	TRACEZ
+#define TRACEZ		TRACE_SHOW
+/////////////////////////////////////
+#endif
+
+/////////////////////////////////////////////////////////////////
+#endif
+/////////////////////////////////////////////////////////////////
+
+
+
+
+
+#endif
