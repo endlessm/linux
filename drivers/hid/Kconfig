@@ -146,7 +146,7 @@ config HID_ASUS
 
 config HID_ASUS_GAMING_NB_KBD
 	tristate "ASUS special macrokey device for Republic of Gamers laptop"
-	depends on HID
+	depends on HID && LEDS_CLASS
 	---help---
 	Support for ASUS special macrokey devices on Republic of Gamers latops
 	that are not fully compliant with HID standard
