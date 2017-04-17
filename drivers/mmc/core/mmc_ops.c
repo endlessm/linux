@@ -455,6 +455,26 @@ int mmc_switch_status_error(struct mmc_host *host, u32 status)
 	return 0;
 }
 
+/* Caller must hold re-tuning */
+int __mmc_switch_status(struct mmc_card *card, bool crc_err_fatal)
+{
+	u32 status;
+	int err;
+
+	err = mmc_send_status(card, &status);
+	if (!crc_err_fatal && err == -EILSEQ)
+		return 0;
+	if (err)
+		return err;
+
+	return mmc_switch_status_error(card->host, status);
+}
+
+int mmc_switch_status(struct mmc_card *card)
+{
+	return __mmc_switch_status(card, true);
+}
+
 /**
  *	__mmc_switch - modify EXT_CSD register
  *	@card: the MMC card associated with the data transfer
