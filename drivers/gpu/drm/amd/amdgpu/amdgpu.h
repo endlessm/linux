@@ -102,6 +102,7 @@ extern char *amdgpu_virtual_display;
 extern unsigned amdgpu_pp_feature_mask;
 extern int amdgpu_vram_page_split;
 
+#define AMDGPU_DEFAULT_GTT_SIZE_MB		3072ULL /* 3GB by default */
 #define AMDGPU_WAIT_IDLE_TIMEOUT_IN_MS	        3000
 #define AMDGPU_MAX_USEC_TIMEOUT			100000	/* 100 ms */
 #define AMDGPU_FENCE_JIFFIES_TIMEOUT		(HZ / 2)
