@@ -29,11 +29,15 @@ ifeq ($(MY_KERNELRELEASE),)
   # as of 2.6.16 KERNELRELEASE is only set if the kernel is configured
   MY_KERNELRELEASE := $(KERNELVERSION)
 endif
+ifeq ($(KERN_VERSION),24)
+  # sledgehammer, see the 2.4 handling in Makefile.include.footer
+  MY_KERNELRELEASE := 2.4.0
+endif
 ifeq ($(filter 1.% 2.% 3.0.% 3.1.% 3.2.% 3.3.% 3.4.% 3.5.% 3.6.% 3.7.% \
 3.8.% 3.9.% 3.10.%,$(MY_KERNELRELEASE)),)
 MOD_OBJS   = HGSMIBase.o HGSMICommon.o HGSMIMemAlloc.o heapoffset.o \
              Modesetting.o vbox_drv.o vbox_fb.o vbox_irq.o vbox_main.o \
-             vbox_mode.o vbox_ttm.o vbox_prime.o VBVABase.o
+             vbox_mode.o vbox_ttm.o VBVABase.o vbox_prime.o
 else
 MOD_OBJS   = vbox_dummy.o
 endif

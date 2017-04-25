@@ -1,5 +1,5 @@
 KBUILD_EXTMOD=${srctree}/ubuntu/vbox
-# $Revision: 107348 $
+# $Revision: 114568 $
 ## @file
 # VirtualBox Guest Additions Module Makefile.
 #
@@ -59,10 +59,10 @@ MOD_OBJS   = \
 	common/err/RTErrConvertFromErrno.o \
 	common/err/RTErrConvertToErrno.o \
 	common/log/log.o \
-        common/log/logellipsis.o \
-        common/log/logrel.o \
-        common/log/logrelellipsis.o \
-        common/log/logcom.o \
+	common/log/logellipsis.o \
+	common/log/logrel.o \
+	common/log/logrelellipsis.o \
+	common/log/logcom.o \
 	common/log/logformat.o \
 	common/misc/RTAssertMsg1Weak.o \
 	common/misc/RTAssertMsg2.o \
@@ -84,13 +84,14 @@ MOD_OBJS   = \
 	common/table/avlpv.o \
 	common/time/time.o \
 	generic/RTAssertShouldPanic-generic.o \
-        generic/RTLogWriteStdErr-stub-generic.o \
-        generic/RTLogWriteStdOut-stub-generic.o \
+	generic/RTLogWriteStdErr-stub-generic.o \
+	generic/RTLogWriteStdOut-stub-generic.o \
 	generic/RTMpGetCoreCount-generic.o \
 	generic/RTSemEventWait-2-ex-generic.o \
 	generic/RTSemEventWaitNoResume-2-ex-generic.o \
 	generic/RTSemEventMultiWait-2-ex-generic.o \
 	generic/RTSemEventMultiWaitNoResume-2-ex-generic.o \
+	generic/rtStrFormatKernelAddress-generic.o \
 	generic/errvars-generic.o \
 	generic/mppresent-generic.o \
 	VBox/log-vbox.o \
@@ -135,7 +136,7 @@ endif
 
 MOD_CLEAN = . linux r0drv generic r0drv/linux r0drv/generic VBox \
 		common/alloc common/err common/log common/math/gcc common/misc \
-		common/string common/time
+		common/string common/table common/time
 
 include $(obj)/Makefile.include.footer
 

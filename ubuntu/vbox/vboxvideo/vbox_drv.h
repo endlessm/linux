@@ -325,7 +325,12 @@ int vbox_gem_prime_pin(struct drm_gem_object *obj);
 void vbox_gem_prime_unpin(struct drm_gem_object *obj);
 struct sg_table *vbox_gem_prime_get_sg_table(struct drm_gem_object *obj);
 struct drm_gem_object *vbox_gem_prime_import_sg_table(
-        struct drm_device *dev, struct dma_buf_attachment *attach,
+        struct drm_device *dev,
+#if LINUX_VERSION_CODE < KERNEL_VERSION(3, 18, 0)
+        size_t size,
+#else
+        struct dma_buf_attachment *attach,
+#endif
         struct sg_table *table);
 void *vbox_gem_prime_vmap(struct drm_gem_object *obj);
 void vbox_gem_prime_vunmap(struct drm_gem_object *obj, void *vaddr);

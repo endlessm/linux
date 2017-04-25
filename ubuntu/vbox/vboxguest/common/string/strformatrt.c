@@ -251,6 +251,7 @@ DECLHIDDEN(size_t) rtstrFormatRt(PFNRTSTROUTPUT pfnOutput, void *pvArgOutput, co
             case 'I':
             case 'X':
             case 'U':
+            case 'K':
             {
                 /*
                  * Interpret the type.
@@ -304,6 +305,7 @@ DECLHIDDEN(size_t) rtstrFormatRt(PFNRTSTROUTPUT pfnOutput, void *pvArgOutput, co
                     { STRMEM("I32"),     sizeof(int32_t),        10, RTSF_INT,   RTSTR_F_VALSIGNED },
                     { STRMEM("I64"),     sizeof(int64_t),        10, RTSF_INT,   RTSTR_F_VALSIGNED },
                     { STRMEM("I8"),      sizeof(int8_t),         10, RTSF_INT,   RTSTR_F_VALSIGNED },
+                    { STRMEM("Kv"),      sizeof(RTHCPTR),        16, RTSF_INT,   RTSTR_F_OBFUSCATE_PTR },
                     { STRMEM("Rv"),      sizeof(RTRCPTR),        16, RTSF_INTW,  0 },
                     { STRMEM("Tbool"),   sizeof(bool),           10, RTSF_BOOL,  0 },
                     { STRMEM("Tfile"),   sizeof(RTFILE),         10, RTSF_INT,   0 },
@@ -362,6 +364,7 @@ DECLHIDDEN(size_t) rtstrFormatRt(PFNRTSTROUTPUT pfnOutput, void *pvArgOutput, co
                     int16_t             i16;
                     int32_t             i32;
                     int64_t             i64;
+                    RTR0INTPTR          uR0Ptr;
                     RTFAR16             fp16;
                     RTFAR32             fp32;
                     RTFAR64             fp64;
@@ -468,6 +471,17 @@ DECLHIDDEN(size_t) rtstrFormatRt(PFNRTSTROUTPUT pfnOutput, void *pvArgOutput, co
                             break;
                     }
                 }
+
+#ifndef DEBUG
+                /*
+                 * For now don't show the address.
+                 */
+                if (fFlags & RTSTR_F_OBFUSCATE_PTR)
+                {
+                    cch = rtStrFormatKernelAddress(szBuf, sizeof(szBuf), u.uR0Ptr, cchWidth, cchPrecision, fFlags);
+                    return pfnOutput(pvArgOutput, szBuf, cch);
+                }
+#endif
 
                 /*
                  * Format the output.

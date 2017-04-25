@@ -3,7 +3,7 @@
  */
 
 /*
- * Copyright (C) 2006-2016 Oracle Corporation
+ * Copyright (C) 2006-2017 Oracle Corporation
  *
  * This file is part of VirtualBox Open Source Edition (OSE), as
  * available from http://www.virtualbox.org. This file is free software;
@@ -1918,6 +1918,13 @@
 #define VERR_SUPLIB_NT_PROCESS_UNTRUSTED_4          (-3774)
 /** Unable to establish trusted of VM process (5). */
 #define VERR_SUPLIB_NT_PROCESS_UNTRUSTED_5          (-3775)
+/** Unable to make text memory writeable (hardening). */
+#define VERR_SUPLIB_TEXT_NOT_WRITEABLE              (-3776)
+/** Unable to seal text memory again to protect against write access (hardening). */
+#define VERR_SUPLIB_TEXT_NOT_SEALED                 (-3777)
+/** Unexpected instruction encountered for which there is no patch strategy
+ * implemented (hardening). */
+#define VERR_SUPLIB_UNEXPECTED_INSTRUCTION          (-3778)
 /** @} */
 
 
@@ -2650,6 +2657,8 @@
 #define VERR_SUP_VP_FILE_MODE_ERROR                 (-5674)
 /** Error creating an event semaphore for used with asynchronous reads. */
 #define VERR_SUP_VP_CREATE_READ_EVT_SEM_FAILED      (-5675)
+/** Undesirable module. */
+#define VERR_SUP_VP_UNDESIRABLE_MODULE              (-5676)
 
 /** @} */
 
@@ -2759,6 +2768,9 @@
 #define VERR_AUDIO_NO_FREE_OUTPUT_STREAMS           (-6602)
 /** Pending stream disable operation in progress.  */
 #define VERR_AUDIO_STREAM_PENDING_DISABLE           (-6603)
+/** There is more data available.
+ *  This can happen due to a buffer wraparound of a buffer read/write operation. */
+#define VINF_AUDIO_MORE_DATA_AVAILABLE              (6604)
 /** @} */
 
 
