@@ -27,6 +27,7 @@
 #include <linux/file.h>
 #include <linux/fs.h>
 #include <linux/poll.h>
+#include <linux/mm.h>
 #include "rwsem.h"
 
 struct au_branch;
