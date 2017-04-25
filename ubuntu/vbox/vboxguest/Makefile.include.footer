@@ -70,6 +70,7 @@ $(MODULE)-y  := $(OBJS)
 # build defs
 EXTRA_CFLAGS += $(MOD_CFLAGS) $(INCL) $(KFLAGS) $(MOD_EXTRA) $(KDEBUG)
 
+.PHONY: $(MODULE)
 all: $(MODULE)
 
 obj-m += $(MODULE).o

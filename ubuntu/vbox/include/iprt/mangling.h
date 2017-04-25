@@ -1838,6 +1838,7 @@
 # define RTStrHash1ExNV                                 RT_MANGLER(RTStrHash1ExNV)
 # define RTStrHash1N                                    RT_MANGLER(RTStrHash1N)
 # define RTStrICmp                                      RT_MANGLER(RTStrICmp)
+# define RTStrICmpAscii                                 RT_MANGLER(RTStrICmpAscii)
 # define RTStrIStartsWith                               RT_MANGLER(RTStrIStartsWith)
 # define RTStrIStr                                      RT_MANGLER(RTStrIStr)
 # define RTStrIsCaseFoldable                            RT_MANGLER(RTStrIsCaseFoldable)

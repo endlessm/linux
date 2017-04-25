@@ -14,6 +14,12 @@
 # hope that it will be useful, but WITHOUT ANY WARRANTY of any kind.
 #
 
+# Testing:
+# * Building with KERN_VER set to an installed but non-current kernel works and
+#   installs to the right location.
+# * Building with KERN_DIR and/or MODULE_DIR set uses the value specified and
+#   the default value for the unspecified one if any.
+
 #
 # These file should be included by the Makefiles for any kernel modules we
 # build as part of the Guest Additions.  The intended way of doing this is as
@@ -100,9 +106,18 @@ ifeq ($(KERNELRELEASE),)
  # building from this directory
  #
 
+ # target kernel version
+ ifndef KERN_VER
+  KERN_VER := $(shell uname -r)
+ else
+  ifneq ($(shell if test -d /lib/modules/$(KERN_VER)/build; then echo yes; fi),yes)
+   KERN_VER := $(shell uname -r)
+  endif
+ endif
+
  # kernel base directory
  ifndef KERN_DIR
-  KERN_DIR := /lib/modules/$(shell uname -r)/build
+  KERN_DIR := /lib/modules/$(KERN_VER)/build
   ifneq ($(shell if test -d $(KERN_DIR); then echo yes; fi),yes)
    KERN_DIR := /usr/src/linux
    ifneq ($(shell if test -d $(KERN_DIR); then echo yes; fi),yes)
@@ -131,7 +146,7 @@ ifeq ($(KERNELRELEASE),)
  # module install dir, only for current kernel
  ifneq ($(filter install install_rpm,$(MAKECMDGOALS)),)
   ifndef MODULE_DIR
-   MODULE_DIR_TST := /lib/modules/$(shell uname -r)
+   MODULE_DIR_TST := /lib/modules/$(KERN_VER)
    ifeq ($(shell if test -d $(MODULE_DIR_TST); then echo yes; fi),yes)
     MODULE_DIR := $(MODULE_DIR_TST)/misc
    else
