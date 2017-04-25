@@ -471,7 +471,7 @@ binary-%: install-%
 	dh_shlibdeps -p$(pkgimg) $(shlibdeps_opts)
 	$(lockme) dh_gencontrol -p$(pkgimg) -- -Vlinux:rprovides='$(rprovides)'
 	dh_md5sums -p$(pkgimg)
-	dh_builddeb -p$(pkgimg) -- -Zbzip2 -z9
+	dh_builddeb -p$(pkgimg)
 
 ifeq ($(do_extras_package),true)
 	if [ -f $(DEBIAN)/control.d/$(target_flavour).inclusion-list ] ; then \
@@ -483,7 +483,7 @@ ifeq ($(do_extras_package),true)
 		dh_shlibdeps -p$(pkgimg_ex) $(shlibdeps_opts); \
 		$(lockme) dh_gencontrol -p$(pkgimg_ex); \
 		dh_md5sums -p$(pkgimg_ex); \
-		dh_builddeb -p$(pkgimg_ex) -- -Zbzip2 -z9; \
+		dh_builddeb -p$(pkgimg_ex); \
 	fi
 endif
 
