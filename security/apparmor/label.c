@@ -308,6 +308,8 @@ out:
 
 static void label_destroy(struct aa_label *label)
 {
+	struct aa_label *tmp;
+
 	AA_BUG(!label);
 
 	if (label_is_stale(label))
@@ -329,6 +331,11 @@ static void label_destroy(struct aa_label *label)
 		rcu_assign_pointer(label->proxy->label, NULL);
 
 	aa_free_sid(label->sid);
+
+	tmp = rcu_dereference_protected(label->proxy->label, true);
+	if (tmp == label)
+		rcu_assign_pointer(label->proxy->label, NULL);
+
 	aa_put_proxy(label->proxy);
 	label->proxy = (struct aa_proxy *) PROXY_POISON + 1;
 }
@@ -378,6 +385,15 @@ void aa_label_kref(struct kref *kref)
 
 	/* TODO: if compound label and not stale add to reclaim cache */
 	call_rcu(&label->rcu, label_free_rcu);
+}
+
+static void label_free_or_put_new(struct aa_label *label, struct aa_label *new)
+{
+	if (label != new)
+		/* need to free directly to break circular ref with proxy */
+		aa_label_free(new);
+	else
+		aa_put_label(new);
 }
 
 bool aa_label_init(struct aa_label *label, int size)
@@ -842,7 +858,7 @@ static struct aa_label *vec_create_and_insert_label(struct aa_profile **vec,
 	write_lock_irqsave(&ls->lock, flags);
 	label = __label_insert(ls, new, false);
 	write_unlock_irqrestore(&ls->lock, flags);
-	aa_put_label(new);
+	label_free_or_put_new(label, new);
 
 	return label;
 }
@@ -1083,7 +1099,6 @@ static struct aa_label *label_merge_insert(struct aa_label *new,
 		/* TODO: deal with reference labels */
 		if (new->size == 1) {
 			label = aa_get_label(&new->vec[0]->label);
-			aa_put_label(new);
 			return label;
 		}
 	} else if (!stale) {
@@ -1242,7 +1257,7 @@ struct aa_label *aa_label_merge(struct aa_label *a, struct aa_label *b,
 			goto out;
 
 		label = label_merge_insert(new, a, b);
-		aa_put_label(new);
+		label_free_or_put_new(label, new);
 	out:
 		aa_put_label(a);
 		aa_put_label(b);
@@ -2043,8 +2058,7 @@ remove:
 	/* ensure label is removed, and redirected correctly */
 	__label_remove(label, tmp);
 	write_unlock_irqrestore(&ls->lock, flags);
-
-	aa_put_label(new);
+	label_free_or_put_new(tmp, new);
 
 	return tmp;
 }

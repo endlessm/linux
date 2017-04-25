@@ -371,6 +371,23 @@ static inline pte_t ptep_get_and_clear(struct mm_struct *mm,
 	return __pte(old);
 }
 
+#define __HAVE_ARCH_PTEP_GET_AND_CLEAR_FULL
+static inline pte_t ptep_get_and_clear_full(struct mm_struct *mm,
+					    unsigned long addr,
+					    pte_t *ptep, int full)
+{
+	if (full && radix_enabled()) {
+		/*
+		 * Let's skip the DD1 style pte update here. We know that
+		 * this is a full mm pte clear and hence can be sure there is
+		 * no parallel set_pte.
+		 */
+		return radix__ptep_get_and_clear_full(mm, addr, ptep, full);
+	}
+	return ptep_get_and_clear(mm, addr, ptep);
+}
+
+
 static inline void pte_clear(struct mm_struct *mm, unsigned long addr,
 			     pte_t * ptep)
 {
@@ -799,9 +816,6 @@ extern struct page *pgd_page(pgd_t pgd);
 	pr_err("%s:%d: bad pud %08lx.\n", __FILE__, __LINE__, pud_val(e))
 #define pgd_ERROR(e) \
 	pr_err("%s:%d: bad pgd %08lx.\n", __FILE__, __LINE__, pgd_val(e))
-
-void pgtable_cache_add(unsigned shift, void (*ctor)(void *));
-void pgtable_cache_init(void);
 
 static inline int map_kernel_page(unsigned long ea, unsigned long pa,
 				  unsigned long flags)

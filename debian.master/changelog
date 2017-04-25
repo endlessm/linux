@@ -1,3 +1,318 @@
+linux (4.8.0-49.52) yakkety; urgency=low
+
+  * linux: 4.8.0-49.52 -proposed tracker (LP: #1684427)
+
+  * [Hyper-V] hv: util: move waiting for release to hv_utils_transport itself
+    (LP: #1682561)
+    - Drivers: hv: util: move waiting for release to hv_utils_transport itself
+
+ -- Stefan Bader <stefan.bader@canonical.com>  Thu, 20 Apr 2017 09:38:36 +0200
+
+linux (4.8.0-48.51) yakkety; urgency=low
+
+  * linux: 4.8.0-48.51 -proposed tracker (LP: #1682034)
+
+  * [Hyper-V] hv: vmbus: Raise retry/wait limits in vmbus_post_msg()
+    (LP: #1681893)
+    - Drivers: hv: vmbus: Raise retry/wait limits in vmbus_post_msg()
+
+ -- Kleber Sacilotto de Souza <kleber.souza@canonical.com>  Wed, 12 Apr 2017 11:06:01 +0200
+
+linux (4.8.0-47.50) yakkety; urgency=low
+
+  * linux: 4.8.0-47.50 -proposed tracker (LP: #1679678)
+
+  * CVE-2017-6353
+    - sctp: deny peeloff operation on asocs with threads sleeping on it
+
+  * CVE-2017-5986
+    - sctp: avoid BUG_ON on sctp_wait_for_sndbuf
+
+  * vfat: missing iso8859-1 charset (LP: #1677230)
+    - [Config] NLS_ISO8859_1=y
+
+  * [Hyper-V] pci-hyperv: Use device serial number as PCI domain (LP: #1667527)
+    - net/mlx4_core: Use cq quota in SRIOV when creating completion EQs
+
+  * Regression: KVM modules should be on main kernel package (LP: #1678099)
+    - [Config] powerpc: Add kvm-hv and kvm-pr to the generic inclusion list
+
+  * linux-lts-xenial 4.4.0-63.84~14.04.2 ADT test failure with linux-lts-xenial
+    4.4.0-63.84~14.04.2 (LP: #1664912)
+    - SAUCE: apparmor: fix link auditing failure due to, uninitialized var
+
+  * regession tests failing after stackprofile test is run (LP: #1661030)
+    - SAUCE: fix regression with domain change in complain mode
+
+  * Permission denied and inconsistent behavior in complain mode with 'ip netns
+    list' command (LP: #1648903)
+    - SAUCE: fix regression with domain change in complain mode
+
+  * unexpected errno=13 and disconnected path when trying to open /proc/1/ns/mnt
+    from a unshared mount namespace (LP: #1656121)
+    - SAUCE: apparmor: null profiles should inherit parent control flags
+
+  * apparmor refcount leak of profile namespace when removing profiles
+    (LP: #1660849)
+    - SAUCE: apparmor: fix ns ref count link when removing profiles from policy
+
+  * tor in lxd: apparmor="DENIED" operation="change_onexec"
+    namespace="root//CONTAINERNAME_<var-lib-lxd>" profile="unconfined"
+    name="system_tor" (LP: #1648143)
+    - SAUCE: apparmor: Fix no_new_privs blocking change_onexec when using stacked
+      namespaces
+
+  * apparmor oops in bind_mnt when dev_path lookup fails (LP: #1660840)
+    - SAUCE: apparmor: fix oops in bind_mnt when dev_path lookup fails
+
+  * apparmor  auditing denied access of special apparmor .null fi\ le
+    (LP: #1660836)
+    - SAUCE: apparmor: Don't audit denied access of special apparmor .null file
+
+  * apparmor label leak when new label is unused (LP: #1660834)
+    - SAUCE: apparmor: fix label leak when new label is unused
+
+  * apparmor reference count bug in label_merge_insert() (LP: #1660833)
+    - SAUCE: apparmor: fix reference count bug in label_merge_insert()
+
+  * apparmor's raw_data file in securityfs is sometimes truncated (LP: #1638996)
+    - SAUCE: apparmor: fix replacement race in reading rawdata
+
+  * unix domain socket cross permission check failing with nested namespaces
+    (LP: #1660832)
+    - SAUCE: apparmor: fix cross ns perm of unix domain sockets
+
+  * [Hyper-V][Mellanox] net/mlx4_core: Avoid delays during VF driver device
+    shutdown (LP: #1672785)
+    - Revert "net/mlx4_en: Avoid unregister_netdev at shutdown flow"
+    - net/mlx4_core: Avoid delays during VF driver device shutdown
+
+  * Update ENA driver to 1.1.2 from net-next (LP: #1664312)
+    - net: ena: Remove unnecessary pci_set_drvdata()
+    - net: ena: Fix error return code in ena_device_init()
+    - net: ena: change the return type of ena_set_push_mode() to be void.
+    - net: ena: use setup_timer() and mod_timer()
+    - net/ena: remove ntuple filter support from device feature list
+    - net/ena: fix queues number calculation
+    - net/ena: fix ethtool RSS flow configuration
+    - net/ena: fix RSS default hash configuration
+    - net/ena: fix NULL dereference when removing the driver after device reset
+      failed
+    - net/ena: refactor ena_get_stats64 to be atomic context safe
+    - net/ena: fix potential access to freed memory during device reset
+    - net/ena: use READ_ONCE to access completion descriptors
+    - net/ena: reduce the severity of ena printouts
+    - net/ena: change driver's default timeouts
+    - net/ena: change condition for host attribute configuration
+    - net/ena: update driver version to 1.1.2
+
+  * ISST-LTE:pVM:roselp4:ubuntu16.04.2: number of numa_miss and numa_foreign
+    wrong in numastat (LP: #1672953)
+    - mm: fix remote numa hits statistics
+    - mm: get rid of __GFP_OTHER_NODE
+
+  * Using an NVMe drive causes huge power drain (LP: #1664602)
+    - nvme/scsi: Remove power management support
+    - nvme: Pass pointers, not dma addresses, to nvme_get/set_features()
+    - nvme: introduce struct nvme_request
+    - nvme: Add a quirk mechanism that uses identify_ctrl
+    - nvme: Enable autonomous power state transitions
+
+  * POWER9: Additional patches for TTY and CPU_IDLE (LP: #1674325)
+    - tty: Fix ldisc crash on reopened tty
+    - SAUCE: powerpc/powernv/cpuidle: Pass correct drv->cpumask for registration
+
+  * Ubuntu 16.10: Network checksum fixes needed for IPoIB for Mellanox CX4/CX5
+    card (LP: #1670247)
+    - Revert "powerpc: port 64 bits pgtable_cache to 32 bits"
+    - powerpc/Makefile: Drop CONFIG_WORD_SIZE for BITS
+    - powerpc: port 64 bits pgtable_cache to 32 bits
+    - [Config] CONFIG_WORD_SIZE disappeared
+    - powerpc/64: Fix checksum folding in csum_tcpudp_nofold and
+      ip_fast_csum_nofold
+    - powerpc/64: Use optimized checksum routines on little-endian
+    - CONFIG_GENERIC_CSUM=n for ppc64el
+    - powerpc/64: Fix checksum folding in csum_add()
+
+  * [Hyper-V] Rebase Hyper-V to the upstream 4.10 kernel (LP: #1670544)
+    - PCI: hv: Use device serial number as PCI domain
+    - PCI: hv: Fix wslot_to_devfn() to fix warnings on device removal
+    - PCI: hv: Use the correct buffer size in new_pcichild_device()
+    - scsi: storvsc: Payload buffer incorrectly sized for 32 bit kernels.
+    - hv_netvsc: remove excessive logging on MTU change
+    - net: centralize net_device min/max MTU checking
+    - net: deprecate eth_change_mtu, remove usage
+    - net: use core MTU range checking in virt drivers
+    - hv_netvsc: fix a race between netvsc_send() and netvsc_init_buf()
+    - net: use core MTU range checking in virt drivers
+    - tools: hv: fix a compile warning in snprintf
+    - tools: hv: remove unnecessary header files and netlink related code
+    - vmbus: add support for dynamic device id's
+    - Drivers: hv: utils: reduce HV_UTIL_NEGO_TIMEOUT timeout
+    - Drivers: hv: utils: Fix the mapping between host version and protocol to use
+    - Drivers: hv: vss: Improve log messages.
+    - hv: change clockevents unbind tactics
+    - Drivers: hv: balloon: Disable hot add when CONFIG_MEMORY_HOTPLUG is not set
+    - Drivers: hv: balloon: Fix info request to show max page count
+    - Drivers: hv: balloon: Add logging for dynamic memory operations
+    - [Config] CONFIG_UIO_HV_GENERIC=m
+    - uio-hv-generic: new userspace i/o driver for VMBus
+    - hyperv: Fix spelling of HV_UNKOWN
+    - Drivers: hv: ring_buffer: count on wrap around mappings in
+      get_next_pkt_raw() (v2)
+    - ethernet: use net core MTU range checking in more drivers
+
+  * Kernel linux-image-4.4.0-67-generic prevent the boot on Microsoft Hyper-v
+    2012r2 Gen2 VM (LP: #1674635)
+    - scsi: storvsc: Workaround for virtual DVD SCSI version
+
+  * Enable lspcon on i915 (LP: #1676747)
+    - drm: Helper for lspcon in drm_dp_dual_mode
+    - drm/i915: Add lspcon support for I915 driver
+    - drm/i915: Parse VBT data for lspcon
+    - drm/i915: Enable lspcon initialization
+    - drm/i915: Add lspcon resume function
+
+  * stress_smoke_test passing and exiting rc=9 (linux 4.9.0-12.13 ADT test
+    failure with linux 4.9.0-12.13) (LP: #1658633)
+    - ext4: lock the xattr block before checksuming it
+
+  * ip_rcv_finish() NULL pointer kernel panic (LP: #1672470)
+    - (upstream) bridge: drop netfilter fake rtable unconditionally
+
+  * dm-queue-length module is not included in installer/initramfs (LP: #1673350)
+    - d-i: Also add dm-queue-length to multipath modules
+
+  * Broadcom bluetooth modules sometimes fail to initialize (LP: #1483101)
+    - Bluetooth: btbcm: Add a delay for module reset
+
+  * Need support of Broadcom bluetooth device [413c:8143] (LP: #1166113)
+    - Bluetooth: btusb: Add support for 413c:8143
+
+  * Unable to Connect Third HDD via USB Hub (LP: #1663991)
+    - mm/slub.c: fix random_seq offset destruction
+
+  * POWER9 : Enable Stop 0-2 with ESL=EC=0 (LP: #1666197)
+    - powernv:idle: Add IDLE_STATE_ENTER_SEQ_NORET macro
+    - powernv:stop: Rename pnv_arch300_idle_init to pnv_power9_idle_init
+    - cpuidle:powernv: Add helper function to populate powernv idle states.
+    - powernv: Pass PSSCR value and mask to power9_idle_stop
+    - Documentation:powerpc: Add device-tree bindings for power-mgt
+    - powerpc/powernv: Fix bug due to labeling ambiguity in power_enter_stop
+
+  * Nvlink2: Additional patches (LP: #1667081)
+    - mm: enable CONFIG_MOVABLE_NODE on non-x86 arches
+    - of/fdt: mark hotpluggable memory
+    - dt: add documentation of "hotpluggable" memory property
+    - powerpc/mm: Fix memory hotplug BUG() on radix
+    - powerpc/powernv: Initialise nest mmu
+    - powerpc/powernv: Use OPAL call for TCE kill on NVLink2
+    - powerpc/mm: refactor radix physical page mapping
+    - powerpc/mm: add radix__create_section_mapping()
+    - powerpc/mm: add radix__remove_section_mapping()
+    - powerpc/mm: unstub radix__vmemmap_remove_mapping()
+    - [Config] Update CONFIG_MOVABLE_NODE values and annotations
+    - [Config] CONFIG_MOVABLE_NODE=n for s390x
+
+  * FC Adapter (LPe32000-based) prints "iotag out of range", goes offline, and
+    delays boot a lot (Ubuntu17.04/Emulex/lpfc)) (LP: #1670490)
+    - scsi: lpfc: Correct WQ creation for pagesize
+    - scsi: lpfc: Add missing memory barrier
+
+  * CIFS: Call echo service immediately after socket reconnect (LP: #1669941)
+    - Call echo service immediately after socket reconnect
+
+  * Kernel: Fix Transactional memory config typo (LP: #1669023)
+    - powerpc/process: Fix CONFIG_ALIVEC typo in restore_tm_state()
+
+  * h-prod does not function across cores (LP: #1670726)
+    - KVM: PPC: Book3S HV: Fix H_PROD to actually wake the target vcpu
+
+  * [Hyper-V] Missing PCI patches breaking SR-IOV hot remove (LP: #1670518)
+    - PCI: hv: Fix hv_pci_remove() for hot-remove
+    - PCI: hv: Delete the device earlier from hbus->children for hot-remove
+    - PCI: hv: Make unnecessarily global IRQ masking functions static
+    - PCI: hv: Allocate physically contiguous hypercall params buffer
+
+  * move aufs.ko from -extra to linux-image package (LP: #1673498)
+    - [config] aufs.ko moved to linux-image package
+
+  * POWER9: Improve CAS negotiation (LP: #1671169)
+    - powerpc: Parse the command line before calling CAS
+    - powerpc: Add missing error check to prom_find_boot_cpu()
+    - powerpc/pseries: Advertise HPT resizing support via CAS
+    - powerpc/64: Disable use of radix under a hypervisor
+    - powerpc/pseries: Advertise Hot Plug Event support to firmware
+    - powerpc: Update to new option-vector-5 format for CAS
+
+  * Power9 kernel: add virtualization patches (LP: #1670800)
+    - powerpc/fadump: Set core e_flags using kernel's ELF ABI version
+    - powerpc/sparse: Add more assembler prototypes
+    - powerpc/pasemi: Fix Nemo SB600 i8259 interrupts.
+    - powerpc/pasemi: Fix device_type of Nemo SB600 node.
+    - powerpc/pseries: Use H_CLEAR_HPT to clear MMU hash table during kexec
+    - powerpc/pseries: Move CMO code from plapr_wrappers.h to platforms/pseries
+    - powerpc: Fix old style declaration GCC warnings
+    - powerpc/pseries: add definitions for new H_SIGNAL_SYS_RESET hcall
+    - powerpc/prom: Define structs for client architecture vectors
+    - powerpc/prom: Switch to using structs for ibm_architecture_vec
+    - tracing: Have the reg function allow to fail
+    - powerpc: port 64 bits pgtable_cache to 32 bits
+    - powerpc/64: Don't try to use radix MMU under a hypervisor
+    - powerpc/pseries: Fixes for the "ibm,architecture-vec-5" options
+    - powerpc/64: Enable use of radix MMU under hypervisor on POWER9
+
+  * lsattr 32bit does not work on 64bit kernel (Inappropriate ioctl error)
+    (LP: #1619918)
+    - btrfs: fix btrfs_compat_ioctl failures on non-compat ioctls
+
+  * linux-tools-common should Depends: lsb-release (LP: #1667571)
+    - [Config] linux-tools-common depends on lsb-release
+
+  * CAPI:Ubuntu: Kernel panic while rebooting (LP: #1667599)
+    - pci/hotplug/pnv-php: Remove WARN_ON() in pnv_php_put_slot()
+
+  * Add Use-After-Free Patch for Ubuntu16.10 - EEH on BELL3 adapter fails to
+    recover (serial/tty) (LP: #1669153)
+    - 8250_pci: Fix potential use-after-free in error path
+
+  * Request to backport cxlflash patches to Xenial SRU stream (LP: #1623750)
+    - scsi: cxlflash: Scan host only after the port is ready for I/O
+    - scsi: cxlflash: Fix to avoid EEH and host reset collisions
+    - scsi: cxlflash: Improve EEH recovery time
+
+  * FlashGT Integration and Setup: fsbmc30: After 17th reboot of soft bootme,
+    HTX & Linux errors seen with 256 virtual LUNs (LP: #1667239)
+    - cxl: Fix coredump generation when cxl_get_fd() is used
+
+  * POWER9: Additional patches for 17.04 and 16.04.2 (LP: #1667116)
+    - powerpc/mm: Update PROTFAULT handling in the page fault path
+    - powerpc/mm/radix: Update pte update sequence for pte clear case
+    - powerpc/mm/radix: Use ptep_get_and_clear_full when clearing pte for full mm
+    - powerpc/mm/radix: Skip ptesync in pte update helpers
+    - SAUCE: powerpc/mm/hash: Always clear UPRT and Host Radix bits when setting
+      up CPU
+
+  * [Hyper-V] Ubuntu 14.04.2 LTS Generation 2 SCSI Errors on VSS Based Backups
+    (LP: #1470250)
+    - Drivers: hv: vss: Operation timeouts should match host expectation
+    - SAUCE: Tools: hv: vss: Thaw the filesystem and continue after freeze fails
+
+  * PowerNV: No rate limit for kernel error "KVM can't copy data from"
+    (LP: #1667416)
+    - SAUCE: KVM: PPC: Book3S: Ratelimit copy data failure error messages
+
+  * kernel 4.4.0-63 with USB WLAN RTL8192CU freezes desktop (LP: #1666421)
+    - rtlwifi: rtl_usb: Fix missing entry in USB driver's private data
+
+  * Export symbol "dev_pm_qos_update_user_latency_tolerance" (LP: #1666401)
+    - PM / QoS: Export dev_pm_qos_update_user_latency_tolerance
+
+  * Linux ZFS port doesn't respect RLIMIT_FSIZE (LP: #1656259)
+    - SAUCE: (noup) Update zfs to 0.6.5.8-0ubuntu4.2
+
+ -- Thadeu Lima de Souza Cascardo <cascardo@canonical.com>  Tue, 04 Apr 2017 16:56:40 +0100
+
 linux (4.8.0-46.49) yakkety; urgency=low
 
   * linux: 4.8.0-46.49 -proposed tracker (LP: #1678046)

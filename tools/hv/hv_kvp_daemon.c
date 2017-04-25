@@ -22,8 +22,6 @@
  */
 
 
-#include <sys/types.h>
-#include <sys/socket.h>
 #include <sys/poll.h>
 #include <sys/utsname.h>
 #include <stdio.h>
@@ -34,7 +32,6 @@
 #include <errno.h>
 #include <arpa/inet.h>
 #include <linux/hyperv.h>
-#include <linux/netlink.h>
 #include <ifaddrs.h>
 #include <netdb.h>
 #include <syslog.h>
@@ -98,10 +95,6 @@ static struct utsname uts_buf;
 
 #define MAX_FILE_NAME 100
 #define ENTRIES_PER_BLOCK 50
-
-#ifndef SOL_NETLINK
-#define SOL_NETLINK 270
-#endif
 
 struct kvp_record {
 	char key[HV_KVP_EXCHANGE_MAX_KEY_SIZE];
@@ -702,7 +695,7 @@ static char *kvp_mac_to_if_name(char *mac)
 	if (dir == NULL)
 		return NULL;
 
-	snprintf(dev_id, sizeof(dev_id), kvp_net_dir);
+	snprintf(dev_id, sizeof(dev_id), "%s", kvp_net_dir);
 	q = dev_id + strlen(kvp_net_dir);
 
 	while ((entry = readdir(dir)) != NULL) {

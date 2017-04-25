@@ -374,7 +374,7 @@ static int profile_path_link(struct aa_profile *profile,
 			     struct path_cond *cond)
 {
 	const char *lname, *tname = NULL;
-	struct aa_perms lperms, perms;
+	struct aa_perms lperms = {}, perms;
 	const char *info = NULL;
 	u32 request = AA_MAY_LINK;
 	unsigned int state;

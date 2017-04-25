@@ -1,5 +1,7 @@
 arch/*/{crypto,kernel,oprofile}
 arch/*/kvm/kvm.ko
+arch/powerpc/kvm/kvm-hv.ko
+arch/powerpc/kvm/kvm-pr.ko
 arch/powerpc/platforms/powernv/opal-prd.ko
 arch/powerpc/kvm/vfio.ko
 arch/s390/*
@@ -171,6 +173,7 @@ drivers/virtio/*
 drivers/watchdog/softdog.ko
 drivers/xen/*
 fs/9p/*
+fs/aufs/aufs.ko
 fs/binfmt_misc.ko
 fs/btrfs/*
 fs/cachefiles/cachefiles.ko

@@ -9470,7 +9470,7 @@ CONFIG_PPC_BOOK3E_64                            policy<{'powerpc-powerpc64-emb':
 
 # Menu: Processor type and features
 CONFIG_SPARSEMEM_VMEMMAP                        policy<{'amd64': 'y', 'arm64': 'y', 'powerpc-powerpc64-emb': 'y', 'powerpc-generic': 'y', 'ppc64el': 'y', 's390x': 'y'}>
-CONFIG_MOVABLE_NODE                             policy<{'amd64': 'y'}>
+CONFIG_MOVABLE_NODE                             policy<{'amd64': 'y', 'arm64': 'n', 'powerpc-generic': 'n', 'ppc64el': 'y', 's390x': 'n'}>
 CONFIG_MEMORY_HOTPLUG                           policy<{'amd64': 'y', 'i386': 'y', 'powerpc-generic': 'y', 'ppc64el': 'y', 's390x': 'y'}>
 CONFIG_MEMORY_HOTREMOVE                         policy<{'amd64': 'y', 'i386': 'y', 'powerpc-generic': 'y', 'ppc64el': 'y', 's390x': 'y'}>
 CONFIG_BALLOON_COMPACTION                       policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'powerpc': 'y', 'ppc64el': 'y', 's390x': 'y'}>
@@ -9503,6 +9503,7 @@ CONFIG_FORCE_MAX_ZONEORDER                      policy<{'arm64': '11', 'armhf-ge
 CONFIG_SCHED_SMT                                policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'n', 'i386': 'y', 'powerpc-powerpc64-emb': 'n', 'powerpc-generic': 'y', 'ppc64el': 'y', 's390x': 'y'}>
 CONFIG_XEN                                      policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'n', 'i386': 'y'}>
 #
+CONFIG_MOVABLE_NODE                             mark<ENFORCED> note<LP:1667081>
 CONFIG_DEFAULT_MMAP_MIN_ADDR                    mark<ENFORCED> note<LP:1418140>
 CONFIG_IDLE_PAGE_TRACKING			flag<REVIEW> note<is there a cost associated with this?>
 
