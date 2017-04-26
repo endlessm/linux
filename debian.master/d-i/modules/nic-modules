@@ -114,7 +114,6 @@ mdio-thunder ?
 mlx4_core ?
 mlx4_en ?
 mlx5_core ?
-msm_emac ?
 mv643xx_eth ?
 myri_sbus ?
 natsemi ?
