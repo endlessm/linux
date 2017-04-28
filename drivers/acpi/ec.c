@@ -1282,7 +1282,10 @@ ec_parse_device(acpi_handle handle, u32 Level, void *context, void **retval)
 		 * Always inherit the gpe number setting from first
                  * boot_ec.
                  */
-		ec->gpe = boot_ec->gpe;
+                /* ec has been assigned with original boot_ec here,
+                 * leave it as it is. boot_ec and first_ec is cleared
+                 * to NULL at acpi_ec_alloc.
+                 */
 	} else {
 		/* Get GPE bit assignment (EC events). */
 		/* TODO: Add support for _GPE returning a package */
