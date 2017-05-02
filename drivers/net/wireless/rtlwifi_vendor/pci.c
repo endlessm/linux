@@ -2002,104 +2002,11 @@ static bool _rtl_pci_find_adapter(struct pci_dev *pdev,
 	    revisionid == RTL_PCI_REVISION_ID_8192PCIE)
 		return false;
 
-	if (deviceid == RTL_PCI_8192_DID ||
-	    deviceid == RTL_PCI_0044_DID ||
-	    deviceid == RTL_PCI_0047_DID ||
-	    deviceid == RTL_PCI_8192SE_DID ||
-	    deviceid == RTL_PCI_8174_DID ||
-	    deviceid == RTL_PCI_8173_DID ||
-	    deviceid == RTL_PCI_8172_DID ||
-	    deviceid == RTL_PCI_8171_DID) {
-		switch (revisionid) {
-		case RTL_PCI_REVISION_ID_8192PCIE:
-			RT_TRACE(rtlpriv, COMP_INIT, DBG_DMESG,
-				 "8192 PCI-E is found - vid/did=%x/%x\n",
-				 venderid, deviceid);
-			rtlhal->hw_type = HARDWARE_TYPE_RTL8192E;
-			return false;
-		case RTL_PCI_REVISION_ID_8192SE:
-			RT_TRACE(rtlpriv, COMP_INIT, DBG_DMESG,
-				 "8192SE is found - vid/did=%x/%x\n",
-				 venderid, deviceid);
-			rtlhal->hw_type = HARDWARE_TYPE_RTL8192SE;
-			break;
-		default:
-			RT_TRACE(rtlpriv, COMP_ERR, DBG_WARNING,
-				 "Err: Unknown device - vid/did=%x/%x\n",
-				 venderid, deviceid);
-			rtlhal->hw_type = HARDWARE_TYPE_RTL8192SE;
-			break;
-
-		}
-	} else if (deviceid == RTL_PCI_8723AE_DID) {
-		rtlhal->hw_type = HARDWARE_TYPE_RTL8723AE;
-		RT_TRACE(rtlpriv, COMP_INIT, DBG_DMESG,
-			 "8723AE PCI-E is found - "
-			 "vid/did=%x/%x\n", venderid, deviceid);
-	} else if (deviceid == RTL_PCI_8192CET_DID ||
-		   deviceid == RTL_PCI_8192CE_DID ||
-		   deviceid == RTL_PCI_8191CE_DID ||
-		   deviceid == RTL_PCI_8188CE_DID) {
-		rtlhal->hw_type = HARDWARE_TYPE_RTL8192CE;
-		RT_TRACE(rtlpriv, COMP_INIT, DBG_DMESG,
-			 "8192C PCI-E is found - vid/did=%x/%x\n",
-			 venderid, deviceid);
-	} else if (deviceid == RTL_PCI_8192DE_DID ||
-		   deviceid == RTL_PCI_8192DE_DID2) {
-		rtlhal->hw_type = HARDWARE_TYPE_RTL8192DE;
-		RT_TRACE(rtlpriv, COMP_INIT, DBG_DMESG,
-			 "8192D PCI-E is found - vid/did=%x/%x\n",
-			 venderid, deviceid);
-	} else if (deviceid == RTL_PCI_8188EE_DID) {
-		rtlhal->hw_type = HARDWARE_TYPE_RTL8188EE;
-		RT_TRACE(rtlpriv, COMP_INIT, DBG_LOUD,
-			 "Find adapter, Hardware type is 8188EE\n");
-	} else if (deviceid == RTL_PCI_8723BE_DID) {
-			rtlhal->hw_type = HARDWARE_TYPE_RTL8723BE;
-			RT_TRACE(rtlpriv, COMP_INIT , DBG_LOUD,
-				 "Find adapter, Hardware type is 8723BE\n");
-	} else if (deviceid == RTL_PCI_8192EE_DID) {
-			rtlhal->hw_type = HARDWARE_TYPE_RTL8192EE;
-			RT_TRACE(rtlpriv, COMP_INIT , DBG_LOUD,
-				 "Find adapter, Hardware type is 8192EE\n");
-	} else if (deviceid == RTL_PCI_8821AE_DID) {
-			rtlhal->hw_type = HARDWARE_TYPE_RTL8821AE;
-			RT_TRACE(rtlpriv, COMP_INIT , DBG_LOUD,
-				 "Find adapter, Hardware type is 8821AE\n");
-	} else if (deviceid == RTL_PCI_8812AE_DID) {
-			rtlhal->hw_type = HARDWARE_TYPE_RTL8812AE;
-			RT_TRACE(rtlpriv, COMP_INIT , DBG_LOUD,
-				 "Find adapter, Hardware type is 8812AE\n");
-	} else if (deviceid == RTL_PCI_8822BE_DID) {
+	if (deviceid == RTL_PCI_8822BE_DID) {
 			rtlhal->hw_type = HARDWARE_TYPE_RTL8822BE;
 			rtlhal->bandset = BAND_ON_BOTH;
 			RT_TRACE(rtlpriv, COMP_INIT , DBG_LOUD,
 				 "Find adapter, Hardware type is 8822BE\n");
-	} else {
-		RT_TRACE(rtlpriv, COMP_ERR, DBG_WARNING,
-			 "Err: Unknown device - vid/did=%x/%x\n",
-			 venderid, deviceid);
-
-		rtlhal->hw_type = RTL_DEFAULT_HARDWARE_TYPE;
-	}
-
-	if (rtlhal->hw_type == HARDWARE_TYPE_RTL8192DE) {
-		if (revisionid == 0 || revisionid == 1) {
-			if (revisionid == 0) {
-				RT_TRACE(rtlpriv, COMP_INIT, DBG_LOUD,
-					 "Find 92DE MAC0\n");
-				rtlhal->interfaceindex = 0;
-			} else if (revisionid == 1) {
-				RT_TRACE(rtlpriv, COMP_INIT, DBG_LOUD,
-					 "Find 92DE MAC1\n");
-				rtlhal->interfaceindex = 1;
-			}
-		} else {
-			RT_TRACE(rtlpriv, COMP_INIT, DBG_LOUD,
-				 "Unknown device - VendorID/DeviceID=%x/%x, Revision=%x\n",
-				 venderid, deviceid, revisionid);
-			rtlhal->interfaceindex = 0;
-		}
 	}
 
 	switch (rtlhal->hw_type) {
