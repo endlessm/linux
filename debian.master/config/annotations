@@ -376,7 +376,6 @@ CONFIG_X509_CERTIFICATE_PARSER                  policy<{'amd64': 'y', 'arm64': '
 CONFIG_PKCS7_MESSAGE_PARSER                     policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'ppc64el': 'y', 's390x': 'y'}>
 CONFIG_PKCS7_TEST_KEY                           policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'ppc64el': 'm', 's390x': 'm'}>
 CONFIG_SIGNED_PE_FILE_VERIFICATION              policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'ppc64el': 'y', 's390x': 'y'}>
-CONFIG_EFI_SIGNATURE_LIST_PARSER                policy<{'amd64': 'y', 'arm64': 'y', 'i386': 'y'}>
 #
 CONFIG_ASYMMETRIC_KEY_TYPE                      note<module signing>
 CONFIG_ASYMMETRIC_PUBLIC_KEY_SUBTYPE            note<module signing>
@@ -384,6 +383,13 @@ CONFIG_X509_CERTIFICATE_PARSER                  note<module signing>
 
 # Menu: Cryptographic API >> Certificates for signature checking
 CONFIG_MODULE_SIG_KEY                           policy<{'amd64': '"certs/signing_key.pem"', 'arm64': '"certs/signing_key.pem"', 'armhf': '"certs/signing_key.pem"', 'i386': '"certs/signing_key.pem"', 'ppc64el': '"certs/signing_key.pem"', 's390x': '"certs/signing_key.pem"'}>
+CONFIG_SYSTEM_BLACKLIST_KEYRING                 policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'ppc64el': 'y', 's390x': 'y'}>
+CONFIG_SYSTEM_BLACKLIST_HASH_LIST               policy<{'amd64': '""', 'arm64': '""', 'armhf': '""', 'i386': '""', 'ppc64el': '""', 's390x': '""'}>
+CONFIG_EFI_SIGNATURE_LIST_PARSER                policy<{'amd64': 'y', 'arm64': 'y', 'i386': 'y'}>
+CONFIG_LOAD_UEFI_KEYS                           policy<{'amd64': 'y', 'arm64': 'y', 'i386': 'y'}>
+#
+CONFIG_EFI_SIGNATURE_LIST_PARSER                mark<ENFORCED>
+CONFIG_LOAD_UEFI_KEYS                           mark<ENFORCED>
 
 # Menu: Cryptographic API >> Certificates for signature checking >> Provide system-wide ring of trusted keys
 CONFIG_SYSTEM_TRUSTED_KEYRING                   policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'ppc64el': 'y', 's390x': 'y'}>
@@ -8490,6 +8496,7 @@ CONFIG_COMPAT_BRK                               mark<ENFORCED> note<disables brk
 CONFIG_LOCALVERSION_AUTO                        mark<ENFORCED> note<triggers packaging failures>
 CONFIG_JUMP_LABEL                               flag<REVIEW>
 CONFIG_NUMA_BALANCING_DEFAULT_ENABLED           note<LP:1557690>
+CONFIG_SYSTEM_BLACKLIST_KEYRING                 mark<ENFORCED>
 
 # Menu: General setup >> CPU/Task time and stats accounting
 CONFIG_IRQ_TIME_ACCOUNTING                      policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'i386': 'n'}>
@@ -10438,7 +10445,8 @@ CONFIG_X86_INTEL_MPX                            policy<{'amd64': 'y', 'i386': 'y
 CONFIG_X86_INTEL_MEMORY_PROTECTION_KEYS         policy<{'amd64': 'y'}>
 CONFIG_EFI_STUB                                 policy<{'amd64': 'y', 'arm64': 'y', 'i386': 'y'}>
 CONFIG_EFI_MIXED                                policy<{'amd64': 'y'}>
-CONFIG_EFI_SECURE_BOOT_SIG_ENFORCE              policy<{'amd64': 'y', 'i386': 'y'}>
+CONFIG_EFI_SECURE_BOOT_LOCK_DOWN                policy<{'amd64': 'y', 'i386': 'y'}>
+CONFIG_EFI_ALLOW_SECURE_BOOT_EXIT               policy<{'amd64': 'y', 'i386': 'y'}>
 CONFIG_KEXEC_VERIFY_SIG                         policy<{'amd64': 'y'}>
 CONFIG_KEXEC_BZIMAGE_VERIFY_SIG                 policy<{'amd64': 'y'}>
 CONFIG_KEXEC_JUMP                               policy<{'amd64': 'y', 'i386': 'y'}>
@@ -10450,6 +10458,8 @@ CONFIG_MODIFY_LDT_SYSCALL                       policy<{'amd64': 'y', 'i386': 'y
 CONFIG_ZONE_DMA                                 note<LP:1628523>
 CONFIG_COMPAT_VDSO                              mark<ENFORCED>
 CONFIG_X86_LEGACY_VM86				note<LP:1499089>
+CONFIG_EFI_SECURE_BOOT_LOCK_DOWN                mark<ENFORCED>
+CONFIG_EFI_ALLOW_SECURE_BOOT_EXIT               mark<ENFORCED>
 CONFIG_KEXEC_BZIMAGE_VERIFY_SIG			flag<REVIEW> note<Q: check this is in sync with the kexec/kdump userspace>
 CONFIG_MODIFY_LDT_SYSCALL			flag<REVIEW> note<Q: check this with security>
 
@@ -10661,6 +10671,9 @@ CONFIG_INTEL_TXT                                policy<{'amd64': 'y', 'i386': 'y
 CONFIG_HARDENED_USERCOPY                        policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'ppc64el': 'y', 's390x': 'y'}>
 CONFIG_HARDENED_USERCOPY_PAGESPAN               policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'i386': 'n', 'ppc64el': 'n', 's390x': 'n'}>
 CONFIG_STATIC_USERMODEHELPER                    policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'i386': 'n', 'ppc64el': 'n', 's390x': 'n'}>
+CONFIG_LOCK_DOWN_KERNEL                         policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'ppc64el': 'y', 's390x': 'y'}>
+#
+CONFIG_LOCK_DOWN_KERNEL                         mark<ENFORCED> flag<REVIEW>
 
 # Menu: Security options >> Default security module
 CONFIG_DEFAULT_SECURITY_SELINUX                 policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'i386': 'n', 'ppc64el': 'n', 's390x': 'n'}>
