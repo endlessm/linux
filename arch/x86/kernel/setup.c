@@ -1188,6 +1188,10 @@ void __init setup_arch(char **cmdline_p)
 		case efi_secureboot_mode_disabled:
 			pr_info("Secure boot disabled\n");
 			break;
+		case efi_secureboot_mode_moksbstate_disabled:
+			pr_info("Secure boot disabled by MokSBState\n");
+			set_bit(EFI_MOKSBSTATE_DISABLED, &efi.flags);
+			break;
 		case efi_secureboot_mode_enabled:
 			set_bit(EFI_SECURE_BOOT, &efi.flags);
 			if (IS_ENABLED(CONFIG_EFI_SECURE_BOOT_LOCK_DOWN)) {

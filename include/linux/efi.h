@@ -1104,6 +1104,7 @@ extern int __init efi_setup_pcdp_console(char *);
 #define EFI_NX_PE_DATA		9	/* Can runtime data regions be mapped non-executable? */
 #define EFI_MEM_ATTR		10	/* Did firmware publish an EFI_MEMORY_ATTRIBUTES table? */
 #define EFI_SECURE_BOOT		11	/* Are we in Secure Boot mode? */
+#define EFI_MOKSBSTATE_DISABLED	12	/* Secure Boot disabled in MokSBState */
 
 #ifdef CONFIG_EFI
 /*
@@ -1517,6 +1518,7 @@ enum efi_secureboot_mode {
 	efi_secureboot_mode_unknown,
 	efi_secureboot_mode_disabled,
 	efi_secureboot_mode_enabled,
+	efi_secureboot_mode_moksbstate_disabled,
 };
 enum efi_secureboot_mode efi_get_secureboot(efi_system_table_t *sys_table);
 

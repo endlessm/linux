@@ -74,7 +74,7 @@ enum efi_secureboot_mode efi_get_secureboot(efi_system_table_t *sys_table_arg)
 	if (status != EFI_SUCCESS)
 		goto secure_boot_enabled;
 	if (!(attr & EFI_VARIABLE_RUNTIME_ACCESS) && moksbstate == 1)
-		return efi_secureboot_mode_disabled;
+		return efi_secureboot_mode_moksbstate_disabled;
 
 secure_boot_enabled:
 	pr_efi(sys_table_arg, "UEFI Secure Boot is enabled.\n");
