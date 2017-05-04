@@ -1,9 +1,9 @@
 Package: kernel-image
-Provides: ext3-modules, ext4-modules
-Provides_amd64: efi-modules, ext3-modules, ext4-modules
-Provides_i386: efi-modules, ext3-modules, ext4-modules
-Provides_ppc64el: ext3-modules, ext4-modules, fat-modules
-Provides_s390x: ext3-modules, ext4-modules, ppp-modules
+Provides: ext3-modules, ext4-modules, squashfs-modules
+Provides_amd64: efi-modules, ext3-modules, ext4-modules, squashfs-modules
+Provides_i386: efi-modules, ext3-modules, ext4-modules, squashfs-modules
+Provides_ppc64el: ext3-modules, ext4-modules, fat-modules, squashfs-modules
+Provides_s390x: ext3-modules, ext4-modules, ppp-modules, squashfs-modules
 Description: kernel image and system map
 
 Package: dasd-modules
