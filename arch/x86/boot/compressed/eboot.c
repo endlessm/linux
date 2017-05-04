@@ -12,6 +12,7 @@
 #include <asm/efi.h>
 #include <asm/setup.h>
 #include <asm/desc.h>
+#include <asm/bootparam_utils.h>
 
 #include "../string.h"
 #include "eboot.h"
@@ -1015,6 +1016,8 @@ struct boot_params *efi_main(struct efi_config *c,
 
 	/* Ask the firmware to clear memory if we don't have a clean shutdown */
 	enable_reset_attack_mitigation();
+
+	sanitize_boot_params(boot_params);
 
 	/*
 	 * If the boot loader gave us a value for secure_boot then we use that,
