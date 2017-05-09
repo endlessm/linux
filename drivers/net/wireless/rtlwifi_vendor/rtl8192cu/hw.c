@@ -353,7 +353,7 @@ static void _rtl92cu_read_adapter_info(struct ieee80211_hw *hw)
 	if (!hwinfo)
 		return;
 
-	if (rtl_get_hwinfo(hw, rtlpriv, HWSET_MAX_SIZE, hwinfo, params))
+	if (rtlvendor_rtl_get_hwinfo(hw, rtlpriv, HWSET_MAX_SIZE, hwinfo, params))
 		goto exit;
 
 	_rtl92cu_read_txpower_info_from_hwpg(hw,
@@ -934,7 +934,7 @@ static void _InitPABias(struct ieee80211_hw *hw)
 	u8 pa_setting;
 
 	/* FIXED PA current issue */
-	pa_setting = efuse_read_1byte(hw, 0x1FA);
+	pa_setting = rtlvendor_efuse_read_1byte(hw, 0x1FA);
 	if (!(pa_setting & BIT(0))) {
 		rtl_set_rfreg(hw, RF90_PATH_A, 0x15, 0x0FFFFF, 0x0F406);
 		rtl_set_rfreg(hw, RF90_PATH_A, 0x15, 0x0FFFFF, 0x4F406);
@@ -982,7 +982,7 @@ int rtl92cu_hw_init(struct ieee80211_hw *hw)
 		pr_err("init mac failed!\n");
 		goto exit;
 	}
-	err = rtl92c_download_fw(hw);
+	err = rtlvendor_rtl92c_download_fw(hw);
 	if (err) {
 		RT_TRACE(rtlpriv, COMP_ERR, DBG_WARNING,
 			 "Failed to download FW. Init HW without FW now..\n");
@@ -996,7 +996,7 @@ int rtl92cu_hw_init(struct ieee80211_hw *hw)
 	rtl92cu_phy_mac_config(hw);
 	rtl92cu_phy_bb_config(hw);
 	rtlphy->rf_mode = RF_OP_BY_SW_3WIRE;
-	rtl92c_phy_rf_config(hw);
+	rtlvendor_rtl92c_phy_rf_config(hw);
 	if (IS_VENDOR_UMC_A_CUT(rtlhal->version) &&
 	    !IS_92C_SERIAL(rtlhal->version)) {
 		rtl_set_rfreg(hw, RF90_PATH_A, RF_RX_G1, MASKDWORD, 0x30255);
@@ -1007,24 +1007,24 @@ int rtl92cu_hw_init(struct ieee80211_hw *hw)
 	rtlphy->rfreg_chnlval[1] = rtl_get_rfreg(hw, (enum radio_path)1,
 						 RF_CHNLBW, RFREG_OFFSET_MASK);
 	rtl92cu_bb_block_on(hw);
-	rtl_cam_reset_all_entry(hw);
+	rtlvendor_rtl_cam_reset_all_entry(hw);
 	rtl92cu_enable_hw_security_config(hw);
 	ppsc->rfpwr_state = ERFON;
 	rtlpriv->cfg->ops->set_hw_reg(hw, HW_VAR_ETHER_ADDR, mac->mac_addr);
 	if (ppsc->rfpwr_state == ERFON) {
-		rtl92c_phy_set_rfpath_switch(hw, 1);
+		rtlvendor_rtl92c_phy_set_rfpath_switch(hw, 1);
 		if (rtlphy->iqk_initialized) {
-			rtl92c_phy_iq_calibrate(hw, true);
+			rtlvendor_rtl92c_phy_iq_calibrate(hw, true);
 		} else {
-			rtl92c_phy_iq_calibrate(hw, false);
+			rtlvendor_rtl92c_phy_iq_calibrate(hw, false);
 			rtlphy->iqk_initialized = true;
 		}
-		rtl92c_dm_check_txpower_tracking(hw);
-		rtl92c_phy_lc_calibrate(hw);
+		rtlvendor_rtl92c_dm_check_txpower_tracking(hw);
+		rtlvendor_rtl92c_phy_lc_calibrate(hw);
 	}
 	_rtl92cu_hw_configure(hw);
 	_InitPABias(hw);
-	rtl92c_dm_init(hw);
+	rtlvendor_rtl92c_dm_init(hw);
 exit:
 	local_irq_restore(flags);
 	return err;
@@ -1814,7 +1814,7 @@ void rtl92cu_set_hw_reg(struct ieee80211_hw *hw, u8 variable, u8 *val)
 		rtlefuse->efuse_usedpercentage = *val;
 		break;
 	case HW_VAR_IO_CMD:
-		rtl92c_phy_set_io_cmd(hw, (*(enum io_type *)val));
+		rtlvendor_rtl92c_phy_set_io_cmd(hw, (*(enum io_type *)val));
 		break;
 	case HW_VAR_WPA_CONFIG:
 		rtl_write_byte(rtlpriv, REG_SECCFG, *val);
@@ -1834,8 +1834,8 @@ void rtl92cu_set_hw_reg(struct ieee80211_hw *hw, u8 variable, u8 *val)
 
 			if ((psmode != FW_PS_ACTIVE_MODE) &&
 			   (!IS_92C_SERIAL(rtlhal->version)))
-				rtl92c_dm_rf_saving(hw, true);
-			rtl92c_set_fw_pwrmode_cmd(hw, (*val));
+				rtlvendor_rtl92c_dm_rf_saving(hw, true);
+			rtlvendor_rtl92c_set_fw_pwrmode_cmd(hw, (*val));
 			break;
 		}
 	case HW_VAR_FW_PSMODE_STATUS:
@@ -1858,7 +1858,7 @@ void rtl92cu_set_hw_reg(struct ieee80211_hw *hw, u8 variable, u8 *val)
 					recover = true;
 				rtl_write_byte(rtlpriv, REG_FWHW_TXQ_CTRL + 2,
 					       tmp_reg422 & (~BIT(6)));
-				rtl92c_set_fw_rsvdpagepkt(hw,
+				rtlvendor_rtl92c_set_fw_rsvdpagepkt(hw,
 							  &usb_cmd_send_packet);
 				_rtl92cu_set_bcn_ctrl_reg(hw, BIT(3), 0);
 				_rtl92cu_set_bcn_ctrl_reg(hw, 0, BIT(4));
@@ -1868,7 +1868,7 @@ void rtl92cu_set_hw_reg(struct ieee80211_hw *hw, u8 variable, u8 *val)
 						tmp_reg422 | BIT(6));
 				rtl_write_byte(rtlpriv, REG_CR + 1, 0x02);
 			}
-			rtl92c_set_fw_joinbss_report_cmd(hw, (*val));
+			rtlvendor_rtl92c_set_fw_joinbss_report_cmd(hw, (*val));
 			break;
 		}
 	case HW_VAR_AID:{
@@ -1911,7 +1911,7 @@ void rtl92cu_set_hw_reg(struct ieee80211_hw *hw, u8 variable, u8 *val)
 			u8 array[2];
 			array[0] = 0xff;
 			array[1] = *((u8 *)val);
-			rtl92c_fill_h2c_cmd(hw, H2C_92C_KEEP_ALIVE_CTRL, 2,
+			rtlvendor_rtl92c_fill_h2c_cmd(hw, H2C_92C_KEEP_ALIVE_CTRL, 2,
 					    array);
 			break;
 		}
@@ -2149,7 +2149,7 @@ static void rtl92cu_update_hal_rate_mask(struct ieee80211_hw *hw,
 		 "Rate_index:%x, ratr_val:%x, %5phC\n",
 		 ratr_index, ratr_bitmap, rate_mask);
 	memcpy(rtlpriv->rate_mask, rate_mask, 5);
-	/* rtl92c_fill_h2c_cmd() does USB I/O and will result in a
+	/* rtlvendor_rtl92c_fill_h2c_cmd() does USB I/O and will result in a
 	 * "scheduled while atomic" if called directly */
 	schedule_work(&rtlpriv->works.fill_h2c_cmd);
 

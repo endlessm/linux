@@ -291,7 +291,7 @@ static struct rtl_hal_ops rtl8192se_hal_ops = {
 	.set_bbreg = rtl92s_phy_set_bb_reg,
 	.get_rfreg = rtl92s_phy_query_rf_reg,
 	.set_rfreg = rtl92s_phy_set_rf_reg,
-	.get_btc_status = rtl_btc_status_false,
+	.get_btc_status = rtlvendor_rtl_btc_status_false,
 };
 
 static struct rtl_mod_params rtl92se_mod_params = {
@@ -431,13 +431,13 @@ MODULE_PARM_DESC(fwlps, "Set to 1 to use FW control power save (default 0)\n");
 MODULE_PARM_DESC(debug, "Set debug level (0-5) (default 0)");
 MODULE_PARM_DESC(debug_mask, "Set debug mask (default 0)");
 
-static SIMPLE_DEV_PM_OPS(rtlwifi_pm_ops, rtl_pci_suspend, rtl_pci_resume);
+static SIMPLE_DEV_PM_OPS(rtlwifi_pm_ops, rtlvendor_rtl_pci_suspend, rtlvendor_rtl_pci_resume);
 
 static struct pci_driver rtl92se_driver = {
 	.name = KBUILD_MODNAME,
 	.id_table = rtl92se_pci_ids,
-	.probe = rtl_pci_probe,
-	.remove = rtl_pci_disconnect,
+	.probe = rtlvendor_rtl_pci_probe,
+	.remove = rtlvendor_rtl_pci_disconnect,
 	.driver.pm = &rtlwifi_pm_ops,
 };
 

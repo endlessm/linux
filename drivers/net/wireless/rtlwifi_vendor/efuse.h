@@ -93,28 +93,28 @@ struct efuse_priv {
 	u8 tx_power_g[14];
 };
 
-void read_efuse_byte(struct ieee80211_hw *hw, u16 _offset, u8 *pbuf);
+void rtlvendor_read_efuse_byte(struct ieee80211_hw *hw, u16 _offset, u8 *pbuf);
 void efuse_initialize(struct ieee80211_hw *hw);
-u8 efuse_read_1byte(struct ieee80211_hw *hw, u16 address);
-int efuse_one_byte_read(struct ieee80211_hw *hw, u16 addr, u8 *data);
+u8 rtlvendor_efuse_read_1byte(struct ieee80211_hw *hw, u16 address);
+int rtlvendor_efuse_one_byte_read(struct ieee80211_hw *hw, u16 addr, u8 *data);
 void efuse_write_1byte(struct ieee80211_hw *hw, u16 address, u8 value);
 void read_efuse(struct ieee80211_hw *hw, u16 _offset,
 		u16 _size_byte, u8 *pbuf);
-void efuse_shadow_read(struct ieee80211_hw *hw, u8 type,
+void rtlvendor_efuse_shadow_read(struct ieee80211_hw *hw, u8 type,
 		       u16 offset, u32 *value);
 void efuse_shadow_write(struct ieee80211_hw *hw, u8 type,
 			u16 offset, u32 value);
 bool efuse_shadow_update(struct ieee80211_hw *hw);
 bool efuse_shadow_update_chk(struct ieee80211_hw *hw);
-void rtl_efuse_shadow_map_update(struct ieee80211_hw *hw);
+void rtlvendor_rtl_efuse_shadow_map_update(struct ieee80211_hw *hw);
 void efuse_force_write_vendor_Id(struct ieee80211_hw *hw);
 void efuse_re_pg_section(struct ieee80211_hw *hw, u8 section_idx);
-void efuse_power_switch(struct ieee80211_hw *hw, u8 write, u8 pwrstate);
-int rtl_get_hwinfo(struct ieee80211_hw *hw, struct rtl_priv *rtlpriv,
+void rtlvendor_efuse_power_switch(struct ieee80211_hw *hw, u8 write, u8 pwrstate);
+int rtlvendor_rtl_get_hwinfo(struct ieee80211_hw *hw, struct rtl_priv *rtlpriv,
 		   int max_size, u8 *hwinfo, int *params);
-void rtl_fill_dummy(u8 *pfwbuf, u32 *pfwlen);
-void rtl_fw_page_write(struct ieee80211_hw *hw, u32 page, const u8 *buffer,
+void rtlvendor_rtl_fill_dummy(u8 *pfwbuf, u32 *pfwlen);
+void rtlvendor_rtl_fw_page_write(struct ieee80211_hw *hw, u32 page, const u8 *buffer,
 		       u32 size);
-void rtl_fw_block_write(struct ieee80211_hw *hw, const u8 *buffer, u32 size);
+void rtlvendor_rtl_fw_block_write(struct ieee80211_hw *hw, const u8 *buffer, u32 size);
 
 #endif

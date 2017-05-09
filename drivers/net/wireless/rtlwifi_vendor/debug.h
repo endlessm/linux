@@ -172,23 +172,23 @@ enum dbgp_flag_e {
 struct rtl_priv;
 
 __printf(5, 6)
-void _rtl_dbg_trace(struct rtl_priv *rtlpriv, u64 comp, int level,
+void rtlvendor__rtl_dbg_trace(struct rtl_priv *rtlpriv, u64 comp, int level,
 		    const char *func, const char *fmt, ...);
 
 __printf(4, 5)
-void _rtl_dbg_print(struct rtl_priv *rtlpriv, u64 comp, int level,
+void rtlvendor__rtl_dbg_print(struct rtl_priv *rtlpriv, u64 comp, int level,
 		    const char *fmt, ...);
 
-void _rtl_dbg_print_data(struct rtl_priv *rtlpriv, u64 comp, int level,
+void rtlvendor__rtl_dbg_print_data(struct rtl_priv *rtlpriv, u64 comp, int level,
 			 const char *titlestring,
 			 const void *hexdata, int hexdatalen);
 
 #define RT_TRACE(rtlpriv, comp, level, fmt, ...)			\
-	_rtl_dbg_trace(rtlpriv, comp, level,				\
+	rtlvendor__rtl_dbg_trace(rtlpriv, comp, level,				\
 		       __func__, fmt, ##__VA_ARGS__)
 
 #define RTPRINT(rtlpriv, dbgtype, dbgflag, fmt, ...)			\
-	_rtl_dbg_print(rtlpriv, dbgtype, dbgflag, fmt, ##__VA_ARGS__)
+	rtlvendor__rtl_dbg_print(rtlpriv, dbgtype, dbgflag, fmt, ##__VA_ARGS__)
 
 #define RT_TRACE_STRING(rtlpriv, comp, level, string)			\
 do {									\
@@ -201,7 +201,7 @@ do {									\
 
 #define RT_PRINT_DATA(rtlpriv, _comp, _level, _titlestring, _hexdata,	\
 		      _hexdatalen)					\
-	_rtl_dbg_print_data(rtlpriv, _comp, _level,			\
+	rtlvendor__rtl_dbg_print_data(rtlpriv, _comp, _level,			\
 			    _titlestring, _hexdata, _hexdatalen)
 
 #else
@@ -236,9 +236,9 @@ static inline void RT_PRINT_DATA(struct rtl_priv *rtlpriv,
 
 #endif
 
-void rtl_dbgp_flag_init(struct ieee80211_hw *hw);
-void rtl_debug_add_one(struct ieee80211_hw *hw);
-void rtl_debug_remove_one(struct ieee80211_hw *hw);
+void rtlvendor_rtl_dbgp_flag_init(struct ieee80211_hw *hw);
+void rtlvendor_rtl_debug_add_one(struct ieee80211_hw *hw);
+void rtlvendor_rtl_debug_remove_one(struct ieee80211_hw *hw);
 void rtl_debugfs_add_topdir(void);
 void rtl_debugfs_remove_topdir(void);
 #endif

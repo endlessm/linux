@@ -69,14 +69,14 @@
 #define TX_POWER_NEAR_FIELD_THRESH_LVL2		74
 #define TX_POWER_NEAR_FIELD_THRESH_LVL1		67
 
-void rtl92c_dm_init(struct ieee80211_hw *hw);
-void rtl92c_dm_watchdog(struct ieee80211_hw *hw);
-void rtl92c_dm_write_dig(struct ieee80211_hw *hw);
-void rtl92c_dm_init_edca_turbo(struct ieee80211_hw *hw);
-void rtl92c_dm_check_txpower_tracking(struct ieee80211_hw *hw);
-void rtl92c_dm_init_rate_adaptive_mask(struct ieee80211_hw *hw);
-void rtl92c_dm_rf_saving(struct ieee80211_hw *hw, u8 bforce_in_normal);
-void rtl92c_dm_bt_coexist(struct ieee80211_hw *hw);
+void rtlvendor_rtl92c_dm_init(struct ieee80211_hw *hw);
+void rtlvendor_rtl92c_dm_watchdog(struct ieee80211_hw *hw);
+void rtlvendor_rtl92c_dm_write_dig(struct ieee80211_hw *hw);
+void rtlvendor_rtl92c_dm_init_edca_turbo(struct ieee80211_hw *hw);
+void rtlvendor_rtl92c_dm_check_txpower_tracking(struct ieee80211_hw *hw);
+void rtlvendor_rtl92c_dm_init_rate_adaptive_mask(struct ieee80211_hw *hw);
+void rtlvendor_rtl92c_dm_rf_saving(struct ieee80211_hw *hw, u8 bforce_in_normal);
+void rtlvendor_rtl92c_dm_bt_coexist(struct ieee80211_hw *hw);
 void rtl92ce_dm_dynamic_txpower(struct ieee80211_hw *hw);
 
 #endif

@@ -96,15 +96,15 @@ int rtl8822be_init_sw_vars(struct ieee80211_hw *hw)
 
 	rtl8822be_bt_reg_init(hw);
 	rtlpci->msi_support = rtlpriv->cfg->mod_params->msi_support;
-	rtlpriv->btcoexist.btc_ops = rtl_btc_get_ops_pointer();
-	rtlpriv->halmac.ops = rtl_halmac_get_ops_pointer();
+	rtlpriv->btcoexist.btc_ops = rtlvendor_rtl_btc_get_ops_pointer();
+	rtlpriv->halmac.ops = rtlvendor_rtl_halmac_get_ops_pointer();
 	rtlpriv->halmac.ops->halmac_init_adapter(rtlpriv);
 
 	/* should after halmac_init_adapter() */
 	rtl8822be_read_eeprom_info(hw, &params);
 
 	/* need eeprom info */
-	rtlpriv->phydm.ops = rtl_phydm_get_ops_pointer();
+	rtlpriv->phydm.ops = rtlvendor_rtl_phydm_get_ops_pointer();
 	rtlpriv->phydm.ops->phydm_init_priv(rtlpriv, &params);
 
 	rtlpriv->dm.dm_initialgain_enable = 1;
@@ -201,7 +201,7 @@ int rtl8822be_init_sw_vars(struct ieee80211_hw *hw)
 	rtlpriv->max_fw_size = 0x40000;
 	pr_info("Using firmware %s\n", fw_name);
 	err = request_firmware_nowait(THIS_MODULE, 1, fw_name, rtlpriv->io.dev,
-				      GFP_KERNEL, hw, rtl_fw_cb);
+				      GFP_KERNEL, hw, rtlvendor_rtl_fw_cb);
 	if (err) {
 		pr_err("Failed to request firmware!\n");
 		return 1;
@@ -453,13 +453,13 @@ MODULE_PARM_DESC(debug_mask, "Set debug mask (default 0)");
 MODULE_PARM_DESC(disable_watchdog,
 		 "Set to 1 to disable the watchdog (default 0)\n");
 
-static SIMPLE_DEV_PM_OPS(rtlwifi_pm_ops, rtl_pci_suspend, rtl_pci_resume);
+static SIMPLE_DEV_PM_OPS(rtlwifi_pm_ops, rtlvendor_rtl_pci_suspend, rtlvendor_rtl_pci_resume);
 
 static struct pci_driver rtl8822be_driver = {
 	.name = KBUILD_MODNAME,
 	.id_table = rtl8822be_pci_ids,
-	.probe = rtl_pci_probe,
-	.remove = rtl_pci_disconnect,
+	.probe = rtlvendor_rtl_pci_probe,
+	.remove = rtlvendor_rtl_pci_disconnect,
 	.driver.pm = &rtlwifi_pm_ops,
 };
 

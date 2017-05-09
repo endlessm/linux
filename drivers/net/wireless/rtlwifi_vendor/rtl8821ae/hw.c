@@ -929,7 +929,7 @@ static bool _rtl8821ae_init_mac(struct ieee80211_hw *hw)
 
 	if (rtlhal->hw_type == HARDWARE_TYPE_RTL8812AE) {
 		/* HW Power on sequence*/
-		if (!rtl_hal_pwrseqcmdparsing(rtlpriv, PWR_CUT_ALL_MSK,
+		if (!rtlvendor_rtl_hal_pwrseqcmdparsing(rtlpriv, PWR_CUT_ALL_MSK,
 					      PWR_FAB_ALL_MSK, PWR_INTF_PCI_MSK,
 					      RTL8812_NIC_ENABLE_FLOW)) {
 				RT_TRACE(rtlpriv, COMP_INIT, DBG_LOUD,
@@ -938,7 +938,7 @@ static bool _rtl8821ae_init_mac(struct ieee80211_hw *hw)
 		}
 	} else {
 		/* HW Power on sequence */
-		if (!rtl_hal_pwrseqcmdparsing(rtlpriv, PWR_CUT_A_MSK,
+		if (!rtlvendor_rtl_hal_pwrseqcmdparsing(rtlpriv, PWR_CUT_A_MSK,
 					      PWR_FAB_ALL_MSK, PWR_INTF_PCI_MSK,
 					      RTL8821A_NIC_ENABLE_FLOW)){
 			RT_TRACE(rtlpriv, COMP_INIT, DBG_LOUD,
@@ -1825,7 +1825,7 @@ static void _rtl8821ae_poweroff_adapter(struct ieee80211_hw *hw)
 		/* RT_TRACE(rtlpriv, COMP_INIT, DBG_LOUD,
 		"=====>CardDisableRTL8812E,RTL8821A_NIC_LPS_ENTER_FLOW\n");
 		*/
-		rtl_hal_pwrseqcmdparsing(rtlpriv,
+		rtlvendor_rtl_hal_pwrseqcmdparsing(rtlpriv,
 			PWR_CUT_ALL_MSK, PWR_FAB_ALL_MSK,
 			PWR_INTF_PCI_MSK, RTL8821A_NIC_LPS_ENTER_FLOW);
 	}
@@ -1847,11 +1847,11 @@ static void _rtl8821ae_poweroff_adapter(struct ieee80211_hw *hw)
 
 	if (rtlhal->hw_type == HARDWARE_TYPE_RTL8821AE) {
 		/* HW card disable configuration. */
-		rtl_hal_pwrseqcmdparsing(rtlpriv, PWR_CUT_ALL_MSK, PWR_FAB_ALL_MSK,
+		rtlvendor_rtl_hal_pwrseqcmdparsing(rtlpriv, PWR_CUT_ALL_MSK, PWR_FAB_ALL_MSK,
 			PWR_INTF_PCI_MSK, RTL8821A_NIC_DISABLE_FLOW);
 	} else {
 		/* HW card disable configuration. */
-		rtl_hal_pwrseqcmdparsing(rtlpriv, PWR_CUT_ALL_MSK, PWR_FAB_ALL_MSK,
+		rtlvendor_rtl_hal_pwrseqcmdparsing(rtlpriv, PWR_CUT_ALL_MSK, PWR_FAB_ALL_MSK,
 			PWR_INTF_PCI_MSK, RTL8812_NIC_DISABLE_FLOW);
 	}
 
@@ -1975,7 +1975,7 @@ int rtl8821ae_hw_init(struct ieee80211_hw *hw)
 
 	rtlhal->mac_func_enable = true;
 
-	rtl_cam_reset_all_entry(hw);
+	rtlvendor_rtl_cam_reset_all_entry(hw);
 
 	rtl8821ae_enable_hw_security_config(hw);
 
@@ -2805,13 +2805,13 @@ static void _rtl8812ae_read_txpower_info_from_hwpg(struct ieee80211_hw *hw,
 		}
 
 		for (i = 0; i < CHANNEL_MAX_NUMBER_5G; i++) {
-			index = _rtl8821ae_get_chnl_group(channel5g[i]);
+			index = _rtl8821ae_get_chnl_group(rtlvendor_channel5g[i]);
 			rtlefuse->txpwr_5g_bw40base[rf_path][i] =
 					pwrinfo5g.index_bw40_base[rf_path][index];
 		}
 		for (i = 0; i < CHANNEL_MAX_NUMBER_5G_80M; i++) {
 			u8 upper, lower;
-			index = _rtl8821ae_get_chnl_group(channel5g_80m[i]);
+			index = _rtl8821ae_get_chnl_group(rtlvendor_channel5g_80m[i]);
 			upper = pwrinfo5g.index_bw40_base[rf_path][index];
 			lower = pwrinfo5g.index_bw40_base[rf_path][index + 1];
 
@@ -2883,13 +2883,13 @@ static void _rtl8821ae_read_txpower_info_from_hwpg(struct ieee80211_hw *hw,
 		}
 
 		for (i = 0; i < CHANNEL_MAX_NUMBER_5G; i++) {
-			index = _rtl8821ae_get_chnl_group(channel5g[i]);
+			index = _rtl8821ae_get_chnl_group(rtlvendor_channel5g[i]);
 			rtlefuse->txpwr_5g_bw40base[rf_path][i] =
 				pwrinfo5g.index_bw40_base[rf_path][index];
 		}
 		for (i = 0; i < CHANNEL_MAX_NUMBER_5G_80M; i++) {
 			u8 upper, lower;
-			index = _rtl8821ae_get_chnl_group(channel5g_80m[i]);
+			index = _rtl8821ae_get_chnl_group(rtlvendor_channel5g_80m[i]);
 			upper = pwrinfo5g.index_bw40_base[rf_path][index];
 			lower = pwrinfo5g.index_bw40_base[rf_path][index + 1];
 
@@ -3146,7 +3146,7 @@ static void _rtl8821ae_read_adapter_info(struct ieee80211_hw *hw, bool b_pseudo_
 	if (!hwinfo)
 		return;
 
-	if (rtl_get_hwinfo(hw, rtlpriv, HWSET_MAX_SIZE, hwinfo, params))
+	if (rtlvendor_rtl_get_hwinfo(hw, rtlpriv, HWSET_MAX_SIZE, hwinfo, params))
 		goto exit;
 
 	_rtl8821ae_read_txpower_info_from_hwpg(hw, rtlefuse->autoload_failflag,
@@ -3941,8 +3941,8 @@ void rtl8821ae_set_key(struct ieee80211_hw *hw, u32 key_index,
 		RT_TRACE(rtlpriv, COMP_SEC, DBG_DMESG, "clear_all\n");
 
 		for (idx = 0; idx < clear_number; idx++) {
-			rtl_cam_mark_invalid(hw, cam_offset + idx);
-			rtl_cam_empty_entry(hw, cam_offset + idx);
+			rtlvendor_rtl_cam_mark_invalid(hw, cam_offset + idx);
+			rtlvendor_rtl_cam_empty_entry(hw, cam_offset + idx);
 
 			if (idx < 5) {
 				memset(rtlpriv->sec.key_buf[idx], 0,
@@ -3980,7 +3980,7 @@ void rtl8821ae_set_key(struct ieee80211_hw *hw, u32 key_index,
 				entry_id = key_index;
 			} else {
 				if (mac->opmode == NL80211_IFTYPE_AP) {
-					entry_id = rtl_cam_get_free_entry(hw, p_macaddr);
+					entry_id = rtlvendor_rtl_cam_get_free_entry(hw, p_macaddr);
 					if (entry_id >=  TOTAL_CAM_ENTRY) {
 						pr_err("an not find free hwsecurity cam entry\n");
 						return;
@@ -3999,8 +3999,8 @@ void rtl8821ae_set_key(struct ieee80211_hw *hw, u32 key_index,
 				 "delete one entry, entry_id is %d\n",
 				 entry_id);
 			if (mac->opmode == NL80211_IFTYPE_AP)
-				rtl_cam_del_entry(hw, p_macaddr);
-			rtl_cam_delete_one_entry(hw, p_macaddr, entry_id);
+				rtlvendor_rtl_cam_del_entry(hw, p_macaddr);
+			rtlvendor_rtl_cam_delete_one_entry(hw, p_macaddr, entry_id);
 		} else {
 			RT_TRACE(rtlpriv, COMP_SEC, DBG_DMESG,
 				 "add one entry\n");
@@ -4008,7 +4008,7 @@ void rtl8821ae_set_key(struct ieee80211_hw *hw, u32 key_index,
 				RT_TRACE(rtlpriv, COMP_SEC, DBG_DMESG,
 					 "set Pairwise key\n");
 
-				rtl_cam_add_one_entry(hw, macaddr, key_index,
+				rtlvendor_rtl_cam_add_one_entry(hw, macaddr, key_index,
 						      entry_id, enc_algo,
 						      CAM_CONFIG_NO_USEDK,
 						      rtlpriv->sec.key_buf[key_index]);
@@ -4017,7 +4017,7 @@ void rtl8821ae_set_key(struct ieee80211_hw *hw, u32 key_index,
 					 "set group key\n");
 
 				if (mac->opmode == NL80211_IFTYPE_ADHOC) {
-					rtl_cam_add_one_entry(hw,
+					rtlvendor_rtl_cam_add_one_entry(hw,
 							rtlefuse->dev_addr,
 							PAIRWISE_KEYIDX,
 							CAM_PAIRWISE_KEY_POSITION,
@@ -4027,7 +4027,7 @@ void rtl8821ae_set_key(struct ieee80211_hw *hw, u32 key_index,
 							[entry_id]);
 				}
 
-				rtl_cam_add_one_entry(hw, macaddr, key_index,
+				rtlvendor_rtl_cam_add_one_entry(hw, macaddr, key_index,
 						entry_id, enc_algo,
 						CAM_CONFIG_NO_USEDK,
 						rtlpriv->sec.key_buf[entry_id]);

@@ -850,11 +850,11 @@ static bool _rtl88ee_init_mac(struct ieee80211_hw *hw)
 
 	rtl_write_byte(rtlpriv, REG_RSV_CTRL, 0x00);
 	/* HW Power on sequence */
-	if (!rtl_hal_pwrseqcmdparsing(rtlpriv, PWR_CUT_ALL_MSK,
+	if (!rtlvendor_rtl_hal_pwrseqcmdparsing(rtlpriv, PWR_CUT_ALL_MSK,
 				      PWR_FAB_ALL_MSK, PWR_INTF_PCI_MSK,
 				      RTL8188EE_NIC_ENABLE_FLOW)) {
 		RT_TRACE(rtlpriv, COMP_INIT, DBG_LOUD,
-			 "init MAC Fail as rtl_hal_pwrseqcmdparsing\n");
+			 "init MAC Fail as rtlvendor_rtl_hal_pwrseqcmdparsing\n");
 		return false;
 	}
 
@@ -1133,7 +1133,7 @@ int rtl88ee_hw_init(struct ieee80211_hw *hw)
 	rtlphy->rfreg_chnlval[0] = rtlphy->rfreg_chnlval[0] & 0xfff00fff;
 
 	_rtl88ee_hw_configure(hw);
-	rtl_cam_reset_all_entry(hw);
+	rtlvendor_rtl_cam_reset_all_entry(hw);
 	rtl88ee_enable_hw_security_config(hw);
 
 	rtlhal->mac_func_enable = true;
@@ -1168,7 +1168,7 @@ int rtl88ee_hw_init(struct ieee80211_hw *hw)
 		rtl88e_phy_lc_calibrate(hw);
 	}
 
-	tmp_u1b = efuse_read_1byte(hw, 0x1FA);
+	tmp_u1b = rtlvendor_efuse_read_1byte(hw, 0x1FA);
 	if (!(tmp_u1b & BIT(0))) {
 		rtl_set_rfreg(hw, RF90_PATH_A, 0x15, 0x0F, 0x05);
 		RT_TRACE(rtlpriv, COMP_INIT, DBG_LOUD, "PA BIAS path A\n");
@@ -1405,7 +1405,7 @@ static void _rtl88ee_poweroff_adapter(struct ieee80211_hw *hw)
 	}
 	rtl_write_byte(rtlpriv, REG_PCIE_CTRL_REG+1, 0xFF);
 
-	rtl_hal_pwrseqcmdparsing(rtlpriv, PWR_CUT_ALL_MSK, PWR_FAB_ALL_MSK,
+	rtlvendor_rtl_hal_pwrseqcmdparsing(rtlpriv, PWR_CUT_ALL_MSK, PWR_FAB_ALL_MSK,
 				 PWR_INTF_PCI_MSK,
 				 RTL8188EE_NIC_LPS_ENTER_FLOW);
 
@@ -1421,7 +1421,7 @@ static void _rtl88ee_poweroff_adapter(struct ieee80211_hw *hw)
 	u1b_tmp = rtl_read_byte(rtlpriv, REG_32K_CTRL);
 	rtl_write_byte(rtlpriv, REG_32K_CTRL, (u1b_tmp & (~BIT(0))));
 
-	rtl_hal_pwrseqcmdparsing(rtlpriv, PWR_CUT_ALL_MSK, PWR_FAB_ALL_MSK,
+	rtlvendor_rtl_hal_pwrseqcmdparsing(rtlpriv, PWR_CUT_ALL_MSK, PWR_FAB_ALL_MSK,
 				 PWR_INTF_PCI_MSK, RTL8188EE_NIC_DISABLE_FLOW);
 
 	u1b_tmp = rtl_read_byte(rtlpriv, REG_RSV_CTRL+1);
@@ -1844,7 +1844,7 @@ static void _rtl88ee_read_adapter_info(struct ieee80211_hw *hw)
 	if (!hwinfo)
 		return;
 
-	if (rtl_get_hwinfo(hw, rtlpriv, HWSET_MAX_SIZE, hwinfo, params))
+	if (rtlvendor_rtl_get_hwinfo(hw, rtlpriv, HWSET_MAX_SIZE, hwinfo, params))
 		goto exit;
 
 	if (rtlefuse->eeprom_oemid == 0xFF)
@@ -2325,8 +2325,8 @@ void rtl88ee_set_key(struct ieee80211_hw *hw, u32 key_index,
 		RT_TRACE(rtlpriv, COMP_SEC, DBG_DMESG, "clear_all\n");
 
 		for (idx = 0; idx < clear_number; idx++) {
-			rtl_cam_mark_invalid(hw, cam_offset + idx);
-			rtl_cam_empty_entry(hw, cam_offset + idx);
+			rtlvendor_rtl_cam_mark_invalid(hw, cam_offset + idx);
+			rtlvendor_rtl_cam_empty_entry(hw, cam_offset + idx);
 
 			if (idx < 5) {
 				memset(rtlpriv->sec.key_buf[idx], 0,
@@ -2367,7 +2367,7 @@ void rtl88ee_set_key(struct ieee80211_hw *hw, u32 key_index,
 				if (mac->opmode == NL80211_IFTYPE_AP ||
 				    mac->opmode == NL80211_IFTYPE_MESH_POINT) {
 					entry_id =
-					  rtl_cam_get_free_entry(hw, p_macaddr);
+					  rtlvendor_rtl_cam_get_free_entry(hw, p_macaddr);
 					if (entry_id >=  TOTAL_CAM_ENTRY) {
 						pr_err("Can not find free hw security cam entry\n");
 						return;
@@ -2386,8 +2386,8 @@ void rtl88ee_set_key(struct ieee80211_hw *hw, u32 key_index,
 				 entry_id);
 			if (mac->opmode == NL80211_IFTYPE_AP ||
 				mac->opmode == NL80211_IFTYPE_MESH_POINT)
-				rtl_cam_del_entry(hw, p_macaddr);
-			rtl_cam_delete_one_entry(hw, p_macaddr, entry_id);
+				rtlvendor_rtl_cam_del_entry(hw, p_macaddr);
+			rtlvendor_rtl_cam_delete_one_entry(hw, p_macaddr, entry_id);
 		} else {
 			RT_TRACE(rtlpriv, COMP_SEC, DBG_DMESG,
 				 "add one entry\n");
@@ -2395,7 +2395,7 @@ void rtl88ee_set_key(struct ieee80211_hw *hw, u32 key_index,
 				RT_TRACE(rtlpriv, COMP_SEC, DBG_DMESG,
 					 "set Pairwise key\n");
 
-				rtl_cam_add_one_entry(hw, macaddr, key_index,
+				rtlvendor_rtl_cam_add_one_entry(hw, macaddr, key_index,
 						      entry_id, enc_algo,
 						      CAM_CONFIG_NO_USEDK,
 						      rtlpriv->sec.key_buf[key_index]);
@@ -2404,7 +2404,7 @@ void rtl88ee_set_key(struct ieee80211_hw *hw, u32 key_index,
 					 "set group key\n");
 
 				if (mac->opmode == NL80211_IFTYPE_ADHOC) {
-					rtl_cam_add_one_entry(hw,
+					rtlvendor_rtl_cam_add_one_entry(hw,
 							rtlefuse->dev_addr,
 							PAIRWISE_KEYIDX,
 							CAM_PAIRWISE_KEY_POSITION,
@@ -2414,7 +2414,7 @@ void rtl88ee_set_key(struct ieee80211_hw *hw, u32 key_index,
 							[entry_id]);
 				}
 
-				rtl_cam_add_one_entry(hw, macaddr, key_index,
+				rtlvendor_rtl_cam_add_one_entry(hw, macaddr, key_index,
 						      entry_id, enc_algo,
 						      CAM_CONFIG_NO_USEDK,
 						      rtlpriv->sec.key_buf[entry_id]);

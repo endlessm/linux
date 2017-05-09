@@ -177,7 +177,7 @@ int rtl92c_init_sw_vars(struct ieee80211_hw *hw)
 	pr_info("Using firmware %s\n", fw_name);
 	err = request_firmware_nowait(THIS_MODULE, 1, fw_name,
 				      rtlpriv->io.dev, GFP_KERNEL, hw,
-				      rtl_fw_cb);
+				      rtlvendor_rtl_fw_cb);
 	if (err) {
 		pr_err("Failed to request firmware!\n");
 		return 1;
@@ -221,10 +221,10 @@ static struct rtl_hal_ops rtl8192ce_hal_ops = {
 	.query_rx_desc = rtl92ce_rx_query_desc,
 	.set_channel_access = rtl92ce_update_channel_access_setting,
 	.radio_onoff_checking = rtl92ce_gpio_radio_on_off_checking,
-	.set_bw_mode = rtl92c_phy_set_bw_mode,
-	.switch_channel = rtl92c_phy_sw_chnl,
-	.dm_watchdog = rtl92c_dm_watchdog,
-	.scan_operation_backup = rtl_phy_scan_operation_backup,
+	.set_bw_mode = rtlvendor_rtl92c_phy_set_bw_mode,
+	.switch_channel = rtlvendor_rtl92c_phy_sw_chnl,
+	.dm_watchdog = rtlvendor_rtl92c_dm_watchdog,
+	.scan_operation_backup = rtlvendor_rtl_phy_scan_operation_backup,
 	.set_rf_power_state = rtl92c_phy_set_rf_power_state,
 	.led_control = rtl92ce_led_control,
 	.set_desc = rtl92ce_set_desc,
@@ -234,8 +234,8 @@ static struct rtl_hal_ops rtl8192ce_hal_ops = {
 	.enable_hw_sec = rtl92ce_enable_hw_security_config,
 	.set_key = rtl92ce_set_key,
 	.init_sw_leds = rtl92ce_init_sw_leds,
-	.get_bbreg = rtl92c_phy_query_bb_reg,
-	.set_bbreg = rtl92c_phy_set_bb_reg,
+	.get_bbreg = rtlvendor_rtl92c_phy_query_bb_reg,
+	.set_bbreg = rtlvendor_rtl92c_phy_set_bb_reg,
 	.set_rfreg = rtl92ce_phy_set_rf_reg,
 	.get_rfreg = rtl92c_phy_query_rf_reg,
 	.phy_rf6052_config = rtl92ce_phy_rf6052_config,
@@ -246,7 +246,7 @@ static struct rtl_hal_ops rtl8192ce_hal_ops = {
 	.phy_lc_calibrate = _rtl92ce_phy_lc_calibrate,
 	.phy_set_bw_mode_callback = rtl92ce_phy_set_bw_mode_callback,
 	.dm_dynamic_txpower = rtl92ce_dm_dynamic_txpower,
-	.get_btc_status = rtl_btc_status_false,
+	.get_btc_status = rtlvendor_rtl_btc_status_false,
 };
 
 static struct rtl_mod_params rtl92ce_mod_params = {
@@ -384,13 +384,13 @@ MODULE_PARM_DESC(fwlps, "Set to 1 to use FW control power save (default 1)\n");
 MODULE_PARM_DESC(debug, "Set debug level (0-5) (default 0)");
 MODULE_PARM_DESC(debug_mask, "Set debug mask (default 0)");
 
-static SIMPLE_DEV_PM_OPS(rtlwifi_pm_ops, rtl_pci_suspend, rtl_pci_resume);
+static SIMPLE_DEV_PM_OPS(rtlwifi_pm_ops, rtlvendor_rtl_pci_suspend, rtlvendor_rtl_pci_resume);
 
 static struct pci_driver rtl92ce_driver = {
 	.name = KBUILD_MODNAME,
 	.id_table = rtl92ce_pci_ids,
-	.probe = rtl_pci_probe,
-	.remove = rtl_pci_disconnect,
+	.probe = rtlvendor_rtl_pci_probe,
+	.remove = rtlvendor_rtl_pci_disconnect,
 	.driver.pm = &rtlwifi_pm_ops,
 };
 

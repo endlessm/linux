@@ -105,7 +105,7 @@ static void _rtl8723be_query_rxphystatus(struct ieee80211_hw *hw,
 			break;
 		}
 
-		pwdb_all = rtl_query_rxpwrpercentage(rx_pwr_all);
+		pwdb_all = rtlvendor_rtl_query_rxpwrpercentage(rx_pwr_all);
 		if (pwdb_all > 100)
 			pwdb_all = 100;
 
@@ -143,7 +143,7 @@ static void _rtl8723be_query_rxphystatus(struct ieee80211_hw *hw,
 
 			pstatus->rx_pwr[i] = rx_pwr[i];
 			/* Translate DBM to percentage. */
-			rssi = rtl_query_rxpwrpercentage(rx_pwr[i]);
+			rssi = rtlvendor_rtl_query_rxpwrpercentage(rx_pwr[i]);
 			total_rssi += rssi;
 
 			pstatus->rx_mimo_signalstrength[i] = (u8)rssi;
@@ -155,7 +155,7 @@ static void _rtl8723be_query_rxphystatus(struct ieee80211_hw *hw,
 		rx_pwr_all = ((p_phystrpt->cck_sig_qual_ofdm_pwdb_all >> 1) &
 			     0x7f) - 110;
 
-		pwdb_all = rtl_query_rxpwrpercentage(rx_pwr_all);
+		pwdb_all = rtlvendor_rtl_query_rxpwrpercentage(rx_pwr_all);
 		pwdb_all_bt = pwdb_all;
 		pstatus->rx_pwdb_all = pwdb_all;
 		pstatus->bt_rx_rssi_percentage = pwdb_all_bt;
@@ -170,7 +170,7 @@ static void _rtl8723be_query_rxphystatus(struct ieee80211_hw *hw,
 			max_spatial_stream = 1;
 
 		for (i = 0; i < max_spatial_stream; i++) {
-			evm = rtl_evm_db_to_percentage(
+			evm = rtlvendor_rtl_evm_db_to_percentage(
 						p_phystrpt->stream_rxevm[i]);
 
 			if (bpacket_match_bssid) {
@@ -201,10 +201,10 @@ static void _rtl8723be_query_rxphystatus(struct ieee80211_hw *hw,
 	 * make it good looking, from 0~100.
 	 */
 	if (is_cck)
-		pstatus->signalstrength = (u8)(rtl_signal_scale_mapping(hw,
+		pstatus->signalstrength = (u8)(rtlvendor_rtl_signal_scale_mapping(hw,
 								pwdb_all));
 	else if (rf_rx_num != 0)
-		pstatus->signalstrength = (u8)(rtl_signal_scale_mapping(hw,
+		pstatus->signalstrength = (u8)(rtlvendor_rtl_signal_scale_mapping(hw,
 						total_rssi /= rf_rx_num));
 }
 
@@ -260,7 +260,7 @@ static void _rtl8723be_translate_rx_signal_stuff(struct ieee80211_hw *hw,
 				     packet_toself,
 				     packet_beacon);
 
-	rtl_process_phyinfo(hw, tmp_buf, pstatus);
+	rtlvendor_rtl_process_phyinfo(hw, tmp_buf, pstatus);
 }
 
 static void _rtl8723be_insert_emcontent(struct rtl_tcb_desc *ptcb_desc,
@@ -400,7 +400,7 @@ bool rtl8723be_rx_query_desc(struct ieee80211_hw *hw,
 	 * supported rates or MCS index if HT rates
 	 * are use (RX_FLAG_HT)
 	 */
-	rx_status->rate_idx = rtlwifi_rate_mapping(hw, status->is_ht,
+	rx_status->rate_idx = rtlvendor_rtlwifi_rate_mapping(hw, status->is_ht,
 						   false, status->rate);
 
 	rx_status->mactime = status->timestamp_low;
@@ -454,7 +454,7 @@ void rtl8723be_tx_fill_desc(struct ieee80211_hw *hw,
 				IEEE80211_HT_CAP_SUP_WIDTH_20_40;
 	}
 	seq_number = (le16_to_cpu(hdr->seq_ctrl) & IEEE80211_SCTL_SEQ) >> 4;
-	rtl_get_tcb_desc(hw, info, sta, skb, ptcb_desc);
+	rtlvendor_rtl_get_tcb_desc(hw, info, sta, skb, ptcb_desc);
 	/* reserve 8 byte for AMPDU early mode */
 	if (rtlhal->earlymode_enable) {
 		skb_push(skb, EM_HDR_LEN);
@@ -489,7 +489,7 @@ void rtl8723be_tx_fill_desc(struct ieee80211_hw *hw,
 		}
 
 		/* tx report */
-		rtl_get_tx_report(ptcb_desc, pdesc, hw);
+		rtlvendor_rtl_get_tx_report(ptcb_desc, pdesc, hw);
 
 		/* ptcb_desc->use_driver_rate = true; */
 		SET_TX_DESC_TX_RATE(pdesc, ptcb_desc->hw_rate);

@@ -794,12 +794,12 @@ void rtl8723e_dm_init(struct ieee80211_hw *hw)
 	struct rtl_priv *rtlpriv = rtl_priv(hw);
 
 	rtlpriv->dm.dm_type = DM_TYPE_BYDRIVER;
-	rtl_dm_diginit(hw, 0x20);
-	rtl8723_dm_init_dynamic_txpower(hw);
-	rtl8723_dm_init_edca_turbo(hw);
+	rtlvendor_rtl_dm_diginit(hw, 0x20);
+	rtlvendor_rtl8723_dm_init_dynamic_txpower(hw);
+	rtlvendor_rtl8723_dm_init_edca_turbo(hw);
 	rtl8723e_dm_init_rate_adaptive_mask(hw);
 	rtl8723e_dm_initialize_txpower_tracking(hw);
-	rtl8723_dm_init_dynamic_bb_powersaving(hw);
+	rtlvendor_rtl8723_dm_init_dynamic_bb_powersaving(hw);
 }
 
 void rtl8723e_dm_watchdog(struct ieee80211_hw *hw)

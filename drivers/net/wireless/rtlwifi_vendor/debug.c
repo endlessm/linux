@@ -28,7 +28,7 @@
 #include <linux/moduleparam.h>
 #include <linux/vmalloc.h>
 
-void rtl_dbgp_flag_init(struct ieee80211_hw *hw)
+void rtlvendor_rtl_dbgp_flag_init(struct ieee80211_hw *hw)
 {
 	struct rtl_priv *rtlpriv = rtl_priv(hw);
 	u8 i;
@@ -38,10 +38,10 @@ void rtl_dbgp_flag_init(struct ieee80211_hw *hw)
 
 	/*Init Debug flag enable condition */
 }
-EXPORT_SYMBOL_GPL(rtl_dbgp_flag_init);
+EXPORT_SYMBOL_GPL(rtlvendor_rtl_dbgp_flag_init);
 
 #ifdef CONFIG_RTLWIFI_DEBUG
-void _rtl_dbg_trace(struct rtl_priv *rtlpriv, u64 comp, int level,
+void rtlvendor__rtl_dbg_trace(struct rtl_priv *rtlpriv, u64 comp, int level,
 		    const char *func, const char *fmt, ...)
 {
 	if (unlikely((comp & rtlpriv->dbg.global_debug_mask) &&
@@ -59,9 +59,9 @@ void _rtl_dbg_trace(struct rtl_priv *rtlpriv, u64 comp, int level,
 		va_end(args);
 	}
 }
-EXPORT_SYMBOL_GPL(_rtl_dbg_trace);
+EXPORT_SYMBOL_GPL(rtlvendor__rtl_dbg_trace);
 
-void _rtl_dbg_print(struct rtl_priv *rtlpriv, u64 comp, int level,
+void rtlvendor__rtl_dbg_print(struct rtl_priv *rtlpriv, u64 comp, int level,
 		    const char *fmt, ...)
 {
 	if (unlikely((comp & rtlpriv->dbg.global_debug_mask) &&
@@ -79,9 +79,9 @@ void _rtl_dbg_print(struct rtl_priv *rtlpriv, u64 comp, int level,
 		va_end(args);
 	}
 }
-EXPORT_SYMBOL_GPL(_rtl_dbg_print);
+EXPORT_SYMBOL_GPL(rtlvendor__rtl_dbg_print);
 
-void _rtl_dbg_print_data(struct rtl_priv *rtlpriv, u64 comp, int level,
+void rtlvendor__rtl_dbg_print_data(struct rtl_priv *rtlpriv, u64 comp, int level,
 			 const char *titlestring,
 			 const void *hexdata, int hexdatalen)
 {
@@ -93,7 +93,7 @@ void _rtl_dbg_print_data(struct rtl_priv *rtlpriv, u64 comp, int level,
 				     hexdata, hexdatalen);
 	}
 }
-EXPORT_SYMBOL_GPL(_rtl_dbg_print_data);
+EXPORT_SYMBOL_GPL(rtlvendor__rtl_dbg_print_data);
 
 #endif
 
@@ -1048,7 +1048,7 @@ static const struct file_operations file_ops_phydm_cmd = {
 	.write = rtl_debugfs_phydm_cmd,
 };
 
-void rtl_debug_add_one(struct ieee80211_hw *hw)
+void rtlvendor_rtl_debug_add_one(struct ieee80211_hw *hw)
 {
 	struct rtl_priv *rtlpriv = rtl_priv(hw);
 	struct rtl_efuse *rtlefuse = rtl_efuse(rtl_priv(hw));
@@ -1301,9 +1301,9 @@ void rtl_debug_add_one(struct ieee80211_hw *hw)
 				rtlpriv->cfg->name, rtlpriv->dbg.debugfs_name);
 
 }
-EXPORT_SYMBOL_GPL(rtl_debug_add_one);
+EXPORT_SYMBOL_GPL(rtlvendor_rtl_debug_add_one);
 
-void rtl_debug_remove_one(struct ieee80211_hw *hw)
+void rtlvendor_rtl_debug_remove_one(struct ieee80211_hw *hw)
 {
 	struct rtl_priv *rtlpriv = rtl_priv(hw);
 
@@ -1312,7 +1312,7 @@ void rtl_debug_remove_one(struct ieee80211_hw *hw)
 
 	vfree(rtlpriv->dbg.msg_buf);
 }
-EXPORT_SYMBOL_GPL(rtl_debug_remove_one);
+EXPORT_SYMBOL_GPL(rtlvendor_rtl_debug_remove_one);
 
 void rtl_debugfs_add_topdir(void)
 {

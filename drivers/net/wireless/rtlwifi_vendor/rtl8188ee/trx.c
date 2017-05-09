@@ -134,7 +134,7 @@ static void _rtl88ee_query_rxphystatus(struct ieee80211_hw *hw,
 			break;
 		}
 		rx_pwr_all += 6;
-		pwdb_all = rtl_query_rxpwrpercentage(rx_pwr_all);
+		pwdb_all = rtlvendor_rtl_query_rxpwrpercentage(rx_pwr_all);
 		/* CCK gain is smaller than OFDM/MCS gain,  */
 		/* so we add gain diff by experiences, the val is 6 */
 		pwdb_all += 6;
@@ -198,7 +198,7 @@ static void _rtl88ee_query_rxphystatus(struct ieee80211_hw *hw,
 				      0x3f) * 2) - 110;
 
 			/* Translate DBM to percentage. */
-			rssi = rtl_query_rxpwrpercentage(rx_pwr[i]);
+			rssi = rtlvendor_rtl_query_rxpwrpercentage(rx_pwr[i]);
 			total_rssi += rssi;
 
 			/* Get Rx snr value in DB */
@@ -215,7 +215,7 @@ static void _rtl88ee_query_rxphystatus(struct ieee80211_hw *hw,
 		 */
 		rx_pwr_all = ((p_drvinfo->pwdb_all >> 1) & 0x7f) - 110;
 
-		pwdb_all = rtl_query_rxpwrpercentage(rx_pwr_all);
+		pwdb_all = rtlvendor_rtl_query_rxpwrpercentage(rx_pwr_all);
 		pstatus->rx_pwdb_all = pwdb_all;
 		pstatus->rxpower = rx_pwr_all;
 		pstatus->recvsignalpower = rx_pwr_all;
@@ -228,7 +228,7 @@ static void _rtl88ee_query_rxphystatus(struct ieee80211_hw *hw,
 			max_spatial_stream = 1;
 
 		for (i = 0; i < max_spatial_stream; i++) {
-			evm = rtl_evm_db_to_percentage(p_drvinfo->rxevm[i]);
+			evm = rtlvendor_rtl_evm_db_to_percentage(p_drvinfo->rxevm[i]);
 
 			if (bpacket_match_bssid) {
 				/* Fill value in RFD, Get the first
@@ -247,10 +247,10 @@ static void _rtl88ee_query_rxphystatus(struct ieee80211_hw *hw,
 	 * make it good looking, from 0~100.
 	 */
 	if (is_cck)
-		pstatus->signalstrength = (u8)(rtl_signal_scale_mapping(hw,
+		pstatus->signalstrength = (u8)(rtlvendor_rtl_signal_scale_mapping(hw,
 			pwdb_all));
 	else if (rf_rx_num != 0)
-		pstatus->signalstrength = (u8)(rtl_signal_scale_mapping(hw,
+		pstatus->signalstrength = (u8)(rtlvendor_rtl_signal_scale_mapping(hw,
 			total_rssi /= rf_rx_num));
 	/*HW antenna diversity*/
 	rtldm->fat_table.antsel_rx_keep_0 = phystrpt->ant_sel;
@@ -333,7 +333,7 @@ static void _rtl88ee_translate_rx_signal_stuff(struct ieee80211_hw *hw,
 				   packet_matchbssid, packet_toself,
 				   packet_beacon);
 	_rtl88ee_smart_antenna(hw, pstatus);
-	rtl_process_phyinfo(hw, tmp_buf, pstatus);
+	rtlvendor_rtl_process_phyinfo(hw, tmp_buf, pstatus);
 }
 
 static void _rtl88ee_insert_emcontent(struct rtl_tcb_desc *ptcb_desc,
@@ -472,7 +472,7 @@ bool rtl88ee_rx_query_desc(struct ieee80211_hw *hw,
 	 * are use (RX_FLAG_HT)
 	 * Notice: this is diff with windows define
 	 */
-	rx_status->rate_idx = rtlwifi_rate_mapping(hw, status->is_ht,
+	rx_status->rate_idx = rtlvendor_rtlwifi_rate_mapping(hw, status->is_ht,
 						   false, status->rate);
 
 	rx_status->mactime = status->timestamp_low;
@@ -529,7 +529,7 @@ void rtl88ee_tx_fill_desc(struct ieee80211_hw *hw,
 				IEEE80211_HT_CAP_SUP_WIDTH_20_40;
 	}
 	seq_number = (le16_to_cpu(hdr->seq_ctrl) & IEEE80211_SCTL_SEQ) >> 4;
-	rtl_get_tcb_desc(hw, info, sta, skb, ptcb_desc);
+	rtlvendor_rtl_get_tcb_desc(hw, info, sta, skb, ptcb_desc);
 	/* reserve 8 byte for AMPDU early mode */
 	if (rtlhal->earlymode_enable) {
 		skb_push(skb, EM_HDR_LEN);

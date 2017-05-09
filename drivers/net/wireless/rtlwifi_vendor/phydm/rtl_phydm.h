@@ -25,7 +25,7 @@
 #ifndef __RTL_PHYDM_H__
 #define __RTL_PHYDM_H__
 
-struct rtl_phydm_ops *rtl_phydm_get_ops_pointer(void);
+struct rtl_phydm_ops *rtlvendor_rtl_phydm_get_ops_pointer(void);
 
 #define rtlpriv_to_phydm(priv)                                                 \
 	((struct phy_dm_struct *)((priv)->phydm.internal))

@@ -184,7 +184,7 @@ static int rtl92d_init_sw_vars(struct ieee80211_hw *hw)
 	/* request fw */
 	err = request_firmware_nowait(THIS_MODULE, 1, fw_name,
 				      rtlpriv->io.dev, GFP_KERNEL, hw,
-				      rtl_fw_cb);
+				      rtlvendor_rtl_fw_cb);
 	if (err) {
 		pr_err("Failed to request firmware!\n");
 		return 1;
@@ -234,7 +234,7 @@ static struct rtl_hal_ops rtl8192de_hal_ops = {
 	.set_bw_mode = rtl92d_phy_set_bw_mode,
 	.switch_channel = rtl92d_phy_sw_chnl,
 	.dm_watchdog = rtl92d_dm_watchdog,
-	.scan_operation_backup = rtl_phy_scan_operation_backup,
+	.scan_operation_backup = rtlvendor_rtl_phy_scan_operation_backup,
 	.set_rf_power_state = rtl92d_phy_set_rf_power_state,
 	.led_control = rtl92de_led_control,
 	.set_desc = rtl92de_set_desc,
@@ -248,7 +248,7 @@ static struct rtl_hal_ops rtl8192de_hal_ops = {
 	.get_rfreg = rtl92d_phy_query_rf_reg,
 	.set_rfreg = rtl92d_phy_set_rf_reg,
 	.linked_set_reg = rtl92d_linked_set_reg,
-	.get_btc_status = rtl_btc_status_false,
+	.get_btc_status = rtlvendor_rtl_btc_status_false,
 };
 
 static struct rtl_mod_params rtl92de_mod_params = {
@@ -379,13 +379,13 @@ MODULE_PARM_DESC(fwlps, "Set to 1 to use FW control power save (default 0)\n");
 MODULE_PARM_DESC(debug, "Set debug level (0-5) (default 0)");
 MODULE_PARM_DESC(debug_mask, "Set debug mask (default 0)");
 
-static SIMPLE_DEV_PM_OPS(rtlwifi_pm_ops, rtl_pci_suspend, rtl_pci_resume);
+static SIMPLE_DEV_PM_OPS(rtlwifi_pm_ops, rtlvendor_rtl_pci_suspend, rtlvendor_rtl_pci_resume);
 
 static struct pci_driver rtl92de_driver = {
 	.name = KBUILD_MODNAME,
 	.id_table = rtl92de_pci_ids,
-	.probe = rtl_pci_probe,
-	.remove = rtl_pci_disconnect,
+	.probe = rtlvendor_rtl_pci_probe,
+	.remove = rtlvendor_rtl_pci_disconnect,
 	.driver.pm = &rtlwifi_pm_ops,
 };
 

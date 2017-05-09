@@ -1111,7 +1111,7 @@ int rtl92se_hw_init(struct ieee80211_hw *hw)
 	/* Security related
 	 * 1. Clear all H/W keys.
 	 * 2. Enable H/W encryption/decryption. */
-	rtl_cam_reset_all_entry(hw);
+	rtlvendor_rtl_cam_reset_all_entry(hw);
 	secr_value |= SCR_TXENCENABLE;
 	secr_value |= SCR_RXENCENABLE;
 	secr_value |= SCR_NOSKMC;
@@ -1654,7 +1654,7 @@ static void _rtl8192se_get_IC_Inferiority(struct ieee80211_hw *hw)
 	/* Only retrieving while using EFUSE. */
 	if ((rtlefuse->epromtype == EEPROM_BOOT_EFUSE) &&
 		!rtlefuse->autoload_failflag) {
-		efuse_id = efuse_read_1byte(hw, EFUSE_IC_ID_OFFSET);
+		efuse_id = rtlvendor_efuse_read_1byte(hw, EFUSE_IC_ID_OFFSET);
 
 		if (efuse_id == 0xfe)
 			rtlhal->ic_class = IC_INFERIORITY_B;
@@ -1675,7 +1675,7 @@ static void _rtl92se_read_adapter_info(struct ieee80211_hw *hw)
 
 	switch (rtlefuse->epromtype) {
 	case EEPROM_BOOT_EFUSE:
-		rtl_efuse_shadow_map_update(hw);
+		rtlvendor_rtl_efuse_shadow_map_update(hw);
 		break;
 
 	case EEPROM_93C46:
@@ -2431,8 +2431,8 @@ void rtl92se_set_key(struct ieee80211_hw *hw, u32 key_index, u8 *p_macaddr,
 		RT_TRACE(rtlpriv, COMP_SEC, DBG_DMESG, "clear_all\n");
 
 		for (idx = 0; idx < clear_number; idx++) {
-			rtl_cam_mark_invalid(hw, cam_offset + idx);
-			rtl_cam_empty_entry(hw, cam_offset + idx);
+			rtlvendor_rtl_cam_mark_invalid(hw, cam_offset + idx);
+			rtlvendor_rtl_cam_empty_entry(hw, cam_offset + idx);
 
 			if (idx < 5) {
 				memset(rtlpriv->sec.key_buf[idx], 0,
@@ -2471,7 +2471,7 @@ void rtl92se_set_key(struct ieee80211_hw *hw, u32 key_index, u8 *p_macaddr,
 				entry_id = key_index;
 			} else {
 				if (mac->opmode == NL80211_IFTYPE_AP) {
-					entry_id = rtl_cam_get_free_entry(hw,
+					entry_id = rtlvendor_rtl_cam_get_free_entry(hw,
 								 p_macaddr);
 					if (entry_id >=  TOTAL_CAM_ENTRY) {
 						pr_err("Can not find free hw security cam entry\n");
@@ -2491,8 +2491,8 @@ void rtl92se_set_key(struct ieee80211_hw *hw, u32 key_index, u8 *p_macaddr,
 				 "delete one entry, entry_id is %d\n",
 				 entry_id);
 			if (mac->opmode == NL80211_IFTYPE_AP)
-				rtl_cam_del_entry(hw, p_macaddr);
-			rtl_cam_delete_one_entry(hw, p_macaddr, entry_id);
+				rtlvendor_rtl_cam_del_entry(hw, p_macaddr);
+			rtlvendor_rtl_cam_delete_one_entry(hw, p_macaddr, entry_id);
 		} else {
 			RT_TRACE(rtlpriv, COMP_SEC, DBG_DMESG,
 				 "add one entry\n");
@@ -2500,7 +2500,7 @@ void rtl92se_set_key(struct ieee80211_hw *hw, u32 key_index, u8 *p_macaddr,
 				RT_TRACE(rtlpriv, COMP_SEC, DBG_DMESG,
 					 "set Pairwise key\n");
 
-				rtl_cam_add_one_entry(hw, macaddr, key_index,
+				rtlvendor_rtl_cam_add_one_entry(hw, macaddr, key_index,
 					entry_id, enc_algo,
 					CAM_CONFIG_NO_USEDK,
 					rtlpriv->sec.key_buf[key_index]);
@@ -2509,7 +2509,7 @@ void rtl92se_set_key(struct ieee80211_hw *hw, u32 key_index, u8 *p_macaddr,
 					 "set group key\n");
 
 				if (mac->opmode == NL80211_IFTYPE_ADHOC) {
-					rtl_cam_add_one_entry(hw,
+					rtlvendor_rtl_cam_add_one_entry(hw,
 						rtlefuse->dev_addr,
 						PAIRWISE_KEYIDX,
 						CAM_PAIRWISE_KEY_POSITION,
@@ -2517,7 +2517,7 @@ void rtl92se_set_key(struct ieee80211_hw *hw, u32 key_index, u8 *p_macaddr,
 						rtlpriv->sec.key_buf[entry_id]);
 				}
 
-				rtl_cam_add_one_entry(hw, macaddr, key_index,
+				rtlvendor_rtl_cam_add_one_entry(hw, macaddr, key_index,
 					      entry_id, enc_algo,
 					      CAM_CONFIG_NO_USEDK,
 					      rtlpriv->sec.key_buf[entry_id]);

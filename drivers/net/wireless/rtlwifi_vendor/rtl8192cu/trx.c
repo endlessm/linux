@@ -335,7 +335,7 @@ bool rtl92cu_rx_query_desc(struct ieee80211_hw *hw,
 	rx_status->flag |= RX_FLAG_MACTIME_START;
 	if (stats->decrypted)
 		rx_status->flag |= RX_FLAG_DECRYPTED;
-	rx_status->rate_idx = rtlwifi_rate_mapping(hw, stats->is_ht,
+	rx_status->rate_idx = rtlvendor_rtlwifi_rate_mapping(hw, stats->is_ht,
 						   false, stats->rate);
 	rx_status->mactime = GET_RX_DESC_TSFL(pdesc);
 	if (phystatus) {
@@ -402,7 +402,7 @@ static void _rtl_rx_process(struct ieee80211_hw *hw, struct sk_buff *skb)
 	if (GET_RX_DESC_RX_HT(rxdesc))
 		rx_status->flag |= RX_FLAG_HT;
 	/* Data rate */
-	rx_status->rate_idx = rtlwifi_rate_mapping(hw, stats.is_ht,
+	rx_status->rate_idx = rtlvendor_rtlwifi_rate_mapping(hw, stats.is_ht,
 						   false, stats.rate);
 	/*  There is a phy status after this rx descriptor. */
 	if (GET_RX_DESC_PHY_STATUS(rxdesc)) {
@@ -511,7 +511,7 @@ void rtl92cu_tx_fill_desc(struct ieee80211_hw *hw,
 	u8 *txdesc;
 
 	seq_number = (le16_to_cpu(hdr->seq_ctrl) & IEEE80211_SCTL_SEQ) >> 4;
-	rtl_get_tcb_desc(hw, info, sta, skb, tcb_desc);
+	rtlvendor_rtl_get_tcb_desc(hw, info, sta, skb, tcb_desc);
 	txdesc = (u8 *)skb_push(skb, RTL_TX_HEADER_SIZE);
 	memset(txdesc, 0, RTL_TX_HEADER_SIZE);
 	SET_TX_DESC_PKT_SIZE(txdesc, pktlen);

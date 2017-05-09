@@ -65,7 +65,7 @@ static void _rtl8822be_query_rxphystatus(struct ieee80211_hw *hw, u8 *phystrpt,
 	 * make it good looking, from 0~100.
 	 */
 	pstatus->signalstrength =
-		(u8)(rtl_signal_scale_mapping(hw, pstatus->rx_pwdb_all));
+		(u8)(rtlvendor_rtl_signal_scale_mapping(hw, pstatus->rx_pwdb_all));
 }
 
 static void _rtl8822be_translate_rx_signal_stuff(struct ieee80211_hw *hw,
@@ -101,7 +101,7 @@ static void _rtl8822be_translate_rx_signal_stuff(struct ieee80211_hw *hw,
 
 	/* signal statistics */
 	if (p_phystrpt)
-		rtl_process_phyinfo(hw, tmp_buf, pstatus);
+		rtlvendor_rtl_process_phyinfo(hw, tmp_buf, pstatus);
 }
 
 static void _rtl8822be_insert_emcontent(struct rtl_tcb_desc *ptcb_desc,
@@ -298,7 +298,7 @@ bool rtl8822be_rx_query_desc(struct ieee80211_hw *hw, struct rtl_stats *status,
 	 * are use (RX_FLAG_HT)
 	 */
 	/* Notice: this is diff with windows define */
-	rx_status->rate_idx = rtlwifi_rate_mapping(
+	rx_status->rate_idx = rtlvendor_rtlwifi_rate_mapping(
 		hw, status->is_ht, status->is_vht, status->rate);
 
 	rx_status->mactime = status->timestamp_low;
@@ -672,7 +672,7 @@ void rtl8822be_tx_fill_desc(struct ieee80211_hw *hw, struct ieee80211_hdr *hdr,
 	u8 short_gi = 0;
 
 	seq_number = (le16_to_cpu(hdr->seq_ctrl) & IEEE80211_SCTL_SEQ) >> 4;
-	rtl_get_tcb_desc(hw, info, sta, skb, ptcb_desc);
+	rtlvendor_rtl_get_tcb_desc(hw, info, sta, skb, ptcb_desc);
 	/* reserve 8 byte for AMPDU early mode */
 	if (rtlhal->earlymode_enable) {
 		skb_push(skb, EM_HDR_LEN);
@@ -710,7 +710,7 @@ void rtl8822be_tx_fill_desc(struct ieee80211_hw *hw, struct ieee80211_hdr *hdr,
 		}
 
 		/* tx report */
-		rtl_get_tx_report(ptcb_desc, pdesc, hw);
+		rtlvendor_rtl_get_tx_report(ptcb_desc, pdesc, hw);
 
 		if (rtlpriv->rtlhal.current_bandtype == BAND_ON_5G &&
 		    ptcb_desc->hw_rate < DESC_RATE6M) {

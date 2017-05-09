@@ -115,7 +115,7 @@ static void rtl_cam_program_entry(struct ieee80211_hw *hw, u32 entry_no,
 		 "after set key, usconfig:%x\n", us_config);
 }
 
-u8 rtl_cam_add_one_entry(struct ieee80211_hw *hw, u8 *mac_addr,
+u8 rtlvendor_rtl_cam_add_one_entry(struct ieee80211_hw *hw, u8 *mac_addr,
 			 u32 ul_key_id, u32 ul_entry_idx, u32 ul_enc_alg,
 			 u32 ul_default_key, u8 *key_content)
 {
@@ -146,9 +146,9 @@ u8 rtl_cam_add_one_entry(struct ieee80211_hw *hw, u8 *mac_addr,
 	return 1;
 
 }
-EXPORT_SYMBOL(rtl_cam_add_one_entry);
+EXPORT_SYMBOL(rtlvendor_rtl_cam_add_one_entry);
 
-int rtl_cam_delete_one_entry(struct ieee80211_hw *hw,
+int rtlvendor_rtl_cam_delete_one_entry(struct ieee80211_hw *hw,
 			     u8 *mac_addr, u32 ul_key_id)
 {
 	u32 ul_command;
@@ -163,16 +163,16 @@ int rtl_cam_delete_one_entry(struct ieee80211_hw *hw,
 	rtl_write_dword(rtlpriv, rtlpriv->cfg->maps[RWCAM], ul_command);
 
 	RT_TRACE(rtlpriv, COMP_SEC, DBG_DMESG,
-		 "rtl_cam_delete_one_entry(): WRITE A4: %x\n", 0);
+		 "rtlvendor_rtl_cam_delete_one_entry(): WRITE A4: %x\n", 0);
 	RT_TRACE(rtlpriv, COMP_SEC, DBG_DMESG,
-		 "rtl_cam_delete_one_entry(): WRITE A0: %x\n", ul_command);
+		 "rtlvendor_rtl_cam_delete_one_entry(): WRITE A0: %x\n", ul_command);
 
 	return 0;
 
 }
-EXPORT_SYMBOL(rtl_cam_delete_one_entry);
+EXPORT_SYMBOL(rtlvendor_rtl_cam_delete_one_entry);
 
-void rtl_cam_reset_all_entry(struct ieee80211_hw *hw)
+void rtlvendor_rtl_cam_reset_all_entry(struct ieee80211_hw *hw)
 {
 	u32 ul_command;
 	struct rtl_priv *rtlpriv = rtl_priv(hw);
@@ -180,9 +180,9 @@ void rtl_cam_reset_all_entry(struct ieee80211_hw *hw)
 	ul_command = BIT(31) | BIT(30);
 	rtl_write_dword(rtlpriv, rtlpriv->cfg->maps[RWCAM], ul_command);
 }
-EXPORT_SYMBOL(rtl_cam_reset_all_entry);
+EXPORT_SYMBOL(rtlvendor_rtl_cam_reset_all_entry);
 
-void rtl_cam_mark_invalid(struct ieee80211_hw *hw, u8 uc_index)
+void rtlvendor_rtl_cam_mark_invalid(struct ieee80211_hw *hw, u8 uc_index)
 {
 	struct rtl_priv *rtlpriv = rtl_priv(hw);
 
@@ -217,13 +217,13 @@ void rtl_cam_mark_invalid(struct ieee80211_hw *hw, u8 uc_index)
 	rtl_write_dword(rtlpriv, rtlpriv->cfg->maps[RWCAM], ul_command);
 
 	RT_TRACE(rtlpriv, COMP_SEC, DBG_DMESG,
-		 "rtl_cam_mark_invalid(): WRITE A4: %x\n", ul_content);
+		 "rtlvendor_rtl_cam_mark_invalid(): WRITE A4: %x\n", ul_content);
 	RT_TRACE(rtlpriv, COMP_SEC, DBG_DMESG,
-		 "rtl_cam_mark_invalid(): WRITE A0: %x\n", ul_command);
+		 "rtlvendor_rtl_cam_mark_invalid(): WRITE A0: %x\n", ul_command);
 }
-EXPORT_SYMBOL(rtl_cam_mark_invalid);
+EXPORT_SYMBOL(rtlvendor_rtl_cam_mark_invalid);
 
-void rtl_cam_empty_entry(struct ieee80211_hw *hw, u8 uc_index)
+void rtlvendor_rtl_cam_empty_entry(struct ieee80211_hw *hw, u8 uc_index)
 {
 	struct rtl_priv *rtlpriv = rtl_priv(hw);
 
@@ -267,17 +267,17 @@ void rtl_cam_empty_entry(struct ieee80211_hw *hw, u8 uc_index)
 		rtl_write_dword(rtlpriv, rtlpriv->cfg->maps[RWCAM], ul_command);
 
 		RT_TRACE(rtlpriv, COMP_SEC, DBG_LOUD,
-			 "rtl_cam_empty_entry(): WRITE A4: %x\n",
+			 "rtlvendor_rtl_cam_empty_entry(): WRITE A4: %x\n",
 			 ul_content);
 		RT_TRACE(rtlpriv, COMP_SEC, DBG_LOUD,
-			 "rtl_cam_empty_entry(): WRITE A0: %x\n",
+			 "rtlvendor_rtl_cam_empty_entry(): WRITE A0: %x\n",
 			 ul_command);
 	}
 
 }
-EXPORT_SYMBOL(rtl_cam_empty_entry);
+EXPORT_SYMBOL(rtlvendor_rtl_cam_empty_entry);
 
-u8 rtl_cam_get_free_entry(struct ieee80211_hw *hw, u8 *sta_addr)
+u8 rtlvendor_rtl_cam_get_free_entry(struct ieee80211_hw *hw, u8 *sta_addr)
 {
 	struct rtl_priv *rtlpriv = rtl_priv(hw);
 	u32 bitmap = (rtlpriv->sec.hwsec_cam_bitmap) >> 4;
@@ -308,9 +308,9 @@ u8 rtl_cam_get_free_entry(struct ieee80211_hw *hw, u8 *sta_addr)
 	}
 	return TOTAL_CAM_ENTRY;
 }
-EXPORT_SYMBOL(rtl_cam_get_free_entry);
+EXPORT_SYMBOL(rtlvendor_rtl_cam_get_free_entry);
 
-void rtl_cam_del_entry(struct ieee80211_hw *hw, u8 *sta_addr)
+void rtlvendor_rtl_cam_del_entry(struct ieee80211_hw *hw, u8 *sta_addr)
 {
 	struct rtl_priv *rtlpriv = rtl_priv(hw);
 	u32 bitmap;
@@ -340,4 +340,4 @@ void rtl_cam_del_entry(struct ieee80211_hw *hw, u8 *sta_addr)
 	}
 	return;
 }
-EXPORT_SYMBOL(rtl_cam_del_entry);
+EXPORT_SYMBOL(rtlvendor_rtl_cam_del_entry);

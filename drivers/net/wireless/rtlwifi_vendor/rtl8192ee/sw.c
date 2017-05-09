@@ -95,7 +95,7 @@ int rtl92ee_init_sw_vars(struct ieee80211_hw *hw)
 
 	rtl92ee_bt_reg_init(hw);
 	rtlpci->msi_support = rtlpriv->cfg->mod_params->msi_support;
-	rtlpriv->btcoexist.btc_ops = rtl_btc_get_ops_pointer();
+	rtlpriv->btcoexist.btc_ops = rtlvendor_rtl_btc_get_ops_pointer();
 
 	rtlpriv->dm.dm_initialgain_enable = 1;
 	rtlpriv->dm.dm_flag = 0;
@@ -178,7 +178,7 @@ int rtl92ee_init_sw_vars(struct ieee80211_hw *hw)
 	pr_info("Using firmware %s\n", fw_name);
 	err = request_firmware_nowait(THIS_MODULE, 1, fw_name,
 				      rtlpriv->io.dev, GFP_KERNEL, hw,
-				      rtl_fw_cb);
+				      rtlvendor_rtl_fw_cb);
 	if (err) {
 		pr_err("Failed to request firmware!\n");
 		return 1;
@@ -389,13 +389,13 @@ MODULE_PARM_DESC(debug, "Set debug level (0-5) (default 0)");
 MODULE_PARM_DESC(debug_mask, "Set debug mask (default 0)");
 MODULE_PARM_DESC(disable_watchdog, "Set to 1 to disable the watchdog (default 0)\n");
 
-static SIMPLE_DEV_PM_OPS(rtlwifi_pm_ops, rtl_pci_suspend, rtl_pci_resume);
+static SIMPLE_DEV_PM_OPS(rtlwifi_pm_ops, rtlvendor_rtl_pci_suspend, rtlvendor_rtl_pci_resume);
 
 static struct pci_driver rtl92ee_driver = {
 	.name = KBUILD_MODNAME,
 	.id_table = rtl92ee_pci_ids,
-	.probe = rtl_pci_probe,
-	.remove = rtl_pci_disconnect,
+	.probe = rtlvendor_rtl_pci_probe,
+	.remove = rtlvendor_rtl_pci_disconnect,
 	.driver.pm = &rtlwifi_pm_ops,
 };
 

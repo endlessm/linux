@@ -29,7 +29,7 @@
 #include <linux/export.h>
 #include "btcoexist/rtl_btc.h"
 
-bool rtl_ps_enable_nic(struct ieee80211_hw *hw)
+bool rtlvendor_rtl_ps_enable_nic(struct ieee80211_hw *hw)
 {
 	struct rtl_priv *rtlpriv = rtl_priv(hw);
 	struct rtl_ps_ctl *ppsc = rtl_psc(rtl_priv(hw));
@@ -65,14 +65,14 @@ bool rtl_ps_enable_nic(struct ieee80211_hw *hw)
 
 	return true;
 }
-EXPORT_SYMBOL(rtl_ps_enable_nic);
+EXPORT_SYMBOL(rtlvendor_rtl_ps_enable_nic);
 
-bool rtl_ps_disable_nic(struct ieee80211_hw *hw)
+bool rtlvendor_rtl_ps_disable_nic(struct ieee80211_hw *hw)
 {
 	struct rtl_priv *rtlpriv = rtl_priv(hw);
 
 	/*<1> Stop all timer */
-	rtl_deinit_deferred_work(hw);
+	rtlvendor_rtl_deinit_deferred_work(hw);
 
 	/*<2> Disable Interrupt */
 	rtlpriv->cfg->ops->disable_interrupt(hw);
@@ -83,7 +83,7 @@ bool rtl_ps_disable_nic(struct ieee80211_hw *hw)
 
 	return true;
 }
-EXPORT_SYMBOL(rtl_ps_disable_nic);
+EXPORT_SYMBOL(rtlvendor_rtl_ps_disable_nic);
 
 static bool rtl_ps_set_rf_state(struct ieee80211_hw *hw,
 				enum rf_pwrstate state_toset,
@@ -287,7 +287,7 @@ void rtl_ips_nic_off(struct ieee80211_hw *hw)
 /* NOTICE: any opmode should exc nic_on, or disable without
  * nic_on may something wrong, like adhoc TP
  */
-void rtl_ips_nic_on(struct ieee80211_hw *hw)
+void rtlvendor_rtl_ips_nic_on(struct ieee80211_hw *hw)
 {
 	struct rtl_priv *rtlpriv = rtl_priv(hw);
 	struct rtl_ps_ctl *ppsc = rtl_psc(rtl_priv(hw));
@@ -316,7 +316,7 @@ void rtl_ips_nic_on(struct ieee80211_hw *hw)
 	}
 	spin_unlock(&rtlpriv->locks.ips_lock);
 }
-EXPORT_SYMBOL_GPL(rtl_ips_nic_on);
+EXPORT_SYMBOL_GPL(rtlvendor_rtl_ips_nic_on);
 
 /*for FW LPS*/
 
@@ -490,7 +490,7 @@ static void rtl_lps_leave_core(struct ieee80211_hw *hw)
 }
 
 /* For sw LPS*/
-void rtl_swlps_beacon(struct ieee80211_hw *hw, void *data, unsigned int len)
+void rtlvendor_rtl_swlps_beacon(struct ieee80211_hw *hw, void *data, unsigned int len)
 {
 	struct rtl_priv *rtlpriv = rtl_priv(hw);
 	struct rtl_mac *mac = rtl_mac(rtl_priv(hw));
@@ -569,7 +569,7 @@ void rtl_swlps_beacon(struct ieee80211_hw *hw, void *data, unsigned int len)
 			 "u_bufferd: %x, m_buffered: %x\n", u_buffed, m_buffed);
 	}
 }
-EXPORT_SYMBOL_GPL(rtl_swlps_beacon);
+EXPORT_SYMBOL_GPL(rtlvendor_rtl_swlps_beacon);
 
 void rtl_swlps_rf_awake(struct ieee80211_hw *hw)
 {
@@ -672,7 +672,7 @@ void rtl_swlps_rf_sleep(struct ieee80211_hw *hw)
 			MSECS(sleep_intv * mac->vif->bss_conf.beacon_int - 40));
 }
 
-void rtl_lps_change_work_callback(struct work_struct *work)
+void rtlvendor_rtl_lps_change_work_callback(struct work_struct *work)
 {
 	struct rtl_works *rtlworks =
 	    container_of(work, struct rtl_works, lps_change_work);
@@ -684,9 +684,9 @@ void rtl_lps_change_work_callback(struct work_struct *work)
 	else
 		rtl_lps_leave_core(hw);
 }
-EXPORT_SYMBOL_GPL(rtl_lps_change_work_callback);
+EXPORT_SYMBOL_GPL(rtlvendor_rtl_lps_change_work_callback);
 
-void rtl_lps_enter(struct ieee80211_hw *hw)
+void rtlvendor_rtl_lps_enter(struct ieee80211_hw *hw)
 {
 	struct rtl_priv *rtlpriv = rtl_priv(hw);
 
@@ -695,9 +695,9 @@ void rtl_lps_enter(struct ieee80211_hw *hw)
 	rtlpriv->enter_ps = true;
 	schedule_work(&rtlpriv->works.lps_change_work);
 }
-EXPORT_SYMBOL_GPL(rtl_lps_enter);
+EXPORT_SYMBOL_GPL(rtlvendor_rtl_lps_enter);
 
-void rtl_lps_leave(struct ieee80211_hw *hw)
+void rtlvendor_rtl_lps_leave(struct ieee80211_hw *hw)
 {
 	struct rtl_priv *rtlpriv = rtl_priv(hw);
 
@@ -706,7 +706,7 @@ void rtl_lps_leave(struct ieee80211_hw *hw)
 	rtlpriv->enter_ps = false;
 	schedule_work(&rtlpriv->works.lps_change_work);
 }
-EXPORT_SYMBOL_GPL(rtl_lps_leave);
+EXPORT_SYMBOL_GPL(rtlvendor_rtl_lps_leave);
 
 void rtl_swlps_wq_callback(void *data)
 {
@@ -993,7 +993,7 @@ void rtl_p2p_ps_cmd(struct ieee80211_hw *hw , u8 p2p_ps_state)
 	RT_TRACE(rtlpriv, COMP_FW, DBG_LOUD, "end\n");
 }
 
-void rtl_p2p_info(struct ieee80211_hw *hw, void *data, unsigned int len)
+void rtlvendor_rtl_p2p_info(struct ieee80211_hw *hw, void *data, unsigned int len)
 {
 	struct rtl_priv *rtlpriv = rtl_priv(hw);
 	struct rtl_mac *mac = rtl_mac(rtl_priv(hw));
@@ -1022,4 +1022,4 @@ void rtl_p2p_info(struct ieee80211_hw *hw, void *data, unsigned int len)
 	else
 		rtl_p2p_noa_ie(hw , data , len - FCS_LEN);
 }
-EXPORT_SYMBOL_GPL(rtl_p2p_info);
+EXPORT_SYMBOL_GPL(rtlvendor_rtl_p2p_info);

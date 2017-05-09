@@ -87,7 +87,7 @@ struct wlan_pwr_cfg {
 #define	GET_PWR_CFG_MASK(__PWR_CMD)	(__PWR_CMD.msk)
 #define	GET_PWR_CFG_VALUE(__PWR_CMD)	(__PWR_CMD.value)
 
-bool rtl_hal_pwrseqcmdparsing(struct rtl_priv *rtlpriv, u8 cut_version,
+bool rtlvendor_rtl_hal_pwrseqcmdparsing(struct rtl_priv *rtlpriv, u8 cut_version,
 			      u8 fab_version, u8 interface_type,
 			      struct wlan_pwr_cfg pwrcfgcmd[]);
 

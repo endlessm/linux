@@ -61,7 +61,7 @@ bool rtl_btc_is_bt_lps_on(struct rtl_priv *rtlpriv);
 void rtl_btc_get_ampdu_cfg(struct rtl_priv *rtlpriv, u8 *reject_agg,
 			   u8 *ctrl_agg_size, u8 *agg_size);
 
-struct rtl_btc_ops *rtl_btc_get_ops_pointer(void);
+struct rtl_btc_ops *rtlvendor_rtl_btc_get_ops_pointer(void);
 
 u8 rtl_get_hwpg_bt_exist(struct rtl_priv *rtlpriv);
 u8 rtl_get_hwpg_bt_type(struct rtl_priv *rtlpriv);

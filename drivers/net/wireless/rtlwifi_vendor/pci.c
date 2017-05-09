@@ -530,7 +530,7 @@ static void _rtl_pci_tx_chk_waitq(struct ieee80211_hw *hw)
 		return;
 	/* we juse use em for BE/BK/VI/VO */
 	for (tid = 7; tid >= 0; tid--) {
-		u8 hw_queue = ac_to_hwq[rtl_tid_to_ac(tid)];
+		u8 hw_queue = ac_to_hwq[rtlvendor_rtl_tid_to_ac(tid)];
 		struct rtl8192_tx_ring *ring = &rtlpci->tx_ring[hw_queue];
 		while (!mac->act_scanning &&
 		       rtlpriv->psc.rfpwr_state == ERFON) {
@@ -673,7 +673,7 @@ tx_status_ok:
 	if (((rtlpriv->link_info.num_rx_inperiod +
 	      rtlpriv->link_info.num_tx_inperiod) > 8) ||
 	      (rtlpriv->link_info.num_rx_inperiod > 2))
-		rtl_lps_leave(hw);
+		rtlvendor_rtl_lps_leave(hw);
 }
 
 static int _rtl_pci_init_one_rxdesc(struct ieee80211_hw *hw,
@@ -739,7 +739,7 @@ static void _rtl_pci_rx_to_mac80211(struct ieee80211_hw *hw,
 				    struct sk_buff *skb,
 				    struct ieee80211_rx_status rx_status)
 {
-	if (unlikely(!rtl_action_proc(hw, skb, false))) {
+	if (unlikely(!rtlvendor_rtl_action_proc(hw, skb, false))) {
 		dev_kfree_skb_any(skb);
 	} else {
 		struct sk_buff *uskb = NULL;
@@ -888,7 +888,7 @@ static void _rtl_pci_rx_interrupt(struct ieee80211_hw *hw)
 				unicast = true;
 				rtlpriv->stats.rxbytesunicast += skb->len;
 			}
-			rtl_is_special_data(hw, skb, false, true);
+			rtlvendor_rtl_is_special_data(hw, skb, false, true);
 
 			if (ieee80211_is_data(fc)) {
 				rtlpriv->cfg->ops->led_control(hw, LED_CTL_RX);
@@ -896,14 +896,14 @@ static void _rtl_pci_rx_interrupt(struct ieee80211_hw *hw)
 					rtlpriv->link_info.num_rx_inperiod++;
 			}
 
-			rtl_collect_scan_list(hw, skb);
+			rtlvendor_rtl_collect_scan_list(hw, skb);
 
 			/* static bcn for roaming */
-			rtl_beacon_statistic(hw, skb);
-			rtl_p2p_info(hw, (void *)skb->data, skb->len);
+			rtlvendor_rtl_beacon_statistic(hw, skb);
+			rtlvendor_rtl_p2p_info(hw, (void *)skb->data, skb->len);
 			/* for sw lps */
-			rtl_swlps_beacon(hw, (void *)skb->data, skb->len);
-			rtl_recognize_peer(hw, (void *)skb->data, skb->len);
+			rtlvendor_rtl_swlps_beacon(hw, (void *)skb->data, skb->len);
+			rtlvendor_rtl_recognize_peer(hw, (void *)skb->data, skb->len);
 			if ((rtlpriv->mac80211.opmode == NL80211_IFTYPE_AP) &&
 			    (rtlpriv->rtlhal.current_bandtype ==
 			     BAND_ON_2_4G) &&
@@ -911,7 +911,7 @@ static void _rtl_pci_rx_interrupt(struct ieee80211_hw *hw)
 			     ieee80211_is_probe_resp(fc))) {
 				dev_kfree_skb_any(skb);
 			} else {
-				rtl_check_beacon_key(hw, (void *)skb->data,
+				rtlvendor_rtl_check_beacon_key(hw, (void *)skb->data,
 						     skb->len);
 				_rtl_pci_rx_to_mac80211(hw, skb, rx_status);
 			}
@@ -931,7 +931,7 @@ new_trx_end:
 		if (((rtlpriv->link_info.num_rx_inperiod +
 		      rtlpriv->link_info.num_tx_inperiod) > 8) ||
 		      (rtlpriv->link_info.num_rx_inperiod > 2))
-			rtl_lps_leave(hw);
+			rtlvendor_rtl_lps_leave(hw);
 		skb = new_skb;
 no_new:
 		if (rtlpriv->use_new_trx_flow) {
@@ -1271,7 +1271,7 @@ static void _rtl_pci_init_struct(struct ieee80211_hw *hw,
 		     (void (*)(unsigned long))_rtl_pci_prepare_bcn_tasklet,
 		     (unsigned long)hw);
 	INIT_WORK(&rtlpriv->works.lps_change_work,
-		  rtl_lps_change_work_callback);
+		  rtlvendor_rtl_lps_change_work_callback);
 }
 
 static int _rtl_pci_init_tx_ring(struct ieee80211_hw *hw,
@@ -1705,7 +1705,7 @@ static int rtl_pci_tx(struct ieee80211_hw *hw,
 	u8 temp_one = 1;
 
 	if (ieee80211_is_mgmt(fc))
-		rtl_tx_mgmt_proc(hw, skb);
+		rtlvendor_rtl_tx_mgmt_proc(hw, skb);
 
 	if (rtlpriv->psc.sw_ps_enabled) {
 		if (ieee80211_is_data(fc) && !ieee80211_is_nullfunc(fc) &&
@@ -1713,7 +1713,7 @@ static int rtl_pci_tx(struct ieee80211_hw *hw,
 			hdr->frame_control |= cpu_to_le16(IEEE80211_FCTL_PM);
 	}
 
-	rtl_action_proc(hw, skb, true);
+	rtlvendor_rtl_action_proc(hw, skb, true);
 
 	if (is_multicast_ether_addr(pda_addr))
 		rtlpriv->stats.txbytesmulticast += skb->len;
@@ -1911,7 +1911,7 @@ static int rtl_pci_start(struct ieee80211_hw *hw)
 	rtlpriv->cfg->ops->enable_interrupt(hw);
 	RT_TRACE(rtlpriv, COMP_INIT, DBG_LOUD, "enable_interrupt OK\n");
 
-	rtl_init_rx_config(hw);
+	rtlvendor_rtl_init_rx_config(hw);
 
 	/*should be after adapter start and interrupt enable. */
 	set_hal_start(rtlhal);
@@ -2256,7 +2256,7 @@ static void platform_enable_dma64(struct pci_dev *pdev)
 }
 #endif
 
-int rtl_pci_probe(struct pci_dev *pdev,
+int rtlvendor_rtl_pci_probe(struct pci_dev *pdev,
 			    const struct pci_device_id *id)
 {
 	struct ieee80211_hw *hw = NULL;
@@ -2297,7 +2297,7 @@ int rtl_pci_probe(struct pci_dev *pdev,
 	pci_set_master(pdev);
 
 	hw = ieee80211_alloc_hw(sizeof(struct rtl_pci_priv) +
-				sizeof(struct rtl_priv), &rtl_ops);
+				sizeof(struct rtl_priv), &rtlvendor_rtl_ops);
 	if (!hw) {
 		WARN_ONCE(true,
 			  "%s : ieee80211 alloc failed\n", pci_name(pdev));
@@ -2323,7 +2323,7 @@ int rtl_pci_probe(struct pci_dev *pdev,
 	rtlpriv->rtlhal.interface = INTF_PCI;
 	rtlpriv->cfg = (struct rtl_hal_cfg *)(id->driver_data);
 	rtlpriv->intf_ops = &rtl_pci_ops;
-	rtlpriv->glb_var = &rtl_global_var;
+	rtlpriv->glb_var = &rtlvendor_rtl_global_var;
 
 	/*
 	 *init dbgp flags before all
@@ -2333,7 +2333,7 @@ int rtl_pci_probe(struct pci_dev *pdev,
 	 *you can not use these macro
 	 *before this
 	 */
-	rtl_dbgp_flag_init(hw);
+	rtlvendor_rtl_dbgp_flag_init(hw);
 
 	/* MEM map */
 	err = pci_request_regions(pdev, KBUILD_MODNAME);
@@ -2391,7 +2391,7 @@ int rtl_pci_probe(struct pci_dev *pdev,
 	rtl_pci_init_aspm(hw);
 
 	/* Init mac80211 sw */
-	err = rtl_init_core(hw);
+	err = rtlvendor_rtl_init_core(hw);
 	if (err) {
 		pr_err("Can't allocate sw for mac80211\n");
 		goto fail3;
@@ -2412,17 +2412,17 @@ int rtl_pci_probe(struct pci_dev *pdev,
 	}
 	rtlpriv->mac80211.mac80211_registered = 1;
 
-	err = sysfs_create_group(&pdev->dev.kobj, &rtl_attribute_group);
+	err = sysfs_create_group(&pdev->dev.kobj, &rtlvendor_rtl_attribute_group);
 	if (err) {
 		pr_err("failed to create sysfs device attributes\n");
 		goto fail3;
 	}
 
 	/* add for debug */
-	rtl_debug_add_one(hw);
+	rtlvendor_rtl_debug_add_one(hw);
 
 	/*init rfkill */
-	rtl_init_rfkill(hw);	/* Init PCI sw */
+	rtlvendor_rtl_init_rfkill(hw);	/* Init PCI sw */
 
 	rtlpci = rtl_pcidev(pcipriv);
 	err = rtl_pci_intr_mode_decide(hw);
@@ -2439,7 +2439,7 @@ int rtl_pci_probe(struct pci_dev *pdev,
 
 fail3:
 	pci_set_drvdata(pdev, NULL);
-	rtl_deinit_core(hw);
+	rtlvendor_rtl_deinit_core(hw);
 
 	if (rtlpriv->io.pci_mem_start != 0)
 		pci_iounmap(pdev, (void __iomem *)rtlpriv->io.pci_mem_start);
@@ -2456,9 +2456,9 @@ fail1:
 	return err;
 
 }
-EXPORT_SYMBOL(rtl_pci_probe);
+EXPORT_SYMBOL(rtlvendor_rtl_pci_probe);
 
-void rtl_pci_disconnect(struct pci_dev *pdev)
+void rtlvendor_rtl_pci_disconnect(struct pci_dev *pdev)
 {
 	struct ieee80211_hw *hw = pci_get_drvdata(pdev);
 	struct rtl_pci_priv *pcipriv = rtl_pcipriv(hw);
@@ -2470,26 +2470,26 @@ void rtl_pci_disconnect(struct pci_dev *pdev)
 	wait_for_completion(&rtlpriv->firmware_loading_complete);
 	clear_bit(RTL_STATUS_INTERFACE_START, &rtlpriv->status);
 
-	sysfs_remove_group(&pdev->dev.kobj, &rtl_attribute_group);
+	sysfs_remove_group(&pdev->dev.kobj, &rtlvendor_rtl_attribute_group);
 
 	/* remove form debug */
-	rtl_debug_remove_one(hw);
+	rtlvendor_rtl_debug_remove_one(hw);
 
 	/*ieee80211_unregister_hw will call ops_stop */
 	if (rtlmac->mac80211_registered == 1) {
 		ieee80211_unregister_hw(hw);
 		rtlmac->mac80211_registered = 0;
 	} else {
-		rtl_deinit_deferred_work(hw);
+		rtlvendor_rtl_deinit_deferred_work(hw);
 		rtlpriv->intf_ops->adapter_stop(hw);
 	}
 	rtlpriv->cfg->ops->disable_interrupt(hw);
 
 	/*deinit rfkill */
-	rtl_deinit_rfkill(hw);
+	rtlvendor_rtl_deinit_rfkill(hw);
 
 	rtl_pci_deinit(hw);
-	rtl_deinit_core(hw);
+	rtlvendor_rtl_deinit_core(hw);
 	rtlpriv->cfg->ops->deinit_sw_vars(hw);
 
 	if (rtlpci->irq_alloc) {
@@ -2514,7 +2514,7 @@ void rtl_pci_disconnect(struct pci_dev *pdev)
 
 	ieee80211_free_hw(hw);
 }
-EXPORT_SYMBOL(rtl_pci_disconnect);
+EXPORT_SYMBOL(rtlvendor_rtl_pci_disconnect);
 
 #ifdef CONFIG_PM_SLEEP
 /***************************************
@@ -2532,34 +2532,34 @@ call rtl_mac_stop() from the mac80211
 suspend function first, So there is
 no need to call hw_disable here.
 ****************************************/
-int rtl_pci_suspend(struct device *dev)
+int rtlvendor_rtl_pci_suspend(struct device *dev)
 {
 	struct pci_dev *pdev = to_pci_dev(dev);
 	struct ieee80211_hw *hw = pci_get_drvdata(pdev);
 	struct rtl_priv *rtlpriv = rtl_priv(hw);
 
 	rtlpriv->cfg->ops->hw_suspend(hw);
-	rtl_deinit_rfkill(hw);
+	rtlvendor_rtl_deinit_rfkill(hw);
 
 	return 0;
 }
-EXPORT_SYMBOL(rtl_pci_suspend);
+EXPORT_SYMBOL(rtlvendor_rtl_pci_suspend);
 
-int rtl_pci_resume(struct device *dev)
+int rtlvendor_rtl_pci_resume(struct device *dev)
 {
 	struct pci_dev *pdev = to_pci_dev(dev);
 	struct ieee80211_hw *hw = pci_get_drvdata(pdev);
 	struct rtl_priv *rtlpriv = rtl_priv(hw);
 
 	rtlpriv->cfg->ops->hw_resume(hw);
-	rtl_init_rfkill(hw);
+	rtlvendor_rtl_init_rfkill(hw);
 	return 0;
 }
-EXPORT_SYMBOL(rtl_pci_resume);
+EXPORT_SYMBOL(rtlvendor_rtl_pci_resume);
 #endif /* CONFIG_PM_SLEEP */
 
 const struct rtl_intf_ops rtl_pci_ops = {
-	.read_efuse_byte = read_efuse_byte,
+	.rtlvendor_read_efuse_byte = rtlvendor_read_efuse_byte,
 	.adapter_start = rtl_pci_start,
 	.adapter_stop = rtl_pci_stop,
 	.check_buddy_priv = rtl_pci_check_buddy_priv,

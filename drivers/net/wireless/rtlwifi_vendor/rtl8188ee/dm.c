@@ -1767,7 +1767,7 @@ void rtl88e_dm_init(struct ieee80211_hw *hw)
 	u32 cur_igvalue = rtl_get_bbreg(hw, ROFDM0_XAAGCCORE1, 0x7f);
 
 	rtlpriv->dm.dm_type = DM_TYPE_BYDRIVER;
-	rtl_dm_diginit(hw, cur_igvalue);
+	rtlvendor_rtl_dm_diginit(hw, cur_igvalue);
 	rtl88e_dm_init_dynamic_txpower(hw);
 	rtl88e_dm_init_edca_turbo(hw);
 	rtl88e_dm_init_rate_adaptive_mask(hw);

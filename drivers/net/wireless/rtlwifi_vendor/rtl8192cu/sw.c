@@ -87,7 +87,7 @@ static int rtl92cu_init_sw_vars(struct ieee80211_hw *hw)
 	rtlpriv->max_fw_size = 0x4000;
 	err = request_firmware_nowait(THIS_MODULE, 1,
 				      fw_name, rtlpriv->io.dev,
-				      GFP_KERNEL, hw, rtl_fw_cb);
+				      GFP_KERNEL, hw, rtlvendor_rtl_fw_cb);
 	return err;
 }
 
@@ -131,18 +131,18 @@ static struct rtl_hal_ops rtl8192cu_hal_ops = {
 	.query_rx_desc = rtl92cu_rx_query_desc,
 	.set_channel_access = rtl92cu_update_channel_access_setting,
 	.radio_onoff_checking = rtl92cu_gpio_radio_on_off_checking,
-	.set_bw_mode = rtl92c_phy_set_bw_mode,
-	.switch_channel = rtl92c_phy_sw_chnl,
-	.dm_watchdog = rtl92c_dm_watchdog,
-	.scan_operation_backup = rtl_phy_scan_operation_backup,
+	.set_bw_mode = rtlvendor_rtl92c_phy_set_bw_mode,
+	.switch_channel = rtlvendor_rtl92c_phy_sw_chnl,
+	.dm_watchdog = rtlvendor_rtl92c_dm_watchdog,
+	.scan_operation_backup = rtlvendor_rtl_phy_scan_operation_backup,
 	.set_rf_power_state = rtl92cu_phy_set_rf_power_state,
 	.led_control = rtl92cu_led_control,
 	.enable_hw_sec = rtl92cu_enable_hw_security_config,
 	.set_key = rtl92c_set_key,
 	.init_sw_leds = rtl92cu_init_sw_leds,
 	.deinit_sw_leds = rtl92cu_deinit_sw_leds,
-	.get_bbreg = rtl92c_phy_query_bb_reg,
-	.set_bbreg = rtl92c_phy_set_bb_reg,
+	.get_bbreg = rtlvendor_rtl92c_phy_query_bb_reg,
+	.set_bbreg = rtlvendor_rtl92c_phy_set_bb_reg,
 	.get_rfreg = rtl92cu_phy_query_rf_reg,
 	.set_rfreg = rtl92cu_phy_set_rf_reg,
 	.phy_rf6052_config = rtl92cu_phy_rf6052_config,
@@ -153,7 +153,7 @@ static struct rtl_hal_ops rtl8192cu_hal_ops = {
 	.phy_lc_calibrate = _rtl92cu_phy_lc_calibrate,
 	.phy_set_bw_mode_callback = rtl92cu_phy_set_bw_mode_callback,
 	.dm_dynamic_txpower = rtl92cu_dm_dynamic_txpower,
-	.fill_h2c_cmd = rtl92c_fill_h2c_cmd,
+	.fill_h2c_cmd = rtlvendor_rtl92c_fill_h2c_cmd,
 	.get_btc_status = rtl92cu_get_btc_status,
 };
 
@@ -394,18 +394,18 @@ MODULE_DEVICE_TABLE(usb, rtl8192c_usb_ids);
 static int rtl8192cu_probe(struct usb_interface *intf,
 			   const struct usb_device_id *id)
 {
-	return rtl_usb_probe(intf, id, &rtl92cu_hal_cfg);
+	return rtlvendor_rtl_usb_probe(intf, id, &rtl92cu_hal_cfg);
 }
 
 static struct usb_driver rtl8192cu_driver = {
 	.name = "rtl8192cu",
 	.probe = rtl8192cu_probe,
-	.disconnect = rtl_usb_disconnect,
+	.disconnect = rtlvendor_rtl_usb_disconnect,
 	.id_table = rtl8192c_usb_ids,
 
 #ifdef CONFIG_PM
-	/* .suspend = rtl_usb_suspend, */
-	/* .resume = rtl_usb_resume, */
+	/* .suspend = rtlvendor_rtl_usb_suspend, */
+	/* .resume = rtlvendor_rtl_usb_resume, */
 	/* .reset_resume = rtl8192c_resume, */
 #endif /* CONFIG_PM */
 	.disable_hub_initiated_lpm = 1,

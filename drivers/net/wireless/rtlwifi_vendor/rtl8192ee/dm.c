@@ -1064,7 +1064,7 @@ void rtl92ee_dm_init(struct ieee80211_hw *hw)
 
 	rtlpriv->dm.dm_type = DM_TYPE_BYDRIVER;
 
-	rtl_dm_diginit(hw, cur_igvalue);
+	rtlvendor_rtl_dm_diginit(hw, cur_igvalue);
 	rtl92ee_dm_init_rate_adaptive_mask(hw);
 	rtl92ee_dm_init_primary_cca_check(hw);
 	rtl92ee_dm_init_edca_turbo(hw);

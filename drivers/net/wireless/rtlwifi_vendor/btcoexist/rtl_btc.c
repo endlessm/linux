@@ -342,11 +342,11 @@ void rtl_btc_switch_band_notify_wifionly(struct rtl_priv *rtlpriv, u8 band_type,
 	exhalbtc_switch_band_notify_wifi_only(&gl_bt_coexist_wifi_only, is_5g);
 }
 
-struct rtl_btc_ops *rtl_btc_get_ops_pointer(void)
+struct rtl_btc_ops *rtlvendor_rtl_btc_get_ops_pointer(void)
 {
 	return &rtl_btc_operation;
 }
-EXPORT_SYMBOL(rtl_btc_get_ops_pointer);
+EXPORT_SYMBOL(rtlvendor_rtl_btc_get_ops_pointer);
 
 
 enum rt_media_status mgnt_link_status_query(struct ieee80211_hw *hw)

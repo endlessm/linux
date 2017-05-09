@@ -238,8 +238,8 @@ void rtl92c_set_key(struct ieee80211_hw *hw, u32 key_index,
 
 		RT_TRACE(rtlpriv, COMP_SEC, DBG_DMESG, "clear_all\n");
 		for (idx = 0; idx < clear_number; idx++) {
-			rtl_cam_mark_invalid(hw, cam_offset + idx);
-			rtl_cam_empty_entry(hw, cam_offset + idx);
+			rtlvendor_rtl_cam_mark_invalid(hw, cam_offset + idx);
+			rtlvendor_rtl_cam_empty_entry(hw, cam_offset + idx);
 			if (idx < 5) {
 				memset(rtlpriv->sec.key_buf[idx], 0,
 				       MAX_KEY_LEN);
@@ -275,7 +275,7 @@ void rtl92c_set_key(struct ieee80211_hw *hw, u32 key_index,
 			} else {
 				if (mac->opmode == NL80211_IFTYPE_AP ||
 				    mac->opmode == NL80211_IFTYPE_MESH_POINT) {
-					entry_id = rtl_cam_get_free_entry(hw,
+					entry_id = rtlvendor_rtl_cam_get_free_entry(hw,
 								 p_macaddr);
 					if (entry_id >=  TOTAL_CAM_ENTRY) {
 						pr_err("Can not find free hw security cam entry\n");
@@ -294,8 +294,8 @@ void rtl92c_set_key(struct ieee80211_hw *hw, u32 key_index,
 				 "delete one entry\n");
 			if (mac->opmode == NL80211_IFTYPE_AP ||
 			    mac->opmode == NL80211_IFTYPE_MESH_POINT)
-				rtl_cam_del_entry(hw, p_macaddr);
-			rtl_cam_delete_one_entry(hw, p_macaddr, entry_id);
+				rtlvendor_rtl_cam_del_entry(hw, p_macaddr);
+			rtlvendor_rtl_cam_delete_one_entry(hw, p_macaddr, entry_id);
 		} else {
 			RT_TRACE(rtlpriv, COMP_SEC, DBG_LOUD,
 				 "The insert KEY length is %d\n",
@@ -315,7 +315,7 @@ void rtl92c_set_key(struct ieee80211_hw *hw, u32 key_index,
 				RT_TRACE(rtlpriv, COMP_SEC, DBG_DMESG,
 					 "set Pairwise key\n");
 
-				rtl_cam_add_one_entry(hw, macaddr, key_index,
+				rtlvendor_rtl_cam_add_one_entry(hw, macaddr, key_index,
 						entry_id, enc_algo,
 						CAM_CONFIG_NO_USEDK,
 						rtlpriv->sec.
@@ -324,7 +324,7 @@ void rtl92c_set_key(struct ieee80211_hw *hw, u32 key_index,
 				RT_TRACE(rtlpriv, COMP_SEC, DBG_DMESG,
 					 "set group key\n");
 				if (mac->opmode == NL80211_IFTYPE_ADHOC) {
-					rtl_cam_add_one_entry(hw,
+					rtlvendor_rtl_cam_add_one_entry(hw,
 						rtlefuse->dev_addr,
 						PAIRWISE_KEYIDX,
 						CAM_PAIRWISE_KEY_POSITION,
@@ -333,7 +333,7 @@ void rtl92c_set_key(struct ieee80211_hw *hw, u32 key_index,
 						rtlpriv->sec.key_buf
 						[entry_id]);
 				}
-				rtl_cam_add_one_entry(hw, macaddr, key_index,
+				rtlvendor_rtl_cam_add_one_entry(hw, macaddr, key_index,
 						entry_id, enc_algo,
 						CAM_CONFIG_NO_USEDK,
 						rtlpriv->sec.key_buf[entry_id]);
@@ -385,7 +385,7 @@ void rtl92c_set_qos(struct ieee80211_hw *hw, int aci)
 {
 	struct rtl_priv *rtlpriv = rtl_priv(hw);
 
-	rtl92c_dm_init_edca_turbo(hw);
+	rtlvendor_rtl92c_dm_init_edca_turbo(hw);
 	rtlpriv->cfg->ops->set_hw_reg(hw, HW_VAR_AC_PARAM, (u8 *)&aci);
 }
 
@@ -814,5 +814,5 @@ void rtl92c_translate_rx_signal_stuff(struct ieee80211_hw *hw,
 	_rtl92c_query_rxphystatus(hw, pstats, pdesc, p_drvinfo,
 				   packet_matchbssid, packet_toself,
 				   packet_beacon);
-	rtl_process_phyinfo(hw, tmp_buf, pstats);
+	rtlvendor_rtl_process_phyinfo(hw, tmp_buf, pstats);
 }

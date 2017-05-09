@@ -62,8 +62,8 @@ u32 rtl8723be_phy_query_rf_reg(struct ieee80211_hw *hw, enum radio_path rfpath,
 
 	spin_lock_irqsave(&rtlpriv->locks.rf_lock, flags);
 
-	original_value = rtl8723_phy_rf_serial_read(hw, rfpath, regaddr);
-	bitshift = rtl8723_phy_calculate_bit_shift(bitmask);
+	original_value = rtlvendor_rtl8723_phy_rf_serial_read(hw, rfpath, regaddr);
+	bitshift = rtlvendor_rtl8723_phy_calculate_bit_shift(bitmask);
 	readback_value = (original_value & bitmask) >> bitshift;
 
 	spin_unlock_irqrestore(&rtlpriv->locks.rf_lock, flags);
@@ -89,14 +89,14 @@ void rtl8723be_phy_set_rf_reg(struct ieee80211_hw *hw, enum radio_path path,
 	spin_lock_irqsave(&rtlpriv->locks.rf_lock, flags);
 
 	if (bitmask != RFREG_OFFSET_MASK) {
-			original_value = rtl8723_phy_rf_serial_read(hw, path,
+			original_value = rtlvendor_rtl8723_phy_rf_serial_read(hw, path,
 								    regaddr);
-			bitshift = rtl8723_phy_calculate_bit_shift(bitmask);
+			bitshift = rtlvendor_rtl8723_phy_calculate_bit_shift(bitmask);
 			data = ((original_value & (~bitmask)) |
 				(data << bitshift));
 		}
 
-	rtl8723_phy_rf_serial_write(hw, path, regaddr, data);
+	rtlvendor_rtl8723_phy_rf_serial_write(hw, path, regaddr, data);
 
 	spin_unlock_irqrestore(&rtlpriv->locks.rf_lock, flags);
 
@@ -123,7 +123,7 @@ bool rtl8723be_phy_bb_config(struct ieee80211_hw *hw)
 	u8 b_reg_hwparafile = 1;
 	u32 tmp;
 	u8 crystalcap = rtlpriv->efuse.crystalcap;
-	rtl8723_phy_init_bb_rf_reg_def(hw);
+	rtlvendor_rtl8723_phy_init_bb_rf_reg_def(hw);
 	regval = rtl_read_word(rtlpriv, REG_SYS_FUNC_EN);
 	rtl_write_word(rtlpriv, REG_SYS_FUNC_EN,
 		       regval | BIT(13) | BIT(0) | BIT(1));
@@ -1019,104 +1019,104 @@ static void _rtl8723be_phy_set_txpower_index(struct ieee80211_hw *hw,
 	if (path == RF90_PATH_A) {
 		switch (rate) {
 		case DESC92C_RATE1M:
-			rtl8723_phy_set_bb_reg(hw, RTXAGC_A_CCK1_MCS32,
+			rtlvendor_rtl8723_phy_set_bb_reg(hw, RTXAGC_A_CCK1_MCS32,
 					       MASKBYTE1, power_index);
 			break;
 		case DESC92C_RATE2M:
-			rtl8723_phy_set_bb_reg(hw, RTXAGC_B_CCK11_A_CCK2_11,
+			rtlvendor_rtl8723_phy_set_bb_reg(hw, RTXAGC_B_CCK11_A_CCK2_11,
 					       MASKBYTE1, power_index);
 			break;
 		case DESC92C_RATE5_5M:
-			rtl8723_phy_set_bb_reg(hw, RTXAGC_B_CCK11_A_CCK2_11,
+			rtlvendor_rtl8723_phy_set_bb_reg(hw, RTXAGC_B_CCK11_A_CCK2_11,
 					       MASKBYTE2, power_index);
 			break;
 		case DESC92C_RATE11M:
-			rtl8723_phy_set_bb_reg(hw, RTXAGC_B_CCK11_A_CCK2_11,
+			rtlvendor_rtl8723_phy_set_bb_reg(hw, RTXAGC_B_CCK11_A_CCK2_11,
 					       MASKBYTE3, power_index);
 			break;
 
 		case DESC92C_RATE6M:
-			rtl8723_phy_set_bb_reg(hw, RTXAGC_A_RATE18_06,
+			rtlvendor_rtl8723_phy_set_bb_reg(hw, RTXAGC_A_RATE18_06,
 					       MASKBYTE0, power_index);
 			break;
 		case DESC92C_RATE9M:
-			rtl8723_phy_set_bb_reg(hw, RTXAGC_A_RATE18_06,
+			rtlvendor_rtl8723_phy_set_bb_reg(hw, RTXAGC_A_RATE18_06,
 					       MASKBYTE1, power_index);
 			break;
 		case DESC92C_RATE12M:
-			rtl8723_phy_set_bb_reg(hw, RTXAGC_A_RATE18_06,
+			rtlvendor_rtl8723_phy_set_bb_reg(hw, RTXAGC_A_RATE18_06,
 					       MASKBYTE2, power_index);
 			break;
 		case DESC92C_RATE18M:
-			rtl8723_phy_set_bb_reg(hw, RTXAGC_A_RATE18_06,
+			rtlvendor_rtl8723_phy_set_bb_reg(hw, RTXAGC_A_RATE18_06,
 					       MASKBYTE3, power_index);
 			break;
 
 		case DESC92C_RATE24M:
-			rtl8723_phy_set_bb_reg(hw, RTXAGC_A_RATE54_24,
+			rtlvendor_rtl8723_phy_set_bb_reg(hw, RTXAGC_A_RATE54_24,
 					       MASKBYTE0, power_index);
 			break;
 		case DESC92C_RATE36M:
-			rtl8723_phy_set_bb_reg(hw, RTXAGC_A_RATE54_24,
+			rtlvendor_rtl8723_phy_set_bb_reg(hw, RTXAGC_A_RATE54_24,
 					       MASKBYTE1, power_index);
 			break;
 		case DESC92C_RATE48M:
-			rtl8723_phy_set_bb_reg(hw, RTXAGC_A_RATE54_24,
+			rtlvendor_rtl8723_phy_set_bb_reg(hw, RTXAGC_A_RATE54_24,
 					       MASKBYTE2, power_index);
 			break;
 		case DESC92C_RATE54M:
-			rtl8723_phy_set_bb_reg(hw, RTXAGC_A_RATE54_24,
+			rtlvendor_rtl8723_phy_set_bb_reg(hw, RTXAGC_A_RATE54_24,
 					       MASKBYTE3, power_index);
 			break;
 
 		case DESC92C_RATEMCS0:
-			rtl8723_phy_set_bb_reg(hw, RTXAGC_A_MCS03_MCS00,
+			rtlvendor_rtl8723_phy_set_bb_reg(hw, RTXAGC_A_MCS03_MCS00,
 					       MASKBYTE0, power_index);
 			break;
 		case DESC92C_RATEMCS1:
-			rtl8723_phy_set_bb_reg(hw, RTXAGC_A_MCS03_MCS00,
+			rtlvendor_rtl8723_phy_set_bb_reg(hw, RTXAGC_A_MCS03_MCS00,
 					       MASKBYTE1, power_index);
 			break;
 		case DESC92C_RATEMCS2:
-			rtl8723_phy_set_bb_reg(hw, RTXAGC_A_MCS03_MCS00,
+			rtlvendor_rtl8723_phy_set_bb_reg(hw, RTXAGC_A_MCS03_MCS00,
 					       MASKBYTE2, power_index);
 			break;
 		case DESC92C_RATEMCS3:
-			rtl8723_phy_set_bb_reg(hw, RTXAGC_A_MCS03_MCS00,
+			rtlvendor_rtl8723_phy_set_bb_reg(hw, RTXAGC_A_MCS03_MCS00,
 					       MASKBYTE3, power_index);
 			break;
 
 		case DESC92C_RATEMCS4:
-			rtl8723_phy_set_bb_reg(hw, RTXAGC_A_MCS07_MCS04,
+			rtlvendor_rtl8723_phy_set_bb_reg(hw, RTXAGC_A_MCS07_MCS04,
 					       MASKBYTE0, power_index);
 			break;
 		case DESC92C_RATEMCS5:
-			rtl8723_phy_set_bb_reg(hw, RTXAGC_A_MCS07_MCS04,
+			rtlvendor_rtl8723_phy_set_bb_reg(hw, RTXAGC_A_MCS07_MCS04,
 					       MASKBYTE1, power_index);
 			break;
 		case DESC92C_RATEMCS6:
-			rtl8723_phy_set_bb_reg(hw, RTXAGC_A_MCS07_MCS04,
+			rtlvendor_rtl8723_phy_set_bb_reg(hw, RTXAGC_A_MCS07_MCS04,
 					       MASKBYTE2, power_index);
 			break;
 		case DESC92C_RATEMCS7:
-			rtl8723_phy_set_bb_reg(hw, RTXAGC_A_MCS07_MCS04,
+			rtlvendor_rtl8723_phy_set_bb_reg(hw, RTXAGC_A_MCS07_MCS04,
 					       MASKBYTE3, power_index);
 			break;
 
 		case DESC92C_RATEMCS8:
-			rtl8723_phy_set_bb_reg(hw, RTXAGC_A_MCS11_MCS08,
+			rtlvendor_rtl8723_phy_set_bb_reg(hw, RTXAGC_A_MCS11_MCS08,
 					       MASKBYTE0, power_index);
 			break;
 		case DESC92C_RATEMCS9:
-			rtl8723_phy_set_bb_reg(hw, RTXAGC_A_MCS11_MCS08,
+			rtlvendor_rtl8723_phy_set_bb_reg(hw, RTXAGC_A_MCS11_MCS08,
 					       MASKBYTE1, power_index);
 			break;
 		case DESC92C_RATEMCS10:
-			rtl8723_phy_set_bb_reg(hw, RTXAGC_A_MCS11_MCS08,
+			rtlvendor_rtl8723_phy_set_bb_reg(hw, RTXAGC_A_MCS11_MCS08,
 					       MASKBYTE2, power_index);
 			break;
 		case DESC92C_RATEMCS11:
-			rtl8723_phy_set_bb_reg(hw, RTXAGC_A_MCS11_MCS08,
+			rtlvendor_rtl8723_phy_set_bb_reg(hw, RTXAGC_A_MCS11_MCS08,
 					       MASKBYTE3, power_index);
 			break;
 
@@ -1370,16 +1370,16 @@ static bool _rtl8723be_phy_sw_chnl_step_by_step(struct ieee80211_hw *hw,
 	u8 num_total_rfpath = rtlphy->num_total_rfpath;
 
 	precommoncmdcnt = 0;
-	rtl8723_phy_set_sw_chnl_cmdarray(precommoncmd, precommoncmdcnt++,
+	rtlvendor_rtl8723_phy_set_sw_chnl_cmdarray(precommoncmd, precommoncmdcnt++,
 					 MAX_PRECMD_CNT,
 					 CMDID_SET_TXPOWEROWER_LEVEL,
 					 0, 0, 0);
-	rtl8723_phy_set_sw_chnl_cmdarray(precommoncmd, precommoncmdcnt++,
+	rtlvendor_rtl8723_phy_set_sw_chnl_cmdarray(precommoncmd, precommoncmdcnt++,
 					 MAX_PRECMD_CNT, CMDID_END, 0, 0, 0);
 
 	postcommoncmdcnt = 0;
 
-	rtl8723_phy_set_sw_chnl_cmdarray(postcommoncmd, postcommoncmdcnt++,
+	rtlvendor_rtl8723_phy_set_sw_chnl_cmdarray(postcommoncmd, postcommoncmdcnt++,
 					 MAX_POSTCMD_CNT, CMDID_END,
 					    0, 0, 0);
 
@@ -1388,12 +1388,12 @@ static bool _rtl8723be_phy_sw_chnl_step_by_step(struct ieee80211_hw *hw,
 	WARN_ONCE((channel < 1 || channel > 14),
 		  "rtl8723be: illegal channel for Zebra: %d\n", channel);
 
-	rtl8723_phy_set_sw_chnl_cmdarray(rfdependcmd, rfdependcmdcnt++,
+	rtlvendor_rtl8723_phy_set_sw_chnl_cmdarray(rfdependcmd, rfdependcmdcnt++,
 					 MAX_RFDEPENDCMD_CNT,
 					 CMDID_RF_WRITEREG,
 					 RF_CHNLBW, channel, 10);
 
-	rtl8723_phy_set_sw_chnl_cmdarray(rfdependcmd, rfdependcmdcnt++,
+	rtlvendor_rtl8723_phy_set_sw_chnl_cmdarray(rfdependcmd, rfdependcmdcnt++,
 					 MAX_RFDEPENDCMD_CNT,
 					    CMDID_END, 0, 0, 0);
 
@@ -2054,15 +2054,15 @@ static void _rtl8723be_phy_iq_calibrate(struct ieee80211_hw *hw,
 	tmp_reg_c58 = rtl_get_bbreg(hw, 0xc58, MASKBYTE0);
 
 	if (t == 0) {
-		rtl8723_save_adda_registers(hw, adda_reg,
+		rtlvendor_rtl8723_save_adda_registers(hw, adda_reg,
 					    rtlphy->adda_backup, 16);
-		rtl8723_phy_save_mac_registers(hw, iqk_mac_reg,
+		rtlvendor_rtl8723_phy_save_mac_registers(hw, iqk_mac_reg,
 					       rtlphy->iqk_mac_backup);
-		rtl8723_save_adda_registers(hw, iqk_bb_reg,
+		rtlvendor_rtl8723_save_adda_registers(hw, iqk_bb_reg,
 					    rtlphy->iqk_bb_backup,
 					    IQK_BB_REG_NUM);
 	}
-	rtl8723_phy_path_adda_on(hw, adda_reg, true, is2t);
+	rtlvendor_rtl8723_phy_path_adda_on(hw, adda_reg, true, is2t);
 	if (t == 0) {
 		rtlphy->rfpi_enable = (u8)rtl_get_bbreg(hw,
 						RFPGA0_XA_HSSIPARAMETER1,
@@ -2071,7 +2071,7 @@ static void _rtl8723be_phy_iq_calibrate(struct ieee80211_hw *hw,
 
 	path_sel_bb = rtl_get_bbreg(hw, 0x948, MASKDWORD);
 
-	rtl8723_phy_mac_setting_calibration(hw, iqk_mac_reg,
+	rtlvendor_rtl8723_phy_mac_setting_calibration(hw, iqk_mac_reg,
 					    rtlphy->iqk_mac_backup);
 	/*BB Setting*/
 	rtl_set_bbreg(hw, 0xa04, 0x0f000000, 0xf);
@@ -2155,11 +2155,11 @@ static void _rtl8723be_phy_iq_calibrate(struct ieee80211_hw *hw,
 	rtl_set_bbreg(hw, RFPGA0_IQK, MASKDWORD, 0);
 
 	if (t != 0) {
-		rtl8723_phy_reload_adda_registers(hw, adda_reg,
+		rtlvendor_rtl8723_phy_reload_adda_registers(hw, adda_reg,
 						  rtlphy->adda_backup, 16);
-		rtl8723_phy_reload_mac_registers(hw, iqk_mac_reg,
+		rtlvendor_rtl8723_phy_reload_mac_registers(hw, iqk_mac_reg,
 						 rtlphy->iqk_mac_backup);
-		rtl8723_phy_reload_adda_registers(hw, iqk_bb_reg,
+		rtlvendor_rtl8723_phy_reload_adda_registers(hw, iqk_bb_reg,
 						  rtlphy->iqk_bb_backup,
 						  IQK_BB_REG_NUM);
 
@@ -2298,7 +2298,7 @@ void rtl8723be_phy_iq_calibrate(struct ieee80211_hw *hw, bool b_recovery)
 	spin_unlock(&rtlpriv->locks.iqk_lock);
 
 	if (b_recovery) {
-		rtl8723_phy_reload_adda_registers(hw, iqk_bb_reg,
+		rtlvendor_rtl8723_phy_reload_adda_registers(hw, iqk_bb_reg,
 						  rtlphy->iqk_bb_backup, 9);
 		goto label_done;
 	}
@@ -2385,7 +2385,7 @@ void rtl8723be_phy_iq_calibrate(struct ieee80211_hw *hw, bool b_recovery)
 		rtlphy->reg_ebc = 0x0;
 	}
 	if (reg_e94 != 0)
-		rtl8723_phy_path_a_fill_iqk_matrix(hw, b_patha_ok, result,
+		rtlvendor_rtl8723_phy_path_a_fill_iqk_matrix(hw, b_patha_ok, result,
 						   final_candidate,
 						   (reg_ea4 == 0));
 	if (reg_eb4 != 0)
@@ -2402,7 +2402,7 @@ void rtl8723be_phy_iq_calibrate(struct ieee80211_hw *hw, bool b_recovery)
 		rtlphy->iqk_matrix[idx].iqk_done = true;
 
 	}
-	rtl8723_save_adda_registers(hw, iqk_bb_reg,
+	rtlvendor_rtl8723_save_adda_registers(hw, iqk_bb_reg,
 				    rtlphy->iqk_bb_backup, 9);
 
 	rtl_set_bbreg(hw, 0x948, MASKDWORD, path_sel_bb);
@@ -2491,7 +2491,7 @@ static void rtl8723be_phy_set_io(struct ieee80211_hw *hw)
 	switch (rtlphy->current_io_type) {
 	case IO_CMD_RESUME_DM_BY_SCAN:
 		dm_digtable->cur_igvalue = rtlphy->initgain_backup.xaagccore1;
-		/*rtl92c_dm_write_dig(hw);*/
+		/*rtlvendor_rtl92c_dm_write_dig(hw);*/
 		rtl8723be_phy_set_txpower_level(hw, rtlphy->current_channel);
 		rtl_set_bbreg(hw, RCCK0_CCA, 0xff0000, 0x83);
 		break;
@@ -2553,7 +2553,7 @@ static bool _rtl8723be_phy_set_rf_power_state(struct ieee80211_hw *hw,
 				initializecount++;
 				RT_TRACE(rtlpriv, COMP_RF, DBG_DMESG,
 					 "IPS Set eRf nic enable\n");
-				rtstatus = rtl_ps_enable_nic(hw);
+				rtstatus = rtlvendor_rtl_ps_enable_nic(hw);
 			} while (!rtstatus && (initializecount < 10));
 			RT_CLEAR_PS_LEVEL(ppsc, RT_RF_OFF_LEVL_HALT_NIC);
 		} else {
@@ -2605,7 +2605,7 @@ static bool _rtl8723be_phy_set_rf_power_state(struct ieee80211_hw *hw,
 		if (ppsc->reg_rfps_level & RT_RF_OFF_LEVL_HALT_NIC) {
 			RT_TRACE(rtlpriv, COMP_RF, DBG_DMESG,
 				 "IPS Set eRf nic disable\n");
-			rtl_ps_disable_nic(hw);
+			rtlvendor_rtl_ps_disable_nic(hw);
 			RT_SET_PS_LEVEL(ppsc, RT_RF_OFF_LEVL_HALT_NIC);
 		} else {
 			if (ppsc->rfoff_reason == RF_CHANGE_BY_IPS) {

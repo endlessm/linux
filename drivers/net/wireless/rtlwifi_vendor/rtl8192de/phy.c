@@ -565,7 +565,7 @@ static bool _rtl92d_phy_config_bb_with_headerfile(struct ieee80211_hw *hw,
 		 " ===> phy:Rtl819XPHY_REG_Array_PG\n");
 	if (configtype == BASEBAND_CONFIG_PHY_REG) {
 		for (i = 0; i < phy_reg_arraylen; i = i + 2) {
-			rtl_addr_delay(phy_regarray_table[i]);
+			rtlvendor_rtl_addr_delay(phy_regarray_table[i]);
 			rtl_set_bbreg(hw, phy_regarray_table[i], MASKDWORD,
 				      phy_regarray_table[i + 1]);
 			udelay(1);
@@ -692,7 +692,7 @@ static bool _rtl92d_phy_config_bb_with_pgheaderfile(struct ieee80211_hw *hw,
 	phy_regarray_table_pg = rtl8192de_phy_reg_array_pg;
 	if (configtype == BASEBAND_CONFIG_PHY_REG) {
 		for (i = 0; i < phy_regarray_pg_len; i = i + 3) {
-			rtl_addr_delay(phy_regarray_table_pg[i]);
+			rtlvendor_rtl_addr_delay(phy_regarray_table_pg[i]);
 			_rtl92d_store_pwrindex_diffrate_offset(hw,
 				phy_regarray_table_pg[i],
 				phy_regarray_table_pg[i + 1],
@@ -819,14 +819,14 @@ bool rtl92d_phy_config_rf_with_headerfile(struct ieee80211_hw *hw,
 	switch (rfpath) {
 	case RF90_PATH_A:
 		for (i = 0; i < radioa_arraylen; i = i + 2) {
-			rtl_rfreg_delay(hw, rfpath, radioa_array_table[i],
+			rtlvendor_rtl_rfreg_delay(hw, rfpath, radioa_array_table[i],
 					RFREG_OFFSET_MASK,
 					radioa_array_table[i + 1]);
 		}
 		break;
 	case RF90_PATH_B:
 		for (i = 0; i < radiob_arraylen; i = i + 2) {
-			rtl_rfreg_delay(hw, rfpath, radiob_array_table[i],
+			rtlvendor_rtl_rfreg_delay(hw, rfpath, radiob_array_table[i],
 					RFREG_OFFSET_MASK,
 					radiob_array_table[i + 1]);
 		}
@@ -919,8 +919,8 @@ static u8 _rtl92c_phy_get_rightchnlplace(u8 chnl)
 	u8 place = chnl;
 
 	if (chnl > 14) {
-		for (place = 14; place < sizeof(channel5g); place++) {
-			if (channel5g[place] == chnl) {
+		for (place = 14; place < sizeof(rtlvendor_channel5g); place++) {
+			if (rtlvendor_channel5g[place] == chnl) {
 				place++;
 				break;
 			}
@@ -2456,8 +2456,8 @@ static bool _rtl92d_is_legal_5g_channel(struct ieee80211_hw *hw, u8 channel)
 
 	int i;
 
-	for (i = 0; i < sizeof(channel5g); i++)
-		if (channel == channel5g[i])
+	for (i = 0; i < sizeof(rtlvendor_channel5g); i++)
+		if (channel == rtlvendor_channel5g[i])
 			return true;
 	return false;
 }
@@ -3091,7 +3091,7 @@ bool rtl92d_phy_set_rf_power_state(struct ieee80211_hw *hw,
 				InitializeCount++;
 				RT_TRACE(rtlpriv, COMP_RF, DBG_DMESG,
 					 "IPS Set eRf nic enable\n");
-				rtstatus = rtl_ps_enable_nic(hw);
+				rtstatus = rtlvendor_rtl_ps_enable_nic(hw);
 			} while (!rtstatus && (InitializeCount < 10));
 
 			RT_CLEAR_PS_LEVEL(ppsc,
@@ -3117,7 +3117,7 @@ bool rtl92d_phy_set_rf_power_state(struct ieee80211_hw *hw,
 		if (ppsc->reg_rfps_level & RT_RF_OFF_LEVL_HALT_NIC) {
 			RT_TRACE(rtlpriv, COMP_RF, DBG_DMESG,
 				 "IPS Set eRf nic disable\n");
-			rtl_ps_disable_nic(hw);
+			rtlvendor_rtl_ps_disable_nic(hw);
 			RT_SET_PS_LEVEL(ppsc, RT_RF_OFF_LEVL_HALT_NIC);
 		} else {
 			if (ppsc->rfoff_reason == RF_CHANGE_BY_IPS)

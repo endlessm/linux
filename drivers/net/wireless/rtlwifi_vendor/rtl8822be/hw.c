@@ -1130,7 +1130,7 @@ int rtl8822be_hw_init(struct ieee80211_hw *hw)
 		rtlpriv->btcoexist.btc_ops->btc_power_on_setting(rtlpriv);
 
 	/* reset cam / set security */
-	rtl_cam_reset_all_entry(hw);
+	rtlvendor_rtl_cam_reset_all_entry(hw);
 	rtl8822be_enable_hw_security_config(hw);
 
 	/* check RCR/ICV bit */
@@ -1684,7 +1684,7 @@ static void _rtl8822be_read_txpower_info_from_hwpg(struct ieee80211_hw *hw,
 	struct rtl_efuse *efu = rtl_efuse(rtl_priv(hw));
 	struct txpower_info_2g pwr2g;
 	struct txpower_info_5g pwr5g;
-	u8 channel5g[CHANNEL_MAX_NUMBER_5G] = {
+	u8 rtlvendor_channel5g[CHANNEL_MAX_NUMBER_5G] = {
 		36,  38,  40,  42,  44,  46,  48, /* Band 1 */
 		52,  54,  56,  58,  60,  62,  64, /* Band 2 */
 		100, 102, 104, 106, 108, 110, 112, /* Band 3 */
@@ -1692,7 +1692,7 @@ static void _rtl8822be_read_txpower_info_from_hwpg(struct ieee80211_hw *hw,
 		132, 134, 136, 138, 140, 142, 144, /* Band 3 */
 		149, 151, 153, 155, 157, 159, 161, /* Band 4 */
 		165, 167, 169, 171, 173, 175, 177}; /* Band 4 */
-	u8 channel5g_80m[CHANNEL_MAX_NUMBER_5G_80M] = {42,  58,  106, 122,
+	u8 rtlvendor_channel5g_80m[CHANNEL_MAX_NUMBER_5G_80M] = {42,  58,  106, 122,
 						       138, 155, 171};
 	u8 rf, group;
 	u8 i;
@@ -1717,14 +1717,14 @@ static void _rtl8822be_read_txpower_info_from_hwpg(struct ieee80211_hw *hw,
 			}
 		}
 		for (i = 0; i < CHANNEL_MAX_NUMBER_5G; i++) {
-			_rtl8822be_get_chnl_group(channel5g[i], &group);
+			_rtl8822be_get_chnl_group(rtlvendor_channel5g[i], &group);
 			efu->txpwr_5g_bw40base[rf][i] =
 				pwr5g.index_bw40_base[rf][group];
 		}
 		for (i = 0; i < CHANNEL_MAX_NUMBER_5G_80M; i++) {
 			u8 upper, lower;
 
-			_rtl8822be_get_chnl_group(channel5g_80m[i], &group);
+			_rtl8822be_get_chnl_group(rtlvendor_channel5g_80m[i], &group);
 			upper = pwr5g.index_bw40_base[rf][group];
 			lower = pwr5g.index_bw40_base[rf][group + 1];
 
@@ -2343,8 +2343,8 @@ void rtl8822be_set_key(struct ieee80211_hw *hw, u32 key_index, u8 *p_macaddr,
 		RT_TRACE(rtlpriv, COMP_SEC, DBG_DMESG, "clear_all\n");
 
 		for (idx = 0; idx < clear_number; idx++) {
-			rtl_cam_mark_invalid(hw, cam_offset + idx);
-			rtl_cam_empty_entry(hw, cam_offset + idx);
+			rtlvendor_rtl_cam_mark_invalid(hw, cam_offset + idx);
+			rtlvendor_rtl_cam_empty_entry(hw, cam_offset + idx);
 
 			if (idx < 5) {
 				memset(rtlpriv->sec.key_buf[idx], 0,
@@ -2386,7 +2386,7 @@ void rtl8822be_set_key(struct ieee80211_hw *hw, u32 key_index, u8 *p_macaddr,
 		} else {
 			if (mac->opmode == NL80211_IFTYPE_AP) {
 				entry_id =
-					rtl_cam_get_free_entry(hw, p_macaddr);
+					rtlvendor_rtl_cam_get_free_entry(hw, p_macaddr);
 				if (entry_id >= TOTAL_CAM_ENTRY) {
 					pr_err("Can not find free hwsecurity cam entry\n");
 					return;
@@ -2404,15 +2404,15 @@ void rtl8822be_set_key(struct ieee80211_hw *hw, u32 key_index, u8 *p_macaddr,
 		RT_TRACE(rtlpriv, COMP_SEC, DBG_DMESG,
 			 "delete one entry, entry_id is %d\n", entry_id);
 		if (mac->opmode == NL80211_IFTYPE_AP)
-			rtl_cam_del_entry(hw, p_macaddr);
-		rtl_cam_delete_one_entry(hw, p_macaddr, entry_id);
+			rtlvendor_rtl_cam_del_entry(hw, p_macaddr);
+		rtlvendor_rtl_cam_delete_one_entry(hw, p_macaddr, entry_id);
 	} else {
 		RT_TRACE(rtlpriv, COMP_SEC, DBG_DMESG, "add one entry\n");
 		if (is_pairwise) {
 			RT_TRACE(rtlpriv, COMP_SEC, DBG_DMESG,
 				 "set Pairwise key\n");
 
-			rtl_cam_add_one_entry(hw, macaddr, key_index, entry_id,
+			rtlvendor_rtl_cam_add_one_entry(hw, macaddr, key_index, entry_id,
 					      enc_algo, CAM_CONFIG_NO_USEDK,
 					      rtlpriv->sec.key_buf[key_index]);
 		} else {
@@ -2420,14 +2420,14 @@ void rtl8822be_set_key(struct ieee80211_hw *hw, u32 key_index, u8 *p_macaddr,
 				 "set group key\n");
 
 			if (mac->opmode == NL80211_IFTYPE_ADHOC) {
-				rtl_cam_add_one_entry(
+				rtlvendor_rtl_cam_add_one_entry(
 					hw, rtlefuse->dev_addr, PAIRWISE_KEYIDX,
 					CAM_PAIRWISE_KEY_POSITION, enc_algo,
 					CAM_CONFIG_NO_USEDK,
 					rtlpriv->sec.key_buf[entry_id]);
 			}
 
-			rtl_cam_add_one_entry(hw, macaddr, key_index, entry_id,
+			rtlvendor_rtl_cam_add_one_entry(hw, macaddr, key_index, entry_id,
 					      enc_algo, CAM_CONFIG_NO_USEDK,
 					      rtlpriv->sec.key_buf[entry_id]);
 		}

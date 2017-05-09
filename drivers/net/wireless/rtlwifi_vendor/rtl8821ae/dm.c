@@ -587,7 +587,7 @@ void rtl8821ae_dm_init(struct ieee80211_hw *hw)
 
 	rtlpriv->dm.dm_type = DM_TYPE_BYDRIVER;
 	rtl8821ae_dm_common_info_self_init(hw);
-	rtl_dm_diginit(hw, cur_igvalue);
+	rtlvendor_rtl_dm_diginit(hw, cur_igvalue);
 	rtl8821ae_dm_init_rate_adaptive_mask(hw);
 	rtl8821ae_dm_init_edca_turbo(hw);
 	rtl8821ae_dm_initialize_txpower_tracking_thermalmeter(hw);

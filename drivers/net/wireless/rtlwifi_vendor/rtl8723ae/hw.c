@@ -320,7 +320,7 @@ void rtl8723e_set_hw_reg(struct ieee80211_hw *hw, u8 variable, u8 *val)
 	case HW_VAR_AC_PARAM:{
 			u8 e_aci = *((u8 *)val);
 
-			rtl8723_dm_init_edca_turbo(hw);
+			rtlvendor_rtl8723_dm_init_edca_turbo(hw);
 
 			if (rtlpci->acm_method != EACMWAY2_SW)
 				rtlpriv->cfg->ops->set_hw_reg(hw,
@@ -698,7 +698,7 @@ static bool _rtl8712e_init_mac(struct ieee80211_hw *hw)
 		mac_func_enable = false;
 
 	/* HW Power on sequence */
-	if (!rtl_hal_pwrseqcmdparsing(rtlpriv, PWR_CUT_ALL_MSK, PWR_FAB_ALL_MSK,
+	if (!rtlvendor_rtl_hal_pwrseqcmdparsing(rtlpriv, PWR_CUT_ALL_MSK, PWR_FAB_ALL_MSK,
 		PWR_INTF_PCI_MSK, Rtl8723_NIC_ENABLE_FLOW))
 		return false;
 
@@ -965,7 +965,7 @@ int rtl8723e_hw_init(struct ieee80211_hw *hw)
 		goto exit;
 	}
 
-	err = rtl8723_download_fw(hw, false, FW_8723A_POLLING_TIMEOUT_COUNT);
+	err = rtlvendor_rtl8723_download_fw(hw, false, FW_8723A_POLLING_TIMEOUT_COUNT);
 	if (err) {
 		RT_TRACE(rtlpriv, COMP_ERR, DBG_WARNING,
 			 "Failed to download FW. Init HW without FW now..\n");
@@ -1007,7 +1007,7 @@ int rtl8723e_hw_init(struct ieee80211_hw *hw)
 	rtl_set_bbreg(hw, RFPGA0_RFMOD, BOFDMEN, 0x1);
 	rtl_set_bbreg(hw, RFPGA0_ANALOGPARAMETER2, BIT(10), 1);
 	_rtl8723e_hw_configure(hw);
-	rtl_cam_reset_all_entry(hw);
+	rtlvendor_rtl_cam_reset_all_entry(hw);
 	rtl8723e_enable_hw_security_config(hw);
 
 	ppsc->rfpwr_state = ERFON;
@@ -1031,7 +1031,7 @@ int rtl8723e_hw_init(struct ieee80211_hw *hw)
 		rtl8723e_phy_lc_calibrate(hw);
 	}
 
-	tmp_u1b = efuse_read_1byte(hw, 0x1FA);
+	tmp_u1b = rtlvendor_efuse_read_1byte(hw, 0x1FA);
 	if (!(tmp_u1b & BIT(0))) {
 		rtl_set_rfreg(hw, RF90_PATH_A, 0x15, 0x0F, 0x05);
 		RT_TRACE(rtlpriv, COMP_INIT, DBG_TRACE, "PA BIAS path A\n");
@@ -1239,7 +1239,7 @@ void rtl8723e_set_qos(struct ieee80211_hw *hw, int aci)
 {
 	struct rtl_priv *rtlpriv = rtl_priv(hw);
 
-	rtl8723_dm_init_edca_turbo(hw);
+	rtlvendor_rtl8723_dm_init_edca_turbo(hw);
 	switch (aci) {
 	case AC1_BK:
 		rtl_write_dword(rtlpriv, REG_EDCA_BK_PARAM, 0xa44f);
@@ -1286,7 +1286,7 @@ static void _rtl8723e_poweroff_adapter(struct ieee80211_hw *hw)
 
 	/* Combo (PCIe + USB) Card and PCIe-MF Card */
 	/* 1. Run LPS WL RFOFF flow */
-	rtl_hal_pwrseqcmdparsing(rtlpriv, PWR_CUT_ALL_MSK, PWR_FAB_ALL_MSK,
+	rtlvendor_rtl_hal_pwrseqcmdparsing(rtlpriv, PWR_CUT_ALL_MSK, PWR_FAB_ALL_MSK,
 				 PWR_INTF_PCI_MSK, Rtl8723_NIC_LPS_ENTER_FLOW);
 
 	/* 2. 0x1F[7:0] = 0 */
@@ -1294,7 +1294,7 @@ static void _rtl8723e_poweroff_adapter(struct ieee80211_hw *hw)
 	rtl_write_byte(rtlpriv, REG_RF_CTRL, 0x00);
 	if ((rtl_read_byte(rtlpriv, REG_MCUFWDL) & BIT(7)) &&
 	    rtlhal->fw_ready) {
-		rtl8723ae_firmware_selfreset(hw);
+		rtlvendor_rtl8723ae_firmware_selfreset(hw);
 	}
 
 	/* Reset MCU. Suggested by Filen. */
@@ -1306,7 +1306,7 @@ static void _rtl8723e_poweroff_adapter(struct ieee80211_hw *hw)
 	rtl_write_byte(rtlpriv, REG_MCUFWDL, 0x00);
 
 	/* HW card disable configuration. */
-	rtl_hal_pwrseqcmdparsing(rtlpriv, PWR_CUT_ALL_MSK, PWR_FAB_ALL_MSK,
+	rtlvendor_rtl_hal_pwrseqcmdparsing(rtlpriv, PWR_CUT_ALL_MSK, PWR_FAB_ALL_MSK,
 		PWR_INTF_PCI_MSK, Rtl8723_NIC_DISABLE_FLOW);
 
 	/* Reset MCU IO Wrapper */
@@ -1645,7 +1645,7 @@ static void _rtl8723e_read_adapter_info(struct ieee80211_hw *hw,
 	if (!hwinfo)
 		return;
 
-	if (rtl_get_hwinfo(hw, rtlpriv, HWSET_MAX_SIZE, hwinfo, params))
+	if (rtlvendor_rtl_get_hwinfo(hw, rtlpriv, HWSET_MAX_SIZE, hwinfo, params))
 		goto exit;
 
 	_rtl8723e_read_txpower_info_from_hwpg(hw, rtlefuse->autoload_failflag,
@@ -2200,8 +2200,8 @@ void rtl8723e_set_key(struct ieee80211_hw *hw, u32 key_index,
 		RT_TRACE(rtlpriv, COMP_SEC, DBG_DMESG, "clear_all\n");
 
 		for (idx = 0; idx < clear_number; idx++) {
-			rtl_cam_mark_invalid(hw, cam_offset + idx);
-			rtl_cam_empty_entry(hw, cam_offset + idx);
+			rtlvendor_rtl_cam_mark_invalid(hw, cam_offset + idx);
+			rtlvendor_rtl_cam_empty_entry(hw, cam_offset + idx);
 
 			if (idx < 5) {
 				memset(rtlpriv->sec.key_buf[idx], 0,
@@ -2241,7 +2241,7 @@ void rtl8723e_set_key(struct ieee80211_hw *hw, u32 key_index,
 			} else {
 				if (mac->opmode == NL80211_IFTYPE_AP) {
 					entry_id =
-					  rtl_cam_get_free_entry(hw, p_macaddr);
+					  rtlvendor_rtl_cam_get_free_entry(hw, p_macaddr);
 					if (entry_id >=  TOTAL_CAM_ENTRY) {
 						pr_err("Can not find free hw security cam entry\n");
 						return;
@@ -2260,8 +2260,8 @@ void rtl8723e_set_key(struct ieee80211_hw *hw, u32 key_index,
 				 "delete one entry, entry_id is %d\n",
 				 entry_id);
 			if (mac->opmode == NL80211_IFTYPE_AP)
-				rtl_cam_del_entry(hw, p_macaddr);
-			rtl_cam_delete_one_entry(hw, p_macaddr, entry_id);
+				rtlvendor_rtl_cam_del_entry(hw, p_macaddr);
+			rtlvendor_rtl_cam_delete_one_entry(hw, p_macaddr, entry_id);
 		} else {
 			RT_TRACE(rtlpriv, COMP_SEC, DBG_DMESG,
 				 "add one entry\n");
@@ -2269,7 +2269,7 @@ void rtl8723e_set_key(struct ieee80211_hw *hw, u32 key_index,
 				RT_TRACE(rtlpriv, COMP_SEC, DBG_DMESG,
 					 "set Pairwiase key\n");
 
-				rtl_cam_add_one_entry(hw, macaddr, key_index,
+				rtlvendor_rtl_cam_add_one_entry(hw, macaddr, key_index,
 						      entry_id, enc_algo,
 						      CAM_CONFIG_NO_USEDK,
 						      rtlpriv->sec.key_buf[key_index]);
@@ -2278,7 +2278,7 @@ void rtl8723e_set_key(struct ieee80211_hw *hw, u32 key_index,
 					 "set group key\n");
 
 				if (mac->opmode == NL80211_IFTYPE_ADHOC) {
-					rtl_cam_add_one_entry(hw,
+					rtlvendor_rtl_cam_add_one_entry(hw,
 							rtlefuse->dev_addr,
 							PAIRWISE_KEYIDX,
 							CAM_PAIRWISE_KEY_POSITION,
@@ -2288,7 +2288,7 @@ void rtl8723e_set_key(struct ieee80211_hw *hw, u32 key_index,
 							[entry_id]);
 				}
 
-				rtl_cam_add_one_entry(hw, macaddr, key_index,
+				rtlvendor_rtl_cam_add_one_entry(hw, macaddr, key_index,
 						entry_id, enc_algo,
 						CAM_CONFIG_NO_USEDK,
 						rtlpriv->sec.key_buf[entry_id]);

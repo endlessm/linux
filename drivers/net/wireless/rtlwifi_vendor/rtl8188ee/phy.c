@@ -2155,7 +2155,7 @@ static void rtl88e_phy_set_io(struct ieee80211_hw *hw)
 	switch (rtlphy->current_io_type) {
 	case IO_CMD_RESUME_DM_BY_SCAN:
 		dm_digtable->cur_igvalue = rtlphy->initgain_backup.xaagccore1;
-		/*rtl92c_dm_write_dig(hw);*/
+		/*rtlvendor_rtl92c_dm_write_dig(hw);*/
 		rtl88e_phy_set_txpower_level(hw, rtlphy->current_channel);
 		rtl_set_bbreg(hw, RCCK0_CCA, 0xff0000, 0x83);
 		break;
@@ -2219,7 +2219,7 @@ static bool _rtl88ee_phy_set_rf_power_state(struct ieee80211_hw *hw,
 				initializecount++;
 				RT_TRACE(rtlpriv, COMP_RF, DBG_DMESG,
 					 "IPS Set eRf nic enable\n");
-				rtstatus = rtl_ps_enable_nic(hw);
+				rtstatus = rtlvendor_rtl_ps_enable_nic(hw);
 			} while (!rtstatus &&
 				 (initializecount < 10));
 			RT_CLEAR_PS_LEVEL(ppsc,
@@ -2271,7 +2271,7 @@ static bool _rtl88ee_phy_set_rf_power_state(struct ieee80211_hw *hw,
 		if (ppsc->reg_rfps_level & RT_RF_OFF_LEVL_HALT_NIC) {
 			RT_TRACE(rtlpriv, COMP_RF, DBG_DMESG,
 				 "IPS Set eRf nic disable\n");
-			rtl_ps_disable_nic(hw);
+			rtlvendor_rtl_ps_disable_nic(hw);
 			RT_SET_PS_LEVEL(ppsc, RT_RF_OFF_LEVL_HALT_NIC);
 		} else {
 			if (ppsc->rfoff_reason == RF_CHANGE_BY_IPS) {

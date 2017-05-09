@@ -158,7 +158,7 @@ static const u8 cckswing_table_ch14[CCK_TABLE_SIZE][8] = {
 
 static u32 power_index_reg[6] = {0xc90, 0xc91, 0xc92, 0xc98, 0xc99, 0xc9a};
 
-void dm_restorepowerindex(struct ieee80211_hw *hw)
+void rtlvendor_dm_restorepowerindex(struct ieee80211_hw *hw)
 {
 	struct rtl_priv *rtlpriv = rtl_priv(hw);
 	u8	index;
@@ -167,9 +167,9 @@ void dm_restorepowerindex(struct ieee80211_hw *hw)
 		rtl_write_byte(rtlpriv, power_index_reg[index],
 			       rtlpriv->dm.powerindex_backup[index]);
 }
-EXPORT_SYMBOL_GPL(dm_restorepowerindex);
+EXPORT_SYMBOL_GPL(rtlvendor_dm_restorepowerindex);
 
-void dm_writepowerindex(struct ieee80211_hw *hw, u8 value)
+void rtlvendor_dm_writepowerindex(struct ieee80211_hw *hw, u8 value)
 {
 	struct rtl_priv *rtlpriv = rtl_priv(hw);
 	u8 index;
@@ -177,9 +177,9 @@ void dm_writepowerindex(struct ieee80211_hw *hw, u8 value)
 	for (index = 0; index < 6; index++)
 		rtl_write_byte(rtlpriv, power_index_reg[index], value);
 }
-EXPORT_SYMBOL_GPL(dm_writepowerindex);
+EXPORT_SYMBOL_GPL(rtlvendor_dm_writepowerindex);
 
-void dm_savepowerindex(struct ieee80211_hw *hw)
+void rtlvendor_dm_savepowerindex(struct ieee80211_hw *hw)
 {
 	struct rtl_priv *rtlpriv = rtl_priv(hw);
 	u8 index;
@@ -190,7 +190,7 @@ void dm_savepowerindex(struct ieee80211_hw *hw)
 		rtlpriv->dm.powerindex_backup[index] = tmp;
 	}
 }
-EXPORT_SYMBOL_GPL(dm_savepowerindex);
+EXPORT_SYMBOL_GPL(rtlvendor_dm_savepowerindex);
 
 static u8 rtl92c_dm_initial_gain_min_pwdb(struct ieee80211_hw *hw)
 {
@@ -300,7 +300,7 @@ static void rtl92c_dm_ctrl_initgain_by_fa(struct ieee80211_hw *hw)
 		value_igi = DM_DIG_FA_UPPER;
 
 	dm_digtable->cur_igvalue = value_igi;
-	rtl92c_dm_write_dig(hw);
+	rtlvendor_rtl92c_dm_write_dig(hw);
 }
 
 static void rtl92c_dm_ctrl_initgain_by_rssi(struct ieee80211_hw *hw)
@@ -382,7 +382,7 @@ static void rtl92c_dm_ctrl_initgain_by_rssi(struct ieee80211_hw *hw)
 	if (digtable->cur_igvalue < digtable->rx_gain_min)
 		digtable->cur_igvalue = digtable->rx_gain_min;
 
-	rtl92c_dm_write_dig(hw);
+	rtlvendor_rtl92c_dm_write_dig(hw);
 }
 
 static void rtl92c_dm_initial_gain_multi_sta(struct ieee80211_hw *hw)
@@ -406,7 +406,7 @@ static void rtl92c_dm_initial_gain_multi_sta(struct ieee80211_hw *hw)
 		initialized = true;
 		dm_digtable->dig_ext_port_stage = DIG_EXT_PORT_STAGE_0;
 		dm_digtable->cur_igvalue = 0x20;
-		rtl92c_dm_write_dig(hw);
+		rtlvendor_rtl92c_dm_write_dig(hw);
 	}
 
 	if (dm_digtable->curmultista_cstate == DIG_MULTISTA_CONNECT) {
@@ -416,7 +416,7 @@ static void rtl92c_dm_initial_gain_multi_sta(struct ieee80211_hw *hw)
 			if (dm_digtable->dig_ext_port_stage ==
 			    DIG_EXT_PORT_STAGE_2) {
 				dm_digtable->cur_igvalue = 0x20;
-				rtl92c_dm_write_dig(hw);
+				rtlvendor_rtl92c_dm_write_dig(hw);
 			}
 
 			dm_digtable->dig_ext_port_stage = DIG_EXT_PORT_STAGE_1;
@@ -427,7 +427,7 @@ static void rtl92c_dm_initial_gain_multi_sta(struct ieee80211_hw *hw)
 	} else if (dm_digtable->dig_ext_port_stage != DIG_EXT_PORT_STAGE_0) {
 		dm_digtable->dig_ext_port_stage = DIG_EXT_PORT_STAGE_0;
 		dm_digtable->cur_igvalue = 0x20;
-		rtl92c_dm_write_dig(hw);
+		rtlvendor_rtl92c_dm_write_dig(hw);
 	}
 
 	RT_TRACE(rtlpriv, COMP_DIG, DBG_TRACE,
@@ -461,7 +461,7 @@ static void rtl92c_dm_initial_gain_sta(struct ieee80211_hw *hw)
 		dm_digtable->back_val = DM_DIG_BACKOFF_DEFAULT;
 		dm_digtable->cur_igvalue = 0x20;
 		dm_digtable->pre_igvalue = 0;
-		rtl92c_dm_write_dig(hw);
+		rtlvendor_rtl92c_dm_write_dig(hw);
 	}
 }
 
@@ -547,7 +547,7 @@ static void rtl92c_dm_init_dynamic_txpower(struct ieee80211_hw *hw)
 
 	if (rtlpriv->rtlhal.interface == INTF_USB &&
 	    rtlpriv->rtlhal.board_type & 0x1) {
-		dm_savepowerindex(hw);
+		rtlvendor_dm_savepowerindex(hw);
 		rtlpriv->dm.dynamic_txpower_enable = true;
 	} else {
 		rtlpriv->dm.dynamic_txpower_enable = false;
@@ -556,7 +556,7 @@ static void rtl92c_dm_init_dynamic_txpower(struct ieee80211_hw *hw)
 	rtlpriv->dm.dynamic_txhighpower_lvl = TXHIGHPWRLEVEL_NORMAL;
 }
 
-void rtl92c_dm_write_dig(struct ieee80211_hw *hw)
+void rtlvendor_rtl92c_dm_write_dig(struct ieee80211_hw *hw)
 {
 	struct rtl_priv *rtlpriv = rtl_priv(hw);
 	struct dig_t *dm_digtable = &rtlpriv->dm_digtable;
@@ -590,7 +590,7 @@ void rtl92c_dm_write_dig(struct ieee80211_hw *hw)
 		 dm_digtable->rx_gain_max, dm_digtable->rx_gain_min,
 		 dm_digtable->large_fa_hit, dm_digtable->forbidden_igi);
 }
-EXPORT_SYMBOL(rtl92c_dm_write_dig);
+EXPORT_SYMBOL(rtlvendor_rtl92c_dm_write_dig);
 
 static void rtl92c_dm_pwdb_monitor(struct ieee80211_hw *hw)
 {
@@ -626,14 +626,14 @@ static void rtl92c_dm_pwdb_monitor(struct ieee80211_hw *hw)
  */
 }
 
-void rtl92c_dm_init_edca_turbo(struct ieee80211_hw *hw)
+void rtlvendor_rtl92c_dm_init_edca_turbo(struct ieee80211_hw *hw)
 {
 	struct rtl_priv *rtlpriv = rtl_priv(hw);
 	rtlpriv->dm.current_turbo_edca = false;
 	rtlpriv->dm.is_any_nonbepkts = false;
 	rtlpriv->dm.is_cur_rdlstate = false;
 }
-EXPORT_SYMBOL(rtl92c_dm_init_edca_turbo);
+EXPORT_SYMBOL(rtlvendor_rtl92c_dm_init_edca_turbo);
 
 static void rtl92c_dm_check_edca_turbo(struct ieee80211_hw *hw)
 {
@@ -746,7 +746,7 @@ static void rtl92c_dm_txpower_tracking_callback_thermalmeter(struct ieee80211_hw
 		 thermalvalue, rtlpriv->dm.thermalvalue,
 		 rtlefuse->eeprom_thermalmeter);
 
-	rtl92c_phy_ap_calibrate(hw, (thermalvalue -
+	rtlvendor_rtl92c_phy_ap_calibrate(hw, (thermalvalue -
 				     rtlefuse->eeprom_thermalmeter));
 	if (is2t)
 		rf = 2;
@@ -854,7 +854,7 @@ static void rtl92c_dm_txpower_tracking_callback_thermalmeter(struct ieee80211_hw
 
 		if (delta_lck > 1) {
 			rtlpriv->dm.thermalvalue_lck = thermalvalue;
-			rtl92c_phy_lc_calibrate(hw);
+			rtlvendor_rtl92c_phy_lc_calibrate(hw);
 		}
 
 		if (delta > 0 && rtlpriv->dm.txpower_track_control) {
@@ -1127,7 +1127,7 @@ static void rtl92c_dm_txpower_tracking_callback_thermalmeter(struct ieee80211_hw
 
 		if (delta_iqk > 3) {
 			rtlpriv->dm.thermalvalue_iqk = thermalvalue;
-			rtl92c_phy_iq_calibrate(hw, false);
+			rtlvendor_rtl92c_phy_iq_calibrate(hw, false);
 		}
 
 		if (rtlpriv->dm.txpower_track_control)
@@ -1184,13 +1184,13 @@ static void rtl92c_dm_check_txpower_tracking_thermal_meter(
 	}
 }
 
-void rtl92c_dm_check_txpower_tracking(struct ieee80211_hw *hw)
+void rtlvendor_rtl92c_dm_check_txpower_tracking(struct ieee80211_hw *hw)
 {
 	rtl92c_dm_check_txpower_tracking_thermal_meter(hw);
 }
-EXPORT_SYMBOL(rtl92c_dm_check_txpower_tracking);
+EXPORT_SYMBOL(rtlvendor_rtl92c_dm_check_txpower_tracking);
 
-void rtl92c_dm_init_rate_adaptive_mask(struct ieee80211_hw *hw)
+void rtlvendor_rtl92c_dm_init_rate_adaptive_mask(struct ieee80211_hw *hw)
 {
 	struct rtl_priv *rtlpriv = rtl_priv(hw);
 	struct rate_adaptive *p_ra = &(rtlpriv->ra);
@@ -1204,7 +1204,7 @@ void rtl92c_dm_init_rate_adaptive_mask(struct ieee80211_hw *hw)
 		rtlpriv->dm.useramask = false;
 
 }
-EXPORT_SYMBOL(rtl92c_dm_init_rate_adaptive_mask);
+EXPORT_SYMBOL(rtlvendor_rtl92c_dm_init_rate_adaptive_mask);
 
 static void rtl92c_dm_init_dynamic_bb_powersaving(struct ieee80211_hw *hw)
 {
@@ -1218,7 +1218,7 @@ static void rtl92c_dm_init_dynamic_bb_powersaving(struct ieee80211_hw *hw)
 	dm_pstable->rssi_val_min = 0;
 }
 
-void rtl92c_dm_rf_saving(struct ieee80211_hw *hw, u8 bforce_in_normal)
+void rtlvendor_rtl92c_dm_rf_saving(struct ieee80211_hw *hw, u8 bforce_in_normal)
 {
 	struct rtl_priv *rtlpriv = rtl_priv(hw);
 	struct ps_t *dm_pstable = &rtlpriv->dm_pstable;
@@ -1286,7 +1286,7 @@ void rtl92c_dm_rf_saving(struct ieee80211_hw *hw, u8 bforce_in_normal)
 		dm_pstable->pre_rfstate = dm_pstable->cur_rfstate;
 	}
 }
-EXPORT_SYMBOL(rtl92c_dm_rf_saving);
+EXPORT_SYMBOL(rtlvendor_rtl92c_dm_rf_saving);
 
 static void rtl92c_dm_dynamic_bb_powersaving(struct ieee80211_hw *hw)
 {
@@ -1328,10 +1328,10 @@ static void rtl92c_dm_dynamic_bb_powersaving(struct ieee80211_hw *hw)
 	if (IS_92C_SERIAL(rtlhal->version))
 		;/* rtl92c_dm_1r_cca(hw); */
 	else
-		rtl92c_dm_rf_saving(hw, false);
+		rtlvendor_rtl92c_dm_rf_saving(hw, false);
 }
 
-void rtl92c_dm_init(struct ieee80211_hw *hw)
+void rtlvendor_rtl92c_dm_init(struct ieee80211_hw *hw)
 {
 	struct rtl_priv *rtlpriv = rtl_priv(hw);
 
@@ -1340,13 +1340,13 @@ void rtl92c_dm_init(struct ieee80211_hw *hw)
 	rtlpriv->dm.undec_sm_pwdb = -1;
 	rtlpriv->dm.undec_sm_cck = -1;
 	rtlpriv->dm.dm_initialgain_enable = true;
-	rtl_dm_diginit(hw, 0x20);
+	rtlvendor_rtl_dm_diginit(hw, 0x20);
 
 	rtlpriv->dm.dm_flag |= HAL_DM_HIPWR_DISABLE;
 	rtl92c_dm_init_dynamic_txpower(hw);
 
-	rtl92c_dm_init_edca_turbo(hw);
-	rtl92c_dm_init_rate_adaptive_mask(hw);
+	rtlvendor_rtl92c_dm_init_edca_turbo(hw);
+	rtlvendor_rtl92c_dm_init_rate_adaptive_mask(hw);
 	rtlpriv->dm.dm_flag |= DYNAMIC_FUNC_SS;
 	rtl92c_dm_initialize_txpower_tracking(hw);
 	rtl92c_dm_init_dynamic_bb_powersaving(hw);
@@ -1354,7 +1354,7 @@ void rtl92c_dm_init(struct ieee80211_hw *hw)
 	rtlpriv->dm.ofdm_pkt_cnt = 0;
 	rtlpriv->dm.dm_rssi_sel = RSSI_DEFAULT;
 }
-EXPORT_SYMBOL(rtl92c_dm_init);
+EXPORT_SYMBOL(rtlvendor_rtl92c_dm_init);
 
 void rtl92c_dm_dynamic_txpower(struct ieee80211_hw *hw)
 {
@@ -1422,21 +1422,21 @@ void rtl92c_dm_dynamic_txpower(struct ieee80211_hw *hw)
 		RT_TRACE(rtlpriv, COMP_POWER, DBG_LOUD,
 			 "PHY_SetTxPowerLevel8192S() Channel = %d\n",
 			 rtlphy->current_channel);
-		rtl92c_phy_set_txpower_level(hw, rtlphy->current_channel);
+		rtlvendor_rtl92c_phy_set_txpower_level(hw, rtlphy->current_channel);
 		if (rtlpriv->dm.dynamic_txhighpower_lvl ==
 		    TXHIGHPWRLEVEL_NORMAL)
-			dm_restorepowerindex(hw);
+			rtlvendor_dm_restorepowerindex(hw);
 		else if (rtlpriv->dm.dynamic_txhighpower_lvl ==
 			 TXHIGHPWRLEVEL_LEVEL1)
-			dm_writepowerindex(hw, 0x14);
+			rtlvendor_dm_writepowerindex(hw, 0x14);
 		else if (rtlpriv->dm.dynamic_txhighpower_lvl ==
 			 TXHIGHPWRLEVEL_LEVEL2)
-			dm_writepowerindex(hw, 0x10);
+			rtlvendor_dm_writepowerindex(hw, 0x10);
 	}
 	rtlpriv->dm.last_dtp_lvl = rtlpriv->dm.dynamic_txhighpower_lvl;
 }
 
-void rtl92c_dm_watchdog(struct ieee80211_hw *hw)
+void rtlvendor_rtl92c_dm_watchdog(struct ieee80211_hw *hw)
 {
 	struct rtl_priv *rtlpriv = rtl_priv(hw);
 	struct rtl_ps_ctl *ppsc = rtl_psc(rtl_priv(hw));
@@ -1459,15 +1459,15 @@ void rtl92c_dm_watchdog(struct ieee80211_hw *hw)
 		rtl92c_dm_false_alarm_counter_statistics(hw);
 		rtl92c_dm_dynamic_bb_powersaving(hw);
 		rtl92c_dm_dynamic_txpower(hw);
-		rtl92c_dm_check_txpower_tracking(hw);
+		rtlvendor_rtl92c_dm_check_txpower_tracking(hw);
 		/* rtl92c_dm_refresh_rate_adaptive_mask(hw); */
-		rtl92c_dm_bt_coexist(hw);
+		rtlvendor_rtl92c_dm_bt_coexist(hw);
 		rtl92c_dm_check_edca_turbo(hw);
 	}
 }
-EXPORT_SYMBOL(rtl92c_dm_watchdog);
+EXPORT_SYMBOL(rtlvendor_rtl92c_dm_watchdog);
 
-u8 rtl92c_bt_rssi_state_change(struct ieee80211_hw *hw)
+u8 rtlvendor_rtl92c_bt_rssi_state_change(struct ieee80211_hw *hw)
 {
 	struct rtl_priv *rtlpriv = rtl_priv(hw);
 	long undec_sm_pwdb;
@@ -1515,7 +1515,7 @@ u8 rtl92c_bt_rssi_state_change(struct ieee80211_hw *hw)
 		return false;
 	}
 }
-EXPORT_SYMBOL(rtl92c_bt_rssi_state_change);
+EXPORT_SYMBOL(rtlvendor_rtl92c_bt_rssi_state_change);
 
 static bool rtl92c_bt_state_change(struct ieee80211_hw *hw)
 {
@@ -1718,7 +1718,7 @@ static void rtl92c_bt_ant_isolation(struct ieee80211_hw *hw, u8 tmp1byte)
 			rtlpriv->dm.dynamic_txhighpower_lvl =
 				TXHIGHPWRLEVEL_NORMAL;
 		}
-		rtl92c_phy_set_txpower_level(hw,
+		rtlvendor_rtl92c_phy_set_txpower_level(hw,
 			rtlpriv->phy.current_channel);
 	}
 }
@@ -1745,7 +1745,7 @@ static void rtl92c_check_bt_change(struct ieee80211_hw *hw)
 	}
 }
 
-void rtl92c_dm_bt_coexist(struct ieee80211_hw *hw)
+void rtlvendor_rtl92c_dm_bt_coexist(struct ieee80211_hw *hw)
 {
 	struct rtl_priv *rtlpriv = rtl_priv(hw);
 	bool wifi_connect_change;
@@ -1756,10 +1756,10 @@ void rtl92c_dm_bt_coexist(struct ieee80211_hw *hw)
 	    (rtlpriv->btcoexist.bt_coexist_type == BT_CSR_BC4)) {
 		wifi_connect_change = rtl92c_bt_wifi_connect_change(hw);
 		bt_state_change = rtl92c_bt_state_change(hw);
-		rssi_state_change = rtl92c_bt_rssi_state_change(hw);
+		rssi_state_change = rtlvendor_rtl92c_bt_rssi_state_change(hw);
 
 		if (wifi_connect_change || bt_state_change || rssi_state_change)
 			rtl92c_check_bt_change(hw);
 	}
 }
-EXPORT_SYMBOL(rtl92c_dm_bt_coexist);
+EXPORT_SYMBOL(rtlvendor_rtl92c_dm_bt_coexist);

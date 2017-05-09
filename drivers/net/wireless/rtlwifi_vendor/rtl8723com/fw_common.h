@@ -80,15 +80,15 @@ enum rtl8723be_cmd {
 	MAX_8723BE_H2CCMD
 };
 
-void rtl8723ae_firmware_selfreset(struct ieee80211_hw *hw);
-void rtl8723be_firmware_selfreset(struct ieee80211_hw *hw);
-void rtl8723_enable_fw_download(struct ieee80211_hw *hw, bool enable);
-void rtl8723_write_fw(struct ieee80211_hw *hw,
+void rtlvendor_rtl8723ae_firmware_selfreset(struct ieee80211_hw *hw);
+void rtlvendor_rtl8723be_firmware_selfreset(struct ieee80211_hw *hw);
+void rtlvendor_rtl8723_enable_fw_download(struct ieee80211_hw *hw, bool enable);
+void rtlvendor_rtl8723_write_fw(struct ieee80211_hw *hw,
 		      enum version_8723e version,
 		      u8 *buffer, u32 size, u8 max_page);
-int rtl8723_fw_free_to_go(struct ieee80211_hw *hw, bool is_8723be, int count);
-int rtl8723_download_fw(struct ieee80211_hw *hw, bool is_8723be, int count);
-bool rtl8723_cmd_send_packet(struct ieee80211_hw *hw,
+int rtlvendor_rtl8723_fw_free_to_go(struct ieee80211_hw *hw, bool is_8723be, int count);
+int rtlvendor_rtl8723_download_fw(struct ieee80211_hw *hw, bool is_8723be, int count);
+bool rtlvendor_rtl8723_cmd_send_packet(struct ieee80211_hw *hw,
 			     struct sk_buff *skb);
 
 #endif

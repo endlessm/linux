@@ -1273,7 +1273,7 @@ void rtl92d_dm_init(struct ieee80211_hw *hw)
 	struct rtl_priv *rtlpriv = rtl_priv(hw);
 
 	rtlpriv->dm.dm_type = DM_TYPE_BYDRIVER;
-	rtl_dm_diginit(hw, 0x20);
+	rtlvendor_rtl_dm_diginit(hw, 0x20);
 	rtlpriv->dm_digtable.rx_gain_max = DM_DIG_FA_UPPER;
 	rtlpriv->dm_digtable.rx_gain_min = DM_DIG_FA_LOWER;
 	rtl92d_dm_init_dynamic_txpower(hw);

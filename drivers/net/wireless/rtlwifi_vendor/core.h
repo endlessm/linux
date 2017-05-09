@@ -72,15 +72,15 @@ enum dm_dig_connect_e {
 	DIG_CONNECT_MAX
 };
 
-extern const struct ieee80211_ops rtl_ops;
-void rtl_fw_cb(const struct firmware *firmware, void *context);
-void rtl_wowlan_fw_cb(const struct firmware *firmware, void *context);
-void rtl_addr_delay(u32 addr);
-void rtl_rfreg_delay(struct ieee80211_hw *hw, enum radio_path rfpath, u32 addr,
+extern const struct ieee80211_ops rtlvendor_rtl_ops;
+void rtlvendor_rtl_fw_cb(const struct firmware *firmware, void *context);
+void rtlvendor_rtl_wowlan_fw_cb(const struct firmware *firmware, void *context);
+void rtlvendor_rtl_addr_delay(u32 addr);
+void rtlvendor_rtl_rfreg_delay(struct ieee80211_hw *hw, enum radio_path rfpath, u32 addr,
 		     u32 mask, u32 data);
-void rtl_bb_delay(struct ieee80211_hw *hw, u32 addr, u32 data);
-bool rtl_cmd_send_packet(struct ieee80211_hw *hw, struct sk_buff *skb);
-bool rtl_btc_status_false(void);
-void rtl_dm_diginit(struct ieee80211_hw *hw, u32 cur_igval);
+void rtlvendor_rtl_bb_delay(struct ieee80211_hw *hw, u32 addr, u32 data);
+bool rtlvendor_rtl_cmd_send_packet(struct ieee80211_hw *hw, struct sk_buff *skb);
+bool rtlvendor_rtl_btc_status_false(void);
+void rtlvendor_rtl_dm_diginit(struct ieee80211_hw *hw, u32 cur_igval);
 
 #endif

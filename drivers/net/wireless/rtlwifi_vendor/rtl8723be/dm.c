@@ -268,11 +268,11 @@ void rtl8723be_dm_init(struct ieee80211_hw *hw)
 	u32 cur_igvalue = rtl_get_bbreg(hw, ROFDM0_XAAGCCORE1, 0x7f);
 
 	rtlpriv->dm.dm_type = DM_TYPE_BYDRIVER;
-	rtl_dm_diginit(hw, cur_igvalue);
+	rtlvendor_rtl_dm_diginit(hw, cur_igvalue);
 	rtl8723be_dm_init_rate_adaptive_mask(hw);
-	rtl8723_dm_init_edca_turbo(hw);
-	rtl8723_dm_init_dynamic_bb_powersaving(hw);
-	rtl8723_dm_init_dynamic_txpower(hw);
+	rtlvendor_rtl8723_dm_init_edca_turbo(hw);
+	rtlvendor_rtl8723_dm_init_dynamic_bb_powersaving(hw);
+	rtlvendor_rtl8723_dm_init_dynamic_txpower(hw);
 	rtl8723be_dm_init_txpower_tracking(hw);
 	rtl8723be_dm_init_dynamic_atc_switch(hw);
 }

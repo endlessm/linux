@@ -87,6 +87,6 @@ int rtl_halmac_download_rsvd_page(struct rtl_priv *dvobj, u8 pg_offset,
 
 int rtl_halmac_chk_txdesc(struct rtl_priv *rtlpriv, u8 *txdesc, u32 size);
 
-struct rtl_halmac_ops *rtl_halmac_get_ops_pointer(void);
+struct rtl_halmac_ops *rtlvendor_rtl_halmac_get_ops_pointer(void);
 
 #endif /* _RTL_HALMAC_H_ */
