@@ -421,7 +421,7 @@ u32 phy_get_tx_swing_8812A(struct ieee80211_hw *hw, u8	band,
 
 		if (band == BAND_ON_2_4G) {
 			if (reg_swing_2g == auto_temp) {
-				efuse_shadow_read(hw, 1, 0xC6, (u32 *)&swing);
+				rtlvendor_efuse_shadow_read(hw, 1, 0xC6, (u32 *)&swing);
 				swing = (swing == 0xFF) ? 0x00 : swing;
 			} else if (swing_2g ==  0) {
 				swing = 0x00; /* 0 dB */
@@ -436,7 +436,7 @@ u32 phy_get_tx_swing_8812A(struct ieee80211_hw *hw, u8	band,
 			}
 		} else {
 			if (reg_swing_5g == auto_temp) {
-				efuse_shadow_read(hw, 1, 0xC7, (u32 *)&swing);
+				rtlvendor_efuse_shadow_read(hw, 1, 0xC7, (u32 *)&swing);
 				swing = (swing == 0xFF) ? 0x00 : swing;
 			} else if (swing_5g ==  0) {
 				swing = 0x00; /* 0 dB */
@@ -1558,8 +1558,8 @@ static s8 _rtl8812ae_phy_get_chnl_idx_of_txpwr_lmt(struct ieee80211_hw *hw,
 	if (band == BAND_ON_2_4G)
 		channel_index = channel - 1;
 	else if (band == BAND_ON_5G) {
-		for (i = 0; i < sizeof(channel5g)/sizeof(u8); ++i) {
-			if (channel5g[i] == channel)
+		for (i = 0; i < sizeof(rtlvendor_channel5g)/sizeof(u8); ++i) {
+			if (rtlvendor_channel5g[i] == channel)
 				channel_index = i;
 		}
 	} else
@@ -2166,7 +2166,7 @@ static bool _rtl8821ae_phy_get_chnl_index(u8 channel, u8 *chnl_index)
 		in_24g = false;
 
 		for (i = 0; i < CHANNEL_MAX_NUMBER_5G; ++i) {
-			if (channel5g[i] == channel) {
+			if (rtlvendor_channel5g[i] == channel) {
 				*chnl_index = i;
 				return in_24g;
 			}
@@ -2639,8 +2639,8 @@ static u8 _rtl8821ae_get_txpower_index(struct ieee80211_hw *hw, u8 path,
 		} else if (bandwidth == HT_CHANNEL_WIDTH_80) {
 			u8 i;
 
-			for (i = 0; i < sizeof(channel5g_80m) / sizeof(u8); ++i)
-				if (channel5g_80m[i] == channel)
+			for (i = 0; i < sizeof(rtlvendor_channel5g_80m) / sizeof(u8); ++i)
+				if (rtlvendor_channel5g_80m[i] == channel)
 					index = i;
 
 			if ((DESC_RATEMCS0 <= rate && rate <= DESC_RATEMCS15) ||
@@ -4672,7 +4672,7 @@ static bool _rtl8821ae_phy_set_rf_power_state(struct ieee80211_hw *hw,
 				initializecount++;
 				RT_TRACE(rtlpriv, COMP_RF, DBG_DMESG,
 					 "IPS Set eRf nic enable\n");
-				rtstatus = rtl_ps_enable_nic(hw);
+				rtstatus = rtlvendor_rtl_ps_enable_nic(hw);
 			} while (!rtstatus && (initializecount < 10));
 			RT_CLEAR_PS_LEVEL(ppsc,
 					  RT_RF_OFF_LEVL_HALT_NIC);
@@ -4723,7 +4723,7 @@ static bool _rtl8821ae_phy_set_rf_power_state(struct ieee80211_hw *hw,
 		if (ppsc->reg_rfps_level & RT_RF_OFF_LEVL_HALT_NIC) {
 			RT_TRACE(rtlpriv, COMP_RF, DBG_DMESG,
 				 "IPS Set eRf nic disable\n");
-			rtl_ps_disable_nic(hw);
+			rtlvendor_rtl_ps_disable_nic(hw);
 			RT_SET_PS_LEVEL(ppsc, RT_RF_OFF_LEVL_HALT_NIC);
 		} else {
 			if (ppsc->rfoff_reason == RF_CHANGE_BY_IPS) {

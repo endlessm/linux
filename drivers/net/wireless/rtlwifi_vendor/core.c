@@ -35,7 +35,7 @@
 #include <linux/export.h>
 #include <net/cfg80211.h>
 
-u8 channel5g[CHANNEL_MAX_NUMBER_5G] = {
+u8 rtlvendor_channel5g[CHANNEL_MAX_NUMBER_5G] = {
 	36, 38, 40, 42, 44, 46, 48,		/* Band 1 */
 	52, 54, 56, 58, 60, 62, 64,		/* Band 2 */
 	100, 102, 104, 106, 108, 110, 112,	/* Band 3 */
@@ -44,14 +44,14 @@ u8 channel5g[CHANNEL_MAX_NUMBER_5G] = {
 	149, 151, 153, 155, 157, 159, 161,	/* Band 4 */
 	165, 167, 169, 171, 173, 175, 177	/* Band 4 */
 };
-EXPORT_SYMBOL(channel5g);
+EXPORT_SYMBOL(rtlvendor_channel5g);
 
-u8 channel5g_80m[CHANNEL_MAX_NUMBER_5G_80M] = {
+u8 rtlvendor_channel5g_80m[CHANNEL_MAX_NUMBER_5G_80M] = {
 	42, 58, 106, 122, 138, 155, 171
 };
-EXPORT_SYMBOL(channel5g_80m);
+EXPORT_SYMBOL(rtlvendor_channel5g_80m);
 
-void rtl_addr_delay(u32 addr)
+void rtlvendor_rtl_addr_delay(u32 addr)
 {
 	if (addr == 0xfe)
 		mdelay(50);
@@ -66,30 +66,30 @@ void rtl_addr_delay(u32 addr)
 	else if (addr == 0xf9)
 		usleep_range(1, 2);
 }
-EXPORT_SYMBOL(rtl_addr_delay);
+EXPORT_SYMBOL(rtlvendor_rtl_addr_delay);
 
-void rtl_rfreg_delay(struct ieee80211_hw *hw, enum radio_path rfpath, u32 addr,
+void rtlvendor_rtl_rfreg_delay(struct ieee80211_hw *hw, enum radio_path rfpath, u32 addr,
 		     u32 mask, u32 data)
 {
 	if (addr >= 0xf9 && addr <= 0xfe) {
-		rtl_addr_delay(addr);
+		rtlvendor_rtl_addr_delay(addr);
 	} else {
 		rtl_set_rfreg(hw, rfpath, addr, mask, data);
 		udelay(1);
 	}
 }
-EXPORT_SYMBOL(rtl_rfreg_delay);
+EXPORT_SYMBOL(rtlvendor_rtl_rfreg_delay);
 
-void rtl_bb_delay(struct ieee80211_hw *hw, u32 addr, u32 data)
+void rtlvendor_rtl_bb_delay(struct ieee80211_hw *hw, u32 addr, u32 data)
 {
 	if (addr >= 0xf9 && addr <= 0xfe) {
-		rtl_addr_delay(addr);
+		rtlvendor_rtl_addr_delay(addr);
 	} else {
 		rtl_set_bbreg(hw, addr, MASKDWORD, data);
 		udelay(1);
 	}
 }
-EXPORT_SYMBOL(rtl_bb_delay);
+EXPORT_SYMBOL(rtlvendor_rtl_bb_delay);
 
 static void rtl_fw_do_work(const struct firmware *firmware, void *context,
 			   bool is_wow)
@@ -134,17 +134,17 @@ found_alt:
 	release_firmware(firmware);
 }
 
-void rtl_fw_cb(const struct firmware *firmware, void *context)
+void rtlvendor_rtl_fw_cb(const struct firmware *firmware, void *context)
 {
 	rtl_fw_do_work(firmware, context, false);
 }
-EXPORT_SYMBOL(rtl_fw_cb);
+EXPORT_SYMBOL(rtlvendor_rtl_fw_cb);
 
-void rtl_wowlan_fw_cb(const struct firmware *firmware, void *context)
+void rtlvendor_rtl_wowlan_fw_cb(const struct firmware *firmware, void *context)
 {
 	rtl_fw_do_work(firmware, context, true);
 }
-EXPORT_SYMBOL(rtl_wowlan_fw_cb);
+EXPORT_SYMBOL(rtlvendor_rtl_wowlan_fw_cb);
 
 /*mutex for start & stop is must here. */
 static int rtl_op_start(struct ieee80211_hw *hw)
@@ -183,7 +183,7 @@ static void rtl_op_stop(struct ieee80211_hw *hw)
 	 * like adhoc TP
 	 */
 	if (unlikely(ppsc->rfpwr_state == ERFOFF))
-		rtl_ips_nic_on(hw);
+		rtlvendor_rtl_ips_nic_on(hw);
 
 	mutex_lock(&rtlpriv->locks.conf_mutex);
 	/* if wowlan supported, DON'T clear connected info */
@@ -196,7 +196,7 @@ static void rtl_op_stop(struct ieee80211_hw *hw)
 		/* reset sec info */
 		rtl_cam_reset_sec_info(hw);
 
-		rtl_deinit_deferred_work(hw);
+		rtlvendor_rtl_deinit_deferred_work(hw);
 	}
 	rtlpriv->intf_ops->adapter_stop(hw);
 
@@ -243,7 +243,7 @@ static int rtl_op_add_interface(struct ieee80211_hw *hw,
 
 	vif->driver_flags |= IEEE80211_VIF_BEACON_FILTER;
 
-	rtl_ips_nic_on(hw);
+	rtlvendor_rtl_ips_nic_on(hw);
 
 	mutex_lock(&rtlpriv->locks.conf_mutex);
 	switch (ieee80211_vif_type_p2p(vif)) {
@@ -565,7 +565,7 @@ static int rtl_op_suspend(struct ieee80211_hw *hw,
 	rtlhal->driver_is_goingto_unload = true;
 	rtlhal->enter_pnp_sleep = true;
 
-	rtl_lps_leave(hw);
+	rtlvendor_rtl_lps_leave(hw);
 	rtl_op_stop(hw);
 	device_set_wakeup_enable(wiphy_dev(hw->wiphy), true);
 	return 0;
@@ -618,14 +618,14 @@ static int rtl_op_config(struct ieee80211_hw *hw, u32 changed)
 		if (hw->conf.flags & IEEE80211_CONF_IDLE)
 			rtl_ips_nic_off(hw);
 		else
-			rtl_ips_nic_on(hw);
+			rtlvendor_rtl_ips_nic_on(hw);
 	} else {
 		/*
 		 *although rfoff may not cause by ips, but we will
 		 *check the reason in set_rf_power_state function
 		 */
 		if (unlikely(ppsc->rfpwr_state == ERFOFF))
-			rtl_ips_nic_on(hw);
+			rtlvendor_rtl_ips_nic_on(hw);
 	}
 
 	/*For LPS */
@@ -1110,7 +1110,7 @@ static void rtl_op_bss_info_changed(struct ieee80211_hw *hw,
 			rtl_cam_reset_sec_info(hw);
 			/* reset cam to fix wep fail issue
 			 * when change from wpa to wep */
-			rtl_cam_reset_all_entry(hw);
+			rtlvendor_rtl_cam_reset_all_entry(hw);
 
 			mac->link_state = MAC80211_LINKED;
 			mac->cnt_after_linked = 0;
@@ -1130,7 +1130,7 @@ static void rtl_op_bss_info_changed(struct ieee80211_hw *hw,
 				 "send PS STATIC frame\n");
 			if (rtlpriv->dm.supp_phymode_switch) {
 				if (sta->ht_cap.ht_supported)
-					rtl_send_smps_action(hw, sta,
+					rtlvendor_rtl_send_smps_action(hw, sta,
 							IEEE80211_SMPS_STATIC);
 			}
 
@@ -1175,7 +1175,7 @@ static void rtl_op_bss_info_changed(struct ieee80211_hw *hw,
 			mstatus = RT_MEDIA_DISCONNECT;
 
 			if (mac->link_state == MAC80211_LINKED)
-				rtl_lps_leave(hw);
+				rtlvendor_rtl_lps_leave(hw);
 			if (ppsc->p2p_ps_info.p2p_ps_mode > P2P_PS_NONE)
 				rtl_p2p_ps_cmd(hw, P2P_PS_DISABLE);
 			mac->link_state = MAC80211_NOLINK;
@@ -1478,10 +1478,10 @@ static void rtl_op_sw_scan_start(struct ieee80211_hw *hw,
 	}
 
 	if (mac->link_state == MAC80211_LINKED) {
-		rtl_lps_leave(hw);
+		rtlvendor_rtl_lps_leave(hw);
 		mac->link_state = MAC80211_LINKED_SCANNING;
 	} else {
-		rtl_ips_nic_on(hw);
+		rtlvendor_rtl_ips_nic_on(hw);
 	}
 
 	/* Dul mac */
@@ -1564,7 +1564,7 @@ static int rtl_op_set_key(struct ieee80211_hw *hw, enum set_key_cmd cmd,
 		  cmd == SET_KEY ? "Using" : "Disabling", key->keyidx,
 		  sta ? sta->addr : bcast_addr);
 	rtlpriv->sec.being_setkey = true;
-	rtl_ips_nic_on(hw);
+	rtlvendor_rtl_ips_nic_on(hw);
 	mutex_lock(&rtlpriv->locks.conf_mutex);
 	/* <1> get encryption alg */
 
@@ -1708,19 +1708,19 @@ static int rtl_op_set_key(struct ieee80211_hw *hw, enum set_key_cmd cmd,
 		if (vif->type == NL80211_IFTYPE_AP ||
 			vif->type == NL80211_IFTYPE_MESH_POINT) {
 			if (sta)
-				rtl_cam_del_entry(hw, sta->addr);
+				rtlvendor_rtl_cam_del_entry(hw, sta->addr);
 		}
 		memset(rtlpriv->sec.key_buf[key_idx], 0, key->keylen);
 		rtlpriv->sec.key_len[key_idx] = 0;
 		eth_zero_addr(mac_addr);
 		/*
 		 *mac80211 will delete entrys one by one,
-		 *so don't use rtl_cam_reset_all_entry
+		 *so don't use rtlvendor_rtl_cam_reset_all_entry
 		 *or clear all entry here.
 		 */
 		rtl_wait_tx_report_acked(hw, 500); /* wait 500ms for TX ack */
 
-		rtl_cam_delete_one_entry(hw, mac_addr, key_idx);
+		rtlvendor_rtl_cam_delete_one_entry(hw, mac_addr, key_idx);
 		break;
 	default:
 		pr_err("cmd_err:%x!!!!:\n", cmd);
@@ -1784,7 +1784,7 @@ static void rtl_op_flush(struct ieee80211_hw *hw,
  *	Assumption:
  *		We should follow specific format that was released from HW SD.
  */
-bool rtl_hal_pwrseqcmdparsing(struct rtl_priv *rtlpriv, u8 cut_version,
+bool rtlvendor_rtl_hal_pwrseqcmdparsing(struct rtl_priv *rtlpriv, u8 cut_version,
 			      u8 faversion, u8 interface_type,
 			      struct wlan_pwr_cfg pwrcfgcmd[])
 {
@@ -1799,7 +1799,7 @@ bool rtl_hal_pwrseqcmdparsing(struct rtl_priv *rtlpriv, u8 cut_version,
 	do {
 		cfg_cmd = pwrcfgcmd[ary_idx];
 		RT_TRACE(rtlpriv, COMP_INIT, DBG_TRACE,
-			 "rtl_hal_pwrseqcmdparsing(): offset(%#x),cut_msk(%#x), famsk(%#x), interface_msk(%#x), base(%#x), cmd(%#x), msk(%#x), value(%#x)\n",
+			 "rtlvendor_rtl_hal_pwrseqcmdparsing(): offset(%#x),cut_msk(%#x), famsk(%#x), interface_msk(%#x), base(%#x), cmd(%#x), msk(%#x), value(%#x)\n",
 			 GET_PWR_CFG_OFFSET(cfg_cmd),
 					    GET_PWR_CFG_CUT_MASK(cfg_cmd),
 			 GET_PWR_CFG_FAB_MASK(cfg_cmd),
@@ -1813,11 +1813,11 @@ bool rtl_hal_pwrseqcmdparsing(struct rtl_priv *rtlpriv, u8 cut_version,
 			switch (GET_PWR_CFG_CMD(cfg_cmd)) {
 			case PWR_CMD_READ:
 				RT_TRACE(rtlpriv, COMP_INIT, DBG_TRACE,
-					"rtl_hal_pwrseqcmdparsing(): PWR_CMD_READ\n");
+					"rtlvendor_rtl_hal_pwrseqcmdparsing(): PWR_CMD_READ\n");
 				break;
 			case PWR_CMD_WRITE:
 				RT_TRACE(rtlpriv, COMP_INIT, DBG_TRACE,
-					"rtl_hal_pwrseqcmdparsing(): PWR_CMD_WRITE\n");
+					"rtlvendor_rtl_hal_pwrseqcmdparsing(): PWR_CMD_WRITE\n");
 				offset = GET_PWR_CFG_OFFSET(cfg_cmd);
 
 				/*Read the value from system register*/
@@ -1831,7 +1831,7 @@ bool rtl_hal_pwrseqcmdparsing(struct rtl_priv *rtlpriv, u8 cut_version,
 				break;
 			case PWR_CMD_POLLING:
 				RT_TRACE(rtlpriv, COMP_INIT, DBG_TRACE,
-					"rtl_hal_pwrseqcmdparsing(): PWR_CMD_POLLING\n");
+					"rtlvendor_rtl_hal_pwrseqcmdparsing(): PWR_CMD_POLLING\n");
 				polling_bit = false;
 				offset = GET_PWR_CFG_OFFSET(cfg_cmd);
 
@@ -1852,7 +1852,7 @@ bool rtl_hal_pwrseqcmdparsing(struct rtl_priv *rtlpriv, u8 cut_version,
 				break;
 			case PWR_CMD_DELAY:
 				RT_TRACE(rtlpriv, COMP_INIT, DBG_TRACE,
-					 "rtl_hal_pwrseqcmdparsing(): PWR_CMD_DELAY\n");
+					 "rtlvendor_rtl_hal_pwrseqcmdparsing(): PWR_CMD_DELAY\n");
 				if (GET_PWR_CFG_VALUE(cfg_cmd) ==
 				    PWRSEQ_DELAY_US)
 					udelay(GET_PWR_CFG_OFFSET(cfg_cmd));
@@ -1861,11 +1861,11 @@ bool rtl_hal_pwrseqcmdparsing(struct rtl_priv *rtlpriv, u8 cut_version,
 				break;
 			case PWR_CMD_END:
 				RT_TRACE(rtlpriv, COMP_INIT, DBG_TRACE,
-					 "rtl_hal_pwrseqcmdparsing(): PWR_CMD_END\n");
+					 "rtlvendor_rtl_hal_pwrseqcmdparsing(): PWR_CMD_END\n");
 				return true;
 			default:
 				WARN_ONCE(true,
-					  "rtlwifi: rtl_hal_pwrseqcmdparsing(): Unknown CMD!!\n");
+					  "rtlwifi: rtlvendor_rtl_hal_pwrseqcmdparsing(): Unknown CMD!!\n");
 				break;
 			}
 		}
@@ -1874,9 +1874,9 @@ bool rtl_hal_pwrseqcmdparsing(struct rtl_priv *rtlpriv, u8 cut_version,
 
 	return true;
 }
-EXPORT_SYMBOL(rtl_hal_pwrseqcmdparsing);
+EXPORT_SYMBOL(rtlvendor_rtl_hal_pwrseqcmdparsing);
 
-bool rtl_cmd_send_packet(struct ieee80211_hw *hw, struct sk_buff *skb)
+bool rtlvendor_rtl_cmd_send_packet(struct ieee80211_hw *hw, struct sk_buff *skb)
 {
 	struct rtl_priv *rtlpriv = rtl_priv(hw);
 	struct rtl_pci *rtlpci = rtl_pcidev(rtl_pcipriv(hw));
@@ -1905,8 +1905,8 @@ bool rtl_cmd_send_packet(struct ieee80211_hw *hw, struct sk_buff *skb)
 
 	return true;
 }
-EXPORT_SYMBOL(rtl_cmd_send_packet);
-const struct ieee80211_ops rtl_ops = {
+EXPORT_SYMBOL(rtlvendor_rtl_cmd_send_packet);
+const struct ieee80211_ops rtlvendor_rtl_ops = {
 	.start = rtl_op_start,
 	.stop = rtl_op_stop,
 	.tx = rtl_op_tx,
@@ -1934,15 +1934,15 @@ const struct ieee80211_ops rtl_ops = {
 	.sta_remove = rtl_op_sta_remove,
 	.flush = rtl_op_flush,
 };
-EXPORT_SYMBOL_GPL(rtl_ops);
+EXPORT_SYMBOL_GPL(rtlvendor_rtl_ops);
 
-bool rtl_btc_status_false(void)
+bool rtlvendor_rtl_btc_status_false(void)
 {
 	return false;
 }
-EXPORT_SYMBOL_GPL(rtl_btc_status_false);
+EXPORT_SYMBOL_GPL(rtlvendor_rtl_btc_status_false);
 
-void rtl_dm_diginit(struct ieee80211_hw *hw, u32 cur_igvalue)
+void rtlvendor_rtl_dm_diginit(struct ieee80211_hw *hw, u32 cur_igvalue)
 {
 	struct rtl_priv *rtlpriv = rtl_priv(hw);
 	struct dig_t *dm_digtable = &rtlpriv->dm_digtable;
@@ -1977,4 +1977,4 @@ void rtl_dm_diginit(struct ieee80211_hw *hw, u32 cur_igvalue)
 	dm_digtable->pre_cck_pd_state = CCK_PD_STAGE_MAX;
 	dm_digtable->cur_cck_pd_state = CCK_PD_STAGE_LOWRSSI;
 }
-EXPORT_SYMBOL(rtl_dm_diginit);
+EXPORT_SYMBOL(rtlvendor_rtl_dm_diginit);

@@ -176,7 +176,7 @@ int rtl88e_init_sw_vars(struct ieee80211_hw *hw)
 	pr_info("Using firmware %s\n", fw_name);
 	err = request_firmware_nowait(THIS_MODULE, 1, fw_name,
 				      rtlpriv->io.dev, GFP_KERNEL, hw,
-				      rtl_fw_cb);
+				      rtlvendor_rtl_fw_cb);
 	if (err) {
 		pr_info("Failed to request firmware!\n");
 		return 1;
@@ -412,13 +412,13 @@ MODULE_PARM_DESC(debug, "Set debug level (0-5) (default 0)");
 MODULE_PARM_DESC(debug_mask, "Set debug mask (default 0)");
 MODULE_PARM_DESC(disable_watchdog, "Set to 1 to disable the watchdog (default 0)\n");
 
-static SIMPLE_DEV_PM_OPS(rtlwifi_pm_ops, rtl_pci_suspend, rtl_pci_resume);
+static SIMPLE_DEV_PM_OPS(rtlwifi_pm_ops, rtlvendor_rtl_pci_suspend, rtlvendor_rtl_pci_resume);
 
 static struct pci_driver rtl88ee_driver = {
 	.name = KBUILD_MODNAME,
 	.id_table = rtl88ee_pci_ids,
-	.probe = rtl_pci_probe,
-	.remove = rtl_pci_disconnect,
+	.probe = rtlvendor_rtl_pci_probe,
+	.remove = rtlvendor_rtl_pci_disconnect,
 	.driver.pm = &rtlwifi_pm_ops,
 };
 
