@@ -48,14 +48,14 @@ static const struct dmi_system_id dmi_no_modeset[] = {
 		.ident = "Acer Aspire A515-41G",
 		.matches = {
 			DMI_MATCH(DMI_SYS_VENDOR, "Acer"),
-			DMI_MATCH(DMI_PRODUCT_NAME, "Aspire A515-41G",
+			DMI_MATCH(DMI_PRODUCT_NAME, "Aspire A515-41G"),
 		},
 	},
 	{
 		.ident = "Acer Nitro AN515-41",
 		.matches = {
 			DMI_MATCH(DMI_SYS_VENDOR, "Acer"),
-			DMI_MATCH(DMI_PRODUCT_NAME, "Nitro AN515-41",
+			DMI_MATCH(DMI_PRODUCT_NAME, "Nitro AN515-41"),
 		},
 	},
 	{}
