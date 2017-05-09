@@ -125,7 +125,7 @@ static void _rtl92se_query_rxphystatus(struct ieee80211_hw *hw,
 			}
 		}
 
-		pwdb_all = rtl_query_rxpwrpercentage(rx_pwr_all);
+		pwdb_all = rtlvendor_rtl_query_rxpwrpercentage(rx_pwr_all);
 
 		/* CCK gain is smaller than OFDM/MCS gain,  */
 		/* so we add gain diff by experiences, the val is 6 */
@@ -172,7 +172,7 @@ static void _rtl92se_query_rxphystatus(struct ieee80211_hw *hw,
 
 			rx_pwr[i] = ((p_drvinfo->gain_trsw[i] &
 				    0x3f) * 2) - 110;
-			rssi = rtl_query_rxpwrpercentage(rx_pwr[i]);
+			rssi = rtlvendor_rtl_query_rxpwrpercentage(rx_pwr[i]);
 			total_rssi += rssi;
 			rtlpriv->stats.rx_snr_db[i] =
 					 (long)(p_drvinfo->rxsnr[i] / 2);
@@ -182,7 +182,7 @@ static void _rtl92se_query_rxphystatus(struct ieee80211_hw *hw,
 		}
 
 		rx_pwr_all = ((p_drvinfo->pwdb_all >> 1) & 0x7f) - 110;
-		pwdb_all = rtl_query_rxpwrpercentage(rx_pwr_all);
+		pwdb_all = rtlvendor_rtl_query_rxpwrpercentage(rx_pwr_all);
 		pstats->rx_pwdb_all = pwdb_all;
 		pstats->rxpower = rx_pwr_all;
 		pstats->recvsignalpower = rx_pwr_all;
@@ -194,7 +194,7 @@ static void _rtl92se_query_rxphystatus(struct ieee80211_hw *hw,
 			max_spatial_stream = 1;
 
 		for (i = 0; i < max_spatial_stream; i++) {
-			evm = rtl_evm_db_to_percentage(p_drvinfo->rxevm[i]);
+			evm = rtlvendor_rtl_evm_db_to_percentage(p_drvinfo->rxevm[i]);
 
 			if (packet_match_bssid) {
 				if (i == 0)
@@ -206,10 +206,10 @@ static void _rtl92se_query_rxphystatus(struct ieee80211_hw *hw,
 	}
 
 	if (is_cck)
-		pstats->signalstrength = (u8)(rtl_signal_scale_mapping(hw,
+		pstats->signalstrength = (u8)(rtlvendor_rtl_signal_scale_mapping(hw,
 					 pwdb_all));
 	else if (rf_rx_num != 0)
-		pstats->signalstrength = (u8) (rtl_signal_scale_mapping(hw,
+		pstats->signalstrength = (u8) (rtlvendor_rtl_signal_scale_mapping(hw,
 				total_rssi /= rf_rx_num));
 }
 
@@ -250,7 +250,7 @@ static void _rtl92se_translate_rx_signal_stuff(struct ieee80211_hw *hw,
 
 	_rtl92se_query_rxphystatus(hw, pstats, pdesc, p_drvinfo,
 			packet_matchbssid, packet_toself, packet_beacon);
-	rtl_process_phyinfo(hw, tmp_buf, pstats);
+	rtlvendor_rtl_process_phyinfo(hw, tmp_buf, pstats);
 }
 
 bool rtl92se_rx_query_desc(struct ieee80211_hw *hw, struct rtl_stats *stats,
@@ -314,7 +314,7 @@ bool rtl92se_rx_query_desc(struct ieee80211_hw *hw, struct rtl_stats *stats,
 			rx_status->flag |= RX_FLAG_DECRYPTED;
 	}
 
-	rx_status->rate_idx = rtlwifi_rate_mapping(hw, stats->is_ht,
+	rx_status->rate_idx = rtlvendor_rtlwifi_rate_mapping(hw, stats->is_ht,
 						   false, stats->rate);
 
 	rx_status->mactime = stats->timestamp_low;
@@ -369,7 +369,7 @@ void rtl92se_tx_fill_desc(struct ieee80211_hw *hw,
 
 	seq_number = (le16_to_cpu(hdr->seq_ctrl) & IEEE80211_SCTL_SEQ) >> 4;
 
-	rtl_get_tcb_desc(hw, info, sta, skb, ptcb_desc);
+	rtlvendor_rtl_get_tcb_desc(hw, info, sta, skb, ptcb_desc);
 
 	CLEAR_PCI_TX_DESC_CONTENT(pdesc, TX_DESC_SIZE_RTL8192S);
 

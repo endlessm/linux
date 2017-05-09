@@ -94,7 +94,7 @@ int rtl8723be_init_sw_vars(struct ieee80211_hw *hw)
 	char *fw_name = "rtlwifi/rtl8723befw_36.bin";
 
 	rtl8723be_bt_reg_init(hw);
-	rtlpriv->btcoexist.btc_ops = rtl_btc_get_ops_pointer();
+	rtlpriv->btcoexist.btc_ops = rtlvendor_rtl_btc_get_ops_pointer();
 
 	rtlpriv->dm.dm_initialgain_enable = 1;
 	rtlpriv->dm.dm_flag = 0;
@@ -189,14 +189,14 @@ int rtl8723be_init_sw_vars(struct ieee80211_hw *hw)
 	pr_info("Using firmware %s\n", fw_name);
 	err = request_firmware_nowait(THIS_MODULE, 1, fw_name,
 				      rtlpriv->io.dev, GFP_KERNEL, hw,
-				      rtl_fw_cb);
+				      rtlvendor_rtl_fw_cb);
 	if (err) {
 		/* Failed to get firmware. Check if old version available */
 		fw_name = "rtlwifi/rtl8723befw.bin";
 		pr_info("Using firmware %s\n", fw_name);
 		err = request_firmware_nowait(THIS_MODULE, 1, fw_name,
 					      rtlpriv->io.dev, GFP_KERNEL, hw,
-					      rtl_fw_cb);
+					      rtlvendor_rtl_fw_cb);
 	}
 	if (err) {
 		pr_err("Failed to request firmware!\n");
@@ -264,8 +264,8 @@ static struct rtl_hal_ops rtl8723be_hal_ops = {
 	.enable_hw_sec = rtl8723be_enable_hw_security_config,
 	.set_key = rtl8723be_set_key,
 	.init_sw_leds = rtl8723be_init_sw_leds,
-	.get_bbreg = rtl8723_phy_query_bb_reg,
-	.set_bbreg = rtl8723_phy_set_bb_reg,
+	.get_bbreg = rtlvendor_rtl8723_phy_query_bb_reg,
+	.set_bbreg = rtlvendor_rtl8723_phy_set_bb_reg,
 	.get_rfreg = rtl8723be_phy_query_rf_reg,
 	.set_rfreg = rtl8723be_phy_set_rf_reg,
 	.fill_h2c_cmd = rtl8723be_fill_h2c_cmd,
@@ -419,13 +419,13 @@ MODULE_PARM_DESC(disable_watchdog,
 		 "Set to 1 to disable the watchdog (default 0)\n");
 MODULE_PARM_DESC(ant_sel, "Set to 1 or 2 to force antenna number (default 0)\n");
 
-static SIMPLE_DEV_PM_OPS(rtlwifi_pm_ops, rtl_pci_suspend, rtl_pci_resume);
+static SIMPLE_DEV_PM_OPS(rtlwifi_pm_ops, rtlvendor_rtl_pci_suspend, rtlvendor_rtl_pci_resume);
 
 static struct pci_driver rtl8723be_driver = {
 	.name = KBUILD_MODNAME,
 	.id_table = rtl8723be_pci_ids,
-	.probe = rtl_pci_probe,
-	.remove = rtl_pci_disconnect,
+	.probe = rtlvendor_rtl_pci_probe,
+	.remove = rtlvendor_rtl_pci_disconnect,
 	.driver.pm = &rtlwifi_pm_ops,
 };
 

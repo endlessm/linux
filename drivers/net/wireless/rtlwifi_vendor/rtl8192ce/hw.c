@@ -315,7 +315,7 @@ void rtl92ce_set_hw_reg(struct ieee80211_hw *hw, u8 variable, u8 *val)
 		}
 	case HW_VAR_AC_PARAM:{
 			u8 e_aci = *(val);
-			rtl92c_dm_init_edca_turbo(hw);
+			rtlvendor_rtl92c_dm_init_edca_turbo(hw);
 
 			if (rtlpci->acm_method != EACMWAY2_SW)
 				rtlpriv->cfg->ops->set_hw_reg(hw,
@@ -397,7 +397,7 @@ void rtl92ce_set_hw_reg(struct ieee80211_hw *hw, u8 variable, u8 *val)
 		rtlefuse->efuse_usedpercentage = *val;
 		break;
 	case HW_VAR_IO_CMD:
-		rtl92c_phy_set_io_cmd(hw, (*(enum io_type *)val));
+		rtlvendor_rtl92c_phy_set_io_cmd(hw, (*(enum io_type *)val));
 		break;
 	case HW_VAR_WPA_CONFIG:
 		rtl_write_byte(rtlpriv, REG_SECCFG, *val);
@@ -422,10 +422,10 @@ void rtl92ce_set_hw_reg(struct ieee80211_hw *hw, u8 variable, u8 *val)
 
 			if ((psmode != FW_PS_ACTIVE_MODE) &&
 			    (!IS_92C_SERIAL(rtlhal->version))) {
-				rtl92c_dm_rf_saving(hw, true);
+				rtlvendor_rtl92c_dm_rf_saving(hw, true);
 			}
 
-			rtl92c_set_fw_pwrmode_cmd(hw, *val);
+			rtlvendor_rtl92c_set_fw_pwrmode_cmd(hw, *val);
 			break;
 		}
 	case HW_VAR_FW_PSMODE_STATUS:
@@ -455,7 +455,7 @@ void rtl92ce_set_hw_reg(struct ieee80211_hw *hw, u8 variable, u8 *val)
 				rtl_write_byte(rtlpriv, REG_FWHW_TXQ_CTRL + 2,
 					       tmp_reg422 & (~BIT(6)));
 
-				rtl92c_set_fw_rsvdpagepkt(hw, NULL);
+				rtlvendor_rtl92c_set_fw_rsvdpagepkt(hw, NULL);
 
 				_rtl92ce_set_bcn_ctrl_reg(hw, BIT(3), 0);
 				_rtl92ce_set_bcn_ctrl_reg(hw, 0, BIT(4));
@@ -469,12 +469,12 @@ void rtl92ce_set_hw_reg(struct ieee80211_hw *hw, u8 variable, u8 *val)
 				rtl_write_byte(rtlpriv, REG_CR + 1,
 					       (tmp_regcr & ~(BIT(0))));
 			}
-			rtl92c_set_fw_joinbss_report_cmd(hw, *val);
+			rtlvendor_rtl92c_set_fw_joinbss_report_cmd(hw, *val);
 
 			break;
 		}
 	case HW_VAR_H2C_FW_P2P_PS_OFFLOAD:
-		rtl92c_set_p2p_ps_offload_cmd(hw, *val);
+		rtlvendor_rtl92c_set_p2p_ps_offload_cmd(hw, *val);
 		break;
 	case HW_VAR_AID:{
 			u16 u2btmp;
@@ -545,7 +545,7 @@ void rtl92ce_set_hw_reg(struct ieee80211_hw *hw, u8 variable, u8 *val)
 
 		array[0] = 0xff;
 		array[1] = *((u8 *)val);
-		rtl92c_fill_h2c_cmd(hw, H2C_92C_KEEP_ALIVE_CTRL, 2, array);
+		rtlvendor_rtl92c_fill_h2c_cmd(hw, H2C_92C_KEEP_ALIVE_CTRL, 2, array);
 		break; }
 	default:
 		pr_err("switch case %d not processed\n", variable);
@@ -961,7 +961,7 @@ int rtl92ce_hw_init(struct ieee80211_hw *hw)
 		goto exit;
 	}
 
-	err = rtl92c_download_fw(hw);
+	err = rtlvendor_rtl92c_download_fw(hw);
 	if (err) {
 		RT_TRACE(rtlpriv, COMP_ERR, DBG_WARNING,
 			 "Failed to download FW. Init HW without FW now..\n");
@@ -981,7 +981,7 @@ int rtl92ce_hw_init(struct ieee80211_hw *hw)
 	rtl_write_dword(rtlpriv, REG_RCR, rtlpci->receive_config);
 	rtl92c_phy_bb_config(hw);
 	rtlphy->rf_mode = RF_OP_BY_SW_3WIRE;
-	rtl92c_phy_rf_config(hw);
+	rtlvendor_rtl92c_phy_rf_config(hw);
 	if (IS_VENDOR_UMC_A_CUT(rtlhal->version) &&
 	    !IS_92C_SERIAL(rtlhal->version)) {
 		rtl_set_rfreg(hw, RF90_PATH_A, RF_RX_G1, MASKDWORD, 0x30255);
@@ -1002,7 +1002,7 @@ int rtl92ce_hw_init(struct ieee80211_hw *hw)
 	rtl_set_bbreg(hw, RFPGA0_RFMOD, BOFDMEN, 0x1);
 	rtl_set_bbreg(hw, RFPGA0_ANALOGPARAMETER2, BIT(10), 1);
 	_rtl92ce_hw_configure(hw);
-	rtl_cam_reset_all_entry(hw);
+	rtlvendor_rtl_cam_reset_all_entry(hw);
 	rtl92ce_enable_hw_security_config(hw);
 
 	ppsc->rfpwr_state = ERFON;
@@ -1014,20 +1014,20 @@ int rtl92ce_hw_init(struct ieee80211_hw *hw)
 	rtl8192ce_bt_hw_init(hw);
 
 	if (ppsc->rfpwr_state == ERFON) {
-		rtl92c_phy_set_rfpath_switch(hw, 1);
+		rtlvendor_rtl92c_phy_set_rfpath_switch(hw, 1);
 		if (rtlphy->iqk_initialized) {
-			rtl92c_phy_iq_calibrate(hw, true);
+			rtlvendor_rtl92c_phy_iq_calibrate(hw, true);
 		} else {
-			rtl92c_phy_iq_calibrate(hw, false);
+			rtlvendor_rtl92c_phy_iq_calibrate(hw, false);
 			rtlphy->iqk_initialized = true;
 		}
 
-		rtl92c_dm_check_txpower_tracking(hw);
-		rtl92c_phy_lc_calibrate(hw);
+		rtlvendor_rtl92c_dm_check_txpower_tracking(hw);
+		rtlvendor_rtl92c_phy_lc_calibrate(hw);
 	}
 
 	is92c = IS_92C_SERIAL(rtlhal->version);
-	tmp_u1b = efuse_read_1byte(hw, 0x1FA);
+	tmp_u1b = rtlvendor_efuse_read_1byte(hw, 0x1FA);
 	if (!(tmp_u1b & BIT(0))) {
 		rtl_set_rfreg(hw, RF90_PATH_A, 0x15, 0x0F, 0x05);
 		RT_TRACE(rtlpriv, COMP_INIT, DBG_TRACE, "PA BIAS path A\n");
@@ -1046,7 +1046,7 @@ int rtl92ce_hw_init(struct ieee80211_hw *hw)
 		rtl_write_byte(rtlpriv, 0x16, tmp_u1b | 0x90);
 		RT_TRACE(rtlpriv, COMP_INIT, DBG_TRACE, "under 1.5V\n");
 	}
-	rtl92c_dm_init(hw);
+	rtlvendor_rtl92c_dm_init(hw);
 exit:
 	local_irq_restore(flags);
 	rtlpci->being_init_adapter = false;
@@ -1267,7 +1267,7 @@ int rtl92ce_set_network_type(struct ieee80211_hw *hw, enum nl80211_iftype type)
 void rtl92ce_set_qos(struct ieee80211_hw *hw, int aci)
 {
 	struct rtl_priv *rtlpriv = rtl_priv(hw);
-	rtl92c_dm_init_edca_turbo(hw);
+	rtlvendor_rtl92c_dm_init_edca_turbo(hw);
 	switch (aci) {
 	case AC1_BK:
 		rtl_write_dword(rtlpriv, REG_EDCA_BK_PARAM, 0xa44f);
@@ -1322,7 +1322,7 @@ static void _rtl92ce_poweroff_adapter(struct ieee80211_hw *hw)
 	rtl_write_byte(rtlpriv, REG_SYS_FUNC_EN, 0xE2);
 	rtl_write_byte(rtlpriv, REG_SYS_FUNC_EN, 0xE0);
 	if (rtl_read_byte(rtlpriv, REG_MCUFWDL) & BIT(7))
-		rtl92c_firmware_selfreset(hw);
+		rtlvendor_rtl92c_firmware_selfreset(hw);
 	rtl_write_byte(rtlpriv, REG_SYS_FUNC_EN + 1, 0x51);
 	rtl_write_byte(rtlpriv, REG_MCUFWDL, 0x00);
 	rtl_write_dword(rtlpriv, REG_GPIO_PIN_CTRL, 0x00000000);
@@ -1679,7 +1679,7 @@ static void _rtl92ce_read_adapter_info(struct ieee80211_hw *hw)
 	if (!hwinfo)
 		return;
 
-	if (rtl_get_hwinfo(hw, rtlpriv, HWSET_MAX_SIZE, hwinfo, params))
+	if (rtlvendor_rtl_get_hwinfo(hw, rtlpriv, HWSET_MAX_SIZE, hwinfo, params))
 		goto exit;
 
 	_rtl92ce_read_txpower_info_from_hwpg(hw,
@@ -1993,7 +1993,7 @@ static void rtl92ce_update_hal_rate_mask(struct ieee80211_hw *hw,
 	RT_TRACE(rtlpriv, COMP_RATR, DBG_DMESG,
 		 "Rate_index:%x, ratr_val:%x, %5phC\n",
 		 ratr_index, ratr_bitmap, rate_mask);
-	rtl92c_fill_h2c_cmd(hw, H2C_RA_MASK, 5, rate_mask);
+	rtlvendor_rtl92c_fill_h2c_cmd(hw, H2C_RA_MASK, 5, rate_mask);
 }
 
 void rtl92ce_update_hal_rate_tbl(struct ieee80211_hw *hw,
@@ -2116,8 +2116,8 @@ void rtl92ce_set_key(struct ieee80211_hw *hw, u32 key_index,
 		RT_TRACE(rtlpriv, COMP_SEC, DBG_DMESG, "clear_all\n");
 
 		for (idx = 0; idx < clear_number; idx++) {
-			rtl_cam_mark_invalid(hw, cam_offset + idx);
-			rtl_cam_empty_entry(hw, cam_offset + idx);
+			rtlvendor_rtl_cam_mark_invalid(hw, cam_offset + idx);
+			rtlvendor_rtl_cam_empty_entry(hw, cam_offset + idx);
 
 			if (idx < 5) {
 				memset(rtlpriv->sec.key_buf[idx], 0,
@@ -2157,7 +2157,7 @@ void rtl92ce_set_key(struct ieee80211_hw *hw, u32 key_index,
 			} else {
 				if (mac->opmode == NL80211_IFTYPE_AP ||
 				    mac->opmode == NL80211_IFTYPE_MESH_POINT) {
-					entry_id = rtl_cam_get_free_entry(hw,
+					entry_id = rtlvendor_rtl_cam_get_free_entry(hw,
 								 p_macaddr);
 					if (entry_id >=  TOTAL_CAM_ENTRY) {
 						pr_err("Can not find free hw security cam entry\n");
@@ -2178,8 +2178,8 @@ void rtl92ce_set_key(struct ieee80211_hw *hw, u32 key_index,
 				 entry_id);
 			if (mac->opmode == NL80211_IFTYPE_AP ||
 			    mac->opmode == NL80211_IFTYPE_MESH_POINT)
-				rtl_cam_del_entry(hw, p_macaddr);
-			rtl_cam_delete_one_entry(hw, p_macaddr, entry_id);
+				rtlvendor_rtl_cam_del_entry(hw, p_macaddr);
+			rtlvendor_rtl_cam_delete_one_entry(hw, p_macaddr, entry_id);
 		} else {
 			RT_TRACE(rtlpriv, COMP_SEC, DBG_LOUD,
 				 "The insert KEY length is %d\n",
@@ -2201,7 +2201,7 @@ void rtl92ce_set_key(struct ieee80211_hw *hw, u32 key_index,
 				RT_TRACE(rtlpriv, COMP_SEC, DBG_DMESG,
 					 "set Pairwise key\n");
 
-				rtl_cam_add_one_entry(hw, macaddr, key_index,
+				rtlvendor_rtl_cam_add_one_entry(hw, macaddr, key_index,
 						      entry_id, enc_algo,
 						      CAM_CONFIG_NO_USEDK,
 						      rtlpriv->sec.
@@ -2211,7 +2211,7 @@ void rtl92ce_set_key(struct ieee80211_hw *hw, u32 key_index,
 					 "set group key\n");
 
 				if (mac->opmode == NL80211_IFTYPE_ADHOC) {
-					rtl_cam_add_one_entry(hw,
+					rtlvendor_rtl_cam_add_one_entry(hw,
 						rtlefuse->dev_addr,
 						PAIRWISE_KEYIDX,
 						CAM_PAIRWISE_KEY_POSITION,
@@ -2221,7 +2221,7 @@ void rtl92ce_set_key(struct ieee80211_hw *hw, u32 key_index,
 						[entry_id]);
 				}
 
-				rtl_cam_add_one_entry(hw, macaddr, key_index,
+				rtlvendor_rtl_cam_add_one_entry(hw, macaddr, key_index,
 						entry_id, enc_algo,
 						CAM_CONFIG_NO_USEDK,
 						rtlpriv->sec.key_buf[entry_id]);

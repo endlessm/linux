@@ -53,11 +53,11 @@ static struct rtl_halmac_ops rtl_halmac_operation = {
 	.halmac_chk_txdesc = rtl_halmac_chk_txdesc,
 };
 
-struct rtl_halmac_ops *rtl_halmac_get_ops_pointer(void)
+struct rtl_halmac_ops *rtlvendor_rtl_halmac_get_ops_pointer(void)
 {
 	return &rtl_halmac_operation;
 }
-EXPORT_SYMBOL(rtl_halmac_get_ops_pointer);
+EXPORT_SYMBOL(rtlvendor_rtl_halmac_get_ops_pointer);
 
 /*
  * Driver API for HALMAC operations

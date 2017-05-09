@@ -785,11 +785,11 @@ static struct rtl_phydm_ops rtl_phydm_operation = {
 	.phydm_debug_cmd = rtl_phydm_debug_cmd,
 };
 
-struct rtl_phydm_ops *rtl_phydm_get_ops_pointer(void)
+struct rtl_phydm_ops *rtlvendor_rtl_phydm_get_ops_pointer(void)
 {
 	return &rtl_phydm_operation;
 }
-EXPORT_SYMBOL(rtl_phydm_get_ops_pointer);
+EXPORT_SYMBOL(rtlvendor_rtl_phydm_get_ops_pointer);
 
 /* ********************************************************
  * Define phydm callout function in below

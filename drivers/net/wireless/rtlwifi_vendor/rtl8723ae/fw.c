@@ -473,7 +473,7 @@ void rtl8723e_set_fw_rsvdpagepkt(struct ieee80211_hw *hw, bool b_dl_finished)
 	memcpy((u8 *)skb_put(skb, totalpacketlen),
 	       &reserved_page_packet, totalpacketlen);
 
-	rtstatus = rtl_cmd_send_packet(hw, skb);
+	rtstatus = rtlvendor_rtl_cmd_send_packet(hw, skb);
 
 	if (rtstatus)
 		b_dlok = true;

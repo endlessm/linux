@@ -881,7 +881,7 @@ void rtl8822be_c2h_content_parsing_ext(struct ieee80211_hw *hw,
 	case 0x0F:
 		RT_TRACE(rtlpriv, COMP_FW, DBG_TRACE,
 			 "[C2H], C2H_8822BE_TX_REPORT!\n");
-		rtl_tx_report_handler(hw, c2h_content_buf, c2h_cmd_len);
+		rtlvendor_rtl_tx_report_handler(hw, c2h_content_buf, c2h_cmd_len);
 		break;
 	default:
 		/* indicate c2h pkt + rx desc to halmac */
@@ -961,7 +961,7 @@ void rtl8822be_c2h_packet_handler(struct ieee80211_hw *hw, u8 *buffer, u8 len)
 	switch (c2h_cmd_id) {
 	case C2H_8822B_BT_INFO:
 	case C2H_8822B_BT_MP:
-		rtl_c2hcmd_enqueue(hw, c2h_cmd_id, c2h_cmd_len, tmp_buf);
+		rtlvendor_rtl_c2hcmd_enqueue(hw, c2h_cmd_id, c2h_cmd_len, tmp_buf);
 		break;
 	default:
 		rtl8822be_c2h_content_parsing(hw, c2h_cmd_id, c2h_cmd_len,

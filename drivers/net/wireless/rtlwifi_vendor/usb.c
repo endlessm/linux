@@ -476,7 +476,7 @@ static void _rtl_usb_rx_process_agg(struct ieee80211_hw *hw,
 				rtlpriv->link_info.num_rx_inperiod++;
 		}
 		/* static bcn for roaming */
-		rtl_beacon_statistic(hw, skb);
+		rtlvendor_rtl_beacon_statistic(hw, skb);
 	}
 }
 
@@ -519,9 +519,9 @@ static void _rtl_usb_rx_process_noagg(struct ieee80211_hw *hw,
 		}
 
 		/* static bcn for roaming */
-		rtl_beacon_statistic(hw, skb);
+		rtlvendor_rtl_beacon_statistic(hw, skb);
 
-		if (likely(rtl_action_proc(hw, skb, false)))
+		if (likely(rtlvendor_rtl_action_proc(hw, skb, false)))
 			ieee80211_rx(hw, skb);
 		else
 			dev_kfree_skb_any(skb);
@@ -760,7 +760,7 @@ static int rtl_usb_start(struct ieee80211_hw *hw)
 
 	err = rtlpriv->cfg->ops->hw_init(hw);
 	if (!err) {
-		rtl_init_rx_config(hw);
+		rtlvendor_rtl_init_rx_config(hw);
 
 		/* Enable software */
 		SET_USB_START(rtlusb);
@@ -967,7 +967,7 @@ static void _rtl_usb_tx_preprocess(struct ieee80211_hw *hw,
 	memset(&tcb_desc, 0, sizeof(struct rtl_tcb_desc));
 	if (ieee80211_is_auth(fc)) {
 		RT_TRACE(rtlpriv, COMP_SEND, DBG_DMESG, "MAC80211_LINKING\n");
-		rtl_ips_nic_on(hw);
+		rtlvendor_rtl_ips_nic_on(hw);
 	}
 
 	if (rtlpriv->psc.sw_ps_enabled) {
@@ -976,7 +976,7 @@ static void _rtl_usb_tx_preprocess(struct ieee80211_hw *hw,
 			hdr->frame_control |= cpu_to_le16(IEEE80211_FCTL_PM);
 	}
 
-	rtl_action_proc(hw, skb, true);
+	rtlvendor_rtl_action_proc(hw, skb, true);
 	if (is_multicast_ether_addr(pda_addr))
 		rtlpriv->stats.txbytesmulticast += skb->len;
 	else if (is_broadcast_ether_addr(pda_addr))
@@ -1048,7 +1048,7 @@ static const struct rtl_intf_ops rtl_usb_ops = {
 	.waitq_insert = rtl_usb_tx_chk_waitq_insert,
 };
 
-int rtl_usb_probe(struct usb_interface *intf,
+int rtlvendor_rtl_usb_probe(struct usb_interface *intf,
 		  const struct usb_device_id *id,
 		  struct rtl_hal_cfg *rtl_hal_cfg)
 {
@@ -1059,7 +1059,7 @@ int rtl_usb_probe(struct usb_interface *intf,
 	struct rtl_usb_priv *usb_priv;
 
 	hw = ieee80211_alloc_hw(sizeof(struct rtl_priv) +
-				sizeof(struct rtl_usb_priv), &rtl_ops);
+				sizeof(struct rtl_usb_priv), &rtlvendor_rtl_ops);
 	if (!hw) {
 		WARN_ONCE(true, "rtl_usb: ieee80211 alloc failed\n");
 		return -ENOMEM;
@@ -1076,7 +1076,7 @@ int rtl_usb_probe(struct usb_interface *intf,
 	INIT_WORK(&rtlpriv->works.fill_h2c_cmd,
 		  rtl_fill_h2c_cmd_work_callback);
 	INIT_WORK(&rtlpriv->works.lps_change_work,
-		  rtl_lps_change_work_callback);
+		  rtlvendor_rtl_lps_change_work_callback);
 
 	rtlpriv->usb_data_index = 0;
 	init_completion(&rtlpriv->firmware_loading_complete);
@@ -1092,7 +1092,7 @@ int rtl_usb_probe(struct usb_interface *intf,
 	rtlpriv->rtlhal.interface = INTF_USB;
 	rtlpriv->cfg = rtl_hal_cfg;
 	rtlpriv->intf_ops = &rtl_usb_ops;
-	rtl_dbgp_flag_init(hw);
+	rtlvendor_rtl_dbgp_flag_init(hw);
 	/* Init IO handler */
 	_rtl_usb_io_handler_init(&udev->dev, hw);
 	rtlpriv->cfg->ops->read_chip_version(hw);
@@ -1103,7 +1103,7 @@ int rtl_usb_probe(struct usb_interface *intf,
 		goto error_out;
 	rtl_usb_init_sw(hw);
 	/* Init mac80211 sw */
-	err = rtl_init_core(hw);
+	err = rtlvendor_rtl_init_core(hw);
 	if (err) {
 		pr_err("Can't allocate sw for mac80211\n");
 		goto error_out;
@@ -1126,15 +1126,15 @@ int rtl_usb_probe(struct usb_interface *intf,
 	return 0;
 
 error_out:
-	rtl_deinit_core(hw);
+	rtlvendor_rtl_deinit_core(hw);
 	_rtl_usb_io_handler_release(hw);
 	usb_put_dev(udev);
 	complete(&rtlpriv->firmware_loading_complete);
 	return -ENODEV;
 }
-EXPORT_SYMBOL(rtl_usb_probe);
+EXPORT_SYMBOL(rtlvendor_rtl_usb_probe);
 
-void rtl_usb_disconnect(struct usb_interface *intf)
+void rtlvendor_rtl_usb_disconnect(struct usb_interface *intf)
 {
 	struct ieee80211_hw *hw = usb_get_intfdata(intf);
 	struct rtl_priv *rtlpriv = rtl_priv(hw);
@@ -1151,13 +1151,13 @@ void rtl_usb_disconnect(struct usb_interface *intf)
 		ieee80211_unregister_hw(hw);
 		rtlmac->mac80211_registered = 0;
 	} else {
-		rtl_deinit_deferred_work(hw);
+		rtlvendor_rtl_deinit_deferred_work(hw);
 		rtlpriv->intf_ops->adapter_stop(hw);
 	}
 	/*deinit rfkill */
-	/* rtl_deinit_rfkill(hw); */
+	/* rtlvendor_rtl_deinit_rfkill(hw); */
 	rtl_usb_deinit(hw);
-	rtl_deinit_core(hw);
+	rtlvendor_rtl_deinit_core(hw);
 	kfree(rtlpriv->usb_data);
 	rtlpriv->cfg->ops->deinit_sw_leds(hw);
 	rtlpriv->cfg->ops->deinit_sw_vars(hw);
@@ -1166,16 +1166,16 @@ void rtl_usb_disconnect(struct usb_interface *intf)
 	usb_set_intfdata(intf, NULL);
 	ieee80211_free_hw(hw);
 }
-EXPORT_SYMBOL(rtl_usb_disconnect);
+EXPORT_SYMBOL(rtlvendor_rtl_usb_disconnect);
 
-int rtl_usb_suspend(struct usb_interface *pusb_intf, pm_message_t message)
+int rtlvendor_rtl_usb_suspend(struct usb_interface *pusb_intf, pm_message_t message)
 {
 	return 0;
 }
-EXPORT_SYMBOL(rtl_usb_suspend);
+EXPORT_SYMBOL(rtlvendor_rtl_usb_suspend);
 
-int rtl_usb_resume(struct usb_interface *pusb_intf)
+int rtlvendor_rtl_usb_resume(struct usb_interface *pusb_intf)
 {
 	return 0;
 }
-EXPORT_SYMBOL(rtl_usb_resume);
+EXPORT_SYMBOL(rtlvendor_rtl_usb_resume);
