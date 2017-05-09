@@ -57,7 +57,7 @@ static u8 _rtl_rc_get_highest_rix(struct rtl_priv *rtlpriv,
 	 *this rate is no use for true rate, firmware
 	 *will control rate at all it just used for
 	 *1.show in iwconfig in B/G mode
-	 *2.in rtl_get_tcb_desc when we check rate is
+	 *2.in rtlvendor_rtl_get_tcb_desc when we check rate is
 	 *      1M we will not use FW rate but user rate.
 	 */
 
@@ -66,7 +66,7 @@ static u8 _rtl_rc_get_highest_rix(struct rtl_priv *rtlpriv,
 		wireless_mode = sta_entry->wireless_mode;
 	}
 
-	if (rtl_is_special_data(rtlpriv->mac80211.hw, skb, true, false) ||
+	if (rtlvendor_rtl_is_special_data(rtlpriv->mac80211.hw, skb, true, false) ||
 	    not_data) {
 		return 0;
 	} else {
@@ -218,7 +218,7 @@ static void rtl_tx_status(void *ppriv,
 	if (!priv_sta || !ieee80211_is_data(fc))
 		return;
 
-	if (rtl_is_special_data(mac->hw, skb, true, true))
+	if (rtlvendor_rtl_is_special_data(mac->hw, skb, true, true))
 		return;
 
 	if (is_multicast_ether_addr(ieee80211_get_DA(hdr)) ||

@@ -68,11 +68,11 @@ u32 rtl8723e_phy_query_rf_reg(struct ieee80211_hw *hw,
 	spin_lock_irqsave(&rtlpriv->locks.rf_lock, flags);
 
 	if (rtlphy->rf_mode != RF_OP_BY_FW) {
-		original_value = rtl8723_phy_rf_serial_read(hw,
+		original_value = rtlvendor_rtl8723_phy_rf_serial_read(hw,
 							    rfpath, regaddr);
 	}
 
-	bitshift = rtl8723_phy_calculate_bit_shift(bitmask);
+	bitshift = rtlvendor_rtl8723_phy_calculate_bit_shift(bitmask);
 	readback_value = (original_value & bitmask) >> bitshift;
 
 	spin_unlock_irqrestore(&rtlpriv->locks.rf_lock, flags);
@@ -101,19 +101,19 @@ void rtl8723e_phy_set_rf_reg(struct ieee80211_hw *hw,
 
 	if (rtlphy->rf_mode != RF_OP_BY_FW) {
 		if (bitmask != RFREG_OFFSET_MASK) {
-			original_value = rtl8723_phy_rf_serial_read(hw,
+			original_value = rtlvendor_rtl8723_phy_rf_serial_read(hw,
 								    rfpath,
 								    regaddr);
-			bitshift = rtl8723_phy_calculate_bit_shift(bitmask);
+			bitshift = rtlvendor_rtl8723_phy_calculate_bit_shift(bitmask);
 			data =
 			    ((original_value & (~bitmask)) |
 			     (data << bitshift));
 		}
 
-		rtl8723_phy_rf_serial_write(hw, rfpath, regaddr, data);
+		rtlvendor_rtl8723_phy_rf_serial_write(hw, rfpath, regaddr, data);
 	} else {
 		if (bitmask != RFREG_OFFSET_MASK) {
-			bitshift = rtl8723_phy_calculate_bit_shift(bitmask);
+			bitshift = rtlvendor_rtl8723_phy_calculate_bit_shift(bitmask);
 			data =
 			    ((original_value & (~bitmask)) |
 			     (data << bitshift));
@@ -165,7 +165,7 @@ bool rtl8723e_phy_bb_config(struct ieee80211_hw *hw)
 	u8 tmpu1b;
 	u8 b_reg_hwparafile = 1;
 
-	rtl8723_phy_init_bb_rf_reg_def(hw);
+	rtlvendor_rtl8723_phy_init_bb_rf_reg_def(hw);
 
 	/* 1. 0x28[1] = 1 */
 	tmpu1b = rtl_read_byte(rtlpriv, REG_AFE_PLL_CTRL);
@@ -590,22 +590,22 @@ void rtl8723e_phy_get_txpower_level(struct ieee80211_hw *hw, long *powerlevel)
 	long txpwr_dbm;
 
 	txpwr_level = rtlphy->cur_cck_txpwridx;
-	txpwr_dbm = rtl8723_phy_txpwr_idx_to_dbm(hw,
+	txpwr_dbm = rtlvendor_rtl8723_phy_txpwr_idx_to_dbm(hw,
 						 WIRELESS_MODE_B, txpwr_level);
 	txpwr_level = rtlphy->cur_ofdm24g_txpwridx +
 	    rtlefuse->legacy_ht_txpowerdiff;
-	if (rtl8723_phy_txpwr_idx_to_dbm(hw,
+	if (rtlvendor_rtl8723_phy_txpwr_idx_to_dbm(hw,
 					 WIRELESS_MODE_G,
 					 txpwr_level) > txpwr_dbm)
 		txpwr_dbm =
-		    rtl8723_phy_txpwr_idx_to_dbm(hw, WIRELESS_MODE_G,
+		    rtlvendor_rtl8723_phy_txpwr_idx_to_dbm(hw, WIRELESS_MODE_G,
 						 txpwr_level);
 	txpwr_level = rtlphy->cur_ofdm24g_txpwridx;
-	if (rtl8723_phy_txpwr_idx_to_dbm(hw,
+	if (rtlvendor_rtl8723_phy_txpwr_idx_to_dbm(hw,
 					 WIRELESS_MODE_N_24G,
 					 txpwr_level) > txpwr_dbm)
 		txpwr_dbm =
-		    rtl8723_phy_txpwr_idx_to_dbm(hw, WIRELESS_MODE_N_24G,
+		    rtlvendor_rtl8723_phy_txpwr_idx_to_dbm(hw, WIRELESS_MODE_N_24G,
 						 txpwr_level);
 	*powerlevel = txpwr_dbm;
 }
@@ -940,15 +940,15 @@ static bool _rtl8723e_phy_sw_chnl_step_by_step(struct ieee80211_hw *hw,
 	u8 num_total_rfpath = rtlphy->num_total_rfpath;
 
 	precommoncmdcnt = 0;
-	rtl8723_phy_set_sw_chnl_cmdarray(precommoncmd, precommoncmdcnt++,
+	rtlvendor_rtl8723_phy_set_sw_chnl_cmdarray(precommoncmd, precommoncmdcnt++,
 					 MAX_PRECMD_CNT,
 					 CMDID_SET_TXPOWEROWER_LEVEL, 0, 0, 0);
-	rtl8723_phy_set_sw_chnl_cmdarray(precommoncmd, precommoncmdcnt++,
+	rtlvendor_rtl8723_phy_set_sw_chnl_cmdarray(precommoncmd, precommoncmdcnt++,
 					 MAX_PRECMD_CNT, CMDID_END, 0, 0, 0);
 
 	postcommoncmdcnt = 0;
 
-	rtl8723_phy_set_sw_chnl_cmdarray(postcommoncmd, postcommoncmdcnt++,
+	rtlvendor_rtl8723_phy_set_sw_chnl_cmdarray(postcommoncmd, postcommoncmdcnt++,
 					 MAX_POSTCMD_CNT, CMDID_END, 0, 0, 0);
 
 	rfdependcmdcnt = 0;
@@ -956,11 +956,11 @@ static bool _rtl8723e_phy_sw_chnl_step_by_step(struct ieee80211_hw *hw,
 	WARN_ONCE((channel < 1 || channel > 14),
 		  "rtl8723ae: illegal channel for Zebra: %d\n", channel);
 
-	rtl8723_phy_set_sw_chnl_cmdarray(rfdependcmd, rfdependcmdcnt++,
+	rtlvendor_rtl8723_phy_set_sw_chnl_cmdarray(rfdependcmd, rfdependcmdcnt++,
 					 MAX_RFDEPENDCMD_CNT, CMDID_RF_WRITEREG,
 					 RF_CHNLBW, channel, 10);
 
-	rtl8723_phy_set_sw_chnl_cmdarray(rfdependcmd, rfdependcmdcnt++,
+	rtlvendor_rtl8723_phy_set_sw_chnl_cmdarray(rfdependcmd, rfdependcmdcnt++,
 					 MAX_RFDEPENDCMD_CNT, CMDID_END, 0, 0,
 					 0);
 
@@ -1182,12 +1182,12 @@ static void _rtl8723e_phy_iq_calibrate(struct ieee80211_hw *hw,
 	if (t == 0) {
 		bbvalue = rtl_get_bbreg(hw, 0x800, MASKDWORD);
 
-		rtl8723_save_adda_registers(hw, adda_reg,
+		rtlvendor_rtl8723_save_adda_registers(hw, adda_reg,
 					    rtlphy->adda_backup, 16);
-		rtl8723_phy_save_mac_registers(hw, iqk_mac_reg,
+		rtlvendor_rtl8723_phy_save_mac_registers(hw, iqk_mac_reg,
 					       rtlphy->iqk_mac_backup);
 	}
-	rtl8723_phy_path_adda_on(hw, adda_reg, true, is2t);
+	rtlvendor_rtl8723_phy_path_adda_on(hw, adda_reg, true, is2t);
 	if (t == 0) {
 		rtlphy->rfpi_enable = (u8) rtl_get_bbreg(hw,
 					RFPGA0_XA_HSSIPARAMETER1,
@@ -1195,7 +1195,7 @@ static void _rtl8723e_phy_iq_calibrate(struct ieee80211_hw *hw,
 	}
 
 	if (!rtlphy->rfpi_enable)
-		rtl8723_phy_pi_mode_switch(hw, true);
+		rtlvendor_rtl8723_phy_pi_mode_switch(hw, true);
 	if (t == 0) {
 		rtlphy->reg_c04 = rtl_get_bbreg(hw, 0xc04, MASKDWORD);
 		rtlphy->reg_c08 = rtl_get_bbreg(hw, 0xc08, MASKDWORD);
@@ -1208,7 +1208,7 @@ static void _rtl8723e_phy_iq_calibrate(struct ieee80211_hw *hw,
 		rtl_set_bbreg(hw, 0x840, MASKDWORD, 0x00010000);
 		rtl_set_bbreg(hw, 0x844, MASKDWORD, 0x00010000);
 	}
-	rtl8723_phy_mac_setting_calibration(hw, iqk_mac_reg,
+	rtlvendor_rtl8723_phy_mac_setting_calibration(hw, iqk_mac_reg,
 					    rtlphy->iqk_mac_backup);
 	rtl_set_bbreg(hw, 0xb68, MASKDWORD, 0x00080000);
 	if (is2t)
@@ -1239,8 +1239,8 @@ static void _rtl8723e_phy_iq_calibrate(struct ieee80211_hw *hw,
 	}
 
 	if (is2t) {
-		rtl8723_phy_path_a_standby(hw);
-		rtl8723_phy_path_adda_on(hw, adda_reg, false, is2t);
+		rtlvendor_rtl8723_phy_path_a_standby(hw);
+		rtlvendor_rtl8723_phy_path_adda_on(hw, adda_reg, false, is2t);
 		for (i = 0; i < retrycount; i++) {
 			pathb_ok = _rtl8723e_phy_path_b_iqk(hw);
 			if (pathb_ok == 0x03) {
@@ -1277,10 +1277,10 @@ static void _rtl8723e_phy_iq_calibrate(struct ieee80211_hw *hw,
 		rtl_set_bbreg(hw, 0x844, MASKDWORD, 0x00032ed3);
 	if (t != 0) {
 		if (!rtlphy->rfpi_enable)
-			rtl8723_phy_pi_mode_switch(hw, false);
-		rtl8723_phy_reload_adda_registers(hw, adda_reg,
+			rtlvendor_rtl8723_phy_pi_mode_switch(hw, false);
+		rtlvendor_rtl8723_phy_reload_adda_registers(hw, adda_reg,
 						  rtlphy->adda_backup, 16);
-		rtl8723_phy_reload_mac_registers(hw, iqk_mac_reg,
+		rtlvendor_rtl8723_phy_reload_mac_registers(hw, iqk_mac_reg,
 						 rtlphy->iqk_mac_backup);
 	}
 }
@@ -1384,7 +1384,7 @@ void rtl8723e_phy_iq_calibrate(struct ieee80211_hw *hw, bool b_recovery)
 	};
 
 	if (b_recovery) {
-		rtl8723_phy_reload_adda_registers(hw,
+		rtlvendor_rtl8723_phy_reload_adda_registers(hw,
 						  iqk_bb_reg,
 						  rtlphy->iqk_bb_backup, 10);
 		return;
@@ -1459,10 +1459,10 @@ void rtl8723e_phy_iq_calibrate(struct ieee80211_hw *hw, bool b_recovery)
 		rtlphy->reg_e9c = rtlphy->reg_ebc = 0x0;
 	}
 	if (reg_e94 != 0)
-		rtl8723_phy_path_a_fill_iqk_matrix(hw, b_patha_ok, result,
+		rtlvendor_rtl8723_phy_path_a_fill_iqk_matrix(hw, b_patha_ok, result,
 						   final_candidate,
 						   (reg_ea4 == 0));
-	rtl8723_save_adda_registers(hw, iqk_bb_reg,
+	rtlvendor_rtl8723_save_adda_registers(hw, iqk_bb_reg,
 				    rtlphy->iqk_bb_backup, 10);
 }
 
@@ -1609,7 +1609,7 @@ static bool _rtl8723e_phy_set_rf_power_state(struct ieee80211_hw *hw,
 				initializecount++;
 				RT_TRACE(rtlpriv, COMP_RF, DBG_DMESG,
 					 "IPS Set eRf nic enable\n");
-				rtstatus = rtl_ps_enable_nic(hw);
+				rtstatus = rtlvendor_rtl_ps_enable_nic(hw);
 			} while (!rtstatus && (initializecount < 10));
 			RT_CLEAR_PS_LEVEL(ppsc,
 					  RT_RF_OFF_LEVL_HALT_NIC);
@@ -1634,7 +1634,7 @@ static bool _rtl8723e_phy_set_rf_power_state(struct ieee80211_hw *hw,
 		if (ppsc->reg_rfps_level & RT_RF_OFF_LEVL_HALT_NIC) {
 			RT_TRACE(rtlpriv, COMP_RF, DBG_DMESG,
 				 "IPS Set eRf nic disable\n");
-			rtl_ps_disable_nic(hw);
+			rtlvendor_rtl_ps_disable_nic(hw);
 			RT_SET_PS_LEVEL(ppsc, RT_RF_OFF_LEVL_HALT_NIC);
 		} else {
 			if (ppsc->rfoff_reason == RF_CHANGE_BY_IPS) {

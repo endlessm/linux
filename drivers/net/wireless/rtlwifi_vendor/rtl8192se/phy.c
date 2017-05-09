@@ -554,7 +554,7 @@ bool rtl92s_phy_set_rf_power_state(struct ieee80211_hw *hw,
 					InitializeCount++;
 					RT_TRACE(rtlpriv, COMP_RF, DBG_DMESG,
 						 "IPS Set eRf nic enable\n");
-					rtstatus = rtl_ps_enable_nic(hw);
+					rtstatus = rtlvendor_rtl_ps_enable_nic(hw);
 				} while (!rtstatus && (InitializeCount < 10));
 
 				RT_CLEAR_PS_LEVEL(ppsc,
@@ -584,7 +584,7 @@ bool rtl92s_phy_set_rf_power_state(struct ieee80211_hw *hw,
 			if (ppsc->reg_rfps_level & RT_RF_OFF_LEVL_HALT_NIC) {
 				RT_TRACE(rtlpriv, COMP_RF, DBG_DMESG,
 					 "IPS Set eRf nic disable\n");
-				rtl_ps_disable_nic(hw);
+				rtlvendor_rtl_ps_disable_nic(hw);
 				RT_SET_PS_LEVEL(ppsc, RT_RF_OFF_LEVL_HALT_NIC);
 			} else {
 				if (ppsc->rfoff_reason == RF_CHANGE_BY_IPS)
@@ -830,7 +830,7 @@ static bool _rtl92s_phy_config_bb(struct ieee80211_hw *hw, u8 configtype)
 
 	if (configtype == BASEBAND_CONFIG_PHY_REG) {
 		for (i = 0; i < phy_reg_len; i = i + 2) {
-			rtl_addr_delay(phy_reg_table[i]);
+			rtlvendor_rtl_addr_delay(phy_reg_table[i]);
 
 			/* Add delay for ECS T20 & LG malow platform, */
 			udelay(1);
@@ -872,7 +872,7 @@ static bool _rtl92s_phy_set_bb_to_diff_rf(struct ieee80211_hw *hw,
 
 	if (configtype == BASEBAND_CONFIG_PHY_REG) {
 		for (i = 0; i < phy_regarray2xtxr_len; i = i + 3) {
-			rtl_addr_delay(phy_regarray2xtxr_table[i]);
+			rtlvendor_rtl_addr_delay(phy_regarray2xtxr_table[i]);
 
 			rtl92s_phy_set_bb_reg(hw, phy_regarray2xtxr_table[i],
 				phy_regarray2xtxr_table[i + 1],
@@ -895,7 +895,7 @@ static bool _rtl92s_phy_config_bb_with_pg(struct ieee80211_hw *hw,
 
 	if (configtype == BASEBAND_CONFIG_PHY_REG) {
 		for (i = 0; i < phy_pg_len; i = i + 3) {
-			rtl_addr_delay(phy_table_pg[i]);
+			rtlvendor_rtl_addr_delay(phy_table_pg[i]);
 
 			_rtl92s_store_pwrindex_diffrate_offset(hw,
 					phy_table_pg[i],
@@ -996,7 +996,7 @@ u8 rtl92s_phy_config_rf(struct ieee80211_hw *hw, enum radio_path rfpath)
 	switch (rfpath) {
 	case RF90_PATH_A:
 		for (i = 0; i < radio_a_tblen; i = i + 2) {
-			rtl_rfreg_delay(hw, rfpath, radio_a_table[i],
+			rtlvendor_rtl_rfreg_delay(hw, rfpath, radio_a_table[i],
 					MASK20BITS, radio_a_table[i + 1]);
 
 		}
@@ -1006,7 +1006,7 @@ u8 rtl92s_phy_config_rf(struct ieee80211_hw *hw, enum radio_path rfpath)
 		break;
 	case RF90_PATH_B:
 		for (i = 0; i < radio_b_tblen; i = i + 2) {
-			rtl_rfreg_delay(hw, rfpath, radio_b_table[i],
+			rtlvendor_rtl_rfreg_delay(hw, rfpath, radio_b_table[i],
 					MASK20BITS, radio_b_table[i + 1]);
 		}
 		break;

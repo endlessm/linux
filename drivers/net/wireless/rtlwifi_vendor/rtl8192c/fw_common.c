@@ -84,7 +84,7 @@ static void _rtl92c_write_fw(struct ieee80211_hw *hw,
 		u32 page, offset;
 
 		if (rtlhal->hw_type == HARDWARE_TYPE_RTL8192CE)
-			rtl_fill_dummy(bufferptr, &size);
+			rtlvendor_rtl_fill_dummy(bufferptr, &size);
 
 		pageNums = size / FW_8192C_PAGE_SIZE;
 		remainsize = size % FW_8192C_PAGE_SIZE;
@@ -94,18 +94,18 @@ static void _rtl92c_write_fw(struct ieee80211_hw *hw,
 
 		for (page = 0; page < pageNums; page++) {
 			offset = page * FW_8192C_PAGE_SIZE;
-			rtl_fw_page_write(hw, page, (bufferptr + offset),
+			rtlvendor_rtl_fw_page_write(hw, page, (bufferptr + offset),
 					  FW_8192C_PAGE_SIZE);
 		}
 
 		if (remainsize) {
 			offset = pageNums * FW_8192C_PAGE_SIZE;
 			page = pageNums;
-			rtl_fw_page_write(hw, page, (bufferptr + offset),
+			rtlvendor_rtl_fw_page_write(hw, page, (bufferptr + offset),
 					  remainsize);
 		}
 	} else {
-		rtl_fw_block_write(hw, buffer, size);
+		rtlvendor_rtl_fw_block_write(hw, buffer, size);
 	}
 }
 
@@ -149,7 +149,7 @@ exit:
 	return err;
 }
 
-int rtl92c_download_fw(struct ieee80211_hw *hw)
+int rtlvendor_rtl92c_download_fw(struct ieee80211_hw *hw)
 {
 	struct rtl_priv *rtlpriv = rtl_priv(hw);
 	struct rtl_hal *rtlhal = rtl_hal(rtl_priv(hw));
@@ -191,7 +191,7 @@ int rtl92c_download_fw(struct ieee80211_hw *hw)
 
 	return 0;
 }
-EXPORT_SYMBOL(rtl92c_download_fw);
+EXPORT_SYMBOL(rtlvendor_rtl92c_download_fw);
 
 static bool _rtl92c_check_fw_read_last_h2c(struct ieee80211_hw *hw, u8 boxnum)
 {
@@ -408,7 +408,7 @@ static void _rtl92c_fill_h2c_command(struct ieee80211_hw *hw,
 	RT_TRACE(rtlpriv, COMP_CMD, DBG_LOUD, "go out\n");
 }
 
-void rtl92c_fill_h2c_cmd(struct ieee80211_hw *hw,
+void rtlvendor_rtl92c_fill_h2c_cmd(struct ieee80211_hw *hw,
 			 u8 element_id, u32 cmd_len, u8 *cmdbuffer)
 {
 	struct rtl_hal *rtlhal = rtl_hal(rtl_priv(hw));
@@ -426,9 +426,9 @@ void rtl92c_fill_h2c_cmd(struct ieee80211_hw *hw,
 
 	return;
 }
-EXPORT_SYMBOL(rtl92c_fill_h2c_cmd);
+EXPORT_SYMBOL(rtlvendor_rtl92c_fill_h2c_cmd);
 
-void rtl92c_firmware_selfreset(struct ieee80211_hw *hw)
+void rtlvendor_rtl92c_firmware_selfreset(struct ieee80211_hw *hw)
 {
 	u8 u1b_tmp;
 	u8 delay = 100;
@@ -447,9 +447,9 @@ void rtl92c_firmware_selfreset(struct ieee80211_hw *hw)
 		u1b_tmp = rtl_read_byte(rtlpriv, REG_SYS_FUNC_EN + 1);
 	}
 }
-EXPORT_SYMBOL(rtl92c_firmware_selfreset);
+EXPORT_SYMBOL(rtlvendor_rtl92c_firmware_selfreset);
 
-void rtl92c_set_fw_pwrmode_cmd(struct ieee80211_hw *hw, u8 mode)
+void rtlvendor_rtl92c_set_fw_pwrmode_cmd(struct ieee80211_hw *hw, u8 mode)
 {
 	struct rtl_priv *rtlpriv = rtl_priv(hw);
 	u8 u1_h2c_set_pwrmode[3] = { 0 };
@@ -464,11 +464,11 @@ void rtl92c_set_fw_pwrmode_cmd(struct ieee80211_hw *hw, u8 mode)
 					      ppsc->reg_max_lps_awakeintvl);
 
 	RT_PRINT_DATA(rtlpriv, COMP_CMD, DBG_DMESG,
-		      "rtl92c_set_fw_rsvdpagepkt(): u1_h2c_set_pwrmode\n",
+		      "rtlvendor_rtl92c_set_fw_rsvdpagepkt(): u1_h2c_set_pwrmode\n",
 		      u1_h2c_set_pwrmode, 3);
-	rtl92c_fill_h2c_cmd(hw, H2C_SETPWRMODE, 3, u1_h2c_set_pwrmode);
+	rtlvendor_rtl92c_fill_h2c_cmd(hw, H2C_SETPWRMODE, 3, u1_h2c_set_pwrmode);
 }
-EXPORT_SYMBOL(rtl92c_set_fw_pwrmode_cmd);
+EXPORT_SYMBOL(rtlvendor_rtl92c_set_fw_pwrmode_cmd);
 
 #define BEACON_PG		0 /*->1*/
 #define PSPOLL_PG		2
@@ -587,7 +587,7 @@ static u8 reserved_page_packet[TOTAL_RESERVED_PKT_LEN] = {
 	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
 };
 
-void rtl92c_set_fw_rsvdpagepkt(struct ieee80211_hw *hw,
+void rtlvendor_rtl92c_set_fw_rsvdpagepkt(struct ieee80211_hw *hw,
 	 bool (*cmd_send_packet)(struct ieee80211_hw *, struct sk_buff *))
 {
 	struct rtl_priv *rtlpriv = rtl_priv(hw);
@@ -643,10 +643,10 @@ void rtl92c_set_fw_rsvdpagepkt(struct ieee80211_hw *hw,
 	totalpacketlen = TOTAL_RESERVED_PKT_LEN;
 
 	RT_PRINT_DATA(rtlpriv, COMP_CMD, DBG_LOUD,
-		      "rtl92c_set_fw_rsvdpagepkt(): HW_VAR_SET_TX_CMD: ALL\n",
+		      "rtlvendor_rtl92c_set_fw_rsvdpagepkt(): HW_VAR_SET_TX_CMD: ALL\n",
 		      &reserved_page_packet[0], totalpacketlen);
 	RT_PRINT_DATA(rtlpriv, COMP_CMD, DBG_DMESG,
-		      "rtl92c_set_fw_rsvdpagepkt(): HW_VAR_SET_TX_CMD: ALL\n",
+		      "rtlvendor_rtl92c_set_fw_rsvdpagepkt(): HW_VAR_SET_TX_CMD: ALL\n",
 		      u1rsvdpageloc, 3);
 
 
@@ -657,7 +657,7 @@ void rtl92c_set_fw_rsvdpagepkt(struct ieee80211_hw *hw,
 	if (cmd_send_packet)
 		rtstatus = cmd_send_packet(hw, skb);
 	else
-		rtstatus = rtl_cmd_send_packet(hw, skb);
+		rtstatus = rtlvendor_rtl_cmd_send_packet(hw, skb);
 
 	if (rtstatus)
 		b_dlok = true;
@@ -668,29 +668,29 @@ void rtl92c_set_fw_rsvdpagepkt(struct ieee80211_hw *hw,
 		RT_PRINT_DATA(rtlpriv, COMP_CMD, DBG_DMESG,
 				"H2C_RSVDPAGE:\n",
 				u1rsvdpageloc, 3);
-		rtl92c_fill_h2c_cmd(hw, H2C_RSVDPAGE,
+		rtlvendor_rtl92c_fill_h2c_cmd(hw, H2C_RSVDPAGE,
 				    sizeof(u1rsvdpageloc), u1rsvdpageloc);
 	} else
 		RT_TRACE(rtlpriv, COMP_ERR, DBG_WARNING,
 			 "Set RSVD page location to Fw FAIL!!!!!!.\n");
 }
-EXPORT_SYMBOL(rtl92c_set_fw_rsvdpagepkt);
+EXPORT_SYMBOL(rtlvendor_rtl92c_set_fw_rsvdpagepkt);
 
-void rtl92c_set_fw_joinbss_report_cmd(struct ieee80211_hw *hw, u8 mstatus)
+void rtlvendor_rtl92c_set_fw_joinbss_report_cmd(struct ieee80211_hw *hw, u8 mstatus)
 {
 	u8 u1_joinbssrpt_parm[1] = { 0 };
 
 	SET_H2CCMD_JOINBSSRPT_PARM_OPMODE(u1_joinbssrpt_parm, mstatus);
 
-	rtl92c_fill_h2c_cmd(hw, H2C_JOINBSSRPT, 1, u1_joinbssrpt_parm);
+	rtlvendor_rtl92c_fill_h2c_cmd(hw, H2C_JOINBSSRPT, 1, u1_joinbssrpt_parm);
 }
-EXPORT_SYMBOL(rtl92c_set_fw_joinbss_report_cmd);
+EXPORT_SYMBOL(rtlvendor_rtl92c_set_fw_joinbss_report_cmd);
 
 static void rtl92c_set_p2p_ctw_period_cmd(struct ieee80211_hw *hw, u8 ctwindow)
 {
 	u8 u1_ctwindow_period[1] = { ctwindow};
 
-	rtl92c_fill_h2c_cmd(hw, H2C_P2P_PS_CTW_CMD, 1, u1_ctwindow_period);
+	rtlvendor_rtl92c_fill_h2c_cmd(hw, H2C_P2P_PS_CTW_CMD, 1, u1_ctwindow_period);
 }
 
 /* refactored routine */
@@ -733,7 +733,7 @@ static void set_noa_data(struct rtl_priv *rtlpriv,
 	}
 }
 
-void rtl92c_set_p2p_ps_offload_cmd(struct ieee80211_hw *hw, u8 p2p_ps_state)
+void rtlvendor_rtl92c_set_p2p_ps_offload_cmd(struct ieee80211_hw *hw, u8 p2p_ps_state)
 {
 	struct rtl_priv *rtlpriv = rtl_priv(hw);
 	struct rtl_ps_ctl *rtlps = rtl_psc(rtl_priv(hw));
@@ -791,7 +791,7 @@ void rtl92c_set_p2p_ps_offload_cmd(struct ieee80211_hw *hw, u8 p2p_ps_state)
 			break;
 	}
 
-	rtl92c_fill_h2c_cmd(hw, H2C_P2P_PS_OFFLOAD, 1, (u8 *)p2p_ps_offload);
+	rtlvendor_rtl92c_fill_h2c_cmd(hw, H2C_P2P_PS_OFFLOAD, 1, (u8 *)p2p_ps_offload);
 
 }
-EXPORT_SYMBOL_GPL(rtl92c_set_p2p_ps_offload_cmd);
+EXPORT_SYMBOL_GPL(rtlvendor_rtl92c_set_p2p_ps_offload_cmd);

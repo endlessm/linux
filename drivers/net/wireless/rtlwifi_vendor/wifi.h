@@ -2298,7 +2298,7 @@ struct rtl_hal_ops {
 
 struct rtl_intf_ops {
 	/*com */
-	void (*read_efuse_byte)(struct ieee80211_hw *hw, u16 _offset, u8 *pbuf);
+	void (*rtlvendor_read_efuse_byte)(struct ieee80211_hw *hw, u16 _offset, u8 *pbuf);
 	int (*adapter_start) (struct ieee80211_hw *hw);
 	void (*adapter_stop) (struct ieee80211_hw *hw);
 	bool (*check_buddy_priv)(struct ieee80211_hw *hw,
@@ -2560,7 +2560,7 @@ struct dig_t {
 	u32 rssi_max;
 };
 
-struct rtl_global_var {
+struct rtlvendor_rtl_global_var {
 	/* from this list we can get
 	 * other adapter's rtl_priv */
 	struct list_head glb_priv_list;
@@ -2852,7 +2852,7 @@ struct rtl_priv {
 	struct completion firmware_loading_complete;
 	struct list_head list;
 	struct rtl_priv *buddy_priv;
-	struct rtl_global_var *glb_var;
+	struct rtlvendor_rtl_global_var *glb_var;
 	struct rtl_dualmac_easy_concurrent_ctl easy_concurrent_ctl;
 	struct rtl_dmsp_ctl dmsp_ctl;
 	struct rtl_locks locks;
@@ -3198,9 +3198,9 @@ value to host byte ordering.*/
 #define	STBC_VHT_TEST_TX_ENABLE			BIT(2)
 #define	STBC_VHT_CAP_TX				BIT(3)
 
-extern u8 channel5g[CHANNEL_MAX_NUMBER_5G];
+extern u8 rtlvendor_channel5g[CHANNEL_MAX_NUMBER_5G];
 
-extern u8 channel5g_80m[CHANNEL_MAX_NUMBER_5G_80M];
+extern u8 rtlvendor_channel5g_80m[CHANNEL_MAX_NUMBER_5G_80M];
 
 static inline u8 rtl_read_byte(struct rtl_priv *rtlpriv, u32 addr)
 {

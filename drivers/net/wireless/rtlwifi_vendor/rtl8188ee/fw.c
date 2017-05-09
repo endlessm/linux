@@ -64,7 +64,7 @@ static void _rtl88e_write_fw(struct ieee80211_hw *hw,
 
 	RT_TRACE(rtlpriv, COMP_FW, DBG_LOUD, "FW size is %d bytes,\n", size);
 
-	rtl_fill_dummy(bufferptr, &size);
+	rtlvendor_rtl_fill_dummy(bufferptr, &size);
 
 	pagenums = size / FW_8192C_PAGE_SIZE;
 	remainsize = size % FW_8192C_PAGE_SIZE;
@@ -74,14 +74,14 @@ static void _rtl88e_write_fw(struct ieee80211_hw *hw,
 
 	for (page = 0; page < pagenums; page++) {
 		offset = page * FW_8192C_PAGE_SIZE;
-		rtl_fw_page_write(hw, page, (bufferptr + offset),
+		rtlvendor_rtl_fw_page_write(hw, page, (bufferptr + offset),
 				  FW_8192C_PAGE_SIZE);
 	}
 
 	if (remainsize) {
 		offset = pagenums * FW_8192C_PAGE_SIZE;
 		page = pagenums;
-		rtl_fw_page_write(hw, page, (bufferptr + offset), remainsize);
+		rtlvendor_rtl_fw_page_write(hw, page, (bufferptr + offset), remainsize);
 	}
 }
 
@@ -627,7 +627,7 @@ void rtl88e_set_fw_rsvdpagepkt(struct ieee80211_hw *hw, bool b_dl_finished)
 	memcpy(skb_put(skb, totalpacketlen),
 	       &reserved_page_packet, totalpacketlen);
 
-	rtstatus = rtl_cmd_send_packet(hw, skb);
+	rtstatus = rtlvendor_rtl_cmd_send_packet(hw, skb);
 
 	if (rtstatus)
 		b_dlok = true;

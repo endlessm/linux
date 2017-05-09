@@ -165,11 +165,11 @@ static const u8 tid_to_ac[] = {
 	0, /* IEEE80211_AC_VO */
 };
 
-u8 rtl_tid_to_ac(u8 tid)
+u8 rtlvendor_rtl_tid_to_ac(u8 tid)
 {
 	return tid_to_ac[tid];
 }
-EXPORT_SYMBOL_GPL(rtl_tid_to_ac);
+EXPORT_SYMBOL_GPL(rtlvendor_rtl_tid_to_ac);
 
 static void _rtl_init_hw_ht_capab(struct ieee80211_hw *hw,
 				  struct ieee80211_sta_ht_cap *ht_cap)
@@ -574,7 +574,7 @@ static void _rtl_init_deferred_work(struct ieee80211_hw *hw)
 
 }
 
-void rtl_deinit_deferred_work(struct ieee80211_hw *hw)
+void rtlvendor_rtl_deinit_deferred_work(struct ieee80211_hw *hw)
 {
 	struct rtl_priv *rtlpriv = rtl_priv(hw);
 
@@ -587,9 +587,9 @@ void rtl_deinit_deferred_work(struct ieee80211_hw *hw)
 	cancel_delayed_work(&rtlpriv->works.fwevt_wq);
 	cancel_delayed_work(&rtlpriv->works.c2hcmd_wq);
 }
-EXPORT_SYMBOL_GPL(rtl_deinit_deferred_work);
+EXPORT_SYMBOL_GPL(rtlvendor_rtl_deinit_deferred_work);
 
-void rtl_init_rfkill(struct ieee80211_hw *hw)
+void rtlvendor_rtl_init_rfkill(struct ieee80211_hw *hw)
 {
 	struct rtl_priv *rtlpriv = rtl_priv(hw);
 
@@ -615,15 +615,15 @@ void rtl_init_rfkill(struct ieee80211_hw *hw)
 
 	wiphy_rfkill_start_polling(hw->wiphy);
 }
-EXPORT_SYMBOL(rtl_init_rfkill);
+EXPORT_SYMBOL(rtlvendor_rtl_init_rfkill);
 
-void rtl_deinit_rfkill(struct ieee80211_hw *hw)
+void rtlvendor_rtl_deinit_rfkill(struct ieee80211_hw *hw)
 {
 	wiphy_rfkill_stop_polling(hw->wiphy);
 }
-EXPORT_SYMBOL_GPL(rtl_deinit_rfkill);
+EXPORT_SYMBOL_GPL(rtlvendor_rtl_deinit_rfkill);
 
-int rtl_init_core(struct ieee80211_hw *hw)
+int rtlvendor_rtl_init_core(struct ieee80211_hw *hw)
 {
 	struct rtl_priv *rtlpriv = rtl_priv(hw);
 	struct rtl_mac *rtlmac = rtl_mac(rtl_priv(hw));
@@ -672,25 +672,25 @@ int rtl_init_core(struct ieee80211_hw *hw)
 
 	return 0;
 }
-EXPORT_SYMBOL_GPL(rtl_init_core);
+EXPORT_SYMBOL_GPL(rtlvendor_rtl_init_core);
 
 static void rtl_free_entries_from_scan_list(struct ieee80211_hw *hw);
 
-void rtl_deinit_core(struct ieee80211_hw *hw)
+void rtlvendor_rtl_deinit_core(struct ieee80211_hw *hw)
 {
 	rtl_c2hcmd_launcher(hw, 0);
 	rtl_free_entries_from_scan_list(hw);
 }
-EXPORT_SYMBOL_GPL(rtl_deinit_core);
+EXPORT_SYMBOL_GPL(rtlvendor_rtl_deinit_core);
 
-void rtl_init_rx_config(struct ieee80211_hw *hw)
+void rtlvendor_rtl_init_rx_config(struct ieee80211_hw *hw)
 {
 	struct rtl_priv *rtlpriv = rtl_priv(hw);
 	struct rtl_mac *mac = rtl_mac(rtl_priv(hw));
 
 	rtlpriv->cfg->ops->get_hw_reg(hw, HW_VAR_RCR, (u8 *) (&mac->rx_conf));
 }
-EXPORT_SYMBOL_GPL(rtl_init_rx_config);
+EXPORT_SYMBOL_GPL(rtlvendor_rtl_init_rx_config);
 
 /*********************************************************
  *
@@ -792,7 +792,7 @@ static void _rtl_query_protection_mode(struct ieee80211_hw *hw,
 	}
 }
 
-u8 rtl_mrate_idx_to_arfr_id(
+u8 rtlvendor_rtl_mrate_idx_to_arfr_id(
 	struct ieee80211_hw *hw, u8 rate_index,
 	enum wireless_mode wirelessmode)
 {
@@ -863,7 +863,7 @@ u8 rtl_mrate_idx_to_arfr_id(
 	}
 	return ret;
 }
-EXPORT_SYMBOL(rtl_mrate_idx_to_arfr_id);
+EXPORT_SYMBOL(rtlvendor_rtl_mrate_idx_to_arfr_id);
 
 static void _rtl_txrate_selectmode(struct ieee80211_hw *hw,
 				   struct ieee80211_sta *sta,
@@ -871,7 +871,7 @@ static void _rtl_txrate_selectmode(struct ieee80211_hw *hw,
 {
 #define SET_RATE_ID(rate_id)					\
 	((rtlpriv->cfg->spec_ver & RTL_SPEC_NEW_RATEID) ?	\
-		rtl_mrate_idx_to_arfr_id(hw, rate_id,		\
+		rtlvendor_rtl_mrate_idx_to_arfr_id(hw, rate_id,		\
 			(sta_entry ? sta_entry->wireless_mode :	\
 			 WIRELESS_MODE_G)) :			\
 		rate_id)
@@ -1079,7 +1079,7 @@ static u8 _rtl_get_highest_n_rate(struct ieee80211_hw *hw,
  * DESC_RATEVHT1SS_MCS0-->DESC_RATEVHT1SS_MCS9 ==> idx is 0-->9
  * DESC_RATEVHT2SS_MCS0-->DESC_RATEVHT2SS_MCS9 ==> idx is 0-->9
  */
-int rtlwifi_rate_mapping(struct ieee80211_hw *hw, bool isht, bool isvht,
+int rtlvendor_rtlwifi_rate_mapping(struct ieee80211_hw *hw, bool isht, bool isvht,
 			 u8 desc_rate)
 {
 	int rate_idx;
@@ -1283,7 +1283,7 @@ int rtlwifi_rate_mapping(struct ieee80211_hw *hw, bool isht, bool isvht,
 	}
 	return rate_idx;
 }
-EXPORT_SYMBOL(rtlwifi_rate_mapping);
+EXPORT_SYMBOL(rtlvendor_rtlwifi_rate_mapping);
 
 static u8 _rtl_get_tx_hw_rate(struct ieee80211_hw *hw,
 			   struct ieee80211_tx_info *info)
@@ -1321,14 +1321,14 @@ static u8 _rtl_get_tx_hw_rate(struct ieee80211_hw *hw,
 	return hw_value;
 }
 
-void rtl_get_tcb_desc(struct ieee80211_hw *hw,
+void rtlvendor_rtl_get_tcb_desc(struct ieee80211_hw *hw,
 		      struct ieee80211_tx_info *info,
 		      struct ieee80211_sta *sta,
 		      struct sk_buff *skb, struct rtl_tcb_desc *tcb_desc)
 {
 #define SET_RATE_ID(rate_id)					\
 	((rtlpriv->cfg->spec_ver & RTL_SPEC_NEW_RATEID) ?	\
-		rtl_mrate_idx_to_arfr_id(hw, rate_id,		\
+		rtlvendor_rtl_mrate_idx_to_arfr_id(hw, rate_id,		\
 			(sta_entry ? sta_entry->wireless_mode :	\
 			 WIRELESS_MODE_G)) :			\
 		rate_id)
@@ -1410,9 +1410,9 @@ void rtl_get_tcb_desc(struct ieee80211_hw *hw,
 	}
 #undef SET_RATE_ID
 }
-EXPORT_SYMBOL(rtl_get_tcb_desc);
+EXPORT_SYMBOL(rtlvendor_rtl_get_tcb_desc);
 
-bool rtl_tx_mgmt_proc(struct ieee80211_hw *hw, struct sk_buff *skb)
+bool rtlvendor_rtl_tx_mgmt_proc(struct ieee80211_hw *hw, struct sk_buff *skb)
 {
 	struct rtl_mac *mac = rtl_mac(rtl_priv(hw));
 	struct rtl_priv *rtlpriv = rtl_priv(hw);
@@ -1426,7 +1426,7 @@ bool rtl_tx_mgmt_proc(struct ieee80211_hw *hw, struct sk_buff *skb)
 	}
 	if (ieee80211_is_auth(fc)) {
 		RT_TRACE(rtlpriv, COMP_SEND, DBG_DMESG, "MAC80211_LINKING\n");
-		rtl_ips_nic_on(hw);
+		rtlvendor_rtl_ips_nic_on(hw);
 
 		mac->link_state = MAC80211_LINKING;
 		/* Dul mac */
@@ -1436,7 +1436,7 @@ bool rtl_tx_mgmt_proc(struct ieee80211_hw *hw, struct sk_buff *skb)
 
 	return true;
 }
-EXPORT_SYMBOL_GPL(rtl_tx_mgmt_proc);
+EXPORT_SYMBOL_GPL(rtlvendor_rtl_tx_mgmt_proc);
 
 struct sk_buff *rtl_make_del_ba(struct ieee80211_hw *hw, u8 *sa,
 				u8 *bssid, u16 tid);
@@ -1466,7 +1466,7 @@ static void process_agg_start(struct ieee80211_hw *hw,
 	}
 }
 
-bool rtl_action_proc(struct ieee80211_hw *hw, struct sk_buff *skb, u8 is_tx)
+bool rtlvendor_rtl_action_proc(struct ieee80211_hw *hw, struct sk_buff *skb, u8 is_tx)
 {
 	struct rtl_mac *mac = rtl_mac(rtl_priv(hw));
 	struct ieee80211_hdr *hdr = rtl_get_hdr(skb);
@@ -1542,7 +1542,7 @@ bool rtl_action_proc(struct ieee80211_hw *hw, struct sk_buff *skb, u8 is_tx)
 
 	return true;
 }
-EXPORT_SYMBOL_GPL(rtl_action_proc);
+EXPORT_SYMBOL_GPL(rtlvendor_rtl_action_proc);
 
 static void setup_special_tx(struct rtl_priv *rtlpriv, struct rtl_ps_ctl *ppsc,
 			     int type)
@@ -1553,7 +1553,7 @@ static void setup_special_tx(struct rtl_priv *rtlpriv, struct rtl_ps_ctl *ppsc,
 	if (rtlpriv->cfg->ops->get_btc_status())
 		rtlpriv->btcoexist.btc_ops->btc_special_packet_notify(
 					rtlpriv, type);
-	rtl_lps_leave(hw);
+	rtlvendor_rtl_lps_leave(hw);
 	ppsc->last_delaylps_stamp_jiffies = jiffies;
 }
 
@@ -1588,7 +1588,7 @@ static const u8 *rtl_skb_ether_type_ptr(struct ieee80211_hw *hw,
 }
 
 /*should call before software enc*/
-u8 rtl_is_special_data(struct ieee80211_hw *hw, struct sk_buff *skb, u8 is_tx,
+u8 rtlvendor_rtl_is_special_data(struct ieee80211_hw *hw, struct sk_buff *skb, u8 is_tx,
 		       bool is_enc)
 {
 	struct rtl_priv *rtlpriv = rtl_priv(hw);
@@ -1643,7 +1643,7 @@ u8 rtl_is_special_data(struct ieee80211_hw *hw, struct sk_buff *skb, u8 is_tx,
 
 		if (is_tx) {
 			rtlpriv->ra.is_special_data = true;
-			rtl_lps_leave(hw);
+			rtlvendor_rtl_lps_leave(hw);
 			ppsc->last_delaylps_stamp_jiffies = jiffies;
 
 			setup_special_tx(rtlpriv, ppsc, PACKET_EAPOL);
@@ -1661,7 +1661,7 @@ end:
 	rtlpriv->ra.is_special_data = false;
 	return false;
 }
-EXPORT_SYMBOL_GPL(rtl_is_special_data);
+EXPORT_SYMBOL_GPL(rtlvendor_rtl_is_special_data);
 
 bool rtl_is_tx_report_skb(struct ieee80211_hw *hw, struct sk_buff *skb)
 {
@@ -1700,7 +1700,7 @@ static u16 rtl_get_tx_report_sn(struct ieee80211_hw *hw)
 	return sn;
 }
 
-void rtl_get_tx_report(struct rtl_tcb_desc *ptcb_desc, u8 *pdesc,
+void rtlvendor_rtl_get_tx_report(struct rtl_tcb_desc *ptcb_desc, u8 *pdesc,
 		       struct ieee80211_hw *hw)
 {
 	if (ptcb_desc->use_spe_rpt) {
@@ -1710,9 +1710,9 @@ void rtl_get_tx_report(struct rtl_tcb_desc *ptcb_desc, u8 *pdesc,
 		SET_TX_DESC_SW_DEFINE(pdesc, sn);
 	}
 }
-EXPORT_SYMBOL_GPL(rtl_get_tx_report);
+EXPORT_SYMBOL_GPL(rtlvendor_rtl_get_tx_report);
 
-void rtl_tx_report_handler(struct ieee80211_hw *hw, u8 *tmp_buf, u8 c2h_cmd_len)
+void rtlvendor_rtl_tx_report_handler(struct ieee80211_hw *hw, u8 *tmp_buf, u8 c2h_cmd_len)
 {
 	struct rtl_priv *rtlpriv = rtl_priv(hw);
 	struct rtl_tx_report *tx_report = &rtlpriv->tx_report;
@@ -1735,7 +1735,7 @@ void rtl_tx_report_handler(struct ieee80211_hw *hw, u8 *tmp_buf, u8 c2h_cmd_len)
 		 "Recv TX-Report st=0x%02X sn=0x%X retry=0x%X\n",
 		 st, sn, retry);
 }
-EXPORT_SYMBOL_GPL(rtl_tx_report_handler);
+EXPORT_SYMBOL_GPL(rtlvendor_rtl_tx_report_handler);
 
 bool rtl_check_tx_report_acked(struct ieee80211_hw *hw)
 {
@@ -1902,7 +1902,7 @@ int rtl_tx_agg_oper(struct ieee80211_hw *hw,
 	return 0;
 }
 
-void rtl_rx_ampdu_apply(struct rtl_priv *rtlpriv)
+void rtlvendor_rtl_rx_ampdu_apply(struct rtl_priv *rtlpriv)
 {
 	struct rtl_btc_ops *btc_ops = rtlpriv->btcoexist.btc_ops;
 	u8 reject_agg, ctrl_agg_size = 0, agg_size;
@@ -1918,7 +1918,7 @@ void rtl_rx_ampdu_apply(struct rtl_priv *rtlpriv)
 	rtlpriv->hw->max_rx_aggregation_subframes =
 		(ctrl_agg_size ? agg_size : IEEE80211_MAX_AMPDU_BUF);
 }
-EXPORT_SYMBOL(rtl_rx_ampdu_apply);
+EXPORT_SYMBOL(rtlvendor_rtl_rx_ampdu_apply);
 
 /*********************************************************
  *
@@ -1926,7 +1926,7 @@ EXPORT_SYMBOL(rtl_rx_ampdu_apply);
  *
  *********************************************************/
 /* this function is used for roaming */
-void rtl_beacon_statistic(struct ieee80211_hw *hw, struct sk_buff *skb)
+void rtlvendor_rtl_beacon_statistic(struct ieee80211_hw *hw, struct sk_buff *skb)
 {
 	struct rtl_priv *rtlpriv = rtl_priv(hw);
 	struct ieee80211_hdr *hdr = (struct ieee80211_hdr *)skb->data;
@@ -1952,7 +1952,7 @@ void rtl_beacon_statistic(struct ieee80211_hw *hw, struct sk_buff *skb)
 
 	rtlpriv->link_info.bcn_rx_inperiod++;
 }
-EXPORT_SYMBOL_GPL(rtl_beacon_statistic);
+EXPORT_SYMBOL_GPL(rtlvendor_rtl_beacon_statistic);
 
 static void rtl_free_entries_from_scan_list(struct ieee80211_hw *hw)
 {
@@ -1994,7 +1994,7 @@ void rtl_scan_list_expire(struct ieee80211_hw *hw)
 	rtlpriv->btcoexist.btc_info.ap_num = rtlpriv->scan_list.num;
 }
 
-void rtl_collect_scan_list(struct ieee80211_hw *hw, struct sk_buff *skb)
+void rtlvendor_rtl_collect_scan_list(struct ieee80211_hw *hw, struct sk_buff *skb)
 {
 	struct rtl_priv *rtlpriv = rtl_priv(hw);
 	struct ieee80211_hdr *hdr = (struct ieee80211_hdr *)skb->data;
@@ -2048,7 +2048,7 @@ void rtl_collect_scan_list(struct ieee80211_hw *hw, struct sk_buff *skb)
 label_err:
 	spin_unlock_irqrestore(&rtlpriv->locks.scan_list_lock, flags);
 }
-EXPORT_SYMBOL(rtl_collect_scan_list);
+EXPORT_SYMBOL(rtlvendor_rtl_collect_scan_list);
 
 void rtl_watchdog_wq_callback(void *data)
 {
@@ -2156,9 +2156,9 @@ void rtl_watchdog_wq_callback(void *data)
 		if (((rtlpriv->link_info.num_rx_inperiod +
 		      rtlpriv->link_info.num_tx_inperiod) > 8) ||
 		    (rtlpriv->link_info.num_rx_inperiod > 2))
-			rtl_lps_leave(hw);
+			rtlvendor_rtl_lps_leave(hw);
 		else
-			rtl_lps_enter(hw);
+			rtlvendor_rtl_lps_enter(hw);
 
 label_lps_done:
 		;
@@ -2254,7 +2254,7 @@ void rtl_fwevt_wq_callback(void *data)
 	rtlpriv->cfg->ops->c2h_command_handle(hw);
 }
 
-void rtl_c2hcmd_enqueue(struct ieee80211_hw *hw, u8 tag, u8 len, u8 *val)
+void rtlvendor_rtl_c2hcmd_enqueue(struct ieee80211_hw *hw, u8 tag, u8 len, u8 *val)
 {
 	struct rtl_priv *rtlpriv = rtl_priv(hw);
 	unsigned long flags;
@@ -2296,7 +2296,7 @@ label_err:
 	RT_TRACE(rtlpriv, COMP_CMD, DBG_WARNING,
 				 "C2H cmd enqueue fail.\n");
 }
-EXPORT_SYMBOL(rtl_c2hcmd_enqueue);
+EXPORT_SYMBOL(rtlvendor_rtl_c2hcmd_enqueue);
 
 void rtl_c2hcmd_launcher(struct ieee80211_hw *hw, int exec)
 {
@@ -2425,7 +2425,7 @@ static struct sk_buff *rtl_make_smps_action(struct ieee80211_hw *hw,
 	return skb;
 }
 
-int rtl_send_smps_action(struct ieee80211_hw *hw,
+int rtlvendor_rtl_send_smps_action(struct ieee80211_hw *hw,
 			 struct ieee80211_sta *sta,
 			 enum ieee80211_smps_mode smps)
 {
@@ -2473,9 +2473,9 @@ int rtl_send_smps_action(struct ieee80211_hw *hw,
 err_free:
 	return 0;
 }
-EXPORT_SYMBOL(rtl_send_smps_action);
+EXPORT_SYMBOL(rtlvendor_rtl_send_smps_action);
 
-void rtl_phy_scan_operation_backup(struct ieee80211_hw *hw, u8 operation)
+void rtlvendor_rtl_phy_scan_operation_backup(struct ieee80211_hw *hw, u8 operation)
 {
 	struct rtl_priv *rtlpriv = rtl_priv(hw);
 	struct rtl_hal *rtlhal = rtl_hal(rtl_priv(hw));
@@ -2501,7 +2501,7 @@ void rtl_phy_scan_operation_backup(struct ieee80211_hw *hw, u8 operation)
 		}
 	}
 }
-EXPORT_SYMBOL(rtl_phy_scan_operation_backup);
+EXPORT_SYMBOL(rtlvendor_rtl_phy_scan_operation_backup);
 
 /* because mac80211 have issues when can receive del ba
  * so here we just make a fake del_ba if we receive a ba_req
@@ -2541,7 +2541,7 @@ struct sk_buff *rtl_make_del_ba(struct ieee80211_hw *hw,
 	return skb;
 }
 
-bool rtl_check_beacon_key(struct ieee80211_hw *hw, void *data, unsigned int len)
+bool rtlvendor_rtl_check_beacon_key(struct ieee80211_hw *hw, void *data, unsigned int len)
 {
 	struct rtl_priv *rtlpriv = rtl_priv(hw);
 	struct rtl_mac *mac = rtl_mac(rtl_priv(hw));
@@ -2698,7 +2698,7 @@ bool rtl_check_beacon_key(struct ieee80211_hw *hw, void *data, unsigned int len)
 
 	return true;
 }
-EXPORT_SYMBOL_GPL(rtl_check_beacon_key);
+EXPORT_SYMBOL_GPL(rtlvendor_rtl_check_beacon_key);
 /*********************************************************
  *
  * IOT functions
@@ -2766,7 +2766,7 @@ static bool rtl_find_221_ie(struct ieee80211_hw *hw, u8 *data,
 	return false;
 }
 
-void rtl_recognize_peer(struct ieee80211_hw *hw, u8 *data, unsigned int len)
+void rtlvendor_rtl_recognize_peer(struct ieee80211_hw *hw, u8 *data, unsigned int len)
 {
 	struct rtl_priv *rtlpriv = rtl_priv(hw);
 	struct rtl_mac *mac = rtl_mac(rtl_priv(hw));
@@ -2851,7 +2851,7 @@ void rtl_recognize_peer(struct ieee80211_hw *hw, u8 *data, unsigned int len)
 
 	mac->vendor = vendor;
 }
-EXPORT_SYMBOL_GPL(rtl_recognize_peer);
+EXPORT_SYMBOL_GPL(rtlvendor_rtl_recognize_peer);
 
 /*********************************************************
  *
@@ -2935,11 +2935,11 @@ static struct attribute *rtl_sysfs_entries[] = {
  * sys/devices/pci0000:00/0000:00:1c.4/
  * 0000:06:00.0/rtl_sysfs
  */
-struct attribute_group rtl_attribute_group = {
+struct attribute_group rtlvendor_rtl_attribute_group = {
 	.name = "rtlsysfs",
 	.attrs = rtl_sysfs_entries,
 };
-EXPORT_SYMBOL_GPL(rtl_attribute_group);
+EXPORT_SYMBOL_GPL(rtlvendor_rtl_attribute_group);
 
 MODULE_AUTHOR("lizhaoming	<chaoming_li@realsil.com.cn>");
 MODULE_AUTHOR("Realtek WlanFAE	<wlanfae@realtek.com>");
@@ -2947,8 +2947,8 @@ MODULE_AUTHOR("Larry Finger	<Larry.FInger@lwfinger.net>");
 MODULE_LICENSE("GPL");
 MODULE_DESCRIPTION("Realtek 802.11n PCI wireless core");
 
-struct rtl_global_var rtl_global_var = {};
-EXPORT_SYMBOL_GPL(rtl_global_var);
+struct rtlvendor_rtl_global_var rtlvendor_rtl_global_var = {};
+EXPORT_SYMBOL_GPL(rtlvendor_rtl_global_var);
 
 static int __init rtl_core_module_init(void)
 {
@@ -2959,8 +2959,8 @@ static int __init rtl_core_module_init(void)
 	rtl_debugfs_add_topdir();
 
 	/* init some global vars */
-	INIT_LIST_HEAD(&rtl_global_var.glb_priv_list);
-	spin_lock_init(&rtl_global_var.glb_list_lock);
+	INIT_LIST_HEAD(&rtlvendor_rtl_global_var.glb_priv_list);
+	spin_lock_init(&rtlvendor_rtl_global_var.glb_list_lock);
 
 	return 0;
 }

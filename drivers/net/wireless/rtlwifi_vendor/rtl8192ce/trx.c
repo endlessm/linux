@@ -178,7 +178,7 @@ static void _rtl92ce_query_rxphystatus(struct ieee80211_hw *hw,
 			}
 		}
 
-		pwdb_all = rtl_query_rxpwrpercentage(rx_pwr_all);
+		pwdb_all = rtlvendor_rtl_query_rxpwrpercentage(rx_pwr_all);
 		/* CCK gain is smaller than OFDM/MCS gain,
 		 * so we add gain diff by experiences,
 		 * the val is 6
@@ -328,7 +328,7 @@ static void _rtl92ce_translate_rx_signal_stuff(struct ieee80211_hw *hw,
 				   packet_matchbssid, packet_toself,
 				   packet_beacon);
 
-	rtl_process_phyinfo(hw, tmp_buf, pstats);
+	rtlvendor_rtl_process_phyinfo(hw, tmp_buf, pstats);
 }
 
 bool rtl92ce_rx_query_desc(struct ieee80211_hw *hw,
@@ -396,7 +396,7 @@ bool rtl92ce_rx_query_desc(struct ieee80211_hw *hw,
 	 * are use (RX_FLAG_HT)
 	 * Notice: this is diff with windows define
 	 */
-	rx_status->rate_idx = rtlwifi_rate_mapping(hw, stats->is_ht,
+	rx_status->rate_idx = rtlvendor_rtlwifi_rate_mapping(hw, stats->is_ht,
 						   false, stats->rate);
 
 	rx_status->mactime = stats->timestamp_low;
@@ -461,7 +461,7 @@ void rtl92ce_tx_fill_desc(struct ieee80211_hw *hw,
 
 	seq_number = (le16_to_cpu(hdr->seq_ctrl) & IEEE80211_SCTL_SEQ) >> 4;
 
-	rtl_get_tcb_desc(hw, info, sta, skb, tcb_desc);
+	rtlvendor_rtl_get_tcb_desc(hw, info, sta, skb, tcb_desc);
 
 	CLEAR_PCI_TX_DESC_CONTENT(pdesc, sizeof(struct tx_desc_92c));
 
