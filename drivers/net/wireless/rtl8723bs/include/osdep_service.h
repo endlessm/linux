@@ -20,6 +20,7 @@
 #define _SUCCESS	1
 #define RTW_RX_HANDLED 2
 
+#include <linux/sched/signal.h>
 #include <osdep_service_linux.h>
 
 #ifndef BIT
