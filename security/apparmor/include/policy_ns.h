@@ -19,6 +19,7 @@
 
 #include "apparmor.h"
 #include "apparmorfs.h"
+#include "label.h"
 #include "policy.h"
 
 
@@ -68,6 +69,7 @@ struct aa_ns {
 	atomic_t uniq_null;
 	long uniq_id;
 	int level;
+	struct aa_labelset labels;
 
 	struct dentry *dents[AAFS_NS_SIZEOF];
 };
@@ -75,6 +77,8 @@ struct aa_ns {
 extern struct aa_ns *root_ns;
 
 extern const char *aa_hidden_ns_name;
+
+#define ns_unconfined(NS) (&(NS)->unconfined->label)
 
 bool aa_ns_visible(struct aa_ns *curr, struct aa_ns *view, bool subns);
 const char *aa_ns_name(struct aa_ns *parent, struct aa_ns *child, bool subns);
@@ -85,8 +89,8 @@ void aa_free_ns_kref(struct kref *kref);
 
 struct aa_ns *aa_find_ns(struct aa_ns *root, const char *name);
 struct aa_ns *aa_findn_ns(struct aa_ns *root, const char *name, size_t n);
-struct aa_ns *__aa_find_or_create_ns(struct aa_ns *parent, const char *name,
-				     struct dentry *dir);
+struct aa_ns *aa_create_ns(struct aa_ns *parent, const char *name,
+			   struct dentry *dir);
 struct aa_ns *aa_prepare_ns(struct aa_ns *root, const char *name);
 void __aa_remove_ns(struct aa_ns *ns);
 
@@ -113,7 +117,7 @@ static inline struct aa_ns *aa_get_ns(struct aa_ns *ns)
 
 /**
  * aa_put_ns - decrement refcount on @ns
- * @ns: namespace to put reference of
+ * @ns: ns to put reference of
  *
  * Decrement reference count of @ns and if no longer in use free it
  */

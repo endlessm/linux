@@ -111,7 +111,7 @@ void __aa_fs_profile_migrate_dents(struct aa_profile *old,
 				   struct aa_profile *new);
 int __aa_fs_profile_mkdir(struct aa_profile *profile, struct dentry *parent);
 void __aa_fs_ns_rmdir(struct aa_ns *ns);
-int __aa_fs_ns_mkdir(struct aa_ns *ns, struct dentry *parent,
-		     const char *name);
+int __aa_fs_ns_mkdir(struct aa_ns *ns, struct dentry *parent, const char *name,
+		     struct dentry *dent);
 
 #endif /* __AA_APPARMORFS_H */

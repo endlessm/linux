@@ -20,12 +20,15 @@
 #include <asm/unaligned.h>
 #include <linux/ctype.h>
 #include <linux/errno.h>
+#include <linux/string.h>
+#include <linux/jhash.h>
 
 #include "include/apparmor.h"
 #include "include/audit.h"
 #include "include/context.h"
 #include "include/crypto.h"
 #include "include/match.h"
+#include "include/path.h"
 #include "include/policy.h"
 #include "include/policy_unpack.h"
 
@@ -84,9 +87,9 @@ static void audit_cb(struct audit_buffer *ab, void *va)
 		audit_log_format(ab, " ns=");
 		audit_log_untrustedstring(ab, aad(sa)->iface.ns);
 	}
-	if (aad(sa)->iface.name) {
+	if (aad(sa)->name) {
 		audit_log_format(ab, " name=");
-		audit_log_untrustedstring(ab, aad(sa)->iface.name);
+		audit_log_untrustedstring(ab, aad(sa)->name);
 	}
 	if (aad(sa)->iface.pos)
 		audit_log_format(ab, " offset=%ld", aad(sa)->iface.pos);
@@ -107,15 +110,16 @@ static int audit_iface(struct aa_profile *new, const char *ns_name,
 		       const char *name, const char *info, struct aa_ext *e,
 		       int error)
 {
-	struct aa_profile *profile = __aa_current_profile();
+	struct aa_profile *profile = labels_profile(aa_current_raw_label());
 	DEFINE_AUDIT_DATA(sa, LSM_AUDIT_DATA_NONE, NULL);
 	if (e)
 		aad(&sa)->iface.pos = e->pos - e->start;
+
 	aad(&sa)->iface.ns = ns_name;
 	if (new)
-		aad(&sa)->iface.name = new->base.hname;
+		aad(&sa)->name = new->base.hname;
 	else
-		aad(&sa)->iface.name = name;
+		aad(&sa)->name = name;
 	aad(&sa)->info = info;
 	aad(&sa)->error = error;
 
@@ -214,6 +218,19 @@ static bool unpack_nameX(struct aa_ext *e, enum aa_code code, const char *name)
 
 fail:
 	e->pos = pos;
+	return 0;
+}
+
+static bool unpack_u16(struct aa_ext *e, u16 *data, const char *name)
+{
+	if (unpack_nameX(e, AA_U16, name)) {
+		if (!inbounds(e, sizeof(u16)))
+			return 0;
+		if (data)
+			*data = le16_to_cpu(get_unaligned((__le16 *) e->pos));
+		e->pos += sizeof(u16);
+		return 1;
+	}
 	return 0;
 }
 
@@ -408,7 +425,7 @@ static bool unpack_trans_table(struct aa_ext *e, struct aa_profile *profile)
 		profile->file.trans.size = size;
 		for (i = 0; i < size; i++) {
 			char *str;
-			int c, j, size2 = unpack_strdup(e, &str, NULL);
+			int c, j, pos, size2 = unpack_strdup(e, &str, NULL);
 			/* unpack_strdup verifies that the last character is
 			 * null termination byte.
 			 */
@@ -420,19 +437,24 @@ static bool unpack_trans_table(struct aa_ext *e, struct aa_profile *profile)
 				goto fail;
 
 			/* count internal #  of internal \0 */
-			for (c = j = 0; j < size2 - 2; j++) {
-				if (!str[j])
+			for (c = j = 0; j < size2 - 1; j++) {
+				if (!str[j]) {
+					pos = j;
 					c++;
+				}
 			}
 			if (*str == ':') {
+				/* first character after : must be valid */
+				if (!str[1])
+					goto fail;
 				/* beginning with : requires an embedded \0,
 				 * verify that exactly 1 internal \0 exists
 				 * trailing \0 already verified by unpack_strdup
 				 */
-				if (c != 1)
-					goto fail;
-				/* first character after : must be valid */
-				if (!str[1])
+				if (c == 1)
+					/* convert \0 back to : for label_parse */
+					str[pos] = ':';
+				else if (c > 1)
 					goto fail;
 			} else if (c)
 				/* fail - all other cases with embedded \0 */
@@ -519,7 +541,8 @@ static struct aa_profile *unpack_profile(struct aa_ext *e, char **ns_name)
 {
 	struct aa_profile *profile = NULL;
 	const char *tmpname, *tmpns = NULL, *name = NULL;
-	size_t ns_len;
+	const char *info = "failed to unpack profile";
+	size_t size = 0, ns_len;
 	struct rhashtable_params params = { 0 };
 	char *key = NULL;
 	struct aa_data *data;
@@ -539,13 +562,13 @@ static struct aa_profile *unpack_profile(struct aa_ext *e, char **ns_name)
 
 	tmpname = aa_splitn_fqname(name, strlen(name), &tmpns, &ns_len);
 	if (tmpns) {
-		*ns_name = kstrndup(tmpns, ns_len, GFP_KERNEL);
+	  *ns_name = kstrndup(tmpns, ns_len, GFP_KERNEL);
 		if (!*ns_name)
 			goto fail;
 		name = tmpname;
 	}
 
-	profile = aa_alloc_profile(name, GFP_KERNEL);
+	profile = aa_alloc_profile(name, NULL, GFP_KERNEL);
 	if (!profile)
 		return ERR_PTR(-ENOMEM);
 
@@ -569,13 +592,16 @@ static struct aa_profile *unpack_profile(struct aa_ext *e, char **ns_name)
 		profile->xmatch_len = tmp;
 	}
 
+	/* disconnected attachment string is optional */
+	(void) unpack_str(e, &profile->disconnected, "disconnected");
+
 	/* per profile debug flags (complain, audit) */
 	if (!unpack_nameX(e, AA_STRUCT, "flags"))
 		goto fail;
 	if (!unpack_u32(e, &tmp, NULL))
 		goto fail;
 	if (tmp & PACKED_FLAG_HAT)
-		profile->flags |= PFLAG_HAT;
+		profile->label.flags |= FLAG_HAT;
 	if (!unpack_u32(e, &tmp, NULL))
 		goto fail;
 	if (tmp == PACKED_MODE_COMPLAIN || (e->version & FORCE_COMPLAIN_FLAG))
@@ -593,11 +619,9 @@ static struct aa_profile *unpack_profile(struct aa_ext *e, char **ns_name)
 		goto fail;
 
 	/* path_flags is optional */
-	if (unpack_u32(e, &profile->path_flags, "path_flags"))
-		profile->path_flags |= profile->flags & PFLAG_MEDIATE_DELETED;
-	else
+	if (!unpack_u32(e, &profile->path_flags, "path_flags"))
 		/* set a default value if path_flags field is not present */
-		profile->path_flags = PFLAG_MEDIATE_DELETED;
+		profile->path_flags = PATH_MEDIATE_DELETED;
 
 	if (!unpack_u32(e, &(profile->caps.allow.cap[0]), NULL))
 		goto fail;
@@ -634,6 +658,37 @@ static struct aa_profile *unpack_profile(struct aa_ext *e, char **ns_name)
 
 	if (!unpack_rlimits(e, profile))
 		goto fail;
+
+	size = unpack_array(e, "net_allowed_af");
+	if (size) {
+
+		for (i = 0; i < size; i++) {
+			/* discard extraneous rules that this kernel will
+			 * never request
+			 */
+			if (i >= AF_MAX) {
+				u16 tmp;
+				if (!unpack_u16(e, &tmp, NULL) ||
+				    !unpack_u16(e, &tmp, NULL) ||
+				    !unpack_u16(e, &tmp, NULL))
+					goto fail;
+				continue;
+			}
+			if (!unpack_u16(e, &profile->net.allow[i], NULL))
+				goto fail;
+			if (!unpack_u16(e, &profile->net.audit[i], NULL))
+				goto fail;
+			if (!unpack_u16(e, &profile->net.quiet[i], NULL))
+				goto fail;
+		}
+		if (!unpack_nameX(e, AA_ARRAYEND, NULL))
+			goto fail;
+	}
+	if (VERSION_LT(e->version, v7)) {
+		/* old policy always allowed these too */
+		profile->net.allow[AF_UNIX] = 0xffff;
+		profile->net.allow[AF_NETLINK] = 0xffff;
+	}
 
 	if (unpack_nameX(e, AA_STRUCT, "policydb")) {
 		/* generic policy dfa - optional and may be NULL */
@@ -730,8 +785,7 @@ fail:
 		name = NULL;
 	else if (!name)
 		name = "unknown";
-	audit_iface(profile, NULL, name, "failed to unpack profile", e,
-		    error);
+	audit_iface(profile, NULL, name, info, e, error);
 	aa_free_profile(profile);
 
 	return ERR_PTR(error);
