@@ -1463,6 +1463,7 @@ static void check_unsafe_exec(struct linux_binprm *bprm)
 {
 	struct task_struct *p = current, *t;
 	unsigned n_fs;
+	bool fs_recheck;
 
 	if (p->ptrace)
 		bprm->unsafe |= LSM_UNSAFE_PTRACE;
@@ -1474,6 +1475,8 @@ static void check_unsafe_exec(struct linux_binprm *bprm)
 	if (task_no_new_privs(current))
 		bprm->unsafe |= LSM_UNSAFE_NO_NEW_PRIVS;
 
+recheck:
+	fs_recheck = false;
 	t = p;
 	n_fs = 1;
 	spin_lock(&p->fs->lock);
@@ -1481,12 +1484,18 @@ static void check_unsafe_exec(struct linux_binprm *bprm)
 	while_each_thread(p, t) {
 		if (t->fs == p->fs)
 			n_fs++;
+		if (t->flags & (PF_EXITING | PF_FORKNOEXEC))
+			fs_recheck  = true;
 	}
 	rcu_read_unlock();
 
-	if (p->fs->users > n_fs)
+	if (p->fs->users > n_fs) {
+		if (fs_recheck) {
+			spin_unlock(&p->fs->lock);
+			goto recheck;
+		}
 		bprm->unsafe |= LSM_UNSAFE_SHARE;
-	else
+	} else
 		p->fs->in_exec = 1;
 	spin_unlock(&p->fs->lock);
 }
