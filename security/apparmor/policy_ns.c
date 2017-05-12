@@ -23,6 +23,7 @@
 #include "include/apparmor.h"
 #include "include/context.h"
 #include "include/policy_ns.h"
+#include "include/label.h"
 #include "include/policy.h"
 
 /* root profile namespace */
@@ -102,18 +103,20 @@ static struct aa_ns *alloc_ns(const char *prefix, const char *name)
 	mutex_init(&ns->lock);
 
 	/* released by aa_free_ns() */
-	ns->unconfined = aa_alloc_profile("unconfined", GFP_KERNEL);
+	ns->unconfined = aa_alloc_profile("unconfined", NULL, GFP_KERNEL);
 	if (!ns->unconfined)
 		goto fail_unconfined;
 
-	ns->unconfined->flags = PFLAG_IX_ON_NAME_ERROR |
-		PFLAG_IMMUTABLE | PFLAG_NS_COUNT;
+	ns->unconfined->label.flags |= FLAG_IX_ON_NAME_ERROR |
+		FLAG_IMMUTIBLE | FLAG_NS_COUNT | FLAG_UNCONFINED;
 	ns->unconfined->mode = APPARMOR_UNCONFINED;
 
 	/* ns and ns->unconfined share ns->unconfined refcount */
 	ns->unconfined->ns = ns;
 
 	atomic_set(&ns->uniq_null, 0);
+
+	aa_labelset_init(&ns->labels);
 
 	return ns;
 
@@ -137,6 +140,7 @@ void aa_free_ns(struct aa_ns *ns)
 		return;
 
 	aa_policy_destroy(&ns->base);
+	aa_labelset_destroy(&ns->labels);
 	aa_put_ns(ns->parent);
 
 	ns->unconfined->ns = NULL;
@@ -195,7 +199,7 @@ static struct aa_ns *__aa_create_ns(struct aa_ns *parent, const char *name,
 	if (!ns)
 		return NULL;
 	mutex_lock(&ns->lock);
-	error = __aa_fs_ns_mkdir(ns, ns_subns_dir(parent), name);
+	error = __aa_fs_ns_mkdir(ns, ns_subns_dir(parent), name, dir);
 	if (error) {
 		AA_ERROR("Failed to create interface for ns %s\n",
 			 ns->base.name);
@@ -221,13 +225,12 @@ static struct aa_ns *__aa_create_ns(struct aa_ns *parent, const char *name,
  *
  * Returns: the a refcounted ns that has been add or an ERR_PTR
  */
-struct aa_ns *__aa_find_or_create_ns(struct aa_ns *parent, const char *name,
-				     struct dentry *dir)
+struct aa_ns *aa_create_ns(struct aa_ns *parent, const char *name,
+			   struct dentry *dir)
 {
 	struct aa_ns *ns;
 
-	AA_BUG(!mutex_is_locked(&parent->lock));
-
+	mutex_lock(&parent->lock);
 	/* try and find the specified ns */
 	/* released by caller */
 	ns = aa_get_ns(__aa_find_ns(&parent->sub_ns, name));
@@ -235,6 +238,7 @@ struct aa_ns *__aa_find_or_create_ns(struct aa_ns *parent, const char *name,
 		ns = __aa_create_ns(parent, name, dir);
 	else
 		ns = ERR_PTR(-EEXIST);
+	mutex_unlock(&parent->lock);
 
 	/* return ref */
 	return ns;
@@ -281,8 +285,13 @@ static void destroy_ns(struct aa_ns *ns)
 	/* release all sub namespaces */
 	__ns_list_release(&ns->sub_ns);
 
-	if (ns->parent)
-		__aa_update_proxy(ns->unconfined, ns->parent->unconfined);
+	if (ns->parent) {
+		unsigned long flags;
+		write_lock_irqsave(&ns->labels.lock, flags);
+		__aa_proxy_redirect(ns_unconfined(ns),
+				    ns_unconfined(ns->parent));
+		write_unlock_irqrestore(&ns->labels.lock, flags);
+	}
 	__aa_fs_ns_rmdir(ns);
 	mutex_unlock(&ns->lock);
 }

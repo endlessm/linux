@@ -99,18 +99,52 @@ static inline bool path_mediated_fs(struct dentry *dentry)
 	return !(dentry->d_sb->s_flags & MS_NOUSER);
 }
 
+
+struct counted_str {
+	struct kref count;
+	char name[];
+};
+
+#define str_to_counted(str) \
+	((struct counted_str *)(str - offsetof(struct counted_str,name)))
+
+#define __counted	/* atm just a notation */
+
+void aa_str_kref(struct kref *kref);
+char *aa_str_alloc(int size, gfp_t gfp);
+
+
+static inline __counted char *aa_get_str(__counted char *str)
+{
+	if (str)
+		kref_get(&(str_to_counted(str)->count));
+
+	return str;
+}
+
+static inline void aa_put_str(__counted char *str)
+{
+	if (str)
+		kref_put(&str_to_counted(str)->count, aa_str_kref);
+}
+
+const char *aa_imode_name(umode_t mode);
+
+
 /* struct aa_policy - common part of both namespaces and profiles
  * @name: name of the object
- * @hname - The hierarchical name
+ * @hname - The hierarchical name, NOTE: is .name of struct counted_str
  * @list: list policy object is on
  * @profiles: head of the profiles list contained in the object
  */
 struct aa_policy {
 	const char *name;
-	const char *hname;
+	__counted char *hname;
 	struct list_head list;
 	struct list_head profiles;
 };
+
+#define aa_peer_name(peer) (peer)->base.hname
 
 /**
  * basename - find the last component of an hname
@@ -164,7 +198,7 @@ static inline struct aa_policy *__policy_find(struct list_head *head,
  * other wise it allows searching for policy by a partial match of name
  */
 static inline struct aa_policy *__policy_strn_find(struct list_head *head,
-					    const char *str, int len)
+						   const char *str, int len)
 {
 	struct aa_policy *policy;
 
@@ -180,4 +214,89 @@ bool aa_policy_init(struct aa_policy *policy, const char *prefix,
 		    const char *name, gfp_t gfp);
 void aa_policy_destroy(struct aa_policy *policy);
 
-#endif /* AA_LIB_H */
+
+/*
+ * fn_label_build - abstract out the build of a label transition
+ * @L: label the transition is being computed for
+ * @P: profile parameter derived from L by this macro, can be passed to FN
+ * @GFP: memory allocation type to use
+ * @FN: fn to call for each profile transition. @P is set to the profile
+ *
+ * Returns: new label on success
+ *          ERR_PTR if build @FN fails
+ *          NULL if label_build fails due to low memory conditions
+ *
+ * @FN must return a label or ERR_PTR on failure. NULL is not allowed
+ */
+#define fn_label_build(L, P, GFP, FN)					\
+({									\
+	__label__ __cleanup, __done;					\
+	struct aa_label *__new_;					\
+									\
+	if ((L)->size > 1) {						\
+		/* TODO: add cache of transitions already done */	\
+		struct label_it __i;					\
+		int __j, __k, __count;					\
+		DEFINE_VEC(label, __lvec);				\
+		DEFINE_VEC(profile, __pvec);				\
+		if (vec_setup(label, __lvec, (L)->size, (GFP)))	{	\
+			__new_ = NULL;					\
+			goto __done;					\
+		}							\
+		__j = 0;						\
+		label_for_each(__i, (L), (P)) {				\
+			__new_ = (FN);					\
+			AA_BUG(!__new_);				\
+			if (IS_ERR(__new_))				\
+				goto __cleanup;				\
+			__lvec[__j++] = __new_;				\
+		}							\
+		for (__j = __count = 0; __j < (L)->size; __j++)		\
+			__count += __lvec[__j]->size;			\
+		if (!vec_setup(profile, __pvec, __count, (GFP))) {	\
+			for (__j = __k = 0; __j < (L)->size; __j++) {	\
+				label_for_each(__i, __lvec[__j], (P))	\
+					__pvec[__k++] = aa_get_profile(P); \
+			}						\
+			__count -= aa_vec_unique(__pvec, __count, 0);	\
+			if (__count > 1) {				\
+				__new_ = aa_vec_find_or_create_label(__pvec,\
+						     __count, (GFP));	\
+				/* only fails if out of Mem */		\
+				if (!__new_)				\
+					__new_ = NULL;			\
+			} else						\
+				__new_ = aa_get_label(&__pvec[0]->label); \
+			vec_cleanup(profile, __pvec, __count);		\
+		} else							\
+			__new_ = NULL;					\
+	__cleanup:							\
+		vec_cleanup(label, __lvec, (L)->size);			\
+	} else {							\
+		(P) = labels_profile(L);				\
+		__new_ = (FN);						\
+	}								\
+__done:									\
+	if (!__new_)							\
+		AA_DEBUG("label build failed\n");			\
+	(__new_);							\
+})
+
+
+#define __fn_build_in_ns(NS, P, NS_FN, OTHER_FN)			\
+({									\
+	struct aa_label *__new;						\
+	if ((P)->ns != (NS))						\
+		__new = (OTHER_FN);					\
+	else								\
+		__new = (NS_FN);					\
+	(__new);							\
+})
+
+#define fn_label_build_in_ns(L, P, GFP, NS_FN, OTHER_FN)		\
+({									\
+	fn_label_build((L), (P), (GFP),					\
+		__fn_build_in_ns(labels_ns(L), (P), (NS_FN), (OTHER_FN))); \
+})
+
+#endif /* __AA_LIB_H */
