@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016, NVIDIA CORPORATION. All rights reserved.
+ * Copyright (c) 2017, NVIDIA CORPORATION. All rights reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
@@ -19,31 +19,41 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
  * DEALINGS IN THE SOFTWARE.
  */
-
-#include <engine/falcon.h>
-#include <core/msgqueue.h>
 #include "priv.h"
 
-static void
-gm20b_pmu_recv(struct nvkm_pmu *pmu)
+#include <engine/falcon.h>
+
+static int
+nvkm_nvdec_oneinit(struct nvkm_engine *engine)
 {
-	nvkm_msgqueue_recv(pmu->queue);
+	struct nvkm_nvdec *nvdec = nvkm_nvdec(engine);
+	return nvkm_falcon_v1_new(&nvdec->engine.subdev, "NVDEC", 0x84000,
+				  &nvdec->falcon);
 }
 
-static const struct nvkm_pmu_func
-gm20b_pmu = {
-	.intr = gt215_pmu_intr,
-	.recv = gm20b_pmu_recv,
+static void *
+nvkm_nvdec_dtor(struct nvkm_engine *engine)
+{
+	struct nvkm_nvdec *nvdec = nvkm_nvdec(engine);
+	nvkm_falcon_del(&nvdec->falcon);
+	return nvdec;
+}
+
+static const struct nvkm_engine_func
+nvkm_nvdec = {
+	.dtor = nvkm_nvdec_dtor,
+	.oneinit = nvkm_nvdec_oneinit,
 };
 
 int
-gm20b_pmu_new(struct nvkm_device *device, int index, struct nvkm_pmu **ppmu)
+nvkm_nvdec_new_(struct nvkm_device *device, int index,
+		struct nvkm_nvdec **pnvdec)
 {
-	int ret;
+	struct nvkm_nvdec *nvdec;
 
-	ret = nvkm_pmu_new_(&gm20b_pmu, device, index, ppmu);
-	if (ret)
-		return ret;
+	if (!(nvdec = *pnvdec = kzalloc(sizeof(*nvdec), GFP_KERNEL)))
+		return -ENOMEM;
 
-	return 0;
-}
+	return nvkm_engine_ctor(&nvkm_nvdec, device, index, true,
+				&nvdec->engine);
+};

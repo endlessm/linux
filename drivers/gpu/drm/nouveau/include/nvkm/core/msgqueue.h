@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016, NVIDIA CORPORATION. All rights reserved.
+ * Copyright (c) 2017, NVIDIA CORPORATION. All rights reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
@@ -20,30 +20,28 @@
  * DEALINGS IN THE SOFTWARE.
  */
 
-#include <engine/falcon.h>
-#include <core/msgqueue.h>
-#include "priv.h"
+#ifndef __NVKM_CORE_MSGQUEUE_H
+#define __NVKM_CORE_MSGQUEUE_H
 
-static void
-gm20b_pmu_recv(struct nvkm_pmu *pmu)
-{
-	nvkm_msgqueue_recv(pmu->queue);
-}
+#include <core/os.h>
 
-static const struct nvkm_pmu_func
-gm20b_pmu = {
-	.intr = gt215_pmu_intr,
-	.recv = gm20b_pmu_recv,
-};
+struct nvkm_falcon;
+struct nvkm_msgqueue;
+enum nvkm_secboot_falcon;
 
-int
-gm20b_pmu_new(struct nvkm_device *device, int index, struct nvkm_pmu **ppmu)
-{
-	int ret;
+/* Hopefully we will never have firmware arguments larger than that... */
+#define NVKM_MSGQUEUE_CMDLINE_SIZE 0x100
 
-	ret = nvkm_pmu_new_(&gm20b_pmu, device, index, ppmu);
-	if (ret)
-		return ret;
+int nvkm_msgqueue_new(u32, struct nvkm_falcon *, struct nvkm_msgqueue **);
+void nvkm_msgqueue_del(struct nvkm_msgqueue **);
+void nvkm_msgqueue_recv(struct nvkm_msgqueue *);
+int nvkm_msgqueue_reinit(struct nvkm_msgqueue *);
 
-	return 0;
-}
+/* useful if we run a NVIDIA-signed firmware */
+void nvkm_msgqueue_write_cmdline(struct nvkm_msgqueue *, void *);
+
+/* interface to ACR unit running on falcon (NVIDIA signed firmware) */
+int nvkm_msgqueue_acr_boot_falcon(struct nvkm_msgqueue *,
+				  enum nvkm_secboot_falcon);
+
+#endif

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016, NVIDIA CORPORATION. All rights reserved.
+ * Copyright (c) 2017, NVIDIA CORPORATION. All rights reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
@@ -20,30 +20,11 @@
  * DEALINGS IN THE SOFTWARE.
  */
 
-#include <engine/falcon.h>
-#include <core/msgqueue.h>
 #include "priv.h"
 
-static void
-gm20b_pmu_recv(struct nvkm_pmu *pmu)
-{
-	nvkm_msgqueue_recv(pmu->queue);
-}
-
-static const struct nvkm_pmu_func
-gm20b_pmu = {
-	.intr = gt215_pmu_intr,
-	.recv = gm20b_pmu_recv,
-};
-
 int
-gm20b_pmu_new(struct nvkm_device *device, int index, struct nvkm_pmu **ppmu)
+gp102_nvdec_new(struct nvkm_device *device, int index,
+		struct nvkm_nvdec **pnvdec)
 {
-	int ret;
-
-	ret = nvkm_pmu_new_(&gm20b_pmu, device, index, ppmu);
-	if (ret)
-		return ret;
-
-	return 0;
+	return nvkm_nvdec_new_(device, index, pnvdec);
 }

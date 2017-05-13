@@ -20,30 +20,16 @@
  * DEALINGS IN THE SOFTWARE.
  */
 
-#include <engine/falcon.h>
-#include <core/msgqueue.h>
-#include "priv.h"
+#ifndef __NVKM_SECBOOT_ACR_R367_H__
+#define __NVKM_SECBOOT_ACR_R367_H__
 
-static void
-gm20b_pmu_recv(struct nvkm_pmu *pmu)
-{
-	nvkm_msgqueue_recv(pmu->queue);
-}
+#include "acr_r352.h"
 
-static const struct nvkm_pmu_func
-gm20b_pmu = {
-	.intr = gt215_pmu_intr,
-	.recv = gm20b_pmu_recv,
-};
+void acr_r367_fixup_hs_desc(struct acr_r352 *, struct nvkm_secboot *, void *);
 
-int
-gm20b_pmu_new(struct nvkm_device *device, int index, struct nvkm_pmu **ppmu)
-{
-	int ret;
-
-	ret = nvkm_pmu_new_(&gm20b_pmu, device, index, ppmu);
-	if (ret)
-		return ret;
-
-	return 0;
-}
+struct ls_ucode_img *acr_r367_ls_ucode_img_load(const struct acr_r352 *,
+						enum nvkm_secboot_falcon);
+int acr_r367_ls_fill_headers(struct acr_r352 *, struct list_head *);
+int acr_r367_ls_write_wpr(struct acr_r352 *, struct list_head *,
+			  struct nvkm_gpuobj *, u64);
+#endif
