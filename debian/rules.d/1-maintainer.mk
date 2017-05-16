@@ -59,6 +59,7 @@ printenv:
 	@echo "prev_revisions    = $(prev_revisions)"
 	@echo "prev_revision     = $(prev_revision)"
 	@echo "abinum            = $(abinum)"
+	@echo "upstream_tag      = $(upstream_tag)"
 	@echo "gitver            = $(gitver)"
 	@echo "flavours          = $(flavours)"
 	@echo "skipabi           = $(skipabi)"
@@ -105,7 +106,7 @@ insertchanges: autoreconstruct
 	@perl -w -f $(DROOT)/scripts/misc/insert-changes.pl $(DROOT) $(DEBIAN) 
 
 autoreconstruct:
-	$(DROOT)/scripts/misc/gen-auto-reconstruct $(release) $(DEBIAN)/reconstruct $(DROOT)/source/options
+	$(DROOT)/scripts/misc/gen-auto-reconstruct $(upstream_tag) $(DEBIAN)/reconstruct $(DROOT)/source/options
 
 diffupstream:
 	@git diff-tree -p refs/remotes/linux-2.6/master..HEAD $(shell ls | grep -vE '^(ubuntu|$(DEBIAN)|\.git.*)')
