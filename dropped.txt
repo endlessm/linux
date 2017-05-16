@@ -1,8 +1,12 @@
 This is the list of patches/features which have been temporarily
 reverted or disabled for AA:
 
-All apparmor patches
+Secure boot lockdown patches
+aufs
+
+134045316161 UBUNTU: SAUCE: arm64: arch_timer: Add erratum handler for globally defined capability
+7d27ad6a4a7f UBUNTU: SAUCE: arm64: arch_timer: Add check for unknown erratum
 
 Possibly no longer needed:
  UBUNTU: SAUCE: nbd: Only delay uevent until connected
-
+ UBUNTU: SAUCE: (no-up) Input: synaptics - add second variant of two-button clickpad
