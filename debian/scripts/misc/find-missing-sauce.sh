@@ -3,7 +3,7 @@
 # Find the 'UBUNTU: SAUCE:' patches that have been dropped from
 # the previous release.
 #
-PREV_REL=zesty
+PREV_REL=artful
 PREV_REPO=git://kernel.ubuntu.com/ubuntu/ubuntu-${PREV_REL}.git
 
 git fetch ${PREV_REPO} master-next
