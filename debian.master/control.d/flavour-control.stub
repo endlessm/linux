@@ -135,3 +135,58 @@ Description: Metapackage depending on kernel udebs
  This package depends on the all udebs that the kernel build generated,
  for easier version and migration tracking.
 
+Package: linux-image-FLAVOUR
+Architecture: i386 amd64 armhf arm64 powerpc ppc64el s390x
+Section: kernel
+Depends: ${misc:Depends}, linux-image-PKGVER-ABINUM-FLAVOUR, linux-image-extra-PKGVER-ABINUM-FLAVOUR [i386 amd64 arm64 powerpc ppc64el s390x], linux-firmware
+Recommends: thermald [i386 amd64]
+Conflicts: linux-signed-image-FLAVOUR
+Description: Generic Linux kernel image
+ This package will always depend on the latest generic kernel image
+ available.
+
+Package: linux-signed-image-FLAVOUR
+Architecture: amd64
+Section: kernel
+Depends: ${misc:Depends}, linux-signed-image-PKGVER-ABINUM-FLAVOUR, linux-image-extra-PKGVER-ABINUM-FLAVOUR, linux-firmware
+Recommends: thermald [i386 amd64]
+Conflicts: linux-image-FLAVOUR
+Description: Signed Generic Linux kernel image
+ This package will always depend on the latest generic kernel image
+ available.  Signed with the Ubuntu EFI key.
+
+Package: linux-FLAVOUR
+Architecture: i386 amd64 armhf arm64 powerpc ppc64el s390x
+Section: kernel
+Depends: ${misc:Depends}, linux-image-FLAVOUR (= ${binary:Version}), linux-headers-FLAVOUR (= ${binary:Version})
+Conflicts: linux-signed-FLAVOUR
+Description: Complete Generic Linux kernel and headers
+ This package will always depend on the latest complete generic Linux kernel
+ and headers.
+
+Package: linux-signed-FLAVOUR
+Architecture: amd64
+Section: kernel
+Depends: ${misc:Depends}, linux-signed-image-FLAVOUR (= ${binary:Version}), linux-headers-FLAVOUR (= ${binary:Version})
+Conflicts: linux-FLAVOUR
+Description: Complete Signed Generic Linux kernel and headers
+ This package will always depend on the latest complete generic Linux kernel
+ and headers.  Signed with the Ubuntu EFI key.
+
+Package: linux-headers-FLAVOUR
+Architecture: i386 amd64 armhf arm64 powerpc ppc64el s390x
+Section: kernel
+Depends: ${misc:Depends}, linux-headers-PKGVER-ABINUM-FLAVOUR
+Description: Generic Linux kernel headers
+ This package will always depend on the latest generic kernel headers
+ available.
+
+Package: linux-tools-FLAVOUR
+Architecture: i386 amd64 armhf arm64 powerpc ppc64el s390x
+Section: kernel
+Provides: linux-tools
+Depends: ${misc:Depends}, linux-tools-PKGVER-ABINUM-FLAVOUR
+Description: Generic Linux kernel tools
+ This package will always depend on the latest generic kernel tools
+ available.
+

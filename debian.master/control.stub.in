@@ -147,3 +147,10 @@ Description: Linux kernel version specific cloud tools for version PKGVER-ABINUM
  =HUMAN=.
  You probably want to install linux-cloud-tools-PKGVER-ABINUM-<flavour>.
 
+Package: linux-source
+Architecture: all
+Depends: ${misc:Depends}, linux-source-PKGVER
+Description: Linux kernel source with Ubuntu patches
+ This package will always depend on the latest Linux kernel source code
+ available. The Ubuntu patches have been applied.
+
