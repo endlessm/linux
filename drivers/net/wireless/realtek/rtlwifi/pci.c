@@ -2166,7 +2166,6 @@ static const struct dmi_system_id force_ant_sel[] = {
 	{
 		.ident = "HP 240 G5 Notebook PC",
 		.matches = {
-			DMI_MATCH(DMI_SYS_VENDOR, "HP"),
 			DMI_MATCH(DMI_PRODUCT_NAME, "HP 240 G5 Notebook PC"),
 		},
 	},
