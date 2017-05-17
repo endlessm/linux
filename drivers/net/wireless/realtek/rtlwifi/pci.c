@@ -2172,6 +2172,12 @@ static const struct dmi_system_id force_ant_sel[] = {
 			DMI_MATCH(DMI_PRODUCT_NAME, "HP 240 G5 Notebook PC"),
 		},
 	},
+	{
+		.ident = "HP 250 G5 Notebook PC",
+		.matches = {
+			DMI_MATCH(DMI_PRODUCT_NAME, "HP 250 G5 Notebook PC"),
+		},
+	},
 	{ /* sentinel */ }
 };
 
