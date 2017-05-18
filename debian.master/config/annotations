@@ -40,8 +40,10 @@ CONFIG_NR_IRQS                                  policy<{'ppc64el': '512'}>
 CONFIG_SCOM_DEBUGFS                             policy<{'ppc64el': 'y'}>
 
 # Menu: Architecture: arm64
+CONFIG_ARM64_LSE_ATOMICS                        policy<{'arm64': 'y'}>
 CONFIG_ARM64_VA_BITS                            policy<{'arm64': '48'}>
 #
+CONFIG_ARM64_LSE_ATOMICS                        mark<ENFORCED> note<LP:1691614>
 CONFIG_ARM64_VA_BITS                            mark<ENFORCED> note<Cavium ThunderX 2-socket needs a minimum of 41 bits of VA>
 
 # Menu: Architecture: s390
