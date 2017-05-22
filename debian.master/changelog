@@ -6,7 +6,7 @@ linux (4.12.0-0.1) UNRELEASED; urgency=low
 
   [ Upstream Kernel Changes ]
 
-  * Rebase to v4.12-rc1
+  * Rebase to v4.12-rc2
 
  -- Seth Forshee <seth.forshee@canonical.com>  Tue, 16 May 2017 11:36:53 -0500
 
