@@ -40,6 +40,7 @@
 #include <linux/pm_runtime.h>
 #include <linux/vga_switcheroo.h>
 #include "drm_crtc_helper.h"
+#include <linux/dmi.h>
 
 #include "amdgpu.h"
 #include "amdgpu_irq.h"
@@ -429,6 +430,24 @@ static const struct pci_device_id pciidlist[] = {
 
 MODULE_DEVICE_TABLE(pci, pciidlist);
 
+static const struct dmi_system_id dmi_no_modeset[] = {
+       {
+               .ident = "Acer Aspire A515-41G",
+               .matches = {
+                       DMI_MATCH(DMI_SYS_VENDOR, "Acer"),
+                       DMI_MATCH(DMI_PRODUCT_NAME, "Aspire A515-41G"),
+               },
+       },
+       {
+               .ident = "Acer Nitro AN515-41",
+               .matches = {
+                       DMI_MATCH(DMI_SYS_VENDOR, "Acer"),
+                       DMI_MATCH(DMI_PRODUCT_NAME, "Nitro AN515-41"),
+               },
+       },
+       {}
+};
+
 static struct drm_driver kms_driver;
 
 static int amdgpu_kick_out_firmware_fb(struct pci_dev *pdev)
@@ -457,6 +476,10 @@ static int amdgpu_pci_probe(struct pci_dev *pdev,
 {
 	unsigned long flags = ent->driver_data;
 	int ret;
+
+	if (dmi_check_system(dmi_no_modeset)) {
+                return -ENODEV;
+	}
 
 	if ((flags & AMD_EXP_HW_SUPPORT) && !amdgpu_exp_hw_support) {
 		DRM_INFO("This hardware requires experimental hardware support.\n"
