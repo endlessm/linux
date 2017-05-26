@@ -1512,7 +1512,7 @@ CONFIG_DRM_VMWGFX                               policy<{'amd64': 'm', 'i386': 'm
 CONFIG_DRM_VMWGFX_FBCON                         policy<{'amd64': 'y', 'i386': 'y'}>
 CONFIG_DRM_UDL                                  policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'ppc64el': 'm'}>
 CONFIG_DRM_AST                                  policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'ppc64el': 'm'}>
-CONFIG_DRM_MGAG200                              policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'i386': 'n', 'ppc64el': 'n'}>
+CONFIG_DRM_MGAG200                              policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'ppc64el': 'm'}>
 CONFIG_DRM_CIRRUS_QEMU                          policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'ppc64el': 'm'}>
 CONFIG_DRM_ARMADA                               policy<{'armhf': 'm'}>
 CONFIG_DRM_ATMEL_HLCDC                          policy<{'armhf': 'm'}>
@@ -1539,7 +1539,7 @@ CONFIG_DRM_MEDIATEK_HDMI                        policy<{'arm64': 'm', 'armhf': '
 CONFIG_DRM_MXSFB                                policy<{'arm64': 'm', 'armhf': 'm'}>
 CONFIG_DRM_MESON                                policy<{'armhf': 'm'}>
 #
-CONFIG_DRM_MGAG200                              mark<ENFORCED> note<LP#1042903: CONFIG_DRM_MGAG200, experimental driver hangs boot on HP Proliant Gen8>
+CONFIG_DRM_MGAG200                              note<LP#1693337>
 CONFIG_DRM_BOCHS                                note<LP#1378648>
 CONFIG_DRM_STI                                  note<LP#1398458>
 
