@@ -33,6 +33,7 @@ Build-Depends:
  libtool,
  uuid-dev,
  binutils-dev,
+ libnuma-dev [amd64 arm64 i386 ppc64el s390x],
 Build-Depends-Indep:
  xmlto,
  transfig,

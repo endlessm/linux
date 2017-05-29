@@ -39,6 +39,7 @@
 #include <asm/irq.h>
 #include <asm/hw_irq.h>
 #include <asm/kvm_ppc.h>
+#include <asm/dbell.h>
 #include <asm/page.h>
 #include <asm/pgtable.h>
 #include <asm/prom.h>
@@ -211,16 +212,8 @@ int smp_request_message_ipi(int virq, int msg)
 #ifdef CONFIG_PPC_SMP_MUXED_IPI
 struct cpu_messages {
 	long messages;			/* current messages */
-	unsigned long data;		/* data for cause ipi */
 };
 static DEFINE_PER_CPU_SHARED_ALIGNED(struct cpu_messages, ipi_message);
-
-void smp_muxed_ipi_set_data(int cpu, unsigned long data)
-{
-	struct cpu_messages *info = &per_cpu(ipi_message, cpu);
-
-	info->data = data;
-}
 
 void smp_muxed_ipi_set_message(int cpu, int msg)
 {
@@ -236,14 +229,13 @@ void smp_muxed_ipi_set_message(int cpu, int msg)
 
 void smp_muxed_ipi_message_pass(int cpu, int msg)
 {
-	struct cpu_messages *info = &per_cpu(ipi_message, cpu);
-
 	smp_muxed_ipi_set_message(cpu, msg);
+
 	/*
 	 * cause_ipi functions are required to include a full barrier
 	 * before doing whatever causes the IPI.
 	 */
-	smp_ops->cause_ipi(cpu, info->data);
+	smp_ops->cause_ipi(cpu);
 }
 
 #ifdef __BIG_ENDIAN__
@@ -254,11 +246,18 @@ void smp_muxed_ipi_message_pass(int cpu, int msg)
 
 irqreturn_t smp_ipi_demux(void)
 {
-	struct cpu_messages *info = this_cpu_ptr(&ipi_message);
-	unsigned long all;
-
 	mb();	/* order any irq clear */
 
+	return smp_ipi_demux_relaxed();
+}
+
+/* sync-free variant. Callers should ensure synchronization */
+irqreturn_t smp_ipi_demux_relaxed(void)
+{
+	struct cpu_messages *info;
+	unsigned long all;
+
+	info = this_cpu_ptr(&ipi_message);
 	do {
 		all = xchg(&info->messages, 0);
 #if defined(CONFIG_KVM_XICS) && defined(CONFIG_KVM_BOOK3S_HV_POSSIBLE)
@@ -439,7 +438,14 @@ int generic_cpu_disable(void)
 #ifdef CONFIG_PPC64
 	vdso_data->processorCount--;
 #endif
-	migrate_irqs();
+	/* Update affinity of all IRQs previously aimed at this CPU */
+	irq_migrate_all_off_this_cpu();
+
+	/* Give the CPU time to drain in-flight ones */
+	local_irq_enable();
+	mdelay(1);
+	local_irq_disable();
+
 	return 0;
 }
 
@@ -520,6 +526,16 @@ int __cpu_up(unsigned int cpu, struct task_struct *tidle)
 		return -EINVAL;
 
 	cpu_idle_thread_init(cpu, tidle);
+
+	/*
+	 * The platform might need to allocate resources prior to bringing
+	 * up the CPU
+	 */
+	if (smp_ops->prepare_cpu) {
+		rc = smp_ops->prepare_cpu(cpu);
+		if (rc)
+			return rc;
+	}
 
 	/* Make sure callin-map entry is 0 (can be leftover a CPU
 	 * hotplug

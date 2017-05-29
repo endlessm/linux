@@ -106,10 +106,7 @@ static inline void get_mbigen_type_reg(irq_hw_number_t hwirq,
 static inline void get_mbigen_clear_reg(irq_hw_number_t hwirq,
 					u32 *mask, u32 *addr)
 {
-	unsigned int ofst;
-
-	hwirq -= RESERVED_IRQ_PER_MBIGEN_CHIP;
-	ofst = hwirq / 32 * 4;
+	unsigned int ofst = (hwirq / 32) * 4;
 
 	*mask = 1 << (hwirq % 32);
 	*addr = ofst + REG_MBIGEN_CLEAR_OFFSET;
@@ -273,37 +270,41 @@ static int mbigen_of_create_domain(struct platform_device *pdev,
 }
 
 #ifdef CONFIG_ACPI
-static acpi_status mbigen_acpi_process_resource(struct acpi_resource *ares,
-					     void *context)
-{
-	struct acpi_resource_extended_irq *ext_irq;
-	u32 *num_irqs = context;
-
-	switch (ares->type) {
-	case ACPI_RESOURCE_TYPE_EXTENDED_IRQ:
-		ext_irq = &ares->data.extended_irq;
-		*num_irqs += ext_irq->interrupt_count;
-		break;
-	default:
-		break;
-	}
-
-	return AE_OK;
-}
-
 static int mbigen_acpi_create_domain(struct platform_device *pdev,
 				     struct mbigen_device *mgn_chip)
 {
 	struct irq_domain *domain;
-	u32 num_msis = 0;
-	acpi_status status;
+	u32 num_pins = 0;
+	int ret;
 
-	status = acpi_walk_resources(ACPI_HANDLE(&pdev->dev), METHOD_NAME__CRS,
-				     mbigen_acpi_process_resource, &num_msis);
-        if (ACPI_FAILURE(status) || num_msis == 0)
+	/*
+	 * "num-pins" is the total number of interrupt pins implemented in
+	 * this mbigen instance, and mbigen is an interrupt controller
+	 * connected to ITS  converting wired interrupts into MSI, so we
+	 * use "num-pins" to alloc MSI vectors which are needed by client
+	 * devices connected to it.
+	 *
+	 * Here is the DSDT device node used for mbigen in firmware:
+	 *	Device(MBI0) {
+	 *		Name(_HID, "HISI0152")
+	 *		Name(_UID, Zero)
+	 *		Name(_CRS, ResourceTemplate() {
+	 *			Memory32Fixed(ReadWrite, 0xa0080000, 0x10000)
+	 *		})
+	 *
+	 *		Name(_DSD, Package () {
+	 *			ToUUID("daffd814-6eba-4d8c-8a91-bc9bbf4aa301"),
+	 *			Package () {
+	 *				Package () {"num-pins", 378}
+	 *			}
+	 *		})
+	 *	}
+	 */
+	ret = device_property_read_u32(&pdev->dev, "num-pins", &num_pins);
+	if (ret || num_pins == 0)
 		return -EINVAL;
 
-	domain = platform_msi_create_device_domain(&pdev->dev, num_msis,
+	domain = platform_msi_create_device_domain(&pdev->dev, num_pins,
 						   mbigen_write_msg,
 						   &mbigen_domain_ops,
 						   mgn_chip);
@@ -333,9 +334,15 @@ static int mbigen_device_probe(struct platform_device *pdev)
 	mgn_chip->pdev = pdev;
 
 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
-	mgn_chip->base = devm_ioremap(&pdev->dev, res->start, resource_size(res));
-	if (IS_ERR(mgn_chip->base))
-		return PTR_ERR(mgn_chip->base);
+	if (!res)
+		return -EINVAL;
+
+	mgn_chip->base = devm_ioremap(&pdev->dev, res->start,
+				      resource_size(res));
+	if (!mgn_chip->base) {
+		dev_err(&pdev->dev, "failed to ioremap %pR\n", res);
+		return -ENOMEM;
+	}
 
 	if (IS_ENABLED(CONFIG_OF) && pdev->dev.of_node)
 		err = mbigen_of_create_domain(pdev, mgn_chip);
@@ -345,7 +352,8 @@ static int mbigen_device_probe(struct platform_device *pdev)
 		err = -EINVAL;
 
 	if (err) {
-		dev_err(&pdev->dev, "Failed to create mbi-gen@%p irqdomain", mgn_chip->base);
+		dev_err(&pdev->dev, "Failed to create mbi-gen@%p irqdomain",
+			mgn_chip->base);
 		return err;
 	}
 
@@ -360,7 +368,7 @@ static const struct of_device_id mbigen_of_match[] = {
 MODULE_DEVICE_TABLE(of, mbigen_of_match);
 
 static const struct acpi_device_id mbigen_acpi_match[] = {
-        { "HISI0152", 0 },
+	{ "HISI0152", 0 },
 	{}
 };
 MODULE_DEVICE_TABLE(acpi, mbigen_acpi_match);

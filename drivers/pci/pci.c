@@ -1782,8 +1782,8 @@ static void pci_pme_list_scan(struct work_struct *work)
 		}
 	}
 	if (!list_empty(&pci_pme_list))
-		schedule_delayed_work(&pci_pme_work,
-				      msecs_to_jiffies(PME_TIMEOUT));
+		queue_delayed_work(system_freezable_wq, &pci_pme_work,
+				   msecs_to_jiffies(PME_TIMEOUT));
 	mutex_unlock(&pci_pme_list_mutex);
 }
 
@@ -1848,8 +1848,9 @@ void pci_pme_active(struct pci_dev *dev, bool enable)
 			mutex_lock(&pci_pme_list_mutex);
 			list_add(&pme_dev->list, &pci_pme_list);
 			if (list_is_singular(&pci_pme_list))
-				schedule_delayed_work(&pci_pme_work,
-						      msecs_to_jiffies(PME_TIMEOUT));
+				queue_delayed_work(system_freezable_wq,
+						   &pci_pme_work,
+						   msecs_to_jiffies(PME_TIMEOUT));
 			mutex_unlock(&pci_pme_list_mutex);
 		} else {
 			mutex_lock(&pci_pme_list_mutex);
@@ -3238,7 +3239,7 @@ int pci_request_regions_exclusive(struct pci_dev *pdev, const char *res_name)
 }
 EXPORT_SYMBOL(pci_request_regions_exclusive);
 
-#ifdef PCI_IOBASE
+#if defined(PCI_IOBASE) && !defined(CONFIG_LIBIO)
 struct io_range {
 	struct list_head list;
 	phys_addr_t start;
@@ -3253,11 +3254,35 @@ static DEFINE_SPINLOCK(io_range_lock);
  * Record the PCI IO range (expressed as CPU physical address + size).
  * Return a negative value if an error has occured, zero otherwise
  */
-int __weak pci_register_io_range(phys_addr_t addr, resource_size_t size)
+int pci_register_io_range(struct fwnode_handle *fwnode, phys_addr_t addr,
+			resource_size_t	size)
 {
 	int err = 0;
 
 #ifdef PCI_IOBASE
+#ifdef CONFIG_LIBIO
+	struct libio_range *range, *tmprange;
+
+	if (!size || addr + size < addr)
+		return -EINVAL;
+
+	WARN_ON(!PAGE_ALIGNED(addr) || !PAGE_ALIGNED(size));
+
+	range = kzalloc(sizeof(*range), GFP_KERNEL);
+	if (!range)
+		return -ENOMEM;
+	range->node = fwnode;
+	range->flags = IO_CPU_MMIO;
+	range->size = size;
+	range->hw_start = addr;
+
+	tmprange = register_libio_range(range);
+	if (tmprange != range) {
+		kfree(range);
+		if (IS_ERR(tmprange))
+			return -EFAULT;
+	}
+#else
 	struct io_range *range;
 	resource_size_t allocated_size = 0;
 
@@ -3297,7 +3322,8 @@ int __weak pci_register_io_range(phys_addr_t addr, resource_size_t size)
 
 end_register:
 	spin_unlock(&io_range_lock);
-#endif
+#endif /* CONFIG_LIBIO */
+#endif /* PCI_IOBASE */
 
 	return err;
 }
@@ -3307,6 +3333,12 @@ phys_addr_t pci_pio_to_address(unsigned long pio)
 	phys_addr_t address = (phys_addr_t)OF_BAD_ADDR;
 
 #ifdef PCI_IOBASE
+#ifdef CONFIG_LIBIO
+	if (pio > IO_SPACE_LIMIT)
+		return address;
+
+	address = libio_to_hwaddr(pio);
+#else
 	struct io_range *range;
 	resource_size_t allocated_size = 0;
 
@@ -3322,7 +3354,8 @@ phys_addr_t pci_pio_to_address(unsigned long pio)
 		allocated_size += range->size;
 	}
 	spin_unlock(&io_range_lock);
-#endif
+#endif /* CONFIG_LIBIO */
+#endif /* PCI_IOBASE */
 
 	return address;
 }
@@ -3330,6 +3363,9 @@ phys_addr_t pci_pio_to_address(unsigned long pio)
 unsigned long __weak pci_address_to_pio(phys_addr_t address)
 {
 #ifdef PCI_IOBASE
+#ifdef CONFIG_LIBIO
+	return libio_translate_cpuaddr(address);
+#else
 	struct io_range *res;
 	resource_size_t offset = 0;
 	unsigned long addr = -1;
@@ -3345,10 +3381,12 @@ unsigned long __weak pci_address_to_pio(phys_addr_t address)
 	spin_unlock(&io_range_lock);
 
 	return addr;
+#endif
 #else
+#ifndef CONFIG_LIBIO
 	if (address > IO_SPACE_LIMIT)
 		return (unsigned long)-1;
-
+#endif
 	return (unsigned long) address;
 #endif
 }

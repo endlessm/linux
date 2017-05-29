@@ -18,16 +18,17 @@
 
 enum path_flags {
 	PATH_IS_DIR = 0x1,		/* path is a directory */
+	PATH_SOCK_COND = 0x2,
 	PATH_CONNECT_PATH = 0x4,	/* connect disconnected paths to / */
 	PATH_CHROOT_REL = 0x8,		/* do path lookup relative to chroot */
 	PATH_CHROOT_NSCONNECT = 0x10,	/* connect paths that are at ns root */
 
 	PATH_DELEGATE_DELETED = 0x08000, /* delegate deleted files */
-	PATH_MEDIATE_DELETED = 0x10000,	/* mediate deleted paths */
+	PATH_MEDIATE_DELETED = 0x10000,	 /* mediate deleted paths */
 };
 
-int aa_path_name(const struct path *path, int flags, char **buffer,
-		 const char **name, const char **info);
+int aa_path_name(const struct path *path, int flags, char *buffer,
+		 const char **name, const char **info, const char *disconnect);
 
 #define MAX_PATH_BUFFERS 2
 

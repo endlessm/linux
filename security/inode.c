@@ -52,6 +52,11 @@ int securityfs_pin_fs(void)
 	return simple_pin_fs(&fs_type, &mount, &mount_count);
 }
 
+void securityfs_release_fs(void)
+{
+	simple_release_fs(&mount, &mount_count);
+}
+
 int __securityfs_setup_d_inode(struct inode *dir, struct dentry *dentry,
 			       umode_t mode, void *data,
 			       const struct file_operations *fops,
