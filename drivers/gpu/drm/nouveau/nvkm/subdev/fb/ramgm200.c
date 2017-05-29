@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 Red Hat Inc.
+ * Copyright 2017 Red Hat Inc.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
@@ -19,12 +19,12 @@
  * ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  * OTHER DEALINGS IN THE SOFTWARE.
  *
- * Authors: Ben Skeggs
+ * Authors: Ben Skeggs <bskeggs@redhat.com>
  */
 #include "ram.h"
 
 static const struct nvkm_ram_func
-gm107_ram = {
+gm200_ram = {
 	.dtor = gk104_ram_dtor,
 	.init = gk104_ram_init,
 	.get = gf100_ram_get,
@@ -35,7 +35,7 @@ gm107_ram = {
 };
 
 int
-gm107_ram_new(struct nvkm_fb *fb, struct nvkm_ram **pram)
+gm200_ram_new(struct nvkm_fb *fb, struct nvkm_ram **pram)
 {
-	return gk104_ram_new_(&gm107_ram, fb, pram, 0x021c14);
+	return gk104_ram_new_(&gm200_ram, fb, pram, 0x021c14);
 }
