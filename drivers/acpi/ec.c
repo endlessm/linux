@@ -1793,6 +1793,10 @@ static struct dmi_system_id ec_dmi_table[] __initdata = {
 	ec_honor_ecdt_gpe, "ASUSTeK COMPUTER INC. X580VD", {
 	DMI_MATCH(DMI_SYS_VENDOR, "ASUSTeK COMPUTER INC."),
 	DMI_MATCH(DMI_PRODUCT_NAME, "X580VD"),}, NULL},
+	{
+	ec_honor_ecdt_gpe, "ASUSTeK COMPUTER INC. GL702VMK", {
+	DMI_MATCH(DMI_SYS_VENDOR, "ASUSTeK COMPUTER INC."),
+	DMI_MATCH(DMI_PRODUCT_NAME, "GL702VMK"),}, NULL},
 	{},
 };
 
