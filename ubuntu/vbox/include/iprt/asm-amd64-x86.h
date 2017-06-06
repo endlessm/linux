@@ -1959,6 +1959,20 @@ DECLASM(void) ASMXSave(struct X86XSAVEAREA *pXStateArea, uint64_t fComponents);
 DECLASM(void) ASMXRstor(struct X86XSAVEAREA const *pXStateArea, uint64_t fComponents);
 
 
+struct X86FXSTATE;
+/**
+ * Save FPU and SSE CPU state.
+ * @param   pXStateArea     Where to save the state.
+ */
+DECLASM(void) ASMFxSave(struct X86FXSTATE *pXStateArea);
+
+/**
+ * Load FPU and SSE CPU state.
+ * @param   pXStateArea     Where to load the state from.
+ */
+DECLASM(void) ASMFxRstor(struct X86FXSTATE const *pXStateArea);
+
+
 /**
  * Enables interrupts (EFLAGS.IF).
  */

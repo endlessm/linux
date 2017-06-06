@@ -2132,6 +2132,10 @@
 #define VERR_SVM_IPE_4                              (-4064)
 /** Internal SVM processing error no 5. */
 #define VERR_SVM_IPE_5                              (-4065)
+/** The nested-guest \#VMEXIT processing failed, initiate shutdown. */
+#define VERR_SVM_VMEXIT_FAILED                      (-4066)
+/** An operation caused a nested-guest SVM \#VMEXIT. */
+#define VINF_SVM_VMEXIT                              4067
 /** @} */
 
 
@@ -2174,6 +2178,9 @@
 #define VERR_HM_INVALID_HM64ON32OP                  (-4116)
 /** Resume guest execution after injecting a double-fault. */
 #define VINF_HM_DOUBLE_FAULT                        4117
+/** The requested nested-guest VM-exit intercept is not active or not in
+ *  nested-guest execution mode. */
+#define VINF_HM_INTERCEPT_NOT_ACTIVE                4118
 /** @} */
 
 
