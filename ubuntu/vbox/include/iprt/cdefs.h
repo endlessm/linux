@@ -1768,6 +1768,54 @@
 /** RT_CONCAT6 helper, don't use.  */
 #define RT_CONCAT6_HLP(a,b,c,d,e,f)   a##b##c##d##e##f
 
+/** @def RT_CONCAT7
+ * Concatenate the expanded arguments without any extra spaces in between.
+ *
+ * @param   a       The 1st part.
+ * @param   b       The 2nd part.
+ * @param   c       The 3rd part.
+ * @param   d       The 4th part.
+ * @param   e       The 5th part.
+ * @param   f       The 6th part.
+ * @param   g       The 7th part.
+ */
+#define RT_CONCAT7(a,b,c,d,e,f,g)       RT_CONCAT7_HLP(a,b,c,d,e,f,g)
+/** RT_CONCAT7 helper, don't use.  */
+#define RT_CONCAT7_HLP(a,b,c,d,e,f,g)   a##b##c##d##e##f##g
+
+/** @def RT_CONCAT8
+ * Concatenate the expanded arguments without any extra spaces in between.
+ *
+ * @param   a       The 1st part.
+ * @param   b       The 2nd part.
+ * @param   c       The 3rd part.
+ * @param   d       The 4th part.
+ * @param   e       The 5th part.
+ * @param   f       The 6th part.
+ * @param   g       The 7th part.
+ * @param   h       The 8th part.
+ */
+#define RT_CONCAT8(a,b,c,d,e,f,g,h)     RT_CONCAT8_HLP(a,b,c,d,e,f,g,h)
+/** RT_CONCAT8 helper, don't use.  */
+#define RT_CONCAT8_HLP(a,b,c,d,e,f,g,h) a##b##c##d##e##f##g##h
+
+/** @def RT_CONCAT9
+ * Concatenate the expanded arguments without any extra spaces in between.
+ *
+ * @param   a       The 1st part.
+ * @param   b       The 2nd part.
+ * @param   c       The 3rd part.
+ * @param   d       The 4th part.
+ * @param   e       The 5th part.
+ * @param   f       The 6th part.
+ * @param   g       The 7th part.
+ * @param   h       The 8th part.
+ * @param   i       The 9th part.
+ */
+#define RT_CONCAT9(a,b,c,d,e,f,g,h,i)   RT_CONCAT9_HLP(a,b,c,d,e,f,g,h,i)
+/** RT_CONCAT9 helper, don't use.  */
+#define RT_CONCAT9_HLP(a,b,c,d,e,f,g,h,i) a##b##c##d##e##f##g##h##i
+
 /**
  * String constant tuple - string constant, strlen(string constant).
  *
@@ -2234,6 +2282,89 @@
  * @param   aArray      Array in question.
  */
 #define RT_ELEMENTS(aArray)                     ( sizeof(aArray) / sizeof((aArray)[0]) )
+
+/** @def RT_FLEXIBLE_ARRAY
+ * What to up inside the square brackets when declaring a structure member
+ * with a flexible size.
+ *
+ * @note    Use RT_UOFFSETOF() to calculate the structure size.
+ *
+ * @note    Never to a sizeof() on the structure or member!
+ *
+ * @note    The member must be the last one.
+ *
+ * @note    GCC does not permit using this in a union.  So, for unions you must
+ *          use RT_FLEXIBLE_ARRAY_IN_UNION instead.
+ *
+ * @note    GCC does not permit using this in nested structures, where as MSC
+ *          does.  So, use RT_FLEXIBLE_ARRAY_NESTED for that.
+ *
+ * @sa      RT_FLEXIBLE_ARRAY_NESTED, RT_FLEXIBLE_ARRAY_IN_UNION
+ */
+#if RT_MSC_PREREQ(RT_MSC_VER_VS2005) /** @todo Probably much much earlier. */ \
+ || (defined(__cplusplus) && RT_GNUC_PREREQ(6, 1)) \
+ || defined(__WATCOMC__) /* openwatcom 1.9 supports it, we don't care about older atm. */
+# define RT_FLEXIBLE_ARRAY
+# if defined(__cplusplus) && defined(_MSC_VER)
+#  pragma warning(disable:4200) /* -wd4200 does not work with VS2010 */
+# endif
+#elif defined(__STDC_VERSION__)
+# if __STDC_VERSION__ >= 1999901L
+#  define RT_FLEXIBLE_ARRAY
+# else
+#  define RT_FLEXIBLE_ARRAY                     1
+# endif
+#else
+# define RT_FLEXIBLE_ARRAY                      1
+#endif
+
+/** @def RT_FLEXIBLE_ARRAY_NESTED
+ * Variant of RT_FLEXIBLE_ARRAY for use in structures that are nested.
+ *
+ * GCC only allow the use of flexible array member in the top structure, whereas
+ * MSC is less strict and let you do struct { struct { char szName[]; } s; };
+ *
+ * @note    See notes for RT_FLEXIBLE_ARRAY.
+ *
+ * @note    GCC does not permit using this in a union.  So, for unions you must
+ *          use RT_FLEXIBLE_ARRAY_IN_NESTED_UNION instead.
+ *
+ * @sa      RT_FLEXIBLE_ARRAY, RT_FLEXIBLE_ARRAY_IN_NESTED_UNION
+ */
+#ifdef _MSC_VER
+# define RT_FLEXIBLE_ARRAY_NESTED               RT_FLEXIBLE_ARRAY
+#else
+# define RT_FLEXIBLE_ARRAY_NESTED               1
+#endif
+
+/** @def RT_FLEXIBLE_ARRAY_IN_UNION
+ * The union version of RT_FLEXIBLE_ARRAY.
+ *
+ * @remarks GCC does not support flexible array members in unions, 6.1.x
+ *          actively checks for this.  Visual C++ 2010 seems happy with it.
+ *
+ * @note    See notes for RT_FLEXIBLE_ARRAY.
+ *
+ * @sa      RT_FLEXIBLE_ARRAY, RT_FLEXIBLE_ARRAY_IN_NESTED_UNION
+ */
+#ifdef _MSC_VER
+# define RT_FLEXIBLE_ARRAY_IN_UNION             RT_FLEXIBLE_ARRAY
+#else
+# define RT_FLEXIBLE_ARRAY_IN_UNION             1
+#endif
+
+/** @def RT_FLEXIBLE_ARRAY_IN_NESTED_UNION
+ * The union version of RT_FLEXIBLE_ARRAY_NESTED.
+ *
+ * @note    See notes for RT_FLEXIBLE_ARRAY.
+ *
+ * @sa      RT_FLEXIBLE_ARRAY, RT_FLEXIBLE_ARRAY_IN_NESTED_UNION
+ */
+#ifdef _MSC_VER
+# define RT_FLEXIBLE_ARRAY_IN_NESTED_UNION      RT_FLEXIBLE_ARRAY_NESTED
+#else
+# define RT_FLEXIBLE_ARRAY_IN_NESTED_UNION      1
+#endif
 
 /**
  * Checks if the value is a power of two.
@@ -2830,7 +2961,7 @@
 /** @def RT_NOREF9
  * RT_NOREF_PV shorthand taking nine parameters.  */
 #define RT_NOREF9(var1, var2, var3, var4, var5, var6, var7, var8, var9) \
-    RT_NOREF_PV(var1); RT_NOREF8(var2, var3, var4, var5, var6, var7, var8)
+    RT_NOREF_PV(var1); RT_NOREF8(var2, var3, var4, var5, var6, var7, var8, var9)
 /** @def RT_NOREF10
  * RT_NOREF_PV shorthand taking ten parameters.  */
 #define RT_NOREF10(var1, var2, var3, var4, var5, var6, var7, var8, var9, var10) \

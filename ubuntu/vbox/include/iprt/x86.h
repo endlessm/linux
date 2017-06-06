@@ -741,6 +741,37 @@ typedef const X86CPUIDFEATEDX *PCX86CPUIDFEATEDX;
 /** @} */
 
 
+/** @name CPUID AMD SVM Feature information.
+ * CPUID query with EAX=0x8000000a.
+ * @{
+ */
+/** Bit 0 - NP - Nested Paging supported. */
+#define X86_CPUID_SVM_FEATURE_EDX_NESTED_PAGING             RT_BIT(0)
+/** Bit 1 - LbrVirt - Support for saving five debug MSRs. */
+#define X86_CPUID_SVM_FEATURE_EDX_LBR_VIRT                  RT_BIT(1)
+/** Bit 2 - SVML - SVM locking bit supported. */
+#define X86_CPUID_SVM_FEATURE_EDX_SVM_LOCK                  RT_BIT(2)
+/** Bit 3 - NRIPS - Saving the next instruction pointer is supported. */
+#define X86_CPUID_SVM_FEATURE_EDX_NRIP_SAVE                 RT_BIT(3)
+/** Bit 4 - TscRateMsr - Support for MSR TSC ratio. */
+#define X86_CPUID_SVM_FEATURE_EDX_TSC_RATE_MSR              RT_BIT(4)
+/** Bit 5 - VmcbClean - Support VMCB clean bits. */
+#define X86_CPUID_SVM_FEATURE_EDX_VMCB_CLEAN                RT_BIT(5)
+/** Bit 6 - FlushByAsid - Indicate TLB flushing for current ASID only, and that
+ *  VMCB.TLB_Control is supported. */
+#define X86_CPUID_SVM_FEATURE_EDX_FLUSH_BY_ASID             RT_BIT(6)
+/** Bit 7 - DecodeAssist - Indicate decode assist is supported. */
+#define X86_CPUID_SVM_FEATURE_EDX_DECODE_ASSIST             RT_BIT(7)
+/** Bit 10 - PauseFilter - Indicates support for the PAUSE intercept filter. */
+#define X86_CPUID_SVM_FEATURE_EDX_PAUSE_FILTER              RT_BIT(10)
+/** Bit 12 - PauseFilterThreshold - Indicates support for the PAUSE
+ *  intercept filter cycle count threshold. */
+#define X86_CPUID_SVM_FEATURE_EDX_PAUSE_FILTER_THRESHOLD    RT_BIT(12)
+/** Bit 13 - AVIC - Advanced Virtual Interrupt Controller. */
+#define X86_CPUID_SVM_FEATURE_EDX_AVIC                      RT_BIT(13)
+/** @} */
+
+
 /** @name CR0
  * @remarks The 286 (MSW), 386 and 486 ignores attempts at setting
  *          reserved flags.
@@ -1449,7 +1480,21 @@ AssertCompile(X86_DR7_ANY_RW_IO(UINT32_C(0x00040000)) == 0);
 /** Hypertransport interrupt pending register.
  * "BIOS and Kernel Developer's Guide for AMD NPT Family 0Fh Processors" */
 #define MSR_K8_INT_PENDING                  UINT32_C(0xc0010055)
+
+/** SVM Control. */
 #define MSR_K8_VM_CR                        UINT32_C(0xc0010114)
+/** Disables HDT (Hardware Debug Tool) and certain internal debug
+ *  features. */
+#define MSR_K8_VM_CR_DPD                    RT_BIT_32(0)
+/** If set, non-intercepted INIT signals are converted to \#SX
+ *  exceptions. */
+#define MSR_K8_VM_CR_R_INIT                 RT_BIT_32(1)
+/** Disables A20 masking.  */
+#define MSR_K8_VM_CR_DIS_A20M               RT_BIT_32(2)
+/** Lock bit for this MSR controlling bits 3 (LOCK) and 4 (SVMDIS). */
+#define MSR_K8_VM_CR_LOCK                   RT_BIT_32(3)
+/** SVM disable. When set, writes to EFER.SVME are treated as MBZ. When
+ *  clear, EFER.SVME can be written normally. */
 #define MSR_K8_VM_CR_SVM_DISABLE            RT_BIT_32(4)
 
 #define MSR_K8_IGNNE                        UINT32_C(0xc0010115)
@@ -2540,7 +2585,7 @@ typedef X86FPUREG const *PCX86FPUREG;
  */
 typedef union X86XMMREG
 {
-    /** XMM Register view *. */
+    /** XMM Register view. */
     uint128_t   xmm;
     /** 8-bit view. */
     uint8_t     au8[16];
@@ -2552,6 +2597,8 @@ typedef union X86XMMREG
     uint64_t    au64[2];
     /** 128-bit view. (yeah, very helpful) */
     uint128_t   au128[1];
+    /** Confusing nested 128-bit union view (this is what xmm should've been). */
+    RTUINT128U  uXmm;
 } X86XMMREG;
 #ifndef VBOX_FOR_DTRACE_LIB
 AssertCompileSize(X86XMMREG, 16);
@@ -2802,50 +2849,50 @@ AssertCompileMemberOffset(X86FXSTATE, au32RsrvdForSoftware, X86_OFF_FXSTATE_RSVD
 /** @name SSE MXCSR
  * @{ */
 /** Exception Flag: Invalid operation.  */
-#define X86_MXSCR_IE          RT_BIT_32(0)
+#define X86_MXCSR_IE          RT_BIT_32(0)
 /** Exception Flag: Denormalized operand.  */
-#define X86_MXSCR_DE          RT_BIT_32(1)
+#define X86_MXCSR_DE          RT_BIT_32(1)
 /** Exception Flag: Zero divide.  */
-#define X86_MXSCR_ZE          RT_BIT_32(2)
+#define X86_MXCSR_ZE          RT_BIT_32(2)
 /** Exception Flag: Overflow.  */
-#define X86_MXSCR_OE          RT_BIT_32(3)
+#define X86_MXCSR_OE          RT_BIT_32(3)
 /** Exception Flag: Underflow.  */
-#define X86_MXSCR_UE          RT_BIT_32(4)
+#define X86_MXCSR_UE          RT_BIT_32(4)
 /** Exception Flag: Precision.  */
-#define X86_MXSCR_PE          RT_BIT_32(5)
+#define X86_MXCSR_PE          RT_BIT_32(5)
 
 /** Denormals are zero. */
-#define X86_MXSCR_DAZ         RT_BIT_32(6)
+#define X86_MXCSR_DAZ         RT_BIT_32(6)
 
 /** Exception Mask: Invalid operation. */
-#define X86_MXSCR_IM          RT_BIT_32(7)
+#define X86_MXCSR_IM          RT_BIT_32(7)
 /** Exception Mask: Denormalized operand. */
-#define X86_MXSCR_DM          RT_BIT_32(8)
+#define X86_MXCSR_DM          RT_BIT_32(8)
 /** Exception Mask: Zero divide.  */
-#define X86_MXSCR_ZM          RT_BIT_32(9)
+#define X86_MXCSR_ZM          RT_BIT_32(9)
 /** Exception Mask: Overflow.  */
-#define X86_MXSCR_OM          RT_BIT_32(10)
+#define X86_MXCSR_OM          RT_BIT_32(10)
 /** Exception Mask: Underflow.  */
-#define X86_MXSCR_UM          RT_BIT_32(11)
+#define X86_MXCSR_UM          RT_BIT_32(11)
 /** Exception Mask: Precision.  */
-#define X86_MXSCR_PM          RT_BIT_32(12)
+#define X86_MXCSR_PM          RT_BIT_32(12)
 
 /** Rounding control mask. */
-#define X86_MXSCR_RC_MASK     UINT16_C(0x6000)
+#define X86_MXCSR_RC_MASK     UINT16_C(0x6000)
 /** Rounding control: To nearest. */
-#define X86_MXSCR_RC_NEAREST  UINT16_C(0x0000)
+#define X86_MXCSR_RC_NEAREST  UINT16_C(0x0000)
 /** Rounding control: Down. */
-#define X86_MXSCR_RC_DOWN     UINT16_C(0x2000)
+#define X86_MXCSR_RC_DOWN     UINT16_C(0x2000)
 /** Rounding control: Up. */
-#define X86_MXSCR_RC_UP       UINT16_C(0x4000)
+#define X86_MXCSR_RC_UP       UINT16_C(0x4000)
 /** Rounding control: Towards zero. */
-#define X86_MXSCR_RC_ZERO     UINT16_C(0x6000)
+#define X86_MXCSR_RC_ZERO     UINT16_C(0x6000)
 
 /** Flush-to-zero for masked underflow.  */
-#define X86_MXSCR_FZ          RT_BIT_32(15)
+#define X86_MXCSR_FZ          RT_BIT_32(15)
 
 /** Misaligned Exception Mask (AMD MISALIGNSSE).  */
-#define X86_MXSCR_MM          RT_BIT_32(17)
+#define X86_MXCSR_MM          RT_BIT_32(17)
 /** @} */
 
 /**
@@ -3049,7 +3096,7 @@ typedef X86XSAVEAREA *PX86XSAVEAREA;
 typedef X86XSAVEAREA const *PCX86XSAVEAREA;
 
 
-/** @name XSAVE_C_XXX - XSAVE State Components Bits.
+/** @name XSAVE_C_XXX - XSAVE State Components Bits (XCR0).
  * @{ */
 /** Bit 0 - x87 - Legacy FPU state (bit number) */
 #define XSAVE_C_X87_BIT         0
@@ -3091,6 +3138,10 @@ typedef X86XSAVEAREA const *PCX86XSAVEAREA;
 #define XSAVE_C_LWP_BIT         62
 /** Bit 62 - LWP - Lightweight Profiling (AMD). */
 #define XSAVE_C_LWP             RT_BIT_64(XSAVE_C_LWP_BIT)
+/** Bit 63 - X - Reserved (MBZ) for extending XCR0 (bit number). */
+#define XSAVE_C_X_BIT           63
+/** Bit 63 - X - Reserved (MBZ) for extending XCR0 (AMD). */
+#define XSAVE_C_X               RT_BIT_64(XSAVE_C_X_BIT)
 /** @} */
 
 
@@ -3970,14 +4021,14 @@ typedef enum X86XCPT
     /** \#VE - Virtualization Exception. */
     X86_XCPT_VE = 0x14,
     /** \#SX - Security Exception. */
-    X86_XCPT_SX = 0x1f
+    X86_XCPT_SX = 0x1e
 } X86XCPT;
 /** Pointer to a x86 exception code. */
 typedef X86XCPT *PX86XCPT;
 /** Pointer to a const x86 exception code. */
 typedef const X86XCPT *PCX86XCPT;
-/** The maximum exception value. */
-#define X86_XCPT_MAX                (X86_XCPT_SX)
+/** The last valid (currently reserved) exception value. */
+#define X86_XCPT_LAST               0x1f
 
 
 /** @name Trap Error Codes
@@ -4074,6 +4125,11 @@ typedef struct X86XDTR64
 AssertCompile((X86_MODRM_RM_MASK | X86_MODRM_REG_MASK | X86_MODRM_MOD_MASK) == 0xff);
 AssertCompile((X86_MODRM_REG_MASK >> X86_MODRM_REG_SHIFT) == X86_MODRM_REG_SMASK);
 AssertCompile((X86_MODRM_MOD_MASK >> X86_MODRM_MOD_SHIFT) == X86_MODRM_MOD_SMASK);
+/** @def X86_MODRM_MAKE
+ * @param   a_Mod       The mod value (0..3).
+ * @param   a_Reg       The register value (0..7).
+ * @param   a_RegMem    The register or memory value (0..7). */
+# define X86_MODRM_MAKE(a_Mod, a_Reg, a_RegMem) (((a_Mod) << X86_MODRM_MOD_SHIFT) | ((a_Reg) << X86_MODRM_REG_SHIFT) | (a_RegMem))
 #endif
 /** @} */
 
@@ -4137,8 +4193,8 @@ AssertCompile((X86_SIB_SCALE_MASK >> X86_SIB_SCALE_SHIFT) == X86_SIB_SCALE_SMASK
 #define X86_OP_PRF_SIZE_OP      UINT8_C(0x66)
 #define X86_OP_PRF_SIZE_ADDR    UINT8_C(0x67)
 #define X86_OP_PRF_LOCK         UINT8_C(0xf0)
-#define X86_OP_PRF_REPZ         UINT8_C(0xf2)
-#define X86_OP_PRF_REPNZ        UINT8_C(0xf3)
+#define X86_OP_PRF_REPZ         UINT8_C(0xf3)
+#define X86_OP_PRF_REPNZ        UINT8_C(0xf2)
 #define X86_OP_REX_B            UINT8_C(0x41)
 #define X86_OP_REX_X            UINT8_C(0x42)
 #define X86_OP_REX_R            UINT8_C(0x44)
