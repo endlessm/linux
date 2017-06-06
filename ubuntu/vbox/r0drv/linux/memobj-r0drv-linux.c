@@ -902,6 +902,9 @@ static struct page *rtR0MemObjLinuxVirtToPage(void *pv)
     union
     {
         pgd_t       Global;
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(4, 12, 0)
+        p4d_t       Four;
+#endif
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 11)
         pud_t       Upper;
 #endif
@@ -917,9 +920,24 @@ static struct page *rtR0MemObjLinuxVirtToPage(void *pv)
     u.Global = *pgd_offset(current->active_mm, ulAddr);
     if (RT_UNLIKELY(pgd_none(u.Global)))
         return NULL;
-
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 11)
+# if LINUX_VERSION_CODE >= KERNEL_VERSION(4, 12, 0)
+    u.Four  = *p4d_offset(&u.Global, ulAddr);
+    if (RT_UNLIKELY(p4d_none(u.Four)))
+        return NULL;
+    if (p4d_large(u.Four))
+    {
+        pPage = p4d_page(u.Four);
+        AssertReturn(pPage, NULL);
+        pfn   = page_to_pfn(pPage);      /* doing the safe way... */
+        AssertCompile(P4D_SHIFT - PAGE_SHIFT < 31);
+        pfn  += (ulAddr >> PAGE_SHIFT) & ((UINT32_C(1) << (P4D_SHIFT - PAGE_SHIFT)) - 1);
+        return pfn_to_page(pfn);
+    }
+    u.Upper = *pud_offset(&u.Four, ulAddr);
+# else /* < 4.12 */
     u.Upper = *pud_offset(&u.Global, ulAddr);
+# endif /* < 4.12 */
     if (RT_UNLIKELY(pud_none(u.Upper)))
         return NULL;
 # if LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 25)
@@ -932,7 +950,6 @@ static struct page *rtR0MemObjLinuxVirtToPage(void *pv)
         return pfn_to_page(pfn);
     }
 # endif
-
     u.Middle = *pmd_offset(&u.Upper, ulAddr);
 #else  /* < 2.6.11 */
     u.Middle = *pmd_offset(&u.Global, ulAddr);
