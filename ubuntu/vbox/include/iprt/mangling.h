@@ -356,6 +356,10 @@
 # define ASMXRstor_EndProc                              RT_MANGLER(ASMXRstor_EndProc)
 # define ASMXSave                                       RT_MANGLER(ASMXSave)
 # define ASMXSave_EndProc                               RT_MANGLER(ASMXSave_EndProc)
+# define ASMFxRstor                                     RT_MANGLER(ASMFxRstor)
+# define ASMFxRstor_EndProc                             RT_MANGLER(ASMFxRstor_EndProc)
+# define ASMFxSave                                      RT_MANGLER(ASMFxSave)
+# define ASMFxSave_EndProc                              RT_MANGLER(ASMFxSave_EndProc)
 
 # define RTAssertAreQuiet                               RT_MANGLER(RTAssertAreQuiet)
 # define RTAssertMayPanic                               RT_MANGLER(RTAssertMayPanic)
