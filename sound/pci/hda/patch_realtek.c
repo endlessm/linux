@@ -4898,6 +4898,7 @@ enum {
 	ALC233_FIXUP_ASUS_MIC_NO_PRESENCE,
 	ALC233_FIXUP_EAPD_COEF_AND_MIC_NO_PRESENCE,
 	ALC256_FIXUP_ASUS_AIO_GPIO2,
+	ALC286_FIXUP_ACER_AIO_MIC_NO_PRESENCE,
 };
 
 static const struct hda_fixup alc269_fixups[] = {
@@ -5682,7 +5683,15 @@ static const struct hda_fixup alc269_fixups[] = {
 			{}
 		},
 	},
-
+	[ALC286_FIXUP_ACER_AIO_MIC_NO_PRESENCE] = {
+                .type = HDA_FIXUP_PINS,
+                .v.pins = (const struct hda_pintbl[]) {
+                        { 0x18, 0x01a1913c }, /* use as headset mic, without its own jack detect */
+                        { }
+                },
+                .chained = true,
+                .chain_id = ALC269_FIXUP_HEADSET_MIC
+        },
 };
 
 static const struct snd_pci_quirk alc269_fixup_tbl[] = {
@@ -6267,6 +6276,10 @@ static const struct snd_hda_pin_quirk alc269_pin_fixup_tbl[] = {
 		{0x14, 0x90170110},
 		{0x1b, 0x90a70130},
 		{0x21, 0x03211020}),
+	SND_HDA_PIN_QUIRK(0x10ec0286, 0x1025, "Acer", ALC286_FIXUP_ACER_AIO_MIC_NO_PRESENCE,
+		{0x12, 0x90a60130},
+		{0x17, 0x90170110},
+		{0x21, 0x02211020}),
 	{}
 };
 
