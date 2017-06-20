@@ -464,6 +464,14 @@ binary-%: install-%
 	dh_testroot
 
 	dh_installchangelogs -p$(pkgimg)
+	dh_installchangelogs -plinux-image-$*
+	dh_builddeb -plinux-image-$*
+	dh_installchangelogs -plinux-signed-image-$*
+	dh_builddeb -plinux-signed-image-$*
+	dh_installchangelogs -plinux-signed-$*
+	dh_builddeb -plinux-signed-$*
+	dh_installchangelogs -plinux-$*
+	dh_builddeb -plinux-$*
 	dh_installdocs -p$(pkgimg)
 	dh_compress -p$(pkgimg)
 	dh_fixperms -p$(pkgimg) -X/boot/
@@ -488,6 +496,8 @@ ifeq ($(do_extras_package),true)
 endif
 
 	dh_installchangelogs -p$(pkghdr)
+	dh_installchangelogs -plinux-headers-$*
+	dh_builddeb -plinux-headers-$*
 	dh_installdocs -p$(pkghdr)
 	dh_compress -p$(pkghdr)
 	dh_fixperms -p$(pkghdr)
@@ -546,6 +556,8 @@ endif
 
 ifeq ($(do_linux_tools),true)
 	dh_installchangelogs -p$(pkgtools)
+	dh_installchangelogs -plinux-tools-$*
+	dh_builddeb -plinux-tools-$*
 	dh_installdocs -p$(pkgtools)
 	dh_compress -p$(pkgtools)
 	dh_fixperms -p$(pkgtools)
