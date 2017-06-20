@@ -1643,6 +1643,7 @@ EXPORT_SYMBOL vmlinux 0x00000000	__inet_stream_connect
 EXPORT_SYMBOL vmlinux 0x00000000	__init_rwsem
 EXPORT_SYMBOL vmlinux 0x00000000	__init_swait_queue_head
 EXPORT_SYMBOL vmlinux 0x00000000	__init_waitqueue_head
+EXPORT_SYMBOL vmlinux 0x00000000	__inode_add_bytes
 EXPORT_SYMBOL vmlinux 0x00000000	__inode_permission
 EXPORT_SYMBOL vmlinux 0x00000000	__inode_sub_bytes
 EXPORT_SYMBOL vmlinux 0x00000000	__insert_inode_hash
