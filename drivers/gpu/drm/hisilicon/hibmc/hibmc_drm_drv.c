@@ -69,6 +69,7 @@ static struct drm_driver hibmc_driver = {
 	.dumb_map_offset        = hibmc_dumb_mmap_offset,
 	.dumb_destroy           = drm_gem_dumb_destroy,
 	.irq_handler		= hibmc_drm_interrupt,
+	.set_busid		= drm_pci_set_busid,
 };
 
 static int __maybe_unused hibmc_pm_suspend(struct device *dev)
