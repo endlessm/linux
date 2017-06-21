@@ -583,6 +583,7 @@ ocfs2_stack_o2cb
 ocfs2_stack_user
 openvswitch
 oprofile
+orangefs
 osd
 osdblk
 osst

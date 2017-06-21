@@ -1643,6 +1643,7 @@ EXPORT_SYMBOL vmlinux 0x00000000	__inet_stream_connect
 EXPORT_SYMBOL vmlinux 0x00000000	__init_rwsem
 EXPORT_SYMBOL vmlinux 0x00000000	__init_swait_queue_head
 EXPORT_SYMBOL vmlinux 0x00000000	__init_waitqueue_head
+EXPORT_SYMBOL vmlinux 0x00000000	__inode_add_bytes
 EXPORT_SYMBOL vmlinux 0x00000000	__inode_permission
 EXPORT_SYMBOL vmlinux 0x00000000	__inode_sub_bytes
 EXPORT_SYMBOL vmlinux 0x00000000	__insert_inode_hash
@@ -6049,10 +6050,13 @@ EXPORT_SYMBOL_GPL drivers/s390/net/qeth 0x00000000	qeth_core_hardsetup_card
 EXPORT_SYMBOL_GPL drivers/s390/net/qeth 0x00000000	qeth_core_header_cache
 EXPORT_SYMBOL_GPL drivers/s390/net/qeth 0x00000000	qeth_dbf
 EXPORT_SYMBOL_GPL drivers/s390/net/qeth 0x00000000	qeth_dbf_longtext
+EXPORT_SYMBOL_GPL drivers/s390/net/qeth 0x00000000	qeth_device_attr_group
+EXPORT_SYMBOL_GPL drivers/s390/net/qeth 0x00000000	qeth_device_blkt_group
 EXPORT_SYMBOL_GPL drivers/s390/net/qeth 0x00000000	qeth_do_run_thread
 EXPORT_SYMBOL_GPL drivers/s390/net/qeth 0x00000000	qeth_do_send_packet
 EXPORT_SYMBOL_GPL drivers/s390/net/qeth 0x00000000	qeth_do_send_packet_fast
 EXPORT_SYMBOL_GPL drivers/s390/net/qeth 0x00000000	qeth_fix_features
+EXPORT_SYMBOL_GPL drivers/s390/net/qeth 0x00000000	qeth_generic_devtype
 EXPORT_SYMBOL_GPL drivers/s390/net/qeth 0x00000000	qeth_get_elements_for_frags
 EXPORT_SYMBOL_GPL drivers/s390/net/qeth 0x00000000	qeth_get_elements_no
 EXPORT_SYMBOL_GPL drivers/s390/net/qeth 0x00000000	qeth_get_ipacmd_buffer
