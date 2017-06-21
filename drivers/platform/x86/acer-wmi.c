@@ -146,9 +146,12 @@ struct event_return_value {
  * GUID3 Get Device Status device flags
  */
 #define ACER_WMID3_GDS_WIRELESS		(1<<0)	/* WiFi */
+#define ACER_WMID3_GDS_WIGIG		(1<<1)	/* WiGig */
 #define ACER_WMID3_GDS_THREEG		(1<<6)	/* 3G */
 #define ACER_WMID3_GDS_WIMAX		(1<<7)	/* WiMAX */
+#define ACER_WMID3_GDS_LTE		(1<<8)	/* LTE */
 #define ACER_WMID3_GDS_BLUETOOTH	(1<<11)	/* BT */
+#define ACER_WMID3_GDS_NFC		(1<<12)	/* NFC */
 #define ACER_WMID3_GDS_RFBTN		(1<<14)	/* RF Button */
 
 #define ACER_WMID3_GDS_TOUCHPAD		(1<<1)	/* Touchpad */
