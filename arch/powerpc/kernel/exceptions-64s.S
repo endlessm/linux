@@ -99,7 +99,9 @@ EXC_VIRT_NONE(0x4000, 0x100)
 #ifdef CONFIG_PPC_P7_NAP
 	/*
 	 * If running native on arch 2.06 or later, check if we are waking up
-	 * from nap/sleep/winkle, and branch to idle handler.
+	 * from nap/sleep/winkle, and branch to idle handler. This tests
+	 * SRR1 bits 46:47. A non-0 value indicates that we are coming from
+	 * a power saving state.
 	 */
 #define IDLETEST(n)							\
 	BEGIN_FTR_SECTION ;						\
