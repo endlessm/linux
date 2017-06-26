@@ -6,6 +6,7 @@
 [ ! -L 'ubuntu/vbox/vboxvideo/include' ] && ln -sf '../include' 'ubuntu/vbox/vboxvideo/include'
 [ ! -L 'ubuntu/vbox/vboxvideo/r0drv' ] && ln -sf '../r0drv' 'ubuntu/vbox/vboxvideo/r0drv'
 # Remove any files deleted from the orig.
+rm -f 'drivers/mtd/maps/physmap_of.c'
 rm -f 'firmware/acenic/tg1.bin.ihex'
 rm -f 'firmware/acenic/tg2.bin.ihex'
 rm -f 'firmware/adaptec/starfire_rx.bin.ihex'
