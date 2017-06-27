@@ -25,16 +25,18 @@ static inline int cec_add_elem(u64 pfn)		{ return -ENODEV; }
 #endif
 
 #ifdef CONFIG_RAS
-void log_non_standard_event(const guid_t *sec_type,
-			    const guid_t *fru_id, const char *fru_text,
+void log_non_standard_event(const uuid_le *sec_type,
+			    const uuid_le *fru_id, const char *fru_text,
 			    const u8 sev, const u8 *err, const u32 len);
 void log_arm_hw_error(struct cper_sec_proc_arm *err);
 #else
-static void log_non_standard_event(const guid_t *sec_type,
-				   const guid_t *fru_id, const char *fru_text,
-				   const u8 sev, const u8 *err,
-				   const u32 len) { return; }
-static void log_arm_hw_error(struct cper_sec_proc_arm *err) { return; }
+static inline void
+log_non_standard_event(const uuid_le *sec_type,
+		       const uuid_le *fru_id, const char *fru_text,
+		       const u8 sev, const u8 *err, const u32 len)
+{ return; }
+static inline void
+log_arm_hw_error(struct cper_sec_proc_arm *err) { return; }
 #endif
 
 #endif /* __RAS_H__ */
