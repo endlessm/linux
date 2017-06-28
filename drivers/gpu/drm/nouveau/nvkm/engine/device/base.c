@@ -2759,6 +2759,7 @@ nvkm_device_ctor(const struct nvkm_device_func *func,
 		case 0x134: device->chip = &nv134_chipset; break;
 		case 0x136: device->chip = &nv136_chipset; break;
 		case 0x137: device->chip = &nv137_chipset; break;
+		case 0x138: device->chip = &nv137_chipset; break;
 		default:
 			nvdev_error(device, "unknown chipset (%08x)\n", boot0);
 			goto done;
