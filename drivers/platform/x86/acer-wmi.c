@@ -205,6 +205,21 @@ struct wmid3_gds_return_value {	/* Get Device Status return value*/
 	u32 reserved;
 } __attribute__((packed));
 
+typedef enum {
+	ACER_HOTKEY_UNKNOWN,
+	ACER_HOTKEY_COMMUNICATION,
+	ACER_HOTKEY_APPLICATION,
+	ACER_HOTKEY_MEDIA,
+	ACER_HOTKEY_DISPLAY,
+	ACER_HOTKEY_OTHERS,
+} acer_hotkey_t;
+
+struct hotkey {
+	u8 number;
+	u8 type;
+	u16 func;
+} __attribute__((packed));
+
 struct hotkey_function_type_aa {
 	u8 type;
 	u8 length;
@@ -214,7 +229,6 @@ struct hotkey_function_type_aa {
 	u16 media_func_bitmap;
 	u16 display_func_bitmap;
 	u16 others_func_bitmap;
-	u8 commun_fn_key_number;
 } __attribute__((packed));
 
 /*
@@ -253,7 +267,8 @@ static int force_series;
 static bool ec_raw_mode;
 static bool has_type_aa;
 static u16 commun_func_bitmap;
-static u8 commun_fn_key_number;
+static u8 commun_fn_key_number = 0;
+static struct hotkey *fn_keys = NULL;
 
 module_param(mailled, int, 0444);
 module_param(brightness, int, 0444);
@@ -1249,9 +1264,25 @@ static acpi_status wmid_v2_set_u32(u32 value, u32 cap)
 	return wmid3_set_device_status(value, device);
 }
 
+static acer_hotkey_t hotkey_type(u8 number)
+{
+	if (0x01 <= number && number <= 0x1F)
+		return ACER_HOTKEY_COMMUNICATION;
+	if (0x21 <= number && number <= 0x3F)
+		return ACER_HOTKEY_APPLICATION;
+	if (0x41 <= number && number <= 0x5F)
+		return ACER_HOTKEY_MEDIA;
+	if (0x61 <= number && number <= 0x7F)
+		return ACER_HOTKEY_DISPLAY;
+	if (0x81 <= number && number <= 0x9F)
+		return ACER_HOTKEY_OTHERS;
+	return ACER_HOTKEY_UNKNOWN;
+}
+
 static void __init type_aa_dmi_decode(const struct dmi_header *header, void *d)
 {
 	struct hotkey_function_type_aa *type_aa;
+	int i, n;
 
 	/* We are looking for OEM-specific Type AAh */
 	if (header->type != 0xAA)
@@ -1262,6 +1293,14 @@ static void __init type_aa_dmi_decode(const struct dmi_header *header, void *d)
 
 	pr_debug("Function bitmap for Communication Button: 0x%x\n",
 		type_aa->commun_func_bitmap);
+	pr_debug("Function bitmap for Application Button: 0x%x\n",
+		type_aa->application_func_bitmap);
+	pr_debug("Function bitmap for Media Button: 0x%x\n",
+		type_aa->media_func_bitmap);
+	pr_debug("Function bitmap for Display Button: 0x%x\n",
+		type_aa->display_func_bitmap);
+	pr_debug("Function bitmap for Others Button: 0x%x\n",
+		type_aa->others_func_bitmap);
 	commun_func_bitmap = type_aa->commun_func_bitmap;
 
 	if (type_aa->commun_func_bitmap & ACER_WMID3_GDS_WIRELESS)
@@ -1275,7 +1314,37 @@ static void __init type_aa_dmi_decode(const struct dmi_header *header, void *d)
 		commun_func_bitmap &= ~ACER_WMID3_GDS_RFBTN;
 	}
 
-	commun_fn_key_number = type_aa->commun_fn_key_number;
+	n = (header->length - sizeof(struct hotkey_function_type_aa)) /
+		sizeof(struct hotkey);
+	fn_keys = (struct hotkey *) kmemdup(type_aa + 1,
+					    n * sizeof(struct hotkey),
+					    GFP_KERNEL);
+
+	for (i = 0; i < n; i++) {
+		pr_debug("hotkey 0x%X, type 0x%X, func 0x%X\n",
+			 fn_keys[i].number, fn_keys[i].type, fn_keys[i].func);
+
+		switch (hotkey_type(fn_keys[i].number)) {
+		case ACER_HOTKEY_COMMUNICATION:
+			/* Use the first commun hotkey */
+			if (!commun_fn_key_number) {
+				pr_debug("Using communications hotkey 0x%x\n"
+					 fn_keys[i].number);
+				commun_fn_key_number = fn_keys[i].number;
+			}
+			break;
+		case ACER_HOTKEY_APPLICATION:
+		case ACER_HOTKEY_MEDIA:
+		case ACER_HOTKEY_DISPLAY:
+		case ACER_HOTKEY_OTHERS:
+			break;
+		default:
+			pr_warn("Unknown hotkey 0x%X, type 0x%X, func 0x%X\n",
+				fn_keys[i].number, fn_keys[i].type,
+				fn_keys[i].func);
+			break;
+		}
+	}
 }
 
 static acpi_status __init WMID_set_capabilities(void)
@@ -2358,6 +2427,9 @@ static void __exit acer_wmi_exit(void)
 	remove_debugfs();
 	platform_device_unregister(acer_platform_device);
 	platform_driver_unregister(&acer_platform_driver);
+
+	if (fn_keys)
+		kfree(fn_keys);
 
 	pr_info("Acer Laptop WMI Extras unloaded\n");
 	return;
