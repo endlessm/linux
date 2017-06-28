@@ -38,6 +38,13 @@ struct nvkm_device_pci_vendor {
 };
 
 static const struct nvkm_device_pci_vendor
+nvkm_device_pci_10de_1d01[] = {
+	/* Nvidia GT 1030 (NV138/GP108) */
+	{ 0x1043, 0x205b, NULL, { .use_heads = true } },
+	{}
+};
+
+static const struct nvkm_device_pci_vendor
 nvkm_device_pci_10de_0189[] = {
 	/* Apple iMac G4 NV18 */
 	{ 0x10de, 0x0010, NULL, { .tv_gpio = 4 } },
@@ -1551,6 +1558,7 @@ nvkm_device_pci_10de[] = {
 	{ 0x17c2, "GeForce GTX TITAN X" },
 	{ 0x17c8, "GeForce GTX 980 Ti" },
 	{ 0x17f0, "Quadro M6000" },
+	{ 0x1d01, "NVidia GT1030", nvkm_device_pci_10de_1d01 },
 	{}
 };
 
