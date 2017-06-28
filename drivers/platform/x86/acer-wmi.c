@@ -156,6 +156,8 @@ struct event_return_value {
 
 #define ACER_WMID3_GDS_TOUCHPAD		(1<<1)	/* Touchpad */
 
+#define ACER_WMID3_GDS_MICMUTE		(1<<7)	/* Microphone Mute Led */
+
 /* Hotkey Customized Setting and Acer Application Status.
  * Set Device Default Value and Report Acer Application Status.
  * When Acer Application starts, it will run this method to inform
@@ -241,6 +243,7 @@ struct hotkey_function_type_aa {
 #define ACER_CAP_THREEG			(1<<4)
 #define ACER_CAP_ACCEL			(1<<5)
 #define ACER_CAP_RFBTN			(1<<6)
+#define ACER_CAP_MICMUTE		(1<<7)
 #define ACER_CAP_ANY			(0xFFFFFFFF)
 
 /*
@@ -267,7 +270,9 @@ static int force_series;
 static bool ec_raw_mode;
 static bool has_type_aa;
 static u16 commun_func_bitmap;
+static u16 media_func_bitmap;
 static u8 commun_fn_key_number = 0;
+static u8 media_fn_key_number = 0;
 static struct hotkey *fn_keys = NULL;
 
 module_param(mailled, int, 0444);
@@ -1165,8 +1170,10 @@ static acpi_status wmid3_set_device_status(u32 value, u16 device)
 	u16 devices;
 	struct wmid3_gds_get_input_param get_params = {
 		.function_num = 0x1,
-		.hotkey_number = commun_fn_key_number,
-		.devices = commun_func_bitmap,
+		.hotkey_number = device == ACER_WMID3_GDS_MICMUTE ?
+				 media_fn_key_number : commun_fn_key_number,
+		.devices = device == ACER_WMID3_GDS_MICMUTE ?
+				 media_func_bitmap : commun_func_bitmap,
 	};
 	struct acpi_buffer get_input = {
 		sizeof(struct wmid3_gds_get_input_param),
@@ -1174,8 +1181,10 @@ static acpi_status wmid3_set_device_status(u32 value, u16 device)
 	};
 	struct wmid3_gds_set_input_param set_params = {
 		.function_num = 0x2,
-		.hotkey_number = commun_fn_key_number,
-		.devices = commun_func_bitmap,
+		.hotkey_number = device == ACER_WMID3_GDS_MICMUTE ?
+				 media_fn_key_number : commun_fn_key_number,
+		.devices = device == ACER_WMID3_GDS_MICMUTE ?
+				 media_func_bitmap : commun_func_bitmap,
 	};
 	struct acpi_buffer set_input = {
 		sizeof(struct wmid3_gds_set_input_param),
@@ -1258,6 +1267,9 @@ static acpi_status wmid_v2_set_u32(u32 value, u32 cap)
 	case ACER_CAP_THREEG:
 		device = ACER_WMID3_GDS_THREEG;
 		break;
+	case ACER_CAP_MICMUTE:
+		device = ACER_WMID3_GDS_MICMUTE;
+		break;
 	default:
 		return AE_ERROR;
 	}
@@ -1311,6 +1323,9 @@ static void __init type_aa_dmi_decode(const struct dmi_header *header, void *d)
 	if (type_aa->commun_func_bitmap & ACER_WMID3_GDS_RFBTN)
 		interface->capability |= ACER_CAP_RFBTN;
 
+	if (type_aa->media_func_bitmap & ACER_WMID3_GDS_MICMUTE)
+		interface->capability |= ACER_CAP_MICMUTE;
+
 	n = (header->length - sizeof(struct hotkey_function_type_aa)) /
 		sizeof(struct hotkey);
 	fn_keys = (struct hotkey *) kmemdup(type_aa + 1,
@@ -1333,7 +1348,16 @@ static void __init type_aa_dmi_decode(const struct dmi_header *header, void *d)
 			}
 			break;
 		case ACER_HOTKEY_APPLICATION:
+			break;
 		case ACER_HOTKEY_MEDIA:
+			if (fn_keys[i].func & ACER_WMID3_GDS_MICMUTE) {
+				pr_debug("Using media hotkey 0x%x with"
+					 " function bitmap 0x%x\n",
+					 fn_keys[i].number, fn_keys[i].func);
+				media_fn_key_number = fn_keys[i].number;
+				media_func_bitmap = fn_keys[i].func;
+			}
+			break;
 		case ACER_HOTKEY_DISPLAY:
 		case ACER_HOTKEY_OTHERS:
 			break;
@@ -1461,7 +1485,8 @@ static acpi_status set_u32(u32 value, u32 cap)
 		case ACER_WMID_v2:
 			if (cap & (ACER_CAP_WIRELESS |
 				   ACER_CAP_BLUETOOTH |
-				   ACER_CAP_THREEG))
+				   ACER_CAP_THREEG |
+				   ACER_CAP_MICMUTE))
 				return wmid_v2_set_u32(value, cap);
 			else if (wmi_has_guid(WMID_GUID2))
 				return WMID_set_u32(value, cap);
@@ -1498,6 +1523,17 @@ static void mail_led_set(struct led_classdev *led_cdev,
 static struct led_classdev mail_led = {
 	.name = "acer-wmi::mail",
 	.brightness_set = mail_led_set,
+};
+
+static void micmute_led_set(struct led_classdev *led_cdev,
+			    enum led_brightness value)
+{
+	set_u32(value, ACER_CAP_MICMUTE);
+}
+
+static struct led_classdev micmute_led = {
+	.name = "acer-wmi::micmute",
+	.brightness_set = micmute_led_set,
 };
 
 /*
@@ -2121,6 +2157,12 @@ static int acer_platform_probe(struct platform_device *device)
 			goto error_mailled;
 	}
 
+	if (has_cap(ACER_CAP_MICMUTE)) {
+		err = led_classdev_register(&device->dev, &micmute_led);
+		if (err)
+			goto error_micmuteled;
+	}
+
 	if (has_cap(ACER_CAP_BRIGHTNESS)) {
 		err = acer_backlight_init(&device->dev);
 		if (err)
@@ -2137,6 +2179,11 @@ error_rfkill:
 	if (has_cap(ACER_CAP_BRIGHTNESS))
 		acer_backlight_exit();
 error_brightness:
+	if (has_cap(ACER_CAP_MICMUTE)) {
+		led_classdev_unregister(&micmute_led);
+		set_u32(LED_OFF, ACER_CAP_MICMUTE);
+	}
+error_micmuteled:
 	if (has_cap(ACER_CAP_MAILLED)) {
 		led_classdev_unregister(&mail_led);
 		set_u32(LED_OFF, ACER_CAP_MAILLED);
@@ -2150,6 +2197,10 @@ static int acer_platform_remove(struct platform_device *device)
 	if (has_cap(ACER_CAP_MAILLED)) {
 		led_classdev_unregister(&mail_led);
 		set_u32(LED_OFF, ACER_CAP_MAILLED);
+	}
+	if (has_cap(ACER_CAP_MICMUTE)) {
+		led_classdev_unregister(&micmute_led);
+		set_u32(LED_OFF, ACER_CAP_MICMUTE);
 	}
 	if (has_cap(ACER_CAP_BRIGHTNESS))
 		acer_backlight_exit();
