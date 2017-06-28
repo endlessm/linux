@@ -1260,7 +1260,7 @@ static void __init type_aa_dmi_decode(const struct dmi_header *header, void *d)
 	has_type_aa = true;
 	type_aa = (struct hotkey_function_type_aa *) header;
 
-	pr_info("Function bitmap for Communication Button: 0x%x\n",
+	pr_debug("Function bitmap for Communication Button: 0x%x\n",
 		type_aa->commun_func_bitmap);
 	commun_func_bitmap = type_aa->commun_func_bitmap;
 
@@ -1306,7 +1306,7 @@ static acpi_status __init WMID_set_capabilities(void)
 		return AE_ERROR;
 	}
 
-	pr_info("Function bitmap for Communication Device: 0x%x\n", devices);
+	pr_debug("Function bitmap for Communication Device: 0x%x\n", devices);
 	if (devices & 0x07)
 		interface->capability |= ACER_CAP_WIRELESS;
 	if (devices & 0x40)
