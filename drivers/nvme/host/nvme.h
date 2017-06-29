@@ -165,6 +165,7 @@ struct nvme_ctrl {
 
 	/* Power saving configuration */
 	u64 ps_max_latency_us;
+	bool apst_enabled;
 
 	/* Fabrics only */
 	u16 sqsize;
