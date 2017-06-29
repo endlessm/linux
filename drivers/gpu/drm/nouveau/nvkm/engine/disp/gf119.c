@@ -501,7 +501,13 @@ int
 gf119_disp_new_(const struct nv50_disp_func *func, struct nvkm_device *device,
 		int index, struct nvkm_disp **pdisp)
 {
-	u32 heads = nvkm_rd32(device, 0x022448);
+	u32 heads;
+
+	if (device->quirk && device->quirk->use_heads)
+		heads = fls(nvkm_rd32(device, 0x612004) & 0xf);
+	else
+		heads = nvkm_rd32(device, 0x022448);
+
 	return nv50_disp_new_(func, device, index, heads, pdisp);
 }
 

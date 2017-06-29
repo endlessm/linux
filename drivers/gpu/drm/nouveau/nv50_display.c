@@ -4441,6 +4441,8 @@ nv50_display_create(struct drm_device *dev)
 	struct drm_connector *connector, *tmp;
 	struct nv50_disp *disp;
 	struct dcb_output *dcbe;
+	struct nvkm_device *nvkm_device = nvxx_device(&drm->client.device);
+	u32 reg;
 	int crtcs, ret, i;
 
 	disp = kzalloc(sizeof(*disp), GFP_KERNEL);
@@ -4482,12 +4484,20 @@ nv50_display_create(struct drm_device *dev)
 		goto out;
 
 	/* create crtc objects to represent the hw heads */
-	if (disp->disp->oclass >= GF110_DISP)
-		crtcs = nvif_rd32(&device->object, 0x022448);
-	else
-		crtcs = 2;
+	if (disp->disp->oclass >= GF110_DISP) {
+		if (nvkm_device->quirk && nvkm_device->quirk->use_heads) {
+			crtcs = nvif_rd32(&device->object, 0x612004) & 0xf;
+		} else {
+			crtcs = nvif_rd32(&device->object, 0x022448);
+			crtcs = GENMASK(crtcs - 1, 0);
+		}
+	} else {
+		crtcs = 0x3;
+	}
 
-	for (i = 0; i < crtcs; i++) {
+	for (i = 0; i < fls(crtcs); i++) {
+		if (!(crtcs & (1 << i)))
+			continue;
 		ret = nv50_head_create(dev, i);
 		if (ret)
 			goto out;
