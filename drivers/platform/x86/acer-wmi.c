@@ -1301,7 +1301,6 @@ static void __init type_aa_dmi_decode(const struct dmi_header *header, void *d)
 		type_aa->display_func_bitmap);
 	pr_debug("Function bitmap for Others Button: 0x%x\n",
 		type_aa->others_func_bitmap);
-	commun_func_bitmap = type_aa->commun_func_bitmap;
 
 	if (type_aa->commun_func_bitmap & ACER_WMID3_GDS_WIRELESS)
 		interface->capability |= ACER_CAP_WIRELESS;
@@ -1309,10 +1308,8 @@ static void __init type_aa_dmi_decode(const struct dmi_header *header, void *d)
 		interface->capability |= ACER_CAP_THREEG;
 	if (type_aa->commun_func_bitmap & ACER_WMID3_GDS_BLUETOOTH)
 		interface->capability |= ACER_CAP_BLUETOOTH;
-	if (type_aa->commun_func_bitmap & ACER_WMID3_GDS_RFBTN) {
+	if (type_aa->commun_func_bitmap & ACER_WMID3_GDS_RFBTN)
 		interface->capability |= ACER_CAP_RFBTN;
-		commun_func_bitmap &= ~ACER_WMID3_GDS_RFBTN;
-	}
 
 	n = (header->length - sizeof(struct hotkey_function_type_aa)) /
 		sizeof(struct hotkey);
@@ -1328,9 +1325,11 @@ static void __init type_aa_dmi_decode(const struct dmi_header *header, void *d)
 		case ACER_HOTKEY_COMMUNICATION:
 			/* Use the first commun hotkey */
 			if (!commun_fn_key_number) {
-				pr_debug("Using communications hotkey 0x%x\n"
-					 fn_keys[i].number);
+				pr_debug("Using communications hotkey 0x%x with"
+					 " function bitmap 0x%x\n",
+					 fn_keys[i].number, fn_keys[i].func);
 				commun_fn_key_number = fn_keys[i].number;
+				commun_func_bitmap = fn_keys[i].func;
 			}
 			break;
 		case ACER_HOTKEY_APPLICATION:
