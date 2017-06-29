@@ -1193,6 +1193,7 @@ static acpi_status wmid3_set_device_status(u32 value, u16 device)
 	struct acpi_buffer output = { ACPI_ALLOCATE_BUFFER, NULL };
 	struct acpi_buffer output2 = { ACPI_ALLOCATE_BUFFER, NULL };
 
+	pr_info("wmid3_set_device_status: value=0x%x, device=0x%x\n", value, device);
 	status = wmi_evaluate_method(WMID_GUID3, 0, 0x2, &get_input, &output);
 	if (ACPI_FAILURE(status))
 		return status;
@@ -1303,15 +1304,15 @@ static void __init type_aa_dmi_decode(const struct dmi_header *header, void *d)
 	has_type_aa = true;
 	type_aa = (struct hotkey_function_type_aa *) header;
 
-	pr_debug("Function bitmap for Communication Button: 0x%x\n",
+	pr_info("Function bitmap for Communication Button: 0x%x\n",
 		type_aa->commun_func_bitmap);
-	pr_debug("Function bitmap for Application Button: 0x%x\n",
+	pr_info("Function bitmap for Application Button: 0x%x\n",
 		type_aa->application_func_bitmap);
-	pr_debug("Function bitmap for Media Button: 0x%x\n",
+	pr_info("Function bitmap for Media Button: 0x%x\n",
 		type_aa->media_func_bitmap);
-	pr_debug("Function bitmap for Display Button: 0x%x\n",
+	pr_info("Function bitmap for Display Button: 0x%x\n",
 		type_aa->display_func_bitmap);
-	pr_debug("Function bitmap for Others Button: 0x%x\n",
+	pr_info("Function bitmap for Others Button: 0x%x\n",
 		type_aa->others_func_bitmap);
 
 	if (type_aa->commun_func_bitmap & ACER_WMID3_GDS_WIRELESS)
@@ -1333,14 +1334,14 @@ static void __init type_aa_dmi_decode(const struct dmi_header *header, void *d)
 					    GFP_KERNEL);
 
 	for (i = 0; i < n; i++) {
-		pr_debug("hotkey 0x%X, type 0x%X, func 0x%X\n",
+		pr_info("hotkey 0x%X, type 0x%X, func 0x%X\n",
 			 fn_keys[i].number, fn_keys[i].type, fn_keys[i].func);
 
 		switch (hotkey_type(fn_keys[i].number)) {
 		case ACER_HOTKEY_COMMUNICATION:
 			/* Use the first commun hotkey */
 			if (!commun_fn_key_number) {
-				pr_debug("Using communications hotkey 0x%x with"
+				pr_info("Using communications hotkey 0x%x with"
 					 " function bitmap 0x%x\n",
 					 fn_keys[i].number, fn_keys[i].func);
 				commun_fn_key_number = fn_keys[i].number;
@@ -1351,7 +1352,7 @@ static void __init type_aa_dmi_decode(const struct dmi_header *header, void *d)
 			break;
 		case ACER_HOTKEY_MEDIA:
 			if (fn_keys[i].func & ACER_WMID3_GDS_MICMUTE) {
-				pr_debug("Using media hotkey 0x%x with"
+				pr_info("Using media hotkey 0x%x with"
 					 " function bitmap 0x%x\n",
 					 fn_keys[i].number, fn_keys[i].func);
 				media_fn_key_number = fn_keys[i].number;
