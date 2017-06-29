@@ -1487,7 +1487,7 @@ static void __init acer_commandline_init(void)
 }
 
 /*
- * LED device (Mail LED only, no other LEDs known yet)
+ * LED devices -- registered by acer_platform_probe()
  */
 static void mail_led_set(struct led_classdev *led_cdev,
 			 enum led_brightness value)
@@ -1499,17 +1499,6 @@ static struct led_classdev mail_led = {
 	.name = "acer-wmi::mail",
 	.brightness_set = mail_led_set,
 };
-
-static int acer_led_init(struct device *dev)
-{
-	return led_classdev_register(dev, &mail_led);
-}
-
-static void acer_led_exit(void)
-{
-	set_u32(LED_OFF, ACER_CAP_MAILLED);
-	led_classdev_unregister(&mail_led);
-}
 
 /*
  * Backlight device
@@ -2127,7 +2116,7 @@ static int acer_platform_probe(struct platform_device *device)
 	int err;
 
 	if (has_cap(ACER_CAP_MAILLED)) {
-		err = acer_led_init(&device->dev);
+		err = led_classdev_register(&device->dev, &mail_led);
 		if (err)
 			goto error_mailled;
 	}
@@ -2148,16 +2137,20 @@ error_rfkill:
 	if (has_cap(ACER_CAP_BRIGHTNESS))
 		acer_backlight_exit();
 error_brightness:
-	if (has_cap(ACER_CAP_MAILLED))
-		acer_led_exit();
+	if (has_cap(ACER_CAP_MAILLED)) {
+		led_classdev_unregister(&mail_led);
+		set_u32(LED_OFF, ACER_CAP_MAILLED);
+	}
 error_mailled:
 	return err;
 }
 
 static int acer_platform_remove(struct platform_device *device)
 {
-	if (has_cap(ACER_CAP_MAILLED))
-		acer_led_exit();
+	if (has_cap(ACER_CAP_MAILLED)) {
+		led_classdev_unregister(&mail_led);
+		set_u32(LED_OFF, ACER_CAP_MAILLED);
+	}
 	if (has_cap(ACER_CAP_BRIGHTNESS))
 		acer_backlight_exit();
 
