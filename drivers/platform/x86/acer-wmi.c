@@ -355,8 +355,8 @@ static struct quirk_entry quirk_lenovo_ideapad_s205 = {
 	.wireless = 3,
 };
 
-/* The Aspire One has a dummy ACPI-WMI interface - disable it */
 static const struct dmi_system_id acer_blacklist[] __initconst = {
+	/* The Aspire One has a dummy ACPI-WMI interface - disable it */
 	{
 		.ident = "Acer Aspire One (SSD)",
 		.matches = {
@@ -369,6 +369,15 @@ static const struct dmi_system_id acer_blacklist[] __initconst = {
 		.matches = {
 			DMI_MATCH(DMI_SYS_VENDOR, "Acer"),
 			DMI_MATCH(DMI_PRODUCT_NAME, "AOA150"),
+		},
+	},
+	/* This HP machine has a non-working WMI interface */
+	{
+		.ident = "HP Pavilion x360 m3 Convertible",
+		.matches = {
+			DMI_MATCH(DMI_SYS_VENDOR, "HP"),
+			DMI_MATCH(DMI_PRODUCT_NAME,
+				  "HP Pavilion x360 m3 Convertible"),
 		},
 	},
 	{}
