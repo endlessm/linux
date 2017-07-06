@@ -1,3 +1,219 @@
+linux (4.11.0-10.15) artful; urgency=low
+
+  * linux: 4.11.0-10.15 -proposed tracker (LP: #1701271)
+
+  * Artful update to v4.11.8 stable release (LP: #1701269)
+    - clk: sunxi-ng: a31: Correct lcd1-ch1 clock register offset
+    - clk: sunxi-ng: v3s: Fix usb otg device reset bit
+    - clk: sunxi-ng: sun5i: Fix ahb_bist_clk definition
+    - xen/blkback: fix disconnect while I/Os in flight
+    - xen-blkback: don't leak stack data via response ring
+    - ALSA: firewire-lib: Fix stall of process context at packet error
+    - ALSA: pcm: Don't treat NULL chmap as a fatal error
+    - ALSA: hda - Add Coffelake PCI ID
+    - ALSA: hda - Apply quirks to Broxton-T, too
+    - fs/exec.c: account for argv/envp pointers
+    - powerpc/perf: Fix oops when kthread execs user process
+    - autofs: sanity check status reported with AUTOFS_DEV_IOCTL_FAIL
+    - fs/dax.c: fix inefficiency in dax_writeback_mapping_range()
+    - lib/cmdline.c: fix get_options() overflow while parsing ranges
+    - perf/x86/intel: Add 1G DTLB load/store miss support for SKL
+    - perf probe: Fix probe definition for inlined functions
+    - KVM: x86: fix singlestepping over syscall
+    - KVM: MIPS: Fix maybe-uninitialized build failure
+    - KVM: s390: gaccess: fix real-space designation asce handling for gmap
+      shadows
+    - KVM: PPC: Book3S HV: Cope with host using large decrementer mode
+    - KVM: PPC: Book3S HV: Preserve userspace HTM state properly
+    - KVM: PPC: Book3S HV: Ignore timebase offset on POWER9 DD1
+    - KVM: PPC: Book3S HV: Context-switch EBB registers properly
+    - KVM: PPC: Book3S HV: Restore critical SPRs to host values on guest exit
+    - KVM: PPC: Book3S HV: Save/restore host values of debug registers
+    - CIFS: Improve readdir verbosity
+    - CIFS: Fix some return values in case of error in 'crypt_message'
+    - cxgb4: notify uP to route ctrlq compl to rdma rspq
+    - HID: Add quirk for Dell PIXART OEM mouse
+    - random: silence compiler warnings and fix race
+    - signal: Only reschedule timers on signals timers have sent
+    - powerpc/kprobes: Pause function_graph tracing during jprobes handling
+    - powerpc/64s: Handle data breakpoints in Radix mode
+    - Input: i8042 - add Fujitsu Lifebook AH544 to notimeout list
+    - brcmfmac: add parameter to pass error code in firmware callback
+    - brcmfmac: use firmware callback upon failure to load
+    - brcmfmac: unbind all devices upon failure in firmware callback
+    - time: Fix clock->read(clock) race around clocksource changes
+    - time: Fix CLOCK_MONOTONIC_RAW sub-nanosecond accounting
+    - arm64/vdso: Fix nsec handling for CLOCK_MONOTONIC_RAW
+    - target: Fix kref->refcount underflow in transport_cmd_finish_abort
+    - iscsi-target: Fix delayed logout processing greater than
+      SECONDS_FOR_LOGOUT_COMP
+    - iscsi-target: Reject immediate data underflow larger than SCSI transfer
+      length
+    - drm/radeon: add a PX quirk for another K53TK variant
+    - drm/radeon: add a quirk for Toshiba Satellite L20-183
+    - drm/amdgpu/atom: fix ps allocation size for EnableDispPowerGating
+    - drm/amdgpu: adjust default display clock
+    - drm/amdgpu: add Polaris12 DID
+    - ACPI / scan: Apply default enumeration to devices with ACPI drivers
+    - ACPI / scan: Fix enumeration for special SPI and I2C devices
+    - rxrpc: Fix several cases where a padded len isn't checked in ticket decode
+    - drm: Fix GETCONNECTOR regression
+    - usb: gadget: f_fs: avoid out of bounds access on comp_desc
+    - spi: double time out tolerance
+    - net: phy: fix marvell phy status reading
+    - brcmfmac: fix uninitialized warning in brcmf_usb_probe_phase2()
+    - Linux 4.11.8
+
+  * powerpc: Invalidate ERAT on powersave wakeup for POWER9 (LP: #1700521)
+    - SAUCE: powerpc: Invalidate ERAT on powersave wakeup for POWER9
+
+  * Miscellaneous Ubuntu changes
+    - d-i: Move qcom-emac from arm64 to shared nic-modules
+
+ -- Seth Forshee <seth.forshee@canonical.com>  Thu, 29 Jun 2017 08:46:53 -0500
+
+linux (4.11.0-9.14) artful; urgency=low
+
+  * linux: 4.11.0-9.14 -proposed tracker (LP: #1700537)
+
+  * Artful update to v4.11.7 stable release (LP: #1700372)
+    - Revert "Allow stack to grow up to address space limit"
+    - Revert "UBUNTU: SAUCE: mm: fix new crash in unmapped_area_topdown()"
+    - Revert "mm: larger stack guard gap, between vmas"
+    - fs: pass on flags in compat_writev
+    - configfs: Fix race between create_link and configfs_rmdir
+    - can: gs_usb: fix memory leak in gs_cmd_reset()
+    - ila_xlat: add missing hash secret initialization
+    - cpufreq: conservative: Allow down_threshold to take values from 1 to 10
+    - vb2: Fix an off by one error in 'vb2_plane_vaddr'
+    - cec: race fix: don't return -ENONET in cec_receive()
+    - selinux: fix double free in selinux_parse_opts_str()
+    - mac80211: don't look at the PM bit of BAR frames
+    - mac80211/wpa: use constant time memory comparison for MACs
+    - drm: mxsfb_crtc: Reset the eLCDIF controller
+    - drm/amdgpu: Fix overflow of watermark calcs at > 4k resolutions.
+    - drm/i915: Fix GVT-g PVINFO version compatibility check
+    - drm/i915: Fix scaling check for 90/270 degree plane rotation
+    - drm/i915: Do not sync RCU during shrinking
+    - mac80211: fix IBSS presp allocation size
+    - mac80211: strictly check mesh address extension mode
+    - mac80211: fix dropped counter in multiqueue RX
+    - mac80211: don't send SMPS action frame in AP mode when not needed
+    - drm/mediatek: fix mtk_hdmi_setup_vendor_specific_infoframe mistake
+    - drm/vc4: Fix OOPSes from trying to cache a partially constructed BO.
+    - serial: efm32: Fix parity management in 'efm32_uart_console_get_options()'
+    - serial: 8250_lpss: Unconditionally set PCI master for Quark
+    - serial: sh-sci: Fix (AUTO)RTS in sci_init_pins()
+    - serial: sh-sci: Fix late enablement of AUTORTS
+    - x86/mm/32: Set the '__vmalloc_start_set' flag in initmem_init()
+    - mfd: omap-usb-tll: Fix inverted bit use for USB TLL mode
+    - mfd: axp20x: Add support for dts property "xpowers,master-mode"
+    - dt-bindings: mfd: axp20x: Add "xpowers,master-mode" property for AXP806
+      PMICs
+    - mfd: cpcap: Fix interrupt to use level interrupt
+    - mfd: cpcap: Use ack_invert interrupts
+    - mfd: cpcap: Fix bad use of IRQ sense register
+    - phy: rcar-gen3-usb2: fix implementation for runtime PM
+    - mtd: physmap_of: really fix the physmap add-ons
+    - powerpc/mm: Add physical address to Linux page table dump
+    - staging: rtl8188eu: prevent an underflow in rtw_check_beacon_data()
+    - staging: bcm2835-camera: fix error handling in init
+    - staging: iio: tsl2x7x_core: Fix standard deviation calculation
+    - iio: imu: st_lsm6dsx: do not apply ODR configuration in write_raw handler
+    - iio: proximity: as3935: recalibrate RCO after resume
+    - iio: adc: ti_am335x_adc: allocating too much in probe
+    - ALSA: hda: Add Geminilake id to SKL_PLUS
+    - ALSA: usb-audio: fix Amanero Combo384 quirk on big-endian hosts
+    - usb: gadget: udc: renesas_usb3: fix pm_runtime functions calling
+    - usb: gadget: udc: renesas_usb3: fix deadlock by spinlock
+    - usb: gadget: udc: renesas_usb3: lock for PN_ registers access
+    - USB: hub: fix SS max number of ports
+    - usb: core: fix potential memory leak in error path during hcd creation
+    - USB: usbip: fix nonconforming hub descriptor
+    - usb: dwc3: gadget: Fix ISO transfer performance
+    - pvrusb2: reduce stack usage pvr2_eeprom_analyze()
+    - USB: gadget: dummy_hcd: fix hub-descriptor removable fields
+    - usb: r8a66597-hcd: select a different endpoint on timeout
+    - usb: r8a66597-hcd: decrease timeout
+    - coda: restore original firmware locations
+    - drivers/misc/c2port/c2port-duramar2150.c: checking for NULL instead of
+      IS_ERR()
+    - usb: xhci: Fix USB 3.1 supported protocol parsing
+    - usb: xhci: ASMedia ASM1042A chipset need shorts TX quirk
+    - USB: gadget: fix GPF in gadgetfs
+    - USB: gadgetfs, dummy-hcd, net2280: fix locking for callbacks
+    - mm/memory-failure.c: use compound_head() flags for huge pages
+    - swap: cond_resched in swap_cgroup_prepare()
+    - mm: numa: avoid waiting on freed migrated pages
+    - userfaultfd: shmem: handle coredumping in handle_userfault()
+    - iio: imu: inv_mpu6050: add accel lpf setting for chip >= MPU6500
+    - staging: iio: ad7152: Fix deadlock in ad7152_write_raw_samp_freq()
+    - iio: adc: meson-saradc: fix potential crash in meson_sar_adc_clear_fifo
+    - sched/core: Idle_task_exit() shouldn't use switch_mm_irqs_off()
+    - genirq: Release resources in __setup_irq() error path
+    - alarmtimer: Prevent overflow of relative timers
+    - alarmtimer: Rate limit periodic intervals
+    - virtio_balloon: disable VIOMMU support
+    - MIPS: Fix bnezc/jialc return address calculation
+    - MIPS: .its targets depend on vmlinux
+    - crypto: Work around deallocated stack frame reference gcc bug on sparc.
+    - ARM: dts: am335x-sl50: Fix card detect pin for mmc1
+    - ARM: dts: am335x-sl50: Fix cannot claim requested pins for spi0
+    - mm: larger stack guard gap, between vmas
+    - Allow stack to grow up to address space limit
+    - mm: fix new crash in unmapped_area_topdown()
+    - Linux 4.11.7
+
+  * aacraid driver may return uninitialized stack data to userspace
+    (LP: #1700077)
+    - SAUCE: scsi: aacraid: Don't copy uninitialized stack memory to userspace
+
+  * KILLER1435-S[0489:e0a2] BT cannot search BT 4.0 device (LP: #1699651)
+    - Bluetooth: btusb: Add support for 0489:e0a2 QCA_ROME device
+
+  * arm64 kernel crashdump support (LP: #1694859)
+    - memblock: add memblock_clear_nomap()
+    - memblock: add memblock_cap_memory_range()
+    - arm64: limit memory regions based on DT property, usable-memory-range
+    - arm64: kdump: reserve memory for crash dump kernel
+    - arm64: mm: add set_memory_valid()
+    - arm64: kdump: protect crash dump kernel memory
+    - arm64: hibernate: preserve kdump image around hibernation
+    - arm64: kdump: implement machine_crash_shutdown()
+    - arm64: kdump: add VMCOREINFO's for user-space tools
+    - [Config] CONFIG_CRASH_DUMP=y on arm64
+    - arm64: kdump: provide /proc/vmcore file
+    - Documentation: kdump: describe arm64 port
+    - Documentation: dt: chosen properties for arm64 kdump
+    - efi/libstub/arm*: Set default address and size cells values for an empty dtb
+
+  * AACRAID for power9 platform (LP: #1689980)
+    - scsi: aacraid: pci_alloc_consistent() failures on ARM64
+    - scsi: aacraid: Remove __GFP_DMA for raw srb memory
+    - scsi: aacraid: Fix DMAR issues with iommu=pt
+    - scsi: aacraid: Added 32 and 64 queue depth for arc natives
+    - scsi: aacraid: Set correct Queue Depth for HBA1000 RAW disks
+    - scsi: aacraid: Remove reset support from check_health
+    - scsi: aacraid: Change wait time for fib completion
+    - scsi: aacraid: Log count info of scsi cmds before reset
+    - scsi: aacraid: Print ctrl status before eh reset
+    - scsi: aacraid: Using single reset mask for IOP reset
+    - scsi: aacraid: Rework IOP reset
+    - scsi: aacraid: Add periodic checks to see IOP reset status
+    - scsi: aacraid: Rework SOFT reset code
+    - scsi: aacraid: Rework aac_src_restart
+    - scsi: aacraid: Use correct function to get ctrl health
+    - scsi: aacraid: Make sure ioctl returns on controller reset
+    - scsi: aacraid: Enable ctrl reset for both hba and arc
+    - scsi: aacraid: Add reset debugging statements
+    - scsi: aacraid: Remove reference to Series-9
+    - scsi: aacraid: Update driver version to 50834
+
+  * Miscellaneous upstream changes
+    - Allow stack to grow up to address space limit
+
+ -- Seth Forshee <seth.forshee@canonical.com>  Mon, 26 Jun 2017 08:08:45 -0500
+
 linux (4.11.0-8.13) artful; urgency=low
 
   [ Seth Forshee ]

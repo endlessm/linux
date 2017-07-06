@@ -17790,6 +17790,7 @@ EXPORT_SYMBOL_GPL vmlinux 0x00000000	ehci_resume
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	ehci_setup
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	ehci_suspend
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	elf_hwcap
+EXPORT_SYMBOL_GPL vmlinux 0x00000000	elfcorehdr_addr
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	elv_register
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	elv_rqhash_add
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	elv_rqhash_del
@@ -19449,6 +19450,7 @@ EXPORT_SYMBOL_GPL vmlinux 0x00000000	register_kretprobe
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	register_kretprobes
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	register_net_sysctl
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	register_netevent_notifier
+EXPORT_SYMBOL_GPL vmlinux 0x00000000	register_oldmem_pfn_is_ram
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	register_oom_notifier
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	register_pernet_device
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	register_pernet_subsys
@@ -20310,6 +20312,7 @@ EXPORT_SYMBOL_GPL vmlinux 0x00000000	unregister_kretprobe
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	unregister_kretprobes
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	unregister_net_sysctl_table
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	unregister_netevent_notifier
+EXPORT_SYMBOL_GPL vmlinux 0x00000000	unregister_oldmem_pfn_is_ram
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	unregister_oom_notifier
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	unregister_pernet_device
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	unregister_pernet_subsys

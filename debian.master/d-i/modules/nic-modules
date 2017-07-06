@@ -137,6 +137,7 @@ orinoco_pci ?
 orinoco_plx ?
 orinoco_tmd ?
 pcnet32 ?
+qcom-emac ?
 qeth ?
 qeth_l2 ?
 qeth_l3 ?
