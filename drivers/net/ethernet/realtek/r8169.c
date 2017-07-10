@@ -20,6 +20,8 @@
 #include <linux/crc32.h>
 #include <linux/in.h>
 #include <linux/ip.h>
+#include <linux/clk.h>
+#include <asm/cpu_device_id.h>
 #include <linux/tcp.h>
 #include <linux/interrupt.h>
 #include <linux/dma-mapping.h>
@@ -796,6 +798,7 @@ struct rtl8169_private {
 	struct ring_info tx_skb[NUM_TX_DESC];	/* Tx data buffers */
 	struct timer_list timer;
 	u16 cp_cmd;
+	struct clk *clk;
 
 	u16 event_slow;
 
@@ -8210,6 +8213,17 @@ static struct dmi_system_id rtl_dmi_table[] __initdata = {
 	},
 	{}
 };
+static bool is_valleyview(void)
+{
+	static const struct x86_cpu_id cpu_ids[] = {
+		{ X86_VENDOR_INTEL, 6, 55 }, /* Valleyview, Bay Trail */
+		{}
+	};
+
+	if (!x86_match_cpu(cpu_ids))
+		return false;
+	return true;
+}
 
 static int rtl_init_one(struct pci_dev *pdev, const struct pci_device_id *ent)
 {
@@ -8220,7 +8234,7 @@ static int rtl_init_one(struct pci_dev *pdev, const struct pci_device_id *ent)
 	struct net_device *dev;
 	void __iomem *ioaddr;
 	int chipset, i;
-	int rc;
+	int rc, ret;
 	static const struct {
 		unsigned long mask;
 		const char *type;
@@ -8253,6 +8267,39 @@ static int rtl_init_one(struct pci_dev *pdev, const struct pci_device_id *ent)
 	tp->dev = dev;
 	tp->pci_dev = pdev;
 	tp->msg_enable = netif_msg_init(debug.msg_enable, R8169_MSG_DEFAULT);
+
+	if (is_valleyview()) {
+		tp->clk = devm_clk_get(&pdev->dev, "pmc_plt_clk_4");
+		if (IS_ERR(tp->clk)) {
+			netif_err(tp, probe, dev, "Failed to get clock from pmc_plt_clk_4: %ld\n",
+				  PTR_ERR(tp->clk));
+			return PTR_ERR(tp->clk);
+		}
+
+		/*
+		 * The firmware might enable the clock at
+		 * boot (this information may or may not
+		 * be reflected in the enable clock register).
+		 * To change the rate we must disable the clock
+		 * first to cover these cases. Due to common
+		 * clock framework restrictions that do not allow
+		 * to disable a clock that has not been enabled,
+		 * we need to enable the clock first.
+		 */
+		ret = clk_prepare_enable(tp->clk);
+		if (!ret)
+			clk_disable_unprepare(tp->clk);
+
+		ret = clk_set_rate(tp->clk, 25000000);
+		if (ret)
+			netif_err(tp, probe, dev, "Unable to set clock\n");
+
+		ret = clk_prepare_enable(tp->clk);
+		if (ret < 0) {
+			netif_err(tp, probe, dev, "Couldn't configure clock\n");
+			return ret;
+		}
+	}
 
 	mii = &tp->mii;
 	mii->dev = dev;
