@@ -177,7 +177,7 @@ static struct clk_plt *plt_clk_register(struct platform_device *pdev, int id,
 
 	init.name =  kasprintf(GFP_KERNEL, "%s_%d", PLT_CLK_NAME_BASE, id);
 	init.ops = &plt_clk_ops;
-	init.flags = 0;
+	init.flags = CLK_IGNORE_UNUSED | CLK_IS_CRITICAL;
 	init.parent_names = parent_names;
 	init.num_parents = num_parents;
 
