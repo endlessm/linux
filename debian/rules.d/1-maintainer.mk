@@ -98,9 +98,14 @@ printenv:
 
 printchanges:
 	@baseCommit=$$(git log --pretty=format:'%H %s' | \
-		gawk '/UBUNTU: '".*Ubuntu-`echo $(prev_fullver) | sed 's/+/\\\\+/'`"'$$/ { print $$1; exit }'); \
-		git log "$$baseCommit"..HEAD | \
-		$(DROOT)/scripts/misc/git-ubuntu-log $(ubuntu_log_opts)
+		gawk '/UBUNTU: '".*Ubuntu-.*`echo $(prev_fullver) | sed 's/+/\\\\+/'`"'(~.*)?$$/ { print $$1; exit }'); \
+	if [ -z "$$baseCommit" ]; then \
+		echo "WARNING: couldn't find a commit for the previous version. Using the lastest one." >&2; \
+		baseCommit=$$(git log --pretty=format:'%H %s' | \
+			gawk '/UBUNTU:\s*Ubuntu-.*$$/ { print $$1; exit }'); \
+	fi; \
+	git log "$$baseCommit"..HEAD | \
+	$(DROOT)/scripts/misc/git-ubuntu-log $(ubuntu_log_opts)
 
 insertchanges: autoreconstruct
 	@perl -w -f $(DROOT)/scripts/misc/insert-changes.pl $(DROOT) $(DEBIAN) 
