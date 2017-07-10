@@ -20,6 +20,7 @@
 #include <linux/crc32.h>
 #include <linux/in.h>
 #include <linux/ip.h>
+#include <linux/clk.h>
 #include <linux/tcp.h>
 #include <linux/interrupt.h>
 #include <linux/dma-mapping.h>
@@ -100,6 +101,7 @@ static const int multicast_filter_limit = 32;
 #define RTL8169_PHY_TIMEOUT	(10*HZ)
 
 static int use_pio;
+static int claim_clk;
 
 /* write/read MMIO register */
 #define RTL_W8(reg, val8)       iowrite8 ((val8), ioaddr + (reg))
@@ -796,6 +798,7 @@ struct rtl8169_private {
 	struct ring_info tx_skb[NUM_TX_DESC];	/* Tx data buffers */
 	struct timer_list timer;
 	u16 cp_cmd;
+	struct clk *clk;
 
 	u16 event_slow;
 
@@ -8199,12 +8202,26 @@ static int rtl_flag_use_pio(const struct dmi_system_id *id)
 	return 0;
 }
 
+static int rtl_claim_clk(const struct dmi_system_id *id)
+{
+	claim_clk = 1;
+	return 0;
+}
+
 static struct dmi_system_id rtl_dmi_table[] __initdata = {
 	{
 		rtl_flag_use_pio, "Endless ELT-NL3",
 		{
 		     DMI_MATCH(DMI_SYS_VENDOR, "Endless"),
 		     DMI_MATCH(DMI_PRODUCT_NAME, "ELT-NL3"),
+		},
+		NULL,
+	},
+	{
+		rtl_claim_clk, "ASUS Z550MA",
+		{
+		     DMI_MATCH(DMI_SYS_VENDOR, "ASUSTeK COMPUTER INC."),
+		     DMI_MATCH(DMI_PRODUCT_NAME, "Z550M"),
 		},
 		NULL,
 	},
@@ -8220,7 +8237,7 @@ static int rtl_init_one(struct pci_dev *pdev, const struct pci_device_id *ent)
 	struct net_device *dev;
 	void __iomem *ioaddr;
 	int chipset, i;
-	int rc;
+	int rc, ret;
 	static const struct {
 		unsigned long mask;
 		const char *type;
@@ -8253,6 +8270,39 @@ static int rtl_init_one(struct pci_dev *pdev, const struct pci_device_id *ent)
 	tp->dev = dev;
 	tp->pci_dev = pdev;
 	tp->msg_enable = netif_msg_init(debug.msg_enable, R8169_MSG_DEFAULT);
+
+	if (claim_clk) {
+		tp->clk = devm_clk_get(&pdev->dev, "pmc_plt_clk_4");
+		if (IS_ERR(tp->clk)) {
+			netif_err(tp, probe, dev, "Failed to get clock from pmc_plt_clk_4: %ld\n",
+				  PTR_ERR(tp->clk));
+			return PTR_ERR(tp->clk);
+		}
+
+		/*
+		 * The firmware might enable the clock at
+		 * boot (this information may or may not
+		 * be reflected in the enable clock register).
+		 * To change the rate we must disable the clock
+		 * first to cover these cases. Due to common
+		 * clock framework restrictions that do not allow
+		 * to disable a clock that has not been enabled,
+		 * we need to enable the clock first.
+		 */
+		ret = clk_prepare_enable(tp->clk);
+		if (!ret)
+			clk_disable_unprepare(tp->clk);
+
+		ret = clk_set_rate(tp->clk, 25000000);
+		if (ret)
+			netif_err(tp, probe, dev, "Unable to set clock\n");
+
+		ret = clk_prepare_enable(tp->clk);
+		if (ret < 0) {
+			netif_err(tp, probe, dev, "Couldn't configure clock\n");
+			return ret;
+		}
+	}
 
 	mii = &tp->mii;
 	mii->dev = dev;
