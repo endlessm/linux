@@ -553,6 +553,11 @@ struct ath10k_hw_params {
 
 	/* Number of ciphers supported (i.e First N) in cipher_suites array */
 	int n_cipher_suites;
+
+	/* In some regdomain(country), ex. EGYPT, the 11ac is totally
+	 * prohibited. SMBIOS keep this flag for regulatory configuration.
+	 */
+	bool vht_disable;
 };
 
 struct htt_rx_desc;
