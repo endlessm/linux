@@ -2302,7 +2302,7 @@ nv137_chipset = {
 	.ltc = gp100_ltc_new,
 	.mc = gp100_mc_new,
 	.mmu = gf100_mmu_new,
-	.secboot = gp102_secboot_new,
+//	.secboot = gp102_secboot_new,
 	.pci = gp100_pci_new,
 	.pmu = gp102_pmu_new,
 	.timer = gk20a_timer_new,
@@ -2314,10 +2314,10 @@ nv137_chipset = {
 	.disp = gp102_disp_new,
 	.dma = gf119_dma_new,
 	.fifo = gp100_fifo_new,
-	.gr = gp107_gr_new,
-	.nvdec = gp102_nvdec_new,
-	.sec2 = gp102_sec2_new,
-	.sw = gf100_sw_new,
+//	.gr = gp107_gr_new,
+//	.nvdec = gp102_nvdec_new,
+//	.sec2 = gp102_sec2_new,
+//	.sw = gf100_sw_new,
 };
 
 static int
