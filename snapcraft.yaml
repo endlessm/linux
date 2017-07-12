@@ -1,7 +1,12 @@
-name: snappygenerickernel
-version: 4.4.0
-summary: The generic kernel for snappy
-description: This is a generic snapped kernel, based off the xenial src and config
+name: pc-kernel
+version: null
+version-script: |
+    . debian/debian.env
+    dpkg-parsechangelog -l $DEBIAN/changelog -S version
+summary: The Ubuntu generic Linux kernel
+description: This Ubuntu generic Linux kernel
+grade: stable
+confinement: strict
 type: kernel
 
 parts:
@@ -9,8 +14,18 @@ parts:
     plugin: kernel
     source: .
     source-type: git
-    kdefconfig: ['--makefile=debian/snapcraft.mk', 'branch=master','flavour=generic', 'config']
+    kconfigflavour: generic
     kconfigs:
-      - CONFIG_LOCALVERSION="-xenial_generic"
       - CONFIG_DEBUG_INFO=n
-    kernel-image-target: bzImage
+  firmware:
+    plugin: nil
+    stage-packages:
+      - linux-firmware
+    organize:
+      lib/firmware: firmware
+    prime:
+      - -usr
+      - -lib
+    build-packages:
+      - cpio
+      - libssl-dev
