@@ -541,6 +541,11 @@ struct ath10k_hw_params {
 	 */
 	int vht160_mcs_rx_highest;
 	int vht160_mcs_tx_highest;
+
+	/* In some regdomain(country), ex. EGYPT, the 11ac is totally
+	 * prohibited. SMBIOS keep this flag for regulatory configuration.
+	 */
+	bool vht_disable;
 };
 
 struct htt_rx_desc;
