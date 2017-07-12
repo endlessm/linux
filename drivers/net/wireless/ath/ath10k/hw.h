@@ -416,6 +416,11 @@ struct ath10k_hw_params {
 
 	/* Number of bytes used for alignment in rx_hdr_status of rx desc. */
 	int decap_align_bytes;
+
+	/* In some regdomain(country), ex. EGYPT, the 11ac is totally
+	 * prohibited. SMBIOS keep this flag for regulatory configuration.
+	 */
+	bool vht_disable;
 };
 
 struct htt_rx_desc;
