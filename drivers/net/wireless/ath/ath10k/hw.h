@@ -454,6 +454,11 @@ struct ath10k_hw_params {
 
 	/* Number of bytes to be discarded for each FFT sample */
 	int spectral_bin_discard;
+
+	/* In some regdomain(country), ex. EGYPT, the 11ac is totally
+	 * prohibited. SMBIOS keep this flag for regulatory configuration.
+	 */
+	bool vht_disable;
 };
 
 struct htt_rx_desc;
