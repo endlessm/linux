@@ -593,6 +593,11 @@ struct ath10k_hw_params {
 	/* Target rx ring fill level */
 	u32 rx_ring_fill_level;
 
+	/* In some regdomain(country), ex. EGYPT, the 11ac is totally
+	 * prohibited. SMBIOS keep this flag for regulatory configuration.
+	 */
+	bool vht_disable;
+
 	/* target supporting shadow register for ce write */
 	bool shadow_reg_support;
 
