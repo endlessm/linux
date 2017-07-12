@@ -23,6 +23,7 @@
 #include <linux/etherdevice.h>
 #include <linux/acpi.h>
 #include <linux/of.h>
+#include <linux/dmi.h>
 
 #include "hif.h"
 #include "core.h"
@@ -4447,7 +4448,13 @@ static struct ieee80211_sta_vht_cap ath10k_create_vht_cap(struct ath10k *ar)
 	u32 val;
 	int i;
 
-	vht_cap.vht_supported = 1;
+	if (ar->hw_params.vht_disable) {
+		vht_cap.vht_supported = 0;
+
+		return vht_cap;
+	}
+	else
+		vht_cap.vht_supported = 1;
 	vht_cap.cap = ar->vht_cap_info;
 
 	if (ar->vht_cap_info & (IEEE80211_VHT_CAP_SU_BEAMFORMEE_CAPABLE |
@@ -8312,6 +8319,67 @@ struct ath10k_vif *ath10k_get_arvif(struct ath10k *ar, u32 vdev_id)
 	return arvif_iter.arvif;
 }
 
+#define ATH10K_SMBIOS_VHT_CAP_OFFSET	0x4
+#define ATH10K_SMBIOS_CTRY_FLAG_OFFSET	0x5
+#define ATH10K_SMBIOS_CTRY_CODE_OFFSET	0x6
+
+static void ath10k_mac_check_smbios(const struct dmi_header *hdr, void *data)
+{
+	struct ath10k *ar = data;
+	u8 vht_disable;
+	u8 ctry_flag;
+	u16 ctry_code;
+	u16 rd;
+	char alpha2[3];
+
+	if (hdr->type != ATH10K_SMBIOS_BDF_EXT_TYPE)
+		return;
+
+	if (hdr->length < ATH10K_SMBIOS_BDF_EXT_LENGTH) {
+		ath10k_dbg(ar, ATH10K_DBG_BOOT,
+			   "wrong smbios ext type length (%d).\n",
+			   hdr->length);
+                return;
+	}
+
+	vht_disable = *((u8 *)hdr + ATH10K_SMBIOS_VHT_CAP_OFFSET);
+	ar->hw_params.vht_disable = vht_disable;
+
+	ctry_flag = *((u8 *)hdr + ATH10K_SMBIOS_CTRY_FLAG_OFFSET);
+	if (ctry_flag == 0)	// Disable Country Code setting from SMBIOS
+		return;
+
+	if (ctry_flag == 0x2)	// Worldwide Regdomain
+		return;
+
+	ctry_code = *(u16 *)((u8 *)hdr + ATH10K_SMBIOS_CTRY_CODE_OFFSET);
+
+	alpha2[0] = (ctry_code >> 8) & 0xff;
+	alpha2[1] = (ctry_code >> 0) & 0xff;
+	alpha2[2] = '\0';
+
+	rd = ath_regd_find_country_by_name(alpha2);
+	if (rd == 0xffff)
+                return;
+
+	rd |= COUNTRY_ERD_FLAG;
+	ar->ath_common.regulatory.current_rd = rd;
+}
+
+static int ath10k_mac_set_regulatory_from_smbios(struct ath10k *ar)
+{
+	u16 rd;
+
+	ar->ath_common.regulatory.current_rd = 0;
+	dmi_walk(ath10k_mac_check_smbios, ar);
+
+	rd = ar->ath_common.regulatory.current_rd;
+	if ((rd & COUNTRY_ERD_FLAG) == COUNTRY_ERD_FLAG)
+		return 0;
+	else
+		return -EIO;
+}
+
 #define WRD_METHOD "WRDD"
 #define WRDD_WIFI  (0x07)
 
@@ -8402,6 +8470,10 @@ static int ath10k_mac_init_rd(struct ath10k *ar)
 {
 	int ret;
 	u16 rd;
+
+	ret = ath10k_mac_set_regulatory_from_smbios(ar);
+	if (!ret)
+		return 0;
 
 	ret = ath10k_mac_get_wrdd_regulatory(ar, &rd);
 	if (ret) {
