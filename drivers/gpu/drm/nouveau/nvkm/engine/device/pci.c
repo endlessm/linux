@@ -38,6 +38,12 @@ struct nvkm_device_pci_vendor {
 };
 
 static const struct nvkm_device_pci_vendor
+nvkm_device_pci_10de_1c8c[] = {
+	{ 0x1025, 0x1199, NULL, { .noaccel = true } },
+	{}
+};
+
+static const struct nvkm_device_pci_vendor
 nvkm_device_pci_10de_1d01[] = {
 	/* Nvidia GT 1030 (NV138/GP108) */
 	{ 0x1043, 0x205b, NULL, { .use_heads = true } },
@@ -1558,6 +1564,7 @@ nvkm_device_pci_10de[] = {
 	{ 0x17c2, "GeForce GTX TITAN X" },
 	{ 0x17c8, "GeForce GTX 980 Ti" },
 	{ 0x17f0, "Quadro M6000" },
+	{ 0x1c8c, "NVIDIA GeForce GTX 1050 Ti", nvkm_device_pci_10de_1c8c },
 	{ 0x1d01, "NVidia GT1030", nvkm_device_pci_10de_1d01 },
 	{}
 };

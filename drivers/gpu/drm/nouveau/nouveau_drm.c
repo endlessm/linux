@@ -183,8 +183,12 @@ nouveau_accel_init(struct nouveau_drm *drm)
 {
 	struct nvif_device *device = &drm->client.device;
 	struct nvif_sclass *sclass;
+	struct nvkm_device *nvkm_device = nvxx_device(&drm->client.device);
 	u32 arg0, arg1;
 	int ret, i, n;
+
+	if (nvkm_device->quirk && nvkm_device->quirk->noaccel)
+		return;
 
 	if (nouveau_noaccel)
 		return;
