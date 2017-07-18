@@ -4833,7 +4833,7 @@ CONFIG_HNS_ENET                                 policy<{'arm64': 'm', 'armhf': '
 
 # Menu: Device Drivers >> Network device support >> Ethernet driver support >> IBM devices
 CONFIG_NET_VENDOR_IBM                           policy<{'ppc64el': 'y'}>
-CONFIG_IBMVETH                                  policy<{'ppc64el': 'y'}>
+CONFIG_IBMVETH                                  policy<{'ppc64el': 'm'}>
 CONFIG_IBMVNIC                                  policy<{'ppc64el': 'm'}>
 #
 CONFIG_IBMVNIC                            	mark<ENFORCED> note<LP:#1628187>
