@@ -1,5 +1,35 @@
 This is the list of patches/features which have been temporarily
 reverted or disabled for AA:
 
+aufs
+
+securityfs: update interface to allow inode_ops, and setup from vfs fns
+ - I think this is superseded
+UBUNTU: SAUCE: (no-up) include/linux/security.h -- fix syntax error with CONFIG_SECURITYFS=n
+ - Fix for ^
+UBUNTU: SAUCE: securityfs: Replace CURRENT_TIME with current_time()
+ - Perhaps also a fix for ^
+UBUNTU: SAUCE: Return TCMU-generated sense data to fabric module
+
+apparmor (I suspect many of these went upstream):
+ apparmor: sync of apparmor 3.6+ (17.04)
+ UBUNTU: SAUCE: apparmor: fix label parse for stacked labels
+ UBUNTU: SAUCE: apparmor: add information about the query inteface to the feature set
+ UBUNTU: SAUCE: apparmor: add label data availability to the feature set
+ UBUNTU: SAUCE: apparmor: add policy revision file interface
+ apparmor: provide information about path buffer size at boot
+ UBUNTU: SAUCE: apparmor: fix complain mode failure for rlimit mediation
+ apparmor: update auditing of rlimit check to provide capability information
+ UBUNTU: SAUCE: apparmor: fix not handling error case when securityfs_pin_fs() fails
+ UBUNTU: SAUCE: apparmor: fix reference count leak when securityfs_setup_d_inode() fails
+ UBUNTU: SAUCE: apparmor: fix leak on securityfs pin count
+ UBUNTU: SAUCE: apparmor: fix lock ordering for mkdir
+
 Possibly no longer needed:
  UBUNTU: SAUCE: nbd: Only delay uevent until connected
+
+Review:
+ UBUNTU: SAUCE: (no-up) i915: Remove MODULE_FIRMWARE statements for unreleased firmware
+ UBUNTU: SAUCE: Fix FTBS in proc_version_signature
+ UBUNTU: SAUCE: export some symbols for powerpc
+ UBUNTU: SAUCE: cred: Add clone_cred() interface
