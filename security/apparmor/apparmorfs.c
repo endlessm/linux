@@ -2259,6 +2259,11 @@ static struct aa_sfs_entry aa_sfs_entry_ns[] = {
 	{ }
 };
 
+static struct aa_sfs_entry aa_sfs_entry_dbus[] = {
+	AA_SFS_FILE_STRING("mask", "acquire send receive"),
+	{ }
+};
+
 static struct aa_sfs_entry aa_sfs_entry_query_label[] = {
 	AA_SFS_FILE_STRING("perms", "allow deny audit quiet"),
 	AA_SFS_FILE_BOOLEAN("data",		1),
@@ -2283,6 +2288,7 @@ static struct aa_sfs_entry aa_sfs_entry_features[] = {
 	AA_SFS_DIR("caps",			aa_sfs_entry_caps),
 	AA_SFS_DIR("ptrace",			aa_sfs_entry_ptrace),
 	AA_SFS_DIR("signal",			aa_sfs_entry_signal),
+	AA_SFS_DIR("dbus",			aa_sfs_entry_dbus),
 	AA_SFS_DIR("query",			aa_sfs_entry_query),
 	{ }
 };
