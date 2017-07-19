@@ -82,9 +82,9 @@ static size_t rtstrFormatIPv6HexWord(char *pszDst, uint16_t uWord)
     off = 0;
     switch (cDigits)
     {
-        case 4: pszDst[off++] = g_szHexDigits[(uWord >> 12) & 0xf];
-        case 3: pszDst[off++] = g_szHexDigits[(uWord >>  8) & 0xf];
-        case 2: pszDst[off++] = g_szHexDigits[(uWord >>  4) & 0xf];
+        case 4: pszDst[off++] = g_szHexDigits[(uWord >> 12) & 0xf]; /* fall thru */
+        case 3: pszDst[off++] = g_szHexDigits[(uWord >>  8) & 0xf]; /* fall thru */
+        case 2: pszDst[off++] = g_szHexDigits[(uWord >>  4) & 0xf]; /* fall thru */
         case 1: pszDst[off++] = g_szHexDigits[(uWord >>  0) & 0xf];
             break;
     }

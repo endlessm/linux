@@ -46,7 +46,11 @@
 typedef struct RTR0SEMLNXWAIT
 {
     /** The wait queue entry. */
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(4, 13, 0)
+    wait_queue_entry_t WaitQE;
+#else
     wait_queue_t    WaitQE;
+#endif
     /** The absolute timeout given as nano seconds since the start of the
      *  monotonic clock. */
     uint64_t        uNsAbsTimeout;

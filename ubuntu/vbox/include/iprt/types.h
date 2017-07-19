@@ -524,9 +524,9 @@ typedef union RTUINT128U
     uint8_t     au8[16];
 } RTUINT128U;
 #pragma pack()
-/** Pointer to a 64-bit unsigned integer union. */
+/** Pointer to a 128-bit unsigned integer union. */
 typedef RTUINT128U *PRTUINT128U;
-/** Pointer to a const 64-bit unsigned integer union. */
+/** Pointer to a const 128-bit unsigned integer union. */
 typedef const RTUINT128U *PCRTUINT128U;
 
 /** @def RTUINT128_INIT
@@ -544,6 +544,341 @@ typedef const RTUINT128U *PCRTUINT128U;
 #else
 # define RTUINT128_INIT_C(a_Hi, a_Lo) { { UINT64_C(a_Lo), UINT64_C(a_Hi) } }
 #endif
+
+
+/**
+ * 256-bit unsigned integer union.
+ */
+#pragma pack(1)
+typedef union RTUINT256U
+{
+    /** Quad-Word view (first as it's used by RTUINT256_INIT). */
+    struct
+    {
+#ifdef RT_BIG_ENDIAN
+        uint64_t    qw3;
+        uint64_t    qw2;
+        uint64_t    qw1;
+        uint64_t    qw0;
+#else
+        uint64_t    qw0;
+        uint64_t    qw1;
+        uint64_t    qw2;
+        uint64_t    qw3;
+#endif
+    } QWords;
+    /** Double-Word view. */
+    struct
+    {
+#ifdef RT_BIG_ENDIAN
+        uint32_t    dw7;
+        uint32_t    dw6;
+        uint32_t    dw5;
+        uint32_t    dw4;
+        uint32_t    dw3;
+        uint32_t    dw2;
+        uint32_t    dw1;
+        uint32_t    dw0;
+#else
+        uint32_t    dw0;
+        uint32_t    dw1;
+        uint32_t    dw2;
+        uint32_t    dw3;
+        uint32_t    dw4;
+        uint32_t    dw5;
+        uint32_t    dw6;
+        uint32_t    dw7;
+#endif
+    } DWords;
+    /** Word view. */
+    struct
+    {
+#ifdef RT_BIG_ENDIAN
+        uint16_t    w15;
+        uint16_t    w14;
+        uint16_t    w13;
+        uint16_t    w12;
+        uint16_t    w11;
+        uint16_t    w10;
+        uint16_t    w9;
+        uint16_t    w8;
+        uint16_t    w7;
+        uint16_t    w6;
+        uint16_t    w5;
+        uint16_t    w4;
+        uint16_t    w3;
+        uint16_t    w2;
+        uint16_t    w1;
+        uint16_t    w0;
+#else
+        uint16_t    w0;
+        uint16_t    w1;
+        uint16_t    w2;
+        uint16_t    w3;
+        uint16_t    w4;
+        uint16_t    w5;
+        uint16_t    w6;
+        uint16_t    w7;
+        uint16_t    w8;
+        uint16_t    w9;
+        uint16_t    w10;
+        uint16_t    w11;
+        uint16_t    w12;
+        uint16_t    w13;
+        uint16_t    w14;
+        uint16_t    w15;
+#endif
+    } Words;
+
+    /** Double-Quad-Word view. */
+    struct
+    {
+#ifdef RT_BIG_ENDIAN
+        RTUINT128U  dqw1;
+        RTUINT128U  dqw0;
+#else
+        RTUINT128U  dqw0;
+        RTUINT128U  dqw1;
+#endif
+    } DQWords;
+
+    /** 128-bit view. */
+    RTUINT128U  au128[2];
+    /** 64-bit view. */
+    uint64_t    au64[4];
+    /** 32-bit view. */
+    uint32_t    au32[8];
+    /** 16-bit view. */
+    uint16_t    au16[16];
+    /** 8-bit view. */
+    uint8_t     au8[32];
+} RTUINT256U;
+#pragma pack()
+/** Pointer to a 256-bit unsigned integer union. */
+typedef RTUINT256U *PRTUINT256U;
+/** Pointer to a const 256-bit unsigned integer union. */
+typedef const RTUINT256U *PCRTUINT256U;
+
+/** @def RTUINT256_INIT
+ * Portable RTUINT256U initializer. */
+#ifdef RT_BIG_ENDIAN
+# define RTUINT256_INIT(a_Qw3, a_Qw2, a_Qw1, a_Qw0)   { { a_Qw3, a_Qw2, a_Qw1, a_Qw0 } }
+#else
+# define RTUINT256_INIT(a_Qw3, a_Qw2, a_Qw1, a_Qw0)   { { a_Qw0, a_Qw1, a_Qw2, a_Qw3 } }
+#endif
+
+/** @def RTUINT256_INIT_C
+ * Portable RTUINT256U initializer for 64-bit constants. */
+#define RTUINT256_INIT_C(a_Qw3, a_Qw2, a_Qw1, a_Qw0)  \
+    RTUINT256_INIT(UINT64_C(a_Qw3), UINT64_C(a_Qw2), UINT64_C(a_Qw1), UINT64_C(a_Qw0))
+
+
+/**
+ * 512-bit unsigned integer union.
+ */
+#pragma pack(1)
+typedef union RTUINT512U
+{
+    /** Quad-Word view (first as it's used by RTUINT512_INIT). */
+    struct
+    {
+#ifdef RT_BIG_ENDIAN
+        uint64_t    qw7;
+        uint64_t    qw6;
+        uint64_t    qw5;
+        uint64_t    qw4;
+        uint64_t    qw3;
+        uint64_t    qw2;
+        uint64_t    qw1;
+        uint64_t    qw0;
+#else
+        uint64_t    qw0;
+        uint64_t    qw1;
+        uint64_t    qw2;
+        uint64_t    qw3;
+        uint64_t    qw4;
+        uint64_t    qw5;
+        uint64_t    qw6;
+        uint64_t    qw7;
+#endif
+    } QWords;
+    /** Double-Word view. */
+    struct
+    {
+#ifdef RT_BIG_ENDIAN
+        uint32_t    dw15;
+        uint32_t    dw14;
+        uint32_t    dw13;
+        uint32_t    dw12;
+        uint32_t    dw11;
+        uint32_t    dw10;
+        uint32_t    dw9;
+        uint32_t    dw8;
+        uint32_t    dw7;
+        uint32_t    dw6;
+        uint32_t    dw5;
+        uint32_t    dw4;
+        uint32_t    dw3;
+        uint32_t    dw2;
+        uint32_t    dw1;
+        uint32_t    dw0;
+#else
+        uint32_t    dw0;
+        uint32_t    dw1;
+        uint32_t    dw2;
+        uint32_t    dw3;
+        uint32_t    dw4;
+        uint32_t    dw5;
+        uint32_t    dw6;
+        uint32_t    dw7;
+        uint32_t    dw8;
+        uint32_t    dw9;
+        uint32_t    dw10;
+        uint32_t    dw11;
+        uint32_t    dw12;
+        uint32_t    dw13;
+        uint32_t    dw14;
+        uint32_t    dw15;
+#endif
+    } DWords;
+    /** Word view. */
+    struct
+    {
+#ifdef RT_BIG_ENDIAN
+        uint16_t    w31;
+        uint16_t    w30;
+        uint16_t    w29;
+        uint16_t    w28;
+        uint16_t    w27;
+        uint16_t    w26;
+        uint16_t    w25;
+        uint16_t    w24;
+        uint16_t    w23;
+        uint16_t    w22;
+        uint16_t    w21;
+        uint16_t    w20;
+        uint16_t    w19;
+        uint16_t    w18;
+        uint16_t    w17;
+        uint16_t    w16;
+        uint16_t    w15;
+        uint16_t    w14;
+        uint16_t    w13;
+        uint16_t    w12;
+        uint16_t    w11;
+        uint16_t    w10;
+        uint16_t    w9;
+        uint16_t    w8;
+        uint16_t    w7;
+        uint16_t    w6;
+        uint16_t    w5;
+        uint16_t    w4;
+        uint16_t    w3;
+        uint16_t    w2;
+        uint16_t    w1;
+        uint16_t    w0;
+#else
+        uint16_t    w0;
+        uint16_t    w1;
+        uint16_t    w2;
+        uint16_t    w3;
+        uint16_t    w4;
+        uint16_t    w5;
+        uint16_t    w6;
+        uint16_t    w7;
+        uint16_t    w8;
+        uint16_t    w9;
+        uint16_t    w10;
+        uint16_t    w11;
+        uint16_t    w12;
+        uint16_t    w13;
+        uint16_t    w14;
+        uint16_t    w15;
+        uint16_t    w16;
+        uint16_t    w17;
+        uint16_t    w18;
+        uint16_t    w19;
+        uint16_t    w20;
+        uint16_t    w21;
+        uint16_t    w22;
+        uint16_t    w23;
+        uint16_t    w24;
+        uint16_t    w25;
+        uint16_t    w26;
+        uint16_t    w27;
+        uint16_t    w28;
+        uint16_t    w29;
+        uint16_t    w30;
+        uint16_t    w31;
+#endif
+    } Words;
+
+    /** Double-Quad-Word view. */
+    struct
+    {
+#ifdef RT_BIG_ENDIAN
+        RTUINT128U  dqw3;
+        RTUINT128U  dqw2;
+        RTUINT128U  dqw1;
+        RTUINT128U  dqw0;
+#else
+        RTUINT128U  dqw0;
+        RTUINT128U  dqw1;
+        RTUINT128U  dqw2;
+        RTUINT128U  dqw3;
+#endif
+    } DQWords;
+
+    /** Octo-Word view. */
+    struct
+    {
+#ifdef RT_BIG_ENDIAN
+        RTUINT256U  ow3;
+        RTUINT256U  ow2;
+        RTUINT256U  ow1;
+        RTUINT256U  ow0;
+#else
+        RTUINT256U  ow0;
+        RTUINT256U  ow1;
+        RTUINT256U  ow2;
+        RTUINT256U  ow3;
+#endif
+    } OWords;
+
+    /** 256-bit view. */
+    RTUINT256U  au256[2];
+    /** 128-bit view. */
+    RTUINT128U  au128[4];
+    /** 64-bit view. */
+    uint64_t    au64[8];
+    /** 32-bit view. */
+    uint32_t    au32[16];
+    /** 16-bit view. */
+    uint16_t    au16[32];
+    /** 8-bit view. */
+    uint8_t     au8[64];
+} RTUINT512U;
+#pragma pack()
+/** Pointer to a 512-bit unsigned integer union. */
+typedef RTUINT512U *PRTUINT512U;
+/** Pointer to a const 512-bit unsigned integer union. */
+typedef const RTUINT512U *PCRTUINT512U;
+
+/** @def RTUINT512_INIT
+ * Portable RTUINT512U initializer. */
+#ifdef RT_BIG_ENDIAN
+# define RTUINT512_INIT(a_Qw7, a_Qw6, a_Qw5, a_Qw4, a_Qw3, a_Qw2, a_Qw1, a_Qw0) \
+    { { a_Qw7, a_Qw6, a_Qw5, a_Qw4, a_Qw3, a_Qw2, a_Qw1, a_Qw0 } }
+#else
+# define RTUINT512_INIT(a_Qw7, a_Qw6, a_Qw5, a_Qw4, a_Qw3, a_Qw2, a_Qw1, a_Qw0) \
+    { { a_Qw0, a_Qw1, a_Qw2, a_Qw3, a_Qw4, a_Qw5, a_Qw6, a_Qw7 } }
+#endif
+
+/** @def RTUINT512_INIT_C
+ * Portable RTUINT512U initializer for 64-bit constants. */
+#define RTUINT512_INIT_C(a_Qw7, a_Qw6, a_Qw5, a_Qw4, a_Qw3, a_Qw2, a_Qw1, a_Qw0) \
+    RTUINT512_INIT(UINT64_C(a_Qw7), UINT64_C(a_Qw6), UINT64_C(a_Qw5), UINT64_C(a_Qw4), \
+                   UINT64_C(a_Qw3), UINT64_C(a_Qw2), UINT64_C(a_Qw1), UINT64_C(a_Qw0))
 
 
 /**

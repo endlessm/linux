@@ -16,6 +16,8 @@
  * hope that it will be useful, but WITHOUT ANY WARRANTY of any kind.
  */
 
+#include <linux/errno.h>
+#include <linux/init.h>
 #include <linux/module.h>
 
 static int __init vbox_init(void)

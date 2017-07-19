@@ -39,6 +39,7 @@ MOD_OBJS  += \
 	divdi3.o \
 	moddi3.o \
 	udivdi3.o \
+	udivmoddi4.o \
 	umoddi3.o \
 	qdivrem.o
 endif

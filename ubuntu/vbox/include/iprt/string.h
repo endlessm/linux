@@ -32,11 +32,8 @@
 #include <iprt/stdarg.h>
 #include <iprt/err.h> /* for VINF_SUCCESS */
 #if defined(RT_OS_LINUX) && defined(__KERNEL__)
-  RT_C_DECLS_BEGIN
-# define new newhack /* string.h: strreplace */
+  /* no C++ hacks ('new' etc) here anymore! */
 # include <linux/string.h>
-# undef new
-  RT_C_DECLS_END
 
 #elif defined(IN_XF86_MODULE) && !defined(NO_ANSIC)
   RT_C_DECLS_BEGIN
@@ -1599,9 +1596,46 @@ RTDECL(ssize_t) RTStrFormatU64(char *pszBuf, size_t cbBuf, uint64_t u64Value, un
  * @param   cchWidth        Width.
  * @param   cchPrecision    Precision.
  * @param   fFlags          Flags, RTSTR_F_XXX.
+ * @remarks The current implementation is limited to base 16 and doesn't do
+ *          width or precision and probably ignores few flags too.
  */
 RTDECL(ssize_t) RTStrFormatU128(char *pszBuf, size_t cbBuf, PCRTUINT128U pu128Value, unsigned int uiBase,
                                 signed int cchWidth, signed int cchPrecision, uint32_t fFlags);
+
+/**
+ * Formats an unsigned 256-bit number.
+ *
+ * @returns The length of the formatted number or VERR_BUFFER_OVERFLOW.
+ * @param   pszBuf          The output buffer.
+ * @param   cbBuf           The size of the output buffer.
+ * @param   pu256Value      The value to format.
+ * @param   uiBase          Number representation base.
+ * @param   cchWidth        Width.
+ * @param   cchPrecision    Precision.
+ * @param   fFlags          Flags, RTSTR_F_XXX.
+ * @remarks The current implementation is limited to base 16 and doesn't do
+ *          width or precision and probably ignores few flags too.
+ */
+RTDECL(ssize_t) RTStrFormatU256(char *pszBuf, size_t cbBuf, PCRTUINT256U pu256Value, unsigned int uiBase,
+                                signed int cchWidth, signed int cchPrecision, uint32_t fFlags);
+
+/**
+ * Formats an unsigned 512-bit number.
+ *
+ * @returns The length of the formatted number or VERR_BUFFER_OVERFLOW.
+ * @param   pszBuf          The output buffer.
+ * @param   cbBuf           The size of the output buffer.
+ * @param   pu512Value      The value to format.
+ * @param   uiBase          Number representation base.
+ * @param   cchWidth        Width.
+ * @param   cchPrecision    Precision.
+ * @param   fFlags          Flags, RTSTR_F_XXX.
+ * @remarks The current implementation is limited to base 16 and doesn't do
+ *          width or precision and probably ignores few flags too.
+ */
+RTDECL(ssize_t) RTStrFormatU512(char *pszBuf, size_t cbBuf, PCRTUINT512U pu512Value, unsigned int uiBase,
+                                signed int cchWidth, signed int cchPrecision, uint32_t fFlags);
+
 
 /**
  * Formats an 80-bit extended floating point number.

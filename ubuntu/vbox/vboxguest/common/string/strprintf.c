@@ -66,30 +66,62 @@ static DECLCALLBACK(size_t) strbufoutput(void *pvArg, const char *pachChars, siz
 static DECLCALLBACK(size_t) strbufoutput(void *pvArg, const char *pachChars, size_t cbChars)
 {
     PSTRBUFARG  pArg = (PSTRBUFARG)pvArg;
+    char *pszCur = pArg->psz; /* We actually have to spell this out for VS2010, or it will load for each case. */
 
     cbChars = RT_MIN(pArg->cch, cbChars);
     if (cbChars)
     {
-        memcpy(pArg->psz, pachChars, cbChars);
         pArg->cch -= cbChars;
-        pArg->psz += cbChars;
+
+        /* Note! For VS2010/64 we need at least 7 case statements before it generates a jump table. */
+        switch (cbChars)
+        {
+            default:
+                memcpy(pszCur, pachChars, cbChars);
+                break;
+            case 8: pszCur[7] = pachChars[7]; /* fall thru */
+            case 7: pszCur[6] = pachChars[6]; /* fall thru */
+            case 6: pszCur[5] = pachChars[5]; /* fall thru */
+            case 5: pszCur[4] = pachChars[4]; /* fall thru */
+            case 4: pszCur[3] = pachChars[3]; /* fall thru */
+            case 3: pszCur[2] = pachChars[2]; /* fall thru */
+            case 2: pszCur[1] = pachChars[1]; /* fall thru */
+            case 1: pszCur[0] = pachChars[0]; /* fall thru */
+            case 0:
+                break;
+        }
+        pArg->psz = pszCur += cbChars;
     }
-    *pArg->psz = '\0';
+    *pszCur = '\0';
 
     return cbChars;
 }
 
 
+RTDECL(size_t) RTStrPrintf(char *pszBuffer, size_t cchBuffer, const char *pszFormat, ...)
+{
+    /* Explicitly inline RTStrPrintfV + RTStrPrintfExV here because this is a frequently use API. */
+    STRBUFARG Arg;
+    va_list args;
+    size_t cbRet;
+
+    AssertMsgReturn(cchBuffer, ("Excellent idea! Format a string with no space for the output!\n"), 0);
+    Arg.psz = pszBuffer;
+    Arg.cch = cchBuffer - 1;
+
+    va_start(args, pszFormat);
+    cbRet = RTStrFormatV(strbufoutput, &Arg, NULL, NULL, pszFormat, args);
+    va_end(args);
+
+    return cbRet;
+}
+RT_EXPORT_SYMBOL(RTStrPrintf);
+
+
 RTDECL(size_t) RTStrPrintfExV(PFNSTRFORMAT pfnFormat, void *pvArg, char *pszBuffer, size_t cchBuffer, const char *pszFormat, va_list args)
 {
     STRBUFARG Arg;
-
-    if (!cchBuffer)
-    {
-        AssertMsgFailed(("Excellent idea! Format a string with no space for the output!\n"));
-        return 0;
-    }
-
+    AssertMsgReturn(cchBuffer, ("Excellent idea! Format a string with no space for the output!\n"), 0);
     Arg.psz = pszBuffer;
     Arg.cch = cchBuffer - 1;
     return RTStrFormatV(strbufoutput, &Arg, pfnFormat, pvArg, pszFormat, args);
@@ -114,16 +146,4 @@ RTDECL(size_t) RTStrPrintfEx(PFNSTRFORMAT pfnFormat, void *pvArg, char *pszBuffe
     return cbRet;
 }
 RT_EXPORT_SYMBOL(RTStrPrintfEx);
-
-
-RTDECL(size_t) RTStrPrintf(char *pszBuffer, size_t cchBuffer, const char *pszFormat, ...)
-{
-    va_list args;
-    size_t cbRet;
-    va_start(args, pszFormat);
-    cbRet = RTStrPrintfV(pszBuffer, cchBuffer, pszFormat, args);
-    va_end(args);
-    return cbRet;
-}
-RT_EXPORT_SYMBOL(RTStrPrintf);
 
