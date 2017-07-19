@@ -732,6 +732,8 @@ RTDECL(PRTLOGGER) RTLogDefaultInit(void)
         RTLogFlags(pLogger, "enabled unbuffered pid tid");
 #  ifndef IN_GUEST
         pLogger->fDestFlags |= RTLOGDEST_DEBUGGER | RTLOGDEST_STDOUT;
+#  else
+        RTLogGroupSettings(pLogger, "all=~0 -default.l6.l5.l4.l3");
 #  endif
 # endif
 # if defined(DEBUG_sandervl) && !defined(IN_GUEST)

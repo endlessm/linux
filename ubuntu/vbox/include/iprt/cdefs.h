@@ -1093,14 +1093,12 @@
  *          Do NOT use this for the actual throwing of exceptions!
  */
 #ifdef RT_EXCEPTIONS_ENABLED
-# ifdef _MSC_VER
-#  if _MSC_VER >= 1310
+# if RT_MSC_PREREQ_EX(RT_MSC_VER_VC71, 0)
 #   define RT_THROW(type)
-#  else
-#   define RT_THROW(type)       throw(type)
-#  endif
+# elif RT_GNUC_PREREQ(7, 0)
+#   define RT_THROW(type)
 # else
-#  define RT_THROW(type)        throw(type)
+#   define RT_THROW(type)       throw(type)
 # endif
 #else
 # define RT_THROW(type)
@@ -2248,6 +2246,15 @@
  */
 #define RT_SIZEOFMEMB(type, member)             ( sizeof(((type *)(void *)0)->member) )
 
+/** @def RT_UOFFSET_AFTER
+ * Returns the offset of the first byte following a structure/union member.
+ *
+ * @return byte offset into the struct.
+ * @param   a_Type      Structure type.
+ * @param   a_Member    The member name.
+ */
+#define RT_UOFFSET_AFTER(a_Type, a_Member)      ( RT_UOFFSETOF(a_Type, a_Member) + RT_SIZEOFMEMB(a_Type, a_Member) )
+
 /** @def RT_FROM_MEMBER
  * Convert a pointer to a structure member into a pointer to the structure.
  *
@@ -2302,7 +2309,7 @@
  * @sa      RT_FLEXIBLE_ARRAY_NESTED, RT_FLEXIBLE_ARRAY_IN_UNION
  */
 #if RT_MSC_PREREQ(RT_MSC_VER_VS2005) /** @todo Probably much much earlier. */ \
- || (defined(__cplusplus) && RT_GNUC_PREREQ(6, 1)) \
+ || (defined(__cplusplus) && RT_GNUC_PREREQ(6, 1) && !RT_GNUC_PREREQ(7, 0)) /* gcc-7 warns again */\
  || defined(__WATCOMC__) /* openwatcom 1.9 supports it, we don't care about older atm. */
 # define RT_FLEXIBLE_ARRAY
 # if defined(__cplusplus) && defined(_MSC_VER)

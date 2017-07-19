@@ -275,11 +275,17 @@ struct ttm_bo_driver vbox_bo_driver = {
     .ttm_tt_populate = vbox_ttm_tt_populate,
     .ttm_tt_unpopulate = vbox_ttm_tt_unpopulate,
     .init_mem_type = vbox_bo_init_mem_type,
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(4, 10, 0)
+    .eviction_valuable = ttm_bo_eviction_valuable,
+#endif
     .evict_flags = vbox_bo_evict_flags,
     .move = vbox_bo_move,
     .verify_access = vbox_bo_verify_access,
     .io_mem_reserve = &vbox_ttm_io_mem_reserve,
     .io_mem_free = &vbox_ttm_io_mem_free,
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(4, 12, 0)
+    .io_mem_pfn = ttm_bo_default_io_mem_pfn,
+#endif
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(4, 7, 0) && LINUX_VERSION_CODE < KERNEL_VERSION(4, 11, 0)
     .lru_tail = &ttm_bo_default_lru_tail,
     .swap_lru_tail = &ttm_bo_default_swap_lru_tail,

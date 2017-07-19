@@ -3052,6 +3052,10 @@ typedef struct X86XSAVEAREA
        follows immediately. */
     union
     {
+        /** The high 128-bit AVX registers for easy access by IEM.
+         * @note This ASSUMES they will always be here...  */
+        X86XSAVEYMMHI       YmmHi;
+
         /** This is a typical layout on intel CPUs (good for debuggers). */
         struct
         {

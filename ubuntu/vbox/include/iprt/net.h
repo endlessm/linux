@@ -181,6 +181,30 @@ RTDECL(int) RTNetStrToIPv6AddrEx(const char *pcszAddr, PRTNETADDRIPV6 pAddr, cha
 RTDECL(int) RTNetStrToIPv6Addr(const char *pcszAddr, PRTNETADDRIPV6 pAddr, char **ppszZone);
 
 /**
+ * Verifies that RTNETADDRIPV6 is a valid contiguous netmask and
+ * computes its prefix length.
+ *
+ * @returns VINF_SUCCESS on success, VERR_INVALID_PARAMETER on
+ *          failure.
+ *
+ * @param   pMask           The netmask to verify and convert.
+ * @param   piPrefix        Where to store the prefix length. (Optional)
+ */
+RTDECL(int) RTNetMaskToPrefixIPv6(PCRTNETADDRIPV6 pMask, int *piPrefix);
+
+/**
+ * Computes netmask corresponding to the prefix length.
+ *
+ * @returns VINF_SUCCESS on success, VERR_INVALID_PARAMETER on
+ *          failure.
+ *
+ * @param   iPrefix         The prefix to convert.
+ * @param   pMask           Where to store the netmask.
+ */
+RTDECL(int) RTNetPrefixToMaskIPv6(int iPrefix, PRTNETADDRIPV6 pMask);
+
+
+/**
  * IPX address.
  */
 #pragma pack(1)

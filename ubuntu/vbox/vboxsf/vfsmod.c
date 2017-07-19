@@ -129,6 +129,7 @@ static int sf_glob_alloc(struct vbsf_mount_info_new *info, struct sf_glob_info *
             {
                 err = -EINVAL;
                 LogFunc(("failed to load nls %s\n", info->nls_name));
+                kfree(str_name);
                 goto fail1;
             }
         }

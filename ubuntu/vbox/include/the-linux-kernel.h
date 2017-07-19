@@ -159,6 +159,11 @@
 # include <asm/tlbflush.h>
 #endif
 
+/* for set_pages_x() */
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(4, 12, 0)
+# include <asm/set_memory.h>
+#endif
+
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(3, 7, 0)
 # include <asm/smap.h>
 #else
