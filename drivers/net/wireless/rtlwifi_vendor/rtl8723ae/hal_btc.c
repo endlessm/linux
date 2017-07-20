@@ -382,13 +382,13 @@ static void rtl8723e_dm_bt_set_sw_full_time_dac_swing(
 	if (sw_dac_swing_on) {
 		RT_TRACE(rtlpriv, COMP_BT_COEXIST, DBG_TRACE,
 			 "[BTCoex], SwDacSwing = 0x%x\n", sw_dac_swing_lvl);
-		rtlvendor_rtl8723_phy_set_bb_reg(hw, 0x880, 0xff000000,
+		rtl8723_phy_set_bb_reg(hw, 0x880, 0xff000000,
 				       sw_dac_swing_lvl);
 		rtlpriv->btcoexist.sw_coexist_all_off = false;
 	} else {
 		RT_TRACE(rtlpriv, COMP_BT_COEXIST, DBG_TRACE,
 			 "[BTCoex], SwDacSwing Off!\n");
-		rtlvendor_rtl8723_phy_set_bb_reg(hw, 0x880, 0xff000000, 0xc0);
+		rtl8723_phy_set_bb_reg(hw, 0x880, 0xff000000, 0xc0);
 	}
 }
 

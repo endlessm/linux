@@ -63,7 +63,7 @@ static void _rtl8821ae_write_fw(struct ieee80211_hw *hw,
 
 	RT_TRACE(rtlpriv, COMP_FW, DBG_LOUD, "FW size is %d bytes,\n", size);
 
-	rtlvendor_rtl_fill_dummy(bufferptr, &size);
+	rtl_fill_dummy(bufferptr, &size);
 
 	pagenums = size / FW_8821AE_PAGE_SIZE;
 	remainsize = size % FW_8821AE_PAGE_SIZE;
@@ -74,14 +74,14 @@ static void _rtl8821ae_write_fw(struct ieee80211_hw *hw,
 
 	for (page = 0; page < pagenums; page++) {
 		offset = page * FW_8821AE_PAGE_SIZE;
-		rtlvendor_rtl_fw_page_write(hw, page, (bufferptr + offset),
+		rtl_fw_page_write(hw, page, (bufferptr + offset),
 				  FW_8821AE_PAGE_SIZE);
 	}
 
 	if (remainsize) {
 		offset = pagenums * FW_8821AE_PAGE_SIZE;
 		page = pagenums;
-		rtlvendor_rtl_fw_page_write(hw, page, (bufferptr + offset), remainsize);
+		rtl_fw_page_write(hw, page, (bufferptr + offset), remainsize);
 	}
 }
 
@@ -1659,7 +1659,7 @@ out:
 	memcpy((u8 *)skb_put(skb, totalpacketlen),
 	       &reserved_page_packet_8812, totalpacketlen);
 
-	rtstatus = rtlvendor_rtl_cmd_send_packet(hw, skb);
+	rtstatus = rtl_cmd_send_packet(hw, skb);
 
 	if (rtstatus)
 		b_dlok = true;
@@ -1796,7 +1796,7 @@ out:
 	memcpy((u8 *)skb_put(skb, totalpacketlen),
 	       &reserved_page_packet_8821, totalpacketlen);
 
-	rtstatus = rtlvendor_rtl_cmd_send_packet(hw, skb);
+	rtstatus = rtl_cmd_send_packet(hw, skb);
 
 	if (rtstatus)
 		b_dlok = true;
@@ -1943,7 +1943,7 @@ void rtl8821ae_c2h_content_parsing(struct ieee80211_hw *hw,
 		RT_TRACE(rtlpriv, COMP_FW, DBG_LOUD, "[C2H], C2H_8812_DBG!!\n");
 		break;
 	case C2H_8812_TX_REPORT:
-		rtlvendor_rtl_tx_report_handler(hw, tmp_buf, c2h_cmd_len);
+		rtl_tx_report_handler(hw, tmp_buf, c2h_cmd_len);
 		break;
 	case C2H_8812_RA_RPT:
 		rtl8821ae_c2h_ra_report_handler(hw, tmp_buf, c2h_cmd_len);
@@ -1988,7 +1988,7 @@ void rtl8821ae_c2h_packet_handler(struct ieee80211_hw *hw, u8 *buffer,
 
 	switch (c2h_cmd_id) {
 	case C2H_8812_BT_INFO:
-		rtlvendor_rtl_c2hcmd_enqueue(hw, c2h_cmd_id, c2h_cmd_len, tmp_buf);
+		rtl_c2hcmd_enqueue(hw, c2h_cmd_id, c2h_cmd_len, tmp_buf);
 		break;
 
 	default:

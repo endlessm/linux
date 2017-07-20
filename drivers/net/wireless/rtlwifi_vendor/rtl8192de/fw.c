@@ -71,7 +71,7 @@ static void _rtl92d_write_fw(struct ieee80211_hw *hw,
 
 	RT_TRACE(rtlpriv, COMP_FW, DBG_TRACE, "FW size is %d bytes,\n", size);
 	if (rtlhal->hw_type == HARDWARE_TYPE_RTL8192DE)
-		rtlvendor_rtl_fill_dummy(bufferptr, &size);
+		rtl_fill_dummy(bufferptr, &size);
 	pagenums = size / FW_8192D_PAGE_SIZE;
 	remainsize = size % FW_8192D_PAGE_SIZE;
 	if (pagenums > 8) {
@@ -79,13 +79,13 @@ static void _rtl92d_write_fw(struct ieee80211_hw *hw,
 	}
 	for (page = 0; page < pagenums; page++) {
 		offset = page * FW_8192D_PAGE_SIZE;
-		rtlvendor_rtl_fw_page_write(hw, page, (bufferptr + offset),
+		rtl_fw_page_write(hw, page, (bufferptr + offset),
 				  FW_8192D_PAGE_SIZE);
 	}
 	if (remainsize) {
 		offset = pagenums * FW_8192D_PAGE_SIZE;
 		page = pagenums;
-		rtlvendor_rtl_fw_page_write(hw, page, (bufferptr + offset), remainsize);
+		rtl_fw_page_write(hw, page, (bufferptr + offset), remainsize);
 	}
 }
 

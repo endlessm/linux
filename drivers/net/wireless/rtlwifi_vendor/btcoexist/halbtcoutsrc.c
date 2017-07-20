@@ -343,7 +343,7 @@ static void halbtc_leave_lps(struct btc_coexist *btcoexist)
 
 	btcoexist->bt_info.bt_ctrl_lps = true;
 	btcoexist->bt_info.bt_lps_on = false;
-	rtlvendor_rtl_lps_leave(rtlpriv->mac80211.hw);
+	rtl_lps_leave(rtlpriv->mac80211.hw);
 }
 
 static void halbtc_enter_lps(struct btc_coexist *btcoexist)
@@ -366,7 +366,7 @@ static void halbtc_enter_lps(struct btc_coexist *btcoexist)
 
 	btcoexist->bt_info.bt_ctrl_lps = true;
 	btcoexist->bt_info.bt_lps_on = true;
-	rtlvendor_rtl_lps_enter(rtlpriv->mac80211.hw);
+	rtl_lps_enter(rtlpriv->mac80211.hw);
 }
 
 static void halbtc_normal_lps(struct btc_coexist *btcoexist)
@@ -377,7 +377,7 @@ static void halbtc_normal_lps(struct btc_coexist *btcoexist)
 
 	if (btcoexist->bt_info.bt_ctrl_lps) {
 		btcoexist->bt_info.bt_lps_on = false;
-		rtlvendor_rtl_lps_leave(rtlpriv->mac80211.hw);
+		rtl_lps_leave(rtlpriv->mac80211.hw);
 		btcoexist->bt_info.bt_ctrl_lps = false;
 	}
 }
@@ -445,7 +445,7 @@ static void halbtc_aggregation_check(struct btc_coexist *btcoexist)
 		}
 
 		if (need_to_act)
-			rtlvendor_rtl_rx_ampdu_apply(rtlpriv);
+			rtl_rx_ampdu_apply(rtlpriv);
 	}
 
 }
