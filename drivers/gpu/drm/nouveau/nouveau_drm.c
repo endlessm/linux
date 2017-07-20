@@ -422,6 +422,17 @@ nouveau_get_hdmi_dev(struct nouveau_drm *drm)
 	}
 }
 
+static const struct dmi_system_id gp107_runpm_blacklist[] = {
+	{
+                .ident = "ASUS",
+                .matches = {
+			DMI_MATCH(DMI_SYS_VENDOR, "ASUSTeK COMPUTER INC."),
+			DMI_MATCH(DMI_CHASSIS_TYPE, "10"), /* Notebook */
+                },
+        },
+	{ }
+};
+
 static int
 nouveau_drm_load(struct drm_device *dev, unsigned long flags)
 {
@@ -453,6 +464,10 @@ nouveau_drm_load(struct drm_device *dev, unsigned long flags)
 	 */
 	if (drm->client.device.info.chipset == 0xc1)
 		nvif_mask(&drm->client.device.object, 0x00088080, 0x00000800, 0x00000000);
+
+	if (drm->client.device.info.chipset == 0x137 &&
+	    dmi_check_system(gp107_runpm_blacklist))
+		nouveau_runtime_pm = 0;
 
 	nouveau_vga_init(drm);
 
