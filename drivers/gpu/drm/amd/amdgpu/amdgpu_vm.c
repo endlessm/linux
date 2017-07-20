@@ -1059,7 +1059,7 @@ static int amdgpu_vm_update_level(struct amdgpu_device *adev,
 	shadow = parent->bo->shadow;
 
 	if (vm->use_cpu_for_update) {
-		pd_addr = (unsigned long)parent->bo->kptr;
+		pd_addr = (unsigned long)amdgpu_bo_kptr(parent->bo);
 		r = amdgpu_vm_wait_pd(adev, vm, AMDGPU_FENCE_OWNER_VM);
 		if (unlikely(r))
 			return r;
@@ -1400,7 +1400,7 @@ static int amdgpu_vm_update_ptes(struct amdgpu_pte_update_params *params,
 
 		pt = entry->bo;
 		if (use_cpu_update) {
-			pe_start = (unsigned long)pt->kptr;
+			pe_start = (unsigned long)amdgpu_bo_kptr(pt);
 		} else {
 			if (pt->shadow) {
 				pe_start = amdgpu_bo_gpu_offset(pt->shadow);
