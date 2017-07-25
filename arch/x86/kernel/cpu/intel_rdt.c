@@ -83,6 +83,7 @@ struct rdt_resource rdt_resources_all[] = {
 		},
 		.parse_ctrlval		= parse_cbm,
 		.format_str		= "%d=%0*x",
+		.fflags			= RFTYPE_RES_CACHE,
 	},
 	[RDT_RESOURCE_L3DATA] =
 	{
@@ -98,6 +99,7 @@ struct rdt_resource rdt_resources_all[] = {
 		},
 		.parse_ctrlval		= parse_cbm,
 		.format_str		= "%d=%0*x",
+		.fflags			= RFTYPE_RES_CACHE,
 	},
 	[RDT_RESOURCE_L3CODE] =
 	{
@@ -113,6 +115,7 @@ struct rdt_resource rdt_resources_all[] = {
 		},
 		.parse_ctrlval		= parse_cbm,
 		.format_str		= "%d=%0*x",
+		.fflags			= RFTYPE_RES_CACHE,
 	},
 	[RDT_RESOURCE_L2] =
 	{
@@ -128,6 +131,7 @@ struct rdt_resource rdt_resources_all[] = {
 		},
 		.parse_ctrlval		= parse_cbm,
 		.format_str		= "%d=%0*x",
+		.fflags			= RFTYPE_RES_CACHE,
 	},
 	[RDT_RESOURCE_MBA] =
 	{
@@ -138,6 +142,7 @@ struct rdt_resource rdt_resources_all[] = {
 		.cache_level		= 3,
 		.parse_ctrlval		= parse_bw,
 		.format_str		= "%d=%*d",
+		.fflags			= RFTYPE_RES_MB,
 	},
 };
 
@@ -233,7 +238,6 @@ static bool rdt_get_mem_config(struct rdt_resource *r)
 			return false;
 	}
 	r->data_width = 3;
-	rdt_get_mba_infofile(r);
 
 	r->alloc_capable = true;
 	r->alloc_enabled = true;
