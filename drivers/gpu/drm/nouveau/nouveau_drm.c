@@ -178,17 +178,6 @@ nouveau_accel_fini(struct nouveau_drm *drm)
 		nouveau_fence(drm)->dtor(drm);
 }
 
-static const struct dmi_system_id noaccel_quirk[] = {
-	{
-		.ident = "Aspire A717-71G",
-		.matches = {
-			DMI_MATCH(DMI_SYS_VENDOR, "Acer"),
-			DMI_MATCH(DMI_PRODUCT_NAME, "Aspire A717-71G"),
-		},
-	},
-	{ }
-};
-
 static void
 nouveau_accel_init(struct nouveau_drm *drm)
 {
@@ -196,8 +185,6 @@ nouveau_accel_init(struct nouveau_drm *drm)
 	struct nvif_sclass *sclass;
 	u32 arg0, arg1;
 	int ret, i, n;
-
-	nouveau_noaccel = !!dmi_check_system(noaccel_quirk);
 
 	if (nouveau_noaccel)
 		return;
@@ -446,6 +433,17 @@ static const struct dmi_system_id gp107_runpm_blacklist[] = {
 	{ }
 };
 
+static const struct dmi_system_id gp107_accel_blacklist[] = {
+	{
+                .ident = "Acer",
+                .matches = {
+			DMI_MATCH(DMI_SYS_VENDOR, "Acer"),
+			DMI_MATCH(DMI_CHASSIS_TYPE, "10"), /* Notebook */
+                },
+        },
+	{ }
+};
+
 static int
 nouveau_drm_load(struct drm_device *dev, unsigned long flags)
 {
@@ -481,6 +479,10 @@ nouveau_drm_load(struct drm_device *dev, unsigned long flags)
 	if (drm->client.device.info.chipset == 0x137 &&
 	    dmi_check_system(gp107_runpm_blacklist))
 		nouveau_runtime_pm = 0;
+
+	if (drm->client.device.info.chipset == 0x137 &&
+	    dmi_check_system(gp107_accel_blacklist))
+		nouveau_noaccel = 1;
 
 	nouveau_vga_init(drm);
 
