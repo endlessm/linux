@@ -178,17 +178,6 @@ nouveau_accel_fini(struct nouveau_drm *drm)
 		nouveau_fence(drm)->dtor(drm);
 }
 
-static const struct dmi_system_id noaccel_quirk[] = {
-	{
-		.ident = "Aspire A717-71G",
-		.matches = {
-			DMI_MATCH(DMI_SYS_VENDOR, "Acer"),
-			DMI_MATCH(DMI_PRODUCT_NAME, "Aspire A717-71G"),
-		},
-	},
-	{ }
-};
-
 static void
 nouveau_accel_init(struct nouveau_drm *drm)
 {
@@ -196,8 +185,6 @@ nouveau_accel_init(struct nouveau_drm *drm)
 	struct nvif_sclass *sclass;
 	u32 arg0, arg1;
 	int ret, i, n;
-
-	nouveau_noaccel = !!dmi_check_system(noaccel_quirk);
 
 	if (nouveau_noaccel)
 		return;
