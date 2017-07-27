@@ -91,6 +91,7 @@ int __init security_init(void)
 
 #ifdef CONFIG_SECURITY_LSM_DEBUG
 	pr_info("LSM: cred blob size       = %d\n", blob_sizes.lbs_cred);
+	pr_info("LSM: file blob size       = %d\n", blob_sizes.lbs_file);
 #endif
 
 	return 0;
@@ -267,6 +268,30 @@ static void __init lsm_set_size(int *need, int *lbs)
 void __init security_add_blobs(struct lsm_blob_sizes *needed)
 {
 	lsm_set_size(&needed->lbs_cred, &blob_sizes.lbs_cred);
+	lsm_set_size(&needed->lbs_file, &blob_sizes.lbs_file);
+}
+
+/**
+ * lsm_file_alloc - allocate a composite file blob
+ * @file: the file that needs a blob
+ *
+ * Allocate the file blob for all the modules
+ *
+ * Returns 0, or -ENOMEM if memory can't be allocated.
+ */
+int lsm_file_alloc(struct file *file)
+{
+#ifdef CONFIG_SECURITY_LSM_DEBUG
+	if (file->f_security)
+		pr_info("%s: Inbound file blob is not NULL.\n", __func__);
+#endif
+	if (blob_sizes.lbs_file == 0)
+		return 0;
+
+	file->f_security = kzalloc(blob_sizes.lbs_file, GFP_KERNEL);
+	if (file->f_security == NULL)
+		return -ENOMEM;
+	return 0;
 }
 
 /*
@@ -966,12 +991,19 @@ EXPORT_SYMBOL_GPL(security_file_permission);
 
 int security_file_alloc(struct file *file)
 {
+	int rc = lsm_file_alloc(file);
+
+	if (rc)
+		return rc;
 	return call_int_hook(file_alloc_security, 0, file);
 }
 
 void security_file_free(struct file *file)
 {
 	call_void_hook(file_free_security, file);
+
+	kfree(file->f_security);
+	file->f_security = NULL;
 }
 
 int security_file_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
