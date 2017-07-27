@@ -45,6 +45,28 @@ config SECURITY_WRITABLE_HOOKS
 	bool
 	default n
 
+config SECURITY_STACKING
+	bool "Security module stacking"
+	depends on SECURITY
+	help
+	  Allows multiple major security modules to be stacked.
+	  Modules are invoked in the order registered with a
+	  "bail on fail" policy, in which the infrastructure
+	  will stop processing once a denial is detected. Not
+	  all modules can be stacked. SELinux and Smack are
+	  known to be incompatible. User space components may
+	  have trouble identifying the security module providing
+	  data in some cases.
+
+	  If you select this option you will have to select which
+	  of the stackable modules you wish to be active. The
+	  "Default security module" will be ignored. The boot line
+	  "security=" option can be used to specify that one of
+	  the modules identifed for stacking should be used instead
+	  of the entire stack.
+
+	  If you are unsure how to answer this question, answer N.
+
 config SECURITY_LSM_DEBUG
 	bool "Enable debugging of the LSM infrastructure"
 	depends on SECURITY
@@ -249,6 +271,9 @@ source security/yama/Kconfig
 
 source security/integrity/Kconfig
 
+menu "Security Module Selection"
+	visible if !SECURITY_STACKING
+
 choice
 	prompt "Default security module"
 	default DEFAULT_SECURITY_SELINUX if SECURITY_SELINUX
@@ -288,3 +313,72 @@ config DEFAULT_SECURITY
 
 endmenu
 
+menu "Security Module Stack"
+	visible if SECURITY_STACKING
+
+choice
+	prompt "Stacked 'extreme' security module"
+	default SECURITY_SELINUX_STACKED if SECURITY_SELINUX
+	default SECURITY_SMACK_STACKED if SECURITY_SMACK
+
+	help
+	  Enable an extreme security module. These modules cannot
+	  be used at the same time.
+
+	config SECURITY_SELINUX_STACKED
+		bool "SELinux" if SECURITY_SELINUX=y
+	help
+	  Add the SELinux security module to the stack. At this
+	  time the Smack security module is incompatible with this
+	  module.
+	  Please be sure your user space code is accomodating of
+	  this security module.
+
+	config SECURITY_SMACK_STACKED
+		bool "Simplified Mandatory Access Control" if SECURITY_SMACK=y
+	help
+	  Add the Smack security module to the stack. At this
+	  time the SELinux security module is incompatible with this
+	  module.
+	  Please be sure your user space code is accomodating of
+	  this security module.
+
+	config SECURITY_NOTHING_STACKED
+		bool "Use no 'extreme' security module"
+	help
+	  Add neither the SELinux security module nor the Smack security
+	  module to the stack.
+	  Please be sure your user space code does not require either of
+	  these security modules.
+
+endchoice
+
+config SECURITY_TOMOYO_STACKED
+	bool "TOMOYO support is enabled by default"
+	depends on SECURITY_TOMOYO && SECURITY_STACKING
+	default n
+	help
+	  This option instructs the system to use the TOMOYO checks.
+	  If not selected the module will not be invoked.
+	  Stacked security modules may interact in unexpected ways.
+	  Please be sure your user space code is accomodating of
+	  multiple security modules.
+
+	  If you are unsure how to answer this question, answer N.
+
+config SECURITY_APPARMOR_STACKED
+	bool "AppArmor support is enabled by default"
+	depends on SECURITY_APPARMOR && SECURITY_STACKING
+	default n
+	help
+	  This option instructs the system to use the AppArmor checks.
+	  If not selected the module will not be invoked.
+	  Stacked security modules may interact in unexpected ways.
+	  Please be sure your user space code is accomodating of
+	  multiple security modules.
+
+	  If you are unsure how to answer this question, answer N.
+
+endmenu
+
+endmenu

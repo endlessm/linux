@@ -17,10 +17,16 @@ MAC extensions, other extensions can be built using the LSM to provide
 specific changes to system operation when these tweaks are not available
 in the core functionality of Linux itself.
 
-The Linux capabilities modules will always be included. This may be
-followed by any number of "minor" modules and at most one "major" module.
-For more details on capabilities, see ``capabilities(7)`` in the Linux
-man-pages project.
+The Linux capabilities modules will always be included. For more details
+on capabilities, see ``capabilities(7)`` in the Linux man-pages project.
+
+Security modules that do not use the security data blobs maintained
+by the LSM infrastructure are considered "minor" modules. These may be
+included at compile time and stacked explicitly. Security modules that
+use the LSM maintained security blobs are considered "major" modules.
+These may only be stacked if the CONFIG_LSM_STACKED configuration
+option is used. If this is chosen all of the security modules selected
+will be used.
 
 A list of the active security modules can be found by reading
 ``/sys/kernel/security/lsm``. This is a comma separated list, and
@@ -36,6 +42,14 @@ named after the module. ``/proc/.../attr/smack`` is provided by the Smack
 security module and contains all its special files. The files directly
 in ``/proc/.../attr`` remain as legacy interfaces for modules that provide
 subdirectories.
+
+The files named "context" in the attr directories contain the
+same information as the "current" files, but formatted to
+identify the module it comes from.
+
+if selinux is the active security module:
+	/proc/self/attr/context could contain selinux='unconfined_t'
+	/proc/self/attr/selinux/context could contain selinux='unconfined_t'
 
 .. toctree::
    :maxdepth: 1
