@@ -3453,18 +3453,20 @@ static int smack_getprocattr(struct task_struct *p, char *name, char **value)
 {
 	struct smack_known *skp = smk_of_task_struct(p);
 	char *cp;
-	int slen;
 
-	if (strcmp(name, "current") != 0)
+	if (strcmp(name, "current") == 0) {
+		cp = kstrdup(skp->smk_known, GFP_KERNEL);
+		if (cp == NULL)
+			return -ENOMEM;
+	} else if (strcmp(name, "context") == 0) {
+		cp = kasprintf(GFP_KERNEL, "smack='%s'", skp->smk_known);
+		if (cp == NULL)
+			return -ENOMEM;
+	} else
 		return -EINVAL;
 
-	cp = kstrdup(skp->smk_known, GFP_KERNEL);
-	if (cp == NULL)
-		return -ENOMEM;
-
-	slen = strlen(cp);
 	*value = cp;
-	return slen;
+	return strlen(cp);
 }
 
 /**
@@ -3492,7 +3494,7 @@ static int smack_setprocattr(const char *name, void *value, size_t size)
 	if (value == NULL || size == 0 || size >= SMK_LONGLABEL)
 		return -EINVAL;
 
-	if (strcmp(name, "current") != 0)
+	if (strcmp(name, "current") != 0 && strcmp(name, "context") != 0)
 		return -EINVAL;
 
 	skp = smk_import_entry(value, size);
@@ -4622,7 +4624,8 @@ static __init int smack_init(void)
 	struct cred *cred = (struct cred *) current->cred;
 	struct task_smack *tsp;
 
-	if (!security_module_enable("smack"))
+	if (!security_module_enable("smack",
+				IS_ENABLED(CONFIG_SECURITY_SMACK_STACKED)))
 		return 0;
 
 	if (!finish) {
