@@ -55,6 +55,17 @@ module_param(napi_tx, bool, 0644);
  */
 DECLARE_EWMA(pkt_len, 0, 64)
 
+/* With mergeable buffers we align buffer address and use the low bits to
+ * encode its true size. Buffer size is up to 1 page so we need to align to
+ * square root of page size to ensure we reserve enough bits to encode the true
+ * size.
+ */
+#define MERGEABLE_BUFFER_MIN_ALIGN_SHIFT ((PAGE_SHIFT + 1) / 2)
+
+/* Minimum alignment for mergeable packet buffers. */
+#define MERGEABLE_BUFFER_ALIGN max(L1_CACHE_BYTES, \
+				   1 << MERGEABLE_BUFFER_MIN_ALIGN_SHIFT)
+
 #define VIRTNET_DRIVER_VERSION "1.0.0"
 
 struct virtnet_stats {
@@ -268,6 +279,24 @@ static void skb_xmit_done(struct virtqueue *vq)
 	else
 		/* We were probably waiting for more output buffers. */
 		netif_wake_subqueue(vi->dev, vq2txq(vq));
+}
+
+static unsigned int mergeable_ctx_to_buf_truesize(unsigned long mrg_ctx)
+{
+	unsigned int truesize = mrg_ctx & (MERGEABLE_BUFFER_ALIGN - 1);
+	return (truesize + 1) * MERGEABLE_BUFFER_ALIGN;
+}
+
+static void *mergeable_ctx_to_buf_address(unsigned long mrg_ctx)
+{
+	return (void *)(mrg_ctx & -MERGEABLE_BUFFER_ALIGN);
+
+}
+
+static unsigned long mergeable_buf_to_ctx(void *buf, unsigned int truesize)
+{
+	unsigned int size = truesize / MERGEABLE_BUFFER_ALIGN;
+	return (unsigned long)buf | (size - 1);
 }
 
 /* Called from bottom half context */
@@ -513,13 +542,15 @@ static struct page *xdp_linearize_page(struct receive_queue *rq,
 
 	while (--*num_buf) {
 		unsigned int buflen;
+		unsigned long ctx;
 		void *buf;
 		int off;
 
-		buf = virtqueue_get_buf(rq->vq, &buflen);
-		if (unlikely(!buf))
+		ctx = (unsigned long)virtqueue_get_buf(rq->vq, &buflen);
+		if (unlikely(!ctx))
 			goto err_buf;
 
+		buf = mergeable_ctx_to_buf_address(ctx);
 		p = virt_to_head_page(buf);
 		off = buf - page_address(p);
 
@@ -548,10 +579,10 @@ err_buf:
 static struct sk_buff *receive_mergeable(struct net_device *dev,
 					 struct virtnet_info *vi,
 					 struct receive_queue *rq,
-					 void *buf,
-					 void *ctx,
+					 unsigned long ctx,
 					 unsigned int len)
 {
+	void *buf = mergeable_ctx_to_buf_address(ctx);
 	struct virtio_net_hdr_mrg_rxbuf *hdr = buf;
 	u16 num_buf = virtio16_to_cpu(vi->vdev, hdr->num_buffers);
 	struct page *page = virt_to_head_page(buf);
@@ -639,13 +670,7 @@ static struct sk_buff *receive_mergeable(struct net_device *dev,
 	}
 	rcu_read_unlock();
 
-	if (unlikely(len > (unsigned long)ctx)) {
-		pr_debug("%s: rx error: len %u exceeds truesize %lu\n",
-			 dev->name, len, (unsigned long)ctx);
-		dev->stats.rx_length_errors++;
-		goto err_skb;
-	}
-	truesize = (unsigned long)ctx;
+	truesize = max(len, mergeable_ctx_to_buf_truesize(ctx));
 	head_skb = page_to_skb(vi, rq, page, offset, len, truesize);
 	curr_skb = head_skb;
 
@@ -654,7 +679,7 @@ static struct sk_buff *receive_mergeable(struct net_device *dev,
 	while (--num_buf) {
 		int num_skb_frags;
 
-		buf = virtqueue_get_buf_ctx(rq->vq, &len, &ctx);
+		ctx = (unsigned long)virtqueue_get_buf(rq->vq, &len);
 		if (unlikely(!ctx)) {
 			pr_debug("%s: rx error: %d buffers out of %d missing\n",
 				 dev->name, num_buf,
@@ -664,14 +689,8 @@ static struct sk_buff *receive_mergeable(struct net_device *dev,
 			goto err_buf;
 		}
 
+		buf = mergeable_ctx_to_buf_address(ctx);
 		page = virt_to_head_page(buf);
-		if (unlikely(len > (unsigned long)ctx)) {
-			pr_debug("%s: rx error: len %u exceeds truesize %lu\n",
-				 dev->name, len, (unsigned long)ctx);
-			dev->stats.rx_length_errors++;
-			goto err_skb;
-		}
-		truesize = (unsigned long)ctx;
 
 		num_skb_frags = skb_shinfo(curr_skb)->nr_frags;
 		if (unlikely(num_skb_frags == MAX_SKB_FRAGS)) {
@@ -687,6 +706,7 @@ static struct sk_buff *receive_mergeable(struct net_device *dev,
 			head_skb->truesize += nskb->truesize;
 			num_skb_frags = 0;
 		}
+		truesize = max(len, mergeable_ctx_to_buf_truesize(ctx));
 		if (curr_skb != head_skb) {
 			head_skb->data_len += len;
 			head_skb->len += len;
@@ -711,14 +731,14 @@ err_xdp:
 err_skb:
 	put_page(page);
 	while (--num_buf) {
-		buf = virtqueue_get_buf(rq->vq, &len);
-		if (unlikely(!buf)) {
+		ctx = (unsigned long)virtqueue_get_buf(rq->vq, &len);
+		if (unlikely(!ctx)) {
 			pr_debug("%s: rx error: %d buffers missing\n",
 				 dev->name, num_buf);
 			dev->stats.rx_length_errors++;
 			break;
 		}
-		page = virt_to_head_page(buf);
+		page = virt_to_head_page(mergeable_ctx_to_buf_address(ctx));
 		put_page(page);
 	}
 err_buf:
@@ -729,7 +749,7 @@ xdp_xmit:
 }
 
 static int receive_buf(struct virtnet_info *vi, struct receive_queue *rq,
-		       void *buf, unsigned int len, void **ctx)
+		       void *buf, unsigned int len)
 {
 	struct net_device *dev = vi->dev;
 	struct sk_buff *skb;
@@ -740,7 +760,9 @@ static int receive_buf(struct virtnet_info *vi, struct receive_queue *rq,
 		pr_debug("%s: short packet %i\n", dev->name, len);
 		dev->stats.rx_length_errors++;
 		if (vi->mergeable_rx_bufs) {
-			put_page(virt_to_head_page(buf));
+			unsigned long ctx = (unsigned long)buf;
+			void *base = mergeable_ctx_to_buf_address(ctx);
+			put_page(virt_to_head_page(base));
 		} else if (vi->big_packets) {
 			give_pages(rq, buf);
 		} else {
@@ -750,7 +772,7 @@ static int receive_buf(struct virtnet_info *vi, struct receive_queue *rq,
 	}
 
 	if (vi->mergeable_rx_bufs)
-		skb = receive_mergeable(dev, vi, rq, buf, ctx, len);
+		skb = receive_mergeable(dev, vi, rq, (unsigned long)buf, len);
 	else if (vi->big_packets)
 		skb = receive_big(dev, vi, rq, buf, len);
 	else
@@ -870,7 +892,7 @@ static unsigned int get_mergeable_buf_len(struct receive_queue *rq,
 
 	len = hdr_len + clamp_t(unsigned int, ewma_pkt_len_read(avg_pkt_len),
 				rq->min_buf_len, PAGE_SIZE - hdr_len);
-	return ALIGN(len, L1_CACHE_BYTES);
+	return ALIGN(len, MERGEABLE_BUFFER_ALIGN);
 }
 
 static int add_recvbuf_mergeable(struct virtnet_info *vi,
@@ -879,7 +901,7 @@ static int add_recvbuf_mergeable(struct virtnet_info *vi,
 	struct page_frag *alloc_frag = &rq->alloc_frag;
 	unsigned int headroom = virtnet_get_headroom(vi);
 	char *buf;
-	void *ctx;
+	unsigned long ctx;
 	int err;
 	unsigned int len, hole;
 
@@ -889,7 +911,7 @@ static int add_recvbuf_mergeable(struct virtnet_info *vi,
 
 	buf = (char *)page_address(alloc_frag->page) + alloc_frag->offset;
 	buf += headroom; /* advance address leaving hole at front of pkt */
-	ctx = (void *)(unsigned long)len;
+	ctx = mergeable_buf_to_ctx(buf, len);
 	get_page(alloc_frag->page);
 	alloc_frag->offset += len + headroom;
 	hole = alloc_frag->size - alloc_frag->offset;
@@ -904,7 +926,7 @@ static int add_recvbuf_mergeable(struct virtnet_info *vi,
 	}
 
 	sg_init_one(rq->sg, buf, len);
-	err = virtqueue_add_inbuf_ctx(rq->vq, rq->sg, 1, buf, ctx, gfp);
+	err = virtqueue_add_inbuf(rq->vq, rq->sg, 1, (void *)ctx, gfp);
 	if (err < 0)
 		put_page(virt_to_head_page(buf));
 
@@ -1015,20 +1037,10 @@ static int virtnet_receive(struct receive_queue *rq, int budget)
 	void *buf;
 	struct virtnet_stats *stats = this_cpu_ptr(vi->stats);
 
-	if (vi->mergeable_rx_bufs) {
-		void *ctx;
-
-		while (received < budget &&
-		       (buf = virtqueue_get_buf_ctx(rq->vq, &len, &ctx))) {
-			bytes += receive_buf(vi, rq, buf, len, ctx);
-			received++;
-		}
-	} else {
-		while (received < budget &&
-		       (buf = virtqueue_get_buf(rq->vq, &len)) != NULL) {
-			bytes += receive_buf(vi, rq, buf, len, NULL);
-			received++;
-		}
+	while (received < budget &&
+	       (buf = virtqueue_get_buf(rq->vq, &len)) != NULL) {
+		bytes += receive_buf(vi, rq, buf, len);
+		received++;
 	}
 
 	if (rq->vq->num_free > virtqueue_get_vring_size(rq->vq) / 2) {
@@ -2112,7 +2124,9 @@ static void free_unused_bufs(struct virtnet_info *vi)
 
 		while ((buf = virtqueue_detach_unused_buf(vq)) != NULL) {
 			if (vi->mergeable_rx_bufs) {
-				put_page(virt_to_head_page(buf));
+				unsigned long ctx = (unsigned long)buf;
+				void *base = mergeable_ctx_to_buf_address(ctx);
+				put_page(virt_to_head_page(base));
 			} else if (vi->big_packets) {
 				give_pages(&vi->rq[i], buf);
 			} else {
