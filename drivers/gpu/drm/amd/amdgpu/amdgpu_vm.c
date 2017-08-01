@@ -869,8 +869,8 @@ struct amdgpu_bo_va *amdgpu_vm_bo_find(struct amdgpu_vm *vm,
 {
 	struct amdgpu_bo_va *bo_va;
 
-	list_for_each_entry(bo_va, &bo->va, bo_list) {
-		if (bo_va->vm == vm) {
+	list_for_each_entry(bo_va, &bo->va, base.bo_list) {
+		if (bo_va->base.vm == vm) {
 			return bo_va;
 		}
 	}
@@ -1725,7 +1725,8 @@ int amdgpu_vm_bo_update(struct amdgpu_device *adev,
 			struct amdgpu_bo_va *bo_va,
 			bool clear)
 {
-	struct amdgpu_vm *vm = bo_va->vm;
+	struct amdgpu_bo *bo = bo_va->base.bo;
+	struct amdgpu_vm *vm = bo_va->base.vm;
 	struct amdgpu_bo_va_mapping *mapping;
 	dma_addr_t *pages_addr = NULL;
 	uint64_t gtt_flags, flags;
@@ -1734,27 +1735,27 @@ int amdgpu_vm_bo_update(struct amdgpu_device *adev,
 	struct dma_fence *exclusive;
 	int r;
 
-	if (clear || !bo_va->bo) {
+	if (clear || !bo_va->base.bo) {
 		mem = NULL;
 		nodes = NULL;
 		exclusive = NULL;
 	} else {
 		struct ttm_dma_tt *ttm;
 
-		mem = &bo_va->bo->tbo.mem;
+		mem = &bo_va->base.bo->tbo.mem;
 		nodes = mem->mm_node;
 		if (mem->mem_type == TTM_PL_TT) {
-			ttm = container_of(bo_va->bo->tbo.ttm, struct
-					   ttm_dma_tt, ttm);
+			ttm = container_of(bo_va->base.bo->tbo.ttm,
+					   struct ttm_dma_tt, ttm);
 			pages_addr = ttm->dma_address;
 		}
-		exclusive = reservation_object_get_excl(bo_va->bo->tbo.resv);
+		exclusive = reservation_object_get_excl(bo->tbo.resv);
 	}
 
-	if (bo_va->bo) {
-		flags = amdgpu_ttm_tt_pte_flags(adev, bo_va->bo->tbo.ttm, mem);
-		gtt_flags = (amdgpu_ttm_is_bound(bo_va->bo->tbo.ttm) &&
-			adev == amdgpu_ttm_adev(bo_va->bo->tbo.bdev)) ?
+	if (bo) {
+		flags = amdgpu_ttm_tt_pte_flags(adev, bo->tbo.ttm, mem);
+		gtt_flags = (amdgpu_ttm_is_bound(bo->tbo.ttm) &&
+			adev == amdgpu_ttm_adev(bo->tbo.bdev)) ?
 			flags : 0;
 	} else {
 		flags = 0x0;
@@ -1762,7 +1763,7 @@ int amdgpu_vm_bo_update(struct amdgpu_device *adev,
 	}
 
 	spin_lock(&vm->status_lock);
-	if (!list_empty(&bo_va->vm_status))
+	if (!list_empty(&bo_va->base.vm_status))
 		list_splice_init(&bo_va->valids, &bo_va->invalids);
 	spin_unlock(&vm->status_lock);
 
@@ -1785,9 +1786,9 @@ int amdgpu_vm_bo_update(struct amdgpu_device *adev,
 
 	spin_lock(&vm->status_lock);
 	list_splice_init(&bo_va->invalids, &bo_va->valids);
-	list_del_init(&bo_va->vm_status);
+	list_del_init(&bo_va->base.vm_status);
 	if (clear)
-		list_add(&bo_va->vm_status, &vm->cleared);
+		list_add(&bo_va->base.vm_status, &vm->cleared);
 	spin_unlock(&vm->status_lock);
 
 	if (vm->use_cpu_for_update) {
@@ -2000,7 +2001,7 @@ int amdgpu_vm_clear_invalids(struct amdgpu_device *adev,
 	spin_lock(&vm->status_lock);
 	while (!list_empty(&vm->invalidated)) {
 		bo_va = list_first_entry(&vm->invalidated,
-			struct amdgpu_bo_va, vm_status);
+			struct amdgpu_bo_va, base.vm_status);
 		spin_unlock(&vm->status_lock);
 
 		r = amdgpu_vm_bo_update(adev, bo_va, true);
@@ -2040,16 +2041,17 @@ struct amdgpu_bo_va *amdgpu_vm_bo_add(struct amdgpu_device *adev,
 	if (bo_va == NULL) {
 		return NULL;
 	}
-	bo_va->vm = vm;
-	bo_va->bo = bo;
+	bo_va->base.vm = vm;
+	bo_va->base.bo = bo;
+	INIT_LIST_HEAD(&bo_va->base.bo_list);
+	INIT_LIST_HEAD(&bo_va->base.vm_status);
+
 	bo_va->ref_count = 1;
-	INIT_LIST_HEAD(&bo_va->bo_list);
 	INIT_LIST_HEAD(&bo_va->valids);
 	INIT_LIST_HEAD(&bo_va->invalids);
-	INIT_LIST_HEAD(&bo_va->vm_status);
 
 	if (bo)
-		list_add_tail(&bo_va->bo_list, &bo->va);
+		list_add_tail(&bo_va->base.bo_list, &bo->va);
 
 	return bo_va;
 }
@@ -2074,7 +2076,8 @@ int amdgpu_vm_bo_map(struct amdgpu_device *adev,
 		     uint64_t size, uint64_t flags)
 {
 	struct amdgpu_bo_va_mapping *mapping, *tmp;
-	struct amdgpu_vm *vm = bo_va->vm;
+	struct amdgpu_bo *bo = bo_va->base.bo;
+	struct amdgpu_vm *vm = bo_va->base.vm;
 	uint64_t eaddr;
 
 	/* validate the parameters */
@@ -2085,7 +2088,7 @@ int amdgpu_vm_bo_map(struct amdgpu_device *adev,
 	/* make sure object fit at this offset */
 	eaddr = saddr + size - 1;
 	if (saddr >= eaddr ||
-	    (bo_va->bo && offset + size > amdgpu_bo_size(bo_va->bo)))
+	    (bo && offset + size > amdgpu_bo_size(bo)))
 		return -EINVAL;
 
 	saddr /= AMDGPU_GPU_PAGE_SIZE;
@@ -2095,7 +2098,7 @@ int amdgpu_vm_bo_map(struct amdgpu_device *adev,
 	if (tmp) {
 		/* bo and tmp overlap, invalid addr */
 		dev_err(adev->dev, "bo %p va 0x%010Lx-0x%010Lx conflict with "
-			"0x%010Lx-0x%010Lx\n", bo_va->bo, saddr, eaddr,
+			"0x%010Lx-0x%010Lx\n", bo, saddr, eaddr,
 			tmp->start, tmp->last + 1);
 		return -EINVAL;
 	}
@@ -2140,7 +2143,8 @@ int amdgpu_vm_bo_replace_map(struct amdgpu_device *adev,
 			     uint64_t size, uint64_t flags)
 {
 	struct amdgpu_bo_va_mapping *mapping;
-	struct amdgpu_vm *vm = bo_va->vm;
+	struct amdgpu_bo *bo = bo_va->base.bo;
+	struct amdgpu_vm *vm = bo_va->base.vm;
 	uint64_t eaddr;
 	int r;
 
@@ -2152,7 +2156,7 @@ int amdgpu_vm_bo_replace_map(struct amdgpu_device *adev,
 	/* make sure object fit at this offset */
 	eaddr = saddr + size - 1;
 	if (saddr >= eaddr ||
-	    (bo_va->bo && offset + size > amdgpu_bo_size(bo_va->bo)))
+	    (bo && offset + size > amdgpu_bo_size(bo)))
 		return -EINVAL;
 
 	/* Allocate all the needed memory */
@@ -2160,7 +2164,7 @@ int amdgpu_vm_bo_replace_map(struct amdgpu_device *adev,
 	if (!mapping)
 		return -ENOMEM;
 
-	r = amdgpu_vm_bo_clear_mappings(adev, bo_va->vm, saddr, size);
+	r = amdgpu_vm_bo_clear_mappings(adev, bo_va->base.vm, saddr, size);
 	if (r) {
 		kfree(mapping);
 		return r;
@@ -2200,7 +2204,7 @@ int amdgpu_vm_bo_unmap(struct amdgpu_device *adev,
 		       uint64_t saddr)
 {
 	struct amdgpu_bo_va_mapping *mapping;
-	struct amdgpu_vm *vm = bo_va->vm;
+	struct amdgpu_vm *vm = bo_va->base.vm;
 	bool valid = true;
 
 	saddr /= AMDGPU_GPU_PAGE_SIZE;
@@ -2348,12 +2352,12 @@ void amdgpu_vm_bo_rmv(struct amdgpu_device *adev,
 		      struct amdgpu_bo_va *bo_va)
 {
 	struct amdgpu_bo_va_mapping *mapping, *next;
-	struct amdgpu_vm *vm = bo_va->vm;
+	struct amdgpu_vm *vm = bo_va->base.vm;
 
-	list_del(&bo_va->bo_list);
+	list_del(&bo_va->base.bo_list);
 
 	spin_lock(&vm->status_lock);
-	list_del(&bo_va->vm_status);
+	list_del(&bo_va->base.vm_status);
 	spin_unlock(&vm->status_lock);
 
 	list_for_each_entry_safe(mapping, next, &bo_va->valids, list) {
@@ -2385,13 +2389,14 @@ void amdgpu_vm_bo_rmv(struct amdgpu_device *adev,
 void amdgpu_vm_bo_invalidate(struct amdgpu_device *adev,
 			     struct amdgpu_bo *bo)
 {
-	struct amdgpu_bo_va *bo_va;
+	struct amdgpu_vm_bo_base *bo_base;
 
-	list_for_each_entry(bo_va, &bo->va, bo_list) {
-		spin_lock(&bo_va->vm->status_lock);
-		if (list_empty(&bo_va->vm_status))
-			list_add(&bo_va->vm_status, &bo_va->vm->invalidated);
-		spin_unlock(&bo_va->vm->status_lock);
+	list_for_each_entry(bo_base, &bo->va, bo_list) {
+		spin_lock(&bo_base->vm->status_lock);
+		if (list_empty(&bo_base->vm_status))
+			list_add(&bo_base->vm_status,
+				 &bo_base->vm->invalidated);
+		spin_unlock(&bo_base->vm->status_lock);
 	}
 }
 
