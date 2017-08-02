@@ -122,6 +122,7 @@ drivers/nvme/host/nvme.ko
 drivers/nvmem/nvmem_core.ko
 drivers/parport/parport.ko
 drivers/parport/parport_pc.ko
+drivers/pci/host/vmd.ko
 drivers/platform/x86/pvpanic.ko
 drivers/pps/pps_core.ko
 drivers/ptp/ptp.ko
