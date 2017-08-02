@@ -6296,7 +6296,7 @@ CONFIG_ATA_PIIX                                 policy<{'amd64': 'y', 'arm64': '
 CONFIG_SATA_DWC                                 policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'ppc64el': 'm'}>
 CONFIG_SATA_DWC_OLD_DMA                         policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'ppc64el': 'y'}>
 CONFIG_SATA_DWC_DEBUG                           policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'i386': 'n', 'ppc64el': 'n'}>
-CONFIG_SATA_HIGHBANK                            policy<{'armhf': 'm'}>
+CONFIG_SATA_HIGHBANK                            policy<{'armhf': 'y'}>
 CONFIG_SATA_MV                                  policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'ppc64el': 'm'}>
 CONFIG_SATA_NV                                  policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'ppc64el': 'm'}>
 CONFIG_SATA_PROMISE                             policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'ppc64el': 'm'}>
@@ -6350,6 +6350,7 @@ CONFIG_PATA_WINBOND                             policy<{'amd64': 'm', 'arm64': '
 CONFIG_PATA_ACPI                                policy<{'amd64': 'm', 'arm64': 'm', 'i386': 'm'}>
 CONFIG_ATA_GENERIC                              policy<{'amd64': 'y', 'arm64': 'm', 'armhf': 'm', 'i386': 'y', 'ppc64el': 'm'}>
 #
+CONFIG_SATA_HIGHBANK                            mark<ENFORCED> note<LP:1703430>
 CONFIG_PATA_HPT3X3_DMA                          note<DMA mode is documented problematic>
 CONFIG_ATA_PIIX					mark<ENFORCED> note<LP:1627324>
 
