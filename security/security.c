@@ -1375,6 +1375,10 @@ int security_task_create(unsigned long clone_flags)
 
 int security_task_alloc(struct task_struct *task, unsigned long clone_flags)
 {
+	int rc = lsm_task_alloc(task);
+
+	if (rc)
+		return rc;
 	return call_int_hook(task_alloc, 0, task, clone_flags);
 }
 
