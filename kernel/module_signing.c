@@ -83,6 +83,6 @@ int mod_verify_sig(const void *mod, struct load_info *info)
 	}
 
 	return verify_pkcs7_signature(mod, modlen, mod + modlen, sig_len,
-				      NULL, VERIFYING_MODULE_SIGNATURE,
+				      (void *)1UL, VERIFYING_MODULE_SIGNATURE,
 				      NULL, NULL);
 }
