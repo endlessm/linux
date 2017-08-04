@@ -23,6 +23,21 @@ hisi_sas_internal_task_abort(struct hisi_hba *hisi_hba,
 			     int abort_flag, int tag);
 static int hisi_sas_softreset_ata_disk(struct domain_device *device);
 
+void hisi_sas_sata_done(struct sas_task *task,
+			    struct hisi_sas_slot *slot)
+{
+	struct task_status_struct *ts = &task->task_status;
+	struct ata_task_resp *resp = (struct ata_task_resp *)ts->buf;
+	struct dev_to_host_fis *d2h = slot->status_buffer +
+				      sizeof(struct hisi_sas_err_record);
+
+	resp->frame_len = sizeof(struct dev_to_host_fis);
+	memcpy(&resp->ending_fis[0], d2h, sizeof(struct dev_to_host_fis));
+
+	ts->buf_valid_size = sizeof(*resp);
+}
+EXPORT_SYMBOL_GPL(hisi_sas_sata_done);
+
 static struct hisi_hba *dev_to_hisi_hba(struct domain_device *device)
 {
 	return device->port->ha->lldd_ha;
