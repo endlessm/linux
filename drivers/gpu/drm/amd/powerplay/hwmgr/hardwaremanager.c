@@ -26,6 +26,10 @@
 #include "hardwaremanager.h"
 #include "power_state.h"
 
+
+#define TEMP_RANGE_MIN (90 * 1000)
+#define TEMP_RANGE_MAX (120 * 1000)
+
 #define PHM_FUNC_CHECK(hw) \
 	do {							\
 		if ((hw) == NULL || (hw)->hwmgr_func == NULL)	\
@@ -292,7 +296,19 @@ int phm_register_thermal_interrupt(struct pp_hwmgr *hwmgr, const void *info)
 */
 int phm_start_thermal_controller(struct pp_hwmgr *hwmgr, struct PP_TemperatureRange *temperature_range)
 {
-	return phm_dispatch_table(hwmgr, &(hwmgr->start_thermal_controller), temperature_range, NULL);
+	struct PP_TemperatureRange range;
+
+	if (temperature_range == NULL) {
+		range.max = TEMP_RANGE_MAX;
+		range.min = TEMP_RANGE_MIN;
+	} else {
+		range.max = temperature_range->max;
+		range.min = temperature_range->min;
+	}
+	if (phm_cap_enabled(hwmgr->platform_descriptor.platformCaps,
+			PHM_PlatformCaps_ThermalController))
+		return phm_dispatch_table(hwmgr, &(hwmgr->start_thermal_controller), &range, NULL);
+	return 0;
 }
 
 
@@ -323,12 +339,26 @@ int phm_check_states_equal(struct pp_hwmgr *hwmgr,
 int phm_store_dal_configuration_data(struct pp_hwmgr *hwmgr,
 		    const struct amd_pp_display_configuration *display_config)
 {
+	int index = 0;
+	int number_of_active_display = 0;
+
 	PHM_FUNC_CHECK(hwmgr);
 
 	if (display_config == NULL)
 		return -EINVAL;
 
 	hwmgr->display_config = *display_config;
+
+	if (NULL != hwmgr->hwmgr_func->set_deep_sleep_dcefclk)
+		hwmgr->hwmgr_func->set_deep_sleep_dcefclk(hwmgr, hwmgr->display_config.min_dcef_deep_sleep_set_clk);
+
+	for (index = 0; index < hwmgr->display_config.num_path_including_non_display; index++) {
+		if (hwmgr->display_config.displays[index].controller_id != 0)
+			number_of_active_display++;
+	}
+
+	if (NULL != hwmgr->hwmgr_func->set_active_display_count)
+		hwmgr->hwmgr_func->set_active_display_count(hwmgr, number_of_active_display);
 
 	if (hwmgr->hwmgr_func->store_cc6_data == NULL)
 		return -EINVAL;

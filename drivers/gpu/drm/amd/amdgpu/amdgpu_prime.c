@@ -69,7 +69,7 @@ amdgpu_gem_prime_import_sg_table(struct drm_device *dev,
 
 	ww_mutex_lock(&resv->lock, NULL);
 	ret = amdgpu_bo_create(adev, attach->dmabuf->size, PAGE_SIZE, false,
-			       AMDGPU_GEM_DOMAIN_GTT, 0, sg, resv, &bo);
+			       AMDGPU_GEM_DOMAIN_GTT, 0, sg, resv, 0, &bo);
 	ww_mutex_unlock(&resv->lock);
 	if (ret)
 		return ERR_PTR(ret);
@@ -136,7 +136,8 @@ struct dma_buf *amdgpu_gem_prime_export(struct drm_device *dev,
 {
 	struct amdgpu_bo *bo = gem_to_amdgpu_bo(gobj);
 
-	if (amdgpu_ttm_tt_get_usermm(bo->tbo.ttm))
+	if (amdgpu_ttm_tt_get_usermm(bo->tbo.ttm) ||
+	    bo->flags & AMDGPU_GEM_CREATE_VM_ALWAYS_VALID)
 		return ERR_PTR(-EPERM);
 
 	return drm_gem_prime_export(dev, gobj, flags);

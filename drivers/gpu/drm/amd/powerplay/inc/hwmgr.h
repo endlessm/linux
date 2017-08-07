@@ -128,6 +128,8 @@ struct phm_uvd_arbiter {
 	uint32_t dclk;
 	uint32_t vclk_ceiling;
 	uint32_t dclk_ceiling;
+	uint32_t vclk_soft_min;
+	uint32_t dclk_soft_min;
 };
 
 struct phm_vce_arbiter {
@@ -376,6 +378,8 @@ struct pp_hwmgr_func {
 			struct amd_pp_profile *request);
 	int (*avfs_control)(struct pp_hwmgr *hwmgr, bool enable);
 	int (*disable_smc_firmware_ctf)(struct pp_hwmgr *hwmgr);
+	int (*set_active_display_count)(struct pp_hwmgr *hwmgr, uint32_t count);
+	int (*set_deep_sleep_dcefclk)(struct pp_hwmgr *hwmgr, uint32_t clock);
 };
 
 struct pp_table_func {
@@ -743,6 +747,7 @@ struct pp_hwmgr {
 
 	enum amd_dpm_forced_level dpm_level;
 	enum amd_dpm_forced_level saved_dpm_level;
+	enum amd_dpm_forced_level request_dpm_level;
 	bool block_hw_access;
 	struct phm_gfx_arbiter gfx_arbiter;
 	struct phm_acp_arbiter acp_arbiter;
@@ -782,17 +787,23 @@ struct pp_hwmgr {
 	struct amd_pp_display_configuration display_config;
 	uint32_t feature_mask;
 
-	/* power profile */
+	/* UMD Pstate */
 	struct amd_pp_profile gfx_power_profile;
 	struct amd_pp_profile compute_power_profile;
 	struct amd_pp_profile default_gfx_power_profile;
 	struct amd_pp_profile default_compute_power_profile;
 	enum amd_pp_profile_type current_power_profile;
+	bool en_umd_pstate;
 };
 
 extern int hwmgr_early_init(struct pp_instance *handle);
 extern int hwmgr_hw_init(struct pp_instance *handle);
 extern int hwmgr_hw_fini(struct pp_instance *handle);
+extern int hwmgr_hw_suspend(struct pp_instance *handle);
+extern int hwmgr_hw_resume(struct pp_instance *handle);
+extern int hwmgr_handle_task(struct pp_instance *handle,
+				enum amd_pp_task task_id,
+				void *input, void *output);
 extern int phm_wait_on_register(struct pp_hwmgr *hwmgr, uint32_t index,
 				uint32_t value, uint32_t mask);
 

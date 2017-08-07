@@ -20,7 +20,7 @@
 #include <linux/pm_runtime.h>
 
 #include <sound/soc.h>
-
+#include <drm/amd_asic_type.h>
 #include "acp.h"
 
 #define PLAYBACK_MIN_NUM_PERIODS    2
@@ -35,6 +35,10 @@
 #define MAX_BUFFER (PLAYBACK_MAX_PERIOD_SIZE * PLAYBACK_MAX_NUM_PERIODS)
 #define MIN_BUFFER MAX_BUFFER
 
+#define ST_PLAYBACK_MAX_PERIOD_SIZE 8192
+#define ST_CAPTURE_MAX_PERIOD_SIZE  8192
+#define ST_MAX_BUFFER (ST_PLAYBACK_MAX_PERIOD_SIZE * PLAYBACK_MAX_NUM_PERIODS)
+#define ST_MIN_BUFFER ST_MAX_BUFFER
 static const struct snd_pcm_hardware acp_pcm_hardware_playback = {
 	.info = SNDRV_PCM_INFO_INTERLEAVED |
 		SNDRV_PCM_INFO_BLOCK_TRANSFER | SNDRV_PCM_INFO_MMAP |
@@ -73,10 +77,42 @@ static const struct snd_pcm_hardware acp_pcm_hardware_capture = {
 	.periods_max = CAPTURE_MAX_NUM_PERIODS,
 };
 
-struct audio_drv_data {
-	struct snd_pcm_substream *play_stream;
-	struct snd_pcm_substream *capture_stream;
-	void __iomem *acp_mmio;
+static const struct snd_pcm_hardware acp_st_pcm_hardware_playback = {
+	.info = SNDRV_PCM_INFO_INTERLEAVED |
+		SNDRV_PCM_INFO_BLOCK_TRANSFER | SNDRV_PCM_INFO_MMAP |
+		SNDRV_PCM_INFO_MMAP_VALID | SNDRV_PCM_INFO_BATCH |
+		SNDRV_PCM_INFO_PAUSE | SNDRV_PCM_INFO_RESUME,
+	.formats = SNDRV_PCM_FMTBIT_S16_LE |
+		SNDRV_PCM_FMTBIT_S24_LE | SNDRV_PCM_FMTBIT_S32_LE,
+	.channels_min = 1,
+	.channels_max = 8,
+	.rates = SNDRV_PCM_RATE_8000_96000,
+	.rate_min = 8000,
+	.rate_max = 96000,
+	.buffer_bytes_max = ST_MAX_BUFFER,
+	.period_bytes_min = PLAYBACK_MIN_PERIOD_SIZE,
+	.period_bytes_max = ST_PLAYBACK_MAX_PERIOD_SIZE,
+	.periods_min = PLAYBACK_MIN_NUM_PERIODS,
+	.periods_max = PLAYBACK_MAX_NUM_PERIODS,
+};
+
+static const struct snd_pcm_hardware acp_st_pcm_hardware_capture = {
+	.info = SNDRV_PCM_INFO_INTERLEAVED |
+		SNDRV_PCM_INFO_BLOCK_TRANSFER | SNDRV_PCM_INFO_MMAP |
+		SNDRV_PCM_INFO_MMAP_VALID | SNDRV_PCM_INFO_BATCH |
+		SNDRV_PCM_INFO_PAUSE | SNDRV_PCM_INFO_RESUME,
+	.formats = SNDRV_PCM_FMTBIT_S16_LE |
+		SNDRV_PCM_FMTBIT_S24_LE | SNDRV_PCM_FMTBIT_S32_LE,
+	.channels_min = 1,
+	.channels_max = 2,
+	.rates = SNDRV_PCM_RATE_8000_48000,
+	.rate_min = 8000,
+	.rate_max = 48000,
+	.buffer_bytes_max = ST_MAX_BUFFER,
+	.period_bytes_min = CAPTURE_MIN_PERIOD_SIZE,
+	.period_bytes_max = ST_CAPTURE_MAX_PERIOD_SIZE,
+	.periods_min = CAPTURE_MIN_NUM_PERIODS,
+	.periods_max = CAPTURE_MAX_NUM_PERIODS,
 };
 
 static u32 acp_reg_read(void __iomem *acp_mmio, u32 reg)
@@ -143,8 +179,8 @@ static void config_dma_descriptor_in_sram(void __iomem *acp_mmio,
  * system memory <-> ACP SRAM
  */
 static void set_acp_sysmem_dma_descriptors(void __iomem *acp_mmio,
-					   u32 size, int direction,
-					   u32 pte_offset)
+					u32 size, int direction,
+					u32 pte_offset, u32 asic_type)
 {
 	u16 i;
 	u16 dma_dscr_idx = PLAYBACK_START_DMA_DESCR_CH12;
@@ -158,20 +194,42 @@ static void set_acp_sysmem_dma_descriptors(void __iomem *acp_mmio,
 					(size / 2) - (i * (size/2));
 			dmadscr[i].src = ACP_INTERNAL_APERTURE_WINDOW_0_ADDRESS
 				+ (pte_offset * SZ_4K) + (i * (size/2));
-			dmadscr[i].xfer_val |=
-			(ACP_DMA_ATTRIBUTES_DAGB_ONION_TO_SHAREDMEM << 16) |
-			(size / 2);
+			switch (asic_type) {
+			case CHIP_STONEY:
+				dmadscr[i].xfer_val |=
+				(ACP_DMA_ATTRIBUTES_DAGB_GARLIC_TO_SHAREDMEM  << 16) |
+				(size / 2);
+				break;
+			default:
+				dmadscr[i].xfer_val |=
+				(ACP_DMA_ATTRIBUTES_DAGB_ONION_TO_SHAREDMEM  << 16) |
+				(size / 2);
+			}
 		} else {
 			dma_dscr_idx = CAPTURE_START_DMA_DESCR_CH14 + i;
-			dmadscr[i].src = ACP_SHARED_RAM_BANK_5_ADDRESS +
-					(i * (size/2));
-			dmadscr[i].dest = ACP_INTERNAL_APERTURE_WINDOW_0_ADDRESS
-						+ (pte_offset * SZ_4K) +
-						(i * (size/2));
-			dmadscr[i].xfer_val |=
-			BIT(22) |
-			(ACP_DMA_ATTRIBUTES_SHAREDMEM_TO_DAGB_ONION << 16) |
-			(size / 2);
+			switch (asic_type) {
+			case CHIP_STONEY:
+				dmadscr[i].src = ACP_SHARED_RAM_BANK_3_ADDRESS +
+				(i * (size/2));
+				dmadscr[i].dest =
+				ACP_INTERNAL_APERTURE_WINDOW_0_ADDRESS +
+				(pte_offset * SZ_4K) + (i * (size/2));
+				dmadscr[i].xfer_val |=
+				BIT(22) |
+				(ACP_DMA_ATTRIBUTES_SHARED_MEM_TO_DAGB_GARLIC << 16) |
+				(size / 2);
+				break;
+			default:
+				dmadscr[i].src = ACP_SHARED_RAM_BANK_5_ADDRESS +
+				(i * (size/2));
+				dmadscr[i].dest =
+				ACP_INTERNAL_APERTURE_WINDOW_0_ADDRESS +
+				(pte_offset * SZ_4K) + (i * (size/2));
+				dmadscr[i].xfer_val |=
+				BIT(22) |
+				(ACP_DMA_ATTRIBUTES_SHAREDMEM_TO_DAGB_ONION << 16) |
+				(size / 2);
+			}
 		}
 		config_dma_descriptor_in_sram(acp_mmio, dma_dscr_idx,
 						&dmadscr[i]);
@@ -192,7 +250,8 @@ static void set_acp_sysmem_dma_descriptors(void __iomem *acp_mmio,
  * ACP SRAM <-> I2S
  */
 static void set_acp_to_i2s_dma_descriptors(void __iomem *acp_mmio,
-					   u32 size, int direction)
+					u32 size, int direction,
+					u32 asic_type)
 {
 
 	u16 i;
@@ -213,8 +272,17 @@ static void set_acp_to_i2s_dma_descriptors(void __iomem *acp_mmio,
 			dma_dscr_idx = CAPTURE_START_DMA_DESCR_CH15 + i;
 			/* dmadscr[i].src is unused by hardware. */
 			dmadscr[i].src = 0;
-			dmadscr[i].dest = ACP_SHARED_RAM_BANK_5_ADDRESS +
+			switch (asic_type) {
+			case CHIP_STONEY:
+				dmadscr[i].dest =
+					 ACP_SHARED_RAM_BANK_3_ADDRESS +
 					(i * (size / 2));
+				break;
+			default:
+				dmadscr[i].dest =
+					 ACP_SHARED_RAM_BANK_5_ADDRESS +
+					(i * (size / 2));
+			}
 			dmadscr[i].xfer_val |= BIT(22) |
 					(FROM_ACP_I2S_1 << 16) | (size / 2);
 		}
@@ -270,7 +338,8 @@ static void acp_pte_config(void __iomem *acp_mmio, struct page *pg,
 }
 
 static void config_acp_dma(void __iomem *acp_mmio,
-			   struct audio_substream_data *audio_config)
+			struct audio_substream_data *audio_config,
+			u32 asic_type)
 {
 	u32 pte_offset;
 
@@ -284,11 +353,11 @@ static void config_acp_dma(void __iomem *acp_mmio,
 
 	/* Configure System memory <-> ACP SRAM DMA descriptors */
 	set_acp_sysmem_dma_descriptors(acp_mmio, audio_config->size,
-				       audio_config->direction, pte_offset);
+				audio_config->direction, pte_offset, asic_type);
 
 	/* Configure ACP SRAM <-> I2S DMA descriptors */
 	set_acp_to_i2s_dma_descriptors(acp_mmio, audio_config->size,
-					audio_config->direction);
+				audio_config->direction, asic_type);
 }
 
 /* Start a given DMA channel transfer */
@@ -425,7 +494,7 @@ static void acp_set_sram_bank_state(void __iomem *acp_mmio, u16 bank,
 }
 
 /* Initialize and bring ACP hardware to default state. */
-static int acp_init(void __iomem *acp_mmio)
+static int acp_init(void __iomem *acp_mmio, u32 asic_type)
 {
 	u16 bank;
 	u32 val, count, sram_pte_offset;
@@ -499,10 +568,21 @@ static int acp_init(void __iomem *acp_mmio)
        /* When ACP_TILE_P1 is turned on, all SRAM banks get turned on.
 	* Now, turn off all of them. This can't be done in 'poweron' of
 	* ACP pm domain, as this requires ACP to be initialized.
+	* For Stoney, Memory gating is disabled,i.e SRAM Banks
+	* won't be turned off. The default state for SRAM banks is ON.
+	* Setting SRAM bank state code skipped for STONEY platform.
 	*/
-	for (bank = 1; bank < 48; bank++)
-		acp_set_sram_bank_state(acp_mmio, bank, false);
+	if (asic_type != CHIP_STONEY) {
+		for (bank = 1; bank < 48; bank++)
+			acp_set_sram_bank_state(acp_mmio, bank, false);
+	}
 
+	/* Stoney supports 16bit resolution */
+	if (asic_type == CHIP_STONEY) {
+		val = acp_reg_read(acp_mmio, mmACP_I2S_16BIT_RESOLUTION_EN);
+		val |= 0x03;
+		acp_reg_write(val, acp_mmio, mmACP_I2S_16BIT_RESOLUTION_EN);
+	}
 	return 0;
 }
 
@@ -626,10 +706,23 @@ static int acp_dma_open(struct snd_pcm_substream *substream)
 	if (adata == NULL)
 		return -ENOMEM;
 
-	if (substream->stream == SNDRV_PCM_STREAM_PLAYBACK)
-		runtime->hw = acp_pcm_hardware_playback;
-	else
-		runtime->hw = acp_pcm_hardware_capture;
+	if (substream->stream == SNDRV_PCM_STREAM_PLAYBACK) {
+		switch (intr_data->asic_type) {
+		case CHIP_STONEY:
+			runtime->hw = acp_st_pcm_hardware_playback;
+			break;
+		default:
+			runtime->hw = acp_pcm_hardware_playback;
+		}
+	} else {
+		switch (intr_data->asic_type) {
+		case CHIP_STONEY:
+			runtime->hw = acp_st_pcm_hardware_capture;
+			break;
+		default:
+			runtime->hw = acp_pcm_hardware_capture;
+		}
+	}
 
 	ret = snd_pcm_hw_constraint_integer(runtime,
 					    SNDRV_PCM_HW_PARAM_PERIODS);
@@ -652,14 +745,22 @@ static int acp_dma_open(struct snd_pcm_substream *substream)
 
 	if (substream->stream == SNDRV_PCM_STREAM_PLAYBACK) {
 		intr_data->play_stream = substream;
-		for (bank = 1; bank <= 4; bank++)
-			acp_set_sram_bank_state(intr_data->acp_mmio, bank,
-						true);
+		/* For Stoney, Memory gating is disabled,i.e SRAM Banks
+		 * won't be turned off. The default state for SRAM banks is ON.
+		 * Setting SRAM bank state code skipped for STONEY platform.
+		 */
+		if (intr_data->asic_type != CHIP_STONEY) {
+			for (bank = 1; bank <= 4; bank++)
+				acp_set_sram_bank_state(intr_data->acp_mmio,
+							bank, true);
+		}
 	} else {
 		intr_data->capture_stream = substream;
-		for (bank = 5; bank <= 8; bank++)
-			acp_set_sram_bank_state(intr_data->acp_mmio, bank,
-						true);
+		if (intr_data->asic_type != CHIP_STONEY) {
+			for (bank = 5; bank <= 8; bank++)
+				acp_set_sram_bank_state(intr_data->acp_mmio,
+							bank, true);
+		}
 	}
 
 	return 0;
@@ -673,6 +774,8 @@ static int acp_dma_hw_params(struct snd_pcm_substream *substream,
 	struct page *pg;
 	struct snd_pcm_runtime *runtime;
 	struct audio_substream_data *rtd;
+	struct snd_soc_pcm_runtime *prtd = substream->private_data;
+	struct audio_drv_data *adata = dev_get_drvdata(prtd->platform->dev);
 
 	runtime = substream->runtime;
 	rtd = runtime->private_data;
@@ -700,7 +803,7 @@ static int acp_dma_hw_params(struct snd_pcm_substream *substream,
 		rtd->num_of_pages = PAGE_ALIGN(size) >> PAGE_SHIFT;
 		rtd->direction = substream->stream;
 
-		config_acp_dma(rtd->acp_mmio, rtd);
+		config_acp_dma(rtd->acp_mmio, rtd, adata->asic_type);
 		status = 0;
 	} else {
 		status = -ENOMEM;
@@ -857,7 +960,15 @@ static int acp_dma_trigger(struct snd_pcm_substream *substream, int cmd)
 
 static int acp_dma_new(struct snd_soc_pcm_runtime *rtd)
 {
-	return snd_pcm_lib_preallocate_pages_for_all(rtd->pcm,
+	struct audio_drv_data *adata = dev_get_drvdata(rtd->platform->dev);
+
+	if (adata->asic_type == CHIP_STONEY)
+		return snd_pcm_lib_preallocate_pages_for_all(rtd->pcm,
+							SNDRV_DMA_TYPE_DEV,
+							NULL, ST_MIN_BUFFER,
+							ST_MAX_BUFFER);
+	else
+		return snd_pcm_lib_preallocate_pages_for_all(rtd->pcm,
 							SNDRV_DMA_TYPE_DEV,
 							NULL, MIN_BUFFER,
 							MAX_BUFFER);
@@ -875,14 +986,23 @@ static int acp_dma_close(struct snd_pcm_substream *substream)
 
 	if (substream->stream == SNDRV_PCM_STREAM_PLAYBACK) {
 		adata->play_stream = NULL;
-		for (bank = 1; bank <= 4; bank++)
-			acp_set_sram_bank_state(adata->acp_mmio, bank,
-						false);
-	} else {
+		/* For Stoney, Memory gating is disabled,i.e SRAM Banks
+		 * won't be turned off. The default state for SRAM banks is ON.
+		 * Setting SRAM bank state code skipped for STONEY platform.
+		 * added condition checks for Carrizo platform only
+		 */
+		if (adata->asic_type != CHIP_STONEY) {
+			for (bank = 1; bank <= 4; bank++)
+				acp_set_sram_bank_state(adata->acp_mmio, bank,
+				false);
+		}
+	} else  {
 		adata->capture_stream = NULL;
-		for (bank = 5; bank <= 8; bank++)
-			acp_set_sram_bank_state(adata->acp_mmio, bank,
-						false);
+		if (adata->asic_type != CHIP_STONEY) {
+			for (bank = 5; bank <= 8; bank++)
+				acp_set_sram_bank_state(adata->acp_mmio, bank,
+						     false);
+		}
 	}
 
 	/* Disable ACP irq, when the current stream is being closed and
@@ -916,6 +1036,7 @@ static int acp_audio_probe(struct platform_device *pdev)
 	int status;
 	struct audio_drv_data *audio_drv_data;
 	struct resource *res;
+	const u32 *pdata = pdev->dev.platform_data;
 
 	audio_drv_data = devm_kzalloc(&pdev->dev, sizeof(struct audio_drv_data),
 					GFP_KERNEL);
@@ -932,6 +1053,7 @@ static int acp_audio_probe(struct platform_device *pdev)
 
 	audio_drv_data->play_stream = NULL;
 	audio_drv_data->capture_stream = NULL;
+	audio_drv_data->asic_type =  *pdata;
 
 	res = platform_get_resource(pdev, IORESOURCE_IRQ, 0);
 	if (!res) {
@@ -949,7 +1071,7 @@ static int acp_audio_probe(struct platform_device *pdev)
 	dev_set_drvdata(&pdev->dev, audio_drv_data);
 
 	/* Initialize the ACP */
-	acp_init(audio_drv_data->acp_mmio);
+	acp_init(audio_drv_data->acp_mmio, audio_drv_data->asic_type);
 
 	status = snd_soc_register_platform(&pdev->dev, &acp_asoc_platform);
 	if (status != 0) {
@@ -980,21 +1102,31 @@ static int acp_pcm_resume(struct device *dev)
 	u16 bank;
 	struct audio_drv_data *adata = dev_get_drvdata(dev);
 
-	acp_init(adata->acp_mmio);
+	acp_init(adata->acp_mmio, adata->asic_type);
 
 	if (adata->play_stream && adata->play_stream->runtime) {
-		for (bank = 1; bank <= 4; bank++)
-			acp_set_sram_bank_state(adata->acp_mmio, bank,
+		/* For Stoney, Memory gating is disabled,i.e SRAM Banks
+		 * won't be turned off. The default state for SRAM banks is ON.
+		 * Setting SRAM bank state code skipped for STONEY platform.
+		 */
+		if (adata->asic_type != CHIP_STONEY) {
+			for (bank = 1; bank <= 4; bank++)
+				acp_set_sram_bank_state(adata->acp_mmio, bank,
 						true);
+		}
 		config_acp_dma(adata->acp_mmio,
-				adata->play_stream->runtime->private_data);
+			adata->play_stream->runtime->private_data,
+			adata->asic_type);
 	}
 	if (adata->capture_stream && adata->capture_stream->runtime) {
-		for (bank = 5; bank <= 8; bank++)
-			acp_set_sram_bank_state(adata->acp_mmio, bank,
+		if (adata->asic_type != CHIP_STONEY) {
+			for (bank = 5; bank <= 8; bank++)
+				acp_set_sram_bank_state(adata->acp_mmio, bank,
 						true);
+		}
 		config_acp_dma(adata->acp_mmio,
-				adata->capture_stream->runtime->private_data);
+			adata->capture_stream->runtime->private_data,
+			adata->asic_type);
 	}
 	acp_reg_write(1, adata->acp_mmio, mmACP_EXTERNAL_INTR_ENB);
 	return 0;
@@ -1013,7 +1145,7 @@ static int acp_pcm_runtime_resume(struct device *dev)
 {
 	struct audio_drv_data *adata = dev_get_drvdata(dev);
 
-	acp_init(adata->acp_mmio);
+	acp_init(adata->acp_mmio, adata->asic_type);
 	acp_reg_write(1, adata->acp_mmio, mmACP_EXTERNAL_INTR_ENB);
 	return 0;
 }
@@ -1035,6 +1167,7 @@ static struct platform_driver acp_dma_driver = {
 
 module_platform_driver(acp_dma_driver);
 
+MODULE_AUTHOR("Vijendar.Mukunda@amd.com");
 MODULE_AUTHOR("Maruthi.Bayyavarapu@amd.com");
 MODULE_DESCRIPTION("AMD ACP PCM Driver");
 MODULE_LICENSE("GPL v2");

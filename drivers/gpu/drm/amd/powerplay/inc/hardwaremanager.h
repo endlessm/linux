@@ -164,9 +164,14 @@ enum phm_platform_caps {
 	PHM_PlatformCaps_EnablePlatformPowerManagement,         /* indicates that Platform Power Management feature is supported */
 	PHM_PlatformCaps_SurpriseRemoval,                       /* indicates that surprise removal feature is requested */
 	PHM_PlatformCaps_NewCACVoltage,                         /* indicates new CAC voltage table support */
+	PHM_PlatformCaps_DiDtSupport,                           /* for dI/dT feature */
 	PHM_PlatformCaps_DBRamping,                             /* for dI/dT feature */
 	PHM_PlatformCaps_TDRamping,                             /* for dI/dT feature */
 	PHM_PlatformCaps_TCPRamping,                            /* for dI/dT feature */
+	PHM_PlatformCaps_DBRRamping,                            /* for dI/dT feature */
+	PHM_PlatformCaps_DiDtEDCEnable,                         /* for dI/dT feature */
+	PHM_PlatformCaps_GCEDC,                                 /* for dI/dT feature */
+	PHM_PlatformCaps_PSM,                                   /* for dI/dT feature */
 	PHM_PlatformCaps_EnableSMU7ThermalManagement,           /* SMC will manage thermal events */
 	PHM_PlatformCaps_FPS,                                   /* FPS support */
 	PHM_PlatformCaps_ACP,                                   /* ACP support */
@@ -277,6 +282,8 @@ static inline bool phm_cap_enabled(const uint32_t *caps, enum phm_platform_caps 
 	return (0 != (caps[c / PHM_MAX_NUM_CAPS_BITS_PER_FIELD] &
 		  (1UL << (c & (PHM_MAX_NUM_CAPS_BITS_PER_FIELD - 1)))));
 }
+
+#define PP_CAP(c) phm_cap_enabled(hwmgr->platform_descriptor.platformCaps, (c))
 
 #define PP_PCIEGenInvalid  0xffff
 enum PP_PCIEGen {
