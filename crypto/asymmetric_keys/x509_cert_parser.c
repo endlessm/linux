@@ -202,6 +202,7 @@ int x509_note_pkey_algo(void *context, size_t hdrlen,
 		break;
 
 	case OID_sha1WithRSAEncryption:
+	case OID_sha1WithRSASignature:
 		ctx->cert->sig->hash_algo = "sha1";
 		ctx->cert->sig->pkey_algo = "rsa";
 		break;
