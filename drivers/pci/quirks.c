@@ -2377,6 +2377,28 @@ DECLARE_PCI_FIXUP_FINAL(PCI_VENDOR_ID_INTEL, 0xa115, quirk_disable_rtl_aspm);
 DECLARE_PCI_FIXUP_FINAL(PCI_VENDOR_ID_INTEL, 0xa112, quirk_disable_rtl_aspm);
 DECLARE_PCI_FIXUP_FINAL(PCI_VENDOR_ID_INTEL, 0xa297, quirk_disable_rtl_aspm);
 
+/* Qualcomm Atheros wireless module NFA335(AR9565) on Apollolake has problem
+ * supporting INTx interrupt mechanism. However, current ath9k driver only
+ * support INTx. Before someone contribute the MSI support on ath9k, MSI need
+ * to be disabled for specific combination.
+ */
+static void quirk_disable_ath9k_msi(struct pci_dev *dev)
+{
+	struct pci_dev *child;
+
+	if (!dev->subordinate)
+		return;
+
+	list_for_each_entry(child, &dev->subordinate->devices, bus_list) {
+		if (child->vendor == 0x168c && child->device == 0x0036) {
+			dev_warn(&child->dev, "Apollolake; disabling MSI\n");
+			pci_no_msi();
+			return;
+		}
+	}
+}
+DECLARE_PCI_FIXUP_FINAL(PCI_VENDOR_ID_INTEL, 0x5adb, quirk_disable_ath9k_msi);
+
 /*
  * The APC bridge device in AMD 780 family northbridges has some random
  * OEM subsystem ID in its vendor ID register (erratum 18), so instead
