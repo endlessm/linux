@@ -319,7 +319,7 @@ int psp_v3_1_ring_create(struct psp_context *psp, enum psp_ring_type ring_type)
 	return ret;
 }
 
-int psp_v3_1_ring_destroy(struct psp_context *psp, enum psp_ring_type ring_type)
+int psp_v3_1_ring_stop(struct psp_context *psp, enum psp_ring_type ring_type)
 {
 	int ret = 0;
 	struct psp_ring *ring;
@@ -339,10 +339,23 @@ int psp_v3_1_ring_destroy(struct psp_context *psp, enum psp_ring_type ring_type)
 	ret = psp_wait_for(psp, SOC15_REG_OFFSET(MP0, 0, mmMP0_SMN_C2PMSG_64),
 			   0x80000000, 0x80000000, false);
 
-	if (ring->ring_mem)
-		amdgpu_bo_free_kernel(&adev->firmware.rbuf,
-				      &ring->ring_mem_mc_addr,
-				      (void **)&ring->ring_mem);
+	return ret;
+}
+
+int psp_v3_1_ring_destroy(struct psp_context *psp, enum psp_ring_type ring_type)
+{
+	int ret = 0;
+	struct psp_ring *ring = &psp->km_ring;
+	struct amdgpu_device *adev = psp->adev;
+
+	ret = psp_v3_1_ring_stop(psp, ring_type);
+	if (ret)
+		DRM_ERROR("Fail to stop psp ring\n");
+
+	amdgpu_bo_free_kernel(&adev->firmware.rbuf,
+			      &ring->ring_mem_mc_addr,
+			      (void **)&ring->ring_mem);
+
 	return ret;
 }
 

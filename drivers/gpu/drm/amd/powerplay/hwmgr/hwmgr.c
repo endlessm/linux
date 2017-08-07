@@ -35,9 +35,9 @@
 #include "ppsmc.h"
 #include "pp_acpi.h"
 #include "amd_acpi.h"
+#include "pp_psm.h"
 
 extern int cz_init_function_pointers(struct pp_hwmgr *hwmgr);
-
 static int polaris_set_asic_special_caps(struct pp_hwmgr *hwmgr);
 static void hwmgr_init_default_caps(struct pp_hwmgr *hwmgr);
 static int hwmgr_set_user_specify_caps(struct pp_hwmgr *hwmgr);
@@ -131,80 +131,6 @@ int hwmgr_early_init(struct pp_instance *handle)
 	return 0;
 }
 
-static int hw_init_power_state_table(struct pp_hwmgr *hwmgr)
-{
-	int result;
-	unsigned int i;
-	unsigned int table_entries;
-	struct pp_power_state *state;
-	int size;
-
-	if (hwmgr->hwmgr_func->get_num_of_pp_table_entries == NULL)
-		return -EINVAL;
-
-	if (hwmgr->hwmgr_func->get_power_state_size == NULL)
-		return -EINVAL;
-
-	hwmgr->num_ps = table_entries = hwmgr->hwmgr_func->get_num_of_pp_table_entries(hwmgr);
-
-	hwmgr->ps_size = size = hwmgr->hwmgr_func->get_power_state_size(hwmgr) +
-					  sizeof(struct pp_power_state);
-
-	hwmgr->ps = kzalloc(size * table_entries, GFP_KERNEL);
-	if (hwmgr->ps == NULL)
-		return -ENOMEM;
-
-	hwmgr->request_ps = kzalloc(size, GFP_KERNEL);
-	if (hwmgr->request_ps == NULL) {
-		kfree(hwmgr->ps);
-		hwmgr->ps = NULL;
-		return -ENOMEM;
-	}
-
-	hwmgr->current_ps = kzalloc(size, GFP_KERNEL);
-	if (hwmgr->current_ps == NULL) {
-		kfree(hwmgr->request_ps);
-		kfree(hwmgr->ps);
-		hwmgr->request_ps = NULL;
-		hwmgr->ps = NULL;
-		return -ENOMEM;
-	}
-
-	state = hwmgr->ps;
-
-	for (i = 0; i < table_entries; i++) {
-		result = hwmgr->hwmgr_func->get_pp_table_entry(hwmgr, i, state);
-
-		if (state->classification.flags & PP_StateClassificationFlag_Boot) {
-			hwmgr->boot_ps = state;
-			memcpy(hwmgr->current_ps, state, size);
-			memcpy(hwmgr->request_ps, state, size);
-		}
-
-		state->id = i + 1; /* assigned unique num for every power state id */
-
-		if (state->classification.flags & PP_StateClassificationFlag_Uvd)
-			hwmgr->uvd_ps = state;
-		state = (struct pp_power_state *)((unsigned long)state + size);
-	}
-
-	return 0;
-}
-
-static int hw_fini_power_state_table(struct pp_hwmgr *hwmgr)
-{
-	if (hwmgr == NULL)
-		return -EINVAL;
-
-	kfree(hwmgr->current_ps);
-	kfree(hwmgr->request_ps);
-	kfree(hwmgr->ps);
-	hwmgr->request_ps = NULL;
-	hwmgr->ps = NULL;
-	hwmgr->current_ps = NULL;
-	return 0;
-}
-
 int hwmgr_hw_init(struct pp_instance *handle)
 {
 	struct pp_hwmgr *hwmgr;
@@ -228,9 +154,22 @@ int hwmgr_hw_init(struct pp_instance *handle)
 	if (ret)
 		goto err1;
 
-	ret = hw_init_power_state_table(hwmgr);
+	ret = psm_init_power_state_table(hwmgr);
 	if (ret)
 		goto err2;
+
+	ret = phm_setup_asic(hwmgr);
+	if (ret)
+		goto err2;
+
+	ret = phm_enable_dynamic_state_management(hwmgr);
+	if (ret)
+		goto err2;
+	ret = phm_start_thermal_controller(hwmgr, NULL);
+	ret |= psm_set_performance_states(hwmgr);
+	if (ret)
+		goto err2;
+
 	return 0;
 err2:
 	if (hwmgr->hwmgr_func->backend_fini)
@@ -247,19 +186,138 @@ int hwmgr_hw_fini(struct pp_instance *handle)
 {
 	struct pp_hwmgr *hwmgr;
 
-	if (handle == NULL)
+	if (handle == NULL || handle->hwmgr == NULL)
 		return -EINVAL;
 
 	hwmgr = handle->hwmgr;
+
+	phm_stop_thermal_controller(hwmgr);
+	psm_set_boot_states(hwmgr);
+	phm_display_configuration_changed(hwmgr);
+	psm_adjust_power_state_dynamic(hwmgr, false, NULL);
+	phm_disable_dynamic_state_management(hwmgr);
+	phm_disable_clock_power_gatings(hwmgr);
 
 	if (hwmgr->hwmgr_func->backend_fini)
 		hwmgr->hwmgr_func->backend_fini(hwmgr);
 	if (hwmgr->pptable_func->pptable_fini)
 		hwmgr->pptable_func->pptable_fini(hwmgr);
-	return hw_fini_power_state_table(hwmgr);
+	return psm_fini_power_state_table(hwmgr);
 }
 
+int hwmgr_hw_suspend(struct pp_instance *handle)
+{
+	struct pp_hwmgr *hwmgr;
+	int ret = 0;
 
+	if (handle == NULL || handle->hwmgr == NULL)
+		return -EINVAL;
+
+	hwmgr = handle->hwmgr;
+	phm_disable_smc_firmware_ctf(hwmgr);
+	ret = psm_set_boot_states(hwmgr);
+	if (ret)
+		return ret;
+	ret = psm_adjust_power_state_dynamic(hwmgr, false, NULL);
+	if (ret)
+		return ret;
+	ret = phm_power_down_asic(hwmgr);
+
+	return ret;
+}
+
+int hwmgr_hw_resume(struct pp_instance *handle)
+{
+	struct pp_hwmgr *hwmgr;
+	int ret = 0;
+
+	if (handle == NULL || handle->hwmgr == NULL)
+		return -EINVAL;
+
+	hwmgr = handle->hwmgr;
+	ret = phm_setup_asic(hwmgr);
+	if (ret)
+		return ret;
+
+	ret = phm_enable_dynamic_state_management(hwmgr);
+	if (ret)
+		return ret;
+	ret = phm_start_thermal_controller(hwmgr, NULL);
+	if (ret)
+		return ret;
+
+	ret |= psm_set_performance_states(hwmgr);
+	if (ret)
+		return ret;
+
+	ret = psm_adjust_power_state_dynamic(hwmgr, false, NULL);
+
+	return ret;
+}
+
+static enum PP_StateUILabel power_state_convert(enum amd_pm_state_type  state)
+{
+	switch (state) {
+	case POWER_STATE_TYPE_BATTERY:
+		return PP_StateUILabel_Battery;
+	case POWER_STATE_TYPE_BALANCED:
+		return PP_StateUILabel_Balanced;
+	case POWER_STATE_TYPE_PERFORMANCE:
+		return PP_StateUILabel_Performance;
+	default:
+		return PP_StateUILabel_None;
+	}
+}
+
+int hwmgr_handle_task(struct pp_instance *handle, enum amd_pp_task task_id,
+		void *input, void *output)
+{
+	int ret = 0;
+	struct pp_hwmgr *hwmgr;
+
+	if (handle == NULL || handle->hwmgr == NULL)
+		return -EINVAL;
+
+	hwmgr = handle->hwmgr;
+
+	switch (task_id) {
+	case AMD_PP_TASK_DISPLAY_CONFIG_CHANGE:
+		ret = phm_set_cpu_power_state(hwmgr);
+		if (ret)
+			return ret;
+		ret = psm_set_performance_states(hwmgr);
+		if (ret)
+			return ret;
+		ret = psm_adjust_power_state_dynamic(hwmgr, false, NULL);
+		break;
+	case AMD_PP_TASK_ENABLE_USER_STATE:
+	{
+		enum amd_pm_state_type ps;
+		enum PP_StateUILabel requested_ui_label;
+		struct pp_power_state *requested_ps = NULL;
+
+		if (input == NULL) {
+			ret = -EINVAL;
+			break;
+		}
+		ps = *(unsigned long *)input;
+
+		requested_ui_label = power_state_convert(ps);
+		ret = psm_set_user_performance_state(hwmgr, requested_ui_label, &requested_ps);
+		if (ret)
+			return ret;
+		ret = psm_adjust_power_state_dynamic(hwmgr, false, requested_ps);
+		break;
+	}
+	case AMD_PP_TASK_COMPLETE_INIT:
+	case AMD_PP_TASK_READJUST_POWER_STATE:
+		ret = psm_adjust_power_state_dynamic(hwmgr, false, NULL);
+		break;
+	default:
+		break;
+	}
+	return ret;
+}
 /**
  * Returns once the part of the register indicated by the mask has
  * reached the given value.
@@ -557,9 +615,8 @@ uint16_t phm_find_closest_vddci(struct pp_atomctrl_voltage_table *vddci_table, u
 			return vddci_table->entries[i].value;
 	}
 
-	PP_ASSERT_WITH_CODE(false,
-			"VDDCI is larger than max VDDCI in VDDCI Voltage Table!",
-			return vddci_table->entries[i-1].value);
+	pr_debug("vddci is larger than max value in vddci_table\n");
+	return vddci_table->entries[i-1].value;
 }
 
 int phm_find_boot_level(void *table,
@@ -583,26 +640,26 @@ int phm_get_sclk_for_voltage_evv(struct pp_hwmgr *hwmgr,
 	phm_ppt_v1_voltage_lookup_table *lookup_table,
 	uint16_t virtual_voltage_id, int32_t *sclk)
 {
-	uint8_t entryId;
-	uint8_t voltageId;
+	uint8_t entry_id;
+	uint8_t voltage_id;
 	struct phm_ppt_v1_information *table_info =
 			(struct phm_ppt_v1_information *)(hwmgr->pptable);
 
 	PP_ASSERT_WITH_CODE(lookup_table->count != 0, "Lookup table is empty", return -EINVAL);
 
 	/* search for leakage voltage ID 0xff01 ~ 0xff08 and sckl */
-	for (entryId = 0; entryId < table_info->vdd_dep_on_sclk->count; entryId++) {
-		voltageId = table_info->vdd_dep_on_sclk->entries[entryId].vddInd;
-		if (lookup_table->entries[voltageId].us_vdd == virtual_voltage_id)
+	for (entry_id = 0; entry_id < table_info->vdd_dep_on_sclk->count; entry_id++) {
+		voltage_id = table_info->vdd_dep_on_sclk->entries[entry_id].vddInd;
+		if (lookup_table->entries[voltage_id].us_vdd == virtual_voltage_id)
 			break;
 	}
 
-	PP_ASSERT_WITH_CODE(entryId < table_info->vdd_dep_on_sclk->count,
-			"Can't find requested voltage id in vdd_dep_on_sclk table!",
-			return -EINVAL;
-			);
+	if (entry_id >= table_info->vdd_dep_on_sclk->count) {
+		pr_debug("Can't find requested voltage id in vdd_dep_on_sclk table\n");
+		return -EINVAL;
+	}
 
-	*sclk = table_info->vdd_dep_on_sclk->entries[entryId].clk;
+	*sclk = table_info->vdd_dep_on_sclk->entries[entry_id].clk;
 
 	return 0;
 }
