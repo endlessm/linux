@@ -614,7 +614,7 @@ static int loop_flush(struct loop_device *lo)
 	/* loop not yet configured, no running thread, nothing to flush */
 	if (lo->lo_state != Lo_bound)
 		return 0;
-	return loop_switch(lo, NULL);
+	return loop_switch(lo, NULL, NULL);
 }
 
 static struct file *loop_real_file(struct file *file)
