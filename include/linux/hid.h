@@ -172,6 +172,7 @@ struct hid_item {
 #define HID_UP_LOGIVENDOR3   0xff430000
 #define HID_UP_LNVENDOR		0xffa00000
 #define HID_UP_SENSOR		0x00200000
+#define HID_UP_ASUSVENDOR	0xff310000
 
 #define HID_USAGE		0x0000ffff
 
@@ -182,6 +183,11 @@ struct hid_item {
 #define HID_GD_KEYBOARD		0x00010006
 #define HID_GD_KEYPAD		0x00010007
 #define HID_GD_MULTIAXIS	0x00010008
+/*
+ * Microsoft Win8 Wireless Radio Controls extensions CA, see:
+ * http://www.usb.org/developers/hidpage/HUTRR40RadioHIDUsagesFinal.pdf
+ */
+#define HID_GD_WIRELESS_RADIO_CTLS	0x0001000c
 #define HID_GD_X		0x00010030
 #define HID_GD_Y		0x00010031
 #define HID_GD_Z		0x00010032
@@ -210,6 +216,10 @@ struct hid_item {
 #define HID_GD_DOWN		0x00010091
 #define HID_GD_RIGHT		0x00010092
 #define HID_GD_LEFT		0x00010093
+/* Microsoft Win8 Wireless Radio Controls CA usage codes */
+#define HID_GD_RFKILL_BTN	0x000100c6
+#define HID_GD_RFKILL_LED	0x000100c7
+#define HID_GD_RFKILL_SWITCH	0x000100c8
 
 #define HID_DC_BATTERYSTRENGTH	0x00060020
 
@@ -280,6 +290,7 @@ struct hid_item {
 #define HID_DG_BARRELSWITCH2	0x000d005a
 #define HID_DG_TOOLSERIALNUMBER	0x000d005b
 
+#define HID_VD_ASUS_CUSTOM_MEDIA_KEYS	0xff310076
 /*
  * HID report types --- Ouch! HID spec says 1 2 3!
  */
