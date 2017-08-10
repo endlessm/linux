@@ -279,22 +279,24 @@ int reservation_object_copy_fences(struct reservation_object *dst,
 
 	src_list = reservation_object_get_list(src);
 
-	/*
-	 * resize dst->fence or allocate if it doesn't exist,
-	 * noop if already correct size
-	 */
-	size = offsetof(typeof(*src_list), shared[src_list->shared_count]);
-	dst_list = kmalloc(size, GFP_KERNEL);
-	if (!dst_list)
-		return -ENOMEM;
+	if (src_list) {
+		size = offsetof(typeof(*src_list),
+				shared[src_list->shared_count]);
+		dst_list = kmalloc(size, GFP_KERNEL);
+		if (!dst_list)
+			return -ENOMEM;
+
+		dst_list->shared_count = src_list->shared_count;
+		dst_list->shared_max = src_list->shared_count;
+		for (i = 0; i < src_list->shared_count; ++i)
+			dst_list->shared[i] =
+				dma_fence_get(src_list->shared[i]);
+	} else {
+		dst_list = NULL;
+	}
 
 	kfree(dst->staged);
 	dst->staged = NULL;
-
-	dst_list->shared_count = src_list->shared_count;
-	dst_list->shared_max = src_list->shared_count;
-	for (i = 0; i < src_list->shared_count; ++i)
-		dst_list->shared[i] = dma_fence_get(src_list->shared[i]);
 
 	src_list = reservation_object_get_list(dst);
 
