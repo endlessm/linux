@@ -5619,8 +5619,8 @@ static int b43_bcma_probe(struct bcma_device *core)
 	int err;
 
 	if (!modparam_allhwsupport &&
-	    (core->id.rev == 0x17 || core->id.rev == 0x18)) {
-		pr_err("Support for cores revisions 0x17 and 0x18 disabled by module param allhwsupport=0. Try b43.allhwsupport=1\n");
+	    (core->id.rev == 0x11 || core->id.rev == 0x17 || core->id.rev == 0x18)) {
+		pr_err("Support for cores revisions 0x11, 0x17 and 0x18 disabled by module param allhwsupport=0. Try b43.allhwsupport=1\n");
 		return -ENOTSUPP;
 	}
 
