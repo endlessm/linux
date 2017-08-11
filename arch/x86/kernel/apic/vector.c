@@ -26,6 +26,7 @@ struct apic_chip_data {
 	cpumask_var_t		domain;
 	cpumask_var_t		old_domain;
 	u8			move_in_progress : 1;
+	u8			vector_align_with_8 : 1;
 };
 
 struct irq_domain *x86_vector_domain;
@@ -165,6 +166,9 @@ static int __assign_irq_vector(int irq, struct apic_chip_data *d,
 		offset = current_offset;
 next:
 		vector += 16;
+		if (d->vector_align_with_8) {
+			vector &= ~(8 - 1);
+		}
 		if (vector >= first_system_vector) {
 			offset = (offset + 1) % 16;
 			vector = FIRST_EXTERNAL_VECTOR + offset;
@@ -360,6 +364,9 @@ static int x86_vector_alloc_irqs(struct irq_domain *domain, unsigned int virq,
 		irq_data->chip = &lapic_controller;
 		irq_data->chip_data = data;
 		irq_data->hwirq = virq + i;
+		if (info->flags & X86_IRQ_ALLOC_VECTOR_ALIGN_WITH_8 && i == 0) {
+			data->vector_align_with_8 = 1;
+		}
 		err = assign_irq_vector_policy(virq + i, node, data, info);
 		if (err)
 			goto error;

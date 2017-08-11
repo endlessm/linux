@@ -2839,6 +2839,28 @@ DECLARE_PCI_FIXUP_FINAL(PCI_VENDOR_ID_ATTANSIC, 0xe091,
 			quirk_msi_intx_disable_qca_bug);
 #endif /* CONFIG_PCI_MSI */
 
+/* There're lots of Acer Apollolake laptops with QCA NFA335 wifi
+ * module been reported failure on connecting wifi network. There
+ * is no interrupt observed on ath9k at all. With the use_msi
+ * enabled on ath9k driver, interrupts then successfully fired.
+ */
+static void quirk_force_ath9k_msi(struct pci_dev *dev)
+{
+	struct pci_dev *child;
+
+	if (!dev->subordinate)
+		return;
+
+	list_for_each_entry(child, &dev->subordinate->devices, bus_list) {
+		if (child->vendor == 0x168c && child->device == 0x0036) {
+			dev_warn(&child->dev, "APL ath9k: forcing MSI\n");
+			child->force_msi = 1;
+			return;
+		}
+	}
+}
+DECLARE_PCI_FIXUP_FINAL(PCI_VENDOR_ID_INTEL, 0x5adb, quirk_force_ath9k_msi);
+
 /* Allow manual resource allocation for PCI hotplug bridges
  * via pci=hpmemsize=nnM and pci=hpiosize=nnM parameters. For
  * some PCI-PCI hotplug bridges, like PLX 6254 (former HINT HB6),

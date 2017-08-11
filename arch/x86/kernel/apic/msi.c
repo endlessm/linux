@@ -109,6 +109,8 @@ int pci_msi_prepare(struct irq_domain *domain, struct device *dev, int nvec,
 	} else {
 		arg->type = X86_IRQ_ALLOC_TYPE_MSI;
 		arg->flags |= X86_IRQ_ALLOC_CONTIGUOUS_VECTORS;
+		if (pdev->force_msi)
+			arg->flags |= X86_IRQ_ALLOC_VECTOR_ALIGN_WITH_8;
 	}
 
 	return 0;

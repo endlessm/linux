@@ -953,6 +953,9 @@ static int ath_pci_probe(struct pci_dev *pdev, const struct pci_device_id *id)
 	sc->mem = pcim_iomap_table(pdev)[0];
 	sc->driver_data = id->driver_data;
 
+	if (pdev->force_msi)
+		ath9k_use_msi = pdev->force_msi;
+
 	if(ath9k_use_msi) {
 		if(pci_enable_msi(pdev) == 0) {
 			msi_enabled = 1;
