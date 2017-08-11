@@ -2599,6 +2599,45 @@ DECLARE_PCI_FIXUP_FINAL(PCI_VENDOR_ID_AMD, PCI_DEVICE_ID_AMD_8131_BRIDGE, quirk_
 DECLARE_PCI_FIXUP_FINAL(PCI_VENDOR_ID_VIA, 0xa238, quirk_disable_msi);
 DECLARE_PCI_FIXUP_FINAL(PCI_VENDOR_ID_ATI, 0x5a3f, quirk_disable_msi);
 
+/* Realtek wireless devices on recent Intel chipsets cause a huge spam of
+ * pcieport AER errors. This is probably a bug in Linux since it does not
+ * manage to clear the error condition. Until properly fixed, work around here
+ * by disabling AER on affected systems.
+ */
+static void quirk_disable_rtl_aspm(struct pci_dev *dev)
+{
+	struct pci_dev *child;
+
+	if (!dev->subordinate)
+		return;
+
+        switch (dev->device) {
+        case 0x9d15:
+        /* PCI bridges on Skylake */
+        case 0xa110 ... 0xa11f:
+        case 0xa167 ... 0xa16a:
+        /* PCI bridges on Kabylake */
+        case 0xa290 ... 0xa29f:
+        case 0xa2e7 ... 0xa2ee:
+		break;
+
+	default:
+		return;
+	}
+
+	list_for_each_entry(child, &dev->subordinate->devices, bus_list) {
+		if (child->vendor == 0x10ec &&
+		    (child->device == 0xb723 || child->device == 0x8821)) {
+			dev_warn(&child->dev,
+				 "SKL/KBL + Realtek; disabling AER\n");
+			pci_no_aer();
+			return;
+		}
+	}
+}
+DECLARE_PCI_FIXUP_CLASS_FINAL(PCI_VENDOR_ID_INTEL, PCI_ANY_ID,
+			      PCI_CLASS_BRIDGE_PCI, 8, quirk_disable_rtl_aspm);
+
 /*
  * The APC bridge device in AMD 780 family northbridges has some random
  * OEM subsystem ID in its vendor ID register (erratum 18), so instead
