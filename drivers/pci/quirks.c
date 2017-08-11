@@ -2362,21 +2362,28 @@ static void quirk_disable_rtl_aspm(struct pci_dev *dev)
 	if (!dev->subordinate)
 		return;
 
-	list_for_each_entry(child, &dev->subordinate->devices, bus_list) {
-		if (child->vendor == 0x10ec &&
-		    (child->device == 0xb723 || child->device == 0x8821)) {
-			dev_warn(&child->dev, "Skylake/Realtek; disabling AER\n");
-			pci_no_aer();
-			return;
+        switch (dev->device) {
+        case 0x9d15:
+        /* PCI IDs of PCI bridges on Skylake */
+        case 0xa110 ... 0xa11f:
+        case 0xa167 ... 0xa16a:
+        /* PCI IDs of PCI bridges on Kabylake */
+        case 0xa290 ... 0xa29f:
+        case 0xa2e7 ... 0xa2ee:
+		list_for_each_entry(child, &dev->subordinate->devices, bus_list) {
+			if (child->vendor == 0x10ec &&
+			    (child->device == 0xb723 || child->device == 0x8821)) {
+				dev_warn(&child->dev, "Skylake/Realtek; disabling AER\n");
+				pci_no_aer();
+				return;
+			}
 		}
 	}
+
+	return;
 }
-DECLARE_PCI_FIXUP_FINAL(PCI_VENDOR_ID_INTEL, 0x9d15, quirk_disable_rtl_aspm);
-DECLARE_PCI_FIXUP_FINAL(PCI_VENDOR_ID_INTEL, 0xa117, quirk_disable_rtl_aspm);
-DECLARE_PCI_FIXUP_FINAL(PCI_VENDOR_ID_INTEL, 0xa116, quirk_disable_rtl_aspm);
-DECLARE_PCI_FIXUP_FINAL(PCI_VENDOR_ID_INTEL, 0xa115, quirk_disable_rtl_aspm);
-DECLARE_PCI_FIXUP_FINAL(PCI_VENDOR_ID_INTEL, 0xa112, quirk_disable_rtl_aspm);
-DECLARE_PCI_FIXUP_FINAL(PCI_VENDOR_ID_INTEL, 0xa297, quirk_disable_rtl_aspm);
+DECLARE_PCI_FIXUP_CLASS_FINAL(PCI_VENDOR_ID_INTEL, PCI_ANY_ID,
+                        PCI_CLASS_BRIDGE_PCI, 8, quirk_disable_rtl_aspm);
 
 /*
  * The APC bridge device in AMD 780 family northbridges has some random
