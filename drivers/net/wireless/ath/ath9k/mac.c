@@ -831,6 +831,40 @@ static void __ath9k_hw_enable_interrupts(struct ath_hw *ah)
 	}
 	ath_dbg(common, INTERRUPT, "AR_IMR 0x%x IER 0x%x\n",
 		REG_READ(ah, AR_IMR), REG_READ(ah, AR_IER));
+
+	if (ah->msi_enabled) {
+		u32 msi_reg = 0;
+		u32 i = 0;
+
+		ath_dbg(ath9k_hw_common(ah), INTERRUPT,
+			"Enabling MSI, msi_mask=0x%x\n", ah->msi_mask);
+
+		REG_WRITE(ah, AR_INTR_PRIO_ASYNC_ENABLE, ah->msi_mask);
+		REG_WRITE(ah, AR_INTR_PRIO_ASYNC_MASK, ah->msi_mask);
+		ath_dbg(ath9k_hw_common(ah), INTERRUPT,
+			"AR_INTR_PRIO_ASYNC_ENABLE=0x%x, "
+			"AR_INTR_PRIO_ASYNC_MASK=0x%x\n",
+			REG_READ(ah, AR_INTR_PRIO_ASYNC_ENABLE),
+			REG_READ(ah, AR_INTR_PRIO_ASYNC_MASK));
+
+		if (ah->msi_reg == 0)
+			ah->msi_reg = REG_READ(ah, AR_PCIE_MSI);
+
+		ath_dbg(ath9k_hw_common(ah), INTERRUPT,
+			"AR_PCIE_MSI=0x%x, ah->msi_reg = 0x%x\n",
+			AR_PCIE_MSI, ah->msi_reg);
+
+		do {
+			REG_WRITE(ah, AR_PCIE_MSI,
+				 (ah->msi_reg | AR_PCIE_MSI_ENABLE) &
+				 AR_PCIE_MSI_HW_INT_PENDING_ADDR_MSI_64);
+		    msi_reg = REG_READ(ah, AR_PCIE_MSI);
+		} while ((msi_reg & AR_PCIE_MSI_ENABLE) == 0 && ++i < 200);
+
+		if (i >= 200)
+			ath_err(ath9k_hw_common(ah), "msi_reg = 0x%x\n",
+				msi_reg);
+	}
 }
 
 void ath9k_hw_resume_interrupts(struct ath_hw *ah)
@@ -877,12 +911,21 @@ void ath9k_hw_set_interrupts(struct ath_hw *ah)
 	if (!(ints & ATH9K_INT_GLOBAL))
 		ath9k_hw_disable_interrupts(ah);
 
+	if (ah->msi_enabled) {
+		ath_dbg(common, INTERRUPT,
+			"Clearing AR_INTR_PRIO_ASYNC_ENABLE\n");
+		REG_WRITE(ah, AR_INTR_PRIO_ASYNC_ENABLE, 0);
+		REG_READ(ah, AR_INTR_PRIO_ASYNC_ENABLE);
+	}
+
 	ath_dbg(common, INTERRUPT, "New interrupt mask 0x%x\n", ints);
 
 	mask = ints & ATH9K_INT_COMMON;
 	mask2 = 0;
 
+	ah->msi_mask = 0;
 	if (ints & ATH9K_INT_TX) {
+		ah->msi_mask |= AR_INTR_PRIO_TX;
 		if (ah->config.tx_intr_mitigation)
 			mask |= AR_IMR_TXMINTR | AR_IMR_TXINTM;
 		else {
@@ -897,6 +940,7 @@ void ath9k_hw_set_interrupts(struct ath_hw *ah)
 			mask |= AR_IMR_TXEOL;
 	}
 	if (ints & ATH9K_INT_RX) {
+		ah->msi_mask |= AR_INTR_PRIO_RXLP | AR_INTR_PRIO_RXHP;
 		if (AR_SREV_9300_20_OR_LATER(ah)) {
 			mask |= AR_IMR_RXERR | AR_IMR_RXOK_HP;
 			if (ah->config.rx_intr_mitigation) {
