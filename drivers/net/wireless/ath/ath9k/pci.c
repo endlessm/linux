@@ -955,7 +955,23 @@ static int ath_pci_probe(struct pci_dev *pdev, const struct pci_device_id *id)
 	sc->mem = pcim_iomap_table(pdev)[0];
 	sc->driver_data = id->driver_data;
 
-	ret = request_irq(pdev->irq, ath_isr, IRQF_SHARED, "ath9k", sc);
+	/* The device appears to zero-out the lower two bits of the MSI
+	 * Message Data field, presumably because it thinks it is working with
+	 * 4 MSI vectors even though we only work with one of them.
+	 * Align the MSI vector number by 4 so that the lower bits are already
+	 * zero.
+	 */
+	pdev->align_msi_vector = 4;
+
+	ret = pci_alloc_irq_vectors(pdev, 1, 1, PCI_IRQ_MSI | PCI_IRQ_LEGACY);
+	if (ret < 0) {
+		dev_err(&pdev->dev, "Failed to request interrupt vectors\n");
+		goto err_irqvectors;
+	}
+
+	ret = request_irq(pci_irq_vector(pdev, 0), ath_isr,
+			  pdev->msi_enabled ? 0 : IRQF_SHARED,
+			  "ath9k", sc);
 	if (ret) {
 		dev_err(&pdev->dev, "request_irq failed\n");
 		goto err_irq;
@@ -969,6 +985,8 @@ static int ath_pci_probe(struct pci_dev *pdev, const struct pci_device_id *id)
 		goto err_init;
 	}
 
+	sc->sc_ah->msi_enabled = pdev->msi_enabled;
+
 	ath9k_hw_name(sc->sc_ah, hw_name, sizeof(hw_name));
 	wiphy_info(hw->wiphy, "%s mem=0x%lx, irq=%d\n",
 		   hw_name, (unsigned long)sc->mem, pdev->irq);
@@ -978,6 +996,8 @@ static int ath_pci_probe(struct pci_dev *pdev, const struct pci_device_id *id)
 err_init:
 	free_irq(sc->irq, sc);
 err_irq:
+	pci_free_irq_vectors(pdev);
+err_irqvectors:
 	ieee80211_free_hw(hw);
 	return ret;
 }
@@ -991,6 +1011,7 @@ static void ath_pci_remove(struct pci_dev *pdev)
 		sc->sc_ah->ah_flags |= AH_UNPLUGGED;
 	ath9k_deinit_device(sc);
 	free_irq(sc->irq, sc);
+	pci_free_irq_vectors(pdev);
 	ieee80211_free_hw(sc->hw);
 }
 
