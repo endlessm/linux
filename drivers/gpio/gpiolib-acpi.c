@@ -20,6 +20,7 @@
 #include <linux/interrupt.h>
 #include <linux/mutex.h>
 #include <linux/pinctrl/pinctrl.h>
+#include <linux/dmi.h>
 
 #include "gpiolib.h"
 
@@ -646,6 +647,49 @@ struct gpio_desc *acpi_node_get_gpiod(struct fwnode_handle *fwnode,
 	return ret ? ERR_PTR(ret) : lookup.desc;
 }
 
+static const struct dmi_system_id fixup_gpio_irq_dmi_table[] = {
+	{
+		.ident = "ASUSTeK COMPUTER INC. X505BA",
+		.matches = {
+			DMI_MATCH(DMI_SYS_VENDOR, "ASUSTeK COMPUTER INC."),
+			DMI_MATCH(DMI_PRODUCT_NAME, "X505BA"),
+		},
+	},
+	{
+		.ident = "ASUSTeK COMPUTER INC. X505BP",
+		.matches = {
+			DMI_MATCH(DMI_SYS_VENDOR, "ASUSTeK COMPUTER INC."),
+			DMI_MATCH(DMI_PRODUCT_NAME, "X505BP"),
+		},
+	},
+	{
+		.ident = "ASUSTeK COMPUTER INC. X542BA",
+		.matches = {
+			DMI_MATCH(DMI_SYS_VENDOR, "ASUSTeK COMPUTER INC."),
+			DMI_MATCH(DMI_PRODUCT_NAME, "X542BA"),
+		},
+	},
+	{
+		.ident = "ASUSTeK COMPUTER INC. X542BP",
+		.matches = {
+			DMI_MATCH(DMI_SYS_VENDOR, "ASUSTeK COMPUTER INC."),
+			DMI_MATCH(DMI_PRODUCT_NAME, "X542BP"),
+		},
+	},
+	{}
+};
+
+static bool acpi_device_is_i2chid(struct acpi_device *adev)
+{
+        struct acpi_hardware_id *hwid;
+
+        list_for_each_entry(hwid, &adev->pnp.ids, list)
+                if (!strcmp("PNP0C50", hwid->id))
+                        return true;
+
+        return false;
+}
+
 /**
  * acpi_dev_gpio_irq_get() - Find GpioInt and translate it to Linux IRQ number
  * @adev: pointer to a ACPI device to get IRQ from
@@ -677,6 +721,11 @@ int acpi_dev_gpio_irq_get(struct acpi_device *adev, int index)
 
 			if (irq < 0)
 				return irq;
+
+			if (acpi_device_is_i2chid(adev)) {
+				if (dmi_check_system(fixup_gpio_irq_dmi_table))
+					info.triggering = ACPI_EDGE_SENSITIVE;
+			}
 
 			irq_flags = acpi_dev_get_irq_type(info.triggering,
 							  info.polarity);
