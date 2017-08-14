@@ -107,14 +107,17 @@ void irq_matrix_offline(struct irq_matrix *m)
 }
 
 static unsigned int matrix_alloc_area(struct irq_matrix *m, struct cpumap *cm,
-				      unsigned int num, bool managed)
+				      unsigned int num, bool managed, unsigned int align)
 {
 	unsigned int area, start = m->alloc_start;
 	unsigned int end = m->alloc_end;
 
+	if (align > 0)
+		align--;
+
 	bitmap_or(m->scratch_map, cm->managed_map, m->system_map, end);
 	bitmap_or(m->scratch_map, m->scratch_map, cm->alloc_map, end);
-	area = bitmap_find_next_zero_area(m->scratch_map, end, start, num, 0);
+	area = bitmap_find_next_zero_area(m->scratch_map, end, start, num, align);
 	if (area >= end)
 		return area;
 	if (managed)
@@ -164,7 +167,7 @@ void irq_matrix_assign_system(struct irq_matrix *m, unsigned int bit,
  * on all CPUs in @msk, but it's not guaranteed that the bits are at the
  * same offset on all CPUs
  */
-int irq_matrix_reserve_managed(struct irq_matrix *m, const struct cpumask *msk)
+int irq_matrix_reserve_managed(struct irq_matrix *m, const struct cpumask *msk, unsigned int align)
 {
 	unsigned int cpu, failed_cpu;
 
@@ -172,7 +175,7 @@ int irq_matrix_reserve_managed(struct irq_matrix *m, const struct cpumask *msk)
 		struct cpumap *cm = per_cpu_ptr(m->maps, cpu);
 		unsigned int bit;
 
-		bit = matrix_alloc_area(m, cm, 1, true);
+		bit = matrix_alloc_area(m, cm, 1, true, align);
 		if (bit >= m->alloc_end)
 			goto cleanup;
 		cm->managed++;
@@ -239,14 +242,18 @@ void irq_matrix_remove_managed(struct irq_matrix *m, const struct cpumask *msk)
  * @m:		Matrix pointer
  * @cpu:	On which CPU the interrupt should be allocated
  */
-int irq_matrix_alloc_managed(struct irq_matrix *m, unsigned int cpu)
+int irq_matrix_alloc_managed(struct irq_matrix *m, unsigned int cpu, unsigned int align)
 {
 	struct cpumap *cm = per_cpu_ptr(m->maps, cpu);
 	unsigned int bit, end = m->alloc_end;
 
+	if (align > 0)
+		align--;
+
 	/* Get managed bit which are not allocated */
 	bitmap_andnot(m->scratch_map, cm->managed_map, cm->alloc_map, end);
-	bit = find_first_bit(m->scratch_map, end);
+	bitmap_complement(m->scratch_map, m->scratch_map, end);
+	bit = bitmap_find_next_zero_area(m->scratch_map, end, 0, 1, align);
 	if (bit >= end)
 		return -ENOSPC;
 	set_bit(bit, cm->alloc_map);
@@ -320,7 +327,7 @@ void irq_matrix_remove_reserved(struct irq_matrix *m)
  * @mapped_cpu: Pointer to store the CPU for which the irq was allocated
  */
 int irq_matrix_alloc(struct irq_matrix *m, const struct cpumask *msk,
-		     bool reserved, unsigned int *mapped_cpu)
+		     bool reserved, unsigned int *mapped_cpu, unsigned int align)
 {
 	unsigned int cpu, best_cpu, maxavl = 0;
 	struct cpumap *cm;
@@ -339,7 +346,7 @@ int irq_matrix_alloc(struct irq_matrix *m, const struct cpumask *msk,
 
 	if (maxavl) {
 		cm = per_cpu_ptr(m->maps, best_cpu);
-		bit = matrix_alloc_area(m, cm, 1, false);
+		bit = matrix_alloc_area(m, cm, 1, false, align);
 		if (bit < m->alloc_end) {
 			cm->allocated++;
 			cm->available--;
