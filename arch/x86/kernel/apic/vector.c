@@ -103,7 +103,8 @@ static void free_apic_chip_data(struct apic_chip_data *data)
 }
 
 static int __assign_irq_vector(int irq, struct apic_chip_data *d,
-			       const struct cpumask *mask)
+			       const struct cpumask *mask,
+			       unsigned long *allowed_vectors)
 {
 	/*
 	 * NOTE! The local APIC isn't very good at handling
@@ -177,6 +178,9 @@ next:
 		if (test_bit(vector, used_vectors))
 			goto next;
 
+		if (allowed_vectors && !test_bit(vector, allowed_vectors))
+			goto next;
+
 		for_each_cpu(new_cpu, vector_searchmask) {
 			if (!IS_ERR_OR_NULL(per_cpu(vector_irq, new_cpu)[vector]))
 				goto next;
@@ -228,13 +232,14 @@ success:
 }
 
 static int assign_irq_vector(int irq, struct apic_chip_data *data,
-			     const struct cpumask *mask)
+			     const struct cpumask *mask,
+			     unsigned long *allowed_vectors)
 {
 	int err;
 	unsigned long flags;
 
 	raw_spin_lock_irqsave(&vector_lock, flags);
-	err = __assign_irq_vector(irq, data, mask);
+	err = __assign_irq_vector(irq, data, mask, allowed_vectors);
 	raw_spin_unlock_irqrestore(&vector_lock, flags);
 	return err;
 }
@@ -243,12 +248,22 @@ static int assign_irq_vector_policy(int irq, int node,
 				    struct apic_chip_data *data,
 				    struct irq_alloc_info *info)
 {
+	unsigned long *allowed_vectors = NULL;
+
+	/* Some MSI interrupts have restrictions on which vector numbers
+	 * can be used.
+	 */
+	if (info &&
+		(info->type == X86_IRQ_ALLOC_TYPE_MSI ||
+		 info->type == X86_IRQ_ALLOC_TYPE_MSIX))
+		allowed_vectors = info->allowed_vectors;
+
 	if (info && info->mask)
-		return assign_irq_vector(irq, data, info->mask);
+		return assign_irq_vector(irq, data, info->mask, allowed_vectors);
 	if (node != NUMA_NO_NODE &&
-	    assign_irq_vector(irq, data, cpumask_of_node(node)) == 0)
+	    assign_irq_vector(irq, data, cpumask_of_node(node), allowed_vectors) == 0)
 		return 0;
-	return assign_irq_vector(irq, data, apic->target_cpus());
+	return assign_irq_vector(irq, data, apic->target_cpus(), allowed_vectors);
 }
 
 static void clear_irq_vector(int irq, struct apic_chip_data *data)
@@ -529,7 +544,7 @@ static int apic_set_affinity(struct irq_data *irq_data,
 	if (!cpumask_intersects(dest, cpu_online_mask))
 		return -EINVAL;
 
-	err = assign_irq_vector(irq, data, dest);
+	err = assign_irq_vector(irq, data, dest, NULL);
 	return err ? err : IRQ_SET_MASK_OK;
 }
 

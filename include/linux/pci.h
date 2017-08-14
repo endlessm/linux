@@ -387,6 +387,8 @@ struct pci_dev {
 #endif
 #ifdef CONFIG_PCI_MSI
 	const struct attribute_group **msi_irq_groups;
+	int align_msi_vector;	/* device requires MSI vector numbers aligned
+				 * by this amount */
 #endif
 	struct pci_vpd *vpd;
 #ifdef CONFIG_PCI_ATS
