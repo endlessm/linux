@@ -85,6 +85,7 @@ struct irq_alloc_info {
 		struct ioapic_alloc_info	ioapic;
 		struct uv_alloc_info		uv;
 	};
+	unsigned int vector_align;
 };
 
 struct irq_cfg {
