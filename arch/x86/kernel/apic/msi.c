@@ -108,6 +108,8 @@ int pci_msi_prepare(struct irq_domain *domain, struct device *dev, int nvec,
 		arg->flags |= X86_IRQ_ALLOC_CONTIGUOUS_VECTORS;
 	}
 
+	arg->vector_align = pdev->align_msi_vector;
+
 	return 0;
 }
 EXPORT_SYMBOL_GPL(pci_msi_prepare);
