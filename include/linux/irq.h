@@ -1221,14 +1221,14 @@ struct irq_matrix *irq_alloc_matrix(unsigned int matrix_bits,
 void irq_matrix_online(struct irq_matrix *m);
 void irq_matrix_offline(struct irq_matrix *m);
 void irq_matrix_assign_system(struct irq_matrix *m, unsigned int bit, bool replace);
-int irq_matrix_reserve_managed(struct irq_matrix *m, const struct cpumask *msk);
+int irq_matrix_reserve_managed(struct irq_matrix *m, const struct cpumask *msk, unsigned int align);
 void irq_matrix_remove_managed(struct irq_matrix *m, const struct cpumask *msk);
 int irq_matrix_alloc_managed(struct irq_matrix *m, const struct cpumask *msk,
-				unsigned int *mapped_cpu);
+				unsigned int *mapped_cpu, unsigned int align);
 void irq_matrix_reserve(struct irq_matrix *m);
 void irq_matrix_remove_reserved(struct irq_matrix *m);
 int irq_matrix_alloc(struct irq_matrix *m, const struct cpumask *msk,
-		     bool reserved, unsigned int *mapped_cpu);
+		     bool reserved, unsigned int *mapped_cpu, unsigned int align);
 void irq_matrix_free(struct irq_matrix *m, unsigned int cpu,
 		     unsigned int bit, bool managed);
 void irq_matrix_assign(struct irq_matrix *m, unsigned int bit);

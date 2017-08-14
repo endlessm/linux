@@ -476,6 +476,7 @@ struct pci_dev {
 #endif
 #ifdef CONFIG_PCI_MSI
 	const struct attribute_group **msi_irq_groups;
+	unsigned int align_msi_vector;
 #endif
 	struct pci_vpd	vpd;
 #ifdef CONFIG_PCIE_DPC
