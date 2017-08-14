@@ -95,6 +95,7 @@ struct irq_alloc_info {
 		struct {
 			struct pci_dev	*msi_dev;
 			irq_hw_number_t	msi_hwirq;
+			DECLARE_BITMAP(allowed_vectors, NR_VECTORS);
 		};
 #endif
 #ifdef	CONFIG_X86_IO_APIC

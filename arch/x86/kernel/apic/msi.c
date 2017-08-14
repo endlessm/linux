@@ -111,6 +111,20 @@ int pci_msi_prepare(struct irq_domain *domain, struct device *dev, int nvec,
 		arg->flags |= X86_IRQ_ALLOC_CONTIGUOUS_VECTORS;
 	}
 
+	if (pdev->align_msi_vector) {
+		/* We have specific alignment requirements on the vector
+		 * number used by the device. Set up a bitmap that restricts
+		 * the vector selection accordingly.
+		 */
+		int i = pdev->align_msi_vector;
+		set_bit(0, arg->allowed_vectors);
+		for (; i < NR_VECTORS; i += pdev->align_msi_vector)
+			set_bit(i, arg->allowed_vectors);
+	} else {
+		/* No specific alignment requirements so allow all vectors. */
+		bitmap_fill(arg->allowed_vectors, NR_VECTORS);
+	}
+
 	return 0;
 }
 EXPORT_SYMBOL_GPL(pci_msi_prepare);
