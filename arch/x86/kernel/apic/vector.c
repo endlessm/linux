@@ -30,6 +30,7 @@ struct apic_chip_data {
 	unsigned int		cpu;
 	unsigned int		prev_cpu;
 	unsigned int		irq;
+	unsigned int		vector_align;
 	struct hlist_node	clist;
 	unsigned int		move_in_progress	: 1,
 				is_managed		: 1,
@@ -190,7 +191,8 @@ static int reserve_managed_vector(struct irq_data *irqd)
 
 	raw_spin_lock_irqsave(&vector_lock, flags);
 	apicd->is_managed = true;
-	ret = irq_matrix_reserve_managed(vector_matrix, affmsk);
+	ret = irq_matrix_reserve_managed(vector_matrix, affmsk,
+					 apicd->vector_align);
 	raw_spin_unlock_irqrestore(&vector_lock, flags);
 	trace_vector_reserve_managed(irqd->irq, ret);
 	return ret;
@@ -245,7 +247,8 @@ assign_vector_locked(struct irq_data *irqd, const struct cpumask *dest)
 	if (apicd->move_in_progress || !hlist_unhashed(&apicd->clist))
 		return -EBUSY;
 
-	vector = irq_matrix_alloc(vector_matrix, dest, resvd, &cpu);
+	vector = irq_matrix_alloc(vector_matrix, dest, resvd, &cpu,
+				  apicd->vector_align);
 	trace_vector_alloc(irqd->irq, vector, resvd, vector);
 	if (vector < 0)
 		return vector;
@@ -322,7 +325,7 @@ assign_managed_vector(struct irq_data *irqd, const struct cpumask *dest)
 	if (apicd->vector && cpumask_test_cpu(apicd->cpu, vector_searchmask))
 		return 0;
 	vector = irq_matrix_alloc_managed(vector_matrix, vector_searchmask,
-					  &cpu);
+					  &cpu, apicd->vector_align);
 	trace_vector_alloc_managed(irqd->irq, vector, vector);
 	if (vector < 0)
 		return vector;
@@ -561,6 +564,10 @@ static int x86_vector_alloc_irqs(struct irq_domain *domain, unsigned int virq,
 			err = -ENOMEM;
 			goto error;
 		}
+
+		if (info->type == X86_IRQ_ALLOC_TYPE_PCI_MSI
+				|| info->type == X86_IRQ_ALLOC_TYPE_PCI_MSIX)
+			apicd->vector_align = info->vector_align;
 
 		apicd->irq = virq + i;
 		irqd->chip = &lapic_controller;
