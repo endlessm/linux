@@ -485,6 +485,7 @@ struct pci_dev {
 #ifdef CONFIG_PCI_MSI
 	void __iomem	*msix_base;
 	raw_spinlock_t	msi_lock;
+	unsigned int	align_msi_vector;
 #endif
 	struct pci_vpd	vpd;
 #ifdef CONFIG_PCIE_DPC
