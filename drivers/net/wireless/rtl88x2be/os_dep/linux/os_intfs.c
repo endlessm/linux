@@ -3419,7 +3419,6 @@ void rtw_ndev_destructor(struct net_device *ndev)
 	if (ndev->ieee80211_ptr)
 		rtw_mfree((u8 *)ndev->ieee80211_ptr, sizeof(struct wireless_dev));
 #endif
-	free_netdev(ndev);
 }
 
 #ifdef CONFIG_ARP_KEEP_ALIVE
