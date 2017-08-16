@@ -3160,6 +3160,10 @@ int usb_port_suspend(struct usb_device *udev, pm_message_t msg)
 			goto err_ltm;
 	}
 
+	if (udev->quirks & USB_QUIRK_DISCONNECT_SUSPEND) {
+		usb_clear_port_feature(hub->hdev, port1, USB_PORT_FEAT_ENABLE);
+	}
+
 	/* see 7.1.7.6 */
 	if (hub_is_superspeed(hub->hdev))
 		status = hub_set_port_link_state(hub, port1, USB_SS_PORT_LS_U3);
