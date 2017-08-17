@@ -7162,19 +7162,10 @@ CONFIG_DVB_CXD2099                              policy<{'amd64': 'm', 'arm64': '
 CONFIG_VIDEO_OMAP4                              policy<{'armhf-generic': 'm'}>
 
 # Menu: Device Drivers >> Staging drivers >> Media staging drivers >> Enable support to Intel MIPI camera drivers
-CONFIG_INTEL_ATOMISP                            policy<{'amd64': 'y', 'i386': 'y'}>
-CONFIG_VIDEO_ATOMISP                            policy<{'amd64': 'm', 'i386': 'm'}>
-CONFIG_VIDEO_OV5693                             policy<{'amd64': 'm', 'i386': 'm'}>
-CONFIG_VIDEO_IMX                                policy<{'amd64': 'm', 'i386': 'm'}>
-CONFIG_VIDEO_OV2722                             policy<{'amd64': 'm', 'i386': 'm'}>
-CONFIG_VIDEO_GC2235                             policy<{'amd64': 'm', 'i386': 'm'}>
-CONFIG_VIDEO_OV8858                             policy<{'amd64': 'm', 'i386': 'm'}>
-CONFIG_VIDEO_MSRLIST_HELPER                     policy<{'amd64': 'm', 'i386': 'm'}>
-CONFIG_VIDEO_MT9M114                            policy<{'amd64': 'm', 'i386': 'm'}>
-CONFIG_VIDEO_AP1302                             policy<{'amd64': 'm', 'i386': 'm'}>
-CONFIG_VIDEO_GC0310                             policy<{'amd64': 'm', 'i386': 'm'}>
-CONFIG_VIDEO_OV2680                             policy<{'amd64': 'm', 'i386': 'm'}>
-CONFIG_VIDEO_LM3554                             policy<{'amd64': 'm', 'i386': 'm'}>
+CONFIG_INTEL_ATOMISP                            policy<{'amd64': 'n', 'i386': 'n'}>
+#
+CONFIG_INTEL_ATOMISP                            note<causes panic in xen pv guests LP:1711298>
+
 
 # Menu: Device Drivers >> Staging drivers >> Media staging drivers >> Linux Infrared Remote Control IR receiver/transmitter drivers
 CONFIG_LIRC_STAGING                             policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'ppc64el': 'y'}>
