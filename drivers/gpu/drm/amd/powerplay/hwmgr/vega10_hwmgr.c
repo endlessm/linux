@@ -1557,7 +1557,8 @@ static int vega10_populate_smc_link_levels(struct pp_hwmgr *hwmgr)
 */
 
 static int vega10_populate_single_gfx_level(struct pp_hwmgr *hwmgr,
-		uint32_t gfx_clock, PllSetting_t *current_gfxclk_level)
+		uint32_t gfx_clock, PllSetting_t *current_gfxclk_level,
+		uint32_t *acg_freq)
 {
 	struct phm_ppt_v2_information *table_info =
 			(struct phm_ppt_v2_information *)(hwmgr->pptable);
@@ -1607,6 +1608,8 @@ static int vega10_populate_single_gfx_level(struct pp_hwmgr *hwmgr,
 	current_gfxclk_level->SsSlewFrac =
 			cpu_to_le16(dividers.usPll_ss_slew_frac);
 	current_gfxclk_level->Did = (uint8_t)(dividers.ulDid);
+
+	*acg_freq = gfx_clock / 100; /* 100 Khz to Mhz conversion */
 
 	return 0;
 }
@@ -1688,7 +1691,8 @@ static int vega10_populate_all_graphic_levels(struct pp_hwmgr *hwmgr)
 	for (i = 0; i < dpm_table->count; i++) {
 		result = vega10_populate_single_gfx_level(hwmgr,
 				dpm_table->dpm_levels[i].value,
-				&(pp_table->GfxclkLevel[i]));
+				&(pp_table->GfxclkLevel[i]),
+				&(pp_table->AcgFreqTable[i]));
 		if (result)
 			return result;
 	}
@@ -1697,7 +1701,8 @@ static int vega10_populate_all_graphic_levels(struct pp_hwmgr *hwmgr)
 	while (i < NUM_GFXCLK_DPM_LEVELS) {
 		result = vega10_populate_single_gfx_level(hwmgr,
 				dpm_table->dpm_levels[j].value,
-				&(pp_table->GfxclkLevel[i]));
+				&(pp_table->GfxclkLevel[i]),
+				&(pp_table->AcgFreqTable[i]));
 		if (result)
 			return result;
 		i++;
