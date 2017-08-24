@@ -116,6 +116,16 @@ static inline void ttm_dma_unpopulate(struct ttm_dma_tt *ttm_dma,
 				      struct device *dev)
 {
 }
+
+static inline int ttm_populate_and_map_pages(struct device *dev, struct ttm_dma_tt *tt)
+{
+	return -ENOMEM;
+}
+
+static inline void ttm_unmap_and_unpopulate_pages(struct device *dev, struct ttm_dma_tt *tt)
+{
+}
+
 #endif
 
 #endif
