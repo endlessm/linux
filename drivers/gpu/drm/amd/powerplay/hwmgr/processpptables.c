@@ -678,8 +678,8 @@ static PP_StateClassificationFlags make_classification_flags(
 static int init_non_clock_fields(struct pp_hwmgr *hwmgr,
 						struct pp_power_state *ps,
 							    uint8_t version,
-			 const ATOM_PPLIB_NONCLOCK_INFO *pnon_clock_info) {
-	unsigned long rrr_index;
+			 const ATOM_PPLIB_NONCLOCK_INFO *pnon_clock_info)
+{
 	unsigned long tmp;
 
 	ps->classification.ui_label = (le16_to_cpu(pnon_clock_info->usClassification) &
@@ -707,23 +707,6 @@ static int init_non_clock_fields(struct pp_hwmgr *hwmgr,
 	ps->pcie.lanes = 0;
 
 	ps->display.disableFrameModulation = false;
-
-	rrr_index = (le32_to_cpu(pnon_clock_info->ulCapsAndSettings) &
-			ATOM_PPLIB_LIMITED_REFRESHRATE_VALUE_MASK) >>
-			ATOM_PPLIB_LIMITED_REFRESHRATE_VALUE_SHIFT;
-
-	if (rrr_index != ATOM_PPLIB_LIMITED_REFRESHRATE_UNLIMITED) {
-		static const uint8_t look_up[(ATOM_PPLIB_LIMITED_REFRESHRATE_VALUE_MASK >> ATOM_PPLIB_LIMITED_REFRESHRATE_VALUE_SHIFT) + 1] = \
-								{ 0, 50, 0 };
-
-		ps->display.refreshrateSource = PP_RefreshrateSource_Explicit;
-		ps->display.explicitRefreshrate = look_up[rrr_index];
-		ps->display.limitRefreshrate = true;
-
-		if (ps->display.explicitRefreshrate == 0)
-			ps->display.limitRefreshrate = false;
-	} else
-		ps->display.limitRefreshrate = false;
 
 	tmp = le32_to_cpu(pnon_clock_info->ulCapsAndSettings) &
 		ATOM_PPLIB_ENABLE_VARIBRIGHT;

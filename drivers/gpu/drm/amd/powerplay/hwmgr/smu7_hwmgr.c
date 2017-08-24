@@ -2987,7 +2987,6 @@ static int smu7_get_pp_table_entry_callback_func_v1(struct pp_hwmgr *hwmgr,
 	power_state->pcie.lanes = 0;
 
 	power_state->display.disableFrameModulation = false;
-	power_state->display.limitRefreshrate = false;
 	power_state->display.enableVariBright =
 			(0 != (le32_to_cpu(state_entry->ulCapsAndSettings) &
 					ATOM_Tonga_ENABLE_VARIBRIGHT));

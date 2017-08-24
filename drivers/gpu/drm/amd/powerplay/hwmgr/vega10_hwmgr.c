@@ -3030,7 +3030,6 @@ static int vega10_get_pp_table_entry_callback_func(struct pp_hwmgr *hwmgr,
 					ATOM_Vega10_DISALLOW_ON_DC) != 0);
 
 	power_state->display.disableFrameModulation = false;
-	power_state->display.limitRefreshrate = false;
 	power_state->display.enableVariBright =
 			((le32_to_cpu(state_entry->ulCapsAndSettings) &
 					ATOM_Vega10_ENABLE_VARIBRIGHT) != 0);
