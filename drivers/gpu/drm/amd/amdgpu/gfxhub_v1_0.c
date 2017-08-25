@@ -124,7 +124,7 @@ static void gfxhub_v1_0_init_tlb_regs(struct amdgpu_device *adev)
 
 static void gfxhub_v1_0_init_cache_regs(struct amdgpu_device *adev)
 {
-	uint32_t tmp, field;
+	uint32_t tmp;
 
 	/* Setup L2 cache */
 	tmp = RREG32_SOC15(GC, 0, mmVM_L2_CNTL);
