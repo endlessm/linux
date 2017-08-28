@@ -36,7 +36,7 @@ ifeq ($(CONFIG_PCI_HCI), y)
 _HAL_INTFS_FILES +=hal/efuse/$(RTL871X)/HalEfuseMask8821C_PCIE.o
 endif
 
-include $(src)/halmac.mk
+include $(srctree)/$(src)/halmac.mk
 
 _BTC_FILES += hal/btc/halbtc8821cwifionly.o
 ifeq ($(CONFIG_BT_COEXIST), y)
