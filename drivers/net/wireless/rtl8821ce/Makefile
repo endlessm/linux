@@ -149,7 +149,7 @@ CONFIG_PLATFORM_RTL8197D = n
 
 CONFIG_DRVEXT_MODULE = n
 
-export TopDIR ?= $(shell pwd)
+export TopDIR ?= $(srctree)/drivers/net/wireless/rtl8821ce
 
 ########### COMMON  #################################
 ifeq ($(CONFIG_GSPI_HCI), y)
