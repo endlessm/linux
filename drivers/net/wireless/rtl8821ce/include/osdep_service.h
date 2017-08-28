@@ -44,6 +44,7 @@
 #endif
 
 #ifdef PLATFORM_LINUX
+	#include <linux/sched/signal.h>
 	#include <osdep_service_linux.h>
 #endif
 
@@ -342,7 +343,7 @@ extern void	rtw_udelay_os(int us);
 extern void rtw_yield_os(void);
 
 
-extern void rtw_init_timer(_timer *ptimer, void *padapter, void *pfunc, void *ctx);
+extern void rtw_init_timer(_timer *ptimer, void *padapter, void *pfunc);
 
 
 __inline static unsigned char _cancel_timer_ex(_timer *ptimer)
