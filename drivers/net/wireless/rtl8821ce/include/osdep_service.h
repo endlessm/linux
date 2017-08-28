@@ -44,6 +44,7 @@
 #endif
 
 #ifdef PLATFORM_LINUX
+	#include <linux/sched/signal.h>
 	#include <osdep_service_linux.h>
 #endif
 
