@@ -29,15 +29,15 @@ void rtw_init_mlme_timer(_adapter *padapter)
 {
 	struct	mlme_priv *pmlmepriv = &padapter->mlmepriv;
 
-	rtw_init_timer(&(pmlmepriv->assoc_timer), padapter, rtw_join_timeout_handler, padapter);
-	rtw_init_timer(&(pmlmepriv->scan_to_timer), padapter, rtw_scan_timeout_handler, padapter);
+	rtw_init_timer(&(pmlmepriv->assoc_timer), padapter, rtw_join_timeout_handler);
+	rtw_init_timer(&(pmlmepriv->scan_to_timer), padapter, rtw_scan_timeout_handler);
 
 #ifdef CONFIG_DFS_MASTER
 	rtw_init_timer(&(pmlmepriv->dfs_master_timer), padapter, rtw_dfs_master_timer_hdl, padapter);
 #endif
 
 #ifdef CONFIG_SET_SCAN_DENY_TIMER
-	rtw_init_timer(&(pmlmepriv->set_scan_deny_timer), padapter, rtw_set_scan_deny_timer_hdl, padapter);
+	rtw_init_timer(&(pmlmepriv->set_scan_deny_timer), padapter, rtw_set_scan_deny_timer_hdl);
 #endif
 
 #ifdef RTK_DMP_PLATFORM
@@ -2701,11 +2701,10 @@ void rtw_wmm_event_callback(PADAPTER padapter, u8 *pbuf)
 /*
 * rtw_join_timeout_handler - Timeout/failure handler for CMD JoinBss
 */
-void rtw_join_timeout_handler(void *ctx)
+void rtw_join_timeout(struct mlme_priv *pmlmepriv)
 {
-	_adapter *adapter = (_adapter *)ctx;
+	_adapter *adapter = container_of(pmlmepriv, _adapter, mlmepriv);
 	_irqL irqL;
-	struct	mlme_priv *pmlmepriv = &adapter->mlmepriv;
 
 #if 0
 	if (rtw_is_drv_stopped(adapter)) {
@@ -2779,15 +2778,20 @@ void rtw_join_timeout_handler(void *ctx)
 
 }
 
+void rtw_join_timeout_handler(struct timer_list *t) {
+	struct	mlme_priv *pmlmepriv = from_timer(pmlmepriv, t, assoc_timer);
+	rtw_join_timeout(pmlmepriv);
+}
+
 /*
 * rtw_scan_timeout_handler - Timeout/Faliure handler for CMD SiteSurvey
 * @adapter: pointer to _adapter structure
 */
-void rtw_scan_timeout_handler(void *ctx)
+void rtw_scan_timeout_handler(struct timer_list *t)
 {
-	_adapter *adapter = (_adapter *)ctx;
+	struct	mlme_priv *pmlmepriv = from_timer(pmlmepriv, t, scan_to_timer);
+	_adapter *adapter = container_of(pmlmepriv, _adapter, mlmepriv);
 	_irqL irqL;
-	struct mlme_priv *pmlmepriv = &adapter->mlmepriv;
 	RTW_INFO(FUNC_ADPT_FMT" fw_state=%x\n", FUNC_ADPT_ARG(adapter), get_fwstate(pmlmepriv));
 
 	_enter_critical_bh(&pmlmepriv->lock, &irqL);
@@ -3050,9 +3054,9 @@ static void collect_traffic_statistics(_adapter *padapter)
 	#endif
 }
 
-void rtw_dynamic_check_timer_handlder(void *ctx)
+void rtw_dynamic_check_timer_handlder(struct timer_list *t)
 {
-	struct dvobj_priv *pdvobj = (struct dvobj_priv *)ctx;
+	struct dvobj_priv *pdvobj = from_timer(pdvobj, t, dynamic_chk_timer);
 	_adapter *adapter = dvobj_get_primary_adapter(pdvobj);
 
 #if (MP_DRIVER == 1)
@@ -3098,9 +3102,10 @@ inline void rtw_clear_scan_deny(_adapter *adapter)
 		RTW_INFO(FUNC_ADPT_FMT"\n", FUNC_ADPT_ARG(adapter));
 }
 
-void rtw_set_scan_deny_timer_hdl(void *ctx)
+void rtw_set_scan_deny_timer_hdl(struct timer_list *t)
 {
-	_adapter *adapter = (_adapter *)ctx;
+	struct	mlme_priv *pmlmepriv = from_timer(pmlmepriv, t, set_scan_deny_timer);
+	_adapter *adapter = container_of(pmlmepriv, _adapter, mlmepriv);
 
 	rtw_clear_scan_deny(adapter);
 }
