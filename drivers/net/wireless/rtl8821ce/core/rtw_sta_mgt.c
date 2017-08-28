@@ -450,7 +450,7 @@ static void rtw_init_recv_timer(struct recv_reorder_ctrl *preorder_ctrl)
 {
 	_adapter *padapter = preorder_ctrl->padapter;
 
-	rtw_init_timer(&(preorder_ctrl->reordering_ctrl_timer), padapter, rtw_reordering_ctrl_timeout_handler, preorder_ctrl);
+	rtw_init_timer(&(preorder_ctrl->reordering_ctrl_timer), padapter, rtw_reordering_ctrl_timeout_handler);
 
 }
 
@@ -516,7 +516,7 @@ struct	sta_info *rtw_alloc_stainfo(struct	sta_priv *pstapriv, u8 *hwaddr)
 		for (i = 0; i < 16; i++)
 			_rtw_memcpy(&psta->sta_recvpriv.rxcache.tid_rxseq[i], &wRxSeqInitialValue, 2);
 
-		rtw_init_timer(&psta->addba_retry_timer, psta->padapter, addba_timer_hdl, psta);
+		rtw_init_timer(&psta->addba_retry_timer, psta->padapter, addba_timer_hdl);
 #ifdef CONFIG_IEEE80211W
 		rtw_init_timer(&psta->dot11w_expire_timer, psta->padapter, sa_query_timer_hdl, psta);
 #endif /* CONFIG_IEEE80211W */

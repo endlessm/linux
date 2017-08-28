@@ -1333,8 +1333,8 @@ void init_mlme_ext_timer(_adapter *padapter)
 {
 	struct	mlme_ext_priv *pmlmeext = &padapter->mlmeextpriv;
 
-	rtw_init_timer(&pmlmeext->survey_timer, padapter, survey_timer_hdl, padapter);
-	rtw_init_timer(&pmlmeext->link_timer, padapter, link_timer_hdl, padapter);
+	rtw_init_timer(&pmlmeext->survey_timer, padapter, survey_timer_hdl);
+	rtw_init_timer(&pmlmeext->link_timer, padapter, link_timer_hdl);
 #ifdef CONFIG_RTW_80211R
 	rtw_init_timer(&pmlmeext->ft_link_timer, padapter, ft_link_timer_hdl, padapter);
 	rtw_init_timer(&pmlmeext->ft_roam_timer, padapter, ft_roam_timer_hdl, padapter);
@@ -12760,13 +12760,13 @@ bypass_active_keep_alive:
 
 }
 
-void survey_timer_hdl(void *ctx)
+void survey_timer_hdl(struct timer_list *t)
 {
-	_adapter *padapter = (_adapter *)ctx;
+	struct mlme_ext_priv    *pmlmeext = from_timer(pmlmeext, t, survey_timer);
+	_adapter *padapter = container_of(pmlmeext, _adapter, mlmeextpriv);
 	struct cmd_obj *cmd;
 	struct sitesurvey_parm *psurveyPara;
 	struct cmd_priv *pcmdpriv = &padapter->cmdpriv;
-	struct mlme_ext_priv *pmlmeext = &padapter->mlmeextpriv;
 #ifdef CONFIG_P2P
 	struct wifidirect_info *pwdinfo = &(padapter->wdinfo);
 #endif
@@ -12793,13 +12793,13 @@ exit:
 	return;
 }
 
-void link_timer_hdl(void *ctx)
+void link_timer_hdl(struct timer_list *t)
 {
-	_adapter *padapter = (_adapter *)ctx;
+	struct mlme_ext_priv    *pmlmeext = from_timer(pmlmeext, t, link_timer);
+	_adapter *padapter = container_of(pmlmeext, _adapter, mlmeextpriv);
 	/* static unsigned int		rx_pkt = 0; */
 	/* static u64				tx_cnt = 0; */
 	/* struct xmit_priv		*pxmitpriv = &(padapter->xmitpriv); */
-	struct mlme_ext_priv	*pmlmeext = &padapter->mlmeextpriv;
 	struct mlme_ext_info	*pmlmeinfo = &(pmlmeext->mlmext_info);
 	/* struct sta_priv		*pstapriv = &padapter->stapriv; */
 #ifdef CONFIG_RTW_80211R
@@ -12867,9 +12867,9 @@ void link_timer_hdl(void *ctx)
 	return;
 }
 
-void addba_timer_hdl(void *ctx)
+void addba_timer_hdl(struct timer_list *t)
 {
-	struct sta_info *psta = (struct sta_info *)ctx;
+	struct sta_info *psta = from_timer(psta, t, addba_retry_timer);
 
 #ifdef CONFIG_80211N_HT
 	struct ht_priv	*phtpriv;
