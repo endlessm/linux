@@ -1040,16 +1040,17 @@ extern void rtw_update_registrypriv_dev_network(_adapter *adapter);
 
 extern void rtw_get_encrypt_decrypt_from_registrypriv(_adapter *adapter);
 
-extern void rtw_join_timeout_handler(void *ctx);
-extern void rtw_scan_timeout_handler(void *ctx);
+extern void rtw_join_timeout_handler(struct timer_list *t);
+extern void rtw_join_timeout(struct mlme_priv *pmlmepriv);
+extern void rtw_scan_timeout_handler(struct timer_list *t);
 
-extern void rtw_dynamic_check_timer_handlder(void *ctx);
+extern void rtw_dynamic_check_timer_handlder(struct timer_list *t);
 extern void rtw_iface_dynamic_check_timer_handlder(_adapter *adapter);
 
 #ifdef CONFIG_SET_SCAN_DENY_TIMER
 bool rtw_is_scan_deny(_adapter *adapter);
 void rtw_clear_scan_deny(_adapter *adapter);
-void rtw_set_scan_deny_timer_hdl(void *ctx);
+void rtw_set_scan_deny_timer_hdl(struct timer_list *t);
 void rtw_set_scan_deny(_adapter *adapter, u32 ms);
 #else
 #define rtw_is_scan_deny(adapter) _FALSE

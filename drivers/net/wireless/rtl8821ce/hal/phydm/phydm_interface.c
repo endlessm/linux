@@ -572,6 +572,10 @@ odm_set_timer(
 
 }
 
+#if 0
+/* Disabled because all users would need to be converted to the Linux 4.15
+* timer API change. However it has no users so just get rid of this helper.
+ */
 void
 odm_initialize_timer(
 	struct PHY_DM_STRUCT			*p_dm_odm,
@@ -594,7 +598,7 @@ odm_initialize_timer(
 	PlatformInitializeTimer(adapter, p_timer, call_back_func, p_context, sz_id);
 #endif
 }
-
+#endif
 
 void
 odm_cancel_timer(
