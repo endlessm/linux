@@ -1146,6 +1146,13 @@ static const struct dmi_system_id nouveau_modeset_0[] = {
 			DMI_MATCH(DMI_PRODUCT_NAME, "Aspire Z20-730"),
 		},
 	},
+	{
+		.ident = "Acer Aspire Z20-780",
+		.matches = {
+			DMI_MATCH(DMI_SYS_VENDOR, "Acer"),
+			DMI_MATCH(DMI_PRODUCT_NAME, "Aspire Z20-780"),
+		},
+	},
 	{ }
 };
 
