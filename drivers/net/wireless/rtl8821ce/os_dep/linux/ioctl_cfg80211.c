@@ -332,19 +332,6 @@ static const struct ieee80211_txrx_stypes
 };
 #endif
 
-static u64 rtw_get_systime_us(void)
-{
-#if (LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 39))
-	struct timespec ts;
-	get_monotonic_boottime(&ts);
-	return ((u64)ts.tv_sec * 1000000) + ts.tv_nsec / 1000;
-#else
-	struct timeval tv;
-	do_gettimeofday(&tv);
-	return ((u64)tv.tv_sec * 1000000) + tv.tv_usec;
-#endif
-}
-
 /* Try to remove non target BSS's SR to reduce PBC overlap rate */
 static int rtw_cfg80211_clear_wps_sr_of_non_target_bss(_adapter *padapter, struct wlan_network *pnetwork, struct cfg80211_ssid *req_ssid)
 {
@@ -434,10 +421,7 @@ struct cfg80211_bss *rtw_cfg80211_inform_bss(_adapter *padapter, struct wlan_net
 	freq = rtw_ch2freq(channel);
 	notify_channel = ieee80211_get_channel(wiphy, freq);
 
-	if (0)
-		notify_timestamp = le64_to_cpu(*(u64 *)rtw_get_timestampe_from_ie(pnetwork->network.IEs));
-	else
-		notify_timestamp = rtw_get_systime_us();
+	notify_timestamp = ktime_to_us(ktime_get_boottime());
 
 	notify_interval = le16_to_cpu(*(u16 *)rtw_get_beacon_interval_from_ie(pnetwork->network.IEs));
 	notify_capability = le16_to_cpu(*(u16 *)rtw_get_capability_from_ie(pnetwork->network.IEs));
@@ -728,6 +712,7 @@ check_bss:
 		#if LINUX_VERSION_CODE > KERNEL_VERSION(2, 6, 39) || defined(COMPAT_KERNEL_RELEASE)
 		struct wiphy *wiphy = pwdev->wiphy;
 		struct ieee80211_channel *notify_channel;
+		struct cfg80211_roam_info roam_info = {};
 		u32 freq;
 		u16 channel = cur_network->network.Configuration.DSConfig;
 
@@ -736,16 +721,14 @@ check_bss:
 		#endif
 
 		RTW_INFO(FUNC_ADPT_FMT" call cfg80211_roamed\n", FUNC_ADPT_ARG(padapter));
-		cfg80211_roamed(padapter->pnetdev
-			#if LINUX_VERSION_CODE > KERNEL_VERSION(2, 6, 39) || defined(COMPAT_KERNEL_RELEASE)
-			, notify_channel
-			#endif
-			, cur_network->network.MacAddress
-			, pmlmepriv->assoc_req + sizeof(struct rtw_ieee80211_hdr_3addr) + 2
-			, pmlmepriv->assoc_req_len - sizeof(struct rtw_ieee80211_hdr_3addr) - 2
-			, pmlmepriv->assoc_rsp + sizeof(struct rtw_ieee80211_hdr_3addr) + 6
-			, pmlmepriv->assoc_rsp_len - sizeof(struct rtw_ieee80211_hdr_3addr) - 6
-			, GFP_ATOMIC);
+		roam_info.channel = notify_channel;
+		roam_info.bssid = cur_network->network.MacAddress;
+		roam_info.req_ie = pmlmepriv->assoc_req + sizeof(struct rtw_ieee80211_hdr_3addr) + 2;
+		roam_info.req_ie_len = pmlmepriv->assoc_req_len - sizeof(struct rtw_ieee80211_hdr_3addr) - 2;
+		roam_info.resp_ie = pmlmepriv->assoc_rsp + sizeof(struct rtw_ieee80211_hdr_3addr) + 6;
+		roam_info.resp_ie_len = pmlmepriv->assoc_rsp_len - sizeof(struct rtw_ieee80211_hdr_3addr) - 6;
+
+		cfg80211_roamed(padapter->pnetdev, &roam_info, GFP_ATOMIC);
 #ifdef CONFIG_RTW_80211R
 		if ((rtw_to_roam(padapter) > 0) && rtw_chk_ft_flags(padapter, RTW_FT_SUPPORTED))
 			rtw_set_ft_status(padapter, RTW_FT_ASSOCIATED_STA);
@@ -1721,7 +1704,7 @@ enum nl80211_iftype {
 #endif
 static int cfg80211_rtw_change_iface(struct wiphy *wiphy,
 				     struct net_device *ndev,
-				     enum nl80211_iftype type, u32 *flags,
+				     enum nl80211_iftype type,
 				     struct vif_params *params)
 {
 	enum nl80211_iftype old_type;
@@ -3807,7 +3790,8 @@ static int rtw_cfg80211_add_monitor_if(_adapter *padapter, char *name, struct ne
 	mon_ndev->type = ARPHRD_IEEE80211_RADIOTAP;
 	strncpy(mon_ndev->name, name, IFNAMSIZ);
 	mon_ndev->name[IFNAMSIZ - 1] = 0;
-	mon_ndev->destructor = rtw_ndev_destructor;
+	mon_ndev->priv_destructor = rtw_ndev_destructor;
+	mon_ndev->needs_free_netdev = true;
 
 #if (LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 29))
 	mon_ndev->netdev_ops = &rtw_cfg80211_monitor_if_ops;
@@ -3873,7 +3857,7 @@ static int
 		#if (LINUX_VERSION_CODE >= KERNEL_VERSION(4, 1, 0))
 		unsigned char name_assign_type,
 		#endif
-		enum nl80211_iftype type, u32 *flags, struct vif_params *params)
+		enum nl80211_iftype type, struct vif_params *params)
 {
 	int ret = 0;
 	struct wireless_dev *wdev = NULL;
@@ -6760,7 +6744,7 @@ static void rtw_cfg80211_preinit_wiphy(_adapter *adapter, struct wiphy *wiphy)
 #endif
 
 #if defined(CONFIG_PM) && (LINUX_VERSION_CODE >= KERNEL_VERSION(3, 0, 0))
-	wiphy->flags |= WIPHY_FLAG_SUPPORTS_SCHED_SCAN;
+	wiphy->max_sched_scan_reqs = 1;
 #ifdef CONFIG_PNO_SUPPORT
 	wiphy->max_sched_scan_ssids = MAX_PNO_LIST_COUNT;
 #endif

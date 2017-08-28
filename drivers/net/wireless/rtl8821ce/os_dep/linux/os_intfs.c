@@ -1192,7 +1192,7 @@ unsigned int rtw_classify8021d(struct sk_buff *skb)
 
 static u16 rtw_select_queue(struct net_device *dev, struct sk_buff *skb
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(3, 13, 0)
-	, void *accel_priv
+	, struct net_device *sb_dev
 	#if LINUX_VERSION_CODE >= KERNEL_VERSION(3, 14, 0)
 	, select_queue_fallback_t fallback
 	#endif
@@ -1924,7 +1924,7 @@ struct dvobj_priv *devobj_init(void)
 #endif
 #endif
 
-	rtw_init_timer(&(pdvobj->dynamic_chk_timer), NULL, rtw_dynamic_check_timer_handlder, pdvobj);
+	rtw_init_timer(&(pdvobj->dynamic_chk_timer), NULL, rtw_dynamic_check_timer_handlder);
 
 #ifdef CONFIG_MCC_MODE
 	_rtw_mutex_init(&(pdvobj->mcc_objpriv.mcc_mutex));
@@ -3280,7 +3280,6 @@ void rtw_ndev_destructor(struct net_device *ndev)
 	if (ndev->ieee80211_ptr)
 		rtw_mfree((u8 *)ndev->ieee80211_ptr, sizeof(struct wireless_dev));
 #endif
-	free_netdev(ndev);
 }
 
 #ifdef CONFIG_ARP_KEEP_ALIVE
