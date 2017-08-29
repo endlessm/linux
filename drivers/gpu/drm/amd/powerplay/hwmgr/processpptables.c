@@ -24,7 +24,7 @@
 #include <linux/types.h>
 #include <linux/kernel.h>
 #include <linux/slab.h>
-
+#include <drm/amdgpu_drm.h>
 #include "processpptables.h"
 #include <atom-types.h>
 #include <atombios.h>
