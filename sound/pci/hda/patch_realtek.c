@@ -5534,6 +5534,7 @@ enum {
 	ALC255_FIXUP_DELL_HEADSET_MIC,
 	ALC269VC_FIXUP_NL3_SECOND_JACK,
 	ALC269VC_FIXUP_NL3_AUTOMUTE,
+	ALC295_FIXUP_ASUS_MIC_NO_PRESENCE,
 	ALC295_FIXUP_HP_X360,
 	ALC221_FIXUP_HP_HEADSET_MIC,
 	ALC285_FIXUP_LENOVO_HEADPHONE_NOISE,
@@ -6411,6 +6412,15 @@ static const struct hda_fixup alc269_fixups[] = {
 		.chained = true,
 		.chain_id = ALC269_FIXUP_PINCFG_NO_HP_TO_LINEOUT
 	},
+        [ALC295_FIXUP_ASUS_MIC_NO_PRESENCE] = {
+                .type = HDA_FIXUP_PINS,
+                .v.pins = (const struct hda_pintbl[]) {
+                        { 0x19, 0x01a1913c }, /* use as headset mic, without its own jack detect */
+                        { }
+                },
+                .chained = true,
+                .chain_id = ALC269_FIXUP_HEADSET_MODE
+        },
 	[ALC295_FIXUP_HP_X360] = {
 		.type = HDA_FIXUP_FUNC,
 		.v.func = alc295_fixup_hp_top_speakers,
@@ -7264,6 +7274,10 @@ static const struct snd_hda_pin_quirk alc269_pin_fixup_tbl[] = {
 		ALC225_STANDARD_PINS,
 		{0x12, 0xb7a60130},
 		{0x17, 0x90170110}),
+	SND_HDA_PIN_QUIRK(0x10ec0295, 0x1043, "ASUS", ALC295_FIXUP_ASUS_MIC_NO_PRESENCE,
+		{0x12, 0x90a60130},
+		{0x17, 0x90170110},
+		{0x21, 0x03211020}),
 	{}
 };
 
