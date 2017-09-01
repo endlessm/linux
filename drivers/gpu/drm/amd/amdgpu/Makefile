@@ -148,5 +148,3 @@ amdgpu-y += $(AMD_DISPLAY_FILES)
 endif
 
 obj-$(CONFIG_DRM_AMDGPU)+= amdgpu.o
-
-CFLAGS_amdgpu_trace_points.o := -I$(src)
