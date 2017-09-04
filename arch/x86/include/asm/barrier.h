@@ -23,6 +23,9 @@
 #define wmb()	asm volatile("sfence" ::: "memory")
 #endif
 
+#define gmb() alternative_2("", "mfence", X86_FEATURE_MFENCE_RDTSC, \
+				       "lfence", X86_FEATURE_LFENCE_RDTSC);
+
 #ifdef CONFIG_X86_PPRO_FENCE
 #define dma_rmb()	rmb()
 #else

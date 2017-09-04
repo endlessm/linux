@@ -42,6 +42,10 @@
 #define wmb()	mb()
 #endif
 
+#ifndef gmb
+#define gmb()	do { } while (0)
+#endif
+
 #ifndef dma_rmb
 #define dma_rmb()	rmb()
 #endif
