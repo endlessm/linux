@@ -10,3 +10,6 @@ cryptoloop ?
 
 # Needs to be here for better cdrom initrd layout
 isofs ?
+
+# Needed for NVMe disks under VMD PCIe domains
+vmd ?
