@@ -1193,6 +1193,8 @@ static int i2c_hid_resume(struct device *dev)
 	struct i2c_hid *ihid = i2c_get_clientdata(client);
 	struct hid_device *hid = ihid->hid;
 	int wake_status;
+	int tries = 3;
+	unsigned long irqflags = 0;
 
 	if (!device_may_wakeup(&client->dev)) {
 		ret = regulator_enable(ihid->pdata.supply);
@@ -1214,8 +1216,19 @@ static int i2c_hid_resume(struct device *dev)
 	pm_runtime_set_active(dev);
 	pm_runtime_enable(dev);
 
+	irqflags = irq_get_trigger_type(client->irq);
+	if (irqflags)
+		irq_set_irq_type(client->irq, irqflags);
 	enable_irq(client->irq);
-	ret = i2c_hid_hwreset(client);
+
+	/* If the interrupt is connected via GPIO, retries
+         * for hwreset are still necessary here.
+         */
+	do {
+		ret = i2c_hid_hwreset(client);
+		if (ret)
+			msleep(1000);
+	} while (tries-- > 0 && ret);
 	if (ret)
 		return ret;
 
