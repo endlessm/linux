@@ -98,10 +98,6 @@ enum PP_RefreshrateSource {
 
 struct PP_StateDisplayBlock {
 	bool              disableFrameModulation;
-	bool              limitRefreshrate;
-	enum PP_RefreshrateSource refreshrateSource;
-	int                  explicitRefreshrate;
-	int                  edidRefreshrateIndex;
 	bool              enableVariBright;
 };
 

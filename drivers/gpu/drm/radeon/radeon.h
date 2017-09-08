@@ -115,6 +115,8 @@ extern int radeon_auxch;
 extern int radeon_mst;
 extern int radeon_uvd;
 extern int radeon_vce;
+extern int radeon_si_support;
+extern int radeon_cik_support;
 
 /*
  * Copy from radeon_drv.h so we don't have to include both and have conflicting
@@ -462,7 +464,7 @@ struct radeon_bo_list {
 	struct radeon_bo		*robj;
 	struct ttm_validate_buffer	tv;
 	uint64_t			gpu_offset;
-	unsigned			prefered_domains;
+	unsigned			preferred_domains;
 	unsigned			allowed_domains;
 	uint32_t			tiling_flags;
 };
@@ -767,24 +769,9 @@ struct r600_irq_stat_regs {
 };
 
 struct evergreen_irq_stat_regs {
-	u32 disp_int;
-	u32 disp_int_cont;
-	u32 disp_int_cont2;
-	u32 disp_int_cont3;
-	u32 disp_int_cont4;
-	u32 disp_int_cont5;
-	u32 d1grph_int;
-	u32 d2grph_int;
-	u32 d3grph_int;
-	u32 d4grph_int;
-	u32 d5grph_int;
-	u32 d6grph_int;
-	u32 afmt_status1;
-	u32 afmt_status2;
-	u32 afmt_status3;
-	u32 afmt_status4;
-	u32 afmt_status5;
-	u32 afmt_status6;
+	u32 disp_int[6];
+	u32 grph_int[6];
+	u32 afmt_status[6];
 };
 
 struct cik_irq_stat_regs {
@@ -2340,7 +2327,7 @@ struct radeon_device {
 	uint8_t				*bios;
 	bool				is_atom_bios;
 	uint16_t			bios_header_start;
-	struct radeon_bo		*stollen_vga_memory;
+	struct radeon_bo		*stolen_vga_memory;
 	/* Register mmio */
 	resource_size_t			rmmio_base;
 	resource_size_t			rmmio_size;
@@ -2975,6 +2962,12 @@ int radeon_cs_packet_next_reloc(struct radeon_cs_parser *p,
 int r600_cs_common_vline_parse(struct radeon_cs_parser *p,
 			       uint32_t *vline_start_end,
 			       uint32_t *vline_status);
+
+/* interrupt control register helpers */
+void radeon_irq_kms_set_irq_n_enabled(struct radeon_device *rdev,
+				      u32 reg, u32 mask,
+				      bool enable, const char *name,
+				      unsigned n);
 
 #include "radeon_object.h"
 
