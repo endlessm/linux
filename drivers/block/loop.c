@@ -547,7 +547,7 @@ static int do_req_filebacked(struct loop_device *lo, struct request *rq)
 }
 
 struct switch_request {
-	struct file *file;
+	struct file *file, *virt_file;
 	struct completion wait;
 };
 
@@ -573,6 +573,7 @@ static void do_loop_switch(struct loop_device *lo, struct switch_request *p)
 	mapping = file->f_mapping;
 	mapping_set_gfp_mask(old_file->f_mapping, lo->old_gfp_mask);
 	lo->lo_backing_file = file;
+	lo->lo_backing_virt_file = p->virt_file;
 	lo->lo_blocksize = S_ISBLK(mapping->host->i_mode) ?
 		mapping->host->i_bdev->bd_block_size : PAGE_SIZE;
 	lo->old_gfp_mask = mapping_gfp_mask(mapping);
@@ -585,11 +586,13 @@ static void do_loop_switch(struct loop_device *lo, struct switch_request *p)
  * First it needs to flush existing IO, it does this by sending a magic
  * BIO down the pipe. The completion of this BIO does the actual switch.
  */
-static int loop_switch(struct loop_device *lo, struct file *file)
+static int loop_switch(struct loop_device *lo, struct file *file,
+		       struct file *virt_file)
 {
 	struct switch_request w;
 
 	w.file = file;
+	w.virt_file = virt_file;
 
 	/* freeze queue and wait for completion of scheduled requests */
 	blk_mq_freeze_queue(lo->lo_queue);
@@ -611,7 +614,16 @@ static int loop_flush(struct loop_device *lo)
 	/* loop not yet configured, no running thread, nothing to flush */
 	if (lo->lo_state != Lo_bound)
 		return 0;
-	return loop_switch(lo, NULL);
+	return loop_switch(lo, NULL, NULL);
+}
+
+static struct file *loop_real_file(struct file *file)
+{
+	struct file *f = NULL;
+
+	if (file->f_path.dentry->d_sb->s_op->real_loop)
+		f = file->f_path.dentry->d_sb->s_op->real_loop(file);
+	return f;
 }
 
 static void loop_reread_partitions(struct loop_device *lo,
@@ -648,6 +660,7 @@ static int loop_change_fd(struct loop_device *lo, struct block_device *bdev,
 			  unsigned int arg)
 {
 	struct file	*file, *old_file;
+	struct file	*f, *virt_file = NULL, *old_virt_file;
 	struct inode	*inode;
 	int		error;
 
@@ -664,9 +677,16 @@ static int loop_change_fd(struct loop_device *lo, struct block_device *bdev,
 	file = fget(arg);
 	if (!file)
 		goto out;
+	f = loop_real_file(file);
+	if (f) {
+		virt_file = file;
+		file = f;
+		get_file(file);
+	}
 
 	inode = file->f_mapping->host;
 	old_file = lo->lo_backing_file;
+	old_virt_file = lo->lo_backing_virt_file;
 
 	error = -EINVAL;
 
@@ -678,17 +698,21 @@ static int loop_change_fd(struct loop_device *lo, struct block_device *bdev,
 		goto out_putf;
 
 	/* and ... switch */
-	error = loop_switch(lo, file);
+	error = loop_switch(lo, file, virt_file);
 	if (error)
 		goto out_putf;
 
 	fput(old_file);
+	if (old_virt_file)
+		fput(old_virt_file);
 	if (lo->lo_flags & LO_FLAGS_PARTSCAN)
 		loop_reread_partitions(lo, bdev);
 	return 0;
 
  out_putf:
 	fput(file);
+	if (virt_file)
+		fput(virt_file);
  out:
 	return error;
 }
@@ -699,6 +723,24 @@ static inline int is_loop_device(struct file *file)
 
 	return i && S_ISBLK(i->i_mode) && MAJOR(i->i_rdev) == LOOP_MAJOR;
 }
+
+/*
+ * for AUFS
+ * no get/put for file.
+ */
+struct file *loop_backing_file(struct super_block *sb)
+{
+	struct file *ret;
+	struct loop_device *l;
+
+	ret = NULL;
+	if (MAJOR(sb->s_dev) == LOOP_MAJOR) {
+		l = sb->s_bdev->bd_disk->private_data;
+		ret = l->lo_backing_file;
+	}
+	return ret;
+}
+EXPORT_SYMBOL_GPL(loop_backing_file);
 
 /* loop sysfs attributes */
 
@@ -864,7 +906,7 @@ static int loop_prepare_queue(struct loop_device *lo)
 static int loop_set_fd(struct loop_device *lo, fmode_t mode,
 		       struct block_device *bdev, unsigned int arg)
 {
-	struct file	*file, *f;
+	struct file	*file, *f, *virt_file = NULL;
 	struct inode	*inode;
 	struct address_space *mapping;
 	unsigned lo_blocksize;
@@ -879,6 +921,12 @@ static int loop_set_fd(struct loop_device *lo, fmode_t mode,
 	file = fget(arg);
 	if (!file)
 		goto out;
+	f = loop_real_file(file);
+	if (f) {
+		virt_file = file;
+		file = f;
+		get_file(file);
+	}
 
 	error = -EBUSY;
 	if (lo->lo_state != Lo_unbound)
@@ -931,6 +979,7 @@ static int loop_set_fd(struct loop_device *lo, fmode_t mode,
 	lo->lo_device = bdev;
 	lo->lo_flags = lo_flags;
 	lo->lo_backing_file = file;
+	lo->lo_backing_virt_file = virt_file;
 	lo->transfer = NULL;
 	lo->ioctl = NULL;
 	lo->lo_sizelimit = 0;
@@ -963,6 +1012,8 @@ static int loop_set_fd(struct loop_device *lo, fmode_t mode,
 
  out_putf:
 	fput(file);
+	if (virt_file)
+		fput(virt_file);
  out:
 	/* This is safe: open() is still holding a reference. */
 	module_put(THIS_MODULE);
@@ -1009,6 +1060,7 @@ loop_init_xfer(struct loop_device *lo, struct loop_func_table *xfer,
 static int loop_clr_fd(struct loop_device *lo)
 {
 	struct file *filp = lo->lo_backing_file;
+	struct file *virt_filp = lo->lo_backing_virt_file;
 	gfp_t gfp = lo->old_gfp_mask;
 	struct block_device *bdev = lo->lo_device;
 
@@ -1040,6 +1092,7 @@ static int loop_clr_fd(struct loop_device *lo)
 	spin_lock_irq(&lo->lo_lock);
 	lo->lo_state = Lo_rundown;
 	lo->lo_backing_file = NULL;
+	lo->lo_backing_virt_file = NULL;
 	spin_unlock_irq(&lo->lo_lock);
 
 	loop_release_xfer(lo);
@@ -1084,6 +1137,8 @@ static int loop_clr_fd(struct loop_device *lo)
 	 * bd_mutex which is usually taken before lo_ctl_mutex.
 	 */
 	fput(filp);
+	if (virt_filp)
+		fput(virt_filp);
 	return 0;
 }
 
