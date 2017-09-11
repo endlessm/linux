@@ -169,21 +169,21 @@ static int __init x86_mpx_setup(char *s)
 __setup("nompx", x86_mpx_setup);
 
 #ifdef CONFIG_X86_64
-static int __init x86_pcid_setup(char *s)
+static int __init x86_nopcid_setup(char *s)
 {
-	/* require an exact match without trailing characters */
-	if (strlen(s))
-		return 0;
+	/* nopcid doesn't accept parameters */
+	if (s)
+		return -EINVAL;
 
 	/* do not emit a message if the feature is not present */
 	if (!boot_cpu_has(X86_FEATURE_PCID))
-		return 1;
+		return 0;
 
 	setup_clear_cpu_cap(X86_FEATURE_PCID);
 	pr_info("nopcid: PCID feature disabled\n");
-	return 1;
+	return 0;
 }
-__setup("nopcid", x86_pcid_setup);
+early_param("nopcid", x86_nopcid_setup);
 #endif
 
 static int __init x86_noinvpcid_setup(char *s)
