@@ -1719,16 +1719,16 @@ static bool fill_rects_from_plane_state(
 	plane_state->clip_rect = plane_state->dst_rect;
 
 	switch (state->rotation) {
-	case BIT(DRM_ROTATE_0):
+	case BIT(DRM_MODE_ROTATE_0):
 		plane_state->rotation = ROTATION_ANGLE_0;
 		break;
-	case BIT(DRM_ROTATE_90):
+	case BIT(DRM_MODE_ROTATE_90):
 		plane_state->rotation = ROTATION_ANGLE_90;
 		break;
-	case BIT(DRM_ROTATE_180):
+	case BIT(DRM_MODE_ROTATE_180):
 		plane_state->rotation = ROTATION_ANGLE_180;
 		break;
-	case BIT(DRM_ROTATE_270):
+	case BIT(DRM_MODE_ROTATE_270):
 		plane_state->rotation = ROTATION_ANGLE_270;
 		break;
 	default:
@@ -2929,7 +2929,7 @@ static void dm_drm_plane_reset(struct drm_plane *plane)
 	if (amdgpu_state) {
 		plane->state = &amdgpu_state->base;
 		plane->state->plane = plane;
-		plane->state->rotation = DRM_ROTATE_0;
+		plane->state->rotation = DRM_MODE_ROTATE_0;
 	} else
 		WARN_ON(1);
 }
