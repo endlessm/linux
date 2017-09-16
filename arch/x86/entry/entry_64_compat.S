@@ -99,6 +99,8 @@ ENTRY(entry_SYSENTER_compat)
 	ENABLE_IBRS
 	STUFF_RSB
 
+	CLEAR_R8_TO_R15
+
 	/*
 	 * SYSENTER doesn't filter flags, so we need to clear NT and AC
 	 * ourselves.  To save a few cycles, we can check whether
@@ -223,10 +225,12 @@ GLOBAL(entry_SYSCALL_compat_after_hwframe)
 	pushq   $0			/* pt_regs->r11 = 0 */
 	pushq   %rbx                    /* pt_regs->rbx */
 	pushq   %rbp                    /* pt_regs->rbp (will be overwritten) */
-	pushq   $0			/* pt_regs->r12 = 0 */
-	pushq   $0			/* pt_regs->r13 = 0 */
-	pushq   $0			/* pt_regs->r14 = 0 */
-	pushq   $0			/* pt_regs->r15 = 0 */
+	pushq   %r12                    /* pt_regs->r12 */
+	pushq   %r13                    /* pt_regs->r13 */
+	pushq   %r14                    /* pt_regs->r14 */
+	pushq   %r15                    /* pt_regs->r15 */
+
+	CLEAR_R8_TO_R15
 
 	STUFF_RSB
 
@@ -245,6 +249,10 @@ GLOBAL(entry_SYSCALL_compat_after_hwframe)
 	/* Opportunistic SYSRET */
 sysret32_from_system_call:
 	TRACE_IRQS_ON			/* User mode traces as IRQs on. */
+	movq    R15(%rsp), %r15         /* pt_regs->r15 */
+	movq    R14(%rsp), %r14         /* pt_regs->r14 */
+	movq    R13(%rsp), %r13         /* pt_regs->r13 */
+	movq    R12(%rsp), %r12         /* pt_regs->r12 */
 	movq	RBX(%rsp), %rbx		/* pt_regs->rbx */
 	movq	RBP(%rsp), %rbp		/* pt_regs->rbp */
 	movq	EFLAGS(%rsp), %r11	/* pt_regs->flags (in r11) */
@@ -358,6 +366,8 @@ ENTRY(entry_INT80_compat)
 
 	ENABLE_IBRS
 	STUFF_RSB
+
+	CLEAR_R8_TO_R15
 
 	/*
 	 * User mode is traced as though IRQs are on, and the interrupt
