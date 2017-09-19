@@ -82,6 +82,7 @@ do_any_tools=$(sort $(filter-out false,$(do_linux_tools) $(do_cloud_tools)))
 #  only build the first flavour on the assumption it is representative
 ifneq ($(filter autopkgtest,$(DEB_BUILD_PROFILES)),)
 flavours := $(firstword $(flavours))
+disable_d_i=true
 endif
 
 # Debian Build System targets
