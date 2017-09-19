@@ -231,10 +231,16 @@ GLOBAL(entry_SYSCALL_64_after_hwframe)
 	pushq	%r9				/* pt_regs->r9 */
 	pushq	%r10				/* pt_regs->r10 */
 	pushq	%r11				/* pt_regs->r11 */
-	sub	$(6*8), %rsp			/* pt_regs->bp, bx, r12-15 not saved */
+	sub	$(6*8), %rsp			/* pt_regs->bp, bx, r12-15 not used */
 	UNWIND_HINT_REGS extra=0
 
 	ENABLE_IBRS
+	/*
+	 * Clear the unused extra regs for code hygiene.
+	 * Will restore the callee saved extra regs at end of syscall.
+	 */
+	SAVE_EXTRA_REGS
+	CLEAR_EXTRA_REGS
 
 	STUFF_RSB
 
@@ -292,7 +298,7 @@ entry_SYSCALL_64_fastpath:
 	movq	RIP(%rsp), %rcx
 	movq	EFLAGS(%rsp), %r11
 	DISABLE_IBRS
-	addq	$6*8, %rsp	/* skip extra regs -- they were preserved */
+	POP_EXTRA_REGS
 	UNWIND_HINT_EMPTY
 	jmp	.Lpop_c_regs_except_rcx_r11_and_sysret
 
@@ -304,14 +310,12 @@ entry_SYSCALL_64_fastpath:
 	 */
 	TRACE_IRQS_ON
 	ENABLE_INTERRUPTS(CLBR_ANY)
-	SAVE_EXTRA_REGS
 	movq	%rsp, %rdi
 	call	syscall_return_slowpath	/* returns with IRQs disabled */
 	jmp	return_from_SYSCALL_64
 
 entry_SYSCALL64_slow_path:
 	/* IRQs are off. */
-	SAVE_EXTRA_REGS
 	movq	%rsp, %rdi
 	call	do_syscall_64		/* returns with IRQs disabled */
 
