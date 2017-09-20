@@ -6173,6 +6173,7 @@ enum {
 	ALC289_FIXUP_ASUS_GA502,
 	ALC256_FIXUP_ACER_MIC_NO_PRESENCE,
 	ALC285_FIXUP_HP_GPIO_AMP_INIT,
+	ALC282_FIXUP_ACER_TRAVELMATE_PINS,
 };
 
 static const struct hda_fixup alc269_fixups[] = {
@@ -7426,6 +7427,16 @@ static const struct hda_fixup alc269_fixups[] = {
 		.chained = true,
 		.chain_id = ALC285_FIXUP_HP_GPIO_LED
 	},
+        [ALC282_FIXUP_ACER_TRAVELMATE_PINS] = {
+                .type = HDA_FIXUP_PINS,
+                .v.pins = (const struct hda_pintbl[]) {
+                        { 0x1b, 0x411111f0 },
+                        { 0x18, 0x01a1913c }, /* use as headset mic, without its own jack detect */
+                        { },
+                },
+                .chained = true,
+                .chain_id = ALC269_FIXUP_HEADSET_MODE
+        },
 };
 
 static const struct snd_pci_quirk alc269_fixup_tbl[] = {
@@ -8279,6 +8290,24 @@ static const struct snd_hda_pin_quirk alc269_pin_fixup_tbl[] = {
 		{0x18, 0x02a11030},
 		{0x19, 0x02a1103f},
 		{0x21, 0x0221101f}),
+	SND_HDA_PIN_QUIRK(0x10ec0282, 0x1025, "Acer", ALC282_FIXUP_ACER_TRAVELMATE_PINS,
+		{0x12, 0x90a609c0},
+		{0x14, 0x90171110},
+		{0x18, 0x03a11830},
+		{0x19, 0x04a19831},
+		{0x1a, 0x0481303f},
+		{0x1b, 0x04211020},
+		{0x1d, 0x598301f0},
+		{0x21, 0x0321101f}),
+	SND_HDA_PIN_QUIRK(0x10ec0282, 0x1025, "Acer", ALC282_FIXUP_ACER_TRAVELMATE_PINS,
+		{0x12, 0x90a60940},
+		{0x14, 0x90170110},
+		{0x18, 0x03a11830},
+		{0x19, 0x04a19831},
+		{0x1a, 0x0481303f},
+		{0x1b, 0x04211020},
+		{0x1d, 0x598301f0},
+		{0x21, 0x0321101f}),
 	{}
 };
 
