@@ -194,7 +194,7 @@ static struct pci_driver vbox_pci_driver =
     .driver.pm = &vbox_pm_ops,
 };
 
-#if LINUX_VERSION_CODE < KERNEL_VERSION(4, 7, 0)
+#if LINUX_VERSION_CODE < KERNEL_VERSION(4, 7, 0) && !defined(RHEL_74)
 /* This works around a bug in X servers prior to 1.18.4, which sometimes
  * submit more dirty rectangles than the kernel is willing to handle and
  * then disable dirty rectangle handling altogether when they see the
@@ -209,21 +209,21 @@ long vbox_ioctl(struct file *filp,
         return -EOVERFLOW;
     return rc;
 }
-#endif /* LINUX_VERSION_CODE < KERNEL_VERSION(4, 7, 0) */
+#endif /* LINUX_VERSION_CODE < KERNEL_VERSION(4, 7, 0) && !RHEL_74 */
 
 static const struct file_operations vbox_fops =
 {
     .owner = THIS_MODULE,
     .open = drm_open,
     .release = drm_release,
-#if LINUX_VERSION_CODE < KERNEL_VERSION(4, 7, 0)
+#if LINUX_VERSION_CODE < KERNEL_VERSION(4, 7, 0) && !defined(RHEL_74)
     .unlocked_ioctl = vbox_ioctl,
 #else
     .unlocked_ioctl = drm_ioctl,
 #endif
     .mmap = vbox_mmap,
     .poll = drm_poll,
-#if LINUX_VERSION_CODE < KERNEL_VERSION(3, 12, 0)
+#if LINUX_VERSION_CODE < KERNEL_VERSION(3, 12, 0) && !defined(RHEL_73)
     .fasync = drm_fasync,
 #endif
 #ifdef CONFIG_COMPAT
@@ -254,7 +254,7 @@ static int vbox_master_set(struct drm_device *dev,
     return 0;
 }
 
-#if LINUX_VERSION_CODE < KERNEL_VERSION(4, 8, 0)
+#if LINUX_VERSION_CODE < KERNEL_VERSION(4, 8, 0) && !defined(RHEL_74)
 static void vbox_master_drop(struct drm_device *dev,
                              struct drm_file *file_priv,
                              bool from_release)
@@ -281,7 +281,7 @@ static struct drm_driver driver =
     .lastclose = vbox_driver_lastclose,
     .master_set = vbox_master_set,
     .master_drop = vbox_master_drop,
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(3, 18, 0)
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(3, 18, 0) || defined(RHEL_73)
     .set_busid = drm_pci_set_busid,
 #endif
 
@@ -297,7 +297,7 @@ static struct drm_driver driver =
     .gem_free_object = vbox_gem_free_object,
     .dumb_create = vbox_dumb_create,
     .dumb_map_offset = vbox_dumb_mmap_offset,
-#if LINUX_VERSION_CODE < KERNEL_VERSION(3, 12, 0)
+#if LINUX_VERSION_CODE < KERNEL_VERSION(3, 12, 0) && !defined(RHEL_73)
     .dumb_destroy = vbox_dumb_destroy,
 #else
     .dumb_destroy = drm_gem_dumb_destroy,

@@ -127,7 +127,7 @@ static void vbox_update_mode_hints(struct vbox_private *vbox)
                                             hints->cy, 0, flags);
                 vbox_connector->vbox_crtc->disconnected = disconnected;
             }
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(3, 19, 0)
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(3, 19, 0) || defined(RHEL_73)
             if ((hints->dx < 0xffff) && (hints->dy < 0xffff)) {
                 drm_object_property_set_value(&connector->base,
                     dev->mode_config.suggested_x_property, hints->dx & 0x8fff);
@@ -160,7 +160,7 @@ int vbox_irq_init(struct vbox_private *vbox)
 
     LogFunc(("vboxvideo: %d: vbox=%p\n", __LINE__, vbox));
     vbox_update_mode_hints(vbox);
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(3, 16, 0)
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(3, 16, 0) || defined(RHEL_73)
     ret = drm_irq_install(vbox->dev, vbox->dev->pdev->irq);
 #else
     ret = drm_irq_install(vbox->dev);

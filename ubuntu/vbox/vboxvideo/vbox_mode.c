@@ -53,7 +53,7 @@
 
 #include <linux/export.h>
 #include <drm/drm_crtc_helper.h>
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(3, 18, 0)
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(3, 18, 0) || defined(RHEL_73)
 # include <drm/drm_plane_helper.h>
 #endif
 
@@ -353,7 +353,7 @@ static void vbox_encoder_destroy(struct drm_encoder *encoder)
     kfree(encoder);
 }
 
-#if LINUX_VERSION_CODE < KERNEL_VERSION(3, 13, 0)
+#if LINUX_VERSION_CODE < KERNEL_VERSION(3, 13, 0) && !defined(RHEL_73)
 static struct drm_encoder *drm_encoder_find(struct drm_device *dev, uint32_t id)
 {
      struct drm_mode_object *mo;
@@ -427,7 +427,7 @@ static struct drm_encoder *vbox_encoder_init(struct drm_device *dev, unsigned i)
 
     drm_encoder_init(dev, &vbox_encoder->base, &vbox_enc_funcs,
                      DRM_MODE_ENCODER_DAC
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(4, 5, 0)
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(4, 5, 0) || defined(RHEL_73)
                      , NULL
 #endif
                      );
@@ -557,7 +557,7 @@ static void vbox_connector_destroy(struct drm_connector *connector)
 
     LogFunc(("vboxvideo: %d: connector=%p\n", __LINE__, connector));
     vbox_connector = to_vbox_connector(connector);
-#if LINUX_VERSION_CODE < KERNEL_VERSION(3, 17, 0)
+#if LINUX_VERSION_CODE < KERNEL_VERSION(3, 17, 0) && !defined(RHEL_73)
     drm_sysfs_connector_remove(connector);
 #else
     drm_connector_unregister(connector);
@@ -632,14 +632,14 @@ static int vbox_connector_init(struct drm_device *dev,
     connector->interlace_allowed = 0;
     connector->doublescan_allowed = 0;
 
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(3, 19, 0)
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(3, 19, 0) || defined(RHEL_73)
     drm_mode_create_suggested_offset_properties(dev);
     drm_object_attach_property(&connector->base,
                                dev->mode_config.suggested_x_property, 0);
     drm_object_attach_property(&connector->base,
                                dev->mode_config.suggested_y_property, 0);
 #endif
-#if LINUX_VERSION_CODE < KERNEL_VERSION(3, 17, 0)
+#if LINUX_VERSION_CODE < KERNEL_VERSION(3, 17, 0) && !defined(RHEL_73)
     drm_sysfs_connector_add(connector);
 #else
     drm_connector_register(connector);
@@ -743,7 +743,7 @@ static int vbox_cursor_set2(struct drm_crtc *crtc, struct drm_file *file_priv,
          * retry at once. */
         return -EBUSY;
 
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(4, 7, 0)
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(4, 7, 0) || defined(RHEL_74)
     obj = drm_gem_object_lookup(file_priv, handle);
 #else
     obj = drm_gem_object_lookup(crtc->dev, file_priv, handle);

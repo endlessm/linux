@@ -168,7 +168,7 @@ static const struct drm_framebuffer_funcs vbox_fb_funcs = {
 
 int vbox_framebuffer_init(struct drm_device *dev,
              struct vbox_framebuffer *vbox_fb,
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(4, 5, 0)
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(4, 5, 0) || defined(RHEL_73)
              const
 #endif
              struct DRM_MODE_FB_CMD *mode_cmd,
@@ -197,7 +197,7 @@ int vbox_framebuffer_init(struct drm_device *dev,
 static struct drm_framebuffer *
 vbox_user_framebuffer_create(struct drm_device *dev,
            struct drm_file *filp,
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(4, 5, 0)
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(4, 5, 0) || defined(RHEL_73)
            const
 #endif
            struct drm_mode_fb_cmd2 *mode_cmd)
@@ -207,7 +207,7 @@ vbox_user_framebuffer_create(struct drm_device *dev,
     int ret;
 
     LogFunc(("vboxvideo: %d\n", __LINE__));
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(4, 7, 0)
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(4, 7, 0) || defined(RHEL_74)
     obj = drm_gem_object_lookup(filp, mode_cmd->handles[0]);
 #else
     obj = drm_gem_object_lookup(dev, filp, mode_cmd->handles[0]);
@@ -305,7 +305,7 @@ static bool have_hgsmi_mode_hints(struct vbox_private *vbox)
            && have_cursor == VINF_SUCCESS;
 }
 
-#if LINUX_VERSION_CODE < KERNEL_VERSION(4, 0, 0)
+#if LINUX_VERSION_CODE < KERNEL_VERSION(4, 0, 0) && !defined(RHEL_73)
 # define pci_iomap_range(dev, bar, offset, maxlen) \
     ioremap(pci_resource_start(dev, bar) + offset, maxlen)
 #endif
@@ -445,7 +445,7 @@ void vbox_driver_lastclose(struct drm_device *dev)
 {
     struct vbox_private *vbox = dev->dev_private;
 
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(3, 16, 0)
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(3, 16, 0) || defined(RHEL_73)
     if (vbox->fbdev)
         drm_fb_helper_restore_fbdev_mode_unlocked(&vbox->fbdev->helper);
 #else
@@ -512,7 +512,7 @@ int vbox_dumb_create(struct drm_file *file,
     return 0;
 }
 
-#if LINUX_VERSION_CODE < KERNEL_VERSION(3, 12, 0)
+#if LINUX_VERSION_CODE < KERNEL_VERSION(3, 12, 0) && !defined(RHEL_73)
 int vbox_dumb_destroy(struct drm_file *file,
              struct drm_device *dev,
              uint32_t handle)
@@ -548,7 +548,7 @@ void vbox_gem_free_object(struct drm_gem_object *obj)
 
 static inline u64 vbox_bo_mmap_offset(struct vbox_bo *bo)
 {
-#if LINUX_VERSION_CODE < KERNEL_VERSION(3, 12, 0)
+#if LINUX_VERSION_CODE < KERNEL_VERSION(3, 12, 0) && !defined(RHEL_73)
     return bo->bo.addr_space_offset;
 #else
     return drm_vma_node_offset_addr(&bo->bo.vma_node);
@@ -567,7 +567,7 @@ vbox_dumb_mmap_offset(struct drm_file *file,
     LogFunc(("vboxvideo: %d: dev=%p, handle=%u\n", __LINE__,
              dev, (unsigned)handle));
     mutex_lock(&dev->struct_mutex);
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(4, 7, 0)
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(4, 7, 0) || defined(RHEL_74)
     obj = drm_gem_object_lookup(file, handle);
 #else
     obj = drm_gem_object_lookup(dev, file, handle);
