@@ -2350,7 +2350,7 @@ CONFIG_I2C_VERSATILE                            policy<{'arm64': 'm', 'armhf': '
 CONFIG_I2C_THUNDERX                             policy<{'arm64': 'm'}>
 CONFIG_I2C_XILINX                               policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'ppc64el': 'm'}>
 CONFIG_I2C_XLR                                  policy<{'armhf': 'n'}>
-CONFIG_I2C_XLP9XX                               policy<{'arm64': 'n'}>
+CONFIG_I2C_XLP9XX                               policy<{'arm64': 'm'}>
 CONFIG_I2C_RCAR                                 policy<{'arm64': 'm', 'armhf': 'm'}>
 CONFIG_I2C_DIOLAN_U2C                           policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'ppc64el': 'm'}>
 CONFIG_I2C_DLN2                                 policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'ppc64el': 'm'}>
