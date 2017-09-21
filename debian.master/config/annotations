@@ -5744,6 +5744,7 @@ CONFIG_PINCTRL_CHERRYVIEW                       policy<{'amd64': 'y', 'arm64': '
 CONFIG_PINCTRL_MERRIFIELD                       policy<{'i386': 'n'}>
 CONFIG_PINCTRL_BROXTON                          policy<{'amd64': 'm', 'arm64': 'm', 'i386': 'm'}>
 CONFIG_PINCTRL_CANNONLAKE                       policy<{'amd64': 'm', 'arm64': 'm', 'i386': 'm'}>
+CONFIG_PINCTRL_DENVERTON                        policy<{'amd64': 'm', 'arm64': 'm', 'i386': 'm'}>
 CONFIG_PINCTRL_GEMINILAKE                       policy<{'amd64': 'm', 'arm64': 'm', 'i386': 'm'}>
 CONFIG_PINCTRL_SUNRISEPOINT                     policy<{'amd64': 'm', 'arm64': 'm', 'i386': 'm'}>
 CONFIG_PINCTRL_APQ8064                          policy<{'arm64': 'm', 'armhf': 'm'}>
