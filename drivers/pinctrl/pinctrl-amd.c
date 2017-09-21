@@ -497,7 +497,7 @@ static struct irq_chip amd_gpio_irqchip = {
 	.irq_unmask   = amd_gpio_irq_unmask,
 	.irq_eoi      = amd_gpio_irq_eoi,
 	.irq_set_type = amd_gpio_irq_set_type,
-	.flags        = IRQCHIP_SKIP_SET_WAKE,
+	.flags        = IRQCHIP_SKIP_SET_WAKE | IRQCHIP_EOI_THREADED,
 };
 
 #define PIN_IRQ_PENDING	(BIT(INTERRUPT_STS_OFF) | BIT(WAKE_STS_OFF))
