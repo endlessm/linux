@@ -2401,13 +2401,15 @@ CONFIG_TEGRA_IOMMU_GART                         policy<{'armhf-generic': 'y'}>
 CONFIG_TEGRA_IOMMU_SMMU                         policy<{'armhf-generic': 'y'}>
 CONFIG_EXYNOS_IOMMU                             policy<{'armhf': 'y'}>
 CONFIG_EXYNOS_IOMMU_DEBUG                       policy<{'armhf': 'n'}>
-CONFIG_IPMMU_VMSA                               policy<{'arm64': 'y', 'armhf': 'y'}>
+CONFIG_IPMMU_VMSA                               policy<{'arm64': 'n', 'armhf': 'y'}>
 CONFIG_SPAPR_TCE_IOMMU                          policy<{'ppc64el': 'y'}>
 CONFIG_ARM_SMMU                                 policy<{'arm64': 'y', 'armhf': 'n'}>
 CONFIG_ARM_SMMU_V3                              policy<{'arm64': 'y'}>
 CONFIG_S390_CCW_IOMMU                           policy<{'s390x': 'y'}>
 CONFIG_MTK_IOMMU                                policy<{'arm64': 'n', 'armhf': 'n'}>
 CONFIG_MTK_IOMMU_V1                             policy<{'armhf': 'n'}>
+#
+CONFIG_IPMMU_VMSA				note<LP:1718734>
 
 # Menu: Device Drivers >> IOMMU Hardware Support >> Generic IOMMU Pagetable Support
 CONFIG_IOMMU_IO_PGTABLE_LPAE                    policy<{'arm64': 'y', 'armhf': 'y'}>
