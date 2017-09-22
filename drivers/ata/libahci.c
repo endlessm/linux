@@ -671,7 +671,10 @@ int ahci_stop_engine(struct ata_port *ap)
 
 #ifdef CONFIG_ARM64
 	/* Rev Ax of Cavium CN99XX needs a hack for port stop */
-	if (MIDR_IS_CPU_MODEL_RANGE(read_cpuid_id(),
+	if (dev_is_pci(ap->host->dev) &&
+	    to_pci_dev(ap->host->dev)->vendor == 0x14e4 &&
+	    to_pci_dev(ap->host->dev)->device == 0x9027 &&
+	    MIDR_IS_CPU_MODEL_RANGE(read_cpuid_id(),
 			MIDR_CPU_MODEL(ARM_CPU_IMP_BRCM, BRCM_CPU_PART_VULCAN),
 			MIDR_CPU_VAR_REV(0, 0),
 			MIDR_CPU_VAR_REV(0, MIDR_REVISION_MASK))) {
