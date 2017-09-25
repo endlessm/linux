@@ -1,3 +1,164 @@
+linux (4.13.0-12.13) artful; urgency=low
+
+  * linux: 4.13.0-12.13 -proposed tracker (LP: #1718980)
+
+  * [Feature] SKX: Support crystall ridge / far / near memory indication in PEBS
+    (LP: #1591813)
+    - perf/x86: Move Nehalem PEBS code to flag
+    - perf/x86: Fix data source decoding for Skylake
+
+  * Upgrade to 4.13.0-11.12 in artful amd64 VM breaks display on wayland
+    (LP: #1718679)
+    - [Config] CONFIG_DRM_VBOXVIDEO=n
+
+  * ipmmu-vmsa driver breaks arm64 boots (LP: #1718734)
+    - [Config] Disable CONFIG_IPMMU_VMSA on arm64
+
+  * Vlun resize request could fail with cxlflash driver (LP: #1713575)
+    - scsi: cxlflash: Fix vlun resize failure in the shrink path
+
+  * multipath -ll is not showing the disks which are actually multipath
+    (LP: #1718397)
+    - fs: aio: fix the increment of aio-nr and counting against aio-max-nr
+
+  * [Feature] Crystal Ridge - BTT - Rework error clearing (LP: #1704350)
+    - libnvdimm, btt: fix a missed NVDIMM_IO_ATOMIC case in the write path
+    - libnvdimm, btt: refactor map entry operations with macros
+    - libnvdimm, btt: ensure that flags were also unchanged during a map_read
+    - libnvdimm, btt: cache sector_size in arena_info
+    - libnvdimm: fix potential deadlock while clearing errors
+    - libnvdimm, btt: rework error clearing
+
+  * [Feature] Crystal Ridge - have 4k DAX faults use a common zero page
+    (LP: #1704439)
+    - mm: add vm_insert_mixed_mkwrite()
+    - dax: relocate some dax functions
+    - dax: use common 4k zero page for dax mmap reads
+    - dax: remove DAX code from page_cache_tree_insert()
+    - dax: move all DAX radix tree defs to fs/dax.c
+
+  * [bug] 17.10: CDP test fail on platform of Purley-2S/4S/Neoncity,BDW-
+    de/ep/ex, (LP: #1716843)
+    - SAUCE: (no-up) x86/intel_rdt: Fix cdp info directory files issue
+
+  * [featue] GPIO support for Denverton (LP: #1591829)
+    - pinctrl: intel: Add Intel Denverton pin controller support
+
+  * ETPS/2 Elantech Touchpad inconsistently detected (Gigabyte P57W laptop)
+    (LP: #1594214)
+    - Input: i8042 - add Gigabyte P57 to the keyboard reset table
+
+  * autopkgtest profile fails to build on armhf (LP: #1717920)
+    - [Packaging] autopkgtest -- disable d-i when dropping flavours
+
+  * Artful update to v4.13.3 stable release (LP: #1718412)
+    - Revert "net: use lib/percpu_counter API for fragmentation mem accounting"
+    - Revert "net: fix percpu memory leaks"
+    - gianfar: Fix Tx flow control deactivation
+    - vhost_net: correctly check tx avail during rx busy polling
+    - ip6_gre: update mtu properly in ip6gre_err
+    - udp: drop head states only when all skb references are gone
+    - ipv6: fix memory leak with multiple tables during netns destruction
+    - ipv6: fix typo in fib6_net_exit()
+    - sctp: fix missing wake ups in some situations
+    - tcp: fix a request socket leak
+    - ip_tunnel: fix setting ttl and tos value in collect_md mode
+    - f2fs: let fill_super handle roll-forward errors
+    - f2fs: check hot_data for roll-forward recovery
+    - x86/fsgsbase/64: Fully initialize FS and GS state in start_thread_common
+    - x86/fsgsbase/64: Report FSBASE and GSBASE correctly in core dumps
+    - x86/switch_to/64: Rewrite FS/GS switching yet again to fix AMD CPUs
+    - x86/mm, mm/hwpoison: Clear PRESENT bit for kernel 1:1 mappings of poison
+      pages
+    - ovl: fix false positive ESTALE on lookup
+    - fuse: allow server to run in different pid_ns
+    - idr: remove WARN_ON_ONCE() when trying to replace negative ID
+    - libnvdimm, btt: check memory allocation failure
+    - libnvdimm: fix integer overflow static analysis warning
+    - xfs: write unmount record for ro mounts
+    - xfs: toggle readonly state around xfs_log_mount_finish
+    - xfs: Add infrastructure needed for error propagation during buffer IO
+      failure
+    - xfs: Properly retry failed inode items in case of error during buffer
+      writeback
+    - xfs: fix recovery failure when log record header wraps log end
+    - xfs: always verify the log tail during recovery
+    - xfs: fix log recovery corruption error due to tail overwrite
+    - xfs: handle -EFSCORRUPTED during head/tail verification
+    - xfs: stop searching for free slots in an inode chunk when there are none
+    - xfs: evict all inodes involved with log redo item
+    - xfs: check for race with xfs_reclaim_inode() in xfs_ifree_cluster()
+    - xfs: open-code xfs_buf_item_dirty()
+    - xfs: remove unnecessary dirty bli format check for ordered bufs
+    - xfs: ordered buffer log items are never formatted
+    - xfs: refactor buffer logging into buffer dirtying helper
+    - xfs: don't log dirty ranges for ordered buffers
+    - xfs: skip bmbt block ino validation during owner change
+    - xfs: move bmbt owner change to last step of extent swap
+    - xfs: disallow marking previously dirty buffers as ordered
+    - xfs: relog dirty buffers during swapext bmbt owner change
+    - xfs: disable per-inode DAX flag
+    - xfs: fix incorrect log_flushed on fsync
+    - xfs: don't set v3 xflags for v2 inodes
+    - xfs: open code end_buffer_async_write in xfs_finish_page_writeback
+    - xfs: use kmem_free to free return value of kmem_zalloc
+    - md/raid1/10: reset bio allocated from mempool
+    - md/raid5: release/flush io in raid5_do_work()
+    - xfs: fix compiler warnings
+    - Linux 4.13.3
+
+  * Artful update to v4.13.2 stable release (LP: #1717549)
+    - mtd: nand: make Samsung SLC NAND usable again
+    - mtd: nand: hynix: add support for 20nm NAND chips
+    - mtd: nand: mxc: Fix mxc_v1 ooblayout
+    - mtd: nand: qcom: fix read failure without complete bootchain
+    - mtd: nand: qcom: fix config error for BCH
+    - nvme-fabrics: generate spec-compliant UUID NQNs
+    - btrfs: resume qgroup rescan on rw remount
+    - rtlwifi: btcoexist: Fix breakage of ant_sel for rtl8723be
+    - rtlwifi: btcoexist: Fix antenna selection code
+    - radix-tree: must check __radix_tree_preload() return value
+    - brcmfmac: feature check for multi-scheduled scan fails on bcm4345 devices
+    - kselftests: timers: leap-a-day: Change default arguments to help test runs
+    - selftests: timers: Fix run_destructive_tests target to handle skipped tests
+    - selftests/x86/fsgsbase: Test selectors 1, 2, and 3
+    - mm: kvfree the swap cluster info if the swap file is unsatisfactory
+    - mm/swapfile.c: fix swapon frontswap_map memory leak on error
+    - mm/sparse.c: fix typo in online_mem_sections
+    - mm/memory.c: fix mem_cgroup_oom_disable() call missing
+    - KVM: SVM: Limit PFERR_NESTED_GUEST_PAGE error_code check to L1 guest
+    - Revert "firmware: add sanity check on shutdown/suspend"
+    - rt2800: fix TX_PIN_CFG setting for non MT7620 chips
+    - ARM64: dts: marvell: armada-37xx: Fix GIC maintenance interrupt
+    - ARM: 8692/1: mm: abort uaccess retries upon fatal signal
+    - NFS: Fix 2 use after free issues in the I/O code
+    - NFS: Sync the correct byte range during synchronous writes
+    - NFSv4: Fix up mirror allocation
+    - xfs: XFS_IS_REALTIME_INODE() should be false if no rt device present
+    - Linux 4.13.2
+
+  * [Bug] Thunderbolt-patches: Related to the way the key for secure connection
+    is handled (LP: #1717430)
+    - thunderbolt: Remove superfluous check
+    - thunderbolt: Make key root-only accessible
+    - thunderbolt: Allow clearing the key
+
+  * [Bug] Thunderbolt-patches: Fixes the issue regarding the order of ACPI calls
+    w.r.t. PCI enumeration (LP: #1717431)
+    - ACPICA: Dispatch active GPEs at init time
+    - ACPICA: Make it possible to enable runtime GPEs earlier
+    - ACPI / scan: Enable GPEs before scanning the namespace
+
+  * Miscellaneous Ubuntu changes
+    - ubuntu: vbox -- update to 5.1.28-dfsg-1
+    - [Config] CONFIG_PINCTRL_DENVERTON=m
+    - [Config] CONFIG_I2C_XLP9XX=m
+
+  * Miscellaneous upstream changes
+    - Introduce v3 namespaced file capabilities
+
+ -- Seth Forshee <seth.forshee@canonical.com>  Fri, 22 Sep 2017 12:10:03 -0500
+
 linux (4.13.0-11.12) artful; urgency=low
 
   * linux: 4.13.0-11.12 -proposed tracker (LP: #1716699)

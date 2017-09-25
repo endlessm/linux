@@ -650,6 +650,7 @@ static int rdtgroup_create_info_dir(struct kernfs_node *parent_kn)
 		if (ret)
 			goto out_destroy;
 
+		rdt_get_cache_infofile(r);
 		res_info_files = r->info_files;
 		len = r->nr_info_files;
 

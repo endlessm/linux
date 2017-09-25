@@ -1025,6 +1025,14 @@ DECLHIDDEN(int) rtR0MemObjNativeEnterPhys(PPRTR0MEMOBJINTERNAL ppMem, RTHCPHYS P
     return VINF_SUCCESS;
 }
 
+/* openSUSE Leap 42.3 detection :-/ */
+#if    LINUX_VERSION_CODE >= KERNEL_VERSION(4, 4, 0) \
+    && LINUX_VERSION_CODE <  KERNEL_VERSION(4, 6, 0) \
+    && defined(FAULT_FLAG_REMOTE)
+# define GET_USER_PAGES_API     KERNEL_VERSION(4, 10, 0) /* no typo! */
+#else
+# define GET_USER_PAGES_API     LINUX_VERSION_CODE
+#endif
 
 DECLHIDDEN(int) rtR0MemObjNativeLockUser(PPRTR0MEMOBJINTERNAL ppMem, RTR3PTR R3Ptr, size_t cb, uint32_t fAccess, RTR0PROCESS R0Process)
 {
@@ -1062,11 +1070,11 @@ DECLHIDDEN(int) rtR0MemObjNativeLockUser(PPRTR0MEMOBJINTERNAL ppMem, RTR3PTR R3P
         /*
          * Get user pages.
          */
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(4, 6, 0)
+#if GET_USER_PAGES_API >= KERNEL_VERSION(4, 6, 0)
         if (R0Process == RTR0ProcHandleSelf())
             rc = get_user_pages(R3Ptr,                  /* Where from. */
                                 cPages,                 /* How many pages. */
-# if LINUX_VERSION_CODE >= KERNEL_VERSION(4, 9, 0)
+# if GET_USER_PAGES_API >= KERNEL_VERSION(4, 9, 0)
                                 fWrite ? FOLL_WRITE |   /* Write to memory. */
                                          FOLL_FORCE     /* force write access. */
                                        : 0,             /* Write to memory. */
@@ -1086,7 +1094,7 @@ DECLHIDDEN(int) rtR0MemObjNativeLockUser(PPRTR0MEMOBJINTERNAL ppMem, RTR3PTR R3P
                                 pTask->mm,              /* Whose pages. */
                                 R3Ptr,                  /* Where from. */
                                 cPages,                 /* How many pages. */
-# if LINUX_VERSION_CODE >= KERNEL_VERSION(4, 9, 0)
+# if GET_USER_PAGES_API >= KERNEL_VERSION(4, 9, 0)
                                 fWrite ? FOLL_WRITE |   /* Write to memory. */
                                          FOLL_FORCE     /* force write access. */
                                        : 0,             /* Write to memory. */
@@ -1096,16 +1104,16 @@ DECLHIDDEN(int) rtR0MemObjNativeLockUser(PPRTR0MEMOBJINTERNAL ppMem, RTR3PTR R3P
 # endif
                                 &pMemLnx->apPages[0],   /* Page array. */
                                 papVMAs                 /* vmas */
-# if LINUX_VERSION_CODE >= KERNEL_VERSION(4, 10, 0)
+# if GET_USER_PAGES_API >= KERNEL_VERSION(4, 10, 0)
                                 , NULL                  /* locked */
 # endif
                                 );
-#else /* LINUX_VERSION_CODE < KERNEL_VERSION(4, 6, 0) */
+#else /* GET_USER_PAGES_API < KERNEL_VERSION(4, 6, 0) */
             rc = get_user_pages(pTask,                  /* Task for fault accounting. */
                                 pTask->mm,              /* Whose pages. */
                                 R3Ptr,                  /* Where from. */
                                 cPages,                 /* How many pages. */
-# if LINUX_VERSION_CODE >= KERNEL_VERSION(4, 9, 0)
+# if GET_USER_PAGES_API >= KERNEL_VERSION(4, 9, 0)
                                 fWrite ? FOLL_WRITE |   /* Write to memory. */
                                          FOLL_FORCE     /* force write access. */
                                        : 0,             /* Write to memory. */
@@ -1115,7 +1123,7 @@ DECLHIDDEN(int) rtR0MemObjNativeLockUser(PPRTR0MEMOBJINTERNAL ppMem, RTR3PTR R3P
 # endif
                                 &pMemLnx->apPages[0],   /* Page array. */
                                 papVMAs);               /* vmas */
-#endif /* LINUX_VERSION_CODE < KERNEL_VERSION(4, 6, 0) */
+#endif /* GET_USER_PAGES_API < KERNEL_VERSION(4, 6, 0) */
         if (rc == cPages)
         {
             /*

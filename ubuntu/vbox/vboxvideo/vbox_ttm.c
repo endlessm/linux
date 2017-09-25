@@ -48,7 +48,7 @@
 #include "vbox_drv.h"
 #include <ttm/ttm_page_alloc.h>
 
-#if LINUX_VERSION_CODE < KERNEL_VERSION(3, 18, 0)
+#if LINUX_VERSION_CODE < KERNEL_VERSION(3, 18, 0) && !defined(RHEL_73)
 # define PLACEMENT_FLAGS(placement) (placement)
 #else
 # define PLACEMENT_FLAGS(placement) (placement).flags
@@ -221,9 +221,9 @@ static int vbox_bo_move(struct ttm_buffer_object *bo,
                struct ttm_mem_reg *new_mem)
 {
     int r;
-#if LINUX_VERSION_CODE < KERNEL_VERSION(4, 8, 0)
+#if LINUX_VERSION_CODE < KERNEL_VERSION(4, 8, 0) && !defined(RHEL_74)
     r = ttm_bo_move_memcpy(bo, evict, no_wait_gpu, new_mem);
-#elif LINUX_VERSION_CODE < KERNEL_VERSION(4, 9, 0)
+#elif LINUX_VERSION_CODE < KERNEL_VERSION(4, 9, 0) && !defined(RHEL_74)
     r = ttm_bo_move_memcpy(bo, evict, interruptible, no_wait_gpu, new_mem);
 #else
     r = ttm_bo_move_memcpy(bo, interruptible, no_wait_gpu, new_mem);
@@ -275,7 +275,7 @@ struct ttm_bo_driver vbox_bo_driver = {
     .ttm_tt_populate = vbox_ttm_tt_populate,
     .ttm_tt_unpopulate = vbox_ttm_tt_unpopulate,
     .init_mem_type = vbox_bo_init_mem_type,
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(4, 10, 0)
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(4, 10, 0) || defined(RHEL_74)
     .eviction_valuable = ttm_bo_eviction_valuable,
 #endif
     .evict_flags = vbox_bo_evict_flags,
@@ -286,7 +286,8 @@ struct ttm_bo_driver vbox_bo_driver = {
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(4, 12, 0)
     .io_mem_pfn = ttm_bo_default_io_mem_pfn,
 #endif
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(4, 7, 0) && LINUX_VERSION_CODE < KERNEL_VERSION(4, 11, 0)
+#if (LINUX_VERSION_CODE >= KERNEL_VERSION(4, 7, 0) && LINUX_VERSION_CODE < KERNEL_VERSION(4, 11, 0)) \
+    || defined(RHEL_74)
     .lru_tail = &ttm_bo_default_lru_tail,
     .swap_lru_tail = &ttm_bo_default_swap_lru_tail,
 #endif
@@ -305,7 +306,7 @@ int vbox_mm_init(struct vbox_private *vbox)
     ret = ttm_bo_device_init(&vbox->ttm.bdev,
                  vbox->ttm.bo_global_ref.ref.object,
                  &vbox_bo_driver,
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(3, 15, 0)
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(3, 15, 0) || defined(RHEL_73)
                  dev->anon_inode->i_mapping,
 #endif
                  DRM_FILE_PAGE_OFFSET,
@@ -358,7 +359,7 @@ void vbox_mm_fini(struct vbox_private *vbox)
 void vbox_ttm_placement(struct vbox_bo *bo, int domain)
 {
     u32 c = 0;
-#if LINUX_VERSION_CODE < KERNEL_VERSION(3, 18, 0)
+#if LINUX_VERSION_CODE < KERNEL_VERSION(3, 18, 0) && !defined(RHEL_73)
     bo->placement.fpfn = 0;
     bo->placement.lpfn = 0;
 #else
@@ -375,7 +376,7 @@ void vbox_ttm_placement(struct vbox_bo *bo, int domain)
         PLACEMENT_FLAGS(bo->placements[c++]) = TTM_PL_MASK_CACHING | TTM_PL_FLAG_SYSTEM;
     bo->placement.num_placement = c;
     bo->placement.num_busy_placement = c;
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(3, 18, 0)
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(3, 18, 0) || defined(RHEL_73)
     for (i = 0; i < c; ++i) {
         bo->placements[i].fpfn = 0;
         bo->placements[i].lpfn = 0;
@@ -402,7 +403,7 @@ int vbox_bo_create(struct drm_device *dev, int size, int align,
     }
 
     vboxbo->bo.bdev = &vbox->ttm.bdev;
-#if LINUX_VERSION_CODE < KERNEL_VERSION(3, 15, 0)
+#if LINUX_VERSION_CODE < KERNEL_VERSION(3, 15, 0) && !defined(RHEL_73)
     vboxbo->bo.bdev->dev_mapping = dev->dev_mapping;
 #endif
 
@@ -414,7 +415,7 @@ int vbox_bo_create(struct drm_device *dev, int size, int align,
     ret = ttm_bo_init(&vbox->ttm.bdev, &vboxbo->bo, size,
               ttm_bo_type_device, &vboxbo->placement,
               align >> PAGE_SHIFT, false, NULL, acc_size,
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(3, 18, 0)
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(3, 18, 0) || defined(RHEL_73)
               NULL,
 #endif
               NULL, vbox_bo_ttm_destroy);

@@ -591,7 +591,8 @@ struct x86_pmu {
 			pebs		:1,
 			pebs_active	:1,
 			pebs_broken	:1,
-			pebs_prec_dist	:1;
+			pebs_prec_dist	:1,
+			pebs_no_tlb	:1;
 	int		pebs_record_size;
 	int		pebs_buffer_size;
 	void		(*drain_pebs)(struct pt_regs *regs);
@@ -946,6 +947,8 @@ void intel_pmu_lbr_init_skl(void);
 void intel_pmu_lbr_init_knl(void);
 
 void intel_pmu_pebs_data_source_nhm(void);
+
+void intel_pmu_pebs_data_source_skl(bool pmem);
 
 int intel_pmu_setup_lbr_filter(struct perf_event *event);
 

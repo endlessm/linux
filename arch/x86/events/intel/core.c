@@ -3905,6 +3905,7 @@ __init int intel_pmu_init(void)
 
 		intel_pmu_pebs_data_source_nhm();
 		x86_add_quirk(intel_nehalem_quirk);
+		x86_pmu.pebs_no_tlb = 1;
 
 		pr_cont("Nehalem events, ");
 		break;
@@ -4207,6 +4208,8 @@ __init int intel_pmu_init(void)
 						  skl_format_attr);
 		WARN_ON(!x86_pmu.format_attrs);
 		x86_pmu.cpu_events = hsw_events_attrs;
+		intel_pmu_pebs_data_source_skl(
+			boot_cpu_data.x86_model == INTEL_FAM6_SKYLAKE_X);
 		pr_cont("Skylake events, ");
 		break;
 
