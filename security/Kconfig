@@ -317,40 +317,38 @@ menu "Security Module Stack"
 	visible if SECURITY_STACKING
 
 choice
-	prompt "Stacked 'extreme' security module"
-	default SECURITY_SELINUX_STACKED if SECURITY_SELINUX
-	default SECURITY_SMACK_STACKED if SECURITY_SMACK
+	prompt "mutually exclusive LSMs"
+	default SECURITY_NO_EXCLUSIVE_LSM
 
-	help
-	  Enable an extreme security module. These modules cannot
-	  be used at the same time.
-
+	config SECURITY_NO_EXCLUSIVE_LSM
+		bool "none"
+		help
+		  Do no add an LSM to is mutually exclusive to the stack."
 	config SECURITY_SELINUX_STACKED
 		bool "SELinux" if SECURITY_SELINUX=y
-	help
-	  Add the SELinux security module to the stack. At this
-	  time the Smack security module is incompatible with this
-	  module.
-	  Please be sure your user space code is accomodating of
-	  this security module.
+		help
+		  Add the SELinux security module to the stack.
+		  Please be sure your user space code is accomodating of
+		  this security module.
+		  Ensure that your network configuration is compatible
+		  with your combination of security modules.
+
+		  Incompatible with Smack being stacked.
+
+		  If you are unsure how to answer this question, answer N.
 
 	config SECURITY_SMACK_STACKED
 		bool "Simplified Mandatory Access Control" if SECURITY_SMACK=y
-	help
-	  Add the Smack security module to the stack. At this
-	  time the SELinux security module is incompatible with this
-	  module.
-	  Please be sure your user space code is accomodating of
-	  this security module.
+		help
+		  Add the Smack security module to the stack.
+		  Please be sure your user space code is accomodating of
+		  this security module.
+		  Ensure that your network configuration is compatible
+		  with your combination of security modules.
 
-	config SECURITY_NOTHING_STACKED
-		bool "Use no 'extreme' security module"
-	help
-	  Add neither the SELinux security module nor the Smack security
-	  module to the stack.
-	  Please be sure your user space code does not require either of
-	  these security modules.
+		  Incompatible with SeLinux being stacked.
 
+		  If you are unsure how to answer this question, answer N.
 endchoice
 
 config SECURITY_TOMOYO_STACKED
