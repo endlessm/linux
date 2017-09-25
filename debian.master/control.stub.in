@@ -102,7 +102,7 @@ Architecture: i386 amd64 armhf arm64 x32 ppc64el s390x
 Depends: ${misc:Depends}
 Conflicts: SRCPKGNAME-kernel-headers
 Replaces: SRCPKGNAME-kernel-headers
-Provides: SRCPKGNAME-kernel-headers
+Provides: SRCPKGNAME-kernel-headers, aufs-dev
 Multi-Arch: same
 Description: Linux Kernel Headers for development
  This package provides headers from the Linux kernel.  These headers
