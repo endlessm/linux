@@ -3162,6 +3162,7 @@ phy-tusb1210
 physmap
 pinctrl-broxton
 pinctrl-cannonlake
+pinctrl-denverton
 pinctrl-geminilake
 pinctrl-intel
 pinctrl-mcp23s08

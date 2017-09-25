@@ -3202,6 +3202,7 @@ physmap
 pinctrl-broxton
 pinctrl-cannonlake
 pinctrl-cherryview
+pinctrl-denverton
 pinctrl-geminilake
 pinctrl-intel
 pinctrl-mcp23s08

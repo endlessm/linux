@@ -1774,6 +1774,7 @@ i2c-viapro
 i2c-viperboard
 i2c-xgene-slimpro
 i2c-xiic
+i2c-xlp9xx
 i40e
 i40evf
 i40iw

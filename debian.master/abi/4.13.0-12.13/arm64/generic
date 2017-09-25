@@ -10729,6 +10729,7 @@ EXPORT_SYMBOL vmlinux 0x00000000	vm_brk_flags
 EXPORT_SYMBOL vmlinux 0x00000000	vm_event_states
 EXPORT_SYMBOL vmlinux 0x00000000	vm_get_page_prot
 EXPORT_SYMBOL vmlinux 0x00000000	vm_insert_mixed
+EXPORT_SYMBOL vmlinux 0x00000000	vm_insert_mixed_mkwrite
 EXPORT_SYMBOL vmlinux 0x00000000	vm_insert_page
 EXPORT_SYMBOL vmlinux 0x00000000	vm_insert_pfn
 EXPORT_SYMBOL vmlinux 0x00000000	vm_insert_pfn_prot
@@ -14797,7 +14798,6 @@ EXPORT_SYMBOL_GPL fs/nfs/nfs 0x00000000	nfs_path
 EXPORT_SYMBOL_GPL fs/nfs/nfs 0x00000000	nfs_permission
 EXPORT_SYMBOL_GPL fs/nfs/nfs 0x00000000	nfs_pgheader_init
 EXPORT_SYMBOL_GPL fs/nfs/nfs 0x00000000	nfs_pgio_current_mirror
-EXPORT_SYMBOL_GPL fs/nfs/nfs 0x00000000	nfs_pgio_data_destroy
 EXPORT_SYMBOL_GPL fs/nfs/nfs 0x00000000	nfs_pgio_header_alloc
 EXPORT_SYMBOL_GPL fs/nfs/nfs 0x00000000	nfs_pgio_header_free
 EXPORT_SYMBOL_GPL fs/nfs/nfs 0x00000000	nfs_post_op_update_inode
@@ -17770,7 +17770,6 @@ EXPORT_SYMBOL_GPL vmlinux 0x00000000	dax_get_private
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	dax_inode
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	dax_iomap_fault
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	dax_iomap_rw
-EXPORT_SYMBOL_GPL vmlinux 0x00000000	dax_pfn_mkwrite
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	dax_read_lock
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	dax_read_unlock
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	dax_write_cache
@@ -18286,6 +18285,7 @@ EXPORT_SYMBOL_GPL vmlinux 0x00000000	eventfd_ctx_read
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	eventfd_ctx_remove_wait_queue
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	eventfd_fget
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	eventfd_signal
+EXPORT_SYMBOL_GPL vmlinux 0x00000000	evict_inodes
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	evm_inode_init_security
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	evm_set_key
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	evm_verifyxattr
