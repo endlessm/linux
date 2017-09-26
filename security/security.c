@@ -28,6 +28,7 @@
 #include <linux/backing-dev.h>
 #include <linux/string.h>
 #include <linux/msg.h>
+#include <linux/prctl.h>
 #include <net/flow.h>
 #include <net/sock.h>
 
@@ -42,7 +43,17 @@ struct security_hook_heads security_hook_heads __lsm_ro_after_init;
 static ATOMIC_NOTIFIER_HEAD(lsm_notifier_chain);
 
 char *lsm_names;
-static struct lsm_blob_sizes blob_sizes;
+
+/*
+ * If stacking is enabled the task blob will always
+ * include an indicator of what security module data
+ * should be displayed. This is set with PR_SET_DISPLAY_LSM.
+ */
+static struct lsm_blob_sizes blob_sizes = {
+#ifdef CONFIG_SECURITY_STACKING
+	.lbs_task = SECURITY_NAME_MAX + 2,
+#endif
+};
 
 /* Boot-time LSM user choice */
 static __initdata char chosen_lsms[SECURITY_CHOSEN_NAMES_MAX + 1] =
@@ -231,7 +242,6 @@ void __init security_add_hooks(struct security_hook_list *hooks, int count,
 				char *lsm)
 {
 	int i;
-
 	for (i = 0; i < count; i++) {
 		hooks[i].lsm = lsm;
 		list_add_tail_rcu(&hooks[i].list, hooks[i].head);
@@ -363,6 +373,64 @@ int lsm_file_alloc(struct file *file)
 		return -ENOMEM;
 	return 0;
 }
+
+#ifdef CONFIG_SECURITY_STACKING
+static inline char *lsm_of_task(struct task_struct *task)
+{
+#ifdef CONFIG_SECURITY_LSM_DEBUG
+	if (task->security == NULL)
+		pr_info("%s: task has no lsm name.\n", __func__);
+#endif
+	return task->security;
+}
+#endif
+
+#ifdef CONFIG_SECURITY_STACKING
+struct lsm_value {
+	char *lsm;
+	char *data;
+};
+
+/**
+ * lsm_parse_context - break a compound "context" into module data
+ * @cxt: the initial data, which will be modified
+ * @vlist: an array to receive the results
+ *
+ * Returns the number of entries, or -EINVAL if the cxt is unworkable.
+ */
+static int lsm_parse_context(char *cxt, struct lsm_value *vlist)
+{
+	char *lsm;
+	char *data;
+	char *cp;
+	int i;
+
+	lsm = cxt;
+	for (i = 0; i < LSM_MAX_MAJOR; i++) {
+		data = strstr(lsm, "='");
+		if (!data)
+			break;
+		*data = '\0';
+		data += 2;
+		cp = strchr(data, '\'');
+		if (!cp)
+			return -EINVAL;
+		*cp++ = '\0';
+		vlist[i].lsm = lsm;
+		vlist[i].data = data;
+		if (*cp == '\0') {
+			i++;
+			break;
+		}
+		if (*cp == ',')
+			cp++;
+		else
+			return -EINVAL;
+		lsm = cp;
+	}
+	return i;
+}
+#endif /* CONFIG_SECURITY_STACKING */
 
 /**
  * lsm_task_alloc - allocate a composite task blob
@@ -1557,12 +1625,69 @@ int security_task_kill(struct task_struct *p, struct siginfo *info,
 	return call_int_hook(task_kill, 0, p, info, sig, secid);
 }
 
+#ifdef CONFIG_SECURITY_STACKING
+static char *nolsm = "-default";
+#define NOLSMLEN	9
+
+static int lsm_task_prctl(int option, unsigned long arg2, unsigned long arg3,
+				unsigned long arg4, unsigned long arg5)
+{
+	char *lsm = lsm_of_task(current);
+	char buffer[SECURITY_NAME_MAX + 1];
+	__user char *optval = (__user char *)arg2;
+	__user int *optlen = (__user int *)arg3;
+	int dlen;
+	int len;
+
+	switch (option) {
+	case PR_GET_DISPLAY_LSM:
+		len = arg4;
+		if (lsm[0] == '\0') {
+			lsm = nolsm;
+			dlen = NOLSMLEN;
+		} else
+			dlen = strlen(lsm) + 1;
+		if (dlen > len)
+			return -ERANGE;
+		if (copy_to_user(optval, lsm, dlen))
+			return -EFAULT;
+		if (put_user(dlen, optlen))
+			return -EFAULT;
+		break;
+	case PR_SET_DISPLAY_LSM:
+		len = arg3;
+		if (len > SECURITY_NAME_MAX)
+			return -EINVAL;
+		if (copy_from_user(buffer, optval, len))
+			return -EFAULT;
+		buffer[len] = '\0';
+		/*
+		 * Trust the caller to know what lsm name(s) are available.
+		 */
+		if (!strncmp(buffer, nolsm, NOLSMLEN))
+			lsm[0] = '\0';
+		else
+			strcpy(lsm, buffer);
+		break;
+	default:
+		return -ENOSYS;
+	}
+	return 0;
+}
+#endif
+
 int security_task_prctl(int option, unsigned long arg2, unsigned long arg3,
 			 unsigned long arg4, unsigned long arg5)
 {
 	int thisrc;
 	int rc = -ENOSYS;
 	struct security_hook_list *hp;
+
+#ifdef CONFIG_SECURITY_STACKING
+	rc = lsm_task_prctl(option, arg2, arg3, arg4, arg5);
+	if (rc != -ENOSYS)
+		return rc;
+#endif
 
 	list_for_each_entry(hp, &security_hook_heads.task_prctl, list) {
 		thisrc = hp->hook.task_prctl(option, arg2, arg3, arg4, arg5);
@@ -1725,6 +1850,9 @@ EXPORT_SYMBOL(security_d_instantiate);
 int security_getprocattr(struct task_struct *p, const char *lsm, char *name,
 				char **value)
 {
+#ifdef CONFIG_SECURITY_STACKING
+	char *speclsm = lsm_of_task(p);
+#endif
 	struct security_hook_list *hp;
 	char *vp;
 	char *cp = NULL;
@@ -1772,6 +1900,10 @@ int security_getprocattr(struct task_struct *p, const char *lsm, char *name,
 	list_for_each_entry(hp, &security_hook_heads.getprocattr, list) {
 		if (lsm != NULL && strcmp(lsm, hp->lsm))
 			continue;
+#ifdef CONFIG_SECURITY_STACKING
+		if (!lsm && speclsm && speclsm[0] && strcmp(speclsm, hp->lsm))
+			continue;
+#endif
 		rc = hp->hook.getprocattr(p, name, value);
 		if (rc != -ENOSYS)
 			return rc;
@@ -1782,12 +1914,17 @@ int security_getprocattr(struct task_struct *p, const char *lsm, char *name,
 int security_setprocattr(const char *lsm, const char *name, void *value,
 			 size_t size)
 {
+#ifdef CONFIG_SECURITY_STACKING
+	char *speclsm = lsm_of_task(current);
+	struct lsm_value *lsm_value = NULL;
+	int count;
+#else
+	char *tvalue;
+#endif
 	struct security_hook_list *hp;
 	int rc;
-	char *local;
+	char *temp;
 	char *cp;
-	int slen;
-	int failed = 0;
 
 	/*
 	 * If lsm is NULL look at all the modules to find one
@@ -1797,68 +1934,78 @@ int security_setprocattr(const char *lsm, const char *name, void *value,
 	 * "context" is handled directly here.
 	 */
 	if (strcmp(name, "context") == 0) {
-		/*
-		 * First verify that the input is acceptable.
-		 * lsm1='v1'lsm2='v2'lsm3='v3'
-		 *
-		 * A note on the use of strncmp() below.
-		 * The check is for the substring at the beginning of cp.
-		 * The kzalloc of size + 1 ensures a terminated string.
-		 */
 		rc = -EINVAL;
-		local = kzalloc(size + 1, GFP_KERNEL);
-		memcpy(local, value, size);
-		cp = local;
-		list_for_each_entry(hp, &security_hook_heads.setprocattr,
-					list) {
-			if (lsm != NULL && strcmp(lsm, hp->lsm))
-				continue;
-			if (cp[0] == ',') {
-				if (cp == local)
-					goto free_out;
-				cp++;
+		temp = kmemdup(value, size + 1, GFP_KERNEL);
+		if (!temp)
+			return -ENOMEM;
+
+		temp[size] = '\0';
+		cp = strrchr(temp, '\'');
+		if (!cp)
+			goto free_out;
+
+		cp[1] = '\0';
+#ifdef CONFIG_SECURITY_STACKING
+		lsm_value = kzalloc(sizeof(*lsm_value) * LSM_MAX_MAJOR,
+					GFP_KERNEL);
+		if (!lsm_value) {
+			rc = -ENOMEM;
+			goto free_out;
+		}
+
+		count = lsm_parse_context(temp, lsm_value);
+		if (count <= 0)
+			goto free_out;
+
+		for (count--; count >= 0; count--) {
+			list_for_each_entry(hp,
+				&security_hook_heads.setprocattr, list) {
+
+				if (lsm && strcmp(lsm, hp->lsm))
+					continue;
+				if (!strcmp(hp->lsm, lsm_value[count].lsm)) {
+					rc = hp->hook.setprocattr("context",
+						lsm_value[count].data,
+						strlen(lsm_value[count].data));
+					break;
+				}
 			}
-			slen = strlen(hp->lsm);
-			if (strncmp(cp, hp->lsm, slen))
-				goto free_out;
-			cp += slen;
-			if (cp[0] != '=' || cp[1] != '\'' || cp[2] == '\'')
-				goto free_out;
-			for (cp += 2; cp[0] != '\''; cp++)
-				if (cp[0] == '\0')
-					goto free_out;
-			cp++;
+			if (rc < 0 || (lsm && rc >0))
+				break;
 		}
-
-		cp = local;
+#else /* CONFIG_SECURITY_STACKING */
+		cp = strstr(temp, "='");
+		if (!cp)
+			goto free_out;
+		*cp = '\0';
+		tvalue = strchr(cp + 2, '\'');
+		if (!tvalue)
+			goto free_out;
 		list_for_each_entry(hp, &security_hook_heads.setprocattr,
-					list) {
-			if (lsm != NULL && strcmp(lsm, hp->lsm))
-				continue;
-			if (cp[0] == ',')
-				cp++;
-			cp += strlen(hp->lsm) + 2;
-			for (slen = 0; cp[slen] != '\''; slen++)
-				;
-			cp[slen] = '\0';
-
-			rc = hp->hook.setprocattr("context", cp, slen);
-			if (rc < 0)
-				failed = rc;
-			cp += slen + 1;
+								list) {
+			if (lsm == NULL || !strcmp(lsm, hp->lsm)) {
+				rc = hp->hook.setprocattr(name, tvalue, size);
+				break;
+			}
 		}
-		if (failed != 0)
-			rc = failed;
-		else
-			rc = size;
+#endif /* CONFIG_SECURITY_STACKING */
 free_out:
-		kfree(local);
+		kfree(temp);
+#ifdef CONFIG_SECURITY_STACKING
+		kfree(lsm_value);
+#endif
+		if (rc >= 0)
+			return size;
 		return rc;
 	}
 
 	list_for_each_entry(hp, &security_hook_heads.setprocattr, list) {
-		if (lsm != NULL && strcmp(lsm, hp->lsm))
+		if (lsm && strcmp(lsm, hp->lsm))
 			continue;
+#ifdef CONFIG_SECURITY_STACKING
+		if (!lsm && speclsm && speclsm[0] && strcmp(speclsm, hp->lsm))
+			continue;
+#endif
 		rc = hp->hook.setprocattr(name, value, size);
 		if (rc)
 			return rc;
@@ -1893,7 +2040,19 @@ EXPORT_SYMBOL(security_secctx_to_secid);
 
 void security_release_secctx(char *secdata, u32 seclen)
 {
-	call_void_hook(release_secctx, secdata, seclen);
+#ifdef CONFIG_SECURITY_STACKING
+	char *speclsm = lsm_of_task(current);
+#endif
+	struct security_hook_list *hp;
+
+	list_for_each_entry(hp, &security_hook_heads.release_secctx, list) {
+#ifdef CONFIG_SECURITY_STACKING
+		if (speclsm[0] && strcmp(hp->lsm, speclsm))
+			continue;
+#endif
+		hp->hook.release_secctx(secdata, seclen);
+		break;
+	}
 }
 EXPORT_SYMBOL(security_release_secctx);
 
