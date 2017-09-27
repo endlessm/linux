@@ -1566,9 +1566,7 @@ static int __init apparmor_init(void)
 		return 0;
 	}
 
-	if (!apparmor_enabled ||
-	    !security_module_enable("apparmor",
-				IS_ENABLED(CONFIG_SECURITY_APPARMOR_STACKED))) {
+	if (!apparmor_enabled) {
 		aa_info_message("AppArmor disabled by boot time parameter");
 		apparmor_enabled = 0;
 		return 0;
