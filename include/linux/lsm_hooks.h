@@ -1912,6 +1912,7 @@ struct security_hook_list {
 	struct list_head		*head;
 	union security_list_options	hook;
 	char				*lsm;
+	int				lsm_index;
 } __randomize_layout;
 
 /*
