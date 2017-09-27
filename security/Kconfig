@@ -377,6 +377,44 @@ config SECURITY_APPARMOR_STACKED
 
 	  If you are unsure how to answer this question, answer N.
 
+choice
+	prompt "Default LSM for legacy interfaces"
+	default SECURITY_DEFAULT_DISPLAY_SELINUX if SECURITY_SELINUX_STACKED
+	default SECURITY_DEFAULT_DISPLAY_SMACK if SECURITY_SMACK_STACKED
+	default SECURITY_DEFAULT_DISPLAY_TOMOYO if SECURITY_TOMOYO_STACKED
+	default SECURITY_DEFAULT_DISPALY_APPARMOR if SECURITY_APPARMOR_STACKED
+	default SECURITY_DEFAULT_DISPLAY_FIRST
+
+	help
+	  Select the security module context that will be displayed by
+          default on legacy interfaces if the kernel parameter
+          security.display= is not specified.
+
+	config SECURITY_DEFAULT_DISPLAY_SELINUX
+		bool "SELinux" if SECURITY_SELINUX=y
+
+	config SECURITY_DEFAULT_DISPLAY_SMACK
+		bool "Simplified Mandatory Access Control" if SECURITY_SMACK=y
+
+	config SECURITY_DEFAULT_DISPLAY_TOMOYO
+		bool "TOMOYO" if SECURITY_TOMOYO=y
+
+	config SECURITY_DEFAULT_DISPLAY_APPARMOR
+		bool "AppArmor" if SECURITY_APPARMOR=y
+
+	config SECURITY_DEFAULT_DISPLAY_FIRST
+		bool "First security module to register"
+
+endchoice
+
+config SECURITY_DEFAULT_DISPLAY_NAME
+	string
+	default "selinux" if SECURITY_DEFAULT_DISPLAY_SELINUX
+	default "smack" if SECURITY_DEFAULT_DISPLAY_SMACK
+	default "tomoyo" if SECURITY_DEFAULT_DISPLAY_TOMOYO
+	default "apparmor" if SECURITY_DEFAULT_DISPLAY_APPARMOR
+	default "" if SECURITY_DEFAULT_DISPLAY_FIRST
+
 endmenu
 
 endmenu
