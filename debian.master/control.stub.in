@@ -1,4 +1,4 @@
-Source: linux
+Source: SRCPKGNAME
 Section: devel
 Priority: optional
 Maintainer: Ubuntu Kernel Team <kernel-team@lists.ubuntu.com>
