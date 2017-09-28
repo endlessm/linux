@@ -38,7 +38,7 @@ static int pr_input_mapping(struct hid_device *hdev, struct hid_input *hi,
 		return 0;
 
 	usage->hid &= HID_USAGE;
-	usage->hid |= HID_UP_KEYBOARD;	
+	usage->hid |= HID_UP_KEYBOARD;
 
 	return 0;
 }
@@ -87,7 +87,8 @@ static int px_raw_event(struct hid_device *hid, struct hid_report *report,
 
 static const struct hid_device_id px_devices[] = {
 	{ HID_USB_DEVICE(USB_VENDOR_ID_PRIMAX, USB_DEVICE_ID_PRIMAX_KEYBOARD) },
-	{ HID_USB_DEVICE(USB_VENDOR_ID_PRIMAX, USB_DEVICE_ID_PRIMAX_WIRELESSKBD) },
+	{ HID_USB_DEVICE(USB_VENDOR_ID_PRIMAX, USB_DEVICE_ID_PRIMAX_WIRELESS_KBD_4E80) },
+	{ HID_USB_DEVICE(USB_VENDOR_ID_PRIMAX, USB_DEVICE_ID_PRIMAX_WIRELESS_KBD_4E57) },
 	{ }
 };
 MODULE_DEVICE_TABLE(hid, px_devices);
