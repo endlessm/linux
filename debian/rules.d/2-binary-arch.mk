@@ -318,10 +318,14 @@ endif
 		"$(hdrdir)/include/generated/compile.h"
 	# Add UTS_UBUNTU_RELEASE_ABI since UTS_RELEASE is difficult to parse.
 	echo "#define UTS_UBUNTU_RELEASE_ABI $(abinum)" >> $(hdrdir)/include/generated/utsrelease.h
-	# powerpc kernel arch seems to need some .o files for external module linking. Add them in.
+	# some kernel arches seems to need some .o files for external module linking. Add them in.
 ifeq ($(build_arch),powerpc)
 	mkdir -p $(hdrdir)/arch/powerpc/lib
 	cp $(builddir)/build-$*/arch/powerpc/lib/*.o $(hdrdir)/arch/powerpc/lib
+endif
+ifeq ($(build_arch),arm64)
+	mkdir -p $(hdrdir)/arch/arm64/lib
+	cp $(builddir)/build-$*/arch/arm64/kernel/ftrace-mod.o $(hdrdir)/arch/arm64/kernel
 endif
 	# Script to symlink everything up
 	$(SHELL) $(DROOT)/scripts/link-headers "$(hdrdir)" "$(indeppkg)" "$*"
