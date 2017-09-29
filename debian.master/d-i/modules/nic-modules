@@ -40,6 +40,7 @@ be2net ?
 bmac ?
 bnx2 ?
 bnx2x ?
+bnxt_en ?
 bonding ?
 brcmfmac ?
 brcmsmac ?
