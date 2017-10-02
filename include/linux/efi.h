@@ -42,6 +42,8 @@
 #define EFI_ABORTED		(21 | (1UL << (BITS_PER_LONG-1)))
 #define EFI_SECURITY_VIOLATION	(26 | (1UL << (BITS_PER_LONG-1)))
 
+#define EFI_IS_ERROR(x)		((x) & (1UL << (BITS_PER_LONG-1)))
+
 typedef unsigned long efi_status_t;
 typedef u8 efi_bool_t;
 typedef u16 efi_char16_t;		/* UNICODE character */
@@ -1228,6 +1230,7 @@ efi_capsule_pending(int *reset_type)
 #endif
 
 extern int efi_status_to_err(efi_status_t status);
+extern const char *efi_status_to_str(efi_status_t status);
 
 /*
  * Variable Attributes
