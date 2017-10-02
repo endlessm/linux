@@ -46,7 +46,8 @@ static __init void *get_cert_list(efi_char16_t *name, efi_guid_t *guid,
 		return NULL;
 
 	if (*status != EFI_BUFFER_TOO_SMALL) {
-		pr_err("Couldn't get size: 0x%lx\n", *status);
+		pr_err("Couldn't get size: %s (0x%lx)\n",
+		       efi_status_to_str(*status), *status);
 		return NULL;
 	}
 
@@ -57,7 +58,8 @@ static __init void *get_cert_list(efi_char16_t *name, efi_guid_t *guid,
 	*status = efi.get_variable(name, guid, NULL, &lsize, db);
 	if (*status != EFI_SUCCESS) {
 		kfree(db);
-		pr_err("Error reading db var: 0x%lx\n", *status);
+		pr_err("Error reading db var: %s (0x%lx)\n",
+		       efi_status_to_str(*status), *status);
 		return NULL;
 	}
 
