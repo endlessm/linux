@@ -6440,6 +6440,7 @@ EXPORT_SYMBOL vmlinux 0x00000000	__tracepoint_kmem_cache_alloc_node
 EXPORT_SYMBOL vmlinux 0x00000000	__tracepoint_kmem_cache_free
 EXPORT_SYMBOL vmlinux 0x00000000	__tracepoint_module_get
 EXPORT_SYMBOL vmlinux 0x00000000	__tty_alloc_driver
+EXPORT_SYMBOL vmlinux 0x00000000	__tty_insert_flip_char
 EXPORT_SYMBOL vmlinux 0x00000000	__udelay
 EXPORT_SYMBOL vmlinux 0x00000000	__udp_disconnect
 EXPORT_SYMBOL vmlinux 0x00000000	__unregister_chrdev

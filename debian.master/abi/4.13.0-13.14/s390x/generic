@@ -1851,6 +1851,7 @@ EXPORT_SYMBOL vmlinux 0x00000000	__tracepoint_s390_cio_tsch
 EXPORT_SYMBOL vmlinux 0x00000000	__tracepoint_s390_cio_xsch
 EXPORT_SYMBOL vmlinux 0x00000000	__tracepoint_s390_diagnose
 EXPORT_SYMBOL vmlinux 0x00000000	__tty_alloc_driver
+EXPORT_SYMBOL vmlinux 0x00000000	__tty_insert_flip_char
 EXPORT_SYMBOL vmlinux 0x00000000	__udelay
 EXPORT_SYMBOL vmlinux 0x00000000	__udp_disconnect
 EXPORT_SYMBOL vmlinux 0x00000000	__unregister_chrdev
