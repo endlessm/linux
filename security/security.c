@@ -2007,6 +2007,9 @@ int security_setprocattr(const char *lsm, const char *name, void *value,
 	char *temp;
 	char *cp;
 
+	if (!size)
+		return -EINVAL;
+
 	/*
 	 * If lsm is NULL look at all the modules to find one
 	 * that processes name. If lsm is not NULL only look at
