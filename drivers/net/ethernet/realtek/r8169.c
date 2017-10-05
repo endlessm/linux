@@ -8225,6 +8225,38 @@ static bool is_valleyview(void)
 	return true;
 }
 
+static const struct dmi_system_id force_disable_wol[] = {
+        {
+                .ident = "Packard Bell Easynote ENLG81AP",
+                .matches = {
+                        DMI_MATCH(DMI_SYS_VENDOR, "Packard Bell"),
+                        DMI_MATCH(DMI_PRODUCT_NAME, "Easynote ENLG81AP"),
+                },
+        },
+        {
+                .ident = "Packard Bell Easynote ENTE69AP",
+                .matches = {
+                        DMI_MATCH(DMI_SYS_VENDOR, "Packard Bell"),
+                        DMI_MATCH(DMI_PRODUCT_NAME, "Easynote ENTE69AP"),
+                },
+        },
+        {
+                .ident = "Acer Aspire ES1-533",
+                .matches = {
+                        DMI_MATCH(DMI_SYS_VENDOR, "Acer"),
+                        DMI_MATCH(DMI_PRODUCT_NAME, "Aspire ES1-533"),
+                },
+        },
+        {
+                .ident = "Acer Aspire ES1-732",
+                .matches = {
+                        DMI_MATCH(DMI_SYS_VENDOR, "Acer"),
+                        DMI_MATCH(DMI_PRODUCT_NAME, "Aspire ES1-732"),
+                },
+        },
+        {}
+};
+
 static int rtl_init_one(struct pci_dev *pdev, const struct pci_device_id *ent)
 {
 	const struct rtl_cfg_info *cfg = rtl_cfg_infos + ent->driver_data;
@@ -8572,7 +8604,7 @@ static int rtl_init_one(struct pci_dev *pdev, const struct pci_device_id *ent)
 		rtl8168_driver_start(tp);
 	}
 
-	device_set_wakeup_enable(&pdev->dev, tp->features & RTL_FEATURE_WOL);
+	device_set_wakeup_enable(&pdev->dev, dmi_check_system(force_disable_wol)? 0 : tp->features & RTL_FEATURE_WOL);
 
 	if (pci_dev_run_wake(pdev))
 		pm_runtime_put_noidle(&pdev->dev);
