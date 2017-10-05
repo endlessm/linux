@@ -19139,7 +19139,6 @@ EXPORT_SYMBOL_GPL vmlinux 0x00000000	pnv_pci_get_power_state
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	pnv_pci_get_presence_state
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	pnv_pci_get_slot_id
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	pnv_pci_on_cxl_phb
-EXPORT_SYMBOL_GPL vmlinux 0x00000000	pnv_pci_set_p2p
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	pnv_pci_set_power_state
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	policy_has_boost_freq
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	posix_acl_access_xattr_handler
@@ -20448,13 +20447,6 @@ EXPORT_SYMBOL_GPL vmlinux 0x00000000	usermodehelper_read_unlock
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	uuid_gen
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	validate_xmit_skb_list
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	validate_xmit_xfrm
-EXPORT_SYMBOL_GPL vmlinux 0x00000000	vas_copy_crb
-EXPORT_SYMBOL_GPL vmlinux 0x00000000	vas_init_rx_win_attr
-EXPORT_SYMBOL_GPL vmlinux 0x00000000	vas_init_tx_win_attr
-EXPORT_SYMBOL_GPL vmlinux 0x00000000	vas_paste_crb
-EXPORT_SYMBOL_GPL vmlinux 0x00000000	vas_rx_win_open
-EXPORT_SYMBOL_GPL vmlinux 0x00000000	vas_tx_win_open
-EXPORT_SYMBOL_GPL vmlinux 0x00000000	vas_win_close
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	vbin_printf
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	vc_scrolldelta_helper
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	verify_pkcs7_signature
