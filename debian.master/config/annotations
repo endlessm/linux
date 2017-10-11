@@ -6238,7 +6238,6 @@ CONFIG_QCOM_WCNSS_PIL                           policy<{'arm64': 'n', 'armhf': '
 CONFIG_RESET_CONTROLLER                         policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'ppc64el': 'y', 's390x': 'n'}>
 CONFIG_RESET_ATH79                              policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'i386': 'n', 'ppc64el': 'n'}>
 CONFIG_RESET_BERLIN                             policy<{'amd64': 'n', 'arm64': 'y', 'armhf': 'y', 'i386': 'n', 'ppc64el': 'n'}>
-CONFIG_RESET_HSDK_V1                            policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'i386': 'n', 'ppc64el': 'n'}>
 CONFIG_RESET_IMX7                               policy<{'amd64': 'n', 'arm64': 'n', 'armhf-generic': 'y', 'armhf-generic-lpae': 'n', 'i386': 'n', 'ppc64el': 'n'}>
 CONFIG_RESET_LANTIQ                             policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'i386': 'n', 'ppc64el': 'n'}>
 CONFIG_RESET_LPC18XX                            policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'i386': 'n', 'ppc64el': 'n'}>

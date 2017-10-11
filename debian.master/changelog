@@ -7,6 +7,7 @@ linux (4.14.0-2.3) UNRELEASED; urgency=low
   [ Upstream Kernel Changes ]
 
   * Rebase to v4.14-rc3
+  * Rebase to v4.14-rc4
 
  -- Seth Forshee <seth.forshee@canonical.com>  Tue, 03 Oct 2017 15:49:57 -0500
 
