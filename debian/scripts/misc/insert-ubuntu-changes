@@ -37,7 +37,7 @@ open(CHG, "<debian.master/changelog") ||
 	die "$0: debian/changelog: open failed - $!\n";
 while (<CHG>) {
 	if (/^\S+\s+\((.*)\)/) {
-		if (version_cmp($1, $end) <= -1) {
+		if (version_cmp($1, $end) <= 0) {
 			last;
 		}
 		if ($1 eq $start) {
