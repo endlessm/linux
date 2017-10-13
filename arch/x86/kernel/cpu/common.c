@@ -1293,18 +1293,16 @@ void print_cpu_info(struct cpuinfo_x86 *c)
 		pr_cont(")\n");
 }
 
-static __init int setup_disablecpuid(char *arg)
+/*
+ * clearcpuid= was already parsed in fpu__init_parse_early_param.
+ * But we need to keep a dummy __setup around otherwise it would
+ * show up as an environment variable for init.
+ */
+static __init int setup_clearcpuid(char *arg)
 {
-	int bit;
-
-	if (get_option(&arg, &bit) && bit >= 0 && bit < NCAPINTS * 32)
-		setup_clear_cpu_cap(bit);
-	else
-		return 0;
-
 	return 1;
 }
-__setup("clearcpuid=", setup_disablecpuid);
+__setup("clearcpuid=", setup_clearcpuid);
 
 #ifdef CONFIG_X86_64
 struct desc_ptr idt_descr __ro_after_init = {
