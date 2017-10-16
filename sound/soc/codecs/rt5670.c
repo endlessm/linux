@@ -20,6 +20,7 @@
 #include <linux/acpi.h>
 #include <linux/spi/spi.h>
 #include <linux/dmi.h>
+#include <linux/pci.h>
 #include <sound/core.h>
 #include <sound/pcm.h>
 #include <sound/pcm_params.h>
@@ -426,7 +427,10 @@ static int rt5670_headset_detect(struct snd_soc_codec *codec, int jack_insert)
 		snd_soc_update_bits(codec, RT5670_CJ_CTRL2,
 			RT5670_CBJ_DET_MODE | RT5670_CBJ_MN_JD,
 			RT5670_CBJ_MN_JD);
-		snd_soc_write(codec, RT5670_GPIO_CTRL2, 0x0004);
+		if (unlikely(rt5670->is_wyse3040))
+			snd_soc_write(codec, RT5670_GPIO_CTRL2, 0x0034);
+		else
+			snd_soc_write(codec, RT5670_GPIO_CTRL2, 0x0004);
 		snd_soc_update_bits(codec, RT5670_GPIO_CTRL1,
 			RT5670_GP1_PIN_MASK, RT5670_GP1_PIN_IRQ);
 		snd_soc_update_bits(codec, RT5670_CJ_CTRL1,
@@ -1466,6 +1470,10 @@ static int rt5670_hp_event(struct snd_soc_dapm_widget *w,
 			RT5670_L_MUTE | RT5670_R_MUTE, 0);
 		msleep(80);
 		regmap_write(rt5670->regmap, RT5670_DEPOP_M1, 0x8019);
+		if (rt5670->is_wyse3040)
+			regmap_update_bits(rt5670->regmap, RT5670_GPIO_CTRL2,
+					   RT5670_GP2_PF_MASK | RT5670_GP2_OUT_MASK,
+					   RT5670_GP2_PF_OUT | RT5670_GP2_OUT_HI);
 		break;
 
 	case SND_SOC_DAPM_PRE_PMD:
@@ -1500,11 +1508,16 @@ static int rt5670_bst1_event(struct snd_soc_dapm_widget *w,
 	struct snd_kcontrol *kcontrol, int event)
 {
 	struct snd_soc_codec *codec = snd_soc_dapm_to_codec(w->dapm);
+	struct rt5670_priv *rt5670 = snd_soc_codec_get_drvdata(codec);
 
 	switch (event) {
 	case SND_SOC_DAPM_POST_PMU:
 		snd_soc_update_bits(codec, RT5670_PWR_ANLG2,
 				    RT5670_PWR_BST1_P, RT5670_PWR_BST1_P);
+		if (rt5670->is_wyse3040)
+			regmap_update_bits(rt5670->regmap, RT5670_GPIO_CTRL2,
+					   RT5670_GP2_PF_MASK | RT5670_GP2_OUT_MASK,
+					   RT5670_GP2_PF_OUT | RT5670_GP2_OUT_HI);
 		break;
 
 	case SND_SOC_DAPM_PRE_PMD:
@@ -1523,11 +1536,16 @@ static int rt5670_bst2_event(struct snd_soc_dapm_widget *w,
 	struct snd_kcontrol *kcontrol, int event)
 {
 	struct snd_soc_codec *codec = snd_soc_dapm_to_codec(w->dapm);
+	struct rt5670_priv *rt5670 = snd_soc_codec_get_drvdata(codec);
 
 	switch (event) {
 	case SND_SOC_DAPM_POST_PMU:
 		snd_soc_update_bits(codec, RT5670_PWR_ANLG2,
 				    RT5670_PWR_BST2_P, RT5670_PWR_BST2_P);
+		if (rt5670->is_wyse3040)
+			regmap_update_bits(rt5670->regmap, RT5670_GPIO_CTRL2,
+					   RT5670_GP2_PF_MASK | RT5670_GP2_OUT_MASK,
+					   RT5670_GP2_PF_OUT | RT5670_GP2_OUT_HI);
 		break;
 
 	case SND_SOC_DAPM_PRE_PMD:
@@ -2550,6 +2568,7 @@ static int rt5670_set_tdm_slot(struct snd_soc_dai *dai, unsigned int tx_mask,
 			unsigned int rx_mask, int slots, int slot_width)
 {
 	struct snd_soc_codec *codec = dai->codec;
+	struct rt5670_priv *rt5670 = snd_soc_codec_get_drvdata(codec);
 	unsigned int val = 0;
 
 	if (rx_mask || tx_mask)
@@ -2588,6 +2607,9 @@ static int rt5670_set_tdm_slot(struct snd_soc_dai *dai, unsigned int tx_mask,
 	}
 
 	snd_soc_update_bits(codec, RT5670_TDM_CTRL_1, 0x7c00, val);
+
+	if (rt5670->is_wyse3040 && (rt5670->v_id >= 5))
+		snd_soc_update_bits(codec, RT5670_GEN_CTRL3, 0x0800, 0x0800);
 
 	return 0;
 }
@@ -2675,6 +2697,8 @@ static int rt5670_probe(struct snd_soc_codec *codec)
 			"The driver is for RT5670 RT5671 or RT5672 only\n");
 		return -ENODEV;
 	}
+	if (rt5670->is_wyse3040)
+		rt5670->v_id = snd_soc_read(codec, RT5670_VENDOR_ID) & 0xff;
 	rt5670->codec = codec;
 
 	return 0;
@@ -2694,6 +2718,10 @@ static int rt5670_suspend(struct snd_soc_codec *codec)
 {
 	struct rt5670_priv *rt5670 = snd_soc_codec_get_drvdata(codec);
 
+	if (rt5670->is_wyse3040)
+		regmap_update_bits(rt5670->regmap, RT5670_GPIO_CTRL2,
+				   RT5670_GP2_PF_MASK | RT5670_GP2_OUT_MASK,
+				   RT5670_GP2_PF_OUT | RT5670_GP2_OUT_LO);
 	regcache_cache_only(rt5670->regmap, true);
 	regcache_mark_dirty(rt5670->regmap);
 	return 0;
@@ -2866,6 +2894,7 @@ static int rt5670_i2c_probe(struct i2c_client *i2c,
 	struct rt5670_priv *rt5670;
 	int ret;
 	unsigned int val;
+	struct pci_dev *pdev_host;
 
 	rt5670 = devm_kzalloc(&i2c->dev,
 				sizeof(struct rt5670_priv),
@@ -2890,6 +2919,13 @@ static int rt5670_i2c_probe(struct i2c_client *i2c,
 		rt5670->pdata.jd_mode = 2;
 	}
 
+	pdev_host = pci_get_subsys(0x8086, 0x2280, 0x1028, 0x07c1, NULL);
+	if (pdev_host) {
+		rt5670->is_wyse3040 = true;
+		rt5670->pdata.dmic_en = false;
+		pci_dev_put(pdev_host);
+	}
+
 	rt5670->regmap = devm_regmap_init_i2c(i2c, &rt5670_regmap);
 	if (IS_ERR(rt5670->regmap)) {
 		ret = PTR_ERR(rt5670->regmap);
@@ -2912,6 +2948,11 @@ static int rt5670_i2c_probe(struct i2c_client *i2c,
 	msleep(100);
 
 	regmap_write(rt5670->regmap, RT5670_RESET, 0);
+
+	if (rt5670->is_wyse3040)
+		regmap_update_bits(rt5670->regmap, RT5670_GPIO_CTRL2,
+				   RT5670_GP2_PF_MASK | RT5670_GP2_OUT_MASK,
+				   RT5670_GP2_PF_OUT | RT5670_GP2_OUT_LO);
 
 	regmap_read(rt5670->regmap, RT5670_VENDOR_ID, &val);
 	if (val >= 4)
