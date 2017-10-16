@@ -883,8 +883,9 @@ static const struct snd_soc_dapm_widget rt5651_dapm_widgets[] = {
 	/* micbias */
 	SND_SOC_DAPM_SUPPLY("LDO", RT5651_PWR_ANLG1,
 			RT5651_PWR_LDO_BIT, 0, NULL, 0),
-	SND_SOC_DAPM_MICBIAS("micbias1", RT5651_PWR_ANLG2,
-			RT5651_PWR_MB1_BIT, 0),
+	SND_SOC_DAPM_SUPPLY("micbias1", RT5651_PWR_ANLG2,
+			    RT5651_PWR_MB1_BIT, 0, NULL, 0),
+
 	/* Input Lines */
 	SND_SOC_DAPM_INPUT("MIC1"),
 	SND_SOC_DAPM_INPUT("MIC2"),
@@ -1113,6 +1114,10 @@ static const struct snd_soc_dapm_route rt5651_dapm_routes[] = {
 	{"BST2", NULL, "IN2P"},
 	{"BST2", NULL, "IN2N"},
 	{"BST3", NULL, "IN3P"},
+
+	{"BST1", NULL, "micbias1"},
+	{"BST2", NULL, "micbias1"},
+	{"BST3", NULL, "micbias1"},
 
 	{"INL1 VOL", NULL, "IN2P"},
 	{"INR1 VOL", NULL, "IN2N"},
