@@ -14762,6 +14762,16 @@ static void quirk_backlight_present(struct drm_device *dev)
 	DRM_INFO("applying backlight present quirk\n");
 }
 
+/* Dell Wyse 3040 doesn't work well with some Dell monitors (E-series).
+ * Workaround this by skipping DP DPMS D3 transition.
+ */
+static void quirk_disable_dp_dpms_d3(struct drm_device *dev)
+{
+	struct drm_i915_private *dev_priv = to_i915(dev);
+	dev_priv->quirks |= QUIRK_SKIP_DP_DPMS_D3;
+	DRM_INFO("Applying Wyse 3040 quirk\n");
+}
+
 struct intel_quirk {
 	int device;
 	int subsystem_vendor;
@@ -14845,6 +14855,9 @@ static struct intel_quirk intel_quirks[] = {
 
 	/* Dell Chromebook 11 (2015 version) */
 	{ 0x0a16, 0x1028, 0x0a35, quirk_backlight_present },
+
+	/* Dell Wyse 3040 */
+	{ 0x22b0, 0x1028, 0x07c1, quirk_disable_dp_dpms_d3 },
 };
 
 static void intel_init_quirks(struct drm_device *dev)

@@ -2660,7 +2660,8 @@ static void intel_disable_dp(struct intel_encoder *encoder,
 	 * ensure that we have vdd while we switch off the panel. */
 	intel_edp_panel_vdd_on(intel_dp);
 	intel_edp_backlight_off(old_conn_state);
-	intel_dp_sink_dpms(intel_dp, DRM_MODE_DPMS_OFF);
+	if (!(dev_priv->quirks & QUIRK_SKIP_DP_DPMS_D3))
+		intel_dp_sink_dpms(intel_dp, DRM_MODE_DPMS_OFF);
 	intel_edp_panel_off(intel_dp);
 
 	/* disable the port before the pipe on g4x */
