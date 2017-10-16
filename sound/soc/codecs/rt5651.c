@@ -19,6 +19,7 @@
 #include <linux/platform_device.h>
 #include <linux/spi/spi.h>
 #include <linux/acpi.h>
+#include <linux/dmi.h>
 #include <sound/core.h>
 #include <sound/pcm.h>
 #include <sound/pcm_params.h>
@@ -1733,6 +1734,16 @@ static int rt5651_parse_dt(struct rt5651_priv *rt5651, struct device_node *np)
 	return 0;
 }
 
+static const struct dmi_system_id in2_diff_detect_dmi_table[] = {
+	{
+		.ident = "HKC",
+		.matches = {
+			DMI_MATCH(DMI_PRODUCT_NAME, "KIANO SlimNote 14.2"),
+		}
+	},
+	{ }
+};
+
 static int rt5651_i2c_probe(struct i2c_client *i2c,
 		    const struct i2c_device_id *id)
 {
@@ -1773,6 +1784,9 @@ static int rt5651_i2c_probe(struct i2c_client *i2c,
 				    ARRAY_SIZE(init_list));
 	if (ret != 0)
 		dev_warn(&i2c->dev, "Failed to apply regmap patch: %d\n", ret);
+
+	if (dmi_check_system(in2_diff_detect_dmi_table))
+		rt5651->pdata.in2_diff = 1;
 
 	if (rt5651->pdata.in2_diff)
 		regmap_update_bits(rt5651->regmap, RT5651_IN1_IN2,
