@@ -12,6 +12,7 @@
 #include <linux/export.h>
 #include <linux/sched.h>
 #include <linux/sysrq.h>
+#include <linux/efi.h>
 #include <asm/setup.h>
 
 #ifndef CONFIG_LOCK_DOWN_MANDATORY
