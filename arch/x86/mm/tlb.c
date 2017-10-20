@@ -12,6 +12,7 @@
 #include <asm/cache.h>
 #include <asm/apic.h>
 #include <asm/uv/uv.h>
+#include <asm/microcode.h>
 #include <linux/debugfs.h>
 
 /*
@@ -217,6 +218,9 @@ void switch_mm_irqs_off(struct mm_struct *prev, struct mm_struct *next,
 	} else {
 		u16 new_asid;
 		bool need_flush;
+
+		if (boot_cpu_has(X86_FEATURE_SPEC_CTRL))
+			native_wrmsrl(MSR_IA32_PRED_CMD, FEATURE_SET_IBPB);
 
 		if (IS_ENABLED(CONFIG_VMAP_STACK)) {
 			/*
