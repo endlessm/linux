@@ -125,6 +125,109 @@ static inline gfn_t gfn_to_index(gfn_t gfn, gfn_t base_gfn, int level)
 
 #define ASYNC_PF_PER_VCPU 64
 
+static inline void stuff_RSB(void)
+{
+        __asm__ __volatile__("  \n\
+	call .label1    \n\
+	pause     \n\
+.label1:        \n\
+	call .label2    \n\
+	pause     \n\
+.label2:        \n\
+	call .label3    \n\
+	pause     \n\
+.label3:        \n\
+	call .label4    \n\
+	pause     \n\
+.label4:        \n\
+	call .label5    \n\
+	pause     \n\
+.label5:        \n\
+	call .label6    \n\
+	pause     \n\
+.label6:        \n\
+	call .label7    \n\
+	pause     \n\
+.label7:        \n\
+	call .label8    \n\
+	pause     \n\
+.label8:        \n\
+	call .label9    \n\
+	pause     \n\
+.label9:        \n\
+	call .label10   \n\
+	pause     \n\
+.label10:       \n\
+	call .label11   \n\
+	pause     \n\
+.label11:       \n\
+	call .label12   \n\
+	pause     \n\
+.label12:       \n\
+	call .label13   \n\
+	pause     \n\
+.label13:       \n\
+	call .label14   \n\
+	pause     \n\
+.label14:       \n\
+	call .label15   \n\
+	pause     \n\
+.label15:       \n\
+	call .label16   \n\
+	pause     \n\
+.label16:	\n\
+	call .label17	\n\
+	pause	\n\
+.label17:	\n\
+	call .label18	\n\
+	pause	\n\
+.label18:	\n\
+	call .label19	\n\
+	pause	\n\
+.label19:	\n\
+	call .label20	\n\
+	pause	\n\
+.label20:	\n\
+	call .label21	\n\
+	pause	\n\
+.label21:	\n\
+	call .label22	\n\
+	pause	\n\
+.label22:	\n\
+	call .label23	\n\
+	pause	\n\
+.label23:	\n\
+	call .label24	\n\
+	pause	\n\
+.label24:	\n\
+	call .label25	\n\
+	pause	\n\
+.label25:	\n\
+	call .label26	\n\
+	pause	\n\
+.label26:	\n\
+	call .label27	\n\
+	pause	\n\
+.label27:	\n\
+	call .label28	\n\
+	pause	\n\
+.label28:	\n\
+	call .label29	\n\
+	pause	\n\
+.label29:	\n\
+	call .label30	\n\
+	pause	\n\
+.label30:	\n\
+	call .label31	\n\
+	pause	\n\
+.label31:	\n\
+	call .label32	\n\
+	pause	\n\
+.label32: \n\
+	add $(32*8), %%rsp 	\n\
+": : :"memory");
+}
+
 enum kvm_reg {
 	VCPU_REGS_RAX = 0,
 	VCPU_REGS_RCX = 1,
