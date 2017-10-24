@@ -679,10 +679,11 @@ int ahci_stop_engine(struct ata_port *ap)
 			MIDR_CPU_VAR_REV(0, 0),
 			MIDR_CPU_VAR_REV(0, MIDR_REVISION_MASK))) {
 		tmp = readl(hpriv->mmio + 0x8000);
+		udelay(100);
 		writel(tmp | (1 << 26), hpriv->mmio + 0x8000);
-		udelay(1);
+		udelay(100);
 		writel(tmp & ~(1 << 26), hpriv->mmio + 0x8000);
-		dev_warn(ap->host->dev, "CN99XX stop engine fix applied!\n");
+		dev_warn(ap->host->dev, "CN99XX SATA reset workaround applied\n");
 	}
 #endif
 
