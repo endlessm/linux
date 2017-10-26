@@ -5516,6 +5516,7 @@ enum {
 	ALC294_FIXUP_ASUS_MIC,
 	ALC295_FIXUP_ASUS_MIC_NO_PRESENCE,
 	ALC282_FIXUP_ACER_TRAVELMATE_PINS,
+	ALC255_FIXUP_ACER_LIMIT_INT_MIC_BOOST,
 	ALC295_FIXUP_HP_X360,
 	ALC221_FIXUP_HP_HEADSET_MIC,
 };
@@ -6423,6 +6424,12 @@ static const struct hda_fixup alc269_fixups[] = {
                 .chained = true,
                 .chain_id = ALC269_FIXUP_HEADSET_MODE
         },
+	[ALC255_FIXUP_ACER_LIMIT_INT_MIC_BOOST] = {
+		.type = HDA_FIXUP_FUNC,
+		.v.func = alc269_fixup_limit_int_mic_boost,
+		.chained = true,
+		.chain_id = ALC255_FIXUP_ACER_MIC_NO_PRESENCE,
+	},
 	[ALC295_FIXUP_HP_X360] = {
 		.type = HDA_FIXUP_FUNC,
 		.v.func = alc295_fixup_hp_top_speakers,
@@ -6454,6 +6461,7 @@ static const struct snd_pci_quirk alc269_fixup_tbl[] = {
 	SND_PCI_QUIRK(0x1025, 0x079b, "Acer Aspire V5-573G", ALC282_FIXUP_ASPIRE_V5_PINS),
 	SND_PCI_QUIRK(0x1025, 0x102b, "Acer Aspire C24-860", ALC286_FIXUP_ACER_AIO_MIC_NO_PRESENCE),
 	SND_PCI_QUIRK(0x1025, 0x106d, "Acer Cloudbook 14", ALC283_FIXUP_CHROME_BOOK),
+	SND_PCI_QUIRK(0x1025, 0x1094, "Acer Aspire E5-575T", ALC255_FIXUP_ACER_LIMIT_INT_MIC_BOOST),
 	SND_PCI_QUIRK(0x1025, 0x1099, "Acer Aspire E5-523G", ALC255_FIXUP_ACER_MIC_NO_PRESENCE),
 	SND_PCI_QUIRK(0x1025, 0x110e, "Acer Aspire ES1-432", ALC255_FIXUP_ACER_MIC_NO_PRESENCE),
 	SND_PCI_QUIRK(0x1025, 0x1166, "Acer Veriton N4640G", ALC269VC_FIXUP_NL3_SECOND_JACK),
