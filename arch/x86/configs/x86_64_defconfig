@@ -327,6 +327,12 @@ CONFIG_EFI_STUB=y
 # Endless VPN
 CONFIG_TUN=y
 
+# For ostree admin unlock
+CONFIG_OVERLAY_FS=y
+
+# For hdajackretask
+CONFIG_SND_HDA_RECONFIG=y
+
 # Subsytems needed for hardware device selection below
 CONFIG_MMC=y
 CONFIG_BT=y
