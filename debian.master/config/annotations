@@ -11068,8 +11068,7 @@ CONFIG_X86_MSR                                  policy<{'amd64': 'm', 'i386': 'm
 CONFIG_X86_CPUID                                policy<{'amd64': 'm', 'i386': 'm'}>
 CONFIG_X86_PAE                                  policy<{'i386': 'y'}>
 CONFIG_X86_5LEVEL                               policy<{'amd64': 'n'}>
-CONFIG_AMD_MEM_ENCRYPT                          policy<{'amd64': 'y'}>
-CONFIG_AMD_MEM_ENCRYPT_ACTIVE_BY_DEFAULT        policy<{'amd64': 'n'}>
+CONFIG_AMD_MEM_ENCRYPT                          policy<{'amd64': 'n'}>
 CONFIG_ARCH_MEMORY_PROBE                        policy<{'amd64': 'y', 'ppc64el': 'y'}>
 CONFIG_X86_PMEM_LEGACY                          policy<{'amd64': 'y', 'i386': 'y'}>
 CONFIG_X86_CHECK_BIOS_CORRUPTION                policy<{'amd64': 'y', 'i386': 'y'}>
@@ -11101,6 +11100,7 @@ CONFIG_EFI_SECURE_BOOT_LOCK_DOWN                mark<ENFORCED>
 CONFIG_EFI_ALLOW_SECURE_BOOT_EXIT               mark<ENFORCED>
 CONFIG_KEXEC_BZIMAGE_VERIFY_SIG                 flag<REVIEW> note<Q: check this is in sync with the kexec/kdump userspace>
 CONFIG_MODIFY_LDT_SYSCALL                       flag<REVIEW> note<Q: check this with security>
+CONFIG_AMD_MEM_ENCRYPT                          flag<REVIEW> note<Breaks nvidia binary drivers>
 
 # Menu: Processor type and features >> Contiguous Memory Allocator
 CONFIG_CMA                                      policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'ppc64el': 'y', 's390x': 'y'}>
