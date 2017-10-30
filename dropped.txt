@@ -1,7 +1,7 @@
 This is the list of patches/features which have been temporarily
 reverted or disabled for BB:
 
-aufs
+UBUNTU: SAUCE: apparmor: af_unix mediation
 
 UBUNTU: SAUCE: (no-up) nbd: Change default partitions per device to 15
 UBUNTU: SAUCE: (no-up) firmware: Update bnx2x to current firmware version 7.2.51
