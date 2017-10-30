@@ -112,7 +112,7 @@ install-%: checks-%
 	dh_prep -p$(bin_pkg_name)-$*
 	dh_prep -p$(hdrs_pkg_name)-$*
 ifneq ($(skipdbg),true)
-	dh_prep -p$(dbg_pkg_name)-$*
+	dh_prep -p$(bin_pkg_name)-$*-dbgsym
 endif
 
 	# The main image
