@@ -1,9 +1,9 @@
-linux (4.14.0-5.6) artful; urgency=low
+linux (4.14.0-5.7) bionic; urgency=low
 
   * Miscellaneous Ubuntu changes
     - [Debian] Fix invocation of dh_prep for dbgsym packages
 
- -- Seth Forshee <seth.forshee@canonical.com>  Mon, 30 Oct 2017 16:28:14 -0500
+ -- Seth Forshee <seth.forshee@canonical.com>  Tue, 31 Oct 2017 07:07:23 -0500
 
 linux (4.14.0-4.5) bionic; urgency=low
 
