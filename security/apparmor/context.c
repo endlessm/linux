@@ -29,16 +29,6 @@
 #include "include/context.h"
 #include "include/policy.h"
 
-/**
- * aa_alloc_task_context - allocate a new task_ctx
- * @flags: gfp flags for allocation
- *
- * Returns: allocated buffer or NULL on failure
- */
-struct aa_task_ctx *aa_alloc_task_context(gfp_t flags)
-{
-	return kzalloc(sizeof(struct aa_task_ctx), flags);
-}
 
 /**
  * aa_free_task_context - free a task_ctx
@@ -50,8 +40,6 @@ void aa_free_task_context(struct aa_task_ctx *ctx)
 		aa_put_label(ctx->label);
 		aa_put_label(ctx->previous);
 		aa_put_label(ctx->onexec);
-
-		kzfree(ctx);
 	}
 }
 

@@ -58,22 +58,6 @@ DEFINE_PER_CPU(struct aa_buffers, aa_buffers);
 static void apparmor_cred_free(struct cred *cred)
 {
 	aa_free_task_context(cred_ctx(cred));
-	cred_ctx(cred) = NULL;
-}
-
-/*
- * allocate the apparmor part of blank credentials
- */
-static int apparmor_cred_alloc_blank(struct cred *cred, gfp_t gfp)
-{
-	/* freed by apparmor_cred_free */
-	struct aa_task_ctx *ctx = aa_alloc_task_context(gfp);
-
-	if (!ctx)
-		return -ENOMEM;
-
-	cred_ctx(cred) = ctx;
-	return 0;
 }
 
 /*
@@ -82,14 +66,7 @@ static int apparmor_cred_alloc_blank(struct cred *cred, gfp_t gfp)
 static int apparmor_cred_prepare(struct cred *new, const struct cred *old,
 				 gfp_t gfp)
 {
-	/* freed by apparmor_cred_free */
-	struct aa_task_ctx *ctx = aa_alloc_task_context(gfp);
-
-	if (!ctx)
-		return -ENOMEM;
-
-	aa_dup_task_context(ctx, cred_ctx(old));
-	cred_ctx(new) = ctx;
+	aa_dup_task_context(cred_ctx(new), cred_ctx(old));
 	return 0;
 }
 
@@ -426,21 +403,21 @@ static int apparmor_file_open(struct file *file, const struct cred *cred)
 
 static int apparmor_file_alloc_security(struct file *file)
 {
-	int error = 0;
-
-	/* freed by apparmor_file_free_security */
+	struct aa_file_ctx *ctx = file_ctx(file);
 	struct aa_label *label = begin_current_label_crit_section();
-	file->f_security = aa_alloc_file_ctx(label, GFP_KERNEL);
-	if (!file_ctx(file))
-		error = -ENOMEM;
-	end_current_label_crit_section(label);
 
-	return error;
+	spin_lock_init(&ctx->lock);
+	rcu_assign_pointer(ctx->label, aa_get_label(label));
+	end_current_label_crit_section(label);
+	return 0;
 }
 
 static void apparmor_file_free_security(struct file *file)
 {
-	aa_free_file_ctx(file_ctx(file));
+	struct aa_file_ctx *ctx = file_ctx(file);
+
+	if (ctx)
+		aa_put_label(rcu_access_pointer(ctx->label));
 }
 
 static int common_file_perm(const char *op, struct file *file, u32 mask)
@@ -581,8 +558,12 @@ static int apparmor_getprocattr(struct task_struct *task, char *name,
 	const struct cred *cred = get_task_cred(task);
 	struct aa_task_ctx *ctx = cred_ctx(cred);
 	struct aa_label *label = NULL;
+	char *vp;
+	char *np;
 
 	if (strcmp(name, "current") == 0)
+		label = aa_get_newest_label(ctx->label);
+	else if (strcmp(name, "context") == 0  && ctx->label)
 		label = aa_get_newest_label(ctx->label);
 	else if (strcmp(name, "prev") == 0  && ctx->previous)
 		label = aa_get_newest_label(ctx->previous);
@@ -591,8 +572,29 @@ static int apparmor_getprocattr(struct task_struct *task, char *name,
 	else
 		error = -EINVAL;
 
-	if (label)
-		error = aa_getprocattr(label, value);
+	if (label == NULL)
+		goto put_out;
+
+	error = aa_getprocattr(label, &vp);
+	if (error < 0)
+		goto put_out;
+
+	if (strcmp(name, "context") == 0) {
+		*value = kasprintf(GFP_KERNEL, "apparmor='%s'", vp);
+		if (*value == NULL) {
+			error = -ENOMEM;
+			goto put_out;
+		}
+		np = strchr(*value, '\n');
+		if (np != NULL) {
+			np[0] = '\'';
+			np[1] = '\0';
+		}
+		error = strlen(*value);
+	} else
+		*value = vp;
+
+put_out:
 
 	aa_put_label(label);
 	put_cred(cred);
@@ -631,7 +633,7 @@ static int apparmor_setprocattr(const char *name, void *value,
 		goto out;
 
 	arg_size = size - (args - (largs ? largs : (char *) value));
-	if (strcmp(name, "current") == 0) {
+	if (strcmp(name, "current") == 0 || strcmp(name, "context") == 0) {
 		if (strcmp(command, "changehat") == 0) {
 			error = aa_setprocattr_changehat(args, arg_size,
 							 AA_CHANGE_NOFLAGS);
@@ -655,7 +657,10 @@ static int apparmor_setprocattr(const char *name, void *value,
 		else
 			goto fail;
 	} else
-		/* only support the "current" and "exec" process attributes */
+		/*
+		 * only support the "current", "context" and "exec"
+		 * process attributes
+		 */
 		goto fail;
 
 	if (!error)
@@ -743,13 +748,7 @@ static int apparmor_task_kill(struct task_struct *target, struct siginfo *info,
  */
 static int apparmor_sk_alloc_security(struct sock *sk, int family, gfp_t flags)
 {
-	struct aa_sk_ctx *ctx;
-
-	ctx = kzalloc(sizeof(*ctx), flags);
-	if (!ctx)
-		return -ENOMEM;
-
-	SK_CTX(sk) = ctx;
+	/* allocated and cleared by LSM */
 
 	return 0;
 }
@@ -761,11 +760,13 @@ static void apparmor_sk_free_security(struct sock *sk)
 {
 	struct aa_sk_ctx *ctx = SK_CTX(sk);
 
-	SK_CTX(sk) = NULL;
 	aa_put_label(ctx->label);
+	ctx->label = NULL;
 	aa_put_label(ctx->peer);
+	ctx->peer = NULL;
 	path_put(&ctx->path);
-	kfree(ctx);
+	ctx->path.dentry = NULL;
+	ctx->path.mnt = NULL;
 }
 
 /**
@@ -1143,6 +1144,12 @@ static void apparmor_sock_graft(struct sock *sk, struct socket *parent)
 		ctx->label = aa_get_current_label();
 }
 
+struct lsm_blob_sizes apparmor_blob_sizes = {
+	.lbs_cred = sizeof(struct aa_task_ctx),
+	.lbs_file = sizeof(struct aa_file_ctx),
+	.lbs_sock = sizeof(struct aa_sk_ctx),
+};
+
 static struct security_hook_list apparmor_hooks[] __lsm_ro_after_init = {
 	LSM_HOOK_INIT(ptrace_access_check, apparmor_ptrace_access_check),
 	LSM_HOOK_INIT(ptrace_traceme, apparmor_ptrace_traceme),
@@ -1204,7 +1211,6 @@ static struct security_hook_list apparmor_hooks[] __lsm_ro_after_init = {
 		      apparmor_socket_getpeersec_dgram),
 	LSM_HOOK_INIT(sock_graft, apparmor_sock_graft),
 
-	LSM_HOOK_INIT(cred_alloc_blank, apparmor_cred_alloc_blank),
 	LSM_HOOK_INIT(cred_free, apparmor_cred_free),
 	LSM_HOOK_INIT(cred_prepare, apparmor_cred_prepare),
 	LSM_HOOK_INIT(cred_transfer, apparmor_cred_transfer),
@@ -1461,12 +1467,10 @@ static int __init set_init_ctx(void)
 	struct cred *cred = (struct cred *)current->real_cred;
 	struct aa_task_ctx *ctx;
 
-	ctx = aa_alloc_task_context(GFP_KERNEL);
-	if (!ctx)
-		return -ENOMEM;
+	lsm_early_cred(cred);
+	ctx = apparmor_cred(cred);
 
 	ctx->label = aa_get_label(ns_unconfined(root_ns));
-	cred_ctx(cred) = ctx;
 
 	return 0;
 }
@@ -1550,9 +1554,19 @@ static inline int apparmor_init_sysctl(void)
 
 static int __init apparmor_init(void)
 {
+	static int finish;
 	int error;
 
-	if (!apparmor_enabled || !security_module_enable("apparmor")) {
+	if (!finish) {
+		if (apparmor_enabled &&
+		    security_module_enable("apparmor",
+				IS_ENABLED(CONFIG_SECURITY_APPARMOR_STACKED)))
+			security_add_blobs(&apparmor_blob_sizes);
+		finish = 1;
+		return 0;
+	}
+
+	if (!apparmor_enabled) {
 		aa_info_message("AppArmor disabled by boot time parameter");
 		apparmor_enabled = 0;
 		return 0;

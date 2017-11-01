@@ -1,3 +1,322 @@
+linux (4.13.0-16.19) artful; urgency=low
+
+  * 20170817 - ISO hangs on boot on qemu with splash screen enabled and qxl
+    graphics driver (LP: #1711358)
+    - qxl: fix framebuffer unpinning
+
+  * [Bug] USB controller failed to respond on Denverton after loading
+    intel_th_pci module (LP: #1715833)
+    - SAUCE: PCI: Disable broken RTIT_BAR of Intel TH
+
+  * CVE-2017-5123
+    - waitid(): Add missing access_ok() checks
+
+ -- Seth Forshee <seth.forshee@canonical.com>  Wed, 11 Oct 2017 12:33:10 -0500
+
+linux (4.13.0-15.16) artful; urgency=low
+
+  * linux: 4.13.0-15.16 -proposed tracker (LP: #1721373)
+
+  * Boot regression on POWER9 (LP: #1721391)
+    - Revert "crypto/nx: Add P9 NX support for 842 compression engine"
+    - Revert "crypto/nx: Add P9 NX specific error codes for 842 engine"
+    - Revert "crypto/nx: Use kzalloc for workmem allocation"
+    - Revert "crypto/nx: Add nx842_add_coprocs_list function"
+    - Revert "crypto/nx: Create nx842_delete_coprocs function"
+    - Revert "crypto/nx: Create nx842_configure_crb function"
+    - Revert "crypto/nx: Rename nx842_powernv_function as icswx function"
+    - Revert "UBUNTU: [Config] CONFIG_PPC_VAS=y"
+    - Revert "powerpc/powernv/vas: Define copy/paste interfaces"
+    - Revert "powerpc/powernv/vas: Define vas_tx_win_open()"
+    - Revert "powerpc/powernv/vas: Define vas_win_close() interface"
+    - Revert "powerpc/powernv/vas: Define vas_rx_win_open() interface"
+    - Revert "powerpc/powernv/vas: Define helpers to alloc/free windows"
+    - Revert "powerpc/powernv/vas: Define helpers to init window context"
+    - Revert "powerpc/powernv/vas: Define helpers to access MMIO regions"
+    - Revert "powerpc/powernv/vas: Define vas_init() and vas_exit()"
+    - Revert "powerpc/powernv: Move GET_FIELD/SET_FIELD to vas.h"
+    - Revert "powerpc/powernv/vas: Define macros, register fields and structures"
+    - Revert "powerpc/powernv: Enable PCI peer-to-peer"
+    - Revert "powerpc/powernv: Add support to set power-shifting-ratio"
+    - Revert "powerpc/powernv: Add support for powercap framework"
+    - Revert "powerpc/perf: Add nest IMC PMU support"
+    - Revert "powerpc/powernv: Detect and create IMC device"
+    - Revert "powerpc/powernv: Add IMC OPAL APIs"
+
+  * smartpqi patches for Artful (LP: #1721381)
+    - scsi: smartpqi: add pqi reset quiesce support
+    - scsi: smartpqi: enhance BMIC cache flush
+    - scsi: smartpqi: update pqi passthru ioctl
+    - scsi: smartpqi: cleanup doorbell register usage.
+    - scsi: smartpqi: update kexec and power down support
+    - scsi: smartpqi: add in new controller ids
+    - scsi: smartpqi: change driver version to 1.1.2-125
+
+  * CONFIG_DEBUG_FS is not enabled by "make zfcpdump_defconfig" with Ubuntu
+    17.10 (kernel 4.13) (LP: #1719290)
+    - SAUCE: s390: update zfcpdump_defconfig
+
+  * [Feature] PXE boot with Intel Omni-Path (LP: #1712031)
+    - d-i: Add hfi1 to nic-modules
+
+  * [Feature]CNL:New device IDs for CNL (LP: #1685729)
+    - pinctrl: intel: Add Intel Cannon Lake PCH-H pin controller support
+
+ -- Seth Forshee <seth.forshee@canonical.com>  Wed, 04 Oct 2017 16:21:48 -0500
+
+linux (4.13.0-14.15) artful; urgency=low
+
+  * linux: 4.13.0-14.15 -proposed tracker (LP: #1721122)
+
+  * [Artful] ltp rwtest - Unable to handle kernel paging request at virtual
+    address (LP: #1721067)
+    - arm64: mm: Use READ_ONCE when dereferencing pointer to pte table
+
+  * linux 4.13.0-13.14 ADT test failure with linux 4.13.0-13.14 (LP: #1720779)
+    - SAUCE: LSM stacking: check for invalid zero sized writes
+
+  * Add installer support for Broadcom BCM573xx network drivers. (LP: #1720466)
+    - d-i: Add bnxt_en to nic-modules.
+
+  * Miscellaneous Ubuntu changes
+    - [Packaging] Include arch/arm64/kernel/ftrace-mod.o in headers package
+
+ -- Seth Forshee <seth.forshee@canonical.com>  Tue, 03 Oct 2017 14:51:52 -0500
+
+linux (4.13.0-13.14) artful; urgency=low
+
+  * linux: 4.13.0-13.14 -proposed tracker (LP: #1720239)
+
+  * [Bug] USB 3.1 Gen2 works as 5Gbps (LP: #1720045)
+    - xhci: set missing SuperSpeedPlus Link Protocol bit in roothub descriptor
+
+  * [Feature]Memory Bandwidth Monitoring(MBM) port to new Cache Quality
+    Monitoring (CQM) (LP: #1591609)
+    - x86/perf/cqm: Wipe out perf based cqm
+    - x86/intel_rdt/cqm: Documentation for resctrl based RDT Monitoring
+    - x86/intel_rdt: Introduce a common compile option for RDT
+    - x86/intel_rdt: Change file names to accommodate RDT monitor code
+    - x86/intel_rdt: Mark rdt_root and closid_alloc as static
+    - x86/intel_rdt: Cleanup namespace to support RDT monitoring
+    - x86/intel_rdt: Make rdt_resources_all more readable
+    - x86/intel_rdt/cqm: Add RDT monitoring initialization
+    - x86/intel_rdt/cqm: Add RMID (Resource monitoring ID) management
+    - x86/intel_rdt: Simplify info and base file lists
+    - x86/intel_rdt/cqm: Add info files for RDT monitoring
+    - x86/intel_rdt: Prepare for RDT monitoring mkdir support
+    - x86/intel_rdt/cqm: Add mkdir support for RDT monitoring
+    - x86/intel_rdt: Change closid type from int to u32
+    - x86/intel_rdt/cqm: Add tasks file support
+    - x86/intel_rdt: Prepare to add RDT monitor cpus file support
+    - x86/intel_rdt/cqm: Add cpus file support
+    - x86/intel_rdt: Prepare for RDT monitor data support
+    - x86/intel_rdt/cqm: Add mon_data
+    - x86/intel_rdt: Separate the ctrl bits from rmdir
+    - x86/intel_rdt/cqm: Add rmdir support
+    - x86/intel_rdt/cqm: Add mount,umount support
+    - x86/intel_rdt: Introduce rdt_enable_key for scheduling
+    - x86/intel_rdt/cqm: Add sched_in support
+    - x86/intel_rdt/cqm: Add CPU hotplug support
+    - x86/intel_rdt/mbm: Basic counting of MBM events (total and local)
+    - x86/intel_rdt/mbm: Add mbm counter initialization
+    - x86/intel_rdt/mbm: Handle counter overflow
+    - x86/intel_rdt: Show bitmask of shareable resource with other executing units
+    - x86/intel_rdt/cqm: Clear the default RMID during hotcpu
+    - x86/intel_rdt: Modify the intel_pqr_state for better performance
+    - x86/intel_rdt/mbm: Fix MBM overflow handler during CPU hotplug
+    - x86/intel_rdt/cqm: Improve limbo list processing
+    - x86/intel_rdt: Remove redundant ternary operator on return
+    - [Config] CONFIG_INTEL_RDT=y
+
+  * [Feature] RDT: Disable most RDT features on Skylake server (LP: #1713619)
+    - x86/intel_rdt: Move special case code for Haswell to a quirk function
+    - x86/intel_rdt: Add command line options for resource director technology
+    - x86/intel_rdt: Turn off most RDT features on Skylake
+
+  * CVE-2017-1000252
+    - KVM: VMX: Do not BUG() on out-of-bounds guest IRQ
+
+  * POWER9: NX842 module changes (LP: #1718292)
+    - crypto/nx: Rename nx842_powernv_function as icswx function
+    - crypto/nx: Create nx842_configure_crb function
+    - crypto/nx: Create nx842_delete_coprocs function
+    - crypto/nx: Add nx842_add_coprocs_list function
+    - crypto/nx: Use kzalloc for workmem allocation
+    - crypto/nx: Add P9 NX specific error codes for 842 engine
+    - crypto/nx: Add P9 NX support for 842 compression engine
+
+  * [Ubuntu 17.10] POWER9 - Base - Integrate P9 VAS (Virtual Accelerator
+    Switchboard) support in kernel (LP: #1718293)
+    - powerpc/powernv: Add IMC OPAL APIs
+    - powerpc/powernv: Detect and create IMC device
+    - powerpc/perf: Add nest IMC PMU support
+    - powerpc/powernv: Add support for powercap framework
+    - powerpc/powernv: Add support to set power-shifting-ratio
+    - powerpc/powernv: Enable PCI peer-to-peer
+    - powerpc/powernv/vas: Define macros, register fields and structures
+    - powerpc/powernv: Move GET_FIELD/SET_FIELD to vas.h
+    - powerpc/powernv/vas: Define vas_init() and vas_exit()
+    - powerpc/powernv/vas: Define helpers to access MMIO regions
+    - powerpc/powernv/vas: Define helpers to init window context
+    - powerpc/powernv/vas: Define helpers to alloc/free windows
+    - powerpc/powernv/vas: Define vas_rx_win_open() interface
+    - powerpc/powernv/vas: Define vas_win_close() interface
+    - powerpc/powernv/vas: Define vas_tx_win_open()
+    - powerpc/powernv/vas: Define copy/paste interfaces
+    - [Config] CONFIG_PPC_VAS=y
+
+  * Artful update to v4.13.4 stable release (LP: #1720154)
+    - orangefs: Don't clear SGID when inheriting ACLs
+    - <linux/uaccess.h>: Fix copy_in_user() declaration
+    - IB/hfi1: Revert egress pkey check enforcement
+    - IB/{qib, hfi1}: Avoid flow control testing for RDMA write operation
+    - IB/mlx5: Fix cached MR allocation flow
+    - srcu: Provide ordering for CPU not involved in grace period
+    - smp/hotplug: Handle removal correctly in cpuhp_store_callbacks()
+    - Input: xpad - validate USB endpoint type during probe
+    - drm/amdgpu: read reg in each iterator of psp_wait_for loop
+    - tty: improve tty_insert_flip_char() fast path
+    - tty: improve tty_insert_flip_char() slow path
+    - tty: fix __tty_insert_flip_char regression
+    - pinctrl: samsung: Fix invalid register offset used for Exynos5433 external
+      interrupts
+    - pinctrl: samsung: Fix NULL pointer exception on external interrupts on
+      S3C24xx
+    - pinctrl/amd: save pin registers over suspend/resume
+    - MIPS: math-emu: <MAX|MAXA|MIN|MINA>.<D|S>: Fix quiet NaN propagation
+    - MIPS: math-emu: <MAX|MAXA|MIN|MINA>.<D|S>: Fix cases of both inputs zero
+    - MIPS: math-emu: <MAX|MIN>.<D|S>: Fix cases of both inputs negative
+    - MIPS: math-emu: <MAXA|MINA>.<D|S>: Fix cases of input values with opposite
+      signs
+    - MIPS: math-emu: <MAXA|MINA>.<D|S>: Fix cases of both infinite inputs
+    - MIPS: math-emu: MINA.<D|S>: Fix some cases of infinity and zero inputs
+    - MIPS: math-emu: <MADDF|MSUBF>.<D|S>: Fix NaN propagation
+    - MIPS: math-emu: <MADDF|MSUBF>.<D|S>: Fix some cases of infinite inputs
+    - MIPS: math-emu: <MADDF|MSUBF>.<D|S>: Fix some cases of zero inputs
+    - MIPS: math-emu: <MADDF|MSUBF>.<D|S>: Clean up "maddf_flags" enumeration
+    - MIPS: math-emu: <MADDF|MSUBF>.S: Fix accuracy (32-bit case)
+    - MIPS: math-emu: <MADDF|MSUBF>.D: Fix accuracy (64-bit case)
+    - docs: disable KASLR when debugging kernel
+    - crypto: ccp - Fix XTS-AES-128 support on v5 CCPs
+    - crypto: scompress - don't sleep with preemption disabled
+    - crypto: caam/qi - fix typo in authenc alg driver name
+    - crypto: caam/qi - properly set IV after {en,de}crypt
+    - crypto: AF_ALG - remove SGL terminator indicator when chaining
+    - regulator: cpcap: Fix standby mode
+    - wcn36xx: Introduce mutual exclusion of fw configuration
+    - ext4: in ext4_seek_{hole,data}, return -ENXIO for negative offsets
+    - ext4: fix incorrect quotaoff if the quota feature is enabled
+    - ext4: fix quota inconsistency during orphan cleanup for read-only mounts
+    - cxl: Fix driver use count
+    - powerpc/powernv/npu: Move tlb flush before launching ATSD
+    - powerpc/pseries: Don't attempt to acquire drc during memory hot add for
+      assigned lmbs
+    - powerpc: Fix DAR reporting when alignment handler faults
+    - block: Relax a check in blk_start_queue()
+    - block: directly insert blk-mq request from blk_insert_cloned_request()
+    - md/bitmap: copy correct data for bitmap super
+    - md/bitmap: disable bitmap_resize for file-backed bitmaps.
+    - skd: Avoid that module unloading triggers a use-after-free
+    - skd: Submit requests to firmware before triggering the doorbell
+    - scsi: zfcp: fix queuecommand for scsi_eh commands when DIX enabled
+    - scsi: zfcp: add handling for FCP_RESID_OVER to the fcp ingress path
+    - scsi: zfcp: fix capping of unsuccessful GPN_FT SAN response trace records
+    - scsi: zfcp: fix passing fsf_req to SCSI trace on TMF to correlate with HBA
+    - scsi: zfcp: fix missing trace records for early returns in TMF eh handlers
+    - scsi: zfcp: fix payload with full FCP_RSP IU in SCSI trace records
+    - scsi: zfcp: trace HBA FSF response by default on dismiss or timedout late
+      response
+    - scsi: zfcp: trace high part of "new" 64 bit SCSI LUN
+    - scsi: qedi: off by one in qedi_get_cmd_from_tid()
+    - scsi: aacraid: Fix command send race condition
+    - scsi: megaraid_sas: mismatch of allocated MFI frame size and length exposed
+      in MFI MPT pass through command
+    - scsi: megaraid_sas: set minimum value of resetwaittime to be 1 secs
+    - scsi: megaraid_sas: Check valid aen class range to avoid kernel panic
+    - scsi: megaraid_sas: Return pended IOCTLs with cmd_status
+      MFI_STAT_WRONG_STATE in case adapter is dead
+    - scsi: storvsc: fix memory leak on ring buffer busy
+    - scsi: sg: factor out sg_fill_request_table()
+    - scsi: sg: fixup infoleak when using SG_GET_REQUEST_TABLE
+    - scsi: qla2xxx: Update fw_started flags at qpair creation.
+    - scsi: qla2xxx: Correction to vha->vref_count timeout
+    - scsi: qla2xxx: Fix target multiqueue configuration
+    - scsi: qla2xxx: Use BIT_6 to acquire FAWWPN from switch
+    - scsi: qla2xxx: Use fabric name for Get Port Speed command
+    - scsi: qla2xxx: Fix an integer overflow in sysfs code
+    - mailbox: bcm-flexrm-mailbox: Fix mask used in CMPL_START_ADDR_VALUE()
+    - ftrace: Fix debug preempt config name in stack_tracer_{en,dis}able
+    - ftrace: Fix selftest goto location on error
+    - ftrace: Fix memleak when unregistering dynamic ops when tracing disabled
+    - tracing: Add barrier to trace_printk() buffer nesting modification
+    - tracing: Fix clear of RECORDED_TGID flag when disabling trace event
+    - tracing: Apply trace_clock changes to instance max buffer
+    - ARC: Re-enable MMU upon Machine Check exception
+    - PCI: shpchp: Enable bridge bus mastering if MSI is enabled
+    - PCI: pciehp: Report power fault only once until we clear it
+    - net/netfilter/nf_conntrack_core: Fix net_conntrack_lock()
+    - media: v4l2-compat-ioctl32: Fix timespec conversion
+    - media: Revert "[media] lirc_dev: remove superfluous get/put_device() calls"
+    - media: venus: fix copy/paste error in return_buf_error
+    - media: uvcvideo: Prevent heap overflow when accessing mapped controls
+    - media: adv7180: add missing adv7180cp, adv7180st i2c device IDs
+    - PM / devfreq: Fix memory leak when fail to register device
+    - ALSA: seq: Cancel pending autoload work at unbinding device
+    - bcache: initialize dirty stripes in flash_dev_run()
+    - bcache: Fix leak of bdev reference
+    - bcache: do not subtract sectors_to_gc for bypassed IO
+    - bcache: correct cache_dirty_target in __update_writeback_rate()
+    - bcache: Correct return value for sysfs attach errors
+    - bcache: fix sequential large write IO bypass
+    - bcache: fix for gc and write-back race
+    - bcache: fix bch_hprint crash and improve output
+    - sched/cpuset/pm: Fix cpuset vs. suspend-resume bugs
+    - iwlwifi: add workaround to disable wide channels in 5GHz
+    - Linux 4.13.4
+
+  * [17.10 FEAT] KVM: CPU Model z14 (LP: #1719297)
+    - KVM: s390: Support Configuration z/Architecture Mode
+
+  * sata reset hangs w/ early cn99xx silicon (LP: #1719031)
+    - SAUCE: ahci: thunderx2: Fix for errata that affects stop engine
+    - SAUCE: ahci: thunderx2: stop engine fix update
+
+  * PCI quirk required for SATA on early cn99xx silicon (LP: #1718760)
+    - SAUCE: PCI: Vulcan: AHCI PCI bar fix for Broadcom Vulcan early silicon
+
+  * Please make linux-libc-dev Provide: aufs-dev (LP: #1716091)
+    - [Packaging] Add aufs-dev to the Provides: for linux-libc-dev
+
+  * Miscellaneous Ubuntu changes
+    - [Packaging] Use SRCPKGNAME rather than hard-coding the source package name
+    - SAUCE: LSM stacking: procfs: add smack subdir to attrs
+    - SAUCE: LSM stacking: LSM: manage credential security blobs
+    - SAUCE: LSM stacking: LSM: Manage file security blobs
+    - SAUCE: LSM stacking: LSM: manage task security blobs
+    - SAUCE: LSM stacking: LSM: Infrastructure management of the remaining blobs
+    - SAUCE: LSM stacking: LSM: general but not extreme module stacking
+    - SAUCE: LSM stacking: LSM: Complete task_alloc hook
+    - SAUCE: LSM stacking: fixup procsfs: add smack subdir to attrs
+    - SAUCE: LSM stacking: fixup initialize task->security
+    - SAUCE: LSM stacking: fixup: alloc_task_ctx is dead code
+    - SAUCE: LSM stacking: add support for stacking getpeersec_stream
+    - SAUCE: LSM stacking: add stacking support to apparmor network hooks
+    - SAUCE: LSM stacking: fixup apparmor stacking enablement
+    - SAUCE: LSM stacking: fixup stacking kconfig
+    - SAUCE: LSM stacking: allow selecting multiple LSMs using kernel boot params
+    - SAUCE: LSM stacking: provide prctl interface for setting context
+    - SAUCE: LSM stacking: inherit current display LSM
+    - SAUCE: LSM stacking: keep an index for each registered LSM
+    - SAUCE: LSM stacking: verify display LSM
+    - SAUCE: LSM stacking: provide a way to specify the default display lsm
+    - SAUCE: LSM stacking: make sure LSM blob align on 64 bit boundaries
+    - SAUCE: LSM stacking: add /proc/<pid>/attr/display_lsm
+    - SAUCE: LSM stacking: add Kconfig to set default display LSM
+    - SAUCE: LSM stacking: add configs for LSM stacking
+    - [Config] Run updateconfigs after merging LSM stacking
+
+ -- Seth Forshee <seth.forshee@canonical.com>  Thu, 28 Sep 2017 17:36:53 -0400
+
 linux (4.13.0-12.13) artful; urgency=low
 
   * linux: 4.13.0-12.13 -proposed tracker (LP: #1718980)
