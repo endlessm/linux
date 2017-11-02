@@ -48,6 +48,17 @@
  * - this struct shares the supervisor stack pages
  */
 #ifndef __ASSEMBLY__
+static inline unsigned long current_stack_pointer(void)
+{
+	unsigned long sp;
+#ifdef CONFIG_X86_64
+	asm("mov %%rsp,%0" : "=g" (sp));
+#else
+	asm("mov %%esp,%0" : "=g" (sp));
+#endif
+	return sp;
+}
+
 struct task_struct;
 #include <asm/cpufeature.h>
 #include <linux/atomic.h>
@@ -154,17 +165,6 @@ struct thread_info {
  * preempt_count needs to be 1 initially, until the scheduler is functional.
  */
 #ifndef __ASSEMBLY__
-
-static inline unsigned long current_stack_pointer(void)
-{
-	unsigned long sp;
-#ifdef CONFIG_X86_64
-	asm("mov %%rsp,%0" : "=g" (sp));
-#else
-	asm("mov %%esp,%0" : "=g" (sp));
-#endif
-	return sp;
-}
 
 /*
  * Walks up the stack frames to make sure that the specified object is

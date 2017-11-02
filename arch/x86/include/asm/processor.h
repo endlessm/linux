@@ -159,6 +159,8 @@ enum cpuid_regs_idx {
 extern struct cpuinfo_x86	boot_cpu_data;
 extern struct cpuinfo_x86	new_cpu_data;
 
+#include <linux/thread_info.h>
+
 extern struct tss_struct	doublefault_tss;
 extern __u32			cpu_caps_cleared[NCAPINTS];
 extern __u32			cpu_caps_set[NCAPINTS];
@@ -532,6 +534,12 @@ static inline unsigned long current_top_of_stack(void)
 	/* sp0 on x86_32 is special in and around vm86 mode. */
 	return this_cpu_read_stable(cpu_current_top_of_stack);
 #endif
+}
+
+static inline bool on_thread_stack(void)
+{
+	return (unsigned long)(current_top_of_stack() -
+			       current_stack_pointer()) < THREAD_SIZE;
 }
 
 #ifdef CONFIG_PARAVIRT
