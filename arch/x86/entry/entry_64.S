@@ -216,9 +216,8 @@ entry_SYSCALL_64_fastpath:
 	TRACE_IRQS_ON		/* user mode is traced as IRQs on */
 	movq	RIP(%rsp), %rcx
 	movq	EFLAGS(%rsp), %r11
-	RESTORE_C_REGS_EXCEPT_RCX_R11
-	movq	RSP(%rsp), %rsp
-	USERGS_SYSRET64
+	addq	$6*8, %rsp	/* skip extra regs -- they were preserved */
+	jmp	.Lpop_c_regs_except_rcx_r11_and_sysret
 
 1:
 	/*
@@ -311,6 +310,7 @@ return_from_SYSCALL_64:
 syscall_return_via_sysret:
 	/* rcx and r11 are already restored (see code above) */
 	POP_EXTRA_REGS
+.Lpop_c_regs_except_rcx_r11_and_sysret:
 	popq	%rsi	/* skip r11 */
 	popq	%r10
 	popq	%r9
