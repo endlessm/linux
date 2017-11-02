@@ -17,6 +17,7 @@
  */
 
 #include <linux/device.h>
+#include <linux/usb.h>
 #include <linux/hid.h>
 #include <linux/module.h>
 
@@ -47,6 +48,15 @@ static int px_raw_event(struct hid_device *hid, struct hid_report *report,
 	 u8 *data, int size)
 {
 	int idx = size;
+
+        struct usb_interface *intf = to_usb_interface(hid->dev.parent);
+        unsigned short ifnum = intf->cur_altsetting->desc.bInterfaceNumber;
+
+	/* No need to do anything on interface other than keyboard */
+	if (ifnum != 0) {
+		dbg_hid("%s: ignoring ifnum %d\n", __func__, iface_num);
+		return 0;
+	}
 
 	switch (report->id) {
 	case 0:		/* keyboard input */
@@ -87,8 +97,8 @@ static int px_raw_event(struct hid_device *hid, struct hid_report *report,
 
 static const struct hid_device_id px_devices[] = {
 	{ HID_USB_DEVICE(USB_VENDOR_ID_PRIMAX, USB_DEVICE_ID_PRIMAX_KEYBOARD) },
-	{ HID_USB_DEVICE(USB_VENDOR_ID_PRIMAX, USB_DEVICE_ID_PRIMAX_WIRELESS_KBD_4E80) },
-	{ HID_USB_DEVICE(USB_VENDOR_ID_PRIMAX, USB_DEVICE_ID_PRIMAX_WIRELESS_KBD_4E57) },
+	{ HID_USB_DEVICE(USB_VENDOR_ID_PRIMAX, USB_DEVICE_ID_PRIMAX_WIRELESS_KBD_MOUSE_4E80) },
+	{ HID_USB_DEVICE(USB_VENDOR_ID_PRIMAX, USB_DEVICE_ID_PRIMAX_WIRELESS_KBD_MOUSE_4E57) },
 	{ }
 };
 MODULE_DEVICE_TABLE(hid, px_devices);
