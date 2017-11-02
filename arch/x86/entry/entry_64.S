@@ -1204,7 +1204,10 @@ ENTRY(error_exit)
 	jmp	retint_user
 END(error_exit)
 
-/* Runs on exception stack */
+/*
+ * Runs on exception stack.  Xen PV does not go through this path at all,
+ * so we can use real assembly here.
+ */
 ENTRY(nmi)
 	/*
 	 * Fix up the exception frame if we're on Xen.
@@ -1275,7 +1278,7 @@ ENTRY(nmi)
 	 * stacks lest we corrupt the "NMI executing" variable.
 	 */
 
-	SWAPGS_UNSAFE_STACK
+	swapgs
 	cld
 	movq	%rsp, %rdx
 	movq	PER_CPU_VAR(cpu_current_top_of_stack), %rsp
@@ -1437,7 +1440,7 @@ nested_nmi_out:
 	popq	%rdx
 
 	/* We are returning to kernel mode, so this cannot result in a fault. */
-	INTERRUPT_RETURN
+	iretq
 
 first_nmi:
 	/* Restore rdx. */
@@ -1467,7 +1470,7 @@ first_nmi:
 	pushfq			/* RFLAGS */
 	pushq	$__KERNEL_CS	/* CS */
 	pushq	$1f		/* RIP */
-	INTERRUPT_RETURN	/* continues at repeat_nmi below */
+	iretq			/* continues at repeat_nmi below */
 1:
 #endif
 
@@ -1540,20 +1543,22 @@ nmi_restore:
 	/*
 	 * Clear "NMI executing".  Set DF first so that we can easily
 	 * distinguish the remaining code between here and IRET from
-	 * the SYSCALL entry and exit paths.  On a native kernel, we
-	 * could just inspect RIP, but, on paravirt kernels,
-	 * INTERRUPT_RETURN can translate into a jump into a
-	 * hypercall page.
+	 * the SYSCALL entry and exit paths.
+	 *
+	 * We arguably should just inspect RIP instead, but I (Andy) wrote
+	 * this code when I had the misapprehension that Xen PV supported
+	 * NMIs, and Xen PV would break that approach.
 	 */
 	std
 	movq	$0, 5*8(%rsp)		/* clear "NMI executing" */
 
 	/*
-	 * INTERRUPT_RETURN reads the "iret" frame and exits the NMI
-	 * stack in a single instruction.  We are returning to kernel
-	 * mode, so this cannot result in a fault.
+	 * iretq reads the "iret" frame and exits the NMI stack in a
+	 * single instruction.  We are returning to kernel mode, so this
+	 * cannot result in a fault.  Similarly, we don't need to worry
+	 * about espfix64 on the way back to kernel mode.
 	 */
-	INTERRUPT_RETURN
+	iretq
 END(nmi)
 
 ENTRY(ignore_sysret)
