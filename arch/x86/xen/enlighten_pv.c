@@ -616,10 +616,7 @@ static int cvt_gate_to_trap(int vector, const gate_desc *val,
 		;
 #endif
 	} else if (addr == (unsigned long)nmi)
-		/*
-		 * Use the native version as well.
-		 */
-		;
+		addr = (unsigned long)xen_nmi;
 	else {
 		/* Some other trap using IST? */
 		if (WARN_ON(val->ist != 0))
