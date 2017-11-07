@@ -54,7 +54,7 @@ static int px_raw_event(struct hid_device *hid, struct hid_report *report,
 
 	/* No need to do anything on interface other than keyboard */
 	if (ifnum != 0) {
-		dbg_hid("%s: ignoring ifnum %d\n", __func__, iface_num);
+		dbg_hid("%s: ignoring ifnum %d\n", __func__, ifnum);
 		return 0;
 	}
 
