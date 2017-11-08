@@ -83,6 +83,7 @@ struct intel_pad_context {
 
 struct intel_community_context {
 	u32 *intmask;
+	u32 *modemask;
 };
 
 struct intel_pinctrl_context {
@@ -1158,6 +1159,7 @@ static int intel_pinctrl_pm_init(struct intel_pinctrl *pctrl)
 	for (i = 0; i < pctrl->ncommunities; i++) {
 		struct intel_community *community = &pctrl->communities[i];
 		u32 *intmask;
+		u32 *modemask;
 
 		intmask = devm_kcalloc(pctrl->dev, community->ngpps,
 				       sizeof(*intmask), GFP_KERNEL);
@@ -1165,6 +1167,13 @@ static int intel_pinctrl_pm_init(struct intel_pinctrl *pctrl)
 			return -ENOMEM;
 
 		communities[i].intmask = intmask;
+
+		modemask = devm_kcalloc(pctrl->dev, community->ngpps,
+				       sizeof(*modemask), GFP_KERNEL);
+		if (!modemask)
+			return -ENOMEM;
+
+		communities[i].modemask = modemask;
 	}
 
 	pctrl->context.pads = pads;
@@ -1329,6 +1338,10 @@ int intel_pinctrl_suspend(struct device *dev)
 		base = community->regs + community->ie_offset;
 		for (gpp = 0; gpp < community->ngpps; gpp++)
 			communities[i].intmask[gpp] = readl(base + gpp * 4);
+
+		base = community->regs + community->hostown_offset;
+		for (gpp = 0; gpp < community->ngpps; gpp++)
+			communities[i].modemask[gpp] = readl(base + gpp * 4);
 	}
 
 	return 0;
@@ -1411,7 +1424,14 @@ int intel_pinctrl_resume(struct device *dev)
 		base = community->regs + community->ie_offset;
 		for (gpp = 0; gpp < community->ngpps; gpp++) {
 			writel(communities[i].intmask[gpp], base + gpp * 4);
-			dev_dbg(dev, "restored mask %d/%u %#08x\n", i, gpp,
+			dev_dbg(dev, "restored intmask %d/%u %#08x\n", i, gpp,
+				readl(base + gpp * 4));
+		}
+
+		base = community->regs + community->hostown_offset;
+		for (gpp = 0; gpp < community->ngpps; gpp++) {
+			writel(communities[i].modemask[gpp], base + gpp * 4);
+			dev_dbg(dev, "restored modemask %d/%u %#08x\n", i, gpp,
 				readl(base + gpp * 4));
 		}
 	}
