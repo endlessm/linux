@@ -26,7 +26,7 @@ all: $(OBJTOOL)
 
 INCLUDES := -I$(srctree)/tools/include \
 	    -I$(srctree)/tools/arch/$(HOSTARCH)/include/uapi \
-	    -I$(srctree)/tools/objtool/arch/$(HOSTARCH)/include
+	    -I$(srctree)/tools/objtool/arch/$(ARCH)/include
 CFLAGS   += -Wall -Werror $(EXTRA_WARNINGS) -Wno-switch-default -Wno-switch-enum -fomit-frame-pointer -O2 -g $(INCLUDES)
 LDFLAGS  += -lelf $(LIBSUBCMD)
 
