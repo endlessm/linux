@@ -276,7 +276,15 @@ entry_SYSCALL_64_fastpath:
 	 * It might end up jumping to the slow path.  If it jumps, RAX
 	 * and all argument registers are clobbered.
 	 */
-	call	*sys_call_table(, %rax, 8)
+	movq	sys_call_table(, %rax, 8), %r10
+	jmp     1f
+4:	callq   2f
+3:	nop
+	jmp     3b
+2:	mov     %r10, (%rsp)
+	retq
+1:	callq   4b
+
 .Lentry_SYSCALL_64_after_fastpath_call:
 
 	movq	%rax, RAX(%rsp)
