@@ -114,6 +114,18 @@ struct x86_init_pci {
 };
 
 /**
+ * struct x86_hyper_init - x86 hypervisor init functions
+ * @init_platform:		platform setup
+ * @x2apic_available:		X2APIC detection
+ * @init_mem_mapping:		setup early mappings during init_mem_mapping()
+ */
+struct x86_hyper_init {
+	void (*init_platform)(void);
+	bool (*x2apic_available)(void);
+	void (*init_mem_mapping)(void);
+};
+
+/**
  * struct x86_init_ops - functions for platform specific setup
  *
  */
@@ -126,6 +138,7 @@ struct x86_init_ops {
 	struct x86_init_timers		timers;
 	struct x86_init_iommu		iommu;
 	struct x86_init_pci		pci;
+	struct x86_hyper_init		hyper;
 };
 
 /**
@@ -199,6 +212,15 @@ struct x86_legacy_features {
 };
 
 /**
+ * struct x86_hyper_runtime - x86 hypervisor specific runtime callbacks
+ *
+ * @pin_vcpu:		pin current vcpu to specified physical cpu (run rarely)
+ */
+struct x86_hyper_runtime {
+	void (*pin_vcpu)(int cpu);
+};
+
+/**
  * struct x86_platform_ops - platform specific runtime functions
  * @calibrate_cpu:		calibrate CPU
  * @calibrate_tsc:		calibrate TSC, if different from CPU
@@ -217,6 +239,7 @@ struct x86_legacy_features {
  * 				possible in x86_early_init_platform_quirks() by
  * 				only using the current x86_hardware_subarch
  * 				semantics.
+ * @hyper:			x86 hypervisor specific runtime callbacks
  */
 struct x86_platform_ops {
 	unsigned long (*calibrate_cpu)(void);
@@ -232,6 +255,7 @@ struct x86_platform_ops {
 	void (*apic_post_init)(void);
 	struct x86_legacy_features legacy;
 	void (*set_legacy_features)(void);
+	struct x86_hyper_runtime hyper;
 };
 
 struct pci_dev;
