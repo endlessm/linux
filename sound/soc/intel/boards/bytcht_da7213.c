@@ -185,19 +185,11 @@ static struct snd_soc_dai_link dailink[] = {
 		.dpcm_playback = 1,
 		.ops = &aif1_ops,
 	},
-	[MERR_DPCM_COMPR] = {
-		.name = "Compressed Port",
-		.stream_name = "Compress",
-		.cpu_dai_name = "compress-cpu-dai",
-		.codec_dai_name = "snd-soc-dummy-dai",
-		.codec_name = "snd-soc-dummy",
-		.platform_name = "sst-mfld-platform",
-	},
 	/* CODEC<->CODEC link */
 	/* back ends */
 	{
 		.name = "SSP2-Codec",
-		.id = 1,
+		.id = 0,
 		.cpu_dai_name = "ssp2-port",
 		.platform_name = "sst-mfld-platform",
 		.no_pcm = 1,
@@ -243,7 +235,6 @@ static int bytcht_da7213_probe(struct platform_device *pdev)
 	card->dev = &pdev->dev;
 
 	/* fix index of codec dai */
-	dai_index = MERR_DPCM_COMPR + 1;
 	for (i = 0; i < ARRAY_SIZE(dailink); i++) {
 		if (!strcmp(dailink[i].codec_name, "i2c-DLGS7213:00")) {
 			dai_index = i;
