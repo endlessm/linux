@@ -19,6 +19,7 @@
 #include <linux/pinctrl/pinmux.h>
 #include <linux/pinctrl/pinconf.h>
 #include <linux/pinctrl/pinconf-generic.h>
+#include <linux/timer.h>
 
 #include "../core.h"
 #include "pinctrl-intel.h"
@@ -74,6 +75,7 @@
 #define PADCFG2_DEBOUNCE_MASK		GENMASK(4, 1)
 
 #define DEBOUNCE_PERIOD			31250 /* ns */
+#define PINCTRL_FEATURE_INT_CHECK_TIMER	BIT(8)
 
 struct intel_pad_context {
 	u32 padcfg0;
@@ -103,6 +105,8 @@ struct intel_pinctrl_context {
  * @ncommunities: Number of communities in this pin controller
  * @context: Configuration saved over system sleep
  * @irq: pinctrl/GPIO chip irq number
+ * @stall_int_check_timer: Timer to poll the GPI_IS bits
+ * @irq_enabled: Status of irq enabled on the pinctrl or not
  */
 struct intel_pinctrl {
 	struct device *dev;
@@ -115,6 +119,8 @@ struct intel_pinctrl {
 	size_t ncommunities;
 	struct intel_pinctrl_context context;
 	int irq;
+	struct timer_list stall_int_check_timer;
+	bool irq_enabled;
 };
 
 #define pin_to_padno(c, p)	((p) - (c)->pin_base)
@@ -833,7 +839,7 @@ static void intel_gpio_irq_enable(struct irq_data *d)
 {
 	struct gpio_chip *gc = irq_data_get_irq_chip_data(d);
 	struct intel_pinctrl *pctrl = gpiochip_get_data(gc);
-	const struct intel_community *community;
+	struct intel_community *community;
 	unsigned pin = irqd_to_hwirq(d);
 
 	community = intel_get_community(pctrl, pin);
@@ -858,6 +864,15 @@ static void intel_gpio_irq_enable(struct irq_data *d)
 		value |= BIT(gpp_offset);
 		writel(value, community->regs + community->ie_offset + gpp * 4);
 		raw_spin_unlock_irqrestore(&pctrl->lock, flags);
+
+		community->features |= PINCTRL_FEATURE_INT_CHECK_TIMER;
+	}
+
+	if (pctrl->irq_enabled == false) {
+		pctrl->irq_enabled = true;
+		// Trigger timer only on APL
+		if (!strncmp("INT3452", pctrl->pctldesc.name, 7))
+			mod_timer(&pctrl->stall_int_check_timer, jiffies + msecs_to_jiffies(100));
 	}
 }
 
@@ -976,6 +991,49 @@ static int intel_gpio_irq_wake(struct irq_data *d, unsigned int on)
 	return 0;
 }
 
+/* Interrupt would sometimes stop triggering for unknown reason. Add a timer
+ * to re-enable the interrupt, then the registered ISR would have chance to
+ * process the pending interrupt.
+ */
+static void intel_gpio_community_int_checker(unsigned long arg)
+{
+	struct intel_pinctrl *pctrl = (struct intel_pinctrl *)arg;
+	int i, gpp;
+
+	for (i = 0; i < pctrl->ncommunities; i++) {
+		struct intel_community *community;
+		community = &pctrl->communities[i];
+
+		if (!(community->features & PINCTRL_FEATURE_INT_CHECK_TIMER))
+			continue;
+
+		for (gpp = 0; gpp < community->ngpps; gpp++) {
+			const struct intel_padgroup *padgrp = &community->gpps[gpp];
+			unsigned long pending, enabled;
+			void __iomem *base = community->regs;
+
+			pending = readl(base + GPI_IS + padgrp->reg_num * 4);
+			enabled = readl(base + community->ie_offset +
+					padgrp->reg_num * 4);
+
+			/* Only interrupts that are enabled */
+			pending &= enabled;
+
+			if (pending) {
+				unsigned long flags;
+
+				dev_dbg(&pctrl->dev, "%u fix pending 0x%x in timer\n", gpp, pending);
+				raw_spin_lock_irqsave(&pctrl->lock, flags);
+				writel(~pending, base + community->ie_offset + padgrp->reg_num * 4);
+				writel(pending, base + community->ie_offset + padgrp->reg_num * 4);
+				raw_spin_unlock_irqrestore(&pctrl->lock, flags);
+			}
+		}
+	}
+
+	mod_timer(&pctrl->stall_int_check_timer, jiffies + msecs_to_jiffies(100));
+}
+
 static irqreturn_t intel_gpio_community_irq_handler(struct intel_pinctrl *pctrl,
 	const struct intel_community *community)
 {
@@ -1049,6 +1107,7 @@ static int intel_gpio_probe(struct intel_pinctrl *pctrl, int irq)
 	pctrl->chip.parent = pctrl->dev;
 	pctrl->chip.base = -1;
 	pctrl->irq = irq;
+	pctrl->irq_enabled = false;
 
 	ret = devm_gpiochip_add_data(pctrl->dev, &pctrl->chip, pctrl);
 	if (ret) {
@@ -1085,6 +1144,11 @@ static int intel_gpio_probe(struct intel_pinctrl *pctrl, int irq)
 
 	gpiochip_set_chained_irqchip(&pctrl->chip, &intel_gpio_irqchip, irq,
 				     NULL);
+
+	// on APL only
+	if (!strncmp("INT3452", pctrl->pctldesc.name, 7))
+		setup_timer(&pctrl->stall_int_check_timer, intel_gpio_community_int_checker, (unsigned long) pctrl);
+
 	return 0;
 }
 
@@ -1263,6 +1327,7 @@ int intel_pinctrl_probe(struct platform_device *pdev,
 	pctrl->pctldesc.name = dev_name(&pdev->dev);
 	pctrl->pctldesc.pins = pctrl->soc->pins;
 	pctrl->pctldesc.npins = pctrl->soc->npins;
+printk("%s pctldesc name %s\n", __func__, pctrl->pctldesc.name);
 
 	pctrl->pctldev = devm_pinctrl_register(&pdev->dev, &pctrl->pctldesc,
 					       pctrl);
@@ -1280,6 +1345,18 @@ int intel_pinctrl_probe(struct platform_device *pdev,
 	return 0;
 }
 EXPORT_SYMBOL_GPL(intel_pinctrl_probe);
+
+int intel_pinctrl_remove(struct platform_device *pdev)
+{
+	struct intel_pinctrl *pctrl = platform_get_drvdata(pdev);
+
+	// Only on APL
+	if (!strncmp("INT3452", dev_name(&pdev->dev), 7))
+		del_timer_sync(&pctrl->stall_int_check_timer);
+
+	return 0;
+}
+EXPORT_SYMBOL_GPL(intel_pinctrl_remove);
 
 #ifdef CONFIG_PM_SLEEP
 static bool intel_pinctrl_should_save(struct intel_pinctrl *pctrl, unsigned pin)

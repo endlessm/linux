@@ -1051,6 +1051,11 @@ static int bxt_pinctrl_probe(struct platform_device *pdev)
 	return intel_pinctrl_probe(pdev, soc_data);
 }
 
+static int bxt_pinctrl_remove(struct platform_device *pdev)
+{
+	return intel_pinctrl_remove(pdev);
+}
+
 static const struct dev_pm_ops bxt_pinctrl_pm_ops = {
 	SET_LATE_SYSTEM_SLEEP_PM_OPS(intel_pinctrl_suspend,
 				     intel_pinctrl_resume)
@@ -1058,6 +1063,7 @@ static const struct dev_pm_ops bxt_pinctrl_pm_ops = {
 
 static struct platform_driver bxt_pinctrl_driver = {
 	.probe = bxt_pinctrl_probe,
+	.remove = bxt_pinctrl_remove,
 	.driver = {
 		.name = "broxton-pinctrl",
 		.acpi_match_table = bxt_pinctrl_acpi_match,
