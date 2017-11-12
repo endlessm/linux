@@ -115,6 +115,9 @@ struct intel_community {
 #define PINCTRL_FEATURE_DEBOUNCE	BIT(0)
 #define PINCTRL_FEATURE_1K_PD		BIT(1)
 
+/* Additional driver features */
+#define PINCTRL_FEATURE_INT_CHECK_TIMER BIT(4)
+
 /**
  * PIN_GROUP - Declare a pin group
  * @n: Name of the group
@@ -170,6 +173,7 @@ struct intel_pinctrl_soc_data {
 
 int intel_pinctrl_probe(struct platform_device *pdev,
 			const struct intel_pinctrl_soc_data *soc_data);
+int intel_pinctrl_remove(struct platform_device *pdev);
 #ifdef CONFIG_PM_SLEEP
 int intel_pinctrl_suspend(struct device *dev);
 int intel_pinctrl_resume(struct device *dev);
