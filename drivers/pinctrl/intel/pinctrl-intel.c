@@ -1022,7 +1022,7 @@ static void intel_gpio_community_int_checker(unsigned long arg)
 			if (pending) {
 				unsigned long flags;
 
-				dev_dbg(&pctrl->dev, "%u fix pending 0x%x in timer\n", gpp, pending);
+				dev_dbg(pctrl->dev, "re-enable interrupt for pin %d in timer\n", padgrp->reg_num);
 				raw_spin_lock_irqsave(&pctrl->lock, flags);
 				writel(~pending, base + community->ie_offset + padgrp->reg_num * 4);
 				writel(pending, base + community->ie_offset + padgrp->reg_num * 4);
