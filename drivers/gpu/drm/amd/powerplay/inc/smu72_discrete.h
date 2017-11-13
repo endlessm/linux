@@ -1,4 +1,3 @@
-/* SPDX-License-Identifier: GPL-2.0 */
 #ifndef SMU72_DISCRETE_H
 #define SMU72_DISCRETE_H
 
