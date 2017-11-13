@@ -45,3 +45,4 @@ UBUNTU: SAUCE: LPC: Add the ACPI LPC support
 UBUNTU: SAUCE: PCI: Apply the new generic I/O management on PCI IO hosts
 UBUNTU: SAUCE: PCI: Restore codepath for !CONFIG_LIBIO
 UBUNTU: SAUCE: PCI: Support hibmc VGA cards behind a misbehaving HiSilicon bridge
+UBUNTU: SAUCE: Clear Linux: smpboot: reuse timer calibration
