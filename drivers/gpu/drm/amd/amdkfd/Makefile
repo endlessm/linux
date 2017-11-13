@@ -1,4 +1,3 @@
-# SPDX-License-Identifier: GPL-2.0
 #
 # Makefile for Heterogenous System Architecture support for AMD GPU devices
 #
