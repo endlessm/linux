@@ -9033,7 +9033,7 @@ CONFIG_MAGIC_SYSRQ                              policy<{'amd64': 'y', 'arm64': '
 CONFIG_MAGIC_SYSRQ_SERIAL                       policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'ppc64el': 'y', 's390x': 'y'}>
 CONFIG_KCOV                                     policy<{'amd64': 'n', 'arm64': 'n', 's390x': 'n'}>
 CONFIG_PANIC_ON_OOPS                            policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'i386': 'n', 'ppc64el': 'n', 's390x': 'n'}>
-CONFIG_PANIC_TIMEOUT                            policy<{'amd64': '0', 'arm64': '0', 'armhf': '0', 'i386': '0', 'ppc64el': '0', 's390x': '0'}>
+CONFIG_PANIC_TIMEOUT                            policy<{'amd64': '0', 'arm64': '0', 'armhf': '0', 'i386': '0', 'ppc64el': '10', 's390x': '0'}>
 CONFIG_DEBUG_TIMEKEEPING                        policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'i386': 'n', 'ppc64el': 'n', 's390x': 'n'}>
 CONFIG_STACKTRACE                               policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'ppc64el': 'y', 's390x': 'y'}>
 CONFIG_WARN_ALL_UNSEEDED_RANDOM                 policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'i386': 'n', 'ppc64el': 'n', 's390x': 'n'}>
