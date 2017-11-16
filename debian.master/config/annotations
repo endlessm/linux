@@ -6580,7 +6580,7 @@ CONFIG_SND_SOC_INTEL_CHT_BSW_RT5645_MACH        policy<{'amd64': 'm', 'i386': 'm
 CONFIG_SND_SOC_INTEL_CHT_BSW_MAX98090_TI_MACH   policy<{'amd64': 'm', 'i386': 'm'}>
 CONFIG_SND_SOC_INTEL_BYT_CHT_DA7213_MACH        policy<{'amd64': 'm', 'i386': 'm'}>
 CONFIG_SND_SOC_INTEL_BYT_CHT_ES8316_MACH        policy<{'amd64': 'm', 'i386': 'm'}>
-CONFIG_SND_SOC_INTEL_BYT_CHT_NOCODEC_MACH       policy<{'amd64': 'm', 'i386': 'm'}>
+CONFIG_SND_SOC_INTEL_BYT_CHT_NOCODEC_MACH       policy<{'amd64': 'n', 'i386': 'n'}>
 CONFIG_SND_SOC_INTEL_KBL_RT5663_MAX98927_MACH   policy<{'amd64': 'm', 'i386': 'm'}>
 CONFIG_SND_SOC_INTEL_KBL_RT5663_RT5514_MAX98927_MACH policy<{'amd64': 'm', 'i386': 'm'}>
 CONFIG_SND_SOC_INTEL_SKL_RT286_MACH             policy<{'amd64': 'm', 'i386': 'm'}>
