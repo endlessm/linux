@@ -107,8 +107,7 @@ static void delay_mwaitx(unsigned long __loops)
 	for (;;) {
 		delay = min_t(u64, MWAITX_MAX_LOOPS, loops);
 
-		if (boot_cpu_has(X86_FEATURE_SPEC_CTRL) &&
-			(delay > IBRS_DISABLE_THRESHOLD))
+		if (ibrs_inuse && (delay > IBRS_DISABLE_THRESHOLD))
 			native_wrmsrl(MSR_IA32_SPEC_CTRL, 0);
 
 		/*
@@ -124,8 +123,7 @@ static void delay_mwaitx(unsigned long __loops)
 		 */
 		__mwaitx(MWAITX_DISABLE_CSTATES, delay, MWAITX_ECX_TIMER_ENABLE);
 
-		if (boot_cpu_has(X86_FEATURE_SPEC_CTRL) &&
-			(delay > IBRS_DISABLE_THRESHOLD))
+		if (ibrs_inuse && (delay > IBRS_DISABLE_THRESHOLD))
 			native_wrmsrl(MSR_IA32_SPEC_CTRL, FEATURE_ENABLE_IBRS);
 
 		end = rdtsc_ordered();

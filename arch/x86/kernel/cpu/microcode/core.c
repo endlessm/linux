@@ -535,6 +535,17 @@ static ssize_t reload_store(struct device *dev,
 	}
 	if (!ret)
 		perf_check_microcode();
+
+	if (boot_cpu_has(X86_FEATURE_SPEC_CTRL)) {
+		printk_once(KERN_INFO "FEATURE SPEC_CTRL Present\n");
+		set_ibrs_supported();
+		set_ibpb_supported();
+		if (ibrs_inuse)
+			sysctl_ibrs_enabled = 1;
+		if (ibpb_inuse)
+			sysctl_ibpb_enabled = 1;
+	}
+
 	mutex_unlock(&microcode_mutex);
 	put_online_cpus();
 

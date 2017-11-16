@@ -447,16 +447,16 @@ static __cpuidle void mwait_idle(void)
 			mb(); /* quirk */
 		}
 
-		if (boot_cpu_has(X86_FEATURE_SPEC_CTRL))
+		if (ibrs_inuse)
                         native_wrmsrl(MSR_IA32_SPEC_CTRL, 0);
 
 		__monitor((void *)&current_thread_info()->flags, 0, 0);
 		if (!need_resched()) {
 			__sti_mwait(0, 0);
-			if (boot_cpu_has(X86_FEATURE_SPEC_CTRL))
+			if (ibrs_inuse)
 				native_wrmsrl(MSR_IA32_SPEC_CTRL, FEATURE_ENABLE_IBRS);
 		} else {
-			if (boot_cpu_has(X86_FEATURE_SPEC_CTRL))
+			if (ibrs_inuse)
 				native_wrmsrl(MSR_IA32_SPEC_CTRL, FEATURE_ENABLE_IBRS);
 			local_irq_enable();
 		}
