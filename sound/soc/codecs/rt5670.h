@@ -1997,6 +1997,8 @@ struct rt5670_priv {
 	int lrck[RT5670_AIFS];
 	int bclk[RT5670_AIFS];
 	int master[RT5670_AIFS];
+	int v_id;
+	bool is_wyse3040;
 
 	int pll_src;
 	int pll_in;
