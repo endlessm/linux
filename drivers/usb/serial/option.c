@@ -95,6 +95,9 @@ static void option_instat_callback(struct urb *urb);
 
 #define NOVATELWIRELESS_VENDOR_ID		0x1410
 
+#define MEIG_VENDOR_ID				0x2DEE
+#define MEIG_PRODUCT_SLM720			0x4D07
+
 /* YISO PRODUCTS */
 
 #define YISO_VENDOR_ID				0x0EAB
@@ -2040,6 +2043,7 @@ static const struct usb_device_id option_ids[] = {
 	{ USB_DEVICE_AND_INTERFACE_INFO(WETELECOM_VENDOR_ID, WETELECOM_PRODUCT_6802, 0xff, 0xff, 0xff) },
 	{ USB_DEVICE_AND_INTERFACE_INFO(WETELECOM_VENDOR_ID, WETELECOM_PRODUCT_WMD300, 0xff, 0xff, 0xff) },
 	{ USB_DEVICE_AND_INTERFACE_INFO(0x03f0, 0x421d, 0xff, 0xff, 0xff) }, /* HP lt2523 (Novatel E371) */
+	{ USB_DEVICE_AND_INTERFACE_INFO(MEIG_VENDOR_ID, MEIG_PRODUCT_SLM720, 0xff, 0x0, 0x0) },	/* MeiG 4G LTE M2M module SLM720 */
 	{ } /* Terminating entry */
 };
 MODULE_DEVICE_TABLE(usb, option_ids);
