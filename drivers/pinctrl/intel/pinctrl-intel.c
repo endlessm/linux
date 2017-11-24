@@ -19,7 +19,6 @@
 #include <linux/pinctrl/pinmux.h>
 #include <linux/pinctrl/pinconf.h>
 #include <linux/pinctrl/pinconf-generic.h>
-#include <linux/timer.h>
 
 #include "../core.h"
 #include "pinctrl-intel.h"
@@ -104,7 +103,6 @@ struct intel_pinctrl_context {
  * @ncommunities: Number of communities in this pin controller
  * @context: Configuration saved over system sleep
  * @irq: pinctrl/GPIO chip irq number
- * @stall_int_check_timer: Timer to poll the pending interrupt
  */
 struct intel_pinctrl {
 	struct device *dev;
@@ -117,7 +115,6 @@ struct intel_pinctrl {
 	size_t ncommunities;
 	struct intel_pinctrl_context context;
 	int irq;
-	struct timer_list stall_int_check_timer;
 };
 
 #define pin_to_padno(c, p)	((p) - (c)->pin_base)
@@ -836,7 +833,7 @@ static void intel_gpio_irq_enable(struct irq_data *d)
 {
 	struct gpio_chip *gc = irq_data_get_irq_chip_data(d);
 	struct intel_pinctrl *pctrl = gpiochip_get_data(gc);
-	struct intel_community *community;
+	const struct intel_community *community;
 	unsigned pin = irqd_to_hwirq(d);
 
 	community = intel_get_community(pctrl, pin);
@@ -861,8 +858,6 @@ static void intel_gpio_irq_enable(struct irq_data *d)
 		value |= BIT(gpp_offset);
 		writel(value, community->regs + community->ie_offset + gpp * 4);
 		raw_spin_unlock_irqrestore(&pctrl->lock, flags);
-
-		community->features |= PINCTRL_FEATURE_INT_CHECK_TIMER;
 	}
 }
 
@@ -981,47 +976,6 @@ static int intel_gpio_irq_wake(struct irq_data *d, unsigned int on)
 	return 0;
 }
 
-/* Interrupt would sometimes stop triggering for unknown reason. Add a timer
- * to re-enable the interrupt, then the registered ISR would have chance to
- * process the pending interrupt.
- */
-static void intel_gpio_community_int_checker(unsigned long arg)
-{
-	struct intel_pinctrl *pctrl = (struct intel_pinctrl *)arg;
-	int i, gpp;
-
-	for (i = 0; i < pctrl->ncommunities; i++) {
-		struct intel_community *community;
-		community = &pctrl->communities[i];
-
-		if (!(community->features & PINCTRL_FEATURE_INT_CHECK_TIMER))
-			continue;
-
-		for (gpp = 0; gpp < community->ngpps; gpp++) {
-			const struct intel_padgroup *padgrp = &community->gpps[gpp];
-			unsigned long pending, enabled;
-			void __iomem *base = community->regs;
-
-			pending = readl(base + GPI_IS + padgrp->reg_num * 4);
-			enabled = readl(base + community->ie_offset +
-					padgrp->reg_num * 4);
-
-			/* Only interrupts that are enabled */
-			pending &= enabled;
-
-			if (pending) {
-				unsigned long flags;
-
-				dev_dbg(pctrl->dev, "re-enable interrupt for gpp %d in timer\n", gpp);
-				raw_spin_lock_irqsave(&pctrl->lock, flags);
-				writel(~pending, base + community->ie_offset + padgrp->reg_num * 4);
-				writel(pending, base + community->ie_offset + padgrp->reg_num * 4);
-				raw_spin_unlock_irqrestore(&pctrl->lock, flags);
-			}
-		}
-	}
-}
-
 static irqreturn_t intel_gpio_community_irq_handler(struct intel_pinctrl *pctrl,
 	const struct intel_community *community)
 {
@@ -1054,8 +1008,6 @@ static irqreturn_t intel_gpio_community_irq_handler(struct intel_pinctrl *pctrl,
 			ret |= IRQ_HANDLED;
 		}
 	}
-
-	mod_timer(&pctrl->stall_int_check_timer, jiffies + msecs_to_jiffies(100));
 
 	return ret;
 }
@@ -1133,9 +1085,6 @@ static int intel_gpio_probe(struct intel_pinctrl *pctrl, int irq)
 
 	gpiochip_set_chained_irqchip(&pctrl->chip, &intel_gpio_irqchip, irq,
 				     NULL);
-
-	setup_timer(&pctrl->stall_int_check_timer, intel_gpio_community_int_checker, (unsigned long) pctrl);
-
 	return 0;
 }
 
@@ -1331,16 +1280,6 @@ int intel_pinctrl_probe(struct platform_device *pdev,
 	return 0;
 }
 EXPORT_SYMBOL_GPL(intel_pinctrl_probe);
-
-int intel_pinctrl_remove(struct platform_device *pdev)
-{
-	struct intel_pinctrl *pctrl = platform_get_drvdata(pdev);
-
-	del_timer_sync(&pctrl->stall_int_check_timer);
-
-	return 0;
-}
-EXPORT_SYMBOL_GPL(intel_pinctrl_remove);
 
 #ifdef CONFIG_PM_SLEEP
 static bool intel_pinctrl_should_save(struct intel_pinctrl *pctrl, unsigned pin)
