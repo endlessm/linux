@@ -78,13 +78,14 @@ zpl_release(struct inode *ip, struct file *filp)
 static int
 zpl_iterate(struct file *filp, struct dir_context *ctx)
 {
+	struct dentry *dentry = filp->f_path.dentry;
 	cred_t *cr = CRED();
 	int error;
 	fstrans_cookie_t cookie;
 
 	crhold(cr);
 	cookie = spl_fstrans_mark();
-	error = -zfs_readdir(file_inode(filp), ctx, cr);
+	error = -zfs_readdir(dentry->d_inode, ctx, cr);
 	spl_fstrans_unmark(cookie);
 	crfree(cr);
 	ASSERT3S(error, <=, 0);
@@ -135,7 +136,7 @@ static int
 zpl_aio_fsync(struct kiocb *kiocb, int datasync)
 {
 	struct file *filp = kiocb->ki_filp;
-	return (zpl_fsync(filp, file_dentry(filp), datasync));
+	return (zpl_fsync(filp, filp->f_path.dentry, datasync));
 }
 #endif
 
@@ -579,7 +580,7 @@ zpl_readpage(struct file *filp, struct page *pp)
  */
 static int
 zpl_readpages(struct file *filp, struct address_space *mapping,
-    struct list_head *pages, unsigned nr_pages)
+	struct list_head *pages, unsigned nr_pages)
 {
 	return (read_cache_pages(mapping, pages,
 	    (filler_t *)zpl_readpage, filp));
@@ -605,14 +606,14 @@ static int
 zpl_writepages(struct address_space *mapping, struct writeback_control *wbc)
 {
 	znode_t		*zp = ITOZ(mapping->host);
-	zfsvfs_t	*zfsvfs = ITOZSB(mapping->host);
+	zfs_sb_t	*zsb = ITOZSB(mapping->host);
 	enum writeback_sync_modes sync_mode;
 	int result;
 
-	ZFS_ENTER(zfsvfs);
-	if (zfsvfs->z_os->os_sync == ZFS_SYNC_ALWAYS)
+	ZFS_ENTER(zsb);
+	if (zsb->z_os->os_sync == ZFS_SYNC_ALWAYS)
 		wbc->sync_mode = WB_SYNC_ALL;
-	ZFS_EXIT(zfsvfs);
+	ZFS_EXIT(zsb);
 	sync_mode = wbc->sync_mode;
 
 	/*
@@ -625,11 +626,11 @@ zpl_writepages(struct address_space *mapping, struct writeback_control *wbc)
 	wbc->sync_mode = WB_SYNC_NONE;
 	result = write_cache_pages(mapping, wbc, zpl_putpage, mapping);
 	if (sync_mode != wbc->sync_mode) {
-		ZFS_ENTER(zfsvfs);
+		ZFS_ENTER(zsb);
 		ZFS_VERIFY_ZP(zp);
-		if (zfsvfs->z_log != NULL)
-			zil_commit(zfsvfs->z_log, zp->z_id);
-		ZFS_EXIT(zfsvfs);
+		if (zsb->z_log != NULL)
+			zil_commit(zsb->z_log, zp->z_id);
+		ZFS_EXIT(zsb);
 
 		/*
 		 * We need to call write_cache_pages() again (we can't just
@@ -715,7 +716,7 @@ zpl_fallocate_common(struct inode *ip, int mode, loff_t offset, loff_t len)
 static long
 zpl_fallocate(struct file *filp, int mode, loff_t offset, loff_t len)
 {
-	return zpl_fallocate_common(file_inode(filp),
+	return zpl_fallocate_common(filp->f_path.dentry->d_inode,
 	    mode, offset, len);
 }
 #endif /* HAVE_FILE_FALLOCATE */

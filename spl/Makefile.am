@@ -50,6 +50,5 @@ etags:
 tags: ctags etags
 
 pkg: @DEFAULT_PACKAGE@
-pkg-dkms: @DEFAULT_PACKAGE@-dkms
 pkg-kmod: @DEFAULT_PACKAGE@-kmod
 pkg-utils: @DEFAULT_PACKAGE@-utils

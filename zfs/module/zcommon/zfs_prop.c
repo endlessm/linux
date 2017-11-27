@@ -22,7 +22,6 @@
  * Copyright (c) 2005, 2010, Oracle and/or its affiliates. All rights reserved.
  * Copyright (c) 2011, 2014 by Delphix. All rights reserved.
  * Copyright (c) 2013 by Saso Kiselkov. All rights reserved.
- * Copyright 2016, Joyent, Inc.
  */
 
 /* Portions Copyright 2010 Robert Milkowski */
@@ -36,7 +35,6 @@
 
 #include "zfs_prop.h"
 #include "zfs_deleg.h"
-#include "zfs_fletcher.h"
 
 #if defined(_KERNEL)
 #include <sys/systm.h>
@@ -53,11 +51,7 @@ const char *zfs_userquota_prop_prefixes[] = {
 	"userused@",
 	"userquota@",
 	"groupused@",
-	"groupquota@",
-	"userobjused@",
-	"userobjquota@",
-	"groupobjused@",
-	"groupobjquota@"
+	"groupquota@"
 };
 
 zprop_desc_t *
@@ -75,10 +69,6 @@ zfs_prop_init(void)
 		{ "fletcher2",	ZIO_CHECKSUM_FLETCHER_2 },
 		{ "fletcher4",	ZIO_CHECKSUM_FLETCHER_4 },
 		{ "sha256",	ZIO_CHECKSUM_SHA256 },
-		{ "noparity",   ZIO_CHECKSUM_NOPARITY },
-		{ "sha512",	ZIO_CHECKSUM_SHA512 },
-		{ "skein",	ZIO_CHECKSUM_SKEIN },
-		{ "edonr",	ZIO_CHECKSUM_EDONR },
 		{ NULL }
 	};
 
@@ -89,14 +79,6 @@ zfs_prop_init(void)
 		{ "sha256",	ZIO_CHECKSUM_SHA256 },
 		{ "sha256,verify",
 				ZIO_CHECKSUM_SHA256 | ZIO_CHECKSUM_VERIFY },
-		{ "sha512",	ZIO_CHECKSUM_SHA512 },
-		{ "sha512,verify",
-				ZIO_CHECKSUM_SHA512 | ZIO_CHECKSUM_VERIFY },
-		{ "skein",	ZIO_CHECKSUM_SKEIN },
-		{ "skein,verify",
-				ZIO_CHECKSUM_SKEIN | ZIO_CHECKSUM_VERIFY },
-		{ "edonr,verify",
-				ZIO_CHECKSUM_EDONR | ZIO_CHECKSUM_VERIFY },
 		{ NULL }
 	};
 
@@ -144,7 +126,7 @@ zfs_prop_init(void)
 		{ "noallow",	ZFS_ACL_NOALLOW },
 		{ "restricted",	ZFS_ACL_RESTRICTED },
 		{ "passthrough", ZFS_ACL_PASSTHROUGH },
-		{ "secure",	ZFS_ACL_RESTRICTED }, /* bkwrd compatibility */
+		{ "secure",	ZFS_ACL_RESTRICTED }, /* bkwrd compatability */
 		{ "passthrough-x", ZFS_ACL_PASSTHROUGH_X },
 		{ NULL }
 	};
@@ -228,29 +210,9 @@ zfs_prop_init(void)
 		{ NULL }
 	};
 
-	static zprop_index_t dnsize_table[] = {
-		{ "legacy",	ZFS_DNSIZE_LEGACY },
-		{ "auto",	ZFS_DNSIZE_AUTO },
-		{ "1k",		ZFS_DNSIZE_1K },
-		{ "2k",		ZFS_DNSIZE_2K },
-		{ "4k",		ZFS_DNSIZE_4K },
-		{ "8k",		ZFS_DNSIZE_8K },
-		{ "16k",	ZFS_DNSIZE_16K },
-		{ NULL }
-	};
-
 	static zprop_index_t redundant_metadata_table[] = {
 		{ "all",	ZFS_REDUNDANT_METADATA_ALL },
 		{ "most",	ZFS_REDUNDANT_METADATA_MOST },
-		{ NULL }
-	};
-
-	static zprop_index_t volmode_table[] = {
-		{ "default",	ZFS_VOLMODE_DEFAULT },
-		{ "full",	ZFS_VOLMODE_GEOM },
-		{ "geom",	ZFS_VOLMODE_GEOM },
-		{ "dev",	ZFS_VOLMODE_DEV },
-		{ "none",	ZFS_VOLMODE_NONE },
 		{ NULL }
 	};
 
@@ -267,12 +229,12 @@ zfs_prop_init(void)
 	zprop_register_index(ZFS_PROP_CHECKSUM, "checksum",
 	    ZIO_CHECKSUM_DEFAULT, PROP_INHERIT, ZFS_TYPE_FILESYSTEM |
 	    ZFS_TYPE_VOLUME,
-	    "on | off | fletcher2 | fletcher4 | sha256 | sha512 | "
-	    "skein | edonr", "CHECKSUM", checksum_table);
+	    "on | off | fletcher2 | fletcher4 | sha256", "CHECKSUM",
+	    checksum_table);
 	zprop_register_index(ZFS_PROP_DEDUP, "dedup", ZIO_CHECKSUM_OFF,
 	    PROP_INHERIT, ZFS_TYPE_FILESYSTEM | ZFS_TYPE_VOLUME,
-	    "on | off | verify | sha256[,verify], sha512[,verify], "
-	    "skein[,verify], edonr,verify", "DEDUP", dedup_table);
+	    "on | off | verify | sha256[,verify]", "DEDUP",
+	    dedup_table);
 	zprop_register_index(ZFS_PROP_COMPRESSION, "compression",
 	    ZIO_COMPRESS_DEFAULT, PROP_INHERIT,
 	    ZFS_TYPE_FILESYSTEM | ZFS_TYPE_VOLUME,
@@ -308,13 +270,6 @@ zfs_prop_init(void)
 	zprop_register_index(ZFS_PROP_XATTR, "xattr", ZFS_XATTR_DIR,
 	    PROP_INHERIT, ZFS_TYPE_FILESYSTEM | ZFS_TYPE_SNAPSHOT,
 	    "on | off | dir | sa", "XATTR", xattr_table);
-	zprop_register_index(ZFS_PROP_DNODESIZE, "dnodesize",
-	    ZFS_DNSIZE_LEGACY, PROP_INHERIT, ZFS_TYPE_FILESYSTEM,
-	    "legacy | auto | 1k | 2k | 4k | 8k | 16k", "DNSIZE", dnsize_table);
-	zprop_register_index(ZFS_PROP_VOLMODE, "volmode",
-	    ZFS_VOLMODE_DEFAULT, PROP_INHERIT,
-	    ZFS_TYPE_FILESYSTEM | ZFS_TYPE_VOLUME,
-	    "default | full | geom | dev | none", "VOLMODE", volmode_table);
 
 	/* inherit index (boolean) properties */
 	zprop_register_index(ZFS_PROP_ATIME, "atime", 1, PROP_INHERIT,
@@ -405,10 +360,6 @@ zfs_prop_init(void)
 	zprop_register_string(ZFS_PROP_SELINUX_ROOTCONTEXT, "rootcontext",
 	    "none", PROP_DEFAULT, ZFS_TYPE_DATASET, "<selinux rootcontext>",
 	    "ROOTCONTEXT");
-	zprop_register_string(ZFS_PROP_RECEIVE_RESUME_TOKEN,
-	    "receive_resume_token",
-	    NULL, PROP_READONLY, ZFS_TYPE_FILESYSTEM | ZFS_TYPE_VOLUME,
-	    "<string token>", "RESUMETOK");
 
 	/* readonly number properties */
 	zprop_register_number(ZFS_PROP_USED, "used", 0, PROP_READONLY,
@@ -446,16 +397,6 @@ zfs_prop_init(void)
 	    PROP_READONLY, ZFS_TYPE_DATASET, "<size>", "LUSED");
 	zprop_register_number(ZFS_PROP_LOGICALREFERENCED, "logicalreferenced",
 	    0, PROP_READONLY, ZFS_TYPE_DATASET, "<size>", "LREFER");
-	zprop_register_number(ZFS_PROP_FILESYSTEM_COUNT, "filesystem_count",
-	    UINT64_MAX, PROP_READONLY, ZFS_TYPE_FILESYSTEM,
-	    "<count>", "FSCOUNT");
-	zprop_register_number(ZFS_PROP_SNAPSHOT_COUNT, "snapshot_count",
-	    UINT64_MAX, PROP_READONLY, ZFS_TYPE_FILESYSTEM | ZFS_TYPE_VOLUME,
-	    "<count>", "SSCOUNT");
-	zprop_register_number(ZFS_PROP_GUID, "guid", 0, PROP_READONLY,
-	    ZFS_TYPE_DATASET | ZFS_TYPE_BOOKMARK, "<uint64>", "GUID");
-	zprop_register_number(ZFS_PROP_CREATETXG, "createtxg", 0, PROP_READONLY,
-	    ZFS_TYPE_DATASET | ZFS_TYPE_BOOKMARK, "<uint64>", "CREATETXG");
 
 	/* default number properties */
 	zprop_register_number(ZFS_PROP_QUOTA, "quota", 0, PROP_DEFAULT,
@@ -476,6 +417,12 @@ zfs_prop_init(void)
 	zprop_register_number(ZFS_PROP_SNAPSHOT_LIMIT, "snapshot_limit",
 	    UINT64_MAX, PROP_DEFAULT, ZFS_TYPE_FILESYSTEM | ZFS_TYPE_VOLUME,
 	    "<count> | none", "SSLIMIT");
+	zprop_register_number(ZFS_PROP_FILESYSTEM_COUNT, "filesystem_count",
+	    UINT64_MAX, PROP_DEFAULT, ZFS_TYPE_FILESYSTEM,
+	    "<count>", "FSCOUNT");
+	zprop_register_number(ZFS_PROP_SNAPSHOT_COUNT, "snapshot_count",
+	    UINT64_MAX, PROP_DEFAULT, ZFS_TYPE_FILESYSTEM | ZFS_TYPE_VOLUME,
+	    "<count>", "SSCOUNT");
 
 	/* inherit number properties */
 	zprop_register_number(ZFS_PROP_RECORDSIZE, "recordsize",
@@ -483,6 +430,8 @@ zfs_prop_init(void)
 	    ZFS_TYPE_FILESYSTEM, "512 to 1M, power of 2", "RECSIZE");
 
 	/* hidden properties */
+	zprop_register_hidden(ZFS_PROP_CREATETXG, "createtxg", PROP_TYPE_NUMBER,
+	    PROP_READONLY, ZFS_TYPE_DATASET | ZFS_TYPE_BOOKMARK, "CREATETXG");
 	zprop_register_hidden(ZFS_PROP_NUMCLONES, "numclones", PROP_TYPE_NUMBER,
 	    PROP_READONLY, ZFS_TYPE_SNAPSHOT, "NUMCLONES");
 	zprop_register_hidden(ZFS_PROP_NAME, "name", PROP_TYPE_STRING,
@@ -492,6 +441,8 @@ zfs_prop_init(void)
 	zprop_register_hidden(ZFS_PROP_STMF_SHAREINFO, "stmf_sbd_lu",
 	    PROP_TYPE_STRING, PROP_INHERIT, ZFS_TYPE_VOLUME,
 	    "STMF_SBD_LU");
+	zprop_register_hidden(ZFS_PROP_GUID, "guid", PROP_TYPE_NUMBER,
+	    PROP_READONLY, ZFS_TYPE_DATASET | ZFS_TYPE_BOOKMARK, "GUID");
 	zprop_register_hidden(ZFS_PROP_USERACCOUNTING, "useraccounting",
 	    PROP_TYPE_NUMBER, PROP_READONLY, ZFS_TYPE_DATASET,
 	    "USERACCOUNTING");
@@ -501,8 +452,6 @@ zfs_prop_init(void)
 	    PROP_READONLY, ZFS_TYPE_DATASET, "OBJSETID");
 	zprop_register_hidden(ZFS_PROP_INCONSISTENT, "inconsistent",
 	    PROP_TYPE_NUMBER, PROP_READONLY, ZFS_TYPE_DATASET, "INCONSISTENT");
-	zprop_register_hidden(ZFS_PROP_PREV_SNAP, "prevsnap", PROP_TYPE_STRING,
-	    PROP_READONLY, ZFS_TYPE_FILESYSTEM | ZFS_TYPE_VOLUME, "PREVSNAP");
 
 	/*
 	 * Property to be removed once libbe is integrated
@@ -744,14 +693,12 @@ zfs_prop_align_right(zfs_prop_t prop)
 static int __init
 zcommon_init(void)
 {
-	fletcher_4_init();
 	return (0);
 }
 
 static void __exit
 zcommon_fini(void)
 {
-	fletcher_4_fini();
 }
 
 module_init(zcommon_init);

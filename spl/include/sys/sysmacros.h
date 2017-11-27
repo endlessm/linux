@@ -32,7 +32,6 @@
 #include <sys/varargs.h>
 #include <sys/zone.h>
 #include <sys/signal.h>
-#include <asm/page.h>
 
 #ifdef HAVE_SCHED_RT_HEADER
 #include <linux/sched/rt.h>
@@ -112,10 +111,6 @@
 #define PAGESIZE			PAGE_SIZE
 #endif
 
-#ifndef PAGESHIFT
-#define PAGESHIFT			PAGE_SHIFT
-#endif
-
 /* from Solaris sys/byteorder.h */
 #define BSWAP_8(x)	((x) & 0xff)
 #define BSWAP_16(x)	((BSWAP_8(x) << 8) | BSWAP_8((x) >> 8))
@@ -162,9 +157,6 @@ extern unsigned long spl_hostid;
 extern uint32_t zone_get_hostid(void *zone);
 extern void spl_setup(void);
 extern void spl_cleanup(void);
-
-#define	highbit(x)		__fls(x)
-#define	lowbit(x)		__ffs(x)
 
 #define	highbit64(x)		fls64(x)
 #define	makedevice(maj,min)	makedev(maj,min)

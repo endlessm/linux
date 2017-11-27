@@ -63,6 +63,9 @@ vn_mode_to_vtype(mode_t mode)
 	if (S_ISSOCK(mode))
 		return VSOCK;
 
+	if (S_ISCHR(mode))
+		return VCHR;
+
 	return VNON;
 } /* vn_mode_to_vtype() */
 EXPORT_SYMBOL(vn_mode_to_vtype);
@@ -211,22 +214,36 @@ int
 vn_rdwr(uio_rw_t uio, vnode_t *vp, void *addr, ssize_t len, offset_t off,
 	uio_seg_t seg, int ioflag, rlim64_t x2, void *x3, ssize_t *residp)
 {
-	struct file *fp = vp->v_file;
-	loff_t offset = off;
+	loff_t offset;
+	mm_segment_t saved_fs;
+	struct file *fp;
 	int rc;
 
 	ASSERT(uio == UIO_WRITE || uio == UIO_READ);
+	ASSERT(vp);
+	ASSERT(vp->v_file);
 	ASSERT(seg == UIO_SYSSPACE);
 	ASSERT((ioflag & ~FAPPEND) == 0);
+	ASSERT(x2 == RLIM64_INFINITY);
 
+	fp = vp->v_file;
+
+	offset = off;
 	if (ioflag & FAPPEND)
 		offset = fp->f_pos;
 
-	if (uio & UIO_WRITE)
-		rc = spl_kernel_write(fp, addr, len, &offset);
-	else
-		rc = spl_kernel_read(fp, addr, len, &offset);
+	/* Writable user data segment must be briefly increased for this
+	 * process so we can use the user space read call paths to write
+	 * in to memory allocated by the kernel. */
+	saved_fs = get_fs();
+        set_fs(get_ds());
 
+	if (uio & UIO_WRITE)
+		rc = vfs_write(fp, addr, len, &offset);
+	else
+		rc = vfs_read(fp, addr, len, &offset);
+
+	set_fs(saved_fs);
 	fp->f_pos = offset;
 
 	if (rc < 0)
@@ -660,19 +677,6 @@ vn_getf(int fd)
 
 	fp = file_find(fd, current);
 	if (fp) {
-		lfp = fget(fd);
-		fput(fp->f_file);
-		/*
-		 * areleasef() can cause us to see a stale reference when
-		 * userspace has reused a file descriptor before areleasef()
-		 * has run. fput() the stale reference and replace it. We
-		 * retain the original reference count such that the concurrent
-		 * areleasef() will decrement its reference and terminate.
-		 */
-		if (lfp != fp->f_file) {
-			fp->f_file = lfp;
-			fp->f_vnode->v_file = lfp;
-		}
 		atomic_inc(&fp->f_ref);
 		spin_unlock(&vn_file_lock);
 		return (fp);

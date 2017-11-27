@@ -42,7 +42,7 @@ kstat_t *zfs_dbgmsg_kstat;
  * # Clear the kernel debug message log.
  * echo 0 >/proc/spl/kstat/zfs/dbgmsg
  */
-#if defined(_KERNEL) && !defined(ZFS_DEBUG)
+#if defined(_KERNEL)
 int zfs_dbgmsg_enable = 0;
 #else
 int zfs_dbgmsg_enable = 1;
@@ -62,7 +62,7 @@ zfs_dbgmsg_data(char *buf, size_t size, void *data)
 	zfs_dbgmsg_t *zdm = (zfs_dbgmsg_t *)data;
 
 	(void) snprintf(buf, size, "%-12llu %-s\n",
-	    (u_longlong_t)zdm->zdm_timestamp, zdm->zdm_msg);
+	    (u_longlong_t) zdm->zdm_timestamp, zdm->zdm_msg);
 
 	return (0);
 }
@@ -161,13 +161,6 @@ __zfs_dbgmsg(char *buf)
 	mutex_exit(&zfs_dbgmsgs_lock);
 }
 
-void
-__set_error(const char *file, const char *func, int line, int err)
-{
-	if (zfs_flags & ZFS_DEBUG_SET_ERROR)
-		__dprintf(file, func, line, "error %lu", err);
-}
-
 #ifdef _KERNEL
 void
 __dprintf(const char *file, const char *func, int line, const char *fmt, ...)
@@ -177,10 +170,8 @@ __dprintf(const char *file, const char *func, int line, const char *fmt, ...)
 	size_t size;
 	char *buf;
 	char *nl;
-	int i;
 
-	if (!zfs_dbgmsg_enable &&
-	    !(zfs_flags & (ZFS_DEBUG_DPRINTF | ZFS_DEBUG_SET_ERROR)))
+	if (!zfs_dbgmsg_enable && !(zfs_flags & ZFS_DEBUG_DPRINTF))
 		return;
 
 	size = 1024;
@@ -196,13 +187,9 @@ __dprintf(const char *file, const char *func, int line, const char *fmt, ...)
 		newfile = file;
 	}
 
-	i = snprintf(buf, size, "%s:%d:%s(): ", newfile, line, func);
-
-	if (i < size) {
-		va_start(adx, fmt);
-		(void) vsnprintf(buf + i, size - i, fmt, adx);
-		va_end(adx);
-	}
+	va_start(adx, fmt);
+	(void) vsnprintf(buf, size, fmt, adx);
+	va_end(adx);
 
 	/*
 	 * Get rid of trailing newline.
@@ -222,8 +209,9 @@ __dprintf(const char *file, const char *func, int line, const char *fmt, ...)
 	 * # Dump the ring buffer.
 	 * $ cat /sys/kernel/debug/tracing/trace
 	 */
-	if (zfs_flags & (ZFS_DEBUG_DPRINTF | ZFS_DEBUG_SET_ERROR))
-		DTRACE_PROBE1(zfs__dprintf, char *, buf);
+	if (zfs_flags & ZFS_DEBUG_DPRINTF)
+		DTRACE_PROBE4(zfs__dprintf,
+		    char *, newfile, char *, func, int, line, char *, buf);
 
 	/*
 	 * To get this data enable the zfs debug log as shown:
@@ -239,21 +227,6 @@ __dprintf(const char *file, const char *func, int line, const char *fmt, ...)
 		__zfs_dbgmsg(buf);
 
 	kmem_free(buf, size);
-}
-
-#else
-
-void
-zfs_dbgmsg_print(const char *tag)
-{
-	zfs_dbgmsg_t *zdm;
-
-	(void) printf("ZFS_DBGMSG(%s):\n", tag);
-	mutex_enter(&zfs_dbgmsgs_lock);
-	for (zdm = list_head(&zfs_dbgmsgs); zdm;
-	    zdm = list_next(&zfs_dbgmsgs, zdm))
-		(void) printf("%s\n", zdm->zdm_msg);
-	mutex_exit(&zfs_dbgmsgs_lock);
 }
 #endif /* _KERNEL */
 
