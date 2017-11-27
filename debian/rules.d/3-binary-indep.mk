@@ -134,6 +134,10 @@ ifeq ($(do_tools_common),true)
 	install -d $(cloudman)/man8
 	install -m644 $(CURDIR)/tools/hv/*.8 $(cloudman)/man8
 
+ifeq ($(do_tools_acpidbg),true)
+	install -m755 debian/tools/generic $(toolsbin)/acpidbg
+endif
+
 endif
 
 install-indep: install-tools

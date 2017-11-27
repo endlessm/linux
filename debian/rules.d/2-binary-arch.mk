@@ -375,6 +375,9 @@ ifeq ($(do_tools_usbip),true)
 	$(LN) ../../$(src_pkg_name)-tools-$(abi_release)/usbip $(toolspkgdir)/usr/lib/linux-tools/$(abi_release)-$*
 	$(LN) ../../$(src_pkg_name)-tools-$(abi_release)/usbipd $(toolspkgdir)/usr/lib/linux-tools/$(abi_release)-$*
 endif
+ifeq ($(do_tools_acpidbg),true)
+	$(LN) ../../$(src_pkg_name)-tools-$(abi_release)/acpidbg $(toolspkgdir)/usr/lib/linux-tools/$(abi_release)-$*
+endif
 ifeq ($(do_tools_cpupower),true)
 	$(LN) ../../$(src_pkg_name)-tools-$(abi_release)/cpupower $(toolspkgdir)/usr/lib/linux-tools/$(abi_release)-$*
 endif
@@ -598,6 +601,9 @@ ifeq ($(do_tools_usbip),true)
 	cd $(builddirpa)/tools/usb/usbip && ./configure --prefix=$(builddirpa)/tools/usb/usbip/bin
 	cd $(builddirpa)/tools/usb/usbip && make install CFLAGS="-g -O2 -static" CROSS_COMPILE=$(CROSS_COMPILE)
 endif
+ifeq ($(do_tools_acpidbg),true)
+	cd $(builddirpa)/tools/power/acpi && make clean && make CFLAGS="-g -O2 -static -I$(builddirpa)/include" CROSS_COMPILE=$(CROSS_COMPILE) acpidbg
+endif
 ifeq ($(do_tools_cpupower),true)
 	# Allow for multiple installed versions of cpupower and libcpupower.so:
 	# Override LIB_MIN in order to to generate a versioned .so named
@@ -642,6 +648,10 @@ ifeq ($(do_tools_usbip),true)
 	install -m755 $(builddirpa)/tools/usb/usbip/bin/sbin/usbip \
 		$(toolspkgdir)/usr/lib/$(src_pkg_name)-tools-$(abi_release)
 	install -m755 $(builddirpa)/tools/usb/usbip/bin/sbin/usbipd \
+		$(toolspkgdir)/usr/lib/$(src_pkg_name)-tools-$(abi_release)
+endif
+ifeq ($(do_tools_acpidbg),true)
+	install -m755 $(builddirpa)/tools/power/acpi/acpidbg \
 		$(toolspkgdir)/usr/lib/$(src_pkg_name)-tools-$(abi_release)
 endif
 ifeq ($(do_tools_cpupower),true)
