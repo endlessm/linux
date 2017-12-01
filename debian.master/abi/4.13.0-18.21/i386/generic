@@ -16704,6 +16704,7 @@ EXPORT_SYMBOL_GPL sound/ac97_bus 0x00000000	snd_ac97_reset
 EXPORT_SYMBOL_GPL sound/core/snd 0x00000000	snd_card_add_dev_attr
 EXPORT_SYMBOL_GPL sound/core/snd 0x00000000	snd_ctl_activate_id
 EXPORT_SYMBOL_GPL sound/core/snd 0x00000000	snd_ctl_add_vmaster_hook
+EXPORT_SYMBOL_GPL sound/core/snd 0x00000000	snd_ctl_apply_vmaster_slaves
 EXPORT_SYMBOL_GPL sound/core/snd 0x00000000	snd_ctl_get_preferred_subdevice
 EXPORT_SYMBOL_GPL sound/core/snd 0x00000000	snd_ctl_sync_vmaster
 EXPORT_SYMBOL_GPL sound/core/snd 0x00000000	snd_device_disconnect
