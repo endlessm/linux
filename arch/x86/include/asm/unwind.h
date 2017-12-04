@@ -6,6 +6,9 @@
 #include <asm/ptrace.h>
 #include <asm/stacktrace.h>
 
+#define IRET_FRAME_OFFSET (offsetof(struct pt_regs, ip))
+#define IRET_FRAME_SIZE   (sizeof(struct pt_regs) - IRET_FRAME_OFFSET)
+
 struct unwind_state {
 	struct stack_info stack_info;
 	unsigned long stack_mask;
