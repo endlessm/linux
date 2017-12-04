@@ -988,6 +988,9 @@ void __init trap_init(void)
 {
 	int i;
 
+	/* Init cpu_entry_area before IST entries are set up */
+	setup_cpu_entry_areas();
+
 	set_intr_gate(X86_TRAP_DE, divide_error);
 	set_intr_gate_ist(X86_TRAP_NMI, &nmi, NMI_STACK);
 	/* int4 can be called from all */
