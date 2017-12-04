@@ -22,7 +22,6 @@
 #include <asm/segment.h>
 #include <asm/cache.h>
 #include <asm/errno.h>
-#include "calling.h"
 #include <asm/asm-offsets.h>
 #include <asm/msr.h>
 #include <asm/unistd.h>
@@ -38,6 +37,8 @@
 #include <asm/export.h>
 #include <asm/frame.h>
 #include <linux/err.h>
+
+#include "calling.h"
 
 .code64
 .section .entry.text, "ax"
@@ -405,7 +406,7 @@ syscall_return_via_sysret:
 	 * We are on the trampoline stack.  All regs except RDI are live.
 	 * We can do future final exit work right here.
 	 */
-	SWITCH_TO_USER_CR3 scratch_reg=%rdi
+	SWITCH_TO_USER_CR3_STACK scratch_reg=%rdi
 
 	popq	%rdi
 	popq	%rsp
@@ -743,7 +744,7 @@ GLOBAL(swapgs_restore_regs_and_return_to_usermode)
 	 * We can do future final exit work right here.
 	 */
 
-	SWITCH_TO_USER_CR3 scratch_reg=%rdi
+	SWITCH_TO_USER_CR3_STACK scratch_reg=%rdi
 
 	/* Restore RDI. */
 	popq	%rdi
@@ -856,7 +857,7 @@ native_irq_return_ldt:
 	 */
 	orq	PER_CPU_VAR(espfix_stack), %rax
 
-	SWITCH_TO_USER_CR3 scratch_reg=%rdi	/* to user CR3 */
+	SWITCH_TO_USER_CR3_STACK scratch_reg=%rdi
 	SWAPGS					/* to user GS */
 	popq	%rdi				/* Restore user RDI */
 
