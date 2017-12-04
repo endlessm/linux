@@ -1558,7 +1558,7 @@ void cpu_init(void)
 		}
 	}
 
-	t->x86_tss.io_bitmap_base = offsetof(struct tss_struct, io_bitmap);
+	t->x86_tss.io_bitmap_base = IO_BITMAP_OFFSET;
 
 	/*
 	 * <= is required because the CPU will access up to
@@ -1577,7 +1577,7 @@ void cpu_init(void)
 	 * Initialize the TSS.  Don't bother initializing sp0, as the initial
 	 * task never enters user mode.
 	 */
-	set_tss_desc(cpu, t);
+	set_tss_desc(cpu, &t->x86_tss);
 	load_TR_desc();
 
 	load_mm_ldt(&init_mm);
@@ -1635,12 +1635,12 @@ void cpu_init(void)
 	 * Initialize the TSS.  Don't bother initializing sp0, as the initial
 	 * task never enters user mode.
 	 */
-	set_tss_desc(cpu, t);
+	set_tss_desc(cpu, &t->x86_tss);
 	load_TR_desc();
 
 	load_mm_ldt(&init_mm);
 
-	t->x86_tss.io_bitmap_base = offsetof(struct tss_struct, io_bitmap);
+	t->x86_tss.io_bitmap_base = IO_BITMAP_OFFSET;
 
 #ifdef CONFIG_DOUBLEFAULT
 	/* Set up doublefault TSS pointer in the GDT */
