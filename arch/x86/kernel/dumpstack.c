@@ -50,6 +50,28 @@ static void printk_stack_address(unsigned long address, int reliable,
 	printk("%s %s%pB\n", log_lvl, reliable ? "" : "? ", (void *)address);
 }
 
+void show_iret_regs(struct pt_regs *regs)
+{
+	printk(KERN_DEFAULT "RIP: %04x:%pS\n", (int)regs->cs, (void *)regs->ip);
+	printk(KERN_DEFAULT "RSP: %04x:%016lx EFLAGS: %08lx", (int)regs->ss,
+		regs->sp, regs->flags);
+}
+
+static void show_regs_safe(struct stack_info *info, struct pt_regs *regs)
+{
+	if (on_stack(info, regs, sizeof(*regs)))
+		__show_regs(regs, 0);
+	else if (on_stack(info, (void *)regs + IRET_FRAME_OFFSET,
+			  IRET_FRAME_SIZE)) {
+		/*
+		 * When an interrupt or exception occurs in entry code, the
+		 * full pt_regs might not have been saved yet.  In that case
+		 * just print the iret frame.
+		 */
+		show_iret_regs(regs);
+	}
+}
+
 void show_trace_log_lvl(struct task_struct *task, struct pt_regs *regs,
 			unsigned long *stack, char *log_lvl)
 {
@@ -94,6 +116,9 @@ void show_trace_log_lvl(struct task_struct *task, struct pt_regs *regs,
 		if (stack_name)
 			printk("%s <%s>\n", log_lvl, stack_name);
 
+		if (regs)
+			show_regs_safe(&stack_info, regs);
+
 		/*
 		 * Scan the stack, printing any text addresses we find.  At the
 		 * same time, follow proper stack frames with the unwinder.
@@ -116,7 +141,7 @@ void show_trace_log_lvl(struct task_struct *task, struct pt_regs *regs,
 
 			/*
 			 * Don't print regs->ip again if it was already printed
-			 * by __show_regs() below.
+			 * by show_regs_safe() below.
 			 */
 			if (regs && stack == &regs->ip) {
 				unwind_next_frame(&state);
@@ -154,7 +179,7 @@ void show_trace_log_lvl(struct task_struct *task, struct pt_regs *regs,
 			/* if the frame has entry regs, print them */
 			regs = unwind_get_entry_regs(&state);
 			if (regs)
-				__show_regs(regs, 0);
+				show_regs_safe(&stack_info, regs);
 		}
 
 		if (stack_name)
