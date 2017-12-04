@@ -992,6 +992,9 @@ void __init trap_init(void)
 {
 	int i;
 
+	/* Init cpu_entry_area before IST entries are set up */
+	setup_cpu_entry_areas();
+
 #ifdef CONFIG_EISA
 	void __iomem *p = early_ioremap(0x0FFFD9, 4);
 
