@@ -957,7 +957,7 @@ ENTRY(debug)
 
 	/* Are we currently on the SYSENTER stack? */
 	movl	PER_CPU_VAR(cpu_entry_area), %ecx
-	addl	$CPU_ENTRY_AREA_tss + TSS_STRUCT_SYSENTER_stack + SIZEOF_SYSENTER_stack, %ecx
+	addl	$CPU_ENTRY_AREA_SYSENTER_stack + SIZEOF_SYSENTER_stack, %ecx
 	subl	%eax, %ecx	/* ecx = (end of SYSENTER_stack) - esp */
 	cmpl	$SIZEOF_SYSENTER_stack, %ecx
 	jb	.Ldebug_from_sysenter_stack
@@ -1001,7 +1001,7 @@ ENTRY(nmi)
 
 	/* Are we currently on the SYSENTER stack? */
 	movl	PER_CPU_VAR(cpu_entry_area), %ecx
-	addl	$CPU_ENTRY_AREA_tss + TSS_STRUCT_SYSENTER_stack + SIZEOF_SYSENTER_stack, %ecx
+	addl	$CPU_ENTRY_AREA_SYSENTER_stack + SIZEOF_SYSENTER_stack, %ecx
 	subl	%eax, %ecx	/* ecx = (end of SYSENTER_stack) - esp */
 	cmpl	$SIZEOF_SYSENTER_stack, %ecx
 	jb	.Lnmi_from_sysenter_stack
