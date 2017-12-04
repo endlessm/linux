@@ -60,10 +60,16 @@ jiffies_64 = jiffies;
 		. = ALIGN(HPAGE_SIZE);				\
 		__end_rodata_hpage_align = .;
 
+#define ALIGN_ENTRY_TEXT_BEGIN	. = ALIGN(PMD_SIZE);
+#define ALIGN_ENTRY_TEXT_END	. = ALIGN(PMD_SIZE);
+
 #else
 
 #define X64_ALIGN_RODATA_BEGIN
 #define X64_ALIGN_RODATA_END
+
+#define ALIGN_ENTRY_TEXT_BEGIN
+#define ALIGN_ENTRY_TEXT_END
 
 #endif
 
@@ -101,8 +107,10 @@ SECTIONS
 		CPUIDLE_TEXT
 		LOCK_TEXT
 		KPROBES_TEXT
+		ALIGN_ENTRY_TEXT_BEGIN
 		ENTRY_TEXT
 		IRQENTRY_TEXT
+		ALIGN_ENTRY_TEXT_END
 		SOFTIRQENTRY_TEXT
 		*(.fixup)
 		*(.gnu.warning)
