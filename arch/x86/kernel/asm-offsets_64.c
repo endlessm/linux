@@ -23,6 +23,9 @@ int main(void)
 	OFFSET(PV_IRQ_adjust_exception_frame, pv_irq_ops, adjust_exception_frame);
 	OFFSET(PV_CPU_usergs_sysret64, pv_cpu_ops, usergs_sysret64);
 	OFFSET(PV_CPU_swapgs, pv_cpu_ops, swapgs);
+#ifdef CONFIG_DEBUG_ENTRY
+	OFFSET(PV_IRQ_save_fl, pv_irq_ops, save_fl);
+#endif
 	BLANK();
 #endif
 
