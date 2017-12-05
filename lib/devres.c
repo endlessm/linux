@@ -148,7 +148,7 @@ void __iomem *devm_ioremap_resource(struct device *dev, struct resource *res)
 	name = res->name ?: dev_name(dev);
 
 	if (!devm_request_mem_region(dev, res->start, size, name)) {
-		dev_err(dev, "can't request region for resource %pR\n", res);
+		dev_warn(dev, "can't request region for resource %pR\n", res);
 		return IOMEM_ERR_PTR(-EBUSY);
 	}
 
