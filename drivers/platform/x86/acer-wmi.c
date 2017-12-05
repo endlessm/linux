@@ -2242,7 +2242,7 @@ static int __init acer_wmi_init(void)
 		/* WMID always provides brightness methods */
 		interface->capability |= ACER_CAP_BRIGHTNESS;
 	} else if (!wmi_has_guid(WMID_GUID2) && interface && !has_type_aa) {
-		pr_err("No WMID device detection method found\n");
+		pr_warn("No WMID device detection method found\n");
 		return -ENODEV;
 	}
 
