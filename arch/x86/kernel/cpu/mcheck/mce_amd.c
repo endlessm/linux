@@ -305,7 +305,7 @@ static int lvt_off_valid(struct threshold_block *b, int apic, u32 lo, u32 hi)
 		if (mce_flags.smca)
 			return 0;
 
-		pr_err(FW_BUG "cpu %d, invalid threshold interrupt offset %d "
+		pr_warn(FW_BUG "cpu %d, invalid threshold interrupt offset %d "
 		       "for bank %d, block %d (MSR%08X=0x%x%08x)\n",
 		       b->cpu, apic, b->bank, b->block, b->address, hi, lo);
 		return 0;
