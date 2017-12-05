@@ -1,3 +1,220 @@
+linux (4.14.0-11.13) bionic; urgency=low
+
+  * linux: 4.14.0-11.13 -proposed tracker (LP: #1736168)
+
+  * CVE-2017-1000405
+    - mm, thp: Do not make page table dirty unconditionally in touch_p[mu]d()
+
+  * linux 4.14.0-7.9 ADT test failure with linux 4.14.0-7.9 (LP: #1732463)
+    - SAUCE: mm: disable vma based swap readahead by default
+    - SAUCE: mm: fix memory hotplug in ZONE_HIGHMEM
+
+  * Bionic update to v4.14.3 stable release (LP: #1735843)
+    - s390: fix transactional execution control register handling
+    - s390/noexec: execute kexec datamover without DAT
+    - s390/runtime instrumention: fix possible memory corruption
+    - s390/guarded storage: fix possible memory corruption
+    - s390/disassembler: add missing end marker for e7 table
+    - s390/disassembler: increase show_code buffer size
+    - ACPI / PM: Fix acpi_pm_notifier_lock vs flush_workqueue() deadlock
+    - ACPI / EC: Fix regression related to triggering source of EC event handling
+    - cpufreq: schedutil: Reset cached_raw_freq when not in sync with next_freq
+    - serdev: fix registration of second slave
+    - sched: Make resched_cpu() unconditional
+    - lib/mpi: call cond_resched() from mpi_powm() loop
+    - x86/boot: Fix boot failure when SMP MP-table is based at 0
+    - x86/decoder: Add new TEST instruction pattern
+    - x86/entry/64: Fix entry_SYSCALL_64_after_hwframe() IRQ tracing
+    - x86/entry/64: Add missing irqflags tracing to native_load_gs_index()
+    - perf/x86/intel: Hide TSX events when RTM is not supported
+    - arm64: Implement arch-specific pte_access_permitted()
+    - ARM: 8722/1: mm: make STRICT_KERNEL_RWX effective for LPAE
+    - ARM: 8721/1: mm: dump: check hardware RO bit for LPAE
+    - uapi: fix linux/tls.h userspace compilation error
+    - uapi: fix linux/rxrpc.h userspace compilation errors
+    - MIPS: cmpxchg64() and HAVE_VIRT_CPU_ACCOUNTING_GEN don't work for 32-bit SMP
+    - MIPS: ralink: Fix MT7628 pinmux
+    - MIPS: ralink: Fix typo in mt7628 pinmux function
+    - net: mvneta: fix handling of the Tx descriptor counter
+    - nbd: wait uninterruptible for the dead timeout
+    - nbd: don't start req until after the dead connection logic
+    - PM / OPP: Add missing of_node_put(np)
+    - PCI/ASPM: Account for downstream device's Port Common_Mode_Restore_Time
+    - PCI/ASPM: Use correct capability pointer to program LTR_L1.2_THRESHOLD
+    - PCI: hv: Use effective affinity mask
+    - PCI: Set Cavium ACS capability quirk flags to assert RR/CR/SV/UF
+    - PCI: Apply Cavium ThunderX ACS quirk to more Root Ports
+    - ALSA: hda: Add Raven PCI ID
+    - dm integrity: allow unaligned bv_offset
+    - dm cache: fix race condition in the writeback mode overwrite_bio
+      optimisation
+    - dm crypt: allow unaligned bv_offset
+    - dm zoned: ignore last smaller runt zone
+    - dm mpath: remove annoying message of 'blk_get_request() returned -11'
+    - dm bufio: fix integer overflow when limiting maximum cache size
+    - ovl: Put upperdentry if ovl_check_origin() fails
+    - dm: allocate struct mapped_device with kvzalloc
+    - sched/rt: Simplify the IPI based RT balancing logic
+    - MIPS: pci: Remove KERN_WARN instance inside the mt7620 driver
+    - dm: fix race between dm_get_from_kobject() and __dm_destroy()
+    - dm: discard support requires all targets in a table support discards
+    - MIPS: Fix odd fp register warnings with MIPS64r2
+    - MIPS: Fix MIPS64 FP save/restore on 32-bit kernels
+    - MIPS: dts: remove bogus bcm96358nb4ser.dtb from dtb-y entry
+    - MIPS: Fix an n32 core file generation regset support regression
+    - MIPS: BCM47XX: Fix LED inversion for WRT54GSv1
+    - MIPS: math-emu: Fix final emulation phase for certain instructions
+    - rt2x00usb: mark device removed when get ENOENT usb error
+    - mm/z3fold.c: use kref to prevent page free/compact race
+    - autofs: don't fail mount for transient error
+    - nilfs2: fix race condition that causes file system corruption
+    - fscrypt: lock mutex before checking for bounce page pool
+    - eCryptfs: use after free in ecryptfs_release_messaging()
+    - libceph: don't WARN() if user tries to add invalid key
+    - bcache: check ca->alloc_thread initialized before wake up it
+    - fs: guard_bio_eod() needs to consider partitions
+    - fanotify: fix fsnotify_prepare_user_wait() failure
+    - isofs: fix timestamps beyond 2027
+    - btrfs: change how we decide to commit transactions during flushing
+    - f2fs: expose some sectors to user in inline data or dentry case
+    - NFS: Fix typo in nomigration mount option
+    - NFS: Revert "NFS: Move the flock open mode check into nfs_flock()"
+    - nfs: Fix ugly referral attributes
+    - NFS: Avoid RCU usage in tracepoints
+    - NFS: revalidate "." etc correctly on "open".
+    - nfsd: deal with revoked delegations appropriately
+    - rtlwifi: rtl8192ee: Fix memory leak when loading firmware
+    - rtlwifi: fix uninitialized rtlhal->last_suspend_sec time
+    - iwlwifi: fix firmware names for 9000 and A000 series hw
+    - md: fix deadlock error in recent patch.
+    - md: don't check MD_SB_CHANGE_CLEAN in md_allow_write
+    - Bluetooth: btqcomsmd: Add support for BD address setup
+    - md/bitmap: revert a patch
+    - fsnotify: clean up fsnotify_prepare/finish_user_wait()
+    - fsnotify: pin both inode and vfsmount mark
+    - fsnotify: fix pinning group in fsnotify_prepare_user_wait()
+    - ata: fixes kernel crash while tracing ata_eh_link_autopsy event
+    - ext4: fix interaction between i_size, fallocate, and delalloc after a crash
+    - ext4: prevent data corruption with inline data + DAX
+    - ext4: prevent data corruption with journaling + DAX
+    - ALSA: pcm: update tstamp only if audio_tstamp changed
+    - ALSA: usb-audio: Add sanity checks to FE parser
+    - ALSA: usb-audio: Fix potential out-of-bound access at parsing SU
+    - ALSA: usb-audio: Add sanity checks in v2 clock parsers
+    - ALSA: timer: Remove kernel warning at compat ioctl error paths
+    - ALSA: hda/realtek - Fix ALC275 no sound issue
+    - ALSA: hda: Fix too short HDMI/DP chmap reporting
+    - ALSA: hda - Fix yet remaining issue with vmaster 0dB initialization
+    - ALSA: hda/realtek - Fix ALC700 family no sound issue
+    - ASoC: sun8i-codec: Invert Master / Slave condition
+    - ASoC: sun8i-codec: Fix left and right channels inversion
+    - ASoC: sun8i-codec: Set the BCLK divider
+    - mfd: lpc_ich: Avoton/Rangeley uses SPI_BYT method
+    - fix a page leak in vhost_scsi_iov_to_sgl() error recovery
+    - 9p: Fix missing commas in mount options
+    - fs/9p: Compare qid.path in v9fs_test_inode
+    - net/9p: Switch to wait_event_killable()
+    - scsi: qla2xxx: Suppress a kernel complaint in qla_init_base_qpair()
+    - scsi: sd_zbc: Fix sd_zbc_read_zoned_characteristics()
+    - scsi: lpfc: fix pci hot plug crash in timer management routines
+    - scsi: lpfc: fix pci hot plug crash in list_add call
+    - scsi: lpfc: Fix crash receiving ELS while detaching driver
+    - scsi: lpfc: Fix FCP hba_wqidx assignment
+    - scsi: lpfc: Fix oops if nvmet_fc_register_targetport fails
+    - iscsi-target: Make TASK_REASSIGN use proper se_cmd->cmd_kref
+    - iscsi-target: Fix non-immediate TMR reference leak
+    - target: fix null pointer regression in core_tmr_drain_tmr_list
+    - target: fix buffer offset in core_scsi3_pri_read_full_status
+    - target: Fix QUEUE_FULL + SCSI task attribute handling
+    - target: Fix caw_sem leak in transport_generic_request_failure
+    - target: Fix quiese during transport_write_pending_qf endless loop
+    - target: Avoid early CMD_T_PRE_EXECUTE failures during ABORT_TASK
+    - mtd: Avoid probe failures when mtd->dbg.dfs_dir is invalid
+    - mtd: nand: Export nand_reset() symbol
+    - mtd: nand: atmel: Actually use the PM ops
+    - mtd: nand: omap2: Fix subpage write
+    - mtd: nand: Fix writing mtdoops to nand flash.
+    - mtd: nand: mtk: fix infinite ECC decode IRQ issue
+    - mailbox: bcm-flexrm-mailbox: Fix FlexRM ring flush sequence
+    - p54: don't unregister leds when they are not initialized
+    - block: Fix a race between blk_cleanup_queue() and timeout handling
+    - raid1: prevent freeze_array/wait_all_barriers deadlock
+    - genirq: Track whether the trigger type has been set
+    - irqchip/gic-v3: Fix ppi-partitions lookup
+    - lockd: double unregister of inetaddr notifiers
+    - KVM: PPC: Book3S HV: Don't call real-mode XICS hypercall handlers if not
+      enabled
+    - KVM: nVMX: set IDTR and GDTR limits when loading L1 host state
+    - KVM: SVM: obey guest PAT
+    - kvm: vmx: Reinstate support for CPUs without virtual NMI
+    - dax: fix PMD faults on zero-length files
+    - dax: fix general protection fault in dax_alloc_inode
+    - SUNRPC: Fix tracepoint storage issues with svc_recv and svc_rqst_status
+    - clk: ti: dra7-atl-clock: fix child-node lookups
+    - libnvdimm, dimm: clear 'locked' status on successful DIMM enable
+    - libnvdimm, pfn: make 'resource' attribute only readable by root
+    - libnvdimm, namespace: fix label initialization to use valid seq numbers
+    - libnvdimm, region : make 'resource' attribute only readable by root
+    - libnvdimm, namespace: make 'resource' attribute only readable by root
+    - svcrdma: Preserve CB send buffer across retransmits
+    - IB/srpt: Do not accept invalid initiator port names
+    - IB/cm: Fix memory corruption in handling CM request
+    - IB/hfi1: Fix incorrect available receive user context count
+    - IB/srp: Avoid that a cable pull can trigger a kernel crash
+    - IB/core: Avoid crash on pkey enforcement failed in received MADs
+    - IB/core: Only maintain real QPs in the security lists
+    - NFC: fix device-allocation error return
+    - spi-nor: intel-spi: Fix broken software sequencing codes
+    - i40e: Use smp_rmb rather than read_barrier_depends
+    - igb: Use smp_rmb rather than read_barrier_depends
+    - igbvf: Use smp_rmb rather than read_barrier_depends
+    - ixgbevf: Use smp_rmb rather than read_barrier_depends
+    - i40evf: Use smp_rmb rather than read_barrier_depends
+    - fm10k: Use smp_rmb rather than read_barrier_depends
+    - ixgbe: Fix skb list corruption on Power systems
+    - parisc: Fix validity check of pointer size argument in new CAS
+      implementation
+    - powerpc: Fix boot on BOOK3S_32 with CONFIG_STRICT_KERNEL_RWX
+    - powerpc/mm/radix: Fix crashes on Power9 DD1 with radix MMU and STRICT_RWX
+    - powerpc/perf/imc: Use cpu_to_node() not topology_physical_package_id()
+    - powerpc/signal: Properly handle return value from uprobe_deny_signal()
+    - powerpc/64s: Fix masking of SRR1 bits on instruction fault
+    - powerpc/64s/radix: Fix 128TB-512TB virtual address boundary case allocation
+    - powerpc/64s/hash: Fix 512T hint detection to use >= 128T
+    - powerpc/64s/hash: Fix 128TB-512TB virtual address boundary case allocation
+    - powerpc/64s/hash: Fix fork() with 512TB process address space
+    - powerpc/64s/hash: Allow MAP_FIXED allocations to cross 128TB boundary
+    - media: Don't do DMA on stack for firmware upload in the AS102 driver
+    - media: rc: check for integer overflow
+    - media: rc: nec decoder should not send both repeat and keycode
+    - cx231xx-cards: fix NULL-deref on missing association descriptor
+    - media: v4l2-ctrl: Fix flags field on Control events
+    - media: venus: fix wrong size on dma_free
+    - media: venus: venc: fix bytesused v4l2_plane field
+    - media: venus: reimplement decoder stop command
+    - ARM64: dts: meson-gxl: Add alternate ARM Trusted Firmware reserved memory
+      zone
+    - iwlwifi: fix wrong struct for a000 device
+    - iwlwifi: add a new a000 device
+    - iwlwifi: pcie: sort IDs for the 9000 series for easier comparisons
+    - iwlwifi: add new cards for a000 series
+    - iwlwifi: add new cards for 8265 series
+    - iwlwifi: add new cards for 8260 series
+    - iwlwifi: fix PCI IDs and configuration mapping for 9000 series
+    - iwlwifi: mvm: support version 7 of the SCAN_REQ_UMAC FW command
+    - e1000e: Fix error path in link detection
+    - e1000e: Fix return value test
+    - e1000e: Separate signaling for link check/link up
+    - e1000e: Avoid receiver overrun interrupt bursts
+    - e1000e: fix buffer overrun while the I219 is processing DMA transactions
+    - Linux 4.14.3
+
+  * Miscellaneous Ubuntu changes
+    - SAUCE: s390/topology: don't inline cpu_to_node
+    - SAUCE: (noup) Update spl to 0.7.3-1ubuntu1, zfs to 0.7.3-1ubuntu1
+
+ -- Seth Forshee <seth.forshee@canonical.com>  Mon, 04 Dec 2017 09:08:07 -0600
+
 linux (4.14.0-10.12) bionic; urgency=low
 
   * linux: 4.14.0-10.12 -proposed tracker (LP: #1734901)
