@@ -36,6 +36,7 @@
 
 #include <drm/drm_pciids.h>
 #include <linux/console.h>
+#include <linux/dmi.h>
 #include <linux/module.h>
 #include <linux/pm_runtime.h>
 #include <linux/vga_switcheroo.h>
@@ -880,11 +881,22 @@ static struct pci_driver amdgpu_kms_pci_driver = {
 	.driver.pm = &amdgpu_pm_ops,
 };
 
-
+static const struct dmi_system_id amdgpu_dc_blacklist[] = {
+	{
+		.ident = "Acer A515-41G",
+		.matches = {
+			DMI_MATCH(DMI_SYS_VENDOR, "Acer"),
+			DMI_MATCH(DMI_PRODUCT_NAME, "Aspire A515-41G"),
+		},
+	},
+	{ /* sentinel */ }
+};
 
 static int __init amdgpu_init(void)
 {
 	int r;
+
+	amdgpu_dc = !!dmi_check_system(amdgpu_dc_blacklist);
 
 	r = amdgpu_sync_init();
 	if (r)
