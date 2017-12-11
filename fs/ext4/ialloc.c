@@ -820,6 +820,8 @@ struct inode *__ext4_new_inode(handle_t *handle, struct inode *dir,
 #ifdef CONFIG_EXT4_FS_POSIX_ACL
 		struct posix_acl *p = get_acl(dir, ACL_TYPE_DEFAULT);
 
+		if (IS_ERR(p))
+			return ERR_CAST(p);
 		if (p) {
 			int acl_size = p->a_count * sizeof(ext4_acl_entry);
 
