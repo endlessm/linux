@@ -1,3 +1,291 @@
+linux (4.13.0-19.22) artful; urgency=low
+
+  * linux: 4.13.0-19.22 -proposed tracker (LP: #1736118)
+
+  * CVE-2017-1000405
+    - mm, thp: Do not make page table dirty unconditionally in touch_p[mu]d()
+
+ -- Stefan Bader <stefan.bader@canonical.com>  Mon, 04 Dec 2017 12:27:13 +0100
+
+linux (4.13.0-18.21) artful; urgency=low
+
+  * linux: 4.13.0-18.21 -proposed tracker (LP: #1733530)
+
+  * NVMe timeout is too short (LP: #1729119)
+    - nvme: update timeout module parameter type
+
+  * CPU call trace on AMD Raven Ridge after S3 (LP: #1732894)
+    - x86/mce/AMD: Allow any CPU to initialize the smca_banks array
+
+  * Set PANIC_TIMEOUT=10 on Power Systems (LP: #1730660)
+    - [Config]: Set PANIC_TIMEOUT=10 on ppc64el
+
+  * Cannot pair BLE remote devices when using combo BT SoC (LP: #1731467)
+    - Bluetooth: increase timeout for le auto connections
+
+  * enable CONFIG_SND_SOC_INTEL_BYT_CHT_NOCODEC_MACH easily confuse users
+    (LP: #1732627)
+    - [Config] CONFIG_SND_SOC_INTEL_BYT_CHT_NOCODEC_MACH=n
+
+  * Plantronics P610 does not support sample rate reading (LP: #1719853)
+    - ALSA: usb-audio: Add sample rate quirk for Plantronics P610
+
+  * Allow drivers to use Relaxed Ordering on capable root ports (LP: #1721365)
+    - Revert commit 1a8b6d76dc5b ("net:add one common config...")
+    - net: ixgbe: Use new PCI_DEV_FLAGS_NO_RELAXED_ORDERING flag
+
+  * support GICv3 ITS save/restore & migration (LP: #1710019)
+    - KVM: arm/arm64: vgic-its: Fix return value for device table restore
+
+  * Device hotplugging with MPT SAS cannot work for VMWare ESXi (LP: #1730852)
+    - scsi: mptsas: Fixup device hotplug for VMWare ESXi
+
+  * Artful update to 4.13.13 stable release (LP: #1732726)
+    - netfilter: nat: Revert "netfilter: nat: convert nat bysrc hash to
+      rhashtable"
+    - netfilter: nft_set_hash: disable fast_ops for 2-len keys
+    - workqueue: Fix NULL pointer dereference
+    - crypto: ccm - preserve the IV buffer
+    - crypto: x86/sha1-mb - fix panic due to unaligned access
+    - crypto: x86/sha256-mb - fix panic due to unaligned access
+    - KEYS: fix NULL pointer dereference during ASN.1 parsing [ver #2]
+    - ACPI / PM: Blacklist Low Power S0 Idle _DSM for Dell XPS13 9360
+    - ARM: 8720/1: ensure dump_instr() checks addr_limit
+    - ALSA: timer: Limit max instances per timer
+    - ALSA: usb-audio: support new Amanero Combo384 firmware version
+    - ALSA: hda - fix headset mic problem for Dell machines with alc274
+    - ALSA: seq: Fix OSS sysex delivery in OSS emulation
+    - ALSA: seq: Avoid invalid lockdep class warning
+    - MIPS: Fix CM region target definitions
+    - MIPS: BMIPS: Fix missing cbr address
+    - MIPS: AR7: Defer registration of GPIO
+    - MIPS: AR7: Ensure that serial ports are properly set up
+    - KVM: PPC: Book3S HV: Fix exclusion between HPT resizing and other HPT
+      updates
+    - Input: elan_i2c - add ELAN060C to the ACPI table
+    - rbd: use GFP_NOIO for parent stat and data requests
+    - drm/vmwgfx: Fix Ubuntu 17.10 Wayland black screen issue
+    - Revert "x86: CPU: Fix up "cpu MHz" in /proc/cpuinfo"
+    - can: sun4i: handle overrun in RX FIFO
+    - can: peak: Add support for new PCIe/M2 CAN FD interfaces
+    - can: ifi: Fix transmitter delay calculation
+    - can: c_can: don't indicate triple sampling support for D_CAN
+    - x86/debug: Handle warnings before the notifier chain, to fix KGDB crash
+    - x86/smpboot: Make optimization of delay calibration work correctly
+    - x86/oprofile/ppro: Do not use __this_cpu*() in preemptible context
+    - Linux 4.13.13
+
+  * ELANTECH Touchpad is not detected in 'Lenovo Ideapad 320 14AST' after fresh
+    install (LP: #1727544)
+    - Input: elan_i2c - add ELAN060C to the ACPI table
+
+  * Power8 Nest PMU Instrumentation support (LP: #1481347)
+    - powerpc/powernv: Add IMC OPAL APIs
+    - powerpc/powernv: Detect and create IMC device
+    - powerpc/perf: Add nest IMC PMU support
+    - powerpc/perf: Add core IMC PMU support
+    - powerpc/perf: Add thread IMC PMU support
+    - powerpc/perf: Fix double unlock in imc_common_cpuhp_mem_free()
+    - powerpc/perf/imc: Fix nest events on muti socket system
+    - powerpc/powernv: Fix build error in opal-imc.c when NUMA=n
+    - powerpc/perf: Fix usage of nest_imc_refc
+    - powerpc/perf: Fix for core/nest imc call trace on cpuhotplug
+    - powerpc/perf: Add ___GFP_NOWARN flag to alloc_pages_node()
+    - powerpc/perf: Fix IMC initialization crash
+
+  * Artful update to 4.13.12 stable release (LP: #1731971)
+    - ALSA: timer: Add missing mutex lock for compat ioctls
+    - ALSA: seq: Fix nested rwsem annotation for lockdep splat
+    - cifs: check MaxPathNameComponentLength != 0 before using it
+    - KEYS: return full count in keyring_read() if buffer is too small
+    - KEYS: trusted: fix writing past end of buffer in trusted_read()
+    - KEYS: fix out-of-bounds read during ASN.1 parsing
+    - ASoC: adau17x1: Workaround for noise bug in ADC
+    - virtio_blk: Fix an SG_IO regression
+    - arm64: ensure __dump_instr() checks addr_limit
+    - KVM: arm64: its: Fix missing dynamic allocation check in scan_its_table
+    - arm/arm64: KVM: set right LR register value for 32 bit guest when inject
+      abort
+    - arm/arm64: kvm: Disable branch profiling in HYP code
+    - ARM: dts: mvebu: pl310-cache disable double-linefill
+    - ARM: 8715/1: add a private asm/unaligned.h
+    - drm/amdgpu: return -ENOENT from uvd 6.0 early init for harvesting
+    - drm/amdgpu: allow harvesting check for Polaris VCE
+    - userfaultfd: hugetlbfs: prevent UFFDIO_COPY to fill beyond the end of i_size
+    - ocfs2: fstrim: Fix start offset of first cluster group during fstrim
+    - fs/hugetlbfs/inode.c: fix hwpoison reserve accounting
+    - mm, swap: fix race between swap count continuation operations
+    - drm/i915: Do not rely on wm preservation for ILK watermarks
+    - drm/i915/edp: read edp display control registers unconditionally
+    - Revert "powerpc64/elfv1: Only dereference function descriptor for non-text
+      symbols"
+    - MIPS: bpf: Fix a typo in build_one_insn()
+    - MIPS: smp-cmp: Use right include for task_struct
+    - MIPS: microMIPS: Fix incorrect mask in insn_table_MM
+    - MIPS: SMP: Fix deadlock & online race
+    - Revert "x86: do not use cpufreq_quick_get() for /proc/cpuinfo "cpu MHz""
+    - x86: CPU: Fix up "cpu MHz" in /proc/cpuinfo
+    - powerpc/kprobes: Dereference function pointers only if the address does not
+      belong to kernel text
+    - futex: Fix more put_pi_state() vs. exit_pi_state_list() races
+    - perf/cgroup: Fix perf cgroup hierarchy support
+    - x86/mcelog: Get rid of RCU remnants
+    - irqchip/irq-mvebu-gicp: Add missing spin_lock init
+    - Linux 4.13.12
+
+  * Artful update to 4.13.11 stable release (LP: #1731961)
+    - workqueue: replace pool->manager_arb mutex with a flag
+    - nvme-fc: fix iowait hang
+    - ALSA: hda/realtek - Add support for ALC236/ALC3204
+    - ALSA: hda - fix headset mic problem for Dell machines with alc236
+    - ceph: unlock dangling spinlock in try_flush_caps()
+    - Fix tracing sample code warning.
+    - KVM: PPC: Fix oops when checking KVM_CAP_PPC_HTM
+    - KVM: PPC: Book3S HV: POWER9 more doorbell fixes
+    - KVM: PPC: Book3S: Protect kvmppc_gpa_to_ua() with SRCU
+    - s390/kvm: fix detection of guest machine checks
+    - nbd: handle interrupted sendmsg with a sndtimeo set
+    - spi: uapi: spidev: add missing ioctl header
+    - spi: a3700: Return correct value on timeout detection
+    - spi: bcm-qspi: Fix use after free in bcm_qspi_probe() in error path
+    - spi: armada-3700: Fix failing commands with quad-SPI
+    - ovl: add NULL check in ovl_alloc_inode
+    - ovl: fix EIO from lookup of non-indexed upper
+    - ovl: handle ENOENT on index lookup
+    - ovl: do not cleanup unsupported index entries
+    - fuse: fix READDIRPLUS skipping an entry
+    - xen/gntdev: avoid out of bounds access in case of partial gntdev_mmap()
+    - xen: fix booting ballooned down hvm guest
+    - cifs: Select all required crypto modules
+    - CIFS: Fix NULL pointer deref on SMB2_tcon() failure
+    - Input: elan_i2c - add ELAN0611 to the ACPI table
+    - Input: gtco - fix potential out-of-bound access
+    - Fix encryption labels and lengths for SMB3.1.1
+    - SMB3: Validate negotiate request must always be signed
+    - assoc_array: Fix a buggy node-splitting case
+    - scsi: zfcp: fix erp_action use-before-initialize in REC action trace
+    - scsi: aacraid: Fix controller initialization failure
+    - scsi: qla2xxx: Initialize Work element before requesting IRQs
+    - scsi: sg: Re-fix off by one in sg_fill_request_table()
+    - x86/cpu/AMD: Apply the Erratum 688 fix when the BIOS doesn't
+    - drm/amd/powerplay: fix uninitialized variable
+    - drm/i915/perf: fix perf enable/disable ioctls with 32bits userspace
+    - can: sun4i: fix loopback mode
+    - can: kvaser_usb: Correct return value in printout
+    - can: kvaser_usb: Ignore CMD_FLUSH_QUEUE_REPLY messages
+    - cfg80211: fix connect/disconnect edge cases
+    - ipsec: Fix aborted xfrm policy dump crash
+    - regulator: fan53555: fix I2C device ids
+    - powerpc/xive: Fix the size of the cpumask used in xive_find_target_in_mask()
+    - Linux 4.13.11
+
+  * Touchpad not detected - Lenovo ideapad 320-15IKB (LP: #1723736)
+    - Input: elan_i2c - add ELAN0611 to the ACPI table
+
+  * Artful update to 4.13.10 stable release (LP: #1731951)
+    - staging: bcm2835-audio: Fix memory corruption
+    - USB: devio: Revert "USB: devio: Don't corrupt user memory"
+    - USB: core: fix out-of-bounds access bug in usb_get_bos_descriptor()
+    - USB: serial: metro-usb: add MS7820 device id
+    - usb: cdc_acm: Add quirk for Elatec TWN3
+    - usb: quirks: add quirk for WORLDE MINI MIDI keyboard
+    - usb: hub: Allow reset retry for USB2 devices on connect bounce
+    - ALSA: usb-audio: Add native DSD support for Pro-Ject Pre Box S2 Digital
+    - can: gs_usb: fix busy loop if no more TX context is available
+    - scsi: qla2xxx: Fix uninitialized work element
+    - nbd: don't set the device size until we're connected
+    - s390/cputime: fix guest/irq/softirq times after CPU hotplug
+    - parisc: Fix double-word compare and exchange in LWS code on 32-bit kernels
+    - parisc: Fix detection of nonsynchronous cr16 cycle counters
+    - iio: dummy: events: Add missing break
+    - usb: musb: sunxi: Explicitly release USB PHY on exit
+    - USB: musb: fix session-bit runtime-PM quirk
+    - USB: musb: fix late external abort on suspend
+    - usb: musb: musb_cppi41: Fix the address of teardown and autoreq registers
+    - usb: musb: musb_cppi41: Fix cppi41_set_dma_mode() for DA8xx
+    - usb: musb: musb_cppi41: Configure the number of channels for DA8xx
+    - usb: musb: Check for host-mode using is_host_active() on reset interrupt
+    - xhci: Identify USB 3.1 capable hosts by their port protocol capability
+    - xhci: Cleanup current_cmd in xhci_cleanup_command_queue()
+    - usb: xhci: Reset halted endpoint if trb is noop
+    - usb: xhci: Handle error condition in xhci_stop_device()
+    - can: esd_usb2: Fix can_dlc value for received RTR, frames
+    - can: af_can: can_pernet_init(): add missing error handling for kzalloc
+      returning NULL
+    - can: flexcan: fix state transition regression
+    - can: flexcan: rename legacy error state quirk
+    - can: flexcan: implement error passive state quirk
+    - can: flexcan: fix i.MX6 state transition issue
+    - can: flexcan: fix i.MX28 state transition issue
+    - can: flexcan: fix p1010 state transition issue
+    - KEYS: encrypted: fix dereference of NULL user_key_payload
+    - mmc: sdhci-pci: Fix default d3_retune for Intel host controllers
+    - drm/i915: Use bdw_ddi_translations_fdi for Broadwell
+    - drm/nouveau/kms/nv50: fix oops during DP IRQ handling on non-MST boards
+    - drm/nouveau/bsp/g92: disable by default
+    - drm/nouveau/mmu: flush tlbs before deleting page tables
+    - media: s5p-cec: add NACK detection support
+    - media: cec: Respond to unregistered initiators, when applicable
+    - media: dvb: i2c transfers over usb cannot be done from stack
+    - tracing/samples: Fix creation and deletion of simple_thread_fn creation
+    - ALSA: seq: Enable 'use' locking in all configurations
+    - ALSA: hda: Remove superfluous '-' added by printk conversion
+    - ALSA: hda: Abort capability probe at invalid register read
+    - i2c: ismt: Separate I2C block read from SMBus block read
+    - i2c: piix4: Fix SMBus port selection for AMD Family 17h chips
+    - Revert "tools/power turbostat: stop migrating, unless '-m'"
+    - Input: stmfts - fix setting ABS_MT_POSITION_* maximum size
+    - brcmfmac: Add check for short event packets
+    - brcmsmac: make some local variables 'static const' to reduce stack size
+    - ARM: dts: sun6i: Fix endpoint IDs in second display pipeline
+    - bus: mbus: fix window size calculation for 4GB windows
+    - clockevents/drivers/cs5535: Improve resilience to spurious interrupts
+    - rtlwifi: rtl8821ae: Fix connection lost problem
+    - x86/microcode/intel: Disable late loading on model 79
+    - lib/digsig: fix dereference of NULL user_key_payload
+    - fscrypt: fix dereference of NULL user_key_payload
+    - ecryptfs: fix dereference of NULL user_key_payload
+    - KEYS: Fix race between updating and finding a negative key
+    - FS-Cache: fix dereference of NULL user_key_payload
+    - KEYS: don't let add_key() update an uninstantiated key
+    - pkcs7: Prevent NULL pointer dereference, since sinfo is not always set.
+    - arm64: dts: rockchip: correct vqmmc voltage for rk3399 platforms
+    - ALSA: hda - Fix incorrect TLV callback check introduced during set_fs()
+      removal
+    - iomap_dio_rw: Allocate AIO completion queue before submitting dio
+    - xfs: don't unconditionally clear the reflink flag on zero-block files
+    - xfs: evict CoW fork extents when performing finsert/fcollapse
+    - fs/xfs: Use %pS printk format for direct addresses
+    - xfs: report zeroed or not correctly in xfs_zero_range()
+    - xfs: update i_size after unwritten conversion in dio completion
+    - xfs: perag initialization should only touch m_ag_max_usable for AG 0
+    - xfs: Capture state of the right inode in xfs_iflush_done
+    - xfs: always swap the cow forks when swapping extents
+    - xfs: handle racy AIO in xfs_reflink_end_cow
+    - xfs: Don't log uninitialised fields in inode structures
+    - xfs: move more RT specific code under CONFIG_XFS_RT
+    - xfs: don't change inode mode if ACL update fails
+    - xfs: reinit btree pointer on attr tree inactivation walk
+    - xfs: handle error if xfs_btree_get_bufs fails
+    - xfs: cancel dirty pages on invalidation
+    - xfs: trim writepage mapping to within eof
+    - xfs: move two more RT specific functions into CONFIG_XFS_RT
+    - Linux 4.13.10
+
+  * Artful update to 4.13.9 stable release (LP: #1731926)
+    - perf pmu: Unbreak perf record for arm/arm64 with events with explicit PMU
+    - mm: page_vma_mapped: ensure pmd is loaded with READ_ONCE outside of lock
+    - HID: hid-elecom: extend to fix descriptor for HUGE trackball
+    - Drivers: hv: vmbus: Fix rescind handling issues
+    - Drivers: hv: vmbus: Fix bugs in rescind handling
+    - vmbus: simplify hv_ringbuffer_read
+    - vmbus: refactor hv_signal_on_read
+    - vmbus: eliminate duplicate cached index
+    - vmbus: more host signalling avoidance
+    - Linux 4.13.9
+
+ -- Stefan Bader <stefan.bader@canonical.com>  Tue, 21 Nov 2017 17:52:51 +0100
+
 linux (4.13.0-17.20) artful; urgency=low
 
   * linux: 4.13.0-17.20 -proposed tracker (LP: #1728927)
