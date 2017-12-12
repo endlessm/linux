@@ -77,6 +77,7 @@ struct sdhci_acpi_slot {
 	size_t		priv_size;
 	int (*probe_slot)(struct platform_device *, const char *, const char *);
 	int (*remove_slot)(struct platform_device *);
+	int (*setup_host)(struct platform_device *pdev);
 };
 
 struct sdhci_acpi_host {
@@ -625,9 +626,19 @@ static int sdhci_acpi_probe(struct platform_device *pdev)
 		c->use_runtime_pm = false;
 	}
 
-	err = sdhci_add_host(host);
+	err = sdhci_setup_host(host);
 	if (err)
 		goto err_free;
+
+	if (c->slot && c->slot->setup_host) {
+		err = c->slot->setup_host(pdev);
+		if (err)
+			goto err_cleanup;
+	}
+
+	err = __sdhci_add_host(host);
+	if (err)
+		goto err_cleanup;
 
 	if (c->use_runtime_pm) {
 		pm_runtime_set_active(dev);
@@ -641,6 +652,8 @@ static int sdhci_acpi_probe(struct platform_device *pdev)
 
 	return 0;
 
+err_cleanup:
+	sdhci_cleanup_host(c->host);
 err_free:
 	sdhci_free_host(c->host);
 	return err;
