@@ -190,7 +190,7 @@ MPTBT_FwC2hBtMpCtrl(
 	u1Byte		length
 );
 
-void MPh2c_timeout_handle(void *FunctionContext);
+void MPh2c_timeout_handle(struct timer_list *t);
 
 VOID mptbt_BtControlProcess(
 	PADAPTER	Adapter,

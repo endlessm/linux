@@ -561,6 +561,10 @@ ODM_SetTimer(
 
 }
 
+#if 0
+/* Disabled because all users would need to be converted to the Linux 4.15 timer API change.
+ * However it has no users so just get rid of this helper function.
+ */
 VOID
 ODM_InitializeTimer(
 	IN 	PDM_ODM_T			pDM_Odm,
@@ -577,13 +581,13 @@ ODM_InitializeTimer(
 	/*mod_timer(pTimer, jiffies+RTL_MILISECONDS_TO_JIFFIES(10));	*/
 #elif(DM_ODM_SUPPORT_TYPE & ODM_CE)
 	PADAPTER Adapter = pDM_Odm->Adapter;
-	_init_timer(pTimer,Adapter->pnetdev,CallBackFunc,pDM_Odm);
+	_init_timer(pTimer,Adapter->pnetdev,CallBackFunc);
 #elif(DM_ODM_SUPPORT_TYPE & ODM_WIN)
 	PADAPTER Adapter = pDM_Odm->Adapter;
 	PlatformInitializeTimer(Adapter, pTimer, CallBackFunc,pContext,szID);
 #endif	
 }
-
+#endif
 
 VOID
 ODM_CancelTimer(

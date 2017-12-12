@@ -68,23 +68,25 @@ void sitesurvey_ctrl_handler(void *FunctionContext)
 }
 */
 
-void rtw_join_timeout_handler(void *FunctionContext)
+void rtw_join_timeout_handler(struct timer_list *t)
 {
-	_adapter *adapter = (_adapter *)FunctionContext;
+	struct	mlme_priv *pmlmepriv = from_timer(pmlmepriv, t, assoc_timer);
+	_adapter *adapter = container_of(pmlmepriv, _adapter, mlmepriv);
 	_rtw_join_timeout_handler(adapter);
 }
 
 
-void _rtw_scan_timeout_handler(void *FunctionContext)
+void _rtw_scan_timeout_handler(struct timer_list *t)
 {
-	_adapter *adapter = (_adapter *)FunctionContext;
+	struct	mlme_priv *pmlmepriv = from_timer(pmlmepriv, t, scan_to_timer);
+	_adapter *adapter = container_of(pmlmepriv, _adapter, mlmepriv);
 	rtw_scan_timeout_handler(adapter);
 }
 
 
-void _dynamic_check_timer_handlder(void *FunctionContext)
+void _dynamic_check_timer_handlder(struct timer_list *t)
 {
-	struct dvobj_priv *pdvobj = (struct dvobj_priv *)FunctionContext;
+	struct dvobj_priv *pdvobj = from_timer(pdvobj, t, dynamic_chk_timer);
 	_adapter *adapter = dvobj_get_primary_adapter(pdvobj);
 
 #if (MP_DRIVER == 1)
@@ -101,9 +103,10 @@ void _dynamic_check_timer_handlder(void *FunctionContext)
 }
 
 #ifdef CONFIG_SET_SCAN_DENY_TIMER
-void _rtw_set_scan_deny_timer_hdl(void *FunctionContext)
+void _rtw_set_scan_deny_timer_hdl(struct timer_list *t)
 {
-	_adapter *adapter = (_adapter *)FunctionContext;
+	struct	mlme_priv *pmlmepriv = from_timer(pmlmepriv, t, set_scan_deny_timer);
+	_adapter *adapter = container_of(pmlmepriv, _adapter, mlmepriv);
 	rtw_set_scan_deny_timer_hdl(adapter);
 }
 #endif
@@ -113,16 +116,16 @@ void rtw_init_mlme_timer(_adapter *padapter)
 {
 	struct	mlme_priv *pmlmepriv = &padapter->mlmepriv;
 
-	_init_timer(&(pmlmepriv->assoc_timer), padapter->pnetdev, rtw_join_timeout_handler, padapter);
+	_init_timer(&(pmlmepriv->assoc_timer), padapter->pnetdev, rtw_join_timeout_handler);
 	/* _init_timer(&(pmlmepriv->sitesurveyctrl.sitesurvey_ctrl_timer), padapter->pnetdev, sitesurvey_ctrl_handler, padapter); */
-	_init_timer(&(pmlmepriv->scan_to_timer), padapter->pnetdev, _rtw_scan_timeout_handler, padapter);
+	_init_timer(&(pmlmepriv->scan_to_timer), padapter->pnetdev, _rtw_scan_timeout_handler);
 
 #ifdef CONFIG_DFS_MASTER
 	_init_timer(&(pmlmepriv->dfs_master_timer), padapter->pnetdev, rtw_dfs_master_timer_hdl, padapter);
 #endif
 
 #ifdef CONFIG_SET_SCAN_DENY_TIMER
-	_init_timer(&(pmlmepriv->set_scan_deny_timer), padapter->pnetdev, _rtw_set_scan_deny_timer_hdl, padapter);
+	_init_timer(&(pmlmepriv->set_scan_deny_timer), padapter->pnetdev, _rtw_set_scan_deny_timer_hdl);
 #endif
 
 #ifdef RTK_DMP_PLATFORM
@@ -300,16 +303,17 @@ void rtw_report_sec_ie(_adapter *adapter, u8 authmode, u8 *sec_ie)
 
 }
 
-void _survey_timer_hdl(void *FunctionContext)
+void _survey_timer_hdl(struct timer_list *t)
 {
-	_adapter *padapter = (_adapter *)FunctionContext;
-
+	struct mlme_ext_priv	*pmlmeext = from_timer(pmlmeext, t, survey_timer);
+	_adapter *padapter = container_of(pmlmeext, _adapter, mlmeextpriv);
 	survey_timer_hdl(padapter);
 }
 
-void _link_timer_hdl(void *FunctionContext)
+void _link_timer_hdl(struct timer_list *t)
 {
-	_adapter *padapter = (_adapter *)FunctionContext;
+	struct mlme_ext_priv	*pmlmeext = from_timer(pmlmeext, t, link_timer);
+	_adapter *padapter = container_of(pmlmeext, _adapter, mlmeextpriv);
 	link_timer_hdl(padapter);
 }
 
@@ -329,9 +333,9 @@ void _ft_roam_timer_hdl(void *FunctionContext)
 }
 #endif
 
-void _addba_timer_hdl(void *FunctionContext)
+void _addba_timer_hdl(struct timer_list *t)
 {
-	struct sta_info *psta = (struct sta_info *)FunctionContext;
+	struct sta_info *psta = from_timer(psta, t, addba_retry_timer);
 	addba_timer_hdl(psta);
 }
 
@@ -354,7 +358,7 @@ void init_dot11w_expire_timer(_adapter *padapter, struct sta_info *psta)
 void init_addba_retry_timer(_adapter *padapter, struct sta_info *psta)
 {
 
-	_init_timer(&psta->addba_retry_timer, padapter->pnetdev, _addba_timer_hdl, psta);
+	_init_timer(&psta->addba_retry_timer, padapter->pnetdev, _addba_timer_hdl);
 }
 
 /*
@@ -375,8 +379,8 @@ void init_mlme_ext_timer(_adapter *padapter)
 {
 	struct	mlme_ext_priv *pmlmeext = &padapter->mlmeextpriv;
 
-	_init_timer(&pmlmeext->survey_timer, padapter->pnetdev, _survey_timer_hdl, padapter);
-	_init_timer(&pmlmeext->link_timer, padapter->pnetdev, _link_timer_hdl, padapter);
+	_init_timer(&pmlmeext->survey_timer, padapter->pnetdev, _survey_timer_hdl);
+	_init_timer(&pmlmeext->link_timer, padapter->pnetdev, _link_timer_hdl);
 #ifdef CONFIG_RTW_80211R
 	_init_timer(&pmlmeext->ft_link_timer, padapter->pnetdev, _ft_link_timer_hdl, padapter);
 	_init_timer(&pmlmeext->ft_roam_timer, padapter->pnetdev, _ft_roam_timer_hdl, padapter);
