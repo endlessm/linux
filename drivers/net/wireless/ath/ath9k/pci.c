@@ -884,6 +884,7 @@ static int ath_pci_probe(struct pci_dev *pdev, const struct pci_device_id *id)
 	u32 val;
 	int ret = 0;
 	char hw_name[64];
+	unsigned int irq_flags = PCI_IRQ_LEGACY;
 
 	if (pcim_enable_device(pdev))
 		return -EIO;
@@ -955,15 +956,24 @@ static int ath_pci_probe(struct pci_dev *pdev, const struct pci_device_id *id)
 	sc->mem = pcim_iomap_table(pdev)[0];
 	sc->driver_data = id->driver_data;
 
-	/* The device appears to zero-out the lower two bits of the MSI
-	 * Message Data field, presumably because it thinks it is working with
-	 * 4 MSI vectors even though we only work with one of them.
-	 * Align the MSI vector number by 4 so that the lower bits are already
-	 * zero.
-	 */
-	pdev->align_msi_vector = 4;
+	if (id->driver_data & (ATH9K_PCI_AR9565_1ANT | ATH9K_PCI_AR9565_2ANT)) {
+		/* Enable MSI. We have tested these devices and found it to be
+		 * working. MSI is necessary on platforms where the legacy
+		 * interrupt doesn't work.
+		 */
+		irq_flags |= PCI_IRQ_MSI;
 
-	ret = pci_alloc_irq_vectors(pdev, 1, 1, PCI_IRQ_MSI | PCI_IRQ_LEGACY);
+		/* The device appears to zero-out the lower two bits of the MSI
+		 * Message Data field, presumably because it thinks it is
+		 * working with 4 MSI vectors even though we only work with
+		 * one of them. Align the MSI vector number by 4 so that the
+		 * lower bits are already
+		 * zero.
+		 */
+		pdev->align_msi_vector = 4;
+	}
+
+	ret = pci_alloc_irq_vectors(pdev, 1, 1, irq_flags);
 	if (ret < 0) {
 		dev_err(&pdev->dev, "Failed to request interrupt vectors\n");
 		goto err_irqvectors;
