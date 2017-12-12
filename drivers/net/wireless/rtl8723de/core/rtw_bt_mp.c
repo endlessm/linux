@@ -27,16 +27,11 @@
 #endif
 
 #if defined(CONFIG_RTL8723B) || defined(CONFIG_RTL8821A)
-void MPh2c_timeout_handle(void *FunctionContext)
+void MPh2c_timeout_handle(struct timer_list *t)
 {
-	PADAPTER pAdapter;
-	PMPT_CONTEXT pMptCtx;
-
+	PMPT_CONTEXT pMptCtx = from_timer(pMptCtx, t, MPh2c_timeout_timer);
 
 	RTW_INFO("[MPT], MPh2c_timeout_handle\n");
-
-	pAdapter = (PADAPTER)FunctionContext;
-	pMptCtx = &pAdapter->mppriv.MptCtx;
 
 	pMptCtx->bMPh2c_timeout = _TRUE;
 
