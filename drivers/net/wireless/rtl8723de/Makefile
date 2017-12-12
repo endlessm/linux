@@ -148,7 +148,7 @@ CONFIG_PLATFORM_HISILICON = n
 
 CONFIG_DRVEXT_MODULE = n
 
-export TopDIR ?= $(shell pwd)
+export TopDIR ?= $(srctree)/drivers/net/wireless/rtl8723de
 
 ########### COMMON  #################################
 ifeq ($(CONFIG_GSPI_HCI), y)
