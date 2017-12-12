@@ -393,10 +393,10 @@ exit:
 	return;
 }
 
-void pwr_state_check_handler(RTW_TIMER_HDL_ARGS);
-void pwr_state_check_handler(RTW_TIMER_HDL_ARGS)
+void pwr_state_check_handler(struct timer_list *t)
 {
-	_adapter *padapter = (_adapter *)FunctionContext;
+	struct pwrctrl_priv *pwrctrlpriv = from_timer(pwrctrlpriv, t, pwr_state_check_timer);
+	_adapter *padapter = pwrctrlpriv->adapter;
 	rtw_ps_cmd(padapter);
 }
 
@@ -1896,6 +1896,7 @@ void rtw_init_pwrctrl_priv(PADAPTER padapter)
 
 	_init_pwrlock(&pwrctrlpriv->lock);
 	_init_pwrlock(&pwrctrlpriv->check_32k_lock);
+	pwrctrlpriv->adapter = padapter;
 	pwrctrlpriv->rf_pwrstate = rf_on;
 	pwrctrlpriv->ips_enter_cnts = 0;
 	pwrctrlpriv->ips_leave_cnts = 0;

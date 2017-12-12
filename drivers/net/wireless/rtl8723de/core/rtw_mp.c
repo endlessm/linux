@@ -545,7 +545,7 @@ MPT_InitializeAdapter(
 	pMptCtx->MptH2cRspEvent = _FALSE;
 	pMptCtx->MptBtC2hEvent = _FALSE;
 	_rtw_init_sema(&pMptCtx->MPh2c_Sema, 0);
-	_init_timer(&pMptCtx->MPh2c_timeout_timer, pAdapter->pnetdev, MPh2c_timeout_handle, pAdapter);
+	_init_timer(&pMptCtx->MPh2c_timeout_timer, pAdapter->pnetdev, MPh2c_timeout_handle);
 #endif
 
 	mpt_InitHWConfig(pAdapter);
