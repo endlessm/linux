@@ -1071,7 +1071,7 @@ void rtw_init_timer(_timer *ptimer, void *padapter, void *pfunc)
 	_adapter *adapter = (_adapter *)padapter;
 
 #ifdef PLATFORM_LINUX
-	_init_timer(ptimer, adapter->pnetdev, pfunc, adapter);
+	_init_timer(ptimer, adapter->pnetdev, pfunc);
 #endif
 #ifdef PLATFORM_FREEBSD
 	_init_timer(ptimer, adapter->pifp, pfunc, adapter->mlmepriv.nic_hdl);
@@ -2029,19 +2029,11 @@ static int readFile(struct file *fp, char *buf, int len)
 {
 	int rlen = 0, sum = 0;
 
-#if (LINUX_VERSION_CODE >= KERNEL_VERSION(4, 1, 0))
-	if (!(fp->f_mode & FMODE_CAN_READ))
-#else
 	if (!fp->f_op || !fp->f_op->read)
-#endif
 		return -EPERM;
 
 	while (sum < len) {
-#if (LINUX_VERSION_CODE >= KERNEL_VERSION(4, 1, 0))
-		rlen = __vfs_read(fp, buf + sum, len - sum, &fp->f_pos);
-#else
 		rlen = fp->f_op->read(fp, buf + sum, len - sum, &fp->f_pos);
-#endif
 		if (rlen > 0)
 			sum += rlen;
 		else if (0 != rlen)
@@ -2093,7 +2085,7 @@ static int isFileReadable(const char *path, u32 *sz)
 		ret = PTR_ERR(fp);
 	else {
 		oldfs = get_fs();
-		set_fs(get_ds());
+		set_fs(KERNEL_DS);
 
 		if (1 != readFile(fp, &buf, 1))
 			ret = PTR_ERR(fp);
@@ -2131,7 +2123,7 @@ static int retriveFromFile(const char *path, u8 *buf, u32 sz)
 			RTW_INFO("%s openFile path:%s fp=%p\n", __FUNCTION__, path , fp);
 
 			oldfs = get_fs();
-			set_fs(get_ds());
+			set_fs(KERNEL_DS);
 			ret = readFile(fp, buf, sz);
 			set_fs(oldfs);
 			closeFile(fp);
@@ -2166,7 +2158,7 @@ static int storeToFile(const char *path, u8 *buf, u32 sz)
 			RTW_INFO("%s openFile path:%s fp=%p\n", __FUNCTION__, path , fp);
 
 			oldfs = get_fs();
-			set_fs(get_ds());
+			set_fs(KERNEL_DS);
 			ret = writeFile(fp, buf, sz);
 			set_fs(oldfs);
 			closeFile(fp);
