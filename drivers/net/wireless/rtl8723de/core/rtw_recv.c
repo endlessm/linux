@@ -30,7 +30,7 @@
 
 
 #ifdef CONFIG_NEW_SIGNAL_STAT_PROCESS
-void rtw_signal_stat_timer_hdl(RTW_TIMER_HDL_ARGS);
+void rtw_signal_stat_timer_hdl(struct timer_list *t);
 
 enum {
 	SIGNAL_STAT_CALC_PROFILE_0 = 0,
@@ -4307,10 +4307,10 @@ _recv_entry_drop:
 }
 
 #ifdef CONFIG_NEW_SIGNAL_STAT_PROCESS
-void rtw_signal_stat_timer_hdl(RTW_TIMER_HDL_ARGS)
+void rtw_signal_stat_timer_hdl(struct timer_list *t)
 {
-	_adapter *adapter = (_adapter *)FunctionContext;
-	struct recv_priv *recvpriv = &adapter->recvpriv;
+	struct recv_priv *recvpriv = from_timer(recvpriv, t, signal_stat_timer);
+	_adapter *adapter = container_of(recvpriv, _adapter, recvpriv);
 
 	u32 tmp_s, tmp_q;
 	u8 avg_signal_strength = 0;
