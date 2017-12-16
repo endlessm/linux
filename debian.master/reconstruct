@@ -1,3 +1,4 @@
 # Recreate any symlinks created since the orig.
 # Remove any files deleted from the orig.
+rm -f 'arch/arm64/kernel/ftrace-mod.S'
 exit 0
