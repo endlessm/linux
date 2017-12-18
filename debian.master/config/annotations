@@ -3779,8 +3779,11 @@ CONFIG_MTD_SPI_NOR_USE_4K_SECTORS               policy<{'amd64': 'y', 'arm64': '
 CONFIG_SPI_CADENCE_QUADSPI                      policy<{'armhf': 'm'}>
 CONFIG_SPI_FSL_QUADSPI                          policy<{'arm64': 'm', 'armhf-generic': 'm'}>
 CONFIG_SPI_HISI_SFC                             policy<{'arm64': 'm', 'armhf': 'm'}>
-CONFIG_SPI_INTEL_SPI_PCI                        policy<{'amd64': 'm', 'i386': 'm'}>
-CONFIG_SPI_INTEL_SPI_PLATFORM                   policy<{'amd64': 'm', 'i386': 'm'}>
+CONFIG_SPI_INTEL_SPI_PCI                        policy<{'amd64': 'n', 'i386': 'n'}>
+CONFIG_SPI_INTEL_SPI_PLATFORM                   policy<{'amd64': 'n', 'i386': 'n'}>
+#
+CONFIG_SPI_INTEL_SPI_PCI                        mark<ENFORCE> note<LP:1734147>
+CONFIG_SPI_INTEL_SPI_PLATFORM                   mark<ENFORCE> note<LP:1734147>
 
 # Menu: Device Drivers >> Memory Technology Device (MTD) support >> Self-contained MTD device drivers
 CONFIG_MTD_PMC551                               policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'ppc64el': 'm'}>
@@ -10976,8 +10979,8 @@ CONFIG_QCOM_FALKOR_ERRATUM_1003                 policy<{'arm64': 'y'}>
 CONFIG_QCOM_FALKOR_ERRATUM_1009                 policy<{'arm64': 'y'}>
 CONFIG_QCOM_QDF2400_ERRATUM_0065                policy<{'arm64': 'y'}>
 #
-CONFIG_ARM64_ERRATUM_843419                     mark<ENFORCED> note<LP#1647793>
-CONFIG_QCOM_QDF2400_ERRATUM_0065                mark<ENFORCED> note<LP#1672486>
+CONFIG_ARM64_ERRATUM_843419                     mark<ENFORCED> note<LP:1647793>
+CONFIG_QCOM_QDF2400_ERRATUM_0065                mark<ENFORCED> note<LP:1672486>
 
 # Menu: Processor type and features >> ARMv8.1 architectural features >> Architecture: arm64
 CONFIG_ARM64_HW_AFDBM                           policy<{'arm64': 'y'}>
@@ -11113,7 +11116,15 @@ CONFIG_CMA_DEBUGFS                              policy<{'amd64': 'n', 'arm64': '
 CONFIG_CMA_AREAS                                policy<{'amd64': '7', 'arm64': '7', 'armhf': '7', 'i386': '7', 'ppc64el': '7', 's390x': '7'}>
 
 # Menu: Processor type and features >> Emulate deprecated/obsolete ARMv8 instructions >> Architecture: arm64
-CONFIG_ARMV8_DEPRECATED                         policy<{'arm64': 'n'}>
+CONFIG_ARMV8_DEPRECATED                         policy<{'arm64': 'y'}>
+CONFIG_SWP_EMULATION                            policy<{'arm64': 'y'}>
+CONFIG_CP15_BARRIER_EMULATION                   policy<{'arm64': 'y'}>
+CONFIG_SETEND_EMULATION                         policy<{'arm64': 'y'}>
+#
+CONFIG_ARMV8_DEPRECATED                         mark<ENFORCED> note<LP:1545542>
+CONFIG_SWP_EMULATION                            mark<ENFORCED> note<LP:1545542>
+CONFIG_CP15_BARRIER_EMULATION                   mark<ENFORCED> note<LP:1545542>
+CONFIG_SETEND_EMULATION                         mark<ENFORCED> note<LP:1545542>
 
 # Menu: Processor type and features >> High Memory Support >> Architecture: x86
 CONFIG_NOHIGHMEM                                policy<{'i386': 'n'}>

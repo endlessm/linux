@@ -17,7 +17,6 @@
 
 #include <net/sock.h>
 #include <linux/path.h>
-#include <linux/lsm_hooks.h>
 
 #include "apparmorfs.h"
 #include "label.h"
@@ -57,16 +56,7 @@ struct aa_sk_ctx {
 	struct path path;
 };
 
-extern struct lsm_blob_sizes apparmor_blob_sizes;
-static inline struct aa_sk_ctx *apparmor_sock(const struct sock *sk)
-{
-#ifdef CONFIG_SECURITY_STACKING
-	return sk->sk_security + apparmor_blob_sizes.lbs_sock;
-#else
-	return sk->sk_security;
-#endif
-}
-#define SK_CTX(X) apparmor_sock(X)
+#define SK_CTX(X) ((X)->sk_security)
 #define SOCK_ctx(X) SOCK_INODE(X)->i_security
 #define DEFINE_AUDIT_NET(NAME, OP, SK, F, T, P)				  \
 	struct lsm_network_audit NAME ## _net = { .sk = (SK),		  \

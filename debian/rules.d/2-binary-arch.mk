@@ -318,14 +318,10 @@ endif
 		"$(hdrdir)/include/generated/compile.h"
 	# Add UTS_UBUNTU_RELEASE_ABI since UTS_RELEASE is difficult to parse.
 	echo "#define UTS_UBUNTU_RELEASE_ABI $(abinum)" >> $(hdrdir)/include/generated/utsrelease.h
-	# some kernel arches seems to need some .o files for external module linking. Add them in.
+	# powerpc kernel arch seems to need some .o files for external module linking. Add them in.
 ifeq ($(build_arch),powerpc)
 	mkdir -p $(hdrdir)/arch/powerpc/lib
 	cp $(builddir)/build-$*/arch/powerpc/lib/*.o $(hdrdir)/arch/powerpc/lib
-endif
-ifeq ($(build_arch),arm64)
-	mkdir -p $(hdrdir)/arch/arm64/lib
-	cp $(builddir)/build-$*/arch/arm64/kernel/ftrace-mod.o $(hdrdir)/arch/arm64/kernel
 endif
 	# Script to symlink everything up
 	$(SHELL) $(DROOT)/scripts/link-headers "$(hdrdir)" "$(indeppkg)" "$*"
@@ -415,7 +411,9 @@ install-arch-headers:
 	@echo Debug: $@
 	dh_testdir
 	dh_testroot
+ifeq ($(do_libc_dev_package),true)
 	dh_prep -plinux-libc-dev
+endif
 
 	rm -rf $(headers_tmp)
 	install -d $(headers_tmp) $(headers_dir)/usr/include/
@@ -457,6 +455,7 @@ endif
 endif
 
 binary-%: pkgimg = $(bin_pkg_name)-$*
+binary-%: pkgdir_ex = $(CURDIR)/debian/$(extra_pkg_name)-$*
 binary-%: pkgimg_ex = $(extra_pkg_name)-$*
 binary-%: pkghdr = $(hdrs_pkg_name)-$*
 binary-%: dbgpkg = $(bin_pkg_name)-$*-dbgsym
@@ -481,6 +480,14 @@ binary-%: install-%
 	dh_builddeb -p$(pkgimg)
 
 ifeq ($(do_extras_package),true)
+  ifeq ($(ship_extras_package),false)
+	# If $(ship_extras_package) is explicitly set to false, then do not
+	# construct the linux-image-extra package; instead just log all of the
+	# "extra" modules which were pointlessly built yet won't be shipped.
+	find $(pkgdir_ex) -name '*.ko' | sort \
+		| sed 's|^$(pkgdir_ex)/|NOT-SHIPPED |' \
+		| tee -a $(target_flavour).not-shipped.log;
+  else
 	if [ -f $(DEBIAN)/control.d/$(target_flavour).inclusion-list ] ; then \
 		dh_installchangelogs -p$(pkgimg_ex); \
 		dh_installdocs -p$(pkgimg_ex); \
@@ -492,6 +499,7 @@ ifeq ($(do_extras_package),true)
 		dh_md5sums -p$(pkgimg_ex); \
 		dh_builddeb -p$(pkgimg_ex); \
 	fi
+  endif
 endif
 
 	dh_installchangelogs -p$(pkghdr)

@@ -1934,12 +1934,6 @@ struct security_hook_list {
 struct lsm_blob_sizes {
 	int	lbs_cred;
 	int	lbs_file;
-	int	lbs_inode;
-	int	lbs_ipc;
-	int	lbs_key;
-	int	lbs_msg_msg;
-	int	lbs_sock;
-	int	lbs_superblock;
 	int	lbs_task;
 };
 
@@ -2003,11 +1997,9 @@ static inline void loadpin_add_hooks(void) { };
 #endif
 
 extern int lsm_cred_alloc(struct cred *cred, gfp_t gfp);
-extern int lsm_inode_alloc(struct inode *inode);
 
 #ifdef CONFIG_SECURITY
 void lsm_early_cred(struct cred *cred);
-void lsm_early_inode(struct inode *inode);
 #endif
 
 #endif /* ! __LINUX_LSM_HOOKS_H */

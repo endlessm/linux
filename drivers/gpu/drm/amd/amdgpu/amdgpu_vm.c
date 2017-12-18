@@ -1243,7 +1243,7 @@ static void amdgpu_vm_invalidate_level(struct amdgpu_vm *vm,
 int amdgpu_vm_update_directories(struct amdgpu_device *adev,
 				 struct amdgpu_vm *vm)
 {
-	int r;
+	int r = 0;
 
 	spin_lock(&vm->status_lock);
 	while (!list_empty(&vm->relocated)) {
@@ -2737,8 +2737,9 @@ void amdgpu_vm_fini(struct amdgpu_device *adev, struct amdgpu_vm *vm)
 {
 	struct amdgpu_bo_va_mapping *mapping, *tmp;
 	bool prt_fini_needed = !!adev->gart.gart_funcs->set_prt;
+	struct amdgpu_bo *root;
 	u64 fault;
-	int i;
+	int i, r;
 
 	/* Clear pending page faults from IH when the VM is destroyed */
 	while (kfifo_get(&vm->faults, &fault))
@@ -2773,7 +2774,15 @@ void amdgpu_vm_fini(struct amdgpu_device *adev, struct amdgpu_vm *vm)
 		amdgpu_vm_free_mapping(adev, vm, mapping, NULL);
 	}
 
-	amdgpu_vm_free_levels(&vm->root);
+	root = amdgpu_bo_ref(vm->root.base.bo);
+	r = amdgpu_bo_reserve(root, true);
+	if (r) {
+		dev_err(adev->dev, "Leaking page tables because BO reservation failed\n");
+	} else {
+		amdgpu_vm_free_levels(&vm->root);
+		amdgpu_bo_unreserve(root);
+	}
+	amdgpu_bo_unref(&root);
 	dma_fence_put(vm->last_update);
 	for (i = 0; i < AMDGPU_MAX_VMHUBS; i++)
 		amdgpu_vm_free_reserved_vmid(adev, vm, i);
