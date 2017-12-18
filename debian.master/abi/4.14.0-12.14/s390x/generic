@@ -3038,6 +3038,7 @@ EXPORT_SYMBOL vmlinux 0x00000000	get_unmapped_area
 EXPORT_SYMBOL vmlinux 0x00000000	get_unused_fd_flags
 EXPORT_SYMBOL vmlinux 0x00000000	get_user_pages
 EXPORT_SYMBOL vmlinux 0x00000000	get_user_pages_locked
+EXPORT_SYMBOL vmlinux 0x00000000	get_user_pages_longterm
 EXPORT_SYMBOL vmlinux 0x00000000	get_user_pages_remote
 EXPORT_SYMBOL vmlinux 0x00000000	get_user_pages_unlocked
 EXPORT_SYMBOL vmlinux 0x00000000	get_zeroed_page
@@ -5555,6 +5556,7 @@ EXPORT_SYMBOL_GPL crypto/af_alg 0x00000000	af_alg_complete
 EXPORT_SYMBOL_GPL crypto/af_alg 0x00000000	af_alg_count_tsgl
 EXPORT_SYMBOL_GPL crypto/af_alg 0x00000000	af_alg_data_wakeup
 EXPORT_SYMBOL_GPL crypto/af_alg 0x00000000	af_alg_free_areq_sgls
+EXPORT_SYMBOL_GPL crypto/af_alg 0x00000000	af_alg_free_resources
 EXPORT_SYMBOL_GPL crypto/af_alg 0x00000000	af_alg_free_sg
 EXPORT_SYMBOL_GPL crypto/af_alg 0x00000000	af_alg_get_rsgl
 EXPORT_SYMBOL_GPL crypto/af_alg 0x00000000	af_alg_link_sg
