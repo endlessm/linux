@@ -4982,6 +4982,8 @@ static void svm_vcpu_run(struct kvm_vcpu *vcpu)
 			wrmsrl(MSR_IA32_SPEC_CTRL, FEATURE_ENABLE_IBRS);
 	}
 
+	stuff_RSB();
+
 #ifdef CONFIG_X86_64
 	wrmsrl(MSR_GS_BASE, svm->host.gs_base);
 #else
