@@ -222,7 +222,7 @@ static void notrace start_secondary(void *unused)
 	 * before cpu_init(), SMP booting is too fragile that we want to
 	 * limit the things done here to the most necessary things.
 	 */
-	if (boot_cpu_has(X86_FEATURE_PCID))
+	if (IS_ENABLED(CONFIG_X86_64) && boot_cpu_has(X86_FEATURE_PCID))
 		__write_cr4(__read_cr4() | X86_CR4_PCIDE);
 	cpu_init();
 	x86_cpuinit.early_percpu_clock_init();
