@@ -518,6 +518,8 @@ struct svm_cpu_data {
 	struct kvm_ldttss_desc *tss_desc;
 
 	struct page *save_area;
+
+	struct vmcb *current_vmcb;
 };
 
 static DEFINE_PER_CPU(struct svm_cpu_data *, svm_data);
@@ -1685,11 +1687,19 @@ static void svm_free_vcpu(struct kvm_vcpu *vcpu)
 	__free_pages(virt_to_page(svm->nested.msrpm), MSRPM_ALLOC_ORDER);
 	kvm_vcpu_uninit(vcpu);
 	kmem_cache_free(kvm_vcpu_cache, svm);
+
+	/*
+	 * The VMCB could be recycled, causing a false negative in svm_vcpu_load;
+	 * block speculative execution.
+	 */
+	if (ibpb_inuse)
+		wrmsrl(MSR_IA32_PRED_CMD, FEATURE_SET_IBPB);
 }
 
 static void svm_vcpu_load(struct kvm_vcpu *vcpu, int cpu)
 {
 	struct vcpu_svm *svm = to_svm(vcpu);
+	struct svm_cpu_data *sd = per_cpu(svm_data, cpu);
 	int i;
 
 	if (unlikely(cpu != vcpu->cpu)) {
@@ -1717,6 +1727,12 @@ static void svm_vcpu_load(struct kvm_vcpu *vcpu, int cpu)
 	/* This assumes that the kernel never uses MSR_TSC_AUX */
 	if (static_cpu_has(X86_FEATURE_RDTSCP))
 		wrmsrl(MSR_TSC_AUX, svm->tsc_aux);
+
+	if (sd->current_vmcb != svm->vmcb) {
+		sd->current_vmcb = svm->vmcb;
+		if (ibpb_inuse)
+			wrmsrl(MSR_IA32_PRED_CMD, FEATURE_SET_IBPB);
+	}
 
 	avic_vcpu_load(vcpu, cpu);
 }
