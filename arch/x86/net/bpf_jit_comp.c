@@ -116,9 +116,6 @@ static void emit_memory_barrier(u8 **pprog)
 		if (boot_cpu_has(X86_FEATURE_LFENCE_RDTSC))
 			/* x86 LFENCE opcode 0F AE E8 */
 			EMIT3(0x0f, 0xae, 0xe8);
-		else if (boot_cpu_has(X86_FEATURE_MFENCE_RDTSC))
-			/* AMD MFENCE opcode 0F AE F0 */
-			EMIT3(0x0f, 0xae, 0xf0);
 		else
 			/* we should never end up here,
 			 * but if we do, better not to emit anything*/
