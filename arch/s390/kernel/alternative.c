@@ -14,6 +14,19 @@ static int __init disable_alternative_instructions(char *str)
 
 early_param("noaltinstr", disable_alternative_instructions);
 
+extern struct alt_instr __alt_nobp[], __alt_nobp_end[];
+static int __init nobp_setup(char *str)
+{
+	bool enabled;
+	int rc;
+
+	rc = kstrtobool(str, &enabled);
+	if (!rc && enabled)
+		apply_alternatives(__alt_nobp, __alt_nobp_end);
+	return rc;
+}
+__setup("nobp=", nobp_setup);
+
 struct brcl_insn {
 	u16 opc;
 	s32 disp;

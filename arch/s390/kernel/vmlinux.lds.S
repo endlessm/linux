@@ -115,6 +115,9 @@ SECTIONS
 		__alt_instructions = .;
 		*(.altinstructions)
 		__alt_instructions_end = .;
+		__alt_nobp = .;
+		*(.altnobp)
+		__alt_nobp_end = .;
 	}
 
 	/*
