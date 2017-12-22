@@ -1550,6 +1550,13 @@ static bool acpi_device_enumeration_by_parent(struct acpi_device *device)
 		{}
 	};
 
+	/*
+	 * Treat RT8723BS devices as non serdev for now, so that the
+	 * userspace btattach code can keep working.
+	 */
+	if (!strcmp(acpi_device_hid(device), "OBDA8723"))
+		return false;
+
 	if (acpi_is_indirect_io_slave(device))
 		return true;
 
