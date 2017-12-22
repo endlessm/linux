@@ -1529,6 +1529,13 @@ static bool acpi_is_serial_bus_slave(struct acpi_device *device)
 	struct list_head resource_list;
 	bool is_serial_bus_slave = false;
 
+	/*
+	 * Treat RT8723BS devices as non serdev for now, so that the
+	 * userspace btattach code can keep working.
+	 */
+	if (!strcmp(acpi_device_hid(device), "OBDA8723"))
+		return false;
+
 	/* Macs use device properties in lieu of _CRS resources */
 	if (x86_apple_machine &&
 	    (fwnode_property_present(&device->fwnode, "spiSclkPeriod") ||
