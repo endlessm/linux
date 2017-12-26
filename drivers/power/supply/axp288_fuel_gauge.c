@@ -758,6 +758,9 @@ static int axp288_fuel_gauge_probe(struct platform_device *pdev)
 	if (dmi_check_system(axp288_fuel_gauge_blacklist))
 		return -ENODEV;
 
+	if (dmi_check_system(axp288_fuel_gauge_blacklist))
+		return -ENODEV;
+
 	info = devm_kzalloc(&pdev->dev, sizeof(*info), GFP_KERNEL);
 	if (!info)
 		return -ENOMEM;
