@@ -11369,6 +11369,7 @@ CONFIG_KEY_DH_OPERATIONS                        policy<{'amd64': 'y', 'arm64': '
 CONFIG_SECURITY                                 policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'ppc64el': 'y', 's390x': 'y'}>
 CONFIG_SECURITY_STACKING                        policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'ppc64el': 'y', 's390x': 'y'}>
 CONFIG_SECURITY_NETWORK                         policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'ppc64el': 'y', 's390x': 'y'}>
+CONFIG_PAGE_TABLE_ISOLATION                     policy<{'amd64': 'y'}>
 CONFIG_SECURITY_INFINIBAND                      policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'ppc64el': 'y', 's390x': 'y'}>
 CONFIG_SECURITY_NETWORK_XFRM                    policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'ppc64el': 'y', 's390x': 'y'}>
 CONFIG_SECURITY_PATH                            policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'ppc64el': 'y', 's390x': 'y'}>
@@ -11381,6 +11382,7 @@ CONFIG_SECURITY_DEFAULT_DISPLAY_APPARMOR        policy<{'amd64': 'y', 'arm64': '
 CONFIG_SECURITY_DEFAULT_DISPLAY_NAME            policy<{'amd64': '"apparmor"', 'arm64': '"apparmor"', 'armhf': '"apparmor"', 'i386': '"apparmor"', 'ppc64el': '"apparmor"', 's390x': '"apparmor"'}>
 
 CONFIG_SECURITY                                 mark<ENFORCED>
+CONFIG_PAGE_TABLE_ISOLATION                     mark<ENFORCED>
 CONFIG_LSM_MMAP_MIN_ADDR                        mark<ENFORCED> flag<REVIEW>
 CONFIG_SECURITY_YAMA                            mark<ENFORCED>
 CONFIG_SECURITY_DEFAULT_DISPLAY_NAME            mark<ENFORCED>
