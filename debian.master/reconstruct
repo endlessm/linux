@@ -1,4 +1,12 @@
 # Recreate any symlinks created since the orig.
 # Remove any files deleted from the orig.
 rm -f 'arch/arm64/kernel/ftrace-mod.S'
+rm -f 'tools/objtool/arch/x86/insn/gen-insn-attr-x86.awk'
+rm -f 'tools/objtool/arch/x86/insn/inat.c'
+rm -f 'tools/objtool/arch/x86/insn/inat.h'
+rm -f 'tools/objtool/arch/x86/insn/inat_types.h'
+rm -f 'tools/objtool/arch/x86/insn/insn.c'
+rm -f 'tools/objtool/arch/x86/insn/insn.h'
+rm -f 'tools/objtool/arch/x86/insn/x86-opcode-map.txt'
+rm -f 'tools/objtool/orc_types.h'
 exit 0
