@@ -1,6 +1,9 @@
-linux (4.14.0-14.16) bionic; urgency=low
+linux (4.14.0-14.17) bionic; urgency=low
 
-  * linux: 4.14.0-14.16 -proposed tracker (LP: #1741139)
+  * linux: 4.14.0-14.17 -proposed tracker (LP: #1741139)
+
+  * Miscellaneous Ubuntu changes
+    - [Debian] autoreconstruct - add resoration of execute permissions
 
   * hisi_sas: driver robustness fixes (LP: #1739807)
     - scsi: hisi_sas: fix internal abort slot timeout bug
@@ -630,7 +633,7 @@ linux (4.14.0-14.16) bionic; urgency=low
     - [Config] updateconfigs after applying 4.14.{8,9,10} stable updates
     - [Config] CONFIG_PAGE_TABLE_ISOLATION=y
 
- -- Seth Forshee <seth.forshee@canonical.com>  Wed, 03 Jan 2018 17:28:20 -0600
+ -- Seth Forshee <seth.forshee@canonical.com>  Thu, 04 Jan 2018 15:47:42 -0600
 
 linux (4.14.0-13.15) bionic; urgency=low
 
