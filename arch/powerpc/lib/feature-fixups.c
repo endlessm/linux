@@ -145,7 +145,8 @@ void do_rfi_flush_fixups(enum l1d_flush_type types)
 		dest = (void *)start + *start;
 
 		pr_devel("patching dest %lx\n", (unsigned long)dest);
-		patch_instruction(dest, instr);
+		patch_instruction(dest, 0x60000000);
+		patch_instruction(dest + 1, instr);
 	}
 
 	printk(KERN_DEBUG "rfi-fixups: patched %d locations\n", i);

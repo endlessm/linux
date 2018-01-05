@@ -76,10 +76,12 @@
  */
 #define PREPARE_RFI_TO_USER						\
 	RFI_FLUSH_FIXUP_SECTION;					\
+	nop;								\
 	nop
 
 #define PREPARE_RFI_TO_GUEST						\
 	RFI_FLUSH_FIXUP_SECTION;					\
+	nop;								\
 	nop
 
 #ifdef CONFIG_PPC_DEBUG_RFI
