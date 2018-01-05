@@ -1878,8 +1878,6 @@ intel-rapl-perf
 intel-rng
 intel-rst
 intel-smartconnect
-intel-spi
-intel-spi-platform
 intel-vbtn
 intel-xway
 intel_bxt_pmic_thermal

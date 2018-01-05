@@ -13383,8 +13383,6 @@ EXPORT_SYMBOL_GPL drivers/mtd/nand/nand 0x00000000	nand_wait_ready
 EXPORT_SYMBOL_GPL drivers/mtd/nand/sm_common 0x00000000	sm_register_device
 EXPORT_SYMBOL_GPL drivers/mtd/onenand/onenand 0x00000000	onenand_release
 EXPORT_SYMBOL_GPL drivers/mtd/onenand/onenand 0x00000000	onenand_scan
-EXPORT_SYMBOL_GPL drivers/mtd/spi-nor/intel-spi 0x00000000	intel_spi_probe
-EXPORT_SYMBOL_GPL drivers/mtd/spi-nor/intel-spi 0x00000000	intel_spi_remove
 EXPORT_SYMBOL_GPL drivers/mtd/spi-nor/spi-nor 0x00000000	spi_nor_scan
 EXPORT_SYMBOL_GPL drivers/mtd/ubi/ubi 0x00000000	ubi_close_volume
 EXPORT_SYMBOL_GPL drivers/mtd/ubi/ubi 0x00000000	ubi_do_get_device_info
