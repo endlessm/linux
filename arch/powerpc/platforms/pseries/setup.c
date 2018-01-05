@@ -458,27 +458,27 @@ static void __init find_and_init_phbs(void)
 static void pSeries_setup_rfi_flush(void)
 {
 	unsigned long character, behaviour, rc;
-	enum l1d_flush_type type;
+	enum l1d_flush_type types;
 	bool enable;
 
 	/* Default to fallback in case hcall is not available */
-	type = L1D_FLUSH_FALLBACK;
+	types = L1D_FLUSH_FALLBACK;
 	enable = true;
 
 	rc = plpar_get_cpu_characteristics(&character, &behaviour);
 	if (rc == H_SUCCESS) {
 		/* Default to no flush, unless firmware says otherwise */
-		type = L1D_FLUSH_NONE;
+		types = L1D_FLUSH_NONE;
 		if (character & H_GET_CPU_CHAR_CHAR_MTTRIG2_L1_FLUSH)
-			type = L1D_FLUSH_MTTRIG;
+			types |= L1D_FLUSH_MTTRIG;
 		if (character & H_GET_CPU_CHAR_CHAR_ORI30_L1_FLUSH)
-			type = L1D_FLUSH_ORI;
+			types |= L1D_FLUSH_ORI;
 
 		if (!(behaviour & H_GET_CPU_CHAR_BEHAV_L1_FLUSH_LOW_PRIV))
 			enable = false;
 	}
 
-	setup_rfi_flush(type, enable);
+	setup_rfi_flush(types, enable);
 }
 
 static void __init pSeries_setup_arch(void)
