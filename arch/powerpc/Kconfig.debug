@@ -369,4 +369,14 @@ config PPC_HTDUMP
 	def_bool y
 	depends on PPC_PTDUMP && PPC_BOOK3S
 
+config PPC_DEBUG_RFI
+	bool "Debug RFIs (Return From Interrupt)"
+	depends on PPC_BOOK3S_64
+	help
+	  The enables extra debug code in some RFI (Return From Interrupt)
+	  sequences, to detect that we are returning to the correct context
+	  (user, kernel or guest). This adds some performance overhead.
+
+	  If unsure, say N.
+
 endmenu
