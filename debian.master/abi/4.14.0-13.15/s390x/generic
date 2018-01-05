@@ -6278,6 +6278,7 @@ EXPORT_SYMBOL_GPL drivers/s390/net/qeth 0x00000000	qeth_do_ioctl
 EXPORT_SYMBOL_GPL drivers/s390/net/qeth 0x00000000	qeth_do_run_thread
 EXPORT_SYMBOL_GPL drivers/s390/net/qeth 0x00000000	qeth_do_send_packet
 EXPORT_SYMBOL_GPL drivers/s390/net/qeth 0x00000000	qeth_do_send_packet_fast
+EXPORT_SYMBOL_GPL drivers/s390/net/qeth 0x00000000	qeth_features_check
 EXPORT_SYMBOL_GPL drivers/s390/net/qeth 0x00000000	qeth_fix_features
 EXPORT_SYMBOL_GPL drivers/s390/net/qeth 0x00000000	qeth_generic_devtype
 EXPORT_SYMBOL_GPL drivers/s390/net/qeth 0x00000000	qeth_get_elements_for_frags

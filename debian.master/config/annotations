@@ -10977,9 +10977,11 @@ CONFIG_CAVIUM_ERRATUM_27456                     policy<{'arm64': 'y'}>
 CONFIG_CAVIUM_ERRATUM_30115                     policy<{'arm64': 'y'}>
 CONFIG_QCOM_FALKOR_ERRATUM_1003                 policy<{'arm64': 'y'}>
 CONFIG_QCOM_FALKOR_ERRATUM_1009                 policy<{'arm64': 'y'}>
+CONFIG_QCOM_FALKOR_ERRATUM_E1041                policy<{'arm64': 'y'}>
 CONFIG_QCOM_QDF2400_ERRATUM_0065                policy<{'arm64': 'y'}>
 #
 CONFIG_ARM64_ERRATUM_843419                     mark<ENFORCED> note<LP:1647793>
+CONFIG_QCOM_FALKOR_ERRATUM_E1041                mark<ENFORCED> note<LP:1738497>
 CONFIG_QCOM_QDF2400_ERRATUM_0065                mark<ENFORCED> note<LP:1672486>
 
 # Menu: Processor type and features >> ARMv8.1 architectural features >> Architecture: arm64
@@ -11373,6 +11375,7 @@ CONFIG_KEY_DH_OPERATIONS                        policy<{'amd64': 'y', 'arm64': '
 CONFIG_SECURITY                                 policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'ppc64el': 'y', 's390x': 'y'}>
 CONFIG_SECURITY_STACKING                        policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'ppc64el': 'y', 's390x': 'y'}>
 CONFIG_SECURITY_NETWORK                         policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'ppc64el': 'y', 's390x': 'y'}>
+CONFIG_PAGE_TABLE_ISOLATION                     policy<{'amd64': 'y'}>
 CONFIG_SECURITY_INFINIBAND                      policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'ppc64el': 'y', 's390x': 'y'}>
 CONFIG_SECURITY_NETWORK_XFRM                    policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'ppc64el': 'y', 's390x': 'y'}>
 CONFIG_SECURITY_PATH                            policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'ppc64el': 'y', 's390x': 'y'}>
@@ -11385,6 +11388,7 @@ CONFIG_SECURITY_DEFAULT_DISPLAY_APPARMOR        policy<{'amd64': 'y', 'arm64': '
 CONFIG_SECURITY_DEFAULT_DISPLAY_NAME            policy<{'amd64': '"apparmor"', 'arm64': '"apparmor"', 'armhf': '"apparmor"', 'i386': '"apparmor"', 'ppc64el': '"apparmor"', 's390x': '"apparmor"'}>
 
 CONFIG_SECURITY                                 mark<ENFORCED>
+CONFIG_PAGE_TABLE_ISOLATION                     mark<ENFORCED>
 CONFIG_LSM_MMAP_MIN_ADDR                        mark<ENFORCED> flag<REVIEW>
 CONFIG_SECURITY_YAMA                            mark<ENFORCED>
 CONFIG_SECURITY_DEFAULT_DISPLAY_NAME            mark<ENFORCED>

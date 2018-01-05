@@ -468,6 +468,11 @@ static struct rt6_info *rt6_multipath_select(struct rt6_info *match,
 				&match->rt6i_siblings, rt6i_siblings) {
 			route_choosen--;
 			if (route_choosen == 0) {
+				struct inet6_dev *idev = sibling->rt6i_idev;
+
+				if (!netif_carrier_ok(sibling->dst.dev) &&
+				    idev->cnf.ignore_routes_with_linkdown)
+					break;
 				if (rt6_score_route(sibling, oif, strict) < 0)
 					break;
 				match = sibling;
@@ -3700,19 +3705,13 @@ static int inet6_rtm_getroute(struct sk_buff *in_skb, struct nlmsghdr *nlh,
 		if (!ipv6_addr_any(&fl6.saddr))
 			flags |= RT6_LOOKUP_F_HAS_SADDR;
 
-		if (!fibmatch)
-			dst = ip6_route_input_lookup(net, dev, &fl6, flags);
-		else
-			dst = ip6_route_lookup(net, &fl6, 0);
+		dst = ip6_route_input_lookup(net, dev, &fl6, flags);
 
 		rcu_read_unlock();
 	} else {
 		fl6.flowi6_oif = oif;
 
-		if (!fibmatch)
-			dst = ip6_route_output(net, NULL, &fl6);
-		else
-			dst = ip6_route_lookup(net, &fl6, 0);
+		dst = ip6_route_output(net, NULL, &fl6);
 	}
 
 
@@ -3727,6 +3726,15 @@ static int inet6_rtm_getroute(struct sk_buff *in_skb, struct nlmsghdr *nlh,
 		err = rt->dst.error;
 		ip6_rt_put(rt);
 		goto errout;
+	}
+
+	if (fibmatch && rt->dst.from) {
+		struct rt6_info *ort = container_of(rt->dst.from,
+						    struct rt6_info, dst);
+
+		dst_hold(&ort->dst);
+		ip6_rt_put(rt);
+		rt = ort;
 	}
 
 	skb = alloc_skb(NLMSG_GOODSIZE, GFP_KERNEL);

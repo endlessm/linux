@@ -198,7 +198,7 @@ struct hisi_sas_hw {
 	int (*slot_complete)(struct hisi_hba *hisi_hba,
 			     struct hisi_sas_slot *slot);
 	void (*phys_init)(struct hisi_hba *hisi_hba);
-	void (*phy_enable)(struct hisi_hba *hisi_hba, int phy_no);
+	void (*phy_start)(struct hisi_hba *hisi_hba, int phy_no);
 	void (*phy_disable)(struct hisi_hba *hisi_hba, int phy_no);
 	void (*phy_hard_reset)(struct hisi_hba *hisi_hba, int phy_no);
 	void (*get_events)(struct hisi_hba *hisi_hba, int phy_no);
@@ -420,4 +420,5 @@ extern void hisi_sas_slot_task_free(struct hisi_hba *hisi_hba,
 				    struct sas_task *task,
 				    struct hisi_sas_slot *slot);
 extern void hisi_sas_init_mem(struct hisi_hba *hisi_hba);
+extern void hisi_sas_kill_tasklets(struct hisi_hba *hisi_hba);
 #endif
