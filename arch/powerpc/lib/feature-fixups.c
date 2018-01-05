@@ -119,7 +119,7 @@ void do_feature_fixups(unsigned long value, void *fixup_start, void *fixup_end)
 #ifdef CONFIG_PPC_BOOK3S_64
 void do_rfi_flush_fixups(enum l1d_flush_type types)
 {
-	unsigned int instrs[2], *dest;
+	unsigned int instrs[3], *dest;
 	long *start, *end;
 	int i;
 
@@ -128,14 +128,17 @@ void do_rfi_flush_fixups(enum l1d_flush_type types)
 
 	instrs[0] = 0x60000000; /* nop */
 	instrs[1] = 0x60000000; /* nop */
+	instrs[2] = 0x60000000; /* nop */
 
 	if (types & L1D_FLUSH_FALLBACK)
 		/* b .+8 to fallback flush */
 		instrs[1] = 0x48000008;
 
 	i = 0;
-	if (types & L1D_FLUSH_ORI)
-		instrs[i++] = 0x63de0000; /* ori 30,30,0 */
+	if (types & L1D_FLUSH_ORI) {
+		instrs[i++] = 0x63ff0000; /* ori 31,31,0 speculation barrier */
+		instrs[i++] = 0x63de0000; /* ori 30,30,0 L1d flush*/
+	}
 
 	if (types & L1D_FLUSH_MTTRIG)
 		instrs[i++] = 0x7c12dba6; /* mtspr TRIG2,r0 (SPR #882) */
@@ -147,6 +150,7 @@ void do_rfi_flush_fixups(enum l1d_flush_type types)
 
 		patch_instruction(dest, instrs[0]);
 		patch_instruction(dest + 1, instrs[1]);
+		patch_instruction(dest + 2, instrs[2]);
 	}
 
 	printk(KERN_DEBUG "rfi-fixups: patched %d locations\n", i);
