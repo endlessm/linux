@@ -3069,6 +3069,7 @@ EXPORT_SYMBOL vmlinux 0x00000000	gro_find_complete_by_type
 EXPORT_SYMBOL vmlinux 0x00000000	gro_find_receive_by_type
 EXPORT_SYMBOL vmlinux 0x00000000	groups_alloc
 EXPORT_SYMBOL vmlinux 0x00000000	groups_free
+EXPORT_SYMBOL vmlinux 0x00000000	groups_sort
 EXPORT_SYMBOL vmlinux 0x00000000	guid_null
 EXPORT_SYMBOL vmlinux 0x00000000	guid_parse
 EXPORT_SYMBOL vmlinux 0x00000000	handle_edge_irq
@@ -10156,6 +10157,7 @@ EXPORT_SYMBOL_GPL vmlinux 0x00000000	shash_ahash_finup
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	shash_ahash_update
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	shash_attr_alg
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	shash_free_instance
+EXPORT_SYMBOL_GPL vmlinux 0x00000000	shash_no_setkey
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	shash_register_instance
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	shmem_add_seals
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	shmem_file_setup

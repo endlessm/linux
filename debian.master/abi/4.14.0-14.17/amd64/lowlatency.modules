@@ -5022,6 +5022,7 @@ xirc2ps_cs
 xircom_cb
 xor
 xpad
+xr_usb_serial_common
 xsens_mt
 xt_AUDIT
 xt_CHECKSUM
