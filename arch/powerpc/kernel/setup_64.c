@@ -751,3 +751,80 @@ unsigned long memory_block_size_bytes(void)
 struct ppc_pci_io ppc_pci_io;
 EXPORT_SYMBOL(ppc_pci_io);
 #endif
+
+#ifdef CONFIG_PPC_BOOK3S_64
+static enum l1d_flush_type l1d_flush_type;
+static void *l1d_flush_fallback_area;
+bool rfi_flush;
+
+static void do_nothing(void *unused)
+{
+	/*
+	 * We don't need to do the flush explicitly, just enter+exit kernel is
+	 * sufficient, the RFI exit handlers will do the right thing.
+	 */
+}
+
+void rfi_flush_enable(bool enable)
+{
+	unsigned int insn;
+
+	if (rfi_flush == enable)
+		return;
+
+	switch (l1d_flush_type) {
+	case L1D_FLUSH_NONE:
+		insn = 0x60000000; /* nop */
+		break;
+	case L1D_FLUSH_FALLBACK:
+		insn = 0x48000008; /* b .+8 to fallback flush */
+		pr_info("rfi-fixups: Using fallback displacement flush\n");
+		break;
+	case L1D_FLUSH_ORI:
+		insn = 0x63de0000;
+		pr_info("rfi-fixups: Using ori type flush\n");
+		break;
+	case L1D_FLUSH_MTTRIG:
+		insn = 0x7c12dba6;
+		pr_info("rfi-fixups: Using mttrig type flush\n");
+		break;
+	default:
+		printk("rfi-fixups: No flush type detected, system may be vulnerable, update firmware.\n");
+		return;
+	}
+
+	do_rfi_flush_fixups(enable, insn);
+
+	if (enable)
+		on_each_cpu(do_nothing, NULL, 1);
+
+	rfi_flush = enable;
+}
+
+void __init setup_rfi_flush(enum l1d_flush_type type, bool enable)
+{
+	if (type == L1D_FLUSH_FALLBACK) {
+		int cpu;
+		u64 l1d_size = ppc64_caches.l1d.size;
+		u64 limit = min(safe_stack_limit(), ppc64_rma_size);
+
+		/*
+		 * Align to L1d size, and size it at 2x L1d size, to
+		 * catch possible hardware prefetch runoff. We don't
+		 * have a recipe for load patterns to reliably avoid
+		 * the prefetcher.
+		 */
+		l1d_flush_fallback_area =
+			__va(memblock_alloc_base(l1d_size * 2, l1d_size, limit));
+		memset(l1d_flush_fallback_area, 0, l1d_size * 2);
+
+		for_each_possible_cpu(cpu) {
+			paca[cpu].rfi_flush_fallback_area = l1d_flush_fallback_area;
+			paca[cpu].l1d_flush_lines = l1d_size / 128;
+		}
+	}
+
+	l1d_flush_type = type;
+	rfi_flush_enable(enable);
+}
+#endif /* CONFIG_PPC_BOOK3S_64 */

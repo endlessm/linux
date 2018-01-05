@@ -38,6 +38,17 @@ static inline void pseries_big_endian_exceptions(void) {}
 static inline void pseries_little_endian_exceptions(void) {}
 #endif /* CONFIG_PPC_PSERIES */
 
+void rfi_flush_enable(bool enable);
+
+enum l1d_flush_type {
+	L1D_FLUSH_NONE,
+	L1D_FLUSH_FALLBACK,
+	L1D_FLUSH_ORI,
+	L1D_FLUSH_MTTRIG,
+};
+
+void __init setup_rfi_flush(enum l1d_flush_type, bool enable);
+
 #endif /* !__ASSEMBLY__ */
 
 #endif	/* _ASM_POWERPC_SETUP_H */

@@ -455,6 +455,32 @@ static void __init find_and_init_phbs(void)
 	of_pci_check_probe_only();
 }
 
+static void pSeries_setup_rfi_flush(void)
+{
+	unsigned long character, behaviour, rc;
+	enum l1d_flush_type type;
+	bool enable;
+
+	/* Default to fallback in case hcall is not available */
+	type = L1D_FLUSH_FALLBACK;
+	enable = true;
+
+	rc = plpar_get_cpu_characteristics(&character, &behaviour);
+	if (rc == H_SUCCESS) {
+		/* Default to no flush, unless firmware says otherwise */
+		type = L1D_FLUSH_NONE;
+		if (character & H_GET_CPU_CHAR_CHAR_MTTRIG2_L1_FLUSH)
+			type = L1D_FLUSH_MTTRIG;
+		if (character & H_GET_CPU_CHAR_CHAR_ORI30_L1_FLUSH)
+			type = L1D_FLUSH_ORI;
+
+		if (!(behaviour & H_GET_CPU_CHAR_BEHAV_L1_FLUSH_LOW_PRIV))
+			enable = false;
+	}
+
+	setup_rfi_flush(type, enable);
+}
+
 static void __init pSeries_setup_arch(void)
 {
 	set_arch_panic_timeout(10, ARCH_PANIC_TIMEOUT);
@@ -471,6 +497,8 @@ static void __init pSeries_setup_arch(void)
 	loops_per_jiffy = 50000000;
 
 	fwnmi_init();
+
+	pSeries_setup_rfi_flush();
 
 	/* By default, only probe PCI (can be overridden by rtas_pci) */
 	pci_add_flags(PCI_PROBE_ONLY);

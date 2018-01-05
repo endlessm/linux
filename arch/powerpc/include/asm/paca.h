@@ -201,6 +201,8 @@ struct paca_struct {
 	u64 exmc[EX_SIZE];	/* used for machine checks */
 #endif
 #ifdef CONFIG_PPC_BOOK3S_64
+	void *rfi_flush_fallback_area;
+
 	/* Exclusive stacks for system reset and machine check exception. */
 	void *nmi_emergency_sp;
 	void *mc_emergency_sp;
@@ -234,6 +236,15 @@ struct paca_struct {
 	 */
 	struct sibling_subcore_state *sibling_subcore_state;
 #endif
+#endif
+#ifdef CONFIG_PPC_BOOK3S_64
+	/*
+	 * rfi fallback flush must be in its own cacheline to prevent
+	 * other paca data leaking into the L1d
+	 */
+	u64 exrfi[EX_SIZE] __aligned(0x80);
+	/* Number of consecutive 128 byte lines that must be loaded */
+	u64 l1d_flush_lines;
 #endif
 };
 
