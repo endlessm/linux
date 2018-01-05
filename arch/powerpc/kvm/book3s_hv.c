@@ -775,74 +775,6 @@ static int kvmppc_get_yield_count(struct kvm_vcpu *vcpu)
 	return yield_count;
 }
 
-static unsigned long characteristics, behaviour;
-static bool have_characteristics;
-
-struct hdat_to_papr_mapping {
-	unsigned long bit;
-	char *name;
-	bool is_behaviour;
-};
-
-static const struct hdat_to_papr_mapping mapping[] = {
-  { .bit = H_GET_CPU_CHAR_CHAR_MTTRID01_THR_CFG,   .name = "inst-thread-reconfig-control-trig0-1", },
-  { .bit = H_GET_CPU_CHAR_CHAR_MTTRIG2_L1_FLUSH,   .name = "inst-l1d-flush-trig2", },
-  { .bit = H_GET_CPU_CHAR_CHAR_ORI30_L1_FLUSH,     .name = "inst-l1d-flush-ori30,30,0", },
-  { .bit = H_GET_CPU_CHAR_CHAR_ORI31_SPEC_BAR,     .name = "inst-spec-barrier-ori31,31,0", },
-  { .bit = H_GET_CPU_CHAR_CHAR_L1D_PRIVATE,        .name = "fw-l1d-thread-split", },
-  { .bit = H_GET_CPU_CHAR_CHAR_BCCTR_SERIAL,       .name = "fw-bcctrl-serialized", },
-//{ .bit = H_GET_CPU_CHAR_CHAR_BC_HINTS_HONORED,   .name = ???, // FIXME Unknown name },
-  { .bit = H_GET_CPU_CHAR_BEHAV_FAV_SEC_VS_PERF,   .name = "speculation-policy-favor-security",   .is_behaviour = true, },
-  { .bit = H_GET_CPU_CHAR_BEHAV_L1_FLUSH_LOW_PRIV, .name = "needs-l1d-flush-msr-hv-1-to-0",       .is_behaviour = true, },
-  { .bit = H_GET_CPU_CHAR_BEHAV_L1_FLUSH_LOW_PRIV, .name = "needs-l1d-flush-msr-pr-0-to-1",       .is_behaviour = true, },
-  { .bit = H_GET_CPU_CHAR_BEHAV_SPEC_BAR_BNDS_CHK, .name = "needs-spec-barrier-for-bound-checks", .is_behaviour = true, },
-};
-
-static void init_cpu_characteristics(void)
-{
-	struct device_node *np, *fw_features;
-	const struct hdat_to_papr_mapping *p;
-	int i;
-
-	np = of_find_node_by_name(NULL, "ibm,opal");
-	fw_features = of_get_child_by_name(np, "fw-features");
-	of_node_put(np);
-
-	if (!fw_features) {
-		have_characteristics = false;
-		return;
-	}
-
-	have_characteristics = true;
-
-	for (i = 0; i < ARRAY_SIZE(mapping); i++) {
-		p = &mapping[i];
-
-		np = of_get_child_by_name(fw_features, p->name);
-		if (np && of_property_read_bool(np, "enabled")) {
-			if (p->is_behaviour) {
-				behaviour |= p->bit;
-			} else {
-				characteristics |= p->bit;
-			}
-		}
-		of_node_put(np);
-	}
-
-	of_node_put(fw_features);
-}
-
-static int kvmppc_h_get_cpu_characteristics(struct kvm_vcpu *vcpu)
-{
-	if (!have_characteristics)
-		return H_FUNCTION;
-
-	kvmppc_set_gpr(vcpu, 4, characteristics);
-	kvmppc_set_gpr(vcpu, 5, behaviour);
-
-	return H_SUCCESS;
-}
-
 int kvmppc_pseries_do_hcall(struct kvm_vcpu *vcpu)
 {
 	unsigned long req = kvmppc_get_gpr(vcpu, 3);
@@ -960,9 +892,6 @@ int kvmppc_pseries_do_hcall(struct kvm_vcpu *vcpu)
 		if (ret == H_TOO_HARD)
 			return RESUME_HOST;
 		break;
-	case H_GET_CPU_CHARACTERISTICS:
-		ret = kvmppc_h_get_cpu_characteristics(vcpu);
-		break;
 	default:
 		return RESUME_HOST;
 	}
@@ -981,7 +910,6 @@ static int kvmppc_hcall_impl_hv(unsigned long cmd)
 	case H_SET_MODE:
 	case H_LOGICAL_CI_LOAD:
 	case H_LOGICAL_CI_STORE:
-	case H_GET_CPU_CHARACTERISTICS:
 #ifdef CONFIG_KVM_XICS
 	case H_XIRR:
 	case H_CPPR:
@@ -4219,7 +4147,6 @@ static unsigned int default_hcall_list[] = {
 	H_PROD,
 	H_CONFER,
 	H_REGISTER_VPA,
-	H_GET_CPU_CHARACTERISTICS,
 #ifdef CONFIG_KVM_XICS
 	H_EOI,
 	H_CPPR,
@@ -4393,7 +4320,6 @@ static int kvmppc_book3s_init_hv(void)
 	kvm_ops_hv.owner = THIS_MODULE;
 	kvmppc_hv_ops = &kvm_ops_hv;
 
-	init_cpu_characteristics();
 	init_default_hcalls();
 
 	init_vcore_lists();
