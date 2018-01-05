@@ -40,11 +40,12 @@ static inline void pseries_little_endian_exceptions(void) {}
 
 void rfi_flush_enable(bool enable);
 
+/* These are bit flags */
 enum l1d_flush_type {
-	L1D_FLUSH_NONE,
-	L1D_FLUSH_FALLBACK,
-	L1D_FLUSH_ORI,
-	L1D_FLUSH_MTTRIG,
+	L1D_FLUSH_NONE		= 0x1,
+	L1D_FLUSH_FALLBACK	= 0x2,
+	L1D_FLUSH_ORI		= 0x4,
+	L1D_FLUSH_MTTRIG	= 0x8,
 };
 
 void __init setup_rfi_flush(enum l1d_flush_type, bool enable);
