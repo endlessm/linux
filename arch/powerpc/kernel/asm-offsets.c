@@ -239,7 +239,8 @@ int main(void)
 	OFFSET(PACA_IN_NMI, paca_struct, in_nmi);
 	OFFSET(PACA_RFI_FLUSH_FALLBACK_AREA, paca_struct, rfi_flush_fallback_area);
 	OFFSET(PACA_EXRFI, paca_struct, exrfi);
-	OFFSET(PACA_L1D_FLUSH_LINES, paca_struct, l1d_flush_lines);
+	OFFSET(PACA_L1D_FLUSH_CONGRUENCE, paca_struct, l1d_flush_congruence);
+	OFFSET(PACA_L1D_FLUSH_SETS, paca_struct, l1d_flush_sets);
 
 #endif
 	OFFSET(PACAHWCPUID, paca_struct, hw_cpu_id);

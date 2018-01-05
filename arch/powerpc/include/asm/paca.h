@@ -243,8 +243,8 @@ struct paca_struct {
 	 * other paca data leaking into the L1d
 	 */
 	u64 exrfi[EX_SIZE] __aligned(0x80);
-	/* Number of consecutive 128 byte lines that must be loaded */
-	u64 l1d_flush_lines;
+	u64 l1d_flush_congruence;
+	u64 l1d_flush_sets;
 #endif
 };
 
