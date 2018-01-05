@@ -767,36 +767,14 @@ static void do_nothing(void *unused)
 
 void rfi_flush_enable(bool enable)
 {
-	unsigned int insn;
-
 	if (rfi_flush == enable)
 		return;
 
-	switch (l1d_flush_type) {
-	case L1D_FLUSH_NONE:
-		insn = 0x60000000; /* nop */
-		break;
-	case L1D_FLUSH_FALLBACK:
-		insn = 0x48000008; /* b .+8 to fallback flush */
-		pr_info("rfi-fixups: Using fallback displacement flush\n");
-		break;
-	case L1D_FLUSH_ORI:
-		insn = 0x63de0000;
-		pr_info("rfi-fixups: Using ori type flush\n");
-		break;
-	case L1D_FLUSH_MTTRIG:
-		insn = 0x7c12dba6;
-		pr_info("rfi-fixups: Using mttrig type flush\n");
-		break;
-	default:
-		printk("rfi-fixups: No flush type detected, system may be vulnerable, update firmware.\n");
-		return;
-	}
-
-	do_rfi_flush_fixups(enable, insn);
-
-	if (enable)
+	if (enable) {
+		do_rfi_flush_fixups(l1d_flush_type);
 		on_each_cpu(do_nothing, NULL, 1);
+	} else
+		do_rfi_flush_fixups(L1D_FLUSH_NONE);
 
 	rfi_flush = enable;
 }
@@ -807,6 +785,8 @@ void __init setup_rfi_flush(enum l1d_flush_type type, bool enable)
 		int cpu;
 		u64 l1d_size = ppc64_caches.l1d.size;
 		u64 limit = min(safe_stack_limit(), ppc64_rma_size);
+
+		pr_info("rfi-fixups: Using fallback displacement flush\n");
 
 		/*
 		 * Align to L1d size, and size it at 2x L1d size, to
@@ -833,7 +813,10 @@ void __init setup_rfi_flush(enum l1d_flush_type type, bool enable)
 			paca[cpu].l1d_flush_congruence = c;
 			paca[cpu].l1d_flush_sets = c / 128;
 		}
-	}
+	} else if (type == L1D_FLUSH_ORI)
+		pr_info("rfi-fixups: Using ori type flush\n");
+	else if (type == L1D_FLUSH_MTTRIG)
+		pr_info("rfi-fixups: Using mttrig type flush\n");
 
 	l1d_flush_type = type;
 	rfi_flush_enable(enable);

@@ -117,11 +117,26 @@ void do_feature_fixups(unsigned long value, void *fixup_start, void *fixup_end)
 }
 
 #ifdef CONFIG_PPC_BOOK3S_64
-void do_rfi_flush_fixups(bool enable, unsigned int insn)
+void do_rfi_flush_fixups(enum l1d_flush_type types)
 {
 	long *start, *end;
-	unsigned int *dest;
+	unsigned int instr, *dest;
 	int i;
+
+	switch (type) {
+	case L1D_FLUSH_FALLBACK:
+		instr = 0x48000008; /* b .+8 to fallback flush */
+		break;
+	case L1D_FLUSH_ORI:
+		instr = 0x63de0000; /* ori 30,30,0 */
+		break;
+	case L1D_FLUSH_MTTRIG:
+		instr = 0x7c12dba6; /* mtspr TRIG2,r0 (SPR #882) */
+		break;
+	default:
+		instr = 0x60000000; /* nop */
+		break;
+	}
 
 	start = PTRRELOC(&__start___rfi_flush_fixup),
 	end = PTRRELOC(&__stop___rfi_flush_fixup);
@@ -129,14 +144,8 @@ void do_rfi_flush_fixups(bool enable, unsigned int insn)
 	for (i = 0; start < end; start++, i++) {
 		dest = (void *)start + *start;
 
-		pr_devel("RFI FLUSH FIXUP %s %lx\n", enable ? "enable" : "disable", (unsigned long)start);
-		if (!enable) {
-			pr_devel("patching dest %lx\n", (unsigned long)dest);
-			patch_instruction(dest, PPC_INST_NOP);
-		} else {
-			pr_devel("patching dest %lx\n", (unsigned long)dest);
-			patch_instruction(dest, insn);
-		}
+		pr_devel("patching dest %lx\n", (unsigned long)dest);
+		patch_instruction(dest, instr);
 	}
 
 	printk(KERN_DEBUG "rfi-fixups: patched %d locations\n", i);
