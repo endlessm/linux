@@ -461,21 +461,27 @@ static void pSeries_setup_rfi_flush(void)
 	enum l1d_flush_type types;
 	bool enable;
 
-	/* Default to fallback in case hcall is not available */
-	types = L1D_FLUSH_FALLBACK;
+	/* Enable by default */
 	enable = true;
 
 	rc = plpar_get_cpu_characteristics(&character, &behaviour);
 	if (rc == H_SUCCESS) {
-		/* Default to no flush, unless firmware says otherwise */
 		types = L1D_FLUSH_NONE;
+
 		if (character & H_GET_CPU_CHAR_CHAR_MTTRIG2_L1_FLUSH)
 			types |= L1D_FLUSH_MTTRIG;
 		if (character & H_GET_CPU_CHAR_CHAR_ORI30_L1_FLUSH)
 			types |= L1D_FLUSH_ORI;
 
+		/* Use fallback if nothing set in hcall */
+		if (types == L1D_FLUSH_NONE)
+			types = L1D_FLUSH_FALLBACK;
+
 		if (!(behaviour & H_GET_CPU_CHAR_BEHAV_L1_FLUSH_LOW_PRIV))
 			enable = false;
+	} else {
+		/* Default to fallback if case hcall is not available */
+		types = L1D_FLUSH_FALLBACK;
 	}
 
 	setup_rfi_flush(types, enable);
