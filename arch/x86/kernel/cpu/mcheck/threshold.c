@@ -7,7 +7,6 @@
 #include <asm/irq_vectors.h>
 #include <asm/apic.h>
 #include <asm/mce.h>
-#include <asm/trace/irq_vectors.h>
 
 static void default_threshold_interrupt(void)
 {
@@ -33,8 +32,6 @@ asmlinkage __visible void __irq_entry smp_threshold_interrupt(void)
 asmlinkage __visible void __irq_entry smp_trace_threshold_interrupt(void)
 {
 	entering_irq();
-	trace_threshold_apic_entry(THRESHOLD_APIC_VECTOR);
 	__smp_threshold_interrupt();
-	trace_threshold_apic_exit(THRESHOLD_APIC_VECTOR);
 	exiting_ack_irq();
 }

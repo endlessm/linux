@@ -19,7 +19,6 @@
 #include <asm/desc.h>
 
 #define CREATE_TRACE_POINTS
-#include <asm/trace/irq_vectors.h>
 
 DEFINE_PER_CPU_SHARED_ALIGNED(irq_cpustat_t, irq_stat);
 EXPORT_PER_CPU_SYMBOL(irq_stat);
@@ -327,9 +326,7 @@ __visible void __irq_entry smp_trace_x86_platform_ipi(struct pt_regs *regs)
 	struct pt_regs *old_regs = set_irq_regs(regs);
 
 	entering_ack_irq();
-	trace_x86_platform_ipi_entry(X86_PLATFORM_IPI_VECTOR);
 	__smp_x86_platform_ipi();
-	trace_x86_platform_ipi_exit(X86_PLATFORM_IPI_VECTOR);
 	exiting_irq();
 	set_irq_regs(old_regs);
 }

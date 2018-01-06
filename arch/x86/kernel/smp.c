@@ -31,7 +31,6 @@
 #include <asm/apic.h>
 #include <asm/nmi.h>
 #include <asm/mce.h>
-#include <asm/trace/irq_vectors.h>
 #include <asm/kexec.h>
 #include <asm/virtext.h>
 
@@ -280,9 +279,7 @@ __visible void __irq_entry smp_trace_reschedule_interrupt(struct pt_regs *regs)
 	 * to nest.
 	 */
 	ipi_entering_ack_irq();
-	trace_reschedule_entry(RESCHEDULE_VECTOR);
 	__smp_reschedule_interrupt();
-	trace_reschedule_exit(RESCHEDULE_VECTOR);
 	exiting_irq();
 	/*
 	 * KVM uses this interrupt to force a cpu out of guest mode
@@ -306,9 +303,7 @@ __visible void __irq_entry
 smp_trace_call_function_interrupt(struct pt_regs *regs)
 {
 	ipi_entering_ack_irq();
-	trace_call_function_entry(CALL_FUNCTION_VECTOR);
 	__smp_call_function_interrupt();
-	trace_call_function_exit(CALL_FUNCTION_VECTOR);
 	exiting_irq();
 }
 
@@ -330,9 +325,7 @@ __visible void __irq_entry
 smp_trace_call_function_single_interrupt(struct pt_regs *regs)
 {
 	ipi_entering_ack_irq();
-	trace_call_function_single_entry(CALL_FUNCTION_SINGLE_VECTOR);
 	__smp_call_function_single_interrupt();
-	trace_call_function_single_exit(CALL_FUNCTION_SINGLE_VECTOR);
 	exiting_irq();
 }
 

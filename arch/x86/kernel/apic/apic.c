@@ -35,7 +35,6 @@
 #include <linux/smp.h>
 #include <linux/mm.h>
 
-#include <asm/trace/irq_vectors.h>
 #include <asm/irq_remapping.h>
 #include <asm/perf_event.h>
 #include <asm/x86_init.h>
@@ -1074,9 +1073,7 @@ __visible void __irq_entry smp_trace_apic_timer_interrupt(struct pt_regs *regs)
 	 * interrupt lock, which is the WrongThing (tm) to do.
 	 */
 	entering_ack_irq();
-	trace_local_timer_entry(LOCAL_TIMER_VECTOR);
 	local_apic_timer_interrupt();
-	trace_local_timer_exit(LOCAL_TIMER_VECTOR);
 	exiting_irq();
 
 	set_irq_regs(old_regs);
@@ -1967,9 +1964,7 @@ __visible void __irq_entry smp_trace_spurious_interrupt(struct pt_regs *regs)
 	u8 vector = ~regs->orig_ax;
 
 	entering_irq();
-	trace_spurious_apic_entry(vector);
 	__smp_spurious_interrupt(vector);
-	trace_spurious_apic_exit(vector);
 	exiting_irq();
 }
 
@@ -2023,9 +2018,7 @@ __visible void __irq_entry smp_error_interrupt(struct pt_regs *regs)
 __visible void __irq_entry smp_trace_error_interrupt(struct pt_regs *regs)
 {
 	entering_irq();
-	trace_error_apic_entry(ERROR_APIC_VECTOR);
 	__smp_error_interrupt(regs);
-	trace_error_apic_exit(ERROR_APIC_VECTOR);
 	exiting_irq();
 }
 

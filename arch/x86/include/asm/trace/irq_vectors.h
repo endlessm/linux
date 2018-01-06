@@ -67,7 +67,7 @@ DEFINE_IRQ_VECTOR_EVENT(x86_platform_ipi);
  * irq_work - called when entering/exiting a irq work interrupt
  * vector handler
  */
-DEFINE_IRQ_VECTOR_EVENT(irq_work);
+// DEFINE_IRQ_VECTOR_EVENT(irq_work);
 
 /*
  * We must dis-allow sampling irq_work_exit() because perf event sampling

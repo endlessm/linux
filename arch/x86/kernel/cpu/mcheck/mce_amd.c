@@ -26,7 +26,6 @@
 #include <asm/apic.h>
 #include <asm/mce.h>
 #include <asm/msr.h>
-#include <asm/trace/irq_vectors.h>
 
 #define NR_BLOCKS         5
 #define THRESHOLD_MAX     0xFFF
@@ -787,9 +786,7 @@ asmlinkage __visible void __irq_entry smp_deferred_error_interrupt(void)
 asmlinkage __visible void __irq_entry smp_trace_deferred_error_interrupt(void)
 {
 	entering_irq();
-	trace_deferred_error_apic_entry(DEFERRED_ERROR_VECTOR);
 	__smp_deferred_error_interrupt();
-	trace_deferred_error_apic_exit(DEFERRED_ERROR_VECTOR);
 	exiting_ack_irq();
 }
 

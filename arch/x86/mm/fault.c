@@ -26,7 +26,6 @@
 #include <asm/mmu_context.h>		/* vma_pkey()			*/
 
 #define CREATE_TRACE_POINTS
-#include <asm/trace/exceptions.h>
 
 /*
  * Returns 0 if mmiotrace is disabled, or if the fault is not
@@ -1471,10 +1470,6 @@ static nokprobe_inline void
 trace_page_fault_entries(unsigned long address, struct pt_regs *regs,
 			 unsigned long error_code)
 {
-	if (user_mode(regs))
-		trace_page_fault_user(address, regs, error_code);
-	else
-		trace_page_fault_kernel(address, regs, error_code);
 }
 
 /*
@@ -1491,8 +1486,8 @@ do_page_fault(struct pt_regs *regs, unsigned long error_code)
 	enum ctx_state prev_state;
 
 	prev_state = exception_enter();
-	if (trace_irqvectors_enabled())
-		trace_page_fault_entries(address, regs, error_code);
+//	if (trace_irqvectors_enabled())
+//		trace_page_fault_entries(address, regs, error_code);
 
 	__do_page_fault(regs, error_code, address);
 	exception_exit(prev_state);
