@@ -131,8 +131,8 @@ void do_rfi_flush_fixups(enum l1d_flush_type types)
 	instrs[2] = 0x60000000; /* nop */
 
 	if (types & L1D_FLUSH_FALLBACK)
-		/* b .+8 to fallback flush */
-		instrs[1] = 0x48000008;
+		/* b .+16 to fallback flush */
+		instrs[0] = 0x48000010;
 
 	i = 0;
 	if (types & L1D_FLUSH_ORI) {
