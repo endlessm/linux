@@ -1444,8 +1444,7 @@ masked_##_H##interrupt:					\
 	b	.;					\
 	MASKED_DEC_HANDLER(_H)
 
-	.globl rfi_flush_fallback
-rfi_flush_fallback:
+TRAMP_REAL_BEGIN(rfi_flush_fallback)
 	SET_SCRATCH0(r13);
 	GET_PACA(r13);
 	std	r9,PACA_EXRFI+EX_R9(r13)
@@ -1486,8 +1485,7 @@ rfi_flush_fallback:
 	GET_SCRATCH0(r13);
 	rfid
 
-	.globl hrfi_flush_fallback
-hrfi_flush_fallback:
+TRAMP_REAL_BEGIN(hrfi_flush_fallback)
 	SET_SCRATCH0(r13);
 	GET_PACA(r13);
 	std	r9,PACA_EXRFI+EX_R9(r13)
