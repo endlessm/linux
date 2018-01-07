@@ -141,6 +141,8 @@
 #define HRFI_TO_UNKNOWN							\
 	RFI_FLUSH_FIXUP_SECTION;					\
 	nop;								\
+	nop;								\
+	nop;								\
 	hrfid;								\
 	b	hrfi_flush_fallback
 
