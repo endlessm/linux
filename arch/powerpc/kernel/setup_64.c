@@ -807,7 +807,7 @@ void __init setup_rfi_flush(enum l1d_flush_type types, bool enable)
 		u64 l1d_size = ppc64_caches.l1d.size;
 		u64 limit = min(safe_stack_limit(), ppc64_rma_size);
 
-		pr_info("rfi-fixups: Using fallback displacement flush\n");
+		pr_info("rfi-flush: Using fallback displacement flush\n");
 
 		/*
 		 * Align to L1d size, and size it at 2x L1d size, to
@@ -837,10 +837,10 @@ void __init setup_rfi_flush(enum l1d_flush_type types, bool enable)
 	}
 
 	if (types & L1D_FLUSH_ORI)
-		pr_info("rfi-fixups: Using ori type flush\n");
+		pr_info("rfi-flush: Using ori type flush\n");
 
 	if (types & L1D_FLUSH_MTTRIG)
-		pr_info("rfi-fixups: Using mttrig type flush\n");
+		pr_info("rfi-flush: Using mttrig type flush\n");
 
 	enabled_flush_types = types;
 

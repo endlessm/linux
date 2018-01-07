@@ -153,7 +153,7 @@ void do_rfi_flush_fixups(enum l1d_flush_type types)
 		patch_instruction(dest + 2, instrs[2]);
 	}
 
-	printk(KERN_DEBUG "rfi-fixups: patched %d locations\n", i);
+	printk(KERN_DEBUG "rfi-flush: patched %d locations\n", i);
 }
 #endif /* CONFIG_PPC_BOOK3S_64 */
 
