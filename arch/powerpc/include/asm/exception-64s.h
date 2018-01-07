@@ -71,16 +71,10 @@
 #define EX_R3		EX_DAR
 
 /*
- * The nop instruction allows a secure memory protection instruction to be
- * inserted with the rfi flush fixup.
+ * The nop instructions allow us to insert one or more instructions to flush the
+ * L1-D cache when return to userspace or a guest.
  */
-#define PREPARE_RFI_TO_USER						\
-	RFI_FLUSH_FIXUP_SECTION;					\
-	nop;								\
-	nop;								\
-	nop
-
-#define PREPARE_RFI_TO_GUEST						\
+#define RFI_FLUSH_SLOT							\
 	RFI_FLUSH_FIXUP_SECTION;					\
 	nop;								\
 	nop;								\
@@ -104,17 +98,17 @@
 
 #define RFI_TO_USER							\
 	CHECK_TARGET_MSR_PR(SPRN_SRR1, 1);				\
-	PREPARE_RFI_TO_USER;						\
+	RFI_FLUSH_SLOT;							\
 	rfid;								\
 	b	rfi_flush_fallback
 
 #define RFI_TO_USER_OR_KERNEL						\
-	PREPARE_RFI_TO_USER;						\
+	RFI_FLUSH_SLOT;							\
 	rfid;								\
 	b	rfi_flush_fallback
 
 #define RFI_TO_GUEST							\
-	PREPARE_RFI_TO_GUEST;						\
+	RFI_FLUSH_SLOT;							\
 	rfid;								\
 	b	rfi_flush_fallback
 
@@ -124,25 +118,22 @@
 
 #define HRFI_TO_USER							\
 	CHECK_TARGET_MSR_PR(SPRN_HSRR1, 1);				\
-	PREPARE_RFI_TO_USER;						\
+	RFI_FLUSH_SLOT;							\
 	hrfid;								\
 	b	hrfi_flush_fallback
 
 #define HRFI_TO_USER_OR_KERNEL						\
-	PREPARE_RFI_TO_USER;						\
+	RFI_FLUSH_SLOT;							\
 	hrfid;								\
 	b	hrfi_flush_fallback
 
 #define HRFI_TO_GUEST							\
-	PREPARE_RFI_TO_GUEST;						\
+	RFI_FLUSH_SLOT;							\
 	hrfid;								\
 	b	hrfi_flush_fallback
 
 #define HRFI_TO_UNKNOWN							\
-	RFI_FLUSH_FIXUP_SECTION;					\
-	nop;								\
-	nop;								\
-	nop;								\
+	RFI_FLUSH_SLOT;							\
 	hrfid;								\
 	b	hrfi_flush_fallback
 
