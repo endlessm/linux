@@ -144,7 +144,7 @@ kvmppc_handler_skip_ins:
 	GET_SCRATCH0(r13)
 
 	/* And get back into the code */
-	RFI_TO_GUEST
+	RFI_TO_KERNEL
 #endif
 
 /*
