@@ -1471,8 +1471,8 @@ TRAMP_REAL_BEGIN(rfi_flush_fallback)
 	.rept	8 /* 8-way set associative */
 	ldx	r11,r10,r8
 	add	r8,r8,r12
+	add	r8,r8,r11 /* r11 will be 0, but this creates a dependency */
 	.endr
-	lwsync	/* Ensure that we do all 8 sets before others */
 	addi	r10,r10,128 /* 128 byte cache line */
 	bdnz	1b
 
@@ -1512,8 +1512,8 @@ TRAMP_REAL_BEGIN(hrfi_flush_fallback)
 	.rept	8 /* 8-way set associative */
 	ldx	r11,r10,r8
 	add	r8,r8,r12
+	add	r8,r8,r11 /* r11 will be 0, but this creates a dependency */
 	.endr
-	lwsync	/* Ensure that we do all 8 sets before others */
 	addi	r10,r10,128 /* 128 byte cache line */
 	bdnz	1b
 
