@@ -1471,7 +1471,8 @@ TRAMP_REAL_BEGIN(rfi_flush_fallback)
 	.rept	8 /* 8-way set associative */
 	ldx	r11,r10,r8
 	add	r8,r8,r12
-	add	r8,r8,r11 /* r11 will be 0, but this creates a dependency */
+	xor	r11,r11,r11	// Ensure r11 is 0 even if fallback area is not
+	add	r8,r8,r11	// Add 0, this creates a dependency on the ldx
 	.endr
 	addi	r10,r10,128 /* 128 byte cache line */
 	bdnz	1b
@@ -1512,7 +1513,8 @@ TRAMP_REAL_BEGIN(hrfi_flush_fallback)
 	.rept	8 /* 8-way set associative */
 	ldx	r11,r10,r8
 	add	r8,r8,r12
-	add	r8,r8,r11 /* r11 will be 0, but this creates a dependency */
+	xor	r11,r11,r11	// Ensure r11 is 0 even if fallback area is not
+	add	r8,r8,r11	// Add 0, this creates a dependency on the ldx
 	.endr
 	addi	r10,r10,128 /* 128 byte cache line */
 	bdnz	1b
