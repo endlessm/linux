@@ -1,3 +1,19 @@
+linux (4.14.0-16.19) bionic; urgency=low
+
+  * linux: 4.14.0-16.19 -proposed tracker (LP: #1741920)
+
+  * Miscellaneous upstream changes
+    - x86/mm: Set MODULES_END to 0xffffffffff000000
+    - x86/mm: Map cpu_entry_area at the same place on 4/5 level
+    - x86/kaslr: Fix the vaddr_end mess
+    - x86/events/intel/ds: Use the proper cache flush method for mapping ds
+      buffers
+    - x86/tlb: Drop the _GPL from the cpu_tlbstate export
+    - x86/alternatives: Add missing '\n' at end of ALTERNATIVE inline asm
+    - x86/pti: Rename BUG_CPU_INSECURE to BUG_CPU_MELTDOWN
+
+ -- Seth Forshee <seth.forshee@canonical.com>  Mon, 08 Jan 2018 09:58:38 -0600
+
 linux (4.14.0-15.18) bionic; urgency=low
 
   * linux: 4.14.0-15.18 -proposed tracker (LP: #1741501)
