@@ -1,3 +1,41 @@
+linux (4.14.0-15.18) bionic; urgency=low
+
+  * linux: 4.14.0-15.18 -proposed tracker (LP: #1741501)
+
+  * [0cf3:e010] QCA6174A XR failed to pair with bt 4.0 device  (LP: #1741166)
+    - SAUCE: Bluetooth: btusb: Add support for 0cf3:e010
+
+  * [Zesty/Artful] On ARM64 PCIE physical function passthrough guest fails to
+    boot (LP: #1732804)
+    - vfio/pci: Virtualize Maximum Read Request Size
+
+  * elantech touchpad of Lenovo L480/580 failed to detect hw_version
+    (LP: #1733605)
+    - SAUCE: Input: elantech - add new icbody type 15
+
+  * External HDMI monitor failed to show screen on Lenovo X1 series
+    (LP: #1738523)
+    - SAUCE: drm/i915: Disable writing of TMDS_OE on Lenovo ThinkPad X1 series
+
+  * Bionic update to v4.14.12 stable release (LP: #1741496)
+    - exec: Weaken dumpability for secureexec
+    - capabilities: fix buffer overread on very short xattr
+    - x86/cpu, x86/pti: Do not enable PTI on AMD processors
+    - x86/pti: Make sure the user/kernel PTEs match
+    - x86/dumpstack: Fix partial register dumps
+    - x86/dumpstack: Print registers for first stack frame
+    - x86/pti: Switch to kernel CR3 at early in entry_SYSCALL_compat()
+    - x86/process: Define cpu_tss_rw in same section as declaration
+    - Revert "xfrm: Fix stack-out-of-bounds read in xfrm_state_find."
+    - rtc: m41t80: m41t80_sqw_set_rate should return 0 on success
+    - rtc: m41t80: fix m41t80_sqw_round_rate return value
+    - rtc: m41t80: avoid i2c read in m41t80_sqw_recalc_rate
+    - rtc: m41t80: avoid i2c read in m41t80_sqw_is_prepared
+    - rtc: m41t80: remove unneeded checks from m41t80_sqw_set_rate
+    - Linux 4.14.12
+
+ -- Seth Forshee <seth.forshee@canonical.com>  Fri, 05 Jan 2018 10:30:29 -0600
+
 linux (4.14.0-14.17) bionic; urgency=low
 
   * linux: 4.14.0-14.17 -proposed tracker (LP: #1741139)
