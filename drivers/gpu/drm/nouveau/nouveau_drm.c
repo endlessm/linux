@@ -1171,6 +1171,27 @@ static const struct dmi_system_id nouveau_rpm_0[] = {
 			DMI_MATCH(DMI_PRODUCT_NAME, "X550VXK"),
 		},
 	},
+	{
+		.ident = "ASUSTeK COMPUTER INC. X542UQ",
+		.matches = {
+			DMI_MATCH(DMI_SYS_VENDOR, "ASUSTeK COMPUTER INC."),
+			DMI_MATCH(DMI_PRODUCT_NAME, "X542UQ"),
+		},
+	},
+	{
+		.ident = "ASUSTeK COMPUTER INC. P1440UF",
+		.matches = {
+			DMI_MATCH(DMI_SYS_VENDOR, "ASUSTeK COMPUTER INC."),
+			DMI_MATCH(DMI_PRODUCT_NAME, "P1440UF"),
+		},
+	},
+	{
+		.ident = "ASUSTeK COMPUTER INC. P2440UF",
+		.matches = {
+			DMI_MATCH(DMI_SYS_VENDOR, "ASUSTeK COMPUTER INC."),
+			DMI_MATCH(DMI_PRODUCT_NAME, "P2440UF"),
+		},
+	},
 	{ }
 };
 
