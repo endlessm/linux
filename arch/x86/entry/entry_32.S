@@ -891,14 +891,6 @@ BUILD_INTERRUPT3(hyperv_callback_vector, HYPERVISOR_CALLBACK_VECTOR,
 
 #endif /* CONFIG_HYPERV */
 
-#ifdef CONFIG_TRACING
-ENTRY(trace_page_fault)
-	ASM_CLAC
-	pushl	$trace_do_page_fault
-	jmp	common_exception
-END(trace_page_fault)
-#endif
-
 ENTRY(page_fault)
 	ASM_CLAC
 	pushl	$do_page_fault
@@ -956,9 +948,10 @@ ENTRY(debug)
 	movl	%esp, %eax			# pt_regs pointer
 
 	/* Are we currently on the SYSENTER stack? */
-	PER_CPU(cpu_tss + CPU_TSS_SYSENTER_stack + SIZEOF_SYSENTER_stack, %ecx)
-	subl	%eax, %ecx	/* ecx = (end of SYSENTER_stack) - esp */
-	cmpl	$SIZEOF_SYSENTER_stack, %ecx
+	movl	PER_CPU_VAR(cpu_entry_area), %ecx
+	addl	$CPU_ENTRY_AREA_entry_stack + SIZEOF_entry_stack, %ecx
+	subl	%eax, %ecx	/* ecx = (end of entry_stack) - esp */
+	cmpl	$SIZEOF_entry_stack, %ecx
 	jb	.Ldebug_from_sysenter_stack
 
 	TRACE_IRQS_OFF
@@ -999,9 +992,10 @@ ENTRY(nmi)
 	movl	%esp, %eax			# pt_regs pointer
 
 	/* Are we currently on the SYSENTER stack? */
-	PER_CPU(cpu_tss + CPU_TSS_SYSENTER_stack + SIZEOF_SYSENTER_stack, %ecx)
-	subl	%eax, %ecx	/* ecx = (end of SYSENTER_stack) - esp */
-	cmpl	$SIZEOF_SYSENTER_stack, %ecx
+	movl	PER_CPU_VAR(cpu_entry_area), %ecx
+	addl	$CPU_ENTRY_AREA_entry_stack + SIZEOF_entry_stack, %ecx
+	subl	%eax, %ecx	/* ecx = (end of entry_stack) - esp */
+	cmpl	$SIZEOF_entry_stack, %ecx
 	jb	.Lnmi_from_sysenter_stack
 
 	/* Not on SYSENTER stack. */

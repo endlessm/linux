@@ -270,7 +270,7 @@ do_async_page_fault(struct pt_regs *regs, unsigned long error_code)
 
 	switch (kvm_read_and_reset_pf_reason()) {
 	default:
-		trace_do_page_fault(regs, error_code);
+		do_page_fault(regs, error_code);
 		break;
 	case KVM_PV_REASON_PAGE_NOT_PRESENT:
 		/* page is swapped out by the host. */
@@ -544,12 +544,12 @@ static uint32_t __init kvm_detect(void)
 	return kvm_cpuid_base();
 }
 
-const struct hypervisor_x86 x86_hyper_kvm __refconst = {
+const __initconst struct hypervisor_x86 x86_hyper_kvm = {
 	.name			= "KVM",
 	.detect			= kvm_detect,
-	.x2apic_available	= kvm_para_available,
+	.type			= X86_HYPER_KVM,
+	.init.x2apic_available	= kvm_para_available,
 };
-EXPORT_SYMBOL_GPL(x86_hyper_kvm);
 
 static __init int activate_jump_labels(void)
 {

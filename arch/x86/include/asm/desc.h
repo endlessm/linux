@@ -5,6 +5,8 @@
 #include <asm/ldt.h>
 #include <asm/mmu.h>
 #include <asm/fixmap.h>
+#include <asm/pgtable.h>
+#include <asm/cpu_entry_area.h>
 
 #include <linux/smp.h>
 #include <linux/percpu.h>
@@ -18,6 +20,8 @@ static inline void fill_ldt(struct desc_struct *desc, const struct user_desc *in
 
 	desc->type		= (info->read_exec_only ^ 1) << 1;
 	desc->type	       |= info->contents << 2;
+	/* Set the ACCESS bit so it can be mapped RO */
+	desc->type	       |= 1;
 
 	desc->s			= 1;
 	desc->dpl		= 0x3;
@@ -58,17 +62,10 @@ static inline struct desc_struct *get_current_gdt_rw(void)
 	return this_cpu_ptr(&gdt_page)->gdt;
 }
 
-/* Get the fixmap index for a specific processor */
-static inline unsigned int get_cpu_gdt_ro_index(int cpu)
-{
-	return FIX_GDT_REMAP_BEGIN + cpu;
-}
-
 /* Provide the fixmap address of the remapped GDT */
 static inline struct desc_struct *get_cpu_gdt_ro(int cpu)
 {
-	unsigned int idx = get_cpu_gdt_ro_index(cpu);
-	return (struct desc_struct *)__fix_to_virt(idx);
+	return (struct desc_struct *)&get_cpu_entry_area(cpu)->gdt;
 }
 
 /* Provide the current read-only GDT */
@@ -83,33 +80,25 @@ static inline phys_addr_t get_cpu_gdt_paddr(unsigned int cpu)
 	return per_cpu_ptr_to_phys(get_cpu_gdt_rw(cpu));
 }
 
-#ifdef CONFIG_X86_64
-
 static inline void pack_gate(gate_desc *gate, unsigned type, unsigned long func,
 			     unsigned dpl, unsigned ist, unsigned seg)
 {
-	gate->offset_low	= PTR_LOW(func);
+	gate->offset_low	= (u16) func;
+	gate->bits.p		= 1;
+	gate->bits.dpl		= dpl;
+	gate->bits.zero		= 0;
+	gate->bits.type		= type;
+	gate->offset_middle	= (u16) (func >> 16);
+#ifdef CONFIG_X86_64
 	gate->segment		= __KERNEL_CS;
-	gate->ist		= ist;
-	gate->p			= 1;
-	gate->dpl		= dpl;
-	gate->zero0		= 0;
-	gate->zero1		= 0;
-	gate->type		= type;
-	gate->offset_middle	= PTR_MIDDLE(func);
-	gate->offset_high	= PTR_HIGH(func);
-}
-
+	gate->bits.ist		= ist;
+	gate->reserved		= 0;
+	gate->offset_high	= (u32) (func >> 32);
 #else
-static inline void pack_gate(gate_desc *gate, unsigned char type,
-			     unsigned long base, unsigned dpl, unsigned flags,
-			     unsigned short seg)
-{
-	gate->a = (seg << 16) | (base & 0xffff);
-	gate->b = (base & 0xffff0000) | (((0x80 | type | (dpl << 5)) & 0xff) << 8);
-}
-
+	gate->segment		= seg;
+	gate->bits.ist		= 0;
 #endif
+}
 
 static inline int desc_empty(const void *ptr)
 {
@@ -128,7 +117,6 @@ static inline int desc_empty(const void *ptr)
 #define load_ldt(ldt)				asm volatile("lldt %0"::"m" (ldt))
 
 #define store_gdt(dtr)				native_store_gdt(dtr)
-#define store_idt(dtr)				native_store_idt(dtr)
 #define store_tr(tr)				(tr = native_store_tr())
 
 #define load_TLS(t, cpu)			native_load_tls(t, cpu)
@@ -185,7 +173,8 @@ static inline void pack_descriptor(struct desc_struct *desc, unsigned long base,
 }
 
 
-static inline void set_tssldt_descriptor(void *d, unsigned long addr, unsigned type, unsigned size)
+static inline void set_tssldt_descriptor(void *d, unsigned long addr,
+					 unsigned type, unsigned size)
 {
 #ifdef CONFIG_X86_64
 	struct ldttss_desc64 *desc = d;
@@ -193,19 +182,19 @@ static inline void set_tssldt_descriptor(void *d, unsigned long addr, unsigned t
 	memset(desc, 0, sizeof(*desc));
 
 	desc->limit0		= size & 0xFFFF;
-	desc->base0		= PTR_LOW(addr);
-	desc->base1		= PTR_MIDDLE(addr) & 0xFF;
+	desc->base0		= (u16) addr;
+	desc->base1		= (addr >> 16) & 0xFF;
 	desc->type		= type;
 	desc->p			= 1;
 	desc->limit1		= (size >> 16) & 0xF;
-	desc->base2		= (PTR_MIDDLE(addr) >> 8) & 0xFF;
-	desc->base3		= PTR_HIGH(addr);
+	desc->base2		= (addr >> 24) & 0xFF;
+	desc->base3		= (u32) (addr >> 32);
 #else
 	pack_descriptor((struct desc_struct *)d, addr, size, 0x80 | type, 0);
 #endif
 }
 
-static inline void __set_tss_desc(unsigned cpu, unsigned int entry, void *addr)
+static inline void __set_tss_desc(unsigned cpu, unsigned int entry, struct x86_hw_tss *addr)
 {
 	struct desc_struct *d = get_cpu_gdt_rw(cpu);
 	tss_desc tss;
@@ -248,7 +237,7 @@ static inline void native_store_gdt(struct desc_ptr *dtr)
 	asm volatile("sgdt %0":"=m" (*dtr));
 }
 
-static inline void native_store_idt(struct desc_ptr *dtr)
+static inline void store_idt(struct desc_ptr *dtr)
 {
 	asm volatile("sidt %0":"=m" (*dtr));
 }

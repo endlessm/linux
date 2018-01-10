@@ -24,9 +24,9 @@ endif
 KASAN_SANITIZE_head$(BITS).o				:= n
 KASAN_SANITIZE_dumpstack.o				:= n
 KASAN_SANITIZE_dumpstack_$(BITS).o			:= n
-KASAN_SANITIZE_stacktrace.o := n
+KASAN_SANITIZE_stacktrace.o				:= n
+KASAN_SANITIZE_paravirt.o				:= n
 
-OBJECT_FILES_NON_STANDARD_head_$(BITS).o		:= y
 OBJECT_FILES_NON_STANDARD_relocate_kernel_$(BITS).o	:= y
 OBJECT_FILES_NON_STANDARD_ftrace_$(BITS).o		:= y
 OBJECT_FILES_NON_STANDARD_test_nx.o			:= y
@@ -126,11 +126,9 @@ obj-$(CONFIG_PERF_EVENTS)		+= perf_regs.o
 obj-$(CONFIG_TRACING)			+= tracepoint.o
 obj-$(CONFIG_SCHED_MC_PRIO)		+= itmt.o
 
-ifdef CONFIG_FRAME_POINTER
-obj-y					+= unwind_frame.o
-else
-obj-y					+= unwind_guess.o
-endif
+obj-$(CONFIG_UNWINDER_ORC)		+= unwind_orc.o
+obj-$(CONFIG_UNWINDER_FRAME_POINTER)	+= unwind_frame.o
+obj-$(CONFIG_UNWINDER_GUESS)		+= unwind_guess.o
 
 ###
 # 64 bit specific files

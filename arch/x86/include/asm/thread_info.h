@@ -48,6 +48,17 @@
  * - this struct shares the supervisor stack pages
  */
 #ifndef __ASSEMBLY__
+static inline unsigned long current_stack_pointer(void)
+{
+	unsigned long sp;
+#ifdef CONFIG_X86_64
+	asm("mov %%rsp,%0" : "=g" (sp));
+#else
+	asm("mov %%esp,%0" : "=g" (sp));
+#endif
+	return sp;
+}
+
 struct task_struct;
 #include <asm/cpufeature.h>
 #include <linux/atomic.h>
@@ -155,17 +166,6 @@ struct thread_info {
  */
 #ifndef __ASSEMBLY__
 
-static inline unsigned long current_stack_pointer(void)
-{
-	unsigned long sp;
-#ifdef CONFIG_X86_64
-	asm("mov %%rsp,%0" : "=g" (sp));
-#else
-	asm("mov %%esp,%0" : "=g" (sp));
-#endif
-	return sp;
-}
-
 /*
  * Walks up the stack frames to make sure that the specified object is
  * entirely contained by a single stack frame.
@@ -214,7 +214,7 @@ static inline int arch_within_stack_frames(const void * const stack,
 #else /* !__ASSEMBLY__ */
 
 #ifdef CONFIG_X86_64
-# define cpu_current_top_of_stack (cpu_tss + TSS_sp0)
+# define cpu_current_top_of_stack (cpu_tss_rw + TSS_sp1)
 #endif
 
 #endif

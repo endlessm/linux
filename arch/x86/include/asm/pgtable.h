@@ -17,6 +17,7 @@
 #include <asm/x86_init.h>
 
 void ptdump_walk_pgd_level(struct seq_file *m, pgd_t *pgd);
+void ptdump_walk_pgd_level_debugfs(struct seq_file *m, pgd_t *pgd, bool user);
 void ptdump_walk_pgd_level_checkwx(void);
 
 #ifdef CONFIG_DEBUG_WX
@@ -43,8 +44,6 @@ extern struct mm_struct *pgd_page_get_mm(struct page *page);
 #else  /* !CONFIG_PARAVIRT */
 #define set_pte(ptep, pte)		native_set_pte(ptep, pte)
 #define set_pte_at(mm, addr, ptep, pte)	native_set_pte_at(mm, addr, ptep, pte)
-#define set_pmd_at(mm, addr, pmdp, pmd)	native_set_pmd_at(mm, addr, pmdp, pmd)
-#define set_pud_at(mm, addr, pudp, pud)	native_set_pud_at(mm, addr, pudp, pud)
 
 #define set_pte_atomic(ptep, pte)					\
 	native_set_pte_atomic(ptep, pte)
@@ -74,8 +73,6 @@ extern struct mm_struct *pgd_page_get_mm(struct page *page);
 
 #define pte_clear(mm, addr, ptep)	native_pte_clear(mm, addr, ptep)
 #define pmd_clear(pmd)			native_pmd_clear(pmd)
-
-#define pte_update(mm, addr, ptep)              do { } while (0)
 
 #define pgd_val(x)	native_pgd_val(x)
 #define __pgd(x)	native_make_pgd(x)
@@ -835,7 +832,12 @@ static inline pud_t *pud_offset(p4d_t *p4d, unsigned long address)
 
 static inline int p4d_bad(p4d_t p4d)
 {
-	return (p4d_flags(p4d) & ~(_KERNPG_TABLE | _PAGE_USER)) != 0;
+	unsigned long ignore_flags = _KERNPG_TABLE | _PAGE_USER;
+
+	if (IS_ENABLED(CONFIG_PAGE_TABLE_ISOLATION))
+		ignore_flags |= _PAGE_NX;
+
+	return (p4d_flags(p4d) & ~ignore_flags) != 0;
 }
 #endif  /* CONFIG_PGTABLE_LEVELS > 3 */
 
@@ -869,7 +871,12 @@ static inline p4d_t *p4d_offset(pgd_t *pgd, unsigned long address)
 
 static inline int pgd_bad(pgd_t pgd)
 {
-	return (pgd_flags(pgd) & ~_PAGE_USER) != _KERNPG_TABLE;
+	unsigned long ignore_flags = _PAGE_USER;
+
+	if (IS_ENABLED(CONFIG_PAGE_TABLE_ISOLATION))
+		ignore_flags |= _PAGE_NX;
+
+	return (pgd_flags(pgd) & ~ignore_flags) != _KERNPG_TABLE;
 }
 
 static inline int pgd_none(pgd_t pgd)
@@ -898,7 +905,11 @@ static inline int pgd_none(pgd_t pgd)
  * pgd_offset() returns a (pgd_t *)
  * pgd_index() is used get the offset into the pgd page's array of pgd_t's;
  */
-#define pgd_offset(mm, address) ((mm)->pgd + pgd_index((address)))
+#define pgd_offset_pgd(pgd, address) (pgd + pgd_index((address)))
+/*
+ * a shortcut to get a pgd_t in a given mm
+ */
+#define pgd_offset(mm, address) pgd_offset_pgd((mm)->pgd, (address))
 /*
  * a shortcut which implies the use of the kernel's pgd, instead
  * of a process's
@@ -965,30 +976,17 @@ static inline void native_set_pte_at(struct mm_struct *mm, unsigned long addr,
 	native_set_pte(ptep, pte);
 }
 
-static inline void native_set_pmd_at(struct mm_struct *mm, unsigned long addr,
-				     pmd_t *pmdp , pmd_t pmd)
+static inline void set_pmd_at(struct mm_struct *mm, unsigned long addr,
+			      pmd_t *pmdp, pmd_t pmd)
 {
 	native_set_pmd(pmdp, pmd);
 }
 
-static inline void native_set_pud_at(struct mm_struct *mm, unsigned long addr,
-				     pud_t *pudp, pud_t pud)
+static inline void set_pud_at(struct mm_struct *mm, unsigned long addr,
+			      pud_t *pudp, pud_t pud)
 {
 	native_set_pud(pudp, pud);
 }
-
-#ifndef CONFIG_PARAVIRT
-/*
- * Rules for using pte_update - it must be called after any PTE update which
- * has not been done using the set_pte / clear_pte interfaces.  It is used by
- * shadow mode hypervisors to resynchronize the shadow page tables.  Kernel PTE
- * updates should either be sets, clears, or set_pte_atomic for P->P
- * transitions, which means this hook should only be called for user PTEs.
- * This hook implies a P->P protection or access change has taken place, which
- * requires a subsequent TLB flush.
- */
-#define pte_update(mm, addr, ptep)		do { } while (0)
-#endif
 
 /*
  * We only update the dirty/accessed state if we set
@@ -1017,7 +1015,6 @@ static inline pte_t ptep_get_and_clear(struct mm_struct *mm, unsigned long addr,
 				       pte_t *ptep)
 {
 	pte_t pte = native_ptep_get_and_clear(ptep);
-	pte_update(mm, addr, ptep);
 	return pte;
 }
 
@@ -1044,7 +1041,6 @@ static inline void ptep_set_wrprotect(struct mm_struct *mm,
 				      unsigned long addr, pte_t *ptep)
 {
 	clear_bit(_PAGE_BIT_RW, (unsigned long *)&ptep->pte);
-	pte_update(mm, addr, ptep);
 }
 
 #define flush_tlb_fix_spurious_fault(vma, address) do { } while (0)
@@ -1109,7 +1105,14 @@ static inline void pmdp_set_wrprotect(struct mm_struct *mm,
  */
 static inline void clone_pgd_range(pgd_t *dst, pgd_t *src, int count)
 {
-       memcpy(dst, src, count * sizeof(pgd_t));
+	memcpy(dst, src, count * sizeof(pgd_t));
+#ifdef CONFIG_PAGE_TABLE_ISOLATION
+	if (!static_cpu_has(X86_FEATURE_PTI))
+		return;
+	/* Clone the user space pgd as well */
+	memcpy(kernel_to_user_pgdp(dst), kernel_to_user_pgdp(src),
+	       count * sizeof(pgd_t));
+#endif
 }
 
 #define PTE_SHIFT ilog2(PTRS_PER_PTE)

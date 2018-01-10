@@ -36,11 +36,6 @@ DECLARE_EVENT_CLASS(x86_fpu,
 	)
 );
 
-DEFINE_EVENT(x86_fpu, x86_fpu_state,
-	TP_PROTO(struct fpu *fpu),
-	TP_ARGS(fpu)
-);
-
 DEFINE_EVENT(x86_fpu, x86_fpu_before_save,
 	TP_PROTO(struct fpu *fpu),
 	TP_ARGS(fpu)
@@ -72,11 +67,6 @@ DEFINE_EVENT(x86_fpu, x86_fpu_regs_deactivated,
 );
 
 DEFINE_EVENT(x86_fpu, x86_fpu_activate_state,
-	TP_PROTO(struct fpu *fpu),
-	TP_ARGS(fpu)
-);
-
-DEFINE_EVENT(x86_fpu, x86_fpu_deactivate_state,
 	TP_PROTO(struct fpu *fpu),
 	TP_ARGS(fpu)
 );

@@ -5,9 +5,7 @@
 #define _TRACE_IRQ_VECTORS_H
 
 #include <linux/tracepoint.h>
-
-extern int trace_irq_vector_regfunc(void);
-extern void trace_irq_vector_unregfunc(void);
+#include <asm/trace/common.h>
 
 DECLARE_EVENT_CLASS(x86_irq_vector,
 
@@ -69,7 +67,7 @@ DEFINE_IRQ_VECTOR_EVENT(x86_platform_ipi);
  * irq_work - called when entering/exiting a irq work interrupt
  * vector handler
  */
-DEFINE_IRQ_VECTOR_EVENT(irq_work);
+// DEFINE_IRQ_VECTOR_EVENT(irq_work);
 
 /*
  * We must dis-allow sampling irq_work_exit() because perf event sampling

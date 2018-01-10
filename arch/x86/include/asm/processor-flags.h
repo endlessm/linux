@@ -35,6 +35,12 @@
 /* Mask off the address space ID bits. */
 #define CR3_ADDR_MASK 0x7FFFFFFFFFFFF000ull
 #define CR3_PCID_MASK 0xFFFull
+#define CR3_NOFLUSH (1UL << 63)
+
+#ifdef CONFIG_PAGE_TABLE_ISOLATION
+# define X86_CR3_PTI_SWITCH_BIT	11
+#endif
+
 #else
 /*
  * CR3_ADDR_MASK needs at least bits 31:5 set on PAE systems, and we save
@@ -42,6 +48,7 @@
  */
 #define CR3_ADDR_MASK 0xFFFFFFFFull
 #define CR3_PCID_MASK 0ull
+#define CR3_NOFLUSH 0
 #endif
 
 #endif /* _ASM_X86_PROCESSOR_FLAGS_H */

@@ -19,7 +19,6 @@
 #include <asm/desc.h>
 
 #define CREATE_TRACE_POINTS
-#include <asm/trace/irq_vectors.h>
 
 DEFINE_PER_CPU_SHARED_ALIGNED(irq_cpustat_t, irq_stat);
 EXPORT_PER_CPU_SYMBOL(irq_stat);
@@ -222,18 +221,6 @@ __visible unsigned int __irq_entry do_IRQ(struct pt_regs *regs)
 	/* high bit used in ret_from_ code  */
 	unsigned vector = ~regs->orig_ax;
 
-	/*
-	 * NB: Unlike exception entries, IRQ entries do not reliably
-	 * handle context tracking in the low-level entry code.  This is
-	 * because syscall entries execute briefly with IRQs on before
-	 * updating context tracking state, so we can take an IRQ from
-	 * kernel mode with CONTEXT_USER.  The low-level entry code only
-	 * updates the context if we came from user mode, so we won't
-	 * switch to CONTEXT_KERNEL.  We'll fix that once the syscall
-	 * code is cleaned up enough that we can cleanly defer enabling
-	 * IRQs.
-	 */
-
 	entering_irq();
 
 	/* entering_irq() tells RCU that we're not quiescent.  Check it. */
@@ -339,9 +326,7 @@ __visible void __irq_entry smp_trace_x86_platform_ipi(struct pt_regs *regs)
 	struct pt_regs *old_regs = set_irq_regs(regs);
 
 	entering_ack_irq();
-	trace_x86_platform_ipi_entry(X86_PLATFORM_IPI_VECTOR);
 	__smp_x86_platform_ipi();
-	trace_x86_platform_ipi_exit(X86_PLATFORM_IPI_VECTOR);
 	exiting_irq();
 	set_irq_regs(old_regs);
 }
