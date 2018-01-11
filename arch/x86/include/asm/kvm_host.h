@@ -223,9 +223,13 @@ static inline void stuff_RSB(void)
 .label31:	\n\
 	call .label32	\n\
 	pause	\n\
-.label32: \n\
-	add $(32*8), %%rsp 	\n\
-": : :"memory");
+.label32: \n"
+#ifdef CONFIG_X86_64
+" 	add $(32*8), %%rsp 	\n"
+#else
+" 	add $(32*4), %%esp 	\n"
+#endif
+: : :"memory");
 }
 
 enum kvm_reg {
