@@ -7501,6 +7501,7 @@ EXPORT_SYMBOL vmlinux 0x00000000	cpu_rmap_add
 EXPORT_SYMBOL vmlinux 0x00000000	cpu_rmap_put
 EXPORT_SYMBOL vmlinux 0x00000000	cpu_rmap_update
 EXPORT_SYMBOL vmlinux 0x00000000	cpu_sibling_map
+EXPORT_SYMBOL vmlinux 0x00000000	cpu_tlbstate
 EXPORT_SYMBOL vmlinux 0x00000000	cpu_tss_rw
 EXPORT_SYMBOL vmlinux 0x00000000	cpufreq_generic_suspend
 EXPORT_SYMBOL vmlinux 0x00000000	cpufreq_get
@@ -10662,6 +10663,7 @@ EXPORT_SYMBOL vmlinux 0x00000000	sockfd_lookup
 EXPORT_SYMBOL vmlinux 0x00000000	soft_cursor
 EXPORT_SYMBOL vmlinux 0x00000000	softnet_data
 EXPORT_SYMBOL vmlinux 0x00000000	sort
+EXPORT_SYMBOL vmlinux 0x00000000	spec_ctrl_mutex
 EXPORT_SYMBOL vmlinux 0x00000000	splice_direct_to_actor
 EXPORT_SYMBOL vmlinux 0x00000000	sprintf
 EXPORT_SYMBOL vmlinux 0x00000000	sscanf
@@ -10731,6 +10733,8 @@ EXPORT_SYMBOL vmlinux 0x00000000	synchronize_irq
 EXPORT_SYMBOL vmlinux 0x00000000	synchronize_net
 EXPORT_SYMBOL vmlinux 0x00000000	sys_close
 EXPORT_SYMBOL vmlinux 0x00000000	sys_tz
+EXPORT_SYMBOL vmlinux 0x00000000	sysctl_ibpb_enabled
+EXPORT_SYMBOL vmlinux 0x00000000	sysctl_ibrs_enabled
 EXPORT_SYMBOL vmlinux 0x00000000	sysctl_max_skb_frags
 EXPORT_SYMBOL vmlinux 0x00000000	sysctl_nf_log_all_netns
 EXPORT_SYMBOL vmlinux 0x00000000	sysctl_optmem_max
@@ -11066,6 +11070,8 @@ EXPORT_SYMBOL vmlinux 0x00000000	up_read
 EXPORT_SYMBOL vmlinux 0x00000000	up_write
 EXPORT_SYMBOL vmlinux 0x00000000	update_devfreq
 EXPORT_SYMBOL vmlinux 0x00000000	update_region
+EXPORT_SYMBOL vmlinux 0x00000000	use_ibpb
+EXPORT_SYMBOL vmlinux 0x00000000	use_ibrs
 EXPORT_SYMBOL vmlinux 0x00000000	user_path_at_empty
 EXPORT_SYMBOL vmlinux 0x00000000	user_path_create
 EXPORT_SYMBOL vmlinux 0x00000000	user_revoke
@@ -17445,6 +17451,7 @@ EXPORT_SYMBOL_GPL virt/lib/irqbypass 0x00000000	irq_bypass_register_producer
 EXPORT_SYMBOL_GPL virt/lib/irqbypass 0x00000000	irq_bypass_unregister_consumer
 EXPORT_SYMBOL_GPL virt/lib/irqbypass 0x00000000	irq_bypass_unregister_producer
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	PageHuge
+EXPORT_SYMBOL_GPL vmlinux 0x00000000	___ptrace_may_access
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	__ablkcipher_walk_complete
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	__acpi_node_get_property_reference
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	__add_pages
@@ -18403,7 +18410,6 @@ EXPORT_SYMBOL_GPL vmlinux 0x00000000	cpu_hotplug_disable
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	cpu_hotplug_enable
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	cpu_is_hotpluggable
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	cpu_subsys
-EXPORT_SYMBOL_GPL vmlinux 0x00000000	cpu_tlbstate
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	cpu_up
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	cpuacct_cgrp_subsys_enabled_key
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	cpuacct_cgrp_subsys_on_dfl_key

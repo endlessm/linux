@@ -4892,6 +4892,7 @@ EXPORT_SYMBOL vmlinux 0x00000000	sock_wmalloc
 EXPORT_SYMBOL vmlinux 0x00000000	sockfd_lookup
 EXPORT_SYMBOL vmlinux 0x00000000	softnet_data
 EXPORT_SYMBOL vmlinux 0x00000000	sort
+EXPORT_SYMBOL vmlinux 0x00000000	spec_ctrl_mutex
 EXPORT_SYMBOL vmlinux 0x00000000	splice_direct_to_actor
 EXPORT_SYMBOL vmlinux 0x00000000	sprintf
 EXPORT_SYMBOL vmlinux 0x00000000	sscanf
@@ -4952,6 +4953,8 @@ EXPORT_SYMBOL vmlinux 0x00000000	synchronize_irq
 EXPORT_SYMBOL vmlinux 0x00000000	synchronize_net
 EXPORT_SYMBOL vmlinux 0x00000000	sys_close
 EXPORT_SYMBOL vmlinux 0x00000000	sys_tz
+EXPORT_SYMBOL vmlinux 0x00000000	sysctl_ibpb_enabled
+EXPORT_SYMBOL vmlinux 0x00000000	sysctl_ibrs_enabled
 EXPORT_SYMBOL vmlinux 0x00000000	sysctl_max_skb_frags
 EXPORT_SYMBOL vmlinux 0x00000000	sysctl_nf_log_all_netns
 EXPORT_SYMBOL vmlinux 0x00000000	sysctl_optmem_max
@@ -7726,6 +7729,7 @@ EXPORT_SYMBOL_GPL virt/lib/irqbypass 0x00000000	irq_bypass_register_producer
 EXPORT_SYMBOL_GPL virt/lib/irqbypass 0x00000000	irq_bypass_unregister_consumer
 EXPORT_SYMBOL_GPL virt/lib/irqbypass 0x00000000	irq_bypass_unregister_producer
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	PageHuge
+EXPORT_SYMBOL_GPL vmlinux 0x00000000	___ptrace_may_access
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	__ablkcipher_walk_complete
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	__add_pages
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	__alloc_percpu
