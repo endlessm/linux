@@ -162,7 +162,7 @@ _PIF_WORK	= (_PIF_PER_TRAP | _PIF_SYSCALL_RESTART)
 660:	.long	0xb2e8c000
 	.popsection
 661:	.long	0x47000000
-	.pushsection .altnobp, "a"
+	.pushsection .altinstructions, "a"
 	.long 661b - .
 	.long 660b - .
 	.word 82
@@ -176,7 +176,7 @@ _PIF_WORK	= (_PIF_PER_TRAP | _PIF_SYSCALL_RESTART)
 662:	.long	0xb2e8d000
 	.popsection
 663:	.long	0x47000000
-	.pushsection .altnobp, "a"
+	.pushsection .altinstructions, "a"
 	.long 663b - .
 	.long 662b - .
 	.word 82
