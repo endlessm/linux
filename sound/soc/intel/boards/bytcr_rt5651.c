@@ -290,6 +290,14 @@ static const struct dmi_system_id byt_rt5651_quirk_table[] = {
 		.driver_data = (void *)(BYT_RT5651_MCLK_EN |
 					BYT_RT5651_IN1_IN2_MAP),
 	},
+	{
+		.callback = byt_rt5651_quirk_cb,
+		.matches = {
+			DMI_MATCH(DMI_SYS_VENDOR, "TrekStor"),
+			DMI_MATCH(DMI_PRODUCT_NAME, "SurfBook 11.6"),
+		},
+		.driver_data = (void *)(BYT_RT5651_IN1_IN2_MAP),
+	},
 	{}
 };
 
