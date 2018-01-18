@@ -137,5 +137,11 @@ void __init_or_module apply_alternatives(struct alt_instr *start,
 extern struct alt_instr __alt_instructions[], __alt_instructions_end[];
 void __init apply_alternative_instructions(void)
 {
+	pr_info("gmb %s",
+		(__test_facility(81, S390_lowcore.alt_stfle_fac_list)) ?
+		"enabled" : "disabled");
+	pr_info("nobp %s",
+		(__test_facility(82, S390_lowcore.alt_stfle_fac_list)) ?
+		"enabled" : "disabled");
 	apply_alternatives(__alt_instructions, __alt_instructions_end);
 }
