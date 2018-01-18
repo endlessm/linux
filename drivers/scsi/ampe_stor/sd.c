@@ -37,6 +37,8 @@ static const u32 g_sd_clk_array[] = {
 	50000, 40000, 25000, 20000, 10000
 };
 
+static void sdhci_tasklet_timeout(struct timer_list *t);
+
 /*************************************************************************************************/
 int sd_add_device(struct _DEVICE_EXTENSION *pdx)
 {
@@ -60,7 +62,7 @@ int sd_add_device(struct _DEVICE_EXTENSION *pdx)
 	KeInitializeDpc(&sd->card_tasklet, sdhci_tasklet_card, (unsigned long)pdx);
 	KeInitializeDpc(&sd->finish_tasklet, sdhci_tasklet_finish, (unsigned long)pdx);
 
-	setup_timer(&sd->timeout_timer, sdhci_tasklet_timeout, (unsigned long)pdx);
+	timer_setup(&sd->timeout_timer, sdhci_tasklet_timeout, 0);
 
 
 	/* Debug - Force to PIO mode */
@@ -1406,10 +1408,9 @@ void sdhci_tasklet_finish(unsigned long parm)
 }
 
 /*************************************************************************************************/
-void sdhci_tasklet_timeout(unsigned long parm)
+static void sdhci_tasklet_timeout(struct timer_list *t)
 {
-	struct _DEVICE_EXTENSION *pdx = (struct _DEVICE_EXTENSION *)parm;
-	struct sd_host		*sd = pdx->sd;
+	struct sd_host *sd = from_timer(sd, t, timeout_timer);
 
 	TRACEX(("sdhci_tasklet_timeout ===>"));
 

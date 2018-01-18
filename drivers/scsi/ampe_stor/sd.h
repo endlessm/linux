@@ -764,7 +764,6 @@ void sd_set_clock(struct sd_host *sd, u32 clock);
 
 void sdhci_tasklet_card(unsigned long parm);
 void sdhci_tasklet_finish(unsigned long parm);
-void sdhci_tasklet_timeout(unsigned long parm);
 
 
 void sdhci_irq_cmd(struct sd_host *sd, u32 intmask);
