@@ -1071,7 +1071,7 @@ void rtw_init_timer(_timer *ptimer, void *padapter, void *pfunc)
 	_adapter *adapter = (_adapter *)padapter;
 
 #ifdef PLATFORM_LINUX
-	_init_timer(ptimer, adapter->pnetdev, pfunc, adapter);
+	_init_timer(ptimer, adapter->pnetdev, pfunc);
 #endif
 #ifdef PLATFORM_FREEBSD
 	_init_timer(ptimer, adapter->pifp, pfunc, adapter->mlmepriv.nic_hdl);
