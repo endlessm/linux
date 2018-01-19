@@ -1066,12 +1066,12 @@ void rtw_list_insert_tail(_list *plist, _list *phead)
 
 }
 
-void rtw_init_timer(_timer *ptimer, void *padapter, void *pfunc, void *ctx)
+void rtw_init_timer(_timer *ptimer, void *padapter, void *pfunc)
 {
 	_adapter *adapter = (_adapter *)padapter;
 
 #ifdef PLATFORM_LINUX
-	_init_timer(ptimer, adapter->pnetdev, pfunc, ctx);
+	_init_timer(ptimer, adapter->pnetdev, pfunc);
 #endif
 #ifdef PLATFORM_FREEBSD
 	_init_timer(ptimer, adapter->pifp, pfunc, ctx);

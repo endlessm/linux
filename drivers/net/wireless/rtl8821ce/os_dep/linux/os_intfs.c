@@ -1924,7 +1924,7 @@ struct dvobj_priv *devobj_init(void)
 #endif
 #endif
 
-	rtw_init_timer(&(pdvobj->dynamic_chk_timer), NULL, rtw_dynamic_check_timer_handlder, pdvobj);
+	rtw_init_timer(&(pdvobj->dynamic_chk_timer), NULL, rtw_dynamic_check_timer_handlder);
 
 #ifdef CONFIG_MCC_MODE
 	_rtw_mutex_init(&(pdvobj->mcc_objpriv.mcc_mutex));
