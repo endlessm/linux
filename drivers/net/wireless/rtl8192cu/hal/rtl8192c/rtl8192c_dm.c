@@ -4481,9 +4481,10 @@ dm_SW_AntennaSwitch(
 // 20100514 Luke/Joseph:
 // Callback function for 500ms antenna test trying.
 //
-static void dm_SW_AntennaSwitchCallback(void *FunctionContext)
+static void dm_SW_AntennaSwitchCallback(struct timer_list *t)
 {
-	_adapter *padapter = (_adapter *)FunctionContext;
+	struct dm_priv	*pdmpriv = from_timer(pdmpriv, t, SwAntennaSwitchTimer);
+	_adapter *padapter = pdmpriv->adapter;
 
 	if(padapter->net_closed == _TRUE)
 			return;
@@ -4606,7 +4607,8 @@ void rtl8192c_init_dm_priv(IN PADAPTER Adapter)
 	//_rtw_memset(pdmpriv, 0, sizeof(struct dm_priv));
 
 #ifdef CONFIG_SW_ANTENNA_DIVERSITY
-	_init_timer(&(pdmpriv->SwAntennaSwitchTimer),  Adapter->pnetdev , dm_SW_AntennaSwitchCallback, Adapter);
+	pdmpriv->adapter = Adapter;
+	_init_timer(&(pdmpriv->SwAntennaSwitchTimer),  Adapter->pnetdev , dm_SW_AntennaSwitchCallback);
 #endif
 }
 

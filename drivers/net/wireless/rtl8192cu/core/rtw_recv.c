@@ -134,7 +134,7 @@ _func_enter_;
 
 #ifdef CONFIG_NEW_SIGNAL_STAT_PROCESS
 	#ifdef PLATFORM_LINUX
-	_init_timer(&precvpriv->signal_stat_timer, padapter->pnetdev, RTW_TIMER_HDL_NAME(signal_stat), padapter);
+	_init_timer(&precvpriv->signal_stat_timer, padapter->pnetdev, RTW_TIMER_HDL_NAME(signal_stat));
 	#elif defined(PLATFORM_OS_CE) || defined(PLATFORM_WINDOWS)
 	_init_timer(&precvpriv->signal_stat_timer, padapter->hndis_adapter, RTW_TIMER_HDL_NAME(signal_stat), padapter);
 	#endif

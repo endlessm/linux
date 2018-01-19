@@ -344,6 +344,7 @@ typedef struct _SW_Antenna_Switch_
 
 struct 	dm_priv	
 {
+	_adapter *adapter;
 	u8	DM_Type;
 	u8	DMFlag, DMFlag_tmp;
 	
