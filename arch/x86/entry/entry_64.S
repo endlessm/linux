@@ -277,13 +277,13 @@ entry_SYSCALL_64_fastpath:
 	 * and all argument registers are clobbered.
 	 */
 	movq	sys_call_table(, %rax, 8), %r10
-	jmp     1f
-4:	callq   2f
-3:	nop
-	jmp     3b
-2:	mov     %r10, (%rsp)
+	jmp     1001f
+1004:	callq   1002f
+1003:	nop
+	jmp     1003b
+1002:	mov     %r10, (%rsp)
 	retq
-1:	callq   4b
+1001:	callq   1004b
 
 .Lentry_SYSCALL_64_after_fastpath_call:
 
