@@ -50,6 +50,7 @@
 #include <asm/apic.h>
 #include <asm/irq_remapping.h>
 #include <asm/mmu_context.h>
+#include <asm/microcode.h>
 
 #include "trace.h"
 #include "pmu.h"
@@ -1483,6 +1484,7 @@ static void vmcs_load(struct vmcs *vmcs)
 	if (error)
 		printk(KERN_ERR "kvm: vmptrld %p/%llx failed\n",
 		       vmcs, phys_addr);
+
 }
 
 #ifdef CONFIG_KEXEC_CORE
@@ -2263,6 +2265,8 @@ static void vmx_vcpu_load(struct kvm_vcpu *vcpu, int cpu)
 	if (per_cpu(current_vmcs, cpu) != vmx->loaded_vmcs->vmcs) {
 		per_cpu(current_vmcs, cpu) = vmx->loaded_vmcs->vmcs;
 		vmcs_load(vmx->loaded_vmcs->vmcs);
+		if (ibpb_inuse)
+			native_wrmsrl(MSR_IA32_PRED_CMD, FEATURE_SET_IBPB);
 	}
 
 	if (!already_loaded) {
@@ -3243,6 +3247,9 @@ static int vmx_get_msr(struct kvm_vcpu *vcpu, struct msr_data *msr_info)
 	case MSR_IA32_TSC:
 		msr_info->data = guest_read_tsc(vcpu);
 		break;
+	case MSR_IA32_SPEC_CTRL:
+		msr_info->data = vcpu->arch.spec_ctrl;
+		break;
 	case MSR_IA32_SYSENTER_CS:
 		msr_info->data = vmcs_read32(GUEST_SYSENTER_CS);
 		break;
@@ -3346,6 +3353,9 @@ static int vmx_set_msr(struct kvm_vcpu *vcpu, struct msr_data *msr_info)
 		break;
 	case MSR_IA32_TSC:
 		kvm_write_tsc(vcpu, msr_info);
+		break;
+	case MSR_IA32_SPEC_CTRL:
+		vcpu->arch.spec_ctrl = msr_info->data;
 		break;
 	case MSR_IA32_CR_PAT:
 		if (vmcs_config.vmentry_ctrl & VM_ENTRY_LOAD_IA32_PAT) {
@@ -6115,6 +6125,7 @@ static int handle_rdmsr(struct kvm_vcpu *vcpu)
 
 	msr_info.index = ecx;
 	msr_info.host_initiated = false;
+
 	if (vmx_get_msr(vcpu, &msr_info)) {
 		trace_kvm_msr_read_ex(ecx);
 		kvm_inject_gp(vcpu, 0);
@@ -6667,6 +6678,8 @@ static __init int hardware_setup(void)
 	vmx_disable_intercept_for_msr(MSR_IA32_SYSENTER_CS, false);
 	vmx_disable_intercept_for_msr(MSR_IA32_SYSENTER_ESP, false);
 	vmx_disable_intercept_for_msr(MSR_IA32_SYSENTER_EIP, false);
+	vmx_disable_intercept_for_msr(MSR_IA32_SPEC_CTRL, false);
+	vmx_disable_intercept_for_msr(MSR_IA32_PRED_CMD, false);
 
 	memcpy(vmx_msr_bitmap_legacy_x2apic_apicv,
 			vmx_msr_bitmap_legacy, PAGE_SIZE);
@@ -9026,6 +9039,11 @@ static void __noclone vmx_vcpu_run(struct kvm_vcpu *vcpu)
 		__write_pkru(vcpu->arch.pkru);
 
 	atomic_switch_perf_msrs(vmx);
+
+	if (ibrs_inuse)
+		add_atomic_switch_msr(vmx, MSR_IA32_SPEC_CTRL,
+			vcpu->arch.spec_ctrl, FEATURE_ENABLE_IBRS);
+
 	debugctlmsr = get_debugctlmsr();
 
 	vmx_arm_hv_timer(vcpu);
@@ -9078,6 +9096,7 @@ static void __noclone vmx_vcpu_run(struct kvm_vcpu *vcpu)
 		/* Save guest registers, load host registers, keep flags */
 		"mov %0, %c[wordsize](%%" _ASM_SP ") \n\t"
 		"pop %0 \n\t"
+		"setbe %c[fail](%0)\n\t"
 		"mov %%" _ASM_AX ", %c[rax](%0) \n\t"
 		"mov %%" _ASM_BX ", %c[rbx](%0) \n\t"
 		__ASM_SIZE(pop) " %c[rcx](%0) \n\t"
@@ -9094,12 +9113,23 @@ static void __noclone vmx_vcpu_run(struct kvm_vcpu *vcpu)
 		"mov %%r13, %c[r13](%0) \n\t"
 		"mov %%r14, %c[r14](%0) \n\t"
 		"mov %%r15, %c[r15](%0) \n\t"
+		"xor %%r8d,  %%r8d \n\t"
+		"xor %%r9d,  %%r9d \n\t"
+		"xor %%r10d, %%r10d \n\t"
+		"xor %%r11d, %%r11d \n\t"
+		"xor %%r12d, %%r12d \n\t"
+		"xor %%r13d, %%r13d \n\t"
+		"xor %%r14d, %%r14d \n\t"
+		"xor %%r15d, %%r15d \n\t"
 #endif
 		"mov %%cr2, %%" _ASM_AX "   \n\t"
 		"mov %%" _ASM_AX ", %c[cr2](%0) \n\t"
 
+		"xor %%eax, %%eax \n\t"
+		"xor %%ebx, %%ebx \n\t"
+		"xor %%esi, %%esi \n\t"
+		"xor %%edi, %%edi \n\t"
 		"pop  %%" _ASM_BP "; pop  %%" _ASM_DX " \n\t"
-		"setbe %c[fail](%0) \n\t"
 		".pushsection .rodata \n\t"
 		".global vmx_return \n\t"
 		"vmx_return: " _ASM_PTR " 2b \n\t"
@@ -9135,6 +9165,8 @@ static void __noclone vmx_vcpu_run(struct kvm_vcpu *vcpu)
 		, "eax", "ebx", "edi", "esi"
 #endif
 	      );
+
+	stuff_RSB();
 
 	/* MSR_IA32_DEBUGCTLMSR is zeroed on vmexit. Restore it if needed */
 	if (debugctlmsr)

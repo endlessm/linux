@@ -55,4 +55,6 @@ void kvm_cma_reserve(void);
 static inline void kvm_cma_reserve(void) { };
 #endif
 
+extern bool rfi_flush;
+
 #endif /* __ARCH_POWERPC_KERNEL_SETUP_H */

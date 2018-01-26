@@ -6,12 +6,14 @@
 #include <linux/interrupt.h>
 #include <linux/export.h>
 #include <linux/cpu.h>
+#include <linux/ptrace.h>
 
 #include <asm/tlbflush.h>
 #include <asm/mmu_context.h>
 #include <asm/cache.h>
 #include <asm/apic.h>
 #include <asm/uv/uv.h>
+#include <asm/microcode.h>
 #include <linux/debugfs.h>
 
 /*
@@ -217,6 +219,11 @@ void switch_mm_irqs_off(struct mm_struct *prev, struct mm_struct *next,
 	} else {
 		u16 new_asid;
 		bool need_flush;
+
+		/* Null tsk means switching to kernel, so that's safe */
+		if (ibpb_inuse && tsk &&
+			___ptrace_may_access(tsk, current, PTRACE_MODE_IBPB))
+			native_wrmsrl(MSR_IA32_PRED_CMD, FEATURE_SET_IBPB);
 
 		if (IS_ENABLED(CONFIG_VMAP_STACK)) {
 			/*

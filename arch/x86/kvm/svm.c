@@ -175,6 +175,8 @@ struct vcpu_svm {
 
 	u64 next_rip;
 
+	u64 spec_ctrl;
+
 	u64 host_user_msrs[NR_HOST_SAVE_USER_MSRS];
 	struct {
 		u16 fs;
@@ -248,6 +250,8 @@ static const struct svm_direct_access_msrs {
 	{ .index = MSR_CSTAR,				.always = true  },
 	{ .index = MSR_SYSCALL_MASK,			.always = true  },
 #endif
+	{ .index = MSR_IA32_SPEC_CTRL,			.always = true },
+	{ .index = MSR_IA32_PRED_CMD,			.always = true },
 	{ .index = MSR_IA32_LASTBRANCHFROMIP,		.always = false },
 	{ .index = MSR_IA32_LASTBRANCHTOIP,		.always = false },
 	{ .index = MSR_IA32_LASTINTFROMIP,		.always = false },
@@ -514,6 +518,8 @@ struct svm_cpu_data {
 	struct kvm_ldttss_desc *tss_desc;
 
 	struct page *save_area;
+
+	struct vmcb *current_vmcb;
 };
 
 static DEFINE_PER_CPU(struct svm_cpu_data *, svm_data);
@@ -1681,11 +1687,19 @@ static void svm_free_vcpu(struct kvm_vcpu *vcpu)
 	__free_pages(virt_to_page(svm->nested.msrpm), MSRPM_ALLOC_ORDER);
 	kvm_vcpu_uninit(vcpu);
 	kmem_cache_free(kvm_vcpu_cache, svm);
+
+	/*
+	 * The VMCB could be recycled, causing a false negative in svm_vcpu_load;
+	 * block speculative execution.
+	 */
+	if (ibpb_inuse)
+		wrmsrl(MSR_IA32_PRED_CMD, FEATURE_SET_IBPB);
 }
 
 static void svm_vcpu_load(struct kvm_vcpu *vcpu, int cpu)
 {
 	struct vcpu_svm *svm = to_svm(vcpu);
+	struct svm_cpu_data *sd = per_cpu(svm_data, cpu);
 	int i;
 
 	if (unlikely(cpu != vcpu->cpu)) {
@@ -1713,6 +1727,12 @@ static void svm_vcpu_load(struct kvm_vcpu *vcpu, int cpu)
 	/* This assumes that the kernel never uses MSR_TSC_AUX */
 	if (static_cpu_has(X86_FEATURE_RDTSCP))
 		wrmsrl(MSR_TSC_AUX, svm->tsc_aux);
+
+	if (sd->current_vmcb != svm->vmcb) {
+		sd->current_vmcb = svm->vmcb;
+		if (ibpb_inuse)
+			wrmsrl(MSR_IA32_PRED_CMD, FEATURE_SET_IBPB);
+	}
 
 	avic_vcpu_load(vcpu, cpu);
 }
@@ -3545,6 +3565,9 @@ static int svm_get_msr(struct kvm_vcpu *vcpu, struct msr_data *msr_info)
 	case MSR_VM_CR:
 		msr_info->data = svm->nested.vm_cr_msr;
 		break;
+	case MSR_IA32_SPEC_CTRL:
+		msr_info->data = svm->spec_ctrl;
+		break;
 	case MSR_IA32_UCODE_REV:
 		msr_info->data = 0x01000065;
 		break;
@@ -3692,6 +3715,9 @@ static int svm_set_msr(struct kvm_vcpu *vcpu, struct msr_data *msr)
 		return svm_set_vm_cr(vcpu, data);
 	case MSR_VM_IGNNE:
 		vcpu_unimpl(vcpu, "unimplemented wrmsr: 0x%x data 0x%llx\n", ecx, data);
+		break;
+	case MSR_IA32_SPEC_CTRL:
+		svm->spec_ctrl = data;
 		break;
 	case MSR_IA32_APICBASE:
 		if (kvm_vcpu_apicv_active(vcpu))
@@ -4874,6 +4900,9 @@ static void svm_vcpu_run(struct kvm_vcpu *vcpu)
 
 	local_irq_enable();
 
+	if (ibrs_inuse && (svm->spec_ctrl != FEATURE_ENABLE_IBRS))
+		wrmsrl(MSR_IA32_SPEC_CTRL, svm->spec_ctrl);
+
 	asm volatile (
 		"push %%" _ASM_BP "; \n\t"
 		"mov %c[rbx](%[svm]), %%" _ASM_BX " \n\t"
@@ -4918,6 +4947,25 @@ static void svm_vcpu_run(struct kvm_vcpu *vcpu)
 		"mov %%r14, %c[r14](%[svm]) \n\t"
 		"mov %%r15, %c[r15](%[svm]) \n\t"
 #endif
+		/*
+		* Clear host registers marked as clobbered to prevent
+		* speculative use.
+		*/
+		"xor %%" _ASM_BX ", %%" _ASM_BX " \n\t"
+		"xor %%" _ASM_CX ", %%" _ASM_CX " \n\t"
+		"xor %%" _ASM_DX ", %%" _ASM_DX " \n\t"
+		"xor %%" _ASM_SI ", %%" _ASM_SI " \n\t"
+		"xor %%" _ASM_DI ", %%" _ASM_DI " \n\t"
+#ifdef CONFIG_X86_64
+		"xor %%r8, %%r8 \n\t"
+		"xor %%r9, %%r9 \n\t"
+		"xor %%r10, %%r10 \n\t"
+		"xor %%r11, %%r11 \n\t"
+		"xor %%r12, %%r12 \n\t"
+		"xor %%r13, %%r13 \n\t"
+		"xor %%r14, %%r14 \n\t"
+		"xor %%r15, %%r15 \n\t"
+#endif
 		"pop %%" _ASM_BP
 		:
 		: [svm]"a"(svm),
@@ -4946,6 +4994,14 @@ static void svm_vcpu_run(struct kvm_vcpu *vcpu)
 		, "ebx", "ecx", "edx", "esi", "edi"
 #endif
 		);
+
+	if (ibrs_inuse) {
+		rdmsrl(MSR_IA32_SPEC_CTRL, svm->spec_ctrl);
+		if (svm->spec_ctrl != FEATURE_ENABLE_IBRS)
+			wrmsrl(MSR_IA32_SPEC_CTRL, FEATURE_ENABLE_IBRS);
+	}
+
+	stuff_RSB();
 
 #ifdef CONFIG_X86_64
 	wrmsrl(MSR_GS_BASE, svm->host.gs_base);

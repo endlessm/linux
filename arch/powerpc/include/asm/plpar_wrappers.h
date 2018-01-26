@@ -325,4 +325,20 @@ static inline long plapr_signal_sys_reset(long cpu)
 	return plpar_hcall_norets(H_SIGNAL_SYS_RESET, cpu);
 }
 
+static inline long plpar_get_cpu_characteristics(unsigned long *character,
+						 unsigned long *behavior)
+{
+	long rc;
+	unsigned long retbuf[PLPAR_HCALL_BUFSIZE];
+
+	rc = plpar_hcall(H_GET_CPU_CHARACTERISTICS, retbuf);
+
+	if (character)
+		*character = retbuf[0];
+	if (behavior)
+		*behavior = retbuf[1];
+
+	return rc;
+}
+
 #endif /* _ASM_POWERPC_PLPAR_WRAPPERS_H */

@@ -66,6 +66,7 @@
 #include <asm/sclp.h>
 #include <asm/sysinfo.h>
 #include <asm/numa.h>
+#include <asm/alternative.h>
 #include "entry.h"
 
 /*
@@ -338,7 +339,9 @@ static void __init setup_lowcore(void)
 	lc->preempt_count = S390_lowcore.preempt_count;
 	lc->stfl_fac_list = S390_lowcore.stfl_fac_list;
 	memcpy(lc->stfle_fac_list, S390_lowcore.stfle_fac_list,
-	       MAX_FACILITY_BIT/8);
+	       sizeof(lc->stfle_fac_list));
+	memcpy(lc->alt_stfle_fac_list, S390_lowcore.alt_stfle_fac_list,
+	       sizeof(lc->alt_stfle_fac_list));
 	if (MACHINE_HAS_VX || MACHINE_HAS_GS) {
 		unsigned long bits, size;
 
@@ -950,6 +953,8 @@ void __init setup_arch(char **cmdline_p)
         /* Setup default console */
 	conmode_default();
 	set_preferred_console();
+
+	apply_alternative_instructions();
 
 	/* Setup zfcpdump support */
 	setup_zfcpdump();

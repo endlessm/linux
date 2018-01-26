@@ -36,6 +36,7 @@
 #include <asm/pgtable_types.h>
 #include <asm/export.h>
 #include <asm/frame.h>
+#include <asm/spec_ctrl.h>
 #include <linux/err.h>
 
 #include "calling.h"
@@ -213,8 +214,6 @@ ENTRY(entry_SYSCALL_64)
 	movq	%rsp, PER_CPU_VAR(rsp_scratch)
 	movq	PER_CPU_VAR(cpu_current_top_of_stack), %rsp
 
-	TRACE_IRQS_OFF
-
 	/* Construct struct pt_regs on stack */
 	pushq	$__USER_DS			/* pt_regs->ss */
 	pushq	PER_CPU_VAR(rsp_scratch)	/* pt_regs->sp */
@@ -232,8 +231,20 @@ GLOBAL(entry_SYSCALL_64_after_hwframe)
 	pushq	%r9				/* pt_regs->r9 */
 	pushq	%r10				/* pt_regs->r10 */
 	pushq	%r11				/* pt_regs->r11 */
-	sub	$(6*8), %rsp			/* pt_regs->bp, bx, r12-15 not saved */
+	sub	$(6*8), %rsp			/* pt_regs->bp, bx, r12-15 not used */
 	UNWIND_HINT_REGS extra=0
+
+	ENABLE_IBRS
+	/*
+	 * Clear the unused extra regs for code hygiene.
+	 * Will restore the callee saved extra regs at end of syscall.
+	 */
+	SAVE_EXTRA_REGS
+	CLEAR_EXTRA_REGS
+
+	STUFF_RSB
+
+	TRACE_IRQS_OFF
 
 	/*
 	 * If we need to do entry work or if we guess we'll need to do
@@ -265,7 +276,15 @@ entry_SYSCALL_64_fastpath:
 	 * It might end up jumping to the slow path.  If it jumps, RAX
 	 * and all argument registers are clobbered.
 	 */
-	call	*sys_call_table(, %rax, 8)
+	movq	sys_call_table(, %rax, 8), %r10
+	jmp     1001f
+1004:	callq   1002f
+1003:	nop
+	jmp     1003b
+1002:	mov     %r10, (%rsp)
+	retq
+1001:	callq   1004b
+
 .Lentry_SYSCALL_64_after_fastpath_call:
 
 	movq	%rax, RAX(%rsp)
@@ -286,7 +305,8 @@ entry_SYSCALL_64_fastpath:
 	TRACE_IRQS_ON		/* user mode is traced as IRQs on */
 	movq	RIP(%rsp), %rcx
 	movq	EFLAGS(%rsp), %r11
-	addq	$6*8, %rsp	/* skip extra regs -- they were preserved */
+	DISABLE_IBRS
+	POP_EXTRA_REGS
 	UNWIND_HINT_EMPTY
 	jmp	.Lpop_c_regs_except_rcx_r11_and_sysret
 
@@ -298,14 +318,12 @@ entry_SYSCALL_64_fastpath:
 	 */
 	TRACE_IRQS_ON
 	ENABLE_INTERRUPTS(CLBR_ANY)
-	SAVE_EXTRA_REGS
 	movq	%rsp, %rdi
 	call	syscall_return_slowpath	/* returns with IRQs disabled */
 	jmp	return_from_SYSCALL_64
 
 entry_SYSCALL64_slow_path:
 	/* IRQs are off. */
-	SAVE_EXTRA_REGS
 	movq	%rsp, %rdi
 	call	do_syscall_64		/* returns with IRQs disabled */
 
@@ -379,6 +397,8 @@ return_from_SYSCALL_64:
 	 * perf profiles. Nothing jumps here.
 	 */
 syscall_return_via_sysret:
+	DISABLE_IBRS
+
 	/* rcx and r11 are already restored (see code above) */
 	UNWIND_HINT_EMPTY
 	POP_EXTRA_REGS
@@ -652,6 +672,13 @@ END(irq_entries_start)
 	ALLOC_PT_GPREGS_ON_STACK
 	SAVE_C_REGS
 	SAVE_EXTRA_REGS
+
+	/*
+	 * Have to do stuffing before encoding frame pointer.
+	 * Could add some unnecessary RSB clearing if coming
+	 * from kernel for non-SMEP platform.
+	 */
+	STUFF_RSB
 	ENCODE_FRAME_POINTER
 
 	testb	$3, CS(%rsp)
@@ -660,6 +687,10 @@ END(irq_entries_start)
 	/*
 	 * IRQ from user mode.
 	 *
+	 */
+	ENABLE_IBRS
+
+	/*
 	 * We need to tell lockdep that IRQs are off.  We can't do this until
 	 * we fix gsbase, and we should do it before enter_from_user_mode
 	 * (which can take locks).  Since TRACE_IRQS_OFF idempotent,
@@ -743,7 +774,7 @@ GLOBAL(swapgs_restore_regs_and_return_to_usermode)
 	 * We are on the trampoline stack.  All regs except RDI are live.
 	 * We can do future final exit work right here.
 	 */
-
+	DISABLE_IBRS
 	SWITCH_TO_USER_CR3_STACK scratch_reg=%rdi
 
 	/* Restore RDI. */
@@ -1266,6 +1297,10 @@ ENTRY(paranoid_entry)
 	cld
 	SAVE_C_REGS 8
 	SAVE_EXTRA_REGS 8
+	/*
+	 * Do the stuffing unconditionally from user/kernel to be safe
+	 */
+	STUFF_RSB
 	ENCODE_FRAME_POINTER 8
 	movl	$1, %ebx
 	movl	$MSR_GS_BASE, %ecx
@@ -1277,6 +1312,7 @@ ENTRY(paranoid_entry)
 
 1:
 	SAVE_AND_SWITCH_TO_KERNEL_CR3 scratch_reg=%rax save_reg=%r14
+	ENABLE_IBRS_CLOBBER
 
 	ret
 END(paranoid_entry)
@@ -1318,6 +1354,7 @@ ENTRY(error_entry)
 	cld
 	SAVE_C_REGS 8
 	SAVE_EXTRA_REGS 8
+	STUFF_RSB
 	ENCODE_FRAME_POINTER 8
 	xorl	%ebx, %ebx
 	testb	$3, CS+8(%rsp)
@@ -1330,6 +1367,8 @@ ENTRY(error_entry)
 	SWAPGS
 	/* We have user CR3.  Change to kernel CR3. */
 	SWITCH_TO_KERNEL_CR3 scratch_reg=%rax
+
+	ENABLE_IBRS
 
 .Lerror_entry_from_usermode_after_swapgs:
 	/* Put us onto the real thread stack. */
@@ -1377,6 +1416,7 @@ ENTRY(error_entry)
 	 */
 	SWAPGS
 	SWITCH_TO_KERNEL_CR3 scratch_reg=%rax
+	ENABLE_IBRS_CLOBBER
 	jmp .Lerror_entry_done
 
 .Lbstep_iret:
@@ -1391,6 +1431,7 @@ ENTRY(error_entry)
 	 */
 	SWAPGS
 	SWITCH_TO_KERNEL_CR3 scratch_reg=%rax
+	ENABLE_IBRS_CLOBBER
 
 	/*
 	 * Pretend that the exception came from user mode: set up pt_regs
@@ -1518,6 +1559,7 @@ ENTRY(nmi)
 	UNWIND_HINT_REGS
 	ENCODE_FRAME_POINTER
 
+	ENABLE_IBRS
 	/*
 	 * At this point we no longer need to worry about stack damage
 	 * due to nesting -- we're on the normal thread stack and we're

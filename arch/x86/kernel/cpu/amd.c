@@ -785,8 +785,32 @@ static void init_amd(struct cpuinfo_x86 *c)
 		set_cpu_cap(c, X86_FEATURE_K8);
 
 	if (cpu_has(c, X86_FEATURE_XMM2)) {
-		/* MFENCE stops RDTSC speculation */
-		set_cpu_cap(c, X86_FEATURE_MFENCE_RDTSC);
+		unsigned long long val;
+		int ret;
+
+		/*
+		 * A serializing LFENCE has less overhead than MFENCE, so
+		 * use it for execution serialization.  On families which
+		 * don't have that MSR, LFENCE is already serializing.
+		 * msr_set_bit() uses the safe accessors, too, even if the MSR
+		 * is not present.
+		 */
+		msr_set_bit(MSR_F10H_DECFG,
+			    MSR_F10H_DECFG_LFENCE_SERIALIZE_BIT);
+
+		/*
+		 * Verify that the MSR write was successful (could be running
+		 * under a hypervisor) and only then assume that LFENCE is
+		 * serializing.
+		 */
+		ret = rdmsrl_safe(MSR_F10H_DECFG, &val);
+		if (!ret && (val & MSR_F10H_DECFG_LFENCE_SERIALIZE)) {
+			/* A serializing LFENCE stops RDTSC speculation */
+			set_cpu_cap(c, X86_FEATURE_LFENCE_RDTSC);
+		} else {
+			/* MFENCE stops RDTSC speculation */
+			set_cpu_cap(c, X86_FEATURE_MFENCE_RDTSC);
+		}
 	}
 
 	/*
@@ -806,6 +830,45 @@ static void init_amd(struct cpuinfo_x86 *c)
 	/* AMD CPUs don't reset SS attributes on SYSRET, Xen does. */
 	if (!cpu_has(c, X86_FEATURE_XENPV))
 		set_cpu_bug(c, X86_BUG_SYSRET_SS_ATTRS);
+
+	/* AMD speculative control support */
+	if (cpu_has(c, X86_FEATURE_SPEC_CTRL)) {
+		pr_info_once("FEATURE SPEC_CTRL Present\n");
+		set_ibrs_supported();
+		set_ibpb_supported();
+		if (ibrs_inuse)
+			sysctl_ibrs_enabled = 1;
+		if (ibpb_inuse)
+			sysctl_ibpb_enabled = 1;
+	} else if (cpu_has(c, X86_FEATURE_IBPB)) {
+		pr_info_once("FEATURE SPEC_CTRL Not Present\n");
+		pr_info_once("FEATURE IBPB Present\n");
+		set_ibpb_supported();
+		if (ibpb_inuse)
+			sysctl_ibpb_enabled = 1;
+	} else {
+		pr_info_once("FEATURE SPEC_CTRL Not Present\n");
+		pr_info_once("FEATURE IBPB Not Present\n");
+		/*
+		 * On AMD processors that do not support the speculative
+		 * control features, IBPB type support can be achieved by
+		 * disabling indirect branch predictor support.
+		 */
+		if (!ibpb_disabled) {
+			u64 val;
+
+			switch (c->x86) {
+			case 0x10:
+			case 0x12:
+			case 0x16:
+				pr_info_once("Disabling indirect branch predictor support\n");
+				rdmsrl(MSR_F15H_IC_CFG, val);
+				val |= MSR_F15H_IC_CFG_DIS_IND;
+				wrmsrl(MSR_F15H_IC_CFG, val);
+				break;
+			}
+		}
+	}
 }
 
 #ifdef CONFIG_X86_32
