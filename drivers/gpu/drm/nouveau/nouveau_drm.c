@@ -71,7 +71,8 @@ static char *nouveau_debug;
 module_param_named(debug, nouveau_debug, charp, 0400);
 
 MODULE_PARM_DESC(noaccel, "disable kernel/abi16 acceleration");
-static int nouveau_noaccel = 0;
+static int nouveau_noaccel = -1;
+#define NOUVEAU_NOACCEL_DEFAULT 0
 module_param_named(noaccel, nouveau_noaccel, int, 0400);
 
 MODULE_PARM_DESC(modeset, "enable driver (default: auto, "
@@ -80,7 +81,8 @@ int nouveau_modeset = -1;
 module_param_named(modeset, nouveau_modeset, int, 0400);
 
 MODULE_PARM_DESC(runpm, "disable (0), force enable (1), optimus only default (-1)");
-static int nouveau_runtime_pm = -1;
+static int nouveau_runtime_pm = -2;
+#define NOUVEAU_RUNTIME_PM_DEFAULT -1
 module_param_named(runpm, nouveau_runtime_pm, int, 0400);
 
 static struct drm_driver driver_stub;
@@ -634,33 +636,39 @@ nouveau_drm_load(struct drm_device *dev, unsigned long flags)
 	if (drm->client.device.info.chipset == 0xc1)
 		nvif_mask(&drm->client.device.object, 0x00088080, 0x00000800, 0x00000000);
 
-	/* Disable runtime PM on Asus laptops with GP107 (0x137) and
-	 * GP108 (0x118) cards */
-	if ((drm->client.device.info.chipset == 0x137 ||
-	     drm->client.device.info.chipset == 0x118) &&
-	    dmi_check_system(dmi_asus_laptop)) {
-		NV_INFO(drm, "Asus laptop with chipset 0x%X, disabling runtime PM\n",
-			drm->client.device.info.chipset);
-		nouveau_runtime_pm = 0;
-	}
+	if (nouveau_runtime_pm == -2) {
+		/* Disable runtime PM on Asus laptops with GP107 (0x137) and
+		 * GP108 (0x118) cards */
+		if ((drm->client.device.info.chipset == 0x137 ||
+		     drm->client.device.info.chipset == 0x118) &&
+		    dmi_check_system(dmi_asus_laptop)) {
+			NV_INFO(drm, "Asus laptop with chipset 0x%X, disabling runtime PM\n",
+				drm->client.device.info.chipset);
+			nouveau_runtime_pm = 0;
+		}
 
-	if (dmi_check_system(nouveau_rpm_blacklist)) {
-		NV_INFO(drm, "Runtime PM is blacklisted on this machine\n");
-		nouveau_runtime_pm = 0;
-	}
+		if (dmi_check_system(nouveau_rpm_blacklist)) {
+			NV_INFO(drm, "Runtime PM is blacklisted on this machine\n");
+			nouveau_runtime_pm = 0;
+		}
+	} else
+		nouveau_runtime_pm = NOUVEAU_RUNTIME_PM_DEFAULT;
 
-	/* Disable acceleration on Acer laptops with GP107 (0x137) cards */
-	if (drm->client.device.info.chipset == 0x137 &&
-	    dmi_check_system(dmi_acer_laptop)) {
-		NV_INFO(drm, "Acer laptop with chipset 0x%X, disabling acceleration\n",
-			drm->client.device.info.chipset);
-		nouveau_noaccel = 1;
-	}
+	if (nouveau_noaccel == -1) {
+		/* Disable acceleration on Acer laptops with GP107 (0x137) cards */
+		if (drm->client.device.info.chipset == 0x137 &&
+		    dmi_check_system(dmi_acer_laptop)) {
+			NV_INFO(drm, "Acer laptop with chipset 0x%X, disabling acceleration\n",
+				drm->client.device.info.chipset);
+			nouveau_noaccel = 1;
+		}
 
-	if (dmi_check_system(nouveau_accel_blacklist)) {
-		NV_INFO(drm, "Acceleration is blacklisted on this machine\n");
-		nouveau_noaccel = 1;
-	}
+		if (dmi_check_system(nouveau_accel_blacklist)) {
+			NV_INFO(drm, "Acceleration is blacklisted on this machine\n");
+			nouveau_noaccel = 1;
+		}
+	} else
+		nouveau_noaccel = NOUVEAU_NOACCEL_DEFAULT;
 
 	nouveau_vga_init(drm);
 
@@ -1311,7 +1319,7 @@ nouveau_drm_init(void)
 
 	nouveau_display_options();
 
-	if (dmi_check_system(nouveau_disable))
+	if (nouveau_modeset == -1 && dmi_check_system(nouveau_disable))
 		nouveau_modeset = 0;
 
 	if (nouveau_modeset == -1) {
