@@ -562,6 +562,31 @@ static const struct dmi_system_id dmi_acer_laptop[] = {
 	{ }
 };
 
+static const struct dmi_system_id nouveau_rpm_blacklist[] = {
+	{
+		.ident = "ASUSTeK COMPUTER INC. GL552VXK",
+		.matches = {
+			DMI_MATCH(DMI_SYS_VENDOR, "ASUSTeK COMPUTER INC."),
+			DMI_MATCH(DMI_PRODUCT_NAME, "GL552VXK"),
+		},
+	},
+	{
+		.ident = "ASUSTeK COMPUTER INC. K401UQK",
+		.matches = {
+			DMI_MATCH(DMI_SYS_VENDOR, "ASUSTeK COMPUTER INC."),
+			DMI_MATCH(DMI_PRODUCT_NAME, "K401UQK"),
+		},
+	},
+	{
+		.ident = "ASUSTeK COMPUTER INC. X550VXK",
+		.matches = {
+			DMI_MATCH(DMI_SYS_VENDOR, "ASUSTeK COMPUTER INC."),
+			DMI_MATCH(DMI_PRODUCT_NAME, "X550VXK"),
+		},
+	},
+	{ }
+};
+
 static int
 nouveau_drm_load(struct drm_device *dev, unsigned long flags)
 {
@@ -605,6 +630,11 @@ nouveau_drm_load(struct drm_device *dev, unsigned long flags)
 	    dmi_check_system(dmi_asus_laptop)) {
 		NV_INFO(drm, "Asus laptop with chipset 0x%X, disabling runtime PM\n",
 			drm->client.device.info.chipset);
+		nouveau_runtime_pm = 0;
+	}
+
+	if (dmi_check_system(nouveau_rpm_blacklist)) {
+		NV_INFO(drm, "Runtime PM is blacklisted on this machine\n");
 		nouveau_runtime_pm = 0;
 	}
 
@@ -1257,31 +1287,6 @@ static const struct dmi_system_id nouveau_disable[] = {
 	{ }
 };
 
-static const struct dmi_system_id nouveau_rpm_blacklist[] = {
-	{
-		.ident = "ASUSTeK COMPUTER INC. GL552VXK",
-		.matches = {
-			DMI_MATCH(DMI_SYS_VENDOR, "ASUSTeK COMPUTER INC."),
-			DMI_MATCH(DMI_PRODUCT_NAME, "GL552VXK"),
-		},
-	},
-	{
-		.ident = "ASUSTeK COMPUTER INC. K401UQK",
-		.matches = {
-			DMI_MATCH(DMI_SYS_VENDOR, "ASUSTeK COMPUTER INC."),
-			DMI_MATCH(DMI_PRODUCT_NAME, "K401UQK"),
-		},
-	},
-	{
-		.ident = "ASUSTeK COMPUTER INC. X550VXK",
-		.matches = {
-			DMI_MATCH(DMI_SYS_VENDOR, "ASUSTeK COMPUTER INC."),
-			DMI_MATCH(DMI_PRODUCT_NAME, "X550VXK"),
-		},
-	},
-	{ }
-};
-
 static int __init
 nouveau_drm_init(void)
 {
@@ -1290,9 +1295,6 @@ nouveau_drm_init(void)
 
 	if (dmi_check_system(nouveau_disable))
 		nouveau_modeset = 0;
-
-	if (dmi_check_system(nouveau_rpm_blacklist))
-		nouveau_runtime_pm = 0;
 
 	nouveau_display_options();
 
