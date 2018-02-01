@@ -540,36 +540,25 @@ nouveau_get_hdmi_dev(struct nouveau_drm *drm)
 	}
 }
 
-static const struct dmi_system_id gp107_runpm_blacklist[] = {
+static const struct dmi_system_id dmi_asus_laptop[] = {
 	{
-                .ident = "ASUS",
-                .matches = {
+		.ident = "Asus Laptop",
+		.matches = {
 			DMI_MATCH(DMI_SYS_VENDOR, "ASUSTeK COMPUTER INC."),
 			DMI_MATCH(DMI_CHASSIS_TYPE, "10"), /* Notebook */
-                },
-        },
+		},
+	},
 	{ }
 };
 
-static const struct dmi_system_id gm108_runpm_blacklist[] = {
+static const struct dmi_system_id dmi_acer_laptop[] = {
 	{
-                .ident = "ASUS laptop",
-                .matches = {
-			DMI_MATCH(DMI_SYS_VENDOR, "ASUSTeK COMPUTER INC."),
-			DMI_MATCH(DMI_CHASSIS_TYPE, "10"), /* Notebook */
-                },
-        },
-	{ }
-};
-
-static const struct dmi_system_id gp107_accel_blacklist[] = {
-	{
-                .ident = "Acer",
-                .matches = {
+		.ident = "Acer Laptop",
+		.matches = {
 			DMI_MATCH(DMI_SYS_VENDOR, "Acer"),
 			DMI_MATCH(DMI_CHASSIS_TYPE, "10"), /* Notebook */
-                },
-        },
+		},
+	},
 	{ }
 };
 
@@ -609,17 +598,23 @@ nouveau_drm_load(struct drm_device *dev, unsigned long flags)
 	if (drm->client.device.info.chipset == 0xc1)
 		nvif_mask(&drm->client.device.object, 0x00088080, 0x00000800, 0x00000000);
 
-	if (drm->client.device.info.chipset == 0x137 &&
-	    dmi_check_system(gp107_runpm_blacklist))
+	/* Disable runtime PM on Asus laptops with GP107 (0x137) and
+	 * GP108 (0x118) cards */
+	if ((drm->client.device.info.chipset == 0x137 ||
+	     drm->client.device.info.chipset == 0x118) &&
+	    dmi_check_system(dmi_asus_laptop)) {
+		NV_INFO(drm, "Asus laptop with chipset 0x%X, disabling runtime PM\n",
+			drm->client.device.info.chipset);
 		nouveau_runtime_pm = 0;
+	}
 
-	if (drm->client.device.info.chipset == 0x118 &&
-	    dmi_check_system(gm108_runpm_blacklist))
-		nouveau_runtime_pm = 0;
-
+	/* Disable acceleration on Acer laptops with GP107 (0x137) cards */
 	if (drm->client.device.info.chipset == 0x137 &&
-	    dmi_check_system(gp107_accel_blacklist))
+	    dmi_check_system(dmi_acer_laptop)) {
+		NV_INFO(drm, "Acer laptop with chipset 0x%X, disabling acceleration\n",
+			drm->client.device.info.chipset);
 		nouveau_noaccel = 1;
+	}
 
 	nouveau_vga_init(drm);
 
@@ -1237,7 +1232,7 @@ err_free:
 	return ERR_PTR(err);
 }
 
-static const struct dmi_system_id nouveau_modeset_0[] = {
+static const struct dmi_system_id nouveau_disable[] = {
 	{
 		.ident = "ASUSTeK COMPUTER INC. N552VW",
 		.matches = {
@@ -1262,7 +1257,7 @@ static const struct dmi_system_id nouveau_modeset_0[] = {
 	{ }
 };
 
-static const struct dmi_system_id nouveau_rpm_0[] = {
+static const struct dmi_system_id nouveau_rpm_blacklist[] = {
 	{
 		.ident = "ASUSTeK COMPUTER INC. GL552VXK",
 		.matches = {
@@ -1293,10 +1288,10 @@ nouveau_drm_init(void)
 	driver_pci = driver_stub;
 	driver_platform = driver_stub;
 
-	if (dmi_check_system(nouveau_modeset_0))
+	if (dmi_check_system(nouveau_disable))
 		nouveau_modeset = 0;
 
-	if (dmi_check_system(nouveau_rpm_0))
+	if (dmi_check_system(nouveau_rpm_blacklist))
 		nouveau_runtime_pm = 0;
 
 	nouveau_display_options();
