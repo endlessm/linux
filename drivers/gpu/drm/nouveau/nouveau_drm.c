@@ -1309,10 +1309,10 @@ nouveau_drm_init(void)
 	driver_pci = driver_stub;
 	driver_platform = driver_stub;
 
+	nouveau_display_options();
+
 	if (dmi_check_system(nouveau_disable))
 		nouveau_modeset = 0;
-
-	nouveau_display_options();
 
 	if (nouveau_modeset == -1) {
 		if (vgacon_text_force())
