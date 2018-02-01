@@ -551,6 +551,31 @@ static const struct dmi_system_id gp107_runpm_blacklist[] = {
 	{ }
 };
 
+static const struct dmi_system_id nouveau_runpm_blacklist[] = {
+	{
+		.ident = "ASUSTeK COMPUTER INC. GL552VXK",
+		.matches = {
+			DMI_MATCH(DMI_SYS_VENDOR, "ASUSTeK COMPUTER INC."),
+			DMI_MATCH(DMI_PRODUCT_NAME, "GL552VXK"),
+		},
+	},
+	{
+		.ident = "ASUSTeK COMPUTER INC. K401UQK",
+		.matches = {
+			DMI_MATCH(DMI_SYS_VENDOR, "ASUSTeK COMPUTER INC."),
+			DMI_MATCH(DMI_PRODUCT_NAME, "K401UQK"),
+		},
+	},
+	{
+		.ident = "ASUSTeK COMPUTER INC. X550VXK",
+		.matches = {
+			DMI_MATCH(DMI_SYS_VENDOR, "ASUSTeK COMPUTER INC."),
+			DMI_MATCH(DMI_PRODUCT_NAME, "X550VXK"),
+		},
+	},
+	{ }
+};
+
 static const struct dmi_system_id gm108_accel_blacklist[] = {
 	{
 		.ident = "Asus laptop",
@@ -611,6 +636,9 @@ nouveau_drm_load(struct drm_device *dev, unsigned long flags)
 
 	if (drm->client.device.info.chipset == 0x137 &&
 	    dmi_check_system(gp107_runpm_blacklist))
+		nouveau_runtime_pm = 0;
+
+	if (dmi_check_system(nouveau_runpm_blacklist))
 		nouveau_runtime_pm = 0;
 
 	if (drm->client.device.info.chipset == 0x118 &&
@@ -1262,31 +1290,6 @@ static const struct dmi_system_id nouveau_blacklist[] = {
 	{ }
 };
 
-static const struct dmi_system_id nouveau_runpm_blacklist[] = {
-	{
-		.ident = "ASUSTeK COMPUTER INC. GL552VXK",
-		.matches = {
-			DMI_MATCH(DMI_SYS_VENDOR, "ASUSTeK COMPUTER INC."),
-			DMI_MATCH(DMI_PRODUCT_NAME, "GL552VXK"),
-		},
-	},
-	{
-		.ident = "ASUSTeK COMPUTER INC. K401UQK",
-		.matches = {
-			DMI_MATCH(DMI_SYS_VENDOR, "ASUSTeK COMPUTER INC."),
-			DMI_MATCH(DMI_PRODUCT_NAME, "K401UQK"),
-		},
-	},
-	{
-		.ident = "ASUSTeK COMPUTER INC. X550VXK",
-		.matches = {
-			DMI_MATCH(DMI_SYS_VENDOR, "ASUSTeK COMPUTER INC."),
-			DMI_MATCH(DMI_PRODUCT_NAME, "X550VXK"),
-		},
-	},
-	{ }
-};
-
 static int __init
 nouveau_drm_init(void)
 {
@@ -1295,9 +1298,6 @@ nouveau_drm_init(void)
 
 	if (dmi_check_system(nouveau_blacklist))
 		nouveau_modeset = 0;
-
-	if (dmi_check_system(nouveau_runpm_blacklist))
-		nouveau_runtime_pm = 0;
 
 	nouveau_display_options();
 
