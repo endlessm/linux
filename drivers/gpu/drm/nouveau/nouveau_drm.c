@@ -1309,12 +1309,12 @@ nouveau_drm_init(void)
 	driver_pci = driver_stub;
 	driver_platform = driver_stub;
 
+	nouveau_display_options();
+
 	if ((dmi_id = dmi_first_match(nouveau_blacklist))) {
 		DRM_INFO("Blacklisted on %s, disabling\n", dmi_id->ident);
 		nouveau_modeset = 0;
 	}
-
-	nouveau_display_options();
 
 	if (nouveau_modeset == -1) {
 		if (vgacon_text_force())
