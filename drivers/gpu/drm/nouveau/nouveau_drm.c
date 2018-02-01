@@ -71,7 +71,8 @@ static char *nouveau_debug;
 module_param_named(debug, nouveau_debug, charp, 0400);
 
 MODULE_PARM_DESC(noaccel, "disable kernel/abi16 acceleration");
-static int nouveau_noaccel = 0;
+static int nouveau_noaccel = -1;
+#define NOUVEAU_NOACCEL_DEFAULT 0
 module_param_named(noaccel, nouveau_noaccel, int, 0400);
 
 MODULE_PARM_DESC(modeset, "enable driver (default: auto, "
@@ -80,7 +81,8 @@ int nouveau_modeset = -1;
 module_param_named(modeset, nouveau_modeset, int, 0400);
 
 MODULE_PARM_DESC(runpm, "disable (0), force enable (1), optimus only default (-1)");
-static int nouveau_runtime_pm = -1;
+static int nouveau_runtime_pm = -2;
+#define NOUVEAU_RUNTIME_PM_DEFAULT -1
 module_param_named(runpm, nouveau_runtime_pm, int, 0400);
 
 static struct drm_driver driver_stub;
@@ -635,31 +637,37 @@ nouveau_drm_load(struct drm_device *dev, unsigned long flags)
 	if (drm->client.device.info.chipset == 0xc1)
 		nvif_mask(&drm->client.device.object, 0x00088080, 0x00000800, 0x00000000);
 
-	if (drm->client.device.info.chipset == 0x137 &&
-	    (dmi_id = dmi_first_match(gp107_runpm_blacklist))) {
-		NV_INFO(drm, "%s with chipset 0x%X, disabling runtime PM\n",
-			dmi_id->ident, drm->client.device.info.chipset);
-		nouveau_runtime_pm = 0;
-	}
+	if (nouveau_runtime_pm == -2) {
+		if (drm->client.device.info.chipset == 0x137 &&
+		    (dmi_id = dmi_first_match(gp107_runpm_blacklist))) {
+			NV_INFO(drm, "%s with chipset 0x%X, disabling runtime PM\n",
+				dmi_id->ident, drm->client.device.info.chipset);
+			nouveau_runtime_pm = 0;
+		}
 
-	if ((dmi_id = dmi_first_match(nouveau_runpm_blacklist))) {
-		NV_INFO(drm, "Disabling runtime PM on %s\n", dmi_id->ident);
-		nouveau_runtime_pm = 0;
-	}
+		if ((dmi_id = dmi_first_match(nouveau_runpm_blacklist))) {
+			NV_INFO(drm, "Disabling runtime PM on %s\n", dmi_id->ident);
+			nouveau_runtime_pm = 0;
+		}
+	} else
+		nouveau_runtime_pm = NOUVEAU_RUNTIME_PM_DEFAULT;
 
-	if (drm->client.device.info.chipset == 0x118 &&
-	    (dmi_id = dmi_first_match(gm108_accel_blacklist))) {
-		NV_INFO(drm, "%s with chipset 0x%X, disabling acceleration\n",
-			dmi_id->ident, drm->client.device.info.chipset);
-		nouveau_noaccel = 1;
-	}
+	if (nouveau_noaccel == -1) {
+		if (drm->client.device.info.chipset == 0x118 &&
+		    (dmi_id = dmi_first_match(gm108_accel_blacklist))) {
+			NV_INFO(drm, "%s with chipset 0x%X, disabling acceleration\n",
+				dmi_id->ident, drm->client.device.info.chipset);
+			nouveau_noaccel = 1;
+		}
 
-	if (drm->client.device.info.chipset == 0x137 &&
-	    (dmi_id = dmi_first_match(gp107_accel_blacklist))) {
-		NV_INFO(drm, "%s with chipset 0x%X, disabling acceleration\n",
-			dmi_id->ident, drm->client.device.info.chipset);
-		nouveau_noaccel = 1;
-	}
+		if (drm->client.device.info.chipset == 0x137 &&
+		    (dmi_id = dmi_first_match(gp107_accel_blacklist))) {
+			NV_INFO(drm, "%s with chipset 0x%X, disabling acceleration\n",
+				dmi_id->ident, drm->client.device.info.chipset);
+			nouveau_noaccel = 1;
+		}
+	} else
+		nouveau_noaccel = NOUVEAU_NOACCEL_DEFAULT;
 
 	nouveau_vga_init(drm);
 
@@ -1311,8 +1319,9 @@ nouveau_drm_init(void)
 
 	nouveau_display_options();
 
-	if ((dmi_id = dmi_first_match(nouveau_blacklist))) {
-		DRM_INFO("Blacklisted on %s, disabling\n", dmi_id->ident);
+	if (nouveau_modeset == -1 &&
+	    (dmi_id = dmi_first_match(nouveau_blacklist))) {
+		DRM_DEBUG_DRIVER("Blacklisted on %s, disabling\n", dmi_id->ident);
 		nouveau_modeset = 0;
 	}
 
