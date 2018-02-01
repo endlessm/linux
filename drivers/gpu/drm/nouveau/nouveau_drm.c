@@ -587,6 +587,17 @@ static const struct dmi_system_id nouveau_rpm_blacklist[] = {
 	{ }
 };
 
+static const struct dmi_system_id nouveau_accel_blacklist[] = {
+	{
+		.ident = "ASUS X555UQ",
+		.matches = {
+			DMI_MATCH(DMI_SYS_VENDOR, "ASUSTeK COMPUTER INC."),
+			DMI_MATCH(DMI_PRODUCT_NAME, "X555UQ"),
+		},
+	},
+	{ }
+};
+
 static int
 nouveau_drm_load(struct drm_device *dev, unsigned long flags)
 {
@@ -643,6 +654,11 @@ nouveau_drm_load(struct drm_device *dev, unsigned long flags)
 	    dmi_check_system(dmi_acer_laptop)) {
 		NV_INFO(drm, "Acer laptop with chipset 0x%X, disabling acceleration\n",
 			drm->client.device.info.chipset);
+		nouveau_noaccel = 1;
+	}
+
+	if (dmi_check_system(nouveau_accel_blacklist)) {
+		NV_INFO(drm, "Acceleration is blacklisted on this machine\n");
 		nouveau_noaccel = 1;
 	}
 
