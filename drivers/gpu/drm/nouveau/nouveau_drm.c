@@ -433,7 +433,7 @@ static const struct dmi_system_id gp107_runpm_blacklist[] = {
 	{ }
 };
 
-static const struct dmi_system_id gm108_runpm_blacklist[] = {
+static const struct dmi_system_id gm108_accel_blacklist[] = {
 	{
                 .ident = "ASUS laptop",
                 .matches = {
@@ -492,8 +492,8 @@ nouveau_drm_load(struct drm_device *dev, unsigned long flags)
 		nouveau_runtime_pm = 0;
 
 	if (drm->client.device.info.chipset == 0x118 &&
-	    dmi_check_system(gm108_runpm_blacklist))
-		nouveau_runtime_pm = 0;
+	    dmi_check_system(gm108_accel_blacklist))
+		nouveau_noaccel = 1;
 
 	if (drm->client.device.info.chipset == 0x137 &&
 	    dmi_check_system(gp107_accel_blacklist))
