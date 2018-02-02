@@ -1237,7 +1237,7 @@ err_free:
 	return ERR_PTR(err);
 }
 
-static const struct dmi_system_id nouveau_modeset_0[] = {
+static const struct dmi_system_id nouveau_blacklist[] = {
 	{
 		.ident = "ASUSTeK COMPUTER INC. N552VW",
 		.matches = {
@@ -1262,7 +1262,7 @@ static const struct dmi_system_id nouveau_modeset_0[] = {
 	{ }
 };
 
-static const struct dmi_system_id nouveau_rpm_0[] = {
+static const struct dmi_system_id nouveau_runpm_blacklist[] = {
 	{
 		.ident = "ASUSTeK COMPUTER INC. GL552VXK",
 		.matches = {
@@ -1293,10 +1293,10 @@ nouveau_drm_init(void)
 	driver_pci = driver_stub;
 	driver_platform = driver_stub;
 
-	if (dmi_check_system(nouveau_modeset_0))
+	if (dmi_check_system(nouveau_blacklist))
 		nouveau_modeset = 0;
 
-	if (dmi_check_system(nouveau_rpm_0))
+	if (dmi_check_system(nouveau_runpm_blacklist))
 		nouveau_runtime_pm = 0;
 
 	nouveau_display_options();
