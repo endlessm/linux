@@ -615,7 +615,7 @@ nouveau_drm_load(struct drm_device *dev, unsigned long flags)
 
 	if (drm->client.device.info.chipset == 0x118 &&
 	    dmi_check_system(gm108_runpm_blacklist))
-		nouveau_runtime_pm = 0;
+		nouveau_noaccel = 1;
 
 	if (drm->client.device.info.chipset == 0x137 &&
 	    dmi_check_system(gp107_accel_blacklist))
