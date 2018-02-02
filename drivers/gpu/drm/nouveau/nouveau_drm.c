@@ -542,34 +542,34 @@ nouveau_get_hdmi_dev(struct nouveau_drm *drm)
 
 static const struct dmi_system_id gp107_runpm_blacklist[] = {
 	{
-                .ident = "ASUS",
-                .matches = {
+		.ident = "ASUS",
+		.matches = {
 			DMI_MATCH(DMI_SYS_VENDOR, "ASUSTeK COMPUTER INC."),
 			DMI_MATCH(DMI_CHASSIS_TYPE, "10"), /* Notebook */
-                },
-        },
+		},
+	},
 	{ }
 };
 
 static const struct dmi_system_id gm108_accel_blacklist[] = {
 	{
-                .ident = "ASUS laptop",
-                .matches = {
+		.ident = "ASUS laptop",
+		.matches = {
 			DMI_MATCH(DMI_SYS_VENDOR, "ASUSTeK COMPUTER INC."),
 			DMI_MATCH(DMI_CHASSIS_TYPE, "10"), /* Notebook */
-                },
-        },
+		},
+	},
 	{ }
 };
 
 static const struct dmi_system_id gp107_accel_blacklist[] = {
 	{
-                .ident = "Acer",
-                .matches = {
+		.ident = "Acer",
+		.matches = {
 			DMI_MATCH(DMI_SYS_VENDOR, "Acer"),
 			DMI_MATCH(DMI_CHASSIS_TYPE, "10"), /* Notebook */
-                },
-        },
+		},
+	},
 	{ }
 };
 
