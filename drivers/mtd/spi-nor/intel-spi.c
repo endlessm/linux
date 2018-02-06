@@ -163,6 +163,11 @@ static bool writeable;
 module_param(writeable, bool, 0);
 MODULE_PARM_DESC(writeable, "Enable write access to SPI flash chip (default=0)");
 
+static bool bios_fix;
+module_param(bios_fix, bool, 0);
+MODULE_PARM_DESC(bios_fix, "Enable BIOS fix.");
+
+
 static void intel_spi_dump_regs(struct intel_spi *ispi)
 {
 	u32 value;
@@ -826,6 +831,9 @@ struct intel_spi *intel_spi_probe(struct device *dev,
 	struct mtd_partition part;
 	struct intel_spi *ispi;
 	int ret;
+
+	if (!bios_fix)
+		return ERR_PTR(-ENODEV);
 
 	if (!info || !mem)
 		return ERR_PTR(-EINVAL);
