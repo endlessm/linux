@@ -2679,9 +2679,13 @@ static int spi_nor_init(struct spi_nor *nor)
 	    JEDEC_MFR(nor->info) == SNOR_MFR_INTEL ||
 	    JEDEC_MFR(nor->info) == SNOR_MFR_SST ||
 	    nor->info->flags & SPI_NOR_HAS_LOCK) {
-		write_enable(nor);
-		write_sr(nor, 0);
-		spi_nor_wait_till_ready(nor);
+		u8 sr_cr[] = { 0, 0 };
+
+		err = write_sr_cr(nor, sr_cr);
+		if (err)
+			dev_info(nor->dev, "Failed to clear SR/CR: %d\n", err);
+		else
+			dev_info(nor->dev, "Both SR/CR cleared\n");
 	}
 
 	if (nor->quad_enable) {

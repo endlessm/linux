@@ -9,6 +9,7 @@
  * published by the Free Software Foundation.
  */
 
+#define DEBUG
 #include <linux/err.h>
 #include <linux/io.h>
 #include <linux/iopoll.h>
@@ -274,6 +275,9 @@ static int intel_spi_write_block(struct intel_spi *ispi, const void *buf,
 	while (size > 0) {
 		bytes = min_t(size_t, size, 4);
 		memcpy_toio(ispi->base + FDATA(i), buf, bytes);
+
+		dev_dbg(ispi->dev, "wrote FDATA(%d)=%*ph\n", i, (int)bytes, buf);
+
 		size -= bytes;
 		buf += bytes;
 		i++;
@@ -498,11 +502,17 @@ static int intel_spi_sw_cycle(struct intel_spi *ispi, u8 opcode, int len,
 	val |= SSFSTS_CTL_SCGO;
 	preop = readw(ispi->sregs + PREOP_OPTYPE);
 	if (preop) {
-		val |= SSFSTS_CTL_ACS;
-		if (preop >> 8)
-			val |= SSFSTS_CTL_SPOP;
+		switch (optype) {
+		case OPTYPE_WRITE_NO_ADDR:
+		case OPTYPE_WRITE_WITH_ADDR:
+			val |= SSFSTS_CTL_ACS;
+			if ((preop >> 8) == SPINOR_OP_WREN)
+				val |= SSFSTS_CTL_SPOP;
+		}
 	}
 	writel(val, ispi->sregs + SSFSTS_CTL);
+
+	dev_dbg(ispi->dev, "wrote SSFSTS_CTL=0x%08x\n", val);
 
 	ret = intel_spi_wait_sw_busy(ispi);
 	if (ret)
