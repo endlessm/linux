@@ -50,6 +50,7 @@
 #include <linux/delay.h>
 #include <linux/list.h>
 #include <linux/pci.h>
+#include <linux/dmi.h>
 #include <linux/ioport.h>
 #include <linux/notifier.h>
 #include <linux/mutex.h>
@@ -2408,6 +2409,17 @@ static int dmi_ipmi_probe(struct platform_device *pdev)
 #define PCI_MMC_DEVICE_ID   0x121A
 #define PCI_MMC_ADDR_CW     0x10
 
+static const struct dmi_system_id disable_ipmi_table[] = {
+	{
+		.ident = "Acer Veriton Z4640G",
+		.matches = {
+			DMI_MATCH(DMI_SYS_VENDOR, "Acer"),
+			DMI_MATCH(DMI_PRODUCT_NAME, "Veriton Z4640G"),
+		},
+	},
+	{}
+};
+
 static void ipmi_pci_cleanup(struct smi_info *info)
 {
 	struct pci_dev *pdev = info->addr_source_data;
@@ -2479,6 +2491,9 @@ static int ipmi_pci_probe(struct pci_dev *pdev,
 		dev_info(&pdev->dev, "Unknown IPMI type: %d\n", class_type);
 		return -ENOMEM;
 	}
+
+	if (dmi_check_system(disable_ipmi_table))
+		return -ENODEV;
 
 	rv = pci_enable_device(pdev);
 	if (rv) {
