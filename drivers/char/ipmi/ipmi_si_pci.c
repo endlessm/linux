@@ -5,6 +5,7 @@
  */
 #include <linux/module.h>
 #include <linux/pci.h>
+#include <linux/dmi.h>
 #include "ipmi_si.h"
 
 #define PFX "ipmi_pci: "
@@ -27,6 +28,17 @@ MODULE_PARM_DESC(trypci, "Setting this to zero will disable the"
 #define PCI_HP_VENDOR_ID    0x103C
 #define PCI_MMC_DEVICE_ID   0x121A
 #define PCI_MMC_ADDR_CW     0x10
+
+static const struct dmi_system_id disable_ipmi_table[] = {
+	{
+		.ident = "Acer Veriton Z4640G",
+		.matches = {
+			DMI_MATCH(DMI_SYS_VENDOR, "Acer"),
+			DMI_MATCH(DMI_PRODUCT_NAME, "Veriton Z4640G"),
+		},
+	},
+	{}
+};
 
 static void ipmi_pci_cleanup(struct si_sm_io *io)
 {
@@ -93,6 +105,9 @@ static int ipmi_pci_probe(struct pci_dev *pdev,
 		dev_info(&pdev->dev, "Unknown IPMI type: %d\n", class_type);
 		return -ENOMEM;
 	}
+
+	if (dmi_check_system(disable_ipmi_table))
+		return -EINVAL;
 
 	rv = pci_enable_device(pdev);
 	if (rv) {
