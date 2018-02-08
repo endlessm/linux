@@ -1770,6 +1770,14 @@ static const struct dmi_system_id rt5651_quirk_table[] = {
 		},
 		.driver_data = (unsigned long *) RT5651_JD1_1,
 	},
+	{
+		.callback = rt5651_quirk_cb,
+		.matches = {
+			DMI_MATCH(DMI_SYS_VENDOR, "DeeQ"),
+			DMI_MATCH(DMI_PRODUCT_NAME, "X5-Z8300"),
+		},
+		.driver_data = (unsigned long *) RT5651_JD1_1,
+	},
 	{}
 };
 
