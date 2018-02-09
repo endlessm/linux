@@ -3787,6 +3787,13 @@ static int rt5645_parse_dt(struct rt5645_priv *rt5645, struct device *dev)
 	return 0;
 }
 
+static const struct acpi_gpio_params hp_detect_gpios = { 1, 0, false };
+
+static const struct acpi_gpio_mapping cht_rt5645_gpios[] = {
+	{ "hp-detect-gpios", &hp_detect_gpios, 1 },
+	{},
+};
+
 static int rt5645_i2c_probe(struct i2c_client *i2c,
 		    const struct i2c_device_id *id)
 {
@@ -3801,6 +3808,10 @@ static int rt5645_i2c_probe(struct i2c_client *i2c,
 				GFP_KERNEL);
 	if (rt5645 == NULL)
 		return -ENOMEM;
+
+	if (has_acpi_companion(&i2c->dev))
+		if (devm_acpi_dev_add_driver_gpios(&i2c->dev, cht_rt5645_gpios))
+			dev_dbg(&i2c->dev, "Failed to add driver gpios\n");
 
 	rt5645->i2c = i2c;
 	i2c_set_clientdata(i2c, rt5645);
