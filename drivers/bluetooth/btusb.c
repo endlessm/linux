@@ -28,6 +28,7 @@
 #include <linux/of_device.h>
 #include <linux/of_irq.h>
 #include <linux/suspend.h>
+#include <linux/dmi.h>
 #include <asm/unaligned.h>
 
 #include <net/bluetooth/bluetooth.h>
@@ -1070,6 +1071,17 @@ done:
 	kfree_skb(skb);
 }
 
+static const struct dmi_system_id disable_wakeup_table[] = {
+	{
+		.ident = "Acer Veriton Z4640G",
+		.matches = {
+			DMI_MATCH(DMI_SYS_VENDOR, "Acer"),
+			DMI_MATCH(DMI_PRODUCT_NAME, "Veriton Z4640G"),
+		},
+	},
+	{}
+};
+
 static int btusb_open(struct hci_dev *hdev)
 {
 	struct btusb_data *data = hci_get_drvdata(hdev);
@@ -1094,7 +1106,8 @@ static int btusb_open(struct hci_dev *hdev)
 	/* device specific wakeup source enabled and required for USB
 	 * remote wakeup while host is suspended
 	 */
-	device_wakeup_enable(&data->udev->dev);
+	if(!dmi_check_system(disable_wakeup_table))
+		device_wakeup_enable(&data->udev->dev);
 
 	if (test_and_set_bit(BTUSB_INTR_RUNNING, &data->flags))
 		goto done;
