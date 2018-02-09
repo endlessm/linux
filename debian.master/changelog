@@ -1,3 +1,198 @@
+linux (4.15.0-9.10) bionic; urgency=medium
+
+  * linux: 4.15.0-9.10 -proposed tracker (LP: #1748244)
+
+  * Miscellaneous Ubuntu changes
+    - [Debian] tests -- remove gcc-multilib dependency for arm64
+
+ -- Seth Forshee <seth.forshee@canonical.com>  Thu, 08 Feb 2018 11:25:04 -0600
+
+linux (4.15.0-8.9) bionic; urgency=medium
+
+  * linux: 4.15.0-8.9 -proposed tracker (LP: #1748075)
+
+  * Bionic update to v4.15.2 stable release (LP: #1748072)
+    - KVM: x86: Make indirect calls in emulator speculation safe
+    - KVM: VMX: Make indirect call speculation safe
+    - module/retpoline: Warn about missing retpoline in module
+    - x86/cpufeatures: Add CPUID_7_EDX CPUID leaf
+    - x86/cpufeatures: Add Intel feature bits for Speculation Control
+    - x86/cpufeatures: Add AMD feature bits for Speculation Control
+    - x86/msr: Add definitions for new speculation control MSRs
+    - x86/pti: Do not enable PTI on CPUs which are not vulnerable to Meltdown
+    - x86/cpufeature: Blacklist SPEC_CTRL/PRED_CMD on early Spectre v2 microcodes
+    - x86/speculation: Add basic IBPB (Indirect Branch Prediction Barrier) support
+    - x86/alternative: Print unadorned pointers
+    - x86/nospec: Fix header guards names
+    - x86/bugs: Drop one "mitigation" from dmesg
+    - x86/cpu/bugs: Make retpoline module warning conditional
+    - x86/cpufeatures: Clean up Spectre v2 related CPUID flags
+    - x86/retpoline: Simplify vmexit_fill_RSB()
+    - x86/speculation: Simplify indirect_branch_prediction_barrier()
+    - auxdisplay: img-ascii-lcd: add missing MODULE_DESCRIPTION/AUTHOR/LICENSE
+    - iio: adc/accel: Fix up module licenses
+    - pinctrl: pxa: pxa2xx: add missing MODULE_DESCRIPTION/AUTHOR/LICENSE
+    - ASoC: pcm512x: add missing MODULE_DESCRIPTION/AUTHOR/LICENSE
+    - KVM: nVMX: Eliminate vmcs02 pool
+    - KVM: VMX: introduce alloc_loaded_vmcs
+    - objtool: Improve retpoline alternative handling
+    - objtool: Add support for alternatives at the end of a section
+    - objtool: Warn on stripped section symbol
+    - x86/mm: Fix overlap of i386 CPU_ENTRY_AREA with FIX_BTMAP
+    - x86/spectre: Check CONFIG_RETPOLINE in command line parser
+    - x86/entry/64: Remove the SYSCALL64 fast path
+    - x86/entry/64: Push extra regs right away
+    - x86/asm: Move 'status' from thread_struct to thread_info
+    - Documentation: Document array_index_nospec
+    - array_index_nospec: Sanitize speculative array de-references
+    - x86: Implement array_index_mask_nospec
+    - x86: Introduce barrier_nospec
+    - x86: Introduce __uaccess_begin_nospec() and uaccess_try_nospec
+    - x86/usercopy: Replace open coded stac/clac with __uaccess_{begin, end}
+    - x86/uaccess: Use __uaccess_begin_nospec() and uaccess_try_nospec
+    - x86/get_user: Use pointer masking to limit speculation
+    - x86/syscall: Sanitize syscall table de-references under speculation
+    - vfs, fdtable: Prevent bounds-check bypass via speculative execution
+    - nl80211: Sanitize array index in parse_txq_params
+    - x86/spectre: Report get_user mitigation for spectre_v1
+    - x86/spectre: Fix spelling mistake: "vunerable"-> "vulnerable"
+    - x86/cpuid: Fix up "virtual" IBRS/IBPB/STIBP feature bits on Intel
+    - x86/speculation: Use Indirect Branch Prediction Barrier in context switch
+    - x86/paravirt: Remove 'noreplace-paravirt' cmdline option
+    - KVM: VMX: make MSR bitmaps per-VCPU
+    - x86/kvm: Update spectre-v1 mitigation
+    - x86/retpoline: Avoid retpolines for built-in __init functions
+    - x86/spectre: Simplify spectre_v2 command line parsing
+    - x86/pti: Mark constant arrays as __initconst
+    - x86/speculation: Fix typo IBRS_ATT, which should be IBRS_ALL
+    - KVM/x86: Update the reverse_cpuid list to include CPUID_7_EDX
+    - KVM/x86: Add IBPB support
+    - KVM/VMX: Emulate MSR_IA32_ARCH_CAPABILITIES
+    - KVM/VMX: Allow direct access to MSR_IA32_SPEC_CTRL
+    - KVM/SVM: Allow direct access to MSR_IA32_SPEC_CTRL
+    - serial: core: mark port as initialized after successful IRQ change
+    - fpga: region: release of_parse_phandle nodes after use
+    - Linux 4.15.2
+
+  * Add support for the NIC on SynQuacer E-Series boards (LP: #1747792)
+    - net: phy: core: remove now uneeded disabling of interrupts
+    - [Config] CONFIG_NET_VENDOR_SOCIONEXT=y & CONFIG_SNI_NETSEC=m
+    - net: socionext: Add Synquacer NetSec driver
+    - net: socionext: include linux/io.h to fix build
+    - net: socionext: Fix error return code in netsec_netdev_open()
+
+  * [Artful/Bionic] [Config] enable EDAC_GHES for ARM64 (LP: #1747746)
+    - [Config] CONFIG_EDAC_GHES=y
+
+  * support thunderx2 vendor pmu events (LP: #1747523)
+    - perf pmu: Pass pmu as a parameter to get_cpuid_str()
+    - perf tools arm64: Add support for get_cpuid_str function.
+    - perf pmu: Add helper function is_pmu_core to detect PMU CORE devices
+    - perf vendor events arm64: Add ThunderX2 implementation defined pmu core
+      events
+    - perf pmu: Add check for valid cpuid in perf_pmu__find_map()
+
+  * linux 4.14.0-7.9 ADT test failure with linux 4.14.0-7.9 (LP: #1732463)
+    - SAUCE: mm: disable vma based swap readahead by default
+    - SAUCE: mm: fix memory hotplug in ZONE_HIGHMEM
+
+  * Miscellaneous Ubuntu changes
+    - [Config] Fix CONFIG_PROFILE_ALL_BRANCHES annotations
+
+ -- Seth Forshee <seth.forshee@canonical.com>  Wed, 07 Feb 2018 21:13:27 -0600
+
+linux (4.15.0-7.8) bionic; urgency=medium
+
+  * Bionic update to v4.15.1 stable release (LP: #1747169)
+    - Bluetooth: hci_serdev: Init hci_uart proto_lock to avoid oops
+    - tools/gpio: Fix build error with musl libc
+    - gpio: stmpe: i2c transfer are forbiden in atomic context
+    - gpio: Fix kernel stack leak to userspace
+    - ALSA: hda - Reduce the suspend time consumption for ALC256
+    - crypto: ecdh - fix typo in KPP dependency of CRYPTO_ECDH
+    - crypto: aesni - handle zero length dst buffer
+    - crypto: aesni - fix typo in generic_gcmaes_decrypt
+    - crypto: aesni - add wrapper for generic gcm(aes)
+    - crypto: aesni - Fix out-of-bounds access of the data buffer in generic-gcm-
+      aesni
+    - crypto: aesni - Fix out-of-bounds access of the AAD buffer in generic-gcm-
+      aesni
+    - crypto: inside-secure - fix hash when length is a multiple of a block
+    - crypto: inside-secure - avoid unmapping DMA memory that was not mapped
+    - crypto: sha3-generic - fixes for alignment and big endian operation
+    - crypto: af_alg - whitelist mask and type
+    - HID: wacom: EKR: ensure devres groups at higher indexes are released
+    - HID: wacom: Fix reporting of touch toggle (WACOM_HID_WD_MUTE_DEVICE) events
+    - power: reset: zx-reboot: add missing MODULE_DESCRIPTION/AUTHOR/LICENSE
+    - gpio: iop: add missing MODULE_DESCRIPTION/AUTHOR/LICENSE
+    - gpio: ath79: add missing MODULE_DESCRIPTION/LICENSE
+    - mtd: nand: denali_pci: add missing MODULE_DESCRIPTION/AUTHOR/LICENSE
+    - igb: Free IRQs when device is hotplugged
+    - ima/policy: fix parsing of fsuuid
+    - scsi: aacraid: Fix udev inquiry race condition
+    - scsi: aacraid: Fix hang in kdump
+    - scsi: storvsc: missing error code in storvsc_probe()
+    - staging: lustre: separate a connection destroy from free struct kib_conn
+    - staging: ccree: NULLify backup_info when unused
+    - staging: ccree: fix fips event irq handling build
+    - tty: fix data race between tty_init_dev and flush of buf
+    - usb: option: Add support for FS040U modem
+    - USB: serial: pl2303: new device id for Chilitag
+    - USB: cdc-acm: Do not log urb submission errors on disconnect
+    - CDC-ACM: apply quirk for card reader
+    - USB: serial: io_edgeport: fix possible sleep-in-atomic
+    - usbip: prevent bind loops on devices attached to vhci_hcd
+    - usbip: list: don't list devices attached to vhci_hcd
+    - USB: serial: simple: add Motorola Tetra driver
+    - usb: f_fs: Prevent gadget unbind if it is already unbound
+    - usb: uas: unconditionally bring back host after reset
+    - usb/gadget: Fix "high bandwidth" check in usb_gadget_ep_match_desc()
+    - ANDROID: binder: remove waitqueue when thread exits.
+    - android: binder: use VM_ALLOC to get vm area
+    - mei: me: allow runtime pm for platform with D0i3
+    - serial: 8250_of: fix return code when probe function fails to get reset
+    - serial: 8250_uniphier: fix error return code in uniphier_uart_probe()
+    - serial: 8250_dw: Revert "Improve clock rate setting"
+    - serial: imx: Only wakeup via RTSDEN bit if the system has RTS/CTS
+    - spi: imx: do not access registers while clocks disabled
+    - iio: adc: stm32: fix scan of multiple channels with DMA
+    - iio: chemical: ccs811: Fix output of IIO_CONCENTRATION channels
+    - test_firmware: fix missing unlock on error in config_num_requests_store()
+    - Input: synaptics-rmi4 - unmask F03 interrupts when port is opened
+    - Input: synaptics-rmi4 - do not delete interrupt memory too early
+    - x86/efi: Clarify that reset attack mitigation needs appropriate userspace
+    - Linux 4.15.1
+
+  * Dell XPS 13 9360 bluetooth (Atheros) won't connect after resume
+    (LP: #1744712)
+    - Revert "Bluetooth: btusb: fix QCA Rome suspend/resume"
+    - Bluetooth: btusb: Restore QCA Rome suspend/resume fix with a "rewritten"
+      version
+
+  * apparmor profile load in stacked policy container fails (LP: #1746463)
+    - SAUCE: apparmor: fix display of .ns_name for containers
+
+ -- Seth Forshee <seth.forshee@canonical.com>  Sun, 04 Feb 2018 11:56:32 +0100
+
+linux (4.15.0-6.7) bionic; urgency=low
+
+  * upload urgency should be medium by default (LP: #1745338)
+    - [Packaging] update urgency to medium by default
+
+  * Shutdown hang on 16.04 with iscsi targets (LP: #1569925)
+    - scsi: libiscsi: Allow sd_shutdown on bad transport
+
+  * Miscellaneous Ubuntu changes
+    - SAUCE: (noup) Update spl to 0.7.5-1ubuntu1, zfs to 0.7.5-1ubuntu1
+    - Revert "UBUNTU: SAUCE: mm: fix memory hotplug in ZONE_HIGHMEM"
+    - Revert "UBUNTU: SAUCE: mm: disable vma based swap readahead by default"
+
+  [ Upstream Kernel Changes ]
+
+  * Rebase to v4.15
+
+ -- Seth Forshee <seth.forshee@canonical.com>  Mon, 29 Jan 2018 08:47:07 -0600
+
 linux (4.15.0-5.6) bionic; urgency=low
 
   * $(LOCAL_ENV_CC) and $(LOCAL_ENV_DISTCC_HOSTS) should be properly quoted
