@@ -2,7 +2,7 @@
 
 . debian/debian.env
 
-# Script to merge all configs and run 'make silentoldconfig' on it to wade out bad juju.
+# Script to merge all configs and run 'make syncconfig' on it to wade out bad juju.
 # Then split the configs into distro-commmon and flavour-specific parts
 
 # We have to be in the top level kernel source directory
@@ -14,7 +14,7 @@ fi
 mode=${1:?"Usage: $0 [oldconfig|editconfig]"}
 yes=0
 case "$mode" in
-    update*configs)  mode='silentoldconfig' ;;
+    update*configs)  mode='syncconfig' ;;
     default*configs) mode='oldconfig'; yes=1 ;;
     edit*configs)    ;; # All is good
     gen*configs)     mode='genconfigs' ;; # All is good
@@ -97,6 +97,10 @@ for arch in $archs; do
 						make O=`pwd`/build ARCH=$kernarch menuconfig
 						break ;;
 					n* | N* )
+						# 'syncconfig' prevents
+						# errors for '-' options set
+						# in common config fragments
+						make O=`pwd`/build ARCH=$kernarch syncconfig
 						break ;;
 					*)
 						echo "Entry not valid"

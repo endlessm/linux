@@ -1,4 +1,45 @@
 This is the list of patches/features which have been temporarily
-reverted or disabled for Q:
+reverted or disabled for CC:
 
-UBUNTU: SAUCE: AppArmor: basic networking rules
+AUFS
+LSM stacking patches
+
+UBUNTU: SAUCE: (no-up) elide some ioctl warnings which are known benign
+UBUNTU: SAUCE: perf callchain: Include errno.h on x86 unconditinally
+UBUNTU: SAUCE: LSM stacking: remove procfs context interface
+UBUNTU: SAUCE: LSM stacking: add apparmor and selinux proc dirs
+UBUNTU: SAUCE: LSM stacking: check for invalid zero sized writes
+UBUNTU: SAUCE: LSM stacking: add configs for LSM stacking
+UBUNTU: SAUCE: LSM stacking: add Kconfig to set default display LSM
+UBUNTU: SAUCE: LSM stacking: add /proc/<pid>/attr/display_lsm
+UBUNTU: SAUCE: LSM stacking: make sure LSM blob align on 64 bit boundaries
+UBUNTU: SAUCE: LSM stacking: provide a way to specify the default display lsm
+UBUNTU: SAUCE: LSM stacking: verify display LSM
+UBUNTU: SAUCE: LSM stacking: keep an index for each registered LSM
+UBUNTU: SAUCE: LSM stacking: inherit current display LSM
+UBUNTU: SAUCE: LSM stacking: provide prctl interface for setting context
+UBUNTU: SAUCE: LSM stacking: allow selecting multiple LSMs using kernel boot params
+UBUNTU: SAUCE: LSM stacking: fixup stacking kconfig
+UBUNTU: SAUCE: LSM stacking: fixup apparmor stacking enablement
+UBUNTU: SAUCE: LSM stacking: add stacking support to apparmor network hooks
+UBUNTU: SAUCE: LSM stacking: add support for stacking getpeersec_stream
+UBUNTU: SAUCE: LSM stacking: fixup: alloc_task_ctx is dead code
+UBUNTU: SAUCE: LSM stacking: fixup initialize task->security
+UBUNTU: SAUCE: LSM stacking: LSM: General stacking
+UBUNTU: SAUCE: LSM stacking: LSM: Manage remaining security blobs
+UBUNTU: SAUCE: LSM stacking: LSM: Manage task security blobs
+UBUNTU: SAUCE: LSM stacking: LSM: Manage file security blobs
+UBUNTU: SAUCE: LSM stacking: LSM: Manage credential security blobs
+UBUNTU: SAUCE: LSM stacking: procfs: add smack subdir to attrs
+UBUNTU: SAUCE: Import aufs driver
+UBUNTU: SAUCE: scsi: hisi_sas: export device table of v3 hw to userspace
+UBUNTU: SAUCE: (efi-lockdown) scsi: Lock down the eata driver
+UBUNTU: SAUCE: apparmor: af_unix mediation
+UBUNTU: SAUCE: (noup) ppc64 boot: Wait for boot cpu to show up if nr_cpus limit is about to hit.
+Linux 4.16.2
+arm64: dts: qcom: msm8916: Use the new APCS mailbox driver
+arm64: dts: msm8916: Add a shared CPU opp table
+arm64: defconfig: enable QCOM_TSENS
+arm64: defconfig: enable ondemand governor as default
+Linux 4.16.1
+KVM: PPC: Book3S HV: Work around XER[SO] bug in fake suspend mode
