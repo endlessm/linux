@@ -43,14 +43,13 @@ ifeq ($(do_doc_package_content),true)
 		install -d $(docdir)/$(doc_pkg_name)-tmp; \
 		$(kmake) O=$(docdir)/$(doc_pkg_name)-tmp htmldocs; \
 		install -d $(docdir)/html; \
-		rsync -aL $(docdir)/$(doc_pkg_name)-tmp/Documentation/DocBook/ \
+		rsync -aL $(docdir)/$(doc_pkg_name)-tmp/Documentation/output/ \
 			$(docdir)/html/; \
 		rm -rf $(docdir)/$(doc_pkg_name)-tmp; \
 	fi
 endif
 	# Copy the rest
 	cp -a Documentation/* $(docdir)
-	rm -rf $(docdir)/DocBook
 	find $(docdir) -name .gitignore | xargs rm -f
 endif
 
@@ -86,6 +85,9 @@ install-tools: toolspkg = $(tools_common_pkg_name)
 install-tools: toolsbin = $(CURDIR)/debian/$(toolspkg)/usr/bin
 install-tools: toolssbin = $(CURDIR)/debian/$(toolspkg)/usr/sbin
 install-tools: toolsman = $(CURDIR)/debian/$(toolspkg)/usr/share/man
+install-tools: hosttoolspkg = $(hosttools_pkg_name)
+install-tools: hosttoolsbin = $(CURDIR)/debian/$(hosttoolspkg)/usr/bin
+install-tools: hosttoolsman = $(CURDIR)/debian/$(hosttoolspkg)/usr/share/man
 install-tools: cloudpkg = $(cloud_common_pkg_name)
 install-tools: cloudbin = $(CURDIR)/debian/$(cloudpkg)/usr/bin
 install-tools: cloudsbin = $(CURDIR)/debian/$(cloudpkg)/usr/sbin
@@ -123,6 +125,8 @@ ifeq ($(do_tools_common),true)
 	install -m644 $(CURDIR)/tools/power/x86/x86_energy_perf_policy/*.8 $(toolsman)/man8
 	install -m644 $(CURDIR)/tools/power/x86/turbostat/*.8 $(toolsman)/man8
 
+ifeq ($(do_cloud_tools),true)
+ifeq ($(do_tools_hyperv),true)
 	install -d $(cloudsbin)
 	install -m755 debian/tools/generic $(cloudsbin)/hv_kvp_daemon
 	install -m755 debian/tools/generic $(cloudsbin)/hv_vss_daemon
@@ -134,7 +138,24 @@ ifeq ($(do_tools_common),true)
 
 	install -d $(cloudman)/man8
 	install -m644 $(CURDIR)/tools/hv/*.8 $(cloudman)/man8
+endif
+endif
 
+ifeq ($(do_tools_acpidbg),true)
+	install -m755 debian/tools/generic $(toolsbin)/acpidbg
+endif
+
+endif
+
+ifeq ($(do_tools_host),true)
+	install -d $(hosttoolsbin)
+	install -d $(hosttoolsman)/man1
+
+	install -m 755 $(CURDIR)/tools/kvm/kvm_stat/kvm_stat $(hosttoolsbin)/
+
+	cd $(builddir)/tools/tools/kvm/kvm_stat && make man
+	install -m644 $(builddir)/tools/tools/kvm/kvm_stat/*.1 \
+		$(hosttoolsman)/man1
 endif
 
 install-indep: install-tools
@@ -162,6 +183,8 @@ binary-indep: install-indep
 	dh_compress -i
 	dh_fixperms -i
 ifeq ($(do_tools_common),true)
+ifeq ($(do_cloud_tools),true)
+ifeq ($(do_tools_hyperv),true)
 	dh_installinit -p$(cloudpkg) -n --name hv-kvp-daemon
 	dh_installinit -p$(cloudpkg) -n --name hv-vss-daemon
 	dh_installinit -p$(cloudpkg) -n --name hv-fcopy-daemon
@@ -170,6 +193,8 @@ ifeq ($(do_tools_common),true)
 	dh_installinit -p$(cloudpkg) -o --name hv-vss-daemon
 	dh_installinit -p$(cloudpkg) -o --name hv-fcopy-daemon
 	dh_systemd_start -p$(cloudpkg)
+endif
+endif
 endif
 	dh_installdeb -i
 	$(lockme) dh_gencontrol -i
