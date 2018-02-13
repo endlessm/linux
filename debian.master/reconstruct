@@ -1,0 +1,6 @@
+# Recreate any symlinks created since the orig.
+# Remove any files deleted from the orig.
+rm -f 'Documentation/admin-guide/l1tf.rst'
+chmod +x 'scripts/kmsg-doc'
+chmod +x 'update-version-dkms'
+exit 0
