@@ -165,7 +165,7 @@ static int rfkill_gpio_remove(struct platform_device *pdev)
 static const struct acpi_device_id rfkill_acpi_match[] = {
 	{ "BCM4752", RFKILL_TYPE_GPS },
 	{ "LNV4752", RFKILL_TYPE_GPS },
-	{ "OBDA8723", RFKILL_TYPE_BLUETOOTH },
+	{ "OBDA8723", RFKILL_TYPE_HIDDEN },
 	{ },
 };
 MODULE_DEVICE_TABLE(acpi, rfkill_acpi_match);
