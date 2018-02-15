@@ -1260,7 +1260,7 @@ CONFIG_EDAC                                     policy<{'amd64': 'y', 'arm64': '
 CONFIG_EDAC_LEGACY_SYSFS                        policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'i386': 'n', 'ppc64el': 'n'}>
 CONFIG_EDAC_DEBUG                               policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'i386': 'n', 'ppc64el': 'n'}>
 CONFIG_EDAC_DECODE_MCE                          policy<{'amd64': 'm', 'i386': 'm'}>
-CONFIG_EDAC_GHES                                policy<{'amd64': 'n', 'arm64': 'n', 'i386': 'n'}>
+CONFIG_EDAC_GHES                                policy<{'amd64': 'y', 'arm64': 'y', 'i386': 'y'}>
 CONFIG_EDAC_AMD64                               policy<{'amd64': 'm', 'i386': 'm'}>
 CONFIG_EDAC_AMD64_ERROR_INJECTION               policy<{'amd64': 'n', 'i386': 'n'}>
 CONFIG_EDAC_AMD76X                              policy<{'i386': 'm'}>
@@ -1288,8 +1288,6 @@ CONFIG_EDAC_HIGHBANK_MC                         policy<{'armhf': 'm'}>
 CONFIG_EDAC_HIGHBANK_L2                         policy<{'armhf': 'm'}>
 CONFIG_EDAC_THUNDERX                            policy<{'arm64': 'm'}>
 CONFIG_EDAC_XGENE                               policy<{'arm64': 'm'}>
-#
-CONFIG_EDAC_GHES                                flag<REVIEW> note<LP:1714112 enable once fix is available>
 
 # Menu: Device Drivers >> EDAC (Error Detection And Correction) reporting >> Altera SOCFPGA ECC
 
@@ -4989,6 +4987,8 @@ CONFIG_SIS190                                   policy<{'amd64': 'm', 'arm64': '
 CONFIG_NET_VENDOR_SOLARFLARE                    policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'ppc64el': 'y', 's390x': 'y'}>
 CONFIG_SFC_FALCON                               policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'ppc64el': 'm', 's390x': 'n'}>
 CONFIG_SFC_FALCON_MTD                           policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'ppc64el': 'y'}>
+CONFIG_NET_VENDOR_SOCIONEXT                     policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'ppc64el': 'y', 's390x': 'y'}>
+CONFIG_SNI_NETSEC                               policy<{'arm64': 'm'}>
 CONFIG_NET_VENDOR_STMICRO                       policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'ppc64el': 'y', 's390x': 'n'}>
 CONFIG_STMMAC_ETH                               policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'ppc64el': 'm'}>
 CONFIG_STMMAC_PCI                               policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'i386': 'n', 'ppc64el': 'n'}>
@@ -9230,6 +9230,7 @@ CONFIG_SYSFS_DEPRECATED                         mark<ENFORCED> note<ensure nothi
 CONFIG_COMPAT_BRK                               mark<ENFORCED> note<disables brk ASLR>
 CONFIG_JUMP_LABEL                               flag<REVIEW>
 CONFIG_NUMA_BALANCING_DEFAULT_ENABLED           note<LP:1557690>
+CONFIG_BPF_JIT_ALWAYS_ON                        flag<REVIEW>
 CONFIG_STRICT_KERNEL_RWX                        mark<ENFORCED>
 CONFIG_STRICT_MODULE_RWX                        mark<ENFORCED>
 
@@ -9745,7 +9746,7 @@ CONFIG_TRACE_EVAL_MAP_FILE                      flag<DEBUG>
 # Menu: Kernel hacking >> Tracers >> Branch Profiling
 CONFIG_BRANCH_PROFILE_NONE                      policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'ppc64el': 'y', 's390x': 'y'}>
 CONFIG_PROFILE_ANNOTATED_BRANCHES               policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'i386': 'n', 'ppc64el': 'n', 's390x': 'n'}>
-CONFIG_PROFILE_ALL_BRANCHES                     policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'i386': 'n', 'ppc64el': 'n', 's390x': 'n'}>
+CONFIG_PROFILE_ALL_BRANCHES                     policy<{'armhf': 'n'}>
 
 # Menu: Kernel hacking >> Tracers >> Kernel Function Tracer
 CONFIG_FUNCTION_TRACER                          policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'ppc64el': 'y', 's390x': 'y'}>
