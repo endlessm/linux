@@ -559,6 +559,16 @@ static int init_implementation_adapter_regs_psl9(struct cxl *adapter,
 		adapter->native->no_data_cache = true;
 	}
 
+	/*
+	 * Check if PSL has data-cache. We need to flush adapter datacache
+	 * when as its about to be removed.
+	 */
+	psl_debug = cxl_p1_read(adapter, CXL_PSL9_DEBUG);
+	if (psl_debug & CXL_PSL_DEBUG_CDC) {
+		dev_dbg(&dev->dev, "No data-cache present\n");
+		adapter->native->no_data_cache = true;
+	}
+
 	return 0;
 }
 
