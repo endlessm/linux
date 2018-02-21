@@ -251,6 +251,7 @@ int irq_matrix_alloc_managed(struct irq_matrix *m, unsigned int cpu, unsigned in
 
 	/* Get managed bit which are not allocated */
 	bitmap_andnot(m->scratch_map, cm->managed_map, cm->alloc_map, end);
+	bitmap_complement(m->scratch_map, m->scratch_map, end);
 	bit = bitmap_find_next_zero_area(m->scratch_map, end, 0, 1, align);
 	if (bit >= end)
 		return -ENOSPC;
