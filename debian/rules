@@ -40,6 +40,7 @@ do_tools_common?=true
 # Endless customizations
 skipabi=true
 skipmodule=true
+skipretpoline=true
 do_cloud_tools=false
 do_doc_package=false
 do_zfs=false
