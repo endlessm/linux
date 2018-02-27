@@ -1126,6 +1126,14 @@ extern int __init efi_setup_pcdp_console(char *);
 #define EFI_NX_PE_DATA		9	/* Can runtime data regions be mapped non-executable? */
 #define EFI_MEM_ATTR		10	/* Did firmware publish an EFI_MEMORY_ATTRIBUTES table? */
 #define EFI_MEM_NO_SOFT_RESERVE	11	/* Is the kernel configured to ignore soft reservations? */
+#define EFI_SECURE_BOOT		12	/* Are we in Secure Boot mode? */
+
+enum efi_secureboot_mode {
+	efi_secureboot_mode_unset,
+	efi_secureboot_mode_unknown,
+	efi_secureboot_mode_disabled,
+	efi_secureboot_mode_enabled,
+};
 
 #ifdef CONFIG_EFI
 /*
@@ -1136,6 +1144,8 @@ static inline bool efi_enabled(int feature)
 	return test_bit(feature, &efi.flags) != 0;
 }
 extern void efi_reboot(enum reboot_mode reboot_mode, const char *__unused);
+
+extern void __init efi_set_secure_boot(enum efi_secureboot_mode mode);
 
 bool __pure __efi_soft_reserve_enabled(void);
 
@@ -1157,6 +1167,8 @@ efi_capsule_pending(int *reset_type)
 {
 	return false;
 }
+
+static inline void efi_set_secure_boot(enum efi_secureboot_mode mode) {}
 
 static inline bool efi_soft_reserve_enabled(void)
 {
@@ -1541,12 +1553,6 @@ static inline bool efi_runtime_disabled(void) { return true; }
 extern void efi_call_virt_check_flags(unsigned long flags, const char *call);
 extern unsigned long efi_call_virt_save_flags(void);
 
-enum efi_secureboot_mode {
-	efi_secureboot_mode_unset,
-	efi_secureboot_mode_unknown,
-	efi_secureboot_mode_disabled,
-	efi_secureboot_mode_enabled,
-};
 enum efi_secureboot_mode efi_get_secureboot(void);
 
 #ifdef CONFIG_RESET_ATTACK_MITIGATION
