@@ -12,6 +12,7 @@
 
 #include <linux/security.h>
 #include <linux/export.h>
+#include <linux/efi.h>
 
 static __ro_after_init bool kernel_locked_down;
 
@@ -43,6 +44,10 @@ void __init init_lockdown(void)
 {
 #ifdef CONFIG_LOCK_DOWN_FORCE
 	lock_kernel_down("Kernel configuration");
+#endif
+#ifdef CONFIG_LOCK_DOWN_IN_EFI_SECURE_BOOT
+	if (efi_enabled(EFI_SECURE_BOOT))
+		lock_kernel_down("EFI secure boot");
 #endif
 }
 

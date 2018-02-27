@@ -254,6 +254,20 @@ config LOCK_DOWN_KERNEL_FORCE
         help
           Enable the kernel lock down functionality automatically at boot.
 
+config LOCK_DOWN_IN_EFI_SECURE_BOOT
+	bool "Lock down the kernel in EFI Secure Boot mode"
+	default n
+	select LOCK_DOWN_KERNEL
+	depends on EFI
+	help
+	  UEFI Secure Boot provides a mechanism for ensuring that the firmware
+	  will only load signed bootloaders and kernels.  Secure boot mode may
+	  be determined from EFI variables provided by the system firmware if
+	  not indicated by the boot parameters.
+
+	  Enabling this option turns on results in kernel lockdown being
+	  triggered if EFI Secure Boot is set.
+
 source "security/selinux/Kconfig"
 source "security/smack/Kconfig"
 source "security/tomoyo/Kconfig"
