@@ -53,8 +53,8 @@ void __init init_lockdown(void)
 bool __kernel_is_locked_down(const char *what, bool first)
 {
 	if (what && first && kernel_locked_down)
-		pr_notice("Lockdown: %s is restricted; see man kernel_lockdown.7\n",
-			  what);
+		pr_notice("Lockdown: %s: %s is restricted; see man kernel_lockdown.7\n",
+			  current->comm, what);
 	return kernel_locked_down;
 }
 EXPORT_SYMBOL(__kernel_is_locked_down);
