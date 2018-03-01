@@ -473,6 +473,12 @@ static const struct dmi_system_id broken_lid_dmi_table[] = {
 			DMI_MATCH(DMI_PRODUCT_NAME, "EF20"),
 		},
 	},
+	{
+		.ident = "EF20EA",
+		.matches = {
+			DMI_MATCH(DMI_PRODUCT_NAME, "EF20EA"),
+		},
+	},
 	{}
 };
 
