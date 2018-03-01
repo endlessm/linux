@@ -1259,6 +1259,20 @@ static const struct dmi_system_id nouveau_modeset_0[] = {
 			DMI_MATCH(DMI_PRODUCT_NAME, "Aspire Z20-780"),
 		},
 	},
+	{
+		.ident = "ASUSTeK COMPUTER INC. ZenBook Pro 15 UX550GE",
+		.matches = {
+			DMI_MATCH(DMI_SYS_VENDOR, "ASUSTeK COMPUTER INC."),
+			DMI_MATCH(DMI_PRODUCT_NAME, "ZenBook Pro 15 UX550GE"),
+		},
+	},
+	{
+		.ident = "ASUSTeK COMPUTER INC. ZenBook Pro 15 UX550GEX",
+		.matches = {
+			DMI_MATCH(DMI_SYS_VENDOR, "ASUSTeK COMPUTER INC."),
+			DMI_MATCH(DMI_PRODUCT_NAME, "ZenBook Pro 15 UX550GEX"),
+		},
+	},
 	{ }
 };
 
