@@ -3255,6 +3255,12 @@ static const struct dmi_system_id ef20_detect_dmi_table[] = {
 			DMI_MATCH(DMI_PRODUCT_NAME, "EF20"),
 		}
 	},
+	{
+		.ident = "EF20EA",
+		.matches = {
+			DMI_MATCH(DMI_PRODUCT_NAME, "EF20EA"),
+		}
+	},
 	{ }
 };
 
@@ -3809,7 +3815,7 @@ static int rt5645_i2c_probe(struct i2c_client *i2c,
 	if (rt5645 == NULL)
 		return -ENOMEM;
 
-	if (has_acpi_companion(&i2c->dev))
+	if (has_acpi_companion(&i2c->dev) && dmi_check_system(ef20_detect_dmi_table))
 		if (devm_acpi_dev_add_driver_gpios(&i2c->dev, cht_rt5645_gpios))
 			dev_dbg(&i2c->dev, "Failed to add driver gpios\n");
 
