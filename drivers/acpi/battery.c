@@ -1357,6 +1357,20 @@ static const struct dmi_system_id bat_dmi_table[] __initconst = {
 			DMI_MATCH(DMI_PRODUCT_NAME, "Aspire V5-573G"),
 		},
 	},
+	{
+		.callback = battery_not_use_pmic_quirk,
+		.ident = "ECS EF20EA",
+		.matches = {
+			DMI_MATCH(DMI_PRODUCT_NAME, "EF20EA"),
+		},
+	},
+	{
+		.callback = battery_not_use_pmic_quirk,
+		.ident = "ECS EF20",
+		.matches = {
+			DMI_MATCH(DMI_PRODUCT_NAME, "EF20"),
+		},
+	},
 	{},
 };
 
