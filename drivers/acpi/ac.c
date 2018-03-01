@@ -87,6 +87,7 @@ static int acpi_ac_open_fs(struct inode *inode, struct file *file);
 
 
 static int ac_sleep_before_get_state_ms;
+static bool ac_not_use_pmic;
 
 static struct acpi_driver acpi_ac_driver = {
 	.name = "ac",
@@ -316,6 +317,12 @@ static int thinkpad_e530_quirk(const struct dmi_system_id *d)
 	return 0;
 }
 
+static int ac_not_use_pmic_quirk(const struct dmi_system_id *d)
+{
+	ac_not_use_pmic = true;
+	return 0;
+}
+
 static const struct dmi_system_id ac_dmi_table[] = {
 	{
 	.callback = thinkpad_e530_quirk,
@@ -384,7 +391,6 @@ end:
 		kfree(ac);
 	}
 
-	dmi_check_system(ac_dmi_table);
 	return result;
 }
 
@@ -442,13 +448,17 @@ static int __init acpi_ac_init(void)
 	if (acpi_disabled)
 		return -ENODEV;
 
-	for (i = 0; i < ARRAY_SIZE(acpi_ac_blacklist); i++)
-		if (acpi_dev_present(acpi_ac_blacklist[i].hid, "1",
-				     acpi_ac_blacklist[i].hrv)) {
-			pr_info(PREFIX "AC: found native %s PMIC, not loading\n",
-				acpi_ac_blacklist[i].hid);
-			return -ENODEV;
-		}
+	dmi_check_system(ac_dmi_table);
+
+	if (!ac_not_use_pmic) {
+		for (i = 0; i < ARRAY_SIZE(acpi_ac_blacklist); i++)
+			if (acpi_dev_present(acpi_ac_blacklist[i].hid, "1",
+					     acpi_ac_blacklist[i].hrv)) {
+				pr_info(PREFIX "AC: found native %s PMIC, not loading\n",
+					acpi_ac_blacklist[i].hid);
+				return -ENODEV;
+			}
+	}
 
 #ifdef CONFIG_ACPI_PROCFS_POWER
 	acpi_ac_dir = acpi_lock_ac_dir();
