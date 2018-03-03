@@ -5033,6 +5033,37 @@ DECLARE_PCI_FIXUP_CLASS_FINAL(PCI_VENDOR_ID_NVIDIA, PCI_ANY_ID,
 			      PCI_CLASS_MULTIMEDIA_HD_AUDIO, 8, quirk_gpu_hda);
 
 /*
+ * The integrated HDA controller on Nvidia GPUs can be hidden with a bit in the
+ * GPU's config space.  Some laptop BIOSes hide it on boot and resume unless an
+ * external display is attached, rendering the HDA controller invisible and
+ * preventing its use if a display is attached later.  Avoid by exposing it
+ * on device enumeration and resume.
+ *
+ * https://devtalk.nvidia.com/default/topic/1024022
+ */
+static void quirk_nvidia_hda(struct pci_dev *gpu)
+{
+	u8 hdr_type;
+	u32 val;
+
+	/* there was no integrated HDA controller before MCP89 */
+	if (gpu->device < PCI_DEVICE_ID_NVIDIA_GEFORCE_320M)
+		return;
+
+	/* bit 25 at offset 0x488 hides or exposes the HDA controller */
+	pci_read_config_dword(gpu, 0x488, &val);
+	pci_write_config_dword(gpu, 0x488, val | BIT(25));
+
+	/* the GPU becomes a multifunction device when the HDA is exposed */
+	pci_read_config_byte(gpu, PCI_HEADER_TYPE, &hdr_type);
+	gpu->multifunction = !!(hdr_type & BIT(7));
+}
+DECLARE_PCI_FIXUP_CLASS_HEADER(PCI_VENDOR_ID_NVIDIA, PCI_ANY_ID,
+			       PCI_BASE_CLASS_DISPLAY, 16, quirk_nvidia_hda);
+DECLARE_PCI_FIXUP_CLASS_RESUME_EARLY(PCI_VENDOR_ID_NVIDIA, PCI_ANY_ID,
+			       PCI_BASE_CLASS_DISPLAY, 16, quirk_nvidia_hda);
+
+/*
  * Some IDT switches incorrectly flag an ACS Source Validation error on
  * completions for config read requests even though PCIe r4.0, sec
  * 6.12.1.1, says that completions are never affected by ACS Source
