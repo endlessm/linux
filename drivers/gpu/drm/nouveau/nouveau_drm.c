@@ -570,6 +570,13 @@ static const struct dmi_system_id gp107_accel_blacklist[] = {
 			DMI_MATCH(DMI_CHASSIS_TYPE, "10"), /* Notebook */
                 },
         },
+	{
+		.ident = "ASUSTeK COMPUTER INC. ASUS Gaming FX570UD",
+		.matches = {
+			DMI_MATCH(DMI_SYS_VENDOR, "ASUSTeK COMPUTER INC."),
+			DMI_MATCH(DMI_PRODUCT_NAME, "ASUS Gaming FX570UD"),
+		},
+	},
 	{ }
 };
 
