@@ -543,6 +543,7 @@ static int acpi_dev_pm_get_state(struct device *dev, struct acpi_device *adev,
 	unsigned long long ret;
 	int d_min, d_max;
 	bool wakeup = false;
+	acpi_status sxd_status;
 	acpi_status status;
 
 	/*
@@ -565,8 +566,8 @@ static int acpi_dev_pm_get_state(struct device *dev, struct acpi_device *adev,
 		 * provided if AE_NOT_FOUND is returned.
 		 */
 		ret = d_min;
-		status = acpi_evaluate_integer(handle, method, NULL, &ret);
-		if ((ACPI_FAILURE(status) && status != AE_NOT_FOUND)
+		sxd_status = acpi_evaluate_integer(handle, method, NULL, &ret);
+		if ((ACPI_FAILURE(sxd_status) && sxd_status != AE_NOT_FOUND)
 		    || ret > ACPI_STATE_D3_COLD)
 			return -ENODATA;
 
@@ -599,7 +600,11 @@ static int acpi_dev_pm_get_state(struct device *dev, struct acpi_device *adev,
 		method[3] = 'W';
 		status = acpi_evaluate_integer(handle, method, NULL, &ret);
 		if (status == AE_NOT_FOUND) {
-			if (target_state > ACPI_STATE_S0)
+			/* No _SxW. In this case, the ACPI spec says that we
+			 * must not go into any power state deeper than the
+			 * value returned from _SxD.
+			 */
+			if (sxd_status == AE_OK && target_state > ACPI_STATE_S0)
 				d_max = d_min;
 		} else if (ACPI_SUCCESS(status) && ret <= ACPI_STATE_D3_COLD) {
 			/* Fall back to D3cold if ret is not a valid state. */
