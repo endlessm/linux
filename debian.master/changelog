@@ -6,7 +6,7 @@ linux (4.16.0-2.3) UNRELEASED; urgency=medium
 
   [ Upstream Kernel Changes ]
 
-  * Rebase to v4.16-rc4
+  * Rebase to v4.16-rc6
 
  -- Seth Forshee <seth.forshee@canonical.com>  Mon, 05 Mar 2018 14:14:53 +0100
 
