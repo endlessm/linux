@@ -21,6 +21,7 @@
 #include "xhci-trace.h"
 #include "xhci-mtk.h"
 #include "xhci-debugfs.h"
+#include "xhci-dbgcap.h"
 
 #define DRIVER_AUTHOR "Sarah Sharp"
 #define DRIVER_DESC "'eXtensible' Host Controller (xHC) Driver"
@@ -622,6 +623,8 @@ int xhci_run(struct usb_hcd *hcd)
 	xhci_dbg_trace(xhci, trace_xhci_dbg_init,
 			"Finished xhci_run for USB2 roothub");
 
+	xhci_dbc_init(xhci);
+
 	xhci_debugfs_init(xhci);
 
 	return 0;
@@ -652,7 +655,7 @@ static void xhci_stop(struct usb_hcd *hcd)
 		return;
 	}
 
-	xhci_debugfs_exit(xhci);
+	xhci_dbc_exit(xhci);
 
 	spin_lock_irq(&xhci->lock);
 	xhci->xhc_state |= XHCI_STATE_HALTED;
@@ -685,6 +688,7 @@ static void xhci_stop(struct usb_hcd *hcd)
 
 	xhci_dbg_trace(xhci, trace_xhci_dbg_init, "cleaning up memory");
 	xhci_mem_cleanup(xhci);
+	xhci_debugfs_exit(xhci);
 	xhci_dbg_trace(xhci, trace_xhci_dbg_init,
 			"xhci_stop completed - status = %x",
 			readl(&xhci->op_regs->status));
@@ -870,6 +874,8 @@ int xhci_suspend(struct xhci_hcd *xhci, bool do_wakeup)
 			xhci->shared_hcd->state != HC_STATE_SUSPENDED)
 		return -EINVAL;
 
+	xhci_dbc_suspend(xhci);
+
 	/* Clear root port wake on bits if wakeup not allowed. */
 	if (!do_wakeup)
 		xhci_disable_port_wake_on_bits(xhci);
@@ -1018,6 +1024,7 @@ int xhci_resume(struct xhci_hcd *xhci, bool hibernated)
 
 		xhci_dbg(xhci, "cleaning up memory\n");
 		xhci_mem_cleanup(xhci);
+		xhci_debugfs_exit(xhci);
 		xhci_dbg(xhci, "xhci_stop completed - status = %x\n",
 			    readl(&xhci->op_regs->status));
 
@@ -1064,6 +1071,8 @@ int xhci_resume(struct xhci_hcd *xhci, bool hibernated)
 	 */
 
 	spin_unlock_irq(&xhci->lock);
+
+	xhci_dbc_resume(xhci);
 
  done:
 	if (retval == 0) {
@@ -3551,12 +3560,10 @@ static void xhci_free_dev(struct usb_hcd *hcd, struct usb_device *udev)
 		virt_dev->eps[i].ep_state &= ~EP_STOP_CMD_PENDING;
 		del_timer_sync(&virt_dev->eps[i].stop_cmd_timer);
 	}
-
+	xhci_debugfs_remove_slot(xhci, udev->slot_id);
 	ret = xhci_disable_slot(xhci, udev->slot_id);
-	if (ret) {
-		xhci_debugfs_remove_slot(xhci, udev->slot_id);
+	if (ret)
 		xhci_free_virt_device(xhci, udev->slot_id);
-	}
 }
 
 int xhci_disable_slot(struct xhci_hcd *xhci, u32 slot_id)

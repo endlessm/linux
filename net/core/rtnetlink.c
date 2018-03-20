@@ -1815,6 +1815,81 @@ struct net *rtnl_link_get_net(struct net *src_net, struct nlattr *tb[])
 }
 EXPORT_SYMBOL(rtnl_link_get_net);
 
+/* Figure out which network namespace we are talking about by
+ * examining the link attributes in the following order:
+ *
+ * 1. IFLA_NET_NS_PID
+ * 2. IFLA_NET_NS_FD
+ * 3. IFLA_IF_NETNSID
+ */
+static struct net *rtnl_link_get_net_by_nlattr(struct net *src_net,
+					       struct nlattr *tb[])
+{
+	struct net *net;
+
+	if (tb[IFLA_NET_NS_PID] || tb[IFLA_NET_NS_FD])
+		return rtnl_link_get_net(src_net, tb);
+
+	if (!tb[IFLA_IF_NETNSID])
+		return get_net(src_net);
+
+	net = get_net_ns_by_id(src_net, nla_get_u32(tb[IFLA_IF_NETNSID]));
+	if (!net)
+		return ERR_PTR(-EINVAL);
+
+	return net;
+}
+
+static struct net *rtnl_link_get_net_capable(const struct sk_buff *skb,
+					     struct net *src_net,
+					     struct nlattr *tb[], int cap)
+{
+	struct net *net;
+
+	net = rtnl_link_get_net_by_nlattr(src_net, tb);
+	if (IS_ERR(net))
+		return net;
+
+	if (!netlink_ns_capable(skb, net->user_ns, cap)) {
+		put_net(net);
+		return ERR_PTR(-EPERM);
+	}
+
+	return net;
+}
+
+/* Verify that rtnetlink requests do not pass additional properties
+ * potentially referring to different network namespaces.
+ */
+static int rtnl_ensure_unique_netns(struct nlattr *tb[],
+				    struct netlink_ext_ack *extack,
+				    bool netns_id_only)
+{
+
+	if (netns_id_only) {
+		if (!tb[IFLA_NET_NS_PID] && !tb[IFLA_NET_NS_FD])
+			return 0;
+
+		NL_SET_ERR_MSG(extack, "specified netns attribute not supported");
+		return -EOPNOTSUPP;
+	}
+
+	if (tb[IFLA_IF_NETNSID] && (tb[IFLA_NET_NS_PID] || tb[IFLA_NET_NS_FD]))
+		goto invalid_attr;
+
+	if (tb[IFLA_NET_NS_PID] && (tb[IFLA_IF_NETNSID] || tb[IFLA_NET_NS_FD]))
+		goto invalid_attr;
+
+	if (tb[IFLA_NET_NS_FD] && (tb[IFLA_IF_NETNSID] || tb[IFLA_NET_NS_PID]))
+		goto invalid_attr;
+
+	return 0;
+
+invalid_attr:
+	NL_SET_ERR_MSG(extack, "multiple netns identifying attributes specified");
+	return -EINVAL;
+}
+
 static int validate_linkmsg(struct net_device *dev, struct nlattr *tb[])
 {
 	if (dev) {
@@ -2077,17 +2152,14 @@ static int do_setlink(const struct sk_buff *skb,
 	const struct net_device_ops *ops = dev->netdev_ops;
 	int err;
 
-	if (tb[IFLA_NET_NS_PID] || tb[IFLA_NET_NS_FD]) {
-		struct net *net = rtnl_link_get_net(dev_net(dev), tb);
+	if (tb[IFLA_NET_NS_PID] || tb[IFLA_NET_NS_FD] || tb[IFLA_IF_NETNSID]) {
+		struct net *net = rtnl_link_get_net_capable(skb, dev_net(dev),
+							    tb, CAP_NET_ADMIN);
 		if (IS_ERR(net)) {
 			err = PTR_ERR(net);
 			goto errout;
 		}
-		if (!netlink_ns_capable(skb, net->user_ns, CAP_NET_ADMIN)) {
-			put_net(net);
-			err = -EPERM;
-			goto errout;
-		}
+
 		err = dev_change_net_namespace(dev, net, ifname);
 		put_net(net);
 		if (err)
@@ -2400,8 +2472,9 @@ static int rtnl_setlink(struct sk_buff *skb, struct nlmsghdr *nlh,
 	if (err < 0)
 		goto errout;
 
-	if (tb[IFLA_IF_NETNSID])
-		return -EOPNOTSUPP;
+	err = rtnl_ensure_unique_netns(tb, extack, false);
+	if (err < 0)
+		goto errout;
 
 	if (tb[IFLA_IFNAME])
 		nla_strlcpy(ifname, tb[IFLA_IFNAME], IFNAMSIZ);
@@ -2487,36 +2560,57 @@ static int rtnl_dellink(struct sk_buff *skb, struct nlmsghdr *nlh,
 			struct netlink_ext_ack *extack)
 {
 	struct net *net = sock_net(skb->sk);
-	struct net_device *dev;
+	struct net *tgt_net = net;
+	struct net_device *dev = NULL;
 	struct ifinfomsg *ifm;
 	char ifname[IFNAMSIZ];
 	struct nlattr *tb[IFLA_MAX+1];
 	int err;
+	int netnsid = -1;
 
 	err = nlmsg_parse(nlh, sizeof(*ifm), tb, IFLA_MAX, ifla_policy, extack);
 	if (err < 0)
 		return err;
 
-	if (tb[IFLA_IF_NETNSID])
-		return -EOPNOTSUPP;
+	err = rtnl_ensure_unique_netns(tb, extack, true);
+	if (err < 0)
+		return err;
 
 	if (tb[IFLA_IFNAME])
 		nla_strlcpy(ifname, tb[IFLA_IFNAME], IFNAMSIZ);
 
+	if (tb[IFLA_IF_NETNSID]) {
+		netnsid = nla_get_s32(tb[IFLA_IF_NETNSID]);
+		tgt_net = get_target_net(NETLINK_CB(skb).sk, netnsid);
+		if (IS_ERR(tgt_net))
+			return PTR_ERR(tgt_net);
+	}
+
+	err = -EINVAL;
 	ifm = nlmsg_data(nlh);
 	if (ifm->ifi_index > 0)
-		dev = __dev_get_by_index(net, ifm->ifi_index);
+		dev = __dev_get_by_index(tgt_net, ifm->ifi_index);
 	else if (tb[IFLA_IFNAME])
-		dev = __dev_get_by_name(net, ifname);
+		dev = __dev_get_by_name(tgt_net, ifname);
 	else if (tb[IFLA_GROUP])
-		return rtnl_group_dellink(net, nla_get_u32(tb[IFLA_GROUP]));
+		err = rtnl_group_dellink(tgt_net, nla_get_u32(tb[IFLA_GROUP]));
 	else
-		return -EINVAL;
+		goto out;
 
-	if (!dev)
-		return -ENODEV;
+	if (!dev) {
+		if (tb[IFLA_IFNAME] || ifm->ifi_index > 0)
+			err = -ENODEV;
 
-	return rtnl_delete_link(dev);
+		goto out;
+	}
+
+	err = rtnl_delete_link(dev);
+
+out:
+	if (netnsid >= 0)
+		put_net(tgt_net);
+
+	return err;
 }
 
 int rtnl_configure_link(struct net_device *dev, const struct ifinfomsg *ifm)
@@ -2631,8 +2725,9 @@ replay:
 	if (err < 0)
 		return err;
 
-	if (tb[IFLA_IF_NETNSID])
-		return -EOPNOTSUPP;
+	err = rtnl_ensure_unique_netns(tb, extack, false);
+	if (err < 0)
+		return err;
 
 	if (tb[IFLA_IFNAME])
 		nla_strlcpy(ifname, tb[IFLA_IFNAME], IFNAMSIZ);
@@ -2781,13 +2876,9 @@ replay:
 			name_assign_type = NET_NAME_ENUM;
 		}
 
-		dest_net = rtnl_link_get_net(net, tb);
+		dest_net = rtnl_link_get_net_capable(skb, net, tb, CAP_NET_ADMIN);
 		if (IS_ERR(dest_net))
 			return PTR_ERR(dest_net);
-
-		err = -EPERM;
-		if (!netlink_ns_capable(skb, dest_net->user_ns, CAP_NET_ADMIN))
-			goto out;
 
 		if (tb[IFLA_LINK_NETNSID]) {
 			int id = nla_get_s32(tb[IFLA_LINK_NETNSID]);
@@ -2878,6 +2969,10 @@ static int rtnl_getlink(struct sk_buff *skb, struct nlmsghdr *nlh,
 	u32 ext_filter_mask = 0;
 
 	err = nlmsg_parse(nlh, sizeof(*ifm), tb, IFLA_MAX, ifla_policy, extack);
+	if (err < 0)
+		return err;
+
+	err = rtnl_ensure_unique_netns(tb, extack, true);
 	if (err < 0)
 		return err;
 
