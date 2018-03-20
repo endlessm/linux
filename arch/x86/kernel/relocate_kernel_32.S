@@ -9,6 +9,7 @@
 #include <asm/kexec.h>
 #include <asm/nospec-branch.h>
 #include <asm/processor-flags.h>
+#include <asm/nospec-branch.h>
 
 /*
  * Must be relocatable PIC code callable as a C function, in particular
