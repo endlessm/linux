@@ -3606,6 +3606,13 @@ static void __init dcache_init(void)
 	dentry_cache = KMEM_CACHE(dentry,
 		SLAB_RECLAIM_ACCOUNT|SLAB_PANIC|SLAB_MEM_SPREAD|SLAB_ACCOUNT);
 
+	/*
+	 * Increase vfs_cache_pressure to 200 for systems with less than
+	 * 2GB RAM to sacrifice dcache for program interactivity.
+	 */
+	if (totalram_pages < (2 << (30 - PAGE_SHIFT)))
+		sysctl_vfs_cache_pressure = 200;
+
 	/* Hash may have been set up in dcache_init_early */
 	if (!hashdist)
 		return;
