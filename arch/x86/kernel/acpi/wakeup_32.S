@@ -3,6 +3,7 @@
 #include <linux/linkage.h>
 #include <asm/segment.h>
 #include <asm/page_types.h>
+#include <asm/nospec-branch.h>
 
 # Copyright 2003, 2008 Pavel Machek <pavel@suse.cz
 
@@ -37,6 +38,7 @@ SYM_CODE_START(wakeup_pmode_return)
 
 	# jump to place where we left off
 	movl	saved_eip, %eax
+	ANNOTATE_RETPOLINE_SAFE
 	jmp	*%eax
 SYM_CODE_END(wakeup_pmode_return)
 
