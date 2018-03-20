@@ -26,6 +26,7 @@
 #include <asm/bootparam.h>
 #include <asm/export.h>
 #include <asm/pgtable_32.h>
+#include <asm/nospec-branch.h>
 
 /* Physical address */
 #define pa(X) ((X) - __PAGE_OFFSET)
@@ -153,6 +154,7 @@ SYM_CODE_START(startup_32)
 
 	movl pa(subarch_entries)(,%eax,4), %eax
 	subl $__PAGE_OFFSET, %eax
+	ANNOTATE_RETPOLINE_SAFE
 	jmp *%eax
 
 .Lbad_subarch:
@@ -303,6 +305,7 @@ SYM_FUNC_START(startup_32_smp)
 	movl setup_once_ref,%eax
 	andl %eax,%eax
 	jz 1f				# Did we do this already?
+	ANNOTATE_RETPOLINE_SAFE
 	call *%eax
 1:
 
