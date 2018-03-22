@@ -3768,6 +3768,23 @@ static struct rt5645_platform_data ef20_platform_data = {
 	.dmic2_data_pin = RT5645_DMIC_DATA_IN2P,
 };
 
+static const struct rt5645_platform_data shuttle_xo0ct12_platform_data = {
+	.dmic1_data_pin = RT5645_DMIC_DATA_IN2N,
+	.dmic2_data_pin = RT5645_DMIC2_DISABLE,
+	.jd_mode = 3,
+};
+
+static const struct dmi_system_id dmi_platform_shuttle_xo0ct12[] = {
+	{
+		.ident = "Shuttle XO0CT12",
+		.matches = {
+			DMI_EXACT_MATCH(DMI_SYS_VENDOR, "Shuttle"),
+			DMI_MATCH(DMI_PRODUCT_NAME, "XO0CT12"),
+		},
+	},
+	{ }
+};
+
 static bool rt5645_check_dp(struct device *dev)
 {
 	if (device_property_present(dev, "realtek,in2-differential") ||
@@ -3834,6 +3851,8 @@ static int rt5645_i2c_probe(struct i2c_client *i2c,
 		rt5645->pdata = ef20_platform_data;
 	else if (rt5645_check_dp(&i2c->dev))
 		rt5645_parse_dt(rt5645, &i2c->dev);
+	else if (dmi_check_system(dmi_platform_shuttle_xo0ct12))
+		rt5645->pdata = shuttle_xo0ct12_platform_data;
 	else
 		rt5645->pdata = jd_mode3_platform_data;
 
