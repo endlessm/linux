@@ -570,6 +570,17 @@ static const struct dmi_system_id gp107_accel_blacklist[] = {
 			DMI_MATCH(DMI_CHASSIS_TYPE, "10"), /* Notebook */
                 },
         },
+	{ }
+};
+
+static const struct dmi_system_id accel_blacklist[] = {
+	{
+		.ident = "Acer Nitro N50-600",
+		.matches = {
+			DMI_MATCH(DMI_SYS_VENDOR, "Acer"),
+			DMI_MATCH(DMI_PRODUCT_NAME, "Nitro N50-600"),
+		},
+	},
 	{
 		.ident = "ASUSTeK COMPUTER INC. ASUS Gaming FX570UD",
 		.matches = {
@@ -626,6 +637,9 @@ nouveau_drm_load(struct drm_device *dev, unsigned long flags)
 
 	if (drm->client.device.info.chipset == 0x137 &&
 	    dmi_check_system(gp107_accel_blacklist))
+		nouveau_noaccel = 1;
+
+	if (dmi_check_system(accel_blacklist))
 		nouveau_noaccel = 1;
 
 	nouveau_vga_init(drm);
@@ -1284,6 +1298,13 @@ static const struct dmi_system_id nouveau_modeset_0[] = {
 };
 
 static const struct dmi_system_id nouveau_rpm_0[] = {
+	{
+		.ident = "Acer Nitro N50-600",
+		.matches = {
+			DMI_MATCH(DMI_SYS_VENDOR, "Acer"),
+			DMI_MATCH(DMI_PRODUCT_NAME, "Nitro N50-600"),
+		},
+	},
 	{
 		.ident = "ASUSTeK COMPUTER INC. GL552VXK",
 		.matches = {
