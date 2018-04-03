@@ -1903,6 +1903,8 @@ enum {
 	ALC1220_FIXUP_CLEVO_P950,
 	ALC1220_FIXUP_CLEVO_PB51ED,
 	ALC1220_FIXUP_CLEVO_PB51ED_PINS,
+	ALC887_FIXUP_ASUS_AUTOMUTE_MODE,
+	ALC887_FIXUP_ASUS_FRONT_HP,
 };
 
 static void alc889_fixup_coef(struct hda_codec *codec,
@@ -2113,6 +2115,22 @@ static void alc1220_fixup_clevo_pb51ed(struct hda_codec *codec,
 {
 	alc1220_fixup_clevo_p950(codec, fix, action);
 	alc_fixup_headset_mode_no_hp_mic(codec, fix, action);
+}
+
+/* There is no signal output though line out jack when Auto-Mute in 
+ * Line Out + Speaker state and it is the default state.  So, fix the Auto-Mute
+ * Mode from default Line Out + Speaker to Speaker Only state in mixer.  This
+ * allows signal to output through the line out jack.
+ */
+static void alc887_fixup_asus_automute_mode(struct hda_codec *codec,
+				     const struct hda_fixup *fix, int action)
+{
+	struct alc_spec *spec = codec->spec;
+
+	if (action == HDA_FIXUP_ACT_PROBE) {
+		spec->gen.automute_speaker = 1;
+		spec->gen.automute_lo = 0;
+	}
 }
 
 static const struct hda_fixup alc882_fixups[] = {
@@ -2372,6 +2390,19 @@ static const struct hda_fixup alc882_fixups[] = {
 		.chained = true,
 		.chain_id = ALC1220_FIXUP_CLEVO_PB51ED,
 	},
+	[ALC887_FIXUP_ASUS_AUTOMUTE_MODE] = {
+		.type = HDA_FIXUP_FUNC,
+		.v.func = alc887_fixup_asus_automute_mode,
+	},
+	[ALC887_FIXUP_ASUS_FRONT_HP] = {
+		.type = HDA_FIXUP_PINS,
+		.v.pins = (const struct hda_pintbl[]) {
+			{0x1b, 0x22214030},
+			{}
+		},
+		.chained = true,
+		.chain_id = ALC887_FIXUP_ASUS_AUTOMUTE_MODE,
+	},
 };
 
 static const struct snd_pci_quirk alc882_fixup_tbl[] = {
@@ -2405,6 +2436,7 @@ static const struct snd_pci_quirk alc882_fixup_tbl[] = {
 	SND_PCI_QUIRK(0x1043, 0x13c2, "Asus A7M", ALC882_FIXUP_EAPD),
 	SND_PCI_QUIRK(0x1043, 0x1873, "ASUS W90V", ALC882_FIXUP_ASUS_W90V),
 	SND_PCI_QUIRK(0x1043, 0x1971, "Asus W2JC", ALC882_FIXUP_ASUS_W2JC),
+	SND_PCI_QUIRK(0x1043, 0x2160, "ASUSPRO D640MB", ALC887_FIXUP_ASUS_FRONT_HP),
 	SND_PCI_QUIRK(0x1043, 0x835f, "Asus Eee 1601", ALC888_FIXUP_EEE1601),
 	SND_PCI_QUIRK(0x1043, 0x84bc, "ASUS ET2700", ALC887_FIXUP_ASUS_BASS),
 	SND_PCI_QUIRK(0x1043, 0x8691, "ASUS ROG Ranger VIII", ALC882_FIXUP_GPIO3),
