@@ -1218,6 +1218,8 @@ EXPORT_SYMBOL drivers/infiniband/core/ib_core 0x00000000	rbt_ib_umem_lookup
 EXPORT_SYMBOL drivers/infiniband/core/ib_core 0x00000000	rdma_addr_cancel
 EXPORT_SYMBOL drivers/infiniband/core/ib_core 0x00000000	rdma_addr_register_client
 EXPORT_SYMBOL drivers/infiniband/core/ib_core 0x00000000	rdma_addr_size
+EXPORT_SYMBOL drivers/infiniband/core/ib_core 0x00000000	rdma_addr_size_in6
+EXPORT_SYMBOL drivers/infiniband/core/ib_core 0x00000000	rdma_addr_size_kss
 EXPORT_SYMBOL drivers/infiniband/core/ib_core 0x00000000	rdma_addr_unregister_client
 EXPORT_SYMBOL drivers/infiniband/core/ib_core 0x00000000	rdma_copy_addr
 EXPORT_SYMBOL drivers/infiniband/core/ib_core 0x00000000	rdma_create_ah
@@ -2570,6 +2572,7 @@ EXPORT_SYMBOL drivers/net/ethernet/mellanox/mlxsw/mlxsw_core 0x00000000	mlxsw_af
 EXPORT_SYMBOL drivers/net/ethernet/mellanox/mlxsw/mlxsw_core 0x00000000	mlxsw_afa_block_first_set
 EXPORT_SYMBOL drivers/net/ethernet/mellanox/mlxsw/mlxsw_core 0x00000000	mlxsw_afa_block_first_set_kvdl_index
 EXPORT_SYMBOL drivers/net/ethernet/mellanox/mlxsw/mlxsw_core 0x00000000	mlxsw_afa_block_jump
+EXPORT_SYMBOL drivers/net/ethernet/mellanox/mlxsw/mlxsw_core 0x00000000	mlxsw_afa_block_terminate
 EXPORT_SYMBOL drivers/net/ethernet/mellanox/mlxsw/mlxsw_core 0x00000000	mlxsw_afa_create
 EXPORT_SYMBOL drivers/net/ethernet/mellanox/mlxsw/mlxsw_core 0x00000000	mlxsw_afa_destroy
 EXPORT_SYMBOL drivers/net/ethernet/mellanox/mlxsw/mlxsw_core 0x00000000	mlxsw_afk_create
@@ -5592,6 +5595,7 @@ EXPORT_SYMBOL net/netfilter/nft_fib 0x00000000	nft_fib_policy
 EXPORT_SYMBOL net/netfilter/x_tables 0x00000000	xt_alloc_entry_offsets
 EXPORT_SYMBOL net/netfilter/x_tables 0x00000000	xt_alloc_table_info
 EXPORT_SYMBOL net/netfilter/x_tables 0x00000000	xt_check_entry_offsets
+EXPORT_SYMBOL net/netfilter/x_tables 0x00000000	xt_check_proc_name
 EXPORT_SYMBOL net/netfilter/x_tables 0x00000000	xt_compat_check_entry_offsets
 EXPORT_SYMBOL net/netfilter/x_tables 0x00000000	xt_compat_init_offsets
 EXPORT_SYMBOL net/netfilter/x_tables 0x00000000	xt_find_jump_offset
@@ -8167,6 +8171,7 @@ EXPORT_SYMBOL vmlinux 0x00000000	genphy_aneg_done
 EXPORT_SYMBOL vmlinux 0x00000000	genphy_config_aneg
 EXPORT_SYMBOL vmlinux 0x00000000	genphy_config_init
 EXPORT_SYMBOL vmlinux 0x00000000	genphy_loopback
+EXPORT_SYMBOL vmlinux 0x00000000	genphy_read_mmd_unsupported
 EXPORT_SYMBOL vmlinux 0x00000000	genphy_read_status
 EXPORT_SYMBOL vmlinux 0x00000000	genphy_restart_aneg
 EXPORT_SYMBOL vmlinux 0x00000000	genphy_resume
@@ -8174,6 +8179,7 @@ EXPORT_SYMBOL vmlinux 0x00000000	genphy_setup_forced
 EXPORT_SYMBOL vmlinux 0x00000000	genphy_soft_reset
 EXPORT_SYMBOL vmlinux 0x00000000	genphy_suspend
 EXPORT_SYMBOL vmlinux 0x00000000	genphy_update_link
+EXPORT_SYMBOL vmlinux 0x00000000	genphy_write_mmd_unsupported
 EXPORT_SYMBOL vmlinux 0x00000000	get_acl
 EXPORT_SYMBOL vmlinux 0x00000000	get_agp_version
 EXPORT_SYMBOL vmlinux 0x00000000	get_amd_iommu
@@ -10565,6 +10571,7 @@ EXPORT_SYMBOL vmlinux 0x00000000	sock_init_data
 EXPORT_SYMBOL vmlinux 0x00000000	sock_kfree_s
 EXPORT_SYMBOL vmlinux 0x00000000	sock_kmalloc
 EXPORT_SYMBOL vmlinux 0x00000000	sock_kzfree_s
+EXPORT_SYMBOL vmlinux 0x00000000	sock_load_diag_module
 EXPORT_SYMBOL vmlinux 0x00000000	sock_no_accept
 EXPORT_SYMBOL vmlinux 0x00000000	sock_no_bind
 EXPORT_SYMBOL vmlinux 0x00000000	sock_no_connect
@@ -13930,8 +13937,9 @@ EXPORT_SYMBOL_GPL drivers/net/wireless/intel/iwlwifi/iwlwifi 0x00000000	iwl_fw_d
 EXPORT_SYMBOL_GPL drivers/net/wireless/intel/iwlwifi/iwlwifi 0x00000000	iwl_fw_dbg_collect_trig
 EXPORT_SYMBOL_GPL drivers/net/wireless/intel/iwlwifi/iwlwifi 0x00000000	iwl_fw_error_dump
 EXPORT_SYMBOL_GPL drivers/net/wireless/intel/iwlwifi/iwlwifi 0x00000000	iwl_fw_get_nvm
-EXPORT_SYMBOL_GPL drivers/net/wireless/intel/iwlwifi/iwlwifi 0x00000000	iwl_fw_runtime_exit
 EXPORT_SYMBOL_GPL drivers/net/wireless/intel/iwlwifi/iwlwifi 0x00000000	iwl_fw_runtime_init
+EXPORT_SYMBOL_GPL drivers/net/wireless/intel/iwlwifi/iwlwifi 0x00000000	iwl_fw_runtime_resume
+EXPORT_SYMBOL_GPL drivers/net/wireless/intel/iwlwifi/iwlwifi 0x00000000	iwl_fw_runtime_suspend
 EXPORT_SYMBOL_GPL drivers/net/wireless/intel/iwlwifi/iwlwifi 0x00000000	iwl_fw_start_dbg_conf
 EXPORT_SYMBOL_GPL drivers/net/wireless/intel/iwlwifi/iwlwifi 0x00000000	iwl_fwrt_handle_notification
 EXPORT_SYMBOL_GPL drivers/net/wireless/intel/iwlwifi/iwlwifi 0x00000000	iwl_get_cmd_string
@@ -21929,6 +21937,7 @@ EXPORT_SYMBOL_GPL vmlinux 0x00000000	sysfs_create_files
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	sysfs_create_group
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	sysfs_create_groups
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	sysfs_create_link
+EXPORT_SYMBOL_GPL vmlinux 0x00000000	sysfs_create_link_nowarn
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	sysfs_create_mount_point
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	sysfs_merge_group
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	sysfs_notify
@@ -22145,6 +22154,7 @@ EXPORT_SYMBOL_GPL vmlinux 0x00000000	tty_termios_encode_baud_rate
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	tty_wakeup
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	tun_get_socket
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	tun_get_tx_ring
+EXPORT_SYMBOL_GPL vmlinux 0x00000000	tun_ptr_free
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	twl4030_audio_disable_resource
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	twl4030_audio_enable_resource
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	twl4030_audio_get_mclk
