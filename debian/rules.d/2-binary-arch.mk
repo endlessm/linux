@@ -74,6 +74,18 @@ $(stampdir)/stamp-build-%: $(stampdir)/stamp-prepare-%
 
 	@touch $@
 
+define build_dkms_sign =
+	$(shell set -x; if grep -q CONFIG_MODULE_SIG=y $(1)/.config; then
+			echo $(1)/scripts/sign-file $(MODHASHALGO) $(MODSECKEY) $(MODPUBKEY);
+		else
+			echo "-";
+		fi
+	)
+endef
+define build_dkms =
+	$(SHELL) $(DROOT)/scripts/dkms-build $(dkms_dir) $(abi_release)-$* '$(call build_dkms_sign,$(builddir)/build-$*)' $(1) $(2) $(3) $(4)
+endef
+
 define install_zfs =
 	cd $(builddir)/build-$*/spl/module; \
 		$(kmake) -C $(builddir)/build-$* SUBDIRS=`pwd` modules_install $(splopts)
@@ -113,13 +125,14 @@ install-%: MODHASHALGO=sha512
 install-%: MODSECKEY=$(builddir)/build-$*/certs/signing_key.pem
 install-%: MODPUBKEY=$(builddir)/build-$*/certs/signing_key.x509
 install-%: build_dir=$(builddir)/build-$*
+install-%: dkms_dir=$(builddir)/build-$*/dkms
 install-%: enable_zfs = $(call custom_override,do_zfs,$*)
 install-%: splopts  = INSTALL_MOD_STRIP=1
 install-%: splopts += INSTALL_MOD_PATH=$(pkgdir)/
 install-%: splopts += INSTALL_MOD_DIR=kernel/zfs
 install-%: splopts += $(conc_level)
 install-%: zfsopts  = $(splopts)
-install-%: $(stampdir)/stamp-build-%
+install-%: $(stampdir)/stamp-build-% install-headers
 	@echo Debug: $@ kernel_file $(kernel_file) kernfile $(kernfile) install_file $(install_file) instfile $(instfile)
 	dh_testdir
 	dh_testroot
@@ -400,6 +413,10 @@ ifeq ($(do_tools_hyperv),true)
 	$(LN) ../../$(src_pkg_name)-tools-$(abi_release)/lsvmbus $(cloudpkgdir)/usr/lib/linux-tools/$(abi_release)-$*
 endif
 endif
+
+	# Build a temporary "installed headers" directory.
+	install -d $(dkms_dir) $(dkms_dir)/headers $(dkms_dir)/build $(dkms_dir)/source
+	cp -rp "$(hdrdir)" "$(indep_hdrdir)" "$(dkms_dir)/headers"
 
 	# Build the final ABI information.
 	install -d $(abidir)
