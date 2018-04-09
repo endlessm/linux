@@ -48,6 +48,7 @@ enum input_clock_type {
  * @phys: physical path to the device in the system hierarchy
  * @uniq: unique identification code for the device (if device has it)
  * @id: id of the device (struct input_id)
+ * @flags: input device flags (SYNTHETIC, etc.)
  * @propbit: bitmap of device properties and quirks
  * @evbit: bitmap of types of events supported by the device (EV_KEY,
  *	EV_REL, etc.)
@@ -134,6 +135,8 @@ struct input_dev {
 	const char *uniq;
 	struct input_id id;
 
+	unsigned int flags;
+
 	unsigned long propbit[BITS_TO_LONGS(INPUT_PROP_CNT)];
 
 	unsigned long evbit[BITS_TO_LONGS(EV_CNT)];
@@ -203,6 +206,8 @@ struct input_dev {
 	ktime_t timestamp[INPUT_CLK_MAX];
 };
 #define to_input_dev(d) container_of(d, struct input_dev, dev)
+
+#define	INPUTDEV_FLAGS_SYNTHETIC	0x000000001
 
 /*
  * Verify that we are in sync with input_device_id mod_devicetable.h #defines
