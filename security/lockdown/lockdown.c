@@ -13,6 +13,8 @@
 #include <linux/security.h>
 #include <linux/export.h>
 #include <linux/lsm_hooks.h>
+#include <linux/sysrq.h>
+#include <asm/setup.h>
 
 static enum lockdown_reason kernel_locked_down;
 
@@ -180,6 +182,47 @@ static int __init lockdown_secfs_init(void)
 					&lockdown_ops);
 	return PTR_ERR_OR_ZERO(dentry);
 }
+
+#ifdef CONFIG_ALLOW_LOCKDOWN_LIFT_BY_SYSRQ
+
+/*
+ * Take the kernel out of lockdown mode.
+ */
+static void lift_kernel_lockdown(void)
+{
+	pr_notice("Lifting lockdown\n");
+	kernel_locked_down = LOCKDOWN_NONE;
+}
+
+/*
+ * Allow lockdown to be lifted by pressing something like SysRq+x (and not by
+ * echoing the appropriate letter into the sysrq-trigger file).
+ */
+static void sysrq_handle_lockdown_lift(int key)
+{
+	if (kernel_locked_down)
+		lift_kernel_lockdown();
+}
+
+static struct sysrq_key_op lockdown_lift_sysrq_op = {
+	.handler	= sysrq_handle_lockdown_lift,
+	.help_msg	= "unSB(x)",
+	.action_msg	= "Disabling Secure Boot restrictions",
+	.enable_mask	= SYSRQ_DISABLE_USERSPACE,
+};
+
+static int __init lockdown_lift_sysrq(void)
+{
+	if (kernel_locked_down) {
+		lockdown_lift_sysrq_op.help_msg[5] = LOCKDOWN_LIFT_KEY;
+		register_sysrq_key(LOCKDOWN_LIFT_KEY, &lockdown_lift_sysrq_op);
+	}
+	return 0;
+}
+
+late_initcall(lockdown_lift_sysrq);
+
+#endif /* CONFIG_ALLOW_LOCKDOWN_LIFT_BY_SYSRQ */
 
 core_initcall(lockdown_secfs_init);
 

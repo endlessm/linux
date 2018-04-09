@@ -58,3 +58,14 @@ config LOCK_DOWN_KERNEL_FORCE_CONFIDENTIALITY
 	 disabled.
 
 endchoice
+
+config ALLOW_LOCKDOWN_LIFT_BY_SYSRQ
+	bool "Allow the kernel lockdown to be lifted by SysRq"
+    depends on SECURITY_LOCKDOWN_LSM
+    depends on !LOCK_DOWN_KERNEL_FORCE_CONFIDENTIALITY
+    depends on !LOCK_DOWN_KERNEL_FORCE_INTEGRITY
+    depends on MAGIC_SYSRQ
+    depends on X86
+	help
+      Allow setting the lockdown mode to "none" by pressing a SysRq key
+      combination on a wired keyboard. On x86, this is SysRq+x
