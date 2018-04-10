@@ -890,7 +890,7 @@ static int ath_pci_probe(struct pci_dev *pdev, const struct pci_device_id *id)
 	u32 val;
 	int ret = 0;
 	char hw_name[64];
-	int msi_enabled = 0;
+	unsigned int irq_flags = PCI_IRQ_LEGACY;
 
 	if (pcim_enable_device(pdev))
 		return -EIO;
@@ -962,19 +962,32 @@ static int ath_pci_probe(struct pci_dev *pdev, const struct pci_device_id *id)
 	sc->mem = pcim_iomap_table(pdev)[0];
 	sc->driver_data = id->driver_data;
 
-	if (ath9k_use_msi) {
-		if (pci_enable_msi(pdev) == 0) {
-			msi_enabled = 1;
-			dev_err(&pdev->dev, "Using MSI\n");
-		} else {
-			dev_err(&pdev->dev, "Using INTx\n");
-		}
+	if (id->driver_data & (ATH9K_PCI_AR9565_1ANT | ATH9K_PCI_AR9565_2ANT)) {
+		/* Enable MSI. We have tested these devices and found it to be
+		 * working. MSI is necessary on platforms where the legacy
+		 * interrupt doesn't work.
+		 */
+		irq_flags |= PCI_IRQ_MSI;
+
+		/* The device appears to zero-out the lower two bits of the MSI
+		 * Message Data field, presumably because it thinks it is
+		 * working with 4 MSI vectors even though we only work with
+		 * one of them. Align the MSI vector number by 4 so that the
+		 * lower bits are already
+		 * zero.
+		 */
+		pdev->align_msi_vector = 4;
 	}
 
-	if (!msi_enabled)
-		ret = request_irq(pdev->irq, ath_isr, IRQF_SHARED, "ath9k", sc);
-	else
-		ret = request_irq(pdev->irq, ath_isr, 0, "ath9k", sc);
+	ret = pci_alloc_irq_vectors(pdev, 1, 1, irq_flags);
+	if (ret < 0) {
+		dev_err(&pdev->dev, "Failed to request interrupt vectors\n");
+		goto err_irqvectors;
+	}
+
+	ret = request_irq(pci_irq_vector(pdev, 0), ath_isr,
+			  pdev->msi_enabled ? 0 : IRQF_SHARED,
+			  "ath9k", sc);
 
 	if (ret) {
 		dev_err(&pdev->dev, "request_irq failed\n");
@@ -989,7 +1002,7 @@ static int ath_pci_probe(struct pci_dev *pdev, const struct pci_device_id *id)
 		goto err_init;
 	}
 
-	sc->sc_ah->msi_enabled = msi_enabled;
+	sc->sc_ah->msi_enabled = pdev->msi_enabled;
 	sc->sc_ah->msi_reg = 0;
 
 	ath9k_hw_name(sc->sc_ah, hw_name, sizeof(hw_name));
@@ -1001,6 +1014,8 @@ static int ath_pci_probe(struct pci_dev *pdev, const struct pci_device_id *id)
 err_init:
 	free_irq(sc->irq, sc);
 err_irq:
+	pci_free_irq_vectors(pdev);
+err_irqvectors:
 	ieee80211_free_hw(hw);
 	return ret;
 }
@@ -1014,6 +1029,7 @@ static void ath_pci_remove(struct pci_dev *pdev)
 		sc->sc_ah->ah_flags |= AH_UNPLUGGED;
 	ath9k_deinit_device(sc);
 	free_irq(sc->irq, sc);
+	pci_free_irq_vectors(pdev);
 	ieee80211_free_hw(sc->hw);
 }
 
