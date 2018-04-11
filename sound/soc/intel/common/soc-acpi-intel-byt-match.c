@@ -170,6 +170,14 @@ struct snd_soc_acpi_mach  snd_soc_acpi_intel_baytrail_machines[] = {
 		.sof_tplg_filename = "sof-byt-rt5651.tplg",
 	},
 	{
+		.id = "10EC3277",
+		.drv_name = "bytcr_rt5660",
+		.fw_filename = "intel/fw_sst_0f28.bin",
+		.board = "bytcr_rt5660",
+		.sof_fw_filename = "intel/reef-byt.ri",
+		.sof_tplg_filename = "intel/reef-byt-rt5660.tplg",
+	},
+	{
 		.id = "DLGS7212",
 		.drv_name = "bytcht_da7213",
 		.fw_filename = "intel/fw_sst_0f28.bin",
