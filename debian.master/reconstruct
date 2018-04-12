@@ -1,5 +1,12 @@
 # Recreate any symlinks created since the orig.
 # Remove any files deleted from the orig.
+rm -f 'tools/perf/pmu-events/arch/arm64/cavium/thunderx2-imp-def.json'
+rm -f 'tools/perf/pmu-events/arch/arm64/cortex-a53/branch.json'
+rm -f 'tools/perf/pmu-events/arch/arm64/cortex-a53/bus.json'
+rm -f 'tools/perf/pmu-events/arch/arm64/cortex-a53/cache.json'
+rm -f 'tools/perf/pmu-events/arch/arm64/cortex-a53/memory.json'
+rm -f 'tools/perf/pmu-events/arch/arm64/cortex-a53/other.json'
+rm -f 'tools/perf/pmu-events/arch/arm64/cortex-a53/pipeline.json'
 chmod +x 'scripts/kmsg-doc'
 chmod +x 'spl/autogen.sh'
 chmod +x 'spl/cmd/splslab/splslab.py'
