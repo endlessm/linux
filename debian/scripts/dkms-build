@@ -9,7 +9,21 @@ pkgdir="$5"
 package="$6"
 shift 6
 
+srcdir=$(pwd)
 cd "$dkms_dir" || exit 1
+
+built_using_record()
+{
+	local subst="$1"
+	local built_using="$2"
+	if [ ! -f "$subst" ]; then
+		touch "$subst"
+	fi
+	if ! grep -s "^linux:BuiltUsing=" "$subst"; then
+		echo "linux:BuiltUsing=" >>"$subst"
+	fi
+	sed -i -e "s/^\(linux:BuiltUsing=.*\)/\1$built_using, /" "$subst"
+}
 
 # Download and extract the DKMS package -- note there may be more
 # than one package to install.
@@ -45,6 +59,13 @@ do
 		;;
 	esac
 	dpkg -x "$lpackage"_*.deb "$package"
+
+	for lpackage_path in "$lpackage"_*.deb
+	do
+		break
+	done
+	lversion=$( echo "$lpackage_path" | sed -e 's@.*/@@' -e 's@_[^_]*$@@' -e 's@.*_@@')
+	built_using_record "$srcdir/debian/$pkgname.substvars" "$built_using$lpackage (= $lversion)"
 done
 
 # Pick out the package/version from the dkms.conf.
