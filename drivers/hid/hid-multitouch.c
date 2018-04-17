@@ -896,7 +896,7 @@ static void mt_touch_report(struct hid_device *hid, struct hid_report *report)
 
 		for (n = 0; n < count; n++)
 			mt_process_mt_event(hid, field, &field->usage[n],
-					field->value[n], first_packet);
+					    field->value[n], first_packet);
 	}
 
 	if (td->num_received >= td->num_expected)

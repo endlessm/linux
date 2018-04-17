@@ -1875,6 +1875,38 @@ static void pci_configure_relaxed_ordering(struct pci_dev *dev)
 	}
 }
 
+static void pci_configure_ltr(struct pci_dev *dev)
+{
+#ifdef CONFIG_PCIEASPM
+	u32 cap;
+	struct pci_dev *bridge;
+
+	if (!pci_is_pcie(dev))
+		return;
+
+	pcie_capability_read_dword(dev, PCI_EXP_DEVCAP2, &cap);
+	if (!(cap & PCI_EXP_DEVCAP2_LTR))
+		return;
+
+	/*
+	 * Software must not enable LTR in an Endpoint unless the Root
+	 * Complex and all intermediate Switches indicate support for LTR.
+	 * PCIe r3.1, sec 6.18.
+	 */
+	if (pci_pcie_type(dev) == PCI_EXP_TYPE_ROOT_PORT)
+		dev->ltr_path = 1;
+	else {
+		bridge = pci_upstream_bridge(dev);
+		if (bridge && bridge->ltr_path)
+			dev->ltr_path = 1;
+	}
+
+	if (dev->ltr_path)
+		pcie_capability_set_word(dev, PCI_EXP_DEVCTL2,
+					 PCI_EXP_DEVCTL2_LTR_EN);
+#endif
+}
+
 static void pci_configure_device(struct pci_dev *dev)
 {
 	struct hotplug_params hpp;
@@ -1883,6 +1915,7 @@ static void pci_configure_device(struct pci_dev *dev)
 	pci_configure_mps(dev);
 	pci_configure_extended_tags(dev, NULL);
 	pci_configure_relaxed_ordering(dev);
+	pci_configure_ltr(dev);
 
 	memset(&hpp, 0, sizeof(hpp));
 	ret = pci_get_hp_params(dev, &hpp);
@@ -2215,22 +2248,27 @@ static unsigned next_fn(struct pci_bus *bus, struct pci_dev *dev, unsigned fn)
 
 static int only_one_child(struct pci_bus *bus)
 {
-	struct pci_dev *parent = bus->self;
-
-	if (!parent || !pci_is_pcie(parent))
-		return 0;
-	if (pci_pcie_type(parent) == PCI_EXP_TYPE_ROOT_PORT)
-		return 1;
+	struct pci_dev *bridge = bus->self;
 
 	/*
-	 * PCIe downstream ports are bridges that normally lead to only a
-	 * device 0, but if PCI_SCAN_ALL_PCIE_DEVS is set, scan all
-	 * possible devices, not just device 0.  See PCIe spec r3.0,
-	 * sec 7.3.1.
+	 * Systems with unusual topologies set PCI_SCAN_ALL_PCIE_DEVS so
+	 * we scan for all possible devices, not just Device 0.
 	 */
-	if (parent->has_secondary_link &&
-	    !pci_has_flag(PCI_SCAN_ALL_PCIE_DEVS))
+	if (pci_has_flag(PCI_SCAN_ALL_PCIE_DEVS))
+		return 0;
+
+	/*
+	 * A PCIe Downstream Port normally leads to a Link with only Device
+	 * 0 on it (PCIe spec r3.1, sec 7.3.1).  As an optimization, scan
+	 * only for Device 0 in that situation.
+	 *
+	 * Checking has_secondary_link is a hack to identify Downstream
+	 * Ports because sometimes Switches are configured such that the
+	 * PCIe Port Type labels are backwards.
+	 */
+	if (bridge && pci_is_pcie(bridge) && bridge->has_secondary_link)
 		return 1;
+
 	return 0;
 }
 

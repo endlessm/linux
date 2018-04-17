@@ -1265,8 +1265,8 @@ enum {
 						 (AR_SREV_9300_20_OR_LATER(ah) ? 0x40a4 : 0x4094))
 #define AR_PCIE_MSI_ENABLE                       0x00000001
 #define AR_PCIE_MSI_HW_DBI_WR_EN                 0x02000000
-#define AR_PCIE_MSI_HW_INT_PENDING_ADDR          0xFFA0C1FF // bits 8..11: value must be 0x5060
-#define AR_PCIE_MSI_HW_INT_PENDING_ADDR_MSI_64   0xFFA0C9FF // bits 8..11: value must be 0x5064
+#define AR_PCIE_MSI_HW_INT_PENDING_ADDR          0xFFA0C1FF /* bits 8..11: value must be 0x5060 */
+#define AR_PCIE_MSI_HW_INT_PENDING_ADDR_MSI_64   0xFFA0C9FF /* bits 8..11: value must be 0x5064 */
 
 #define AR_INTR_PRIO_TX               0x00000001
 #define AR_INTR_PRIO_RXLP             0x00000002

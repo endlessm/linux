@@ -2441,7 +2441,7 @@ void nfp_net_coalesce_write_cfg(struct nfp_net *nn)
 	 * ME timestamp ticks.  There are 16 ME clock cycles for each timestamp
 	 * count.
 	 */
-	factor = nn->me_freq_mhz / 16;
+	factor = nn->tlv_caps.me_freq_mhz / 16;
 
 	/* copy RX interrupt coalesce parameters */
 	value = (nn->rx_coalesce_max_frames << 16) |
@@ -3175,10 +3175,9 @@ static int nfp_net_set_features(struct net_device *netdev,
 			new_ctrl &= ~NFP_NET_CFG_CTRL_GATHER;
 	}
 
-	if (changed & NETIF_F_HW_TC && nfp_app_tc_busy(nn->app, nn)) {
-		nn_err(nn, "Cannot disable HW TC offload while in use\n");
-		return -EBUSY;
-	}
+	err = nfp_port_set_features(netdev, features);
+	if (err)
+		return err;
 
 	nn_dbg(nn, "Feature change 0x%llx -> 0x%llx (changed=0x%llx)\n",
 	       netdev->features, features, changed);
@@ -3709,7 +3708,7 @@ static void nfp_net_netdev_init(struct nfp_net *nn)
 
 	netdev->features = netdev->hw_features;
 
-	if (nfp_app_has_tc(nn->app))
+	if (nfp_app_has_tc(nn->app) && nn->port)
 		netdev->hw_features |= NETIF_F_HW_TC;
 
 	/* Advertise but disable TSO by default. */
@@ -3799,6 +3798,11 @@ int nfp_net_init(struct nfp_net *nn)
 		nfp_net_irqmod_init(nn);
 		nn->dp.ctrl |= NFP_NET_CFG_CTRL_IRQMOD;
 	}
+
+	err = nfp_net_tlv_caps_parse(&nn->pdev->dev, nn->dp.ctrl_bar,
+				     &nn->tlv_caps);
+	if (err)
+		return err;
 
 	if (nn->dp.netdev)
 		nfp_net_netdev_init(nn);

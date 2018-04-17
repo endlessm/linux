@@ -834,17 +834,17 @@ static void __ath9k_hw_enable_interrupts(struct ath_hw *ah)
 		REG_READ(ah, AR_IMR), REG_READ(ah, AR_IER));
 
 	if (ah->msi_enabled) {
-		u32 msi_reg = 0;
+		u32 _msi_reg = 0;
 		u32 i = 0;
+		u32 msi_pend_addr_mask = AR_PCIE_MSI_HW_INT_PENDING_ADDR_MSI_64;
 
 		ath_dbg(ath9k_hw_common(ah), INTERRUPT,
-			"Enabling MSI, msi_mask=0x%x\n", ah->msi_mask);
+			"Enabling MSI, msi_mask=0x%X\n", ah->msi_mask);
 
 		REG_WRITE(ah, AR_INTR_PRIO_ASYNC_ENABLE, ah->msi_mask);
 		REG_WRITE(ah, AR_INTR_PRIO_ASYNC_MASK, ah->msi_mask);
 		ath_dbg(ath9k_hw_common(ah), INTERRUPT,
-			"AR_INTR_PRIO_ASYNC_ENABLE=0x%x, "
-			"AR_INTR_PRIO_ASYNC_MASK=0x%x\n",
+			"AR_INTR_PRIO_ASYNC_ENABLE=0x%X, AR_INTR_PRIO_ASYNC_MASK=0x%X\n",
 			REG_READ(ah, AR_INTR_PRIO_ASYNC_ENABLE),
 			REG_READ(ah, AR_INTR_PRIO_ASYNC_MASK));
 
@@ -852,19 +852,22 @@ static void __ath9k_hw_enable_interrupts(struct ath_hw *ah)
 			ah->msi_reg = REG_READ(ah, AR_PCIE_MSI);
 
 		ath_dbg(ath9k_hw_common(ah), INTERRUPT,
-			"AR_PCIE_MSI=0x%x, ah->msi_reg = 0x%x\n",
+			"AR_PCIE_MSI=0x%X, ah->msi_reg = 0x%X\n",
 			AR_PCIE_MSI, ah->msi_reg);
 
+		i = 0;
 		do {
 			REG_WRITE(ah, AR_PCIE_MSI,
-				 (ah->msi_reg | AR_PCIE_MSI_ENABLE) &
-				 AR_PCIE_MSI_HW_INT_PENDING_ADDR_MSI_64);
-		    msi_reg = REG_READ(ah, AR_PCIE_MSI);
-		} while ((msi_reg & AR_PCIE_MSI_ENABLE) == 0 && ++i < 200);
+				  (ah->msi_reg | AR_PCIE_MSI_ENABLE)
+				  & msi_pend_addr_mask);
+			_msi_reg = REG_READ(ah, AR_PCIE_MSI);
+			i++;
+		} while ((_msi_reg & AR_PCIE_MSI_ENABLE) == 0 && i < 200);
 
 		if (i >= 200)
-			ath_err(ath9k_hw_common(ah), "msi_reg = 0x%x\n",
-				msi_reg);
+			ath_err(ath9k_hw_common(ah),
+				"%s: _msi_reg = 0x%X\n",
+				__func__, _msi_reg);
 	}
 }
 
@@ -913,8 +916,8 @@ void ath9k_hw_set_interrupts(struct ath_hw *ah)
 		ath9k_hw_disable_interrupts(ah);
 
 	if (ah->msi_enabled) {
-		ath_dbg(common, INTERRUPT,
-			"Clearing AR_INTR_PRIO_ASYNC_ENABLE\n");
+		ath_dbg(common, INTERRUPT, "Clearing AR_INTR_PRIO_ASYNC_ENABLE\n");
+
 		REG_WRITE(ah, AR_INTR_PRIO_ASYNC_ENABLE, 0);
 		REG_READ(ah, AR_INTR_PRIO_ASYNC_ENABLE);
 	}

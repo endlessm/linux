@@ -21,9 +21,10 @@
 #ifndef PMC_CORE_H
 #define PMC_CORE_H
 
+#define PMC_BASE_ADDR_DEFAULT			0xFE000000
+
 /* Sunrise Point Power Management Controller PCI Device ID */
 #define SPT_PMC_PCI_DEVICE_ID			0x9d21
-
 #define SPT_PMC_BASE_ADDR_OFFSET		0x48
 #define SPT_PMC_SLP_S0_RES_COUNTER_OFFSET	0x13c
 #define SPT_PMC_PM_CFG_OFFSET			0x18
@@ -122,6 +123,17 @@ enum ppfear_regs {
 #define SPT_PMC_BIT_MPHY_CMN_LANE2		BIT(2)
 #define SPT_PMC_BIT_MPHY_CMN_LANE3		BIT(3)
 
+/* Cannonlake Power Management Controller register offsets */
+#define CNP_PMC_SLP_S0_RES_COUNTER_OFFSET      0x193C
+#define CNP_PMC_LTR_IGNORE_OFFSET              0x1B0C
+#define CNP_PMC_PM_CFG_OFFSET                  0x1818
+/* Cannonlake: PGD PFET Enable Ack Status Register(s) start */
+#define CNP_PMC_HOST_PPFEAR0A                  0x1D90
+
+#define CNP_PMC_MMIO_REG_LEN                   0x2000
+#define CNP_PPFEAR_NUM_ENTRIES                 8
+#define CNP_PMC_READ_DISABLE_BIT               22
+
 struct pmc_bit_map {
 	const char *name;
 	u32 bit_mask;
@@ -178,7 +190,6 @@ struct pmc_dev {
 #if IS_ENABLED(CONFIG_DEBUG_FS)
 	struct dentry *dbgfs_dir;
 #endif /* CONFIG_DEBUG_FS */
-	bool has_slp_s0_res;
 	int pmc_xram_read_bit;
 	struct mutex lock; /* generic mutex lock for PMC Core */
 };

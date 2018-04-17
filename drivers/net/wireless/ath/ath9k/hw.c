@@ -941,8 +941,7 @@ static void ath9k_hw_init_interrupt_masks(struct ath_hw *ah,
 		if (ah->config.rx_intr_mitigation) {
 			imr_reg |= AR_IMR_RXINTM | AR_IMR_RXMINTR;
 			msi_cfg |= AR_INTCFG_MSI_RXINTM | AR_INTCFG_MSI_RXMINTR;
-		}
-		else {
+		} else {
 			imr_reg |= AR_IMR_RXOK;
 			msi_cfg |= AR_INTCFG_MSI_RXOK;
 		}
@@ -967,6 +966,9 @@ static void ath9k_hw_init_interrupt_masks(struct ath_hw *ah,
 		ah->msi_reg |= AR_PCIE_MSI_HW_DBI_WR_EN;
 		ah->msi_reg &= AR_PCIE_MSI_HW_INT_PENDING_ADDR_MSI_64;
 		REG_WRITE(ah, AR_INTCFG, msi_cfg);
+		ath_dbg(ath9k_hw_common(ah), ANY,
+			"value of AR_INTCFG=0x%X, msi_cfg=0x%X\n",
+			REG_READ(ah, AR_INTCFG), msi_cfg);
 	}
 
 	if (!AR_SREV_9100(ah)) {

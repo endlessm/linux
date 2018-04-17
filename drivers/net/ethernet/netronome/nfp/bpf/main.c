@@ -34,6 +34,7 @@
 #include <net/pkt_cls.h>
 
 #include "../nfpcore/nfp_cpp.h"
+#include "../nfpcore/nfp_nsp.h"
 #include "../nfp_app.h"
 #include "../nfp_main.h"
 #include "../nfp_net.h"
@@ -85,7 +86,18 @@ static const char *nfp_bpf_extra_cap(struct nfp_app *app, struct nfp_net *nn)
 static int
 nfp_bpf_vnic_alloc(struct nfp_app *app, struct nfp_net *nn, unsigned int id)
 {
+	struct nfp_pf *pf = app->pf;
 	int err;
+
+	if (!pf->eth_tbl) {
+		nfp_err(pf->cpp, "No ETH table\n");
+		return -EINVAL;
+	}
+	if (pf->max_data_vnics != pf->eth_tbl->count) {
+		nfp_err(pf->cpp, "ETH entries don't match vNICs (%d vs %d)\n",
+			pf->max_data_vnics, pf->eth_tbl->count);
+		return -EINVAL;
+	}
 
 	nn->app_priv = kzalloc(sizeof(struct nfp_bpf_vnic), GFP_KERNEL);
 	if (!nn->app_priv)
@@ -152,6 +164,7 @@ static int nfp_bpf_setup_tc_block_cb(enum tc_setup_type type,
 		return err;
 
 	bv->tc_prog = cls_bpf->prog;
+	nn->port->tc_offload_cnt = !!bv->tc_prog;
 	return 0;
 }
 
@@ -189,11 +202,6 @@ static int nfp_bpf_setup_tc(struct nfp_app *app, struct net_device *netdev,
 	}
 }
 
-static bool nfp_bpf_tc_busy(struct nfp_app *app, struct nfp_net *nn)
-{
-	return nn->dp.ctrl & NFP_NET_CFG_CTRL_BPF;
-}
-
 const struct nfp_app_type app_bpf = {
 	.id		= NFP_APP_BPF_NIC,
 	.name		= "ebpf",
@@ -204,7 +212,6 @@ const struct nfp_app_type app_bpf = {
 	.vnic_free	= nfp_bpf_vnic_free,
 
 	.setup_tc	= nfp_bpf_setup_tc,
-	.tc_busy	= nfp_bpf_tc_busy,
 	.xdp_offload	= nfp_bpf_xdp_offload,
 
 	.bpf_verifier_prep	= nfp_bpf_verifier_prep,

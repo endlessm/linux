@@ -2,7 +2,7 @@
 /*
  * hosting IBM Z kernel virtual machines (s390x)
  *
- * Copyright IBM Corp. 2008, 2017
+ * Copyright IBM Corp. 2008, 2018
  *
  *    Author(s): Carsten Otte <cotte@de.ibm.com>
  *               Christian Borntraeger <borntraeger@de.ibm.com>
@@ -87,19 +87,31 @@ struct kvm_stats_debugfs_item debugfs_entries[] = {
 	{ "deliver_restart_signal", VCPU_STAT(deliver_restart_signal) },
 	{ "deliver_program_interruption", VCPU_STAT(deliver_program_int) },
 	{ "exit_wait_state", VCPU_STAT(exit_wait_state) },
+	{ "instruction_epsw", VCPU_STAT(instruction_epsw) },
+	{ "instruction_gs", VCPU_STAT(instruction_gs) },
+	{ "instruction_io_other", VCPU_STAT(instruction_io_other) },
+	{ "instruction_lpsw", VCPU_STAT(instruction_lpsw) },
+	{ "instruction_lpswe", VCPU_STAT(instruction_lpswe) },
 	{ "instruction_pfmf", VCPU_STAT(instruction_pfmf) },
+	{ "instruction_ptff", VCPU_STAT(instruction_ptff) },
 	{ "instruction_stidp", VCPU_STAT(instruction_stidp) },
+	{ "instruction_sck", VCPU_STAT(instruction_sck) },
+	{ "instruction_sckpf", VCPU_STAT(instruction_sckpf) },
 	{ "instruction_spx", VCPU_STAT(instruction_spx) },
 	{ "instruction_stpx", VCPU_STAT(instruction_stpx) },
 	{ "instruction_stap", VCPU_STAT(instruction_stap) },
-	{ "instruction_storage_key", VCPU_STAT(instruction_storage_key) },
+	{ "instruction_iske", VCPU_STAT(instruction_iske) },
+	{ "instruction_ri", VCPU_STAT(instruction_ri) },
+	{ "instruction_rrbe", VCPU_STAT(instruction_rrbe) },
+	{ "instruction_sske", VCPU_STAT(instruction_sske) },
 	{ "instruction_ipte_interlock", VCPU_STAT(instruction_ipte_interlock) },
-	{ "instruction_stsch", VCPU_STAT(instruction_stsch) },
-	{ "instruction_chsc", VCPU_STAT(instruction_chsc) },
 	{ "instruction_essa", VCPU_STAT(instruction_essa) },
 	{ "instruction_stsi", VCPU_STAT(instruction_stsi) },
 	{ "instruction_stfl", VCPU_STAT(instruction_stfl) },
+	{ "instruction_tb", VCPU_STAT(instruction_tb) },
+	{ "instruction_tpi", VCPU_STAT(instruction_tpi) },
 	{ "instruction_tprot", VCPU_STAT(instruction_tprot) },
+	{ "instruction_tsch", VCPU_STAT(instruction_tsch) },
 	{ "instruction_sthyi", VCPU_STAT(instruction_sthyi) },
 	{ "instruction_sie", VCPU_STAT(instruction_sie) },
 	{ "instruction_sigp_sense", VCPU_STAT(instruction_sigp_sense) },
@@ -118,12 +130,13 @@ struct kvm_stats_debugfs_item debugfs_entries[] = {
 	{ "instruction_sigp_cpu_reset", VCPU_STAT(instruction_sigp_cpu_reset) },
 	{ "instruction_sigp_init_cpu_reset", VCPU_STAT(instruction_sigp_init_cpu_reset) },
 	{ "instruction_sigp_unknown", VCPU_STAT(instruction_sigp_unknown) },
-	{ "diagnose_10", VCPU_STAT(diagnose_10) },
-	{ "diagnose_44", VCPU_STAT(diagnose_44) },
-	{ "diagnose_9c", VCPU_STAT(diagnose_9c) },
-	{ "diagnose_258", VCPU_STAT(diagnose_258) },
-	{ "diagnose_308", VCPU_STAT(diagnose_308) },
-	{ "diagnose_500", VCPU_STAT(diagnose_500) },
+	{ "instruction_diag_10", VCPU_STAT(diagnose_10) },
+	{ "instruction_diag_44", VCPU_STAT(diagnose_44) },
+	{ "instruction_diag_9c", VCPU_STAT(diagnose_9c) },
+	{ "instruction_diag_258", VCPU_STAT(diagnose_258) },
+	{ "instruction_diag_308", VCPU_STAT(diagnose_308) },
+	{ "instruction_diag_500", VCPU_STAT(diagnose_500) },
+	{ "instruction_diag_other", VCPU_STAT(diagnose_other) },
 	{ NULL }
 };
 
@@ -166,6 +179,28 @@ int kvm_arch_hardware_enable(void)
 static void kvm_gmap_notifier(struct gmap *gmap, unsigned long start,
 			      unsigned long end);
 
+static void kvm_clock_sync_scb(struct kvm_s390_sie_block *scb, u64 delta)
+{
+	u8 delta_idx = 0;
+
+	/*
+	 * The TOD jumps by delta, we have to compensate this by adding
+	 * -delta to the epoch.
+	 */
+	delta = -delta;
+
+	/* sign-extension - we're adding to signed values below */
+	if ((s64)delta < 0)
+		delta_idx = -1;
+
+	scb->epoch += delta;
+	if (scb->ecd & ECD_MEF) {
+		scb->epdx += delta_idx;
+		if (scb->epoch < delta)
+			scb->epdx += 1;
+	}
+}
+
 /*
  * This callback is executed during stop_machine(). All CPUs are therefore
  * temporarily stopped. In order not to change guest behavior, we have to
@@ -181,13 +216,17 @@ static int kvm_clock_sync(struct notifier_block *notifier, unsigned long val,
 	unsigned long long *delta = v;
 
 	list_for_each_entry(kvm, &vm_list, vm_list) {
-		kvm->arch.epoch -= *delta;
 		kvm_for_each_vcpu(i, vcpu, kvm) {
-			vcpu->arch.sie_block->epoch -= *delta;
+			kvm_clock_sync_scb(vcpu->arch.sie_block, *delta);
+			if (i == 0) {
+				kvm->arch.epoch = vcpu->arch.sie_block->epoch;
+				kvm->arch.epdx = vcpu->arch.sie_block->epdx;
+			}
 			if (vcpu->arch.cputm_enabled)
 				vcpu->arch.cputm_start += *delta;
 			if (vcpu->arch.vsie_block)
-				vcpu->arch.vsie_block->epoch -= *delta;
+				kvm_clock_sync_scb(vcpu->arch.vsie_block,
+						   *delta);
 		}
 	}
 	return NOTIFY_OK;
@@ -889,12 +928,9 @@ static int kvm_s390_set_tod_ext(struct kvm *kvm, struct kvm_device_attr *attr)
 	if (copy_from_user(&gtod, (void __user *)attr->addr, sizeof(gtod)))
 		return -EFAULT;
 
-	if (test_kvm_facility(kvm, 139))
-		kvm_s390_set_tod_clock_ext(kvm, &gtod);
-	else if (gtod.epoch_idx == 0)
-		kvm_s390_set_tod_clock(kvm, gtod.tod);
-	else
+	if (!test_kvm_facility(kvm, 139) && gtod.epoch_idx)
 		return -EINVAL;
+	kvm_s390_set_tod_clock(kvm, &gtod);
 
 	VM_EVENT(kvm, 3, "SET: TOD extension: 0x%x, TOD base: 0x%llx",
 		gtod.epoch_idx, gtod.tod);
@@ -919,13 +955,14 @@ static int kvm_s390_set_tod_high(struct kvm *kvm, struct kvm_device_attr *attr)
 
 static int kvm_s390_set_tod_low(struct kvm *kvm, struct kvm_device_attr *attr)
 {
-	u64 gtod;
+	struct kvm_s390_vm_tod_clock gtod = { 0 };
 
-	if (copy_from_user(&gtod, (void __user *)attr->addr, sizeof(gtod)))
+	if (copy_from_user(&gtod.tod, (void __user *)attr->addr,
+			   sizeof(gtod.tod)))
 		return -EFAULT;
 
-	kvm_s390_set_tod_clock(kvm, gtod);
-	VM_EVENT(kvm, 3, "SET: TOD base: 0x%llx", gtod);
+	kvm_s390_set_tod_clock(kvm, &gtod);
+	VM_EVENT(kvm, 3, "SET: TOD base: 0x%llx", gtod.tod);
 	return 0;
 }
 
@@ -2094,6 +2131,7 @@ static void sca_add_vcpu(struct kvm_vcpu *vcpu)
 		/* we still need the basic sca for the ipte control */
 		vcpu->arch.sie_block->scaoh = (__u32)(((__u64)sca) >> 32);
 		vcpu->arch.sie_block->scaol = (__u32)(__u64)sca;
+		return;
 	}
 	read_lock(&vcpu->kvm->arch.sca_lock);
 	if (vcpu->kvm->arch.use_esca) {
@@ -2361,6 +2399,7 @@ void kvm_arch_vcpu_postcreate(struct kvm_vcpu *vcpu)
 	mutex_lock(&vcpu->kvm->lock);
 	preempt_disable();
 	vcpu->arch.sie_block->epoch = vcpu->kvm->arch.epoch;
+	vcpu->arch.sie_block->epdx = vcpu->kvm->arch.epdx;
 	preempt_enable();
 	mutex_unlock(&vcpu->kvm->lock);
 	if (!kvm_is_ucontrol(vcpu->kvm)) {
@@ -2947,8 +2986,8 @@ retry:
 	return 0;
 }
 
-void kvm_s390_set_tod_clock_ext(struct kvm *kvm,
-				 const struct kvm_s390_vm_tod_clock *gtod)
+void kvm_s390_set_tod_clock(struct kvm *kvm,
+			    const struct kvm_s390_vm_tod_clock *gtod)
 {
 	struct kvm_vcpu *vcpu;
 	struct kvm_s390_tod_clock_ext htod;
@@ -2960,10 +2999,12 @@ void kvm_s390_set_tod_clock_ext(struct kvm *kvm,
 	get_tod_clock_ext((char *)&htod);
 
 	kvm->arch.epoch = gtod->tod - htod.tod;
-	kvm->arch.epdx = gtod->epoch_idx - htod.epoch_idx;
-
-	if (kvm->arch.epoch > gtod->tod)
-		kvm->arch.epdx -= 1;
+	kvm->arch.epdx = 0;
+	if (test_kvm_facility(kvm, 139)) {
+		kvm->arch.epdx = gtod->epoch_idx - htod.epoch_idx;
+		if (kvm->arch.epoch > gtod->tod)
+			kvm->arch.epdx -= 1;
+	}
 
 	kvm_s390_vcpu_block_all(kvm);
 	kvm_for_each_vcpu(i, vcpu, kvm) {
@@ -2971,22 +3012,6 @@ void kvm_s390_set_tod_clock_ext(struct kvm *kvm,
 		vcpu->arch.sie_block->epdx  = kvm->arch.epdx;
 	}
 
-	kvm_s390_vcpu_unblock_all(kvm);
-	preempt_enable();
-	mutex_unlock(&kvm->lock);
-}
-
-void kvm_s390_set_tod_clock(struct kvm *kvm, u64 tod)
-{
-	struct kvm_vcpu *vcpu;
-	int i;
-
-	mutex_lock(&kvm->lock);
-	preempt_disable();
-	kvm->arch.epoch = tod - get_tod_clock();
-	kvm_s390_vcpu_block_all(kvm);
-	kvm_for_each_vcpu(i, vcpu, kvm)
-		vcpu->arch.sie_block->epoch = kvm->arch.epoch;
 	kvm_s390_vcpu_unblock_all(kvm);
 	preempt_enable();
 	mutex_unlock(&kvm->lock);

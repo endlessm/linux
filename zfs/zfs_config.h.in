@@ -159,6 +159,9 @@
 /* iops->create() passes nameidata */
 #undef HAVE_CREATE_NAMEIDATA
 
+/* cred_t->user_ns exists */
+#undef HAVE_CRED_USER_NS
+
 /* current->bio_list exists */
 #undef HAVE_CURRENT_BIO_LIST
 
@@ -234,6 +237,9 @@
 /* sops->free_cached_objects() exists */
 #undef HAVE_FREE_CACHED_OBJECTS
 
+/* fst->mount() exists */
+#undef HAVE_FST_MOUNT
+
 /* fops->fsync() with range */
 #undef HAVE_FSYNC_RANGE
 
@@ -300,11 +306,17 @@
 /* kernel does stack verification */
 #undef HAVE_KERNEL_OBJTOOL
 
+/* kuid_has_mapping/kgid_has_mapping exist */
+#undef HAVE_KUID_HAS_MAPPING
+
 /* i_(uid|gid)_(read|write) exist */
 #undef HAVE_KUID_HELPERS
 
 /* kernel has large stacks */
 #undef HAVE_LARGE_STACKS
+
+/* Define if you have libaio */
+#undef HAVE_LIBAIO
 
 /* Define if you have libattr */
 #undef HAVE_LIBATTR
@@ -351,14 +363,14 @@
 /* Define to 1 if you have the `mlockall' function. */
 #undef HAVE_MLOCKALL
 
-/* mount_nodev() is available */
-#undef HAVE_MOUNT_NODEV
-
 /* new_sync_read() is available */
 #undef HAVE_NEW_SYNC_READ
 
 /* sops->nr_cached_objects() exists */
 #undef HAVE_NR_CACHED_OBJECTS
+
+/* ns_capable exists */
+#undef HAVE_NS_CAPABLE
 
 /* open_bdev_exclusive() is available */
 #undef HAVE_OPEN_BDEV_EXCLUSIVE
