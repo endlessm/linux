@@ -29,7 +29,7 @@ $(stampdir)/stamp-prepare-tree-%: $(commonconfdir)/config.common.$(family) $(arc
 		rsync -a --exclude debian --exclude debian.master --exclude $(DEBIAN) * $(builddir)/build-$*
 	cat $^ | sed -e 's/.*CONFIG_VERSION_SIGNATURE.*/CONFIG_VERSION_SIGNATURE="Ubuntu $(release)-$(revision)-$* $(raw_kernelversion)"/' > $(builddir)/build-$*/.config
 	find $(builddir)/build-$* -name "*.ko" | xargs rm -f
-	$(build_cd) $(kmake) $(build_O) -j1 silentoldconfig prepare scripts
+	$(build_cd) $(kmake) $(build_O) -j1 syncconfig prepare scripts
 	touch $@
 
 # Used by developers as a shortcut to prepare a tree for compilation.
@@ -311,7 +311,7 @@ endif
 		sed -e 's/.*CONFIG_DEBUG_INFO=.*/# CONFIG_DEBUG_INFO is not set/g' > \
 		$(hdrdir)/.config
 	chmod 644 $(hdrdir)/.config
-	$(kmake) O=$(hdrdir) -j1 silentoldconfig prepare scripts
+	$(kmake) O=$(hdrdir) -j1 syncconfig prepare scripts
 	# We'll symlink this stuff
 	rm -f $(hdrdir)/Makefile
 	rm -rf $(hdrdir)/include2 $(hdrdir)/source
@@ -423,7 +423,7 @@ endif
 	sed -e 's/^# \(CONFIG_MODVERSIONS\) is not set$$/\1=y/' \
 	  -e 's/.*CONFIG_LOCALVERSION_AUTO.*/# CONFIG_LOCALVERSION_AUTO is not set/' \
 	  $(headers_tmp)/.config.old > $(headers_tmp)/.config
-	$(hmake) silentoldconfig
+	$(hmake) syncconfig
 	$(hmake) headers_install
 
 	( cd $(headers_tmp)/install/include/ && \
@@ -642,7 +642,7 @@ ifeq ($(do_tools_perf),true)
 	sed -e 's/^# \(CONFIG_MODVERSIONS\) is not set$$/\1=y/' \
 	  -e 's/.*CONFIG_LOCALVERSION_AUTO.*/# CONFIG_LOCALVERSION_AUTO is not set/' \
 	  $(builddirpa)/.config.old > $(builddirpa)/.config
-	cd $(builddirpa) && $(kmake) silentoldconfig
+	cd $(builddirpa) && $(kmake) syncconfig
 	cd $(builddirpa) && $(kmake) prepare
 	cd $(builddirpa)/tools/perf && \
 		$(kmake) prefix=/usr HAVE_NO_LIBBFD=1 HAVE_CPUS_DEMANGLE_SUPPORT=1 CROSS_COMPILE=$(CROSS_COMPILE) NO_LIBPYTHON=1 NO_LIBPERL=1 PYTHON=python2.7
