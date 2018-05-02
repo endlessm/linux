@@ -52,7 +52,6 @@ async_raid6_recov
 async_tx
 async_xor
 at803x
-aufs
 auth_rpcgss
 authenc
 authencesn
@@ -211,10 +210,6 @@ fpga-mgr
 fpga-region
 fs3270
 fscache
-fsi-core
-fsi-master-gpio
-fsi-master-hub
-fsi-scom
 fsm
 garp
 geneve
@@ -473,12 +468,6 @@ nf_socket_ipv4
 nf_socket_ipv6
 nf_synproxy_core
 nf_tables
-nf_tables_arp
-nf_tables_bridge
-nf_tables_inet
-nf_tables_ipv4
-nf_tables_ipv6
-nf_tables_netdev
 nfnetlink
 nfnetlink_acct
 nfnetlink_cthelper
