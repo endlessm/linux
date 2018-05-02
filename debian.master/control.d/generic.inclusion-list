@@ -221,7 +221,6 @@ net/ieee802154/*
 net/ipv4/*
 net/ipv6/*
 net/ipx/*
-net/irda/*
 net/key/*
 net/lapb/*
 net/llc/*

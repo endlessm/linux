@@ -56,11 +56,6 @@ Depends: kernel-image, usb-modules
 Priority: standard
 Description: Support for various input methods
 
-Package: irda-modules
-Depends: kernel-image, nic-shared-modules
-Priority: standard
-Description: Support for Infrared protocols
-
 Package: md-modules
 Depends: kernel-image
 Priority: standard

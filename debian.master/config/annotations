@@ -11623,14 +11623,6 @@ CONFIG_LOCK_DOWN_IN_EFI_SECURE_BOOT             mark<ENFORCED>
 CONFIG_ALLOW_LOCKDOWN_LIFT_BY_SYSRQ             mark<ENFORCED>
 CONFIG_LOCK_DOWN_KERNEL                         mark<ENFORCED> flag<REVIEW>
 
-# Menu: Security options >> Default Security Module or Modules
-CONFIG_SECURITY_SELINUX_STACKED                 policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'i386': 'n', 'ppc64el': 'n', 's390x': 'n'}>
-CONFIG_SECURITY_SMACK_STACKED                   policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'i386': 'n', 'ppc64el': 'n', 's390x': 'n'}>
-CONFIG_SECURITY_TOMOYO_STACKED                  policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'i386': 'n', 'ppc64el': 'n', 's390x': 'n'}>
-CONFIG_SECURITY_APPARMOR_STACKED                policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'ppc64el': 'y', 's390x': 'y'}>
-
-# Menu: Security options >> Default Security Module or Modules >> Default LSM for legacy interfaces
-CONFIG_SECURITY_DEFAULT_DISPLAY_APPARMOR        policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'ppc64el': 'y', 's390x': 'y'}>
 
 # Menu: Security options >> Enable access key retention support
 CONFIG_KEYS                                     policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'ppc64el': 'y', 's390x': 'y'}>
