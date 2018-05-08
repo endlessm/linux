@@ -6,7 +6,7 @@ linux (4.17.0-0.1) UNRELEASED; urgency=medium
 
   [ Upstream Kernel Changes ]
 
-  * Rebase to v4.17-rc2
+  * Rebase to v4.17-rc4
 
  -- Thadeu Lima de Souza Cascardo <cascardo@canonical.com>  Fri, 27 Apr 2018 11:01:13 -0300
 
