@@ -18,8 +18,37 @@
 #include <linux/pm.h>
 #include <linux/pm_runtime.h>
 #include <linux/property.h>
+#include <linux/dmi.h>
 
 #include "intel-lpss.h"
+
+static const struct dmi_system_id cfl_elan_i2chid_timing_quirk[] = {
+	{
+		.ident = "ASUS UX550GD",
+		.matches = {
+			DMI_MATCH(DMI_SYS_VENDOR, "ASUSTeK COMPUTER INC."),
+			DMI_MATCH(DMI_PRODUCT_NAME, "ZenBook Pro 15 UX550GD"),
+		},
+	},
+	{
+		.ident = "ASUS X580GD",
+		.matches = {
+			DMI_MATCH(DMI_SYS_VENDOR, "ASUSTeK COMPUTER INC."),
+			DMI_MATCH(DMI_PRODUCT_NAME, "VivoBook_ASUSLaptop X580GD_X580GD"),
+		},
+	},
+	{ }
+};
+
+static struct property_entry cfl_i2c_properties[] = {
+	PROPERTY_ENTRY_U32("i2c-sda-falling-time-ns", 400),
+	{ },
+};
+
+static const struct intel_lpss_platform_info cfl_i2c_info = {
+	.clk_rate = 120000000,
+	.properties = cfl_i2c_properties,
+};
 
 static int intel_lpss_pci_probe(struct pci_dev *pdev,
 				const struct pci_device_id *id)
@@ -33,6 +62,16 @@ static int intel_lpss_pci_probe(struct pci_dev *pdev,
 
 	info = devm_kmemdup(&pdev->dev, (void *)id->driver_data, sizeof(*info),
 			    GFP_KERNEL);
+
+	if (id->device >= 0xa368 && id->device <= 0xa36b) {
+		if (dmi_check_system(cfl_elan_i2chid_timing_quirk)) {
+			if (info)
+				devm_kfree(&pdev->dev, info);
+			info = devm_kmemdup(&pdev->dev, (void *)&cfl_i2c_info,
+						sizeof(*info), GFP_KERNEL);
+		}
+	}
+
 	if (!info)
 		return -ENOMEM;
 
