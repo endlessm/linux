@@ -93,6 +93,7 @@ install-%: MODSECKEY=$(builddir)/build-$*/certs/signing_key.pem
 install-%: MODPUBKEY=$(builddir)/build-$*/certs/signing_key.x509
 install-%: build_dir=$(builddir)/build-$*
 install-%: dkms_dir=$(builddir)/build-$*/dkms
+install-%: enable_zfs = $(call custom_override,do_zfs,$*)
 install-%: $(stampdir)/stamp-build-% install-headers
 	@echo Debug: $@ kernel_file $(kernel_file) kernfile $(kernfile) install_file $(install_file) instfile $(instfile)
 	dh_testdir
@@ -376,6 +377,9 @@ endif
 	# Build a temporary "installed headers" directory.
 	install -d $(dkms_dir) $(dkms_dir)/headers $(dkms_dir)/build $(dkms_dir)/source
 	cp -rp "$(hdrdir)" "$(indep_hdrdir)" "$(dkms_dir)/headers"
+
+	$(if $(filter true,$(enable_zfs)),$(call build_dkms, $(mods_pkg_name)-$*, $(pkgdir)/lib/modules/$(abi_release)-$*/kernel, spl, spl-dkms))
+	$(if $(filter true,$(enable_zfs)),$(call build_dkms, $(mods_pkg_name)-$*, $(pkgdir)/lib/modules/$(abi_release)-$*/kernel, zfs, zfs-dkms))
 
 	# Build the final ABI information.
 	install -d $(abidir)
