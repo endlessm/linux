@@ -33,7 +33,6 @@
 #include <linux/export.h>
 #include <linux/kmemleak.h>
 #include <linux/module.h>
-#include <linux/dmi.h>
 
 MODULE_AUTHOR("lizhaoming	<chaoming_li@realsil.com.cn>");
 MODULE_AUTHOR("Realtek WlanFAE	<wlanfae@realtek.com>");
@@ -2170,28 +2169,6 @@ static void platform_enable_dma64(struct pci_dev *pdev, bool dma64)
 	pci_write_config_byte(pdev, 0x719, value);
 }
 
-static const struct dmi_system_id force_ant_sel[] = {
-	{
-		.ident = "HP 240 G5 Notebook PC",
-		.matches = {
-			DMI_MATCH(DMI_PRODUCT_NAME, "HP 240 G5 Notebook PC"),
-		},
-	},
-	{
-		.ident = "HP 240 G6 Notebook PC",
-		.matches = {
-			DMI_MATCH(DMI_PRODUCT_NAME, "HP 240 G6 Notebook PC"),
-		},
-	},
-	{
-		.ident = "HP 250 G5 Notebook PC",
-		.matches = {
-			DMI_MATCH(DMI_PRODUCT_NAME, "HP 250 G5 Notebook PC"),
-		},
-	},
-	{ /* sentinel */ }
-};
-
 int rtl_pci_probe(struct pci_dev *pdev,
 		  const struct pci_device_id *id)
 {
@@ -2356,10 +2333,6 @@ int rtl_pci_probe(struct pci_dev *pdev,
 	rtlpci->irq_alloc = 1;
 
 	set_bit(RTL_STATUS_INTERFACE_START, &rtlpriv->status);
-
-	if (dmi_check_system(force_ant_sel))
-		rtlpriv->cfg->mod_params->ant_sel = 1;
-
 	return 0;
 
 fail3:
