@@ -7,6 +7,8 @@ any_signed=$2
 
 . $vars
 
+[ "$provides" != '' ] && provides="$provides, "
+
 if [ "$is_sub" = "" ]; then
 	flavour=$(basename $vars | sed 's/.*\.//')
 	stub="${DEBIAN}/control.d/flavour-control.stub debian/control.d/flavour-buildinfo.stub"
