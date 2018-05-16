@@ -200,7 +200,7 @@ static int hns_roce_query_device(struct ib_device *ib_dev,
 
 	memset(props, 0, sizeof(*props));
 
-	props->sys_image_guid = hr_dev->sys_image_guid;
+	props->sys_image_guid = cpu_to_be32(hr_dev->sys_image_guid);
 	props->max_mr_size = (u64)(~(0ULL));
 	props->page_size_cap = hr_dev->caps.page_size_cap;
 	props->vendor_id = hr_dev->vendor_id;
@@ -337,7 +337,7 @@ static struct ib_ucontext *hns_roce_alloc_ucontext(struct ib_device *ib_dev,
 {
 	int ret = 0;
 	struct hns_roce_ucontext *context;
-	struct hns_roce_ib_alloc_ucontext_resp resp;
+	struct hns_roce_ib_alloc_ucontext_resp resp = {};
 	struct hns_roce_dev *hr_dev = to_hr_dev(ib_dev);
 
 	resp.qp_tab_size = hr_dev->caps.num_qps;
@@ -349,6 +349,11 @@ static struct ib_ucontext *hns_roce_alloc_ucontext(struct ib_device *ib_dev,
 	ret = hns_roce_uar_alloc(hr_dev, &context->uar);
 	if (ret)
 		goto error_fail_uar_alloc;
+
+	if (hr_dev->caps.flags & HNS_ROCE_CAP_FLAG_RECORD_DB) {
+		INIT_LIST_HEAD(&context->page_list);
+		mutex_init(&context->page_mutex);
+	}
 
 	ret = ib_copy_to_udata(udata, &resp, sizeof(resp));
 	if (ret)
@@ -659,6 +664,11 @@ static int hns_roce_setup_hca(struct hns_roce_dev *hr_dev)
 
 	spin_lock_init(&hr_dev->sm_lock);
 	spin_lock_init(&hr_dev->bt_cmd_lock);
+
+	if (hr_dev->caps.flags & HNS_ROCE_CAP_FLAG_RECORD_DB) {
+		INIT_LIST_HEAD(&hr_dev->pgdir_list);
+		mutex_init(&hr_dev->pgdir_mutex);
+	}
 
 	ret = hns_roce_init_uar_table(hr_dev);
 	if (ret) {

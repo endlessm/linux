@@ -28,20 +28,50 @@
 #include <linux/personality.h>
 #include <linux/backing-dev.h>
 #include <linux/string.h>
+#include <linux/msg.h>
+#include <linux/prctl.h>
 #include <net/flow.h>
+#include <net/sock.h>
 
 #define MAX_LSM_EVM_XATTR	2
 
 /* Maximum number of letters for an LSM name string */
 #define SECURITY_NAME_MAX	10
+#define SECURITY_CHOSEN_NAMES_MAX (SECURITY_NAME_MAX * LSM_MAX_MAJOR)
+#define MODULE_STACK		"(stacking)"
 
 struct security_hook_heads security_hook_heads __lsm_ro_after_init;
 static ATOMIC_NOTIFIER_HEAD(lsm_notifier_chain);
 
+static struct kmem_cache *lsm_file_cache;
+static struct kmem_cache *lsm_inode_cache;
+
 char *lsm_names;
+
+/*
+ * If stacking is enabled the task blob will always
+ * include an indicator of what security module data
+ * should be displayed. This is set with PR_SET_DISPLAY_LSM.
+ */
+static struct lsm_blob_sizes blob_sizes = {
+#ifdef CONFIG_SECURITY_STACKING
+	.lbs_task = SECURITY_NAME_MAX + 6,
+#endif
+};
+
 /* Boot-time LSM user choice */
-static __initdata char chosen_lsm[SECURITY_NAME_MAX + 1] =
+static __initdata char chosen_lsms[SECURITY_CHOSEN_NAMES_MAX + 1] =
+#ifdef CONFIG_SECURITY_STACKING
+	MODULE_STACK;
+#else
 	CONFIG_DEFAULT_SECURITY;
+#endif
+static __initdata char chosen_display_lsm[SECURITY_NAME_MAX + 1]
+#ifdef CONFIG_SECURITY_STACKING
+	= CONFIG_SECURITY_DEFAULT_DISPLAY_NAME
+#endif
+;
+static char default_display_lsm[SECURITY_NAME_MAX + 1];
 
 static void __init do_security_initcalls(void)
 {
@@ -76,9 +106,42 @@ int __init security_init(void)
 	loadpin_add_hooks();
 
 	/*
-	 * Load all the remaining security modules.
+	 * The first call to a module specific init function
+	 * updates the blob size requirements.
 	 */
 	do_security_initcalls();
+
+	/*
+	 * Create any kmem_caches needed for blobs
+	 */
+	if (blob_sizes.lbs_file)
+		lsm_file_cache = kmem_cache_create("lsm_file_cache",
+						   blob_sizes.lbs_file, 0,
+						   SLAB_PANIC, NULL);
+	if (blob_sizes.lbs_inode)
+		lsm_inode_cache = kmem_cache_create("lsm_inode_cache",
+						    blob_sizes.lbs_inode, 0,
+						    SLAB_PANIC, NULL);
+	/*
+	 * The second call to a module specific init function
+	 * adds hooks to the hook lists and does any other early
+	 * initializations required.
+	 */
+	do_security_initcalls();
+
+#ifdef CONFIG_SECURITY_LSM_DEBUG
+	pr_info("LSM: cred blob size       = %d\n", blob_sizes.lbs_cred);
+	pr_info("LSM: file blob size       = %d\n", blob_sizes.lbs_file);
+	pr_info("LSM: inode blob size      = %d\n", blob_sizes.lbs_inode);
+	pr_info("LSM: ipc blob size        = %d\n", blob_sizes.lbs_ipc);
+#ifdef CONFIG_KEYS
+	pr_info("LSM: key blob size        = %d\n", blob_sizes.lbs_key);
+#endif /* CONFIG_KEYS */
+	pr_info("LSM: msg_msg blob size    = %d\n", blob_sizes.lbs_msg_msg);
+	pr_info("LSM: sock blob size       = %d\n", blob_sizes.lbs_sock);
+	pr_info("LSM: superblock blob size = %d\n", blob_sizes.lbs_superblock);
+	pr_info("LSM: task blob size       = %d\n", blob_sizes.lbs_task);
+#endif /* CONFIG_SECURITY_LSM_DEBUG */
 
 	return 0;
 }
@@ -86,10 +149,21 @@ int __init security_init(void)
 /* Save user chosen LSM */
 static int __init choose_lsm(char *str)
 {
-	strncpy(chosen_lsm, str, SECURITY_NAME_MAX);
+	strncpy(chosen_lsms, str, SECURITY_CHOSEN_NAMES_MAX);
+	pr_info("LSM: command line set '%s' security module(s).\n",
+		chosen_lsms);
 	return 1;
 }
 __setup("security=", choose_lsm);
+
+static int __init choose_display_lsm(char *str)
+{
+	strncpy(chosen_display_lsm, str, SECURITY_NAME_MAX);
+	pr_info("LSM: command line set default display lsm %s'\n",
+		chosen_display_lsm);
+	return 1;
+}
+__setup("security.display=", choose_display_lsm);
 
 static bool match_last_lsm(const char *list, const char *lsm)
 {
@@ -128,6 +202,7 @@ static int lsm_append(char *new, char **result)
 /**
  * security_module_enable - Load given security module on boot ?
  * @module: the name of the module
+ * @stacked: indicates that the module wants to be stacked
  *
  * Each LSM must pass this method before registering its own operations
  * to avoid security registration races. This method may also be used
@@ -143,10 +218,71 @@ static int lsm_append(char *new, char **result)
  *
  * Otherwise, return false.
  */
-int __init security_module_enable(const char *module)
+#ifdef CONFIG_SECURITY_STACKING
+static bool __init cmp_lsms(const char *lsm)
 {
-	return !strcmp(module, chosen_lsm);
+	const char *str = chosen_lsms;
+	const char *split;
+	int len = strlen(lsm);
+
+	if (len > SECURITY_NAME_MAX) {
+		pr_info("LSM: security module name '%s' exceeds limit\n", lsm);
+		return false;
+	}
+	for (split = strchr(str, ','); split; split = strchr(str, ',')) {
+		if ((len == split - str) && !strncmp(lsm, str, split - str))
+			return true;
+		str = split + 1;
+	}
+	if ((len == strlen(str)) && !strncmp(lsm, str, strlen(str)))
+		return true;
+	return false;
 }
+#endif
+
+bool __init security_module_enable(const char *lsm, const bool stacked)
+{
+#ifdef CONFIG_SECURITY_STACKING
+	/*
+	 * Module defined on the command line security=XXXX
+	 */
+	if (strcmp(chosen_lsms, MODULE_STACK)) {
+		if (cmp_lsms(lsm)) {
+			/* set to first LSM registered and then override */
+			if (!*default_display_lsm)
+				strcpy(default_display_lsm, lsm);
+			else if (*chosen_display_lsm && !strcmp(chosen_display_lsm, lsm)) {
+				strcpy(default_display_lsm, lsm);
+				pr_info("LSM: default display lsm '%s'\n", default_display_lsm);
+			}
+			return true;
+		}
+		return false;
+	}
+	/*
+	 * Module configured as stacked.
+	 */
+	if (stacked && !*default_display_lsm)
+		strcpy(default_display_lsm, lsm);
+	else if (stacked && *chosen_display_lsm && !strcmp(chosen_display_lsm, lsm)) {
+		strcpy(default_display_lsm, lsm);
+		pr_info("LSM: default display lsm '%s'\n", default_display_lsm);
+	}
+
+	return stacked;
+#else
+	if (strcmp(lsm, chosen_lsms) == 0) {
+		strcpy(default_display_lsm, lsm);
+		return true;
+	}
+	return false;
+#endif
+}
+
+/*
+ * Keep the order of major modules for mapping secids.
+ */
+static int lsm_next_major;
 
 /**
  * security_add_hooks - Add a modules hooks to the hook lists.
@@ -160,9 +296,14 @@ void __init security_add_hooks(struct security_hook_list *hooks, int count,
 				char *lsm)
 {
 	int i;
+	int lsm_index = lsm_next_major++;
 
+#ifdef CONFIG_SECURITY_LSM_DEBUG
+	pr_info("LSM: Security module %s gets index %d\n", lsm, lsm_index);
+#endif
 	for (i = 0; i < count; i++) {
 		hooks[i].lsm = lsm;
+		hooks[i].lsm_index = lsm_index;
 		list_add_tail_rcu(&hooks[i].list, hooks[i].head);
 	}
 	if (lsm_append(lsm, &lsm_names) < 0)
@@ -186,6 +327,296 @@ int unregister_lsm_notifier(struct notifier_block *nb)
 	return atomic_notifier_chain_unregister(&lsm_notifier_chain, nb);
 }
 EXPORT_SYMBOL(unregister_lsm_notifier);
+
+/**
+ * lsm_cred_alloc - allocate a composite cred blob
+ * @cred: the cred that needs a blob
+ * @gfp: allocation type
+ *
+ * Allocate the cred blob for all the modules
+ *
+ * Returns 0, or -ENOMEM if memory can't be allocated.
+ */
+int lsm_cred_alloc(struct cred *cred, gfp_t gfp)
+{
+	if (blob_sizes.lbs_cred == 0) {
+		cred->security = NULL;
+		return 0;
+	}
+
+	cred->security = kzalloc(blob_sizes.lbs_cred, gfp);
+	if (cred->security == NULL)
+		return -ENOMEM;
+	return 0;
+}
+
+/**
+ * lsm_early_cred - during initialization allocate a composite cred blob
+ * @cred: the cred that needs a blob
+ *
+ * Allocate the cred blob for all the modules if it's not already there
+ */
+void lsm_early_cred(struct cred *cred)
+{
+	int rc;
+
+	if (cred == NULL)
+		panic("%s: NULL cred.\n", __func__);
+	if (cred->security != NULL)
+		return;
+	rc = lsm_cred_alloc(cred, GFP_KERNEL);
+	if (rc)
+		panic("%s: Early cred alloc failed.\n", __func__);
+}
+
+static void __init lsm_set_size(int *need, int *lbs)
+{
+	int offset;
+
+	if (*need > 0) {
+		offset = *lbs;
+		*lbs += *need;
+		*need = offset;
+	}
+}
+
+/**
+ * security_add_blobs - Report blob sizes
+ * @needed: the size of blobs needed by the module
+ *
+ * Each LSM has to register its blobs with the infrastructure.
+ * The "needed" data tells the infrastructure how much memory
+ * the module requires for each of its blobs. On return the
+ * structure is filled with the offset that module should use
+ * from the blob pointer.
+ */
+void __init security_add_blobs(struct lsm_blob_sizes *needed)
+{
+	lsm_set_size(&needed->lbs_cred, &blob_sizes.lbs_cred);
+	lsm_set_size(&needed->lbs_file, &blob_sizes.lbs_file);
+	lsm_set_size(&needed->lbs_ipc, &blob_sizes.lbs_ipc);
+	lsm_set_size(&needed->lbs_key, &blob_sizes.lbs_key);
+	lsm_set_size(&needed->lbs_msg_msg, &blob_sizes.lbs_msg_msg);
+	lsm_set_size(&needed->lbs_sock, &blob_sizes.lbs_sock);
+	lsm_set_size(&needed->lbs_superblock, &blob_sizes.lbs_superblock);
+	lsm_set_size(&needed->lbs_task, &blob_sizes.lbs_task);
+	/*
+	 * The inode blob gets an rcu_head in addition to
+	 * what the modules might need.
+	 */
+	if (needed->lbs_inode && blob_sizes.lbs_inode == 0)
+		blob_sizes.lbs_inode = sizeof(struct rcu_head);
+	lsm_set_size(&needed->lbs_inode, &blob_sizes.lbs_inode);
+}
+
+/**
+ * lsm_file_alloc - allocate a composite file blob
+ * @file: the file that needs a blob
+ *
+ * Allocate the file blob for all the modules
+ *
+ * Returns 0, or -ENOMEM if memory can't be allocated.
+ */
+int lsm_file_alloc(struct file *file)
+{
+	if (!lsm_file_cache) {
+		file->f_security = NULL;
+		return 0;
+	}
+
+	file->f_security = kmem_cache_zalloc(lsm_file_cache, GFP_KERNEL);
+	if (file->f_security == NULL)
+		return -ENOMEM;
+	return 0;
+}
+
+#ifdef CONFIG_SECURITY_STACKING
+static inline char *lsm_of_task(struct task_struct *task)
+{
+#ifdef CONFIG_SECURITY_LSM_DEBUG
+	if (task->security == NULL)
+		pr_info("%s: task has no lsm name.\n", __func__);
+#endif
+	return task->security;
+}
+#endif
+
+/**
+ * lsm_task_alloc - allocate a composite task blob
+ * @task: the task that needs a blob
+ *
+ * Allocate the task blob for all the modules
+ *
+ * Returns 0, or -ENOMEM if memory can't be allocated.
+ */
+int lsm_task_alloc(struct task_struct *task)
+{
+	if (blob_sizes.lbs_task == 0) {
+		task->security = NULL;
+		return 0;
+	}
+
+	task->security = kzalloc(blob_sizes.lbs_task, GFP_KERNEL);
+	if (task->security == NULL)
+		return -ENOMEM;
+
+	/* inherit current display lsm */
+#ifdef CONFIG_SECURITY_STACKING
+	if (current->security)
+		strcpy(task->security, lsm_of_task(current));
+	else
+		strcpy(task->security, default_display_lsm);
+#endif
+	return 0;
+}
+
+/**
+ * lsm_inode_alloc - allocate a composite inode blob
+ * @inode: the inode that needs a blob
+ *
+ * Allocate the inode blob for all the modules
+ *
+ * Returns 0, or -ENOMEM if memory can't be allocated.
+ */
+int lsm_inode_alloc(struct inode *inode)
+{
+	if (!lsm_inode_cache) {
+		inode->i_security = NULL;
+		return 0;
+	}
+
+	inode->i_security = kmem_cache_zalloc(lsm_inode_cache, GFP_KERNEL);
+	if (inode->i_security == NULL)
+		return -ENOMEM;
+	return 0;
+}
+
+/**
+ * lsm_early_inode - during initialization allocate a composite inode blob
+ * @inode: the inode that needs a blob
+ *
+ * Allocate the inode blob for all the modules if it's not already there
+ */
+void lsm_early_inode(struct inode *inode)
+{
+	int rc;
+
+	if (inode == NULL)
+		panic("%s: NULL inode.\n", __func__);
+	if (inode->i_security != NULL)
+		return;
+	rc = lsm_inode_alloc(inode);
+	if (rc)
+		panic("%s: Early inode alloc failed.\n", __func__);
+}
+
+/**
+ * lsm_ipc_alloc - allocate a composite ipc blob
+ * @kip: the ipc that needs a blob
+ *
+ * Allocate the ipc blob for all the modules
+ *
+ * Returns 0, or -ENOMEM if memory can't be allocated.
+ */
+int lsm_ipc_alloc(struct kern_ipc_perm *kip)
+{
+	if (blob_sizes.lbs_ipc == 0) {
+		kip->security = NULL;
+		return 0;
+	}
+
+	kip->security = kzalloc(blob_sizes.lbs_ipc, GFP_KERNEL);
+	if (kip->security == NULL)
+		return -ENOMEM;
+	return 0;
+}
+
+#ifdef CONFIG_KEYS
+/**
+ * lsm_key_alloc - allocate a composite key blob
+ * @key: the key that needs a blob
+ *
+ * Allocate the key blob for all the modules
+ *
+ * Returns 0, or -ENOMEM if memory can't be allocated.
+ */
+int lsm_key_alloc(struct key *key)
+{
+	if (blob_sizes.lbs_key == 0) {
+		key->security = NULL;
+		return 0;
+	}
+
+	key->security = kzalloc(blob_sizes.lbs_key, GFP_KERNEL);
+	if (key->security == NULL)
+		return -ENOMEM;
+	return 0;
+}
+#endif /* CONFIG_KEYS */
+
+/**
+ * lsm_msg_msg_alloc - allocate a composite msg_msg blob
+ * @mp: the msg_msg that needs a blob
+ *
+ * Allocate the ipc blob for all the modules
+ *
+ * Returns 0, or -ENOMEM if memory can't be allocated.
+ */
+int lsm_msg_msg_alloc(struct msg_msg *mp)
+{
+	if (blob_sizes.lbs_msg_msg == 0) {
+		mp->security = NULL;
+		return 0;
+	}
+
+	mp->security = kzalloc(blob_sizes.lbs_msg_msg, GFP_KERNEL);
+	if (mp->security == NULL)
+		return -ENOMEM;
+	return 0;
+}
+
+/**
+ * lsm_sock_alloc - allocate a composite sock blob
+ * @sock: the sock that needs a blob
+ * @priority: allocation mode
+ *
+ * Allocate the sock blob for all the modules
+ *
+ * Returns 0, or -ENOMEM if memory can't be allocated.
+ */
+int lsm_sock_alloc(struct sock *sock, gfp_t priority)
+{
+	if (blob_sizes.lbs_sock == 0) {
+		sock->sk_security = NULL;
+		return 0;
+	}
+
+	sock->sk_security = kzalloc(blob_sizes.lbs_sock, priority);
+	if (sock->sk_security == NULL)
+		return -ENOMEM;
+	return 0;
+}
+
+/**
+ * lsm_superblock_alloc - allocate a composite superblock blob
+ * @sb: the superblock that needs a blob
+ *
+ * Allocate the superblock blob for all the modules
+ *
+ * Returns 0, or -ENOMEM if memory can't be allocated.
+ */
+int lsm_superblock_alloc(struct super_block *sb)
+{
+	if (blob_sizes.lbs_superblock == 0) {
+		sb->s_security = NULL;
+		return 0;
+	}
+
+	sb->s_security = kzalloc(blob_sizes.lbs_superblock, GFP_KERNEL);
+	if (sb->s_security == NULL)
+		return -ENOMEM;
+	return 0;
+}
 
 /*
  * Hook list operation macros.
@@ -354,12 +785,21 @@ void security_bprm_committed_creds(struct linux_binprm *bprm)
 
 int security_sb_alloc(struct super_block *sb)
 {
-	return call_int_hook(sb_alloc_security, 0, sb);
+	int rc = lsm_superblock_alloc(sb);
+
+	if (unlikely(rc))
+		return rc;
+	rc = call_int_hook(sb_alloc_security, 0, sb);
+	if (unlikely(rc))
+		security_sb_free(sb);
+	return rc;
 }
 
 void security_sb_free(struct super_block *sb)
 {
 	call_void_hook(sb_free_security, sb);
+	kfree(sb->s_security);
+	sb->s_security = NULL;
 }
 
 int security_sb_copy_data(char *orig, char *copy)
@@ -433,14 +873,40 @@ EXPORT_SYMBOL(security_sb_parse_opts_str);
 
 int security_inode_alloc(struct inode *inode)
 {
-	inode->i_security = NULL;
-	return call_int_hook(inode_alloc_security, 0, inode);
+	int rc = lsm_inode_alloc(inode);
+
+	if (unlikely(rc))
+		return rc;
+	rc = call_int_hook(inode_alloc_security, 0, inode);
+	if (unlikely(rc))
+		security_inode_free(inode);
+	return rc;
+}
+
+static void inode_free_by_rcu(struct rcu_head *head)
+{
+	/*
+	 * The rcu head is at the start of the inode blob
+	 */
+	kmem_cache_free(lsm_inode_cache, head);
 }
 
 void security_inode_free(struct inode *inode)
 {
 	integrity_inode_free(inode);
 	call_void_hook(inode_free_security, inode);
+	/*
+	 * The inode may still be referenced in a path walk and
+	 * a call to security_inode_permission() can be made
+	 * after inode_free_security() is called. Ideally, the VFS
+	 * wouldn't do this, but fixing that is a much harder
+	 * job. For now, simply free the i_security via RCU, and
+	 * leave the current inode->i_security pointer intact.
+	 * The inode will be freed after the RCU grace period too.
+	 */
+	if (inode->i_security)
+		call_rcu((struct rcu_head *)inode->i_security,
+				inode_free_by_rcu);
 }
 
 int security_dentry_init_security(struct dentry *dentry, int mode,
@@ -879,12 +1345,28 @@ EXPORT_SYMBOL_GPL(security_file_permission);
 
 int security_file_alloc(struct file *file)
 {
-	return call_int_hook(file_alloc_security, 0, file);
+	int rc = lsm_file_alloc(file);
+
+	if (unlikely(rc))
+		return rc;
+	rc = call_int_hook(file_alloc_security, 0, file);
+	if (unlikely(rc))
+		security_file_free(file);
+	return rc;
 }
 
 void security_file_free(struct file *file)
 {
+	void *blob;
+
+	if (!lsm_file_cache)
+		return;
+
 	call_void_hook(file_free_security, file);
+
+	blob = file->f_security;
+	file->f_security = NULL;
+	kmem_cache_free(lsm_file_cache, blob);
 }
 
 int security_file_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
@@ -987,27 +1469,56 @@ int security_file_open(struct file *file, const struct cred *cred)
 
 int security_task_alloc(struct task_struct *task, unsigned long clone_flags)
 {
-	return call_int_hook(task_alloc, 0, task, clone_flags);
+	int rc = lsm_task_alloc(task);
+
+	if (unlikely(rc))
+		return rc;
+	rc = call_int_hook(task_alloc, 0, task, clone_flags);
+	if (unlikely(rc))
+		security_task_free(task);
+	return rc;
 }
 
 void security_task_free(struct task_struct *task)
 {
 	call_void_hook(task_free, task);
+
+	kfree(task->security);
+	task->security = NULL;
 }
 
 int security_cred_alloc_blank(struct cred *cred, gfp_t gfp)
 {
-	return call_int_hook(cred_alloc_blank, 0, cred, gfp);
+	int rc = lsm_cred_alloc(cred, gfp);
+
+	if (unlikely(rc))
+		return rc;
+
+	rc = call_int_hook(cred_alloc_blank, 0, cred, gfp);
+	if (unlikely(rc))
+		security_cred_free(cred);
+	return rc;
 }
 
 void security_cred_free(struct cred *cred)
 {
 	call_void_hook(cred_free, cred);
+
+	kfree(cred->security);
+	cred->security = NULL;
 }
 
 int security_prepare_creds(struct cred *new, const struct cred *old, gfp_t gfp)
 {
-	return call_int_hook(cred_prepare, 0, new, old, gfp);
+	int rc = lsm_cred_alloc(new, gfp);
+
+	if (unlikely(rc))
+		return rc;
+
+	rc = call_int_hook(cred_prepare, 0, new, old, gfp);
+	if (unlikely(rc))
+		security_cred_free(new);
+	return rc;
 }
 
 void security_transfer_creds(struct cred *new, const struct cred *old)
@@ -1129,12 +1640,92 @@ int security_task_kill(struct task_struct *p, struct siginfo *info,
 	return call_int_hook(task_kill, 0, p, info, sig, secid);
 }
 
+#ifdef CONFIG_SECURITY_STACKING
+static char *nolsm = "-default";
+#define NOLSMLEN	9
+
+static bool is_registered_lsm(const char *str, size_t size)
+{
+	struct security_hook_list *hp;
+
+	list_for_each_entry(hp, &security_hook_heads.getprocattr, list) {
+		if (size == strlen(hp->lsm) && !strncmp(str, hp->lsm, size))
+			return true;
+	}
+
+	return false;
+}
+
+static bool set_lsm_of_current(const char *str, size_t size)
+{
+	char *lsm = lsm_of_task(current);
+
+	if (is_registered_lsm(str, size)) {
+		strncpy(lsm, str, size);
+		lsm[size] = '\0';
+	} else if (size == NOLSMLEN && !strncmp(str, nolsm, size)) {
+		lsm[0] = '\0';
+	} else {
+		return false;
+	}
+	return true;
+}
+
+static int lsm_task_prctl(int option, unsigned long arg2, unsigned long arg3,
+				unsigned long arg4, unsigned long arg5)
+{
+	char *lsm = lsm_of_task(current);
+	char buffer[SECURITY_NAME_MAX + 1];
+	__user char *optval = (__user char *)arg2;
+	__user int *optlen = (__user int *)arg3;
+	int dlen;
+	int len;
+
+	switch (option) {
+	case PR_GET_DISPLAY_LSM:
+		len = arg4;
+		if (lsm[0] == '\0') {
+			lsm = nolsm;
+			dlen = NOLSMLEN;
+		} else
+			dlen = strlen(lsm) + 1;
+		if (dlen > len)
+			return -ERANGE;
+		if (copy_to_user(optval, lsm, dlen))
+			return -EFAULT;
+		if (put_user(dlen, optlen))
+			return -EFAULT;
+		break;
+	case PR_SET_DISPLAY_LSM:
+		len = arg3;
+		if (len > SECURITY_NAME_MAX)
+			return -EINVAL;
+		if (copy_from_user(buffer, optval, len))
+			return -EFAULT;
+		buffer[len] = '\0';
+		/* verify the requested LSM is registered */
+		if (!set_lsm_of_current(buffer, len))
+			return -ENOENT;
+		break;
+	default:
+		return -ENOSYS;
+	}
+	return 0;
+}
+#endif
+
 int security_task_prctl(int option, unsigned long arg2, unsigned long arg3,
 			 unsigned long arg4, unsigned long arg5)
 {
 	int thisrc;
 	int rc = -ENOSYS;
 	struct security_hook_list *hp;
+
+#ifdef CONFIG_SECURITY_STACKING
+	rc = lsm_task_prctl(option, arg2, arg3, arg4, arg5);
+	if (rc != -ENOSYS)
+		return rc;
+#endif
 
 	list_for_each_entry(hp, &security_hook_heads.task_prctl, list) {
 		thisrc = hp->hook.task_prctl(option, arg2, arg3, arg4, arg5);
@@ -1165,22 +1756,42 @@ void security_ipc_getsecid(struct kern_ipc_perm *ipcp, u32 *secid)
 
 int security_msg_msg_alloc(struct msg_msg *msg)
 {
-	return call_int_hook(msg_msg_alloc_security, 0, msg);
+	int rc = lsm_msg_msg_alloc(msg);
+
+	if (unlikely(rc))
+		return rc;
+	rc = call_int_hook(msg_msg_alloc_security, 0, msg);
+	if (unlikely(rc))
+		security_msg_msg_free(msg);
+	return rc;
 }
 
 void security_msg_msg_free(struct msg_msg *msg)
 {
 	call_void_hook(msg_msg_free_security, msg);
+	kfree(msg->security);
+	msg->security = NULL;
 }
 
 int security_msg_queue_alloc(struct msg_queue *msq)
 {
-	return call_int_hook(msg_queue_alloc_security, 0, msq);
+	int rc = lsm_ipc_alloc(&msq->q_perm);
+
+	if (unlikely(rc))
+		return rc;
+	rc = call_int_hook(msg_queue_alloc_security, 0, msq);
+	if (unlikely(rc))
+		security_msg_queue_free(msq);
+	return rc;
 }
 
 void security_msg_queue_free(struct msg_queue *msq)
 {
+	struct kern_ipc_perm *kip = &msq->q_perm;
+
 	call_void_hook(msg_queue_free_security, msq);
+	kfree(kip->security);
+	kip->security = NULL;
 }
 
 int security_msg_queue_associate(struct msg_queue *msq, int msqflg)
@@ -1207,12 +1818,23 @@ int security_msg_queue_msgrcv(struct msg_queue *msq, struct msg_msg *msg,
 
 int security_shm_alloc(struct shmid_kernel *shp)
 {
-	return call_int_hook(shm_alloc_security, 0, shp);
+	int rc = lsm_ipc_alloc(&shp->shm_perm);
+
+	if (unlikely(rc))
+		return rc;
+	rc = call_int_hook(shm_alloc_security, 0, shp);
+	if (unlikely(rc))
+		security_shm_free(shp);
+	return rc;
 }
 
 void security_shm_free(struct shmid_kernel *shp)
 {
+	struct kern_ipc_perm *kip = &shp->shm_perm;
+
 	call_void_hook(shm_free_security, shp);
+	kfree(kip->security);
+	kip->security = NULL;
 }
 
 int security_shm_associate(struct shmid_kernel *shp, int shmflg)
@@ -1232,12 +1854,23 @@ int security_shm_shmat(struct shmid_kernel *shp, char __user *shmaddr, int shmfl
 
 int security_sem_alloc(struct sem_array *sma)
 {
-	return call_int_hook(sem_alloc_security, 0, sma);
+	int rc = lsm_ipc_alloc(&sma->sem_perm);
+
+	if (unlikely(rc))
+		return rc;
+	rc = call_int_hook(sem_alloc_security, 0, sma);
+	if (unlikely(rc))
+		security_sem_free(sma);
+	return rc;
 }
 
 void security_sem_free(struct sem_array *sma)
 {
+	struct kern_ipc_perm *kip = &sma->sem_perm;
+
 	call_void_hook(sem_free_security, sma);
+	kfree(kip->security);
+	kip->security = NULL;
 }
 
 int security_sem_associate(struct sem_array *sma, int semflg)
@@ -1264,14 +1897,68 @@ void security_d_instantiate(struct dentry *dentry, struct inode *inode)
 }
 EXPORT_SYMBOL(security_d_instantiate);
 
-int security_getprocattr(struct task_struct *p, char *name, char **value)
+int security_getprocattr(struct task_struct *p, const char *lsm, char *name,
+				char **value)
 {
-	return call_int_hook(getprocattr, -EINVAL, p, name, value);
+#ifdef CONFIG_SECURITY_STACKING
+	char *speclsm = lsm_of_task(p);
+#endif
+	struct security_hook_list *hp;
+	int rc;
+
+	if (strcmp(name, "display_lsm") == 0) {
+		*value = kstrdup(current->security, GFP_KERNEL);
+		if (*value == NULL)
+			return -ENOMEM;
+		return strlen(*value);
+	}
+
+	list_for_each_entry(hp, &security_hook_heads.getprocattr, list) {
+		if (lsm != NULL && strcmp(lsm, hp->lsm))
+			continue;
+#ifdef CONFIG_SECURITY_STACKING
+		if (!lsm && speclsm && speclsm[0] && strcmp(speclsm, hp->lsm))
+			continue;
+#endif
+		rc = hp->hook.getprocattr(p, name, value);
+		if (rc != -ENOSYS)
+			return rc;
+	}
+	return -EINVAL;
 }
 
-int security_setprocattr(const char *name, void *value, size_t size)
+int security_setprocattr(const char *lsm, const char *name, void *value,
+			 size_t size)
 {
-	return call_int_hook(setprocattr, -EINVAL, name, value, size);
+#ifdef CONFIG_SECURITY_STACKING
+	char *speclsm = lsm_of_task(current);
+#else
+	char *tvalue;
+#endif
+	struct security_hook_list *hp;
+	int rc;
+
+	if (!size)
+		return -EINVAL;
+
+	if (strcmp(name, "display_lsm") == 0) {
+#ifdef CONFIG_SECURITY_STACKING
+		if (set_lsm_of_current(value, size))
+			return size;
+#endif
+		return -EINVAL;
+	}
+
+	list_for_each_entry(hp, &security_hook_heads.setprocattr, list) {
+#ifdef CONFIG_SECURITY_STACKING
+		if (!lsm && speclsm && speclsm[0] && strcmp(speclsm, hp->lsm))
+			continue;
+#endif
+		rc = hp->hook.setprocattr(name, value, size);
+		if (rc)
+			return rc;
+	}
+	return -EINVAL;
 }
 
 int security_netlink_send(struct sock *sk, struct sk_buff *skb)
@@ -1301,7 +1988,19 @@ EXPORT_SYMBOL(security_secctx_to_secid);
 
 void security_release_secctx(char *secdata, u32 seclen)
 {
-	call_void_hook(release_secctx, secdata, seclen);
+#ifdef CONFIG_SECURITY_STACKING
+	char *speclsm = lsm_of_task(current);
+#endif
+	struct security_hook_list *hp;
+
+	list_for_each_entry(hp, &security_hook_heads.release_secctx, list) {
+#ifdef CONFIG_SECURITY_STACKING
+		if (speclsm[0] && strcmp(hp->lsm, speclsm))
+			continue;
+#endif
+		hp->hook.release_secctx(secdata, seclen);
+		break;
+	}
 }
 EXPORT_SYMBOL(security_release_secctx);
 
@@ -1420,8 +2119,21 @@ EXPORT_SYMBOL(security_sock_rcv_skb);
 int security_socket_getpeersec_stream(struct socket *sock, char __user *optval,
 				      int __user *optlen, unsigned len)
 {
+#ifdef CONFIG_SECURITY_STACKING
+	struct security_hook_list *hp;
+	char *lsm = lsm_of_task(current);
+
+	list_for_each_entry(hp, &security_hook_heads.socket_getpeersec_stream,
+									list) {
+		if (!lsm || !lsm[0] || !strcmp(lsm, hp->lsm))
+			return hp->hook.socket_getpeersec_stream(sock, optval,
+						optlen, len);
+	}
+	return -ENOPROTOOPT;
+#else
 	return call_int_hook(socket_getpeersec_stream, -ENOPROTOOPT, sock,
 				optval, optlen, len);
+#endif
 }
 
 int security_socket_getpeersec_dgram(struct socket *sock, struct sk_buff *skb, u32 *secid)
@@ -1433,12 +2145,21 @@ EXPORT_SYMBOL(security_socket_getpeersec_dgram);
 
 int security_sk_alloc(struct sock *sk, int family, gfp_t priority)
 {
-	return call_int_hook(sk_alloc_security, 0, sk, family, priority);
+	int rc = lsm_sock_alloc(sk, priority);
+
+	if (unlikely(rc))
+		return rc;
+	rc = call_int_hook(sk_alloc_security, 0, sk, family, priority);
+	if (unlikely(rc))
+		security_sk_free(sk);
+	return rc;
 }
 
 void security_sk_free(struct sock *sk)
 {
 	call_void_hook(sk_free_security, sk);
+	kfree(sk->sk_security);
+	sk->sk_security = NULL;
 }
 
 void security_sk_clone(const struct sock *sk, struct sock *newsk)
@@ -1668,12 +2389,21 @@ EXPORT_SYMBOL(security_skb_classify_flow);
 int security_key_alloc(struct key *key, const struct cred *cred,
 		       unsigned long flags)
 {
-	return call_int_hook(key_alloc, 0, key, cred, flags);
+	int rc = lsm_key_alloc(key);
+
+	if (unlikely(rc))
+		return rc;
+	rc = call_int_hook(key_alloc, 0, key, cred, flags);
+	if (unlikely(rc))
+		security_key_free(key);
+	return rc;
 }
 
 void security_key_free(struct key *key)
 {
 	call_void_hook(key_free, key);
+	kfree(key->security);
+	key->security = NULL;
 }
 
 int security_key_permission(key_ref_t key_ref,

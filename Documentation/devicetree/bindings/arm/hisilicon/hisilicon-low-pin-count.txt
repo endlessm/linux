@@ -1,8 +1,8 @@
-Hisilicon Hip06 low-pin-count device
+Hisilicon Hip06 Low Pin Count device
   Hisilicon Hip06 SoCs implement a Low Pin Count (LPC) controller, which
   provides I/O access to some legacy ISA devices.
   Hip06 is based on arm64 architecture where there is no I/O space. So, the
-  I/O ports here are not cpu addresses, and there is no 'ranges' property in
+  I/O ports here are not CPU addresses, and there is no 'ranges' property in
   LPC device node.
 
 Required properties:

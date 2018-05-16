@@ -624,10 +624,10 @@ static u64 __of_translate_address(struct device_node *dev,
 		 * the address from reg directly.
 		 */
 		iorange = find_io_range_by_fwnode(&dev->fwnode);
-		if (iorange && (iorange->flags != PIO_CPU_MMIO)) {
+		if (iorange && (iorange->flags != LOGIC_PIO_CPU_MMIO)) {
 			result = of_read_number(addr + 1, na - 1);
-			pr_debug("indirectIO matched(%s) 0x%llx\n",
-					of_node_full_name(dev), result);
+			pr_debug("indirectIO matched(%pOF) 0x%llx\n",
+				 dev, result);
 			*host = of_node_get(dev);
 			break;
 		}
@@ -739,11 +739,11 @@ static u64 of_translate_ioport(struct device_node *dev, const __be32 *in_addr,
 
 	taddr = __of_translate_address(dev, in_addr, "ranges", &host);
 	if (host) {
-		/* host specific port access */
+		/* host-specific port access */
 		port = logic_pio_trans_hwaddr(&host->fwnode, taddr, size);
 		of_node_put(host);
 	} else {
-		/* memory mapped I/O range */
+		/* memory-mapped I/O range */
 		port = pci_address_to_pio(taddr);
 	}
 

@@ -81,12 +81,25 @@ define install_zfs =
 		$(kmake) -C $(builddir)/build-$* SUBDIRS=`pwd` modules_install $(zfsopts)
 endef
 
+define install_control =
+	for which in $(3);							\
+	do									\
+		template="$(DROOT)/templates/$(2).$$which.in";			\
+		script="$(DROOT)/$(1).$$which";					\
+		sed -e 's/@abiname@/$(abi_release)/g'				\
+		    -e 's/@localversion@/-$*/g'					\
+		    -e 's/@image-stem@/$(instfile)/g'				\
+			<"$$template" >"$$script";				\
+	done
+endef
+
 # Install the finished build
-install-%: pkgdir = $(CURDIR)/debian/$(bin_pkg_name)-$*
-install-%: pkgdir_ex = $(CURDIR)/debian/$(extra_pkg_name)-$*
+install-%: pkgdir_bin = $(CURDIR)/debian/$(bin_pkg_name)-$*
+install-%: pkgdir = $(CURDIR)/debian/$(mods_pkg_name)-$*
+install-%: pkgdir_ex = $(CURDIR)/debian/$(mods_extra_pkg_name)-$*
 install-%: bindoc = $(pkgdir)/usr/share/doc/$(bin_pkg_name)-$*
 install-%: dbgpkgdir = $(CURDIR)/debian/$(bin_pkg_name)-$*-dbgsym
-install-%: signed = $(CURDIR)/debian/$(bin_pkg_name)-signed
+install-%: signingv = $(CURDIR)/debian/$(bin_pkg_name)-signing/$(release)-$(revision)
 install-%: toolspkgdir = $(CURDIR)/debian/$(tools_flavour_pkg_name)-$*
 install-%: cloudpkgdir = $(CURDIR)/debian/$(cloud_flavour_pkg_name)-$*
 install-%: basepkg = $(hdrs_pkg_name)
@@ -110,6 +123,7 @@ install-%: checks-%
 	dh_testdir
 	dh_testroot
 	dh_prep -p$(bin_pkg_name)-$*
+	dh_prep -p$(mods_pkg_name)-$*
 	dh_prep -p$(hdrs_pkg_name)-$*
 ifneq ($(skipdbg),true)
 	dh_prep -p$(bin_pkg_name)-$*-dbgsym
@@ -120,25 +134,31 @@ endif
 	# generate a zImage automatically out of the box
 ifeq ($(compress_file),)
 	install -m600 -D $(builddir)/build-$*/$(kernfile) \
-		$(pkgdir)/boot/$(instfile)-$(abi_release)-$*
+		$(pkgdir_bin)/boot/$(instfile)-$(abi_release)-$*
 else
-	install -d $(pkgdir)/boot
+	install -d $(pkgdir_bin)/boot
 	gzip -c9v $(builddir)/build-$*/$(kernfile) > \
-		$(pkgdir)/boot/$(instfile)-$(abi_release)-$*
-	chmod 600 $(pkgdir)/boot/$(instfile)-$(abi_release)-$*
+		$(pkgdir_bin)/boot/$(instfile)-$(abi_release)-$*
+	chmod 600 $(pkgdir_bin)/boot/$(instfile)-$(abi_release)-$*
 endif
 
 ifeq ($(uefi_signed),true)
-	install -d $(signed)/$(release)-$(revision)
+	install -d $(signingv)
 	# Check to see if this supports handoff, if not do not sign it.
 	# Check the identification area magic and version >= 0x020b
-	handoff=`dd if="$(pkgdir)/boot/$(instfile)-$(abi_release)-$*" bs=1 skip=514 count=6 2>/dev/null | od -s | gawk '($$1 == 0 && $$2 == 25672 && $$3 == 21362 && $$4 >= 523) { print "GOOD" }'`; \
+	handoff=`dd if="$(pkgdir_bin)/boot/$(instfile)-$(abi_release)-$*" bs=1 skip=514 count=6 2>/dev/null | od -s | gawk '($$1 == 0 && $$2 == 25672 && $$3 == 21362 && $$4 >= 523) { print "GOOD" }'`; \
 	if [ "$$handoff" = "GOOD" ]; then \
-		cp -p $(pkgdir)/boot/$(instfile)-$(abi_release)-$* \
-			$(signed)/$(release)-$(revision)/$(instfile)-$(abi_release)-$*.efi; \
+		cp -p $(pkgdir_bin)/boot/$(instfile)-$(abi_release)-$* \
+			$(signingv)/$(instfile)-$(abi_release)-$*.efi; \
 	fi
 endif
+ifeq ($(opal_signed),true)
+	install -d $(signingv)
+	cp -p $(pkgdir_bin)/boot/$(instfile)-$(abi_release)-$* \
+		$(signingv)/$(instfile)-$(abi_release)-$*.opal;
+endif
 
+	install -d $(pkgdir)/boot
 	install -m644 $(builddir)/build-$*/.config \
 		$(pkgdir)/boot/config-$(abi_release)-$*
 	install -m644 $(abidir)/$* \
@@ -228,24 +248,13 @@ endif
 		$(pkgdir)/lib/modules/$(abi_release)-$*/initrd/; \
 	fi
 
-	# Now the image scripts
-	install -d $(pkgdir)/DEBIAN
-	for script in postinst postrm preinst prerm; do				\
-	  sed -e 's/=V/$(abi_release)-$*/g' -e 's/=K/$(instfile)/g'		\
-	      -e 's/=L/$(loader)/g'         -e 's@=B@$(build_arch)@g'		\
-	       $(DROOT)/control-scripts/$$script > $(pkgdir)/DEBIAN/$$script;	\
-	  chmod 755 $(pkgdir)/DEBIAN/$$script;					\
-	done
+	echo "interest linux-update-$(abi_release)-$*" >"$(DROOT)/$(bin_pkg_name)-$*.triggers"
+	$(call install_control,$(bin_pkg_name)-$*,image,postinst postrm preinst prerm)
+	$(call install_control,$(mods_pkg_name)-$*,extra,postinst postrm)
 ifeq ($(do_extras_package),true)
 	# Install the postinit/postrm scripts in the extras package.
 	if [ -f $(DEBIAN)/control.d/$(target_flavour).inclusion-list ] ; then	\
-		install -d $(pkgdir_ex)/DEBIAN;					\
-		for script in postinst postrm ; do				\
-			sed -e 's/=V/$(abi_release)-$*/g' -e 's/=K/$(instfile)/g'		\
-			    -e 's/=L/$(loader)/g'         -e 's@=B@$(build_arch)@g'		\
-			    debian/control-scripts/extra-post > $(pkgdir_ex)/DEBIAN/$$script; \
-			chmod 755 $(pkgdir_ex)/DEBIAN/$$script;			\
-		done;								\
+		$(call install_control,$(mods_extra_pkg_name)-$*,extra,postinst postrm); \
 	fi
 endif
 
@@ -264,16 +273,7 @@ ifneq ($(skipsub),true)
 		/sbin/depmod -b debian/$(bin_pkg_name)-$$sub		\
 			-ea -F debian/$(bin_pkg_name)-$$sub/boot/System.map-$(abi_release)-$* \
 			$(abi_release)-$*;					\
-		install -d debian/$(bin_pkg_name)-$$sub/DEBIAN;	\
-		for script in postinst postrm preinst prerm; do			\
-			sed -e 's/=V/$(abi_release)-$*/g'			\
-			    -e 's/=K/$(instfile)/g'				\
-			    -e 's/=L/$(loader)/g'				\
-			    -e 's@=B@$(build_arch)@g'				\
-				$(DROOT)/control-scripts/$$script >		\
-				debian/$(bin_pkg_name)-$$sub/DEBIAN/$$script;\
-			chmod 755  debian/$(bin_pkg_name)-$$sub/DEBIAN/$$script;\
-		done;								\
+		$(call install_control,$(bin_pkg_name)--$$sub,image,postinst postrm preinst prerm); \
 	done
 endif
 
@@ -340,13 +340,7 @@ endif
 		$(hdrdir)/Module.symvers
 
 	# Now the header scripts
-	install -d $(CURDIR)/debian/$(basepkg)-$*/DEBIAN
-	for script in postinst; do						\
-	  sed -e 's/=V/$(abi_release)-$*/g' -e 's/=K/$(instfile)/g'	\
-		$(DROOT)/control-scripts/headers-$$script > 			\
-			$(CURDIR)/debian/$(basepkg)-$*/DEBIAN/$$script;		\
-	  chmod 755 $(CURDIR)/debian/$(basepkg)-$*/DEBIAN/$$script;		\
-	done
+	$(call install_control,$(hdrs_pkg_name)-$*,headers,postinst)
 
 	# At the end of the package prep, call the tests
 	DPKG_ARCH="$(arch)" KERN_ARCH="$(build_arch)" FLAVOUR="$*"	\
@@ -461,8 +455,9 @@ endif
 endif
 
 binary-%: pkgimg = $(bin_pkg_name)-$*
+binary-%: pkgimg_mods = $(mods_pkg_name)-$*
+binary-%: pkgimg_ex = $(mods_extra_pkg_name)-$*
 binary-%: pkgdir_ex = $(CURDIR)/debian/$(extra_pkg_name)-$*
-binary-%: pkgimg_ex = $(extra_pkg_name)-$*
 binary-%: pkghdr = $(hdrs_pkg_name)-$*
 binary-%: dbgpkg = $(bin_pkg_name)-$*-dbgsym
 binary-%: dbgpkgdir = $(CURDIR)/debian/$(bin_pkg_name)-$*-dbgsym
@@ -484,6 +479,16 @@ binary-%: install-%
 	$(lockme) dh_gencontrol -p$(pkgimg) -- -Vlinux:rprovides='$(rprovides)'
 	dh_md5sums -p$(pkgimg)
 	dh_builddeb -p$(pkgimg)
+
+	dh_installchangelogs -p$(pkgimg_mods)
+	dh_installdocs -p$(pkgimg_mods)
+	dh_compress -p$(pkgimg_mods)
+	dh_fixperms -p$(pkgimg_mods) -X/boot/
+	dh_installdeb -p$(pkgimg_mods)
+	dh_shlibdeps -p$(pkgimg_mods) $(shlibdeps_opts)
+	$(lockme) dh_gencontrol -p$(pkgimg_mods)
+	dh_md5sums -p$(pkgimg_mods)
+	dh_builddeb -p$(pkgimg_mods)
 
 ifeq ($(do_extras_package),true)
   ifeq ($(ship_extras_package),false)
@@ -734,16 +739,16 @@ ifeq ($(do_cloud_tools),true)
 	dh_builddeb -p$(cloudpkg)
 endif
 
-binary-debs: signed = $(CURDIR)/debian/$(bin_pkg_name)-signed
-binary-debs: signedv = $(CURDIR)/debian/$(bin_pkg_name)-signed/$(release)-$(revision)
-binary-debs: signed_tar = $(src_pkg_name)_$(release)-$(revision)_$(arch).tar.gz
+binary-debs: signing = $(CURDIR)/debian/$(bin_pkg_name)-signing
+binary-debs: signingv = $(CURDIR)/debian/$(bin_pkg_name)-signing/$(release)-$(revision)
+binary-debs: signing_tar = $(src_pkg_name)_$(release)-$(revision)_$(arch).tar.gz
 binary-debs: binary-perarch $(addprefix binary-,$(flavours))
 	@echo Debug: $@
-ifeq ($(uefi_signed),true)
-	echo $(release)-$(revision) > $(signedv)/version
-	cd $(signedv) && ls *.efi >flavours
-	cd $(signed) && tar czvf ../../../$(signed_tar) .
-	dpkg-distaddfile $(signed_tar) raw-uefi -
+ifeq ($(any_signed),true)
+	install -d $(signingv)/control
+	{ echo "tarball"; } >$(signingv)/control/options
+	cd $(signing) && tar czvf ../../../$(signing_tar) .
+	dpkg-distaddfile $(signing_tar) raw-signing -
 endif
 
 build-arch-deps-$(do_flavour_image_package) += $(addprefix $(stampdir)/stamp-build-,$(flavours))

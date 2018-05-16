@@ -4743,10 +4743,12 @@ CONFIG_NVDIMM_PFN                               policy<{'amd64': 'y', 'ppc64el':
 CONFIG_NVDIMM_DAX                               policy<{'amd64': 'y', 'ppc64el': 'y'}>
 
 # Menu: Device Drivers >> NVME Support
-CONFIG_BLK_DEV_NVME                             policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'ppc64el': 'y', 's390x': 'y'}>
+CONFIG_BLK_DEV_NVME                             policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'ppc64el': 'm', 's390x': 'm'}>
 CONFIG_NVME_MULTIPATH                           policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'ppc64el': 'y', 's390x': 'y'}>
 CONFIG_NVME_RDMA                                policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'ppc64el': 'm', 's390x': 'm'}>
 CONFIG_NVME_FC                                  policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'ppc64el': 'm', 's390x': 'm'}>
+#
+CONFIG_BLK_DEV_NVME                             mark<ENFORCED> note<LP:#1759893>
 
 # Menu: Device Drivers >> NVME Support >> NVMe Target support
 CONFIG_NVME_TARGET                              policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'ppc64el': 'm', 's390x': 'm'}>
@@ -5956,7 +5958,7 @@ CONFIG_PINCTRL_BAYTRAIL                         policy<{'amd64': 'y', 'i386': 'y
 CONFIG_PINCTRL_CHERRYVIEW                       policy<{'amd64': 'y', 'i386': 'm'}>
 CONFIG_PINCTRL_MERRIFIELD                       policy<{'i386': 'n'}>
 CONFIG_PINCTRL_BROXTON                          policy<{'amd64': 'y', 'i386': 'y'}>
-CONFIG_PINCTRL_CANNONLAKE                       policy<{'amd64': 'm', 'i386': 'm'}>
+CONFIG_PINCTRL_CANNONLAKE                       policy<{'amd64': 'y', 'i386': 'y'}>
 CONFIG_PINCTRL_CEDARFORK                        policy<{'amd64': 'm', 'i386': 'm'}>
 CONFIG_PINCTRL_DENVERTON                        policy<{'amd64': 'm', 'i386': 'm'}>
 CONFIG_PINCTRL_GEMINILAKE                       policy<{'amd64': 'm', 'i386': 'm'}>
@@ -11534,6 +11536,7 @@ CONFIG_KEY_DH_OPERATIONS                        policy<{'amd64': 'y', 'arm64': '
 
 # Menu: Security options >> Enable different security models
 CONFIG_SECURITY                                 policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'ppc64el': 'y', 's390x': 'y'}>
+CONFIG_SECURITY_STACKING                        policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'ppc64el': 'y', 's390x': 'y'}>
 CONFIG_SECURITY_NETWORK                         policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'ppc64el': 'y', 's390x': 'y'}>
 CONFIG_SECURITY_INFINIBAND                      policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'ppc64el': 'y', 's390x': 'y'}>
 CONFIG_SECURITY_NETWORK_XFRM                    policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'ppc64el': 'y', 's390x': 'y'}>
@@ -11542,9 +11545,13 @@ CONFIG_LSM_MMAP_MIN_ADDR                        policy<{'amd64': '0', 'arm64': '
 CONFIG_SECURITY_LOADPIN                         policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'i386': 'n', 'ppc64el': 'n', 's390x': 'n'}>
 CONFIG_SECURITY_YAMA                            policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'ppc64el': 'y', 's390x': 'y'}>
 #
+CONFIG_SECURITY_DEFAULT_DISPLAY_APPARMOR        policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'ppc64el': 'y', 's390x': 'y'}>
+CONFIG_SECURITY_DEFAULT_DISPLAY_NAME            policy<{'amd64': '"apparmor"', 'arm64': '"apparmor"', 'armhf': '"apparmor"', 'i386': '"apparmor"', 'ppc64el': '"apparmor"', 's390x': '"apparmor"'}>
+
 CONFIG_SECURITY                                 mark<ENFORCED>
 CONFIG_LSM_MMAP_MIN_ADDR                        mark<ENFORCED> flag<REVIEW>
 CONFIG_SECURITY_YAMA                            mark<ENFORCED>
+CONFIG_SECURITY_DEFAULT_DISPLAY_NAME            mark<ENFORCED>
 
 # Menu: Security options >> Enable different security models >> AppArmor support
 CONFIG_SECURITY_APPARMOR                        policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'ppc64el': 'y', 's390x': 'y'}>

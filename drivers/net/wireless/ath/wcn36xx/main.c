@@ -641,7 +641,6 @@ static int wcn36xx_hw_scan(struct ieee80211_hw *hw,
 			   struct ieee80211_scan_request *hw_req)
 {
 	struct wcn36xx *wcn = hw->priv;
-
 	mutex_lock(&wcn->scan_lock);
 	if (wcn->scan_req) {
 		mutex_unlock(&wcn->scan_lock);
@@ -650,11 +649,16 @@ static int wcn36xx_hw_scan(struct ieee80211_hw *hw,
 
 	wcn->scan_aborted = false;
 	wcn->scan_req = &hw_req->req;
+
 	mutex_unlock(&wcn->scan_lock);
 
-	schedule_work(&wcn->scan_work);
+	if (!get_feat_caps(wcn->fw_feat_caps, SCAN_OFFLOAD)) {
+		/* legacy manual/sw scan */
+		schedule_work(&wcn->scan_work);
+		return 0;
+	}
 
-	return 0;
+	return wcn36xx_smd_start_hw_scan(wcn, vif, &hw_req->req);
 }
 
 static void wcn36xx_cancel_hw_scan(struct ieee80211_hw *hw,
@@ -665,6 +669,9 @@ static void wcn36xx_cancel_hw_scan(struct ieee80211_hw *hw,
 	mutex_lock(&wcn->scan_lock);
 	wcn->scan_aborted = true;
 	mutex_unlock(&wcn->scan_lock);
+
+	/* ieee80211_scan_completed will be called on FW scan indication */
+	wcn36xx_smd_stop_hw_scan(wcn);
 
 	cancel_work_sync(&wcn->scan_work);
 }

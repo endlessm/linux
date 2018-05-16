@@ -24,6 +24,7 @@
 #include <linux/list.h>
 #include <linux/rculist.h>
 #include <linux/lsm_audit.h>
+#include <linux/msg.h>
 
 /*
  * Use IPv6 port labeling if IPv6 is enabled and secmarks
@@ -335,6 +336,7 @@ extern struct smack_known *smack_syslog_label;
 extern struct smack_known *smack_unconfined;
 #endif
 extern int smack_ptrace_rule;
+extern struct lsm_blob_sizes smack_blob_sizes;
 
 extern struct smack_known smack_known_floor;
 extern struct smack_known smack_known_hat;
@@ -355,12 +357,87 @@ extern struct list_head smack_onlycap_list;
 #define SMACK_HASH_SLOTS 16
 extern struct hlist_head smack_known_hash[SMACK_HASH_SLOTS];
 
+static inline struct task_smack *smack_cred(const struct cred *cred)
+{
+#ifdef CONFIG_SECURITY_STACKING
+	return cred->security + smack_blob_sizes.lbs_cred;
+#else
+	return cred->security;
+#endif
+}
+
+static inline struct smack_known **smack_file(const struct file *file)
+{
+#ifdef CONFIG_SECURITY_STACKING
+	return file->f_security + smack_blob_sizes.lbs_file;
+#else
+	return file->f_security;
+#endif
+}
+
+static inline struct inode_smack *smack_inode(const struct inode *inode)
+{
+#ifdef CONFIG_SECURITY_STACKING
+	return inode->i_security + smack_blob_sizes.lbs_inode;
+#else
+	return inode->i_security;
+#endif
+}
+
+static inline struct socket_smack *smack_sock(const struct sock *sock)
+{
+#ifdef CONFIG_SECURITY_STACKING
+	return sock->sk_security + smack_blob_sizes.lbs_sock;
+#else
+	return sock->sk_security;
+#endif
+}
+
+static inline struct superblock_smack *smack_superblock(
+					const struct super_block *superblock)
+{
+#ifdef CONFIG_SECURITY_STACKING
+	return superblock->s_security + smack_blob_sizes.lbs_superblock;
+#else
+	return superblock->s_security;
+#endif
+}
+
+static inline struct smack_known **smack_msg_msg(const struct msg_msg *msg)
+{
+#ifdef CONFIG_SECURITY_STACKING
+	return msg->security + smack_blob_sizes.lbs_msg_msg;
+#else
+	return msg->security;
+#endif
+}
+
+static inline struct smack_known **smack_ipc(const struct kern_ipc_perm *ipc)
+{
+#ifdef CONFIG_SECURITY_STACKING
+	return ipc->security + smack_blob_sizes.lbs_ipc;
+#else
+	return ipc->security;
+#endif
+}
+
+#ifdef CONFIG_KEYS
+static inline struct smack_known **smack_key(const struct key *key)
+{
+#ifdef CONFIG_SECURITY_STACKING
+	return key->security + smack_blob_sizes.lbs_key;
+#else
+	return key->security;
+#endif
+}
+#endif /* CONFIG_KEYS */
+
 /*
  * Is the directory transmuting?
  */
 static inline int smk_inode_transmutable(const struct inode *isp)
 {
-	struct inode_smack *sip = isp->i_security;
+	struct inode_smack *sip = smack_inode(isp);
 	return (sip->smk_flags & SMK_INODE_TRANSMUTE) != 0;
 }
 
@@ -369,7 +446,7 @@ static inline int smk_inode_transmutable(const struct inode *isp)
  */
 static inline struct smack_known *smk_of_inode(const struct inode *isp)
 {
-	struct inode_smack *sip = isp->i_security;
+	struct inode_smack *sip = smack_inode(isp);
 	return sip->smk_inode;
 }
 
@@ -381,13 +458,16 @@ static inline struct smack_known *smk_of_task(const struct task_smack *tsp)
 	return tsp->smk_task;
 }
 
-static inline struct smack_known *smk_of_task_struct(const struct task_struct *t)
+static inline struct smack_known *smk_of_task_struct(
+						const struct task_struct *t)
 {
 	struct smack_known *skp;
+	const struct cred *cred;
 
 	rcu_read_lock();
-	skp = smk_of_task(__task_cred(t)->security);
+	cred = __task_cred(t);
 	rcu_read_unlock();
+	skp = smk_of_task(smack_cred(cred));
 	return skp;
 }
 
@@ -404,7 +484,7 @@ static inline struct smack_known *smk_of_forked(const struct task_smack *tsp)
  */
 static inline struct smack_known *smk_of_current(void)
 {
-	return smk_of_task(current_security());
+	return smk_of_task(smack_cred(current_cred()));
 }
 
 /*

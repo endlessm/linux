@@ -4,7 +4,6 @@
  * Author: Zhichang Yuan <yuanzhichang@hisilicon.com>
  * Author: Zou Rongrong <zourongrong@huawei.com>
  * Author: John Garry <john.garry@huawei.com>
- *
  */
 
 #include <linux/acpi.h>
@@ -23,16 +22,15 @@
 #define DRV_NAME "hisi-lpc"
 
 /*
- * Setting this bit means each IO operation will target to a
- * different port address:
- * 0 means repeatedly IO operations will stick on the same port,
- * such as BT;
+ * Setting this bit means each IO operation will target a different port
+ * address; 0 means repeated IO operations will use the same port,
+ * such as BT.
  */
 #define FG_INCRADDR_LPC		0x02
 
 struct lpc_cycle_para {
 	unsigned int opflags;
-	unsigned int csize; /* the data length of each operation */
+	unsigned int csize; /* data length of each operation */
 };
 
 struct hisi_lpc_dev {
@@ -41,67 +39,52 @@ struct hisi_lpc_dev {
 	struct logic_pio_hwaddr *io_host;
 };
 
-/* The maximum continuous cycles per burst */
-#define LPC_MAX_BURST	16
-/* The IO cycle counts supported is four per operation at maximum */
-#define LPC_MAX_DULEN	4
-#if LPC_MAX_DULEN > LPC_MAX_BURST
-#error "LPC.. MAX_DULEN must be not bigger than MAX_OPCNT!"
-#endif
+/* The max IO cycle counts supported is four per operation at maximum */
+#define LPC_MAX_DWIDTH	4
 
-#if LPC_MAX_BURST % LPC_MAX_DULEN
-#error "LPC.. LPC_MAX_BURST must be multiple of LPC_MAX_DULEN!"
-#endif
+#define LPC_REG_STARTUP_SIGNAL		0x00
+#define LPC_REG_STARTUP_SIGNAL_START	BIT(0)
+#define LPC_REG_OP_STATUS		0x04
+#define LPC_REG_OP_STATUS_IDLE		BIT(0)
+#define LPC_REG_OP_STATUS_FINISHED	BIT(1)
+#define LPC_REG_OP_LEN			0x10 /* LPC cycles count per start */
+#define LPC_REG_CMD			0x14
+#define LPC_REG_CMD_OP			BIT(0) /* 0: read, 1: write */
+#define LPC_REG_CMD_SAMEADDR		BIT(3)
+#define LPC_REG_ADDR			0x20 /* target address */
+#define LPC_REG_WDATA			0x24 /* write FIFO */
+#define LPC_REG_RDATA			0x28 /* read FIFO */
 
-#define LPC_REG_START		0x00 /* start a new LPC cycle */
-#define LPC_REG_OP_STATUS	0x04 /* the current LPC status */
-#define LPC_REG_IRQ_ST		0x08 /* interrupt enable&status */
-#define LPC_REG_OP_LEN		0x10 /* how many LPC cycles each start */
-#define LPC_REG_CMD		0x14 /* command for the required LPC cycle */
-#define LPC_REG_ADDR		0x20 /* LPC target address */
-#define LPC_REG_WDATA		0x24 /* data to be written */
-#define LPC_REG_RDATA		0x28 /* data coming from peer */
-
-
-/* The command register fields */
-#define LPC_CMD_SAMEADDR	0x08
-#define LPC_CMD_TYPE_IO		0x00
-#define LPC_CMD_WRITE		0x01
-#define LPC_CMD_READ		0x00
-/* the bit attribute is W1C. 1 represents OK. */
-#define LPC_STAT_BYIRQ		0x02
-
-#define LPC_STATUS_IDLE		0x01
-#define LPC_OP_FINISHED		0x02
-
-#define LPC_START_WORK		0x01
-
-/* The minimal nanosecond interval for each query on LPC cycle status. */
+/* The minimal nanosecond interval for each query on LPC cycle status */
 #define LPC_NSEC_PERWAIT	100
 
 /*
- * The maximum waiting time is about 128us.
- * It is specific for stream I/O, such as ins.
+ * The maximum waiting time is about 128us.  It is specific for stream I/O,
+ * such as ins.
+ *
  * The fastest IO cycle time is about 390ns, but the worst case will wait
- * for extra 256 lpc clocks, so (256 + 13) * 30ns = 8 us. The maximum
- * burst cycles is 16. So, the maximum waiting time is about 128us under
- * worst case.
- * choose 1300 as the maximum.
+ * for extra 256 lpc clocks, so (256 + 13) * 30ns = 8 us. The maximum burst
+ * cycles is 16. So, the maximum waiting time is about 128us under worst
+ * case.
+ *
+ * Choose 1300 as the maximum.
  */
 #define LPC_MAX_WAITCNT		1300
-/* About 10us. This is specific for single IO operation, such as inb. */
+
+/* About 10us. This is specific for single IO operations, such as inb */
 #define LPC_PEROP_WAITCNT	100
 
-static inline int wait_lpc_idle(unsigned char *mbase,
-				unsigned int waitcnt) {
-	u32 opstatus;
+static int wait_lpc_idle(unsigned char *mbase, unsigned int waitcnt)
+{
+	u32 status;
 
-	while (waitcnt--) {
+	do {
+		status = readl(mbase + LPC_REG_OP_STATUS);
+		if (status & LPC_REG_OP_STATUS_IDLE)
+			return (status & LPC_REG_OP_STATUS_FINISHED) ? 0 : -EIO;
 		ndelay(LPC_NSEC_PERWAIT);
-		opstatus = readl(mbase + LPC_REG_OP_STATUS);
-		if (opstatus & LPC_STATUS_IDLE)
-			return (opstatus & LPC_OP_FINISHED) ? 0 : (-EIO);
-	}
+	} while (--waitcnt);
+
 	return -ETIME;
 }
 
@@ -115,10 +98,9 @@ static inline int wait_lpc_idle(unsigned char *mbase,
  *
  * Returns 0 on success, non-zero on fail.
  */
-static int
-hisi_lpc_target_in(struct hisi_lpc_dev *lpcdev, struct lpc_cycle_para *para,
-		  unsigned long addr, unsigned char *buf,
-		  unsigned long opcnt)
+static int hisi_lpc_target_in(struct hisi_lpc_dev *lpcdev,
+			      struct lpc_cycle_para *para, unsigned long addr,
+			      unsigned char *buf, unsigned long opcnt)
 {
 	unsigned int cmd_word;
 	unsigned int waitcnt;
@@ -128,36 +110,35 @@ hisi_lpc_target_in(struct hisi_lpc_dev *lpcdev, struct lpc_cycle_para *para,
 	if (!buf || !opcnt || !para || !para->csize || !lpcdev)
 		return -EINVAL;
 
-	cmd_word = LPC_CMD_TYPE_IO | LPC_CMD_READ;
+	cmd_word = 0; /* IO mode, Read */
 	waitcnt = LPC_PEROP_WAITCNT;
 	if (!(para->opflags & FG_INCRADDR_LPC)) {
-		cmd_word |= LPC_CMD_SAMEADDR;
+		cmd_word |= LPC_REG_CMD_SAMEADDR;
 		waitcnt = LPC_MAX_WAITCNT;
 	}
-
-	ret = 0;
 
 	/* whole operation must be atomic */
 	spin_lock_irqsave(&lpcdev->cycle_lock, flags);
 
 	writel_relaxed(opcnt, lpcdev->membase + LPC_REG_OP_LEN);
-
 	writel_relaxed(cmd_word, lpcdev->membase + LPC_REG_CMD);
-
 	writel_relaxed(addr, lpcdev->membase + LPC_REG_ADDR);
 
-	writel(LPC_START_WORK, lpcdev->membase + LPC_REG_START);
+	writel(LPC_REG_STARTUP_SIGNAL_START,
+	       lpcdev->membase + LPC_REG_STARTUP_SIGNAL);
 
 	/* whether the operation is finished */
 	ret = wait_lpc_idle(lpcdev->membase, waitcnt);
-	if (!ret) {
-		for (; opcnt; opcnt--, buf++)
-			*buf = readb(lpcdev->membase + LPC_REG_RDATA);
+	if (ret) {
+		spin_unlock_irqrestore(&lpcdev->cycle_lock, flags);
+		return ret;
 	}
+
+	readsb(lpcdev->membase + LPC_REG_RDATA, buf, opcnt);
 
 	spin_unlock_irqrestore(&lpcdev->cycle_lock, flags);
 
-	return ret;
+	return 0;
 }
 
 /*
@@ -170,24 +151,23 @@ hisi_lpc_target_in(struct hisi_lpc_dev *lpcdev, struct lpc_cycle_para *para,
  *
  * Returns 0 on success, non-zero on fail.
  */
-static int
-hisi_lpc_target_out(struct hisi_lpc_dev *lpcdev, struct lpc_cycle_para *para,
-		    unsigned long addr, const unsigned char *buf,
-		    unsigned long opcnt)
+static int hisi_lpc_target_out(struct hisi_lpc_dev *lpcdev,
+			       struct lpc_cycle_para *para, unsigned long addr,
+			       const unsigned char *buf, unsigned long opcnt)
 {
-	unsigned int cmd_word;
 	unsigned int waitcnt;
 	unsigned long flags;
+	u32 cmd_word;
 	int ret;
 
 	if (!buf || !opcnt || !para || !lpcdev)
 		return -EINVAL;
 
 	/* default is increasing address */
-	cmd_word = LPC_CMD_TYPE_IO | LPC_CMD_WRITE;
+	cmd_word = LPC_REG_CMD_OP; /* IO mode, write */
 	waitcnt = LPC_PEROP_WAITCNT;
 	if (!(para->opflags & FG_INCRADDR_LPC)) {
-		cmd_word |= LPC_CMD_SAMEADDR;
+		cmd_word |= LPC_REG_CMD_SAMEADDR;
 		waitcnt = LPC_MAX_WAITCNT;
 	}
 
@@ -197,10 +177,10 @@ hisi_lpc_target_out(struct hisi_lpc_dev *lpcdev, struct lpc_cycle_para *para,
 	writel_relaxed(cmd_word, lpcdev->membase + LPC_REG_CMD);
 	writel_relaxed(addr, lpcdev->membase + LPC_REG_ADDR);
 
-	for (; opcnt; buf++, opcnt--)
-		writeb(*buf, lpcdev->membase + LPC_REG_WDATA);
+	writesb(lpcdev->membase + LPC_REG_WDATA, buf, opcnt);
 
-	writel(LPC_START_WORK, lpcdev->membase + LPC_REG_START);
+	writel(LPC_REG_STARTUP_SIGNAL_START,
+	       lpcdev->membase + LPC_REG_STARTUP_SIGNAL);
 
 	/* whether the operation is finished */
 	ret = wait_lpc_idle(lpcdev->membase, waitcnt);
@@ -210,31 +190,30 @@ hisi_lpc_target_out(struct hisi_lpc_dev *lpcdev, struct lpc_cycle_para *para,
 	return ret;
 }
 
-static inline unsigned long
-hisi_lpc_pio_to_addr(struct hisi_lpc_dev *lpcdev, unsigned long pio)
+static unsigned long hisi_lpc_pio_to_addr(struct hisi_lpc_dev *lpcdev,
+					  unsigned long pio)
 {
-	return pio - lpcdev->io_host->io_start +
-		lpcdev->io_host->hw_start;
+	return pio - lpcdev->io_host->io_start + lpcdev->io_host->hw_start;
 }
 
 /*
  * hisi_lpc_comm_in - input the data in a single operation
- * @hostdata: pointer to the device information relevant to LPC controller.
- * @pio: the target I/O port address.
- * @dwidth: the data length required to read from the target I/O port.
+ * @hostdata: pointer to the device information relevant to LPC controller
+ * @pio: the target I/O port address
+ * @dwidth: the data length required to read from the target I/O port
  *
- * When success, data is returned. Otherwise, -1 is returned.
+ * When success, data is returned. Otherwise, ~0 is returned.
  */
 static u32 hisi_lpc_comm_in(void *hostdata, unsigned long pio, size_t dwidth)
 {
 	struct hisi_lpc_dev *lpcdev = hostdata;
 	struct lpc_cycle_para iopara;
-	u32 rd_data = 0;
 	unsigned long addr;
-	int ret = 0;
+	u32 rd_data = 0;
+	int ret;
 
-	if (!lpcdev || !dwidth || dwidth > LPC_MAX_DULEN)
-		return -1;
+	if (!lpcdev || !dwidth || dwidth > LPC_MAX_DWIDTH)
+		return ~0;
 
 	addr = hisi_lpc_pio_to_addr(lpcdev, pio);
 
@@ -244,30 +223,29 @@ static u32 hisi_lpc_comm_in(void *hostdata, unsigned long pio, size_t dwidth)
 	ret = hisi_lpc_target_in(lpcdev, &iopara, addr,
 				 (unsigned char *)&rd_data, dwidth);
 	if (ret)
-		return -1;
+		return ~0;
 
 	return le32_to_cpu(rd_data);
 }
 
 /*
  * hisi_lpc_comm_out - output the data in a single operation
- * @hostdata: pointer to the device information relevant to LPC controller.
- * @pio: the target I/O port address.
- * @val: a value to be outputted from caller, maximum is four bytes.
- * @dwidth: the data width required writing to the target I/O port.
+ * @hostdata: pointer to the device information relevant to LPC controller
+ * @pio: the target I/O port address
+ * @val: a value to be output from caller, maximum is four bytes
+ * @dwidth: the data width required writing to the target I/O port
  *
- * This function is corresponding to out(b,w,l) only
- *
+ * This function corresponds to out(b,w,l) only.
  */
 static void hisi_lpc_comm_out(void *hostdata, unsigned long pio,
-			     u32 val, size_t dwidth)
+			      u32 val, size_t dwidth)
 {
 	struct hisi_lpc_dev *lpcdev = hostdata;
 	struct lpc_cycle_para iopara;
 	const unsigned char *buf;
 	unsigned long addr;
 
-	if (!lpcdev || !dwidth || dwidth > LPC_MAX_DULEN)
+	if (!lpcdev || !dwidth || dwidth > LPC_MAX_DWIDTH)
 		return;
 
 	val = cpu_to_le32(val);
@@ -283,26 +261,24 @@ static void hisi_lpc_comm_out(void *hostdata, unsigned long pio,
 
 /*
  * hisi_lpc_comm_ins - input the data in the buffer in multiple operations
- * @hostdata: pointer to the device information relevant to LPC controller.
- * @pio: the target I/O port address.
- * @buffer: a buffer where read/input data bytes are stored.
- * @dwidth: the data width required writing to the target I/O port.
- * @count: how many data units whose length is dwidth will be read.
+ * @hostdata: pointer to the device information relevant to LPC controller
+ * @pio: the target I/O port address
+ * @buffer: a buffer where read/input data bytes are stored
+ * @dwidth: the data width required writing to the target I/O port
+ * @count: how many data units whose length is dwidth will be read
  *
  * When success, the data read back is stored in buffer pointed by buffer.
- * Returns 0 on success, -errno otherwise
- *
+ * Returns 0 on success, -errno otherwise.
  */
-static u32
-hisi_lpc_comm_ins(void *hostdata, unsigned long pio, void *buffer,
-		  size_t dwidth, unsigned int count)
+static u32 hisi_lpc_comm_ins(void *hostdata, unsigned long pio, void *buffer,
+			     size_t dwidth, unsigned int count)
 {
 	struct hisi_lpc_dev *lpcdev = hostdata;
 	unsigned char *buf = buffer;
 	struct lpc_cycle_para iopara;
 	unsigned long addr;
 
-	if (!lpcdev || !buf || !count || !dwidth || dwidth > LPC_MAX_DULEN)
+	if (!lpcdev || !buf || !count || !dwidth || dwidth > LPC_MAX_DWIDTH)
 		return -EINVAL;
 
 	iopara.opflags = 0;
@@ -315,36 +291,33 @@ hisi_lpc_comm_ins(void *hostdata, unsigned long pio, void *buffer,
 	do {
 		int ret;
 
-		ret = hisi_lpc_target_in(lpcdev, &iopara, addr,
-					buf, dwidth);
+		ret = hisi_lpc_target_in(lpcdev, &iopara, addr, buf, dwidth);
 		if (ret)
 			return ret;
 		buf += dwidth;
-		count--;
-	} while (count);
+	} while (--count);
 
 	return 0;
 }
 
 /*
  * hisi_lpc_comm_outs - output the data in the buffer in multiple operations
- * @hostdata: pointer to the device information relevant to LPC controller.
- * @pio: the target I/O port address.
- * @buffer: a buffer where write/output data bytes are stored.
- * @dwidth: the data width required writing to the target I/O port .
- * @count: how many data units whose length is dwidth will be written.
- *
+ * @hostdata: pointer to the device information relevant to LPC controller
+ * @pio: the target I/O port address
+ * @buffer: a buffer where write/output data bytes are stored
+ * @dwidth: the data width required writing to the target I/O port
+ * @count: how many data units whose length is dwidth will be written
  */
-static void
-hisi_lpc_comm_outs(void *hostdata, unsigned long pio, const void *buffer,
-		   size_t dwidth, unsigned int count)
+static void hisi_lpc_comm_outs(void *hostdata, unsigned long pio,
+			       const void *buffer, size_t dwidth,
+			       unsigned int count)
 {
 	struct hisi_lpc_dev *lpcdev = hostdata;
 	struct lpc_cycle_para iopara;
 	const unsigned char *buf = buffer;
 	unsigned long addr;
 
-	if (!lpcdev || !buf || !count || !dwidth || dwidth > LPC_MAX_DULEN)
+	if (!lpcdev || !buf || !count || !dwidth || dwidth > LPC_MAX_DWIDTH)
 		return;
 
 	iopara.opflags = 0;
@@ -354,12 +327,10 @@ hisi_lpc_comm_outs(void *hostdata, unsigned long pio, const void *buffer,
 
 	addr = hisi_lpc_pio_to_addr(lpcdev, pio);
 	do {
-		if (hisi_lpc_target_out(lpcdev, &iopara, addr, buf,
-						dwidth))
+		if (hisi_lpc_target_out(lpcdev, &iopara, addr, buf, dwidth))
 			break;
 		buf += dwidth;
-		count--;
-	} while (count);
+	} while (--count);
 }
 
 static const struct logic_pio_host_ops hisi_lpc_ops = {
@@ -371,7 +342,7 @@ static const struct logic_pio_host_ops hisi_lpc_ops = {
 
 #ifdef CONFIG_ACPI
 #define MFD_CHILD_NAME_PREFIX DRV_NAME"-"
-#define MFD_CHILD_NAME_LEN (ACPI_ID_LEN + sizeof(MFD_CHILD_NAME_PREFIX))
+#define MFD_CHILD_NAME_LEN (ACPI_ID_LEN + sizeof(MFD_CHILD_NAME_PREFIX) - 1)
 
 struct hisi_lpc_mfd_cell {
 	struct mfd_cell_acpi_match acpi_match;
@@ -384,7 +355,7 @@ static int hisi_lpc_acpi_xlat_io_res(struct acpi_device *adev,
 				     struct resource *res)
 {
 	unsigned long sys_port;
-	resource_size_t len = res->end - res->start;
+	resource_size_t len = resource_size(res);
 
 	sys_port = logic_pio_trans_hwaddr(&host->fwnode, res->start, len);
 	if (sys_port == ~0UL)
@@ -405,14 +376,13 @@ static int hisi_lpc_acpi_xlat_io_res(struct acpi_device *adev,
  *
  * Returns 0 when successful, and a negative value for failure.
  *
- * For a given host controller, each child device will have associated
- * host-relative address resource. This function will return the translated
+ * For a given host controller, each child device will have an associated
+ * host-relative address resource.  This function will return the translated
  * logical PIO addresses for each child devices resources.
  */
 static int hisi_lpc_acpi_set_io_res(struct device *child,
 				    struct device *hostdev,
-				    const struct resource **res,
-				    int *num_res)
+				    const struct resource **res, int *num_res)
 {
 	struct acpi_device *adev;
 	struct acpi_device *host;
@@ -428,12 +398,11 @@ static int hisi_lpc_acpi_set_io_res(struct device *child,
 	host = to_acpi_device(hostdev);
 	adev = to_acpi_device(child);
 
-	/* check the device state */
 	if (!adev->status.present) {
 		dev_dbg(child, "device is not present\n");
 		return -EIO;
 	}
-	/* whether the child had been enumerated? */
+
 	if (acpi_device_enumerated(adev)) {
 		dev_dbg(child, "has been enumerated\n");
 		return -EIO;
@@ -472,7 +441,8 @@ static int hisi_lpc_acpi_set_io_res(struct device *child,
 			continue;
 		ret = hisi_lpc_acpi_xlat_io_res(adev, host, &resources[i]);
 		if (ret) {
-			dev_err(child, "translate IO range failed(%d)\n", ret);
+			dev_err(child, "translate IO range %pR failed (%d)\n",
+				&resources[i], ret);
 			return ret;
 		}
 	}
@@ -502,14 +472,13 @@ static int hisi_lpc_acpi_probe(struct device *hostdev)
 	list_for_each_entry(child, &adev->children, node)
 		cell_num++;
 
-	/* allocate the mfd cell and companion acpi info, one per child */
+	/* allocate the mfd cell and companion ACPI info, one per child */
 	size = sizeof(*mfd_cells) + sizeof(*hisi_lpc_mfd_cells);
 	mfd_cells = devm_kcalloc(hostdev, cell_num, size, GFP_KERNEL);
 	if (!mfd_cells)
 		return -ENOMEM;
 
-	hisi_lpc_mfd_cells = (struct hisi_lpc_mfd_cell *)
-					&mfd_cells[cell_num];
+	hisi_lpc_mfd_cells = (struct hisi_lpc_mfd_cell *)&mfd_cells[cell_num];
 	/* Only consider the children of the host */
 	list_for_each_entry(child, &adev->children, node) {
 		struct mfd_cell *mfd_cell = &mfd_cells[count];
@@ -523,6 +492,12 @@ static int hisi_lpc_acpi_probe(struct device *hostdev)
 			.pnpid = pnpid,
 		};
 
+		/*
+		 * For any instances of this host controller (Hip06 and Hip07
+		 * are the only chipsets), we would not have multiple slaves
+		 * with the same HID. And in any system we would have just one
+		 * controller active. So don't worrry about MFD name clashes.
+		 */
 		snprintf(name, MFD_CHILD_NAME_LEN, MFD_CHILD_NAME_PREFIX"%s",
 			 acpi_device_hid(child));
 		snprintf(pnpid, ACPI_ID_LEN, "%s", acpi_device_hid(child));
@@ -535,7 +510,7 @@ static int hisi_lpc_acpi_probe(struct device *hostdev)
 					       &mfd_cell->resources,
 					       &mfd_cell->num_resources);
 		if (ret) {
-			dev_warn(&child->dev, "set resource fail(%d)\n", ret);
+			dev_warn(&child->dev, "set resource fail (%d)\n", ret);
 			return ret;
 		}
 		count++;
@@ -575,30 +550,27 @@ static int hisi_lpc_probe(struct platform_device *pdev)
 	struct acpi_device *acpi_device = ACPI_COMPANION(dev);
 	struct logic_pio_hwaddr *range;
 	struct hisi_lpc_dev *lpcdev;
+	resource_size_t io_end;
 	struct resource *res;
-	int ret = 0;
+	int ret;
 
-	lpcdev = devm_kzalloc(dev, sizeof(struct hisi_lpc_dev), GFP_KERNEL);
+	lpcdev = devm_kzalloc(dev, sizeof(*lpcdev), GFP_KERNEL);
 	if (!lpcdev)
 		return -ENOMEM;
 
 	spin_lock_init(&lpcdev->cycle_lock);
 
 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
-	if (!res)
-		return -ENODEV;
-
 	lpcdev->membase = devm_ioremap_resource(dev, res);
-	if (IS_ERR(lpcdev->membase)) {
-		dev_err(dev, "remap failed\n");
+	if (IS_ERR(lpcdev->membase))
 		return PTR_ERR(lpcdev->membase);
-	}
 
 	range = devm_kzalloc(dev, sizeof(*range), GFP_KERNEL);
 	if (!range)
 		return -ENOMEM;
+
 	range->fwnode = dev->fwnode;
-	range->flags = PIO_INDIRECT;
+	range->flags = LOGIC_PIO_INDIRECT;
 	range->size = PIO_INDIRECT_SIZE;
 
 	ret = logic_pio_register_range(range);
@@ -609,21 +581,19 @@ static int hisi_lpc_probe(struct platform_device *pdev)
 	lpcdev->io_host = range;
 
 	/* register the LPC host PIO resources */
-	if (!acpi_device)
-		ret = of_platform_populate(dev->of_node, NULL, NULL, dev);
-	else
+	if (acpi_device)
 		ret = hisi_lpc_acpi_probe(dev);
-	if (ret) {
-		dev_err(dev, "populate children failed (%d)\n", ret);
+	else
+		ret = of_platform_populate(dev->of_node, NULL, NULL, dev);
+	if (ret)
 		return ret;
-	}
 
 	lpcdev->io_host->hostdata = lpcdev;
 	lpcdev->io_host->ops = &hisi_lpc_ops;
 
-	dev_info(dev, "registered range[%pa - sz:%pa]\n",
-		 &lpcdev->io_host->io_start,
-		 &lpcdev->io_host->size);
+	io_end = lpcdev->io_host->io_start + lpcdev->io_host->size;
+	dev_info(dev, "registered range [%pa - %pa]\n",
+		 &lpcdev->io_host->io_start, &io_end);
 
 	return ret;
 }
@@ -642,5 +612,4 @@ static struct platform_driver hisi_lpc_driver = {
 	},
 	.probe = hisi_lpc_probe,
 };
-
 builtin_platform_driver(hisi_lpc_driver);

@@ -18,11 +18,12 @@
 #include <linux/cred.h>
 #include <linux/slab.h>
 #include <linux/sched.h>
+#include <linux/lsm_hooks.h>
 
 #include "label.h"
 #include "policy_ns.h"
 
-#define cred_ctx(X) ((X)->security)
+#define cred_ctx(X) apparmor_cred(X)
 #define current_ctx() cred_ctx(current_cred())
 
 /**
@@ -44,7 +45,6 @@ struct aa_task_ctx {
 	u64 token;
 };
 
-struct aa_task_ctx *aa_alloc_task_context(gfp_t flags);
 void aa_free_task_context(struct aa_task_ctx *ctx);
 void aa_dup_task_context(struct aa_task_ctx *new,
 			 const struct aa_task_ctx *old);
@@ -54,6 +54,16 @@ int aa_set_current_hat(struct aa_label *label, u64 token);
 int aa_restore_previous_label(u64 cookie);
 struct aa_label *aa_get_task_label(struct task_struct *task);
 
+extern struct lsm_blob_sizes apparmor_blob_sizes;
+
+static inline struct aa_task_ctx *apparmor_cred(const struct cred *cred)
+{
+#ifdef CONFIG_SECURITY_STACKING
+	return cred->security + apparmor_blob_sizes.lbs_cred;
+#else
+	return cred->security;
+#endif
+}
 
 /**
  * aa_cred_raw_label - obtain cred's label
@@ -65,7 +75,7 @@ struct aa_label *aa_get_task_label(struct task_struct *task);
  */
 static inline struct aa_label *aa_cred_raw_label(const struct cred *cred)
 {
-	struct aa_task_ctx *ctx = cred_ctx(cred);
+	struct aa_task_ctx *ctx = apparmor_cred(cred);
 
 	AA_BUG(!ctx || !ctx->label);
 	return ctx->label;
@@ -80,6 +90,15 @@ static inline struct aa_label *aa_cred_raw_label(const struct cred *cred)
 static inline struct aa_label *aa_get_newest_cred_label(const struct cred *cred)
 {
 	return aa_get_newest_label(aa_cred_raw_label(cred));
+}
+
+static inline struct aa_file_ctx *apparmor_file(const struct file *file)
+{
+#ifdef CONFIG_SECURITY_STACKING
+	return file->f_security + apparmor_blob_sizes.lbs_file;
+#else
+	return file->f_security;
+#endif
 }
 
 /**

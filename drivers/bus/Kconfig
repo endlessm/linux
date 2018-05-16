@@ -66,12 +66,12 @@ config BRCMSTB_GISB_ARB
 	  and internal bus master decoding.
 
 config HISILICON_LPC
-	bool "Support for ISA I/O space on Hisilicon hip06/7"
-	depends on (ARM64 && (ARCH_HISI || COMPILE_TEST))
+	bool "Support for ISA I/O space on HiSilicon Hip06/7"
+	depends on ARM64 && (ARCH_HISI || COMPILE_TEST)
 	select INDIRECT_PIO
 	help
-	  Driver needed for some legacy ISA devices attached to Low-Pin-Count
-	  on Hisilicon hip06/7 SoC.
+	  Driver to enable I/O access to devices attached to the Low Pin
+	  Count bus on the HiSilicon Hip06/7 SoC.
 
 config IMX_WEIM
 	bool "Freescale EIM DRIVER"

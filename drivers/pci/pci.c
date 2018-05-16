@@ -3386,7 +3386,7 @@ int pci_register_io_range(struct fwnode_handle *fwnode, phys_addr_t addr,
 	range->fwnode = fwnode;
 	range->size = size;
 	range->hw_start = addr;
-	range->flags = PIO_CPU_MMIO;
+	range->flags = LOGIC_PIO_CPU_MMIO;
 
 	ret = logic_pio_register_range(range);
 	if (ret)

@@ -127,6 +127,27 @@ unsigned long dev_pm_opp_get_freq(struct dev_pm_opp *opp)
 }
 EXPORT_SYMBOL_GPL(dev_pm_opp_get_freq);
 
+struct regulator *dev_pm_opp_get_regulator(struct device *dev)
+{
+	struct opp_table *opp_table;
+	struct regulator *reg;
+
+	rcu_read_lock();
+
+	opp_table = _find_opp_table(dev);
+	if (IS_ERR(opp_table)) {
+		rcu_read_unlock();
+		return ERR_CAST(opp_table);
+	}
+
+	reg = opp_table->regulators[0];
+
+	rcu_read_unlock();
+
+	return reg;
+}
+EXPORT_SYMBOL_GPL(dev_pm_opp_get_regulator);
+
 /**
  * dev_pm_opp_is_turbo() - Returns if opp is turbo OPP or not
  * @opp: opp for which turbo mode is being verified
@@ -1328,11 +1349,13 @@ struct opp_table *dev_pm_opp_set_regulators(struct device *dev,
 	if (!opp_table)
 		return ERR_PTR(-ENOMEM);
 
+#if 0
 	/* This should be called before OPPs are initialized */
 	if (WARN_ON(!list_empty(&opp_table->opp_list))) {
 		ret = -EBUSY;
 		goto err;
 	}
+#endif
 
 	/* Already have regulators set */
 	if (opp_table->regulators) {
@@ -1725,6 +1748,76 @@ unlock:
 	mutex_unlock(&opp_table->lock);
 put_table:
 	dev_pm_opp_put_opp_table(opp_table);
+	return r;
+}
+
+/**
+ * dev_pm_opp_adjust_voltage() - helper to change the voltage of an OPP
+ * @dev:		device for which we do this operation
+ * @freq:		OPP frequency to adjust voltage of
+ * @u_volt:		new OPP voltage
+ *
+ * Change the voltage of an OPP with an RCU operation.
+ *
+ * Return: -EINVAL for bad pointers, -ENOMEM if no memory available for the
+ * copy operation, returns 0 if no modifcation was done OR modification was
+ * successful.
+ *
+ * Locking: The internal device_opp and opp structures are RCU protected.
+ * Hence this function internally uses RCU updater strategy with mutex locks to
+ * keep the integrity of the internal data structures. Callers should ensure
+ * that this function is *NOT* called under RCU protection or in contexts where
+ * mutex locking or synchronize_rcu() blocking calls cannot be used.
+ */
+int dev_pm_opp_adjust_voltage(struct device *dev, unsigned long freq,
+			      unsigned long u_volt)
+{
+	struct opp_table *opp_table;
+	struct dev_pm_opp *tmp_opp, *opp = ERR_PTR(-ENODEV);
+	int r = 0;
+	unsigned long tol;
+
+	mutex_lock(&opp_table_lock);
+
+	/* Find the opp_table */
+	opp_table = _find_opp_table_unlocked(dev);
+	if (IS_ERR(opp_table)) {
+		r = PTR_ERR(opp_table);
+		dev_warn(dev, "%s: Device OPP not found (%d)\n", __func__, r);
+		goto unlock;
+	}
+
+	/* Do we have the frequency? */
+	list_for_each_entry(tmp_opp, &opp_table->opp_list, node) {
+		if (tmp_opp->rate == freq) {
+			opp = tmp_opp;
+			break;
+		}
+	}
+	if (IS_ERR(opp)) {
+		r = PTR_ERR(opp);
+		goto unlock;
+	}
+
+	/* Is update really needed? */
+	if (opp->supplies[0].u_volt == u_volt)
+		goto unlock;
+
+	/* adjust voltage node */
+	tol = u_volt * opp_table->voltage_tolerance_v1 / 100;
+	opp->supplies[0].u_volt = u_volt;
+	opp->supplies[0].u_volt_min = u_volt - tol;
+	opp->supplies[0].u_volt_max = u_volt + tol;
+
+	mutex_unlock(&opp_table_lock);
+
+	/* Notify the change of the OPP */
+	blocking_notifier_call_chain(&opp_table->head, OPP_EVENT_ADJUST_VOLTAGE, opp);
+
+	return 0;
+
+unlock:
+	mutex_unlock(&opp_table_lock);
 	return r;
 }
 

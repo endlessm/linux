@@ -85,6 +85,9 @@ install-tools: toolspkg = $(tools_common_pkg_name)
 install-tools: toolsbin = $(CURDIR)/debian/$(toolspkg)/usr/bin
 install-tools: toolssbin = $(CURDIR)/debian/$(toolspkg)/usr/sbin
 install-tools: toolsman = $(CURDIR)/debian/$(toolspkg)/usr/share/man
+install-tools: hosttoolspkg = $(hosttools_pkg_name)
+install-tools: hosttoolsbin = $(CURDIR)/debian/$(hosttoolspkg)/usr/bin
+install-tools: hosttoolsman = $(CURDIR)/debian/$(hosttoolspkg)/usr/share/man
 install-tools: cloudpkg = $(cloud_common_pkg_name)
 install-tools: cloudbin = $(CURDIR)/debian/$(cloudpkg)/usr/bin
 install-tools: cloudsbin = $(CURDIR)/debian/$(cloudpkg)/usr/sbin
@@ -144,6 +147,17 @@ endif
 
 endif
 
+ifeq ($(do_tools_host),true)
+	install -d $(hosttoolsbin)
+	install -d $(hosttoolsman)/man1
+
+	install -m 755 $(CURDIR)/tools/kvm/kvm_stat/kvm_stat $(hosttoolsbin)/
+
+	cd $(builddir)/tools/tools/kvm/kvm_stat && make man
+	install -m644 $(builddir)/tools/tools/kvm/kvm_stat/*.1 \
+		$(hosttoolsman)/man1
+endif
+
 install-indep: install-tools
 	@echo Debug: $@
 
@@ -168,6 +182,7 @@ binary-indep: install-indep
 	dh_installdocs -i
 	dh_compress -i
 	dh_fixperms -i
+ifeq ($(do_tools_common),true)
 ifeq ($(do_cloud_tools),true)
 ifeq ($(do_tools_hyperv),true)
 	dh_installinit -p$(cloudpkg) -n --name hv-kvp-daemon
@@ -178,6 +193,7 @@ ifeq ($(do_tools_hyperv),true)
 	dh_installinit -p$(cloudpkg) -o --name hv-vss-daemon
 	dh_installinit -p$(cloudpkg) -o --name hv-fcopy-daemon
 	dh_systemd_start -p$(cloudpkg)
+endif
 endif
 endif
 	dh_installdeb -i

@@ -187,15 +187,6 @@
 #define DMA_RX_STATUS_BUSY_MSK		(0x1 << DMA_RX_STATUS_BUSY_OFF)
 
 #define COARSETUNE_TIME			(PORT_BASE + 0x304)
-#define SAS_TXDEEMPH_G1			(PORT_BASE + 0x350)
-#define SAS_TXDEEMPH_G2			(PORT_BASE + 0x354)
-#define SAS_TXDEEMPH_G3			(PORT_BASE + 0x358)
-#define SAS_TXDEEMPH_G4			(PORT_BASE + 0x35c)
-#define SATA_TXDEEMPH_G1			(PORT_BASE + 0x360)
-#define SATA_TXDEEMPH_G2			(PORT_BASE + 0x364)
-#define SATA_TXDEEMPH_G3			(PORT_BASE + 0x368)
-#define SATA_TXDEEMPH_G4			(PORT_BASE + 0x36c)
-
 #define ERR_CNT_DWS_LOST		(PORT_BASE + 0x380)
 #define ERR_CNT_RESET_PROB		(PORT_BASE + 0x384)
 #define ERR_CNT_INVLD_DW		(PORT_BASE + 0x390)
@@ -414,6 +405,7 @@ static void init_reg_v3_hw(struct hisi_hba *hisi_hba)
 			 (u32)((1ULL << hisi_hba->queue_count) - 1));
 	hisi_sas_write32(hisi_hba, CFG_MAX_TAG, 0xfff0400);
 	hisi_sas_write32(hisi_hba, HGC_SAS_TXFAIL_RETRY_CTRL, 0x108);
+	hisi_sas_write32(hisi_hba, CFG_1US_TIMER_TRSH, 0xd);
 	hisi_sas_write32(hisi_hba, INT_COAL_EN, 0x1);
 	hisi_sas_write32(hisi_hba, OQ_INT_COAL_TIME, 0x1);
 	hisi_sas_write32(hisi_hba, OQ_INT_COAL_CNT, 0x1);
@@ -450,21 +442,12 @@ static void init_reg_v3_hw(struct hisi_hba *hisi_hba)
 		hisi_sas_phy_write32(hisi_hba, i, PHYCTRL_PHY_ENA_MSK, 0x0);
 		hisi_sas_phy_write32(hisi_hba, i, SL_RX_BCAST_CHK_MSK, 0x0);
 		hisi_sas_phy_write32(hisi_hba, i, PHYCTRL_OOB_RESTART_MSK, 0x1);
+		hisi_sas_phy_write32(hisi_hba, i, STP_LINK_TIMER, 0x7f7a120);
 
 		/* used for 12G negotiate */
 		hisi_sas_phy_write32(hisi_hba, i, COARSETUNE_TIME, 0x1e);
-		hisi_sas_phy_write32(hisi_hba, i, SAS_TXDEEMPH_G1, 0x8d04);
-		hisi_sas_phy_write32(hisi_hba, i, SAS_TXDEEMPH_G2, 0x8d04);
-		hisi_sas_phy_write32(hisi_hba, i, SAS_TXDEEMPH_G3, 0x8d04);
-		hisi_sas_phy_write32(hisi_hba, i, SAS_TXDEEMPH_G4, 0x8d04);
-		hisi_sas_phy_write32(hisi_hba, i, SATA_TXDEEMPH_G1, 0x8d04);
-		hisi_sas_phy_write32(hisi_hba, i, SATA_TXDEEMPH_G2, 0x8d04);
-		hisi_sas_phy_write32(hisi_hba, i, SATA_TXDEEMPH_G3, 0x8d04);
-		hisi_sas_phy_write32(hisi_hba, i, SATA_TXDEEMPH_G4, 0x8d04);
-
-		/* disable stp link timer */
-		hisi_sas_phy_write32(hisi_hba, i, STP_LINK_TIMER, 0x2710);
 	}
+
 	for (i = 0; i < hisi_hba->queue_count; i++) {
 		/* Delivery queue */
 		hisi_sas_write32(hisi_hba,
@@ -2438,4 +2421,4 @@ module_pci_driver(sas_v3_pci_driver);
 MODULE_LICENSE("GPL");
 MODULE_AUTHOR("John Garry <john.garry@huawei.com>");
 MODULE_DESCRIPTION("HISILICON SAS controller v3 hw driver based on pci device");
-MODULE_ALIAS("platform:" DRV_NAME);
+MODULE_ALIAS("pci:" DRV_NAME);
