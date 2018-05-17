@@ -30,7 +30,6 @@ Provides: linux-image, fuse-module, aufs-dkms, =PROVIDES=${linux:rprovides}
 Depends: ${misc:Depends}, ${shlibs:Depends}, kmod, linux-base, linux-modules-PKGVER-ABINUM-FLAVOUR
 Recommends: BOOTLOADER, initramfs-tools | linux-initramfs-tool
 Breaks: flash-kernel (<< 3.0~rc.4ubuntu64) [arm64]
-Conflicts: linux-image=SIGN-PEER-PKG=-PKGVER-ABINUM-FLAVOUR
 Suggests: fdutils, SRCPKGNAME-doc-PKGVER | SRCPKGNAME-source-PKGVER, SRCPKGNAME-tools, linux-headers-PKGVER-ABINUM-FLAVOUR
 Conflicts: linux-signed-image-PKGVER-ABINUM-FLAVOUR
 Replaces: linux-signed-image-PKGVER-ABINUM-FLAVOUR
