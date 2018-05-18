@@ -2615,13 +2615,19 @@ static int cleanup_ref_head(struct btrfs_trans_handle *trans,
 	trace_run_delayed_ref_head(fs_info, head, 0);
 
 	if (head->total_ref_mod < 0) {
-		struct btrfs_block_group_cache *cache;
+		struct btrfs_space_info *space_info;
+		u64 flags;
 
-		cache = btrfs_lookup_block_group(fs_info, head->bytenr);
-		ASSERT(cache);
-		percpu_counter_add(&cache->space_info->total_bytes_pinned,
+		if (head->is_data)
+			flags = BTRFS_BLOCK_GROUP_DATA;
+		else if (head->is_system)
+			flags = BTRFS_BLOCK_GROUP_SYSTEM;
+		else
+			flags = BTRFS_BLOCK_GROUP_METADATA;
+		space_info = __find_space_info(fs_info, flags);
+		ASSERT(space_info);
+		percpu_counter_add(&space_info->total_bytes_pinned,
 				   -head->num_bytes);
-		btrfs_put_block_group(cache);
 
 		if (head->is_data) {
 			spin_lock(&delayed_refs->lock);
@@ -3149,7 +3155,11 @@ static noinline int check_delayed_ref(struct btrfs_root *root,
 	struct rb_node *node;
 	int ret = 0;
 
+	spin_lock(&root->fs_info->trans_lock);
 	cur_trans = root->fs_info->running_transaction;
+	if (cur_trans)
+		refcount_inc(&cur_trans->use_count);
+	spin_unlock(&root->fs_info->trans_lock);
 	if (!cur_trans)
 		return 0;
 
@@ -3158,6 +3168,7 @@ static noinline int check_delayed_ref(struct btrfs_root *root,
 	head = btrfs_find_delayed_ref_head(delayed_refs, bytenr);
 	if (!head) {
 		spin_unlock(&delayed_refs->lock);
+		btrfs_put_transaction(cur_trans);
 		return 0;
 	}
 
@@ -3174,6 +3185,7 @@ static noinline int check_delayed_ref(struct btrfs_root *root,
 		mutex_lock(&head->mutex);
 		mutex_unlock(&head->mutex);
 		btrfs_put_delayed_ref_head(head);
+		btrfs_put_transaction(cur_trans);
 		return -EAGAIN;
 	}
 	spin_unlock(&delayed_refs->lock);
@@ -3206,6 +3218,7 @@ static noinline int check_delayed_ref(struct btrfs_root *root,
 	}
 	spin_unlock(&head->lock);
 	mutex_unlock(&head->mutex);
+	btrfs_put_transaction(cur_trans);
 	return ret;
 }
 

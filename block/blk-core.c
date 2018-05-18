@@ -129,6 +129,10 @@ void blk_rq_init(struct request_queue *q, struct request *rq)
 	rq->part = NULL;
 	seqcount_init(&rq->gstate_seq);
 	u64_stats_init(&rq->aborted_gstate_sync);
+	/*
+	 * See comment of blk_mq_init_request
+	 */
+	WRITE_ONCE(rq->gstate, MQ_RQ_GEN_INC);
 }
 EXPORT_SYMBOL(blk_rq_init);
 
@@ -825,9 +829,8 @@ int blk_queue_enter(struct request_queue *q, blk_mq_req_flags_t flags)
 
 	while (true) {
 		bool success = false;
-		int ret;
 
-		rcu_read_lock_sched();
+		rcu_read_lock();
 		if (percpu_ref_tryget_live(&q->q_usage_counter)) {
 			/*
 			 * The code that sets the PREEMPT_ONLY flag is
@@ -840,7 +843,7 @@ int blk_queue_enter(struct request_queue *q, blk_mq_req_flags_t flags)
 				percpu_ref_put(&q->q_usage_counter);
 			}
 		}
-		rcu_read_unlock_sched();
+		rcu_read_unlock();
 
 		if (success)
 			return 0;
@@ -857,14 +860,12 @@ int blk_queue_enter(struct request_queue *q, blk_mq_req_flags_t flags)
 		 */
 		smp_rmb();
 
-		ret = wait_event_interruptible(q->mq_freeze_wq,
-				(atomic_read(&q->mq_freeze_depth) == 0 &&
-				 (preempt || !blk_queue_preempt_only(q))) ||
-				blk_queue_dying(q));
+		wait_event(q->mq_freeze_wq,
+			   (atomic_read(&q->mq_freeze_depth) == 0 &&
+			    (preempt || !blk_queue_preempt_only(q))) ||
+			   blk_queue_dying(q));
 		if (blk_queue_dying(q))
 			return -ENODEV;
-		if (ret)
-			return ret;
 	}
 }
 

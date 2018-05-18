@@ -727,12 +727,12 @@ swiotlb_alloc_buffer(struct device *dev, size_t size, dma_addr_t *dma_handle,
 
 	phys_addr = swiotlb_tbl_map_single(dev,
 			swiotlb_phys_to_dma(dev, io_tlb_start),
-			0, size, DMA_FROM_DEVICE, 0);
+			0, size, DMA_FROM_DEVICE, attrs);
 	if (phys_addr == SWIOTLB_MAP_ERROR)
 		goto out_warn;
 
 	*dma_handle = swiotlb_phys_to_dma(dev, phys_addr);
-	if (dma_coherent_ok(dev, *dma_handle, size))
+	if (!dma_coherent_ok(dev, *dma_handle, size))
 		goto out_unmap;
 
 	memset(phys_to_virt(phys_addr), 0, size);
@@ -750,7 +750,7 @@ out_unmap:
 	swiotlb_tbl_unmap_single(dev, phys_addr, size, DMA_TO_DEVICE,
 			DMA_ATTR_SKIP_CPU_SYNC);
 out_warn:
-	if ((attrs & DMA_ATTR_NO_WARN) && printk_ratelimit()) {
+	if (!(attrs & DMA_ATTR_NO_WARN) && printk_ratelimit()) {
 		dev_warn(dev,
 			"swiotlb: coherent allocation failed, size=%zu\n",
 			size);
