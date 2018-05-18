@@ -55,6 +55,7 @@ endif
 
 # Are any of the kernel signing options enabled.
 any_signed=$(sort $(filter-out false,$(uefi_signed) $(opal_signed)))
+any_signed=false
 ifeq ($(any_signed),true)
 bin_pkg_name=$(bin_pkg_name_unsigned)
 else
