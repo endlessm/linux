@@ -137,10 +137,6 @@ struct apparmor_audit_data {
 					void *addr;
 					int addrlen;
 				} net;
-				struct {
-					int rlim;
-					unsigned long max;
-				} rlim;
 			};
 		};
 		struct {
