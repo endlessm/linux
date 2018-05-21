@@ -33,6 +33,9 @@
 /* security_inode_init_security wants 6 args */
 #undef HAVE_6ARGS_SECURITY_INODE_INIT_SECURITY
 
+/* posix_acl has refcount_t */
+#undef HAVE_ACL_REFCOUNT
+
 /* dops->automount() exists */
 #undef HAVE_AUTOMOUNT
 
@@ -107,6 +110,12 @@
 
 /* blk queue backing_dev_info is dynamic */
 #undef HAVE_BLK_QUEUE_BDI_DYNAMIC
+
+/* blk_queue_flag_clear() exists */
+#undef HAVE_BLK_QUEUE_FLAG_CLEAR
+
+/* blk_queue_flag_set() exists */
+#undef HAVE_BLK_QUEUE_FLAG_SET
 
 /* blk_queue_flush() is available */
 #undef HAVE_BLK_QUEUE_FLUSH
@@ -267,6 +276,9 @@
 /* iops->get_acl() exists */
 #undef HAVE_GET_ACL
 
+/* get_disk_and_module() is available */
+#undef HAVE_GET_DISK_AND_MODULE
+
 /* blk_disk_ro() is available */
 #undef HAVE_GET_DISK_RO
 
@@ -287,6 +299,9 @@
 
 /* inode_set_flags() exists */
 #undef HAVE_INODE_SET_FLAGS
+
+/* inode_set_iversion() exists */
+#undef HAVE_INODE_SET_IVERSION
 
 /* iops->truncate_range() exists */
 #undef HAVE_INODE_TRUNCATE_RANGE

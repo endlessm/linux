@@ -1347,9 +1347,9 @@ zvol_open(struct block_device *bdev, fmode_t flag)
 {
 	zvol_state_t *zv;
 	int error = 0;
-	boolean_t drop_suspend = B_FALSE;
+	boolean_t drop_suspend = B_TRUE;
 
-	ASSERT(!mutex_owned(&zvol_state_lock));
+	ASSERT(!MUTEX_HELD(&zvol_state_lock));
 
 	mutex_enter(&zvol_state_lock);
 	/*
@@ -1364,22 +1364,30 @@ zvol_open(struct block_device *bdev, fmode_t flag)
 		return (SET_ERROR(-ENXIO));
 	}
 
-	/* take zv_suspend_lock before zv_state_lock */
-	rw_enter(&zv->zv_suspend_lock, RW_READER);
-
 	mutex_enter(&zv->zv_state_lock);
-
 	/*
 	 * make sure zvol is not suspended during first open
-	 * (hold zv_suspend_lock), otherwise, drop the lock
+	 * (hold zv_suspend_lock) and respect proper lock acquisition
+	 * ordering - zv_suspend_lock before zv_state_lock
 	 */
 	if (zv->zv_open_count == 0) {
-		drop_suspend = B_TRUE;
+		if (!rw_tryenter(&zv->zv_suspend_lock, RW_READER)) {
+			mutex_exit(&zv->zv_state_lock);
+			rw_enter(&zv->zv_suspend_lock, RW_READER);
+			mutex_enter(&zv->zv_state_lock);
+			/* check to see if zv_suspend_lock is needed */
+			if (zv->zv_open_count != 0) {
+				rw_exit(&zv->zv_suspend_lock);
+				drop_suspend = B_FALSE;
+			}
+		}
 	} else {
-		rw_exit(&zv->zv_suspend_lock);
+		drop_suspend = B_FALSE;
 	}
-
 	mutex_exit(&zvol_state_lock);
+
+	ASSERT(MUTEX_HELD(&zv->zv_state_lock));
+	ASSERT(zv->zv_open_count != 0 || RW_READ_HELD(&zv->zv_suspend_lock));
 
 	if (zv->zv_open_count == 0) {
 		error = zvol_first_open(zv);
@@ -1417,28 +1425,38 @@ static int
 zvol_release(struct gendisk *disk, fmode_t mode)
 {
 	zvol_state_t *zv;
-	boolean_t drop_suspend = B_FALSE;
+	boolean_t drop_suspend = B_TRUE;
 
-	ASSERT(!mutex_owned(&zvol_state_lock));
+	ASSERT(!MUTEX_HELD(&zvol_state_lock));
 
 	mutex_enter(&zvol_state_lock);
 	zv = disk->private_data;
-	ASSERT(zv && zv->zv_open_count > 0);
-
-	/* take zv_suspend_lock before zv_state_lock */
-	rw_enter(&zv->zv_suspend_lock, RW_READER);
 
 	mutex_enter(&zv->zv_state_lock);
-	mutex_exit(&zvol_state_lock);
-
+	ASSERT(zv->zv_open_count > 0);
 	/*
 	 * make sure zvol is not suspended during last close
-	 * (hold zv_suspend_lock), otherwise, drop the lock
+	 * (hold zv_suspend_lock) and respect proper lock acquisition
+	 * ordering - zv_suspend_lock before zv_state_lock
 	 */
-	if (zv->zv_open_count == 1)
-		drop_suspend = B_TRUE;
-	else
-		rw_exit(&zv->zv_suspend_lock);
+	if (zv->zv_open_count == 1) {
+		if (!rw_tryenter(&zv->zv_suspend_lock, RW_READER)) {
+			mutex_exit(&zv->zv_state_lock);
+			rw_enter(&zv->zv_suspend_lock, RW_READER);
+			mutex_enter(&zv->zv_state_lock);
+			/* check to see if zv_suspend_lock is needed */
+			if (zv->zv_open_count != 1) {
+				rw_exit(&zv->zv_suspend_lock);
+				drop_suspend = B_FALSE;
+			}
+		}
+	} else {
+		drop_suspend = B_FALSE;
+	}
+	mutex_exit(&zvol_state_lock);
+
+	ASSERT(MUTEX_HELD(&zv->zv_state_lock));
+	ASSERT(zv->zv_open_count != 1 || RW_READ_HELD(&zv->zv_suspend_lock));
 
 	zv->zv_open_count--;
 	if (zv->zv_open_count == 0)
@@ -1559,7 +1577,7 @@ zvol_probe(dev_t dev, int *part, void *arg)
 	struct kobject *kobj;
 
 	zv = zvol_find_by_dev(dev);
-	kobj = zv ? get_disk(zv->zv_disk) : NULL;
+	kobj = zv ? get_disk_and_module(zv->zv_disk) : NULL;
 	ASSERT(zv == NULL || MUTEX_HELD(&zv->zv_state_lock));
 	if (zv)
 		mutex_exit(&zv->zv_state_lock);
@@ -1666,7 +1684,7 @@ zvol_alloc(dev_t dev, const char *name)
 	blk_queue_set_read_ahead(zv->zv_queue, 1);
 
 	/* Disable write merging in favor of the ZIO pipeline. */
-	queue_flag_set_unlocked(QUEUE_FLAG_NOMERGES, zv->zv_queue);
+	blk_queue_flag_set(QUEUE_FLAG_NOMERGES, zv->zv_queue);
 
 	zv->zv_disk = alloc_disk(ZVOL_MINORS);
 	if (zv->zv_disk == NULL)
@@ -1817,12 +1835,12 @@ zvol_create_minor_impl(const char *name)
 	blk_queue_max_discard_sectors(zv->zv_queue,
 	    (zvol_max_discard_blocks * zv->zv_volblocksize) >> 9);
 	blk_queue_discard_granularity(zv->zv_queue, zv->zv_volblocksize);
-	queue_flag_set_unlocked(QUEUE_FLAG_DISCARD, zv->zv_queue);
+	blk_queue_flag_set(QUEUE_FLAG_DISCARD, zv->zv_queue);
 #ifdef QUEUE_FLAG_NONROT
-	queue_flag_set_unlocked(QUEUE_FLAG_NONROT, zv->zv_queue);
+	blk_queue_flag_set(QUEUE_FLAG_NONROT, zv->zv_queue);
 #endif
 #ifdef QUEUE_FLAG_ADD_RANDOM
-	queue_flag_clear_unlocked(QUEUE_FLAG_ADD_RANDOM, zv->zv_queue);
+	blk_queue_flag_clear(QUEUE_FLAG_ADD_RANDOM, zv->zv_queue);
 #endif
 
 	if (spa_writeable(dmu_objset_spa(os))) {
