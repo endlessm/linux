@@ -9001,7 +9001,7 @@ CONFIG_PSTORE_FTRACE                            policy<{'amd64': 'n', 'arm64': '
 CONFIG_PSTORE_RAM                               policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'y', 'i386': 'm', 'ppc64el': 'm'}>
 
 # Menu: File systems >> Miscellaneous filesystems >> Persistent store support >> Choose compression algorithm
-CONFIG_PSTORE_ZLIB_COMPRESS                     policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'ppc64el': 'y'}>
+CONFIG_PSTORE_DEFLATE_COMPRESS                  policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'ppc64el': 'y'}>
 CONFIG_PSTORE_LZO_COMPRESS                      policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'i386': 'n', 'ppc64el': 'n'}>
 CONFIG_PSTORE_LZ4_COMPRESS                      policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'i386': 'n', 'ppc64el': 'n'}>
 
