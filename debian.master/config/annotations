@@ -6529,7 +6529,6 @@ CONFIG_SCSI_OSD_DEBUG                           policy<{'amd64': 'n', 'arm64': '
 # Menu: Device Drivers >> SCSI device support >> SCSI device support >> PCMCIA SCSI adapter support
 CONFIG_SCSI_LOWLEVEL_PCMCIA                     policy<{'amd64': 'y', 'arm64': 'y', 'i386': 'y'}>
 CONFIG_PCMCIA_AHA152X                           policy<{'amd64': 'm', 'i386': 'm'}>
-CONFIG_PCMCIA_FDOMAIN                           policy<{'amd64': 'm', 'i386': 'm'}>
 CONFIG_PCMCIA_NINJA_SCSI                        policy<{'i386': 'm'}>
 CONFIG_PCMCIA_QLOGIC                            policy<{'amd64': 'm', 'i386': 'm'}>
 CONFIG_PCMCIA_SYM53C500                         policy<{'amd64': 'm', 'i386': 'm'}>
@@ -6608,7 +6607,6 @@ CONFIG_LIBFC                                    policy<{'amd64': 'm', 'arm64': '
 CONFIG_SCSI_SNIC                                policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'ppc64el': 'm', 's390x': 'n'}>
 CONFIG_SCSI_SNIC_DEBUG_FS                       policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'i386': 'n', 'ppc64el': 'n'}>
 CONFIG_SCSI_DMX3191D                            policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'ppc64el': 'm', 's390x': 'n'}>
-CONFIG_SCSI_FUTURE_DOMAIN                       policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'ppc64el': 'm', 's390x': 'n'}>
 CONFIG_SCSI_GDTH                                policy<{'amd64': 'm', 'i386': 'm', 'ppc64el': 'm'}>
 CONFIG_SCSI_ISCI                                policy<{'amd64': 'm', 'i386': 'm'}>
 CONFIG_SCSI_GENERIC_NCR5380                     policy<{'i386': 'm'}>
@@ -6623,7 +6621,6 @@ CONFIG_SCSI_PPA                                 policy<{'amd64': 'm', 'armhf': '
 CONFIG_SCSI_IMM                                 policy<{'amd64': 'm', 'armhf': 'm', 'i386': 'm', 'ppc64el': 'm'}>
 CONFIG_SCSI_IZIP_EPP16                          policy<{'amd64': 'n', 'armhf': 'n', 'i386': 'n', 'ppc64el': 'n'}>
 CONFIG_SCSI_IZIP_SLOW_CTR                       policy<{'amd64': 'n', 'armhf': 'n', 'i386': 'n', 'ppc64el': 'n'}>
-CONFIG_SCSI_NCR53C406A                          policy<{'i386': 'm'}>
 CONFIG_SCSI_STEX                                policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'ppc64el': 'm', 's390x': 'n'}>
 CONFIG_SCSI_IPR                                 policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'ppc64el': 'm'}>
 CONFIG_SCSI_IPR_TRACE                           policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'ppc64el': 'y'}>
@@ -6638,7 +6635,6 @@ CONFIG_QEDI                                     policy<{'amd64': 'm', 'arm64': '
 CONFIG_SCSI_LPFC                                policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'ppc64el': 'm', 's390x': 'n'}>
 CONFIG_SCSI_LPFC_DEBUG_FS                       policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'i386': 'n', 'ppc64el': 'n'}>
 CONFIG_SCSI_SIM710                              policy<{'i386': 'm'}>
-CONFIG_SCSI_SYM53C416                           policy<{'i386': 'm'}>
 CONFIG_SCSI_DC395x                              policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'ppc64el': 'm', 's390x': 'n'}>
 CONFIG_SCSI_AM53C974                            policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'ppc64el': 'm', 's390x': 'n'}>
 CONFIG_SCSI_NSP32                               policy<{'armhf': 'm', 'i386': 'm'}>
@@ -6670,12 +6666,6 @@ CONFIG_AIC7XXX_RESET_DELAY_MS                   policy<{'amd64': '5000', 'arm64'
 CONFIG_AIC7XXX_DEBUG_ENABLE                     policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'i386': 'n', 'ppc64el': 'n'}>
 CONFIG_AIC7XXX_DEBUG_MASK                       policy<{'amd64': '0', 'arm64': '0', 'armhf': '0', 'i386': '0', 'ppc64el': '0'}>
 CONFIG_AIC7XXX_REG_PRETTY_PRINT                 policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'ppc64el': 'y'}>
-
-# Menu: Device Drivers >> SCSI device support >> SCSI device support >> SCSI low-level drivers >> EATA ISA/EISA/PCI (DPT and generic EATA/DMA-compliant boards) support
-CONFIG_SCSI_EATA                                policy<{'amd64': 'm', 'i386': 'm', 'ppc64el': 'm'}>
-CONFIG_SCSI_EATA_TAGGED_QUEUE                   policy<{'amd64': 'y', 'i386': 'y', 'ppc64el': 'y'}>
-CONFIG_SCSI_EATA_LINKED_COMMANDS                policy<{'amd64': 'y', 'i386': 'y', 'ppc64el': 'y'}>
-CONFIG_SCSI_EATA_MAX_TAGS                       policy<{'amd64': '16', 'i386': '16', 'ppc64el': '16'}>
 
 # Menu: Device Drivers >> SCSI device support >> SCSI device support >> SCSI low-level drivers >> LibFCoE module
 CONFIG_LIBFCOE                                  policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'ppc64el': 'm', 's390x': 'm'}>
