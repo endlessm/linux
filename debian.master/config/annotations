@@ -9922,7 +9922,6 @@ CONFIG_BT_HCIBFUSB                              policy<{'amd64': 'm', 'arm64': '
 CONFIG_BT_HCIDTL1                               policy<{'amd64': 'm', 'i386': 'm'}>
 CONFIG_BT_HCIBT3C                               policy<{'amd64': 'm', 'i386': 'm'}>
 CONFIG_BT_HCIBLUECARD                           policy<{'amd64': 'm', 'i386': 'm'}>
-CONFIG_BT_HCIBTUART                             policy<{'amd64': 'm', 'i386': 'm'}>
 CONFIG_BT_HCIVHCI                               policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'ppc64el': 'm'}>
 CONFIG_BT_MRVL                                  policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'ppc64el': 'm'}>
 CONFIG_BT_MRVL_SDIO                             policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'ppc64el': 'm'}>
