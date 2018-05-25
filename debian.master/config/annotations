@@ -7769,49 +7769,6 @@ CONFIG_AD2S90                                   policy<{'amd64': 'm', 'arm64': '
 CONFIG_AD2S1200                                 policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'ppc64el': 'm'}>
 CONFIG_AD2S1210                                 policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'ppc64el': 'm'}>
 
-# Menu: Device Drivers >> Staging drivers >> IrDA (infrared) subsystem support
-CONFIG_IRDA                                     policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'ppc64el': 'm'}>
-CONFIG_IRLAN                                    policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'ppc64el': 'm'}>
-CONFIG_IRNET                                    policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'ppc64el': 'm'}>
-CONFIG_IRCOMM                                   policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'ppc64el': 'm'}>
-CONFIG_IRDA_ULTRA                               policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'ppc64el': 'y'}>
-CONFIG_IRDA_CACHE_LAST_LSAP                     policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'ppc64el': 'y'}>
-CONFIG_IRDA_FAST_RR                             policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'ppc64el': 'y'}>
-CONFIG_IRDA_DEBUG                               policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'i386': 'n', 'ppc64el': 'n'}>
-
-# Menu: Device Drivers >> Staging drivers >> IrDA (infrared) subsystem support >> Infrared-port device drivers
-CONFIG_IRTTY_SIR                                policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'ppc64el': 'm'}>
-CONFIG_KINGSUN_DONGLE                           policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'ppc64el': 'm'}>
-CONFIG_KSDAZZLE_DONGLE                          policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'ppc64el': 'm'}>
-CONFIG_KS959_DONGLE                             policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'ppc64el': 'm'}>
-CONFIG_USB_IRDA                                 policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'ppc64el': 'm'}>
-CONFIG_SIGMATEL_FIR                             policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'ppc64el': 'm'}>
-CONFIG_NSC_FIR                                  policy<{'amd64': 'm', 'i386': 'm', 'ppc64el': 'm'}>
-CONFIG_WINBOND_FIR                              policy<{'amd64': 'm', 'i386': 'm', 'ppc64el': 'm'}>
-CONFIG_TOSHIBA_FIR                              policy<{'i386': 'm'}>
-CONFIG_SMC_IRCC_FIR                             policy<{'amd64': 'm', 'i386': 'm', 'ppc64el': 'm'}>
-CONFIG_ALI_FIR                                  policy<{'amd64': 'm', 'i386': 'm', 'ppc64el': 'm'}>
-CONFIG_VLSI_FIR                                 policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'ppc64el': 'm'}>
-CONFIG_VIA_FIR                                  policy<{'amd64': 'm', 'i386': 'm', 'ppc64el': 'm'}>
-CONFIG_MCS_FIR                                  policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'ppc64el': 'm'}>
-
-# Menu: Device Drivers >> Staging drivers >> IrDA (infrared) subsystem support >> Infrared-port device drivers >> Blackfin SIR on UART
-
-# Menu: Device Drivers >> Staging drivers >> IrDA (infrared) subsystem support >> Infrared-port device drivers >> Blackfin SIR on UART >> SIR Mode
-
-# Menu: Device Drivers >> Staging drivers >> IrDA (infrared) subsystem support >> Infrared-port device drivers >> Serial dongle support
-CONFIG_DONGLE                                   policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'ppc64el': 'y'}>
-CONFIG_ESI_DONGLE                               policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'ppc64el': 'm'}>
-CONFIG_ACTISYS_DONGLE                           policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'ppc64el': 'm'}>
-CONFIG_TEKRAM_DONGLE                            policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'ppc64el': 'm'}>
-CONFIG_TOIM3232_DONGLE                          policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'ppc64el': 'm'}>
-CONFIG_LITELINK_DONGLE                          policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'ppc64el': 'm'}>
-CONFIG_MA600_DONGLE                             policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'ppc64el': 'm'}>
-CONFIG_GIRBIL_DONGLE                            policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'ppc64el': 'm'}>
-CONFIG_MCP2120_DONGLE                           policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'ppc64el': 'm'}>
-CONFIG_OLD_BELKIN_DONGLE                        policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'ppc64el': 'm'}>
-CONFIG_ACT200L_DONGLE                           policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'ppc64el': 'm'}>
-
 # Menu: Device Drivers >> Staging drivers >> Lustre networking subsystem (LNet)
 CONFIG_LNET                                     policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'ppc64el': 'm'}>
 CONFIG_LNET_MAX_PAYLOAD                         policy<{'amd64': '1048576', 'arm64': '1048576', 'armhf': '1048576', 'i386': '1048576', 'ppc64el': '1048576'}>
