@@ -761,7 +761,7 @@ CONFIG_HVCS                                     policy<{'ppc64el': 'm'}>
 CONFIG_VIRTIO_CONSOLE                           policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'ppc64el': 'y', 's390x': 'y'}>
 CONFIG_IBM_BSR                                  policy<{'ppc64el': 'm'}>
 CONFIG_POWERNV_OP_PANEL                         policy<{'ppc64el': 'm'}>
-CONFIG_NVRAM                                    policy<{'amd64': 'm', 'armhf': 'm', 'i386': 'm'}>
+CONFIG_NVRAM                                    policy<{'amd64': 'm', 'i386': 'm'}>
 CONFIG_DTLK                                     policy<{'i386': 'm'}>
 CONFIG_R3964                                    policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'ppc64el': 'm', 's390x': 'n'}>
 CONFIG_APPLICOM                                 policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'ppc64el': 'm', 's390x': 'n'}>
