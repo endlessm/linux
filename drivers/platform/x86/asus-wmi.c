@@ -67,7 +67,6 @@ MODULE_LICENSE("GPL");
 #define NOTIFY_BRNDOWN_MAX		0x2e
 #define NOTIFY_KBD_BRTUP		0xc4
 #define NOTIFY_KBD_BRTDWN		0xc5
-#define NOTIFY_KBD_BRTTOGGLE		0xc7
 
 /* WMI Methods */
 #define ASUS_WMI_METHODID_SPEC	        0x43455053 /* BIOS SPECification */
@@ -1744,13 +1743,6 @@ static void asus_wmi_notify(u32 value, void *context)
 			asus_wmi_backlight_notify(asus, orig_code);
 			goto exit;
 		}
-	}
-
-	if (code == NOTIFY_KBD_BRTTOGGLE) {
-		if (asus->kbd_led_wk < asus->kbd_led.max_brightness)
-			code = NOTIFY_KBD_BRTUP;
-		else
-			code = NOTIFY_KBD_BRTTOGGLE;
 	}
 
 	if (is_display_toggle(code) &&
