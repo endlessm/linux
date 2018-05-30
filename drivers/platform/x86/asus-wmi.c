@@ -67,6 +67,7 @@ MODULE_LICENSE("GPL");
 #define NOTIFY_BRNDOWN_MAX		0x2e
 #define NOTIFY_KBD_BRTUP		0xc4
 #define NOTIFY_KBD_BRTDWN		0xc5
+#define NOTIFY_KBD_BRTTOGGLE		0xc7
 
 /* WMI Methods */
 #define ASUS_WMI_METHODID_SPEC	        0x43455053 /* BIOS SPECification */
@@ -1704,7 +1705,9 @@ static int is_display_toggle(int code)
 
 static int is_kbd_led_event(int code)
 {
-	if (code == NOTIFY_KBD_BRTUP || code == NOTIFY_KBD_BRTDWN)
+	if (code == NOTIFY_KBD_BRTUP ||
+	    code ==  NOTIFY_KBD_BRTDWN ||
+	    code ==  NOTIFY_KBD_BRTTOGGLE)
 		return 1;
 	return 0;
 }
@@ -1755,7 +1758,10 @@ static void asus_wmi_notify(u32 value, void *context)
 	}
 
 	if (is_kbd_led_event(code)) {
-		if (code == NOTIFY_KBD_BRTDWN)
+		if (code == NOTIFY_KBD_BRTTOGGLE &&
+		    asus->kbd_led_wk == asus->kbd_led.max_brightness)
+			kbd_led_set(&asus->kbd_led, 0);
+		else if (code == NOTIFY_KBD_BRTDWN)
 			kbd_led_set(&asus->kbd_led, asus->kbd_led_wk - 1);
 		else
 			kbd_led_set(&asus->kbd_led, asus->kbd_led_wk + 1);
