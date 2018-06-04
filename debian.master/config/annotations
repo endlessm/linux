@@ -121,7 +121,7 @@ CONFIG_SCOM_DEBUGFS                             policy<{'ppc64el': 'y'}>
 CONFIG_KMSG_IDS                                 policy<{'s390x': 'y'}>
 
 # Menu: Architecture: x86
-CONFIG_64BIT                                    policy<{'amd64': 'y', 'arm64': 'y', 'i386': 'n', 'ppc64el': 'y', 's390x': 'y'}>
+CONFIG_64BIT                                    policy<{'amd64': 'y', 'arm64': 'y', 'ppc64el': 'y', 's390x': 'y'}>
 
 # Menu: Boot options
 CONFIG_CMDLINE                                  policy<{'arm64': '"console=ttyAMA0"', 'armhf': '""'}>
@@ -214,7 +214,7 @@ CONFIG_PCCARD                                   policy<{'amd64': 'm', 'armhf': '
 CONFIG_CARDBUS                                  policy<{'amd64': 'y', 'i386': 'y'}>
 
 # Menu: Bus options (PCI etc.) >> PCCard (PCMCIA/CardBus) support >> 16-bit PCMCIA support
-CONFIG_PCMCIA                                   policy<{'amd64': 'm', 'i386': 'm', 's390x': 'n'}>
+CONFIG_PCMCIA                                   policy<{'amd64': 'm', 'i386': 'm'}>
 CONFIG_PCMCIA_LOAD_CIS                          policy<{'amd64': 'y', 'i386': 'y'}>
 CONFIG_PD6729                                   policy<{'amd64': 'm', 'i386': 'm'}>
 CONFIG_I82092                                   policy<{'amd64': 'm', 'i386': 'm'}>
@@ -772,7 +772,7 @@ CONFIG_PC8736x_GPIO                             policy<{'i386': 'm'}>
 CONFIG_NSC_GPIO                                 policy<{'i386': 'm'}>
 CONFIG_RAW_DRIVER                               policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'ppc64el': 'm', 's390x': 'n'}>
 CONFIG_MAX_RAW_DEVS                             policy<{'amd64': '256', 'arm64': '256', 'armhf': '256', 'i386': '256', 'ppc64el': '256'}>
-CONFIG_HPET                                     policy<{'amd64': 'y', 'arm64': 'n', 'i386': 'y'}>
+CONFIG_HPET                                     policy<{'amd64': 'y', 'i386': 'y'}>
 CONFIG_HPET_MMAP                                policy<{'amd64': 'y', 'i386': 'y'}>
 CONFIG_HPET_MMAP_DEFAULT                        policy<{'amd64': 'y', 'i386': 'y'}>
 CONFIG_HANGCHECK_TIMER                          policy<{'amd64': 'm', 'i386': 'm', 'ppc64el': 'm', 's390x': 'm'}>
