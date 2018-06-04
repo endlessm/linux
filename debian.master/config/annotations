@@ -1006,7 +1006,7 @@ CONFIG_TCG_ATMEL                                policy<{'amd64': 'm', 'arm64': '
 CONFIG_TCG_INFINEON                             policy<{'amd64': 'm', 'arm64': 'm', 'i386': 'm'}>
 CONFIG_TCG_IBMVTPM                              policy<{'ppc64el': 'y'}>
 CONFIG_TCG_XEN                                  policy<{'amd64': 'm', 'arm64': 'm', 'i386': 'm'}>
-CONFIG_TCG_CRB                                  policy<{'amd64': 'm', 'arm64': 'm', 'i386': 'm'}>
+CONFIG_TCG_CRB                                  policy<{'amd64': 'y', 'arm64': 'y', 'i386': 'y'}>
 CONFIG_TCG_VTPM_PROXY                           policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'ppc64el': 'm', 's390x': 'm'}>
 CONFIG_TCG_TIS_ST33ZP24_I2C                     policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'ppc64el': 'm'}>
 CONFIG_TCG_TIS_ST33ZP24_SPI                     policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'ppc64el': 'm'}>
