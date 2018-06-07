@@ -162,6 +162,10 @@ MODULE_LICENSE("GPL");
 #define USB_INTEL_XUSB2PR		0xD0
 #define PCI_DEVICE_ID_INTEL_LYNXPOINT_LP_XHCI	0x9c31
 
+static bool force_kbdled_selfupd = true;
+module_param(force_kbdled_selfupd, bool, 0444);
+MODULE_PARM_DESC(force_kbdled_selfupd, "Force keyboard backlight led to be BRIGHT_HW_CHANGED");
+
 static const char * const ashs_ids[] = { "ATK4001", "ATK4002", NULL };
 
 struct bios_args {
@@ -461,7 +465,8 @@ static void kbd_led_update(struct work_struct *work)
 		ctrl_param = 0x80 | (asus->kbd_led_wk & 0x7F);
 
 	asus_wmi_set_devstate(ASUS_WMI_DEVID_KBD_BACKLIGHT, ctrl_param, NULL);
-	led_classdev_notify_brightness_hw_changed(&asus->kbd_led, asus->kbd_led_wk);
+	if (force_kbdled_selfupd)
+		led_classdev_notify_brightness_hw_changed(&asus->kbd_led, asus->kbd_led_wk);
 }
 
 static int kbd_led_read(struct asus_wmi *asus, int *level, int *env)
@@ -658,10 +663,11 @@ static int asus_wmi_led_init(struct asus_wmi *asus)
 
 		asus->kbd_led_wk = led_val;
 		asus->kbd_led.name = "asus::kbd_backlight";
-		asus->kbd_led.flags = LED_BRIGHT_HW_CHANGED;
 		asus->kbd_led.brightness_set = kbd_led_set;
 		asus->kbd_led.brightness_get = kbd_led_get;
 		asus->kbd_led.max_brightness = 3;
+		if (force_kbdled_selfupd)
+			asus->kbd_led.flags = LED_BRIGHT_HW_CHANGED;
 
 		rv = led_classdev_register(&asus->platform_device->dev,
 					   &asus->kbd_led);
@@ -1748,20 +1754,27 @@ static void asus_wmi_notify(u32 value, void *context)
 		}
 	}
 
-	if (code == NOTIFY_KBD_BRTUP) {
-		kbd_led_set(&asus->kbd_led, asus->kbd_led_wk + 1);
-		goto exit;
-	}
-	if (code == NOTIFY_KBD_BRTDWN) {
-		kbd_led_set(&asus->kbd_led, asus->kbd_led_wk - 1);
-		goto exit;
-	}
-	if (code == NOTIFY_KBD_BRTTOGGLE) {
-		if (asus->kbd_led_wk == asus->kbd_led.max_brightness)
-			kbd_led_set(&asus->kbd_led, 0);
-		else
+	if (force_kbdled_selfupd) {
+		if (code == NOTIFY_KBD_BRTUP)
 			kbd_led_set(&asus->kbd_led, asus->kbd_led_wk + 1);
+		if (code == NOTIFY_KBD_BRTDWN)
+			kbd_led_set(&asus->kbd_led, asus->kbd_led_wk - 1);
+		if (code == NOTIFY_KBD_BRTTOGGLE) {
+			if (asus->kbd_led_wk == asus->kbd_led.max_brightness)
+				kbd_led_set(&asus->kbd_led, 0);
+			else
+				kbd_led_set(&asus->kbd_led, asus->kbd_led_wk + 1);
+		}
 		goto exit;
+	}
+	else {
+		if (code == NOTIFY_KBD_BRTTOGGLE &&
+		    asus->kbd_led.max_brightness > 1) {
+			input_event(asus->inputdev, EV_KEY, KEY_KBDILLUMCYCLE, 1);
+			input_sync(asus->inputdev);
+			input_event(asus->inputdev, EV_KEY, KEY_KBDILLUMCYCLE, 0);
+			input_sync(asus->inputdev);
+		}
 	}
 
 	if (is_display_toggle(code) &&
