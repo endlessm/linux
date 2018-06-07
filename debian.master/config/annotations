@@ -1322,7 +1322,7 @@ CONFIG_SIOX_BUS_GPIO                            policy<{'amd64': 'm', 'arm64': '
 CONFIG_EXTCON                                   policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'ppc64el': 'y', 's390x': 'n'}>
 CONFIG_EXTCON_ADC_JACK                          policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'ppc64el': 'm'}>
 CONFIG_EXTCON_ARIZONA                           policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'ppc64el': 'm'}>
-CONFIG_EXTCON_AXP288                            policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'ppc64el': 'm'}>
+CONFIG_EXTCON_AXP288                            policy<{'amd64': 'm', 'i386': 'm'}>
 CONFIG_EXTCON_GPIO                              policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'ppc64el': 'm'}>
 CONFIG_EXTCON_INTEL_INT3496                     policy<{'amd64': 'm', 'i386': 'm'}>
 CONFIG_EXTCON_INTEL_CHT_WC                      policy<{'amd64': 'm', 'i386': 'm'}>
@@ -6188,7 +6188,7 @@ CONFIG_BATTERY_DA9150                           policy<{'amd64': 'm', 'arm64': '
 CONFIG_CHARGER_AXP20X                           policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'ppc64el': 'm'}>
 CONFIG_BATTERY_AXP20X                           policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'ppc64el': 'm'}>
 CONFIG_AXP20X_POWER                             policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'ppc64el': 'm'}>
-CONFIG_AXP288_CHARGER                           policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'ppc64el': 'm'}>
+CONFIG_AXP288_CHARGER                           policy<{'amd64': 'm', 'i386': 'm'}>
 CONFIG_AXP288_FUEL_GAUGE                        policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'ppc64el': 'm'}>
 CONFIG_BATTERY_MAX17040                         policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'ppc64el': 'm'}>
 CONFIG_BATTERY_MAX17042                         policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'ppc64el': 'm'}>
