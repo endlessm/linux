@@ -11147,7 +11147,7 @@ CONFIG_NUMA                                     policy<{'amd64': 'y', 'arm64': '
 CONFIG_NODES_SHIFT                              policy<{'amd64': '10', 'arm64': '6', 'ppc64el': '8', 's390x': '4'}>
 CONFIG_HIGHPTE                                  policy<{'armhf': 'y', 'i386': 'y'}>
 CONFIG_MATH_EMULATION                           policy<{'i386': 'n'}>
-CONFIG_KEXEC_FILE                               policy<{'amd64': 'y', 'ppc64el': 'y'}>
+CONFIG_KEXEC_FILE                               policy<{'amd64': 'y', 'ppc64el': 'y', 's390x': 'n'}>
 CONFIG_PARAVIRT                                 policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'n', 'i386': 'y'}>
 CONFIG_PARAVIRT_TIME_ACCOUNTING                 policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'i386': 'n'}>
 CONFIG_RELOCATABLE                              policy<{'amd64': 'y', 'arm64': 'y', 'i386': 'y', 'ppc64el': 'y'}>
