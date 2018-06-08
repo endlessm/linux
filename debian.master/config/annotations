@@ -3567,7 +3567,7 @@ CONFIG_LEDS_POWERNV                             policy<{'ppc64el': 'm'}>
 CONFIG_LEDS_QCOM_LPG                            policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'i386': 'n', 'ppc64el': 'n'}>
 CONFIG_LEDS_SYSCON                              policy<{'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y'}>
 CONFIG_LEDS_PM8058                              policy<{'armhf': 'm'}>
-CONFIG_LEDS_MLXCPLD                             policy<{'amd64': 'm'}>
+CONFIG_LEDS_MLXCPLD                             policy<{'amd64': 'm', 'i386': 'm'}>
 CONFIG_LEDS_USER                                policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'ppc64el': 'm'}>
 CONFIG_LEDS_NIC78BX                             policy<{'amd64': 'm', 'i386': 'm'}>
 
