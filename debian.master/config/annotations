@@ -11097,11 +11097,11 @@ CONFIG_PPC_RADIX_MMU                            policy<{'ppc64el': 'y'}>
 CONFIG_PPC_RADIX_MMU_DEFAULT                    policy<{'ppc64el': 'y'}>
 
 # Menu: Processor support >> CPU selection
-CONFIG_GENERIC_CPU                              policy<{'amd64': 'y'}>
+CONFIG_GENERIC_CPU                              policy<{'amd64': 'y', 'ppc64el': 'y'}>
 
 # Menu: Processor support >> CPU selection >> Architecture: powerpc
 CONFIG_POWER7_CPU                               policy<{'ppc64el': 'n'}>
-CONFIG_POWER8_CPU                               policy<{'ppc64el': 'y'}>
+CONFIG_POWER8_CPU                               policy<{'ppc64el': 'n'}>
 
 # Menu: Processor support >> Processor Type >> Architecture: powerpc
 CONFIG_PPC_BOOK3S_64                            policy<{'ppc64el': 'y'}>
