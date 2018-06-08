@@ -1760,7 +1760,7 @@ CONFIG_DRM_ARMADA                               policy<{'armhf': 'm'}>
 CONFIG_DRM_ATMEL_HLCDC                          policy<{'armhf': 'm'}>
 CONFIG_DRM_RCAR_DU                              policy<{'arm64': 'm', 'armhf': 'm'}>
 CONFIG_DRM_RCAR_DW_HDMI                         policy<{'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm'}>
-CONFIG_DRM_RCAR_LVDS                            policy<{'arm64': 'y', 'armhf': 'y'}>
+CONFIG_DRM_RCAR_LVDS                            policy<{'arm64': 'm', 'armhf': 'm'}>
 CONFIG_DRM_RCAR_VSP                             policy<{'arm64': 'y', 'armhf': 'y'}>
 CONFIG_DRM_SHMOBILE                             policy<{'armhf': 'm'}>
 CONFIG_DRM_OMAP                                 policy<{'armhf': 'n'}>
