@@ -664,6 +664,13 @@ static const struct dmi_system_id accel_blacklist[] = {
 			DMI_MATCH(DMI_PRODUCT_NAME, "ASUS Gaming FX570UD"),
 		},
 	},
+	{
+		.ident = "ASUSTeK COMPUTER INC. ASUS X560UD",
+		.matches = {
+			DMI_MATCH(DMI_BOARD_VENDOR, "ASUSTeK COMPUTER INC."),
+			DMI_MATCH(DMI_BOARD_NAME, "X560UD"),
+		},
+	},
 	{ }
 };
 
