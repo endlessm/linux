@@ -458,7 +458,7 @@ CONFIG_CRYPTO_TWOFISH_586                       policy<{'i386': 'm'}>
 CONFIG_CRYPTO_TWOFISH_X86_64                    policy<{'amd64': 'm'}>
 CONFIG_CRYPTO_TWOFISH_X86_64_3WAY               policy<{'amd64': 'm'}>
 CONFIG_CRYPTO_TWOFISH_AVX_X86_64                policy<{'amd64': 'm'}>
-CONFIG_CRYPTO_DEFLATE                           policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'ppc64el': 'm', 's390x': 'm'}>
+CONFIG_CRYPTO_DEFLATE                           policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'ppc64el': 'y', 's390x': 'm'}>
 CONFIG_CRYPTO_LZO                               policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'ppc64el': 'y', 's390x': 'y'}>
 CONFIG_CRYPTO_842                               policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'ppc64el': 'm', 's390x': 'm'}>
 CONFIG_CRYPTO_LZ4                               policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'ppc64el': 'm', 's390x': 'm'}>

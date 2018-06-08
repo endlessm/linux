@@ -29,7 +29,6 @@ crypto_null ?
 crypto_user ?
 ctr ?
 cts ?
-deflate ?
 des_generic ?
 fcrypt ?
 gcm ?

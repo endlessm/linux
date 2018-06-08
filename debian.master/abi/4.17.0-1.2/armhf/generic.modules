@@ -883,7 +883,6 @@ dccp_ipv6
 ddbridge
 de2104x
 decnet
-deflate
 defxx
 denali
 denali_dt
@@ -5420,7 +5419,6 @@ zl10036
 zl10039
 zl10353
 zl6100
-zlib_deflate
 zopt2201
 zpa2326
 zpa2326_i2c
