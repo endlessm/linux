@@ -5056,7 +5056,7 @@ CONFIG_PCMCIA_FMVJ18X                           policy<{'amd64': 'm', 'i386': 'm
 CONFIG_NET_VENDOR_HP                            policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'ppc64el': 'y', 's390x': 'n'}>
 CONFIG_HP100                                    policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'ppc64el': 'm'}>
 CONFIG_NET_VENDOR_HUAWEI                        policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'ppc64el': 'y', 's390x': 'n'}>
-CONFIG_HINIC                                    policy<{'amd64': 'm', 'i386': 'm'}>
+CONFIG_HINIC                                    policy<{'amd64': 'm', 'arm64': 'm', 'i386': 'm'}>
 CONFIG_JME                                      policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'ppc64el': 'm', 's390x': 'n'}>
 CONFIG_NET_VENDOR_MEDIATEK                      policy<{'arm64': 'n', 'armhf': 'n'}>
 CONFIG_NET_VENDOR_MICROCHIP                     policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'ppc64el': 'y'}>
