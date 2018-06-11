@@ -9477,8 +9477,8 @@ CONFIG_RCU_EXPERT                               flag<REVIEW>
 # Menu: General setup >> Stack Protector buffer overflow detection
 CONFIG_CC_STACKPROTECTOR_NONE                   policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'i386': 'n'}>
 CONFIG_CC_STACKPROTECTOR_REGULAR                policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'i386': 'n'}>
-CONFIG_CC_STACKPROTECTOR_STRONG                 policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'i386': 'n'}>
-CONFIG_CC_STACKPROTECTOR_AUTO                   policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y'}>
+CONFIG_CC_STACKPROTECTOR_STRONG                 policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y'}>
+CONFIG_CC_STACKPROTECTOR_AUTO                   policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'i386': 'n'}>
 
 # Menu: General setup >> Stack Protector buffer overflow detection >> Architecture: arm
 
