@@ -2510,6 +2510,7 @@ EXPORT_SYMBOL vmlinux 0x00000000	d_genocide
 EXPORT_SYMBOL vmlinux 0x00000000	d_hash_and_lookup
 EXPORT_SYMBOL vmlinux 0x00000000	d_instantiate
 EXPORT_SYMBOL vmlinux 0x00000000	d_instantiate_anon
+EXPORT_SYMBOL vmlinux 0x00000000	d_instantiate_new
 EXPORT_SYMBOL vmlinux 0x00000000	d_instantiate_no_diralias
 EXPORT_SYMBOL vmlinux 0x00000000	d_invalidate
 EXPORT_SYMBOL vmlinux 0x00000000	d_lookup
