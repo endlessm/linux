@@ -208,6 +208,7 @@ struct aa_attachment {
  * @disconnected: what to prepend if attach_disconnected is specified
  * @attach: attachment rules for the profile
  * @rules: rules to be enforced
+ * @net_compat: v2 compat network controls for the profile
  *
  * learning_cache: the accesses learned in complain mode
  * raw_data: rawdata of the loaded profile policy
@@ -245,6 +246,7 @@ struct aa_profile {
 	const char *disconnected;
 
 	struct aa_attachment attach;
+	struct aa_net_compat *net_compat;
 
 	struct aa_loaddata *rawdata;
 	unsigned char *hash;
@@ -327,7 +329,23 @@ static inline aa_state_t RULE_MEDIATES_NET(struct aa_ruleset *rules)
 	/* fallback and check v7/8 if v9 is NOT mediated */
 	if (!state)
 		state = RULE_MEDIATES(rules, AA_CLASS_NET);
+	return state;
+}
 
+static inline aa_state_t RULE_MEDIATES_UNIX(struct aa_ruleset *rules)
+{
+	/* can not use RULE_MEDIATE_v9AF here, because AF match fail
+	 * can not be distiguished from class match fail, and we only
+	 * fallback to checking older class on class match failure
+	 */
+	aa_state_t state = RULE_MEDIATES(rules, AA_CLASS_NETV9);
+
+	/* fallback and check v7/8 if v9 is NOT mediated */
+	if (!state) {
+		state = RULE_MEDIATES(rules, AA_CLASS_NET);
+		if (!state)
+			state = RULE_MEDIATES(rules, AA_CLASS_NET_COMPAT);
+	}
 	return state;
 }
 

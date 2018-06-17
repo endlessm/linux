@@ -30,6 +30,11 @@ struct aa_sfs_entry aa_sfs_entry_networkv9[] = {
 	AA_SFS_FILE_BOOLEAN("af_unix",	1),
 	{ }
 };
+struct aa_sfs_entry aa_sfs_entry_network_compat[] = {
+	AA_SFS_FILE_STRING("af_mask",	AA_SFS_AF_MASK),
+	AA_SFS_FILE_BOOLEAN("af_unix",	1),
+	{ }
+};
 
 static const char * const net_mask_names[] = {
 	"unknown",
@@ -261,12 +266,32 @@ int aa_profile_af_perm(struct aa_profile *profile,
 
 	if (profile_unconfined(profile))
 		return 0;
+
 	state = RULE_MEDIATES_NET(rules);
-	if (!state)
-		return 0;
-	state = aa_match_to_prot(rules->policy, state, request, family, type,
-				 protocol, &p, &ad->info);
-	return aa_do_perms(profile, rules->policy, state, request, p, ad);
+	if (state) {
+		state = aa_match_to_prot(rules->policy, state, request, family,
+					 type, protocol, &p, &ad->info);
+		return aa_do_perms(profile, rules->policy, state, request, p,
+				   ad);
+	} else if (profile->net_compat) {
+		/* 2.x socket mediation compat */
+		struct aa_perms perms = { };
+
+		perms.allow = (profile->net_compat->allow[family] &
+			       (1 << type)) ?
+			ALL_PERMS_MASK : 0;
+		perms.audit = (profile->net_compat->audit[family] &
+			       (1 << type)) ?
+			ALL_PERMS_MASK : 0;
+		perms.quiet = (profile->net_compat->quiet[family] &
+			       (1 << type)) ?
+			ALL_PERMS_MASK : 0;
+
+		return aa_do_perms(profile, rules->policy, state, request,
+				   &perms, ad);
+	} /* else */
+
+	return 0;
 }
 
 int aa_af_perm(const struct cred *subj_cred, struct aa_label *label,
