@@ -257,6 +257,7 @@ void aa_free_profile(struct aa_profile *profile)
 	kfree_sensitive(profile->rename);
 
 	free_attachment(&profile->attach);
+	kfree_sensitive(profile->net_compat);
 
 	/*
 	 * at this point there are no tasks that can have a reference
