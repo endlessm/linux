@@ -108,6 +108,7 @@ struct aa_data {
  * @policy: general match rules governing policy
  * @file: The set of rules governing basic file access and domain transitions
  * @caps: capabilities for the profile
+ * @net_compat: v2 compat network controls for the profile
  * @rlimits: rlimits for the profile
  *
  * @dents: dentries for the profiles file entries in apparmorfs
@@ -145,6 +146,7 @@ struct aa_profile {
 	struct aa_policydb policy;
 	struct aa_file_rules file;
 	struct aa_caps caps;
+	struct aa_net_compat *net_compat;
 
 	int xattr_count;
 	char **xattrs;
