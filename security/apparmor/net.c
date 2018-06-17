@@ -33,6 +33,11 @@ struct aa_sfs_entry aa_sfs_entry_networkv9[] = {
 	AA_SFS_FILE_BOOLEAN("tcp-fast-open",		1),
 	{ }
 };
+struct aa_sfs_entry aa_sfs_entry_network_compat[] = {
+	AA_SFS_FILE_STRING("af_mask",	AA_SFS_AF_MASK),
+	AA_SFS_FILE_BOOLEAN("af_unix",	1),
+	{ }
+};
 
 static const char * const net_mask_names[] = {
 	"unknown",
@@ -260,7 +265,6 @@ int aa_profile_af_perm(struct aa_profile *profile,
 
 	AA_BUG(family >= AF_MAX);
 	AA_BUG(type < 0 || type >= SOCK_MAX);
-	AA_BUG(profile_unconfined(profile));
 
 	state = RULE_MEDIATES_NET(rules);
 	if (state) {
@@ -268,7 +272,23 @@ int aa_profile_af_perm(struct aa_profile *profile,
 					 type, protocol, &p, &ad->info);
 		return aa_do_perms(profile, rules->policy, state, request, p,
 				   ad);
-	} /* else */
+	} else if (profile->net_compat && !profile_unconfined(profile)) {
+		/* 2.x socket mediation compat */
+		struct aa_perms perms = { };
+
+		perms.allow = (profile->net_compat->allow[family] &
+			       (1 << type)) ?
+			ALL_PERMS_MASK : 0;
+		perms.audit = (profile->net_compat->audit[family] &
+			       (1 << type)) ?
+			ALL_PERMS_MASK : 0;
+		perms.quiet = (profile->net_compat->quiet[family] &
+			       (1 << type)) ?
+			ALL_PERMS_MASK : 0;
+
+		return aa_do_perms(profile, rules->policy, state, request,
+				   &perms, ad);
+	} /* else unconfined */
 
 	return 0;
 }

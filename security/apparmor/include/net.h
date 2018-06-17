@@ -79,6 +79,16 @@ static inline struct aa_sk_ctx *aa_sock(const struct sock *sk)
 	DEFINE_AUDIT_NET(NAME, OP, CRED, SK, (SK)->sk_family, (SK)->sk_type, \
 			 (SK)->sk_protocol)
 
+/* struct aa_net - network confinement data
+ * @allow: basic network families permissions
+ * @audit: which network permissions to force audit
+ * @quiet: which network permissions to quiet rejects
+ */
+struct aa_net_compat {
+	u16 allow[AF_MAX];
+	u16 audit[AF_MAX];
+	u16 quiet[AF_MAX];
+};
 
 struct aa_secmark {
 	u8 audit;
@@ -88,6 +98,7 @@ struct aa_secmark {
 };
 
 extern struct aa_sfs_entry aa_sfs_entry_network[];
+extern struct aa_sfs_entry aa_sfs_entry_network_compat[];
 extern struct aa_sfs_entry aa_sfs_entry_networkv9[];
 
 int aa_do_perms(struct aa_profile *profile, struct aa_policydb *policy,
