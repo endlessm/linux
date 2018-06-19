@@ -593,6 +593,13 @@ static const struct dmi_system_id runpm_blacklist[] = {
 		},
 	},
 	{
+		.ident = "Acer Predator Orion 5-100",
+		.matches = {
+			DMI_MATCH(DMI_SYS_VENDOR, "Acer"),
+			DMI_MATCH(DMI_PRODUCT_NAME, "Predator Orion 5-100"),
+		},
+	},
+	{
 		.ident = "ASUSTeK COMPUTER INC. GL552VXK",
 		.matches = {
 			DMI_MATCH(DMI_SYS_VENDOR, "ASUSTeK COMPUTER INC."),
@@ -655,6 +662,13 @@ static const struct dmi_system_id accel_blacklist[] = {
 		.matches = {
 			DMI_MATCH(DMI_SYS_VENDOR, "Acer"),
 			DMI_MATCH(DMI_PRODUCT_NAME, "Nitro N50-600"),
+		},
+	},
+	{
+		.ident = "Acer Predator Orion 5-100",
+		.matches = {
+			DMI_MATCH(DMI_SYS_VENDOR, "Acer"),
+			DMI_MATCH(DMI_PRODUCT_NAME, "Predator Orion 5-100"),
 		},
 	},
 	{
