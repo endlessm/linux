@@ -261,9 +261,9 @@
 struct name_list_extended {
 	struct get_name_list_extended *l;
 	dma_addr_t		ldma;
-	struct list_head 	fcports;	/* protect by sess_list */
+	struct list_head 	fcports;
+	spinlock_t		fcports_lock;
 	u32			size;
-	u8			sent;
 };
 /*
  * Timeout timer counts in seconds
@@ -2318,6 +2318,7 @@ typedef struct fc_port {
 
 	unsigned int conf_compl_supported:1;
 	unsigned int deleted:2;
+	unsigned int free_pending:1;
 	unsigned int local:1;
 	unsigned int logout_on_delete:1;
 	unsigned int logo_ack_needed:1;
@@ -2437,6 +2438,7 @@ static const char * const port_state_str[] = {
 #define FCF_FCP2_DEVICE		BIT_2
 #define FCF_ASYNC_SENT		BIT_3
 #define FCF_CONF_COMP_SUPPORTED BIT_4
+#define FCF_ASYNC_ACTIVE	BIT_5
 
 /* No loop ID flag. */
 #define FC_NO_LOOP_ID		0x1000
@@ -3497,6 +3499,7 @@ struct qla_hw_data {
 
 		uint32_t	detected_lr_sfp:1;
 		uint32_t	using_lr_setting:1;
+		uint32_t	rida_fmt2:1;
 	} flags;
 
 	uint16_t long_range_distance;	/* 32G & above */
@@ -4515,6 +4518,16 @@ struct sff_8247_a0 {
 
 #define USER_CTRL_IRQ(_ha) (ql2xuctrlirq && QLA_TGT_MODE_ENABLED() && \
 	(IS_QLA27XX(_ha) || IS_QLA83XX(_ha)))
+
+#define SAVE_TOPO(_ha) { \
+	if (_ha->current_topology)				\
+		_ha->prev_topology = _ha->current_topology;     \
+}
+
+#define N2N_TOPO(ha) \
+	((ha->prev_topology == ISP_CFG_N && !ha->current_topology) || \
+	 ha->current_topology == ISP_CFG_N || \
+	 !ha->current_topology)
 
 #include "qla_target.h"
 #include "qla_gbl.h"

@@ -466,9 +466,6 @@ fail_req_map:
 
 static void qla2x00_free_req_que(struct qla_hw_data *ha, struct req_que *req)
 {
-	if (!ha->req_q_map)
-		return;
-
 	if (IS_QLAFX00(ha)) {
 		if (req && req->ring_fx00)
 			dma_free_coherent(&ha->pdev->dev,
@@ -479,17 +476,14 @@ static void qla2x00_free_req_que(struct qla_hw_data *ha, struct req_que *req)
 		(req->length + 1) * sizeof(request_t),
 		req->ring, req->dma);
 
-	if (req) {
+	if (req)
 		kfree(req->outstanding_cmds);
-		kfree(req);
-	}
+
+	kfree(req);
 }
 
 static void qla2x00_free_rsp_que(struct qla_hw_data *ha, struct rsp_que *rsp)
 {
-	if (!ha->rsp_q_map)
-		return;
-
 	if (IS_QLAFX00(ha)) {
 		if (rsp && rsp->ring)
 			dma_free_coherent(&ha->pdev->dev,
@@ -500,8 +494,7 @@ static void qla2x00_free_rsp_que(struct qla_hw_data *ha, struct rsp_que *rsp)
 		(rsp->length + 1) * sizeof(response_t),
 		rsp->ring, rsp->dma);
 	}
-	if (rsp)
-		kfree(rsp);
+	kfree(rsp);
 }
 
 static void qla2x00_free_queues(struct qla_hw_data *ha)
@@ -3083,7 +3076,8 @@ qla2x00_probe_one(struct pci_dev *pdev, const struct pci_device_id *id)
 		goto probe_failed;
 
 	/* Alloc arrays of request and response ring ptrs */
-	if (qla2x00_alloc_queues(ha, req, rsp)) {
+	ret = qla2x00_alloc_queues(ha, req, rsp);
+	if (ret) {
 		ql_log(ql_log_fatal, base_vha, 0x003d,
 		    "Failed to allocate memory for queue pointers..."
 		    "aborting.\n");
@@ -3384,8 +3378,15 @@ probe_failed:
 	}
 
 	qla2x00_free_device(base_vha);
-
 	scsi_host_put(base_vha->host);
+	/*
+	 * Need to NULL out local req/rsp after
+	 * qla2x00_free_device => qla2x00_free_queues frees
+	 * what these are pointing to. Or else we'll
+	 * fall over below in qla2x00_free_req/rsp_que.
+	 */
+	req = NULL;
+	rsp = NULL;
 
 probe_hw_failed:
 	qla2x00_mem_free(ha);
@@ -3836,7 +3837,7 @@ qla2x00_mark_all_devices_lost(scsi_qla_host_t *vha, int defer)
 
 	list_for_each_entry(fcport, &vha->vp_fcports, list) {
 		fcport->scan_state = 0;
-		qlt_schedule_sess_for_deletion_lock(fcport);
+		qlt_schedule_sess_for_deletion(fcport);
 
 		if (vha->vp_idx != 0 && vha->vp_idx != fcport->vha->vp_idx)
 			continue;
@@ -4080,6 +4081,7 @@ fail_npiv_info:
 	(*rsp)->dma = 0;
 fail_rsp_ring:
 	kfree(*rsp);
+	*rsp = NULL;
 fail_rsp:
 	dma_free_coherent(&ha->pdev->dev, ((*req)->length + 1) *
 		sizeof(request_t), (*req)->ring, (*req)->dma);
@@ -4087,6 +4089,7 @@ fail_rsp:
 	(*req)->dma = 0;
 fail_req_ring:
 	kfree(*req);
+	*req = NULL;
 fail_req:
 	dma_free_coherent(&ha->pdev->dev, sizeof(struct ct_sns_pkt),
 		ha->ct_sns, ha->ct_sns_dma);
@@ -4454,16 +4457,11 @@ qla2x00_mem_free(struct qla_hw_data *ha)
 		dma_free_coherent(&ha->pdev->dev, ha->init_cb_size,
 			ha->init_cb, ha->init_cb_dma);
 
-	if (ha->optrom_buffer)
-		vfree(ha->optrom_buffer);
-	if (ha->nvram)
-		kfree(ha->nvram);
-	if (ha->npiv_info)
-		kfree(ha->npiv_info);
-	if (ha->swl)
-		kfree(ha->swl);
-	if (ha->loop_id_map)
-		kfree(ha->loop_id_map);
+	vfree(ha->optrom_buffer);
+	kfree(ha->nvram);
+	kfree(ha->npiv_info);
+	kfree(ha->swl);
+	kfree(ha->loop_id_map);
 
 	ha->srb_mempool = NULL;
 	ha->ctx_mempool = NULL;
@@ -4536,6 +4534,7 @@ struct scsi_qla_host *qla2x00_create_host(struct scsi_host_template *sht,
 
 	spin_lock_init(&vha->work_lock);
 	spin_lock_init(&vha->cmd_list_lock);
+	spin_lock_init(&vha->gnl.fcports_lock);
 	init_waitqueue_head(&vha->fcport_waitQ);
 	init_waitqueue_head(&vha->vref_waitq);
 
@@ -4642,6 +4641,7 @@ int qla2x00_post_async_##name##_work(		\
 		e->u.logio.data[0] = data[0];	\
 		e->u.logio.data[1] = data[1];	\
 	}					\
+	fcport->flags |= FCF_ASYNC_ACTIVE;	\
 	return qla2x00_post_work(vha, e);	\
 }
 
@@ -4719,6 +4719,10 @@ void qla24xx_create_new_sess(struct scsi_qla_host *vha, struct qla_work_evt *e)
 	    (struct qlt_plogi_ack_t *)e->u.new_sess.pla;
 	uint8_t free_fcport = 0;
 
+	ql_dbg(ql_dbg_disc, vha, 0xffff,
+	    "%s %d %8phC enter\n",
+	    __func__, __LINE__, e->u.new_sess.port_name);
+
 	spin_lock_irqsave(&vha->hw->tgt.sess_lock, flags);
 	fcport = qla2x00_find_fcport_by_wwpn(vha, e->u.new_sess.port_name, 1);
 	if (fcport) {
@@ -4777,9 +4781,35 @@ void qla24xx_create_new_sess(struct scsi_qla_host *vha, struct qla_work_evt *e)
 	spin_unlock_irqrestore(&vha->hw->tgt.sess_lock, flags);
 
 	if (fcport) {
+		if (N2N_TOPO(vha->hw))
+			fcport->flags &= ~FCF_FABRIC_DEVICE;
+
 		if (pla) {
+			if (pla->iocb.u.isp24.status_subcode == ELS_PRLI) {
+				u16 wd3_lo;
+
+				fcport->fw_login_state = DSC_LS_PRLI_PEND;
+				fcport->local = 0;
+				fcport->loop_id =
+					le16_to_cpu(
+					    pla->iocb.u.isp24.nport_handle);
+				fcport->fw_login_state = DSC_LS_PRLI_PEND;
+				wd3_lo =
+				    le16_to_cpu(
+					pla->iocb.u.isp24.u.prli.wd3_lo);
+
+				if (wd3_lo & BIT_7)
+					fcport->conf_compl_supported = 1;
+
+				if ((wd3_lo & BIT_4) == 0)
+					fcport->port_type = FCT_INITIATOR;
+				else
+					fcport->port_type = FCT_TARGET;
+			}
 			qlt_plogi_ack_unref(vha, pla);
 		} else {
+			fc_port_t *dfcp = NULL;
+
 			spin_lock_irqsave(&vha->hw->tgt.sess_lock, flags);
 			tfcp = qla2x00_find_fcport_by_nportid(vha,
 			    &e->u.new_sess.id, 1);
@@ -4802,12 +4832,14 @@ void qla24xx_create_new_sess(struct scsi_qla_host *vha, struct qla_work_evt *e)
 				default:
 					fcport->login_pause = 1;
 					tfcp->conflict = fcport;
-					qlt_schedule_sess_for_deletion_lock
-						(tfcp);
+					dfcp = tfcp;
 					break;
 				}
 			}
 			spin_unlock_irqrestore(&vha->hw->tgt.sess_lock, flags);
+			if (dfcp)
+				qlt_schedule_sess_for_deletion(tfcp);
+
 			qla24xx_async_gnl(vha, fcport);
 		}
 	}
@@ -4916,14 +4948,14 @@ void qla2x00_relogin(struct scsi_qla_host *vha)
 	struct event_arg ea;
 
 	list_for_each_entry(fcport, &vha->vp_fcports, list) {
-	/*
-	 * If the port is not ONLINE then try to login
-	 * to it if we haven't run out of retries.
-	 */
+		/*
+		 * If the port is not ONLINE then try to login
+		 * to it if we haven't run out of retries.
+		 */
 		if (atomic_read(&fcport->state) != FCS_ONLINE &&
-		    fcport->login_retry && !(fcport->flags & FCF_ASYNC_SENT)) {
-
-			if (fcport->flags & FCF_FABRIC_DEVICE) {
+		    fcport->login_retry &&
+		    !(fcport->flags & (FCF_ASYNC_SENT | FCF_ASYNC_ACTIVE))) {
+			if (vha->hw->current_topology != ISP_CFG_NL) {
 				ql_dbg(ql_dbg_disc, fcport->vha, 0x2108,
 				    "%s %8phC DS %d LS %d\n", __func__,
 				    fcport->port_name, fcport->disc_state,
@@ -4932,7 +4964,7 @@ void qla2x00_relogin(struct scsi_qla_host *vha)
 				ea.event = FCME_RELOGIN;
 				ea.fcport = fcport;
 				qla2x00_fcport_event_handler(vha, &ea);
-			} else {
+			} else if (vha->hw->current_topology == ISP_CFG_NL) {
 				fcport->login_retry--;
 				status = qla2x00_local_device_login(vha,
 								fcport);

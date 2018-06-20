@@ -36,12 +36,13 @@ static void __init ssb_select_mitigation(void);
  * writes to SPEC_CTRL contain whatever reserved bits have been set.
  */
 u64 __ro_after_init x86_spec_ctrl_base;
+EXPORT_SYMBOL_GPL(x86_spec_ctrl_base);
 
 /*
  * The vendor and possibly platform specific bits which can be modified in
  * x86_spec_ctrl_base.
  */
-static u64 __ro_after_init x86_spec_ctrl_mask = ~SPEC_CTRL_IBRS;
+static u64 __ro_after_init x86_spec_ctrl_mask = SPEC_CTRL_IBRS;
 
 /*
  * AMD specific MSR info for Speculative Store Bypass control.
@@ -64,8 +65,12 @@ void __init check_bugs(void)
 	 * have unknown values. AMD64_LS_CFG MSR is cached in the early AMD
 	 * init code as it is not enumerated and depends on the family.
 	 */
-	if (boot_cpu_has(X86_FEATURE_IBRS))
+	if (boot_cpu_has(X86_FEATURE_MSR_SPEC_CTRL))
 		rdmsrl(MSR_IA32_SPEC_CTRL, x86_spec_ctrl_base);
+
+	/* Allow STIBP in MSR_SPEC_CTRL if supported */
+	if (boot_cpu_has(X86_FEATURE_STIBP))
+		x86_spec_ctrl_mask |= SPEC_CTRL_STIBP;
 
 	/* Select the proper spectre mitigation before patching alternatives */
 	spectre_v2_select_mitigation();
@@ -132,60 +137,71 @@ static const char *spectre_v2_strings[] = {
 static enum spectre_v2_mitigation spectre_v2_enabled __ro_after_init =
 	SPECTRE_V2_NONE;
 
-void x86_spec_ctrl_set(u64 val)
+void
+x86_virt_spec_ctrl(u64 guest_spec_ctrl, u64 guest_virt_spec_ctrl, bool setguest)
 {
-	if (val & x86_spec_ctrl_mask)
-		WARN_ONCE(1, "SPEC_CTRL MSR value 0x%16llx is unknown.\n", val);
+	u64 msrval, guestval, hostval = x86_spec_ctrl_base;
+	struct thread_info *ti = current_thread_info();
+
+	/* Is MSR_SPEC_CTRL implemented ? */
+	if (static_cpu_has(X86_FEATURE_MSR_SPEC_CTRL)) {
+		/*
+		 * Restrict guest_spec_ctrl to supported values. Clear the
+		 * modifiable bits in the host base value and or the
+		 * modifiable bits from the guest value.
+		 */
+		guestval = hostval & ~x86_spec_ctrl_mask;
+		guestval |= guest_spec_ctrl & x86_spec_ctrl_mask;
+
+		/* SSBD controlled in MSR_SPEC_CTRL */
+		if (static_cpu_has(X86_FEATURE_SPEC_CTRL_SSBD))
+			hostval |= ssbd_tif_to_spec_ctrl(ti->flags);
+
+		if (hostval != guestval) {
+			msrval = setguest ? guestval : hostval;
+			wrmsrl(MSR_IA32_SPEC_CTRL, msrval);
+		}
+	}
+
+	/*
+	 * If SSBD is not handled in MSR_SPEC_CTRL on AMD, update
+	 * MSR_AMD64_L2_CFG or MSR_VIRT_SPEC_CTRL if supported.
+	 */
+	if (!static_cpu_has(X86_FEATURE_LS_CFG_SSBD) &&
+	    !static_cpu_has(X86_FEATURE_VIRT_SSBD))
+		return;
+
+	/*
+	 * If the host has SSBD mitigation enabled, force it in the host's
+	 * virtual MSR value. If its not permanently enabled, evaluate
+	 * current's TIF_SSBD thread flag.
+	 */
+	if (static_cpu_has(X86_FEATURE_SPEC_STORE_BYPASS_DISABLE))
+		hostval = SPEC_CTRL_SSBD;
 	else
-		wrmsrl(MSR_IA32_SPEC_CTRL, x86_spec_ctrl_base | val);
+		hostval = ssbd_tif_to_spec_ctrl(ti->flags);
+
+	/* Sanitize the guest value */
+	guestval = guest_virt_spec_ctrl & SPEC_CTRL_SSBD;
+
+	if (hostval != guestval) {
+		unsigned long tif;
+
+		tif = setguest ? ssbd_spec_ctrl_to_tif(guestval) :
+				 ssbd_spec_ctrl_to_tif(hostval);
+
+		speculative_store_bypass_update(tif);
+	}
 }
-EXPORT_SYMBOL_GPL(x86_spec_ctrl_set);
-
-u64 x86_spec_ctrl_get_default(void)
-{
-	u64 msrval = x86_spec_ctrl_base;
-
-	if (boot_cpu_data.x86_vendor == X86_VENDOR_INTEL)
-		msrval |= ssbd_tif_to_spec_ctrl(current_thread_info()->flags);
-	return msrval;
-}
-EXPORT_SYMBOL_GPL(x86_spec_ctrl_get_default);
-
-void x86_spec_ctrl_set_guest(u64 guest_spec_ctrl)
-{
-	u64 host = x86_spec_ctrl_base;
-
-	if (!boot_cpu_has(X86_FEATURE_IBRS))
-		return;
-
-	if (boot_cpu_data.x86_vendor == X86_VENDOR_INTEL)
-		host |= ssbd_tif_to_spec_ctrl(current_thread_info()->flags);
-
-	if (host != guest_spec_ctrl)
-		wrmsrl(MSR_IA32_SPEC_CTRL, guest_spec_ctrl);
-}
-EXPORT_SYMBOL_GPL(x86_spec_ctrl_set_guest);
-
-void x86_spec_ctrl_restore_host(u64 guest_spec_ctrl)
-{
-	u64 host = x86_spec_ctrl_base;
-
-	if (!boot_cpu_has(X86_FEATURE_IBRS))
-		return;
-
-	if (boot_cpu_data.x86_vendor == X86_VENDOR_INTEL)
-		host |= ssbd_tif_to_spec_ctrl(current_thread_info()->flags);
-
-	if (host != guest_spec_ctrl)
-		wrmsrl(MSR_IA32_SPEC_CTRL, host);
-}
-EXPORT_SYMBOL_GPL(x86_spec_ctrl_restore_host);
+EXPORT_SYMBOL_GPL(x86_virt_spec_ctrl);
 
 static void x86_amd_ssb_disable(void)
 {
 	u64 msrval = x86_amd_ls_cfg_base | x86_amd_ls_cfg_ssbd_mask;
 
-	if (boot_cpu_has(X86_FEATURE_AMD_SSBD))
+	if (boot_cpu_has(X86_FEATURE_VIRT_SSBD))
+		wrmsrl(MSR_AMD64_VIRT_SPEC_CTRL, SPEC_CTRL_SSBD);
+	else if (boot_cpu_has(X86_FEATURE_LS_CFG_SSBD))
 		wrmsrl(MSR_AMD64_LS_CFG, msrval);
 }
 
@@ -519,8 +535,8 @@ static enum ssb_mitigation __init __ssb_select_mitigation(void)
 		switch (boot_cpu_data.x86_vendor) {
 		case X86_VENDOR_INTEL:
 			x86_spec_ctrl_base |= SPEC_CTRL_SSBD;
-			x86_spec_ctrl_mask &= ~SPEC_CTRL_SSBD;
-			x86_spec_ctrl_set(SPEC_CTRL_SSBD);
+			x86_spec_ctrl_mask |= SPEC_CTRL_SSBD;
+			wrmsrl(MSR_IA32_SPEC_CTRL, x86_spec_ctrl_base);
 			break;
 		case X86_VENDOR_AMD:
 			x86_amd_ssb_disable();
@@ -531,7 +547,7 @@ static enum ssb_mitigation __init __ssb_select_mitigation(void)
 	return mode;
 }
 
-static void ssb_select_mitigation()
+static void ssb_select_mitigation(void)
 {
 	ssb_mode = __ssb_select_mitigation();
 
@@ -576,7 +592,7 @@ static int ssb_prctl_set(struct task_struct *task, unsigned long ctrl)
 	 * mitigation until it is next scheduled.
 	 */
 	if (task == current && update)
-		speculative_store_bypass_update();
+		speculative_store_bypass_update_current();
 
 	return 0;
 }
@@ -631,8 +647,8 @@ int arch_prctl_spec_ctrl_get(struct task_struct *task, unsigned long which)
 
 void x86_spec_ctrl_setup_ap(void)
 {
-	if (boot_cpu_has(X86_FEATURE_IBRS))
-		x86_spec_ctrl_set(x86_spec_ctrl_base & ~x86_spec_ctrl_mask);
+	if (boot_cpu_has(X86_FEATURE_MSR_SPEC_CTRL))
+		wrmsrl(MSR_IA32_SPEC_CTRL, x86_spec_ctrl_base);
 
 	if (ssb_mode == SPEC_STORE_BYPASS_DISABLE)
 		x86_amd_ssb_disable();
@@ -641,7 +657,7 @@ void x86_spec_ctrl_setup_ap(void)
 #ifdef CONFIG_SYSFS
 
 static ssize_t cpu_show_common(struct device *dev, struct device_attribute *attr,
-			char *buf, unsigned int bug)
+			       char *buf, unsigned int bug)
 {
 	if (!boot_cpu_has_bug(bug))
 		return sprintf(buf, "Not affected\n");
