@@ -614,10 +614,24 @@ static const struct dmi_system_id runpm_blacklist[] = {
 		},
 	},
 	{
+		.ident = "ASUSTeK COMPUTER INC. X530UN",
+		.matches = {
+			DMI_MATCH(DMI_BOARD_VENDOR, "ASUSTeK COMPUTER INC."),
+			DMI_MATCH(DMI_BOARD_NAME, "X530UN"),
+		},
+	},
+	{
 		.ident = "ASUSTeK COMPUTER INC. X550VXK",
 		.matches = {
 			DMI_MATCH(DMI_SYS_VENDOR, "ASUSTeK COMPUTER INC."),
 			DMI_MATCH(DMI_PRODUCT_NAME, "X550VXK"),
+		},
+	},
+	{
+		.ident = "ASUSTeK COMPUTER INC. X705FD",
+		.matches = {
+			DMI_MATCH(DMI_BOARD_VENDOR, "ASUSTeK COMPUTER INC."),
+			DMI_MATCH(DMI_BOARD_NAME, "X705FD"),
 		},
 	},
 	{ }
@@ -679,10 +693,24 @@ static const struct dmi_system_id accel_blacklist[] = {
 		},
 	},
 	{
+		.ident = "ASUSTeK COMPUTER INC. ASUS X530UN",
+		.matches = {
+			DMI_MATCH(DMI_BOARD_VENDOR, "ASUSTeK COMPUTER INC."),
+			DMI_MATCH(DMI_BOARD_NAME, "X530UN"),
+		},
+	},
+	{
 		.ident = "ASUSTeK COMPUTER INC. ASUS X560UD",
 		.matches = {
 			DMI_MATCH(DMI_BOARD_VENDOR, "ASUSTeK COMPUTER INC."),
 			DMI_MATCH(DMI_BOARD_NAME, "X560UD"),
+		},
+	},
+	{
+		.ident = "ASUSTeK COMPUTER INC. ASUS X705FD",
+		.matches = {
+			DMI_MATCH(DMI_BOARD_VENDOR, "ASUSTeK COMPUTER INC."),
+			DMI_MATCH(DMI_BOARD_NAME, "X705FD"),
 		},
 	},
 	{ }
