@@ -25,4 +25,5 @@ chmod +x 'zfs/config/install-sh'
 chmod +x 'zfs/config/missing'
 chmod +x 'zfs/configure'
 chmod +x 'zfs/cp'
+chmod +x 'zfs/scripts/enum-extract.pl'
 exit 0
