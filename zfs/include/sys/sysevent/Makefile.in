@@ -94,6 +94,7 @@ ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/config/always-arch.m4 \
 	$(top_srcdir)/config/always-no-bool-compare.m4 \
 	$(top_srcdir)/config/always-no-unused-but-set-variable.m4 \
+	$(top_srcdir)/config/ax_code_coverage.m4 \
 	$(top_srcdir)/config/dkms.m4 \
 	$(top_srcdir)/config/kernel-acl-refcount.m4 \
 	$(top_srcdir)/config/kernel-acl.m4 \
@@ -148,6 +149,7 @@ am__aclocal_m4_deps = $(top_srcdir)/config/always-arch.m4 \
 	$(top_srcdir)/config/kernel-get-disk-ro.m4 \
 	$(top_srcdir)/config/kernel-get-gendisk.m4 \
 	$(top_srcdir)/config/kernel-get-link.m4 \
+	$(top_srcdir)/config/kernel-global_page_state.m4 \
 	$(top_srcdir)/config/kernel-inode-getattr.m4 \
 	$(top_srcdir)/config/kernel-inode-set-flags.m4 \
 	$(top_srcdir)/config/kernel-inode-set-iversion.m4 \
@@ -180,7 +182,6 @@ am__aclocal_m4_deps = $(top_srcdir)/config/always-arch.m4 \
 	$(top_srcdir)/config/kernel-userns-capabilities.m4 \
 	$(top_srcdir)/config/kernel-vfs-iterate.m4 \
 	$(top_srcdir)/config/kernel-vfs-rw-iterate.m4 \
-	$(top_srcdir)/config/kernel-vm_node_stat.m4 \
 	$(top_srcdir)/config/kernel-xattr-handler.m4 \
 	$(top_srcdir)/config/kernel.m4 $(top_srcdir)/config/libtool.m4 \
 	$(top_srcdir)/config/ltoptions.m4 \
@@ -192,7 +193,6 @@ am__aclocal_m4_deps = $(top_srcdir)/config/always-arch.m4 \
 	$(top_srcdir)/config/user-dracut.m4 \
 	$(top_srcdir)/config/user-frame-larger-than.m4 \
 	$(top_srcdir)/config/user-libaio.m4 \
-	$(top_srcdir)/config/user-libattr.m4 \
 	$(top_srcdir)/config/user-libblkid.m4 \
 	$(top_srcdir)/config/user-libtirpc.m4 \
 	$(top_srcdir)/config/user-libudev.m4 \
@@ -305,6 +305,12 @@ CCASDEPMODE = @CCASDEPMODE@
 CCASFLAGS = @CCASFLAGS@
 CCDEPMODE = @CCDEPMODE@
 CFLAGS = @CFLAGS@
+CODE_COVERAGE_CFLAGS = @CODE_COVERAGE_CFLAGS@
+CODE_COVERAGE_CPPFLAGS = @CODE_COVERAGE_CPPFLAGS@
+CODE_COVERAGE_CXXFLAGS = @CODE_COVERAGE_CXXFLAGS@
+CODE_COVERAGE_ENABLED = @CODE_COVERAGE_ENABLED@
+CODE_COVERAGE_LDFLAGS = @CODE_COVERAGE_LDFLAGS@
+CODE_COVERAGE_LIBS = @CODE_COVERAGE_LIBS@
 CPP = @CPP@
 CPPFLAGS = @CPPFLAGS@
 CYGPATH_W = @CYGPATH_W@
@@ -316,6 +322,7 @@ DEFAULT_INIT_DIR = @DEFAULT_INIT_DIR@
 DEFAULT_INIT_SCRIPT = @DEFAULT_INIT_SCRIPT@
 DEFAULT_PACKAGE = @DEFAULT_PACKAGE@
 DEFINE_INITRAMFS = @DEFINE_INITRAMFS@
+DEFINE_SYSTEMD = @DEFINE_SYSTEMD@
 DEFS = @DEFS@
 DEPDIR = @DEPDIR@
 DLLTOOL = @DLLTOOL@
@@ -332,6 +339,8 @@ EGREP = @EGREP@
 EXEEXT = @EXEEXT@
 FGREP = @FGREP@
 FRAME_LARGER_THAN = @FRAME_LARGER_THAN@
+GCOV = @GCOV@
+GENHTML = @GENHTML@
 GREP = @GREP@
 HAVE_ALIEN = @HAVE_ALIEN@
 HAVE_DPKG = @HAVE_DPKG@
@@ -345,10 +354,10 @@ INSTALL_SCRIPT = @INSTALL_SCRIPT@
 INSTALL_STRIP_PROGRAM = @INSTALL_STRIP_PROGRAM@
 KERNELCPPFLAGS = @KERNELCPPFLAGS@
 KERNELMAKE_PARAMS = @KERNELMAKE_PARAMS@
+LCOV = @LCOV@
 LD = @LD@
 LDFLAGS = @LDFLAGS@
 LIBAIO = @LIBAIO@
-LIBATTR = @LIBATTR@
 LIBBLKID = @LIBBLKID@
 LIBOBJS = @LIBOBJS@
 LIBS = @LIBS@
@@ -369,6 +378,7 @@ MAINT = @MAINT@
 MAKEINFO = @MAKEINFO@
 MANIFEST_TOOL = @MANIFEST_TOOL@
 MKDIR_P = @MKDIR_P@
+MULTIARCH_LIBDIR = @MULTIARCH_LIBDIR@
 NM = @NM@
 NMEDIT = @NMEDIT@
 NO_BOOL_COMPARE = @NO_BOOL_COMPARE@

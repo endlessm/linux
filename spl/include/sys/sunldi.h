@@ -23,7 +23,7 @@
 \*****************************************************************************/
 
 #ifndef _SPL_SUNLDI_H
-#define _SPL_SUNLDI_H
+#define	_SPL_SUNLDI_H
 
 #include <sys/types.h>
 #include <linux/fs.h>
@@ -37,7 +37,7 @@
  * https://github.com/torvalds/linux/commit/233bde21.
  */
 #ifndef SECTOR_SIZE
-#define SECTOR_SIZE 512
+#define	SECTOR_SIZE 512
 #endif
 
 #endif /* SPL_SUNLDI_H */

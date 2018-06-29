@@ -233,7 +233,7 @@ struct spa {
 	zio_t		*spa_suspend_zio_root;	/* root of all suspended I/O */
 	kmutex_t	spa_suspend_lock;	/* protects suspend_zio_root */
 	kcondvar_t	spa_suspend_cv;		/* notification of resume */
-	uint8_t		spa_suspended;		/* pool is suspended */
+	zio_suspend_reason_t	spa_suspended;	/* pool is suspended */
 	uint8_t		spa_claiming;		/* pool is doing zil_claim() */
 	boolean_t	spa_debug;		/* debug enabled? */
 	boolean_t	spa_is_root;		/* pool is root */
@@ -275,6 +275,7 @@ struct spa {
 	spa_stats_t	spa_stats;		/* assorted spa statistics */
 	hrtime_t	spa_ccw_fail_time;	/* Conf cache write fail time */
 	taskq_t		*spa_zvol_taskq;	/* Taskq for minor management */
+	taskq_t		*spa_prefetch_taskq;	/* Taskq for prefetch threads */
 	uint64_t	spa_multihost;		/* multihost aware (mmp) */
 	mmp_thread_t	spa_mmp;		/* multihost mmp thread */
 

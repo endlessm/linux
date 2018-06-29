@@ -280,6 +280,7 @@
 #include <sys/fs/swapnode.h>
 #include <sys/zpl.h>
 #include <linux/mm_compat.h>
+#include <linux/page_compat.h>
 #endif
 #include <sys/callb.h>
 #include <sys/kstat.h>
@@ -391,7 +392,6 @@ unsigned long zfs_arc_dnode_limit_percent = 10;
  */
 unsigned long zfs_arc_sys_free = 0;
 int zfs_arc_min_prefetch_lifespan = 0;
-int zfs_arc_p_aggressive_disable = 1;
 int zfs_arc_p_dampener_disable = 1;
 int zfs_arc_meta_prune = 10000;
 int zfs_arc_meta_strategy = ARC_STRATEGY_META_BALANCED;
@@ -846,8 +846,6 @@ static taskq_t *arc_prune_taskq;
 #define	HDR_IO_IN_PROGRESS(hdr)	((hdr)->b_flags & ARC_FLAG_IO_IN_PROGRESS)
 #define	HDR_IO_ERROR(hdr)	((hdr)->b_flags & ARC_FLAG_IO_ERROR)
 #define	HDR_PREFETCH(hdr)	((hdr)->b_flags & ARC_FLAG_PREFETCH)
-#define HDR_PRESCIENT_PREFETCH(hdr)     \
-	((hdr)->b_flags & ARC_FLAG_PRESCIENT_PREFETCH)
 #define	HDR_COMPRESSION_ENABLED(hdr)	\
 	((hdr)->b_flags & ARC_FLAG_COMPRESSED_ARC)
 
@@ -4019,17 +4017,11 @@ arc_free_memory(void)
 	si_meminfo(&si);
 	return (ptob(si.freeram - si.freehigh));
 #else
-#ifdef ZFS_GLOBAL_NODE_PAGE_STATE
 	return (ptob(nr_free_pages() +
-	    global_node_page_state(NR_INACTIVE_FILE) +
-	    global_node_page_state(NR_INACTIVE_ANON) +
-	    global_node_page_state(NR_SLAB_RECLAIMABLE)));
-#else
-	return (ptob(nr_free_pages() +
-	    global_page_state(NR_INACTIVE_FILE) +
-	    global_page_state(NR_INACTIVE_ANON) +
-	    global_page_state(NR_SLAB_RECLAIMABLE)));
-#endif /* ZFS_GLOBAL_NODE_PAGE_STATE */
+	    nr_inactive_file_pages() +
+	    nr_inactive_anon_pages() +
+	    nr_slab_reclaimable_pages()));
+
 #endif /* CONFIG_HIGHMEM */
 #else
 	return (spa_get_random(arc_all_memory() * 20 / 100));
@@ -4440,13 +4432,7 @@ arc_evictable_memory(void)
 	 * Scale reported evictable memory in proportion to page cache, cap
 	 * at specified min/max.
 	 */
-#ifdef ZFS_GLOBAL_NODE_PAGE_STATE
-	uint64_t min = (ptob(global_node_page_state(NR_FILE_PAGES)) / 100) *
-	    zfs_arc_pc_percent;
-#else
-	uint64_t min = (ptob(global_page_state(NR_FILE_PAGES)) / 100) *
-	    zfs_arc_pc_percent;
-#endif
+	uint64_t min = (ptob(nr_file_pages()) / 100) * zfs_arc_pc_percent;
 	min = MAX(arc_c_min, MIN(arc_c_max, min));
 
 	if (arc_dirty >= min)
@@ -4974,11 +4960,11 @@ arc_buf_access(arc_buf_t *buf)
 	mutex_exit(hash_lock);
 
 	ARCSTAT_BUMP(arcstat_hits);
-	ARCSTAT_CONDSTAT(!HDR_PREFETCH(hdr) && !HDR_PRESCIENT_PREFETCH(hdr),
-	    demand, prefetch, !HDR_ISTYPE_METADATA(hdr), data, metadata, hits);
+	ARCSTAT_CONDSTAT(!HDR_PREFETCH(hdr), demand, prefetch,
+	    !HDR_ISTYPE_METADATA(hdr), data, metadata, hits);
 }
 
-/* a generic arc_done_func_t which you can use */
+/* a generic arc_read_done_func_t which you can use */
 /* ARGSUSED */
 void
 arc_bcopy_func(zio_t *zio, arc_buf_t *buf, void *arg)
@@ -6372,7 +6358,7 @@ arc_tuning_update(void)
 
 	/* Valid range: 64M - <all physical memory> */
 	if ((zfs_arc_max) && (zfs_arc_max != arc_c_max) &&
-	    (zfs_arc_max > 64 << 20) && (zfs_arc_max < allmem) &&
+	    (zfs_arc_max >= 64 << 20) && (zfs_arc_max < allmem) &&
 	    (zfs_arc_max > arc_c_min)) {
 		arc_c_max = zfs_arc_max;
 		arc_c = arc_c_max;
@@ -7929,9 +7915,6 @@ MODULE_PARM_DESC(zfs_arc_meta_strategy, "Meta reclaim strategy");
 
 module_param(zfs_arc_grow_retry, int, 0644);
 MODULE_PARM_DESC(zfs_arc_grow_retry, "Seconds before growing arc size");
-
-module_param(zfs_arc_p_aggressive_disable, int, 0644);
-MODULE_PARM_DESC(zfs_arc_p_aggressive_disable, "disable aggressive arc_p grow");
 
 module_param(zfs_arc_p_dampener_disable, int, 0644);
 MODULE_PARM_DESC(zfs_arc_p_dampener_disable, "disable arc_p adapt dampener");

@@ -46,6 +46,9 @@ AC_PROG_LIBTOOL
 SPL_AC_LICENSE
 SPL_AC_PACKAGE
 SPL_AC_CONFIG
+SPL_AC_DEBUG
+SPL_AC_DEBUG_KMEM
+SPL_AC_DEBUG_KMEM_TRACKING
 
 AC_CONFIG_FILES([
 	Makefile
@@ -67,7 +70,6 @@ AC_CONFIG_FILES([
 	include/sys/Makefile
 	include/sys/fm/Makefile
 	include/sys/fs/Makefile
-	include/sys/sysevent/Makefile
 	include/util/Makefile
 	include/vm/Makefile
 	scripts/Makefile

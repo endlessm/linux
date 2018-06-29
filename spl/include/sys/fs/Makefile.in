@@ -91,7 +91,28 @@ host_triplet = @host@
 target_triplet = @target@
 subdir = include/sys/fs
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
-am__aclocal_m4_deps = $(top_srcdir)/config/libtool.m4 \
+am__aclocal_m4_deps = $(top_srcdir)/config/kernel-ctl-table-name.m4 \
+	$(top_srcdir)/config/kernel-fallocate.m4 \
+	$(top_srcdir)/config/kernel-group-info.m4 \
+	$(top_srcdir)/config/kernel-inode-lock.m4 \
+	$(top_srcdir)/config/kernel-kmem-cache.m4 \
+	$(top_srcdir)/config/kernel-kuidgid.m4 \
+	$(top_srcdir)/config/kernel-pde-data.m4 \
+	$(top_srcdir)/config/kernel-rw.m4 \
+	$(top_srcdir)/config/kernel-rwsem.m4 \
+	$(top_srcdir)/config/kernel-sched.m4 \
+	$(top_srcdir)/config/kernel-set-fs-pwd.m4 \
+	$(top_srcdir)/config/kernel-shrinker.m4 \
+	$(top_srcdir)/config/kernel-spinlock.m4 \
+	$(top_srcdir)/config/kernel-timer.m4 \
+	$(top_srcdir)/config/kernel-trim-unused-symbols.m4 \
+	$(top_srcdir)/config/kernel-truncate-range.m4 \
+	$(top_srcdir)/config/kernel-urange-sleep.m4 \
+	$(top_srcdir)/config/kernel-vfs-fsync.m4 \
+	$(top_srcdir)/config/kernel-vfs-getattr.m4 \
+	$(top_srcdir)/config/kernel-wait.m4 \
+	$(top_srcdir)/config/kernel-zlib.m4 \
+	$(top_srcdir)/config/libtool.m4 \
 	$(top_srcdir)/config/ltoptions.m4 \
 	$(top_srcdir)/config/ltsugar.m4 \
 	$(top_srcdir)/config/ltversion.m4 \

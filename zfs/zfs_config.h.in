@@ -333,9 +333,6 @@
 /* Define if you have libaio */
 #undef HAVE_LIBAIO
 
-/* Define if you have libattr */
-#undef HAVE_LIBATTR
-
 /* Define if you have libblkid */
 #undef HAVE_LIBBLKID
 
@@ -378,7 +375,7 @@
 /* Define to 1 if you have the `mlockall' function. */
 #undef HAVE_MLOCKALL
 
-/* new_sync_read() is available */
+/* new_sync_read()/new_sync_write() are available */
 #undef HAVE_NEW_SYNC_READ
 
 /* sops->nr_cached_objects() exists */
@@ -621,8 +618,35 @@
 /* zfs debugging enabled */
 #undef ZFS_DEBUG
 
-/* using global_node_page_state() */
+/* enum node_stat_item contains NR_FILE_PAGES */
+#undef ZFS_ENUM_NODE_STAT_ITEM_NR_FILE_PAGES
+
+/* enum node_stat_item contains NR_INACTIVE_ANON */
+#undef ZFS_ENUM_NODE_STAT_ITEM_NR_INACTIVE_ANON
+
+/* enum node_stat_item contains NR_INACTIVE_FILE */
+#undef ZFS_ENUM_NODE_STAT_ITEM_NR_INACTIVE_FILE
+
+/* enum node_stat_item contains NR_SLAB_RECLAIMABLE */
+#undef ZFS_ENUM_NODE_STAT_ITEM_NR_SLAB_RECLAIMABLE
+
+/* enum zone_stat_item contains NR_FILE_PAGES */
+#undef ZFS_ENUM_ZONE_STAT_ITEM_NR_FILE_PAGES
+
+/* enum zone_stat_item contains NR_INACTIVE_ANON */
+#undef ZFS_ENUM_ZONE_STAT_ITEM_NR_INACTIVE_ANON
+
+/* enum zone_stat_item contains NR_INACTIVE_FILE */
+#undef ZFS_ENUM_ZONE_STAT_ITEM_NR_INACTIVE_FILE
+
+/* enum zone_stat_item contains NR_SLAB_RECLAIMABLE */
+#undef ZFS_ENUM_ZONE_STAT_ITEM_NR_SLAB_RECLAIMABLE
+
+/* global_node_page_state() exists */
 #undef ZFS_GLOBAL_NODE_PAGE_STATE
+
+/* global_zone_page_state() exists */
+#undef ZFS_GLOBAL_ZONE_PAGE_STATE
 
 /* Define to 1 if GPL-only symbols can be used */
 #undef ZFS_IS_GPL_COMPATIBLE

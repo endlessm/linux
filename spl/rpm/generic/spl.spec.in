@@ -1,3 +1,13 @@
+# Python permits the !/usr/bin/python shebang for scripts that are cross
+# compatible between python2 and python3, but Fedora 28 does not.  Fedora
+# wants us to choose python3 for cross-compatible scripts.  Since we want
+# to support python2 and python3 users, exclude our scripts from Fedora 28's
+# RPM build check, so that we don't get a bunch of build warnings.
+#
+# Details: https://github.com/zfsonlinux/zfs/issues/7360
+#
+%global __brp_mangle_shebangs_exclude_from	splslab.py
+
 Name:           @PACKAGE@
 Version:        @VERSION@
 Release:        @RELEASE@%{?dist}
@@ -34,6 +44,18 @@ make install DESTDIR=%{?buildroot}
 %{_mandir}/man5/*
 
 %changelog
+* Tue May 08 2018 Tony Hutter <hutter2@llnl.gov> - 0.7.9-1
+- Released 0.7.9-1, detailed release notes are available at:
+- https://github.com/zfsonlinux/zfs/releases/tag/zfs-0.7.9
+* Mon Apr 09 2018 Tony Hutter <hutter2@llnl.gov> - 0.7.8-1
+- Released 0.7.8-1, detailed release notes are available at:
+- https://github.com/zfsonlinux/zfs/releases/tag/zfs-0.7.8
+* Wed Mar 14 2018 Tony Hutter <hutter2@llnl.gov> - 0.7.7-1
+- Released 0.7.7-1, detailed release notes are available at:
+- https://github.com/zfsonlinux/zfs/releases/tag/zfs-0.7.7
+* Thu Feb 01 2018 Tony Hutter <hutter2@llnl.gov> - 0.7.6-1
+- Released 0.7.6-1, detailed release notes are available at:
+- https://github.com/zfsonlinux/zfs/releases/tag/zfs-0.7.6
 * Mon Dec 18 2017 Tony Hutter <hutter2@llnl.gov> - 0.7.5-1
 - Released 0.7.5-1, detailed release notes are available at:
 - https://github.com/zfsonlinux/zfs/releases/tag/zfs-0.7.5

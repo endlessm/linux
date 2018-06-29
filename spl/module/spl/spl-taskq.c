@@ -87,7 +87,7 @@ taskq_find_by_name(const char *name)
 	list_for_each_prev(tql, &tq_list) {
 		tq = list_entry(tql, taskq_t, tq_taskqs);
 		if (strcmp(name, tq->tq_name) == 0)
-			return tq->tq_instance;
+			return (tq->tq_instance);
 	}
 	return (-1);
 }
@@ -103,7 +103,6 @@ task_alloc(taskq_t *tq, uint_t flags, unsigned long *irqflags)
 	int count = 0;
 
 	ASSERT(tq);
-	ASSERT(spin_is_locked(&tq->tq_lock));
 retry:
 	/* Acquire taskq_ent_t's from free list if available */
 	if (!list_empty(&tq->tq_free_list) && !(flags & TQ_NEW)) {
@@ -168,7 +167,6 @@ task_free(taskq_t *tq, taskq_ent_t *t)
 {
 	ASSERT(tq);
 	ASSERT(t);
-	ASSERT(spin_is_locked(&tq->tq_lock));
 	ASSERT(list_empty(&t->tqent_list));
 	ASSERT(!timer_pending(&t->tqent_timer));
 
@@ -185,7 +183,6 @@ task_done(taskq_t *tq, taskq_ent_t *t)
 {
 	ASSERT(tq);
 	ASSERT(t);
-	ASSERT(spin_is_locked(&tq->tq_lock));
 
 	/* Wake tasks blocked in taskq_wait_id() */
 	wake_up_all(&t->tqent_waitq);
@@ -209,17 +206,9 @@ task_done(taskq_t *tq, taskq_ent_t *t)
  * add it to the priority list in order for immediate processing.
  */
 static void
-#ifdef HAVE_KERNEL_TIMER_SETUP
-task_expire(struct timer_list *tl)
-#else
-task_expire(unsigned long data)
-#endif
+task_expire_impl(taskq_ent_t *t)
 {
-#ifdef HAVE_KERNEL_TIMER_SETUP
-	taskq_ent_t *w, *t = (taskq_ent_t *)from_timer(t, tl, tqent_timer);
-#else
-	taskq_ent_t *w, *t = (taskq_ent_t *)data;
-#endif
+	taskq_ent_t *w;
 	taskq_t *tq = t->tqent_taskq;
 	struct list_head *l;
 	unsigned long flags;
@@ -253,6 +242,21 @@ task_expire(unsigned long data)
 	wake_up(&tq->tq_work_waitq);
 }
 
+#ifdef HAVE_KERNEL_TIMER_FUNCTION_TIMER_LIST
+static void
+task_expire(struct timer_list *tl)
+{
+	taskq_ent_t *t = from_timer(t, tl, tqent_timer);
+	task_expire_impl(t);
+}
+#else
+static void
+task_expire(unsigned long data)
+{
+	task_expire_impl((taskq_ent_t *)data);
+}
+#endif
+
 /*
  * Returns the lowest incomplete taskqid_t.  The taskqid_t may
  * be queued on the pending list, on the priority list, on the
@@ -267,7 +271,6 @@ taskq_lowest_id(taskq_t *tq)
 	taskq_thread_t *tqt;
 
 	ASSERT(tq);
-	ASSERT(spin_is_locked(&tq->tq_lock));
 
 	if (!list_empty(&tq->tq_pend_list)) {
 		t = list_entry(tq->tq_pend_list.next, taskq_ent_t, tqent_list);
@@ -305,7 +308,6 @@ taskq_insert_in_order(taskq_t *tq, taskq_thread_t *tqt)
 
 	ASSERT(tq);
 	ASSERT(tqt);
-	ASSERT(spin_is_locked(&tq->tq_lock));
 
 	list_for_each_prev(l, &tq->tq_active_list) {
 		w = list_entry(l, taskq_thread_t, tqt_active_list);
@@ -327,8 +329,6 @@ taskq_find_list(taskq_t *tq, struct list_head *lh, taskqid_t id)
 {
 	struct list_head *l;
 	taskq_ent_t *t;
-
-	ASSERT(spin_is_locked(&tq->tq_lock));
 
 	list_for_each(l, lh) {
 		t = list_entry(l, taskq_ent_t, tqent_list);
@@ -355,8 +355,6 @@ taskq_find(taskq_t *tq, taskqid_t id)
 	taskq_thread_t *tqt;
 	struct list_head *l;
 	taskq_ent_t *t;
-
-	ASSERT(spin_is_locked(&tq->tq_lock));
 
 	t = taskq_find_list(tq, &tq->tq_delay_list, id);
 	if (t)
@@ -575,7 +573,8 @@ taskq_dispatch(taskq_t *tq, task_func_t func, void *arg, uint_t flags)
 	ASSERT(tq->tq_nactive <= tq->tq_nthreads);
 	if ((flags & TQ_NOQUEUE) && (tq->tq_nactive == tq->tq_nthreads)) {
 		/* Dynamic taskq may be able to spawn another thread */
-		if (!(tq->tq_flags & TASKQ_DYNAMIC) || taskq_thread_spawn(tq) == 0)
+		if (!(tq->tq_flags & TASKQ_DYNAMIC) ||
+		    taskq_thread_spawn(tq) == 0)
 			goto out;
 	}
 
@@ -598,12 +597,10 @@ taskq_dispatch(taskq_t *tq, task_func_t func, void *arg, uint_t flags)
 	t->tqent_func = func;
 	t->tqent_arg = arg;
 	t->tqent_taskq = tq;
-#ifdef HAVE_KERNEL_TIMER_SETUP
-	timer_setup(&t->tqent_timer, NULL, 0);
-#else
+#ifndef HAVE_KERNEL_TIMER_FUNCTION_TIMER_LIST
 	t->tqent_timer.data = 0;
-	t->tqent_timer.function = NULL;
 #endif
+	t->tqent_timer.function = NULL;
 	t->tqent_timer.expires = 0;
 	t->tqent_birth = jiffies;
 
@@ -652,12 +649,10 @@ taskq_dispatch_delay(taskq_t *tq, task_func_t func, void *arg,
 	t->tqent_func = func;
 	t->tqent_arg = arg;
 	t->tqent_taskq = tq;
-#ifdef HAVE_KERNEL_TIMER_SETUP
-	timer_setup(&t->tqent_timer, task_expire, 0);
-#else
+#ifndef HAVE_KERNEL_TIMER_FUNCTION_TIMER_LIST
 	t->tqent_timer.data = (unsigned long)t;
-	t->tqent_timer.function = task_expire;
 #endif
+	t->tqent_timer.function = task_expire;
 	t->tqent_timer.expires = (unsigned long)expire_time;
 	add_timer(&t->tqent_timer);
 
@@ -692,7 +687,8 @@ taskq_dispatch_ent(taskq_t *tq, task_func_t func, void *arg, uint_t flags,
 
 	if ((flags & TQ_NOQUEUE) && (tq->tq_nactive == tq->tq_nthreads)) {
 		/* Dynamic taskq may be able to spawn another thread */
-		if (!(tq->tq_flags & TASKQ_DYNAMIC) || taskq_thread_spawn(tq) == 0)
+		if (!(tq->tq_flags & TASKQ_DYNAMIC) ||
+		    taskq_thread_spawn(tq) == 0)
 			goto out2;
 		flags |= TQ_FRONT;
 	}
@@ -748,7 +744,7 @@ taskq_init_ent(taskq_ent_t *t)
 {
 	spin_lock_init(&t->tqent_lock);
 	init_waitqueue_head(&t->tqent_waitq);
-#ifdef HAVE_KERNEL_TIMER_SETUP
+#ifdef HAVE_KERNEL_TIMER_FUNCTION_TIMER_LIST
 	timer_setup(&t->tqent_timer, NULL, 0);
 #else
 	init_timer(&t->tqent_timer);
@@ -771,8 +767,6 @@ taskq_next_ent(taskq_t *tq)
 {
 	struct list_head *list;
 
-	ASSERT(spin_is_locked(&tq->tq_lock));
-
 	if (!list_empty(&tq->tq_prio_list))
 		list = &tq->tq_prio_list;
 	else if (!list_empty(&tq->tq_pend_list))
@@ -794,7 +788,8 @@ taskq_thread_spawn_task(void *arg)
 
 	if (taskq_thread_create(tq) == NULL) {
 		/* restore spawning count if failed */
-		spin_lock_irqsave_nested(&tq->tq_lock, flags, tq->tq_lock_class);
+		spin_lock_irqsave_nested(&tq->tq_lock, flags,
+		    tq->tq_lock_class);
 		tq->tq_nspawn--;
 		spin_unlock_irqrestore(&tq->tq_lock, flags);
 	}
@@ -837,8 +832,6 @@ taskq_thread_spawn(taskq_t *tq)
 static int
 taskq_thread_should_stop(taskq_t *tq, taskq_thread_t *tqt)
 {
-	ASSERT(spin_is_locked(&tq->tq_lock));
-
 	if (!(tq->tq_flags & TASKQ_DYNAMIC))
 		return (0);
 
@@ -1156,7 +1149,8 @@ taskq_destroy(taskq_t *tq)
 	while (tq->tq_nspawn) {
 		spin_unlock_irqrestore(&tq->tq_lock, flags);
 		schedule_timeout_interruptible(1);
-		spin_lock_irqsave_nested(&tq->tq_lock, flags, tq->tq_lock_class);
+		spin_lock_irqsave_nested(&tq->tq_lock, flags,
+		    tq->tq_lock_class);
 	}
 
 	/*
@@ -1249,16 +1243,16 @@ param_set_taskq_kick(const char *val, struct kernel_param *kp)
 
 #ifdef module_param_cb
 static const struct kernel_param_ops param_ops_taskq_kick = {
-        .set = param_set_taskq_kick,
-        .get = param_get_uint,
+	.set = param_set_taskq_kick,
+	.get = param_get_uint,
 };
 module_param_cb(spl_taskq_kick, &param_ops_taskq_kick, &spl_taskq_kick, 0644);
 #else
 module_param_call(spl_taskq_kick, param_set_taskq_kick, param_get_uint,
-    &spl_taskq_kick, 0644);
+	&spl_taskq_kick, 0644);
 #endif
 MODULE_PARM_DESC(spl_taskq_kick,
-    "Write nonzero to kick stuck taskqs to spawn more threads");
+	"Write nonzero to kick stuck taskqs to spawn more threads");
 
 int
 spl_taskq_init(void)
