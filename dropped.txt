@@ -1,8 +1,16 @@
 This is the list of patches/features which have been temporarily
 reverted or disabled for CC:
 
-AUFS
+Namespace mount patches
+EFI lockdown patches
 LSM stacking patches
+AUFS
+
+4.18-rc3 rebase:
+Revert "UBUNTU: SAUCE: scsi: hisi_sas: export device table of v3 hw to userspace"
+UBUNTU: SAUCE: pci-hyperv: Use only 16 bit integer for PCI domain
+UBUNTU: SAUCE: selftests/powerpc: Disable some ptrace selftests
+ - Likely no longer needed
 
 UBUNTU: SAUCE: (no-up) elide some ioctl warnings which are known benign
 UBUNTU: SAUCE: perf callchain: Include errno.h on x86 unconditinally
