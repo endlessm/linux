@@ -1998,10 +1998,10 @@ SYSCALL_DEFINE3(getrandom, char __user *, buf, size_t, count,
 	if (count > INT_MAX)
 		count = INT_MAX;
 
-	if (!(flags & GRND_INSECURE) && !crng_ready()) {
+	if (!(flags & GRND_INSECURE) && (crng_init == 0)) {
 		if (flags & GRND_NONBLOCK)
 			return -EAGAIN;
-		ret = wait_for_random_bytes();
+		ret = wait_event_interruptible(crng_init_wait, crng_init > 0);
 		if (unlikely(ret))
 			return ret;
 	}
