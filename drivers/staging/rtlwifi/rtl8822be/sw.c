@@ -40,18 +40,6 @@
 #include "../phydm/rtl_phydm.h"
 #include <linux/vmalloc.h>
 #include <linux/module.h>
-#include <linux/dmi.h>
-
-static const struct dmi_system_id aspm_zero_quirk[] = {
-	{
-		.ident = "ASUS X530UN",
-		.matches = {
-			DMI_MATCH(DMI_BOARD_VENDOR, "ASUSTeK COMPUTER INC."),
-			DMI_MATCH(DMI_BOARD_NAME, "X530UN"),
-		},
-	},
-	{ }
-};
 
 static void rtl8822be_init_aspm_vars(struct ieee80211_hw *hw)
 {
@@ -96,8 +84,6 @@ static void rtl8822be_init_aspm_vars(struct ieee80211_hw *hw)
 	 * 1 - Support ASPM,
 	 * 2 - According to chipset.
 	 */
-	if (dmi_check_system(aspm_zero_quirk))
-		rtlpriv->cfg->mod_params->aspm_support = 0;
 	rtlpci->const_support_pciaspm = rtlpriv->cfg->mod_params->aspm_support;
 }
 
