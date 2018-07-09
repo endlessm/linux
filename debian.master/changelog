@@ -4,6 +4,10 @@ linux (4.18.0-1.2) UNRELEASED; urgency=medium
   CHANGELOG: Use the printchanges target to see the curent changes.
   CHANGELOG: Use the insertchanges target to create the final log.
 
+  [ Upstream Kernel Changes ]
+
+  * Rebase to v4.18-rc4
+
  -- Seth Forshee <seth.forshee@canonical.com>  Fri, 06 Jul 2018 14:41:42 -0500
 
 linux (4.18.0-0.1) cosmic; urgency=medium
