@@ -104,6 +104,7 @@ am__aclocal_m4_deps = $(top_srcdir)/config/kernel-ctl-table-name.m4 \
 	$(top_srcdir)/config/kernel-fallocate.m4 \
 	$(top_srcdir)/config/kernel-group-info.m4 \
 	$(top_srcdir)/config/kernel-inode-lock.m4 \
+	$(top_srcdir)/config/kernel-inode-times.m4 \
 	$(top_srcdir)/config/kernel-kmem-cache.m4 \
 	$(top_srcdir)/config/kernel-kuidgid.m4 \
 	$(top_srcdir)/config/kernel-pde-data.m4 \

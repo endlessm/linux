@@ -31,6 +31,7 @@
 #include <sys/kmem.h>
 #include <sys/mutex.h>
 #include <sys/callo.h>
+#include <sys/time.h>
 
 /*
  * The kcondvar_t struct is protected by mutex taken externally before

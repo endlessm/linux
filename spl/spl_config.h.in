@@ -57,6 +57,9 @@
 /* yes */
 #undef HAVE_INODE_LOCK_SHARED
 
+/* inode->i_*time's are timespec64 */
+#undef HAVE_INODE_TIMESPEC64_TIMES
+
 /* truncate_range() inode operation is available */
 #undef HAVE_INODE_TRUNCATE_RANGE
 

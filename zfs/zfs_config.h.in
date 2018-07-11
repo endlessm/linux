@@ -72,9 +72,6 @@
 /* Define if host toolchain supports AVX512VL */
 #undef HAVE_AVX512VL
 
-/* struct block_device_operations use bdevs */
-#undef HAVE_BDEV_BLOCK_DEVICE_OPERATIONS
-
 /* bdev_logical_block_size() is available */
 #undef HAVE_BDEV_LOGICAL_BLOCK_SIZE
 
@@ -141,7 +138,10 @@
 /* blk_queue_write_cache() is GPL-only */
 #undef HAVE_BLK_QUEUE_WRITE_CACHE_GPL_ONLY
 
-/* struct block_device_operations.release returns void */
+/* bops->check_events() exists */
+#undef HAVE_BLOCK_DEVICE_OPERATIONS_CHECK_EVENTS
+
+/* bops->release() returns void */
 #undef HAVE_BLOCK_DEVICE_OPERATIONS_RELEASE_VOID
 
 /* security_inode_init_security wants callback */
@@ -302,6 +302,9 @@
 
 /* inode_set_iversion() exists */
 #undef HAVE_INODE_SET_IVERSION
+
+/* inode->i_*time's are timespec64 */
+#undef HAVE_INODE_TIMESPEC64_TIMES
 
 /* iops->truncate_range() exists */
 #undef HAVE_INODE_TRUNCATE_RANGE
