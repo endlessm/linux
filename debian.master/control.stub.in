@@ -84,6 +84,13 @@ Description: Linux kernel source for version PKGVER with Ubuntu patches
  you do not want this package. Install the appropriate linux-headers
  package instead.
 
+Package: linux-source
+Architecture: all
+Depends: ${misc:Depends}, linux-source-PKGVER
+Description: Linux kernel source with Ubuntu patches
+ This package will always depend on the latest Linux kernel source code
+ available. The Ubuntu patches have been applied.
+
 Package: SRCPKGNAME-headers-PKGVER-ABINUM
 Build-Profiles: <!stage1>
 Architecture: all
