@@ -456,13 +456,19 @@ endif
 endif
 
 binary-%: pkgimg = $(bin_pkg_name)-$*
+binary-%: metapkgimg = linux-image-$*
+binary-%: metapkgsignedimg = linux-signed-image-$*
+binary-%: metapkgsigned = linux-signed-$*
+binary-%: metapkg = linux-$*
 binary-%: pkgimg_mods = $(mods_pkg_name)-$*
 binary-%: pkgimg_ex = $(mods_extra_pkg_name)-$*
 binary-%: pkgdir_ex = $(CURDIR)/debian/$(extra_pkg_name)-$*
 binary-%: pkghdr = $(hdrs_pkg_name)-$*
+binary-%: metapkghdr = linux-headers-$*
 binary-%: dbgpkg = $(bin_pkg_name)-$*-dbgsym
 binary-%: dbgpkgdir = $(CURDIR)/debian/$(bin_pkg_name)-$*-dbgsym
 binary-%: pkgtools = $(tools_flavour_pkg_name)-$*
+binary-%: metapkgtools = linux-tools-$*
 binary-%: pkgcloud = $(cloud_flavour_pkg_name)-$*
 binary-%: rprovides = $(if $(filter true,$(call custom_override,do_zfs,$*)),$(comma) spl-modules$(comma) spl-dkms$(comma) zfs-modules$(comma) zfs-dkms)
 binary-%: target_flavour = $*
@@ -480,6 +486,42 @@ binary-%: install-%
 	$(lockme) dh_gencontrol -p$(pkgimg) -- -Vlinux:rprovides='$(rprovides)'
 	dh_md5sums -p$(pkgimg)
 	dh_builddeb -p$(pkgimg)
+	dh_installdirs -p$(metapkgimg)
+	dh_installdocs -p$(metapkgimg)
+	dh_installchangelogs -p$(metapkgimg)
+	dh_compress -p$(metapkgimg)
+	dh_fixperms -p$(metapkgimg)
+	dh_installdeb -p$(metapkgimg)
+	$(lockme) dh_gencontrol -p$(metapkgimg)
+	dh_md5sums -p$(metapkgimg)
+	dh_builddeb -p$(metapkgimg)
+	dh_installdirs -p$(metapkgsignedimg)
+	dh_installdocs -p$(metapkgsignedimg)
+	dh_installchangelogs -p$(metapkgsignedimg)
+	dh_compress -p$(metapkgsignedimg)
+	dh_fixperms -p$(metapkgsignedimg)
+	dh_installdeb -p$(metapkgsignedimg)
+	$(lockme) dh_gencontrol -p$(metapkgsignedimg)
+	dh_md5sums -p$(metapkgsignedimg)
+	dh_builddeb -p$(metapkgsignedimg)
+	dh_installdirs -p$(metapkgsigned)
+	dh_installdocs -p$(metapkgsigned)
+	dh_installchangelogs -p$(metapkgsigned)
+	dh_compress -p$(metapkgsigned)
+	dh_fixperms -p$(metapkgsigned)
+	dh_installdeb -p$(metapkgsigned)
+	$(lockme) dh_gencontrol -p$(metapkgsigned)
+	dh_md5sums -p$(metapkgsigned)
+	dh_builddeb -p$(metapkgsigned)
+	dh_installdirs -p$(metapkg)
+	dh_installdocs -p$(metapkg)
+	dh_installchangelogs -p$(metapkg)
+	dh_compress -p$(metapkg)
+	dh_fixperms -p$(metapkg)
+	dh_installdeb -p$(metapkg)
+	$(lockme) dh_gencontrol -p$(metapkg)
+	dh_md5sums -p$(metapkg)
+	dh_builddeb -p$(metapkg)
 
 	dh_installchangelogs -p$(pkgimg_mods)
 	dh_installdocs -p$(pkgimg_mods)
@@ -523,6 +565,15 @@ endif
 	$(lockme) dh_gencontrol -p$(pkghdr)
 	dh_md5sums -p$(pkghdr)
 	dh_builddeb -p$(pkghdr)
+	dh_installdirs -p$(metapkghdr)
+	dh_installdocs -p$(metapkghdr)
+	dh_installchangelogs -p$(metapkghdr)
+	dh_compress -p$(metapkghdr)
+	dh_fixperms -p$(metapkghdr)
+	dh_installdeb -p$(metapkghdr)
+	$(lockme) dh_gencontrol -p$(metapkghdr)
+	dh_md5sums -p$(metapkghdr)
+	dh_builddeb -p$(metapkghdr)
 
 ifneq ($(skipsub),true)
 	@set -e; for sub in $($(*)_sub); do		\
@@ -581,6 +632,15 @@ ifeq ($(do_linux_tools),true)
 	$(lockme) dh_gencontrol -p$(pkgtools)
 	dh_md5sums -p$(pkgtools)
 	dh_builddeb -p$(pkgtools)
+	dh_installdirs -p$(metapkgtools)
+	dh_installdocs -p$(metapkgtools)
+	dh_installchangelogs -p$(metapkgtools)
+	dh_compress -p$(metapkgtools)
+	dh_fixperms -p$(metapkgtools)
+	dh_installdeb -p$(metapkgtools)
+	$(lockme) dh_gencontrol -p$(metapkgtools)
+	dh_md5sums -p$(metapkgtools)
+	dh_builddeb -p$(metapkgtools)
 endif
 ifeq ($(do_cloud_tools),true)
 	dh_installchangelogs -p$(pkgcloud)
