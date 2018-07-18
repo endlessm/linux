@@ -45,6 +45,44 @@ Description: Linux kernel image for version PKGVER on DESC
  the linux-FLAVOUR meta-package, which will ensure that upgrades work
  correctly, and that supporting packages are also installed.
 
+Package: linux-image-FLAVOUR
+Architecture: i386 amd64 armhf arm64 powerpc ppc64el s390x
+Section: kernel
+Depends: ${misc:Depends}, linux-image-PKGVER-ABINUM-FLAVOUR, linux-modules-extra-PKGVER-ABINUM-FLAVOUR [i386 amd64 arm64 powerpc ppc64el s390x], linux-firmware
+Recommends: thermald [i386 amd64]
+Conflicts: linux-signed-image-FLAVOUR
+Description: Generic Linux kernel image
+ This package will always depend on the latest generic kernel image
+ available.
+
+Package: linux-signed-image-FLAVOUR
+Architecture: amd64
+Section: kernel
+Depends: ${misc:Depends}, linux-signed-image-PKGVER-ABINUM-FLAVOUR, linux-modules-extra-PKGVER-ABINUM-FLAVOUR, linux-firmware
+Recommends: thermald [i386 amd64]
+Conflicts: linux-image-FLAVOUR
+Description: Signed Generic Linux kernel image
+ This package will always depend on the latest generic kernel image
+ available.  Signed with the Ubuntu EFI key.
+
+Package: linux-signed-FLAVOUR
+Architecture: amd64
+Section: kernel
+Depends: ${misc:Depends}, linux-signed-image-FLAVOUR (= ${binary:Version}), linux-headers-FLAVOUR (= ${binary:Version})
+Conflicts: linux-FLAVOUR
+Description: Complete Signed Generic Linux kernel and headers
+ This package will always depend on the latest complete generic Linux kernel
+ and headers.  Signed with the Ubuntu EFI key.
+
+Package: linux-FLAVOUR
+Architecture: i386 amd64 armhf arm64 powerpc ppc64el s390x
+Section: kernel
+Depends: ${misc:Depends}, linux-image-FLAVOUR (= ${binary:Version}), linux-headers-FLAVOUR (= ${binary:Version})
+Conflicts: linux-signed-FLAVOUR
+Description: Complete Generic Linux kernel and headers
+ This package will always depend on the latest complete generic Linux kernel
+ and headers.
+
 Package: linux-modules-PKGVER-ABINUM-FLAVOUR
 Build-Profiles: <!stage1>
 Architecture: ARCH
@@ -101,6 +139,14 @@ Description: Linux kernel headers for version PKGVER on DESC
  This is for sites that want the latest kernel headers.  Please read
  /usr/share/doc/linux-headers-PKGVER-ABINUM/debian.README.gz for details.
 
+Package: linux-headers-FLAVOUR
+Architecture: i386 amd64 armhf arm64 powerpc ppc64el s390x
+Section: kernel
+Depends: ${misc:Depends}, linux-headers-PKGVER-ABINUM-FLAVOUR
+Description: Generic Linux kernel headers
+ This package will always depend on the latest generic kernel headers
+ available.
+
 Package: linux-image=SIGN-ME-PKG=-PKGVER-ABINUM-FLAVOUR-dbgsym
 Build-Profiles: <!stage1>
 Architecture: ARCH
@@ -129,6 +175,15 @@ Description: Linux kernel version specific tools for version PKGVER-ABINUM
  version locked tools (such as perf and x86_energy_perf_policy) for
  version PKGVER-ABINUM on
  =HUMAN=.
+
+Package: linux-tools-FLAVOUR
+Architecture: i386 amd64 armhf arm64 powerpc ppc64el s390x
+Section: kernel
+Provides: linux-tools
+Depends: ${misc:Depends}, linux-tools-PKGVER-ABINUM-FLAVOUR
+Description: Generic Linux kernel tools
+ This package will always depend on the latest generic kernel tools
+ available.
 
 Package: linux-cloud-tools-PKGVER-ABINUM-FLAVOUR
 Build-Profiles: <!stage1>
