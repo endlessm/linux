@@ -1280,7 +1280,7 @@ CONFIG_OF_UNITTEST                              flag<DEBUG>
 # Menu: Device Drivers >> EDAC (Error Detection And Correction) reporting
 CONFIG_EDAC                                     policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'ppc64el': 'y'}>
 CONFIG_EDAC_LEGACY_SYSFS                        policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'i386': 'n', 'ppc64el': 'n'}>
-CONFIG_EDAC_DEBUG                               policy<{'amd64': 'n', 'arm64': 'y', 'armhf': 'n', 'i386': 'n', 'ppc64el': 'n'}>
+CONFIG_EDAC_DEBUG                               policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'i386': 'n', 'ppc64el': 'n'}>
 CONFIG_EDAC_DECODE_MCE                          policy<{'amd64': 'm', 'i386': 'm'}>
 CONFIG_EDAC_GHES                                policy<{'amd64': 'y', 'arm64': 'y', 'i386': 'y'}>
 CONFIG_EDAC_AMD64                               policy<{'amd64': 'm', 'i386': 'm'}>
