@@ -7,6 +7,7 @@ linux (4.18.0-2.3) UNRELEASED; urgency=medium
   [ Upstream Kernel Changes ]
 
   * Rebase to v4.18-rc5
+  * Rebase to v4.18-rc6
 
  -- Seth Forshee <seth.forshee@canonical.com>  Wed, 11 Jul 2018 07:39:29 -0500
 
