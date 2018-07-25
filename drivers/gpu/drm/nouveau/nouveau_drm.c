@@ -555,6 +555,13 @@ static const struct dmi_system_id nouveau_blacklist[] = {
 
 static const struct dmi_system_id runpm_blacklist[] = {
 	{
+		.ident = "Acer Nitro N50-100",
+		.matches = {
+			DMI_MATCH(DMI_SYS_VENDOR, "Acer"),
+			DMI_MATCH(DMI_PRODUCT_NAME, "Nitro N50-100"),
+		},
+	},
+	{
 		.ident = "Acer Nitro N50-600",
 		.matches = {
 			DMI_MATCH(DMI_SYS_VENDOR, "Acer"),
@@ -640,6 +647,13 @@ static const struct dmi_system_id gp107_accel_blacklist[] = {
 };
 
 static const struct dmi_system_id accel_blacklist[] = {
+	{
+		.ident = "Acer Nitro N50-100",
+		.matches = {
+			DMI_MATCH(DMI_SYS_VENDOR, "Acer"),
+			DMI_MATCH(DMI_PRODUCT_NAME, "Nitro N50-100"),
+		},
+	},
 	{
 		.ident = "Acer Nitro N50-600",
 		.matches = {
