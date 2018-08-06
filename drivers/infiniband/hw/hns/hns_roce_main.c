@@ -100,7 +100,7 @@ static int hns_roce_del_gid(struct ib_device *device, u8 port_num,
 			    unsigned int index, void **context)
 {
 	struct hns_roce_dev *hr_dev = to_hr_dev(device);
-	union ib_gid zgid = { {0} };
+	struct ib_gid_attr zattr = { };
 	u8 port = port_num - 1;
 	unsigned long flags;
 	int ret;
@@ -110,7 +110,7 @@ static int hns_roce_del_gid(struct ib_device *device, u8 port_num,
 
 	spin_lock_irqsave(&hr_dev->iboe.lock, flags);
 
-	ret = hr_dev->hw->set_gid(hr_dev, port, index, &zgid, NULL);
+	ret = hr_dev->hw->set_gid(hr_dev, port, index, &zgid, &zattr);
 
 	spin_unlock_irqrestore(&hr_dev->iboe.lock, flags);
 
@@ -200,7 +200,7 @@ static int hns_roce_query_device(struct ib_device *ib_dev,
 
 	memset(props, 0, sizeof(*props));
 
-	props->sys_image_guid = cpu_to_be32(hr_dev->sys_image_guid);
+	props->sys_image_guid = cpu_to_be64(hr_dev->sys_image_guid);
 	props->max_mr_size = (u64)(~(0ULL));
 	props->page_size_cap = hr_dev->caps.page_size_cap;
 	props->vendor_id = hr_dev->vendor_id;
@@ -340,6 +340,9 @@ static struct ib_ucontext *hns_roce_alloc_ucontext(struct ib_device *ib_dev,
 	struct hns_roce_ib_alloc_ucontext_resp resp = {};
 	struct hns_roce_dev *hr_dev = to_hr_dev(ib_dev);
 
+	if (!hr_dev->active)
+		return ERR_PTR(-EAGAIN);
+
 	resp.qp_tab_size = hr_dev->caps.num_qps;
 
 	context = kmalloc(sizeof(*context), GFP_KERNEL);
@@ -350,6 +353,8 @@ static struct ib_ucontext *hns_roce_alloc_ucontext(struct ib_device *ib_dev,
 	if (ret)
 		goto error_fail_uar_alloc;
 
+	INIT_LIST_HEAD(&context->vma_list);
+	mutex_init(&context->vma_list_mutex);
 	if (hr_dev->caps.flags & HNS_ROCE_CAP_FLAG_RECORD_DB) {
 		INIT_LIST_HEAD(&context->page_list);
 		mutex_init(&context->page_mutex);
@@ -380,6 +385,50 @@ static int hns_roce_dealloc_ucontext(struct ib_ucontext *ibcontext)
 	return 0;
 }
 
+static void hns_roce_vma_open(struct vm_area_struct *vma)
+{
+	vma->vm_ops = NULL;
+}
+
+static void hns_roce_vma_close(struct vm_area_struct *vma)
+{
+	struct hns_roce_vma_data *vma_data;
+
+	vma_data = (struct hns_roce_vma_data *)vma->vm_private_data;
+	vma_data->vma = NULL;
+	mutex_lock(vma_data->vma_list_mutex);
+	list_del(&vma_data->list);
+	mutex_unlock(vma_data->vma_list_mutex);
+	kfree(vma_data);
+}
+
+static const struct vm_operations_struct hns_roce_vm_ops = {
+	.open = hns_roce_vma_open,
+	.close = hns_roce_vma_close,
+};
+
+static int hns_roce_set_vma_data(struct vm_area_struct *vma,
+				 struct hns_roce_ucontext *context)
+{
+	struct list_head *vma_head = &context->vma_list;
+	struct hns_roce_vma_data *vma_data;
+
+	vma_data = kzalloc(sizeof(*vma_data), GFP_KERNEL);
+	if (!vma_data)
+		return -ENOMEM;
+
+	vma_data->vma = vma;
+	vma_data->vma_list_mutex = &context->vma_list_mutex;
+	vma->vm_private_data = vma_data;
+	vma->vm_ops = &hns_roce_vm_ops;
+
+	mutex_lock(&context->vma_list_mutex);
+	list_add(&vma_data->list, vma_head);
+	mutex_unlock(&context->vma_list_mutex);
+
+	return 0;
+}
+
 static int hns_roce_mmap(struct ib_ucontext *context,
 			 struct vm_area_struct *vma)
 {
@@ -405,7 +454,7 @@ static int hns_roce_mmap(struct ib_ucontext *context,
 	} else
 		return -EINVAL;
 
-	return 0;
+	return hns_roce_set_vma_data(vma, to_hr_ucontext(context));
 }
 
 static int hns_roce_port_immutable(struct ib_device *ib_dev, u8 port_num,
@@ -429,10 +478,32 @@ static int hns_roce_port_immutable(struct ib_device *ib_dev, u8 port_num,
 	return 0;
 }
 
+static void hns_roce_disassociate_ucontext(struct ib_ucontext *ibcontext)
+{
+	struct hns_roce_ucontext *context = to_hr_ucontext(ibcontext);
+	struct hns_roce_vma_data *vma_data, *n;
+	struct vm_area_struct *vma;
+	int ret;
+
+	mutex_lock(&context->vma_list_mutex);
+	list_for_each_entry_safe(vma_data, n, &context->vma_list, list) {
+		vma = vma_data->vma;
+		ret = zap_vma_ptes(vma, vma->vm_start, PAGE_SIZE);
+		WARN_ONCE(ret, "%s: zap_vma_ptes failed", __func__);
+
+		vma->vm_flags &= ~(VM_SHARED | VM_MAYSHARE);
+		vma->vm_ops = NULL;
+		list_del(&vma_data->list);
+		kfree(vma_data);
+	}
+	mutex_unlock(&context->vma_list_mutex);
+}
+
 static void hns_roce_unregister_device(struct hns_roce_dev *hr_dev)
 {
 	struct hns_roce_ib_iboe *iboe = &hr_dev->iboe;
 
+	hr_dev->active = false;
 	unregister_netdevice_notifier(&iboe->nb);
 	ib_unregister_device(&hr_dev->ib_dev);
 }
@@ -524,6 +595,7 @@ static int hns_roce_register_device(struct hns_roce_dev *hr_dev)
 
 	/* OTHERS */
 	ib_dev->get_port_immutable	= hns_roce_port_immutable;
+	ib_dev->disassociate_ucontext	= hns_roce_disassociate_ucontext;
 
 	ret = ib_register_device(ib_dev, NULL);
 	if (ret) {
@@ -544,6 +616,7 @@ static int hns_roce_register_device(struct hns_roce_dev *hr_dev)
 		goto error_failed_setup_mtu_mac;
 	}
 
+	hr_dev->active = true;
 	return 0;
 
 error_failed_setup_mtu_mac:
@@ -641,7 +714,6 @@ err_unmap_dmpt:
 	hns_roce_cleanup_hem_table(hr_dev, &hr_dev->mr_table.mtpt_table);
 
 err_unmap_mtt:
-	hns_roce_cleanup_hem_table(hr_dev, &hr_dev->mr_table.mtt_table);
 	if (hns_roce_check_whether_mhop(hr_dev, HEM_TYPE_CQE))
 		hns_roce_cleanup_hem_table(hr_dev,
 					   &hr_dev->mr_table.mtt_cqe_table);
@@ -737,6 +809,7 @@ int hns_roce_init(struct hns_roce_dev *hr_dev)
 			return ret;
 		}
 	}
+	hr_dev->is_reset = false;
 
 	if (hr_dev->hw->cmq_init) {
 		ret = hr_dev->hw->cmq_init(hr_dev);
@@ -836,6 +909,7 @@ EXPORT_SYMBOL_GPL(hns_roce_init);
 void hns_roce_exit(struct hns_roce_dev *hr_dev)
 {
 	hns_roce_unregister_device(hr_dev);
+
 	if (hr_dev->hw->hw_exit)
 		hr_dev->hw->hw_exit(hr_dev);
 	hns_roce_cleanup_bitmap(hr_dev);

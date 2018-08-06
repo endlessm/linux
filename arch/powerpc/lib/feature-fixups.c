@@ -23,6 +23,7 @@
 #include <asm/page.h>
 #include <asm/sections.h>
 #include <asm/setup.h>
+#include <asm/security_features.h>
 #include <asm/firmware.h>
 
 struct fixup_entry {
@@ -55,7 +56,7 @@ static int patch_alt_instruction(unsigned int *src, unsigned int *dest,
 		unsigned int *target = (unsigned int *)branch_target(src);
 
 		/* Branch within the section doesn't need translating */
-		if (target < alt_start || target >= alt_end) {
+		if (target < alt_start || target > alt_end) {
 			instr = translate_branch(dest, src);
 			if (!instr)
 				return 1;
@@ -185,12 +186,21 @@ void do_stf_exit_barrier_fixups(enum stf_barrier_type types)
 
 	i = 0;
 	if (types & STF_BARRIER_FALLBACK || types & STF_BARRIER_SYNC_ORI) {
-		instrs[i++] = 0x7db243a6; /* mtsprg 2,r13	*/
-		instrs[i++] = 0x7db142a6; /* mfsprg r13,1	*/
+		if (cpu_has_feature(CPU_FTR_HVMODE)) {
+			instrs[i++] = 0x7db14ba6; /* mtspr 0x131, r13 (HSPRG1) */
+			instrs[i++] = 0x7db04aa6; /* mfspr r13, 0x130 (HSPRG0) */
+		} else {
+			instrs[i++] = 0x7db243a6; /* mtsprg 2,r13	*/
+			instrs[i++] = 0x7db142a6; /* mfsprg r13,1    */
+	        }
 		instrs[i++] = 0x7c0004ac; /* hwsync		*/
 		instrs[i++] = 0xe9ad0000; /* ld r13,0(r13)	*/
 		instrs[i++] = 0x63ff0000; /* ori 31,31,0 speculation barrier */
-		instrs[i++] = 0x7db242a6; /* mfsprg r13,2	*/
+		if (cpu_has_feature(CPU_FTR_HVMODE)) {
+			instrs[i++] = 0x7db14aa6; /* mfspr r13, 0x131 (HSPRG1) */
+		} else {
+			instrs[i++] = 0x7db242a6; /* mfsprg r13,2 */
+		}
 	} else if (types & STF_BARRIER_EIEIO) {
 		instrs[i++] = 0x7e0006ac; /* eieio + bit 6 hint */
 	}

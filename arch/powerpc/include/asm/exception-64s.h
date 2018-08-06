@@ -76,9 +76,9 @@
 
 #define STF_ENTRY_BARRIER_SLOT						\
 	STF_ENTRY_BARRIER_FIXUP_SECTION;				\
-	mflr	r10;							\
-	bl	stf_barrier_fallback;					\
-	mtlr	r10
+	nop;								\
+	nop;								\
+	nop
 
 #define STF_EXIT_BARRIER_SLOT						\
 	STF_EXIT_BARRIER_FIXUP_SECTION;					\

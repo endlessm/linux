@@ -1,16 +1,14 @@
-/*
- * Copyright (c) 2016 Hisilicon Limited.
- *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
- * (at your option) any later version.
- */
+// SPDX-License-Identifier: GPL-2.0+
+// Copyright (c) 2016-2017 Hisilicon Limited.
 
 #ifndef __HNS3_ENET_H
 #define __HNS3_ENET_H
 
+#include <linux/if_vlan.h>
+
 #include "hnae3.h"
+
+#define HNS3_MOD_VERSION "1.0"
 
 extern const char hns3_driver_version[];
 
@@ -100,6 +98,9 @@ enum hns3_nic_state {
 #define HNS3_RXD_L4ID_S				8
 #define HNS3_RXD_L4ID_M				(0xf << HNS3_RXD_L4ID_S)
 #define HNS3_RXD_FRAG_B				12
+#define HNS3_RXD_STRP_TAGP_S			13
+#define HNS3_RXD_STRP_TAGP_M			(0x3 << HNS3_RXD_STRP_TAGP_S)
+
 #define HNS3_RXD_L2E_B				16
 #define HNS3_RXD_L3E_B				17
 #define HNS3_RXD_L4E_B				18
@@ -286,7 +287,7 @@ struct hns3_desc_cb {
 	u16 page_offset;
 	u16 reuse_flag;
 
-	u16 length;     /* length of the buffer */
+	u32 length;     /* length of the buffer */
 
        /* desc type, used by the ring user to mark the type of the priv data */
 	u16 type;
@@ -460,15 +461,21 @@ enum hns3_link_mode_bits {
 #define HNS3_INT_RL_MAX			0x00EC
 #define HNS3_INT_RL_ENABLE_MASK		0x40
 
+#define HNS3_INT_ADAPT_DOWN_START	100
+
+struct hns3_enet_coalesce {
+	u16 int_gl;
+	u8 gl_adapt_enable;
+	enum hns3_flow_level_range flow_level;
+};
+
 struct hns3_enet_ring_group {
 	/* array of pointers to rings */
 	struct hns3_enet_ring *ring;
 	u64 total_bytes;	/* total bytes processed this group */
 	u64 total_packets;	/* total packets processed this group */
 	u16 count;
-	enum hns3_flow_level_range flow_level;
-	u16 int_gl;
-	u8 gl_adapt_enable;
+	struct hns3_enet_coalesce coal;
 };
 
 struct hns3_enet_tqp_vector {
@@ -486,11 +493,11 @@ struct hns3_enet_tqp_vector {
 
 	u16 num_tqps;	/* total number of tqps in TQP vector */
 
-	cpumask_t affinity_mask;
 	char name[HNAE3_INT_NAME_LEN];
 
 	/* when 0 should adjust interrupt coalesce parameter */
 	u8 int_adapt_down;
+	unsigned long last_jiffies;
 } ____cacheline_internodealigned_in_smp;
 
 enum hns3_udp_tnl_type {
@@ -523,8 +530,6 @@ struct hns3_nic_priv {
 	/* The most recently read link state */
 	int link;
 	u64 tx_timeout_count;
-	enum hnae3_reset_type reset_level;
-	unsigned long last_reset_time;
 
 	unsigned long state;
 
@@ -535,6 +540,7 @@ struct hns3_nic_priv {
 	struct notifier_block notifier_block;
 	/* Vxlan/Geneve information */
 	struct hns3_udp_tunnel udp_tnl[HNS3_UDP_TNL_MAX];
+	unsigned long active_vlans[BITS_TO_LONGS(VLAN_N_VID)];
 };
 
 union l3_hdr_info {
@@ -578,7 +584,7 @@ static inline void hns3_write_reg(void __iomem *base, u32 reg, u32 value)
 #define hns3_write_dev(a, reg, value) \
 	hns3_write_reg((a)->io_base, (reg), (value))
 
-#define hnae_queue_xmit(tqp, buf_num) writel_relaxed(buf_num, \
+#define hnae3_queue_xmit(tqp, buf_num) writel_relaxed(buf_num, \
 		(tqp)->io_base + HNS3_RING_TX_RING_TAIL_REG)
 
 #define ring_to_dev(ring) (&(ring)->tqp->handle->pdev->dev)
@@ -588,9 +594,9 @@ static inline void hns3_write_reg(void __iomem *base, u32 reg, u32 value)
 
 #define tx_ring_data(priv, idx) ((priv)->ring_data[idx])
 
-#define hnae_buf_size(_ring) ((_ring)->buf_size)
-#define hnae_page_order(_ring) (get_order(hnae_buf_size(_ring)))
-#define hnae_page_size(_ring) (PAGE_SIZE << hnae_page_order(_ring))
+#define hnae3_buf_size(_ring) ((_ring)->buf_size)
+#define hnae3_page_order(_ring) (get_order(hnae3_buf_size(_ring)))
+#define hnae3_page_size(_ring) (PAGE_SIZE << hnae3_page_order(_ring))
 
 /* iterator for handling rings in ring group */
 #define hns3_for_each_ring(pos, head) \
@@ -612,6 +618,7 @@ int hns3_set_channels(struct net_device *netdev,
 bool hns3_clean_tx_ring(struct hns3_enet_ring *ring, int budget);
 int hns3_init_all_ring(struct hns3_nic_priv *priv);
 int hns3_uninit_all_ring(struct hns3_nic_priv *priv);
+int hns3_nic_reset_all_ring(struct hnae3_handle *h);
 netdev_tx_t hns3_nic_net_xmit(struct sk_buff *skb, struct net_device *netdev);
 int hns3_clean_rx_ring(
 		struct hns3_enet_ring *ring, int budget,

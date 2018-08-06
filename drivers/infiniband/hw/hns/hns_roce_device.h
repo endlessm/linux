@@ -100,6 +100,9 @@
 #define SERV_TYPE_UC				2
 #define SERV_TYPE_UD				3
 
+/* Configure to HW for PAGE_SIZE larger than 4KB */
+#define PG_SHIFT_OFFSET				(PAGE_SHIFT - 12)
+
 #define PAGES_SHIFT_8				8
 #define PAGES_SHIFT_16				16
 #define PAGES_SHIFT_24				24
@@ -211,6 +214,13 @@ enum {
 struct hns_roce_uar {
 	u64		pfn;
 	unsigned long	index;
+	unsigned long	logic_idx;
+};
+
+struct hns_roce_vma_data {
+	struct list_head list;
+	struct vm_area_struct *vma;
+	struct mutex *vma_list_mutex;
 };
 
 struct hns_roce_ucontext {
@@ -218,6 +228,8 @@ struct hns_roce_ucontext {
 	struct hns_roce_uar	uar;
 	struct list_head	page_list;
 	struct mutex		page_mutex;
+	struct list_head	vma_list;
+	struct mutex		vma_list_mutex;
 };
 
 struct hns_roce_pd {
@@ -389,8 +401,8 @@ struct hns_roce_cq {
 	u8				db_en;
 	spinlock_t			lock;
 	struct ib_umem			*umem;
-	void (*comp)(struct hns_roce_cq *);
-	void (*event)(struct hns_roce_cq *, enum hns_roce_event);
+	void (*comp)(struct hns_roce_cq *cq);
+	void (*event)(struct hns_roce_cq *cq, enum hns_roce_event event_type);
 
 	struct hns_roce_uar		*uar;
 	u32				cq_depth;
@@ -533,8 +545,8 @@ struct hns_roce_qp {
 	u32                     atomic_rd_en;
 	u32			pkey_index;
 	u32			qkey;
-	void			(*event)(struct hns_roce_qp *,
-					 enum hns_roce_event);
+	void			(*event)(struct hns_roce_qp *qp,
+					 enum hns_roce_event event_type);
 	unsigned long		qpn;
 
 	atomic_t		refcount;
@@ -770,6 +782,8 @@ struct hns_roce_dev {
 	const char		*irq_names[HNS_ROCE_MAX_IRQ_NUM];
 	spinlock_t		sm_lock;
 	spinlock_t		bt_cmd_lock;
+	bool			active;
+	bool			is_reset;
 	struct hns_roce_ib_iboe iboe;
 
 	struct list_head        pgdir_list;

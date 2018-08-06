@@ -10533,6 +10533,7 @@ lpfc_get_sli4_parameters(struct lpfc_hba *phba, LPFC_MBOXQ_t *mboxq)
 	struct lpfc_pc_sli4_params *sli4_params;
 	uint32_t mbox_tmo;
 	int length;
+	bool exp_wqcq_pages = true;
 	struct lpfc_sli4_parameters *mbx_sli4_parameters;
 
 	/*
@@ -10659,8 +10660,15 @@ lpfc_get_sli4_parameters(struct lpfc_hba *phba, LPFC_MBOXQ_t *mboxq)
 			phba->nvme_support, phba->nvme_embed_pbde,
 			phba->cfg_nvme_embed_cmd, phba->cfg_suppress_rsp);
 
+	if ((bf_get(lpfc_sli_intf_if_type, &phba->sli4_hba.sli_intf) ==
+	    LPFC_SLI_INTF_IF_TYPE_2) &&
+	    (bf_get(lpfc_sli_intf_sli_family, &phba->sli4_hba.sli_intf) ==
+		 LPFC_SLI_INTF_FAMILY_LNCR_A0))
+		exp_wqcq_pages = false;
+
 	if ((bf_get(cfg_cqpsize, mbx_sli4_parameters) & LPFC_CQ_16K_PAGE_SZ) &&
 	    (bf_get(cfg_wqpsize, mbx_sli4_parameters) & LPFC_WQ_16K_PAGE_SZ) &&
+	    exp_wqcq_pages &&
 	    (sli4_params->wqsize & LPFC_WQ_SZ128_SUPPORT))
 		phba->enab_exp_wqcq_pages = 1;
 	else

@@ -575,9 +575,29 @@ static void stop_this_cpu(void *dummy)
 		;
 }
 
+#ifdef CONFIG_NMI_IPI
+static void nmi_stop_this_cpu(struct pt_regs *regs)
+{
+	/*
+	 * This is a special case because it never returns, so the NMI IPI
+	 * handling would never mark it as done, which makes any later
+	 * smp_send_nmi_ipi() call spin forever. Mark it done now.
+	 */
+	nmi_ipi_lock();
+	nmi_ipi_busy_count--;
+	nmi_ipi_unlock();
+
+	stop_this_cpu(NULL);
+}
+#endif
+
 void smp_send_stop(void)
 {
+#ifdef CONFIG_NMI_IPI
+	smp_send_nmi_ipi(NMI_IPI_ALL_OTHERS, nmi_stop_this_cpu, 1000000);
+#else
 	smp_call_function(stop_this_cpu, NULL, 0);
+#endif
 }
 
 struct thread_info *current_set[NR_CPUS];

@@ -473,6 +473,7 @@ static int send_tmf(struct cxlflash_cfg *cfg, struct scsi_device *sdev,
 	struct afu_cmd *cmd = NULL;
 	struct device *dev = &cfg->dev->dev;
 	struct hwq *hwq = get_hwq(afu, PRIMARY_HWQ);
+	bool needs_deletion = false;
 	char *buf = NULL;
 	ulong lock_flags;
 	int rc = 0;
@@ -527,6 +528,7 @@ static int send_tmf(struct cxlflash_cfg *cfg, struct scsi_device *sdev,
 	if (!to) {
 		dev_err(dev, "%s: TMF timed out\n", __func__);
 		rc = -ETIMEDOUT;
+		needs_deletion = true;
 	} else if (cmd->cmd_aborted) {
 		dev_err(dev, "%s: TMF aborted\n", __func__);
 		rc = -EAGAIN;
@@ -537,6 +539,12 @@ static int send_tmf(struct cxlflash_cfg *cfg, struct scsi_device *sdev,
 	}
 	cfg->tmf_active = false;
 	spin_unlock_irqrestore(&cfg->tmf_slock, lock_flags);
+
+	if (needs_deletion) {
+		spin_lock_irqsave(&hwq->hsq_slock, lock_flags);
+		list_del(&cmd->list);
+		spin_unlock_irqrestore(&hwq->hsq_slock, lock_flags);
+	}
 out:
 	kfree(buf);
 	return rc;
@@ -793,6 +801,10 @@ static void term_mc(struct cxlflash_cfg *cfg, u32 index)
 		WARN_ON(cfg->ops->release_context(hwq->ctx_cookie));
 	hwq->ctx_cookie = NULL;
 
+	spin_lock_irqsave(&hwq->hrrq_slock, lock_flags);
+	hwq->hrrq_online = false;
+	spin_unlock_irqrestore(&hwq->hrrq_slock, lock_flags);
+
 	spin_lock_irqsave(&hwq->hsq_slock, lock_flags);
 	flush_pending_cmds(hwq);
 	spin_unlock_irqrestore(&hwq->hsq_slock, lock_flags);
@@ -946,9 +958,9 @@ static void cxlflash_remove(struct pci_dev *pdev)
 		return;
 	}
 
-	/* If a Task Management Function is active, wait for it to complete
-	 * before continuing with remove.
-	 */
+	/* Yield to running recovery threads before continuing with remove */
+	wait_event(cfg->reset_waitq, cfg->state != STATE_RESET &&
+				     cfg->state != STATE_PROBING);
 	spin_lock_irqsave(&cfg->tmf_slock, lock_flags);
 	if (cfg->tmf_active)
 		wait_event_interruptible_lock_irq(cfg->tmf_waitq,
@@ -1467,6 +1479,12 @@ static irqreturn_t cxlflash_rrq_irq(int irq, void *data)
 
 	spin_lock_irqsave(&hwq->hrrq_slock, hrrq_flags);
 
+	/* Silently drop spurious interrupts when queue is not online */
+	if (!hwq->hrrq_online) {
+		spin_unlock_irqrestore(&hwq->hrrq_slock, hrrq_flags);
+		return IRQ_HANDLED;
+	}
+
 	if (afu_is_irqpoll_enabled(afu)) {
 		irq_poll_sched(&hwq->irqpoll);
 		spin_unlock_irqrestore(&hwq->hrrq_slock, hrrq_flags);
@@ -1773,6 +1791,7 @@ static int init_global(struct cxlflash_cfg *cfg)
 
 		writeq_be((u64) hwq->hrrq_start, &hmap->rrq_start);
 		writeq_be((u64) hwq->hrrq_end, &hmap->rrq_end);
+		hwq->hrrq_online = true;
 
 		if (afu_is_sq_cmd_mode(afu)) {
 			writeq_be((u64)hwq->hsq_start, &hmap->sq_start);
@@ -2284,6 +2303,7 @@ static int send_afu_cmd(struct afu *afu, struct sisl_ioarcb *rcb)
 	struct device *dev = &cfg->dev->dev;
 	struct afu_cmd *cmd = NULL;
 	struct hwq *hwq = get_hwq(afu, PRIMARY_HWQ);
+	ulong lock_flags;
 	char *buf = NULL;
 	int rc = 0;
 	int nretry = 0;
@@ -2329,6 +2349,11 @@ retry:
 	case -ETIMEDOUT:
 		rc = afu->context_reset(hwq);
 		if (rc) {
+			/* Delete the command from pending_cmds list */
+			spin_lock_irqsave(&hwq->hsq_slock, lock_flags);
+			list_del(&cmd->list);
+			spin_unlock_irqrestore(&hwq->hsq_slock, lock_flags);
+
 			cxlflash_schedule_async_reset(cfg);
 			break;
 		}
