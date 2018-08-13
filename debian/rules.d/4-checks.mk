@@ -21,8 +21,9 @@ retpoline-check-%: $(stampdir)/stamp-build-%
 	@echo Debug: $@
 	install -d $(abidir)
 	if grep -q CONFIG_RETPOLINE=y $(builddir)/build-$*/.config; then \
+		echo "# retpoline v1.0" >$(abidir)/$*.retpoline; \
 		$(SHELL) $(DROOT)/scripts/retpoline-extract $(builddir)/build-$* $(CURDIR) | \
-			sort >$(abidir)/$*.retpoline; \
+			sort >>$(abidir)/$*.retpoline; \
 	else \
 		echo "# RETPOLINE NOT ENABLED" >$(abidir)/$*.retpoline; \
 	fi
