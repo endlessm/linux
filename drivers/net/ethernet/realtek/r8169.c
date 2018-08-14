@@ -34,6 +34,8 @@
 #include <asm/io.h>
 #include <asm/irq.h>
 
+#include <linux/dmi.h>
+
 #define RTL8169_VERSION "2.3LK-NAPI"
 #define MODULENAME "r8169"
 #define PFX MODULENAME ": "
@@ -8069,14 +8071,29 @@ static const struct rtl_cfg_info {
 	}
 };
 
+static const struct dmi_system_id msi_msix_blacklist[] = {
+	{
+		.ident = "ASUSTeK COMPUTER INC. X441UAR",
+		.matches = {
+			DMI_MATCH(DMI_BOARD_VENDOR, "ASUSTeK COMPUTER INC."),
+			DMI_MATCH(DMI_BOARD_NAME, "X441UAR"),
+		},
+	},
+	{}
+};
+
 static int rtl_alloc_irq(struct rtl8169_private *tp)
 {
+	const struct dmi_system_id *dmi_id;
 	unsigned int flags;
 
 	if (tp->mac_version <= RTL_GIGA_MAC_VER_06) {
 		RTL_W8(tp, Cfg9346, Cfg9346_Unlock);
 		RTL_W8(tp, Config2, RTL_R8(tp, Config2) & ~MSIEnable);
 		RTL_W8(tp, Cfg9346, Cfg9346_Lock);
+		flags = PCI_IRQ_LEGACY;
+	} else if (dmi_id = dmi_first_match(msi_msix_blacklist)) {
+		netdev_info(tp->dev, "Disable MSI & MSI-X on %s\n", dmi_id->ident);
 		flags = PCI_IRQ_LEGACY;
 	} else {
 		flags = PCI_IRQ_ALL_TYPES;
