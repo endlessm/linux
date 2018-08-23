@@ -395,7 +395,6 @@ mcryptd
 md-cluster
 md4
 mdev
-mdio-mscc-miim
 memory-notifier-error-inject
 mena21_wdt
 mfd-core
