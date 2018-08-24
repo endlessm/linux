@@ -9873,7 +9873,9 @@ CONFIG_WW_MUTEX_SELFTEST                        policy<{'amd64': 'n', 'arm64': '
 # Menu: Kernel hacking >> Memory Debugging
 CONFIG_PAGE_EXTENSION                           policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'y', 'i386': 'y', 'ppc64el': 'n', 's390x': 'n'}>
 CONFIG_DEBUG_PAGEALLOC                          policy<{'amd64': 'n', 'arm64': 'n', 'i386': 'n', 'ppc64el': 'n', 's390x': 'n'}>
-CONFIG_PAGE_POISONING                           policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'i386': 'n', 'ppc64el': 'n', 's390x': 'n'}>
+CONFIG_PAGE_POISONING                           policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'ppc64el': 'y', 's390x': 'y'}>
+CONFIG_PAGE_POISONING_ZERO                      policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'ppc64el': 'y', 's390x': 'y'}>
+CONFIG_PAGE_POISONING_NO_SANITY                 policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'ppc64el': 'y', 's390x': 'y'}>
 CONFIG_DEBUG_PAGE_REF                           policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'i386': 'n', 'ppc64el': 'n', 's390x': 'n'}>
 CONFIG_DEBUG_RODATA_TEST                        policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'i386': 'n', 's390x': 'n'}>
 CONFIG_SLUB_DEBUG_ON                            policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'i386': 'n', 'ppc64el': 'n', 's390x': 'n'}>
@@ -9885,6 +9887,10 @@ CONFIG_MEMORY_NOTIFIER_ERROR_INJECT             policy<{'amd64': 'm', 'i386': 'm
 CONFIG_DEBUG_PER_CPU_MAPS                       policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'i386': 'n', 'ppc64el': 'n', 's390x': 'n'}>
 CONFIG_DEBUG_HIGHMEM                            policy<{'armhf': 'n', 'i386': 'n'}>
 CONFIG_DEBUG_STACKOVERFLOW                      policy<{'amd64': 'n', 'i386': 'n', 'ppc64el': 'n'}>
+#
+CONFIG_PAGE_POISONING                           mark<ENFORCED> note<LP:1783651>
+CONFIG_PAGE_POISONING_ZERO                      mark<ENFORCED> note<LP:1783651>
+CONFIG_PAGE_POISONING_NO_SANITY                 mark<ENFORCED> note<LP:1783651>
 
 # Menu: Kernel hacking >> Memory Debugging >> Debug VM
 CONFIG_DEBUG_VM                                 policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'i386': 'n', 'ppc64el': 'n', 's390x': 'n'}>
