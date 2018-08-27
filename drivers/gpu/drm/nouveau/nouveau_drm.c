@@ -712,6 +712,13 @@ static const struct dmi_system_id accel_blacklist[] = {
 		},
 	},
 	{
+		.ident = "ASUSTeK COMPUTER INC. ASUS X570ZD",
+		.matches = {
+			DMI_MATCH(DMI_BOARD_VENDOR, "ASUSTeK COMPUTER INC."),
+			DMI_MATCH(DMI_BOARD_NAME, "X570ZD"),
+		},
+	},
+	{
 		.ident = "ASUSTeK COMPUTER INC. ASUS X705FD",
 		.matches = {
 			DMI_MATCH(DMI_BOARD_VENDOR, "ASUSTeK COMPUTER INC."),
