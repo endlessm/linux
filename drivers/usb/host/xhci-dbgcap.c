@@ -328,13 +328,14 @@ dbc_ep_do_queue(struct dbc_ep *dep, struct dbc_request *req)
 int dbc_ep_queue(struct dbc_ep *dep, struct dbc_request *req,
 		 gfp_t gfp_flags)
 {
+	unsigned long		flags;
 	struct xhci_dbc		*dbc = dep->dbc;
 	int			ret = -ESHUTDOWN;
 
-	spin_lock(&dbc->lock);
+	spin_lock_irqsave(&dbc->lock, flags);
 	if (dbc->state == DS_CONFIGURED)
 		ret = dbc_ep_do_queue(dep, req);
-	spin_unlock(&dbc->lock);
+	spin_unlock_irqrestore(&dbc->lock, flags);
 
 	mod_delayed_work(system_wq, &dbc->event_work, 0);
 
@@ -506,30 +507,33 @@ static int xhci_do_dbc_start(struct xhci_hcd *xhci)
 	return 0;
 }
 
-static void xhci_do_dbc_stop(struct xhci_hcd *xhci)
+static int xhci_do_dbc_stop(struct xhci_hcd *xhci)
 {
 	struct xhci_dbc		*dbc = xhci->dbc;
 
 	if (dbc->state == DS_DISABLED)
-		return;
+		return -1;
 
 	writel(0, &dbc->regs->control);
 	xhci_dbc_mem_cleanup(xhci);
 	dbc->state = DS_DISABLED;
+
+	return 0;
 }
 
 static int xhci_dbc_start(struct xhci_hcd *xhci)
 {
 	int			ret;
+	unsigned long		flags;
 	struct xhci_dbc		*dbc = xhci->dbc;
 
 	WARN_ON(!dbc);
 
 	pm_runtime_get_sync(xhci_to_hcd(xhci)->self.controller);
 
-	spin_lock(&dbc->lock);
+	spin_lock_irqsave(&dbc->lock, flags);
 	ret = xhci_do_dbc_start(xhci);
-	spin_unlock(&dbc->lock);
+	spin_unlock_irqrestore(&dbc->lock, flags);
 
 	if (ret) {
 		pm_runtime_put(xhci_to_hcd(xhci)->self.controller);
@@ -541,6 +545,8 @@ static int xhci_dbc_start(struct xhci_hcd *xhci)
 
 static void xhci_dbc_stop(struct xhci_hcd *xhci)
 {
+	int ret;
+	unsigned long		flags;
 	struct xhci_dbc		*dbc = xhci->dbc;
 	struct dbc_port		*port = &dbc->port;
 
@@ -551,11 +557,12 @@ static void xhci_dbc_stop(struct xhci_hcd *xhci)
 	if (port->registered)
 		xhci_dbc_tty_unregister_device(xhci);
 
-	spin_lock(&dbc->lock);
-	xhci_do_dbc_stop(xhci);
-	spin_unlock(&dbc->lock);
+	spin_lock_irqsave(&dbc->lock, flags);
+	ret = xhci_do_dbc_stop(xhci);
+	spin_unlock_irqrestore(&dbc->lock, flags);
 
-	pm_runtime_put_sync(xhci_to_hcd(xhci)->self.controller);
+	if (!ret)
+		pm_runtime_put_sync(xhci_to_hcd(xhci)->self.controller);
 }
 
 static void
@@ -779,14 +786,15 @@ static void xhci_dbc_handle_events(struct work_struct *work)
 	int			ret;
 	enum evtreturn		evtr;
 	struct xhci_dbc		*dbc;
+	unsigned long		flags;
 	struct xhci_hcd		*xhci;
 
 	dbc = container_of(to_delayed_work(work), struct xhci_dbc, event_work);
 	xhci = dbc->xhci;
 
-	spin_lock(&dbc->lock);
+	spin_lock_irqsave(&dbc->lock, flags);
 	evtr = xhci_dbc_do_handle_events(dbc);
-	spin_unlock(&dbc->lock);
+	spin_unlock_irqrestore(&dbc->lock, flags);
 
 	switch (evtr) {
 	case EVT_GSER:

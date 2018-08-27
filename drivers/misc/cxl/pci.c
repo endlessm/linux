@@ -514,9 +514,9 @@ static int init_implementation_adapter_regs_psl9(struct cxl *adapter,
 	cxl_p1_write(adapter, CXL_PSL9_FIR_CNTL, psl_fircntl);
 
 	/* Setup the PSL to transmit packets on the PCIe before the
-	 * CAPP is enabled
+	 * CAPP is enabled. Make sure that CAPP virtual machines are disabled
 	 */
-	cxl_p1_write(adapter, CXL_PSL9_DSNDCTL, 0x0001001000002A10ULL);
+	cxl_p1_write(adapter, CXL_PSL9_DSNDCTL, 0x0001001000012A10ULL);
 
 	/*
 	 * A response to an ASB_Notify request is returned by the
@@ -621,12 +621,6 @@ static int init_implementation_adapter_regs_xsl(struct cxl *adapter, struct pci_
 /* For the PSL this is a multiple for 0 < n <= 7: */
 #define PSL_2048_250MHZ_CYCLES 1
 
-static void write_timebase_ctrl_psl9(struct cxl *adapter)
-{
-	cxl_p1_write(adapter, CXL_PSL9_TB_CTLSTAT,
-		     TBSYNC_CNT(2 * PSL_2048_250MHZ_CYCLES));
-}
-
 static void write_timebase_ctrl_psl8(struct cxl *adapter)
 {
 	cxl_p1_write(adapter, CXL_PSL_TB_CTLSTAT,
@@ -685,7 +679,8 @@ static void cxl_setup_psl_timebase(struct cxl *adapter, struct pci_dev *dev)
 	 * Setup PSL Timebase Control and Status register
 	 * with the recommended Timebase Sync Count value
 	 */
-	adapter->native->sl_ops->write_timebase_ctrl(adapter);
+	if (adapter->native->sl_ops->write_timebase_ctrl)
+		adapter->native->sl_ops->write_timebase_ctrl(adapter);
 
 	/* Enable PSL Timebase */
 	cxl_p1_write(adapter, CXL_PSL_Control, 0x0000000000000000);
@@ -1747,6 +1742,15 @@ static int cxl_configure_adapter(struct cxl *adapter, struct pci_dev *dev)
 	/* Required for devices using CAPP DMA mode, harmless for others */
 	pci_set_master(dev);
 
+	adapter->tunneled_ops_supported = false;
+
+	if (cxl_is_power9()) {
+		if (pnv_pci_set_tunnel_bar(dev, 0x00020000E0000000ull, 1))
+			dev_info(&dev->dev, "Tunneled operations unsupported\n");
+		else
+			adapter->tunneled_ops_supported = true;
+	}
+
 	if ((rc = pnv_phb_to_cxl_mode(dev, adapter->native->sl_ops->capi_mode)))
 		goto err;
 
@@ -1772,6 +1776,9 @@ err:
 static void cxl_deconfigure_adapter(struct cxl *adapter)
 {
 	struct pci_dev *pdev = to_pci_dev(adapter->dev.parent);
+
+	if (cxl_is_power9())
+		pnv_pci_set_tunnel_bar(pdev, 0x00020000E0000000ull, 0);
 
 	cxl_native_release_psl_err_irq(adapter);
 	cxl_unmap_adapter_regs(adapter);
@@ -1835,7 +1842,6 @@ static const struct cxl_service_layer_ops psl9_ops = {
 	.psl_irq_dump_registers = cxl_native_irq_dump_regs_psl9,
 	.err_irq_dump_registers = cxl_native_err_irq_dump_regs_psl9,
 	.debugfs_stop_trace = cxl_stop_trace_psl9,
-	.write_timebase_ctrl = write_timebase_ctrl_psl9,
 	.timebase_read = timebase_read_psl9,
 	.capi_mode = OPAL_PHB_CAPI_MODE_CAPI,
 	.needs_reset_before_disable = true,

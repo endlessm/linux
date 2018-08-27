@@ -181,6 +181,10 @@ static int ceph_init_file(struct inode *inode, struct file *file, int fmode)
 			return -ENOMEM;
 		}
 		cf->fmode = fmode;
+
+		spin_lock_init(&cf->rw_contexts_lock);
+		INIT_LIST_HEAD(&cf->rw_contexts);
+
 		cf->next_offset = 2;
 		cf->readdir_cache_idx = -1;
 		file->private_data = cf;
@@ -464,6 +468,7 @@ int ceph_release(struct inode *inode, struct file *file)
 		ceph_mdsc_put_request(cf->last_readdir);
 	kfree(cf->last_name);
 	kfree(cf->dir_info);
+	WARN_ON(!list_empty(&cf->rw_contexts));
 	kmem_cache_free(ceph_file_cachep, cf);
 
 	/* wake up anyone waiting for caps on this inode */
@@ -873,6 +878,11 @@ ceph_direct_read_write(struct kiocb *iocb, struct iov_iter *iter,
 		size_t start = 0;
 		ssize_t len;
 
+		if (write)
+			size = min_t(u64, size, fsc->mount_options->wsize);
+		else
+			size = min_t(u64, size, fsc->mount_options->rsize);
+
 		vino = ceph_vino(inode);
 		req = ceph_osdc_new_request(&fsc->client->osdc, &ci->i_layout,
 					    vino, pos, &size, 0,
@@ -887,11 +897,6 @@ ceph_direct_read_write(struct kiocb *iocb, struct iov_iter *iter,
 			ret = PTR_ERR(req);
 			break;
 		}
-
-		if (write)
-			size = min_t(u64, size, fsc->mount_options->wsize);
-		else
-			size = min_t(u64, size, fsc->mount_options->rsize);
 
 		len = size;
 		pages = dio_get_pages_alloc(iter, len, &start, &num_pages);
@@ -1202,12 +1207,13 @@ again:
 			retry_op = READ_INLINE;
 		}
 	} else {
+		CEPH_DEFINE_RW_CONTEXT(rw_ctx, got);
 		dout("aio_read %p %llx.%llx %llu~%u got cap refs on %s\n",
 		     inode, ceph_vinop(inode), iocb->ki_pos, (unsigned)len,
 		     ceph_cap_string(got));
-		current->journal_info = filp;
+		ceph_add_rw_context(fi, &rw_ctx);
 		ret = generic_file_read_iter(iocb, to);
-		current->journal_info = NULL;
+		ceph_del_rw_context(fi, &rw_ctx);
 	}
 	dout("aio_read %p %llx.%llx dropping cap refs on %s = %d\n",
 	     inode, ceph_vinop(inode), ceph_cap_string(got), (int)ret);
