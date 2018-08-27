@@ -1,3 +1,137 @@
+linux (4.18.0-6.7) cosmic; urgency=medium
+
+  * linux: 4.18.0-6.7 -proposed tracker (LP: #1788881)
+
+  * systemd 237-3ubuntu10 ADT test failure with linux 4.18.0-5.6 (LP: #1787440)
+    - Config: Disable BPF_JIT_ALWAYS_ON on i386
+
+  * execveat03 in ubuntu_ltp_syscalls failed on X/B (LP: #1786729)
+    - cap_inode_getsecurity: use d_find_any_alias() instead of d_find_alias()
+
+  * Cosmic update to v4.18.5 stable release (LP: #1788874)
+    - EDAC: Add missing MEM_LRDDR4 entry in edac_mem_types[]
+    - pty: fix O_CLOEXEC for TIOCGPTPEER
+    - mm: Allow non-direct-map arguments to free_reserved_area()
+    - x86/mm/init: Pass unconverted symbol addresses to free_init_pages()
+    - x86/mm/init: Add helper for freeing kernel image pages
+    - x86/mm/init: Remove freed kernel image areas from alias mapping
+    - powerpc64s: Show ori31 availability in spectre_v1 sysfs file not v2
+    - ext4: fix spectre gadget in ext4_mb_regular_allocator()
+    - drm/i915/kvmgt: Fix potential Spectre v1
+    - drm/amdgpu/pm: Fix potential Spectre v1
+    - parisc: Remove unnecessary barriers from spinlock.h
+    - parisc: Remove ordered stores from syscall.S
+    - PCI: Restore resized BAR state on resume
+    - PCI / ACPI / PM: Resume all bridges on suspend-to-RAM
+    - PCI: hotplug: Don't leak pci_slot on registration failure
+    - PCI: aardvark: Size bridges before resources allocation
+    - PCI: Skip MPS logic for Virtual Functions (VFs)
+    - PCI: pciehp: Fix use-after-free on unplug
+    - PCI: pciehp: Fix unprotected list iteration in IRQ handler
+    - i2c: core: ACPI: Properly set status byte to 0 for multi-byte writes
+    - i2c: imx: Fix race condition in dma read
+    - reiserfs: fix broken xattr handling (heap corruption, bad retval)
+    - Linux 4.18.5
+
+  * [18.10 FEAT] Add kernel config option "CONFIG_SCLP_OFB" (LP: #1787898)
+    - [Config] CONFIG_SCLP_OFB=y for s390x
+
+  * errors when scanning partition table of corrupted AIX disk (LP: #1787281)
+    - partitions/aix: fix usage of uninitialized lv_info and lvname structures
+    - partitions/aix: append null character to print data from disk
+
+  * Apply NVMe bugfix from Google that bjf asked for (LP: #1787635)
+    - nvme-pci: add a memory barrier to nvme_dbbuf_update_and_check_event
+
+  * ThinkPad systems have no HDMI sound when using the nvidia GPU (LP: #1787058)
+    - ACPI / OSI: Add OEM _OSI string to enable NVidia HDMI audio
+
+  * Cosmic update to v4.18.4 stable release (LP: #1788454)
+    - l2tp: use sk_dst_check() to avoid race on sk->sk_dst_cache
+    - net_sched: fix NULL pointer dereference when delete tcindex filter
+    - net_sched: Fix missing res info when create new tc_index filter
+    - r8169: don't use MSI-X on RTL8168g
+    - ALSA: hda - Sleep for 10ms after entering D3 on Conexant codecs
+    - ALSA: hda - Turn CX8200 into D3 as well upon reboot
+    - ALSA: vx222: Fix invalid endian conversions
+    - ALSA: virmidi: Fix too long output trigger loop
+    - ALSA: cs5535audio: Fix invalid endian conversion
+    - ALSA: dice: fix wrong copy to rx parameters for Alesis iO26
+    - ALSA: hda: Correct Asrock B85M-ITX power_save blacklist entry
+    - ALSA: memalloc: Don't exceed over the requested size
+    - ALSA: vxpocket: Fix invalid endian conversions
+    - ALSA: seq: Fix poll() error return
+    - media: gl861: fix probe of dvb_usb_gl861
+    - USB: serial: sierra: fix potential deadlock at close
+    - USB: serial: pl2303: add a new device id for ATEN
+    - USB: option: add support for DW5821e
+    - ACPI / PM: save NVS memory for ASUS 1025C laptop
+    - tty: serial: 8250: Revert NXP SC16C2552 workaround
+    - serial: 8250_exar: Read INT0 from slave device, too
+    - serial: 8250_dw: always set baud rate in dw8250_set_termios
+    - serial: 8250_dw: Add ACPI support for uart on Broadcom SoC
+    - uio: fix wrong return value from uio_mmap()
+    - misc: sram: fix resource leaks in probe error path
+    - Revert "uio: use request_threaded_irq instead"
+    - Bluetooth: avoid killing an already killed socket
+    - isdn: Disable IIOCDBGVAR
+    - net: sock_diag: Fix spectre v1 gadget in __sock_diag_cmd()
+    - hv/netvsc: Fix NULL dereference at single queue mode fallback
+    - r8169: don't use MSI-X on RTL8106e
+    - ip_vti: fix a null pointer deferrence when create vti fallback tunnel
+    - net: ethernet: mvneta: Fix napi structure mixup on armada 3700
+    - net: mvneta: fix mvneta_config_rss on armada 3700
+    - cls_matchall: fix tcf_unbind_filter missing
+    - Linux 4.18.4
+
+  * Cosmic update to v4.18.3 stable release (LP: #1788453)
+    - x86/speculation/l1tf: Exempt zeroed PTEs from inversion
+    - Linux 4.18.3
+
+  * Cosmic update to v4.18.2 stable release (LP: #1788452)
+    - x86/l1tf: Fix build error seen if CONFIG_KVM_INTEL is disabled
+    - x86: i8259: Add missing include file
+    - x86/hyper-v: Check for VP_INVAL in hyperv_flush_tlb_others()
+    - x86/platform/UV: Mark memblock related init code and data correctly
+    - x86/mm/pti: Clear Global bit more aggressively
+    - xen/pv: Call get_cpu_address_sizes to set x86_virt/phys_bits
+    - x86/mm: Disable ioremap free page handling on x86-PAE
+    - kbuild: verify that $DEPMOD is installed
+    - crypto: ccree - fix finup
+    - crypto: ccree - fix iv handling
+    - crypto: ccp - Check for NULL PSP pointer at module unload
+    - crypto: ccp - Fix command completion detection race
+    - crypto: x86/sha256-mb - fix digest copy in sha256_mb_mgr_get_comp_job_avx2()
+    - crypto: vmac - require a block cipher with 128-bit block size
+    - crypto: vmac - separate tfm and request context
+    - crypto: blkcipher - fix crash flushing dcache in error path
+    - crypto: ablkcipher - fix crash flushing dcache in error path
+    - crypto: skcipher - fix aligning block size in skcipher_copy_iv()
+    - crypto: skcipher - fix crash flushing dcache in error path
+    - ioremap: Update pgtable free interfaces with addr
+    - x86/mm: Add TLB purge to free pmd/pte page interfaces
+    - Linux 4.18.2
+
+  * Cosmic update to v4.18.2 stable release (LP: #1788452) // CVE-2018-9363
+    - Bluetooth: hidp: buffer overflow in hidp_process_report
+
+  * linux-cloud-tools-common: Ensure hv-kvp-daemon.service starts before
+    walinuxagent.service (LP: #1739107)
+    - [Debian] hyper-v -- Ensure that hv-kvp-daemon.service starts before
+      walinuxagent.service
+
+  * Miscellaneous Ubuntu changes
+    - SAUCE: ipvs: remove nbsp characters from Kconfig
+    - [Config] CONFIG_MPROFILE_KERNEL=y for ppc64el
+    - [Config] CONFIG_DRM_RCAR_LVDS=m for snapdragon
+    - [Config] CONFIG_MDIO_MSCC_MIIM=n for s390x
+    - [Config] CONFIG_NET_VENDOR_MICROSEMI=n, CONFIG_NET_VENDOR_NI=n for s390x
+    - [Config] update annotations following config review
+    - [Debian] set CROSS_COMPILE when generating kernel configs
+    - [Config] Disable the Speck cipher
+
+ -- Seth Forshee <seth.forshee@canonical.com>  Fri, 24 Aug 2018 14:18:15 -0500
+
 linux (4.18.0-5.6) cosmic; urgency=medium
 
   * Cosmic update to v4.18.1 stable release (LP: #1787264)
