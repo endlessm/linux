@@ -547,18 +547,24 @@ static int hclgevf_get_tc_size(struct hnae3_handle *handle)
 }
 
 static int hclgevf_bind_ring_to_vector(struct hnae3_handle *handle, bool en,
-				       int vector_id,
+				       int vector,
 				       struct hnae3_ring_chain_node *ring_chain)
 {
 	struct hclgevf_dev *hdev = hclgevf_ae_get_hdev(handle);
 	struct hnae3_ring_chain_node *node;
 	struct hclge_mbx_vf_to_pf_cmd *req;
 	struct hclgevf_desc desc;
-	int i = 0;
+	int i = 0, vector_id;
 	int status;
 	u8 type;
 
 	req = (struct hclge_mbx_vf_to_pf_cmd *)desc.data;
+	vector_id = hclgevf_get_vector_index(hdev, vector);
+	if (vector_id < 0) {
+		dev_err(&handle->pdev->dev,
+			"Get vector index fail. ret =%d\n", vector_id);
+		return vector_id;
+	}
 
 	for (node = ring_chain; node; node = node->next) {
 		int idx_offset = HCLGE_MBX_RING_MAP_BASIC_MSG_NUM +
@@ -611,17 +617,7 @@ static int hclgevf_bind_ring_to_vector(struct hnae3_handle *handle, bool en,
 static int hclgevf_map_ring_to_vector(struct hnae3_handle *handle, int vector,
 				      struct hnae3_ring_chain_node *ring_chain)
 {
-	struct hclgevf_dev *hdev = hclgevf_ae_get_hdev(handle);
-	int vector_id;
-
-	vector_id = hclgevf_get_vector_index(hdev, vector);
-	if (vector_id < 0) {
-		dev_err(&handle->pdev->dev,
-			"Get vector index fail. ret =%d\n", vector_id);
-		return vector_id;
-	}
-
-	return hclgevf_bind_ring_to_vector(handle, true, vector_id, ring_chain);
+	return hclgevf_bind_ring_to_vector(handle, true, vector, ring_chain);
 }
 
 static int hclgevf_unmap_ring_from_vector(
@@ -639,7 +635,7 @@ static int hclgevf_unmap_ring_from_vector(
 		return vector_id;
 	}
 
-	ret = hclgevf_bind_ring_to_vector(handle, false, vector_id, ring_chain);
+	ret = hclgevf_bind_ring_to_vector(handle, false, vector, ring_chain);
 	if (ret)
 		dev_err(&handle->pdev->dev,
 			"Unmap ring from vector fail. vector=%d, ret =%d\n",
