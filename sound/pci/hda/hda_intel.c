@@ -49,6 +49,7 @@
 #include <linux/clocksource.h>
 #include <linux/time.h>
 #include <linux/completion.h>
+#include <linux/dmi.h>
 
 #ifdef CONFIG_X86
 /* for snoop control */
@@ -2228,6 +2229,18 @@ static struct snd_pci_quirk power_save_blacklist[] = {
 	SND_PCI_QUIRK(0x17aa, 0x2227, "Lenovo X1 Carbon 3rd Gen", 0),
 	{}
 };
+
+static const struct dmi_system_id power_save_control_blacklist[] = {
+	{
+		.ident = "ASUSTeK COMPUTER INC. X505ZA",
+		.matches = {
+			/* https://bugzilla.kernel.org/show_bug.cgi?id=200945 */
+			DMI_MATCH(DMI_BOARD_VENDOR, "ASUSTeK COMPUTER INC."),
+			DMI_MATCH(DMI_BOARD_NAME, "X505ZA"),
+		},
+	},
+	{ }
+};
 #endif /* CONFIG_PM */
 
 /* number of codec slots for each chipset: 0 = default slots (i.e. 4) */
@@ -2238,6 +2251,7 @@ static unsigned int azx_max_codecs[AZX_NUM_DRIVERS] = {
 
 static int azx_probe_continue(struct azx *chip)
 {
+	const struct dmi_system_id *dmi_id;
 	struct hda_intel *hda = container_of(chip, struct hda_intel, chip);
 	struct hdac_bus *bus = azx_bus(chip);
 	struct pci_dev *pci = chip->pci;
@@ -2336,6 +2350,12 @@ static int azx_probe_continue(struct azx *chip)
 				 q->subvendor, q->subdevice);
 			val = 0;
 		}
+	}
+
+	if (pm_blacklist &&
+	    (dmi_id = dmi_first_match(power_save_control_blacklist))) {
+		dev_info(chip->card->dev, "Disabling power save control on %s\n", dmi_id->ident);
+		power_save_controller = 0;
 	}
 #endif /* CONFIG_PM */
 	/*
