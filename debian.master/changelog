@@ -1,3 +1,12 @@
+linux (4.18.0-7.8) cosmic; urgency=medium
+
+  * linux: 4.18.0-7.8 -proposed tracker (LP: #1789459)
+
+  * pmtu.sh fails on 4.18 kernel (LP: #1789436)
+    - SAUCE: Revert "vti6: fix PMTU caching and reporting on xmit"
+
+ -- Seth Forshee <seth.forshee@canonical.com>  Tue, 28 Aug 2018 11:08:51 -0500
+
 linux (4.18.0-6.7) cosmic; urgency=medium
 
   * linux: 4.18.0-6.7 -proposed tracker (LP: #1788881)

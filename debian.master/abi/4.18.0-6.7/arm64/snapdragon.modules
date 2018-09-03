@@ -3591,6 +3591,7 @@ rcar_dw_hdmi
 rcar_fdp1
 rcar_gen3_thermal
 rcar_jpu
+rcar_lvds
 rcar_thermal
 rcuperf
 rdc321x-southbridge
