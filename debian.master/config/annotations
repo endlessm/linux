@@ -5693,6 +5693,9 @@ CONFIG_SMSGIUCV_EVENT                           policy<{'s390x': 'm'}>
 CONFIG_QETH                                     policy<{'s390x': 'm'}>
 CONFIG_QETH_L2                                  policy<{'s390x': 'm'}>
 CONFIG_QETH_L3                                  policy<{'s390x': 'm'}>
+CONFIG_ISM                                      policy<{'s390x': 'm'}>
+#
+CONFIG_ISM                                      mark<ENFORCE> note<LP:1789934>
 
 # Menu: Device Drivers >> Network device support >> SLIP (serial line) support
 CONFIG_SLIP                                     policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'ppc64el': 'm', 's390x': 'n'}>
@@ -10272,6 +10275,8 @@ CONFIG_CGROUP_NET_CLASSID                       policy<{'amd64': 'y', 'arm64': '
 CONFIG_BPF_JIT                                  policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'ppc64el': 'y', 's390x': 'y'}>
 CONFIG_BPF_STREAM_PARSER                        policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'ppc64el': 'y', 's390x': 'y'}>
 #
+CONFIG_SMC                                      mark<ENFORCED> note<LP:1789934>
+CONFIG_SMC_DIAG                                 mark<ENFORCED> note<LP:1789934>
 CONFIG_NETWORK_PHY_TIMESTAMPING                 mark<ENFORCED> note<LP:1785816>
 
 # Menu: Networking support >> Networking options >> 6LoWPAN Support
