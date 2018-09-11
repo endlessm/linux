@@ -165,6 +165,7 @@ struct i915_hotplug {
 	} stats[HPD_NUM_PINS];
 	u32 event_bits;
 	struct delayed_work reenable_work;
+	struct delayed_work recheck_work;
 
 	u32 long_port_mask;
 	u32 short_port_mask;
