@@ -342,14 +342,15 @@ static void i915_digport_work_func(struct work_struct *work)
 	}
 }
 
+#define HPD_RECHECK_DELAY        (2 * 1000)
+
 /*
  * Handle hotplug events outside the interrupt handler proper.
  */
-static void i915_hotplug_work_func(struct work_struct *work)
+static void do_i915_hotplug_check(struct work_struct *work,
+				   struct drm_i915_private *dev_priv,
+				   struct drm_device *dev, bool do_recheck)
 {
-	struct drm_i915_private *dev_priv =
-		container_of(work, struct drm_i915_private, hotplug.hotplug_work);
-	struct drm_device *dev = &dev_priv->drm;
 	struct intel_connector *intel_connector;
 	struct intel_encoder *intel_encoder;
 	struct drm_connector *connector;
@@ -389,8 +390,31 @@ static void i915_hotplug_work_func(struct work_struct *work)
 
 	if (changed)
 		drm_kms_helper_hotplug_event(dev);
+	else if (do_recheck) {
+		spin_lock_irq(&dev_priv->irq_lock);
+		dev_priv->hotplug.event_bits |= hpd_event_bits;
+		spin_unlock_irq(&dev_priv->irq_lock);
+		schedule_delayed_work(&dev_priv->hotplug.recheck_work, msecs_to_jiffies(HPD_RECHECK_DELAY));
+	}
 }
 
+static void i915_hotplug_work_func(struct work_struct *work)
+{
+	struct drm_i915_private *dev_priv =
+		container_of(work, struct drm_i915_private, hotplug.hotplug_work);
+	struct drm_device *dev = &dev_priv->drm;
+
+	do_i915_hotplug_check(work, dev_priv, dev, true);
+}
+
+static void i915_hotplug_recheck_func(struct work_struct *work)
+{
+	struct drm_i915_private *dev_priv =
+		container_of(work, struct drm_i915_private, hotplug.recheck_work.work);
+	struct drm_device *dev = &dev_priv->drm;
+
+	do_i915_hotplug_check(work, dev_priv, dev, false);
+}
 
 /**
  * intel_hpd_irq_handler - main hotplug irq handler
@@ -640,6 +664,8 @@ void intel_hpd_init_work(struct drm_i915_private *dev_priv)
 	INIT_WORK(&dev_priv->hotplug.poll_init_work, i915_hpd_poll_init_work);
 	INIT_DELAYED_WORK(&dev_priv->hotplug.reenable_work,
 			  intel_hpd_irq_storm_reenable_work);
+	INIT_DELAYED_WORK(&dev_priv->hotplug.recheck_work,
+			  i915_hotplug_recheck_func);
 }
 
 void intel_hpd_cancel_work(struct drm_i915_private *dev_priv)
@@ -656,6 +682,7 @@ void intel_hpd_cancel_work(struct drm_i915_private *dev_priv)
 	cancel_work_sync(&dev_priv->hotplug.hotplug_work);
 	cancel_work_sync(&dev_priv->hotplug.poll_init_work);
 	cancel_delayed_work_sync(&dev_priv->hotplug.reenable_work);
+	cancel_delayed_work_sync(&dev_priv->hotplug.recheck_work);
 }
 
 bool intel_hpd_disable(struct drm_i915_private *dev_priv, enum hpd_pin pin)
