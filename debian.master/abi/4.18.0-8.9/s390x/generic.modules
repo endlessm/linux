@@ -342,6 +342,7 @@ irqbypass
 iscsi_boot_sysfs
 iscsi_target_mod
 iscsi_tcp
+ism
 isofs
 iw_cm
 kafs

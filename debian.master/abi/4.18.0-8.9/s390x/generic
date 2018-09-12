@@ -2056,12 +2056,14 @@ EXPORT_SYMBOL vmlinux 0x00000000	alloc_pages_exact
 EXPORT_SYMBOL vmlinux 0x00000000	alloc_skb_with_frags
 EXPORT_SYMBOL vmlinux 0x00000000	allocate_resource
 EXPORT_SYMBOL vmlinux 0x00000000	always_delete_dentry
+EXPORT_SYMBOL vmlinux 0x00000000	ap_apqn_in_matrix_owned_by_def_drv
 EXPORT_SYMBOL vmlinux 0x00000000	ap_bus_force_rescan
 EXPORT_SYMBOL vmlinux 0x00000000	ap_cancel_message
 EXPORT_SYMBOL vmlinux 0x00000000	ap_domain_index
 EXPORT_SYMBOL vmlinux 0x00000000	ap_driver_register
 EXPORT_SYMBOL vmlinux 0x00000000	ap_driver_unregister
 EXPORT_SYMBOL vmlinux 0x00000000	ap_flush_queue
+EXPORT_SYMBOL vmlinux 0x00000000	ap_owned_by_def_drv
 EXPORT_SYMBOL vmlinux 0x00000000	ap_query_configuration
 EXPORT_SYMBOL vmlinux 0x00000000	ap_queue_init_reply
 EXPORT_SYMBOL vmlinux 0x00000000	ap_queue_irq_ctrl
@@ -7697,6 +7699,12 @@ EXPORT_SYMBOL_GPL net/smc/smc 0x00000000	smc_hash_sk
 EXPORT_SYMBOL_GPL net/smc/smc 0x00000000	smc_proto
 EXPORT_SYMBOL_GPL net/smc/smc 0x00000000	smc_proto6
 EXPORT_SYMBOL_GPL net/smc/smc 0x00000000	smc_unhash_sk
+EXPORT_SYMBOL_GPL net/smc/smc 0x00000000	smcd_alloc_dev
+EXPORT_SYMBOL_GPL net/smc/smc 0x00000000	smcd_free_dev
+EXPORT_SYMBOL_GPL net/smc/smc 0x00000000	smcd_handle_event
+EXPORT_SYMBOL_GPL net/smc/smc 0x00000000	smcd_handle_irq
+EXPORT_SYMBOL_GPL net/smc/smc 0x00000000	smcd_register_dev
+EXPORT_SYMBOL_GPL net/smc/smc 0x00000000	smcd_unregister_dev
 EXPORT_SYMBOL_GPL net/sunrpc/auth_gss/auth_rpcgss 0x00000000	g_make_token_header
 EXPORT_SYMBOL_GPL net/sunrpc/auth_gss/auth_rpcgss 0x00000000	g_token_size
 EXPORT_SYMBOL_GPL net/sunrpc/auth_gss/auth_rpcgss 0x00000000	g_verify_token_header
@@ -7805,6 +7813,7 @@ EXPORT_SYMBOL_GPL net/sunrpc/sunrpc 0x00000000	rpc_shutdown_client
 EXPORT_SYMBOL_GPL net/sunrpc/sunrpc 0x00000000	rpc_sleep_on
 EXPORT_SYMBOL_GPL net/sunrpc/sunrpc 0x00000000	rpc_sleep_on_priority
 EXPORT_SYMBOL_GPL net/sunrpc/sunrpc 0x00000000	rpc_switch_client_transport
+EXPORT_SYMBOL_GPL net/sunrpc/sunrpc 0x00000000	rpc_task_release_transport
 EXPORT_SYMBOL_GPL net/sunrpc/sunrpc 0x00000000	rpc_uaddr2sockaddr
 EXPORT_SYMBOL_GPL net/sunrpc/sunrpc 0x00000000	rpc_unlink
 EXPORT_SYMBOL_GPL net/sunrpc/sunrpc 0x00000000	rpc_update_rtt
@@ -10651,6 +10660,7 @@ EXPORT_SYMBOL_GPL vmlinux 0x00000000	syscore_suspend
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	sysctl_vfs_cache_pressure
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	sysfs_add_file_to_group
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	sysfs_add_link_to_group
+EXPORT_SYMBOL_GPL vmlinux 0x00000000	sysfs_break_active_protection
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	sysfs_chmod_file
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	sysfs_create_bin_file
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	sysfs_create_file_ns
@@ -10672,6 +10682,7 @@ EXPORT_SYMBOL_GPL vmlinux 0x00000000	sysfs_remove_link
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	sysfs_remove_link_from_group
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	sysfs_remove_mount_point
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	sysfs_rename_link_ns
+EXPORT_SYMBOL_GPL vmlinux 0x00000000	sysfs_unbreak_active_protection
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	sysfs_unmerge_group
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	sysfs_update_group
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	system_freezable_power_efficient_wq
