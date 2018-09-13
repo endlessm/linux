@@ -812,8 +812,6 @@ static void release_resources(struct ibmvnic_adapter *adapter)
 	release_tx_pools(adapter);
 	release_rx_pools(adapter);
 
-	release_stats_token(adapter);
-	release_stats_buffers(adapter);
 	release_error_buffers(adapter);
 
 	if (adapter->napi) {
@@ -950,14 +948,6 @@ static int init_resources(struct ibmvnic_adapter *adapter)
 	int i, rc;
 
 	rc = set_real_num_queues(netdev);
-	if (rc)
-		return rc;
-
-	rc = init_stats_buffers(adapter);
-	if (rc)
-		return rc;
-
-	rc = init_stats_token(adapter);
 	if (rc)
 		return rc;
 
@@ -1699,11 +1689,13 @@ static int do_reset(struct ibmvnic_adapter *adapter,
 			rc = reset_rx_pools(adapter);
 			if (rc)
 				return rc;
-
-			if (reset_state == VNIC_CLOSED)
-				return 0;
 		}
 	}
+
+	adapter->state = VNIC_CLOSED;
+
+	if (reset_state == VNIC_CLOSED)
+		return 0;
 
 	rc = __ibmvnic_open(netdev);
 	if (rc) {
@@ -2266,6 +2258,7 @@ static int reset_one_sub_crq_queue(struct ibmvnic_adapter *adapter,
 	}
 
 	memset(scrq->msgs, 0, 4 * PAGE_SIZE);
+	atomic_set(&scrq->used, 0);
 	scrq->cur = 0;
 
 	rc = h_reg_sub_crq(adapter->vdev->unit_address, scrq->msg_token,
@@ -4387,6 +4380,14 @@ static int ibmvnic_init(struct ibmvnic_adapter *adapter)
 		release_crq_queue(adapter);
 	}
 
+	rc = init_stats_buffers(adapter);
+	if (rc)
+		return rc;
+
+	rc = init_stats_token(adapter);
+	if (rc)
+		return rc;
+
 	return rc;
 }
 
@@ -4493,6 +4494,9 @@ static int ibmvnic_remove(struct vio_dev *dev)
 	release_resources(adapter);
 	release_sub_crqs(adapter);
 	release_crq_queue(adapter);
+
+	release_stats_token(adapter);
+	release_stats_buffers(adapter);
 
 	adapter->state = VNIC_REMOVED;
 

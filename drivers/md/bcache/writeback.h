@@ -5,6 +5,9 @@
 #define CUTOFF_WRITEBACK	40
 #define CUTOFF_WRITEBACK_SYNC	70
 
+#define WRITEBACK_RATE_UPDATE_SECS_MAX		60
+#define WRITEBACK_RATE_UPDATE_SECS_DEFAULT	5
+
 static inline uint64_t bcache_dev_sectors_dirty(struct bcache_device *d)
 {
 	uint64_t i, ret = 0;
@@ -92,8 +95,6 @@ static inline void bch_writeback_add(struct cached_dev *dc)
 {
 	if (!atomic_read(&dc->has_dirty) &&
 	    !atomic_xchg(&dc->has_dirty, 1)) {
-		refcount_inc(&dc->count);
-
 		if (BDEV_STATE(&dc->sb) != BDEV_STATE_DIRTY) {
 			SET_BDEV_STATE(&dc->sb, BDEV_STATE_DIRTY);
 			/* XXX: should do this synchronously */

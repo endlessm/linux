@@ -135,7 +135,7 @@ int zip_compress(const u8 *src, unsigned int slen,
 	if (!zip)
 		return -ENODEV;
 
-	zip_state = kzalloc(sizeof(*zip_state), GFP_KERNEL);
+	zip_state = kzalloc(sizeof(*zip_state), GFP_ATOMIC);
 	if (!zip_state)
 		return -ENOMEM;
 
@@ -171,7 +171,7 @@ int zip_decompress(const u8 *src, unsigned int slen,
 	if (!zip)
 		return -ENODEV;
 
-	zip_state = kzalloc(sizeof(*zip_state), GFP_KERNEL);
+	zip_state = kzalloc(sizeof(*zip_state), GFP_ATOMIC);
 	if (!zip_state)
 		return -ENOMEM;
 

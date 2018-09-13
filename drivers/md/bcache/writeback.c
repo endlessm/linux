@@ -92,6 +92,21 @@ static void update_writeback_rate(struct work_struct *work)
 					     struct cached_dev,
 					     writeback_rate_update);
 
+	/*
+	 * should check BCACHE_DEV_RATE_DW_RUNNING before calling
+	 * cancel_delayed_work_sync().
+	 */
+	set_bit(BCACHE_DEV_RATE_DW_RUNNING, &dc->disk.flags);
+	/* paired with where BCACHE_DEV_RATE_DW_RUNNING is tested */
+	smp_mb();
+
+	if (!test_bit(BCACHE_DEV_WB_RUNNING, &dc->disk.flags)) {
+		clear_bit(BCACHE_DEV_RATE_DW_RUNNING, &dc->disk.flags);
+		/* paired with where BCACHE_DEV_RATE_DW_RUNNING is tested */
+		smp_mb();
+		return;
+	}
+
 	down_read(&dc->writeback_lock);
 
 	if (atomic_read(&dc->has_dirty) &&
@@ -100,8 +115,18 @@ static void update_writeback_rate(struct work_struct *work)
 
 	up_read(&dc->writeback_lock);
 
-	schedule_delayed_work(&dc->writeback_rate_update,
+	if (test_bit(BCACHE_DEV_WB_RUNNING, &dc->disk.flags)) {
+		schedule_delayed_work(&dc->writeback_rate_update,
 			      dc->writeback_rate_update_seconds * HZ);
+	}
+
+	/*
+	 * should check BCACHE_DEV_RATE_DW_RUNNING before calling
+	 * cancel_delayed_work_sync().
+	 */
+	clear_bit(BCACHE_DEV_RATE_DW_RUNNING, &dc->disk.flags);
+	/* paired with where BCACHE_DEV_RATE_DW_RUNNING is tested */
+	smp_mb();
 }
 
 static unsigned writeback_delay(struct cached_dev *dc, unsigned sectors)
@@ -446,14 +471,20 @@ static int bch_writeback_thread(void *arg)
 	while (!kthread_should_stop()) {
 		down_write(&dc->writeback_lock);
 		set_current_state(TASK_INTERRUPTIBLE);
-		if (!atomic_read(&dc->has_dirty) ||
-		    (!test_bit(BCACHE_DEV_DETACHING, &dc->disk.flags) &&
-		     !dc->writeback_running)) {
+		/*
+		 * If the bache device is detaching, skip here and continue
+		 * to perform writeback. Otherwise, if no dirty data on cache,
+		 * or there is dirty data on cache but writeback is disabled,
+		 * the writeback thread should sleep here and wait for others
+		 * to wake up it.
+		 */
+		if (!test_bit(BCACHE_DEV_DETACHING, &dc->disk.flags) &&
+		    (!atomic_read(&dc->has_dirty) || !dc->writeback_running)) {
 			up_write(&dc->writeback_lock);
 
 			if (kthread_should_stop()) {
 				set_current_state(TASK_RUNNING);
-				return 0;
+				break;
 			}
 
 			schedule();
@@ -466,9 +497,16 @@ static int bch_writeback_thread(void *arg)
 		if (searched_full_index &&
 		    RB_EMPTY_ROOT(&dc->writeback_keys.keys)) {
 			atomic_set(&dc->has_dirty, 0);
-			cached_dev_put(dc);
 			SET_BDEV_STATE(&dc->sb, BDEV_STATE_CLEAN);
 			bch_write_bdev_super(dc, NULL);
+			/*
+			 * If bcache device is detaching via sysfs interface,
+			 * writeback thread should stop after there is no dirty
+			 * data on cache. BCACHE_DEV_DETACHING flag is set in
+			 * bch_cached_dev_detach().
+			 */
+			if (test_bit(BCACHE_DEV_DETACHING, &dc->disk.flags))
+				break;
 		}
 
 		up_write(&dc->writeback_lock);
@@ -486,6 +524,9 @@ static int bch_writeback_thread(void *arg)
 			bch_ratelimit_reset(&dc->writeback_rate);
 		}
 	}
+
+	dc->writeback_thread = NULL;
+	cached_dev_put(dc);
 
 	return 0;
 }
@@ -536,10 +577,11 @@ void bch_cached_dev_writeback_init(struct cached_dev *dc)
 	dc->writeback_rate.rate		= 1024;
 	dc->writeback_rate_minimum	= 8;
 
-	dc->writeback_rate_update_seconds = 5;
+	dc->writeback_rate_update_seconds = WRITEBACK_RATE_UPDATE_SECS_DEFAULT;
 	dc->writeback_rate_p_term_inverse = 40;
 	dc->writeback_rate_i_term_inverse = 10000;
 
+	WARN_ON(test_and_clear_bit(BCACHE_DEV_WB_RUNNING, &dc->disk.flags));
 	INIT_DELAYED_WORK(&dc->writeback_rate_update, update_writeback_rate);
 }
 
@@ -550,11 +592,15 @@ int bch_cached_dev_writeback_start(struct cached_dev *dc)
 	if (!dc->writeback_write_wq)
 		return -ENOMEM;
 
+	cached_dev_get(dc);
 	dc->writeback_thread = kthread_create(bch_writeback_thread, dc,
 					      "bcache_writeback");
-	if (IS_ERR(dc->writeback_thread))
+	if (IS_ERR(dc->writeback_thread)) {
+		cached_dev_put(dc);
 		return PTR_ERR(dc->writeback_thread);
+	}
 
+	WARN_ON(test_and_set_bit(BCACHE_DEV_WB_RUNNING, &dc->disk.flags));
 	schedule_delayed_work(&dc->writeback_rate_update,
 			      dc->writeback_rate_update_seconds * HZ);
 

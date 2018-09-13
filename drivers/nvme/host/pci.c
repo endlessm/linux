@@ -305,6 +305,14 @@ static bool nvme_dbbuf_update_and_check_event(u16 value, u32 *dbbuf_db,
 		old_value = *dbbuf_db;
 		*dbbuf_db = value;
 
+		/*
+		 * Ensure that the doorbell is updated before reading the event
+		 * index from memory.  The controller needs to provide similar
+		 * ordering to ensure the envent index is updated before reading
+		 * the doorbell.
+		 */
+		mb();
+
 		if (!nvme_dbbuf_need_event(*dbbuf_ei, value, old_value))
 			return false;
 	}
@@ -1467,7 +1475,7 @@ static int nvme_create_queue(struct nvme_queue *nvmeq, int qid)
 	nvmeq->cq_vector = qid - 1;
 	result = adapter_alloc_cq(dev, qid, nvmeq);
 	if (result < 0)
-		return result;
+		goto release_vector;
 
 	result = adapter_alloc_sq(dev, qid, nvmeq);
 	if (result < 0)
@@ -1481,9 +1489,12 @@ static int nvme_create_queue(struct nvme_queue *nvmeq, int qid)
 	return result;
 
  release_sq:
+	dev->online_queues--;
 	adapter_delete_sq(dev, qid);
  release_cq:
 	adapter_delete_cq(dev, qid);
+ release_vector:
+	nvmeq->cq_vector = -1;
 	return result;
 }
 
@@ -2455,10 +2466,13 @@ static unsigned long check_vendor_combination_bug(struct pci_dev *pdev)
 	} else if (pdev->vendor == 0x144d && pdev->device == 0xa804) {
 		/*
 		 * Samsung SSD 960 EVO drops off the PCIe bus after system
-		 * suspend on a Ryzen board, ASUS PRIME B350M-A.
+		 * suspend on a Ryzen board, ASUS PRIME B350M-A, as well as
+		 * within few minutes after bootup on a Coffee Lake board -
+		 * ASUS PRIME Z370-A
 		 */
 		if (dmi_match(DMI_BOARD_VENDOR, "ASUSTeK COMPUTER INC.") &&
-		    dmi_match(DMI_BOARD_NAME, "PRIME B350M-A"))
+		    (dmi_match(DMI_BOARD_NAME, "PRIME B350M-A") ||
+		     dmi_match(DMI_BOARD_NAME, "PRIME Z370-A")))
 			return NVME_QUIRK_NO_APST;
 	}
 

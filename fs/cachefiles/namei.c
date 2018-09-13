@@ -191,11 +191,12 @@ try_again:
 	/* an old object from a previous incarnation is hogging the slot - we
 	 * need to wait for it to be destroyed */
 wait_for_old_object:
+	clear_bit(CACHEFILES_OBJECT_ACTIVE, &object->flags);
+
 	if (fscache_object_is_live(&xobject->fscache)) {
 		pr_err("\n");
 		pr_err("Error: Unexpected object collision\n");
 		cachefiles_printk_object(object, xobject);
-		BUG();
 	}
 	atomic_inc(&xobject->usage);
 	write_unlock(&cache->active_lock);
@@ -252,7 +253,6 @@ wait_for_old_object:
 	goto try_again;
 
 requeue:
-	clear_bit(CACHEFILES_OBJECT_ACTIVE, &object->flags);
 	cache->cache.ops->put_object(&xobject->fscache);
 	_leave(" = -ETIMEDOUT");
 	return -ETIMEDOUT;
