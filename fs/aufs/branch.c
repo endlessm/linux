@@ -133,7 +133,7 @@ static struct au_branch *au_br_alloc(struct super_block *sb, int new_nbranch,
 	add_branch = kzalloc(sizeof(*add_branch), GFP_NOFS);
 	if (unlikely(!add_branch))
 		goto out;
-	add_branch->br_xino = au_xino_alloc();
+	add_branch->br_xino = au_xino_alloc(/*nfile*/1);
 	if (unlikely(!add_branch->br_xino))
 		goto out_br;
 	err = au_hnotify_init_br(add_branch, perm);
@@ -407,12 +407,12 @@ static int au_br_init(struct au_branch *br, struct super_block *sb,
 
 	if (au_opt_test(au_mntflags(sb), XINO)) {
 		brbase = au_sbr(sb, 0);
-		xf = au_xino_file(brbase);
+		xf = au_xino_file(brbase->br_xino, /*idx*/-1);
 		AuDebugOn(!xf);
 		h_inode = d_inode(add->path.dentry);
 		err = au_xino_init_br(sb, br, h_inode->i_ino, &xf->f_path);
 		if (unlikely(err)) {
-			AuDebugOn(au_xino_file(br));
+			AuDebugOn(au_xino_file(br->br_xino, /*idx*/-1));
 			goto out_err;
 		}
 	}
@@ -502,7 +502,6 @@ int au_br_add(struct super_block *sb, struct au_opt_add *add, int remount)
 	struct dentry *root, *h_dentry;
 	struct inode *root_inode;
 	struct au_branch *add_branch;
-	struct file *xf;
 
 	root = sb->s_root;
 	root_inode = d_inode(root);
@@ -540,19 +539,6 @@ int au_br_add(struct super_block *sb, struct au_opt_add *add, int remount)
 		sb->s_maxbytes = h_dentry->d_sb->s_maxbytes;
 	} else
 		au_add_nlink(root_inode, d_inode(h_dentry));
-
-	/*
-	 * this test/set prevents aufs from handling unnecessary notify events
-	 * of xino files, in case of re-adding a writable branch which was
-	 * once detached from aufs.
-	 */
-	if (au_xino_brid(sb) < 0
-	    && au_br_writable(add_branch->br_perm)
-	    && !au_test_fs_bad_xino(h_dentry->d_sb)) {
-		xf = au_xino_file(add_branch);
-		if (xf && xf->f_path.dentry->d_parent == h_dentry)
-			au_xino_brid_set(sb, add_branch->br_id);
-	}
 
 out:
 	return err;
@@ -1096,8 +1082,6 @@ int au_br_del(struct super_block *sb, struct au_opt_del *del, int remount)
 	if (au_opt_test(mnt_flags, PLINK))
 		au_plink_half_refresh(sb, br_id);
 
-	if (au_xino_brid(sb) == br_id)
-		au_xino_brid_set(sb, -1);
 	goto out; /* success */
 
 out_wh:

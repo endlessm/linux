@@ -250,7 +250,8 @@ int au_do_open(struct file *file, struct au_do_open_args *args)
 			err = args->open(file, vfsub_file_flags(file), NULL);
 		else {
 			lockdep_off();
-			err = args->open(file, vfsub_file_flags(file), NULL);
+			err = args->open(file, vfsub_file_flags(file),
+					 args->h_file);
 			lockdep_on();
 		}
 	}

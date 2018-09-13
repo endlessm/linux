@@ -132,12 +132,14 @@ struct au_sbinfo {
 	/* external inode number (bitmap and translation table) */
 	vfs_readf_t		si_xread;
 	vfs_writef_t		si_xwrite;
+	loff_t			si_ximaxent;	/* max entries in a xino */
+
 	struct file		*si_xib;
 	struct mutex		si_xib_mtx; /* protect xib members */
 	unsigned long		*si_xib_buf;
 	unsigned long		si_xib_last_pindex;
 	int			si_xib_next_bit;
-	aufs_bindex_t		si_xino_brid;
+
 	unsigned long		si_xino_jiffy;
 	unsigned long		si_xino_expire;
 	/* reserved for future use */
@@ -145,6 +147,7 @@ struct au_sbinfo {
 
 #ifdef CONFIG_AUFS_EXPORT
 	/* i_generation */
+	/* todo: make xigen file an array to support many inode numbers */
 	struct file		*si_xigen;
 	atomic_t		si_xigen_next;
 #endif
@@ -611,16 +614,10 @@ static inline struct au_branch *au_sbr(struct super_block *sb,
 	return au_sbi(sb)->si_branch[0 + bindex];
 }
 
-static inline void au_xino_brid_set(struct super_block *sb, aufs_bindex_t brid)
-{
-	SiMustWriteLock(sb);
-	au_sbi(sb)->si_xino_brid = brid;
-}
-
-static inline aufs_bindex_t au_xino_brid(struct super_block *sb)
+static inline loff_t au_xi_maxent(struct super_block *sb)
 {
 	SiMustAnyLock(sb);
-	return au_sbi(sb)->si_xino_brid;
+	return au_sbi(sb)->si_ximaxent;
 }
 
 #endif /* __KERNEL__ */
