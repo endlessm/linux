@@ -1,6 +1,5 @@
 # Recreate any symlinks created since the orig.
 # Remove any files deleted from the orig.
-rm -f 'include/crypto/vmac.h'
 chmod +x 'scripts/kmsg-doc'
 chmod +x 'spl/autogen.sh'
 chmod +x 'spl/cmd/splslab/splslab.py'
