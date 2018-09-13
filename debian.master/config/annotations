@@ -4025,7 +4025,9 @@ CONFIG_MTDRAM_TOTAL_SIZE                        policy<{'amd64': '4096', 'arm64'
 CONFIG_MTDRAM_ERASE_SIZE                        policy<{'amd64': '128', 'arm64': '128', 'armhf': '128', 'i386': '128', 'ppc64el': '128'}>
 CONFIG_MTD_BLOCK2MTD                            policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'ppc64el': 'm'}>
 CONFIG_MTD_POWERNV_FLASH                        policy<{'ppc64el': 'm'}>
-CONFIG_MTD_DOCG3                                policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'ppc64el': 'm'}>
+CONFIG_MTD_DOCG3                                policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'i386': 'n', 'ppc64el': 'n'}>
+#
+CONFIG_MTD_DOCG3                                mark<ENFORCE> note<LP:1792205>
 
 # Menu: Device Drivers >> Microsoft Hyper-V guest support
 CONFIG_HYPERV                                   policy<{'amd64': 'm', 'i386': 'm'}>
