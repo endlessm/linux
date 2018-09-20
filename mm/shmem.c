@@ -2254,6 +2254,8 @@ static struct inode *shmem_get_inode(struct super_block *sb, const struct inode 
 			}
 		} else
 			inode->i_ino = get_next_ino();
+
+		lockdep_annotate_inode_mutex_key(inode);
 	} else
 		shmem_free_inode(sb);
 	return inode;
