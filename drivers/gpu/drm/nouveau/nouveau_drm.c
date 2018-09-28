@@ -605,6 +605,13 @@ static const struct dmi_system_id runpm_blacklist[] = {
 		},
 	},
 	{
+		.ident = "ASUSTeK COMPUTER INC. UX433FN",
+		.matches = {
+			DMI_MATCH(DMI_BOARD_VENDOR, "ASUSTeK COMPUTER INC."),
+			DMI_MATCH(DMI_BOARD_NAME, "UX433FN"),
+		},
+	},
+	{
 		.ident = "ASUSTeK COMPUTER INC. X530UN",
 		.matches = {
 			DMI_MATCH(DMI_BOARD_VENDOR, "ASUSTeK COMPUTER INC."),
@@ -688,6 +695,13 @@ static const struct dmi_system_id accel_blacklist[] = {
 		.matches = {
 			DMI_MATCH(DMI_SYS_VENDOR, "ASUSTeK COMPUTER INC."),
 			DMI_MATCH(DMI_PRODUCT_NAME, "ASUS Gaming FX570UD"),
+		},
+	},
+	{
+		.ident = "ASUSTeK COMPUTER INC. ASUS UX433FN",
+		.matches = {
+			DMI_MATCH(DMI_BOARD_VENDOR, "ASUSTeK COMPUTER INC."),
+			DMI_MATCH(DMI_BOARD_NAME, "UX433FN"),
 		},
 	},
 	{
