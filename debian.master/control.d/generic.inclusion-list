@@ -212,6 +212,7 @@ net/9p/*
 net/appletalk/*
 net/atm/*
 net/ax25/*
+net/bpfilter/bpfilter.ko
 net/bridge/*
 net/can/*
 net/ceph/libceph.ko
