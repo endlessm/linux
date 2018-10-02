@@ -42,8 +42,10 @@ md4 ?
 michael_mic ?
 padlock-aes ?
 padlock-sha ?
+paes_s390 ?
 pcbc ?
 pcrypt ?
+pkey ?
 raid6test ?
 rmd128 ?
 rmd160 ?
@@ -69,4 +71,8 @@ wp512 ?
 xcbc ?
 xor ?
 xts ?
+zcrypt ?
+zcrypt_cex2a ?
+zcrypt_cex4 ?
+zcrypt_pcixcc ?
 zlib ?
