@@ -3002,12 +3002,12 @@ omap-ocp2scp
 omap-rng
 omap-sham
 omap2430
+omap2fb
 omap4-keypad
 omap_hdq
 omap_hwspinlock
 omap_wdt
 omapdss
-omapfb
 omfs
 omninet
 on20
