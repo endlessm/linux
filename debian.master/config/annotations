@@ -6399,8 +6399,8 @@ CONFIG_PWM_FSL_FTM                              policy<{'arm64': 'm', 'armhf': '
 CONFIG_PWM_HIBVT                                policy<{'arm64': 'm', 'armhf': 'm'}>
 CONFIG_PWM_IMX                                  policy<{'armhf-generic': 'm'}>
 CONFIG_PWM_LP3943                               policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'ppc64el': 'm'}>
-CONFIG_PWM_LPSS_PCI                             policy<{'amd64': 'm', 'i386': 'm'}>
-CONFIG_PWM_LPSS_PLATFORM                        policy<{'amd64': 'm', 'i386': 'm'}>
+CONFIG_PWM_LPSS_PCI                             policy<{'amd64': 'y', 'i386': 'y'}>
+CONFIG_PWM_LPSS_PLATFORM                        policy<{'amd64': 'y', 'i386': 'y'}>
 CONFIG_PWM_MESON                                policy<{'armhf': 'm'}>
 CONFIG_PWM_MTK_DISP                             policy<{'arm64': 'm', 'armhf': 'm'}>
 CONFIG_PWM_MEDIATEK                             policy<{'arm64': 'm', 'armhf': 'm'}>
