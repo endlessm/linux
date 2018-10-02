@@ -3316,9 +3316,6 @@ pwc
 pwm-beeper
 pwm-cros-ec
 pwm-lp3943
-pwm-lpss
-pwm-lpss-pci
-pwm-lpss-platform
 pwm-pca9685
 pwm-regulator
 pwm-twl
