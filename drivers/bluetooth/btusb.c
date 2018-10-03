@@ -2249,8 +2249,16 @@ static int btusb_setup_intel_new(struct hci_dev *hdev)
 
 	set_bit(BTUSB_DOWNLOADING, &data->flags);
 
+#if IS_ENABLED(CONFIG_IWLWIFI)
+	btintel_firmware_lock();
+#endif
+
 	/* Start firmware downloading and get boot parameter */
 	err = btintel_download_firmware(hdev, fw, &boot_param);
+
+#if IS_ENABLED(CONFIG_IWLWIFI)
+	btintel_firmware_unlock();
+#endif
 	if (err < 0)
 		goto done;
 
