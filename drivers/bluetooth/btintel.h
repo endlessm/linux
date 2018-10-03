@@ -102,6 +102,8 @@ int btintel_read_boot_params(struct hci_dev *hdev,
 			     struct intel_boot_params *params);
 int btintel_download_firmware(struct hci_dev *dev, const struct firmware *fw,
 			      u32 *boot_param);
+void btintel_firmware_lock(void);
+void btintel_firmware_unlock(void);
 #else
 
 static inline int btintel_check_bdaddr(struct hci_dev *hdev)
@@ -195,5 +197,13 @@ static inline int btintel_download_firmware(struct hci_dev *dev,
 					    u32 *boot_param)
 {
 	return -EOPNOTSUPP;
+}
+
+static inline void btintel_firmware_lock(void)
+{
+}
+
+static inline void btintel_firmware_unlock(void)
+{
 }
 #endif

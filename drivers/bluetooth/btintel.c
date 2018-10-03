@@ -35,6 +35,8 @@
 
 #define BDADDR_INTEL (&(bdaddr_t) {{0x00, 0x8b, 0x9e, 0x19, 0x03, 0x00}})
 
+static DEFINE_MUTEX(firmware_lock);
+
 int btintel_check_bdaddr(struct hci_dev *hdev)
 {
 	struct hci_rp_read_bd_addr *bda;
@@ -723,6 +725,18 @@ done:
 	return err;
 }
 EXPORT_SYMBOL_GPL(btintel_download_firmware);
+
+void btintel_firmware_lock(void)
+{
+	mutex_lock(&firmware_lock);
+}
+EXPORT_SYMBOL_GPL(btintel_firmware_lock);
+
+void btintel_firmware_unlock(void)
+{
+	mutex_unlock(&firmware_lock);
+}
+EXPORT_SYMBOL_GPL(btintel_firmware_unlock);
 
 MODULE_AUTHOR("Marcel Holtmann <marcel@holtmann.org>");
 MODULE_DESCRIPTION("Bluetooth support for Intel devices ver " VERSION);
