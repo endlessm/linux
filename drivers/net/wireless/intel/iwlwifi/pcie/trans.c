@@ -77,6 +77,10 @@
 #include <linux/pm_runtime.h>
 #include <linux/module.h>
 
+#if IS_ENABLED(CONFIG_BT_INTEL)
+#include <linux/intel-wifi-bt.h>
+#endif
+
 #include "iwl-drv.h"
 #include "iwl-trans.h"
 #include "iwl-csr.h"
@@ -1360,6 +1364,10 @@ static int iwl_trans_pcie_start_fw(struct iwl_trans *trans,
 	bool hw_rfkill;
 	int ret;
 
+#if IS_ENABLED(CONFIG_BT_INTEL)
+	void (*firmware_lock_func)(void);
+	void (*firmware_unlock_func)(void);
+#endif
 	/* This may fail if AMT took ownership of the device */
 	if (iwl_pcie_prepare_card_hw(trans)) {
 		IWL_WARN(trans, "Exit HW not ready\n");
@@ -1426,8 +1434,37 @@ static int iwl_trans_pcie_start_fw(struct iwl_trans *trans,
 	iwl_write32(trans, CSR_UCODE_DRV_GP1_CLR, CSR_UCODE_SW_BIT_RFKILL);
 
 	/* Load the given image to the HW */
-	if (trans->cfg->device_family >= IWL_DEVICE_FAMILY_8000)
+	if (trans->cfg->device_family >= IWL_DEVICE_FAMILY_8000) {
+#if IS_ENABLED(CONFIG_BT_INTEL)
+		firmware_lock_func = symbol_request(btintel_firmware_lock);
+		firmware_unlock_func = symbol_request(btintel_firmware_unlock);
+		if (!firmware_lock_func || !firmware_unlock_func) {
+			if (firmware_lock_func) {
+				symbol_put(btintel_firmware_lock);
+				firmware_lock_func = NULL;
+			}
+
+			if (firmware_unlock_func) {
+				symbol_put(btintel_firmware_unlock);
+				firmware_unlock_func = NULL;
+			}
+		}
+
+		if (firmware_lock_func)
+			firmware_lock_func();
+#endif
 		ret = iwl_pcie_load_given_ucode_8000(trans, fw);
+
+#if IS_ENABLED(CONFIG_BT_INTEL)
+		if (firmware_unlock_func) {
+			firmware_unlock_func();
+			symbol_put(btintel_firmware_lock);
+			firmware_lock_func = NULL;
+			symbol_put(btintel_firmware_unlock);
+			firmware_unlock_func = NULL;
+		}
+#endif
+	}
 	else
 		ret = iwl_pcie_load_given_ucode(trans, fw);
 
