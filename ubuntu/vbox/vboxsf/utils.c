@@ -50,7 +50,11 @@ static void sf_timespec_from_ftime(RTTIMESPEC *ts, time_t *time)
     RTTimeSpecSetNano(ts, t);
 }
 #else /* >= 2.6.0 */
+#if LINUX_VERSION_CODE < KERNEL_VERSION(4, 18, 0)
 static void sf_ftime_from_timespec(struct timespec *tv, RTTIMESPEC *ts)
+#else
+static void sf_ftime_from_timespec(struct timespec64 *tv, RTTIMESPEC *ts)
+#endif
 {
     int64_t t = RTTimeSpecGetNano(ts);
     int64_t nsec;
@@ -60,7 +64,11 @@ static void sf_ftime_from_timespec(struct timespec *tv, RTTIMESPEC *ts)
     tv->tv_nsec = nsec;
 }
 
+#if LINUX_VERSION_CODE < KERNEL_VERSION(4, 18, 0)
 static void sf_timespec_from_ftime(RTTIMESPEC *ts, struct timespec *tv)
+#else
+static void sf_timespec_from_ftime(RTTIMESPEC *ts, struct timespec64 *tv)
+#endif
 {
     int64_t t = (int64_t)tv->tv_nsec + (int64_t)tv->tv_sec * 1000000000;
     RTTimeSpecSetNano(ts, t);
@@ -79,10 +87,7 @@ void sf_init_inode(struct sf_glob_info *sf_g, struct inode *inode,
     attr = &info->Attr;
 
 #define mode_set(r) attr->fMode & (RTFS_UNIX_##r) ? (S_##r) : 0;
-    mode  = mode_set(ISUID);
-    mode |= mode_set(ISGID);
-
-    mode |= mode_set(IRUSR);
+    mode  = mode_set(IRUSR);
     mode |= mode_set(IWUSR);
     mode |= mode_set(IXUSR);
 
@@ -360,9 +365,7 @@ int sf_setattr(struct dentry *dentry, struct iattr *iattr)
         RT_ZERO(info);
         if (iattr->ia_valid & ATTR_MODE)
         {
-            info.Attr.fMode  = mode_set(ISUID);
-            info.Attr.fMode |= mode_set(ISGID);
-            info.Attr.fMode |= mode_set(IRUSR);
+            info.Attr.fMode  = mode_set(IRUSR);
             info.Attr.fMode |= mode_set(IWUSR);
             info.Attr.fMode |= mode_set(IXUSR);
             info.Attr.fMode |= mode_set(IRGRP);

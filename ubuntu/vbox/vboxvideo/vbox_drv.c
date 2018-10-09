@@ -267,7 +267,7 @@ static struct drm_driver driver = {
 	.master_set = vbox_master_set,
 	.master_drop = vbox_master_drop,
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(3, 18, 0) || defined(RHEL_73)
-# if LINUX_VERSION_CODE < KERNEL_VERSION(4, 14, 0)
+# if LINUX_VERSION_CODE < KERNEL_VERSION(4, 14, 0) && !defined(RHEL_75)
 	.set_busid = drm_pci_set_busid,
 # endif
 #endif
