@@ -53,7 +53,7 @@ static const struct hns3_stats hns3_rxq_stats[] = {
 
 #define HNS3_TQP_STATS_COUNT (HNS3_TXQ_STATS_COUNT + HNS3_RXQ_STATS_COUNT)
 
-#define HNS3_SELF_TEST_TPYE_NUM		2
+#define HNS3_SELF_TEST_TYPE_NUM		2
 #define HNS3_NIC_LB_TEST_PKT_NUM	1
 #define HNS3_NIC_LB_TEST_RING_ID	0
 #define HNS3_NIC_LB_TEST_PACKET_SIZE	128
@@ -288,7 +288,7 @@ static void hns3_self_test(struct net_device *ndev,
 {
 	struct hns3_nic_priv *priv = netdev_priv(ndev);
 	struct hnae3_handle *h = priv->ae_handle;
-	int st_param[HNS3_SELF_TEST_TPYE_NUM][2];
+	int st_param[HNS3_SELF_TEST_TYPE_NUM][2];
 	bool if_running = netif_running(ndev);
 #if IS_ENABLED(CONFIG_VLAN_8021Q)
 	bool dis_vlan_filter;
@@ -321,7 +321,7 @@ static void hns3_self_test(struct net_device *ndev,
 
 	set_bit(HNS3_NIC_STATE_TESTING, &priv->state);
 
-	for (i = 0; i < HNS3_SELF_TEST_TPYE_NUM; i++) {
+	for (i = 0; i < HNS3_SELF_TEST_TYPE_NUM; i++) {
 		enum hnae3_loop loop_type = (enum hnae3_loop)st_param[i][0];
 
 		if (!st_param[i][1])

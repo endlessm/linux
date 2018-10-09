@@ -63,7 +63,7 @@ static int hnae3_get_client_init_flag(struct hnae3_client *client,
 		break;
 	case HNAE3_CLIENT_ROCE:
 		inited = hnae3_get_bit(ae_dev->flag,
-				      HNAE3_ROCE_CLIENT_INITED_B);
+				       HNAE3_ROCE_CLIENT_INITED_B);
 		break;
 	default:
 		break;

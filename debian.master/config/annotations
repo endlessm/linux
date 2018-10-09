@@ -66,7 +66,9 @@ CONFIG_PMIC_OPREGION                            policy<{'amd64': 'n', 'arm64': '
 
 # Menu: ARM Accelerated Cryptographic Algorithms
 CONFIG_CRYPTO_CHACHA20_NEON                     policy<{'arm64': 'm', 'armhf': 'm'}>
-CONFIG_CRYPTO_SPECK_NEON                        policy<{'arm64': 'm', 'armhf': 'm'}>
+CONFIG_CRYPTO_SPECK_NEON                        policy<{'arm64': 'n', 'armhf': 'n'}>
+#
+CONFIG_CRYPTO_SPECK_NEON                        mark<ENFORCED>
 
 # Menu: ARM Accelerated Cryptographic Algorithms >> Architecture: arm
 CONFIG_ARM_CRYPTO                               policy<{'armhf': 'y'}>
@@ -471,7 +473,7 @@ CONFIG_CRYPTO_SERPENT_SSE2_586                  policy<{'i386': 'm'}>
 CONFIG_CRYPTO_SERPENT_AVX_X86_64                policy<{'amd64': 'm'}>
 CONFIG_CRYPTO_SERPENT_AVX2_X86_64               policy<{'amd64': 'm'}>
 CONFIG_CRYPTO_SM4                               policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'ppc64el': 'm', 's390x': 'm'}>
-CONFIG_CRYPTO_SPECK                             policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'ppc64el': 'm', 's390x': 'm'}>
+CONFIG_CRYPTO_SPECK                             policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'i386': 'n', 'ppc64el': 'n', 's390x': 'n'}>
 CONFIG_CRYPTO_TEA                               policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'ppc64el': 'm', 's390x': 'm'}>
 CONFIG_CRYPTO_TWOFISH                           policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'ppc64el': 'm', 's390x': 'm'}>
 CONFIG_CRYPTO_TWOFISH_586                       policy<{'i386': 'm'}>
@@ -1059,7 +1061,6 @@ CONFIG_SH_TIMER_TMU                             policy<{'armhf': 'y'}>
 CONFIG_EM_TIMER_STI                             policy<{'armhf': 'y'}>
 CONFIG_CLKSRC_QCOM                              policy<{'armhf': 'y'}>
 CONFIG_CLKSRC_VERSATILE                         policy<{'arm64': 'y', 'armhf': 'y'}>
-CONFIG_CLKSRC_TANGO_XTAL                        policy<{'armhf': 'y'}>
 CONFIG_CLKSRC_IMX_GPT                           policy<{'armhf-generic': 'y'}>
 #
 CONFIG_ARM64_ERRATUM_858921                     mark<ENFORCED> note<LP#1675509>
@@ -1641,7 +1642,6 @@ CONFIG_INTEL_SOC_DTS_THERMAL                    policy<{'amd64': 'm', 'i386': 'm
 CONFIG_INTEL_BXT_PMIC_THERMAL                   policy<{'amd64': 'm', 'i386': 'm'}>
 CONFIG_INTEL_PCH_THERMAL                        policy<{'amd64': 'm', 'i386': 'm'}>
 CONFIG_MTK_THERMAL                              policy<{'arm64': 'm', 'armhf': 'm'}>
-CONFIG_TANGO_THERMAL                            policy<{'armhf': 'n'}>
 CONFIG_QCOM_SPMI_TEMP_ALARM                     policy<{'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm'}>
 CONFIG_GENERIC_ADC_THERMAL                      policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'ppc64el': 'm'}>
 
@@ -2570,6 +2570,7 @@ CONFIG_I2C_CHARDEV                              note<LP:1417032>
 
 # Menu: Device Drivers >> I2C support >> I2C support >> I2C Algorithms
 CONFIG_I2C_ALGOBIT                              policy<{'amd64': 'm', 'arm64-generic': 'm', 'arm64-snapdragon': 'y', 'armhf': 'm', 'i386': 'm', 'ppc64el': 'm'}>
+CONFIG_I2C_AMD_MP2                              policy<{'amd64': 'y', 'arm64': 'n', 'i386': 'y'}>
 CONFIG_I2C_ALGOPCA                              policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'ppc64el': 'm'}>
 
 # Menu: Device Drivers >> I2C support >> I2C support >> I2C Hardware Bus support
@@ -2637,7 +2638,6 @@ CONFIG_I2C_UNIPHIER_F                           policy<{'armhf': 'n'}>
 CONFIG_I2C_VERSATILE                            policy<{'arm64': 'm', 'armhf': 'm'}>
 CONFIG_I2C_THUNDERX                             policy<{'arm64': 'm'}>
 CONFIG_I2C_XILINX                               policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'ppc64el': 'm'}>
-CONFIG_I2C_XLR                                  policy<{'armhf': 'n'}>
 CONFIG_I2C_XLP9XX                               policy<{'arm64': 'm'}>
 CONFIG_I2C_RCAR                                 policy<{'arm64': 'm', 'armhf': 'm'}>
 CONFIG_I2C_DIOLAN_U2C                           policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'ppc64el': 'm'}>
@@ -3961,7 +3961,6 @@ CONFIG_MTD_NAND_GPIO                            policy<{'amd64': 'm', 'arm64': '
 CONFIG_MTD_NAND_OMAP2                           policy<{'armhf': 'y'}>
 CONFIG_MTD_NAND_OMAP_BCH                        policy<{'armhf': 'y'}>
 CONFIG_MTD_NAND_RICOH                           policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'ppc64el': 'm'}>
-CONFIG_MTD_NAND_TANGO                           policy<{'armhf': 'm'}>
 CONFIG_MTD_NAND_DISKONCHIP                      policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'ppc64el': 'm'}>
 CONFIG_MTD_NAND_DISKONCHIP_PROBE_ADVANCED       policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'i386': 'n', 'ppc64el': 'n'}>
 CONFIG_MTD_NAND_DISKONCHIP_BBTWRITE             policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'i386': 'n', 'ppc64el': 'n'}>
@@ -5693,6 +5692,9 @@ CONFIG_SMSGIUCV_EVENT                           policy<{'s390x': 'm'}>
 CONFIG_QETH                                     policy<{'s390x': 'm'}>
 CONFIG_QETH_L2                                  policy<{'s390x': 'm'}>
 CONFIG_QETH_L3                                  policy<{'s390x': 'm'}>
+CONFIG_ISM                                      policy<{'s390x': 'm'}>
+#
+CONFIG_ISM                                      mark<ENFORCE> note<LP:1789934>
 
 # Menu: Device Drivers >> Network device support >> SLIP (serial line) support
 CONFIG_SLIP                                     policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'ppc64el': 'm', 's390x': 'n'}>
@@ -6605,7 +6607,6 @@ CONFIG_IR_SUNXI                                 policy<{'arm64': 'm'}>
 CONFIG_IR_SERIAL                                policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'ppc64el': 'm'}>
 CONFIG_IR_SERIAL_TRANSMITTER                    policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'ppc64el': 'y'}>
 CONFIG_IR_SIR                                   policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'ppc64el': 'm'}>
-CONFIG_IR_TANGO                                 policy<{'armhf': 'm'}>
 
 # Menu: Device Drivers >> Remote Controller support >> Remote Controller devices >> Hardware decoder
 
@@ -8643,7 +8644,6 @@ CONFIG_DA9063_WATCHDOG                          policy<{'amd64': 'm', 'arm64': '
 CONFIG_DA9062_WATCHDOG                          policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'ppc64el': 'm'}>
 CONFIG_GPIO_WATCHDOG                            policy<{'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm'}>
 CONFIG_MENF21BMC_WATCHDOG                       policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'ppc64el': 'm'}>
-CONFIG_TANGOX_WATCHDOG                          policy<{'armhf': 'n'}>
 CONFIG_WDAT_WDT                                 policy<{'amd64': 'm', 'arm64': 'm', 'i386': 'm'}>
 CONFIG_WM831X_WATCHDOG                          policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'ppc64el': 'm'}>
 CONFIG_WM8350_WATCHDOG                          policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'ppc64el': 'm'}>
@@ -9880,7 +9880,9 @@ CONFIG_WW_MUTEX_SELFTEST                        policy<{'amd64': 'n', 'arm64': '
 # Menu: Kernel hacking >> Memory Debugging
 CONFIG_PAGE_EXTENSION                           policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'y', 'i386': 'y', 'ppc64el': 'n', 's390x': 'n'}>
 CONFIG_DEBUG_PAGEALLOC                          policy<{'amd64': 'n', 'arm64': 'n', 'i386': 'n', 'ppc64el': 'n', 's390x': 'n'}>
-CONFIG_PAGE_POISONING                           policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'i386': 'n', 'ppc64el': 'n', 's390x': 'n'}>
+CONFIG_PAGE_POISONING                           policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'ppc64el': 'y', 's390x': 'y'}>
+CONFIG_PAGE_POISONING_ZERO                      policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'ppc64el': 'y', 's390x': 'y'}>
+CONFIG_PAGE_POISONING_NO_SANITY                 policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'ppc64el': 'y', 's390x': 'y'}>
 CONFIG_DEBUG_PAGE_REF                           policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'i386': 'n', 'ppc64el': 'n', 's390x': 'n'}>
 CONFIG_DEBUG_RODATA_TEST                        policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'i386': 'n', 's390x': 'n'}>
 CONFIG_SLUB_DEBUG_ON                            policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'i386': 'n', 'ppc64el': 'n', 's390x': 'n'}>
@@ -9892,6 +9894,10 @@ CONFIG_MEMORY_NOTIFIER_ERROR_INJECT             policy<{'amd64': 'm', 'i386': 'm
 CONFIG_DEBUG_PER_CPU_MAPS                       policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'i386': 'n', 'ppc64el': 'n', 's390x': 'n'}>
 CONFIG_DEBUG_HIGHMEM                            policy<{'armhf': 'n', 'i386': 'n'}>
 CONFIG_DEBUG_STACKOVERFLOW                      policy<{'amd64': 'n', 'i386': 'n', 'ppc64el': 'n'}>
+#
+CONFIG_PAGE_POISONING                           mark<ENFORCED> note<LP:1783651>
+CONFIG_PAGE_POISONING_ZERO                      mark<ENFORCED> note<LP:1783651>
+CONFIG_PAGE_POISONING_NO_SANITY                 mark<ENFORCED> note<LP:1783651>
 
 # Menu: Kernel hacking >> Memory Debugging >> Debug VM
 CONFIG_DEBUG_VM                                 policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'i386': 'n', 'ppc64el': 'n', 's390x': 'n'}>
@@ -10272,6 +10278,8 @@ CONFIG_CGROUP_NET_CLASSID                       policy<{'amd64': 'y', 'arm64': '
 CONFIG_BPF_JIT                                  policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'ppc64el': 'y', 's390x': 'y'}>
 CONFIG_BPF_STREAM_PARSER                        policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'ppc64el': 'y', 's390x': 'y'}>
 #
+CONFIG_SMC                                      mark<ENFORCED> note<LP:1789934>
+CONFIG_SMC_DIAG                                 mark<ENFORCED> note<LP:1789934>
 CONFIG_NETWORK_PHY_TIMESTAMPING                 mark<ENFORCED> note<LP:1785816>
 
 # Menu: Networking support >> Networking options >> 6LoWPAN Support
@@ -11945,7 +11953,7 @@ CONFIG_ARCH_DIGICOLOR                           policy<{'armhf': 'n'}>
 CONFIG_ARCH_HIGHBANK                            policy<{'armhf': 'y'}>
 CONFIG_ARCH_KEYSTONE                            policy<{'armhf': 'n'}>
 CONFIG_ARCH_S5PV210                             policy<{'armhf': 'n'}>
-CONFIG_ARCH_TANGO                               policy<{'armhf': 'y'}>
+CONFIG_ARCH_TANGO                               policy<{'armhf': 'n'}>
 CONFIG_ARCH_WM8850                              policy<{'armhf': 'n'}>
 CONFIG_ARCH_ZYNQ                                policy<{'armhf': 'n'}>
 CONFIG_ARM_THUMB                                policy<{'armhf': 'y'}>
@@ -11974,6 +11982,8 @@ CONFIG_ARM_ERRATA_821420                        policy<{'armhf': 'y'}>
 CONFIG_ARM_ERRATA_825619                        policy<{'armhf': 'y'}>
 CONFIG_ARM_ERRATA_852421                        policy<{'armhf': 'y'}>
 CONFIG_ARM_ERRATA_852423                        policy<{'armhf': 'y'}>
+#
+CONFIG_ARCH_TANGO                               mark<ENFORCED> note <LP:1787945>
 
 # Menu: System Type >> Aspeed BMC architectures >> Architecture: arm
 

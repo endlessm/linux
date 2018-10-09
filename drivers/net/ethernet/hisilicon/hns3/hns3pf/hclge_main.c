@@ -789,7 +789,7 @@ static int hclge_get_sset_count(struct hnae3_handle *handle, int stringset)
 			handle->flags |= HNAE3_SUPPORT_MAC_LOOPBACK;
 		}
 
-		count ++;
+		count++;
 		handle->flags |= HNAE3_SUPPORT_SERDES_LOOPBACK;
 	} else if (stringset == ETH_SS_STATS) {
 		count = ARRAY_SIZE(g_mac_stats_string) +
@@ -1922,6 +1922,7 @@ static int hclge_common_wl_config(struct hclge_dev *hdev,
 	if (ret)
 		dev_err(&hdev->pdev->dev,
 			"common waterline config cmd failed %d\n", ret);
+
 	return ret;
 }
 
@@ -2371,9 +2372,7 @@ static int hclge_get_mac_phy_link(struct hclge_dev *hdev)
 
 static void hclge_update_link_status(struct hclge_dev *hdev)
 {
-	struct hnae3_client *rclient = hdev->roce_client;
 	struct hnae3_client *client = hdev->nic_client;
-	struct hnae3_handle *rhandle;
 	struct hnae3_handle *handle;
 	int state;
 	int i;
@@ -2385,10 +2384,6 @@ static void hclge_update_link_status(struct hclge_dev *hdev)
 		for (i = 0; i < hdev->num_vmdq_vport + 1; i++) {
 			handle = &hdev->vport[i].nic;
 			client->ops->link_status_change(handle, state);
-			rhandle = &hdev->vport[i].roce;
-			if (rclient && rclient->ops->link_status_change)
-				rclient->ops->link_status_change(rhandle,
-								 state);
 		}
 		hdev->hw.mac.link = state;
 	}
@@ -2631,51 +2626,21 @@ static int hclge_notify_client(struct hclge_dev *hdev,
 			       enum hnae3_reset_notify_type type)
 {
 	struct hnae3_client *client = hdev->nic_client;
-	struct hnae3_handle *handle;
-	int ret;
 	u16 i;
 
 	if (!client->ops->reset_notify)
 		return -EOPNOTSUPP;
 
 	for (i = 0; i < hdev->num_vmdq_vport + 1; i++) {
-		handle = &hdev->vport[i].nic;
+		struct hnae3_handle *handle = &hdev->vport[i].nic;
+		int ret;
+
 		ret = client->ops->reset_notify(handle, type);
-		if (ret) {
-			dev_err(&hdev->pdev->dev,
-				"notify nic client failed %d", ret);
+		if (ret)
 			return ret;
-		}
 	}
 
 	return 0;
-}
-
-static int hclge_notify_roce_client(struct hclge_dev *hdev,
-				    enum hnae3_reset_notify_type type)
-{
-	struct hnae3_client *client = hdev->roce_client;
-	struct hnae3_handle *handle;
-	int ret = 0;
-	u16 i;
-
-	if (!client)
-		return 0;
-
-	if (!client->ops->reset_notify)
-		return -EOPNOTSUPP;
-
-	for (i = 0; i < hdev->num_vmdq_vport + 1; i++) {
-		handle = &hdev->vport[i].roce;
-		ret = client->ops->reset_notify(handle, type);
-		if (ret) {
-			dev_err(&hdev->pdev->dev,
-				"notify roce client failed %d", ret);
-			return ret;
-		}
-	}
-
-	return ret;
 }
 
 static int hclge_reset_wait(struct hclge_dev *hdev)
@@ -2706,8 +2671,7 @@ static int hclge_reset_wait(struct hclge_dev *hdev)
 	}
 
 	val = hclge_read_dev(&hdev->hw, reg);
-	while (hnae3_get_bit(val, reg_bit) && cnt < HCLGE_RESET_WAIT_CNT &&
-	       test_bit(HCLGE_STATE_RST_HANDLING, &hdev->state)) {
+	while (hnae3_get_bit(val, reg_bit) && cnt < HCLGE_RESET_WAIT_CNT) {
 		msleep(HCLGE_RESET_WATI_MS);
 		val = hclge_read_dev(&hdev->hw, reg);
 		cnt++;
@@ -2827,10 +2791,6 @@ static void hclge_reset(struct hclge_dev *hdev)
 
 	/* perform reset of the stack & ae device for a client */
 	handle = &hdev->vport[0].nic;
-
-	hclge_notify_roce_client(hdev, HNAE3_DOWN_CLIENT);
-	hclge_notify_roce_client(hdev, HNAE3_UNINIT_CLIENT);
-
 	rtnl_lock();
 	hclge_notify_client(hdev, HNAE3_DOWN_CLIENT);
 
@@ -2849,9 +2809,6 @@ static void hclge_reset(struct hclge_dev *hdev)
 	hclge_notify_client(hdev, HNAE3_UP_CLIENT);
 	handle->last_reset_time = jiffies;
 	rtnl_unlock();
-
-	hclge_notify_roce_client(hdev, HNAE3_INIT_CLIENT);
-	hclge_notify_roce_client(hdev, HNAE3_UP_CLIENT);
 }
 
 static void hclge_reset_event(struct hnae3_handle *handle)
@@ -3745,7 +3702,7 @@ static int hclge_set_serdes_loopback(struct hclge_dev *hdev, bool en)
 				"serdes loopback get, ret = %d\n", ret);
 			return ret;
 		}
-	} while (++i < HCLGE_SERDES_RETRY_NUM  &&
+	} while (++i < HCLGE_SERDES_RETRY_NUM &&
 		 !(req->result & HCLGE_CMD_SERDES_DONE_B));
 
 	if (!(req->result & HCLGE_CMD_SERDES_DONE_B)) {
@@ -4848,17 +4805,17 @@ static int hclge_set_vlan_tx_offload_cfg(struct hclge_vport *vport)
 	req->def_vlan_tag1 = cpu_to_le16(vcfg->default_tag1);
 	req->def_vlan_tag2 = cpu_to_le16(vcfg->default_tag2);
 	hnae3_set_bit(req->vport_vlan_cfg, HCLGE_ACCEPT_TAG1_B,
-			vcfg->accept_tag1 ? 1 : 0);
+		      vcfg->accept_tag1 ? 1 : 0);
 	hnae3_set_bit(req->vport_vlan_cfg, HCLGE_ACCEPT_UNTAG1_B,
-			vcfg->accept_untag1 ? 1 : 0);
+		      vcfg->accept_untag1 ? 1 : 0);
 	hnae3_set_bit(req->vport_vlan_cfg, HCLGE_ACCEPT_TAG2_B,
-			vcfg->accept_tag2 ? 1 : 0);
+		      vcfg->accept_tag2 ? 1 : 0);
 	hnae3_set_bit(req->vport_vlan_cfg, HCLGE_ACCEPT_UNTAG2_B,
-			vcfg->accept_untag2 ? 1 : 0);
+		      vcfg->accept_untag2 ? 1 : 0);
 	hnae3_set_bit(req->vport_vlan_cfg, HCLGE_PORT_INS_TAG1_EN_B,
-		     vcfg->insert_tag1_en ? 1 : 0);
+		      vcfg->insert_tag1_en ? 1 : 0);
 	hnae3_set_bit(req->vport_vlan_cfg, HCLGE_PORT_INS_TAG2_EN_B,
-		     vcfg->insert_tag2_en ? 1 : 0);
+		      vcfg->insert_tag2_en ? 1 : 0);
 	hnae3_set_bit(req->vport_vlan_cfg, HCLGE_CFG_NIC_ROCE_SEL_B, 0);
 
 	req->vf_offset = vport->vport_id / HCLGE_VF_NUM_PER_CMD;
@@ -6202,7 +6159,7 @@ static int hclge_set_led_status(struct hclge_dev *hdev, u8 locate_led_status)
 
 	req = (struct hclge_set_led_state_cmd *)desc.data;
 	hnae3_set_field(req->locate_led_config, HCLGE_LED_LOCATE_STATE_M,
-		       HCLGE_LED_LOCATE_STATE_S, locate_led_status);
+			HCLGE_LED_LOCATE_STATE_S, locate_led_status);
 
 	ret = hclge_cmd_send(&hdev->hw, &desc, 1);
 	if (ret)

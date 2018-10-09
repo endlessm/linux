@@ -785,7 +785,6 @@ static int hns3_set_l3l4_type_csum(struct sk_buff *skb, u8 ol4_proto,
 		 */
 		if (skb_is_gso(skb))
 			hnae3_set_bit(*type_cs_vlan_tso, HNS3_TXD_L3CS_B, 1);
-
 	} else if (l3.v6->version == 6) {
 		hnae3_set_field(*type_cs_vlan_tso, HNS3_TXD_L3T_M,
 				HNS3_TXD_L3T_S, HNS3_L3T_IPV6);
@@ -1891,7 +1890,7 @@ static void hns3_nic_reclaim_one_desc(struct hns3_enet_ring *ring, int *bytes,
 
 	(*pkts) += (desc_cb->type == DESC_TYPE_SKB);
 	(*bytes) += desc_cb->length;
-	/* desc_cb will be cleaned, after hnae_free_buffer_detach*/
+	/* desc_cb will be cleaned, after hnae3_free_buffer_detach*/
 	hns3_free_buffer_detach(ring, ring->next_to_clean);
 
 	ring_ptr_move_fw(ring, next_to_clean);
@@ -2141,7 +2140,7 @@ static u16 hns3_parse_vlan_tag(struct hns3_enet_ring *ring,
 #define HNS3_STRP_INNER_VLAN	0x2
 
 	switch (hnae3_get_field(l234info, HNS3_RXD_STRP_TAGP_M,
-			       HNS3_RXD_STRP_TAGP_S)) {
+				HNS3_RXD_STRP_TAGP_S)) {
 	case HNS3_STRP_OUTER_VLAN:
 		vlan_tag = le16_to_cpu(desc->rx.ot_vlan_tag);
 		break;
@@ -2260,6 +2259,8 @@ static int hns3_handle_rx_bd(struct hns3_enet_ring *ring,
 					       htons(ETH_P_8021Q),
 					       vlan_tag);
 	}
+
+	l234info = le32_to_cpu(desc->rx.l234_info);
 
 	l234info = le32_to_cpu(desc->rx.l234_info);
 
