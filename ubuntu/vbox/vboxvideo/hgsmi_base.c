@@ -54,10 +54,10 @@ bool VBoxHGSMIIsSupported(void)
  */
 int hgsmi_report_flags_location(struct gen_pool * ctx, u32 location)
 {
-	struct hgsmi_buffer_location *p;
 
 	/* Allocate the IO buffer. */
-	p = hgsmi_buffer_alloc(ctx, sizeof(*p), HGSMI_CH_HGSMI,
+	struct hgsmi_buffer_location  *p =
+		(struct hgsmi_buffer_location  *)hgsmi_buffer_alloc(ctx, sizeof(*p), HGSMI_CH_HGSMI,
 						HGSMI_CC_HOST_FLAGS_LOCATION);
 	if (!p)
 		return VERR_NO_MEMORY;
@@ -84,10 +84,10 @@ int hgsmi_report_flags_location(struct gen_pool * ctx, u32 location)
  */
 int hgsmi_send_caps_info(struct gen_pool * ctx, u32 caps)
 {
-	struct vbva_caps *p;
 
 	/* Allocate the IO buffer. */
-	p = hgsmi_buffer_alloc(ctx, sizeof(*p), HGSMI_CH_VBVA, VBVA_INFO_CAPS);
+	struct vbva_caps  *p =
+		(struct vbva_caps  *)hgsmi_buffer_alloc(ctx, sizeof(*p), HGSMI_CH_VBVA, VBVA_INFO_CAPS);
 
 	if (!p)
 		return VERR_NO_MEMORY;
@@ -154,8 +154,7 @@ int hgsmi_query_conf(struct gen_pool * ctx, u32 index, u32 *value_ret)
 	struct vbva_conf32 *p;
 
 	/* Allocate the IO buffer. */
-	p = hgsmi_buffer_alloc(ctx, sizeof(*p), HGSMI_CH_VBVA,
-						VBVA_QUERY_CONF32);
+	p = hgsmi_buffer_alloc(ctx, sizeof(*p), HGSMI_CH_VBVA, VBVA_QUERY_CONF32);
 	if (!p)
 		return VERR_NO_MEMORY;
 
