@@ -2809,6 +2809,7 @@ EXPORT_SYMBOL drivers/net/wireless/ath/ath10k/ath10k_core 0x00000000	ath10k_htt_
 EXPORT_SYMBOL drivers/net/wireless/ath/ath10k/ath10k_core 0x00000000	ath10k_htt_t2h_msg_handler
 EXPORT_SYMBOL drivers/net/wireless/ath/ath10k/ath10k_core 0x00000000	ath10k_htt_txrx_compl_task
 EXPORT_SYMBOL drivers/net/wireless/ath/ath10k/ath10k_core 0x00000000	ath10k_info
+EXPORT_SYMBOL drivers/net/wireless/ath/ath10k/ath10k_core 0x00000000	ath10k_mac_tx_push_pending
 EXPORT_SYMBOL drivers/net/wireless/ath/ath10k/ath10k_core 0x00000000	ath10k_print_driver_info
 EXPORT_SYMBOL drivers/net/wireless/ath/ath10k/ath10k_core 0x00000000	ath10k_warn
 EXPORT_SYMBOL drivers/net/wireless/ath/ath6kl/ath6kl_core 0x00000000	ath6kl_cfg80211_resume
@@ -8150,6 +8151,7 @@ EXPORT_SYMBOL vmlinux 0x00000000	of_find_node_with_property
 EXPORT_SYMBOL vmlinux 0x00000000	of_find_property
 EXPORT_SYMBOL vmlinux 0x00000000	of_get_address
 EXPORT_SYMBOL vmlinux 0x00000000	of_get_child_by_name
+EXPORT_SYMBOL vmlinux 0x00000000	of_get_compatible_child
 EXPORT_SYMBOL vmlinux 0x00000000	of_get_cpu_node
 EXPORT_SYMBOL vmlinux 0x00000000	of_get_ddr_timings
 EXPORT_SYMBOL vmlinux 0x00000000	of_get_i2c_adapter_by_node
