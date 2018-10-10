@@ -1478,12 +1478,12 @@
 				"ispif",
 				"csi_clk_mux",
 				"vfe0";
-			interrupts = <GIC_SPI 78 0>,
-				<GIC_SPI 79 0>,
-				<GIC_SPI 51 0>,
-				<GIC_SPI 52 0>,
-				<GIC_SPI 55 0>,
-				<GIC_SPI 57 0>;
+			interrupts = <GIC_SPI 78 IRQ_TYPE_LEVEL_HIGH>,
+				<GIC_SPI 79 IRQ_TYPE_LEVEL_HIGH>,
+				<GIC_SPI 51 IRQ_TYPE_LEVEL_HIGH>,
+				<GIC_SPI 52 IRQ_TYPE_LEVEL_HIGH>,
+				<GIC_SPI 55 IRQ_TYPE_LEVEL_HIGH>,
+				<GIC_SPI 57 IRQ_TYPE_LEVEL_HIGH>;
 			interrupt-names = "csiphy0",
 				"csiphy1",
 				"csid0",
