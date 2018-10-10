@@ -8510,7 +8510,10 @@ CONFIG_VIRTIO_MMIO                              note<LP:1557689>
 
 # Menu: Device Drivers >> Virtualization drivers
 CONFIG_VIRT_DRIVERS                             policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'ppc64el': 'y', 's390x': 'y'}>
-CONFIG_VBOXGUEST                                policy<{'amd64': 'm', 'i386': 'm'}>
+CONFIG_VBOXGUEST                                policy<{'amd64': 'n', 'i386': 'n'}>
+#
+CONFIG_VBOXGUEST                                note<LP:1796647>
+
 
 # Menu: Device Drivers >> Voltage and Current Regulator Support
 CONFIG_REGULATOR                                policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'ppc64el': 'y', 's390x': 'n'}>

@@ -4841,7 +4841,6 @@ v4l2-flash-led-class
 v4l2-fwnode
 v4l2-mem2mem
 v4l2-tpg
-vboxguest
 vboxvideo
 vcan
 vcnl4000
