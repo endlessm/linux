@@ -44,6 +44,8 @@
 
 #include <drm/drm_crtc_helper.h>
 
+#include <linux/dmi.h>
+
 /*
  * KMS wrapper.
  * - 2.0.0 - initial interface
@@ -337,6 +339,17 @@ static int radeon_kick_out_firmware_fb(struct pci_dev *pdev)
 	return 0;
 }
 
+static const struct dmi_system_id disable_runpm[] = {
+	{
+		.ident = "Acer, Veriton Z4660G",
+		.matches = {
+			DMI_MATCH(DMI_SYS_VENDOR, "Acer"),
+			DMI_MATCH(DMI_PRODUCT_NAME, "Veriton Z4660G"),
+		},
+	},
+	{}
+};
+
 static int radeon_pci_probe(struct pci_dev *pdev,
 			    const struct pci_device_id *ent)
 {
@@ -349,6 +362,10 @@ static int radeon_pci_probe(struct pci_dev *pdev,
 	ret = radeon_kick_out_firmware_fb(pdev);
 	if (ret)
 		return ret;
+
+	/* Disable runtime pm, if it is in the blacklist */
+	if (dmi_first_match(disable_runpm))
+		radeon_runtime_pm = 0;
 
 	return drm_get_pci_dev(pdev, ent, &kms_driver);
 }
