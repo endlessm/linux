@@ -734,7 +734,7 @@ firmware:       mediatek/mt7610u.bin
 firmware:       mediatek/mt7622pr2h.bin
 firmware:       mediatek/mt7662u.bin
 firmware:       mediatek/mt7662u_rom_patch.bin
-firmware:       mellanox/mlxsw_spectrum-13.1702.6.mfa2
+firmware:       mellanox/mlxsw_spectrum-13.1703.4.mfa2
 firmware:       mixart/miXart8.elf
 firmware:       mixart/miXart8.xlx
 firmware:       mixart/miXart8AES.xlx

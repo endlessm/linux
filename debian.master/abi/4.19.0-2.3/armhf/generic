@@ -213,11 +213,12 @@ EXPORT_SYMBOL drivers/gpu/drm/drm 0x00000000	drm_calc_vbltimestamp_from_scanoutp
 EXPORT_SYMBOL drivers/gpu/drm/drm 0x00000000	drm_clflush_pages
 EXPORT_SYMBOL drivers/gpu/drm/drm 0x00000000	drm_clflush_sg
 EXPORT_SYMBOL drivers/gpu/drm/drm 0x00000000	drm_clflush_virt_range
+EXPORT_SYMBOL drivers/gpu/drm/drm 0x00000000	drm_client_add
 EXPORT_SYMBOL drivers/gpu/drm/drm 0x00000000	drm_client_close
 EXPORT_SYMBOL drivers/gpu/drm/drm 0x00000000	drm_client_dev_hotplug
 EXPORT_SYMBOL drivers/gpu/drm/drm 0x00000000	drm_client_framebuffer_create
 EXPORT_SYMBOL drivers/gpu/drm/drm 0x00000000	drm_client_framebuffer_delete
-EXPORT_SYMBOL drivers/gpu/drm/drm 0x00000000	drm_client_new
+EXPORT_SYMBOL drivers/gpu/drm/drm 0x00000000	drm_client_init
 EXPORT_SYMBOL drivers/gpu/drm/drm 0x00000000	drm_client_release
 EXPORT_SYMBOL drivers/gpu/drm/drm 0x00000000	drm_color_lut_extract
 EXPORT_SYMBOL drivers/gpu/drm/drm 0x00000000	drm_connector_attach_content_protection_property
@@ -5619,6 +5620,7 @@ EXPORT_SYMBOL vmlinux 0x00000000	__skb_gro_checksum_complete
 EXPORT_SYMBOL vmlinux 0x00000000	__skb_gso_segment
 EXPORT_SYMBOL vmlinux 0x00000000	__skb_pad
 EXPORT_SYMBOL vmlinux 0x00000000	__skb_recv_datagram
+EXPORT_SYMBOL vmlinux 0x00000000	__skb_recv_udp
 EXPORT_SYMBOL vmlinux 0x00000000	__skb_try_recv_datagram
 EXPORT_SYMBOL vmlinux 0x00000000	__skb_vlan_pop
 EXPORT_SYMBOL vmlinux 0x00000000	__skb_wait_for_more_packets
@@ -6531,6 +6533,7 @@ EXPORT_SYMBOL vmlinux 0x00000000	dmt_modes
 EXPORT_SYMBOL vmlinux 0x00000000	dns_query
 EXPORT_SYMBOL vmlinux 0x00000000	do_SAK
 EXPORT_SYMBOL vmlinux 0x00000000	do_blank_screen
+EXPORT_SYMBOL vmlinux 0x00000000	do_clone_file_range
 EXPORT_SYMBOL vmlinux 0x00000000	do_gettimeofday
 EXPORT_SYMBOL vmlinux 0x00000000	do_map_probe
 EXPORT_SYMBOL vmlinux 0x00000000	do_settimeofday64
@@ -8079,6 +8082,7 @@ EXPORT_SYMBOL vmlinux 0x00000000	netlink_unicast
 EXPORT_SYMBOL vmlinux 0x00000000	netlink_unregister_notifier
 EXPORT_SYMBOL vmlinux 0x00000000	netpoll_cleanup
 EXPORT_SYMBOL vmlinux 0x00000000	netpoll_parse_options
+EXPORT_SYMBOL vmlinux 0x00000000	netpoll_poll_dev
 EXPORT_SYMBOL vmlinux 0x00000000	netpoll_poll_disable
 EXPORT_SYMBOL vmlinux 0x00000000	netpoll_poll_enable
 EXPORT_SYMBOL vmlinux 0x00000000	netpoll_print_options
@@ -14820,6 +14824,7 @@ EXPORT_SYMBOL_GPL net/core/devlink 0x00000000	devlink_free
 EXPORT_SYMBOL_GPL net/core/devlink 0x00000000	devlink_param_driverinit_value_get
 EXPORT_SYMBOL_GPL net/core/devlink 0x00000000	devlink_param_driverinit_value_set
 EXPORT_SYMBOL_GPL net/core/devlink 0x00000000	devlink_param_value_changed
+EXPORT_SYMBOL_GPL net/core/devlink 0x00000000	devlink_param_value_str_fill
 EXPORT_SYMBOL_GPL net/core/devlink 0x00000000	devlink_params_register
 EXPORT_SYMBOL_GPL net/core/devlink 0x00000000	devlink_params_unregister
 EXPORT_SYMBOL_GPL net/core/devlink 0x00000000	devlink_port_attrs_set
@@ -16549,7 +16554,6 @@ EXPORT_SYMBOL_GPL vmlinux 0x00000000	__sdhci_read_caps
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	__serdev_device_driver_register
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	__set_page_dirty
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	__skb_get_hash_symmetric
-EXPORT_SYMBOL_GPL vmlinux 0x00000000	__skb_recv_udp
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	__skb_tstamp_tx
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	__sock_recv_timestamp
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	__sock_recv_ts_and_drops
@@ -19810,6 +19814,7 @@ EXPORT_SYMBOL_GPL vmlinux 0x00000000	pm_schedule_suspend
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	pm_stay_awake
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	pm_suspend_global_flags
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	pm_suspend_target_state
+EXPORT_SYMBOL_GPL vmlinux 0x00000000	pm_suspend_via_s2idle
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	pm_system_wakeup
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	pm_wakeup_dev_event
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	pm_wakeup_ws_event
