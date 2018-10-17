@@ -49,26 +49,19 @@ static bool vbva_write(struct vbva_buf_context * ctx,
 						const void *p, u32 len);
 
 
-static bool vbva_inform_host(struct vbva_buf_context * ctx,
-						struct gen_pool * pHGSMICtx,
-						s32 screen, bool enable)
+static bool vbva_inform_host(struct vbva_buf_context * ctx, struct gen_pool * pHGSMICtx, s32 screen, bool fEnable)
 {
-	bool ret = false;
+	bool fRc = false;
 
 #if 0  /* All callers check this */
 	if (ppdev->bHGSMISupported)
 #endif
 	{
-		void *p = hgsmi_buffer_alloc(pHGSMICtx,
-						sizeof (struct vbva_enable_ex),
-						HGSMI_CH_VBVA,
-						VBVA_ENABLE);
-		if (!p) {
-			// LogFunc(("HGSMIHeapAlloc failed\n"));
-		} else {
-			struct vbva_enable_ex *pEnable = p;
-
-			pEnable->base.flags  = enable? VBVA_F_ENABLE: VBVA_F_DISABLE;
+		struct vbva_enable_ex  *pEnable =
+			(struct vbva_enable_ex  *)hgsmi_buffer_alloc(pHGSMICtx, sizeof(struct vbva_enable_ex),
+						HGSMI_CH_VBVA, VBVA_ENABLE);
+		if (pEnable != NULL) {
+			pEnable->base.flags  = fEnable ? VBVA_F_ENABLE : VBVA_F_DISABLE;
 			pEnable->base.offset = ctx->buffer_offset;
 			pEnable->base.result = VERR_NOT_SUPPORTED;
 			if (screen >= 0) {
@@ -76,19 +69,20 @@ static bool vbva_inform_host(struct vbva_buf_context * ctx,
 				pEnable->screen_id    = screen;
 			}
 
-			hgsmi_buffer_submit(pHGSMICtx, p);
+			hgsmi_buffer_submit(pHGSMICtx, pEnable);
 
-			if (enable) {
-				ret = RT_SUCCESS(pEnable->base.result);
-			} else {
-				ret = true;
-			}
+			if (fEnable)
+				fRc = RT_SUCCESS(pEnable->base.result);
+			else
+				fRc = true;
 
-			hgsmi_buffer_free(pHGSMICtx, p);
+			hgsmi_buffer_free(pHGSMICtx, pEnable);
+		} else {
+			// LogFunc(("HGSMIHeapAlloc failed\n"));
 		}
 	}
 
-	return ret;
+	return fRc;
 }
 
 /*
@@ -98,7 +92,7 @@ bool vbva_enable(struct vbva_buf_context * ctx,
 						struct gen_pool * pHGSMICtx,
 						VBVABUFFER *vbva, s32 screen)
 {
-	bool ret = false;
+	bool fRc = false;
 
 	// LogFlowFunc(("vbva %p\n", vbva));
 
@@ -122,14 +116,14 @@ bool vbva_enable(struct vbva_buf_context * ctx,
 		ctx->record    = NULL;
 		ctx->vbva      = vbva;
 
-		ret = vbva_inform_host(ctx, pHGSMICtx, screen, true);
+		fRc = vbva_inform_host(ctx, pHGSMICtx, screen, true);
 	}
 
-	if (!ret) {
+	if (!fRc) {
 		vbva_disable(ctx, pHGSMICtx, screen);
 	}
 
-	return ret;
+	return fRc;
 }
 
 void vbva_disable(struct vbva_buf_context * ctx,
@@ -143,14 +137,12 @@ void vbva_disable(struct vbva_buf_context * ctx,
 	ctx->vbva             = NULL;
 
 	vbva_inform_host(ctx, pHGSMICtx, screen, false);
-
-	return;
 }
 
 bool vbva_buffer_begin_update(struct vbva_buf_context * ctx,
 						struct gen_pool * pHGSMICtx)
 {
-	bool ret = false;
+	bool fRc = false;
 
 	// LogFunc(("flags = 0x%08X\n", ctx->vbva? ctx->vbva->host_events: -1));
 
@@ -185,11 +177,11 @@ bool vbva_buffer_begin_update(struct vbva_buf_context * ctx,
 			/* Remember which record we are using. */
 			ctx->record = record;
 
-			ret = true;
+			fRc = true;
 		}
 	}
 
-	return ret;
+	return fRc;
 }
 
 void vbva_buffer_end_update(struct vbva_buf_context * ctx)
@@ -208,8 +200,6 @@ void vbva_buffer_end_update(struct vbva_buf_context * ctx)
 
 	ctx->buffer_overflow = false;
 	ctx->record = NULL;
-
-	return;
 }
 
 /*
@@ -225,23 +215,17 @@ static u32 vbva_buffer_available (const VBVABUFFER *vbva)
 static void vbva_buffer_flush(struct gen_pool * ctx)
 {
 	/* Issue the flush command. */
-	void *p = hgsmi_buffer_alloc(ctx,
-						sizeof (VBVAFLUSH),
-						HGSMI_CH_VBVA,
-						VBVA_FLUSH);
-	if (!p) {
-		// LogFunc(("HGSMIHeapAlloc failed\n"));
-	} else {
-		VBVAFLUSH *pFlush = (VBVAFLUSH *)p;
-
+	VBVAFLUSH  *pFlush =
+		(VBVAFLUSH  * )hgsmi_buffer_alloc(ctx, sizeof(VBVAFLUSH), HGSMI_CH_VBVA, VBVA_FLUSH);
+	if (pFlush != NULL) {
 		pFlush->reserved = 0;
 
-		hgsmi_buffer_submit(ctx, p);
+		hgsmi_buffer_submit(ctx, pFlush);
 
-		hgsmi_buffer_free(ctx, p);
+		hgsmi_buffer_free(ctx, pFlush);
+	} else {
+		// LogFunc(("HGSMIHeapAlloc failed\n"));
 	}
-
-	return;
 }
 
 static void vbva_buffer_place_data_at(struct vbva_buf_context * ctx, const void *p,
@@ -260,8 +244,6 @@ static void vbva_buffer_place_data_at(struct vbva_buf_context * ctx, const void 
 		memcpy (dst, p, bytes_till_boundary);
 		memcpy (&vbva->data[0], (u8 *)p + bytes_till_boundary, diff);
 	}
-
-	return;
 }
 
 static bool vbva_write(struct vbva_buf_context * ctx,

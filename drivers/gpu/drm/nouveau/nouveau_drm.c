@@ -866,7 +866,7 @@ nouveau_drm_unload(struct drm_device *dev)
 	nouveau_debugfs_fini(drm);
 
 	if (dev->mode_config.num_crtc)
-		nouveau_display_fini(dev, false);
+		nouveau_display_fini(dev, false, false);
 	nouveau_display_destroy(dev);
 
 	nouveau_bios_takedown(dev);
@@ -1072,7 +1072,6 @@ nouveau_pmops_runtime_suspend(struct device *dev)
 		return -EBUSY;
 	}
 
-	drm_kms_helper_poll_disable(drm_dev);
 	nouveau_switcheroo_optimus_dsm();
 	ret = nouveau_do_suspend(drm_dev, true);
 	pci_save_state(pdev);
@@ -1145,8 +1144,10 @@ nouveau_drm_open(struct drm_device *dev, struct drm_file *fpriv)
 	get_task_comm(tmpname, current);
 	snprintf(name, sizeof(name), "%s[%d]", tmpname, pid_nr(fpriv->pid));
 
-	if (!(cli = kzalloc(sizeof(*cli), GFP_KERNEL)))
-		return ret;
+	if (!(cli = kzalloc(sizeof(*cli), GFP_KERNEL))) {
+		ret = -ENOMEM;
+		goto done;
+	}
 
 	ret = nouveau_cli_init(drm, name, cli);
 	if (ret)

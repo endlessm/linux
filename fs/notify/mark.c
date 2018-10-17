@@ -108,7 +108,6 @@ void fsnotify_get_mark(struct fsnotify_mark *mark)
 	WARN_ON_ONCE(!refcount_read(&mark->refcnt));
 	refcount_inc(&mark->refcnt);
 }
-EXPORT_SYMBOL_GPL(fsnotify_put_mark);
 
 static void __fsnotify_recalc_mask(struct fsnotify_mark_connector *conn)
 {
@@ -246,6 +245,7 @@ void fsnotify_put_mark(struct fsnotify_mark *mark)
 	queue_delayed_work(system_unbound_wq, &reaper_work,
 			   FSNOTIFY_REAPER_DELAY);
 }
+EXPORT_SYMBOL_GPL(fsnotify_put_mark);
 
 /*
  * Get mark reference when we found the mark via lockless traversal of object
@@ -614,7 +614,6 @@ err:
 	fsnotify_put_mark(mark);
 	return ret;
 }
-EXPORT_SYMBOL_GPL(fsnotify_add_mark);
 
 int fsnotify_add_mark(struct fsnotify_mark *mark, struct inode *inode,
 		      struct vfsmount *mnt, int allow_dups)
@@ -627,6 +626,7 @@ int fsnotify_add_mark(struct fsnotify_mark *mark, struct inode *inode,
 	mutex_unlock(&group->mark_mutex);
 	return ret;
 }
+EXPORT_SYMBOL_GPL(fsnotify_add_mark);
 
 /*
  * Given a list of marks, find the mark associated with given group. If found

@@ -1169,9 +1169,11 @@ static void pci_restore_config_space(struct pci_dev *pdev)
 		pci_restore_config_space_range(pdev, 0, 3, 0, false);
 	} else if (pdev->hdr_type == PCI_HEADER_TYPE_BRIDGE) {
 		pci_restore_config_space_range(pdev, 12, 15, 0, false);
-		/* Force rewriting of prefetch registers to avoid
-		 * S3 resume issues on Intel PCI bridges that occur when
-		 * these registers are not explicitly written.
+
+		/*
+		 * Force rewriting of prefetch registers to avoid S3 resume
+		 * issues on Intel PCI bridges that occur when these
+		 * registers are not explicitly written.
 		 */
 		pci_restore_config_space_range(pdev, 9, 11, 0, true);
 		pci_restore_config_space_range(pdev, 0, 8, 0, false);

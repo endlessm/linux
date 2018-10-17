@@ -50,7 +50,8 @@ static const struct pci_device_id hns3_pci_tbl[] = {
 	{PCI_VDEVICE(HUAWEI, HNAE3_DEV_ID_100G_RDMA_MACSEC),
 	 HNAE3_DEV_SUPPORT_ROCE_DCB_BITS},
 	{PCI_VDEVICE(HUAWEI, HNAE3_DEV_ID_100G_VF), 0},
-	{PCI_VDEVICE(HUAWEI, HNAE3_DEV_ID_100G_RDMA_DCB_PFC_VF), 0},
+	{PCI_VDEVICE(HUAWEI, HNAE3_DEV_ID_100G_RDMA_DCB_PFC_VF),
+	 HNAE3_DEV_SUPPORT_ROCE_DCB_BITS},
 	/* required last entry */
 	{0, }
 };
@@ -1674,6 +1675,9 @@ static struct pci_driver hns3_driver = {
 /* set default feature to hns3 */
 static void hns3_set_default_feature(struct net_device *netdev)
 {
+	struct hnae3_handle *h = hns3_get_handle(netdev);
+	struct pci_dev *pdev = h->pdev;
+
 	netdev->priv_flags |= IFF_UNICAST_FLT;
 
 	netdev->hw_enc_features |= NETIF_F_IP_CSUM | NETIF_F_IPV6_CSUM |
@@ -1707,6 +1711,9 @@ static void hns3_set_default_feature(struct net_device *netdev)
 		NETIF_F_GRO | NETIF_F_TSO | NETIF_F_TSO6 | NETIF_F_GSO_GRE |
 		NETIF_F_GSO_GRE_CSUM | NETIF_F_GSO_UDP_TUNNEL |
 		NETIF_F_GSO_UDP_TUNNEL_CSUM;
+
+	if (pdev->revision != 0x20)
+		netdev->hw_features |= NETIF_F_HW_VLAN_CTAG_FILTER;
 }
 
 static int hns3_alloc_buffer(struct hns3_enet_ring *ring,

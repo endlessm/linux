@@ -2254,6 +2254,8 @@ static struct inode *shmem_get_inode(struct super_block *sb, const struct inode 
 			}
 		} else
 			inode->i_ino = get_next_ino();
+
+		lockdep_annotate_inode_mutex_key(inode);
 	} else
 		shmem_free_inode(sb);
 	return inode;
@@ -3496,7 +3498,7 @@ static int shmem_show_options(struct seq_file *seq, struct dentry *root)
 		seq_printf(seq, ",size=%luk",
 			sbinfo->max_blocks << (PAGE_SHIFT - 10));
 	if (sbinfo->max_inodes != shmem_default_max_inodes())
-		seq_printf(seq, ",nr_inodes=%d", sbinfo->max_inodes);
+		seq_printf(seq, ",nr_inodes=%lu", sbinfo->max_inodes);
 	if (sbinfo->mode != (0777 | S_ISVTX))
 		seq_printf(seq, ",mode=%03ho", sbinfo->mode);
 	if (!uid_eq(sbinfo->uid, GLOBAL_ROOT_UID))

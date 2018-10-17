@@ -1321,9 +1321,7 @@ EXC_REAL_BEGIN(denorm_exception_hv, 0x1500, 0x100)
 
 #ifdef CONFIG_PPC_DENORMALISATION
 	mfspr	r10,SPRN_HSRR1
-	mfspr	r11,SPRN_HSRR0		/* save HSRR0 */
 	andis.	r10,r10,(HSRR1_DENORM)@h /* denorm? */
-	addi	r11,r11,-4		/* HSRR0 is next instruction */
 	bne+	denorm_assist
 #endif
 
@@ -1389,6 +1387,8 @@ END_FTR_SECTION_IFCLR(CPU_FTR_ARCH_207S)
  */
 	XVCPSGNDP32(32)
 denorm_done:
+	mfspr	r11,SPRN_HSRR0
+	subi	r11,r11,4
 	mtspr	SPRN_HSRR0,r11
 	mtcrf	0x80,r9
 	ld	r9,PACA_EXGEN+EX_R9(r13)
@@ -1526,6 +1526,8 @@ TRAMP_REAL_BEGIN(stf_barrier_fallback)
 TRAMP_REAL_BEGIN(rfi_flush_fallback)
 	SET_SCRATCH0(r13);
 	GET_PACA(r13);
+	std	r1,PACA_EXRFI+EX_R12(r13)
+	ld	r1,PACAKSAVE(r13)
 	std	r9,PACA_EXRFI+EX_R9(r13)
 	std	r10,PACA_EXRFI+EX_R10(r13)
 	std	r11,PACA_EXRFI+EX_R11(r13)
@@ -1560,12 +1562,15 @@ TRAMP_REAL_BEGIN(rfi_flush_fallback)
 	ld	r9,PACA_EXRFI+EX_R9(r13)
 	ld	r10,PACA_EXRFI+EX_R10(r13)
 	ld	r11,PACA_EXRFI+EX_R11(r13)
+	ld	r1,PACA_EXRFI+EX_R12(r13)
 	GET_SCRATCH0(r13);
 	rfid
 
 TRAMP_REAL_BEGIN(hrfi_flush_fallback)
 	SET_SCRATCH0(r13);
 	GET_PACA(r13);
+	std	r1,PACA_EXRFI+EX_R12(r13)
+	ld	r1,PACAKSAVE(r13)
 	std	r9,PACA_EXRFI+EX_R9(r13)
 	std	r10,PACA_EXRFI+EX_R10(r13)
 	std	r11,PACA_EXRFI+EX_R11(r13)
@@ -1600,6 +1605,7 @@ TRAMP_REAL_BEGIN(hrfi_flush_fallback)
 	ld	r9,PACA_EXRFI+EX_R9(r13)
 	ld	r10,PACA_EXRFI+EX_R10(r13)
 	ld	r11,PACA_EXRFI+EX_R11(r13)
+	ld	r1,PACA_EXRFI+EX_R12(r13)
 	GET_SCRATCH0(r13);
 	hrfid
 

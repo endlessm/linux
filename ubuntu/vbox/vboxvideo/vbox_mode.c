@@ -64,7 +64,7 @@ static void vbox_do_modeset(struct drm_crtc *crtc,
 	width = mode->hdisplay ? mode->hdisplay : 640;
 	height = mode->vdisplay ? mode->vdisplay : 480;
 	crtc_id = vbox_crtc->crtc_id;
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(4, 11, 0)
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(4, 11, 0) || defined(RHEL_75)
 	bpp = crtc->enabled ? CRTC_FB(crtc)->format->cpp[0] * 8 : 32;
 	pitch = crtc->enabled ? CRTC_FB(crtc)->pitches[0] : width * bpp / 8;
 #elif LINUX_VERSION_CODE >= KERNEL_VERSION(3, 3, 0)
@@ -88,7 +88,7 @@ static void vbox_do_modeset(struct drm_crtc *crtc,
 	    vbox_crtc->fb_offset % (bpp / 8) == 0)
 		VBoxVideoSetModeRegisters(
 			width, height, pitch * 8 / bpp,
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(4, 11, 0)
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(4, 11, 0) || defined(RHEL_75)
 			CRTC_FB(crtc)->format->cpp[0] * 8,
 #else
 			CRTC_FB(crtc)->bits_per_pixel,
@@ -763,13 +763,6 @@ static int vbox_cursor_set2(struct drm_crtc *crtc, struct drm_file *file_priv,
 	size_t data_size, mask_size;
 	bool src_isiomem;
 
-	/*
-	 * Re-set this regularly as in 5.0.20 and earlier the information was
-	 * lost on save and restore.
-	 */
-	hgsmi_update_input_mapping(vbox->guest_pool, 0, 0,
-				    vbox->input_mapping_width,
-				    vbox->input_mapping_height);
 	if (!handle) {
 		bool cursor_enabled = false;
 		struct drm_crtc *crtci;
@@ -819,8 +812,8 @@ static int vbox_cursor_set2(struct drm_crtc *crtc, struct drm_file *file_priv,
 			 */
 			mask_size = ((width + 7) / 8 * height + 3) & ~3;
 			data_size = width * height * 4 + mask_size;
-			vbox->cursor_hot_x = min_t(u32, max(hot_x, 0), width);
-			vbox->cursor_hot_y = min_t(u32, max(hot_y, 0), height);
+			vbox->cursor_hot_x = hot_x;
+			vbox->cursor_hot_y = hot_y;
 			vbox->cursor_width = width;
 			vbox->cursor_height = height;
 			vbox->cursor_data_size = data_size;
@@ -870,42 +863,21 @@ static int vbox_cursor_set2(struct drm_crtc *crtc, struct drm_file *file_priv,
 static int vbox_cursor_move(struct drm_crtc *crtc, int x, int y)
 {
 	struct vbox_private *vbox = crtc->dev->dev_private;
-	u32 flags = VBOX_MOUSE_POINTER_VISIBLE |
-	    VBOX_MOUSE_POINTER_SHAPE | VBOX_MOUSE_POINTER_ALPHA;
 	s32 crtc_x =
 	    vbox->single_framebuffer ? crtc->x : to_vbox_crtc(crtc)->x_hint;
 	s32 crtc_y =
 	    vbox->single_framebuffer ? crtc->y : to_vbox_crtc(crtc)->y_hint;
-	u32 host_x, host_y;
-	u32 hot_x = 0;
-	u32 hot_y = 0;
 	int rc;
 
-	/*
-	 * We compare these to unsigned later and don't
-	 * need to handle negative.
-	 */
-	if (x + crtc_x < 0 || y + crtc_y < 0 || vbox->cursor_data_size == 0)
+	x += vbox->cursor_hot_x;
+	y += vbox->cursor_hot_y;
+	if (x + crtc_x < 0 || y + crtc_y < 0 ||
+		x + crtc_x >= vbox->input_mapping_width ||
+		y + crtc_y >= vbox->input_mapping_width ||
+		vbox->cursor_data_size == 0)
 		return 0;
-
 	rc = hgsmi_cursor_position(vbox->guest_pool, true, x + crtc_x,
-				     y + crtc_y, &host_x, &host_y);
-	/* Work around a bug after save and restore in 5.0.20 and earlier. */
-	if (RT_FAILURE(rc) || (host_x == 0 && host_y == 0))
-		return rc == VINF_SUCCESS ? 0
-		    : rc == VERR_NO_MEMORY ? -ENOMEM : -EINVAL;
-	if (x + crtc_x < host_x)
-		hot_x = min(host_x - x - crtc_x, vbox->cursor_width);
-	if (y + crtc_y < host_y)
-		hot_y = min(host_y - y - crtc_y, vbox->cursor_height);
-	if (hot_x == vbox->cursor_hot_x && hot_y == vbox->cursor_hot_y)
-		return 0;
-	vbox->cursor_hot_x = hot_x;
-	vbox->cursor_hot_y = hot_y;
-	rc = hgsmi_update_pointer_shape(vbox->guest_pool, flags, hot_x, hot_y,
-					 vbox->cursor_width,
-					 vbox->cursor_height, vbox->cursor_data,
-					 vbox->cursor_data_size);
+					 y + crtc_y, NULL, NULL);
 	return rc == VINF_SUCCESS ? 0 : rc == VERR_NO_MEMORY ? -ENOMEM : rc ==
-	    VERR_NOT_SUPPORTED ? -EBUSY : -EINVAL;
+		VERR_NOT_SUPPORTED ? -EBUSY : -EINVAL;
 }

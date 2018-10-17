@@ -170,8 +170,6 @@ static const struct i2c_hid_quirks {
 		I2C_HID_QUIRK_SET_PWR_WAKEUP_DEV },
 	{ I2C_VENDOR_ID_HANTICK, I2C_PRODUCT_ID_HANTICK_5288,
 		I2C_HID_QUIRK_NO_IRQ_AFTER_RESET },
-	{ I2C_VENDOR_ID_RAYD, I2C_PRODUCT_ID_RAYD_3118,
-		I2C_HID_QUIRK_RESEND_REPORT_DESCR },
 	{ USB_VENDOR_ID_SIS_TOUCH, USB_DEVICE_ID_SIS10FB_TOUCH,
 		I2C_HID_QUIRK_RESEND_REPORT_DESCR },
 	{ 0, 0 }
@@ -1002,18 +1000,18 @@ static int i2c_hid_probe(struct i2c_client *client,
 		return client->irq;
 	}
 
-	ihid = kzalloc(sizeof(struct i2c_hid), GFP_KERNEL);
+	ihid = devm_kzalloc(&client->dev, sizeof(*ihid), GFP_KERNEL);
 	if (!ihid)
 		return -ENOMEM;
 
 	if (client->dev.of_node) {
 		ret = i2c_hid_of_probe(client, &ihid->pdata);
 		if (ret)
-			goto err;
+			return ret;
 	} else if (!platform_data) {
 		ret = i2c_hid_acpi_pdata(client, &ihid->pdata);
 		if (ret)
-			goto err;
+			return ret;
 	} else {
 		ihid->pdata = *platform_data;
 	}
@@ -1126,7 +1124,6 @@ err_regulator:
 
 err:
 	i2c_hid_free_buffers(ihid);
-	kfree(ihid);
 	return ret;
 }
 
@@ -1149,8 +1146,6 @@ static int i2c_hid_remove(struct i2c_client *client)
 		i2c_hid_free_buffers(ihid);
 
 	regulator_disable(ihid->pdata.supply);
-
-	kfree(ihid);
 
 	return 0;
 }
@@ -1238,11 +1233,16 @@ static int i2c_hid_resume(struct device *dev)
 	pm_runtime_enable(dev);
 
 	enable_irq(client->irq);
-	ret = i2c_hid_hwreset(client);
+
+	/* Instead of resetting device, simply powers the device on. This
+	 * solves "incomplete reports" on Raydium devices 2386:3118 and
+	 * 2386:4B33
+	 */
+	ret = i2c_hid_set_power(client, I2C_HID_PWR_ON);
 	if (ret)
 		return ret;
 
-	/* RAYDIUM device (2386:3118) need to re-send report descr cmd
+	/* Some devices need to re-send report descr cmd
 	 * after resume, after this it will be back normal.
 	 * otherwise it issues too many incomplete reports.
 	 */

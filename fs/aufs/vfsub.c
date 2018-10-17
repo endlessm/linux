@@ -125,8 +125,8 @@ int vfsub_atomic_open(struct inode *dir, struct dentry *dentry,
 	if (unlikely(err))
 		goto out;
 
-	args->file->f_path.dentry = DENTRY_NOT_SET;
-	args->file->f_path.mnt = au_br_mnt(br);
+	file->f_path.dentry = DENTRY_NOT_SET;
+	file->f_path.mnt = au_br_mnt(br);
 	err = dir->i_op->atomic_open(dir, dentry, file, args->open_flag,
 				     args->create_mode, args->opened);
 	if (err >= 0) {
@@ -150,6 +150,10 @@ int vfsub_atomic_open(struct inode *dir, struct dentry *dentry,
 
 	au_br_get(br);
 	fsnotify_open(file);
+
+	/* temporary workaround for nfsv4 branch */
+	if (au_test_nfs(dir->i_sb))
+		nfs_mark_for_revalidate(dir);
 
 out:
 	return err;

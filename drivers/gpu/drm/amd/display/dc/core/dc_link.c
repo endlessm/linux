@@ -497,6 +497,10 @@ static bool detect_dp(
 			sink_caps->signal = SIGNAL_TYPE_DISPLAY_PORT_MST;
 			link->type = dc_connection_mst_branch;
 
+			dal_ddc_service_set_transaction_type(
+							link->ddc,
+							sink_caps->transaction_type);
+
 			/*
 			 * This call will initiate MST topology discovery. Which
 			 * will detect MST ports and add new DRM connector DRM
@@ -728,6 +732,17 @@ bool dc_link_detect(struct dc_link *link, enum dc_detect_reason reason)
 			break;
 		case EDID_NO_RESPONSE:
 			DC_LOG_ERROR("No EDID read.\n");
+
+			/*
+			 * Abort detection for non-DP connectors if we have
+			 * no EDID
+			 *
+			 * DP needs to report as connected if HDP is high
+			 * even if we have no EDID in order to go to
+			 * fail-safe mode
+			 */
+			if (!dc_is_dp_signal(link->connector_signal))
+				return false;
 		default:
 			break;
 		}

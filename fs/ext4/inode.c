@@ -3412,12 +3412,16 @@ static int ext4_iomap_begin(struct inode *inode, loff_t offset, loff_t length,
 {
 	struct ext4_sb_info *sbi = EXT4_SB(inode->i_sb);
 	unsigned int blkbits = inode->i_blkbits;
-	unsigned long first_block = offset >> blkbits;
-	unsigned long last_block = (offset + length - 1) >> blkbits;
+	unsigned long first_block, last_block;
 	struct ext4_map_blocks map;
 	bool delalloc = false;
 	int ret;
 
+	if ((offset >> blkbits) > EXT4_MAX_LOGICAL_BLOCK)
+		return -EINVAL;
+	first_block = offset >> blkbits;
+	last_block = min_t(loff_t, (offset + length - 1) >> blkbits,
+			   EXT4_MAX_LOGICAL_BLOCK);
 
 	if (flags & IOMAP_REPORT) {
 		if (ext4_has_inline_data(inode)) {
@@ -3947,6 +3951,7 @@ static const struct address_space_operations ext4_dax_aops = {
 	.writepages		= ext4_dax_writepages,
 	.direct_IO		= noop_direct_IO,
 	.set_page_dirty		= noop_set_page_dirty,
+	.bmap			= ext4_bmap,
 	.invalidatepage		= noop_invalidatepage,
 };
 
@@ -4191,6 +4196,39 @@ int ext4_update_disksize_before_punch(struct inode *inode, loff_t offset,
 	return 0;
 }
 
+static void ext4_wait_dax_page(struct ext4_inode_info *ei, bool *did_unlock)
+{
+	*did_unlock = true;
+	up_write(&ei->i_mmap_sem);
+	schedule();
+	down_write(&ei->i_mmap_sem);
+}
+
+int ext4_break_layouts(struct inode *inode)
+{
+	struct ext4_inode_info *ei = EXT4_I(inode);
+	struct page *page;
+	bool retry;
+	int error;
+
+	if (WARN_ON_ONCE(!rwsem_is_locked(&ei->i_mmap_sem)))
+		return -EINVAL;
+
+	do {
+		retry = false;
+		page = dax_layout_busy_page(inode->i_mapping);
+		if (!page)
+			return 0;
+
+		error = ___wait_var_event(&page->_refcount,
+				atomic_read(&page->_refcount) == 1,
+				TASK_INTERRUPTIBLE, 0, 0,
+				ext4_wait_dax_page(ei, &retry));
+	} while (error == 0 && retry);
+
+	return error;
+}
+
 /*
  * ext4_punch_hole: punches a hole in a file by releasing the blocks
  * associated with the given offset and length
@@ -4264,6 +4302,11 @@ int ext4_punch_hole(struct inode *inode, loff_t offset, loff_t length)
 	 * page cache.
 	 */
 	down_write(&EXT4_I(inode)->i_mmap_sem);
+
+	ret = ext4_break_layouts(inode);
+	if (ret)
+		goto out_dio;
+
 	first_block_offset = round_up(offset, sb->s_blocksize);
 	last_block_offset = round_down((offset + length), sb->s_blocksize) - 1;
 
@@ -4856,6 +4899,7 @@ struct inode *ext4_iget(struct super_block *sb, unsigned long ino)
 		 * not initialized on a new filesystem. */
 	}
 	ei->i_flags = le32_to_cpu(raw_inode->i_flags);
+	ext4_set_inode_flags(inode);
 	inode->i_blocks = ext4_inode_blocks(raw_inode, ei);
 	ei->i_file_acl = le32_to_cpu(raw_inode->i_file_acl_lo);
 	if (ext4_has_feature_64bit(sb))
@@ -5005,7 +5049,6 @@ struct inode *ext4_iget(struct super_block *sb, unsigned long ino)
 		goto bad_inode;
 	}
 	brelse(iloc.bh);
-	ext4_set_inode_flags(inode);
 
 	unlock_new_inode(inode);
 	return inode;
@@ -5555,6 +5598,14 @@ int ext4_setattr(struct dentry *dentry, struct iattr *attr)
 				ext4_wait_for_tail_page_commit(inode);
 		}
 		down_write(&EXT4_I(inode)->i_mmap_sem);
+
+		rc = ext4_break_layouts(inode);
+		if (rc) {
+			up_write(&EXT4_I(inode)->i_mmap_sem);
+			error = rc;
+			goto err_out;
+		}
+
 		/*
 		 * Truncate pagecache after we've waited for commit
 		 * in data=journal mode to make pages freeable.

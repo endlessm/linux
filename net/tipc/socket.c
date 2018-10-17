@@ -578,6 +578,7 @@ static int tipc_release(struct socket *sock)
 	sk_stop_timer(sk, &sk->sk_timer);
 	tipc_sk_remove(tsk);
 
+	sock_orphan(sk);
 	/* Reject any messages that accumulated in backlog queue */
 	release_sock(sk);
 	tipc_dest_list_purge(&tsk->cong_links);
@@ -2675,6 +2676,8 @@ void tipc_sk_reinit(struct net *net)
 
 		rhashtable_walk_stop(&iter);
 	} while (tsk == ERR_PTR(-EAGAIN));
+
+	rhashtable_walk_exit(&iter);
 }
 
 static struct tipc_sock *tipc_sk_lookup(struct net *net, u32 portid)

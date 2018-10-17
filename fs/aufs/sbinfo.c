@@ -100,7 +100,6 @@ int au_si_alloc(struct super_block *sb)
 	sbinfo->si_xino_expire
 		= msecs_to_jiffies(AUFS_XINO_DEF_SEC * MSEC_PER_SEC);
 	mutex_init(&sbinfo->si_xib_mtx);
-	sbinfo->si_xino_brid = -1;
 	/* leave si_xib_last_pindex and si_xib_next_bit */
 
 	INIT_HLIST_BL_HEAD(&sbinfo->si_aopen);

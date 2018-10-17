@@ -2523,7 +2523,7 @@ cifs_setup_ipc(struct cifs_ses *ses, struct smb_vol *volume_info)
 	if (tcon == NULL)
 		return -ENOMEM;
 
-	snprintf(unc, sizeof(unc), "\\\\%s\\IPC$", ses->serverName);
+	snprintf(unc, sizeof(unc), "\\\\%s\\IPC$", ses->server->hostname);
 
 	/* cannot fail */
 	nls_codepage = load_nls_default();
@@ -3031,11 +3031,15 @@ cifs_get_tcon(struct cifs_ses *ses, struct smb_vol *volume_info)
 	}
 
 #ifdef CONFIG_CIFS_SMB311
-	if ((volume_info->linux_ext) && (ses->server->posix_ext_supported)) {
-		if (ses->server->vals->protocol_id == SMB311_PROT_ID) {
+	if (volume_info->linux_ext) {
+		if (ses->server->posix_ext_supported) {
 			tcon->posix_extensions = true;
 			printk_once(KERN_WARNING
 				"SMB3.11 POSIX Extensions are experimental\n");
+		} else {
+			cifs_dbg(VFS, "Server does not support mounting with posix SMB3.11 extensions.\n");
+			rc = -EOPNOTSUPP;
+			goto out_fail;
 		}
 	}
 #endif /* 311 */

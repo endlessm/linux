@@ -1443,7 +1443,8 @@ static int au_opt_simple(struct super_block *sb, struct au_opt *opt,
 
 	case Opt_trunc_xino_path:
 	case Opt_itrunc_xino:
-		err = au_xino_trunc(sb, opt->xino_itrunc.bindex);
+		err = au_xino_trunc(sb, opt->xino_itrunc.bindex,
+				    /*idx_begin*/0);
 		if (!err)
 			err = 1;
 		break;
@@ -1553,25 +1554,10 @@ static int au_opt_xino(struct super_block *sb, struct au_opt *opt,
 		       struct au_opts *opts)
 {
 	int err;
-	aufs_bindex_t bbot, bindex;
-	struct dentry *root, *parent, *h_root;
 
 	err = 0;
 	switch (opt->type) {
 	case Opt_xino:
-		au_xino_brid_set(sb, -1);
-		/* safe d_parent access */
-		parent = opt->xino.file->f_path.dentry->d_parent;
-		root = sb->s_root;
-		bbot = au_sbbot(sb);
-		for (bindex = 0; bindex <= bbot; bindex++) {
-			h_root = au_h_dptr(root, bindex);
-			if (h_root == parent) {
-				au_xino_brid_set(sb, au_sbr_id(sb, bindex));
-				break;
-			}
-		}
-
 		err = au_xino_set(sb, &opt->xino,
 				  !!au_ftest_opts(opts->flags, REMOUNT));
 		if (unlikely(err))

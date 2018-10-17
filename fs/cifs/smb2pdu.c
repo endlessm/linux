@@ -360,7 +360,7 @@ smb2_plain_req_init(__le16 smb2_command, struct cifs_tcon *tcon,
 		       total_len);
 
 	if (tcon != NULL) {
-#ifdef CONFIG_CIFS_STATS2
+#ifdef CONFIG_CIFS_STATS
 		uint16_t com_code = le16_to_cpu(smb2_command);
 		cifs_stats_inc(&tcon->stats.smb2_stats.smb2_com_sent[com_code]);
 #endif
@@ -1928,7 +1928,7 @@ int smb311_posix_mkdir(const unsigned int xid, struct inode *inode,
 {
 	struct smb_rqst rqst;
 	struct smb2_create_req *req;
-	struct smb2_create_rsp *rsp;
+	struct smb2_create_rsp *rsp = NULL;
 	struct TCP_Server_Info *server;
 	struct cifs_ses *ses = tcon->ses;
 	struct kvec iov[3]; /* make sure at least one for each open context */
@@ -1943,26 +1943,30 @@ int smb311_posix_mkdir(const unsigned int xid, struct inode *inode,
 	char *pc_buf = NULL;
 	int flags = 0;
 	unsigned int total_len;
-	__le16 *path = cifs_convert_path_to_utf16(full_path, cifs_sb);
-
-	if (!path)
-		return -ENOMEM;
+	__le16 *utf16_path = NULL;
 
 	cifs_dbg(FYI, "mkdir\n");
 
+	/* resource #1: path allocation */
+	utf16_path = cifs_convert_path_to_utf16(full_path, cifs_sb);
+	if (!utf16_path)
+		return -ENOMEM;
+
 	if (ses && (ses->server))
 		server = ses->server;
-	else
-		return -EIO;
+	else {
+		rc = -EIO;
+		goto err_free_path;
+	}
 
+	/* resource #2: request */
 	rc = smb2_plain_req_init(SMB2_CREATE, tcon, (void **) &req, &total_len);
-
 	if (rc)
-		return rc;
+		goto err_free_path;
+
 
 	if (smb3_encryption_required(tcon))
 		flags |= CIFS_TRANSFORM_REQ;
-
 
 	req->ImpersonationLevel = IL_IMPERSONATION;
 	req->DesiredAccess = cpu_to_le32(FILE_WRITE_ATTRIBUTES);
@@ -1992,50 +1996,44 @@ int smb311_posix_mkdir(const unsigned int xid, struct inode *inode,
 		req->sync_hdr.Flags |= SMB2_FLAGS_DFS_OPERATIONS;
 		rc = alloc_path_with_tree_prefix(&copy_path, &copy_size,
 						 &name_len,
-						 tcon->treeName, path);
-		if (rc) {
-			cifs_small_buf_release(req);
-			return rc;
-		}
+						 tcon->treeName, utf16_path);
+		if (rc)
+			goto err_free_req;
+
 		req->NameLength = cpu_to_le16(name_len * 2);
 		uni_path_len = copy_size;
-		path = copy_path;
+		/* free before overwriting resource */
+		kfree(utf16_path);
+		utf16_path = copy_path;
 	} else {
-		uni_path_len = (2 * UniStrnlen((wchar_t *)path, PATH_MAX)) + 2;
+		uni_path_len = (2 * UniStrnlen((wchar_t *)utf16_path, PATH_MAX)) + 2;
 		/* MUST set path len (NameLength) to 0 opening root of share */
 		req->NameLength = cpu_to_le16(uni_path_len - 2);
 		if (uni_path_len % 8 != 0) {
 			copy_size = roundup(uni_path_len, 8);
 			copy_path = kzalloc(copy_size, GFP_KERNEL);
 			if (!copy_path) {
-				cifs_small_buf_release(req);
-				return -ENOMEM;
+				rc = -ENOMEM;
+				goto err_free_req;
 			}
-			memcpy((char *)copy_path, (const char *)path,
+			memcpy((char *)copy_path, (const char *)utf16_path,
 			       uni_path_len);
 			uni_path_len = copy_size;
-			path = copy_path;
+			/* free before overwriting resource */
+			kfree(utf16_path);
+			utf16_path = copy_path;
 		}
 	}
 
 	iov[1].iov_len = uni_path_len;
-	iov[1].iov_base = path;
+	iov[1].iov_base = utf16_path;
 	req->RequestedOplockLevel = SMB2_OPLOCK_LEVEL_NONE;
 
 	if (tcon->posix_extensions) {
-		if (n_iov > 2) {
-			struct create_context *ccontext =
-			    (struct create_context *)iov[n_iov-1].iov_base;
-			ccontext->Next =
-				cpu_to_le32(iov[n_iov-1].iov_len);
-		}
-
+		/* resource #3: posix buf */
 		rc = add_posix_context(iov, &n_iov, mode);
-		if (rc) {
-			cifs_small_buf_release(req);
-			kfree(copy_path);
-			return rc;
-		}
+		if (rc)
+			goto err_free_req;
 		pc_buf = iov[n_iov-1].iov_base;
 	}
 
@@ -2044,32 +2042,33 @@ int smb311_posix_mkdir(const unsigned int xid, struct inode *inode,
 	rqst.rq_iov = iov;
 	rqst.rq_nvec = n_iov;
 
-	rc = cifs_send_recv(xid, ses, &rqst, &resp_buftype, flags,
-			    &rsp_iov);
-
-	cifs_small_buf_release(req);
-	rsp = (struct smb2_create_rsp *)rsp_iov.iov_base;
-
-	if (rc != 0) {
+	/* resource #4: response buffer */
+	rc = cifs_send_recv(xid, ses, &rqst, &resp_buftype, flags, &rsp_iov);
+	if (rc) {
 		cifs_stats_fail_inc(tcon, SMB2_CREATE_HE);
 		trace_smb3_posix_mkdir_err(xid, tcon->tid, ses->Suid,
-				    CREATE_NOT_FILE, FILE_WRITE_ATTRIBUTES, rc);
-		goto smb311_mkdir_exit;
-	} else
-		trace_smb3_posix_mkdir_done(xid, rsp->PersistentFileId, tcon->tid,
-				     ses->Suid, CREATE_NOT_FILE,
-				     FILE_WRITE_ATTRIBUTES);
+					   CREATE_NOT_FILE,
+					   FILE_WRITE_ATTRIBUTES, rc);
+		goto err_free_rsp_buf;
+	}
+
+	rsp = (struct smb2_create_rsp *)rsp_iov.iov_base;
+	trace_smb3_posix_mkdir_done(xid, rsp->PersistentFileId, tcon->tid,
+				    ses->Suid, CREATE_NOT_FILE,
+				    FILE_WRITE_ATTRIBUTES);
 
 	SMB2_close(xid, tcon, rsp->PersistentFileId, rsp->VolatileFileId);
 
 	/* Eventually save off posix specific response info and timestaps */
 
-smb311_mkdir_exit:
-	kfree(copy_path);
-	kfree(pc_buf);
+err_free_rsp_buf:
 	free_rsp_buf(resp_buftype, rsp);
+	kfree(pc_buf);
+err_free_req:
+	cifs_small_buf_release(req);
+err_free_path:
+	kfree(utf16_path);
 	return rc;
-
 }
 #endif /* SMB311 */
 
@@ -2180,6 +2179,9 @@ SMB2_open(const unsigned int xid, struct cifs_open_parms *oparms, __le16 *path,
 	if (!(server->capabilities & SMB2_GLOBAL_CAP_LEASING) ||
 	    *oplock == SMB2_OPLOCK_LEVEL_NONE)
 		req->RequestedOplockLevel = *oplock;
+	else if (!(server->capabilities & SMB2_GLOBAL_CAP_DIRECTORY_LEASING) &&
+		  (oparms->create_options & CREATE_NOT_FILE))
+		req->RequestedOplockLevel = *oplock; /* no srv lease support */
 	else {
 		rc = add_lease_context(server, iov, &n_iov,
 				       oparms->fid->lease_key, oplock);
@@ -2416,14 +2418,14 @@ SMB2_ioctl(const unsigned int xid, struct cifs_tcon *tcon, u64 persistent_fid,
 	/* We check for obvious errors in the output buffer length and offset */
 	if (*plen == 0)
 		goto ioctl_exit; /* server returned no data */
-	else if (*plen > 0xFF00) {
+	else if (*plen > rsp_iov.iov_len || *plen > 0xFF00) {
 		cifs_dbg(VFS, "srv returned invalid ioctl length: %d\n", *plen);
 		*plen = 0;
 		rc = -EIO;
 		goto ioctl_exit;
 	}
 
-	if (rsp_iov.iov_len < le32_to_cpu(rsp->OutputOffset) + *plen) {
+	if (rsp_iov.iov_len - *plen < le32_to_cpu(rsp->OutputOffset)) {
 		cifs_dbg(VFS, "Malformed ioctl resp: len %d offset %d\n", *plen,
 			le32_to_cpu(rsp->OutputOffset));
 		*plen = 0;
@@ -3490,33 +3492,38 @@ num_entries(char *bufstart, char *end_of_buf, char **lastentry, size_t size)
 	int len;
 	unsigned int entrycount = 0;
 	unsigned int next_offset = 0;
-	FILE_DIRECTORY_INFO *entryptr;
+	char *entryptr;
+	FILE_DIRECTORY_INFO *dir_info;
 
 	if (bufstart == NULL)
 		return 0;
 
-	entryptr = (FILE_DIRECTORY_INFO *)bufstart;
+	entryptr = bufstart;
 
 	while (1) {
-		entryptr = (FILE_DIRECTORY_INFO *)
-					((char *)entryptr + next_offset);
-
-		if ((char *)entryptr + size > end_of_buf) {
+		if (entryptr + next_offset < entryptr ||
+		    entryptr + next_offset > end_of_buf ||
+		    entryptr + next_offset + size > end_of_buf) {
 			cifs_dbg(VFS, "malformed search entry would overflow\n");
 			break;
 		}
 
-		len = le32_to_cpu(entryptr->FileNameLength);
-		if ((char *)entryptr + len + size > end_of_buf) {
+		entryptr = entryptr + next_offset;
+		dir_info = (FILE_DIRECTORY_INFO *)entryptr;
+
+		len = le32_to_cpu(dir_info->FileNameLength);
+		if (entryptr + len < entryptr ||
+		    entryptr + len > end_of_buf ||
+		    entryptr + len + size > end_of_buf) {
 			cifs_dbg(VFS, "directory entry name would overflow frame end of buf %p\n",
 				 end_of_buf);
 			break;
 		}
 
-		*lastentry = (char *)entryptr;
+		*lastentry = entryptr;
 		entrycount++;
 
-		next_offset = le32_to_cpu(entryptr->NextEntryOffset);
+		next_offset = le32_to_cpu(dir_info->NextEntryOffset);
 		if (!next_offset)
 			break;
 	}

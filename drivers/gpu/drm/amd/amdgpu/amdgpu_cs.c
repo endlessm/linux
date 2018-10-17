@@ -257,7 +257,7 @@ static void amdgpu_cs_get_threshold_for_moves(struct amdgpu_device *adev,
 		return;
 	}
 
-	total_vram = adev->gmc.real_vram_size - adev->vram_pin_size;
+	total_vram = adev->gmc.real_vram_size - atomic64_read(&adev->vram_pin_size);
 	used_vram = amdgpu_vram_mgr_usage(&adev->mman.bdev.man[TTM_PL_VRAM]);
 	free_vram = used_vram >= total_vram ? 0 : total_vram - used_vram;
 
@@ -975,13 +975,9 @@ static int amdgpu_cs_ib_fill(struct amdgpu_device *adev,
 		if (r)
 			return r;
 
-		if (chunk_ib->flags & AMDGPU_IB_FLAG_PREAMBLE) {
-			parser->job->preamble_status |= AMDGPU_PREAMBLE_IB_PRESENT;
-			if (!parser->ctx->preamble_presented) {
-				parser->job->preamble_status |= AMDGPU_PREAMBLE_IB_PRESENT_FIRST;
-				parser->ctx->preamble_presented = true;
-			}
-		}
+		if (chunk_ib->flags & AMDGPU_IB_FLAG_PREAMBLE)
+			parser->job->preamble_status |=
+				AMDGPU_PREAMBLE_IB_PRESENT;
 
 		if (parser->job->ring && parser->job->ring != ring)
 			return -EINVAL;
@@ -1205,6 +1201,12 @@ static int amdgpu_cs_submit(struct amdgpu_cs_parser *p,
 	}
 
 	amdgpu_cs_post_dependencies(p);
+
+	if ((job->preamble_status & AMDGPU_PREAMBLE_IB_PRESENT) &&
+	    !p->ctx->preamble_presented) {
+		job->preamble_status |= AMDGPU_PREAMBLE_IB_PRESENT_FIRST;
+		p->ctx->preamble_presented = true;
+	}
 
 	cs->out.handle = seq;
 	job->uf_sequence = seq;

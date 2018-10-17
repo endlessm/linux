@@ -15,8 +15,8 @@
 ##
 ##
 ##
-ifeq ($(ARCH),x86)
-#obj-y                         += vbox/
+ifneq ($(filter $(ARCH), i386 x86),)
+obj-y                         += vbox/
 endif
 ##
 ##

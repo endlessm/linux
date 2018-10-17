@@ -673,7 +673,8 @@ struct page *dax_layout_busy_page(struct address_space *mapping)
 			if (index >= end)
 				break;
 
-			if (!radix_tree_exceptional_entry(pvec_ent))
+			if (WARN_ON_ONCE(
+			     !radix_tree_exceptional_entry(pvec_ent)))
 				continue;
 
 			xa_lock_irq(&mapping->i_pages);
@@ -685,6 +686,13 @@ struct page *dax_layout_busy_page(struct address_space *mapping)
 			if (page)
 				break;
 		}
+
+		/*
+		 * We don't expect normal struct page entries to exist in our
+		 * tree, but we keep these pagevec calls so that this code is
+		 * consistent with the common pattern for handling pagevecs
+		 * throughout the kernel.
+		 */
 		pagevec_remove_exceptionals(&pvec);
 		pagevec_release(&pvec);
 		index++;
@@ -1114,21 +1122,12 @@ static vm_fault_t dax_load_hole(struct address_space *mapping, void *entry,
 {
 	struct inode *inode = mapping->host;
 	unsigned long vaddr = vmf->address;
-	vm_fault_t ret = VM_FAULT_NOPAGE;
-	struct page *zero_page;
-	pfn_t pfn;
+	pfn_t pfn = pfn_to_pfn_t(my_zero_pfn(vaddr));
+	vm_fault_t ret;
 
-	zero_page = ZERO_PAGE(0);
-	if (unlikely(!zero_page)) {
-		ret = VM_FAULT_OOM;
-		goto out;
-	}
-
-	pfn = page_to_pfn_t(zero_page);
 	dax_insert_mapping_entry(mapping, vmf, entry, pfn, RADIX_DAX_ZERO_PAGE,
 			false);
 	ret = vmf_insert_mixed(vmf->vma, vaddr, pfn);
-out:
 	trace_dax_load_hole(inode, vmf, ret);
 	return ret;
 }

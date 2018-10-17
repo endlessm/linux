@@ -330,8 +330,8 @@ static int hisi_sas_task_prep(struct sas_task *task,
 	struct device *dev = hisi_hba->dev;
 	int dlvry_queue_slot, dlvry_queue, rc, slot_idx;
 	int n_elem = 0, n_elem_req = 0, n_elem_resp = 0;
-	unsigned long flags, flags_dq;
 	struct hisi_sas_dq *dq;
+	unsigned long flags;
 	int wr_q_index;
 
 	if (!sas_port) {
@@ -427,16 +427,17 @@ static int hisi_sas_task_prep(struct sas_task *task,
 
 	slot = &hisi_hba->slot_info[slot_idx];
 
-	spin_lock_irqsave(&dq->lock, flags_dq);
+	spin_lock_irqsave(&dq->lock, flags);
 	wr_q_index = hisi_hba->hw->get_free_slot(hisi_hba, dq);
 	if (wr_q_index < 0) {
-		spin_unlock_irqrestore(&dq->lock, flags_dq);
+		spin_unlock_irqrestore(&dq->lock, flags);
 		rc = -EAGAIN;
 		goto err_out_tag;
 	}
 
 	list_add_tail(&slot->delivery, &dq->list);
-	spin_unlock_irqrestore(&dq->lock, flags_dq);
+	list_add_tail(&slot->entry, &sas_dev->list);
+	spin_unlock_irqrestore(&dq->lock, flags);
 
 	dlvry_queue = dq->id;
 	dlvry_queue_slot = wr_q_index;
@@ -475,15 +476,12 @@ static int hisi_sas_task_prep(struct sas_task *task,
 		break;
 	}
 
-	spin_lock_irqsave(&dq->lock, flags);
-	list_add_tail(&slot->entry, &sas_dev->list);
-	spin_unlock_irqrestore(&dq->lock, flags);
 	spin_lock_irqsave(&task->task_state_lock, flags);
 	task->task_state_flags |= SAS_TASK_AT_INITIATOR;
 	spin_unlock_irqrestore(&task->task_state_lock, flags);
 
 	++(*pass);
-	slot->ready = 1;
+	WRITE_ONCE(slot->ready, 1);
 
 	return 0;
 
@@ -853,7 +851,6 @@ static void hisi_sas_do_release_task(struct hisi_hba *hisi_hba, struct sas_task 
 	hisi_sas_slot_task_free(hisi_hba, task, slot);
 }
 
-/* hisi_hba.lock should be locked */
 static void hisi_sas_release_task(struct hisi_hba *hisi_hba,
 			struct domain_device *device)
 {
@@ -1344,22 +1341,12 @@ static void hisi_sas_terminate_stp_reject(struct hisi_hba *hisi_hba)
 	}
 }
 
-static int hisi_sas_controller_reset(struct hisi_hba *hisi_hba)
+void hisi_sas_controller_reset_prepare(struct hisi_hba *hisi_hba)
 {
-	struct device *dev = hisi_hba->dev;
 	struct Scsi_Host *shost = hisi_hba->shost;
-	u32 old_state, state;
-	int rc;
-
-	if (!hisi_hba->hw->soft_reset)
-		return -1;
-
-	if (test_and_set_bit(HISI_SAS_RESET_BIT, &hisi_hba->flags))
-		return -1;
 
 	down(&hisi_hba->sem);
-	dev_info(dev, "controller resetting...\n");
-	old_state = hisi_hba->hw->get_phys_state(hisi_hba);
+	hisi_hba->phy_state = hisi_hba->hw->get_phys_state(hisi_hba);
 
 	scsi_block_requests(shost);
 	hisi_hba->hw->wait_cmds_complete_timeout(hisi_hba, 100, 5000);
@@ -1368,15 +1355,13 @@ static int hisi_sas_controller_reset(struct hisi_hba *hisi_hba)
 		del_timer_sync(&hisi_hba->timer);
 
 	set_bit(HISI_SAS_REJECT_CMD_BIT, &hisi_hba->flags);
-	rc = hisi_hba->hw->soft_reset(hisi_hba);
-	if (rc) {
-		dev_warn(dev, "controller reset failed (%d)\n", rc);
-		clear_bit(HISI_SAS_REJECT_CMD_BIT, &hisi_hba->flags);
-		up(&hisi_hba->sem);
-		scsi_unblock_requests(shost);
-		clear_bit(HISI_SAS_RESET_BIT, &hisi_hba->flags);
-		return rc;
-	}
+}
+EXPORT_SYMBOL_GPL(hisi_sas_controller_reset_prepare);
+
+void hisi_sas_controller_reset_done(struct hisi_hba *hisi_hba)
+{
+	struct Scsi_Host *shost = hisi_hba->shost;
+	u32 state;
 
 	/* Init and wait for PHYs to come up and all libsas event finished. */
 	hisi_hba->hw->phys_init(hisi_hba);
@@ -1392,7 +1377,36 @@ static int hisi_sas_controller_reset(struct hisi_hba *hisi_hba)
 	clear_bit(HISI_SAS_RESET_BIT, &hisi_hba->flags);
 
 	state = hisi_hba->hw->get_phys_state(hisi_hba);
-	hisi_sas_rescan_topology(hisi_hba, old_state, state);
+	hisi_sas_rescan_topology(hisi_hba, hisi_hba->phy_state, state);
+}
+EXPORT_SYMBOL_GPL(hisi_sas_controller_reset_done);
+
+static int hisi_sas_controller_reset(struct hisi_hba *hisi_hba)
+{
+	struct device *dev = hisi_hba->dev;
+	struct Scsi_Host *shost = hisi_hba->shost;
+	int rc;
+
+	if (!hisi_hba->hw->soft_reset)
+		return -1;
+
+	if (test_and_set_bit(HISI_SAS_RESET_BIT, &hisi_hba->flags))
+		return -1;
+
+	dev_info(dev, "controller resetting...\n");
+	hisi_sas_controller_reset_prepare(hisi_hba);
+
+	rc = hisi_hba->hw->soft_reset(hisi_hba);
+	if (rc) {
+		dev_warn(dev, "controller reset failed (%d)\n", rc);
+		clear_bit(HISI_SAS_REJECT_CMD_BIT, &hisi_hba->flags);
+		up(&hisi_hba->sem);
+		scsi_unblock_requests(shost);
+		clear_bit(HISI_SAS_RESET_BIT, &hisi_hba->flags);
+		return rc;
+	}
+
+	hisi_sas_controller_reset_done(hisi_hba);
 	dev_info(dev, "controller reset complete\n");
 
 	return 0;
@@ -1770,7 +1784,7 @@ hisi_sas_internal_abort_task_exec(struct hisi_hba *hisi_hba, int device_id,
 	task->task_state_flags |= SAS_TASK_AT_INITIATOR;
 	spin_unlock_irqrestore(&task->task_state_lock, flags);
 
-	slot->ready = 1;
+	WRITE_ONCE(slot->ready, 1);
 	/* send abort command to the chip */
 	spin_lock_irqsave(&dq->lock, flags);
 	list_add_tail(&slot->entry, &sas_dev->list);
