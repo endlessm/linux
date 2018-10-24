@@ -2762,8 +2762,7 @@ static inline void kmemleak_load_module(const struct module *mod,
 #endif
 
 #ifdef CONFIG_MODULE_SIG
-static int module_sig_check(struct load_info *info, int flags,
-			    bool can_do_ima_check)
+static int module_sig_check(struct load_info *info, int flags)
 {
 	int err = -ENODATA;
 	const unsigned long markerlen = sizeof(MODULE_SIG_STRING) - 1;
@@ -2805,8 +2804,6 @@ static int module_sig_check(struct load_info *info, int flags,
 			return -EKEYREJECTED;
 		}
 
-		if (can_do_ima_check && is_ima_appraise_enabled())
-			return 0;
 		if (kernel_is_locked_down(reason))
 			return -EPERM;
 		return 0;
@@ -2820,8 +2817,7 @@ static int module_sig_check(struct load_info *info, int flags,
 	}
 }
 #else /* !CONFIG_MODULE_SIG */
-static int module_sig_check(struct load_info *info, int flags,
-			    bool can_do_ima_check)
+static int module_sig_check(struct load_info *info, int flags)
 {
 	return 0;
 }
@@ -3670,7 +3666,7 @@ static int unknown_module_param_cb(char *param, char *val, const char *modname,
 /* Allocate and load the module: note that size of section 0 is always
    zero, and we rely on this for optional sections. */
 static int load_module(struct load_info *info, const char __user *uargs,
-		       int flags, bool can_do_ima_check)
+		       int flags)
 {
 	struct module *mod;
 	long err = 0;
@@ -3689,7 +3685,7 @@ static int load_module(struct load_info *info, const char __user *uargs,
 		goto free_copy;
 	}
 
-	err = module_sig_check(info, flags, can_do_ima_check);
+	err = module_sig_check(info, flags);
 	if (err)
 		goto free_copy;
 
@@ -3884,7 +3880,7 @@ SYSCALL_DEFINE3(init_module, void __user *, umod,
 	if (err)
 		return err;
 
-	return load_module(&info, uargs, 0, false);
+	return load_module(&info, uargs, 0);
 }
 
 SYSCALL_DEFINE3(finit_module, int, fd, const char __user *, uargs, int, flags)
@@ -3911,7 +3907,7 @@ SYSCALL_DEFINE3(finit_module, int, fd, const char __user *, uargs, int, flags)
 	info.hdr = hdr;
 	info.len = size;
 
-	return load_module(&info, uargs, flags, true);
+	return load_module(&info, uargs, flags);
 }
 
 static inline int within(unsigned long addr, void *start, unsigned long size)
