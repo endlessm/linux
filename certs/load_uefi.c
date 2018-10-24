@@ -35,8 +35,8 @@ static __init bool uefi_check_ignore_db(void)
 /*
  * Get a certificate list blob from the named EFI variable.
  */
-static __init int get_cert_list(efi_char16_t *name, efi_guid_t *guid,
-				unsigned long *size, void **cert_list)
+static __init void *get_cert_list(efi_char16_t *name, efi_guid_t *guid,
+				  unsigned long *size)
 {
 	efi_status_t status;
 	unsigned long lsize = 4;
@@ -44,33 +44,26 @@ static __init int get_cert_list(efi_char16_t *name, efi_guid_t *guid,
 	void *db;
 
 	status = efi.get_variable(name, guid, NULL, &lsize, &tmpdb);
-	if (status == EFI_NOT_FOUND) {
-		*size = 0;
-		*cert_list = NULL;
-		return 0;
-	}
-
 	if (status != EFI_BUFFER_TOO_SMALL) {
 		pr_err("Couldn't get size: 0x%lx\n", status);
-		return efi_status_to_err(status);
+		return NULL;
 	}
 
 	db = kmalloc(lsize, GFP_KERNEL);
 	if (!db) {
 		pr_err("Couldn't allocate memory for uefi cert list\n");
-		return -ENOMEM;
+		return NULL;
 	}
 
 	status = efi.get_variable(name, guid, NULL, &lsize, db);
 	if (status != EFI_SUCCESS) {
 		kfree(db);
 		pr_err("Error reading db var: 0x%lx\n", status);
-		return efi_status_to_err(status);
+		return NULL;
 	}
 
 	*size = lsize;
-	*cert_list = db;
-	return 0;
+	return db;
 }
 
 /*
@@ -159,10 +152,10 @@ static int __init load_uefi_certs(void)
 	 * an error if we can't get them.
 	 */
 	if (!uefi_check_ignore_db()) {
-		rc = get_cert_list(L"db", &secure_var, &dbsize, &db);
-		if (rc < 0) {
+		db = get_cert_list(L"db", &secure_var, &dbsize);
+		if (!db) {
 			pr_err("MODSIGN: Couldn't get UEFI db list\n");
-		} else if (dbsize != 0) {
+		} else {
 			rc = parse_efi_signature_list("UEFI:db",
 						      db, dbsize, get_handler_for_db);
 			if (rc)
@@ -171,10 +164,10 @@ static int __init load_uefi_certs(void)
 		}
 	}
 
-	rc = get_cert_list(L"MokListRT", &mok_var, &moksize, &mok);
-	if (rc < 0) {
+	mok = get_cert_list(L"MokListRT", &mok_var, &moksize);
+	if (!mok) {
 		pr_info("MODSIGN: Couldn't get UEFI MokListRT\n");
-	} else if (moksize != 0) {
+	} else {
 		rc = parse_efi_signature_list("UEFI:MokListRT",
 					      mok, moksize, get_handler_for_db);
 		if (rc)
@@ -182,10 +175,10 @@ static int __init load_uefi_certs(void)
 		kfree(mok);
 	}
 
-	rc = get_cert_list(L"dbx", &secure_var, &dbxsize, &dbx);
-	if (rc < 0) {
+	dbx = get_cert_list(L"dbx", &secure_var, &dbxsize);
+	if (!dbx) {
 		pr_info("MODSIGN: Couldn't get UEFI dbx list\n");
-	} else if (dbxsize != 0) {
+	} else {
 		rc = parse_efi_signature_list("UEFI:dbx",
 					      dbx, dbxsize,
 					      get_handler_for_dbx);
