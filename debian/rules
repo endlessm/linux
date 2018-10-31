@@ -169,7 +169,8 @@ $(DEBIAN)/control.stub: 				\
 	  cat $$i | sed -e 's/PKGVER/$(release)/g'                              \
 	        -e 's/ABINUM/$(abinum)/g'                                       \
 		-e 's/SRCPKGNAME/$(src_pkg_name)/g'                             \
-		-e 's/=HUMAN=/$(human_arch)/g'                                    \
+		-e 's/=HUMAN=/$(human_arch)/g'                                  \
+		-e 's/=SERIES=/$(series)/g'                                     \
 	  > $$new;								\
 	done
 	flavours="$(sort $(wildcard $(DEBIAN)/control.d/vars.* $(DEBIAN)/sub-flavours/*.vars))";\
@@ -178,8 +179,9 @@ $(DEBIAN)/control.stub: 				\
 		sed -e 's/PKGVER/$(release)/g'                                  \
 		-e 's/ABINUM/$(abinum)/g'                                       \
 		-e 's/SRCPKGNAME/$(src_pkg_name)/g'                             \
-		-e 's/=HUMAN=/$(human_arch)/g'                                    \
-		>> $(DEBIAN)/control.stub;						\
+		-e 's/=HUMAN=/$(human_arch)/g'                                  \
+		-e 's/=SERIES=/$(series)/g'                                     \
+		>> $(DEBIAN)/control.stub;                                      \
 	done
 
 .PHONY: debian/control
