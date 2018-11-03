@@ -217,8 +217,12 @@ static int acpi_battery_handle_discharging(struct acpi_battery *battery)
 	 * was plugged in and the device thus did not start a new charge cycle.
 	 */
 	if ((battery_ac_is_broken || power_supply_is_system_supplied()) &&
-	    battery->rate_now == 0)
+	    battery->rate_now == 0) {
+		if (battery->capacity_now && battery->full_charge_capacity &&
+		    battery->capacity_now / battery->full_charge_capacity == 1)
+			return POWER_SUPPLY_STATUS_FULL;
 		return POWER_SUPPLY_STATUS_NOT_CHARGING;
+	}
 
 	return POWER_SUPPLY_STATUS_DISCHARGING;
 }
