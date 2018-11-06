@@ -670,6 +670,8 @@ vn_file_cache_destructor(void *buf, void *cdrarg)
 int
 spl_vn_init(void)
 {
+	spin_lock_init(&vn_file_lock);
+
 	vn_cache = kmem_cache_create("spl_vn_cache",
 	    sizeof (struct vnode), 64, vn_cache_constructor,
 	    vn_cache_destructor, NULL, NULL, NULL, 0);

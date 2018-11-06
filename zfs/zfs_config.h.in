@@ -303,9 +303,6 @@
 /* inode_set_iversion() exists */
 #undef HAVE_INODE_SET_IVERSION
 
-/* inode->i_*time's are timespec64 */
-#undef HAVE_INODE_TIMESPEC64_TIMES
-
 /* iops->truncate_range() exists */
 #undef HAVE_INODE_TRUNCATE_RANGE
 

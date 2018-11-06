@@ -88,32 +88,7 @@ EOF
 	done
 } > "$KERNEL_DIR/spl/Kbuild"
 
-add_after()
-{
-	local FILE="$1"
-	local MARKER="$2"
-	local NEW="$3"
-	local LINE
-
-	while IFS='' read -r LINE
-	do
-		echo "$LINE"
-
-		if [ -n "$MARKER" -a "$LINE" = "$MARKER" ]
-		then
-			echo "$NEW"
-			MARKER=''
-			if IFS='' read -r LINE
-			then
-				[ "$LINE" != "$NEW" ] && echo "$LINE"
-			fi
-		fi
-	done < "$FILE" > "$FILE.new"
-
-	mv "$FILE.new" "$FILE"
-}
-
-add_after "$KERNEL_DIR/Kconfig" 'source "arch/$SRCARCH/Kconfig"' 'source "spl/Kconfig"'
+echo 'source "spl/Kconfig"' >>"$KERNEL_DIR/Kconfig"
 # We must take care to build SPL before ZFS, otherwise the symbols required
 # to link ZFS will not be available.
 sed -i 's~mm/ fs/~mm/ spl/ fs/~' "$KERNEL_DIR/Makefile"
