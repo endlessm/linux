@@ -92,6 +92,11 @@ enum nvme_quirks {
 	 * Broken Write Zeroes.
 	 */
 	NVME_QUIRK_DISABLE_WRITE_ZEROES		= (1 << 9),
+
+	/*
+	 * Do not disable nvme when suspending(s2idle)
+	 */
+	NVME_QUIRK_NO_DISABLE			= (1 << 10),
 };
 
 /*
