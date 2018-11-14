@@ -1,6 +1,8 @@
 # Recreate any symlinks created since the orig.
 # Remove any files deleted from the orig.
+rm -f 'drivers/s390/crypto/ap_asm.h'
 rm -f 'include/crypto/vmac.h'
+rm -f 'tools/testing/selftests/android/ion/config'
 chmod +x 'scripts/kmsg-doc'
 chmod +x 'spl/autogen.sh'
 chmod +x 'spl/cmd/splslab/splslab.py'
