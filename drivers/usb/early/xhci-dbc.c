@@ -432,7 +432,7 @@ static int xdbc_start(void)
 		xdbc_reset_debug_port();
 
 	/* Wait for port connection: */
-	ret = handshake(&xdbc.xdbc_reg->portsc, PORTSC_CONN_STATUS, PORTSC_CONN_STATUS, 5000000, 100);
+	ret = handshake(&xdbc.xdbc_reg->portsc, PORTSC_CONN_STATUS, PORTSC_CONN_STATUS, 30000000, 100);
 	if (ret) {
 		xdbc_trace("waiting for connection timed out\n");
 		return ret;
