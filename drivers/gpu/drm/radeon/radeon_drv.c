@@ -326,6 +326,20 @@ static const struct dmi_system_id disable_runpm[] = {
 			DMI_MATCH(DMI_PRODUCT_NAME, "Veriton Z4660G"),
 		},
 	},
+	{
+		.ident = "Acer, Veriton Z4860G",
+		.matches = {
+			DMI_MATCH(DMI_SYS_VENDOR, "Acer"),
+			DMI_MATCH(DMI_PRODUCT_NAME, "Veriton Z4860G"),
+		},
+	},
+	{
+		.ident = "Acer, Veriton Z6860G",
+		.matches = {
+			DMI_MATCH(DMI_SYS_VENDOR, "Acer"),
+			DMI_MATCH(DMI_PRODUCT_NAME, "Veriton Z6860G"),
+		},
+	},
 	{}
 };
 
