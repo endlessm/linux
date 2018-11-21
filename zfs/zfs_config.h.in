@@ -312,6 +312,9 @@
 /* Define to 1 if you have the <inttypes.h> header file. */
 #undef HAVE_INTTYPES_H
 
+/* in_compat_syscall() is available */
+#undef HAVE_IN_COMPAT_SYSCALL
+
 /* is_owner_or_cap() exists */
 #undef HAVE_IS_OWNER_OR_CAP
 

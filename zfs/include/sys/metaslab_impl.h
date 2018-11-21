@@ -180,7 +180,6 @@ struct metaslab_class {
 	 */
 	uint64_t		mc_alloc_max_slots;
 	zfs_refcount_t		mc_alloc_slots;
-
 	uint64_t		mc_alloc_groups; /* # of allocatable groups */
 
 	uint64_t		mc_alloc;	/* total allocated space */
