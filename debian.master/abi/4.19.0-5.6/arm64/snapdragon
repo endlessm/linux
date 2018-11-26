@@ -8440,6 +8440,8 @@ EXPORT_SYMBOL vmlinux 0x00000000	of_mm_gpiochip_remove
 EXPORT_SYMBOL vmlinux 0x00000000	of_n_addr_cells
 EXPORT_SYMBOL vmlinux 0x00000000	of_n_size_cells
 EXPORT_SYMBOL vmlinux 0x00000000	of_node_get
+EXPORT_SYMBOL vmlinux 0x00000000	of_node_name_eq
+EXPORT_SYMBOL vmlinux 0x00000000	of_node_name_prefix
 EXPORT_SYMBOL vmlinux 0x00000000	of_node_put
 EXPORT_SYMBOL vmlinux 0x00000000	of_parse_phandle
 EXPORT_SYMBOL vmlinux 0x00000000	of_parse_phandle_with_args

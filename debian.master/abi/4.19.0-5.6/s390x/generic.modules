@@ -249,6 +249,7 @@ ib_srp
 ib_srpt
 ib_umad
 ib_uverbs
+icp
 icplus
 ifb
 ife
@@ -725,6 +726,8 @@ smc_diag
 smsc
 smsgiucv_app
 softdog
+spl
+splat
 st
 st_drv
 ste10Xp
@@ -794,6 +797,7 @@ unix_diag
 veth
 vfio
 vfio-pci
+vfio_ap
 vfio_ccw
 vfio_iommu_type1
 vfio_mdev
@@ -913,12 +917,18 @@ xt_tcpudp
 xt_time
 xt_u32
 z3fold
+zavl
+zcommon
 zcrypt
 zcrypt_cex2a
 zcrypt_cex4
 zcrypt_pcixcc
 zfcp
+zfs
 zlib_deflate
+znvpair
+zpios
 zram
 zstd
 zstd_compress
+zunicode
