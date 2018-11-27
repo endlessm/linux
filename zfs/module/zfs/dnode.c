@@ -55,6 +55,7 @@ dnode_stats_t dnode_stats = {
 	{ "dnode_hold_free_overflow",		KSTAT_DATA_UINT64 },
 	{ "dnode_hold_free_refcount",		KSTAT_DATA_UINT64 },
 	{ "dnode_hold_free_txg",		KSTAT_DATA_UINT64 },
+	{ "dnode_free_interior_lock_retry",	KSTAT_DATA_UINT64 },
 	{ "dnode_allocate",			KSTAT_DATA_UINT64 },
 	{ "dnode_reallocate",			KSTAT_DATA_UINT64 },
 	{ "dnode_buf_evict",			KSTAT_DATA_UINT64 },
@@ -123,8 +124,8 @@ dnode_cons(void *arg, void *unused, int kmflag)
 	 * Every dbuf has a reference, and dropping a tracked reference is
 	 * O(number of references), so don't track dn_holds.
 	 */
-	refcount_create_untracked(&dn->dn_holds);
-	refcount_create(&dn->dn_tx_holds);
+	zfs_refcount_create_untracked(&dn->dn_holds);
+	zfs_refcount_create(&dn->dn_tx_holds);
 	list_link_init(&dn->dn_link);
 
 	bzero(&dn->dn_next_nblkptr[0], sizeof (dn->dn_next_nblkptr));
@@ -136,7 +137,7 @@ dnode_cons(void *arg, void *unused, int kmflag)
 	bzero(&dn->dn_next_blksz[0], sizeof (dn->dn_next_blksz));
 
 	for (i = 0; i < TXG_SIZE; i++) {
-		list_link_init(&dn->dn_dirty_link[i]);
+		multilist_link_init(&dn->dn_dirty_link[i]);
 		dn->dn_free_ranges[i] = NULL;
 		list_create(&dn->dn_dirty_records[i],
 		    sizeof (dbuf_dirty_record_t),
@@ -146,6 +147,7 @@ dnode_cons(void *arg, void *unused, int kmflag)
 	dn->dn_allocated_txg = 0;
 	dn->dn_free_txg = 0;
 	dn->dn_assigned_txg = 0;
+	dn->dn_dirty_txg = 0;
 	dn->dn_dirtyctx = 0;
 	dn->dn_dirtyctx_firstset = NULL;
 	dn->dn_bonus = NULL;
@@ -178,12 +180,12 @@ dnode_dest(void *arg, void *unused)
 	mutex_destroy(&dn->dn_mtx);
 	mutex_destroy(&dn->dn_dbufs_mtx);
 	cv_destroy(&dn->dn_notxholds);
-	refcount_destroy(&dn->dn_holds);
-	refcount_destroy(&dn->dn_tx_holds);
+	zfs_refcount_destroy(&dn->dn_holds);
+	zfs_refcount_destroy(&dn->dn_tx_holds);
 	ASSERT(!list_link_active(&dn->dn_link));
 
 	for (i = 0; i < TXG_SIZE; i++) {
-		ASSERT(!list_link_active(&dn->dn_dirty_link[i]));
+		ASSERT(!multilist_link_active(&dn->dn_dirty_link[i]));
 		ASSERT3P(dn->dn_free_ranges[i], ==, NULL);
 		list_destroy(&dn->dn_dirty_records[i]);
 		ASSERT0(dn->dn_next_nblkptr[i]);
@@ -198,6 +200,7 @@ dnode_dest(void *arg, void *unused)
 	ASSERT0(dn->dn_allocated_txg);
 	ASSERT0(dn->dn_free_txg);
 	ASSERT0(dn->dn_assigned_txg);
+	ASSERT0(dn->dn_dirty_txg);
 	ASSERT0(dn->dn_dirtyctx);
 	ASSERT3P(dn->dn_dirtyctx_firstset, ==, NULL);
 	ASSERT3P(dn->dn_bonus, ==, NULL);
@@ -374,7 +377,7 @@ dnode_buf_byteswap(void *vbuf, size_t size)
 void
 dnode_setbonuslen(dnode_t *dn, int newsize, dmu_tx_t *tx)
 {
-	ASSERT3U(refcount_count(&dn->dn_holds), >=, 1);
+	ASSERT3U(zfs_refcount_count(&dn->dn_holds), >=, 1);
 
 	dnode_setdirty(dn, tx);
 	rw_enter(&dn->dn_struct_rwlock, RW_WRITER);
@@ -391,7 +394,7 @@ dnode_setbonuslen(dnode_t *dn, int newsize, dmu_tx_t *tx)
 void
 dnode_setbonus_type(dnode_t *dn, dmu_object_type_t newtype, dmu_tx_t *tx)
 {
-	ASSERT3U(refcount_count(&dn->dn_holds), >=, 1);
+	ASSERT3U(zfs_refcount_count(&dn->dn_holds), >=, 1);
 	dnode_setdirty(dn, tx);
 	rw_enter(&dn->dn_struct_rwlock, RW_WRITER);
 	dn->dn_bonustype = newtype;
@@ -402,7 +405,7 @@ dnode_setbonus_type(dnode_t *dn, dmu_object_type_t newtype, dmu_tx_t *tx)
 void
 dnode_rm_spill(dnode_t *dn, dmu_tx_t *tx)
 {
-	ASSERT3U(refcount_count(&dn->dn_holds), >=, 1);
+	ASSERT3U(zfs_refcount_count(&dn->dn_holds), >=, 1);
 	ASSERT(RW_WRITE_HELD(&dn->dn_struct_rwlock));
 	dnode_setdirty(dn, tx);
 	dn->dn_rm_spillblk[tx->tx_txg&TXG_MASK] = DN_KILL_SPILLBLK;
@@ -516,11 +519,13 @@ dnode_destroy(dnode_t *dn)
 	mutex_exit(&os->os_lock);
 
 	/* the dnode can no longer move, so we can release the handle */
-	zrl_remove(&dn->dn_handle->dnh_zrlock);
+	if (!zrl_is_locked(&dn->dn_handle->dnh_zrlock))
+		zrl_remove(&dn->dn_handle->dnh_zrlock);
 
 	dn->dn_allocated_txg = 0;
 	dn->dn_free_txg = 0;
 	dn->dn_assigned_txg = 0;
+	dn->dn_dirty_txg = 0;
 
 	dn->dn_dirtyctx = 0;
 	if (dn->dn_dirtyctx_firstset != NULL) {
@@ -590,8 +595,9 @@ dnode_allocate(dnode_t *dn, dmu_object_type_t ot, int blocksize, int ibs,
 	ASSERT0(dn->dn_maxblkid);
 	ASSERT0(dn->dn_allocated_txg);
 	ASSERT0(dn->dn_assigned_txg);
-	ASSERT(refcount_is_zero(&dn->dn_tx_holds));
-	ASSERT3U(refcount_count(&dn->dn_holds), <=, 1);
+	ASSERT0(dn->dn_dirty_txg);
+	ASSERT(zfs_refcount_is_zero(&dn->dn_tx_holds));
+	ASSERT3U(zfs_refcount_count(&dn->dn_holds), <=, 1);
 	ASSERT(avl_is_empty(&dn->dn_dbufs));
 
 	for (i = 0; i < TXG_SIZE; i++) {
@@ -602,7 +608,7 @@ dnode_allocate(dnode_t *dn, dmu_object_type_t ot, int blocksize, int ibs,
 		ASSERT0(dn->dn_next_bonustype[i]);
 		ASSERT0(dn->dn_rm_spillblk[i]);
 		ASSERT0(dn->dn_next_blksz[i]);
-		ASSERT(!list_link_active(&dn->dn_dirty_link[i]));
+		ASSERT(!multilist_link_active(&dn->dn_dirty_link[i]));
 		ASSERT3P(list_head(&dn->dn_dirty_records[i]), ==, NULL);
 		ASSERT3P(dn->dn_free_ranges[i], ==, NULL);
 	}
@@ -660,8 +666,9 @@ dnode_reallocate(dnode_t *dn, dmu_object_type_t ot, int blocksize,
 	ASSERT(DMU_OT_IS_VALID(bonustype));
 	ASSERT3U(bonuslen, <=,
 	    DN_BONUS_SIZE(spa_maxdnodesize(dmu_objset_spa(dn->dn_objset))));
+	ASSERT3U(bonuslen, <=, DN_BONUS_SIZE(dn_slots << DNODE_SHIFT));
 
-	dn_slots = dn_slots > 0 ? dn_slots : DNODE_MIN_SLOTS;
+	dnode_free_interior_slots(dn);
 	DNODE_STAT_BUMP(dnode_reallocate);
 
 	/* clean up any unreferenced dbufs */
@@ -776,10 +783,11 @@ dnode_move_impl(dnode_t *odn, dnode_t *ndn)
 	ndn->dn_allocated_txg = odn->dn_allocated_txg;
 	ndn->dn_free_txg = odn->dn_free_txg;
 	ndn->dn_assigned_txg = odn->dn_assigned_txg;
+	ndn->dn_dirty_txg = odn->dn_dirty_txg;
 	ndn->dn_dirtyctx = odn->dn_dirtyctx;
 	ndn->dn_dirtyctx_firstset = odn->dn_dirtyctx_firstset;
-	ASSERT(refcount_count(&odn->dn_tx_holds) == 0);
-	refcount_transfer(&ndn->dn_holds, &odn->dn_holds);
+	ASSERT(zfs_refcount_count(&odn->dn_tx_holds) == 0);
+	zfs_refcount_transfer(&ndn->dn_holds, &odn->dn_holds);
 	ASSERT(avl_is_empty(&ndn->dn_dbufs));
 	avl_swap(&ndn->dn_dbufs, &odn->dn_dbufs);
 	ndn->dn_dbufs_count = odn->dn_dbufs_count;
@@ -842,6 +850,7 @@ dnode_move_impl(dnode_t *odn, dnode_t *ndn)
 	odn->dn_allocated_txg = 0;
 	odn->dn_free_txg = 0;
 	odn->dn_assigned_txg = 0;
+	odn->dn_dirty_txg = 0;
 	odn->dn_dirtyctx = 0;
 	odn->dn_dirtyctx_firstset = NULL;
 	odn->dn_have_spill = B_FALSE;
@@ -966,7 +975,7 @@ dnode_move(void *buf, void *newbuf, size_t size, void *arg)
 	 * hold before the dbuf is removed, the hold is discounted, and the
 	 * removal is blocked until the move completes.
 	 */
-	refcount = refcount_count(&odn->dn_holds);
+	refcount = zfs_refcount_count(&odn->dn_holds);
 	ASSERT(refcount >= 0);
 	dbufs = odn->dn_dbufs_count;
 
@@ -994,7 +1003,7 @@ dnode_move(void *buf, void *newbuf, size_t size, void *arg)
 
 	list_link_replace(&odn->dn_link, &ndn->dn_link);
 	/* If the dnode was safe to move, the refcount cannot have changed. */
-	ASSERT(refcount == refcount_count(&ndn->dn_holds));
+	ASSERT(refcount == zfs_refcount_count(&ndn->dn_holds));
 	ASSERT(dbufs == ndn->dn_dbufs_count);
 	zrl_exit(&ndn->dn_handle->dnh_zrlock); /* handle has moved */
 	mutex_exit(&os->os_lock);
@@ -1062,17 +1071,74 @@ dnode_set_slots(dnode_children_t *children, int idx, int slots, void *ptr)
 }
 
 static boolean_t
-dnode_check_slots(dnode_children_t *children, int idx, int slots, void *ptr)
+dnode_check_slots_free(dnode_children_t *children, int idx, int slots)
+{
+	ASSERT3S(idx + slots, <=, DNODES_PER_BLOCK);
+
+	/*
+	 * If all dnode slots are either already free or
+	 * evictable return B_TRUE.
+	 */
+	for (int i = idx; i < idx + slots; i++) {
+		dnode_handle_t *dnh = &children->dnc_children[i];
+		dnode_t *dn = dnh->dnh_dnode;
+
+		if (dn == DN_SLOT_FREE) {
+			continue;
+		} else if (DN_SLOT_IS_PTR(dn)) {
+			mutex_enter(&dn->dn_mtx);
+			boolean_t can_free = (dn->dn_type == DMU_OT_NONE &&
+			    !DNODE_IS_DIRTY(dn));
+			mutex_exit(&dn->dn_mtx);
+
+			if (!can_free)
+				return (B_FALSE);
+			else
+				continue;
+		} else {
+			return (B_FALSE);
+		}
+	}
+
+	return (B_TRUE);
+}
+
+static void
+dnode_reclaim_slots(dnode_children_t *children, int idx, int slots)
 {
 	ASSERT3S(idx + slots, <=, DNODES_PER_BLOCK);
 
 	for (int i = idx; i < idx + slots; i++) {
 		dnode_handle_t *dnh = &children->dnc_children[i];
-		if (dnh->dnh_dnode != ptr)
-			return (B_FALSE);
-	}
 
-	return (B_TRUE);
+		ASSERT(zrl_is_locked(&dnh->dnh_zrlock));
+
+		if (DN_SLOT_IS_PTR(dnh->dnh_dnode)) {
+			ASSERT3S(dnh->dnh_dnode->dn_type, ==, DMU_OT_NONE);
+			dnode_destroy(dnh->dnh_dnode);
+			dnh->dnh_dnode = DN_SLOT_FREE;
+		}
+	}
+}
+
+void
+dnode_free_interior_slots(dnode_t *dn)
+{
+	dnode_children_t *children = dmu_buf_get_user(&dn->dn_dbuf->db);
+	int epb = dn->dn_dbuf->db.db_size >> DNODE_SHIFT;
+	int idx = (dn->dn_object & (epb - 1)) + 1;
+	int slots = dn->dn_num_slots - 1;
+
+	if (slots == 0)
+		return;
+
+	ASSERT3S(idx + slots, <=, DNODES_PER_BLOCK);
+
+	while (!dnode_slots_tryenter(children, idx, slots))
+		DNODE_STAT_BUMP(dnode_free_interior_lock_retry);
+
+	dnode_set_slots(children, idx, slots, DN_SLOT_FREE);
+	dnode_slots_rele(children, idx, slots);
 }
 
 void
@@ -1086,7 +1152,7 @@ dnode_special_close(dnode_handle_t *dnh)
 	 * has a hold on this dnode while we are trying to evict this
 	 * dnode.
 	 */
-	while (refcount_count(&dn->dn_holds) > 0)
+	while (zfs_refcount_count(&dn->dn_holds) > 0)
 		delay(1);
 	ASSERT(dn->dn_dbuf == NULL ||
 	    dmu_buf_get_user(&dn->dn_dbuf->db) == NULL);
@@ -1141,8 +1207,8 @@ dnode_buf_evict_async(void *dbu)
 		 * it wouldn't be eligible for eviction and this function
 		 * would not have been called.
 		 */
-		ASSERT(refcount_is_zero(&dn->dn_holds));
-		ASSERT(refcount_is_zero(&dn->dn_tx_holds));
+		ASSERT(zfs_refcount_is_zero(&dn->dn_holds));
+		ASSERT(zfs_refcount_is_zero(&dn->dn_tx_holds));
 
 		dnode_destroy(dn); /* implicit zrl_remove() for first slot */
 		zrl_destroy(&dnh->dnh_zrlock);
@@ -1201,7 +1267,7 @@ dnode_hold_impl(objset_t *os, uint64_t object, int flag, int slots,
 		if ((flag & DNODE_MUST_BE_FREE) && type != DMU_OT_NONE)
 			return (SET_ERROR(EEXIST));
 		DNODE_VERIFY(dn);
-		(void) refcount_add(&dn->dn_holds, tag);
+		(void) zfs_refcount_add(&dn->dn_holds, tag);
 		*dnp = dn;
 		return (0);
 	}
@@ -1355,7 +1421,7 @@ dnode_hold_impl(objset_t *os, uint64_t object, int flag, int slots,
 		while (dn == DN_SLOT_UNINIT) {
 			dnode_slots_hold(dnc, idx, slots);
 
-			if (!dnode_check_slots(dnc, idx, slots, DN_SLOT_FREE)) {
+			if (!dnode_check_slots_free(dnc, idx, slots)) {
 				DNODE_STAT_BUMP(dnode_hold_free_misses);
 				dnode_slots_rele(dnc, idx, slots);
 				dbuf_rele(db, FTAG);
@@ -1368,19 +1434,33 @@ dnode_hold_impl(objset_t *os, uint64_t object, int flag, int slots,
 				continue;
 			}
 
-			if (!dnode_check_slots(dnc, idx, slots, DN_SLOT_FREE)) {
+			if (!dnode_check_slots_free(dnc, idx, slots)) {
 				DNODE_STAT_BUMP(dnode_hold_free_lock_misses);
 				dnode_slots_rele(dnc, idx, slots);
 				dbuf_rele(db, FTAG);
 				return (SET_ERROR(ENOSPC));
 			}
 
+			/*
+			 * Allocated but otherwise free dnodes which would
+			 * be in the interior of a multi-slot dnodes need
+			 * to be freed.  Single slot dnodes can be safely
+			 * re-purposed as a performance optimization.
+			 */
+			if (slots > 1)
+				dnode_reclaim_slots(dnc, idx + 1, slots - 1);
+
 			dnh = &dnc->dnc_children[idx];
-			dn = dnode_create(os, dn_block + idx, db, object, dnh);
+			if (DN_SLOT_IS_PTR(dnh->dnh_dnode)) {
+				dn = dnh->dnh_dnode;
+			} else {
+				dn = dnode_create(os, dn_block + idx, db,
+				    object, dnh);
+			}
 		}
 
 		mutex_enter(&dn->dn_mtx);
-		if (!refcount_is_zero(&dn->dn_holds)) {
+		if (!zfs_refcount_is_zero(&dn->dn_holds)) {
 			DNODE_STAT_BUMP(dnode_hold_free_refcount);
 			mutex_exit(&dn->dn_mtx);
 			dnode_slots_rele(dnc, idx, slots);
@@ -1404,7 +1484,7 @@ dnode_hold_impl(objset_t *os, uint64_t object, int flag, int slots,
 		return (type == DMU_OT_NONE ? ENOENT : EEXIST);
 	}
 
-	if (refcount_add(&dn->dn_holds, tag) == 1)
+	if (zfs_refcount_add(&dn->dn_holds, tag) == 1)
 		dbuf_add_ref(db, dnh);
 
 	mutex_exit(&dn->dn_mtx);
@@ -1440,11 +1520,11 @@ boolean_t
 dnode_add_ref(dnode_t *dn, void *tag)
 {
 	mutex_enter(&dn->dn_mtx);
-	if (refcount_is_zero(&dn->dn_holds)) {
+	if (zfs_refcount_is_zero(&dn->dn_holds)) {
 		mutex_exit(&dn->dn_mtx);
 		return (FALSE);
 	}
-	VERIFY(1 < refcount_add(&dn->dn_holds, tag));
+	VERIFY(1 < zfs_refcount_add(&dn->dn_holds, tag));
 	mutex_exit(&dn->dn_mtx);
 	return (TRUE);
 }
@@ -1464,7 +1544,7 @@ dnode_rele_and_unlock(dnode_t *dn, void *tag)
 	dmu_buf_impl_t *db = dn->dn_dbuf;
 	dnode_handle_t *dnh = dn->dn_handle;
 
-	refs = refcount_remove(&dn->dn_holds, tag);
+	refs = zfs_refcount_remove(&dn->dn_holds, tag);
 	mutex_exit(&dn->dn_mtx);
 
 	/*
@@ -1523,12 +1603,12 @@ dnode_setdirty(dnode_t *dn, dmu_tx_t *tx)
 	/*
 	 * If we are already marked dirty, we're done.
 	 */
-	if (list_link_active(&dn->dn_dirty_link[txg & TXG_MASK])) {
+	if (multilist_link_active(&dn->dn_dirty_link[txg & TXG_MASK])) {
 		multilist_sublist_unlock(mls);
 		return;
 	}
 
-	ASSERT(!refcount_is_zero(&dn->dn_holds) ||
+	ASSERT(!zfs_refcount_is_zero(&dn->dn_holds) ||
 	    !avl_is_empty(&dn->dn_dbufs));
 	ASSERT(dn->dn_datablksz != 0);
 	ASSERT0(dn->dn_next_bonuslen[txg&TXG_MASK]);
