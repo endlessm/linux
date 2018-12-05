@@ -4883,6 +4883,8 @@ EXPORT_SYMBOL net/sunrpc/auth_gss/auth_rpcgss 0x00000000	gss_pseudoflavor_to_ser
 EXPORT_SYMBOL net/sunrpc/sunrpc 0x00000000	svc_pool_stats_open
 EXPORT_SYMBOL net/sunrpc/sunrpc 0x00000000	xdr_restrict_buflen
 EXPORT_SYMBOL net/sunrpc/sunrpc 0x00000000	xdr_truncate_encode
+EXPORT_SYMBOL net/tipc/tipc 0x00000000	tipc_dump_done
+EXPORT_SYMBOL net/tipc/tipc 0x00000000	tipc_dump_start
 EXPORT_SYMBOL net/tipc/tipc 0x00000000	tipc_nl_sk_walk
 EXPORT_SYMBOL net/tipc/tipc 0x00000000	tipc_sk_fill_sock_diag
 EXPORT_SYMBOL net/tls/tls 0x00000000	tls_device_sk_destruct
@@ -6062,6 +6064,7 @@ EXPORT_SYMBOL vmlinux 0x00000000	__skb_gro_checksum_complete
 EXPORT_SYMBOL vmlinux 0x00000000	__skb_gso_segment
 EXPORT_SYMBOL vmlinux 0x00000000	__skb_pad
 EXPORT_SYMBOL vmlinux 0x00000000	__skb_recv_datagram
+EXPORT_SYMBOL vmlinux 0x00000000	__skb_recv_udp
 EXPORT_SYMBOL vmlinux 0x00000000	__skb_try_recv_datagram
 EXPORT_SYMBOL vmlinux 0x00000000	__skb_vlan_pop
 EXPORT_SYMBOL vmlinux 0x00000000	__skb_wait_for_more_packets
@@ -7160,6 +7163,7 @@ EXPORT_SYMBOL vmlinux 0x00000000	devmap_managed_key
 EXPORT_SYMBOL vmlinux 0x00000000	dget_parent
 EXPORT_SYMBOL vmlinux 0x00000000	disable_irq
 EXPORT_SYMBOL vmlinux 0x00000000	disable_irq_nosync
+EXPORT_SYMBOL vmlinux 0x00000000	discard_new_inode
 EXPORT_SYMBOL vmlinux 0x00000000	disk_stack_limits
 EXPORT_SYMBOL vmlinux 0x00000000	dlci_ioctl_set
 EXPORT_SYMBOL vmlinux 0x00000000	dm_consume_args
@@ -16748,6 +16752,7 @@ EXPORT_SYMBOL_GPL sound/hda/snd-hda-core 0x00000000	snd_hdac_bus_init_cmd_io
 EXPORT_SYMBOL_GPL sound/hda/snd-hda-core 0x00000000	snd_hdac_bus_parse_capabilities
 EXPORT_SYMBOL_GPL sound/hda/snd-hda-core 0x00000000	snd_hdac_bus_queue_event
 EXPORT_SYMBOL_GPL sound/hda/snd-hda-core 0x00000000	snd_hdac_bus_remove_device
+EXPORT_SYMBOL_GPL sound/hda/snd-hda-core 0x00000000	snd_hdac_bus_reset_link
 EXPORT_SYMBOL_GPL sound/hda/snd-hda-core 0x00000000	snd_hdac_bus_send_cmd
 EXPORT_SYMBOL_GPL sound/hda/snd-hda-core 0x00000000	snd_hdac_bus_stop_chip
 EXPORT_SYMBOL_GPL sound/hda/snd-hda-core 0x00000000	snd_hdac_bus_stop_cmd_io
@@ -17579,7 +17584,6 @@ EXPORT_SYMBOL_GPL vmlinux 0x00000000	__scsi_init_queue
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	__serdev_device_driver_register
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	__set_page_dirty
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	__skb_get_hash_symmetric
-EXPORT_SYMBOL_GPL vmlinux 0x00000000	__skb_recv_udp
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	__skb_tstamp_tx
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	__sock_recv_timestamp
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	__sock_recv_ts_and_drops
@@ -20799,6 +20803,7 @@ EXPORT_SYMBOL_GPL vmlinux 0x00000000	pm_schedule_suspend
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	pm_stay_awake
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	pm_suspend_global_flags
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	pm_suspend_target_state
+EXPORT_SYMBOL_GPL vmlinux 0x00000000	pm_suspend_via_s2idle
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	pm_system_wakeup
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	pm_trace_rtc_abused
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	pm_wakeup_dev_event

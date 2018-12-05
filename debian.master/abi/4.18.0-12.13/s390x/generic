@@ -1587,6 +1587,8 @@ EXPORT_SYMBOL net/sunrpc/auth_gss/auth_rpcgss 0x00000000	gss_pseudoflavor_to_ser
 EXPORT_SYMBOL net/sunrpc/sunrpc 0x00000000	svc_pool_stats_open
 EXPORT_SYMBOL net/sunrpc/sunrpc 0x00000000	xdr_restrict_buflen
 EXPORT_SYMBOL net/sunrpc/sunrpc 0x00000000	xdr_truncate_encode
+EXPORT_SYMBOL net/tipc/tipc 0x00000000	tipc_dump_done
+EXPORT_SYMBOL net/tipc/tipc 0x00000000	tipc_dump_start
 EXPORT_SYMBOL net/tipc/tipc 0x00000000	tipc_nl_sk_walk
 EXPORT_SYMBOL net/tipc/tipc 0x00000000	tipc_sk_fill_sock_diag
 EXPORT_SYMBOL net/tls/tls 0x00000000	tls_device_sk_destruct
@@ -1923,6 +1925,7 @@ EXPORT_SYMBOL vmlinux 0x00000000	__skb_gro_checksum_complete
 EXPORT_SYMBOL vmlinux 0x00000000	__skb_gso_segment
 EXPORT_SYMBOL vmlinux 0x00000000	__skb_pad
 EXPORT_SYMBOL vmlinux 0x00000000	__skb_recv_datagram
+EXPORT_SYMBOL vmlinux 0x00000000	__skb_recv_udp
 EXPORT_SYMBOL vmlinux 0x00000000	__skb_try_recv_datagram
 EXPORT_SYMBOL vmlinux 0x00000000	__skb_vlan_pop
 EXPORT_SYMBOL vmlinux 0x00000000	__skb_wait_for_more_packets
@@ -2066,14 +2069,12 @@ EXPORT_SYMBOL vmlinux 0x00000000	ap_flush_queue
 EXPORT_SYMBOL vmlinux 0x00000000	ap_owned_by_def_drv
 EXPORT_SYMBOL vmlinux 0x00000000	ap_query_configuration
 EXPORT_SYMBOL vmlinux 0x00000000	ap_queue_init_reply
-EXPORT_SYMBOL vmlinux 0x00000000	ap_queue_irq_ctrl
 EXPORT_SYMBOL vmlinux 0x00000000	ap_queue_message
 EXPORT_SYMBOL vmlinux 0x00000000	ap_queue_remove
 EXPORT_SYMBOL vmlinux 0x00000000	ap_queue_resume
 EXPORT_SYMBOL vmlinux 0x00000000	ap_queue_suspend
 EXPORT_SYMBOL vmlinux 0x00000000	ap_recv
 EXPORT_SYMBOL vmlinux 0x00000000	ap_send
-EXPORT_SYMBOL vmlinux 0x00000000	ap_test_queue
 EXPORT_SYMBOL vmlinux 0x00000000	arch_debugfs_dir
 EXPORT_SYMBOL vmlinux 0x00000000	arch_read_lock_wait
 EXPORT_SYMBOL vmlinux 0x00000000	arch_spin_lock_wait
@@ -2701,6 +2702,7 @@ EXPORT_SYMBOL vmlinux 0x00000000	diag_stat_inc_norecursion
 EXPORT_SYMBOL vmlinux 0x00000000	disable_irq
 EXPORT_SYMBOL vmlinux 0x00000000	disable_irq_nosync
 EXPORT_SYMBOL vmlinux 0x00000000	disable_sacf_uaccess
+EXPORT_SYMBOL vmlinux 0x00000000	discard_new_inode
 EXPORT_SYMBOL vmlinux 0x00000000	disk_stack_limits
 EXPORT_SYMBOL vmlinux 0x00000000	dlci_ioctl_set
 EXPORT_SYMBOL vmlinux 0x00000000	dm_consume_args
@@ -8192,7 +8194,6 @@ EXPORT_SYMBOL_GPL vmlinux 0x00000000	__scsi_init_queue
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	__serdev_device_driver_register
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	__set_page_dirty
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	__skb_get_hash_symmetric
-EXPORT_SYMBOL_GPL vmlinux 0x00000000	__skb_recv_udp
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	__skb_tstamp_tx
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	__sock_recv_timestamp
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	__sock_recv_ts_and_drops
@@ -9679,6 +9680,8 @@ EXPORT_SYMBOL_GPL vmlinux 0x00000000	ktime_get_snapshot
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	ktime_get_ts64
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	ktime_get_with_offset
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	ktime_mono_to_any
+EXPORT_SYMBOL_GPL vmlinux 0x00000000	kvm_arch_crypto_clear_masks
+EXPORT_SYMBOL_GPL vmlinux 0x00000000	kvm_arch_crypto_set_masks
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	kvm_clear_guest
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	kvm_clear_guest_page
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	kvm_debugfs_dir
