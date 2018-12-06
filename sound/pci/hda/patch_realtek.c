@@ -5586,11 +5586,12 @@ enum {
 	ALC282_FIXUP_ACER_TRAVELMATE_PINS,
 	ALC255_FIXUP_ACER_LIMIT_INT_MIC_BOOST,
 	ALC269VC_FIXUP_ACER_VCOPPERBOX_PINS,
-	ALC294_FIXUP_ASUS_SPK_NOISE,
 	ALC295_FIXUP_HP_X360,
 	ALC256_FIXUP_ACER_SWIFT_NO_MIC_PRESENCE,
 	ALC256_FIXUP_ACER_SWIFT_DISABLE_AAMIX,
 	ALC221_FIXUP_HP_HEADSET_MIC,
+	ALC294_FIXUP_ASUS_HEADSET_MIC,
+	ALC294_FIXUP_ASUS_SPK_NOISE,
 };
 
 static const struct hda_fixup alc269_fixups[] = {
@@ -6543,17 +6544,6 @@ static const struct hda_fixup alc269_fixups[] = {
 		.chained = true,
 		.chain_id = ALC269_FIXUP_HEADSET_MODE
 	},
-	[ALC294_FIXUP_ASUS_SPK_NOISE] = {
-		.type = HDA_FIXUP_VERBS,
-		.v.verbs = (const struct hda_verb[]) {
-			/* Set EAPD high */
-			{0x20, AC_VERB_SET_COEF_INDEX, 0x10},
-			{0x20, AC_VERB_SET_PROC_COEF, 0x14},
-			{}
-		},
-		.chained = true,
-		.chain_id = ALC255_FIXUP_ASUS_MIC_NO_PRESENCE
-	},
 	[ALC295_FIXUP_HP_X360] = {
 		.type = HDA_FIXUP_FUNC,
 		.v.func = alc295_fixup_hp_top_speakers,
@@ -6584,6 +6574,28 @@ static const struct hda_fixup alc269_fixups[] = {
 		},
 		.chained = true,
 		.chain_id = ALC269_FIXUP_HEADSET_MIC
+	},
+	[ALC294_FIXUP_ASUS_HEADSET_MIC] = {
+		.type = HDA_FIXUP_PINS,
+		.v.pins = (const struct hda_pintbl[]) {
+			{ 0x19, 0x01a1113c }, /* use as headset mic, without its own jack detect */
+			{ }
+		},
+		.chained = true,
+		.chain_id = ALC269_FIXUP_HEADSET_MODE_NO_HP_MIC
+	},
+	[ALC294_FIXUP_ASUS_SPK_NOISE] = {
+		.type = HDA_FIXUP_VERBS,
+		.v.verbs = (const struct hda_verb[]) {
+			/* Set EAPD high */
+			{0x20, AC_VERB_SET_COEF_INDEX, 0x10},
+			{0x20, 0x4c4, 0x20},
+			{0x20, AC_VERB_SET_COEF_INDEX, 0x40},
+			{0x20, 0x488, 0x00},
+			{}
+		},
+		.chained = true,
+		.chain_id = ALC294_FIXUP_ASUS_HEADSET_MIC
 	},
 };
 
@@ -7324,7 +7336,6 @@ static const struct snd_hda_pin_quirk alc269_pin_fixup_tbl[] = {
 	SND_HDA_PIN_QUIRK(0x10ec0294, 0x1043, "ASUS", ALC294_FIXUP_ASUS_SPK_NOISE,
 		{0x12, 0x90a60130},
 		{0x17, 0x90170110},
-		{0x19, 0x411111f0},
 		{0x21, 0x04211020}),
 	{}
 };
