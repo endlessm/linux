@@ -49,7 +49,7 @@ static void sf_timespec_from_ftime(RTTIMESPEC *ts, time_t *time)
     int64_t t = 1000000000 * *time;
     RTTimeSpecSetNano(ts, t);
 }
-#else /* >= 2.6.0 */
+#else				/* >= 2.6.0 */
 #if LINUX_VERSION_CODE < KERNEL_VERSION(4, 18, 0)
 static void sf_ftime_from_timespec(struct timespec *tv, RTTIMESPEC *ts)
 #else
