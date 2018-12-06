@@ -9888,7 +9888,7 @@ CONFIG_PUNIT_ATOM_DEBUG                         flag<REVIEW>
 
 # Menu: Kernel hacking >> Choose kernel unwinder >> Architecture: x86
 CONFIG_UNWINDER_ORC                             policy<{'amd64': 'n'}>
-CONFIG_UNWINDER_FRAME_POINTER                   policy<{'amd64': 'y', 'i386': 'y'}>
+CONFIG_UNWINDER_FRAME_POINTER                   policy<{'amd64': 'y', 'armhf': 'y', 'i386': 'y'}>
 CONFIG_UNWINDER_GUESS                           policy<{'amd64': 'n', 'i386': 'n'}>
 #
 CONFIG_UNWINDER_FRAME_POINTER                   mark<ENFORCED> note<needed for livepatch>
