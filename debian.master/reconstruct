@@ -1,11 +1,5 @@
 # Recreate any symlinks created since the orig.
 # Remove any files deleted from the orig.
-rm -f 'arch/arm/crypto/speck-neon-core.S'
-rm -f 'arch/arm/crypto/speck-neon-glue.c'
-rm -f 'arch/arm64/crypto/speck-neon-core.S'
-rm -f 'arch/arm64/crypto/speck-neon-glue.c'
-rm -f 'crypto/speck.c'
-rm -f 'include/crypto/speck.h'
 chmod +x 'scripts/kmsg-doc'
 chmod +x 'spl/autogen.sh'
 chmod +x 'spl/cmd/splslab/splslab.py'
