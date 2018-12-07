@@ -13261,9 +13261,11 @@ EXPORT_SYMBOL_GPL drivers/net/can/can-dev 0x00000000	can_rx_offload_add_fifo
 EXPORT_SYMBOL_GPL drivers/net/can/can-dev 0x00000000	can_rx_offload_add_timestamp
 EXPORT_SYMBOL_GPL drivers/net/can/can-dev 0x00000000	can_rx_offload_del
 EXPORT_SYMBOL_GPL drivers/net/can/can-dev 0x00000000	can_rx_offload_enable
+EXPORT_SYMBOL_GPL drivers/net/can/can-dev 0x00000000	can_rx_offload_get_echo_skb
 EXPORT_SYMBOL_GPL drivers/net/can/can-dev 0x00000000	can_rx_offload_irq_offload_fifo
 EXPORT_SYMBOL_GPL drivers/net/can/can-dev 0x00000000	can_rx_offload_irq_offload_timestamp
-EXPORT_SYMBOL_GPL drivers/net/can/can-dev 0x00000000	can_rx_offload_irq_queue_err_skb
+EXPORT_SYMBOL_GPL drivers/net/can/can-dev 0x00000000	can_rx_offload_queue_sorted
+EXPORT_SYMBOL_GPL drivers/net/can/can-dev 0x00000000	can_rx_offload_queue_tail
 EXPORT_SYMBOL_GPL drivers/net/can/can-dev 0x00000000	can_rx_offload_reset
 EXPORT_SYMBOL_GPL drivers/net/can/can-dev 0x00000000	close_candev
 EXPORT_SYMBOL_GPL drivers/net/can/can-dev 0x00000000	free_candev

@@ -59,6 +59,7 @@ firmware:       amdgpu/fiji_uvd.bin
 firmware:       amdgpu/fiji_vce.bin
 firmware:       amdgpu/hainan_ce.bin
 firmware:       amdgpu/hainan_k_smc.bin
+firmware:       amdgpu/hainan_mc.bin
 firmware:       amdgpu/hainan_me.bin
 firmware:       amdgpu/hainan_pfp.bin
 firmware:       amdgpu/hainan_rlc.bin
