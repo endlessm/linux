@@ -1868,6 +1868,7 @@ EXPORT_SYMBOL vmlinux 0x00000000	__nla_reserve
 EXPORT_SYMBOL vmlinux 0x00000000	__nla_reserve_64bit
 EXPORT_SYMBOL vmlinux 0x00000000	__nla_reserve_nohdr
 EXPORT_SYMBOL vmlinux 0x00000000	__nlmsg_put
+EXPORT_SYMBOL vmlinux 0x00000000	__node_distance
 EXPORT_SYMBOL vmlinux 0x00000000	__page_cache_alloc
 EXPORT_SYMBOL vmlinux 0x00000000	__page_frag_cache_drain
 EXPORT_SYMBOL vmlinux 0x00000000	__page_pool_put_page
