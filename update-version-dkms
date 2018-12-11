@@ -22,7 +22,7 @@ debian=$(awk -F= '($1 == "DEBIAN") { print $2 }' <debian/debian.env)
 # identify the current series
 series=$(dpkg-parsechangelog -l"$debian/changelog" -SDistribution)
 if [ "$series" = "UNRELEASED" ]; then
-	series=$(dpkg-parsechangelog -l"$debian/changelog" -c1 -SDistribution)
+	series=$(dpkg-parsechangelog -l"$debian/changelog" -c1 -o1 -SDistribution)
 fi
 
 # Determine if we have any updates.
