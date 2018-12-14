@@ -517,10 +517,11 @@ static void rt6_probe_deferred(struct work_struct *w)
 
 static void rt6_probe(struct fib6_info *rt)
 {
-	struct __rt6_probe_work *work;
+	struct __rt6_probe_work *work = NULL;
 	const struct in6_addr *nh_gw;
 	struct neighbour *neigh;
 	struct net_device *dev;
+	struct inet6_dev *idev;
 
 	/*
 	 * Okay, this does not seem to be appropriate
@@ -536,15 +537,12 @@ static void rt6_probe(struct fib6_info *rt)
 	nh_gw = &rt->fib6_nh.nh_gw;
 	dev = rt->fib6_nh.nh_dev;
 	rcu_read_lock_bh();
+	idev = __in6_dev_get(dev);
 	neigh = __ipv6_neigh_lookup_noref(dev, nh_gw);
 	if (neigh) {
-		struct inet6_dev *idev;
-
 		if (neigh->nud_state & NUD_VALID)
 			goto out;
 
-		idev = __in6_dev_get(dev);
-		work = NULL;
 		write_lock(&neigh->lock);
 		if (!(neigh->nud_state & NUD_VALID) &&
 		    time_after(jiffies,
@@ -554,11 +552,13 @@ static void rt6_probe(struct fib6_info *rt)
 				__neigh_set_probe_once(neigh);
 		}
 		write_unlock(&neigh->lock);
-	} else {
+	} else if (time_after(jiffies, rt->last_probe +
+				       idev->cnf.rtr_probe_interval)) {
 		work = kmalloc(sizeof(*work), GFP_ATOMIC);
 	}
 
 	if (work) {
+		rt->last_probe = jiffies;
 		INIT_WORK(&work->work, rt6_probe_deferred);
 		work->target = *nh_gw;
 		dev_hold(dev);
@@ -2792,6 +2792,8 @@ static int ip6_route_check_nh_onlink(struct net *net,
 	grt = ip6_nh_lookup_table(net, cfg, gw_addr, tbid, 0);
 	if (grt) {
 		if (!grt->dst.error &&
+		    /* ignore match if it is the default route */
+		    grt->from && !ipv6_addr_any(&grt->from->fib6_dst.addr) &&
 		    (grt->rt6i_flags & flags || dev != grt->dst.dev)) {
 			NL_SET_ERR_MSG(extack,
 				       "Nexthop has invalid gateway or device mismatch");
@@ -4314,11 +4316,6 @@ static int ip6_route_info_append(struct net *net,
 	if (!nh)
 		return -ENOMEM;
 	nh->fib6_info = rt;
-	err = ip6_convert_metrics(net, rt, r_cfg);
-	if (err) {
-		kfree(nh);
-		return err;
-	}
 	memcpy(&nh->r_cfg, r_cfg, sizeof(*r_cfg));
 	list_add_tail(&nh->next, rt6_nh_list);
 

@@ -147,11 +147,11 @@ static int qeth_l2_write_mac(struct qeth_card *card, u8 *mac)
 	QETH_CARD_TEXT(card, 2, "L2Wmac");
 	rc = qeth_l2_send_setdelmac(card, mac, cmd);
 	if (rc == -EEXIST)
-		QETH_DBF_MESSAGE(2, "MAC %pM already registered on %s\n",
-				 mac, QETH_CARD_IFNAME(card));
+		QETH_DBF_MESSAGE(2, "MAC already registered on device %x\n",
+				 CARD_DEVID(card));
 	else if (rc)
-		QETH_DBF_MESSAGE(2, "Failed to register MAC %pM on %s: %d\n",
-				 mac, QETH_CARD_IFNAME(card), rc);
+		QETH_DBF_MESSAGE(2, "Failed to register MAC on device %x: %d\n",
+				 CARD_DEVID(card), rc);
 	return rc;
 }
 
@@ -164,8 +164,8 @@ static int qeth_l2_remove_mac(struct qeth_card *card, u8 *mac)
 	QETH_CARD_TEXT(card, 2, "L2Rmac");
 	rc = qeth_l2_send_setdelmac(card, mac, cmd);
 	if (rc)
-		QETH_DBF_MESSAGE(2, "Failed to delete MAC %pM on %s: %d\n",
-				 mac, QETH_CARD_IFNAME(card), rc);
+		QETH_DBF_MESSAGE(2, "Failed to delete MAC on device %u: %d\n",
+				 CARD_DEVID(card), rc);
 	return rc;
 }
 
@@ -251,9 +251,9 @@ static int qeth_l2_send_setdelvlan_cb(struct qeth_card *card,
 
 	QETH_CARD_TEXT(card, 2, "L2sdvcb");
 	if (cmd->hdr.return_code) {
-		QETH_DBF_MESSAGE(2, "Error in processing VLAN %i on %s: 0x%x.\n",
+		QETH_DBF_MESSAGE(2, "Error in processing VLAN %u on device %x: %#x.\n",
 				 cmd->data.setdelvlan.vlan_id,
-				 QETH_CARD_IFNAME(card), cmd->hdr.return_code);
+				 CARD_DEVID(card), cmd->hdr.return_code);
 		QETH_CARD_TEXT_(card, 2, "L2VL%4x", cmd->hdr.command);
 		QETH_CARD_TEXT_(card, 2, "err%d", cmd->hdr.return_code);
 	}
@@ -425,7 +425,7 @@ static int qeth_l2_process_inbound_buffer(struct qeth_card *card,
 		default:
 			dev_kfree_skb_any(skb);
 			QETH_CARD_TEXT(card, 3, "inbunkno");
-			QETH_DBF_HEX(CTRL, 3, hdr, QETH_DBF_CTRL_LEN);
+			QETH_DBF_HEX(CTRL, 3, hdr, sizeof(*hdr));
 			continue;
 		}
 		work_done++;
@@ -447,8 +447,8 @@ static int qeth_l2_request_initial_mac(struct qeth_card *card)
 		rc = qeth_vm_request_mac(card);
 		if (!rc)
 			goto out;
-		QETH_DBF_MESSAGE(2, "z/VM MAC Service failed on device %s: x%x\n",
-				 CARD_BUS_ID(card), rc);
+		QETH_DBF_MESSAGE(2, "z/VM MAC Service failed on device %x: %#x\n",
+				 CARD_DEVID(card), rc);
 		QETH_DBF_TEXT_(SETUP, 2, "err%04x", rc);
 		/* fall back to alternative mechanism: */
 	}
@@ -460,8 +460,8 @@ static int qeth_l2_request_initial_mac(struct qeth_card *card)
 		rc = qeth_setadpparms_change_macaddr(card);
 		if (!rc)
 			goto out;
-		QETH_DBF_MESSAGE(2, "READ_MAC Assist failed on device %s: x%x\n",
-				 CARD_BUS_ID(card), rc);
+		QETH_DBF_MESSAGE(2, "READ_MAC Assist failed on device %x: %#x\n",
+				 CARD_DEVID(card), rc);
 		QETH_DBF_TEXT_(SETUP, 2, "1err%04x", rc);
 		/* fall back once more: */
 	}
@@ -1327,25 +1327,26 @@ EXPORT_SYMBOL_GPL(qeth_l2_discipline);
 static int qeth_osn_send_control_data(struct qeth_card *card, int len,
 			   struct qeth_cmd_buffer *iob)
 {
+	struct qeth_channel *channel = iob->channel;
 	unsigned long flags;
 	int rc = 0;
 
 	QETH_CARD_TEXT(card, 5, "osndctrd");
 
 	wait_event(card->wait_q,
-		   atomic_cmpxchg(&card->write.irq_pending, 0, 1) == 0);
+		   atomic_cmpxchg(&channel->irq_pending, 0, 1) == 0);
 	qeth_prepare_control_data(card, len, iob);
 	QETH_CARD_TEXT(card, 6, "osnoirqp");
-	spin_lock_irqsave(get_ccwdev_lock(card->write.ccwdev), flags);
-	rc = ccw_device_start_timeout(CARD_WDEV(card), &card->write.ccw,
+	spin_lock_irqsave(get_ccwdev_lock(channel->ccwdev), flags);
+	rc = ccw_device_start_timeout(channel->ccwdev, &channel->ccw,
 				      (addr_t) iob, 0, 0, QETH_IPA_TIMEOUT);
-	spin_unlock_irqrestore(get_ccwdev_lock(card->write.ccwdev), flags);
+	spin_unlock_irqrestore(get_ccwdev_lock(channel->ccwdev), flags);
 	if (rc) {
 		QETH_DBF_MESSAGE(2, "qeth_osn_send_control_data: "
 			   "ccw_device_start rc = %i\n", rc);
 		QETH_CARD_TEXT_(card, 2, " err%d", rc);
-		qeth_release_buffer(iob->channel, iob);
-		atomic_set(&card->write.irq_pending, 0);
+		qeth_release_buffer(channel, iob);
+		atomic_set(&channel->irq_pending, 0);
 		wake_up(&card->wait_q);
 	}
 	return rc;

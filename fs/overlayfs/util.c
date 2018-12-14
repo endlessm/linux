@@ -55,6 +55,19 @@ struct super_block *ovl_same_sb(struct super_block *sb)
 		return NULL;
 }
 
+int ovl_creator_permission(struct super_block *sb, struct inode *inode,
+			   int mode)
+{
+	const struct cred *old_cred;
+	int err = 0;
+
+	old_cred = ovl_override_creds(sb);
+	err = inode_permission(inode, mode);
+	revert_creds(old_cred);
+
+	return err;
+}
+
 /*
  * Check if underlying fs supports file handles and try to determine encoding
  * type, in order to deduce maximum inode number used by fs.
@@ -531,7 +544,7 @@ static void ovl_cleanup_index(struct dentry *dentry)
 	struct dentry *upperdentry = ovl_dentry_upper(dentry);
 	struct dentry *index = NULL;
 	struct inode *inode;
-	struct qstr name;
+	struct qstr name = { };
 	int err;
 
 	err = ovl_get_index_name(lowerdentry, &name);
@@ -574,6 +587,7 @@ static void ovl_cleanup_index(struct dentry *dentry)
 		goto fail;
 
 out:
+	kfree(name.name);
 	dput(index);
 	return;
 
