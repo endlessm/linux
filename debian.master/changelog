@@ -1,3 +1,243 @@
+linux (4.19.0-9.10) disco; urgency=medium
+
+  * Drivers: hv: vmbus: Offload the handling of channels to two workqueues
+    (LP: #1807757)
+    - Drivers: hv: vmbus: Offload the handling of channels to two workqueues
+
+  * Add support for 0cf3:535b QCA_ROME device (LP: #1807333)
+    - Bluetooth: btusb: Add support for 0cf3:535b QCA_ROME device
+
+  * [Regression] crashkernel fails on HiSilicon D05 (LP: #1806766)
+    - efi: honour memory reservations passed via a linux specific config table
+    - efi/arm: libstub: add a root memreserve config table
+    - efi: add API to reserve memory persistently across kexec reboot
+    - irqchip/gic-v3-its: Change initialization ordering for LPIs
+    - irqchip/gic-v3-its: Simplify LPI_PENDBASE_SZ usage
+    - irqchip/gic-v3-its: Split property table clearing from allocation
+    - irqchip/gic-v3-its: Move pending table allocation to init time
+    - irqchip/gic-v3-its: Keep track of property table's PA and VA
+    - irqchip/gic-v3-its: Allow use of pre-programmed LPI tables
+    - irqchip/gic-v3-its: Use pre-programmed redistributor tables with kdump
+      kernels
+    - irqchip/gic-v3-its: Check that all RDs have the same property table
+    - irqchip/gic-v3-its: Register LPI tables with EFI config table
+    - irqchip/gic-v3-its: Allow use of LPI tables in reserved memory
+    - arm64: memblock: don't permit memblock resizing until linear mapping is up
+    - efi/arm: Defer persistent reservations until after paging_init()
+    - efi: Permit calling efi_mem_reserve_persistent() from atomic context
+    - efi: Prevent GICv3 WARN() by mapping the memreserve table before first use
+
+  * Power leakage at S5 with Qualcomm Atheros QCA9377 802.11ac Wireless Network
+    Adapter (LP: #1805607)
+    - SAUCE: ath10k: provide reset function for QCA9377 chip
+
+  * zfs/spl build in conjunction with the kernel from DKMS source (LP: #1807378)
+    - [Packaging] dkms -- dkms package build packaging support
+    - [Packaging] dkms -- save build objects artifacts for validation
+    - [Packaging] dkms -- add general Built-Using: support
+    - [Packaging] simplify Provides comma handling
+    - [Packaging] zfs/spl -- remove packaging support for incorporated source
+    - [Packaging] zfs/spl -- remove incorporated source
+    - [Packaging] zfs/spl -- build via dkms
+    - [Packaging] zfs/spl -- make zfs package version explicit
+    - [Packaging] update-version-dkms -- sync archive versions to package
+
+  * Disco update: 4.19.8 upstream stable release (LP: #1807706)
+    - test_hexdump: use memcpy instead of strncpy
+    - unifdef: use memcpy instead of strncpy
+    - iser: set sector for ambiguous mr status errors
+    - uprobes: Fix handle_swbp() vs. unregister() + register() race once more
+    - mtd: nand: Fix memory allocation in nanddev_bbt_init()
+    - arm64: ftrace: Fix to enable syscall events on arm64
+    - sched, trace: Fix prev_state output in sched_switch tracepoint
+    - tracepoint: Use __idx instead of idx in DO_TRACE macro to make it unique
+    - MIPS: ralink: Fix mt7620 nd_sd pinmux
+    - mips: fix mips_get_syscall_arg o32 check
+    - IB/mlx5: Avoid load failure due to unknown link width
+    - tracing/fgraph: Fix set_graph_function from showing interrupts
+    - drm/ast: Fix incorrect free on ioregs
+    - drm/amd/dm: Don't forget to attach MST encoders
+    - drm: set is_master to 0 upon drm_new_set_master() failure
+    - drm/meson: Fixes for drm_crtc_vblank_on/off support
+    - drm/meson: Enable fast_io in meson_dw_hdmi_regmap_config
+    - drm/meson: Fix OOB memory accesses in meson_viu_set_osd_lut()
+    - userfaultfd: use ENOENT instead of EFAULT if the atomic copy user fails
+    - userfaultfd: shmem: allocate anonymous memory for MAP_PRIVATE shmem
+    - userfaultfd: shmem: add i_size checks
+    - userfaultfd: shmem: UFFDIO_COPY: set the page dirty if VM_WRITE is not set
+    - kgdboc: Fix restrict error
+    - kgdboc: Fix warning with module build
+    - svm: Add mutex_lock to protect apic_access_page_done on AMD systems
+    - selinux: add support for RTM_NEWCHAIN, RTM_DELCHAIN, and RTM_GETCHAIN
+    - i40e: Fix deletion of MAC filters
+    - scsi: lpfc: fix block guard enablement on SLI3 adapters
+    - Input: xpad - quirk all PDP Xbox One gamepads
+    - Input: synaptics - add PNP ID for ThinkPad P50 to SMBus
+    - Input: matrix_keypad - check for errors from of_get_named_gpio()
+    - Input: cros_ec_keyb - fix button/switch capability reports
+    - Input: elan_i2c - add ELAN0620 to the ACPI table
+    - Input: elan_i2c - add ACPI ID for Lenovo IdeaPad 330-15ARR
+    - Input: elan_i2c - add support for ELAN0621 touchpad
+    - btrfs: tree-checker: Don't check max block group size as current max chunk
+      size limit is unreliable
+    - ARC: change defconfig defaults to ARCv2
+    - arc: [devboards] Add support of NFSv3 ACL
+    - tipc: use destination length for copy string
+    - blk-mq: punt failed direct issue to dispatch list
+    - Linux 4.19.8
+
+  * Disco update: 4.19.7 upstream stable release (LP: #1807705)
+    - mm/huge_memory: rename freeze_page() to unmap_page()
+    - mm/huge_memory: splitting set mapping+index before unfreeze
+    - mm/huge_memory: fix lockdep complaint on 32-bit i_size_read()
+    - mm/khugepaged: collapse_shmem() stop if punched or truncated
+    - mm/khugepaged: fix crashes due to misaccounted holes
+    - mm/khugepaged: collapse_shmem() remember to clear holes
+    - mm/khugepaged: minor reorderings in collapse_shmem()
+    - mm/khugepaged: collapse_shmem() without freezing new_page
+    - mm/khugepaged: collapse_shmem() do not crash on Compound
+    - lan743x: Enable driver to work with LAN7431
+    - lan743x: fix return value for lan743x_tx_napi_poll
+    - net: don't keep lonely packets forever in the gro hash
+    - net: gemini: Fix copy/paste error
+    - net: thunderx: set tso_hdrs pointer to NULL in nicvf_free_snd_queue
+    - packet: copy user buffers before orphan or clone
+    - rapidio/rionet: do not free skb before reading its length
+    - s390/qeth: fix length check in SNMP processing
+    - usbnet: ipheth: fix potential recvmsg bug and recvmsg bug 2
+    - net: thunderx: set xdp_prog to NULL if bpf_prog_add fails
+    - net: skb_scrub_packet(): Scrub offload_fwd_mark
+    - virtio-net: disable guest csum during XDP set
+    - virtio-net: fail XDP set if guest csum is negotiated
+    - net/dim: Update DIM start sample after each DIM iteration
+    - tcp: defer SACK compression after DupThresh
+    - net: phy: add workaround for issue where PHY driver doesn't bind to the
+      device
+    - tipc: fix lockdep warning during node delete
+    - x86/speculation: Enable cross-hyperthread spectre v2 STIBP mitigation
+    - x86/speculation: Apply IBPB more strictly to avoid cross-process data leak
+    - x86/speculation: Propagate information about RSB filling mitigation to sysfs
+    - x86/speculation: Add RETPOLINE_AMD support to the inline asm CALL_NOSPEC
+      variant
+    - x86/retpoline: Make CONFIG_RETPOLINE depend on compiler support
+    - x86/retpoline: Remove minimal retpoline support
+    - x86/speculation: Update the TIF_SSBD comment
+    - x86/speculation: Clean up spectre_v2_parse_cmdline()
+    - x86/speculation: Remove unnecessary ret variable in cpu_show_common()
+    - x86/speculation: Move STIPB/IBPB string conditionals out of
+      cpu_show_common()
+    - x86/speculation: Disable STIBP when enhanced IBRS is in use
+    - x86/speculation: Rename SSBD update functions
+    - x86/speculation: Reorganize speculation control MSRs update
+    - sched/smt: Make sched_smt_present track topology
+    - x86/Kconfig: Select SCHED_SMT if SMP enabled
+    - sched/smt: Expose sched_smt_present static key
+    - x86/speculation: Rework SMT state change
+    - x86/l1tf: Show actual SMT state
+    - x86/speculation: Reorder the spec_v2 code
+    - x86/speculation: Mark string arrays const correctly
+    - x86/speculataion: Mark command line parser data __initdata
+    - x86/speculation: Unify conditional spectre v2 print functions
+    - x86/speculation: Add command line control for indirect branch speculation
+    - x86/speculation: Prepare for per task indirect branch speculation control
+    - x86/process: Consolidate and simplify switch_to_xtra() code
+    - x86/speculation: Avoid __switch_to_xtra() calls
+    - x86/speculation: Prepare for conditional IBPB in switch_mm()
+    - ptrace: Remove unused ptrace_may_access_sched() and MODE_IBRS
+    - x86/speculation: Split out TIF update
+    - x86/speculation: Prevent stale SPEC_CTRL msr content
+    - x86/speculation: Prepare arch_smt_update() for PRCTL mode
+    - x86/speculation: Add prctl() control for indirect branch speculation
+    - x86/speculation: Enable prctl mode for spectre_v2_user
+    - x86/speculation: Add seccomp Spectre v2 user space protection mode
+    - x86/speculation: Provide IBPB always command line options
+    - userfaultfd: shmem/hugetlbfs: only allow to register VM_MAYWRITE vmas
+    - kvm: mmu: Fix race in emulated page table writes
+    - kvm: svm: Ensure an IBPB on all affected CPUs when freeing a vmcb
+    - KVM: nVMX/nSVM: Fix bug which sets vcpu->arch.tsc_offset to L1 tsc_offset
+    - KVM: x86: Fix kernel info-leak in KVM_HC_CLOCK_PAIRING hypercall
+    - KVM: LAPIC: Fix pv ipis use-before-initialization
+    - KVM: VMX: re-add ple_gap module parameter
+    - xtensa: enable coprocessors that are being flushed
+    - xtensa: fix coprocessor context offset definitions
+    - xtensa: fix coprocessor part of ptrace_{get,set}xregs
+    - udf: Allow mounting volumes with incorrect identification strings
+    - btrfs: Always try all copies when reading extent buffers
+    - Btrfs: ensure path name is null terminated at btrfs_control_ioctl
+    - Btrfs: fix rare chances for data loss when doing a fast fsync
+    - Btrfs: fix race between enabling quotas and subvolume creation
+    - btrfs: relocation: set trans to be NULL after ending transaction
+    - PCI: layerscape: Fix wrong invocation of outbound window disable accessor
+    - PCI: dwc: Fix MSI-X EP framework address calculation bug
+    - PCI: Fix incorrect value returned from pcie_get_speed_cap()
+    - arm64: dts: rockchip: Fix PCIe reset polarity for rk3399-puma-haikou.
+    - x86/MCE/AMD: Fix the thresholding machinery initialization order
+    - x86/fpu: Disable bottom halves while loading FPU registers
+    - perf/x86/intel: Move branch tracing setup to the Intel-specific source file
+    - perf/x86/intel: Add generic branch tracing check to intel_pmu_has_bts()
+    - perf/x86/intel: Disallow precise_ip on BTS events
+    - fs: fix lost error code in dio_complete
+    - ALSA: wss: Fix invalid snd_free_pages() at error path
+    - ALSA: ac97: Fix incorrect bit shift at AC97-SPSA control write
+    - ALSA: control: Fix race between adding and removing a user element
+    - ALSA: sparc: Fix invalid snd_free_pages() at error path
+    - ALSA: hda: Add ASRock N68C-S UCC the power_save blacklist
+    - ALSA: hda/realtek - Support ALC300
+    - ALSA: hda/realtek - fix headset mic detection for MSI MS-B171
+    - ALSA: hda/realtek - Add auto-mute quirk for HP Spectre x360 laptop
+    - function_graph: Create function_graph_enter() to consolidate architecture
+      code
+    - ARM: function_graph: Simplify with function_graph_enter()
+    - microblaze: function_graph: Simplify with function_graph_enter()
+    - x86/function_graph: Simplify with function_graph_enter()
+    - nds32: function_graph: Simplify with function_graph_enter()
+    - powerpc/function_graph: Simplify with function_graph_enter()
+    - sh/function_graph: Simplify with function_graph_enter()
+    - sparc/function_graph: Simplify with function_graph_enter()
+    - parisc: function_graph: Simplify with function_graph_enter()
+    - riscv/function_graph: Simplify with function_graph_enter()
+    - s390/function_graph: Simplify with function_graph_enter()
+    - arm64: function_graph: Simplify with function_graph_enter()
+    - MIPS: function_graph: Simplify with function_graph_enter()
+    - function_graph: Make ftrace_push_return_trace() static
+    - function_graph: Use new curr_ret_depth to manage depth instead of
+      curr_ret_stack
+    - function_graph: Have profiler use curr_ret_stack and not depth
+    - function_graph: Move return callback before update of curr_ret_stack
+    - function_graph: Reverse the order of pushing the ret_stack and the callback
+    - binder: fix race that allows malicious free of live buffer
+    - ext2: initialize opts.s_mount_opt as zero before using it
+    - ext2: fix potential use after free
+    - ASoC: intel: cht_bsw_max98090_ti: Add quirk for boards using pmc_plt_clk_0
+    - ASoC: pcm186x: Fix device reset-registers trigger value
+    - ARM: dts: rockchip: Remove @0 from the veyron memory node
+    - dmaengine: at_hdmac: fix memory leak in at_dma_xlate()
+    - dmaengine: at_hdmac: fix module unloading
+    - staging: most: use format specifier "%s" in snprintf
+    - staging: vchiq_arm: fix compat VCHIQ_IOC_AWAIT_COMPLETION
+    - staging: mt7621-dma: fix potentially dereferencing uninitialized 'tx_desc'
+    - staging: mt7621-pinctrl: fix uninitialized variable ngroups
+    - staging: rtl8723bs: Fix incorrect sense of ether_addr_equal
+    - staging: rtl8723bs: Add missing return for cfg80211_rtw_get_station
+    - USB: usb-storage: Add new IDs to ums-realtek
+    - usb: core: quirks: add RESET_RESUME quirk for Cherry G230 Stream series
+    - Revert "usb: dwc3: gadget: skip Set/Clear Halt when invalid"
+    - iio/hid-sensors: Fix IIO_CHAN_INFO_RAW returning wrong values for signed
+      numbers
+    - iio:st_magn: Fix enable device after trigger
+    - lib/test_kmod.c: fix rmmod double free
+    - mm: cleancache: fix corruption on missed inode invalidation
+    - mm: use swp_offset as key in shmem_replace_page()
+    - Drivers: hv: vmbus: check the creation_status in vmbus_establish_gpadl()
+    - misc: mic/scif: fix copy-paste error in scif_create_remote_lookup
+    - Linux 4.19.7
+
+  * Packaging resync (LP: #1786013)
+    - [Packaging] buildinfo -- switch getabis configuration to new package
+    - [Packaging] update helper scripts
+
+ -- Seth Forshee <seth.forshee@canonical.com>  Mon, 10 Dec 2018 15:52:38 -0600
+
 linux (4.19.0-8.9) disco; urgency=medium
 
   * linux: 4.19.0-8.9 -proposed tracker (LP: #1806952)

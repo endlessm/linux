@@ -39,46 +39,25 @@ prepare-%: $(stampdir)/stamp-prepare-%
 build-%: $(stampdir)/stamp-build-%
 	@echo Debug: $@
 
-define build_zfs =
-	#
-	# SPL/ZFS wants a fully built kernel before you can configure and build.
-	# It seems to be impossible to tease out the application configuration
-	# from the modules, but at least one can build just the modules.
-	#
-	install -d $(builddir)/build-$*/spl
-	rsync -a --exclude=dkms.conf --delete spl/ $(builddir)/build-$*/spl/
-	cd $(builddir)/build-$*/spl; sh autogen.sh; sh configure $(splopts)
-	$(kmake) -C $(builddir)/build-$*/spl/module $(conc_level)
-
-	install -d $(builddir)/build-$*/zfs
-	rsync -a --exclude=dkms.conf --delete zfs/ $(builddir)/build-$*/zfs/
-	cd $(builddir)/build-$*/zfs; sh autogen.sh; sh configure $(zfsopts)
-	$(kmake) -C $(builddir)/build-$*/zfs/module $(conc_level)
-endef
-
 # Do the actual build, including image and modules
 $(stampdir)/stamp-build-%: target_flavour = $*
-$(stampdir)/stamp-build-%: splopts  = --with-linux=$(CURDIR)
-$(stampdir)/stamp-build-%: splopts += --with-linux-obj=$(builddir)/build-$*
-$(stampdir)/stamp-build-%: zfsopts  = $(splopts)
-$(stampdir)/stamp-build-%: zfsopts += --with-spl=$(builddir)/build-$*/spl
-$(stampdir)/stamp-build-%: zfsopts += --with-spl-obj=$(builddir)/build-$*/spl
-$(stampdir)/stamp-build-%: zfsopts += --prefix=/usr --with-config=kernel
 $(stampdir)/stamp-build-%: bldimg = $(call custom_override,build_image,$*)
-$(stampdir)/stamp-build-%: enable_zfs = $(call custom_override,do_zfs,$*)
 $(stampdir)/stamp-build-%: $(stampdir)/stamp-prepare-%
 	@echo Debug: $@ build_image $(build_image) bldimg $(bldimg)
 	$(build_cd) $(kmake) $(build_O) $(conc_level) $(bldimg) modules $(if $(filter true,$(do_dtbs)),dtbs)
 
-	$(if $(filter true,$(enable_zfs)),$(call build_zfs))
-
 	@touch $@
 
-define install_zfs =
-	cd $(builddir)/build-$*/spl/module; \
-		$(kmake) -C $(builddir)/build-$* SUBDIRS=`pwd` modules_install $(splopts)
-	cd $(builddir)/build-$*/zfs/module; \
-		$(kmake) -C $(builddir)/build-$* SUBDIRS=`pwd` modules_install $(zfsopts)
+define build_dkms_sign =
+	$(shell set -x; if grep -q CONFIG_MODULE_SIG=y $(1)/.config; then
+			echo $(1)/scripts/sign-file $(MODHASHALGO) $(MODSECKEY) $(MODPUBKEY);
+		else
+			echo "-";
+		fi
+	)
+endef
+define build_dkms =
+	$(SHELL) $(DROOT)/scripts/dkms-build $(dkms_dir) $(abi_release)-$* '$(call build_dkms_sign,$(builddir)/build-$*)' $(1) $(2) $(3) $(4)
 endef
 
 define install_control =
@@ -113,13 +92,9 @@ install-%: MODHASHALGO=sha512
 install-%: MODSECKEY=$(builddir)/build-$*/certs/signing_key.pem
 install-%: MODPUBKEY=$(builddir)/build-$*/certs/signing_key.x509
 install-%: build_dir=$(builddir)/build-$*
+install-%: dkms_dir=$(builddir)/build-$*/dkms
 install-%: enable_zfs = $(call custom_override,do_zfs,$*)
-install-%: splopts  = INSTALL_MOD_STRIP=1
-install-%: splopts += INSTALL_MOD_PATH=$(pkgdir)/
-install-%: splopts += INSTALL_MOD_DIR=kernel/zfs
-install-%: splopts += $(conc_level)
-install-%: zfsopts  = $(splopts)
-install-%: $(stampdir)/stamp-build-%
+install-%: $(stampdir)/stamp-build-% install-headers
 	@echo Debug: $@ kernel_file $(kernel_file) kernfile $(kernfile) install_file $(install_file) instfile $(instfile)
 	dh_testdir
 	dh_testroot
@@ -181,8 +156,6 @@ endif
 	$(build_cd) $(kmake) $(build_O) $(conc_level) modules_install $(vdso) \
 		INSTALL_MOD_STRIP=1 INSTALL_MOD_PATH=$(pkgdir)/ \
 		INSTALL_FW_PATH=$(pkgdir)/lib/firmware/$(abi_release)-$*
-
-	$(if $(filter true,$(enable_zfs)),$(call install_zfs))
 
 	#
 	# Build module blacklists:
@@ -401,6 +374,13 @@ ifeq ($(do_tools_hyperv),true)
 endif
 endif
 
+	# Build a temporary "installed headers" directory.
+	install -d $(dkms_dir) $(dkms_dir)/headers $(dkms_dir)/build $(dkms_dir)/source
+	cp -rp "$(hdrdir)" "$(indep_hdrdir)" "$(dkms_dir)/headers"
+
+	$(if $(filter true,$(enable_zfs)),$(call build_dkms, $(mods_pkg_name)-$*, $(pkgdir)/lib/modules/$(abi_release)-$*/kernel, spl, pool/universe/s/spl-linux/spl-dkms_$(dkms_spl_linux_version)_all.deb))
+	$(if $(filter true,$(enable_zfs)),$(call build_dkms, $(mods_pkg_name)-$*, $(pkgdir)/lib/modules/$(abi_release)-$*/kernel, zfs, pool/universe/z/zfs-linux/zfs-dkms_$(dkms_zfs_linux_version)_all.deb))
+
 	# Build the final ABI information.
 	install -d $(abidir)
 	sed -e 's/^\(.\+\)[[:space:]]\+\(.\+\)[[:space:]]\(.\+\)$$/\3 \2 \1/'	\
@@ -534,7 +514,7 @@ binary-%: dbgpkgdir = $(CURDIR)/debian/$(bin_pkg_name)-$*-dbgsym
 binary-%: pkgtools = $(tools_flavour_pkg_name)-$*
 binary-%: metapkgtools = linux-tools-$*
 binary-%: pkgcloud = $(cloud_flavour_pkg_name)-$*
-binary-%: rprovides = $(if $(filter true,$(call custom_override,do_zfs,$*)),$(comma) spl-modules$(comma) spl-dkms$(comma) zfs-modules$(comma) zfs-dkms)
+binary-%: rprovides = $(if $(filter true,$(call custom_override,do_zfs,$*)),spl-modules$(comma) spl-dkms$(comma) zfs-modules$(comma) zfs-dkms$(comma))
 binary-%: target_flavour = $*
 binary-%: checks-%
 	@echo Debug: $@
