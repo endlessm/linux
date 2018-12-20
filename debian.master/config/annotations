@@ -1833,7 +1833,7 @@ CONFIG_DUMMY_CONSOLE_ROWS                       policy<{'amd64': '25', 'arm64': 
 CONFIG_FRAMEBUFFER_CONSOLE                      policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'ppc64el': 'y'}>
 CONFIG_FRAMEBUFFER_CONSOLE_DETECT_PRIMARY       policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'ppc64el': 'y'}>
 CONFIG_FRAMEBUFFER_CONSOLE_ROTATION             policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'ppc64el': 'y'}>
-CONFIG_FRAMEBUFFER_CONSOLE_DEFERRED_TAKEOVER    policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'i386': 'n', 'ppc64el': 'n'}>
+CONFIG_FRAMEBUFFER_CONSOLE_DEFERRED_TAKEOVER    policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'ppc64el': 'y'}>
 #
 CONFIG_FRAMEBUFFER_CONSOLE                      mark<ENFORCED> note<boot essential for grub2 console>
 CONFIG_FRAMEBUFFER_CONSOLE_DEFERRED_TAKEOVER    flag<REVIEW>
