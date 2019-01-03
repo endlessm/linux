@@ -10978,6 +10978,7 @@ EXPORT_SYMBOL_GPL vmlinux 0x00000000	tty_prepare_flip_string
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	tty_put_char
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	tty_register_device_attr
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	tty_release_struct
+EXPORT_SYMBOL_GPL vmlinux 0x00000000	tty_save_termios
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	tty_set_ldisc
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	tty_set_termios
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	tty_standard_install
