@@ -226,8 +226,8 @@ int read_usb_device(struct udev_device *sdev, struct usbip_usb_device *udev)
 	path = udev_device_get_syspath(sdev);
 	name = udev_device_get_sysname(sdev);
 
-	strncpy(udev->path,  path,  SYSFS_PATH_MAX);
-	strncpy(udev->busid, name, SYSFS_BUS_ID_SIZE);
+	snprintf(udev->path, SYSFS_PATH_MAX, "%s", path);
+	snprintf(udev->busid, SYSFS_BUS_ID_SIZE, "%s", name);
 
 	sscanf(name, "%u-%u", &busnum, &devnum);
 	udev->busnum = busnum;
