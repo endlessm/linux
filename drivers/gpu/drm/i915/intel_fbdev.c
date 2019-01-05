@@ -179,7 +179,6 @@ static int intelfb_create(struct drm_fb_helper *helper,
 	struct drm_framebuffer *fb;
 	struct i915_vma *vma;
 	unsigned long flags = 0;
-	bool prealloc = false;
 	void __iomem *vaddr;
 	int ret;
 
@@ -201,7 +200,6 @@ static int intelfb_create(struct drm_fb_helper *helper,
 		intel_fb = ifbdev->fb;
 	} else {
 		DRM_DEBUG_KMS("re-using BIOS fb\n");
-		prealloc = true;
 		sizes->fb_width = intel_fb->base.width;
 		sizes->fb_height = intel_fb->base.height;
 	}
@@ -265,8 +263,10 @@ static int intelfb_create(struct drm_fb_helper *helper,
 	 * If the object is stolen however, it will be full of whatever
 	 * garbage was left in there.
 	 */
-	if (intel_fb_obj(fb)->stolen && !prealloc)
+	if (intel_fb_obj(fb)->stolen) {
+		DRM_DEBUG_KMS("clearing stolen fb\n");
 		memset_io(info->screen_base, 0, info->screen_size);
+	}
 
 	/* Use default scratch pixmap (info->pixmap.flags = FB_PIXMAP_SYSTEM) */
 
