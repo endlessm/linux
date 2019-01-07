@@ -66,9 +66,6 @@ CONFIG_PMIC_OPREGION                            policy<{'amd64': 'n', 'arm64': '
 
 # Menu: ARM Accelerated Cryptographic Algorithms
 CONFIG_CRYPTO_CHACHA20_NEON                     policy<{'arm64': 'm', 'armhf': 'm'}>
-CONFIG_CRYPTO_SPECK_NEON                        policy<{'arm64': 'n', 'armhf': 'n'}>
-#
-CONFIG_CRYPTO_SPECK_NEON                        mark<ENFORCED>
 
 # Menu: ARM Accelerated Cryptographic Algorithms >> Architecture: arm
 CONFIG_ARM_CRYPTO                               policy<{'armhf': 'y'}>
@@ -473,7 +470,6 @@ CONFIG_CRYPTO_SERPENT_SSE2_586                  policy<{'i386': 'm'}>
 CONFIG_CRYPTO_SERPENT_AVX_X86_64                policy<{'amd64': 'm'}>
 CONFIG_CRYPTO_SERPENT_AVX2_X86_64               policy<{'amd64': 'm'}>
 CONFIG_CRYPTO_SM4                               policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'ppc64el': 'm', 's390x': 'm'}>
-CONFIG_CRYPTO_SPECK                             policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'i386': 'n', 'ppc64el': 'n', 's390x': 'n'}>
 CONFIG_CRYPTO_TEA                               policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'ppc64el': 'm', 's390x': 'm'}>
 CONFIG_CRYPTO_TWOFISH                           policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'ppc64el': 'm', 's390x': 'm'}>
 CONFIG_CRYPTO_TWOFISH_586                       policy<{'i386': 'm'}>
