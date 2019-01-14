@@ -1,6 +1,12 @@
 # Recreate any symlinks created since the orig.
 # Remove any files deleted from the orig.
+rm -f 'arch/arm/crypto/speck-neon-core.S'
+rm -f 'arch/arm/crypto/speck-neon-glue.c'
+rm -f 'arch/arm64/crypto/speck-neon-core.S'
+rm -f 'arch/arm64/crypto/speck-neon-glue.c'
+rm -f 'crypto/speck.c'
 rm -f 'drivers/s390/crypto/ap_asm.h'
+rm -f 'include/crypto/speck.h'
 rm -f 'include/crypto/vmac.h'
 rm -f 'tools/testing/selftests/android/ion/config'
 chmod +x 'scripts/kmsg-doc'
