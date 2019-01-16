@@ -6,6 +6,7 @@
 #ifndef _LINUX_BINDER_ALLOC_H
 #define _LINUX_BINDER_ALLOC_H
 
+#include <linux/kconfig.h>
 #include <linux/rbtree.h>
 #include <linux/list.h>
 #include <linux/mm.h>

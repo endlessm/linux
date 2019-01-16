@@ -273,6 +273,7 @@ bool list_lru_del(struct list_lru *lru, struct list_head *item, int nid,
 	list_lru_unlock(l);
 	return ret;
 }
+EXPORT_SYMBOL_GPL(list_lru_del);
 
 bool list_lru_del_obj(struct list_lru *lru, struct list_head *item)
 {
