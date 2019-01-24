@@ -6,6 +6,7 @@
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
+#include <limits.h>
 
 #include "../kselftest.h"
 
@@ -26,7 +27,10 @@ struct socket_testcase {
 };
 
 static struct socket_testcase tests[] = {
-	{ AF_MAX,  0,           0,           -EAFNOSUPPORT,    0 },
+	/* libc might have a smaller value of AF_MAX than the kernel
+	 * actually supports, so use INT_MAX instead.
+	 */
+	{ INT_MAX, 0,           0,           -EAFNOSUPPORT,    0  },
 	{ AF_INET, SOCK_STREAM, IPPROTO_TCP, 0,                1  },
 	{ AF_INET, SOCK_DGRAM,  IPPROTO_TCP, -EPROTONOSUPPORT, 1  },
 	{ AF_INET, SOCK_DGRAM,  IPPROTO_UDP, 0,                1  },
