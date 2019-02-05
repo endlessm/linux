@@ -7243,6 +7243,7 @@ EXPORT_SYMBOL vmlinux 0x00000000	dmt_modes
 EXPORT_SYMBOL vmlinux 0x00000000	dns_query
 EXPORT_SYMBOL vmlinux 0x00000000	do_SAK
 EXPORT_SYMBOL vmlinux 0x00000000	do_blank_screen
+EXPORT_SYMBOL vmlinux 0x00000000	do_clone_file_range
 EXPORT_SYMBOL vmlinux 0x00000000	do_gettimeofday
 EXPORT_SYMBOL vmlinux 0x00000000	do_settimeofday64
 EXPORT_SYMBOL vmlinux 0x00000000	do_splice_direct
@@ -20170,12 +20171,14 @@ EXPORT_SYMBOL_GPL vmlinux 0x00000000	mbox_send_message
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	mc146818_get_time
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	mc146818_set_time
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	mce_inject_log
+EXPORT_SYMBOL_GPL vmlinux 0x00000000	mce_is_correctable
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	mce_is_memory_error
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	mce_notify_irq
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	mce_register_decode_chain
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	mce_register_injector_chain
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	mce_unregister_decode_chain
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	mce_unregister_injector_chain
+EXPORT_SYMBOL_GPL vmlinux 0x00000000	mce_usable_address
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	mcsafe_key
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	md5_zero_message_hash
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	md_allow_write

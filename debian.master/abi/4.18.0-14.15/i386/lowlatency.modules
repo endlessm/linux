@@ -652,6 +652,7 @@ cdc_subset
 cdns-csi2rx
 cdns-csi2tx
 cec
+cec-gpio
 ceph
 cfag12864b
 cfag12864bfb
@@ -4222,6 +4223,7 @@ snd-soc-hdmi-codec
 snd-soc-imx-audmux
 snd-soc-inno-rk3036
 snd-soc-kbl_da7219_max98357a
+snd-soc-kbl_rt5660
 snd-soc-kbl_rt5663_max98927
 snd-soc-kbl_rt5663_rt5514_max98927
 snd-soc-max9759

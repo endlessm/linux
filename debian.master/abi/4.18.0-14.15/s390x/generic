@@ -2070,6 +2070,7 @@ EXPORT_SYMBOL vmlinux 0x00000000	ap_owned_by_def_drv
 EXPORT_SYMBOL vmlinux 0x00000000	ap_query_configuration
 EXPORT_SYMBOL vmlinux 0x00000000	ap_queue_init_reply
 EXPORT_SYMBOL vmlinux 0x00000000	ap_queue_message
+EXPORT_SYMBOL vmlinux 0x00000000	ap_queue_reinit_state
 EXPORT_SYMBOL vmlinux 0x00000000	ap_queue_remove
 EXPORT_SYMBOL vmlinux 0x00000000	ap_queue_resume
 EXPORT_SYMBOL vmlinux 0x00000000	ap_queue_suspend
@@ -2762,6 +2763,7 @@ EXPORT_SYMBOL vmlinux 0x00000000	dmam_pool_create
 EXPORT_SYMBOL vmlinux 0x00000000	dmam_pool_destroy
 EXPORT_SYMBOL vmlinux 0x00000000	dns_query
 EXPORT_SYMBOL vmlinux 0x00000000	do_SAK
+EXPORT_SYMBOL vmlinux 0x00000000	do_clone_file_range
 EXPORT_SYMBOL vmlinux 0x00000000	do_gettimeofday
 EXPORT_SYMBOL vmlinux 0x00000000	do_settimeofday64
 EXPORT_SYMBOL vmlinux 0x00000000	do_splice_direct
