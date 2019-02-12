@@ -116,7 +116,13 @@ insertchanges: autoreconstruct finalchecks
 	@perl -w -f $(DROOT)/scripts/misc/insert-changes.pl $(DROOT) $(DEBIAN) 
 
 autoreconstruct:
-	$(DROOT)/scripts/misc/gen-auto-reconstruct $(upstream_tag) $(DEBIAN)/reconstruct $(DROOT)/source/options
+	# No need for reconstruct for -rc kernels since we don't upload an
+	# orig tarball, so just remove it.
+	if grep -q "^EXTRAVERSION = -rc[0-9]\+$$" Makefile; then \
+		rm -f $(DEBIAN)/reconstruct; \
+	else \
+		$(DROOT)/scripts/misc/gen-auto-reconstruct $(upstream_tag) $(DEBIAN)/reconstruct $(DROOT)/source/options; \
+	fi
 
 finalchecks:
 	$(DROOT)/scripts/misc/final-checks "$(DEBIAN)" "$(prev_fullver)"
