@@ -14,7 +14,7 @@
 					 SUPPORTED_Asym_Pause | \
 					 PHY_10BT_FEATURES | \
 					 PHY_100BT_FEATURES | \
-					 PHY_1000BT_FEATURES)
+					 SUPPORTED_1000baseT_Full)
 
 enum hclge_mdio_c22_op_seq {
 	HCLGE_MDIO_C22_WRITE = 1,
@@ -54,7 +54,7 @@ static int hclge_mdio_write(struct mii_bus *bus, int phyid, int regnum,
 	struct hclge_desc desc;
 	int ret;
 
-	if (test_bit(HCLGE_STATE_RST_HANDLING, &hdev->state))
+	if (test_bit(HCLGE_STATE_CMD_DISABLE, &hdev->state))
 		return 0;
 
 	hclge_cmd_setup_basic_desc(&desc, HCLGE_OPC_MDIO_CONFIG, false);
@@ -92,7 +92,7 @@ static int hclge_mdio_read(struct mii_bus *bus, int phyid, int regnum)
 	struct hclge_desc desc;
 	int ret;
 
-	if (test_bit(HCLGE_STATE_RST_HANDLING, &hdev->state))
+	if (test_bit(HCLGE_STATE_CMD_DISABLE, &hdev->state))
 		return 0;
 
 	hclge_cmd_setup_basic_desc(&desc, HCLGE_OPC_MDIO_CONFIG, true);
@@ -180,6 +180,10 @@ static void hclge_mac_adjust_link(struct net_device *netdev)
 	struct hclge_dev *hdev = vport->back;
 	int duplex, speed;
 	int ret;
+
+	/* When phy link down, do nothing */
+	if (netdev->phydev->link == 0)
+		return;
 
 	speed = netdev->phydev->speed;
 	duplex = netdev->phydev->duplex;

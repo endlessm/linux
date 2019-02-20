@@ -97,6 +97,7 @@ endef
 install-%: pkgdir_bin = $(CURDIR)/debian/$(bin_pkg_name)-$*
 install-%: pkgdir = $(CURDIR)/debian/$(mods_pkg_name)-$*
 install-%: pkgdir_ex = $(CURDIR)/debian/$(mods_extra_pkg_name)-$*
+install-%: pkgdir_bldinfo = $(CURDIR)/debian/$(bldinfo_pkg_name)-$*
 install-%: bindoc = $(pkgdir)/usr/share/doc/$(bin_pkg_name)-$*
 install-%: dbgpkgdir = $(CURDIR)/debian/$(bin_pkg_name)-$*-dbgsym
 install-%: signingv = $(CURDIR)/debian/$(bin_pkg_name)-signing/$(release)-$(revision)
@@ -118,7 +119,7 @@ install-%: splopts += INSTALL_MOD_PATH=$(pkgdir)/
 install-%: splopts += INSTALL_MOD_DIR=kernel/zfs
 install-%: splopts += $(conc_level)
 install-%: zfsopts  = $(splopts)
-install-%: checks-%
+install-%: $(stampdir)/stamp-build-%
 	@echo Debug: $@ kernel_file $(kernel_file) kernfile $(kernfile) install_file $(install_file) instfile $(instfile)
 	dh_testdir
 	dh_testroot
@@ -161,10 +162,6 @@ endif
 	install -d $(pkgdir)/boot
 	install -m644 $(builddir)/build-$*/.config \
 		$(pkgdir)/boot/config-$(abi_release)-$*
-	install -m644 $(abidir)/$* \
-		$(pkgdir)/boot/abi-$(abi_release)-$*
-	install -m644 $(abidir)/$*.retpoline \
-		$(pkgdir)/boot/retpoline-$(abi_release)-$*
 	install -m600 $(builddir)/build-$*/System.map \
 		$(pkgdir)/boot/System.map-$(abi_release)-$*
 	if [ "$(filter true,$(do_dtbs))" ]; then \
@@ -250,11 +247,14 @@ endif
 	fi
 
 	echo "interest linux-update-$(abi_release)-$*" >"$(DROOT)/$(bin_pkg_name)-$*.triggers"
+	install -d $(pkgdir_bin)/usr/lib/linux/triggers
 	$(call install_control,$(bin_pkg_name)-$*,image,postinst postrm preinst prerm)
+	install -d $(pkgdir)/usr/lib/linux/triggers
 	$(call install_control,$(mods_pkg_name)-$*,extra,postinst postrm)
 ifeq ($(do_extras_package),true)
 	# Install the postinit/postrm scripts in the extras package.
 	if [ -f $(DEBIAN)/control.d/$(target_flavour).inclusion-list ] ; then	\
+		install -d $(pkgdir_ex)/usr/lib/linux/triggers; \
 		$(call install_control,$(mods_extra_pkg_name)-$*,extra,postinst postrm); \
 	fi
 endif
@@ -401,6 +401,56 @@ ifeq ($(do_tools_hyperv),true)
 endif
 endif
 
+	# Build the final ABI information.
+	install -d $(abidir)
+	sed -e 's/^\(.\+\)[[:space:]]\+\(.\+\)[[:space:]]\(.\+\)$$/\3 \2 \1/'	\
+		$(builddir)/build-$*/Module.symvers | sort > $(abidir)/$*
+
+	# Build the final ABI modules information.
+	find $(pkgdir_bin) $(pkgdir) $(pkgdir_ex) -name \*.ko | \
+		sed -e 's/.*\/\([^\/]*\)\.ko/\1/' | sort > $(abidir)/$*.modules
+
+	# Build the final ABI firmware information.
+	find $(pkgdir_bin) $(pkgdir) $(pkgdir_ex) -name \*.ko | \
+	while read ko; do \
+		/sbin/modinfo $$ko | grep ^firmware || true; \
+	done | sort -u >$(abidir)/$*.fwinfo
+
+	# Build the final ABI compiler information.
+	ko=$$(find $(pkgdir_bin) $(pkgdir) $(pkgdir_ex) -name \*.ko | head -1); \
+	readelf -p .comment "$$ko" | gawk ' \
+		($$1 == "[") { \
+			printf("%s", $$3); \
+			for (n=4; n<=NF; n++) { \
+				printf(" %s", $$n); \
+			} \
+			print "" \
+		}' | sort -u >$(abidir)/$*.compiler
+
+	# Build the final ABI retpoline information.
+	if grep -q CONFIG_RETPOLINE=y $(builddir)/build-$*/.config; then \
+		echo "# retpoline v1.0" >$(abidir)/$*.retpoline; \
+		$(SHELL) $(DROOT)/scripts/retpoline-extract $(builddir)/build-$* $(CURDIR) | \
+			sort >>$(abidir)/$*.retpoline; \
+	else \
+		echo "# RETPOLINE NOT ENABLED" >$(abidir)/$*.retpoline; \
+	fi
+
+	# Build the buildinfo package content.
+	install -d $(pkgdir_bldinfo)/usr/lib/linux/$(abi_release)-$*
+	install -m644 $(builddir)/build-$*/.config \
+		$(pkgdir_bldinfo)/usr/lib/linux/$(abi_release)-$*/config
+	install -m644 $(abidir)/$* \
+		$(pkgdir_bldinfo)/usr/lib/linux/$(abi_release)-$*/abi
+	install -m644 $(abidir)/$*.modules \
+		$(pkgdir_bldinfo)/usr/lib/linux/$(abi_release)-$*/modules
+	install -m644 $(abidir)/$*.fwinfo \
+		$(pkgdir_bldinfo)/usr/lib/linux/$(abi_release)-$*/fwinfo
+	install -m644 $(abidir)/$*.retpoline \
+		$(pkgdir_bldinfo)/usr/lib/linux/$(abi_release)-$*/retpoline
+	install -m644 $(abidir)/$*.compiler \
+		$(pkgdir_bldinfo)/usr/lib/linux/$(abi_release)-$*/compiler
+
 headers_tmp := $(CURDIR)/debian/tmp-headers
 headers_dir := $(CURDIR)/debian/linux-libc-dev
 
@@ -436,6 +486,26 @@ endif
 
 	rm -rf $(headers_tmp)
 
+define dh_all
+	dh_installchangelogs -p$(1)
+	dh_installdocs -p$(1)
+	dh_compress -p$(1)
+	dh_fixperms -p$(1) -X/boot/
+	dh_shlibdeps -p$(1) $(shlibdeps_opts)
+	dh_installdeb -p$(1)
+	dh_installdebconf -p$(1)
+	$(lockme) dh_gencontrol -p$(1) -- -Vlinux:rprovides='$(rprovides)'
+	dh_md5sums -p$(1)
+	dh_builddeb -p$(1)
+endef
+define newline
+
+
+endef
+define dh_all_inline
+        $(subst ${newline},; \${newline},$(call dh_all,$(1)))
+endef
+
 binary-arch-headers: install-arch-headers
 	@echo Debug: $@
 	dh_testdir
@@ -445,14 +515,7 @@ ifneq ($(DEBIAN),debian.master)
 	echo "non-master branch building linux-libc-dev, aborting"
 	exit 1
 endif
-	dh_installchangelogs -plinux-libc-dev
-	dh_installdocs -plinux-libc-dev
-	dh_compress -plinux-libc-dev
-	dh_fixperms -plinux-libc-dev
-	dh_installdeb -plinux-libc-dev
-	$(lockme) dh_gencontrol -plinux-libc-dev -- $(libc_dev_version)
-	dh_md5sums -plinux-libc-dev
-	dh_builddeb -plinux-libc-dev
+	$(call dh_all,linux-libc-dev)
 endif
 
 binary-%: pkgimg = $(bin_pkg_name)-$*
@@ -463,6 +526,7 @@ binary-%: metapkg = linux-$*
 binary-%: pkgimg_mods = $(mods_pkg_name)-$*
 binary-%: pkgimg_ex = $(mods_extra_pkg_name)-$*
 binary-%: pkgdir_ex = $(CURDIR)/debian/$(extra_pkg_name)-$*
+binary-%: pkgbldinfo = $(bldinfo_pkg_name)-$*
 binary-%: pkghdr = $(hdrs_pkg_name)-$*
 binary-%: metapkghdr = linux-headers-$*
 binary-%: dbgpkg = $(bin_pkg_name)-$*-dbgsym
@@ -472,20 +536,12 @@ binary-%: metapkgtools = linux-tools-$*
 binary-%: pkgcloud = $(cloud_flavour_pkg_name)-$*
 binary-%: rprovides = $(if $(filter true,$(call custom_override,do_zfs,$*)),$(comma) spl-modules$(comma) spl-dkms$(comma) zfs-modules$(comma) zfs-dkms)
 binary-%: target_flavour = $*
-binary-%: install-%
+binary-%: checks-%
 	@echo Debug: $@
 	dh_testdir
 	dh_testroot
 
-	dh_installchangelogs -p$(pkgimg)
-	dh_installdocs -p$(pkgimg)
-	dh_compress -p$(pkgimg)
-	dh_fixperms -p$(pkgimg) -X/boot/
-	dh_installdeb -p$(pkgimg)
-	dh_shlibdeps -p$(pkgimg) $(shlibdeps_opts)
-	$(lockme) dh_gencontrol -p$(pkgimg) -- -Vlinux:rprovides='$(rprovides)'
-	dh_md5sums -p$(pkgimg)
-	dh_builddeb -p$(pkgimg)
+	$(call dh_all,$(pkgimg))
 	dh_installdirs -p$(metapkgimg)
 	dh_installdocs -p$(metapkgimg)
 	dh_installchangelogs -p$(metapkgimg)
@@ -523,15 +579,7 @@ binary-%: install-%
 	dh_md5sums -p$(metapkg)
 	dh_builddeb -p$(metapkg)
 
-	dh_installchangelogs -p$(pkgimg_mods)
-	dh_installdocs -p$(pkgimg_mods)
-	dh_compress -p$(pkgimg_mods)
-	dh_fixperms -p$(pkgimg_mods) -X/boot/
-	dh_installdeb -p$(pkgimg_mods)
-	dh_shlibdeps -p$(pkgimg_mods) $(shlibdeps_opts)
-	$(lockme) dh_gencontrol -p$(pkgimg_mods)
-	dh_md5sums -p$(pkgimg_mods)
-	dh_builddeb -p$(pkgimg_mods)
+	$(call dh_all,$(pkgimg_mods))
 
 ifeq ($(do_extras_package),true)
   ifeq ($(ship_extras_package),false)
@@ -543,28 +591,13 @@ ifeq ($(do_extras_package),true)
 		| tee -a $(target_flavour).not-shipped.log;
   else
 	if [ -f $(DEBIAN)/control.d/$(target_flavour).inclusion-list ] ; then \
-		dh_installchangelogs -p$(pkgimg_ex); \
-		dh_installdocs -p$(pkgimg_ex); \
-		dh_compress -p$(pkgimg_ex); \
-		dh_fixperms -p$(pkgimg_ex) -X/boot/; \
-		dh_installdeb -p$(pkgimg_ex); \
-		dh_shlibdeps -p$(pkgimg_ex) $(shlibdeps_opts); \
-		$(lockme) dh_gencontrol -p$(pkgimg_ex); \
-		dh_md5sums -p$(pkgimg_ex); \
-		dh_builddeb -p$(pkgimg_ex); \
+		$(call dh_all_inline,$(pkgimg_ex)); \
 	fi
   endif
 endif
 
-	dh_installchangelogs -p$(pkghdr)
-	dh_installdocs -p$(pkghdr)
-	dh_compress -p$(pkghdr)
-	dh_fixperms -p$(pkghdr)
-	dh_shlibdeps -p$(pkghdr) $(shlibdeps_opts)
-	dh_installdeb -p$(pkghdr)
-	$(lockme) dh_gencontrol -p$(pkghdr)
-	dh_md5sums -p$(pkghdr)
-	dh_builddeb -p$(pkghdr)
+	$(call dh_all,$(pkgbldinfo))
+	$(call dh_all,$(pkghdr))
 	dh_installdirs -p$(metapkghdr)
 	dh_installdocs -p$(metapkghdr)
 	dh_installchangelogs -p$(metapkghdr)
@@ -577,28 +610,13 @@ endif
 
 ifneq ($(skipsub),true)
 	@set -e; for sub in $($(*)_sub); do		\
-		pkg=$(bin_pkg_name)-$$sub;	\
-		dh_installchangelogs -p$$pkg;		\
-		dh_installdocs -p$$pkg;			\
-		dh_compress -p$$pkg;			\
-		dh_fixperms -p$$pkg -X/boot/;		\
-		dh_shlibdeps -p$$pkg $(shlibdeps_opts);	\
-		dh_installdeb -p$$pkg;			\
-		$(lockme) dh_gencontrol -p$$pkg;			\
-		dh_md5sums -p$$pkg;			\
-		dh_builddeb -p$$pkg;			\
+		pkg=$(bin_pkg_name)-$$sub;		\
+		$(call dh_all_inline,$$pkg);		\
 	done
 endif
 
 ifneq ($(skipdbg),true)
-	dh_installchangelogs -p$(dbgpkg)
-	dh_installdocs -p$(dbgpkg)
-	dh_compress -p$(dbgpkg)
-	dh_fixperms -p$(dbgpkg)
-	dh_installdeb -p$(dbgpkg)
-	$(lockme) dh_gencontrol -p$(dbgpkg)
-	dh_md5sums -p$(dbgpkg)
-	dh_builddeb -p$(dbgpkg)
+	$(call dh_all,$(dbgpkg))
 
 	# Hokay...here's where we do a little twiddling...
 	# Renaming the debug package prevents it from getting into
@@ -623,15 +641,7 @@ ifneq ($(skipdbg),true)
 endif
 
 ifeq ($(do_linux_tools),true)
-	dh_installchangelogs -p$(pkgtools)
-	dh_installdocs -p$(pkgtools)
-	dh_compress -p$(pkgtools)
-	dh_fixperms -p$(pkgtools)
-	dh_shlibdeps -p$(pkgtools) $(shlibdeps_opts)
-	dh_installdeb -p$(pkgtools)
-	$(lockme) dh_gencontrol -p$(pkgtools)
-	dh_md5sums -p$(pkgtools)
-	dh_builddeb -p$(pkgtools)
+	$(call dh_all,$(pkgtools))
 	dh_installdirs -p$(metapkgtools)
 	dh_installdocs -p$(metapkgtools)
 	dh_installchangelogs -p$(metapkgtools)
@@ -643,15 +653,7 @@ ifeq ($(do_linux_tools),true)
 	dh_builddeb -p$(metapkgtools)
 endif
 ifeq ($(do_cloud_tools),true)
-	dh_installchangelogs -p$(pkgcloud)
-	dh_installdocs -p$(pkgcloud)
-	dh_compress -p$(pkgcloud)
-	dh_fixperms -p$(pkgcloud)
-	dh_shlibdeps -p$(pkgcloud) $(shlibdeps_opts)
-	dh_installdeb -p$(pkgcloud)
-	$(lockme) dh_gencontrol -p$(pkgcloud)
-	dh_md5sums -p$(pkgcloud)
-	dh_builddeb -p$(pkgcloud)
+	$(call dh_all,$(pkgcloud))
 endif
 
 ifneq ($(full_build),false)
@@ -776,28 +778,10 @@ binary-perarch: cloudpkg = $(cloud_pkg_name)
 binary-perarch: install-perarch
 	@echo Debug: $@
 ifeq ($(do_linux_tools),true)
-	dh_strip -p$(toolspkg)
-	dh_installchangelogs -p$(toolspkg)
-	dh_installdocs -p$(toolspkg)
-	dh_compress -p$(toolspkg)
-	dh_fixperms -p$(toolspkg)
-	dh_shlibdeps -p$(toolspkg) $(shlibdeps_opts)
-	dh_installdeb -p$(toolspkg)
-	$(lockme) dh_gencontrol -p$(toolspkg)
-	dh_md5sums -p$(toolspkg)
-	dh_builddeb -p$(toolspkg)
+	$(call dh_all,$(toolspkg))
 endif
 ifeq ($(do_cloud_tools),true)
-	dh_strip -p$(cloudpkg)
-	dh_installchangelogs -p$(cloudpkg)
-	dh_installdocs -p$(cloudpkg)
-	dh_compress -p$(cloudpkg)
-	dh_fixperms -p$(cloudpkg)
-	dh_shlibdeps -p$(cloudpkg) $(shlibdeps_opts)
-	dh_installdeb -p$(cloudpkg)
-	$(lockme) dh_gencontrol -p$(cloudpkg)
-	dh_md5sums -p$(cloudpkg)
-	dh_builddeb -p$(cloudpkg)
+	$(call dh_all,$(cloudpkg))
 endif
 
 binary-debs: signing = $(CURDIR)/debian/$(bin_pkg_name)-signing
