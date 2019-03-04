@@ -19,6 +19,7 @@
 #include <linux/pinctrl/pinmux.h>
 #include <linux/pinctrl/pinconf.h>
 #include <linux/pinctrl/pinconf-generic.h>
+#include <linux/dmi.h>
 
 #include "../core.h"
 #include "pinctrl-intel.h"
@@ -73,6 +74,8 @@
 
 #define DEBOUNCE_PERIOD			31250 /* ns */
 
+#define PINCTRL_QUIRK_KEEP_HOSTOWN	BIT(0)
+
 struct intel_pad_context {
 	u32 padcfg0;
 	u32 padcfg1;
@@ -81,6 +84,7 @@ struct intel_pad_context {
 
 struct intel_community_context {
 	u32 *intmask;
+	u32 *hostown;
 };
 
 struct intel_pinctrl_context {
@@ -112,10 +116,36 @@ struct intel_pinctrl {
 	size_t ncommunities;
 	struct intel_pinctrl_context context;
 	int irq;
+	u32 quirks;
 };
 
 #define pin_to_padno(c, p)	((p) - (c)->pin_base)
 #define padgroup_offset(g, p)	((p) - (g)->base)
+
+static const struct dmi_system_id dmi_retain_hostown_table[] = {
+	{
+		.ident = "ASUSTeK COMPUTER INC. ASUS E403NA",
+		.matches = {
+			DMI_MATCH(DMI_BOARD_VENDOR, "ASUSTeK COMPUTER INC."),
+			DMI_MATCH(DMI_BOARD_NAME, "E403NA"),
+		},
+	},
+	{
+		.ident = "ASUSTeK COMPUTER INC. ASUS X540NA",
+		.matches = {
+			DMI_MATCH(DMI_BOARD_VENDOR, "ASUSTeK COMPUTER INC."),
+			DMI_MATCH(DMI_BOARD_NAME, "X540NA"),
+		},
+	},
+	{
+		.ident = "ASUSTeK COMPUTER INC. ASUS X541NA",
+		.matches = {
+			DMI_MATCH(DMI_BOARD_VENDOR, "ASUSTeK COMPUTER INC."),
+			DMI_MATCH(DMI_BOARD_NAME, "X541NA"),
+		},
+	},
+	{ }
+};
 
 static struct intel_community *intel_get_community(struct intel_pinctrl *pctrl,
 						   unsigned int pin)
@@ -1271,6 +1301,7 @@ static int intel_pinctrl_pm_init(struct intel_pinctrl *pctrl)
 	struct intel_community_context *communities;
 	struct intel_pad_context *pads;
 	int i;
+	u32 *hostown_mask;
 
 	pads = devm_kcalloc(pctrl->dev, soc->npins, sizeof(*pads), GFP_KERNEL);
 	if (!pads)
@@ -1292,6 +1323,15 @@ static int intel_pinctrl_pm_init(struct intel_pinctrl *pctrl)
 			return -ENOMEM;
 
 		communities[i].intmask = intmask;
+
+		if (pctrl->quirks & PINCTRL_QUIRK_KEEP_HOSTOWN) {
+			hostown_mask = devm_kcalloc(pctrl->dev, community->ngpps,
+				       sizeof(*hostown_mask), GFP_KERNEL);
+			if (!hostown_mask)
+				return -ENOMEM;
+
+			communities[i].hostown = hostown_mask;
+		}
 	}
 
 	pctrl->context.pads = pads;
@@ -1317,6 +1357,11 @@ static int intel_pinctrl_probe(struct platform_device *pdev,
 	pctrl->dev = &pdev->dev;
 	pctrl->soc = soc_data;
 	raw_spin_lock_init(&pctrl->lock);
+
+	if (dmi_first_match(dmi_retain_hostown_table)) {
+		pctrl->quirks |= PINCTRL_QUIRK_KEEP_HOSTOWN;
+		dev_info(&pdev->dev, "enabling KEEP_HOSTOWN quirk on this hw\n");
+	}
 
 	/*
 	 * Make a copy of the communities which we can use to hold pointers
@@ -1501,6 +1546,12 @@ int intel_pinctrl_suspend(struct device *dev)
 		base = community->regs + community->ie_offset;
 		for (gpp = 0; gpp < community->ngpps; gpp++)
 			communities[i].intmask[gpp] = readl(base + gpp * 4);
+
+		if (pctrl->quirks & PINCTRL_QUIRK_KEEP_HOSTOWN) {
+			base = community->regs + community->hostown_offset;
+			for (gpp = 0; gpp < community->ngpps; gpp++)
+				communities[i].hostown[gpp] = readl(base + gpp * 4);
+		}
 	}
 
 	return 0;
@@ -1584,6 +1635,15 @@ int intel_pinctrl_resume(struct device *dev)
 			writel(communities[i].intmask[gpp], base + gpp * 4);
 			dev_dbg(dev, "restored mask %d/%u %#08x\n", i, gpp,
 				readl(base + gpp * 4));
+		}
+
+		if (pctrl->quirks & PINCTRL_QUIRK_KEEP_HOSTOWN) {
+			base = community->regs + community->hostown_offset;
+			for (gpp = 0; gpp < community->ngpps; gpp++) {
+				writel(communities[i].hostown[gpp], base + gpp * 4);
+				dev_dbg(dev, "restored hostown %d/%u %#08x\n",
+					i, gpp, readl(base + gpp * 4));
+			}
 		}
 	}
 
