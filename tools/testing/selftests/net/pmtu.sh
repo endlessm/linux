@@ -531,7 +531,6 @@ setup_routing() {
 	for i in ${NS_R1} ${NS_R2}; do
 		ip netns exec ${i} sysctl -q net/ipv4/ip_forward=1
 		ip netns exec ${i} sysctl -q net/ipv6/conf/all/forwarding=1
-		ip netns exec ${i} sysctl -q -w net.ipv6.conf.all.accept_dad=0
 	done
 
 	for i in ${routing_addrs}; do
@@ -545,10 +544,7 @@ setup_routing() {
 		ifpeer="veth_${peer}-${ns}"
 
 		# Create veth links
-		ip link add ${if} netns ${ns_name} type veth peer name ${ifpeer} netns ${peer_name} || return 1
-		ip netns exec ${ns_name} sysctl -q -w net.ipv6.conf.${if}.accept_dad=0
-		ip netns exec ${peer_name} sysctl -q -w net.ipv6.conf.${ifpeer}.accept_dad=0
-		ip -n ${ns_name} link set dev ${if} up
+		ip link add ${if} up netns ${ns_name} type veth peer name ${ifpeer} netns ${peer_name} || return 1
 		ip -n ${peer_name} link set dev ${ifpeer} up
 
 		# Add addresses
