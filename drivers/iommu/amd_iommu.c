@@ -168,6 +168,9 @@ static inline int get_acpihid_device_id(struct device *dev,
 {
 	struct acpihid_map_entry *p;
 
+	if (!has_acpi_companion(dev))
+		return -ENODEV;
+
 	list_for_each_entry(p, &acpihid_map, list) {
 		if (!match_hid_uid(dev, p)) {
 			if (entry)
