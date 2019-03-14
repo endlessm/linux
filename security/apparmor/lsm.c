@@ -1796,8 +1796,6 @@ static int __init apparmor_init(void)
 {
 	int error;
 
-	aa_secids_init();
-
 	error = aa_setup_dfa_engine();
 	if (error) {
 		AA_ERROR("Unable to setup dfa engine\n");
