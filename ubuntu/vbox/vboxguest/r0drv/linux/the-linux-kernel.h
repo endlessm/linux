@@ -142,6 +142,7 @@
 #define wchar_t linux_wchar_t
 #include <linux/nls.h>
 #undef wchar_t
+#include <linux/mman.h>
 #include <asm/mman.h>
 #include <asm/io.h>
 #include <asm/uaccess.h>
