@@ -82,19 +82,6 @@ static int __init set_bios_reboot(const struct dmi_system_id *d)
 	return 0;
 }
 
-/*
- * Some machines require the "reboot=e" commandline options
- */
-static int __init set_efi_reboot(const struct dmi_system_id *d)
-{
-	if (reboot_type != BOOT_EFI) {
-		reboot_type = BOOT_EFI;
-		pr_info("%s series board detected. Selecting %s-method for reboot.\n",
-			d->ident, "EFI");
-	}
-	return 0;
-}
-
 void __noreturn machine_real_restart(unsigned int type)
 {
 	local_irq_disable();
@@ -178,14 +165,6 @@ static const struct dmi_system_id reboot_dmi_table[] __initconst = {
 		.matches = {
 			DMI_MATCH(DMI_SYS_VENDOR, "Acer"),
 			DMI_MATCH(DMI_PRODUCT_NAME, "AOA110"),
-		},
-	},
-	{	/* Handle reboot issue on Acer TravelMate X514-51T */
-		.callback = set_efi_reboot,
-		.ident = "Acer TravelMate X514-51T",
-		.matches = {
-			DMI_MATCH(DMI_SYS_VENDOR, "Acer"),
-			DMI_MATCH(DMI_PRODUCT_NAME, "TravelMate X514-51T"),
 		},
 	},
 
