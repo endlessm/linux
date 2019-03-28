@@ -23,4 +23,4 @@ do_tools_cpupower = true
 do_tools_perf   = true
 
 do_dtbs		= true
-do_zfs		= true
+do_zfs		= false
