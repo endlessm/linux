@@ -98,4 +98,6 @@
 #define Z3FOLD_MAGIC		0x33
 #define PPC_CMM_MAGIC		0xc7571590
 
+#define SHIFTFS_MAGIC		0x6a656a62
+
 #endif /* __LINUX_MAGIC_H__ */
