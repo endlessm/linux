@@ -94,4 +94,6 @@
 #define DMA_BUF_MAGIC		0x444d4142	/* "DMAB" */
 #define Z3FOLD_MAGIC		0x33
 
+#define SHIFTFS_MAGIC		0x6a656a62
+
 #endif /* __LINUX_MAGIC_H__ */
