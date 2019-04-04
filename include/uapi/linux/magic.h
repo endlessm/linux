@@ -102,4 +102,6 @@
 #define DEVMEM_MAGIC		0x454d444d	/* "DMEM" */
 #define SECRETMEM_MAGIC		0x5345434d	/* "SECM" */
 
+#define SHIFTFS_MAGIC		0x6a656a62
+
 #endif /* __LINUX_MAGIC_H__ */
