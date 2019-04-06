@@ -1750,7 +1750,7 @@ CONFIG_DRM_STM_DSI                              policy<{'armhf': 'm'}>
 CONFIG_DRM_STI                                  policy<{'armhf': 'n'}>
 CONFIG_DRM_VC4                                  policy<{'arm64': 'm'}>
 CONFIG_DRM_VC4_HDMI_CEC                         policy<{'arm64': 'y'}>
-CONFIG_DRM_ETNAVIV                              policy<{'arm64': 'm', 'armhf-generic': 'm'}>
+CONFIG_DRM_ETNAVIV                              policy<{'amd64': 'n', 'arm64': 'm', 'armhf-generic': 'm', 'i386': 'n', 'ppc64el': 'n', 's390x': 'n'}>
 CONFIG_DRM_ETNAVIV_THERMAL                      policy<{'arm64': 'y', 'armhf-generic': 'y'}>
 CONFIG_DRM_ARCPGU                               policy<{'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm'}>
 CONFIG_DRM_HISI_HIBMC                           policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'ppc64el': 'm', 's390x': 'n'}>
