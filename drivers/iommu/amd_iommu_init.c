@@ -32,6 +32,7 @@
 #include <linux/iommu.h>
 #include <linux/kmemleak.h>
 #include <linux/mem_encrypt.h>
+#include <linux/dmi.h>
 #include <asm/pci-direct.h>
 #include <asm/iommu.h>
 #include <asm/gart.h>
@@ -2802,9 +2803,29 @@ static bool amd_iommu_sme_check(void)
  * IOMMUs
  *
  ****************************************************************************/
+static const struct dmi_system_id iommu_soft_list[] = {
+	{
+		.ident = "Acer Aspire A315-21G",
+		.matches = {
+			DMI_MATCH(DMI_SYS_VENDOR, "Acer"),
+			DMI_MATCH(DMI_PRODUCT_NAME, "Aspire A315-21G"),
+		},
+	},
+};
+
 int __init amd_iommu_detect(void)
 {
+	const struct dmi_system_id *dmi_id;
 	int ret;
+
+	/* The iommu=soft DMI quirk */
+	if ((dmi_id = dmi_first_match(iommu_soft_list))) {
+		pr_info("IOMMU has been set as soft by matching %s\n",
+			dmi_id->ident);
+		swiotlb = 1;
+
+		return -ENODEV;
+	}
 
 	if (no_iommu || (iommu_detected && !gart_iommu_aperture))
 		return -ENODEV;
