@@ -45,6 +45,7 @@ skipretpoline=true
 do_cloud_tools=false
 do_doc_package=false
 do_zfs=false
+do_dkms_nvidia=false
 
 # Don't build tools or udebs in a cross compile environment.
 ifneq ($(DEB_HOST_ARCH),$(DEB_BUILD_ARCH))
