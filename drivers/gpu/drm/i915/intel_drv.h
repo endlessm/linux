@@ -253,6 +253,9 @@ struct intel_encoder {
 	void (*post_pll_disable)(struct intel_encoder *,
 				 const struct intel_crtc_state *,
 				 const struct drm_connector_state *);
+	void (*update_pipe)(struct intel_encoder *,
+			    const struct intel_crtc_state *,
+			    const struct drm_connector_state *);
 	/* Read out the current hw state of this connector, returning true if
 	 * the encoder is active. If the encoder is enabled it also set the pipe
 	 * it is connected to in the pipe parameter. */
@@ -2023,6 +2026,9 @@ void intel_panel_set_backlight_acpi(const struct drm_connector_state *conn_state
 int intel_panel_setup_backlight(struct drm_connector *connector,
 				enum pipe pipe);
 void intel_panel_enable_backlight(const struct intel_crtc_state *crtc_state,
+				  const struct drm_connector_state *conn_state);
+void intel_panel_update_backlight(struct intel_encoder *encoder,
+				  const struct intel_crtc_state *crtc_state,
 				  const struct drm_connector_state *conn_state);
 void intel_panel_disable_backlight(const struct drm_connector_state *old_conn_state);
 extern struct drm_display_mode *intel_find_panel_downclock(
