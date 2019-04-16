@@ -32,7 +32,6 @@
 #include <linux/module.h>
 #include <linux/pm_runtime.h>
 #include <linux/vga_switcheroo.h>
-#include <linux/dmi.h>
 #include <drm/drm_crtc_helper.h>
 
 #include "amdgpu.h"
@@ -908,31 +907,13 @@ MODULE_DEVICE_TABLE(pci, pciidlist);
 
 static struct drm_driver kms_driver;
 
-static const struct dmi_system_id amdgpu_runpm_zero_list[] = {
-	{
-		.ident = "Acer Aspire A315-21G",
-		.matches = {
-			DMI_MATCH(DMI_SYS_VENDOR, "Acer"),
-			DMI_MATCH(DMI_PRODUCT_NAME, "Aspire A315-21G"),
-		},
-	},
-	{ }
-};
-
 static int amdgpu_pci_probe(struct pci_dev *pdev,
 			    const struct pci_device_id *ent)
 {
-	const struct dmi_system_id *dmi_id;
 	struct drm_device *dev;
 	unsigned long flags = ent->driver_data;
 	int ret, retry = 0;
 	bool supports_atomic = false;
-
-	/* The amdgpu.runpm=0 DMI quirk */
-	if ((dmi_id = dmi_first_match(amdgpu_runpm_zero_list))) {
-		DRM_INFO("Disable runtime pm by matching %s\n", dmi_id->ident);
-		amdgpu_runtime_pm = 0;
-	}
 
 	if (!amdgpu_virtual_display &&
 	    amdgpu_device_asic_has_dc_support(flags & AMD_ASIC_MASK))
