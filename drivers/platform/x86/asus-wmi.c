@@ -69,6 +69,7 @@ MODULE_LICENSE("GPL");
 #define NOTIFY_KBD_BRTUP		0xc4
 #define NOTIFY_KBD_BRTDWN		0xc5
 #define NOTIFY_KBD_BRTTOGGLE		0xc7
+#define NOTIFY_FNLOCK_TOGGLE		0x4e
 
 #define ASUS_FAN_DESC			"cpu_fan"
 #define ASUS_FAN_MFUN			0x13
@@ -176,6 +177,8 @@ struct asus_wmi {
 	struct mutex wmi_lock;
 	struct workqueue_struct *hotplug_workqueue;
 	struct work_struct hotplug_work;
+
+	bool fnlock_locked;
 
 	struct asus_wmi_debug debug;
 
@@ -1619,6 +1622,24 @@ static int is_display_toggle(int code)
 	return 0;
 }
 
+static bool asus_wmi_has_fnlock_key(struct asus_wmi *asus)
+{
+#define ASUS_WMI_FNLOCK_BIOS_DISABLED	BIT(0)
+	u32 result;
+
+	asus_wmi_get_devstate(asus, ASUS_WMI_DEVID_FNLOCK, &result);
+
+	return (result & ASUS_WMI_DSTS_PRESENCE_BIT) &&
+		!(result & ASUS_WMI_FNLOCK_BIOS_DISABLED);
+}
+
+static void asus_wmi_fnlock_update(struct asus_wmi *asus)
+{
+	int mode = asus->fnlock_locked;
+
+	asus_wmi_set_devstate(ASUS_WMI_DEVID_FNLOCK, mode, NULL);
+}
+
 static void asus_wmi_notify(u32 value, void *context)
 {
 	struct asus_wmi *asus = context;
@@ -1677,6 +1698,12 @@ static void asus_wmi_notify(u32 value, void *context)
 			kbd_led_set_by_kbd(asus, 0);
 		else
 			kbd_led_set_by_kbd(asus, asus->kbd_led_wk + 1);
+		goto exit;
+	}
+
+	if (code == NOTIFY_FNLOCK_TOGGLE) {
+		asus->fnlock_locked = !asus->fnlock_locked;
+		asus_wmi_fnlock_update(asus);
 		goto exit;
 	}
 
@@ -2134,6 +2161,11 @@ static int asus_wmi_add(struct platform_device *pdev)
 	} else
 		err = asus_wmi_set_devstate(ASUS_WMI_DEVID_BACKLIGHT, 2, NULL);
 
+	if (asus_wmi_has_fnlock_key(asus)) {
+		asus->fnlock_locked = true;
+		asus_wmi_fnlock_update(asus);
+	}
+
 	status = wmi_install_notify_handler(asus->driver->event_guid,
 					    asus_wmi_notify, asus);
 	if (ACPI_FAILURE(status)) {
@@ -2213,6 +2245,8 @@ static int asus_hotk_resume(struct device *device)
 	if (!IS_ERR_OR_NULL(asus->kbd_led.dev))
 		kbd_led_update(asus);
 
+	if (asus_wmi_has_fnlock_key(asus))
+		asus_wmi_fnlock_update(asus);
 	return 0;
 }
 
@@ -2249,6 +2283,8 @@ static int asus_hotk_restore(struct device *device)
 	if (!IS_ERR_OR_NULL(asus->kbd_led.dev))
 		kbd_led_update(asus);
 
+	if (asus_wmi_has_fnlock_key(asus))
+		asus_wmi_fnlock_update(asus);
 	return 0;
 }
 
