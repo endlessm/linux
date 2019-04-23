@@ -161,6 +161,7 @@ drivers/scsi/sr_mod.ko
 drivers/scsi/virtio_scsi.ko
 drivers/scsi/vmw_pvscsi.ko
 drivers/target/target_core*.ko
+drivers/target/loopback/tcm_loop.ko
 drivers/tty/serial/jsm/*
 drivers/uio/uio.ko
 drivers/uio/uio_pdrv_genirq.ko
@@ -200,6 +201,7 @@ fs/nfsd/*
 fs/nls/nls_cp437.ko
 fs/nls/nls_iso8859-1.ko
 fs/overlayfs/*
+fs/shiftfs.ko
 fs/squashfs/*
 fs/udf/*
 fs/ufs/*
@@ -212,6 +214,7 @@ net/9p/*
 net/appletalk/*
 net/atm/*
 net/ax25/*
+net/bpfilter/*
 net/bridge/*
 net/can/*
 net/ceph/libceph.ko

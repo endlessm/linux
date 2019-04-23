@@ -977,6 +977,7 @@ repeat:
 	overlapped = false;
 	compressed_pages = grp->compressed_pages;
 
+	err = 0;
 	for (i = 0; i < clusterpages; ++i) {
 		unsigned int pagenr;
 
@@ -986,25 +987,38 @@ repeat:
 		DBG_BUGON(!page);
 		DBG_BUGON(!page->mapping);
 
-		if (z_erofs_is_stagingpage(page))
-			continue;
+		if (!z_erofs_is_stagingpage(page)) {
 #ifdef EROFS_FS_HAS_MANAGED_CACHE
-		if (page->mapping == MNGD_MAPPING(sbi)) {
-			DBG_BUGON(!PageUptodate(page));
-			continue;
-		}
+			if (page->mapping == MNGD_MAPPING(sbi)) {
+				if (unlikely(!PageUptodate(page)))
+					err = -EIO;
+				continue;
+			}
 #endif
 
-		/* only non-head page could be reused as a compressed page */
-		pagenr = z_erofs_onlinepage_index(page);
+			/*
+			 * only if non-head page can be selected
+			 * for inplace decompression
+			 */
+			pagenr = z_erofs_onlinepage_index(page);
 
-		DBG_BUGON(pagenr >= nr_pages);
-		DBG_BUGON(pages[pagenr]);
-		++sparsemem_pages;
-		pages[pagenr] = page;
+			DBG_BUGON(pagenr >= nr_pages);
+			DBG_BUGON(pages[pagenr]);
+			++sparsemem_pages;
+			pages[pagenr] = page;
 
-		overlapped = true;
+			overlapped = true;
+		}
+
+		/* PG_error needs checking for inplaced and staging pages */
+		if (unlikely(PageError(page))) {
+			DBG_BUGON(PageUptodate(page));
+			err = -EIO;
+		}
 	}
+
+	if (unlikely(err))
+		goto out;
 
 	llen = (nr_pages << PAGE_SHIFT) - work->pageofs;
 
@@ -1017,11 +1031,10 @@ repeat:
 	if (llen > grp->llen)
 		llen = grp->llen;
 
-	err = z_erofs_vle_unzip_fast_percpu(compressed_pages,
-		clusterpages, pages, llen, work->pageofs,
-		z_erofs_onlinepage_endio);
+	err = z_erofs_vle_unzip_fast_percpu(compressed_pages, clusterpages,
+					    pages, llen, work->pageofs);
 	if (err != -ENOTSUPP)
-		goto out_percpu;
+		goto out;
 
 	if (sparsemem_pages >= nr_pages)
 		goto skip_allocpage;
@@ -1035,6 +1048,10 @@ repeat:
 
 skip_allocpage:
 	vout = erofs_vmap(pages, nr_pages);
+	if (!vout) {
+		err = -ENOMEM;
+		goto out;
+	}
 
 	err = z_erofs_vle_unzip_vmap(compressed_pages,
 		clusterpages, vout, llen, work->pageofs, overlapped);
@@ -1042,21 +1059,7 @@ skip_allocpage:
 	erofs_vunmap(vout, nr_pages);
 
 out:
-	for (i = 0; i < nr_pages; ++i) {
-		page = pages[i];
-		DBG_BUGON(!page->mapping);
-
-		/* recycle all individual staging pages */
-		if (z_erofs_gather_if_stagingpage(page_pool, page))
-			continue;
-
-		if (unlikely(err < 0))
-			SetPageError(page);
-
-		z_erofs_onlinepage_endio(page);
-	}
-
-out_percpu:
+	/* must handle all compressed pages before endding pages */
 	for (i = 0; i < clusterpages; ++i) {
 		page = compressed_pages[i];
 
@@ -1068,6 +1071,23 @@ out_percpu:
 		(void)z_erofs_gather_if_stagingpage(page_pool, page);
 
 		WRITE_ONCE(compressed_pages[i], NULL);
+	}
+
+	for (i = 0; i < nr_pages; ++i) {
+		page = pages[i];
+		if (!page)
+			continue;
+
+		DBG_BUGON(!page->mapping);
+
+		/* recycle all individual staging pages */
+		if (z_erofs_gather_if_stagingpage(page_pool, page))
+			continue;
+
+		if (unlikely(err < 0))
+			SetPageError(page);
+
+		z_erofs_onlinepage_endio(page);
 	}
 
 	if (pages == z_pagemap_global)
@@ -1197,6 +1217,7 @@ repeat:
 	if (page->mapping == mc) {
 		WRITE_ONCE(grp->compressed_pages[nr], page);
 
+		ClearPageError(page);
 		if (!PagePrivate(page)) {
 			/*
 			 * impossible to be !PagePrivate(page) for

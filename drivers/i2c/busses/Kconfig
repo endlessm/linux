@@ -78,14 +78,14 @@ config I2C_AMD8111
 	  will be called i2c-amd8111.
 
 config I2C_AMD_MP2
-	tristate "AMD MP2"
-	depends on ACPI && PCI
+	tristate "AMD MP2 PCIe"
+	depends on PCI && ACPI
 	help
-	  If you say yes to this option, support will be included for mp2
-	  I2C interface.
+	  If you say yes to this option, support will be included for the AMD
+	  MP2 PCIe I2C adapter.
 
-	  This driver can also be built as a module.  If so, the module
-	  will be called i2c-amd-platdrv.
+	  This driver can also be built as modules.  If so, the modules will
+	  be called i2c-amd-mp2-pci and i2c-amd-mp2-plat.
 
 config I2C_HIX5HD2
 	tristate "Hix5hd2 high-speed I2C driver"
@@ -851,16 +851,6 @@ config I2C_PXA_SLAVE
 	  Support I2C slave mode communications on the PXA I2C bus.  This
 	  is necessary for systems where the PXA may be a target on the
 	  I2C bus.
-
-config I2C_QCOM_CCI
-	tristate "Qualcomm Camera Control Interface"
-	depends on ARCH_QCOM
-	help
-	  If you say yes to this option, support will be included for the
-	  built-in camera control interface on the Qualcomm SoCs.
-
-	  This driver can also be built as a module.  If so, the module
-	  will be called i2c-qcom-cci.
 
 config I2C_QCOM_GENI
 	tristate "Qualcomm Technologies Inc.'s GENI based I2C controller"

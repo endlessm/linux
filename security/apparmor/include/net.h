@@ -56,7 +56,11 @@ struct aa_sk_ctx {
 	struct path path;
 };
 
-#define SK_CTX(X) ((X)->sk_security)
+static inline struct aa_sk_ctx *aa_sock(const struct sock *sk)
+{
+	return sk->sk_security + apparmor_blob_sizes.lbs_sock;
+}
+
 #define SOCK_ctx(X) SOCK_INODE(X)->i_security
 #define DEFINE_AUDIT_NET(NAME, OP, SK, F, T, P)				  \
 	struct lsm_network_audit NAME ## _net = { .sk = (SK),		  \
@@ -97,13 +101,6 @@ struct aa_net_compat {
 	__e;					\
 })
 
-struct aa_secmark {
-	u8 audit;
-	u8 deny;
-	u32 secid;
-	char *label;
-};
-
 extern struct aa_sfs_entry aa_sfs_entry_network[];
 extern struct aa_sfs_entry aa_sfs_entry_network_compat[];
 
@@ -124,8 +121,5 @@ int aa_sk_perm(const char *op, u32 request, struct sock *sk);
 
 int aa_sock_file_perm(struct aa_label *label, const char *op, u32 request,
 		      struct socket *sock);
-
-int apparmor_secmark_check(struct aa_label *label, char *op, u32 request,
-			   u32 secid, struct sock *sk);
 
 #endif /* __AA_NET_H */

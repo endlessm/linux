@@ -113,6 +113,24 @@ source "fs/autofs/Kconfig"
 source "fs/fuse/Kconfig"
 source "fs/overlayfs/Kconfig"
 
+config SHIFT_FS
+	tristate "UID/GID shifting overlay filesystem for containers"
+	help
+	  This filesystem can overlay any mounted filesystem and shift
+	  the uid/gid the files appear at.  The idea is that
+	  unprivileged containers can use this to mount root volumes
+	  using this technique.
+
+config SHIFT_FS_POSIX_ACL
+	bool "shiftfs POSIX Access Control Lists"
+	depends on SHIFT_FS
+	select FS_POSIX_ACL
+	help
+	  POSIX Access Control Lists (ACLs) support permissions for users and
+	  groups beyond the owner/group/world scheme.
+
+	  If you don't know what Access Control Lists are, say N.
+
 menu "Caches"
 
 source "fs/fscache/Kconfig"

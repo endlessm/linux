@@ -1,6 +1,6 @@
 Tests: rebuild
 Depends: @builddeps@, fakeroot
-Restrictions: allow-stderr
+Restrictions: allow-stderr, skippable
 
 Tests: ubuntu-regression-suite
-Restrictions: allow-stderr, isolation-machine, breaks-testbed
+Restrictions: allow-stderr, isolation-machine, breaks-testbed, skippable
