@@ -404,6 +404,10 @@ ifeq ($(do_dkms_nvidia),true)
 	$(call build_dkms, $(bldinfo_pkg_name)-$*, $(pkgdir_bldinfo)/usr/lib/linux/$(abi_release)-$*/signatures, nvidia-418, pool/restricted/n/nvidia-graphics-drivers-418/nvidia-kernel-source-418_$(dkms_nvidia_418_version)_$(arch).deb pool/restricted/n/nvidia-graphics-drivers-418/nvidia-dkms-418_$(dkms_nvidia_418_version)_$(arch).deb)
 endif
 
+ifeq ($(do_extras_package),true)
+	$(if $(filter true,$(do_dkms_vbox)),$(call build_dkms, $(mods_pkg_name)-$*, $(pkgdir_ex)/lib/modules/$(abi_release)-$*/kernel, virtualbox-guest, http://archive.ubuntu.com/ubuntu/pool/multiverse/v/virtualbox/virtualbox-guest-dkms_$(dkms_vbox_guest_version)_all.deb))
+endif
+
 	# Build the final ABI information.
 	install -d $(abidir)
 	sed -e 's/^\(.\+\)[[:space:]]\+\(.\+\)[[:space:]]\(.\+\)$$/\3 \2 \1/'	\
@@ -532,6 +536,7 @@ binary-%: dbgpkgdir = $(CURDIR)/debian/$(bin_pkg_name)-$*-dbgsym
 binary-%: pkgtools = $(tools_flavour_pkg_name)-$*
 binary-%: pkgcloud = $(cloud_flavour_pkg_name)-$*
 binary-%: rprovides = $(if $(filter true,$(call custom_override,do_zfs,$*)),spl-modules$(comma) spl-dkms$(comma) zfs-modules$(comma) zfs-dkms$(comma))
+binary-%: rprovides += $(if $(filter true,$(call custom_override,do_dkms_vbox,$*)),virtualbox-guest-dkms$(comma))
 binary-%: target_flavour = $*
 binary-%: checks-%
 	@echo Debug: $@
