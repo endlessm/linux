@@ -1,7 +1,7 @@
 #!/bin/sh
 # SPDX-License-Identifier: GPL-2.0+
 # Loading a kernel image via the kexec_load syscall should fail
-# when the kerne is CONFIG_KEXEC_VERIFY_SIG enabled and the system
+# when the kerne is CONFIG_KEXEC_SIG enabled and the system
 # is booted in secureboot mode.
 
 TEST="$0"
