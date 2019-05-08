@@ -11782,7 +11782,7 @@ CONFIG_NUMA                                     policy<{'amd64': 'y', 'arm64': '
 CONFIG_NODES_SHIFT                              policy<{'amd64': '10', 'arm64': '6', 'ppc64el': '8', 's390x': '4'}>
 CONFIG_PARAVIRT                                 policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'n', 'i386': 'y'}>
 CONFIG_PARAVIRT_TIME_ACCOUNTING                 policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'i386': 'n'}>
-CONFIG_KEXEC_VERIFY_SIG                         policy<{'amd64': 'y', 'arm64': 'y'}>
+CONFIG_KEXEC_SIG                                policy<{'amd64': 'y', 'arm64': 'y'}>
 CONFIG_XEN                                      policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'n', 'i386': 'y'}>
 CONFIG_HARDEN_BRANCH_PREDICTOR                  policy<{'arm64': 'y', 'armhf': 'y'}>
 CONFIG_RANDOMIZE_BASE                           policy<{'amd64': 'y', 'arm64': 'y', 'i386': 'y'}>
@@ -11796,6 +11796,7 @@ CONFIG_FORCE_MAX_ZONEORDER                      policy<{'arm64': '13', 'armhf-ge
 CONFIG_RELOCATABLE                              flag<REVIEW>
 CONFIG_HOTPLUG_CPU                              flag<REVIEW>
 CONFIG_NUMA                                     note<LP:1543165 LP:1557690>
+CONFIG_KEXEC_SIG                                mark<ENFORCED> note<Required for secure boot lockdown>
 
 # Menu: Processor type and features >> ARM errata workarounds via the alternatives framework >> Architecture: arm64
 CONFIG_ARM64_ERRATUM_826319                     policy<{'arm64': 'y'}>
@@ -12177,12 +12178,10 @@ CONFIG_HARDENED_USERCOPY_PAGESPAN               policy<{'amd64': 'n', 'arm64': '
 CONFIG_FORTIFY_SOURCE                           policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'ppc64el': 'y', 's390x': 'y'}>
 CONFIG_STATIC_USERMODEHELPER                    policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'i386': 'n', 'ppc64el': 'n', 's390x': 'n'}>
 CONFIG_LOCK_DOWN_KERNEL                         policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'ppc64el': 'n', 's390x': 'n'}>
-CONFIG_LOCK_DOWN_MANDATORY                      policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'i386': 'n'}>
-CONFIG_ALLOW_LOCKDOWN_LIFT_BY_SYSRQ             policy<{'amd64': 'y', 'i386': 'y'}>
+CONFIG_LOCK_DOWN_KERNEL_FORCE                   policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'i386': 'n'}>
 CONFIG_LOCK_DOWN_IN_EFI_SECURE_BOOT             policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y'}>
 CONFIG_LSM                                      policy<{'amd64': '"yama,loadpin,integrity,apparmor"', 'arm64-generic': '"yama,loadpin,integrity,apparmor"', 'armhf': '"yama,loadpin,integrity,apparmor"', 'i386': '"yama,loadpin,integrity,apparmor"', 'ppc64el': '"yama,loadpin,integrity,apparmor"', 's390x': '"yama,loadpin,integrity,apparmor"'}>
 #
-CONFIG_ALLOW_LOCKDOWN_LIFT_BY_SYSRQ             mark<ENFORCED>
 CONFIG_LOCK_DOWN_IN_EFI_SECURE_BOOT             mark<ENFORCED>
 CONFIG_LOCK_DOWN_KERNEL                         mark<ENFORCED> flag<REVIEW>
 CONFIG_LSM                                      mark<ENFORCED>
@@ -12234,9 +12233,10 @@ CONFIG_EVM_X509_PATH                            note<LP:1643652>
 # Menu: Security options >> Enable different security models >> Integrity subsystem >> Enable asymmetric keys support
 CONFIG_INTEGRITY_ASYMMETRIC_KEYS                policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'ppc64el': 'y', 's390x': 'y'}>
 CONFIG_INTEGRITY_TRUSTED_KEYRING                policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'ppc64el': 'y', 's390x': 'y'}>
-CONFIG_INTEGRITY_PLATFORM_KEYRING               policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'i386': 'n'}>
+CONFIG_INTEGRITY_PLATFORM_KEYRING               policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y'}>
 CONFIG_IMA_KEYRINGS_PERMIT_SIGNED_BY_BUILTIN_OR_SECONDARY policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'i386': 'n', 'ppc64el': 'n', 's390x': 'n'}>
 #
+CONFIG_INTEGRITY_PLATFORM_KEYRING               mark<ENFORCED> note<Required for secure boot lockdown>
 CONFIG_IMA_KEYRINGS_PERMIT_SIGNED_BY_BUILTIN_OR_SECONDARY mark<ENFORCED> note<LP:1667490>
 
 # Menu: Security options >> Enable different security models >> Integrity subsystem >> Integrity Measurement Architecture(IMA)
