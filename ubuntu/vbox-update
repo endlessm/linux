@@ -31,18 +31,6 @@ cp -rp "$vbox/usr/src/"*/* vbox
 # Work out what version this represents.
 ver=`awk '($1 == "Version:") { print $2 }' <"$vbox/DEBIAN/control"`
 
-# Fix up the KBUILD_EXTMOD as we are not building externally.
-for make in vbox/*/Makefile
-do
-	sed -i -e '1iKBUILD_EXTMOD=${srctree}/ubuntu/vbox' $make
-done
-
-# Fix up KERN_DIR to point at the kernel source tree
-for make in vbox/*/Makefile-header.gmk
-do
-	sed -i -e 's/^\s*KERN_DIR := .*$/KERN_DIR := $(srctree)/' $make
-done
-
 # We're now using the vboxvideo module in drivers/staging, so disable
 # the version that was imported.
 sed -i -e 's: vboxvideo/::' vbox/Makefile
