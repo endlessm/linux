@@ -1,4 +1,3 @@
-KBUILD_EXTMOD=${srctree}/ubuntu/vbox
 # $Id: Makefile $
 ## @file
 # VirtualBox Guest Additions Module Makefile.

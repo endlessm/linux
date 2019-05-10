@@ -764,7 +764,7 @@ static int vbsf_inode_instantiate(struct inode *parent, struct dentry *dentry, P
                                   PSHFLFSOBJINFO info, SHFLHANDLE handle)
 {
     struct vbsf_super_info *pSuperInfo = VBSF_GET_SUPER_INFO(parent->i_sb);
-    struct inode           *pInode = vbsf_create_inode(parent, dentry, path, info, pSuperInfo, true /*fInstantiate*/);
+    struct inode           *pInode     = vbsf_create_inode(parent, dentry, path, info, pSuperInfo, true /*fInstantiate*/);
     if (pInode) {
         /* Store this handle if we leave the handle open. */
         struct vbsf_inode_info *sf_new_i = VBSF_GET_INODE_INFO(pInode);

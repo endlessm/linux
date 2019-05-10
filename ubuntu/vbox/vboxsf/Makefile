@@ -1,4 +1,3 @@
-KBUILD_EXTMOD=${srctree}/ubuntu/vbox
 # $Id: Makefile.module $
 ## @file
 # VBox Linux Shared Folders VFS Module Makefile.

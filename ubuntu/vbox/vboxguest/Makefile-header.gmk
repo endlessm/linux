@@ -113,7 +113,7 @@ ifeq ($(KERNELRELEASE),)
  endif
 
  ifeq ($(KERN_DIR),)
-KERN_DIR := $(srctree)
+  KERN_DIR := /lib/modules/$(KERN_VER)/build
  endif
 
  # Is this 2.4 or < 2.6.6? The UTS_RELEASE "2.x.y.z" define is present in the header until 2.6.1x something.
@@ -173,7 +173,11 @@ else # neq($(KERNELRELEASE),)
  KERN_VER := $(KERNELRELEASE)
 
  ifeq ($(KERN_DIR),)
-KERN_DIR := $(srctree)
+  ifneq ($(srctree),)
+   KERN_DIR := $(srctree)
+  else
+   KERN_DIR := /lib/modules/$(KERN_VER)/build
+  endif
  endif
 endif # neq($(KERNELRELEASE),)
 
@@ -187,20 +191,6 @@ KERN_INCL := $(KERN_DIR)/include
 # module install folder
 INSTALL_MOD_DIR ?= misc
 MODULE_DIR := $(INSTALL_MOD_PATH)/lib/modules/$(KERN_VER)/$(INSTALL_MOD_DIR)
-
-#
-# The KBUILD_EXTMOD variable is used by 2.6.6 and later when build external
-# modules (see https://lwn.net/Articles/79984/).  It will be set to SUBDIRS
-# or M by the linux kernel makefile.  We fake it here for older kernels.
-#
-## @todo Drop this KBUILD_EXTMOD glue once it has been removed from all our makefiles (see sharedfolders).
-ifndef CURDIR # for make < v3.79
- CURDIR := $(shell pwd)
-endif
-ifndef KBUILD_EXTMOD
- KBUILD_EXTMOD := $(CURDIR)
-endif
-
 
 # For VBOX_GCC_CHECK_CC
 VBOX_CLOSEPAR := )
@@ -239,7 +229,6 @@ $(warning dbg: KERN_DIR         = $(KERN_DIR))
 $(warning dbg: KERN_INCL        = $(KERN_INCL))
 $(warning dbg: KERN_VERSION     = $(KERN_VERSION))
 $(warning dbg: MODULE_DIR       = $(MODULE_DIR))
-$(warning dbg: KBUILD_EXTMOD    = $(KBUILD_EXTMOD))
 $(warning dbg: VBOX_MODULE_SRC_DIR = $(VBOX_MODULE_SRC_DIR))
  endif
 endif
