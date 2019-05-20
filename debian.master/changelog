@@ -1,3 +1,99 @@
+linux (5.0.0-15.16) disco; urgency=medium
+
+  * CVE-2019-11683
+    - udp: fix GRO reception in case of length mismatch
+    - udp: fix GRO packet of death
+
+  * CVE-2018-12126 // CVE-2018-12127 // CVE-2018-12130
+    - x86/msr-index: Cleanup bit defines
+    - x86/speculation: Consolidate CPU whitelists
+    - x86/speculation/mds: Add basic bug infrastructure for MDS
+    - x86/speculation/mds: Add BUG_MSBDS_ONLY
+    - x86/kvm: Expose X86_FEATURE_MD_CLEAR to guests
+    - x86/speculation/mds: Add mds_clear_cpu_buffers()
+    - x86/speculation/mds: Clear CPU buffers on exit to user
+    - x86/kvm/vmx: Add MDS protection when L1D Flush is not active
+    - x86/speculation/mds: Conditionally clear CPU buffers on idle entry
+    - x86/speculation/mds: Add mitigation control for MDS
+    - x86/speculation/mds: Add sysfs reporting for MDS
+    - x86/speculation/mds: Add mitigation mode VMWERV
+    - Documentation: Move L1TF to separate directory
+    - Documentation: Add MDS vulnerability documentation
+    - x86/speculation/mds: Add mds=full,nosmt cmdline option
+    - x86/speculation: Move arch_smt_update() call to after mitigation decisions
+    - x86/speculation/mds: Add SMT warning message
+    - x86/speculation/mds: Fix comment
+    - x86/speculation/mds: Print SMT vulnerable on MSBDS with mitigations off
+    - x86/speculation/mds: Add 'mitigations=' support for MDS
+
+  * CVE-2017-5715 // CVE-2017-5753
+    - s390/speculation: Support 'mitigations=' cmdline option
+
+  * CVE-2017-5715 // CVE-2017-5753 // CVE-2017-5754 // CVE-2018-3639
+    - powerpc/speculation: Support 'mitigations=' cmdline option
+
+  * CVE-2017-5715 // CVE-2017-5754 // CVE-2018-3620 // CVE-2018-3639 //
+    CVE-2018-3646
+    - cpu/speculation: Add 'mitigations=' cmdline option
+    - x86/speculation: Support 'mitigations=' cmdline option
+
+  * Packaging resync (LP: #1786013)
+    - [Packaging] resync git-ubuntu-log
+
+ -- Stefan Bader <stefan.bader@canonical.com>  Mon, 06 May 2019 17:33:15 +0200
+
+linux (5.0.0-14.15) disco; urgency=medium
+
+  * linux: 5.0.0-14.15 -proposed tracker (LP: #1826150)
+
+  * [SRU] Please sync vbox modules from virtualbox 6.0.6 on next kernel update
+    (LP: #1825210)
+    - vbox-update: updates for renamed makefiles
+    - ubuntu: vbox -- update to 6.0.6-dfsg-1
+
+  * Intel I210 Ethernet card not working after hotplug [8086:1533]
+    (LP: #1818490)
+    - igb: Fix WARN_ONCE on runtime suspend
+
+  * [regression][snd_hda_codec_realtek] repeating crackling noise after 19.04
+    upgrade (LP: #1821663)
+    - ALSA: hda - Add two more machines to the power_save_blacklist
+
+  * CVE-2019-9500
+    - brcmfmac: assure SSID length from firmware is limited
+
+  * CVE-2019-9503
+    - brcmfmac: add subtype check for event handling in data path
+
+  * CVE-2019-3882
+    - vfio/type1: Limit DMA mappings per container
+
+  * autofs kernel module missing (LP: #1824333)
+    - [Config] Update autofs4 path in inclusion list
+
+  * The Realtek card reader does not enter PCIe 1.1/1.2 (LP: #1825487)
+    - misc: rtsx: Enable OCP for rts522a rts524a rts525a rts5260
+    - SAUCE: misc: rtsx: Fixed rts5260 power saving parameter and sd glitch
+
+  * headset-mic doesn't work on two Dell laptops. (LP: #1825272)
+    - ALSA: hda/realtek - add two more pin configuration sets to quirk table
+
+  * CVE-2019-3887
+    - KVM: x86: nVMX: close leak of L0's x2APIC MSRs (CVE-2019-3887)
+    - KVM: x86: nVMX: fix x2APIC VTPR read intercept
+
+  * CVE-2019-3874
+    - sctp: implement memory accounting on tx path
+    - sctp: implement memory accounting on rx path
+
+  * CVE-2019-1999
+    - binder: fix race between munmap() and direct reclaim
+
+  * apparmor does not start in Disco LXD containers (LP: #1824812)
+    - SAUCE: shiftfs: use separate llseek method for directories
+
+ -- Stefan Bader <stefan.bader@canonical.com>  Wed, 24 Apr 2019 15:07:28 +0200
+
 linux (5.0.0-13.14) disco; urgency=medium
 
   * linux: 5.0.0-13.14 -proposed tracker (LP: #1824819)
