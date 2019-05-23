@@ -12232,9 +12232,10 @@ CONFIG_EVM_X509_PATH                            note<LP:1643652>
 # Menu: Security options >> Enable different security models >> Integrity subsystem >> Enable asymmetric keys support
 CONFIG_INTEGRITY_ASYMMETRIC_KEYS                policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'ppc64el': 'y', 's390x': 'y'}>
 CONFIG_INTEGRITY_TRUSTED_KEYRING                policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'ppc64el': 'y', 's390x': 'y'}>
-CONFIG_INTEGRITY_PLATFORM_KEYRING               policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'i386': 'n'}>
+CONFIG_INTEGRITY_PLATFORM_KEYRING               policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'ppc64el': 'y', 's390x': 'y'}>
 CONFIG_IMA_KEYRINGS_PERMIT_SIGNED_BY_BUILTIN_OR_SECONDARY policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'i386': 'n', 'ppc64el': 'n', 's390x': 'n'}>
 #
+CONFIG_INTEGRITY_PLATFORM_KEYRING               mark<ENFORCED> note<Required for lockdown>
 CONFIG_IMA_KEYRINGS_PERMIT_SIGNED_BY_BUILTIN_OR_SECONDARY mark<ENFORCED> note<LP:1667490>
 
 # Menu: Security options >> Enable different security models >> Integrity subsystem >> Integrity Measurement Architecture(IMA)
