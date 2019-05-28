@@ -1,0 +1,27 @@
+Source: virtualbox
+Section: contrib/misc
+Priority: optional
+Maintainer: Debian Virtualbox Team <team+debian-virtualbox@tracker.debian.org>
+Uploaders: Ritesh Raj Sarraf <rrs@debian.org>,
+           Gianfranco Costamagna <locutusofborg@debian.org>
+Build-Depends: debhelper-compat (= 12), kbuild
+Standards-Version: 4.4.0
+Homepage: https://www.virtualbox.org
+Vcs-Browser: https://salsa.debian.org/pkg-virtualbox-team/virtualbox
+Vcs-Git: https://salsa.debian.org/pkg-virtualbox-team/virtualbox.git
+
+Package: virtualbox-guest-modules-_KVERS_
+Section: contrib/kernel
+Architecture: amd64 i386
+Depends: linux-modules-_KVERS_ | linux-image-_KVERS_
+Recommends: virtualbox-guest-utils
+Provides: virtualbox-guest-modules
+Description: VirtualBox guest addition modules for Linux (kernel _KVERS_)
+ This package contains the set of loadable kernel modules for VirtualBox Guest Additions.
+ .
+ This package contains the compiled kernel modules for _KVERS_
+ .
+ If you have compiled your own kernel, you will most likely need to build
+ your own virtualbox-guest-modules. The virtualbox-guest-source package has been
+ provided for use with the Debian's module-assistant or kernel-package
+ utilities to produce a version of virtualbox-guest-modules for your kernel.
