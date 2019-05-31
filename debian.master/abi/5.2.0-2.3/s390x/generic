@@ -1314,6 +1314,7 @@ EXPORT_SYMBOL drivers/net/ethernet/mellanox/mlxsw/mlxsw_core 0x00000000	mlxsw_co
 EXPORT_SYMBOL drivers/net/ethernet/mellanox/mlxsw/mlxsw_core 0x00000000	mlxsw_core_port_init
 EXPORT_SYMBOL drivers/net/ethernet/mellanox/mlxsw/mlxsw_core 0x00000000	mlxsw_core_port_type_get
 EXPORT_SYMBOL drivers/net/ethernet/mellanox/mlxsw/mlxsw_core 0x00000000	mlxsw_core_res_get
+EXPORT_SYMBOL drivers/net/ethernet/mellanox/mlxsw/mlxsw_core 0x00000000	mlxsw_core_res_query_enabled
 EXPORT_SYMBOL drivers/net/ethernet/mellanox/mlxsw/mlxsw_core 0x00000000	mlxsw_core_res_valid
 EXPORT_SYMBOL drivers/net/ethernet/mellanox/mlxsw/mlxsw_core 0x00000000	mlxsw_core_resources_query
 EXPORT_SYMBOL drivers/net/ethernet/mellanox/mlxsw/mlxsw_core 0x00000000	mlxsw_core_rx_listener_register
@@ -3835,6 +3836,7 @@ EXPORT_SYMBOL vmlinux 0x00000000	flow_keys_dissector
 EXPORT_SYMBOL vmlinux 0x00000000	flow_rule_alloc
 EXPORT_SYMBOL vmlinux 0x00000000	flow_rule_match_basic
 EXPORT_SYMBOL vmlinux 0x00000000	flow_rule_match_control
+EXPORT_SYMBOL vmlinux 0x00000000	flow_rule_match_cvlan
 EXPORT_SYMBOL vmlinux 0x00000000	flow_rule_match_enc_control
 EXPORT_SYMBOL vmlinux 0x00000000	flow_rule_match_enc_ip
 EXPORT_SYMBOL vmlinux 0x00000000	flow_rule_match_enc_ipv4_addrs
@@ -7602,6 +7604,7 @@ EXPORT_SYMBOL_GPL drivers/nvme/host/nvme-core 0x00000000	nvme_stop_ctrl
 EXPORT_SYMBOL_GPL drivers/nvme/host/nvme-core 0x00000000	nvme_stop_keep_alive
 EXPORT_SYMBOL_GPL drivers/nvme/host/nvme-core 0x00000000	nvme_stop_queues
 EXPORT_SYMBOL_GPL drivers/nvme/host/nvme-core 0x00000000	nvme_submit_sync_cmd
+EXPORT_SYMBOL_GPL drivers/nvme/host/nvme-core 0x00000000	nvme_sync_queues
 EXPORT_SYMBOL_GPL drivers/nvme/host/nvme-core 0x00000000	nvme_trace_disk_name
 EXPORT_SYMBOL_GPL drivers/nvme/host/nvme-core 0x00000000	nvme_unfreeze
 EXPORT_SYMBOL_GPL drivers/nvme/host/nvme-core 0x00000000	nvme_uninit_ctrl
@@ -9295,6 +9298,7 @@ EXPORT_SYMBOL_GPL vmlinux 0x00000000	__fsnotify_inode_delete
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	__fsnotify_parent
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	__ftrace_vbprintk
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	__ftrace_vprintk
+EXPORT_SYMBOL_GPL vmlinux 0x00000000	__generic_fsdax_supported
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	__get_task_comm
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	__get_user_pages_fast
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	__get_vm_area
