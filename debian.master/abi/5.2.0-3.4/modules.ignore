@@ -189,6 +189,9 @@ ucd9000
 ucd9200
 uleds
 via686a
+vop
+vop_bus
+vringh
 vt1211
 vt8231
 w83627ehf
