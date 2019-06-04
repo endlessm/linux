@@ -23,6 +23,7 @@ arcxcnn_bl
 asc7621
 aspeed-pwm-tacho
 atxp1
+bch
 bd6107
 dme1737
 ds1621
@@ -140,12 +141,17 @@ max6650
 max6697
 max8688
 mcp3021
+nand
+nand_ecc
+nandcore
 nct6683
 nct6775
 nct7802
 nct7904
 npcm750-pwm-fan
 ntc_thermistor
+omap2_nand
+omap_elm
 pc87360
 pc87427
 pcf8591
