@@ -1,3 +1,12 @@
+adp8860_bl
+adp8870_bl
+arcxcnn_bl
+bd6107
+generic_bl
 gpio-amd-fch
 gpio-tqmx86
+gpio_backlight
+lm3639_bl
+lv5207lp
+pm8941-wled
 tqmx86
