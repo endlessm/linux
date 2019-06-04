@@ -52,6 +52,7 @@ hwmon
 hwmon-vid
 i5k_amb
 ibm-cffps
+icc-core
 ina209
 ina2xx
 ina3221
