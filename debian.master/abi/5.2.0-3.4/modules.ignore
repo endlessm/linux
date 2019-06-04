@@ -6,7 +6,12 @@ generic_bl
 gpio-amd-fch
 gpio-tqmx86
 gpio_backlight
+input-leds
+lcd
 lm3639_bl
 lv5207lp
+platform_lcd
 pm8941-wled
 tqmx86
+uleds
+xt_LED
