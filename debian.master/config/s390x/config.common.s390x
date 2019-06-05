@@ -464,6 +464,7 @@ CONFIG_SCHED_SMT=y
 # CONFIG_SCSI_DC395x is not set
 # CONFIG_SCSI_DMX3191D is not set
 # CONFIG_SCSI_ESAS2R is not set
+# CONFIG_SCSI_GDTH is not set
 # CONFIG_SCSI_HPSA is not set
 # CONFIG_SCSI_HPTIOP is not set
 # CONFIG_SCSI_INIA100 is not set
