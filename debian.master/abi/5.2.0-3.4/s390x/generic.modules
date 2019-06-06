@@ -316,6 +316,7 @@ ib_umad
 ib_uverbs
 ibm-cffps
 icc-core
+icp
 icplus
 ifb
 ife
@@ -900,6 +901,8 @@ smsc47m1
 smsc47m192
 smsgiucv_app
 softdog
+spl
+splat
 st
 st_drv
 ste10Xp
@@ -1129,13 +1132,19 @@ xt_tcpudp
 xt_time
 xt_u32
 z3fold
+zavl
+zcommon
 zcrypt
 zcrypt_cex2a
 zcrypt_cex2c
 zcrypt_cex4
 zfcp
+zfs
 zl6100
 zlib_deflate
+znvpair
+zpios
 zram
 zstd
 zstd_compress
+zunicode
