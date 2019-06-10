@@ -1402,6 +1402,7 @@ static void btusb_notify(struct hci_dev *hdev, unsigned int evt)
 
 	if (hci_conn_num(hdev, SCO_LINK) != data->sco_num) {
 		data->sco_num = hci_conn_num(hdev, SCO_LINK);
+		RTKBT_DBG("%s: Update sco num %d", __func__, data->sco_num);
 		schedule_work(&data->work);
 	}
 }
@@ -1415,6 +1416,8 @@ static inline int __set_isoc_interface(struct hci_dev *hdev, int altsetting)
 
 	if (!data->isoc)
 		return -ENODEV;
+
+	RTKBT_INFO("set isoc interface: alt %d", altsetting);
 
 	err = usb_set_interface(data->udev, data->isoc_ifnum, altsetting);
 	if (err < 0) {
