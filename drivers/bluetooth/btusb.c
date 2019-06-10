@@ -1522,10 +1522,14 @@ static void btusb_waker(struct work_struct *work)
 	int err;
 
 	err = usb_autopm_get_interface(data->intf);
+	RTKBT_DBG("%s start  pm_usage_cnt(0x%x)", __FUNCTION__,
+		  atomic_read(&(data->intf->pm_usage_cnt)));
 	if (err < 0)
 		return;
 
 	usb_autopm_put_interface(data->intf);
+	RTKBT_DBG("%s end  pm_usage_cnt(0x%x)", __FUNCTION__,
+		  atomic_read(&(data->intf->pm_usage_cnt)));
 }
 
 static int btusb_setup_bcm92035(struct hci_dev *hdev)
