@@ -3352,28 +3352,27 @@ static void play_deferred(struct btusb_data *data)
 	int err;
 
 	while ((urb = usb_get_from_anchor(&data->deferred))) {
+	    /************************************/
 		usb_anchor_urb(urb, &data->tx_anchor);
-
 		err = usb_submit_urb(urb, GFP_ATOMIC);
 		if (err < 0) {
+			RTKBT_ERR("play_deferred urb %p submission failed",
+				  urb);
 			if (err != -EPERM && err != -ENODEV)
 				BT_ERR("%s urb %p submission failed (%d)",
 				       data->hdev->name, urb, -err);
 			kfree(urb->setup_packet);
 			usb_unanchor_urb(urb);
-			usb_free_urb(urb);
-			break;
+		} else {
+			usb_mark_last_busy(data->udev);
 		}
-
 		data->tx_in_flight++;
 		usb_free_urb(urb);
+		/************************************/
 	}
 
-	/* Cleanup the rest deferred urbs. */
-	while ((urb = usb_get_from_anchor(&data->deferred))) {
-		kfree(urb->setup_packet);
-		usb_free_urb(urb);
-	}
+	mdelay(URB_CANCELING_DELAY_MS);	// Added by Realtek
+	usb_scuttle_anchored_urbs(&data->deferred);
 }
 
 static int btusb_resume(struct usb_interface *intf)
