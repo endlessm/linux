@@ -3316,9 +3316,25 @@ static void btusb_disconnect(struct usb_interface *intf)
 static int btusb_suspend(struct usb_interface *intf, pm_message_t message)
 {
 	struct btusb_data *data = usb_get_intfdata(intf);
+	const struct usb_device_id *id = usb_match_id(intf, btusb_table);
 
 	BT_DBG("intf %p", intf);
 
+	if (intf->cur_altsetting->desc.bInterfaceNumber != 0) {
+		if (!(id->driver_info & BTUSB_IFNUM_2))
+			return 0;
+		if (intf->cur_altsetting->desc.bInterfaceNumber != 2)
+			return 0;
+	}
+
+	/*******************************/
+	RTKBT_DBG("btusb_suspend message.event 0x%x, data->suspend_count %d",
+		  message.event, data->suspend_count);
+	if (!test_bit(HCI_RUNNING, &data->hdev->flags)) {
+		RTKBT_INFO("%s: hdev is not HCI_RUNNING", __func__);
+		/* set_scan(data->intf); */
+	}
+	/*******************************/
 	if (data->suspend_count++)
 		return 0;
 
@@ -3326,6 +3342,7 @@ static int btusb_suspend(struct usb_interface *intf, pm_message_t message)
 	if (!(PMSG_IS_AUTO(message) && data->tx_in_flight)) {
 		set_bit(BTUSB_SUSPENDING, &data->flags);
 		spin_unlock_irq(&data->txlock);
+		RTKBT_INFO("%s: suspending...", __func__);
 	} else {
 		spin_unlock_irq(&data->txlock);
 		data->suspend_count--;
@@ -3335,13 +3352,8 @@ static int btusb_suspend(struct usb_interface *intf, pm_message_t message)
 	cancel_work_sync(&data->work);
 
 	btusb_stop_traffic(data);
+	mdelay(URB_CANCELING_DELAY_MS);	// Added by Realtek
 	usb_kill_anchored_urbs(&data->tx_anchor);
-
-	if (data->oob_wake_irq && device_may_wakeup(&data->udev->dev)) {
-		set_bit(BTUSB_OOB_WAKE_ENABLED, &data->flags);
-		enable_irq_wake(data->oob_wake_irq);
-		enable_irq(data->oob_wake_irq);
-	}
 
 	return 0;
 }
