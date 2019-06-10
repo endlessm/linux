@@ -2942,6 +2942,160 @@ static void btusb_check_needs_reset_resume(struct usb_interface *intf)
 		interface_to_usbdev(intf)->quirks |= USB_QUIRK_RESET_RESUME;
 }
 
+static int rtkbt_pm_notify(struct notifier_block *notifier,
+		    ulong pm_event, void *unused)
+{
+	struct btusb_data *data;
+	struct usb_device *udev;
+	struct usb_interface *intf;
+	struct hci_dev *hdev;
+	/* int err; */
+#ifdef RTKBT_SWITCH_PATCH
+	u8 *cmd;
+	int result;
+	static u8 hci_state = 0;
+	struct api_context ctx;
+#endif
+
+	data = container_of(notifier, struct btusb_data, pm_notifier);
+	udev = data->udev;
+	intf = data->intf;
+	hdev = data->hdev;
+
+	RTKBT_DBG("%s: pm_event %ld", __func__, pm_event);
+	switch (pm_event) {
+	case PM_SUSPEND_PREPARE:
+	case PM_HIBERNATION_PREPARE:
+		/* No need to load firmware because the download firmware
+		 * process is deprecated in resume.
+		 * We use rebind after resume instead */
+		/* err = usb_autopm_get_interface(data->intf);
+		 * if (err < 0)
+		 * 	return err;
+		 * patch_entry->fw_len =
+		 *     load_firmware(dev_entry, &patch_entry->fw_cache);
+		 * usb_autopm_put_interface(data->intf);
+		 * if (patch_entry->fw_len <= 0) {
+		 * 	RTKBT_DBG("rtkbt_pm_notify return NOTIFY_BAD");
+		 * 	return NOTIFY_BAD;
+		 * } */
+
+		RTKBT_DBG("%s: suspend prepare", __func__);
+
+		if (!device_may_wakeup(&udev->dev)) {
+#ifdef CONFIG_NEEDS_BINDING
+			intf->needs_binding = 1;
+			RTKBT_DBG("Remote wakeup not support, set "
+				  "intf->needs_binding = 1");
+#else
+			RTKBT_DBG("Remote wakeup not support, no needs binding");
+#endif
+		}
+
+#ifdef RTKBT_SWITCH_PATCH
+		if (test_bit(HCI_UP, &hdev->flags)) {
+			unsigned long expire;
+
+			init_completion(&ctx.done);
+			hci_state = 1;
+
+			down(&switch_sem);
+			data->context = &ctx;
+			ctx.flags = RTLBT_CLOSE;
+			queue_work(hdev->req_workqueue, &hdev->power_off.work);
+			up(&switch_sem);
+
+			expire = msecs_to_jiffies(1000);
+			if (!wait_for_completion_timeout(&ctx.done, expire))
+				RTKBT_ERR("hdev close timeout");
+
+			down(&switch_sem);
+			data->context = NULL;
+			up(&switch_sem);
+		}
+
+		cmd = kzalloc(16, GFP_ATOMIC);
+		if (!cmd) {
+			RTKBT_ERR("Can't allocate memory for cmd");
+			return -ENOMEM;
+		}
+
+		/* Clear patch */
+		cmd[0] = 0x66;
+		cmd[1] = 0xfc;
+		cmd[2] = 0x00;
+
+		result = __rtk_send_hci_cmd(udev, cmd, 3);
+		kfree(cmd);
+		msleep(100); /* From FW colleague's recommendation */
+		result = download_lps_patch(intf);
+
+		/* Tell the controller to wake up host if received special
+		 * advertising packet
+		 */
+		set_scan(intf);
+
+		/* Send special vendor commands */
+#endif
+
+		break;
+
+	case PM_POST_SUSPEND:
+	case PM_POST_HIBERNATION:
+	case PM_POST_RESTORE:
+		/* if (patch_entry->fw_len > 0) {
+		 * 	kfree(patch_entry->fw_cache);
+		 * 	patch_entry->fw_cache = NULL;
+		 * 	patch_entry->fw_len = 0;
+		 * } */
+
+#ifdef RTKBT_SWITCH_PATCH
+		cmd = kzalloc(16, GFP_ATOMIC);
+		if (!cmd) {
+			RTKBT_ERR("Can't allocate memory for cmd");
+			return -ENOMEM;
+		}
+
+		/* Clear patch */
+		cmd[0] = 0x66;
+		cmd[1] = 0xfc;
+		cmd[2] = 0x00;
+
+		result = __rtk_send_hci_cmd(udev, cmd, 3);
+		kfree(cmd);
+		msleep(100); /* From FW colleague's recommendation */
+		result = download_patch(intf);
+		if (hci_state) {
+			hci_state = 0;
+			queue_work(hdev->req_workqueue, &hdev->power_on);
+		}
+#endif
+
+#if BTUSB_RPM
+		RTKBT_DBG("%s: Re-enable autosuspend", __func__);
+		/* pm_runtime_use_autosuspend(&udev->dev);
+		 * pm_runtime_set_autosuspend_delay(&udev->dev, 2000);
+		 * pm_runtime_set_active(&udev->dev);
+		 * pm_runtime_allow(&udev->dev);
+		 * pm_runtime_mark_last_busy(&udev->dev);
+		 * pm_runtime_autosuspend(&udev->dev);
+		 * pm_runtime_put_autosuspend(&udev->dev);
+		 * usb_disable_autosuspend(udev); */
+		/* FIXME: usb_enable_autosuspend(udev) is useless here.
+		 * Because it is always enabled after enabled in btusb_probe()
+		 */
+		usb_enable_autosuspend(udev);
+		pm_runtime_mark_last_busy(&udev->dev);
+#endif
+		break;
+
+	default:
+		break;
+	}
+
+	return NOTIFY_DONE;
+}
+
 static int btusb_probe(struct usb_interface *intf,
 		       const struct usb_device_id *id)
 {
@@ -2949,7 +3103,8 @@ static int btusb_probe(struct usb_interface *intf,
 	struct btusb_data *data;
 	struct hci_dev *hdev;
 	unsigned ifnum_base;
-	int i, err;
+	int i, err, flag1, flag2;
+	struct usb_device *udev = interface_to_usbdev(intf);
 
 	BT_DBG("intf %p id %p", intf, id);
 
@@ -2984,6 +3139,24 @@ static int btusb_probe(struct usb_interface *intf,
 		    !btusb_qca_need_patch(udev))
 			return -ENODEV;
 	}
+
+	/*******************************/
+	flag1 = device_can_wakeup(&udev->dev);
+	flag2 = device_may_wakeup(&udev->dev);
+	RTKBT_DBG("btusb_probe can_wakeup %x, may wakeup %x", flag1, flag2);
+#if BTUSB_WAKEUP_HOST
+	device_wakeup_enable(&udev->dev);
+#endif
+	//device_wakeup_enable(&udev->dev);
+	/*device_wakeup_disable(&udev->dev);
+	   flag1=device_can_wakeup(&udev->dev);
+	   flag2=device_may_wakeup(&udev->dev);
+	   RTKBT_DBG("btusb_probe can_wakeup=%x  flag2=%x",flag1,flag2);
+	 */
+	err = rtk_misc_patch_add(intf);
+	if (err < 0)
+		return -1;
+	/*******************************/
 
 	data = devm_kzalloc(&intf->dev, sizeof(*data), GFP_KERNEL);
 	if (!data)
@@ -3167,6 +3340,7 @@ static int btusb_probe(struct usb_interface *intf,
 		btusb_check_needs_reset_resume(intf);
 	}
 
+#if 0 // This is not present in bt_rtk
 #ifdef CONFIG_BT_HCIBTUSB_RTL
 	if (id->driver_info & BTUSB_REALTEK) {
 		hdev->setup = btrtl_setup_realtek;
@@ -3177,6 +3351,7 @@ static int btusb_probe(struct usb_interface *intf,
 		 */
 		interface_to_usbdev(intf)->quirks |= USB_QUIRK_RESET_RESUME;
 	}
+#endif
 #endif
 
 	if (id->driver_info & BTUSB_AMP) {
@@ -3255,14 +3430,21 @@ static int btusb_probe(struct usb_interface *intf,
 	}
 #endif
 
-	if (enable_autosuspend)
-		usb_enable_autosuspend(data->udev);
-
 	err = hci_register_dev(hdev);
 	if (err < 0)
 		goto out_free_dev;
 
 	usb_set_intfdata(intf, data);
+
+	/* Register PM notifier */
+	data->pm_notifier.notifier_call = rtkbt_pm_notify;
+	register_pm_notifier(&data->pm_notifier);
+
+#ifdef BTCOEX
+	rtk_btcoex_probe(hdev);
+#endif
+
+	RTKBT_DBG("%s: done", __func__);
 
 	return 0;
 

@@ -37,7 +37,7 @@
 /* 1 SS enable; 0 SS disable */
 #define BTUSB_RPM		(0*USB_RPM)
 
-int patch_add(struct usb_interface *intf);
+int rtk_misc_patch_add(struct usb_interface *intf);
 void rtk_misc_patch_remove(struct usb_interface *intf);
 int download_patch(struct usb_interface *intf);
 void print_event(struct sk_buff *skb);
@@ -68,3 +68,4 @@ int set_scan(struct usb_interface *intf);
 #endif
 
 #define URB_CANCELING_DELAY_MS	10	// Added by Realtek
+#define BTUSB_WAKEUP_HOST	0	/* 1  enable; 0  disable */
