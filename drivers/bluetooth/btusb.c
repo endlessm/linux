@@ -495,6 +495,7 @@ struct btusb_data {
 	int (*setup_on_usb)(struct hci_dev *hdev);
 
 	int oob_wake_irq;   /* irq for out-of-band wake-on-bt */
+	struct notifier_block pm_notifier;                                                          /* From rtk_bt.h */
 };
 
 static inline void btusb_free_frags(struct btusb_data *data)
@@ -3274,40 +3275,44 @@ static void btusb_disconnect(struct usb_interface *intf)
 {
 	struct btusb_data *data = usb_get_intfdata(intf);
 	struct hci_dev *hdev;
+	const struct usb_device_id *id = usb_match_id(intf, btusb_table);
 
 	BT_DBG("intf %p", intf);
+
+	if (intf->cur_altsetting->desc.bInterfaceNumber != 0) {
+		if (!(id->driver_info & BTUSB_IFNUM_2))
+			return;
+		if (intf->cur_altsetting->desc.bInterfaceNumber != 2)
+			return;
+	}
 
 	if (!data)
 		return;
 
+	RTKBT_DBG("btusb_disconnect");
+
+	/* Un-register PM notifier */
+	unregister_pm_notifier(&data->pm_notifier);
+
+	/*******************************/
+	rtk_misc_patch_remove(intf);
+	/*******************************/
+
 	hdev = data->hdev;
+
 	usb_set_intfdata(data->intf, NULL);
 
 	if (data->isoc)
 		usb_set_intfdata(data->isoc, NULL);
 
-	if (data->diag)
-		usb_set_intfdata(data->diag, NULL);
-
 	hci_unregister_dev(hdev);
 
-	if (intf == data->intf) {
-		if (data->isoc)
-			usb_driver_release_interface(&btusb_driver, data->isoc);
-		if (data->diag)
-			usb_driver_release_interface(&btusb_driver, data->diag);
-	} else if (intf == data->isoc) {
-		if (data->diag)
-			usb_driver_release_interface(&btusb_driver, data->diag);
+	if (intf == data->isoc)
 		usb_driver_release_interface(&btusb_driver, data->intf);
-	} else if (intf == data->diag) {
-		usb_driver_release_interface(&btusb_driver, data->intf);
-		if (data->isoc)
-			usb_driver_release_interface(&btusb_driver, data->isoc);
-	}
+	else if (data->isoc)
+		usb_driver_release_interface(&btusb_driver, data->isoc);
 
-	if (data->oob_wake_irq)
-		device_init_wakeup(&data->udev->dev, false);
+	btusb_free_frags(data);
 
 	hci_free_dev(hdev);
 }
