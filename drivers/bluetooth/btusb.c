@@ -3381,20 +3381,40 @@ static int btusb_resume(struct usb_interface *intf)
 	struct btusb_data *data = usb_get_intfdata(intf);
 	struct hci_dev *hdev = data->hdev;
 	int err = 0;
+	const struct usb_device_id *id = usb_match_id(intf, btusb_table);
 
 	BT_DBG("intf %p", intf);
 
+	if (intf->cur_altsetting->desc.bInterfaceNumber != 0) {
+		if (!(id->driver_info & BTUSB_IFNUM_2))
+			return 0;
+		if (intf->cur_altsetting->desc.bInterfaceNumber != 2)
+			return 0;
+	}
+
+	/*******************************/
+	RTKBT_DBG("%s: data->suspend_count %d", __func__, data->suspend_count);
+
+	/* if intf->needs_binding is set, driver will be rebind.
+	 * The probe will be called instead of resume */
+	/* if (!test_bit(HCI_RUNNING, &hdev->flags)) {
+	 * 	RTKBT_DBG("btusb_resume-----bt is off,download patch");
+	 * 	download_patch(intf);
+	 * } else
+	 * 	RTKBT_DBG("btusb_resume,----bt is on");
+	 */
+	/*******************************/
 	if (--data->suspend_count)
 		return 0;
 
-	/* Disable only if not already disabled (keep it balanced) */
-	if (test_and_clear_bit(BTUSB_OOB_WAKE_ENABLED, &data->flags)) {
-		disable_irq(data->oob_wake_irq);
-		disable_irq_wake(data->oob_wake_irq);
-	}
-
-	if (!test_bit(HCI_RUNNING, &hdev->flags))
-		goto done;
+//	/* Disable only if not already disabled (keep it balanced) */
+//	if (test_and_clear_bit(BTUSB_OOB_WAKE_ENABLED, &data->flags)) {
+//		disable_irq(data->oob_wake_irq);
+//		disable_irq_wake(data->oob_wake_irq);
+//	}
+//
+//	if (!test_bit(HCI_RUNNING, &hdev->flags))
+//		goto done;
 
 	if (test_bit(BTUSB_INTR_RUNNING, &data->flags)) {
 		err = btusb_submit_intr_urb(hdev, GFP_NOIO);
@@ -3427,14 +3447,19 @@ static int btusb_resume(struct usb_interface *intf)
 	spin_unlock_irq(&data->txlock);
 	schedule_work(&data->work);
 
+	RTKBT_DBG("%s: data->suspend_count %d, done", __func__,
+		  data->suspend_count);
+
 	return 0;
 
 failed:
+	mdelay(URB_CANCELING_DELAY_MS);	// Added by Realtek
 	usb_scuttle_anchored_urbs(&data->deferred);
-done:
 	spin_lock_irq(&data->txlock);
 	clear_bit(BTUSB_SUSPENDING, &data->flags);
 	spin_unlock_irq(&data->txlock);
+	RTKBT_DBG("%s: data->suspend_count %d, fail", __func__,
+		  data->suspend_count);
 
 	return err;
 }
