@@ -37,12 +37,12 @@
 /* 1 SS enable; 0 SS disable */
 #define BTUSB_RPM		(0*USB_RPM)
 
-extern int patch_add(struct usb_interface *intf);
-extern void patch_remove(struct usb_interface *intf);
-extern int download_patch(struct usb_interface *intf);
-extern void print_event(struct sk_buff *skb);
-extern void print_command(struct sk_buff *skb);
-extern void print_acl(struct sk_buff *skb, int dataOut);
+int patch_add(struct usb_interface *intf);
+void rtk_misc_patch_remove(struct usb_interface *intf);
+int download_patch(struct usb_interface *intf);
+void print_event(struct sk_buff *skb);
+void print_command(struct sk_buff *skb);
+void print_acl(struct sk_buff *skb, int dataOut);
 
 /* Download LPS patch when host suspends or power off
  *   LPS patch name:  lps_rtl8xxx_fw
