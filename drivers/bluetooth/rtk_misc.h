@@ -66,3 +66,5 @@ int __rtk_recv_hci_evt(struct usb_device *udev, u8 *buf, u8 len,
 int download_lps_patch(struct usb_interface *intf);
 int set_scan(struct usb_interface *intf);
 #endif
+
+#define URB_CANCELING_DELAY_MS	10	// Added by Realtek
