@@ -1456,11 +1456,13 @@ static void btusb_work(struct work_struct *work)
 	int new_alts;
 	int err;
 
+	RTKBT_DBG("%s: sco num %d", __func__, data->sco_num);
 	if (data->sco_num > 0) {
 		if (!test_bit(BTUSB_DID_ISO_RESUME, &data->flags)) {
 			err = usb_autopm_get_interface(data->isoc ? data->isoc : data->intf);
 			if (err < 0) {
 				clear_bit(BTUSB_ISOC_RUNNING, &data->flags);
+				mdelay(URB_CANCELING_DELAY_MS);
 				usb_kill_anchored_urbs(&data->isoc_anchor);
 				return;
 			}
@@ -1477,30 +1479,16 @@ static void btusb_work(struct work_struct *work)
 		}
 
 		if (data->isoc_altsetting != new_alts) {
-			unsigned long flags;
-
 			clear_bit(BTUSB_ISOC_RUNNING, &data->flags);
+			mdelay(URB_CANCELING_DELAY_MS);
 			usb_kill_anchored_urbs(&data->isoc_anchor);
-
-			/* When isochronous alternate setting needs to be
-			 * changed, because SCO connection has been added
-			 * or removed, a packet fragment may be left in the
-			 * reassembling state. This could lead to wrongly
-			 * assembled fragments.
-			 *
-			 * Clear outstanding fragment when selecting a new
-			 * alternate setting.
-			 */
-			spin_lock_irqsave(&data->rxlock, flags);
-			kfree_skb(data->sco_skb);
-			data->sco_skb = NULL;
-			spin_unlock_irqrestore(&data->rxlock, flags);
 
 			if (__set_isoc_interface(hdev, new_alts) < 0)
 				return;
 		}
 
 		if (!test_and_set_bit(BTUSB_ISOC_RUNNING, &data->flags)) {
+			RTKBT_INFO("submit SCO RX urb.");
 			if (btusb_submit_isoc_urb(hdev, GFP_KERNEL) < 0)
 				clear_bit(BTUSB_ISOC_RUNNING, &data->flags);
 			else
@@ -1508,6 +1496,7 @@ static void btusb_work(struct work_struct *work)
 		}
 	} else {
 		clear_bit(BTUSB_ISOC_RUNNING, &data->flags);
+		mdelay(URB_CANCELING_DELAY_MS);
 		usb_kill_anchored_urbs(&data->isoc_anchor);
 
 		__set_isoc_interface(hdev, 0);
