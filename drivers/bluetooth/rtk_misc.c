@@ -528,12 +528,12 @@ static void config_file_proc(const char *path)
 	config_process(tbuf, rc);
 }
 
-int patch_add(struct usb_interface *intf)
+int rtk_misc_patch_add(struct usb_interface *intf)
 {
 	dev_data *dev_entry;
 	struct usb_device *udev;
 
-	RTKBT_DBG("patch_add");
+	RTKBT_DBG("rtk_misc_patch_add");
 	dev_entry = dev_data_find(intf);
 	if (NULL != dev_entry) {
 		return -1;
@@ -569,6 +569,7 @@ int patch_add(struct usb_interface *intf)
 
 	return 0;
 }
+EXPORT_SYMBOL_GPL(rtk_misc_patch_add);
 
 void rtk_misc_patch_remove(struct usb_interface *intf)
 {
