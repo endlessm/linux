@@ -616,14 +616,14 @@ static int send_reset_command(xchange_data *xdata)
 	return 0;
 }
 
-int download_patch(struct usb_interface *intf)
+int rtk_misc_download_patch(struct usb_interface *intf)
 {
 	dev_data *dev_entry;
 	xchange_data *xdata = NULL;
 	uint8_t *fw_buf;
 	int ret_val;
 
-	RTKBT_DBG("download_patch start");
+	RTKBT_DBG("rtk_misc_download_patch start");
 	dev_entry = dev_data_find(intf);
 	if (NULL == dev_entry) {
 		ret_val = -1;
@@ -698,6 +698,7 @@ patch_end:
 	RTKBT_DBG("Rtk patch end %d", ret_val);
 	return ret_val;
 }
+EXPORT_SYMBOL_GPL(rtk_misc_download_patch);
 
 #ifdef RTKBT_SWITCH_PATCH
 /* @return:
