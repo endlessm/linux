@@ -1220,6 +1220,8 @@ static int btusb_flush(struct hci_dev *hdev)
 	struct btusb_data *data = hci_get_drvdata(hdev);
 
 	BT_DBG("%s", hdev->name);
+	RTKBT_DBG("%s add delay ", __FUNCTION__);
+	mdelay(URB_CANCELING_DELAY_MS);	// Added by Realtek
 
 	usb_kill_anchored_urbs(&data->tx_anchor);
 	btusb_free_frags(data);
