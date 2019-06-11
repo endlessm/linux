@@ -1362,8 +1362,21 @@ static int btusb_send_frame(struct hci_dev *hdev, struct sk_buff *skb)
 
 	BT_DBG("%s", hdev->name);
 
+	if (!test_bit(HCI_RUNNING, &hdev->flags)) {
+		/* If the parameter is wrong, the hdev isn't the correct
+		 * one. Then no HCI commands can be sent.
+		 * This issue is related to the wrong HCI_VERSION_CODE set */
+		RTKBT_ERR("HCI is not running");
+		return -EBUSY;
+	}
+
 	switch (hci_skb_pkt_type(skb)) {
 	case HCI_COMMAND_PKT:
+		rtk_misc_print_command(skb);
+
+#ifdef BTCOEX
+		rtk_btcoex_parse_cmd(skb->data, skb->len);
+#endif
 		urb = alloc_ctrl_urb(hdev, skb);
 		if (IS_ERR(urb))
 			return PTR_ERR(urb);
@@ -1372,6 +1385,10 @@ static int btusb_send_frame(struct hci_dev *hdev, struct sk_buff *skb)
 		return submit_or_queue_tx_urb(hdev, urb);
 
 	case HCI_ACLDATA_PKT:
+		rtk_misc_print_acl(skb, 1);
+#ifdef BTCOEX
+		rtk_btcoex_parse_l2cap_data_tx(skb->data, skb->len);
+#endif
 		urb = alloc_bulk_urb(hdev, skb);
 		if (IS_ERR(urb))
 			return PTR_ERR(urb);

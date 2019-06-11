@@ -41,8 +41,8 @@ int rtk_misc_patch_add(struct usb_interface *intf);
 void rtk_misc_patch_remove(struct usb_interface *intf);
 int download_patch(struct usb_interface *intf);
 void print_event(struct sk_buff *skb);
-void print_command(struct sk_buff *skb);
-void print_acl(struct sk_buff *skb, int dataOut);
+void rtk_misc_print_command(struct sk_buff *skb);
+void rtk_misc_print_acl(struct sk_buff *skb, int dataOut);
 
 /* Download LPS patch when host suspends or power off
  *   LPS patch name:  lps_rtl8xxx_fw
