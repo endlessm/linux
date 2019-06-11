@@ -43,11 +43,20 @@
 
 #define VERSION "0.8"
 
+#ifdef BTCOEX
+#include "rtk_coex.h"
+#endif
+
+#ifdef RTKBT_SWITCH_PATCH
+#include <linux/semaphore.h>
+DEFINE_SEMAPHORE(switch_sem);
+#endif
+
 static bool disable_scofix;
 static bool force_scofix;
 static bool enable_autosuspend = IS_ENABLED(CONFIG_BT_HCIBTUSB_AUTOSUSPEND);
 
-static bool reset = true;
+static bool reset = 0;
 
 static struct usb_driver btusb_driver;
 
