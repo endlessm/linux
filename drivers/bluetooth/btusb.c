@@ -903,14 +903,22 @@ static void btusb_isoc_complete(struct urb *urb)
 
 	usb_anchor_urb(urb, &data->isoc_anchor);
 
+	i = 0;
+retry:
 	err = usb_submit_urb(urb, GFP_ATOMIC);
 	if (err < 0) {
 		/* -EPERM: urb is being killed;
 		 * -ENODEV: device got disconnected
 		 */
 		if (err != -EPERM && err != -ENODEV)
-			bt_dev_err(hdev, "urb %p failed to resubmit (%d)",
-				   urb, -err);
+			RTKBT_ERR
+			    ("%s: Failed to re-sumbit urb %p, retry %d, err %d",
+			     __func__, urb, i, err);
+		if (i < 10) {
+			i++;
+			mdelay(1);
+			goto retry;
+		}
 		usb_unanchor_urb(urb);
 	}
 }
