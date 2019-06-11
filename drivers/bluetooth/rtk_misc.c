@@ -1747,7 +1747,7 @@ int rcv_hci_evt(xchange_data * xdata)
 	}
 }
 
-void print_acl(struct sk_buff *skb, int dataOut)
+void rtk_misc_print_acl(struct sk_buff *skb, int dataOut)
 {
 #if PRINT_ACL_DATA
 	uint wlength = skb->len;
@@ -1767,8 +1767,9 @@ void print_acl(struct sk_buff *skb, int dataOut)
 */
 #endif
 }
+EXPORT_SYMBOL_GPL(rtk_misc_print_acl);
 
-void print_command(struct sk_buff *skb)
+void rtk_misc_print_command(struct sk_buff *skb)
 {
 #if PRINT_CMD_EVENT
 	uint wlength = skb->len;
@@ -1841,6 +1842,7 @@ void print_command(struct sk_buff *skb)
 
 #endif
 }
+EXPORT_SYMBOL_GPL(rtk_misc_print_command);
 
 void print_event(struct sk_buff *skb)
 {
