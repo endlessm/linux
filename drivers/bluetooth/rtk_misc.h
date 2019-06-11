@@ -69,3 +69,5 @@ int set_scan(struct usb_interface *intf);
 
 #define URB_CANCELING_DELAY_MS	10	// Added by Realtek
 #define BTUSB_WAKEUP_HOST	0	/* 1  enable; 0  disable */
+#define BTCOEX
+#define HCI_VERSION_CODE LINUX_VERSION_CODE
