@@ -701,6 +701,10 @@ static void btusb_intr_complete(struct urb *urb)
 	if (urb->status == 0) {
 		hdev->stat.byte_rx += urb->actual_length;
 
+#ifdef BTCOEX
+		rtk_btcoex_parse_event(urb->transfer_buffer,
+				urb->actual_length);
+#endif
 		if (btusb_recv_intr(data, urb->transfer_buffer,
 				    urb->actual_length) < 0) {
 			bt_dev_err(hdev, "corrupted event packet");
