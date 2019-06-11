@@ -1135,16 +1135,24 @@ static int btusb_open(struct hci_dev *hdev)
 	if (err < 0)
 		return err;
 
-	/* Patching USB firmware files prior to starting any URBs of HCI path
-	 * It is more safe to use USB bulk channel for downloading USB patch
-	 */
-	if (data->setup_on_usb) {
-		err = data->setup_on_usb(hdev);
-		if (err < 0)
-			return err;
+	data->intf->needs_remote_wakeup = 1;
+	RTKBT_DBG("%s start pm_usage_cnt(0x%x)", __func__,
+		  atomic_read(&(data->intf->pm_usage_cnt)));
+
+	/*******************************/
+	if (0 == atomic_read(&hdev->promisc)) {
+		RTKBT_ERR("btusb_open hdev->promisc ==0");
+		err = -1;
 	}
 
-	data->intf->needs_remote_wakeup = 1;
+	err = rtk_misc_download_patch(data->intf);
+	if (err < 0)
+		goto failed;
+	/*******************************/
+
+	RTKBT_INFO("%s set HCI_RUNNING", __func__);
+	if (test_and_set_bit(HCI_RUNNING, &hdev->flags))
+		goto done;
 
 	if (test_and_set_bit(BTUSB_INTR_RUNNING, &data->flags))
 		goto done;
@@ -1155,6 +1163,7 @@ static int btusb_open(struct hci_dev *hdev)
 
 	err = btusb_submit_bulk_urb(hdev, GFP_KERNEL);
 	if (err < 0) {
+		mdelay(URB_CANCELING_DELAY_MS);	// Added by Realtek
 		usb_kill_anchored_urbs(&data->intr_anchor);
 		goto failed;
 	}
@@ -1169,11 +1178,19 @@ static int btusb_open(struct hci_dev *hdev)
 
 done:
 	usb_autopm_put_interface(data->intf);
+#ifdef BTCOEX
+	rtk_btcoex_open(hdev);
+#endif
+	RTKBT_DBG("%s end  pm_usage_cnt(0x%x)", __FUNCTION__,
+		  atomic_read(&(data->intf->pm_usage_cnt)));
 	return 0;
 
 failed:
 	clear_bit(BTUSB_INTR_RUNNING, &data->flags);
+	clear_bit(HCI_RUNNING, &hdev->flags);
 	usb_autopm_put_interface(data->intf);
+	RTKBT_ERR("%s failed  pm_usage_cnt(0x%x)", __FUNCTION__,
+		  atomic_read(&(data->intf->pm_usage_cnt)));
 	return err;
 }
 
@@ -3107,7 +3124,7 @@ static int rtkbt_pm_notify(struct notifier_block *notifier,
 		result = __rtk_send_hci_cmd(udev, cmd, 3);
 		kfree(cmd);
 		msleep(100); /* From FW colleague's recommendation */
-		result = download_patch(intf);
+		result = rtk_misc_download_patch(intf);
 		if (hci_state) {
 			hci_state = 0;
 			queue_work(hdev->req_workqueue, &hdev->power_on);
@@ -3640,7 +3657,7 @@ static int btusb_resume(struct usb_interface *intf)
 	 * The probe will be called instead of resume */
 	/* if (!test_bit(HCI_RUNNING, &hdev->flags)) {
 	 * 	RTKBT_DBG("btusb_resume-----bt is off,download patch");
-	 * 	download_patch(intf);
+	 * 	rtk_misc_download_patch(intf);
 	 * } else
 	 * 	RTKBT_DBG("btusb_resume,----bt is on");
 	 */
