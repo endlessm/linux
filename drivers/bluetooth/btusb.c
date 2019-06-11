@@ -788,6 +788,12 @@ static void btusb_bulk_complete(struct urb *urb)
 	if (!test_bit(HCI_RUNNING, &hdev->flags))
 		return;
 
+#ifdef BTCOEX
+	if (urb->status == 0)
+		rtk_btcoex_parse_l2cap_data_rx(urb->transfer_buffer,
+				urb->actual_length);
+#endif
+
 	if (urb->status == 0) {
 		hdev->stat.byte_rx += urb->actual_length;
 
