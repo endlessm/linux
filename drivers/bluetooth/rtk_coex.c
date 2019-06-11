@@ -1290,7 +1290,7 @@ static void create_udpsocket(void)
 static void rtk_notify_extension_version_to_wifi(void)
 {
 	uint8_t para_length = 2;
-	char p_buf[para_length + HCI_CMD_PREAMBLE_SIZE];
+	char p_buf[2 + HCI_CMD_PREAMBLE_SIZE];
 	char *p = p_buf;
 
 	if (!btrtl_coex.wifi_on)
@@ -1307,7 +1307,7 @@ static void rtk_notify_extension_version_to_wifi(void)
 static void rtk_notify_btpatch_version_to_wifi(void)
 {
 	uint8_t para_length = 4;
-	char p_buf[para_length + HCI_CMD_PREAMBLE_SIZE];
+	char p_buf[4 + HCI_CMD_PREAMBLE_SIZE];
 	char *p = p_buf;
 
 	if (!btrtl_coex.wifi_on)
@@ -1328,7 +1328,7 @@ static void rtk_notify_btpatch_version_to_wifi(void)
 static void rtk_notify_afhmap_to_wifi(void)
 {
 	uint8_t para_length = 13;
-	char p_buf[para_length + HCI_CMD_PREAMBLE_SIZE];
+	char p_buf[13 + HCI_CMD_PREAMBLE_SIZE];
 	char *p = p_buf;
 	uint8_t kk = 0;
 
@@ -1355,7 +1355,7 @@ static void rtk_notify_afhmap_to_wifi(void)
 static void rtk_notify_btcoex_to_wifi(uint8_t opcode, uint8_t status)
 {
 	uint8_t para_length = 2;
-	char p_buf[para_length + HCI_CMD_PREAMBLE_SIZE];
+	char p_buf[2 + HCI_CMD_PREAMBLE_SIZE];
 	char *p = p_buf;
 
 	if (!btrtl_coex.wifi_on)
@@ -1380,7 +1380,8 @@ static void rtk_notify_btoperation_to_wifi(uint8_t operation,
 					   uint8_t * append_data)
 {
 	uint8_t para_length = 3 + append_data_length;
-	char p_buf[para_length + HCI_CMD_PREAMBLE_SIZE];
+	/* this function is always called with append_data_length=0 */
+	char p_buf[3 + 0 + HCI_CMD_PREAMBLE_SIZE];
 	char *p = p_buf;
 	uint8_t kk = 0;
 
@@ -1409,18 +1410,25 @@ static void rtk_notify_info_to_wifi(uint8_t reason, uint8_t length,
 				    uint8_t *report_info)
 {
 	uint8_t para_length = 4 + length;
-	char buf[para_length + HCI_CMD_PREAMBLE_SIZE];
-	char *p = buf;
+	/* this function is either called with length=0 or length=rtk_notify_info_to_wifi
+	 * so the correct buffer is chosen at run time */
+	char buf0[4 + 0 + HCI_CMD_PREAMBLE_SIZE];
+	char buf_btinfo[4 + RTL_BTINFO_LEN + HCI_CMD_PREAMBLE_SIZE];
+	char *p, *buf;
 	struct rtl_btinfo *report = (struct rtl_btinfo *)report_info;
 
 	if (length) {
+		buf = buf_btinfo;
 		RTKBT_DBG("bt info: cmd %2.2X", report->cmd);
 		RTKBT_DBG("bt info: len %2.2X", report->len);
 		RTKBT_DBG("bt info: data %2.2X %2.2X %2.2X %2.2X %2.2X %2.2X",
 			  report->data[0], report->data[1], report->data[2],
 			  report->data[3], report->data[4], report->data[5]);
-	}
+	} else
+		buf = buf0;
 	RTKBT_DBG("bt info: reason 0x%2x, length 0x%2x", reason, length);
+
+	p = buf;
 
 	if (!btrtl_coex.wifi_on)
 		return;
@@ -1446,7 +1454,7 @@ static void rtk_notify_info_to_wifi(uint8_t reason, uint8_t length,
 static void rtk_notify_regester_to_wifi(uint8_t * reg_value)
 {
 	uint8_t para_length = 9;
-	char p_buf[para_length + HCI_CMD_PREAMBLE_SIZE];
+	char p_buf[9 + HCI_CMD_PREAMBLE_SIZE];
 	char *p = p_buf;
 	hci_mailbox_register *reg = (hci_mailbox_register *) reg_value;
 
