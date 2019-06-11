@@ -1179,6 +1179,7 @@ failed:
 
 static void btusb_stop_traffic(struct btusb_data *data)
 {
+	mdelay(URB_CANCELING_DELAY_MS);	// Added by Realtek
 	usb_kill_anchored_urbs(&data->intr_anchor);
 	usb_kill_anchored_urbs(&data->bulk_anchor);
 	usb_kill_anchored_urbs(&data->isoc_anchor);
