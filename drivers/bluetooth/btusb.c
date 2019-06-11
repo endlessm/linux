@@ -1192,6 +1192,13 @@ static int btusb_close(struct hci_dev *hdev)
 
 	BT_DBG("%s", hdev->name);
 
+	if (test_bit(HCI_RUNNING, &hdev->flags)) {
+		RTKBT_ERR("HCI_RUNNING is not cleared before.");
+		return -1;
+	}
+
+	RTKBT_DBG("btusb_close");
+
 	cancel_work_sync(&data->work);
 	cancel_work_sync(&data->waker);
 
@@ -1210,8 +1217,28 @@ static int btusb_close(struct hci_dev *hdev)
 	data->intf->needs_remote_wakeup = 0;
 	usb_autopm_put_interface(data->intf);
 
+#ifdef BTCOEX
+	rtk_btcoex_close();
+#endif
+
 failed:
+	mdelay(URB_CANCELING_DELAY_MS);	// Added by Realtek
 	usb_scuttle_anchored_urbs(&data->deferred);
+
+#ifdef RTKBT_SWITCH_PATCH
+	down(&switch_sem);
+	if (data->context) {
+		struct api_context *ctx = data->context;
+
+		if (ctx->flags & RTLBT_CLOSE) {
+			ctx->flags &= ~RTLBT_CLOSE;
+			ctx->status = 0;
+			complete(&ctx->done);
+		}
+	}
+	up(&switch_sem);
+#endif
+
 	return 0;
 }
 
