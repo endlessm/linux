@@ -260,7 +260,7 @@ CONFIG_KVM=y
 # CONFIG_LIBNVDIMM is not set
 # CONFIG_LLC2 is not set
 # CONFIG_LOCK_DOWN_KERNEL is not set
-CONFIG_LOG_BUF_SHIFT=17
+CONFIG_LOG_BUF_SHIFT=18
 # CONFIG_LPC_ICH is not set
 # CONFIG_LPC_SCH is not set
 # CONFIG_MACB is not set
@@ -420,7 +420,6 @@ CONFIG_PTP_1588_CLOCK=m
 # CONFIG_PWM is not set
 # CONFIG_QNX4FS_FS is not set
 # CONFIG_QNX6FS_FS is not set
-# CONFIG_R3964 is not set
 # CONFIG_RAPIDIO is not set
 # CONFIG_RAVE_SP_CORE is not set
 # CONFIG_RAW_DRIVER is not set

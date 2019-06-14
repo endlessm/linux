@@ -673,7 +673,6 @@ cdc_subset
 cdns-csi2rx
 cdns-csi2tx
 cdns-pltfrm
-cec-gpio
 ceph
 cfag12864b
 cfag12864bfb
@@ -2825,7 +2824,6 @@ n2
 n411
 n_gsm
 n_hdlc
-n_r3964
 n_tracerouter
 n_tracesink
 nand
