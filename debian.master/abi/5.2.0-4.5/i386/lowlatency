@@ -12964,10 +12964,6 @@ EXPORT_SYMBOL_GPL drivers/misc/mei/mei 0x00000000	mei_restart
 EXPORT_SYMBOL_GPL drivers/misc/mei/mei 0x00000000	mei_start
 EXPORT_SYMBOL_GPL drivers/misc/mei/mei 0x00000000	mei_stop
 EXPORT_SYMBOL_GPL drivers/misc/mei/mei 0x00000000	mei_write_is_idle
-EXPORT_SYMBOL_GPL drivers/misc/mic/bus/vop_bus 0x00000000	vop_register_device
-EXPORT_SYMBOL_GPL drivers/misc/mic/bus/vop_bus 0x00000000	vop_register_driver
-EXPORT_SYMBOL_GPL drivers/misc/mic/bus/vop_bus 0x00000000	vop_unregister_device
-EXPORT_SYMBOL_GPL drivers/misc/mic/bus/vop_bus 0x00000000	vop_unregister_driver
 EXPORT_SYMBOL_GPL drivers/misc/pti 0x00000000	pti_release_masterchannel
 EXPORT_SYMBOL_GPL drivers/misc/pti 0x00000000	pti_request_masterchannel
 EXPORT_SYMBOL_GPL drivers/misc/pti 0x00000000	pti_writedata
@@ -15468,6 +15464,7 @@ EXPORT_SYMBOL_GPL drivers/vhost/vhost 0x00000000	vhost_disable_notify
 EXPORT_SYMBOL_GPL drivers/vhost/vhost 0x00000000	vhost_discard_vq_desc
 EXPORT_SYMBOL_GPL drivers/vhost/vhost 0x00000000	vhost_enable_notify
 EXPORT_SYMBOL_GPL drivers/vhost/vhost 0x00000000	vhost_enqueue_msg
+EXPORT_SYMBOL_GPL drivers/vhost/vhost 0x00000000	vhost_exceeds_weight
 EXPORT_SYMBOL_GPL drivers/vhost/vhost 0x00000000	vhost_get_vq_desc
 EXPORT_SYMBOL_GPL drivers/vhost/vhost 0x00000000	vhost_has_work
 EXPORT_SYMBOL_GPL drivers/vhost/vhost 0x00000000	vhost_init_device_iotlb
@@ -18721,7 +18718,6 @@ EXPORT_SYMBOL_GPL vmlinux 0x00000000	cper_mem_err_type_str
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	cper_next_record_id
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	cper_severity_str
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	cper_severity_to_aer
-EXPORT_SYMBOL_GPL vmlinux 0x00000000	cpsw_phy_sel
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	cpu_bit_bitmap
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	cpu_cgrp_subsys_enabled_key
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	cpu_cgrp_subsys_on_dfl_key

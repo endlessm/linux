@@ -204,6 +204,7 @@ firmware:       amdgpu/raven_asd.bin
 firmware:       amdgpu/raven_ce.bin
 firmware:       amdgpu/raven_dmcu.bin
 firmware:       amdgpu/raven_gpu_info.bin
+firmware:       amdgpu/raven_kicker_rlc.bin
 firmware:       amdgpu/raven_me.bin
 firmware:       amdgpu/raven_mec.bin
 firmware:       amdgpu/raven_mec2.bin
