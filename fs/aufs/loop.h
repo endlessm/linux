@@ -1,6 +1,6 @@
 /* SPDX-License-Identifier: GPL-2.0 */
 /*
- * Copyright (C) 2005-2018 Junjiro R. Okajima
+ * Copyright (C) 2005-2019 Junjiro R. Okajima
  *
  * This program, aufs is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -42,7 +42,7 @@ void au_loopback_fin(void);
 
 struct file *aufs_real_loop(struct file *file);
 #else
-AuStub(struct file *, loop_backing_file, return NULL)
+AuStub(struct file *, loop_backing_file, return NULL, struct super_block *sb)
 
 AuStubInt0(au_test_loopback_overlap, struct super_block *sb,
 	   struct dentry *h_adding)

@@ -252,6 +252,13 @@ optional. When you meet some problems, they will help you.
   Supports a nested loopback mount in a branch-fs. This patch is
   unnecessary until aufs produces a message like "you may want to try
   another patch for loopback file".
+- proc_mounts.patch
+  When there are many mountpoints and many mount(2)/umount(2) are
+  running, then /proc/mounts may not show the all mountpoints.  This
+  patch makes /proc/mounts always show the full mountpoints list.
+  If you don't want to apply this patch and meet such problem, then you
+  need to increase the value of 'ProcMounts_Times' make-variable in
+  aufs-util.git as a second best solution.
 - vfs-ino.patch
   Modifies a system global kernel internal function get_next_ino() in
   order to stop assigning 0 for an inode-number. Not directly related to

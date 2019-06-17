@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0
 /*
- * Copyright (C) 2005-2018 Junjiro R. Okajima
+ * Copyright (C) 2005-2019 Junjiro R. Okajima
  *
  * This program, aufs is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -160,22 +160,28 @@ static void au_xino_unlock_dir(struct au_xino_lock_dir *ldir)
 /*
  * create and set a new xino file
  */
-struct file *au_xino_create(struct super_block *sb, char *fpath, int silent)
+struct file *au_xino_create(struct super_block *sb, char *fpath, int silent,
+			    int wbrtop)
 {
 	struct file *file;
 	struct dentry *h_parent, *d;
 	struct inode *h_dir, *inode;
 	int err;
+	static DEFINE_MUTEX(mtx);
 
 	/*
 	 * at mount-time, and the xino file is the default path,
 	 * hnotify is disabled so we have no notify events to ignore.
 	 * when a user specified the xino, we cannot get au_hdir to be ignored.
 	 */
+	if (!wbrtop)
+		mutex_lock(&mtx);
 	file = vfsub_filp_open(fpath, O_RDWR | O_CREAT | O_EXCL | O_LARGEFILE
 			       /* | __FMODE_NONOTIFY */,
 			       0666);
 	if (IS_ERR(file)) {
+		if (!wbrtop)
+			mutex_unlock(&mtx);
 		if (!silent)
 			pr_err("open %s(%ld)\n", fpath, PTR_ERR(file));
 		return file;
@@ -185,6 +191,8 @@ struct file *au_xino_create(struct super_block *sb, char *fpath, int silent)
 	err = 0;
 	d = file->f_path.dentry;
 	h_parent = au_dget_parent_lock(d, AuLsc_I_PARENT);
+	if (!wbrtop)
+		mutex_unlock(&mtx);
 	/* mnt_want_write() is unnecessary here */
 	h_dir = d_inode(h_parent);
 	inode = file_inode(file);
@@ -1667,11 +1675,12 @@ struct file *au_xino_def(struct super_block *sb)
 		if (!IS_ERR(p)) {
 			strcat(p, "/" AUFS_XINO_FNAME);
 			AuDbg("%s\n", p);
-			file = au_xino_create(sb, p, /*silent*/0);
+			file = au_xino_create(sb, p, /*silent*/0, /*wbrtop*/1);
 		}
 		free_page((unsigned long)page);
 	} else {
-		file = au_xino_create(sb, AUFS_XINO_DEFPATH, /*silent*/0);
+		file = au_xino_create(sb, AUFS_XINO_DEFPATH, /*silent*/0,
+				      /*wbrtop*/0);
 		if (IS_ERR(file))
 			goto out;
 		h_sb = file->f_path.dentry->d_sb;

@@ -1,6 +1,6 @@
 /* SPDX-License-Identifier: GPL-2.0 */
 /*
- * Copyright (C) 2005-2018 Junjiro R. Okajima
+ * Copyright (C) 2005-2019 Junjiro R. Okajima
  *
  * This program, aufs is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -225,7 +225,8 @@ int au_br_stfs(struct au_branch *br, struct aufs_stfs *stfs);
 static const loff_t au_loff_max = LLONG_MAX;
 
 aufs_bindex_t au_xi_root(struct super_block *sb, struct dentry *dentry);
-struct file *au_xino_create(struct super_block *sb, char *fpath, int silent);
+struct file *au_xino_create(struct super_block *sb, char *fpath, int silent,
+			    int wbrtop);
 struct file *au_xino_create2(struct super_block *sb, struct path *base,
 			     struct file *copy_src);
 struct au_xi_new {

@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0
 /*
- * Copyright (C) 2010-2018 Junjiro R. Okajima
+ * Copyright (C) 2010-2019 Junjiro R. Okajima
  *
  * This program, aufs is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -40,8 +40,8 @@ static struct au_dykey *dy_gfind_get(struct hlist_bl_head *hbl,
 	hlist_bl_lock(hbl);
 	hlist_bl_for_each_entry(tmp, pos, hbl, dk_hnode)
 		if (tmp->dk_op.dy_hop == h_op) {
-			key = tmp;
-			kref_get(&key->dk_kref);
+			if (kref_get_unless_zero(&tmp->dk_kref))
+				key = tmp;
 			break;
 		}
 	hlist_bl_unlock(hbl);
@@ -95,8 +95,8 @@ static struct au_dykey *dy_gadd(struct hlist_bl_head *hbl, struct au_dykey *key)
 	hlist_bl_lock(hbl);
 	hlist_bl_for_each_entry(tmp, pos, hbl, dk_hnode)
 		if (tmp->dk_op.dy_hop == h_op) {
-			kref_get(&tmp->dk_kref);
-			found = tmp;
+			if (kref_get_unless_zero(&tmp->dk_kref))
+				found = tmp;
 			break;
 		}
 	if (!found)
@@ -114,7 +114,7 @@ static void dy_free_rcu(struct rcu_head *rcu)
 
 	key = container_of(rcu, struct au_dykey, dk_rcu);
 	DyPrSym(key);
-	au_kfree_rcu(key);
+	kfree(key);
 }
 
 static void dy_free(struct kref *kref)

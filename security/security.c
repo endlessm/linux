@@ -1227,7 +1227,6 @@ int security_inode_readlink(struct dentry *dentry)
 		return 0;
 	return call_int_hook(inode_readlink, 0, dentry);
 }
-EXPORT_SYMBOL_GPL(security_inode_readlink);
 
 int security_inode_follow_link(struct dentry *dentry, struct inode *inode,
 			       bool rcu)

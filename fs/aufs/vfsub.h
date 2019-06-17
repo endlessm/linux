@@ -1,6 +1,6 @@
 /* SPDX-License-Identifier: GPL-2.0 */
 /*
- * Copyright (C) 2005-2018 Junjiro R. Okajima
+ * Copyright (C) 2005-2019 Junjiro R. Okajima
  *
  * This program, aufs is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -26,7 +26,6 @@
 #ifdef __KERNEL__
 
 #include <linux/fs.h>
-#include <linux/iversion.h>
 #include <linux/mount.h>
 #include <linux/posix_acl.h>
 #include <linux/xattr.h>
