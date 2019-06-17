@@ -7918,7 +7918,7 @@ CONFIG_SND_SOC_RCAR                             policy<{'arm64': 'm', 'armhf': '
 CONFIG_SND_SOC_SOF_TOPLEVEL                     policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'ppc64el': 'y'}>
 CONFIG_SND_SOC_SOF_PCI                          policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'ppc64el': 'm'}>
 CONFIG_SND_SOC_SOF_ACPI                         policy<{'amd64': 'm', 'arm64': 'm', 'i386': 'm'}>
-CONFIG_SND_SOC_SOF_NOCODEC                      policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'ppc64el': 'm'}>
+CONFIG_SND_SOC_SOF_NOCODEC_SUPPORT              policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'ppc64el': 'y'}>
 CONFIG_SND_SOC_SOF_STRICT_ABI_CHECKS            policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'i386': 'n', 'ppc64el': 'n'}>
 
 # Menu: Device Drivers >> Sound card support >> Advanced Linux Sound Architecture >> ALSA for SoC audio support >> Sound Open Firmware Support >> SOF debugging features
