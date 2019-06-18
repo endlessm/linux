@@ -41,6 +41,7 @@ EXPORT_SYMBOL drivers/gpu/drm/drm 0x00000000	__drm_set_edid_firmware_path
 EXPORT_SYMBOL drivers/gpu/drm/drm 0x00000000	devm_drm_dev_init
 EXPORT_SYMBOL drivers/gpu/drm/drm 0x00000000	drm_add_edid_modes
 EXPORT_SYMBOL drivers/gpu/drm/drm 0x00000000	drm_add_modes_noedid
+EXPORT_SYMBOL drivers/gpu/drm/drm 0x00000000	drm_add_override_edid_modes
 EXPORT_SYMBOL drivers/gpu/drm/drm 0x00000000	drm_any_plane_has_format
 EXPORT_SYMBOL drivers/gpu/drm/drm 0x00000000	drm_atomic_add_affected_connectors
 EXPORT_SYMBOL drivers/gpu/drm/drm 0x00000000	drm_atomic_add_affected_planes
@@ -9592,8 +9593,6 @@ EXPORT_SYMBOL_GPL vmlinux 0x00000000	call_rcu
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	call_rcu_tasks
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	call_srcu
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	cancel_work_sync
-EXPORT_SYMBOL_GPL vmlinux 0x00000000	cap_mmap_addr
-EXPORT_SYMBOL_GPL vmlinux 0x00000000	cap_mmap_file
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	ccw_device_force_console
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	ccw_device_get_chp_desc
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	ccw_device_get_schid
@@ -10130,6 +10129,7 @@ EXPORT_SYMBOL_GPL vmlinux 0x00000000	devm_kstrdup
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	devm_kstrdup_const
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	devm_pci_epc_destroy
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	devm_platform_ioremap_resource
+EXPORT_SYMBOL_GPL vmlinux 0x00000000	devm_release_action
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	devm_remove_action
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	devm_request_pci_bus_resources
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	devm_serdev_device_open
@@ -11742,7 +11742,6 @@ EXPORT_SYMBOL_GPL vmlinux 0x00000000	security_file_permission
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	security_inode_create
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	security_inode_mkdir
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	security_inode_permission
-EXPORT_SYMBOL_GPL vmlinux 0x00000000	security_inode_readlink
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	security_inode_setattr
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	security_kernel_load_data
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	security_kernel_post_read_file

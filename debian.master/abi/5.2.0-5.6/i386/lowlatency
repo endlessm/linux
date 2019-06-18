@@ -168,6 +168,7 @@ EXPORT_SYMBOL drivers/gpu/drm/drm 0x00000000	__drm_set_edid_firmware_path
 EXPORT_SYMBOL drivers/gpu/drm/drm 0x00000000	devm_drm_dev_init
 EXPORT_SYMBOL drivers/gpu/drm/drm 0x00000000	drm_add_edid_modes
 EXPORT_SYMBOL drivers/gpu/drm/drm 0x00000000	drm_add_modes_noedid
+EXPORT_SYMBOL drivers/gpu/drm/drm 0x00000000	drm_add_override_edid_modes
 EXPORT_SYMBOL drivers/gpu/drm/drm 0x00000000	drm_agp_acquire
 EXPORT_SYMBOL drivers/gpu/drm/drm 0x00000000	drm_agp_alloc
 EXPORT_SYMBOL drivers/gpu/drm/drm 0x00000000	drm_agp_bind
@@ -7477,9 +7478,8 @@ EXPORT_SYMBOL vmlinux 0x00000000	gen_estimator_active
 EXPORT_SYMBOL vmlinux 0x00000000	gen_estimator_read
 EXPORT_SYMBOL vmlinux 0x00000000	gen_kill_estimator
 EXPORT_SYMBOL vmlinux 0x00000000	gen_new_estimator
-EXPORT_SYMBOL vmlinux 0x00000000	gen_pool_add_virt
-EXPORT_SYMBOL vmlinux 0x00000000	gen_pool_alloc
-EXPORT_SYMBOL vmlinux 0x00000000	gen_pool_alloc_algo
+EXPORT_SYMBOL vmlinux 0x00000000	gen_pool_add_owner
+EXPORT_SYMBOL vmlinux 0x00000000	gen_pool_alloc_algo_owner
 EXPORT_SYMBOL vmlinux 0x00000000	gen_pool_best_fit
 EXPORT_SYMBOL vmlinux 0x00000000	gen_pool_create
 EXPORT_SYMBOL vmlinux 0x00000000	gen_pool_destroy
@@ -7489,7 +7489,7 @@ EXPORT_SYMBOL vmlinux 0x00000000	gen_pool_first_fit_align
 EXPORT_SYMBOL vmlinux 0x00000000	gen_pool_first_fit_order_align
 EXPORT_SYMBOL vmlinux 0x00000000	gen_pool_fixed_alloc
 EXPORT_SYMBOL vmlinux 0x00000000	gen_pool_for_each_chunk
-EXPORT_SYMBOL vmlinux 0x00000000	gen_pool_free
+EXPORT_SYMBOL vmlinux 0x00000000	gen_pool_free_owner
 EXPORT_SYMBOL vmlinux 0x00000000	gen_pool_set_algo
 EXPORT_SYMBOL vmlinux 0x00000000	gen_pool_virt_to_phys
 EXPORT_SYMBOL vmlinux 0x00000000	gen_replace_estimator
@@ -18529,8 +18529,6 @@ EXPORT_SYMBOL_GPL vmlinux 0x00000000	call_srcu
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	call_switchdev_blocking_notifiers
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	call_switchdev_notifiers
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	cancel_work_sync
-EXPORT_SYMBOL_GPL vmlinux 0x00000000	cap_mmap_addr
-EXPORT_SYMBOL_GPL vmlinux 0x00000000	cap_mmap_file
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	cec_allocate_adapter
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	cec_delete_adapter
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	cec_get_edid_phys_addr
@@ -19365,6 +19363,7 @@ EXPORT_SYMBOL_GPL vmlinux 0x00000000	devm_regulator_register_supply_alias
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	devm_regulator_unregister
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	devm_regulator_unregister_notifier
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	devm_regulator_unregister_supply_alias
+EXPORT_SYMBOL_GPL vmlinux 0x00000000	devm_release_action
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	devm_remove_action
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	devm_request_pci_bus_resources
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	devm_reset_control_array_get
@@ -21904,7 +21903,6 @@ EXPORT_SYMBOL_GPL vmlinux 0x00000000	security_file_permission
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	security_inode_create
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	security_inode_mkdir
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	security_inode_permission
-EXPORT_SYMBOL_GPL vmlinux 0x00000000	security_inode_readlink
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	security_inode_setattr
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	security_kernel_load_data
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	security_kernel_post_read_file
