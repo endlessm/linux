@@ -1,3 +1,15 @@
+linux (5.0.0-17.18) disco; urgency=medium
+
+  * Remote denial of service (resource exhaustion) caused by TCP SACK scoreboard
+    manipulation (LP: #1831638)
+    - SAUCE: tcp: tcp_fragment() should apply sane memory limits
+
+  * Remote denial of service (system crash) caused by integer overflow in TCP
+    SACK handling (LP: #1831637)
+    - SAUCE: tcp: limit payload size of sacked skbs
+
+ -- Stefan Bader <stefan.bader@canonical.com>  Tue, 04 Jun 2019 17:22:50 +0200
+
 linux (5.0.0-16.17) disco; urgency=medium
 
   * linux: 5.0.0-16.17 -proposed tracker (LP: #1829173)
