@@ -640,6 +640,10 @@ int btrtl_setup_realtek(struct hci_dev *hdev)
 		return PTR_ERR(btrtl_dev);
 
 	ret = btrtl_download_firmware(hdev, btrtl_dev);
+	/* According to the vendor driver, BT must be reset on close to avoid
+	 * firmware crash since kernel v3.7.1.
+	 */
+	set_bit(HCI_QUIRK_RESET_ON_CLOSE, &hdev->quirks);
 
 	btrtl_free(btrtl_dev);
 
