@@ -1,6 +1,8 @@
 # SPDX-License-Identifier: GPL-2.0
 ifdef CONFIG_X86_64
-obj-$(CONFIG_SATA_AHCI) += intel-nvme-remap.o
+ifdef CONFIG_SATA_AHCI
+obj-y += intel-nvme-remap.o
+endif
 endif
 
 obj-$(CONFIG_PCIE_CADENCE) += pcie-cadence.o
