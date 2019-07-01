@@ -64,6 +64,33 @@ static const struct rtw_hw_reg rtw8723d_txagc[] = {
 #define WLAN_LTR_CTRL1		0xCB004010
 #define WLAN_LTR_CTRL2		0x01233425
 
+static void rtw8723d_lck(struct rtw_dev *rtwdev)
+{
+#define BIT_LCK		BIT(15)
+	u8 val_ctx;
+	u32 lc_cal, cnt;
+
+	val_ctx = rtw_read8(rtwdev, REG_CTX);
+	if ((val_ctx & BIT_MASK_CTX_TYPE) != 0)
+		rtw_write8(rtwdev, REG_CTX, val_ctx & ~BIT_MASK_CTX_TYPE);
+	else
+		rtw_write8(rtwdev, REG_TXPAUSE, 0xFF);
+	lc_cal = rtw_read_rf(rtwdev, RF_PATH_A, RF_CFGCH, RFREG_MASK);
+
+	rtw_write_rf(rtwdev, RF_PATH_A, RF_CFGCH, RFREG_MASK, lc_cal | BIT_LCK);
+	for (cnt = 0; cnt < 100; cnt++) {
+		if (rtw_read_rf(rtwdev, RF_PATH_A, RF_CFGCH, BIT_LCK) != 0x1)
+			break;
+		mdelay(10);
+	}
+
+	rtw_write_rf(rtwdev, RF_PATH_A, RF_CFGCH, RFREG_MASK, lc_cal);
+	if ((val_ctx & BIT_MASK_CTX_TYPE) != 0)
+		rtw_write8(rtwdev, REG_CTX, val_ctx);
+	else
+		rtw_write8(rtwdev, REG_TXPAUSE, 0x00);
+}
+
 static void rtw8723d_phy_set_param(struct rtw_dev *rtwdev)
 {
 	u8 xtal_cap;
@@ -125,6 +152,9 @@ static void rtw8723d_phy_set_param(struct rtw_dev *rtwdev)
 	rtw_phy_init(rtwdev);
 
 	rtw_write16_set(rtwdev, REG_TXDMA_OFFSET_CHK, BIT_DROP_DATA_EN);
+
+	rtw8723d_lck(rtwdev);
+
 	rtw_write32_mask(rtwdev, REG_OFDM0_XAAGC1, MASKBYTE0, 0x50);
 	rtw_write32_mask(rtwdev, REG_OFDM0_XAAGC1, MASKBYTE0, 0x20);
 }
