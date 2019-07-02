@@ -15,6 +15,8 @@
 #include <linux/ucs2_string.h>
 #include <linux/compat.h>
 
+#include "../../../security/endlesspayg/endlesspayg.h"
+
 #define EFIVARS_VERSION "0.08"
 #define EFIVARS_DATE "2004-May-17"
 
@@ -396,6 +398,9 @@ static ssize_t efivar_create(struct file *filp, struct kobject *kobj,
 		data = new_var->Data;
 	}
 
+	if (eospayg_skip_name_wide(name))
+		return -EINVAL;
+
 	if ((attributes & ~EFI_VARIABLE_MASK) != 0 ||
 	    efivar_validate(new_var->VendorGuid, name, data,
 			    size) == false) {
@@ -459,6 +464,9 @@ static ssize_t efivar_delete(struct file *filp, struct kobject *kobj,
 		name = del_var->VariableName;
 		vendor = del_var->VendorGuid;
 	}
+
+	if (eospayg_skip_name_wide(name))
+		return -EINVAL;
 
 	if (efivar_entry_iter_begin())
 		return -EINTR;
