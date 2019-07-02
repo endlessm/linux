@@ -41,6 +41,7 @@
  * The capability module is accounted for by CONFIG_SECURITY
  */
 #define LSM_CONFIG_COUNT ( \
+	1 + /* Increase by 1 direclty for builtin endlesspayg LSM */ \
 	(IS_ENABLED(CONFIG_SECURITY) ? 1 : 0) + \
 	(IS_ENABLED(CONFIG_SECURITY_SELINUX) ? 1 : 0) + \
 	(IS_ENABLED(CONFIG_SECURITY_SMACK) ? 1 : 0) + \
