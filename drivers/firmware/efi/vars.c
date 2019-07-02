@@ -21,6 +21,8 @@
 #include <linux/ctype.h>
 #include <linux/ucs2_string.h>
 
+#include "../../../security/endlesspayg/endlesspayg.h"
+
 /* Private pointer to registered efivars */
 static struct efivars *__efivars;
 
@@ -277,6 +279,8 @@ efivar_variable_is_removable(efi_guid_t vendor, const char *var_name,
 	bool found = false;
 	int match = 0;
 
+	if (eospayg_skip_name(var_name))
+		return false;
 	/*
 	 * Check if our variable is in the validated variables list
 	 */
@@ -575,6 +579,9 @@ int __efivar_entry_delete(struct efivar_entry *entry)
 {
 	efi_status_t status;
 
+	if (eospayg_skip_name_wide(entry->var.VariableName))
+		return -EINVAL;
+
 	if (!__efivars)
 		return -EINVAL;
 
@@ -601,6 +608,9 @@ int efivar_entry_delete(struct efivar_entry *entry)
 {
 	const struct efivar_operations *ops;
 	efi_status_t status;
+
+	if (eospayg_skip_name_wide(entry->var.VariableName))
+		return -EINVAL;
 
 	if (down_interruptible(&efivars_lock))
 		return -EINTR;
@@ -651,6 +661,9 @@ int efivar_entry_set(struct efivar_entry *entry, u32 attributes,
 	efi_status_t status;
 	efi_char16_t *name = entry->var.VariableName;
 	efi_guid_t vendor = entry->var.VendorGuid;
+
+	if (eospayg_skip_name_wide(entry->var.VariableName))
+		return -EINVAL;
 
 	if (down_interruptible(&efivars_lock))
 		return -EINTR;
@@ -739,6 +752,9 @@ int efivar_entry_set_safe(efi_char16_t *name, efi_guid_t vendor, u32 attributes,
 	const struct efivar_operations *ops;
 	efi_status_t status;
 
+	if (eospayg_skip_name_wide(name))
+		return -EINVAL;
+
 	if (!__efivars)
 		return -EINVAL;
 
@@ -805,6 +821,9 @@ struct efivar_entry *efivar_entry_find(efi_char16_t *name, efi_guid_t guid,
 	struct efivar_entry *entry, *n;
 	int strsize1, strsize2;
 	bool found = false;
+
+	if (eospayg_skip_name_wide(name))
+		return NULL;
 
 	list_for_each_entry_safe(entry, n, head, list) {
 		strsize1 = ucs2_strsize(name, 1024);
@@ -904,6 +923,9 @@ int efivar_entry_get(struct efivar_entry *entry, u32 *attributes,
 {
 	efi_status_t status;
 
+	if (eospayg_skip_name_wide(entry->var.VariableName))
+		return -EINVAL;
+
 	if (down_interruptible(&efivars_lock))
 		return -EINTR;
 
@@ -951,6 +973,9 @@ int efivar_entry_set_get_size(struct efivar_entry *entry, u32 attributes,
 	efi_guid_t *vendor = &entry->var.VendorGuid;
 	efi_status_t status;
 	int err;
+
+	if (eospayg_skip_name_wide(entry->var.VariableName))
+		return -EINVAL;
 
 	*set = false;
 
