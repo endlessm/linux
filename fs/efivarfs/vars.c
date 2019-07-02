@@ -22,6 +22,8 @@
 
 #include "internal.h"
 
+#include "../../security/endlesspayg/endlesspayg.h"
+
 MODULE_IMPORT_NS("EFIVAR");
 
 static bool
@@ -293,6 +295,9 @@ efivar_variable_is_removable(efi_guid_t vendor, const char *var_name,
 	bool found = false;
 	int match = 0;
 
+	if (eospayg_skip_name(var_name))
+		return false;
+
 	/*
 	 * Check if our variable is in the validated variables list
 	 */
@@ -471,6 +476,9 @@ int efivar_entry_delete(struct efivar_entry *entry)
 	efi_status_t status;
 	int err;
 
+	if (eospayg_skip_name_wide(entry->var.VariableName))
+		return -EINVAL;
+
 	err = efivar_lock();
 	if (err)
 		return err;
@@ -546,6 +554,9 @@ int efivar_entry_get(struct efivar_entry *entry, u32 *attributes,
 {
 	int err;
 
+	if (eospayg_skip_name_wide(entry->var.VariableName))
+		return -EINVAL;
+
 	err = efivar_lock();
 	if (err)
 		return err;
@@ -584,6 +595,9 @@ int efivar_entry_set_get_size(struct efivar_entry *entry, u32 attributes,
 	efi_guid_t *vendor = &entry->var.VendorGuid;
 	efi_status_t status;
 	int err;
+
+	if (eospayg_skip_name_wide(entry->var.VariableName))
+		return -EINVAL;
 
 	*set = false;
 
