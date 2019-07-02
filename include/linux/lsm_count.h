@@ -124,7 +124,8 @@
 		LANDLOCK_ENABLED	\
 		IMA_ENABLED		\
 		EVM_ENABLED		\
-		IPE_ENABLED)
+		IPE_ENABLED		\
+		1,)	/* Increase by 1 direclty for builtin endlesspayg LSM */
 
 #else
 
