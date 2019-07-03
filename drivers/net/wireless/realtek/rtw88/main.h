@@ -1418,6 +1418,16 @@ enum rtw_edcca_mode {
 	RTW_EDCCA_ADAPTIVITY	= 1,
 };
 
+struct rtw_iqk_info {
+	bool done;
+	struct {
+		u32 s1_x;
+		u32 s1_y;
+		u32 s0_x;
+		u32 s0_y;
+	} result;
+};
+
 struct rtw_dm_info {
 	u32 cck_fa_cnt;
 	u32 ofdm_fa_cnt;
@@ -1480,6 +1490,8 @@ struct rtw_dm_info {
 
 	s8 l2h_th_ini;
 	enum rtw_edcca_mode edcca_mode;
+
+	struct rtw_iqk_info iqk;
 };
 
 struct rtw_efuse {
