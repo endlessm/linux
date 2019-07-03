@@ -352,6 +352,9 @@ CONFIG_USB_XHCI_HCD=y
 # Cherry Trail fundamentals (ECS EF20 and more)
 CONFIG_PINCTRL_CHERRYVIEW=y
 
+# Apollo Lake fundamentals
+CONFIG_PINCTRL_BROXTON=y
+
 # Intel Skylake (SPT) fundamentals (Asus X456UA and more)
 CONFIG_IDMA64=y
 CONFIG_X86_INTEL_LPSS=y
