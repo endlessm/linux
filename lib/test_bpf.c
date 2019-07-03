@@ -5275,11 +5275,7 @@ static struct bpf_test tests[] = {
 	{	/* Mainly checking JIT here. */
 		"BPF_MAXINSNS: Ctx heavy transformations",
 		{ },
-#if defined(CONFIG_BPF_JIT_ALWAYS_ON) && defined(CONFIG_S390)
-		CLASSIC | FLAG_EXPECTED_FAIL,
-#else
 		CLASSIC,
-#endif
 		{ },
 		{
 			{  1, SKB_VLAN_PRESENT },
