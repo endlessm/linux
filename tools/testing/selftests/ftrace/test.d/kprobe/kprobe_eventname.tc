@@ -40,6 +40,7 @@ find_dot_func() {
 
 FUNC=`find_dot_func | tail -n 1`
 [ "x" != "x$FUNC" ] || exit_unresolved
+grep -n "$FUNC" available_filter_functions || exit_unresolved
 echo "p $FUNC" > kprobe_events
 EVENT=`grep $FUNC kprobe_events | cut -f 1 -d " " | cut -f 2 -d:`
 [ "x" != "x$EVENT" ] || exit_failure
