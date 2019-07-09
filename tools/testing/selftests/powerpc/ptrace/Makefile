@@ -34,7 +34,7 @@ TESTS_64 := $(patsubst %,$(OUTPUT)/%,$(TESTS_64))
 $(TESTS_64): CFLAGS += -m64
 $(TM_TESTS): CFLAGS += -I../tm -mhtm
 
-CFLAGS += $(KHDR_INCLUDES) -fno-pie
+CFLAGS += $(KHDR_INCLUDES) -fno-pie -Wno-error=deprecated
 
 $(OUTPUT)/ptrace-gpr: ptrace-gpr.S
 $(OUTPUT)/ptrace-perf-hwbreak: ptrace-perf-asm.S
