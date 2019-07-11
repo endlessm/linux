@@ -47,6 +47,13 @@ static const struct dmi_system_id i2c_dw_no_runtime_pm[] = {
 		},
 	},
 	{
+		.ident = "Dell Inspiron 7591",
+		.matches = {
+			DMI_MATCH(DMI_SYS_VENDOR, "Dell Inc."),
+			DMI_MATCH(DMI_PRODUCT_NAME, "Inspiron 7591"),
+		},
+	},
+	{
 		.ident = "Dell Vostro 5390",
 		.matches = {
 			DMI_MATCH(DMI_SYS_VENDOR, "Dell Inc."),
