@@ -1108,6 +1108,7 @@ struct rtw_chip_info {
 	struct rtw_intf_phy_para_table *intf_table;
 
 	struct rtw_hw_reg *dig;
+	struct rtw_hw_reg *dig_cck;
 	u32 rf_base_addr[2];
 	u32 rf_sipi_addr[2];
 	struct rtw_rf_sipi_addr *rf_sipi_read_addr;
