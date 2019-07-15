@@ -4518,7 +4518,6 @@ spi_ks8995
 spidev
 spinand
 spl
-splat
 spmi
 sps30
 sr9700
@@ -5380,12 +5379,12 @@ zl10036
 zl10039
 zl10353
 zl6100
+zlua
 znvpair
 zopt2201
 zpa2326
 zpa2326_i2c
 zpa2326_spi
-zpios
 zr364xx
 zram
 zstd

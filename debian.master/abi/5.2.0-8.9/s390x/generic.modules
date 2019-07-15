@@ -733,7 +733,6 @@ smsc
 smsgiucv_app
 softdog
 spl
-splat
 st
 st_drv
 ste10Xp
@@ -940,8 +939,8 @@ zcrypt_cex4
 zfcp
 zfs
 zlib_deflate
+zlua
 znvpair
-zpios
 zram
 zstd
 zstd_compress
