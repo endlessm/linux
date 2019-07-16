@@ -151,6 +151,11 @@ ifeq ($(opal_signed),true)
 	cp -p $(pkgdir_bin)/boot/$(instfile)-$(abi_release)-$* \
 		$(signingv)/$(instfile)-$(abi_release)-$*.opal;
 endif
+ifeq ($(sipl_signed),true)
+	install -d $(signingv)
+	cp -p $(pkgdir_bin)/boot/$(instfile)-$(abi_release)-$* \
+		$(signingv)/$(instfile)-$(abi_release)-$*.sipl;
+endif
 
 	install -d $(pkgdir)/boot
 	install -m644 $(builddir)/build-$*/.config \
