@@ -1,3 +1,24 @@
+linux (5.0.0-20.21) disco; urgency=medium
+
+  * linux: 5.0.0-20.21 -proposed tracker (LP: #1833934)
+
+  * CVE-2019-11479
+    - SAUCE: tcp: add tcp_min_snd_mss sysctl
+    - SAUCE: tcp: enforce tcp_min_snd_mss in tcp_mtu_probing()
+
+  * Remote denial of service (resource exhaustion) caused by TCP SACK scoreboard
+    manipulation (LP: #1831638) // CVE-2019-11478
+    - tcp: refine memory limit test in tcp_fragment()
+
+ -- Stefan Bader <stefan.bader@canonical.com>  Mon, 24 Jun 2019 10:09:02 +0200
+
+linux (5.0.0-19.20) disco; urgency=medium
+
+  * CVE-2019-12817
+    - SAUCE: powerpc/mm/64s/hash: Reallocate context ids on fork
+
+ -- Stefan Bader <stefan.bader@canonical.com>  Wed, 19 Jun 2019 14:45:13 +0200
+
 linux (5.0.0-17.18) disco; urgency=medium
 
   * Remote denial of service (resource exhaustion) caused by TCP SACK scoreboard
