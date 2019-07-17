@@ -74,6 +74,13 @@ static const struct dmi_system_id i2c_dw_no_runtime_pm[] = {
 			DMI_MATCH(DMI_PRODUCT_NAME, "Vostro 7590"),
 		},
 	},
+	{
+		.ident = "Dell G3 3590",
+		.matches = {
+			DMI_MATCH(DMI_SYS_VENDOR, "Dell Inc."),
+			DMI_MATCH(DMI_PRODUCT_NAME, "G3 3590"),
+		},
+	},
 	{ }
 };
 
