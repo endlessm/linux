@@ -2675,7 +2675,6 @@ meson_dw_hdmi
 meson_gxbb_wdt
 meson_nand
 meson_saradc
-meson_uart
 meson_wdt
 metro-usb
 metronomefb
