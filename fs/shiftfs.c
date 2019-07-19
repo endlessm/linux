@@ -1126,6 +1126,9 @@ static int shiftfs_open(struct inode *inode, struct file *file)
 	}
 
 	file->private_data = file_info;
+	/* For O_DIRECT dentry_open() checks f_mapping->a_ops->direct_IO. */
+	file->f_mapping = realfile->f_mapping;
+
 	file_info->realfile = realfile;
 	return 0;
 }
