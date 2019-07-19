@@ -334,6 +334,26 @@ endif
 	# Now the header scripts
 	$(call install_control,$(hdrs_pkg_name)-$*,headers,postinst)
 
+	# Endless PAYG: Create an initramfs image with dracut
+	# Start by combining modules and modules-extra into a single temp
+	# directory and running depmod, so dracut can build an image with
+	# extra modules like bfq and i915.
+	mkdir $(CURDIR)/debian/linux-modules-temp
+	cp -a $(pkgdir)/* $(pkgdir_ex)/* $(CURDIR)/debian/linux-modules-temp
+	depmod -a -b $(CURDIR)/debian/linux-modules-temp $(abi_release)-$*
+	# LD_PRELOAD='' defeats fakeroot, because dracut drops -R 0:0 from
+	# the cpio command line if running as EUID 0 (root).  This somehow
+	# leads to the cpio archive's contents being owned by the builder,
+	# which breaks setuid bins in initramfs.
+	# NOTE: an apparent bug in dracut requires the cmdline to be populated
+	LD_PRELOAD='' dracut $(pkgdir_bin)/boot/payg-image-$(abi_release)-$*.efi $(abi_release)-$* \
+		-k $(CURDIR)/debian/linux-modules-temp/lib/modules/$(abi_release)-$* \
+		--uefi --uefi-stub=/usr/lib/systemd/boot/efi/linuxx64.efi.stub \
+		--kernel-image $(pkgdir_bin)/boot/vmlinuz-$(abi_release)-$* \
+		--kernel-cmdline "rw"
+	# Delete our module temp directory
+	rm -rf $(CURDIR)/debian/linux-modules-temp
+
 	# At the end of the package prep, call the tests
 	DPKG_ARCH="$(arch)" KERN_ARCH="$(build_arch)" FLAVOUR="$*"	\
 	 VERSION="$(abi_release)" REVISION="$(revision)"		\

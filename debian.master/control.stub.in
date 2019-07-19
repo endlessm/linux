@@ -4,6 +4,7 @@ Priority: optional
 Maintainer: Ubuntu Kernel Team <kernel-team@lists.ubuntu.com>
 Standards-Version: 3.9.4.0
 Build-Depends:
+ eos-initramfs-efi,
  debhelper (>= 9),
  dh-systemd,
  cpio,
