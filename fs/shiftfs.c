@@ -1529,7 +1529,7 @@ static bool in_ioctl_whitelist(int flag, unsigned long arg)
 	case BTRFS_IOC_SUBVOL_GETFLAGS:
 		return true;
 	case BTRFS_IOC_SUBVOL_SETFLAGS:
-		if (copy_from_user(&flags, arg, sizeof(flags)))
+		if (copy_from_user(&flags, argp, sizeof(flags)))
 			return false;
 
 		if (flags & ~BTRFS_SUBVOL_RDONLY)
