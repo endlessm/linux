@@ -669,7 +669,6 @@ cdc_subset
 cdns-csi2rx
 cdns-csi2tx
 cdns-pltfrm
-cec-gpio
 ceph
 cfag12864b
 cfag12864bfb
@@ -1625,7 +1624,6 @@ hgafb
 hi311x
 hi6210-i2s
 hi8435
-hibmc-drm
 hid
 hid-a4tech
 hid-accutouch
