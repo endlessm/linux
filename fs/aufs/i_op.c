@@ -20,6 +20,7 @@
  * inode operations (except add/del/rename)
  */
 
+#include <linux/version.h>
 #include <linux/device_cgroup.h>
 #include <linux/fs_stack.h>
 #include <linux/iversion.h>
@@ -641,7 +642,11 @@ out:
 static void au_pin_hdir_set_owner(struct au_pin *p, struct task_struct *task)
 {
 #if !defined(CONFIG_RWSEM_GENERIC_SPINLOCK) && defined(CONFIG_RWSEM_SPIN_ON_OWNER)
+#if (LINUX_VERSION_CODE >= KERNEL_VERSION(5,3,0))
+	atomic_long_set(&p->hdir->hi_inode->i_rwsem.owner, (long)task);
+#else
 	p->hdir->hi_inode->i_rwsem.owner = task;
+#endif
 #endif
 }
 
