@@ -17,4 +17,4 @@ do_tools_perf	  = true
 do_tools_perf_jvmti = true
 
 #do_flavour_image_package = false
-do_zfs		= true
+do_zfs		= false

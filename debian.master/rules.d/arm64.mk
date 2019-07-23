@@ -19,4 +19,4 @@ do_tools_perf   = true
 do_tools_perf_jvmti = true
 
 do_dtbs		= true
-do_zfs		= true
+do_zfs		= false
