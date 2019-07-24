@@ -149,6 +149,15 @@ comment "Watchdog Device Drivers"
 
 # Architecture Independent
 
+config ENDLESS_WATCHDOG
+	tristate "Endless watchdog"
+	select WATCHDOG_CORE
+	help
+          Endless custom watchdog timer.
+
+	  To compile this driver as a module, choose M here: the
+	  module will be called endlessdog.
+
 config SOFT_WATCHDOG
 	tristate "Software watchdog"
 	select WATCHDOG_CORE
