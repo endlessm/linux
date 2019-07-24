@@ -144,6 +144,7 @@ struct rtw_power_params {
 	s8 pwr_offset;
 	s8 pwr_limit;
 	s8 pwr_sar;
+	s8 pwr_remnant;
 };
 
 void
