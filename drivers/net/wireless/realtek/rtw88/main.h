@@ -1063,6 +1063,8 @@ struct rtw_pwr_track_tbl {
 	const u8 *pwrtrk_2g_cckb_p;
 	const u8 *pwrtrk_2g_ccka_n;
 	const u8 *pwrtrk_2g_ccka_p;
+	const s8 *pwrtrk_xtal_n;
+	const s8 *pwrtrk_xtal_p;
 };
 
 enum rtw_wlan_cpu {
@@ -1465,6 +1467,8 @@ struct rtw_dm_info {
 	bool pwr_trk_triggered;
 	bool pwr_trk_init_trigger;
 	struct ewma_thermal avg_thermal[RTW_RF_PATH_MAX];
+	s8 txagc_remnant_cck;
+	s8 txagc_remnant_ofdm;
 
 	/* backup dack results for each path and I/Q */
 	u32 dack_adck[RTW_RF_PATH_MAX];
