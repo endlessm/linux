@@ -7102,14 +7102,6 @@ CONFIG_CHR_DEV_SG                               note<not autoloadable>
 CONFIG_BLK_DEV_SD                               mark<ENFORCED> note <LP:1627330>
 CONFIG_BLK_DEV_SR                               mark<ENFORCED> note <LP:1627330>
 
-# Menu: Device Drivers >> SCSI device support >> SCSI device support >> PCMCIA SCSI adapter support
-CONFIG_SCSI_LOWLEVEL_PCMCIA                     policy<{'amd64': 'y', 'i386': 'y'}>
-CONFIG_PCMCIA_AHA152X                           policy<{'amd64': 'm', 'i386': 'm'}>
-CONFIG_PCMCIA_FDOMAIN                           policy<{'amd64': 'm', 'i386': 'm'}>
-CONFIG_PCMCIA_NINJA_SCSI                        policy<{'i386': 'm'}>
-CONFIG_PCMCIA_QLOGIC                            policy<{'amd64': 'm', 'i386': 'm'}>
-CONFIG_PCMCIA_SYM53C500                         policy<{'amd64': 'm', 'i386': 'm'}>
-
 # Menu: Device Drivers >> SCSI device support >> SCSI device support >> SCSI Device Handlers
 CONFIG_SCSI_DH                                  policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'ppc64el': 'y', 's390x': 'y'}>
 CONFIG_SCSI_DH_RDAC                             policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'ppc64el': 'm', 's390x': 'm'}>
@@ -7247,6 +7239,14 @@ CONFIG_LIBFCOE                                  policy<{'amd64': 'm', 'arm64': '
 CONFIG_FCOE                                     policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'ppc64el': 'm', 's390x': 'm'}>
 CONFIG_FCOE_FNIC                                policy<{'amd64': 'm', 'i386': 'm'}>
 CONFIG_QEDF                                     policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'ppc64el': 'm'}>
+
+# Menu: Device Drivers >> SCSI device support >> SCSI device support >> SCSI low-level drivers >> PCMCIA SCSI adapter support
+CONFIG_SCSI_LOWLEVEL_PCMCIA                     policy<{'amd64': 'y', 'i386': 'y'}>
+CONFIG_PCMCIA_AHA152X                           policy<{'amd64': 'm', 'i386': 'm'}>
+CONFIG_PCMCIA_FDOMAIN                           policy<{'amd64': 'm', 'i386': 'm'}>
+CONFIG_PCMCIA_NINJA_SCSI                        policy<{'i386': 'm'}>
+CONFIG_PCMCIA_QLOGIC                            policy<{'amd64': 'm', 'i386': 'm'}>
+CONFIG_PCMCIA_SYM53C500                         policy<{'amd64': 'm', 'i386': 'm'}>
 
 # Menu: Device Drivers >> SCSI device support >> SCSI device support >> SCSI low-level drivers >> SYM53C8XX Version 2 SCSI support
 CONFIG_SCSI_SYM53C8XX_2                         policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'ppc64el': 'm', 's390x': 'n'}>
@@ -10050,7 +10050,7 @@ CONFIG_FIRMWARE_MEMMAP                          policy<{'amd64': 'y', 'arm64': '
 CONFIG_DMIID                                    policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y'}>
 CONFIG_DMI_SYSFS                                policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm'}>
 CONFIG_ISCSI_IBFT_FIND                          policy<{'amd64': 'y', 'i386': 'y'}>
-CONFIG_ISCSI_IBFT                               policy<{'amd64': 'm', 'i386': 'm'}>
+CONFIG_ISCSI_IBFT                               policy<{'amd64': 'm', 'arm64': 'm', 'i386': 'm'}>
 CONFIG_RASPBERRYPI_FIRMWARE                     policy<{'arm64': 'y'}>
 CONFIG_FW_CFG_SYSFS                             policy<{'amd64': 'm', 'arm64': 'm', 'i386': 'm'}>
 CONFIG_FW_CFG_SYSFS_CMDLINE                     policy<{'amd64': 'n', 'arm64': 'n', 'i386': 'n'}>
@@ -10310,7 +10310,7 @@ CONFIG_NET_NS                                   policy<{'amd64': 'y', 'arm64': '
 # Menu: General setup >> Preemption Model
 CONFIG_PREEMPT_NONE                             policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'i386': 'n', 'ppc64el': 'n', 's390x': 'y'}>
 CONFIG_PREEMPT_VOLUNTARY                        policy<{'amd64-generic': 'y', 'amd64-lowlatency': 'n', 'arm64': 'y', 'armhf': 'y', 'i386-generic': 'y', 'i386-lowlatency': 'n', 'ppc64el': 'y', 's390x': 'n'}>
-CONFIG_PREEMPT_LL                               policy<{'amd64-generic': 'n', 'amd64-lowlatency': 'y', 'arm64': 'n', 'armhf': 'n', 'i386-generic': 'n', 'i386-lowlatency': 'y', 'ppc64el': 'n', 's390x': 'n'}>
+CONFIG_PREEMPT                                  policy<{'amd64-generic': 'n', 'amd64-lowlatency': 'y', 'arm64': 'n', 'armhf': 'n', 'i386-generic': 'n', 'i386-lowlatency': 'y', 'ppc64el': 'n', 's390x': 'n'}>
 #
 CONFIG_PREEMPT_NONE                             note<LP:1543165>
 
@@ -11254,6 +11254,7 @@ CONFIG_MPLS_IPTUNNEL                            policy<{'amd64': 'm', 'arm64': '
 CONFIG_NETFILTER                                policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'ppc64el': 'y', 's390x': 'y'}>
 CONFIG_NETFILTER_ADVANCED                       policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'ppc64el': 'y', 's390x': 'y'}>
 CONFIG_BRIDGE_NETFILTER                         policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'ppc64el': 'm', 's390x': 'm'}>
+CONFIG_NF_CONNTRACK_BRIDGE                      policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'ppc64el': 'm', 's390x': 'm'}>
 
 # Menu: Networking support >> Networking options >> Network packet filtering framework (Netfilter) >> Core Netfilter Configuration
 CONFIG_NETFILTER_INGRESS                        policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'ppc64el': 'y', 's390x': 'y'}>
@@ -11414,11 +11415,10 @@ CONFIG_NFT_FIB_NETDEV                           policy<{'amd64': 'm', 'arm64': '
 CONFIG_DECNET_NF_GRABULATOR                     policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'ppc64el': 'm'}>
 
 # Menu: Networking support >> Networking options >> Network packet filtering framework (Netfilter) >> Ethernet Bridge nf_tables support
-CONFIG_NF_TABLES_BRIDGE                         policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'ppc64el': 'y', 's390x': 'y'}>
+CONFIG_NF_TABLES_BRIDGE                         policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'ppc64el': 'm', 's390x': 'm'}>
 CONFIG_NFT_BRIDGE_META                          policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'ppc64el': 'm', 's390x': 'm'}>
 CONFIG_NFT_BRIDGE_REJECT                        policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'ppc64el': 'm', 's390x': 'm'}>
 CONFIG_NF_LOG_BRIDGE                            policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'ppc64el': 'm', 's390x': 'm'}>
-CONFIG_NF_CONNTRACK_BRIDGE                      policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'ppc64el': 'm', 's390x': 'm'}>
 
 # Menu: Networking support >> Networking options >> Network packet filtering framework (Netfilter) >> Ethernet Bridge tables (ebtables) support
 CONFIG_BRIDGE_NF_EBTABLES                       policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'ppc64el': 'm', 's390x': 'm'}>
