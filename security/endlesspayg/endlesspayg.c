@@ -30,24 +30,27 @@ static struct security_hook_list payg_hooks[] __lsm_ro_after_init = {
 };
 
 /* Set paygd PID. Can only be done if it is not already set. */
-static ssize_t paygd_pid_file_write(struct file *filp,
-				    const char __user *buf,
-				    size_t count, loff_t *ppos)
+static int paygd_pid_file_open(struct inode *inode,
+			       struct file *filp)
 {
-	int ret;
-
 	if (paygd_pid != -1)
 		return -EACCES;
 
-	ret = kstrtoint_from_user(buf, count, 10, &paygd_pid);
-	if (ret != 0)
-		return -EINVAL;
+	paygd_pid = task_pid_nr(current);
 
-	return count;
+	return 0;
+}
+
+static int paygd_pid_file_release(struct inode *i, struct file *filp)
+{
+	/* This ensure we never work again */
+	paygd_pid = -2;
+	return 0;
 }
 
 static const struct file_operations paygd_pid_file_ops = {
-	.write = paygd_pid_file_write,
+	.release = paygd_pid_file_release,
+	.open = paygd_pid_file_open,
 	.llseek = generic_file_llseek,
 };
 
