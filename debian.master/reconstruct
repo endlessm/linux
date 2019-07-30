@@ -1,5 +1,6 @@
 # Recreate any symlinks created since the orig.
 # Remove any files deleted from the orig.
+rm -f 'drivers/media/i2c/adv7511.c'
 rm -f 'tools/testing/selftests/bpf/prog_tests/global_data.c'
 rm -f 'tools/testing/selftests/bpf/progs/test_global_data.c'
 chmod +x 'scripts/kmsg-doc'
