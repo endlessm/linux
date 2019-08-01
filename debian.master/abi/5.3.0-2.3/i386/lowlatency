@@ -20705,6 +20705,7 @@ EXPORT_SYMBOL_GPL vmlinux 0x00000000	kick_all_cpus_sync
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	kick_process
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	kill_dax
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	kill_dev_dax
+EXPORT_SYMBOL_GPL vmlinux 0x00000000	kill_device
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	kill_pid_usb_asyncio
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	klist_add_before
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	klist_add_behind
@@ -22874,10 +22875,10 @@ EXPORT_SYMBOL_GPL vmlinux 0x00000000	usb_alloc_streams
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	usb_alloc_urb
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	usb_altnum_to_altsetting
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	usb_amd_dev_put
-EXPORT_SYMBOL_GPL vmlinux 0x00000000	usb_amd_find_chipset_info
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	usb_amd_hang_symptom_quirk
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	usb_amd_prefetch_quirk
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	usb_amd_pt_check_port
+EXPORT_SYMBOL_GPL vmlinux 0x00000000	usb_amd_quirk_pll_check
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	usb_amd_quirk_pll_disable
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	usb_amd_quirk_pll_enable
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	usb_anchor_empty

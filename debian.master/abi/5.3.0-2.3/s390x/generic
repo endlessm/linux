@@ -11055,6 +11055,7 @@ EXPORT_SYMBOL_GPL vmlinux 0x00000000	kick_all_cpus_sync
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	kick_process
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	kill_dax
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	kill_dev_dax
+EXPORT_SYMBOL_GPL vmlinux 0x00000000	kill_device
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	kill_pid_usb_asyncio
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	klist_add_before
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	klist_add_behind
