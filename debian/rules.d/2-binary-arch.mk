@@ -334,7 +334,8 @@ endif
 	# Now the header scripts
 	$(call install_control,$(hdrs_pkg_name)-$*,headers,postinst)
 
-	# Endless PAYG: Create an initramfs image with dracut
+# Endless PAYG: Create an initramfs image with dracut
+ifeq ($(do_efi_blob),true)
 	# Start by combining modules and modules-extra into a single temp
 	# directory and running depmod, so dracut can build an image with
 	# extra modules like bfq and i915.
@@ -353,6 +354,7 @@ endif
 		--kernel-cmdline "rw"
 	# Delete our module temp directory
 	rm -rf $(CURDIR)/debian/linux-modules-temp
+endif
 
 	# At the end of the package prep, call the tests
 	DPKG_ARCH="$(arch)" KERN_ARCH="$(build_arch)" FLAVOUR="$*"	\
