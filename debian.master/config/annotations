@@ -1484,10 +1484,11 @@ CONFIG_DEVTMPFS_MOUNT                           note<ENFORCED> note<upstart requ
 
 # Menu: Device Drivers >> Generic Driver Options >> DMA Contiguous Memory Allocator
 CONFIG_DMA_CMA                                  policy<{'amd64': 'n', 'arm64': 'y', 'armhf-generic': 'y', 'armhf-generic-lpae': 'n', 'i386': 'n', 's390x': 'n'}>
-CONFIG_CMA_SIZE_MBYTES                          policy<{'arm64': '16', 'armhf-generic': '16'}>
+CONFIG_CMA_SIZE_MBYTES                          policy<{'arm64': '32', 'armhf-generic': '16'}>
 CONFIG_CMA_ALIGNMENT                            policy<{'arm64': '8', 'armhf-generic': '8'}>
 #
-CONFIG_DMA_CMA                                  note<ENFORCED> note<LP#1362261> note<LP:1803206>
+CONFIG_DMA_CMA                                  mark<ENFORCED> note<LP#1362261> note<LP:1803206>
+CONFIG_CMA_SIZE_MBYTES                          mark<ENFORCED> note<LP:1823753>
 
 # Menu: Device Drivers >> Generic Driver Options >> DMA Contiguous Memory Allocator >> Selected region size
 CONFIG_CMA_SIZE_SEL_MBYTES                      policy<{'arm64': 'y', 'armhf-generic': 'y'}>
@@ -5587,7 +5588,7 @@ CONFIG_LED_TRIGGER_PHY                          policy<{'amd64': 'y', 'arm64': '
 CONFIG_SFP                                      policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'ppc64el': 'm'}>
 CONFIG_AMD_PHY                                  policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'ppc64el': 'm', 's390x': 'm'}>
 CONFIG_AQUANTIA_PHY                             policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'ppc64el': 'm', 's390x': 'm'}>
-CONFIG_ASIX_PHY                                 policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'ppc64el': 'm', 's390x': 'm'}>
+CONFIG_AX88796B_PHY                             policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'ppc64el': 'm', 's390x': 'm'}>
 CONFIG_AT803X_PHY                               policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'ppc64el': 'm', 's390x': 'm'}>
 CONFIG_BCM7XXX_PHY                              policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'ppc64el': 'm', 's390x': 'm'}>
 CONFIG_BCM87XX_PHY                              policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'ppc64el': 'm', 's390x': 'm'}>
@@ -6019,6 +6020,15 @@ CONFIG_RTL8821CE                                policy<{'amd64': 'm', 'arm64': '
 CONFIG_RTL8723BU                                policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'ppc64el': 'm'}>
 CONFIG_RTL8723DE                                policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'ppc64el': 'm'}>
 CONFIG_RTLWIFI_DEBUG                            policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'i386': 'n', 'ppc64el': 'n'}>
+
+# Menu: Device Drivers >> Network device support >> Wireless LAN >> Realtek devices >> Realtek 802.11ac wireless chips support
+CONFIG_RTW88                                    policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'ppc64el': 'm'}>
+CONFIG_RTW88_CORE                               policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'ppc64el': 'm'}>
+CONFIG_RTW88_PCI                                policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'ppc64el': 'm'}>
+CONFIG_RTW88_8822BE                             policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'ppc64el': 'y'}>
+CONFIG_RTW88_8822CE                             policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'ppc64el': 'y'}>
+CONFIG_RTW88_DEBUG                              policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'ppc64el': 'y'}>
+CONFIG_RTW88_DEBUGFS                            policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'ppc64el': 'y'}>
 
 # Menu: Device Drivers >> Network device support >> Wireless LAN >> Redpine Signals Inc 91x WLAN driver support
 CONFIG_RSI_91X                                  policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'ppc64el': 'm'}>
@@ -7945,7 +7955,7 @@ CONFIG_WILC1000_HW_OOB_INTR                     policy<{'amd64': 'y', 'arm64': '
 CONFIG_KS7010                                   policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'ppc64el': 'm'}>
 CONFIG_DRM_VBOXVIDEO                            policy<{'amd64': 'm', 'i386': 'm'}>
 CONFIG_PI433                                    policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'ppc64el': 'm'}>
-CONFIG_XIL_AXIS_FIFO                            policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'ppc64el': 'm'}>
+CONFIG_XIL_AXIS_FIFO                            policy<{'amd64': 'n', 'arm64': 'm', 'armhf': 'm', 'i386': 'n', 'ppc64el': 'm'}>
 #
 CONFIG_STAGING                                  flag<REVIEW>
 CONFIG_DRM_VBOXVIDEO                            note<LP:1718679> flag<REVIEW>

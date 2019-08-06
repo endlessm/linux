@@ -27,6 +27,7 @@ log_test()
 		nsuccess=$((nsuccess+1))
 		printf "\n    TEST: %-50s  [ OK ]\n" "${msg}"
 	else
+		ret=1
 		nfail=$((nfail+1))
 		printf "\n    TEST: %-50s  [FAIL]\n" "${msg}"
 		if [ "${PAUSE_ON_FAIL}" = "yes" ]; then
@@ -150,7 +151,7 @@ fib_rule6_test()
 	fib_check_iproute_support "ipproto" "ipproto"
 	if [ $? -eq 0 ]; then
 		match="ipproto ipv6-icmp"
-		fib_rule6_test_match_n_redirect "$match" "$match" "ipproto icmp match"
+		fib_rule6_test_match_n_redirect "$match" "$match" "ipproto ipv6-icmp match"
 	fi
 }
 
@@ -246,5 +247,10 @@ cleanup &> /dev/null
 setup
 run_fibrule_tests
 cleanup
+
+if [ "$TESTS" != "none" ]; then
+	printf "\nTests passed: %3d\n" ${nsuccess}
+	printf "Tests failed: %3d\n"   ${nfail}
+fi
 
 exit $ret

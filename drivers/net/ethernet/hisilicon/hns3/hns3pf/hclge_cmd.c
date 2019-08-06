@@ -110,8 +110,7 @@ static void hclge_cmd_config_regs(struct hclge_cmq_ring *ring)
 		hclge_write_dev(hw, HCLGE_NIC_CSQ_BASEADDR_H_REG,
 				upper_32_bits(dma));
 		hclge_write_dev(hw, HCLGE_NIC_CSQ_DEPTH_REG,
-				(ring->desc_num >> HCLGE_NIC_CMQ_DESC_NUM_S) |
-				HCLGE_NIC_CMQ_ENABLE);
+				ring->desc_num >> HCLGE_NIC_CMQ_DESC_NUM_S);
 		hclge_write_dev(hw, HCLGE_NIC_CSQ_HEAD_REG, 0);
 		hclge_write_dev(hw, HCLGE_NIC_CSQ_TAIL_REG, 0);
 	} else {
@@ -120,8 +119,7 @@ static void hclge_cmd_config_regs(struct hclge_cmq_ring *ring)
 		hclge_write_dev(hw, HCLGE_NIC_CRQ_BASEADDR_H_REG,
 				upper_32_bits(dma));
 		hclge_write_dev(hw, HCLGE_NIC_CRQ_DEPTH_REG,
-				(ring->desc_num >> HCLGE_NIC_CMQ_DESC_NUM_S) |
-				HCLGE_NIC_CMQ_ENABLE);
+				ring->desc_num >> HCLGE_NIC_CMQ_DESC_NUM_S);
 		hclge_write_dev(hw, HCLGE_NIC_CRQ_HEAD_REG, 0);
 		hclge_write_dev(hw, HCLGE_NIC_CRQ_TAIL_REG, 0);
 	}
@@ -175,7 +173,11 @@ static bool hclge_is_special_opcode(u16 opcode)
 			     HCLGE_OPC_STATS_MAC,
 			     HCLGE_OPC_STATS_MAC_ALL,
 			     HCLGE_OPC_QUERY_32_BIT_REG,
-			     HCLGE_OPC_QUERY_64_BIT_REG};
+			     HCLGE_OPC_QUERY_64_BIT_REG,
+			     HCLGE_QUERY_CLEAR_MPF_RAS_INT,
+			     HCLGE_QUERY_CLEAR_PF_RAS_INT,
+			     HCLGE_QUERY_CLEAR_ALL_MPF_MSIX_INT,
+			     HCLGE_QUERY_CLEAR_ALL_PF_MSIX_INT};
 	int i;
 
 	for (i = 0; i < ARRAY_SIZE(spec_opcode); i++) {
@@ -355,7 +357,7 @@ int hclge_cmd_init(struct hclge_dev *hdev)
 	int ret;
 
 	spin_lock_bh(&hdev->hw.cmq.csq.lock);
-	spin_lock_bh(&hdev->hw.cmq.crq.lock);
+	spin_lock(&hdev->hw.cmq.crq.lock);
 
 	hdev->hw.cmq.csq.next_to_clean = 0;
 	hdev->hw.cmq.csq.next_to_use = 0;
@@ -364,7 +366,7 @@ int hclge_cmd_init(struct hclge_dev *hdev)
 
 	hclge_cmd_init_regs(&hdev->hw);
 
-	spin_unlock_bh(&hdev->hw.cmq.crq.lock);
+	spin_unlock(&hdev->hw.cmq.crq.lock);
 	spin_unlock_bh(&hdev->hw.cmq.csq.lock);
 
 	clear_bit(HCLGE_STATE_CMD_DISABLE, &hdev->state);
@@ -373,21 +375,26 @@ int hclge_cmd_init(struct hclge_dev *hdev)
 	 * reset may happen when lower level reset is being processed.
 	 */
 	if ((hclge_is_reset_pending(hdev))) {
-		set_bit(HCLGE_STATE_CMD_DISABLE, &hdev->state);
-		return -EBUSY;
+		ret = -EBUSY;
+		goto err_cmd_init;
 	}
 
 	ret = hclge_cmd_query_firmware_version(&hdev->hw, &version);
 	if (ret) {
 		dev_err(&hdev->pdev->dev,
 			"firmware version query failed %d\n", ret);
-		return ret;
+		goto err_cmd_init;
 	}
 	hdev->fw_version = version;
 
 	dev_info(&hdev->pdev->dev, "The firmware version is %08x\n", version);
 
 	return 0;
+
+err_cmd_init:
+	set_bit(HCLGE_STATE_CMD_DISABLE, &hdev->state);
+
+	return ret;
 }
 
 static void hclge_cmd_uninit_regs(struct hclge_hw *hw)
@@ -411,7 +418,7 @@ static void hclge_destroy_queue(struct hclge_cmq_ring *ring)
 	spin_unlock(&ring->lock);
 }
 
-void hclge_destroy_cmd_queue(struct hclge_hw *hw)
+static void hclge_destroy_cmd_queue(struct hclge_hw *hw)
 {
 	hclge_destroy_queue(&hw->cmq.csq);
 	hclge_destroy_queue(&hw->cmq.crq);

@@ -709,8 +709,8 @@ static bool gmc_v9_0_keep_stolen_memory(struct amdgpu_device *adev)
 	 */
 	switch (adev->asic_type) {
 	case CHIP_VEGA10:
-		return true;
 	case CHIP_RAVEN:
+		return true;
 	case CHIP_VEGA12:
 	case CHIP_VEGA20:
 	default:

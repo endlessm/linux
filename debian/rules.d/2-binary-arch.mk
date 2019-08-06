@@ -375,6 +375,9 @@ ifeq ($(do_tools_cpupower),true)
 endif
 ifeq ($(do_tools_perf),true)
 	$(LN) ../../$(src_pkg_name)-tools-$(abi_release)/perf $(toolspkgdir)/usr/lib/linux-tools/$(abi_release)-$*
+ifeq ($(do_tools_perf_jvmti),true)
+	$(LN) ../../$(src_pkg_name)-tools-$(abi_release)/libperf-jvmti.so $(toolspkgdir)/usr/lib/linux-tools/$(abi_release)-$*
+endif
 endif
 ifeq ($(do_tools_x86),true)
 	$(LN) ../../$(src_pkg_name)-tools-$(abi_release)/x86_energy_perf_policy $(toolspkgdir)/usr/lib/linux-tools/$(abi_release)-$*
@@ -400,7 +403,8 @@ endif
 	$(if $(filter true,$(enable_zfs)),$(call build_dkms, $(mods_pkg_name)-$*, $(pkgdir)/lib/modules/$(abi_release)-$*/kernel, zfs, pool/universe/z/zfs-linux/zfs-dkms_$(dkms_zfs_linux_version)_all.deb))
 
 ifeq ($(do_dkms_nvidia),true)
-	$(call build_dkms, $(bldinfo_pkg_name)-$*, $(pkgdir_bldinfo)/usr/lib/linux/$(abi_release)-$*/signatures, nvidia-390, pool/restricted/n/nvidia-graphics-drivers-390/nvidia-kernel-source-390_$(dkms_nvidia_version)_$(arch).deb pool/restricted/n/nvidia-graphics-drivers-390/nvidia-dkms-390_$(dkms_nvidia_version)_$(arch).deb)
+	$(call build_dkms, $(bldinfo_pkg_name)-$*, $(pkgdir_bldinfo)/usr/lib/linux/$(abi_release)-$*/signatures, nvidia-390, pool/restricted/n/nvidia-graphics-drivers-390/nvidia-kernel-source-390_$(dkms_nvidia_390_version)_$(arch).deb pool/restricted/n/nvidia-graphics-drivers-390/nvidia-dkms-390_$(dkms_nvidia_390_version)_$(arch).deb)
+	$(call build_dkms, $(bldinfo_pkg_name)-$*, $(pkgdir_bldinfo)/usr/lib/linux/$(abi_release)-$*/signatures, nvidia-418, pool/restricted/n/nvidia-graphics-drivers-418/nvidia-kernel-source-418_$(dkms_nvidia_418_version)_$(arch).deb pool/restricted/n/nvidia-graphics-drivers-418/nvidia-dkms-418_$(dkms_nvidia_418_version)_$(arch).deb)
 endif
 
 	# Build the final ABI information.
@@ -762,6 +766,9 @@ ifeq ($(do_tools_cpupower),true)
 endif
 ifeq ($(do_tools_perf),true)
 	install -m755 $(builddirpa)/tools/perf/perf $(toolspkgdir)/usr/lib/$(src_pkg_name)-tools-$(abi_release)
+ifeq ($(do_tools_perf_jvmti),true)
+	install -m755 $(builddirpa)/tools/perf/libperf-jvmti.so $(toolspkgdir)/usr/lib/$(src_pkg_name)-tools-$(abi_release)
+endif
 endif
 ifeq ($(do_tools_x86),true)
 	install -m755 $(builddirpa)/tools/power/x86/x86_energy_perf_policy/x86_energy_perf_policy \

@@ -1470,7 +1470,7 @@ static int mlx5e_get_module_info(struct net_device *netdev,
 		break;
 	case MLX5_MODULE_ID_SFP:
 		modinfo->type       = ETH_MODULE_SFF_8472;
-		modinfo->eeprom_len = ETH_MODULE_SFF_8472_LEN;
+		modinfo->eeprom_len = MLX5_EEPROM_PAGE_LENGTH;
 		break;
 	default:
 		netdev_err(priv->netdev, "%s: cable type not recognized:0x%x\n",
@@ -1665,7 +1665,8 @@ static int set_pflag_rx_no_csum_complete(struct net_device *netdev, bool enable)
 	struct mlx5e_channel *c;
 	int i;
 
-	if (!test_bit(MLX5E_STATE_OPENED, &priv->state))
+	if (!test_bit(MLX5E_STATE_OPENED, &priv->state) ||
+	    priv->channels.params.xdp_prog)
 		return 0;
 
 	for (i = 0; i < channels->num; i++) {

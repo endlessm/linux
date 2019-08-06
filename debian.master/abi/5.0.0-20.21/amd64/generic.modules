@@ -449,7 +449,7 @@ avma1_cs
 avmfritz
 ax25
 ax88179_178a
-axis-fifo
+ax88796b
 axnet_cs
 axp20x
 axp20x-i2c
@@ -670,7 +670,6 @@ cdc_subset
 cdns-csi2rx
 cdns-csi2tx
 cdns-pltfrm
-cec-gpio
 ceph
 cfag12864b
 cfag12864bfb
