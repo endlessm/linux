@@ -10,6 +10,10 @@
 #include "rx.h"
 #include "debug.h"
 
+static bool rtw_disable_msi;
+module_param_named(disable_msi, rtw_disable_msi, bool, 0644);
+MODULE_PARM_DESC(disable_msi, "Set Y to disable MSI interrupt support");
+
 static u32 rtw_pci_tx_queue_idx_addr[] = {
 	[RTW_TX_QUEUE_BK]	= RTK_PCI_TXBD_IDX_BKQ,
 	[RTW_TX_QUEUE_BE]	= RTK_PCI_TXBD_IDX_BEQ,
@@ -872,6 +876,7 @@ static irqreturn_t rtw_pci_interrupt_handler(int irq, void *dev)
 	if (!rtwpci->irq_enabled)
 		goto out;
 
+	rtw_pci_disable_interrupt(rtwdev, rtwpci);
 	rtw_pci_irq_recognized(rtwdev, rtwpci, irq_status);
 
 	if (irq_status[0] & IMR_MGNTDOK)
@@ -890,6 +895,8 @@ static irqreturn_t rtw_pci_interrupt_handler(int irq, void *dev)
 		rtw_pci_tx_isr(rtwdev, rtwpci, RTW_TX_QUEUE_H2C);
 	if (irq_status[0] & IMR_ROK)
 		rtw_pci_rx_isr(rtwdev, rtwpci, RTW_RX_QUEUE_MPDU);
+
+	rtw_pci_enable_interrupt(rtwdev, rtwpci);
 
 out:
 	spin_unlock(&rtwpci->irq_lock);
@@ -1101,6 +1108,46 @@ static struct rtw_hci_ops rtw_pci_ops = {
 	.write_data_h2c = rtw_pci_write_data_h2c,
 };
 
+static int rtw_pci_request_irq(struct rtw_dev *rtwdev, struct pci_dev *pdev)
+{
+	struct rtw_pci *rtwpci = (struct rtw_pci *)rtwdev->priv;
+	int ret;
+
+	if (!rtw_disable_msi) {
+		ret = pci_enable_msi(pdev);
+		if (ret) {
+			rtw_warn(rtwdev, "failed to enable msi %d, using legacy irq\n",
+				 ret);
+		} else {
+			rtw_warn(rtwdev, "pci msi enabled\n");
+			rtwpci->msi_enabled = true;
+		}
+	}
+
+	ret = request_irq(pdev->irq, &rtw_pci_interrupt_handler, IRQF_SHARED,
+			  KBUILD_MODNAME, rtwdev);
+	if (ret) {
+		rtw_err(rtwdev, "failed to request irq %d\n", ret);
+		if (rtwpci->msi_enabled) {
+			pci_disable_msi(pdev);
+			rtwpci->msi_enabled = false;
+		}
+	}
+
+	return ret;
+}
+
+static void rtw_pci_free_irq(struct rtw_dev *rtwdev, struct pci_dev *pdev)
+{
+	struct rtw_pci *rtwpci = (struct rtw_pci *)rtwdev->priv;
+
+	free_irq(pdev->irq, rtwdev);
+	if (rtwpci->msi_enabled) {
+		pci_disable_msi(pdev);
+		rtwpci->msi_enabled = false;
+	}
+}
+
 static int rtw_pci_probe(struct pci_dev *pdev,
 			 const struct pci_device_id *id)
 {
@@ -1155,8 +1202,7 @@ static int rtw_pci_probe(struct pci_dev *pdev,
 		goto err_destroy_pci;
 	}
 
-	ret = request_irq(pdev->irq, &rtw_pci_interrupt_handler,
-			  IRQF_SHARED, KBUILD_MODNAME, rtwdev);
+	ret = rtw_pci_request_irq(rtwdev, pdev);
 	if (ret) {
 		ieee80211_unregister_hw(hw);
 		goto err_destroy_pci;
@@ -1195,7 +1241,7 @@ static void rtw_pci_remove(struct pci_dev *pdev)
 	rtw_pci_disable_interrupt(rtwdev, rtwpci);
 	rtw_pci_destroy(rtwdev, pdev);
 	rtw_pci_declaim(rtwdev, pdev);
-	free_irq(rtwpci->pdev->irq, rtwdev);
+	rtw_pci_free_irq(rtwdev, pdev);
 	rtw_core_deinit(rtwdev);
 	ieee80211_free_hw(hw);
 }
