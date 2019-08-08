@@ -38,38 +38,11 @@
 # symbols in the final module linking stage
 # KBUILD_MODPOST_NOFINAL can be set to skip the final link of modules.
 # This is solely useful to speed up test compiles
-
-PHONY := __modpost
-__modpost:
+PHONY := _modpost
+_modpost: __modpost
 
 include include/config/auto.conf
 include scripts/Kbuild.include
-
-kernelsymfile := $(objtree)/Module.symvers
-modulesymfile := $(firstword $(KBUILD_EXTMOD))/Module.symvers
-
-MODPOST = scripts/mod/modpost						\
-	$(if $(CONFIG_MODVERSIONS),-m)					\
-	$(if $(CONFIG_MODULE_SRCVERSION_ALL),-a)			\
-	$(if $(KBUILD_EXTMOD),-i,-o) $(kernelsymfile)			\
-	$(if $(KBUILD_EXTMOD),-I $(modulesymfile))			\
-	$(if $(KBUILD_EXTMOD),$(addprefix -e ,$(KBUILD_EXTRA_SYMBOLS)))	\
-	$(if $(KBUILD_EXTMOD),-o $(modulesymfile))			\
-	$(if $(CONFIG_SECTION_MISMATCH_WARN_ONLY),,-E)			\
-	$(if $(KBUILD_MODPOST_WARN),-w)
-
-ifdef MODPOST_VMLINUX
-
-__modpost: vmlinux.o
-
-quiet_cmd_modpost = MODPOST $@
-      cmd_modpost = $(MODPOST) $@
-
-PHONY += vmlinux.o
-vmlinux.o:
-	$(call cmd,modpost)
-
-else
 
 # When building external modules load the Kbuild file to retrieve EXTRA_SYMBOLS info
 ifneq ($(KBUILD_EXTMOD),)
@@ -85,25 +58,48 @@ endif
 
 include scripts/Makefile.lib
 
-# find all modules listed in modules.order
+kernelsymfile := $(objtree)/Module.symvers
+modulesymfile := $(firstword $(KBUILD_EXTMOD))/Module.symvers
+
+# Step 1), find all modules listed in modules.order
+ifdef CONFIG_MODULES
 modules := $(sort $(shell cat $(MODORDER)))
+endif
 
 # Stop after building .o files if NOFINAL is set. Makes compile tests quicker
-__modpost: $(if $(KBUILD_MODPOST_NOFINAL), $(modules:.ko:.o),$(modules))
-	@:
+_modpost: $(if $(KBUILD_MODPOST_NOFINAL), $(modules:.ko:.o),$(modules))
 
-MODPOST += $(subst -i,-n,$(filter -i,$(MAKEFLAGS))) -s -T - $(wildcard vmlinux)
+# Step 2), invoke modpost
+#  Includes step 3,4
+modpost = scripts/mod/modpost                    \
+ $(if $(CONFIG_MODVERSIONS),-m)                  \
+ $(if $(CONFIG_MODULE_SRCVERSION_ALL),-a,)       \
+ $(if $(KBUILD_EXTMOD),-i,-o) $(kernelsymfile)   \
+ $(if $(KBUILD_EXTMOD),-I $(modulesymfile))      \
+ $(if $(KBUILD_EXTMOD),$(addprefix -e ,$(KBUILD_EXTRA_SYMBOLS))) \
+ $(if $(KBUILD_EXTMOD),-o $(modulesymfile))      \
+ $(if $(CONFIG_SECTION_MISMATCH_WARN_ONLY),,-E)  \
+ $(if $(KBUILD_MODPOST_WARN),-w)
+
+MODPOST_OPT=$(subst -i,-n,$(filter -i,$(MAKEFLAGS)))
 
 # We can go over command line length here, so be careful.
 quiet_cmd_modpost = MODPOST $(words $(modules)) modules
-      cmd_modpost = sed 's/ko$$/o/' $(MODORDER) | $(MODPOST)
+      cmd_modpost = sed 's/ko$$/o/' $(MODORDER) | $(modpost) $(MODPOST_OPT) -s -T -
 
-PHONY += modules-modpost
-modules-modpost:
-	$(call cmd,modpost)
+PHONY += __modpost
+__modpost:
+	$(call cmd,modpost) $(wildcard vmlinux)
+
+quiet_cmd_kernel-mod = MODPOST $@
+      cmd_kernel-mod = $(modpost) $@
+
+vmlinux.o: FORCE
+	$(call cmd,kernel-mod)
 
 # Declare generated files as targets for modpost
-$(modules:.ko=.mod.c): modules-modpost
+$(modules:.ko=.mod.c): __modpost ;
+
 
 # Step 5), compile all *.mod.c files
 
@@ -150,7 +146,5 @@ FORCE:
 existing-targets := $(wildcard $(sort $(targets)))
 
 -include $(foreach f,$(existing-targets),$(dir $(f)).$(notdir $(f)).cmd)
-
-endif
 
 .PHONY: $(PHONY)
