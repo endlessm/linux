@@ -1617,7 +1617,6 @@ hamachi
 hampshire
 hangcheck-timer
 hanwang
-hbmc-am654
 hci
 hci_nokia
 hci_uart
@@ -2874,11 +2873,6 @@ mtouch
 multipath
 multiq3
 musb_hdrc
-mux-adg792a
-mux-adgs1408
-mux-core
-mux-gpio
-mux-mmio
 mv88e6060
 mv88e6xxx
 mv_u3d_core

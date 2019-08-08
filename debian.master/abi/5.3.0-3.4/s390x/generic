@@ -92,6 +92,8 @@ EXPORT_SYMBOL drivers/gpu/drm/drm 0x00000000	drm_calc_vbltimestamp_from_scanoutp
 EXPORT_SYMBOL drivers/gpu/drm/drm 0x00000000	drm_clflush_pages
 EXPORT_SYMBOL drivers/gpu/drm/drm 0x00000000	drm_clflush_sg
 EXPORT_SYMBOL drivers/gpu/drm/drm 0x00000000	drm_clflush_virt_range
+EXPORT_SYMBOL drivers/gpu/drm/drm 0x00000000	drm_client_buffer_vmap
+EXPORT_SYMBOL drivers/gpu/drm/drm 0x00000000	drm_client_buffer_vunmap
 EXPORT_SYMBOL drivers/gpu/drm/drm 0x00000000	drm_client_close
 EXPORT_SYMBOL drivers/gpu/drm/drm 0x00000000	drm_client_dev_hotplug
 EXPORT_SYMBOL drivers/gpu/drm/drm 0x00000000	drm_client_framebuffer_create
@@ -2959,7 +2961,10 @@ EXPORT_SYMBOL vmlinux 0x00000000	autoremove_wake_function
 EXPORT_SYMBOL vmlinux 0x00000000	avenrun
 EXPORT_SYMBOL vmlinux 0x00000000	balance_dirty_pages_ratelimited
 EXPORT_SYMBOL vmlinux 0x00000000	bcmp
+EXPORT_SYMBOL vmlinux 0x00000000	bd_abort_claiming
+EXPORT_SYMBOL vmlinux 0x00000000	bd_finish_claiming
 EXPORT_SYMBOL vmlinux 0x00000000	bd_set_size
+EXPORT_SYMBOL vmlinux 0x00000000	bd_start_claiming
 EXPORT_SYMBOL vmlinux 0x00000000	bdev_dax_pgoff
 EXPORT_SYMBOL vmlinux 0x00000000	bdev_read_only
 EXPORT_SYMBOL vmlinux 0x00000000	bdev_stack_limits
