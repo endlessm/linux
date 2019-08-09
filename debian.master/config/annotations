@@ -12620,8 +12620,8 @@ CONFIG_HARDENED_USERCOPY_FALLBACK               policy<{'amd64': 'y', 'arm64': '
 CONFIG_HARDENED_USERCOPY_PAGESPAN               policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'i386': 'n', 'ppc64el': 'n', 's390x': 'n'}>
 CONFIG_FORTIFY_SOURCE                           policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'ppc64el': 'y', 's390x': 'y'}>
 CONFIG_STATIC_USERMODEHELPER                    policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'i386': 'n', 'ppc64el': 'n', 's390x': 'n'}>
-CONFIG_LOCK_DOWN_KERNEL                         policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'ppc64el': 'n', 's390x': 'n'}>
-CONFIG_LOCK_DOWN_KERNEL_FORCE                   policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'i386': 'n'}>
+CONFIG_LOCK_DOWN_KERNEL                         policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'ppc64el': 'n', 's390x': 'y'}>
+CONFIG_LOCK_DOWN_KERNEL_FORCE                   policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'i386': 'n', 's390x': 'n'}>
 CONFIG_ALLOW_LOCKDOWN_LIFT_BY_SYSRQ             policy<{'amd64': 'y', 'i386': 'y'}>
 CONFIG_LOCK_DOWN_IN_EFI_SECURE_BOOT             policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y'}>
 CONFIG_LSM                                      policy<{'amd64': '"yama,loadpin,integrity,apparmor"', 'arm64': '"yama,loadpin,integrity,apparmor"', 'armhf': '"yama,loadpin,integrity,apparmor"', 'i386': '"yama,loadpin,integrity,apparmor"', 'ppc64el': '"yama,loadpin,integrity,apparmor"', 's390x': '"yama,loadpin,integrity,apparmor"'}>
