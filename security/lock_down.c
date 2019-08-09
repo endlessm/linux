@@ -15,6 +15,9 @@
 #include <linux/efi.h>
 #include <linux/sysrq.h>
 #include <asm/setup.h>
+#ifdef CONFIG_S390
+#include <asm/ipl.h>
+#endif
 
 #ifdef CONFIG_ALLOW_LOCKDOWN_LIFT_BY_SYSRQ
 static __read_mostly bool kernel_locked_down;
@@ -54,6 +57,10 @@ void __init init_lockdown(void)
 #ifdef CONFIG_LOCK_DOWN_IN_EFI_SECURE_BOOT
 	if (efi_enabled(EFI_SECURE_BOOT))
 		lock_kernel_down("EFI secure boot");
+#endif
+#ifdef CONFIG_S390
+	if (ipl_get_secureboot())
+		lock_kernel_down("Secure IPL");
 #endif
 }
 
