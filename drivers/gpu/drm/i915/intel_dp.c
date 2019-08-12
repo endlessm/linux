@@ -4710,14 +4710,16 @@ int intel_dp_retrain_link(struct intel_encoder *encoder,
  * retrain the link to get a picture. That's in case no
  * userspace component reacted to intermittent HPD dip.
  */
-static bool intel_dp_hotplug(struct intel_encoder *encoder,
-			     struct intel_connector *connector)
+static enum intel_hotplug_state
+intel_dp_hotplug(struct intel_encoder *encoder,
+		 struct intel_connector *connector,
+		 bool irq_received)
 {
 	struct drm_modeset_acquire_ctx ctx;
-	bool changed;
+	enum intel_hotplug_state state;
 	int ret;
 
-	changed = intel_encoder_hotplug(encoder, connector);
+	state = intel_encoder_hotplug(encoder, connector, irq_received);
 
 	drm_modeset_acquire_init(&ctx, 0);
 
@@ -4736,7 +4738,14 @@ static bool intel_dp_hotplug(struct intel_encoder *encoder,
 	drm_modeset_acquire_fini(&ctx);
 	WARN(ret, "Acquiring modeset locks failed with %i\n", ret);
 
-	return changed;
+	/*
+	 * Keeping it consistent with intel_ddi_hotplug() and
+	 * intel_hdmi_hotplug().
+	 */
+	if (state == INTEL_HOTPLUG_UNCHANGED && irq_received)
+		state = INTEL_HOTPLUG_RETRY;
+
+	return state;
 }
 
 static void intel_dp_check_service_irq(struct intel_dp *intel_dp)

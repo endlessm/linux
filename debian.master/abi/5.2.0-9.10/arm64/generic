@@ -5969,7 +5969,6 @@ EXPORT_SYMBOL vmlinux 0x00000000	__sock_queue_rcv_skb
 EXPORT_SYMBOL vmlinux 0x00000000	__sock_tx_timestamp
 EXPORT_SYMBOL vmlinux 0x00000000	__splice_from_pipe
 EXPORT_SYMBOL vmlinux 0x00000000	__stack_chk_fail
-EXPORT_SYMBOL vmlinux 0x00000000	__stack_chk_guard
 EXPORT_SYMBOL vmlinux 0x00000000	__starget_for_each_device
 EXPORT_SYMBOL vmlinux 0x00000000	__sw_hweight16
 EXPORT_SYMBOL vmlinux 0x00000000	__sw_hweight32
