@@ -11763,7 +11763,7 @@ CONFIG_ARCH_BRCMSTB                             policy<{'arm64': 'y'}>
 CONFIG_ARCH_EXYNOS                              policy<{'arm64': 'n', 'armhf': 'y'}>
 CONFIG_ARCH_HISI                                policy<{'arm64': 'y', 'armhf': 'y'}>
 CONFIG_ARCH_MEDIATEK                            policy<{'arm64': 'y', 'armhf': 'y'}>
-CONFIG_ARCH_MESON                               policy<{'arm64': 'y', 'armhf': 'y'}>
+CONFIG_ARCH_MESON                               policy<{'arm64': 'n', 'armhf': 'y'}>
 CONFIG_ARCH_MVEBU                               policy<{'arm64': 'n', 'armhf': 'y'}>
 CONFIG_ARCH_MXC                                 policy<{'arm64': 'y', 'armhf-generic': 'y', 'armhf-generic-lpae': 'n'}>
 CONFIG_ARCH_QCOM                                policy<{'arm64': 'y', 'armhf': 'y'}>
