@@ -290,4 +290,7 @@
 /* SiFive UART */
 #define PORT_SIFIVE_V0	120
 
+/* Sunix UART */
+#define PORT_SUNIX	121
+
 #endif /* _UAPILINUX_SERIAL_CORE_H */
