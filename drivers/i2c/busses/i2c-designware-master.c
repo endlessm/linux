@@ -9,7 +9,6 @@
  * Copyright (C) 2009 Provigent Ltd.
  */
 #include <linux/delay.h>
-#include <linux/dmi.h>
 #include <linux/err.h>
 #include <linux/errno.h>
 #include <linux/export.h>
@@ -22,39 +21,6 @@
 #include <linux/reset.h>
 
 #include "i2c-designware-core.h"
-
-static int no_runtime_pm;
-static const struct dmi_system_id i2c_dw_no_runtime_pm[] = {
-	{
-		.ident = "Dell Inspiron 5390",
-		.matches = {
-			DMI_MATCH(DMI_SYS_VENDOR, "Dell Inc."),
-			DMI_MATCH(DMI_PRODUCT_NAME, "Inspiron 5390"),
-		},
-	},
-	{
-		.ident = "Dell Inspiron 5391",
-		.matches = {
-			DMI_MATCH(DMI_SYS_VENDOR, "Dell Inc."),
-			DMI_MATCH(DMI_PRODUCT_NAME, "Inspiron 5391"),
-		},
-	},
-	{
-		.ident = "Dell Vostro 5390",
-		.matches = {
-			DMI_MATCH(DMI_SYS_VENDOR, "Dell Inc."),
-			DMI_MATCH(DMI_PRODUCT_NAME, "Vostro 5390"),
-		},
-	},
-	{
-		.ident = "Dell Vostro 5391",
-		.matches = {
-			DMI_MATCH(DMI_SYS_VENDOR, "Dell Inc."),
-			DMI_MATCH(DMI_PRODUCT_NAME, "Vostro 5391"),
-		},
-	},
-	{ }
-};
 
 static void i2c_dw_configure_fifo_master(struct dw_i2c_dev *dev)
 {
@@ -458,8 +424,7 @@ i2c_dw_xfer(struct i2c_adapter *adap, struct i2c_msg msgs[], int num)
 
 	dev_dbg(dev->dev, "%s: msgs: %d\n", __func__, num);
 
-	if (!no_runtime_pm)
-		pm_runtime_get_sync(dev->dev);
+	pm_runtime_get_sync(dev->dev);
 
 	if (dev_WARN_ONCE(dev->dev, dev->suspended, "Transfer while suspended\n")) {
 		ret = -ESHUTDOWN;
@@ -536,8 +501,7 @@ done:
 
 done_nolock:
 	pm_runtime_mark_last_busy(dev->dev);
-	if (!no_runtime_pm)
-		pm_runtime_put_autosuspend(dev->dev);
+	pm_runtime_put_autosuspend(dev->dev);
 
 	return ret;
 }
@@ -768,10 +732,6 @@ int i2c_dw_probe(struct dw_i2c_dev *dev)
 	ret = i2c_dw_init_recovery_info(dev);
 	if (ret)
 		return ret;
-
-	no_runtime_pm = dmi_check_system(i2c_dw_no_runtime_pm);
-	if (no_runtime_pm)
-		__pm_runtime_disable(dev->dev, true);
 
 	/*
 	 * Increment PM usage count during adapter registration in order to
