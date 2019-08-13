@@ -5008,6 +5008,7 @@ EXPORT_SYMBOL net/wireless/cfg80211 0x00000000	cfg80211_get_p2p_attr
 EXPORT_SYMBOL net/wireless/cfg80211 0x00000000	cfg80211_get_station
 EXPORT_SYMBOL net/wireless/cfg80211 0x00000000	cfg80211_gtk_rekey_notify
 EXPORT_SYMBOL net/wireless/cfg80211 0x00000000	cfg80211_ibss_joined
+EXPORT_SYMBOL net/wireless/cfg80211 0x00000000	cfg80211_iftype_allowed
 EXPORT_SYMBOL net/wireless/cfg80211 0x00000000	cfg80211_inform_bss_data
 EXPORT_SYMBOL net/wireless/cfg80211 0x00000000	cfg80211_inform_bss_frame_data
 EXPORT_SYMBOL net/wireless/cfg80211 0x00000000	cfg80211_is_element_inherited
