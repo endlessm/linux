@@ -267,6 +267,7 @@ ib_srp
 ib_srpt
 ib_umad
 ib_uverbs
+icp
 icplus
 ifb
 ife
@@ -738,6 +739,7 @@ smc_diag
 smsc
 smsgiucv_app
 softdog
+spl
 st
 st_drv
 ste10Xp
@@ -936,12 +938,18 @@ xt_time
 xt_u32
 xxhash_generic
 z3fold
+zavl
+zcommon
 zcrypt
 zcrypt_cex2a
 zcrypt_cex2c
 zcrypt_cex4
 zfcp
+zfs
 zlib_deflate
+zlua
+znvpair
 zram
 zstd
 zstd_compress
+zunicode
