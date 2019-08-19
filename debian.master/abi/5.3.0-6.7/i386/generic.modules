@@ -3728,7 +3728,6 @@ redboot
 redrat3
 reed_solomon
 regmap-sccb
-regmap-sdw
 regmap-slimbus
 regmap-spmi
 regmap-w1
@@ -4626,7 +4625,6 @@ sony-btf-mpx
 sony-laptop
 sonypi
 soundcore
-soundwire-bus
 soundwire-cadence
 soundwire-intel
 soundwire-intel-init
