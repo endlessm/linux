@@ -278,6 +278,7 @@ struct kvm_s390_sie_block {
 #define ECD_HOSTREGMGMT	0x20000000
 #define ECD_MEF		0x08000000
 #define ECD_ETOKENF	0x02000000
+#define ECD_ECC		0x00200000
 	__u32	ecd;			/* 0x01c8 */
 	__u8	reserved1cc[18];	/* 0x01cc */
 	__u64	pp;			/* 0x01de */
@@ -712,6 +713,7 @@ struct s390_io_adapter {
 struct kvm_s390_cpu_model {
 	/* facility mask supported by kvm & hosting machine */
 	__u64 fac_mask[S390_ARCH_FAC_LIST_SIZE_U64];
+	struct kvm_s390_vm_cpu_subfunc subfuncs;
 	/* facility list requested by guest (in dma page) */
 	__u64 *fac_list;
 	u64 cpuid;

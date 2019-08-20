@@ -83,7 +83,8 @@ static int __init set_bios_reboot(const struct dmi_system_id *d)
 }
 
 /*
- * Some machines require the "reboot=e" commandline options
+ * Some machines don't handle the default ACPI reboot method and
+ * require the EFI reboot method:
  */
 static int __init set_efi_reboot(const struct dmi_system_id *d)
 {
