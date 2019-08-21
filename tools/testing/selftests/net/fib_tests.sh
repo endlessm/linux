@@ -449,6 +449,7 @@ fib_rp_filter_test()
 	$IP link add dummy1 type dummy
 	$IP link set dummy1 address 52:54:00:6a:c7:5e
 	$IP link set dev dummy1 up
+	$IP address add 192.0.2.1/24 dev dummy1
 	$NS_EXEC sysctl -qw net.ipv4.conf.all.rp_filter=1
 	$NS_EXEC sysctl -qw net.ipv4.conf.all.accept_local=1
 	$NS_EXEC sysctl -qw net.ipv4.conf.all.route_localnet=1
