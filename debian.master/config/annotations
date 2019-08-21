@@ -10656,7 +10656,7 @@ CONFIG_TEST_LKM                                 policy<{'amd64': 'n', 'arm64': '
 CONFIG_TEST_VMALLOC                             policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'i386': 'n', 'ppc64el': 'n', 's390x': 'n'}>
 CONFIG_TEST_USER_COPY                           policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'i386': 'n', 'ppc64el': 'n', 's390x': 'n'}>
 CONFIG_TEST_BPF                                 policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'ppc64el': 'm', 's390x': 'm'}>
-CONFIG_TEST_BLACKHOLE_DEV                       policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'i386': 'n', 'ppc64el': 'n', 's390x': 'n'}>
+CONFIG_TEST_BLACKHOLE_DEV                       policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'ppc64el': 'm', 's390x': 'm'}>
 CONFIG_FIND_BIT_BENCHMARK                       policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'i386': 'n', 'ppc64el': 'n', 's390x': 'n'}>
 CONFIG_TEST_FIRMWARE                            policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'i386': 'n', 'ppc64el': 'n', 's390x': 'n'}>
 CONFIG_TEST_SYSCTL                              policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'i386': 'n', 'ppc64el': 'n', 's390x': 'n'}>
@@ -10698,7 +10698,7 @@ CONFIG_TEST_LKM                                 flag<TESTING>
 CONFIG_TEST_VMALLOC                             flag<TESTING>
 CONFIG_TEST_USER_COPY                           flag<TESTING>
 CONFIG_TEST_BPF                                 flag<TESTING>
-CONFIG_TEST_BLACKHOLE_DEV                       flag<TESTING>
+CONFIG_TEST_BLACKHOLE_DEV                       flag<TESTING> note<Used by net selftests>
 CONFIG_FIND_BIT_BENCHMARK                       flag<TESTING>
 CONFIG_TEST_FIRMWARE                            flag<TESTING>
 CONFIG_TEST_SYSCTL                              flag<TESTING>
