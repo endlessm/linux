@@ -112,6 +112,7 @@ static inline s32 iqk_mult(s32 x, s32 y, s32 *ext)
 	return (t >> 8);	/* Q.16 --> Q.8 */
 }
 
+#define REG_GPIO_INTM		0x0048
 #define REG_BTG_SEL		0x0067
 #define REG_LTECOEX_PATH_CONTROL	0x0070
 #define REG_LTECOEX_CTRL	0x07c0
@@ -119,6 +120,7 @@ static inline s32 iqk_mult(s32 x, s32 y, s32 *ext)
 #define REG_LTECOEX_READ_DATA	0x07c8
 #define REG_PSDFN		0x0808
 #define REG_BB_PWR_SAV1_11N	0x0874
+#define REG_ANA_PARAM1		0x0880
 #define REG_ANALOG_P4		0x088c
 #define REG_PSDRPT		0x08b4
 #define REG_FPGA1_RFMOD		0x0900
@@ -156,6 +158,7 @@ static inline s32 iqk_mult(s32 x, s32 y, s32 *ext)
 #define BIT_SET_OFDM0_EXTS(a, c, d) (((a) << 31) | ((c) << 29) | ((d) << 28))
 #define REG_OFDM0_XAAGC1	0x0c50
 #define REG_OFDM0_XBAGC1	0x0c58
+#define REG_AGCRSSI		0x0c78
 #define REG_OFDM_0_XA_TX_IQ_IMBALANCE	0x0c80
 #define BIT_MASK_TXIQ_ELM_A	0x03ff
 #define BIT_SET_TXIQ_ELM_ACD(a, c, d) (((d) << 22) | (((c) & 0x3F) << 16) |    \
