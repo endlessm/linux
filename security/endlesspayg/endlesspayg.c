@@ -13,6 +13,7 @@
 #include <linux/types.h>
 #include "endlesspayg.h"
 
+static bool payg_active = 0;
 static struct dentry *payg_dir;
 static struct dentry *paygd_pid_file;
 static pid_t paygd_pid = -1;
@@ -168,6 +169,9 @@ static const struct file_operations paygd_pid_file_ops = {
 
 static int __init payg_lsm_init(void)
 {
+	if (!payg_active)
+		return 0;
+
 	security_add_hooks(payg_hooks, ARRAY_SIZE(payg_hooks),
 			   "endlesspayg");
 	return 0;
@@ -178,8 +182,18 @@ DEFINE_LSM(endlesspayg) = {
 	.init = payg_lsm_init,
 };
 
+static int __init eospayg_active(char *str)
+{
+	payg_active = true;
+	return 1;
+}
+__setup("eospayg", eospayg_active);
+
 static int __init payg_init_securityfs(void)
 {
+	if (!payg_active)
+		return 0;
+
 	payg_dir = securityfs_create_dir("endlesspayg", NULL);
 	if (IS_ERR(payg_dir))
 		return PTR_ERR(payg_dir);
