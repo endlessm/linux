@@ -282,16 +282,17 @@ ifneq ($(skipdbg),true)
 		INSTALL_MOD_PATH=$(dbgpkgdir)/usr/lib/debug
 	# Add .gnu_debuglink sections to each stripped .ko
 	# pointing to unstripped verson
-	find $(pkgdir) -name '*.ko' | sed 's|$(pkgdir)||'| while read module ; do \
+	find $(pkgdir) -name '*.ko' | while read path_module ; do \
+		module="/lib/modules/$${path_module#*/lib/modules/}"; \
 		if [[ -f "$(dbgpkgdir)/usr/lib/debug/$$module" ]] ; then \
 			$(CROSS_COMPILE)objcopy \
 				--add-gnu-debuglink=$(dbgpkgdir)/usr/lib/debug/$$module \
-				$(pkgdir)/$$module; \
+				$$path_module; \
 			if grep -q CONFIG_MODULE_SIG=y $(builddir)/build-$*/.config; then \
 				$(builddir)/build-$*/scripts/sign-file $(MODHASHALGO) \
 					$(MODSECKEY) \
 					$(MODPUBKEY) \
-					$(pkgdir)/$$module; \
+					$$path_module; \
 			fi; \
 		fi; \
 	done
