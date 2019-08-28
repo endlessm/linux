@@ -282,7 +282,9 @@ ifneq ($(skipdbg),true)
 		INSTALL_MOD_PATH=$(dbgpkgdir)/usr/lib/debug
 	# Add .gnu_debuglink sections to each stripped .ko
 	# pointing to unstripped verson
-	find $(pkgdir) -name '*.ko' | while read path_module ; do \
+	find $(pkgdir) \
+	  $(if $(filter true,$(do_extras_package)),$(pkgdir_ex)) \
+	  -name '*.ko' | while read path_module ; do \
 		module="/lib/modules/$${path_module#*/lib/modules/}"; \
 		if [[ -f "$(dbgpkgdir)/usr/lib/debug/$$module" ]] ; then \
 			$(CROSS_COMPILE)objcopy \
