@@ -6,8 +6,9 @@ abi_flavour="$2"
 sign="$3"
 pkgname="$4"
 pkgdir="$5"
-package="$6"
-shift 6
+dbgpkgdir="$6"
+package="$7"
+shift 7
 
 srcdir=$(pwd)
 cd "$dkms_dir" || exit 1
@@ -134,6 +135,34 @@ sed -e "s@$dkms_dir@<<DKMSDIR>>@g" <"$log"
 # If this build failed then exit here.
 [ "$rc" != 0 ] && exit "$rc"
 
+# Install the modules with debug symbols we possibly built,
+# and strip the original modules for the next install step.
+if [ -n "$dbgpkgdir" ]; then
+	dbgpkgdir="$dbgpkgdir/$package"
+	echo "II: dkms-build installing $package into $dbgpkgdir (debug symbols)"
+	install -d "$dbgpkgdir"
+	find "$dkms_dir/build/$dkms_package/$dkms_version/$abi_version" -name \*.ko |
+	while read module; do
+		vmodule=$( basename "$module" )
+
+		# Check for '.debug_info' section in order to copy module.
+		# Useful if debug symbols are requested but not built for
+		# any reason (including not yet supported by DKMS package).
+		# Strip module just in case even if section isn't present.
+		if ${CROSS_COMPILE}objdump -h -j '.debug_info' "$module" >/dev/null 2>&1
+		then
+			echo "copying $vmodule"
+			cp "$module" "$dbgpkgdir"
+		else
+			echo "ignoring $vmodule (missing debug symbols)"
+		fi
+
+		# Just 'strip -g' as '/usr/sbin/dkms' does.
+		echo "stripping $vmodule"
+		strip -g "$module"
+	done
+fi
+
 # Install and optionally sign the modules we have built.
 pkgdir="$pkgdir/$package"
 echo "II: dkms-build installing $package into $pkgdir"
@@ -180,6 +209,7 @@ do
 		"$sign" \
 		"$pkgname" \
 		"$pkgdir" \
+		"$dbgpkgdir" \
 		"$package" \
 		"$@" || exit 1
 	break
