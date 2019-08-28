@@ -108,6 +108,7 @@ install-%: MODPUBKEY=$(builddir)/build-$*/certs/signing_key.x509
 install-%: build_dir=$(builddir)/build-$*
 install-%: dkms_dir=$(call dkms_dir_prefix,$(builddir)/build-$*)
 install-%: enable_zfs = $(call custom_override,do_zfs,$*)
+install-%: dbgpkgdir_zfs = $(if $(filter false,$(skipdbg)),$(dbgpkgdir)/usr/lib/debug/lib/modules/$(abi_release)-$*/kernel,"")
 install-%: $(stampdir)/stamp-build-% install-headers
 	@echo Debug: $@ kernel_file $(kernel_file) kernfile $(kernfile) install_file $(install_file) instfile $(instfile)
 	dh_testdir
@@ -393,7 +394,7 @@ endif
 	install -d $(dkms_dir) $(dkms_dir)/headers $(dkms_dir)/build $(dkms_dir)/source
 	cp -rp "$(hdrdir)" "$(indep_hdrdir)" "$(dkms_dir)/headers"
 
-	$(if $(filter true,$(enable_zfs)),$(call build_dkms, $(mods_pkg_name)-$*, $(pkgdir)/lib/modules/$(abi_release)-$*/kernel, "", zfs, pool/universe/z/zfs-linux/zfs-dkms_$(dkms_zfs_linux_version)_all.deb))
+	$(if $(filter true,$(enable_zfs)),$(call build_dkms, $(mods_pkg_name)-$*, $(pkgdir)/lib/modules/$(abi_release)-$*/kernel, $(dbgpkgdir_zfs), zfs, pool/universe/z/zfs-linux/zfs-dkms_$(dkms_zfs_linux_version)_all.deb))
 
 ifeq ($(do_dkms_nvidia),true)
 	$(call build_dkms, $(bldinfo_pkg_name)-$*, $(pkgdir_bldinfo)/usr/lib/linux/$(abi_release)-$*/signatures, "", nvidia-390, pool/restricted/n/nvidia-graphics-drivers-390/nvidia-kernel-source-390_$(dkms_nvidia_390_version)_$(arch).deb pool/restricted/n/nvidia-graphics-drivers-390/nvidia-dkms-390_$(dkms_nvidia_390_version)_$(arch).deb)

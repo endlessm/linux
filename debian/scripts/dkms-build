@@ -85,10 +85,20 @@ for dkms_conf in "$package/usr/src"/*/"dkms.conf"
 do
 	break
 done
+
 # It seems some packages have a # in the name which works fine if the
 # package is installed directly, but not so much if we build it out
 # of the normal location.
 sed -i -e '/^PACKAGE_NAME=/ s/#//g' "$dkms_conf"
+
+# ZFS debug symbols are enabled in dkms.conf via PACKAGE_CONFIG file.
+if [ -n "$dbgpkgdir" ] && [ "$package" = 'zfs' ]; then
+	pkg_cfg="$(dirname "$dkms_conf")/pkg_cfg"
+	echo 'ZFS_DKMS_ENABLE_DEBUGINFO=yes' >"$pkg_cfg"
+	echo 'ZFS_DKMS_DISABLE_STRIP=yes'   >>"$pkg_cfg"
+	sed -i "s,^\(PACKAGE_CONFIG=\).*,\1$pkg_cfg," $dkms_conf
+fi
+
 cat - <<'EOF' >>"$dkms_conf"
 POST_BUILD="ubuntu-save-objects ${dkms_tree}/${PACKAGE_NAME}/${PACKAGE_VERSION}/build ${dkms_tree}/${PACKAGE_NAME}/${PACKAGE_VERSION}/objects $POST_BUILD"
 EOF
