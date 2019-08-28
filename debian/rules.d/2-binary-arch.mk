@@ -421,6 +421,8 @@ ifneq ($(skipdbg),true)
 					$(MODPUBKEY) \
 					$$path_module; \
 			fi; \
+		else \
+			echo "WARNING: Missing debug symbols for module '$$module'."; \
 		fi; \
 	done
 endif
