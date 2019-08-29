@@ -585,6 +585,7 @@ static int shiftfs_rm(struct inode *dir, struct dentry *dentry, bool rmdir)
 {
 	struct dentry *lowerd = dentry->d_fsdata;
 	struct inode *loweri = dir->i_private;
+	struct inode *inode = d_inode(dentry);
 	int err;
 	const struct cred *oldcred;
 
@@ -594,15 +595,19 @@ static int shiftfs_rm(struct inode *dir, struct dentry *dentry, bool rmdir)
 		err = vfs_rmdir(loweri, lowerd);
 	else
 		err = vfs_unlink(loweri, lowerd, NULL);
-	inode_unlock(loweri);
 	revert_creds(oldcred);
 
-	shiftfs_copyattr(loweri, dir);
-	set_nlink(d_inode(dentry), loweri->i_nlink);
-	if (!err)
+	if (!err) {
 		d_drop(dentry);
 
-	set_nlink(dir, loweri->i_nlink);
+		if (rmdir)
+			clear_nlink(inode);
+		else
+			drop_nlink(inode);
+	}
+	inode_unlock(loweri);
+
+	shiftfs_copyattr(loweri, dir);
 
 	return err;
 }
