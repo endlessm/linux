@@ -2108,7 +2108,7 @@ static int __init shiftfs_init(void)
 {
 	shiftfs_file_info_cache = kmem_cache_create(
 		"shiftfs_file_info_cache", sizeof(struct shiftfs_file_info), 0,
-		SLAB_HWCACHE_ALIGN | SLAB_ACCOUNT | SLAB_MEM_SPREAD, NULL);
+		SLAB_RECLAIM_ACCOUNT | SLAB_HWCACHE_ALIGN | SLAB_ACCOUNT | SLAB_MEM_SPREAD, NULL);
 	if (!shiftfs_file_info_cache)
 		return -ENOMEM;
 
