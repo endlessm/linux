@@ -73,16 +73,29 @@ static bool is_dentry_name_protected(struct dentry *dentry)
 
 static int payg_file_open(struct file *file)
 {
+	unsigned long magic = file->f_inode->i_sb->s_magic;
+
 	if (is_payg_master())
 		return 0;
 
-	if (!is_inode_on_efivarfs(file->f_inode))
-		return 0;
+	if (magic == EFIVARFS_MAGIC) {
+		/* If we're on efivarfs, we're filtering efi variables */
+		if (is_dentry_name_protected(file->f_path.dentry))
+			return -ENOENT;
+	} else if (magic == SYSFS_MAGIC) {
+		const char *name = file->f_path.dentry->d_name.name;
+		/*
+		 * If we're on sysfs, filter emmc controls - and
+		 * we're a bit sloppy about those, ignoring
+		 * directory, as currently only emmc has these
+		 * sysfs controls.
+		 */
+		if (strcmp(name, "force_ro") == 0 ||
+		    strcmp(name, "ro_lock_until_next_power_on") == 0)
+			return -EPERM;
+	}
 
-	if (!is_dentry_name_protected(file->f_path.dentry))
-		return 0;
-
-	return -ENOENT;
+	return 0;
 }
 
 static int payg_inode_unlink(struct inode *dir, struct dentry *dentry)
