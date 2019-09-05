@@ -14,10 +14,10 @@
 #include <linux/watchdog.h>
 
 /*
- * 30 seconds until a soft shutdown attempt
+ * 19 minutes until a soft shutdown attempt
  * 60 seconds after that we assume failure and shut down hard
  */
-#define BARK_TIMEOUT 30
+#define BARK_TIMEOUT 1140
 #define BITE_TIMEOUT 60
 
 static bool running = false;
