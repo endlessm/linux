@@ -162,12 +162,22 @@ static int payg_ptrace_access_check(struct task_struct *child,
 	return 0;
 }
 
+static int payg_task_kill(struct task_struct *p, struct kernel_siginfo *info,
+                          int sig, const struct cred *cred)
+{
+	if (p->pid != paygd_pid)
+		return 0;
+
+	return -EPERM;
+}
+
 static struct security_hook_list payg_hooks[] __lsm_ro_after_init = {
 	LSM_HOOK_INIT(ptrace_access_check, payg_ptrace_access_check),
 	LSM_HOOK_INIT(file_open, payg_file_open),
 	LSM_HOOK_INIT(inode_unlink, payg_inode_unlink),
 	LSM_HOOK_INIT(inode_rename, payg_inode_rename),
 	LSM_HOOK_INIT(inode_create, payg_inode_create),
+	LSM_HOOK_INIT(task_kill, payg_task_kill),
 };
 
 /* Set paygd PID. Can only be done if it is not already set. */
