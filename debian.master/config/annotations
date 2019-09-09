@@ -659,7 +659,7 @@ CONFIG_IBM_BSR                                  policy<{'ppc64el': 'm'}>
 CONFIG_POWERNV_OP_PANEL                         policy<{'ppc64el': 'm'}>
 CONFIG_NPCM7XX_KCS_IPMI_BMC                     policy<{'armhf': 'm'}>
 CONFIG_IPMB_DEVICE_INTERFACE                    policy<{'arm64': 'm', 'armhf': 'm'}>
-CONFIG_NVRAM                                    policy<{'amd64': 'm', 'i386': 'm', 'ppc64el': 'm'}>
+CONFIG_NVRAM                                    policy<{'amd64': 'm', 'i386': 'm', 'ppc64el': 'y'}>
 CONFIG_DTLK                                     policy<{'i386': 'm'}>
 CONFIG_APPLICOM                                 policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'ppc64el': 'm', 's390x': 'n'}>
 CONFIG_SONYPI                                   policy<{'i386': 'm'}>
@@ -702,6 +702,7 @@ CONFIG_XILLYBUS_OF                              policy<{'arm64': 'm', 'armhf': '
 #
 CONFIG_DEVKMEM                                  mark<ENFORCED> note</dev/kmem is a large attack vector>
 CONFIG_HVC_UDBG                                 mark<ENFORCED> note<LP#1680888>
+CONFIG_NVRAM                                    mark<ENFORCED> note<LP#1837726>
 CONFIG_SCLP_OFB                                 mark<ENFORCED> note<LP:1787898>
 
 # Menu: Device Drivers >> Character devices >> Enable TTY
