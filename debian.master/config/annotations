@@ -10292,15 +10292,13 @@ CONFIG_PERF_EVENTS                              policy<{'amd64': 'y', 'arm64': '
 CONFIG_DEBUG_PERF_USE_VMALLOC                   policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'i386': 'n', 's390x': 'n'}>
 
 # Menu: General setup >> Kernel compression mode
-CONFIG_KERNEL_GZIP                              policy<{'amd64': 'y', 'armhf': 'y', 'i386': 'y', 'ppc64el': 'y', 's390x': 'n'}>
+CONFIG_KERNEL_GZIP                              policy<{'amd64': 'n', 'armhf': 'y', 'i386': 'n', 'ppc64el': 'y', 's390x': 'n'}>
 CONFIG_KERNEL_BZIP2                             policy<{'amd64': 'n', 'i386': 'n', 's390x': 'n'}>
 CONFIG_KERNEL_LZMA                              policy<{'amd64': 'n', 'armhf': 'n', 'i386': 'n', 's390x': 'n'}>
-CONFIG_KERNEL_XZ                                policy<{'amd64': 'n', 'armhf': 'n', 'i386': 'n', 'ppc64el': 'n', 's390x': 'y'}>
+CONFIG_KERNEL_XZ                                policy<{'amd64': 'n', 'armhf': 'n', 'i386': 'n', 'ppc64el': 'n', 's390x': 'n'}>
 CONFIG_KERNEL_LZO                               policy<{'amd64': 'n', 'armhf': 'n', 'i386': 'n', 's390x': 'n'}>
-CONFIG_KERNEL_LZ4                               policy<{'amd64': 'n', 'armhf': 'n', 'i386': 'n', 's390x': 'n'}>
+CONFIG_KERNEL_LZ4                               policy<{'amd64': 'y', 'armhf': 'n', 'i386': 'y', 's390x': 'y'}>
 CONFIG_KERNEL_UNCOMPRESSED                      policy<{'s390x': 'n'}>
-#
-CONFIG_KERNEL_GZIP                              flag<REVIEW> note<does s390x care the format here?>
 
 # Menu: General setup >> Namespaces support
 CONFIG_NAMESPACES                               policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'ppc64el': 'y', 's390x': 'y'}>
