@@ -2948,7 +2948,6 @@ nvmet
 nvmet-fc
 nvmet-rdma
 nvmet-tcp
-nvram
 nx-compress
 nx-compress-powernv
 nx-compress-pseries
