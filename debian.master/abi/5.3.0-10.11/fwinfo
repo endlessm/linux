@@ -949,8 +949,11 @@ firmware:       nvidia/gp102/gr/sw_ctx.bin
 firmware:       nvidia/gp102/gr/sw_method_init.bin
 firmware:       nvidia/gp102/gr/sw_nonctx.bin
 firmware:       nvidia/gp102/nvdec/scrubber.bin
+firmware:       nvidia/gp102/sec2/desc-1.bin
 firmware:       nvidia/gp102/sec2/desc.bin
+firmware:       nvidia/gp102/sec2/image-1.bin
 firmware:       nvidia/gp102/sec2/image.bin
+firmware:       nvidia/gp102/sec2/sig-1.bin
 firmware:       nvidia/gp102/sec2/sig.bin
 firmware:       nvidia/gp104/acr/bl.bin
 firmware:       nvidia/gp104/acr/ucode_load.bin
@@ -969,8 +972,11 @@ firmware:       nvidia/gp104/gr/sw_ctx.bin
 firmware:       nvidia/gp104/gr/sw_method_init.bin
 firmware:       nvidia/gp104/gr/sw_nonctx.bin
 firmware:       nvidia/gp104/nvdec/scrubber.bin
+firmware:       nvidia/gp104/sec2/desc-1.bin
 firmware:       nvidia/gp104/sec2/desc.bin
+firmware:       nvidia/gp104/sec2/image-1.bin
 firmware:       nvidia/gp104/sec2/image.bin
+firmware:       nvidia/gp104/sec2/sig-1.bin
 firmware:       nvidia/gp104/sec2/sig.bin
 firmware:       nvidia/gp106/acr/bl.bin
 firmware:       nvidia/gp106/acr/ucode_load.bin
@@ -989,8 +995,11 @@ firmware:       nvidia/gp106/gr/sw_ctx.bin
 firmware:       nvidia/gp106/gr/sw_method_init.bin
 firmware:       nvidia/gp106/gr/sw_nonctx.bin
 firmware:       nvidia/gp106/nvdec/scrubber.bin
+firmware:       nvidia/gp106/sec2/desc-1.bin
 firmware:       nvidia/gp106/sec2/desc.bin
+firmware:       nvidia/gp106/sec2/image-1.bin
 firmware:       nvidia/gp106/sec2/image.bin
+firmware:       nvidia/gp106/sec2/sig-1.bin
 firmware:       nvidia/gp106/sec2/sig.bin
 firmware:       nvidia/gp107/acr/bl.bin
 firmware:       nvidia/gp107/acr/ucode_load.bin
@@ -1009,8 +1018,11 @@ firmware:       nvidia/gp107/gr/sw_ctx.bin
 firmware:       nvidia/gp107/gr/sw_method_init.bin
 firmware:       nvidia/gp107/gr/sw_nonctx.bin
 firmware:       nvidia/gp107/nvdec/scrubber.bin
+firmware:       nvidia/gp107/sec2/desc-1.bin
 firmware:       nvidia/gp107/sec2/desc.bin
+firmware:       nvidia/gp107/sec2/image-1.bin
 firmware:       nvidia/gp107/sec2/image.bin
+firmware:       nvidia/gp107/sec2/sig-1.bin
 firmware:       nvidia/gp107/sec2/sig.bin
 firmware:       nvidia/gp108/acr/bl.bin
 firmware:       nvidia/gp108/acr/ucode_load.bin
