@@ -24,6 +24,7 @@
 #include <linux/miscdevice.h>
 #include <linux/bug.h>
 #include <linux/of.h>
+#include <linux/clk.h>
 
 #include <linux/mali/mali_utgard.h>
 #include "mali_kernel_common.h"
@@ -67,7 +68,7 @@ EXPORT_TRACEPOINT_SYMBOL_GPL(mali_sw_counters);
 extern const char *__malidrv_build_info(void);
 
 /* Module parameter to control log level */
-int mali_debug_level = 2;
+int mali_debug_level = 5;
 module_param(mali_debug_level, int, S_IRUSR | S_IWUSR | S_IWGRP | S_IRGRP | S_IROTH); /* rw-rw-r-- */
 MODULE_PARM_DESC(mali_debug_level, "Higher number, more dmesg output");
 
@@ -462,6 +463,45 @@ void mali_module_exit(void)
 	MALI_PRINT(("Mali device driver unloaded\n"));
 }
 
+struct clk *clk_bus;
+struct clk *clk_gpu;
+struct reset_control *rset;
+
+static int mali_platform_device_init(struct platform_device *pdev)
+{
+	int err;
+	unsigned long bus_rate, gpu_rate;
+
+	clk_bus = devm_clk_get(&pdev->dev, "bus");
+	if (IS_ERR(clk_bus))
+		return PTR_ERR(clk_bus);
+
+	clk_gpu = devm_clk_get(&pdev->dev, "core");
+	if (IS_ERR(clk_gpu))
+		return PTR_ERR(clk_gpu);
+
+	bus_rate = clk_get_rate(clk_bus);
+	dev_info(&pdev->dev, "bus rate = %lu\n", bus_rate);
+
+	gpu_rate = clk_get_rate(clk_gpu);
+	dev_info(&pdev->dev, "mod rate = %lu", gpu_rate);
+
+	err = clk_prepare_enable(clk_bus);
+	if (err)
+		return err;
+
+	err = clk_prepare_enable(clk_gpu);
+	if (err)
+		clk_disable_unprepare(clk_bus);
+
+	return err;
+}
+
+static void mali_platform_device_deinit(struct platform_device *pdev)
+{
+	clk_disable_unprepare(clk_gpu);
+	clk_disable_unprepare(clk_bus);
+}
 static int mali_probe(struct platform_device *pdev)
 {
 	int err;
