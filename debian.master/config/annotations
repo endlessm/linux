@@ -3215,9 +3215,9 @@ CONFIG_MLX5_INFINIBAND                          policy<{'amd64': 'm', 'arm64': '
 CONFIG_INFINIBAND_OCRDMA                        policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'ppc64el': 'm', 's390x': 'n'}>
 CONFIG_INFINIBAND_VMWARE_PVRDMA                 policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm'}>
 CONFIG_INFINIBAND_USNIC                         policy<{'amd64': 'm', 'i386': 'm'}>
-CONFIG_INFINIBAND_HNS                           policy<{'arm64': 'm'}>
-CONFIG_INFINIBAND_HNS_HIP06                     policy<{'arm64': 'y'}>
-CONFIG_INFINIBAND_HNS_HIP08                     policy<{'arm64': 'y'}>
+CONFIG_INFINIBAND_HNS                           policy<{'arm64': 'y'}>
+CONFIG_INFINIBAND_HNS_HIP06                     policy<{'arm64': 'm'}>
+CONFIG_INFINIBAND_HNS_HIP08                     policy<{'arm64': 'm'}>
 CONFIG_INFINIBAND_BNXT_RE                       policy<{'amd64': 'm', 'arm64': 'm', 'ppc64el': 'm', 's390x': 'n'}>
 CONFIG_INFINIBAND_HFI1                          policy<{'amd64': 'm'}>
 CONFIG_HFI1_DEBUG_SDMA_ORDER                    policy<{'amd64': 'n'}>
@@ -3225,7 +3225,7 @@ CONFIG_SDMA_VERBOSITY                           policy<{'amd64': 'n'}>
 CONFIG_INFINIBAND_QEDR                          policy<{'amd64': 'm', 'arm64': 'm', 'ppc64el': 'm'}>
 CONFIG_INFINIBAND_RDMAVT                        policy<{'amd64': 'm'}>
 CONFIG_RDMA_RXE                                 policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'ppc64el': 'm', 's390x': 'm'}>
-CONFIG_RDMA_SIW                                 policy<{'amd64': 'm', 'arm64': 'm', 'ppc64el': 'm', 's390x': 'm'}>
+CONFIG_RDMA_SIW                                 policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'ppc64el': 'm', 's390x': 'm'}>
 
 # Menu: Device Drivers >> InfiniBand support >> RDMA/CM
 CONFIG_INFINIBAND_ADDR_TRANS                    policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'ppc64el': 'y', 's390x': 'y'}>
@@ -3904,7 +3904,7 @@ CONFIG_MTD_UBI_BLOCK                            policy<{'amd64': 'y', 'arm64': '
 
 # Menu: Device Drivers >> Memory Technology Device (MTD) support >> HyperBus support
 CONFIG_MTD_HYPERBUS                             policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'ppc64el': 'm'}>
-CONFIG_HBMC_AM654                               policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'ppc64el': 'm'}>
+CONFIG_HBMC_AM654                               policy<{'arm64': 'm'}>
 
 # Menu: Device Drivers >> Memory Technology Device (MTD) support >> LPDDR & LPDDR2 PCM memory drivers
 CONFIG_MTD_LPDDR                                policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'ppc64el': 'm'}>
@@ -4361,7 +4361,7 @@ CONFIG_MEDIA_CAMERA_SUPPORT                     policy<{'amd64': 'y', 'arm64': '
 
 # Menu: Device Drivers >> Multimedia support >> Cameras/video grabbers support >> Media test drivers
 CONFIG_V4L_TEST_DRIVERS                         policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'ppc64el': 'y'}>
-CONFIG_VIDEO_VIMC                               policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'i386': 'n', 'ppc64el': 'n'}>
+CONFIG_VIDEO_VIMC                               policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'ppc64el': 'm'}>
 CONFIG_VIDEO_VIVID                              policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'ppc64el': 'm'}>
 CONFIG_VIDEO_VIVID_CEC                          policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'ppc64el': 'y'}>
 CONFIG_VIDEO_VIVID_MAX_DEVS                     policy<{'amd64': '64', 'arm64': '64', 'armhf': '64', 'i386': '64', 'ppc64el': '64'}>
@@ -5023,10 +5023,10 @@ CONFIG_MD_FAULTY                                policy<{'amd64': 'm', 'arm64': '
 CONFIG_MD_CLUSTER                               policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'ppc64el': 'm', 's390x': 'm'}>
 
 # Menu: Device Drivers >> Multiplexer drivers
-CONFIG_MUX_ADG792A                              policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'ppc64el': 'm'}>
-CONFIG_MUX_ADGS1408                             policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'ppc64el': 'm'}>
-CONFIG_MUX_GPIO                                 policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'ppc64el': 'm'}>
-CONFIG_MUX_MMIO                                 policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'ppc64el': 'm'}>
+CONFIG_MUX_ADG792A                              policy<{'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm'}>
+CONFIG_MUX_ADGS1408                             policy<{'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm'}>
+CONFIG_MUX_GPIO                                 policy<{'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm'}>
+CONFIG_MUX_MMIO                                 policy<{'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm'}>
 
 # Menu: Device Drivers >> NVDIMM (Non-Volatile Memory Device) Support
 CONFIG_LIBNVDIMM                                policy<{'amd64': 'y', 'arm64': 'y', 'armhf-generic-lpae': 'y', 'i386': 'y', 'ppc64el': 'y', 's390x': 'n'}>
