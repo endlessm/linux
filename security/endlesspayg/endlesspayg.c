@@ -98,6 +98,20 @@ static int payg_file_open(struct file *file)
 	return 0;
 }
 
+static int payg_inode_create(struct inode *dir, struct dentry *dentry, umode_t mode)
+{
+	if (is_payg_master())
+		return 0;
+
+	if (!is_inode_on_efivarfs(dir))
+		return 0;
+
+	if (!is_dentry_name_protected(dentry))
+		return 0;
+
+	return -ENOENT;
+}
+
 static int payg_inode_unlink(struct inode *dir, struct dentry *dentry)
 {
 	if (is_payg_master())
@@ -153,6 +167,7 @@ static struct security_hook_list payg_hooks[] __lsm_ro_after_init = {
 	LSM_HOOK_INIT(file_open, payg_file_open),
 	LSM_HOOK_INIT(inode_unlink, payg_inode_unlink),
 	LSM_HOOK_INIT(inode_rename, payg_inode_rename),
+	LSM_HOOK_INIT(inode_create, payg_inode_create),
 };
 
 /* Set paygd PID. Can only be done if it is not already set. */
