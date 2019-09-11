@@ -54,16 +54,35 @@ static void mali_mem_vma_close(struct vm_area_struct *vma)
 	vma->vm_private_data = NULL;
 }
 
-static int mali_mem_vma_fault(struct vm_area_struct *vma, struct vm_fault *vmf)
+static unsigned int mali_mem_vma_fault(struct vm_fault *vmf)
 {
-	mali_mem_allocation *alloc = (mali_mem_allocation *)vma->vm_private_data;
+	struct file *filp = NULL;
+	struct mali_session_data *session = NULL;
+	struct vm_area_struct *vma = vmf->vma;
+	mali_mem_allocation *alloc = NULL;
 	mali_mem_backend *mem_bkend = NULL;
 	int ret;
 	int prefetch_num = MALI_VM_NUM_FAULT_PREFETCH;
 
-	unsigned long address = (unsigned long)vmf->virtual_address;
-	MALI_DEBUG_ASSERT(alloc->backend_handle);
-	MALI_DEBUG_ASSERT((unsigned long)alloc->cpu_mapping.addr <= address);
+	unsigned long address = (unsigned long)vmf->address;
+
+	filp = vma->vm_file;
+	MALI_DEBUG_ASSERT(filp);
+	session = (struct mali_session_data *)filp->private_data;
+	MALI_DEBUG_ASSERT(session);
+	mali_session_memory_lock(session);
+	if (NULL == vma->vm_private_data) {
+		MALI_DEBUG_PRINT(1, ("mali_vma_fault: The memory has been freed!\n"));
+		mali_session_memory_unlock(session);
+		return VM_FAULT_SIGBUS;
+	} else {
+		alloc = (mali_mem_allocation *)vma->vm_private_data;
+		MALI_DEBUG_ASSERT(alloc->backend_handle);
+		MALI_DEBUG_ASSERT(alloc->cpu_mapping.vma == vma);
+		MALI_DEBUG_ASSERT((unsigned long)alloc->cpu_mapping.addr <= address);
+		mali_allocation_ref(alloc);
+	}
+	mali_session_memory_unlock(session);
 
 	/* Get backend memory & Map on CPU */
 	mutex_lock(&mali_idr_mutex);

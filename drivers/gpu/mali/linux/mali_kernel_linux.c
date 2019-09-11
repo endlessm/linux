@@ -932,6 +932,11 @@ static int mali_ioctl(struct inode *inode, struct file *filp, unsigned int cmd, 
 	return err;
 }
 
+int vm_insert_pfn(struct vm_area_struct *vma, unsigned long addr,
+		  unsigned long pfn)
+{
+	return vm_fault_to_errno(vmf_insert_pfn(vma, addr, pfn), 0xffff);
+}
 
 module_init(mali_module_init);
 module_exit(mali_module_exit);

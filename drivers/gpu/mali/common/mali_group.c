@@ -66,10 +66,8 @@ struct mali_group *mali_group_create(struct mali_l2_cache_core *core,
 
 	group = _mali_osk_calloc(1, sizeof(struct mali_group));
 	if (NULL != group) {
-		group->timeout_timer = _mali_osk_timer_init();
+		group->timeout_timer = _mali_osk_timer_init(mali_group_timeout, (void *)group);
 		if (NULL != group->timeout_timer) {
-			_mali_osk_timer_setcallback(group->timeout_timer, mali_group_timeout, (void *)group);
-
 			group->l2_cache_core[0] = core;
 			_mali_osk_list_init(&group->group_list);
 			_mali_osk_list_init(&group->executor_list);
@@ -1710,7 +1708,8 @@ static void mali_group_bottom_half_pp(void *data)
 
 static void mali_group_timeout(void *data)
 {
-	struct mali_group *group = (struct mali_group *)data;
+	struct mali_group *group =
+		(struct mali_group *) _mali_osk_timer_get_data((_mali_osk_timer_t *) data);
 	MALI_DEBUG_ASSERT_POINTER(group);
 
 	MALI_DEBUG_PRINT(2, ("Group: timeout handler for %s at %u\n",

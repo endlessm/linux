@@ -26,11 +26,6 @@
 #define MALI_OS_MEMORY_KERNEL_BUFFER_SIZE_IN_PAGES (MALI_OS_MEMORY_KERNEL_BUFFER_SIZE_IN_MB * 256)
 #define MALI_OS_MEMORY_POOL_TRIM_JIFFIES (10 * CONFIG_HZ) /* Default to 10s */
 
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(3, 8, 0)
-/* Write combine dma_attrs */
-static DEFINE_DMA_ATTRS(dma_attrs_wc);
-#endif
-
 #if LINUX_VERSION_CODE < KERNEL_VERSION(3, 0, 0)
 #if LINUX_VERSION_CODE < KERNEL_VERSION(2, 6, 35)
 static int mali_mem_os_shrink(int nr_to_scan, gfp_t gfp_mask);
@@ -200,7 +195,7 @@ int mali_mem_os_alloc_pages(mali_mem_os_mem *os_mem, u32 size)
 	/* Allocate new pages, if needed. */
 	for (i = 0; i < remaining; i++) {
 		dma_addr_t dma_addr;
-		gfp_t flags = __GFP_ZERO | __GFP_NORETRY | __GFP_NOWARN | __GFP_COLD;
+		gfp_t flags = __GFP_ZERO | __GFP_RETRY_MAYFAIL | __GFP_NOWARN;
 		int err;
 
 #if defined(CONFIG_ARM) && !defined(CONFIG_ARM_LPAE)
@@ -507,7 +502,7 @@ _mali_osk_errcode_t mali_mem_os_get_table_page(mali_dma_addr *phys, mali_io_addr
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(3, 8, 0)
 		*mapping = dma_alloc_attrs(&mali_platform_device->dev,
 					   _MALI_OSK_MALI_PAGE_SIZE, &tmp_phys,
-					   GFP_KERNEL, &dma_attrs_wc);
+					   GFP_KERNEL, DMA_ATTR_WRITE_COMBINE);
 #else
 		*mapping = dma_alloc_writecombine(&mali_platform_device->dev,
 						  _MALI_OSK_MALI_PAGE_SIZE, &tmp_phys, GFP_KERNEL);
@@ -546,7 +541,7 @@ void mali_mem_os_release_table_page(mali_dma_addr phys, void *virt)
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(3, 8, 0)
 		dma_free_attrs(&mali_platform_device->dev,
 			       _MALI_OSK_MALI_PAGE_SIZE, virt, phys,
-			       &dma_attrs_wc);
+			       DMA_ATTR_WRITE_COMBINE);
 #else
 		dma_free_writecombine(&mali_platform_device->dev,
 				      _MALI_OSK_MALI_PAGE_SIZE, virt, phys);
@@ -601,7 +596,7 @@ static void mali_mem_os_page_table_pool_free(size_t nr_to_free)
 	for (i = 0; i < nr_to_free; i++) {
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(3, 8, 0)
 		dma_free_attrs(&mali_platform_device->dev, _MALI_OSK_MALI_PAGE_SIZE,
-			       virt_arr[i], (dma_addr_t)phys_arr[i], &dma_attrs_wc);
+			       virt_arr[i], (dma_addr_t)phys_arr[i], DMA_ATTR_WRITE_COMBINE);
 #else
 		dma_free_writecombine(&mali_platform_device->dev,
 				      _MALI_OSK_MALI_PAGE_SIZE,
@@ -749,10 +744,6 @@ _mali_osk_errcode_t mali_mem_os_init(void)
 	if (NULL == mali_mem_os_allocator.wq) {
 		return _MALI_OSK_ERR_NOMEM;
 	}
-
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(3, 8, 0)
-	dma_set_attr(DMA_ATTR_WRITE_COMBINE, &dma_attrs_wc);
-#endif
 
 	register_shrinker(&mali_mem_os_allocator.shrinker);
 

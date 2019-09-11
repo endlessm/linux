@@ -65,11 +65,10 @@ _mali_osk_errcode_t mali_control_timer_init(void)
 		}
 	}
 
-	mali_control_timer = _mali_osk_timer_init();
+	mali_control_timer = _mali_osk_timer_init(mali_control_timer_callback, NULL);
 	if (NULL == mali_control_timer) {
 		return _MALI_OSK_ERR_FAULT;
 	}
-	_mali_osk_timer_setcallback(mali_control_timer, mali_control_timer_callback, NULL);
 
 	return _MALI_OSK_ERR_OK;
 }

@@ -16,12 +16,15 @@ extern "C" {
 #endif
 
 #include <linux/cdev.h>     /* character device definitions */
+#include <linux/mm.h>
 #include <linux/idr.h>
 #include <linux/rbtree.h>
 #include "mali_kernel_license.h"
 #include "mali_osk_types.h"
 
 extern struct platform_device *mali_platform_device;
+extern int vm_insert_pfn(struct vm_area_struct *vma, unsigned long addr,
+			 unsigned long pfn);
 
 #ifdef __cplusplus
 }
