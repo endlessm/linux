@@ -42,6 +42,17 @@ bool eospayg_skip_name_wide(const u16 *name)
 	return false;
 }
 
+bool eospayg_proc_pid_is_safe(pid_t pid)
+{
+	if (paygd_pid < 0)
+		return true;
+
+	if (pid == paygd_pid)
+		return false;
+
+	return true;
+}
+
 static bool is_payg_master(void)
 {
 	/* If payg isn't enforced, treat everyone like master */
