@@ -99,6 +99,7 @@
 #include "fd.h"
 
 #include "../../lib/kstrtox.h"
+#include "../../security/endlesspayg/endlesspayg.h"
 
 /* NOTE:
  *	Implementing inode permission operations in /proc is almost
@@ -2484,6 +2485,8 @@ static struct dentry *proc_pident_lookup(struct inode *dir,
 	if (!task)
 		goto out_no_task;
 
+	if (!eospayg_proc_pid_is_safe(task->pid))
+		goto out_payg_filtered;
 	/*
 	 * Yes, it does not scale. And it should not. Don't add
 	 * new entries into /proc/<tgid>/ without very good reasons.
@@ -2496,6 +2499,7 @@ static struct dentry *proc_pident_lookup(struct inode *dir,
 			break;
 		}
 	}
+out_payg_filtered:
 	put_task_struct(task);
 out_no_task:
 	return res;
@@ -2509,6 +2513,9 @@ static int proc_pident_readdir(struct file *file, struct dir_context *ctx,
 
 	if (!task)
 		return -ENOENT;
+
+	if (!eospayg_proc_pid_is_safe(task->pid))
+		goto out;
 
 	if (!dir_emit_dots(file, ctx))
 		goto out;
