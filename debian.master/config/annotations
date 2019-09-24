@@ -430,6 +430,13 @@ CONFIG_CRYPTO_DEV_SAFEXCEL                      policy<{'arm64': 'm'}>
 CONFIG_CRYPTO_DEV_ARTPEC6                       policy<{'armhf': 'm'}>
 CONFIG_CRYPTO_DEV_CCREE                         policy<{'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm'}>
 CONFIG_CRYPTO_DEV_HISI_SEC                      policy<{'arm64': 'm'}>
+CONFIG_CRYPTO_DEV_HISI_QM                       policy<{'arm64': 'm'}>
+CONFIG_CRYPTO_DEV_HISI_QM                       mark<ENFORCED>
+CONFIG_CRYPTO_HISI_SGL                          policy<{'arm64': 'm'}>
+CONFIG_CRYPTO_HISI_SGL                          mark<ENFORCED>
+CONFIG_CRYPTO_DEV_HISI_ZIP                      policy<{'arm64': 'm'}>
+CONFIG_CRYPTO_DEV_HISI_ZIP                      mark<ENFORCED>
+
 #
 CONFIG_ZCRYPT_MULTIDEVNODES                     mark<ENFORCED> note<LP:1805429>
 
