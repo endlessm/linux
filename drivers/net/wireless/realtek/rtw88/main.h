@@ -48,6 +48,10 @@ extern struct rtw_chip_info rtw8723d_hw_spec;
 #define RTW_MAX_CHANNEL_NUM_5G 49
 
 struct rtw_dev;
+struct rtw_sar_rwrd;
+union rtw_sar_rwsi;
+union rtw_sar_rwgs;
+struct rtw_sar_read;
 
 enum rtw_hci_type {
 	RTW_HCI_TYPE_PCIE,
@@ -1589,6 +1593,10 @@ struct rtw_fw_state {
 
 struct rtw_sar {
 	enum rtw_sar_sources source;
+	struct rtw_sar_rwrd *rwrd;
+	union rtw_sar_rwsi *rwsi;
+	union rtw_sar_rwgs *rwgs;
+	const struct rtw_sar_read *read;
 };
 
 struct rtw_hal {
