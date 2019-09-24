@@ -298,6 +298,7 @@ struct rtw_sar_read {
 	const struct rtw_sar_geo_map *gm, *gm_end;
 	int rwsi_sz;
 	int rwgs_sz;
+	int rwgs_geos;
 };
 
 static int rwsi_mode_hp(struct rtw_dev *rtwdev, int path)
@@ -333,6 +334,7 @@ static const struct rtw_sar_read sar_read_hp = {
 	.gm_end = geo_map_hp + ARRAY_SIZE(geo_map_hp),
 	.rwsi_sz = sizeof(struct rtw_sar_rwsi_hp),
 	.rwgs_sz = sizeof(struct rtw_sar_rwgs_hp),
+	.rwgs_geos = RTW_SAR_RWGS_HP_NR,
 };
 
 static int rwsi_mode_rt(struct rtw_dev *rtwdev, int path)
@@ -364,6 +366,7 @@ static const struct rtw_sar_read sar_read_rt = {
 	.gm_end = geo_map_rt + ARRAY_SIZE(geo_map_rt),
 	.rwsi_sz = sizeof(struct rtw_sar_rwsi_rt),
 	.rwgs_sz = sizeof(struct rtw_sar_rwgs_rt),
+	.rwgs_geos = RTW_SAR_RWGS_RT_NR,
 };
 
 static u8 *rtw_sar_get_raw_package(struct rtw_dev *rtwdev,
@@ -503,6 +506,88 @@ static bool is_valid_rwgs(struct rtw_dev *rtwdev, const struct rtw_sar_rwrd *rwr
 
 	return false;
 }
+
+#ifdef CONFIG_RTW88_DEBUGFS
+void rtw_sar_dump_via_debugfs(struct rtw_dev *rtwdev, struct seq_file *m)
+{
+#define q3_int(q3)	((q3) >> 3)
+#define q3_fra(q3)	(((q3) & 0x7) * 125)
+
+	const struct rtw_sar_rwrd *rwrd = rtwdev->sar.rwrd;
+	const union rtw_sar_rwsi *rwsi = rtwdev->sar.rwsi;
+	const union rtw_sar_rwgs *rwgs = rtwdev->sar.rwgs;
+	const struct rtw_sar_read *r = rtwdev->sar.read;
+	int q3;
+	int mode;
+	int path;
+	int chidx;
+	int gi;
+	int band;
+
+	if (!rwrd || !rwsi || !rwgs || !r) {
+		seq_puts(m, "(No SAR data)\n");
+		return;
+	}
+
+	seq_printf(m, "Customer ID: 0x%04x\n", rwrd->id);
+	seq_printf(m, "WiFiEnable: 0x%x\n", rwrd->en);
+	seq_printf(m, "Total SAR Table Count: %d\n", rwrd->count);
+	seq_printf(m, "Current SAR Table Index: (%*ph)\n", r->rwsi_sz, rwsi);
+	seq_puts(m, "\n");
+
+	seq_printf(m, "Dump RWRD SAR RAW DATA. (Total Count: %ld)\n",
+		   rwrd->count * sizeof(rwrd->mode[0]));
+	for (mode = 0; mode < rwrd->count; mode++)
+		seq_printf(m, "%02x: %20ph\n", mode + 1, &rwrd->mode[mode]);
+	seq_puts(m, "\n");
+
+	seq_puts(m, "Show SAR PowerLimit:\n");
+	for (path = 0; path < 2; path++) {
+		mode = r->rwsi_mode(rtwdev, path);
+		q3 = r->rwrd_base_q3(rtwdev, mode, path, RTW_SAR_LMT_CH1_14);
+		seq_printf(m, "2.4G Antenna %d: [%d.%d] dBm\n", path,
+			   q3_int(q3), q3_fra(q3));
+	}
+	seq_puts(m, "\n");
+
+	for (path = 0; path < 2; path++) {
+		mode = r->rwsi_mode(rtwdev, path);
+		seq_printf(m, "5G Antenna %d: [", path);
+		for (chidx = RTW_SAR_LMT_CH36_64; chidx <= RTW_SAR_LMT_CH149_165;
+		     chidx++) {
+			q3 = r->rwrd_base_q3(rtwdev, mode, path, chidx);
+			seq_printf(m, "%d.%d, ", q3_int(q3), q3_fra(q3));
+		}
+		seq_puts(m, "] dBm\n");
+	}
+	seq_puts(m, "\n");
+
+	seq_printf(m, "Dump Geo-SAR Table RAW DATA. (Total Count: %d)\n",
+		   r->rwgs_sz);
+	for (gi = 0; gi < r->rwgs_geos; gi++) {
+		seq_printf(m, "geo-%d: %*ph\n", gi, r->rwgs_sz / r->rwgs_geos,
+			   (u8 *)rwgs + gi * (r->rwgs_sz / r->rwgs_geos));
+	}
+	seq_puts(m, "\n");
+
+	gi = 1;	/* take index 1 as an example */
+	seq_puts(m, "Show Geo-SAR PowerLimit:\n");
+	seq_printf(m, "2G Geo Table Index: %d\n", gi);
+	seq_printf(m, "5G Geo Table Index: %d\n", gi);
+	for (band = RTW_SAR_RWGS_2G; band < RTW_SAR_RWGS_BAND_NR; band++) {
+		seq_puts(m, "\n");
+		seq_printf(m, "%dGHz:\n", band == 0 ? 2 : 5);
+		q3 = r->rwgs_max_q3(rtwdev, gi, band);
+		seq_printf(m, "Max Power: [%d.%d] dBm\n", q3_int(q3),
+			   q3_fra(q3));
+		for (path = 0; path < 2; path++) {
+			q3 = r->rwgs_delta_q3(rtwdev, gi, path, band);
+			seq_printf(m, "Ant-%d delta value: [%d.%d] dB\n", path,
+				   q3_int(q3), q3_fra(q3));
+		}
+	}
+}
+#endif
 
 static void rtw_sar_apply_dynamic_tables(struct rtw_dev *rtwdev)
 {
@@ -653,6 +738,13 @@ static int rtw_sar_load_dynamic_tables(struct rtw_dev *rtwdev)
 {
 	return -ENOENT;
 }
+
+#ifdef CONFIG_RTW88_DEBUGFS
+void rtw_sar_dump_via_debugfs(struct rtw_dev *rtwdev, struct seq_file *m)
+{
+	seq_puts(m, "(No SAR data)\n");
+}
+#endif
 #endif /* CONFIG_ACPI */
 
 void rtw_sar_load_table(struct rtw_dev *rtwdev)
