@@ -6,5 +6,6 @@
 #define __RTW_SAR_H_
 
 void rtw_sar_load_table(struct rtw_dev *rtwdev);
+void rtw_sar_release_table(struct rtw_dev *rtwdev);
 
 #endif
