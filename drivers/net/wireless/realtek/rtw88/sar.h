@@ -7,5 +7,8 @@
 
 void rtw_sar_load_table(struct rtw_dev *rtwdev);
 void rtw_sar_release_table(struct rtw_dev *rtwdev);
+void rtw_sar_work(struct work_struct *work);
+
+#define RTW_SAR_DELAY_TIME	(10 * HZ)
 
 #endif
