@@ -18,12 +18,13 @@ EXTRA_CFLAGS += -Wno-unused-label
 EXTRA_CFLAGS += -Wno-unused-parameter
 EXTRA_CFLAGS += -Wno-unused-function
 EXTRA_CFLAGS += -Wno-unused
+EXTRA_CFLAGS += -DCONFIG_CONCURRENT_MODE
 
 ccflags-y += -D__CHECK_ENDIAN__
 
 #EXTRA_CFLAGS += -Wno-uninitialized
 
-EXTRA_CFLAGS += -g -I$(srctree)/$(src)/include
+EXTRA_CFLAGS += -g -I$(src)/include
 
 #EXTRA_LDFLAGS += --strip-debug
 
@@ -61,7 +62,7 @@ CONFIG_PLATFORM_FS_MX61 = n
 
 CONFIG_DRVEXT_MODULE = n
 
-export TopDIR ?= $(srctree)/$(src)
+export TopDIR ?= $(shell pwd)
 
 ########### COMMON  #################################
 HCI_NAME = usb
@@ -102,11 +103,11 @@ _OUTSRC_FILES := hal/odm_debug.o	\
 		hal/odm_CfoTracking.o\
 		hal/odm_NoiseMonitor.o
 		
-EXTRA_CFLAGS += -I$(srctree)/$(src)/platform
+EXTRA_CFLAGS += -I$(src)/platform
 _PLATFORM_FILES := platform/platform_ops.o
 
 ifeq ($(CONFIG_BT_COEXIST), y)
-EXTRA_CFLAGS += -I$(srctree)/$(src)/hal
+EXTRA_CFLAGS += -I$(src)/hal
 _OUTSRC_FILES += hal/HalBtc8723b1Ant.o \
 		 hal/HalBtc8723b2Ant.o
 endif
