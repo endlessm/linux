@@ -12653,12 +12653,12 @@ CONFIG_SECURITY_APPARMOR_HASH_DEFAULT           policy<{'amd64': 'y', 'arm64': '
 CONFIG_SECURITY_APPARMOR_DEBUG                  policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'i386': 'n', 'ppc64el': 'n', 's390x': 'n'}>
 CONFIG_SECURITY_LOADPIN                         policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'i386': 'n', 'ppc64el': 'n', 's390x': 'n'}>
 CONFIG_SECURITY_YAMA                            policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'ppc64el': 'y', 's390x': 'y'}>
-CONFIG_SECURITY_SAFESETID                       policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'i386': 'n', 'ppc64el': 'n', 's390x': 'n'}>
+CONFIG_SECURITY_SAFESETID                       policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'ppc64el': 'y', 's390x': 'y'}>
 #
 CONFIG_SECURITY                                 mark<ENFORCED>
 CONFIG_LSM_MMAP_MIN_ADDR                        mark<ENFORCED> flag<REVIEW>
 CONFIG_SECURITY_YAMA                            mark<ENFORCED>
-CONFIG_SECURITY_SAFESETID                       flag<REVIEW>
+CONFIG_SECURITY_SAFESETID                       mark<ENFORCED> note<LP:#1845391>
 
 # Menu: Security options >> Enable different security models >> Integrity subsystem
 CONFIG_INTEGRITY                                policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'ppc64el': 'y', 's390x': 'y'}>
