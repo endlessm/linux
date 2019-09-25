@@ -1597,6 +1597,7 @@ struct rtw_sar {
 	union rtw_sar_rwsi *rwsi;
 	union rtw_sar_rwgs *rwgs;
 	const struct rtw_sar_read *read;
+	struct delayed_work work;
 };
 
 struct rtw_hal {
