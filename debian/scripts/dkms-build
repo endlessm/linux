@@ -91,13 +91,28 @@ done
 # of the normal location.
 sed -i -e '/^PACKAGE_NAME=/ s/#//g' "$dkms_conf"
 
-# ZFS debug symbols are enabled in dkms.conf via PACKAGE_CONFIG file.
-if [ -n "$dbgpkgdir" ] && [ "$package" = 'zfs' ]; then
-	pkg_cfg="$(dirname "$dkms_conf")/pkg_cfg"
-	echo 'ZFS_DKMS_ENABLE_DEBUGINFO=yes' >"$pkg_cfg"
-	echo 'ZFS_DKMS_DISABLE_STRIP=yes'   >>"$pkg_cfg"
-	sed -i "s,^\(PACKAGE_CONFIG=\).*,\1$pkg_cfg," $dkms_conf
-fi
+# Run any dkms-package specfic configuration steps
+dkms_config_specific="$srcdir/$0-configure--$package"
+dkms_config_generic=$(echo "$dkms_config_specific" | sed -e 's/-[0-9][0-9]*$/-N/')
+for dkms_config in "$dkms_config_specific" "$dkms_config_generic"
+do
+	if [ -z "$dkms_config" -o ! -e "$dkms_config" ]; then
+		continue
+	fi
+	echo "II: dkms-build-configure $(basename "$dkms_config") found, executing"
+	$SHELL "$dkms_config" \
+		"$srcdir" \
+		"$dkms_conf" \
+		"$dkms_dir" \
+		"$abi_flavour" \
+		"$sign" \
+		"$pkgname" \
+		"$pkgdir" \
+		"$dbgpkgdir" \
+		"$package" \
+		"$@" || exit 1
+	break
+done
 
 cat - <<'EOF' >>"$dkms_conf"
 POST_BUILD="ubuntu-save-objects ${dkms_tree}/${PACKAGE_NAME}/${PACKAGE_VERSION}/build ${dkms_tree}/${PACKAGE_NAME}/${PACKAGE_VERSION}/objects $POST_BUILD"
