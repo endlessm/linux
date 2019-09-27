@@ -36,7 +36,6 @@ static struct vio_dev vio_bus_device  = { /* fake "parent" device */
 	.name = "vio",
 	.type = "",
 	.dev.init_name = "vio",
-	.dev.bus = &vio_bus_type,
 };
 
 #ifdef CONFIG_PPC_SMLPAR
