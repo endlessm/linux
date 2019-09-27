@@ -81,7 +81,7 @@ void __iomem *devm_ioremap_uc(struct device *dev, resource_size_t offset,
 {
 	return __devm_ioremap(dev, offset, size, DEVM_IOREMAP_UC);
 }
-EXPORT_SYMBOL_GPL(devm_ioremap_uc);
+EXPORT_SYMBOL(devm_ioremap_uc);
 
 /**
  * devm_ioremap_wc - Managed ioremap_wc()
