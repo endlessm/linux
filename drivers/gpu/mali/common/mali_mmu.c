@@ -17,6 +17,7 @@
 #include "mali_hw_core.h"
 #include "mali_group.h"
 #include "mali_mmu_page_directory.h"
+#include <linux/delay.h>
 
 /**
  * Size of the MMU registers in bytes
@@ -274,6 +275,7 @@ MALI_STATIC_INLINE _mali_osk_errcode_t mali_mmu_raw_reset(struct mali_mmu_core *
 		if (mali_hw_core_register_read(&mmu->hw_core, MALI_MMU_REGISTER_DTE_ADDR) == 0) {
 			break;
 		}
+		msleep(10);
 	}
 	if (MALI_REG_POLL_COUNT_FAST == i) {
 		MALI_PRINT_ERROR(("Reset request failed, MMU status is 0x%08X\n", mali_hw_core_register_read(&mmu->hw_core, MALI_MMU_REGISTER_STATUS)));

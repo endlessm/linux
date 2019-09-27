@@ -245,7 +245,7 @@ u32 _mali_osk_get_pmu_switch_delay(void)
 		MALI_DEBUG_PRINT(2, ("Couldn't find pmu_switch_delay in device tree configuration.\n"));
 	}
 
-	return 0;
+	return 0xffff;
 }
 
 #else /* CONFIG_MALI_DT */

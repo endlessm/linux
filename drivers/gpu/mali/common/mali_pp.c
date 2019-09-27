@@ -18,6 +18,7 @@
 #if defined(CONFIG_MALI400_PROFILING)
 #include "mali_osk_profiling.h"
 #endif
+#include <linux/delay.h>
 
 /* Number of frame registers on Mali-200 */
 #define MALI_PP_MALI200_NUM_FRAME_REGISTERS ((0x04C/4)+1)
@@ -261,6 +262,7 @@ _mali_osk_errcode_t mali_pp_reset_wait(struct mali_pp_core *core)
 				break;
 			}
 		}
+		msleep(10);
 	}
 
 	if (i == MALI_REG_POLL_COUNT_FAST) {
