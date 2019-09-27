@@ -9,7 +9,7 @@ Build-Depends:
  cpio,
  kernel-wedge,
  kmod <!stage1>,
- makedumpfile [amd64 i386] <!stage1>,
+ makedumpfile [amd64] <!stage1>,
  libelf-dev <!stage1>,
  libnewt-dev <!stage1>,
  libiberty-dev <!stage1>,
@@ -21,7 +21,7 @@ Build-Depends:
  pkg-config <!stage1>,
  flex <!stage1>,
  bison <!stage1>,
- libunwind8-dev [amd64 arm64 armhf i386 ppc64el] <!stage1>,
+ libunwind8-dev [amd64 arm64 armhf ppc64el] <!stage1>,
  liblzma-dev <!stage1>,
  openssl <!stage1>,
  libssl-dev <!stage1>,
@@ -34,10 +34,10 @@ Build-Depends:
  automake <!stage1>,
  libtool <!stage1>,
  uuid-dev <!stage1>,
- libnuma-dev [amd64 arm64 i386 ppc64el s390x] <!stage1>,
+ libnuma-dev [amd64 arm64 ppc64el s390x] <!stage1>,
  dkms <!stage1>,
  wget <!stage1>,
- lz4 [amd64 i386 s390x] <!stage1>,
+ lz4 [amd64 s390x] <!stage1>,
 Build-Depends-Indep:
  xmlto <!stage1>,
  docbook-utils <!stage1>,
@@ -104,7 +104,7 @@ Description: Header files related to Linux kernel version PKGVER
  /usr/share/doc/SRCPKGNAME-headers-PKGVER-ABINUM/debian.README.gz for details
 
 Package: SRCPKGNAME-libc-dev
-Architecture: i386 amd64 armhf arm64 x32 ppc64el s390x
+Architecture: amd64 armhf arm64 x32 ppc64el s390x
 Depends: ${misc:Depends}
 Conflicts: SRCPKGNAME-kernel-headers
 Replaces: SRCPKGNAME-kernel-headers
@@ -130,7 +130,7 @@ Description: Linux kernel version specific tools for version PKGVER
 
 Package: SRCPKGNAME-tools-PKGVER-ABINUM
 Build-Profiles: <!stage1>
-Architecture: i386 amd64 armhf arm64 ppc64el s390x
+Architecture: amd64 armhf arm64 ppc64el s390x
 Section: devel
 Priority: optional
 Depends: ${misc:Depends}, ${shlibs:Depends}, linux-tools-common
@@ -154,7 +154,7 @@ Description: Linux kernel version specific cloud tools for version PKGVER
 
 Package: SRCPKGNAME-cloud-tools-PKGVER-ABINUM
 Build-Profiles: <!stage1>
-Architecture: i386 amd64 armhf
+Architecture: amd64 armhf
 Section: devel
 Priority: optional
 Depends: ${misc:Depends}, ${shlibs:Depends}, linux-cloud-tools-common

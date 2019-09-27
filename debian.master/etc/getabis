@@ -11,7 +11,6 @@ package_prefixes linux-buildinfo
 getall armhf generic
 getall armhf generic-lpae
 getall amd64 generic lowlatency
-getall i386 generic lowlatency
 getall arm64 generic
 getall ppc64el generic
 getall s390x generic
