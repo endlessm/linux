@@ -60,8 +60,13 @@ for arch in $archs; do
 	deb_host_arch=$(dpkg-architecture -qDEB_HOST_ARCH -a$arch 2>/dev/null)
 	[ $deb_build_arch != $deb_host_arch ] && cross_compile="$(dpkg-architecture -qDEB_HOST_GNU_TYPE -a$arch 2>/dev/null)-"
 
-	# Environment variables for 'make *config'
-	env="ARCH=$kernarch CROSS_COMPILE=$cross_compile"
+	# Environment variables for 'make *config'. We omit CROSS_COMPILE
+	# for i386 since it is no longer supported after 19.04, however
+	# we maintain the configs for hwe.
+	env="ARCH=$kernarch"
+	if [ "$arch" != "i386" ]; then
+		env="$env CROSS_COMPILE=$cross_compile"
+	fi
 
 	archconfdir=$confdir/$arch
 	flavourconfigs=$(cd $archconfdir && ls config.flavour.*)
