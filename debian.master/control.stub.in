@@ -104,7 +104,7 @@ Description: Header files related to Linux kernel version PKGVER
  /usr/share/doc/SRCPKGNAME-headers-PKGVER-ABINUM/debian.README.gz for details
 
 Package: SRCPKGNAME-libc-dev
-Architecture: amd64 armhf arm64 x32 ppc64el s390x
+Architecture: amd64 armhf arm64 ppc64el s390x
 Depends: ${misc:Depends}
 Conflicts: SRCPKGNAME-kernel-headers
 Replaces: SRCPKGNAME-kernel-headers
