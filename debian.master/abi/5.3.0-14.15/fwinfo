@@ -1424,12 +1424,6 @@ firmware:       rtlwifi/rtl8821aefw_29.bin
 firmware:       rtw88/rtw8822b_fw.bin
 firmware:       rtw88/rtw8822c_fw.bin
 firmware:       s5k4ecgx.bin
-firmware:       sb16/alaw_main.csp
-firmware:       sb16/ima_adpcm_capture.csp
-firmware:       sb16/ima_adpcm_init.csp
-firmware:       sb16/ima_adpcm_playback.csp
-firmware:       sb16/mulaw_main.csp
-firmware:       scope.cod
 firmware:       sd8385.bin
 firmware:       sd8385_helper.bin
 firmware:       sd8686.bin
@@ -1445,11 +1439,6 @@ firmware:       sms1xxx-hcw-55xxx-isdbt-02.fw
 firmware:       sms1xxx-nova-a-dvbt-01.fw
 firmware:       sms1xxx-nova-b-dvbt-01.fw
 firmware:       sms1xxx-stellar-dvbt-01.fw
-firmware:       sndscape.co0
-firmware:       sndscape.co1
-firmware:       sndscape.co2
-firmware:       sndscape.co3
-firmware:       sndscape.co4
 firmware:       softing-4.6/bcard.bin
 firmware:       softing-4.6/bcard2.bin
 firmware:       softing-4.6/cancard.bin
@@ -1482,10 +1471,6 @@ firmware:       tigon/tg3.bin
 firmware:       tigon/tg3_tso.bin
 firmware:       tigon/tg3_tso5.bin
 firmware:       ttusb-budget/dspbootcode.bin
-firmware:       turtlebeach/msndinit.bin
-firmware:       turtlebeach/msndperm.bin
-firmware:       turtlebeach/pndsperm.bin
-firmware:       turtlebeach/pndspini.bin
 firmware:       ueagle-atm/930-fpga.bin
 firmware:       ueagle-atm/CMV4i.bin
 firmware:       ueagle-atm/CMV4i.bin.v2
@@ -1546,7 +1531,6 @@ firmware:       vx/x1_1_vxp.xlx
 firmware:       vx/x1_2_v22.xlx
 firmware:       vxge/X3fw-pxe.ncf
 firmware:       vxge/X3fw.ncf
-firmware:       wavefront.os
 firmware:       wd719x-risc.bin
 firmware:       wd719x-wcs.bin
 firmware:       whiteheat.fw
@@ -1564,7 +1548,6 @@ firmware:       yam/9600.bin
 firmware:       yamaha/ds1_ctrl.fw
 firmware:       yamaha/ds1_dsp.fw
 firmware:       yamaha/ds1e_ctrl.fw
-firmware:       yamaha/yss225_registers.bin
 firmware:       zd1201-ap.fw
 firmware:       zd1201.fw
 firmware:       zd1211/zd1211_ub
