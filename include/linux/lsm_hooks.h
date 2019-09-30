@@ -1454,6 +1454,12 @@
  *     code execution in kernel space should be permitted.
  *
  *     @what: kernel feature being accessed
+ *
+ * @lock_kernel_down
+ *     Put the kernel into lock-down mode.
+ *
+ *     @where: Where the lock-down is originating from (e.g. command line option)
+ *     @level: The lock-down level (can only increase)
  */
 union security_list_options {
 	int (*binder_set_context_mgr)(struct task_struct *mgr);
@@ -1818,6 +1824,7 @@ union security_list_options {
 	void (*bpf_prog_free_security)(struct bpf_prog_aux *aux);
 #endif /* CONFIG_BPF_SYSCALL */
 	int (*locked_down)(enum lockdown_reason what);
+	int (*lock_kernel_down)(const char *where, enum lockdown_reason level);
 #ifdef CONFIG_PERF_EVENTS
 	int (*perf_event_open)(struct perf_event_attr *attr, int type);
 	int (*perf_event_alloc)(struct perf_event *event);
@@ -2068,6 +2075,7 @@ struct security_hook_heads {
 	struct hlist_head bpf_prog_free_security;
 #endif /* CONFIG_BPF_SYSCALL */
 	struct hlist_head locked_down;
+	struct hlist_head lock_kernel_down;
 #ifdef CONFIG_PERF_EVENTS
 	struct hlist_head perf_event_open;
 	struct hlist_head perf_event_alloc;
