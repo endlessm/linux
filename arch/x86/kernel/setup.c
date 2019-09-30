@@ -17,6 +17,7 @@
 #include <linux/root_dev.h>
 #include <linux/sfi.h>
 #include <linux/tboot.h>
+#include <linux/security.h>
 #include <linux/usb/xhci-dbgp.h>
 
 #include <uapi/linux/mount.h>
@@ -972,6 +973,13 @@ void __init setup_arch(char **cmdline_p)
 
 	if (efi_enabled(EFI_BOOT))
 		efi_init();
+
+	efi_set_secure_boot(boot_params.secure_boot);
+
+#ifdef CONFIG_LOCK_DOWN_IN_EFI_SECURE_BOOT
+	if (efi_enabled(EFI_SECURE_BOOT))
+		security_lock_kernel_down("EFI Secure Boot mode", LOCKDOWN_CONFIDENTIALITY_MAX);
+#endif
 
 	dmi_setup();
 
