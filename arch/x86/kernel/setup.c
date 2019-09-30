@@ -21,6 +21,7 @@
 #include <linux/pci.h>
 #include <linux/random.h>
 #include <linux/root_dev.h>
+#include <linux/security.h>
 #include <linux/static_call.h>
 #include <linux/swiotlb.h>
 #include <linux/tboot.h>
@@ -993,6 +994,13 @@ void __init setup_arch(char **cmdline_p)
 
 	reserve_ibft_region();
 	x86_init.resources.dmi_setup();
+
+	efi_set_secure_boot(boot_params.secure_boot);
+
+#ifdef CONFIG_LOCK_DOWN_IN_EFI_SECURE_BOOT
+	if (efi_enabled(EFI_SECURE_BOOT))
+		security_lock_kernel_down("EFI Secure Boot mode", LOCKDOWN_INTEGRITY_MAX);
+#endif
 
 	/*
 	 * VMware detection requires dmi to be available, so this
