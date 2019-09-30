@@ -6003,6 +6003,12 @@ int security_bdev_setintegrity(struct block_device *bdev,
 }
 EXPORT_SYMBOL(security_bdev_setintegrity);
 
+int security_lock_kernel_down(const char *where, enum lockdown_reason level)
+{
+	return call_int_hook(lock_kernel_down, 0, where, level);
+}
+EXPORT_SYMBOL(security_lock_kernel_down);
+
 #ifdef CONFIG_PERF_EVENTS
 /**
  * security_perf_event_open() - Check if a perf event open is allowed
