@@ -126,7 +126,7 @@ autoreconstruct:
 		$(DROOT)/scripts/misc/gen-auto-reconstruct $(upstream_tag) $(DEBIAN)/reconstruct $(DROOT)/source/options; \
 	fi
 
-finalchecks:
+finalchecks: debian/control
 	$(DROOT)/scripts/misc/final-checks "$(DEBIAN)" "$(prev_fullver)"
 
 diffupstream:

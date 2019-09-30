@@ -5,6 +5,7 @@ abi="$2"
 abi=${abi%~*}
 
 . "$debian/etc/kernelconfig"
+archs=$( awk '/^Architecture:/ { $1=""; for (i=1; i<=NF; i++) { if ($i != "all") { print $i }}}' debian/control | sort -u)
 
 fail=0
 
