@@ -108,7 +108,7 @@ install-%: MODPUBKEY=$(builddir)/build-$*/certs/signing_key.x509
 install-%: build_dir=$(builddir)/build-$*
 install-%: dkms_dir=$(call dkms_dir_prefix,$(builddir)/build-$*)
 install-%: enable_zfs = $(call custom_override,do_zfs,$*)
-install-%: dbgpkgdir_zfs = $(if $(filter false,$(skipdbg)),$(dbgpkgdir)/usr/lib/debug/lib/modules/$(abi_release)-$*/kernel,"")
+install-%: dbgpkgdir_zfs = $(if $(filter true,$(skipdbg)),"",$(dbgpkgdir)/usr/lib/debug/lib/modules/$(abi_release)-$*/kernel)
 install-%: $(stampdir)/stamp-build-% install-headers
 	@echo Debug: $@ kernel_file $(kernel_file) kernfile $(kernfile) install_file $(install_file) instfile $(instfile)
 	dh_testdir
