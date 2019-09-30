@@ -1551,6 +1551,12 @@
  *
  *     @what: kernel feature being accessed
  *
+ * @lock_kernel_down
+ * 	Put the kernel into lock-down mode.
+ *
+ * 	@where: Where the lock-down is originating from (e.g. command line option)
+ * 	@level: The lock-down level (can only increase)
+ *
  * Security hooks for perf events
  *
  * @perf_event_open:
