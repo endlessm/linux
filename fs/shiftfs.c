@@ -31,13 +31,6 @@ struct shiftfs_super_info {
 	unsigned int passthrough_mark;
 };
 
-struct shiftfs_file_info {
-	struct path realpath;
-	struct file *realfile;
-};
-
-struct kmem_cache *shiftfs_file_info_cache;
-
 static void shiftfs_fill_inode(struct inode *inode, unsigned long ino,
 			       umode_t mode, dev_t dev, struct dentry *dentry);
 
@@ -1042,21 +1035,21 @@ static const struct inode_operations shiftfs_symlink_inode_operations = {
 };
 
 static struct file *shiftfs_open_realfile(const struct file *file,
-					  struct path *realpath)
+					  struct inode *realinode)
 {
-	struct file *lowerf;
-	const struct cred *oldcred;
+	struct file *realfile;
+	const struct cred *old_cred;
 	struct inode *inode = file_inode(file);
-	struct inode *loweri = realpath->dentry->d_inode;
+	struct dentry *lowerd = file->f_path.dentry->d_fsdata;
 	struct shiftfs_super_info *info = inode->i_sb->s_fs_info;
+	struct path realpath = { .mnt = info->mnt, .dentry = lowerd };
 
-	oldcred = shiftfs_override_creds(inode->i_sb);
-	/* XXX: open_with_fake_path() not gauranteed to stay around, if
-	 * removed use dentry_open() */
-	lowerf = open_with_fake_path(realpath, file->f_flags, loweri, info->creator_cred);
-	revert_creds(oldcred);
+	old_cred = shiftfs_override_creds(inode->i_sb);
+	realfile = open_with_fake_path(&realpath, file->f_flags, realinode,
+				       info->creator_cred);
+	revert_creds(old_cred);
 
-	return lowerf;
+	return realfile;
 }
 
 #define SHIFTFS_SETFL_MASK (O_APPEND | O_NONBLOCK | O_NDELAY | O_DIRECT)
@@ -1096,8 +1089,7 @@ static int shiftfs_change_flags(struct file *file, unsigned int flags)
 
 static int shiftfs_real_fdget(const struct file *file, struct fd *lowerfd)
 {
-	struct shiftfs_file_info *file_info = file->private_data;
-	struct file *realfile = file_info->realfile;
+	struct file *realfile = file->private_data;
 
 	lowerfd->flags = 0;
 	lowerfd->file = realfile;
@@ -1111,51 +1103,57 @@ static int shiftfs_real_fdget(const struct file *file, struct fd *lowerfd)
 
 static int shiftfs_open(struct inode *inode, struct file *file)
 {
-	struct shiftfs_super_info *ssi = inode->i_sb->s_fs_info;
-	struct shiftfs_file_info *file_info;
 	struct file *realfile;
-	struct path *realpath;
 
-	file_info = kmem_cache_zalloc(shiftfs_file_info_cache, GFP_KERNEL);
-	if (!file_info)
-		return -ENOMEM;
-
-	realpath = &file_info->realpath;
-	realpath->mnt = ssi->mnt;
-	realpath->dentry = file->f_path.dentry->d_fsdata;
-
-	realfile = shiftfs_open_realfile(file, realpath);
-	if (IS_ERR(realfile)) {
-		kmem_cache_free(shiftfs_file_info_cache, file_info);
+	realfile = shiftfs_open_realfile(file, inode->i_private);
+	if (IS_ERR(realfile))
 		return PTR_ERR(realfile);
-	}
 
-	file->private_data = file_info;
+	file->private_data = realfile;
 	/* For O_DIRECT dentry_open() checks f_mapping->a_ops->direct_IO. */
 	file->f_mapping = realfile->f_mapping;
 
-	file_info->realfile = realfile;
+	return 0;
+}
+
+static int shiftfs_dir_open(struct inode *inode, struct file *file)
+{
+	struct file *realfile;
+	const struct cred *oldcred;
+	struct dentry *lowerd = file->f_path.dentry->d_fsdata;
+	struct shiftfs_super_info *info = inode->i_sb->s_fs_info;
+	struct path realpath = { .mnt = info->mnt, .dentry = lowerd };
+
+	oldcred = shiftfs_override_creds(file->f_path.dentry->d_sb);
+	realfile = dentry_open(&realpath, file->f_flags | O_NOATIME,
+			       info->creator_cred);
+	revert_creds(oldcred);
+	if (IS_ERR(realfile))
+		return PTR_ERR(realfile);
+
+	file->private_data = realfile;
+
 	return 0;
 }
 
 static int shiftfs_release(struct inode *inode, struct file *file)
 {
-	struct shiftfs_file_info *file_info = file->private_data;
+	struct file *realfile = file->private_data;
 
-	if (file_info) {
-		if (file_info->realfile)
-			fput(file_info->realfile);
-
-		kmem_cache_free(shiftfs_file_info_cache, file_info);
-	}
+	if (realfile)
+		fput(realfile);
 
 	return 0;
 }
 
+static int shiftfs_dir_release(struct inode *inode, struct file *file)
+{
+	return shiftfs_release(inode, file);
+}
+
 static loff_t shiftfs_dir_llseek(struct file *file, loff_t offset, int whence)
 {
-	struct shiftfs_file_info *file_info = file->private_data;
-	struct file *realfile = file_info->realfile;
+	struct file *realfile = file->private_data;
 
 	return vfs_llseek(realfile, offset, whence);
 }
@@ -1274,8 +1272,7 @@ static int shiftfs_fsync(struct file *file, loff_t start, loff_t end,
 
 static int shiftfs_mmap(struct file *file, struct vm_area_struct *vma)
 {
-	struct shiftfs_file_info *file_info = file->private_data;
-	struct file *realfile = file_info->realfile;
+	struct file *realfile = file->private_data;
 	const struct cred *oldcred;
 	int ret;
 
@@ -1671,8 +1668,7 @@ static int shiftfs_iterate_shared(struct file *file, struct dir_context *ctx)
 {
 	const struct cred *oldcred;
 	int err = -ENOTDIR;
-	struct shiftfs_file_info *file_info = file->private_data;
-	struct file *realfile = file_info->realfile;
+	struct file *realfile = file->private_data;
 
 	oldcred = shiftfs_override_creds(file->f_path.dentry->d_sb);
 	err = iterate_dir(realfile, ctx);
@@ -1698,13 +1694,13 @@ const struct file_operations shiftfs_file_operations = {
 };
 
 const struct file_operations shiftfs_dir_operations = {
+	.open			= shiftfs_dir_open,
+	.release		= shiftfs_dir_release,
 	.compat_ioctl		= shiftfs_compat_ioctl,
 	.fsync			= shiftfs_fsync,
 	.iterate_shared		= shiftfs_iterate_shared,
 	.llseek			= shiftfs_dir_llseek,
-	.open			= shiftfs_open,
 	.read			= generic_read_dir,
-	.release		= shiftfs_release,
 	.unlocked_ioctl		= shiftfs_ioctl,
 };
 
@@ -2106,19 +2102,12 @@ static struct file_system_type shiftfs_type = {
 
 static int __init shiftfs_init(void)
 {
-	shiftfs_file_info_cache = kmem_cache_create(
-		"shiftfs_file_info_cache", sizeof(struct shiftfs_file_info), 0,
-		SLAB_RECLAIM_ACCOUNT | SLAB_HWCACHE_ALIGN | SLAB_ACCOUNT | SLAB_MEM_SPREAD, NULL);
-	if (!shiftfs_file_info_cache)
-		return -ENOMEM;
-
 	return register_filesystem(&shiftfs_type);
 }
 
 static void __exit shiftfs_exit(void)
 {
 	unregister_filesystem(&shiftfs_type);
-	kmem_cache_destroy(shiftfs_file_info_cache);
 }
 
 MODULE_ALIAS_FS("shiftfs");
