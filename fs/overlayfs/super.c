@@ -894,7 +894,8 @@ static int ovl_mount_dir(const char *name, struct path *path)
 		ovl_unescape(tmp);
 		err = ovl_mount_dir_noesc(tmp, path);
 
-		if (!err && path->dentry->d_flags & DCACHE_OP_REAL) {
+		if (!err && (path->dentry->d_flags & DCACHE_OP_REAL &&
+			     path->dentry->d_sb->s_magic != SHIFTFS_MAGIC)) {
 			pr_err("filesystem on '%s' not supported as upperdir\n",
 			       tmp);
 			path_put_init(path);
