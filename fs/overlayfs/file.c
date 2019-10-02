@@ -24,13 +24,15 @@ static char ovl_whatisit(struct inode *inode, struct inode *realinode)
 static struct file *ovl_open_realfile(const struct file *file,
 				      struct inode *realinode)
 {
+	struct path realpath;
 	struct inode *inode = file_inode(file);
 	struct file *realfile;
 	const struct cred *old_cred;
 	int flags = file->f_flags | O_NOATIME | FMODE_NONOTIFY;
 
 	old_cred = ovl_override_creds(inode->i_sb);
-	realfile = open_with_fake_path(&file->f_path, flags, realinode,
+	ovl_path_real(file->f_path.dentry, &realpath);
+	realfile = open_with_fake_path(&realpath, flags, realinode,
 				       current_cred());
 	revert_creds(old_cred);
 
