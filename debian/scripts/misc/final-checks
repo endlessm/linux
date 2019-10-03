@@ -47,6 +47,11 @@ abi_check()
 
 for arch in $archs
 do
+	image_pkg=$(awk -F '\\s*=\\s*' '$1 == "do_flavour_image_package" { print $2 }' $debian/rules.d/$arch.mk)
+	if [ "$image_pkg" = "false" ]; then
+		continue
+	fi
+
 	for flavour in $(ls -1 "$debian/config/$arch/config.flavour."*)
 	do
 		flavour=$(echo "$flavour" | sed -e 's@.*/config.flavour.@@')
