@@ -27,6 +27,10 @@ bool eospayg_skip_name(const char *name)
 	    task_pid_nr(current) != paygd_pid)
 		return true;
 
+	if (strncmp(name, "SecureBootOption-", 17) == 0 &&
+	    task_pid_nr(current) != paygd_pid)
+		return true;
+
 	return false;
 }
 
@@ -36,6 +40,10 @@ bool eospayg_skip_name_wide(const u16 *name)
 		return false;
 
 	if (memcmp(name, L"EOSPAYG", 14) == 0 &&
+	    task_pid_nr(current) != paygd_pid)
+		return true;
+
+	if (memcmp(name, L"SecureBootOption-", 34) == 0 &&
 	    task_pid_nr(current) != paygd_pid)
 		return true;
 
@@ -77,6 +85,9 @@ static bool is_inode_on_efivarfs(struct inode *inode)
 static bool is_dentry_name_protected(struct dentry *dentry)
 {
 	if (strncmp(dentry->d_name.name, "EOSPAYG", 7) == 0)
+		return true;
+
+	if (strncmp(dentry->d_name.name, "SecureBootOption-", 17) == 0)
 		return true;
 
 	return false;
