@@ -1195,8 +1195,6 @@ static int rtw_pci_setup_resource(struct rtw_dev *rtwdev, struct pci_dev *pdev)
 		goto err_io_unmap;
 	}
 
-	rtw_pci_phy_cfg(rtwdev);
-
 	return 0;
 
 err_io_unmap:
@@ -1308,6 +1306,8 @@ static int rtw_pci_probe(struct pci_dev *pdev,
 		rtw_err(rtwdev, "failed to setup chip information\n");
 		goto err_destroy_pci;
 	}
+
+	rtw_pci_phy_cfg(rtwdev);
 
 	ret = rtw_register_hw(rtwdev, hw);
 	if (ret) {
