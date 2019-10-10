@@ -21,6 +21,6 @@ do_tools_host = true
 do_extras_package = true
 do_tools_common = true
 do_tools_acpidbg = true
-do_zfs		= true
+do_zfs		= false
 do_dkms_nvidia  = true
 do_dkms_vbox    = true
