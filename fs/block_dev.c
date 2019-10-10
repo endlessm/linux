@@ -1788,7 +1788,7 @@ struct block_device *blkdev_get_by_path(const char *path, fmode_t mode,
 	struct block_device *bdev;
 	int err;
 
-	bdev = lookup_bdev(path, 0);
+	bdev = lookup_bdev(path);
 	if (IS_ERR(bdev))
 		return bdev;
 
@@ -2175,14 +2175,12 @@ EXPORT_SYMBOL(ioctl_by_bdev);
 /**
  * lookup_bdev  - lookup a struct block_device by name
  * @pathname:	special file representing the block device
- * @mask:	rights to check for (%MAY_READ, %MAY_WRITE, %MAY_EXEC)
  *
  * Get a reference to the blockdevice at @pathname in the current
  * namespace if possible and return it.  Return ERR_PTR(error)
- * otherwise.  If @mask is non-zero, check for access rights to the
- * inode at @pathname.
+ * otherwise.
  */
-struct block_device *lookup_bdev(const char *pathname, int mask)
+struct block_device *lookup_bdev(const char *pathname)
 {
 	struct block_device *bdev;
 	struct inode *inode;
@@ -2197,11 +2195,6 @@ struct block_device *lookup_bdev(const char *pathname, int mask)
 		return ERR_PTR(error);
 
 	inode = d_backing_inode(path.dentry);
-	if (mask != 0 && !capable(CAP_SYS_ADMIN)) {
-		error = inode_permission(inode, mask);
-		if (error)
-			goto fail;
-	}
 	error = -ENOTBLK;
 	if (!S_ISBLK(inode->i_mode))
 		goto fail;
