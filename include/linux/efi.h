@@ -789,6 +789,14 @@ extern int __init efi_setup_pcdp_console(char *);
 #define EFI_MEM_NO_SOFT_RESERVE	11	/* Is the kernel configured to ignore soft reservations? */
 #define EFI_PRESERVE_BS_REGIONS	12	/* Are EFI boot-services memory segments available? */
 
+#ifdef CONFIG_EFI_PARAMS_FROM_FDT
+u32 __init efi_get__secure_boot(void);
+#else
+static inline u32 efi_get__secure_boot(void) {
+	return efi_secureboot_mode_unset;
+};
+#endif
+
 #ifdef CONFIG_EFI
 /*
  * Test whether the above EFI_* bits are enabled.
