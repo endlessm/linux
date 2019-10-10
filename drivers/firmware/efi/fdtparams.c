@@ -16,9 +16,15 @@ enum {
 	MMSIZE,
 	DCSIZE,
 	DCVERS,
+	SCBOOT,
 
 	PARAMCOUNT
 };
+
+static __initdata u32 __secure_boot = efi_secureboot_mode_unset;
+u32 __init efi_get__secure_boot(void) {
+	return __secure_boot;
+}
 
 static __initconst const char name[][22] = {
 	[SYSTAB] = "System Table         ",
@@ -26,6 +32,7 @@ static __initconst const char name[][22] = {
 	[MMSIZE] = "MemMap Size          ",
 	[DCSIZE] = "MemMap Desc. Size    ",
 	[DCVERS] = "MemMap Desc. Version ",
+	[SCBOOT] = "Secure Boot Enabled  ",
 };
 
 static __initconst const struct {
@@ -51,6 +58,7 @@ static __initconst const struct {
 			[MMSIZE] = "linux,uefi-mmap-size",
 			[DCSIZE] = "linux,uefi-mmap-desc-size",
 			[DCVERS] = "linux,uefi-mmap-desc-ver",
+			[SCBOOT] = "linux,uefi-secure-boot",
 		}
 	}
 };
@@ -93,6 +101,7 @@ u64 __init efi_get_fdt_params(struct efi_memory_map_data *mm)
 		[MMSIZE] = { &mm->size,		sizeof(mm->size) },
 		[DCSIZE] = { &mm->desc_size,	sizeof(mm->desc_size) },
 		[DCVERS] = { &mm->desc_version,	sizeof(mm->desc_version) },
+		[SCBOOT] = { &__secure_boot,	sizeof(__secure_boot) },
 	};
 
 	BUILD_BUG_ON(ARRAY_SIZE(target) != ARRAY_SIZE(name));
