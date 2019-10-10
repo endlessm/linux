@@ -256,7 +256,7 @@ void __init efi_init(void)
 
 	efi_set_secure_boot(params.secure_boot);
 
-#ifdef CONFIG_LOCK_DOWN_IN_EFI_SECURE_BOOT
+#ifdef CONFIG_LOCK_DOWN_IN_SECURE_BOOT
 	if (efi_enabled(EFI_SECURE_BOOT))
 		security_lock_kernel_down("EFI Secure Boot mode", LOCKDOWN_CONFIDENTIALITY_MAX);
 #endif
