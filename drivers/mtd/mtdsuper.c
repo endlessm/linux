@@ -122,7 +122,6 @@ int get_tree_mtd(struct fs_context *fc,
 #ifdef CONFIG_BLOCK
 	struct block_device *bdev;
 	int ret, major;
-	int perm;
 #endif
 	int mtdnr;
 
@@ -170,10 +169,7 @@ int get_tree_mtd(struct fs_context *fc,
 	/* try the old way - the hack where we allowed users to mount
 	 * /dev/mtdblock$(n) but didn't actually _use_ the blockdev
 	 */
-	perm = MAY_READ;
-	if (!(flags & MNT_READONLY))
-		perm |= MAY_WRITE;
-	bdev = lookup_bdev(fc->source, perm);
+	bdev = lookup_bdev(fc->source, 0);
 	if (IS_ERR(bdev)) {
 		ret = PTR_ERR(bdev);
 		errorf(fc, "MTD: Couldn't look up '%s': %d", fc->source, ret);
