@@ -121,7 +121,7 @@ autoreconstruct:
 	# No need for reconstruct for -rc kernels since we don't upload an
 	# orig tarball, so just remove it.
 	if grep -q "^EXTRAVERSION = -rc[0-9]\+$$" Makefile; then \
-		rm -f $(DEBIAN)/reconstruct; \
+		echo "exit 0" >$(DEBIAN)/reconstruct; \
 	else \
 		$(DROOT)/scripts/misc/gen-auto-reconstruct $(upstream_tag) $(DEBIAN)/reconstruct $(DROOT)/source/options; \
 	fi
