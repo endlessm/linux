@@ -4876,7 +4876,6 @@ snd-soc-xlnx-spdif
 snd-soc-xtfpga-i2s
 snd-soc-zx-aud96p22
 snd-sof
-snd-sof-nocodec
 snd-ua101
 snd-usb-6fire
 snd-usb-audio

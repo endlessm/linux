@@ -4769,7 +4769,6 @@ snd-soc-xlnx-spdif
 snd-soc-xtfpga-i2s
 snd-soc-zx-aud96p22
 snd-sof
-snd-sof-nocodec
 snd-sonicvibes
 snd-trident
 snd-ua101
