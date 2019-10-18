@@ -10996,7 +10996,7 @@ CONFIG_XZ_DEC                                   note<boot essential -- initramfs
 # Menu: Memory Management options
 CONFIG_SPARSEMEM_VMEMMAP                        policy<{'amd64': 'y', 'arm64': 'y', 'ppc64el': 'y', 's390x': 'y'}>
 CONFIG_MEMORY_HOTPLUG                           policy<{'amd64': 'y', 'arm64': 'y', 'i386': 'y', 'ppc64el': 'y', 's390x': 'y'}>
-CONFIG_MEMORY_HOTPLUG_DEFAULT_ONLINE            policy<{'amd64': 'y', 'arm64': 'y', 'i386': 'y', 'ppc64el': 'n', 's390x': 'y'}>
+CONFIG_MEMORY_HOTPLUG_DEFAULT_ONLINE            policy<{'amd64': 'y', 'arm64': 'y', 'i386': 'y', 'ppc64el': 'n', 's390x': 'n'}>
 CONFIG_MEMORY_HOTREMOVE                         policy<{'amd64': 'y', 'i386': 'y', 'ppc64el': 'y', 's390x': 'y'}>
 CONFIG_BALLOON_COMPACTION                       policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'ppc64el': 'y', 's390x': 'y'}>
 CONFIG_COMPACTION                               policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'ppc64el': 'y', 's390x': 'y'}>
@@ -11030,7 +11030,7 @@ CONFIG_TRANSPARENT_HUGEPAGE                     flag<REVIEW>
 CONFIG_MEM_SOFT_DIRTY                           flag<REVIEW>
 CONFIG_IDLE_PAGE_TRACKING                       flag<REVIEW> note<is there a cost associated with this?>
 CONFIG_PERCPU_STATS                             flag<REVIEW>
-CONFIG_MEMORY_HOTPLUG_DEFAULT_ONLINE            mark<ENFORCED> note<LP:1709171>
+CONFIG_MEMORY_HOTPLUG_DEFAULT_ONLINE            mark<ENFORCED> note<LP:1709171 LP:1848492>
 
 # Menu: Memory Management options >> Contiguous Memory Allocator
 CONFIG_CMA                                      policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'ppc64el': 'y', 's390x': 'y'}>
