@@ -402,7 +402,7 @@ ifeq ($(do_dkms_nvidia),true)
 endif
 
 ifeq ($(do_extras_package),true)
-	$(if $(filter true,$(do_dkms_vbox)),$(call build_dkms, $(mods_pkg_name)-$*, $(pkgdir_ex)/lib/modules/$(abi_release)-$*/kernel, "", virtualbox-guest, http://archive.ubuntu.com/ubuntu/pool/multiverse/v/virtualbox/virtualbox-guest-dkms_$(dkms_vbox_guest_version)_all.deb))
+	$(if $(filter true,$(do_dkms_vbox)),$(call build_dkms, $(mods_pkg_name)-$*, $(pkgdir_ex)/lib/modules/$(abi_release)-$*/kernel, "", virtualbox-guest, pool/multiverse/v/virtualbox/virtualbox-guest-dkms_$(dkms_vbox_guest_version)_all.deb))
 endif
 
 ifneq ($(skipdbg),true)
