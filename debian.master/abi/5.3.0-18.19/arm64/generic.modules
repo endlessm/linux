@@ -4111,7 +4111,6 @@ rtc-ab3100
 rtc-abx80x
 rtc-armada38x
 rtc-as3722
-rtc-bd70528
 rtc-bq32k
 rtc-bq4802
 rtc-brcmstb-waketimer
