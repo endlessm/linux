@@ -8014,7 +8014,6 @@ EXPORT_SYMBOL vmlinux 0x00000000	memset
 EXPORT_SYMBOL vmlinux 0x00000000	memset16	
 EXPORT_SYMBOL vmlinux 0x00000000	memunmap	
 EXPORT_SYMBOL vmlinux 0x00000000	memweight	
-EXPORT_SYMBOL vmlinux 0x00000000	memzero_explicit	
 EXPORT_SYMBOL vmlinux 0x00000000	mfd_add_devices	
 EXPORT_SYMBOL vmlinux 0x00000000	mfd_cell_disable	
 EXPORT_SYMBOL vmlinux 0x00000000	mfd_cell_enable	
@@ -20860,6 +20859,7 @@ EXPORT_SYMBOL_GPL vmlinux 0x00000000	platform_driver_unregister
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	platform_find_device_by_driver	
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	platform_get_irq	
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	platform_get_irq_byname	
+EXPORT_SYMBOL_GPL vmlinux 0x00000000	platform_get_irq_byname_optional	
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	platform_get_irq_optional	
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	platform_get_resource	
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	platform_get_resource_byname	
@@ -20880,7 +20880,6 @@ EXPORT_SYMBOL_GPL vmlinux 0x00000000	pm_clk_resume
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	pm_clk_runtime_resume	
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	pm_clk_runtime_suspend	
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	pm_clk_suspend	
-EXPORT_SYMBOL_GPL vmlinux 0x00000000	pm_freezing	
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	pm_generic_freeze	
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	pm_generic_freeze_late	
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	pm_generic_freeze_noirq	

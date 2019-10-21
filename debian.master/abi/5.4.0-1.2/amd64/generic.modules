@@ -1333,7 +1333,6 @@ fit3
 fixed
 fjes
 fl512
-flexfb
 floppy
 fm10k
 fm801-gp
@@ -3709,7 +3708,6 @@ rfd77402
 rfd_ftl
 rfkill-gpio
 rio-scan
-rio500
 rio_cm
 rio_mport_cdev
 rionet

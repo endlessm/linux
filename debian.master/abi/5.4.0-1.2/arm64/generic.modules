@@ -36,6 +36,7 @@
 9pnet_xen
 a100u2w
 a3d
+a53-pll
 a8293
 aacraid
 aat2870-regulator
@@ -337,6 +338,7 @@ ao-cec
 ao-cec-g12a
 aoe
 apbps2
+apcs-msm8916
 apds9300
 apds9802als
 apds990x
@@ -392,6 +394,7 @@ as5011
 asc7621
 ascot2e
 ashmem_linux
+asix
 aspeed-pwm-tacho
 aspeed-video
 ast
@@ -491,6 +494,7 @@ b53_mmap
 b53_serdes
 b53_spi
 b53_srab
+bam_dma
 bas_gigaset
 batman-adv
 baycom_par
@@ -739,7 +743,13 @@ chipreg
 chnl_net
 chromeos_tbmc
 chtls
+ci_hdrc
+ci_hdrc_imx
+ci_hdrc_msm
 ci_hdrc_pci
+ci_hdrc_tegra
+ci_hdrc_usb2
+ci_hdrc_zevio
 cicada
 cifs
 cirrus
@@ -757,9 +767,11 @@ clk-max9485
 clk-palmas
 clk-phase
 clk-pwm
+clk-qcom
 clk-raspberrypi
 clk-rk808
 clk-rpm
+clk-rpmh
 clk-s2mps11
 clk-scmi
 clk-scpi
@@ -768,6 +780,7 @@ clk-si5341
 clk-si5351
 clk-si544
 clk-si570
+clk-smd-rpm
 clk-spmi-pmic-div
 clk-sprd
 clk-twl6040
@@ -1044,6 +1057,7 @@ dm-writecache
 dm-zero
 dm-zoned
 dm1105
+dm9601
 dma-axi-dmac
 dmard06
 dmard09
@@ -1177,9 +1191,13 @@ dw_mmc-pltfm
 dw_wdt
 dwc-xlgmac
 dwc2_pci
+dwc3
 dwc3-haps
 dwc3-keystone
 dwc3-meson-g12a
+dwc3-of-simple
+dwc3-pci
+dwc3-qcom
 dwmac-altr-socfpga
 dwmac-dwc-qos-eth
 dwmac-generic
@@ -1241,6 +1259,7 @@ egalax_ts
 egalax_ts_serial
 ehci-fsl
 ehci-mxc
+ehci-platform
 ehset
 einj
 ektf2127
@@ -1313,6 +1332,7 @@ extcon-ptn5150
 extcon-qcom-spmi-misc
 extcon-rt8973a
 extcon-sm5502
+extcon-usb-gpio
 extcon-usbc-cros-ec
 ezusb
 f2fs
@@ -1363,7 +1383,6 @@ fb_uc1701
 fb_upd161704
 fb_watterott
 fbtft
-fbtft_device
 fc0011
 fc0012
 fc0013
@@ -1384,10 +1403,10 @@ firewire-net
 firewire-ohci
 firewire-sbp2
 firewire-serial
+fixed
 fjes
 fl512
 flexcan
-flexfb
 fm10k
 fm801-gp
 fm_drv
@@ -1489,8 +1508,12 @@ gcc-ipq806x
 gcc-ipq8074
 gcc-mdm9615
 gcc-msm8660
+gcc-msm8916
 gcc-msm8960
 gcc-msm8974
+gcc-msm8994
+gcc-msm8996
+gcc-msm8998
 gcc-qcs404
 gcc-sdm660
 gcc-sdm845
@@ -1610,6 +1633,7 @@ gpio-xra1403
 gpio-zynq
 gpio_backlight
 gpio_decoder
+gpio_keys
 gpio_keys_polled
 gpio_mouse
 gpio_wdt
@@ -1705,6 +1729,8 @@ hdlc_raw_eth
 hdlc_x25
 hdlcd
 hdlcdrv
+hdma
+hdma_mgmt
 hdpvr
 he
 helene
@@ -2352,6 +2378,7 @@ l2tp_ppp
 l4f00242t03
 l64781
 lan743x
+lan78xx
 lan9303-core
 lan9303_i2c
 lan9303_mdio
@@ -2382,6 +2409,7 @@ leds-cr0014114
 leds-da903x
 leds-da9052
 leds-dac124s085
+leds-gpio
 leds-is31fl319x
 leds-is31fl32xx
 leds-ktd2692
@@ -2414,6 +2442,7 @@ leds-mt6323
 leds-pca9532
 leds-pca955x
 leds-pca963x
+leds-pwm
 leds-regulator
 leds-sc27xx-bltc
 leds-spi-byte
@@ -2426,7 +2455,9 @@ ledtrig-activity
 ledtrig-audio
 ledtrig-backlight
 ledtrig-camera
+ledtrig-default-on
 ledtrig-gpio
+ledtrig-heartbeat
 ledtrig-netdev
 ledtrig-oneshot
 ledtrig-pattern
@@ -2811,6 +2842,7 @@ mgag200
 mi0283qt
 michael_mic
 micrel
+microchip
 microchip_t1
 microread
 microread_i2c
@@ -2855,6 +2887,7 @@ mmc_spi
 mmcc-apq8084
 mmcc-msm8960
 mmcc-msm8974
+mmcc-msm8996
 mms114
 mn88443x
 mn88472
@@ -2977,6 +3010,7 @@ mtouch
 mtu3
 multipath
 multiq3
+musb_hdrc
 mux-adg792a
 mux-adgs1408
 mux-core
@@ -3225,6 +3259,7 @@ nls_cp936
 nls_cp949
 nls_cp950
 nls_euc-jp
+nls_iso8859-1
 nls_iso8859-13
 nls_iso8859-14
 nls_iso8859-15
@@ -3280,6 +3315,7 @@ nvmem-reboot-mode
 nvmem-sc27xx-efuse
 nvmem_meson_efuse
 nvmem_meson_mx_efuse
+nvmem_qfprom
 nvmem_snvs_lpgpr
 nvmem_sunxi_sid
 nvmet
@@ -3311,6 +3347,7 @@ of_pmem
 of_xilinx_wdt
 ofb
 ofpart
+ohci-platform
 omap-mailbox
 omap-rng
 omap4-keypad
@@ -3555,7 +3592,12 @@ phy-pxa-28nm-usb2
 phy-qcom-apq8064-sata
 phy-qcom-ipq806x-sata
 phy-qcom-pcie2
+phy-qcom-qmp
 phy-qcom-qusb2
+phy-qcom-ufs
+phy-qcom-ufs-qmp-14nm
+phy-qcom-usb-hs
+phy-qcom-usb-hsic
 phy-rcar-gen2
 phy-rcar-gen3-pcie
 phy-rcar-gen3-usb2
@@ -3580,7 +3622,11 @@ pinctrl-max77620
 pinctrl-mcp23s08
 pinctrl-mdm9615
 pinctrl-msm8660
+pinctrl-msm8916
 pinctrl-msm8960
+pinctrl-msm8994
+pinctrl-msm8996
+pinctrl-msm8998
 pinctrl-msm8x74
 pinctrl-qcs404
 pinctrl-qdf2xxx
@@ -3589,6 +3635,8 @@ pinctrl-sc7180
 pinctrl-sdm660
 pinctrl-sdm845
 pinctrl-sm8150
+pinctrl-spmi-gpio
+pinctrl-spmi-mpp
 pinctrl-ssbi-gpio
 pinctrl-ssbi-mpp
 pinctrl-stmfx
@@ -3615,6 +3663,7 @@ pm2fb
 pm3fb
 pm80xx
 pm8916_wdt
+pm8941-pwrkey
 pm8941-wled
 pm8xxx-vibrator
 pmbus
@@ -3713,13 +3762,19 @@ qca_7k_common
 qcaspi
 qcauart
 qcaux
+qcom-apcs-ipc-mailbox
 qcom-camss
 qcom-coincell
 qcom-cpufreq-hw
 qcom-cpufreq-nvmem
 qcom-emac
+qcom-geni-se
+qcom-pon
+qcom-rng
+qcom-rpmh-regulator
 qcom-spmi-adc5
 qcom-spmi-iadc
+qcom-spmi-pmic
 qcom-spmi-temp-alarm
 qcom-spmi-vadc
 qcom-vadc-common
@@ -3727,17 +3782,26 @@ qcom-wdt
 qcom_aoss
 qcom_common
 qcom_edac
+qcom_geni_serial
+qcom_glink_native
+qcom_glink_rpm
 qcom_glink_smem
 qcom_gsbi
+qcom_hwspinlock
 qcom_nandc
 qcom_q6v5
 qcom_q6v5_adsp
 qcom_q6v5_mss
 qcom_q6v5_pas
 qcom_q6v5_wcss
+qcom_rpm
 qcom_rpm-regulator
 qcom_smbb
+qcom_smd
+qcom_smd-regulator
+qcom_spmi-regulator
 qcom_sysmon
+qcom_tsens
 qcrypto
 qcserial
 qed
@@ -3981,12 +4045,14 @@ rds_rdma
 rds_tcp
 realtek
 realtek-smi
+reboot-mode
 redboot
 redrat3
 reed_solomon
 regmap-i3c
 regmap-sccb
 regmap-slimbus
+regmap-spmi
 regmap-w1
 regulator-haptic
 reiserfs
@@ -4015,7 +4081,6 @@ rfd77402
 rfd_ftl
 rfkill-gpio
 rio-scan
-rio500
 rio_cm
 rio_mport_cdev
 rionet
@@ -4055,6 +4120,7 @@ rp2
 rpcrdma
 rpcsec_gss_krb5
 rpmsg_char
+rpmsg_core
 rpr0521
 rsi_91x
 rsi_sdio
@@ -4156,6 +4222,7 @@ rtc-pcf8563
 rtc-pcf8583
 rtc-pl030
 rtc-pl031
+rtc-pm8xxx
 rtc-r7301
 rtc-r9701
 rtc-rc5t583
@@ -4356,11 +4423,13 @@ scsi_transport_srp
 sctp
 sctp_diag
 sd_adc_modulator
+sdhci
 sdhci-acpi
 sdhci-brcmstb
 sdhci-cadence
 sdhci-esdhc-imx
 sdhci-iproc
+sdhci-msm
 sdhci-of-arasan
 sdhci-of-aspeed
 sdhci-of-at91
@@ -4368,6 +4437,7 @@ sdhci-of-dwcmshc
 sdhci-of-esdhc
 sdhci-omap
 sdhci-pci
+sdhci-pltfm
 sdhci-pxav3
 sdhci-sprd
 sdhci-xenon-driver
@@ -4473,10 +4543,13 @@ smartpqi
 smb347-charger
 smc
 smc_diag
+smd-rpm
+smem
 smiapp
 smiapp-pll
 smipcie
 smm665
+smp2p
 smsc
 smsc47b397
 smsc47m1
@@ -4487,6 +4560,7 @@ smsc9420
 smsc95xx
 smscufx
 smsdvb
+smsm
 smsmdtv
 smssdio
 smsusb
@@ -4927,6 +5001,7 @@ spi-zynqmp-gqspi
 spi_ks8995
 spidev
 spinand
+spmi
 spmi-pmic-arb
 sprd-dma
 sprd-sc27xx-spi
@@ -5387,6 +5462,7 @@ ucs1002_power
 ucsi_acpi
 ucsi_ccg
 uda1342
+udc-core
 udc-xilinx
 udf
 udl
@@ -5395,10 +5471,13 @@ udp_diag
 udp_tunnel
 ueagle-atm
 ufs
+ufs-hisi
 ufs-mediatek
 ufs-qcom
+ufshcd-core
 ufshcd-dwc
 ufshcd-pci
+ufshcd-pltfrm
 uhid
 uio
 uio_aec
@@ -5412,6 +5491,7 @@ uio_pruss
 uio_sercos3
 uleds
 uli526x
+ulpi
 umc
 umem
 ums-alauda
@@ -5437,6 +5517,7 @@ usb-dmac
 usb-serial-simple
 usb-storage
 usb251xb
+usb3503
 usb4604
 usb8xxx
 usb_8dev
@@ -5474,8 +5555,10 @@ usbip-vudc
 usbkbd
 usblcd
 usblp
+usbmisc_imx
 usbmon
 usbmouse
+usbnet
 usbserial
 usbsevseg
 usbtest
@@ -5739,6 +5822,7 @@ xgene-rng
 xgene_edac
 xhci-histb
 xhci-mtk
+xhci-plat-hcd
 xilinx-pr-decoupler
 xilinx-spi
 xilinx-tpg
