@@ -364,7 +364,8 @@ static int rtw_regd_notifier_apply(struct rtw_dev *rtwdev,
 {
 	if (request->initiator == NL80211_REGDOM_SET_BY_DRIVER)
 		return -EINVAL;
-	if (request->initiator == NL80211_REGDOM_SET_BY_USER)
+	if (request->initiator == NL80211_REGDOM_SET_BY_USER &&
+	    !IS_ENABLED(CONFIG_RTW88_REGD_USER_REG_HINTS))
 		return -EINVAL;
 	if (request->initiator == NL80211_REGDOM_SET_BY_COUNTRY_IE &&
 	    !rtw_regd_is_ww(&rtwdev->regd))
