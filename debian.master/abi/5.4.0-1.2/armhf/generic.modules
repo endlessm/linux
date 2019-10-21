@@ -1361,7 +1361,6 @@ fb_uc1701
 fb_upd161704
 fb_watterott
 fbtft
-fbtft_device
 fc0011
 fc0012
 fc0013
@@ -1385,7 +1384,6 @@ fit2
 fit3
 fl512
 flexcan
-flexfb
 fm10k
 fm801-gp
 fm_drv
@@ -4070,7 +4068,6 @@ rfd77402
 rfd_ftl
 rfkill-gpio
 rio-scan
-rio500
 rio_cm
 rio_mport_cdev
 rionet
