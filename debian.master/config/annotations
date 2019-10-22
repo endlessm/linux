@@ -7987,16 +7987,23 @@ CONFIG_SND_SOC_INTEL_SST_TOPLEVEL               policy<{'amd64': 'y', 'i386': 'y
 CONFIG_SND_SOC_INTEL_HASWELL                    policy<{'amd64': 'm', 'i386': 'm'}>
 CONFIG_SND_SST_ATOM_HIFI2_PLATFORM_PCI          policy<{'amd64': 'm', 'i386': 'm'}>
 CONFIG_SND_SST_ATOM_HIFI2_PLATFORM_ACPI         policy<{'amd64': 'm', 'i386': 'm'}>
-CONFIG_SND_SOC_INTEL_SKYLAKE                    policy<{'amd64': 'm', 'i386': 'm'}>
+CONFIG_SND_SOC_INTEL_SKYLAKE                    policy<{'amd64': 'n', 'i386': 'n'}>
 CONFIG_SND_SOC_INTEL_SKL                        policy<{'amd64': 'm', 'i386': 'm'}>
 CONFIG_SND_SOC_INTEL_APL                        policy<{'amd64': 'm', 'i386': 'm'}>
 CONFIG_SND_SOC_INTEL_KBL                        policy<{'amd64': 'm', 'i386': 'm'}>
 CONFIG_SND_SOC_INTEL_GLK                        policy<{'amd64': 'm', 'i386': 'm'}>
-CONFIG_SND_SOC_INTEL_CNL                        policy<{'amd64': 'm', 'i386': 'm'}>
-CONFIG_SND_SOC_INTEL_CFL                        policy<{'amd64': 'm', 'i386': 'm'}>
-CONFIG_SND_SOC_INTEL_CML_H                      policy<{'amd64': 'm', 'i386': 'm'}>
-CONFIG_SND_SOC_INTEL_CML_LP                     policy<{'amd64': 'm', 'i386': 'm'}>
-CONFIG_SND_SOC_INTEL_SKYLAKE_HDAUDIO_CODEC      policy<{'amd64': 'y', 'i386': 'y'}>
+CONFIG_SND_SOC_INTEL_CNL                        policy<{'amd64': 'n', 'i386': 'n'}>
+CONFIG_SND_SOC_INTEL_CFL                        policy<{'amd64': 'n', 'i386': 'n'}>
+CONFIG_SND_SOC_INTEL_CML_H                      policy<{'amd64': 'n', 'i386': 'n'}>
+CONFIG_SND_SOC_INTEL_CML_LP                     policy<{'amd64': 'n', 'i386': 'n'}>
+CONFIG_SND_SOC_INTEL_SKYLAKE_HDAUDIO_CODEC      policy<{'amd64': 'n', 'i386': 'n'}>
+#
+CONFIG_SND_SOC_INTEL_SKYLAKE                    mark<ENFORCED> note<deprecated>
+CONFIG_SND_SOC_INTEL_CNL                        mark<ENFORCED> note<deprecated>
+CONFIG_SND_SOC_INTEL_CFL                        mark<ENFORCED> note<deprecated>
+CONFIG_SND_SOC_INTEL_CML_H                      mark<ENFORCED> note<deprecated>
+CONFIG_SND_SOC_INTEL_CML_LP                     mark<ENFORCED> note<deprecated>
+CONFIG_SND_SOC_INTEL_SKYLAKE_HDAUDIO_CODEC      mark<ENFORCED> note<deprecated>
 
 # Menu: Device Drivers >> Sound card support >> Advanced Linux Sound Architecture >> ALSA for SoC audio support >> Intel ASoC SST drivers >> Intel Machine drivers
 CONFIG_SND_SOC_INTEL_MACH                       policy<{'amd64': 'y', 'i386': 'y'}>
@@ -8026,6 +8033,7 @@ CONFIG_SND_SOC_INTEL_KBL_RT5660_MACH            policy<{'amd64': 'm', 'i386': 'm
 CONFIG_SND_SOC_INTEL_GLK_RT5682_MAX98357A_MACH  policy<{'amd64': 'm', 'i386': 'm'}>
 CONFIG_SND_SOC_INTEL_SKL_HDA_DSP_GENERIC_MACH   policy<{'amd64': 'm', 'i386': 'm'}>
 CONFIG_SND_SOC_INTEL_SOF_RT5682_MACH            policy<{'amd64': 'm', 'i386': 'm'}>
+CONFIG_SND_SOC_INTEL_CML_LP_DA7219_MAX98357A_MACH policy<{'amd64': 'm', 'i386': 'm'}>
 
 # Menu: Device Drivers >> Sound card support >> Advanced Linux Sound Architecture >> ALSA for SoC audio support >> STMicroelectronics STM32 SOC audio support
 
@@ -8093,10 +8101,12 @@ CONFIG_SND_SOC_SOF_TOPLEVEL                     policy<{'amd64': 'y', 'arm64': '
 CONFIG_SND_SOC_SOF_PCI                          policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'ppc64el': 'm'}>
 CONFIG_SND_SOC_SOF_ACPI                         policy<{'amd64': 'm', 'arm64': 'm', 'i386': 'm'}>
 CONFIG_SND_SOC_SOF_OF                           policy<{'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm'}>
-CONFIG_SND_SOC_SOF_NOCODEC_SUPPORT              policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'ppc64el': 'y'}>
+CONFIG_SND_SOC_SOF_NOCODEC_SUPPORT              policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'i386': 'n', 'ppc64el': 'n'}>
 CONFIG_SND_SOC_SOF_STRICT_ABI_CHECKS            policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'i386': 'n', 'ppc64el': 'n'}>
 CONFIG_SND_SOC_SOF_IMX_TOPLEVEL                 policy<{'arm64': 'y'}>
 CONFIG_SND_SOC_SOF_IMX8                         policy<{'arm64': 'm'}>
+#
+CONFIG_SND_SOC_SOF_NOCODEC_SUPPORT              mark<ENFORCED> note<LP:1848490>
 
 # Menu: Device Drivers >> Sound card support >> Advanced Linux Sound Architecture >> ALSA for SoC audio support >> Sound Open Firmware Support >> SOF debugging features
 CONFIG_SND_SOC_SOF_DEBUG                        policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'i386': 'n', 'ppc64el': 'n'}>
@@ -8115,6 +8125,11 @@ CONFIG_SND_SOC_SOF_COMETLAKE_LP_SUPPORT         policy<{'amd64': 'y', 'i386': 'y
 CONFIG_SND_SOC_SOF_COMETLAKE_H_SUPPORT          policy<{'amd64': 'y', 'i386': 'y'}>
 CONFIG_SND_SOC_SOF_TIGERLAKE_SUPPORT            policy<{'amd64': 'y', 'i386': 'y'}>
 CONFIG_SND_SOC_SOF_ELKHARTLAKE_SUPPORT          policy<{'amd64': 'y', 'i386': 'y'}>
+CONFIG_SND_SOC_SOF_HDA_LINK                     policy<{'amd64': 'y', 'i386': 'y'}>
+CONFIG_SND_SOC_SOF_HDA_AUDIO_CODEC              policy<{'amd64': 'y', 'i386': 'y'}>
+#
+CONFIG_SND_SOC_SOF_HDA_LINK                     mark<ENFORCED> note<LP:1848490>
+CONFIG_SND_SOC_SOF_HDA_AUDIO_CODEC              mark<ENFORCED> note<LP:1848490>
 
 # Menu: Device Drivers >> Sound card support >> Advanced Linux Sound Architecture >> ARM sound devices
 CONFIG_SND_ARM                                  policy<{'armhf': 'y'}>
