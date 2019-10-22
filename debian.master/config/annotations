@@ -12663,8 +12663,8 @@ CONFIG_MARCH_Z990                               policy<{'s390x': 'n'}>
 CONFIG_MARCH_Z9_109                             policy<{'s390x': 'n'}>
 CONFIG_MARCH_Z10                                policy<{'s390x': 'n'}>
 CONFIG_MARCH_Z196                               policy<{'s390x': 'n'}>
-CONFIG_MARCH_ZEC12                              policy<{'s390x': 'y'}>
-CONFIG_MARCH_Z13                                policy<{'s390x': 'n'}>
+CONFIG_MARCH_ZEC12                              policy<{'s390x': 'n'}>
+CONFIG_MARCH_Z13                                policy<{'s390x': 'y'}>
 CONFIG_MARCH_Z14                                policy<{'s390x': 'n'}>
 CONFIG_MARCH_Z15                                policy<{'s390x': 'n'}>
 
@@ -12740,10 +12740,10 @@ CONFIG_TUNE_Z990                                policy<{'s390x': 'n'}>
 CONFIG_TUNE_Z9_109                              policy<{'s390x': 'n'}>
 CONFIG_TUNE_Z10                                 policy<{'s390x': 'n'}>
 CONFIG_TUNE_Z196                                policy<{'s390x': 'n'}>
-CONFIG_TUNE_ZEC12                               policy<{'s390x': 'y'}>
+CONFIG_TUNE_ZEC12                               policy<{'s390x': 'n'}>
 CONFIG_TUNE_Z13                                 policy<{'s390x': 'n'}>
 CONFIG_TUNE_Z14                                 policy<{'s390x': 'n'}>
-CONFIG_TUNE_Z15                                 policy<{'s390x': 'n'}>
+CONFIG_TUNE_Z15                                 policy<{'s390x': 'y'}>
 
 # Menu: Processor type and features >> Virtual address space size >> Architecture: arm64
 CONFIG_ARM64_VA_BITS_39                         policy<{'arm64': 'n'}>
