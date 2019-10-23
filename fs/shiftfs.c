@@ -1958,6 +1958,7 @@ static int shiftfs_fill_super(struct super_block *sb, void *raw_data,
 	sb->s_flags |= SB_POSIXACL;
 
 	if (sbinfo->mark) {
+		struct cred *cred_tmp;
 		struct super_block *lower_sb = path.mnt->mnt_sb;
 
 		/* to mark a mount point, must root wrt lower s_user_ns */
@@ -2012,11 +2013,14 @@ static int shiftfs_fill_super(struct super_block *sb, void *raw_data,
 			sbinfo->passthrough_mark = sbinfo->passthrough;
 		}
 
-		sbinfo->creator_cred = prepare_creds();
-		if (!sbinfo->creator_cred) {
+		cred_tmp = prepare_creds();
+		if (!cred_tmp) {
 			err = -ENOMEM;
 			goto out_put_path;
 		}
+		/* Don't override disk quota limits or use reserved space. */
+		cap_lower(cred_tmp->cap_effective, CAP_SYS_RESOURCE);
+		sbinfo->creator_cred = cred_tmp;
 	} else {
 		/*
 		 * This leg executes if we're admin capable in the namespace,
