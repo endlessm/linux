@@ -2064,6 +2064,7 @@ static int shiftfs_fill_super(struct super_block *sb, void *raw_data,
 	inode->i_private = dentry->d_inode;
 
 	sb->s_magic = SHIFTFS_MAGIC;
+	sb->s_maxbytes = MAX_LFS_FILESIZE;
 	sb->s_op = &shiftfs_super_ops;
 	sb->s_xattr = shiftfs_xattr_handlers;
 	sb->s_d_op = &shiftfs_dentry_ops;
