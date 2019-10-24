@@ -1301,14 +1301,6 @@ static const struct  nl80211_vendor_cmd_info rtw_vendor_events[] = {
 
 int rtw_cfgvendor_attach(struct wiphy *wiphy)
 {
-
-	RTW_INFO("Register RTW cfg80211 vendor cmd(0x%x) interface\n", NL80211_CMD_VENDOR);
-
-	wiphy->vendor_commands	= rtw_vendor_cmds;
-	wiphy->n_vendor_commands = ARRAY_SIZE(rtw_vendor_cmds);
-	wiphy->vendor_events	= rtw_vendor_events;
-	wiphy->n_vendor_events	= ARRAY_SIZE(rtw_vendor_events);
-
 	return 0;
 }
 
