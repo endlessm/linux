@@ -1,3 +1,282 @@
+linux (5.3.0-19.20) eoan; urgency=medium
+
+  * eoan/linux: 5.3.0-19.20 -proposed tracker (LP: #1848648)
+
+  * eoan kernel does not contain "ipv6: do not free rt if FIB_LOOKUP_NOREF is
+    set on suppress rule" (LP: #1847478)
+    - ipv6: do not free rt if FIB_LOOKUP_NOREF is set on suppress rule
+
+ -- Khalid Elmously <khalid.elmously@canonical.com>  Fri, 18 Oct 2019 04:17:49 -0400
+
+linux (5.3.0-18.19) eoan; urgency=medium
+
+  * eoan/linux: 5.3.0-18.19 -proposed tracker (LP: #1847298)
+
+  * Enable the Dragonboards out of Eoan/master arm64 kernel (LP: #1846704)
+    - [Packaging] arm64: snapdragon: introduce a snapdragon flavour
+    - [Packaging] arm64: snapdragon: switch kernel format to Image
+    - [Config] arm64: snapdragon: CONFIG_PINCTRL_MSM8916=y
+    - [Config] arm64: snapdragon: CONFIG_PINCTRL_MSM8994=y
+    - [Config] arm64: snapdragon: CONFIG_PINCTRL_MSM8996=y
+    - [Config] arm64: snapdragon: CONFIG_PINCTRL_MSM8998=y
+    - [Config] arm64: snapdragon: CONFIG_REGULATOR_QCOM_RPMH=y
+    - [Config] arm64: snapdragon: CONFIG_QCOM_BAM_DMA=y
+    - [Config] arm64: snapdragon: CONFIG_QCOM_HIDMA_MGMT=y
+    - [Config] arm64: snapdragon: CONFIG_QCOM_HIDMA=y
+    - [Config] arm64: snapdragon: CONFIG_COMMON_CLK_QCOM=y
+    - [Config] arm64: snapdragon: CONFIG_QCOM_CLK_RPMH=y
+    - [Config] arm64: snapdragon: CONFIG_MSM_GCC_8916=y
+    - [Config] arm64: snapdragon: CONFIG_MSM_GCC_8994=y
+    - [Config] arm64: snapdragon: CONFIG_MSM_MMCC_8996=y
+    - [Config] arm64: snapdragon: CONFIG_MSM_GCC_8998=y
+    - [Config] arm64: snapdragon: CONFIG_HWSPINLOCK_QCOM=y
+    - [Config] arm64: snapdragon: CONFIG_QCOM_APCS_IPC=y
+    - [Config] arm64: snapdragon: CONFIG_RPMSG_QCOM_GLINK_RPM=y
+    - [Config] arm64: snapdragon: CONFIG_QCOM_GENI_SE=y
+    - [Config] arm64: snapdragon: CONFIG_QCOM_SMEM=y
+    - [Config] arm64: snapdragon: CONFIG_QCOM_SMD_RPM=y
+    - [Config] arm64: snapdragon: CONFIG_QCOM_SMP2P=y
+    - [Config] arm64: snapdragon: CONFIG_QCOM_SMSM=y
+    - [Config] arm64: snapdragon: CONFIG_QCOM_QFPROM=y
+    - [Config] arm64: snapdragon: CONFIG_SERIAL_QCOM_GENI=y
+    - [Config] arm64: snapdragon: CONFIG_QCOM_TSENS=y
+    - [Config] arm64: snapdragon: CONFIG_REGULATOR_QCOM_SMD_RPM=y
+    - [Config] arm64: snapdragon: CONFIG_QCOM_CLK_SMD_RPM=y
+    - [Config] arm64: snapdragon: CONFIG_RPMSG_QCOM_SMD=y
+    - [Config] arm64: snapdragon: CONFIG_MFD_QCOM_RPM=y
+    - [Config] arm64: snapdragon: CONFIG_SCSI_UFSHCD=y
+    - [Config] arm64: snapdragon: CONFIG_SCSI_UFSHCD_PLATFORM=y
+    - [Config] arm64: snapdragon: CONFIG_SCSI_UFS_HISI=y
+    - [Config] arm64: snapdragon: CONFIG_MMC_SDHCI=y
+    - [Config] arm64: snapdragon: CONFIG_MMC_SDHCI_PLTFM=y
+    - [Config] arm64: snapdragon: CONFIG_MMC_SDHCI_MSM=y
+    - [Config] arm64: snapdragon: CONFIG_REGULATOR_QCOM_SPMI=y
+    - [Config] arm64: snapdragon: CONFIG_PINCTRL_QCOM_SPMI_PMIC=y
+    - [Config] arm64: snapdragon: CONFIG_PHY_QCOM_USB_HS=y
+    - [Config] arm64: snapdragon: CONFIG_PHY_QCOM_QMP=y
+    - [Config] arm64: snapdragon: CONFIG_PHY_QCOM_UFS=y
+    - [Config] arm64: snapdragon: CONFIG_PHY_QCOM_USB_HSIC=y
+    - [Config] arm64: snapdragon: CONFIG_USB_CHIPIDEA_OF=y
+    - [Config] arm64: snapdragon: CONFIG_USB_EHCI_HCD_PLATFORM=y
+    - [Config] arm64: snapdragon: CONFIG_EXTCON_USB_GPIO=y
+    - [Config] arm64: snapdragon: CONFIG_REGULATOR_FIXED_VOLTAGE=y
+    - [Config] arm64: snapdragon: CONFIG_LEDS_GPIO=y
+    - [Config] arm64: snapdragon: CONFIG_USB_HSIC_USB3503=y
+    - [Config] arm64: snapdragon: CONFIG_USB_NET_DRIVERS=y
+    - [Config] arm64: snapdragon: CONFIG_USB_OTG=y
+    - [Config] arm64: snapdragon: CONFIG_USB_XHCI_PLATFORM=y
+    - [Config] arm64: snapdragon: CONFIG_USB_OHCI_HCD_PLATFORM=y
+    - [Config] arm64: snapdragon: CONFIG_USB_MUSB_HDRC=y
+    - [Config] arm64: snapdragon: CONFIG_USB_DWC3=y
+    - [Config] arm64: snapdragon: CONFIG_USB_DWC3_PCI=y
+    - [Config] arm64: snapdragon: CONFIG_USB_DWC3_OF_SIMPLE=y
+    - [Config] arm64: snapdragon: CONFIG_USB_DWC3_QCOM=y
+    - [Config] arm64: snapdragon: CONFIG_LEDS_PWM=y
+    - [Config] arm64: snapdragon: CONFIG_LEDS_TRIGGER_HEARTBEAT=y
+    - [Config] arm64: snapdragon: CONFIG_LEDS_TRIGGER_DEFAULT_ON=y
+    - [Config] arm64: snapdragon: CONFIG_QCOM_A53PLL=y
+    - [Config] arm64: snapdragon: CONFIG_QCOM_CLK_APCS_MSM8916=y
+    - [Config] arm64: snapdragon: CONFIG_NLS_ISO8859_1=y
+    - [Config] arm64: snapdragon: CONFIG_USB_USBNET=y
+    - [Config] arm64: snapdragon: CONFIG_CRYPTO_DEV_QCOM_RNG=y
+    - [Config] arm64: snapdragon: CONFIG_POWER_RESET_QCOM_PON=y
+    - [Config] arm64: snapdragon: CONFIG_INPUT_PM8941_PWRKEY=y
+    - [Config] arm64: snapdragon: CONFIG_KEYBOARD_GPIO=y
+    - [Config] arm64: snapdragon: CONFIG_RTC_DRV_PM8XXX=y
+
+ -- Seth Forshee <seth.forshee@canonical.com>  Tue, 08 Oct 2019 11:21:54 -0500
+
+linux (5.3.0-17.18) eoan; urgency=medium
+
+  * eoan/linux: 5.3.0-17.18 -proposed tracker (LP: #1846641)
+
+  * CVE-2019-17056
+    - nfc: enforce CAP_NET_RAW for raw sockets
+
+  * CVE-2019-17055
+    - mISDN: enforce CAP_NET_RAW for raw sockets
+
+  * CVE-2019-17054
+    - appletalk: enforce CAP_NET_RAW for raw sockets
+
+  * CVE-2019-17053
+    - ieee802154: enforce CAP_NET_RAW for raw sockets
+
+  * CVE-2019-17052
+    - ax25: enforce CAP_NET_RAW for raw sockets
+
+  * CVE-2019-15098
+    - ath6kl: fix a NULL-ptr-deref bug in ath6kl_usb_alloc_urb_from_pipe()
+
+  * xHCI on AMD Stoney Ridge cannot detect USB 2.0 or 1.1 devices.
+    (LP: #1846470)
+    - x86/PCI: Avoid AMD FCH XHCI USB PME# from D0 defect
+
+  * Re-enable linux-libc-dev build on i386 (LP: #1846508)
+    - [Packaging] Build only linux-libc-dev for i386
+    - [Debian] final-checks -- ignore archtictures with no binaries
+
+  * arm64: loop on boot after installing linux-generic-hwe-18.04-edge/bionic-
+    proposed (LP: #1845820)
+    - [Config] Disable CONFIG_ARM_SMMU_DISABLE_BYPASS_BY_DEFAULT
+
+  * Revert ESE DASD discard support (LP: #1846219)
+    - SAUCE: Revert "s390/dasd: Add discard support for ESE volumes"
+
+  * Miscellaneous Ubuntu changes
+    - update dkms package versions
+
+ -- Seth Forshee <seth.forshee@canonical.com>  Thu, 03 Oct 2019 16:57:05 -0500
+
+linux (5.3.0-16.17) eoan; urgency=medium
+
+  * eoan/linux: 5.3.0-16.17 -proposed tracker (LP: #1846204)
+
+  * zfs fails to build on s390x  with debug symbols enabled (LP: #1846143)
+    - SAUCE: s390: Mark atomic const ops always inline
+
+ -- Seth Forshee <seth.forshee@canonical.com>  Tue, 01 Oct 2019 07:46:43 -0500
+
+linux (5.3.0-15.16) eoan; urgency=medium
+
+  * eoan/linux: 5.3.0-15.16 -proposed tracker (LP: #1845987)
+
+  * Drop i386 build for 19.10 (LP: #1845714)
+    - [Packaging] Remove x32 arch references from control files
+    - [Debian] final-checks -- Get arch list from debian/control
+
+  * ZFS kernel modules lack debug symbols (LP: #1840704)
+    - [Debian] Fix conditional for setting zfs debug package path
+
+  * Use pyhon3-sphinx instead of python-sphinx for building html docs
+    (LP: #1845808)
+    - [Packaging] Update sphinx build dependencies to python3 packages
+
+  * Kernel panic with 19.10 beta image (LP: #1845454)
+    - efi/tpm: Don't access event->count when it isn't mapped.
+    - efi/tpm: don't traverse an event log with no events
+    - efi/tpm: only set efi_tpm_final_log_size after successful event log parsing
+
+ -- Seth Forshee <seth.forshee@canonical.com>  Mon, 30 Sep 2019 11:57:20 -0500
+
+linux (5.3.0-14.15) eoan; urgency=medium
+
+  * eoan/linux: 5.3.0-14.15 -proposed tracker (LP: #1845728)
+
+  * Drop i386 build for 19.10 (LP: #1845714)
+    - [Debian] Remove support for producing i386 kernels
+    - [Debian] Don't use CROSS_COMPILE for i386 configs
+
+  * udevadm trigger will fail when trying to add /sys/devices/vio/
+    (LP: #1845572)
+    - SAUCE: powerpc/vio: drop bus_type from parent device
+
+  * Trying to online dasd drive results in invalid input/output from the kernel
+    on z/VM (LP: #1845323)
+    - SAUCE: s390/dasd: Fix error handling during online processing
+
+  * intel-lpss driver conflicts with write-combining MTRR region (LP: #1845584)
+    - SAUCE: mfd: intel-lpss: add quirk for Dell XPS 13 7390 2-in-1
+
+  * Support Hi1620 zip hw accelerator (LP: #1845355)
+    - [Config] Enable HiSilicon QM/ZIP as modules
+    - crypto: hisilicon - add queue management driver for HiSilicon QM module
+    - crypto: hisilicon - add hardware SGL support
+    - crypto: hisilicon - add HiSilicon ZIP accelerator support
+    - crypto: hisilicon - add SRIOV support for ZIP
+    - Documentation: Add debugfs doc for hisi_zip
+    - crypto: hisilicon - add debugfs for ZIP and QM
+    - MAINTAINERS: add maintainer for HiSilicon QM and ZIP controller driver
+    - crypto: hisilicon - fix kbuild warnings
+    - crypto: hisilicon - add dependency for CRYPTO_DEV_HISI_ZIP
+    - crypto: hisilicon - init curr_sgl_dma to fix compile warning
+    - crypto: hisilicon - add missing single_release
+    - crypto: hisilicon - fix error handle in hisi_zip_create_req_q
+    - crypto: hisilicon - Fix warning on printing %p with dma_addr_t
+    - crypto: hisilicon - Fix return value check in hisi_zip_acompress()
+    - crypto: hisilicon - avoid unused function warning
+
+  * SafeSetID LSM should be built but disabled by default (LP: #1845391)
+    - LSM: SafeSetID: Stop releasing uninitialized ruleset
+    - [Config] Build SafeSetID LSM but don't enable it by default
+
+  * CONFIG_LSM should not specify loadpin since it is not built (LP: #1845383)
+    - [Config] loadpin shouldn't be in CONFIG_LSM
+
+  * Add new pci-id's for CML-S, ICL (LP: #1845317)
+    - drm/i915/icl: Add missing device ID
+    - drm/i915/cml: Add Missing PCI IDs
+
+  * Thunderbolt support for ICL (LP: #1844680)
+    - thunderbolt: Correct path indices for PCIe tunnel
+    - thunderbolt: Move NVM upgrade support flag to struct icm
+    - thunderbolt: Use 32-bit writes when writing ring producer/consumer
+    - thunderbolt: Do not fail adding switch if some port is not implemented
+    - thunderbolt: Hide switch attributes that are not set
+    - thunderbolt: Expose active parts of NVM even if upgrade is not supported
+    - thunderbolt: Add support for Intel Ice Lake
+    - ACPI / property: Add two new Thunderbolt property GUIDs to the list
+
+  * Ubuntu 19.10 -  Additional PCI patch and fix (LP: #1844668)
+    - s390/pci: fix MSI message data
+
+  * Enhanced Hardware Support - Finalize Naming (LP: #1842774)
+    - s390: add support for IBM z15 machines
+    - [Config] CONFIG_MARCH_Z15=n, CONFIG_TUNE_Z15=n
+
+  * Eoan update: v5.3.1 upstream stable release (LP: #1845642)
+    - USB: usbcore: Fix slab-out-of-bounds bug during device reset
+    - media: tm6000: double free if usb disconnect while streaming
+    - phy: renesas: rcar-gen3-usb2: Disable clearing VBUS in over-current
+    - ip6_gre: fix a dst leak in ip6erspan_tunnel_xmit
+    - net/sched: fix race between deactivation and dequeue for NOLOCK qdisc
+    - net_sched: let qdisc_put() accept NULL pointer
+    - udp: correct reuseport selection with connected sockets
+    - xen-netfront: do not assume sk_buff_head list is empty in error handling
+    - net: dsa: Fix load order between DSA drivers and taggers
+    - net: stmmac: Hold rtnl lock in suspend/resume callbacks
+    - KVM: coalesced_mmio: add bounds checking
+    - Documentation: sphinx: Add missing comma to list of strings
+    - firmware: google: check if size is valid when decoding VPD data
+    - serial: sprd: correct the wrong sequence of arguments
+    - tty/serial: atmel: reschedule TX after RX was started
+    - nl80211: Fix possible Spectre-v1 for CQM RSSI thresholds
+    - Revert "arm64: Remove unnecessary ISBs from set_{pte,pmd,pud}"
+    - ovl: fix regression caused by overlapping layers detection
+    - phy: qcom-qmp: Correct ready status, again
+    - floppy: fix usercopy direction
+    - media: technisat-usb2: break out of loop at end of buffer
+    - Linux 5.3.1
+
+  * ZFS kernel modules lack debug symbols (LP: #1840704)
+    - [Debian]: Remove hardcoded $(pkgdir) in debug symbols handling
+    - [Debian]: Handle debug symbols for modules in extras too
+    - [Debian]: Check/link modules with debug symbols after DKMS modules
+    - [Debian]: Warn about modules without debug symbols
+    - [Debian]: dkms-build: new parameter for debug package directory
+    - [Debian]: dkms-build: zfs: support for debug symbols
+    - [Debian]: dkms-build: Avoid executing post-processor scripts twice
+    - [Debian]: dkms-build: Move zfs special-casing into configure script
+
+  * /proc/self/maps paths missing on live session (was vlc won't start; eoan
+    19.10 & bionic 18.04 ubuntu/lubuntu/kubuntu/xubuntu/ubuntu-mate dailies)
+    (LP: #1842382)
+    - SAUCE: Revert "UBUNTU: SAUCE: shiftfs: enable overlayfs on shiftfs"
+
+ -- Seth Forshee <seth.forshee@canonical.com>  Fri, 27 Sep 2019 16:08:06 -0500
+
+linux (5.3.0-13.14) eoan; urgency=medium
+
+  * eoan/linux: 5.3.0-13.14 -proposed tracker (LP: #1845105)
+
+  * Packaging resync (LP: #1786013)
+    - [Packaging] update helper scripts
+
+  * Miscellaneous Ubuntu changes
+    - [Debian] Remove binutils-dev build dependency
+
+ -- Seth Forshee <seth.forshee@canonical.com>  Mon, 23 Sep 2019 19:26:43 -0500
+
 linux (5.3.0-12.13) eoan; urgency=medium
 
   * Change kernel compression method to improve boot speed (LP: #1840934)

@@ -10,8 +10,9 @@ abi_flavour="$2"
 sign="$3"
 pkgname="$4"
 pkgdir="$5"
-package="$6"
-shift 6
+dbgpkgdir="$6"
+package="$7"
+shift 7
 
 # We want to ship the vboxvideo.ko from the upstream staging tree, so
 # remove the one built via dkms.

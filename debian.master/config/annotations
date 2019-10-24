@@ -430,6 +430,13 @@ CONFIG_CRYPTO_DEV_SAFEXCEL                      policy<{'arm64': 'm'}>
 CONFIG_CRYPTO_DEV_ARTPEC6                       policy<{'armhf': 'm'}>
 CONFIG_CRYPTO_DEV_CCREE                         policy<{'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm'}>
 CONFIG_CRYPTO_DEV_HISI_SEC                      policy<{'arm64': 'm'}>
+CONFIG_CRYPTO_DEV_HISI_QM                       policy<{'arm64': 'm'}>
+CONFIG_CRYPTO_DEV_HISI_QM                       mark<ENFORCED>
+CONFIG_CRYPTO_HISI_SGL                          policy<{'arm64': 'm'}>
+CONFIG_CRYPTO_HISI_SGL                          mark<ENFORCED>
+CONFIG_CRYPTO_DEV_HISI_ZIP                      policy<{'arm64': 'm'}>
+CONFIG_CRYPTO_DEV_HISI_ZIP                      mark<ENFORCED>
+
 #
 CONFIG_ZCRYPT_MULTIDEVNODES                     mark<ENFORCED> note<LP:1805429>
 
@@ -2744,7 +2751,7 @@ CONFIG_EXYNOS_IOMMU_DEBUG                       policy<{'armhf': 'n'}>
 CONFIG_IPMMU_VMSA                               policy<{'arm64': 'n', 'armhf': 'y'}>
 CONFIG_SPAPR_TCE_IOMMU                          policy<{'ppc64el': 'y'}>
 CONFIG_ARM_SMMU                                 policy<{'arm64': 'y', 'armhf': 'n'}>
-CONFIG_ARM_SMMU_DISABLE_BYPASS_BY_DEFAULT       policy<{'arm64': 'y'}>
+CONFIG_ARM_SMMU_DISABLE_BYPASS_BY_DEFAULT       policy<{'arm64': 'n'}>
 CONFIG_ARM_SMMU_V3                              policy<{'arm64': 'y'}>
 CONFIG_S390_CCW_IOMMU                           policy<{'s390x': 'y'}>
 CONFIG_S390_AP_IOMMU                            policy<{'s390x': 'y'}>
@@ -2755,6 +2762,7 @@ CONFIG_HYPERV_IOMMU                             policy<{'amd64': 'y', 'i386': 'y
 CONFIG_VIRTIO_IOMMU                             policy<{'arm64': 'y'}>
 #
 CONFIG_IPMMU_VMSA				note<LP:1718734>
+CONFIG_ARM_SMMU_DISABLE_BYPASS_BY_DEFAULT       mark<ENFORCED> note<LP:1845820>
 
 # Menu: Device Drivers >> IOMMU Hardware Support >> Generic IOMMU Pagetable Support
 CONFIG_IOMMU_IO_PGTABLE_LPAE                    policy<{'arm64': 'y', 'armhf': 'y'}>
@@ -8790,7 +8798,7 @@ CONFIG_USB_EHCI_HCD_ORION                       policy<{'arm64': 'y', 'armhf': '
 CONFIG_USB_EHCI_TEGRA                           policy<{'armhf-generic': 'm'}>
 CONFIG_USB_EHCI_HCD_PPC_OF                      policy<{'ppc64el': 'y'}>
 CONFIG_USB_EHCI_EXYNOS                          policy<{'armhf': 'y'}>
-CONFIG_USB_EHCI_HCD_PLATFORM                    policy<{'amd64': 'y', 'arm64': 'm', 'armhf': 'n', 'i386': 'y', 'ppc64el': 'm'}>
+CONFIG_USB_EHCI_HCD_PLATFORM                    policy<{'amd64': 'y', 'arm64': 'm', 'arm64-snapdragon': 'y', 'armhf': 'n', 'i386': 'y', 'ppc64el': 'm'}>
 #
 CONFIG_USB_EHCI_HCD_PLATFORM                    mark<ENFORCED> note<Don't use the generic ehci/ohci code on omap, it doesn't work> flag<REVIEW>
 CONFIG_USB_EHCI_HCD                             mark<ENFORCED> note<ensures USB 2.0/1.1 probe ordering> flag<REVIEW>
@@ -12631,7 +12639,7 @@ CONFIG_LOCK_DOWN_KERNEL                         policy<{'amd64': 'y', 'arm64': '
 CONFIG_LOCK_DOWN_KERNEL_FORCE                   policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'i386': 'n', 's390x': 'n'}>
 CONFIG_ALLOW_LOCKDOWN_LIFT_BY_SYSRQ             policy<{'amd64': 'y', 'i386': 'y'}>
 CONFIG_LOCK_DOWN_IN_EFI_SECURE_BOOT             policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y'}>
-CONFIG_LSM                                      policy<{'amd64': '"endlesspayg,yama,loadpin,integrity,apparmor"', 'arm64': '"endlesspayg,yama,loadpin,integrity,apparmor"', 'armhf': '"endlesspayg,yama,loadpin,integrity,apparmor"', 'i386': '"endlesspayg,yama,loadpin,integrity,apparmor"', 'ppc64el': '"endlesspayg,yama,loadpin,integrity,apparmor"', 's390x': '"endlesspayg,yama,loadpin,integrity,apparmor"'}>
+CONFIG_LSM                                      policy<{'amd64': '"endlesspayg,yama,integrity,apparmor"', 'arm64': '"endlesspayg,yama,integrity,apparmor"', 'armhf': '"endlesspayg,yama,integrity,apparmor"', 'i386': '"endlesspayg,yama,integrity,apparmor"', 'ppc64el': '"endlesspayg,yama,integrity,apparmor"', 's390x': '"endlesspayg,yama,integrity,apparmor"'}>
 #
 CONFIG_LOCK_DOWN_IN_EFI_SECURE_BOOT             mark<ENFORCED>
 CONFIG_LOCK_DOWN_KERNEL                         mark<ENFORCED> flag<REVIEW>
@@ -12659,12 +12667,12 @@ CONFIG_SECURITY_APPARMOR_HASH_DEFAULT           policy<{'amd64': 'y', 'arm64': '
 CONFIG_SECURITY_APPARMOR_DEBUG                  policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'i386': 'n', 'ppc64el': 'n', 's390x': 'n'}>
 CONFIG_SECURITY_LOADPIN                         policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'i386': 'n', 'ppc64el': 'n', 's390x': 'n'}>
 CONFIG_SECURITY_YAMA                            policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'ppc64el': 'y', 's390x': 'y'}>
-CONFIG_SECURITY_SAFESETID                       policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'i386': 'n', 'ppc64el': 'n', 's390x': 'n'}>
+CONFIG_SECURITY_SAFESETID                       policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'ppc64el': 'y', 's390x': 'y'}>
 #
 CONFIG_SECURITY                                 mark<ENFORCED>
 CONFIG_LSM_MMAP_MIN_ADDR                        mark<ENFORCED> flag<REVIEW>
 CONFIG_SECURITY_YAMA                            mark<ENFORCED>
-CONFIG_SECURITY_SAFESETID                       flag<REVIEW>
+CONFIG_SECURITY_SAFESETID                       mark<ENFORCED> note<LP:#1845391>
 
 # Menu: Security options >> Enable different security models >> Integrity subsystem
 CONFIG_INTEGRITY                                policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'ppc64el': 'y', 's390x': 'y'}>
