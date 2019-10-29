@@ -797,6 +797,9 @@ firmware:       me2600_firmware.bin
 firmware:       me4000_firmware.bin
 firmware:       mediatek/mt7610e.bin
 firmware:       mediatek/mt7610u.bin
+firmware:       mediatek/mt7615_cr4.bin
+firmware:       mediatek/mt7615_n9.bin
+firmware:       mediatek/mt7615_rom_patch.bin
 firmware:       mediatek/mt7622pr2h.bin
 firmware:       mediatek/mt7650e.bin
 firmware:       mediatek/mt7663pr2h.bin
@@ -827,9 +830,6 @@ firmware:       mrvl/usbusb8997_combo_v4.bin
 firmware:       mt7601u.bin
 firmware:       mt7603_e1.bin
 firmware:       mt7603_e2.bin
-firmware:       mt7615_cr4.bin
-firmware:       mt7615_n9.bin
-firmware:       mt7615_rom_patch.bin
 firmware:       mt7628_e1.bin
 firmware:       mt7628_e2.bin
 firmware:       mt7662.bin

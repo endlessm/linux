@@ -4471,6 +4471,7 @@ snd-soc-zx-aud96p22
 snd-sof
 snd-sof-intel-bdw
 snd-sof-intel-byt
+snd-sof-intel-hda
 snd-sof-intel-hda-common
 snd-sof-intel-ipc
 snd-sof-xtensa-dsp

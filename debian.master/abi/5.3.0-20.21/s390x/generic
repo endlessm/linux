@@ -4019,6 +4019,7 @@ EXPORT_SYMBOL vmlinux 0x00000000	generic_copy_file_range
 EXPORT_SYMBOL vmlinux 0x00000000	generic_delete_inode
 EXPORT_SYMBOL vmlinux 0x00000000	generic_end_io_acct
 EXPORT_SYMBOL vmlinux 0x00000000	generic_error_remove_page
+EXPORT_SYMBOL vmlinux 0x00000000	generic_fadvise
 EXPORT_SYMBOL vmlinux 0x00000000	generic_file_direct_write
 EXPORT_SYMBOL vmlinux 0x00000000	generic_file_fsync
 EXPORT_SYMBOL vmlinux 0x00000000	generic_file_llseek
