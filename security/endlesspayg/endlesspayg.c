@@ -18,6 +18,10 @@ static struct dentry *payg_dir;
 static struct dentry *paygd_pid_file;
 static pid_t paygd_pid = -1;
 
+static uint32_t payg_protect_major = 0;
+static uint32_t payg_protect_minor = 0;
+static bool device_protection = false;
+
 bool eospayg_skip_name(const char *name)
 {
 	if (paygd_pid == -1)
@@ -72,6 +76,23 @@ static bool is_payg_master(void)
 
 	return false;
 }
+
+bool eospayg_dev_is_safe(dev_t d)
+{
+	if (is_payg_master())
+		return true;
+
+	if (!device_protection)
+		return true;
+
+	if (MAJOR(d) == payg_protect_major &&
+	    MINOR(d) == payg_protect_minor)
+		return false;
+
+	return true;
+}
+/* This one is used from a module - the mmc block driver */
+EXPORT_SYMBOL(eospayg_dev_is_safe);
 
 static bool is_inode_on_efivarfs(struct inode *inode)
 {
@@ -214,6 +235,24 @@ static int paygd_pid_file_open(struct inode *inode,
 	return 0;
 }
 
+static long payg_pid_file_unlocked_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
+{
+	void __user *argp = (void __user *)arg;
+	uint64_t devdata;
+
+	if (cmd != 0)
+		return -EINVAL;
+
+	if (copy_from_user(&devdata, argp, sizeof(devdata)))
+		return -EFAULT;
+
+	payg_protect_major = devdata >> 32;
+	payg_protect_minor = devdata & 0xFFFFFFFF;
+	device_protection = true;
+
+	return 0;
+}
+
 static int paygd_pid_file_release(struct inode *i, struct file *filp)
 {
 	/* This ensure we never work again */
@@ -225,6 +264,7 @@ static const struct file_operations paygd_pid_file_ops = {
 	.release = paygd_pid_file_release,
 	.open = paygd_pid_file_open,
 	.llseek = generic_file_llseek,
+        .unlocked_ioctl = payg_pid_file_unlocked_ioctl,
 };
 
 static int __init payg_lsm_init(void)

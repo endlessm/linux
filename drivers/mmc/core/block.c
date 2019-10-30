@@ -57,6 +57,8 @@
 #include "quirks.h"
 #include "sd_ops.h"
 
+#include "../../../security/endlesspayg/endlesspayg.h"
+
 MODULE_ALIAS("mmc:block");
 #ifdef MODULE_PARAM_PREFIX
 #undef MODULE_PARAM_PREFIX
@@ -305,6 +307,10 @@ static int mmc_blk_open(struct block_device *bdev, fmode_t mode)
 {
 	struct mmc_blk_data *md = mmc_blk_get(bdev->bd_disk);
 	int ret = -ENXIO;
+
+
+	if (!eospayg_dev_is_safe(bdev->bd_dev))
+		return -EPERM;
 
 	mutex_lock(&block_mutex);
 	if (md) {
