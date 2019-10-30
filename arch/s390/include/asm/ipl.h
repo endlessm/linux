@@ -109,6 +109,7 @@ int ipl_report_add_component(struct ipl_report *report, struct kexec_buf *kbuf,
 			     unsigned char flags, unsigned short cert);
 int ipl_report_add_certificate(struct ipl_report *report, void *key,
 			       unsigned long addr, unsigned long len);
+bool ipl_get_secureboot(void);
 
 /*
  * DIAG 308 support
