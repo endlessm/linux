@@ -10606,6 +10606,11 @@ EXPORT_SYMBOL_GPL vmlinux 0x00000000	free_percpu_irq
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	free_vm_area	
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	freezer_cgrp_subsys_enabled_key	
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	freezer_cgrp_subsys_on_dfl_key	
+EXPORT_SYMBOL_GPL vmlinux 0x00000000	freq_qos_add_notifier	
+EXPORT_SYMBOL_GPL vmlinux 0x00000000	freq_qos_add_request	
+EXPORT_SYMBOL_GPL vmlinux 0x00000000	freq_qos_remove_notifier	
+EXPORT_SYMBOL_GPL vmlinux 0x00000000	freq_qos_remove_request	
+EXPORT_SYMBOL_GPL vmlinux 0x00000000	freq_qos_update_request	
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	fs_dax_get_by_bdev	
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	fs_ftype_to_dtype	
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	fs_kobj	
