@@ -6194,6 +6194,12 @@ static void kvm_set_mmio_spte_mask(void)
 	kvm_mmu_set_mmio_spte_mask(mask, mask);
 }
 
+static bool get_nx_auto_mode(void)
+{
+	/* Return true when CPU has the bug, and mitigations are ON */
+	return boot_cpu_has_bug(X86_BUG_ITLB_MULTIHIT) && !cpu_mitigations_off();
+}
+
 static void __set_nx_huge_pages(bool val)
 {
 	nx_huge_pages = itlb_multihit_kvm_mitigation = val;
@@ -6210,7 +6216,7 @@ static int set_nx_huge_pages(const char *val, const struct kernel_param *kp)
 	else if (sysfs_streq(val, "force"))
 		new_val = 1;
 	else if (sysfs_streq(val, "auto"))
-		new_val = boot_cpu_has_bug(X86_BUG_ITLB_MULTIHIT);
+		new_val = get_nx_auto_mode();
 	else if (strtobool(val, &new_val) < 0)
 		return -EINVAL;
 
@@ -6240,7 +6246,7 @@ int kvm_mmu_module_init(void)
 	int ret = -ENOMEM;
 
 	if (nx_huge_pages == -1)
-		__set_nx_huge_pages(boot_cpu_has_bug(X86_BUG_ITLB_MULTIHIT));
+		__set_nx_huge_pages(get_nx_auto_mode());
 
 	/*
 	 * MMU roles use union aliasing which is, generally speaking, an
