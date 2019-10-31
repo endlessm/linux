@@ -689,6 +689,7 @@ cdns-csi2tx
 cdns-pltfrm
 cdns3
 cdns3-pci-wrap
+cec-gpio
 ceph
 cfag12864b
 cfag12864bfb
@@ -4402,8 +4403,6 @@ snd-soc-sigmadsp-regmap
 snd-soc-simple-amplifier
 snd-soc-simple-card
 snd-soc-simple-card-utils
-snd-soc-skl
-snd-soc-skl-ssp-clk
 snd-soc-skl_hda_dsp
 snd-soc-skl_nau88l25_ssm4567
 snd-soc-skl_rt286
@@ -4493,9 +4492,9 @@ snd-sof
 snd-sof-acpi
 snd-sof-intel-bdw
 snd-sof-intel-byt
+snd-sof-intel-hda
 snd-sof-intel-hda-common
 snd-sof-intel-ipc
-snd-sof-nocodec
 snd-sof-pci
 snd-sof-xtensa-dsp
 snd-sonicvibes
