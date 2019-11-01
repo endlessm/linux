@@ -83,12 +83,27 @@ static inline void shiftfs_revert_object_creds(const struct cred *oldcred,
 	put_cred(newcred);
 }
 
+static kuid_t shift_kuid(struct user_namespace *from, struct user_namespace *to,
+			 kuid_t kuid)
+{
+	uid_t uid = from_kuid(from, kuid);
+	return make_kuid(to, uid);
+}
+
+static kgid_t shift_kgid(struct user_namespace *from, struct user_namespace *to,
+			 kgid_t kgid)
+{
+	gid_t gid = from_kgid(from, kgid);
+	return make_kgid(to, gid);
+}
+
 static int shiftfs_override_object_creds(const struct super_block *sb,
 					 const struct cred **oldcred,
 					 struct cred **newcred,
 					 struct dentry *dentry, umode_t mode,
 					 bool hardlink)
 {
+	struct shiftfs_super_info *sbinfo = sb->s_fs_info;
 	kuid_t fsuid = current_fsuid();
 	kgid_t fsgid = current_fsgid();
 
@@ -100,8 +115,8 @@ static int shiftfs_override_object_creds(const struct super_block *sb,
 		return -ENOMEM;
 	}
 
-	(*newcred)->fsuid = KUIDT_INIT(from_kuid(sb->s_user_ns, fsuid));
-	(*newcred)->fsgid = KGIDT_INIT(from_kgid(sb->s_user_ns, fsgid));
+	(*newcred)->fsuid = shift_kuid(sb->s_user_ns, sbinfo->userns, fsuid);
+	(*newcred)->fsgid = shift_kgid(sb->s_user_ns, sbinfo->userns, fsgid);
 
 	if (!hardlink) {
 		int err = security_dentry_create_files_as(dentry, mode,
@@ -115,20 +130,6 @@ static int shiftfs_override_object_creds(const struct super_block *sb,
 
 	put_cred(override_creds(*newcred));
 	return 0;
-}
-
-static kuid_t shift_kuid(struct user_namespace *from, struct user_namespace *to,
-			 kuid_t kuid)
-{
-	uid_t uid = from_kuid(from, kuid);
-	return make_kuid(to, uid);
-}
-
-static kgid_t shift_kgid(struct user_namespace *from, struct user_namespace *to,
-			 kgid_t kgid)
-{
-	gid_t gid = from_kgid(from, kgid);
-	return make_kgid(to, gid);
 }
 
 static void shiftfs_copyattr(struct inode *from, struct inode *to)
@@ -758,6 +759,7 @@ static int shiftfs_setattr(struct dentry *dentry, struct iattr *attr)
 	struct iattr newattr;
 	const struct cred *oldcred;
 	struct super_block *sb = dentry->d_sb;
+	struct shiftfs_super_info *sbinfo = sb->s_fs_info;
 	int err;
 
 	err = setattr_prepare(dentry, attr);
@@ -765,8 +767,8 @@ static int shiftfs_setattr(struct dentry *dentry, struct iattr *attr)
 		return err;
 
 	newattr = *attr;
-	newattr.ia_uid = KUIDT_INIT(from_kuid(sb->s_user_ns, attr->ia_uid));
-	newattr.ia_gid = KGIDT_INIT(from_kgid(sb->s_user_ns, attr->ia_gid));
+	newattr.ia_uid = shift_kuid(sb->s_user_ns, sbinfo->userns, attr->ia_uid);
+	newattr.ia_gid = shift_kgid(sb->s_user_ns, sbinfo->userns, attr->ia_gid);
 
 	/*
 	 * mode change is for clearing setuid/setgid bits. Allow lower fs
@@ -1356,6 +1358,7 @@ static int shiftfs_override_ioctl_creds(const struct super_block *sb,
 					const struct cred **oldcred,
 					struct cred **newcred)
 {
+	struct shiftfs_super_info *sbinfo = sb->s_fs_info;
 	kuid_t fsuid = current_fsuid();
 	kgid_t fsgid = current_fsgid();
 
@@ -1367,8 +1370,8 @@ static int shiftfs_override_ioctl_creds(const struct super_block *sb,
 		return -ENOMEM;
 	}
 
-	(*newcred)->fsuid = KUIDT_INIT(from_kuid(sb->s_user_ns, fsuid));
-	(*newcred)->fsgid = KGIDT_INIT(from_kgid(sb->s_user_ns, fsgid));
+	(*newcred)->fsuid = shift_kuid(sb->s_user_ns, sbinfo->userns, fsuid);
+	(*newcred)->fsgid = shift_kgid(sb->s_user_ns, sbinfo->userns, fsgid);
 
 	/* clear all caps to prevent bypassing capable() checks */
 	cap_clear((*newcred)->cap_bset);
