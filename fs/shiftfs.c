@@ -1389,8 +1389,7 @@ static inline bool is_btrfs_snap_ioctl(int cmd)
 	return false;
 }
 
-static int shiftfs_btrfs_ioctl_fd_restore(int cmd, struct fd lfd, int fd,
-					  void __user *arg,
+static int shiftfs_btrfs_ioctl_fd_restore(int cmd, int fd, void __user *arg,
 					  struct btrfs_ioctl_vol_args *v1,
 					  struct btrfs_ioctl_vol_args_v2 *v2)
 {
@@ -1404,7 +1403,6 @@ static int shiftfs_btrfs_ioctl_fd_restore(int cmd, struct fd lfd, int fd,
 	else
 		ret = copy_to_user(arg, v2, sizeof(*v2));
 
-	fdput(lfd);
 	__close_fd(current->files, fd);
 	kfree(v1);
 	kfree(v2);
@@ -1415,11 +1413,11 @@ static int shiftfs_btrfs_ioctl_fd_restore(int cmd, struct fd lfd, int fd,
 static int shiftfs_btrfs_ioctl_fd_replace(int cmd, void __user *arg,
 					  struct btrfs_ioctl_vol_args **b1,
 					  struct btrfs_ioctl_vol_args_v2 **b2,
-					  struct fd *lfd,
 					  int *newfd)
 {
 	int oldfd, ret;
 	struct fd src;
+	struct fd lfd = {};
 	struct btrfs_ioctl_vol_args *v1 = NULL;
 	struct btrfs_ioctl_vol_args_v2 *v2 = NULL;
 
@@ -1444,18 +1442,28 @@ static int shiftfs_btrfs_ioctl_fd_replace(int cmd, void __user *arg,
 	if (!src.file)
 		return -EINVAL;
 
-	ret = shiftfs_real_fdget(src.file, lfd);
-	fdput(src);
-	if (ret)
+	ret = shiftfs_real_fdget(src.file, &lfd);
+	if (ret) {
+		fdput(src);
 		return ret;
+	}
 
-	*newfd = get_unused_fd_flags(lfd->file->f_flags);
+	/*
+	 * shiftfs_real_fdget() does not take a reference to lfd.file, so
+	 * take a reference here to offset the one which will be put by
+	 * __close_fd(), and make sure that reference is put on fdput(lfd).
+	 */
+	get_file(lfd.file);
+	lfd.flags |= FDPUT_FPUT;
+	fdput(src);
+
+	*newfd = get_unused_fd_flags(lfd.file->f_flags);
 	if (*newfd < 0) {
-		fdput(*lfd);
+		fdput(lfd);
 		return *newfd;
 	}
 
-	fd_install(*newfd, lfd->file);
+	fd_install(*newfd, lfd.file);
 
 	if (cmd == BTRFS_IOC_SNAP_CREATE) {
 		v1->fd = *newfd;
@@ -1468,7 +1476,7 @@ static int shiftfs_btrfs_ioctl_fd_replace(int cmd, void __user *arg,
 	}
 
 	if (ret)
-		shiftfs_btrfs_ioctl_fd_restore(cmd, *lfd, *newfd, arg, v1, v2);
+		shiftfs_btrfs_ioctl_fd_restore(cmd, *newfd, arg, v1, v2);
 
 	return ret;
 }
@@ -1482,13 +1490,12 @@ static long shiftfs_real_ioctl(struct file *file, unsigned int cmd,
 	int newfd = -EBADF;
 	long err = 0, ret = 0;
 	void __user *argp = (void __user *)arg;
-	struct fd btrfs_lfd = {};
 	struct super_block *sb = file->f_path.dentry->d_sb;
 	struct btrfs_ioctl_vol_args *btrfs_v1 = NULL;
 	struct btrfs_ioctl_vol_args_v2 *btrfs_v2 = NULL;
 
 	ret = shiftfs_btrfs_ioctl_fd_replace(cmd, argp, &btrfs_v1, &btrfs_v2,
-					     &btrfs_lfd, &newfd);
+					     &newfd);
 	if (ret < 0)
 		return ret;
 
@@ -1511,7 +1518,7 @@ out_fdput:
 	fdput(lowerfd);
 
 out_restore:
-	err = shiftfs_btrfs_ioctl_fd_restore(cmd, btrfs_lfd, newfd, argp,
+	err = shiftfs_btrfs_ioctl_fd_restore(cmd, newfd, argp,
 					     btrfs_v1, btrfs_v2);
 	if (!ret)
 		ret = err;
