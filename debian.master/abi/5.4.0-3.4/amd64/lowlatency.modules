@@ -5167,7 +5167,7 @@ virtio-gpu
 virtio-rng
 virtio_blk
 virtio_crypto
-virtio_fs
+virtiofs
 virtio_input
 virtio_net
 virtio_pmem
