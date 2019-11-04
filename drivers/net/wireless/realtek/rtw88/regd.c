@@ -426,12 +426,14 @@ void rtw_regd_notifier(struct wiphy *wiphy, struct regulatory_request *request)
 	struct rtw_dev *rtwdev = hw->priv;
 	struct rtw_hal *hal = &rtwdev->hal;
 
-	if (!rtw_regd_notifier_apply(rtwdev, wiphy, request))
+	if (!rtw_regd_notifier_apply(rtwdev, wiphy, request)) {
 		rtw_dbg(rtwdev, RTW_DBG_REGD,
 			"get alpha2 %c%c from initiator %d, mapping to chplan 0x%x, txregd %d\n",
 			request->alpha2[0], request->alpha2[1],
 			request->initiator, rtwdev->regd.chplan,
 			rtwdev->regd.txpwr_regd);
+		rtw_phy_adaptivity_set_mode(rtwdev);
+	}
 
 	rtw_phy_set_tx_power_level(rtwdev, hal->current_channel);
 }
