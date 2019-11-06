@@ -57,6 +57,8 @@ struct au_dyaop {
 	struct au_dykey			da_key;
 	struct address_space_operations	da_op; /* not const */
 };
+/* make sure that 'struct au_dykey *' can be any type */
+static_assert(!offsetof(struct au_dyaop, da_key));
 
 /* ---------------------------------------------------------------------- */
 

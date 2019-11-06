@@ -1,5 +1,5 @@
 
-Aufs4 -- advanced multi layered unification filesystem version 4.x
+Aufs5 -- advanced multi layered unification filesystem version 5.x
 http://aufs.sf.net
 Junjiro R. Okajima
 
@@ -8,16 +8,19 @@ Junjiro R. Okajima
 ----------------------------------------
 In the early days, aufs was entirely re-designed and re-implemented
 Unionfs Version 1.x series. Adding many original ideas, approaches,
-improvements and implementations, it becomes totally different from
+improvements and implementations, it became totally different from
 Unionfs while keeping the basic features.
-Recently, Unionfs Version 2.x series begin taking some of the same
+Later, Unionfs Version 2.x series began taking some of the same
 approaches to aufs1's.
-Unionfs is being developed by Professor Erez Zadok at Stony Brook
+Unionfs was being developed by Professor Erez Zadok at Stony Brook
 University and his team.
 
-Aufs4 supports linux-4.0 and later, and for linux-3.x series try aufs3.
-If you want older kernel version support, try aufs2-2.6.git or
-aufs2-standalone.git repository, aufs1 from CVS on SourceForge.
+Aufs5 supports linux-v5.0 and later, If you want older kernel version
+support,
+- for linux-v4.x series, try aufs4-linux.git or aufs4-standalone.git
+- for linux-v3.x series, try aufs3-linux.git or aufs3-standalone.git
+- for linux-v2.6.16 and later, try aufs2-2.6.git, aufs2-standalone.git
+  or aufs1 from CVS on SourceForge.
 
 Note: it becomes clear that "Aufs was rejected. Let's give it up."
       According to Christoph Hellwig, linux rejects all union-type
@@ -77,7 +80,7 @@ Also there are many enhancements in aufs, such as:
 - userspace wrapper for pathconf(3)/fpathconf(3) with _PC_LINK_MAX.
 - and more...
 
-Currently these features are dropped temporary from aufs4.
+Currently these features are dropped temporary from aufs5.
 See design/08plan.txt in detail.
 - nested mount, i.e. aufs as readonly no-whiteout branch of another aufs
   (robr)
@@ -95,64 +98,64 @@ Features or just an idea in the future (see also design/*.txt),
 
 2. Download
 ----------------------------------------
-There are three GIT trees for aufs4, aufs4-linux.git,
-aufs4-standalone.git, and aufs-util.git. Note that there is no "4" in
+There are three GIT trees for aufs5, aufs5-linux.git,
+aufs5-standalone.git, and aufs-util.git. Note that there is no "5" in
 "aufs-util.git."
-While the aufs-util is always necessary, you need either of aufs4-linux
-or aufs4-standalone.
+While the aufs-util is always necessary, you need either of aufs5-linux
+or aufs5-standalone.
 
-The aufs4-linux tree includes the whole linux mainline GIT tree,
+The aufs5-linux tree includes the whole linux mainline GIT tree,
 git://git.kernel.org/.../torvalds/linux.git.
 And you cannot select CONFIG_AUFS_FS=m for this version, eg. you cannot
-build aufs4 as an external kernel module.
+build aufs5 as an external kernel module.
 Several extra patches are not included in this tree. Only
-aufs4-standalone tree contains them. They are described in the later
+aufs5-standalone tree contains them. They are described in the later
 section "Configuration and Compilation."
 
-On the other hand, the aufs4-standalone tree has only aufs source files
+On the other hand, the aufs5-standalone tree has only aufs source files
 and necessary patches, and you can select CONFIG_AUFS_FS=m.
 But you need to apply all aufs patches manually.
 
-You will find GIT branches whose name is in form of "aufs4.x" where "x"
-represents the linux kernel version, "linux-4.x". For instance,
-"aufs4.0" is for linux-4.0. For latest "linux-4.x-rcN", use
-"aufs4.x-rcN" branch.
+You will find GIT branches whose name is in form of "aufs5.x" where "x"
+represents the linux kernel version, "linux-5.x". For instance,
+"aufs5.0" is for linux-5.0. For latest "linux-5.x-rcN", use
+"aufs5.x-rcN" branch.
 
-o aufs4-linux tree
+o aufs5-linux tree
 $ git clone --reference /your/linux/git/tree \
-	git://github.com/sfjro/aufs4-linux.git aufs4-linux.git
+	git://github.com/sfjro/aufs5-linux.git aufs5-linux.git
 - if you don't have linux GIT tree, then remove "--reference ..."
-$ cd aufs4-linux.git
-$ git checkout origin/aufs4.0
+$ cd aufs5-linux.git
+$ git checkout origin/aufs5.0
 
 Or You may want to directly git-pull aufs into your linux GIT tree, and
 leave the patch-work to GIT.
 $ cd /your/linux/git/tree
-$ git remote add aufs4 git://github.com/sfjro/aufs4-linux.git
-$ git fetch aufs4
-$ git checkout -b my4.0 v4.0
+$ git remote add aufs5 git://github.com/sfjro/aufs5-linux.git
+$ git fetch aufs5
+$ git checkout -b my5.0 v5.0
 $ (add your local change...)
-$ git pull aufs4 aufs4.0
-- now you have v4.0 + your_changes + aufs4.0 in you my4.0 branch.
+$ git pull aufs5 aufs5.0
+- now you have v5.0 + your_changes + aufs5.0 in you my5.0 branch.
 - you may need to solve some conflicts between your_changes and
-  aufs4.0. in this case, git-rerere is recommended so that you can
-  solve the similar conflicts automatically when you upgrade to 4.1 or
+  aufs5.0. in this case, git-rerere is recommended so that you can
+  solve the similar conflicts automatically when you upgrade to 5.1 or
   later in the future.
 
-o aufs4-standalone tree
-$ git clone git://github.com/sfjro/aufs4-standalone.git aufs4-standalone.git
-$ cd aufs4-standalone.git
-$ git checkout origin/aufs4.0
+o aufs5-standalone tree
+$ git clone git://github.com/sfjro/aufs5-standalone.git aufs5-standalone.git
+$ cd aufs5-standalone.git
+$ git checkout origin/aufs5.0
 
 o aufs-util tree
 $ git clone git://git.code.sf.net/p/aufs/aufs-util aufs-util.git
 - note that the public aufs-util.git is on SourceForge instead of
   GitHUB.
 $ cd aufs-util.git
-$ git checkout origin/aufs4.0
+$ git checkout origin/aufs5.0
 
-Note: The 4.x-rcN branch is to be used with `rc' kernel versions ONLY.
-The minor version number, 'x' in '4.x', of aufs may not always
+Note: The 5.x-rcN branch is to be used with `rc' kernel versions ONLY.
+The minor version number, 'x' in '5.x', of aufs may not always
 follow the minor version number of the kernel.
 Because changes in the kernel that cause the use of a new
 minor version number do not always require changes to aufs-util.
@@ -164,8 +167,8 @@ In this case, you should git-checkout the branch for the
 nearest lower number.
 
 For (an unreleased) example:
-If you are using "linux-4.10" and the "aufs4.10" branch
-does not exist in aufs-util repository, then "aufs4.9", "aufs4.8"
+If you are using "linux-5.10" and the "aufs5.10" branch
+does not exist in aufs-util repository, then "aufs5.9", "aufs5.8"
 or something numerically smaller is the branch for your kernel.
 
 Also you can view all branches by
@@ -176,28 +179,25 @@ Also you can view all branches by
 ----------------------------------------
 Make sure you have git-checkout'ed the correct branch.
 
-For aufs4-linux tree,
+For aufs5-linux tree,
 - enable CONFIG_AUFS_FS.
 - set other aufs configurations if necessary.
 
-For aufs4-standalone tree,
+For aufs5-standalone tree,
 There are several ways to build.
 
 1.
-- apply ./aufs4-kbuild.patch to your kernel source files.
-- apply ./aufs4-base.patch too.
-- apply ./aufs4-mmap.patch too.
-- apply ./aufs4-standalone.patch too, if you have a plan to set
-  CONFIG_AUFS_FS=m. otherwise you don't need ./aufs4-standalone.patch.
+- apply ./aufs5-kbuild.patch to your kernel source files.
+- apply ./aufs5-base.patch too.
+- apply ./aufs5-mmap.patch too.
+- apply ./aufs5-standalone.patch too, if you have a plan to set
+  CONFIG_AUFS_FS=m. otherwise you don't need ./aufs5-standalone.patch.
 - copy ./{Documentation,fs,include/uapi/linux/aufs_type.h} files to your
   kernel source tree. Never copy $PWD/include/uapi/linux/Kbuild.
 - enable CONFIG_AUFS_FS, you can select either
   =m or =y.
 - and build your kernel as usual.
 - install the built kernel.
-  Note: Since linux-3.9, every filesystem module requires an alias
-  "fs-<fsname>". You should make sure that "fs-aufs" is listed in your
-  modules.aliases file if you set CONFIG_AUFS_FS=m.
 - install the header files too by "make headers_install" to the
   directory where you specify. By default, it is $PWD/usr.
   "make help" shows a brief note for headers_install.
@@ -205,17 +205,14 @@ There are several ways to build.
 
 2.
 - module only (CONFIG_AUFS_FS=m).
-- apply ./aufs4-base.patch to your kernel source files.
-- apply ./aufs4-mmap.patch too.
-- apply ./aufs4-standalone.patch too.
+- apply ./aufs5-base.patch to your kernel source files.
+- apply ./aufs5-mmap.patch too.
+- apply ./aufs5-standalone.patch too.
 - build your kernel, don't forget "make headers_install", and reboot.
 - edit ./config.mk and set other aufs configurations if necessary.
   Note: You should read $PWD/fs/aufs/Kconfig carefully which describes
   every aufs configurations.
 - build the module by simple "make".
-  Note: Since linux-3.9, every filesystem module requires an alias
-  "fs-<fsname>". You should make sure that "fs-aufs" is listed in your
-  modules.aliases file.
 - you can specify ${KDIR} make variable which points to your kernel
   source tree.
 - install the files
@@ -226,7 +223,7 @@ There are several ways to build.
     available in aufs standalone version's Makefile only), or copy
     $PWD/usr/include/linux/aufs_type.h to /usr/include/linux or wherever
     you like manually. By default, the target directory is $PWD/usr.
-- no need to apply aufs4-kbuild.patch, nor copying source files to your
+- no need to apply aufs5-kbuild.patch, nor copying source files to your
   kernel source tree.
 
 Note: The header file aufs_type.h is necessary to build aufs-util
@@ -246,9 +243,9 @@ And then,
   then run "make install_ulib" too. And refer to the aufs manual in
   detail.
 
-There several other patches in aufs4-standalone.git. They are all
+There several other patches in aufs5-standalone.git. They are all
 optional. When you meet some problems, they will help you.
-- aufs4-loopback.patch
+- aufs5-loopback.patch
   Supports a nested loopback mount in a branch-fs. This patch is
   unnecessary until aufs produces a message like "you may want to try
   another patch for loopback file".
@@ -275,7 +272,7 @@ optional. When you meet some problems, they will help you.
   the internal locks for LOCKDEP is necessary. LOCKDEP is a debugging
   feature of linux kernel. If you enable CONFIG_LOCKDEP, then you will
   need to apply this debug patch to expand several constant values.
-  If don't know what LOCKDEP, then you don't have apply this patch.
+  If don't know what LOCKDEP is, then you don't have apply this patch.
 
 
 4. Usage

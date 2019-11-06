@@ -50,7 +50,9 @@ struct posix_acl *aufs_get_acl(struct inode *inode, int type)
 
 	/* always topmost only */
 	acl = get_acl(h_inode, type);
-	if (!IS_ERR_OR_NULL(acl))
+	if (IS_ERR(acl))
+		forget_cached_acl(inode, type);
+	else
 		set_cached_acl(inode, type, acl);
 
 out:
@@ -91,12 +93,12 @@ int aufs_set_acl(struct inode *inode, struct posix_acl *acl, int type)
 	}
 
 	ssz = au_sxattr(dentry, inode, &arg);
+	/* forget even it if succeeds since the branch might set differently */
+	forget_cached_acl(inode, type);
 	dput(dentry);
 	err = ssz;
-	if (ssz >= 0) {
+	if (ssz >= 0)
 		err = 0;
-		set_cached_acl(inode, type, acl);
-	}
 
 out:
 	return err;

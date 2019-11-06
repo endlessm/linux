@@ -1,4 +1,4 @@
-/* SPDX-License-Identifier: GPL-2.0  WITH Linux-syscall-note */
+/* SPDX-License-Identifier: GPL-2.0 WITH Linux-syscall-note */
 /*
  * Copyright (C) 2005-2019 Junjiro R. Okajima
  *
@@ -40,7 +40,7 @@
 
 #include <linux/limits.h>
 
-#define AUFS_VERSION	"4.x-rcN-20190805"
+#define AUFS_VERSION	"5.x-rcN-20191021"
 
 /* todo? move this to linux-2.6.19/include/magic.h */
 #define AUFS_SUPER_MAGIC	('a' << 24 | 'u' << 16 | 'f' << 8 | 's')

@@ -1538,7 +1538,6 @@ int security_mmap_file(struct file *file, unsigned long prot,
 		return ret;
 	return ima_file_mmap(file, prot);
 }
-EXPORT_SYMBOL_GPL(security_mmap_file);
 
 int security_mmap_addr(unsigned long addr)
 {

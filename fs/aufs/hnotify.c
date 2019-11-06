@@ -548,7 +548,7 @@ out:
 /* ---------------------------------------------------------------------- */
 
 int au_hnotify(struct inode *h_dir, struct au_hnotify *hnotify, u32 mask,
-	       struct qstr *h_child_qstr, struct inode *h_child_inode)
+	       const struct qstr *h_child_qstr, struct inode *h_child_inode)
 {
 	int err, len;
 	unsigned int flags[AuHnLast], f;
@@ -585,7 +585,7 @@ int au_hnotify(struct inode *h_dir, struct au_hnotify *hnotify, u32 mask,
 		flags[AuHn_CHILD] = AuHnJob_ISDIR;
 	au_fset_hnjob(flags[AuHn_PARENT], DIRENT);
 	au_fset_hnjob(flags[AuHn_CHILD], GEN);
-	switch (mask & FS_EVENTS_POSS_ON_CHILD) {
+	switch (mask & ALL_FSNOTIFY_DIRENT_EVENTS) {
 	case FS_MOVED_FROM:
 	case FS_MOVED_TO:
 		au_fset_hnjob(flags[AuHn_CHILD], XINO0);

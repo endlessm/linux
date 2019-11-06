@@ -613,7 +613,7 @@ void au_hn_free(struct au_hinode *hinode);
 void au_hn_ctl(struct au_hinode *hinode, int do_set);
 void au_hn_reset(struct inode *inode, unsigned int flags);
 int au_hnotify(struct inode *h_dir, struct au_hnotify *hnotify, u32 mask,
-	       struct qstr *h_child_qstr, struct inode *h_child_inode);
+	       const struct qstr *h_child_qstr, struct inode *h_child_inode);
 int au_hnotify_reset_br(unsigned int udba, struct au_branch *br, int perm);
 int au_hnotify_init_br(struct au_branch *br, int perm);
 void au_hnotify_fin_br(struct au_branch *br);

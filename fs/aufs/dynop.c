@@ -354,9 +354,6 @@ void __init au_dy_init(void)
 {
 	int i;
 
-	/* make sure that 'struct au_dykey *' can be any type */
-	BUILD_BUG_ON(offsetof(struct au_dyaop, da_key));
-
 	for (i = 0; i < AuDyLast; i++)
 		INIT_HLIST_BL_HEAD(dynop + i);
 }

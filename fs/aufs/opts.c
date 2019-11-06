@@ -1386,6 +1386,7 @@ static int au_opt_simple(struct super_block *sb, struct au_opt *opt,
 	case Opt_wsum:
 		au_opt_clr(sbinfo->si_mntflags, SUM);
 		au_opt_set(sbinfo->si_mntflags, SUM_W);
+		break;
 	case Opt_nosum:
 		au_opt_clr(sbinfo->si_mntflags, SUM);
 		au_opt_clr(sbinfo->si_mntflags, SUM_W);
@@ -1511,8 +1512,10 @@ static int au_opt_br(struct super_block *sb, struct au_opt *opt,
 		if (opt->add.bindex < 0)
 			opt->add.bindex = 0;
 		goto add;
+		/* Always goto add, not fallthrough */
 	case Opt_prepend:
 		opt->add.bindex = 0;
+		/* fallthrough */
 	add: /* indented label */
 	case Opt_add:
 		err = au_br_add(sb, &opt->add,

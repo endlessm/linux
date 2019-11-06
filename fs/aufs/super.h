@@ -438,7 +438,7 @@ static inline void dbgaufs_si_null(struct au_sbinfo *sbinfo)
 
 /* current->atomic_flags */
 /* this value should never corrupt the ones defined in linux/sched.h */
-#define PFA_AUFS	7
+#define PFA_AUFS	0x10
 
 TASK_PFA_TEST(AUFS, test_aufs)	/* task_test_aufs */
 TASK_PFA_SET(AUFS, aufs)	/* task_set_aufs */

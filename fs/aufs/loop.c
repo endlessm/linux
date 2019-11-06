@@ -129,7 +129,7 @@ int au_loopback_init(void)
 	int err;
 	struct super_block *sb __maybe_unused;
 
-	BUILD_BUG_ON(sizeof(sb->s_magic) != sizeof(unsigned long));
+	BUILD_BUG_ON(sizeof(sb->s_magic) != sizeof(*au_warn_loopback_array));
 
 	err = 0;
 	au_warn_loopback_array = kcalloc(au_warn_loopback_step,

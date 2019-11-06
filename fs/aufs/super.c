@@ -44,18 +44,15 @@ static struct inode *aufs_alloc_inode(struct super_block *sb __maybe_unused)
 	return NULL;
 }
 
-static void aufs_destroy_inode_cb(struct rcu_head *head)
-{
-	struct inode *inode = container_of(head, struct inode, i_rcu);
-
-	au_cache_free_icntnr(container_of(inode, struct au_icntnr, vfs_inode));
-}
-
 static void aufs_destroy_inode(struct inode *inode)
 {
 	if (!au_is_bad_inode(inode))
 		au_iinfo_fin(inode);
-	call_rcu(&inode->i_rcu, aufs_destroy_inode_cb);
+}
+
+static void aufs_free_inode(struct inode *inode)
+{
+	au_cache_free_icntnr(container_of(inode, struct au_icntnr, vfs_inode));
 }
 
 struct inode *au_iget_locked(struct super_block *sb, ino_t ino)
@@ -853,6 +850,7 @@ out:
 static const struct super_operations aufs_sop = {
 	.alloc_inode	= aufs_alloc_inode,
 	.destroy_inode	= aufs_destroy_inode,
+	.free_inode	= aufs_free_inode,
 	/* always deleting, no clearing */
 	.drop_inode	= generic_delete_inode,
 	.show_options	= aufs_show_options,
