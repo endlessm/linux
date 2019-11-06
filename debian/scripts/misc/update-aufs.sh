@@ -21,19 +21,19 @@ if [ "$#" = 1 ]; then
 else
 	clean=1
 	rm -rf ${AUFS}
-	git clone https://github.com/sfjro/aufs4-standalone.git ${AUFS}
-	(cd ${AUFS}; git checkout -b aufs4.x-rcN remotes/origin/aufs4.x-rcN)
+	git clone https://github.com/sfjro/aufs5-standalone.git ${AUFS}
+	(cd ${AUFS}; git checkout -b aufs5.x-rcN remotes/origin/aufs5.x-rcN)
 fi
 
 cp ${AUFS}/include/uapi/linux/aufs_type.h include/uapi/linux
 rsync -av ${AUFS}/fs/ fs/
 rsync -av ${AUFS}/Documentation/ Documentation/
 
-PATCHES="${PATCHES} aufs4-kbuild.patch"
-PATCHES="${PATCHES} aufs4-base.patch"
-PATCHES="${PATCHES} aufs4-mmap.patch"
-PATCHES="${PATCHES} aufs4-standalone.patch"
-PATCHES="${PATCHES} aufs4-loopback.patch"
+PATCHES="${PATCHES} aufs5-kbuild.patch"
+PATCHES="${PATCHES} aufs5-base.patch"
+PATCHES="${PATCHES} aufs5-mmap.patch"
+PATCHES="${PATCHES} aufs5-standalone.patch"
+PATCHES="${PATCHES} aufs5-loopback.patch"
 #PATCHES="${PATCHES} vfs-ino.patch"
 PATCHES="${PATCHES} tmpfs-idr.patch"
 
