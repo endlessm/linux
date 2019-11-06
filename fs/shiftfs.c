@@ -1289,10 +1289,17 @@ static int shiftfs_mmap(struct file *file, struct vm_area_struct *vma)
 
 	shiftfs_file_accessed(file);
 
-	if (ret)
-		fput(realfile); /* Drop refcount from new vm_file value */
-	else
-		fput(file); /* Drop refcount from previous vm_file value */
+	if (ret) {
+		/*
+		 * Drop refcount from new vm_file value and restore original
+		 * vm_file value
+		 */
+		vma->vm_file = file;
+		fput(realfile);
+	} else {
+		/* Drop refcount from previous vm_file value */
+		fput(file);
+	}
 
 	return ret;
 }
