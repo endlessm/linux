@@ -1380,12 +1380,12 @@ extern int send_sigurg(struct fown_struct *fown);
 #define SB_I_NOEXEC	0x00000002	/* Ignore executables on this fs */
 #define SB_I_NODEV	0x00000004	/* Ignore devices on this fs */
 #define SB_I_MULTIROOT	0x00000008	/* Multiple roots to the dentry tree */
-#define SB_I_NOSUID	0x00000010	/* Ignore suid on this fs */
 
 /* sb->s_iflags to limit user namespace mounts */
 #define SB_I_USERNS_VISIBLE		0x00000010 /* fstype already mounted */
 #define SB_I_IMA_UNVERIFIABLE_SIGNATURE	0x00000020
 #define SB_I_UNTRUSTED_MOUNTER		0x00000040
+#define SB_I_NOSUID			0x80000000 /* Ignore suid on this fs */
 
 /* Possible states of 'frozen' field */
 enum {
