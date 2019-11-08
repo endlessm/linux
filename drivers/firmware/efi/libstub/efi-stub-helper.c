@@ -53,7 +53,7 @@ bool __pure __efi_soft_reserve_enabled(void)
 	return !efi_nosoftreserve;
 }
 
-#define EFI_MMAP_NR_SLACK_SLOTS	8
+#define EFI_MMAP_NR_SLACK_SLOTS	16
 
 struct file_info {
 	efi_file_handle_t *handle;
