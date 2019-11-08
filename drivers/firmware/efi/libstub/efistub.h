@@ -155,7 +155,7 @@ void efi_set_u64_split(u64 data, u32 *lo, u32 *hi)
  * the EFI memory map. Other related structures, e.g. x86 e820ext, need
  * to factor in this headroom requirement as well.
  */
-#define EFI_MMAP_NR_SLACK_SLOTS	8
+#define EFI_MMAP_NR_SLACK_SLOTS	16
 
 struct efi_boot_memmap {
 	efi_memory_desc_t	**map;
