@@ -3438,7 +3438,6 @@ EXPORT_SYMBOL vmlinux 0x00000000	dev_get_by_name_rcu
 EXPORT_SYMBOL vmlinux 0x00000000	dev_get_by_napi_id	
 EXPORT_SYMBOL vmlinux 0x00000000	dev_get_flags	
 EXPORT_SYMBOL vmlinux 0x00000000	dev_get_iflink	
-EXPORT_SYMBOL vmlinux 0x00000000	dev_get_nest_level	
 EXPORT_SYMBOL vmlinux 0x00000000	dev_get_phys_port_id	
 EXPORT_SYMBOL vmlinux 0x00000000	dev_get_phys_port_name	
 EXPORT_SYMBOL vmlinux 0x00000000	dev_get_port_parent_id	
@@ -4961,6 +4960,9 @@ EXPORT_SYMBOL vmlinux 0x00000000	net_disable_timestamp
 EXPORT_SYMBOL vmlinux 0x00000000	net_enable_timestamp	
 EXPORT_SYMBOL vmlinux 0x00000000	net_ns_barrier	
 EXPORT_SYMBOL vmlinux 0x00000000	net_ratelimit	
+EXPORT_SYMBOL vmlinux 0x00000000	netdev_adjacent_change_abort	
+EXPORT_SYMBOL vmlinux 0x00000000	netdev_adjacent_change_commit	
+EXPORT_SYMBOL vmlinux 0x00000000	netdev_adjacent_change_prepare	
 EXPORT_SYMBOL vmlinux 0x00000000	netdev_adjacent_get_private	
 EXPORT_SYMBOL vmlinux 0x00000000	netdev_alert	
 EXPORT_SYMBOL vmlinux 0x00000000	netdev_alloc_frag	
@@ -5006,6 +5008,7 @@ EXPORT_SYMBOL vmlinux 0x00000000	netdev_stats_to_stats64
 EXPORT_SYMBOL vmlinux 0x00000000	netdev_txq_to_tc	
 EXPORT_SYMBOL vmlinux 0x00000000	netdev_unbind_sb_channel	
 EXPORT_SYMBOL vmlinux 0x00000000	netdev_update_features	
+EXPORT_SYMBOL vmlinux 0x00000000	netdev_update_lockdep_key	
 EXPORT_SYMBOL vmlinux 0x00000000	netdev_upper_dev_link	
 EXPORT_SYMBOL vmlinux 0x00000000	netdev_upper_dev_unlink	
 EXPORT_SYMBOL vmlinux 0x00000000	netdev_upper_get_next_dev_rcu	
