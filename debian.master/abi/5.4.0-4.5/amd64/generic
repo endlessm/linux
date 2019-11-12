@@ -5653,8 +5653,6 @@ EXPORT_SYMBOL vmlinux 0x00000000	ZSTD_nextSrcSizeToDecompress
 EXPORT_SYMBOL vmlinux 0x00000000	ZSTD_resetDStream	
 EXPORT_SYMBOL vmlinux 0x00000000	__ClearPageMovable	
 EXPORT_SYMBOL vmlinux 0x00000000	__SetPageMovable	
-EXPORT_SYMBOL vmlinux 0x00000000	___preempt_schedule	
-EXPORT_SYMBOL vmlinux 0x00000000	___preempt_schedule_notrace	
 EXPORT_SYMBOL vmlinux 0x00000000	___pskb_trim	
 EXPORT_SYMBOL vmlinux 0x00000000	___ratelimit	
 EXPORT_SYMBOL vmlinux 0x00000000	__acpi_handle_debug	
@@ -6079,6 +6077,7 @@ EXPORT_SYMBOL vmlinux 0x00000000	_atomic_dec_and_lock
 EXPORT_SYMBOL vmlinux 0x00000000	_atomic_dec_and_lock_irqsave	
 EXPORT_SYMBOL vmlinux 0x00000000	_bcd2bin	
 EXPORT_SYMBOL vmlinux 0x00000000	_bin2bcd	
+EXPORT_SYMBOL vmlinux 0x00000000	_cond_resched	
 EXPORT_SYMBOL vmlinux 0x00000000	_copy_from_iter	
 EXPORT_SYMBOL vmlinux 0x00000000	_copy_from_iter_full	
 EXPORT_SYMBOL vmlinux 0x00000000	_copy_from_iter_full_nocache	
@@ -6102,9 +6101,7 @@ EXPORT_SYMBOL vmlinux 0x00000000	_raw_read_lock_bh
 EXPORT_SYMBOL vmlinux 0x00000000	_raw_read_lock_irq	
 EXPORT_SYMBOL vmlinux 0x00000000	_raw_read_lock_irqsave	
 EXPORT_SYMBOL vmlinux 0x00000000	_raw_read_trylock	
-EXPORT_SYMBOL vmlinux 0x00000000	_raw_read_unlock	
 EXPORT_SYMBOL vmlinux 0x00000000	_raw_read_unlock_bh	
-EXPORT_SYMBOL vmlinux 0x00000000	_raw_read_unlock_irq	
 EXPORT_SYMBOL vmlinux 0x00000000	_raw_read_unlock_irqrestore	
 EXPORT_SYMBOL vmlinux 0x00000000	_raw_spin_lock	
 EXPORT_SYMBOL vmlinux 0x00000000	_raw_spin_lock_bh	
@@ -6112,18 +6109,14 @@ EXPORT_SYMBOL vmlinux 0x00000000	_raw_spin_lock_irq
 EXPORT_SYMBOL vmlinux 0x00000000	_raw_spin_lock_irqsave	
 EXPORT_SYMBOL vmlinux 0x00000000	_raw_spin_trylock	
 EXPORT_SYMBOL vmlinux 0x00000000	_raw_spin_trylock_bh	
-EXPORT_SYMBOL vmlinux 0x00000000	_raw_spin_unlock	
 EXPORT_SYMBOL vmlinux 0x00000000	_raw_spin_unlock_bh	
-EXPORT_SYMBOL vmlinux 0x00000000	_raw_spin_unlock_irq	
 EXPORT_SYMBOL vmlinux 0x00000000	_raw_spin_unlock_irqrestore	
 EXPORT_SYMBOL vmlinux 0x00000000	_raw_write_lock	
 EXPORT_SYMBOL vmlinux 0x00000000	_raw_write_lock_bh	
 EXPORT_SYMBOL vmlinux 0x00000000	_raw_write_lock_irq	
 EXPORT_SYMBOL vmlinux 0x00000000	_raw_write_lock_irqsave	
 EXPORT_SYMBOL vmlinux 0x00000000	_raw_write_trylock	
-EXPORT_SYMBOL vmlinux 0x00000000	_raw_write_unlock	
 EXPORT_SYMBOL vmlinux 0x00000000	_raw_write_unlock_bh	
-EXPORT_SYMBOL vmlinux 0x00000000	_raw_write_unlock_irq	
 EXPORT_SYMBOL vmlinux 0x00000000	_raw_write_unlock_irqrestore	
 EXPORT_SYMBOL vmlinux 0x00000000	_totalram_pages	
 EXPORT_SYMBOL vmlinux 0x00000000	ab3100_event_register	
@@ -6947,7 +6940,6 @@ EXPORT_SYMBOL vmlinux 0x00000000	dev_get_by_name_rcu
 EXPORT_SYMBOL vmlinux 0x00000000	dev_get_by_napi_id	
 EXPORT_SYMBOL vmlinux 0x00000000	dev_get_flags	
 EXPORT_SYMBOL vmlinux 0x00000000	dev_get_iflink	
-EXPORT_SYMBOL vmlinux 0x00000000	dev_get_nest_level	
 EXPORT_SYMBOL vmlinux 0x00000000	dev_get_phys_port_id	
 EXPORT_SYMBOL vmlinux 0x00000000	dev_get_phys_port_name	
 EXPORT_SYMBOL vmlinux 0x00000000	dev_get_port_parent_id	
@@ -8807,6 +8799,9 @@ EXPORT_SYMBOL vmlinux 0x00000000	net_disable_timestamp
 EXPORT_SYMBOL vmlinux 0x00000000	net_enable_timestamp	
 EXPORT_SYMBOL vmlinux 0x00000000	net_ns_barrier	
 EXPORT_SYMBOL vmlinux 0x00000000	net_ratelimit	
+EXPORT_SYMBOL vmlinux 0x00000000	netdev_adjacent_change_abort	
+EXPORT_SYMBOL vmlinux 0x00000000	netdev_adjacent_change_commit	
+EXPORT_SYMBOL vmlinux 0x00000000	netdev_adjacent_change_prepare	
 EXPORT_SYMBOL vmlinux 0x00000000	netdev_adjacent_get_private	
 EXPORT_SYMBOL vmlinux 0x00000000	netdev_alert	
 EXPORT_SYMBOL vmlinux 0x00000000	netdev_alloc_frag	
@@ -8852,6 +8847,7 @@ EXPORT_SYMBOL vmlinux 0x00000000	netdev_stats_to_stats64
 EXPORT_SYMBOL vmlinux 0x00000000	netdev_txq_to_tc	
 EXPORT_SYMBOL vmlinux 0x00000000	netdev_unbind_sb_channel	
 EXPORT_SYMBOL vmlinux 0x00000000	netdev_update_features	
+EXPORT_SYMBOL vmlinux 0x00000000	netdev_update_lockdep_key	
 EXPORT_SYMBOL vmlinux 0x00000000	netdev_upper_dev_link	
 EXPORT_SYMBOL vmlinux 0x00000000	netdev_upper_dev_unlink	
 EXPORT_SYMBOL vmlinux 0x00000000	netdev_upper_get_next_dev_rcu	
@@ -9406,7 +9402,6 @@ EXPORT_SYMBOL vmlinux 0x00000000	prandom_seed
 EXPORT_SYMBOL vmlinux 0x00000000	prandom_seed_full_state	
 EXPORT_SYMBOL vmlinux 0x00000000	prandom_u32	
 EXPORT_SYMBOL vmlinux 0x00000000	prandom_u32_state	
-EXPORT_SYMBOL vmlinux 0x00000000	preempt_schedule	
 EXPORT_SYMBOL vmlinux 0x00000000	prepare_binprm	
 EXPORT_SYMBOL vmlinux 0x00000000	prepare_creds	
 EXPORT_SYMBOL vmlinux 0x00000000	prepare_kernel_cred	
@@ -14139,6 +14134,7 @@ EXPORT_SYMBOL_GPL drivers/net/wireless/mediatek/mt76/mt76 0x00000000	mt76_mcu_ge
 EXPORT_SYMBOL_GPL drivers/net/wireless/mediatek/mt76/mt76 0x00000000	mt76_mcu_msg_alloc	
 EXPORT_SYMBOL_GPL drivers/net/wireless/mediatek/mt76/mt76 0x00000000	mt76_mcu_rx_event	
 EXPORT_SYMBOL_GPL drivers/net/wireless/mediatek/mt76/mt76 0x00000000	mt76_mmio_init	
+EXPORT_SYMBOL_GPL drivers/net/wireless/mediatek/mt76/mt76 0x00000000	mt76_pci_disable_aspm	
 EXPORT_SYMBOL_GPL drivers/net/wireless/mediatek/mt76/mt76 0x00000000	mt76_put_txwi	
 EXPORT_SYMBOL_GPL drivers/net/wireless/mediatek/mt76/mt76 0x00000000	mt76_register_debugfs	
 EXPORT_SYMBOL_GPL drivers/net/wireless/mediatek/mt76/mt76 0x00000000	mt76_register_device	
@@ -18245,8 +18241,6 @@ EXPORT_SYMBOL_GPL vmlinux 0x00000000	__put_task_struct
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	__raw_notifier_call_chain	
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	__raw_v4_lookup	
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	__raw_v6_lookup	
-EXPORT_SYMBOL_GPL vmlinux 0x00000000	__rcu_read_lock	
-EXPORT_SYMBOL_GPL vmlinux 0x00000000	__rcu_read_unlock	
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	__regmap_init	
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	__regmap_init_i2c	
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	__regmap_init_mmio_clk	
@@ -19017,8 +19011,6 @@ EXPORT_SYMBOL_GPL vmlinux 0x00000000	cec_notifier_register
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	cec_notifier_set_phys_addr	
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	cec_notifier_set_phys_addr_from_edid	
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	cec_notifier_unregister	
-EXPORT_SYMBOL_GPL vmlinux 0x00000000	cec_pin_allocate_adapter	
-EXPORT_SYMBOL_GPL vmlinux 0x00000000	cec_pin_changed	
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	cec_queue_pin_5v_event	
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	cec_queue_pin_cec_event	
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	cec_queue_pin_hpd_event	
@@ -21623,6 +21615,7 @@ EXPORT_SYMBOL_GPL vmlinux 0x00000000	pci_msi_unmask_irq
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	pci_num_vf	
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	pci_pasid_features	
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	pci_power_names	
+EXPORT_SYMBOL_GPL vmlinux 0x00000000	pci_pr3_present	
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	pci_prg_resp_pasid_required	
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	pci_probe_reset_bus	
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	pci_probe_reset_slot	
@@ -21984,7 +21977,6 @@ EXPORT_SYMBOL_GPL vmlinux 0x00000000	preempt_notifier_dec
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	preempt_notifier_inc	
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	preempt_notifier_register	
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	preempt_notifier_unregister	
-EXPORT_SYMBOL_GPL vmlinux 0x00000000	preempt_schedule_notrace	
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	probe_kernel_read	
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	probe_kernel_write	
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	probe_user_read	
@@ -22057,6 +22049,7 @@ EXPORT_SYMBOL_GPL vmlinux 0x00000000	raw_seq_stop
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	raw_unhash_sk	
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	raw_v4_hashinfo	
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	raw_v6_hashinfo	
+EXPORT_SYMBOL_GPL vmlinux 0x00000000	rcu_all_qs	
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	rcu_barrier	
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	rcu_barrier_tasks	
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	rcu_cpu_stall_suppress	
@@ -23588,6 +23581,7 @@ EXPORT_SYMBOL_GPL vmlinux 0x00000000	xen_has_pv_disk_devices
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	xen_has_pv_nic_devices	
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	xen_have_vector_callback	
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	xen_hvm_evtchn_do_upcall	
+EXPORT_SYMBOL_GPL vmlinux 0x00000000	xen_in_preemptible_hcall	
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	xen_irq_from_gsi	
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	xen_max_p2m_pfn	
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	xen_p2m_addr	

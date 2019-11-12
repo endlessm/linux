@@ -268,6 +268,7 @@ ib_srp
 ib_srpt
 ib_umad
 ib_uverbs
+icp
 icplus
 ifb
 ife
@@ -740,6 +741,7 @@ smc_diag
 smsc
 smsgiucv_app
 softdog
+spl
 st
 st_drv
 ste10Xp
@@ -834,10 +836,10 @@ virtio-gpu
 virtio-rng
 virtio_blk
 virtio_crypto
-virtiofs
 virtio_input
 virtio_net
 virtio_scsi
+virtiofs
 vitesse
 vmac
 vmlogrdr
@@ -940,12 +942,18 @@ xt_time
 xt_u32
 xxhash_generic
 z3fold
+zavl
+zcommon
 zcrypt
 zcrypt_cex2a
 zcrypt_cex2c
 zcrypt_cex4
 zfcp
+zfs
 zlib_deflate
+zlua
+znvpair
 zram
 zstd
 zstd_compress
+zunicode
