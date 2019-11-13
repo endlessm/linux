@@ -307,16 +307,11 @@ long aa_audit_data_cmp(struct apparmor_audit_data *lhs,
 {
 	long res;
 
-	res = lhs->type - rhs->type;
-	if (res)
-		return res;
+	/* don't compare type */
 	res = lhs->class - rhs->class;
 	if (res)
 		return res;
-	/* op uses static pointers so direct ptr comparison */
-	res = lhs->op - rhs->op;
-	if (res)
-		return res;
+	/* don't compare op */
 	res = strcmp(lhs->name, rhs->name);
 	if (res)
 		return res;
@@ -377,6 +372,7 @@ struct aa_audit_node *aa_dup_audit_data(struct apparmor_audit_data *orig,
 	if (!copy)
 		return NULL;
 
+	copy->knotif.ad = &copy->data;
 	INIT_LIST_HEAD(&copy->list);
 	/* copy class early so aa_free_audit_node can use switch on failure */
 	copy->data.class = orig->class;
@@ -417,12 +413,12 @@ struct aa_audit_node *aa_dup_audit_data(struct apparmor_audit_data *orig,
 	}
 
 	/* now inc counts, and copy data that can't fail */
-	// don't copy error
+	copy->data.error = orig->error;
 	copy->data.type = orig->type;
 	copy->data.request = orig->request;
 	copy->data.denied = orig->denied;
 	copy->data.subj_label = aa_get_label(orig->subj_label);
-	copy->data.op = orig->op;
+
 	if (orig->subj_cred)
 		copy->data.subj_cred = get_cred(orig->subj_cred);
 
@@ -460,8 +456,10 @@ fail:
 	struct aa_audit_node *__node;					\
 	list_for_each_entry_rcu(__node, &(C)->head, list, COND) {	\
 		if (aa_audit_data_cmp(&__node->data, AD) == 0)		\
-			break;						\
+			goto __out_skip;				\
 	}								\
+	__node = NULL;							\
+__out_skip:								\
 	__node;								\
 })
 
@@ -503,6 +501,17 @@ struct aa_audit_node *aa_audit_cache_insert(struct aa_audit_cache *cache,
 	spin_unlock(&cache->lock);
 
 	return tmp;
+}
+
+void aa_audit_cache_update_ent(struct aa_audit_cache *cache,
+			       struct aa_audit_node *node,
+			       struct apparmor_audit_data *data)
+{
+	spin_lock(&cache->lock);
+	node->data.denied |= data->denied;
+	node->data.request = (node->data.request | data->request) &
+		~node->data.denied;
+	spin_unlock(&cache->lock);
 }
 
 /* assumes rcu callback has already happened and list can not be walked */

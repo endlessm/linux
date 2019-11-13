@@ -44,6 +44,7 @@ struct val_table_ent debug_values_table[] = {
 	{ "domain", DEBUG_DOMAIN },
 	{ "policy", DEBUG_POLICY },
 	{ "interface", DEBUG_INTERFACE },
+	{ "upcall", DEBUG_UPCALL },
 	{ NULL, 0 }
 };
 
@@ -519,6 +520,7 @@ int aa_check_perms(struct aa_profile *profile, struct aa_perms *perms,
 	}
 
 	if (ad) {
+		// do_notification()
 		ad->subj_label = &profile->label;
 		ad->request = request;
 		ad->denied = denied;
