@@ -26,6 +26,7 @@
 #include <linux/string.h>
 #include <uapi/linux/major.h>
 #include <uapi/linux/magic.h>
+#include <uapi/linux/apparmor.h>
 
 #include "include/apparmor.h"
 #include "include/apparmorfs.h"
@@ -39,6 +40,7 @@
 #include "include/policy.h"
 #include "include/policy_ns.h"
 #include "include/resource.h"
+#include "include/path.h"
 #include "include/policy_unpack.h"
 #include "include/task.h"
 
@@ -854,6 +856,369 @@ static const struct file_operations aa_fs_ns_revision_fops = {
 	.read		= ns_revision_read,
 	.llseek		= generic_file_llseek,
 	.release	= ns_revision_release,
+};
+
+
+/* file hook fn for notificaions of policy actions */
+static int listener_release(struct inode *inode, struct file *file)
+{
+	struct aa_listener_proxy *proxy = file->private_data;
+
+	if (!aa_current_policy_admin_capable(NULL))
+		return -EPERM;
+	AA_DEBUG(DEBUG_UPCALL, "file %p, listener %p, id %llu", file, proxy->listener, proxy->listener->listener_id);
+	if (proxy) {
+		AA_DEBUG(DEBUG_UPCALL, "file putting proxy");
+		aa_delayed_free_listener_proxy(proxy);
+	}
+	return 0;
+}
+
+static int listener_open(struct inode *inode, struct file *file)
+{
+	struct aa_listener_proxy *proxy;
+	struct aa_listener *listener;
+	struct aa_ns *ns = NULL;
+
+	if (!aa_current_policy_admin_capable(NULL))
+		return -EPERM;
+	listener = aa_new_listener(NULL, GFP_KERNEL);
+	if (!listener)
+		return -ENOMEM;
+	proxy = aa_new_listener_proxy(listener, ns);
+	aa_put_listener(listener);
+	if (!proxy)
+		return -ENOMEM;
+	AA_DEBUG(DEBUG_UPCALL, "Registered listener using protocol version %d",
+		 listener->version);
+	file->private_data = proxy;
+	return 0;
+}
+
+static bool notif_supported_version(struct apparmor_notif_common *unotif)
+{
+	return (unotif->version == 3 || unotif->version == 5);
+}
+
+/* todo: separate register and set filter */
+static long notify_set_filter(struct aa_listener *listener,
+			      unsigned long arg)
+{
+	union apparmor_notif_filters *unotif;
+	struct aa_ns *ns = NULL;
+	long ret;
+	u16 size;
+	void __user *buf = (void __user *)arg;
+
+	if (copy_from_user(&size, buf, sizeof(size)))
+		return -EFAULT;
+	if (size < sizeof(*unotif))
+		return -EINVAL;
+	/* size is capped at U16_MAX by data type */
+	unotif = kzalloc(size, GFP_KERNEL);
+	if (!unotif)
+		return -ENOMEM;
+
+	if (copy_from_user(unotif, buf, size)) {
+		ret = -EFAULT;
+		goto out;
+	}
+	ret = size;
+
+	if (!notif_supported_version((struct apparmor_notif_common *)unotif)) {
+		AA_DEBUG(DEBUG_UPCALL, "Failed to Register listener using unsupported protocol version %d", unotif->base.version);
+		ret = -EPROTONOSUPPORT;
+		goto out;
+	}
+
+	listener->version = unotif->base.version;
+	/* todo validate to known modes */
+	listener->mask = unotif->modeset;
+	AA_DEBUG(DEBUG_UPCALL, "setting filter mask to 0x%x", listener->mask);
+	if (unotif->ns)
+		/* todo */
+		ns = NULL;
+	if (unotif->filter) {
+		struct aa_dfa *dfa;
+		void *pos = (void *) unotif + unotif->filter;
+
+		if (unotif->filter >= size ||
+		    ALIGN((size_t) pos, 8) != (size_t)pos) {
+			ret = -EINVAL;
+			goto out;
+		}
+		dfa = aa_dfa_unpack(pos, size - unotif->filter,
+				    DFA_FLAG_VERIFY_STATES |
+				    TO_ACCEPT1_FLAG(YYTD_DATA32));
+		if (IS_ERR(dfa)) {
+			ret = PTR_ERR(dfa);
+			goto out;
+		}
+		listener->filter = dfa;
+	}
+
+out:
+	kfree(unotif);
+
+	return ret;
+}
+
+
+static long notify_user_recv(struct aa_listener *listener,
+			     unsigned long arg)
+{
+	struct apparmor_notif_common common;
+	void __user *buf = (void __user *)arg;
+	__u16 version;
+
+	if (copy_from_user(&common.len, buf, sizeof(common.len)))
+		return -EFAULT;
+	if (listener->version >= 5) {
+		/* allow individual messages to specify version */
+		if (common.len < sizeof(common))
+			return -EMSGSIZE;
+		if (copy_from_user(&common, buf, sizeof(common)))
+			return -EFAULT;
+		version = common.version;
+	} else {
+		version = listener->version;
+	}
+	/* size check handled by individual message handlers */
+	return aa_listener_unotif_recv(listener, buf, common.len,
+				       version);
+}
+
+static long notify_user_response(struct aa_listener *listener,
+				 unsigned long arg)
+{
+	union apparmor_notif_resp uresp = {};
+	union apparmor_notif_resp *big_resp = NULL;
+	union apparmor_notif_resp *p_uresp = NULL;
+	long error;
+	u16 size;
+	void __user *buf = (void __user *)arg;
+
+	if (copy_from_user(&size, buf, sizeof(size)))
+		return -EFAULT;
+	if (size > aa_g_path_max)
+		return -EMSGSIZE;
+	if (size > sizeof(uresp)) {
+		/* TODO: put max size on message */
+		big_resp = (union apparmor_notif_resp *) aa_get_buffer(false);
+		if (!big_resp)
+			return -ENOMEM;
+		p_uresp = big_resp;
+	} else {
+		size = min_t(size_t, size, sizeof(uresp));
+		p_uresp = &uresp;
+	}
+
+	if (copy_from_user(p_uresp, buf, size)) {
+		error = -EFAULT;
+		goto out;
+	}
+
+	if (!notif_supported_version((struct apparmor_notif_common *)p_uresp)) {
+		AA_DEBUG(DEBUG_UPCALL, "Failed response listener using unsupported protocol version %d", p_uresp->base.base.version);
+		error = -EPROTONOSUPPORT;
+		goto out;
+	}
+	error = aa_listener_unotif_response(listener, p_uresp, size);
+out:
+	aa_put_buffer((char *) big_resp);
+	return error;
+}
+
+static long notify_is_id_valid(struct aa_listener *listener,
+			       unsigned long arg)
+{
+	void __user *buf = (void __user *)arg;
+	u64 id;
+	long ret = -ENOENT;
+
+	if (copy_from_user(&id, buf, sizeof(id)))
+		return -EFAULT;
+
+	spin_lock(&listener->lock);
+	if (__aa_find_notif(listener, id))
+		ret = 0;
+	spin_unlock(&listener->lock);
+
+	return ret;
+}
+
+static long notify_user_register(struct aa_listener *listener,
+				 unsigned long arg, struct file *file)
+{
+	struct apparmor_notif_register_v5 reg;
+	struct aa_listener *found = NULL;
+	void __user *buf = (void __user *)arg;
+	long res;
+
+	if (copy_from_user(&reg.base.len, buf, sizeof(reg.base.len)))
+		return -EFAULT;
+	if (reg.base.len < sizeof(reg))
+		return -EMSGSIZE;
+	if (copy_from_user(&reg, buf, sizeof(reg)))
+		return -EFAULT;
+	/* to balance potential put and retry, ideally would grab from
+	 * file here, but need to refactor for that
+	 */
+	aa_get_listener(listener);
+retry:
+	res = aa_register_listener_id(listener, &reg.listener_id, &found);
+	AA_DEBUG(DEBUG_UPCALL, "registered id %llu found %p res %ld", reg.listener_id, found, res);
+	if (res >= 0) {
+		if (found) {
+			struct aa_listener *l;
+
+			AA_DEBUG(DEBUG_UPCALL, "updating file");
+			struct aa_listener_proxy *proxy;
+
+			spin_lock(&file->f_lock);
+			proxy = file->private_data;
+			if (proxy->listener != listener) {
+				/* raced, try again */
+				l = aa_get_listener(proxy->listener);
+				spin_unlock(&file->f_lock);
+				aa_put_listener(found);
+				aa_put_listener(listener);
+				listener = l;
+				found = NULL;
+				goto retry;
+			}
+			spin_lock(&listener->lock);
+			l = proxy->listener;
+			proxy->listener = NULL;
+			list_del_init(&proxy->llist);
+			spin_unlock(&listener->lock);
+
+			spin_lock(&found->lock);
+			proxy->listener = found; /* transfer search ref */
+			list_add_tail_entry(proxy, &found->ns_proxies,
+					    llist);
+			spin_unlock(&found->lock);
+			spin_unlock(&file->f_lock);
+			aa_put_listener(l);
+			AA_DEBUG(DEBUG_UPCALL, "completed file update");
+		}
+		res = sizeof(reg);
+		if (copy_to_user(buf, &reg, sizeof(reg)))
+			res = -EFAULT;
+	}
+	aa_put_listener(listener);
+	/* size check handled by individual message handlers */
+
+	return res;
+}
+
+static long notify_user_resend(struct aa_listener *listener,
+			       unsigned long arg)
+{
+	struct apparmor_notif_resend_v5 resend;
+	void __user *buf = (void __user *)arg;
+	long res;
+
+	if (copy_from_user(&resend.base.len, buf, sizeof(resend.base.len)))
+		return -EFAULT;
+	if (resend.base.len < sizeof(resend))
+		return -EMSGSIZE;
+	if (copy_from_user(&resend, buf, sizeof(resend)))
+		return -EFAULT;
+	
+	/* size check handled by individual message handlers */
+	res = aa_listener_unotif_resend(listener, &resend.ready,
+					&resend.pending);
+	if (!res) {
+		if (copy_to_user(buf, &resend, sizeof(resend)))
+			return -EFAULT;
+		res = sizeof(resend);
+	}
+	return res;
+}
+
+
+static long listener_ioctl_switch(struct file *file,
+				  struct aa_listener *listener,
+				  unsigned int cmd, unsigned long arg)
+{
+	/* todo permission to issue these commands */
+	switch (cmd) {
+	case APPARMOR_NOTIF_SET_FILTER:
+		return notify_set_filter(listener, arg);
+	case APPARMOR_NOTIF_RECV:
+		return notify_user_recv(listener, arg);
+	case APPARMOR_NOTIF_SEND:
+		return notify_user_response(listener, arg);
+	case APPARMOR_NOTIF_IS_ID_VALID:
+		return notify_is_id_valid(listener, arg);
+	case APPARMOR_NOTIF_REGISTER:
+		return notify_user_register(listener, arg, file);
+	case APPARMOR_NOTIF_RESEND:
+		return notify_user_resend(listener, arg);
+	}
+	return -EINVAL;
+}
+
+static long listener_ioctl(struct file *file, unsigned int cmd,
+			 unsigned long arg)
+{
+	struct aa_listener_proxy *proxy;
+	struct aa_listener *listener;
+	long error;
+
+	if (!aa_current_policy_admin_capable(NULL))
+		return -EPERM;
+
+	spin_lock(&file->f_lock);
+	proxy = file->private_data;
+	listener = aa_get_listener(proxy->listener);
+	spin_unlock(&file->f_lock);
+	if (!listener)
+		return -EINVAL;
+
+	error = listener_ioctl_switch(file, listener, cmd, arg);
+	aa_put_listener(listener);
+
+	return error;
+}
+
+static __poll_t listener_poll(struct file *file, poll_table *pt)
+{
+	struct aa_listener_proxy *proxy;
+	struct aa_listener *listener;
+	__poll_t mask = 0;
+
+	if (!aa_current_policy_admin_capable(NULL))
+		return EPOLLERR;
+
+	spin_lock(&file->f_lock);
+	proxy = file->private_data;
+	listener = aa_get_listener(proxy->listener);
+	spin_unlock(&file->f_lock);
+
+	if (listener) {
+		spin_lock(&listener->lock);
+		poll_wait(file, &listener->wait, pt);
+		if (!list_empty(&listener->notifications))
+			mask |= EPOLLIN | EPOLLRDNORM;
+		if (!list_empty(&listener->pending))
+			mask |= EPOLLOUT | EPOLLWRNORM;
+		spin_unlock(&listener->lock);
+	}
+	aa_put_listener(listener);
+
+	return mask;
+}
+
+static const struct file_operations aa_sfs_notify_fops = {
+	.owner          = THIS_MODULE,
+	.open           = listener_open,
+	.poll           = listener_poll,
+//	.read           = notification_read,
+	.llseek         = generic_file_llseek,
+	.release        = listener_release,
+	.unlocked_ioctl = listener_ioctl,
 };
 
 static void profile_query_cb(const struct aa_profile *profile,
@@ -2621,7 +2986,8 @@ static struct aa_sfs_entry aa_sfs_entry_domain[] = {
 	AA_SFS_FILE_BOOLEAN("post_nnp_subset",	1),
 	AA_SFS_FILE_BOOLEAN("computed_longest_left",	1),
 	AA_SFS_DIR("attach_conditions",		aa_sfs_entry_attach),
-	AA_SFS_FILE_BOOLEAN("disconnected.path",	1),
+	AA_SFS_FILE_BOOLEAN("interruptible",		1),
+	AA_SFS_FILE_BOOLEAN("disconnected.path",            1),
 	AA_SFS_FILE_BOOLEAN("disconnected.ipc",		1),
 	AA_SFS_FILE_BOOLEAN("kill.signal",		1),
 	AA_SFS_FILE_STRING("version", "1.2"),
@@ -2647,6 +3013,21 @@ static struct aa_sfs_entry aa_sfs_entry_versions[] = {
 	{ }
 };
 
+static struct aa_sfs_entry aa_sfs_entry_notify[] = {
+	AA_SFS_FILE_STRING("user", "file tags"),
+	{ }
+};
+
+static struct aa_sfs_entry aa_sfs_entry_notify_versions[] = {
+	AA_SFS_FILE_BOOLEAN("v3",	1),
+	AA_SFS_FILE_BOOLEAN("v5",	1),
+	{ }
+};
+
+/* permstable v1: skipped
+              v2: accept1 index, no accept2
+              v3: accept1 index, accept2 flags
+*/
 #define PERMS32STR "allow deny subtree cond kill complain prompt audit quiet hide xindex tag label"
 static struct aa_sfs_entry aa_sfs_entry_policy[] = {
 	AA_SFS_DIR("versions",			aa_sfs_entry_versions),
@@ -2656,12 +3037,15 @@ static struct aa_sfs_entry aa_sfs_entry_policy[] = {
 	AA_SFS_FILE_U64("outofband",		MAX_OOB_SUPPORTED),
 	AA_SFS_FILE_U64("permstable32_version",	3),
 	AA_SFS_FILE_STRING("permstable32", PERMS32STR),
+	AA_SFS_FILE_U64("metadata_tagging_version", 1),
 	AA_SFS_FILE_U64("state32",	1),
 	AA_SFS_DIR("unconfined_restrictions",   aa_sfs_entry_unconfined),
 #ifdef CONFIG_SECURITY_APPARMOR_COMPRESSED_POLICY
 	AA_SFS_FILE_BOOLEAN("compressed_load",	1),
 	AA_SFS_FILE_BOOLEAN("extended_policy_header",	1),
 #endif
+	AA_SFS_DIR("notify",   aa_sfs_entry_notify),
+	AA_SFS_DIR("notify_versions",   aa_sfs_entry_notify_versions),
 	{ }
 };
 
@@ -2724,6 +3108,7 @@ static struct aa_sfs_entry aa_sfs_entry_features[] = {
 
 static struct aa_sfs_entry aa_sfs_entry_apparmor[] = {
 	AA_SFS_FILE_FOPS(".access", 0666, &aa_sfs_access),
+	AA_SFS_FILE_FOPS(".notify", 0666, &aa_sfs_notify_fops),
 	AA_SFS_FILE_FOPS(".stacked", 0444, &seq_ns_stacked_fops),
 	AA_SFS_FILE_FOPS(".ns_stacked", 0444, &seq_ns_nsstacked_fops),
 	AA_SFS_FILE_FOPS(".ns_level", 0444, &seq_ns_level_fops),

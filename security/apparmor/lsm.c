@@ -2718,6 +2718,13 @@ static const struct ctl_table apparmor_sysctl_table[] = {
 		.mode           = 0600,
 		.proc_handler   = apparmor_dointvec,
 	},
+	{
+		.procname       = "apparmor_cache_timeout",
+		.data           = &aa_cache_timeout,
+		.maxlen         = sizeof(int),
+		.mode           = 0600,
+		.proc_handler   = apparmor_dointvec,
+	},
 };
 
 static int __init apparmor_init_sysctl(void)

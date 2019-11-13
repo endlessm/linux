@@ -1,0 +1,115 @@
+/* SPDX-License-Identifier: GPL-2.0-only */
+/*
+ * AppArmor security module
+ *
+ * This file contains AppArmor notifications function definitions.
+ *
+ * Copyright 2019 Canonical Ltd.
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation, version 2 of the
+ * License.
+ */
+
+#ifndef __AA_NOTIFY_H
+#define __AA_NOTIFY_H
+
+#include <linux/audit.h>
+#include <linux/lsm_audit.h>
+#include <linux/sched.h>
+#include <linux/slab.h>
+#include <linux/wait.h>
+#include <linux/workqueue.h>
+
+#include <uapi/linux/apparmor.h>
+
+#include "label.h"
+#include "match.h"
+
+extern int aa_cache_timeout;
+
+struct aa_ns;
+struct aa_audit_node;
+struct apparmor_audit_data;
+
+struct aa_listener {
+	struct kref count;
+	spinlock_t lock;
+	wait_queue_head_t wait;
+	struct list_head ns_proxies;	/* aa_listener_proxy */
+	struct list_head notifications;	/* aa_audit_proxy */
+	struct list_head pending;	/* aa_audit_proxy */
+	struct aa_ns *ns;		/* counted - ns of listener */
+	struct aa_dfa *filter;
+	struct aa_label *label;
+	u64 listener_id;		/* unique id of listener */
+	u64 last_id;
+	u32 mask;
+	u32 flags;
+	u16 version;
+};
+
+struct aa_listener_proxy {
+	struct aa_ns *ns;		/* counted - ns listening to */
+	struct aa_listener *listener;
+	struct list_head llist;
+	struct list_head nslist;
+	struct delayed_work work;
+};
+
+#define KNOTIF_ON_LIST 1
+#define KNOTIF_PULSE
+#define KNOTIF_PENDING
+#define KNOTIF_CANCELLED
+#define KNOTIF_RESEND 2
+
+/* need to split knofif into audit_proxy
+ * prompt notifications only go to first taker so no need for completion
+ * in the proxy, it increases size of proxy in non-prompt case
+ */
+struct aa_knotif {
+	struct apparmor_audit_data *ad;	/* counted */
+	struct list_head list;
+	struct completion ready;
+	u64 id;
+	u16 ntype;
+	u16 flags;
+};
+
+void aa_free_listener_proxy(struct aa_listener_proxy *proxy);
+struct aa_listener_proxy *aa_new_listener_proxy(struct aa_listener *listener,
+						struct aa_ns *ns);
+void aa_delayed_free_listener_proxy(struct aa_listener_proxy *proxy);
+struct aa_listener *aa_new_listener(struct aa_ns *ns, gfp_t gfp);
+struct aa_knotif *__aa_find_notif(struct aa_listener *listener, u64 id);
+int aa_do_notification(u16 ntype, struct aa_audit_node *node);
+
+long aa_listener_unotif_recv(struct aa_listener *listener, void __user *buf,
+			     u16 max_size, u16 version);
+long aa_listener_unotif_response(struct aa_listener *listener,
+				 union apparmor_notif_resp *uresp,
+				 u16 size);
+long aa_register_listener_id(struct aa_listener *listener, u64 *id,
+			     struct aa_listener **found);
+long aa_listener_unotif_resend(struct aa_listener *listener, u32 *ready,
+			       u32 *pending);
+
+void aa_listener_kref(struct kref *kref);
+void aa_listener_fskref(struct kref *kref);
+
+static inline struct aa_listener *aa_get_listener(struct aa_listener *listener)
+{
+	if (listener)
+		kref_get(&(listener->count));
+
+	return listener;
+}
+
+static inline void aa_put_listener(struct aa_listener *listener)
+{
+	if (listener)
+		kref_put(&listener->count, aa_listener_kref);
+}
+
+#endif /* __AA_NOTIFY_H */

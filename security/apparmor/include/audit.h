@@ -19,6 +19,7 @@
 
 #include "file.h"
 #include "label.h"
+#include "notify.h"
 
 extern const char *const audit_mode_names[];
 enum audit_mode {
@@ -39,6 +40,7 @@ enum audit_type {
 	AUDIT_APPARMOR_STATUS,
 	AUDIT_APPARMOR_ERROR,
 	AUDIT_APPARMOR_KILL,
+	AUDIT_APPARMOR_USER,
 	AUDIT_APPARMOR_AUTO
 };
 
@@ -110,6 +112,7 @@ enum audit_type {
 #define OP_URING_OVERRIDE "uring_override"
 #define OP_URING_SQPOLL "uring_sqpoll"
 
+#define AUDIT_TAILGLOB_NAME 1
 struct apparmor_audit_data {
 	u32 flags;		/* control flags not part of actual data */
 	int error;
@@ -184,6 +187,7 @@ struct aa_audit_node {
 	struct kref count;
 	struct apparmor_audit_data data;
 	struct list_head list;
+	struct aa_knotif knotif;
 	union {
 		struct delayed_work work;
 		struct rcu_head rcu;

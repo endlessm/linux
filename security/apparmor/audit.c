@@ -477,6 +477,7 @@ struct aa_audit_node *aa_dup_audit_data(struct apparmor_audit_data *orig,
 		return NULL;
 	kref_init(&copy->count);
 
+	copy->knotif.ad = &copy->data;
 	INIT_LIST_HEAD(&copy->list);
 	/* copy class early so aa_free_audit_node can use switch on failure */
 	copy->data.class = orig->class;
