@@ -31,6 +31,7 @@ struct aa_load_ent *aa_load_ent_alloc(void);
 #define PACKED_FLAG_HAT		1
 #define PACKED_FLAG_DEBUG1	2
 #define PACKED_FLAG_DEBUG2	4
+#define PACKED_FLAG_INTERRUPTIBLE 8
 
 #define PACKED_MODE_ENFORCE	0
 #define PACKED_MODE_COMPLAIN	1

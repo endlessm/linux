@@ -15,6 +15,7 @@
 #include <linux/mutex.h>
 #include <linux/slab.h>
 #include <linux/string.h>
+#include <uapi/linux/apparmor.h>
 
 #include "include/apparmor.h"
 #include "include/cred.h"
@@ -117,6 +118,8 @@ static struct aa_ns *alloc_ns(const char *prefix, const char *name)
 	INIT_LIST_HEAD(&ns->rawdata_list);
 	mutex_init(&ns->lock);
 	init_waitqueue_head(&ns->wait);
+	spin_lock_init(&ns->listener_lock);
+	INIT_LIST_HEAD(&ns->listeners);
 
 	/* released by aa_free_ns() */
 	ns->unconfined = alloc_unconfined("unconfined");

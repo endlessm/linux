@@ -12,6 +12,7 @@
 #define __AA_NAMESPACE_H
 
 #include <linux/kref.h>
+#include <linux/spinlock.h>
 
 #include "apparmor.h"
 #include "apparmorfs.h"
@@ -42,6 +43,12 @@ struct aa_ns_acct {
  * @uniq_null: uniq value used for null learning profiles
  * @uniq_id: a unique id count for the profiles in the namespace
  * @level: level of ns within the tree hierarchy
+ * @revision: policy revision for this ns
+ * @wait: waitq for tasks waiting on revision changes
+ * @listener_lock: lock for listeners
+ * @listeners: notification listeners' proxies list
+ * @labels: all the labels associated with this ns
+ * @rawdata_list: raw policy data for policy
  * @dents: dentries for the namespaces file entries in apparmorfs
  *
  * An aa_ns defines the set profiles that are searched to determine which
@@ -65,8 +72,12 @@ struct aa_ns {
 	atomic_t uniq_null;
 	long uniq_id;
 	int level;
+
 	long revision;
 	wait_queue_head_t wait;
+
+	spinlock_t listener_lock;
+	struct list_head listeners;
 
 	struct aa_labelset labels;
 	struct list_head rawdata_list;
