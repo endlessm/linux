@@ -59,7 +59,7 @@ Build-Profiles: <!stage1>
 Architecture: all
 Section: devel
 Priority: optional
-Provides: linux-source, linux-source-3
+Provides: linux-source
 Depends: ${misc:Depends}, binutils, bzip2, coreutils
 Recommends: libc-dev, gcc, make
 Suggests: libncurses-dev | ncurses-dev, kernel-package, libqt3-dev
