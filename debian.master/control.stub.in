@@ -103,7 +103,7 @@ Description: Header files related to Linux kernel version PKGVER
  that want the latest kernel headers. Please read
  /usr/share/doc/SRCPKGNAME-headers-PKGVER-ABINUM/debian.README.gz for details
 
-Package: SRCPKGNAME-libc-dev
+Package: linux-libc-dev
 Architecture: amd64 armhf arm64 i386 ppc64el s390x
 Depends: ${misc:Depends}
 Conflicts: SRCPKGNAME-kernel-headers
