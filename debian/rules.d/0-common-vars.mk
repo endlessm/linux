@@ -169,8 +169,13 @@ ifeq ($(full_build),false)
 do_source_package_content=false
 endif
 
-# linux-libc-dev may not be needed, default to building it.
+# linux-libc-dev may not be needed, default to building it only for the
+# primary variant
+ifneq ($(filter --,$(variants)),)
 do_libc_dev_package=true
+else
+do_libc_dev_package=false
+endif
 
 # common headers normally is built as an indep package, but may be arch
 do_common_headers_indep=true

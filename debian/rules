@@ -175,22 +175,27 @@ include $(DROOT)/rules.d/3-binary-indep.mk
 # Various checks to be performed on builds
 include $(DROOT)/rules.d/4-checks.mk
 
+control_files := $(DEBIAN)/control.stub.in
+ifeq ($(do_libc_dev_package),true)
+	control_files += $(DROOT)/control.d/linux-libc-dev.stub
+endif
+
 # Misc stuff
 .PHONY: $(DEBIAN)/control.stub
 $(DEBIAN)/control.stub: 				\
 		$(DROOT)/scripts/control-create		\
-		$(DEBIAN)/control.stub.in			\
+		$(control_files)			\
 		$(DEBIAN)/changelog			\
 		$(wildcard $(DEBIAN)/control.d/* $(DEBIAN)/sub-flavours/*.vars)
-	for i in $(DEBIAN)/control.stub.in; do					\
-	  new=`echo $$i | sed 's/\.in$$//'`;					\
-	  cat $$i | sed -e 's/PKGVER/$(release)/g'                              \
+	for i in $(control_files); do                                           \
+	  cat $$i;                                                              \
+	  echo "";                                                              \
+	done | sed -e 's/PKGVER/$(release)/g'                                   \
 	        -e 's/ABINUM/$(abinum)/g'                                       \
 		-e 's/SRCPKGNAME/$(src_pkg_name)/g'                             \
 		-e 's/=HUMAN=/$(human_arch)/g'                                  \
 		-e 's/=SERIES=/$(series)/g'                                     \
-	  > $$new;								\
-	done
+	  > $(DEBIAN)/control.stub;
 	flavours="$(sort $(wildcard $(DEBIAN)/control.d/vars.* $(DEBIAN)/sub-flavours/*.vars))";\
 	for i in $$flavours; do							\
 	  $(SHELL) $(DROOT)/scripts/control-create $$i "$(any_signed)" |	\
