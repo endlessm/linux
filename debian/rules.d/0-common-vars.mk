@@ -18,6 +18,12 @@ prev_revision := $(word $(words $(prev_revisions)),$(prev_revisions))
 
 prev_fullver ?= $(shell dpkg-parsechangelog -l$(DEBIAN)/changelog -o1 -c1 | sed -ne 's/^Version: *//p')
 
+# Get variants. Assume primary if debian/variants is not present.
+variants = --
+ifneq (,$(wildcard $(DEBIAN)/variants))
+	variants := $(shell cat $(DEBIAN)/variants)
+endif
+
 # Get upstream version info
 upstream_version := $(shell sed -n 's/^VERSION = \(.*\)$$/\1/p' Makefile)
 upstream_patchlevel := $(shell sed -n 's/^PATCHLEVEL = \(.*\)$$/\1/p' Makefile)

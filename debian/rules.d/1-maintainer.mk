@@ -62,6 +62,7 @@ printenv:
 	@echo "abinum            = $(abinum)"
 	@echo "upstream_tag      = $(upstream_tag)"
 	@echo "gitver            = $(gitver)"
+	@echo "variants          = $(variants)"
 	@echo "flavours          = $(flavours)"
 	@echo "skipabi           = $(skipabi)"
 	@echo "skipmodule        = $(skipmodule)"
