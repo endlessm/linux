@@ -103,19 +103,6 @@ Description: Header files related to Linux kernel version PKGVER
  that want the latest kernel headers. Please read
  /usr/share/doc/SRCPKGNAME-headers-PKGVER-ABINUM/debian.README.gz for details
 
-Package: linux-libc-dev
-Architecture: amd64 armhf arm64 i386 ppc64el s390x
-Depends: ${misc:Depends}
-Conflicts: SRCPKGNAME-kernel-headers
-Replaces: SRCPKGNAME-kernel-headers
-Provides: SRCPKGNAME-kernel-headers, aufs-dev
-Multi-Arch: same
-Description: Linux Kernel Headers for development
- This package provides headers from the Linux kernel.  These headers
- are used by the installed headers for GNU glibc and other system
- libraries. They are NOT meant to be used to build third-party modules for
- your kernel. Use SRCPKGNAME-headers-* packages for that.
-
 Package: SRCPKGNAME-tools-common
 Build-Profiles: <!stage1>
 Architecture: all
