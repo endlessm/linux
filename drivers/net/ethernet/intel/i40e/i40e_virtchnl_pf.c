@@ -1121,6 +1121,7 @@ static i40e_status i40e_config_vf_promiscuous_mode(struct i40e_vf *vf,
 	struct i40e_pf *pf = vf->pf;
 	struct i40e_hw *hw = &pf->hw;
 	struct i40e_mac_filter *f;
+	struct hlist_node *h;
 	i40e_status aq_ret = 0;
 	struct i40e_vsi *vsi;
 	int bkt;
@@ -1160,7 +1161,8 @@ static i40e_status i40e_config_vf_promiscuous_mode(struct i40e_vf *vf,
 		}
 		return aq_ret;
 	} else if (i40e_getnum_vf_vsi_vlan_filters(vsi)) {
-		hash_for_each(vsi->mac_filter_hash, bkt, f, hlist) {
+		spin_lock_bh(&vsi->mac_filter_hash_lock);
+		hash_for_each_safe(vsi->mac_filter_hash, bkt, h, f, hlist) {
 			if (f->vlan < 0 || f->vlan > I40E_MAX_VLANID)
 				continue;
 			aq_ret = i40e_aq_set_vsi_mc_promisc_on_vlan(hw,
@@ -1193,6 +1195,7 @@ static i40e_status i40e_config_vf_promiscuous_mode(struct i40e_vf *vf,
 					i40e_aq_str(&pf->hw, aq_err));
 			}
 		}
+		spin_unlock_bh(&vsi->mac_filter_hash_lock);
 		return aq_ret;
 	}
 	aq_ret = i40e_aq_set_vsi_multicast_promiscuous(hw, vsi->seid, allmulti,
