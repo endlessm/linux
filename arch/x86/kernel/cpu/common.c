@@ -1560,8 +1560,6 @@ void __init identify_boot_cpu(void)
 #endif
 	cpu_detect_tlb(&boot_cpu_data);
 	setup_cr_pinning();
-
-	tsx_init();
 }
 
 void identify_secondary_cpu(struct cpuinfo_x86 *c)
