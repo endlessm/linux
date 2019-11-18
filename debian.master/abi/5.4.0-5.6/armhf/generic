@@ -21688,7 +21688,6 @@ EXPORT_SYMBOL_GPL vmlinux 0x00000000	security_inode_setattr
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	security_kernel_load_data	
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	security_kernel_post_read_file	
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	security_kernel_read_file	
-EXPORT_SYMBOL_GPL vmlinux 0x00000000	security_mmap_file	
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	security_path_chmod	
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	security_path_chown	
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	security_path_link	
