@@ -1337,15 +1337,21 @@ int intel_engine_cmd_parser(struct intel_engine_cs *engine,
 	do {
 		u32 length;
 
-		if (*cmd == MI_BATCH_BUFFER_END)
+		if (*cmd == MI_BATCH_BUFFER_END) {
+			if (needs_clflush_after) {
+				void *ptr = page_mask_bits(shadow_batch_obj->mm.mapping);
+				drm_clflush_virt_range(ptr,
+						       (void *)(cmd + 1) - ptr);
+			}
 			break;
+		}
 
 		desc = find_cmd(engine, *cmd, desc, &default_desc);
 		if (!desc) {
 			DRM_DEBUG_DRIVER("CMD: Unrecognized command: 0x%08X\n",
 					 *cmd);
 			ret = -EINVAL;
-			goto err;
+			break;
 		}
 
 		/*
@@ -1355,7 +1361,7 @@ int intel_engine_cmd_parser(struct intel_engine_cs *engine,
 		 */
 		if (desc->cmd.value == MI_BATCH_BUFFER_START) {
 			ret = -EACCES;
-			goto err;
+			break;
 		}
 
 		if (desc->flags & CMD_DESC_FIXED)
@@ -1369,29 +1375,22 @@ int intel_engine_cmd_parser(struct intel_engine_cs *engine,
 					 length,
 					 batch_end - cmd);
 			ret = -EINVAL;
-			goto err;
+			break;
 		}
 
 		if (!check_cmd(engine, desc, cmd, length)) {
 			ret = -EACCES;
-			goto err;
+			break;
 		}
 
 		cmd += length;
 		if  (cmd >= batch_end) {
 			DRM_DEBUG_DRIVER("CMD: Got to the end of the buffer w/o a BBE cmd!\n");
 			ret = -EINVAL;
-			goto err;
+			break;
 		}
 	} while (1);
 
-	if (needs_clflush_after) {
-		void *ptr = page_mask_bits(shadow_batch_obj->mm.mapping);
-
-		drm_clflush_virt_range(ptr, (void *)(cmd + 1) - ptr);
-	}
-
-err:
 	i915_gem_object_unpin_map(shadow_batch_obj);
 	return ret;
 }
