@@ -27,7 +27,6 @@ x86-specific Documentation
    mds
    microcode
    resctrl_ui
-   tsx_async_abort
    usb-legacy-support
    i386/index
    x86_64/index
