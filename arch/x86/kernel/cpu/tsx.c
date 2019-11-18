@@ -75,7 +75,7 @@ static bool __init tsx_ctrl_is_supported(void)
 
 void __init tsx_init(void)
 {
-	char arg[5] = {};
+	char arg[4] = {};
 	int ret;
 
 	if (!tsx_ctrl_is_supported())
@@ -87,11 +87,6 @@ void __init tsx_init(void)
 			tsx_ctrl_state = TSX_CTRL_ENABLE;
 		} else if (!strcmp(arg, "off")) {
 			tsx_ctrl_state = TSX_CTRL_DISABLE;
-		} else if (!strcmp(arg, "auto")) {
-			if (boot_cpu_has_bug(X86_BUG_TAA))
-				tsx_ctrl_state = TSX_CTRL_DISABLE;
-			else
-				tsx_ctrl_state = TSX_CTRL_ENABLE;
 		} else {
 			tsx_ctrl_state = TSX_CTRL_DISABLE;
 			pr_err("tsx: invalid option, defaulting to off\n");
