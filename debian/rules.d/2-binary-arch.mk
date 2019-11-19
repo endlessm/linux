@@ -398,7 +398,7 @@ endif
 
 ifeq ($(do_dkms_nvidia),true)
 	$(call build_dkms, $(bldinfo_pkg_name)-$*, $(pkgdir_bldinfo)/usr/lib/linux/$(abi_release)-$*/signatures, "", nvidia-390, pool/restricted/n/nvidia-graphics-drivers-390/nvidia-kernel-source-390_$(dkms_nvidia_390_version)_$(arch).deb pool/restricted/n/nvidia-graphics-drivers-390/nvidia-dkms-390_$(dkms_nvidia_390_version)_$(arch).deb)
-	$(call build_dkms, $(bldinfo_pkg_name)-$*, $(pkgdir_bldinfo)/usr/lib/linux/$(abi_release)-$*/signatures, "", nvidia-430, pool/restricted/n/nvidia-graphics-drivers-430/nvidia-kernel-source-430_$(dkms_nvidia_430_version)_$(arch).deb pool/restricted/n/nvidia-graphics-drivers-430/nvidia-dkms-430_$(dkms_nvidia_430_version)_$(arch).deb)
+	$(call build_dkms, $(bldinfo_pkg_name)-$*, $(pkgdir_bldinfo)/usr/lib/linux/$(abi_release)-$*/signatures, "", nvidia-440, pool/restricted/n/nvidia-graphics-drivers-440/nvidia-kernel-source-440_$(dkms_nvidia_440_version)_$(arch).deb pool/restricted/n/nvidia-graphics-drivers-440/nvidia-dkms-440_$(dkms_nvidia_440_version)_$(arch).deb)
 endif
 
 ifeq ($(do_extras_package),true)
