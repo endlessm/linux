@@ -117,7 +117,7 @@ do_any_tools=$(sort $(filter-out false,$(do_linux_tools) $(do_cloud_tools)))
 # Versions of dkms packages.
 dkms_zfs_linux_version=$(shell gawk '/^zfs-linux / { print $$2; }' debian/dkms-versions)
 dkms_nvidia_390_version=$(shell gawk '/^nvidia-graphics-drivers-390/ { print $$2; }' debian/dkms-versions)
-dkms_nvidia_430_version=$(shell gawk '/^nvidia-graphics-drivers-430/ { print $$2; }' debian/dkms-versions)
+dkms_nvidia_440_version=$(shell gawk '/^nvidia-graphics-drivers-440/ { print $$2; }' debian/dkms-versions)
 dkms_vbox_guest_version=$(shell gawk '/^virtualbox/ { print $$2; }' debian/dkms-versions)
 
 # Debian Build System targets
