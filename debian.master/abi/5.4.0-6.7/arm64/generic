@@ -4567,6 +4567,7 @@ EXPORT_SYMBOL net/can/can 0x00000000	can_proto_unregister
 EXPORT_SYMBOL net/can/can 0x00000000	can_rx_register	
 EXPORT_SYMBOL net/can/can 0x00000000	can_rx_unregister	
 EXPORT_SYMBOL net/can/can 0x00000000	can_send	
+EXPORT_SYMBOL net/can/can 0x00000000	can_sock_destruct	
 EXPORT_SYMBOL net/ceph/libceph 0x00000000	__ceph_open_session	
 EXPORT_SYMBOL net/ceph/libceph 0x00000000	ceph_alloc_page_vector	
 EXPORT_SYMBOL net/ceph/libceph 0x00000000	ceph_auth_add_authorizer_challenge	
@@ -18758,6 +18759,8 @@ EXPORT_SYMBOL_GPL vmlinux 0x00000000	cpu_have_feature
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	cpu_hotplug_disable	
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	cpu_hotplug_enable	
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	cpu_is_hotpluggable	
+EXPORT_SYMBOL_GPL vmlinux 0x00000000	cpu_mitigations_auto_nosmt	
+EXPORT_SYMBOL_GPL vmlinux 0x00000000	cpu_mitigations_off	
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	cpu_pm_enter	
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	cpu_pm_exit	
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	cpu_pm_register_notifier	
@@ -19322,6 +19325,8 @@ EXPORT_SYMBOL_GPL vmlinux 0x00000000	devlink_region_destroy
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	devlink_region_shapshot_id_get	
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	devlink_region_snapshot_create	
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	devlink_register	
+EXPORT_SYMBOL_GPL vmlinux 0x00000000	devlink_reload_disable	
+EXPORT_SYMBOL_GPL vmlinux 0x00000000	devlink_reload_enable	
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	devlink_resource_occ_get_register	
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	devlink_resource_occ_get_unregister	
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	devlink_resource_register	

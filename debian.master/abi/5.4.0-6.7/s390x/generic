@@ -9900,6 +9900,8 @@ EXPORT_SYMBOL_GPL vmlinux 0x00000000	cpu_device_create
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	cpu_hotplug_disable	
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	cpu_hotplug_enable	
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	cpu_is_hotpluggable	
+EXPORT_SYMBOL_GPL vmlinux 0x00000000	cpu_mitigations_auto_nosmt	
+EXPORT_SYMBOL_GPL vmlinux 0x00000000	cpu_mitigations_off	
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	cpu_subsys	
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	cpu_topology	
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	cpu_up	
@@ -10319,6 +10321,8 @@ EXPORT_SYMBOL_GPL vmlinux 0x00000000	devlink_region_destroy
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	devlink_region_shapshot_id_get	
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	devlink_region_snapshot_create	
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	devlink_register	
+EXPORT_SYMBOL_GPL vmlinux 0x00000000	devlink_reload_disable	
+EXPORT_SYMBOL_GPL vmlinux 0x00000000	devlink_reload_enable	
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	devlink_resource_occ_get_register	
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	devlink_resource_occ_get_unregister	
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	devlink_resource_register	
