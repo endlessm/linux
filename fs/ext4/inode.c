@@ -4297,6 +4297,15 @@ int ext4_punch_hole(struct inode *inode, loff_t offset, loff_t length)
 
 	trace_ext4_punch_hole(inode, offset, length, 0);
 
+	ext4_clear_inode_state(inode, EXT4_STATE_MAY_INLINE_DATA);
+	if (ext4_has_inline_data(inode)) {
+		down_write(&EXT4_I(inode)->i_mmap_sem);
+		ret = ext4_convert_inline_data(inode);
+		up_write(&EXT4_I(inode)->i_mmap_sem);
+		if (ret)
+			return ret;
+	}
+
 	/*
 	 * Write out all dirty pages to avoid race conditions
 	 * Then release them.
@@ -4586,6 +4595,7 @@ static int __ext4_get_inode_loc(struct inode *inode,
 	struct buffer_head	*bh;
 	struct super_block	*sb = inode->i_sb;
 	ext4_fsblk_t		block;
+	struct blk_plug		plug;
 	int			inodes_per_block, inode_offset;
 
 	iloc->bh = NULL;
@@ -4674,6 +4684,7 @@ make_io:
 		 * If we need to do any I/O, try to pre-readahead extra
 		 * blocks from the inode table.
 		 */
+		blk_start_plug(&plug);
 		if (EXT4_SB(sb)->s_inode_readahead_blks) {
 			ext4_fsblk_t b, end, table;
 			unsigned num;
@@ -4704,6 +4715,7 @@ make_io:
 		get_bh(bh);
 		bh->b_end_io = end_buffer_read_sync;
 		submit_bh(REQ_OP_READ, REQ_META | REQ_PRIO, bh);
+		blk_finish_plug(&plug);
 		wait_on_buffer(bh);
 		if (!buffer_uptodate(bh)) {
 			EXT4_ERROR_INODE_BLOCK(inode, block,

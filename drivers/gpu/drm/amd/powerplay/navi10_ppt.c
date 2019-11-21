@@ -532,7 +532,7 @@ static int navi10_get_metrics_table(struct smu_context *smu,
 	struct smu_table_context *smu_table= &smu->smu_table;
 	int ret = 0;
 
-	if (!smu_table->metrics_time || time_after(jiffies, smu_table->metrics_time + HZ / 1000)) {
+	if (!smu_table->metrics_time || time_after(jiffies, smu_table->metrics_time + msecs_to_jiffies(100))) {
 		ret = smu_update_table(smu, SMU_TABLE_SMU_METRICS, 0,
 				(void *)smu_table->metrics_table, false);
 		if (ret) {
@@ -1627,6 +1627,10 @@ static int navi10_set_peak_clock_by_device(struct smu_context *smu)
 static int navi10_set_performance_level(struct smu_context *smu, enum amd_dpm_forced_level level)
 {
 	int ret = 0;
+	struct amdgpu_device *adev = smu->adev;
+
+	if (adev->asic_type != CHIP_NAVI10)
+		return -EINVAL;
 
 	switch (level) {
 	case AMD_DPM_FORCED_LEVEL_PROFILE_PEAK:

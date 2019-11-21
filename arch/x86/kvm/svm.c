@@ -736,8 +736,14 @@ static int get_npt_level(struct kvm_vcpu *vcpu)
 static void svm_set_efer(struct kvm_vcpu *vcpu, u64 efer)
 {
 	vcpu->arch.efer = efer;
-	if (!npt_enabled && !(efer & EFER_LMA))
-		efer &= ~EFER_LME;
+
+	if (!npt_enabled) {
+		/* Shadow paging assumes NX to be available.  */
+		efer |= EFER_NX;
+
+		if (!(efer & EFER_LMA))
+			efer &= ~EFER_LME;
+	}
 
 	to_svm(vcpu)->vmcb->save.efer = efer | EFER_SVME;
 	mark_dirty(to_svm(vcpu)->vmcb, VMCB_CR);
@@ -5274,7 +5280,8 @@ get_pi_vcpu_info(struct kvm *kvm, struct kvm_kernel_irq_routing_entry *e,
 
 	kvm_set_msi_irq(kvm, e, &irq);
 
-	if (!kvm_intr_is_single_vcpu(kvm, &irq, &vcpu)) {
+	if (!kvm_intr_is_single_vcpu(kvm, &irq, &vcpu) ||
+	    !kvm_irq_is_postable(&irq)) {
 		pr_debug("SVM: %s: use legacy intr remap mode for irq %u\n",
 			 __func__, irq.vector);
 		return -1;
@@ -5328,6 +5335,7 @@ static int svm_update_pi_irte(struct kvm *kvm, unsigned int host_irq,
 		 * 1. When cannot target interrupt to a specific vcpu.
 		 * 2. Unsetting posted interrupt.
 		 * 3. APIC virtialization is disabled for the vcpu.
+		 * 4. IRQ has incompatible delivery mode (SMI, INIT, etc)
 		 */
 		if (!get_pi_vcpu_info(kvm, e, &vcpu_info, &svm) && set &&
 		    kvm_vcpu_apicv_active(&svm->vcpu)) {

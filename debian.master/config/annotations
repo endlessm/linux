@@ -7922,6 +7922,11 @@ CONFIG_SND_SOC_INTEL_CFL                        policy<{'amd64': 'm', 'i386': 'm
 CONFIG_SND_SOC_INTEL_CML_H                      policy<{'amd64': 'm', 'i386': 'm'}>
 CONFIG_SND_SOC_INTEL_CML_LP                     policy<{'amd64': 'm', 'i386': 'm'}>
 CONFIG_SND_SOC_INTEL_SKYLAKE_HDAUDIO_CODEC      policy<{'amd64': 'y', 'i386': 'y'}>
+CONFIG_SND_SOC_SOF_HDA_LINK                     mark<ENFORCED> note<LP:#1848490>
+CONFIG_SND_SOC_SOF_HDA_LINK                     policy<{'amd64': 'y', 'i386': 'y'}>
+CONFIG_SND_SOC_SOF_HDA_AUDIO_CODEC              mark<ENFORCED> note<LP:#1848490>
+CONFIG_SND_SOC_SOF_HDA_AUDIO_CODEC              policy<{'amd64': 'y', 'i386': 'y'}>
+
 
 # Menu: Device Drivers >> Sound card support >> Advanced Linux Sound Architecture >> ALSA for SoC audio support >> Intel ASoC SST drivers >> Intel Machine drivers
 CONFIG_SND_SOC_INTEL_MACH                       policy<{'amd64': 'y', 'i386': 'y'}>
@@ -8017,7 +8022,8 @@ CONFIG_SND_SOC_RCAR                             policy<{'arm64': 'm', 'armhf': '
 CONFIG_SND_SOC_SOF_TOPLEVEL                     policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'ppc64el': 'y'}>
 CONFIG_SND_SOC_SOF_PCI                          policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'ppc64el': 'm'}>
 CONFIG_SND_SOC_SOF_ACPI                         policy<{'amd64': 'm', 'arm64': 'm', 'i386': 'm'}>
-CONFIG_SND_SOC_SOF_NOCODEC_SUPPORT              policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'ppc64el': 'y'}>
+CONFIG_SND_SOC_SOF_NOCODEC_SUPPORT              mark<ENFORCED> note<LP:#1848490>
+CONFIG_SND_SOC_SOF_NOCODEC_SUPPORT              policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'i386': 'n', 'ppc64el': 'n'}>
 CONFIG_SND_SOC_SOF_STRICT_ABI_CHECKS            policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'i386': 'n', 'ppc64el': 'n'}>
 
 # Menu: Device Drivers >> Sound card support >> Advanced Linux Sound Architecture >> ALSA for SoC audio support >> Sound Open Firmware Support >> SOF debugging features
@@ -10878,7 +10884,7 @@ CONFIG_XZ_DEC                                   note<boot essential -- initramfs
 # Menu: Memory Management options
 CONFIG_SPARSEMEM_VMEMMAP                        policy<{'amd64': 'y', 'arm64': 'y', 'ppc64el': 'y', 's390x': 'y'}>
 CONFIG_MEMORY_HOTPLUG                           policy<{'amd64': 'y', 'arm64': 'y', 'i386': 'y', 'ppc64el': 'y', 's390x': 'y'}>
-CONFIG_MEMORY_HOTPLUG_DEFAULT_ONLINE            policy<{'amd64': 'y', 'arm64': 'y', 'i386': 'y', 'ppc64el': 'n', 's390x': 'y'}>
+CONFIG_MEMORY_HOTPLUG_DEFAULT_ONLINE            policy<{'amd64': 'y', 'arm64': 'y', 'i386': 'y', 'ppc64el': 'n', 's390x': 'n'}>
 CONFIG_MEMORY_HOTREMOVE                         policy<{'amd64': 'y', 'i386': 'y', 'ppc64el': 'y', 's390x': 'y'}>
 CONFIG_BALLOON_COMPACTION                       policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'ppc64el': 'y', 's390x': 'y'}>
 CONFIG_COMPACTION                               policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'ppc64el': 'y', 's390x': 'y'}>
@@ -10912,7 +10918,7 @@ CONFIG_TRANSPARENT_HUGEPAGE                     flag<REVIEW>
 CONFIG_MEM_SOFT_DIRTY                           flag<REVIEW>
 CONFIG_IDLE_PAGE_TRACKING                       flag<REVIEW> note<is there a cost associated with this?>
 CONFIG_PERCPU_STATS                             flag<REVIEW>
-CONFIG_MEMORY_HOTPLUG_DEFAULT_ONLINE            mark<ENFORCED> note<LP:1709171>
+CONFIG_MEMORY_HOTPLUG_DEFAULT_ONLINE            mark<ENFORCED> note<LP:1709171 LP:1848492>
 
 # Menu: Memory Management options >> Contiguous Memory Allocator
 CONFIG_CMA                                      policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'ppc64el': 'y', 's390x': 'y'}>

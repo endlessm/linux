@@ -416,7 +416,7 @@ ifeq ($(do_dkms_nvidia),true)
 endif
 
 ifeq ($(do_extras_package),true)
-	$(if $(filter true,$(do_dkms_vbox)),$(call build_dkms, $(mods_pkg_name)-$*, $(pkgdir_ex)/lib/modules/$(abi_release)-$*/kernel, "", virtualbox-guest, http://archive.ubuntu.com/ubuntu/pool/multiverse/v/virtualbox/virtualbox-guest-dkms_$(dkms_vbox_guest_version)_all.deb))
+	$(if $(filter true,$(do_dkms_vbox)),$(call build_dkms, $(mods_pkg_name)-$*, $(pkgdir_ex)/lib/modules/$(abi_release)-$*/kernel, "", virtualbox-guest, pool/multiverse/v/virtualbox/virtualbox-guest-dkms_$(dkms_vbox_guest_version)_all.deb))
 endif
 
 ifneq ($(skipdbg),true)
@@ -427,10 +427,12 @@ ifneq ($(skipdbg),true)
 	  -name '*.ko' | while read path_module ; do \
 		module="/lib/modules/$${path_module#*/lib/modules/}"; \
 		if [[ -f "$(dbgpkgdir)/usr/lib/debug/$$module" ]] ; then \
+			signer=$$(/sbin/modinfo -F signer "$$path_module"); \
 			$(CROSS_COMPILE)objcopy \
 				--add-gnu-debuglink=$(dbgpkgdir)/usr/lib/debug/$$module \
 				$$path_module; \
-			if grep -q CONFIG_MODULE_SIG=y $(builddir)/build-$*/.config; then \
+			if grep -q CONFIG_MODULE_SIG=y $(builddir)/build-$*/.config && \
+			   [ -n "$$signer" ]; then \
 				$(builddir)/build-$*/scripts/sign-file $(MODHASHALGO) \
 					$(MODSECKEY) \
 					$(MODPUBKEY) \

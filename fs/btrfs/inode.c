@@ -74,6 +74,7 @@ static struct kmem_cache *btrfs_inode_cachep;
 struct kmem_cache *btrfs_trans_handle_cachep;
 struct kmem_cache *btrfs_path_cachep;
 struct kmem_cache *btrfs_free_space_cachep;
+struct kmem_cache *btrfs_free_space_bitmap_cachep;
 
 static int btrfs_setsize(struct inode *inode, struct iattr *attr);
 static int btrfs_truncate(struct inode *inode, bool skip_writeback);
@@ -6275,13 +6276,16 @@ static struct inode *btrfs_new_inode(struct btrfs_trans_handle *trans,
 	u32 sizes[2];
 	int nitems = name ? 2 : 1;
 	unsigned long ptr;
+	unsigned int nofs_flag;
 	int ret;
 
 	path = btrfs_alloc_path();
 	if (!path)
 		return ERR_PTR(-ENOMEM);
 
+	nofs_flag = memalloc_nofs_save();
 	inode = new_inode(fs_info->sb);
+	memalloc_nofs_restore(nofs_flag);
 	if (!inode) {
 		btrfs_free_path(path);
 		return ERR_PTR(-ENOMEM);
@@ -9380,6 +9384,7 @@ void __cold btrfs_destroy_cachep(void)
 	kmem_cache_destroy(btrfs_trans_handle_cachep);
 	kmem_cache_destroy(btrfs_path_cachep);
 	kmem_cache_destroy(btrfs_free_space_cachep);
+	kmem_cache_destroy(btrfs_free_space_bitmap_cachep);
 }
 
 int __init btrfs_init_cachep(void)
@@ -9407,6 +9412,12 @@ int __init btrfs_init_cachep(void)
 			sizeof(struct btrfs_free_space), 0,
 			SLAB_MEM_SPREAD, NULL);
 	if (!btrfs_free_space_cachep)
+		goto fail;
+
+	btrfs_free_space_bitmap_cachep = kmem_cache_create("btrfs_free_space_bitmap",
+							PAGE_SIZE, PAGE_SIZE,
+							SLAB_RED_ZONE, NULL);
+	if (!btrfs_free_space_bitmap_cachep)
 		goto fail;
 
 	return 0;

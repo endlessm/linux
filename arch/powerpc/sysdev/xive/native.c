@@ -231,6 +231,17 @@ static bool xive_native_match(struct device_node *node)
 	return of_device_is_compatible(node, "ibm,opal-xive-vc");
 }
 
+static s64 opal_xive_allocate_irq(u32 chip_id)
+{
+	s64 irq = opal_xive_allocate_irq_raw(chip_id);
+
+	/*
+	 * Old versions of skiboot can incorrectly return 0xffffffff to
+	 * indicate no space, fix it up here.
+	 */
+	return irq == 0xffffffff ? OPAL_RESOURCE : irq;
+}
+
 #ifdef CONFIG_SMP
 static int xive_native_get_ipi(unsigned int cpu, struct xive_cpu *xc)
 {
@@ -799,6 +810,13 @@ int xive_native_set_queue_state(u32 vp_id, u32 prio, u32 qtoggle, u32 qindex)
 	return 0;
 }
 EXPORT_SYMBOL_GPL(xive_native_set_queue_state);
+
+bool xive_native_has_queue_state_support(void)
+{
+	return opal_check_token(OPAL_XIVE_GET_QUEUE_STATE) &&
+		opal_check_token(OPAL_XIVE_SET_QUEUE_STATE);
+}
+EXPORT_SYMBOL_GPL(xive_native_has_queue_state_support);
 
 int xive_native_get_vp_state(u32 vp_id, u64 *out_state)
 {
