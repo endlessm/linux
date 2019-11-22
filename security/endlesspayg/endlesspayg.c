@@ -18,6 +18,14 @@ static struct dentry *payg_dir;
 static struct dentry *paygd_pid_file;
 static pid_t paygd_pid = -1;
 
+/* We can't allow lockdown to be lifted, or all of this work becomes
+ * irrelevant.  Ensure build failure if the lockdown lift sysreq key
+ * kernel option is on.
+ */
+#ifdef CONFIG_ALLOW_LOCKDOWN_LIFT_BY_SYSRQ
+# error CONFIG_ALLOW_LOCKDOWN_LIFT_BY_SYSRQ needs to be disabled for PAYG systems
+#endif
+
 bool eospayg_skip_name(const char *name)
 {
 	if (paygd_pid == -1)
