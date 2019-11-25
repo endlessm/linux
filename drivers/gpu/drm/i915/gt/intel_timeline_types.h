@@ -65,6 +65,9 @@ struct intel_timeline {
 	 */
 	struct i915_active_request last_request;
 
+	/** A chain of completed timelines ready for early retirement. */
+	struct intel_timeline *retire;
+
 	/**
 	 * We track the most recent seqno that we wait on in every context so
 	 * that we only have to emit a new await and dependency on a more

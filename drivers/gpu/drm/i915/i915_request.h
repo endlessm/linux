@@ -251,6 +251,7 @@ struct i915_request *__i915_request_commit(struct i915_request *request);
 void __i915_request_queue(struct i915_request *rq,
 			  const struct i915_sched_attr *attr);
 
+bool i915_request_retire(struct i915_request *rq);
 void i915_request_retire_upto(struct i915_request *rq);
 
 static inline struct i915_request *

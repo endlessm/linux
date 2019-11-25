@@ -215,7 +215,7 @@ static void remove_from_engine(struct i915_request *rq)
 	spin_unlock(&locked->active.lock);
 }
 
-static bool i915_request_retire(struct i915_request *rq)
+bool i915_request_retire(struct i915_request *rq)
 {
 	struct i915_active_request *active, *next;
 
