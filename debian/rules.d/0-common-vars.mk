@@ -152,7 +152,11 @@ indep_hdrs_pkg_name=$(src_pkg_name)-headers-$(abi_release)
 # cycle, so its OK to leave 'do_doc_package_content=false' until those build
 # failures get sorted out. Finally, the doc package doesn't really need to be built
 # for developer testing (its kind of slow), so only do it if on a buildd.
+ifneq ($(filter --,$(variants)),)
 do_doc_package=true
+else
+do_doc_package=false
+endif
 do_doc_package_content=true
 ifeq ($(full_build),false)
 do_doc_package_content=false

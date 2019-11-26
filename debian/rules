@@ -179,6 +179,9 @@ control_files := $(DEBIAN)/control.stub.in
 ifeq ($(do_libc_dev_package),true)
 	control_files += $(DROOT)/control.d/linux-libc-dev.stub
 endif
+ifeq ($(do_doc_package),true)
+	control_files += $(DROOT)/control.d/linux-doc.stub
+endif
 
 # Misc stuff
 .PHONY: $(DEBIAN)/control.stub
