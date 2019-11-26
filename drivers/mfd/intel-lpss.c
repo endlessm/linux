@@ -14,7 +14,6 @@
 #include <linux/clkdev.h>
 #include <linux/clk-provider.h>
 #include <linux/debugfs.h>
-#include <linux/dmi.h>
 #include <linux/idr.h>
 #include <linux/io.h>
 #include <linux/ioport.h>
@@ -128,17 +127,6 @@ static const struct mfd_cell intel_lpss_spi_cell = {
 
 static DEFINE_IDA(intel_lpss_devid_ida);
 static struct dentry *intel_lpss_debugfs;
-
-static const struct dmi_system_id mtrr_large_wc_region[] = {
-	{
-		.ident = "Dell Computer Corporation",
-		.matches = {
-			DMI_MATCH(DMI_SYS_VENDOR, "Dell Inc."),
-			DMI_MATCH(DMI_PRODUCT_NAME, "XPS 13 7390 2-in-1"),
-		},
-	},
-	{ }
-};
 
 static void intel_lpss_cache_ltr(struct intel_lpss *lpss)
 {
@@ -396,12 +384,8 @@ int intel_lpss_probe(struct device *dev,
 	if (!lpss)
 		return -ENOMEM;
 
-	if (dmi_check_system(mtrr_large_wc_region))
-		lpss->priv = devm_ioremap_uc(dev, info->mem->start + LPSS_PRIV_OFFSET,
-					     LPSS_PRIV_SIZE);
-	else
-		lpss->priv = devm_ioremap(dev, info->mem->start + LPSS_PRIV_OFFSET,
-					  LPSS_PRIV_SIZE);
+	lpss->priv = devm_ioremap(dev, info->mem->start + LPSS_PRIV_OFFSET,
+				  LPSS_PRIV_SIZE);
 	if (!lpss->priv)
 		return -ENOMEM;
 
