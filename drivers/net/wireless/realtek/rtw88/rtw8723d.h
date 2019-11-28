@@ -66,7 +66,19 @@ struct rtw8723d_efuse {
 #define GET_PHY_STAT_P1_RXSNR_A(phy_stat)                                      \
 	le32_get_bits(*((__le32 *)(phy_stat) + 0x06), GENMASK(7, 0))
 
+#define REG_PSDFN		0x0808
+#define REG_ANALOG_P4		0x088c
+#define REG_PSDRPT		0x08b4
+#define REG_FPGA1_RFMOD		0x0900
+#define REG_BBRX_DFIR		0x0954
+#define REG_CCK0_SYS		0x0a00
+#define REG_OFDM0_RXDSP		0x0c40
 #define REG_OFDM0_XAAGC1	0x0c50
 #define REG_OFDM0_XBAGC1	0x0c58
+#define REG_OFDM1_CFOTRK	0x0d2c
+#define REG_OFDM1_CSI1		0x0d40
+#define REG_OFDM1_CSI2		0x0d44
+#define REG_OFDM1_CSI3		0x0d48
+#define REG_OFDM1_CSI4		0x0d4c
 
 #endif
