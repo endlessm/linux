@@ -4,7 +4,7 @@ set -e
 # Only run regression-suite on kernels we can boot in canonistack
 source=`dpkg-parsechangelog -SSource`
 case $source in
-    linux|linux-hwe|linux-hwe-edge|linux-kvm|linux-oem)
+    linux-[0-9].[0-9]|linux-hwe|linux-hwe-edge|linux-kvm|linux-oem)
 	;;
     *)
 	echo "ubuntu-regression-suite is pointless, if one cannot boot the kernel"
