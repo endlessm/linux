@@ -1,0 +1,3104 @@
+virtualbox (6.0.14-dfsg-3) unstable; urgency=medium
+
+  * Fix build with new gsoap (Closes: #945548)
+  * Drop 81649 and take the archlinux version, that contains also rev 81586 and
+    81587 (LP: #1848594)
+
+ -- Gianfranco Costamagna <locutusofborg@debian.org>  Thu, 28 Nov 2019 11:52:52 +0100
+
+virtualbox (6.0.14-dfsg-2) unstable; urgency=medium
+
+  * debian/patches/81649.patch:
+    - upstream fixes for kernel 5.4 (LP: #1848594)
+
+ -- Gianfranco Costamagna <locutusofborg@debian.org>  Thu, 21 Nov 2019 18:29:20 +0100
+
+virtualbox (6.0.14-dfsg-1) unstable; urgency=medium
+
+  * New upstream version 6.0.14-dfsg
+  * drop kernel patch: upstream
+
+ -- Gianfranco Costamagna <locutusofborg@debian.org>  Thu, 17 Oct 2019 09:24:16 +0200
+
+virtualbox (6.0.12-dfsg-1) unstable; urgency=medium
+
+  * New upstream version 6.0.12-dfsg
+  * Patch refresh, add support for Python3.8 too
+
+ -- Gianfranco Costamagna <locutusofborg@debian.org>  Thu, 05 Sep 2019 09:11:42 +0200
+
+virtualbox (6.0.10-dfsg-5) unstable; urgency=medium
+
+  * Add patch to fix build on newer kernels, thanks Ben Hutchings for the help!
+    Closes: #934483
+  * Stop using dh_link in the wrong way, thanks Nicolas Boulenguez <nicolas@debian.org> for the help!
+    Closes: #935309
+
+ -- Gianfranco Costamagna <locutusofborg@debian.org>  Wed, 21 Aug 2019 18:12:14 +0200
+
+virtualbox (6.0.10-dfsg-4) unstable; urgency=medium
+
+  * Refresh patch, the skb_frag_t struct is scheduled for kernel 5.4
+    (Closes: #934010)
+
+ -- Gianfranco Costamagna <locutusofborg@debian.org>  Tue, 06 Aug 2019 11:15:30 +0200
+
+virtualbox (6.0.10-dfsg-3) unstable; urgency=medium
+
+  * Refresh kernel 5.3.patch with new fixes
+
+ -- Gianfranco Costamagna <locutusofborg@debian.org>  Sat, 03 Aug 2019 13:47:34 +0200
+
+virtualbox (6.0.10-dfsg-2) unstable; urgency=medium
+
+  * debian/patches/kernel-5.3.patch
+    - upstream proposed build fix for kernle 5.3 LP: #1837895
+  * Build depend on libgsoap-dev too (Closes: #933246)
+
+ -- Gianfranco Costamagna <locutusofborg@debian.org>  Sun, 28 Jul 2019 13:25:15 +0200
+
+virtualbox (6.0.10-dfsg-1) unstable; urgency=medium
+
+  * New upstream release (Closes: #929074)
+  * Drop kernel patch
+  * Bump std-version to 4.4.0, no changes required
+
+ -- Gianfranco Costamagna <locutusofborg@debian.org>  Wed, 17 Jul 2019 12:10:52 +0200
+
+virtualbox (6.0.8-dfsg-7) unstable; urgency=medium
+
+  * Fix another chunk for kernel 5.2
+
+ -- Gianfranco Costamagna <locutusofborg@debian.org>  Thu, 23 May 2019 16:05:04 +0200
+
+virtualbox (6.0.8-dfsg-6) unstable; urgency=medium
+
+  * Refresh previous patch (Closes: #929413, Closes: #929399)
+
+ -- Gianfranco Costamagna <locutusofborg@debian.org>  Thu, 23 May 2019 09:34:03 +0200
+
+virtualbox (6.0.8-dfsg-5) unstable; urgency=medium
+
+  * Add patch to fix build failure with kernel 5.2
+    (LP: #1830061)
+
+ -- Gianfranco Costamagna <locutusofborg@debian.org>  Wed, 22 May 2019 17:58:01 +0200
+
+virtualbox (6.0.8-dfsg-4) unstable; urgency=medium
+
+  * Fixup version string (typo in previous upload)
+
+ -- Gianfranco Costamagna <locutusofborg@debian.org>  Fri, 17 May 2019 17:55:41 +0200
+
+virtualbox (6.0.8-dfsg-3) unstable; urgency=medium
+
+  [ YOSHINO Yoshihito <yy.y.ja.jp@gmail.com> ]
+  * Use dh_prep for vbox-*-source packages, fixing compat level 12 failure.
+    (Closes: #929055)
+
+  [ Gianfranco Costamagna ]
+  * Move lintian-overrides location
+  * Drop trailing changelogs
+  * Drop old dh-systemd dependency
+  * Patch refresh, fix typo
+  * Drop parsechangelog call in rules file
+
+ -- Gianfranco Costamagna <locutusofborg@debian.org>  Fri, 17 May 2019 16:39:21 +0200
+
+virtualbox (6.0.8-dfsg-2) unstable; urgency=medium
+
+  * Bump compat level to 12
+
+ -- Gianfranco Costamagna <locutusofborg@debian.org>  Wed, 15 May 2019 10:18:23 +0200
+
+virtualbox (6.0.8-dfsg-1) unstable; urgency=medium
+
+  * New upstream version 6.0.8-dfsg
+  * Patch refresh, drop upstream patches: 78446 78447
+
+ -- Gianfranco Costamagna <locutusofborg@debian.org>  Wed, 15 May 2019 10:15:16 +0200
+
+virtualbox (6.0.6-dfsg-2) unstable; urgency=medium
+
+  * Cherry-pick two upstream fixes for guest kernel modules
+
+ -- Gianfranco Costamagna <locutusofborg@debian.org>  Wed, 08 May 2019 15:09:14 +0200
+
+virtualbox (6.0.6-dfsg-1) unstable; urgency=medium
+
+  * Implement DEB_BUILD_OPTIONS=parallel=n handling during build
+    (Closes: #924302)
+  * New upstream version 6.0.6-dfsg
+  * Patch refresh
+  * drop upstream patches:
+    - debian/patches/77040.patch
+    - debian/patches/77542.patch
+    - debian/patches/java11-upstream.patch
+  * Drop Ubuntu patch, now differently part of upstream code:
+    - debian/patches/fix-vboxvideo-with-linux-5.0.patch
+
+ -- Gianfranco Costamagna <locutusofborg@debian.org>  Wed, 17 Apr 2019 00:08:12 +0200
+
+virtualbox (6.0.4-dfsg-7) unstable; urgency=medium
+
+  * debian/patches/fix-vboxvideo-with-linux-5.0.patch:
+    - add another build (this time for vboxvideo) LP: #1819352
+  *  Add README.Debian.security file, to make users aware
+     of the security issues in the package (this was part of the -6
+     upload)
+
+ -- Gianfranco Costamagna <locutusofborg@debian.org>  Sun, 10 Mar 2019 21:26:29 +0100
+
+virtualbox (6.0.4-dfsg-6) unstable; urgency=medium
+
+  * Upstream build fix with kernel 5.0 (LP: #1813071)
+
+ -- Gianfranco Costamagna <locutusofborg@debian.org>  Sat, 09 Mar 2019 13:50:34 +0100
+
+virtualbox (6.0.4-dfsg-5) unstable; urgency=medium
+
+  * Tweak java patch with upstream approach
+
+ -- Gianfranco Costamagna <locutusofborg@debian.org>  Thu, 31 Jan 2019 15:42:02 +0100
+
+virtualbox (6.0.4-dfsg-4) unstable; urgency=medium
+
+  * debian/patches/77040.patch:
+    - save some space in binaries, with upstream patch.
+
+ -- Gianfranco Costamagna <locutusofborg@debian.org>  Thu, 31 Jan 2019 11:34:00 +0100
+
+virtualbox (6.0.4-dfsg-3) unstable; urgency=medium
+
+  * Switch to java11, that changed everything (Closes: #920723)
+    - add new jaxw dependencies.
+  * Switch from iasl to the new acpica-tools name
+
+ -- Gianfranco Costamagna <locutusofborg@debian.org>  Wed, 30 Jan 2019 17:06:55 +0100
+
+virtualbox (6.0.4-dfsg-2) unstable; urgency=medium
+
+  [ Gianfranco Costamagna ]
+  * Virtualbox 6 is now a amd64 thing only, 32 bit host
+    is not supported anymore by upstream
+
+  [ Whoopie ]
+  * use cafe instead of beef, to detect if we are inside a VM to fix
+    copy-paste.
+  * Start VBoxClient too, with the right --vmsvga flag, to fix screen resize
+
+ -- Gianfranco Costamagna <locutusofborg@debian.org>  Tue, 29 Jan 2019 10:01:17 +0100
+
+virtualbox (6.0.4-dfsg-1) unstable; urgency=medium
+
+  * New upstream version 6.0.4-dfsg
+  * Upload to unstable
+  * Finally relax dh_strip hack
+  * Relax some version constraints, already fullfilled since o-o-stable
+  * Patch refresh for no-update
+  * drop upstream patches:
+    - fix-build-from-bird.patch
+    - 76906.patch
+
+ -- Gianfranco Costamagna <locutusofborg@debian.org>  Mon, 28 Jan 2019 17:10:51 +0100
+
+virtualbox (6.0.2-dfsg-1~exp4) experimental; urgency=medium
+
+  * Setting setuid bit on VirtualBoxVM instead of VirtualBox to fix
+    startup (Closes: #919554).
+
+ -- Daniel Baumann <daniel.baumann@progress-linux.org>  Sat, 19 Jan 2019 15:59:23 +0100
+
+virtualbox (6.0.2-dfsg-1~exp3) experimental; urgency=medium
+
+  * Fix typo in previous upload
+
+ -- Gianfranco Costamagna <locutusofborg@debian.org>  Thu, 17 Jan 2019 10:33:06 +0100
+
+virtualbox (6.0.2-dfsg-1~exp2) experimental; urgency=medium
+
+  * Add suid bit to VBoxNetNat to make it work (LP: #1805651)
+
+ -- Gianfranco Costamagna <locutusofborg@debian.org>  Thu, 17 Jan 2019 08:54:58 +0100
+
+virtualbox (6.0.2-dfsg-1~exp1) experimental; urgency=medium
+
+  [ Robert Edmonds <edmonds@debian.org> ]
+  * Add rdesktop-vrdp package (Closes: #914165)
+
+  [ Kevin Locke ]
+  * Add udev rules for vboxdrvu and vboxnetctl (Closes: #916464)
+
+  [ Gianfranco Costamagna ]
+  * debian/patches/VBoxVNC.fix.patch: LP: #1804048
+    - thanks AZ for the patch, that is now part of upstream codebase
+  * Bump std-version to 4.3.0, no changes required
+  * Conflict with virtualbox-5.2
+  * Conflict with vbox 6.0 too
+  * New upstream version 6.0.2-dfsg
+  * Add missing patch from <bird>
+  * bump copyright year
+  * patch refresh
+  * Enable full hardening
+  * Update manpages for vbox6
+  * Update no-update patch
+
+ -- Gianfranco Costamagna <locutusofborg@debian.org>  Wed, 16 Jan 2019 14:34:29 +0100
+
+virtualbox (5.2.22-dfsg-2) unstable; urgency=low
+
+  * avoid wayland issues, setup properly the x11 mesa override, taken from upstream patch
+
+ -- Gianfranco Costamagna <locutusofborg@debian.org>  Fri, 09 Nov 2018 15:58:47 +0100
+
+virtualbox (5.2.22-dfsg-1) unstable; urgency=high
+
+  * New upstream release (Closes: #913137)
+  * Drop gcc patch
+  * patch refresh
+
+ -- Gianfranco Costamagna <locutusofborg@debian.org>  Fri, 09 Nov 2018 12:12:06 +0100
+
+virtualbox (5.2.20-dfsg-3) unstable; urgency=medium
+
+  * Correct java8 path for i386
+
+ -- Gianfranco Costamagna <locutusofborg@debian.org>  Wed, 24 Oct 2018 23:21:37 +0200
+
+virtualbox (5.2.20-dfsg-2) unstable; urgency=medium
+
+  * use java8 again, java11 removes wsimport, useful to have the build finish.
+
+ -- Gianfranco Costamagna <locutusofborg@debian.org>  Wed, 24 Oct 2018 18:00:28 +0200
+
+virtualbox (5.2.20-dfsg-1) unstable; urgency=medium
+
+  * New upstream version 5.2.20-dfsg
+  * Drop kernel patch, patch refresh
+
+ -- Gianfranco Costamagna <locutusofborg@debian.org>  Wed, 17 Oct 2018 11:49:09 +0200
+
+virtualbox (5.2.18-dfsg-2) unstable; urgency=medium
+
+  * debian/patches/kernel-4.18.patch:
+    - Fix build with kernel 4.18 (LP: #1787441)
+
+ -- Gianfranco Costamagna <locutusofborg@debian.org>  Fri, 17 Aug 2018 17:02:22 +0200
+
+virtualbox (5.2.18-dfsg-1) unstable; urgency=medium
+
+  * New upstream version 5.2.18-dfsg
+  * Patch refresh
+  * Bump std-version to 4.2.0.1, no changes required
+
+ -- Gianfranco Costamagna <locutusofborg@debian.org>  Wed, 15 Aug 2018 23:00:46 +0200
+
+virtualbox (5.2.16-dfsg-3) unstable; urgency=medium
+
+  * from: Kevin Puetz:
+    - patch to avoid virtualbox guest utils run if no virtual machines are detected.
+
+ -- Gianfranco Costamagna <locutusofborg@debian.org>  Thu, 19 Jul 2018 12:36:05 +0200
+
+virtualbox (5.2.16-dfsg-2) unstable; urgency=medium
+
+  * Allow new gcc8 to build
+
+ -- Gianfranco Costamagna <locutusofborg@debian.org>  Thu, 19 Jul 2018 11:47:59 +0200
+
+virtualbox (5.2.16-dfsg-1) unstable; urgency=medium
+
+  * New upstream version 5.2.16-dfsg, patch refresh
+  * Drop now upstreamed patches: {fix-build,plt-upstream-fix,videorec}.patch
+  * Bump std-version to 4.1.5, no changes required
+  * Drop now-useless --enable-system-libopus switch
+
+ -- Gianfranco Costamagna <locutusofborg@debian.org>  Tue, 17 Jul 2018 19:36:46 +0200
+
+virtualbox (5.2.14-dfsg-7) unstable; urgency=medium
+
+  * Add again libopus hack in rules file, this might be dropped
+    in next upstream release
+
+ -- Gianfranco Costamagna <locutusofborg@debian.org>  Mon, 16 Jul 2018 08:51:46 +0200
+
+virtualbox (5.2.14-dfsg-6) unstable; urgency=medium
+
+  [ Jan Nordoholz ]
+  * Refresh patch to make it really work.
+
+ -- Gianfranco Costamagna <locutusofborg@debian.org>  Mon, 16 Jul 2018 08:51:18 +0200
+
+virtualbox (5.2.14-dfsg-5) unstable; urgency=medium
+
+  * Reupload with upstream patch + some minor modifications to fix the issue
+    again. (Closes: #902897)
+
+ -- Gianfranco Costamagna <locutusofborg@debian.org>  Sun, 15 Jul 2018 14:54:31 +0200
+
+virtualbox (5.2.14-dfsg-4) unstable; urgency=medium
+
+  * Update with new upstream accepted patch.
+
+ -- Gianfranco Costamagna <locutusofborg@debian.org>  Fri, 13 Jul 2018 10:42:09 +0200
+
+virtualbox (5.2.14-dfsg-3) unstable; urgency=low
+
+  [ Gianfranco Costamagna ]
+  * Tweak python patch to make it compatible with Python3.7
+  * Tweak previous changelog entry
+
+  [ Will Thompson ]
+  * guest-utils.service: add ConditionVirtualization=oracle
+
+ -- Gianfranco Costamagna <locutusofborg@debian.org>  Thu, 12 Jul 2018 12:03:32 +0200
+
+virtualbox (5.2.14-dfsg-2) unstable; urgency=low
+
+  * Try to fix issue with new binutils (Closes: #902897)
+    - thanks Jan Christoph Nordholz for the great help and fix!
+
+ -- Gianfranco Costamagna <locutusofborg@debian.org>  Thu, 12 Jul 2018 09:49:54 +0200
+
+virtualbox (5.2.14-dfsg-1) unstable; urgency=medium
+
+  * New upstream version 5.2.14-dfsg
+  * Drop kernel and acpica patches
+
+ -- Gianfranco Costamagna <locutusofborg@debian.org>  Mon, 02 Jul 2018 19:50:29 +0200
+
+virtualbox (5.2.12-dfsg-3) unstable; urgency=medium
+
+  * debian/patches/fixes_for_4.17.patch
+    from opensuse: fix build with kernel 4.17 (LP: #1776671)
+
+ -- Gianfranco Costamagna <locutusofborg@debian.org>  Thu, 14 Jun 2018 10:09:21 +0200
+
+virtualbox (5.2.12-dfsg-2) unstable; urgency=medium
+
+  * Ignore new acpica-unix syntax, and sed the new aml syntax to the old
+    aml working paradigm. A real fix might require:
+    - a revert of acpica-unix code
+    - a fallback code or switch in acpica-unix
+    - changing vbox filenames to some correct C syntax
+    For now, better rename the resulting structure to the old way, taking the
+    approach from FreeBSD patch. (See bug: #899318)
+
+ -- Gianfranco Costamagna <locutusofborg@debian.org>  Fri, 25 May 2018 08:45:05 +0200
+
+virtualbox (5.2.12-dfsg-1) unstable; urgency=medium
+
+  * New upstream version 5.2.12-dfsg
+  * Patch refresh, drop upstream patches:
+    GL-fixes.patch, vm-restore.patch, 71985.patch
+
+ -- Gianfranco Costamagna <locutusofborg@debian.org>  Thu, 10 May 2018 15:12:08 +0200
+
+virtualbox (5.2.10-dfsg-7) unstable; urgency=medium
+
+  * debian/patches/71985.patch: add compatibility with upstream
+    kernel 4.16 patch (Closes: #897928)
+    thanks James McCoy for the bug report!
+
+ -- Gianfranco Costamagna <locutusofborg@debian.org>  Mon, 07 May 2018 11:43:12 +0200
+
+virtualbox (5.2.10-dfsg-6) unstable; urgency=high
+
+  * Fix live restore issue (Closes: #896895)
+    - cherry-pick upstream changeset 71931
+
+ -- Gianfranco Costamagna <locutusofborg@debian.org>  Thu, 26 Apr 2018 10:49:04 +0200
+
+virtualbox (5.2.10-dfsg-5) unstable; urgency=medium
+
+  * Do the ldconfig and configure of 3d only in case is available
+    from configuration file (host side) and x11 package is installed.
+
+ -- Gianfranco Costamagna <locutusofborg@debian.org>  Mon, 23 Apr 2018 19:24:28 +0200
+
+virtualbox (5.2.10-dfsg-4) unstable; urgency=medium
+
+  * Refresh previous patch
+
+ -- Gianfranco Costamagna <locutusofborg@debian.org>  Mon, 23 Apr 2018 16:54:58 +0200
+
+virtualbox (5.2.10-dfsg-3) unstable; urgency=medium
+
+  * Enable again videorec features (Closes: #895791)
+  * Do not add GL bindings anymore, breaking userspace applications.
+
+ -- Gianfranco Costamagna <locutusofborg@debian.org>  Fri, 20 Apr 2018 15:17:21 +0200
+
+virtualbox (5.2.10-dfsg-2) unstable; urgency=medium
+
+  * Alioth list is dead, move to new list. (Closes: #895970)
+
+ -- Gianfranco Costamagna <locutusofborg@debian.org>  Wed, 18 Apr 2018 11:02:56 +0200
+
+virtualbox (5.2.10-dfsg-1) unstable; urgency=medium
+
+  * New upstream version 5.2.10-dfsg
+    - drop notify-send patch: upstream
+  * Correct VCS field
+  * commit new patch for GL fixes
+  * Update watch file and std-version to 4.1.4
+  * Patch refresh
+
+ -- Gianfranco Costamagna <locutusofborg@debian.org>  Wed, 18 Apr 2018 00:57:55 +0200
+
+virtualbox (5.2.8-dfsg-10) unstable; urgency=medium
+
+  * Switch to salsa.debian.org VCS fields
+
+ -- Gianfranco Costamagna <locutusofborg@debian.org>  Sun, 15 Apr 2018 19:38:53 +0200
+
+virtualbox (5.2.8-dfsg-9) unstable; urgency=medium
+
+  * Revert previous upload (Closes: #895655)
+
+ -- Gianfranco Costamagna <locutusofborg@debian.org>  Sat, 14 Apr 2018 10:31:28 +0200
+
+virtualbox (5.2.8-dfsg-8) unstable; urgency=medium
+
+  [ Daniel Rocher ]
+  * Add again vboxvideo_drv.so for systems without 3d enabled.
+    LP: #1759452
+
+ -- Gianfranco Costamagna <locutusofborg@debian.org>  Fri, 13 Apr 2018 18:39:41 +0200
+
+virtualbox (5.2.8-dfsg-7) unstable; urgency=low
+
+  [ Whoopie ]
+  * Move dkms rules out to dkms package, but to utils, because
+    they can be used with modules builtin in the kernel itself
+    or the guest-source package
+
+  [ Gianfranco Costamagna ]
+  * Make the guest-utils depends on dkms not vice-versa
+
+ -- Gianfranco Costamagna <locutusofborg@debian.org>  Thu, 12 Apr 2018 13:21:54 +0200
+
+virtualbox (5.2.8-dfsg-6) unstable; urgency=medium
+
+  * Build with java9 (Closes: #894365)
+    - thanks Emmanuel Bourg for all the great help!
+
+ -- Gianfranco Costamagna <locutusofborg@debian.org>  Thu, 29 Mar 2018 19:05:29 +0200
+
+virtualbox (5.2.8-dfsg-5) unstable; urgency=medium
+
+  * Fixup build on i386, by finding the correct java path here too.
+
+ -- Gianfranco Costamagna <locutusofborg@debian.org>  Mon, 19 Mar 2018 08:19:14 +0100
+
+virtualbox (5.2.8-dfsg-4) unstable; urgency=medium
+
+  * Force java8 to build, java9 makes the program FTBFS because
+    of missing javax module (and --add-module can't find it)
+
+ -- Gianfranco Costamagna <locutusofborg@debian.org>  Fri, 16 Mar 2018 15:02:17 +0100
+
+virtualbox (5.2.8-dfsg-3) unstable; urgency=medium
+
+  * Do not delay startup because of notify-send not being ready
+    (Closes: #880594, LP: #1722745)
+
+ -- Gianfranco Costamagna <locutusofborg@debian.org>  Fri, 16 Mar 2018 13:56:41 +0100
+
+virtualbox (5.2.8-dfsg-2) unstable; urgency=medium
+
+  * Update dh_systemd_enable to run only with guest-utils package
+    (Closes: #891860). Thanks Kevin Locke for the useful report!
+
+ -- Gianfranco Costamagna <locutusofborg@debian.org>  Thu, 01 Mar 2018 22:53:54 +0100
+
+virtualbox (5.2.8-dfsg-1) unstable; urgency=medium
+
+  * New upstream release, drop the patches upstreamed.
+  * Update copyright year to 2018
+
+ -- Gianfranco Costamagna <locutusofborg@debian.org>  Tue, 27 Feb 2018 23:32:31 +0100
+
+virtualbox (5.2.6-dfsg-5) unstable; urgency=medium
+
+  * Fixup previous upload
+
+ -- Gianfranco Costamagna <locutusofborg@debian.org>  Tue, 20 Feb 2018 11:47:34 +0100
+
+virtualbox (5.2.6-dfsg-4) unstable; urgency=medium
+
+  [ Ronny Standtke <ronny.standtke@gmx.net> ]
+  * Enable virtualbox-guest-utils.service by default (Closes: #890047)
+
+  [ Gianfranco Costamagna ]
+  * Cherry-pick upstream fixes for 3d acceleration
+
+ -- Gianfranco Costamagna <locutusofborg@debian.org>  Mon, 19 Feb 2018 11:17:10 +0100
+
+virtualbox (5.2.6-dfsg-3) unstable; urgency=medium
+
+  * Patch for 3D runtime flickering with NVIDIA cards
+    (this needs a new environment variable) Closes: #889030
+    CR_RENDER_FORCE_PRESENT_MAIN_THREAD=0 VirtualBox
+    Thanks Marius Mikucionis <mmikucionis@gmail.com> for the report!
+
+ -- Gianfranco Costamagna <locutusofborg@debian.org>  Thu, 01 Feb 2018 13:37:11 +0100
+
+virtualbox (5.2.6-dfsg-2) unstable; urgency=high
+
+  * Add kernel 4.15 patch, from mail list (LP: #1737759
+
+ -- Gianfranco Costamagna <locutusofborg@debian.org>  Thu, 18 Jan 2018 16:30:10 +0100
+
+virtualbox (5.2.6-dfsg-1) unstable; urgency=medium
+
+  * New upstream version 5.2.6-dfsg
+  * Bump std-version to 4.1.3, no changes required
+  * Drop xfce patch, upstream
+  * Patch refresh
+
+ -- Gianfranco Costamagna <locutusofborg@debian.org>  Tue, 16 Jan 2018 22:35:31 +0100
+
+virtualbox (5.2.4-dfsg-2) unstable; urgency=medium
+
+  [ Dusan Gallo <dusky@mail.hq.sk> ]
+  * Fix mini toolbar issue with xfce4
+
+ -- Gianfranco Costamagna <locutusofborg@debian.org>  Thu, 04 Jan 2018 09:19:40 +0100
+
+virtualbox (5.2.4-dfsg-1) unstable; urgency=medium
+
+  * New upstream version 5.2.4-dfsg
+  * Bump std-version to 4.1.2, no changes required
+  * Patch refresh Drop 69989.patch: upstream
+
+ -- Gianfranco Costamagna <locutusofborg@debian.org>  Tue, 19 Dec 2017 23:34:39 +0100
+
+virtualbox (5.2.2-dfsg-3) unstable; urgency=high
+
+  * debian/patches/69989.patch:
+    - cherry-pick fix for GL stuff, breaking login screen
+      on ubuntu 17.10+ releases (virtualbox-guest-x11 package)
+
+ -- Gianfranco Costamagna <locutusofborg@debian.org>  Fri, 08 Dec 2017 20:06:25 +0100
+
+virtualbox (5.2.2-dfsg-2) unstable; urgency=medium
+
+  * The new release didn't fix the build failure
+    reapply the fix-build patch (Closes: #882647)
+
+ -- Gianfranco Costamagna <locutusofborg@debian.org>  Sat, 25 Nov 2017 09:59:58 +0100
+
+virtualbox (5.2.2-dfsg-1) unstable; urgency=medium
+
+  * New upstream release (Closes: #880068)
+  * Drop patches, they should be all addressed upstream
+
+ -- Gianfranco Costamagna <locutusofborg@debian.org>  Tue, 14 Nov 2017 12:48:20 +0100
+
+virtualbox (5.2.0-dfsg-5) unstable; urgency=low
+
+  * Stop providing vboxdrv in virtualbox.init script, this makes
+    it clash with the upstream one. See: LP: #1523075
+
+ -- Gianfranco Costamagna <locutusofborg@debian.org>  Sat, 11 Nov 2017 11:44:17 +0100
+
+virtualbox (5.2.0-dfsg-4) unstable; urgency=medium
+
+  * 69524.patch: fixup the kernel 4.14 fix
+
+ -- Gianfranco Costamagna <locutusofborg@debian.org>  Tue, 07 Nov 2017 10:53:52 +0100
+
+virtualbox (5.2.0-dfsg-3) unstable; urgency=medium
+
+  * Switch to lynx (Closes: #880935)
+    - thanks Andreas Beckmann for the bug report!
+
+ -- Gianfranco Costamagna <locutusofborg@debian.org>  Mon, 06 Nov 2017 16:20:50 +0100
+
+virtualbox (5.2.0-dfsg-2) unstable; urgency=low
+
+  * Tentatively fix virtualbox-dkms (Closes: #879940)
+  * Try to build guest when drm_rect.h is available (Closes: #879895)
+
+ -- Gianfranco Costamagna <locutusofborg@debian.org>  Fri, 27 Oct 2017 19:43:50 +0200
+
+virtualbox (5.2.0-dfsg-1) unstable; urgency=low
+
+  * Upload to unstable
+  * Cherry-pick fixes for new kernel 4.14
+    - 69143.patch
+
+ -- Gianfranco Costamagna <locutusofborg@debian.org>  Fri, 20 Oct 2017 16:50:34 +0200
+
+virtualbox (5.2.0-dfsg-1~exp5) experimental; urgency=medium
+
+  * Fixup guest-* generation
+
+ -- Gianfranco Costamagna <locutusofborg@debian.org>  Thu, 19 Oct 2017 23:33:45 +0200
+
+virtualbox (5.2.0-dfsg-1~exp4) experimental; urgency=medium
+
+  * Enforce kbuild minimum version
+
+ -- Gianfranco Costamagna <locutusofborg@debian.org>  Thu, 19 Oct 2017 19:11:24 +0200
+
+virtualbox (5.2.0-dfsg-1~exp3) experimental; urgency=medium
+
+  * define VBOX_USE_SYSTEM_GL_HEADERS from Sérgio Basto.
+
+ -- Gianfranco Costamagna <locutusofborg@debian.org>  Thu, 19 Oct 2017 14:25:13 +0200
+
+virtualbox (5.2.0-dfsg-1~exp2) experimental; urgency=medium
+
+  * Re-add part of 18-system-xorg.patch, this should fix
+    part of the i386 failure
+
+ -- Gianfranco Costamagna <locutusofborg@debian.org>  Thu, 19 Oct 2017 12:14:57 +0200
+
+virtualbox (5.2.0-dfsg-1~exp1) experimental; urgency=medium
+
+  * New upstream version 5.2.0-dfsg
+  * Drop xorg patches, patch refresh
+
+ -- Gianfranco Costamagna <locutusofborg@debian.org>  Wed, 18 Oct 2017 20:31:06 +0200
+
+virtualbox (5.1.30-dfsg-1) unstable; urgency=medium
+
+  * New upstream version 5.1.30-dfsg
+
+ -- Gianfranco Costamagna <locutusofborg@debian.org>  Tue, 17 Oct 2017 08:50:29 +0200
+
+virtualbox (5.1.28-dfsg-3) unstable; urgency=medium
+
+  * Drop the ntp conflict, users seems to be not happy with not having it.
+    Closes: #878074.
+    People are already advised to *not* use it, and use the guest tools
+    instead.
+
+ -- Gianfranco Costamagna <locutusofborg@debian.org>  Tue, 10 Oct 2017 19:34:19 +0200
+
+virtualbox (5.1.28-dfsg-2) unstable; urgency=high
+
+  * Conflict with ntp services due to systemd hack removed.
+    (Closes: #873263)
+    (thanks to the various systemd maintainers and upstream for the help)
+  * Bump std-version to 4.1.1
+
+ -- Gianfranco Costamagna <locutusofborg@debian.org>  Wed, 04 Oct 2017 16:47:29 +0200
+
+virtualbox (5.1.28-dfsg-1) unstable; urgency=medium
+
+  * Remove double "in" keyword, to make lintian happy
+  * New upstream version 5.1.28-dfsg
+  * Bump std-version to 4.1.0
+  * drop old patch cherry-pick-68274: upstream
+
+ -- Gianfranco Costamagna <locutusofborg@debian.org>  Thu, 14 Sep 2017 19:42:08 +0200
+
+virtualbox (5.1.26-dfsg-2) unstable; urgency=medium
+
+  * Cherry-pick gcc warning fix 68274
+
+ -- Gianfranco Costamagna <locutusofborg@debian.org>  Mon, 07 Aug 2017 12:09:45 +0200
+
+virtualbox (5.1.26-dfsg-1) unstable; urgency=medium
+
+  * New upstream version 5.1.26-dfsg
+  * Drop vboxxpcom patch merged upstream
+
+ -- Gianfranco Costamagna <locutusofborg@debian.org>  Fri, 28 Jul 2017 09:58:32 +0200
+
+virtualbox (5.1.24-dfsg-2) unstable; urgency=medium
+
+  [ Andreas Heinlein ]
+  * debian/patches/vboxxpcom.py.patch:
+    - Fix python3 binding (Upstream ticket:
+      https://www.virtualbox.org/ticket/16899
+      Closes: #868853
+      Thanks Andreas Heinlein for the report and fix!
+
+ -- Gianfranco Costamagna <locutusofborg@debian.org>  Wed, 19 Jul 2017 11:31:27 +0200
+
+virtualbox (5.1.24-dfsg-1) unstable; urgency=medium
+
+  * New upstream version 5.1.24, patch refresh
+  * Add iproute2 (Closes: #867129)
+    - Thanks Zhang Jingqiang <zh_jq@outlook.com> for reporting!
+
+ -- Gianfranco Costamagna <locutusofborg@debian.org>  Tue, 18 Jul 2017 15:28:52 +0200
+
+virtualbox (5.1.22-dfsg-4) unstable; urgency=medium
+
+  * No change rebuild with new debhelper (Closes: #868290)
+
+ -- Gianfranco Costamagna <locutusofborg@debian.org>  Thu, 13 Jul 2017 23:56:46 +0200
+
+virtualbox (5.1.22-dfsg-3) unstable; urgency=medium
+
+  * Switch compat level to 10
+  * Bump std-version to 4.0.0
+
+ -- Gianfranco Costamagna <locutusofborg@debian.org>  Tue, 11 Jul 2017 23:57:11 +0200
+
+virtualbox (5.1.22-dfsg-2) unstable; urgency=medium
+
+  [ Michael Hudson-Doyle ]
+  * Look for Python 3.6 as well as all older versions.
+
+ -- Gianfranco Costamagna <locutusofborg@debian.org>  Sat, 24 Jun 2017 15:00:47 +0200
+
+virtualbox (5.1.22-dfsg-1) unstable; urgency=medium
+
+  * New upstream release.
+
+ -- Gianfranco Costamagna <locutusofborg@debian.org>  Sat, 29 Apr 2017 11:10:07 +0200
+
+virtualbox (5.1.20-dfsg-2) unstable; urgency=medium
+
+  * Add two missing files, from new 5.1.20a upstream tarball.
+
+ -- Gianfranco Costamagna <locutusofborg@debian.org>  Wed, 19 Apr 2017 11:11:21 +0200
+
+virtualbox (5.1.20-dfsg-1) unstable; urgency=medium
+
+  * New upstream release, patch refresh.
+    - drop prime patch
+
+ -- Gianfranco Costamagna <locutusofborg@debian.org>  Wed, 19 Apr 2017 08:05:49 +0200
+
+virtualbox (5.1.18-dfsg-1) unstable; urgency=medium
+
+  * New upstream release, patch refresh.
+
+ -- Gianfranco Costamagna <locutusofborg@debian.org>  Thu, 16 Mar 2017 00:04:58 +0100
+
+virtualbox (5.1.16-dfsg-1) unstable; urgency=medium
+
+  [ David Baumann ]
+  * Fix desktop file (LP: #1507324)
+
+  [ Gianfranco Costamagna ]
+  * New upstream release, patch refresh.
+  * Drop upstream patch for linux 4.10
+
+ -- Gianfranco Costamagna <locutusofborg@debian.org>  Mon, 06 Mar 2017 15:09:23 +0100
+
+virtualbox (5.1.14-dfsg-3) unstable; urgency=medium
+
+  [ Andreas Pokorny ]
+  * Add support for Unity8 (LP: #1669807)
+
+  [ Gianfranco Costamagna ]
+  * Update virtualbox desktop file.
+
+ -- Gianfranco Costamagna <locutusofborg@debian.org>  Fri, 03 Mar 2017 19:28:43 +0100
+
+virtualbox (5.1.14-dfsg-2) unstable; urgency=medium
+
+  [ Seth Forshee ]
+  * Cherry pick upstream commit 65409 to fix build with Linux 4.10.
+
+ -- Gianfranco Costamagna <locutusofborg@debian.org>  Thu, 16 Feb 2017 20:10:54 +0100
+
+virtualbox (5.1.14-dfsg-1) unstable; urgency=medium
+
+  * New upstream release.
+
+ -- Gianfranco Costamagna <locutusofborg@debian.org>  Tue, 17 Jan 2017 16:00:00 +0100
+
+virtualbox (5.1.12-dfsg-2) unstable; urgency=medium
+
+  * Add missing libegl1-mesa-dev dependency
+    (Closes: #848946)
+
+ -- Gianfranco Costamagna <locutusofborg@debian.org>  Wed, 21 Dec 2016 07:37:38 +0100
+
+virtualbox (5.1.12-dfsg-1) unstable; urgency=medium
+
+  * New upstream release.
+
+ -- Gianfranco Costamagna <locutusofborg@debian.org>  Tue, 20 Dec 2016 22:57:30 +0100
+
+virtualbox (5.1.10-dfsg-2) unstable; urgency=low
+
+  [ Gianfranco Costamagna, Peter Meiser ]
+  * Major rewrite of the guest-additions GL library handling
+
+  [ Gianfranco Costamagna ]
+  * Cherry-pick upstream fixes for xorg 1.19 (Closes: #845644)
+    - remove vboxvideo_drv_system.so, obsolete and useless
+      (according to upstream ticket 16052)
+
+ -- Gianfranco Costamagna <locutusofborg@debian.org>  Tue, 22 Nov 2016 18:48:42 +0100
+
+virtualbox (5.1.10-dfsg-1) unstable; urgency=medium
+
+  * New upstream release (Closes: #843619)
+    - drop linux-4.9-fix.patch, python3.patch, fix-build.patch,
+      old-python.patch: upstream
+
+ -- Gianfranco Costamagna <locutusofborg@debian.org>  Tue, 22 Nov 2016 11:03:17 +0100
+
+virtualbox (5.1.8-dfsg-7) unstable; urgency=medium
+
+  * d/p/linux-4.9-fix.patch (LP: #1642163):
+    - Fix build with kernel 4.9, cherry-picking upstream
+      commit 64561 64562 64564
+
+ -- Gianfranco Costamagna <locutusofborg@debian.org>  Wed, 16 Nov 2016 10:18:29 +0100
+
+virtualbox (5.1.8-dfsg-6) unstable; urgency=medium
+
+  * Try to avoid dh_python3 symlinks
+
+ -- Gianfranco Costamagna <locutusofborg@debian.org>  Fri, 21 Oct 2016 17:54:55 +0200
+
+virtualbox (5.1.8-dfsg-5) unstable; urgency=high
+
+  * Back to Python2, seems that at runtime some symbolik
+    links need mangling (Closes: #841634)
+
+ -- Gianfranco Costamagna <locutusofborg@debian.org>  Fri, 21 Oct 2016 17:28:00 +0200
+
+virtualbox (5.1.8-dfsg-4) unstable; urgency=medium
+
+  * cherry-pick upstream 64330 to bring Python3
+    - debian/patches/python3.patch
+      switch finally to Python3 (LP: #1528016, Closes: #830878)
+
+ -- Gianfranco Costamagna <locutusofborg@debian.org>  Thu, 20 Oct 2016 14:34:26 +0200
+
+virtualbox (5.1.8-dfsg-3) unstable; urgency=medium
+
+  * Fix build with the correct upstream patch.
+    (Closes: #841340)
+
+ -- Gianfranco Costamagna <locutusofborg@debian.org>  Wed, 19 Oct 2016 19:33:05 +0200
+
+virtualbox (5.1.8-dfsg-2) unstable; urgency=medium
+
+  * Fix a build failure with newer gcc.
+
+ -- Gianfranco Costamagna <locutusofborg@debian.org>  Wed, 19 Oct 2016 18:03:27 +0200
+
+virtualbox (5.1.8-dfsg-1) unstable; urgency=medium
+
+  * New upstream release.
+    - builds with new openssl 1.1 (Closes: #828593)
+    - fix double snapshot deletion crash (Closes: #838766)
+
+ -- Gianfranco Costamagna <locutusofborg@debian.org>  Wed, 19 Oct 2016 00:12:38 +0200
+
+virtualbox (5.1.6-dfsg-2) unstable; urgency=medium
+
+  * Tweak description to mention that dkms and source are
+    mutually exclusive (Closes: #634042)
+
+ -- Gianfranco Costamagna <locutusofborg@debian.org>  Wed, 14 Sep 2016 08:43:10 +0200
+
+virtualbox (5.1.6-dfsg-1) unstable; urgency=medium
+
+  * New upstream release, patch refresh.
+
+ -- Gianfranco Costamagna <locutusofborg@debian.org>  Tue, 13 Sep 2016 08:07:31 +0200
+
+virtualbox (5.1.4-dfsg-4) unstable; urgency=low
+
+  * Try to add VBox missing binaries (LP: #1621890).
+  * Merge the VBox.sh with the upstream one
+
+ -- Gianfranco Costamagna <locutusofborg@debian.org>  Fri, 09 Sep 2016 16:38:26 +0200
+
+virtualbox (5.1.4-dfsg-3) unstable; urgency=low
+
+  * Revert to Python2, building with Python3 seems still not supported
+    even if at runtime it might work.
+
+ -- Gianfranco Costamagna <locutusofborg@debian.org>  Thu, 08 Sep 2016 11:39:40 +0200
+
+virtualbox (5.1.4-dfsg-2) unstable; urgency=low
+
+  * Switch to Python3 (LP: #1528016, Closes: #830878)
+
+ -- Gianfranco Costamagna <locutusofborg@debian.org>  Fri, 26 Aug 2016 09:51:07 +0200
+
+virtualbox (5.1.4-dfsg-1) unstable; urgency=low
+
+  * New upstream major release, patch refresh.
+  * Update dependencies to qt5
+  * Regenerate manpages
+  * Fix gcc version check for gcc-6.x
+  * Only suggest the guest-x11 from the guest-utils package.
+    (Closes: #834965)
+
+ -- Gianfranco Costamagna <locutusofborg@debian.org>  Wed, 17 Aug 2016 10:33:49 +0200
+
+virtualbox (5.0.24-dfsg-2) unstable; urgency=medium
+
+  * Relax debhelper version, to ease backports.
+
+ -- Gianfranco Costamagna <locutusofborg@debian.org>  Thu, 30 Jun 2016 10:54:14 +0200
+
+virtualbox (5.0.24-dfsg-1) unstable; urgency=medium
+
+  * New upstream release, patch refresh.
+    - remove fix-build.patch: upstream
+
+ -- Gianfranco Costamagna <locutusofborg@debian.org>  Wed, 29 Jun 2016 00:51:47 +0200
+
+virtualbox (5.0.22-dfsg-3) unstable; urgency=high
+
+  * Fix Ubuntu build (patch already accepted upstream)
+    - this should fix also older kernel builds.
+
+ -- Gianfranco Costamagna <locutusofborg@debian.org>  Tue, 28 Jun 2016 18:29:30 +0200
+
+virtualbox (5.0.22-dfsg-2) unstable; urgency=low
+
+  * Switch to automatic dbg packages.
+
+ -- Gianfranco Costamagna <locutusofborg@debian.org>  Fri, 24 Jun 2016 23:22:04 +0200
+
+virtualbox (5.0.22-dfsg-1) unstable; urgency=medium
+
+  * New upstream release, patch refresh.
+    - drop fix-detect-gcc-5.4.patch, fix-kernel-4.7.patch,
+      fix-gcc-pie.patch: upstream
+
+ -- Gianfranco Costamagna <locutusofborg@debian.org>  Fri, 17 Jun 2016 00:24:15 +0200
+
+virtualbox (5.0.20-dfsg-3) unstable; urgency=medium
+
+  [ Adam Borowski ]
+  * debian/patches/fix-kernel-4.7.patch (Closes: #825819)
+
+  [ Gianfranco Costamagna ]
+  * Conflict with virtualbox-5.1
+  * Upload to unstable.
+
+  [ Mateusz Łukasik ]
+  * debian/patches/fix-detect-gcc-5.4.patch:
+    - Fix build failure with gcc-5.4 and 6.1 (Closes: #827193)
+
+ -- Gianfranco Costamagna <locutusofborg@debian.org>  Mon, 30 May 2016 12:30:24 +0200
+
+virtualbox (5.0.20-dfsg-2) unstable; urgency=medium
+
+  [ Guillem Jover ]
+  * make LSB init script have more consistent output (Closes: #823086).
+
+  [ Frank Mehnert ]
+  * Pass -fno-pie, to avoid build failures with gcc and default pie enabled.
+    (LP: #1578424)
+    - debian/patches/fix-gcc-pie.patch
+
+  [ Gianfranco Costamagna ]
+  * Remove in pdf manual the update section (Closes: #823343)
+    - thanks qazwsxedc for the bug report!
+
+ -- Gianfranco Costamagna <locutusofborg@debian.org>  Sun, 01 May 2016 20:28:45 +0200
+
+virtualbox (5.0.20-dfsg-1) unstable; urgency=medium
+
+  * New upstream release.
+    - drop 99-vboxvideo-module-version.patch,
+      fix-guest-failure.patch: upstream.
+
+ -- Gianfranco Costamagna <locutusofborg@debian.org>  Fri, 29 Apr 2016 09:49:35 +0200
+
+virtualbox (5.0.18-dfsg-3) unstable; urgency=high
+
+  * d/p/fix-guest-failure.patch
+    - fix guest issue causing writes to the disk to fail.
+
+ -- Gianfranco Costamagna <locutusofborg@debian.org>  Wed, 20 Apr 2016 11:04:27 +0200
+
+virtualbox (5.0.18-dfsg-2) unstable; urgency=medium
+
+  [ Adam Conrad ]
+  * Add MODULE_VERSION to the vboxvideo driver, so DKMS can find it.
+
+ -- Gianfranco Costamagna <locutusofborg@debian.org>  Tue, 19 Apr 2016 16:45:36 +0200
+
+virtualbox (5.0.18-dfsg-1) unstable; urgency=medium
+
+  * New upstream release.
+    - drop fix-grapphics.patch: upstream
+  * Fix insecure VCS fields.
+  * Upload to unstable.
+
+ -- Gianfranco Costamagna <locutusofborg@debian.org>  Thu, 14 Apr 2016 18:20:22 +0200
+
+virtualbox (5.0.16-dfsg-3) experimental; urgency=low
+
+  * Build without xorg legacy with the backport of 5.0.17
+    code (revision 106564)
+  * Bump std-version to 3.9.8, no changes required.
+  * Add vbox-img (LP: #1558521).
+    - thanks sworddragon for the bug report!
+
+ -- Gianfranco Costamagna <locutusofborg@debian.org>  Tue, 08 Mar 2016 12:53:39 +0100
+
+virtualbox (5.0.16-dfsg-2) unstable; urgency=medium
+
+  * Update copyright year.
+  * Install VBoxBugReport too.
+
+ -- Gianfranco Costamagna <locutusofborg@debian.org>  Sat, 05 Mar 2016 17:41:29 +0100
+
+virtualbox (5.0.16-dfsg-1) unstable; urgency=medium
+
+  * New upstream release, patch refresh.
+  * Bump std-version to 3.9.7, no changes required.
+  * Bump watch file version to 4.
+
+ -- Gianfranco Costamagna <locutusofborg@debian.org>  Sat, 05 Mar 2016 10:54:36 +0100
+
+virtualbox (5.0.14-dfsg-2) unstable; urgency=medium
+
+  [ Michael Biebl ]
+  * debian/vboxweb.service: drop wrong/useless ExecStopPost
+    keyword: (Closes: #813072)
+
+ -- Gianfranco Costamagna <locutusofborg@debian.org>  Fri, 29 Jan 2016 12:01:48 +0100
+
+virtualbox (5.0.14-dfsg-1) unstable; urgency=medium
+
+  * new upstream release.
+  * Rework rules file to work also when only guest packages needs to be built.
+  * Merge VBox.sh script with upstream, and add procps to runtime dependencies
+    thanks Andreas Beckmann <anbe@debian.org> (Closes: #802143)
+    -cfr https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=802143#26
+
+ -- Gianfranco Costamagna <locutusofborg@debian.org>  Wed, 20 Jan 2016 10:04:40 +0100
+
+virtualbox (5.0.12-dfsg-2) unstable; urgency=low
+
+  [ Felipe Sateler ]
+  * Remove old init script, superceeded by modaliases
+    (Closes: #796706)
+
+ -- Gianfranco Costamagna <locutusofborg@debian.org>  Mon, 28 Dec 2015 18:22:57 +0100
+
+virtualbox (5.0.12-dfsg-1) unstable; urgency=medium
+
+  * New upstream release, patch refresh.
+    - drop fix-gcc-version.patch: upstream.
+
+ -- Gianfranco Costamagna <locutusofborg@debian.org>  Sat, 19 Dec 2015 10:29:34 +0100
+
+virtualbox (5.0.10-dfsg-7) unstable; urgency=high
+
+  * use "--no-enable" to not enable the service by default.
+    (Closes: #807542). A big thanks to Laurent Bigonville!
+
+ -- Gianfranco Costamagna <locutusofborg@debian.org>  Fri, 11 Dec 2015 12:54:05 +0100
+
+virtualbox (5.0.10-dfsg-6) unstable; urgency=medium
+
+  * Do not enable vboxweb.service by default
+    (Closes: #807542)
+
+ -- Gianfranco Costamagna <locutusofborg@debian.org>  Thu, 10 Dec 2015 11:21:32 +0100
+
+virtualbox (5.0.10-dfsg-5) unstable; urgency=medium
+
+  * fix-gcc-version.patch: allow gcc-5.3
+    (Closes: #807466)
+
+ -- Gianfranco Costamagna <locutusofborg@debian.org>  Wed, 09 Dec 2015 09:26:44 +0100
+
+virtualbox (5.0.10-dfsg-4) unstable; urgency=low
+
+  * Add vboxweb.service from Sérgio Basto
+    - thanks algernon for the help :)
+
+ -- Gianfranco Costamagna <locutusofborg@debian.org>  Tue, 24 Nov 2015 11:39:57 +0100
+
+virtualbox (5.0.10-dfsg-3) unstable; urgency=medium
+
+  [ Mattia Rizzolo ]
+  * Fix cgit VCS field
+  * Stop overriding dh_builddeb, the new dpkg already defaults to xz.
+
+  [ Gianfranco Costamagna ]
+  * add x11-xserver-utils to x11 runtime dependencies, needed for xrandr
+    (Closes: #805752). A great thanks to Ross Boylan for digging into the
+    issue and reporting the fix!
+  * Add a missing Provide of virtualbox-module package
+    (and drop the lintian override)
+  * Drop old and useless README.Debian for guest-x11 package.
+    thanks again Ross Boylan for the fix!
+
+ -- Gianfranco Costamagna <locutusofborg@debian.org>  Wed, 18 Nov 2015 12:30:13 +0100
+
+virtualbox (5.0.10-dfsg-2) unstable; urgency=medium
+
+  * Fix lintian error about malformed override.
+  * Bump compat level to 9.
+
+ -- Gianfranco Costamagna <locutusofborg@debian.org>  Fri, 13 Nov 2015 19:36:14 +0100
+
+virtualbox (5.0.10-dfsg-1) unstable; urgency=medium
+
+  * New upstream release, patch refresh.
+  * Update watch file, thanks <mattia>!
+  * Remove iasl-fix.patch: upstream.
+
+ -- Gianfranco Costamagna <locutusofborg@debian.org>  Wed, 11 Nov 2015 10:29:52 +0100
+
+virtualbox (5.0.8-dfsg-1) unstable; urgency=medium
+
+  * New upstream release, patch refresh.
+  * Remove version constraint from virtualbox-modules, because it is a virtual package.
+  * Add runtime dependency on xserver-xorg-legacy on virtualbox-guest-x11
+    (Closes: #801524)
+  * Remove some more vboxdrv references (04-vboxdrv-references.patch)
+  * Override missing virtualbox-modules lintian error.
+
+  [ Alexander Eichner]
+  * debian/patches/iasl-fix.patch: fix build failure against new iasl 20150930
+
+ -- Gianfranco Costamagna <locutusofborg@debian.org>  Thu, 22 Oct 2015 15:32:44 +0200
+
+virtualbox (5.0.6-dfsg-1) unstable; urgency=medium
+
+  * New upstream release, patch refresh.
+    - Drop fix-*.patch patches, upstream.
+  * Fix rules file to build arch:all packages with dh_listpackages features.
+  * Make virtualbox depend on dkms, source, modules >= source:Version
+    instead of a single "=".
+    - Virtualbox needs a kernel module, and the kernel module is retro-compatible
+      with older virtualbox versions.
+
+ -- Gianfranco Costamagna <locutusofborg@debian.org>  Mon, 28 Sep 2015 08:52:36 +0200
+
+virtualbox (5.0.4-dfsg-4) unstable; urgency=medium
+
+  * Update control.modules.in for -source and guest-source packages.
+    Bump std-version, update VCS, update Maintainers and Uploaders list,
+    follow the control move to contrib/*.
+  * Move back dkms to Depends, the correct fix should be to just depend on it
+    (thanks to the nice -devel discussion)
+  * Remove pre-depends on dpkg because o-o-stable already has a newer version
+    (form zigo).
+  * tweak rules file to make package build in arch:all only mode
+  * Fix lintian error introduced in -3 upload, allowing the
+    package be binNMUed again
+    - virtualbox source: not-binnmuable-any-depends-all
+      virtualbox -> virtualbox-dkms
+  * Fix lintian warning about patch missing description.
+
+ -- Gianfranco Costamagna <locutusofborg@debian.org>  Fri, 25 Sep 2015 09:46:55 +0200
+
+virtualbox (5.0.4-dfsg-3) unstable; urgency=high
+
+  [ Gianfranco Costamagna ]
+  * Add xmllint (libxml2-utils) to build-dependencies, to check documentation
+    during build (Closes: #798638)
+    - add VBOX_PATH_DOCBOOK_DTD := /usr/share/xml/docbook/schema/dtd/4/ to
+      LocalConfig.kmk
+    - thanks a lot to Graham Inggs for the hint!
+
+  [ Ritesh Raj Sarraf ]
+  * Demote virtualbox-dkms | virtualbox-source to pre-depends,
+    needed to fully configure virtualbox kernel module prior
+    to reload virtualbox service, avoiding a race condition.
+    (Closes: #798527, #798979)
+
+ -- Gianfranco Costamagna <locutusofborg@debian.org>  Fri, 11 Sep 2015 12:53:53 +0200
+
+virtualbox (5.0.4-dfsg-2) unstable; urgency=medium
+
+  * debian/patches/fix-build.patch: fix i386 build failure.
+
+ -- Gianfranco Costamagna <locutusofborg@debian.org>  Wed, 09 Sep 2015 12:23:13 +0200
+
+virtualbox (5.0.4-dfsg-1) unstable; urgency=medium
+
+  * New upstream release, patch refresh.
+
+ -- Gianfranco Costamagna <locutusofborg@debian.org>  Tue, 08 Sep 2015 19:45:04 +0200
+
+virtualbox (5.0.2-dfsg-2) unstable; urgency=medium
+
+  * d/rules: re-enable VBOX_WITH_VMSVGA and
+     VBOX_WITH_VMSVGA3D (Closes: #795531).
+     - the CVEs are already fixed
+     - this patch makes it build more coherently
+       with how upstream builds it.
+     - the proper patch should be on upstream changeset 57410
+       but we don't need it anymore
+  * Disable VBoxDTrace (Closes: #795806)
+
+ -- Gianfranco Costamagna <locutusofborg@debian.org>  Sun, 16 Aug 2015 11:33:47 +0200
+
+virtualbox (5.0.2-dfsg-1) unstable; urgency=medium
+
+  * New upstream release. (Closes: #795424)
+  * Patch refresh.
+  * Update my uid.
+  * d/p/fix-gcc-5.2.patch: allow building with gcc-5.2
+
+ -- Gianfranco Costamagna <locutusofborg@debian.org>  Fri, 14 Aug 2015 15:43:08 +0200
+
+virtualbox (5.0.0-dfsg-1) experimental; urgency=medium
+
+  [ Gianfranco Costamagna ]
+  * Imported upstream release (Closes: #792026).
+  * Patch refresh.
+  * remove obsolete lintian overrides.
+  * add some wrongly removed lintian overrides.
+  * Add VBoxDTrace not linked against libc lintian override.
+    It seems to really not use libc symbols.
+  * d/rules: remove VBoxDTraceR0.debug and strip VBoxDTraceR0.r0
+    files.
+  * d/rules: sed .gc to .rc (following upstream rename change)
+  * update d/source.lintian-overrides file.
+
+ -- Gianfranco Costamagna <costamagnagianfranco@yahoo.it>  Tue, 14 Jul 2015 15:56:17 +0200
+
+virtualbox (4.3.30-dfsg-1) unstable; urgency=medium
+
+  [ Ritesh Raj Sarraf ]
+  * Imported upstream release.
+
+  [ Gianfranco Costamagna ]
+  * Readd again some removed lintian overrides.
+  * virtualbox 4.3.30 builds fine with gcc 5.1, removing the
+    gcc-4.9 workaround (d/{rules,control})
+  * Update copyright file.
+  * Patch refresh.
+  * Remove some more windows prebuilt files.
+  * Add libnotify-bin as runtime-dependency for the x11 package
+    (used for notify-send command) (Closes: #792292)
+    - Thanks Torquil Macdonald Sørensen for the useful and complete
+      bug report.
+
+ -- Gianfranco Costamagna <costamagnagianfranco@yahoo.it>  Tue, 14 Jul 2015 15:29:23 +0200
+
+virtualbox (4.3.28-dfsg-1) unstable; urgency=medium
+
+  * New upstream release (Closes: #785655).
+    - fix for CVE-2015-3456 a.k.a. VENOM (Closes: #785424)
+    - patch refresh.
+    - remove d/p/37-diff_smap_4.patch.
+  * Remove MAKE=kmk on virtualbox{,-guest}-source.files/rules
+    (Closes: #785161).
+    Upstream doesn't recommend using kmk to build kernel modules.
+    this reverts 63fa6b7b86035b53e8d053b894814eccac9ce595
+  * Add gbp.conf file.
+
+ -- Gianfranco Costamagna <costamagnagianfranco@yahoo.it>  Thu, 14 May 2015 09:36:52 +0200
+
+virtualbox (4.3.26-dfsg-3) unstable; urgency=medium
+
+  [ Adam Conrad ]
+  * Re-work the packaging to account for the kernel modules being shipped in
+    the master kernel packages, removing the need for dkms (LP: #1434579):
+    - Make the dkms package provide a virtual package matching what the
+      kernel packages provide to indicate that they ship the dkms modules.
+    - Add an alternate dep from the utils package to the virtual driver.
+    - Make the x11 driver package associate with the VGA controller PCI ID.
+
+ -- Gianfranco Costamagna <costamagnagianfranco@yahoo.it>  Wed, 22 Apr 2015 16:16:23 +0200
+
+virtualbox (4.3.26-dfsg-2) experimental; urgency=medium
+
+  [ Gianfranco Costamagna ]
+  * remove obsolete lintian overrides.
+  * d/p/37-diff_smap_4.patch, cherry-pick upstream patch to fix a kernel
+    paging issue (LP: #1437845).
+
+  [ Ritesh Raj Sarraf ]
+  * Remove Michael Meskes from uploaders.
+
+ -- Gianfranco Costamagna <costamagnagianfranco@yahoo.it>  Fri, 20 Mar 2015 12:02:04 +0100
+
+virtualbox (4.3.26-dfsg-1) experimental; urgency=medium
+
+  * Imported upstream release.
+   * Conflict with upstream proprietary packages 4.3 series.
+     (LP: #1371287, LP: #1375018, LP: #1385931, LP: #1386328, LP: #1421926)
+
+ -- Gianfranco Costamagna <costamagnagianfranco@yahoo.it>  Tue, 17 Mar 2015 08:36:06 +0100
+
+virtualbox (4.3.24-dfsg-1) experimental; urgency=medium
+
+  [ Gianfranco Costamagna ]
+  * Imported upstream release (Closes: #779025).
+  * Remove d/p/38-remove-hardcoded-gcc.patch, use --with-gcc and
+    --with-g++ configure flags.
+  * Remove d/p/37-fix-build.patch, merged upstream.
+
+  [ Ritesh Raj Sarraf ]
+  * [3bf4cdd] Add back versioned dependency on gcc multilib
+
+ -- Ritesh Raj Sarraf <rrs@debian.org>  Wed, 04 Mar 2015 17:35:40 +0530
+
+virtualbox (4.3.22-dfsg-1) experimental; urgency=medium
+
+  [ Gianfranco Costamagna ]
+  * Imported Upstream release.
+  * Update copyright year.
+  * d/p/37-fix-build.patch fix build, following upstream change in
+    xorg driver build (thanks to Michael Thayer for the hint and
+    the help).
+  * Remove old patches.
+  * d/p/38-remove-hardcoded-gcc.patch use CC and CXX from d/rules
+    until virtualbox is gcc-5 ready.
+
+  [ Ritesh Raj Sarraf ]
+  * [1413631] Build with gcc 4 only
+  * [f34c886] Add versioned dependency on g++-multilib
+
+ -- Ritesh Raj Sarraf <rrs@debian.org>  Sun, 15 Feb 2015 16:56:09 +0530
+
+virtualbox (4.3.20-dfsg-1) experimental; urgency=medium
+
+  [ Gianfranco Costamagna ]
+  * Imported Upstream release.
+
+  [ Ritesh Raj Sarraf ]
+  * Flip build dependency to libcurl4-gnutls-dev
+
+ -- Gianfranco Costamagna <costamagnagianfranco@yahoo.it>  Wed, 03 Dec 2014 09:37:08 +0100
+
+virtualbox (4.3.18-dfsg-3) unstable; urgency=medium
+
+  * Conflict with upstream proprietary packages 4.3 series.
+    (LP: #1371287, LP: #1375018, LP: #1385931, LP: #1386328, LP: #1421926)
+
+ -- Gianfranco Costamagna <costamagnagianfranco@yahoo.it>  Mon, 09 Mar 2015 10:12:44 +0100
+
+virtualbox (4.3.18-dfsg-2) unstable; urgency=high
+
+  [ Frank Mehnert ]
+  * d/rules: Disable experimental code by exporting
+    VBOX_WITH_VMSVGA= VBOX_WITH_VMSVGA3D=
+    this fixes CVE-2014-6595, CVE-2014-6590, CVE-2014-6589,
+    CVE-2014-6588 and CVE-2015-0427. (Closes: #775888)
+
+ -- Gianfranco Costamagna <costamagnagianfranco@yahoo.it>  Thu, 22 Jan 2015 10:51:40 +0100
+
+virtualbox (4.3.18-dfsg-1) unstable; urgency=medium
+
+  [ Gianfranco Costamagna ]
+  * Imported Upstream release.
+  * Add myself to uploaders.
+  * Patch refresh.
+  * Bump Standards-Version to 3.9.6, no changes needed.
+  * Wrap-and-sort control file.
+  * Fix lintian warnings:
+    - Remove old hardening-wrapper
+    - Remove broken symlinks.
+
+  [ Felix Geyer ]
+  * Remove myself from uploaders.
+
+ -- Gianfranco Costamagna <costamagnagianfranco@yahoo.it>  Fri, 17 Oct 2014 11:54:01 +0200
+
+virtualbox (4.3.14-dfsg-1) unstable; urgency=medium
+
+  [ Gianfranco Costamagna ]
+  * New upstream release (Closes: #754220)
+    thanks Mateusz Łukasik for the patch.
+  * Rebuild against the new xorg-video-abi-18 (Closes: #755067)
+  * Tweak README.source to show how to upgrade the package with
+    uscan (Closes: #699141), thanks Dmitry!
+  * Removing some binary files from the source tarball,
+    spotted by lintian.
+
+ -- Gianfranco Costamagna <costamagnagianfranco@yahoo.it>  Sat, 26 Jul 2014 15:25:37 +0200
+
+virtualbox (4.3.12-dfsg-1) unstable; urgency=medium
+
+  [ Gianfranco Costamagna ]
+  * New upstream release.
+
+ -- Ritesh Raj Sarraf <rrs@debian.org>  Wed, 04 Jun 2014 09:43:11 -0400
+
+virtualbox (4.3.10-dfsg-1) unstable; urgency=high
+
+  * New upstream release.
+    - Fixes multiple memory corruption vulnerabilities in the 3D acceleration
+      code. (Closes: #741602)
+      CVE-2014-0981, CVE-2014-0983
+
+  [ Gianfranco Costamagna ]
+  * Patch refresh.
+  * d/control, enforcing gsoap min required version.
+  * Add module-assistant as dependency, fixing broken symlink
+  * disabled some old unused lintian overrides.
+
+  [ Felix Geyer ]
+  * Override embedded-library nspr lintian warning, it's a locally modified
+    version.
+
+ -- Felix Geyer <fgeyer@debian.org>  Sun, 06 Apr 2014 15:31:09 +0200
+
+virtualbox (4.3.6-dfsg-2) unstable; urgency=medium
+
+  * Disable bindnow in hardening-wrapper. This fixes loading the x11 driver.
+    (LP: #1280292)
+
+ -- Felix Geyer <fgeyer@debian.org>  Sat, 15 Feb 2014 11:02:21 +0100
+
+virtualbox (4.3.6-dfsg-1) unstable; urgency=medium
+
+  * New upstream release. (Closes: #733263)
+    - Fixes build against Linux 3.13. (Closes: #734340)
+    - Fixes several vulnerabilities. (Closes: #735410)
+      CVE-2013-5892, CVE-2014-0407, CVE-2014-0406, CVE-2014-0404
+  * Drop compatibility with old X11 server packages.
+  * Enable hardened build flags using hardening-wrapper. The upstream build
+    system ignores the *FLAGS env variables. (Closes: #736459)
+  * Refresh 16-no-update.patch.
+
+ -- Felix Geyer <fgeyer@debian.org>  Mon, 10 Feb 2014 21:41:40 +0100
+
+virtualbox (4.3.2-dfsg-1) unstable; urgency=low
+
+  [ Ritesh Raj Sarraf ]
+  * [a4d35eb] Drop patch 30-usb-warning-filters.patch
+  * [84b99a4] Refresh patch 27-hide-host-cache-warning.patch
+  * [55f29e6] Add virtualbox-guest-x11.postrm and call ldconfig in postrm
+  * [9bbe020] Don't ship .debug files, when we already are stripping dwarf
+    symbols from its libraries
+  * Fix VBox network interface error on Linux 3.11
+    - Add 38-linux-3.11-vboxnet.patch
+  * [8e73a12] Imported Upstream version 4.3.2-dfsg
+  * [9b2bc93] Fix VBox network interface error on Linux 3.11
+  * [516aa9a] Refresh patches and drop patch 37 and 38 for linux 3.11
+  * [ab699e4] bump versioned build-dep on kbuild to r2695
+  * [5913c87] Add myself to Uploaders
+  * [8e53496] Add libvpx-dev to build-deps
+  * [caeed37] Add patch 02-gsoap-build-fix.patch to fix build
+    incompatibilities with gsoap > 2.8.13
+
+ -- Ritesh Raj Sarraf <rrs@debian.org>  Tue, 10 Dec 2013 10:15:34 -0500
+
+virtualbox (4.2.16-dfsg-3) unstable; urgency=low
+
+  [ Ritesh Raj Sarraf ]
+  * Fix VBox network interface error on Linux 3.11. (Closes: #721786)
+    - Extend 37-linux-3.11.patch
+
+ -- Felix Geyer <fgeyer@debian.org>  Thu, 19 Sep 2013 21:52:12 +0200
+
+virtualbox (4.2.16-dfsg-2) unstable; urgency=low
+
+  [ Whoopie ]
+  * Add VNC plugin module.
+    - debian/patches/36-fix-vnc-version-string.patch: fix version string.
+
+  [ Felix Geyer ]
+  * Fix compilation of guest additions with linux 3.11.
+    - Add 37-linux-3.11.patch.
+
+ -- Felix Geyer <fgeyer@debian.org>  Wed, 28 Aug 2013 22:15:25 +0200
+
+virtualbox (4.2.16-dfsg-1) unstable; urgency=high
+
+  [ Felix Geyer ]
+  * New upstream release.
+    - Fixes CVE-2013-3792: virtio-net host DoS vulnerability. (Closes: #715327)
+  * Drop 36-python-multiarch.patch and 37-wheezy-kernel-drm.patch,
+    fixed upstream.
+  * Explicity load the vboxguest and vboxsf kernel modules in the
+    virtualbox-guest-utils init script.
+    This makes sure that shared folders can be mounted. (Closes: #712438)
+
+  [ Gianfranco Costamagna ]
+  * Patch refresh.
+
+ -- Felix Geyer <fgeyer@debian.org>  Sun, 21 Jul 2013 23:25:44 +0200
+
+virtualbox (4.2.10-dfsg-1) unstable; urgency=low
+
+  * New upstream release. (Closes: #691148)
+    - Fixes compatibility with kernel 3.8. (Closes: #700823; LP: #1101867)
+  * Switch to my @debian.org email address.
+  * Move package to contrib as virtualbox 4.2 needs a non-free compiler to
+    build the BIOS.
+  * Build-depend on libdevmapper-dev.
+  * Refresh patches.
+    - Drop 36-fix-ftbfs-xserver-112.patch, cve-2012-3221.patch,
+      CVE-2013-0420.patch 37-kcompat-3.6.patch and 38-kcompat-3.7.patch.
+  * Drop all virtualbox-ose transitional packages.
+  * Drop the virtualbox-fuse package as vdfuse fails to build with
+    virtualbox 4.2.
+  * Update install files and VBox.sh.
+  * Bump required kbuild version to 0.1.9998svn2577.
+  * Fix path to VBoxCreateUSBNode.sh in virtualbox.postinst. (Closes: #700479)
+  * Add an init script to virtuabox-guest-x11 which loads the vboxvideo
+    kernel module. The X Server 1.13 doesn't load it anymore. (Closes: #686994)
+  * Update man pages. (Closes: #680053)
+  * Add 36-python-multiarch.patch from Rico Tzschichholz to fix detection of
+    python in multiarch paths using pkg-config.
+  * Fix build failure with the Debian wheezy kernel which backports the drm
+    subsystem from Linux 3.4. (Closes: #703358)
+  * Drop build-dependency on bcc as it's not needed anymore.
+  * Link VBoxOGL against the X libraries it requires.
+    - Update 18-system-xorg.patch
+  * Use canonical URIs for Vcs-* fields.
+  * Bump Standards-Version to 3.9.4, no changes needed.
+
+ -- Felix Geyer <fgeyer@debian.org>  Thu, 09 May 2013 11:30:42 +0200
+
+virtualbox (4.1.18-dfsg-2.1) experimental; urgency=low
+
+  [ Stefan Lippers-Hollmann ]
+  * Non-maintainer upload.
+  * fix kernel module compilation against v3.6 and v3.7
+    (closes: #691169, #696011, #696667, #696953, #698607)
+
+ -- Daniel Baumann <daniel.baumann@progress-technologies.net>  Sat, 26 Jan 2013 17:55:16 +0100
+
+virtualbox (4.1.18-dfsg-2+deb7u1) unstable; urgency=high
+
+  * Fix build failure with the Debian wheezy kernel which backports the drm
+    subsystem from Linux 3.4. (Closes: #703358)
+  * Set urgency to high as it fixes an RC bug.
+
+ -- Felix Geyer <fgeyer@debian.org>  Sun, 31 Mar 2013 20:45:16 +0200
+
+virtualbox (4.1.18-dfsg-2) unstable; urgency=high
+
+  [ John Paul Adrian Glaubitz ]
+  * Include patch to fix virtual graphics device user
+    vulnerability CVE-2013-0420. (Closes: #698292)
+
+ -- Felix Geyer <debfx-pkg@fobos.de>  Sat, 19 Jan 2013 18:05:25 +0100
+
+virtualbox (4.1.18-dfsg-1.1) unstable; urgency=high
+
+  * Non-maintainer upload.
+  * Fix cve-2012-3221: missing privilege check for task gate switches
+    (closes: 690777).
+
+ -- Michael Gilbert <mgilbert@debian.org>  Thu, 18 Oct 2012 14:20:28 -0400
+
+virtualbox (4.1.18-dfsg-1) unstable; urgency=low
+
+  * New upstream release.
+    - Fixes host freezes with 64-bit guests on 32-bit hosts. (LP: #1012627)
+    - Fixes odd permissions of files in shared folders. (LP: #1013368)
+  * Drop 37-fix-unregister-netdevice.patch, fixed upstream.
+  * Compress orig tarball and binary packages with xz.
+
+ -- Felix Geyer <debfx-pkg@fobos.de>  Thu, 21 Jun 2012 12:31:17 +0200
+
+virtualbox (4.1.16-dfsg-2) unstable; urgency=low
+
+  * Fix vboxnet device unregistration on kernel >= 3.2.18. (LP: #1009156)
+    - Add 37-fix-unregister-netdevice.patch, backported from upstream.
+  * Switch from python-central to dh_python2. (Closes: #617143)
+
+ -- Felix Geyer <debfx-pkg@fobos.de>  Sun, 10 Jun 2012 21:32:09 +0200
+
+virtualbox (4.1.16-dfsg-1) unstable; urgency=low
+
+  * New upstream release.
+  * Drop 37-fix-build-gcc47.patch, fixed upstream.
+
+ -- Felix Geyer <debfx-pkg@fobos.de>  Tue, 29 May 2012 10:09:31 +0200
+
+virtualbox (4.1.14-dfsg-2) unstable; urgency=low
+
+  * Fix FTBFS with gcc 4.7 on i386.
+    - Add 37-fix-build-gcc47.patch
+
+ -- Felix Geyer <debfx-pkg@fobos.de>  Mon, 21 May 2012 10:39:19 +0200
+
+virtualbox (4.1.14-dfsg-1) unstable; urgency=low
+
+  * New upstream release.
+    - Drop 36-tarball-respin.patch
+  * Fix FTBFS with X Server 1.12. (Closes: #671061)
+    - Add 36-fix-ftbfs-xserver-112.patch
+
+ -- Felix Geyer <debfx-pkg@fobos.de>  Tue, 01 May 2012 20:22:40 +0200
+
+virtualbox (4.1.12-dfsg-2) unstable; urgency=low
+
+  * Upstream has replaced the 4.1.12 tarball with a new one that fixes a
+    crash when creating host only interfaces. (Closes: #667460)
+    - Add 36-tarball-respin.patch which contains the diff between the old
+      and the new tarball.
+
+ -- Felix Geyer <debfx-pkg@fobos.de>  Thu, 05 Apr 2012 12:41:55 +0200
+
+virtualbox (4.1.12-dfsg-1) unstable; urgency=low
+
+  * New upstream release.
+  * Drop 36-ubuntu-pae.patch, applied upstream.
+  * Drop 33-link-static-libgsoap.patch, fixed upstream.
+  * Make the vboxpci module buildable for a i386 kernel when running amd64.
+    (Closes: #664730)
+    - Update 12-make-module.patch
+
+ -- Felix Geyer <debfx-pkg@fobos.de>  Tue, 03 Apr 2012 16:20:30 +0200
+
+virtualbox (4.1.10-dfsg-1) unstable; urgency=low
+
+  * New upstream release.
+  * Build-depend on libpng-dev instead of libpng12-dev. (Closes: #662537)
+  * Refresh 18-system-xorg.patch.
+  * Link against libgsoapssl++ instead of libgsoap++.
+    - Update 33-link-static-libgsoap.patch
+  * Enable PAE when creating Ubuntu VMs as it's required by the i386 kernel.
+    - Add 36-ubuntu-pae.patch
+  * Bump Standards-Version to 3.9.3, no changes needed.
+
+ -- Felix Geyer <debfx-pkg@fobos.de>  Sun, 18 Mar 2012 14:09:24 +0100
+
+virtualbox (4.1.8-dfsg-2) unstable; urgency=low
+
+  * Install vboxvideo_dri.so into the directory provided by the dri pkg-config
+    file. (LP: #930324)
+
+ -- Felix Geyer <debfx-pkg@fobos.de>  Sun, 19 Feb 2012 17:17:04 +0100
+
+virtualbox (4.1.8-dfsg-1) unstable; urgency=low
+
+  * New upstream release.
+  * Move all transitional packages to section oldlibs and priority extra.
+  * Refresh 16-no-update.patch.
+  * Drop 36-kernel-3.2.patch, applied upstream.
+
+ -- Felix Geyer <debfx-pkg@fobos.de>  Thu, 29 Dec 2011 12:29:25 +0100
+
+virtualbox (4.1.6-dfsg-2) unstable; urgency=low
+
+  * Fix build errors with kernel 3.2. (LP: #892506)
+    - Add 36-kernel-3.2.patch, cherry-picked from upstream.
+  * Make dependencies of the dkms packages on virtualbox/virtualbox-guest-utils
+    versioned.
+  * Move VBoxDbg.so to virtualbox-qt as it's a GUI component.
+
+ -- Felix Geyer <debfx-pkg@fobos.de>  Sat, 19 Nov 2011 18:55:11 +0100
+
+virtualbox (4.1.6-dfsg-1) unstable; urgency=low
+
+  [ Felix Geyer ]
+  * virtualbox-guest-x11: Drop xorg input driver from Provides and xorg input
+    abi from Depends.
+
+  [ Michael Meskes ]
+  * New upstream release.
+    - Fixes graphical corruption when switching to a virtual terminal.
+      (Closes: #638941)
+
+ -- Michael Meskes <meskes@debian.org>  Tue, 15 Nov 2011 12:37:22 +0100
+
+virtualbox (4.1.4-dfsg-1) unstable; urgency=low
+
+  * New upstream release.
+    - Fixes missing icons when using pt_BR locale. (Closes: #507188)
+    - Fixes guest additions download url. (Closes: #637349; LP: #840668)
+  * Refresh patches.
+  * Drop the vboxmouse x11 driver. The mouse integration is now completely
+    handled by the kernel module.
+  * Restrict dh_pycentral to the virtualbox binary package.
+  * Merge changes from the Ubuntu package but use them only when built
+    on Ubuntu:
+    - Add an Apport hook.
+    - Add vboxguest modalias to the package control field.
+  * Pass KBUILD_VERBOSE=2 to kmk.
+  * Add 36-fix-text-mode.patch to fix text mode when using the vboxvideo driver.
+
+ -- Felix Geyer <debfx-pkg@fobos.de>  Mon, 17 Oct 2011 23:23:09 +0200
+
+virtualbox (4.1.2-dfsg-1) unstable; urgency=low
+
+  [ Michael Meskes ]
+  * New upstream release.
+
+  [ Felix Geyer ]
+  * Refresh patches.
+  * Drop 36-fix-kernel-panic-suspend.patch, applied upstream.
+  * Bump minimum kbuild version to 1:0.1.9998svn2537.
+  * Fix permissions of the kernel module tarballs.
+
+ -- Felix Geyer <debfx-pkg@fobos.de>  Sat, 27 Aug 2011 10:42:30 +0200
+
+virtualbox (4.1.0-dfsg-2) unstable; urgency=low
+
+  * Install vboxpci module in virtualbox-modules packages, thanks to
+    YOSHINO Yoshihito. (Closes: #637177)
+  * Add 36-fix-kernel-panic-suspend.patch from upstream SVN to fix a kernel
+    panic on suspend caused by the vboxdrv module.
+    (Closes: #637226; LP: #814323)
+
+ -- Felix Geyer <debfx-pkg@fobos.de>  Wed, 10 Aug 2011 14:09:43 +0200
+
+virtualbox (4.1.0-dfsg-1) unstable; urgency=low
+
+  * New upstream release.
+  * Use VBOX_BUILD_PUBLISHER instead of VBOX_VERSION_STRING to set the
+    version suffix.
+  * Refresh patches.
+  * Drop 22-no-static-libstdcpp.patch and 31-multiarch-dri-path.patch,
+    applied upstream.
+  * Add 34-fix-vboxpci-build.patch to fix a VBoxPCI build failure.
+  * Add vboxpci kernel module to virtualbox-dkms and virtualbox-source.
+  * Update package names in 04-vboxdrv-references.patch.
+  * Add 35-libvdeplug-soname.patch to fix VDE networking. (Closes: #636335)
+  * Drop broken "alloc" symlink in virtualbox-dkms and virtualbox-source.
+
+ -- Felix Geyer <debfx-pkg@fobos.de>  Mon, 08 Aug 2011 16:39:11 +0200
+
+virtualbox (4.0.10-dfsg-1) unstable; urgency=low
+
+  * New upstream release.
+    - Fixes VT-x detection on Linux 3.0 hosts. (LP: #799253)
+  * Don't disable the hardware performance counter in the init script, not
+    needed anymore since VirtualBox 4.0.0.
+  * Add 31-multiarch-dri-path.patch to fix 3d guest acceleration with the
+    multiarched mesa package.
+  * Use new Provides scheme for xorg video and input drivers. (Closes: #631612)
+  * Add 32-disable-guest-version-check.patch to disable notifications about
+    outdated guest additions.
+  * Link against the static gsoap++ library to fix FTBFS. (Closes: #632368)
+
+ -- Felix Geyer <debfx-pkg@fobos.de>  Sun, 03 Jul 2011 18:43:49 +0200
+
+virtualbox (4.0.8-dfsg-2) unstable; urgency=low
+
+  * Add virtualbox-guest-x11 Breaks/Replaces virtualbox-ose-guest-x11.
+    (Closes: #628784)
+
+ -- Felix Geyer <debfx-pkg@fobos.de>  Wed, 01 Jun 2011 12:50:08 +0200
+
+virtualbox (4.0.8-dfsg-1) unstable; urgency=low
+
+  [ Felix Geyer ]
+  * New upstream release. (Closes: #627680)
+  * Adapt 07-vboxnetflt-reference.patch to new upstream version.
+  * Update overrides for lintian 2.5.
+  * Register mime types and install icons.
+  * Pass --enable-vnc to configure instead of enabling it in LocalConfig.kmk.
+  * Drop Conflicts between virtualbox-ose-dkms and virtualbox-ose-guest-dkms
+    as the kernel module symbols are mangled now. (Closes: #625742)
+  * Add lintian overrides for no-symbols-control-file usr/lib/VBoxOGL*.so.
+  * Create vboxsf group in virtualbox-ose-guest-utils postinst to make
+    auto-mounting shared folders work.
+  * Automatically detect the distribution version for backports.
+    - Build-depend on lsb-release.
+  * Strip *.gc and *.r0 files that are not handled by dh_strip and fix their
+    file permissions.
+  * Drop obsolete alternate build-dependency libcurl3-openssl-dev.
+  * Bump Standards-Version to 3.9.2, no changes needed.
+  * Build vdfuse with debugging symbols.
+  * Make virtualbox-ose-dkms depend on virtualbox-ose and
+    virtualbox-ose-guest-dkms on virtualbox-ose-guest-utils.
+  * Don't fail package removal if the virtualbox-ose init script exits with
+    an error.
+  * Don't remove the vboxusers group on upgrades from old package versions.
+  * Replace version suffix "OSE" with the distribution name.
+  * Switch to source format 3.0 (quilt).
+    - Add unapply-patches and abort-on-upstream-changes to local-options.
+    - Drop quilt from build-depends and debian/rules.
+  * Drop the -ose suffix in the package name. (LP: #722516)
+    - Add transitional packages.
+  * Compress orig tarball with bzip2.
+  * Drop support for building on lenny.
+  * Update 28-no-selinux-fedora.patch to new upstream version.
+  * Drop 30-enable-gcc46.patch, fixed upstream.
+  * In udev rules: use "RUN+=" rather than "RUN=". (LP: #776535)
+  * Drop libasound2 and libpulse0 from suggests.
+  * Only display warnings about broken USB support when it's actually used
+    (i.e. the machine has USB device filters).
+    - Add 30-usb-warning-filters.patch
+  * Move VBoxCreateUSBNode.sh to /lib/udev. (Closes: #627528)
+  * Update the copyright file, mostly grabbed from the upstream documentation.
+  * Drop the "Open Source Edition" phrase from the package descriptions.
+  * Fix lintian warning copyright-refers-to-versionless-license-file.
+
+  [ Michael Meskes ]
+  * Patch vdfuse to not pad structure twice.
+    Thanks to Dave Vasilevsky <dave@vasilevsky.ca>
+    (Closes: #622659; LP: #759988)
+  * Added wildcard to overrides file so it works with different lintian version.
+
+ -- Michael Meskes <meskes@debian.org>  Thu, 26 May 2011 10:57:47 +0200
+
+virtualbox-ose (4.0.4-dfsg-2) unstable; urgency=low
+
+  * Fix FTBFS with gcc 4.6. (Closes: #625658, #626148)
+    - Add 30-enable-gcc46.patch
+    - debian/LocalConfig.kmk: don't treat gcc warnings as errors.
+
+ -- Felix Geyer <debfx-pkg@fobos.de>  Thu, 12 May 2011 15:38:04 +0200
+
+virtualbox-ose (4.0.4-dfsg-1) unstable; urgency=low
+
+  [ Felix Geyer ]
+  * New upstream release. (LP: #722431)
+  * Drop 30-kernel-2.6.38.diff, applied upstream.
+  * Adapt 18-system-xorg.patch to new upstream version.
+  * Drop unused lintian overrides.
+
+  [ Patrick Winnertz ]
+  * Add if statement around adduser to prevent failure in some cases.
+    (Closes: #611604)
+
+ -- Felix Geyer <debfx-pkg@fobos.de>  Fri, 18 Feb 2011 18:09:29 +0100
+
+virtualbox-ose (4.0.2-dfsg-1) unstable; urgency=low
+
+  * New upstream release. (LP: #709027)
+    - Ships with a manual and upstream changelog.
+      (Closes: #483702, #541127; LP: #243782)
+  * Adapt patches for new upstream version.
+  * Add new required build-dependencies:
+    default-jdk, genisoimage, makeself, texlive-fonts-extra,
+    texlive-fonts-recommended, texlive-latex-extra, texlive-latex-recommended.
+  * Set VBOX_JAVA_HOME to /usr/lib/jvm/default-java.
+  * Add 28-no-selinux-fedora.patch so VirtualBox doesn't try to install
+    selinux-fedora/vbox_x11.pp which is stripped by the dfsg-free target.
+  * Update install files.
+  * Add 29-fix-ftbfs-as-needed.patch to fix FTBFS with ld --as-needed.
+  * Automatically generate the pixmap icon from png.
+  * Fix the watch file.
+  * Update man pages.
+  * Support passing through USB 1.1 devices to virtual machines.
+  * Update vdfuse for VirtualBox 4.
+  * Make the kernel modules buildable with kernel 2.6.38-rc2. (LP: #705593)
+    - Add 30-kernel-2.6.38.diff
+
+ -- Felix Geyer <debfx-pkg@fobos.de>  Sat, 29 Jan 2011 20:13:14 +0100
+
+virtualbox-ose (3.2.12-dfsg-1) unstable; urgency=low
+
+  * New upstream release.
+  * Drop 03-2.6.37.patch and 24-xserver-19-support.patch, applied upstream.
+
+ -- Felix Geyer <debfx-pkg@fobos.de>  Thu, 02 Dec 2010 21:18:36 +0100
+
+virtualbox-ose (3.2.10-dfsg-2) unstable; urgency=low
+
+  * Added two patches from virtualbox-ose SVN/bug tracking to fix some
+    issues with kernels > 2.6.36. (Closes: #604259)
+  * Moved program to utilities where it belongs.
+  * Fixed typo in desktop file
+
+ -- Michael Meskes <meskes@debian.org>  Mon, 22 Nov 2010 12:28:19 +0100
+
+virtualbox-ose (3.2.10-dfsg-1) unstable; urgency=low
+
+  * New upstream release.
+  * Adapt 18-system-xorg.patch and 27-hide-host-cache-warning.patch for
+    new upstream version.
+  * Drop 25-vboxnetadp_kernel_2.6.36.patch and 26-vboxsf_kernel_2.6.36.patch,
+    applied upstream.
+  * Drop lpia from the architectures as Ubuntu doesn't support it anymore and
+    Debian never has.
+
+ -- Felix Geyer <debfx-pkg@fobos.de>  Tue, 12 Oct 2010 23:54:04 +0200
+
+virtualbox-ose (3.2.8-dfsg-2) unstable; urgency=high
+
+  * Fix FTBFS with recent libdrm-dev versions. (Closes: #594599)
+  * Make the kernel modules buildable with kernel 2.6.36.
+    (Closes: #594602; LP: #619497)
+    - Add 25-vboxnetadp_kernel_2.6.36.patch
+    - Add 26-vboxsf_kernel_2.6.36.patch
+  * Silently enable the host I/O cache when the image is on an ext4/XFS
+    partition. No need to warn users about it. (Closes: #595050)
+    - Add 27-hide-host-cache-warning.patch
+  * Recompiled to fix incorrectly generated dependencies. (Closes: #595715)
+  * Add man pages for all commands. (Closes: #440609; LP: #610895)
+
+ -- Felix Geyer <debfx-pkg@fobos.de>  Mon, 13 Sep 2010 11:29:12 +0200
+
+virtualbox-ose (3.2.8-dfsg-1) unstable; urgency=low
+
+  * New upstream release. (LP: #614697)
+  * Replace the reference to /usr/share/common-licenses/BSD with the full text
+    of the license.
+  * Bump Standards-Version to 3.9.1, no changes needed.
+  * Revert: virtualbox-ose-dkms and virtualbox-ose-guest-dkms break each other
+    instead of conflicting.
+  * Drop 24-dsdt.patch, applied upstream.
+  * Move "$@" to the first parameter of dh to be compatible with debhelper
+    compat level 8.
+  * Add 24-xserver-19-support.patch to make the guest additions compatible
+    with XServer 1.9. (LP: #616217)
+
+ -- Felix Geyer <debfx-pkg@fobos.de>  Tue, 10 Aug 2010 21:06:46 +0200
+
+virtualbox-ose (3.2.6-dfsg-2) unstable; urgency=low
+
+  * Added patch taken from FreeBSD to make DSDT files compile with
+    latest versions of iasl. (Closes: #587609)
+  * Bump Standards-Version to 3.9.0, no changes needed.
+
+ -- Michael Meskes <meskes@debian.org>  Fri, 02 Jul 2010 15:24:21 +0200
+
+virtualbox-ose (3.2.6-dfsg-1) unstable; urgency=low
+
+  [ Michael Meskes ]
+  * Do not use standard compiler optimization for vdfuse. (Closes:
+    #586265)
+
+  [ Felix Geyer ]
+  * New upstream release.
+  * virtualbox-ose-dkms and virtualbox-ose-guest-dkms break each other
+    instead of conflicting.
+
+ -- Felix Geyer <debfx-pkg@fobos.de>  Sat, 26 Jun 2010 01:26:22 +0200
+
+virtualbox-ose (3.2.4-dfsg-1) unstable; urgency=low
+
+  * New upstream release.
+
+ -- Felix Geyer <debfx-pkg@fobos.de>  Wed, 09 Jun 2010 15:31:05 +0200
+
+virtualbox-ose (3.2.2-dfsg-1) unstable; urgency=low
+
+  * Imported Upstream version 3.2.2-dfsg (Closes: #584488, #585003)
+  * Fixed dh_install usage in rules file for backports. - thanks to
+    Corey Wright <undefined@pobox.com>
+
+ -- Michael Meskes <meskes@debian.org>  Tue, 08 Jun 2010 11:50:51 +0200
+
+virtualbox-ose (3.2.0-dfsg-1) unstable; urgency=low
+
+  [ Felix Geyer ]
+  * New upstream release.
+  * Add 23-remove-invalid-chars-check.patch to remove a check for invalid
+    characters in the build path since kBuild is now able to handle those.
+  * Fix FTBFS when building without arch-all packages.
+
+  [ Michael Meskes ]
+  * Changed order of some commands to make sure links are created inside
+    the source tarball not outside.
+
+ -- Michael Meskes <meskes@debian.org>  Sun, 23 May 2010 11:39:11 +0200
+
+virtualbox-ose (3.1.53-dfsg-1) experimental; urgency=low
+
+  * New upstream release 3.2.0 Beta 3.
+  * Add build-dependencies required by new upstream version.
+  * Adapt 18-system-xorg.dpatch to new upstream version.
+  * Update to new upstream release of vdfuse.
+  * Build vdfuse with -Wl,--as-needed.
+  * Install vbox PAM module.
+  * Drop 17-disable-help-contents.dpatch and 20-hide-help-buttons.dpatch
+    as VirtualBox can download the manual.
+  * Enable VDE networking.
+  * Enable VNC server in VBoxHeadless.
+  * Don't build VBoxBFE as it's not installed anyway.
+  * Hide the update menu item and settings page instead of disabling them.
+  * Make both dkms packages conflict with each other as the kernel modules
+    export the same symbol. (LP: #571574)
+  * Switch from dpatch to quilt patching system.
+  * Convert debian/rules to dh7.
+  * Use dkms debhelper script.
+
+ -- Felix Geyer <debfx-pkg@fobos.de>  Thu, 13 May 2010 18:20:43 +0200
+
+virtualbox-ose (3.1.8-dfsg-1) unstable; urgency=low
+
+  * New upstream version (LP: #578723).
+    - Fixes vboxsf file systems not being mounted while booting on Ubuntu.
+      (LP: #530179)
+  * Adapt 18-system-xorg.dpatch and 06-xsession.dpatch to new upstream version.
+  * Use upstream 50-vboxmouse.conf instead of our own.
+  * Add libxrandr-dev to build-dependencies.
+  * Don't load the kernel modules in the guest utils init script as they are
+    loaded automatically.
+  * Drop 15-wined3d-guest-addition.dpatch as the Windows guest additions
+    provide Direct3D acceleration.
+
+ -- Felix Geyer <debfx-pkg@fobos.de>  Tue, 11 May 2010 18:06:04 +0200
+
+virtualbox-ose (3.1.6-dfsg-3) unstable; urgency=low
+
+  * Move 10-vboxmouse.conf to 50-vboxmouse.conf and install it in
+    /usr/share/X11/xorg.conf.d.
+  * Use substvar from new xsfbs.mk.
+
+ -- Felix Geyer <debfx-pkg@fobos.de>  Sun, 18 Apr 2010 18:56:10 +0200
+
+virtualbox-ose (3.1.6-dfsg-2) unstable; urgency=low
+
+  * Improve 20-hide-help-buttons.dpatch so all help buttons are hidden.
+  * Set source format version explicitly to "1.0".
+  * Adapt to xserver 1.8 input driver detection. (LP: #546933)
+    - Add 10-vboxmouse.conf
+    - Update virtualbox-ose-guest-x11.udev
+
+ -- Felix Geyer <debfx-pkg@fobos.de>  Wed, 31 Mar 2010 15:15:44 +0200
+
+virtualbox-ose (3.1.6-dfsg-1) unstable; urgency=low
+
+  * New upstream version.
+  * Drop 02-r27248.dpatch as it's applied upstream.
+  * Use dh_lintian to install overrides.
+
+ -- Felix Geyer <debfx-pkg@fobos.de>  Fri, 26 Mar 2010 11:25:46 +0100
+
+virtualbox-ose (3.1.4-dfsg-3) unstable; urgency=low
+
+  [ Felix Geyer ]
+  * Move virtualbox-ose-guest-x11 to section x11.
+  * Replace 18-xorg-1.6.dpatch with a new patch that allows to easily
+    switch to a different X Server version.
+  * Remove /usr/share/virtualbox/x11config15.pl as we are at X Server 1.7.
+
+  [ Michael Meskes ]
+  * Apply upstream changeset 27248 to make virtualbox guest additions
+    work with drm code in kernels 2.6.33+. (Closes: #574662)
+  * Applied patch by nutzteil <nutzteil@web.de> to make init script
+    consistent in (Closes: #574831)
+
+ -- Michael Meskes <meskes@debian.org>  Tue, 23 Mar 2010 15:54:49 +0100
+
+virtualbox-ose (3.1.4-dfsg-2) unstable; urgency=low
+
+  [ Felix Geyer ]
+  * Add INSTALL_PATH variable
+  * Downgrade library dependencies of VBoxTestOGL to Recommends.
+    (Closes: #567800)
+  * Provide an udev instead of hal rule for the mouse driver
+    autodetection. (LP: #525558)
+  * Update device names in guest udev rules.
+
+  [ Michael Meskes ]
+  * Document QT4 usage for virtualbox-ose.
+  * Changed build-dependency from libcap2-dev to libcap-dev. (Closes:
+    #569769)
+
+ -- Michael Meskes <meskes@debian.org>  Tue, 16 Feb 2010 15:03:46 +0100
+
+virtualbox-ose (3.1.4-dfsg-1) unstable; urgency=low
+
+  * New upstream version:
+    - Rebuild makes sure all packages share the same version. (Closes: #567030,
+      #568296)
+    - Fixes mouse integration in Lenny. (Closes: #565285)
+
+  [ Felix Geyer ]
+  * Install EFI firmware images
+  * Make the dkms dependency versioned as we require the common postinst
+    script to be present
+  * Pass the architecture to the dkms postinst script
+  * Use ${source:Version} for arch all package dependencies
+  * Bump Standards-Version to 3.8.4, no changes needed.
+  * Make patches DEP-3 compliant
+  * Update vdfuse code as upstream has changed the license to GPLv2+
+  * Adapt 18-xorg-1.6.dpatch for new upstream version.
+  * Add lintian override for virtualbox-ose-fuse
+
+  [ Michael Meskes ]
+  * Merged Ubuntu patch to disable update action into Debian tree.
+  * Removed Uploaders that haven't committed anything for more than a
+    year.
+  * Added virtualbox-ose-fuse package to fuse mount vdi images. (Closes:
+    #565900)
+
+ -- Michael Meskes <meskes@debian.org>  Sat, 13 Feb 2010 21:31:50 +0100
+
+virtualbox-ose (3.1.2-dfsg-1) unstable; urgency=low
+
+  [ Felix Geyer ]
+  * New upstream version.
+    - Fixes FTBFS with binutils-gold. (Closes: #556918)
+  * Adapt patches for new upstream version.
+  * Change priority to optional (except for the debug package).
+  * virtualbox-ose-guest-utils: Recommend dkms or source package instead
+    of both.
+  * Use common dkms postinst script instead of custom code. (LP: #497149)
+  * Check for right package in dkms prerm.
+
+ -- Michael Meskes <meskes@debian.org>  Fri, 18 Dec 2009 08:23:16 +0100
+
+virtualbox-ose (3.1.0-dfsg-3) unstable; urgency=low
+
+  * Removed yet another mentioning of upstream's init script. (Closes:
+    #560320)
+  * Adjusted dependencies to new setup. (Closes: #556595)
+
+ -- Michael Meskes <meskes@debian.org>  Fri, 11 Dec 2009 11:45:14 +0100
+
+virtualbox-ose (3.1.0-dfsg-2) unstable; urgency=low
+
+  [ Michael Meskes ]
+  * Check for right package in postinst. (Closes: #559502)
+
+  [ Felix Geyer ]
+  * Made *-dkms packages only replace older *-source packages
+  * Promote dkms to a dependency
+  * Build-depend on libqt4-opengl-dev
+
+ -- Michael Meskes <meskes@debian.org>  Tue, 08 Dec 2009 08:11:09 +0100
+
+virtualbox-ose (3.1.0-dfsg-1) experimental; urgency=low
+
+  * Imported Upstream version 3.1.0-dfsg (Closes: #559172)
+  * Divided -source packages into a classical -source package and
+    a -dkms package.
+
+ -- Michael Meskes <meskes@debian.org>  Thu, 03 Dec 2009 09:46:14 +0100
+
+virtualbox-ose (3.0.12-dfsg-1) unstable; urgency=low
+
+  [ Felix Geyer ]
+  * New Upstream Version
+
+ -- Michael Meskes <meskes@debian.org>  Fri, 27 Nov 2009 11:56:21 +0100
+
+virtualbox-ose (3.0.10-dfsg-2) unstable; urgency=low
+
+  * Downgrade dkms dependency to recommendation. (Closes: #553918)
+  * Added dependencies for building with m-a.
+  * Changed source packages to also build modules via module-assistant.
+    (Closes: #554385)
+
+ -- Michael Meskes <meskes@debian.org>  Sat, 14 Nov 2009 20:43:09 +0100
+
+virtualbox-ose (3.0.10-dfsg-1) unstable; urgency=low
+
+  [ Felix Geyer ]
+  * Fix SHUTDOWN_USERS=all only parses the first user
+  * New Upstream version
+  * Added dependency upon pciutils to virtualbox-ose-guest-utils.
+    (Closes: #551390)
+
+  [ Michael Meskes ]
+  * Converted virtualbox-ose to dkms. (Closes: #551531) - thanks to
+    Ubuntu
+
+ -- Michael Meskes <meskes@debian.org>  Sat, 31 Oct 2009 19:58:01 +0100
+
+virtualbox-ose (3.0.8-dfsg-1) unstable; urgency=high
+
+  [ Felix Geyer ]
+  * New Upstream Version
+    - Fixes security vulnerability in VBoxNetAdpCtl (SunSolve #268188)
+  * Conflict with upstream proprietary packages
+  * Install vboxapi python module, closes: #549542
+  * Use an own cleaned-up virtualbox-ose init script instead of
+    patching the upstream script
+  * Only restart virtualbox-ose after upgrade if it's not running; do not
+    restart virtualbox-ose-guest-utils at all
+  * Call notify-reboot-required after guest utils upgrade
+  * Remove vboxusers group as it's not needed anymore
+  * Don't statically link VBoxClient with libstdc++
+    - Add patch 22-no-static-libstdcpp.dpatch from Fedora
+  * Pass more build options through the command line, which allows us to drop
+    02-config-kmk.dpatch, 03-localconf-kmk.dpatch and
+    14-disable-registration-request.dpatch
+  * No longer reload udev rules in postinst as they are reloaded automatically
+  * Add lintian overrides for non-PIC code in /usr/lib/virtualbox/*.so
+
+  [ Michael Meskes ]
+  * Made debug package also depend on guest utilities package.
+  * Added option to close down all active VMs from init script.
+
+ -- Michael Meskes <meskes@debian.org>  Tue, 13 Oct 2009 13:46:44 +0200
+
+virtualbox-ose (3.0.6-dfsg-1) unstable; urgency=low
+
+  [ Felix Geyer ]
+  * New Upstream Version, closes: #543234
+  * Add 21-dont-strip-x11-drivers.dpatch:
+    Don't strip debugging symbols from x11 guest drivers
+  * Strip more unneeded library header files
+  * Drop 11-gcc-4.3.dpatch (not needed anymore)
+
+  [ Michael Meskes ]
+  * Made debug package depend on normal package.
+
+ -- Michael Meskes <meskes@debian.org>  Fri, 11 Sep 2009 14:10:04 +0200
+
+virtualbox-ose (3.0.4-dfsg-2) unstable; urgency=low
+
+  * Made sure installed packages have the same version, closes: #538945
+
+ -- Michael Meskes <meskes@debian.org>  Mon, 17 Aug 2009 13:31:47 +0200
+
+virtualbox-ose (3.0.4-dfsg-1) unstable; urgency=low
+
+  [ Felix Geyer ]
+  * New Upstream Version
+  * Install network management tools and guest dri driver
+  * Drop vboxvideo.ids as the X server now uses an internal table to
+    pick a driver during autoconfig
+
+  [ Michael Meskes ]
+  * Provide python stuff needed by vboxgtk, closes: #539445
+
+ -- Michael Meskes <meskes@debian.org>  Mon, 10 Aug 2009 13:27:41 +0200
+
+virtualbox-ose (3.0.2-dfsg-1) unstable; urgency=low
+
+  * New Upstream Version, closes: #536338, #536371, #536578
+  * Do not create empty icons directory in virtualbox-ose package.
+  * Remove lintian overrides that are no longer needed.
+
+ -- Michael Meskes <meskes@debian.org>  Sat, 11 Jul 2009 20:04:17 +0200
+
+virtualbox-ose (3.0.0-dfsg-2) unstable; urgency=low
+
+  [ Felix Geyer ]
+  * Move to gcc 4.3, closes: #533786
+  * Install 3D test program.
+
+  [ Michael Meskes ]
+  * Added missing build dependencies, closes: #535853
+
+ -- Michael Meskes <meskes@debian.org>  Sat, 04 Jul 2009 20:18:20 +0200
+
+virtualbox-ose (3.0.0-dfsg-1) unstable; urgency=low
+
+  * New Upstream Version
+
+ -- Michael Meskes <meskes@debian.org>  Wed, 01 Jul 2009 09:48:15 +0200
+
+virtualbox-ose (2.2.4-dfsg-2) unstable; urgency=low
+
+  * Added patch by Daniel Hahler <ubuntu@thequod.de> to disable the
+    Help->Contents menu entry, closes: #533255
+  * Applied patch by Felix Geyer <debfx-pkg@fobos.de> to automatically load
+    vboxvfs, closes: #533250
+  * Added upstream patch to fix appliance export problem, closes: #532870
+  * Suggest new guest-additions package.
+  * Bumped Standards-Version to 3.8.2, no changes needed.
+
+ -- Michael Meskes <meskes@debian.org>  Sun, 28 Jun 2009 14:56:19 +0200
+
+virtualbox-ose (2.2.4-dfsg-1) unstable; urgency=low
+
+  * New Upstream Version, closes: #531468
+  * Added patch by Felix Geyer <debfx-pkg@fobos.de> to remove disabled help
+    buttons, closes: #531320
+  * Moved hal driver description to make sure it gets merged in after evdev
+    driver description, closes: #531618
+
+ -- Michael Meskes <meskes@debian.org>  Sun, 21 Jun 2009 14:06:59 +0200
+
+virtualbox-ose (2.2.2-dfsg-3) unstable; urgency=low
+
+  * Made virtualbox-ose-qt package only replace older virtualbox-ose packages
+    that still contained the qt frontend, closes: #527140
+  * Added the same versioning for virtualbox-ose-guest-x11.
+  * Fixed typo in vboxwebsrv call.
+  * Applied patch by Felix Geyer <debfx-pkg@fobos.de> to make X autodetect
+    mouse using hal, closes: #530299
+  * Applied patch by Felix Geyer <debfx-pkg@fobos.de> to set correct
+    permissions for guest devices, closes: #530302
+  * Remove vbox.cfg as suggested and implemented by Daniel Hahler
+    <debian-bugs@thequod.de>, closes: #530321
+
+ -- Michael Meskes <meskes@debian.org>  Fri, 29 May 2009 13:12:07 +0200
+
+virtualbox-ose (2.2.2-dfsg-2) unstable; urgency=low
+
+  * Made initscript call find only in case of an error, closes: #526395
+  * Removed setup option from initscript, closes: #526322
+  * Added upstream patch to fix bug in VBoxManage modifyhd, closes: #526820
+  * Merged our init script patches into one patch.
+  * Made initscript more verbose.
+
+ -- Michael Meskes <meskes@debian.org>  Tue, 05 May 2009 09:29:24 +0200
+
+virtualbox-ose (2.2.2-dfsg-1) unstable; urgency=low
+
+  * New Upstream Version
+  * Extended error message patch for vboxdrv failure.
+
+ -- Michael Meskes <meskes@debian.org>  Wed, 29 Apr 2009 09:13:24 +0200
+
+virtualbox-ose (2.2.0-dfsg-3) unstable; urgency=low
+
+  * Putting back the tar command that was lost in debian/rules, closes: #524897
+
+ -- Michael Meskes <meskes@debian.org>  Tue, 21 Apr 2009 08:45:06 +0200
+
+virtualbox-ose (2.2.0-dfsg-2) unstable; urgency=low
+
+  * Remove obsolete conffiles, closes: #523778
+  * Made package description clearer, closes: #524154
+  * Documented guest utils download, closes: #524171
+  * Made build system use files provided by xserver-xorg instead of local
+    copies, closes: #515631
+
+ -- Michael Meskes <meskes@debian.org>  Sun, 19 Apr 2009 12:37:04 +0200
+
+virtualbox-ose (2.2.0-dfsg-1) unstable; urgency=low
+
+  * New upstream version.
+  * Move X11 guest utils into separate packages, closes: #520438
+  * Also switched them to new X.Org X server version.
+  * Move QT4 based user interface into separate package, closes: #508395
+  * Added new URL for WineD3D guest additions, closes: 522672
+  * Documented problem with kernel 2.6.29, closes: #518739
+  * Documented missing format attribute, closes: #517454
+  * Added patch to disable checking for updates, closes: #516551
+  * Added patch to tell about missing vboxnetflt module, closes: #516819
+  * Bumped Standards-Version to 3.8.1
+
+ -- Michael Meskes <meskes@debian.org>  Fri, 10 Apr 2009 11:16:49 +0200
+
+virtualbox-ose (2.1.4-dfsg-1) unstable; urgency=high
+
+  * New upstream version.
+  * Made package use rpath where needed to deal with a security issue.
+  * Set urgency to high for the very same reason.
+  * Updated control file to refer to git instead of svn.
+  * Made sure that init script does not fail if module loading is not enabled.
+    Closes: #516242
+
+ -- Michael Meskes <meskes@debian.org>  Wed, 18 Feb 2009 12:55:59 +0100
+
+virtualbox-ose (2.1.2-dfsg-2) unstable; urgency=low
+
+  * Enabled OpenGL support. Closes: #513533
+  * Added patch to install WineD3D guest additions as provided by Robert Millan
+    <rmh@aybabtu.com>. Closes: #514181
+  * Fixed watch file yet again.
+  * Recompiled to bring 2.1.2 into unstable. This changes
+      - Network setup. Closes: #507169
+      - File and device ownership. Closes: #509014
+
+ -- Michael Meskes <meskes@debian.org>  Mon, 16 Feb 2009 10:49:27 +0100
+
+virtualbox-ose (2.1.2-dfsg-1) experimental; urgency=low
+
+  * New upstream version.
+  * Enabled webservice.
+  * Install VBoxSysInfo script.
+  * Removed SUP[Un]install test case.
+  * Removed xpidl and sdk. This might go into a -dev package if it is really
+    useful for anyone not developing virtualbox-ose.
+  * Documented changes in network setup and removed useless scripts and
+    configs. Closes: #512024
+  * Added missing architecture amd64 to guest source package. Closes: #512811
+
+ -- Michael Meskes <meskes@debian.org>  Thu, 22 Jan 2009 11:47:53 +0100
+
+virtualbox-ose (2.1.0-dfsg-2) experimental; urgency=low
+
+  * Added versioned build dependency for kbuild. Closes: #510736
+  * Added versioned build dependency for qt4. Closes: #510785
+  * Re-created two patches against initscript to make them clearer and to
+    re-add a line lost in the transition. Closes: #474089
+
+ -- Michael Meskes <meskes@debian.org>  Sun, 04 Jan 2009 16:58:38 +0100
+
+virtualbox-ose (2.1.0-dfsg-1) experimental; urgency=low
+
+  * New upstream version
+    This one doesn't use /dev/net/tun anymore. Closes: #509524
+  * Removed obsoleted vditool, VBoxAddIF.sh and VBoxTunctl.
+
+ -- Michael Meskes <meskes@debian.org>  Thu, 18 Dec 2008 12:49:34 +0100
+
+virtualbox-ose (2.0.6-dfsg-1) experimental; urgency=low
+
+  * New upstream version. Closes: #497840
+  * Do not warn user about losing snapshots anymore, this is supposed to be a
+    thing of the past. Closes: #500101
+  * Made guest utils init script more verbose if module was not loadable.
+    Closes: #505586
+  * Documented need for hardware virtualization if running a 64-bit guest.
+
+ -- Michael Meskes <meskes@debian.org>  Thu, 20 Nov 2008 14:09:54 +0100
+
+virtualbox-ose (1.6.6-dfsg-3) unstable; urgency=high
+
+  * Added upstream patch to support kernel 2.6.27, closes: #502068
+  * Added upstream patch to prevent potential symlink attack, closes: #504149
+
+ -- Michael Meskes <meskes@debian.org>  Mon, 13 Oct 2008 16:38:47 +0200
+
+virtualbox-ose (1.6.6-dfsg-2) unstable; urgency=low
+
+  * Added NOTPARALLEL option in guest sources Makefile, that somehow got lost,
+    closes: #494475
+  * Stop spamming log files by using patch provided by Stefan Lippers-Hollmann
+    <s.L-H@gmx.de>, closes: #500484
+
+ -- Michael Meskes <meskes@debian.org>  Fri, 03 Oct 2008 17:17:10 +0200
+
+virtualbox-ose (1.6.6-dfsg-1) unstable; urgency=low
+
+  [ Michael Meskes ]
+  * New upstream version
+    - no longer able to select disk in use for new VM, closes: #495028
+  * Removed patch 05-vboxadd-udev which was applied upstream.
+  * Removed absolute paths in maintainer scripts.
+  * Override lintian error in RDP subdir because the client is not build anyway.
+
+  [ Patrick Winnertz ]
+  * New upstream version fixes compilation error of -modules with kernelversion
+    2.6.27 (Closes: #499623)
+
+ -- Patrick Winnertz <winnie@debian.org>  Sun, 21 Sep 2008 22:29:58 +0200
+
+virtualbox-ose (1.6.2-dfsg-6) unstable; urgency=medium
+
+  * Apply changesets 12299, 12303, 12305, 12307 and 12308 from upstream SVN
+    to fix errors running 2.6.26-686 kernels in a Virtual Machine. Patch
+    created by Frans Pop <fjp@debian.org>. Closes: #497505.
+
+ -- Michael Meskes <meskes@debian.org>  Mon, 15 Sep 2008 10:01:21 +0200
+
+virtualbox-ose (1.6.2-dfsg-5) unstable; urgency=low
+
+  [ Michael Meskes ]
+  * Updated initscript to better handle LSB compatibility, yet again
+    closes: #474089
+  * Added a short note to README.Debian asking user to use only the 486 version
+    of the 2.6.26 kernel. This documents a workaround for #497505 and #497875.
+  * In VBox.sh honor LD_LIBRARY_PATH if already set, closes: #496953
+  * Changed rules file for guest-module to correctly build modules with
+    symbols, thanks to Bastian Blank for the hint.
+  * Do not build guest modules in parallel, closes: #494475
+
+  [ Loic Minier ]
+  * Demote module-assistant deps to Recommends; closes: #495671.
+  * Don't prepend current directory to LD_LIBRARY_PATH if it isn't set.
+
+ -- Michael Meskes <meskes@debian.org>  Sat, 09 Aug 2008 21:46:44 +0200
+
+virtualbox-ose (1.6.2-dfsg-4) unstable; urgency=medium
+
+  * Adding patch from Gonéri Le Bouder <goneri@rulezlan.org> to fix FTBFS with
+    dash as /bin/sh (Closes: #493402).
+  * Adding patch from Gonéri Le Bouder <goneri@rulezlan.org> to fix FTBFS with
+    LC_ALL set to fr_FR.UTF-8 (Closes: #494157).
+  * Adding Swedish debconf translation from Martin Ågren
+    <martin.agren@gmail.com> (Closes: #492162).
+
+ -- Daniel Baumann <daniel@debian.org>  Thu,  7 Aug 2008 11:38:00 -0300
+
+virtualbox-ose (1.6.2-dfsg-3) unstable; urgency=medium
+
+  [ Daniel Baumann ]
+  * Removing empty lines at EOF and whitespaces at EOL.
+  * Including vboxvideo.ids in virtualbox-ose-guest-utils to allow xserver to
+    automagically detect the display adapter, thanks to Avi Rozen
+    <avi.rozen@gmail.com> (Closes: #490541).
+  * Adding Turkish debconf translation from Mert Dirik <mertdirik@gmail.com>
+    (Closes: #490725).
+
+  [ Loic Minier ]
+  * Drop useless subshells in rules files and export environment vars
+    explicitely; also change "cd foo; $(MAKE)" patterns to "$(MAKE) -C foo".
+
+ -- Daniel Baumann <daniel@debian.org>  Mon, 14 Jul 2008 07:14:00 +0200
+
+virtualbox-ose (1.6.2-dfsg-2) unstable; urgency=low
+
+  [ Daniel Baumann ]
+  * Using dpkg-architecture rather than dpkg --print-architecture in
+    01-no-64bit-guest.dpatch in order to be more accurate for ia32 subarchs
+    like lpia, thanks to Loic Minier <lool@debian.org>.
+  * Rediffing 02-config-kmk.dpatch.
+  * Adding patch to adjust failure message with Debian specific solution when
+    experiencing kernel module version mismatch.
+
+  [ Hilko Bengen ]
+  * Re-added watch file: Innotek/Sun still want us to use their INTERSHOP
+    system to download the tarball, but luckily, there is an alternative
+    download location.
+  * Enhanced README.Debian
+
+  [ Patrick Winnertz ]
+  * Adding VBoxHeadless to virtualbox. Thanks to Stefan Lippers-Hollmann.
+    (Closes: #486544)
+
+  [ Michael Meskes ]
+  * Remove LocalConfig.kmk in clean target.
+  * Source env.sh before starting to build.
+  * Include our wiki page as simple html file under
+    /usr/share/doc/virtualbox-ose. (Closes: #484998)
+  * Install VBoxRandR into guest-utils package.
+  * Moved udev rule from virtualbox-ose-guest-modules package to
+    virtualbox-ose-guest-utils package. (Closes: #488455)
+
+  [ Loic Minier ]
+  * Build virtualbox-ose, virtualbox-ose-dbg, and virtualbox-ose-guest-utils
+    for lpia.
+  * Wrap uploaders, bdeps, and deps on multiple lines to get cleaner diffs.
+  * Cleanup upstreamversion computation and compute it only once.
+  * Set VBOX_WITH_X11_ADDITIONS in rules when the DEB_HOST_ARCH is i386 or
+    lpia instead of using dpkg --print-architecture.
+  * Use the -s flag to dh_ commands instead of 3 debhelper calls and a shell
+    test; as a bonus, this provides additional detached symbols in -dbg.
+  * Move all -a flags to -s.
+  * Install files into virtualbox-ose-guest-utils unconditionally and ignore
+    errors -- even if these exist, the package is disabled on amd64.
+  * Cleanup rules slightly.
+  * Add ${misc:Depends} as this is recommended nowadays.
+  * Drop now empty debian/virtualbox-ose-guest-utils.postinst which used to
+    call /usr/lib/virtualbox/x11config.pl in the past.
+  * Cleanup debian/virtualbox-ose-source.files/rules and
+    debian/virtualbox-ose-guest-source.files/rules slightly.
+  * Drop trailing exit 0 from "set -e"-ed postinst templates.
+
+ -- Michael Meskes <meskes@debian.org>  Tue, 17 Jun 2008 14:52:36 +0200
+
+virtualbox-ose (1.6.2-dfsg-1) unstable; urgency=low
+
+  [ Michael Meskes ]
+  * New upstream version, closes: #479744, #482504, #483592
+  * Removed unneeded xalan build dependency.
+  * Added build dependency on libxslt and libxml.
+  * Fixed LocalConfig.kmk to list new variables.
+  * Use upstream provided X session file, but patch our changes in there.
+  * Build with gcc/g++ 4.2.
+  * Bumped Standards-Version to 3.8.0.
+
+  [ Daniel Baumann ]
+  * Removing ffmpeg recursively in dfsg-free target in rules.
+  * Rediffing all patches.
+  * Renumbering all patches.
+  * Sanitizing dpatch headers.
+  * Stripping off embedded copy of libpng in dfsg-free target of rules.
+  * Stripping off embedded copy of libxml2 in dfsg-free target of rules.
+  * Stripping off embedded copy of libxslt in dfsg-free target of rules.
+  * Stripping off embedded copy of zlib in dfsg-free target of rules.
+  * Improving long description of virtualbox-ose-guest-utils.
+  * Correcting wrong virtualbox-ose-guest-utils package name in long
+    description of virtuabox-ose-guest-source.
+  * Adding note about kernel module requirement in virtualbox-ose long
+    description.
+
+ -- Michael Meskes <meskes@debian.org>  Sun, 11 May 2008 22:48:59 +0200
+
+virtualbox-ose (1.5.6-dfsg-7) unstable; urgency=low
+
+  [ Michael Meskes ]
+  * Made virtualbox-ose-modules recommend virtualbox-ose-guest-utils.
+  * Added recommendation on up-to-date xserver-xorg-core and conflict on
+    older versions to guest-utils, closes: #476526
+  * Provide xserver-xorg-input-2 and xserver-xorg-video-2 with guest-utils.
+  * Removed watch file, I couldn't find a way to get the orig tarball without
+    first accepting a license.
+  * Rewrote debian/rules for both source packages, hopefully this
+    finally closes: #469882
+  * Patched module Makefile to allow amd64 build in linux-modules-extra-2.6.
+  * Added patch by Pascal Volk <user@localhost.localdomain.org> to prevent
+    init script from overwriting values, closes: #475193
+  * Added patch from upstream SVN to fix FTBFS in xpcom, closes: #479910
+  * Took another change from SVN to update sed file for newer buildchain.
+  * Recompiled against latest libxalan110, closes: #480739
+
+  [ Daniel Baumann ]
+  * Correcting wrong module-assistant manpage section in
+    virtualbox-ose-*source.README.Debian.
+  * Removing some reimported useless whitespaces.
+  * Sanitizing all po headers.
+
+  [ Patrick Winnertz ]
+  * Added patch to make virtualbox-ose-guest-source build with kernels >=
+    2.6.25. Thanks to Stefan Lippers-Hollmann. (Closes: 478373, 478333, 480736)
+
+ -- Michael Meskes <meskes@debian.org>  Sun, 11 May 2008 22:48:50 +0200
+
+virtualbox-ose (1.5.6-dfsg-6) unstable; urgency=low
+
+  * Added two patches from upstream SVN to make virtualbox-ose build with
+    gcc-4.3. However, this compiler is not yet officially supported.
+    Closes: #474907
+
+ -- Michael Meskes <meskes@debian.org>  Tue, 08 Apr 2008 09:58:35 +0200
+
+virtualbox-ose (1.5.6-dfsg-5) unstable; urgency=low
+
+  [ Hilko Bengen ]
+  * Don't fail in guest-utils init script if the vboxadd module cannot
+    get loaded (Closes: #474195)
+
+  [ Michael Meskes ]
+  * Fixed default ARCH setting in module Makefile, closes: #474196
+  * Made initscript even more LSB compliant by using LSB logging
+    functions, closes: #474089
+
+ -- Michael Meskes <meskes@debian.org>  Fri, 04 Apr 2008 10:16:48 +0200
+
+virtualbox-ose (1.5.6-dfsg-4) unstable; urgency=low
+
+  [ Michael Meskes  ]
+  * Set default architecture in debian/rules for module source package.
+  * Fixed and rearranged patches against init script.
+
+  [ Patrick Winnertz ]
+  * Improve init.d script patch to write done also on the first startup.
+    (Closes: #473059)
+
+ -- Michael Meskes <meskes@debian.org>  Wed, 02 Apr 2008 12:08:30 +0200
+
+virtualbox-ose (1.5.6-dfsg-3) unstable; urgency=low
+
+  [ Michael Meskes ]
+  * Fixed arch check in virtualbox-ose-source rules file, closes: #469882
+  * Added just another patch to the initscript. This patch makes sure the tun
+    module is only loaded if it is needed, closes: #470172
+  * Made desktop file comply to the Free Desktop specification, closes: #470937
+  * Replaced $(PWD) with $(CURDIR) in rules file.
+  * Bumped build dependency for debhelper to version >= 5.0.44~ because of
+    dh_installifupdown.
+  * Moved to Hilko's docbook version of README.Debian.
+  * Also added information about VBoxADDIF to README.Debian.
+  * Copied lynx-dump-postprocess script from exim4 package.
+
+  [ Hilko Bengen ]
+  * Added scripts for managing `vbox' interfaces from
+    /etc/network/interfaces
+
+ -- Michael Meskes <meskes@debian.org>  Tue, 18 Mar 2008 15:13:39 +0100
+
+virtualbox-ose (1.5.6-dfsg-2) unstable; urgency=low
+
+  [ Daniel Baumann ]
+  * Added Brazilian-Portuguese debconf translation from Eder L. Marques
+    <eder@edermarques.net> (Closes: #467452).
+
+  [ Michael Meskes ]
+  * Added patch by Frans Pop <elendil@planet.nl> to make modules compile with
+    kernel 2.6.25, closes: #468864
+  * Suggest bridge-utils which is needed for static host networking.
+  * Added patch against init script to remove newly created file again on
+    failure, closes: #468419
+  * Fixed watch file to cope with -1 upstream release.
+
+ -- Michael Meskes <meskes@debian.org>  Sun, 02 Mar 2008 10:38:31 +0100
+
+virtualbox-ose (1.5.6-dfsg-1) unstable; urgency=low
+
+  [ Michael Meskes ]
+  * New upstream version
+  * Fixed LSB headers in init.d scripts, closes: #466311
+  * list x11config.pl with correct path in README file, closes: #466621
+  * Added last changes made by the translation projects, thanks to
+    Christian Perrier <bubulle@debian.org>.
+  * Tweaked dfsg-free target in rules file so it is really executable, first
+    steps made by Hilko.
+
+  [ Hilko Bengen ]
+  * Make module loading in initscript configurable (disabled by default).
+
+  [ Patrick Winnertz ]
+  * prevent initscript from failing if module doesn't exist. (Closes: #466851)
+
+ -- Michael Meskes <meskes@debian.org>  Sat, 23 Feb 2008 10:49:28 +0100
+
+virtualbox-ose (1.5.4-dfsg-5) unstable; urgency=low
+
+  [ Daniel Baumann ]
+  * Again removing reimported useless whitespaces at EOL and EOF in debian/*.
+  * Unified headers of debconf template translations.
+  * Rediffed patches and again fixed their headers.
+  * Added Portuguese debconf translation from Ricardo Silva <ardoric@gmail.com>
+    (Closes: #464761).
+  * Removed extra whitespace in maintainer field of control, thanks to
+    Christoph Berg <myon@debian.org> (Closes: #465327).
+
+  [ Michael Meskes ]
+  * Added Basque debconf translation, closes: #460348
+  * Added Japanese debconf translation, closes: #465682
+  * Added French debconf translation, closes: #465779
+  * Added Russian debconf translation, closes: #466092
+  * Added Italian debconf translation, closes: #466095
+  * Added Dutch debconf translation, closes: #466113
+  * Added Spanish debconf translation, closes: #466280
+  * Updated German translation.
+  * Really use runtime assertion patch.
+  * Replaced two patches for module build process by upstream changes taken
+    from SVN.
+  * Added ARCH setting to virtualbox-ose-source rules file so we can cross
+    compile the module.
+  * Insert module in initscript.
+
+  [ Patrick Winnertz ]
+  * Fix error of postrm if vboxusers is a non-system group (maybe added
+    manually before installation of virtualbox-ose). (Closes: #462885)
+  * Added reviewed debconf templates and translations.
+      (Closes: #463283) Thanks to Christian Perrier
+      (Closes: #463828) Thanks to Jacobo Tarrio.
+      (Closes: #463959) Thanks to Esko Arajärvi
+      (Closes: #464043) Thanks to Miroslav Kure
+      (Closes: #464509) Thanks to Clytie Siddall
+
+ -- Michael Meskes <meskes@debian.org>  Sun, 17 Feb 2008 19:08:04 +0100
+
+virtualbox-ose (1.5.4-dfsg-4) unstable; urgency=low
+
+  [ Daniel Baumann ]
+  * Again removing reimported useless whitespaces at EOL and EOF in debian/*.
+
+  [ Patrick Winnertz ]
+  * Fixed broken symlink (Closes: #458991)
+
+ -- Patrick Winnertz <winnie@debian.org>  Tue, 15 Jan 2008 11:49:18 +0100
+
+virtualbox-ose (1.5.4-dfsg-3) unstable; urgency=low
+
+  * Added patch from SVN send by Frank Mehnert <frank@innotek.de> to fix
+    runtime assertions.
+  * Improved debconf text.
+  * Check for package upgrade in preinst.
+  * Pre-Depend on debconf.
+
+ -- Michael Meskes <meskes@debian.org>  Thu, 10 Jan 2008 15:14:26 +0100
+
+virtualbox-ose (1.5.4-dfsg-2) unstable; urgency=low
+
+  [ Hilko Bengen ]
+  * Added debian/watch
+
+  [ Daniel Baumann ]
+  * Rediffed 02-module-in-kernel.dpatch.
+  * Again removing reimported useless whitespaces at EOL and EOF in debian/*.
+
+  [ Michael Meskes ]
+  * Removed two additional include files from guest-sources again because they
+    were only needed for amd64.
+  * Install VBoxAddIF.sh which was lost during transition, closes: #458991.
+  * Added a recommend to libhal, see #448347 for details.
+  * Added debconf support.
+  * Tell the user about losing snapshots and ask via debconf whether to
+    proceed, closes: #458842.
+  * Clarified error message coming up if module is not loaded, closes: #459440.
+
+ -- Michael Meskes <meskes@debian.org>  Mon, 07 Jan 2008 17:41:32 +0100
+
+virtualbox-ose (1.5.4-dfsg-1) unstable; urgency=low
+
+  [ Michael Meskes ]
+  * Do not build guest-utils on amd64 because 64bit guests are nor support
+    yet.
+  * Removed build time dependency on i32-libs that is not really needed.
+  * New upstream version.
+  * Removed some new files because of licensing problems:
+    ./src/VBox/Additions/linux/selinux-fedora
+    ./src/VBox/Additions/linux/xmouse/Imakefile
+    ./src/VBox/HostServices/SharedClipboard/linux-stub.cpp
+  * Removed the following patches because they are not needed anymore:
+    01-configure.dpatch
+    08-no-kernel.dpatch
+    09-fix-initscript.dpatch
+    12-kcompat-2.6.24.dpatch
+  * Replaced our registration patch by the new config option taken from SVN.
+  * Rediffed and renumbered some of the remaining patches.
+  * Added build dependency on libpulse-dev.
+  * Moved shell scripts from /usr/lib to /usr/share.
+  * g++-multilib on amd64 depends on libc6-dev-i386, no need to specify both
+    as build dependency.
+  * Manually install missing include files for guest-sources.
+  * Changed layout of guest-sources package to not have to patch the Makefile.
+  * Changed patch accordingly.
+  * Removed old 02-host-module patch, it wasn't needed anymore.
+  * Added new patch 02-module-in-kernel to make sure modules build in a kernel
+    build environment.
+
+  [ Hilko Bengen ]
+  * Make dh_strip ignore symlink(s) in /usr/share
+
+  [ Daniel Baumann ]
+  * Again fixing dpatch headers.
+  * Again removing reimported useless whitespaces at EOL and EOF in debian/*.
+  * Correcting the name of Phillip in copyright.
+  * Syncronising Uploaders of control with control.module.in.
+  * Rediffed all patches properly.
+
+ -- Michael Meskes <meskes@debian.org>  Tue, 01 Jan 2008 14:26:51 +0100
+
+virtualbox-ose (1.5.2-dfsg2-7) unstable; urgency=low
+
+  [ Patrick Winnertz ]
+  * Do only recommend the virtualbox-ose-modules package. Maybe someone
+    would like to compile it on it's own, or not with m-a. (Closes: #456989)
+
+  [ Hilko Bengen ]
+  * Build system: a large move towards using dh_install
+    - This requires that we force the build output dir to a fixed location.
+    - The dh_install call needs to go to the `install' target.
+  * Leave out code/data for test cases from virtualbox-ose binary package
+
+  [ Michael Meskes ]
+  * Only suggest guest-sources in guest-utils. With l-m-e expected to include
+    the guest-modules in the near future, this should be sufficient.
+  * Rearranged parts of the debian dir.
+  * Replaced our patch to not need kernel sources by new configure option
+    taken from svn.
+
+  [ Daniel Baumann ]
+  * Bumping policy also in module controls, no other changes needed.
+
+ -- Michael Meskes <meskes@debian.org>  Thu, 20 Dec 2007 15:51:13 +0100
+
+virtualbox-ose (1.5.2-dfsg2-6) unstable; urgency=low
+
+  [ Daniel Baumann ]
+  * Again removing reimported useless whitespaces at EOL and EOF in debian/*.
+  * Fixing dpatch headers.
+  * Rediffed dpatches 6-12.
+  * Removed svn:executable on dpatch 9 and 12.
+
+  [ Michael Meskes ]
+  * Fixed rules file to correctly install module sources, closes: #456916
+
+ -- Michael Meskes <meskes@debian.org>  Tue, 18 Dec 2007 16:21:33 +0100
+
+virtualbox-ose (1.5.2-dfsg2-5) unstable; urgency=low
+
+  [ Daniel Baumann ]
+  * Upgrading virtualbox-ose-modules recommends to depends.
+  * Downgrading virtualbox-ose-source recommends to suggests.
+  * Bumping policy version, no other changes needed.
+
+  [ Hilko Bengen ]
+  * Added support for vditool to VBox.sh
+  * Build system:
+    - Cleaned up patch/config phase
+    - Added copy of init script to debian directory -- no longer copy it
+      from src/VBox/Installer/linux/vboxnet.sh
+    - symlinks/directories in packages are now created using debhelper
+  * Add 2.6.24 compatibility fix (Closes: #456464)
+
+  [ Patrick Winnertz ]
+  * Moved initscript again out of debian, we should use the upstream one
+    and created a patch for this one. (in order to fix lintian warning)
+  * Add description to 02-host-module.dpatch
+
+ -- Patrick Winnertz <winnie@debian.org>  Mon, 17 Dec 2007 17:37:52 +0100
+
+virtualbox-ose (1.5.2-dfsg2-4) unstable; urgency=low
+
+  [ Patrick Winnertz ]
+  * Changed my maintainer address
+
+  [ meskes@debian.org ]
+  * Made virtualbox-ose-guest-source compile under linux-modules-extra.
+  * Made virtualbox-ose-guest-modules i386 only.
+  * Re-encoded copyright file in UTF-8.
+  * Removed empty /usr/sbin directory in virtualbox-ose package.
+  * Removed /usr/lib/virtualbox/VBox.png, doesn't seem to be needed.
+  * Also removed override for this file.
+  * Moved binary file xpidl from /usr/share back to /usr/lib.
+
+ -- Michael Meskes <meskes@debian.org>  Thu, 06 Dec 2007 09:11:51 +0100
+
+virtualbox-ose (1.5.2-dfsg2-3) unstable; urgency=low
+
+  * Added patch to remove registration form, closes: #447626, #453784
+  * Added just another patch to make sure module is build with the correct
+    name when build by linux-modules-extra, closes: #453681, #454123
+  * Patched Makefile for guest modules for the same reason.
+
+ -- Michael Meskes <meskes@debian.org>  Sun, 02 Dec 2007 18:06:27 +0100
+
+virtualbox-ose (1.5.2-dfsg2-2) unstable; urgency=low
+
+  [ Michael Meskes ]
+  * Removed superfluous build dependencies:
+    - libqt3-mt-dev depends on zlib1g-dev and libxcursor-dev
+    - libxalan110-dev depends on libxerces27-dev
+    - bcc depends on bin86
+  * Remove guest libs from debug package.
+  * Call "invoke-rc.d udev reload" conditionally in modules postinst.
+  * Do not call modprobe in postinst script, closes: #451743, #451742
+  * Made grep command in vboxnet.sh be quiet, closes: #451741
+  * Do not start guest utils if not inside the vm.
+  * Disabled modprobing of vboxadd because udev seems to be able to handle it.
+  * Applied patch by Kel Modderman <kel@otaku42.de> improving
+    guest utils init script.
+  * Do not change xorg.conf in postinst, closes: #451745
+
+  [ Daniel Baumann ]
+  * Removing again whitespaces at EOL.
+  * Removing empty virtualbox-ose-guest-utils.postrm.
+
+ -- Michael Meskes <meskes@debian.org>  Mon, 19 Nov 2007 10:56:31 +0100
+
+virtualbox-ose (1.5.2-dfsg2-1) unstable; urgency=low
+
+  [ Daniel Baumann ]
+  * Added debug package.
+  * Converting XS-* fields to their official counterparts.
+  * Removed some re-imported useless whitespaces.
+
+  [ Michael Meskes ]
+  * Made sure modules postinst calls debmod before modprobe.
+  * Added reference to http://wiki.debian.org/VirtualBox to README.Debian.
+  * Moved architecture independant files from /usr/lib to /usr/share, closes: #448951
+  * Checked license of linux installer and additions.
+  * Repackaged dfsg orig tarball accordingly.
+  * Added linux installer tools, closes: #448749
+  * Provide programs with upstream upper/lower case mix as used by upstream.
+  * Added linux additions in two separate packages, closes: #440517, #449315
+  * Install vboxnet.sh as init script.
+  * Changed build system to work without kernel sources.
+
+ -- Michael Meskes <meskes@debian.org>  Tue, 12 Nov 2007 20:26:35 +0100
+
+virtualbox-ose (1.5.2-dfsg-2) unstable; urgency=low
+
+  * Adding depends to adduser (Closes: #447271).
+  * Conditionally call delgroup in virtualbox-ose.postrm.
+  * Replacing virtualbox-modules with virtualbox-ose-modules in
+    scripts/VBox.sh.
+  * Sorting recommends.
+  * Adding patch from Daniel Hahler <ubuntu@thequod.de> to change the error
+    message for vboxdrv failure, according to virtualbox-ose-modules.
+
+ -- Daniel Baumann <daniel@debian.org>  Sat, 20 Oct 2007 06:40:00 +0200
+
+virtualbox-ose (1.5.2-dfsg-1) unstable; urgency=low
+
+  [ Michael Meskes ]
+  * Made build process install menu file, closes: #444842
+  * Move virtualbox to Apps/System.
+  * Syncronized desktop and menu file.
+  * Documented features missing in Open-Source-Edition in
+    README.Debian, closes: #444941
+  * Changed menu section to Applications/Emulators.
+
+  [ Daniel Baumann ]
+  * Removing useless whitespaces at EOL and EOF in debian/*.
+  * Sorting architectures.
+  * Sorting build-depends.
+  * Sorting control fields.
+  * Adding VCS control fields.
+  * Adding Homepage control fields.
+  * Renaming virtualbox.desktop and virtualbox.xpm to virtualbox-ose.desktop
+    and virtualbox-ose.xpm.
+  * Using the term 'VirtualBox OSE' consistently in virtualbox-ose.desktop,
+    virtualbox-ose-source.README.Debian and virtualbox-ose.menu.
+  * Renaming README.Debian and README.rebuild to virtualbox-ose.README.Debian
+    and virtualbox-ose.README.rebuild for consistency reasons.
+  * Rediffed, cleaned up and properly named all dpatches.
+  * Added forgotton changelog from the 1.5.0-dfsg-1 upload.
+  * Using install -D call to install the lintian override.
+  * Removed comment in rules about "dh_lintian"; this will not be implemented
+    in debhelper anyway, see #109642 for more information.
+  * Fixed spelling error and improved language in
+    virtualbox-ose.README.rebuild.
+  * Cleaned, simplified and refractored postinst.modules.in,
+    virtualbox-ose.postinst and virtualbox-ose.postrm.
+  * Added m-a override link for virtualbox-ose-source.
+  * Re-applied improvements to dfsg-target in rules from 1.5.0-dfsg-1 upload.
+  * Removing not needed debhelper calls in binary-indep target in rules.
+  * Moving debian/virtualbox-ose.lintian-overrides to
+    debian/lintian/virtualbox-ose for consistency reasons.
+  * Moving debian/VBox.sh to debian/scripts/VBox.sh for consistency reasons.
+  * Updated menu file to new menu policy.
+  * Updated fsf address in copyright.
+  * New upstream release:
+    - Updating dfsg-free target in rules.
+    - Updating 01-configure.dpatch.
+
+ -- Michael Meskes <meskes@debian.org>  Fri, 19 Oct 2007 10:19:49 +0200
+
+virtualbox-ose (1.5.0-dfsg2-2) unstable; urgency=low
+
+  [ Patrick Winnertz ]
+  * Added README.Debian to virtualbox-ose in order to document that the
+    configuration xml files of the machines are not compatible between
+    1.4.0-svn4130 and the 1.5.0 release. (Closes: #441634)
+  * Build only binary-dep packages in binary-dep target and only binary-indep
+    packages in binary-indep target.
+  * Added postrm to virtualbox-ose in order to remove the vboxusers group on
+    purge. (Closes: #442396)
+
+  [ Michael Meskes ]
+  * Force udev to reload the rules in postinst. Hopefully this makes sure that
+    the device always belongs to the right group.
+
+ -- Michael Meskes <meskes@debian.org>  Sun, 23 Sep 2007 13:55:37 +0200
+
+virtualbox-ose (1.5.0-dfsg2-1) unstable; urgency=low
+
+  * Improved README.Debian for virtualbox-ose-source (Closes: #440793 )
+  * Fixed error using different kernel sources than the one which is running
+    (Closes: #440693 )
+    Thanks to Stefan Lippers-Hollmann
+  * The kernel module for virtualbox will only build on amd64 and i386
+    (Closes: #440564)
+  * Merge some changes that Daniel Baumann made in his own package before.
+    Thanks.
+  * Set the alioth ML as maintainer address, since this list will be used to
+    discuss issues from now on.
+  * Removed one patch for makefile. Instead use variables now.
+    - Improved patch localconfig-kmk.dpatch
+  * Upload of 1.5.0 fixes scrolling issue. (Closes: #440773 )
+
+ -- Patrick Winnertz <patrick.winnertz@skolelinux.org>  Thu, 06 Sep 2007 09:52:48 +0200
+
+virtualbox-ose (1.5.0-dfsg-1) unstable; urgency=low
+
+  * New upstream release.
+  * Re-added myself as co-maintainer as I'm the original maintainer.
+  * Updated dfsg-free target in rules for new upstream version.
+  * Don't forkbomb in dfsg-free target, use xargs.
+  * Don't do a subshell in dfsg-free target, not required.
+  * Cleaned the 'dh_make'-template header in postinst.modules.in.
+  * Rediffed all patches with the same diff options.
+  * Properly named all patches and adjusted their dpatch headers.
+
+ -- Daniel Baumann <daniel@debian.org>  Wed,  5 Sep 2007 06:58:00 +0200
+
+virtualbox-ose (1.4.0svn4130-dfsg-1) unstable; urgency=low
+
+  [ Patrick Winnertz ]
+  * Rename virtualbox to virtualbox-ose since innotek has a trademark on this
+    name and they prohibit us to use this name together with the open-source edition.
+    See http://www.virtualbox.org/wiki/Licensing_FAQ point 8 for details.
+  * If module is not loadable on this kernel don't fail to install kernel
+    module. (Closes: #440509)
+  * Adjusted Upstream Authors name. The name of the company has changed.
+  * Adjusted copyright. virtualbox is GPLv2 *only*.
+
+  [ Michael Meskes ]
+  * Added Build-Dependancy to g++-multilib on amd64.
+
+ -- Michael Meskes <meskes@debian.org>  Mon, 03 Sep 2007 14:27:30 +0200
+
+virtualbox (1.4.0svn4130-dfsg-1) unstable; urgency=low
+
+  [ Daniel Baumann ]
+  * Initial release (Closes: #406992, #407001, #409711).
+
+  [ Philipp Hug ]
+  * Stripped kbuild and yasm from source tarball
+  * Use Debian's kbuild and yasm instead
+  * Added myself as uploader
+  * Build target for module is now all instead of module
+  * Build against correct kernel source
+  * Integrated changes by Patrick Winnertz
+  * clean: rm env.sh AutoConfig.kmk configure.log
+  * Install udev rules to automatically create device
+  * Automatically create vboxusers group
+  * Binary names are now lowercase
+  * Disabled stripping for VMM because it breaks VirtualBox
+  * Don't require kernel module, recommend it instead
+
+  [ Patrick Winnertz ]
+  * Remove Microsoft license stuff from orig.tar.gz (repackaged it )
+    See dfsg-free section in debian/rules for details.
+  * Added patch to use own yasm
+  * Added patch to remove Additions from the Makefile.kmk
+  * Remove ./src/libs/xpcom18a4/nsprpub/build/autoconf from source tarball.
+  * Doesn't depend on gcc-3.4 and g++-3.4 since they are going to be removed from
+    debian. Use default instead.
+    Therefore I removed the patch, too.
+  * Don't call dh_installdeb twice.  (build-dep & build-indep)
+  * Added section to create dfsg tarball automatically to debian/rules (experimental!!)
+  * Added lintian.overrides for -fPIC since somehow virtualbox doesn't work with
+  * Added patch to prevent building modules and kernel code when building the
+    gui.
+  * Install udev rule with virtualbox and not with the module, since several
+    modules for several kernels could be there.
+  * Improved copyright statements in copyright file.
+  * Corrected .desktop file
+
+ -- Patrick Winnertz <patrick.winnertz@skolelinux.org>  Thu, 30 Aug 2007 12:35:51 +0200

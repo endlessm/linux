@@ -1,0 +1,246 @@
+Source: virtualbox
+Section: contrib/misc
+Priority: optional
+Maintainer: Debian Virtualbox Team <team+debian-virtualbox@tracker.debian.org>
+Uploaders: Ritesh Raj Sarraf <rrs@debian.org>,
+           Gianfranco Costamagna <locutusofborg@debian.org>
+Build-Depends: bzip2,
+               debhelper-compat (= 12),
+               default-jdk,
+               jaxws,
+               dh-python,
+               dkms,
+               docbook-xml,
+               docbook-xsl,
+               dpkg-dev (>= 1.15.6~),
+               g++-multilib,
+               genisoimage,
+               gsoap,
+               acpica-tools,
+               imagemagick,
+               kbuild (>= 1:0.1.9998svn3098~),
+               libasound2-dev,
+               libcap-dev,
+               libcurl4-gnutls-dev,
+               libdevmapper-dev,
+               libdrm-dev,
+               libegl1-mesa-dev,
+               libgl1-mesa-dev,
+               libglu1-mesa-dev,
+               libgsoap-dev,
+               libidl-dev,
+               libopus-dev,
+               libpam0g-dev,
+               libpixman-1-dev,
+               libpng-dev,
+               libpulse-dev,
+               libqt5x11extras5-dev,
+               libqt5opengl5-dev,
+               qttools5-dev-tools,
+               libsdl1.2-dev,
+               libssl-dev,
+               libvncserver-dev,
+               libvpx-dev,
+               libx11-dev,
+               libxcomposite-dev,
+               libxcursor-dev,
+               libxdamage-dev,
+               libxext-dev,
+               libxi-dev,
+               libxinerama-dev,
+               libxml2-dev,
+               libxml2-utils,
+               libxmu-dev,
+               libxrandr-dev,
+               libxrender-dev,
+               libxslt1-dev,
+               libxt-dev,
+               lsb-release,
+               lynx,
+               makeself,
+               module-assistant,
+               python3-dev,
+               texlive-fonts-extra,
+               texlive-fonts-recommended,
+               texlive-latex-extra,
+               texlive-latex-recommended,
+               uuid-dev,
+               x11proto-gl-dev,
+               x11proto-xf86dri-dev,
+               xserver-xorg-dev,
+               xsltproc,
+               yasm,
+               zlib1g-dev
+X-Python-Version: >= 2.5
+Standards-Version: 4.4.0
+Homepage: https://www.virtualbox.org
+Vcs-Browser: https://salsa.debian.org/pkg-virtualbox-team/virtualbox
+Vcs-Git: https://salsa.debian.org/pkg-virtualbox-team/virtualbox.git
+
+Package: virtualbox-qt
+Architecture: amd64
+Depends: virtualbox (= ${binary:Version}), ${misc:Depends}, ${shlibs:Depends}
+Breaks: virtualbox (<< 4.1.6-dfsg-2~)
+Replaces: virtualbox (<< 4.1.6-dfsg-2~)
+Description: x86 virtualization solution - Qt based user interface
+ VirtualBox is a free x86 virtualization solution allowing a wide range
+ of x86 operating systems such as Windows, DOS, BSD or Linux to run on a
+ Linux system.
+ .
+ This package provides the Qt based graphical user interface for VirtualBox.
+
+Package: virtualbox
+Architecture: amd64
+Depends: adduser,
+         iproute2,
+         procps,
+         virtualbox-dkms (>= ${source:Version}) | virtualbox-source (>= ${source:Version}) | virtualbox-modules,
+         ${misc:Depends},
+         ${python3:Depends},
+         ${shlibs:Depends}
+Recommends: virtualbox-qt (= ${binary:Version}), ${shlibs:Recommends}
+Suggests: vde2, virtualbox-guest-additions-iso
+Conflicts: virtualbox-2.0,
+           virtualbox-2.1,
+           virtualbox-2.2,
+           virtualbox-3.0,
+           virtualbox-3.1,
+           virtualbox-3.2,
+           virtualbox-4.0,
+           virtualbox-4.1,
+           virtualbox-4.2,
+           virtualbox-4.3,
+           virtualbox-5.0,
+           virtualbox-5.1,
+           virtualbox-5.2,
+           virtualbox-6.0,
+Description: x86 virtualization solution - base binaries
+ VirtualBox is a free x86 virtualization solution allowing a wide range
+ of x86 operating systems such as Windows, DOS, BSD or Linux to run on a
+ Linux system.
+ .
+ This package provides the binaries for VirtualBox. Either the virtualbox-dkms
+ or the virtualbox-source package is also required in order to compile the
+ kernel modules needed for virtualbox. A graphical user interface for
+ VirtualBox is provided by the package virtualbox-qt.
+
+Package: virtualbox-dkms
+Section: contrib/kernel
+Architecture: all
+Depends: ${misc:Depends}
+Recommends: virtualbox (>= ${source:Version})
+Provides: virtualbox-modules
+Description: x86 virtualization solution - kernel module sources for dkms
+ VirtualBox is a free x86 virtualization solution allowing a wide range
+ of x86 operating systems such as Windows, DOS, BSD or Linux to run on a
+ Linux system.
+ .
+ This package provides the source code for the virtualbox kernel module to be
+ build with dkms. Kernel sources or headers are required to compile this
+ module.
+
+Package: virtualbox-source
+Section: contrib/kernel
+Architecture: all
+Depends: build-essential,
+         bzip2,
+         debhelper-compat (= 12),
+         kbuild,
+         module-assistant,
+         ${misc:Depends}
+Recommends: virtualbox (>= ${source:Version})
+Description: x86 virtualization solution - kernel module source
+ VirtualBox is a free x86 virtualization solution allowing a wide range
+ of x86 operating systems such as Windows, DOS, BSD or Linux to run on a
+ Linux system.
+ .
+ This package provides the source code for the virtualbox kernel module.
+ The virtualbox package is also required in order to make use of these
+ modules. Kernel sources or headers are required to compile this module.
+ .
+ The source is placed under /usr/src, and after decompression it can
+ be built to produce a virtualbox-modules-_KVERS_ providing
+ "virtualbox-modules" package.
+
+Package: virtualbox-guest-dkms
+Section: contrib/kernel
+Architecture: all
+Depends: ${misc:Depends}
+XB-Modaliases: ${modaliases}
+Provides: virtualbox-guest-modules
+Description: x86 virtualization solution - guest addition module source for dkms
+ VirtualBox is a free x86 virtualization solution allowing a wide range
+ of x86 operating systems such as Windows, DOS, BSD or Linux to run on a
+ Linux system.
+ .
+ This package provides the source code for the virtualbox guest addition kernel
+ modules to be build with dkms. Kernel sources or headers are required to
+ compile these modules.
+
+Package: virtualbox-guest-source
+Section: contrib/kernel
+Architecture: all
+Depends: build-essential,
+         bzip2,
+         debhelper-compat (= 12),
+         kbuild,
+         module-assistant,
+         ${misc:Depends}
+Description: x86 virtualization solution - guest addition module source
+ VirtualBox is a free x86 virtualization solution allowing a wide range
+ of x86 operating systems such as Windows, DOS, BSD or Linux to run on a
+ Linux system.
+ .
+ This package provides the source code for the virtualbox guest addition kernel
+ modules. The virtualbox-guest-utils package is also required in order to
+ make use of these modules. Kernel sources or headers are required to compile
+ these modules.
+ .
+ The source is placed under /usr/src, and after decompression it can
+ be built to produce a virtualbox-guest-modules-_KVERS_ providing
+ "virtualbox-guest-modules" package.
+
+Package: virtualbox-guest-x11
+Section: contrib/x11
+Architecture: amd64 i386
+Depends: libnotify-bin,
+         x11-xserver-utils,
+         virtualbox-guest-utils (= ${binary:Version}),
+         ${misc:Depends},
+         ${shlibs:Depends},
+         ${xserver:Depends}
+Provides: xorg-driver-video
+XB-Modaliases: ${modaliases}
+Description: x86 virtualization solution - X11 guest utilities
+ VirtualBox is a free x86 virtualization solution allowing a wide range
+ of x86 operating systems such as Windows, DOS, BSD or Linux to run on a
+ Linux system.
+ .
+ This package provides the X11 guest utilities for VirtualBox. These utilities
+ are meant to be run inside the virtual machine.
+ They provide closer integration and improve the interactive performance.
+
+Package: virtualbox-guest-utils
+Architecture: amd64 i386
+Depends: adduser,
+         pciutils,
+         virtualbox-guest-dkms (= ${source:Version}) | virtualbox-guest-source (= ${source:Version}) | virtualbox-guest-modules,
+         ${misc:Depends},
+         ${shlibs:Depends}
+#Conflicts: time-daemon, ntp
+#Provides: time-daemon
+#Replaces: time-daemon
+Suggests: virtualbox-guest-x11 (= ${binary:Version})
+Description: x86 virtualization solution - non-X11 guest utilities
+ VirtualBox is a free x86 virtualization solution allowing a wide range
+ of x86 operating systems such as Windows, DOS, BSD or Linux to run on a
+ Linux system.
+ .
+ This package provides the non-X11 guest utilities for VirtualBox. These
+ utilities are meant to be run inside the virtual machine.
+ They provide closer integration and allow to share data through shared folders
+ between the host system and the virtual machine.
+ .
+ Either the virtualbox-guest-dkms or the virtualbox-guest-source package is
+ also required in order to compile the kernel modules needed for
+ virtualbox-guest-utils.
