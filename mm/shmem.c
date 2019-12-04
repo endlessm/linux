@@ -117,10 +117,12 @@ struct shmem_options {
 	bool full_inums;
 	int huge;
 	int seen;
+	bool user_xattr;
 #define SHMEM_SEEN_BLOCKS 1
 #define SHMEM_SEEN_INODES 2
 #define SHMEM_SEEN_HUGE 4
 #define SHMEM_SEEN_INUMS 8
+#define SHMEM_SEEN_USER_XATTR 16
 };
 
 #ifdef CONFIG_TMPFS
@@ -3283,6 +3285,40 @@ static int shmem_xattr_handler_set(const struct xattr_handler *handler,
 	return simple_xattr_set(&info->xattrs, name, value, size, flags, NULL);
 }
 
+static int shmem_user_xattr_handler_get(const struct xattr_handler *handler,
+					struct dentry *dentry, struct inode *inode,
+					const char *name, void *buffer, size_t size)
+{
+	struct shmem_sb_info *sbinfo = SHMEM_SB(inode->i_sb);
+
+	if (!sbinfo->user_xattr) {
+		return -EOPNOTSUPP;
+	}
+
+	return shmem_xattr_handler_get(handler, dentry, inode, name, buffer, size);
+}
+
+static int shmem_user_xattr_handler_set(const struct xattr_handler *handler,
+					struct dentry *dentry, struct inode *inode,
+					const char *name, const void *value,
+					size_t size, int flags)
+{
+	struct shmem_sb_info *sbinfo = SHMEM_SB(inode->i_sb);
+
+	if (!sbinfo->user_xattr) {
+		return -EOPNOTSUPP;
+	}
+
+	return shmem_xattr_handler_set(handler, dentry, inode, name, value,
+			size, flags);
+}
+
+static const struct xattr_handler shmem_user_xattr_handler = {
+	.prefix = XATTR_USER_PREFIX,
+	.get = shmem_user_xattr_handler_get,
+	.set = shmem_user_xattr_handler_set,
+};
+
 static const struct xattr_handler shmem_security_xattr_handler = {
 	.prefix = XATTR_SECURITY_PREFIX,
 	.get = shmem_xattr_handler_get,
@@ -3300,6 +3336,7 @@ static const struct xattr_handler *shmem_xattr_handlers[] = {
 	&posix_acl_access_xattr_handler,
 	&posix_acl_default_xattr_handler,
 #endif
+	&shmem_user_xattr_handler,
 	&shmem_security_xattr_handler,
 	&shmem_trusted_xattr_handler,
 	NULL
@@ -3418,6 +3455,8 @@ enum shmem_param {
 	Opt_uid,
 	Opt_inode32,
 	Opt_inode64,
+	Opt_user_xattr,
+	Opt_nouser_xattr,
 };
 
 static const struct constant_table shmem_param_enums_huge[] = {
@@ -3429,16 +3468,17 @@ static const struct constant_table shmem_param_enums_huge[] = {
 };
 
 const struct fs_parameter_spec shmem_fs_parameters[] = {
-	fsparam_u32   ("gid",		Opt_gid),
-	fsparam_enum  ("huge",		Opt_huge,  shmem_param_enums_huge),
-	fsparam_u32oct("mode",		Opt_mode),
-	fsparam_string("mpol",		Opt_mpol),
-	fsparam_string("nr_blocks",	Opt_nr_blocks),
-	fsparam_string("nr_inodes",	Opt_nr_inodes),
-	fsparam_string("size",		Opt_size),
-	fsparam_u32   ("uid",		Opt_uid),
-	fsparam_flag  ("inode32",	Opt_inode32),
-	fsparam_flag  ("inode64",	Opt_inode64),
+	fsparam_u32    ("gid",		Opt_gid),
+	fsparam_enum   ("huge",		Opt_huge,  shmem_param_enums_huge),
+	fsparam_u32oct ("mode",		Opt_mode),
+	fsparam_string ("mpol",		Opt_mpol),
+	fsparam_string ("nr_blocks",	Opt_nr_blocks),
+	fsparam_string ("nr_inodes",	Opt_nr_inodes),
+	fsparam_string ("size",		Opt_size),
+	fsparam_u32    ("uid",		Opt_uid),
+	fsparam_flag   ("inode32",	Opt_inode32),
+	fsparam_flag   ("inode64",	Opt_inode64),
+	fsparam_flag_no("user_xattr",	Opt_nouser_xattr),
 	{}
 };
 
@@ -3455,6 +3495,13 @@ static int shmem_parse_one(struct fs_context *fc, struct fs_parameter *param)
 		return opt;
 
 	switch (opt) {
+	case Opt_user_xattr:
+		if (result.boolean)
+			ctx->user_xattr = true;
+		else
+			ctx->user_xattr = false;
+		ctx->seen |= SHMEM_SEEN_USER_XATTR;
+		break;
 	case Opt_size:
 		size = memparse(param->string, &rest);
 		if (*rest == '%') {
@@ -3629,6 +3676,8 @@ static int shmem_reconfigure(struct fs_context *fc)
 		sbinfo->max_inodes  = ctx->inodes;
 		sbinfo->free_inodes = ctx->inodes - inodes;
 	}
+	if (ctx->seen & SHMEM_SEEN_USER_XATTR)
+		sbinfo->user_xattr  = ctx->user_xattr;
 
 	/*
 	 * Preserve previous mempolicy unless mpol remount option was specified.
@@ -3757,6 +3806,7 @@ static int shmem_fill_super(struct super_block *sb, struct fs_context *fc)
 	sbinfo->huge = ctx->huge;
 	sbinfo->mpol = ctx->mpol;
 	ctx->mpol = NULL;
+	sbinfo->user_xattr = ctx->user_xattr;
 
 	spin_lock_init(&sbinfo->stat_lock);
 	if (percpu_counter_init(&sbinfo->used_blocks, 0, GFP_KERNEL))
