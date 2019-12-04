@@ -21513,6 +21513,7 @@ EXPORT_SYMBOL_GPL vmlinux 0x00000000	pci_msi_unmask_irq
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	pci_num_vf
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	pci_pasid_features
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	pci_power_names
+EXPORT_SYMBOL_GPL vmlinux 0x00000000	pci_pr3_present
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	pci_prg_resp_pasid_required
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	pci_probe_reset_bus
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	pci_probe_reset_slot
