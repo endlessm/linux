@@ -42,6 +42,7 @@ struct shmem_sb_info {
 	spinlock_t shrinklist_lock;   /* Protects shrinklist */
 	struct list_head shrinklist;  /* List of shinkable inodes */
 	unsigned long shrinklist_len; /* Length of shrinklist */
+	bool user_xattr;	      /* allow xattrs in user. namespace? */
 };
 
 static inline struct shmem_inode_info *SHMEM_I(struct inode *inode)
