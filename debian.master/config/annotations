@@ -408,10 +408,10 @@ CONFIG_CAVIUM_CPT                               policy<{'arm64': 'm'}>
 CONFIG_CRYPTO_DEV_NITROX_CNN55XX                policy<{'amd64': 'm', 'arm64': 'm', 'ppc64el': 'm', 's390x': 'n'}>
 CONFIG_CRYPTO_DEV_CAVIUM_ZIP                    policy<{'arm64': 'm'}>
 CONFIG_CRYPTO_DEV_QCE                           policy<{'arm64': 'm', 'armhf': 'm'}>
-CONFIG_CRYPTO_DEV_QCOM_RNG                      policy<{'arm64': 'm', 'arm64-snapdragon': 'y', 'armhf': 'm'}>
+CONFIG_CRYPTO_DEV_QCOM_RNG                      policy<{'arm64-generic': 'm', 'arm64-snapdragon': 'y', 'armhf': 'm'}>
 CONFIG_CRYPTO_DEV_VMX                           policy<{'ppc64el': 'y'}>
 CONFIG_CRYPTO_DEV_VMX_ENCRYPT                   policy<{'ppc64el': 'm'}>
-CONFIG_CRYPTO_DEV_ROCKCHIP                      policy<{'arm64': 'm', 'armhf': 'n'}>
+CONFIG_CRYPTO_DEV_ROCKCHIP                      policy<{'arm64': 'm', 'armhf': 'm'}>
 CONFIG_CRYPTO_DEV_MEDIATEK                      policy<{'armhf': 'm'}>
 CONFIG_CRYPTO_DEV_CHELSIO                       policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'ppc64el': 'm'}>
 CONFIG_CHELSIO_IPSEC_INLINE                     policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'ppc64el': 'y'}>
@@ -1611,7 +1611,7 @@ CONFIG_DEVFREQ_GOV_PASSIVE                      policy<{'amd64': 'y', 'arm64': '
 CONFIG_ARM_EXYNOS_BUS_DEVFREQ                   policy<{'armhf': 'y'}>
 CONFIG_ARM_TEGRA_DEVFREQ                        policy<{'armhf-generic': 'm'}>
 CONFIG_ARM_TEGRA20_DEVFREQ                      policy<{'armhf-generic': 'm'}>
-CONFIG_ARM_RK3399_DMC_DEVFREQ                   policy<{'armhf': 'm'}>
+CONFIG_ARM_RK3399_DMC_DEVFREQ                   policy<{'arm64': 'm', 'armhf': 'm'}>
 
 # Menu: Device Drivers >> Generic Dynamic Voltage and Frequency Scaling (DVFS) support >> DEVFREQ-Event device Support
 CONFIG_PM_DEVFREQ_EVENT                         policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'ppc64el': 'y'}>
@@ -7796,8 +7796,8 @@ CONFIG_SND_SOC_ROCKCHIP_PDM                     policy<{'arm64': 'm', 'armhf': '
 CONFIG_SND_SOC_ROCKCHIP_SPDIF                   policy<{'arm64': 'm', 'armhf': 'm'}>
 CONFIG_SND_SOC_ROCKCHIP_MAX98090                policy<{'arm64': 'm', 'armhf': 'm'}>
 CONFIG_SND_SOC_ROCKCHIP_RT5645                  policy<{'arm64': 'm', 'armhf': 'm'}>
-CONFIG_SND_SOC_RK3288_HDMI_ANALOG               policy<{'armhf': 'm'}>
-CONFIG_SND_SOC_RK3399_GRU_SOUND                 policy<{'armhf': 'm'}>
+CONFIG_SND_SOC_RK3288_HDMI_ANALOG               policy<{'arm64': 'm', 'armhf': 'm'}>
+CONFIG_SND_SOC_RK3399_GRU_SOUND                 policy<{'arm64': 'm', 'armhf': 'm'}>
 
 # Menu: Device Drivers >> Sound card support >> Advanced Linux Sound Architecture >> ALSA for SoC audio support >> ASoC support for Samsung
 CONFIG_SND_SOC_SAMSUNG                          policy<{'armhf': 'm'}>
@@ -8128,6 +8128,7 @@ CONFIG_SND_SOC_SOF_TIGERLAKE_SUPPORT            policy<{'amd64': 'y', 'i386': 'y
 CONFIG_SND_SOC_SOF_ELKHARTLAKE_SUPPORT          policy<{'amd64': 'y', 'i386': 'y'}>
 CONFIG_SND_SOC_SOF_HDA_LINK                     policy<{'amd64': 'y', 'i386': 'y'}>
 CONFIG_SND_SOC_SOF_HDA_AUDIO_CODEC              policy<{'amd64': 'y', 'i386': 'y'}>
+CONFIG_SND_SOC_SOF_HDA_ALWAYS_ENABLE_DMI_L1     policy<{'amd64': 'y', 'i386': 'y'}>
 #
 CONFIG_SND_SOC_SOF_HDA_LINK                     mark<ENFORCED> note<LP:1848490>
 CONFIG_SND_SOC_SOF_HDA_AUDIO_CODEC              mark<ENFORCED> note<LP:1848490>
@@ -8351,7 +8352,7 @@ CONFIG_SND_X86                                  policy<{'amd64': 'y', 'i386': 'y
 CONFIG_HDMI_LPE_AUDIO                           policy<{'amd64': 'm', 'i386': 'm'}>
 
 # Menu: Device Drivers >> SoundWire support
-CONFIG_SOUNDWIRE                                policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'ppc64el': 'y', 's390x': 'y'}>
+CONFIG_SOUNDWIRE                                policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'ppc64el': 'y'}>
 CONFIG_SOUNDWIRE_INTEL                          policy<{'amd64': 'm', 'i386': 'm'}>
 
 # Menu: Device Drivers >> Staging drivers
@@ -10210,7 +10211,7 @@ CONFIG_EFI_CAPSULE_QUIRK_QUARK_CSH              policy<{'i386': 'y'}>
 CONFIG_EFI_TEST                                 policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm'}>
 CONFIG_APPLE_PROPERTIES                         policy<{'amd64': 'y', 'i386': 'y'}>
 CONFIG_RESET_ATTACK_MITIGATION                  policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y'}>
-CONFIG_EFI_RCI2_TABLE                           policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y'}>
+CONFIG_EFI_RCI2_TABLE                           policy<{'amd64': 'y', 'i386': 'y'}>
 #
 CONFIG_EFI_VARS                                 mark<ENFORCED> note<EFI boot requirement (d-i) LP:#837332>
 
@@ -12548,6 +12549,7 @@ CONFIG_HIGHMEM64G                               policy<{'i386': 'y'}>
 
 # Menu: Processor type and features >> Kernel support for 32-bit EL0
 CONFIG_KUSER_HELPERS                            policy<{'arm64': 'y', 'armhf': 'y'}>
+#
 
 # Menu: Processor type and features >> Kernel support for 32-bit EL0 >> Emulate deprecated/obsolete ARMv8 instructions >> Architecture: arm64
 CONFIG_ARMV8_DEPRECATED                         policy<{'arm64': 'y'}>
@@ -12721,6 +12723,11 @@ CONFIG_SCHED_MC_PRIO                            policy<{'amd64': 'y', 'i386': 'y
 # Menu: Processor type and features >> Symmetric multi-processing support >> Numa Memory Allocation and Scheduler Support >> Architecture: x86
 CONFIG_AMD_NUMA                                 policy<{'amd64': 'y'}>
 CONFIG_X86_64_ACPI_NUMA                         policy<{'amd64': 'y'}>
+
+# Menu: Processor type and features >> TSX enable mode >> Architecture: x86
+CONFIG_X86_INTEL_TSX_MODE_OFF                   policy<{'amd64': 'y', 'i386': 'y'}>
+CONFIG_X86_INTEL_TSX_MODE_ON                    policy<{'amd64': 'n', 'i386': 'n'}>
+CONFIG_X86_INTEL_TSX_MODE_AUTO                  policy<{'amd64': 'n', 'i386': 'n'}>
 
 # Menu: Processor type and features >> Timer frequency
 CONFIG_HZ_100                                   policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'i386': 'n', 'ppc64el': 'n', 's390x': 'y'}>
