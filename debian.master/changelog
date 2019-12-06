@@ -1,10 +1,4 @@
-linux (5.4.0-8.10) focal; urgency=medium
-
-  * No change upload to add orig tarball.
-
- -- Seth Forshee <seth.forshee@canonical.com>  Fri, 06 Dec 2019 12:55:09 -0600
-
-linux (5.4.0-8.9) focal; urgency=medium
+linux (5.4.0-8.11) focal; urgency=medium
 
   * focal/linux: 5.4.0-8.9 -proposed tracker (LP: #1855448)
 
@@ -242,7 +236,7 @@ linux (5.4.0-8.9) focal; urgency=medium
     - KVM: PPC: Book3S HV: Flush link stack on guest exit to host kernel
     - Linux 5.4.1
 
- -- Andrea Righi <andrea.righi@canonical.com>  Fri, 06 Dec 2019 15:40:17 +0100
+ -- Seth Forshee <seth.forshee@canonical.com>  Fri, 06 Dec 2019 15:53:53 -0600
 
 linux (5.4.0-7.8) focal; urgency=medium
 
