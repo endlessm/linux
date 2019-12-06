@@ -1,3 +1,9 @@
+linux (5.4.0-8.10) focal; urgency=medium
+
+  * No change upload to add orig tarball.
+
+ -- Seth Forshee <seth.forshee@canonical.com>  Fri, 06 Dec 2019 12:55:09 -0600
+
 linux (5.4.0-8.9) focal; urgency=medium
 
   * focal/linux: 5.4.0-8.9 -proposed tracker (LP: #1855448)
