@@ -689,6 +689,7 @@ cdns-csi2tx
 cdns-pltfrm
 cdns3
 cdns3-pci-wrap
+cec-gpio
 ceph
 cfag12864b
 cfag12864bfb
@@ -4490,7 +4491,6 @@ snd-soc-xtfpga-i2s
 snd-soc-zx-aud96p22
 snd-sof
 snd-sof-acpi
-snd-sof-intel-bdw
 snd-sof-intel-byt
 snd-sof-intel-hda
 snd-sof-intel-hda-common
@@ -5109,6 +5109,8 @@ v4l2-flash-led-class
 v4l2-fwnode
 v4l2-mem2mem
 v4l2-tpg
+vboxguest
+vboxsf
 vboxvideo
 vcan
 vcnl4000
