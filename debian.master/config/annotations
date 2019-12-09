@@ -8355,8 +8355,10 @@ CONFIG_SND_X86                                  policy<{'amd64': 'y', 'i386': 'y
 CONFIG_HDMI_LPE_AUDIO                           policy<{'amd64': 'm', 'i386': 'm'}>
 
 # Menu: Device Drivers >> SoundWire support
-CONFIG_SOUNDWIRE                                policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'ppc64el': 'y'}>
+CONFIG_SOUNDWIRE                                policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'ppc64el': 'm'}>
 CONFIG_SOUNDWIRE_INTEL                          policy<{'amd64': 'm', 'i386': 'm'}>
+#
+CONFIG_SOUNDWIRE                                mark<ENFORCED> note<LP:1855685>
 
 # Menu: Device Drivers >> Staging drivers
 CONFIG_QLGE                                     policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'ppc64el': 'm'}>
