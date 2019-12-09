@@ -5,3 +5,17 @@ UBUNTU: SAUCE: nvme: add quirk to not call disable function when suspending
 UBUNTU: SAUCE: pci/nvme: prevent WDC PC SN720 NVMe from entering D3 and being disabled
 UBUNTU: SAUCE: drm/i915: Add support for retrying hotplug
 UBUNTU: SAUCE: drm/i915: Enable hotplug retry
+UBUNTU: SAUCE: security,perf: Allow further restriction of perf_event_open
+UBUNTU: SAUCE: s390: kernel message catalog
+UBUNTU: SAUCE: (lockdown) security: lockdown: expose a hook to lock the kernel down
+UBUNTU: SAUCE: (lockdown) efi: Add an EFI_SECURE_BOOT flag to indicate secure boot mode
+UBUNTU: SAUCE: (lockdown) security: lockdown: Make CONFIG_LOCK_DOWN_IN_EFI_SECURE_BOOT more generic
+UBUNTU: SAUCE: (lockdown) efi: Lock down the kernel if booted in secure boot mode
+UBUNTU: SAUCE: (lockdown) arm64: Allow locking down the kernel under EFI secure boot
+UBUNTU: SAUCE: (lockdown) s390/ipl: lockdown kernel when booted secure
+UBUNTU: SAUCE: drm/i915: Fix audio power up sequence for gen10+ display
+UBUNTU: SAUCE: drm/i915: extend audio CDCLK>=2*BCLK constraint to more platforms
+UBUNTU: SAUCE: selftests/bpf: Comment out BPF_CORE_READ's which cause clang to segfault
+UBUNTU: SAUCE: import aufs driver
+UBUNTU: SAUCE: aufs: rwsem owner changed to atmoic_long_t in 5.3
+UBUNTU: SAUCE: aufs: add "WITH Linux-syscall-note" to SPDX tag of uapi headers
