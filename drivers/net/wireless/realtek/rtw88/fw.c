@@ -60,6 +60,8 @@ struct rtw_fw_iter_ra_data {
 static void rtw_fw_ra_report_iter(void *data, struct ieee80211_sta *sta)
 {
 	struct rtw_fw_iter_ra_data *ra_data = data;
+	struct rtw_dev *rtwdev = ra_data->rtwdev;
+	struct rtw_hal *hal = &rtwdev->hal;
 	struct rtw_sta_info *si = (struct rtw_sta_info *)sta->drv_priv;
 	u8 mac_id, rate, sgi, bw;
 	u8 mcs, nss;
@@ -106,6 +108,12 @@ legacy:
 
 	si->ra_report.desc_rate = rate;
 	si->ra_report.bit_rate = bit_rate;
+
+	/* we don't want to enable TX AMSDU on 2.4G */
+	if (hal->current_band_type == RTW_BAND_2G) {
+		sta->max_rc_amsdu_len = 1;
+		return;
+	}
 
 	sta->max_rc_amsdu_len = get_max_amsdu_len(bit_rate);
 }
