@@ -577,6 +577,12 @@ struct rtw_tx_pkt_info {
 	bool short_gi;
 	bool report;
 	bool rts;
+	bool nav_use_hdr;
+	bool dis_qselseq;
+	bool en_hwseq;
+	u8 hw_ssn_sel;
+	bool en_hw_exseq;
+	bool bt_null;
 };
 
 struct rtw_rx_pkt_stat {
