@@ -64,7 +64,7 @@ struct drm_printer;
 	param(int, reset, 3) \
 	param(unsigned int, inject_probe_failure, 0) \
 	param(int, fastboot, -1) \
-	param(int, enable_dpcd_backlight, 0) \
+	param(int, enable_dpcd_backlight, -1) \
 	param(char *, force_probe, CONFIG_DRM_I915_FORCE_PROBE) \
 	param(unsigned long, fake_lmem_start, 0) \
 	/* leave bools at the end to not create holes */ \
