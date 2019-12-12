@@ -1434,6 +1434,14 @@ enum drm_dp_quirk {
 	 * The driver should ignore SINK_COUNT during detection.
 	 */
 	DP_DPCD_QUIRK_NO_SINK_COUNT,
+	/**
+	 * @DP_DPCD_QUIRK_FORCE_DPCD_BACKLIGHT:
+	 *
+	 * The device is telling the truth when it says that it uses DPCD
+	 * backlight controls, even if the system's firmware disagrees.
+	 * The driver should honor the DPCD backlight capabilities advertised.
+	 */
+	DP_DPCD_QUIRK_FORCE_DPCD_BACKLIGHT,
 };
 
 /**
