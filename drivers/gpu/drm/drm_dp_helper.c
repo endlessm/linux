@@ -1264,6 +1264,7 @@ static const struct dpcd_quirk dpcd_quirk_list[] = {
 	 * only supports DPCD backlight controls, despite advertising otherwise
 	 */
 	{ OUI(0xba, 0x41, 0x59), DEVICE_ID_ANY, false, BIT(DP_DPCD_QUIRK_FORCE_DPCD_BACKLIGHT) },
+	{ OUI(0x38, 0xec, 0x11), DEVICE_ID_ANY, false, BIT(DP_DPCD_QUIRK_FORCE_DPCD_BACKLIGHT) },
 };
 
 #undef OUI
