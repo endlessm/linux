@@ -6385,6 +6385,7 @@ CONFIG_PCIE_ALTERA                              policy<{'arm64': 'y', 'armhf': '
 CONFIG_PCIE_ALTERA_MSI                          policy<{'arm64': 'y', 'armhf': 'y'}>
 CONFIG_PCI_HOST_THUNDER_PEM                     policy<{'arm64': 'y'}>
 CONFIG_PCI_HOST_THUNDER_ECAM                    policy<{'arm64': 'y'}>
+CONFIG_PCIE_BRCMSTB                             policy<{'arm64': 'y'}>
 CONFIG_PCIE_ROCKCHIP_HOST                       policy<{'armhf': 'm'}>
 CONFIG_PCIE_ROCKCHIP_EP                         policy<{'armhf': 'y'}>
 CONFIG_PCIE_MEDIATEK                            policy<{'arm64': 'y', 'armhf': 'y'}>
