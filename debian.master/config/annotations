@@ -852,7 +852,7 @@ CONFIG_SERIAL_8250_EXTENDED                     policy<{'amd64': 'y', 'arm64': '
 CONFIG_SERIAL_8250_SHARE_IRQ                    policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y'}>
 CONFIG_SERIAL_8250_DETECT_IRQ                   policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'ppc64el': 'n'}>
 CONFIG_SERIAL_8250_RSA                          policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y'}>
-CONFIG_SERIAL_8250_BCM2835AUX                   policy<{'arm64': 'n'}>
+CONFIG_SERIAL_8250_BCM2835AUX                   policy<{'arm64': 'm'}>
 
 # Menu: Device Drivers >> Character devices >> Enable TTY >> Serial drivers >> 8250/16550 and compatible serial support >> Extended 8250/16550 serial driver options >> Support more than 4 legacy serial ports
 CONFIG_SERIAL_8250_MANY_PORTS                   policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y'}>
