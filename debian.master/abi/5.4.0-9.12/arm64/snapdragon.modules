@@ -3768,7 +3768,6 @@ qla3xxx
 qla4xxx
 qlcnic
 qlge
-qm
 qm1d1b0004
 qm1d1c0042
 qmi_helpers
@@ -4409,7 +4408,6 @@ sfc
 sfc-falcon
 sfp
 sgi_w1
-sgl
 sgp30
 sh-sci
 sh_eth
