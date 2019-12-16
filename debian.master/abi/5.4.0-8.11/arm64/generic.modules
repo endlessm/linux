@@ -330,6 +330,7 @@ ams-iaq-core
 ams369fg06
 analog
 analogix-anx78xx
+analogix_dp
 anatop-regulator
 ansi_cprng
 anubis
@@ -358,6 +359,7 @@ ar7part
 arc-rawmode
 arc-rimi
 arc4
+arc_emac
 arc_ps2
 arc_uart
 arcmsr
@@ -1175,6 +1177,7 @@ dw-hdmi-ahb-audio
 dw-hdmi-cec
 dw-hdmi-i2s-audio
 dw-i3c-master
+dw-mipi-dsi
 dw9714
 dw9807-vcm
 dw_dmac
@@ -1188,6 +1191,7 @@ dw_mmc-hi3798cv200
 dw_mmc-k3
 dw_mmc-pci
 dw_mmc-pltfm
+dw_mmc-rockchip
 dw_wdt
 dwc-xlgmac
 dwc2_pci
@@ -1206,6 +1210,7 @@ dwmac-mediatek
 dwmac-meson
 dwmac-meson8b
 dwmac-qcom-ethqos
+dwmac-rk
 dwmac-sun8i
 dyna_pci10xx
 dynapro
@@ -1279,6 +1284,7 @@ em_meta
 em_nbyte
 em_text
 em_u32
+emac_rockchip
 emc1403
 emc2103
 emc6w201
@@ -3317,6 +3323,7 @@ nvmem-sc27xx-efuse
 nvmem_meson_efuse
 nvmem_meson_mx_efuse
 nvmem_qfprom
+nvmem_rockchip_efuse
 nvmem_snvs_lpgpr
 nvmem_sunxi_sid
 nvmet
@@ -3519,6 +3526,7 @@ pci-stub
 pci200syn
 pcie-iproc
 pcie-iproc-platform
+pcie-rockchip-host
 pcips2
 pcl711
 pcl724
@@ -3603,6 +3611,13 @@ phy-rcar-gen2
 phy-rcar-gen3-pcie
 phy-rcar-gen3-usb2
 phy-rcar-gen3-usb3
+phy-rockchip-dp
+phy-rockchip-emmc
+phy-rockchip-inno-hdmi
+phy-rockchip-inno-usb2
+phy-rockchip-pcie
+phy-rockchip-typec
+phy-rockchip-usb
 phy-sun4i-usb
 phy-sun6i-mipi-dphy
 phy-tahvo
@@ -3735,6 +3750,7 @@ pwm-pca9685
 pwm-rcar
 pwm-regulator
 pwm-renesas-tpu
+pwm-rockchip
 pwm-sprd
 pwm-sun4i
 pwm-tiecap
@@ -4087,9 +4103,11 @@ rio_mport_cdev
 rionet
 rivafb
 rj54n1cb0c
+rk3399_dmc
 rk805-pwrkey
 rk808
 rk808-regulator
+rk_crypto
 rm3100-core
 rm3100-i2c
 rm3100-spi
@@ -4109,6 +4127,12 @@ rn5t618_wdt
 rndis_host
 rndis_wlan
 rockchip
+rockchip-dfi
+rockchip-io-domain
+rockchip-rga
+rockchip_saradc
+rockchip_thermal
+rockchipdrm
 rocker
 rocket
 rohm-bd70528
@@ -4758,6 +4782,7 @@ snd-soc-lpass-ipq806x
 snd-soc-lpass-platform
 snd-soc-max9759
 snd-soc-max98088
+snd-soc-max98090
 snd-soc-max98357a
 snd-soc-max98373
 snd-soc-max98504
@@ -4808,8 +4833,18 @@ snd-soc-pcm512x-i2c
 snd-soc-pcm512x-spi
 snd-soc-qcom-common
 snd-soc-rcar
+snd-soc-rk3288-hdmi-analog
 snd-soc-rk3328
+snd-soc-rk3399-gru-sound
 snd-soc-rl6231
+snd-soc-rockchip-i2s
+snd-soc-rockchip-max98090
+snd-soc-rockchip-pcm
+snd-soc-rockchip-pdm
+snd-soc-rockchip-rt5645
+snd-soc-rockchip-spdif
+snd-soc-rt5514
+snd-soc-rt5514-spi
 snd-soc-rt5616
 snd-soc-rt5631
 snd-soc-rt5645
