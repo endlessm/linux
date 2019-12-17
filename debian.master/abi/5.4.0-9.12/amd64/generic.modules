@@ -689,7 +689,6 @@ cdns-csi2tx
 cdns-pltfrm
 cdns3
 cdns3-pci-wrap
-cec-gpio
 ceph
 cfag12864b
 cfag12864bfb
@@ -4534,6 +4533,7 @@ solos-pci
 sony-btf-mpx
 sony-laptop
 soundcore
+soundwire-bus
 soundwire-cadence
 soundwire-intel
 soundwire-intel-init
