@@ -860,3 +860,23 @@ CONFIG_DEBUG_KERNEL=y
 # CONFIG_DEBUG_PREEMPT is not set
 # CONFIG_FTRACE is not set
 CONFIG_MEMTEST=y
+
+# Endless developer kernel customizations
+#
+# Options to enable here:
+#  1. Drivers for the devices included in Endless products/prototypes
+#  2. General options needed for system boot
+#  3. Important core options that bring the development kernel closer to the
+#     shipped distro kernel
+#
+# For external devices, its OK to expect the developer to turn on an option
+# or 2 for the hardware they are working with that day.
+#
+# The resultant kernel should be able to boot a system without requiring any
+# modules to be loaded in the initramfs.
+
+# Required to avoid compile error in Ubuntu's changes to security.c
+CONFIG_SECURITY_NETWORK=y
+
+# Raspberry Pi 4
+CONFIG_PCIE_BRCMSTB=y
