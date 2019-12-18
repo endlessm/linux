@@ -3522,7 +3522,6 @@ EXPORT_SYMBOL vmlinux 0x00000000	devm_input_allocate_device
 EXPORT_SYMBOL vmlinux 0x00000000	devm_ioremap
 EXPORT_SYMBOL vmlinux 0x00000000	devm_ioremap_nocache
 EXPORT_SYMBOL vmlinux 0x00000000	devm_ioremap_resource
-EXPORT_SYMBOL vmlinux 0x00000000	devm_ioremap_uc
 EXPORT_SYMBOL vmlinux 0x00000000	devm_ioremap_wc
 EXPORT_SYMBOL vmlinux 0x00000000	devm_iounmap
 EXPORT_SYMBOL vmlinux 0x00000000	devm_kvasprintf
@@ -3773,7 +3772,6 @@ EXPORT_SYMBOL vmlinux 0x00000000	fb_dealloc_cmap
 EXPORT_SYMBOL vmlinux 0x00000000	fb_default_cmap
 EXPORT_SYMBOL vmlinux 0x00000000	fb_deferred_io_mmap
 EXPORT_SYMBOL vmlinux 0x00000000	fb_destroy_modedb
-EXPORT_SYMBOL vmlinux 0x00000000	fb_edid_add_monspecs
 EXPORT_SYMBOL vmlinux 0x00000000	fb_edid_to_monspecs
 EXPORT_SYMBOL vmlinux 0x00000000	fb_find_best_display
 EXPORT_SYMBOL vmlinux 0x00000000	fb_find_best_mode
@@ -5830,25 +5828,6 @@ EXPORT_SYMBOL vmlinux 0x00000000	scsilun_to_int
 EXPORT_SYMBOL vmlinux 0x00000000	sdev_disable_disk_events
 EXPORT_SYMBOL vmlinux 0x00000000	sdev_enable_disk_events
 EXPORT_SYMBOL vmlinux 0x00000000	sdev_prefix_printk
-EXPORT_SYMBOL vmlinux 0x00000000	sdw_add_bus_master
-EXPORT_SYMBOL vmlinux 0x00000000	sdw_alloc_stream
-EXPORT_SYMBOL vmlinux 0x00000000	sdw_delete_bus_master
-EXPORT_SYMBOL vmlinux 0x00000000	sdw_deprepare_stream
-EXPORT_SYMBOL vmlinux 0x00000000	sdw_disable_stream
-EXPORT_SYMBOL vmlinux 0x00000000	sdw_enable_stream
-EXPORT_SYMBOL vmlinux 0x00000000	sdw_handle_slave_status
-EXPORT_SYMBOL vmlinux 0x00000000	sdw_master_read_prop
-EXPORT_SYMBOL vmlinux 0x00000000	sdw_nread
-EXPORT_SYMBOL vmlinux 0x00000000	sdw_nwrite
-EXPORT_SYMBOL vmlinux 0x00000000	sdw_prepare_stream
-EXPORT_SYMBOL vmlinux 0x00000000	sdw_read
-EXPORT_SYMBOL vmlinux 0x00000000	sdw_release_stream
-EXPORT_SYMBOL vmlinux 0x00000000	sdw_slave_read_prop
-EXPORT_SYMBOL vmlinux 0x00000000	sdw_stream_add_master
-EXPORT_SYMBOL vmlinux 0x00000000	sdw_stream_add_slave
-EXPORT_SYMBOL vmlinux 0x00000000	sdw_stream_remove_master
-EXPORT_SYMBOL vmlinux 0x00000000	sdw_stream_remove_slave
-EXPORT_SYMBOL vmlinux 0x00000000	sdw_write
 EXPORT_SYMBOL vmlinux 0x00000000	search_binary_handler
 EXPORT_SYMBOL vmlinux 0x00000000	secpath_set
 EXPORT_SYMBOL vmlinux 0x00000000	secure_dccp_sequence_number
@@ -9448,7 +9427,6 @@ EXPORT_SYMBOL_GPL vmlinux 0x00000000	__rtnl_link_unregister
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	__sbitmap_queue_get
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	__sbitmap_queue_get_shallow
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	__scsi_init_queue
-EXPORT_SYMBOL_GPL vmlinux 0x00000000	__sdw_register_driver
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	__serdev_device_driver_register
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	__set_dax_synchronous
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	__set_page_dirty
@@ -10316,6 +10294,8 @@ EXPORT_SYMBOL_GPL vmlinux 0x00000000	devlink_region_destroy
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	devlink_region_shapshot_id_get
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	devlink_region_snapshot_create
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	devlink_register
+EXPORT_SYMBOL_GPL vmlinux 0x00000000	devlink_reload_disable
+EXPORT_SYMBOL_GPL vmlinux 0x00000000	devlink_reload_enable
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	devlink_resource_occ_get_register
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	devlink_resource_occ_get_unregister
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	devlink_resource_register
@@ -10336,6 +10316,7 @@ EXPORT_SYMBOL_GPL vmlinux 0x00000000	devm_gpiochip_add_data
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	devm_hwrng_register
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	devm_hwrng_unregister
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	devm_init_badblocks
+EXPORT_SYMBOL_GPL vmlinux 0x00000000	devm_ioremap_uc
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	devm_kasprintf
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	devm_kfree
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	devm_kmalloc
@@ -11975,8 +11956,6 @@ EXPORT_SYMBOL_GPL vmlinux 0x00000000	scsi_unregister_device_handler
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	sdev_evt_alloc
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	sdev_evt_send
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	sdev_evt_send_simple
-EXPORT_SYMBOL_GPL vmlinux 0x00000000	sdw_bus_type
-EXPORT_SYMBOL_GPL vmlinux 0x00000000	sdw_unregister_driver
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	secure_ipv4_port_ephemeral
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	secure_tcp_seq
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	security_file_permission
