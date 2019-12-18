@@ -6407,7 +6407,7 @@ CONFIG_PCIE_QCOM                                policy<{'arm64': 'y', 'armhf': '
 CONFIG_PCIE_ARMADA_8K                           policy<{'arm64': 'y', 'armhf': 'y'}>
 CONFIG_PCIE_KIRIN                               policy<{'arm64': 'y'}>
 CONFIG_PCIE_HISI_STB                            policy<{'arm64': 'y', 'armhf': 'y'}>
-CONFIG_PCI_MESON                                policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y'}>
+CONFIG_PCI_MESON                                policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'i386': 'n', 'ppc64el': '-', 's390x': '-'}>
 CONFIG_PCIE_UNIPHIER                            policy<{'armhf': 'y'}>
 CONFIG_PCIE_AL                                  policy<{'arm64': 'y'}>
 
