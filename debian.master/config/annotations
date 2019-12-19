@@ -9200,9 +9200,9 @@ CONFIG_UIO_MF624                                policy<{'amd64': 'm', 'arm64': '
 CONFIG_UIO_HV_GENERIC                           policy<{'amd64': 'm', 'i386': 'm'}>
 
 # Menu: Device Drivers >> VFIO Non-Privileged userspace driver framework
-CONFIG_VFIO                                     policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'ppc64el': 'y', 's390x': 'm'}>
+CONFIG_VFIO                                     policy<{'amd64': 'y', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'ppc64el': 'y', 's390x': 'm'}>
 CONFIG_VFIO_NOIOMMU                             policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'ppc64el': 'y', 's390x': 'y'}>
-CONFIG_VFIO_PCI                                 policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'ppc64el': 'y', 's390x': 'm'}>
+CONFIG_VFIO_PCI                                 policy<{'amd64': 'y', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'ppc64el': 'y', 's390x': 'm'}>
 CONFIG_VFIO_PCI_VGA                             policy<{'amd64': 'y', 'i386': 'y'}>
 CONFIG_VFIO_PCI_IGD                             policy<{'amd64': 'y', 'i386': 'y'}>
 CONFIG_VFIO_MDEV                                policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'ppc64el': 'm', 's390x': 'm'}>
