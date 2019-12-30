@@ -357,6 +357,9 @@ static void rtw_wow_fw_security_type(struct rtw_dev *rtwdev)
 
 static int rtw_wow_fw_start(struct rtw_dev *rtwdev)
 {
+	struct ieee80211_vif *wow_vif = rtwdev->wow.wow_vif;
+	struct rtw_vif *rtwvif = (struct rtw_vif *)wow_vif->drv_priv;
+
 	if (rtw_wow_mgd_linked(rtwdev)) {
 		rtw_send_rsvd_page_h2c(rtwdev);
 		rtw_wow_pattern_write(rtwdev);
@@ -369,6 +372,7 @@ static int rtw_wow_fw_start(struct rtw_dev *rtwdev)
 		rtw_fw_channel_switch(rtwdev, true);
 	}
 
+	rtw_fw_set_default_port(rtwdev, rtwvif->port);
 	rtw_fw_set_wowlan_ctrl_cmd(rtwdev, true);
 	rtw_fw_set_remote_wake_ctrl_cmd(rtwdev, true);
 
