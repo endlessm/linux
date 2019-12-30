@@ -335,6 +335,7 @@ static inline void rtw_h2c_pkt_set_header(u8 *h2c_pkt, u8 sub_id)
 #define H2C_CMD_MEDIA_STATUS_RPT	0x01
 #define H2C_CMD_SET_PWR_MODE		0x20
 #define H2C_CMD_LPS_PG_INFO		0x2b
+#define H2C_CMD_DEFAULT_PORT		0x2c
 #define H2C_CMD_RA_INFO			0x40
 #define H2C_CMD_RSSI_MONITOR		0x42
 
@@ -457,6 +458,8 @@ static inline void rtw_h2c_pkt_set_header(u8 *h2c_pkt, u8 sub_id)
 	le32p_replace_bits((__le32 *)(h2c_pkt) + 0x01, value, GENMASK(15, 8))
 #define SET_BT_WIFI_CONTROL_DATA5(h2c_pkt, value)                              \
 	le32p_replace_bits((__le32 *)(h2c_pkt) + 0x01, value, GENMASK(23, 16))
+#define SET_DEFAULT_PORT_PORTID(h2c_pkt, value)                                \
+	le32p_replace_bits((__le32 *)(h2c_pkt) + 0x00, value, GENMASK(15, 8))
 
 #define SET_KEEP_ALIVE_ENABLE(h2c_pkt, value)				       \
 	le32p_replace_bits((__le32 *)(h2c_pkt) + 0x00, value, BIT(8))
@@ -523,6 +526,7 @@ void rtw_fw_send_general_info(struct rtw_dev *rtwdev);
 void rtw_fw_send_phydm_info(struct rtw_dev *rtwdev);
 
 void rtw_fw_do_iqk(struct rtw_dev *rtwdev, struct rtw_iqk_para *para);
+void rtw_fw_set_default_port(struct rtw_dev *rtwdev, u8 port);
 void rtw_fw_set_pwr_mode(struct rtw_dev *rtwdev);
 void rtw_fw_set_pg_info(struct rtw_dev *rtwdev);
 void rtw_fw_query_bt_info(struct rtw_dev *rtwdev);

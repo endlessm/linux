@@ -330,6 +330,17 @@ void rtw_fw_do_iqk(struct rtw_dev *rtwdev, struct rtw_iqk_para *para)
 	rtw_fw_send_h2c_packet(rtwdev, h2c_pkt);
 }
 
+void rtw_fw_set_default_port(struct rtw_dev *rtwdev, u8 port)
+{
+	u8 h2c_pkt[H2C_PKT_SIZE] = {0};
+
+	SET_H2C_CMD_ID_CLASS(h2c_pkt, H2C_CMD_DEFAULT_PORT);
+
+	SET_DEFAULT_PORT_PORTID(h2c_pkt, port);
+
+	rtw_fw_send_h2c_command(rtwdev, h2c_pkt);
+}
+
 void rtw_fw_query_bt_info(struct rtw_dev *rtwdev)
 {
 	u8 h2c_pkt[H2C_PKT_SIZE] = {0};
@@ -484,6 +495,8 @@ void rtw_fw_set_pwr_mode(struct rtw_dev *rtwdev)
 {
 	struct rtw_lps_conf *conf = &rtwdev->lps_conf;
 	u8 h2c_pkt[H2C_PKT_SIZE] = {0};
+
+	rtw_fw_set_default_port(rtwdev, conf->port_id);
 
 	SET_H2C_CMD_ID_CLASS(h2c_pkt, H2C_CMD_SET_PWR_MODE);
 
