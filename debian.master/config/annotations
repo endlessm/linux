@@ -8106,7 +8106,7 @@ CONFIG_SND_SOC_SOF_OF                           policy<{'arm64': 'm', 'armhf': '
 CONFIG_SND_SOC_SOF_NOCODEC_SUPPORT              policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'i386': 'n', 'ppc64el': 'n'}>
 CONFIG_SND_SOC_SOF_STRICT_ABI_CHECKS            policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'i386': 'n', 'ppc64el': 'n'}>
 CONFIG_SND_SOC_SOF_IMX_TOPLEVEL                 policy<{'arm64': 'y'}>
-CONFIG_SND_SOC_SOF_IMX8                         policy<{'arm64': 'm'}>
+CONFIG_SND_SOC_SOF_IMX8_SUPPORT                 policy<{'arm64': 'y'}>
 #
 CONFIG_SND_SOC_SOF_NOCODEC_SUPPORT              mark<ENFORCED> note<LP:1848490>
 
@@ -8129,10 +8129,9 @@ CONFIG_SND_SOC_SOF_ELKHARTLAKE_SUPPORT          policy<{'amd64': 'y', 'i386': 'y
 CONFIG_SND_SOC_SOF_HDA_LINK                     policy<{'amd64': 'y', 'i386': 'y'}>
 CONFIG_SND_SOC_SOF_HDA_AUDIO_CODEC              policy<{'amd64': 'y', 'i386': 'y'}>
 CONFIG_SND_SOC_SOF_HDA_ALWAYS_ENABLE_DMI_L1     policy<{'amd64': 'y', 'i386': 'y'}>
-CONFIG_SND_SOC_SOF_HDA_COMMON_HDMI_CODEC        mark<ENFORCED> note<LP:#1855666>
 CONFIG_SND_SOC_SOF_HDA_COMMON_HDMI_CODEC        policy<{'amd64': 'y', 'i386': 'y'}>
-
 #
+CONFIG_SND_SOC_SOF_HDA_COMMON_HDMI_CODEC        mark<ENFORCED> note<LP:#1855666>
 CONFIG_SND_SOC_SOF_HDA_LINK                     mark<ENFORCED> note<LP:1848490>
 CONFIG_SND_SOC_SOF_HDA_AUDIO_CODEC              mark<ENFORCED> note<LP:1848490>
 
