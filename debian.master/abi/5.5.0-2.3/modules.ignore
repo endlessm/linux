@@ -1,4 +1,5 @@
 irqbypass
+pinctrl-equilibrium
 vfio
 vfio-pci
 vfio_iommu_type1
