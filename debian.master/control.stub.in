@@ -27,7 +27,6 @@ Build-Depends:
  libssl-dev <!stage1>,
  libaudit-dev <!stage1>,
  bc <!stage1>,
- python-dev <!stage1>,
  gawk <!stage1>,
  libudev-dev <!stage1>,
  autoconf <!stage1>,
