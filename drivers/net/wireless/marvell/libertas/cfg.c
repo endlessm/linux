@@ -1783,6 +1783,7 @@ static int lbs_ibss_join_existing(struct lbs_private *priv,
 		u8 rates_max = rates_eid[1];
 		if (rates_max > MAX_RATES) {
 			lbs_deb_join("invalid rates");
+			rcu_read_unlock();
 			goto out;
 		}
 		u8 *rates = cmd.bss.rates;
