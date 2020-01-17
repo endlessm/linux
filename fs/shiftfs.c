@@ -583,6 +583,7 @@ static int shiftfs_rm(struct inode *dir, struct dentry *dentry, bool rmdir)
 	int err;
 	const struct cred *oldcred;
 
+	dget(lowerd);
 	oldcred = shiftfs_override_creds(dentry->d_sb);
 	inode_lock_nested(loweri, I_MUTEX_PARENT);
 	if (rmdir)
@@ -602,6 +603,7 @@ static int shiftfs_rm(struct inode *dir, struct dentry *dentry, bool rmdir)
 	inode_unlock(loweri);
 
 	shiftfs_copyattr(loweri, dir);
+	dput(lowerd);
 
 	return err;
 }
