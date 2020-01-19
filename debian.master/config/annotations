@@ -10284,7 +10284,7 @@ CONFIG_SWAP                                     policy<{'amd64': 'y', 'arm64': '
 CONFIG_SYSVIPC                                  policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'ppc64el': 'y', 's390x': 'y'}>
 CONFIG_POSIX_MQUEUE                             policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'ppc64el': 'y', 's390x': 'y'}>
 CONFIG_CROSS_MEMORY_ATTACH                      policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'ppc64el': 'y', 's390x': 'y'}>
-CONFIG_USELIB                                   policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'ppc64el': 'y', 's390x': 'y'}>
+CONFIG_USELIB                                   policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'i386': 'n', 'ppc64el': 'n', 's390x': 'n'}>
 CONFIG_AUDIT                                    policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'ppc64el': 'y', 's390x': 'y'}>
 CONFIG_CPU_ISOLATION                            policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'ppc64el': 'y', 's390x': 'y'}>
 CONFIG_IKCONFIG                                 policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'i386': 'n', 'ppc64el': 'n', 's390x': 'n'}>
@@ -10311,6 +10311,7 @@ CONFIG_SHUFFLE_PAGE_ALLOCATOR                   policy<{'amd64': 'y', 'arm64': '
 CONFIG_SLUB_CPU_PARTIAL                         policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'ppc64el': 'y', 's390x': 'y'}>
 CONFIG_PROFILING                                policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'ppc64el': 'y', 's390x': 'y'}>
 #
+CONFIG_USELIB                                   mark<ENFORCED> note<LP:1855341>
 CONFIG_SYSFS_DEPRECATED                         mark<ENFORCED> note<ensure nothing is using these deprecated interfaces>
 CONFIG_COMPAT_BRK                               mark<ENFORCED> note<disables brk ASLR>
 CONFIG_NUMA_BALANCING_DEFAULT_ENABLED           note<LP:1557690>
