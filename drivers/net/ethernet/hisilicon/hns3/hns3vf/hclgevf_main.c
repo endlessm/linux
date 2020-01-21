@@ -1882,6 +1882,7 @@ static void hclgevf_reset_service_task(struct work_struct *work)
 		hclgevf_reset_task_schedule(hdev);
 	}
 
+	hdev->reset_type = HNAE3_NONE_RESET;
 	clear_bit(HCLGEVF_STATE_RST_HANDLING, &hdev->state);
 }
 
@@ -2756,6 +2757,7 @@ static int hclgevf_init_hdev(struct hclgevf_dev *hdev)
 
 	hclgevf_state_init(hdev);
 	hdev->reset_level = HNAE3_VF_FUNC_RESET;
+	hdev->reset_type = HNAE3_NONE_RESET;
 
 	ret = hclgevf_misc_irq_init(hdev);
 	if (ret) {
