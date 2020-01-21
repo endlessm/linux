@@ -1296,10 +1296,17 @@ static int shiftfs_mmap(struct file *file, struct vm_area_struct *vma)
 
 	shiftfs_file_accessed(file);
 
-	if (ret)
-		fput(realfile); /* Drop refcount from new vm_file value */
-	else
-		fput(file); /* Drop refcount from previous vm_file value */
+	if (ret) {
+		/*
+		 * Drop refcount from new vm_file value and restore original
+		 * vm_file value
+		 */
+		vma->vm_file = file;
+		fput(realfile);
+	} else {
+		/* Drop refcount from previous vm_file value */
+		fput(file);
+	}
 
 	return ret;
 }
@@ -1966,6 +1973,7 @@ static int shiftfs_fill_super(struct super_block *sb, void *raw_data,
 	sb->s_flags |= SB_POSIXACL;
 
 	if (sbinfo->mark) {
+		struct cred *cred_tmp;
 		struct super_block *lower_sb = path.mnt->mnt_sb;
 
 		/* to mark a mount point, must root wrt lower s_user_ns */
@@ -2020,11 +2028,14 @@ static int shiftfs_fill_super(struct super_block *sb, void *raw_data,
 			sbinfo->passthrough_mark = sbinfo->passthrough;
 		}
 
-		sbinfo->creator_cred = prepare_creds();
-		if (!sbinfo->creator_cred) {
+		cred_tmp = prepare_creds();
+		if (!cred_tmp) {
 			err = -ENOMEM;
 			goto out_put_path;
 		}
+		/* Don't override disk quota limits or use reserved space. */
+		cap_lower(cred_tmp->cap_effective, CAP_SYS_RESOURCE);
+		sbinfo->creator_cred = cred_tmp;
 	} else {
 		/*
 		 * This leg executes if we're admin capable in the namespace,
@@ -2072,6 +2083,7 @@ static int shiftfs_fill_super(struct super_block *sb, void *raw_data,
 	inode->i_private = dentry->d_inode;
 
 	sb->s_magic = SHIFTFS_MAGIC;
+	sb->s_maxbytes = MAX_LFS_FILESIZE;
 	sb->s_op = &shiftfs_super_ops;
 	sb->s_xattr = shiftfs_xattr_handlers;
 	sb->s_d_op = &shiftfs_dentry_ops;

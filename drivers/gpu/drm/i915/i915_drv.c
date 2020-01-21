@@ -211,10 +211,16 @@ intel_pch_type(const struct drm_i915_private *dev_priv, unsigned short id)
 		WARN_ON(!IS_CANNONLAKE(dev_priv) && !IS_COFFEELAKE(dev_priv));
 		return PCH_CNP;
 	case INTEL_PCH_CMP_DEVICE_ID_TYPE:
+	case INTEL_PCH_CMP2_DEVICE_ID_TYPE:
 		DRM_DEBUG_KMS("Found Comet Lake PCH (CMP)\n");
 		WARN_ON(!IS_COFFEELAKE(dev_priv));
 		/* CometPoint is CNP Compatible */
 		return PCH_CNP;
+	case INTEL_PCH_CMP_V_DEVICE_ID_TYPE:
+		DRM_DEBUG_KMS("Found Comet Lake V PCH (CMP-V)\n");
+		WARN_ON(!IS_COFFEELAKE(dev_priv));
+		/* Comet Lake V PCH is based on KBP, which is SPT compatible */
+		return PCH_SPT;
 	case INTEL_PCH_ICP_DEVICE_ID_TYPE:
 		DRM_DEBUG_KMS("Found Ice Lake PCH\n");
 		WARN_ON(!IS_ICELAKE(dev_priv));
@@ -708,9 +714,6 @@ static int i915_load_modeset_init(struct drm_device *dev)
 	ret = vga_switcheroo_register_client(pdev, &i915_switcheroo_ops, false);
 	if (ret)
 		goto cleanup_vga_client;
-
-	/* must happen before intel_power_domains_init_hw() on VLV/CHV */
-	intel_update_rawclk(dev_priv);
 
 	intel_power_domains_init_hw(dev_priv, false);
 
@@ -2177,7 +2180,7 @@ static int i915_drm_suspend_late(struct drm_device *dev, bool hibernation)
 
 	i915_gem_suspend_late(dev_priv);
 
-	i915_rc6_ctx_wa_suspend(dev_priv);
+	intel_rc6_ctx_wa_suspend(dev_priv);
 
 	intel_uncore_suspend(&dev_priv->uncore);
 
@@ -2395,7 +2398,7 @@ static int i915_drm_resume_early(struct drm_device *dev)
 
 	intel_power_domains_resume(dev_priv);
 
-	i915_rc6_ctx_wa_resume(dev_priv);
+	intel_rc6_ctx_wa_resume(dev_priv);
 
 	intel_gt_sanitize(dev_priv, true);
 

@@ -334,7 +334,11 @@ static int ovl_mmap(struct file *file, struct vm_area_struct *vma)
 	revert_creds(old_cred);
 
 	if (ret) {
-		/* Drop reference count from new vm_file value */
+		/*
+		 * Drop reference count from new vm_file value and restore
+		 * original vm_file value
+		 */
+		vma->vm_file = file;
 		fput(realfile);
 	} else {
 		/* Drop reference count from previous vm_file value */

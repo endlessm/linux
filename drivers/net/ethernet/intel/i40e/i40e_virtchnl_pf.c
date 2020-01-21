@@ -1121,6 +1121,7 @@ static i40e_status i40e_config_vf_promiscuous_mode(struct i40e_vf *vf,
 	struct i40e_pf *pf = vf->pf;
 	struct i40e_hw *hw = &pf->hw;
 	struct i40e_mac_filter *f;
+	struct hlist_node *h;
 	i40e_status aq_ret = 0;
 	struct i40e_vsi *vsi;
 	int bkt;
@@ -1160,7 +1161,8 @@ static i40e_status i40e_config_vf_promiscuous_mode(struct i40e_vf *vf,
 		}
 		return aq_ret;
 	} else if (i40e_getnum_vf_vsi_vlan_filters(vsi)) {
-		hash_for_each(vsi->mac_filter_hash, bkt, f, hlist) {
+		spin_lock_bh(&vsi->mac_filter_hash_lock);
+		hash_for_each_safe(vsi->mac_filter_hash, bkt, h, f, hlist) {
 			if (f->vlan < 0 || f->vlan > I40E_MAX_VLANID)
 				continue;
 			aq_ret = i40e_aq_set_vsi_mc_promisc_on_vlan(hw,
@@ -1193,6 +1195,7 @@ static i40e_status i40e_config_vf_promiscuous_mode(struct i40e_vf *vf,
 					i40e_aq_str(&pf->hw, aq_err));
 			}
 		}
+		spin_unlock_bh(&vsi->mac_filter_hash_lock);
 		return aq_ret;
 	}
 	aq_ret = i40e_aq_set_vsi_multicast_promiscuous(hw, vsi->seid, allmulti,
@@ -3953,10 +3956,15 @@ int i40e_ndo_set_vf_mac(struct net_device *netdev, int vf_id, u8 *mac)
 	/* When the VF is resetting wait until it is done.
 	 * It can take up to 200 milliseconds,
 	 * but wait for up to 300 milliseconds to be safe.
+	 * If the VF is indeed in reset, the vsi pointer has
+	 * to show on the newly loaded vsi under pf->vsi[id].
 	 */
 	for (i = 0; i < 15; i++) {
-		if (test_bit(I40E_VF_STATE_INIT, &vf->vf_states))
+		if (test_bit(I40E_VF_STATE_INIT, &vf->vf_states)) {
+			if (i > 0)
+				vsi = pf->vsi[vf->lan_vsi_idx];
 			break;
+		}
 		msleep(20);
 	}
 	if (!test_bit(I40E_VF_STATE_INIT, &vf->vf_states)) {

@@ -198,9 +198,7 @@ struct i915_gem_context {
 	 */
 	struct radix_tree_root handles_vma;
 
-	/** jump_whitelist: Bit array for tracking cmds during cmdparsing
-	 *  Guarded by struct_mutex
-	 */
+	/** jump_whitelist: Bit array for tracking cmds during cmdparsing */
 	unsigned long *jump_whitelist;
 	/** jump_whitelist_cmds: No of cmd slots available */
 	u32 jump_whitelist_cmds;

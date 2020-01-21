@@ -1884,6 +1884,8 @@ struct drm_i915_private {
 		struct work_struct idle_work;
 	} gem;
 
+	u8 pch_ssc_use;
+
 	/* For i945gm vblank irq vs. C3 workaround */
 	struct {
 		struct work_struct work;
@@ -2384,6 +2386,8 @@ IS_SUBPLATFORM(const struct drm_i915_private *i915,
 #define INTEL_PCH_CNP_DEVICE_ID_TYPE		0xA300
 #define INTEL_PCH_CNP_LP_DEVICE_ID_TYPE		0x9D80
 #define INTEL_PCH_CMP_DEVICE_ID_TYPE		0x0280
+#define INTEL_PCH_CMP2_DEVICE_ID_TYPE		0x0680
+#define INTEL_PCH_CMP_V_DEVICE_ID_TYPE		0xA380
 #define INTEL_PCH_ICP_DEVICE_ID_TYPE		0x3480
 #define INTEL_PCH_MCC_DEVICE_ID_TYPE		0x4B00
 #define INTEL_PCH_P2X_DEVICE_ID_TYPE		0x7100

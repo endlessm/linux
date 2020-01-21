@@ -2091,7 +2091,6 @@ static struct i915_vma *eb_parse(struct i915_execbuffer *eb)
 		__EXEC_OBJECT_HAS_PIN | __EXEC_OBJECT_HAS_REF;
 	vma->exec_flags = &eb->flags[eb->buffer_count];
 	eb->buffer_count++;
-
 	eb->batch_start_offset = 0;
 	eb->batch = vma;
 
@@ -2099,7 +2098,6 @@ static struct i915_vma *eb_parse(struct i915_execbuffer *eb)
 		eb->batch_flags |= I915_DISPATCH_SECURE;
 
 	/* eb->batch_len unchanged */
-
 out:
 	i915_gem_object_unpin_pages(shadow_batch_obj);
 	return vma;

@@ -2045,15 +2045,17 @@
 			Default is 0 (off)
 
 	kvm.nx_huge_pages=
-			[KVM] Controls the sw workaround for bug
-			X86_BUG_ITLB_MULTIHIT.
+			[KVM] Controls the software workaround for the
+			X86_BUG_ITLB_MULTIHIT bug.
 			force	: Always deploy workaround.
-			off	: Default. Never deploy workaround.
-			auto	: Deploy workaround based on presence of
+			off	: Never deploy workaround.
+			auto    : Deploy workaround based on the presence of
 				  X86_BUG_ITLB_MULTIHIT.
 
-			If the sw workaround is enabled for the host, guests
-			need not enable it for nested guests.
+			Default is 'auto'.
+
+			If the software workaround is enabled for the host,
+			guests do need not to enable it for nested guests.
 
 	kvm.nx_huge_pages_recovery_ratio=
 			[KVM] Controls how many 4KiB pages are periodically zapped
@@ -2634,12 +2636,13 @@
 					       l1tf=off [X86]
 					       mds=off [X86]
 					       tsx_async_abort=off [X86]
-					       kvm.nx_huge_pages=off [X86].
+					       kvm.nx_huge_pages=off [X86]
 
-				Exceptions:
+				    Exceptions:
 					       This does not have any effect on
 					       kvm.nx_huge_pages when
 					       kvm.nx_huge_pages=force.
+
 
 			auto (default)
 				Mitigate all CPU vulnerabilities, but leave SMT
@@ -5366,6 +5369,10 @@
 				unnecessary even if the host did not respond to
 				the unplug protocol
 			never -- do not unplug even if version check succeeds
+
+	xen_legacy_crash	[X86,XEN]
+			Crash from Xen panic notifier, without executing late
+			panic() code such as dumping handler.
 
 	xen_nopvspin	[X86,XEN]
 			Disables the ticketlock slowpath using Xen PV

@@ -5507,8 +5507,6 @@ EXPORT_SYMBOL sound/soc/codecs/snd-soc-tlv320aic32x4 0x00000000	aic32x4_probe
 EXPORT_SYMBOL sound/soc/codecs/snd-soc-tlv320aic32x4 0x00000000	aic32x4_regmap_config
 EXPORT_SYMBOL sound/soc/codecs/snd-soc-tlv320aic32x4 0x00000000	aic32x4_remove
 EXPORT_SYMBOL sound/soc/snd-soc-core 0x00000000	snd_soc_alloc_ac97_component
-EXPORT_SYMBOL sound/soc/sof/intel/snd-sof-intel-bdw 0x00000000	bdw_chip_info
-EXPORT_SYMBOL sound/soc/sof/intel/snd-sof-intel-bdw 0x00000000	sof_bdw_ops
 EXPORT_SYMBOL sound/soc/sof/intel/snd-sof-intel-byt 0x00000000	byt_chip_info
 EXPORT_SYMBOL sound/soc/sof/intel/snd-sof-intel-byt 0x00000000	cht_chip_info
 EXPORT_SYMBOL sound/soc/sof/intel/snd-sof-intel-byt 0x00000000	sof_byt_ops
@@ -7060,7 +7058,6 @@ EXPORT_SYMBOL vmlinux 0x00000000	devm_ioport_unmap
 EXPORT_SYMBOL vmlinux 0x00000000	devm_ioremap
 EXPORT_SYMBOL vmlinux 0x00000000	devm_ioremap_nocache
 EXPORT_SYMBOL vmlinux 0x00000000	devm_ioremap_resource
-EXPORT_SYMBOL vmlinux 0x00000000	devm_ioremap_uc
 EXPORT_SYMBOL vmlinux 0x00000000	devm_ioremap_wc
 EXPORT_SYMBOL vmlinux 0x00000000	devm_iounmap
 EXPORT_SYMBOL vmlinux 0x00000000	devm_kvasprintf
@@ -7350,7 +7347,6 @@ EXPORT_SYMBOL vmlinux 0x00000000	fb_dealloc_cmap
 EXPORT_SYMBOL vmlinux 0x00000000	fb_default_cmap
 EXPORT_SYMBOL vmlinux 0x00000000	fb_deferred_io_mmap
 EXPORT_SYMBOL vmlinux 0x00000000	fb_destroy_modedb
-EXPORT_SYMBOL vmlinux 0x00000000	fb_edid_add_monspecs
 EXPORT_SYMBOL vmlinux 0x00000000	fb_edid_to_monspecs
 EXPORT_SYMBOL vmlinux 0x00000000	fb_find_best_display
 EXPORT_SYMBOL vmlinux 0x00000000	fb_find_best_mode
@@ -19738,6 +19734,8 @@ EXPORT_SYMBOL_GPL vmlinux 0x00000000	devlink_region_destroy
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	devlink_region_shapshot_id_get
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	devlink_region_snapshot_create
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	devlink_register
+EXPORT_SYMBOL_GPL vmlinux 0x00000000	devlink_reload_disable
+EXPORT_SYMBOL_GPL vmlinux 0x00000000	devlink_reload_enable
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	devlink_resource_occ_get_register
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	devlink_resource_occ_get_unregister
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	devlink_resource_register
@@ -19785,6 +19783,7 @@ EXPORT_SYMBOL_GPL vmlinux 0x00000000	devm_hwspin_lock_request_specific
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	devm_hwspin_lock_unregister
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	devm_i2c_new_dummy_device
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	devm_init_badblocks
+EXPORT_SYMBOL_GPL vmlinux 0x00000000	devm_ioremap_uc
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	devm_irq_alloc_generic_chip
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	devm_irq_setup_generic_chip
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	devm_kasprintf
@@ -21513,6 +21512,7 @@ EXPORT_SYMBOL_GPL vmlinux 0x00000000	pci_msi_unmask_irq
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	pci_num_vf
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	pci_pasid_features
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	pci_power_names
+EXPORT_SYMBOL_GPL vmlinux 0x00000000	pci_pr3_present
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	pci_prg_resp_pasid_required
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	pci_probe_reset_bus
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	pci_probe_reset_slot
