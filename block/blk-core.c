@@ -883,6 +883,13 @@ generic_make_request_checks(struct bio *bio)
 			bio_devname(bio, b), (long long)bio->bi_iter.bi_sector);
 		goto end_io;
 	}
+	if (unlikely(!q->make_request_fn)) {
+		printk(KERN_ERR
+		       "generic_make_request: Trying to access "
+		       "block-device without request function: %s\n",
+		       bio_devname(bio, b));
+		goto end_io;
+	}
 
 	/*
 	 * Non-mq queues do not honor REQ_NOWAIT, so complete a bio
