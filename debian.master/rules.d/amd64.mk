@@ -24,3 +24,4 @@ do_tools_acpidbg = true
 do_zfs		= true
 do_dkms_nvidia  = true
 do_dkms_vbox    = true
+do_dkms_wireguard = true
