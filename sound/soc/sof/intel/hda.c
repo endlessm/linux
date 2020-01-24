@@ -422,16 +422,9 @@ static int hda_init_caps(struct snd_sof_dev *sdev)
 			pdata->tplg_filename =
 				hda_mach->sof_tplg_filename;
 
-			/*
-			 * firmware: pick the first in machine list,
-			 * or use nocodec firmware name if list is empty
-			 */
+			/* firmware: pick the first in machine list */
 			mach = pdata->desc->machines;
-			if (mach->id[0])
-				pdata->fw_filename = mach->sof_fw_filename;
-			else
-				pdata->fw_filename =
-					pdata->desc->nocodec_fw_filename;
+			pdata->fw_filename = mach->sof_fw_filename;
 
 			dev_info(bus->dev, "using HDA machine driver %s now\n",
 				 hda_mach->drv_name);
