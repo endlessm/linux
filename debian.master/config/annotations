@@ -399,11 +399,11 @@ CONFIG_CRYPTO_DEV_SP_PSP                        policy<{'amd64': 'y'}>
 CONFIG_CRYPTO_DEV_CCP_DEBUGFS                   policy<{'amd64': 'n', 'arm64': 'n', 'i386': 'n'}>
 CONFIG_CRYPTO_DEV_MXS_DCP                       policy<{'arm64': 'n', 'armhf-generic': 'n'}>
 CONFIG_CRYPTO_DEV_QAT_DH895xCC                  policy<{'amd64': 'm', 'i386': 'm'}>
-CONFIG_CRYPTO_DEV_QAT_C3XXX                     policy<{'amd64': 'n', 'i386': 'n'}>
-CONFIG_CRYPTO_DEV_QAT_C62X                      policy<{'amd64': 'n', 'i386': 'n'}>
+CONFIG_CRYPTO_DEV_QAT_C3XXX                     policy<{'amd64': 'm', 'i386': 'm'}>
+CONFIG_CRYPTO_DEV_QAT_C62X                      policy<{'amd64': 'm', 'i386': 'm'}>
 CONFIG_CRYPTO_DEV_QAT_DH895xCCVF                policy<{'amd64': 'm', 'i386': 'm'}>
-CONFIG_CRYPTO_DEV_QAT_C3XXXVF                   policy<{'amd64': 'n', 'i386': 'n'}>
-CONFIG_CRYPTO_DEV_QAT_C62XVF                    policy<{'amd64': 'n', 'i386': 'n'}>
+CONFIG_CRYPTO_DEV_QAT_C3XXXVF                   policy<{'amd64': 'm', 'i386': 'm'}>
+CONFIG_CRYPTO_DEV_QAT_C62XVF                    policy<{'amd64': 'm', 'i386': 'm'}>
 CONFIG_CAVIUM_CPT                               policy<{'arm64': 'm'}>
 CONFIG_CRYPTO_DEV_NITROX_CNN55XX                policy<{'amd64': 'm', 'arm64': 'm', 'ppc64el': 'm', 's390x': 'n'}>
 CONFIG_CRYPTO_DEV_CAVIUM_ZIP                    policy<{'arm64': 'm'}>
