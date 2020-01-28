@@ -46,6 +46,40 @@
 		compatible = "gpio-restart";
 		gpios = <&gpio 10 GPIO_ACTIVE_LOW>;
 	};
+
+	fu540_c000_opp_table: opp-table {
+		compatible = "operating-points-v2";
+		opp-shared;
+
+		opp-350000000 {
+			opp-hz = /bits/ 64 <350000000>;
+		};
+		opp-700000000 {
+			opp-hz = /bits/ 64 <700000000>;
+		};
+		opp-999999999 {
+			opp-hz = /bits/ 64 <999999999>;
+		};
+		opp-1400000000 {
+			opp-hz = /bits/ 64 <1400000000>;
+		};
+	};
+};
+
+&cpu0 {
+	operating-points-v2 = <&fu540_c000_opp_table>;
+};
+&cpu1 {
+	operating-points-v2 = <&fu540_c000_opp_table>;
+};
+&cpu2 {
+	operating-points-v2 = <&fu540_c000_opp_table>;
+};
+&cpu3 {
+	operating-points-v2 = <&fu540_c000_opp_table>;
+};
+&cpu4 {
+	operating-points-v2 = <&fu540_c000_opp_table>;
 };
 
 &uart0 {

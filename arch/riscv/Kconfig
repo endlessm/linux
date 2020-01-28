@@ -423,6 +423,14 @@ config BUILTIN_DTB
 	depends on RISCV_M_MODE
 	depends on OF
 
+menu "CPU Power Management"
+
+source "drivers/cpuidle/Kconfig"
+
+source "drivers/cpufreq/Kconfig"
+
+endmenu
+
 menu "Power management options"
 
 source "kernel/power/Kconfig"
