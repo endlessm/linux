@@ -3265,9 +3265,9 @@ CONFIG_MLX5_INFINIBAND                          policy<{'amd64': 'm', 'arm64': '
 CONFIG_INFINIBAND_OCRDMA                        policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'ppc64el': 'm', 's390x': 'n'}>
 CONFIG_INFINIBAND_VMWARE_PVRDMA                 policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm'}>
 CONFIG_INFINIBAND_USNIC                         policy<{'amd64': 'm', 'i386': 'm'}>
-CONFIG_INFINIBAND_HNS                           policy<{'arm64': 'y'}>
-CONFIG_INFINIBAND_HNS_HIP06                     policy<{'arm64': 'm'}>
-CONFIG_INFINIBAND_HNS_HIP08                     policy<{'arm64': 'm'}>
+CONFIG_INFINIBAND_HNS                           policy<{'arm64': 'm'}>
+CONFIG_INFINIBAND_HNS_HIP06                     policy<{'arm64': 'y'}>
+CONFIG_INFINIBAND_HNS_HIP08                     policy<{'arm64': 'y'}>
 CONFIG_INFINIBAND_BNXT_RE                       policy<{'amd64': 'm', 'arm64': 'm', 'ppc64el': 'm', 's390x': 'n'}>
 CONFIG_INFINIBAND_HFI1                          policy<{'amd64': 'm'}>
 CONFIG_HFI1_DEBUG_SDMA_ORDER                    policy<{'amd64': 'n'}>
