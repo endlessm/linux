@@ -177,10 +177,14 @@ include $(DROOT)/rules.d/4-checks.mk
 
 control_files := $(DEBIAN)/control.stub.in
 ifeq ($(do_libc_dev_package),true)
-	control_files += $(DROOT)/control.d/linux-libc-dev.stub
+ifneq (,$(wildcard $(DEBIAN)/control.d/linux-libc-dev.stub))
+	control_files += $(DEBIAN)/control.d/linux-libc-dev.stub
+endif
 endif
 ifeq ($(do_doc_package),true)
-	control_files += $(DROOT)/control.d/linux-doc.stub
+ifneq (,$(wildcard $(DEBIAN)/control.d/linux-doc.stub))
+	control_files += $(DEBIAN)/control.d/linux-doc.stub
+endif
 endif
 
 # Misc stuff
