@@ -2798,6 +2798,7 @@ CONFIG_VIRTIO_IOMMU                             policy<{'arm64': 'y'}>
 #
 CONFIG_IPMMU_VMSA				note<LP:1718734>
 CONFIG_ARM_SMMU_DISABLE_BYPASS_BY_DEFAULT       mark<ENFORCED> note<LP:1845820>
+CONFIG_IOMMU_DEBUGFS                            mark<ENFORCED> note<Should not be enabled in production, LP #1861057>
 
 # Menu: Device Drivers >> IOMMU Hardware Support >> Generic IOMMU Pagetable Support
 CONFIG_IOMMU_IO_PGTABLE_LPAE                    policy<{'arm64': 'y', 'armhf': 'y'}>
