@@ -2151,7 +2151,6 @@ ir35221
 ir38064
 irps5401
 irq-madera
-irqbypass
 isci
 iscsi_boot_sysfs
 iscsi_ibft
@@ -5119,11 +5118,7 @@ veml6070
 ves1820
 ves1x93
 veth
-vfio
-vfio-pci
-vfio_iommu_type1
 vfio_mdev
-vfio_virqfd
 vga16fb
 vgastate
 vgem

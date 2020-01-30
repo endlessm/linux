@@ -2688,9 +2688,7 @@ EXPORT_SYMBOL vmlinux 0x00000000	__node_distance
 EXPORT_SYMBOL vmlinux 0x00000000	__num_online_cpus	
 EXPORT_SYMBOL vmlinux 0x00000000	__page_cache_alloc	
 EXPORT_SYMBOL vmlinux 0x00000000	__page_frag_cache_drain	
-EXPORT_SYMBOL vmlinux 0x00000000	__page_pool_free	
 EXPORT_SYMBOL vmlinux 0x00000000	__page_pool_put_page	
-EXPORT_SYMBOL vmlinux 0x00000000	__page_pool_request_shutdown	
 EXPORT_SYMBOL vmlinux 0x00000000	__page_symlink	
 EXPORT_SYMBOL vmlinux 0x00000000	__pagevec_lru_add	
 EXPORT_SYMBOL vmlinux 0x00000000	__pagevec_release	
@@ -3232,6 +3230,7 @@ EXPORT_SYMBOL vmlinux 0x00000000	compat_mc_getsockopt
 EXPORT_SYMBOL vmlinux 0x00000000	compat_mc_setsockopt	
 EXPORT_SYMBOL vmlinux 0x00000000	compat_nf_getsockopt	
 EXPORT_SYMBOL vmlinux 0x00000000	compat_nf_setsockopt	
+EXPORT_SYMBOL vmlinux 0x00000000	compat_ptr_ioctl	
 EXPORT_SYMBOL vmlinux 0x00000000	compat_sock_common_getsockopt	
 EXPORT_SYMBOL vmlinux 0x00000000	compat_sock_common_setsockopt	
 EXPORT_SYMBOL vmlinux 0x00000000	compat_tcp_getsockopt	
@@ -5175,6 +5174,7 @@ EXPORT_SYMBOL vmlinux 0x00000000	page_mapped
 EXPORT_SYMBOL vmlinux 0x00000000	page_mapping	
 EXPORT_SYMBOL vmlinux 0x00000000	page_pool_alloc_pages	
 EXPORT_SYMBOL vmlinux 0x00000000	page_pool_create	
+EXPORT_SYMBOL vmlinux 0x00000000	page_pool_destroy	
 EXPORT_SYMBOL vmlinux 0x00000000	page_pool_unmap_page	
 EXPORT_SYMBOL vmlinux 0x00000000	page_put_link	
 EXPORT_SYMBOL vmlinux 0x00000000	page_readlink	
@@ -10576,11 +10576,11 @@ EXPORT_SYMBOL_GPL vmlinux 0x00000000	firmware_request_nowarn
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	fixup_user_fault	
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	fl6_merge_options	
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	fl6_update_dst	
-EXPORT_SYMBOL_GPL vmlinux 0x00000000	flow_indr_add_block_ing_cb	
+EXPORT_SYMBOL_GPL vmlinux 0x00000000	flow_indr_add_block_cb	
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	flow_indr_block_call	
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	flow_indr_block_cb_register	
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	flow_indr_block_cb_unregister	
-EXPORT_SYMBOL_GPL vmlinux 0x00000000	flow_indr_del_block_ing_cb	
+EXPORT_SYMBOL_GPL vmlinux 0x00000000	flow_indr_del_block_cb	
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	flush_delayed_fput	
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	flush_work	
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	for_each_kernel_tracepoint	
