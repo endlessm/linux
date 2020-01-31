@@ -394,9 +394,9 @@ endif
 	install -d $(dkms_dir) $(dkms_dir)/headers $(dkms_dir)/build $(dkms_dir)/source
 	cp -rp "$(hdrdir)" "$(indep_hdrdir)" "$(dkms_dir)/headers"
 
-	$(if $(filter true,$(enable_zfs)),$(call build_dkms, $(mods_pkg_name)-$*, $(pkgdir)/lib/modules/$(abi_release)-$*/kernel, $(dbgpkgdir_zfs), zfs, pool/universe/z/zfs-linux/zfs-dkms_$(dkms_zfs_linux_version)_all.deb, --provides "zfs-dkms (= $(dkms_zfs_linux_version))"))
+	$(if $(filter true,$(enable_zfs)),$(call build_dkms, $(mods_pkg_name)-$*, $(pkgdir)/lib/modules/$(abi_release)-$*/kernel, $(dbgpkgdir_zfs), zfs, pool/universe/z/zfs-linux/zfs-dkms_$(dkms_zfs_linux_version)_all.deb, --provides "zfs-modules (= $(dkms_zfs_linux_version))"))
 
-	$(if $(filter true,$(do_dkms_wireguard)),$(call build_dkms, $(mods_pkg_name)-$*, $(pkgdir)/lib/modules/$(abi_release)-$*/kernel, "", wireguard, pool/universe/w/wireguard-linux-compat/wireguard-dkms_$(dkms_wireguard_version)_all.deb, --provides "wireguard-dkms (= $(dkms_wireguard_version))"))
+	$(if $(filter true,$(do_dkms_wireguard)),$(call build_dkms, $(mods_pkg_name)-$*, $(pkgdir)/lib/modules/$(abi_release)-$*/kernel, "", wireguard, pool/universe/w/wireguard-linux-compat/wireguard-dkms_$(dkms_wireguard_version)_all.deb, --provides "wireguard-modules (= $(dkms_wireguard_version))"))
 
 ifeq ($(do_dkms_nvidia),true)
 	$(call build_dkms, $(bldinfo_pkg_name)-$*, $(pkgdir_bldinfo)/usr/lib/linux/$(abi_release)-$*/signatures, "", nvidia-390, pool/restricted/n/nvidia-graphics-drivers-390/nvidia-kernel-source-390_$(dkms_nvidia_390_version)_$(arch).deb pool/restricted/n/nvidia-graphics-drivers-390/nvidia-dkms-390_$(dkms_nvidia_390_version)_$(arch).deb, --provides "nvidia-dkms-390 (= $(dkms_nvidia_390_version))")
@@ -404,7 +404,7 @@ ifeq ($(do_dkms_nvidia),true)
 endif
 
 ifeq ($(do_extras_package),true)
-	$(if $(filter true,$(do_dkms_vbox)),$(call build_dkms, $(mods_pkg_name)-$*, $(pkgdir_ex)/lib/modules/$(abi_release)-$*/kernel, "", virtualbox-guest, pool/multiverse/v/virtualbox/virtualbox-guest-dkms_$(dkms_vbox_guest_version)_all.deb, --provides "virtualbox-guest-dkms (= $(dkms_vbox_guest_version))"))
+	$(if $(filter true,$(do_dkms_vbox)),$(call build_dkms, $(mods_pkg_name)-$*, $(pkgdir_ex)/lib/modules/$(abi_release)-$*/kernel, "", virtualbox-guest, pool/multiverse/v/virtualbox/virtualbox-guest-dkms_$(dkms_vbox_guest_version)_all.deb, --provides "virtualbox-guest-modules (= $(dkms_vbox_guest_version))"))
 endif
 
 ifneq ($(skipdbg),true)
