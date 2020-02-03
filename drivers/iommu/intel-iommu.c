@@ -5591,8 +5591,10 @@ static int intel_iommu_add_device(struct device *dev)
 	int ret;
 
 	iommu = device_to_iommu(dev, &bus, &devfn);
-	if (!iommu)
+	if (!iommu) {
+		dev->archdata.iommu = DUMMY_DEVICE_DOMAIN_INFO;
 		return -ENODEV;
+	}
 
 	iommu_device_link(&iommu->iommu, dev);
 
