@@ -278,17 +278,17 @@ static struct pci_ops nvme_remap_pci_ops = {
 
 /*
  * Find a PCI domain ID to use for our fake bus.
- * Start at 0x10000 to not clash with ACPI _SEG domains (16 bits).
  */
 static int find_free_domain(void)
 {
-	int domain = 0xffff;
+	int domain;
 	struct pci_bus *bus = NULL;
 
-	while ((bus = pci_find_next_bus(bus)) != NULL)
+	/* Find next free domain */
+	for (domain = 0; (bus = pci_find_next_bus(bus)) != NULL; domain++)
 		domain = max_t(int, domain, pci_domain_nr(bus));
 
-	return domain + 1;
+	return domain;
 }
 
 static int find_remapped_devices(struct nvme_remap_dev *nrdev,
