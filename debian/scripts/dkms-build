@@ -1,33 +1,6 @@
 #!/bin/bash
 set -e
 
-TEMP=$(getopt \
-	--name "$0" \
-	--options "" \
-	--longoptions "provides:" \
-	-- "$@"
-)
-if [ "$?" != 0 ]; then
-	echo "Usage: $0 ..." 1>&2
-	exit 1
-fi
-eval set -- "$TEMP"
-
-provides=''
-while [ "$#" -gt 0 ]
-do
-	case "$1" in
-	--provides)
-		provides="$2"
-		shift 2
-		;;
-	--)
-		shift
-		break
-		;;
-	esac
-done
-
 dkms_dir="$1"
 abi_flavour="$2"
 sign="$3"
@@ -54,24 +27,6 @@ built_using_record()
 	fi
 	sed -i -e "s/^\(linux:BuiltUsing=.*\)/\1$built_using, /" "$subst"
 }
-
-provides_record()
-{
-	local subst="$1"
-	local provides="$2"
-	if [ ! -f "$subst" ]; then
-		touch "$subst"
-	fi
-	if ! grep -q -s "^linux:Provides=" "$subst"; then
-		echo "linux:Provides=" >>"$subst"
-	fi
-	sed -i -e "s/^\(linux:Provides=.*\)/\1$provides, /" "$subst"
-}
-
-# Throw in a provides line if offered.
-if [ "$provides" != '' ]; then
-	provides_record "$srcdir/debian/$pkgname.substvars" "$provides"
-fi
 
 # ABI: returns present in $? and located path in lpackage_path when found.
 package_present()
