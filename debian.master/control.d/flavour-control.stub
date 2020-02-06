@@ -50,7 +50,6 @@ Architecture: ARCH
 Section: kernel
 Priority: optional
 Depends: ${misc:Depends}, ${shlibs:Depends}
-Provides: ${linux:Provides}
 Built-Using: ${linux:BuiltUsing}
 Description: Linux kernel extra modules for version PKGVER on DESC
  Contains the corresponding System.map file, the modules built by the
