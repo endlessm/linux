@@ -176,9 +176,18 @@ if [ -d "$DEBIAN/abi" ]; then
 	if [ "$reuse_abi" -ne 0 ]; then
 		# Get the old ABI directory:
 		old=$(find "$DEBIAN/abi/" -mindepth 1 -maxdepth 1 -type d -a -name "${new%%-*}*")
+		if [ -z "${old}" ] && [ "${new##*.}" = "0" ] ; then
+			# This is a new release so use the version of the previous changelog entry
+			prev=$(dpkg-parsechangelog -l"$DEBIAN/changelog" -SVersion -o1 -c1)
+			old=$(find "$DEBIAN/abi/" -mindepth 1 -maxdepth 1 -type d -a -name "${prev%%-*}*")
+		fi
 		if [ "$(echo "$old" | wc -l)" -gt 1 ]; then
 			echo "Failed to rename the current ABI directory." \
 			     "Multiple directories found. Please check \"$DEBIAN/abi/\"!" >&2
+			exit 1
+		elif [ -z "${old}" ] ; then
+			echo "Failed to find the current ABI directory." \
+			     "Please check \"$DEBIAN/abi/\"!" >&2
 			exit 1
 		fi
 		new="$DEBIAN/abi/$new"
