@@ -45,7 +45,7 @@ struct dmar_drhd_unit {
 	u64	reg_base_addr;		/* register base address*/
 	struct	dmar_dev_scope *devices;/* target device array	*/
 	int	devices_cnt;		/* target device count	*/
-	u16	segment;		/* PCI domain		*/
+	int	segment;		/* PCI domain		*/
 	u8	ignored:1; 		/* ignore drhd		*/
 	u8	include_all:1;
 	struct intel_iommu *iommu;
@@ -61,7 +61,7 @@ struct dmar_pci_notify_info {
 	struct pci_dev			*dev;
 	unsigned long			event;
 	int				bus;
-	u16				seg;
+	int				seg;
 	u16				level;
 	struct dmar_pci_path		path[];
 }  __attribute__((packed));
@@ -105,15 +105,15 @@ extern int dmar_table_init(void);
 extern int dmar_dev_scope_init(void);
 extern void dmar_register_bus_notifier(void);
 extern int dmar_parse_dev_scope(void *start, void *end, int *cnt,
-				struct dmar_dev_scope **devices, u16 segment);
+				struct dmar_dev_scope **devices, int segment);
 extern void *dmar_alloc_dev_scope(void *start, void *end, int *cnt);
 extern void dmar_free_dev_scope(struct dmar_dev_scope **devices, int *cnt);
 extern int dmar_insert_dev_scope(struct dmar_pci_notify_info *info,
-				 void *start, void*end, u16 segment,
+				 void *start, void*end, int segment,
 				 struct dmar_dev_scope *devices,
 				 int devices_cnt);
 extern int dmar_remove_dev_scope(struct dmar_pci_notify_info *info,
-				 u16 segment, struct dmar_dev_scope *devices,
+				 int segment, struct dmar_dev_scope *devices,
 				 int count);
 /* Intel IOMMU detection */
 extern int detect_intel_iommu(void);

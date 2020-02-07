@@ -208,7 +208,7 @@ fallback:
 
 /* Return: > 0 if match found, 0 if no match found, < 0 if error happens */
 int dmar_insert_dev_scope(struct dmar_pci_notify_info *info,
-			  void *start, void*end, u16 segment,
+			  void *start, void*end, int segment,
 			  struct dmar_dev_scope *devices,
 			  int devices_cnt)
 {
@@ -264,7 +264,7 @@ int dmar_insert_dev_scope(struct dmar_pci_notify_info *info,
 	return 0;
 }
 
-int dmar_remove_dev_scope(struct dmar_pci_notify_info *info, u16 segment,
+int dmar_remove_dev_scope(struct dmar_pci_notify_info *info, int segment,
 			  struct dmar_dev_scope *devices, int count)
 {
 	int index;

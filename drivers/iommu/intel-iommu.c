@@ -765,7 +765,7 @@ static struct intel_iommu *device_to_iommu(struct device *dev, u8 *bus, u8 *devf
 	struct intel_iommu *iommu;
 	struct device *tmp;
 	struct pci_dev *pdev = NULL;
-	u16 segment = 0;
+	int segment = 0;
 	int i;
 
 	if (iommu_dummy(dev))

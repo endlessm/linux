@@ -528,7 +528,7 @@ struct intel_iommu {
 	int		agaw; /* agaw of this iommu */
 	int		msagaw; /* max sagaw of this iommu */
 	unsigned int 	irq, pr_irq;
-	u16		segment;     /* PCI segment# */
+	int		segment;     /* PCI segment# */
 	unsigned char 	name[13];    /* Device Name */
 
 #ifdef CONFIG_INTEL_IOMMU
