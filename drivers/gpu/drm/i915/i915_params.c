@@ -85,8 +85,7 @@ i915_param_named_unsafe(enable_hangcheck, bool, 0600,
 
 i915_param_named_unsafe(enable_psr, int, 0600,
 	"Enable PSR "
-	"(0=disabled, 1=enabled) "
-	"Default: -1 (use per-chip default)");
+	"(-1=use per-chip default, 0=disabled [default], 1=enabled) ");
 
 i915_param_named_unsafe(force_probe, charp, 0400,
 	"Force probe the driver for specified devices. "
