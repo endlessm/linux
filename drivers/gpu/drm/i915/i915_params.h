@@ -50,7 +50,7 @@ struct drm_printer;
 	param(int, vbt_sdvo_panel_type, -1) \
 	param(int, enable_dc, -1) \
 	param(int, enable_fbc, -1) \
-	param(int, enable_psr, -1) \
+	param(int, enable_psr, 0) \
 	param(int, disable_power_well, -1) \
 	param(int, enable_ips, 1) \
 	param(int, invert_brightness, 0) \
