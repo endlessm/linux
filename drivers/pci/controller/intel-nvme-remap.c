@@ -360,6 +360,7 @@ static int nvme_remap_probe(struct pci_dev *dev,
 
 	nrdev = devm_kzalloc(&dev->dev, sizeof(*nrdev), GFP_KERNEL);
 	nrdev->sysdata.domain = find_free_domain();
+	nrdev->sysdata.nvme_remap_dev = dev;
 	nrdev->dev = dev;
 	pci_set_drvdata(dev, nrdev);
 
