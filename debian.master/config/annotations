@@ -10247,7 +10247,7 @@ CONFIG_STACKPROTECTOR_STRONG                    policy<{'amd64': 'y', 'arm64': '
 CONFIG_ARCH_MMAP_RND_BITS                       policy<{'amd64': '28', 'arm64': '18', 'armhf': '8', 'i386': '8', 'ppc64el': '28'}>
 CONFIG_ARCH_MMAP_RND_COMPAT_BITS                policy<{'amd64': '8', 'arm64': '11', 'ppc64el': '8'}>
 CONFIG_VMAP_STACK                               policy<{'amd64': 'y', 'arm64': 'y', 's390x': 'y'}>
-CONFIG_STRICT_KERNEL_RWX                        policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 's390x': 'y'}>
+CONFIG_STRICT_KERNEL_RWX                        policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'ppc64el': 'y', 's390x': 'y'}>
 CONFIG_STRICT_MODULE_RWX                        policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 's390x': 'y'}>
 CONFIG_REFCOUNT_FULL                            policy<{'amd64': 'n', 'arm64': 'y', 'armhf': 'y', 'i386': 'n', 'ppc64el': 'n', 's390x': 'n'}>
 CONFIG_LOCK_EVENT_COUNTS                        policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'i386': 'n', 'ppc64el': 'n', 's390x': 'n'}>
@@ -10956,7 +10956,7 @@ CONFIG_CRC32_SARWATE                            policy<{'amd64': 'n', 'arm64': '
 CONFIG_CRC32_BIT                                policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'i386': 'n', 'ppc64el': 'n', 's390x': 'n'}>
 
 # Menu: Library routines >> DMA Contiguous Memory Allocator
-CONFIG_DMA_CMA                                  policy<{'amd64': 'n', 'arm64': 'y', 'armhf': 'y', 'i386': 'n', 's390x': 'n'}>
+CONFIG_DMA_CMA                                  policy<{'amd64': '-', 'arm64': 'y', 'armhf': 'y', 'i386': '-', 's390x': 'n'}>
 CONFIG_CMA_SIZE_MBYTES                          policy<{'arm64': '32', 'armhf': '32'}>
 CONFIG_CMA_ALIGNMENT                            policy<{'arm64': '8', 'armhf': '8'}>
 #
@@ -12814,12 +12814,12 @@ CONFIG_SECURITY_SAFESETID                       mark<ENFORCED> note<LP:#1845391>
 # Menu: Security options >> Enable different security models >> Basic module for enforcing kernel lockdown
 CONFIG_SECURITY_LOCKDOWN_LSM                    policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'ppc64el': 'y', 's390x': 'y'}>
 CONFIG_SECURITY_LOCKDOWN_LSM_EARLY              policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'ppc64el': 'y', 's390x': 'y'}>
-CONFIG_LOCK_DOWN_IN_SECURE_BOOT                 policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 's390x': 'y'}>
+#CONFIG_LOCK_DOWN_IN_SECURE_BOOT                 policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 's390x': 'y'}>
 CONFIG_ALLOW_LOCKDOWN_LIFT_BY_SYSRQ             policy<{'amd64': 'y', 'i386': 'y'}>
 #
 CONFIG_SECURITY_LOCKDOWN_LSM                    mark<ENFORCED>
 CONFIG_SECURITY_LOCKDOWN_LSM_EARLY              mark<ENFORCED>
-CONFIG_LOCK_DOWN_IN_SECURE_BOOT                 mark<ENFORCED>
+#CONFIG_LOCK_DOWN_IN_SECURE_BOOT                 mark<ENFORCED>
 CONFIG_ALLOW_LOCKDOWN_LIFT_BY_SYSRQ             mark<ENFORCED>
 
 # Menu: Security options >> Enable different security models >> Basic module for enforcing kernel lockdown >> Kernel default lockdown mode
