@@ -2323,12 +2323,21 @@ static int ssd_proc_open(struct inode *inode, struct file *file)
 #endif
 }
 
+#if (LINUX_VERSION_CODE < KERNEL_VERSION(5,6,0))
 static const struct file_operations ssd_proc_fops = {
 	.open		= ssd_proc_open,
 	.read		= seq_read,
 	.llseek		= seq_lseek,
 	.release	= single_release,
 };
+#else
+static const struct proc_ops ssd_proc_fops = {
+	.proc_open	= ssd_proc_open,
+	.proc_read	= seq_read,
+	.proc_lseek	= seq_lseek,
+	.proc_release	= single_release,
+};
+#endif
 #endif
 
 
