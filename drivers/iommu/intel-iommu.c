@@ -3456,12 +3456,16 @@ out:
 /* Check if the dev needs to go through non-identity map and unmap process.*/
 static bool iommu_need_mapping(struct device *dev)
 {
+	struct device *dma_dev = dev;
 	int ret;
 
 	if (iommu_dummy(dev))
 		return false;
 
-	ret = identity_mapping(dev);
+	if (dev_is_pci(dev))
+		dma_dev = &pci_real_dma_dev(to_pci_dev(dev))->dev;
+
+	ret = identity_mapping(dma_dev);
 	if (ret) {
 		u64 dma_mask = *dev->dma_mask;
 
@@ -3475,19 +3479,19 @@ static bool iommu_need_mapping(struct device *dev)
 		 * 32 bit DMA is removed from si_domain and fall back to
 		 * non-identity mapping.
 		 */
-		dmar_remove_one_dev_info(dev);
-		ret = iommu_request_dma_domain_for_dev(dev);
+		dmar_remove_one_dev_info(dma_dev);
+		ret = iommu_request_dma_domain_for_dev(dma_dev);
 		if (ret) {
 			struct iommu_domain *domain;
 			struct dmar_domain *dmar_domain;
 
-			domain = iommu_get_domain_for_dev(dev);
+			domain = iommu_get_domain_for_dev(dma_dev);
 			if (domain) {
 				dmar_domain = to_dmar_domain(domain);
 				dmar_domain->flags |= DOMAIN_FLAG_LOSE_CHILDREN;
 			}
-			dmar_remove_one_dev_info(dev);
-			get_private_domain_for_dev(dev);
+			dmar_remove_one_dev_info(dma_dev);
+			get_private_domain_for_dev(dma_dev);
 		}
 
 		dev_info(dev, "32bit DMA uses non-identity mapping\n");
