@@ -111,6 +111,10 @@ ifeq ($(do_dkms_vbox),false)
 	do_vbox_disable:=$(shell cat $(DROOT)/vbox-modules.ignore >>$(prev_abidir)/../modules.ignore)
 endif
 
+ifeq ($(do_dkms_wireguard),false)
+	do_wireguard_disable:=$(shell cat $(DROOT)/wireguard-modules.ignore >>$(prev_abidir)/../modules.ignore)
+endif
+
 # Either tools package needs the common source preparation
 do_any_tools=$(sort $(filter-out false,$(do_linux_tools) $(do_cloud_tools)))
 
