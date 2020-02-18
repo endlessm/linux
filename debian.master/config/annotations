@@ -10950,6 +10950,9 @@ CONFIG_GLOB_SELFTEST                            policy<{'amd64': 'n', 'arm64': '
 CONFIG_IRQ_POLL                                 policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'ppc64el': 'y', 's390x': 'y'}>
 CONFIG_PARMAN                                   policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'ppc64el': 'm'}>
 CONFIG_STRING_SELFTEST                          policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'i386': 'n', 'ppc64el': 'n', 's390x': 'n'}>
+CONFIG_ZLIB_DFLTCC                              policy<{'s390x': 'y'}>
+#
+CONFIG_ZLIB_DFLTCC                              mark<ENFORCED> note<LP:1830208>
 
 # Menu: Library routines >> CRC32 implementation
 CONFIG_CRC32_SLICEBY8                           policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'ppc64el': 'y', 's390x': 'y'}>
