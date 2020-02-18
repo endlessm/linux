@@ -1,5 +1,5 @@
 zfs-linux 0.8.3-1ubuntu3
 nvidia-graphics-drivers-390 390.132-0ubuntu2
-nvidia-graphics-drivers-440 440.44-0ubuntu2
+nvidia-graphics-drivers-440 440.59-0ubuntu2
 virtualbox 6.1.2-dfsg-1build1
-wireguard-linux-compat 0.0.20200128-1ubuntu1
+wireguard-linux-compat 0.0.20200205-1ubuntu1
