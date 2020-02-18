@@ -1119,6 +1119,7 @@ firmware:       nvidia/gv100/sec2/image.bin
 firmware:       nvidia/gv100/sec2/sig.bin
 firmware:       nvidia/tegra124/vic03_ucode.bin
 firmware:       nvidia/tegra124/xusb.bin
+firmware:       nvidia/tegra186/xusb.bin
 firmware:       nvidia/tegra210/xusb.bin
 firmware:       orinoco_ezusb_fw
 firmware:       ositech/Xilinx7OD.bin
