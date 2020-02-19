@@ -12814,13 +12814,11 @@ CONFIG_SECURITY_SAFESETID                       mark<ENFORCED> note<LP:#1845391>
 # Menu: Security options >> Enable different security models >> Basic module for enforcing kernel lockdown
 CONFIG_SECURITY_LOCKDOWN_LSM                    policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'ppc64el': 'y', 's390x': 'y'}>
 CONFIG_SECURITY_LOCKDOWN_LSM_EARLY              policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'ppc64el': 'y', 's390x': 'y'}>
-#CONFIG_LOCK_DOWN_IN_SECURE_BOOT                 policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 's390x': 'y'}>
-CONFIG_ALLOW_LOCKDOWN_LIFT_BY_SYSRQ             policy<{'amd64': 'y', 'i386': 'y'}>
+CONFIG_LOCK_DOWN_IN_SECURE_BOOT                 policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 's390x': 'y'}>
 #
 CONFIG_SECURITY_LOCKDOWN_LSM                    mark<ENFORCED>
 CONFIG_SECURITY_LOCKDOWN_LSM_EARLY              mark<ENFORCED>
-#CONFIG_LOCK_DOWN_IN_SECURE_BOOT                 mark<ENFORCED>
-CONFIG_ALLOW_LOCKDOWN_LIFT_BY_SYSRQ             mark<ENFORCED>
+CONFIG_LOCK_DOWN_IN_SECURE_BOOT                 mark<ENFORCED>
 
 # Menu: Security options >> Enable different security models >> Basic module for enforcing kernel lockdown >> Kernel default lockdown mode
 CONFIG_LOCK_DOWN_KERNEL_FORCE_NONE              policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'ppc64el': 'y', 's390x': 'y'}>
