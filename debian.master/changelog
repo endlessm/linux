@@ -1,3 +1,9 @@
+linux (5.4.0-14.17) focal; urgency=medium
+
+  * Empty entry.
+
+ -- Seth Forshee <seth.forshee@canonical.com>  Wed, 19 Feb 2020 11:46:35 -0600
+
 linux-5.4 (5.4.0-14.17) focal; urgency=medium
 
   * focal/linux-5.4: 5.4.0-14.17 -proposed tracker (LP: #1862255)
