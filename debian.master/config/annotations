@@ -672,6 +672,7 @@ CONFIG_HPET                                     policy<{'amd64': 'y', 'i386': 'y
 CONFIG_HPET_MMAP                                policy<{'amd64': 'y', 'i386': 'y'}>
 CONFIG_HPET_MMAP_DEFAULT                        policy<{'amd64': 'y', 'i386': 'y'}>
 CONFIG_HANGCHECK_TIMER                          policy<{'amd64': 'm', 'i386': 'm', 'ppc64el': 'm', 's390x': 'm'}>
+CONFIG_UV_MMTIMER                               policy<{'amd64': 'm'}>
 CONFIG_TELCLOCK                                 policy<{'amd64': 'm', 'i386': 'm'}>
 CONFIG_DEVPORT                                  policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'ppc64el': 'y', 's390x': 'y'}>
 CONFIG_TN3270                                   policy<{'s390x': 'y'}>
@@ -4131,10 +4132,13 @@ CONFIG_TIFM_CORE                                policy<{'amd64': 'm', 'arm64': '
 CONFIG_TIFM_7XX1                                policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'ppc64el': 'm'}>
 CONFIG_ICS932S401                               policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'ppc64el': 'm', 's390x': 'n'}>
 CONFIG_ENCLOSURE_SERVICES                       policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'ppc64el': 'm', 's390x': 'n'}>
+CONFIG_SGI_XP                                   policy<{'amd64': 'm'}>
 CONFIG_CS5535_MFGPT                             policy<{'i386': 'n'}>
 CONFIG_HP_ILO                                   policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'ppc64el': 'm', 's390x': 'n'}>
 CONFIG_QCOM_COINCELL                            policy<{'arm64': 'm', 'armhf': 'm'}>
 CONFIG_QCOM_FASTRPC                             policy<{'arm64': 'm', 'armhf': 'm'}>
+CONFIG_SGI_GRU                                  policy<{'amd64': 'm'}>
+CONFIG_SGI_GRU_DEBUG                            policy<{'amd64': 'n'}>
 CONFIG_APDS9802ALS                              policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'ppc64el': 'm', 's390x': 'n'}>
 CONFIG_ISL29003                                 policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'ppc64el': 'm', 's390x': 'n'}>
 CONFIG_ISL29020                                 policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'ppc64el': 'm', 's390x': 'n'}>
@@ -12682,13 +12686,15 @@ CONFIG_NUMA_EMU                                 note<LP:1557690> mark<ENFORCED>
 # Menu: Processor type and features >> Support for extended (non-PC) x86 platforms >> Architecture: x86
 CONFIG_X86_NUMACHIP                             policy<{'amd64': 'y'}>
 CONFIG_X86_VSMP                                 policy<{'amd64': 'n'}>
-CONFIG_X86_UV                                   policy<{'amd64': 'n'}>
+CONFIG_X86_UV                                   policy<{'amd64': 'y'}>
 CONFIG_X86_GOLDFISH                             policy<{'amd64': 'n', 'i386': 'n'}>
 CONFIG_X86_INTEL_MID                            policy<{'amd64': 'n', 'i386': 'y'}>
 CONFIG_X86_INTEL_QUARK                          policy<{'i386': 'n'}>
 CONFIG_X86_RDC321X                              policy<{'i386': 'n'}>
 CONFIG_X86_32_NON_STANDARD                      policy<{'i386': 'n'}>
 CONFIG_APB_TIMER                                policy<{'i386': 'y'}>
+#
+CONFIG_X86_UV                                   mark<ENFORCED> note<LP:1863810>
 
 # Menu: Processor type and features >> Supported processor vendors >> Architecture: x86
 CONFIG_PROCESSOR_SELECT                         policy<{'amd64': 'y', 'i386': 'y'}>
