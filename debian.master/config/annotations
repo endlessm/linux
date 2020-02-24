@@ -12320,7 +12320,9 @@ CONFIG_PM_DEBUG                                 flag<REVIEW>
 
 # Menu: Processor support
 CONFIG_SMP                                      policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'ppc64el': 'y', 's390x': 'y'}>
-CONFIG_NR_CPUS                                  policy<{'amd64': '8192', 'arm64': '256', 'armhf': '4', 'i386': '8', 'ppc64el': '2048', 's390x': '256'}>
+CONFIG_NR_CPUS                                  policy<{'amd64': '8192', 'arm64': '256', 'armhf': '4', 'i386': '8', 'ppc64el': '2048', 's390x': '512'}>
+#
+CONFIG_NR_CPUS                                  note<LP:1864198>
 
 # Menu: Processor support >> Architecture: powerpc
 CONFIG_ALTIVEC                                  policy<{'ppc64el': 'y'}>
@@ -12673,9 +12675,10 @@ CONFIG_MARCH_Z14                                policy<{'s390x': 'n'}>
 CONFIG_MARCH_Z15                                policy<{'s390x': 'n'}>
 
 # Menu: Processor type and features >> Select NUMA modes
-CONFIG_NUMA_EMU                                 policy<{'amd64': 'n', 's390x': 'y'}>
+CONFIG_NUMA_EMU                                 policy<{'amd64': 'n', 's390x': 'n'}>
 #
 CONFIG_NUMA_EMU                                 note<LP:1557690> mark<ENFORCED>
+CONFIG_NUMA_EMU                                 note<LP:1864198>
 
 # Menu: Processor type and features >> Select NUMA modes >> Architecture: s390
 
