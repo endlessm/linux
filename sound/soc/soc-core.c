@@ -2082,6 +2082,19 @@ static int snd_soc_instantiate_card(struct snd_soc_card *card)
 		}
 	}
 
+	if (card->components) {
+		/* the current implementation of snd_component_add() accepts */
+		/* multiple components in the string separated by space, */
+		/* but the string collision (identical string) check might */
+		/* not work correctly */
+		ret = snd_component_add(card->snd_card, card->components);
+		if (ret < 0) {
+			dev_err(card->dev, "ASoC: %s snd_component_add() failed: %d\n",
+				card->name, ret);
+			goto probe_end;
+		}
+	}
+
 	if (card->late_probe) {
 		ret = card->late_probe(card);
 		if (ret < 0) {
