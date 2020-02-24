@@ -39,3 +39,10 @@ UBUNTU: SAUCE: Revert "apparmor: Add a wildcard secid"
 UBUNTU: SAUCE: Revert "apparmor: fixup secid map conversion to using IDR"
 UBUNTU: SAUCE: Revert "apparmor: Use an IDR to allocate apparmor secids"
 UBUNTU: SAUCE: Revert "apparmor: add support for mapping secids and using secctxes"
+
+UBUNTU: SAUCE: (lockdown) Make get_cert_list() not complain about cert lists that aren't present.
+UBUNTU: SAUCE: (lockdown) Make get_cert_list() use efi_status_to_str() to print error messages.
+Revert "UBUNTU: SAUCE: (lockdown) Make get_cert_list() use efi_status_to_str() to print error messages."
+Revert "UBUNTU: SAUCE: (lockdown) Make get_cert_list() not complain about cert lists that aren't present."
+UBUNTU: SAUCE: (lockdown) Make get_cert_list() not complain about cert lists that aren't present.
+UBUNTU: SAUCE: (lockdown) Make get_cert_list() use efi_status_to_str() to print error messages.
