@@ -1621,6 +1621,13 @@ EXPORT_SYMBOL drivers/s390/crypto/zcrypt 0x00000000	cca_genseckey
 EXPORT_SYMBOL drivers/s390/crypto/zcrypt 0x00000000	cca_get_info	
 EXPORT_SYMBOL drivers/s390/crypto/zcrypt 0x00000000	cca_query_crypto_facility	
 EXPORT_SYMBOL drivers/s390/crypto/zcrypt 0x00000000	cca_sec2protkey	
+EXPORT_SYMBOL drivers/s390/crypto/zcrypt 0x00000000	ep11_check_aeskeyblob	
+EXPORT_SYMBOL drivers/s390/crypto/zcrypt 0x00000000	ep11_clr2keyblob	
+EXPORT_SYMBOL drivers/s390/crypto/zcrypt 0x00000000	ep11_findcard2	
+EXPORT_SYMBOL drivers/s390/crypto/zcrypt 0x00000000	ep11_genaeskey	
+EXPORT_SYMBOL drivers/s390/crypto/zcrypt 0x00000000	ep11_get_card_info	
+EXPORT_SYMBOL drivers/s390/crypto/zcrypt 0x00000000	ep11_get_domain_info	
+EXPORT_SYMBOL drivers/s390/crypto/zcrypt 0x00000000	ep11_key2protkey	
 EXPORT_SYMBOL drivers/s390/crypto/zcrypt 0x00000000	zcrypt_card_alloc	
 EXPORT_SYMBOL drivers/s390/crypto/zcrypt 0x00000000	zcrypt_card_free	
 EXPORT_SYMBOL drivers/s390/crypto/zcrypt 0x00000000	zcrypt_card_get	
@@ -1638,6 +1645,7 @@ EXPORT_SYMBOL drivers/s390/crypto/zcrypt 0x00000000	zcrypt_queue_register
 EXPORT_SYMBOL drivers/s390/crypto/zcrypt 0x00000000	zcrypt_queue_unregister	
 EXPORT_SYMBOL drivers/s390/crypto/zcrypt 0x00000000	zcrypt_rescan_req	
 EXPORT_SYMBOL drivers/s390/crypto/zcrypt 0x00000000	zcrypt_send_cprb	
+EXPORT_SYMBOL drivers/s390/crypto/zcrypt 0x00000000	zcrypt_send_ep11_cprb	
 EXPORT_SYMBOL drivers/s390/net/ctcm 0x00000000	ctc_mpc_alloc_channel	
 EXPORT_SYMBOL drivers/s390/net/ctcm 0x00000000	ctc_mpc_dealloc_ch	
 EXPORT_SYMBOL drivers/s390/net/ctcm 0x00000000	ctc_mpc_establish_connectivity	
@@ -5156,9 +5164,11 @@ EXPORT_SYMBOL vmlinux 0x00000000	overflowgid
 EXPORT_SYMBOL vmlinux 0x00000000	overflowuid	
 EXPORT_SYMBOL vmlinux 0x00000000	override_creds	
 EXPORT_SYMBOL vmlinux 0x00000000	padata_alloc_possible	
+EXPORT_SYMBOL vmlinux 0x00000000	padata_alloc_shell	
 EXPORT_SYMBOL vmlinux 0x00000000	padata_do_parallel	
 EXPORT_SYMBOL vmlinux 0x00000000	padata_do_serial	
 EXPORT_SYMBOL vmlinux 0x00000000	padata_free	
+EXPORT_SYMBOL vmlinux 0x00000000	padata_free_shell	
 EXPORT_SYMBOL vmlinux 0x00000000	padata_register_cpumask_notifier	
 EXPORT_SYMBOL vmlinux 0x00000000	padata_remove_cpu	
 EXPORT_SYMBOL vmlinux 0x00000000	padata_set_cpumask	
@@ -10023,7 +10033,6 @@ EXPORT_SYMBOL_GPL vmlinux 0x00000000	crypto_shash_final
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	crypto_shash_finup	
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	crypto_shash_setkey	
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	crypto_shash_update	
-EXPORT_SYMBOL_GPL vmlinux 0x00000000	crypto_shoot_alg	
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	crypto_skcipher_decrypt	
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	crypto_skcipher_encrypt	
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	crypto_spawn_tfm	
@@ -10845,6 +10854,7 @@ EXPORT_SYMBOL_GPL vmlinux 0x00000000	gpiod_set_value
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	gpiod_set_value_cansleep	
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	gpiod_to_chip	
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	gpiod_to_irq	
+EXPORT_SYMBOL_GPL vmlinux 0x00000000	gpiod_toggle_active_low	
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	gpiod_unexport	
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	guid_gen	
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	halt_poll_ns	

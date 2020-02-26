@@ -689,6 +689,7 @@ cdns-csi2tx
 cdns-pltfrm
 cdns3
 cdns3-pci-wrap
+cec-gpio
 ceph
 cfag12864b
 cfag12864bfb
@@ -1526,6 +1527,7 @@ gre
 greybus
 grip
 grip_mp
+gru
 gs1662
 gs_fpga
 gs_usb
@@ -5104,6 +5106,7 @@ userspace-consumer
 ushc
 usnic_verbs
 uss720
+uv_mmtimer
 uvcvideo
 uvesafb
 uwb
@@ -5378,7 +5381,10 @@ xirc2ps_cs
 xircom_cb
 xlnx_vcu
 xor
+xp
 xpad
+xpc
+xpnet
 xr_usb_serial_common
 xsens_mt
 xsk_diag
