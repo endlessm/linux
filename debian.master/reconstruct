@@ -1,6 +1,7 @@
 # Recreate any symlinks created since the orig.
 # Remove any files deleted from the orig.
 rm -f 'drivers/crypto/hisilicon/sgl.h'
+rm -f 'drivers/gpu/drm/amd/display/dc/calcs/dcn_calc_math.h'
 rm -f 'include/uapi/rdma/nes-abi.h'
 chmod +x 'debian/cloud-tools/hv_get_dhcp_info'
 chmod +x 'debian/cloud-tools/hv_get_dns_info'
