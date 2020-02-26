@@ -347,6 +347,10 @@ endif
 	    mv $(pkgdir)/lib/modules/$(abi_release)-$*/modules.builtin \
 		$(pkgdir)/lib/modules/$(abi_release)-$*/_; \
 	fi
+	if [ -f $(pkgdir)/lib/modules/$(abi_release)-$*/modules.builtin.modinfo ] ; then \
+	    mv $(pkgdir)/lib/modules/$(abi_release)-$*/modules.builtin.modinfo \
+		$(pkgdir)/lib/modules/$(abi_release)-$*/_; \
+	fi
 	rm -f $(pkgdir)/lib/modules/$(abi_release)-$*/modules.*
 	mv $(pkgdir)/lib/modules/$(abi_release)-$*/_/* \
 		$(pkgdir)/lib/modules/$(abi_release)-$*
