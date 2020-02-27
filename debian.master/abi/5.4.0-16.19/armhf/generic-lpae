@@ -21214,6 +21214,7 @@ EXPORT_SYMBOL_GPL vmlinux 0x00000000	regulator_get_linear_step
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	regulator_get_mode	
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	regulator_get_optional	
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	regulator_get_voltage	
+EXPORT_SYMBOL_GPL vmlinux 0x00000000	regulator_get_voltage_rdev	
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	regulator_get_voltage_sel_pickable_regmap	
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	regulator_get_voltage_sel_regmap	
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	regulator_has_full_constraints	
@@ -21250,6 +21251,7 @@ EXPORT_SYMBOL_GPL vmlinux 0x00000000	regulator_set_pull_down_regmap
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	regulator_set_soft_start_regmap	
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	regulator_set_suspend_voltage	
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	regulator_set_voltage	
+EXPORT_SYMBOL_GPL vmlinux 0x00000000	regulator_set_voltage_rdev	
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	regulator_set_voltage_sel_pickable_regmap	
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	regulator_set_voltage_sel_regmap	
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	regulator_set_voltage_time	
