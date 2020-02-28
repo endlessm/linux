@@ -1,4 +1,4 @@
-linux (5.4.0-17.20) focal; urgency=medium
+linux (5.4.0-17.21) focal; urgency=medium
 
   * focal/linux: 5.4.0-17.20 -proposed tracker (LP: #1865025)
 
