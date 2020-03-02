@@ -1115,7 +1115,8 @@ CONFIG_CLK_R8A7791                              policy<{'armhf': 'y'}>
 CONFIG_CLK_R8A7792                              policy<{'armhf': 'y'}>
 CONFIG_CLK_R8A7794                              policy<{'armhf': 'y'}>
 CONFIG_CLK_R8A7795                              policy<{'arm64': 'y'}>
-CONFIG_CLK_R8A7796                              policy<{'arm64': 'y'}>
+CONFIG_CLK_R8A77960                             policy<{'arm64': 'y'}>
+CONFIG_CLK_R8A77961                             policy<{'arm64': 'y'}>
 CONFIG_CLK_R8A77965                             policy<{'arm64': 'y'}>
 CONFIG_CLK_R8A77970                             policy<{'arm64': 'y'}>
 CONFIG_CLK_R8A77980                             policy<{'arm64': 'y'}>
