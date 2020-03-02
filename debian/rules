@@ -104,15 +104,15 @@ ifneq ($(do_tools),true)
 endif
 
 ifeq ($(do_zfs),false)
-	do_zfs_disable:=$(shell cat $(DROOT)/zfs-modules.ignore >>$(prev_abidir)/../modules.ignore)
+	do_zfs_disable:=$(shell for m in $$(cat $(DROOT)/zfs-modules.ignore); do grep -qxF $$m $(prev_abidir)/../modules.ignore 2>/dev/null || echo $$m >> $(prev_abidir)/../modules.ignore; done)
 endif
 
 ifeq ($(do_dkms_vbox),false)
-	do_vbox_disable:=$(shell cat $(DROOT)/vbox-modules.ignore >>$(prev_abidir)/../modules.ignore)
+	do_vbox_disable:=$(shell for m in $$(cat $(DROOT)/vbox-modules.ignore); do grep -qxF $$m $(prev_abidir)/../modules.ignore 2>/dev/null || echo $$m >> $(prev_abidir)/../modules.ignore; done)
 endif
 
 ifeq ($(do_dkms_wireguard),false)
-	do_wireguard_disable:=$(shell cat $(DROOT)/wireguard-modules.ignore >>$(prev_abidir)/../modules.ignore)
+	do_wireguard_disable:=$(shell for m in $$(cat $(DROOT)/wireguard-modules.ignore); do grep -qxF $$m $(prev_abidir)/../modules.ignore 2>/dev/null || echo $$m >> $(prev_abidir)/../modules.ignore; done)
 endif
 
 # Either tools package needs the common source preparation
