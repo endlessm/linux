@@ -7457,7 +7457,8 @@ CONFIG_ARCH_SH73A0                              policy<{'armhf': 'y'}>
 CONFIG_ARCH_R8A774A1                            policy<{'arm64': 'y'}>
 CONFIG_ARCH_R8A774C0                            policy<{'arm64': 'y'}>
 CONFIG_ARCH_R8A7795                             policy<{'arm64': 'y'}>
-CONFIG_ARCH_R8A7796                             policy<{'arm64': 'y'}>
+CONFIG_ARCH_R8A77960                            policy<{'arm64': 'y'}>
+CONFIG_ARCH_R8A77961                            policy<{'arm64': 'y'}>
 CONFIG_ARCH_R8A77965                            policy<{'arm64': 'y'}>
 CONFIG_ARCH_R8A77970                            policy<{'arm64': 'y'}>
 CONFIG_ARCH_R8A77980                            policy<{'arm64': 'y'}>
