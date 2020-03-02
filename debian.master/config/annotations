@@ -7735,7 +7735,7 @@ CONFIG_SND_PROC_FS                              policy<{'amd64': 'y', 'arm64': '
 CONFIG_SND_VERBOSE_PROCFS                       policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'ppc64el': 'y'}>
 CONFIG_SND_VERBOSE_PRINTK                       policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'i386': 'n', 'ppc64el': 'n'}>
 CONFIG_SND_DEBUG                                policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'i386': 'n', 'ppc64el': 'n'}>
-CONFIG_SND_HDA_PREALLOC_SIZE                    policy<{'amd64': '64', 'arm64': '64', 'armhf': '64', 'i386': '64', 'ppc64el': '64'}>
+CONFIG_SND_HDA_PREALLOC_SIZE                    policy<{'amd64': '0', 'arm64': '64', 'armhf': '64', 'i386': '0', 'ppc64el': '64'}>
 CONFIG_SND_XEN_FRONTEND                         policy<{'amd64': 'm', 'arm64': 'm', 'i386': 'm'}>
 #
 CONFIG_SND                                      note<not autoloadable on omap>
