@@ -8409,7 +8409,6 @@ CONFIG_STAGING                                  flag<REVIEW>
 
 # Menu: Device Drivers >> Staging drivers >> Android
 CONFIG_ASHMEM                                   policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'ppc64el': 'm'}>
-CONFIG_ANDROID_VSOC                             policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'i386': 'n', 'ppc64el': 'n'}>
 
 # Menu: Device Drivers >> Staging drivers >> Android >> Ion Memory Manager
 CONFIG_ION                                      policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'i386': 'n', 'ppc64el': 'n'}>
