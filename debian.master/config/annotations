@@ -12464,7 +12464,7 @@ CONFIG_OPAL_CORE                                policy<{'ppc64el': 'n'}>
 CONFIG_IRQ_ALL_CPUS                             policy<{'ppc64el': 'y'}>
 CONFIG_THREAD_SHIFT                             policy<{'ppc64el': '14'}>
 CONFIG_ETEXT_SHIFT                              policy<{'ppc64el': '16'}>
-CONFIG_DATA_SHIFT                               policy<{'ppc64el': '16'}>
+CONFIG_DATA_SHIFT                               policy<{'ppc64el': '24'}>
 CONFIG_PPC_SUBPAGE_PROT                         policy<{'ppc64el': 'y'}>
 CONFIG_PPC_DENORMALISATION                      policy<{'ppc64el': 'y'}>
 CONFIG_EXTRA_TARGETS                            policy<{'ppc64el': '""'}>
