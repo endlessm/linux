@@ -333,7 +333,6 @@ CONFIG_MFD_CORE=m
 # CONFIG_MLXSW_I2C is not set
 # CONFIG_MMC is not set
 # CONFIG_MTD is not set
-# CONFIG_NET_SWITCHDEV is not set
 # CONFIG_NET_VENDOR_3COM is not set
 # CONFIG_NET_VENDOR_ADAPTEC is not set
 # CONFIG_NET_VENDOR_AGERE is not set

@@ -11820,7 +11820,7 @@ CONFIG_INET_ESP_OFFLOAD                         policy<{'amd64': 'm', 'arm64': '
 CONFIG_INET_IPCOMP                              policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'ppc64el': 'm', 's390x': 'm'}>
 CONFIG_TCP_MD5SIG                               policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'ppc64el': 'y', 's390x': 'y'}>
 CONFIG_NETLABEL                                 policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'ppc64el': 'y', 's390x': 'y'}>
-CONFIG_NET_SWITCHDEV                            policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'ppc64el': 'y', 's390x': 'n'}>
+CONFIG_NET_SWITCHDEV                            policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'ppc64el': 'y', 's390x': 'y'}>
 CONFIG_NET_L3_MASTER_DEV                        policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'ppc64el': 'y', 's390x': 'y'}>
 CONFIG_NET_NCSI                                 policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'ppc64el': 'y', 's390x': 'y'}>
 CONFIG_NCSI_OEM_CMD_GET_MAC                     policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'ppc64el': 'y', 's390x': 'y'}>
@@ -11828,6 +11828,7 @@ CONFIG_BPF_STREAM_PARSER                        policy<{'amd64': 'y', 'arm64': '
 #
 CONFIG_SYN_COOKIES                              mark<ENFORCED>
 CONFIG_NET_SWITCHDEV                            mark<ENFORCED> note<LP: #1628241, updated to 'y' for 4.11-rc3 except for s390x>
+CONFIG_NET_SWITCHDEV                            mark<ENFORCED> note<LP: #1865452, updated to 'y' for s390x starting with focal>
 
 # Menu: Networking support >> Networking options >> TCP/IP networking >> BPF based packet filtering framework (BPFILTER)
 CONFIG_BPFILTER                                 policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'ppc64el': 'y', 's390x': 'y'}>
