@@ -13007,7 +13007,6 @@ CONFIG_MACH_MESON6                              policy<{'armhf': 'y'}>
 CONFIG_MACH_MESON8                              policy<{'armhf': 'y'}>
 
 # Menu: System Type >> Architecture: arm
-CONFIG_ARCH_LPC32XX                             policy<{'armhf': 'n'}>
 CONFIG_ARCH_VIRT                                policy<{'armhf': 'y'}>
 CONFIG_ARCH_AXXIA                               policy<{'armhf-generic-lpae': 'y'}>
 CONFIG_ARCH_DIGICOLOR                           policy<{'armhf': 'n'}>
@@ -13254,7 +13253,6 @@ CONFIG_ARCH_MILBEAUT                            policy<{'armhf': 'y'}>
 CONFIG_ARCH_MILBEAUT_M10V                       policy<{'armhf': 'y'}>
 
 # Menu: System Type >> TI DaVinci >> Architecture: arm
-CONFIG_ARCH_DAVINCI                             policy<{'armhf': 'n'}>
 
 # Menu: System Type >> TI DaVinci >> DA850/OMAP-L138/AM18x based system >> Architecture: arm
 
