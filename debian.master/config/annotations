@@ -10487,7 +10487,9 @@ CONFIG_SCM_BUS                                  policy<{'s390x': 'y'}>
 CONFIG_EADM_SCH                                 policy<{'s390x': 'm'}>
 CONFIG_VFIO_CCW                                 policy<{'s390x': 'm'}>
 CONFIG_VFIO_AP                                  policy<{'s390x': 'm'}>
-CONFIG_PCI_NR_FUNCTIONS                         policy<{'s390x': '64'}>
+CONFIG_PCI_NR_FUNCTIONS                         policy<{'s390x': '512'}>
+
+CONFIG_PCI_NR_FUNCTIONS                         mark<ENFORCED> note<LP:1866056>
 
 # Menu: Kernel hacking
 CONFIG_MAGIC_SYSRQ                              policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'ppc64el': 'y', 's390x': 'y'}>
