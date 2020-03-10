@@ -15,4 +15,5 @@ getall armhf generic-lpae
 getall amd64 generic lowlatency
 getall arm64 generic
 getall ppc64el generic
+getall riscv64 generic
 getall s390x generic

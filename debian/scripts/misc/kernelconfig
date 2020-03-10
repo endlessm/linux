@@ -51,6 +51,7 @@ for arch in $archs; do
 		sparc)		kernarch="sparc64"	;;
 		armel|armhf)	kernarch="arm"		;;
 		s390x)		kernarch="s390"		;;
+		riscv64)	kernarch="riscv"	;;
 		*)		kernarch="$arch"	;;
 	esac
 

@@ -1,4 +1,4 @@
-arch="amd64 armhf arm64 ppc64el s390x"
+arch="amd64 armhf arm64 ppc64el riscv64 s390x"
 supported="Generic"
 target="Geared toward desktop and server systems."
 desc="=HUMAN= SMP"
