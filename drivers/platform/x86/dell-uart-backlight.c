@@ -320,22 +320,23 @@ static int dell_uart_get_scalar_status(struct dell_uart_backlight *dell_pdata)
 	int rx_len;
 	int status = 0, retry = 50;
 
+	dell_uart_dump_cmd(__func__, "tx: ", bl_cmd->cmd, bl_cmd->tx_len);
+
+	if (mutex_lock_killable(&dell_pdata->brightness_mutex) < 0) {
+		pr_debug("Failed to get mutex_lock");
+		return 0;
+	}
+
+	dell_uart_write(uart, bl_cmd->cmd, bl_cmd->tx_len);
 	do {
-		dell_uart_dump_cmd(__func__, "tx: ", bl_cmd->cmd, bl_cmd->tx_len);
-
-		if (mutex_lock_killable(&dell_pdata->brightness_mutex) < 0) {
-			pr_debug("Failed to get mutex_lock");
-			return 0;
-		}
-
-		dell_uart_write(uart, bl_cmd->cmd, bl_cmd->tx_len);
-		msleep(100);
 		rx_len = dell_uart_read(uart, bl_cmd->ret, bl_cmd->rx_len);
-
-		mutex_unlock(&dell_pdata->brightness_mutex);
-
-		dell_uart_dump_cmd(__func__, "rx: ", bl_cmd->ret, rx_len);
+		if (rx_len == 0)
+			msleep(100);
 	} while (rx_len == 0 && --retry);
+
+	mutex_unlock(&dell_pdata->brightness_mutex);
+
+	dell_uart_dump_cmd(__func__, "rx: ", bl_cmd->ret, rx_len);
 
 	if (rx_len == 4)
 		status = (unsigned int)bl_cmd->ret[2];
