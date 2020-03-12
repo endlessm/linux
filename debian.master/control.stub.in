@@ -39,7 +39,6 @@ Build-Depends:
  wget <!stage1>,
  lz4 [amd64 s390x] <!stage1>,
  device-tree-compiler [arm64],
- u-boot-tools [arm64],
 Build-Depends-Indep:
  xmlto <!stage1>,
  fig2dev <!stage1>,

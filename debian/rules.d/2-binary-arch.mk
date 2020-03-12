@@ -171,20 +171,6 @@ endif
 			echo "$$dtb_file ?" >> $(DEBIAN)/d-i/firmware/$(arch)/kernel-image; \
 		done; \
 	fi
-
-	# There are a lot of device tree blobs in system, but OSTree can only
-	# choose one of them (a single file) and deploy it into OSTree boot
-	# folder.  We can have a workaround which makes a generic uImage
-	# containing all device tree blobs in a single file.  Then OSTree
-	# deploys the uImage and u-boot chooses the corresponding device tree in
-	# the uImage.
-	if [ "$(filter true,$(do_dtbs))" ] && [ "$(build_arch)" = "arm64" ]; then \
-		$(SHELL) $(DROOT)/scripts/make_dtb_its \
-			$(pkgdir)/lib/firmware/$(abi_release)-$*/device-tree \
-			$(builddir)/fdt_its.its; \
-		mkimage -f $(builddir)/fdt_its.its $(builddir)/dtbs.itb; \
-		install -m644 $(builddir)/dtbs.itb $(pkgdir)/boot/dtbs.itb-$(abi_release)-$*; \
-	fi
 ifeq ($(no_dumpfile),)
 	makedumpfile -g $(pkgdir)/boot/vmcoreinfo-$(abi_release)-$* \
 		-x $(builddir)/build-$*/vmlinux
