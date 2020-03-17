@@ -12965,7 +12965,6 @@ MODULE_DEVICE_TABLE(pci, ssd_pci_tbl);
 SIMPLE_DEV_PM_OPS(hio_pm_ops, ssd_hio_suspend, ssd_hio_resume);
 #endif
 
-MODULE_DEVICE_TABLE(pci, ssd_pci_tbl);
 struct pci_driver ssd_driver = {
 	.name		= MODULE_NAME, 
 	.id_table	= ssd_pci_tbl, 
