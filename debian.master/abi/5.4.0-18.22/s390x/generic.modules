@@ -433,6 +433,9 @@ mlx5_ib
 mlxfw
 mlxsw_core
 mlxsw_pci
+mlxsw_spectrum
+mlxsw_switchib
+mlxsw_switchx2
 monreader
 monwriter
 mpls_gso
@@ -607,6 +610,7 @@ nvmet
 nvmet-fc
 nvmet-rdma
 nvmet-tcp
+objagg
 ocfs2
 ocfs2_dlm
 ocfs2_dlmfs
@@ -621,6 +625,7 @@ orangefs
 overlay
 p8022
 paes_s390
+parman
 pblk
 pcbc
 pci-pf-stub

@@ -714,6 +714,7 @@ EXPORT_SYMBOL drivers/gpu/drm/drm_kms_helper 0x00000000	drm_dp_find_vcpi_slots
 EXPORT_SYMBOL drivers/gpu/drm/drm_kms_helper 0x00000000	drm_dp_get_adjust_request_pre_emphasis	
 EXPORT_SYMBOL drivers/gpu/drm/drm_kms_helper 0x00000000	drm_dp_get_adjust_request_voltage	
 EXPORT_SYMBOL drivers/gpu/drm/drm_kms_helper 0x00000000	drm_dp_get_dual_mode_type_name	
+EXPORT_SYMBOL drivers/gpu/drm/drm_kms_helper 0x00000000	drm_dp_get_edid_quirks	
 EXPORT_SYMBOL drivers/gpu/drm/drm_kms_helper 0x00000000	drm_dp_link_configure	
 EXPORT_SYMBOL drivers/gpu/drm/drm_kms_helper 0x00000000	drm_dp_link_power_down	
 EXPORT_SYMBOL drivers/gpu/drm/drm_kms_helper 0x00000000	drm_dp_link_power_up	
@@ -8604,6 +8605,7 @@ EXPORT_SYMBOL vmlinux 0x00000000	netdev_master_upper_dev_get
 EXPORT_SYMBOL vmlinux 0x00000000	netdev_master_upper_dev_get_rcu	
 EXPORT_SYMBOL vmlinux 0x00000000	netdev_master_upper_dev_link	
 EXPORT_SYMBOL vmlinux 0x00000000	netdev_max_backlog	
+EXPORT_SYMBOL vmlinux 0x00000000	netdev_next_lower_dev_rcu	
 EXPORT_SYMBOL vmlinux 0x00000000	netdev_notice	
 EXPORT_SYMBOL vmlinux 0x00000000	netdev_notify_peers	
 EXPORT_SYMBOL vmlinux 0x00000000	netdev_pick_tx	
@@ -10887,6 +10889,7 @@ EXPORT_SYMBOL vmlinux 0x00000000	zlib_deflate
 EXPORT_SYMBOL vmlinux 0x00000000	zlib_deflateEnd	
 EXPORT_SYMBOL vmlinux 0x00000000	zlib_deflateInit2	
 EXPORT_SYMBOL vmlinux 0x00000000	zlib_deflateReset	
+EXPORT_SYMBOL vmlinux 0x00000000	zlib_deflate_dfltcc_enabled	
 EXPORT_SYMBOL vmlinux 0x00000000	zlib_deflate_workspacesize	
 EXPORT_SYMBOL vmlinux 0x00000000	zlib_inflate	
 EXPORT_SYMBOL vmlinux 0x00000000	zlib_inflateEnd	
@@ -18246,6 +18249,7 @@ EXPORT_SYMBOL_GPL vmlinux 0x00000000	ata_pci_sff_activate_host
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	ata_pci_sff_init_host	
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	ata_pci_sff_init_one	
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	ata_pci_sff_prepare_host	
+EXPORT_SYMBOL_GPL vmlinux 0x00000000	ata_pci_shutdown_one	
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	ata_pio_need_iordy	
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	ata_platform_remove_one	
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	ata_port_abort	
@@ -22911,6 +22915,7 @@ EXPORT_SYMBOL_GPL vmlinux 0x00000000	tty_ldisc_ref_wait
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	tty_ldisc_release	
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	tty_mode_ioctl	
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	tty_perform_flush	
+EXPORT_SYMBOL_GPL vmlinux 0x00000000	tty_port_default_client_ops	
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	tty_port_install	
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	tty_port_link_device	
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	tty_port_register_device	
