@@ -168,7 +168,7 @@ CONFIG_GPIO_GENERIC_PLATFORM=m
 # CONFIG_HAMACHI is not set
 # CONFIG_HFSPLUS_FS is not set
 # CONFIG_HFS_FS is not set
-CONFIG_HIBERNATION=y
+# CONFIG_HIBERNATION is not set
 # CONFIG_HID is not set
 # CONFIG_HIO is not set
 # CONFIG_HMC6352 is not set
@@ -413,7 +413,7 @@ CONFIG_PHYLIB=m
 # CONFIG_PHY_PXA_28NM_HSIC is not set
 # CONFIG_PHY_PXA_28NM_USB2 is not set
 # CONFIG_PINCTRL is not set
-# CONFIG_PM_DEBUG is not set
+# CONFIG_PM is not set
 # CONFIG_PM_DEVFREQ is not set
 # CONFIG_POWERCAP is not set
 # CONFIG_POWER_AVS is not set
