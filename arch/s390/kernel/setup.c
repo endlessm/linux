@@ -1108,7 +1108,7 @@ void __init setup_arch(char **cmdline_p)
 #ifdef CONFIG_LOCK_DOWN_IN_SECURE_BOOT
 	if (ipl_get_secureboot())
 		security_lock_kernel_down("Secure IPL",
-					  LOCKDOWN_CONFIDENTIALITY_MAX);
+					  LOCKDOWN_INTEGRITY_MAX);
 #endif
 
 	/* Have one command line that is parsed and saved in /proc/cmdline */

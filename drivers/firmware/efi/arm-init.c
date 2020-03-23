@@ -258,7 +258,7 @@ void __init efi_init(void)
 
 #ifdef CONFIG_LOCK_DOWN_IN_SECURE_BOOT
 	if (efi_enabled(EFI_SECURE_BOOT))
-		security_lock_kernel_down("EFI Secure Boot mode", LOCKDOWN_CONFIDENTIALITY_MAX);
+		security_lock_kernel_down("EFI Secure Boot mode", LOCKDOWN_INTEGRITY_MAX);
 #endif
 
 	reserve_regions();
