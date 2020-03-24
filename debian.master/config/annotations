@@ -6613,7 +6613,7 @@ CONFIG_HOTPLUG_PCI_S390                         policy<{'s390x': 'y'}>
 CONFIG_HOTPLUG_PCI_SHPC                         note<LP#1374440>
 
 # Menu: Device Drivers >> PHY Subsystem
-CONFIG_GENERIC_PHY                              policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'ppc64el': 'y', 's390x': 'y'}>
+CONFIG_GENERIC_PHY                              policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'ppc64el': 'y', 's390x': 'n'}>
 CONFIG_PHY_XGENE                                policy<{'arm64': 'y'}>
 CONFIG_PHY_SUN4I_USB                            policy<{'arm64': 'm'}>
 CONFIG_PHY_SUN6I_MIPI_DPHY                      policy<{'arm64': 'm'}>
