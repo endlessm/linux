@@ -36,7 +36,7 @@ const struct in6_addr addr6 = IN6ADDR_LOOPBACK_INIT;
 static int payload_len;
 static int max_frag_len;
 
-#define MSG_LEN_MAX	10000	/* Max UDP payload length. */
+#define MSG_LEN_MAX	8000	/* Max UDP payload length. */
 
 #define IP4_MF		(1u << 13)  /* IPv4 MF flag. */
 #define IP6_MF		(1)  /* IPv6 MF flag. */
