@@ -2,5 +2,7 @@
 CFLAGS += -Wl,-no-as-needed -Wall
 LDFLAGS += -lpthread
 
+TEST_FILES := settings
+
 TEST_GEN_PROGS := seccomp_bpf seccomp_benchmark
 include ../lib.mk
