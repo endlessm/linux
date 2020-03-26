@@ -11,6 +11,8 @@ CFLAGS += -Wl,-no-as-needed -Wall
 seccomp_bpf: seccomp_bpf.c ../kselftest_harness.h
 	$(CC) $(CFLAGS) $(LDFLAGS) $< -lpthread -o $@
 
+TEST_FILES := settings
+
 TEST_PROGS += $(BINARIES)
 EXTRA_CLEAN := $(BINARIES)
 
