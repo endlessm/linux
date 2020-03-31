@@ -1,1 +1,4 @@
+# Recreate any symlinks created since the orig.
+# Remove any files deleted from the orig.
+chmod +x 'update-version-dkms'
 exit 0
