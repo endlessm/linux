@@ -12489,9 +12489,13 @@ CONFIG_PPC_SUBPAGE_PROT                         policy<{'ppc64el': 'y'}>
 CONFIG_PPC_DENORMALISATION                      policy<{'ppc64el': 'y'}>
 CONFIG_EXTRA_TARGETS                            policy<{'ppc64el': '""'}>
 CONFIG_PPC_MEM_KEYS                             policy<{'ppc64el': 'n'}>
+CONFIG_PPC_SECURE_BOOT                          policy<{'ppc64el': 'y'}>
+CONFIG_PPC_SECVAR_SYSFS                         policy<{'ppc64el': 'y'}>
 #
 CONFIG_FA_DUMP                                  note<LP:1415562>
 CONFIG_PPC_MEM_KEYS                             flag<REVIEW> note<LP:1776967>
+CONFIG_PPC_SECURE_BOOT                          mark<ENFORCED> note<LP:1866909> note<LP:1855668>
+CONFIG_PPC_SECVAR_SYSFS                         mark<ENFORCED> note<LP:1866909>
 
 # Menu: Processor type and features >> Architecture: riscv
 
@@ -12841,7 +12845,7 @@ CONFIG_SECURITY_YAMA                            policy<{'amd64': 'y', 'arm64': '
 CONFIG_SECURITY_SAFESETID                       policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'ppc64el': 'y', 'riscv64': 'y', 's390x': 'y'}>
 CONFIG_SECURITY_LOCKDOWN_LSM                    policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'ppc64el': 'y', 'riscv64': 'y', 's390x': 'y'}>
 CONFIG_SECURITY_LOCKDOWN_LSM_EARLY              policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'ppc64el': 'y', 'riscv64': 'y', 's390x': 'y'}>
-CONFIG_LOCK_DOWN_IN_SECURE_BOOT                 policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 's390x': 'y'}>
+CONFIG_LOCK_DOWN_IN_SECURE_BOOT                 policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'ppc64el': 'y', 's390x': 'y'}>
 #
 CONFIG_SECURITY                                 mark<ENFORCED>
 CONFIG_LSM_MMAP_MIN_ADDR                        mark<ENFORCED> flag<REVIEW>
@@ -12873,26 +12877,28 @@ CONFIG_EVM_X509_PATH                            note<LP:1643652>
 CONFIG_INTEGRITY_ASYMMETRIC_KEYS                policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'ppc64el': 'y', 'riscv64': 'y', 's390x': 'y'}>
 CONFIG_INTEGRITY_TRUSTED_KEYRING                policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'ppc64el': 'y', 'riscv64': 'y', 's390x': 'y'}>
 CONFIG_INTEGRITY_PLATFORM_KEYRING               policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'ppc64el': 'y', 'riscv64': 'y', 's390x': 'y'}>
+CONFIG_LOAD_PPC_KEYS                            policy<{'ppc64el': 'y'}>
 CONFIG_IMA_KEYRINGS_PERMIT_SIGNED_BY_BUILTIN_OR_SECONDARY policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'i386': 'n', 'ppc64el': 'n', 'riscv64': 'n', 's390x': 'n'}>
 #
 CONFIG_INTEGRITY_PLATFORM_KEYRING               mark<ENFORCED> note<Required for lockdown>
 CONFIG_IMA_KEYRINGS_PERMIT_SIGNED_BY_BUILTIN_OR_SECONDARY mark<ENFORCED> note<LP:1667490>
+CONFIG_LOAD_PPC_KEYS                            mark<ENFORCED> note<LP:1866909>
 
 # Menu: Security options >> Enable different security models >> Integrity subsystem >> Integrity Measurement Architecture(IMA)
 CONFIG_IMA                                      policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'ppc64el': 'y', 'riscv64': 'y', 's390x': 'y'}>
 CONFIG_IMA_KEXEC                                policy<{'ppc64el': 'y'}>
 CONFIG_IMA_WRITE_POLICY                         policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'i386': 'n', 'ppc64el': 'n', 'riscv64': 'n', 's390x': 'n'}>
-CONFIG_IMA_READ_POLICY                          policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'i386': 'n', 'ppc64el': 'n', 'riscv64': 'n', 's390x': 'n'}>
+CONFIG_IMA_READ_POLICY                          policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'i386': 'n', 'ppc64el': 'y', 'riscv64': 'n', 's390x': 'n'}>
 #
 CONFIG_IMA                                      mark<ENFORCED> note<LP:1643652>
 CONFIG_IMA_KEXEC                                mark<ENFORCED> note<LP:1643652>
 CONFIG_IMA_WRITE_POLICY                         mark<ENFORCED> note<LP:1667490>
-CONFIG_IMA_READ_POLICY                          mark<ENFORCED> note<LP:1667490>
+CONFIG_IMA_READ_POLICY                          mark<ENFORCED> note<LP:1667490> note<LP:1866909>
 
 # Menu: Security options >> Enable different security models >> Integrity subsystem >> Integrity Measurement Architecture(IMA) >> Appraise integrity measurements
 CONFIG_IMA_APPRAISE                             policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'ppc64el': 'y', 'riscv64': 'y', 's390x': 'y'}>
-CONFIG_IMA_ARCH_POLICY                          policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'i386': 'n', 'ppc64el': 'n', 'riscv64': 'n', 's390x': 'n'}>
-CONFIG_IMA_APPRAISE_BOOTPARAM                   policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'ppc64el': 'y', 'riscv64': 'y', 's390x': 'y'}>
+CONFIG_IMA_ARCH_POLICY                          policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'i386': 'n', 'ppc64el': 'y', 'riscv64': 'n', 's390x': 'n'}>
+CONFIG_IMA_APPRAISE_BOOTPARAM                   policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'riscv64': 'y', 's390x': 'y'}>
 CONFIG_IMA_APPRAISE_MODSIG                      policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'ppc64el': 'y', 'riscv64': 'y', 's390x': 'y'}>
 CONFIG_IMA_TRUSTED_KEYRING                      policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'ppc64el': 'y', 'riscv64': 'y', 's390x': 'y'}>
 CONFIG_IMA_BLACKLIST_KEYRING                    policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'i386': 'n', 'ppc64el': 'n', 'riscv64': 'n', 's390x': 'n'}>
@@ -12906,6 +12912,7 @@ CONFIG_IMA_BLACKLIST_KEYRING                    mark<ENFORCED> note<LP:1667490>
 CONFIG_IMA_LOAD_X509                            mark<ENFORCED> note<LP:1643652>
 CONFIG_IMA_X509_PATH                            mark<ENFORCED> note<LP:1643652>
 CONFIG_IMA_APPRAISE_SIGNED_INIT                 mark<ENFORCED> note<LP:1667490>
+CONFIG_IMA_ARCH_POLICY                          mark<ENFORCED> note<LP:1866909>
 
 # Menu: Security options >> Enable different security models >> Integrity subsystem >> Integrity Measurement Architecture(IMA) >> Appraise integrity measurements >> IMA build time configured policy rules
 CONFIG_IMA_APPRAISE_BUILD_POLICY                policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'i386': 'n', 'ppc64el': 'n', 'riscv64': 'n', 's390x': 'n'}>
