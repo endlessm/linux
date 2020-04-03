@@ -1345,6 +1345,13 @@ EXPORT_SYMBOL drivers/infiniband/core/ib_core 0x00000000	rdma_rw_ctx_wrs
 EXPORT_SYMBOL drivers/infiniband/core/ib_core 0x00000000	rdma_rw_mr_factor	
 EXPORT_SYMBOL drivers/infiniband/core/ib_core 0x00000000	rdma_set_cq_moderation	
 EXPORT_SYMBOL drivers/infiniband/core/ib_core 0x00000000	rdma_translate_ip	
+EXPORT_SYMBOL drivers/infiniband/core/ib_core 0x00000000	rdma_umap_priv_init	
+EXPORT_SYMBOL drivers/infiniband/core/ib_core 0x00000000	rdma_user_mmap_entry_get	
+EXPORT_SYMBOL drivers/infiniband/core/ib_core 0x00000000	rdma_user_mmap_entry_get_pgoff	
+EXPORT_SYMBOL drivers/infiniband/core/ib_core 0x00000000	rdma_user_mmap_entry_insert	
+EXPORT_SYMBOL drivers/infiniband/core/ib_core 0x00000000	rdma_user_mmap_entry_put	
+EXPORT_SYMBOL drivers/infiniband/core/ib_core 0x00000000	rdma_user_mmap_entry_remove	
+EXPORT_SYMBOL drivers/infiniband/core/ib_core 0x00000000	rdma_user_mmap_io	
 EXPORT_SYMBOL drivers/infiniband/core/ib_core 0x00000000	roce_gid_type_mask_support	
 EXPORT_SYMBOL drivers/infiniband/core/ib_core 0x00000000	zgid	
 EXPORT_SYMBOL drivers/infiniband/core/ib_uverbs 0x00000000	_uverbs_alloc	
@@ -1368,7 +1375,6 @@ EXPORT_SYMBOL drivers/infiniband/core/ib_uverbs 0x00000000	ib_umem_page_count
 EXPORT_SYMBOL drivers/infiniband/core/ib_uverbs 0x00000000	ib_umem_release	
 EXPORT_SYMBOL drivers/infiniband/core/ib_uverbs 0x00000000	ib_uverbs_flow_resources_free	
 EXPORT_SYMBOL drivers/infiniband/core/ib_uverbs 0x00000000	ib_uverbs_get_ucontext_file	
-EXPORT_SYMBOL drivers/infiniband/core/ib_uverbs 0x00000000	rdma_user_mmap_io	
 EXPORT_SYMBOL drivers/infiniband/core/ib_uverbs 0x00000000	uverbs_close_fd	
 EXPORT_SYMBOL drivers/infiniband/core/ib_uverbs 0x00000000	uverbs_copy_to	
 EXPORT_SYMBOL drivers/infiniband/core/ib_uverbs 0x00000000	uverbs_destroy_def_handler	
@@ -3298,6 +3304,7 @@ EXPORT_SYMBOL drivers/net/wireless/realtek/rtlwifi/rtlwifi 0x00000000	rtl_signal
 EXPORT_SYMBOL drivers/net/wireless/realtek/rtlwifi/rtlwifi 0x00000000	rtl_wowlan_fw_cb	
 EXPORT_SYMBOL drivers/net/wireless/realtek/rtlwifi/rtlwifi 0x00000000	rtlwifi_rate_mapping	
 EXPORT_SYMBOL drivers/net/wireless/realtek/rtw88/rtw88 0x00000000	__rtw_dbg	
+EXPORT_SYMBOL drivers/net/wireless/realtek/rtw88/rtw88 0x00000000	rtw8723d_hw_spec	
 EXPORT_SYMBOL drivers/net/wireless/realtek/rtw88/rtw88 0x00000000	rtw8822b_hw_spec	
 EXPORT_SYMBOL drivers/net/wireless/realtek/rtw88/rtw88 0x00000000	rtw8822c_hw_spec	
 EXPORT_SYMBOL drivers/net/wireless/realtek/rtw88/rtw88 0x00000000	rtw_chip_info_setup	
@@ -3305,11 +3312,15 @@ EXPORT_SYMBOL drivers/net/wireless/realtek/rtw88/rtw88 0x00000000	rtw_core_deini
 EXPORT_SYMBOL drivers/net/wireless/realtek/rtw88/rtw88 0x00000000	rtw_core_init	
 EXPORT_SYMBOL drivers/net/wireless/realtek/rtw88/rtw88 0x00000000	rtw_debug_mask	
 EXPORT_SYMBOL drivers/net/wireless/realtek/rtw88/rtw88 0x00000000	rtw_fw_c2h_cmd_rx_irqsafe	
+EXPORT_SYMBOL drivers/net/wireless/realtek/rtw88/rtw88 0x00000000	rtw_fw_lps_deep_mode	
 EXPORT_SYMBOL drivers/net/wireless/realtek/rtw88/rtw88 0x00000000	rtw_ops	
+EXPORT_SYMBOL drivers/net/wireless/realtek/rtw88/rtw88 0x00000000	rtw_power_mode_change	
 EXPORT_SYMBOL drivers/net/wireless/realtek/rtw88/rtw88 0x00000000	rtw_register_hw	
 EXPORT_SYMBOL drivers/net/wireless/realtek/rtw88/rtw88 0x00000000	rtw_rx_stats	
 EXPORT_SYMBOL drivers/net/wireless/realtek/rtw88/rtw88 0x00000000	rtw_tx_fill_tx_desc	
 EXPORT_SYMBOL drivers/net/wireless/realtek/rtw88/rtw88 0x00000000	rtw_tx_report_enqueue	
+EXPORT_SYMBOL drivers/net/wireless/realtek/rtw88/rtw88 0x00000000	rtw_tx_write_data_h2c_get	
+EXPORT_SYMBOL drivers/net/wireless/realtek/rtw88/rtw88 0x00000000	rtw_tx_write_data_rsvd_page_get	
 EXPORT_SYMBOL drivers/net/wireless/realtek/rtw88/rtw88 0x00000000	rtw_unregister_hw	
 EXPORT_SYMBOL drivers/net/wireless/rsi/rsi_91x 0x00000000	rsi_config_wowlan	
 EXPORT_SYMBOL drivers/net/wireless/ti/wlcore/wlcore 0x00000000	wl1271_free_tx_id	
@@ -8023,6 +8034,7 @@ EXPORT_SYMBOL vmlinux 0x00000000	memdup_user_nul
 EXPORT_SYMBOL vmlinux 0x00000000	memmove	
 EXPORT_SYMBOL vmlinux 0x00000000	memory_cgrp_subsys	
 EXPORT_SYMBOL vmlinux 0x00000000	memory_read_from_buffer	
+EXPORT_SYMBOL vmlinux 0x00000000	memory_read_from_io_buffer	
 EXPORT_SYMBOL vmlinux 0x00000000	memparse	
 EXPORT_SYMBOL vmlinux 0x00000000	mempool_alloc	
 EXPORT_SYMBOL vmlinux 0x00000000	mempool_alloc_pages	

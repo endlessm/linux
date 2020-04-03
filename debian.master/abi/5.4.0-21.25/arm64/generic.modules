@@ -1884,6 +1884,7 @@ hisi-rng
 hisi-sfc
 hisi-trng-v2
 hisi504_nand
+hisi_dma
 hisi_femac
 hisi_hpre
 hisi_powerkey

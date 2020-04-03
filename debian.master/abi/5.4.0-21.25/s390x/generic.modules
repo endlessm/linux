@@ -635,7 +635,6 @@ pkcs7_test_key
 pkcs8_key_parser
 pkey
 pktgen
-pm-notifier-error-inject
 pnet
 poly1305_generic
 pps_core
