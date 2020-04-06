@@ -10,8 +10,6 @@ arm64	-		generic		-				-	-
 
 ppc64el	-		generic		-				-	-
 
-riscv64	-		generic		-				-	-
-
 s390x	-		generic		-				-	-
 
 # Ports
