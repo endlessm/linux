@@ -65,6 +65,11 @@
 	le32p_replace_bits((__le32 *)(txdesc) + 0x03, value, GENMASK(7, 6))
 #define SET_TX_DESC_BT_NULL(txdesc, value)				       \
 	le32p_replace_bits((__le32 *)(txdesc) + 0x02, value, BIT(23))
+#define SET_TX_DESC_RETRY_LIMIT_ENABLE(txdesc, value)			       \
+	le32p_replace_bits((__le32 *)(txdesc) + 0x04, value, BIT(17))
+#define SET_TX_DESC_DATA_RETRY_LIMIT(txdesc, value)			       \
+	le32p_replace_bits((__le32 *)(txdesc) + 0x04, value, GENMASK(23, 18))
+
 
 enum rtw_tx_desc_queue_select {
 	TX_DESC_QSEL_TID0	= 0,

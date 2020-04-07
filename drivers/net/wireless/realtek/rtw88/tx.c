@@ -64,6 +64,11 @@ void rtw_tx_fill_tx_desc(struct rtw_tx_pkt_info *pkt_info, struct sk_buff *skb)
 	SET_TX_DESC_EN_HWEXSEQ(txdesc, pkt_info->en_hw_exseq);
 	SET_TX_DESC_HW_SSN_SEL(txdesc, pkt_info->hw_ssn_sel);
 	SET_TX_DESC_BT_NULL(txdesc, pkt_info->bt_null);
+
+	if (pkt_info->no_retry) {
+		SET_TX_DESC_RETRY_LIMIT_ENABLE(txdesc, 1);
+		SET_TX_DESC_DATA_RETRY_LIMIT(txdesc, 0);
+	}
 }
 EXPORT_SYMBOL(rtw_tx_fill_tx_desc);
 
@@ -373,6 +378,11 @@ void rtw_tx_pkt_info_update(struct rtw_dev *rtwdev,
 
 	bmc = is_broadcast_ether_addr(hdr->addr1) ||
 	      is_multicast_ether_addr(hdr->addr1);
+
+	if (info->flags & IEEE80211_TX_INTFL_MLME_CONN_TX) {
+		info->flags &= ~IEEE80211_TX_CTL_REQ_TX_STATUS;	// no report
+		pkt_info->no_retry = true;	// don't re-tx
+	}
 
 	if (info->flags & IEEE80211_TX_CTL_REQ_TX_STATUS)
 		rtw_tx_report_enable(rtwdev, pkt_info);

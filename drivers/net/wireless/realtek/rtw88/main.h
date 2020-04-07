@@ -600,6 +600,7 @@ struct rtw_tx_pkt_info {
 	u8 hw_ssn_sel;
 	bool en_hw_exseq;
 	bool bt_null;
+	bool no_retry;
 };
 
 struct rtw_rx_pkt_stat {
