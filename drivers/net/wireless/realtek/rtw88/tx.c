@@ -376,6 +376,11 @@ void rtw_tx_pkt_info_update(struct rtw_dev *rtwdev,
 	else if (ieee80211_is_data(fc))
 		rtw_tx_data_pkt_info_update(rtwdev, pkt_info, control, skb);
 
+	if (rtwdev->fix_rate_count) {
+		rtwdev->fix_rate_count--;
+		rtw_tx_pkt_info_update_rate(rtwdev, pkt_info, skb);
+	}
+
 	bmc = is_broadcast_ether_addr(hdr->addr1) ||
 	      is_multicast_ether_addr(hdr->addr1);
 

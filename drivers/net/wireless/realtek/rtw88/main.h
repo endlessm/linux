@@ -1761,6 +1761,8 @@ struct rtw_dev {
 
 	struct rtw_sar sar;
 
+	u32 fix_rate_count;
+
 	/* hci related data, must be last */
 	u8 priv[0] __aligned(sizeof(void *));
 };
