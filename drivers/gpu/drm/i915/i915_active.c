@@ -149,8 +149,22 @@ __active_retire(struct i915_active *ref, bool lock)
 	}
 
 	/* After the final retire, the entire struct may be freed */
-	if (ref->retire)
-		ref->retire(ref);
+	if (ref->retire) {
+		if (ref->active) {
+			bool freed = false;
+
+			/* Don't race with the active callback, and avoid UaF */
+			down_write(&ref->rwsem);
+			ref->freed = &freed;
+			ref->retire(ref);
+			if (!freed) {
+				ref->freed = NULL;
+				up_write(&ref->rwsem);
+			}
+		} else {
+			ref->retire(ref);
+		}
+	}
 }
 
 static void
@@ -241,7 +255,8 @@ void __i915_active_init(struct drm_i915_private *i915,
 			struct i915_active *ref,
 			int (*active)(struct i915_active *ref),
 			void (*retire)(struct i915_active *ref),
-			struct lock_class_key *key)
+			struct lock_class_key *key,
+			struct lock_class_key *rkey)
 {
 	debug_active_init(ref);
 
@@ -254,6 +269,9 @@ void __i915_active_init(struct drm_i915_private *i915,
 	init_llist_head(&ref->preallocated_barriers);
 	atomic_set(&ref->count, 0);
 	__mutex_init(&ref->mutex, "i915_active", key);
+	ref->freed = NULL;
+	if (ref->active && ref->retire)
+		__init_rwsem(&ref->rwsem, "i915_active.rwsem", rkey);
 }
 
 static bool ____active_del_barrier(struct i915_active *ref,
@@ -357,8 +375,20 @@ int i915_active_acquire(struct i915_active *ref)
 	if (err)
 		return err;
 
-	if (!atomic_read(&ref->count) && ref->active)
-		err = ref->active(ref);
+	if (!atomic_read(&ref->count) && ref->active) {
+		if (ref->retire) {
+			/*
+			 * This can be a recursive call, and the mutex above
+			 * already protects from concurrent active callbacks, so
+			 * a read lock fits best.
+			 */
+			down_read(&ref->rwsem);
+			err = ref->active(ref);
+			up_read(&ref->rwsem);
+		} else {
+			err = ref->active(ref);
+		}
+	}
 	if (!err) {
 		debug_active_activate(ref);
 		atomic_inc(&ref->count);
@@ -482,15 +512,19 @@ int i915_request_await_active(struct i915_request *rq, struct i915_active *ref)
 	return err;
 }
 
-#if IS_ENABLED(CONFIG_DRM_I915_DEBUG_GEM)
 void i915_active_fini(struct i915_active *ref)
 {
+	if (ref->freed) {
+		*ref->freed = true;
+		up_write(&ref->rwsem);
+	}
+#if IS_ENABLED(CONFIG_DRM_I915_DEBUG_GEM)
 	debug_active_fini(ref);
 	GEM_BUG_ON(!RB_EMPTY_ROOT(&ref->tree));
 	GEM_BUG_ON(atomic_read(&ref->count));
 	mutex_destroy(&ref->mutex);
-}
 #endif
+}
 
 static inline bool is_idle_barrier(struct active_node *node, u64 idx)
 {

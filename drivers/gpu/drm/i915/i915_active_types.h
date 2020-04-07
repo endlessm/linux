@@ -12,6 +12,7 @@
 #include <linux/mutex.h>
 #include <linux/rbtree.h>
 #include <linux/rcupdate.h>
+#include <linux/rwsem.h>
 
 struct drm_i915_private;
 struct i915_active_request;
@@ -50,6 +51,8 @@ struct i915_active {
 	struct rb_root tree;
 	struct mutex mutex;
 	atomic_t count;
+	struct rw_semaphore rwsem;
+	bool *freed;
 
 	unsigned long flags;
 #define I915_ACTIVE_GRAB_BIT 0
