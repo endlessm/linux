@@ -410,6 +410,16 @@ void rtw_set_channel(struct rtw_dev *rtwdev)
 	}
 
 	rtw_phy_set_tx_power_level(rtwdev, center_chan);
+
+	/* 11N chip uses driver IQK that takes lot of time, so move here
+	 * to avoid interferencing 4 way handshake.
+	 */
+	if (rtw_chip_wcpu_11n(rtwdev) &&
+	    !(hw->conf.flags & IEEE80211_CONF_IDLE) &&
+	    !test_bit(RTW_FLAG_SCANNING, rtwdev->flags) &&
+	    !test_bit(RTW_FLAG_INACTIVE_PS, rtwdev->flags)) {
+		rtwdev->need_rfk = true;
+	}
 }
 
 static void rtw_vif_write_addr(struct rtw_dev *rtwdev, u32 start, u8 *addr)

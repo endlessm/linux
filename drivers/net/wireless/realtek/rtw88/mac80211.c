@@ -347,7 +347,8 @@ static void rtw_ops_bss_info_changed(struct ieee80211_hw *hw,
 		if (conf->assoc) {
 			rtw_coex_connect_notify(rtwdev, COEX_ASSOCIATE_FINISH);
 			net_type = RTW_NET_MGD_LINKED;
-			chip->ops->phy_calibration(rtwdev);
+			if (!rtw_chip_wcpu_11n(rtwdev))
+				chip->ops->phy_calibration(rtwdev);
 
 			rtwvif->aid = conf->aid;
 			rtw_fw_download_rsvd_page(rtwdev);

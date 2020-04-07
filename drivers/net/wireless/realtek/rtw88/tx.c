@@ -387,6 +387,11 @@ void rtw_tx_pkt_info_update(struct rtw_dev *rtwdev,
 	if (info->flags & IEEE80211_TX_INTFL_MLME_CONN_TX) {
 		info->flags &= ~IEEE80211_TX_CTL_REQ_TX_STATUS;	// no report
 		pkt_info->no_retry = true;	// don't re-tx
+
+		if (rtwdev->need_rfk) {
+			rtwdev->need_rfk = false;
+			chip->ops->phy_calibration(rtwdev);
+		}
 	}
 
 	if (info->flags & IEEE80211_TX_CTL_REQ_TX_STATUS)
