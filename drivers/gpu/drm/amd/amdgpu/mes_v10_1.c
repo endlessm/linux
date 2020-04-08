@@ -29,8 +29,6 @@
 #include "gc/gc_10_1_0_offset.h"
 #include "gc/gc_10_1_0_sh_mask.h"
 
-MODULE_FIRMWARE("amdgpu/navi10_mes.bin");
-
 static int mes_v10_1_add_hw_queue(struct amdgpu_mes *mes,
 				  struct mes_add_queue_input *input)
 {

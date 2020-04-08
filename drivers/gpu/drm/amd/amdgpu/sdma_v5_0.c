@@ -48,9 +48,6 @@ MODULE_FIRMWARE("amdgpu/navi10_sdma1.bin");
 MODULE_FIRMWARE("amdgpu/navi14_sdma.bin");
 MODULE_FIRMWARE("amdgpu/navi14_sdma1.bin");
 
-MODULE_FIRMWARE("amdgpu/navi12_sdma.bin");
-MODULE_FIRMWARE("amdgpu/navi12_sdma1.bin");
-
 #define SDMA1_REG_OFFSET 0x600
 #define SDMA0_HYP_DEC_REG_START 0x5880
 #define SDMA0_HYP_DEC_REG_END 0x5893

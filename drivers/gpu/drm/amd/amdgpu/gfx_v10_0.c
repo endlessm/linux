@@ -82,13 +82,6 @@ MODULE_FIRMWARE("amdgpu/navi14_mec.bin");
 MODULE_FIRMWARE("amdgpu/navi14_mec2.bin");
 MODULE_FIRMWARE("amdgpu/navi14_rlc.bin");
 
-MODULE_FIRMWARE("amdgpu/navi12_ce.bin");
-MODULE_FIRMWARE("amdgpu/navi12_pfp.bin");
-MODULE_FIRMWARE("amdgpu/navi12_me.bin");
-MODULE_FIRMWARE("amdgpu/navi12_mec.bin");
-MODULE_FIRMWARE("amdgpu/navi12_mec2.bin");
-MODULE_FIRMWARE("amdgpu/navi12_rlc.bin");
-
 static const struct soc15_reg_golden golden_settings_gc_10_1[] =
 {
 	SOC15_REG_GOLDEN_VALUE(GC, 0, mmCB_HW_CONTROL_4, 0xffffffff, 0x00400014),
