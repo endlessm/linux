@@ -13376,8 +13376,6 @@ CONFIG_APPLDATA_NET_SUM                         policy<{'s390x': 'm'}>
 
 ## v- UNMATCHED CONFIGS
 
-CONFIG_HEADER_TEST                              policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'i386': 'n', 'ppc64el': 'n', 's390x': 'n'}>
-
 ## ^- UNMATCHED CONFIGS
 
 
