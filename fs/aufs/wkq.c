@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0
 /*
- * Copyright (C) 2005-2019 Junjiro R. Okajima
+ * Copyright (C) 2005-2020 Junjiro R. Okajima
  *
  * This program, aufs is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -153,8 +153,8 @@ static int au_wkq_lockdep_alloc(struct au_wkinfo *wkinfo)
 		goto out;
 
 	err = 0;
-#if 0
-	if (0 && au_debug_test()) /* left for debugging */
+#if 0 /* left for debugging */
+	if (0 && au_debug_test())
 		lockdep_print_held_locks(curr);
 #endif
 	held_locks = curr->held_locks;
@@ -231,7 +231,6 @@ static void wkq_func(struct work_struct *wk)
 /*
  * Since struct completion is large, try allocating it dynamically.
  */
-#if 1 /* defined(CONFIG_4KSTACKS) || defined(AuTest4KSTACKS) */
 #define AuWkqCompDeclare(name)	struct completion *comp = NULL
 
 static int au_wkq_comp_alloc(struct au_wkinfo *wkinfo, struct completion **comp)
@@ -249,25 +248,6 @@ static void au_wkq_comp_free(struct completion *comp)
 {
 	au_kfree_rcu(comp);
 }
-
-#else
-
-/* no braces */
-#define AuWkqCompDeclare(name) \
-	DECLARE_COMPLETION_ONSTACK(_ ## name); \
-	struct completion *comp = &_ ## name
-
-static int au_wkq_comp_alloc(struct au_wkinfo *wkinfo, struct completion **comp)
-{
-	wkinfo->comp = *comp;
-	return 0;
-}
-
-static void au_wkq_comp_free(struct completion *comp __maybe_unused)
-{
-	/* empty */
-}
-#endif /* 4KSTACKS */
 
 static void au_wkq_run(struct au_wkinfo *wkinfo)
 {

@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0
 /*
- * Copyright (C) 2005-2019 Junjiro R. Okajima
+ * Copyright (C) 2005-2020 Junjiro R. Okajima
  *
  * This program, aufs is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -415,7 +415,7 @@ static int do_rename(struct au_ren_args *a)
 	}
 
 	BUG_ON(d_is_positive(a->dst_h_dentry) && a->src_btop != a->btgt);
-#if 0
+#if 0 /* debugging */
 	BUG_ON(!au_ftest_ren(a->auren_flags, DIRREN)
 	       && d_is_positive(a->dst_h_dentry)
 	       && a->src_btop != a->btgt);

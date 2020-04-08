@@ -507,7 +507,7 @@ vfs_readf_t vfs_readf(struct file *file)
 		return fop->read;
 	if (fop->read_iter)
 		return new_sync_read;
-	return ERR_PTR(-ENOSYS);
+	return ERR_PTR(-ENOSYS); /* doesn't have ->read(|_iter)() op */
 }
 EXPORT_SYMBOL_GPL(vfs_readf);
 
@@ -519,7 +519,7 @@ vfs_writef_t vfs_writef(struct file *file)
 		return fop->write;
 	if (fop->write_iter)
 		return new_sync_write;
-	return ERR_PTR(-ENOSYS);
+	return ERR_PTR(-ENOSYS); /* doesn't have ->write(|_iter)() op */
 }
 EXPORT_SYMBOL_GPL(vfs_writef);
 

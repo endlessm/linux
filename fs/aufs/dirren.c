@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0
 /*
- * Copyright (C) 2017-2019 Junjiro R. Okajima
+ * Copyright (C) 2017-2020 Junjiro R. Okajima
  *
  * This program, aufs is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -81,7 +81,7 @@ int au_dr_hino_test_add(struct au_dr_br *dr, ino_t ino,
 	found = 0;
 	idx = au_dr_ihash(ino);
 	hbl = dr->dr_h_ino + idx;
-#if 0
+#if 0 /* debug print */
 	{
 		struct hlist_bl_node *tmp;
 
@@ -1215,8 +1215,8 @@ int au_dr_lkup_name(struct au_do_lookup_args *lkup, aufs_bindex_t btgt)
 	err = 0;
 	if (!lkup->dirren.drinfo)
 		goto out;
-	AuDebugOn(lkup->dirren.ninfo < btgt + 1);
-	drinfo = lkup->dirren.drinfo[btgt + 1];
+	AuDebugOn(lkup->dirren.ninfo <= btgt);
+	drinfo = lkup->dirren.drinfo[btgt];
 	if (!drinfo)
 		goto out;
 
@@ -1245,8 +1245,8 @@ int au_dr_lkup_h_ino(struct au_do_lookup_args *lkup, aufs_bindex_t bindex,
 	match = 1;
 	if (!lkup->dirren.drinfo)
 		goto out;
-	AuDebugOn(lkup->dirren.ninfo < bindex + 1);
-	drinfo = lkup->dirren.drinfo[bindex + 1];
+	AuDebugOn(lkup->dirren.ninfo <= bindex);
+	drinfo = lkup->dirren.drinfo[bindex];
 	if (!drinfo)
 		goto out;
 

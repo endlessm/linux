@@ -272,7 +272,8 @@ optional. When you meet some problems, they will help you.
   the internal locks for LOCKDEP is necessary. LOCKDEP is a debugging
   feature of linux kernel. If you enable CONFIG_LOCKDEP, then you will
   need to apply this debug patch to expand several constant values.
-  If don't know what LOCKDEP is, then you don't have apply this patch.
+  If you don't know what LOCKDEP is, then you don't have apply this
+  patch.
 
 
 4. Usage
@@ -322,6 +323,7 @@ know with:
   system, instead of the date you downloaded.
 - configuration (define/undefine CONFIG_AUFS_xxx)
 - kernel configuration or /proc/config.gz (if you have it)
+- LSM (linux security module, if you are using)
 - behaviour which you think to be incorrect
 - actual operation, reproducible one is better
 - mailto: aufs-users at lists.sourceforge.net

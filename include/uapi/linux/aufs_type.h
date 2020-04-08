@@ -1,6 +1,6 @@
 /* SPDX-License-Identifier: GPL-2.0 WITH Linux-syscall-note */
 /*
- * Copyright (C) 2005-2019 Junjiro R. Okajima
+ * Copyright (C) 2005-2020 Junjiro R. Okajima
  *
  * This program, aufs is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -33,20 +33,21 @@
 #define pr_fmt(fmt) \
 		AUFS_NAME " %s:%d:%.*s[%d]: " fmt, __func__, __LINE__, \
 		(int)sizeof(current->comm), current->comm, current->pid
+#include <linux/limits.h>
 #else
 #include <stdint.h>
 #include <sys/types.h>
+#include <limits.h>
 #endif /* __KERNEL__ */
 
-#include <linux/limits.h>
-
-#define AUFS_VERSION	"5.x-rcN-20191021"
+#define AUFS_VERSION	"5.4.3-20200302"
 
 /* todo? move this to linux-2.6.19/include/magic.h */
 #define AUFS_SUPER_MAGIC	('a' << 24 | 'u' << 16 | 'f' << 8 | 's')
 
 /* ---------------------------------------------------------------------- */
 
+#ifdef __KERNEL__
 #ifdef CONFIG_AUFS_BRANCH_MAX_127
 typedef int8_t aufs_bindex_t;
 #define AUFS_BRANCH_MAX 127
@@ -61,7 +62,6 @@ typedef int16_t aufs_bindex_t;
 #endif
 #endif
 
-#ifdef __KERNEL__
 #ifndef AUFS_BRANCH_MAX
 #error unknown CONFIG_AUFS_BRANCH_MAX value
 #endif

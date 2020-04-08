@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0
 /*
- * Copyright (C) 2005-2019 Junjiro R. Okajima
+ * Copyright (C) 2005-2020 Junjiro R. Okajima
  *
  * This program, aufs is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -95,7 +95,7 @@ int au_nhash_alloc(struct au_nhash *nhash, unsigned int num_hash, gfp_t gfp)
 
 static void nhash_count(struct hlist_head *head)
 {
-#if 0
+#if 0 /* debugging */
 	unsigned long n;
 	struct hlist_node *pos;
 

@@ -1,6 +1,6 @@
 /* SPDX-License-Identifier: GPL-2.0 */
 /*
- * Copyright (C) 2005-2019 Junjiro R. Okajima
+ * Copyright (C) 2005-2020 Junjiro R. Okajima
  *
  * This program, aufs is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -179,7 +179,7 @@ struct au_sbinfo {
 	struct hlist_bl_head	si_files;
 
 	/* with/without getattr, brother of sb->s_d_op */
-	struct inode_operations *si_iop_array;
+	const struct inode_operations *si_iop_array;
 
 	/*
 	 * sysfs and lifetime management.

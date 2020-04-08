@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0
 /*
- * Copyright (C) 2005-2019 Junjiro R. Okajima
+ * Copyright (C) 2005-2020 Junjiro R. Okajima
  *
  * This program, aufs is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -246,7 +246,7 @@ static int aufs_show_options(struct seq_file *m, struct dentry *dentry)
 	sb = dentry->d_sb;
 	if (sb->s_flags & SB_POSIXACL)
 		seq_puts(m, ",acl");
-#if 0
+#if 0 /* reserved for future use */
 	if (sb->s_flags & SB_I_VERSION)
 		seq_puts(m, ",i_version");
 #endif

@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0
 /*
- * Copyright (C) 2005-2019 Junjiro R. Okajima
+ * Copyright (C) 2005-2020 Junjiro R. Okajima
  *
  * This program, aufs is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -34,6 +34,7 @@ static void sysrq_sb(struct super_block *sb)
 	struct hlist_bl_head *files;
 	struct hlist_bl_node *pos;
 	struct au_finfo *finfo;
+	struct inode *i;
 
 	plevel = au_plevel;
 	au_plevel = KERN_WARNING;
@@ -46,14 +47,7 @@ static void sysrq_sb(struct super_block *sb)
 	pr("superblock\n");
 	au_dpri_sb(sb);
 
-#if 0
-	pr("root dentry\n");
-	au_dpri_dentry(sb->s_root);
-	pr("root inode\n");
-	au_dpri_inode(d_inode(sb->s_root));
-#endif
-
-#if 0
+#if 0 /* reserved */
 	do {
 		int err, i, j, ndentry;
 		struct au_dcsub_pages dpages;
@@ -74,21 +68,16 @@ static void sysrq_sb(struct super_block *sb)
 	} while (0);
 #endif
 
-#if 1
-	{
-		struct inode *i;
-
-		pr("isolated inode\n");
-		spin_lock(&sb->s_inode_list_lock);
-		list_for_each_entry(i, &sb->s_inodes, i_sb_list) {
-			spin_lock(&i->i_lock);
-			if (1 || hlist_empty(&i->i_dentry))
-				au_dpri_inode(i);
-			spin_unlock(&i->i_lock);
-		}
-		spin_unlock(&sb->s_inode_list_lock);
+	pr("isolated inode\n");
+	spin_lock(&sb->s_inode_list_lock);
+	list_for_each_entry(i, &sb->s_inodes, i_sb_list) {
+		spin_lock(&i->i_lock);
+		if (hlist_empty(&i->i_dentry))
+			au_dpri_inode(i);
+		spin_unlock(&i->i_lock);
 	}
-#endif
+	spin_unlock(&sb->s_inode_list_lock);
+
 	pr("files\n");
 	files = &au_sbi(sb)->si_files;
 	hlist_bl_lock(files);

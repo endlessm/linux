@@ -32,7 +32,7 @@
 
 #define SETFL_MASK (O_APPEND | O_NONBLOCK | O_NDELAY | O_DIRECT | O_NOATIME)
 
-int setfl(int fd, struct file * filp, unsigned long arg)
+int setfl(int fd, struct file *filp, unsigned long arg)
 {
 	struct inode * inode = file_inode(filp);
 	int error = 0;

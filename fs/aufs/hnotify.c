@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0
 /*
- * Copyright (C) 2005-2019 Junjiro R. Okajima
+ * Copyright (C) 2005-2020 Junjiro R. Okajima
  *
  * This program, aufs is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -182,12 +182,6 @@ static int hn_gen_tree(struct dentry *dentry)
 
 out_dpages:
 	au_dpages_free(&dpages);
-
-#if 0
-	/* discard children */
-	dentry_unhash(dentry);
-	dput(dentry);
-#endif
 out:
 	return err;
 }

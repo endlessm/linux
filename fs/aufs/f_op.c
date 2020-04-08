@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0
 /*
- * Copyright (C) 2005-2019 Junjiro R. Okajima
+ * Copyright (C) 2005-2020 Junjiro R. Okajima
  *
  * This program, aufs is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -330,7 +330,7 @@ static ssize_t au_do_iter(struct file *h_file, int rw, struct kiocb *kio,
 	if (unlikely(err))
 		goto out;
 
-	err = -ENOSYS;
+	err = -ENOSYS;	/* the branch doesn't have its ->(read|write)_iter() */
 	iter = NULL;
 	if (rw == MAY_READ)
 		iter = h_file->f_op->read_iter;
@@ -774,7 +774,7 @@ out:
 /* ---------------------------------------------------------------------- */
 
 /* no one supports this operation, currently */
-#if 0
+#if 0 /* reserved for future use */
 static ssize_t aufs_sendpage(struct file *file, struct page *page, int offset,
 			     size_t len, loff_t *pos, int more)
 {
@@ -810,7 +810,7 @@ const struct file_operations aufs_file_fop = {
 	.setfl		= aufs_setfl,
 	.splice_write	= aufs_splice_write,
 	.splice_read	= aufs_splice_read,
-#if 0
+#if 0 /* reserved for future use */
 	.aio_splice_write = aufs_aio_splice_write,
 	.aio_splice_read  = aufs_aio_splice_read,
 #endif

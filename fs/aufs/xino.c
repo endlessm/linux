@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0
 /*
- * Copyright (C) 2005-2019 Junjiro R. Okajima
+ * Copyright (C) 2005-2020 Junjiro R. Okajima
  *
  * This program, aufs is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -1355,9 +1355,10 @@ static void au_xino_release(struct kref *kref)
 	if (unlikely(ul)) {
 		pr_warn("xi_writing %lu\n", ul);
 		hlist_bl_lock(hbl);
-		hlist_bl_for_each_entry_safe (p, pos, n, hbl, node) {
+		hlist_bl_for_each_entry_safe(p, pos, n, hbl, node) {
 			hlist_bl_del(&p->node);
-			au_kfree_rcu(p);
+			/* kmemleak reported au_kfree_rcu() doesn't free it */
+			kfree(p);
 		}
 		hlist_bl_unlock(hbl);
 	}

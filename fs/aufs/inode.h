@@ -1,6 +1,6 @@
 /* SPDX-License-Identifier: GPL-2.0 */
 /*
- * Copyright (C) 2005-2019 Junjiro R. Okajima
+ * Copyright (C) 2005-2020 Junjiro R. Okajima
  *
  * This program, aufs is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -157,7 +157,7 @@ enum {
 	AuIop_OTHER,
 	AuIop_Last
 };
-extern struct inode_operations aufs_iop[AuIop_Last],
+extern struct inode_operations aufs_iop[AuIop_Last], /* not const */
 	aufs_iop_nogetattr[AuIop_Last];
 
 /* au_wr_dir flags */

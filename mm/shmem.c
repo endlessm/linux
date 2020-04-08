@@ -110,7 +110,7 @@ struct shmem_falloc {
 
 struct shmem_options {
 	unsigned long long blocks;
-	unsigned long long inodes;
+	int inodes;
 	struct mempolicy *mpol;
 	kuid_t uid;
 	kgid_t gid;
@@ -3671,6 +3671,8 @@ static int shmem_fill_super(struct super_block *sb, struct fs_context *fc)
 #else
 	sb->s_flags |= SB_NOUSER;
 #endif
+	mutex_init(&sbinfo->idr_lock);
+	idr_init(&sbinfo->idr);
 	sbinfo->max_blocks = ctx->blocks;
 	sbinfo->free_inodes = sbinfo->max_inodes = ctx->inodes;
 	sbinfo->uid = ctx->uid;
@@ -3679,9 +3681,6 @@ static int shmem_fill_super(struct super_block *sb, struct fs_context *fc)
 	sbinfo->huge = ctx->huge;
 	sbinfo->mpol = ctx->mpol;
 	ctx->mpol = NULL;
-
-	mutex_init(&sbinfo->idr_lock);
-	idr_init(&sbinfo->idr);
 
 	spin_lock_init(&sbinfo->stat_lock);
 	if (percpu_counter_init(&sbinfo->used_blocks, 0, GFP_KERNEL))

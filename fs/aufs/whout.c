@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0
 /*
- * Copyright (C) 2005-2019 Junjiro R. Okajima
+ * Copyright (C) 2005-2020 Junjiro R. Okajima
  *
  * This program, aufs is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -305,7 +305,7 @@ static int test_linkable(struct dentry *h_root)
 
 	pr_err("%pd (%s) doesn't support link(2), use noplink and rw+nolwh\n",
 	       h_root, au_sbtype(h_root->d_sb));
-	return -ENOSYS;
+	return -ENOSYS;	/* the branch doesn't have its ->link() */
 }
 
 /* todo: should this mkdir be done in /sbin/mount.aufs helper? */
