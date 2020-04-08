@@ -10,6 +10,7 @@ Build-Depends:
  kernel-wedge,
  kmod <!stage1>,
  makedumpfile [amd64] <!stage1>,
+ libcap-dev <!stage1>,
  libelf-dev <!stage1>,
  libnewt-dev <!stage1>,
  libiberty-dev <!stage1>,
