@@ -8852,7 +8852,6 @@ CONFIG_USB_CHAOSKEY                             policy<{'amd64': 'm', 'arm64': '
 CONFIG_USB_OTG                                  note<triggers breakage on x86 LP:1047527, LP:1411295>
 CONFIG_USB_OTG_WHITELIST                        note<OTG white/blacklists are disabled>
 CONFIG_USB_OTG_BLACKLIST_HUB                    note<OTG white/blacklists are disabled>
-CONFIG_USB_OTG_FSM                              note<selects USB_OTG LP:1047527, LP:1411295>>
 CONFIG_USB_HCD_BCMA                             note<USB_{O,E}HCI_HCD_PLATFORM must be off on omap>
 CONFIG_USB_HCD_SSB                              note<USB_{O,E}HCI_HCD_PLATFORM must be off on omap>
 
