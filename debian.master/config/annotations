@@ -8173,7 +8173,6 @@ CONFIG_SND_AC97_POWER_SAVE_DEFAULT              policy<{'amd64': '0', 'arm64': '
 
 # Menu: Device Drivers >> Sound card support >> Advanced Linux Sound Architecture >> HD-Audio
 CONFIG_SND_HDA_INTEL                            policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'ppc64el': 'm', }>
-CONFIG_SND_HDA_INTEL_DETECT_DMIC                policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'ppc64el': 'y', }>
 CONFIG_SND_HDA_TEGRA                            policy<{'armhf-generic': 'm'}>
 CONFIG_SND_HDA_HWDEP                            policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'ppc64el': 'y', }>
 CONFIG_SND_HDA_RECONFIG                         policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'ppc64el': 'y', }>
