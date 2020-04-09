@@ -148,8 +148,22 @@ __active_retire(struct i915_active *ref)
 	spin_unlock_irqrestore(&ref->tree_lock, flags);
 
 	/* After the final retire, the entire struct may be freed */
-	if (ref->retire)
-		ref->retire(ref);
+	if (ref->retire) {
+		if (ref->active) {
+			bool freed = false;
+
+			/* Don't race with the active callback, and avoid UaF */
+			down_write(&ref->rwsem);
+			ref->freed = &freed;
+			ref->retire(ref);
+			if (!freed) {
+				ref->freed = NULL;
+				up_write(&ref->rwsem);
+			}
+		} else {
+			ref->retire(ref);
+		}
+	}
 
 	/* ... except if you wait on it, you must manage your own references! */
 	wake_up_var(ref);
@@ -279,7 +293,8 @@ void __i915_active_init(struct i915_active *ref,
 			int (*active)(struct i915_active *ref),
 			void (*retire)(struct i915_active *ref),
 			struct lock_class_key *mkey,
-			struct lock_class_key *wkey)
+			struct lock_class_key *wkey,
+			struct lock_class_key *rkey)
 {
 	unsigned long bits;
 
@@ -288,8 +303,13 @@ void __i915_active_init(struct i915_active *ref,
 	ref->flags = 0;
 	ref->active = active;
 	ref->retire = ptr_unpack_bits(retire, &bits, 2);
-	if (bits & I915_ACTIVE_MAY_SLEEP)
+	ref->freed = NULL;
+	if (ref->active && ref->retire) {
+		__init_rwsem(&ref->rwsem, "i915_active.rwsem", rkey);
 		ref->flags |= I915_ACTIVE_RETIRE_SLEEPS;
+	} else if (bits & I915_ACTIVE_MAY_SLEEP) {
+		ref->flags |= I915_ACTIVE_RETIRE_SLEEPS;
+	}
 
 	spin_lock_init(&ref->tree_lock);
 	ref->tree = RB_ROOT;
@@ -428,8 +448,20 @@ int i915_active_acquire(struct i915_active *ref)
 		return err;
 
 	if (likely(!i915_active_acquire_if_busy(ref))) {
-		if (ref->active)
-			err = ref->active(ref);
+		if (ref->active) {
+			if (ref->retire) {
+				/*
+				 * This can be a recursive call, and the mutex
+				 * above already protects from concurrent active
+				 * callbacks, so a read lock fits best.
+				 */
+				down_read(&ref->rwsem);
+				err = ref->active(ref);
+				up_read(&ref->rwsem);
+			} else {
+				err = ref->active(ref);
+			}
+		}
 		if (!err) {
 			spin_lock_irq(&ref->tree_lock); /* __active_retire() */
 			debug_active_activate(ref);
@@ -651,16 +683,20 @@ int i915_sw_fence_await_active(struct i915_sw_fence *fence,
 	return await_active(ref, flags, sw_await_fence, fence, fence);
 }
 
-#if IS_ENABLED(CONFIG_DRM_I915_DEBUG_GEM)
 void i915_active_fini(struct i915_active *ref)
 {
+	if (ref->freed) {
+		*ref->freed = true;
+		up_write(&ref->rwsem);
+	}
+#if IS_ENABLED(CONFIG_DRM_I915_DEBUG_GEM)
 	debug_active_fini(ref);
 	GEM_BUG_ON(atomic_read(&ref->count));
 	GEM_BUG_ON(work_pending(&ref->work));
 	GEM_BUG_ON(!RB_EMPTY_ROOT(&ref->tree));
 	mutex_destroy(&ref->mutex);
-}
 #endif
+}
 
 static inline bool is_idle_barrier(struct active_node *node, u64 idx)
 {

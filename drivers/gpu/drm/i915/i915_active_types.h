@@ -32,6 +32,8 @@ struct active_node;
 struct i915_active {
 	atomic_t count;
 	struct mutex mutex;
+	struct rw_semaphore rwsem;
+	bool *freed;
 
 	spinlock_t tree_lock;
 	struct active_node *cache;
