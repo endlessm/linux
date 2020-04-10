@@ -2020,6 +2020,7 @@ static int shiftfs_fill_super(struct super_block *sb, void *raw_data,
 			 * parent mark mountpoint.
 			 */
 			sbinfo->passthrough_mark = sbinfo_mp->passthrough_mark;
+			sbinfo->creator_cred = get_cred(sbinfo_mp->creator_cred);
 		} else {
 			sbinfo->mnt = mntget(path.mnt);
 			dentry = dget(path.dentry);
@@ -2028,16 +2029,16 @@ static int shiftfs_fill_super(struct super_block *sb, void *raw_data,
 			 * are identical.
 			 */
 			sbinfo->passthrough_mark = sbinfo->passthrough;
-		}
 
-		cred_tmp = prepare_creds();
-		if (!cred_tmp) {
-			err = -ENOMEM;
-			goto out_put_path;
+			cred_tmp = prepare_creds();
+			if (!cred_tmp) {
+				err = -ENOMEM;
+				goto out_put_path;
+			}
+			/* Don't override disk quota limits or use reserved space. */
+			cap_lower(cred_tmp->cap_effective, CAP_SYS_RESOURCE);
+			sbinfo->creator_cred = cred_tmp;
 		}
-		/* Don't override disk quota limits or use reserved space. */
-		cap_lower(cred_tmp->cap_effective, CAP_SYS_RESOURCE);
-		sbinfo->creator_cred = cred_tmp;
 	} else {
 		/*
 		 * This leg executes if we're admin capable in the namespace,
