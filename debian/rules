@@ -46,6 +46,7 @@ skipmodule=true
 skipretpoline=true
 do_cloud_tools=false
 do_doc_package=false
+do_libc_dev_package=true
 do_zfs=false
 do_dkms_nvidia=false
 do_dkms_nvidia_server=false
