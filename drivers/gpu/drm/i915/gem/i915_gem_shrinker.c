@@ -357,8 +357,7 @@ i915_gem_shrinker_scan(struct shrinker *shrinker, struct shrink_control *sc)
 				sc->nr_to_scan,
 				&sc->nr_scanned,
 				I915_SHRINK_BOUND |
-				I915_SHRINK_UNBOUND |
-				I915_SHRINK_WRITEBACK);
+				I915_SHRINK_UNBOUND);
 	if (sc->nr_scanned < sc->nr_to_scan && current_is_kswapd()) {
 		intel_wakeref_t wakeref;
 
