@@ -45,16 +45,27 @@ static enum phy_fia tc_port_to_fia(struct drm_i915_private *i915,
 	return tc_port / 2;
 }
 
+static enum intel_display_power_domain
+tc_cold_get_power_domain(struct intel_digital_port *dig_port)
+{
+	struct drm_i915_private *i915 = to_i915(dig_port->base.base.dev);
+
+	if (INTEL_GEN(i915) == 11)
+		return intel_legacy_aux_to_power_domain(dig_port->aux_ch);
+	else
+		return POWER_DOMAIN_TC_COLD_OFF;
+}
+
 static intel_wakeref_t
 tc_cold_block(struct intel_digital_port *dig_port)
 {
 	struct drm_i915_private *i915 = to_i915(dig_port->base.base.dev);
 	enum intel_display_power_domain domain;
 
-	if (INTEL_GEN(i915) != 11 || !dig_port->tc_legacy_port)
+	if (INTEL_GEN(i915) == 11 && !dig_port->tc_legacy_port)
 		return 0;
 
-	domain = intel_legacy_aux_to_power_domain(dig_port->aux_ch);
+	domain = tc_cold_get_power_domain(dig_port);
 	return intel_display_power_get(i915, domain);
 }
 
@@ -72,7 +83,7 @@ tc_cold_unblock(struct intel_digital_port *dig_port, intel_wakeref_t wakeref)
 	if (wakeref == 0)
 		return;
 
-	domain = intel_legacy_aux_to_power_domain(dig_port->aux_ch);
+	domain = tc_cold_get_power_domain(dig_port);
 	intel_display_power_put_async(i915, domain, wakeref);
 }
 
