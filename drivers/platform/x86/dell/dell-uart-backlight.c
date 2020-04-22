@@ -117,7 +117,7 @@ static struct dell_uart_bl_cmd uart_cmd[] = {
 	},
 };
 
-static const struct dmi_system_id dell_uart_backlight_alpha_platform[] __initconst = {
+static const struct dmi_system_id dell_uart_backlight_alpha_platform[] = {
 	{
 		.ident = "Dell Inspiron 7777 AIO",
 		.matches = {
