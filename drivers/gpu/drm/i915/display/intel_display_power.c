@@ -571,6 +571,9 @@ static void icl_tc_port_assert_ref_held(struct drm_i915_private *dev_priv,
 	if (WARN_ON(!dig_port))
 		return;
 
+	if (INTEL_GEN(dev_priv) == 11 && dig_port->tc_legacy_port)
+		return;
+
 	WARN_ON(!intel_tc_port_ref_held(dig_port));
 }
 
