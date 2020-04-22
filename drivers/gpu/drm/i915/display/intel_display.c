@@ -6766,7 +6766,17 @@ intel_aux_power_domain(struct intel_digital_port *dig_port)
 		}
 	}
 
-	switch (dig_port->aux_ch) {
+	return intel_legacy_aux_to_power_domain(dig_port->aux_ch);
+}
+
+/*
+ * Converts aux_ch to power_domain without caring about TBT ports for that use
+ * intel_aux_power_domain()
+ */
+enum intel_display_power_domain
+intel_legacy_aux_to_power_domain(enum aux_ch aux_ch)
+{
+	switch (aux_ch) {
 	case AUX_CH_A:
 		return POWER_DOMAIN_AUX_A;
 	case AUX_CH_B:
@@ -6780,7 +6790,7 @@ intel_aux_power_domain(struct intel_digital_port *dig_port)
 	case AUX_CH_F:
 		return POWER_DOMAIN_AUX_F;
 	default:
-		MISSING_CASE(dig_port->aux_ch);
+		MISSING_CASE(aux_ch);
 		return POWER_DOMAIN_AUX_A;
 	}
 }
