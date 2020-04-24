@@ -347,6 +347,7 @@ out_unlock:
 	rcu_read_unlock();
 	return part;
 }
+EXPORT_SYMBOL_GPL(disk_map_sector_rcu);
 
 /**
  * disk_has_partitions
