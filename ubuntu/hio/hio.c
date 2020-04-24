@@ -87,6 +87,10 @@
 #define hio_warn(f, arg...) printk(KERN_WARNING MODULE_NAME"warn: " f , ## arg)
 #define hio_err(f, arg...)  printk(KERN_ERR MODULE_NAME"err: " f , ## arg)
 
+#if (LINUX_VERSION_CODE > KERNEL_VERSION(5,6,0))
+struct hd_struct *disk_map_sector_rcu(struct gendisk *disk, sector_t sector);
+#endif
+
 /* slave port */
 #define SSD_SLAVE_PORT_DEVID	0x000a
 
