@@ -2638,6 +2638,30 @@ static void quirk_disable_rtl_aspm(struct pci_dev *dev)
 DECLARE_PCI_FIXUP_CLASS_FINAL(PCI_VENDOR_ID_INTEL, PCI_ANY_ID,
 			      PCI_CLASS_BRIDGE_PCI, 8, quirk_disable_rtl_aspm);
 
+/* Qualcomm Atheros Killer E2500 ethernet on Intel coffee lake chipset 0xa334
+ * cause a huge spam of pcieport AER errors. This is probably a bug in Linux
+ * since it does not manage to clear the error condition. Until properly fixed,
+ * work around here by disabling AER on affected systems.
+ */
+static void quirk_disable_alx_aer(struct pci_dev *dev)
+{
+	struct pci_dev *child;
+
+	if (!dev->subordinate)
+		return;
+
+	list_for_each_entry(child, &dev->subordinate->devices, bus_list) {
+		if (child->vendor == PCI_VENDOR_ID_ATTANSIC &&
+		    child->device == 0xe0b1) {
+			dev_warn(&child->dev,
+				 "CFL + Atheros Killer E2500; disabling AER\n");
+			pci_no_aer();
+			return;
+		}
+	}
+}
+DECLARE_PCI_FIXUP_FINAL(PCI_VENDOR_ID_INTEL, 0xa334, quirk_disable_alx_aer);
+
 /*
  * The APC bridge device in AMD 780 family northbridges has some random
  * OEM subsystem ID in its vendor ID register (erratum 18), so instead
