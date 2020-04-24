@@ -10407,6 +10407,7 @@ static void ssd_cleanup_queue(struct ssd_device *dev)
 
 static int ssd_init_queue(struct ssd_device *dev)
 {
+#if (LINUX_VERSION_CODE < KERNEL_VERSION(5,7,0))
 	dev->rq = blk_alloc_queue(GFP_KERNEL);
 	if (dev->rq == NULL) {
 		hio_warn("%s: alloc queue: failed\n ", dev->name);
@@ -10415,7 +10416,13 @@ static int ssd_init_queue(struct ssd_device *dev)
 
 	/* must be first */
 	blk_queue_make_request(dev->rq, ssd_make_request);
-
+#else
+	dev->rq = blk_alloc_queue(ssd_make_request, NUMA_NO_NODE);
+	if (dev->rq == NULL) {
+		hio_warn("%s: blk_alloc_queue(): failed\n ", dev->name);
+		goto out_init_queue;
+	}
+#endif
 #if ((LINUX_VERSION_CODE < KERNEL_VERSION(2,6,34)) && !(defined RHEL_MAJOR && RHEL_MAJOR == 6))
 	blk_queue_max_hw_segments(dev->rq, dev->hw_info.cmd_max_sg);
 	blk_queue_max_phys_segments(dev->rq, dev->hw_info.cmd_max_sg);
