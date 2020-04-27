@@ -250,6 +250,3 @@ net/xfrm/*
 sound/drivers/pcsp/snd-pcsp.ko
 sound/pci/snd-ens1370.ko
 sound/soundcore.ko
-ubuntu/vbox/vboxguest/vboxguest.ko
-ubuntu/vbox/vboxsf/vboxsf.ko
-zfs/*
