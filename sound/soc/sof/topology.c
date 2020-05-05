@@ -1112,6 +1112,8 @@ static int sof_control_load(struct snd_soc_component *scomp, int index,
 		return 0;
 	}
 
+	scontrol->led_ctl.led_value = -1;
+
 	dobj->private = scontrol;
 	list_add(&scontrol->list, &sdev->kcontrol_list);
 	return ret;
