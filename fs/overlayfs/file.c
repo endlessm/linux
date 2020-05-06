@@ -32,6 +32,7 @@ static struct file *ovl_open_realfile(const struct file *file,
 	int flags = file->f_flags | O_NOATIME | FMODE_NONOTIFY;
 
 	old_cred = ovl_override_creds(inode->i_sb);
+	ovl_path_real(file->f_path.dentry, &realpath);
 	if (realpath.dentry->d_sb->s_magic == SHIFTFS_MAGIC)
 		realfile = open_with_fake_path(&realpath, flags, realinode,
 					       current_cred());
