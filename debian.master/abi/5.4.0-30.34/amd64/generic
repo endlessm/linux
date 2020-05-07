@@ -4238,6 +4238,7 @@ EXPORT_SYMBOL	 drivers/w1/wire 0x00000000	w1_unregister_family
 EXPORT_SYMBOL	 drivers/watchdog/iTCO_vendor_support 0x00000000	iTCO_vendor_check_noreboot_on
 EXPORT_SYMBOL	 drivers/watchdog/iTCO_vendor_support 0x00000000	iTCO_vendor_pre_start
 EXPORT_SYMBOL	 drivers/watchdog/iTCO_vendor_support 0x00000000	iTCO_vendor_pre_stop
+EXPORT_SYMBOL	 drivers/watchdog/iTCO_vendor_support 0x00000000	iTCO_vendorsupport
 EXPORT_SYMBOL	 fs/fscache/fscache 0x00000000	__fscache_acquire_cookie
 EXPORT_SYMBOL	 fs/fscache/fscache 0x00000000	__fscache_alloc_page
 EXPORT_SYMBOL	 fs/fscache/fscache 0x00000000	__fscache_attr_changed
@@ -13378,6 +13379,7 @@ EXPORT_SYMBOL_GPL	 drivers/misc/vmw_vmci/vmw_vmci 0x00000000	vmci_qpair_produce_
 EXPORT_SYMBOL_GPL	 drivers/misc/vmw_vmci/vmw_vmci 0x00000000	vmci_send_datagram
 EXPORT_SYMBOL_GPL	 drivers/mmc/host/sdhci 0x00000000	__sdhci_add_host
 EXPORT_SYMBOL_GPL	 drivers/mmc/host/sdhci 0x00000000	__sdhci_read_caps
+EXPORT_SYMBOL_GPL	 drivers/mmc/host/sdhci 0x00000000	__sdhci_set_timeout
 EXPORT_SYMBOL_GPL	 drivers/mmc/host/sdhci 0x00000000	sdhci_abort_tuning
 EXPORT_SYMBOL_GPL	 drivers/mmc/host/sdhci 0x00000000	sdhci_add_host
 EXPORT_SYMBOL_GPL	 drivers/mmc/host/sdhci 0x00000000	sdhci_adma_write_desc
@@ -13405,6 +13407,7 @@ EXPORT_SYMBOL_GPL	 drivers/mmc/host/sdhci 0x00000000	sdhci_send_command
 EXPORT_SYMBOL_GPL	 drivers/mmc/host/sdhci 0x00000000	sdhci_send_tuning
 EXPORT_SYMBOL_GPL	 drivers/mmc/host/sdhci 0x00000000	sdhci_set_bus_width
 EXPORT_SYMBOL_GPL	 drivers/mmc/host/sdhci 0x00000000	sdhci_set_clock
+EXPORT_SYMBOL_GPL	 drivers/mmc/host/sdhci 0x00000000	sdhci_set_data_timeout_irq
 EXPORT_SYMBOL_GPL	 drivers/mmc/host/sdhci 0x00000000	sdhci_set_ios
 EXPORT_SYMBOL_GPL	 drivers/mmc/host/sdhci 0x00000000	sdhci_set_power
 EXPORT_SYMBOL_GPL	 drivers/mmc/host/sdhci 0x00000000	sdhci_set_power_noreg
@@ -18463,6 +18466,7 @@ EXPORT_SYMBOL_GPL	 vmlinux 0x00000000	acpi_processor_ffh_cstate_enter
 EXPORT_SYMBOL_GPL	 vmlinux 0x00000000	acpi_processor_ffh_cstate_probe
 EXPORT_SYMBOL_GPL	 vmlinux 0x00000000	acpi_processor_get_performance_info
 EXPORT_SYMBOL_GPL	 vmlinux 0x00000000	acpi_register_gsi
+EXPORT_SYMBOL_GPL	 vmlinux 0x00000000	acpi_register_wakeup_handler
 EXPORT_SYMBOL_GPL	 vmlinux 0x00000000	acpi_release_memory
 EXPORT_SYMBOL_GPL	 vmlinux 0x00000000	acpi_scan_lock_acquire
 EXPORT_SYMBOL_GPL	 vmlinux 0x00000000	acpi_scan_lock_release
@@ -18480,6 +18484,7 @@ EXPORT_SYMBOL_GPL	 vmlinux 0x00000000	acpi_subsys_suspend_noirq
 EXPORT_SYMBOL_GPL	 vmlinux 0x00000000	acpi_target_system_state
 EXPORT_SYMBOL_GPL	 vmlinux 0x00000000	acpi_unbind_one
 EXPORT_SYMBOL_GPL	 vmlinux 0x00000000	acpi_unregister_gsi
+EXPORT_SYMBOL_GPL	 vmlinux 0x00000000	acpi_unregister_wakeup_handler
 EXPORT_SYMBOL_GPL	 vmlinux 0x00000000	acpi_walk_dep_device_list
 EXPORT_SYMBOL_GPL	 vmlinux 0x00000000	acpiphp_register_attention
 EXPORT_SYMBOL_GPL	 vmlinux 0x00000000	acpiphp_unregister_attention

@@ -17226,6 +17226,7 @@ EXPORT_SYMBOL_GPL	 vmlinux 0x00000000	__sbitmap_queue_get_shallow
 EXPORT_SYMBOL_GPL	 vmlinux 0x00000000	__scsi_init_queue
 EXPORT_SYMBOL_GPL	 vmlinux 0x00000000	__sdhci_add_host
 EXPORT_SYMBOL_GPL	 vmlinux 0x00000000	__sdhci_read_caps
+EXPORT_SYMBOL_GPL	 vmlinux 0x00000000	__sdhci_set_timeout
 EXPORT_SYMBOL_GPL	 vmlinux 0x00000000	__serdev_device_driver_register
 EXPORT_SYMBOL_GPL	 vmlinux 0x00000000	__set_dax_synchronous
 EXPORT_SYMBOL_GPL	 vmlinux 0x00000000	__set_page_dirty
@@ -21585,6 +21586,7 @@ EXPORT_SYMBOL_GPL	 vmlinux 0x00000000	sdhci_send_command
 EXPORT_SYMBOL_GPL	 vmlinux 0x00000000	sdhci_send_tuning
 EXPORT_SYMBOL_GPL	 vmlinux 0x00000000	sdhci_set_bus_width
 EXPORT_SYMBOL_GPL	 vmlinux 0x00000000	sdhci_set_clock
+EXPORT_SYMBOL_GPL	 vmlinux 0x00000000	sdhci_set_data_timeout_irq
 EXPORT_SYMBOL_GPL	 vmlinux 0x00000000	sdhci_set_ios
 EXPORT_SYMBOL_GPL	 vmlinux 0x00000000	sdhci_set_power
 EXPORT_SYMBOL_GPL	 vmlinux 0x00000000	sdhci_set_power_noreg
