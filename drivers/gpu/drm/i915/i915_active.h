@@ -362,13 +362,11 @@ void __i915_active_init(struct drm_i915_private *i915,
 			struct i915_active *ref,
 			int (*active)(struct i915_active *ref),
 			void (*retire)(struct i915_active *ref),
-			struct lock_class_key *key,
-			struct lock_class_key *rkey);
+			struct lock_class_key *key);
 #define i915_active_init(i915, ref, active, retire) do {		\
 	static struct lock_class_key __key;				\
-	static struct lock_class_key __rkey;				\
 									\
-	__i915_active_init(i915, ref, active, retire, &__key, &__rkey);	\
+	__i915_active_init(i915, ref, active, retire, &__key);		\
 } while (0)
 
 int i915_active_ref(struct i915_active *ref,
@@ -395,7 +393,11 @@ i915_active_is_idle(const struct i915_active *ref)
 	return !atomic_read(&ref->count);
 }
 
+#if IS_ENABLED(CONFIG_DRM_I915_DEBUG_GEM)
 void i915_active_fini(struct i915_active *ref);
+#else
+static inline void i915_active_fini(struct i915_active *ref) { }
+#endif
 
 int i915_active_acquire_preallocate_barrier(struct i915_active *ref,
 					    struct intel_engine_cs *engine);
