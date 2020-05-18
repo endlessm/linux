@@ -176,7 +176,7 @@ for arch in $archs; do
 		flavour="${config##*.}"
 		if [ -f $archconfdir/$config ]; then
 			fullconf="$tmpdir/CONFIGS/$arch-$config"
-			"$bindir/../config-check" "$fullconf" "$arch" "$flavour" "$confdir" "0" || let "fail=$fail+1"
+			"$bindir/../config-check" "$fullconf" "$arch" "$flavour" "$confdir" "0" "0" || let "fail=$fail+1"
 		fi
 	done
 done

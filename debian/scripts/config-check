@@ -11,11 +11,11 @@ my $P = 'check-config';
 my $test = -1;
 if ($ARGV[0] eq '--test') {
 	$test = $ARGV[1] + 0;
-} elsif ($#ARGV != 4) {
-	die "Usage: $P <config> <arch> <flavour> <commonconfig> <warn-only>\n";
+} elsif ($#ARGV != 5) {
+	die "Usage: $P <config> <arch> <flavour> <commonconfig> <warn-only> <enforce-all>\n";
 }
 
-my ($configfile, $arch, $flavour, $commonconfig, $warn_only) = @ARGV;
+my ($configfile, $arch, $flavour, $commonconfig, $warn_only, $enforce_all) = @ARGV;
 
 my %values = ();
 
@@ -25,6 +25,8 @@ my %values = ();
 my $fail_exit = 1;
 $fail_exit = 0 if ($warn_only eq 'true' || $warn_only eq '1');
 my $exit_val = 0;
+
+$enforce_all = 0 if $enforce_all eq "no" or $enforce_all eq "false";
 
 # Load up the current configuration values -- FATAL if this fails
 print "$P: $configfile: loading config\n";
@@ -109,7 +111,7 @@ my $pass = 0;
 my $total = 0;
 my ($config, $value, $options, $option, $check, $policy);
 for $config (keys %annot) {
-	$check = 0;
+	$check = $enforce_all;
 	$options = $annot{$config};
 
 	$policy = undef;
