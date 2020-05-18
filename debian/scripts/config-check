@@ -135,6 +135,8 @@ for $config (keys %annot) {
 		$check = 0;
 	}
 	if ($check) {
+		# CONFIG_VERSION_SIGNATURE is dynamically set during the build
+		next if ($config eq "CONFIG_VERSION_SIGNATURE");
 		my $is = '-';
 		$is = $values{$config} if (defined $values{$config});
 
