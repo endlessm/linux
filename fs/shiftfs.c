@@ -1356,7 +1356,7 @@ static int shiftfs_fadvise(struct file *file, loff_t offset, loff_t len,
 	return ret;
 }
 
-static int shiftfs_override_ioctl_creds(const struct super_block *sb,
+static int shiftfs_override_ioctl_creds(int cmd, const struct super_block *sb,
 					const struct cred **oldcred,
 					struct cred **newcred)
 {
@@ -1380,6 +1380,16 @@ static int shiftfs_override_ioctl_creds(const struct super_block *sb,
 	cap_clear((*newcred)->cap_effective);
 	cap_clear((*newcred)->cap_inheritable);
 	cap_clear((*newcred)->cap_permitted);
+
+	if (cmd == BTRFS_IOC_SNAP_DESTROY) {
+		kuid_t kuid_root = make_kuid(sb->s_user_ns, 0);
+		/*
+		 * Allow the root user in the container to remove subvolumes
+		 * from other users.
+		 */
+		if (uid_valid(kuid_root) && uid_eq(fsuid, kuid_root))
+			cap_raise((*newcred)->cap_effective, CAP_DAC_OVERRIDE);
+	}
 
 	put_cred(override_creds(*newcred));
 	return 0;
@@ -1513,7 +1523,7 @@ static long shiftfs_real_ioctl(struct file *file, unsigned int cmd,
 	if (ret)
 		goto out_restore;
 
-	ret = shiftfs_override_ioctl_creds(sb, &oldcred, &newcred);
+	ret = shiftfs_override_ioctl_creds(cmd, sb, &oldcred, &newcred);
 	if (ret)
 		goto out_fdput;
 
