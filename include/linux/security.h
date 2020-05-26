@@ -1273,7 +1273,7 @@ static inline int security_locked_down(enum lockdown_reason what)
 {
 	return 0;
 }
-static inline int security_lock_kernel_down(const char *where, enum lockdown_reason level);
+static inline int security_lock_kernel_down(const char *where, enum lockdown_reason level)
 {
 	return 0;
 }
