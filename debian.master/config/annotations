@@ -7744,6 +7744,8 @@ CONFIG_SND_SOC_AMD_ACP                          policy<{'amd64': 'm', 'arm64': '
 CONFIG_SND_SOC_AMD_CZ_DA7219MX98357_MACH        policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'ppc64el': 'm', }>
 CONFIG_SND_SOC_AMD_CZ_RT5645_MACH               policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'ppc64el': 'm', }>
 CONFIG_SND_SOC_AMD_ACP3x                        policy<{'amd64': 'm', 'i386': 'm'}>
+CONFIG_SND_SOC_AMD_RENOIR                       policy<{'amd64': 'm', 'i386': 'm'}>
+CONFIG_SND_SOC_AMD_RENOIR_MACH                  policy<{'amd64': 'm', 'i386': 'm'}>
 CONFIG_SND_BCM2835_SOC_I2S                      policy<{'arm64': 'm'}>
 CONFIG_SND_DESIGNWARE_I2S                       policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', }>
 CONFIG_SND_DESIGNWARE_PCM                       policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', }>
@@ -7774,6 +7776,8 @@ CONFIG_SND_SIMPLE_CARD                          policy<{'amd64': 'm', 'arm64': '
 CONFIG_SND_AUDIO_GRAPH_CARD                     policy<{'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', }>
 #
 CONFIG_SND_SOC                                  note<not autoloadable on omap>
+CONFIG_SND_SOC_AMD_RENOIR                       mark<ENFORCED> note<LP:1881046>
+CONFIG_SND_SOC_AMD_RENOIR_MACH                  mark<ENFORCED> note<LP:1881046>
 
 # Menu: Device Drivers >> Sound card support >> Advanced Linux Sound Architecture >> ALSA for SoC audio support >> ASoC support for Amlogic platforms
 CONFIG_SND_MESON_AXG_FRDDR                      policy<{'arm64': 'm', 'armhf': 'm'}>
