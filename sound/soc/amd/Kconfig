@@ -26,3 +26,9 @@ config SND_SOC_AMD_ACP3x
 	depends on X86 && PCI
 	help
 	 This option enables ACP v3.x I2S support on AMD platform
+
+config SND_SOC_AMD_RENOIR
+	tristate "AMD Audio Coprocessor - Renoir support"
+	depends on X86 && PCI
+	help
+	 This option enables ACP support for Renoir platform
