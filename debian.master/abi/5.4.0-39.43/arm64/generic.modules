@@ -1894,7 +1894,6 @@ hisi_sas_v1_hw
 hisi_sas_v2_hw
 hisi_sas_v3_hw
 hisi_sec
-hisi_sec2
 hisi_thermal
 hisi_zip
 hix5hd2_gmac
