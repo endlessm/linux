@@ -689,6 +689,7 @@ cdns-csi2tx
 cdns-pltfrm
 cdns3
 cdns3-pci-wrap
+cec-gpio
 ceph
 cfag12864b
 cfag12864bfb
@@ -3774,6 +3775,7 @@ rtc-ab-b5ze-s3
 rtc-ab-eoz9
 rtc-ab3100
 rtc-abx80x
+rtc-am1805
 rtc-bq32k
 rtc-bq4802
 rtc-cros-ec

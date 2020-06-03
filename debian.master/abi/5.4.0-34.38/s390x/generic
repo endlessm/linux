@@ -2528,6 +2528,7 @@ EXPORT_SYMBOL	 vmlinux 0x00000000	__block_write_full_page
 EXPORT_SYMBOL	 vmlinux 0x00000000	__blockdev_direct_IO
 EXPORT_SYMBOL	 vmlinux 0x00000000	__bread_gfp
 EXPORT_SYMBOL	 vmlinux 0x00000000	__breadahead
+EXPORT_SYMBOL	 vmlinux 0x00000000	__breadahead_gfp
 EXPORT_SYMBOL	 vmlinux 0x00000000	__break_lease
 EXPORT_SYMBOL	 vmlinux 0x00000000	__brelse
 EXPORT_SYMBOL	 vmlinux 0x00000000	__cancel_dirty_page
@@ -9669,6 +9670,7 @@ EXPORT_SYMBOL_GPL	 vmlinux 0x00000000	bd_link_disk_holder
 EXPORT_SYMBOL_GPL	 vmlinux 0x00000000	bd_unlink_disk_holder
 EXPORT_SYMBOL_GPL	 vmlinux 0x00000000	bdev_read_page
 EXPORT_SYMBOL_GPL	 vmlinux 0x00000000	bdev_write_page
+EXPORT_SYMBOL_GPL	 vmlinux 0x00000000	bdi_dev_name
 EXPORT_SYMBOL_GPL	 vmlinux 0x00000000	bio_alloc_mddev
 EXPORT_SYMBOL_GPL	 vmlinux 0x00000000	bio_associate_blkg
 EXPORT_SYMBOL_GPL	 vmlinux 0x00000000	bio_associate_blkg_from_css
