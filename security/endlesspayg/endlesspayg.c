@@ -5,6 +5,7 @@
  */
 
 #include <linux/dcache.h>
+#include <linux/efi.h>
 #include <linux/fs.h>
 #include <linux/lsm_hooks.h>
 #include <linux/magic.h>
@@ -17,6 +18,8 @@ static bool payg_active = 0;
 static struct dentry *payg_dir;
 static struct dentry *paygd_pid_file;
 static pid_t paygd_pid = -1;
+
+#define EOSPAYG_GUID EFI_GUID(0xd89c3871, 0xae0c, 0x4fc5, 0xa4, 0x09, 0xdc, 0x71, 0x7a, 0xee, 0x61, 0xe7)
 
 bool eospayg_skip_name(const char *name)
 {
@@ -249,8 +252,27 @@ static int __init eospayg_active(char *str)
 }
 __setup("eospayg", eospayg_active);
 
+static bool __init uefi_check_eospayg_active(void)
+{
+	efi_status_t status;
+	unsigned int db = 0;
+	unsigned long size = sizeof(db);
+	efi_guid_t guid = EOSPAYG_GUID;
+
+	if (!efi.get_variable)
+		return false;
+
+	status = efi.get_variable(L"EOSPAYG_active", &guid, NULL, &size, &db);
+
+	/* We only care about existence not contents so ignore buffer size */
+	return status == EFI_SUCCESS || status == EFI_BUFFER_TOO_SMALL;
+}
+
 static int __init payg_init_securityfs(void)
 {
+	if (!uefi_check_eospayg_active())
+		payg_active = false;
+
 	if (!payg_active)
 		return 0;
 
