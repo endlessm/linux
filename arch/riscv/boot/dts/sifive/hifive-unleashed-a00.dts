@@ -3,6 +3,7 @@
 
 #include "fu540-c000.dtsi"
 #include <dt-bindings/gpio/gpio.h>
+#include <dt-bindings/pwm/pwm.h>
 
 /* Clock frequency (in Hz) of the PCB crystal for rtcclk */
 #define RTCCLK_FREQ		1000000
@@ -27,6 +28,37 @@
 	};
 
 	soc {
+		pwmleds {
+			compatible = "pwm-leds";
+			d1 {
+				label = "green:d1";
+				pwms = <&pwm0 0 7812500 PWM_POLARITY_INVERTED>;
+				active-low = <1>;
+				max-brightness = <255>;
+				linux,default-trigger = "none";
+			};
+			d2 {
+				label = "green:d2";
+				pwms = <&pwm0 1 7812500 PWM_POLARITY_INVERTED>;
+				active-low = <1>;
+				max-brightness = <255>;
+				linux,default-trigger = "none";
+			};
+			d3 {
+				label = "green:d3";
+				pwms = <&pwm0 2 7812500 PWM_POLARITY_INVERTED>;
+				active-low = <1>;
+				max-brightness = <255>;
+				linux,default-trigger = "none";
+			};
+			d4 {
+				label = "green:d4";
+				pwms = <&pwm0 3 7812500 PWM_POLARITY_INVERTED>;
+				active-low = <1>;
+				max-brightness = <255>;
+				linux,default-trigger = "none";
+			};
+		};
 	};
 
 	hfclk: hfclk {
