@@ -406,10 +406,6 @@ ifeq ($(do_dkms_nvidia),true)
 	$(call build_dkms, $(bldinfo_pkg_name)-$*, $(pkgdir_bldinfo)/usr/lib/linux/$(abi_release)-$*/signatures, "", nvidia-440, pool/restricted/n/nvidia-graphics-drivers-440/nvidia-kernel-source-440_$(dkms_nvidia_440_version)_$(arch).deb pool/restricted/n/nvidia-graphics-drivers-440/nvidia-dkms-440_$(dkms_nvidia_440_version)_$(arch).deb)
 endif
 
-ifeq ($(do_extras_package),true)
-	$(if $(filter true,$(do_dkms_vbox)),$(call build_dkms, $(mods_pkg_name)-$*, $(pkgdir)/lib/modules/$(abi_release)-$*/kernel, "", virtualbox-guest, pool/multiverse/v/virtualbox/virtualbox-guest-dkms_$(dkms_vbox_guest_version)_all.deb))
-endif
-
 ifneq ($(skipdbg),true)
 	# Add .gnu_debuglink sections to each stripped .ko
 	# pointing to unstripped verson
@@ -565,7 +561,6 @@ binary-%: dbgpkgdir = $(CURDIR)/debian/$(bin_pkg_name)-$*-dbgsym
 binary-%: pkgtools = $(tools_flavour_pkg_name)-$*
 binary-%: pkgcloud = $(cloud_flavour_pkg_name)-$*
 binary-%: rprovides = $(if $(filter true,$(call custom_override,do_zfs,$*)),spl-modules$(comma) spl-dkms$(comma) zfs-modules$(comma) zfs-dkms$(comma))
-binary-%: rprovides += $(if $(filter true,$(call custom_override,do_dkms_vbox,$*)),virtualbox-guest-dkms$(comma))
 binary-%: target_flavour = $*
 binary-%: checks-%
 	@echo Debug: $@
