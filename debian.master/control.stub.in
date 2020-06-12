@@ -97,6 +97,8 @@ Multi-Arch: foreign
 Section: kernel
 Priority: optional
 Depends: ${misc:Depends}, lsb-release
+Conflicts: linux-oem-5.6-tools-common
+Replaces: linux-oem-5.6-tools-common
 Description: Linux kernel version specific tools for version PKGVER
  This package provides the architecture independent parts for kernel
  version locked tools (such as perf and x86_energy_perf_policy) for
@@ -145,6 +147,8 @@ Multi-Arch: foreign
 Section: kernel
 Priority: optional
 Depends: ${misc:Depends}, python3
+Conflicts: linux-oem-5.6-tools-host
+Replaces: linux-oem-5.6-tools-host
 Description: Linux kernel VM host tools
  This package provides kernel tools useful for VM hosts.
 
