@@ -3,7 +3,6 @@
  * Copyright (C) 2017 Red Hat, Inc.
  */
 
-#include <uapi/linux/magic.h>
 #include <linux/cred.h>
 #include <linux/file.h>
 #include <linux/mount.h>
@@ -59,12 +58,8 @@ static struct file *ovl_open_realfile(const struct file *file,
 		realfile = ERR_PTR(-EPERM);
 	} else {
 		ovl_path_real(file->f_path.dentry, &realpath);
-		if (realpath.dentry->d_sb->s_magic == SHIFTFS_MAGIC)
-			realfile = open_with_fake_path(&realpath, flags, realinode,
-						       current_cred());
-		else
-			realfile = open_with_fake_path(&file->f_path, flags, realinode,
-						       current_cred());
+		realfile = open_with_fake_path(&realpath, flags, realinode,
+					       current_cred());
 	}
 	revert_creds(old_cred);
 
