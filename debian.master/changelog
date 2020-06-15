@@ -1,3 +1,9 @@
+linux-5.8 (5.8.0-0.0) groovy; urgency=medium
+
+  * Empty entry
+
+ -- Seth Forshee <seth.forshee@canonical.com>  Sun, 14 Jun 2020 22:40:35 -0500
+
 linux-5.7 (5.7.0-8.9) groovy; urgency=medium
 
   * Packaging resync (LP: #1786013)
