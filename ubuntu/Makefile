@@ -15,7 +15,7 @@
 ##
 ##
 ##
-obj-$(CONFIG_HIO)             += hio/
+#obj-$(CONFIG_HIO)             += hio/
 ##
 ##
 ##
