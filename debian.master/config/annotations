@@ -10982,7 +10982,6 @@ CONFIG_ARM_KPROBES_TEST                         policy<{'armhf': 'm'}>
 CONFIG_ARM_PTDUMP_DEBUGFS                       policy<{'armhf': 'n'}>
 
 # Menu: Kernel hacking >> $(SRCARCH) Debugging >> Architecture: arm64
-CONFIG_ARM64_RANDOMIZE_TEXT_OFFSET              policy<{'arm64': 'n'}>
 CONFIG_DEBUG_EFI                                policy<{'arm64': 'n'}>
 CONFIG_ARM64_RELOC_TEST                         policy<{'arm64': 'n'}>
 
@@ -13332,6 +13331,7 @@ CONFIG_LEGACY_VSYSCALL_XONLY                    flag<REVIEW>
 
 # Menu: Security options
 CONFIG_SECURITY_DMESG_RESTRICT                  policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'i386': 'n', 'ppc64el': 'n', 's390x': 'n'}>
+CONFIG_SECURITY_PERF_EVENTS_RESTRICT            policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'ppc64el': 'y', 's390x': 'y'}>
 CONFIG_SECURITYFS                               policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'ppc64el': 'y', 's390x': 'y'}>
 CONFIG_PAGE_TABLE_ISOLATION                     policy<{'amd64': 'y', 'i386': 'y'}>
 CONFIG_INTEL_TXT                                policy<{'amd64': 'y', 'i386': 'y'}>
