@@ -38,6 +38,7 @@ Build-Depends:
  dkms <!stage1>,
  curl <!stage1>,
  lz4 [amd64 s390x] <!stage1>,
+ dwarves,
 Build-Depends-Indep:
  xmlto <!stage1>,
  docbook-utils <!stage1>,
