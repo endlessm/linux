@@ -2905,7 +2905,7 @@ CONFIG_IOMMU_IO_PGTABLE_ARMV7S                  policy<{'arm64': 'n', 'armhf': '
 
 # Menu: Device Drivers >> IOMMU Hardware Support >> Support for Intel IOMMU using DMA Remapping Devices
 CONFIG_INTEL_IOMMU                              policy<{'amd64': 'y', 'i386': 'y'}>
-CONFIG_INTEL_IOMMU_SVM                          policy<{'amd64': 'y', 'i386': 'y'}>
+CONFIG_INTEL_IOMMU_SVM                          policy<{'amd64': 'y'}>
 CONFIG_INTEL_IOMMU_DEFAULT_ON                   policy<{'amd64': 'n', 'i386': 'n'}>
 CONFIG_INTEL_IOMMU_SCALABLE_MODE_DEFAULT_ON     policy<{'amd64': 'n', 'i386': 'n'}>
 #
@@ -8457,7 +8457,6 @@ CONFIG_SND_SOC_SOF_CANNONLAKE_SUPPORT           policy<{'amd64': 'y', 'i386': 'y
 CONFIG_SND_SOC_SOF_COFFEELAKE_SUPPORT           policy<{'amd64': 'y', 'i386': 'y'}>
 CONFIG_SND_SOC_SOF_ICELAKE_SUPPORT              policy<{'amd64': 'y', 'i386': 'y'}>
 CONFIG_SND_SOC_SOF_COMETLAKE_LP_SUPPORT         policy<{'amd64': 'y', 'i386': 'y'}>
-CONFIG_SND_SOC_SOF_COMETLAKE_H_SUPPORT          policy<{'amd64': 'y', 'i386': 'y'}>
 CONFIG_SND_SOC_SOF_TIGERLAKE_SUPPORT            policy<{'amd64': 'y', 'i386': 'y'}>
 CONFIG_SND_SOC_SOF_ELKHARTLAKE_SUPPORT          policy<{'amd64': 'y', 'i386': 'y'}>
 CONFIG_SND_SOC_SOF_JASPERLAKE_SUPPORT           policy<{'amd64': 'y', 'i386': 'y'}>
@@ -9746,6 +9745,7 @@ CONFIG_REGULATOR_MP886X                         policy<{'arm64': 'm', 'armhf': '
 CONFIG_REGULATOR_MPQ7920                        policy<{'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm'}>
 CONFIG_REGULATOR_MT6311                         policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'ppc64el': 'm'}>
 CONFIG_REGULATOR_MT6323                         policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'ppc64el': 'm'}>
+CONFIG_REGULATOR_MT6358                         policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'ppc64el': 'm'}>
 CONFIG_REGULATOR_MT6380                         policy<{'arm64': 'm', 'armhf': 'm'}>
 CONFIG_REGULATOR_MT6397                         policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'ppc64el': 'm'}>
 CONFIG_REGULATOR_PALMAS                         policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'ppc64el': 'm'}>
@@ -10658,11 +10658,12 @@ CONFIG_QCOM_SCM_DOWNLOAD_MODE_DEFAULT           policy<{'arm64': 'n', 'armhf': '
 CONFIG_TI_SCI_PROTOCOL                          policy<{'arm64': 'y'}>
 CONFIG_TRUSTED_FOUNDATIONS                      policy<{'armhf': 'y'}>
 CONFIG_TURRIS_MOX_RWTM                          policy<{'arm64': 'm', 'armhf': 'm'}>
-CONFIG_ARM_PSCI_CHECKER                         policy<{'arm64': 'n', 'armhf': 'n'}>
 CONFIG_TEE_BNXT_FW                              policy<{'arm64': 'm'}>
+CONFIG_EFI_CUSTOM_SSDT_OVERLAYS                 policy<{'amd64': 'y', 'arm64': 'y', 'i386': 'y'}>
 CONFIG_IMX_DSP                                  policy<{'arm64': 'm', 'armhf-generic': 'm'}>
 CONFIG_IMX_SCU                                  policy<{'arm64': 'y', 'armhf-generic': 'y'}>
 CONFIG_IMX_SCU_PD                               policy<{'arm64': 'y', 'armhf-generic': 'y'}>
+CONFIG_ARM_PSCI_CHECKER                         policy<{'arm64': 'n', 'armhf': 'n'}>
 
 # Menu: Firmware Drivers >> EFI (Extensible Firmware Interface) Support
 CONFIG_EFI_VARS                                 policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y'}>
