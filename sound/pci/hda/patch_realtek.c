@@ -4101,16 +4101,6 @@ static void alc_fixup_gpio_mute_hook(void *private_data, int enabled)
 }
 
 /* turn on/off mic-mute LED via GPIO per capture hook */
-static void alc_gpio_micmute_update(struct hda_codec *codec)
-{
-	struct alc_spec *spec = codec->spec;
-
-	alc_update_gpio_led(codec, spec->gpio_mic_led_mask,
-			    spec->micmute_led_polarity,
-			    spec->gen.micmute_led.led_value);
-}
-
-#if IS_REACHABLE(CONFIG_LEDS_TRIGGER_AUDIO)
 static int micmute_led_set(struct led_classdev *led_cdev,
 			   enum led_brightness brightness)
 {
@@ -4122,14 +4112,6 @@ static int micmute_led_set(struct led_classdev *led_cdev,
 	return 0;
 }
 
-static struct led_classdev micmute_led_cdev = {
-	.name = "hda::micmute",
-	.max_brightness = 1,
-	.brightness_set_blocking = micmute_led_set,
-	.default_trigger = "audio-micmute",
-};
-#endif
-
 /* setup mute and mic-mute GPIO bits, add hooks appropriately */
 static void alc_fixup_hp_gpio_led(struct hda_codec *codec,
 				  int action,
@@ -4137,9 +4119,6 @@ static void alc_fixup_hp_gpio_led(struct hda_codec *codec,
 				  unsigned int micmute_mask)
 {
 	struct alc_spec *spec = codec->spec;
-#if IS_REACHABLE(CONFIG_LEDS_TRIGGER_AUDIO)
-	int err;
-#endif
 
 	alc_fixup_gpio(codec, action, mute_mask | micmute_mask);
 
@@ -4151,14 +4130,7 @@ static void alc_fixup_hp_gpio_led(struct hda_codec *codec,
 	}
 	if (micmute_mask) {
 		spec->gpio_mic_led_mask = micmute_mask;
-		snd_hda_gen_add_micmute_led(codec, alc_gpio_micmute_update);
-
-#if IS_REACHABLE(CONFIG_LEDS_TRIGGER_AUDIO)
-		micmute_led_cdev.brightness = ledtrig_audio_get(LED_AUDIO_MICMUTE);
-		err = devm_led_classdev_register(&codec->core.dev, &micmute_led_cdev);
-		if (err)
-			codec_warn(codec, "failed to register micmute LED\n");
-#endif
+		snd_hda_gen_add_micmute_led_cdev(codec, micmute_led_set);
 	}
 }
 
