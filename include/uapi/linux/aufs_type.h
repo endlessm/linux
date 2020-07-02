@@ -40,7 +40,7 @@
 #include <limits.h>
 #endif /* __KERNEL__ */
 
-#define AUFS_VERSION	"5.x-rcN-20200518"
+#define AUFS_VERSION	"5.x-rcN-20200622"
 
 /* todo? move this to linux-2.6.19/include/magic.h */
 #define AUFS_SUPER_MAGIC	('a' << 24 | 'u' << 16 | 'f' << 8 | 's')
