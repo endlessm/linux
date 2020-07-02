@@ -13331,7 +13331,7 @@ CONFIG_LEGACY_VSYSCALL_NONE                     policy<{'amd64': 'n'}>
 CONFIG_LEGACY_VSYSCALL_XONLY                    flag<REVIEW>
 
 # Menu: Security options
-CONFIG_SECURITY_DMESG_RESTRICT                  policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'i386': 'n', 'ppc64el': 'n', 's390x': 'n'}>
+CONFIG_SECURITY_DMESG_RESTRICT                  policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'ppc64el': 'y', 's390x': 'y'}>
 CONFIG_SECURITY_PERF_EVENTS_RESTRICT            policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'ppc64el': 'y', 's390x': 'y'}>
 CONFIG_SECURITYFS                               policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'ppc64el': 'y', 's390x': 'y'}>
 CONFIG_PAGE_TABLE_ISOLATION                     policy<{'amd64': 'y', 'i386': 'y'}>
@@ -13343,6 +13343,7 @@ CONFIG_FORTIFY_SOURCE                           policy<{'amd64': 'y', 'arm64': '
 CONFIG_STATIC_USERMODEHELPER                    policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'i386': 'n', 'ppc64el': 'n', 's390x': 'n'}>
 CONFIG_LSM                                      policy<{'amd64': '"lockdown,yama,integrity,apparmor"', 'arm64': '"lockdown,yama,integrity,apparmor"', 'armhf': '"lockdown,yama,integrity,apparmor"', 'i386': '"lockdown,yama,integrity,apparmor"', 'ppc64el': '"lockdown,yama,integrity,apparmor"', 's390x': '"lockdown,yama,integrity,apparmor"'}>
 #
+CONFIG_SECURITY_DMESG_RESTRICT                  mark<ENFORCED>
 CONFIG_LSM                                      mark<ENFORCED>
 
 # Menu: Security options >> Enable access key retention support
