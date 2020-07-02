@@ -2431,7 +2431,7 @@ EXPORT_SYMBOL	 net/rxrpc/rxrpc 0x00000000	rxrpc_kernel_end_call
 EXPORT_SYMBOL	 net/rxrpc/rxrpc 0x00000000	rxrpc_kernel_get_epoch
 EXPORT_SYMBOL	 net/rxrpc/rxrpc 0x00000000	rxrpc_kernel_get_peer
 EXPORT_SYMBOL	 net/rxrpc/rxrpc 0x00000000	rxrpc_kernel_get_reply_time
-EXPORT_SYMBOL	 net/rxrpc/rxrpc 0x00000000	rxrpc_kernel_get_rtt
+EXPORT_SYMBOL	 net/rxrpc/rxrpc 0x00000000	rxrpc_kernel_get_srtt
 EXPORT_SYMBOL	 net/rxrpc/rxrpc 0x00000000	rxrpc_kernel_new_call_notification
 EXPORT_SYMBOL	 net/rxrpc/rxrpc 0x00000000	rxrpc_kernel_recv_data
 EXPORT_SYMBOL	 net/rxrpc/rxrpc 0x00000000	rxrpc_kernel_send_data
@@ -9198,6 +9198,7 @@ EXPORT_SYMBOL_GPL	 net/sunrpc/sunrpc 0x00000000	write_bytes_to_xdr_buf
 EXPORT_SYMBOL_GPL	 net/sunrpc/sunrpc 0x00000000	xdr_buf_from_iov
 EXPORT_SYMBOL_GPL	 net/sunrpc/sunrpc 0x00000000	xdr_buf_read_mic
 EXPORT_SYMBOL_GPL	 net/sunrpc/sunrpc 0x00000000	xdr_buf_subsegment
+EXPORT_SYMBOL_GPL	 net/sunrpc/sunrpc 0x00000000	xdr_buf_trim
 EXPORT_SYMBOL_GPL	 net/sunrpc/sunrpc 0x00000000	xdr_commit_encode
 EXPORT_SYMBOL_GPL	 net/sunrpc/sunrpc 0x00000000	xdr_decode_array2
 EXPORT_SYMBOL_GPL	 net/sunrpc/sunrpc 0x00000000	xdr_decode_netobj

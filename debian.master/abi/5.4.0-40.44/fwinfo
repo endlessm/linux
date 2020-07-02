@@ -23,8 +23,6 @@ firmware:       advansys/mcode.bin
 firmware:       agere_ap_fw.bin
 firmware:       agere_sta_fw.bin
 firmware:       aic94xx-seq.fw
-firmware:       amdgpu/arcturus_smc.bin
-firmware:       amdgpu/arcturus_vcn.bin
 firmware:       amdgpu/banks_k_2_smc.bin
 firmware:       amdgpu/bonaire_ce.bin
 firmware:       amdgpu/bonaire_k_smc.bin
@@ -119,8 +117,6 @@ firmware:       amdgpu/navi10_sdma1.bin
 firmware:       amdgpu/navi10_smc.bin
 firmware:       amdgpu/navi10_sos.bin
 firmware:       amdgpu/navi10_vcn.bin
-firmware:       amdgpu/navi12_smc.bin
-firmware:       amdgpu/navi12_vcn.bin
 firmware:       amdgpu/navi14_asd.bin
 firmware:       amdgpu/navi14_ce.bin
 firmware:       amdgpu/navi14_ce_wks.bin
