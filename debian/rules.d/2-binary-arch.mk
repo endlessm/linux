@@ -543,7 +543,7 @@ binary-arch-headers: install-arch-headers
 	dh_testdir
 	dh_testroot
 ifeq ($(do_libc_dev_package),true)
-ifeq ($(filter debian.master debian.riscv,$(DEBIAN)),)
+ifneq ($(DEBIAN),debian.master)
 	echo "non-master branch building linux-libc-dev, aborting"
 	exit 1
 endif
