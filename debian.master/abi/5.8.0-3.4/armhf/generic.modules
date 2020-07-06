@@ -950,7 +950,7 @@ da311
 da8xx-fb
 da9030_battery
 da9034-ts
-da903x
+da903x-regulator
 da903x_bl
 da9052-battery
 da9052-hwmon
@@ -3042,6 +3042,7 @@ mt312
 mt352
 mt6311-regulator
 mt6323-regulator
+mt6358-regulator
 mt6360-core
 mt6380-regulator
 mt6397

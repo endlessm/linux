@@ -2411,6 +2411,8 @@ EXPORT_SYMBOL	 net/ipv4/netfilter/arp_tables 0x00000000	arpt_unregister_table
 EXPORT_SYMBOL	 net/ipv4/netfilter/ip_tables 0x00000000	ipt_do_table
 EXPORT_SYMBOL	 net/ipv4/netfilter/ip_tables 0x00000000	ipt_register_table
 EXPORT_SYMBOL	 net/ipv4/netfilter/ip_tables 0x00000000	ipt_unregister_table
+EXPORT_SYMBOL	 net/ipv4/netfilter/ip_tables 0x00000000	ipt_unregister_table_exit
+EXPORT_SYMBOL	 net/ipv4/netfilter/ip_tables 0x00000000	ipt_unregister_table_pre_exit
 EXPORT_SYMBOL	 net/ipv4/tunnel4 0x00000000	xfrm4_tunnel_deregister
 EXPORT_SYMBOL	 net/ipv4/tunnel4 0x00000000	xfrm4_tunnel_register
 EXPORT_SYMBOL	 net/ipv4/udp_tunnel 0x00000000	udp_sock_create4
@@ -2426,6 +2428,8 @@ EXPORT_SYMBOL	 net/ipv6/ip6_tunnel 0x00000000	ip6_tnl_xmit
 EXPORT_SYMBOL	 net/ipv6/netfilter/ip6_tables 0x00000000	ip6t_do_table
 EXPORT_SYMBOL	 net/ipv6/netfilter/ip6_tables 0x00000000	ip6t_register_table
 EXPORT_SYMBOL	 net/ipv6/netfilter/ip6_tables 0x00000000	ip6t_unregister_table
+EXPORT_SYMBOL	 net/ipv6/netfilter/ip6_tables 0x00000000	ip6t_unregister_table_exit
+EXPORT_SYMBOL	 net/ipv6/netfilter/ip6_tables 0x00000000	ip6t_unregister_table_pre_exit
 EXPORT_SYMBOL	 net/ipv6/tunnel6 0x00000000	xfrm6_tunnel_deregister
 EXPORT_SYMBOL	 net/ipv6/tunnel6 0x00000000	xfrm6_tunnel_register
 EXPORT_SYMBOL	 net/ipv6/xfrm6_tunnel 0x00000000	xfrm6_tunnel_alloc_spi
@@ -3966,6 +3970,7 @@ EXPORT_SYMBOL	 vmlinux 0x00000000	flow_block_cb_setup_simple
 EXPORT_SYMBOL	 vmlinux 0x00000000	flow_get_u32_dst
 EXPORT_SYMBOL	 vmlinux 0x00000000	flow_get_u32_src
 EXPORT_SYMBOL	 vmlinux 0x00000000	flow_hash_from_keys
+EXPORT_SYMBOL	 vmlinux 0x00000000	flow_indr_block_cb_alloc
 EXPORT_SYMBOL	 vmlinux 0x00000000	flow_indr_dev_register
 EXPORT_SYMBOL	 vmlinux 0x00000000	flow_indr_dev_setup_offload
 EXPORT_SYMBOL	 vmlinux 0x00000000	flow_indr_dev_unregister
@@ -4744,7 +4749,6 @@ EXPORT_SYMBOL	 vmlinux 0x00000000	kfree_skb
 EXPORT_SYMBOL	 vmlinux 0x00000000	kfree_skb_list
 EXPORT_SYMBOL	 vmlinux 0x00000000	kfree_skb_partial
 EXPORT_SYMBOL	 vmlinux 0x00000000	kill_anon_super
-EXPORT_SYMBOL	 vmlinux 0x00000000	kill_bdev
 EXPORT_SYMBOL	 vmlinux 0x00000000	kill_block_super
 EXPORT_SYMBOL	 vmlinux 0x00000000	kill_fasync
 EXPORT_SYMBOL	 vmlinux 0x00000000	kill_litter_super
@@ -7230,7 +7234,6 @@ EXPORT_SYMBOL_GPL	 drivers/i2c/i2c-core 0x00000000	i2c_handle_smbus_host_notify
 EXPORT_SYMBOL_GPL	 drivers/i2c/i2c-core 0x00000000	i2c_match_id
 EXPORT_SYMBOL_GPL	 drivers/i2c/i2c-core 0x00000000	i2c_new_ancillary_device
 EXPORT_SYMBOL_GPL	 drivers/i2c/i2c-core 0x00000000	i2c_new_client_device
-EXPORT_SYMBOL_GPL	 drivers/i2c/i2c-core 0x00000000	i2c_new_device
 EXPORT_SYMBOL_GPL	 drivers/i2c/i2c-core 0x00000000	i2c_new_dummy_device
 EXPORT_SYMBOL_GPL	 drivers/i2c/i2c-core 0x00000000	i2c_new_scanned_device
 EXPORT_SYMBOL_GPL	 drivers/i2c/i2c-core 0x00000000	i2c_new_smbus_alert_device
@@ -8998,8 +9001,6 @@ EXPORT_SYMBOL_GPL	 net/netfilter/nf_flow_table 0x00000000	nf_flow_snat_port
 EXPORT_SYMBOL_GPL	 net/netfilter/nf_flow_table 0x00000000	nf_flow_table_cleanup
 EXPORT_SYMBOL_GPL	 net/netfilter/nf_flow_table 0x00000000	nf_flow_table_free
 EXPORT_SYMBOL_GPL	 net/netfilter/nf_flow_table 0x00000000	nf_flow_table_init
-EXPORT_SYMBOL_GPL	 net/netfilter/nf_flow_table 0x00000000	nf_flow_table_offload_add_cb
-EXPORT_SYMBOL_GPL	 net/netfilter/nf_flow_table 0x00000000	nf_flow_table_offload_del_cb
 EXPORT_SYMBOL_GPL	 net/netfilter/nf_flow_table 0x00000000	nf_flow_table_offload_setup
 EXPORT_SYMBOL_GPL	 net/netfilter/nf_log_common 0x00000000	nf_log_dump_packet_common
 EXPORT_SYMBOL_GPL	 net/netfilter/nf_log_common 0x00000000	nf_log_dump_sk_uid_gid
@@ -9187,7 +9188,6 @@ EXPORT_SYMBOL_GPL	 net/rds/rds 0x00000000	rds_stats_info_copy
 EXPORT_SYMBOL_GPL	 net/rds/rds 0x00000000	rds_trans_register
 EXPORT_SYMBOL_GPL	 net/rds/rds 0x00000000	rds_trans_unregister
 EXPORT_SYMBOL_GPL	 net/rds/rds 0x00000000	rds_wq
-EXPORT_SYMBOL_GPL	 net/sched/act_ct 0x00000000	tcf_ct_flow_table_restore_skb
 EXPORT_SYMBOL_GPL	 net/sched/sch_pie 0x00000000	pie_calculate_probability
 EXPORT_SYMBOL_GPL	 net/sched/sch_pie 0x00000000	pie_drop_early
 EXPORT_SYMBOL_GPL	 net/sched/sch_pie 0x00000000	pie_process_dequeue
@@ -10132,6 +10132,9 @@ EXPORT_SYMBOL_GPL	 vmlinux 0x00000000	con_debug_leave
 EXPORT_SYMBOL_GPL	 vmlinux 0x00000000	cond_synchronize_rcu
 EXPORT_SYMBOL_GPL	 vmlinux 0x00000000	console_drivers
 EXPORT_SYMBOL_GPL	 vmlinux 0x00000000	console_printk
+EXPORT_SYMBOL_GPL	 vmlinux 0x00000000	copy_from_kernel_nofault
+EXPORT_SYMBOL_GPL	 vmlinux 0x00000000	copy_from_user_nofault
+EXPORT_SYMBOL_GPL	 vmlinux 0x00000000	copy_to_user_nofault
 EXPORT_SYMBOL_GPL	 vmlinux 0x00000000	cpci_hp_register_bus
 EXPORT_SYMBOL_GPL	 vmlinux 0x00000000	cpci_hp_register_controller
 EXPORT_SYMBOL_GPL	 vmlinux 0x00000000	cpci_hp_start
@@ -12054,9 +12057,6 @@ EXPORT_SYMBOL_GPL	 vmlinux 0x00000000	preempt_notifier_dec
 EXPORT_SYMBOL_GPL	 vmlinux 0x00000000	preempt_notifier_inc
 EXPORT_SYMBOL_GPL	 vmlinux 0x00000000	preempt_notifier_register
 EXPORT_SYMBOL_GPL	 vmlinux 0x00000000	preempt_notifier_unregister
-EXPORT_SYMBOL_GPL	 vmlinux 0x00000000	probe_kernel_read
-EXPORT_SYMBOL_GPL	 vmlinux 0x00000000	probe_user_read
-EXPORT_SYMBOL_GPL	 vmlinux 0x00000000	probe_user_write
 EXPORT_SYMBOL_GPL	 vmlinux 0x00000000	proc_create_net_data
 EXPORT_SYMBOL_GPL	 vmlinux 0x00000000	proc_create_net_data_write
 EXPORT_SYMBOL_GPL	 vmlinux 0x00000000	proc_create_net_single
@@ -12363,6 +12363,7 @@ EXPORT_SYMBOL_GPL	 vmlinux 0x00000000	securityfs_remove
 EXPORT_SYMBOL_GPL	 vmlinux 0x00000000	sed_ioctl
 EXPORT_SYMBOL_GPL	 vmlinux 0x00000000	seg6_do_srh_encap
 EXPORT_SYMBOL_GPL	 vmlinux 0x00000000	seg6_do_srh_inline
+EXPORT_SYMBOL_GPL	 vmlinux 0x00000000	seq_buf_printf
 EXPORT_SYMBOL_GPL	 vmlinux 0x00000000	serdev_controller_add
 EXPORT_SYMBOL_GPL	 vmlinux 0x00000000	serdev_controller_alloc
 EXPORT_SYMBOL_GPL	 vmlinux 0x00000000	serdev_controller_remove
