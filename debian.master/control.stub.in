@@ -4,7 +4,7 @@ Priority: optional
 Maintainer: Ubuntu Kernel Team <kernel-team@lists.ubuntu.com>
 Standards-Version: 3.9.4.0
 Build-Depends:
- debhelper (>= 9),
+ debhelper-compat (= 10),
  dh-systemd,
  cpio,
  kernel-wedge,
