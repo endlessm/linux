@@ -1010,7 +1010,6 @@ CONFIG_ARM64_ERRATUM_858921                     mark<ENFORCED> note<LP#1675509>
 # Menu: Device Drivers >> Common Clock Framework
 CONFIG_COMMON_CLK                               policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'i386': 'y', 'ppc64el': 'y', 's390x': 'n'}>
 CONFIG_COMMON_CLK_WM831X                        policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'ppc64el': 'm'}>
-CONFIG_CLK_HSDK                                 policy<{'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y'}>
 CONFIG_COMMON_CLK_MAX77686                      policy<{'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm'}>
 CONFIG_COMMON_CLK_MAX9485                       policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'i386': 'm', 'ppc64el': 'm'}>
 CONFIG_COMMON_CLK_RK808                         policy<{'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm'}>
