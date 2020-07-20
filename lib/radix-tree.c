@@ -20,13 +20,13 @@
 #include <linux/kernel.h>
 #include <linux/kmemleak.h>
 #include <linux/percpu.h>
-#include <linux/local_lock.h>
 #include <linux/preempt.h>		/* in_interrupt() */
 #include <linux/radix-tree.h>
 #include <linux/rcupdate.h>
 #include <linux/slab.h>
 #include <linux/string.h>
 #include <linux/xarray.h>
+
 
 /*
  * Radix tree node cache.
@@ -58,10 +58,12 @@ struct kmem_cache *radix_tree_node_cachep;
 /*
  * Per-cpu pool of preloaded nodes
  */
-DEFINE_PER_CPU(struct radix_tree_preload, radix_tree_preloads) = {
-	.lock = INIT_LOCAL_LOCK(lock),
+struct radix_tree_preload {
+	unsigned nr;
+	/* nodes->parent points to next preallocated node */
+	struct radix_tree_node *nodes;
 };
-EXPORT_PER_CPU_SYMBOL_GPL(radix_tree_preloads);
+static DEFINE_PER_CPU(struct radix_tree_preload, radix_tree_preloads) = { 0, };
 
 static inline struct radix_tree_node *entry_to_node(void *ptr)
 {
@@ -330,14 +332,14 @@ static __must_check int __radix_tree_preload(gfp_t gfp_mask, unsigned nr)
 	 */
 	gfp_mask &= ~__GFP_ACCOUNT;
 
-	local_lock(&radix_tree_preloads.lock);
+	preempt_disable();
 	rtp = this_cpu_ptr(&radix_tree_preloads);
 	while (rtp->nr < nr) {
-		local_unlock(&radix_tree_preloads.lock);
+		preempt_enable();
 		node = kmem_cache_alloc(radix_tree_node_cachep, gfp_mask);
 		if (node == NULL)
 			goto out;
-		local_lock(&radix_tree_preloads.lock);
+		preempt_disable();
 		rtp = this_cpu_ptr(&radix_tree_preloads);
 		if (rtp->nr < nr) {
 			node->parent = rtp->nodes;
@@ -379,7 +381,7 @@ int radix_tree_maybe_preload(gfp_t gfp_mask)
 	if (gfpflags_allow_blocking(gfp_mask))
 		return __radix_tree_preload(gfp_mask, RADIX_TREE_PRELOAD_SIZE);
 	/* Preloading doesn't help anything with this gfp mask, skip it */
-	local_lock(&radix_tree_preloads.lock);
+	preempt_disable();
 	return 0;
 }
 EXPORT_SYMBOL(radix_tree_maybe_preload);
@@ -1468,7 +1470,7 @@ EXPORT_SYMBOL(radix_tree_tagged);
 void idr_preload(gfp_t gfp_mask)
 {
 	if (__radix_tree_preload(gfp_mask, IDR_PRELOAD_SIZE))
-		local_lock(&radix_tree_preloads.lock);
+		preempt_disable();
 }
 EXPORT_SYMBOL(idr_preload);
 

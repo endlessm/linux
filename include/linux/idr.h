@@ -171,7 +171,7 @@ static inline bool idr_is_empty(const struct idr *idr)
  */
 static inline void idr_preload_end(void)
 {
-	local_unlock(&radix_tree_preloads.lock);
+	preempt_enable();
 }
 
 /**
