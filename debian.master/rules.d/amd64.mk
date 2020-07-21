@@ -23,3 +23,4 @@ do_tools_common = true
 do_tools_acpidbg = true
 do_zfs		= true
 do_dkms_nvidia  = false
+do_dkms_nvidia_server = true

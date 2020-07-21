@@ -46,6 +46,7 @@ ifneq ($(DEB_HOST_ARCH),$(DEB_BUILD_ARCH))
 	disable_d_i=true
 	do_zfs=false
 	do_dkms_nvidia=false
+	do_dkms_nvidia_server=false
 endif
 
 # Are any of the kernel signing options enabled.
@@ -79,6 +80,7 @@ ifneq ($(filter autopkgtest,$(DEB_BUILD_PROFILES)),)
 	disable_d_i=true
 	do_zfs=false
 	do_dkms_nvidia=false
+	do_dkms_nvidia_server=false
 endif
 
 # Being used to build a mainline build -- turn off things which do not work.
@@ -88,6 +90,7 @@ ifeq ($(do_mainline_build),true)
 	no_dumpfile=1
 	do_zfs=false
 	do_dkms_nvidia=false
+	do_dkms_nvidia_server=false
 	skipabi=true
 	skipmodule=true
 	skipretpoline=true
@@ -114,9 +117,11 @@ do_any_tools=$(sort $(filter-out false,$(do_linux_tools) $(do_cloud_tools)))
 
 # Versions of dkms packages.
 dkms_zfs_linux_version=$(shell gawk '/^zfs-linux / { print $$2; }' debian/dkms-versions)
-dkms_nvidia_390_version=$(shell gawk '/^nvidia-graphics-drivers-390/ { print $$2; }' debian/dkms-versions)
-dkms_nvidia_435_version=$(shell gawk '/^nvidia-graphics-drivers-435/ { print $$2; }' debian/dkms-versions)
-dkms_nvidia_440_version=$(shell gawk '/^nvidia-graphics-drivers-440/ { print $$2; }' debian/dkms-versions)
+dkms_nvidia_390_version=$(shell gawk '/^nvidia-graphics-drivers-390 / { print $$2; }' debian/dkms-versions)
+dkms_nvidia_435_version=$(shell gawk '/^nvidia-graphics-drivers-435 / { print $$2; }' debian/dkms-versions)
+dkms_nvidia_440_version=$(shell gawk '/^nvidia-graphics-drivers-440 / { print $$2; }' debian/dkms-versions)
+dkms_nvidia_418_server_version=$(shell gawk '/^nvidia-graphics-drivers-418-server / { print $$2; }' debian/dkms-versions)
+dkms_nvidia_440_server_version=$(shell gawk '/^nvidia-graphics-drivers-440-server / { print $$2; }' debian/dkms-versions)
 
 # Debian Build System targets
 binary: binary-indep binary-arch
