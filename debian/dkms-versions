@@ -1,7 +1,7 @@
-zfs-linux 0.8.4-1ubuntu8
+zfs-linux 0.8.4-1ubuntu10
 nvidia-graphics-drivers-390 390.138-0ubuntu2
 nvidia-graphics-drivers-435 435.21-0ubuntu8
-nvidia-graphics-drivers-450 0
-nvidia-graphics-drivers-418-server 0
-nvidia-graphics-drivers-440-server 0
-nvidia-graphics-drivers-450-server 0
+nvidia-graphics-drivers-450 450.57-0ubuntu2
+nvidia-graphics-drivers-418-server 418.152.00-0ubuntu2
+nvidia-graphics-drivers-440-server 440.95.01-0ubuntu2
+nvidia-graphics-drivers-450-server 450.51.05-0ubuntu3
