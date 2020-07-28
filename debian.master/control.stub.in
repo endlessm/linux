@@ -51,6 +51,7 @@ Build-Depends-Indep:
  python3-sphinx-rtd-theme <!stage1>,
  fontconfig <!stage1>,
  python3-docutils <!stage1>,
+ python3-venv <!stage1>,
 Vcs-Git: git://git.launchpad.net/~ubuntu-kernel/ubuntu/+source/linux/+git/=SERIES=
 XS-Testsuite: autopkgtest
 #XS-Testsuite-Depends: gcc-4.7 binutils
