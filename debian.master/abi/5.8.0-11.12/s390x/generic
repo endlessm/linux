@@ -2725,7 +2725,6 @@ EXPORT_SYMBOL	 vmlinux 0x00000000	__kernel_cpumcf_begin
 EXPORT_SYMBOL	 vmlinux 0x00000000	__kernel_cpumcf_end
 EXPORT_SYMBOL	 vmlinux 0x00000000	__kernel_fpu_begin
 EXPORT_SYMBOL	 vmlinux 0x00000000	__kernel_fpu_end
-EXPORT_SYMBOL	 vmlinux 0x00000000	__kernel_write
 EXPORT_SYMBOL	 vmlinux 0x00000000	__kfifo_alloc
 EXPORT_SYMBOL	 vmlinux 0x00000000	__kfifo_dma_in_finish_r
 EXPORT_SYMBOL	 vmlinux 0x00000000	__kfifo_dma_in_prepare
@@ -4558,7 +4557,9 @@ EXPORT_SYMBOL	 vmlinux 0x00000000	ip_sock_set_pktinfo
 EXPORT_SYMBOL	 vmlinux 0x00000000	ip_sock_set_recverr
 EXPORT_SYMBOL	 vmlinux 0x00000000	ip_sock_set_tos
 EXPORT_SYMBOL	 vmlinux 0x00000000	ip_tos2prio
+EXPORT_SYMBOL	 vmlinux 0x00000000	ip_tunnel_header_ops
 EXPORT_SYMBOL	 vmlinux 0x00000000	ip_tunnel_metadata_cnt
+EXPORT_SYMBOL	 vmlinux 0x00000000	ip_tunnel_parse_protocol
 EXPORT_SYMBOL	 vmlinux 0x00000000	ipmr_rule_default
 EXPORT_SYMBOL	 vmlinux 0x00000000	iptun_encaps
 EXPORT_SYMBOL	 vmlinux 0x00000000	iput
@@ -8190,13 +8191,10 @@ EXPORT_SYMBOL_GPL	 drivers/slimbus/slimbus 0x00000000	slim_xfer_msg
 EXPORT_SYMBOL_GPL	 drivers/slimbus/slimbus 0x00000000	slimbus_bus
 EXPORT_SYMBOL_GPL	 drivers/tty/serial/serial_core 0x00000000	uart_console_device
 EXPORT_SYMBOL_GPL	 drivers/tty/serial/serial_core 0x00000000	uart_get_rs485_mode
-EXPORT_SYMBOL_GPL	 drivers/tty/serial/serial_core 0x00000000	uart_handle_break
 EXPORT_SYMBOL_GPL	 drivers/tty/serial/serial_core 0x00000000	uart_handle_cts_change
 EXPORT_SYMBOL_GPL	 drivers/tty/serial/serial_core 0x00000000	uart_handle_dcd_change
-EXPORT_SYMBOL_GPL	 drivers/tty/serial/serial_core 0x00000000	uart_handle_sysrq_char
 EXPORT_SYMBOL_GPL	 drivers/tty/serial/serial_core 0x00000000	uart_insert_char
-EXPORT_SYMBOL_GPL	 drivers/tty/serial/serial_core 0x00000000	uart_prepare_sysrq_char
-EXPORT_SYMBOL_GPL	 drivers/tty/serial/serial_core 0x00000000	uart_unlock_and_check_sysrq
+EXPORT_SYMBOL_GPL	 drivers/tty/serial/serial_core 0x00000000	uart_try_toggle_sysrq
 EXPORT_SYMBOL_GPL	 drivers/uio/uio 0x00000000	__devm_uio_register_device
 EXPORT_SYMBOL_GPL	 drivers/uio/uio 0x00000000	__uio_register_device
 EXPORT_SYMBOL_GPL	 drivers/uio/uio 0x00000000	uio_event_notify
@@ -10648,6 +10646,7 @@ EXPORT_SYMBOL_GPL	 vmlinux 0x00000000	dm_internal_suspend_noflush
 EXPORT_SYMBOL_GPL	 vmlinux 0x00000000	dm_noflush_suspending
 EXPORT_SYMBOL_GPL	 vmlinux 0x00000000	dm_path_uevent
 EXPORT_SYMBOL_GPL	 vmlinux 0x00000000	dm_per_bio_data
+EXPORT_SYMBOL_GPL	 vmlinux 0x00000000	dm_post_suspending
 EXPORT_SYMBOL_GPL	 vmlinux 0x00000000	dm_put
 EXPORT_SYMBOL_GPL	 vmlinux 0x00000000	dm_report_zones_cb
 EXPORT_SYMBOL_GPL	 vmlinux 0x00000000	dm_send_uevents
@@ -10678,6 +10677,7 @@ EXPORT_SYMBOL_GPL	 vmlinux 0x00000000	dma_can_mmap
 EXPORT_SYMBOL_GPL	 vmlinux 0x00000000	dma_get_merge_boundary
 EXPORT_SYMBOL_GPL	 vmlinux 0x00000000	dma_get_required_mask
 EXPORT_SYMBOL_GPL	 vmlinux 0x00000000	dma_max_mapping_size
+EXPORT_SYMBOL_GPL	 vmlinux 0x00000000	dma_need_sync
 EXPORT_SYMBOL_GPL	 vmlinux 0x00000000	dma_resv_get_fences_rcu
 EXPORT_SYMBOL_GPL	 vmlinux 0x00000000	dma_resv_test_signaled_rcu
 EXPORT_SYMBOL_GPL	 vmlinux 0x00000000	dma_resv_wait_timeout_rcu
@@ -12090,7 +12090,6 @@ EXPORT_SYMBOL_GPL	 vmlinux 0x00000000	pvclock_gtod_register_notifier
 EXPORT_SYMBOL_GPL	 vmlinux 0x00000000	pvclock_gtod_unregister_notifier
 EXPORT_SYMBOL_GPL	 vmlinux 0x00000000	query_asymmetric_key
 EXPORT_SYMBOL_GPL	 vmlinux 0x00000000	queue_work_node
-EXPORT_SYMBOL_GPL	 vmlinux 0x00000000	radix_tree_preloads
 EXPORT_SYMBOL_GPL	 vmlinux 0x00000000	ras_userspace_consumers
 EXPORT_SYMBOL_GPL	 vmlinux 0x00000000	raw_abort
 EXPORT_SYMBOL_GPL	 vmlinux 0x00000000	raw_hash_sk
