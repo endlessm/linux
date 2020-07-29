@@ -46,7 +46,6 @@
 #define HW_ATL_FW_VER_1X 0x01050006U
 #define HW_ATL_FW_VER_2X 0x02000000U
 #define HW_ATL_FW_VER_3X 0x03000000U
-#define HW_ATL_FW_VER_4X 0x04000000U
 
 #define FORCE_FLASHLESS 0
 
@@ -80,9 +79,6 @@ int hw_atl_utils_initfw(struct aq_hw_s *self, const struct aq_fw_ops **fw_ops)
 					  self->fw_ver_actual) == 0) {
 		*fw_ops = &aq_fw_2x_ops;
 	} else if (hw_atl_utils_ver_match(HW_ATL_FW_VER_3X,
-					  self->fw_ver_actual) == 0) {
-		*fw_ops = &aq_fw_2x_ops;
-	} else if (hw_atl_utils_ver_match(HW_ATL_FW_VER_4X,
 					  self->fw_ver_actual) == 0) {
 		*fw_ops = &aq_fw_2x_ops;
 	} else {
