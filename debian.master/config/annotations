@@ -220,7 +220,7 @@ CONFIG_CRYPTO_CCM                               policy<{'amd64': 'm', 'arm64': '
 CONFIG_CRYPTO_GCM                               policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 's390x': 'y'}>
 CONFIG_CRYPTO_CHACHA20POLY1305                  policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 's390x': 'm'}>
 CONFIG_CRYPTO_AEGIS128                          policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 's390x': 'm'}>
-CONFIG_CRYPTO_AEGIS128_SIMD                     policy<{'arm64': 'n', 'armhf': 'n'}>
+CONFIG_CRYPTO_AEGIS128_SIMD                     policy<{'arm64': 'y', 'armhf': 'y'}>
 CONFIG_CRYPTO_AEGIS128_AESNI_SSE2               policy<{'amd64': 'm'}>
 CONFIG_CRYPTO_SEQIV                             policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 's390x': 'y'}>
 CONFIG_CRYPTO_ECHAINIV                          policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 's390x': 'm'}>
