@@ -148,8 +148,8 @@ void crypto_aegis128_init_neon(void *state, const void *key, const void *iv)
 		kiv,
 		vld1q_u8(const1),
 		vld1q_u8(const0),
-		k ^ vld1q_u8(const0),
-		k ^ vld1q_u8(const1),
+		(uint8x16_t) (k ^ vld1q_u8(const0)),
+		(uint8x16_t) (k ^ vld1q_u8(const1)),
 	}};
 	int i;
 
