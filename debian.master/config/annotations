@@ -12716,7 +12716,6 @@ CONFIG_MCPM                                     policy<{'armhf': 'y'}>
 CONFIG_BIG_LITTLE                               policy<{'armhf': 'y'}>
 CONFIG_BL_SWITCHER                              policy<{'armhf': 'y'}>
 CONFIG_BL_SWITCHER_DUMMY_IF                     policy<{'armhf': 'm'}>
-CONFIG_STACKPROTECTOR_PER_TASK                  policy<{'arm64': 'y'}>
 
 # Menu: Processor type and features >> Symmetric multi-processing support
 #
