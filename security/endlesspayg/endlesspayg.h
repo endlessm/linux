@@ -7,6 +7,7 @@
 #ifndef _SECURITY_ENDLESSPAYG_H
 #define _SECURITY_ENDLESSPAYG_H
 
+bool eospayg_enforcing(void);
 bool eospayg_skip_name(const char *name);
 bool eospayg_skip_name_wide(const u16 *name);
 bool eospayg_proc_pid_is_safe(pid_t tid);
