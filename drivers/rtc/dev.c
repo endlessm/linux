@@ -16,7 +16,7 @@
 #include <linux/sched/signal.h>
 #include "rtc-core.h"
 
-static dev_t rtc_devt;
+dev_t rtc_devt;
 
 #define RTC_DEV_MAX 16 /* 16 RTCs should be enough for everyone... */
 
