@@ -22,6 +22,8 @@
 #include "ntp_internal.h"
 #include "timekeeping_internal.h"
 
+#include "../../security/endlesspayg/endlesspayg.h"
+
 /**
  * struct ntp_data - Structure holding all NTP related state
  * @tick_usec:		USER_HZ period in microseconds
@@ -659,6 +661,10 @@ rearm:
 
 void ntp_notify_cmos_timer(bool offset_set)
 {
+	/* If PAYG is on, only eospaygd can update hwclock */
+	if (eospayg_enforcing())
+		return;
+
 	/*
 	 * If the time jumped (using ADJ_SETOFFSET) cancels sync timer,
 	 * which may have been running if the time was synchronized
