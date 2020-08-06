@@ -22,6 +22,7 @@
 #include "ntp_internal.h"
 #include "timekeeping_internal.h"
 
+#include "../../security/endlesspayg/endlesspayg.h"
 
 /*
  * NTP timekeeping variables:
@@ -624,6 +625,10 @@ static void sync_hw_clock(struct work_struct *work)
 
 void ntp_notify_cmos_timer(void)
 {
+	/* If PAYG is on, only eospaygd can update hwclock */
+	if (eospayg_enforcing())
+		return;
+
 	if (!ntp_synced())
 		return;
 
