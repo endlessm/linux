@@ -22,6 +22,7 @@
 #include "ntp_internal.h"
 #include "timekeeping_internal.h"
 
+#include "../../security/endlesspayg/endlesspayg.h"
 
 /*
  * NTP timekeeping variables:
@@ -662,6 +663,10 @@ rearm:
 
 void ntp_notify_cmos_timer(void)
 {
+	/* If PAYG is on, only eospaygd can update hwclock */
+	if (eospayg_enforcing())
+		return;
+
 	/*
 	 * When the work is currently executed but has not yet the timer
 	 * rearmed this queues the work immediately again. No big issue,
