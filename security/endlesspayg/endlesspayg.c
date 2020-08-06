@@ -24,6 +24,11 @@ static pid_t paygd_pid = -1;
 
 #define EOSPAYG_GUID EFI_GUID(0xd89c3871, 0xae0c, 0x4fc5, 0xa4, 0x09, 0xdc, 0x71, 0x7a, 0xee, 0x61, 0xe7)
 
+bool eospayg_enforcing(void)
+{
+	return paygd_pid != -1;
+}
+
 bool eospayg_skip_name(const char *name)
 {
 	if (paygd_pid == -1)
