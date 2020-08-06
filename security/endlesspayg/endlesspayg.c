@@ -31,6 +31,11 @@ static const struct lsm_id payg_lsmid = {
 	.lsmprop = true,
 };
 
+bool eospayg_enforcing(void)
+{
+	return paygd_pid != -1;
+}
+
 bool eospayg_skip_name(const char *name)
 {
 	if (paygd_pid == -1)
