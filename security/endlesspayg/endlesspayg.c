@@ -15,6 +15,9 @@
 #include <uapi/linux/lsm.h>
 #include "endlesspayg.h"
 
+/* exported in drivers/rtc/dev.c */
+extern dev_t rtc_devt;
+
 static bool payg_active = 0;
 static struct dentry *payg_dir;
 static struct dentry *paygd_pid_file;
@@ -126,6 +129,10 @@ static int payg_file_open(struct file *file)
 		    strcmp(name, "ro_lock_until_next_power_on") == 0)
 			return -EPERM;
 	}
+
+	if (S_ISCHR(file->f_inode->i_mode) &&
+	    imajor(file->f_inode) == MAJOR(rtc_devt))
+		return -EPERM;
 
 	return 0;
 }
