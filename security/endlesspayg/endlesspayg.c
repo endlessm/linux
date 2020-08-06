@@ -32,6 +32,11 @@ static pid_t paygd_pid = -1;
 # error CONFIG_ALLOW_LOCKDOWN_LIFT_BY_SYSRQ needs to be disabled for PAYG systems
 #endif
 
+bool eospayg_enforcing(void)
+{
+	return paygd_pid != -1;
+}
+
 bool eospayg_skip_name(const char *name)
 {
 	if (paygd_pid == -1)
