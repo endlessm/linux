@@ -4151,7 +4151,9 @@ static void ssd_end_io_acct(struct ssd_cmd *cmd)
 	unsigned long flag;
 #endif
 	
-#if (LINUX_VERSION_CODE >= KERNEL_VERSION(4,14,0))
+#if (LINUX_VERSION_CODE >= KERNEL_VERSION(5,8,0))
+	bio_end_io_acct(bio, cmd->start_time);
+#elif (LINUX_VERSION_CODE >= KERNEL_VERSION(4,14,0))
 	struct hd_struct *part = disk_map_sector_rcu(dev->gd, bio_start(bio));
 	generic_end_io_acct(dev->rq, rw, part, cmd->start_time);
 #elif ((LINUX_VERSION_CODE >= KERNEL_VERSION(3,0,0)) || (defined RHEL_MAJOR && RHEL_MAJOR == 6 && RHEL_MINOR >= 7))
@@ -4211,9 +4213,12 @@ static void ssd_start_io_acct(struct ssd_cmd *cmd)
 	unsigned long flag;
 #endif
 
-#if (LINUX_VERSION_CODE >= KERNEL_VERSION(4,14,0))
+#if (LINUX_VERSION_CODE >= KERNEL_VERSION(5,8,0))
+	cmd->start_time = bio_start_io_acct(bio);
+#elif (LINUX_VERSION_CODE >= KERNEL_VERSION(4,14,0))
 	struct hd_struct *part = disk_map_sector_rcu(dev->gd, bio_start(bio));
 	generic_start_io_acct(dev->rq, rw, bio_sectors(bio), part);
+	cmd->start_time = jiffies;
 #elif ((LINUX_VERSION_CODE >= KERNEL_VERSION(3,0,0)) || (defined RHEL_MAJOR && RHEL_MAJOR == 6 && RHEL_MINOR >= 7))
 	int cpu = part_stat_lock();
 	struct hd_struct *part = disk_map_sector_rcu(dev->gd, bio_start(bio));
@@ -4222,6 +4227,7 @@ static void ssd_start_io_acct(struct ssd_cmd *cmd)
 	part_stat_add(cpu, part, sectors[rw], bio_sectors(bio));
 	part_inc_in_flight(part, rw);
 	part_stat_unlock();
+	cmd->start_time = jiffies;
 #elif (LINUX_VERSION_CODE > KERNEL_VERSION(2,6,27))
 	int cpu = part_stat_lock();
 	struct hd_struct *part = &dev->gd->part0;
@@ -4234,6 +4240,7 @@ static void ssd_start_io_acct(struct ssd_cmd *cmd)
 	spin_unlock_irqrestore(&dev->in_flight_lock,flag);	
 	
 	part_stat_unlock();
+	cmd->start_time = jiffies;
 
 #elif (LINUX_VERSION_CODE > KERNEL_VERSION(2,6,14))
 	preempt_disable();
@@ -4246,6 +4253,7 @@ static void ssd_start_io_acct(struct ssd_cmd *cmd)
 	spin_unlock_irqrestore(&dev->in_flight_lock,flag);	
 	
 	preempt_enable();
+	cmd->start_time = jiffies;
 #else
 	preempt_disable();
 	disk_round_stats(dev->gd);
@@ -4262,10 +4270,8 @@ static void ssd_start_io_acct(struct ssd_cmd *cmd)
 	spin_unlock_irqrestore(&dev->in_flight_lock,flag);	
 	
 	preempt_enable();
-
-#endif
-
 	cmd->start_time = jiffies;
+#endif
 }
 
 /* io */
