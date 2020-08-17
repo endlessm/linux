@@ -37,6 +37,11 @@
 #include "ruleset.h"
 #include "setup.h"
 
+static struct lsm_id landlock_lsmid __lsm_ro_after_init = {
+	.lsm  = "landlock",
+	.slot = LSMBLOB_NEEDED
+};
+
 /* Underlying object management */
 
 static void release_inode(struct landlock_object *const object)
@@ -688,5 +693,5 @@ static struct security_hook_list landlock_hooks[] __lsm_ro_after_init = {
 __init void landlock_add_fs_hooks(void)
 {
 	security_add_hooks(landlock_hooks, ARRAY_SIZE(landlock_hooks),
-			LANDLOCK_NAME);
+			&landlock_lsmid);
 }
