@@ -6,6 +6,7 @@
 #include <linux/module.h>
 #include <linux/mutex.h>
 #include <linux/of_address.h>
+#include <linux/math64.h>
 #include "qcom_pil_info.h"
 
 /*
@@ -56,7 +57,7 @@ static int qcom_pil_info_init(void)
 	memset_io(base, 0, resource_size(&imem));
 
 	_reloc.base = base;
-	_reloc.num_entries = resource_size(&imem) / PIL_RELOC_ENTRY_SIZE;
+	_reloc.num_entries = div_u64(resource_size(&imem), PIL_RELOC_ENTRY_SIZE);
 
 	return 0;
 }
