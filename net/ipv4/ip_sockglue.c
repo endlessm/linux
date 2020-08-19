@@ -139,10 +139,7 @@ static void ip_cmsg_recv_security(struct msghdr *msg, struct sk_buff *skb)
 	if (err)
 		return;
 
-	/* There can only be one secid in the lsmblob at this point,
-	 * so getting it using lsmblob_value() is sufficient until
-	 * security_secid_to_secctx() is changed to use a lsmblob */
-	err = security_secid_to_secctx(lsmblob_value(&lb), &secdata, &seclen);
+	err = security_secid_to_secctx(&lb, &secdata, &seclen);
 	if (err)
 		return;
 
