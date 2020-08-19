@@ -8526,7 +8526,9 @@ static int ssd_make_request(struct request_queue *q, struct bio *bio)
 		goto out;
 	}
 
-#if (LINUX_VERSION_CODE >= KERNEL_VERSION(4,13,0))
+#if (LINUX_VERSION_CODE >= KERNEL_VERSION(5,9,0))
+	blk_queue_split(&bio);
+#elif (LINUX_VERSION_CODE >= KERNEL_VERSION(4,13,0))
 	blk_queue_split(q, &bio);
 #elif (LINUX_VERSION_CODE >= KERNEL_VERSION(4,3,0))
 	blk_queue_split(q, &bio, q->bio_split);
