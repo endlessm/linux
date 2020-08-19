@@ -14,6 +14,7 @@
 #include <linux/rbtree.h>
 #include <linux/rcupdate.h>
 #include <linux/workqueue.h>
+#include <linux/rwsem.h>
 
 #include "i915_utils.h"
 
