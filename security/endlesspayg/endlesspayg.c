@@ -14,6 +14,9 @@
 #include <linux/types.h>
 #include "endlesspayg.h"
 
+/* exported in drivers/rtc/dev.c */
+extern dev_t rtc_devt;
+
 static bool payg_active = 0;
 static struct dentry *payg_dir;
 static struct dentry *paygd_pid_file;
@@ -28,6 +31,11 @@ static pid_t paygd_pid = -1;
 #ifdef CONFIG_ALLOW_LOCKDOWN_LIFT_BY_SYSRQ
 # error CONFIG_ALLOW_LOCKDOWN_LIFT_BY_SYSRQ needs to be disabled for PAYG systems
 #endif
+
+bool eospayg_enforcing(void)
+{
+	return paygd_pid != -1;
+}
 
 bool eospayg_skip_name(const char *name)
 {
@@ -127,6 +135,10 @@ static int payg_file_open(struct file *file)
 		    strcmp(name, "ro_lock_until_next_power_on") == 0)
 			return -EPERM;
 	}
+
+	if (S_ISCHR(file->f_inode->i_mode) &&
+	    imajor(file->f_inode) == MAJOR(rtc_devt))
+		return -EPERM;
 
 	return 0;
 }
