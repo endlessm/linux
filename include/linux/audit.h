@@ -186,7 +186,9 @@ extern void		    audit_log_path_denied(int type,
 						  const char *operation);
 extern void		    audit_log_lost(const char *message);
 
-extern int audit_log_task_context(struct audit_buffer *ab);
+extern void audit_log_lsm(struct lsmblob *blob, bool exiting);
+extern int audit_log_task_context(struct audit_buffer *ab,
+				  struct lsmblob *blob);
 extern void audit_log_task_info(struct audit_buffer *ab);
 
 extern int		    audit_update_lsm_rules(void);
@@ -246,7 +248,10 @@ static inline void audit_log_key(struct audit_buffer *ab, char *key)
 { }
 static inline void audit_log_path_denied(int type, const char *operation)
 { }
-static inline int audit_log_task_context(struct audit_buffer *ab)
+static inline void audit_log_lsm(struct lsmblob *blob, bool exiting)
+{ }
+static inline int audit_log_task_context(struct audit_buffer *ab,
+					 struct lsmblob *blob);
 {
 	return 0;
 }
@@ -304,6 +309,7 @@ extern void audit_seccomp(unsigned long syscall, long signr, int code);
 extern void audit_seccomp_actions_logged(const char *names,
 					 const char *old_names, int res);
 extern void __audit_ptrace(struct task_struct *t);
+extern void audit_stamp_context(struct audit_context *ctx);
 
 static inline void audit_set_context(struct task_struct *task, struct audit_context *ctx)
 {
@@ -672,6 +678,9 @@ static inline void audit_ntp_log(const struct audit_ntp_data *ad)
 { }
 
 static inline void audit_ptrace(struct task_struct *t)
+{ }
+
+static inline void audit_stamp_context(struct audit_context *ctx)
 { }
 
 static inline void audit_log_nfcfg(const char *name, u8 af,
