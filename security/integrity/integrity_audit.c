@@ -52,7 +52,7 @@ void integrity_audit_message(int audit_msgno, struct inode *inode,
 			 from_kuid(&init_user_ns, current_uid()),
 			 from_kuid(&init_user_ns, audit_get_loginuid(current)),
 			 audit_get_sessionid(current));
-	audit_log_task_context(ab);
+	audit_log_task_context(ab, NULL);
 	audit_log_format(ab, " op=%s cause=%s comm=", op, cause);
 	audit_log_untrustedstring(ab, get_task_comm(name, current));
 	if (fname) {
