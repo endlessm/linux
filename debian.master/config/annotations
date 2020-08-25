@@ -12757,7 +12757,6 @@ CONFIG_ARM64_RAS_EXTN                           policy<{'arm64': 'y'}>
 CONFIG_ARM64_CNP                                policy<{'arm64': 'y'}>
 
 # Menu: Processor type and features >> ARMv8.3 architectural features >> Architecture: arm64
-CONFIG_ARM64_PTR_AUTH                           policy<{'arm64': 'y'}>
 
 # Menu: Processor type and features >> ARMv8.4 architectural features >> Architecture: arm64
 CONFIG_ARM64_AMU_EXTN                           policy<{'arm64': 'y'}>
