@@ -10389,6 +10389,7 @@ CONFIG_WATCHDOG_HANDLE_BOOT_ENABLED             policy<{'amd64': 'y', 'arm64': '
 CONFIG_WATCHDOG_OPEN_TIMEOUT                    policy<{'amd64': '0', 'arm64': '0', 'armhf': '0', 'ppc64el': '0', 's390x': '0'}>
 CONFIG_WATCHDOG_SYSFS                           policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 's390x': 'y'}>
 CONFIG_WATCHDOG_HRTIMER_PRETIMEOUT              policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'ppc64el': 'n', 's390x': 'n'}>
+CONFIG_ENDLESS_WATCHDOG                         policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 's390x': 'm'}>
 CONFIG_SOFT_WATCHDOG                            policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 's390x': 'm'}>
 CONFIG_SOFT_WATCHDOG_PRETIMEOUT                 policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 's390x': 'y'}>
 CONFIG_BD957XMUF_WATCHDOG                       policy<{'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm'}>
