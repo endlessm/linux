@@ -7247,7 +7247,7 @@ CONFIG_LP_CONSOLE                               policy<{'amd64': 'n', 'arm64': '
 CONFIG_LRU_CACHE                                policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm', 's390x': 'm'}>
 CONFIG_LRU_GEN_STATS                            policy<{'amd64': 'n', 'arm64': 'n', 'ppc64el': 'n', 'riscv64': 'n', 's390x': 'n'}>
 CONFIG_LSI_ET1011C_PHY                          policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm', 's390x': 'm'}>
-CONFIG_LSM                                      policy<{'amd64': '"landlock,lockdown,yama,integrity,apparmor"', 'arm64': '"landlock,lockdown,yama,integrity,apparmor"', 'armhf': '"landlock,lockdown,yama,integrity,apparmor"', 'ppc64el': '"landlock,lockdown,yama,integrity,apparmor"', 'riscv64': '"landlock,lockdown,yama,integrity,apparmor"', 's390x': '"landlock,lockdown,yama,integrity,apparmor"'}>
+CONFIG_LSM                                      policy<{'amd64': '"endlesspayg,landlock,lockdown,yama,integrity,apparmor"', 'arm64': '"endlesspayg,landlock,lockdown,yama,integrity,apparmor"', 'armhf': '"landlock,lockdown,yama,integrity,apparmor"', 'ppc64el': '"landlock,lockdown,yama,integrity,apparmor"', 'riscv64': '"landlock,lockdown,yama,integrity,apparmor"', 's390x': '"landlock,lockdown,yama,integrity,apparmor"'}>
 CONFIG_LSM_MMAP_MIN_ADDR                        policy<{'amd64': '0', 'arm64': '0', 'armhf': '0', 'ppc64el': '0', 'riscv64': '0', 's390x': '0'}>
 CONFIG_LS_EXTIRQ                                policy<{'arm64': 'y'}>
 CONFIG_LS_SCFG_MSI                              policy<{'arm64': 'y'}>
