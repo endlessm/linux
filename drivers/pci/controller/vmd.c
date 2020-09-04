@@ -196,15 +196,13 @@ static struct vmd_irq_list *vmd_next_irq(struct vmd_dev *vmd, struct msi_desc *d
 	int i, best = 1;
 	unsigned long flags;
 
-	if (vmd->msix_count == 1)
-		return &vmd->irqs[0];
-
 	/*
-	 * White list for fast-interrupt handlers. All others will share the
+	 * Allow list for fast-interrupt handlers. All others will share the
 	 * "slow" interrupt vector.
 	 */
 	switch (msi_desc_to_pci_dev(desc)->class) {
 	case PCI_CLASS_STORAGE_EXPRESS:
+	case PCI_CLASS_STORAGE_SATA_AHCI:
 		break;
 	default:
 		return &vmd->irqs[0];
@@ -628,7 +626,7 @@ static int vmd_probe(struct pci_dev *dev, const struct pci_device_id *id)
 	if (vmd->msix_count < 0)
 		return -ENODEV;
 
-	vmd->msix_count = pci_alloc_irq_vectors(dev, 1, vmd->msix_count,
+	vmd->msix_count = pci_alloc_irq_vectors(dev, 2, vmd->msix_count,
 					PCI_IRQ_MSIX);
 	if (vmd->msix_count < 0)
 		return vmd->msix_count;
