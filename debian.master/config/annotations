@@ -1922,7 +1922,7 @@ CONFIG_DRM_IMX_HDMI                             policy<{'armhf': 'm'}>
 # Menu: Device Drivers >> Graphics support >> Direct Rendering Manager (XFree86 4.1.0 and higher DRI support) >> DRM Support for Rockchip
 CONFIG_DRM_ROCKCHIP                             policy<{'arm64': 'm', 'armhf': 'm'}>
 CONFIG_ROCKCHIP_ANALOGIX_DP                     policy<{'arm64': 'y', 'armhf': 'y'}>
-CONFIG_ROCKCHIP_CDN_DP                          policy<{'arm64': 'y', 'armhf': 'y'}>
+CONFIG_ROCKCHIP_CDN_DP                          policy<{'arm64': 'n', 'armhf': 'n'}>
 CONFIG_ROCKCHIP_DW_HDMI                         policy<{'arm64': 'y', 'armhf': 'y'}>
 CONFIG_ROCKCHIP_DW_MIPI_DSI                     policy<{'arm64': 'y', 'armhf': 'y'}>
 CONFIG_ROCKCHIP_INNO_HDMI                       policy<{'arm64': 'y', 'armhf': 'y'}>
