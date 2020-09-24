@@ -380,7 +380,7 @@
 };
 
 &cdn_dp {
-	status = "okay";
+	status = "disabled";
 };
 
 &cpu_b0 {
