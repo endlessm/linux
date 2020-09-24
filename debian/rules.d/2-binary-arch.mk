@@ -491,6 +491,11 @@ endif
 	install -m644 $(abidir)/$*.compiler \
 		$(pkgdir_bldinfo)/usr/lib/linux/$(abi_release)-$*/compiler
 
+ifneq ($(full_build),false)
+	# Clean out this flavours build directory.
+	rm -rf $(builddir)/build-$*
+endif
+
 headers_tmp := $(CURDIR)/debian/tmp-headers
 headers_dir := $(CURDIR)/debian/linux-libc-dev
 
@@ -636,8 +641,6 @@ ifeq ($(do_cloud_tools),true)
 endif
 
 ifneq ($(full_build),false)
-	# Clean out this flavours build directory.
-	rm -rf $(builddir)/build-$*
 	# Clean out the debugging package source directory.
 	rm -rf $(dbgpkgdir)
 endif
