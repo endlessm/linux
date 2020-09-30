@@ -14,6 +14,10 @@ source "ubuntu/hio/Kconfig"
 ##
 ##
 ##
+source "ubuntu/ubuntu-host/Kconfig"
+##
+##
+##
 ##
 ##
 ##
