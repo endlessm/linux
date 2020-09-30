@@ -16,6 +16,7 @@ config UBUNTU_ODM_DRIVERS
 ##
 ##
 ##
+source "ubuntu/ubuntu-host/Kconfig"
 ##
 ##
 ##
