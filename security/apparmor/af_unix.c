@@ -22,7 +22,7 @@
 #include "include/policy.h"
 #include "include/cred.h"
 
-static inline struct sock *aa_sock(struct unix_sock *u)
+static inline struct sock *aa_unix_sk(struct unix_sock *u)
 {
 	return &u->sk;
 }
@@ -32,7 +32,7 @@ static inline int unix_fs_perm(const char *op, u32 mask, struct aa_label *label,
 {
 	AA_BUG(!label);
 	AA_BUG(!u);
-	AA_BUG(!UNIX_FS(aa_sock(u)));
+	AA_BUG(!UNIX_FS(aa_unix_sk(u)));
 
 	if (unconfined(label) || !LABEL_MEDIATES(label, AA_CLASS_FILE))
 		return 0;
@@ -547,9 +547,9 @@ int aa_unix_peer_perm(struct aa_label *label, const char *op, u32 request,
 	AA_BUG(!sk);
 	AA_BUG(!peer_sk);
 
-	if (UNIX_FS(aa_sock(peeru)))
+	if (UNIX_FS(aa_unix_sk(peeru)))
 		return unix_fs_perm(op, request, label, peeru, 0);
-	else if (UNIX_FS(aa_sock(u)))
+	else if (UNIX_FS(aa_unix_sk(u)))
 		return unix_fs_perm(op, request, label, u, 0);
 	else {
 		struct aa_profile *profile;
