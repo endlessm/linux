@@ -3405,16 +3405,15 @@ static const struct constant_table shmem_param_enums_huge[] = {
 };
 
 const struct fs_parameter_spec shmem_fs_parameters[] = {
-	fsparam_u32   ("gid",		Opt_gid),
-	fsparam_enum  ("huge",		Opt_huge,  shmem_param_enums_huge),
-	fsparam_u32oct("mode",		Opt_mode),
-	fsparam_string("mpol",		Opt_mpol),
-	fsparam_string("nr_blocks",	Opt_nr_blocks),
-	fsparam_string("nr_inodes",	Opt_nr_inodes),
-	fsparam_string("size",		Opt_size),
-	fsparam_u32   ("uid",		Opt_uid),
-	fsparam_bool  ("user_xattr",	Opt_user_xattr),
-	fsparam_bool  ("nouser_xattr",	Opt_nouser_xattr),
+	fsparam_u32    ("gid",		Opt_gid),
+	fsparam_enum   ("huge",		Opt_huge,  shmem_param_enums_huge),
+	fsparam_u32oct ("mode",		Opt_mode),
+	fsparam_string ("mpol",		Opt_mpol),
+	fsparam_string ("nr_blocks",	Opt_nr_blocks),
+	fsparam_string ("nr_inodes",	Opt_nr_inodes),
+	fsparam_string ("size",		Opt_size),
+	fsparam_u32    ("uid",		Opt_uid),
+	fsparam_flag_no("user_xattr",	Opt_nouser_xattr),
 	{}
 };
 
@@ -3432,11 +3431,10 @@ static int shmem_parse_one(struct fs_context *fc, struct fs_parameter *param)
 
 	switch (opt) {
 	case Opt_user_xattr:
-		ctx->user_xattr = true;
-		ctx->seen |= SHMEM_SEEN_USER_XATTR;
-		break;
-	case Opt_nouser_xattr:
-		ctx->user_xattr = false;
+		if (result.boolean)
+			ctx->user_xattr = true;
+		else
+			ctx->user_xattr = false;
 		ctx->seen |= SHMEM_SEEN_USER_XATTR;
 		break;
 	case Opt_size:
