@@ -523,8 +523,11 @@ int smk_netlbl_mls(int level, char *catset, struct netlbl_lsm_secattr *sap,
 int smack_populate_secattr(struct smack_known *skp)
 {
 	int slen;
+	struct lsmblob *blob;
 
-	skp->smk_netlabel.attr.secid = skp->smk_secid;
+	blob = &skp->smk_netlabel.attr.lsmblob;
+	lsmblob_init(blob, 0);
+	blob->secid[smack_lsmid.slot] = skp->smk_secid;
 	skp->smk_netlabel.domain = skp->smk_known;
 	skp->smk_netlabel.cache = netlbl_secattr_cache_alloc(GFP_ATOMIC);
 	if (skp->smk_netlabel.cache != NULL) {
