@@ -426,13 +426,13 @@ static int dell_uart_bl_add(struct acpi_device *dev)
 			/* try another command to make sure there is no scalar IC */
 			if (dell_uart_show_firmware_ver(dell_pdata) <= 4) {
 				pr_debug("Scalar is not in charge of brightness adjustment.\n");
-				kzfree(dell_pdata);
+				kfree_sensitive(dell_pdata);
 				return -ENODEV;
 			}
 		}
 		else if (!dell_uart_get_scalar_status(dell_pdata)) {
 			pr_debug("Scalar is not in charge of brightness adjustment.\n");
-			kzfree(dell_pdata);
+			kfree_sensitive(dell_pdata);
 			return -ENODEV;
 		}
 	}
@@ -448,7 +448,7 @@ static int dell_uart_bl_add(struct acpi_device *dev)
 						 &dell_uart_backlight_ops,
 						 &props);
 	if (IS_ERR(dell_uart_bd)) {
-		kzfree(dell_pdata);
+		kfree_sensitive(dell_pdata);
 		pr_debug("Backlight registration failed\n");
 		return PTR_ERR(dell_uart_bd);
 	}
@@ -470,7 +470,7 @@ static int dell_uart_bl_remove(struct acpi_device *dev)
 	struct dell_uart_backlight *dell_pdata = dev->driver_data;
 
 	backlight_device_unregister(dell_pdata->dell_uart_bd);
-	kzfree(dell_pdata);
+	kfree_sensitive(dell_pdata);
 
 	return 0;
 }
