@@ -12800,9 +12800,9 @@ CONFIG_X86_POWERNOW_K8                          note<not autoloadable>
 CONFIG_CPU_FREQ_DEFAULT_GOV_PERFORMANCE         policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'ppc64el': 'n'}>
 CONFIG_CPU_FREQ_DEFAULT_GOV_POWERSAVE           policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'ppc64el': 'n'}>
 CONFIG_CPU_FREQ_DEFAULT_GOV_USERSPACE           policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'ppc64el': 'n'}>
-CONFIG_CPU_FREQ_DEFAULT_GOV_ONDEMAND            policy<{'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y'}>
+CONFIG_CPU_FREQ_DEFAULT_GOV_ONDEMAND            policy<{'arm64': 'n', 'armhf': 'n', 'ppc64el': 'y'}>
 CONFIG_CPU_FREQ_DEFAULT_GOV_CONSERVATIVE        policy<{'arm64': 'n', 'armhf': 'n', 'ppc64el': 'n'}>
-CONFIG_CPU_FREQ_DEFAULT_GOV_SCHEDUTIL           policy<{'amd64': 'y', 'arm64': 'n', 'armhf': 'n', 'ppc64el': 'n'}>
+CONFIG_CPU_FREQ_DEFAULT_GOV_SCHEDUTIL           policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'n'}>
 #
 CONFIG_CPU_FREQ_DEFAULT_GOV_PERFORMANCE         note<for bootspeed>
 
