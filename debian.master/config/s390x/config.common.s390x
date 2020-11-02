@@ -572,7 +572,6 @@ CONFIG_VFIO_VIRQFD=m
 CONFIG_VIRT_CPU_ACCOUNTING_NATIVE=y
 # CONFIG_VME_BUS is not set
 # CONFIG_VMXNET3 is not set
-# CONFIG_VOP_BUS is not set
 # CONFIG_VXFS_FS is not set
 # CONFIG_VXGE is not set
 # CONFIG_W1 is not set
