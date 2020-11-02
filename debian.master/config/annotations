@@ -11144,12 +11144,12 @@ CONFIG_DEBUG_INFO_REDUCED                       policy<{'amd64': 'n', 'arm64': '
 CONFIG_DEBUG_INFO_COMPRESSED                    policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'ppc64el': 'n', 's390x': 'n'}>
 CONFIG_DEBUG_INFO_SPLIT                         policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'ppc64el': 'n', 's390x': 'n'}>
 CONFIG_DEBUG_INFO_DWARF4                        policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 's390x': 'y'}>
-CONFIG_DEBUG_INFO_BTF                           policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 's390x': 'y'}>
+CONFIG_DEBUG_INFO_BTF                           policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'n', 'ppc64el': 'y', 's390x': 'y'}>
 CONFIG_GDB_SCRIPTS                              policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 's390x': 'y'}>
 #
 CONFIG_DEBUG_INFO                               mark<ENFORCED> note<required for debug packages>
 CONFIG_DEBUG_INFO_SPLIT                         note<LP:1413646 and LP:1413664>
-CONFIG_DEBUG_INFO_BTF                           flag<REVIEW> note<Might be useful for bpf, reuquires pahole to build>
+CONFIG_DEBUG_INFO_BTF                           flag<REVIEW> note<Needs newer pahole for armhf>
 
 # Menu: Kernel hacking >> Debug Oops, Lockups and Hangs
 CONFIG_PANIC_ON_OOPS                            policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'ppc64el': 'n', 's390x': 'n'}>
