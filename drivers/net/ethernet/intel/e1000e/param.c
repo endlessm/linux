@@ -273,6 +273,27 @@ static const struct dmi_system_id s0ix_supported_systems[] = {
 			DMI_MATCH(DMI_PRODUCT_SKU, "09C4"),
 		},
 	},
+	{
+		/* Dell Notebook 0x0A40 */
+		.matches = {
+			DMI_MATCH(DMI_SYS_VENDOR, "Dell Inc."),
+			DMI_MATCH(DMI_PRODUCT_SKU, "0A40"),
+		},
+	},
+	{
+		/* Dell Notebook 0x0A41 */
+		.matches = {
+			DMI_MATCH(DMI_SYS_VENDOR, "Dell Inc."),
+			DMI_MATCH(DMI_PRODUCT_SKU, "0A41"),
+		},
+	},
+	{
+		/* Dell Notebook 0x0A42 */
+		.matches = {
+			DMI_MATCH(DMI_SYS_VENDOR, "Dell Inc."),
+			DMI_MATCH(DMI_PRODUCT_SKU, "0A42"),
+		},
+	},
 	{ }
 };
 
