@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: GPL-2.0
 /* Copyright(c) 1999 - 2018 Intel Corporation. */
 
+#include <linux/dmi.h>
 #include <linux/netdevice.h>
 #include <linux/module.h>
 #include <linux/pci.h>
@@ -199,6 +200,80 @@ static const struct e1000e_me_supported me_supported[] = {
 	{E1000_DEV_ID_PCH_TGP_I219_LM14},
 	{E1000_DEV_ID_PCH_TGP_I219_LM15},
 	{0}
+};
+
+static const struct dmi_system_id s0ix_supported_systems[] = {
+	{
+		/* Dell Latitude 5310 */
+		.matches = {
+			DMI_MATCH(DMI_SYS_VENDOR, "Dell Inc."),
+			DMI_MATCH(DMI_PRODUCT_SKU, "099F"),
+		},
+	},
+	{
+		/* Dell Latitude 5410 */
+		.matches = {
+			DMI_MATCH(DMI_SYS_VENDOR, "Dell Inc."),
+			DMI_MATCH(DMI_PRODUCT_SKU, "09A0"),
+		},
+	},
+	{
+		/* Dell Latitude 5410 */
+		.matches = {
+			DMI_MATCH(DMI_SYS_VENDOR, "Dell Inc."),
+			DMI_MATCH(DMI_PRODUCT_SKU, "09C9"),
+		},
+	},
+	{
+		/* Dell Latitude 5510 */
+		.matches = {
+			DMI_MATCH(DMI_SYS_VENDOR, "Dell Inc."),
+			DMI_MATCH(DMI_PRODUCT_SKU, "09A1"),
+		},
+	},
+	{
+		/* Dell Precision 3550 */
+		.matches = {
+			DMI_MATCH(DMI_SYS_VENDOR, "Dell Inc."),
+			DMI_MATCH(DMI_PRODUCT_SKU, "09A2"),
+		},
+	},
+	{
+		/* Dell Latitude 5411 */
+		.matches = {
+			DMI_MATCH(DMI_SYS_VENDOR, "Dell Inc."),
+			DMI_MATCH(DMI_PRODUCT_SKU, "09C0"),
+		},
+	},
+	{
+		/* Dell Latitude 5511 */
+		.matches = {
+			DMI_MATCH(DMI_SYS_VENDOR, "Dell Inc."),
+			DMI_MATCH(DMI_PRODUCT_SKU, "09C1"),
+		},
+	},
+	{
+		/* Dell Precision 3551 */
+		.matches = {
+			DMI_MATCH(DMI_SYS_VENDOR, "Dell Inc."),
+			DMI_MATCH(DMI_PRODUCT_SKU, "09C2"),
+		},
+	},
+	{
+		/* Dell Precision 7550 */
+		.matches = {
+			DMI_MATCH(DMI_SYS_VENDOR, "Dell Inc."),
+			DMI_MATCH(DMI_PRODUCT_SKU, "09C3"),
+		},
+	},
+	{
+		/* Dell Precision 7750 */
+		.matches = {
+			DMI_MATCH(DMI_SYS_VENDOR, "Dell Inc."),
+			DMI_MATCH(DMI_PRODUCT_SKU, "09C4"),
+		},
+	},
+	{ }
 };
 
 static bool e1000e_check_me(u16 device_id)
@@ -599,8 +674,11 @@ void e1000e_check_options(struct e1000_adapter *adapter)
 		}
 
 		if (enabled == S0IX_HEURISTICS) {
+			/* check for allowlist of systems */
+			if (dmi_check_system(s0ix_supported_systems))
+				enabled = S0IX_FORCE_ON;
 			/* default to off for ME configurations */
-			if (e1000e_check_me(hw->adapter->pdev->device))
+			else if (e1000e_check_me(hw->adapter->pdev->device))
 				enabled = S0IX_FORCE_OFF;
 		}
 
