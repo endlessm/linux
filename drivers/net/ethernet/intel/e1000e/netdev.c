@@ -103,44 +103,16 @@ static const struct e1000_reg_info e1000_reg_info_tbl[] = {
 	{0, NULL}
 };
 
-struct e1000e_me_supported {
-	u16 device_id;		/* supported device ID */
+static DEVICE_ATTR_RW(enable_s0ix);
+
+static struct attribute *e1000e_attrs[] = {
+	&dev_attr_enable_s0ix.attr,
+	NULL,
 };
 
-static const struct e1000e_me_supported me_supported[] = {
-	{E1000_DEV_ID_PCH_LPT_I217_LM},
-	{E1000_DEV_ID_PCH_LPTLP_I218_LM},
-	{E1000_DEV_ID_PCH_I218_LM2},
-	{E1000_DEV_ID_PCH_I218_LM3},
-	{E1000_DEV_ID_PCH_SPT_I219_LM},
-	{E1000_DEV_ID_PCH_SPT_I219_LM2},
-	{E1000_DEV_ID_PCH_LBG_I219_LM3},
-	{E1000_DEV_ID_PCH_SPT_I219_LM4},
-	{E1000_DEV_ID_PCH_SPT_I219_LM5},
-	{E1000_DEV_ID_PCH_CNP_I219_LM6},
-	{E1000_DEV_ID_PCH_CNP_I219_LM7},
-	{E1000_DEV_ID_PCH_ICP_I219_LM8},
-	{E1000_DEV_ID_PCH_ICP_I219_LM9},
-	{E1000_DEV_ID_PCH_CMP_I219_LM10},
-	{E1000_DEV_ID_PCH_CMP_I219_LM11},
-	{E1000_DEV_ID_PCH_CMP_I219_LM12},
-	{E1000_DEV_ID_PCH_TGP_I219_LM13},
-	{E1000_DEV_ID_PCH_TGP_I219_LM14},
-	{E1000_DEV_ID_PCH_TGP_I219_LM15},
-	{0}
+static struct attribute_group e1000e_group = {
+	.attrs = e1000e_attrs,
 };
-
-static bool e1000e_check_me(u16 device_id)
-{
-	struct e1000e_me_supported *id;
-
-	for (id = (struct e1000e_me_supported *)me_supported;
-	     id->device_id; id++)
-		if (device_id == id->device_id)
-			return true;
-
-	return false;
-}
 
 /**
  * __ew32_prepare - prepare to write to MAC CSR register on certain parts
@@ -4243,7 +4215,7 @@ void e1000e_reset(struct e1000_adapter *adapter)
 
 /**
  * e1000e_trigger_lsc - trigger an LSC interrupt
- * @adapter: 
+ * @adapter:
  *
  * Fire a link status change interrupt to start the watchdog.
  **/
@@ -6975,7 +6947,7 @@ static __maybe_unused int e1000e_pm_suspend(struct device *dev)
 
 	/* Introduce S0ix implementation */
 	if (hw->mac.type >= e1000_pch_cnp &&
-	    !e1000e_check_me(hw->adapter->pdev->device))
+	    adapter->flags2 & FLAG2_ENABLE_S0IX_FLOWS)
 		e1000e_s0ix_entry_flow(adapter);
 
 	return rc;
@@ -6991,7 +6963,7 @@ static __maybe_unused int e1000e_pm_resume(struct device *dev)
 
 	/* Introduce S0ix implementation */
 	if (hw->mac.type >= e1000_pch_cnp &&
-	    !e1000e_check_me(hw->adapter->pdev->device))
+	    adapter->flags2 & FLAG2_ENABLE_S0IX_FLOWS)
 		e1000e_s0ix_exit_flow(adapter);
 
 	rc = __e1000_resume(pdev);
@@ -7655,6 +7627,13 @@ static int e1000_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
 	if (!(adapter->flags & FLAG_HAS_AMT))
 		e1000e_get_hw_control(adapter);
 
+	/* offer to turn on/off s0ix flows */
+	if (hw->mac.type >= e1000_pch_cnp) {
+		ret_val = sysfs_create_group(&pdev->dev.kobj, &e1000e_group);
+		if (ret_val)
+			goto err_sysfs;
+	}
+
 	strlcpy(netdev->name, "eth%d", sizeof(netdev->name));
 	err = register_netdev(netdev);
 	if (err)
@@ -7673,6 +7652,10 @@ static int e1000_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
 	return 0;
 
 err_register:
+	if (hw->mac.type >= e1000_pch_cnp)
+		sysfs_remove_group(&pdev->dev.kobj, &e1000e_group);
+
+err_sysfs:
 	if (!(adapter->flags & FLAG_HAS_AMT))
 		e1000e_release_hw_control(adapter);
 err_eeprom:
@@ -7710,6 +7693,7 @@ static void e1000_remove(struct pci_dev *pdev)
 {
 	struct net_device *netdev = pci_get_drvdata(pdev);
 	struct e1000_adapter *adapter = netdev_priv(netdev);
+	struct e1000_hw *hw = &adapter->hw;
 
 	e1000e_ptp_remove(adapter);
 
@@ -7733,6 +7717,10 @@ static void e1000_remove(struct pci_dev *pdev)
 			adapter->tx_hwtstamp_skb = NULL;
 		}
 	}
+
+	/* only allow turning on/off s0ix for cannon point and later */
+	if (hw->mac.type >= e1000_pch_cnp)
+		sysfs_remove_group(&pdev->dev.kobj, &e1000e_group);
 
 	unregister_netdev(netdev);
 

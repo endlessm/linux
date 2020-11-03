@@ -249,6 +249,29 @@ Debug
 
 This parameter adjusts the level of debug messages displayed in the system logs.
 
+EnableS0ix
+----------
+:Valid Range: 0, 1, 2
+:Default Value: 1 (Use Heuristics)
+
+   +-------+----------------+
+   | Value |    EnableS0ix  |
+   +=======+================+
+   |   0   |    Disabled    |
+   +-------+----------------+
+   |   1   | Use Heuristics |
+   +-------+----------------+
+   |   2   |    Enabled     |
+   +-------+----------------+
+
+Controls whether the e1000e driver will attempt s0ix flows.  S0ix flows require
+correct platform configuration. By default the e1000e driver will use some heuristics
+to decide whether to enable s0ix.  This parameter can be used to override heuristics.
+
+Additionally a sysfs file "enable_s0ix" will be present that can change the value at
+runtime.
+
+Note: This option is only effective on Cannon Point or later hardware.
 
 Additional Features and Configurations
 ======================================

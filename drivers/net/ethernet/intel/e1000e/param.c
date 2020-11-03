@@ -138,6 +138,20 @@ E1000_PARAM(WriteProtectNVM,
 E1000_PARAM(CrcStripping,
 	    "Enable CRC Stripping, disable if your BMC needs the CRC");
 
+/* Enable s0ix flows
+ *
+ * Valid Range: varies depending on hardware support
+ *
+ * disabled=0, heuristics=1, enabled=2
+ *
+ * Default Value: 1 (heuristics)
+ */
+E1000_PARAM(EnableS0ix,
+	    "Enable S0ix flows for the system");
+#define S0IX_FORCE_ON	2
+#define S0IX_HEURISTICS	1
+#define S0IX_FORCE_OFF	0
+
 struct e1000_option {
 	enum { enable_option, range_option, list_option } type;
 	const char *name;
@@ -159,6 +173,45 @@ struct e1000_option {
 		} l;
 	} arg;
 };
+
+struct e1000e_me_supported {
+	u16 device_id;		/* supported device ID */
+};
+
+static const struct e1000e_me_supported me_supported[] = {
+	{E1000_DEV_ID_PCH_LPT_I217_LM},
+	{E1000_DEV_ID_PCH_LPTLP_I218_LM},
+	{E1000_DEV_ID_PCH_I218_LM2},
+	{E1000_DEV_ID_PCH_I218_LM3},
+	{E1000_DEV_ID_PCH_SPT_I219_LM},
+	{E1000_DEV_ID_PCH_SPT_I219_LM2},
+	{E1000_DEV_ID_PCH_LBG_I219_LM3},
+	{E1000_DEV_ID_PCH_SPT_I219_LM4},
+	{E1000_DEV_ID_PCH_SPT_I219_LM5},
+	{E1000_DEV_ID_PCH_CNP_I219_LM6},
+	{E1000_DEV_ID_PCH_CNP_I219_LM7},
+	{E1000_DEV_ID_PCH_ICP_I219_LM8},
+	{E1000_DEV_ID_PCH_ICP_I219_LM9},
+	{E1000_DEV_ID_PCH_CMP_I219_LM10},
+	{E1000_DEV_ID_PCH_CMP_I219_LM11},
+	{E1000_DEV_ID_PCH_CMP_I219_LM12},
+	{E1000_DEV_ID_PCH_TGP_I219_LM13},
+	{E1000_DEV_ID_PCH_TGP_I219_LM14},
+	{E1000_DEV_ID_PCH_TGP_I219_LM15},
+	{0}
+};
+
+static bool e1000e_check_me(u16 device_id)
+{
+	struct e1000e_me_supported *id;
+
+	for (id = (struct e1000e_me_supported *)me_supported;
+	     id->device_id; id++)
+		if (device_id == id->device_id)
+			return true;
+
+	return false;
+}
 
 static int e1000_validate_option(unsigned int *value,
 				 const struct e1000_option *opt,
@@ -526,4 +579,61 @@ void e1000e_check_options(struct e1000_adapter *adapter)
 			}
 		}
 	}
+	/* Enable S0ix flows */
+	{
+		static const struct e1000_option opt = {
+			.type = range_option,
+			.name = "S0ix flows (Cannon point or later)",
+			.err  = "defaulting to heuristics",
+			.def  = S0IX_HEURISTICS,
+			.arg  = { .r = { .min = S0IX_FORCE_OFF,
+					 .max = S0IX_FORCE_ON } }
+		};
+		unsigned int enabled = opt.def;
+
+		if (num_EnableS0ix > bd) {
+			unsigned int s0ix = EnableS0ix[bd];
+
+			e1000_validate_option(&s0ix, &opt, adapter);
+			enabled = s0ix;
+		}
+
+		if (enabled == S0IX_HEURISTICS) {
+			/* default to off for ME configurations */
+			if (e1000e_check_me(hw->adapter->pdev->device))
+				enabled = S0IX_FORCE_OFF;
+		}
+
+		if (enabled > S0IX_FORCE_OFF)
+			adapter->flags2 |= FLAG2_ENABLE_S0IX_FLOWS;
+	}
+}
+
+ssize_t enable_s0ix_store(struct device *dev,
+			  struct device_attribute *attr,
+			  const char *buf, size_t count)
+{
+	struct net_device *netdev = pci_get_drvdata(to_pci_dev(dev));
+	struct e1000_adapter *adapter = netdev_priv(netdev);
+	ssize_t ret;
+	bool enable_s0ix;
+
+	ret = kstrtobool(buf, &enable_s0ix);
+	e_info("s0ix flow set to %d\n", enable_s0ix);
+	if (enable_s0ix)
+		adapter->flags2 |= FLAG2_ENABLE_S0IX_FLOWS;
+	else
+		adapter->flags2 &= ~FLAG2_ENABLE_S0IX_FLOWS;
+
+	return ret ? ret : count;
+}
+
+ssize_t enable_s0ix_show(struct device *dev,
+			 struct device_attribute *attr,
+			 char *buf)
+{
+	struct net_device *netdev = pci_get_drvdata(to_pci_dev(dev));
+	struct e1000_adapter *adapter = netdev_priv(netdev);
+
+	return sprintf(buf, "%d\n", (adapter->flags2 & FLAG2_ENABLE_S0IX_FLOWS) > 0);
 }
