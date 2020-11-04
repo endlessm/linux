@@ -311,6 +311,8 @@ ifeq ($(build_arch),powerpc)
 	mkdir -p $(hdrdir)/arch/powerpc/lib
 	cp $(builddir)/build-$*/arch/powerpc/lib/*.o $(hdrdir)/arch/powerpc/lib
 endif
+	# Copy over scripts/module.lds for building external modules
+	cp $(builddir)/build-$*/scripts/module.lds $(hdrdir)/scripts
 	# Copy over the new retpoline extractor.
 	cp scripts/ubuntu-retpoline-extract-one $(hdrdir)/scripts
 	# Script to symlink everything up
