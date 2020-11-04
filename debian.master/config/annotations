@@ -5739,7 +5739,7 @@ CONFIG_NET_VENDOR_I825XX                        policy<{'amd64': 'y', 'arm64': '
 CONFIG_NET_VENDOR_INTEL                         policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 's390x': 'n'}>
 CONFIG_E100                                     policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm'}>
 CONFIG_E1000                                    policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm'}>
-CONFIG_E1000E                                   policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm'}>
+CONFIG_E1000E                                   policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm'}>
 CONFIG_E1000E_HWTS                              policy<{'amd64': 'y'}>
 CONFIG_IGB                                      policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm'}>
 CONFIG_IGB_HWMON                                policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y'}>
