@@ -337,7 +337,6 @@ analogix-anx6345
 analogix-anx78xx
 analogix_dp
 ansi_cprng
-anubis
 anybuss_core
 ao-cec
 ao-cec-g12a
@@ -366,7 +365,6 @@ ar9331
 arasan-nand-controller
 arc-rawmode
 arc-rimi
-arc4
 arc_emac
 arc_ps2
 arc_uart
@@ -2377,7 +2375,6 @@ keywrap
 kfifo_buf
 khadas-mcu
 khadas_mcu_fan
-khazad
 kheaders
 kl5kusb105
 kmx61
@@ -4648,7 +4645,6 @@ sdhci-xenon-driver
 sdhci_am654
 sdhci_f_sdh30
 sdio_uart
-seed
 sensorhub
 serial_ir
 serio_raw
@@ -5480,7 +5476,6 @@ tda9950
 tda998x
 tdfxfb
 tdo24m
-tea
 tea575x
 tea5761
 tea5767
