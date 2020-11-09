@@ -2960,7 +2960,7 @@ CONFIG_QCOM_PDC                                 policy<{'arm64': 'y', 'armhf': '
 CONFIG_IMX_IRQSTEER                             policy<{'arm64': 'y', 'armhf-generic': 'y'}>
 CONFIG_TI_PRUSS_INTC                            policy<{'arm64': 'm', 'armhf': 'm'}>
 CONFIG_EXYNOS_IRQ_COMBINER                      policy<{'armhf': 'y'}>
-CONFIG_MST_IRQ                                  policy<{'amd64': 'n', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'n', 's390x': 'n'}>
+CONFIG_MST_IRQ                                  policy<{'amd64': '-', 'arm64': 'y', 'armhf': 'y', 'ppc64el': '-', 's390x': '-'}>
 
 # Menu: Device Drivers >> ISDN support
 CONFIG_ISDN                                     policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y'}>
