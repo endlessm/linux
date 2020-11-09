@@ -45,12 +45,10 @@ altera-pr-ip-core
 amd
 amlogic-gxl-crypto
 ansi_cprng
-anubis
 appldata_mem
 appldata_net_sum
 appldata_os
 aquantia
-arc4
 arp_tables
 arpt_mangle
 arptable_filter
@@ -375,7 +373,6 @@ iw_cm
 kafs
 kcm
 keywrap
-khazad
 kheaders
 kmem
 kyber-iosched
@@ -747,7 +744,6 @@ scsi_transport_spi
 scsi_transport_srp
 sctp
 sctp_diag
-seed
 serial_core
 serpent_generic
 sfp
@@ -819,7 +815,6 @@ tcp_veno
 tcp_westwood
 tcp_yeah
 tcrypt
-tea
 team
 team_mode_activebackup
 team_mode_broadcast

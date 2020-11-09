@@ -356,7 +356,6 @@ analog
 analogix-anx78xx
 analogix_dp
 ansi_cprng
-anubis
 aoe
 apanel
 apds9300
@@ -382,7 +381,6 @@ ar9331
 arasan-nand-controller
 arc-rawmode
 arc-rimi
-arc4
 arc_ps2
 arc_uart
 arcfb
@@ -2365,7 +2363,6 @@ keyspan_pda
 keyspan_remote
 keywrap
 kfifo_buf
-khazad
 kheaders
 kl5kusb105
 kmem
@@ -4259,7 +4256,6 @@ sdhci_f_sdh30
 sdio_uart
 sdricoh_cs
 seco-cec
-seed
 sensorhub
 serial_cs
 serial_ir
@@ -5061,7 +5057,6 @@ tda9950
 tda998x
 tdfxfb
 tdo24m
-tea
 tea575x
 tea5761
 tea5767

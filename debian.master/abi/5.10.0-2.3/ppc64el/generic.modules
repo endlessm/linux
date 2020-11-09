@@ -325,7 +325,6 @@ analogix-anx6345
 analogix-anx78xx
 analogix_dp
 ansi_cprng
-anubis
 anybuss_core
 aoe
 apbps2
@@ -348,7 +347,6 @@ ar9331
 arasan-nand-controller
 arc-rawmode
 arc-rimi
-arc4
 arc_ps2
 arc_uart
 arcmsr
@@ -1128,7 +1126,6 @@ dyna_pci10xx
 dynapro
 e100
 e1000
-e1000e
 e3x0-button
 e4000
 earth-pt1
@@ -2168,7 +2165,6 @@ keyspan_pda
 keyspan_remote
 keywrap
 kfifo_buf
-khazad
 kheaders
 kl5kusb105
 kmem
@@ -4143,7 +4139,6 @@ sdhci-xenon-driver
 sdhci_am654
 sdhci_f_sdh30
 sdio_uart
-seed
 sensorhub
 serial_ir
 serio_raw
@@ -4846,7 +4841,6 @@ tda9950
 tda998x
 tdfxfb
 tdo24m
-tea
 tea575x
 tea5761
 tea5767
