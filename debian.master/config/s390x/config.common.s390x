@@ -349,7 +349,6 @@ CONFIG_MEM_SOFT_DIRTY=y
 # CONFIG_MLXSW_I2C is not set
 # CONFIG_MMC is not set
 # CONFIG_MOST is not set
-# CONFIG_MST_IRQ is not set
 # CONFIG_MTD is not set
 # CONFIG_NET_VENDOR_3COM is not set
 # CONFIG_NET_VENDOR_ADAPTEC is not set
