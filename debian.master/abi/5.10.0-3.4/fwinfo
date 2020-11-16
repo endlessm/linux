@@ -67,6 +67,17 @@ firmware:       amdgpu/fiji_sdma1.bin
 firmware:       amdgpu/fiji_smc.bin
 firmware:       amdgpu/fiji_uvd.bin
 firmware:       amdgpu/fiji_vce.bin
+firmware:       amdgpu/green_sardine_asd.bin
+firmware:       amdgpu/green_sardine_ce.bin
+firmware:       amdgpu/green_sardine_dmcub.bin
+firmware:       amdgpu/green_sardine_gpu_info.bin
+firmware:       amdgpu/green_sardine_me.bin
+firmware:       amdgpu/green_sardine_mec.bin
+firmware:       amdgpu/green_sardine_mec2.bin
+firmware:       amdgpu/green_sardine_pfp.bin
+firmware:       amdgpu/green_sardine_rlc.bin
+firmware:       amdgpu/green_sardine_sdma.bin
+firmware:       amdgpu/green_sardine_vcn.bin
 firmware:       amdgpu/hainan_ce.bin
 firmware:       amdgpu/hainan_k_smc.bin
 firmware:       amdgpu/hainan_mc.bin

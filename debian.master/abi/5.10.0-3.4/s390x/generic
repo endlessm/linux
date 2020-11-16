@@ -6177,6 +6177,7 @@ EXPORT_SYMBOL	 vmlinux 0x00000000	seq_put_decimal_ull
 EXPORT_SYMBOL	 vmlinux 0x00000000	seq_putc
 EXPORT_SYMBOL	 vmlinux 0x00000000	seq_puts
 EXPORT_SYMBOL	 vmlinux 0x00000000	seq_read
+EXPORT_SYMBOL	 vmlinux 0x00000000	seq_read_iter
 EXPORT_SYMBOL	 vmlinux 0x00000000	seq_release
 EXPORT_SYMBOL	 vmlinux 0x00000000	seq_release_private
 EXPORT_SYMBOL	 vmlinux 0x00000000	seq_vprintf
@@ -8032,6 +8033,7 @@ EXPORT_SYMBOL_GPL	 drivers/nvme/host/nvme-core 0x00000000	nvme_stop_ctrl
 EXPORT_SYMBOL_GPL	 drivers/nvme/host/nvme-core 0x00000000	nvme_stop_keep_alive
 EXPORT_SYMBOL_GPL	 drivers/nvme/host/nvme-core 0x00000000	nvme_stop_queues
 EXPORT_SYMBOL_GPL	 drivers/nvme/host/nvme-core 0x00000000	nvme_submit_sync_cmd
+EXPORT_SYMBOL_GPL	 drivers/nvme/host/nvme-core 0x00000000	nvme_sync_io_queues
 EXPORT_SYMBOL_GPL	 drivers/nvme/host/nvme-core 0x00000000	nvme_sync_queues
 EXPORT_SYMBOL_GPL	 drivers/nvme/host/nvme-core 0x00000000	nvme_try_sched_reset
 EXPORT_SYMBOL_GPL	 drivers/nvme/host/nvme-core 0x00000000	nvme_unfreeze
