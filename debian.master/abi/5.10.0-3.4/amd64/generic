@@ -6455,6 +6455,7 @@ EXPORT_SYMBOL	 vmlinux 0x00000000	_atomic_dec_and_lock
 EXPORT_SYMBOL	 vmlinux 0x00000000	_atomic_dec_and_lock_irqsave
 EXPORT_SYMBOL	 vmlinux 0x00000000	_bcd2bin
 EXPORT_SYMBOL	 vmlinux 0x00000000	_bin2bcd
+EXPORT_SYMBOL	 vmlinux 0x00000000	_cond_resched
 EXPORT_SYMBOL	 vmlinux 0x00000000	_copy_from_iter
 EXPORT_SYMBOL	 vmlinux 0x00000000	_copy_from_iter_full
 EXPORT_SYMBOL	 vmlinux 0x00000000	_copy_from_iter_full_nocache
@@ -6478,9 +6479,7 @@ EXPORT_SYMBOL	 vmlinux 0x00000000	_raw_read_lock_bh
 EXPORT_SYMBOL	 vmlinux 0x00000000	_raw_read_lock_irq
 EXPORT_SYMBOL	 vmlinux 0x00000000	_raw_read_lock_irqsave
 EXPORT_SYMBOL	 vmlinux 0x00000000	_raw_read_trylock
-EXPORT_SYMBOL	 vmlinux 0x00000000	_raw_read_unlock
 EXPORT_SYMBOL	 vmlinux 0x00000000	_raw_read_unlock_bh
-EXPORT_SYMBOL	 vmlinux 0x00000000	_raw_read_unlock_irq
 EXPORT_SYMBOL	 vmlinux 0x00000000	_raw_read_unlock_irqrestore
 EXPORT_SYMBOL	 vmlinux 0x00000000	_raw_spin_lock
 EXPORT_SYMBOL	 vmlinux 0x00000000	_raw_spin_lock_bh
@@ -6488,18 +6487,14 @@ EXPORT_SYMBOL	 vmlinux 0x00000000	_raw_spin_lock_irq
 EXPORT_SYMBOL	 vmlinux 0x00000000	_raw_spin_lock_irqsave
 EXPORT_SYMBOL	 vmlinux 0x00000000	_raw_spin_trylock
 EXPORT_SYMBOL	 vmlinux 0x00000000	_raw_spin_trylock_bh
-EXPORT_SYMBOL	 vmlinux 0x00000000	_raw_spin_unlock
 EXPORT_SYMBOL	 vmlinux 0x00000000	_raw_spin_unlock_bh
-EXPORT_SYMBOL	 vmlinux 0x00000000	_raw_spin_unlock_irq
 EXPORT_SYMBOL	 vmlinux 0x00000000	_raw_spin_unlock_irqrestore
 EXPORT_SYMBOL	 vmlinux 0x00000000	_raw_write_lock
 EXPORT_SYMBOL	 vmlinux 0x00000000	_raw_write_lock_bh
 EXPORT_SYMBOL	 vmlinux 0x00000000	_raw_write_lock_irq
 EXPORT_SYMBOL	 vmlinux 0x00000000	_raw_write_lock_irqsave
 EXPORT_SYMBOL	 vmlinux 0x00000000	_raw_write_trylock
-EXPORT_SYMBOL	 vmlinux 0x00000000	_raw_write_unlock
 EXPORT_SYMBOL	 vmlinux 0x00000000	_raw_write_unlock_bh
-EXPORT_SYMBOL	 vmlinux 0x00000000	_raw_write_unlock_irq
 EXPORT_SYMBOL	 vmlinux 0x00000000	_raw_write_unlock_irqrestore
 EXPORT_SYMBOL	 vmlinux 0x00000000	_totalram_pages
 EXPORT_SYMBOL	 vmlinux 0x00000000	ab3100_event_register
@@ -9836,9 +9831,6 @@ EXPORT_SYMBOL	 vmlinux 0x00000000	prandom_seed
 EXPORT_SYMBOL	 vmlinux 0x00000000	prandom_seed_full_state
 EXPORT_SYMBOL	 vmlinux 0x00000000	prandom_u32
 EXPORT_SYMBOL	 vmlinux 0x00000000	prandom_u32_state
-EXPORT_SYMBOL	 vmlinux 0x00000000	preempt_schedule
-EXPORT_SYMBOL	 vmlinux 0x00000000	preempt_schedule_notrace_thunk
-EXPORT_SYMBOL	 vmlinux 0x00000000	preempt_schedule_thunk
 EXPORT_SYMBOL	 vmlinux 0x00000000	prepare_creds
 EXPORT_SYMBOL	 vmlinux 0x00000000	prepare_kernel_cred
 EXPORT_SYMBOL	 vmlinux 0x00000000	prepare_to_swait_event
@@ -10388,6 +10380,7 @@ EXPORT_SYMBOL	 vmlinux 0x00000000	seq_put_decimal_ull
 EXPORT_SYMBOL	 vmlinux 0x00000000	seq_putc
 EXPORT_SYMBOL	 vmlinux 0x00000000	seq_puts
 EXPORT_SYMBOL	 vmlinux 0x00000000	seq_read
+EXPORT_SYMBOL	 vmlinux 0x00000000	seq_read_iter
 EXPORT_SYMBOL	 vmlinux 0x00000000	seq_release
 EXPORT_SYMBOL	 vmlinux 0x00000000	seq_release_private
 EXPORT_SYMBOL	 vmlinux 0x00000000	seq_vprintf
@@ -13260,8 +13253,6 @@ EXPORT_SYMBOL_GPL	 drivers/media/cec/core/cec 0x00000000	cec_notifier_conn_unreg
 EXPORT_SYMBOL_GPL	 drivers/media/cec/core/cec 0x00000000	cec_notifier_parse_hdmi_phandle
 EXPORT_SYMBOL_GPL	 drivers/media/cec/core/cec 0x00000000	cec_notifier_set_phys_addr
 EXPORT_SYMBOL_GPL	 drivers/media/cec/core/cec 0x00000000	cec_notifier_set_phys_addr_from_edid
-EXPORT_SYMBOL_GPL	 drivers/media/cec/core/cec 0x00000000	cec_pin_allocate_adapter
-EXPORT_SYMBOL_GPL	 drivers/media/cec/core/cec 0x00000000	cec_pin_changed
 EXPORT_SYMBOL_GPL	 drivers/media/cec/core/cec 0x00000000	cec_queue_pin_5v_event
 EXPORT_SYMBOL_GPL	 drivers/media/cec/core/cec 0x00000000	cec_queue_pin_cec_event
 EXPORT_SYMBOL_GPL	 drivers/media/cec/core/cec 0x00000000	cec_queue_pin_hpd_event
@@ -15550,6 +15541,7 @@ EXPORT_SYMBOL_GPL	 drivers/nvme/host/nvme-core 0x00000000	nvme_stop_ctrl
 EXPORT_SYMBOL_GPL	 drivers/nvme/host/nvme-core 0x00000000	nvme_stop_keep_alive
 EXPORT_SYMBOL_GPL	 drivers/nvme/host/nvme-core 0x00000000	nvme_stop_queues
 EXPORT_SYMBOL_GPL	 drivers/nvme/host/nvme-core 0x00000000	nvme_submit_sync_cmd
+EXPORT_SYMBOL_GPL	 drivers/nvme/host/nvme-core 0x00000000	nvme_sync_io_queues
 EXPORT_SYMBOL_GPL	 drivers/nvme/host/nvme-core 0x00000000	nvme_sync_queues
 EXPORT_SYMBOL_GPL	 drivers/nvme/host/nvme-core 0x00000000	nvme_try_sched_reset
 EXPORT_SYMBOL_GPL	 drivers/nvme/host/nvme-core 0x00000000	nvme_unfreeze
@@ -19276,8 +19268,6 @@ EXPORT_SYMBOL_GPL	 vmlinux 0x00000000	__put_net
 EXPORT_SYMBOL_GPL	 vmlinux 0x00000000	__put_task_struct
 EXPORT_SYMBOL_GPL	 vmlinux 0x00000000	__raw_v4_lookup
 EXPORT_SYMBOL_GPL	 vmlinux 0x00000000	__raw_v6_lookup
-EXPORT_SYMBOL_GPL	 vmlinux 0x00000000	__rcu_read_lock
-EXPORT_SYMBOL_GPL	 vmlinux 0x00000000	__rcu_read_unlock
 EXPORT_SYMBOL_GPL	 vmlinux 0x00000000	__regmap_init
 EXPORT_SYMBOL_GPL	 vmlinux 0x00000000	__regmap_init_i2c
 EXPORT_SYMBOL_GPL	 vmlinux 0x00000000	__regmap_init_mmio_clk
@@ -23299,7 +23289,6 @@ EXPORT_SYMBOL_GPL	 vmlinux 0x00000000	preempt_notifier_dec
 EXPORT_SYMBOL_GPL	 vmlinux 0x00000000	preempt_notifier_inc
 EXPORT_SYMBOL_GPL	 vmlinux 0x00000000	preempt_notifier_register
 EXPORT_SYMBOL_GPL	 vmlinux 0x00000000	preempt_notifier_unregister
-EXPORT_SYMBOL_GPL	 vmlinux 0x00000000	preempt_schedule_notrace
 EXPORT_SYMBOL_GPL	 vmlinux 0x00000000	proc_create_net_data
 EXPORT_SYMBOL_GPL	 vmlinux 0x00000000	proc_create_net_data_write
 EXPORT_SYMBOL_GPL	 vmlinux 0x00000000	proc_create_net_single
@@ -23369,6 +23358,7 @@ EXPORT_SYMBOL_GPL	 vmlinux 0x00000000	raw_seq_stop
 EXPORT_SYMBOL_GPL	 vmlinux 0x00000000	raw_unhash_sk
 EXPORT_SYMBOL_GPL	 vmlinux 0x00000000	raw_v4_hashinfo
 EXPORT_SYMBOL_GPL	 vmlinux 0x00000000	raw_v6_hashinfo
+EXPORT_SYMBOL_GPL	 vmlinux 0x00000000	rcu_all_qs
 EXPORT_SYMBOL_GPL	 vmlinux 0x00000000	rcu_barrier
 EXPORT_SYMBOL_GPL	 vmlinux 0x00000000	rcu_barrier_tasks
 EXPORT_SYMBOL_GPL	 vmlinux 0x00000000	rcu_barrier_tasks_rude
@@ -23391,6 +23381,7 @@ EXPORT_SYMBOL_GPL	 vmlinux 0x00000000	rcu_is_watching
 EXPORT_SYMBOL_GPL	 vmlinux 0x00000000	rcu_jiffies_till_stall_check
 EXPORT_SYMBOL_GPL	 vmlinux 0x00000000	rcu_momentary_dyntick_idle
 EXPORT_SYMBOL_GPL	 vmlinux 0x00000000	rcu_note_context_switch
+EXPORT_SYMBOL_GPL	 vmlinux 0x00000000	rcu_read_unlock_strict
 EXPORT_SYMBOL_GPL	 vmlinux 0x00000000	rcu_read_unlock_trace_special
 EXPORT_SYMBOL_GPL	 vmlinux 0x00000000	rcu_scheduler_active
 EXPORT_SYMBOL_GPL	 vmlinux 0x00000000	rcu_unexpedite_gp
@@ -25002,6 +24993,7 @@ EXPORT_SYMBOL_GPL	 vmlinux 0x00000000	xen_has_pv_disk_devices
 EXPORT_SYMBOL_GPL	 vmlinux 0x00000000	xen_has_pv_nic_devices
 EXPORT_SYMBOL_GPL	 vmlinux 0x00000000	xen_have_vector_callback
 EXPORT_SYMBOL_GPL	 vmlinux 0x00000000	xen_hvm_evtchn_do_upcall
+EXPORT_SYMBOL_GPL	 vmlinux 0x00000000	xen_in_preemptible_hcall
 EXPORT_SYMBOL_GPL	 vmlinux 0x00000000	xen_irq_from_gsi
 EXPORT_SYMBOL_GPL	 vmlinux 0x00000000	xen_irq_lateeoi
 EXPORT_SYMBOL_GPL	 vmlinux 0x00000000	xen_max_p2m_pfn
