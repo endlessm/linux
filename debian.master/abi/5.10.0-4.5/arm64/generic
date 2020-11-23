@@ -2572,6 +2572,7 @@ EXPORT_SYMBOL	 drivers/net/ethernet/chelsio/cxgb4/cxgb4 0x00000000	cxgb4_smt_rel
 EXPORT_SYMBOL	 drivers/net/ethernet/chelsio/cxgb4/cxgb4 0x00000000	cxgb4_sync_txq_pidx
 EXPORT_SYMBOL	 drivers/net/ethernet/chelsio/cxgb4/cxgb4 0x00000000	cxgb4_unregister_uld
 EXPORT_SYMBOL	 drivers/net/ethernet/chelsio/cxgb4/cxgb4 0x00000000	cxgb4_update_root_dev_clip
+EXPORT_SYMBOL	 drivers/net/ethernet/chelsio/cxgb4/cxgb4 0x00000000	cxgb4_write_partial_sgl
 EXPORT_SYMBOL	 drivers/net/ethernet/chelsio/cxgb4/cxgb4 0x00000000	cxgb4_write_sgl
 EXPORT_SYMBOL	 drivers/net/ethernet/chelsio/cxgb4/cxgb4 0x00000000	t4_cleanup_clip_tbl
 EXPORT_SYMBOL	 drivers/net/ethernet/chelsio/libcxgb/libcxgb 0x00000000	cxgb_find_route
@@ -6269,8 +6270,6 @@ EXPORT_SYMBOL	 vmlinux 0x00000000	__release_region
 EXPORT_SYMBOL	 vmlinux 0x00000000	__remove_inode_hash
 EXPORT_SYMBOL	 vmlinux 0x00000000	__request_module
 EXPORT_SYMBOL	 vmlinux 0x00000000	__request_region
-EXPORT_SYMBOL	 vmlinux 0x00000000	__sb_end_write
-EXPORT_SYMBOL	 vmlinux 0x00000000	__sb_start_write
 EXPORT_SYMBOL	 vmlinux 0x00000000	__scm_destroy
 EXPORT_SYMBOL	 vmlinux 0x00000000	__scm_send
 EXPORT_SYMBOL	 vmlinux 0x00000000	__scsi_add_device
@@ -8365,7 +8364,6 @@ EXPORT_SYMBOL	 vmlinux 0x00000000	jbd2_fc_begin_commit
 EXPORT_SYMBOL	 vmlinux 0x00000000	jbd2_fc_end_commit
 EXPORT_SYMBOL	 vmlinux 0x00000000	jbd2_fc_end_commit_fallback
 EXPORT_SYMBOL	 vmlinux 0x00000000	jbd2_fc_get_buf
-EXPORT_SYMBOL	 vmlinux 0x00000000	jbd2_fc_init
 EXPORT_SYMBOL	 vmlinux 0x00000000	jbd2_fc_release_bufs
 EXPORT_SYMBOL	 vmlinux 0x00000000	jbd2_fc_wait_bufs
 EXPORT_SYMBOL	 vmlinux 0x00000000	jbd2_inode_cache
@@ -8768,6 +8766,9 @@ EXPORT_SYMBOL	 vmlinux 0x00000000	memset64
 EXPORT_SYMBOL	 vmlinux 0x00000000	memstart_addr
 EXPORT_SYMBOL	 vmlinux 0x00000000	memunmap
 EXPORT_SYMBOL	 vmlinux 0x00000000	memweight
+EXPORT_SYMBOL	 vmlinux 0x00000000	meson_sm_call
+EXPORT_SYMBOL	 vmlinux 0x00000000	meson_sm_call_read
+EXPORT_SYMBOL	 vmlinux 0x00000000	meson_sm_call_write
 EXPORT_SYMBOL	 vmlinux 0x00000000	mfd_add_devices
 EXPORT_SYMBOL	 vmlinux 0x00000000	mfd_cell_disable
 EXPORT_SYMBOL	 vmlinux 0x00000000	mfd_cell_enable
@@ -22332,6 +22333,7 @@ EXPORT_SYMBOL_GPL	 vmlinux 0x00000000	meson_clk_mpll_ro_ops
 EXPORT_SYMBOL_GPL	 vmlinux 0x00000000	meson_clk_pcie_pll_ops
 EXPORT_SYMBOL_GPL	 vmlinux 0x00000000	meson_clk_pll_ops
 EXPORT_SYMBOL_GPL	 vmlinux 0x00000000	meson_clk_pll_ro_ops
+EXPORT_SYMBOL_GPL	 vmlinux 0x00000000	meson_sm_get
 EXPORT_SYMBOL_GPL	 vmlinux 0x00000000	meson_vid_pll_div_ro_ops
 EXPORT_SYMBOL_GPL	 vmlinux 0x00000000	metadata_dst_alloc
 EXPORT_SYMBOL_GPL	 vmlinux 0x00000000	metadata_dst_alloc_percpu
