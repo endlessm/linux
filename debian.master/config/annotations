@@ -3444,8 +3444,9 @@ CONFIG_HFI1_DEBUG_SDMA_ORDER                    policy<{'amd64': 'n'}>
 CONFIG_SDMA_VERBOSITY                           policy<{'amd64': 'n'}>
 CONFIG_INFINIBAND_QEDR                          policy<{'amd64': 'm', 'arm64': 'm', 'ppc64el': 'm'}>
 CONFIG_INFINIBAND_RDMAVT                        policy<{'amd64': 'm'}>
-CONFIG_RDMA_RXE                                 policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 's390x': 'm'}>
-CONFIG_RDMA_SIW                                 policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 's390x': 'm'}>
+CONFIG_INFINIBAND_VIRT_DMA                      policy<{'amd64': 'y', 'arm64': 'y', 'armhf': '-', 'ppc64el': 'y', 's390x': 'y'}>
+CONFIG_RDMA_RXE                                 policy<{'amd64': 'm', 'arm64': 'm', 'armhf': '-', 'ppc64el': 'm', 's390x': 'm'}>
+CONFIG_RDMA_SIW                                 policy<{'amd64': 'm', 'arm64': 'm', 'armhf': '-', 'ppc64el': 'm', 's390x': 'm'}>
 
 # Menu: Device Drivers >> InfiniBand support >> RDMA/CM
 CONFIG_INFINIBAND_ADDR_TRANS                    policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 's390x': 'y'}>
