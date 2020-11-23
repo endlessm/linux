@@ -2913,8 +2913,6 @@ EXPORT_SYMBOL	 vmlinux 0x00000000	__release_region
 EXPORT_SYMBOL	 vmlinux 0x00000000	__remove_inode_hash
 EXPORT_SYMBOL	 vmlinux 0x00000000	__request_module
 EXPORT_SYMBOL	 vmlinux 0x00000000	__request_region
-EXPORT_SYMBOL	 vmlinux 0x00000000	__sb_end_write
-EXPORT_SYMBOL	 vmlinux 0x00000000	__sb_start_write
 EXPORT_SYMBOL	 vmlinux 0x00000000	__scm_destroy
 EXPORT_SYMBOL	 vmlinux 0x00000000	__scm_send
 EXPORT_SYMBOL	 vmlinux 0x00000000	__scsi_add_device
@@ -4736,7 +4734,6 @@ EXPORT_SYMBOL	 vmlinux 0x00000000	jbd2_fc_begin_commit
 EXPORT_SYMBOL	 vmlinux 0x00000000	jbd2_fc_end_commit
 EXPORT_SYMBOL	 vmlinux 0x00000000	jbd2_fc_end_commit_fallback
 EXPORT_SYMBOL	 vmlinux 0x00000000	jbd2_fc_get_buf
-EXPORT_SYMBOL	 vmlinux 0x00000000	jbd2_fc_init
 EXPORT_SYMBOL	 vmlinux 0x00000000	jbd2_fc_release_bufs
 EXPORT_SYMBOL	 vmlinux 0x00000000	jbd2_fc_wait_bufs
 EXPORT_SYMBOL	 vmlinux 0x00000000	jbd2_inode_cache
