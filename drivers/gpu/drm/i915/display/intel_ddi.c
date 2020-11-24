@@ -4232,13 +4232,12 @@ static void intel_ddi_set_link_train(struct intel_dp *intel_dp,
 				     u8 dp_train_pat)
 {
 	struct drm_i915_private *dev_priv = dp_to_i915(intel_dp);
-	u8 train_pat_mask = drm_dp_training_pattern_mask(intel_dp->dpcd);
 	u32 temp;
 
 	temp = intel_de_read(dev_priv, intel_dp->regs.dp_tp_ctl);
 
 	temp &= ~DP_TP_CTL_LINK_TRAIN_MASK;
-	switch (dp_train_pat & train_pat_mask) {
+	switch (intel_dp_training_pattern_symbol(dp_train_pat)) {
 	case DP_TRAINING_PATTERN_DISABLE:
 		temp |= DP_TP_CTL_LINK_TRAIN_NORMAL;
 		break;
