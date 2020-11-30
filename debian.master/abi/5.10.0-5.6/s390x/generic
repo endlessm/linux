@@ -8448,6 +8448,7 @@ EXPORT_SYMBOL_GPL	 drivers/vhost/vhost 0x00000000	vhost_signal
 EXPORT_SYMBOL_GPL	 drivers/vhost/vhost 0x00000000	vhost_vq_access_ok
 EXPORT_SYMBOL_GPL	 drivers/vhost/vhost 0x00000000	vhost_vq_avail_empty
 EXPORT_SYMBOL_GPL	 drivers/vhost/vhost 0x00000000	vhost_vq_init_access
+EXPORT_SYMBOL_GPL	 drivers/vhost/vhost 0x00000000	vhost_vq_is_setup
 EXPORT_SYMBOL_GPL	 drivers/vhost/vhost 0x00000000	vhost_vring_ioctl
 EXPORT_SYMBOL_GPL	 drivers/vhost/vhost 0x00000000	vhost_work_flush
 EXPORT_SYMBOL_GPL	 drivers/vhost/vhost 0x00000000	vhost_work_init
@@ -12040,7 +12041,6 @@ EXPORT_SYMBOL_GPL	 vmlinux 0x00000000	mddev_resume
 EXPORT_SYMBOL_GPL	 vmlinux 0x00000000	mddev_suspend
 EXPORT_SYMBOL_GPL	 vmlinux 0x00000000	mddev_unlock
 EXPORT_SYMBOL_GPL	 vmlinux 0x00000000	memalloc_socks_key
-EXPORT_SYMBOL_GPL	 vmlinux 0x00000000	memory_add_physaddr_to_nid
 EXPORT_SYMBOL_GPL	 vmlinux 0x00000000	memory_block_size_bytes
 EXPORT_SYMBOL_GPL	 vmlinux 0x00000000	memory_cgrp_subsys_enabled_key
 EXPORT_SYMBOL_GPL	 vmlinux 0x00000000	memory_cgrp_subsys_on_dfl_key
@@ -12401,7 +12401,6 @@ EXPORT_SYMBOL_GPL	 vmlinux 0x00000000	perf_unregister_guest_info_callbacks
 EXPORT_SYMBOL_GPL	 vmlinux 0x00000000	pernet_ops_rwsem
 EXPORT_SYMBOL_GPL	 vmlinux 0x00000000	pgprot_writecombine
 EXPORT_SYMBOL_GPL	 vmlinux 0x00000000	pgprot_writethrough
-EXPORT_SYMBOL_GPL	 vmlinux 0x00000000	phys_to_target_node
 EXPORT_SYMBOL_GPL	 vmlinux 0x00000000	pid_nr_ns
 EXPORT_SYMBOL_GPL	 vmlinux 0x00000000	pid_vnr
 EXPORT_SYMBOL_GPL	 vmlinux 0x00000000	pids_cgrp_subsys_enabled_key
