@@ -332,6 +332,7 @@ CONFIG_CRYPTO_LIB_CHACHA20POLY1305              policy<{'amd64': 'm', 'arm64': '
 CONFIG_CRYPTO_MANAGER_DISABLE_TESTS             flag<TESTING>
 CONFIG_CRYPTO_TEST                              flag<TESTING>
 CONFIG_CRYPTO_SHA512                            note<module signing>
+CONFIG_CRYPTO_USER_API_ENABLE_OBSOLETE          mark<ENFORCED> note<Obsolete w/ no known userspace dependencies>
 
 # Menu: Cryptographic API >> Asymmetric (public-key cryptographic) key type
 CONFIG_ASYMMETRIC_KEY_TYPE                      policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 's390x': 'y'}>
@@ -482,7 +483,6 @@ CONFIG_PKEY                                     policy<{'s390x': 'm'}>
 CONFIG_CRYPTO_PAES_S390                         policy<{'s390x': 'm'}>
 #
 CONFIG_ZCRYPT_MULTIDEVNODES                     mark<ENFORCED> note<LP:1805429>
-CONFIG_CRYPTO_USER_API_ENABLE_OBSOLETE          mark<ENFORCED> note<Obsolete w/ no known userspace dependencies>
 
 # Menu: Cryptographic API >> NIST SP800-90A DRBG
 CONFIG_CRYPTO_DRBG_MENU                         policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 's390x': 'y'}>
@@ -3444,7 +3444,6 @@ CONFIG_HFI1_DEBUG_SDMA_ORDER                    policy<{'amd64': 'n'}>
 CONFIG_SDMA_VERBOSITY                           policy<{'amd64': 'n'}>
 CONFIG_INFINIBAND_QEDR                          policy<{'amd64': 'm', 'arm64': 'm', 'ppc64el': 'm'}>
 CONFIG_INFINIBAND_RDMAVT                        policy<{'amd64': 'm'}>
-CONFIG_INFINIBAND_VIRT_DMA                      policy<{'amd64': 'y', 'arm64': 'y', 'armhf': '-', 'ppc64el': 'y', 's390x': 'y'}>
 CONFIG_RDMA_RXE                                 policy<{'amd64': 'm', 'arm64': 'm', 'armhf': '-', 'ppc64el': 'm', 's390x': 'm'}>
 CONFIG_RDMA_SIW                                 policy<{'amd64': 'm', 'arm64': 'm', 'armhf': '-', 'ppc64el': 'm', 's390x': 'm'}>
 
@@ -10829,11 +10828,15 @@ CONFIG_SLAB_FREELIST_HARDENED                   policy<{'amd64': 'y', 'arm64': '
 CONFIG_SHUFFLE_PAGE_ALLOCATOR                   policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 's390x': 'y'}>
 CONFIG_SLUB_CPU_PARTIAL                         policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 's390x': 'y'}>
 CONFIG_PROFILING                                policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 's390x': 'y'}>
+CONFIG_COMPILE_TEST                             policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'ppc64el': 'n', 's390x': 'n'}>
+CONFIG_LOCALVERSION_AUTO                        policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'ppc64el': 'n', 's390x': 'n'}>
+CONFIG_CPU_ISOLATION                            policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 's390x': 'y'}>
 #
 CONFIG_SYSFS_DEPRECATED                         mark<ENFORCED> note<ensure nothing is using these deprecated interfaces>
 CONFIG_COMPAT_BRK                               mark<ENFORCED> note<disables brk ASLR>
 CONFIG_NUMA_BALANCING_DEFAULT_ENABLED           note<LP:1557690>
 CONFIG_BPF_JIT_ALWAYS_ON                        flag<REVIEW>
+CONFIG_LOCALVERSION_AUTO                        mark<ENFORCED> note<triggers packaging failures>
 
 # Menu: General setup >> CPU/Task time and stats accounting
 CONFIG_IRQ_TIME_ACCOUNTING                      policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'ppc64el': 'n'}>
@@ -10857,16 +10860,6 @@ CONFIG_VIRT_CPU_ACCOUNTING_GEN                  policy<{'amd64': 'n', 'arm64': '
 CONFIG_SLAB                                     policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'ppc64el': 'n', 's390x': 'n'}>
 CONFIG_SLUB                                     policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 's390x': 'y'}>
 CONFIG_SLOB                                     policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'ppc64el': 'n', 's390x': 'n'}>
-
-# Menu: General setup >> Compile also drivers which will not load
-CONFIG_COMPILE_TEST                             policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'ppc64el': 'n', 's390x': 'n'}>
-CONFIG_LOCALVERSION_AUTO                        policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'ppc64el': 'n', 's390x': 'n'}>
-CONFIG_CPU_ISOLATION                            policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 's390x': 'y'}>
-#
-CONFIG_LOCALVERSION_AUTO                        mark<ENFORCED> note<triggers packaging failures>
-
-# Menu: General setup >> Compile also drivers which will not load >> Preload BPF file system with kernel specific program and map iterators
-CONFIG_BPF_PRELOAD                              policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'ppc64el': 'n', 's390x': 'n'}>
 
 # Menu: General setup >> Compiler optimization level
 CONFIG_CC_OPTIMIZE_FOR_PERFORMANCE              policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 's390x': 'y'}>
@@ -10981,6 +10974,9 @@ CONFIG_PREEMPT_VOLUNTARY                        policy<{'amd64-generic': 'y', 'a
 CONFIG_PREEMPT                                  policy<{'amd64-generic': 'n', 'amd64-lowlatency': 'y', 'arm64': 'n', 'armhf': 'n', 'ppc64el': 'n', 's390x': 'n'}>
 #
 CONFIG_PREEMPT_NONE                             note<LP:1543165>
+
+# Menu: General setup >> Preload BPF file system with kernel specific program and map iterators
+CONFIG_BPF_PRELOAD                              policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'ppc64el': 'n', 's390x': 'n'}>
 
 # Menu: General setup >> RCU Subsystem
 # XXX
@@ -13936,6 +13932,8 @@ CONFIG_APPLDATA_BASE                            policy<{'s390x': 'y'}>
 CONFIG_APPLDATA_MEM                             policy<{'s390x': 'm'}>
 CONFIG_APPLDATA_OS                              policy<{'s390x': 'm'}>
 CONFIG_APPLDATA_NET_SUM                         policy<{'s390x': 'm'}>
+
+CONFIG_INFINIBAND_VIRT_DMA                      policy<{'amd64': 'y', 'arm64': 'y', 'armhf': '-', 'ppc64el': 'y', 's390x': 'y'}>
 
 # Menu: FOOTER
 
