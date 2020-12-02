@@ -6863,7 +6863,7 @@ CONFIG_ARM_CCI_PMU                              policy<{'arm64': 'y', 'armhf': '
 CONFIG_ARM_CCI400_PMU                           policy<{'arm64': 'y', 'armhf': 'y'}>
 CONFIG_ARM_CCI5xx_PMU                           policy<{'arm64': 'y', 'armhf': 'y'}>
 CONFIG_ARM_CCN                                  policy<{'arm64': 'y', 'armhf': 'y'}>
-CONFIG_ARM_CMN                                  policy<{'arm64': 'y'}>
+CONFIG_ARM_CMN                                  policy<{'arm64': 'm'}>
 CONFIG_ARM_PMU                                  policy<{'arm64': 'y', 'armhf': 'y'}>
 CONFIG_ARM_SMMU_V3_PMU                          policy<{'arm64': 'm'}>
 CONFIG_ARM_DSU_PMU                              policy<{'arm64': 'm'}>
