@@ -2308,5 +2308,7 @@ struct tb *icm_probe(struct tb_nhi *nhi)
 		return NULL;
 	}
 
+	tb_dbg(tb, "using firmware connection manager\n");
+
 	return tb;
 }
