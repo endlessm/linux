@@ -1189,9 +1189,13 @@ static __maybe_unused int ath11k_pci_pm_suspend(struct device *dev)
 	struct ath11k_base *ab = dev_get_drvdata(dev);
 	int ret;
 
+	msleep(3000);
+
 	ret = ath11k_core_suspend(ab);
 	if (ret)
 		ath11k_warn(ab, "failed to suspend hif: %d\n", ret);
+
+	msleep(3000);
 
 	return ret;
 }
@@ -1201,9 +1205,13 @@ static __maybe_unused int ath11k_pci_pm_resume(struct device *dev)
 	struct ath11k_base *ab = dev_get_drvdata(dev);
 	int ret;
 
+	msleep(3000);
+
 	ret = ath11k_core_resume(ab);
 	if (ret)
 		ath11k_warn(ab, "failed to resume hif: %d\n", ret);
+
+	msleep(3000);
 
 	return ret;
 }
