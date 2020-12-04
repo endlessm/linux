@@ -122,6 +122,8 @@ static const struct wmi_tlv_policy wmi_tlv_policies[] = {
 		= { .min_len = sizeof(struct wmi_stats_event) },
 	[WMI_TAG_PDEV_CTL_FAILSAFE_CHECK_EVENT]
 		= { .min_len = sizeof(struct wmi_pdev_ctl_failsafe_chk_event) },
+	[WMI_TAG_VDEV_DELETE_RESP_EVENT] = {
+		.min_len = sizeof(struct wmi_vdev_delete_resp_event) },
 };
 
 #define PRIMAP(_hw_mode_) \
@@ -4238,6 +4240,34 @@ static int ath11k_pull_peer_del_resp_ev(struct ath11k_base *ab, struct sk_buff *
 	return 0;
 }
 
+static int ath11k_pull_vdev_del_resp_ev(struct ath11k_base *ab,
+					struct sk_buff *skb,
+					u32 *vdev_id)
+{
+	const void **tb;
+	const struct wmi_vdev_delete_resp_event *ev;
+	int ret;
+
+	tb = ath11k_wmi_tlv_parse_alloc(ab, skb->data, skb->len, GFP_ATOMIC);
+	if (IS_ERR(tb)) {
+		ret = PTR_ERR(tb);
+		ath11k_warn(ab, "failed to parse tlv: %d\n", ret);
+		return ret;
+	}
+
+	ev = tb[WMI_TAG_VDEV_DELETE_RESP_EVENT];
+	if (!ev) {
+		ath11k_warn(ab, "failed to fetch vdev delete resp ev");
+		kfree(tb);
+		return -EPROTO;
+	}
+
+	*vdev_id = ev->vdev_id;
+
+	kfree(tb);
+	return 0;
+}
+
 static int ath11k_pull_bcn_tx_status_ev(struct ath11k_base *ab, void *evt_buf,
 					u32 len, u32 *vdev_id,
 					u32 *tx_status)
@@ -5570,6 +5600,34 @@ static void ath11k_peer_delete_resp_event(struct ath11k_base *ab, struct sk_buff
 	 */
 }
 
+static void ath11k_vdev_delete_resp_event(struct ath11k_base *ab,
+					  struct sk_buff *skb)
+{
+	struct ath11k *ar;
+	u32 vdev_id = 0;
+
+	if (ath11k_pull_vdev_del_resp_ev(ab, skb, &vdev_id) != 0) {
+		ath11k_warn(ab, "failed to extract vdev delete resp");
+		return;
+	}
+
+	rcu_read_lock();
+	ar = ath11k_mac_get_ar_by_vdev_id(ab, vdev_id);
+	if (!ar) {
+		ath11k_warn(ab, "invalid vdev id in vdev delete resp ev %d",
+			    vdev_id);
+		rcu_read_unlock();
+		return;
+	}
+
+	complete(&ar->vdev_delete_done);
+
+	rcu_read_unlock();
+
+	ath11k_dbg(ab, ATH11K_DBG_WMI, "vdev delete resp for vdev id %d\n",
+		   vdev_id);
+}
+
 static inline const char *ath11k_wmi_vdev_resp_print(u32 vdev_resp_status)
 {
 	switch (vdev_resp_status) {
@@ -6565,7 +6623,6 @@ static void ath11k_wmi_tlv_op_rx(struct ath11k_base *ab, struct sk_buff *skb)
 		break;
 	/* add Unsupported events here */
 	case WMI_TBTTOFFSET_EXT_UPDATE_EVENTID:
-	case WMI_VDEV_DELETE_RESP_EVENTID:
 	case WMI_PEER_OPER_MODE_CHANGE_EVENTID:
 	case WMI_TWT_ENABLE_EVENTID:
 	case WMI_TWT_DISABLE_EVENTID:
@@ -6578,6 +6635,9 @@ static void ath11k_wmi_tlv_op_rx(struct ath11k_base *ab, struct sk_buff *skb)
 		break;
 	case WMI_WOW_WAKEUP_HOST_EVENTID:
 		ath11k_wmi_event_wow_wakeup_host(ab, skb);
+		break;
+	case WMI_VDEV_DELETE_RESP_EVENTID:
+		ath11k_vdev_delete_resp_event(ab, skb);
 		break;
 	/* TODO: Add remaining events */
 	default:
