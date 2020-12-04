@@ -1070,11 +1070,16 @@ static void ath11k_pci_kill_tasklets(struct ath11k_base *ab)
 	}
 }
 
-static void ath11k_pci_stop(struct ath11k_base *ab)
+static void ath11k_pci_ce_irq_disable_sync(struct ath11k_base *ab)
 {
 	ath11k_pci_ce_irqs_disable(ab);
 	ath11k_pci_sync_ce_irqs(ab);
 	ath11k_pci_kill_tasklets(ab);
+}
+
+static void ath11k_pci_stop(struct ath11k_base *ab)
+{
+	ath11k_pci_ce_irq_disable_sync(ab);
 	ath11k_ce_cleanup_pipes(ab);
 }
 
@@ -1094,6 +1099,16 @@ static int ath11k_pci_start(struct ath11k_base *ab)
 	ath11k_ce_rx_post_buf(ab);
 
 	return 0;
+}
+
+static void ath11k_pci_hif_ce_irq_enable(struct ath11k_base *ab)
+{
+	ath11k_pci_ce_irqs_enable(ab);
+}
+
+static void ath11k_pci_hif_ce_irq_disable(struct ath11k_base *ab)
+{
+	ath11k_pci_ce_irq_disable_sync(ab);
 }
 
 static int ath11k_pci_map_service_to_pipe(struct ath11k_base *ab, u16 service_id,
@@ -1160,6 +1175,8 @@ static const struct ath11k_hif_ops ath11k_pci_hif_ops = {
 	.get_user_msi_vector = ath11k_get_user_msi_assignment,
 	.map_service_to_pipe = ath11k_pci_map_service_to_pipe,
 	.is_32_vecs_support = ath11k_pci_is_32_vectors_support,
+	.ce_irq_enable = ath11k_pci_hif_ce_irq_enable,
+	.ce_irq_disable = ath11k_pci_hif_ce_irq_disable,
 };
 
 static int ath11k_pci_probe(struct pci_dev *pdev,
