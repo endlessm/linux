@@ -13,6 +13,7 @@
 #include <linux/timer.h>
 
 struct ath11k_base;
+struct ath11k;
 
 #define HTC_HDR_ENDPOINTID                       GENMASK(7, 0)
 #define HTC_HDR_FLAGS                            GENMASK(15, 8)
@@ -65,7 +66,10 @@ enum ath11k_htc_msg_id {
 	ATH11K_HTC_MSG_CONNECT_SERVICE_RESP_ID = 3,
 	ATH11K_HTC_MSG_SETUP_COMPLETE_ID       = 4,
 	ATH11K_HTC_MSG_SETUP_COMPLETE_EX_ID    = 5,
-	ATH11K_HTC_MSG_SEND_SUSPEND_COMPLETE   = 6
+	ATH11K_HTC_MSG_SEND_SUSPEND_COMPLETE   = 6,
+	ATH11K_HTC_MSG_NACK_SUSPEND	       = 7,
+	ATH11K_HTC_MSG_WAKEUP_FROM_SUSPEND_ID  = 8
+
 };
 
 enum ath11k_htc_version {
@@ -222,7 +226,8 @@ enum ath11k_htc_ep_id {
 };
 
 struct ath11k_htc_ops {
-	void (*target_send_suspend_complete)(struct ath11k_base *ar);
+	void (*target_send_suspend_complete)(struct ath11k *ar, bool ack);
+	void (*target_wakeup_from_suspend)(struct ath11k *ar);
 };
 
 struct ath11k_htc_ep_ops {

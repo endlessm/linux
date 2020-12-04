@@ -328,8 +328,18 @@ void ath11k_htc_rx_completion_handler(struct ath11k_base *ab,
 
 			complete(&htc->ctl_resp);
 			break;
+		case ATH11K_HTC_MSG_SEND_SUSPEND_COMPLETE:
+			htc->htc_ops.target_send_suspend_complete(ab->pdevs[0].ar, true);
+			break;
+		case ATH11K_HTC_MSG_NACK_SUSPEND:
+			htc->htc_ops.target_send_suspend_complete(ab->pdevs[0].ar, false);
+			break;
+		case ATH11K_HTC_MSG_WAKEUP_FROM_SUSPEND_ID:
+			htc->htc_ops.target_wakeup_from_suspend(ab->pdevs[0].ar);
+			break;
 		default:
-			ath11k_warn(ab, "ignoring unsolicited htc ep0 event\n");
+			ath11k_warn(ab, "ignoring unsolicited htc ep0 event %ld\n",
+				    FIELD_GET(HTC_MSG_MESSAGEID, msg->msg_svc_id));
 			break;
 		}
 		goto out;
@@ -720,6 +730,19 @@ int ath11k_htc_start(struct ath11k_htc *htc)
 	return 0;
 }
 
+static void ath11k_send_suspend_complete(struct ath11k *ar, bool ack)
+{
+	ath11k_dbg(ar->ab, ATH11K_DBG_BOOT, "boot suspend complete %d\n", ack);
+
+	ar->target_suspend_ack = ack;
+	complete(&ar->target_suspend);
+}
+
+static void ath11k_wakeup_from_suspend(struct ath11k *ar)
+{
+	ath11k_dbg(ar->ab, ATH11K_DBG_BOOT, "wakeup from suspend is received\n");
+}
+
 int ath11k_htc_init(struct ath11k_base *ab)
 {
 	struct ath11k_htc *htc = &ab->htc;
@@ -730,6 +753,11 @@ int ath11k_htc_init(struct ath11k_base *ab)
 	spin_lock_init(&htc->tx_lock);
 
 	ath11k_htc_reset_endpoint_states(htc);
+
+	htc->htc_ops.target_send_suspend_complete =
+		ath11k_send_suspend_complete;
+	htc->htc_ops.target_wakeup_from_suspend =
+		ath11k_wakeup_from_suspend;
 
 	htc->ab = ab;
 

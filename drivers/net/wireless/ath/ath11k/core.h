@@ -557,6 +557,8 @@ struct ath11k {
 #endif
 	bool dfs_block_radar_events;
 	struct ath11k_thermal thermal;
+	struct completion target_suspend;
+	bool target_suspend_ack;
 };
 
 struct ath11k_band_cap {
