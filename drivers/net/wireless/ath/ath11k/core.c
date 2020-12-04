@@ -12,6 +12,7 @@
 #include "dp_rx.h"
 #include "debug.h"
 #include "hif.h"
+#include "wow.h"
 
 unsigned int ath11k_debug_mask;
 EXPORT_SYMBOL(ath11k_debug_mask);
@@ -952,21 +953,18 @@ int ath11k_core_suspend(struct ath11k_base *ab)
 	int ret = 0;
 
 	if (ab->hw_params.support_suspend) {
+		msleep(500);
 		ath11k_purge_rx_pktlog(ar, true);
+		ret = ath11k_wow_enable(ar);
+		if (ret)
+			return ret;
+
+		ath11k_purge_rx_pktlog(ar, false);
 		ath11k_ce_stop_shadow_timers(ab);
 		ath11k_dp_stop_shadow_timers(ab);
-		reinit_completion(&ar->target_suspend);
-		ath11k_wmi_pdev_suspend(ar, 1, 0);
-		ret = wait_for_completion_timeout(&ar->target_suspend, 3 * HZ);
-		if (ret == 0) {
-			ath11k_warn(ab,
-				    "timed out while waiting for suspend completion\n");
-			return -ETIMEDOUT;
-		} else if (!ar->target_suspend_ack) {
-			ath11k_warn(ab, "suspend failed\n");
-			return -EAGAIN;
-		}
-		ath11k_purge_rx_pktlog(ar, false);
+
+		ath11k_hif_irq_disable(ab);
+		ath11k_hif_ce_irq_disable(ab);
 		return ath11k_hif_suspend(ab);
 	}
 	return 0;
@@ -979,8 +977,10 @@ int ath11k_core_resume(struct ath11k_base *ab)
 
 	if (ab->hw_params.support_suspend) {
 		ath11k_hif_resume(ab);
+		ath11k_hif_ce_irq_enable(ab);
+		ath11k_hif_irq_enable(ab);
 		ath11k_enable_rx_pktlog(ar);
-		ath11k_wmi_pdev_resume(ab->pdevs[0].ar, 0);
+		ath11k_wow_wakeup(ar);
 	}
 
 	return 0;
