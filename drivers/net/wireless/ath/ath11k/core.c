@@ -65,6 +65,7 @@ static const struct ath11k_hw_params ath11k_hw_params[] = {
 		.supports_monitor = true,
 		.supports_shadow_regs = false,
 		.idle_ps = false,
+		.support_suspend = false,
 	},
 	{
 		.hw_rev = ATH11K_HW_IPQ6018_HW10,
@@ -102,6 +103,7 @@ static const struct ath11k_hw_params ath11k_hw_params[] = {
 		.supports_monitor = true,
 		.supports_shadow_regs = false,
 		.idle_ps = false,
+		.support_suspend = false,
 	},
 	{
 		.name = "qca6390 hw2.0",
@@ -138,6 +140,7 @@ static const struct ath11k_hw_params ath11k_hw_params[] = {
 		.supports_monitor = false,
 		.supports_shadow_regs = true,
 		.idle_ps = true,
+		.support_suspend = true,
 	},
 };
 
@@ -936,6 +939,41 @@ err_sc_free:
 	return NULL;
 }
 EXPORT_SYMBOL(ath11k_core_alloc);
+
+int ath11k_core_suspend(struct ath11k_base *ab)
+{
+	struct ath11k *ar = ab->pdevs[0].ar;
+	int ret = 0;
+
+	if (ab->hw_params.support_suspend) {
+		reinit_completion(&ar->target_suspend);
+		ath11k_wmi_pdev_suspend(ar, 1, 0);
+		ret = wait_for_completion_timeout(&ar->target_suspend, 3 * HZ);
+		if (ret == 0) {
+			ath11k_warn(ab,
+				    "timed out while waiting for suspend completion\n");
+			return -ETIMEDOUT;
+		} else if (!ar->target_suspend_ack) {
+			ath11k_warn(ab, "suspend failed\n");
+			return -EAGAIN;
+		}
+
+		return ath11k_hif_suspend(ab);
+	}
+	return 0;
+}
+EXPORT_SYMBOL(ath11k_core_suspend);
+
+int ath11k_core_resume(struct ath11k_base *ab)
+{
+	if (ab->hw_params.support_suspend) {
+		ath11k_hif_resume(ab);
+		ath11k_wmi_pdev_resume(ab->pdevs[0].ar, 0);
+	}
+
+	return 0;
+}
+EXPORT_SYMBOL(ath11k_core_resume);
 
 MODULE_DESCRIPTION("Core module for Qualcomm Atheros 802.11ax wireless LAN cards.");
 MODULE_LICENSE("Dual BSD/GPL");

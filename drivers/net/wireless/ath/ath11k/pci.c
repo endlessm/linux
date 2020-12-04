@@ -243,13 +243,17 @@ static void ath11k_pci_clear_dbg_registers(struct ath11k_base *ab)
 
 static void ath11k_pci_force_wake(struct ath11k_base *ab)
 {
+	int val;
+
+	ath11k_pci_write32(ab, PCIE_SCRATCH_0_SOC_PCIE_REG, 0);
 	ath11k_pci_write32(ab, PCIE_SOC_WAKE_PCIE_LOCAL_REG, 1);
-	mdelay(5);
+	mdelay(10);
+	val = ath11k_pci_read32(ab, PCIE_SCRATCH_0_SOC_PCIE_REG);
+	ath11k_dbg(ab, ATH11K_DBG_PCI, "forcw_wake scratch 0: 0x%x\n", val);
 }
 
 static void ath11k_pci_sw_reset(struct ath11k_base *ab)
 {
-	ath11k_pci_soc_global_reset(ab);
 	ath11k_mhi_clear_vector(ab);
 	ath11k_pci_soc_global_reset(ab);
 	ath11k_mhi_set_mhictrl_reset(ab);
@@ -885,9 +889,9 @@ static void ath11k_pci_power_down(struct ath11k_base *ab)
 {
 	struct ath11k_pci *ab_pci = ath11k_pci_priv(ab);
 
+	ath11k_pci_force_wake(ab_pci->ab);
 	ath11k_mhi_stop(ab_pci);
 	clear_bit(ATH11K_PCI_FLAG_INIT_DONE, &ab_pci->flags);
-	ath11k_pci_force_wake(ab_pci->ab);
 	ath11k_pci_sw_reset(ab_pci->ab);
 }
 
@@ -1180,12 +1184,43 @@ static void ath11k_pci_shutdown(struct pci_dev *pdev)
 	ath11k_pci_power_down(ab);
 }
 
+static __maybe_unused int ath11k_pci_pm_suspend(struct device *dev)
+{
+	struct ath11k_base *ab = dev_get_drvdata(dev);
+	int ret;
+
+	ret = ath11k_core_suspend(ab);
+	if (ret)
+		ath11k_warn(ab, "failed to suspend hif: %d\n", ret);
+
+	return ret;
+}
+
+static __maybe_unused int ath11k_pci_pm_resume(struct device *dev)
+{
+	struct ath11k_base *ab = dev_get_drvdata(dev);
+	int ret;
+
+	ret = ath11k_core_resume(ab);
+	if (ret)
+		ath11k_warn(ab, "failed to resume hif: %d\n", ret);
+
+	return ret;
+}
+
+static SIMPLE_DEV_PM_OPS(ath11k_pci_pm_ops,
+			 ath11k_pci_pm_suspend,
+			 ath11k_pci_pm_resume);
+
 static struct pci_driver ath11k_pci_driver = {
 	.name = "ath11k_pci",
 	.id_table = ath11k_pci_id_table,
 	.probe = ath11k_pci_probe,
 	.remove = ath11k_pci_remove,
 	.shutdown = ath11k_pci_shutdown,
+#ifdef CONFIG_PM
+	.driver.pm = &ath11k_pci_pm_ops,
+#endif
 };
 
 static int ath11k_pci_init(void)
