@@ -433,6 +433,10 @@ struct ath11k_vdev_stop_status {
 	u32  vdev_id;
 };
 
+struct ath11k_wow {
+	struct completion wakeup_completed;
+};
+
 struct ath11k {
 	struct ath11k_base *ab;
 	struct ath11k_pdev *pdev;
@@ -559,6 +563,7 @@ struct ath11k {
 	struct ath11k_thermal thermal;
 	struct completion target_suspend;
 	bool target_suspend_ack;
+	struct ath11k_wow wow;
 };
 
 struct ath11k_band_cap {

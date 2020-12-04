@@ -6422,6 +6422,7 @@ int ath11k_mac_allocate(struct ath11k_base *ab)
 		init_completion(&ar->scan.completed);
 		init_completion(&ar->thermal.wmi_sync);
 		init_completion(&ar->target_suspend);
+		init_completion(&ar->wow.wakeup_completed);
 
 		INIT_DELAYED_WORK(&ar->scan.timeout, ath11k_scan_timeout_work);
 		INIT_WORK(&ar->regd_update_work, ath11k_regd_update_work);
