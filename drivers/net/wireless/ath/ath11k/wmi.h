@@ -5121,4 +5121,5 @@ int ath11k_wmi_vdev_spectral_enable(struct ath11k *ar, u32 vdev_id,
 				    u32 trigger, u32 enable);
 int ath11k_wmi_vdev_spectral_conf(struct ath11k *ar,
 				  struct ath11k_wmi_vdev_spectral_conf_param *param);
+int ath11k_wmi_set_hw_mode(struct ath11k_base *ab, int hw_mode_index);
 #endif
