@@ -998,6 +998,11 @@ static int ath11k_pci_power_up(struct ath11k_base *ab)
 	clear_bit(ATH11K_PCI_FLAG_INIT_DONE, &ab_pci->flags);
 	ath11k_pci_sw_reset(ab_pci->ab, true);
 
+	/* disable L0sL1, write 0x40 to link_ctrl */
+	pci_read_config_byte(ab_pci->pdev, 0x80, &ab_pci->aspm);
+	pci_write_config_byte(ab_pci->pdev, 0x80, ab_pci->aspm & 0xfc);
+	ab_pci->restore_aspm = true;
+
 	ret = ath11k_mhi_start(ab_pci);
 	if (ret) {
 		ath11k_err(ab, "failed to start mhi: %d\n", ret);
@@ -1010,6 +1015,12 @@ static int ath11k_pci_power_up(struct ath11k_base *ab)
 static void ath11k_pci_power_down(struct ath11k_base *ab)
 {
 	struct ath11k_pci *ab_pci = ath11k_pci_priv(ab);
+
+	/* recover aspm */
+	if (ab_pci->restore_aspm) {
+		pci_write_config_byte(ab_pci->pdev, 0x80, ab_pci->aspm);
+		ab_pci->restore_aspm = false;
+	}
 
 	ath11k_pci_force_wake(ab_pci->ab);
 	ath11k_mhi_stop(ab_pci);
@@ -1072,6 +1083,12 @@ static int ath11k_pci_start(struct ath11k_base *ab)
 	struct ath11k_pci *ab_pci = ath11k_pci_priv(ab);
 
 	set_bit(ATH11K_PCI_FLAG_INIT_DONE, &ab_pci->flags);
+
+	/* recover aspm */
+	if (ab_pci->restore_aspm) {
+		pci_write_config_byte(ab_pci->pdev, 0x80, ab_pci->aspm);
+		ab_pci->restore_aspm = false;
+	}
 
 	ath11k_pci_ce_irqs_enable(ab);
 	ath11k_ce_rx_post_buf(ab);
