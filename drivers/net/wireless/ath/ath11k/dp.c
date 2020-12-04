@@ -180,13 +180,15 @@ static void ath11k_dp_srng_msi_setup(struct ath11k_base *ab,
 {
 	int msi_group_number, msi_data_count;
 	u32 msi_data_start, msi_irq_start, addr_lo, addr_hi;
-	int ret;
+	u32 vectors_32_capability;
+	int ret = -EINVAL;
 
 	ret = ath11k_get_user_msi_vector(ab, "DP",
 					 &msi_data_count, &msi_data_start,
 					 &msi_irq_start);
 	if (ret)
 		return;
+	vectors_32_capability = ab->hif.ops->is_32_vecs_support(ab);
 
 	msi_group_number = ath11k_dp_srng_calculate_msi_group(ab, type,
 							      ring_num);
@@ -209,8 +211,8 @@ static void ath11k_dp_srng_msi_setup(struct ath11k_base *ab,
 
 	ring_params->msi_addr = addr_lo;
 	ring_params->msi_addr |= (dma_addr_t)(((uint64_t)addr_hi) << 32);
-	ring_params->msi_data = (msi_group_number % msi_data_count)
-		+ msi_data_start;
+	ring_params->msi_data = vectors_32_capability ?
+		(msi_group_number % msi_data_count) + msi_data_start : msi_data_start;
 	ring_params->flags |= HAL_SRNG_FLAGS_MSI_INTR;
 }
 

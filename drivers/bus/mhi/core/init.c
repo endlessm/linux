@@ -153,7 +153,7 @@ int mhi_init_irq_setup(struct mhi_controller *mhi_cntrl)
 	/* Setup BHI_INTVEC IRQ */
 	ret = request_threaded_irq(mhi_cntrl->irq[0], mhi_intvec_handler,
 				   mhi_intvec_threaded_handler,
-				   IRQF_SHARED | IRQF_NO_SUSPEND,
+				   IRQF_SHARED | IRQF_NOBALANCING,
 				   "bhi", mhi_cntrl);
 	if (ret)
 		return ret;
@@ -171,7 +171,7 @@ int mhi_init_irq_setup(struct mhi_controller *mhi_cntrl)
 
 		ret = request_irq(mhi_cntrl->irq[mhi_event->irq],
 				  mhi_irq_handler,
-				  IRQF_SHARED | IRQF_NO_SUSPEND,
+				  IRQF_SHARED | IRQF_NOBALANCING,
 				  "mhi", mhi_event);
 		if (ret) {
 			dev_err(dev, "Error requesting irq:%d for ev:%d\n",

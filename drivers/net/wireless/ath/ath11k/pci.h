@@ -47,6 +47,7 @@ struct ath11k_pci {
 	u16 dev_id;
 	char amss_path[100];
 	u32 msi_ep_base_data;
+	u32 vectors_32_capability;
 	struct mhi_controller *mhi_ctrl;
 	unsigned long mhi_state;
 	u32 register_window;

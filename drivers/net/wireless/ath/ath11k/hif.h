@@ -24,6 +24,7 @@ struct ath11k_hif_ops {
 				   u32 *base_vector);
 	void (*get_msi_address)(struct ath11k_base *ab, u32 *msi_addr_lo,
 				u32 *msi_addr_hi);
+	int (*is_32_vecs_support)(struct ath11k_base *ab);
 };
 
 static inline int ath11k_hif_start(struct ath11k_base *sc)

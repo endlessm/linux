@@ -459,20 +459,22 @@ static void ath11k_ce_srng_msi_ring_params_setup(struct ath11k_base *ab, u32 ce_
 	u32 msi_irq_start;
 	u32 addr_lo;
 	u32 addr_hi;
+	u32 vectors_32_capability;
 	int ret;
 
 	ret = ath11k_get_user_msi_vector(ab, "CE",
 					 &msi_data_count, &msi_data_start,
 					 &msi_irq_start);
-
 	if (ret)
 		return;
+	vectors_32_capability = ab->hif.ops->is_32_vecs_support(ab);
 
 	ath11k_get_msi_address(ab, &addr_lo, &addr_hi);
 
 	ring_params->msi_addr = addr_lo;
 	ring_params->msi_addr |= (dma_addr_t)(((uint64_t)addr_hi) << 32);
-	ring_params->msi_data = (ce_id % msi_data_count) + msi_data_start;
+	ring_params->msi_data = vectors_32_capability ?
+		(ce_id % msi_data_count) + msi_data_start : msi_data_start;
 	ring_params->flags |= HAL_SRNG_FLAGS_MSI_INTR;
 }
 

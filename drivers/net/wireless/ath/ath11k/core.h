@@ -685,6 +685,7 @@ struct ath11k_base {
 	bool wmi_ready;
 	u32 wlan_init_status;
 	int irq_num[ATH11K_IRQ_NUM_MAX];
+	int irq_enable_flag[ATH11K_IRQ_NUM_MAX];
 	struct ath11k_ext_irq_grp ext_irq_grp[ATH11K_EXT_IRQ_GRP_NUM_MAX];
 	struct napi_struct *napi;
 	struct ath11k_targ_cap target_caps;
