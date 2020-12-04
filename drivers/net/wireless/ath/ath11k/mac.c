@@ -4116,6 +4116,10 @@ static int ath11k_mac_config_mon_status_default(struct ath11k *ar, bool enable)
 						       &tlv_filter);
 	}
 
+	if (enable && !ar->ab->hw_params.rxdma1_enable)
+		mod_timer(&ar->ab->mon_reap_timer, jiffies +
+			  msecs_to_jiffies(ATH11K_MON_TIMER_INTERVAL));
+
 	return ret;
 }
 
@@ -6450,4 +6454,30 @@ void ath11k_mac_destroy(struct ath11k_base *ab)
 		ieee80211_free_hw(ar->hw);
 		pdev->ar = NULL;
 	}
+}
+
+int ath11k_purge_rx_pktlog(struct ath11k *ar, bool stop_timer)
+{
+	int ret;
+
+	/* stop timer */
+	if (stop_timer)
+		del_timer_sync(&ar->ab->mon_reap_timer);
+
+	/* reap all the monitor related rings */
+	ret = ath11k_dp_purge_mon_ring(ar->ab);
+	if (ret)
+		ath11k_warn(ar->ab,
+			    "failed to purge mon_buf ring %d\n", ret);
+
+	return ret;
+}
+
+int ath11k_enable_rx_pktlog(struct ath11k *ar)
+{
+	/* start reap timer */
+	mod_timer(&ar->ab->mon_reap_timer, jiffies +
+				  msecs_to_jiffies(ATH11K_MON_TIMER_INTERVAL));
+
+	return 0;
 }

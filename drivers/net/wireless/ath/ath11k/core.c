@@ -952,6 +952,9 @@ int ath11k_core_suspend(struct ath11k_base *ab)
 	int ret = 0;
 
 	if (ab->hw_params.support_suspend) {
+		ath11k_purge_rx_pktlog(ar, true);
+		ath11k_ce_stop_shadow_timers(ab);
+		ath11k_dp_stop_shadow_timers(ab);
 		reinit_completion(&ar->target_suspend);
 		ath11k_wmi_pdev_suspend(ar, 1, 0);
 		ret = wait_for_completion_timeout(&ar->target_suspend, 3 * HZ);
@@ -963,7 +966,7 @@ int ath11k_core_suspend(struct ath11k_base *ab)
 			ath11k_warn(ab, "suspend failed\n");
 			return -EAGAIN;
 		}
-
+		ath11k_purge_rx_pktlog(ar, false);
 		return ath11k_hif_suspend(ab);
 	}
 	return 0;
@@ -972,8 +975,11 @@ EXPORT_SYMBOL(ath11k_core_suspend);
 
 int ath11k_core_resume(struct ath11k_base *ab)
 {
+	struct ath11k *ar = ab->pdevs[0].ar;
+
 	if (ab->hw_params.support_suspend) {
 		ath11k_hif_resume(ab);
+		ath11k_enable_rx_pktlog(ar);
 		ath11k_wmi_pdev_resume(ab->pdevs[0].ar, 0);
 	}
 

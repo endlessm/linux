@@ -274,6 +274,29 @@ static void ath11k_dp_service_mon_ring(struct timer_list *t)
 		  msecs_to_jiffies(ATH11K_MON_TIMER_INTERVAL));
 }
 
+int ath11k_dp_purge_mon_ring(struct ath11k_base *ab)
+{
+	int i, buf_reaped = 0;
+	unsigned long ts = jiffies;
+
+again:
+	for (i = 0; i < ab->hw_params.num_rxmda_per_pdev; i++) {
+		buf_reaped += ath11k_dp_rx_process_mon_rings(ab, i,
+							     NULL,
+							     DP_MON_SERVICE_BUDGET);
+	}
+
+	/* nothing more to reap */
+	if (buf_reaped < DP_MON_SERVICE_BUDGET)
+		return 0;
+
+	if (time_after(jiffies, ts +
+		       msecs_to_jiffies(DP_MON_PURGE_TIMEOUT_MS)))
+		return -ETIMEDOUT;
+
+	goto again;
+}
+
 /* Returns number of Rx buffers replenished */
 int ath11k_dp_rxbufs_replenish(struct ath11k_base *ab, int mac_id,
 			       struct dp_rxdma_ring *rx_ring,
