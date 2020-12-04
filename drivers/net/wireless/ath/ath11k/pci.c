@@ -241,6 +241,49 @@ static void ath11k_pci_clear_dbg_registers(struct ath11k_base *ab)
 	ath11k_dbg(ab, ATH11K_DBG_PCI, "soc reset cause:%d\n", val);
 }
 
+static void ath11k_pci_enable_LTSSM(struct ath11k_base *ab)
+{
+	u32 val;
+	int count = 5;
+
+	val = ath11k_pci_read32(ab, PCIE_PCIE_PARF_LTSSM);
+
+	/* PCIE link seems very unstable after the Hot Reset*/
+	while (val != PARM_LTSSM_VALUE && count--) {
+		if (val == 0xffffffff)
+			mdelay(5);
+		ath11k_pci_write32(ab, PCIE_PCIE_PARF_LTSSM, PARM_LTSSM_VALUE);
+
+		val = ath11k_pci_read32(ab, PCIE_PCIE_PARF_LTSSM);
+	}
+
+	ath11k_dbg(ab, ATH11K_DBG_PCI, "%s read parf_ltssm:0x%x\n",
+		   __func__, val);
+
+	val = ath11k_pci_read32(ab, GCC_GCC_PCIE_HOT_RST);
+
+	val |= GCC_GCC_PCIE_HOT_RST_VAL | 0x10;
+
+	ath11k_pci_write32(ab, GCC_GCC_PCIE_HOT_RST, val);
+
+	val = ath11k_pci_read32(ab, GCC_GCC_PCIE_HOT_RST);
+
+	ath11k_dbg(ab, ATH11K_DBG_PCI,
+		   "after set, read GCC_GCC_PCIE_HOT_RST 0x%x\n", val);
+
+	mdelay(5);
+}
+
+static void ath11k_pci_clear_all_intrs(struct ath11k_base *ab)
+{
+	/* This is a WAR for PCIE Hotreset.
+	 * When target receive Hotreset, but will set the interrupt.
+	 * So when download SBL again, SBL will open Interrupt and
+	 * receive it, and crash immediately.
+	 */
+	ath11k_pci_write32(ab, PCIE_PCIE_INT_ALL_CLEAR, PCIE_INT_CLEAR_ALL);
+}
+
 static void ath11k_pci_force_wake(struct ath11k_base *ab)
 {
 	int val;
@@ -252,8 +295,13 @@ static void ath11k_pci_force_wake(struct ath11k_base *ab)
 	ath11k_dbg(ab, ATH11K_DBG_PCI, "forcw_wake scratch 0: 0x%x\n", val);
 }
 
-static void ath11k_pci_sw_reset(struct ath11k_base *ab)
+static void ath11k_pci_sw_reset(struct ath11k_base *ab, bool power_on)
 {
+	if (power_on) {
+		ath11k_pci_enable_LTSSM(ab);
+		ath11k_pci_clear_all_intrs(ab);
+	}
+
 	ath11k_mhi_clear_vector(ab);
 	ath11k_pci_soc_global_reset(ab);
 	ath11k_mhi_set_mhictrl_reset(ab);
@@ -874,7 +922,7 @@ static int ath11k_pci_power_up(struct ath11k_base *ab)
 
 	ab_pci->register_window = 0;
 	clear_bit(ATH11K_PCI_FLAG_INIT_DONE, &ab_pci->flags);
-	ath11k_pci_sw_reset(ab_pci->ab);
+	ath11k_pci_sw_reset(ab_pci->ab, true);
 
 	ret = ath11k_mhi_start(ab_pci);
 	if (ret) {
@@ -892,7 +940,7 @@ static void ath11k_pci_power_down(struct ath11k_base *ab)
 	ath11k_pci_force_wake(ab_pci->ab);
 	ath11k_mhi_stop(ab_pci);
 	clear_bit(ATH11K_PCI_FLAG_INIT_DONE, &ab_pci->flags);
-	ath11k_pci_sw_reset(ab_pci->ab);
+	ath11k_pci_sw_reset(ab_pci->ab, false);
 }
 
 static int ath11k_pci_hif_suspend(struct ath11k_base *ab)

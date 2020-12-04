@@ -24,6 +24,16 @@
 /* register used for handshake mechanism to validate UMAC is awake */
 #define PCIE_SOC_WAKE_PCIE_LOCAL_REG		0x3004
 
+#define PCIE_PCIE_PARF_LTSSM              0X1E081B0
+#define PARM_LTSSM_VALUE                  0x111
+
+#define GCC_GCC_PCIE_HOT_RST              0X1E402BC
+#define GCC_GCC_PCIE_HOT_RST_VAL          0x10
+
+#define PCIE_PCIE_INT_ALL_CLEAR           0X1E08228
+#define PCIE_SMLH_REQ_RST_LINK_DOWN       0x2
+#define PCIE_INT_CLEAR_ALL                0xFFFFFFFF
+
 struct ath11k_msi_user {
 	char *name;
 	int num_vectors;
