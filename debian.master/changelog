@@ -1,3 +1,9 @@
+linux (5.10.0-6.7) hirsute; urgency=medium
+
+  * Empty entry.
+
+ -- Seth Forshee <seth.forshee@canonical.com>  Sun, 06 Dec 2020 22:13:46 -0600
+
 linux-5.10 (5.10.0-6.7) hirsute; urgency=medium
 
   * Packaging resync (LP: #1786013)
