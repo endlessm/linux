@@ -4360,7 +4360,6 @@ CONFIG_ALTERA_STAPL                             policy<{'amd64': 'm', 'arm64': '
 CONFIG_INTEL_MEI                                policy<{'amd64': 'm'}>
 CONFIG_INTEL_MEI_ME                             policy<{'amd64': 'm'}>
 CONFIG_INTEL_MEI_TXE                            policy<{'amd64': 'm'}>
-CONFIG_INTEL_MEI_VIRTIO                         policy<{'amd64': 'm'}>
 CONFIG_INTEL_MEI_HDCP                           policy<{'amd64': 'm'}>
 CONFIG_VMWARE_VMCI                              policy<{'amd64': 'm'}>
 CONFIG_ECHO                                     policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 's390x': 'n'}>
@@ -11578,7 +11577,6 @@ CONFIG_ZPOOL                                    policy<{'amd64': 'y', 'arm64': '
 CONFIG_ZBUD                                     policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 's390x': 'y'}>
 CONFIG_Z3FOLD                                   policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 's390x': 'm'}>
 CONFIG_ZSMALLOC                                 policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 's390x': 'y'}>
-CONFIG_ZSMALLOC_PGTABLE_MAPPING                 policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'ppc64el': 'n', 's390x': 'n'}>
 CONFIG_ZSMALLOC_STAT                            policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'ppc64el': 'n', 's390x': 'n'}>
 CONFIG_DEFERRED_STRUCT_PAGE_INIT                policy<{'amd64': 'n', 'arm64': 'n', 'ppc64el': 'n', 's390x': 'n'}>
 CONFIG_IDLE_PAGE_TRACKING                       policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 's390x': 'y'}>
@@ -13933,7 +13931,6 @@ CONFIG_APPLDATA_MEM                             policy<{'s390x': 'm'}>
 CONFIG_APPLDATA_OS                              policy<{'s390x': 'm'}>
 CONFIG_APPLDATA_NET_SUM                         policy<{'s390x': 'm'}>
 
-CONFIG_INFINIBAND_VIRT_DMA                      policy<{'amd64': 'y', 'arm64': 'y', 'armhf': '-', 'ppc64el': 'y', 's390x': 'y'}>
 
 # Menu: FOOTER
 
