@@ -6132,8 +6132,10 @@ CONFIG_ISM                                      mark<ENFORCE> note<LP:1789934>
 CONFIG_QETH                                     policy<{'s390x': 'm'}>
 CONFIG_QETH_L2                                  policy<{'s390x': 'm'}>
 CONFIG_QETH_L3                                  policy<{'s390x': 'm'}>
-CONFIG_QETH_OSN                                 policy<{'s390x': 'y'}>
+CONFIG_QETH_OSN                                 policy<{'s390x': 'n'}>
 CONFIG_QETH_OSX                                 policy<{'s390x': 'y'}>
+#
+CONFIG_QETH_OSN                                 note<LP:1906370>
 
 # Menu: Device Drivers >> Network device support >> SLIP (serial line) support
 CONFIG_SLIP                                     policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 's390x': 'n'}>
