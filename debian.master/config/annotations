@@ -1042,7 +1042,7 @@ CONFIG_RESET_HISI                               policy<{'arm64': 'y', 'armhf': '
 CONFIG_STUB_CLK_HI6220                          policy<{'arm64': 'y', 'armhf': 'y'}>
 CONFIG_STUB_CLK_HI3660                          policy<{'arm64': 'y', 'armhf': 'y'}>
 CONFIG_MXC_CLK                                  policy<{'arm64': 'y', 'armhf-generic': 'y'}>
-CONFIG_MXC_CLK_SCU                              policy<{'arm64': 'y', 'armhf-generic': 'y'}>
+CONFIG_MXC_CLK_SCU                              policy<{'arm64': 'y'}>
 CONFIG_CLK_IMX8MM                               policy<{'arm64': 'y', 'armhf-generic': 'y'}>
 CONFIG_CLK_IMX8MN                               policy<{'arm64': 'y', 'armhf-generic': 'y'}>
 CONFIG_CLK_IMX8MP                               policy<{'arm64': 'y', 'armhf-generic': 'y'}>
@@ -10576,6 +10576,7 @@ CONFIG_NFS_V4_1                                 policy<{'amd64': 'y', 'arm64': '
 CONFIG_NFS_V4_2                                 policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 's390x': 'y'}>
 CONFIG_NFS_V4_1_IMPLEMENTATION_ID_DOMAIN        policy<{'amd64': '"kernel.org"', 'arm64': '"kernel.org"', 'armhf': '"kernel.org"', 'ppc64el': '"kernel.org"', 's390x': '"kernel.org"'}>
 CONFIG_NFS_V4_1_MIGRATION                       policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 's390x': 'y'}>
+CONFIG_NFS_V4_2_READ_PLUS                       policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'ppc64el': 'n', 's390x': 'n'}>
 
 # Menu: File systems >> Network File Systems >> NFS server support for NFS version 4
 CONFIG_NFSD_V4                                  policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 's390x': 'y'}>
