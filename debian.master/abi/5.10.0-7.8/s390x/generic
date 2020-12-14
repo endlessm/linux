@@ -2733,6 +2733,7 @@ EXPORT_SYMBOL	 vmlinux 0x00000000	__dec_node_page_state
 EXPORT_SYMBOL	 vmlinux 0x00000000	__dec_zone_page_state
 EXPORT_SYMBOL	 vmlinux 0x00000000	__delay
 EXPORT_SYMBOL	 vmlinux 0x00000000	__destroy_inode
+EXPORT_SYMBOL	 vmlinux 0x00000000	__dev_direct_xmit
 EXPORT_SYMBOL	 vmlinux 0x00000000	__dev_get_by_flags
 EXPORT_SYMBOL	 vmlinux 0x00000000	__dev_get_by_index
 EXPORT_SYMBOL	 vmlinux 0x00000000	__dev_get_by_name
@@ -3616,7 +3617,6 @@ EXPORT_SYMBOL	 vmlinux 0x00000000	dev_close
 EXPORT_SYMBOL	 vmlinux 0x00000000	dev_close_many
 EXPORT_SYMBOL	 vmlinux 0x00000000	dev_crit_hash
 EXPORT_SYMBOL	 vmlinux 0x00000000	dev_deactivate
-EXPORT_SYMBOL	 vmlinux 0x00000000	dev_direct_xmit
 EXPORT_SYMBOL	 vmlinux 0x00000000	dev_disable_lro
 EXPORT_SYMBOL	 vmlinux 0x00000000	dev_driver_string
 EXPORT_SYMBOL	 vmlinux 0x00000000	dev_emerg_hash
@@ -3710,7 +3710,9 @@ EXPORT_SYMBOL	 vmlinux 0x00000000	devm_request_any_context_irq
 EXPORT_SYMBOL	 vmlinux 0x00000000	devm_request_resource
 EXPORT_SYMBOL	 vmlinux 0x00000000	devm_request_threaded_irq
 EXPORT_SYMBOL	 vmlinux 0x00000000	dfltcc_can_deflate
+EXPORT_SYMBOL	 vmlinux 0x00000000	dfltcc_can_inflate
 EXPORT_SYMBOL	 vmlinux 0x00000000	dfltcc_deflate
+EXPORT_SYMBOL	 vmlinux 0x00000000	dfltcc_inflate
 EXPORT_SYMBOL	 vmlinux 0x00000000	dfltcc_reset
 EXPORT_SYMBOL	 vmlinux 0x00000000	dget_parent
 EXPORT_SYMBOL	 vmlinux 0x00000000	diag14
@@ -8814,27 +8816,6 @@ EXPORT_SYMBOL_GPL	 fs/ocfs2/ocfs2_stackglue 0x00000000	ocfs2_stack_glue_register
 EXPORT_SYMBOL_GPL	 fs/ocfs2/ocfs2_stackglue 0x00000000	ocfs2_stack_glue_set_max_proto_version
 EXPORT_SYMBOL_GPL	 fs/ocfs2/ocfs2_stackglue 0x00000000	ocfs2_stack_glue_unregister
 EXPORT_SYMBOL_GPL	 fs/ocfs2/ocfs2_stackglue 0x00000000	ocfs2_stack_supports_plocks
-EXPORT_SYMBOL_GPL	 kernel/torture 0x00000000	_torture_create_kthread
-EXPORT_SYMBOL_GPL	 kernel/torture 0x00000000	_torture_stop_kthread
-EXPORT_SYMBOL_GPL	 kernel/torture 0x00000000	stutter_wait
-EXPORT_SYMBOL_GPL	 kernel/torture 0x00000000	torture_cleanup_begin
-EXPORT_SYMBOL_GPL	 kernel/torture 0x00000000	torture_cleanup_end
-EXPORT_SYMBOL_GPL	 kernel/torture 0x00000000	torture_init_begin
-EXPORT_SYMBOL_GPL	 kernel/torture 0x00000000	torture_init_end
-EXPORT_SYMBOL_GPL	 kernel/torture 0x00000000	torture_kthread_stopping
-EXPORT_SYMBOL_GPL	 kernel/torture 0x00000000	torture_must_stop
-EXPORT_SYMBOL_GPL	 kernel/torture 0x00000000	torture_must_stop_irq
-EXPORT_SYMBOL_GPL	 kernel/torture 0x00000000	torture_offline
-EXPORT_SYMBOL_GPL	 kernel/torture 0x00000000	torture_online
-EXPORT_SYMBOL_GPL	 kernel/torture 0x00000000	torture_onoff_failures
-EXPORT_SYMBOL_GPL	 kernel/torture 0x00000000	torture_onoff_init
-EXPORT_SYMBOL_GPL	 kernel/torture 0x00000000	torture_onoff_stats
-EXPORT_SYMBOL_GPL	 kernel/torture 0x00000000	torture_random
-EXPORT_SYMBOL_GPL	 kernel/torture 0x00000000	torture_shuffle_init
-EXPORT_SYMBOL_GPL	 kernel/torture 0x00000000	torture_shuffle_task_register
-EXPORT_SYMBOL_GPL	 kernel/torture 0x00000000	torture_shutdown_absorb
-EXPORT_SYMBOL_GPL	 kernel/torture 0x00000000	torture_shutdown_init
-EXPORT_SYMBOL_GPL	 kernel/torture 0x00000000	torture_stutter_init
 EXPORT_SYMBOL_GPL	 lib/842/842_compress 0x00000000	sw842_compress
 EXPORT_SYMBOL_GPL	 lib/842/842_decompress 0x00000000	sw842_decompress
 EXPORT_SYMBOL_GPL	 lib/crc4 0x00000000	crc4
@@ -10381,7 +10362,6 @@ EXPORT_SYMBOL_GPL	 vmlinux 0x00000000	bus_unregister_notifier
 EXPORT_SYMBOL_GPL	 vmlinux 0x00000000	byte_rev_table
 EXPORT_SYMBOL_GPL	 vmlinux 0x00000000	call_netevent_notifiers
 EXPORT_SYMBOL_GPL	 vmlinux 0x00000000	call_rcu
-EXPORT_SYMBOL_GPL	 vmlinux 0x00000000	call_rcu_tasks
 EXPORT_SYMBOL_GPL	 vmlinux 0x00000000	call_rcu_tasks_rude
 EXPORT_SYMBOL_GPL	 vmlinux 0x00000000	call_rcu_tasks_trace
 EXPORT_SYMBOL_GPL	 vmlinux 0x00000000	call_srcu
@@ -11747,7 +11727,7 @@ EXPORT_SYMBOL_GPL	 vmlinux 0x00000000	irq_chip_set_wake_parent
 EXPORT_SYMBOL_GPL	 vmlinux 0x00000000	irq_chip_unmask_parent
 EXPORT_SYMBOL_GPL	 vmlinux 0x00000000	irq_create_direct_mapping
 EXPORT_SYMBOL_GPL	 vmlinux 0x00000000	irq_create_fwspec_mapping
-EXPORT_SYMBOL_GPL	 vmlinux 0x00000000	irq_create_mapping
+EXPORT_SYMBOL_GPL	 vmlinux 0x00000000	irq_create_mapping_affinity
 EXPORT_SYMBOL_GPL	 vmlinux 0x00000000	irq_create_of_mapping
 EXPORT_SYMBOL_GPL	 vmlinux 0x00000000	irq_create_strict_mappings
 EXPORT_SYMBOL_GPL	 vmlinux 0x00000000	irq_dispose_mapping
@@ -12516,7 +12496,6 @@ EXPORT_SYMBOL_GPL	 vmlinux 0x00000000	raw_v4_hashinfo
 EXPORT_SYMBOL_GPL	 vmlinux 0x00000000	raw_v6_hashinfo
 EXPORT_SYMBOL_GPL	 vmlinux 0x00000000	rcu_all_qs
 EXPORT_SYMBOL_GPL	 vmlinux 0x00000000	rcu_barrier
-EXPORT_SYMBOL_GPL	 vmlinux 0x00000000	rcu_barrier_tasks
 EXPORT_SYMBOL_GPL	 vmlinux 0x00000000	rcu_barrier_tasks_rude
 EXPORT_SYMBOL_GPL	 vmlinux 0x00000000	rcu_barrier_tasks_trace
 EXPORT_SYMBOL_GPL	 vmlinux 0x00000000	rcu_cpu_stall_suppress
@@ -12997,7 +12976,6 @@ EXPORT_SYMBOL_GPL	 vmlinux 0x00000000	symbol_put_addr
 EXPORT_SYMBOL_GPL	 vmlinux 0x00000000	sync_page_io
 EXPORT_SYMBOL_GPL	 vmlinux 0x00000000	synchronize_rcu
 EXPORT_SYMBOL_GPL	 vmlinux 0x00000000	synchronize_rcu_expedited
-EXPORT_SYMBOL_GPL	 vmlinux 0x00000000	synchronize_rcu_tasks
 EXPORT_SYMBOL_GPL	 vmlinux 0x00000000	synchronize_rcu_tasks_rude
 EXPORT_SYMBOL_GPL	 vmlinux 0x00000000	synchronize_rcu_tasks_trace
 EXPORT_SYMBOL_GPL	 vmlinux 0x00000000	synchronize_srcu

@@ -2824,7 +2824,6 @@ megaraid_sas
 mei
 mei-me
 mei-txe
-mei-virtio
 mei_hdcp
 mei_phy
 mei_wdt
@@ -3885,7 +3884,6 @@ rc-x96max
 rc-xbox-dvd
 rc-zx-irdec
 rc5t583-regulator
-rcuscale
 rdacm20-camera_module
 rdc321x-southbridge
 rdma_cm
@@ -5131,7 +5129,6 @@ tmp401
 tmp421
 tmp513
 topstar-laptop
-torture
 toshiba_acpi
 toshiba_bluetooth
 toshiba_haps
