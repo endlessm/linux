@@ -677,7 +677,6 @@ raid6_pq
 raid_class
 raw_diag
 rbd
-rcuscale
 rdma_cm
 rdma_rxe
 rdma_ucm
@@ -829,7 +828,6 @@ test_bpf
 tgr192
 tipc
 tls
-torture
 tpm_key_parser
 tpm_vtpm_proxy
 trace-printk

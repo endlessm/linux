@@ -396,6 +396,7 @@ arizona-micsupp
 arizona-spi
 ark3116
 arkfb
+arm-cmn
 arm_dsu_pmu
 arm_mhu
 arm_mhu_db
@@ -4349,7 +4350,6 @@ rcar_gen3_thermal
 rcar_jpu
 rcar_lvds
 rcar_thermal
-rcuscale
 rdacm20-camera_module
 rdc321x-southbridge
 rdma_cm
@@ -5788,7 +5788,6 @@ tmp108
 tmp401
 tmp421
 tmp513
-torture
 toshsd
 touchit213
 touchright
