@@ -5212,6 +5212,7 @@ EXPORT_SYMBOL	 net/netfilter/x_tables 0x00000000	xt_register_match
 EXPORT_SYMBOL	 net/netfilter/x_tables 0x00000000	xt_register_matches
 EXPORT_SYMBOL	 net/netfilter/x_tables 0x00000000	xt_register_target
 EXPORT_SYMBOL	 net/netfilter/x_tables 0x00000000	xt_register_targets
+EXPORT_SYMBOL	 net/netfilter/x_tables 0x00000000	xt_table_get_private_protected
 EXPORT_SYMBOL	 net/netfilter/x_tables 0x00000000	xt_unregister_match
 EXPORT_SYMBOL	 net/netfilter/x_tables 0x00000000	xt_unregister_matches
 EXPORT_SYMBOL	 net/netfilter/x_tables 0x00000000	xt_unregister_target
@@ -8695,7 +8696,6 @@ EXPORT_SYMBOL	 vmlinux 0x00000000	md_reap_sync_thread
 EXPORT_SYMBOL	 vmlinux 0x00000000	md_register_thread
 EXPORT_SYMBOL	 vmlinux 0x00000000	md_reload_sb
 EXPORT_SYMBOL	 vmlinux 0x00000000	md_set_array_sectors
-EXPORT_SYMBOL	 vmlinux 0x00000000	md_submit_discard_bio
 EXPORT_SYMBOL	 vmlinux 0x00000000	md_unregister_thread
 EXPORT_SYMBOL	 vmlinux 0x00000000	md_update_sb
 EXPORT_SYMBOL	 vmlinux 0x00000000	md_wait_for_blocked_rdev
@@ -21354,6 +21354,10 @@ EXPORT_SYMBOL_GPL	 vmlinux 0x00000000	gnttab_grant_foreign_transfer_ref
 EXPORT_SYMBOL_GPL	 vmlinux 0x00000000	gnttab_init
 EXPORT_SYMBOL_GPL	 vmlinux 0x00000000	gnttab_map_refs
 EXPORT_SYMBOL_GPL	 vmlinux 0x00000000	gnttab_max_grant_frames
+EXPORT_SYMBOL_GPL	 vmlinux 0x00000000	gnttab_page_cache_get
+EXPORT_SYMBOL_GPL	 vmlinux 0x00000000	gnttab_page_cache_init
+EXPORT_SYMBOL_GPL	 vmlinux 0x00000000	gnttab_page_cache_put
+EXPORT_SYMBOL_GPL	 vmlinux 0x00000000	gnttab_page_cache_shrink
 EXPORT_SYMBOL_GPL	 vmlinux 0x00000000	gnttab_pages_clear_private
 EXPORT_SYMBOL_GPL	 vmlinux 0x00000000	gnttab_pages_set_private
 EXPORT_SYMBOL_GPL	 vmlinux 0x00000000	gnttab_query_foreign_access
@@ -24953,7 +24957,6 @@ EXPORT_SYMBOL_GPL	 vmlinux 0x00000000	xas_set_mark
 EXPORT_SYMBOL_GPL	 vmlinux 0x00000000	xas_split
 EXPORT_SYMBOL_GPL	 vmlinux 0x00000000	xas_split_alloc
 EXPORT_SYMBOL_GPL	 vmlinux 0x00000000	xas_store
-EXPORT_SYMBOL_GPL	 vmlinux 0x00000000	xdp_attachment_flags_ok
 EXPORT_SYMBOL_GPL	 vmlinux 0x00000000	xdp_attachment_setup
 EXPORT_SYMBOL_GPL	 vmlinux 0x00000000	xdp_convert_zc_to_xdp_frame
 EXPORT_SYMBOL_GPL	 vmlinux 0x00000000	xdp_do_flush
