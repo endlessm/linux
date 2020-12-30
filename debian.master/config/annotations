@@ -756,7 +756,6 @@ CONFIG_N_GSM                                    policy<{'amd64': 'm', 'arm64': '
 CONFIG_TRACE_ROUTER                             policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm'}>
 CONFIG_TRACE_SINK                               policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 's390x': 'n'}>
 CONFIG_PPC_EPAPR_HV_BYTECHAN                    policy<{'ppc64el': 'n'}>
-CONFIG_NULL_TTY                                 policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 's390x': 'm'}>
 CONFIG_LDISC_AUTOLOAD                           policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 's390x': 'y'}>
 #
 CONFIG_HVC_UDBG                                 mark<ENFORCED> note<LP#1680888>
@@ -769,8 +768,6 @@ CONFIG_CYCLADES                                 policy<{'amd64': 'm', 'arm64': '
 CONFIG_CYZ_INTR                                 policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'ppc64el': 'n'}>
 CONFIG_MOXA_INTELLIO                            policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm'}>
 CONFIG_MOXA_SMARTIO                             policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm'}>
-CONFIG_SYNCLINK                                 policy<{'amd64': 'm', 'ppc64el': 'm'}>
-CONFIG_SYNCLINKMP                               policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm'}>
 CONFIG_SYNCLINK_GT                              policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm'}>
 CONFIG_ISI                                      policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm'}>
 CONFIG_N_HDLC                                   policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm'}>
@@ -809,7 +806,7 @@ CONFIG_SERIAL_SCCNXP_CONSOLE                    policy<{'amd64': 'y', 'arm64': '
 CONFIG_SERIAL_SC16IS7XX                         policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 's390x': 'n'}>
 CONFIG_SERIAL_SC16IS7XX_I2C                     policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y'}>
 CONFIG_SERIAL_SC16IS7XX_SPI                     policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y'}>
-CONFIG_SERIAL_BCM63XX                           policy<{'armhf': 'm'}>
+CONFIG_SERIAL_BCM63XX                           policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm'}>
 CONFIG_SERIAL_ALTERA_JTAGUART                   policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 's390x': 'n'}>
 CONFIG_SERIAL_IFX6X60                           policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'ppc64el': 'n'}>
 CONFIG_SERIAL_XILINX_PS_UART                    policy<{'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm'}>
@@ -898,7 +895,6 @@ CONFIG_HW_RANDOM_IMX_RNGC                       policy<{'armhf-generic': 'm'}>
 CONFIG_HW_RANDOM_PSERIES                        policy<{'ppc64el': 'm'}>
 CONFIG_HW_RANDOM_POWERNV                        policy<{'ppc64el': 'm'}>
 CONFIG_HW_RANDOM_HISI                           policy<{'arm64': 'm', 'armhf': 'm'}>
-CONFIG_HW_RANDOM_HISI_V2                        policy<{'arm64': 'm'}>
 CONFIG_HW_RANDOM_XGENE                          policy<{'arm64': 'm'}>
 CONFIG_HW_RANDOM_MESON                          policy<{'arm64': 'm', 'armhf': 'm'}>
 CONFIG_HW_RANDOM_CAVIUM                         policy<{'arm64': 'm'}>
@@ -1018,7 +1014,7 @@ CONFIG_COMMON_CLK_FSL_SAI                       policy<{'arm64': 'y'}>
 CONFIG_COMMON_CLK_ASPEED                        policy<{'armhf': 'y'}>
 CONFIG_COMMON_CLK_S2MPS11                       policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm'}>
 CONFIG_CLK_TWL6040                              policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm'}>
-CONFIG_CLK_QORIQ                                policy<{'arm64': 'y', 'armhf': 'y'}>
+CONFIG_CLK_QORIQ                                policy<{'arm64': 'y'}>
 CONFIG_CLK_LS1028A_PLLDIG                       policy<{'arm64': 'm'}>
 CONFIG_COMMON_CLK_XGENE                         policy<{'arm64': 'y'}>
 CONFIG_COMMON_CLK_LOCHNAGAR                     policy<{'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm'}>
@@ -1222,17 +1218,17 @@ CONFIG_CLK_RENESAS_DIV6                         policy<{'arm64': 'y', 'armhf': '
 
 # Menu: Device Drivers >> Common Clock Framework >> Rockchip clock controller common support
 CONFIG_COMMON_CLK_ROCKCHIP                      policy<{'arm64': 'y', 'armhf': 'y'}>
-CONFIG_CLK_PX30                                 policy<{'arm64': 'y', 'armhf': 'y'}>
-CONFIG_CLK_RV110X                               policy<{'arm64': 'y', 'armhf': 'y'}>
-CONFIG_CLK_RK3036                               policy<{'arm64': 'y', 'armhf': 'y'}>
-CONFIG_CLK_RK312X                               policy<{'arm64': 'y', 'armhf': 'y'}>
-CONFIG_CLK_RK3188                               policy<{'arm64': 'y', 'armhf': 'y'}>
-CONFIG_CLK_RK322X                               policy<{'arm64': 'y', 'armhf': 'y'}>
+CONFIG_CLK_PX30                                 policy<{'arm64': 'y'}>
+CONFIG_CLK_RV110X                               policy<{'armhf': 'y'}>
+CONFIG_CLK_RK3036                               policy<{'armhf': 'y'}>
+CONFIG_CLK_RK312X                               policy<{'armhf': 'y'}>
+CONFIG_CLK_RK3188                               policy<{'armhf': 'y'}>
+CONFIG_CLK_RK322X                               policy<{'armhf': 'y'}>
 CONFIG_CLK_RK3288                               policy<{'armhf': 'y'}>
-CONFIG_CLK_RK3308                               policy<{'arm64': 'y', 'armhf': 'y'}>
-CONFIG_CLK_RK3328                               policy<{'arm64': 'y', 'armhf': 'y'}>
-CONFIG_CLK_RK3368                               policy<{'arm64': 'y', 'armhf': 'y'}>
-CONFIG_CLK_RK3399                               policy<{'arm64': 'y', 'armhf': 'y'}>
+CONFIG_CLK_RK3308                               policy<{'arm64': 'y'}>
+CONFIG_CLK_RK3328                               policy<{'arm64': 'y'}>
+CONFIG_CLK_RK3368                               policy<{'arm64': 'y'}>
+CONFIG_CLK_RK3399                               policy<{'arm64': 'y'}>
 
 # Menu: Device Drivers >> Common Clock Framework >> SiFive SoC driver support
 
@@ -1576,8 +1572,8 @@ CONFIG_GPIOLIB                                  policy<{'amd64': 'y', 'arm64': '
 CONFIG_GPIOLIB_FASTPATH_LIMIT                   policy<{'amd64': '512', 'arm64': '512', 'armhf': '512', 'ppc64el': '512', 's390x': '512'}>
 CONFIG_DEBUG_GPIO                               policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'ppc64el': 'n', 's390x': 'n'}>
 CONFIG_GPIO_SYSFS                               policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 's390x': 'y'}>
-CONFIG_GPIO_CDEV                                policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 's390x': 'n'}>
-CONFIG_GPIO_CDEV_V1                             policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'ppc64el': 'n', 's390x': '-'}>
+CONFIG_GPIO_CDEV                                policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 's390x': 'y'}>
+CONFIG_GPIO_CDEV_V1                             policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'ppc64el': 'n', 's390x': 'n'}>
 CONFIG_GPIO_AGGREGATOR                          policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 's390x': 'm'}>
 CONFIG_GPIO_MOCKUP                              policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'ppc64el': 'n', 's390x': 'n'}>
 
@@ -1616,7 +1612,6 @@ CONFIG_GPIO_MAX77650                            policy<{'arm64': 'm', 'armhf': '
 CONFIG_GPIO_MSIC                                policy<{'amd64': 'y'}>
 CONFIG_GPIO_PALMAS                              policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y'}>
 CONFIG_GPIO_RC5T583                             policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y'}>
-CONFIG_GPIO_SL28CPLD                            policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm'}>
 CONFIG_GPIO_STMPE                               policy<{'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y'}>
 CONFIG_GPIO_TC3589X                             policy<{'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y'}>
 CONFIG_GPIO_TPS65086                            policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm'}>
@@ -1761,7 +1756,6 @@ CONFIG_ARM_EXYNOS_BUS_DEVFREQ                   policy<{'armhf': 'y'}>
 CONFIG_ARM_IMX_BUS_DEVFREQ                      policy<{'arm64': 'm', 'armhf-generic': 'm'}>
 CONFIG_ARM_IMX8M_DDRC_DEVFREQ                   policy<{'arm64': 'm', 'armhf-generic': 'm'}>
 CONFIG_ARM_TEGRA_DEVFREQ                        policy<{'armhf-generic': 'm'}>
-CONFIG_ARM_TEGRA20_DEVFREQ                      policy<{'armhf-generic': 'm'}>
 CONFIG_ARM_RK3399_DMC_DEVFREQ                   policy<{'arm64': 'm', 'armhf': 'm'}>
 
 # Menu: Device Drivers >> Generic Dynamic Voltage and Frequency Scaling (DVFS) support >> DEVFREQ-Event device Support
@@ -1972,7 +1966,6 @@ CONFIG_DRM_AMD_DC_SI                            policy<{'amd64': 'y', 'arm64': '
 
 # Menu: Device Drivers >> Graphics support >> Direct Rendering Manager (XFree86 4.1.0 and higher DRI support) >> AMD GPU >> Display Engine Configuration >> AMD DC - Enable new display engine
 CONFIG_DRM_AMD_DC                               policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y'}>
-CONFIG_DRM_AMD_DC_DCN3_0                        policy<{'amd64': 'y'}>
 CONFIG_DRM_AMD_DC_HDCP                          policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y'}>
 CONFIG_DEBUG_KERNEL_DC                          policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'ppc64el': 'n'}>
 
@@ -2670,7 +2663,6 @@ CONFIG_SENSORS_OCC_P9_SBE                       policy<{'arm64': 'n', 'armhf': '
 CONFIG_SENSORS_PCF8591                          policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm'}>
 CONFIG_SENSORS_PWM_FAN                          policy<{'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm'}>
 CONFIG_SENSORS_RASPBERRYPI_HWMON                policy<{'arm64': 'm'}>
-CONFIG_SENSORS_SL28CPLD                         policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm'}>
 CONFIG_SENSORS_SHT15                            policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm'}>
 CONFIG_SENSORS_SHT21                            policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm'}>
 CONFIG_SENSORS_SHT3x                            policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm'}>
@@ -3463,7 +3455,6 @@ CONFIG_INFINIBAND_RTRS_SERVER                   policy<{'amd64': 'm', 'arm64': '
 CONFIG_INPUT                                    policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 's390x': 'y'}>
 CONFIG_INPUT_LEDS                               policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm'}>
 CONFIG_INPUT_FF_MEMLESS                         policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 's390x': 'n'}>
-CONFIG_INPUT_POLLDEV                            policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 's390x': 'n'}>
 CONFIG_INPUT_SPARSEKMAP                         policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 's390x': 'n'}>
 CONFIG_INPUT_MATRIXKMAP                         policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 's390x': 'n'}>
 CONFIG_INPUT_JOYDEV                             policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 's390x': 'n'}>
@@ -3684,7 +3675,6 @@ CONFIG_RMI4_F55                                 policy<{'amd64': 'y', 'arm64': '
 CONFIG_INPUT_TABLET                             policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 's390x': 'n'}>
 CONFIG_TABLET_USB_ACECAD                        policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm'}>
 CONFIG_TABLET_USB_AIPTEK                        policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm'}>
-CONFIG_TABLET_USB_GTCO                          policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm'}>
 CONFIG_TABLET_USB_HANWANG                       policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm'}>
 CONFIG_TABLET_USB_KBTAB                         policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm'}>
 CONFIG_TABLET_USB_PEGASUS                       policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm'}>
@@ -4477,7 +4467,6 @@ CONFIG_MFD_RK808                                policy<{'arm64': 'm', 'armhf': '
 CONFIG_MFD_RN5T618                              policy<{'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm'}>
 CONFIG_MFD_SEC_CORE                             policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y'}>
 CONFIG_MFD_SI476X_CORE                          policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 's390x': 'n'}>
-CONFIG_MFD_SL28CPLD                             policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 's390x': 'n'}>
 CONFIG_MFD_SM501                                policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'y', 'ppc64el': 'm', 's390x': 'n'}>
 CONFIG_MFD_SM501_GPIO                           policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y'}>
 CONFIG_MFD_SKY81452                             policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 's390x': 'n'}>
@@ -4655,7 +4644,6 @@ CONFIG_VIDEO_S5K6AA                             policy<{'amd64': 'm', 'arm64': '
 CONFIG_VIDEO_S5K6A3                             policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm'}>
 CONFIG_VIDEO_S5K4ECGX                           policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm'}>
 CONFIG_VIDEO_S5K5BAF                            policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm'}>
-CONFIG_VIDEO_SMIAPP                             policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm'}>
 CONFIG_VIDEO_ET8EK8                             policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm'}>
 CONFIG_VIDEO_S5C73M3                            policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm'}>
 
@@ -5552,7 +5540,6 @@ CONFIG_NET_VENDOR_PACKET_ENGINES                policy<{'amd64': 'y', 'arm64': '
 CONFIG_HAMACHI                                  policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 's390x': 'n'}>
 CONFIG_YELLOWFIN                                policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 's390x': 'n'}>
 CONFIG_NET_VENDOR_PENSANDO                      policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 's390x': 'n'}>
-CONFIG_IONIC                                    policy<{'amd64': 'm', 'arm64': 'm', 'ppc64el': 'm'}>
 CONFIG_NET_VENDOR_RDC                           policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 's390x': 'n'}>
 CONFIG_R6040                                    policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm'}>
 CONFIG_NET_VENDOR_RENESAS                       policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 's390x': 'n'}>
@@ -6197,10 +6184,7 @@ CONFIG_USB_KC2190                               policy<{'amd64': 'y', 'arm64': '
 CONFIG_WAN                                      policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 's390x': 'n'}>
 CONFIG_LANMEDIA                                 policy<{'amd64': 'm'}>
 CONFIG_SLIC_DS26522                             policy<{'arm64': 'm', 'armhf-generic': 'm'}>
-CONFIG_DLCI                                     policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm'}>
-CONFIG_DLCI_MAX                                 policy<{'amd64': '8', 'arm64': '8', 'armhf': '8', 'ppc64el': '8'}>
 CONFIG_LAPBETHER                                policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm'}>
-CONFIG_X25_ASY                                  policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm'}>
 CONFIG_SBNI                                     policy<{'amd64': 'm'}>
 CONFIG_SBNI_MULTILINE                           policy<{'amd64': 'n'}>
 
@@ -6224,7 +6208,6 @@ CONFIG_WIMAX_I2400M_DEBUG_LEVEL                 policy<{'amd64': '8', 'arm64': '
 
 # Menu: Device Drivers >> Network device support >> Wireless LAN
 CONFIG_WLAN                                     policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y'}>
-CONFIG_WIRELESS_WDS                             policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'ppc64el': 'n'}>
 CONFIG_WLAN_VENDOR_ADMTEK                       policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y'}>
 CONFIG_ADM8211                                  policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm'}>
 CONFIG_WLAN_VENDOR_ATMEL                        policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y'}>
@@ -7226,7 +7209,6 @@ CONFIG_PWM_RCAR                                 policy<{'arm64': 'm', 'armhf': '
 CONFIG_PWM_RENESAS_TPU                          policy<{'arm64': 'm', 'armhf': 'm'}>
 CONFIG_PWM_ROCKCHIP                             policy<{'arm64': 'm', 'armhf': 'm'}>
 CONFIG_PWM_SAMSUNG                              policy<{'armhf': 'm'}>
-CONFIG_PWM_SL28CPLD                             policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm'}>
 CONFIG_PWM_SPRD                                 policy<{'arm64': 'm'}>
 CONFIG_PWM_STMPE                                policy<{'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y'}>
 CONFIG_PWM_SUN4I                                policy<{'arm64': 'm'}>
@@ -7724,18 +7706,16 @@ CONFIG_ARCH_TEGRA_3x_SOC                        policy<{'armhf-generic': 'y'}>
 CONFIG_ARCH_TEGRA_114_SOC                       policy<{'armhf-generic': 'y'}>
 CONFIG_ARCH_TEGRA_124_SOC                       policy<{'armhf-generic': 'y'}>
 CONFIG_SOC_TEGRA20_VOLTAGE_COUPLER              policy<{'armhf-generic': 'y'}>
-CONFIG_ARCH_K3_AM6_SOC                          policy<{'arm64': 'y'}>
 CONFIG_SOC_TEGRA30_VOLTAGE_COUPLER              policy<{'armhf-generic': 'y'}>
-CONFIG_ARCH_K3_J721E_SOC                        policy<{'arm64': 'y'}>
 
 # Menu: Device Drivers >> SOC (System On Chip) specific Drivers >> Amlogic SoC drivers
 CONFIG_MESON_CANVAS                             policy<{'arm64': 'm', 'armhf': 'm'}>
 CONFIG_MESON_CLK_MEASURE                        policy<{'arm64': 'y', 'armhf': 'y'}>
-CONFIG_MESON_GX_SOCINFO                         policy<{'arm64': 'y', 'armhf': 'y'}>
+CONFIG_MESON_GX_SOCINFO                         policy<{'arm64': 'y'}>
 CONFIG_MESON_GX_PM_DOMAINS                      policy<{'arm64': 'y', 'armhf': 'y'}>
 CONFIG_MESON_EE_PM_DOMAINS                      policy<{'arm64': 'y', 'armhf': 'y'}>
 CONFIG_MESON_SECURE_PM_DOMAINS                  policy<{'arm64-generic': 'y'}>
-CONFIG_MESON_MX_SOCINFO                         policy<{'arm64': 'y', 'armhf': 'y'}>
+CONFIG_MESON_MX_SOCINFO                         policy<{'armhf': 'y'}>
 
 # Menu: Device Drivers >> SOC (System On Chip) specific Drivers >> Aspeed SoC drivers
 CONFIG_ASPEED_LPC_CTRL                          policy<{'armhf': 'm'}>
@@ -8484,7 +8464,6 @@ CONFIG_SND_SOC_EUKREA_TLV320                    policy<{'armhf-generic': 'm'}>
 CONFIG_SND_SOC_IMX_ES8328                       policy<{'arm64': 'm', 'armhf-generic': 'm'}>
 CONFIG_SND_SOC_IMX_SGTL5000                     policy<{'arm64': 'm', 'armhf-generic': 'y'}>
 CONFIG_SND_SOC_IMX_SPDIF                        policy<{'arm64': 'm', 'armhf-generic': 'm'}>
-CONFIG_SND_SOC_IMX_MC13783                      policy<{'armhf-generic': 'm'}>
 CONFIG_SND_SOC_FSL_ASOC_CARD                    policy<{'arm64': 'm', 'armhf-generic': 'm'}>
 CONFIG_SND_SOC_IMX_AUDMIX                       policy<{'arm64': 'm', 'armhf-generic': 'm'}>
 
@@ -8800,9 +8779,6 @@ CONFIG_STAGING                                  flag<REVIEW>
 
 # Menu: Device Drivers >> Staging drivers >> Android
 CONFIG_ASHMEM                                   policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm'}>
-
-# Menu: Device Drivers >> Staging drivers >> Android >> Ion Memory Manager
-CONFIG_ION                                      policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'ppc64el': 'n'}>
 
 # Menu: Device Drivers >> Staging drivers >> Broadcom VideoCore support
 CONFIG_BCM_VIDEOCORE                            policy<{'arm64': 'm'}>
@@ -9262,7 +9238,6 @@ CONFIG_USB_SL811_HCD_ISO                        policy<{'amd64': 'y', 'arm64': '
 CONFIG_USB_SL811_CS                             policy<{'amd64': 'm'}>
 CONFIG_USB_R8A66597_HCD                         policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm'}>
 CONFIG_USB_RENESAS_USBHS_HCD                    policy<{'arm64': 'm', 'armhf': 'm'}>
-CONFIG_USB_IMX21_HCD                            policy<{'armhf-generic': 'm'}>
 CONFIG_USB_HCD_BCMA                             policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'n', 'ppc64el': 'm'}>
 CONFIG_USB_HCD_SSB                              policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'n', 'ppc64el': 'm'}>
 CONFIG_USB_HCD_TEST_MODE                        policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'ppc64el': 'n'}>
@@ -9290,7 +9265,6 @@ CONFIG_USB_FTDI_ELAN                            policy<{'amd64': 'm', 'arm64': '
 CONFIG_USB_APPLEDISPLAY                         policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm'}>
 CONFIG_APPLE_MFI_FASTCHARGE                     policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm'}>
 CONFIG_USB_SISUSBVGA                            policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm'}>
-CONFIG_USB_SISUSBVGA_CON                        policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'ppc64el': 'n'}>
 CONFIG_USB_LD                                   policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm'}>
 CONFIG_USB_TRANCEVIBRATOR                       policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm'}>
 CONFIG_USB_IOWARRIOR                            policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm'}>
@@ -9350,7 +9324,6 @@ CONFIG_USB_EHCI_HCD                             policy<{'amd64': 'y', 'arm64': '
 CONFIG_USB_EHCI_ROOT_HUB_TT                     policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y'}>
 CONFIG_USB_EHCI_TT_NEWSCHED                     policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y'}>
 CONFIG_USB_EHCI_FSL                             policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm'}>
-CONFIG_USB_EHCI_MXC                             policy<{'arm64': 'm', 'armhf-generic': 'm'}>
 CONFIG_USB_EHCI_HCD_NPCM7XX                     policy<{'armhf': 'm'}>
 CONFIG_USB_EHCI_HCD_OMAP                        policy<{'armhf': 'm'}>
 CONFIG_USB_EHCI_HCD_ORION                       policy<{'arm64': 'y', 'armhf': 'y'}>
@@ -9474,7 +9447,6 @@ CONFIG_USB_SERIAL_SIERRAWIRELESS                policy<{'amd64': 'm', 'arm64': '
 CONFIG_USB_SERIAL_SYMBOL                        policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm'}>
 CONFIG_USB_SERIAL_TI                            policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm'}>
 CONFIG_USB_SERIAL_CYBERJACK                     policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm'}>
-CONFIG_USB_SERIAL_XIRCOM                        policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm'}>
 CONFIG_USB_SERIAL_OPTION                        policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm'}>
 CONFIG_USB_SERIAL_OMNINET                       policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm'}>
 CONFIG_USB_SERIAL_OPTICON                       policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm'}>
@@ -9818,7 +9790,6 @@ CONFIG_REGULATOR_PBIAS                          policy<{'armhf': 'm'}>
 CONFIG_REGULATOR_PCA9450                        policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm'}>
 CONFIG_REGULATOR_PCAP                           policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm'}>
 CONFIG_REGULATOR_PCF50633                       policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm'}>
-CONFIG_REGULATOR_PFUZE100                       policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm'}>
 CONFIG_REGULATOR_PV88060                        policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm'}>
 CONFIG_REGULATOR_PV88080                        policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm'}>
 CONFIG_REGULATOR_PV88090                        policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm'}>
@@ -9900,7 +9871,6 @@ CONFIG_XILINX_WATCHDOG                          policy<{'amd64': 'm', 'arm64': '
 CONFIG_ZIIRAVE_WATCHDOG                         policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 's390x': 'n'}>
 CONFIG_RAVE_SP_WATCHDOG                         policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm'}>
 CONFIG_MLX_WDT                                  policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm'}>
-CONFIG_SL28CPLD_WATCHDOG                        policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm'}>
 CONFIG_ARM_SP805_WATCHDOG                       policy<{'arm64': 'm', 'armhf': 'm'}>
 CONFIG_ARM_SBSA_WATCHDOG                        policy<{'arm64': 'm'}>
 CONFIG_ARMADA_37XX_WATCHDOG                     policy<{'arm64': 'm', 'armhf': 'm'}>
@@ -10022,9 +9992,9 @@ CONFIG_INTEL_INT0002_VGPIO                      policy<{'amd64': 'm'}>
 CONFIG_INTEL_MENLOW                             policy<{'amd64': 'm'}>
 CONFIG_INTEL_OAKTRAIL                           policy<{'amd64': 'm'}>
 CONFIG_INTEL_VBTN                               policy<{'amd64': 'm'}>
-CONFIG_SURFACE_3_BUTTON                         policy<{'amd64': 'm'}>
-CONFIG_SURFACE_3_POWER_OPREGION                 policy<{'amd64': 'm'}>
-CONFIG_SURFACE_PRO3_BUTTON                      policy<{'amd64': 'm'}>
+CONFIG_SURFACE_3_BUTTON                         policy<{'amd64': 'm', 'arm64': 'n'}>
+CONFIG_SURFACE_3_POWER_OPREGION                 policy<{'amd64': 'm', 'arm64': 'n'}>
+CONFIG_SURFACE_PRO3_BUTTON                      policy<{'amd64': 'm', 'arm64': 'n'}>
 CONFIG_MSI_LAPTOP                               policy<{'amd64': 'm'}>
 CONFIG_PCENGINES_APU2                           policy<{'amd64': 'm'}>
 CONFIG_SAMSUNG_LAPTOP                           policy<{'amd64': 'm'}>
@@ -10830,7 +10800,7 @@ CONFIG_SLAB_FREELIST_HARDENED                   policy<{'amd64': 'y', 'arm64': '
 CONFIG_SHUFFLE_PAGE_ALLOCATOR                   policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 's390x': 'y'}>
 CONFIG_SLUB_CPU_PARTIAL                         policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 's390x': 'y'}>
 CONFIG_PROFILING                                policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 's390x': 'y'}>
-CONFIG_COMPILE_TEST                             policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'ppc64el': 'n', 's390x': 'n'}>
+CONFIG_COMPILE_TEST                             policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'ppc64el': 'n'}>
 CONFIG_LOCALVERSION_AUTO                        policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'ppc64el': 'n', 's390x': 'n'}>
 CONFIG_CPU_ISOLATION                            policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 's390x': 'y'}>
 #
@@ -11151,8 +11121,8 @@ CONFIG_PANIC_ON_OOPS                            policy<{'amd64': 'n', 'arm64': '
 CONFIG_PANIC_TIMEOUT                            policy<{'amd64': '0', 'arm64': '0', 'armhf': '0', 'ppc64el': '10', 's390x': '0'}>
 CONFIG_SOFTLOCKUP_DETECTOR                      policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y'}>
 CONFIG_BOOTPARAM_SOFTLOCKUP_PANIC               policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'ppc64el': 'n'}>
-CONFIG_HARDLOCKUP_DETECTOR                      policy<{'amd64': 'y', 'ppc64el': 'y'}>
-CONFIG_BOOTPARAM_HARDLOCKUP_PANIC               policy<{'amd64': 'n', 'ppc64el': 'n'}>
+CONFIG_HARDLOCKUP_DETECTOR                      policy<{'amd64': 'y', 'arm64': 'y', 'ppc64el': 'y'}>
+CONFIG_BOOTPARAM_HARDLOCKUP_PANIC               policy<{'amd64': 'n', 'arm64': 'n', 'ppc64el': 'n'}>
 CONFIG_DETECT_HUNG_TASK                         policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 's390x': 'y'}>
 CONFIG_DEFAULT_HUNG_TASK_TIMEOUT                policy<{'amd64': '120', 'arm64': '120', 'armhf': '120', 'ppc64el': '120', 's390x': '120'}>
 CONFIG_BOOTPARAM_HUNG_TASK_PANIC                policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'ppc64el': 'n', 's390x': 'n'}>
@@ -11346,8 +11316,6 @@ CONFIG_PAGE_EXTENSION                           policy<{'amd64': 'n', 'arm64': '
 CONFIG_DEBUG_PAGEALLOC                          policy<{'amd64': 'n', 'arm64': 'n', 'ppc64el': 'n', 's390x': 'n'}>
 CONFIG_PAGE_OWNER                               policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'ppc64el': 'n', 's390x': 'n'}>
 CONFIG_PAGE_POISONING                           policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 's390x': 'y'}>
-CONFIG_PAGE_POISONING_NO_SANITY                 policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 's390x': 'y'}>
-CONFIG_PAGE_POISONING_ZERO                      policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 's390x': 'y'}>
 CONFIG_DEBUG_PAGE_REF                           policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'ppc64el': 'n', 's390x': 'n'}>
 CONFIG_DEBUG_RODATA_TEST                        policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 's390x': 'n'}>
 CONFIG_PTDUMP_DEBUGFS                           policy<{'amd64': 'n', 'arm64': 'n', 's390x': 'y'}>
@@ -11364,8 +11332,6 @@ CONFIG_DEBUG_HIGHMEM                            policy<{'armhf': 'n'}>
 CONFIG_DEBUG_STACKOVERFLOW                      policy<{'ppc64el': 'n'}>
 #
 CONFIG_PAGE_POISONING                           mark<ENFORCED> note<LP:1783651>
-CONFIG_PAGE_POISONING_ZERO                      mark<ENFORCED> note<LP:1783651>
-CONFIG_PAGE_POISONING_NO_SANITY                 mark<ENFORCED> note<LP:1783651>
 
 # Menu: Kernel hacking >> Memory Debugging >> Debug VM
 CONFIG_DEBUG_VM                                 policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'ppc64el': 'n', 's390x': 'n'}>
@@ -11374,7 +11340,7 @@ CONFIG_DEBUG_VM                                 policy<{'amd64': 'n', 'arm64': '
 CONFIG_DEBUG_OBJECTS                            policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'ppc64el': 'n', 's390x': 'n'}>
 
 # Menu: Kernel hacking >> Memory Debugging >> KASAN: runtime memory debugger
-CONFIG_KASAN                                    policy<{'amd64': 'n', 'arm64': 'n', 's390x': 'n'}>
+CONFIG_KASAN                                    policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 's390x': 'n'}>
 
 # Menu: Kernel hacking >> Memory Debugging >> KASAN: runtime memory debugger >> Instrumentation type
 
@@ -11496,7 +11462,7 @@ CONFIG_CRC64                                    policy<{'amd64': 'm', 'arm64': '
 CONFIG_CRC4                                     policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 's390x': 'm'}>
 CONFIG_CRC7                                     policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 's390x': 'm'}>
 CONFIG_LIBCRC32C                                policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 's390x': 'm'}>
-CONFIG_CRC8                                     policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 's390x': 'm'}>
+CONFIG_CRC8                                     policy<{'amd64': 'm', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'm', 's390x': 'm'}>
 CONFIG_RANDOM32_SELFTEST                        policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'ppc64el': 'n', 's390x': 'n'}>
 CONFIG_ZLIB_DFLTCC                              policy<{'s390x': 'y'}>
 CONFIG_DMA_API_DEBUG                            policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'ppc64el': 'n', 's390x': 'n'}>
@@ -11586,7 +11552,6 @@ CONFIG_IDLE_PAGE_TRACKING                       policy<{'amd64': 'y', 'arm64': '
 CONFIG_ZONE_DEVICE                              policy<{'amd64': 'y', 'arm64': 'y', 'ppc64el': 'y'}>
 CONFIG_DEVICE_PRIVATE                           policy<{'amd64': 'y', 'arm64': 'y', 'ppc64el': 'y'}>
 CONFIG_PERCPU_STATS                             policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'ppc64el': 'n', 's390x': 'n'}>
-CONFIG_GUP_BENCHMARK                            policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'ppc64el': 'n', 's390x': 'n'}>
 CONFIG_READ_ONLY_THP_FOR_FS                     policy<{'amd64': 'n', 'arm64': 'n', 'armhf-generic-lpae': 'n', 'ppc64el': 'n', 's390x': 'n'}>
 #
 CONFIG_DEFAULT_MMAP_MIN_ADDR                    mark<ENFORCED> note<LP:1418140 LP:1531327>
@@ -11938,9 +11903,7 @@ CONFIG_BATMAN_ADV_BLA                           policy<{'amd64': 'y', 'arm64': '
 CONFIG_BATMAN_ADV_DAT                           policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y'}>
 CONFIG_BATMAN_ADV_NC                            policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y'}>
 CONFIG_BATMAN_ADV_MCAST                         policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y'}>
-CONFIG_BATMAN_ADV_DEBUGFS                       policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'ppc64el': 'n'}>
 CONFIG_BATMAN_ADV_DEBUG                         policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'ppc64el': 'n'}>
-CONFIG_BATMAN_ADV_SYSFS                         policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y'}>
 CONFIG_BATMAN_ADV_TRACING                       policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'ppc64el': 'n'}>
 
 # Menu: Networking support >> Networking options >> Distributed Switch Architecture
@@ -12585,7 +12548,7 @@ CONFIG_AF_RXRPC_DEBUG                           policy<{'amd64': 'n', 'arm64': '
 CONFIG_RXKAD                                    policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 's390x': 'y'}>
 
 # Menu: Networking support >> WiMAX Wireless Broadband support
-CONFIG_WIMAX                                    policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 's390x': 'n'}>
+CONFIG_WIMAX                                    policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm'}>
 CONFIG_WIMAX_DEBUG_LEVEL                        policy<{'amd64': '8', 'arm64': '8', 'armhf': '8', 'ppc64el': '8'}>
 
 # Menu: Networking support >> Wireless
@@ -13007,7 +12970,6 @@ CONFIG_ARM64_VHE                                policy<{'arm64': 'y'}>
 CONFIG_ARM64_USE_LSE_ATOMICS                    mark<ENFORCED> note<LP:1691614>
 
 # Menu: Processor type and features >> ARMv8.2 architectural features >> Architecture: arm64
-CONFIG_ARM64_UAO                                policy<{'arm64': 'y'}>
 CONFIG_ARM64_PMEM                               policy<{'arm64': 'y'}>
 CONFIG_ARM64_RAS_EXTN                           policy<{'arm64': 'y'}>
 CONFIG_ARM64_CNP                                policy<{'arm64': 'y'}>
@@ -13559,7 +13521,6 @@ CONFIG_ARCH_VEXPRESS_TC2_PM                     policy<{'armhf': 'y'}>
 
 # Menu: System Type >> ARM system type >> Architecture: arm
 CONFIG_ARCH_MULTIPLATFORM                       policy<{'armhf': 'y'}>
-CONFIG_ARCH_EBSA110                             policy<{'armhf': 'n'}>
 CONFIG_ARCH_EP93XX                              policy<{'armhf': 'n'}>
 CONFIG_ARCH_FOOTBRIDGE                          policy<{'armhf': 'n'}>
 CONFIG_ARCH_IOP32X                              policy<{'armhf': 'n'}>
