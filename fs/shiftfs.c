@@ -1420,7 +1420,7 @@ static int shiftfs_btrfs_ioctl_fd_restore(int cmd, int fd, void __user *arg,
 	else
 		ret = copy_to_user(arg, v2, sizeof(*v2));
 
-	__close_fd(current->files, fd);
+	close_fd(fd);
 	kfree(v1);
 	kfree(v2);
 
@@ -1468,7 +1468,7 @@ static int shiftfs_btrfs_ioctl_fd_replace(int cmd, void __user *arg,
 	/*
 	 * shiftfs_real_fdget() does not take a reference to lfd.file, so
 	 * take a reference here to offset the one which will be put by
-	 * __close_fd(), and make sure that reference is put on fdput(lfd).
+	 * close_fd(), and make sure that reference is put on fdput(lfd).
 	 */
 	get_file(lfd.file);
 	lfd.flags |= FDPUT_FPUT;
