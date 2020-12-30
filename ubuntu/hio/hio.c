@@ -90,7 +90,7 @@
 #define hio_warn(f, arg...) printk(KERN_WARNING MODULE_NAME"warn: " f , ## arg)
 #define hio_err(f, arg...)  printk(KERN_ERR MODULE_NAME"err: " f , ## arg)
 
-#if (LINUX_VERSION_CODE > KERNEL_VERSION(5,6,0))
+#if (LINUX_VERSION_CODE > KERNEL_VERSION(5,6,0)) && (LINUX_VERSION_CODE < KERNEL_VERSION(5,11,0))
 struct hd_struct *disk_map_sector_rcu(struct gendisk *disk, sector_t sector);
 #endif
 
@@ -6116,7 +6116,10 @@ static int ssd_init_rom_info(struct ssd_device *dev)
 static int ssd_update_smart(struct ssd_device *dev, struct ssd_smart *smart)
 {
 	uint64_t cur_time, run_time;
-#if (LINUX_VERSION_CODE > KERNEL_VERSION(2,6,27))
+#if (LINUX_VERSION_CODE >= KERNEL_VERSION(5,11,0))
+	struct block_device *part;
+	int cpu;
+#elif (LINUX_VERSION_CODE > KERNEL_VERSION(2,6,27))
 	struct hd_struct *part;
 	int cpu;
 #endif
