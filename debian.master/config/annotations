@@ -1616,7 +1616,7 @@ CONFIG_GPIO_MAX77650                            policy<{'arm64': 'm', 'armhf': '
 CONFIG_GPIO_MSIC                                policy<{'amd64': 'y'}>
 CONFIG_GPIO_PALMAS                              policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y'}>
 CONFIG_GPIO_RC5T583                             policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y'}>
-CONFIG_GPIO_SL28CPLD                            policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm'}>
+CONFIG_GPIO_SL28CPLD                            policy<{'amd64': '-', 'arm64': 'm', 'armhf': '-', 'ppc64el': '-'}>
 CONFIG_GPIO_STMPE                               policy<{'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y'}>
 CONFIG_GPIO_TC3589X                             policy<{'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y'}>
 CONFIG_GPIO_TPS65086                            policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm'}>
@@ -2670,7 +2670,7 @@ CONFIG_SENSORS_OCC_P9_SBE                       policy<{'arm64': 'n', 'armhf': '
 CONFIG_SENSORS_PCF8591                          policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm'}>
 CONFIG_SENSORS_PWM_FAN                          policy<{'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm'}>
 CONFIG_SENSORS_RASPBERRYPI_HWMON                policy<{'arm64': 'm'}>
-CONFIG_SENSORS_SL28CPLD                         policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm'}>
+CONFIG_SENSORS_SL28CPLD                         policy<{'amd64': '-', 'arm64': 'm', 'armhf': '-', 'ppc64el': '-'}>
 CONFIG_SENSORS_SHT15                            policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm'}>
 CONFIG_SENSORS_SHT21                            policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm'}>
 CONFIG_SENSORS_SHT3x                            policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm'}>
@@ -4477,7 +4477,7 @@ CONFIG_MFD_RK808                                policy<{'arm64': 'm', 'armhf': '
 CONFIG_MFD_RN5T618                              policy<{'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm'}>
 CONFIG_MFD_SEC_CORE                             policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y'}>
 CONFIG_MFD_SI476X_CORE                          policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 's390x': 'n'}>
-CONFIG_MFD_SL28CPLD                             policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 's390x': 'n'}>
+CONFIG_MFD_SL28CPLD                             policy<{'amd64': '-', 'arm64': 'm', 'armhf': '-', 'ppc64el': '-', 's390x': '-'}>
 CONFIG_MFD_SM501                                policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'y', 'ppc64el': 'm', 's390x': 'n'}>
 CONFIG_MFD_SM501_GPIO                           policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y'}>
 CONFIG_MFD_SKY81452                             policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 's390x': 'n'}>
@@ -7226,7 +7226,7 @@ CONFIG_PWM_RCAR                                 policy<{'arm64': 'm', 'armhf': '
 CONFIG_PWM_RENESAS_TPU                          policy<{'arm64': 'm', 'armhf': 'm'}>
 CONFIG_PWM_ROCKCHIP                             policy<{'arm64': 'm', 'armhf': 'm'}>
 CONFIG_PWM_SAMSUNG                              policy<{'armhf': 'm'}>
-CONFIG_PWM_SL28CPLD                             policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm'}>
+CONFIG_PWM_SL28CPLD                             policy<{'amd64': '-', 'arm64': 'm', 'armhf': '-', 'ppc64el': '-'}>
 CONFIG_PWM_SPRD                                 policy<{'arm64': 'm'}>
 CONFIG_PWM_STMPE                                policy<{'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y'}>
 CONFIG_PWM_SUN4I                                policy<{'arm64': 'm'}>
@@ -9290,7 +9290,7 @@ CONFIG_USB_FTDI_ELAN                            policy<{'amd64': 'm', 'arm64': '
 CONFIG_USB_APPLEDISPLAY                         policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm'}>
 CONFIG_APPLE_MFI_FASTCHARGE                     policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm'}>
 CONFIG_USB_SISUSBVGA                            policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm'}>
-CONFIG_USB_SISUSBVGA_CON                        policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'ppc64el': 'n'}>
+CONFIG_USB_SISUSBVGA_CON                        policy<{'amd64': '-', 'arm64': '-', 'armhf': '-', 'ppc64el': '-'}>
 CONFIG_USB_LD                                   policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm'}>
 CONFIG_USB_TRANCEVIBRATOR                       policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm'}>
 CONFIG_USB_IOWARRIOR                            policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm'}>
@@ -9900,7 +9900,7 @@ CONFIG_XILINX_WATCHDOG                          policy<{'amd64': 'm', 'arm64': '
 CONFIG_ZIIRAVE_WATCHDOG                         policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 's390x': 'n'}>
 CONFIG_RAVE_SP_WATCHDOG                         policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm'}>
 CONFIG_MLX_WDT                                  policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm'}>
-CONFIG_SL28CPLD_WATCHDOG                        policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm'}>
+CONFIG_SL28CPLD_WATCHDOG                        policy<{'amd64': '-', 'arm64': 'm', 'armhf': '-', 'ppc64el': '-'}>
 CONFIG_ARM_SP805_WATCHDOG                       policy<{'arm64': 'm', 'armhf': 'm'}>
 CONFIG_ARM_SBSA_WATCHDOG                        policy<{'arm64': 'm'}>
 CONFIG_ARMADA_37XX_WATCHDOG                     policy<{'arm64': 'm', 'armhf': 'm'}>
