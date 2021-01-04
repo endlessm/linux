@@ -1589,12 +1589,10 @@ gpio-pci-idio-16
 gpio-pcie-idio-24
 gpio-pisosr
 gpio-rdc321x
-gpio-regmap
 gpio-regulator
 gpio-sch
 gpio-sch311x
 gpio-siox
-gpio-sl28cpld
 gpio-tpic2810
 gpio-tps65086
 gpio-tps65912
@@ -3638,7 +3636,6 @@ pwm-iqs620a
 pwm-lp3943
 pwm-pca9685
 pwm-regulator
-pwm-sl28cpld
 pwm-twl
 pwm-twl-led
 pwm-vibra
@@ -4298,7 +4295,6 @@ sierra_net
 sil164
 silead
 sim710
-simple-mfd-i2c
 siox-bus-gpio
 siox-core
 sir_ir
@@ -4324,8 +4320,6 @@ sky2
 sky81452
 sky81452-backlight
 sky81452-regulator
-sl28cpld-hwmon
-sl28cpld_wdt
 sl811-hcd
 sl811_cs
 slcan
