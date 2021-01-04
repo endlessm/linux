@@ -7,6 +7,8 @@ print "Checking for dupe aliases in $ENV{'FLAVOUR'}...\n";
 $aliases =
   "$ENV{'INSTALL_DIR'}/lib/modules/$ENV{'VERSION'}-$ENV{'FLAVOUR'}/modules.alias";
 
+exit 0 unless (-e $aliases);
+
 open(ALIASES, "< $aliases") or die "Could not open $aliases";
 
 while (<ALIASES>) {
