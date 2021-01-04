@@ -7,7 +7,6 @@ build_image	= vmlinux.strip
 kernel_file     = arch/powerpc/boot/vmlinux.strip
 install_file	= vmlinux
 no_dumpfile	= true
-vdso		= vdso_install
 loader		= grub
 do_extras_package = true
 opal_signed       = true
