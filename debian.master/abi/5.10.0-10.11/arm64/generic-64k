@@ -19084,6 +19084,7 @@ EXPORT_SYMBOL_GPL	 vmlinux 0x00000000	__xdp_release_frame
 EXPORT_SYMBOL_GPL	 vmlinux 0x00000000	__xenbus_register_backend
 EXPORT_SYMBOL_GPL	 vmlinux 0x00000000	__xenbus_register_frontend
 EXPORT_SYMBOL_GPL	 vmlinux 0x00000000	_copy_from_iter_flushcache
+EXPORT_SYMBOL_GPL	 vmlinux 0x00000000	_proc_mkdir
 EXPORT_SYMBOL_GPL	 vmlinux 0x00000000	access_process_vm
 EXPORT_SYMBOL_GPL	 vmlinux 0x00000000	account_locked_vm
 EXPORT_SYMBOL_GPL	 vmlinux 0x00000000	ack_all_badblocks
@@ -19167,7 +19168,6 @@ EXPORT_SYMBOL_GPL	 vmlinux 0x00000000	acpi_os_unmap_memory
 EXPORT_SYMBOL_GPL	 vmlinux 0x00000000	acpi_pci_check_ejectable
 EXPORT_SYMBOL_GPL	 vmlinux 0x00000000	acpi_pci_detect_ejectable
 EXPORT_SYMBOL_GPL	 vmlinux 0x00000000	acpi_pci_find_root
-EXPORT_SYMBOL_GPL	 vmlinux 0x00000000	acpi_pm_set_bridge_wakeup
 EXPORT_SYMBOL_GPL	 vmlinux 0x00000000	acpi_pm_set_device_wakeup
 EXPORT_SYMBOL_GPL	 vmlinux 0x00000000	acpi_pm_wakeup_event
 EXPORT_SYMBOL_GPL	 vmlinux 0x00000000	acpi_processor_get_performance_info

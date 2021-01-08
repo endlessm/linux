@@ -1797,9 +1797,6 @@ EXPORT_SYMBOL	 drivers/s390/net/fsm 0x00000000	fsm_modtimer
 EXPORT_SYMBOL	 drivers/s390/net/fsm 0x00000000	fsm_settimer
 EXPORT_SYMBOL	 drivers/s390/net/fsm 0x00000000	init_fsm
 EXPORT_SYMBOL	 drivers/s390/net/fsm 0x00000000	kfree_fsm
-EXPORT_SYMBOL	 drivers/s390/net/qeth_l2 0x00000000	qeth_osn_assist
-EXPORT_SYMBOL	 drivers/s390/net/qeth_l2 0x00000000	qeth_osn_deregister
-EXPORT_SYMBOL	 drivers/s390/net/qeth_l2 0x00000000	qeth_osn_register
 EXPORT_SYMBOL	 drivers/scsi/fcoe/libfcoe 0x00000000	fcoe_ctlr_destroy
 EXPORT_SYMBOL	 drivers/scsi/fcoe/libfcoe 0x00000000	fcoe_ctlr_els_send
 EXPORT_SYMBOL	 drivers/scsi/fcoe/libfcoe 0x00000000	fcoe_ctlr_init
@@ -10099,6 +10096,7 @@ EXPORT_SYMBOL_GPL	 vmlinux 0x00000000	__xdp_release_frame
 EXPORT_SYMBOL_GPL	 vmlinux 0x00000000	__zpci_load
 EXPORT_SYMBOL_GPL	 vmlinux 0x00000000	__zpci_store
 EXPORT_SYMBOL_GPL	 vmlinux 0x00000000	__zpci_store_block
+EXPORT_SYMBOL_GPL	 vmlinux 0x00000000	_proc_mkdir
 EXPORT_SYMBOL_GPL	 vmlinux 0x00000000	access_process_vm
 EXPORT_SYMBOL_GPL	 vmlinux 0x00000000	account_locked_vm
 EXPORT_SYMBOL_GPL	 vmlinux 0x00000000	ack_all_badblocks
