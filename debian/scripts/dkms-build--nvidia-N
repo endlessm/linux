@@ -35,7 +35,11 @@ mkdir -p "$pkgdir/bits/scripts"
 )
 
 # Install the support files we need.
-cp "$srcdir/scripts/module-common.lds" "$pkgdir/bits/scripts"
+lds_src="$dkms_dir/headers/linux-headers-$abi_flavour"
+if [ "$sign" = "--lrm" ]; then
+	lds_src="/usr/src/linux-headers-$abi_flavour"
+fi
+cp "$lds_src/scripts/module.lds" "$pkgdir/bits/scripts"
 grep /usr/bin/ld.bfd "$log" | sed -e "s@$build/@@g" >"$pkgdir/bits/BUILD"
 grep /usr/bin/ld.bfd "$log" | sed -e "s@$build/@@g" \
 	-e 's/.*-o  *\([^ ]*\) .*/rm -f \1/g' >"$pkgdir/bits/CLEAN"
