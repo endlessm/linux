@@ -1496,7 +1496,6 @@ fsl_linflexuart
 fsl_lpuart
 fsl_pq_mdio
 fsl_ucc_hdlc
-fsl_usb2_udc
 ftdi-elan
 ftdi_sio
 ftgmac100
@@ -5846,6 +5845,7 @@ ttpci-eeprom
 ttusb_dec
 ttusbdecfe
 ttusbir
+ttynull
 tua6100
 tua9001
 tulip

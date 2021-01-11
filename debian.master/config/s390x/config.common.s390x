@@ -14,6 +14,7 @@
 # CONFIG_ANDROID is not set
 # CONFIG_APDS9802ALS is not set
 # CONFIG_APPLICOM is not set
+# CONFIG_AQTION is not set
 # CONFIG_ARCNET is not set
 # CONFIG_ATA is not set
 # CONFIG_ATALK is not set
@@ -404,6 +405,7 @@ CONFIG_NODES_SHIFT=1
 CONFIG_NR_CPUS=512
 # CONFIG_NTB is not set
 CONFIG_NTFS_RW=y
+# CONFIG_NULL_TTY is not set
 # CONFIG_NUMA_BALANCING_DEFAULT_ENABLED is not set
 # CONFIG_NVMEM is not set
 # CONFIG_N_GSM is not set

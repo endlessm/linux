@@ -703,6 +703,7 @@ CONFIG_HANGCHECK_TIMER                          policy<{'amd64': 'm', 'ppc64el':
 CONFIG_UV_MMTIMER                               policy<{'amd64': 'm'}>
 CONFIG_TELCLOCK                                 policy<{'amd64': 'm'}>
 CONFIG_DEVPORT                                  policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 's390x': 'y'}>
+CONFIG_NULL_TTY                                 policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 's390x': 'n'}>
 CONFIG_TN3270                                   policy<{'s390x': 'y'}>
 CONFIG_TN3270_TTY                               policy<{'s390x': 'y'}>
 CONFIG_TN3270_FS                                policy<{'s390x': 'm'}>
@@ -5480,7 +5481,7 @@ CONFIG_ENA_ETHERNET                             policy<{'amd64': 'm', 'arm64': '
 CONFIG_NET_XGENE                                policy<{'arm64': 'm'}>
 CONFIG_NET_XGENE_V2                             policy<{'arm64': 'm'}>
 CONFIG_NET_VENDOR_AQUANTIA                      policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 's390x': 'y'}>
-CONFIG_AQTION                                   policy<{'amd64': 'm', 'arm64': 'm'}>
+CONFIG_AQTION                                   policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 's390x': 'n'}>
 CONFIG_NET_VENDOR_ARC                           policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 's390x': 'n'}>
 CONFIG_EMAC_ROCKCHIP                            policy<{'arm64': 'm', 'armhf': 'm'}>
 CONFIG_NET_VENDOR_AURORA                        policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 's390x': 'y'}>
@@ -5725,7 +5726,7 @@ CONFIG_NET_VENDOR_I825XX                        policy<{'amd64': 'y', 'arm64': '
 CONFIG_NET_VENDOR_INTEL                         policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 's390x': 'n'}>
 CONFIG_E100                                     policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm'}>
 CONFIG_E1000                                    policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm'}>
-CONFIG_E1000E                                   policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm'}>
+CONFIG_E1000E                                   policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm'}>
 CONFIG_E1000E_HWTS                              policy<{'amd64': 'y'}>
 CONFIG_IGB                                      policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm'}>
 CONFIG_IGB_HWMON                                policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y'}>
@@ -9552,7 +9553,6 @@ CONFIG_USB_FUNCTIONFS_RNDIS                     policy<{'amd64': 'y', 'arm64': '
 CONFIG_USB_FUNCTIONFS_GENERIC                   policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y'}>
 
 # Menu: Device Drivers >> USB support >> USB Gadget Support >> USB Peripheral Controller
-CONFIG_USB_FSL_USB2                             policy<{'arm64': 'm', 'armhf-generic': 'm'}>
 CONFIG_USB_FUSB300                              policy<{'armhf-generic': 'm'}>
 CONFIG_USB_FOTG210_UDC                          policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm'}>
 CONFIG_USB_GR_UDC                               policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm'}>
@@ -11089,7 +11089,6 @@ CONFIG_DEBUG_LL                                 policy<{'armhf': 'n'}>
 # Menu: Kernel hacking >> $(SRCARCH) Debugging >> Kernel low-level debugging functions (read help!) >> Kernel low-level debugging port >> Architecture: arm
 
 # Menu: Kernel hacking >> Compile-time checks and compiler options
-CONFIG_ENABLE_MUST_CHECK                        policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'ppc64el': 'n', 's390x': 'n'}>
 CONFIG_FRAME_WARN                               policy<{'amd64': '1024', 'arm64': '1024', 'armhf': '1024', 'ppc64el': '2048', 's390x': '1024'}>
 CONFIG_STRIP_ASM_SYMS                           policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'ppc64el': 'n', 's390x': 'n'}>
 CONFIG_READABLE_ASM                             policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'ppc64el': 'n', 's390x': 'n'}>
@@ -13880,7 +13879,6 @@ CONFIG_KVM_S390_UCONTROL                        policy<{'s390x': 'n'}>
 #
 
 # Menu: Virtualization >> Kernel-based Virtual Machine (KVM) support >> Architecture: arm64
-CONFIG_KVM_ARM_PMU                              policy<{'arm64': 'y'}>
 
 # Menu: Virtualization >> Kernel-based Virtual Machine (KVM) support >> Architecture: x86
 CONFIG_KVM_WERROR                               policy<{'amd64': 'y'}>
