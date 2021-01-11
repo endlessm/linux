@@ -109,7 +109,7 @@ struct shmem_falloc {
 
 struct shmem_options {
 	unsigned long long blocks;
-	unsigned long long inodes;
+	int inodes;
 	struct mempolicy *mpol;
 	kuid_t uid;
 	kgid_t gid;
@@ -129,11 +129,14 @@ static unsigned long shmem_default_max_blocks(void)
 	return totalram_pages() / 2;
 }
 
-static unsigned long shmem_default_max_inodes(void)
+static int shmem_default_max_inodes(void)
 {
 	unsigned long nr_pages = totalram_pages();
+	unsigned long ul;
 
-	return min(nr_pages - totalhigh_pages(), nr_pages / 2);
+	ul = INT_MAX;
+	ul = min3(ul, nr_pages - totalhigh_pages(), nr_pages / 2);
+	return ul;
 }
 #endif
 
@@ -1178,6 +1181,11 @@ static void shmem_evict_inode(struct inode *inode)
 
 	simple_xattrs_free(&info->xattrs);
 	WARN_ON(inode->i_blocks);
+	if (!sbinfo->idr_nouse && inode->i_ino) {
+		mutex_lock(&sbinfo->idr_lock);
+		idr_remove(&sbinfo->idr, inode->i_ino);
+		mutex_unlock(&sbinfo->idr_lock);
+	}
 	shmem_free_inode(inode->i_sb);
 	clear_inode(inode);
 }
@@ -2302,7 +2310,6 @@ static struct inode *shmem_get_inode(struct super_block *sb, const struct inode 
 
 	inode = new_inode(sb);
 	if (inode) {
-		inode->i_ino = ino;
 		inode_init_owner(inode, dir, mode);
 		inode->i_blocks = 0;
 		inode->i_atime = inode->i_mtime = inode->i_ctime = current_time(inode);
@@ -2345,6 +2352,25 @@ static struct inode *shmem_get_inode(struct super_block *sb, const struct inode 
 			mpol_shared_policy_init(&info->policy, NULL);
 			break;
 		}
+
+		if (!sbinfo->idr_nouse) {
+			/* inum 0 and 1 are unused */
+			mutex_lock(&sbinfo->idr_lock);
+			ino = idr_alloc(&sbinfo->idr, inode, 2, INT_MAX,
+					GFP_NOFS);
+			if (ino > 0) {
+				inode->i_ino = ino;
+				mutex_unlock(&sbinfo->idr_lock);
+				__insert_inode_hash(inode, inode->i_ino);
+			} else {
+				inode->i_ino = 0;
+				mutex_unlock(&sbinfo->idr_lock);
+				iput(inode);
+				/* shmem_free_inode() will be called */
+				inode = NULL;
+			}
+		} else
+			inode->i_ino = ino;
 
 		lockdep_annotate_inode_mutex_key(inode);
 	} else
@@ -3339,8 +3365,7 @@ static struct dentry *shmem_get_parent(struct dentry *child)
 static int shmem_match(struct inode *ino, void *vfh)
 {
 	__u32 *fh = vfh;
-	__u64 inum = fh[2];
-	inum = (inum << 32) | fh[1];
+	__u64 inum = fh[1];
 	return ino->i_ino == inum && fh[0] == ino->i_generation;
 }
 
@@ -3360,14 +3385,11 @@ static struct dentry *shmem_fh_to_dentry(struct super_block *sb,
 	struct dentry *dentry = NULL;
 	u64 inum;
 
-	if (fh_len < 3)
+	if (fh_len < 2)
 		return NULL;
 
-	inum = fid->raw[2];
-	inum = (inum << 32) | fid->raw[1];
-
-	inode = ilookup5(sb, (unsigned long)(inum + fid->raw[0]),
-			shmem_match, fid->raw);
+	inum = fid->raw[1];
+	inode = ilookup5(sb, inum, shmem_match, fid->raw);
 	if (inode) {
 		dentry = shmem_find_alias(inode);
 		iput(inode);
@@ -3379,30 +3401,15 @@ static struct dentry *shmem_fh_to_dentry(struct super_block *sb,
 static int shmem_encode_fh(struct inode *inode, __u32 *fh, int *len,
 				struct inode *parent)
 {
-	if (*len < 3) {
-		*len = 3;
+	if (*len < 2) {
+		*len = 2;
 		return FILEID_INVALID;
-	}
-
-	if (inode_unhashed(inode)) {
-		/* Unfortunately insert_inode_hash is not idempotent,
-		 * so as we hash inodes here rather than at creation
-		 * time, we need a lock to ensure we only try
-		 * to do it once
-		 */
-		static DEFINE_SPINLOCK(lock);
-		spin_lock(&lock);
-		if (inode_unhashed(inode))
-			__insert_inode_hash(inode,
-					    inode->i_ino + inode->i_generation);
-		spin_unlock(&lock);
 	}
 
 	fh[0] = inode->i_generation;
 	fh[1] = inode->i_ino;
-	fh[2] = ((__u64)inode->i_ino) >> 32;
 
-	*len = 3;
+	*len = 2;
 	return 1;
 }
 
@@ -3481,7 +3488,7 @@ static int shmem_parse_one(struct fs_context *fc, struct fs_parameter *param)
 		break;
 	case Opt_nr_inodes:
 		ctx->inodes = memparse(param->string, &rest);
-		if (*rest)
+		if (*rest || ctx->inodes < 2)
 			goto bad_value;
 		ctx->seen |= SHMEM_SEEN_INODES;
 		break;
@@ -3591,7 +3598,7 @@ static int shmem_reconfigure(struct fs_context *fc)
 {
 	struct shmem_options *ctx = fc->fs_private;
 	struct shmem_sb_info *sbinfo = SHMEM_SB(fc->root->d_sb);
-	unsigned long inodes;
+	int inodes;
 	const char *err;
 
 	spin_lock(&sbinfo->stat_lock);
@@ -3658,7 +3665,7 @@ static int shmem_show_options(struct seq_file *seq, struct dentry *root)
 		seq_printf(seq, ",size=%luk",
 			sbinfo->max_blocks << (PAGE_SHIFT - 10));
 	if (sbinfo->max_inodes != shmem_default_max_inodes())
-		seq_printf(seq, ",nr_inodes=%lu", sbinfo->max_inodes);
+		seq_printf(seq, ",nr_inodes=%d", sbinfo->max_inodes);
 	if (sbinfo->mode != (0777 | S_ISVTX))
 		seq_printf(seq, ",mode=%03ho", sbinfo->mode);
 	if (!uid_eq(sbinfo->uid, GLOBAL_ROOT_UID))
@@ -3705,6 +3712,8 @@ static void shmem_put_super(struct super_block *sb)
 {
 	struct shmem_sb_info *sbinfo = SHMEM_SB(sb);
 
+	if (!sbinfo->idr_nouse)
+		idr_destroy(&sbinfo->idr);
 	free_percpu(sbinfo->ino_batch);
 	percpu_counter_destroy(&sbinfo->used_blocks);
 	mpol_put(sbinfo->mpol);
@@ -3748,6 +3757,8 @@ static int shmem_fill_super(struct super_block *sb, struct fs_context *fc)
 #else
 	sb->s_flags |= SB_NOUSER;
 #endif
+	mutex_init(&sbinfo->idr_lock);
+	idr_init(&sbinfo->idr);
 	sbinfo->max_blocks = ctx->blocks;
 	sbinfo->free_inodes = sbinfo->max_inodes = ctx->inodes;
 	if (sb->s_flags & SB_KERNMOUNT) {
@@ -3863,6 +3874,15 @@ static void shmem_init_inodecache(void)
 static void shmem_destroy_inodecache(void)
 {
 	kmem_cache_destroy(shmem_inode_cachep);
+}
+
+static __init void shmem_no_idr(struct super_block *sb)
+{
+	struct shmem_sb_info *sbinfo;
+
+	sbinfo = SHMEM_SB(sb);
+	sbinfo->idr_nouse = true;
+	idr_destroy(&sbinfo->idr);
 }
 
 static const struct address_space_operations shmem_aops = {
@@ -4005,6 +4025,7 @@ int __init shmem_init(void)
 		pr_err("Could not kern_mount tmpfs\n");
 		goto out1;
 	}
+	shmem_no_idr(shm_mnt->mnt_sb);
 
 #ifdef CONFIG_TRANSPARENT_HUGEPAGE
 	if (has_transparent_hugepage() && shmem_huge > SHMEM_HUGE_DENY)

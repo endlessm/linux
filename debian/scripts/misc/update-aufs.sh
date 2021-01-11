@@ -16,14 +16,9 @@ then
 fi
 
 clean=0
-if [ "$#" = 1 ]; then
-	AUFS="$1"
-else
-	clean=1
-	rm -rf ${AUFS}
-	git clone https://github.com/sfjro/aufs5-standalone.git ${AUFS}
-	(cd ${AUFS}; git checkout -b aufs5.x-rcN remotes/origin/aufs5.x-rcN)
-fi
+rm -rf ${AUFS}
+git clone https://github.com/sfjro/aufs5-standalone.git ${AUFS}
+(cd ${AUFS}; git checkout -b aufs5.x-rcN remotes/origin/aufs5.10)
 
 cp ${AUFS}/include/uapi/linux/aufs_type.h include/uapi/linux
 rsync -av ${AUFS}/fs/ fs/
