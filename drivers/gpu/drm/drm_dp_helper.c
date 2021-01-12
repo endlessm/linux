@@ -1958,6 +1958,7 @@ static const struct edid_quirk edid_quirk_list[] = {
 	 * controls anyway...). Until we have a better way of detecting these,
 	 * force DPCD backlight mode on all of them.
 	 */
+	{ MFG(0x06, 0xaf), PROD_ID(0x8c, 0xcd), BIT(DP_QUIRK_FORCE_DPCD_BACKLIGHT) },
 	{ MFG(0x06, 0xaf), PROD_ID(0x9b, 0x32), BIT(DP_QUIRK_FORCE_DPCD_BACKLIGHT) },
 	{ MFG(0x06, 0xaf), PROD_ID(0xeb, 0x41), BIT(DP_QUIRK_FORCE_DPCD_BACKLIGHT) },
 	{ MFG(0x30, 0xe4), PROD_ID(0x61, 0x06), BIT(DP_QUIRK_FORCE_DPCD_BACKLIGHT) },
