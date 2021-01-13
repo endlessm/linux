@@ -13203,7 +13203,6 @@ CONFIG_ARM64_TLB_RANGE                          policy<{'arm64': 'y'}>
 # Menu: Processor type and features >> ARMv8.5 architectural features >> Architecture: arm64
 CONFIG_ARM64_BTI                                policy<{'arm64': 'y'}>
 CONFIG_ARM64_E0PD                               policy<{'arm64': 'y'}>
-CONFIG_ARM64_MTE                                policy<{'arm64': 'y'}>
 
 # Menu: Processor type and features >> Architecture: arm
 CONFIG_HAVE_ARM_ARCH_TIMER                      policy<{'armhf': 'y'}>
