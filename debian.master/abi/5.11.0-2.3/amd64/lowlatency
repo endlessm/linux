@@ -1000,9 +1000,7 @@ EXPORT_SYMBOL	 drivers/gpu/drm/ttm/ttm 0x00000000	ttm_mem_global_alloc
 EXPORT_SYMBOL	 drivers/gpu/drm/ttm/ttm 0x00000000	ttm_mem_global_free
 EXPORT_SYMBOL	 drivers/gpu/drm/ttm/ttm 0x00000000	ttm_pool_alloc
 EXPORT_SYMBOL	 drivers/gpu/drm/ttm/ttm 0x00000000	ttm_pool_debugfs
-EXPORT_SYMBOL	 drivers/gpu/drm/ttm/ttm 0x00000000	ttm_pool_fini
 EXPORT_SYMBOL	 drivers/gpu/drm/ttm/ttm 0x00000000	ttm_pool_free
-EXPORT_SYMBOL	 drivers/gpu/drm/ttm/ttm 0x00000000	ttm_pool_init
 EXPORT_SYMBOL	 drivers/gpu/drm/ttm/ttm 0x00000000	ttm_range_man_fini
 EXPORT_SYMBOL	 drivers/gpu/drm/ttm/ttm 0x00000000	ttm_range_man_init
 EXPORT_SYMBOL	 drivers/gpu/drm/ttm/ttm 0x00000000	ttm_resource_free
@@ -11809,6 +11807,7 @@ EXPORT_SYMBOL_GPL	 arch/x86/kvm/kvm 0x00000000	kvm_debugfs_dir
 EXPORT_SYMBOL_GPL	 arch/x86/kvm/kvm 0x00000000	kvm_default_tsc_scaling_ratio
 EXPORT_SYMBOL_GPL	 arch/x86/kvm/kvm 0x00000000	kvm_define_user_return_msr
 EXPORT_SYMBOL_GPL	 arch/x86/kvm/kvm 0x00000000	kvm_deliver_exception_payload
+EXPORT_SYMBOL_GPL	 arch/x86/kvm/kvm 0x00000000	kvm_emulate_ap_reset_hold
 EXPORT_SYMBOL_GPL	 arch/x86/kvm/kvm 0x00000000	kvm_emulate_cpuid
 EXPORT_SYMBOL_GPL	 arch/x86/kvm/kvm 0x00000000	kvm_emulate_halt
 EXPORT_SYMBOL_GPL	 arch/x86/kvm/kvm 0x00000000	kvm_emulate_hypercall
@@ -11955,6 +11954,7 @@ EXPORT_SYMBOL_GPL	 arch/x86/kvm/kvm 0x00000000	kvm_update_cpuid_runtime
 EXPORT_SYMBOL_GPL	 arch/x86/kvm/kvm 0x00000000	kvm_update_dr7
 EXPORT_SYMBOL_GPL	 arch/x86/kvm/kvm 0x00000000	kvm_valid_efer
 EXPORT_SYMBOL_GPL	 arch/x86/kvm/kvm 0x00000000	kvm_vcpu_block
+EXPORT_SYMBOL_GPL	 arch/x86/kvm/kvm 0x00000000	kvm_vcpu_deliver_sipi_vector
 EXPORT_SYMBOL_GPL	 arch/x86/kvm/kvm 0x00000000	kvm_vcpu_destroy
 EXPORT_SYMBOL_GPL	 arch/x86/kvm/kvm 0x00000000	kvm_vcpu_exit_request
 EXPORT_SYMBOL_GPL	 arch/x86/kvm/kvm 0x00000000	kvm_vcpu_gfn_to_hva
@@ -15596,7 +15596,6 @@ EXPORT_SYMBOL_GPL	 drivers/nvme/host/nvme-core 0x00000000	__traceiter_nvme_sq
 EXPORT_SYMBOL_GPL	 drivers/nvme/host/nvme-core 0x00000000	__tracepoint_nvme_sq
 EXPORT_SYMBOL_GPL	 drivers/nvme/host/nvme-core 0x00000000	admin_timeout
 EXPORT_SYMBOL_GPL	 drivers/nvme/host/nvme-core 0x00000000	nvme_alloc_request
-EXPORT_SYMBOL_GPL	 drivers/nvme/host/nvme-core 0x00000000	nvme_alloc_request_qid
 EXPORT_SYMBOL_GPL	 drivers/nvme/host/nvme-core 0x00000000	nvme_cancel_request
 EXPORT_SYMBOL_GPL	 drivers/nvme/host/nvme-core 0x00000000	nvme_change_ctrl_state
 EXPORT_SYMBOL_GPL	 drivers/nvme/host/nvme-core 0x00000000	nvme_cleanup_cmd
@@ -15613,7 +15612,6 @@ EXPORT_SYMBOL_GPL	 drivers/nvme/host/nvme-core 0x00000000	nvme_io_timeout
 EXPORT_SYMBOL_GPL	 drivers/nvme/host/nvme-core 0x00000000	nvme_kill_queues
 EXPORT_SYMBOL_GPL	 drivers/nvme/host/nvme-core 0x00000000	nvme_remove_namespaces
 EXPORT_SYMBOL_GPL	 drivers/nvme/host/nvme-core 0x00000000	nvme_reset_ctrl
-EXPORT_SYMBOL_GPL	 drivers/nvme/host/nvme-core 0x00000000	nvme_reset_ctrl_sync
 EXPORT_SYMBOL_GPL	 drivers/nvme/host/nvme-core 0x00000000	nvme_reset_wq
 EXPORT_SYMBOL_GPL	 drivers/nvme/host/nvme-core 0x00000000	nvme_sec_submit
 EXPORT_SYMBOL_GPL	 drivers/nvme/host/nvme-core 0x00000000	nvme_set_features

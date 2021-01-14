@@ -5241,6 +5241,7 @@ ttpci-eeprom
 ttusb_dec
 ttusbdecfe
 ttusbir
+ttynull
 tua6100
 tua9001
 tulip
