@@ -5071,7 +5071,9 @@ static enum hpd_pin dg1_hpd_pin(struct drm_i915_private *dev_priv,
 static enum hpd_pin tgl_hpd_pin(struct drm_i915_private *dev_priv,
 				enum port port)
 {
-	if (port >= PORT_TC1)
+	if (IS_GEN9_BC(dev_priv) && port >= PORT_C)
+		return HPD_PORT_TC1 + port - PORT_C;
+	else if (port >= PORT_TC1)
 		return HPD_PORT_TC1 + port - PORT_TC1;
 	else
 		return HPD_PORT_A + port - PORT_A;
@@ -5201,7 +5203,8 @@ void intel_ddi_init(struct drm_i915_private *dev_priv, enum port port)
 		encoder->hpd_pin = dg1_hpd_pin(dev_priv, port);
 	else if (IS_ROCKETLAKE(dev_priv))
 		encoder->hpd_pin = rkl_hpd_pin(dev_priv, port);
-	else if (INTEL_GEN(dev_priv) >= 12)
+	else if (INTEL_GEN(dev_priv) >= 12 || (IS_GEN9_BC(dev_priv) &&
+					       HAS_PCH_TGP(dev_priv)))
 		encoder->hpd_pin = tgl_hpd_pin(dev_priv, port);
 	else if (IS_JSL_EHL(dev_priv))
 		encoder->hpd_pin = ehl_hpd_pin(dev_priv, port);
