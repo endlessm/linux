@@ -6548,6 +6548,10 @@ CONFIG_NTB_TRANSPORT                            policy<{'amd64': 'm', 'arm64': '
 
 # Menu: Device Drivers >> On-Chip Interconnect management support
 CONFIG_INTERCONNECT                             policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 's390x': 'n'}>
+CONFIG_INTERCONNECT_QCOM_SC7180                 policy<{'arm64': 'm', 'armhf': 'm'}>
+CONFIG_INTERCONNECT_QCOM_SDM845                 policy<{'arm64': 'm', 'armhf': 'm'}>
+CONFIG_INTERCONNECT_QCOM_SM8150                 policy<{'arm64': 'm', 'armhf': 'm'}>
+CONFIG_INTERCONNECT_QCOM_SM8250                 policy<{'arm64': 'm', 'armhf': 'm'}>
 
 # Menu: Device Drivers >> On-Chip Interconnect management support >> Qualcomm Network-on-Chip interconnect drivers
 CONFIG_INTERCONNECT_QCOM                        policy<{'arm64': 'y', 'armhf': 'y'}>
@@ -6555,10 +6559,6 @@ CONFIG_INTERCONNECT_QCOM_MSM8916                policy<{'arm64': 'm', 'armhf': '
 CONFIG_INTERCONNECT_QCOM_MSM8974                policy<{'arm64': 'm', 'armhf': 'm'}>
 CONFIG_INTERCONNECT_QCOM_OSM_L3                 policy<{'arm64': 'm', 'armhf': 'm'}>
 CONFIG_INTERCONNECT_QCOM_QCS404                 policy<{'arm64': 'm', 'armhf': 'm'}>
-CONFIG_INTERCONNECT_QCOM_SC7180                 policy<{'arm64': 'm', 'armhf': 'm'}>
-CONFIG_INTERCONNECT_QCOM_SDM845                 policy<{'arm64': 'm', 'armhf': 'm'}>
-CONFIG_INTERCONNECT_QCOM_SM8150                 policy<{'arm64': 'm', 'armhf': 'm'}>
-CONFIG_INTERCONNECT_QCOM_SM8250                 policy<{'arm64': 'm', 'armhf': 'm'}>
 
 # Menu: Device Drivers >> On-Chip Interconnect management support >> i.MX interconnect drivers
 CONFIG_INTERCONNECT_IMX                         policy<{'arm64': 'm', 'armhf-generic': 'm'}>
@@ -13938,7 +13938,6 @@ CONFIG_APPLDATA_BASE                            policy<{'s390x': 'y'}>
 CONFIG_APPLDATA_MEM                             policy<{'s390x': 'm'}>
 CONFIG_APPLDATA_OS                              policy<{'s390x': 'm'}>
 CONFIG_APPLDATA_NET_SUM                         policy<{'s390x': 'm'}>
-
 
 # Menu: FOOTER
 
