@@ -1,5 +1,8 @@
 # Recreate any symlinks created since the orig.
 # Remove any files deleted from the orig.
+rm -f 'arch/alpha/include/asm/local64.h'
+rm -f 'arch/ia64/include/asm/local64.h'
+rm -f 'arch/x86/include/asm/local64.h'
 rm -f 'lib/zlib_dfltcc/dfltcc_syms.c'
 chmod +x 'debian/cloud-tools/hv_get_dhcp_info'
 chmod +x 'debian/cloud-tools/hv_get_dns_info'
