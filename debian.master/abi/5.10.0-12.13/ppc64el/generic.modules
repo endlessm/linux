@@ -1126,6 +1126,7 @@ dyna_pci10xx
 dynapro
 e100
 e1000
+e1000e
 e3x0-button
 e4000
 earth-pt1
