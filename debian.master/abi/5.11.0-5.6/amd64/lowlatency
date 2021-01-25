@@ -13212,6 +13212,7 @@ EXPORT_SYMBOL_GPL	 drivers/md/dm-bufio 0x00000000	dm_bufio_get_block_number
 EXPORT_SYMBOL_GPL	 drivers/md/dm-bufio 0x00000000	dm_bufio_get_block_size
 EXPORT_SYMBOL_GPL	 drivers/md/dm-bufio 0x00000000	dm_bufio_get_client
 EXPORT_SYMBOL_GPL	 drivers/md/dm-bufio 0x00000000	dm_bufio_get_device_size
+EXPORT_SYMBOL_GPL	 drivers/md/dm-bufio 0x00000000	dm_bufio_get_dm_io_client
 EXPORT_SYMBOL_GPL	 drivers/md/dm-bufio 0x00000000	dm_bufio_issue_discard
 EXPORT_SYMBOL_GPL	 drivers/md/dm-bufio 0x00000000	dm_bufio_issue_flush
 EXPORT_SYMBOL_GPL	 drivers/md/dm-bufio 0x00000000	dm_bufio_mark_buffer_dirty
@@ -17200,7 +17201,6 @@ EXPORT_SYMBOL_GPL	 fs/nfs_common/nfs_ssc 0x00000000	nfs42_ssc_unregister
 EXPORT_SYMBOL_GPL	 fs/nfs_common/nfs_ssc 0x00000000	nfs_ssc_client_tbl
 EXPORT_SYMBOL_GPL	 fs/nfs_common/nfs_ssc 0x00000000	nfs_ssc_register
 EXPORT_SYMBOL_GPL	 fs/nfs_common/nfs_ssc 0x00000000	nfs_ssc_unregister
-EXPORT_SYMBOL_GPL	 fs/nfsd/nfsd 0x00000000	inter_copy_offload_enable
 EXPORT_SYMBOL_GPL	 fs/ocfs2/cluster/ocfs2_nodemanager 0x00000000	__mlog_printk
 EXPORT_SYMBOL_GPL	 fs/ocfs2/cluster/ocfs2_nodemanager 0x00000000	mlog_and_bits
 EXPORT_SYMBOL_GPL	 fs/ocfs2/cluster/ocfs2_nodemanager 0x00000000	mlog_not_bits
@@ -25195,7 +25195,6 @@ EXPORT_SYMBOL_GPL	 vmlinux 0x00000000	xenbus_match
 EXPORT_SYMBOL_GPL	 vmlinux 0x00000000	xenbus_mkdir
 EXPORT_SYMBOL_GPL	 vmlinux 0x00000000	xenbus_otherend_changed
 EXPORT_SYMBOL_GPL	 vmlinux 0x00000000	xenbus_printf
-EXPORT_SYMBOL_GPL	 vmlinux 0x00000000	xenbus_probe
 EXPORT_SYMBOL_GPL	 vmlinux 0x00000000	xenbus_probe_devices
 EXPORT_SYMBOL_GPL	 vmlinux 0x00000000	xenbus_probe_node
 EXPORT_SYMBOL_GPL	 vmlinux 0x00000000	xenbus_read
