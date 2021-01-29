@@ -4611,7 +4611,7 @@ static bool pci_quirk_intel_spt_pch_acs_match(struct pci_dev *dev)
 		return false;
 
 	switch (dev->device) {
-	case 0x06ac ... 0x06c3: /* Comet Lake */
+	case 0x06ac: /* Comet Lake */
 	case 0xa110 ... 0xa11f: case 0xa167 ... 0xa16a: /* Sunrise Point */
 	case 0xa290 ... 0xa29f: case 0xa2e7 ... 0xa2ee: /* Union Point */
 	case 0x9d10 ... 0x9d1b: /* 7th & 8th Gen Mobile */
