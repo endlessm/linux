@@ -8767,9 +8767,6 @@ EXPORT_SYMBOL	 vmlinux 0x00000000	memset64
 EXPORT_SYMBOL	 vmlinux 0x00000000	memstart_addr
 EXPORT_SYMBOL	 vmlinux 0x00000000	memunmap
 EXPORT_SYMBOL	 vmlinux 0x00000000	memweight
-EXPORT_SYMBOL	 vmlinux 0x00000000	meson_sm_call
-EXPORT_SYMBOL	 vmlinux 0x00000000	meson_sm_call_read
-EXPORT_SYMBOL	 vmlinux 0x00000000	meson_sm_call_write
 EXPORT_SYMBOL	 vmlinux 0x00000000	mfd_add_devices
 EXPORT_SYMBOL	 vmlinux 0x00000000	mfd_cell_disable
 EXPORT_SYMBOL	 vmlinux 0x00000000	mfd_cell_enable
@@ -10842,6 +10839,7 @@ EXPORT_SYMBOL	 vmlinux 0x00000000	textsearch_unregister
 EXPORT_SYMBOL	 vmlinux 0x00000000	thaw_bdev
 EXPORT_SYMBOL	 vmlinux 0x00000000	thaw_super
 EXPORT_SYMBOL	 vmlinux 0x00000000	thermal_cdev_update
+EXPORT_SYMBOL	 vmlinux 0x00000000	thermal_zone_device_critical
 EXPORT_SYMBOL	 vmlinux 0x00000000	thread_group_exited
 EXPORT_SYMBOL	 vmlinux 0x00000000	time64_to_tm
 EXPORT_SYMBOL	 vmlinux 0x00000000	timer_reduce
@@ -12702,6 +12700,7 @@ EXPORT_SYMBOL_GPL	 drivers/md/dm-bufio 0x00000000	dm_bufio_get_block_number
 EXPORT_SYMBOL_GPL	 drivers/md/dm-bufio 0x00000000	dm_bufio_get_block_size
 EXPORT_SYMBOL_GPL	 drivers/md/dm-bufio 0x00000000	dm_bufio_get_client
 EXPORT_SYMBOL_GPL	 drivers/md/dm-bufio 0x00000000	dm_bufio_get_device_size
+EXPORT_SYMBOL_GPL	 drivers/md/dm-bufio 0x00000000	dm_bufio_get_dm_io_client
 EXPORT_SYMBOL_GPL	 drivers/md/dm-bufio 0x00000000	dm_bufio_issue_discard
 EXPORT_SYMBOL_GPL	 drivers/md/dm-bufio 0x00000000	dm_bufio_issue_flush
 EXPORT_SYMBOL_GPL	 drivers/md/dm-bufio 0x00000000	dm_bufio_mark_buffer_dirty
@@ -22332,7 +22331,6 @@ EXPORT_SYMBOL_GPL	 vmlinux 0x00000000	meson_clk_mpll_ro_ops
 EXPORT_SYMBOL_GPL	 vmlinux 0x00000000	meson_clk_pcie_pll_ops
 EXPORT_SYMBOL_GPL	 vmlinux 0x00000000	meson_clk_pll_ops
 EXPORT_SYMBOL_GPL	 vmlinux 0x00000000	meson_clk_pll_ro_ops
-EXPORT_SYMBOL_GPL	 vmlinux 0x00000000	meson_sm_get
 EXPORT_SYMBOL_GPL	 vmlinux 0x00000000	meson_vid_pll_div_ro_ops
 EXPORT_SYMBOL_GPL	 vmlinux 0x00000000	metadata_dst_alloc
 EXPORT_SYMBOL_GPL	 vmlinux 0x00000000	metadata_dst_alloc_percpu

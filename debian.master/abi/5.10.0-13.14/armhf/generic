@@ -10643,6 +10643,7 @@ EXPORT_SYMBOL	 vmlinux 0x00000000	textsearch_unregister
 EXPORT_SYMBOL	 vmlinux 0x00000000	thaw_bdev
 EXPORT_SYMBOL	 vmlinux 0x00000000	thaw_super
 EXPORT_SYMBOL	 vmlinux 0x00000000	thermal_cdev_update
+EXPORT_SYMBOL	 vmlinux 0x00000000	thermal_zone_device_critical
 EXPORT_SYMBOL	 vmlinux 0x00000000	thread_group_exited
 EXPORT_SYMBOL	 vmlinux 0x00000000	time64_to_tm
 EXPORT_SYMBOL	 vmlinux 0x00000000	timer_reduce
@@ -12571,6 +12572,7 @@ EXPORT_SYMBOL_GPL	 drivers/md/dm-bufio 0x00000000	dm_bufio_get_block_number
 EXPORT_SYMBOL_GPL	 drivers/md/dm-bufio 0x00000000	dm_bufio_get_block_size
 EXPORT_SYMBOL_GPL	 drivers/md/dm-bufio 0x00000000	dm_bufio_get_client
 EXPORT_SYMBOL_GPL	 drivers/md/dm-bufio 0x00000000	dm_bufio_get_device_size
+EXPORT_SYMBOL_GPL	 drivers/md/dm-bufio 0x00000000	dm_bufio_get_dm_io_client
 EXPORT_SYMBOL_GPL	 drivers/md/dm-bufio 0x00000000	dm_bufio_issue_discard
 EXPORT_SYMBOL_GPL	 drivers/md/dm-bufio 0x00000000	dm_bufio_issue_flush
 EXPORT_SYMBOL_GPL	 drivers/md/dm-bufio 0x00000000	dm_bufio_mark_buffer_dirty

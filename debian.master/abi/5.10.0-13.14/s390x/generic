@@ -7517,6 +7517,7 @@ EXPORT_SYMBOL_GPL	 drivers/md/dm-bufio 0x00000000	dm_bufio_get_block_number
 EXPORT_SYMBOL_GPL	 drivers/md/dm-bufio 0x00000000	dm_bufio_get_block_size
 EXPORT_SYMBOL_GPL	 drivers/md/dm-bufio 0x00000000	dm_bufio_get_client
 EXPORT_SYMBOL_GPL	 drivers/md/dm-bufio 0x00000000	dm_bufio_get_device_size
+EXPORT_SYMBOL_GPL	 drivers/md/dm-bufio 0x00000000	dm_bufio_get_dm_io_client
 EXPORT_SYMBOL_GPL	 drivers/md/dm-bufio 0x00000000	dm_bufio_issue_discard
 EXPORT_SYMBOL_GPL	 drivers/md/dm-bufio 0x00000000	dm_bufio_issue_flush
 EXPORT_SYMBOL_GPL	 drivers/md/dm-bufio 0x00000000	dm_bufio_mark_buffer_dirty

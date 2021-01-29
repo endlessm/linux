@@ -3537,7 +3537,6 @@ nvmem-rave-sp-eeprom
 nvmem-reboot-mode
 nvmem-rockchip-otp
 nvmem-sc27xx-efuse
-nvmem_meson_efuse
 nvmem_meson_mx_efuse
 nvmem_qcom-spmi-sdam
 nvmem_qfprom
@@ -6145,10 +6144,8 @@ vme_tsi148
 vme_user
 vme_vmivme7805
 vmk80xx
-vmw_pvrdma
 vmw_vsock_virtio_transport
 vmw_vsock_virtio_transport_common
-vmxnet3
 vp27smpx
 vport-geneve
 vport-gre
@@ -6447,3 +6444,4 @@ zynqmp-aes-gcm
 zynqmp-dpsub
 zynqmp-fpga
 zynqmp_dma
+zzstd
