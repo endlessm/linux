@@ -303,9 +303,7 @@ endif
 	# The flavour specific headers image
 	# TODO: Would be nice if we didn't have to dupe the original builddir
 	install -d -m755 $(hdrdir)
-	cat $(builddir)/build-$*/.config | \
-		sed -e 's/.*CONFIG_DEBUG_INFO=.*/# CONFIG_DEBUG_INFO is not set/g' > \
-		$(hdrdir)/.config
+	cp $(builddir)/build-$*/.config $(hdrdir)
 	chmod 644 $(hdrdir)/.config
 	$(kmake) O=$(hdrdir) -j1 syncconfig prepare scripts
 	# We'll symlink this stuff
