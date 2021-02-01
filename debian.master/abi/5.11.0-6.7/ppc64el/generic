@@ -2901,6 +2901,8 @@ EXPORT_SYMBOL	 drivers/net/mdio 0x00000000	mdio_mii_ioctl
 EXPORT_SYMBOL	 drivers/net/mdio 0x00000000	mdio_set_flag
 EXPORT_SYMBOL	 drivers/net/mdio/mdio-bitbang 0x00000000	alloc_mdio_bitbang
 EXPORT_SYMBOL	 drivers/net/mdio/mdio-bitbang 0x00000000	free_mdio_bitbang
+EXPORT_SYMBOL	 drivers/net/mdio/mdio-bitbang 0x00000000	mdiobb_read
+EXPORT_SYMBOL	 drivers/net/mdio/mdio-bitbang 0x00000000	mdiobb_write
 EXPORT_SYMBOL	 drivers/net/mdio/mdio-cavium 0x00000000	cavium_mdiobus_read
 EXPORT_SYMBOL	 drivers/net/mdio/mdio-cavium 0x00000000	cavium_mdiobus_write
 EXPORT_SYMBOL	 drivers/net/mii 0x00000000	generic_mii_ioctl
