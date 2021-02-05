@@ -35,7 +35,7 @@ PATCHES="${PATCHES} aufs5-mmap.patch"
 PATCHES="${PATCHES} aufs5-standalone.patch"
 PATCHES="${PATCHES} aufs5-loopback.patch"
 #PATCHES="${PATCHES} vfs-ino.patch"
-PATCHES="${PATCHES} tmpfs-idr.patch"
+#PATCHES="${PATCHES} tmpfs-idr.patch"
 
 for i in ${PATCHES}
 do
