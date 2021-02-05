@@ -3733,7 +3733,7 @@ static int shmem_fill_super(struct super_block *sb, struct fs_context *fc)
 			ctx->blocks = shmem_default_max_blocks();
 		if (!(ctx->seen & SHMEM_SEEN_INODES))
 			ctx->inodes = shmem_default_max_inodes();
-		if (!(ctx->seen & SHMEM_SEEN_INUMS))
+		if (!(ctx->seen & SHMEM_SEEN_INUMS) && sizeof(ino_t) >= 8)
 			ctx->full_inums = IS_ENABLED(CONFIG_TMPFS_INODE64);
 	} else {
 		sb->s_flags |= SB_NOUSER;
