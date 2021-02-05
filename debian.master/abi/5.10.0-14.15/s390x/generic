@@ -595,6 +595,7 @@ EXPORT_SYMBOL	 drivers/gpu/drm/drm_kms_helper 0x00000000	drm_dp_downstream_min_t
 EXPORT_SYMBOL	 drivers/gpu/drm/drm_kms_helper 0x00000000	drm_dp_downstream_mode
 EXPORT_SYMBOL	 drivers/gpu/drm/drm_kms_helper 0x00000000	drm_dp_dpcd_read
 EXPORT_SYMBOL	 drivers/gpu/drm/drm_kms_helper 0x00000000	drm_dp_dpcd_read_link_status
+EXPORT_SYMBOL	 drivers/gpu/drm/drm_kms_helper 0x00000000	drm_dp_dpcd_read_phy_link_status
 EXPORT_SYMBOL	 drivers/gpu/drm/drm_kms_helper 0x00000000	drm_dp_dpcd_write
 EXPORT_SYMBOL	 drivers/gpu/drm/drm_kms_helper 0x00000000	drm_dp_dsc_sink_line_buf_depth
 EXPORT_SYMBOL	 drivers/gpu/drm/drm_kms_helper 0x00000000	drm_dp_dsc_sink_max_slice_count
@@ -615,6 +616,13 @@ EXPORT_SYMBOL	 drivers/gpu/drm/drm_kms_helper 0x00000000	drm_dp_get_phy_test_pat
 EXPORT_SYMBOL	 drivers/gpu/drm/drm_kms_helper 0x00000000	drm_dp_link_rate_to_bw_code
 EXPORT_SYMBOL	 drivers/gpu/drm/drm_kms_helper 0x00000000	drm_dp_link_train_channel_eq_delay
 EXPORT_SYMBOL	 drivers/gpu/drm/drm_kms_helper 0x00000000	drm_dp_link_train_clock_recovery_delay
+EXPORT_SYMBOL	 drivers/gpu/drm/drm_kms_helper 0x00000000	drm_dp_lttpr_count
+EXPORT_SYMBOL	 drivers/gpu/drm/drm_kms_helper 0x00000000	drm_dp_lttpr_link_train_channel_eq_delay
+EXPORT_SYMBOL	 drivers/gpu/drm/drm_kms_helper 0x00000000	drm_dp_lttpr_link_train_clock_recovery_delay
+EXPORT_SYMBOL	 drivers/gpu/drm/drm_kms_helper 0x00000000	drm_dp_lttpr_max_lane_count
+EXPORT_SYMBOL	 drivers/gpu/drm/drm_kms_helper 0x00000000	drm_dp_lttpr_max_link_rate
+EXPORT_SYMBOL	 drivers/gpu/drm/drm_kms_helper 0x00000000	drm_dp_lttpr_pre_emphasis_level_3_supported
+EXPORT_SYMBOL	 drivers/gpu/drm/drm_kms_helper 0x00000000	drm_dp_lttpr_voltage_swing_level_3_supported
 EXPORT_SYMBOL	 drivers/gpu/drm/drm_kms_helper 0x00000000	drm_dp_mst_add_affected_dsc_crtcs
 EXPORT_SYMBOL	 drivers/gpu/drm/drm_kms_helper 0x00000000	drm_dp_mst_allocate_vcpi
 EXPORT_SYMBOL	 drivers/gpu/drm/drm_kms_helper 0x00000000	drm_dp_mst_atomic_check
@@ -641,6 +649,8 @@ EXPORT_SYMBOL	 drivers/gpu/drm/drm_kms_helper 0x00000000	drm_dp_psr_setup_time
 EXPORT_SYMBOL	 drivers/gpu/drm/drm_kms_helper 0x00000000	drm_dp_read_desc
 EXPORT_SYMBOL	 drivers/gpu/drm/drm_kms_helper 0x00000000	drm_dp_read_downstream_info
 EXPORT_SYMBOL	 drivers/gpu/drm/drm_kms_helper 0x00000000	drm_dp_read_dpcd_caps
+EXPORT_SYMBOL	 drivers/gpu/drm/drm_kms_helper 0x00000000	drm_dp_read_lttpr_common_caps
+EXPORT_SYMBOL	 drivers/gpu/drm/drm_kms_helper 0x00000000	drm_dp_read_lttpr_phy_caps
 EXPORT_SYMBOL	 drivers/gpu/drm/drm_kms_helper 0x00000000	drm_dp_read_mst_cap
 EXPORT_SYMBOL	 drivers/gpu/drm/drm_kms_helper 0x00000000	drm_dp_read_sink_count
 EXPORT_SYMBOL	 drivers/gpu/drm/drm_kms_helper 0x00000000	drm_dp_read_sink_count_cap

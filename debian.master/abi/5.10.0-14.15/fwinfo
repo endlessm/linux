@@ -70,7 +70,6 @@ firmware:       amdgpu/fiji_vce.bin
 firmware:       amdgpu/green_sardine_asd.bin
 firmware:       amdgpu/green_sardine_ce.bin
 firmware:       amdgpu/green_sardine_dmcub.bin
-firmware:       amdgpu/green_sardine_gpu_info.bin
 firmware:       amdgpu/green_sardine_me.bin
 firmware:       amdgpu/green_sardine_mec.bin
 firmware:       amdgpu/green_sardine_mec2.bin
