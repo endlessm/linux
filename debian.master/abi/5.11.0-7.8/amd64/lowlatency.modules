@@ -730,6 +730,7 @@ cdns-pltfrm
 cdns3
 cdns3-pci-wrap
 cec
+cec-gpio
 ceph
 cfag12864b
 cfag12864bfb
@@ -2474,6 +2475,7 @@ leds-pca955x
 leds-pca963x
 leds-pwm
 leds-regulator
+leds-rt8515
 leds-sgm3140
 leds-ss4200
 leds-tca6507
@@ -2871,6 +2873,7 @@ microtek
 mii
 minix
 mip6
+mipi-i3c-hci
 mite
 mk712
 mkiss

@@ -8803,9 +8803,6 @@ EXPORT_SYMBOL	 vmlinux 0x00000000	memset64
 EXPORT_SYMBOL	 vmlinux 0x00000000	memstart_addr
 EXPORT_SYMBOL	 vmlinux 0x00000000	memunmap
 EXPORT_SYMBOL	 vmlinux 0x00000000	memweight
-EXPORT_SYMBOL	 vmlinux 0x00000000	meson_sm_call
-EXPORT_SYMBOL	 vmlinux 0x00000000	meson_sm_call_read
-EXPORT_SYMBOL	 vmlinux 0x00000000	meson_sm_call_write
 EXPORT_SYMBOL	 vmlinux 0x00000000	mfd_add_devices
 EXPORT_SYMBOL	 vmlinux 0x00000000	mfd_cell_disable
 EXPORT_SYMBOL	 vmlinux 0x00000000	mfd_cell_enable
@@ -13528,7 +13525,7 @@ EXPORT_SYMBOL_GPL	 drivers/media/v4l2-core/videodev 0x00000000	v4l2_fh_release
 EXPORT_SYMBOL_GPL	 drivers/media/v4l2-core/videodev 0x00000000	v4l2_fill_pixfmt
 EXPORT_SYMBOL_GPL	 drivers/media/v4l2-core/videodev 0x00000000	v4l2_fill_pixfmt_mp
 EXPORT_SYMBOL_GPL	 drivers/media/v4l2-core/videodev 0x00000000	v4l2_g_parm_cap
-EXPORT_SYMBOL_GPL	 drivers/media/v4l2-core/videodev 0x00000000	v4l2_get_link_rate
+EXPORT_SYMBOL_GPL	 drivers/media/v4l2-core/videodev 0x00000000	v4l2_get_link_freq
 EXPORT_SYMBOL_GPL	 drivers/media/v4l2-core/videodev 0x00000000	v4l2_i2c_new_subdev
 EXPORT_SYMBOL_GPL	 drivers/media/v4l2-core/videodev 0x00000000	v4l2_i2c_new_subdev_board
 EXPORT_SYMBOL_GPL	 drivers/media/v4l2-core/videodev 0x00000000	v4l2_i2c_subdev_addr
@@ -14583,8 +14580,8 @@ EXPORT_SYMBOL_GPL	 drivers/net/wireless/intel/iwlwifi/iwlwifi 0x00000000	iwl_wri
 EXPORT_SYMBOL_GPL	 drivers/net/wireless/intel/iwlwifi/iwlwifi 0x00000000	iwl_write8
 EXPORT_SYMBOL_GPL	 drivers/net/wireless/intel/iwlwifi/iwlwifi 0x00000000	iwl_write_direct32
 EXPORT_SYMBOL_GPL	 drivers/net/wireless/intel/iwlwifi/iwlwifi 0x00000000	iwl_write_direct64
-EXPORT_SYMBOL_GPL	 drivers/net/wireless/intel/iwlwifi/iwlwifi 0x00000000	iwl_write_prph
 EXPORT_SYMBOL_GPL	 drivers/net/wireless/intel/iwlwifi/iwlwifi 0x00000000	iwl_write_prph64_no_grab
+EXPORT_SYMBOL_GPL	 drivers/net/wireless/intel/iwlwifi/iwlwifi 0x00000000	iwl_write_prph_delay
 EXPORT_SYMBOL_GPL	 drivers/net/wireless/intel/iwlwifi/iwlwifi 0x00000000	iwl_write_prph_no_grab
 EXPORT_SYMBOL_GPL	 drivers/net/wireless/intel/iwlwifi/iwlwifi 0x00000000	iwlwifi_mod_params
 EXPORT_SYMBOL_GPL	 drivers/net/wireless/intersil/p54/p54common 0x00000000	p54_free_common
@@ -22464,7 +22461,6 @@ EXPORT_SYMBOL_GPL	 vmlinux 0x00000000	meson_pinctrl_probe
 EXPORT_SYMBOL_GPL	 vmlinux 0x00000000	meson_pmx_get_func_name
 EXPORT_SYMBOL_GPL	 vmlinux 0x00000000	meson_pmx_get_funcs_count
 EXPORT_SYMBOL_GPL	 vmlinux 0x00000000	meson_pmx_get_groups
-EXPORT_SYMBOL_GPL	 vmlinux 0x00000000	meson_sm_get
 EXPORT_SYMBOL_GPL	 vmlinux 0x00000000	meson_vid_pll_div_ro_ops
 EXPORT_SYMBOL_GPL	 vmlinux 0x00000000	metadata_dst_alloc
 EXPORT_SYMBOL_GPL	 vmlinux 0x00000000	metadata_dst_alloc_percpu

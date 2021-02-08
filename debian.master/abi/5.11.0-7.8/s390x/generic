@@ -1657,7 +1657,7 @@ EXPORT_SYMBOL	 drivers/s390/block/dasd_mod 0x00000000	dasd_log_sense
 EXPORT_SYMBOL	 drivers/s390/block/dasd_mod 0x00000000	dasd_log_sense_dbf
 EXPORT_SYMBOL	 drivers/s390/block/dasd_mod 0x00000000	dasd_path_create_kobj
 EXPORT_SYMBOL	 drivers/s390/block/dasd_mod 0x00000000	dasd_path_create_kobjects
-EXPORT_SYMBOL	 drivers/s390/block/dasd_mod 0x00000000	dasd_path_remove_kobj
+EXPORT_SYMBOL	 drivers/s390/block/dasd_mod 0x00000000	dasd_path_remove_kobjects
 EXPORT_SYMBOL	 drivers/s390/block/dasd_mod 0x00000000	dasd_reload_device
 EXPORT_SYMBOL	 drivers/s390/block/dasd_mod 0x00000000	dasd_schedule_block_bh
 EXPORT_SYMBOL	 drivers/s390/block/dasd_mod 0x00000000	dasd_schedule_device_bh
