@@ -1943,6 +1943,11 @@ static const struct usb_device_id acm_ids[] = {
 	{ USB_DEVICE(0x04e2, 0x1422), .driver_info = IGNORE_DEVICE, },
 	{ USB_DEVICE(0x04e2, 0x1424), .driver_info = IGNORE_DEVICE, },
 
+	/* Exclude Goodix Fingerprint Reader */
+	{ USB_DEVICE(0x27c6, 0x5395),
+	.driver_info = IGNORE_DEVICE,
+	},
+
 	/* control interfaces without any protocol set */
 	{ USB_INTERFACE_INFO(USB_CLASS_COMM, USB_CDC_SUBCLASS_ACM,
 		USB_CDC_PROTO_NONE) },
