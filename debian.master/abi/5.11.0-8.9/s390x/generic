@@ -614,6 +614,7 @@ EXPORT_SYMBOL	 drivers/gpu/drm/drm_kms_helper 0x00000000	drm_dp_get_adjust_reque
 EXPORT_SYMBOL	 drivers/gpu/drm/drm_kms_helper 0x00000000	drm_dp_get_dual_mode_type_name
 EXPORT_SYMBOL	 drivers/gpu/drm/drm_kms_helper 0x00000000	drm_dp_get_edid_quirks
 EXPORT_SYMBOL	 drivers/gpu/drm/drm_kms_helper 0x00000000	drm_dp_get_phy_test_pattern
+EXPORT_SYMBOL	 drivers/gpu/drm/drm_kms_helper 0x00000000	drm_dp_get_vc_payload_bw
 EXPORT_SYMBOL	 drivers/gpu/drm/drm_kms_helper 0x00000000	drm_dp_link_rate_to_bw_code
 EXPORT_SYMBOL	 drivers/gpu/drm/drm_kms_helper 0x00000000	drm_dp_link_train_channel_eq_delay
 EXPORT_SYMBOL	 drivers/gpu/drm/drm_kms_helper 0x00000000	drm_dp_link_train_clock_recovery_delay
