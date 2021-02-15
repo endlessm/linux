@@ -4,6 +4,10 @@ linux (5.11.0-9.10) UNRELEASED; urgency=medium
   CHANGELOG: Use the printchanges target to see the curent changes.
   CHANGELOG: Use the insertchanges target to create the final log.
 
+  [ Upstream Kernel Changes ]
+
+  * Rebase to v5.11
+
  -- Andrea Righi <andrea.righi@canonical.com>  Mon, 15 Feb 2021 10:29:15 +0100
 
 linux (5.11.0-8.9) hirsute; urgency=medium
