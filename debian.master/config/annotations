@@ -10621,7 +10621,7 @@ CONFIG_PROC_PAGE_MONITOR                        policy<{'amd64': 'y', 'arm64': '
 CONFIG_TMPFS                                    policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 's390x': 'y'}>
 CONFIG_TMPFS_POSIX_ACL                          policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 's390x': 'y'}>
 CONFIG_TMPFS_XATTR                              policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 's390x': 'y'}>
-CONFIG_TMPFS_INODE64                            policy<{'amd64': 'y', 'arm64': 'y', 'ppc64el': 'y', 's390x': 'n'}>
+CONFIG_TMPFS_INODE64                            policy<{'amd64': 'y', 'arm64': 'y', 'ppc64el': 'y'}>
 #
 CONFIG_TMPFS_POSIX_ACL                          mark<ENFORCED> note<some /dev nodes require POSIX ACLs, like /dev/dsp>
 
