@@ -7105,7 +7105,7 @@ CONFIG_PINCTRL_MSM8960                          policy<{'arm64': 'm', 'armhf': '
 CONFIG_PINCTRL_MDM9615                          policy<{'arm64': 'm', 'armhf': 'm'}>
 CONFIG_PINCTRL_MSM8X74                          policy<{'arm64': 'm', 'armhf': 'm'}>
 CONFIG_PINCTRL_MSM8916                          policy<{'arm64': 'm', 'armhf': 'm'}>
-CONFIG_PINCTRL_MSM8953                          policy<{'arm64': 'm', 'armhf-generic': 'm', 'armhf-generic-lpae': 'y'}>
+CONFIG_PINCTRL_MSM8953                          policy<{'arm64': 'm', 'armhf': 'm'}>
 CONFIG_PINCTRL_MSM8976                          policy<{'arm64': 'm', 'armhf': 'm'}>
 CONFIG_PINCTRL_MSM8994                          policy<{'arm64': 'm', 'armhf': 'm'}>
 CONFIG_PINCTRL_MSM8996                          policy<{'arm64': 'm', 'armhf': 'm'}>
