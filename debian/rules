@@ -39,6 +39,9 @@ do_tools_common?=true
 do_tools_host?=false
 do_tools_perf_jvmti?=false
 do_enforce_all?=false
+ifneq ($(filter noudeb,$(DEB_BUILD_PROFILES)),)
+disable_d_i=true
+endif
 
 # Don't build tools or udebs in a cross compile environment.
 ifneq ($(DEB_HOST_ARCH),$(DEB_BUILD_ARCH))
@@ -220,6 +223,7 @@ $(DEBIAN)/control.stub: 				\
 debian/control: $(DEBIAN)/control.stub
 	echo "# placebo control.stub for kernel-wedge flow change" >debian/control.stub
 	cp $(DEBIAN)/control.stub debian/control
+ifeq ($(disable_d_i),)
 	# start new paragraph in debian/control
 	echo >> debian/control
 	# append udeb packages
@@ -228,6 +232,7 @@ debian/control: $(DEBIAN)/control.stub
 	LANG=C kernel-wedge gen-control $(release)-$(abinum) | \
 		grep-dctrl -FArchitecture $(arch) \
 		>>$(CURDIR)/debian/control
+endif
 
 debian/canonical-certs.pem: $(wildcard $(DROOT)/certs/*-all.pem) $(wildcard $(DROOT)/certs/*-$(arch).pem) $(wildcard $(DEBIAN)/certs/*-all.pem) $(wildcard $(DEBIAN)/certs/*-$(arch).pem)
 	for cert in $(sort $(notdir $^));					\
