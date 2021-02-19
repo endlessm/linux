@@ -137,3 +137,4 @@ obj-$(CONFIG_EROFS_FS)		+= erofs/
 obj-$(CONFIG_VBOXSF_FS)		+= vboxsf/
 obj-$(CONFIG_ZONEFS_FS)		+= zonefs/
 obj-$(CONFIG_SHIFT_FS)		+= shiftfs.o
+obj-$(CONFIG_AUFS_FS)           += aufs/
