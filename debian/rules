@@ -220,10 +220,13 @@ $(DEBIAN)/control.stub: 				\
 debian/control: $(DEBIAN)/control.stub
 	echo "# placebo control.stub for kernel-wedge flow change" >debian/control.stub
 	cp $(DEBIAN)/control.stub debian/control
+	# start new paragraph in debian/control
+	echo >> debian/control
+	# append udeb packages
 	export KW_DEFCONFIG_DIR=$(DEBIAN)/d-i && \
 	export KW_CONFIG_DIR=$(DEBIAN)/d-i && \
 	LANG=C kernel-wedge gen-control $(release)-$(abinum) | \
-		perl -f $(DROOT)/scripts/misc/kernel-wedge-arch.pl $(arch) \
+		grep-dctrl -FArchitecture $(arch) \
 		>>$(CURDIR)/debian/control
 
 debian/canonical-certs.pem: $(wildcard $(DROOT)/certs/*-all.pem) $(wildcard $(DROOT)/certs/*-$(arch).pem) $(wildcard $(DEBIAN)/certs/*-all.pem) $(wildcard $(DEBIAN)/certs/*-$(arch).pem)

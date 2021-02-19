@@ -8,6 +8,7 @@ Build-Depends:
  dh-systemd,
  cpio,
  kernel-wedge,
+ dctrl-tools,
  kmod <!stage1>,
  makedumpfile [amd64] <!stage1>,
  libcap-dev <!stage1>,
