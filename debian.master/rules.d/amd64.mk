@@ -6,7 +6,6 @@ flavours	= generic lowlatency
 build_image	= bzImage
 kernel_file	= arch/$(build_arch)/boot/bzImage
 install_file	= vmlinuz
-loader		= grub
 vdso		= vdso_install
 no_dumpfile	= true
 uefi_signed     = true

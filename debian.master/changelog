@@ -1,3 +1,361 @@
+linux-unstable (5.12.0-11.11) impish; urgency=medium
+
+  * Impish update: v5.12.1 upstream stable release (LP: #1927094)
+    - net: hso: fix NULL-deref on disconnect regression
+    - USB: CDC-ACM: fix poison/unpoison imbalance
+    - iwlwifi: Fix softirq/hardirq disabling in iwl_pcie_gen2_enqueue_hcmd()
+    - cfg80211: fix locking in netlink owner interface destruction
+    - mei: me: add Alder Lake P device id.
+    - Linux 5.12.1
+
+  * Packaging resync (LP: #1786013) // Impish update: v5.12.1 upstream stable
+    release (LP: #1927094)
+    - update dkms package versions
+
+  * Gigabyte R120-T33 (ARM ThunderX SoC) fails to boot in ACPI mode
+    (LP: #1925075) // Impish update: v5.12.1 upstream stable release
+    (LP: #1927094)
+    - ACPI: GTDT: Don't corrupt interrupt mappings on watchdow probe failure
+
+  * Fix kernel panic at boot on dual GFX systems (LP: #1926792) // Impish
+    update: v5.12.1 upstream stable release (LP: #1927094)
+    - drm/amdgpu: Register VGA clients after init can no longer fail
+
+  * On TGL platforms screen shows garbage when browsing website by scrolling
+    mouse (LP: #1926579) // Impish update: v5.12.1 upstream stable release
+    (LP: #1927094)
+    - SAUCE: drm/i915/display: Disable PSR2 if TGL Display stepping is B1 from A0
+
+  * CirrusLogic: Cracking noises appears in built-in speaker when output volume
+    is set >80% (LP: #1924997) // Impish update: v5.12.1 upstream stable release
+    (LP: #1927094)
+    - SAUCE: ALSA: hda/cirrus: Use CS8409 Equalizer to fix abnormal sounds on
+      Bullseye
+
+  * Enable mute/micmute LEDs and limit mic boost on EliteBook 845 G8
+    (LP: #1925415) // Impish update: v5.12.1 upstream stable release
+    (LP: #1927094)
+    - ALSA: hda/realtek: Enable mute/micmute LEDs and limit mic boost on EliteBook
+      845 G8
+
+  * Miscellaneous upstream changes
+    - Revert "UBUNTU: SAUCE: PCI: Disable broken RTIT_BAR of Intel TH"
+    - Revert "UBUNTU: [Config] temporarily disable ZFS"
+
+ -- Paolo Pisati <paolo.pisati@canonical.com>  Tue, 04 May 2021 18:35:54 +0200
+
+linux-unstable (5.12.0-10.10) impish; urgency=medium
+
+  * Packaging resync (LP: #1786013)
+    - update dkms package versions
+
+  * Miscellaneous Ubuntu changes
+    - [Packaging] Drop versioned ABI directory names
+    - [Packaging] getabis: Download ABIs into an unversioned directory
+    - [Packaging] final-checks: Handle unversioned ABI directories
+    - bump to impish
+    - [Config] GCC version update
+
+ -- Paolo Pisati <paolo.pisati@canonical.com>  Thu, 29 Apr 2021 12:27:20 +0200
+
+linux-unstable (5.12.0-9.9) impish; urgency=medium
+
+  [ Upstream Kernel Changes ]
+
+  * Rebase to v5.12-rc8
+
+ -- Seth Forshee <seth.forshee@canonical.com>  Mon, 26 Apr 2021 11:14:16 -0500
+
+linux-unstable (5.12.0-8.8) hirsute; urgency=medium
+
+  * CVE-2021-3492
+    - SAUCE: shiftfs: free allocated memory in shiftfs_btrfs_ioctl_fd_replace()
+      error paths
+    - SAUCE: shiftfs: handle copy_to_user() return values correctly
+
+  * Fix no picture from HDMI when it's plugged after boot (LP: #1924238)
+    - drm/i915/display: Handle lane polarity for DDI port
+
+  * hirsute beta desktop AMD64 ISO kernel panic on boot when booting using UEFI
+    (LP: #1922403)
+    - SAUCE: efifb: Check efifb_pci_dev before using it
+
+  * Miscellaneous Ubuntu changes
+    - Rebase to v5.12-rc8
+    - [Config] updateconfigs following 5.12-rc8 rebase
+
+  [ Upstream Kernel Changes ]
+
+  * Rebase to v5.12-rc8
+
+ -- Paolo Pisati <paolo.pisati@canonical.com>  Mon, 19 Apr 2021 11:37:27 +0200
+
+linux-unstable (5.12.0-7.7) hirsute; urgency=medium
+
+  * drm/i915: Drop force_probe requirement for Rocket Lake (LP: #1905466)
+    - drm/i915/rkl: Remove require_force_probe protection
+
+  * HP m400 cartridges fail to find NIC when deploying hirsute (LP: #1918793)
+    - PCI: xgene: Fix cfg resource mapping
+
+  * Update - Fix no screen show on display after S3 on CML-R  (LP: #1922768)
+    - drm/i915/gen9bc: Handle TGP PCH during suspend/resume
+
+  * Miscellaneous Ubuntu changes
+    - SAUCE: RDMA/core: Introduce peer memory interface
+    - Rebase to v5.12-rc7
+
+  [ Upstream Kernel Changes ]
+
+  * Rebase to v5.12-rc7
+
+ -- Paolo Pisati <paolo.pisati@canonical.com>  Mon, 12 Apr 2021 11:48:07 +0200
+
+linux-unstable (5.12.0-6.6) hirsute; urgency=medium
+
+  * Packaging resync (LP: #1786013)
+    - [Packaging] update variants
+
+  * i915 doesn't support some high pixel clock 4k * 60Hz monitors (LP: #1922372)
+    - drm/i915/vbt: update DP max link rate table
+
+  * Tegra "mmc0: Timeout waiting for hardware interrupt" (LP: #1921140)
+    - SAUCE: mmc: host: Add required callbacks to set/clear CQE_EN bit
+
+  * Enable ath11k debugfs/tracing (LP: #1922033)
+    - [Config] enable ath11k debugfs/tracing
+
+  * Fix mic on P620 after S3 resume (LP: #1921757)
+    - ALSA: usb-audio: Carve out connector value checking into a helper
+    - ALSA: usb-audio: Check connector value on resume
+
+  * Miscellaneous Ubuntu changes
+    - [Config] amd64,arm64: build KFENCE support but disable it by default
+      (KFENCE_SAMPLE_INTERVAL=0)
+    - Rebase to v5.12-rc6
+
+  * Miscellaneous upstream changes
+    - drm/dp: add MSO related DPCD registers
+    - drm/i915/edp: reject modes with dimensions other than fixed mode
+    - drm/i915/edp: always add fixed mode to probed modes in ->get_modes()
+    - drm/i915/edp: read sink MSO configuration for eDP 1.4+
+    - drm/i915/reg: add stream splitter configuration definitions
+    - drm/i915/mso: add splitter state readout for platforms that support it
+    - drm/i915/mso: add splitter state check
+    - drm/i915/edp: modify fixed and downclock modes for MSO
+    - drm/i915/edp: enable eDP MSO during link training
+
+  [ Upstream Kernel Changes ]
+
+  * Rebase to v5.12-rc6
+
+ -- Paolo Pisati <paolo.pisati@canonical.com>  Wed, 07 Apr 2021 11:42:55 +0200
+
+linux-unstable (5.12.0-5.5) hirsute; urgency=medium
+
+  * Packaging resync (LP: #1786013)
+    - update dkms package versions
+
+  * alsa/realtek: extend the delay time in the  determine_headset_type for a
+    Dell AIO (LP: #1920747)
+    - SAUCE: ALSA: hda/realtek: fix a determine_headset_type issue for a Dell AIO
+
+  * power off stress test will hang on the TGL machines (LP: #1919930)
+    - SAUCE: ASoC: SOF: Intel: TGL: set shutdown callback to hda_dsp_shutdown
+    - [Config] set SND_SOC_SOF_HDA_ALWAYS_ENABLE_DMI_L1 to n
+
+  * lockdown on power (LP: #1855668)
+    - SAUCE: (lockdown) powerpc: lock down kernel in secure boot mode
+
+  * Miscellaneous Ubuntu changes
+    - [Config] arm64 -- unify build_image and kernel_file values
+    - SAUCE: (lockdown) Add efi_status_to_str() and rework efi_status_to_err().
+    - SAUCE: (lockdown) Make get_cert_list() use efi_status_to_str() to print
+      error messages.
+    - SAUCE: (lockdown) security: lockdown: expose a hook to lock the kernel down
+    - SAUCE: (lockdown) efi: Add an EFI_SECURE_BOOT flag to indicate secure boot
+      mode
+    - SAUCE: (lockdown) efi: Lock down the kernel if booted in secure boot mode
+    - SAUCE: (lockdown) s390: Lock down the kernel when the IPL secure flag is set
+    - SAUCE: (lockdown) KEYS: Make use of platform keyring for module signature
+      verify
+    - SAUCE: (lockdown) arm64: Allow locking down the kernel under EFI secure boot
+    - SAUCE: (lockdown) security: lockdown: Make
+      CONFIG_LOCK_DOWN_IN_EFI_SECURE_BOOT more generic
+    - SAUCE: xr-usb-serial: clean up indentation
+    - SAUCE: xr-usb-serial: clean up build warnings
+    - SAUCE: apparmor: Fix build error, make sk parameter const
+    - Rebase to v5.12-rc5
+    - [Config] updateconfigs following v5.12-rc5 rebase
+
+  * Miscellaneous upstream changes
+    - Revert "UBUNTU: SAUCE: (lockdown) s390: Lock down the kernel when the IPL
+      secure flag is set"
+    - Revert "UBUNTU: SAUCE: (lockdown) efi: Add an EFI_SECURE_BOOT flag to
+      indicate secure boot mode"
+    - Revert "UBUNTU: SAUCE: (lockdown) powerpc: lock down kernel in secure boot
+      mode"
+    - Revert "UBUNTU: SAUCE: (lockdown) security: lockdown: Make
+      CONFIG_LOCK_DOWN_IN_EFI_SECURE_BOOT more generic"
+    - Revert "UBUNTU: SAUCE: (lockdown) arm64: Allow locking down the kernel under
+      EFI secure boot"
+    - Revert "UBUNTU: SAUCE: (lockdown) KEYS: Make use of platform keyring for
+      module signature verify"
+    - Revert "UBUNTU: SAUCE: (lockdown) efi: Lock down the kernel if booted in
+      secure boot mode"
+    - Revert "UBUNTU: SAUCE: (lockdown) security: lockdown: expose a hook to lock
+      the kernel down"
+    - Revert "UBUNTU: SAUCE: (lockdown) Make get_cert_list() use
+      efi_status_to_str() to print error messages."
+    - Revert "UBUNTU: SAUCE: (lockdown) Add efi_status_to_str() and rework
+      efi_status_to_err()."
+
+  [ Upstream Kernel Changes ]
+
+  * Rebase to v5.12-rc5
+
+ -- Paolo Pisati <paolo.pisati@canonical.com>  Mon, 29 Mar 2021 12:59:38 +0200
+
+linux-unstable (5.12.0-4.4) hirsute; urgency=medium
+
+  * Packaging resync (LP: #1786013)
+    - update dkms package versions
+
+  * Fix broken efifb on graphics device without driver (LP: #1914411)
+    - SAUCE: efifb: Ensure graphics device for efifb stays at PCI D0
+
+  * Fix system sleep on TGL systems with Intel ME (LP: #1919321)
+    - SAUCE: PCI: Serialize TGL e1000e PM ops
+
+  * Miscellaneous Ubuntu changes
+    - Rebase to v5.12-rc4
+    - [Config] updateconfigs following v5.12-rc4 rebase
+
+  * Miscellaneous upstream changes
+    - riscv: dts: fu740: fix cache-controller interrupts
+    - riscv: sifive: fu740: cpu{1, 2, 3, 4} set compatible to sifive, u74-mc
+    - riscv: sifive: unmatched: update for 16GB rev3
+    - riscv: Add 3 SBI wrapper functions to get cpu manufacturer information
+    - riscv: Get CPU manufacturer information
+    - riscv: Introduce alternative mechanism to apply errata solution
+    - riscv: sifive: apply errata "cip-453" patch
+    - clk: sifive: Add pcie_aux clock in prci driver for PCIe driver
+    - clk: sifive: Use reset-simple in prci driver for PCIe driver
+    - MAINTAINERS: Add maintainers for SiFive FU740 PCIe driver
+    - dt-bindings: PCI: Add SiFive FU740 PCIe host controller
+    - PCI: designware: Add SiFive FU740 PCIe host controller driver
+    - riscv: dts: Add PCIe support for the SiFive FU740-C000 SoC
+
+  [ Upstream Kernel Changes ]
+
+  * Rebase to v5.12-rc4
+
+ -- Paolo Pisati <paolo.pisati@canonical.com>  Mon, 22 Mar 2021 12:43:14 +0100
+
+linux-unstable (5.12.0-3.3) hirsute; urgency=medium
+
+  *  riscv: revert SiFive Unleashed CPUFreq (LP: #1917433)
+    - SAUCE: Revert "SiFive Unleashed CPUFreq"
+
+  * Dell Precision 5550 takes up to 10 seconds to respond when coming out of
+    sleep (LP: #1919123)
+    - SAUCE: Input: i8042 - add dmi quirk
+
+  * LRMv4: switch to signing nvidia modules via the Ubuntu Modules signing key
+    (LP: #1918134)
+    - [Packaging] sync dkms-build et al from LRMv4
+
+  * curtin: install flash-kernel in arm64 UEFI unexpected (LP: #1918427)
+    - [Packaging] Allow grub-efi-arm* to satisfy recommends on ARM
+
+  * Packaging resync (LP: #1786013)
+    - update dkms package versions
+
+  * Enable Tegra support in arm64 for NVIDIA Jetson (LP: #1918471)
+    - [Config] enable ARCH_TEGRA and all Tegra SOC's
+    - [Packaging] include modern Tegra modules
+
+  * Cirrus Audio Codec CS8409/CS42L42: Input Device does not switch to headset
+    Mic when a headset is inserted (LP: #1918378)
+    - SAUCE: ALSA: hda/cirrus: Fix Headset Mic volume control name
+
+  * Cirrus Audio Codec CS8409/CS42L42 support (LP: #1916554)
+    - ALSA: hda/cirrus: Increase AUTO_CFG_MAX_INS from 8 to 18
+    - ALSA: hda/cirrus: Add support for CS8409 HDA bridge and CS42L42 companion
+      codec.
+    - ALSA: hda/cirrus: Add jack detect interrupt support from CS42L42 companion
+      codec.
+    - ALSA: hda/cirrus: Add Headphone and Headset MIC Volume Control
+
+  * drm/i915: Drop force_probe requirement for JSL (LP: #1917843)
+    - SAUCE: drm/i915: Drop require_force_probe from JSL
+
+  * Miscellaneous Ubuntu changes
+    - [Packaging] Skip d-i code if udebs are disabled
+    - [Packaging] Disable udebs if $DEBIAN/d-i doesn't exist
+    - [Packaging] remove dh-systemd build dependency
+    - [Config] fix several annotaions with enforcement typos
+    - [Config] refresh annotations
+    - [Config] updateconfigs following v5.12-rc3 rebase
+    - annotations: fixup after v5.12-rc3 rebase
+    - Rebase to v5.12-rc3
+
+  [ Upstream Kernel Changes ]
+
+  * Rebase to v5.12-rc3
+
+ -- Paolo Pisati <paolo.pisati@canonical.com>  Tue, 16 Mar 2021 18:43:03 +0100
+
+linux-unstable (5.12.0-2.2) hirsute; urgency=medium
+
+  * Miscellaneous Ubuntu changes
+    - Rebase to v5.12-rc2
+    - [Config] updateconfigs following v5.12-rc2 rebase
+
+  [ Upstream Kernel Changes ]
+
+  * Rebase to v5.12-rc2
+
+ -- Paolo Pisati <paolo.pisati@canonical.com>  Mon, 08 Mar 2021 11:22:04 +0100
+
+linux-unstable (5.12.0-1.1) hirsute; urgency=medium
+
+  * Packaging resync (LP: #1786013)
+    - update dkms package versions
+
+  * Support no udeb profile (LP: #1916095)
+    - [Packaging] replace custom filter script with dctrl-tools
+    - [Packaging] correctly implement noudeb build profiles.
+
+  * Miscellaneous Ubuntu changes
+    - [Packaging] dkms-versions -- remove nvidia-graphics-drivers-440-server
+    - [Debian] run ubuntu-regression-suite for linux-unstable
+    - [Packaging] remove Provides: aufs-dkms
+    - [Config] update config and annotations following v5.12-rc1 rebase
+    - [Config] disable nvidia and nvidia_server builds
+    - [Config] temporarily disable ZFS
+    - temporarily disable modules check
+    - annotations: s390: temporarily remove CONFIG_KMSG_IDS
+    - [Config] amd64: FTBFS: disable HIO
+    - [Config] FTBFS: disable SHIFT_FS
+    - [Config] s390: temporarily remove CONFIG_KMSG_IDS
+
+  * Miscellaneous upstream changes
+    - Revert "UBUNTU: [Config] disable nvidia and nvidia_server builds"
+    - Revert "UBUNTU: SAUCE: s390: kernel message catalog"
+
+  [ Upstream Kernel Changes ]
+
+  * Rebase to v5.12-rc1
+
+ -- Paolo Pisati <paolo.pisati@canonical.com>  Thu, 04 Mar 2021 18:26:12 +0100
+
+linux-unstable (5.12.0-0.0) hirsute; urgency=medium
+
+  * Empty entry
+
+ -- Paolo Pisati <paolo.pisati@canonical.com>  Thu, 04 Mar 2021 18:17:32 +0100
+
 linux-unstable (5.11.0-10.11) hirsute; urgency=medium
 
   * Packaging resync (LP: #1786013)

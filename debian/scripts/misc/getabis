@@ -168,6 +168,7 @@ getall_set()
 # Setup abi directory
 mkdir -p $abidir
 echo $abi > $abidir/abiname
+echo $verfull > $abidir/version
 
 # NOTE: The flavours are hardcoded, because they may have changed from the
 # current build.
@@ -187,8 +188,13 @@ mv fwinfo.tmp $fwinfo
 
 rmdir $tmpdir
 
-# If this is running in a git repo, add the new ABI directory, remove the old
+# Replace the previous ABI directory with the new one
+abiprevdir="$(pwd)/$DEBIAN/abi/previous"
+rm -rf "$abiprevdir"
+mv "$abidir" "$abiprevdir"
+
+# If this is running in a git repo, add the current ABI directory and remove any old ones
 if [ -d ".git" ]; then
-    git add $abidir
-    find $DEBIAN/abi/* -maxdepth 0 -type d | grep -v $verfull | while read f; do git rm -r -f $f;done
+    git add "$abiprevdir"
+    find "$DEBIAN"/abi/* -maxdepth 0 -type d | grep -v '/previous$' | while read f; do git rm -rf "$f"; done
 fi
