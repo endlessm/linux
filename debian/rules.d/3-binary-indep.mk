@@ -8,10 +8,9 @@ build-indep:
 #
 indep_hdrpkg = $(indep_hdrs_pkg_name)
 indep_hdrdir = $(CURDIR)/debian/$(indep_hdrpkg)/usr/src/$(indep_hdrpkg)
-install-headers: prepare-indep
+$(stampdir)/stamp-install-headers: $(stampdir)/stamp-prepare-indep
 	@echo Debug: $@
 	dh_testdir
-	dh_testroot
 
 ifeq ($(do_flavour_header_package),true)
 	install -d $(indep_hdrdir)
@@ -26,10 +25,11 @@ ifeq ($(do_flavour_header_package),true)
 		xargs -n1 -i: find : -type f) | \
 		cpio -pd --preserve-modification-time $(indep_hdrdir)
 endif
+	@touch $@
 
 docpkg = $(doc_pkg_name)
 docdir = $(CURDIR)/debian/$(docpkg)/usr/share/doc/$(docpkg)
-install-doc: prepare-indep
+install-doc: $(stampdir)/stamp-prepare-indep
 	@echo Debug: $@
 ifeq ($(do_doc_package),true)
 	dh_testdir
@@ -55,7 +55,7 @@ endif
 srcpkg = linux-source-$(release)
 srcdir = $(CURDIR)/debian/$(srcpkg)/usr/src/$(srcpkg)
 balldir = $(CURDIR)/debian/$(srcpkg)/usr/src/$(srcpkg)/$(srcpkg)
-install-source: prepare-indep
+install-source: $(stampdir)/stamp-prepare-indep
 	@echo Debug: $@
 ifeq ($(do_source_package),true)
 
@@ -74,6 +74,7 @@ ifeq ($(do_source_package_content),true)
 		-path './debian/files' -prune -o \
 		-path './debian/stamps' -prune -o \
 		-path './debian/tmp' -prune -o \
+		-path './$(DEBIAN)/__abi.current' -prune -o \
 		-print | \
 		cpio -pd --preserve-modification-time $(srcdir)
 	$(LN) $(srcpkg)/$(srcpkg).tar.bz2 $(srcdir)/..
@@ -88,11 +89,12 @@ install-tools: toolsbashcomp = $(CURDIR)/debian/$(toolspkg)/usr/share/bash-compl
 install-tools: hosttoolspkg = $(hosttools_pkg_name)
 install-tools: hosttoolsbin = $(CURDIR)/debian/$(hosttoolspkg)/usr/bin
 install-tools: hosttoolsman = $(CURDIR)/debian/$(hosttoolspkg)/usr/share/man
+install-tools: hosttoolssystemd = $(CURDIR)/debian/$(hosttoolspkg)/lib/systemd/system
 install-tools: cloudpkg = $(cloud_common_pkg_name)
 install-tools: cloudbin = $(CURDIR)/debian/$(cloudpkg)/usr/bin
 install-tools: cloudsbin = $(CURDIR)/debian/$(cloudpkg)/usr/sbin
 install-tools: cloudman = $(CURDIR)/debian/$(cloudpkg)/usr/share/man
-install-tools: prepare-indep $(stampdir)/stamp-build-perarch
+install-tools: $(stampdir)/stamp-prepare-indep $(stampdir)/stamp-build-perarch
 	@echo Debug: $@
 
 ifeq ($(do_tools_common),true)
@@ -159,24 +161,28 @@ endif
 ifeq ($(do_tools_host),true)
 	install -d $(hosttoolsbin)
 	install -d $(hosttoolsman)/man1
+	install -d $(hosttoolssystemd)
 
 	install -m 755 $(CURDIR)/tools/kvm/kvm_stat/kvm_stat $(hosttoolsbin)/
+	install -m 644 $(CURDIR)/tools/kvm/kvm_stat/kvm_stat.service \
+		$(hosttoolssystemd)/
 
 	cd $(builddir)/tools/tools/kvm/kvm_stat && make man
 	install -m644 $(builddir)/tools/tools/kvm/kvm_stat/*.1 \
 		$(hosttoolsman)/man1
 endif
 
-prepare-indep:
+$(stampdir)/stamp-prepare-indep:
 	@echo Debug: $@
 	dh_prep -i
+	@touch $@
 
-install-indep: install-headers install-doc install-source install-tools
+install-indep: $(stampdir)/stamp-install-headers install-doc install-source install-tools
 	@echo Debug: $@
 
 # This is just to make it easy to call manually. Normally done in
 # binary-indep target during builds.
-binary-headers: prepare-indep install-headers
+binary-headers: $(stampdir)/stamp-prepare-indep $(stampdir)/stamp-install-headers
 	@echo Debug: $@
 	dh_installchangelogs -p$(indep_hdrpkg)
 	dh_installdocs -p$(indep_hdrpkg)
@@ -185,9 +191,10 @@ binary-headers: prepare-indep install-headers
 	dh_installdeb -p$(indep_hdrpkg)
 	$(lockme) dh_gencontrol -p$(indep_hdrpkg)
 	dh_md5sums -p$(indep_hdrpkg)
-	dh_builddeb -p$(indep_hdrpkg)
+	dh_builddeb -p$(indep_hdrpkg) -- -Zxz
 
 binary-indep: cloudpkg = $(cloud_common_pkg_name)
+binary-indep: hosttoolspkg = $(hosttools_pkg_name)
 binary-indep: install-indep
 	@echo Debug: $@
 	dh_installchangelogs -i
@@ -214,7 +221,12 @@ endif
 	dh_installinit -p$(cloudpkg) --no-start --no-enable --name intel-sgx-load-module
 endif
 endif
+ifeq ($(do_tools_host),true)
+	# Keep kvm_stat.service disabled by default (after dh_systemd_enable
+	# and dh_systemd_start:
+	dh_installinit -p$(hosttoolspkg) --no-enable --no-start --name kvm_stat
+endif
 	dh_installdeb -i
 	$(lockme) dh_gencontrol -i
 	dh_md5sums -i
-	dh_builddeb -i
+	dh_builddeb -i -- -Zxz

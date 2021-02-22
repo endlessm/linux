@@ -1,120 +1,113 @@
-#!/usr/bin/perl -w
+#!/usr/bin/python3
 
-$flavour = shift;
-$prev_abidir = shift;
-$abidir = shift;
-$skipmodule = shift;
+import os
+import sys
 
-print "II: Checking modules for $flavour...";
+if len(sys.argv) < 4 or len(sys.argv) > 5:
+    print('Usage: module-check <flavor> <prev_abidir> <abidir> [<skipmodule>]')
+    sys.exit(2)
 
-if (-f "$prev_abidir/ignore.modules"
-    or -f "$prev_abidir/$flavour.ignore.modules") {
-	print "explicitly ignoring modules\n";
-	exit(0);
-}
+flavor, prev_abidir, abidir = sys.argv[1:4]  # pylint: disable=W0632
+if len(sys.argv) > 4:
+    skipmodule = sys.argv[4]
+else:
+    skipmodule = ''
 
-if (not -f "$abidir/$flavour.modules" or not -f
-    "$prev_abidir/$flavour.modules") {
-	print "previous or current modules file missing!\n";
-	print "   $abidir/$flavour.modules\n";
-	print "   $prev_abidir/$flavour.modules\n";
-	if (defined($skipmodule)) {
-		exit(0);
-	} else {
-		exit(1);
-	}
-}
+print('II: Checking modules for {}...'.format(flavor), end='')
 
-print "\n";
+if ((os.path.exists('{}/ignore.modules'.format(prev_abidir)) or
+     os.path.exists('{}/{}.ignore.modules'.format(prev_abidir, flavor)))):
+    print('explicitly ignoring modules')
+    sys.exit(0)
 
-my %modules;
-my %modules_ignore;
-my $missing = 0;
-my $new = 0;
-my $errors = 0;
+curr_modules = '{}/{}.modules'.format(abidir, flavor)
+prev_modules = '{}/{}.modules'.format(prev_abidir, flavor)
+if not os.path.exists(curr_modules) or not os.path.exists(prev_modules):
+    print('previous or current modules file missing!')
+    print('   {}'.format(curr_modules))
+    print('   {}'.format(prev_modules))
+    sys.exit(0 if skipmodule else 1)
+
+print()
+
+modules = {}
+modules_ignore = {}
+missing = 0
+new = 0
+errors = 0
 
 # See if we have any ignores
-if (-f "$prev_abidir/../modules.ignore") {
-	my $ignore = 0;
-	open(IGNORE, "< $prev_abidir/../modules.ignore") or
-		die "Could not open $prev_abidir/../modules.ignore";
-	print "   reading modules to ignore...";
-	while (<IGNORE>) {
-		chomp;
-		next if /\s*#/;
-		$modules_ignore{$_} = 1;
-		$ignore++;
-	}
-	close(IGNORE);
-	print "read $ignore modules.\n";
-}
+prev_modules_ignore = '{}/../modules.ignore'.format(prev_abidir)
+if os.path.exists(prev_modules_ignore):
+    ignore = 0
+    with open(prev_modules_ignore) as fh:
+        for mod in fh:
+            mod = mod.strip()
+            if mod.startswith('#'):
+                continue
+            modules_ignore[mod] = 1
+            ignore += 1
+    print('read {} modules.'.format(ignore))
 
 # Read new modules first
-print "   reading new modules...";
-$new_count = 0;
-open(NEW, "< $abidir/$flavour.modules") or
-	die "Could not open $abidir/$flavour.modules";
-while (<NEW>) {
-	chomp;
-	$modules{$_} = 1;
-	$new_count++;
-}
-close(NEW);
-print "read $new_count modules.\n";
+print('   reading new modules...', end='')
+new_count = 0
+for f in (curr_modules, curr_modules + '.builtin'):
+    if not os.path.exists(f):
+        continue
+    with open(f) as fh:
+        for mod in fh:
+            mod = mod.strip()
+            modules[mod] = 1
+            new_count += 1
+print('read {} modules.'.format(new_count))
 
 # Now the old modules, checking for missing ones
-print "   reading old modules...";
-$old_count = 0;
-open(OLD, "< $prev_abidir/$flavour.modules") or
-	die "Could not open $prev_abidir/$flavour.modules";
-while (<OLD>) {
-	chomp;
-	if (not defined($modules{$_})) {
-		print "\n" if not $missing;
-		$missing++;
-		if (not defined($modules_ignore{$_})) {
-			print "      MISS: $_\n";
-			$errors++;
-		} else {
-			print "      MISS: $_ (ignored)\n";
-		}
-	} else {
-		$modules{$_}++;
-	}
-	$old_count++;
-}
-close(OLD);
+print('   reading old modules...', end='')
+old_count = 0
+for f in (prev_modules, prev_modules + '.builtin'):
+    if not os.path.exists(f):
+        continue
+    with open(f) as fh:
+        for mod in fh:
+            mod = mod.strip()
+            if mod not in modules:
+                if not missing:
+                    print()
+                missing += 1
+                if mod not in modules_ignore:
+                    print('      MISS: {}'.format(mod))
+                    errors += 1
+                else:
+                    print('      MISS: {} (ignored)'.format(mod))
+            else:
+                modules[mod] += 1
+            old_count += 1
 # Check for new modules
-foreach $mod (keys(%modules)) {
-	if ($modules{$mod} < 2) {
-		print "\n" if not $missing and not $new;
-		print "      NEW : $mod\n";
-		$new++;
-	}
-}
-if ($new or $missing) {
-	print "      read $old_count modules : new($new)  missing($missing)\n";
-} else {
-	print "read $old_count modules.\n";
-}
-
+for mod, cnt in modules.items():
+    if cnt < 2:
+        if not missing and not new:
+            print()
+        print('      NEW: {}'.format(mod))
+        new += 1
+if new or missing:
+    print('      read {} modules : new({})  missing({})'.format(old_count, new, missing))
+else:
+    print('read {} modules.'.format(old_count))
 
 # Let's see where we stand...
-if ($errors) {
-	if (defined($skipmodule)) {
-		print "WW: Explicitly asked to ignore failures (probably not good)\n";
-	} else {
-		print "EE: Missing modules (start begging for mercy)\n";
-		exit 1
-	}
-}
+if errors:
+    if skipmodule:
+        print('WW: Explicitly asked to ignore failures')
+    else:
+        print('EE: Missing modules')
+        sys.exit(1)
 
-if ($new) {
-	print "II: New modules (you've been busy, wipe the poop off your nose)\n";
-} else {
-	print "II: No new modules (hope you're happy, slacker)\n";
-}
+if new:
+    print('II: New modules')
+else:
+    print('II: No new modules')
 
-print "II: Done\n";
+print('II: Done')
 
-exit(0);
+sys.exit(0)

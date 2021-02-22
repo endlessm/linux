@@ -61,15 +61,7 @@ do
 			fi
 
 			# Download from the available pools.
-			for pool in $( apt-cache policy | grep '^ [^ ]' | sort -r -n -k 1,1 -s | \
-			    awk '
-				($2 ~ /^http/) {
-				    if (!($2 in E)) {
-					E[$2]=1;
-					print $2;
-				    }
-				}
-			    ')
+			for pool in $( grep -h '^deb ' /etc/apt/sources.list /etc/apt/sources.list.d/*.list | awk '{print $2}' | sort -u )
 			do
 				if package_present "$lpackage"; then
 					break
@@ -166,8 +158,10 @@ dkms_version=$( sed -ne 's/PACKAGE_VERSION="\(.*\)"/\1/p' "$dkms_conf" )
 
 # Build the DKMS binaries.
 echo "II: dkms-build building $package"
+fakeroot=""
+[[ $EUID -ne 0 ]] && fakeroot="/usr/bin/fakeroot"
 rc=0
-/usr/sbin/dkms build --no-prepare-kernel --no-clean-kernel \
+$fakeroot /usr/sbin/dkms build --no-prepare-kernel --no-clean-kernel \
 	-k "$abi_flavour" \
 	--sourcetree "$dkms_dir/source" \
 	--dkmstree "$dkms_dir/build" \

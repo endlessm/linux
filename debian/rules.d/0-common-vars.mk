@@ -14,7 +14,9 @@ release := $(shell sed -n '1s/^$(src_pkg_name).*(\(.*\)-.*).*$$/\1/p' $(DEBIAN)/
 revisions := $(shell sed -n 's/^$(src_pkg_name)\ .*($(release)-\(.*\)).*$$/\1/p' $(DEBIAN)/changelog | tac)
 revision ?= $(word $(words $(revisions)),$(revisions))
 prev_revisions := $(filter-out $(revision),0.0 $(revisions))
+ifneq (,$(prev_revisions))
 prev_revision := $(word $(words $(prev_revisions)),$(prev_revisions))
+endif
 
 prev_fullver ?= $(shell dpkg-parsechangelog -l$(DEBIAN)/changelog -o1 -c1 | sed -ne 's/^Version: *//p')
 
@@ -125,8 +127,8 @@ ifneq ($(DEB_BUILD_GNU_TYPE),$(DEB_HOST_GNU_TYPE))
 	CROSS_COMPILE ?= $(DEB_HOST_GNU_TYPE)-
 endif
 
-abidir		:= $(CURDIR)/$(DEBIAN)/abi/$(release)-$(revision)/$(arch)
-prev_abidir	:= $(CURDIR)/$(DEBIAN)/abi/$(release)-$(prev_revision)/$(arch)
+abidir		:= $(CURDIR)/$(DEBIAN)/__abi.current/$(arch)
+prev_abidir	:= $(CURDIR)/$(DEBIAN)/abi/$(arch)
 commonconfdir	:= $(CURDIR)/$(DEBIAN)/config
 archconfdir	:= $(CURDIR)/$(DEBIAN)/config/$(arch)
 sharedconfdir	:= $(CURDIR)/debian.master/config
@@ -187,6 +189,10 @@ do_common_headers_indep=true
 # add a 'full source' mode
 do_full_source=false
 
+# Add an option to enable special drivers which should only be build when
+# explicitly enabled.
+do_odm_drivers=false
+
 # build tools
 ifneq ($(wildcard $(CURDIR)/tools),)
 	ifeq ($(do_tools),)
@@ -214,6 +220,9 @@ do_flavour_header_package=true
 
 # DTBs
 do_dtbs=false
+
+# FIPS check
+do_fips_checks=false
 
 # Support parallel=<n> in DEB_BUILD_OPTIONS (see #209008)
 #

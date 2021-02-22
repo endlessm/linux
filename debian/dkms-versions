@@ -1,8 +1,2 @@
-zfs-linux 2.0.2-1ubuntu2
-nvidia-graphics-drivers-390 390.141-0ubuntu1
-nvidia-graphics-drivers-450 450.102.04-0ubuntu1 transition=nvidia-graphics-drivers-440
-nvidia-graphics-drivers-460 460.39-0ubuntu1 transition=nvidia-graphics-drivers-455 transition=nvidia-graphics-drivers-435
-nvidia-graphics-drivers-418-server 418.181.07-0ubuntu1
-nvidia-graphics-drivers-440-server 440.95.01-0ubuntu2 signonly
-nvidia-graphics-drivers-450-server 450.102.04-0ubuntu1 transition=nvidia-graphics-drivers-440-server
-nvidia-graphics-drivers-460-server 460.32.03-0ubuntu1
+v4l2loopback 0.12.5-1ubuntu3
+zfs-linux 2.0.6-1ubuntu3
