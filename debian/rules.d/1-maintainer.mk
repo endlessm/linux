@@ -45,7 +45,7 @@ printdebian:
 
 updateconfigs defaultconfigs editconfigs genconfigs dumpconfigs:
 	dh_testdir;
-	$(SHELL) $(DROOT)/scripts/misc/kernelconfig $@
+	$(SHELL) $(DROOT)/scripts/misc/kernelconfig $@ "$(do_enforce_all)"
 	rm -rf build
 
 updateportsconfigs defaultportsconfigs editportsconfigs genportsconfigs askconfigs:
@@ -108,6 +108,7 @@ printenv:
 	@echo "DEB_BUILD_ARCH            = $(DEB_BUILD_ARCH)"
 	@echo "arch                      = $(arch)"
 	@echo "kmake                     = $(kmake)"
+	@echo "disable_d_i               = $(disable_d_i)"
 
 printchanges:
 	@baseCommit=$$(git log --pretty=format:'%H %s' | \

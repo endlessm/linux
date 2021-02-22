@@ -11,7 +11,8 @@ if [ ! -f MAINTAINERS ] || [ ! -f Makefile ]; then
 	exit 1
 fi
 
-mode=${1:?"Usage: $0 [oldconfig|editconfig]"}
+mode=${1:?"Usage: $0 (oldconfig|editconfig) [do_enforce_all]"}
+do_enforce_all=${2:-0}
 yes=0
 case "$mode" in
     update*configs)  mode='syncconfig' ;;
@@ -186,7 +187,7 @@ for arch in $archs; do
 		if [ -f $archconfdir/$config ]; then
 			fullconf="$tmpdir/CONFIGS/$arch-$config"
 			[ ! -f "$fullconf" ] && continue
-			"$bindir/../config-check" "$fullconf" "$arch" "$flavour" "$confdir" "0" "0" || let "fail=$fail+1"
+			"$bindir/../config-check" "$fullconf" "$arch" "$flavour" "$confdir" "0" "$do_enforce_all" || let "fail=$fail+1"
 		fi
 	done
 done

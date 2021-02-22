@@ -44,6 +44,18 @@ abi_check()
 	fi
 }
 
+abi_version="$debian/abi/previous/version"
+if ! [ -f "$abi_version" ]
+then
+	failure "$abi_version ABI version file missing"
+fi
+
+version=$(cat "$abi_version")
+if [ "$abi" != "$version" ]
+then
+	failure "$abi_version ABI version mismatch ($abi != $version)"
+fi
+
 for arch in $archs
 do
 	image_pkg=$(awk -F '\\s*=\\s*' '$1 == "do_flavour_image_package" { print $2 }' $debian/rules.d/$arch.mk)
@@ -61,7 +73,7 @@ do
 	for flavour in $flavours
 	do
 		flavour=$(echo "$flavour" | sed -e 's@.*/config.flavour.@@')
-		abi_check "$debian/abi/$abi" "$arch" "$flavour"
+		abi_check "$debian/abi/previous" "$arch" "$flavour"
 	done
 done
 

@@ -39,6 +39,14 @@ do_tools_common?=true
 do_tools_host?=false
 do_tools_perf_jvmti?=false
 do_enforce_all?=false
+ifneq ($(filter noudeb,$(DEB_BUILD_PROFILES)),)
+disable_d_i=true
+endif
+
+# Don't build udebs if $(DEBIAN)/d-i/ doesn't exist
+ifeq ($(wildcard $(DEBIAN)/d-i/.),)
+	disable_d_i=true
+endif
 
 # Don't build tools or udebs in a cross compile environment.
 ifneq ($(DEB_HOST_ARCH),$(DEB_BUILD_ARCH))
@@ -132,10 +140,12 @@ clean: debian/control debian/canonical-certs.pem
 	dh_testroot
 	dh_clean
 
+ifeq ($(disable_d_i),)
 	# d-i stuff
 	rm -rf $(DEBIAN)/d-i-$(arch)
 	# Generated on the fly.
 	rm -f $(DEBIAN)/d-i/firmware/$(arch)/kernel-image
+endif
 
 	# normal build junk
 	rm -rf $(DEBIAN)/abi/$(release)-$(revision)
@@ -220,11 +230,16 @@ $(DEBIAN)/control.stub: 				\
 debian/control: $(DEBIAN)/control.stub
 	echo "# placebo control.stub for kernel-wedge flow change" >debian/control.stub
 	cp $(DEBIAN)/control.stub debian/control
+ifeq ($(disable_d_i),)
+	# start new paragraph in debian/control
+	echo >> debian/control
+	# append udeb packages
 	export KW_DEFCONFIG_DIR=$(DEBIAN)/d-i && \
 	export KW_CONFIG_DIR=$(DEBIAN)/d-i && \
 	LANG=C kernel-wedge gen-control $(release)-$(abinum) | \
-		perl -f $(DROOT)/scripts/misc/kernel-wedge-arch.pl $(arch) \
+		grep-dctrl -FArchitecture $(arch) \
 		>>$(CURDIR)/debian/control
+endif
 
 debian/canonical-certs.pem: $(wildcard $(DROOT)/certs/*-all.pem) $(wildcard $(DROOT)/certs/*-$(arch).pem) $(wildcard $(DEBIAN)/certs/*-all.pem) $(wildcard $(DEBIAN)/certs/*-$(arch).pem)
 	for cert in $(sort $(notdir $^));					\
