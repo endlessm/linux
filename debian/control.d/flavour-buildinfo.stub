@@ -11,3 +11,4 @@ Description: Linux kernel buildinfo for version PKGVER on DESC
  DESC.
  .
  You likely do not want to install this package.
+

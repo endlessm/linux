@@ -26,7 +26,7 @@ Build-Profiles: <!stage1>
 Architecture: ARCH
 Section: kernel
 Priority: optional
-Provides: linux-image, fuse-module, aufs-dkms, =PROVIDES=${linux:rprovides}
+Provides: linux-image, fuse-module, =PROVIDES=${linux:rprovides}
 Depends: ${misc:Depends}, ${shlibs:Depends}, kmod, linux-base (>= 4.5ubuntu1~16.04.1), linux-modules-PKGVER-ABINUM-FLAVOUR
 Recommends: BOOTLOADER, initramfs-tools | linux-initramfs-tool
 Breaks: flash-kernel (<< 3.90ubuntu2) [arm64 armhf], s390-tools (<< 2.3.0-0ubuntu3) [s390x]
@@ -139,14 +139,4 @@ Description: Linux kernel version specific cloud tools for version PKGVER-ABINUM
  This package provides the architecture dependant parts for kernel
  version locked tools for cloud for version PKGVER-ABINUM on
  =HUMAN=.
-
-Package: SRCPKGNAME-udebs-FLAVOUR
-Build-Profiles: <!stage1>
-XC-Package-Type: udeb
-Section: debian-installer
-Architecture: ARCH
-Depends: ${udeb:Depends}
-Description: Metapackage depending on kernel udebs
- This package depends on the all udebs that the kernel build generated,
- for easier version and migration tracking.
 

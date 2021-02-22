@@ -40,13 +40,10 @@ do_tools_host?=false
 do_tools_perf_jvmti?=false
 do_enforce_all?=false
 
-# Don't build tools or udebs in a cross compile environment.
+# Don't build tools in a cross compile environment.
 ifneq ($(DEB_HOST_ARCH),$(DEB_BUILD_ARCH))
 	do_tools=false
-	disable_d_i=true
 	do_zfs=false
-	do_dkms_nvidia=false
-	do_dkms_nvidia_server=false
 endif
 
 # Are any of the kernel signing options enabled.
@@ -77,10 +74,8 @@ endif
 #  - disable dkms builds as the versions used may have been deleted
 ifneq ($(filter autopkgtest,$(DEB_BUILD_PROFILES)),)
 	flavours := $(firstword $(flavours))
-	disable_d_i=true
 	do_zfs=false
-	do_dkms_nvidia=false
-	do_dkms_nvidia_server=false
+	do_v4l2loopback=false
 endif
 
 # Being used to build a mainline build -- turn off things which do not work.
@@ -89,8 +84,6 @@ ifeq ($(do_mainline_build),true)
 	do_tools=false
 	no_dumpfile=1
 	do_zfs=false
-	do_dkms_nvidia=false
-	do_dkms_nvidia_server=false
 	skipabi=true
 	skipmodule=true
 	skipretpoline=true
@@ -108,6 +101,10 @@ ifeq ($(do_zfs),false)
 	do_zfs_disable:=$(shell for m in $$(cat $(DROOT)/zfs-modules.ignore); do grep -qxF $$m $(prev_abidir)/../modules.ignore 2>/dev/null || echo $$m >> $(prev_abidir)/../modules.ignore; done)
 endif
 
+ifeq ($(do_v4l2loopback),false)
+	do_v4l2loopback_disable:=$(shell for m in $$(cat $(DROOT)/v4l2loopback-modules.ignore); do grep -qxF $$m $(prev_abidir)/../modules.ignore 2>/dev/null || echo $$m >> $(prev_abidir)/../modules.ignore; done)
+endif
+
 ifeq ($(do_dkms_wireguard),false)
 	do_wireguard_disable:=$(shell for m in $$(cat $(DROOT)/wireguard-modules.ignore); do grep -qxF $$m $(prev_abidir)/../modules.ignore 2>/dev/null || echo $$m >> $(prev_abidir)/../modules.ignore; done)
 endif
@@ -117,6 +114,7 @@ do_any_tools=$(sort $(filter-out false,$(do_linux_tools) $(do_cloud_tools)))
 
 # Versions of dkms packages.
 dkms_zfs_linux_version=$(shell gawk '/^zfs-linux / { print $$2; }' debian/dkms-versions)
+dkms_v4l2loopback_version=$(shell gawk '/^v4l2loopback / { print $$2; }' debian/dkms-versions)
 
 # NVIDIA DKMS package gross series split into desktop and server.
 nvidia_desktop_series=$(shell sed -n -e 's/^nvidia-graphics-drivers-\([0-9][0-9]*\) .*/\1/p' debian/dkms-versions)
@@ -127,15 +125,10 @@ binary: binary-indep binary-arch
 
 build: build-arch build-indep
 
-clean: debian/control debian/canonical-certs.pem
+clean: debian/control debian/canonical-certs.pem debian/canonical-revoked-certs.pem
 	dh_testdir
 	dh_testroot
 	dh_clean
-
-	# d-i stuff
-	rm -rf $(DEBIAN)/d-i-$(arch)
-	# Generated on the fly.
-	rm -f $(DEBIAN)/d-i/firmware/$(arch)/kernel-image
 
 	# normal build junk
 	rm -rf $(DEBIAN)/abi/$(release)-$(revision)
@@ -143,8 +136,6 @@ clean: debian/control debian/canonical-certs.pem
 	rm -f $(stampdir)/stamp-*
 	rm -rf $(DEBIAN)/linux-*
 
-	# This gets rid of the d-i packages in control
-	cp -f $(DEBIAN)/control.stub $(DROOT)/control
 	cp $(DEBIAN)/changelog debian/changelog
 
 	# Install the copyright information.
@@ -167,9 +158,6 @@ distclean: clean
 
 # Builds the image, arch headers and debug packages
 include $(DROOT)/rules.d/2-binary-arch.mk
-
-# Rules for building the udebs ($(DEBIAN)-installer)
-include $(DROOT)/rules.d/5-udebs.mk
 
 # Builds the source, doc and linux-headers indep packages
 include $(DROOT)/rules.d/3-binary-indep.mk
@@ -218,13 +206,7 @@ $(DEBIAN)/control.stub: 				\
 
 .PHONY: debian/control
 debian/control: $(DEBIAN)/control.stub
-	echo "# placebo control.stub for kernel-wedge flow change" >debian/control.stub
 	cp $(DEBIAN)/control.stub debian/control
-	export KW_DEFCONFIG_DIR=$(DEBIAN)/d-i && \
-	export KW_CONFIG_DIR=$(DEBIAN)/d-i && \
-	LANG=C kernel-wedge gen-control $(release)-$(abinum) | \
-		perl -f $(DROOT)/scripts/misc/kernel-wedge-arch.pl $(arch) \
-		>>$(CURDIR)/debian/control
 
 debian/canonical-certs.pem: $(wildcard $(DROOT)/certs/*-all.pem) $(wildcard $(DROOT)/certs/*-$(arch).pem) $(wildcard $(DEBIAN)/certs/*-all.pem) $(wildcard $(DEBIAN)/certs/*-$(arch).pem)
 	for cert in $(sort $(notdir $^));					\
@@ -233,6 +215,18 @@ debian/canonical-certs.pem: $(wildcard $(DROOT)/certs/*-all.pem) $(wildcard $(DR
 		do								\
 			if [ -f "$$dir/certs/$$cert" ]; then			\
 				cat "$$dir/certs/$$cert";			\
+				break;						\
+			fi;							\
+		done;								\
+	done >"$@"
+
+debian/canonical-revoked-certs.pem: $(wildcard $(DROOT)/revoked-certs/*-all.pem) $(wildcard $(DROOT)/revoked-certs/*-$(arch).pem) $(wildcard $(DEBIAN)/revoked-certs/*-all.pem) $(wildcard $(DEBIAN)/revoked-certs/*-$(arch).pem)
+	for cert in $(sort $(notdir $^));					\
+	do									\
+		for dir in $(DEBIAN) $(DROOT);					\
+		do								\
+			if [ -f "$$dir/revoked-certs/$$cert" ]; then		\
+				cat "$$dir/revoked-certs/$$cert";		\
 				break;						\
 			fi;							\
 		done;								\
