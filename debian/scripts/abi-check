@@ -53,7 +53,7 @@ my %module_syms;
 my $ignore = 0;
 print "    Reading symbols/modules to ignore...";
 
-for $file ("$prev_abidir/../blacklist", "$prev_abidir/../../perm-blacklist") {
+for $file ("$prev_abidir/../blacklist") {
 	if (-f $file) {
 		open(IGNORE, "< $file") or
 			die "Could not open $file";

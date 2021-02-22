@@ -1,7 +1,7 @@
 # The following targets are for the maintainer only! do not run if you don't
 # know what they do.
 
-.PHONY: printenv updateconfigs printchanges insertchanges startnewrelease diffupstream help updateportsconfigs editportsconfigs autoreconstruct finalchecks
+.PHONY: printenv updateconfigs printchanges insertchanges startnewrelease diffupstream help autoreconstruct finalchecks
 
 help:
 	@echo "These are the targets in addition to the normal $(DEBIAN) ones:"
@@ -12,11 +12,6 @@ help:
 	@echo
 	@echo "  editconfigs          : Update core arch configs interractively"
 	@echo "  genconfigs           : Generate core arch configs in CONFIGS/*"
-	@echo
-	@echo "  updateportsconfigs   : Update ports arch configs"
-	@echo
-	@echo "  editportsconfigs     : Update ports arch configs interactivly"
-	@echo "  genportconfigs       : Generate ports arch configs in CONFIGS/*"
 	@echo
 	@echo "  printchanges    : Print the current changelog entries (from git)"
 	@echo
@@ -45,12 +40,7 @@ printdebian:
 
 updateconfigs defaultconfigs editconfigs genconfigs dumpconfigs:
 	dh_testdir;
-	$(SHELL) $(DROOT)/scripts/misc/kernelconfig $@
-	rm -rf build
-
-updateportsconfigs defaultportsconfigs editportsconfigs genportsconfigs askconfigs:
-	dh_testdir;
-	$(SHELL) $(DROOT)/scripts/misc/kernelconfig $@ ports
+	$(SHELL) $(DROOT)/scripts/misc/kernelconfig $@ "$(do_enforce_all)"
 	rm -rf build
 
 printenv:
@@ -86,6 +76,7 @@ printenv:
 	@echo "do_flavour_header_package = $(do_flavour_header_package)"
 	@echo "do_common_headers_indep   = $(do_common_headers_indep)"
 	@echo "do_full_source            = $(do_full_source)"
+	@echo "do_odm_drivers            = $(do_odm_drivers)"
 	@echo "do_tools                  = $(do_tools)"
 	@echo "do_any_tools              = $(do_any_tools)"
 	@echo "do_linux_tools            = $(do_linux_tools)"
@@ -121,7 +112,7 @@ printchanges:
 	$(DROOT)/scripts/misc/git-ubuntu-log $(ubuntu_log_opts)
 
 insertchanges: autoreconstruct finalchecks
-	@perl -w -f $(DROOT)/scripts/misc/insert-changes.pl $(DROOT) $(DEBIAN) 
+	$(DROOT)/scripts/misc/insert-changes $(DROOT) $(DEBIAN)
 
 autoreconstruct:
 	# No need for reconstruct for -rc kernels since we don't upload an
@@ -133,6 +124,9 @@ autoreconstruct:
 	fi
 
 finalchecks: debian/control
+ifeq ($(do_fips_checks),true)
+	$(DROOT)/scripts/misc/fips-checks
+endif
 	$(DROOT)/scripts/misc/final-checks "$(DEBIAN)" "$(prev_fullver)"
 
 diffupstream:
@@ -148,8 +142,12 @@ startnewrelease:
 			ver="$${ver%.*}.$$(( $${prev_ver##*.} +1 ))"; \
 		fi; \
 	else \
-		ver="$(release)-$$(echo "$(revision)" | \
-			perl -ne 'if (/^(\d*)\.(\d*)(.*)?$$/) { printf("%d.%d%s\n", $$1 + 1, $$2 +1, $$3) }')"; \
+		rev=$(revision); \
+		suffix=$$(echo "$${rev}" | sed 's/^[0-9]*\.[0-9]*//'); \
+		abi=$${rev%%.*}; \
+		upload=$${rev#*.}; \
+		upload=$${upload%$${suffix}}; \
+		ver=$(release)-$$((abi + 1)).$$((upload + 1))$${suffix}; \
 	fi; \
 	now="$(shell date -R)"; \
 	echo "Creating new changelog set for $$ver..."; \
