@@ -6,7 +6,7 @@ ifeq ($(disable_d_i),)
 		do-binary-udebs
 endif
 
-do-binary-udebs: linux_udeb_name=$(shell if echo $(src_pkg_name)|egrep -q '(linux-lts|linux-hwe|linux-[0-9]+\.[0-9]+)'; then echo $(src_pkg_name); else echo linux; fi)
+do-binary-udebs: linux_udeb_name=$(shell if echo $(src_pkg_name)|egrep -q '(linux-unstable|linux-lts|linux-hwe|linux-[0-9]+\.[0-9]+)'; then echo $(src_pkg_name); else echo linux; fi)
 do-binary-udebs: debian/control
 	@echo Debug: $@
 	dh_testdir

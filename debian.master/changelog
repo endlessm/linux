@@ -1,3 +1,9 @@
+linux-unstable (5.11.0-9.10) hirsute; urgency=medium
+
+  * Empty entry
+
+ -- Andrea Righi <andrea.righi@canonical.com>  Mon, 22 Feb 2021 07:02:45 +0100
+
 linux (5.11.0-9.10) hirsute; urgency=medium
 
   * Packaging resync (LP: #1786013)
