@@ -108,6 +108,7 @@ printenv:
 	@echo "DEB_BUILD_ARCH            = $(DEB_BUILD_ARCH)"
 	@echo "arch                      = $(arch)"
 	@echo "kmake                     = $(kmake)"
+	@echo "disable_d_i               = $(disable_d_i)"
 
 printchanges:
 	@baseCommit=$$(git log --pretty=format:'%H %s' | \
