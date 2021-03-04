@@ -135,10 +135,12 @@ clean: debian/control debian/canonical-certs.pem
 	dh_testroot
 	dh_clean
 
+ifeq ($(disable_d_i),)
 	# d-i stuff
 	rm -rf $(DEBIAN)/d-i-$(arch)
 	# Generated on the fly.
 	rm -f $(DEBIAN)/d-i/firmware/$(arch)/kernel-image
+endif
 
 	# normal build junk
 	rm -rf $(DEBIAN)/abi/$(release)-$(revision)
