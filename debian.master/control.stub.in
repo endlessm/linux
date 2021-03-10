@@ -5,7 +5,6 @@ Maintainer: Ubuntu Kernel Team <kernel-team@lists.ubuntu.com>
 Standards-Version: 3.9.4.0
 Build-Depends:
  debhelper-compat (= 10),
- dh-systemd,
  cpio,
  kernel-wedge <!stage1> <!noudeb> <!cross> <!autopkgtest>,
  dctrl-tools <!stage1> <!noudeb> <!cross> <!autopkgtest>,
