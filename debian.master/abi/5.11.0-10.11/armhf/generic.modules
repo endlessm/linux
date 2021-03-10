@@ -5682,7 +5682,6 @@ tegra-bpmp-thermal
 tegra-drm
 tegra-gmi
 tegra-kbc
-tegra-tcu
 tegra-vde
 tegra-video
 tegra-xudc
