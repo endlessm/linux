@@ -23,6 +23,7 @@
 #include <linux/slab.h>
 #include <linux/suspend.h>
 #include <linux/property.h>
+#include <linux/dmi.h>
 
 #include <asm/io.h>
 
@@ -182,6 +183,24 @@ static struct notifier_block i8042_kbd_bind_notifier_block;
 static bool i8042_handle_data(int irq);
 static i8042_filter_t i8042_platform_filter;
 static void *i8042_platform_filter_context;
+
+static int __init i8042_set_noaux(const struct dmi_system_id *dmi)
+{
+	i8042_noaux = true;
+	return 1;
+}
+
+static const struct dmi_system_id i8042_quirks[] __initconst = {
+	{
+		.callback = i8042_set_noaux,
+		.ident = "Dell laptop",
+		.matches = {
+			DMI_MATCH(DMI_SYS_VENDOR, "Dell Inc."),
+			DMI_MATCH(DMI_PRODUCT_NAME, "Precision 5550"),
+		},
+	},
+	{},
+};
 
 void i8042_lock_chip(void)
 {
@@ -1555,6 +1574,8 @@ static int i8042_probe(struct platform_device *dev)
 	if (i8042_dritek)
 		i8042_dritek_enable();
 #endif
+
+	dmi_check_system(i8042_quirks);
 
 	if (!i8042_noaux) {
 		error = i8042_setup_aux();
