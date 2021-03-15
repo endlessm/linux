@@ -3736,7 +3736,6 @@ phy-fsl-imx8mq-usb
 phy-gpio-vbus-usb
 phy-hix5hd2-sata
 phy-isp1301
-phy-lgm-usb
 phy-mapphone-mdm6600
 phy-meson-axg-mipi-dphy
 phy-meson-g12a-usb2

@@ -3424,7 +3424,6 @@ phy-fsl-imx8mq-usb
 phy-generic
 phy-gpio-vbus-usb
 phy-isp1301
-phy-lgm-usb
 phy-mapphone-mdm6600
 phy-ocelot-serdes
 phy-pxa-28nm-hsic
