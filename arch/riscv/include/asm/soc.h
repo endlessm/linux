@@ -10,6 +10,7 @@
 #include <linux/of.h>
 #include <linux/linkage.h>
 #include <linux/types.h>
+#include <asm/hwcap.h>
 
 #define SOC_EARLY_INIT_DECLARE(name, compat, fn)			\
 	static const struct of_device_id __soc_early_init__##name	\

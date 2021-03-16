@@ -295,6 +295,8 @@ void __init setup_arch(char **cmdline_p)
 #endif
 
 	riscv_fill_hwcap();
+
+	riscv_fill_cpu_manufacturer_info();
 }
 
 static int __init topology_init(void)
