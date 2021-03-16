@@ -90,6 +90,20 @@ SECTIONS
 	}
 
 	__init_data_end = .;
+
+	. = ALIGN(8);
+	.alt_checkfunc_table : {
+		__alt_checkfunc_table = .;
+		*(.alt_checkfunc_table)
+		__alt_checkfunc_table_end = .;
+	}
+
+	. = ALIGN(8);
+	.alternative : {
+		__alt_start = .;
+		*(.alternative)
+		__alt_end = .;
+	}
 	__init_end = .;
 
 	/* Start of data section */
