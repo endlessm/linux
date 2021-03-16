@@ -12,6 +12,8 @@
 #include <asm/hwcap.h>
 #include <asm/smp.h>
 #include <asm/switch_to.h>
+#include <asm/sbi.h>
+#include <asm/csr.h>
 
 unsigned long elf_hwcap __read_mostly;
 
@@ -21,6 +23,8 @@ static DECLARE_BITMAP(riscv_isa, RISCV_ISA_EXT_MAX) __read_mostly;
 #ifdef CONFIG_FPU
 bool has_fpu __read_mostly;
 #endif
+
+struct cpu_manufacturer_info_t cpu_mfr_info;
 
 /**
  * riscv_isa_extension_base() - Get base extension word
@@ -147,5 +151,18 @@ void riscv_fill_hwcap(void)
 #ifdef CONFIG_FPU
 	if (elf_hwcap & (COMPAT_HWCAP_ISA_F | COMPAT_HWCAP_ISA_D))
 		has_fpu = true;
+#endif
+}
+
+void riscv_fill_cpu_manufacturer_info(void)
+{
+#ifndef CONFIG_RISCV_M_MODE
+	cpu_mfr_info.vendor_id = sbi_get_vendorid();
+	cpu_mfr_info.arch_id = sbi_get_archid();
+	cpu_mfr_info.imp_id = sbi_get_impid();
+#else
+	cpu_mfr_info.vendor_id = csr_read(CSR_MVENDORID);
+	cpu_mfr_info.arch_id = csr_read(CSR_MARCHID);
+	cpu_mfr_info.imp_id = csr_read(CSR_MIMPID);
 #endif
 }
