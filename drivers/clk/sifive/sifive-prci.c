@@ -602,6 +602,7 @@ static int sifive_prci_probe(struct platform_device *pdev)
 		return r;
 	}
 	r = __prci_register_clocks(dev, pd, desc);
+
 	if (r) {
 		dev_err(dev, "could not register clocks: %d\n", r);
 		return r;
