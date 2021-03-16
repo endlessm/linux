@@ -4,5 +4,6 @@
  */
 
 #ifdef CONFIG_SOC_SIFIVE
-#define	ERRATA_NUMBER 0
+#define	ERRATA_CIP_453 0
+#define	ERRATA_NUMBER 1
 #endif

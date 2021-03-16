@@ -9,4 +9,26 @@ config RISCV_ERRATA_ALTERNATIVE
 	  code patching is performed once in the boot stages. It means
 	  that the overhead from this mechanism is just taken once.
 
+config CPU_SIFIVE
+	bool "SiFive cores"
+	help
+	  This enables support for SiFive CPU cores. Currently, It will enable
+	  all the SiFive errata Kconfig. Please say "Y" here if your platform
+	  uses SiFive CPU cores.
+
+	  Otherwise, please say "N" here to avoid unnecessary performance
+	  overhead.
+
+config ERRATA_SIFIVE_CIP_453
+	bool "Apply SiFive errata CIP-453"
+	depends on CPU_SIFIVE
+	depends on RISCV_ERRATA_ALTERNATIVE
+	default y
+	help
+	  This will apply the SiFive CIP-453 errata to add sign extension
+	  to the $badaddr when exception type is instruction page fault
+	  and instruction access fault.
+
+	  If you don't know what to do here, say "Y".
+
 endmenu
