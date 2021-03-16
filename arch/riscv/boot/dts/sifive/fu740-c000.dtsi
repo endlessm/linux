@@ -39,7 +39,7 @@
 			};
 		};
 		cpu1: cpu@1 {
-			compatible = "sifive,bullet0", "riscv";
+			compatible = "sifive,u74-mc", "sifive,bullet0", "riscv";
 			d-cache-block-size = <64>;
 			d-cache-sets = <64>;
 			d-cache-size = <32768>;
@@ -63,7 +63,7 @@
 			};
 		};
 		cpu2: cpu@2 {
-			compatible = "sifive,bullet0", "riscv";
+			compatible = "sifive,u74-mc", "sifive,bullet0", "riscv";
 			d-cache-block-size = <64>;
 			d-cache-sets = <64>;
 			d-cache-size = <32768>;
@@ -87,7 +87,7 @@
 			};
 		};
 		cpu3: cpu@3 {
-			compatible = "sifive,bullet0", "riscv";
+			compatible = "sifive,u74-mc", "sifive,bullet0", "riscv";
 			d-cache-block-size = <64>;
 			d-cache-sets = <64>;
 			d-cache-size = <32768>;
@@ -111,7 +111,7 @@
 			};
 		};
 		cpu4: cpu@4 {
-			compatible = "sifive,bullet0", "riscv";
+			compatible = "sifive,u74-mc", "sifive,bullet0", "riscv";
 			d-cache-block-size = <64>;
 			d-cache-sets = <64>;
 			d-cache-size = <32768>;
