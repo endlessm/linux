@@ -1,5 +1,7 @@
 # Recreate any symlinks created since the orig.
 # Remove any files deleted from the orig.
+rm -f 'drivers/pci/pcie/bw_notification.c'
+rm -f 'drivers/staging/mt7621-dma/mtk-hsdma.c'
 chmod +x 'debian/cloud-tools/hv_get_dhcp_info'
 chmod +x 'debian/cloud-tools/hv_get_dns_info'
 chmod +x 'debian/cloud-tools/hv_set_ifconfig'
