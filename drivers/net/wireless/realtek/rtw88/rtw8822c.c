@@ -3570,12 +3570,16 @@ static void __rtw8822c_pwr_track(struct rtw_dev *rtwdev)
 
 	rtw_phy_config_swing_table(rtwdev, &swing_table);
 
+	if (rtw_phy_pwrtrack_need_lck(rtwdev))
+		rtw8822c_do_lck(rtwdev);
+
 	for (i = 0; i < rtwdev->hal.rf_path_num; i++)
 		rtw8822c_pwr_track_stats(rtwdev, i);
 	if (rtw_phy_pwrtrack_need_lck(rtwdev))
 		rtw8822c_do_lck(rtwdev);
 	for (i = 0; i < rtwdev->hal.rf_path_num; i++)
 		rtw8822c_pwr_track_path(rtwdev, &swing_table, i);
+
 }
 
 static void rtw8822c_pwr_track(struct rtw_dev *rtwdev)
