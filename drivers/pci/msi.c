@@ -458,7 +458,6 @@ static void pci_msix_clear_and_set_ctrl(struct pci_dev *dev, u16 clear, u16 set)
 static void __pci_restore_msix_state(struct pci_dev *dev)
 {
 	struct msi_desc *entry;
-	u32 flag;
 
 	if (!dev->msix_enabled)
 		return;
@@ -470,10 +469,8 @@ static void __pci_restore_msix_state(struct pci_dev *dev)
 				PCI_MSIX_FLAGS_ENABLE | PCI_MSIX_FLAGS_MASKALL);
 
 	arch_restore_msi_irqs(dev);
-	for_each_pci_msi_entry(entry, dev) {
-		flag = entry->masked & PCI_MSIX_ENTRY_CTRL_MASKBIT;
-		msix_mask_irq(entry, flag);
-	}
+	for_each_pci_msi_entry(entry, dev)
+		msix_mask_irq(entry, entry->masked);
 
 	pci_msix_clear_and_set_ctrl(dev, PCI_MSIX_FLAGS_MASKALL, 0);
 }
