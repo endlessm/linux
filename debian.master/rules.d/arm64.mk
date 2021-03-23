@@ -9,7 +9,6 @@ install_file	= vmlinuz
 no_dumpfile = true
 uefi_signed     = true
 
-loader		= grub
 vdso		= vdso_install
 
 do_extras_package = true
