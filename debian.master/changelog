@@ -331,81 +331,202 @@ linux (5.11.0-12.13) hirsute; urgency=medium
     - [Config] Update for removal of CONFIG_PCIE_BW
     - [Config] add rc-cec to modules.ignore
 
-  * Fix broken efifb on graphics device without driver (LP: #1914411)
-    - SAUCE: efifb: Ensure graphics device for efifb stays at PCI D0
+  * Miscellaneous upstream changes: v5.11.6 upstream stable release
+    - ACPICA: Fix race in generic_serial_bus (I2C) and GPIO op_region parameter
+      handling
+    - io_uring: fix inconsistent lock state
+    - io_uring: deduplicate core cancellations sequence
+    - io_uring: unpark SQPOLL thread for cancelation
+    - io_uring: deduplicate failing task_work_add
+    - fs: provide locked helper variant of close_fd_get_file()
+    - io_uring: get rid of intermediate IORING_OP_CLOSE stage
+    - io_uring/io-wq: kill off now unused IO_WQ_WORK_NO_CANCEL
+    - io_uring/io-wq: return 2-step work swap scheme
+    - io_uring: don't take uring_lock during iowq cancel
+    - media: cedrus: Remove checking for required controls
+    - nvme-pci: mark Kingston SKC2000 as not supporting the deepest power state
+    - parisc: Enable -mlong-calls gcc option with CONFIG_COMPILE_TEST
+    - arm64: Make CPU_BIG_ENDIAN depend on ld.bfd or ld.lld 13.0.0+
+    - btrfs: export and rename qgroup_reserve_meta
+    - btrfs: don't flush from btrfs_delayed_inode_reserve_metadata
+    - iommu/amd: Fix sleeping in atomic in increase_address_space()
+    - scsi: ufs-mediatek: Enable UFSHCI_QUIRK_SKIP_MANUAL_WB_FLUSH_CTRL
+    - scsi: ufs: Add a quirk to permit overriding UniPro defaults
+    - misc: eeprom_93xx46: Add quirk to support Microchip 93LC46B eeprom
+    - scsi: ufs: Introduce a quirk to allow only page-aligned sg entries
+    - scsi: ufs: ufs-exynos: Apply vendor-specific values for three timeouts
+    - scsi: ufs: ufs-exynos: Use UFSHCD_QUIRK_ALIGN_SG_WITH_PAGE_SIZE
+    - drm/msm/a5xx: Remove overwriting A5XX_PC_DBG_ECO_CNTL register
+    - mmc: sdhci-of-dwcmshc: set SDHCI_QUIRK2_PRESET_VALUE_BROKEN
+    - HID: i2c-hid: Add I2C_HID_QUIRK_NO_IRQ_AFTER_RESET for ITE8568 EC on Voyo
+      Winpad A15
+    - ALSA: usb-audio: Add DJM750 to Pioneer mixer quirk
+    - ALSA: usb-audio: add mixer quirks for Pioneer DJM-900NXS2
+    - HID: ite: Enable QUIRK_TOUCHPAD_ON_OFF_REPORT on Acer Aspire Switch 10E
+    - PCI: cadence: Retrain Link to work around Gen2 training defect
+    - ASoC: Intel: sof_sdw: reorganize quirks by generation
+    - ASoC: Intel: sof_sdw: add quirk for HP Spectre x360 convertible
+    - scsi: ufs: Fix a duplicate dev quirk number
+    - KVM: SVM: Clear the CR4 register on reset
+    - nvme-pci: mark Seagate Nytro XM1440 as QUIRK_NO_NS_DESC_LIST.
+    - nvme-pci: add quirks for Lexar 256GB SSD
 
-  * Fix system sleep on TGL systems with Intel ME (LP: #1919321)
-    - SAUCE: PCI: Serialize TGL e1000e PM ops
+  * Miscellaneous upstream changes: v5.11.5 upstream stable release
+    - ALSA: hda/realtek: Enable headset mic of Acer SWIFT with ALC256
+    - ALSA: usb-audio: use Corsair Virtuoso mapping for Corsair Virtuoso SE
+    - ALSA: usb-audio: Don't abort even if the clock rate differs
+    - ALSA: usb-audio: Drop bogus dB range in too low level
+    - ALSA: usb-audio: Allow modifying parameters with succeeding hw_params calls
+    - tpm, tpm_tis: Decorate tpm_tis_gen_interrupt() with request_locality()
+    - tpm, tpm_tis: Decorate tpm_get_timeouts() with request_locality()
+    - btrfs: avoid double put of block group when emptying cluster
+    - btrfs: fix raid6 qstripe kmap
+    - btrfs: fix race between writes to swap files and scrub
+    - btrfs: fix race between swap file activation and snapshot creation
+    - btrfs: fix stale data exposure after cloning a hole with NO_HOLES enabled
+    - btrfs: tree-checker: do not error out if extent ref hash doesn't match
+    - btrfs: fix race between extent freeing/allocation when using bitmaps
+    - btrfs: validate qgroup inherit for SNAP_CREATE_V2 ioctl
+    - btrfs: free correct amount of space in btrfs_delayed_inode_reserve_metadata
+    - btrfs: fix spurious free_space_tree remount warning
+    - btrfs: unlock extents in btrfs_zero_range in case of quota reservation
+      errors
+    - btrfs: fix warning when creating a directory with smack enabled
+    - PM: runtime: Update device status before letting suppliers suspend
+    - ring-buffer: Force before_stamp and write_stamp to be different on discard
+    - io_uring: ignore double poll add on the same waitqueue head
+    - dm bufio: subtract the number of initial sectors in dm_bufio_get_device_size
+    - dm verity: fix FEC for RS roots unaligned to block size
+    - drm/amd/pm: correct Arcturus mmTHM_BACO_CNTL register address
+    - drm/amdgpu:disable VCN for Navi12 SKU
+    - drm/amdgpu: Only check for S0ix if AMD_PMC is configured
+    - drm/amdgpu: fix parameter error of RREG32_PCIE() in amdgpu_regs_pcie
+    - crypto - shash: reduce minimum alignment of shash_desc structure
+    - ALSA: ctxfi: cthw20k2: fix mask on conf to allow 4 bits
+    - ALSA: usb-audio: Fix Pioneer DJM devices URB_CONTROL request direction to
+      set samplerate
+    - RDMA/cm: Fix IRQ restore in ib_send_cm_sidr_rep
+    - RDMA/rxe: Fix missing kconfig dependency on CRYPTO
+    - IB/mlx5: Add missing error code
+    - ALSA: hda: intel-nhlt: verify config type
+    - ftrace: Have recordmcount use w8 to read relp->r_info in
+      arm64_is_fake_mcount
+    - ia64: don't call handle_signal() unless there's actually a signal queued
+    - rsxx: Return -EFAULT if copy_to_user() fails
+    - iommu/tegra-smmu: Fix mc errors on tegra124-nyan
+    - iommu: Don't use lazy flush for untrusted device
+    - iommu/vt-d: Fix status code for Allocate/Free PASID command
+    - btrfs: zoned: use sector_t for zone sectors
+    - tomoyo: recognize kernel threads correctly
+    - r8169: fix resuming from suspend on RTL8105e if machine runs on battery
 
-  *  riscv: revert SiFive Unleashed CPUFreq (LP: #1917433)
-    - Revert "SiFive Unleashed CPUFreq"
+  * Miscellaneous upstream changes: v5.11.4 upstream stable release
+    - net: usb: qmi_wwan: support ZTE P685M modem
+    - iwlwifi: add new cards for So and Qu family
+    - x86/build: Treat R_386_PLT32 relocation as R_386_PC32
+    - JFS: more checks for invalid superblock
+    - sched/core: Allow try_invoke_on_locked_down_task() with irqs disabled
+    - udlfb: Fix memory leak in dlfb_usb_probe
+    - media: mceusb: sanity check for prescaler value
+    - erofs: fix shift-out-of-bounds of blkszbits
+    - media: v4l2-ctrls.c: fix shift-out-of-bounds in std_validate
+    - media: zr364xx: fix memory leaks in probe()
+    - xfs: Fix assert failure in xfs_setattr_size()
+    - net/af_iucv: remove WARN_ONCE on malformed RX packets
+    - smackfs: restrict bytes count in smackfs write functions
+    - tomoyo: ignore data race while checking quota
+    - net: fix up truesize of cloned skb in skb_prepare_for_shift()
+    - mptcp: fix spurious retransmissions
+    - riscv: Get rid of MAX_EARLY_MAPPING_SIZE
+    - nbd: handle device refs for DESTROY_ON_DISCONNECT properly
+    - mm/hugetlb.c: fix unnecessary address expansion of pmd sharing
+    - vfio/type1: Use follow_pte()
+    - RDMA/rtrs: Do not signal for heatbeat
+    - RDMA/rtrs-clt: Use bitmask to check sess->flags
+    - RDMA/rtrs-srv: Do not signal REG_MR
+    - tcp: fix tcp_rmem documentation
+    - mptcp: do not wakeup listener for MPJ subflows
+    - mptcp: fix DATA_FIN generation on early shutdown
+    - net: bridge: use switchdev for port flags set through sysfs too
+    - net/sched: cls_flower: Reject invalid ct_state flags rules
+    - net: dsa: tag_rtl4_a: Support also egress tags
+    - net: ag71xx: remove unnecessary MTU reservation
+    - net: hsr: add support for EntryForgetTime
+    - net: psample: Fix netlink skb length with tunnel info
+    - net: fix dev_ifsioc_locked() race condition
+    - dt-bindings: ethernet-controller: fix fixed-link specification
+    - dt-bindings: net: btusb: DT fix s/interrupt-name/interrupt-names/
+    - ASoC: qcom: Remove useless debug print
+    - ath10k: prevent deinitializing NAPI twice
+    - EDAC/amd64: Do not load on family 0x15, model 0x13
+    - staging: fwserial: Fix error handling in fwserial_create
+    - x86/reboot: Add Zotac ZBOX CI327 nano PCI reboot quirk
+    - can: flexcan: add CAN wakeup function for i.MX8QM
+    - vt/consolemap: do font sum unsigned
+    - wlcore: Fix command execute failure 19 for wl12xx
+    - Bluetooth: hci_h5: Set HCI_QUIRK_SIMULTANEOUS_DISCOVERY for btrtl
+    - Bluetooth: btusb: fix memory leak on suspend and resume
+    - selftests/bpf: Remove memory leak
+    - mt76: mt7915: reset token when mac_reset happens
+    - mt76: mt7615: reset token when mac_reset happens
+    - pktgen: fix misuse of BUG_ON() in pktgen_thread_worker()
+    - ath10k: fix wmi mgmt tx queue full due to race condition
+    - net: sfp: add mode quirk for GPON module Ubiquiti U-Fiber Instant
+    - Bluetooth: Add new HCI_QUIRK_NO_SUSPEND_NOTIFIER quirk
+    - Bluetooth: Fix null pointer dereference in amp_read_loc_assoc_final_data
+    - staging: most: sound: add sanity check for function argument
+    - staging: bcm2835-audio: Replace unsafe strcpy() with strscpy()
+    - net: ipa: avoid field overflow
+    - brcmfmac: Add DMI nvram filename quirk for Predia Basic tablet
+    - brcmfmac: Add DMI nvram filename quirk for Voyo winpad A15 tablet
+    - wilc1000: Fix use of void pointer as a wrong struct type
+    - drm/hisilicon: Fix use-after-free
+    - crypto: tcrypt - avoid signed overflow in byte count
+    - fs: make unlazy_walk() error handling consistent
+    - drm/amdgpu: Add check to prevent IH overflow
+    - PCI: Add a REBAR size quirk for Sapphire RX 5600 XT Pulse
+    - ASoC: Intel: bytcr_rt5640: Add new BYT_RT5640_NO_SPEAKERS quirk-flag
+    - ALSA: usb-audio: Add support for Pioneer DJM-750
+    - drm/amd/display: Guard against NULL pointer deref when get_i2c_info fails
+    - drm/amd/amdgpu: add error handling to amdgpu_virt_read_pf2vf_data
+    - media: uvcvideo: Allow entities with no pads
+    - f2fs: handle unallocated section and zone on pinned/atgc
+    - f2fs: fix to set/clear I_LINKABLE under i_lock
+    - nvme-core: add cancel tagset helpers
+    - nvme-rdma: add clean action for failed reconnection
+    - nvme-tcp: add clean action for failed reconnection
+    - ALSA: usb-audio: Add DJM450 to Pioneer format quirk
+    - ALSA: usb-audio: Add DJM-450 to the quirks table
+    - ASoC: Intel: Add DMI quirk table to soc_intel_is_byt_cr()
+    - btrfs: fix error handling in commit_fs_roots
+    - perf/x86/kvm: Add Cascade Lake Xeon steppings to isolation_ucodes[]
+    - ASoC: Intel: sof-sdw: indent and add quirks consistently
+    - ASoC: Intel: sof_sdw: detect DMIC number based on mach params
+    - parisc: Bump 64-bit IRQ stack size to 64 KB
+    - sched/features: Fix hrtick reprogramming
+    - ASoC: Intel: bytcr_rt5640: Add quirk for the Estar Beauty HD MID 7316R
+      tablet
+    - ASoC: Intel: bytcr_rt5640: Add quirk for the Voyo Winpad A15 tablet
+    - ASoC: Intel: bytcr_rt5651: Add quirk for the Jumper EZpad 7 tablet
+    - ASoC: Intel: bytcr_rt5640: Add quirk for the Acer One S1002 tablet
+    - scsi: iscsi: Restrict sessions and handles to admin capabilities
+    - scsi: iscsi: Ensure sysfs attributes are limited to PAGE_SIZE
+    - scsi: iscsi: Verify lengths on passthrough PDUs
+    - Xen/gnttab: handle p2m update errors on a per-slot basis
+    - xen-netback: respect gnttab_map_refs()'s return value
+    - xen: fix p2m size in dom0 for disabled memory hotplug case
+    - swap: fix swapfile read/write offset
+    - tty: fix up iterate_tty_read() EOVERFLOW handling
+    - tty: fix up hung_up_tty_read() conversion
+    - tty: clean up legacy leftovers from n_tty line discipline
+    - tty: teach n_tty line discipline about the new "cookie continuations"
+    - tty: teach the n_tty ICANON case about the new "cookie continuations" too
+    - phy: mediatek: Add missing MODULE_DEVICE_TABLE()
+    - ALSA: hda/realtek: Add quirk for Clevo NH55RZQ
+    - ALSA: hda/realtek: Add quirk for Intel NUC 10
+    - ALSA: hda/realtek: Apply dual codec quirks for MSI Godlike X570 board
 
-  * Dell Precision 5550 takes up to 10 seconds to respond when coming out of
-    sleep (LP: #1919123)
-    - SAUCE: Input: i8042 - add dmi quirk
-
-  * usb audio is not able to use after boot from 5.10.0-1017-oem (LP: #1918670)
-    - ALSA: usb-audio: fix NULL ptr dereference in usb_audio_probe
-    - ALSA: usb-audio: fix use after free in usb_audio_disconnect
-
-  * LRMv4: switch to signing nvidia modules via the Ubuntu Modules signing key
-    (LP: #1918134)
-    - [Packaging] sync dkms-build et al from LRMv4
-
-  * curtin: install flash-kernel in arm64 UEFI unexpected (LP: #1918427)
-    - [Packaging] Allow grub-efi-arm* to satisfy recommends on ARM
-
-  * Packaging resync (LP: #1786013)
-    - update dkms package versions
-
-  * Enable Tegra support in arm64 for NVIDIA Jetson (LP: #1918471)
-    - [Config] enable ARCH_TEGRA and all Tegra SOC's
-    - [Packaging] include modern Tegra modules
-
-  * Cirrus Audio Codec CS8409/CS42L42: Input Device does not switch to headset
-    Mic when a headset is inserted (LP: #1918378)
-    - SAUCE: ALSA: hda/cirrus: Fix Headset Mic volume control name
-
-  * [Intel Maple Ridge] system cannot enter S3 the first time while connecting
-    to TBT4 storage (LP: #1916467)
-    - xhci: Fix repeated xhci wake after suspend due to uncleared internal wake
-      state
-
-  * Cirrus Audio Codec CS8409/CS42L42 support (LP: #1916554)
-    - ALSA: hda/cirrus: Increase AUTO_CFG_MAX_INS from 8 to 18
-    - ALSA: hda/cirrus: Add support for CS8409 HDA bridge and CS42L42 companion
-      codec.
-    - ALSA: hda/cirrus: Add jack detect interrupt support from CS42L42 companion
-      codec.
-    - ALSA: hda/cirrus: Add Headphone and Headset MIC Volume Control
-
-  * Can't adjust brightness on Dell Precision 7000 laptop (LP: #1917419)
-    - drm/i915/dp: Program source OUI on eDP panels
-
-  * drm/i915: Drop force_probe requirement for JSL (LP: #1917843)
-    - SAUCE: drm/i915: Drop require_force_probe from JSL
-
-  * alsa/hda: the hdmi audio dosn't work on TGL machines (LP: #1917829)
-    - ALSA: hda/hdmi: let new platforms assign the pcm slot dynamically
-
-  * Add in-tree Realtek 8821CE wireless module support (LP: #1885862)
-    - rtw88: coex: 8821c: correct antenna switch function
-    - rtw88: 8821c: Correct CCK RSSI
-    - rtw88: 8821c: support RFE type2 wifi NIC
-
-  * Fix Lenovo ThinkStation P620 rear audio (LP: #1917842)
-    - ALSA: usb-audio: Disable USB autosuspend properly in
-      setup_disable_autosuspend()
-
-  * Miscellaneous Ubuntu changes
-    - [Packaging] Skip d-i code if udebs are disabled
-    - [Packaging] Disable udebs if $DEBIAN/d-i doesn't exist
-    - [Packaging] remove dh-systemd build dependency
-    - [Config] fix several annotaions with enforcement typos
-    - [Config] refresh annotations
-    - [Config] update configs and annotations
-
-  * Miscellaneous upstream changes
+  * Miscellaneous upstream changes: v5.11.3 upstream stable release
     - vmlinux.lds.h: add DWARF v5 sections
     - vdpa/mlx5: fix param validation in mlx5_vdpa_get_config()
     - debugfs: be more robust at handling improper input in debugfs_lookup()
@@ -1205,195 +1326,82 @@ linux (5.11.0-12.13) hirsute; urgency=medium
     - net: qrtr: Fix memory leak in qrtr_tun_open
     - net_sched: fix RTNL deadlock again caused by request_module()
     - ARM: dts: aspeed: Add LCLK to lpc-snoop
-    - net: usb: qmi_wwan: support ZTE P685M modem
-    - iwlwifi: add new cards for So and Qu family
-    - x86/build: Treat R_386_PLT32 relocation as R_386_PC32
-    - JFS: more checks for invalid superblock
-    - sched/core: Allow try_invoke_on_locked_down_task() with irqs disabled
-    - udlfb: Fix memory leak in dlfb_usb_probe
-    - media: mceusb: sanity check for prescaler value
-    - erofs: fix shift-out-of-bounds of blkszbits
-    - media: v4l2-ctrls.c: fix shift-out-of-bounds in std_validate
-    - media: zr364xx: fix memory leaks in probe()
-    - xfs: Fix assert failure in xfs_setattr_size()
-    - net/af_iucv: remove WARN_ONCE on malformed RX packets
-    - smackfs: restrict bytes count in smackfs write functions
-    - tomoyo: ignore data race while checking quota
-    - net: fix up truesize of cloned skb in skb_prepare_for_shift()
-    - mptcp: fix spurious retransmissions
-    - riscv: Get rid of MAX_EARLY_MAPPING_SIZE
-    - nbd: handle device refs for DESTROY_ON_DISCONNECT properly
-    - mm/hugetlb.c: fix unnecessary address expansion of pmd sharing
-    - vfio/type1: Use follow_pte()
-    - RDMA/rtrs: Do not signal for heatbeat
-    - RDMA/rtrs-clt: Use bitmask to check sess->flags
-    - RDMA/rtrs-srv: Do not signal REG_MR
-    - tcp: fix tcp_rmem documentation
-    - mptcp: do not wakeup listener for MPJ subflows
-    - mptcp: fix DATA_FIN generation on early shutdown
-    - net: bridge: use switchdev for port flags set through sysfs too
-    - net/sched: cls_flower: Reject invalid ct_state flags rules
-    - net: dsa: tag_rtl4_a: Support also egress tags
-    - net: ag71xx: remove unnecessary MTU reservation
-    - net: hsr: add support for EntryForgetTime
-    - net: psample: Fix netlink skb length with tunnel info
-    - net: fix dev_ifsioc_locked() race condition
-    - dt-bindings: ethernet-controller: fix fixed-link specification
-    - dt-bindings: net: btusb: DT fix s/interrupt-name/interrupt-names/
-    - ASoC: qcom: Remove useless debug print
-    - ath10k: prevent deinitializing NAPI twice
-    - EDAC/amd64: Do not load on family 0x15, model 0x13
-    - staging: fwserial: Fix error handling in fwserial_create
-    - x86/reboot: Add Zotac ZBOX CI327 nano PCI reboot quirk
-    - can: flexcan: add CAN wakeup function for i.MX8QM
-    - vt/consolemap: do font sum unsigned
-    - wlcore: Fix command execute failure 19 for wl12xx
-    - Bluetooth: hci_h5: Set HCI_QUIRK_SIMULTANEOUS_DISCOVERY for btrtl
-    - Bluetooth: btusb: fix memory leak on suspend and resume
-    - selftests/bpf: Remove memory leak
-    - mt76: mt7915: reset token when mac_reset happens
-    - mt76: mt7615: reset token when mac_reset happens
-    - pktgen: fix misuse of BUG_ON() in pktgen_thread_worker()
-    - ath10k: fix wmi mgmt tx queue full due to race condition
-    - net: sfp: add mode quirk for GPON module Ubiquiti U-Fiber Instant
-    - Bluetooth: Add new HCI_QUIRK_NO_SUSPEND_NOTIFIER quirk
-    - Bluetooth: Fix null pointer dereference in amp_read_loc_assoc_final_data
-    - staging: most: sound: add sanity check for function argument
-    - staging: bcm2835-audio: Replace unsafe strcpy() with strscpy()
-    - net: ipa: avoid field overflow
-    - brcmfmac: Add DMI nvram filename quirk for Predia Basic tablet
-    - brcmfmac: Add DMI nvram filename quirk for Voyo winpad A15 tablet
-    - wilc1000: Fix use of void pointer as a wrong struct type
-    - drm/hisilicon: Fix use-after-free
-    - crypto: tcrypt - avoid signed overflow in byte count
-    - fs: make unlazy_walk() error handling consistent
-    - drm/amdgpu: Add check to prevent IH overflow
-    - PCI: Add a REBAR size quirk for Sapphire RX 5600 XT Pulse
-    - ASoC: Intel: bytcr_rt5640: Add new BYT_RT5640_NO_SPEAKERS quirk-flag
-    - ALSA: usb-audio: Add support for Pioneer DJM-750
-    - drm/amd/display: Guard against NULL pointer deref when get_i2c_info fails
-    - drm/amd/amdgpu: add error handling to amdgpu_virt_read_pf2vf_data
-    - media: uvcvideo: Allow entities with no pads
-    - f2fs: handle unallocated section and zone on pinned/atgc
-    - f2fs: fix to set/clear I_LINKABLE under i_lock
-    - nvme-core: add cancel tagset helpers
-    - nvme-rdma: add clean action for failed reconnection
-    - nvme-tcp: add clean action for failed reconnection
-    - ALSA: usb-audio: Add DJM450 to Pioneer format quirk
-    - ALSA: usb-audio: Add DJM-450 to the quirks table
-    - ASoC: Intel: Add DMI quirk table to soc_intel_is_byt_cr()
-    - btrfs: fix error handling in commit_fs_roots
-    - perf/x86/kvm: Add Cascade Lake Xeon steppings to isolation_ucodes[]
-    - ASoC: Intel: sof-sdw: indent and add quirks consistently
-    - ASoC: Intel: sof_sdw: detect DMIC number based on mach params
-    - parisc: Bump 64-bit IRQ stack size to 64 KB
-    - sched/features: Fix hrtick reprogramming
-    - ASoC: Intel: bytcr_rt5640: Add quirk for the Estar Beauty HD MID 7316R
-      tablet
-    - ASoC: Intel: bytcr_rt5640: Add quirk for the Voyo Winpad A15 tablet
-    - ASoC: Intel: bytcr_rt5651: Add quirk for the Jumper EZpad 7 tablet
-    - ASoC: Intel: bytcr_rt5640: Add quirk for the Acer One S1002 tablet
-    - scsi: iscsi: Restrict sessions and handles to admin capabilities
-    - scsi: iscsi: Ensure sysfs attributes are limited to PAGE_SIZE
-    - scsi: iscsi: Verify lengths on passthrough PDUs
-    - Xen/gnttab: handle p2m update errors on a per-slot basis
-    - xen-netback: respect gnttab_map_refs()'s return value
-    - xen: fix p2m size in dom0 for disabled memory hotplug case
-    - swap: fix swapfile read/write offset
-    - tty: fix up iterate_tty_read() EOVERFLOW handling
-    - tty: fix up hung_up_tty_read() conversion
-    - tty: clean up legacy leftovers from n_tty line discipline
-    - tty: teach n_tty line discipline about the new "cookie continuations"
-    - tty: teach the n_tty ICANON case about the new "cookie continuations" too
-    - phy: mediatek: Add missing MODULE_DEVICE_TABLE()
-    - ALSA: hda/realtek: Add quirk for Clevo NH55RZQ
-    - ALSA: hda/realtek: Add quirk for Intel NUC 10
-    - ALSA: hda/realtek: Apply dual codec quirks for MSI Godlike X570 board
-    - ALSA: hda/realtek: Enable headset mic of Acer SWIFT with ALC256
-    - ALSA: usb-audio: use Corsair Virtuoso mapping for Corsair Virtuoso SE
-    - ALSA: usb-audio: Don't abort even if the clock rate differs
-    - ALSA: usb-audio: Drop bogus dB range in too low level
-    - ALSA: usb-audio: Allow modifying parameters with succeeding hw_params calls
-    - tpm, tpm_tis: Decorate tpm_tis_gen_interrupt() with request_locality()
-    - tpm, tpm_tis: Decorate tpm_get_timeouts() with request_locality()
-    - btrfs: avoid double put of block group when emptying cluster
-    - btrfs: fix raid6 qstripe kmap
-    - btrfs: fix race between writes to swap files and scrub
-    - btrfs: fix race between swap file activation and snapshot creation
-    - btrfs: fix stale data exposure after cloning a hole with NO_HOLES enabled
-    - btrfs: tree-checker: do not error out if extent ref hash doesn't match
-    - btrfs: fix race between extent freeing/allocation when using bitmaps
-    - btrfs: validate qgroup inherit for SNAP_CREATE_V2 ioctl
-    - btrfs: free correct amount of space in btrfs_delayed_inode_reserve_metadata
-    - btrfs: fix spurious free_space_tree remount warning
-    - btrfs: unlock extents in btrfs_zero_range in case of quota reservation
-      errors
-    - btrfs: fix warning when creating a directory with smack enabled
-    - PM: runtime: Update device status before letting suppliers suspend
-    - ring-buffer: Force before_stamp and write_stamp to be different on discard
-    - io_uring: ignore double poll add on the same waitqueue head
-    - dm bufio: subtract the number of initial sectors in dm_bufio_get_device_size
-    - dm verity: fix FEC for RS roots unaligned to block size
-    - drm/amd/pm: correct Arcturus mmTHM_BACO_CNTL register address
-    - drm/amdgpu:disable VCN for Navi12 SKU
-    - drm/amdgpu: Only check for S0ix if AMD_PMC is configured
-    - drm/amdgpu: fix parameter error of RREG32_PCIE() in amdgpu_regs_pcie
-    - crypto - shash: reduce minimum alignment of shash_desc structure
-    - ALSA: ctxfi: cthw20k2: fix mask on conf to allow 4 bits
-    - ALSA: usb-audio: Fix Pioneer DJM devices URB_CONTROL request direction to
-      set samplerate
-    - RDMA/cm: Fix IRQ restore in ib_send_cm_sidr_rep
-    - RDMA/rxe: Fix missing kconfig dependency on CRYPTO
-    - IB/mlx5: Add missing error code
-    - ALSA: hda: intel-nhlt: verify config type
-    - ftrace: Have recordmcount use w8 to read relp->r_info in
-      arm64_is_fake_mcount
-    - ia64: don't call handle_signal() unless there's actually a signal queued
-    - rsxx: Return -EFAULT if copy_to_user() fails
-    - iommu/tegra-smmu: Fix mc errors on tegra124-nyan
-    - iommu: Don't use lazy flush for untrusted device
-    - iommu/vt-d: Fix status code for Allocate/Free PASID command
-    - btrfs: zoned: use sector_t for zone sectors
-    - tomoyo: recognize kernel threads correctly
-    - r8169: fix resuming from suspend on RTL8105e if machine runs on battery
-    - ACPICA: Fix race in generic_serial_bus (I2C) and GPIO op_region parameter
-      handling
-    - io_uring: fix inconsistent lock state
-    - io_uring: deduplicate core cancellations sequence
-    - io_uring: unpark SQPOLL thread for cancelation
-    - io_uring: deduplicate failing task_work_add
-    - fs: provide locked helper variant of close_fd_get_file()
-    - io_uring: get rid of intermediate IORING_OP_CLOSE stage
-    - io_uring/io-wq: kill off now unused IO_WQ_WORK_NO_CANCEL
-    - io_uring/io-wq: return 2-step work swap scheme
-    - io_uring: don't take uring_lock during iowq cancel
-    - media: cedrus: Remove checking for required controls
-    - nvme-pci: mark Kingston SKC2000 as not supporting the deepest power state
-    - parisc: Enable -mlong-calls gcc option with CONFIG_COMPILE_TEST
-    - arm64: Make CPU_BIG_ENDIAN depend on ld.bfd or ld.lld 13.0.0+
-    - btrfs: export and rename qgroup_reserve_meta
-    - btrfs: don't flush from btrfs_delayed_inode_reserve_metadata
-    - iommu/amd: Fix sleeping in atomic in increase_address_space()
-    - scsi: ufs-mediatek: Enable UFSHCI_QUIRK_SKIP_MANUAL_WB_FLUSH_CTRL
-    - scsi: ufs: Add a quirk to permit overriding UniPro defaults
-    - misc: eeprom_93xx46: Add quirk to support Microchip 93LC46B eeprom
-    - scsi: ufs: Introduce a quirk to allow only page-aligned sg entries
-    - scsi: ufs: ufs-exynos: Apply vendor-specific values for three timeouts
-    - scsi: ufs: ufs-exynos: Use UFSHCD_QUIRK_ALIGN_SG_WITH_PAGE_SIZE
-    - drm/msm/a5xx: Remove overwriting A5XX_PC_DBG_ECO_CNTL register
-    - mmc: sdhci-of-dwcmshc: set SDHCI_QUIRK2_PRESET_VALUE_BROKEN
-    - HID: i2c-hid: Add I2C_HID_QUIRK_NO_IRQ_AFTER_RESET for ITE8568 EC on Voyo
-      Winpad A15
-    - ALSA: usb-audio: Add DJM750 to Pioneer mixer quirk
-    - ALSA: usb-audio: add mixer quirks for Pioneer DJM-900NXS2
-    - HID: ite: Enable QUIRK_TOUCHPAD_ON_OFF_REPORT on Acer Aspire Switch 10E
-    - PCI: cadence: Retrain Link to work around Gen2 training defect
-    - ASoC: Intel: sof_sdw: reorganize quirks by generation
-    - ASoC: Intel: sof_sdw: add quirk for HP Spectre x360 convertible
-    - scsi: ufs: Fix a duplicate dev quirk number
-    - KVM: SVM: Clear the CR4 register on reset
-    - nvme-pci: mark Seagate Nytro XM1440 as QUIRK_NO_NS_DESC_LIST.
-    - nvme-pci: add quirks for Lexar 256GB SSD
+
+  * Fix broken efifb on graphics device without driver (LP: #1914411)
+    - SAUCE: efifb: Ensure graphics device for efifb stays at PCI D0
+
+  * Fix system sleep on TGL systems with Intel ME (LP: #1919321)
+    - SAUCE: PCI: Serialize TGL e1000e PM ops
+
+  *  riscv: revert SiFive Unleashed CPUFreq (LP: #1917433)
+    - Revert "SiFive Unleashed CPUFreq"
+
+  * Dell Precision 5550 takes up to 10 seconds to respond when coming out of
+    sleep (LP: #1919123)
+    - SAUCE: Input: i8042 - add dmi quirk
+
+  * usb audio is not able to use after boot from 5.10.0-1017-oem (LP: #1918670)
+    - ALSA: usb-audio: fix NULL ptr dereference in usb_audio_probe
+    - ALSA: usb-audio: fix use after free in usb_audio_disconnect
+
+  * LRMv4: switch to signing nvidia modules via the Ubuntu Modules signing key
+    (LP: #1918134)
+    - [Packaging] sync dkms-build et al from LRMv4
+
+  * curtin: install flash-kernel in arm64 UEFI unexpected (LP: #1918427)
+    - [Packaging] Allow grub-efi-arm* to satisfy recommends on ARM
+
+  * Packaging resync (LP: #1786013)
+    - update dkms package versions
+
+  * Enable Tegra support in arm64 for NVIDIA Jetson (LP: #1918471)
+    - [Config] enable ARCH_TEGRA and all Tegra SOC's
+    - [Packaging] include modern Tegra modules
+
+  * Cirrus Audio Codec CS8409/CS42L42: Input Device does not switch to headset
+    Mic when a headset is inserted (LP: #1918378)
+    - SAUCE: ALSA: hda/cirrus: Fix Headset Mic volume control name
+
+  * [Intel Maple Ridge] system cannot enter S3 the first time while connecting
+    to TBT4 storage (LP: #1916467)
+    - xhci: Fix repeated xhci wake after suspend due to uncleared internal wake
+      state
+
+  * Cirrus Audio Codec CS8409/CS42L42 support (LP: #1916554)
+    - ALSA: hda/cirrus: Increase AUTO_CFG_MAX_INS from 8 to 18
+    - ALSA: hda/cirrus: Add support for CS8409 HDA bridge and CS42L42 companion
+      codec.
+    - ALSA: hda/cirrus: Add jack detect interrupt support from CS42L42 companion
+      codec.
+    - ALSA: hda/cirrus: Add Headphone and Headset MIC Volume Control
+
+  * Can't adjust brightness on Dell Precision 7000 laptop (LP: #1917419)
+    - drm/i915/dp: Program source OUI on eDP panels
+
+  * drm/i915: Drop force_probe requirement for JSL (LP: #1917843)
+    - SAUCE: drm/i915: Drop require_force_probe from JSL
+
+  * alsa/hda: the hdmi audio dosn't work on TGL machines (LP: #1917829)
+    - ALSA: hda/hdmi: let new platforms assign the pcm slot dynamically
+
+  * Add in-tree Realtek 8821CE wireless module support (LP: #1885862)
+    - rtw88: coex: 8821c: correct antenna switch function
+    - rtw88: 8821c: Correct CCK RSSI
+    - rtw88: 8821c: support RFE type2 wifi NIC
+
+  * Fix Lenovo ThinkStation P620 rear audio (LP: #1917842)
+    - ALSA: usb-audio: Disable USB autosuspend properly in
+      setup_disable_autosuspend()
+
+  * Miscellaneous Ubuntu changes
+    - [Packaging] Skip d-i code if udebs are disabled
+    - [Packaging] Disable udebs if $DEBIAN/d-i doesn't exist
+    - [Packaging] remove dh-systemd build dependency
+    - [Config] fix several annotaions with enforcement typos
+    - [Config] refresh annotations
+    - [Config] update configs and annotations
+
+  * Miscellaneous upstream changes:
     - riscv: dts: fu740: fix cache-controller interrupts
     - riscv: sifive: fu740: cpu{1, 2, 3, 4} set compatible to sifive, u74-mc
     - riscv: sifive: unmatched: update for 16GB rev3
@@ -1413,6 +1421,21 @@ linux (5.11.0-12.13) hirsute; urgency=medium
 linux (5.11.0-11.12) hirsute; urgency=medium
 
   * hirsute/linux: 5.11.0-11.12 -proposed tracker (LP: #1917335)
+
+  * Miscellaneous upstream changes: v5.11.2 upstream stable release
+    - bpf: Fix truncation handling for mod32 dst reg wrt zero
+    - HID: make arrays usage and value to be the same
+    - USB: quirks: sort quirk entries
+    - usb: quirks: add quirk to start video capture on ELMO L-12F document camera
+      reliable
+    - ntfs: check for valid standard information attribute
+    - Bluetooth: btusb: Some Qualcomm Bluetooth adapters stop working
+    - arm64: tegra: Add power-domain for Tegra210 HDA
+    - hwmon: (dell-smm) Add XPS 15 L502X to fan control blacklist
+    - KVM: x86: Zap the oldest MMU pages, not the newest
+    - KVM: do not assume PTE is writable after follow_pfn
+    - mm: provide a saner PTE walking API for modules
+    - KVM: Use kvm_pfn_t for local PFN variable in hva_to_pfn_remapped()
 
   * Packaging resync (LP: #1786013)
     - update dkms package versions
@@ -1443,19 +1466,6 @@ linux (5.11.0-11.12) hirsute; urgency=medium
     - tty: protect tty_write from odd low-level tty disciplines
     - Bluetooth: btusb: Always fallback to alt 1 for WBS
     - media: pwc: Use correct device for DMA
-    - bpf: Fix truncation handling for mod32 dst reg wrt zero
-    - HID: make arrays usage and value to be the same
-    - USB: quirks: sort quirk entries
-    - usb: quirks: add quirk to start video capture on ELMO L-12F document camera
-      reliable
-    - ntfs: check for valid standard information attribute
-    - Bluetooth: btusb: Some Qualcomm Bluetooth adapters stop working
-    - arm64: tegra: Add power-domain for Tegra210 HDA
-    - hwmon: (dell-smm) Add XPS 15 L502X to fan control blacklist
-    - KVM: x86: Zap the oldest MMU pages, not the newest
-    - KVM: do not assume PTE is writable after follow_pfn
-    - mm: provide a saner PTE walking API for modules
-    - KVM: Use kvm_pfn_t for local PFN variable in hva_to_pfn_remapped()
 
  -- Andrea Righi <andrea.righi@canonical.com>  Mon, 01 Mar 2021 18:17:45 +0100
 
