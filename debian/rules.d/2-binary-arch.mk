@@ -176,14 +176,16 @@ endif
 	install -m600 $(builddir)/build-$*/System.map \
 		$(pkgdir)/boot/System.map-$(abi_release)-$*
 
-	if [ "$(filter true,$(do_dtbs))" ]; then \
-		$(build_cd) $(kmake) $(build_O) $(conc_level) dtbs_install \
-			INSTALL_DTBS_PATH=$(pkgdir)/lib/firmware/$(abi_release)-$*/device-tree; \
-		( cd $(pkgdir)/lib/firmware/$(abi_release)-$*/ && find device-tree -print ) | \
-		while read dtb_file; do \
-			echo "$$dtb_file ?" >> $(DEBIAN)/d-i/firmware/$(arch)/kernel-image; \
-		done; \
-	fi
+ifeq ($(do_dtbs),true)
+	$(build_cd) $(kmake) $(build_O) $(conc_level) dtbs_install \
+		INSTALL_DTBS_PATH=$(pkgdir)/lib/firmware/$(abi_release)-$*/device-tree
+ifeq ($(disable_d_i),)
+	( cd $(pkgdir)/lib/firmware/$(abi_release)-$*/ && find device-tree -print ) | \
+	while read dtb_file; do \
+		echo "$$dtb_file ?" >> $(DEBIAN)/d-i/firmware/$(arch)/kernel-image; \
+	done
+endif
+endif
 
 	# There are a lot of device tree blobs in system, but OSTree can only
 	# choose one of them (a single file) and deploy it into OSTree boot
