@@ -298,7 +298,9 @@ static void xr_usb_serial_ctrl_irq(struct urb *urb)
 {
 	struct xr_usb_serial *xr_usb_serial = urb->context;
 	struct usb_cdc_notification *dr = urb->transfer_buffer;
+#if LINUX_VERSION_CODE <= KERNEL_VERSION(3, 9, 0)
 	struct tty_struct *tty;
+#endif
 	unsigned char *data;
 	int newctrl;
 	int retval;
@@ -427,7 +429,10 @@ static int xr_usb_serial_submit_read_urbs(struct xr_usb_serial *xr_usb_serial, g
 }
 static void xr_usb_serial_process_read_urb(struct xr_usb_serial *xr_usb_serial, struct urb *urb)
 {
+#if LINUX_VERSION_CODE <= KERNEL_VERSION(3, 9, 0)
 	struct tty_struct *tty;
+#endif
+
 	if (!urb->actual_length)
 		return;
 #if LINUX_VERSION_CODE > KERNEL_VERSION(3, 9, 0)
@@ -502,7 +507,9 @@ static void xr_usb_serial_write_bulk(struct urb *urb)
 static void xr_usb_serial_softint(struct work_struct *work)
 {
 	struct xr_usb_serial *xr_usb_serial = container_of(work, struct xr_usb_serial, work);
+#if LINUX_VERSION_CODE <= KERNEL_VERSION(3, 9, 0)
 	struct tty_struct *tty;
+#endif
 
 	dev_vdbg(&xr_usb_serial->data->dev, "%s\n", __func__);
 #if LINUX_VERSION_CODE > KERNEL_VERSION(3, 9, 0)
@@ -1654,7 +1661,10 @@ err_out:
 static int xr_usb_serial_reset_resume(struct usb_interface *intf)
 {
 	struct xr_usb_serial *xr_usb_serial = usb_get_intfdata(intf);
+#if LINUX_VERSION_CODE <= KERNEL_VERSION(3, 9, 0)
 	struct tty_struct *tty;
+#endif
+
 	if (test_bit(ASYNCB_INITIALIZED, &xr_usb_serial->port.flags)){
 #if LINUX_VERSION_CODE > KERNEL_VERSION(3, 9, 0)
 	tty_port_tty_hangup(&xr_usb_serial->port, false);
