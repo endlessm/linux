@@ -295,6 +295,10 @@ ifneq ($(skipdbg),true)
 	# Debug image is simple
 	install -m644 -D $(builddir)/build-$*/vmlinux \
 		$(dbgpkgdir)/usr/lib/debug/boot/vmlinux-$(abi_release)-$*
+	if [ -f $(builddir)/build-$*/arch/$(build_arch)/boot/compressed/vmlinux ]; then \
+		install -m644 -D $(builddir)/build-$*/arch/$(build_arch)/boot/compressed/vmlinux \
+			$(dbgpkgdir)/usr/lib/debug/boot/vmlinux-$(abi_release)-$*.decompressor; \
+	fi
 	$(build_cd) $(kmake) $(build_O) modules_install $(vdso) \
 		INSTALL_MOD_PATH=$(dbgpkgdir)/usr/lib/debug
 	# Add .gnu_debuglink sections only after all/DKMS modules are built.
