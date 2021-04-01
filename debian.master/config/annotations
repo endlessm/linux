@@ -6412,8 +6412,9 @@ CONFIG_ATH11K                                   policy<{'amd64': 'm', 'arm64': '
 CONFIG_ATH11K_AHB                               policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm'}>
 CONFIG_ATH11K_PCI                               policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm'}>
 CONFIG_ATH11K_DEBUG                             policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'ppc64el': 'n'}>
-CONFIG_ATH11K_DEBUGFS                           policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'ppc64el': 'n'}>
-CONFIG_ATH11K_TRACING                           policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'ppc64el': 'n'}>
+CONFIG_ATH11K_DEBUGFS                           policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y'}>
+CONFIG_ATH11K_SPECTRAL                          policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y'}>
+CONFIG_ATH11K_TRACING                           policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y'}>
 
 # Menu: Device Drivers >> Network device support >> Wireless LAN >> Atheros/Qualcomm devices >> Wilocity 60g WiFi card wil6210 support
 CONFIG_WIL6210                                  policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm'}>
