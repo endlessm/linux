@@ -3,14 +3,14 @@ Device tree configuration for i2c-ocores
 Required properties:
 - compatible      : "opencores,i2c-ocores"
                     "aeroflexgaisler,i2cmst"
-                    "sifive,<chip>-i2c", "sifive,i2c0"
+                    "sifive,fu540-c000-i2c", "sifive,i2c0"
                     For Opencore based I2C IP block reimplemented in
+                    FU540-C000 SoC.
                     "sifive,fu740-c000-i2c", "sifive,i2c0"
                     For Opencore based I2C IP block reimplemented in
-                    SiFive SoC. Supported compatible strings are:
-                    "sifive,fu540-c000-i2c" and "sifive,fu740-c000-i2c"
-                    Please refer to sifive-blocks-ip-versioning.txt
-                    for additional details.
+                    FU740-C000 SoC.
+                    Please refer to sifive-blocks-ip-versioning.txt for
+                    additional details.
 - reg             : bus address start and address range size of device
 - clocks          : handle to the controller clock; see the note below.
                     Mutually exclusive with opencores,ip-clock-frequency
