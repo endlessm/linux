@@ -3118,8 +3118,8 @@ CONFIG_AD7887                                   policy<{'amd64': 'm', 'arm64': '
 CONFIG_AD7923                                   policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm'}>
 CONFIG_AD7949                                   policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm'}>
 CONFIG_AD799X                                   policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm'}>
-CONFIG_AD9467                                   policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm'}>
-CONFIG_ADI_AXI_ADC                              policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm'}>
+CONFIG_AD9467                                   policy<{'amd64': 'n', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm'}>
+CONFIG_ADI_AXI_ADC                              policy<{'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm'}>
 CONFIG_ASPEED_ADC                               policy<{'armhf': 'm'}>
 CONFIG_AXP20X_ADC                               policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm'}>
 CONFIG_AXP288_ADC                               policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm'}>
