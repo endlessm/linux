@@ -22,10 +22,18 @@ struct ib_umem {
 	unsigned long		address;
 	u32 writable : 1;
 	u32 is_odp : 1;
+	/* Placing at the end of the bitfield list is ABI preserving on LE */
+	u32 is_peer : 1;
 	struct work_struct	work;
 	struct sg_table sg_head;
 	int             nmap;
 	unsigned int    sg_nents;
+};
+
+typedef void (*umem_invalidate_func_t)(struct ib_umem *umem, void *priv);
+enum ib_peer_mem_flags {
+	IB_PEER_MEM_ALLOW = 1 << 0,
+	IB_PEER_MEM_INVAL_SUPP = 1 << 1,
 };
 
 /* Returns the offset of the umem start relative to the first page. */
@@ -116,6 +124,13 @@ static inline unsigned long ib_umem_find_best_pgoff(struct ib_umem *umem,
 				      dma_addr & pgoff_bitmask);
 }
 
+struct ib_umem *ib_umem_get_peer(struct ib_device *device, unsigned long addr,
+				 size_t size, int access,
+				 unsigned long peer_mem_flags);
+void ib_umem_activate_invalidation_notifier(struct ib_umem *umem,
+					   umem_invalidate_func_t func,
+					   void *cookie);
+
 #else /* CONFIG_INFINIBAND_USER_MEM */
 
 #include <linux/err.h>
@@ -142,6 +157,17 @@ static inline unsigned long ib_umem_find_best_pgoff(struct ib_umem *umem,
 						    u64 pgoff_bitmask)
 {
 	return 0;
+}
+static inline struct ib_umem *ib_umem_get_peer(struct ib_device *device,
+					       unsigned long addr, size_t size,
+					       int access,
+					       unsigned long peer_mem_flags)
+{
+	return ERR_PTR(-EINVAL);
+}
+static inline void ib_umem_activate_invalidation_notifier(
+	struct ib_umem *umem, umem_invalidate_func_t func, void *cookie)
+{
 }
 
 #endif /* CONFIG_INFINIBAND_USER_MEM */
