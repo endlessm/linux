@@ -1438,6 +1438,9 @@ static int shiftfs_btrfs_ioctl_fd_replace(int cmd, void __user *arg,
 	struct btrfs_ioctl_vol_args *v1 = NULL;
 	struct btrfs_ioctl_vol_args_v2 *v2 = NULL;
 
+	*b1 = NULL;
+	*b2 = NULL;
+
 	if (!is_btrfs_snap_ioctl(cmd))
 		return 0;
 
@@ -1446,23 +1449,23 @@ static int shiftfs_btrfs_ioctl_fd_replace(int cmd, void __user *arg,
 		if (IS_ERR(v1))
 			return PTR_ERR(v1);
 		oldfd = v1->fd;
-		*b1 = v1;
 	} else {
 		v2 = memdup_user(arg, sizeof(*v2));
 		if (IS_ERR(v2))
 			return PTR_ERR(v2);
 		oldfd = v2->fd;
-		*b2 = v2;
 	}
 
 	src = fdget(oldfd);
-	if (!src.file)
-		return -EINVAL;
+	if (!src.file) {
+		ret = -EINVAL;
+		goto err_free;
+	}
 
 	ret = shiftfs_real_fdget(src.file, &lfd);
 	if (ret) {
 		fdput(src);
-		return ret;
+		goto err_free;
 	}
 
 	/*
@@ -1477,7 +1480,8 @@ static int shiftfs_btrfs_ioctl_fd_replace(int cmd, void __user *arg,
 	*newfd = get_unused_fd_flags(lfd.file->f_flags);
 	if (*newfd < 0) {
 		fdput(lfd);
-		return *newfd;
+		ret = *newfd;
+		goto err_free;
 	}
 
 	fd_install(*newfd, lfd.file);
@@ -1492,8 +1496,18 @@ static int shiftfs_btrfs_ioctl_fd_replace(int cmd, void __user *arg,
 		v2->fd = oldfd;
 	}
 
-	if (ret)
+	if (!ret) {
+		*b1 = v1;
+		*b2 = v2;
+	} else {
 		shiftfs_btrfs_ioctl_fd_restore(cmd, *newfd, arg, v1, v2);
+	}
+
+	return ret;
+
+err_free:
+	kfree(v1);
+	kfree(v2);
 
 	return ret;
 }
