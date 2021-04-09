@@ -1424,7 +1424,7 @@ static int shiftfs_btrfs_ioctl_fd_restore(int cmd, int fd, void __user *arg,
 	kfree(v1);
 	kfree(v2);
 
-	return ret;
+	return ret ? -EFAULT: 0;
 }
 
 static int shiftfs_btrfs_ioctl_fd_replace(int cmd, void __user *arg,
@@ -1501,6 +1501,7 @@ static int shiftfs_btrfs_ioctl_fd_replace(int cmd, void __user *arg,
 		*b2 = v2;
 	} else {
 		shiftfs_btrfs_ioctl_fd_restore(cmd, *newfd, arg, v1, v2);
+		ret = -EFAULT;
 	}
 
 	return ret;
