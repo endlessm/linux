@@ -171,7 +171,7 @@
 			interrupt-names = "nand";
 			status = "okay";
 
-			nandcs: nandcs@0 {
+			nandcs: nand@0 {
 				compatible = "brcm,nandcs";
 				reg = <0>;
 			};
