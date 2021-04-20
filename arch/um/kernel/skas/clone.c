@@ -28,7 +28,7 @@ stub_clone_handler(void)
 	long err;
 
 	err = stub_syscall2(__NR_clone, CLONE_PARENT | CLONE_FILES | SIGCHLD,
-			    STUB_DATA + UM_KERN_PAGE_SIZE / 2 - sizeof(void *));
+			    STUB_DATA + UM_KERN_PAGE_SIZE / 2);
 	if (err != 0)
 		goto out;
 
