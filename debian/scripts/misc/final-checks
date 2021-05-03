@@ -44,7 +44,7 @@ abi_check()
 	fi
 }
 
-abi_version="$debian/abi/previous/version"
+abi_version="$debian/abi/version"
 if ! [ -f "$abi_version" ]
 then
 	failure "$abi_version ABI version file missing"
