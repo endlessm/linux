@@ -41,6 +41,8 @@ Build-Depends:
  dwarves [amd64 arm64 armhf ppc64el s390x] <!stage1>,
 Build-Depends-Indep:
  xmlto <!stage1>,
+ docbook-utils <!stage1>,
+ ghostscript <!stage1>,
  fig2dev <!stage1>,
  bzip2 <!stage1>,
  sharutils <!stage1>,
