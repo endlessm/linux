@@ -186,6 +186,7 @@ ifeq ($(disable_d_i),)
 	done
 endif
 endif
+
 ifeq ($(no_dumpfile),)
 	makedumpfile -g $(pkgdir)/boot/vmcoreinfo-$(abi_release)-$* \
 		-x $(builddir)/build-$*/vmlinux
