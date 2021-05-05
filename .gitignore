@@ -93,7 +93,6 @@ modules.order
 !.get_maintainer.ignore
 !.gitattributes
 !.gitignore
-!.gitattributes
 !.mailmap
 
 #
