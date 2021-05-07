@@ -57,8 +57,6 @@
 #include "radeon_device.h"
 #include "radeon_prime.h"
 
-#include <linux/dmi.h>
-
 /*
  * KMS wrapper.
  * - 2.0.0 - initial interface
@@ -291,31 +289,6 @@ MODULE_DEVICE_TABLE(pci, pciidlist);
 
 static const struct drm_driver kms_driver;
 
-static const struct dmi_system_id disable_runpm[] = {
-	{
-		.ident = "Acer, Veriton Z4660G",
-		.matches = {
-			DMI_MATCH(DMI_SYS_VENDOR, "Acer"),
-			DMI_MATCH(DMI_PRODUCT_NAME, "Veriton Z4660G"),
-		},
-	},
-	{
-		.ident = "Acer, Veriton Z4860G",
-		.matches = {
-			DMI_MATCH(DMI_SYS_VENDOR, "Acer"),
-			DMI_MATCH(DMI_PRODUCT_NAME, "Veriton Z4860G"),
-		},
-	},
-	{
-		.ident = "Acer, Veriton Z6860G",
-		.matches = {
-			DMI_MATCH(DMI_SYS_VENDOR, "Acer"),
-			DMI_MATCH(DMI_PRODUCT_NAME, "Veriton Z6860G"),
-		},
-	},
-	{}
-};
-
 static int radeon_pci_probe(struct pci_dev *pdev,
 			    const struct pci_device_id *ent)
 {
@@ -360,10 +333,6 @@ static int radeon_pci_probe(struct pci_dev *pdev,
 	ret = drm_fb_helper_remove_conflicting_pci_framebuffers(pdev, "radeondrmfb");
 	if (ret)
 		return ret;
-
-	/* Disable runtime pm, if it is in the blacklist */
-	if (dmi_first_match(disable_runpm))
-		radeon_runtime_pm = 0;
 
 	dev = drm_dev_alloc(&kms_driver, &pdev->dev);
 	if (IS_ERR(dev))
