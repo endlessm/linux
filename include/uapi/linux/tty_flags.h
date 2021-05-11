@@ -32,6 +32,7 @@
 #define ASYNCB_AUTOPROBE	15 /* [x] Port was autoprobed by PCI/PNP code */
 #define ASYNCB_MAGIC_MULTIPLIER	16 /* Use special CLK or divisor */
 #define ASYNCB_LAST_USER	16
+#define ASYNCB_INITIALIZED	31 /* Serial port was initialized */
 
 /*
  * Internal flags used only by kernel (read-only)
@@ -40,7 +41,6 @@
  *	    TTY_PORT_ flags in the iflags field (and not userspace-visible)
  */
 #ifndef __KERNEL__
-#define ASYNCB_INITIALIZED	31 /* Serial port was initialized */
 #define ASYNCB_SUSPENDED	30 /* Serial port is suspended */
 #define ASYNCB_NORMAL_ACTIVE	29 /* Normal device is active */
 #define ASYNCB_BOOT_AUTOCONF	28 /* Autoconfigure port on bootup */
