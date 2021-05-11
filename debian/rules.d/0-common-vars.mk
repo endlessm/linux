@@ -14,7 +14,9 @@ release := $(shell sed -n '1s/^$(src_pkg_name).*(\(.*\)-.*).*$$/\1/p' $(DEBIAN)/
 revisions := $(shell sed -n 's/^$(src_pkg_name)\ .*($(release)-\(.*\)).*$$/\1/p' $(DEBIAN)/changelog | tac)
 revision ?= $(word $(words $(revisions)),$(revisions))
 prev_revisions := $(filter-out $(revision),0.0 $(revisions))
+ifneq (,$(prev_revisions))
 prev_revision := $(word $(words $(prev_revisions)),$(prev_revisions))
+endif
 
 prev_fullver ?= $(shell dpkg-parsechangelog -l$(DEBIAN)/changelog -o1 -c1 | sed -ne 's/^Version: *//p')
 
