@@ -73,7 +73,7 @@ do
 	for flavour in $flavours
 	do
 		flavour=$(echo "$flavour" | sed -e 's@.*/config.flavour.@@')
-		abi_check "$debian/abi/previous" "$arch" "$flavour"
+		abi_check "$debian/abi" "$arch" "$flavour"
 	done
 done
 
