@@ -8490,6 +8490,7 @@ CONFIG_SND_SOC_PCM5102A                         policy<{'amd64': 'm', 'arm64': '
 CONFIG_SND_SOC_PCM512x_I2C                      policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm'}>
 CONFIG_SND_SOC_PCM512x_SPI                      policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm'}>
 CONFIG_SND_SOC_RK3328                           policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm'}>
+CONFIG_SND_SOC_RT1308                           policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm'}>
 CONFIG_SND_SOC_RT1308_SDW                       policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm'}>
 CONFIG_SND_SOC_RT5616                           policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm'}>
 CONFIG_SND_SOC_RT5631                           policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm'}>
@@ -8601,7 +8602,7 @@ CONFIG_SND_SOC_INTEL_SKYLAKE_HDAUDIO_CODEC      mark<ENFORCED> note<deprecated>
 
 # Menu: Device Drivers >> Sound card support >> Advanced Linux Sound Architecture >> ALSA for SoC audio support >> Intel ASoC SST drivers >> Intel Machine drivers
 CONFIG_SND_SOC_INTEL_MACH                       policy<{'amd64': 'y'}>
-CONFIG_SND_SOC_INTEL_USER_FRIENDLY_LONG_NAMES   policy<{'amd64': 'n'}>
+CONFIG_SND_SOC_INTEL_USER_FRIENDLY_LONG_NAMES   policy<{'amd64': 'y'}>
 CONFIG_SND_SOC_INTEL_HASWELL_MACH               policy<{'amd64': 'm'}>
 CONFIG_SND_SOC_INTEL_BDW_RT5650_MACH            policy<{'amd64': 'm'}>
 CONFIG_SND_SOC_INTEL_BDW_RT5677_MACH            policy<{'amd64': 'm'}>
@@ -8623,6 +8624,7 @@ CONFIG_SND_SOC_INTEL_SKL_NAU88L25_MAX98357A_MACH policy<{'amd64': 'm'}>
 CONFIG_SND_SOC_INTEL_BXT_DA7219_MAX98357A_MACH  policy<{'amd64': 'm'}>
 CONFIG_SND_SOC_INTEL_BXT_RT298_MACH             policy<{'amd64': 'm'}>
 CONFIG_SND_SOC_INTEL_SOF_WM8804_MACH            policy<{'amd64': 'm'}>
+CONFIG_SND_SOC_INTEL_SOUNDWIRE_SOF_MACH         policy<{'amd64': 'm'}>
 CONFIG_SND_SOC_INTEL_KBL_RT5663_MAX98927_MACH   policy<{'amd64': 'm'}>
 CONFIG_SND_SOC_INTEL_KBL_RT5663_RT5514_MAX98927_MACH policy<{'amd64': 'm'}>
 CONFIG_SND_SOC_INTEL_KBL_DA7219_MAX98357A_MACH  policy<{'amd64': 'm'}>
@@ -8637,6 +8639,10 @@ CONFIG_SND_SOC_INTEL_CML_LP_DA7219_MAX98357A_MACH policy<{'amd64': 'm'}>
 CONFIG_SND_SOC_INTEL_SOF_CML_RT1011_RT5682_MACH policy<{'amd64': 'm'}>
 CONFIG_SND_SOC_INTEL_SOF_DA7219_MAX98373_MACH   policy<{'amd64': 'm'}>
 CONFIG_SND_SOC_INTEL_EHL_RT5660_MACH            policy<{'amd64': 'm'}>
+
+#
+CONFIG_SND_SOC_INTEL_USER_FRIENDLY_LONG_NAMES   mark<ENFORCED> note<LP:1921632>
+CONFIG_SND_SOC_INTEL_SOUNDWIRE_SOF_MACH         mark<ENFORCED> note<LP:1921632>
 
 # Menu: Device Drivers >> Sound card support >> Advanced Linux Sound Architecture >> ALSA for SoC audio support >> STMicroelectronics STM32 SOC audio support
 
