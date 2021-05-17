@@ -47,7 +47,6 @@ a8293
 aacraid
 aat2870-regulator
 aat2870_bl
-ab3100-otp
 abituguru
 abituguru3
 abp060mg
@@ -160,7 +159,6 @@ ad799x
 ad8366
 ad8801
 ad9389b
-ad9467
 ad9523
 ad9832
 ad9834
@@ -188,7 +186,6 @@ adf4371
 adf7242
 adfs
 adi
-adi-axi-adc
 adiantum
 adin
 adis16080
@@ -260,6 +257,7 @@ adv_pci1723
 adv_pci1724
 adv_pci1760
 adv_pci_dio
+adv_swbutton
 advansys
 advantechwdt
 adxl34x
@@ -337,7 +335,6 @@ amd5536udc_pci
 amd64_edac
 amd76xrom
 amd8111e
-amd_energy
 amd_freq_sensitivity
 amd_sfh
 amdgpu
@@ -366,7 +363,6 @@ apds9300
 apds9802als
 apds990x
 apds9960
-apex
 apple-gmux
 apple-mfi-fastcharge
 apple_bl
@@ -433,6 +429,11 @@ at76c50x-usb
 at803x
 at86rf230
 atbm8830
+atc260x-core
+atc260x-i2c
+atc260x-onkey
+atc260x-poweroff
+atc260x-regulator
 aten
 ath
 ath10k_core
@@ -595,6 +596,8 @@ bme680_spi
 bmg160_core
 bmg160_i2c
 bmg160_spi
+bmi088-accel-core
+bmi088-accel-spi
 bmi160_core
 bmi160_i2c
 bmi160_spi
@@ -611,6 +614,7 @@ bnxt_en
 bnxt_re
 bochs-drm
 bonding
+bpa-rs600
 bpa10x
 bpck
 bpfilter
@@ -825,6 +829,7 @@ comedi
 comedi_8254
 comedi_8255
 comedi_bond
+comedi_example_test
 comedi_isadma
 comedi_parport
 comedi_pci
@@ -875,6 +880,7 @@ cros_ec_lid_angle
 cros_ec_light_prox
 cros_ec_lightbar
 cros_ec_lpcs
+cros_ec_mkbp_proximity
 cros_ec_sensors
 cros_ec_sensors_core
 cros_ec_spi
@@ -950,7 +956,6 @@ cy8ctmg110_ts
 cyapatp
 cyber2000fb
 cyberjack
-cyclades
 cypress_cy7c63
 cypress_firmware
 cypress_m8
@@ -1214,6 +1219,7 @@ dvb_usb_v2
 dw-edma
 dw-edma-pcie
 dw-i3c-master
+dw-xdata-pcie
 dw9714
 dw9768
 dw9807-vcm
@@ -1265,6 +1271,7 @@ ec_bhf
 ec_sys
 ecc
 ecdh_generic
+ecdsa_generic
 echainiv
 echo
 ecrdsa_generic
@@ -1337,13 +1344,13 @@ essiv
 et1011c
 et131x
 et8ek8
+etas_es58x
 ethoc
 eurotechwdt
 evbug
 exc3000
 exfat
 extcon-adc-jack
-extcon-arizona
 extcon-axp288
 extcon-fsa9480
 extcon-gpio
@@ -1464,6 +1471,7 @@ fsia6b
 fsl-mph-dr-of
 fsl_linflexuart
 fsl_lpuart
+fsp-3y
 ftdi-elan
 ftdi_sio
 ftl
@@ -1504,7 +1512,6 @@ gamecon
 gameport
 garmin_gps
 garp
-gasket
 gb-audio-apbridgea
 gb-audio-codec
 gb-audio-gb
@@ -1540,6 +1547,7 @@ genwqe_card
 gf2k
 gfs2
 ghash-clmulni-intel
+gigabyte-wmi
 gl518sm
 gl520sm
 gl620a
@@ -1555,6 +1563,7 @@ go7007
 go7007-loader
 go7007-usb
 goku_udc
+goldfish_battery
 goodix
 gp2ap002
 gp2ap020a00f
@@ -1694,6 +1703,7 @@ gspca_vicam
 gspca_xirlink_cit
 gspca_zc3xx
 gtp
+gud
 guillemot
 gunze
 gve
@@ -1767,6 +1777,7 @@ hid-elecom
 hid-elo
 hid-emsff
 hid-ezkey
+hid-ft260
 hid-gaff
 hid-gembird
 hid-generic
@@ -1849,6 +1860,7 @@ hid-speedlink
 hid-steam
 hid-steelseries
 hid-sunplus
+hid-thrustmaster
 hid-tivo
 hid-tmff
 hid-topseed
@@ -1913,12 +1925,11 @@ hwpoison-inject
 hx711
 hx8357
 hx8357d
+hycon-hy46xx
 hyperbus-core
 hyperv-keyboard
 hyperv_fb
 i10nm_edac
-i2400m
-i2400m-usb
 i2c-algo-bit
 i2c-algo-pca
 i2c-ali1535
@@ -1931,6 +1942,7 @@ i2c-amd756-s4882
 i2c-amd8111
 i2c-cbus-gpio
 i2c-cht-wc
+i2c-cp2615
 i2c-cros-ec-tunnel
 i2c-designware-pci
 i2c-diolan-u2c
@@ -2014,6 +2026,7 @@ ibmasr
 ibmpex
 ice
 ichxrom
+icp
 icp10100
 icp_multi
 icplus
@@ -2060,6 +2073,7 @@ ili922x
 ili9320
 ili9341
 ili9486
+ilitek_ts_i2c
 img-ascii-lcd
 img-i2s-in
 img-i2s-out
@@ -2154,6 +2168,7 @@ intel_soc_dts_thermal
 intel_soc_pmic_bxtwc
 intel_soc_pmic_chtdc_ti
 intel_soc_pmic_mrfld
+intel_tcc_cooling
 intel_telemetry_core
 intel_telemetry_debugfs
 intel_telemetry_pltdrv
@@ -2168,6 +2183,7 @@ intel_th_sth
 intel_vr_nor
 intelfb
 interact
+interrupt-cnt
 inv-icm42600
 inv-icm42600-i2c
 inv-icm42600-spi
@@ -2280,6 +2296,7 @@ iqs5xx
 iqs620at-temp
 iqs621-als
 iqs624-pos
+iqs626a
 iqs62x
 iqs62x-keys
 ir-imon-decoder
@@ -2296,6 +2313,7 @@ ir-sony-decoder
 ir-usb
 ir-xmp-decoder
 ir35221
+ir36021
 ir38064
 ir_toy
 irps5401
@@ -2306,7 +2324,6 @@ iscsi_ibft
 iscsi_target_mod
 iscsi_tcp
 isdnhdlc
-isicom
 isight_firmware
 isl29003
 isl29018
@@ -2401,6 +2418,7 @@ ks8851_mll
 ksz8795
 ksz8795_spi
 ksz884x
+ksz8863_smi
 ksz9477
 ksz9477_i2c
 ksz9477_spi
@@ -2650,7 +2668,9 @@ lv5207lp
 lvstest
 lxt
 lz4
+lz4_compress
 lz4hc
+lz4hc_compress
 m2m-deinterlace
 m52790
 m5mols
@@ -2696,6 +2716,7 @@ madera-spi
 mag3110
 magellan
 mailbox-altera
+mana
 mantis
 mantis_core
 map_absent
@@ -2703,6 +2724,7 @@ map_funcs
 map_ram
 map_rom
 marvell
+marvell-88x2222
 marvell10g
 matrix-keymap
 matrix_keypad
@@ -2725,6 +2747,7 @@ max127
 max1363
 max14577-regulator
 max14577_charger
+max15301
 max1586
 max16064
 max16065
@@ -2871,6 +2894,7 @@ mgag200
 mhi
 mhi_net
 mhi_pci_generic
+mhi_wwan_ctrl
 mi0283qt
 michael_mic
 micrel
@@ -2931,7 +2955,7 @@ most_cdev
 most_core
 most_i2c
 most_net
-most_sound
+most_snd
 most_usb
 most_video
 moxa
@@ -2973,6 +2997,7 @@ mscc
 mscc_ocelot_switch_lib
 mscc_seville
 msdos
+msg2638
 msi-laptop
 msi-wmi
 msi001
@@ -3108,6 +3133,7 @@ net2280
 net_failover
 netconsole
 netdevsim
+netfs
 netjet
 netlink_diag
 netrom
@@ -3139,12 +3165,7 @@ nf_flow_table
 nf_flow_table_inet
 nf_flow_table_ipv4
 nf_flow_table_ipv6
-nf_log_arp
-nf_log_bridge
-nf_log_common
-nf_log_ipv4
-nf_log_ipv6
-nf_log_netdev
+nf_log_syslog
 nf_nat
 nf_nat_amanda
 nf_nat_ftp
@@ -3183,7 +3204,6 @@ nfs
 nfs_acl
 nfs_layout_flexfiles
 nfs_layout_nfsv41_files
-nfs_ssc
 nfsd
 nfsv2
 nfsv3
@@ -3257,6 +3277,7 @@ ni_labpc_pci
 ni_mio_cs
 ni_pcidio
 ni_pcimio
+ni_routes_test
 ni_routing
 ni_tio
 ni_tiocmd
@@ -3352,11 +3373,13 @@ nvmet-fc
 nvmet-rdma
 nvmet-tcp
 nvram
+nxp-c45-tja11xx
 nxp-nci
 nxp-nci_i2c
 nxp-tja11xx
 nxt200x
 nxt6000
+nzxt-kraken2
 objagg
 ocfb
 ocfs2
@@ -3367,6 +3390,7 @@ ocfs2_stack_o2cb
 ocfs2_stack_user
 ocfs2_stackglue
 ocrdma
+of_mmc_spi
 of_xilinx_wdt
 ofb
 omfs
@@ -3675,6 +3699,8 @@ pv88080-regulator
 pv88090-regulator
 pvcalls-front
 pvpanic
+pvpanic-mmio
+pvpanic-pci
 pvrusb2
 pwc
 pwm-beeper
@@ -3870,9 +3896,12 @@ rc-leadtek-y04g0051
 rc-lme2510
 rc-loopback
 rc-manli
+rc-mecool-kii-pro
+rc-mecool-kiii-pro
 rc-medion-x10
 rc-medion-x10-digitainer
 rc-medion-x10-or2x
+rc-minix-neo
 rc-msi-digivox-ii
 rc-msi-digivox-iii
 rc-msi-tvanywhere
@@ -3930,6 +3959,7 @@ rc-wetek-play2
 rc-winfast
 rc-winfast-usbii-deluxe
 rc-x96max
+rc-xbox-360
 rc-xbox-dvd
 rc-zx-irdec
 rc5t583-regulator
@@ -3951,6 +3981,7 @@ reed_solomon
 regmap-i3c
 regmap-sccb
 regmap-sdw
+regmap-sdw-mbq
 regmap-slimbus
 regmap-spi-avmm
 regmap-spmi
@@ -3990,7 +4021,6 @@ rndis_host
 rndis_wlan
 rockchip
 rocker
-rocket
 rohm_bu21023
 romfs
 rose
@@ -4054,6 +4084,7 @@ rtc-ds3232
 rtc-em3027
 rtc-fm3130
 rtc-ftrtc010
+rtc-goldfish
 rtc-hid-sensor-time
 rtc-isl12022
 rtc-isl1208
@@ -4439,6 +4470,7 @@ snd-compress
 snd-cs4281
 snd-cs46xx
 snd-cs8427
+snd-ctl-led
 snd-ctxfi
 snd-darla20
 snd-darla24
@@ -4622,6 +4654,7 @@ snd-soc-fsl-easrc
 snd-soc-fsl-esai
 snd-soc-fsl-micfil
 snd-soc-fsl-mqs
+snd-soc-fsl-rpmsg
 snd-soc-fsl-sai
 snd-soc-fsl-spdif
 snd-soc-fsl-ssi
@@ -4688,7 +4721,9 @@ snd-soc-rl6231
 snd-soc-rl6347a
 snd-soc-rt1011
 snd-soc-rt1015
+snd-soc-rt1015p
 snd-soc-rt1308-sdw
+snd-soc-rt1316-sdw
 snd-soc-rt286
 snd-soc-rt298
 snd-soc-rt5514
@@ -4709,7 +4744,9 @@ snd-soc-rt5682-i2c
 snd-soc-rt5682-sdw
 snd-soc-rt700
 snd-soc-rt711
+snd-soc-rt711-sdca
 snd-soc-rt715
+snd-soc-rt715-sdca
 snd-soc-sgtl5000
 snd-soc-si476x
 snd-soc-sigmadsp
@@ -4719,6 +4756,8 @@ snd-soc-simple-amplifier
 snd-soc-simple-card
 snd-soc-simple-card-utils
 snd-soc-simple-mux
+snd-soc-skl
+snd-soc-skl-ssp-clk
 snd-soc-skl_hda_dsp
 snd-soc-skl_nau88l25_ssm4567
 snd-soc-skl_rt286
@@ -4775,6 +4814,8 @@ snd-soc-tlv320aic32x4
 snd-soc-tlv320aic32x4-i2c
 snd-soc-tlv320aic32x4-spi
 snd-soc-tlv320aic3x
+snd-soc-tlv320aic3x-i2c
+snd-soc-tlv320aic3x-spi
 snd-soc-tpa6130a2
 snd-soc-ts3a227e
 snd-soc-tscs42xx
@@ -4882,7 +4923,9 @@ spectrum_cs
 speedfax
 speedstep-lib
 speedtch
-spi-altera
+spi-altera-core
+spi-altera-dfl
+spi-altera-platform
 spi-amd
 spi-axi-spi-engine
 spi-bitbang
@@ -4913,6 +4956,7 @@ spi-zynqmp-gqspi
 spi_ks8995
 spidev
 spinand
+spl
 spmi
 sprd_serial
 sps30
@@ -4988,6 +5032,7 @@ stmmac-pci
 stmmac-platform
 stowaway
 stp
+stpddc60
 streamzap
 streebog_generic
 stts751
@@ -5018,8 +5063,16 @@ surface3_spi
 surface_acpi_notify
 surface_aggregator
 surface_aggregator_cdev
+surface_aggregator_registry
+surface_battery
+surface_charger
+surface_dtx
 surface_gpe
+surface_hid
+surface_hid_core
 surface_hotplug
+surface_kbd
+surface_platform_profile
 surfacepro3_button
 svc-i3c-master
 svgalib
@@ -5162,6 +5215,7 @@ ti-adc12138
 ti-adc128s052
 ti-adc161s626
 ti-ads1015
+ti-ads131e08
 ti-ads7950
 ti-dac082s085
 ti-dac5571
@@ -5353,6 +5407,7 @@ uhid
 uio
 uio_aec
 uio_cif
+uio_dfl
 uio_dmem_genirq
 uio_hv_generic
 uio_mf624
@@ -5364,7 +5419,6 @@ uio_sercos3
 uleds
 uli526x
 ulpi
-umem
 ums-alauda
 ums-cypress
 ums-datafab
@@ -5457,6 +5511,7 @@ vcnl4000
 vcnl4035
 vdpa
 vdpa_sim
+vdpa_sim_blk
 vdpa_sim_net
 veml6030
 veml6070
@@ -5507,6 +5562,7 @@ virt_wifi
 virtio-gpu
 virtio-rng
 virtio_blk
+virtio_bt
 virtio_crypto
 virtio_dma_buf
 virtio_input
@@ -5515,6 +5571,7 @@ virtio_net
 virtio_pmem
 virtio_rpmsg_bus
 virtio_scsi
+virtio_snd
 virtio_vdpa
 virtiofs
 virtual
@@ -5551,6 +5608,7 @@ vmw_vsock_vmci_transport
 vmwgfx
 vmxnet3
 vp27smpx
+vp_vdpa
 vport-geneve
 vport-gre
 vport-vxlan
@@ -5635,7 +5693,6 @@ wilco_ec
 wilco_ec_debugfs
 wilco_ec_events
 wilco_ec_telem
-wimax
 winbond-840
 winbond-cir
 wire
@@ -5673,6 +5730,7 @@ wm97xx-ts
 wmi
 wmi-bmof
 wp512
+wwan
 x25
 x38_edac
 x86_pkg_temp_thermal
@@ -5822,12 +5880,15 @@ yurex
 z3fold
 zatm
 zaurus
+zavl
+zcommon
 zd1201
 zd1211rw
 zd1301
 zd1301_demod
 zet6223
 zforce_ts
+zfs
 zhenhua
 ziirave_wdt
 zinitix
@@ -5835,6 +5896,8 @@ zl10036
 zl10039
 zl10353
 zl6100
+zlua
+znvpair
 zonefs
 zopt2201
 zpa2326
@@ -5847,3 +5910,6 @@ zr36067
 zr364xx
 zram
 zstd
+zstd_compress
+zunicode
+zzstd
