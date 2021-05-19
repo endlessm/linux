@@ -49,6 +49,13 @@ $(stampdir)/stamp-build-%: $(stampdir)/stamp-prepare-%
 	@echo Debug: $@ build_image $(build_image) bldimg $(bldimg)
 	$(build_cd) $(kmake) $(build_O) $(conc_level) $(bldimg) modules $(if $(filter true,$(do_dtbs)),dtbs)
 
+ifneq ($(skipdbg),true)
+	# The target scripts_gdb is part of "all", so we need to call it manually
+	if grep -q CONFIG_GDB_SCRIPTS=y $(builddir)/build-$*/.config; then \
+		$(build_cd) $(kmake) $(build_O) $(conc_level) scripts_gdb ; \
+	fi
+endif
+
 	@touch $@
 
 define build_dkms_sign =
@@ -295,6 +302,12 @@ ifneq ($(skipdbg),true)
 	# Debug image is simple
 	install -m644 -D $(builddir)/build-$*/vmlinux \
 		$(dbgpkgdir)/usr/lib/debug/boot/vmlinux-$(abi_release)-$*
+	if [ -d $(builddir)/build-$*/scripts/gdb/linux ]; then \
+		install -m644 -D $(builddir)/build-$*/vmlinux-gdb.py \
+			$(dbgpkgdir)/usr/share/gdb/auto-load/boot/vmlinux-$(abi_release)-$*/vmlinuz-$(abi_release)-$*-gdb.py; \
+		install -m644 -D $(builddir)/build-$*/scripts/gdb/linux/* \
+			--target-directory=$(dbgpkgdir)/usr/share/gdb/auto-load/boot/vmlinux-$(abi_release)-$*/scripts/gdb/linux; \
+	fi
 	$(build_cd) $(kmake) $(build_O) modules_install $(vdso) \
 		INSTALL_MOD_PATH=$(dbgpkgdir)/usr/lib/debug
 	# Add .gnu_debuglink sections only after all/DKMS modules are built.
