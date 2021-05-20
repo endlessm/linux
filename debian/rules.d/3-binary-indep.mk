@@ -8,7 +8,7 @@ build-indep:
 #
 indep_hdrpkg = $(indep_hdrs_pkg_name)
 indep_hdrdir = $(CURDIR)/debian/$(indep_hdrpkg)/usr/src/$(indep_hdrpkg)
-install-headers: prepare-indep
+$(stampdir)/stamp-install-headers: $(stampdir)/stamp-prepare-indep
 	@echo Debug: $@
 	dh_testdir
 	dh_testroot
@@ -26,10 +26,11 @@ ifeq ($(do_flavour_header_package),true)
 		xargs -n1 -i: find : -type f) | \
 		cpio -pd --preserve-modification-time $(indep_hdrdir)
 endif
+	@touch $@
 
 docpkg = $(doc_pkg_name)
 docdir = $(CURDIR)/debian/$(docpkg)/usr/share/doc/$(docpkg)
-install-doc: prepare-indep
+install-doc: $(stampdir)/stamp-prepare-indep
 	@echo Debug: $@
 ifeq ($(do_doc_package),true)
 	dh_testdir
@@ -55,7 +56,7 @@ endif
 srcpkg = linux-source-$(release)
 srcdir = $(CURDIR)/debian/$(srcpkg)/usr/src/$(srcpkg)
 balldir = $(CURDIR)/debian/$(srcpkg)/usr/src/$(srcpkg)/$(srcpkg)
-install-source: prepare-indep
+install-source: $(stampdir)/stamp-prepare-indep
 	@echo Debug: $@
 ifeq ($(do_source_package),true)
 
@@ -93,7 +94,7 @@ install-tools: cloudpkg = $(cloud_common_pkg_name)
 install-tools: cloudbin = $(CURDIR)/debian/$(cloudpkg)/usr/bin
 install-tools: cloudsbin = $(CURDIR)/debian/$(cloudpkg)/usr/sbin
 install-tools: cloudman = $(CURDIR)/debian/$(cloudpkg)/usr/share/man
-install-tools: prepare-indep $(stampdir)/stamp-build-perarch
+install-tools: $(stampdir)/stamp-prepare-indep $(stampdir)/stamp-build-perarch
 	@echo Debug: $@
 
 ifeq ($(do_tools_common),true)
@@ -171,16 +172,17 @@ ifeq ($(do_tools_host),true)
 		$(hosttoolsman)/man1
 endif
 
-prepare-indep:
+$(stampdir)/stamp-prepare-indep:
 	@echo Debug: $@
 	dh_prep -i
+	@touch $@
 
-install-indep: install-headers install-doc install-source install-tools
+install-indep: $(stampdir)/stamp-install-headers install-doc install-source install-tools
 	@echo Debug: $@
 
 # This is just to make it easy to call manually. Normally done in
 # binary-indep target during builds.
-binary-headers: prepare-indep install-headers
+binary-headers: $(stampdir)/stamp-prepare-indep $(stampdir)/stamp-install-headers
 	@echo Debug: $@
 	dh_installchangelogs -p$(indep_hdrpkg)
 	dh_installdocs -p$(indep_hdrpkg)

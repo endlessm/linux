@@ -106,29 +106,29 @@ $(shell echo $(1)/$(dkms_100c) | \
 endef
 
 # Install the finished build
-install-%: pkgdir_bin = $(CURDIR)/debian/$(bin_pkg_name)-$*
-install-%: pkgdir = $(CURDIR)/debian/$(mods_pkg_name)-$*
-install-%: pkgdir_ex = $(CURDIR)/debian/$(mods_extra_pkg_name)-$*
-install-%: pkgdir_bldinfo = $(CURDIR)/debian/$(bldinfo_pkg_name)-$*
-install-%: bindoc = $(pkgdir)/usr/share/doc/$(bin_pkg_name)-$*
-install-%: dbgpkgdir = $(CURDIR)/debian/$(bin_pkg_name)-$*-dbgsym
-install-%: signingv = $(CURDIR)/debian/$(bin_pkg_name)-signing/$(release)-$(revision)
-install-%: toolspkgdir = $(CURDIR)/debian/$(tools_flavour_pkg_name)-$*
-install-%: cloudpkgdir = $(CURDIR)/debian/$(cloud_flavour_pkg_name)-$*
-install-%: basepkg = $(hdrs_pkg_name)
-install-%: indeppkg = $(indep_hdrs_pkg_name)
-install-%: kernfile = $(call custom_override,kernel_file,$*)
-install-%: instfile = $(call custom_override,install_file,$*)
-install-%: hdrdir = $(CURDIR)/debian/$(basepkg)-$*/usr/src/$(basepkg)-$*
-install-%: target_flavour = $*
-install-%: MODHASHALGO=sha512
-install-%: MODSECKEY=$(builddir)/build-$*/certs/signing_key.pem
-install-%: MODPUBKEY=$(builddir)/build-$*/certs/signing_key.x509
-install-%: build_dir=$(builddir)/build-$*
-install-%: dkms_dir=$(call dkms_dir_prefix,$(builddir)/build-$*)
-install-%: enable_zfs = $(call custom_override,do_zfs,$*)
-install-%: dbgpkgdir_zfs = $(if $(filter true,$(skipdbg)),"",$(dbgpkgdir)/usr/lib/debug/lib/modules/$(abi_release)-$*/kernel)
-install-%: $(stampdir)/stamp-build-% install-headers
+$(stampdir)/stamp-install-%: pkgdir_bin = $(CURDIR)/debian/$(bin_pkg_name)-$*
+$(stampdir)/stamp-install-%: pkgdir = $(CURDIR)/debian/$(mods_pkg_name)-$*
+$(stampdir)/stamp-install-%: pkgdir_ex = $(CURDIR)/debian/$(mods_extra_pkg_name)-$*
+$(stampdir)/stamp-install-%: pkgdir_bldinfo = $(CURDIR)/debian/$(bldinfo_pkg_name)-$*
+$(stampdir)/stamp-install-%: bindoc = $(pkgdir)/usr/share/doc/$(bin_pkg_name)-$*
+$(stampdir)/stamp-install-%: dbgpkgdir = $(CURDIR)/debian/$(bin_pkg_name)-$*-dbgsym
+$(stampdir)/stamp-install-%: signingv = $(CURDIR)/debian/$(bin_pkg_name)-signing/$(release)-$(revision)
+$(stampdir)/stamp-install-%: toolspkgdir = $(CURDIR)/debian/$(tools_flavour_pkg_name)-$*
+$(stampdir)/stamp-install-%: cloudpkgdir = $(CURDIR)/debian/$(cloud_flavour_pkg_name)-$*
+$(stampdir)/stamp-install-%: basepkg = $(hdrs_pkg_name)
+$(stampdir)/stamp-install-%: indeppkg = $(indep_hdrs_pkg_name)
+$(stampdir)/stamp-install-%: kernfile = $(call custom_override,kernel_file,$*)
+$(stampdir)/stamp-install-%: instfile = $(call custom_override,install_file,$*)
+$(stampdir)/stamp-install-%: hdrdir = $(CURDIR)/debian/$(basepkg)-$*/usr/src/$(basepkg)-$*
+$(stampdir)/stamp-install-%: target_flavour = $*
+$(stampdir)/stamp-install-%: MODHASHALGO=sha512
+$(stampdir)/stamp-install-%: MODSECKEY=$(builddir)/build-$*/certs/signing_key.pem
+$(stampdir)/stamp-install-%: MODPUBKEY=$(builddir)/build-$*/certs/signing_key.x509
+$(stampdir)/stamp-install-%: build_dir=$(builddir)/build-$*
+$(stampdir)/stamp-install-%: dkms_dir=$(call dkms_dir_prefix,$(builddir)/build-$*)
+$(stampdir)/stamp-install-%: enable_zfs = $(call custom_override,do_zfs,$*)
+$(stampdir)/stamp-install-%: dbgpkgdir_zfs = $(if $(filter true,$(skipdbg)),"",$(dbgpkgdir)/usr/lib/debug/lib/modules/$(abi_release)-$*/kernel)
+$(stampdir)/stamp-install-%: $(stampdir)/stamp-build-% $(stampdir)/stamp-install-headers
 	@echo Debug: $@ kernel_file $(kernel_file) kernfile $(kernfile) install_file $(install_file) instfile $(instfile)
 	dh_testdir
 	dh_testroot
@@ -517,6 +517,7 @@ ifneq ($(full_build),false)
 	# Clean out this flavours build directory.
 	rm -rf $(builddir)/build-$*
 endif
+	@touch $@
 
 headers_tmp := $(CURDIR)/debian/tmp-headers
 headers_dir := $(CURDIR)/debian/linux-libc-dev
