@@ -131,7 +131,6 @@ $(stampdir)/stamp-install-%: dbgpkgdir_zfs = $(if $(filter true,$(skipdbg)),"",$
 $(stampdir)/stamp-install-%: $(stampdir)/stamp-build-% $(stampdir)/stamp-install-headers
 	@echo Debug: $@ kernel_file $(kernel_file) kernfile $(kernfile) install_file $(install_file) instfile $(instfile)
 	dh_testdir
-	dh_testroot
 	dh_prep -p$(bin_pkg_name)-$*
 	dh_prep -p$(mods_pkg_name)-$*
 	dh_prep -p$(hdrs_pkg_name)-$*
