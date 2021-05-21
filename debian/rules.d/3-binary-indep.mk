@@ -11,7 +11,6 @@ indep_hdrdir = $(CURDIR)/debian/$(indep_hdrpkg)/usr/src/$(indep_hdrpkg)
 $(stampdir)/stamp-install-headers: $(stampdir)/stamp-prepare-indep
 	@echo Debug: $@
 	dh_testdir
-	dh_testroot
 
 ifeq ($(do_flavour_header_package),true)
 	install -d $(indep_hdrdir)
