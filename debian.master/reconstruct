@@ -1,10 +1,17 @@
 # Recreate any symlinks created since the orig.
 # Remove any files deleted from the orig.
+rm -f 'arch/powerpc/kernel/syscall_64.c'
 rm -f 'drivers/net/can/dev.c'
 rm -f 'drivers/net/can/rx-offload.c'
 rm -f 'drivers/pci/pcie/bw_notification.c'
 rm -f 'drivers/staging/mt7621-dma/mtk-hsdma.c'
 rm -f 'tools/testing/radix-tree/linux/compiler_types.h'
+rm -f 'tools/testing/selftests/bpf/progs/btf__core_reloc_existence___err_wrong_arr_kind.c'
+rm -f 'tools/testing/selftests/bpf/progs/btf__core_reloc_existence___err_wrong_arr_value_type.c'
+rm -f 'tools/testing/selftests/bpf/progs/btf__core_reloc_existence___err_wrong_int_kind.c'
+rm -f 'tools/testing/selftests/bpf/progs/btf__core_reloc_existence___err_wrong_int_sz.c'
+rm -f 'tools/testing/selftests/bpf/progs/btf__core_reloc_existence___err_wrong_int_type.c'
+rm -f 'tools/testing/selftests/bpf/progs/btf__core_reloc_existence___err_wrong_struct_type.c'
 chmod +x 'debian/cloud-tools/hv_get_dhcp_info'
 chmod +x 'debian/cloud-tools/hv_get_dns_info'
 chmod +x 'debian/cloud-tools/hv_set_ifconfig'
