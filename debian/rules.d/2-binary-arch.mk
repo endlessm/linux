@@ -70,18 +70,6 @@ define build_dkms =
 	CROSS_COMPILE=$(CROSS_COMPILE) $(SHELL) $(DROOT)/scripts/dkms-build $(dkms_dir) $(abi_release)-$* '$(call build_dkms_sign,$(builddir)/build-$*)' $(1) $(2) $(3) $(4) $(5)
 endef
 
-# nvidia_build_payload 450 450 450_450.102.04-0ubuntu0.20.04.1
-# nvidia_build_payload 450-server 450srv 50.102.04-0ubuntu0.20.04.1
-define nvidia_build_payload =
-	$(call build_dkms, $(bldinfo_pkg_name)-$*, $(pkgdir_bldinfo)/usr/lib/linux/$(abi_release)-$*/signatures, "", nvidia-$(2), pool/restricted/n/nvidia-graphics-drivers-$(1)/nvidia-kernel-source-$(1)_$(3)_$(arch).deb pool/restricted/n/nvidia-graphics-drivers-$(1)/nvidia-dkms-$(1)_$(3)_$(arch).deb)
-endef
-# nvidia_build 450
-# nvidia_build 450-server
-define nvidia_build =
-	$(call nvidia_build_payload,$(1),$(shell echo $(1) | sed -e 's/-server/srv/'),$(shell awk '/^nvidia-graphics-drivers-$(1) / {print($$2);}' debian/dkms-versions))
-
-endef
-
 define install_control =
 	for which in $(3);							\
 	do									\
@@ -427,13 +415,6 @@ endif
 	cp -rp "$(hdrdir)" "$(indep_hdrdir)" "$(dkms_dir)/headers"
 
 	$(if $(filter true,$(enable_zfs)),$(call build_dkms, $(mods_pkg_name)-$*, $(pkgdir)/lib/modules/$(abi_release)-$*/kernel, $(dbgpkgdir_zfs), zfs, pool/universe/z/zfs-linux/zfs-dkms_$(dkms_zfs_linux_version)_all.deb))
-
-ifeq ($(do_dkms_nvidia),true)
-	$(foreach series,$(nvidia_desktop_series),$(call nvidia_build,$(series)))
-endif
-ifeq ($(do_dkms_nvidia_server),true)
-	$(foreach series,$(nvidia_server_series),$(call nvidia_build,$(series)))
-endif
 
 ifneq ($(skipdbg),true)
 	# Add .gnu_debuglink sections to each stripped .ko
