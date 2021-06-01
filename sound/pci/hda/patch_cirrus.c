@@ -2215,10 +2215,9 @@ static int cs8409_cs42l42_fixup(struct hda_codec *codec)
 	if (err < 0)
 		return err;
 
-	/* Set initial volume on Bullseye to -26 dB */
-	if (codec->fixup_id == CS8409_BULLSEYE)
-		snd_hda_codec_amp_init_stereo(codec, CS8409_CS42L42_DMIC_ADC_PIN_NID,
-				HDA_INPUT, 0, 0xff, 0x19);
+	/* Set initial DMIC volume to -26 dB */
+	snd_hda_codec_amp_init_stereo(codec, CS8409_CS42L42_DMIC_ADC_PIN_NID,
+			HDA_INPUT, 0, 0xff, 0x19);
 
 	if (!snd_hda_gen_add_kctl(
 			&spec->gen, NULL, &cs8409_cs42l42_hp_volume_mixer))
