@@ -88,6 +88,7 @@ install-tools: toolsbashcomp = $(CURDIR)/debian/$(toolspkg)/usr/share/bash-compl
 install-tools: hosttoolspkg = $(hosttools_pkg_name)
 install-tools: hosttoolsbin = $(CURDIR)/debian/$(hosttoolspkg)/usr/bin
 install-tools: hosttoolsman = $(CURDIR)/debian/$(hosttoolspkg)/usr/share/man
+install-tools: hosttoolssystemd = $(CURDIR)/debian/$(hosttoolspkg)/lib/systemd/system
 install-tools: cloudpkg = $(cloud_common_pkg_name)
 install-tools: cloudbin = $(CURDIR)/debian/$(cloudpkg)/usr/bin
 install-tools: cloudsbin = $(CURDIR)/debian/$(cloudpkg)/usr/sbin
@@ -159,8 +160,11 @@ endif
 ifeq ($(do_tools_host),true)
 	install -d $(hosttoolsbin)
 	install -d $(hosttoolsman)/man1
+	install -d $(hosttoolssystemd)
 
 	install -m 755 $(CURDIR)/tools/kvm/kvm_stat/kvm_stat $(hosttoolsbin)/
+	install -m 644 $(CURDIR)/tools/kvm/kvm_stat/kvm_stat.service \
+		$(hosttoolssystemd)/
 
 	cd $(builddir)/tools/tools/kvm/kvm_stat && make man
 	install -m644 $(builddir)/tools/tools/kvm/kvm_stat/*.1 \
@@ -188,6 +192,7 @@ binary-headers: prepare-indep install-headers
 	dh_builddeb -p$(indep_hdrpkg)
 
 binary-indep: cloudpkg = $(cloud_common_pkg_name)
+binary-indep: hosttoolspkg = $(hosttools_pkg_name)
 binary-indep: install-indep
 	@echo Debug: $@
 	dh_installchangelogs -i
@@ -213,6 +218,11 @@ endif
 	# and dh_systemd_start are called:
 	dh_installinit -p$(cloudpkg) --no-start --no-enable --name intel-sgx-load-module
 endif
+endif
+ifeq ($(do_tools_host),true)
+	# Keep kvm_stat.service disabled by default (after dh_systemd_enable
+	# and dh_systemd_start:
+	dh_installinit -p$(hosttoolspkg) --no-enable --no-start --name kvm_stat
 endif
 	dh_installdeb -i
 	$(lockme) dh_gencontrol -i
