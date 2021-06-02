@@ -74,6 +74,7 @@ ifeq ($(do_source_package_content),true)
 		-path './debian/files' -prune -o \
 		-path './debian/stamps' -prune -o \
 		-path './debian/tmp' -prune -o \
+		-path './$(DEBIAN)/__abi.current' -prune -o \
 		-print | \
 		cpio -pd --preserve-modification-time $(srcdir)
 	$(LN) $(srcpkg)/$(srcpkg).tar.bz2 $(srcdir)/..
