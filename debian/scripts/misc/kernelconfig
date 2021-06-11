@@ -68,7 +68,7 @@ for arch in $archs; do
 	# for i386 since it is no longer supported after 19.04, however
 	# we maintain the configs for hwe.
 	modify_config=true
-	env="ARCH=$kernarch"
+	env="ARCH=$kernarch DEB_ARCH=$arch"
 	compiler_path=$(which "${cross_compile}gcc" || true)
 	if [ "$compiler_path" != '' ]; then
 		env="$env CROSS_COMPILE=$cross_compile"

@@ -86,6 +86,7 @@ printenv:
 	@echo "do_flavour_header_package = $(do_flavour_header_package)"
 	@echo "do_common_headers_indep   = $(do_common_headers_indep)"
 	@echo "do_full_source            = $(do_full_source)"
+	@echo "do_odm_drivers            = $(do_odm_drivers)"
 	@echo "do_tools                  = $(do_tools)"
 	@echo "do_any_tools              = $(do_any_tools)"
 	@echo "do_linux_tools            = $(do_linux_tools)"
