@@ -192,8 +192,6 @@ static void j1939_can_rx_unregister(struct j1939_priv *priv)
 
 	can_rx_unregister(dev_net(ndev), ndev, J1939_CAN_ID, J1939_CAN_MASK,
 			  j1939_can_recv, priv);
-
-	j1939_priv_put(priv);
 }
 
 static void __j1939_rx_release(struct kref *kref)
@@ -206,6 +204,8 @@ static void __j1939_rx_release(struct kref *kref)
 	j1939_ecu_unmap_all(priv);
 	j1939_priv_set(priv->ndev, NULL);
 	spin_unlock(&j1939_netdev_lock);
+	synchronize_rcu();
+	j1939_priv_put(priv);
 }
 
 /* get pointer to priv without increasing ref counter */
