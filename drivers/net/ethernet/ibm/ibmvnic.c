@@ -1505,9 +1505,9 @@ static int create_hdr_descs(u8 hdr_field, u8 *hdr_data, int len, int *hdr_len,
 
 /**
  * build_hdr_descs_arr - build a header descriptor array
- * @skb - socket buffer
+ * @skb: tx socket buffer
+ * @indir_arr: indirect array
  * @num_entries - number of descriptors to be sent
- * @subcrq - first TX descriptor
  * @hdr_field - bit field determining which headers will be sent
  *
  * This function will build a TX descriptor array with applicable
