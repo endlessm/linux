@@ -189,6 +189,10 @@ do_common_headers_indep=true
 # add a 'full source' mode
 do_full_source=false
 
+# Add an option to enable special drivers which should only be build when
+# explicitly enabled.
+do_odm_drivers=false
+
 # build tools
 ifneq ($(wildcard $(CURDIR)/tools),)
 	ifeq ($(do_tools),)

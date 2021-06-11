@@ -31,6 +31,9 @@ $(stampdir)/stamp-prepare-tree-%: $(commonconfdir)/config.common.$(family) $(arc
 	[ "$(do_full_source)" != 'true' ] && true || \
 		rsync -a --exclude debian --exclude debian.master --exclude $(DEBIAN) * $(builddir)/build-$*
 	cat $(wordlist 1,3,$^) | sed -e 's/.*CONFIG_VERSION_SIGNATURE.*/CONFIG_VERSION_SIGNATURE="Ubuntu $(release)-$(revision)-$* $(raw_kernelversion)"/' > $(builddir)/build-$*/.config
+	[ "$(do_odm_drivers)" = 'true' ] && true || \
+		sed -ie 's/.*CONFIG_UBUNTU_ODM_DRIVERS.*/# CONFIG_UBUNTU_ODM_DRIVERS is not set/' \
+		    $(builddir)/build-$*/.config
 	find $(builddir)/build-$* -name "*.ko" | xargs rm -f
 	$(build_cd) $(kmake) $(build_O) -j1 syncconfig prepare scripts
 	touch $@
