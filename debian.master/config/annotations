@@ -11165,8 +11165,8 @@ CONFIG_KERNEL_BZIP2                             policy<{'amd64': 'n', 's390x': '
 CONFIG_KERNEL_LZMA                              policy<{'amd64': 'n', 'armhf': 'n', 's390x': 'n'}>
 CONFIG_KERNEL_XZ                                policy<{'amd64': 'n', 'armhf': 'n', 'ppc64el': 'n', 's390x': 'n'}>
 CONFIG_KERNEL_LZO                               policy<{'amd64': 'n', 'armhf': 'n', 's390x': 'n'}>
-CONFIG_KERNEL_LZ4                               policy<{'amd64': 'y', 'armhf': 'n', 's390x': 'y'}>
-CONFIG_KERNEL_ZSTD                              policy<{'amd64': 'n'}>
+CONFIG_KERNEL_LZ4                               policy<{'amd64': 'n', 'armhf': 'n', 's390x': 'y'}>
+CONFIG_KERNEL_ZSTD                              policy<{'amd64': 'y'}>
 CONFIG_KERNEL_UNCOMPRESSED                      policy<{'s390x': 'n'}>
 
 # Menu: General setup >> Namespaces support
