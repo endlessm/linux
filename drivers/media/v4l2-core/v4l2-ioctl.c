@@ -3166,8 +3166,10 @@ static int video_get_user(void __user *arg, void *parg,
 		if (copy_from_user(parg, (void __user *)arg, n))
 			err = -EFAULT;
 	} else if (in_compat_syscall()) {
+		memset(parg, 0, n);
 		err = v4l2_compat_get_user(arg, parg, cmd);
 	} else {
+		memset(parg, 0, n);
 		switch (cmd) {
 #ifdef CONFIG_COMPAT_32BIT_TIME
 		case VIDIOC_QUERYBUF_TIME32:
