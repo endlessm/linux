@@ -37,7 +37,8 @@ Build-Depends:
  libnuma-dev [amd64 arm64 ppc64el s390x] <!stage1>,
  dkms <!stage1>,
  curl <!stage1>,
- lz4 [amd64 s390x] <!stage1>,
+ lz4 [s390x] <!stage1>,
+ zstd [amd64] <!stage1>,
  dwarves [amd64 arm64 armhf ppc64el s390x] <!stage1>,
 Build-Depends-Indep:
  xmlto <!stage1>,
