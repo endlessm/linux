@@ -1839,6 +1839,7 @@ hid-roccat-ryos
 hid-roccat-savu
 hid-saitek
 hid-samsung
+hid-semitek
 hid-sensor-accel-3d
 hid-sensor-als
 hid-sensor-custom
@@ -4722,6 +4723,7 @@ snd-soc-rl6347a
 snd-soc-rt1011
 snd-soc-rt1015
 snd-soc-rt1015p
+snd-soc-rt1308
 snd-soc-rt1308-sdw
 snd-soc-rt1316-sdw
 snd-soc-rt286
@@ -4761,6 +4763,7 @@ snd-soc-skl-ssp-clk
 snd-soc-skl_hda_dsp
 snd-soc-skl_nau88l25_ssm4567
 snd-soc-skl_rt286
+snd-soc-sof-sdw
 snd-soc-sof_da7219_max98373
 snd-soc-sof_rt5682
 snd-soc-spdif-rx

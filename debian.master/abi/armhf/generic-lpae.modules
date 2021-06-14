@@ -1934,6 +1934,7 @@ hid-roccat-ryos
 hid-roccat-savu
 hid-saitek
 hid-samsung
+hid-semitek
 hid-sensor-accel-3d
 hid-sensor-als
 hid-sensor-custom
