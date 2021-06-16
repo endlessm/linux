@@ -294,6 +294,7 @@ obj-$(CONFIG_MFD_LS2K_BMC_CORE)		+= ls2k-bmc-core.o
 
 obj-$(CONFIG_MFD_ATC260X)	+= atc260x-core.o
 obj-$(CONFIG_MFD_ATC260X_I2C)	+= atc260x-i2c.o
+obj-$(CONFIG_MFD_AAEON)		+= mfd-aaeon.o
 
 obj-$(CONFIG_MFD_QNAP_MCU)	+= qnap-mcu.o
 
