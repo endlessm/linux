@@ -2105,6 +2105,18 @@ config MFD_ACER_A500_EC
 	  The controller itself is ENE KB930, it is running firmware
 	  customized for the specific needs of the Acer A500 hardware.
 
+config MFD_AAEON
+	tristate "AAEON WMI MFD devices"
+	depends on ASUS_WMI
+	depends on UBUNTU_ODM_DRIVERS
+	help
+	  Say yes here to support mltiple IO devices on Single Board Computers
+	  produced by AAEON.
+
+	  This driver leverages the ASUS WMI interface to access device
+	  resources.
+
+
 menu "Multimedia Capabilities Port drivers"
 	depends on ARCH_SA1100
 
