@@ -2102,6 +2102,18 @@ config MFD_QCOM_PM8008
 	  under it in the device tree. Additional drivers must be enabled in
 	  order to use the functionality of the device.
 
+config MFD_AAEON
+	tristate "AAEON WMI MFD devices"
+	depends on ASUS_WMI
+	depends on UBUNTU_ODM_DRIVERS
+	help
+	  Say yes here to support mltiple IO devices on Single Board Computers
+	  produced by AAEON.
+
+	  This driver leverages the ASUS WMI interface to access device
+	  resources.
+
+
 menu "Multimedia Capabilities Port drivers"
 	depends on ARCH_SA1100
 
