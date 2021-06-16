@@ -38,6 +38,18 @@ config HWMON_DEBUG_CHIP
 
 comment "Native drivers"
 
+config SENSORS_AAEON
+	tristate "AAEON hwmon driver"
+	depends on X86
+	depends on UBUNTU_ODM_DRIVERS
+	select MFD_AAEON
+	help
+	  This hwmon driver adds support for reporting temperature or fan
+	  speed and voltage on Single Board Computers produced by AAEON.
+
+	  This driver leverages the ASUS WMI interface to access device
+	  resources.
+
 config SENSORS_ABITUGURU
 	tristate "Abit uGuru (rev 1 & 2)"
 	depends on X86 && DMI
