@@ -59,6 +59,18 @@ config LEDS_88PM860X
 	  This option enables support for on-chip LED drivers found on Marvell
 	  Semiconductor 88PM8606 PMIC.
 
+config LEDS_AAEON
+	tristate "AAEON LED driver"
+	depends on X86
+	depends on UBUNTU_ODM_DRIVERS
+	select MFD_AAEON
+	help
+	  This led driver adds support for LED brightness control on Single
+	  Board Computers produced by AAEON.
+
+	  This driver leverages the ASUS WMI interface to access device
+	  resources.
+
 config LEDS_AAT1290
 	tristate "LED support for the AAT1290"
 	depends on LEDS_CLASS_FLASH
