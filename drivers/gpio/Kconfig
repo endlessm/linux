@@ -1481,6 +1481,18 @@ endmenu
 menu "PCI GPIO expanders"
 	depends on PCI
 
+config GPIO_AAEON
+	tristate "AAEON GPIO support"
+	depends on ASUS_WMI
+	depends on UBUNTU_ODM_DRIVERS
+	select MFD_AAEON
+	help
+	  Say yes here to support GPIO pins on Single Board Computers produced
+	  by AAEON.
+
+	  This driver leverages the ASUS WMI interface to access device
+	  resources.
+
 config GPIO_AMD8111
 	tristate "AMD 8111 GPIO driver"
 	depends on X86 || COMPILE_TEST
