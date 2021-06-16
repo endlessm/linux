@@ -257,6 +257,18 @@ W:	http://www.adaptec.com/
 F:	Documentation/scsi/aacraid.rst
 F:	drivers/scsi/aacraid/
 
+AAEON DEVICE DRIVER WITH WMI INTERFACE
+M:	Edward Lin<edward1_lin@asus.com>
+M:	Kunyang Fan <kunyang_fan@asus.com>
+M:	Frank Hsieh <frank2_hsieh@asus.com>
+M:	Jacob Wu <jacob_wu@asus.com>
+S:	Supported
+F:	drivers/gpio/gpio-aaeon.c
+F:	drivers/hwmon/hwmon-aaeon.c
+F:	drivers/leds/leds-aaeon.c
+F:	drivers/mfd/mfd-aaeon.c
+F:	drivers/watchdog/wdt_aaeon.c
+
 ABI/API
 L:	linux-api@vger.kernel.org
 F:	include/linux/syscalls.h
