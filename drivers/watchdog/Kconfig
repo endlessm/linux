@@ -1588,6 +1588,19 @@ config NIC7018_WDT
 	  To compile this driver as a module, choose M here: the module will be
 	  called nic7018_wdt.
 
+config AAEON_IWMI_WDT
+	tristate "AAEON Watchdog Timer"
+	depends on ASUS_WMI
+	depends on UBUNTU_ODM_DRIVERS
+	select MFD_AAEON
+	help
+	  This is the driver for the hardware watchdog on Single Board
+	  Computers produced by AAEON.Say `Y' here to support its built-in
+	  watchdog timer feature.
+
+	  This driver leverages the ASUS WMI interface to access device
+	  resources.
+
 # M68K Architecture
 
 config M54xx_WATCHDOG
