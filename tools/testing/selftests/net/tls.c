@@ -54,6 +54,18 @@ static void tls_crypto_info_init(uint16_t tls_version, uint16_t cipher_type,
 	}
 }
 
+static void memrnd(void *s, size_t n)
+{
+	int *dword = s;
+	char *byte;
+
+	for (; n >= 4; n -= 4)
+		*dword++ = rand();
+	byte = (void *)dword;
+	while (n--)
+		*byte++ = rand();
+}
+
 FIXTURE(tls_basic)
 {
 	int fd, cfd;
@@ -319,6 +331,8 @@ TEST_F(tls, recv_max)
 	unsigned int send_len = TLS_PAYLOAD_MAX_LEN;
 	char recv_mem[TLS_PAYLOAD_MAX_LEN];
 	char buf[TLS_PAYLOAD_MAX_LEN];
+
+	memrnd(buf, sizeof(buf));
 
 	EXPECT_GE(send(self->fd, buf, send_len, 0), 0);
 	EXPECT_NE(recv(self->cfd, recv_mem, send_len, 0), -1);
@@ -600,6 +614,8 @@ TEST_F(tls, recvmsg_single_max)
 	struct iovec vec;
 	struct msghdr hdr;
 
+	memrnd(send_mem, sizeof(send_mem));
+
 	EXPECT_EQ(send(self->fd, send_mem, send_len, 0), send_len);
 	vec.iov_base = (char *)recv_mem;
 	vec.iov_len = TLS_PAYLOAD_MAX_LEN;
@@ -621,6 +637,8 @@ TEST_F(tls, recvmsg_multiple)
 	char buf[1 << 14];
 	struct msghdr hdr;
 	int i;
+
+	memrnd(buf, sizeof(buf));
 
 	EXPECT_EQ(send(self->fd, buf, send_len, 0), send_len);
 	for (i = 0; i < msg_iovlen; i++) {
@@ -645,6 +663,8 @@ TEST_F(tls, single_send_multiple_recv)
 	unsigned int send_len = TLS_PAYLOAD_MAX_LEN;
 	char send_mem[TLS_PAYLOAD_MAX_LEN * 2];
 	char recv_mem[TLS_PAYLOAD_MAX_LEN * 2];
+
+	memrnd(send_mem, sizeof(send_mem));
 
 	EXPECT_GE(send(self->fd, send_mem, total_len, 0), 0);
 	memset(recv_mem, 0, total_len);
