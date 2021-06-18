@@ -560,6 +560,7 @@ static struct snd_soc_dai_driver atmel_i2s_dai = {
 	},
 	.ops = &atmel_i2s_dai_ops,
 	.symmetric_rates = 1,
+	.symmetric_sample_bits = 1,
 };
 
 static const struct snd_soc_component_driver atmel_i2s_component = {
