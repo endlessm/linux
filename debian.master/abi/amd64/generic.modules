@@ -5775,7 +5775,6 @@ xiaomi-wmi
 xilinx-pr-decoupler
 xilinx-spi
 xilinx-xadc
-xilinx_dpdma
 xilinx_emac
 xilinx_emaclite
 xilinx_gmii2rgmii
@@ -5916,3 +5915,8 @@ zstd
 zstd_compress
 zunicode
 zzstd
+gpio-aaeon
+mfd-aaeon
+wdt_aaeon
+leds-aaeon
+hwmon-aaeon

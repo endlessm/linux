@@ -1402,7 +1402,7 @@ CONFIG_UNIPHIER_XDMAC                           policy<{'armhf': 'm'}>
 CONFIG_XGENE_DMA                                policy<{'arm64': 'm'}>
 CONFIG_XILINX_DMA                               policy<{'arm64': 'm'}>
 CONFIG_XILINX_ZYNQMP_DMA                        policy<{'arm64': 'm'}>
-CONFIG_XILINX_ZYNQMP_DPDMA                      policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm'}>
+CONFIG_XILINX_ZYNQMP_DPDMA                      policy<{'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm'}>
 CONFIG_MTK_HSDMA                                policy<{'arm64': 'm', 'armhf': 'm'}>
 CONFIG_MTK_CQDMA                                policy<{'arm64': 'm', 'armhf': 'm'}>
 CONFIG_MTK_UART_APDMA                           policy<{'arm64': 'm', 'armhf': 'm'}>
