@@ -1703,7 +1703,6 @@ gpio-tpic2810
 gpio-tps65086
 gpio-tps65218
 gpio-tps65912
-gpio-tqmx86
 gpio-ucb1400
 gpio-uniphier
 gpio-vibra

@@ -1717,7 +1717,6 @@ gpio-tpic2810
 gpio-tps65086
 gpio-tps65218
 gpio-tps65912
-gpio-tqmx86
 gpio-ts4800
 gpio-ts4900
 gpio-ucb1400
