@@ -3905,6 +3905,7 @@ pcie-iproc
 pcie-iproc-platform
 pcie-mediatek-gen3
 pcie-rockchip-host
+pcie-tegra194
 pcips2
 pcl711
 pcl724

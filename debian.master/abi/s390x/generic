@@ -1688,8 +1688,8 @@ EXPORT_SYMBOL	 drivers/ptp/ptp 0x35ceaacb	ptp_schedule_worker
 EXPORT_SYMBOL	 drivers/ptp/ptp 0x4541210c	ptp_clock_index
 EXPORT_SYMBOL	 drivers/ptp/ptp 0x59ebffd0	ptp_find_pin_unlocked
 EXPORT_SYMBOL	 drivers/ptp/ptp 0x5ba5366c	ptp_cancel_worker_sync
+EXPORT_SYMBOL	 drivers/ptp/ptp 0x61407a47	scaled_ppm_to_ppb
 EXPORT_SYMBOL	 drivers/ptp/ptp 0x9ba10ae8	ptp_clock_register
-EXPORT_SYMBOL	 drivers/ptp/ptp 0xa8306b78	scaled_ppm_to_ppb
 EXPORT_SYMBOL	 drivers/ptp/ptp 0xf8630407	ptp_find_pin
 EXPORT_SYMBOL	 drivers/s390/block/dasd_mod 0x0207faea	dasd_block_clear_timer
 EXPORT_SYMBOL	 drivers/s390/block/dasd_mod 0x07c85581	dasd_default_erp_action
@@ -10411,7 +10411,6 @@ EXPORT_SYMBOL_GPL	 vmlinux 0x233c4456	xas_find
 EXPORT_SYMBOL_GPL	 vmlinux 0x233c9b47	validate_xmit_skb_list
 EXPORT_SYMBOL_GPL	 vmlinux 0x233f5316	sprint_oid
 EXPORT_SYMBOL_GPL	 vmlinux 0x234cf416	devlink_fmsg_string_pair_put
-EXPORT_SYMBOL_GPL	 vmlinux 0x235233eb	get_net_ns
 EXPORT_SYMBOL_GPL	 vmlinux 0x237b28e6	fscrypt_ioctl_get_key_status
 EXPORT_SYMBOL_GPL	 vmlinux 0x23864ce7	cpuset_mem_spread_node
 EXPORT_SYMBOL_GPL	 vmlinux 0x23b32852	gmap_disable
@@ -12542,7 +12541,6 @@ EXPORT_SYMBOL_GPL	 vmlinux 0xb215ead6	bsg_job_done
 EXPORT_SYMBOL_GPL	 vmlinux 0xb21aa701	srcu_barrier
 EXPORT_SYMBOL_GPL	 vmlinux 0xb21fd869	bio_end_io_acct_remapped
 EXPORT_SYMBOL_GPL	 vmlinux 0xb229e7f9	dma_vunmap_noncontiguous
-EXPORT_SYMBOL_GPL	 vmlinux 0xb2309757	sched_setattr_nocheck
 EXPORT_SYMBOL_GPL	 vmlinux 0xb2405efc	secure_tcp_seq
 EXPORT_SYMBOL_GPL	 vmlinux 0xb263be17	crypto_aead_setkey
 EXPORT_SYMBOL_GPL	 vmlinux 0xb26a1add	elfcorehdr_addr
@@ -13428,6 +13426,7 @@ EXPORT_SYMBOL_GPL	 vmlinux 0xeea69926	pci_epf_unbind
 EXPORT_SYMBOL_GPL	 vmlinux 0xeea834c0	kprobe_event_cmd_init
 EXPORT_SYMBOL_GPL	 vmlinux 0xeeb02737	devm_regmap_field_bulk_alloc
 EXPORT_SYMBOL_GPL	 vmlinux 0xeec6ab29	device_show_int
+EXPORT_SYMBOL_GPL	 vmlinux 0xeecd700a	get_net_ns
 EXPORT_SYMBOL_GPL	 vmlinux 0xeed6da0b	ping_seq_stop
 EXPORT_SYMBOL_GPL	 vmlinux 0xeee2d0d8	iommu_fwspec_free
 EXPORT_SYMBOL_GPL	 vmlinux 0xef1249a7	tcp_is_ulp_esp

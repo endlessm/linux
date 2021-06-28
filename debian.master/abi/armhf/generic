@@ -7990,6 +7990,7 @@ EXPORT_SYMBOL	 vmlinux 0x6115cdf2	phy_get_internal_delay
 EXPORT_SYMBOL	 vmlinux 0x611d85ad	sock_recv_errqueue
 EXPORT_SYMBOL	 vmlinux 0x6121bd54	dql_init
 EXPORT_SYMBOL	 vmlinux 0x6128b5fc	__printk_ratelimit
+EXPORT_SYMBOL	 vmlinux 0x61407a47	scaled_ppm_to_ppb
 EXPORT_SYMBOL	 vmlinux 0x61518330	register_tcf_proto_ops
 EXPORT_SYMBOL	 vmlinux 0x615224ee	tty_flip_buffer_push
 EXPORT_SYMBOL	 vmlinux 0x6156c7f4	net_dim
@@ -9461,7 +9462,6 @@ EXPORT_SYMBOL	 vmlinux 0xa7f87269	pci_scan_root_bus_bridge
 EXPORT_SYMBOL	 vmlinux 0xa80acb56	lockref_mark_dead
 EXPORT_SYMBOL	 vmlinux 0xa80eec73	udp_lib_setsockopt
 EXPORT_SYMBOL	 vmlinux 0xa8153d5f	ipv6_sock_mc_join
-EXPORT_SYMBOL	 vmlinux 0xa8306b78	scaled_ppm_to_ppb
 EXPORT_SYMBOL	 vmlinux 0xa836c0b2	__set_page_dirty_nobuffers
 EXPORT_SYMBOL	 vmlinux 0xa83bc9b8	of_node_put
 EXPORT_SYMBOL	 vmlinux 0xa843805a	get_unused_fd_flags
@@ -19165,7 +19165,6 @@ EXPORT_SYMBOL_GPL	 vmlinux 0x1ee8064d	sk_set_memalloc
 EXPORT_SYMBOL_GPL	 vmlinux 0x1ee96f1e	dm_hold
 EXPORT_SYMBOL_GPL	 vmlinux 0x1eeab4b2	fat_fill_super
 EXPORT_SYMBOL_GPL	 vmlinux 0x1ef5028c	pinctrl_get_group_pins
-EXPORT_SYMBOL_GPL	 vmlinux 0x1f0587e9	get_net_ns
 EXPORT_SYMBOL_GPL	 vmlinux 0x1f0cb5bf	pm_power_off_prepare
 EXPORT_SYMBOL_GPL	 vmlinux 0x1f240f47	of_get_regulator_init_data
 EXPORT_SYMBOL_GPL	 vmlinux 0x1f38a4f6	mpi_set_highbit
@@ -19618,6 +19617,7 @@ EXPORT_SYMBOL_GPL	 vmlinux 0x31c9774a	regulator_desc_list_voltage_linear_range
 EXPORT_SYMBOL_GPL	 vmlinux 0x31e1b2cd	cgrp_dfl_root
 EXPORT_SYMBOL_GPL	 vmlinux 0x320744c0	xfrm_audit_state_replay_overflow
 EXPORT_SYMBOL_GPL	 vmlinux 0x320b7674	snd_soc_dapm_new_controls
+EXPORT_SYMBOL_GPL	 vmlinux 0x320c78cc	topology_set_scale_freq_source
 EXPORT_SYMBOL_GPL	 vmlinux 0x32158e0a	snd_soc_close_delayed_work
 EXPORT_SYMBOL_GPL	 vmlinux 0x32342470	ncsi_register_dev
 EXPORT_SYMBOL_GPL	 vmlinux 0x32374970	ata_dummy_port_ops
@@ -22349,6 +22349,7 @@ EXPORT_SYMBOL_GPL	 vmlinux 0x9c81f1d4	trace_array_put
 EXPORT_SYMBOL_GPL	 vmlinux 0x9c83b2ce	pci_disable_pri
 EXPORT_SYMBOL_GPL	 vmlinux 0x9c84d126	fwnode_graph_get_remote_port
 EXPORT_SYMBOL_GPL	 vmlinux 0x9c8a6528	rio_mport_class
+EXPORT_SYMBOL_GPL	 vmlinux 0x9c8c2131	get_net_ns
 EXPORT_SYMBOL_GPL	 vmlinux 0x9c910775	fwnode_create_software_node
 EXPORT_SYMBOL_GPL	 vmlinux 0x9ca480cc	clk_gate_is_enabled
 EXPORT_SYMBOL_GPL	 vmlinux 0x9cab8aac	scsi_dh_attach
@@ -22519,7 +22520,6 @@ EXPORT_SYMBOL_GPL	 vmlinux 0xa3f7fc22	transport_class_unregister
 EXPORT_SYMBOL_GPL	 vmlinux 0xa4031b7f	sfp_parse_port
 EXPORT_SYMBOL_GPL	 vmlinux 0xa40ce9bb	scsi_dh_activate
 EXPORT_SYMBOL_GPL	 vmlinux 0xa410a295	devlink_region_destroy
-EXPORT_SYMBOL_GPL	 vmlinux 0xa444c3ca	topology_clear_scale_freq_source
 EXPORT_SYMBOL_GPL	 vmlinux 0xa4494047	mtd_block_isreserved
 EXPORT_SYMBOL_GPL	 vmlinux 0xa44a1307	interval_tree_iter_first
 EXPORT_SYMBOL_GPL	 vmlinux 0xa45c7b90	stack_trace_print
@@ -22860,7 +22860,6 @@ EXPORT_SYMBOL_GPL	 vmlinux 0xb10c5919	sched_set_fifo
 EXPORT_SYMBOL_GPL	 vmlinux 0xb10d964d	devlink_fmsg_pair_nest_end
 EXPORT_SYMBOL_GPL	 vmlinux 0xb11625b9	cpu_cgrp_subsys_on_dfl_key
 EXPORT_SYMBOL_GPL	 vmlinux 0xb11d9000	tty_dev_name_to_number
-EXPORT_SYMBOL_GPL	 vmlinux 0xb1220c43	sched_setattr_nocheck
 EXPORT_SYMBOL_GPL	 vmlinux 0xb1380fd3	blkcg_policy_unregister
 EXPORT_SYMBOL_GPL	 vmlinux 0xb13a6280	spi_mem_default_supports_op
 EXPORT_SYMBOL_GPL	 vmlinux 0xb1574374	pm_clk_runtime_resume
@@ -23652,6 +23651,7 @@ EXPORT_SYMBOL_GPL	 vmlinux 0xcfb46904	amba_ahb_device_add_res
 EXPORT_SYMBOL_GPL	 vmlinux 0xcfc1a28d	devlink_net
 EXPORT_SYMBOL_GPL	 vmlinux 0xcfc5108a	devlink_fmsg_u8_pair_put
 EXPORT_SYMBOL_GPL	 vmlinux 0xcfc7b4e4	rcu_barrier_tasks_trace
+EXPORT_SYMBOL_GPL	 vmlinux 0xcfeb5942	topology_clear_scale_freq_source
 EXPORT_SYMBOL_GPL	 vmlinux 0xd014572d	ip_route_output_tunnel
 EXPORT_SYMBOL_GPL	 vmlinux 0xd022071b	wbc_detach_inode
 EXPORT_SYMBOL_GPL	 vmlinux 0xd02778cd	of_reserved_mem_device_release
@@ -24717,7 +24717,6 @@ EXPORT_SYMBOL_GPL	 vmlinux 0xfb7a4a7f	btree_last
 EXPORT_SYMBOL_GPL	 vmlinux 0xfb865356	devm_phy_get
 EXPORT_SYMBOL_GPL	 vmlinux 0xfb87af36	mptcp_get_reset_option
 EXPORT_SYMBOL_GPL	 vmlinux 0xfb95309d	pm_clk_destroy
-EXPORT_SYMBOL_GPL	 vmlinux 0xfb96f72b	topology_set_scale_freq_source
 EXPORT_SYMBOL_GPL	 vmlinux 0xfbbd41ca	no_action
 EXPORT_SYMBOL_GPL	 vmlinux 0xfbdd62dd	ip6_update_pmtu
 EXPORT_SYMBOL_GPL	 vmlinux 0xfbe6cdb7	dev_pm_opp_register_set_opp_helper
