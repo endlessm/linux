@@ -1,3 +1,9 @@
+linux (5.13.0-10.10) impish; urgency=medium
+
+  * Empty entry
+
+ -- Andrea Righi <andrea.righi@canonical.com>  Mon, 28 Jun 2021 08:40:05 +0200
+
 linux-unstable (5.13.0-10.10) impish; urgency=medium
 
   * impish/linux-unstable: 5.13.0-10.10 -proposed tracker (LP: #1933795)
