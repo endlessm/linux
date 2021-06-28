@@ -8122,6 +8122,7 @@ EXPORT_SYMBOL	 vmlinux 0x610c2501	pnp_is_active
 EXPORT_SYMBOL	 vmlinux 0x6128b5fc	__printk_ratelimit
 EXPORT_SYMBOL	 vmlinux 0x612e51a8	rawv6_mh_filter_register
 EXPORT_SYMBOL	 vmlinux 0x6136273e	nf_log_set
+EXPORT_SYMBOL	 vmlinux 0x61407a47	scaled_ppm_to_ppb
 EXPORT_SYMBOL	 vmlinux 0x615911d7	__bitmap_set
 EXPORT_SYMBOL	 vmlinux 0x615e9ed1	dma_free_attrs
 EXPORT_SYMBOL	 vmlinux 0x61696416	rproc_of_resm_mem_entry_init
@@ -9704,7 +9705,6 @@ EXPORT_SYMBOL	 vmlinux 0xa8154d97	param_get_charp
 EXPORT_SYMBOL	 vmlinux 0xa8181adf	proc_dointvec
 EXPORT_SYMBOL	 vmlinux 0xa8213e5a	vmf_insert_mixed_prot
 EXPORT_SYMBOL	 vmlinux 0xa82d2f26	unpin_user_pages
-EXPORT_SYMBOL	 vmlinux 0xa8306b78	scaled_ppm_to_ppb
 EXPORT_SYMBOL	 vmlinux 0xa836ba02	wrmsr_safe_regs
 EXPORT_SYMBOL	 vmlinux 0xa843805a	get_unused_fd_flags
 EXPORT_SYMBOL	 vmlinux 0xa84ce9e0	crypto_aes_inv_sbox
@@ -20139,6 +20139,7 @@ EXPORT_SYMBOL_GPL	 vmlinux 0x1e1cf593	dma_buf_unmap_attachment
 EXPORT_SYMBOL_GPL	 vmlinux 0x1e2ebc84	__SCK__tp_func_error_report_end
 EXPORT_SYMBOL_GPL	 vmlinux 0x1e31484c	xfrm_audit_state_notfound
 EXPORT_SYMBOL_GPL	 vmlinux 0x1e389cdf	spi_alloc_device
+EXPORT_SYMBOL_GPL	 vmlinux 0x1e420e4d	get_net_ns
 EXPORT_SYMBOL_GPL	 vmlinux 0x1e424d61	user_preparse
 EXPORT_SYMBOL_GPL	 vmlinux 0x1e4e98c0	acpi_dev_filter_resource_type
 EXPORT_SYMBOL_GPL	 vmlinux 0x1e4f0884	ipv6_bpf_stub
@@ -20278,7 +20279,6 @@ EXPORT_SYMBOL_GPL	 vmlinux 0x231fd0ac	sysfs_groups_change_owner
 EXPORT_SYMBOL_GPL	 vmlinux 0x233d48fe	__tracepoint_pelt_irq_tp
 EXPORT_SYMBOL_GPL	 vmlinux 0x23412816	rtc_tm_to_ktime
 EXPORT_SYMBOL_GPL	 vmlinux 0x234cf416	devlink_fmsg_string_pair_put
-EXPORT_SYMBOL_GPL	 vmlinux 0x235233eb	get_net_ns
 EXPORT_SYMBOL_GPL	 vmlinux 0x2361a07e	public_key_subtype
 EXPORT_SYMBOL_GPL	 vmlinux 0x23645f59	gnttab_pages_set_private
 EXPORT_SYMBOL_GPL	 vmlinux 0x2375832a	register_kretprobes
@@ -20407,7 +20407,6 @@ EXPORT_SYMBOL_GPL	 vmlinux 0x27fb577b	inet_csk_addr2sockaddr
 EXPORT_SYMBOL_GPL	 vmlinux 0x28089486	acpi_device_fwnode_ops
 EXPORT_SYMBOL_GPL	 vmlinux 0x28165471	arizona_dev_exit
 EXPORT_SYMBOL_GPL	 vmlinux 0x2817f7fd	cppc_get_desired_perf
-EXPORT_SYMBOL_GPL	 vmlinux 0x281d7af0	sched_setattr_nocheck
 EXPORT_SYMBOL_GPL	 vmlinux 0x282cdabc	usb_led_activity
 EXPORT_SYMBOL_GPL	 vmlinux 0x284854db	__tracepoint_br_fdb_add
 EXPORT_SYMBOL_GPL	 vmlinux 0x284fe2b9	arizona_free_irq

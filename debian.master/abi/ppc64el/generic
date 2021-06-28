@@ -7814,6 +7814,7 @@ EXPORT_SYMBOL	 vmlinux 0x6121bd54	dql_init
 EXPORT_SYMBOL	 vmlinux 0x6122b096	deactivate_locked_super
 EXPORT_SYMBOL	 vmlinux 0x6128b5fc	__printk_ratelimit
 EXPORT_SYMBOL	 vmlinux 0x613f9340	iov_iter_fault_in_readable
+EXPORT_SYMBOL	 vmlinux 0x61407a47	scaled_ppm_to_ppb
 EXPORT_SYMBOL	 vmlinux 0x6145fdc6	agp_find_bridge
 EXPORT_SYMBOL	 vmlinux 0x615911d7	__bitmap_set
 EXPORT_SYMBOL	 vmlinux 0x61598bf2	__wait_on_buffer
@@ -9346,7 +9347,6 @@ EXPORT_SYMBOL	 vmlinux 0xa8131093	__dst_destroy_metrics_generic
 EXPORT_SYMBOL	 vmlinux 0xa8155042	netpoll_poll_dev
 EXPORT_SYMBOL	 vmlinux 0xa82066db	sock_set_reuseport
 EXPORT_SYMBOL	 vmlinux 0xa8266dc0	page_symlink
-EXPORT_SYMBOL	 vmlinux 0xa8306b78	scaled_ppm_to_ppb
 EXPORT_SYMBOL	 vmlinux 0xa839ca5a	jbd2_journal_clear_err
 EXPORT_SYMBOL	 vmlinux 0xa843805a	get_unused_fd_flags
 EXPORT_SYMBOL	 vmlinux 0xa84474aa	_raw_write_lock_irqsave
@@ -18248,6 +18248,7 @@ EXPORT_SYMBOL_GPL	 vmlinux 0x05293f5e	iommu_get_domain_for_dev
 EXPORT_SYMBOL_GPL	 vmlinux 0x052c9aed	ktime_get_real_fast_ns
 EXPORT_SYMBOL_GPL	 vmlinux 0x053d738a	__SCK__tp_func_br_fdb_update
 EXPORT_SYMBOL_GPL	 vmlinux 0x054e550b	kernel_halt
+EXPORT_SYMBOL_GPL	 vmlinux 0x05588b76	get_net_ns
 EXPORT_SYMBOL_GPL	 vmlinux 0x0558ab4a	freq_qos_update_request
 EXPORT_SYMBOL_GPL	 vmlinux 0x055bc3db	pci_disable_pasid
 EXPORT_SYMBOL_GPL	 vmlinux 0x055f1973	pci_user_read_config_word
@@ -18258,7 +18259,6 @@ EXPORT_SYMBOL_GPL	 vmlinux 0x058726ba	ata_sff_qc_issue
 EXPORT_SYMBOL_GPL	 vmlinux 0x05883efb	__traceiter_suspend_resume
 EXPORT_SYMBOL_GPL	 vmlinux 0x058b582a	vt_get_leds
 EXPORT_SYMBOL_GPL	 vmlinux 0x058c6377	for_each_kernel_tracepoint
-EXPORT_SYMBOL_GPL	 vmlinux 0x059d280e	sched_setattr_nocheck
 EXPORT_SYMBOL_GPL	 vmlinux 0x05a8288f	ping_rcv
 EXPORT_SYMBOL_GPL	 vmlinux 0x05f0e913	fuse_do_open
 EXPORT_SYMBOL_GPL	 vmlinux 0x05f27e92	posix_clock_register
@@ -18943,7 +18943,6 @@ EXPORT_SYMBOL_GPL	 vmlinux 0x23417562	crypto_register_rngs
 EXPORT_SYMBOL_GPL	 vmlinux 0x2344142d	attribute_container_find_class_device
 EXPORT_SYMBOL_GPL	 vmlinux 0x234cf416	devlink_fmsg_string_pair_put
 EXPORT_SYMBOL_GPL	 vmlinux 0x23506618	pci_hp_add_bridge
-EXPORT_SYMBOL_GPL	 vmlinux 0x235233eb	get_net_ns
 EXPORT_SYMBOL_GPL	 vmlinux 0x2358af18	xas_init_marks
 EXPORT_SYMBOL_GPL	 vmlinux 0x2362ea95	irq_domain_translate_onecell
 EXPORT_SYMBOL_GPL	 vmlinux 0x23864ce7	cpuset_mem_spread_node

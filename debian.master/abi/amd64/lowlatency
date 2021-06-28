@@ -8136,6 +8136,7 @@ EXPORT_SYMBOL	 vmlinux 0x61073e4a	acpi_os_map_generic_address
 EXPORT_SYMBOL	 vmlinux 0x6116f35b	vlan_vids_add_by_dev
 EXPORT_SYMBOL	 vmlinux 0x6128b5fc	__printk_ratelimit
 EXPORT_SYMBOL	 vmlinux 0x6132d4e6	twl6040_set_pll
+EXPORT_SYMBOL	 vmlinux 0x61407a47	scaled_ppm_to_ppb
 EXPORT_SYMBOL	 vmlinux 0x615458ff	d_lookup
 EXPORT_SYMBOL	 vmlinux 0x615895d6	inode_io_list_del
 EXPORT_SYMBOL	 vmlinux 0x615911d7	__bitmap_set
@@ -9745,7 +9746,6 @@ EXPORT_SYMBOL	 vmlinux 0xa814d3bd	console_stop
 EXPORT_SYMBOL	 vmlinux 0xa8181adf	proc_dointvec
 EXPORT_SYMBOL	 vmlinux 0xa81fd707	alloc_xenballooned_pages
 EXPORT_SYMBOL	 vmlinux 0xa82a0e1e	devm_nvmem_cell_put
-EXPORT_SYMBOL	 vmlinux 0xa8306b78	scaled_ppm_to_ppb
 EXPORT_SYMBOL	 vmlinux 0xa836ba02	wrmsr_safe_regs
 EXPORT_SYMBOL	 vmlinux 0xa843805a	get_unused_fd_flags
 EXPORT_SYMBOL	 vmlinux 0xa84ce9e0	crypto_aes_inv_sbox
@@ -19807,7 +19807,6 @@ EXPORT_SYMBOL_GPL	 vmlinux 0x0e173e74	regulator_is_supported_voltage
 EXPORT_SYMBOL_GPL	 vmlinux 0x0e1fc8ef	__SCT__tp_func_non_standard_event
 EXPORT_SYMBOL_GPL	 vmlinux 0x0e369098	rio_mport_read_config_8
 EXPORT_SYMBOL_GPL	 vmlinux 0x0e46d384	blk_req_zone_write_trylock
-EXPORT_SYMBOL_GPL	 vmlinux 0x0e649a2f	sched_setattr_nocheck
 EXPORT_SYMBOL_GPL	 vmlinux 0x0e6b79af	static_key_disable_cpuslocked
 EXPORT_SYMBOL_GPL	 vmlinux 0x0e73fe9c	register_kprobe
 EXPORT_SYMBOL_GPL	 vmlinux 0x0e8266dd	__SCK__tp_func_error_report_end
@@ -20314,7 +20313,6 @@ EXPORT_SYMBOL_GPL	 vmlinux 0x2340734d	dm_copy_name_and_uuid
 EXPORT_SYMBOL_GPL	 vmlinux 0x23412816	rtc_tm_to_ktime
 EXPORT_SYMBOL_GPL	 vmlinux 0x234516e0	badblocks_set
 EXPORT_SYMBOL_GPL	 vmlinux 0x234cf416	devlink_fmsg_string_pair_put
-EXPORT_SYMBOL_GPL	 vmlinux 0x235233eb	get_net_ns
 EXPORT_SYMBOL_GPL	 vmlinux 0x23532958	pm_generic_suspend_late
 EXPORT_SYMBOL_GPL	 vmlinux 0x235de6ba	posix_acl_access_xattr_handler
 EXPORT_SYMBOL_GPL	 vmlinux 0x2375832a	register_kretprobes
@@ -24747,6 +24745,7 @@ EXPORT_SYMBOL_GPL	 vmlinux 0xd67364f7	eventfd_ctx_fdget
 EXPORT_SYMBOL_GPL	 vmlinux 0xd686dc80	scsi_mode_select
 EXPORT_SYMBOL_GPL	 vmlinux 0xd690779e	phy_set_media
 EXPORT_SYMBOL_GPL	 vmlinux 0xd693b92f	fscrypt_ioctl_get_key_status
+EXPORT_SYMBOL_GPL	 vmlinux 0xd69f2ca9	get_net_ns
 EXPORT_SYMBOL_GPL	 vmlinux 0xd6a69aa9	i2c_new_dummy_device
 EXPORT_SYMBOL_GPL	 vmlinux 0xd6c759e3	ata_sff_dev_select
 EXPORT_SYMBOL_GPL	 vmlinux 0xd6ca2bc9	devm_extcon_dev_unregister

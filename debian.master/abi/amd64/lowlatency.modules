@@ -1573,6 +1573,7 @@ gpio
 gpio-104-dio-48e
 gpio-104-idi-48
 gpio-104-idio-16
+gpio-aaeon
 gpio-adp5520
 gpio-adp5588
 gpio-aggregator
@@ -1921,6 +1922,7 @@ hv_sock
 hv_storvsc
 hv_utils
 hv_vmbus
+hwmon-aaeon
 hwmon-vid
 hwpoison-inject
 hx711
@@ -2469,6 +2471,7 @@ lec
 led-class-flash
 led-class-multicolor
 leds-88pm860x
+leds-aaeon
 leds-adp5520
 leds-apu
 leds-as3645a
@@ -2891,6 +2894,7 @@ metro-usb
 metronomefb
 meye
 mf6x4
+mfd-aaeon
 mgag200
 mhi
 mhi_net
@@ -5684,6 +5688,7 @@ wcn36xx
 wd719x
 wdat_wdt
 wdt87xx_i2c
+wdt_aaeon
 wdt_pci
 wfx
 whiteheat
@@ -5915,8 +5920,3 @@ zstd
 zstd_compress
 zunicode
 zzstd
-gpio-aaeon
-hwmon-aaeon
-wdt_aaeon
-leds-aaeon
-mfd-aaeon
