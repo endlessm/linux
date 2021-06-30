@@ -38,6 +38,8 @@ static ssize_t esm_token_write(struct file *f, const char __user *buf,
 static const struct proc_ops esm_token_fops = {
 	.proc_read = esm_token_read,
 	.proc_write = esm_token_write,
+	.proc_lseek = default_llseek,
+
 };
 
 static void ubuntu_host_cleanup(void)
