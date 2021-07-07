@@ -586,6 +586,7 @@ static void ceph_queue_cap_snap(struct ceph_inode_info *ci,
 	     ceph_cap_string(dirty), capsnap->need_flush ? "" : "no_flush");
 	ihold(inode);
 
+	capsnap->cap_flush.ci = ci;
 	capsnap->follows = old_snapc->seq;
 	capsnap->issued = __ceph_caps_issued(ci, NULL);
 	capsnap->dirty = dirty;
