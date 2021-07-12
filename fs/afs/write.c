@@ -773,7 +773,7 @@ int afs_writepages(struct address_space *mapping,
 		end = (pgoff_t)(LLONG_MAX >> PAGE_SHIFT);
 		ret = afs_writepages_region(mapping, wbc, 0, end, &next);
 		if (wbc->nr_to_write > 0)
-			mapping->writeback_index = next;
+			mapping->writeback_index = next / PAGE_SIZE;
 	} else {
 		start = wbc->range_start >> PAGE_SHIFT;
 		end = wbc->range_end >> PAGE_SHIFT;
