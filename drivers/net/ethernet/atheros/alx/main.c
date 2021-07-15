@@ -2012,18 +2012,17 @@ static int alx_resume(struct device *dev)
 		return -EIO;
 	}
 
-	if (!netif_running(netdev))
-		return 0;
-
-	rtnl_lock();
-	err = __alx_open(alx, true);
-	rtnl_unlock();
-	if (err)
-		return err;
+	if (netif_running(netdev)) {
+		rtnl_lock();
+		err = __alx_open(alx, true);
+		rtnl_unlock();
+		if (err)
+			return err;
+	}
 
 	netif_device_attach(netdev);
 
-	return 0;
+	return err;
 }
 #endif
 
