@@ -2364,8 +2364,6 @@ int __init amd_iommu_init_api(void)
 
 int __init amd_iommu_init_dma_ops(void)
 {
-	swiotlb        = (iommu_default_passthrough() || sme_me_mask) ? 1 : 0;
-
 	if (amd_iommu_unmap_flush)
 		pr_info("IO/TLB flush on unmap enabled\n");
 	else
