@@ -2059,7 +2059,6 @@ iforce-usb
 igb
 igbvf
 igc
-igen6_edac
 igorplugusb
 iguanair
 ii_pci20kc
@@ -3063,7 +3062,6 @@ mtd_dataflash
 mtdblock
 mtdblock_ro
 mtdoops
-mtdpstore
 mtdram
 mtdswap
 mtip32xx
@@ -3685,8 +3683,6 @@ ps2mult
 psample
 psmouse
 psnap
-pstore_blk
-pstore_zone
 psxpad-spi
 pt
 ptp_clockmatrix
@@ -5739,7 +5735,6 @@ wm97xx-ts
 wmi
 wmi-bmof
 wp512
-wwan
 x25
 x38_edac
 x86_pkg_temp_thermal

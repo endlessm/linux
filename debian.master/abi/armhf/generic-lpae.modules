@@ -3183,7 +3183,6 @@ mt9v032
 mt9v111
 mtd_dataflash
 mtdoops
-mtdpstore
 mtdram
 mtdswap
 mtip32xx
@@ -3985,8 +3984,6 @@ ps2mult
 psample
 psmouse
 psnap
-pstore_blk
-pstore_zone
 psxpad-spi
 pt
 ptp-qoriq
@@ -6210,7 +6207,6 @@ wm8994
 wm8994-regulator
 wm97xx-ts
 wp512
-wwan
 x25
 x_tables
 xbox_remote
