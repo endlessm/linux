@@ -5693,7 +5693,6 @@ xiaomi-wmi
 xilinx-pr-decoupler
 xilinx-spi
 xilinx-xadc
-xilinx_dpdma
 xilinx_emac
 xilinx_gmii2rgmii
 xilinx_sdfec
