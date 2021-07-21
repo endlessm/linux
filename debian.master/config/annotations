@@ -10376,7 +10376,7 @@ CONFIG_ASUS_LAPTOP                              policy<{'amd64': 'm'}>
 CONFIG_ASUS_WIRELESS                            policy<{'amd64': 'm'}>
 CONFIG_EEEPC_LAPTOP                             policy<{'amd64': 'm'}>
 CONFIG_AMILO_RFKILL                             policy<{'amd64': 'm'}>
-CONFIG_DELL_UART_BACKLIGHT                      policy<{'amd64': 'n'}>
+CONFIG_DELL_UART_BACKLIGHT                      policy<{'amd64': 'm'}>
 CONFIG_FUJITSU_LAPTOP                           policy<{'amd64': 'm'}>
 CONFIG_FUJITSU_TABLET                           policy<{'amd64': 'm'}>
 CONFIG_GPD_POCKET_FAN                           policy<{'amd64': 'm'}>
