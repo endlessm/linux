@@ -733,7 +733,7 @@ static int xr_usb_serial_tty_write(struct tty_struct *tty,
 	return count;
 }
 
-static int xr_usb_serial_tty_write_room(struct tty_struct *tty)
+static unsigned int xr_usb_serial_tty_write_room(struct tty_struct *tty)
 {
 	struct xr_usb_serial *xr_usb_serial = tty->driver_data;
 	/*
@@ -743,7 +743,7 @@ static int xr_usb_serial_tty_write_room(struct tty_struct *tty)
 	return xr_usb_serial_wb_is_avail(xr_usb_serial) ? xr_usb_serial->writesize : 0;
 }
 
-static int xr_usb_serial_tty_chars_in_buffer(struct tty_struct *tty)
+static unsigned int xr_usb_serial_tty_chars_in_buffer(struct tty_struct *tty)
 {
 	struct xr_usb_serial *xr_usb_serial = tty->driver_data;
 	/*
