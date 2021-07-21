@@ -1012,7 +1012,7 @@ int btrfs_add_delayed_tree_ref(struct btrfs_trans_handle *trans,
 		kmem_cache_free(btrfs_delayed_tree_ref_cachep, ref);
 
 	if (qrecord_inserted)
-		btrfs_qgroup_trace_extent_post(fs_info, record);
+		btrfs_qgroup_trace_extent_post(trans, record);
 
 	return 0;
 }
@@ -1107,7 +1107,7 @@ int btrfs_add_delayed_data_ref(struct btrfs_trans_handle *trans,
 
 
 	if (qrecord_inserted)
-		return btrfs_qgroup_trace_extent_post(fs_info, record);
+		return btrfs_qgroup_trace_extent_post(trans, record);
 	return 0;
 }
 
