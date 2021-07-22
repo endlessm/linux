@@ -1667,7 +1667,7 @@ CONFIG_EDAC_SBRIDGE                             policy<{'amd64': 'm'}>
 CONFIG_EDAC_SKX                                 policy<{'amd64': 'm'}>
 CONFIG_EDAC_I10NM                               policy<{'amd64': 'm'}>
 CONFIG_EDAC_PND2                                policy<{'amd64': 'm'}>
-CONFIG_EDAC_IGEN6                               policy<{'amd64': '-'}>
+CONFIG_EDAC_IGEN6                               policy<{'amd64': 'm'}>
 CONFIG_EDAC_LAYERSCAPE                          policy<{'arm64': 'm'}>
 CONFIG_EDAC_CPC925                              policy<{'ppc64el': 'm'}>
 CONFIG_EDAC_HIGHBANK_MC                         policy<{'armhf': 'm'}>
@@ -5795,7 +5795,6 @@ CONFIG_ATM_ENI_TUNE_BURST                       policy<{'amd64': 'n', 'arm64': '
 # Menu: Device Drivers >> Network device support >> CAIF transport drivers
 CONFIG_CAIF_DRIVERS                             policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y'}>
 CONFIG_CAIF_TTY                                 policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm'}>
-CONFIG_CAIF_HSI                                 policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm'}>
 CONFIG_CAIF_VIRTIO                              policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm'}>
 
 # Menu: Device Drivers >> Network device support >> Distributed Switch Architecture drivers
@@ -6210,7 +6209,7 @@ CONFIG_ENC28J60                                 policy<{'amd64': 'm', 'arm64': '
 CONFIG_ENC28J60_WRITEVERIFY                     policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'ppc64el': 'n'}>
 CONFIG_ENCX24J600                               policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm'}>
 CONFIG_LAN743X                                  policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm'}>
-CONFIG_SPARX5_SWITCH                            policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm'}>
+CONFIG_SPARX5_SWITCH                            policy<{'amd64': '-', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm'}>
 
 # Menu: Device Drivers >> Network device support >> Ethernet driver support >> National Semiconductor 8390 devices
 CONFIG_NET_VENDOR_8390                          policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y'}>
@@ -7173,7 +7172,7 @@ CONFIG_PHY_MTK_UFS                              policy<{'arm64': 'm', 'armhf': '
 CONFIG_PHY_MTK_XSPHY                            policy<{'arm64': 'm', 'armhf': 'm'}>
 CONFIG_PHY_MTK_HDMI                             policy<{'arm64': 'm', 'armhf': 'm'}>
 CONFIG_PHY_MTK_MIPI_DSI                         policy<{'arm64': 'm', 'armhf': 'm'}>
-CONFIG_PHY_SPARX5_SERDES                        policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm'}>
+CONFIG_PHY_SPARX5_SERDES                        policy<{'amd64': '-', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm'}>
 CONFIG_PHY_CPCAP_USB                            policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm'}>
 CONFIG_PHY_MAPPHONE_MDM6600                     policy<{'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm'}>
 CONFIG_PHY_OCELOT_SERDES                        policy<{'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm'}>
@@ -11504,7 +11503,7 @@ CONFIG_UNWINDER_FRAME_POINTER                   mark<ENFORCED> note<needed for l
 
 # Menu: Kernel hacking >> $(SRCARCH) Debugging >> Choose kernel unwinder >> Architecture: x86
 CONFIG_UNWINDER_ORC                             policy<{'amd64': 'n'}>
-CONFIG_UNWINDER_GUESS                           policy<{'amd64': '-'}>
+CONFIG_UNWINDER_GUESS                           policy<{'amd64': 'n'}>
 
 # Menu: Kernel hacking >> $(SRCARCH) Debugging >> CoreSight Tracing Support
 CONFIG_CORESIGHT                                policy<{'arm64': 'n', 'armhf': 'n'}>
@@ -11939,7 +11938,6 @@ CONFIG_DMA_MAP_BENCHMARK                        policy<{'amd64': 'n', 'arm64': '
 CONFIG_CPUMASK_OFFSTACK                         policy<{'amd64': 'y'}>
 CONFIG_GLOB_SELFTEST                            policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'ppc64el': 'n', 's390x': 'n'}>
 CONFIG_IRQ_POLL                                 policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 's390x': 'y'}>
-CONFIG_STACK_HASH_ORDER                         policy<{'amd64': '20', 'arm64': '20', 'armhf': '20', 'ppc64el': '20', 's390x': '20'}>
 CONFIG_PARMAN                                   policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 's390x': 'm'}>
 CONFIG_OBJAGG                                   policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 's390x': 'm'}>
 CONFIG_STRING_SELFTEST                          policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'ppc64el': 'n', 's390x': 'n'}>
