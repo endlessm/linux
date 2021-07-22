@@ -58,9 +58,6 @@ async_pq
 async_raid6_recov
 async_tx
 async_xor
-atc260x-core
-atc260x-i2c
-atc260x-poweroff
 auth_rpcgss
 authenc
 authencesn
@@ -195,7 +192,6 @@ drm_ttm_helper
 drm_vram_helper
 dummy
 dummy_stm
-dw-xdata-pcie
 dwc-xlgmac
 eadm_sch
 ebt_802_3
@@ -281,7 +277,6 @@ ib_srp
 ib_srpt
 ib_umad
 ib_uverbs
-icp
 icplus
 ifb
 ife
@@ -432,7 +427,6 @@ macsec
 macvlan
 macvtap
 marvell
-marvell-88x2222
 marvell10g
 md-cluster
 md4
@@ -441,7 +435,6 @@ mdio-i2c
 mdio_devres
 memory-notifier-error-inject
 mena21_wdt
-mfd-core
 michael_mic
 micrel
 microchip
@@ -456,8 +449,6 @@ mlxfw
 mlxsw_core
 mlxsw_pci
 mlxsw_spectrum
-mlxsw_switchib
-mlxsw_switchx2
 monreader
 monwriter
 mpls_gso
@@ -522,6 +513,7 @@ nfnetlink
 nfnetlink_acct
 nfnetlink_cthelper
 nfnetlink_cttimeout
+nfnetlink_hook
 nfnetlink_log
 nfnetlink_osf
 nfnetlink_queue
@@ -628,7 +620,6 @@ nvmet
 nvmet-fc
 nvmet-rdma
 nvmet-tcp
-nxp-c45-tja11xx
 objagg
 ocfs2
 ocfs2_dlm
@@ -687,7 +678,6 @@ rds
 rds_rdma
 rds_tcp
 realtek
-regmap-i2c
 rmd160
 rnbd-client
 rnbd-server
@@ -770,7 +760,6 @@ smc_diag
 smsc
 smsgiucv_app
 softdog
-spl
 st
 st_drv
 ste10Xp
@@ -852,7 +841,6 @@ vfio-pci
 vfio_ap
 vfio_ccw
 vfio_iommu_type1
-vfio_mdev
 vfio_virqfd
 vhost
 vhost_iotlb
@@ -885,7 +873,6 @@ vsockmon
 vxlan
 wireguard
 wp512
-wwan
 x_tables
 xcbc
 xfrm4_tunnel
@@ -972,19 +959,12 @@ xt_time
 xt_u32
 xxhash_generic
 z3fold
-zavl
-zcommon
 zcrypt
 zcrypt_cex2a
 zcrypt_cex2c
 zcrypt_cex4
 zfcp
-zfs
-zlua
-znvpair
 zonefs
 zram
 zstd
 zstd_compress
-zunicode
-zzstd
