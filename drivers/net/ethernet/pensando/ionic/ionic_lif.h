@@ -101,7 +101,6 @@ struct ionic_deferred_work {
 	struct list_head list;
 	enum ionic_deferred_work_type type;
 	union {
-		unsigned int rx_mode;
 		u8 addr[ETH_ALEN];
 		u8 fw_status;
 	};
@@ -170,6 +169,7 @@ struct ionic_lif {
 	unsigned int kern_pid;
 	u64 __iomem *kern_dbpage;
 	struct mutex queue_lock;	/* lock for queue structures */
+	struct mutex config_lock;	/* lock for config actions */
 	spinlock_t adminq_lock;		/* lock for AdminQ operations */
 	struct ionic_qcq *adminqcq;
 	struct ionic_qcq *notifyqcq;
@@ -184,7 +184,7 @@ struct ionic_lif {
 	unsigned int nrxq_descs;
 	u32 rx_copybreak;
 	u32 tx_budget;
-	unsigned int rx_mode;
+	u16 rx_mode;
 	u64 hw_features;
 	bool mc_overflow;
 	unsigned int nmcast;
