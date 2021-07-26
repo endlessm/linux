@@ -699,7 +699,6 @@ cadence_wdt
 cafe_ccic
 cafe_nand
 caif
-caif_hsi
 caif_serial
 caif_socket
 caif_usb

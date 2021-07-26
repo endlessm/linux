@@ -678,7 +678,6 @@ cadence_wdt
 cafe_ccic
 cafe_nand
 caif
-caif_hsi
 caif_serial
 caif_socket
 caif_usb
@@ -1034,6 +1033,7 @@ dell-rbtn
 dell-smbios
 dell-smm-hwmon
 dell-smo8800
+dell-uart-backlight
 dell-wmi
 dell-wmi-aio
 dell-wmi-descriptor
@@ -2066,6 +2066,7 @@ iforce-usb
 igb
 igbvf
 igc
+igen6_edac
 igorplugusb
 iguanair
 ii_pci20kc
@@ -4954,8 +4955,6 @@ sp887x
 spaceball
 spaceorb
 sparse-keymap
-sparx5-switch
-sparx5_serdes
 spcp8x5
 spectrum_cs
 speedfax
@@ -5839,6 +5838,7 @@ xpad
 xpc
 xpnet
 xr_serial
+xr_usb_serial_common
 xrs700x
 xrs700x_i2c
 xrs700x_mdio
