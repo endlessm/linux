@@ -6209,7 +6209,7 @@ CONFIG_ENC28J60                                 policy<{'amd64': 'm', 'arm64': '
 CONFIG_ENC28J60_WRITEVERIFY                     policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'ppc64el': 'n'}>
 CONFIG_ENCX24J600                               policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm'}>
 CONFIG_LAN743X                                  policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm'}>
-CONFIG_SPARX5_SWITCH                            policy<{'amd64': '-', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm'}>
+CONFIG_SPARX5_SWITCH                            policy<{'amd64': '-', 'arm64': 'm', 'armhf': '-', 'ppc64el': '-'}>
 
 # Menu: Device Drivers >> Network device support >> Ethernet driver support >> National Semiconductor 8390 devices
 CONFIG_NET_VENDOR_8390                          policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y'}>
@@ -7172,7 +7172,7 @@ CONFIG_PHY_MTK_UFS                              policy<{'arm64': 'm', 'armhf': '
 CONFIG_PHY_MTK_XSPHY                            policy<{'arm64': 'm', 'armhf': 'm'}>
 CONFIG_PHY_MTK_HDMI                             policy<{'arm64': 'm', 'armhf': 'm'}>
 CONFIG_PHY_MTK_MIPI_DSI                         policy<{'arm64': 'm', 'armhf': 'm'}>
-CONFIG_PHY_SPARX5_SERDES                        policy<{'amd64': '-', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm'}>
+CONFIG_PHY_SPARX5_SERDES                        policy<{'amd64': '-', 'arm64': 'm', 'armhf': '-', 'ppc64el': '-'}>
 CONFIG_PHY_CPCAP_USB                            policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm'}>
 CONFIG_PHY_MAPPHONE_MDM6600                     policy<{'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm'}>
 CONFIG_PHY_OCELOT_SERDES                        policy<{'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm'}>
@@ -8809,6 +8809,7 @@ CONFIG_SND_SOC_SIMPLE_AMPLIFIER                 policy<{'amd64': 'm', 'arm64': '
 CONFIG_SND_SOC_SIMPLE_MUX                       policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm'}>
 CONFIG_SND_SOC_SPDIF                            policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm'}>
 CONFIG_SND_SOC_SSM2305                          policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm'}>
+CONFIG_SND_SOC_SSM2518                          policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm'}>
 CONFIG_SND_SOC_SSM2602_SPI                      policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm'}>
 CONFIG_SND_SOC_SSM2602_I2C                      policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm'}>
 CONFIG_SND_SOC_SSM4567                          policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm'}>
@@ -8866,7 +8867,6 @@ CONFIG_SND_SOC_WM8978                           policy<{'amd64': 'm', 'arm64': '
 CONFIG_SND_SOC_WM8985                           policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm'}>
 CONFIG_SND_SOC_WSA881X                          policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm'}>
 CONFIG_SND_SOC_ZL38060                          policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm'}>
-CONFIG_SND_SOC_ZX_AUD96P22                      policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm'}>
 CONFIG_SND_SOC_MAX9759                          policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm'}>
 CONFIG_SND_SOC_MT6351                           policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm'}>
 CONFIG_SND_SOC_MT6358                           policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm'}>
@@ -12849,6 +12849,7 @@ CONFIG_NET_SWITCHDEV                            policy<{'amd64': 'y', 'arm64': '
 CONFIG_NET_L3_MASTER_DEV                        policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 's390x': 'y'}>
 CONFIG_NET_NCSI                                 policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 's390x': 'y'}>
 CONFIG_NCSI_OEM_CMD_GET_MAC                     policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 's390x': 'y'}>
+CONFIG_NCSI_OEM_CMD_KEEP_PHY                    policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'ppc64el': 'n', 's390x': 'n'}>
 CONFIG_BPF_STREAM_PARSER                        policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 's390x': 'y'}>
 #
 CONFIG_SYN_COOKIES                              mark<ENFORCED>
@@ -14380,3 +14381,4 @@ CONFIG_APPLDATA_BASE                            policy<{'s390x': 'y'}>
 CONFIG_APPLDATA_MEM                             policy<{'s390x': 'm'}>
 CONFIG_APPLDATA_OS                              policy<{'s390x': 'm'}>
 CONFIG_APPLDATA_NET_SUM                         policy<{'s390x': 'm'}>
+
