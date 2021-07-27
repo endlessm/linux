@@ -44,12 +44,6 @@ bool __riscv_isa_extension_available(const unsigned long *isa_bitmap, int bit);
 #define riscv_isa_extension_available(isa_bitmap, ext)	\
 	__riscv_isa_extension_available(isa_bitmap, RISCV_ISA_EXT_##ext)
 
-struct cpu_manufacturer_info_t {
-	unsigned long vendor_id;
-	unsigned long arch_id;
-	unsigned long imp_id;
-};
-
 #endif
 
 #endif /* _ASM_RISCV_HWCAP_H */
