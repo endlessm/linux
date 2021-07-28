@@ -3023,7 +3023,6 @@ mtd_dataflash
 mtdblock
 mtdblock_ro
 mtdoops
-mtdpstore
 mtdram
 mtdswap
 mtip32xx
@@ -3644,8 +3643,6 @@ ps2mult
 psample
 psmouse
 psnap
-pstore_blk
-pstore_zone
 psxpad-spi
 pt
 ptp_clockmatrix
