@@ -836,17 +836,21 @@ static int ov01a1s_probe(struct i2c_client *client)
 	struct ov01a1s *ov01a1s;
 	int ret = 0;
 
+	if (power_ctrl_logic_set_power(1)) {
+		dev_dbg(&client->dev, "power control driver not ready.\n");
+		return -EPROBE_DEFER;
+	}
 	ov01a1s = devm_kzalloc(&client->dev, sizeof(*ov01a1s), GFP_KERNEL);
-	if (!ov01a1s)
-		return -ENOMEM;
+	if (!ov01a1s) {
+		ret = -ENOMEM;
+		goto probe_error_ret;
+	}
 
 	v4l2_i2c_subdev_init(&ov01a1s->sd, client, &ov01a1s_subdev_ops);
-	power_ctrl_logic_set_power(0);
-	power_ctrl_logic_set_power(1);
 	ret = ov01a1s_identify_module(ov01a1s);
 	if (ret) {
 		dev_err(&client->dev, "failed to find sensor: %d", ret);
-		return ret;
+		goto probe_error_ret;
 	}
 
 	mutex_init(&ov01a1s->mutex);
@@ -893,6 +897,8 @@ probe_error_v4l2_ctrl_handler_free:
 	v4l2_ctrl_handler_free(ov01a1s->sd.ctrl_handler);
 	mutex_destroy(&ov01a1s->mutex);
 
+probe_error_ret:
+	power_ctrl_logic_set_power(0);
 	return ret;
 }
 

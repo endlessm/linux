@@ -1,9 +1,30 @@
 // SPDX-License-Identifier: GPL-2.0
 // Copyright (c) 2020-2021 Intel Corporation.
 
-#include <linux/delay.h>
+#include <linux/acpi.h>
 #include <linux/module.h>
-#include "power_ctrl_logic.h"
+#include <linux/device.h>
+#include <linux/mutex.h>
+#include <linux/gpio/consumer.h>
+
+#define PCL_DRV_NAME "power_ctrl_logic"
+
+struct power_ctrl_logic {
+	/* gpio resource*/
+	struct gpio_desc *reset_gpio;
+	struct gpio_desc *powerdn_gpio;
+	struct gpio_desc *clocken_gpio;
+	struct gpio_desc *indled_gpio;
+	/* status */
+	struct mutex status_lock;
+	bool power_on;
+	bool gpio_ready;
+};
+
+struct power_ctrl_gpio {
+	const char *name;
+	struct gpio_desc **pin;
+};
 
 /* mcu gpio resources*/
 static const struct acpi_gpio_params camreset_gpio  = { 0, 0, false };
@@ -18,10 +39,6 @@ static const struct acpi_gpio_mapping dsc1_acpi_gpios[] = {
 	{ }
 };
 
-static const char * const pin_names[] = {
-	"camreset", "campwdn", "midmclken", "indled"
-};
-
 static struct power_ctrl_logic pcl = {
 	.reset_gpio = NULL,
 	.powerdn_gpio = NULL,
@@ -31,65 +48,45 @@ static struct power_ctrl_logic pcl = {
 	.gpio_ready = false,
 };
 
-static int get_gpio_pin(struct gpio_desc **pin_d, struct pci_dev *pdev, int idx)
+static struct power_ctrl_gpio pcl_gpios[] = {
+	{ "camreset", &pcl.reset_gpio },
+	{ "campwdn", &pcl.powerdn_gpio },
+	{ "midmclken", &pcl.clocken_gpio},
+	{ "indled", &pcl.indled_gpio},
+};
+
+static int power_ctrl_logic_add(struct acpi_device *adev)
 {
-	int count = PCL_PROBE_MAX_TRY;
+	int i, ret;
 
-	do {
-		dev_dbg(&pdev->dev, "get %s:tried once\n", pin_names[idx]);
-		*pin_d = devm_gpiod_get(&pdev->dev, pin_names[idx],
-					GPIOD_OUT_LOW);
-		if (!IS_ERR(*pin_d))
-			return 0;
-		*pin_d = NULL;
-		msleep_interruptible(PCL_PROBE_TRY_GAP);
-	} while (--count > 0);
+	dev_dbg(&adev->dev, "@%s, enter\n", __func__);
+	set_primary_fwnode(&adev->dev, &adev->fwnode);
 
-	return -EBUSY;
-}
-
-static int power_ctrl_logic_probe(struct pci_dev *pdev,
-				  const struct pci_device_id *id)
-{
-	int ret;
-
-	if (!pdev) {
-		dev_err(&pdev->dev, "@%s: probed null pdev %x:%x\n",
-			__func__, PCL_PCI_BRG_VEN_ID, PCL_PCI_BRG_PDT_ID);
-		return -ENODEV;
-	}
-	dev_dbg(&pdev->dev, "@%s, enter\n", __func__);
-
-	ret = devm_acpi_dev_add_driver_gpios(&pdev->dev, dsc1_acpi_gpios);
+	ret = acpi_dev_add_driver_gpios(adev, dsc1_acpi_gpios);
 	if (ret) {
-		dev_err(&pdev->dev, "@%s: fail to add gpio\n", __func__);
+		dev_err(&adev->dev, "@%s: --111---fail to add gpio. ret %d\n", __func__, ret);
 		return -EBUSY;
 	}
-	ret = get_gpio_pin(&pcl.reset_gpio, pdev, 0);
-	if (ret)
-		goto power_ctrl_logic_probe_end;
-	ret = get_gpio_pin(&pcl.powerdn_gpio, pdev, 1);
-	if (ret)
-		goto power_ctrl_logic_probe_end;
-	ret = get_gpio_pin(&pcl.clocken_gpio, pdev, 2);
-	if (ret)
-		goto power_ctrl_logic_probe_end;
-	ret = get_gpio_pin(&pcl.indled_gpio, pdev, 3);
-	if (ret)
-		goto power_ctrl_logic_probe_end;
+
+	for (i = 0; i < ARRAY_SIZE(pcl_gpios); i++) {
+		*pcl_gpios[i].pin = gpiod_get(&adev->dev, pcl_gpios[i].name, GPIOD_OUT_LOW);
+		if (IS_ERR(*pcl_gpios[i].pin)) {
+			dev_dbg(&adev->dev, "failed to get gpio %s\n", pcl_gpios[i].name);
+			return -EPROBE_DEFER;
+		}
+	}
 
 	mutex_lock(&pcl.status_lock);
 	pcl.gpio_ready = true;
 	mutex_unlock(&pcl.status_lock);
 
-power_ctrl_logic_probe_end:
-	dev_dbg(&pdev->dev, "@%s, exit\n", __func__);
+	dev_dbg(&adev->dev, "@%s, exit\n", __func__);
 	return ret;
 }
 
-static void power_ctrl_logic_remove(struct pci_dev *pdev)
+static int power_ctrl_logic_remove(struct acpi_device *adev)
 {
-	dev_dbg(&pdev->dev, "@%s, enter\n", __func__);
+	dev_dbg(&adev->dev, "@%s, enter\n", __func__);
 	mutex_lock(&pcl.status_lock);
 	pcl.gpio_ready = false;
 	gpiod_set_value_cansleep(pcl.reset_gpio, 0);
@@ -101,43 +98,35 @@ static void power_ctrl_logic_remove(struct pci_dev *pdev)
 	gpiod_set_value_cansleep(pcl.indled_gpio, 0);
 	gpiod_put(pcl.indled_gpio);
 	mutex_unlock(&pcl.status_lock);
-	dev_dbg(&pdev->dev, "@%s, exit\n", __func__);
+	dev_dbg(&adev->dev, "@%s, exit\n", __func__);
+	return 0;
 }
 
-static struct pci_device_id power_ctrl_logic_ids[] = {
-	{ PCI_DEVICE(PCL_PCI_BRG_VEN_ID, PCL_PCI_BRG_PDT_ID) },
-	{ 0, },
+static struct acpi_device_id acpi_ids[] = {
+	{ "INT3472", 0 },
+	{ },
 };
-MODULE_DEVICE_TABLE(pci, power_ctrl_logic_ids);
+MODULE_DEVICE_TABLE(acpi, acpi_ids);
 
-static struct pci_driver power_ctrl_logic_driver = {
-	.name     = PCL_DRV_NAME,
-	.id_table = power_ctrl_logic_ids,
-	.probe    = power_ctrl_logic_probe,
-	.remove   = power_ctrl_logic_remove,
+static struct acpi_driver _driver = {
+	.name = PCL_DRV_NAME,
+	.class = PCL_DRV_NAME,
+	.ids = acpi_ids,
+	.ops = {
+		.add = power_ctrl_logic_add,
+		.remove = power_ctrl_logic_remove,
+	},
 };
-
-static int __init power_ctrl_logic_init(void)
-{
-	mutex_init(&pcl.status_lock);
-	return pci_register_driver(&power_ctrl_logic_driver);
-}
-
-static void __exit power_ctrl_logic_exit(void)
-{
-	pci_unregister_driver(&power_ctrl_logic_driver);
-}
-module_init(power_ctrl_logic_init);
-module_exit(power_ctrl_logic_exit);
+module_acpi_driver(_driver);
 
 int power_ctrl_logic_set_power(int on)
 {
 	mutex_lock(&pcl.status_lock);
-	if (!pcl.gpio_ready || on < 0 || on > 1) {
+	if (!pcl.gpio_ready) {
 		pr_debug("@%s,failed to set power, gpio_ready=%d, on=%d\n",
 			 __func__, pcl.gpio_ready, on);
 		mutex_unlock(&pcl.status_lock);
-		return -EBUSY;
+		return -EPROBE_DEFER;
 	}
 	if (pcl.power_on != on) {
 		gpiod_set_value_cansleep(pcl.reset_gpio, on);
