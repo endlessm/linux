@@ -178,20 +178,14 @@ int ipu_isys_gpc_init_debugfs(struct ipu_isys *isys)
 		if (IS_ERR(file))
 			goto err;
 
-		file = debugfs_create_u32("source", 0600, dir,
-					  &isys_gpcs->gpc[i].source);
-		if (IS_ERR(file))
-			goto err;
+		debugfs_create_u32("source", 0600, dir,
+				   &isys_gpcs->gpc[i].source);
 
-		file = debugfs_create_u32("route", 0600, dir,
-					  &isys_gpcs->gpc[i].route);
-		if (IS_ERR(file))
-			goto err;
+		debugfs_create_u32("route", 0600, dir,
+				   &isys_gpcs->gpc[i].route);
 
-		file = debugfs_create_u32("sense", 0600, dir,
-					  &isys_gpcs->gpc[i].sense);
-		if (IS_ERR(file))
-			goto err;
+		debugfs_create_u32("sense", 0600, dir,
+				   &isys_gpcs->gpc[i].sense);
 
 		isys_gpcs->gpc[i].gpcindex = i;
 		isys_gpcs->gpc[i].prit = isys;

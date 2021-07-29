@@ -50,6 +50,17 @@ static struct v4l2_subdev_internal_ops csi2_be_soc_sd_internal_ops = {
 static const struct v4l2_subdev_core_ops csi2_be_soc_sd_core_ops = {
 };
 
+static const struct v4l2_ctrl_config compression_ctrl_cfg = {
+	.ops = NULL,
+	.id = V4L2_CID_IPU_ISYS_COMPRESSION,
+	.name = "ISYS BE-SOC compression",
+	.type = V4L2_CTRL_TYPE_BOOLEAN,
+	.min = 0,
+	.max = 1,
+	.step = 1,
+	.def = 0,
+};
+
 static int set_stream(struct v4l2_subdev *sd, int enable)
 {
 	return 0;
@@ -164,6 +175,7 @@ void ipu_isys_csi2_be_soc_cleanup(struct ipu_isys_csi2_be_soc *csi2_be_soc)
 {
 	v4l2_device_unregister_subdev(&csi2_be_soc->asd.sd);
 	ipu_isys_subdev_cleanup(&csi2_be_soc->asd);
+	v4l2_ctrl_handler_free(&csi2_be_soc->av.ctrl_handler);
 	ipu_isys_video_cleanup(&csi2_be_soc->av);
 }
 
@@ -241,6 +253,26 @@ int ipu_isys_csi2_be_soc_init(struct ipu_isys_csi2_be_soc *csi2_be_soc,
 	csi2_be_soc->av.aq.link_fmt_validate = ipu_isys_link_fmt_validate;
 	csi2_be_soc->av.aq.vbq.buf_struct_size =
 		sizeof(struct ipu_isys_video_buffer);
+
+	/* create v4l2 ctrl for be-soc video node */
+	rval = v4l2_ctrl_handler_init(&csi2_be_soc->av.ctrl_handler, 0);
+	if (rval) {
+		dev_err(&isys->adev->dev,
+			"failed to init v4l2 ctrl handler for be_soc\n");
+		goto fail;
+	}
+
+	csi2_be_soc->av.compression_ctrl =
+		v4l2_ctrl_new_custom(&csi2_be_soc->av.ctrl_handler,
+				     &compression_ctrl_cfg, NULL);
+	if (!csi2_be_soc->av.compression_ctrl) {
+		dev_err(&isys->adev->dev,
+			"failed to create BE-SOC cmprs ctrl\n");
+		goto fail;
+	}
+	csi2_be_soc->av.compression = 0;
+	csi2_be_soc->av.vdev.ctrl_handler =
+		&csi2_be_soc->av.ctrl_handler;
 
 	rval = ipu_isys_video_init(&csi2_be_soc->av,
 				   &csi2_be_soc->asd.sd.entity,

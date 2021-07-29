@@ -426,24 +426,6 @@ const struct ipu_fw_resource_definitions *ipu6_res_defs = &ipu6_defs;
 
 /********** Generic resource handling **********/
 
-/*
- * Extension library gives byte offsets to its internal structures.
- * use those offsets to update fields. Without extension lib access
- * structures directly.
- */
-int ipu6_fw_psys_set_process_cell_id(struct ipu_fw_psys_process *ptr, u8 index,
-				     u8 value)
-{
-	struct ipu_fw_psys_process_group *parent =
-		(struct ipu_fw_psys_process_group *)((char *)ptr +
-						      ptr->parent_offset);
-
-	ptr->cells[index] = value;
-	parent->resource_bitmap |= 1 << value;
-
-	return 0;
-}
-
 int ipu6_fw_psys_set_proc_dev_chn(struct ipu_fw_psys_process *ptr, u16 offset,
 				  u16 value)
 {
@@ -565,7 +547,6 @@ void ipu6_fw_psys_pg_dump(struct ipu_psys *psys,
 	u8 processes = pg->process_count;
 	u16 *process_offset_table = (u16 *)((char *)pg + pg->processes_offset);
 	unsigned int p, chn, mem, mem_id;
-	int cell;
 
 	dev_dbg(&psys->adev->dev, "%s %s pgid %i has %i processes:\n",
 		__func__, note, pgid, processes);
@@ -577,7 +558,6 @@ void ipu6_fw_psys_pg_dump(struct ipu_psys *psys,
 		struct ipu6_fw_psys_process_ext *pm_ext =
 		    (struct ipu6_fw_psys_process_ext *)((u8 *)process
 		    + process->process_extension_offset);
-		cell = process->cells[0];
 		dev_dbg(&psys->adev->dev, "\t process %i size=%u",
 			p, process->size);
 		if (!process->process_extension_offset)

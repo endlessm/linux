@@ -242,7 +242,6 @@ static int __alloc_one_resrc(const struct device *dev,
 	const u16 resource_req = pm->dev_chn_size[resource_id];
 	const u16 resource_offset_req = pm->dev_chn_offset[resource_id];
 	unsigned long retl;
-	const struct ipu_fw_resource_definitions *res_defs;
 
 	if (resource_req <= 0)
 		return 0;
@@ -251,7 +250,6 @@ static int __alloc_one_resrc(const struct device *dev,
 		dev_err(dev, "out of resource handles\n");
 		return -ENOSPC;
 	}
-	res_defs = get_res();
 	if (resource_offset_req != (u16)(-1))
 		retl = ipu_resource_alloc_with_pos
 		    (resource,

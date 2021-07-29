@@ -555,7 +555,8 @@ static int ipu6_isys_driver_port_to_phy_port(struct ipu_isys_csi2_config *cfg)
 
 int ipu6_isys_phy_config(struct ipu_isys *isys)
 {
-	unsigned int phy_port, phy_id;
+	int phy_port;
+	unsigned int phy_id;
 	void __iomem *phy_base;
 	struct ipu_bus_device *adev = to_ipu_bus_device(&isys->adev->dev);
 	struct ipu_device *isp = adev->isp;
@@ -591,24 +592,4 @@ int ipu6_isys_phy_config(struct ipu_isys *isys)
 	}
 
 	return 0;
-}
-
-void __maybe_unused ipu6_isys_phy_dump_status(struct ipu_isys *isys,
-					      struct ipu_isys_csi2_config *cfg)
-{
-	unsigned int port, phy_id, nlanes;
-	struct ipu_bus_device *adev = to_ipu_bus_device(&isys->adev->dev);
-	struct ipu_device *isp = adev->isp;
-	void __iomem *isp_base = isp->base;
-	void __iomem *cbbs1_base;
-
-	port = cfg->port;
-	phy_id = port / 4;
-	nlanes = cfg->nlanes;
-	cbbs1_base = isp_base + IPU6_ISYS_PHY_BASE(phy_id) + PHY_CBBS1_BASE;
-
-	dev_dbg(&isys->adev->dev, "phy rcomp_status 0x%08x, cbb_status 0x%08x",
-		readl(cbbs1_base + PHY_CBBS1_RCOMP_STATUS_REG_1),
-		readl(cbbs1_base + PHY_CBBS1_CBB_STATUS_REG));
-
 }

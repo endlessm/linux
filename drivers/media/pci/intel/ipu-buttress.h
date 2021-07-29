@@ -18,6 +18,10 @@
 #define BUTTRESS_MIN_FORCE_PS_FREQ	(BUTTRESS_PS_FREQ_STEP * 8)
 #define BUTTRESS_MAX_FORCE_PS_FREQ	(BUTTRESS_PS_FREQ_STEP * 32)
 
+#define BUTTRESS_IS_FREQ_STEP		25U
+#define BUTTRESS_MIN_FORCE_IS_FREQ	(BUTTRESS_IS_FREQ_STEP * 8)
+#define BUTTRESS_MAX_FORCE_IS_FREQ	(BUTTRESS_IS_FREQ_STEP * 16)
+
 struct ipu_buttress_ctrl {
 	u32 freq_ctl, pwr_sts_shift, pwr_sts_mask, pwr_sts_on, pwr_sts_off;
 	union {
@@ -122,5 +126,4 @@ void ipu_buttress_csi_port_config(struct ipu_device *isp,
 int ipu_buttress_restore(struct ipu_device *isp);
 
 int ipu_buttress_psys_freq_get(void *data, u64 *val);
-int ipu_buttress_isys_freq_get(void *data, u64 *val);
 #endif /* IPU_BUTTRESS_H */

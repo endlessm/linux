@@ -1,11 +1,12 @@
-config VIDEO_INTEL_IPU
+config VIDEO_INTEL_IPU6
 	tristate "Intel IPU driver"
 	depends on ACPI
 	depends on MEDIA_SUPPORT
 	depends on MEDIA_PCI_SUPPORT
+	depends on X86_64
 	select IOMMU_API
 	select IOMMU_IOVA
-	select X86_DEV_DMA_OPS if X86
+	select X86_DEV_DMA_OPS
 	select VIDEOBUF2_DMA_CONTIG
 	select V4L2_FWNODE
 	select PHYS_ADDR_T_64BIT
@@ -14,24 +15,12 @@ config VIDEO_INTEL_IPU
 	  This is the Intel imaging processing unit, found in Intel SoCs and
 	  used for capturing images and video from a camera sensor.
 
-	  To compile this driver, say Y here!
-
-choice
-	prompt "intel ipu generation type"
-	depends on VIDEO_INTEL_IPU
-	default VIDEO_INTEL_IPU6
-
-config VIDEO_INTEL_IPU6
-	bool "Compile for IPU6 driver"
-	help
-	  Sixth generation Intel imaging processing unit found in Intel
-	  SoCs.
-
-	  To compile this driver, say Y here!
-endchoice
+	  To compile this driver, say Y here! It contains 3 modules -
+	  intel_ipu6, intel_ipu6_isys and intel_ipu6_psys.
 
 config VIDEO_INTEL_IPU_TPG
 	bool "Compile for TPG driver"
+	depends on VIDEO_INTEL_IPU6
 	help
 	  If selected, TPG device nodes would be created.
 
@@ -39,19 +28,5 @@ config VIDEO_INTEL_IPU_TPG
 
 	  If you want to the TPG devices exposed to user as media entity,
 	  you must select this option, otherwise no.
-
-config VIDEO_INTEL_IPU_WERROR
-	bool "Force GCC to throw an error instead of a warning when compiling"
-	depends on VIDEO_INTEL_IPU
-	depends on EXPERT
-	depends on !COMPILE_TEST
-	default n
-	help
-	  Add -Werror to the build flags for (and only for) intel ipu module.
-	  Do not enable this unless you are writing code for the ipu module.
-
-	  Recommended for driver developers only.
-
-	  If in doubt, say "N".
 
 source "drivers/media/pci/intel/ipu3/Kconfig"

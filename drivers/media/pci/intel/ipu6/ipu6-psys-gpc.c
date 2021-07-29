@@ -185,20 +185,14 @@ int ipu_psys_gpc_init_debugfs(struct ipu_psys *psys)
 		if (IS_ERR(file))
 			goto err;
 
-		file = debugfs_create_u32("source", 0600, dir,
-					  &psys_gpcs->gpc[idx].source);
-		if (IS_ERR(file))
-			goto err;
+		debugfs_create_u32("source", 0600, dir,
+				   &psys_gpcs->gpc[idx].source);
 
-		file = debugfs_create_u32("route", 0600, dir,
-					  &psys_gpcs->gpc[idx].route);
-		if (IS_ERR(file))
-			goto err;
+		debugfs_create_u32("route", 0600, dir,
+				   &psys_gpcs->gpc[idx].route);
 
-		file = debugfs_create_u32("sense", 0600, dir,
-					  &psys_gpcs->gpc[idx].sense);
-		if (IS_ERR(file))
-			goto err;
+		debugfs_create_u32("sense", 0600, dir,
+				   &psys_gpcs->gpc[idx].sense);
 
 		psys_gpcs->gpc[idx].gpcindex = idx;
 		psys_gpcs->gpc[idx].prit = psys;

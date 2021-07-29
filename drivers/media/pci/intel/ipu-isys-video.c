@@ -154,7 +154,7 @@ static int video_open(struct file *file)
 	if (rval)
 		goto out_power_down;
 
-	rval = v4l2_pipeline_pm_use(&av->vdev.entity, 1);
+	rval = v4l2_pipeline_pm_get(&av->vdev.entity);
 	if (rval)
 		goto out_v4l2_fh_release;
 
@@ -199,7 +199,7 @@ static int video_open(struct file *file)
 out_lib_init:
 	isys->video_opened--;
 	mutex_unlock(&isys->mutex);
-	v4l2_pipeline_pm_use(&av->vdev.entity, 0);
+	v4l2_pipeline_pm_put(&av->vdev.entity);
 
 out_v4l2_fh_release:
 	v4l2_fh_release(file);
@@ -228,7 +228,7 @@ static int video_release(struct file *file)
 
 	mutex_unlock(&av->isys->mutex);
 
-	v4l2_pipeline_pm_use(&av->vdev.entity, 0);
+	v4l2_pipeline_pm_put(&av->vdev.entity);
 
 	if (av->isys->reset_needed)
 		pm_runtime_put_sync(&av->isys->adev->dev);
@@ -417,6 +417,43 @@ ipu_isys_video_try_fmt_vid_mplane(struct ipu_isys_video *av,
 		    mpix->plane_fmt[0].bytesperline * mpix->height +
 		    max(mpix->plane_fmt[0].bytesperline,
 			av->isys->pdata->ipdata->isys_dma_overshoot)), 1U);
+
+	if (av->compression_ctrl)
+		av->compression = v4l2_ctrl_g_ctrl(av->compression_ctrl);
+
+	/* overwrite bpl/height with compression alignment */
+	if (av->compression) {
+		u32 planar_tile_status_size, tile_status_size;
+
+		mpix->plane_fmt[0].bytesperline =
+		    ALIGN(mpix->plane_fmt[0].bytesperline,
+			  IPU_ISYS_COMPRESSION_LINE_ALIGN);
+		mpix->height = ALIGN(mpix->height,
+				     IPU_ISYS_COMPRESSION_HEIGHT_ALIGN);
+
+		mpix->plane_fmt[0].sizeimage =
+		    ALIGN(mpix->plane_fmt[0].bytesperline * mpix->height,
+			  IPU_ISYS_COMPRESSION_PAGE_ALIGN);
+
+		/* ISYS compression only for RAW and single plannar */
+		planar_tile_status_size =
+		    DIV_ROUND_UP_ULL((mpix->plane_fmt[0].bytesperline *
+				      mpix->height /
+				      IPU_ISYS_COMPRESSION_TILE_SIZE_BYTES) *
+				     IPU_ISYS_COMPRESSION_TILE_STATUS_BITS,
+				     BITS_PER_BYTE);
+		tile_status_size = ALIGN(planar_tile_status_size,
+					 IPU_ISYS_COMPRESSION_PAGE_ALIGN);
+
+		/* tile status buffer offsets relative to buffer base address */
+		av->ts_offsets[0] = mpix->plane_fmt[0].sizeimage;
+		mpix->plane_fmt[0].sizeimage += tile_status_size;
+
+		dev_dbg(&av->isys->adev->dev,
+			"cmprs: bpl:%d, height:%d img size:%d, ts_sz:%d\n",
+			mpix->plane_fmt[0].bytesperline, mpix->height,
+			av->ts_offsets[0], tile_status_size);
+	}
 
 	memset(mpix->plane_fmt[0].reserved, 0,
 	       sizeof(mpix->plane_fmt[0].reserved));
@@ -637,19 +674,17 @@ static int get_external_facing_format(struct ipu_isys_pipeline *ip,
 static void short_packet_queue_destroy(struct ipu_isys_pipeline *ip)
 {
 	struct ipu_isys_video *av = container_of(ip, struct ipu_isys_video, ip);
-	unsigned long attrs;
 	unsigned int i;
 
-	attrs = DMA_ATTR_NON_CONSISTENT;
 	if (!ip->short_packet_bufs)
 		return;
 	for (i = 0; i < IPU_ISYS_SHORT_PACKET_BUFFER_NUM; i++) {
 		if (ip->short_packet_bufs[i].buffer)
-			dma_free_attrs(&av->isys->adev->dev,
-				       ip->short_packet_buffer_size,
-				       ip->short_packet_bufs[i].buffer,
-				       ip->short_packet_bufs[i].dma_addr,
-				       attrs);
+			dma_free_noncoherent(&av->isys->adev->dev,
+					     ip->short_packet_buffer_size,
+					     ip->short_packet_bufs[i].buffer,
+					     ip->short_packet_bufs[i].dma_addr,
+					     DMA_BIDIRECTIONAL);
 	}
 	kfree(ip->short_packet_bufs);
 	ip->short_packet_bufs = NULL;
@@ -659,7 +694,6 @@ static int short_packet_queue_setup(struct ipu_isys_pipeline *ip)
 {
 	struct ipu_isys_video *av = container_of(ip, struct ipu_isys_video, ip);
 	struct v4l2_subdev_format source_fmt = { 0 };
-	unsigned long attrs;
 	unsigned int i;
 	int rval;
 	size_t buf_size;
@@ -683,7 +717,6 @@ static int short_packet_queue_setup(struct ipu_isys_pipeline *ip)
 	/* Initialize short packet queue. */
 	INIT_LIST_HEAD(&ip->short_packet_incoming);
 	INIT_LIST_HEAD(&ip->short_packet_active);
-	attrs = DMA_ATTR_NON_CONSISTENT;
 
 	ip->short_packet_bufs =
 	    kzalloc(sizeof(struct ipu_isys_private_buffer) *
@@ -698,9 +731,11 @@ static int short_packet_queue_setup(struct ipu_isys_pipeline *ip)
 		buf->ip = ip;
 		buf->ib.type = IPU_ISYS_SHORT_PACKET_BUFFER;
 		buf->bytesused = buf_size;
-		buf->buffer = dma_alloc_attrs(&av->isys->adev->dev, buf_size,
-					      &buf->dma_addr, GFP_KERNEL,
-					      attrs);
+		buf->buffer = dma_alloc_noncoherent(&av->isys->adev->dev,
+						    buf_size,
+						    &buf->dma_addr,
+						    DMA_BIDIRECTIONAL,
+						    GFP_KERNEL);
 		if (!buf->buffer) {
 			short_packet_queue_destroy(ip);
 			return -ENOMEM;
@@ -813,9 +848,30 @@ ipu_isys_prepare_fw_cfg_default(struct ipu_isys_video *av,
 		pin_info->snoopable = true;
 		pin_info->error_handling_enable = false;
 		break;
-	/* snoopable sensor data to CPU */
-	case IPU_FW_ISYS_PIN_TYPE_MIPI:
 	case IPU_FW_ISYS_PIN_TYPE_RAW_SOC:
+		if (av->compression) {
+			type_index = IPU_FW_ISYS_VC1_SENSOR_DATA;
+			pin_info->sensor_type
+				= isys->sensor_types[type_index]++;
+			pin_info->snoopable = false;
+			pin_info->error_handling_enable = false;
+			type = isys->sensor_types[type_index];
+			if (type > isys->sensor_info.vc1_data_end)
+				isys->sensor_types[type_index] =
+					isys->sensor_info.vc1_data_start;
+		} else {
+			type_index = IPU_FW_ISYS_VC0_SENSOR_DATA;
+			pin_info->sensor_type
+				= isys->sensor_types[type_index]++;
+			pin_info->snoopable = true;
+			pin_info->error_handling_enable = false;
+			type = isys->sensor_types[type_index];
+			if (type > isys->sensor_info.vc0_data_end)
+				isys->sensor_types[type_index] =
+					isys->sensor_info.vc0_data_start;
+		}
+		break;
+	case IPU_FW_ISYS_PIN_TYPE_MIPI:
 		type_index = IPU_FW_ISYS_VC0_SENSOR_DATA;
 		pin_info->sensor_type = isys->sensor_types[type_index]++;
 		pin_info->snoopable = true;
@@ -826,6 +882,7 @@ ipu_isys_prepare_fw_cfg_default(struct ipu_isys_video *av,
 				isys->sensor_info.vc0_data_start;
 
 		break;
+
 	default:
 		dev_err(&av->isys->adev->dev,
 			"Unknown pin type, use metadata type as default\n");
@@ -833,6 +890,11 @@ ipu_isys_prepare_fw_cfg_default(struct ipu_isys_video *av,
 		pin_info->sensor_type = isys->sensor_info.sensor_metadata;
 		pin_info->snoopable = true;
 		pin_info->error_handling_enable = false;
+	}
+	if (av->compression) {
+		pin_info->payload_buf_size = av->mpix.plane_fmt[0].sizeimage;
+		pin_info->reserve_compression = av->compression;
+		pin_info->ts_offsets[0] = av->ts_offsets[0];
 	}
 }
 
@@ -1660,7 +1722,7 @@ int ipu_isys_video_init(struct ipu_isys_video *av,
 
 	mutex_lock(&av->mutex);
 
-	rval = video_register_device(&av->vdev, VFL_TYPE_GRABBER, -1);
+	rval = video_register_device(&av->vdev, VFL_TYPE_VIDEO, -1);
 	if (rval)
 		goto out_media_entity_cleanup;
 

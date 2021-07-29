@@ -341,29 +341,6 @@ int ipu_buttress_psys_freq_get(void *data, u64 *val)
 	return 0;
 }
 
-int ipu_buttress_isys_freq_get(void *data, u64 *val)
-{
-	struct ipu_device *isp = data;
-	u32 reg_val;
-	int rval;
-
-	rval = pm_runtime_get_sync(&isp->isys->dev);
-	if (rval < 0) {
-		pm_runtime_put(&isp->isys->dev);
-		dev_err(&isp->pdev->dev, "Runtime PM failed (%d)\n", rval);
-		return rval;
-	}
-
-	reg_val = readl(isp->base + BUTTRESS_REG_IS_FREQ_CTL);
-
-	pm_runtime_put(&isp->isys->dev);
-
-	*val = IPU_IS_FREQ_RATIO_BASE *
-	    (reg_val & IPU_BUTTRESS_IS_FREQ_CTL_DIVISOR_MASK);
-
-	return 0;
-}
-
 void ipu_internal_pdata_init(void)
 {
 	if (ipu_ver == IPU_VER_6) {

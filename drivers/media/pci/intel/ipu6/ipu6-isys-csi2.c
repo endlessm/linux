@@ -355,7 +355,7 @@ int ipu_isys_csi2_set_stream(struct v4l2_subdev *sd,
 		IPU6SE_CSI_RX_ERROR_IRQ_MASK;
 
 	if (!enable) {
-		ipu_isys_csi2_error(csi2);
+
 		writel(0, csi2->base + CSI_REG_CSI_FE_ENABLE);
 		writel(0, csi2->base + CSI_REG_PPI2CSI_ENABLE);
 

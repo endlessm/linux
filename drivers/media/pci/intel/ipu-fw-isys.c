@@ -643,6 +643,8 @@ ipu_fw_isys_dump_stream_cfg(struct device *dev,
 			stream_cfg->output_pins[i].output_res.height);
 		dev_dbg(dev, "Stride %d\n", stream_cfg->output_pins[i].stride);
 		dev_dbg(dev, "Pin type %d\n", stream_cfg->output_pins[i].pt);
+		dev_dbg(dev, "Payload %d\n",
+			stream_cfg->output_pins[i].payload_buf_size);
 		dev_dbg(dev, "Ft %d\n", stream_cfg->output_pins[i].ft);
 		dev_dbg(dev, "Watermar in lines %d\n",
 			stream_cfg->output_pins[i].watermark_in_lines);

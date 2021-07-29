@@ -47,6 +47,10 @@ static struct ipu_bus_device *ipu_isys_init(struct pci_dev *pdev,
 	pdata->base = base;
 	pdata->ipdata = ipdata;
 
+	/* Use 250MHz for ipu6 se */
+	if (ipu_ver == IPU_VER_6SE)
+		ctrl->ratio = IPU6SE_IS_FREQ_CTL_DEFAULT_RATIO;
+
 	isys = ipu_bus_add_device(pdev, parent, pdata, ctrl,
 				  IPU_ISYS_NAME, nr);
 	if (IS_ERR(isys))
@@ -429,6 +433,8 @@ static int ipu_pci_probe(struct pci_dev *pdev, const struct pci_device_id *id)
 		dev_err(&pdev->dev, "Failed to set DMA mask (%d)\n", rval);
 		return rval;
 	}
+
+	dma_set_max_seg_size(&pdev->dev, UINT_MAX);
 
 	rval = ipu_pci_config_setup(pdev);
 	if (rval)

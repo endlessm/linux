@@ -455,7 +455,7 @@ int ipu_mmu_hw_init(struct ipu_mmu *mmu)
 }
 EXPORT_SYMBOL(ipu_mmu_hw_init);
 
-struct ipu_mmu_info *ipu_mmu_alloc(struct ipu_device *isp)
+static struct ipu_mmu_info *ipu_mmu_alloc(struct ipu_device *isp)
 {
 	struct ipu_mmu_info *mmu_info;
 	void *ptr;
@@ -551,7 +551,7 @@ phys_addr_t ipu_mmu_iova_to_phys(struct ipu_mmu_info *mmu_info,
 	    << ISP_PAGE_SHIFT;
 }
 
-/**
+/*
  * The following four functions are implemented based on iommu.c
  * drivers/iommu/iommu.c/iommu_pgsize().
  */

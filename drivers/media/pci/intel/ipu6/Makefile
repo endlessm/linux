@@ -18,7 +18,7 @@ intel-ipu6-objs				+= ../ipu.o \
 					   ipu6.o \
 					   ../ipu-fw-com.o
 
-obj-$(CONFIG_VIDEO_INTEL_IPU)		+= intel-ipu6.o
+obj-$(CONFIG_VIDEO_INTEL_IPU6)		+= intel-ipu6.o
 
 intel-ipu6-isys-objs			+= ../ipu-isys.o \
 					   ../ipu-isys-csi2.o \
@@ -37,7 +37,7 @@ ifdef CONFIG_VIDEO_INTEL_IPU_TPG
 intel-ipu6-isys-objs                    += ../ipu-isys-tpg.o
 endif
 
-obj-$(CONFIG_VIDEO_INTEL_IPU)		+= intel-ipu6-isys.o
+obj-$(CONFIG_VIDEO_INTEL_IPU6)		+= intel-ipu6-isys.o
 
 intel-ipu6-psys-objs			+= ../ipu-psys.o \
 					   ipu6-psys.o \
@@ -55,7 +55,7 @@ ifeq ($(CONFIG_COMPAT),y)
 intel-ipu6-psys-objs			+= ../ipu-psys-compat32.o
 endif
 
-obj-$(CONFIG_VIDEO_INTEL_IPU)		+= intel-ipu6-psys.o
+obj-$(CONFIG_VIDEO_INTEL_IPU6)		+= intel-ipu6-psys.o
 
 ccflags-y += -I$(srcpath)/$(src)/../../../../../include/
 ccflags-y += -I$(srcpath)/$(src)/../

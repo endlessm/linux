@@ -10,6 +10,7 @@
 #include <media/v4l2-ctrls.h>
 #include <media/v4l2-device.h>
 #include <media/v4l2-fwnode.h>
+#include "pmic_dsc1.h"
 
 #define OV01A1S_LINK_FREQ_400MHZ		400000000ULL
 #define OV01A1S_SCLK			40000000LL
@@ -566,6 +567,7 @@ static int ov01a1s_start_streaming(struct ov01a1s *ov01a1s)
 	int link_freq_index;
 	int ret = 0;
 
+	pmic_dsc1_set_power(1);
 	link_freq_index = ov01a1s->cur_mode->link_freq_index;
 	reg_list = &link_freq_configs[link_freq_index].reg_list;
 	ret = ov01a1s_write_reg_list(ov01a1s, reg_list);
@@ -602,6 +604,7 @@ static void ov01a1s_stop_streaming(struct ov01a1s *ov01a1s)
 				OV01A1S_MODE_STANDBY);
 	if (ret)
 		dev_err(&client->dev, "failed to stop streaming");
+	pmic_dsc1_set_power(0);
 }
 
 static int ov01a1s_set_stream(struct v4l2_subdev *sd, int enable)
@@ -843,6 +846,8 @@ static int ov01a1s_probe(struct i2c_client *client)
 		return -ENOMEM;
 
 	v4l2_i2c_subdev_init(&ov01a1s->sd, client, &ov01a1s_subdev_ops);
+	pmic_dsc1_set_power(0);
+	pmic_dsc1_set_power(1);
 	ret = ov01a1s_identify_module(ov01a1s);
 	if (ret) {
 		dev_err(&client->dev, "failed to find sensor: %d", ret);
@@ -883,6 +888,7 @@ static int ov01a1s_probe(struct i2c_client *client)
 	pm_runtime_enable(&client->dev);
 	pm_runtime_idle(&client->dev);
 
+	pmic_dsc1_set_power(0);
 	return 0;
 
 probe_error_media_entity_cleanup:
@@ -901,7 +907,7 @@ static const struct dev_pm_ops ov01a1s_pm_ops = {
 
 #ifdef CONFIG_ACPI
 static const struct acpi_device_id ov01a1s_acpi_ids[] = {
-	{ "OVTI01AF" },
+	{ "OVTI01AS" },
 	{}
 };
 

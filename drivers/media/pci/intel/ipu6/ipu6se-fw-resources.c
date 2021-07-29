@@ -317,7 +317,6 @@ void ipu6se_fw_psys_pg_dump(struct ipu_psys *psys,
 	u8 processes = pg->process_count;
 	u16 *process_offset_table = (u16 *)((char *)pg + pg->processes_offset);
 	unsigned int p, chn, mem, mem_id;
-	int cell;
 
 	dev_dbg(&psys->adev->dev, "%s %s pgid %i has %i processes:\n",
 		__func__, note, pgid, processes);
@@ -329,7 +328,6 @@ void ipu6se_fw_psys_pg_dump(struct ipu_psys *psys,
 		struct ipu6se_fw_psys_process_ext *pm_ext =
 		    (struct ipu6se_fw_psys_process_ext *)((u8 *)process
 		    + process->process_extension_offset);
-		cell = process->cells[0];
 		dev_dbg(&psys->adev->dev, "\t process %i size=%u",
 			p, process->size);
 		if (!process->process_extension_offset)

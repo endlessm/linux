@@ -336,6 +336,10 @@ ipu_isys_buffer_to_fw_frame_buff_pin(struct vb2_buffer *vb,
 				     struct ipu_fw_isys_frame_buff_set_abi *set)
 {
 	struct ipu_isys_queue *aq = vb2_queue_to_ipu_isys_queue(vb->vb2_queue);
+	struct ipu_isys_video *av = container_of(aq, struct ipu_isys_video, aq);
+
+	if (av->compression)
+		set->output_pins[aq->fw_output].compress = 1;
 
 	set->output_pins[aq->fw_output].addr =
 	    vb2_dma_contig_plane_dma_addr(vb, 0);

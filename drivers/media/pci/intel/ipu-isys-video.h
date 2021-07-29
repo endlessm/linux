@@ -121,6 +121,10 @@ struct ipu_isys_video {
 	struct ipu_isys_pipeline ip;
 	unsigned int streaming;
 	bool packed;
+	bool compression;
+	struct v4l2_ctrl_handler ctrl_handler;
+	struct v4l2_ctrl *compression_ctrl;
+	unsigned int ts_offsets[VIDEO_MAX_PLANES];
 	unsigned int line_header_length;	/* bits */
 	unsigned int line_footer_length;	/* bits */
 
