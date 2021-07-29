@@ -55,7 +55,7 @@ source "drivers/media/pci/smipcie/Kconfig"
 source "drivers/media/pci/netup_unidvb/Kconfig"
 endif
 
-source "drivers/media/pci/intel/ipu3/Kconfig"
+source "drivers/media/pci/intel/Kconfig"
 
 config VIDEO_PCI_SKELETON
 	tristate "Skeleton PCI V4L2 driver"
