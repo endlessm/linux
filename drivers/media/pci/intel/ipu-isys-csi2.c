@@ -416,7 +416,6 @@ void ipu_isys_csi2_cleanup(struct ipu_isys_csi2 *csi2)
 
 	v4l2_device_unregister_subdev(&csi2->asd.sd);
 	ipu_isys_subdev_cleanup(&csi2->asd);
-	ipu_isys_video_cleanup(&csi2->av);
 	csi2->isys = NULL;
 }
 
@@ -498,36 +497,6 @@ int ipu_isys_csi2_init(struct ipu_isys_csi2 *csi2,
 	mutex_lock(&csi2->asd.mutex);
 	__ipu_isys_subdev_set_ffmt(&csi2->asd.sd, NULL, &fmt);
 	mutex_unlock(&csi2->asd.mutex);
-
-	snprintf(csi2->av.vdev.name, sizeof(csi2->av.vdev.name),
-		 IPU_ISYS_ENTITY_PREFIX " CSI-2 %u capture", index);
-	csi2->av.isys = isys;
-	csi2->av.aq.css_pin_type = IPU_FW_ISYS_PIN_TYPE_MIPI;
-	csi2->av.pfmts = ipu_isys_pfmts_packed;
-	csi2->av.try_fmt_vid_mplane = csi2_try_fmt;
-	csi2->av.prepare_fw_stream =
-		ipu_isys_prepare_fw_cfg_default;
-	csi2->av.packed = true;
-	csi2->av.line_header_length =
-		IPU_ISYS_CSI2_LONG_PACKET_HEADER_SIZE;
-	csi2->av.line_footer_length =
-		IPU_ISYS_CSI2_LONG_PACKET_FOOTER_SIZE;
-	csi2->av.aq.buf_prepare = ipu_isys_buf_prepare;
-	csi2->av.aq.fill_frame_buff_set_pin =
-	ipu_isys_buffer_to_fw_frame_buff_pin;
-	csi2->av.aq.link_fmt_validate =
-		ipu_isys_link_fmt_validate;
-	csi2->av.aq.vbq.buf_struct_size =
-		sizeof(struct ipu_isys_video_buffer);
-
-	rval = ipu_isys_video_init(&csi2->av,
-				   &csi2->asd.sd.entity,
-				   CSI2_PAD_SOURCE,
-				   MEDIA_PAD_FL_SINK, 0);
-	if (rval) {
-		dev_info(&isys->adev->dev, "can't init video node\n");
-		goto fail;
-	}
 
 	return 0;
 

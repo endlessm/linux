@@ -207,12 +207,6 @@ struct ipu_isys_internal_csi2_pdata {
 	unsigned int *offsets;
 };
 
-struct ipu_isys_internal_tpg_pdata {
-	unsigned int ntpgs;
-	unsigned int *offsets;
-	unsigned int *sels;
-};
-
 /*
  * One place to handle all the IPU HW variations
  */
@@ -228,7 +222,6 @@ struct ipu_hw_variants {
 
 struct ipu_isys_internal_pdata {
 	struct ipu_isys_internal_csi2_pdata csi2;
-	struct ipu_isys_internal_tpg_pdata tpg;
 	struct ipu_hw_variants hw_variant;
 	u32 num_parallel_streams;
 	u32 isys_dma_overshoot;

@@ -29,7 +29,6 @@
 #include "ipu-dma.h"
 #include "ipu-isys.h"
 #include "ipu-isys-csi2.h"
-#include "ipu-isys-tpg.h"
 #include "ipu-isys-video.h"
 #include "ipu-platform-regs.h"
 #include "ipu-buttress.h"
@@ -131,18 +130,12 @@ skip_unregister_subdev:
 
 static void isys_unregister_subdevices(struct ipu_isys *isys)
 {
-	const struct ipu_isys_internal_tpg_pdata *tpg =
-	    &isys->pdata->ipdata->tpg;
 	const struct ipu_isys_internal_csi2_pdata *csi2 =
 	    &isys->pdata->ipdata->csi2;
 	unsigned int i;
 
-	ipu_isys_csi2_be_cleanup(&isys->csi2_be);
 	for (i = 0; i < NR_OF_CSI2_BE_SOC_DEV; i++)
 		ipu_isys_csi2_be_soc_cleanup(&isys->csi2_be_soc[i]);
-
-	for (i = 0; i < tpg->ntpgs; i++)
-		ipu_isys_tpg_cleanup(&isys->tpg[i]);
 
 	for (i = 0; i < csi2->nports; i++)
 		ipu_isys_csi2_cleanup(&isys->csi2[i]);
@@ -150,8 +143,6 @@ static void isys_unregister_subdevices(struct ipu_isys *isys)
 
 static int isys_register_subdevices(struct ipu_isys *isys)
 {
-	const struct ipu_isys_internal_tpg_pdata *tpg =
-	    &isys->pdata->ipdata->tpg;
 	const struct ipu_isys_internal_csi2_pdata *csi2 =
 	    &isys->pdata->ipdata->csi2;
 	struct ipu_isys_csi2_be_soc *csi2_be_soc;
@@ -175,23 +166,6 @@ static int isys_register_subdevices(struct ipu_isys *isys)
 		isys->isr_csi2_bits |= IPU_ISYS_UNISPART_IRQ_CSI2(i);
 	}
 
-	isys->tpg = devm_kcalloc(&isys->adev->dev, tpg->ntpgs,
-				 sizeof(*isys->tpg), GFP_KERNEL);
-	if (!isys->tpg) {
-		rval = -ENOMEM;
-		goto fail;
-	}
-
-	for (i = 0; i < tpg->ntpgs; i++) {
-		rval = ipu_isys_tpg_init(&isys->tpg[i], isys,
-					 isys->pdata->base +
-					 tpg->offsets[i],
-					 tpg->sels ? (isys->pdata->base +
-						      tpg->sels[i]) : NULL, i);
-		if (rval)
-			goto fail;
-	}
-
 	for (k = 0; k < NR_OF_CSI2_BE_SOC_DEV; k++) {
 		rval = ipu_isys_csi2_be_soc_init(&isys->csi2_be_soc[k],
 						 isys, k);
@@ -202,23 +176,7 @@ static int isys_register_subdevices(struct ipu_isys *isys)
 		}
 	}
 
-	rval = ipu_isys_csi2_be_init(&isys->csi2_be, isys);
-	if (rval) {
-		dev_info(&isys->adev->dev,
-			 "can't register raw csi2 be device\n");
-		goto fail;
-	}
-
 	for (i = 0; i < csi2->nports; i++) {
-		rval = media_create_pad_link(&isys->csi2[i].asd.sd.entity,
-					     CSI2_PAD_SOURCE,
-					     &isys->csi2_be.asd.sd.entity,
-					     CSI2_BE_PAD_SINK, 0);
-		if (rval) {
-			dev_info(&isys->adev->dev,
-				 "can't create link csi2 <=> csi2_be\n");
-			goto fail;
-		}
 		for (k = 0; k < NR_OF_CSI2_BE_SOC_DEV; k++) {
 			csi2_be_soc = &isys->csi2_be_soc[k];
 			rval =
@@ -229,32 +187,6 @@ static int isys_register_subdevices(struct ipu_isys *isys)
 			if (rval) {
 				dev_info(&isys->adev->dev,
 					 "can't create link csi2->be_soc\n");
-				goto fail;
-			}
-		}
-	}
-
-	for (i = 0; i < tpg->ntpgs; i++) {
-		rval = media_create_pad_link(&isys->tpg[i].asd.sd.entity,
-					     TPG_PAD_SOURCE,
-					     &isys->csi2_be.asd.sd.entity,
-					     CSI2_BE_PAD_SINK, 0);
-		if (rval) {
-			dev_info(&isys->adev->dev,
-				 "can't create link between tpg and csi2_be\n");
-			goto fail;
-		}
-
-		for (k = 0; k < NR_OF_CSI2_BE_SOC_DEV; k++) {
-			csi2_be_soc = &isys->csi2_be_soc[k];
-			rval =
-			    media_create_pad_link(&isys->tpg[i].asd.sd.entity,
-						  TPG_PAD_SOURCE,
-						  &csi2_be_soc->asd.sd.entity,
-						  CSI2_BE_SOC_PAD_SINK, 0);
-			if (rval) {
-				dev_info(&isys->adev->dev,
-					 "can't create link tpg->be_soc\n");
 				goto fail;
 			}
 		}
@@ -1350,10 +1282,6 @@ int isys_isr_one(struct ipu_bus_device *adev)
 		if (pipe->csi2)
 			ipu_isys_csi2_sof_event(pipe->csi2);
 
-#ifdef IPU_TPG_FRAME_SYNC
-		if (pipe->tpg)
-			ipu_isys_tpg_sof_event(pipe->tpg);
-#endif
 		pipe->seq[pipe->seq_index].sequence =
 		    atomic_read(&pipe->sequence) - 1;
 		pipe->seq[pipe->seq_index].timestamp = ts;
@@ -1367,11 +1295,6 @@ int isys_isr_one(struct ipu_bus_device *adev)
 	case IPU_FW_ISYS_RESP_TYPE_FRAME_EOF:
 		if (pipe->csi2)
 			ipu_isys_csi2_eof_event(pipe->csi2);
-
-#ifdef IPU_TPG_FRAME_SYNC
-		if (pipe->tpg)
-			ipu_isys_tpg_eof_event(pipe->tpg);
-#endif
 
 		dev_dbg(&adev->dev,
 			"eof: handle %d: (index %u), timestamp 0x%16.16llx\n",

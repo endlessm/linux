@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: GPL-2.0
-// Copyright (C) 2020 Intel Corporation
+// Copyright (C) 2018 - 2021 Intel Corporation
 
 #include <linux/device.h>
 #include <linux/delay.h>
@@ -56,24 +56,6 @@ static unsigned int ipu6se_csi_offsets[] = {
 	IPU_CSI_PORT_B_ADDR_OFFSET,
 	IPU_CSI_PORT_C_ADDR_OFFSET,
 	IPU_CSI_PORT_D_ADDR_OFFSET,
-};
-
-static unsigned int ipu6se_tpg_offsets[] = {
-	IPU_CSI_PORT_A_PIXGEN_ADDR_OFFSET,
-	IPU_CSI_PORT_B_PIXGEN_ADDR_OFFSET,
-	IPU_CSI_PORT_C_PIXGEN_ADDR_OFFSET,
-	IPU_CSI_PORT_D_PIXGEN_ADDR_OFFSET,
-};
-
-static unsigned int ipu6_tpg_offsets[] = {
-	IPU_CSI_PORT_A_PIXGEN_ADDR_OFFSET,
-	IPU_CSI_PORT_B_PIXGEN_ADDR_OFFSET,
-	IPU_CSI_PORT_C_PIXGEN_ADDR_OFFSET,
-	IPU_CSI_PORT_D_PIXGEN_ADDR_OFFSET,
-	IPU_CSI_PORT_E_PIXGEN_ADDR_OFFSET,
-	IPU_CSI_PORT_F_PIXGEN_ADDR_OFFSET,
-	IPU_CSI_PORT_G_PIXGEN_ADDR_OFFSET,
-	IPU_CSI_PORT_H_PIXGEN_ADDR_OFFSET
 };
 
 static unsigned int ipu6_csi_offsets[] = {
@@ -344,18 +326,12 @@ void ipu_internal_pdata_init(void)
 	if (ipu_ver == IPU_VER_6 || ipu_ver == IPU_VER_6EP) {
 		isys_ipdata.csi2.nports = ARRAY_SIZE(ipu6_csi_offsets);
 		isys_ipdata.csi2.offsets = ipu6_csi_offsets;
-		isys_ipdata.tpg.ntpgs = ARRAY_SIZE(ipu6_tpg_offsets);
-		isys_ipdata.tpg.offsets = ipu6_tpg_offsets;
-		isys_ipdata.tpg.sels = NULL;
 		isys_ipdata.num_parallel_streams = IPU6_ISYS_NUM_STREAMS;
 		psys_ipdata.hw_variant.spc_offset = IPU6_PSYS_SPC_OFFSET;
 
 	} else if (ipu_ver == IPU_VER_6SE) {
 		isys_ipdata.csi2.nports = ARRAY_SIZE(ipu6se_csi_offsets);
 		isys_ipdata.csi2.offsets = ipu6se_csi_offsets;
-		isys_ipdata.tpg.ntpgs = ARRAY_SIZE(ipu6se_tpg_offsets);
-		isys_ipdata.tpg.offsets = ipu6se_tpg_offsets;
-		isys_ipdata.tpg.sels = NULL;
 		isys_ipdata.num_parallel_streams = IPU6SE_ISYS_NUM_STREAMS;
 		psys_ipdata.hw_variant.spc_offset = IPU6SE_PSYS_SPC_OFFSET;
 	}

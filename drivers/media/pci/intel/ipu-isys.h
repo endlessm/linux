@@ -16,7 +16,6 @@
 #include "ipu-isys-media.h"
 #include "ipu-isys-csi2.h"
 #include "ipu-isys-csi2-be.h"
-#include "ipu-isys-tpg.h"
 #include "ipu-isys-video.h"
 #include "ipu-pdata.h"
 #include "ipu-fw-isys.h"
@@ -57,7 +56,7 @@
 #define IPU_ISYS_MAX_WIDTH		16384U
 #define IPU_ISYS_MAX_HEIGHT		16384U
 
-#define NR_OF_CSI2_BE_SOC_DEV 8
+#define NR_OF_CSI2_BE_SOC_DEV 1
 
 /* the threshold granularity is 2KB on IPU6 */
 #define IPU6_SRAM_GRANULRITY_SHIFT	11
@@ -131,7 +130,6 @@ struct ipu_isys_sensor_info {
  * @lib_mutex: optional external library mutex
  * @pdata: platform data pointer
  * @csi2: CSI-2 receivers
- * @tpg: test pattern generators
  * @csi2_be: CSI-2 back-ends
  * @fw: ISYS firmware binary (unsecure firmware)
  * @fw_sgt: fw scatterlist
@@ -171,7 +169,6 @@ struct ipu_isys {
 	struct ipu_isys_pdata *pdata;
 
 	struct ipu_isys_csi2 *csi2;
-	struct ipu_isys_tpg *tpg;
 	struct ipu_isys_csi2_be csi2_be;
 	struct ipu_isys_csi2_be_soc csi2_be_soc[NR_OF_CSI2_BE_SOC_DEV];
 	const struct firmware *fw;
