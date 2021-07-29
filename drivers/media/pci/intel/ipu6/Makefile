@@ -5,7 +5,7 @@ ifneq ($(EXTERNAL_BUILD), 1)
 srcpath := $(srctree)
 endif
 
-ccflags-y += -DHAS_DUAL_CMD_CTX_SUPPORT=0 -DIPU_TPG_FRAME_SYNC -DIPU_PSYS_GPC \
+ccflags-y += -DHAS_DUAL_CMD_CTX_SUPPORT=1 -DIPU_TPG_FRAME_SYNC -DIPU_PSYS_GPC \
 		-DIPU_ISYS_GPC
 
 intel-ipu6-objs				+= ../ipu.o \
