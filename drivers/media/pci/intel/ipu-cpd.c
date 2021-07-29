@@ -180,7 +180,7 @@ static int ipu_cpd_parse_module_data(struct ipu_device *isp,
 
 		*p++ = dma_addr_module_data + dir_ent->offset;
 
-		if (ipu_ver == IPU_VER_6)
+		if (ipu_ver == IPU_VER_6 || ipu_ver == IPU_VER_6EP)
 			id = ipu6_cpd_metadata_get_cmpnt_id(isp, metadata,
 							    metadata_size, i);
 		else
@@ -193,7 +193,7 @@ static int ipu_cpd_parse_module_data(struct ipu_device *isp,
 			return -EINVAL;
 		}
 
-		if (ipu_ver == IPU_VER_6)
+		if (ipu_ver == IPU_VER_6 || ipu_ver == IPU_VER_6EP)
 			ver = ipu6_cpd_metadata_cmpnt_version(isp, metadata,
 							      metadata_size, i);
 		else
@@ -377,7 +377,7 @@ static int ipu_cpd_validate_metadata(struct ipu_device *isp,
 	}
 
 	/* Validate metadata size multiple of metadata components */
-	if (ipu_ver == IPU_VER_6)
+	if (ipu_ver == IPU_VER_6 || ipu_ver == IPU_VER_6EP)
 		size = sizeof(struct ipu6_cpd_metadata_cmpnt);
 	else
 		size = sizeof(struct ipu_cpd_metadata_cmpnt);

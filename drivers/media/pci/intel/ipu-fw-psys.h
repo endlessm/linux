@@ -6,6 +6,7 @@
 
 #include "ipu6-platform-resources.h"
 #include "ipu6se-platform-resources.h"
+#include "ipu6ep-platform-resources.h"
 
 #define IPU_FW_PSYS_CMD_QUEUE_SIZE 0x20
 #define IPU_FW_PSYS_EVENT_QUEUE_SIZE 0x40

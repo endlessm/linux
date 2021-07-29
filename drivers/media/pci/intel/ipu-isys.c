@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: GPL-2.0
-// Copyright (C) 2013 - 2020 Intel Corporation
+// Copyright (C) 2013 - 2021 Intel Corporation
 
 #include <linux/debugfs.h>
 #include <linux/delay.h>
@@ -29,9 +29,7 @@
 #include "ipu-dma.h"
 #include "ipu-isys.h"
 #include "ipu-isys-csi2.h"
-#ifdef CONFIG_VIDEO_INTEL_IPU_TPG
 #include "ipu-isys-tpg.h"
-#endif
 #include "ipu-isys-video.h"
 #include "ipu-platform-regs.h"
 #include "ipu-buttress.h"
@@ -133,10 +131,8 @@ skip_unregister_subdev:
 
 static void isys_unregister_subdevices(struct ipu_isys *isys)
 {
-#ifdef CONFIG_VIDEO_INTEL_IPU_TPG
 	const struct ipu_isys_internal_tpg_pdata *tpg =
 	    &isys->pdata->ipdata->tpg;
-#endif
 	const struct ipu_isys_internal_csi2_pdata *csi2 =
 	    &isys->pdata->ipdata->csi2;
 	unsigned int i;
@@ -145,10 +141,8 @@ static void isys_unregister_subdevices(struct ipu_isys *isys)
 	for (i = 0; i < NR_OF_CSI2_BE_SOC_DEV; i++)
 		ipu_isys_csi2_be_soc_cleanup(&isys->csi2_be_soc[i]);
 
-#ifdef CONFIG_VIDEO_INTEL_IPU_TPG
 	for (i = 0; i < tpg->ntpgs; i++)
 		ipu_isys_tpg_cleanup(&isys->tpg[i]);
-#endif
 
 	for (i = 0; i < csi2->nports; i++)
 		ipu_isys_csi2_cleanup(&isys->csi2[i]);
@@ -156,10 +150,8 @@ static void isys_unregister_subdevices(struct ipu_isys *isys)
 
 static int isys_register_subdevices(struct ipu_isys *isys)
 {
-#ifdef CONFIG_VIDEO_INTEL_IPU_TPG
 	const struct ipu_isys_internal_tpg_pdata *tpg =
 	    &isys->pdata->ipdata->tpg;
-#endif
 	const struct ipu_isys_internal_csi2_pdata *csi2 =
 	    &isys->pdata->ipdata->csi2;
 	struct ipu_isys_csi2_be_soc *csi2_be_soc;
@@ -183,7 +175,6 @@ static int isys_register_subdevices(struct ipu_isys *isys)
 		isys->isr_csi2_bits |= IPU_ISYS_UNISPART_IRQ_CSI2(i);
 	}
 
-#ifdef CONFIG_VIDEO_INTEL_IPU_TPG
 	isys->tpg = devm_kcalloc(&isys->adev->dev, tpg->ntpgs,
 				 sizeof(*isys->tpg), GFP_KERNEL);
 	if (!isys->tpg) {
@@ -200,7 +191,6 @@ static int isys_register_subdevices(struct ipu_isys *isys)
 		if (rval)
 			goto fail;
 	}
-#endif
 
 	for (k = 0; k < NR_OF_CSI2_BE_SOC_DEV; k++) {
 		rval = ipu_isys_csi2_be_soc_init(&isys->csi2_be_soc[k],
@@ -244,7 +234,6 @@ static int isys_register_subdevices(struct ipu_isys *isys)
 		}
 	}
 
-#ifdef CONFIG_VIDEO_INTEL_IPU_TPG
 	for (i = 0; i < tpg->ntpgs; i++) {
 		rval = media_create_pad_link(&isys->tpg[i].asd.sd.entity,
 					     TPG_PAD_SOURCE,
@@ -270,7 +259,6 @@ static int isys_register_subdevices(struct ipu_isys *isys)
 			}
 		}
 	}
-#endif
 
 	return 0;
 
@@ -398,9 +386,11 @@ void update_watermark_setting(struct ipu_isys *isys)
 	u32 iwake_threshold, iwake_critical_threshold;
 	u64 threshold_bytes;
 	u64 isys_pb_datarate_mbs = 0;
-	u16 sram_granulrity_shift = (ipu_ver == IPU_VER_6) ?
+	u16 sram_granulrity_shift =
+		(ipu_ver == IPU_VER_6 || ipu_ver == IPU_VER_6EP) ?
 		IPU6_SRAM_GRANULRITY_SHIFT : IPU6SE_SRAM_GRANULRITY_SHIFT;
-	int max_sram_size = (ipu_ver == IPU_VER_6) ?
+	int max_sram_size =
+		(ipu_ver == IPU_VER_6 || ipu_ver == IPU_VER_6EP) ?
 		IPU6_MAX_SRAM_SIZE : IPU6SE_MAX_SRAM_SIZE;
 
 	mutex_lock(&iwake_watermark->mutex);
@@ -827,10 +817,10 @@ static void isys_remove(struct ipu_bus_device *adev)
 
 	if (isys->short_packet_source == IPU_ISYS_SHORT_PACKET_FROM_TUNIT) {
 		u32 trace_size = IPU_ISYS_SHORT_PACKET_TRACE_BUFFER_SIZE;
-		dma_free_noncoherent(&adev->dev, trace_size,
-				     isys->short_packet_trace_buffer,
-				     isys->short_packet_trace_buffer_dma_addr,
-				     DMA_BIDIRECTIONAL);
+
+		dma_free_coherent(&adev->dev, trace_size,
+				  isys->short_packet_trace_buffer,
+				  isys->short_packet_trace_buffer_dma_addr);
 	}
 }
 
@@ -1047,7 +1037,7 @@ static int isys_probe(struct ipu_bus_device *adev)
 	isys->pdata = adev->pdata;
 
 	/* initial streamID for different sensor types */
-	if (ipu_ver == IPU_VER_6) {
+	if (ipu_ver == IPU_VER_6 || ipu_ver == IPU_VER_6EP) {
 		isys->sensor_info.vc1_data_start =
 			IPU6_FW_ISYS_VC1_SENSOR_DATA_START;
 		isys->sensor_info.vc1_data_end =
@@ -1360,11 +1350,9 @@ int isys_isr_one(struct ipu_bus_device *adev)
 		if (pipe->csi2)
 			ipu_isys_csi2_sof_event(pipe->csi2);
 
-#ifdef CONFIG_VIDEO_INTEL_IPU_TPG
 #ifdef IPU_TPG_FRAME_SYNC
 		if (pipe->tpg)
 			ipu_isys_tpg_sof_event(pipe->tpg);
-#endif
 #endif
 		pipe->seq[pipe->seq_index].sequence =
 		    atomic_read(&pipe->sequence) - 1;
@@ -1380,11 +1368,9 @@ int isys_isr_one(struct ipu_bus_device *adev)
 		if (pipe->csi2)
 			ipu_isys_csi2_eof_event(pipe->csi2);
 
-#ifdef CONFIG_VIDEO_INTEL_IPU_TPG
 #ifdef IPU_TPG_FRAME_SYNC
 		if (pipe->tpg)
 			ipu_isys_tpg_eof_event(pipe->tpg);
-#endif
 #endif
 
 		dev_dbg(&adev->dev,
@@ -1450,6 +1436,7 @@ module_ipu_bus_driver(isys_driver);
 static const struct pci_device_id ipu_pci_tbl[] = {
 	{PCI_DEVICE(PCI_VENDOR_ID_INTEL, IPU6_PCI_ID)},
 	{PCI_DEVICE(PCI_VENDOR_ID_INTEL, IPU6SE_PCI_ID)},
+	{PCI_DEVICE(PCI_VENDOR_ID_INTEL, IPU6EP_PCI_ID)},
 	{0,}
 };
 MODULE_DEVICE_TABLE(pci, ipu_pci_tbl);

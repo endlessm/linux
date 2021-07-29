@@ -584,7 +584,7 @@ struct ipu_fw_isys_param_pin_abi {
  * @input_res: input resolution
  * @dt: mipi data type ((enum ipu_fw_isys_mipi_data_type)
  * @mipi_store_mode: defines if legacy long packet header will be stored or
- *		     discarded if discarded, output pin pin type for this
+ *		     discarded if discarded, output pin type for this
  *		     input pin can only be MIPI
  *		     (enum ipu_fw_isys_mipi_store_mode)
  * @bits_per_pix: native bits per pixel

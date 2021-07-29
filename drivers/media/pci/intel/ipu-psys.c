@@ -881,20 +881,20 @@ static int psys_runtime_pm_resume(struct device *dev)
 	if (!psys)
 		return 0;
 
-	retval = ipu_mmu_hw_init(adev->mmu);
-	if (retval)
-		return retval;
-
 	/*
 	 * In runtime autosuspend mode, if the psys is in power on state, no
 	 * need to resume again.
 	 */
-	spin_lock_irqsave(&psys->power_lock, flags);
-	if (psys->power) {
-		spin_unlock_irqrestore(&psys->power_lock, flags);
+	spin_lock_irqsave(&psys->ready_lock, flags);
+	if (psys->ready) {
+		spin_unlock_irqrestore(&psys->ready_lock, flags);
 		return 0;
 	}
-	spin_unlock_irqrestore(&psys->power_lock, flags);
+	spin_unlock_irqrestore(&psys->ready_lock, flags);
+
+	retval = ipu_mmu_hw_init(adev->mmu);
+	if (retval)
+		return retval;
 
 	if (async_fw_init && !psys->fwcom) {
 		dev_err(dev,
@@ -925,9 +925,9 @@ static int psys_runtime_pm_resume(struct device *dev)
 		return retval;
 	}
 
-	spin_lock_irqsave(&psys->power_lock, flags);
-	psys->power = 1;
-	spin_unlock_irqrestore(&psys->power_lock, flags);
+	spin_lock_irqsave(&psys->ready_lock, flags);
+	psys->ready = 1;
+	spin_unlock_irqrestore(&psys->ready_lock, flags);
 
 	return 0;
 }
@@ -942,12 +942,12 @@ static int psys_runtime_pm_suspend(struct device *dev)
 	if (!psys)
 		return 0;
 
-	if (!psys->power)
+	if (!psys->ready)
 		return 0;
 
-	spin_lock_irqsave(&psys->power_lock, flags);
-	psys->power = 0;
-	spin_unlock_irqrestore(&psys->power_lock, flags);
+	spin_lock_irqsave(&psys->ready_lock, flags);
+	psys->ready = 0;
+	spin_unlock_irqrestore(&psys->ready_lock, flags);
 
 	/*
 	 * We can trace failure but better to not return an error.
@@ -1233,7 +1233,7 @@ static int ipu_psys_fw_init(struct ipu_psys *psys)
 	int i;
 
 	size = IPU6SE_FW_PSYS_N_PSYS_CMD_QUEUE_ID;
-	if (ipu_ver == IPU_VER_6)
+	if (ipu_ver == IPU_VER_6 || ipu_ver == IPU_VER_6EP)
 		size = IPU6_FW_PSYS_N_PSYS_CMD_QUEUE_ID;
 
 	queue_cfg = devm_kzalloc(&psys->adev->dev, sizeof(*queue_cfg) * size,
@@ -1321,9 +1321,9 @@ static int ipu_psys_probe(struct ipu_bus_device *adev)
 
 	set_bit(minor, ipu_psys_devices);
 
-	spin_lock_init(&psys->power_lock);
+	spin_lock_init(&psys->ready_lock);
 	spin_lock_init(&psys->pgs_lock);
-	psys->power = 0;
+	psys->ready = 0;
 	psys->timeout = IPU_PSYS_CMD_TIMEOUT_MS;
 
 	mutex_init(&psys->mutex);
@@ -1598,6 +1598,7 @@ static void __exit ipu_psys_exit(void)
 static const struct pci_device_id ipu_pci_tbl[] = {
 	{PCI_DEVICE(PCI_VENDOR_ID_INTEL, IPU6_PCI_ID)},
 	{PCI_DEVICE(PCI_VENDOR_ID_INTEL, IPU6SE_PCI_ID)},
+	{PCI_DEVICE(PCI_VENDOR_ID_INTEL, IPU6EP_PCI_ID)},
 	{0,}
 };
 MODULE_DEVICE_TABLE(pci, ipu_pci_tbl);

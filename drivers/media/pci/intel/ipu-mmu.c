@@ -135,7 +135,7 @@ static void tlb_invalidate(struct ipu_mmu *mmu)
 
 	for (i = 0; i < mmu->nr_mmus; i++) {
 		/*
-		 * To avoid the HW bug induced dead lock in some of the IPU4
+		 * To avoid the HW bug induced dead lock in some of the IPU
 		 * MMUs on successive invalidate calls, we need to first do a
 		 * read to the page table base before writing the invalidate
 		 * register. MMUs which need to implement this WA, will have

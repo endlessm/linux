@@ -8,9 +8,7 @@
 #include "ipu-platform-regs.h"
 #include "ipu-trace.h"
 #include "ipu-isys.h"
-#ifdef CONFIG_VIDEO_INTEL_IPU_TPG
 #include "ipu-isys-tpg.h"
-#endif
 #include "ipu-platform-isys-csi2-reg.h"
 
 const struct ipu_isys_pixelformat ipu_isys_pfmts[] = {
@@ -88,8 +86,8 @@ void isys_setup_hw(struct ipu_isys *isys)
 	u32 irqs = 0;
 	unsigned int i, nr;
 
-	nr = (ipu_ver == IPU_VER_6) ? IPU6_ISYS_CSI_PORT_NUM :
-		IPU6SE_ISYS_CSI_PORT_NUM;
+	nr = (ipu_ver == IPU_VER_6 || ipu_ver == IPU_VER_6EP) ?
+		IPU6_ISYS_CSI_PORT_NUM : IPU6SE_ISYS_CSI_PORT_NUM;
 
 	/* Enable irqs for all MIPI ports */
 	for (i = 0; i < nr; i++)
@@ -175,7 +173,6 @@ irqreturn_t isys_isr(struct ipu_bus_device *adev)
 	return IRQ_HANDLED;
 }
 
-#ifdef CONFIG_VIDEO_INTEL_IPU_TPG
 void ipu_isys_tpg_sof_event(struct ipu_isys_tpg *tpg)
 {
 	struct ipu_isys_pipeline *ip = NULL;
@@ -186,8 +183,8 @@ void ipu_isys_tpg_sof_event(struct ipu_isys_tpg *tpg)
 	unsigned long flags;
 	unsigned int i, nr;
 
-	nr = (ipu_ver == IPU_VER_6) ? IPU6_ISYS_CSI_PORT_NUM :
-		IPU6SE_ISYS_CSI_PORT_NUM;
+	nr = (ipu_ver == IPU_VER_6 || ipu_ver == IPU_VER_6EP) ?
+		IPU6_ISYS_CSI_PORT_NUM : IPU6SE_ISYS_CSI_PORT_NUM;
 
 	spin_lock_irqsave(&tpg->isys->lock, flags);
 	for (i = 0; i < nr; i++) {
@@ -221,8 +218,8 @@ void ipu_isys_tpg_eof_event(struct ipu_isys_tpg *tpg)
 	unsigned int i, nr;
 	u32 frame_sequence;
 
-	nr = (ipu_ver == IPU_VER_6) ? IPU6_ISYS_CSI_PORT_NUM :
-		IPU6SE_ISYS_CSI_PORT_NUM;
+	nr = (ipu_ver == IPU_VER_6 || ipu_ver == IPU_VER_6EP) ?
+		IPU6_ISYS_CSI_PORT_NUM : IPU6SE_ISYS_CSI_PORT_NUM;
 
 	spin_lock_irqsave(&tpg->isys->lock, flags);
 	for (i = 0; i < nr; i++) {
@@ -319,4 +316,3 @@ int tpg_set_stream(struct v4l2_subdev *sd, int enable)
 	writel(2, tpg->base + MIPI_GEN_REG_COM_ENABLE);
 	return 0;
 }
-#endif

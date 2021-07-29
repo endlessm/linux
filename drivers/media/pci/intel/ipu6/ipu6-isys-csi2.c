@@ -71,8 +71,8 @@ static int ipu6_csi2_phy_power_set(struct ipu_isys *isys,
 	dev_dbg(&isys->adev->dev, "for phy %d port %d, lanes: %d\n",
 		phy_id, port, cfg->nlanes);
 
-	nr = (ipu_ver == IPU_VER_6) ? IPU6_ISYS_CSI_PORT_NUM :
-		IPU6SE_ISYS_CSI_PORT_NUM;
+	nr = (ipu_ver == IPU_VER_6 || ipu_ver == IPU_VER_6EP) ?
+		IPU6_ISYS_CSI_PORT_NUM : IPU6SE_ISYS_CSI_PORT_NUM;
 
 	if (!isys_base || port >= nr) {
 		dev_warn(&isys->adev->dev, "invalid port ID %d\n", port);
@@ -123,8 +123,8 @@ static void ipu6_isys_register_errors(struct ipu_isys_csi2 *csi2)
 	u32 irq = readl(csi2->base + CSI_PORT_REG_BASE_IRQ_CSI +
 			CSI_PORT_REG_BASE_IRQ_STATUS_OFFSET);
 
-	mask = (ipu_ver == IPU_VER_6) ? IPU6_CSI_RX_ERROR_IRQ_MASK :
-		IPU6SE_CSI_RX_ERROR_IRQ_MASK;
+	mask = (ipu_ver == IPU_VER_6 || ipu_ver == IPU_VER_6EP) ?
+		IPU6_CSI_RX_ERROR_IRQ_MASK : IPU6SE_CSI_RX_ERROR_IRQ_MASK;
 
 	writel(irq & mask,
 	       csi2->base + CSI_PORT_REG_BASE_IRQ_CSI +
@@ -351,8 +351,8 @@ int ipu_isys_csi2_set_stream(struct v4l2_subdev *sd,
 	port = cfg->port;
 	dev_dbg(&isys->adev->dev, "for port %u\n", port);
 
-	mask = (ipu_ver == IPU_VER_6) ? IPU6_CSI_RX_ERROR_IRQ_MASK :
-		IPU6SE_CSI_RX_ERROR_IRQ_MASK;
+	mask = (ipu_ver == IPU_VER_6 || ipu_ver == IPU_VER_6EP) ?
+		IPU6_CSI_RX_ERROR_IRQ_MASK : IPU6SE_CSI_RX_ERROR_IRQ_MASK;
 
 	if (!enable) {
 
@@ -386,7 +386,7 @@ int ipu_isys_csi2_set_stream(struct v4l2_subdev *sd,
 		return ipu6_csi2_phy_power_set(isys, cfg, false);
 	}
 
-	if (ipu_ver == IPU_VER_6) {
+	if (ipu_ver == IPU_VER_6 || ipu_ver == IPU_VER_6EP) {
 		/* Enable DPHY power */
 		ret = ipu6_csi2_phy_power_set(isys, cfg, true);
 		if (ret) {

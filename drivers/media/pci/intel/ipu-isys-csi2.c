@@ -149,7 +149,7 @@ static const struct v4l2_subdev_core_ops csi2_sd_core_ops = {
  * where
  *	UI = 1 / (2 * F) in seconds
  *	COUNT_ACC = counter accuracy in seconds
- *	For IPU4,  COUNT_ACC = 0.125 ns
+ *	For legacy IPU,  COUNT_ACC = 0.125 ns
  *
  * A and B are coefficients from the table below,
  * depending whether the register minimum or maximum value is

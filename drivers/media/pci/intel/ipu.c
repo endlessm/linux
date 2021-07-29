@@ -283,19 +283,22 @@ static void ipu_remove_debugfs(struct ipu_device *isp)
 static int ipu_pci_config_setup(struct pci_dev *dev)
 {
 	u16 pci_command;
-	int rval = pci_enable_msi(dev);
-
-	if (rval) {
-		dev_err(&dev->dev, "Failed to enable msi (%d)\n", rval);
-		return rval;
-	}
+	int rval;
 
 	pci_read_config_word(dev, PCI_COMMAND, &pci_command);
-	pci_command |= PCI_COMMAND_MEMORY | PCI_COMMAND_MASTER |
-	    PCI_COMMAND_INTX_DISABLE;
+	pci_command |= PCI_COMMAND_MEMORY | PCI_COMMAND_MASTER;
 	pci_write_config_word(dev, PCI_COMMAND, pci_command);
+	if (ipu_ver == IPU_VER_6EP) {
+		/* likely do nothing as msi not enabled by default */
+		pci_disable_msi(dev);
+		return 0;
+	}
 
-	return 0;
+	rval = pci_enable_msi(dev);
+	if (rval)
+		dev_err(&dev->dev, "Failed to enable msi (%d)\n", rval);
+
+	return rval;
 }
 
 static void ipu_configure_vc_mechanism(struct ipu_device *isp)
@@ -411,6 +414,10 @@ static int ipu_pci_probe(struct pci_dev *pdev, const struct pci_device_id *id)
 	case IPU6SE_PCI_ID:
 		ipu_ver = IPU_VER_6SE;
 		isp->cpd_fw_name = IPU6SE_FIRMWARE_NAME;
+		break;
+	case IPU6EP_PCI_ID:
+		ipu_ver = IPU_VER_6EP;
+		isp->cpd_fw_name = IPU6EP_FIRMWARE_NAME;
 		break;
 	default:
 		WARN(1, "Unsupported IPU device");
@@ -743,6 +750,7 @@ static const struct dev_pm_ops ipu_pm_ops = {
 static const struct pci_device_id ipu_pci_tbl[] = {
 	{PCI_DEVICE(PCI_VENDOR_ID_INTEL, IPU6_PCI_ID)},
 	{PCI_DEVICE(PCI_VENDOR_ID_INTEL, IPU6SE_PCI_ID)},
+	{PCI_DEVICE(PCI_VENDOR_ID_INTEL, IPU6EP_PCI_ID)},
 	{0,}
 };
 MODULE_DEVICE_TABLE(pci, ipu_pci_tbl);

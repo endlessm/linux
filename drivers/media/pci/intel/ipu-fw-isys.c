@@ -523,7 +523,7 @@ int ipu_fw_isys_init(struct ipu_isys *isys, unsigned int num_streams)
 
 	if (ipu_ver == IPU_VER_6SE) {
 		ipu6se_isys_fwcom_cfg_init(isys, &fwcom, num_streams);
-	} else if (ipu_ver == IPU_VER_6) {
+	} else if (ipu_ver == IPU_VER_6 || ipu_ver == IPU_VER_6EP) {
 		ipu6_isys_fwcom_cfg_init(isys, &fwcom, num_streams);
 	} else {
 		dev_err(dev, "unsupported ipu_ver %d\n", ipu_ver);

@@ -33,6 +33,15 @@ void ipu6_psys_hw_res_variant_init(void)
 		hw_var.get_pgm_by_proc =
 			ipu6_fw_psys_get_program_manifest_by_process;
 		return;
+	} else if (ipu_ver == IPU_VER_6EP) {
+		hw_var.queue_num = IPU6_FW_PSYS_N_PSYS_CMD_QUEUE_ID;
+		hw_var.cell_num = IPU6EP_FW_PSYS_N_CELL_ID;
+		hw_var.set_proc_dev_chn = ipu6_fw_psys_set_proc_dev_chn;
+		hw_var.set_proc_dfm_bitmap = ipu6_fw_psys_set_proc_dfm_bitmap;
+		hw_var.set_proc_ext_mem = ipu6_fw_psys_set_process_ext_mem;
+		hw_var.get_pgm_by_proc =
+			ipu6_fw_psys_get_program_manifest_by_process;
+		return;
 	}
 
 	WARN(1, "ipu6 psys res var is not initialised correctly.");
@@ -42,6 +51,9 @@ static const struct ipu_fw_resource_definitions *get_res(void)
 {
 	if (ipu_ver == IPU_VER_6SE)
 		return ipu6se_res_defs;
+
+	if (ipu_ver == IPU_VER_6EP)
+		return ipu6ep_res_defs;
 
 	return ipu6_res_defs;
 }

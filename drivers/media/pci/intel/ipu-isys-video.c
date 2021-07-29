@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: GPL-2.0
-// Copyright (C) 2013 - 2020 Intel Corporation
+// Copyright (C) 2013 - 2021 Intel Corporation
 
 #include <linux/delay.h>
 #include <linux/firmware.h>
@@ -545,9 +545,7 @@ static int vidioc_s_input(struct file *file, void *fh, unsigned int input)
 static bool is_external(struct ipu_isys_video *av, struct media_entity *entity)
 {
 	struct v4l2_subdev *sd;
-#ifdef CONFIG_VIDEO_INTEL_IPU_TPG
 	unsigned int i;
-#endif
 
 	/* All video nodes are ours. */
 	if (!is_media_entity_v4l2_subdev(entity))
@@ -558,12 +556,10 @@ static bool is_external(struct ipu_isys_video *av, struct media_entity *entity)
 		    strlen(IPU_ISYS_ENTITY_PREFIX)) != 0)
 		return true;
 
-#ifdef CONFIG_VIDEO_INTEL_IPU_TPG
 	for (i = 0; i < av->isys->pdata->ipdata->tpg.ntpgs &&
 	     av->isys->tpg[i].isys; i++)
 		if (entity == &av->isys->tpg[i].asd.sd.entity)
 			return true;
-#endif
 
 	return false;
 }
@@ -680,11 +676,10 @@ static void short_packet_queue_destroy(struct ipu_isys_pipeline *ip)
 		return;
 	for (i = 0; i < IPU_ISYS_SHORT_PACKET_BUFFER_NUM; i++) {
 		if (ip->short_packet_bufs[i].buffer)
-			dma_free_noncoherent(&av->isys->adev->dev,
-					     ip->short_packet_buffer_size,
-					     ip->short_packet_bufs[i].buffer,
-					     ip->short_packet_bufs[i].dma_addr,
-					     DMA_BIDIRECTIONAL);
+			dma_free_coherent(&av->isys->adev->dev,
+					  ip->short_packet_buffer_size,
+					  ip->short_packet_bufs[i].buffer,
+					  ip->short_packet_bufs[i].dma_addr);
 	}
 	kfree(ip->short_packet_bufs);
 	ip->short_packet_bufs = NULL;
@@ -731,11 +726,10 @@ static int short_packet_queue_setup(struct ipu_isys_pipeline *ip)
 		buf->ip = ip;
 		buf->ib.type = IPU_ISYS_SHORT_PACKET_BUFFER;
 		buf->bytesused = buf_size;
-		buf->buffer = dma_alloc_noncoherent(&av->isys->adev->dev,
-						    buf_size,
-						    &buf->dma_addr,
-						    DMA_BIDIRECTIONAL,
-						    GFP_KERNEL);
+		buf->buffer = dma_alloc_coherent(&av->isys->adev->dev,
+						 buf_size,
+						 &buf->dma_addr,
+						 GFP_KERNEL);
 		if (!buf->buffer) {
 			short_packet_queue_destroy(ip);
 			return -ENOMEM;
@@ -988,11 +982,9 @@ static int start_stream_firmware(struct ipu_isys_video *av,
 	if (ip->csi2 && !v4l2_ctrl_g_ctrl(ip->csi2->store_csi2_header))
 		stream_cfg->input_pins[0].mipi_store_mode =
 		    IPU_FW_ISYS_MIPI_STORE_MODE_DISCARD_LONG_HEADER;
-#ifdef CONFIG_VIDEO_INTEL_IPU_TPG
 	else if (ip->tpg && !v4l2_ctrl_g_ctrl(ip->tpg->store_csi2_header))
 		stream_cfg->input_pins[0].mipi_store_mode =
 		    IPU_FW_ISYS_MIPI_STORE_MODE_DISCARD_LONG_HEADER;
-#endif
 
 	stream_cfg->src = ip->source;
 	stream_cfg->vc = 0;
@@ -1306,9 +1298,7 @@ int ipu_isys_video_prepare_streaming(struct ipu_isys_video *av,
 	ip->csi2_be = NULL;
 	ip->csi2_be_soc = NULL;
 	ip->csi2 = NULL;
-#ifdef CONFIG_VIDEO_INTEL_IPU_TPG
 	ip->tpg = NULL;
-#endif
 	ip->seq_index = 0;
 	memset(ip->seq, 0, sizeof(ip->seq));
 
@@ -1426,9 +1416,11 @@ static void calculate_stream_datarate(struct video_stream_watermark *watermark)
 {
 	u64 pixels_per_line, bytes_per_line, line_time_ns;
 	u64 pages_per_line, pb_bytes_per_line, stream_data_rate;
-	u16 sram_granulrity_shift = (ipu_ver == IPU_VER_6) ?
+	u16 sram_granulrity_shift =
+		(ipu_ver == IPU_VER_6 || ipu_ver == IPU_VER_6EP) ?
 		IPU6_SRAM_GRANULRITY_SHIFT : IPU6SE_SRAM_GRANULRITY_SHIFT;
-	u16 sram_granulrity_size = (ipu_ver == IPU_VER_6) ?
+	u16 sram_granulrity_size =
+		(ipu_ver == IPU_VER_6 || ipu_ver == IPU_VER_6EP) ?
 		IPU6_SRAM_GRANULRITY_SIZE : IPU6SE_SRAM_GRANULRITY_SIZE;
 
 	pixels_per_line = watermark->width + watermark->hblank;

@@ -113,32 +113,38 @@ out:
 
 static int ipu_psys_detect_resource_contention(struct ipu_psys_ppg *kppg)
 {
-	struct ipu_psys_resource_pool try_res_pool;
+	struct ipu_psys_resource_pool *try_res_pool;
 	struct ipu_psys *psys = kppg->fh->psys;
-	int ret;
+	int ret = 0;
 	int state;
+
+	try_res_pool = kzalloc(sizeof(*try_res_pool), GFP_KERNEL);
+	if (IS_ERR_OR_NULL(try_res_pool))
+		return -ENOMEM;
 
 	mutex_lock(&kppg->mutex);
 	state = kppg->state;
 	mutex_unlock(&kppg->mutex);
 	if (state == PPG_STATE_STARTED || state == PPG_STATE_RUNNING ||
 	    state == PPG_STATE_RESUMED)
-		return 0;
+		goto exit;
 
-	ret = ipu_psys_resource_pool_init(&try_res_pool);
+	ret = ipu_psys_resource_pool_init(try_res_pool);
 	if (ret < 0) {
 		dev_err(&psys->adev->dev, "unable to alloc pg resources\n");
 		WARN_ON(1);
-		return ret;
+		goto exit;
 	}
 
-	ipu_psys_resource_copy(&psys->resource_pool_running, &try_res_pool);
+	ipu_psys_resource_copy(&psys->resource_pool_running, try_res_pool);
 	ret = ipu_psys_try_allocate_resources(&psys->adev->dev,
 					      kppg->kpg->pg,
 					      kppg->manifest,
-					      &try_res_pool);
+					      try_res_pool);
 
-	ipu_psys_resource_pool_cleanup(&try_res_pool);
+	ipu_psys_resource_pool_cleanup(try_res_pool);
+exit:
+	kfree(try_res_pool);
 
 	return ret;
 }
@@ -370,29 +376,27 @@ static void ipu_psys_update_ppg_state_by_kcmd(struct ipu_psys *psys,
 	if (kppg->state == PPG_STATE_STARTED ||
 	    kppg->state == PPG_STATE_RESUMED ||
 	    kppg->state == PPG_STATE_RUNNING) {
-		if (kcmd->state == KCMD_STATE_PPG_START) {
+		if (kcmd->state == KCMD_STATE_PPG_START)
 			ipu_psys_kcmd_complete(kppg, kcmd, 0);
-		} else if (kcmd->state == KCMD_STATE_PPG_STOP) {
+		else if (kcmd->state == KCMD_STATE_PPG_STOP)
 			kppg->state = PPG_STATE_STOP;
-		}
 	} else if (kppg->state == PPG_STATE_SUSPENDED) {
-		if (kcmd->state == KCMD_STATE_PPG_START) {
+		if (kcmd->state == KCMD_STATE_PPG_START)
 			ipu_psys_kcmd_complete(kppg, kcmd, 0);
-		} else if (kcmd->state == KCMD_STATE_PPG_STOP) {
+		else if (kcmd->state == KCMD_STATE_PPG_STOP)
 			/*
 			 * Record the previous state
 			 * because here need resume at first
 			 */
 			kppg->state |= PPG_STATE_STOP;
-		} else if (kcmd->state == KCMD_STATE_PPG_ENQUEUE) {
+		else if (kcmd->state == KCMD_STATE_PPG_ENQUEUE)
 			kppg->state = PPG_STATE_RESUME;
-		}
 	} else if (kppg->state == PPG_STATE_STOPPED) {
-		if (kcmd->state == KCMD_STATE_PPG_START) {
+		if (kcmd->state == KCMD_STATE_PPG_START)
 			kppg->state = PPG_STATE_START;
-		} else if (kcmd->state == KCMD_STATE_PPG_STOP) {
+		else if (kcmd->state == KCMD_STATE_PPG_STOP)
 			ipu_psys_kcmd_complete(kppg, kcmd, 0);
-		} else if (kcmd->state == KCMD_STATE_PPG_ENQUEUE) {
+		else if (kcmd->state == KCMD_STATE_PPG_ENQUEUE) {
 			dev_err(&psys->adev->dev, "ppg %p stopped!\n", kppg);
 			ipu_psys_kcmd_complete(kppg, kcmd, -EIO);
 		}

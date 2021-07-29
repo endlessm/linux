@@ -65,7 +65,7 @@ struct ipu_psys_resource_pool {
 /*
  * This struct keeps book of the resources allocated for a specific PG.
  * It is used for freeing up resources from struct ipu_psys_resources
- * when the PG is released from IPU4 (or model of IPU4).
+ * when the PG is released from IPU (or model of IPU).
  */
 struct ipu_psys_resource_alloc {
 	u32 cells;	/* Bitmask of cells needed */
@@ -81,10 +81,10 @@ struct ipu_psys {
 	struct device dev;
 
 	struct mutex mutex;	/* Psys various */
-	int power;
+	int ready; /* psys fw status */
 	bool icache_prefetch_sp;
 	bool icache_prefetch_isp;
-	spinlock_t power_lock;	/* Serialize access to power */
+	spinlock_t ready_lock;	/* protect psys firmware state */
 	spinlock_t pgs_lock;	/* Protect pgs list access */
 	struct list_head fhs;
 	struct list_head pgs;

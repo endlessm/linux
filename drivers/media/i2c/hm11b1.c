@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: GPL-2.0
-// Copyright (c) 2020 Intel Corporation.
+// Copyright (c) 2020-2021 Intel Corporation.
 
 #include <asm/unaligned.h>
 #include <linux/acpi.h>
@@ -10,7 +10,7 @@
 #include <media/v4l2-ctrls.h>
 #include <media/v4l2-device.h>
 #include <media/v4l2-fwnode.h>
-#include "pmic_dsc1.h"
+#include "power_ctrl_logic.h"
 
 #define HM11B1_LINK_FREQ_384MHZ		384000000ULL
 #define HM11B1_SCLK			72000000LL
@@ -1001,7 +1001,7 @@ static int hm11b1_start_streaming(struct hm11b1 *hm11b1)
 	int link_freq_index;
 	int ret = 0;
 
-	pmic_dsc1_set_power(1);
+	power_ctrl_logic_set_power(1);
 	link_freq_index = hm11b1->cur_mode->link_freq_index;
 	reg_list = &link_freq_configs[link_freq_index].reg_list;
 	ret = hm11b1_write_reg_list(hm11b1, reg_list);
@@ -1036,7 +1036,7 @@ static void hm11b1_stop_streaming(struct hm11b1 *hm11b1)
 	if (hm11b1_write_reg(hm11b1, HM11B1_REG_MODE_SELECT, 1,
 			     HM11B1_MODE_STANDBY))
 		dev_err(&client->dev, "failed to stop streaming");
-	pmic_dsc1_set_power(0);
+	power_ctrl_logic_set_power(0);
 }
 
 static int hm11b1_set_stream(struct v4l2_subdev *sd, int enable)
@@ -1278,8 +1278,8 @@ static int hm11b1_probe(struct i2c_client *client)
 		return -ENOMEM;
 
 	v4l2_i2c_subdev_init(&hm11b1->sd, client, &hm11b1_subdev_ops);
-	pmic_dsc1_set_power(0);
-	pmic_dsc1_set_power(1);
+	power_ctrl_logic_set_power(0);
+	power_ctrl_logic_set_power(1);
 	ret = hm11b1_identify_module(hm11b1);
 	if (ret) {
 		dev_err(&client->dev, "failed to find sensor: %d", ret);
@@ -1320,7 +1320,7 @@ static int hm11b1_probe(struct i2c_client *client)
 	pm_runtime_enable(&client->dev);
 	pm_runtime_idle(&client->dev);
 
-	pmic_dsc1_set_power(0);
+	power_ctrl_logic_set_power(0);
 	return 0;
 
 probe_error_media_entity_cleanup:

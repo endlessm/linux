@@ -840,6 +840,7 @@ get_sof_sequence_by_timestamp(struct ipu_isys_pipeline *ip,
 	 */
 	if (time == 0)
 		return atomic_read(&ip->sequence) - 1;
+
 	for (i = 0; i < IPU_ISYS_MAX_PARALLEL_SOF; i++)
 		if (time == ip->seq[i].timestamp) {
 			dev_dbg(&isys->adev->dev,

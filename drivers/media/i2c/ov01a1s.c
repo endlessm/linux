@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: GPL-2.0
-// Copyright (c) 2020 Intel Corporation.
+// Copyright (c) 2020-2021 Intel Corporation.
 
 #include <asm/unaligned.h>
 #include <linux/acpi.h>
@@ -10,7 +10,7 @@
 #include <media/v4l2-ctrls.h>
 #include <media/v4l2-device.h>
 #include <media/v4l2-fwnode.h>
-#include "pmic_dsc1.h"
+#include "power_ctrl_logic.h"
 
 #define OV01A1S_LINK_FREQ_400MHZ		400000000ULL
 #define OV01A1S_SCLK			40000000LL
@@ -246,7 +246,7 @@ static const struct ov01a1s_reg sensor_1296x800_setting[] = {
 	{0x3811, 0x00},
 	{0x3812, 0x00},
 	{0x3813, 0x09},
-	{0x3820, 0x88},
+	{0x3820, 0x80},
 	{0x373d, 0x24},
 };
 
@@ -567,7 +567,7 @@ static int ov01a1s_start_streaming(struct ov01a1s *ov01a1s)
 	int link_freq_index;
 	int ret = 0;
 
-	pmic_dsc1_set_power(1);
+	power_ctrl_logic_set_power(1);
 	link_freq_index = ov01a1s->cur_mode->link_freq_index;
 	reg_list = &link_freq_configs[link_freq_index].reg_list;
 	ret = ov01a1s_write_reg_list(ov01a1s, reg_list);
@@ -604,7 +604,7 @@ static void ov01a1s_stop_streaming(struct ov01a1s *ov01a1s)
 				OV01A1S_MODE_STANDBY);
 	if (ret)
 		dev_err(&client->dev, "failed to stop streaming");
-	pmic_dsc1_set_power(0);
+	power_ctrl_logic_set_power(0);
 }
 
 static int ov01a1s_set_stream(struct v4l2_subdev *sd, int enable)
@@ -846,8 +846,8 @@ static int ov01a1s_probe(struct i2c_client *client)
 		return -ENOMEM;
 
 	v4l2_i2c_subdev_init(&ov01a1s->sd, client, &ov01a1s_subdev_ops);
-	pmic_dsc1_set_power(0);
-	pmic_dsc1_set_power(1);
+	power_ctrl_logic_set_power(0);
+	power_ctrl_logic_set_power(1);
 	ret = ov01a1s_identify_module(ov01a1s);
 	if (ret) {
 		dev_err(&client->dev, "failed to find sensor: %d", ret);
@@ -888,7 +888,7 @@ static int ov01a1s_probe(struct i2c_client *client)
 	pm_runtime_enable(&client->dev);
 	pm_runtime_idle(&client->dev);
 
-	pmic_dsc1_set_power(0);
+	power_ctrl_logic_set_power(0);
 	return 0;
 
 probe_error_media_entity_cleanup:

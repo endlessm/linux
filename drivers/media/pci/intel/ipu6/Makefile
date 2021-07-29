@@ -33,9 +33,7 @@ intel-ipu6-isys-objs			+= ../ipu-isys.o \
 					   ../ipu-isys-queue.o \
 					   ../ipu-isys-subdev.o
 
-ifdef CONFIG_VIDEO_INTEL_IPU_TPG
 intel-ipu6-isys-objs                    += ../ipu-isys-tpg.o
-endif
 
 obj-$(CONFIG_VIDEO_INTEL_IPU6)		+= intel-ipu6-isys.o
 
@@ -49,6 +47,7 @@ intel-ipu6-psys-objs			+= ../ipu-psys.o \
 intel-ipu6-psys-objs			+= ipu-fw-resources.o \
 					   ipu6-fw-resources.o \
 					   ipu6se-fw-resources.o \
+					   ipu6ep-fw-resources.o \
 					   ../ipu-fw-psys.o
 
 ifeq ($(CONFIG_COMPAT),y)

@@ -35,7 +35,7 @@
  * psys has 4 ports with IOSF interface for VC0, VC1w, VC1r and VC2
  *
  * Threshold values are pre-defined and are arrived at after performance
- * evaluations on a type of IPU4
+ * evaluations on a type of IPU
  */
 #define IPU_MAX_VC_IOSF_PORTS		4
 
@@ -60,7 +60,7 @@ struct ipu_isys_subdev_pdata;
 /*
  * MMU Invalidation HW bug workaround by ZLW mechanism
  *
- * IPU4 MMUV2 has a bug in the invalidation mechanism which might result in
+ * Old IPU MMUV2 has a bug in the invalidation mechanism which might result in
  * wrong translation or replication of the translation. This will cause data
  * corruption. So we cannot directly use the MMU V2 invalidation registers
  * to invalidate the MMU. Instead, whenever an invalidate is called, we need to
@@ -98,7 +98,7 @@ struct ipu_isys_subdev_pdata;
 #define MMUV2_TRASH_L2_BLOCK_OFFSET		IPU_MMUV2_L2_RANGE
 
 /*
- * In some of the IPU4 MMUs, there is provision to configure L1 and L2 page
+ * In some of the IPU MMUs, there is provision to configure L1 and L2 page
  * table caches. Both these L1 and L2 caches are divided into multiple sections
  * called streams. There is maximum 16 streams for both caches. Each of these
  * sections are subdivided into multiple blocks. When nr_l1streams = 0 and
@@ -154,7 +154,7 @@ struct ipu_isys_subdev_pdata;
  *
  * Currently L1/L2 streams, blocks, AT ZLW configurations etc. are pre-defined
  * as per the usecase specific calculations. Any change to this pre-defined
- * table has to happen in sync with IPU4 FW.
+ * table has to happen in sync with IPU FW.
  */
 struct ipu_mmu_hw {
 	union {
@@ -207,13 +207,11 @@ struct ipu_isys_internal_csi2_pdata {
 	unsigned int *offsets;
 };
 
-#ifdef CONFIG_VIDEO_INTEL_IPU_TPG
 struct ipu_isys_internal_tpg_pdata {
 	unsigned int ntpgs;
 	unsigned int *offsets;
 	unsigned int *sels;
 };
-#endif
 
 /*
  * One place to handle all the IPU HW variations
@@ -230,9 +228,7 @@ struct ipu_hw_variants {
 
 struct ipu_isys_internal_pdata {
 	struct ipu_isys_internal_csi2_pdata csi2;
-#ifdef CONFIG_VIDEO_INTEL_IPU_TPG
 	struct ipu_isys_internal_tpg_pdata tpg;
-#endif
 	struct ipu_hw_variants hw_variant;
 	u32 num_parallel_streams;
 	u32 isys_dma_overshoot;

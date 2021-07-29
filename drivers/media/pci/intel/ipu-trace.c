@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: GPL-2.0
-// Copyright (C) 2014 - 2020 Intel Corporation
+// Copyright (C) 2014 - 2021 Intel Corporation
 
 #include <linux/debugfs.h>
 #include <linux/delay.h>
@@ -15,56 +15,11 @@
 #include "ipu-platform-regs.h"
 #include "ipu-trace.h"
 
-/* Input data processing states */
-enum config_file_parse_states {
-	STATE_FILL = 0,
-	STATE_COMMENT,
-	STATE_COMPLETE,
-};
-
 struct trace_register_range {
 	u32 start;
 	u32 end;
 };
 
-static u16 trace_unit_template[] = TRACE_REG_CREATE_TUN_REGISTER_LIST;
-static u16 trace_monitor_template[] = TRACE_REG_CREATE_TM_REGISTER_LIST;
-static u16 trace_gpc_template[] = TRACE_REG_CREATE_GPC_REGISTER_LIST;
-
-static struct trace_register_range trace_csi2_range_template[] = {
-	{
-	 .start = TRACE_REG_CSI2_TM_RESET_REG_IDX,
-	 .end = TRACE_REG_CSI2_TM_IRQ_ENABLE_REG_ID_N(7)
-	},
-	{
-	 .start = TRACE_REG_END_MARK,
-	 .end = TRACE_REG_END_MARK
-	}
-};
-
-static struct trace_register_range trace_csi2_3ph_range_template[] = {
-	{
-	 .start = TRACE_REG_CSI2_3PH_TM_RESET_REG_IDX,
-	 .end = TRACE_REG_CSI2_3PH_TM_IRQ_ENABLE_REG_ID_N(7)
-	},
-	{
-	 .start = TRACE_REG_END_MARK,
-	 .end = TRACE_REG_END_MARK
-	}
-};
-
-static struct trace_register_range trace_sig2cio_range_template[] = {
-	{
-	 .start = TRACE_REG_SIG2CIO_ADDRESS,
-	 .end = (TRACE_REG_SIG2CIO_STATUS + 8 * TRACE_REG_SIG2CIO_SIZE_OF)
-	},
-	{
-	 .start = TRACE_REG_END_MARK,
-	 .end = TRACE_REG_END_MARK
-	}
-};
-
-#define LINE_MAX_LEN			128
 #define MEMORY_RING_BUFFER_SIZE		(SZ_1M * 32)
 #define TRACE_MESSAGE_SIZE		16
 /*
@@ -77,8 +32,6 @@ static struct trace_register_range trace_sig2cio_range_template[] = {
 #define MAX_TRACE_REGISTERS		200
 #define TRACE_CONF_DUMP_BUFFER_SIZE	(MAX_TRACE_REGISTERS * 2 * 32)
 
-#define IPU_TRACE_TIME_RETRY	5
-
 struct config_value {
 	u32 reg;
 	u32 value;
@@ -87,6 +40,14 @@ struct config_value {
 struct ipu_trace_buffer {
 	dma_addr_t dma_handle;
 	void *memory_buffer;
+};
+
+struct ipu_subsystem_wptrace_config {
+	bool open;
+	char *conf_dump_buffer;
+	int size_conf_dump;
+	unsigned int fill_level;
+	struct config_value config[MAX_TRACE_REGISTERS];
 };
 
 struct ipu_subsystem_trace_config {
@@ -99,16 +60,8 @@ struct ipu_subsystem_trace_config {
 	bool running;
 	/* Cached register values  */
 	struct config_value config[MAX_TRACE_REGISTERS];
-};
-
-/*
- * State of the input data processing is kept in this structure.
- * Only one user is supported at time.
- */
-struct buf_state {
-	char line_buffer[LINE_MAX_LEN];
-	enum config_file_parse_states state;
-	int offset;	/* Offset to line_buffer */
+	/* watchpoint trace info */
+	struct ipu_subsystem_wptrace_config wpt;
 };
 
 struct ipu_trace {
@@ -116,7 +69,6 @@ struct ipu_trace {
 	bool open;
 	char *conf_dump_buffer;
 	int size_conf_dump;
-	struct buf_state buffer_state;
 
 	struct ipu_subsystem_trace_config isys;
 	struct ipu_subsystem_trace_config psys;
@@ -160,12 +112,11 @@ static void __ipu_trace_restore(struct device *dev)
 
 	if (!sys->memory.memory_buffer) {
 		sys->memory.memory_buffer =
-			dma_alloc_noncoherent(dev,
-					      MEMORY_RING_BUFFER_SIZE +
-					      MEMORY_RING_BUFFER_GUARD,
-					      &sys->memory.dma_handle,
-					      DMA_BIDIRECTIONAL,
-					      GFP_KERNEL);
+			dma_alloc_coherent(dev,
+					   MEMORY_RING_BUFFER_SIZE +
+					   MEMORY_RING_BUFFER_GUARD,
+					   &sys->memory.dma_handle,
+					   GFP_KERNEL);
 	}
 
 	if (!sys->memory.memory_buffer) {
@@ -213,6 +164,13 @@ static void __ipu_trace_restore(struct device *dev)
 		writel(config[i].value, isp->base + config[i].reg);
 	}
 
+	/* Register wpt config received from userspace, and only psys has wpt */
+	config = sys->wpt.config;
+	for (i = 0; i < sys->wpt.fill_level; i++) {
+		dev_dbg(dev, "Trace restore: reg 0x%08x, value 0x%08x\n",
+			config[i].reg, config[i].value);
+		writel(config[i].value, isp->base + config[i].reg);
+	}
 	sys->running = true;
 }
 
@@ -291,51 +249,10 @@ void ipu_trace_stop(struct device *dev)
 }
 EXPORT_SYMBOL_GPL(ipu_trace_stop);
 
-static int validate_register(u32 base, u32 reg, u16 *template)
-{
-	int i = 0;
-
-	while (template[i] != TRACE_REG_END_MARK) {
-		if (template[i] + base != reg) {
-			i++;
-			continue;
-		}
-		/* This is a valid register */
-		return 0;
-	}
-	return -EINVAL;
-}
-
-static int validate_register_range(u32 base, u32 reg,
-				   struct trace_register_range *template)
-{
-	unsigned int i = 0;
-
-	if (!IS_ALIGNED(reg, sizeof(u32)))
-		return -EINVAL;
-
-	while (template[i].start != TRACE_REG_END_MARK) {
-		if ((reg < template[i].start + base) ||
-		    (reg > template[i].end + base)) {
-			i++;
-			continue;
-		}
-		/* This is a valid register */
-		return 0;
-	}
-	return -EINVAL;
-}
-
 static int update_register_cache(struct ipu_device *isp, u32 reg, u32 value)
 {
 	struct ipu_trace *dctrl = isp->trace;
-	const struct ipu_trace_block *blocks;
 	struct ipu_subsystem_trace_config *sys;
-	struct device *dev;
-	u32 base = 0;
-	u16 *template = NULL;
-	struct trace_register_range *template_range = NULL;
-	int i, range;
 	int rval = -EINVAL;
 
 	if (dctrl->isys.offset == dctrl->psys.offset) {
@@ -361,55 +278,8 @@ static int update_register_cache(struct ipu_device *isp, u32 reg, u32 value)
 			goto error;
 	}
 
-	blocks = sys->blocks;
-	dev = sys->dev;
-
-	/* Check registers block by block */
-	i = 0;
-	while (blocks[i].type != IPU_TRACE_BLOCK_END) {
-		base = blocks[i].offset + sys->offset;
-		if ((reg >= base && reg < base + TRACE_REG_MAX_BLOCK_SIZE))
-			break;
-		i++;
-	}
-
-	range = 0;
-	switch (blocks[i].type) {
-	case IPU_TRACE_BLOCK_TUN:
-		template = trace_unit_template;
-		break;
-	case IPU_TRACE_BLOCK_TM:
-		template = trace_monitor_template;
-		break;
-	case IPU_TRACE_BLOCK_GPC:
-		template = trace_gpc_template;
-		break;
-	case IPU_TRACE_CSI2:
-		range = 1;
-		template_range = trace_csi2_range_template;
-		break;
-	case IPU_TRACE_CSI2_3PH:
-		range = 1;
-		template_range = trace_csi2_3ph_range_template;
-		break;
-	case IPU_TRACE_SIG2CIOS:
-		range = 1;
-		template_range = trace_sig2cio_range_template;
-		break;
-	default:
-		goto error;
-	}
-
-	if (range)
-		rval = validate_register_range(base, reg, template_range);
-	else
-		rval = validate_register(base, reg, template);
-
-	if (rval)
-		goto error;
-
 	if (sys->fill_level < MAX_TRACE_REGISTERS) {
-		dev_dbg(dev,
+		dev_dbg(sys->dev,
 			"Trace reg addr 0x%08x value 0x%08x\n", reg, value);
 		sys->config[sys->fill_level].reg = reg;
 		sys->config[sys->fill_level].value = value;
@@ -424,79 +294,6 @@ error:
 		 "Trace register address 0x%08x ignored as invalid register\n",
 		 reg);
 	return rval;
-}
-
-/*
- * We don't know how much data is received this time. Process given data
- * character by character.
- * Fill the line buffer until either
- * 1) new line is got -> go to decode
- * or
- * 2) line_buffer is full -> ignore rest of line and then try to decode
- * or
- * 3) Comment mark is found -> ignore rest of the line and then try to decode
- *    the data which was received before the comment mark
- *
- * Decode phase tries to find "reg = value" pairs and validates those
- */
-static int process_buffer(struct ipu_device *isp,
-			  char *buffer, int size, struct buf_state *state)
-{
-	int i, ret;
-	int curr_state = state->state;
-	u32 reg, value;
-
-	for (i = 0; i < size; i++) {
-		/*
-		 * Comment mark in any position turns on comment mode
-		 * until end of line
-		 */
-		if (curr_state != STATE_COMMENT && buffer[i] == '#') {
-			state->line_buffer[state->offset] = '\0';
-			curr_state = STATE_COMMENT;
-			continue;
-		}
-
-		switch (curr_state) {
-		case STATE_COMMENT:
-			/* Only new line can break this mode */
-			if (buffer[i] == '\n')
-				curr_state = STATE_COMPLETE;
-			break;
-		case STATE_FILL:
-			state->line_buffer[state->offset] = buffer[i];
-			state->offset++;
-
-			if (state->offset >= sizeof(state->line_buffer) - 1) {
-				/* Line buffer full - ignore rest */
-				state->line_buffer[state->offset] = '\0';
-				curr_state = STATE_COMMENT;
-				break;
-			}
-
-			if (buffer[i] == '\n') {
-				state->line_buffer[state->offset] = '\0';
-				curr_state = STATE_COMPLETE;
-			}
-			break;
-		default:
-			state->offset = 0;
-			state->line_buffer[state->offset] = '\0';
-			curr_state = STATE_COMMENT;
-		}
-
-		if (curr_state == STATE_COMPLETE) {
-			ret = sscanf(state->line_buffer, "%x = %x",
-				     &reg, &value);
-			if (ret == 2)
-				update_register_cache(isp, reg, value);
-
-			state->offset = 0;
-			curr_state = STATE_FILL;
-		}
-	}
-	state->state = curr_state;
-	return 0;
 }
 
 static void traceconf_dump(struct ipu_device *isp)
@@ -570,6 +367,7 @@ static int traceconf_open(struct inode *inode, struct file *file)
 		/* Forget old config if opened for write */
 		isp->trace->isys.fill_level = 0;
 		isp->trace->psys.fill_level = 0;
+		isp->trace->psys.wpt.fill_level = 0;
 	}
 
 	if (file->f_mode & FMODE_READ) {
@@ -599,26 +397,51 @@ static ssize_t traceconf_read(struct file *file, char __user *buf,
 static ssize_t traceconf_write(struct file *file, const char __user *buf,
 			       size_t len, loff_t *ppos)
 {
+	int i;
 	struct ipu_device *isp = file->private_data;
-	char buffer[64];
-	ssize_t bytes, count;
-	loff_t pos = *ppos;
+	ssize_t bytes = 0;
+	char *ipu_trace_buffer = NULL;
+	size_t buffer_size = 0;
+	u32 ipu_trace_number = 0;
+	struct config_value *cfg_buffer = NULL;
 
-	if (*ppos < 0)
+	if ((*ppos < 0) || (len < sizeof(ipu_trace_number))) {
+		dev_info(&isp->pdev->dev,
+			"length is error, len:%ld, loff:%lld\n",
+			len, *ppos);
 		return -EINVAL;
+	}
 
-	count = min(len, sizeof(buffer));
-	bytes = copy_from_user(buffer, buf, count);
-	if (bytes == count)
+	ipu_trace_buffer = vzalloc(len);
+	if (!ipu_trace_buffer)
+		return -ENOMEM;
+
+	bytes = copy_from_user(ipu_trace_buffer, buf, len);
+	if (bytes != 0) {
+		vfree(ipu_trace_buffer);
 		return -EFAULT;
+	}
 
-	count -= bytes;
+	memcpy(&ipu_trace_number, ipu_trace_buffer, sizeof(u32));
+	buffer_size = ipu_trace_number * sizeof(struct config_value);
+	if ((buffer_size + sizeof(ipu_trace_number)) != len) {
+		dev_info(&isp->pdev->dev,
+			"File size is not right, len:%ld, buffer_size:%zu\n",
+			len, buffer_size);
+		vfree(ipu_trace_buffer);
+		return -EFAULT;
+	}
+
 	mutex_lock(&isp->trace->lock);
-	process_buffer(isp, buffer, count, &isp->trace->buffer_state);
+	cfg_buffer = (struct config_value *)(ipu_trace_buffer + sizeof(u32));
+	for (i = 0; i < ipu_trace_number; i++) {
+		update_register_cache(isp, cfg_buffer[i].reg,
+			cfg_buffer[i].value);
+	}
 	mutex_unlock(&isp->trace->lock);
-	*ppos = pos + count;
+	vfree(ipu_trace_buffer);
 
-	return count;
+	return len;
 }
 
 static int traceconf_release(struct inode *inode, struct file *file)
@@ -694,6 +517,161 @@ static const struct file_operations ipu_traceconf_fops = {
 	.release = traceconf_release,
 	.read = traceconf_read,
 	.write = traceconf_write,
+	.llseek = no_llseek,
+};
+
+static void wptraceconf_dump(struct ipu_device *isp)
+{
+	struct ipu_subsystem_wptrace_config *sys = &isp->trace->psys.wpt;
+	int i, rem_size;
+	char *out;
+
+	sys->size_conf_dump = 0;
+	out = sys->conf_dump_buffer;
+	rem_size = TRACE_CONF_DUMP_BUFFER_SIZE;
+
+	for (i = 0; i < sys->fill_level && rem_size > 0; i++) {
+		int bytes_print;
+		int n = snprintf(out, rem_size, "0x%08x = 0x%08x\n",
+				 sys->config[i].reg,
+				 sys->config[i].value);
+
+		bytes_print = min(n, rem_size - 1);
+		rem_size -= bytes_print;
+		out += bytes_print;
+	}
+	sys->size_conf_dump = out - sys->conf_dump_buffer;
+}
+
+static int wptraceconf_open(struct inode *inode, struct file *file)
+{
+	int ret;
+	struct ipu_device *isp;
+
+	if (!inode->i_private)
+		return -EACCES;
+
+	isp = inode->i_private;
+	ret = mutex_trylock(&isp->trace->lock);
+	if (!ret)
+		return -EBUSY;
+
+	if (isp->trace->psys.wpt.open) {
+		mutex_unlock(&isp->trace->lock);
+		return -EBUSY;
+	}
+
+	file->private_data = isp;
+	if (file->f_mode & FMODE_WRITE) {
+		/* TBD: Allocate temp buffer for processing.
+		 * Push validated buffer to active config
+		 */
+		/* Forget old config if opened for write */
+		isp->trace->psys.wpt.fill_level = 0;
+	}
+
+	if (file->f_mode & FMODE_READ) {
+		isp->trace->psys.wpt.conf_dump_buffer =
+		    vzalloc(TRACE_CONF_DUMP_BUFFER_SIZE);
+		if (!isp->trace->psys.wpt.conf_dump_buffer) {
+			mutex_unlock(&isp->trace->lock);
+			return -ENOMEM;
+		}
+		wptraceconf_dump(isp);
+	}
+	mutex_unlock(&isp->trace->lock);
+	return 0;
+}
+
+static ssize_t wptraceconf_read(struct file *file, char __user *buf,
+			      size_t len, loff_t *ppos)
+{
+	struct ipu_device *isp = file->private_data;
+
+	return simple_read_from_buffer(buf, len, ppos,
+				       isp->trace->psys.wpt.conf_dump_buffer,
+				       isp->trace->psys.wpt.size_conf_dump);
+}
+
+static ssize_t wptraceconf_write(struct file *file, const char __user *buf,
+			       size_t len, loff_t *ppos)
+{
+	int i;
+	struct ipu_device *isp = file->private_data;
+	ssize_t bytes = 0;
+	char *wpt_info_buffer = NULL;
+	size_t buffer_size = 0;
+	u32 wp_node_number = 0;
+	struct config_value *wpt_buffer = NULL;
+	struct ipu_subsystem_wptrace_config *wpt = &isp->trace->psys.wpt;
+
+	if ((*ppos < 0) || (len < sizeof(wp_node_number))) {
+		dev_info(&isp->pdev->dev,
+			"length is error, len:%ld, loff:%lld\n",
+			len, *ppos);
+		return -EINVAL;
+	}
+
+	wpt_info_buffer = vzalloc(len);
+	if (!wpt_info_buffer)
+		return -ENOMEM;
+
+	bytes = copy_from_user(wpt_info_buffer, buf, len);
+	if (bytes != 0) {
+		vfree(wpt_info_buffer);
+		return -EFAULT;
+	}
+
+	memcpy(&wp_node_number, wpt_info_buffer, sizeof(u32));
+	buffer_size = wp_node_number * sizeof(struct config_value);
+	if ((buffer_size + sizeof(wp_node_number)) != len) {
+		dev_info(&isp->pdev->dev,
+			"File size is not right, len:%ld, buffer_size:%zu\n",
+			len, buffer_size);
+		vfree(wpt_info_buffer);
+		return -EFAULT;
+	}
+
+	mutex_lock(&isp->trace->lock);
+	wpt_buffer = (struct config_value *)(wpt_info_buffer + sizeof(u32));
+	for (i = 0; i < wp_node_number; i++) {
+		if (wpt->fill_level < MAX_TRACE_REGISTERS) {
+			wpt->config[wpt->fill_level].reg = wpt_buffer[i].reg;
+			wpt->config[wpt->fill_level].value =
+				wpt_buffer[i].value;
+			wpt->fill_level++;
+		} else {
+			dev_info(&isp->pdev->dev,
+				 "Address 0x%08x ignored as invalid register\n",
+				 wpt_buffer[i].reg);
+			break;
+		}
+	}
+	mutex_unlock(&isp->trace->lock);
+	vfree(wpt_info_buffer);
+
+	return len;
+}
+
+static int wptraceconf_release(struct inode *inode, struct file *file)
+{
+	struct ipu_device *isp = file->private_data;
+
+	mutex_lock(&isp->trace->lock);
+	isp->trace->open = 0;
+	vfree(isp->trace->psys.wpt.conf_dump_buffer);
+	isp->trace->psys.wpt.conf_dump_buffer = NULL;
+	mutex_unlock(&isp->trace->lock);
+
+	return 0;
+}
+
+static const struct file_operations ipu_wptraceconf_fops = {
+	.owner = THIS_MODULE,
+	.open = wptraceconf_open,
+	.release = wptraceconf_release,
+	.read = wptraceconf_read,
+	.write = wptraceconf_write,
 	.llseek = no_llseek,
 };
 
@@ -812,11 +790,11 @@ void ipu_trace_uninit(struct device *dev)
 	mutex_lock(&trace->lock);
 
 	if (sys->memory.memory_buffer)
-		dma_free_noncoherent(sys->dev,
-			MEMORY_RING_BUFFER_SIZE + MEMORY_RING_BUFFER_GUARD,
-			sys->memory.memory_buffer,
-			sys->memory.dma_handle,
-			DMA_BIDIRECTIONAL);
+		dma_free_coherent(sys->dev,
+				  MEMORY_RING_BUFFER_SIZE +
+				  MEMORY_RING_BUFFER_GUARD,
+				  sys->memory.memory_buffer,
+				  sys->memory.dma_handle);
 
 	sys->dev = NULL;
 	sys->memory.memory_buffer = NULL;
@@ -827,13 +805,19 @@ EXPORT_SYMBOL_GPL(ipu_trace_uninit);
 
 int ipu_trace_debugfs_add(struct ipu_device *isp, struct dentry *dir)
 {
-	struct dentry *files[3];
+	struct dentry *files[4];
 	int i = 0;
 
 	files[i] = debugfs_create_file("traceconf", 0644,
 				       dir, isp, &ipu_traceconf_fops);
 	if (!files[i])
 		return -ENOMEM;
+	i++;
+
+	files[i] = debugfs_create_file("wptraceconf", 0644,
+				       dir, isp, &ipu_wptraceconf_fops);
+	if (!files[i])
+		goto error;
 	i++;
 
 	files[i] = debugfs_create_file("getisystrace", 0444,

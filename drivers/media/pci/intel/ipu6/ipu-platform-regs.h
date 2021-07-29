@@ -7,7 +7,7 @@
 /*
  * IPU6 uses uniform address within IPU, therefore all subsystem registers
  * locates in one signle space starts from 0 but in different sctions with
- * with different addresses, the subsystem offsets are defined to 0 as the
+ * different addresses, the subsystem offsets are defined to 0 as the
  * register definition will have the address offset to 0.
  */
 #define IPU_UNIFIED_OFFSET			0

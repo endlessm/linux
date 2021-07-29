@@ -98,5 +98,6 @@ void ipu_psys_free_cmd_queue_resource(struct ipu_psys_resource_pool *pool,
 
 extern const struct ipu_fw_resource_definitions *ipu6_res_defs;
 extern const struct ipu_fw_resource_definitions *ipu6se_res_defs;
+extern const struct ipu_fw_resource_definitions *ipu6ep_res_defs;
 extern struct ipu6_psys_hw_res_variant hw_var;
 #endif /* IPU_PLATFORM_RESOURCES_COMMON_H */
