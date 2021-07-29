@@ -12,7 +12,7 @@
 #include <media/v4l2-fwnode.h>
 #include "power_ctrl_logic.h"
 
-#define OV01A1S_LINK_FREQ_400MHZ		400000000ULL
+#define OV01A1S_LINK_FREQ_400MHZ	400000000ULL
 #define OV01A1S_SCLK			40000000LL
 #define OV01A1S_MCLK			19200000
 #define OV01A1S_DATA_LANES		1
@@ -31,9 +31,6 @@
 #define OV01A1S_VTS_MIN			0x0380
 #define OV01A1S_VTS_MAX			0xffff
 
-/* horizontal-timings from sensor */
-#define OV01A1S_REG_HTS			0x380c
-
 /* Exposure controls from sensor */
 #define OV01A1S_REG_EXPOSURE		0x3501
 #define OV01A1S_EXPOSURE_MIN		4
@@ -43,13 +40,16 @@
 /* Analog gain controls from sensor */
 #define OV01A1S_REG_ANALOG_GAIN		0x3508
 #define OV01A1S_ANAL_GAIN_MIN		0x100
-#define OV01A1S_ANAL_GAIN_MAX		0xfff
+#define OV01A1S_ANAL_GAIN_MAX		0xffff
 #define OV01A1S_ANAL_GAIN_STEP		1
 
 /* Digital gain controls from sensor */
-#define OV01A1S_REG_DGTL_GAIN		0x350A
+#define OV01A1S_REG_DIGILAL_GAIN_B	0x350A
+#define OV01A1S_REG_DIGITAL_GAIN_GB	0x3510
+#define OV01A1S_REG_DIGITAL_GAIN_GR	0x3513
+#define OV01A1S_REG_DIGITAL_GAIN_R	0x3516
 #define OV01A1S_DGTL_GAIN_MIN		0
-#define OV01A1S_DGTL_GAIN_MAX		0xfff
+#define OV01A1S_DGTL_GAIN_MAX		0x3ffff
 #define OV01A1S_DGTL_GAIN_STEP		1
 #define OV01A1S_DGTL_GAIN_DEFAULT	1024
 
@@ -178,9 +178,9 @@ static const struct ov01a1s_reg sensor_1296x800_setting[] = {
 	{0x3808, 0x05},
 	{0x3809, 0x00},
 	{0x380a, 0x03},
-	{0x380b, 0x20},
-	{0x380c, 0x02},
-	{0x380d, 0xe8},
+	{0x380b, 0x1e},
+	{0x380c, 0x05},
+	{0x380d, 0xd0},
 	{0x380e, 0x03},
 	{0x380f, 0x80},
 	{0x3810, 0x00},
@@ -237,11 +237,7 @@ static const struct ov01a1s_reg sensor_1296x800_setting[] = {
 	{0x3808, 0x05},
 	{0x3809, 0x10},
 	{0x380a, 0x03},
-	{0x380b, 0x20},
-	{0x380c, 0x02},
-	{0x380d, 0xe8},
-	{0x380e, 0x03},
-	{0x380f, 0x80},
+	{0x380b, 0x1e},
 	{0x3810, 0x00},
 	{0x3811, 0x00},
 	{0x3812, 0x00},
@@ -274,8 +270,8 @@ static const struct ov01a1s_link_freq_config link_freq_configs[] = {
 static const struct ov01a1s_mode supported_modes[] = {
 	{
 		.width = 1296,
-		.height = 800,
-		.hts = 744,
+		.height = 798,
+		.hts = 1488,
 		.vts_def = OV01A1S_VTS_DEF,
 		.vts_min = OV01A1S_VTS_MIN,
 		.reg_list = {
@@ -311,24 +307,6 @@ struct ov01a1s {
 static inline struct ov01a1s *to_ov01a1s(struct v4l2_subdev *subdev)
 {
 	return container_of(subdev, struct ov01a1s, sd);
-}
-
-static u64 to_pixel_rate(u32 f_index)
-{
-	u64 pixel_rate = link_freq_menu_items[f_index] * 2 * OV01A1S_DATA_LANES;
-
-	do_div(pixel_rate, OV01A1S_RGB_DEPTH);
-
-	return pixel_rate;
-}
-
-static u64 to_pixels_per_line(u32 hts, u32 f_index)
-{
-	u64 ppl = hts * to_pixel_rate(f_index);
-
-	do_div(ppl, OV01A1S_SCLK);
-
-	return ppl;
 }
 
 static int ov01a1s_read_reg(struct ov01a1s *ov01a1s, u16 reg, u16 len, u32 *val)
@@ -403,11 +381,32 @@ static int ov01a1s_write_reg_list(struct ov01a1s *ov01a1s,
 
 static int ov01a1s_update_digital_gain(struct ov01a1s *ov01a1s, u32 d_gain)
 {
-	u32 real = d_gain;
+	struct i2c_client *client = v4l2_get_subdevdata(&ov01a1s->sd);
+	u32 real = d_gain << 6;
+	int ret = 0;
 
-	real = (real << 6);
+	ret = ov01a1s_write_reg(ov01a1s, OV01A1S_REG_DIGILAL_GAIN_B, 3, real);
+	if (ret) {
+		dev_err(&client->dev, "failed to set OV01A1S_REG_DIGITAL_GAIN_B");
+		return ret;
+	}
+	ret = ov01a1s_write_reg(ov01a1s, OV01A1S_REG_DIGITAL_GAIN_GB, 3, real);
+	if (ret) {
+		dev_err(&client->dev, "failed to set OV01A1S_REG_DIGITAL_GAIN_GB");
+		return ret;
+	}
+	ret = ov01a1s_write_reg(ov01a1s, OV01A1S_REG_DIGITAL_GAIN_GR, 3, real);
+	if (ret) {
+		dev_err(&client->dev, "failed to set OV01A1S_REG_DIGITAL_GAIN_GR");
+		return ret;
+	}
 
-	return ov01a1s_write_reg(ov01a1s, OV01A1S_REG_DGTL_GAIN, 3, real);
+	ret = ov01a1s_write_reg(ov01a1s, OV01A1S_REG_DIGITAL_GAIN_R, 3, real);
+	if (ret) {
+		dev_err(&client->dev, "failed to set OV01A1S_REG_DIGITAL_GAIN_R");
+		return ret;
+	}
+	return ret;
 }
 
 static int ov01a1s_test_pattern(struct ov01a1s *ov01a1s, u32 pattern)
@@ -445,7 +444,7 @@ static int ov01a1s_set_ctrl(struct v4l2_ctrl *ctrl)
 	switch (ctrl->id) {
 	case V4L2_CID_ANALOGUE_GAIN:
 		ret = ov01a1s_write_reg(ov01a1s, OV01A1S_REG_ANALOG_GAIN, 2,
-					ctrl->val << 4);
+					ctrl->val);
 		break;
 
 	case V4L2_CID_DIGITAL_GAIN:
@@ -484,7 +483,7 @@ static int ov01a1s_init_controls(struct ov01a1s *ov01a1s)
 {
 	struct v4l2_ctrl_handler *ctrl_hdlr;
 	const struct ov01a1s_mode *cur_mode;
-	s64 exposure_max, h_blank, pixel_rate;
+	s64 exposure_max, h_blank;
 	u32 vblank_min, vblank_max, vblank_default;
 	int size;
 	int ret = 0;
@@ -506,10 +505,9 @@ static int ov01a1s_init_controls(struct ov01a1s *ov01a1s)
 	if (ov01a1s->link_freq)
 		ov01a1s->link_freq->flags |= V4L2_CTRL_FLAG_READ_ONLY;
 
-	pixel_rate = to_pixel_rate(OV01A1S_LINK_FREQ_400MHZ_INDEX);
 	ov01a1s->pixel_rate = v4l2_ctrl_new_std(ctrl_hdlr, &ov01a1s_ctrl_ops,
 						V4L2_CID_PIXEL_RATE, 0,
-						pixel_rate, 1, pixel_rate);
+						OV01A1S_SCLK, 1, OV01A1S_SCLK);
 
 	vblank_min = cur_mode->vts_min - cur_mode->height;
 	vblank_max = OV01A1S_VTS_MAX - cur_mode->height;
@@ -518,8 +516,7 @@ static int ov01a1s_init_controls(struct ov01a1s *ov01a1s)
 					    V4L2_CID_VBLANK, vblank_min,
 					    vblank_max, 1, vblank_default);
 
-	h_blank = to_pixels_per_line(cur_mode->hts, cur_mode->link_freq_index);
-	h_blank -= cur_mode->width;
+	h_blank = cur_mode->hts - cur_mode->width;
 	ov01a1s->hblank = v4l2_ctrl_new_std(ctrl_hdlr, &ov01a1s_ctrl_ops,
 					    V4L2_CID_HBLANK, h_blank, h_blank,
 					    1, h_blank);
@@ -699,8 +696,7 @@ static int ov01a1s_set_format(struct v4l2_subdev *sd,
 	} else {
 		ov01a1s->cur_mode = mode;
 		__v4l2_ctrl_s_ctrl(ov01a1s->link_freq, mode->link_freq_index);
-		__v4l2_ctrl_s_ctrl_int64(ov01a1s->pixel_rate,
-					 to_pixel_rate(mode->link_freq_index));
+		__v4l2_ctrl_s_ctrl_int64(ov01a1s->pixel_rate, OV01A1S_SCLK);
 
 		/* Update limits and set FPS to default */
 		vblank_def = mode->vts_def - mode->height;
@@ -709,8 +705,7 @@ static int ov01a1s_set_format(struct v4l2_subdev *sd,
 					 OV01A1S_VTS_MAX - mode->height, 1,
 					 vblank_def);
 		__v4l2_ctrl_s_ctrl(ov01a1s->vblank, vblank_def);
-		h_blank = to_pixels_per_line(mode->hts, mode->link_freq_index) -
-			  mode->width;
+		h_blank = mode->hts - mode->width;
 		__v4l2_ctrl_modify_range(ov01a1s->hblank, h_blank, h_blank, 1,
 					 h_blank);
 	}
