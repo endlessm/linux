@@ -105,8 +105,8 @@ struct ipu_psys_pg *__get_pg_buf(struct ipu_psys *psys, size_t pg_size)
 	return kpg;
 }
 
-static int ipu_psys_unmapbuf_with_lock(int fd, struct ipu_psys_fh *fh,
-				       struct ipu_psys_kbuffer *kbuf);
+static int ipu_psys_unmapbuf_locked(int fd, struct ipu_psys_fh *fh,
+				    struct ipu_psys_kbuffer *kbuf);
 struct ipu_psys_kbuffer *ipu_psys_lookup_kbuffer(struct ipu_psys_fh *fh, int fd)
 {
 	struct ipu_psys_kbuffer *kbuf;
@@ -436,6 +436,27 @@ open_failed:
 	return rval;
 }
 
+static inline void ipu_psys_kbuf_unmap(struct ipu_psys_kbuffer *kbuf)
+{
+	if (!kbuf)
+		return;
+
+	kbuf->valid = false;
+	if (kbuf->kaddr)
+		dma_buf_vunmap(kbuf->dbuf, kbuf->kaddr);
+	if (kbuf->sgt)
+		dma_buf_unmap_attachment(kbuf->db_attach,
+					 kbuf->sgt,
+					 DMA_BIDIRECTIONAL);
+	if (kbuf->db_attach)
+		dma_buf_detach(kbuf->dbuf, kbuf->db_attach);
+	dma_buf_put(kbuf->dbuf);
+
+	kbuf->db_attach = NULL;
+	kbuf->dbuf = NULL;
+	kbuf->sgt = NULL;
+}
+
 static int ipu_psys_release(struct inode *inode, struct file *file)
 {
 	struct ipu_psys *psys = inode_to_ipu_psys(inode);
@@ -452,19 +473,8 @@ static int ipu_psys_release(struct inode *inode, struct file *file)
 
 			/* Unmap and release buffers */
 			if (kbuf->dbuf && db_attach) {
-				struct dma_buf *dbuf;
 
-				kbuf->valid = false;
-				dma_buf_vunmap(kbuf->dbuf, kbuf->kaddr);
-				dma_buf_unmap_attachment(db_attach,
-							 kbuf->sgt,
-							 DMA_BIDIRECTIONAL);
-				dma_buf_detach(kbuf->dbuf, db_attach);
-				dbuf = kbuf->dbuf;
-				kbuf->dbuf = NULL;
-				db_attach = NULL;
-				kbuf->db_attach = NULL;
-				dma_buf_put(dbuf);
+				ipu_psys_kbuf_unmap(kbuf);
 			} else {
 				if (db_attach)
 					ipu_psys_put_userpages(db_attach->priv);
@@ -536,10 +546,10 @@ static int ipu_psys_getbuf(struct ipu_psys_buffer *buf, struct ipu_psys_fh *fh)
 	kbuf->flags = buf->flags |= IPU_BUFFER_FLAG_DMA_HANDLE;
 
 	mutex_lock(&fh->mutex);
-	list_add_tail(&kbuf->list, &fh->bufmap);
+	list_add(&kbuf->list, &fh->bufmap);
 	mutex_unlock(&fh->mutex);
 
-	dev_dbg(&psys->adev->dev, "IOC_GETBUF: userptr %p size %lu to fd %d",
+	dev_dbg(&psys->adev->dev, "IOC_GETBUF: userptr %p size %llu to fd %d",
 		buf->base.userptr, buf->len, buf->base.fd);
 
 	return 0;
@@ -550,8 +560,8 @@ static int ipu_psys_putbuf(struct ipu_psys_buffer *buf, struct ipu_psys_fh *fh)
 	return 0;
 }
 
-int ipu_psys_mapbuf_with_lock(int fd, struct ipu_psys_fh *fh,
-			      struct ipu_psys_kbuffer *kbuf)
+int ipu_psys_mapbuf_locked(int fd, struct ipu_psys_fh *fh,
+			   struct ipu_psys_kbuffer *kbuf)
 {
 	struct ipu_psys *psys = fh->psys;
 	struct dma_buf *dbuf;
@@ -567,10 +577,12 @@ int ipu_psys_mapbuf_with_lock(int fd, struct ipu_psys_fh *fh,
 		 * add this kbuf to bufmap list.
 		 */
 		kbuf = kzalloc(sizeof(*kbuf), GFP_KERNEL);
-		if (!kbuf)
-			return -ENOMEM;
+		if (!kbuf) {
+			ret = -ENOMEM;
+			goto mapbuf_fail;
+		}
 
-		list_add_tail(&kbuf->list, &fh->bufmap);
+		list_add(&kbuf->list, &fh->bufmap);
 	}
 
 	/* fd valid and found, need remap */
@@ -578,17 +590,19 @@ int ipu_psys_mapbuf_with_lock(int fd, struct ipu_psys_fh *fh,
 		dev_dbg(&psys->adev->dev,
 			"dmabuf fd %d with kbuf %p changed, need remap.\n",
 			fd, kbuf);
-		ret = ipu_psys_unmapbuf_with_lock(fd, fh, kbuf);
+		ret = ipu_psys_unmapbuf_locked(fd, fh, kbuf);
 		if (ret)
-			return ret;
+			goto mapbuf_fail;
 
 		kbuf = ipu_psys_lookup_kbuffer(fh, fd);
 		/* changed external dmabuf */
 		if (!kbuf) {
 			kbuf = kzalloc(sizeof(*kbuf), GFP_KERNEL);
-			if (!kbuf)
-				return -ENOMEM;
-			list_add_tail(&kbuf->list, &fh->bufmap);
+			if (!kbuf) {
+				ret = -ENOMEM;
+				goto mapbuf_fail;
+			}
+			list_add(&kbuf->list, &fh->bufmap);
 		}
 	}
 
@@ -608,15 +622,16 @@ int ipu_psys_mapbuf_with_lock(int fd, struct ipu_psys_fh *fh,
 	kbuf->db_attach = dma_buf_attach(kbuf->dbuf, &psys->adev->dev);
 	if (IS_ERR(kbuf->db_attach)) {
 		ret = PTR_ERR(kbuf->db_attach);
-		goto error_put;
+		dev_dbg(&psys->adev->dev, "dma buf attach failed\n");
+		goto kbuf_map_fail;
 	}
 
 	kbuf->sgt = dma_buf_map_attachment(kbuf->db_attach, DMA_BIDIRECTIONAL);
 	if (IS_ERR_OR_NULL(kbuf->sgt)) {
 		ret = -EINVAL;
 		kbuf->sgt = NULL;
-		dev_dbg(&psys->adev->dev, "map attachment failed\n");
-		goto error_detach;
+		dev_dbg(&psys->adev->dev, "dma buf map attachment failed\n");
+		goto kbuf_map_fail;
 	}
 
 	kbuf->dma_addr = sg_dma_address(kbuf->sgt->sgl);
@@ -624,10 +639,11 @@ int ipu_psys_mapbuf_with_lock(int fd, struct ipu_psys_fh *fh,
 	kbuf->kaddr = dma_buf_vmap(kbuf->dbuf);
 	if (!kbuf->kaddr) {
 		ret = -EINVAL;
-		goto error_unmap;
+		dev_dbg(&psys->adev->dev, "dma buf vmap failed\n");
+		goto kbuf_map_fail;
 	}
 
-	dev_dbg(&psys->adev->dev, "%s kbuf %p fd %d with len %lu mapped\n",
+	dev_dbg(&psys->adev->dev, "%s kbuf %p fd %d with len %llu mapped\n",
 		__func__, kbuf, fd, kbuf->len);
 mapbuf_end:
 
@@ -635,20 +651,18 @@ mapbuf_end:
 
 	return 0;
 
-error_unmap:
-	dma_buf_unmap_attachment(kbuf->db_attach, kbuf->sgt, DMA_BIDIRECTIONAL);
-error_detach:
-	dma_buf_detach(kbuf->dbuf, kbuf->db_attach);
-	kbuf->db_attach = NULL;
-error_put:
-	list_del(&kbuf->list);
+kbuf_map_fail:
+	ipu_psys_kbuf_unmap(kbuf);
 
+	list_del(&kbuf->list);
 	if (!kbuf->userptr)
 		kfree(kbuf);
+	return ret;
 
+mapbuf_fail:
 	dma_buf_put(dbuf);
 
-	dev_err(&psys->adev->dev, "%s failed\n", __func__);
+	dev_err(&psys->adev->dev, "%s failed for fd %d\n", __func__, fd);
 	return ret;
 }
 
@@ -659,7 +673,7 @@ static long ipu_psys_mapbuf(int fd, struct ipu_psys_fh *fh)
 
 	mutex_lock(&fh->mutex);
 	kbuf = ipu_psys_lookup_kbuffer(fh, fd);
-	ret = ipu_psys_mapbuf_with_lock(fd, fh, kbuf);
+	ret = ipu_psys_mapbuf_locked(fd, fh, kbuf);
 	mutex_unlock(&fh->mutex);
 
 	dev_dbg(&fh->psys->adev->dev, "IOC_MAPBUF ret %ld\n", ret);
@@ -667,11 +681,10 @@ static long ipu_psys_mapbuf(int fd, struct ipu_psys_fh *fh)
 	return ret;
 }
 
-static int ipu_psys_unmapbuf_with_lock(int fd, struct ipu_psys_fh *fh,
-				       struct ipu_psys_kbuffer *kbuf)
+static int ipu_psys_unmapbuf_locked(int fd, struct ipu_psys_fh *fh,
+				    struct ipu_psys_kbuffer *kbuf)
 {
 	struct ipu_psys *psys = fh->psys;
-	struct dma_buf *dmabuf;
 
 	if (!kbuf || fd != kbuf->fd) {
 		dev_err(&psys->adev->dev, "invalid kbuffer\n");
@@ -679,25 +692,12 @@ static int ipu_psys_unmapbuf_with_lock(int fd, struct ipu_psys_fh *fh,
 	}
 
 	/* From now on it is not safe to use this kbuffer */
-	kbuf->valid = false;
-
-	dma_buf_vunmap(kbuf->dbuf, kbuf->kaddr);
-	dma_buf_unmap_attachment(kbuf->db_attach, kbuf->sgt, DMA_BIDIRECTIONAL);
-
-	dma_buf_detach(kbuf->dbuf, kbuf->db_attach);
-
-	dmabuf = kbuf->dbuf;
-
-	kbuf->db_attach = NULL;
-	kbuf->dbuf = NULL;
-	kbuf->sgt = NULL;
+	ipu_psys_kbuf_unmap(kbuf);
 
 	list_del(&kbuf->list);
 
 	if (!kbuf->userptr)
 		kfree(kbuf);
-
-	dma_buf_put(dmabuf);
 
 	dev_dbg(&psys->adev->dev, "%s fd %d unmapped\n", __func__, fd);
 
@@ -717,7 +717,7 @@ static long ipu_psys_unmapbuf(int fd, struct ipu_psys_fh *fh)
 		mutex_unlock(&fh->mutex);
 		return -EINVAL;
 	}
-	ret = ipu_psys_unmapbuf_with_lock(fd, fh, kbuf);
+	ret = ipu_psys_unmapbuf_locked(fd, fh, kbuf);
 	mutex_unlock(&fh->mutex);
 
 	dev_dbg(&fh->psys->adev->dev, "IOC_UNMAPBUF\n");
@@ -1500,15 +1500,6 @@ static void ipu_psys_remove(struct ipu_bus_device *adev)
 	if (psys->fwcom && ipu_fw_com_release(psys->fwcom, 1))
 		dev_err(&adev->dev, "fw com release failed.\n");
 
-	isp->pkg_dir = NULL;
-	isp->pkg_dir_dma_addr = 0;
-	isp->pkg_dir_size = 0;
-
-	ipu_cpd_free_pkg_dir(adev, psys->pkg_dir,
-			     psys->pkg_dir_dma_addr, psys->pkg_dir_size);
-
-	ipu_buttress_unmap_fw_image(adev, &psys->fw_sgt);
-
 	kfree(psys->server_init);
 	kfree(psys->syscom_config);
 
@@ -1538,13 +1529,8 @@ static irqreturn_t psys_isr_threaded(struct ipu_bus_device *adev)
 
 	mutex_lock(&psys->mutex);
 #ifdef CONFIG_PM
-	if (!READ_ONCE(psys->power)) {
-		mutex_unlock(&psys->mutex);
-		return IRQ_NONE;
-	}
-	r = pm_runtime_get_sync(&psys->adev->dev);
-	if (r < 0) {
-		pm_runtime_put(&psys->adev->dev);
+	r = pm_runtime_get_if_in_use(&psys->adev->dev);
+	if (!r || WARN_ON_ONCE(r < 0)) {
 		mutex_unlock(&psys->mutex);
 		return IRQ_NONE;
 	}

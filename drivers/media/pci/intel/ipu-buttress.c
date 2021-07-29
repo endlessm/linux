@@ -39,6 +39,7 @@
 #define BUTTRESS_CSE_FWRESET_TIMEOUT		100000
 
 #define BUTTRESS_IPC_TX_TIMEOUT			1000
+#define BUTTRESS_IPC_RESET_TIMEOUT		2000
 #define BUTTRESS_IPC_RX_TIMEOUT			1000
 #define BUTTRESS_IPC_VALIDITY_TIMEOUT		1000000
 #define BUTTRESS_TSC_SYNC_TIMEOUT		5000
@@ -74,8 +75,7 @@ static const u32 ipu_adev_irq_mask[] = {
 int ipu_buttress_ipc_reset(struct ipu_device *isp, struct ipu_buttress_ipc *ipc)
 {
 	struct ipu_buttress *b = &isp->buttress;
-	unsigned long tout_jfs;
-	unsigned int tout = 500;
+	unsigned int timeout = BUTTRESS_IPC_RESET_TIMEOUT;
 	u32 val = 0, csr_in_clr;
 
 	if (!isp->secure_mode) {
@@ -91,7 +91,6 @@ int ipu_buttress_ipc_reset(struct ipu_device *isp, struct ipu_buttress_ipc *ipc)
 
 	/* Set peer CSR bit IPC_PEER_COMP_ACTIONS_RST_PHASE1 */
 	writel(ENTRY, isp->base + ipc->csr_out);
-
 	/*
 	 * Clear-by-1 all CSR bits EXCEPT following
 	 * bits:
@@ -104,53 +103,43 @@ int ipu_buttress_ipc_reset(struct ipu_device *isp, struct ipu_buttress_ipc *ipc)
 		BUTTRESS_IU2CSECSR_IPC_PEER_ACKED_REG_VALID |
 		BUTTRESS_IU2CSECSR_IPC_PEER_ASSERTED_REG_VALID_REQ | QUERY;
 
-	/*
-	 * How long we should wait here?
-	 */
-	tout_jfs = jiffies + msecs_to_jiffies(tout);
-	do {
+	while (timeout--) {
+		usleep_range(400, 500);
 		val = readl(isp->base + ipc->csr_in);
-		dev_dbg(&isp->pdev->dev, "%s: csr_in = %x\n", __func__, val);
-		if (val & ENTRY) {
-			if (val & EXIT) {
-				dev_dbg(&isp->pdev->dev,
-					"%s:%s & %s\n", __func__,
-					"IPC_PEER_COMP_ACTIONS_RST_PHASE1",
-					"IPC_PEER_COMP_ACTIONS_RST_PHASE2");
-				/*
-				 * 1) Clear-by-1 CSR bits
-				 * (IPC_PEER_COMP_ACTIONS_RST_PHASE1,
-				 * IPC_PEER_COMP_ACTIONS_RST_PHASE2).
-				 * 2) Set peer CSR bit
-				 * IPC_PEER_QUERIED_IP_COMP_ACTIONS_RST_PHASE.
-				 */
-				writel(ENTRY | EXIT,
-				       isp->base + ipc->csr_in);
-
-				writel(QUERY, isp->base + ipc->csr_out);
-
-				tout_jfs = jiffies + msecs_to_jiffies(tout);
-				continue;
-			} else {
-				dev_dbg(&isp->pdev->dev,
-					"%s:IPC_PEER_COMP_ACTIONS_RST_PHASE1\n",
-					__func__);
-				/*
-				 * 1) Clear-by-1 CSR bits
-				 * (IPC_PEER_COMP_ACTIONS_RST_PHASE1,
-				 * IPC_PEER_QUERIED_IP_COMP_ACTIONS_RST_PHASE).
-				 * 2) Set peer CSR bit
-				 * IPC_PEER_COMP_ACTIONS_RST_PHASE1.
-				 */
-				writel(ENTRY | QUERY,
-				       isp->base + ipc->csr_in);
-
-				writel(ENTRY, isp->base + ipc->csr_out);
-
-				tout_jfs = jiffies + msecs_to_jiffies(tout);
-				continue;
-			}
-		} else if (val & EXIT) {
+		switch (val) {
+		case (ENTRY | EXIT):
+		case (ENTRY | EXIT | QUERY):
+			dev_dbg(&isp->pdev->dev,
+				"%s:%s & %s\n", __func__,
+				"IPC_PEER_COMP_ACTIONS_RST_PHASE1",
+				"IPC_PEER_COMP_ACTIONS_RST_PHASE2");
+			/*
+			 * 1) Clear-by-1 CSR bits
+			 * (IPC_PEER_COMP_ACTIONS_RST_PHASE1,
+			 * IPC_PEER_COMP_ACTIONS_RST_PHASE2).
+			 * 2) Set peer CSR bit
+			 * IPC_PEER_QUERIED_IP_COMP_ACTIONS_RST_PHASE.
+			 */
+			writel(ENTRY | EXIT, isp->base + ipc->csr_in);
+			writel(QUERY, isp->base + ipc->csr_out);
+			break;
+		case ENTRY:
+		case ENTRY | QUERY:
+			dev_dbg(&isp->pdev->dev,
+				"%s:IPC_PEER_COMP_ACTIONS_RST_PHASE1\n",
+				__func__);
+			/*
+			 * 1) Clear-by-1 CSR bits
+			 * (IPC_PEER_COMP_ACTIONS_RST_PHASE1,
+			 * IPC_PEER_QUERIED_IP_COMP_ACTIONS_RST_PHASE).
+			 * 2) Set peer CSR bit
+			 * IPC_PEER_COMP_ACTIONS_RST_PHASE1.
+			 */
+			writel(ENTRY | QUERY, isp->base + ipc->csr_in);
+			writel(ENTRY, isp->base + ipc->csr_out);
+			break;
+		case EXIT:
+		case EXIT | QUERY:
 			dev_dbg(&isp->pdev->dev,
 				"%s: IPC_PEER_COMP_ACTIONS_RST_PHASE2\n",
 				__func__);
@@ -168,30 +157,25 @@ int ipu_buttress_ipc_reset(struct ipu_device *isp, struct ipu_buttress_ipc *ipc)
 			 * IPC_PEER_COMP_ACTIONS_RST_PHASE2.
 			 */
 			writel(EXIT, isp->base + ipc->csr_in);
-
 			writel(0, isp->base + ipc->db0_in);
-
 			writel(csr_in_clr, isp->base + ipc->csr_in);
-
 			writel(EXIT, isp->base + ipc->csr_out);
 
 			/*
 			 * Read csr_in again to make sure if RST_PHASE2 is done.
 			 * If csr_in is QUERY, it should be handled again.
 			 */
-			usleep_range(100, 500);
+			usleep_range(200, 300);
 			val = readl(isp->base + ipc->csr_in);
 			if (val & QUERY) {
 				dev_dbg(&isp->pdev->dev,
 					"%s: RST_PHASE2 retry csr_in = %x\n",
 					__func__, val);
-				continue;
+				break;
 			}
-
 			mutex_unlock(&b->ipc_mutex);
-
 			return 0;
-		} else if (val & QUERY) {
+		case QUERY:
 			dev_dbg(&isp->pdev->dev,
 				"%s: %s\n", __func__,
 				"IPC_PEER_QUERIED_IP_COMP_ACTIONS_RST_PHASE");
@@ -202,17 +186,18 @@ int ipu_buttress_ipc_reset(struct ipu_device *isp, struct ipu_buttress_ipc *ipc)
 			 * IPC_PEER_COMP_ACTIONS_RST_PHASE1
 			 */
 			writel(QUERY, isp->base + ipc->csr_in);
-
 			writel(ENTRY, isp->base + ipc->csr_out);
-
-			tout_jfs = jiffies + msecs_to_jiffies(tout);
+			break;
+		default:
+			dev_dbg_ratelimited(&isp->pdev->dev,
+					    "%s: unexpected CSR 0x%x\n",
+					    __func__, val);
+			break;
 		}
-		usleep_range(100, 500);
-	} while (!time_after(jiffies, tout_jfs));
+	}
 
 	mutex_unlock(&b->ipc_mutex);
-
-	dev_err(&isp->pdev->dev, "Timed out while waiting for CSE!\n");
+	dev_err(&isp->pdev->dev, "Timed out while waiting for CSE\n");
 
 	return -ETIMEDOUT;
 }
@@ -244,7 +229,7 @@ ipu_buttress_ipc_validity_open(struct ipu_device *isp,
 	ret = readl_poll_timeout(addr, val, val & mask, 200, tout);
 	if (ret) {
 		val = readl(addr);
-		dev_err(&isp->pdev->dev, "CSE validity timeout 0x%x!\n", val);
+		dev_err(&isp->pdev->dev, "CSE validity timeout 0x%x\n", val);
 		ipu_buttress_ipc_validity_close(isp, ipc);
 	}
 
@@ -346,7 +331,7 @@ static int ipu_buttress_ipc_send_bulk(struct ipu_device *isp,
 		}
 	}
 
-	dev_dbg(&isp->pdev->dev, "bulk IPC commands completed\n");
+	dev_dbg(&isp->pdev->dev, "bulk IPC commands done\n");
 
 out:
 	ipu_buttress_ipc_validity_close(isp, ipc);
@@ -717,10 +702,10 @@ int ipu_buttress_reset_authentication(struct ipu_device *isp)
 				 BUTTRESS_CSE_FWRESET_TIMEOUT);
 	if (ret) {
 		dev_err(&isp->pdev->dev,
-			"Timed out while resetting authentication state!\n");
+			"Time out while resetting authentication state\n");
 	} else {
 		dev_info(&isp->pdev->dev,
-			 "FW reset for authentication done!\n");
+			 "FW reset for authentication done\n");
 		writel(0, isp->base + BUTTRESS_REG_FW_RESET_CTL);
 		/* leave some time for HW restore */
 		usleep_range(800, 1000);
@@ -843,7 +828,7 @@ int ipu_buttress_authenticate(struct ipu_device *isp)
 				   (data & mask) == fail), 500,
 				  BUTTRESS_CSE_BOOTLOAD_TIMEOUT);
 	if (rval) {
-		dev_err(&isp->pdev->dev, "CSE boot_load timeout.\n");
+		dev_err(&isp->pdev->dev, "CSE boot_load timeout\n");
 		goto iunit_power_off;
 	}
 
@@ -858,7 +843,7 @@ int ipu_buttress_authenticate(struct ipu_device *isp)
 				  data, data == BOOTLOADER_MAGIC_KEY, 500,
 				  BUTTRESS_CSE_BOOTLOAD_TIMEOUT);
 	if (rval) {
-		dev_err(&isp->pdev->dev, "Expect magic number timeout 0x%x.\n",
+		dev_err(&isp->pdev->dev, "Expect magic number timeout 0x%x\n",
 			data);
 		goto iunit_power_off;
 	}
@@ -918,7 +903,7 @@ static int ipu_buttress_send_tsc_request(struct ipu_device *isp)
 	val = readl(isp->base + BUTTRESS_REG_PWR_STATE);
 	val = (val & mask) >> shift;
 	if (val == BUTTRESS_PWR_STATE_HH_STATE_ERR) {
-		dev_err(&isp->pdev->dev, "Start tsc sync failed!\n");
+		dev_err(&isp->pdev->dev, "Start tsc sync failed\n");
 		return -EINVAL;
 	}
 
@@ -927,7 +912,7 @@ static int ipu_buttress_send_tsc_request(struct ipu_device *isp)
 				 ((val & mask) >> shift == done), 500,
 				 BUTTRESS_TSC_SYNC_TIMEOUT);
 	if (ret)
-		dev_err(&isp->pdev->dev, "Start tsc sync timeout!\n");
+		dev_err(&isp->pdev->dev, "Start tsc sync timeout\n");
 
 	return ret;
 }
@@ -955,7 +940,7 @@ int ipu_buttress_start_tsc_sync(struct ipu_device *isp)
 		return ret;
 	}
 
-	dev_err(&isp->pdev->dev, "TSC sync failed(timeout).\n");
+	dev_err(&isp->pdev->dev, "TSC sync failed(timeout)\n");
 
 	return -ETIMEDOUT;
 }
@@ -1440,7 +1425,7 @@ int ipu_buttress_init(struct ipu_device *isp)
 	ipu_buttress_set_secure_mode(isp);
 	isp->secure_mode = ipu_buttress_get_secure_mode(isp);
 	if (isp->secure_mode != secure_mode_enable)
-		dev_warn(&isp->pdev->dev, "Unable to set secure mode!\n");
+		dev_warn(&isp->pdev->dev, "Unable to set secure mode\n");
 
 	dev_info(&isp->pdev->dev, "IPU in %s mode\n",
 		 isp->secure_mode ? "secure" : "non-secure");
@@ -1477,10 +1462,10 @@ int ipu_buttress_init(struct ipu_device *isp)
 	do {
 		rval = ipu_buttress_ipc_reset(isp, &b->cse);
 		if (rval) {
-			dev_err(&isp->pdev->dev,
-				"IPC reset protocol failed, retry!\n");
+			dev_warn(&isp->pdev->dev,
+				 "IPC reset protocol failed, retrying\n");
 		} else {
-			dev_dbg(&isp->pdev->dev, "IPC reset completed!\n");
+			dev_info(&isp->pdev->dev, "IPC reset done\n");
 			return 0;
 		}
 	} while (ipc_reset_retry--);

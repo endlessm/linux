@@ -8,7 +8,9 @@
 #include "ipu-platform-regs.h"
 #include "ipu-trace.h"
 #include "ipu-isys.h"
+#ifdef CONFIG_VIDEO_INTEL_IPU_TPG
 #include "ipu-isys-tpg.h"
+#endif
 #include "ipu-platform-isys-csi2-reg.h"
 
 const struct ipu_isys_pixelformat ipu_isys_pfmts[] = {
@@ -173,6 +175,7 @@ irqreturn_t isys_isr(struct ipu_bus_device *adev)
 	return IRQ_HANDLED;
 }
 
+#ifdef CONFIG_VIDEO_INTEL_IPU_TPG
 void ipu_isys_tpg_sof_event(struct ipu_isys_tpg *tpg)
 {
 	struct ipu_isys_pipeline *ip = NULL;
@@ -316,3 +319,4 @@ int tpg_set_stream(struct v4l2_subdev *sd, int enable)
 	writel(2, tpg->base + MIPI_GEN_REG_COM_ENABLE);
 	return 0;
 }
+#endif

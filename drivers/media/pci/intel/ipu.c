@@ -598,6 +598,15 @@ static void ipu_pci_remove(struct pci_dev *pdev)
 #endif
 	ipu_trace_release(isp);
 
+	ipu_cpd_free_pkg_dir(isp->psys, isp->pkg_dir, isp->pkg_dir_dma_addr,
+			     isp->pkg_dir_size);
+
+	ipu_buttress_unmap_fw_image(isp->psys, &isp->fw_sgt);
+
+	isp->pkg_dir = NULL;
+	isp->pkg_dir_dma_addr = 0;
+	isp->pkg_dir_size = 0;
+
 	ipu_bus_del_devices(pdev);
 
 	pm_runtime_forbid(&pdev->dev);

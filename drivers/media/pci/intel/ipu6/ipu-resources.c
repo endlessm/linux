@@ -19,7 +19,6 @@ void ipu6_psys_hw_res_variant_init(void)
 		hw_var.queue_num = IPU6SE_FW_PSYS_N_PSYS_CMD_QUEUE_ID;
 		hw_var.cell_num = IPU6SE_FW_PSYS_N_CELL_ID;
 		hw_var.set_proc_dev_chn = ipu6se_fw_psys_set_proc_dev_chn;
-		hw_var.set_proc_dev_chn = ipu6se_fw_psys_set_proc_dev_chn;
 		hw_var.set_proc_dfm_bitmap = ipu6se_fw_psys_set_proc_dfm_bitmap;
 		hw_var.set_proc_ext_mem = ipu6se_fw_psys_set_process_ext_mem;
 		hw_var.get_pgm_by_proc =
@@ -28,7 +27,6 @@ void ipu6_psys_hw_res_variant_init(void)
 	} else if (ipu_ver == IPU_VER_6) {
 		hw_var.queue_num = IPU6_FW_PSYS_N_PSYS_CMD_QUEUE_ID;
 		hw_var.cell_num = IPU6_FW_PSYS_N_CELL_ID;
-		hw_var.set_proc_dev_chn = ipu6_fw_psys_set_proc_dev_chn;
 		hw_var.set_proc_dev_chn = ipu6_fw_psys_set_proc_dev_chn;
 		hw_var.set_proc_dfm_bitmap = ipu6_fw_psys_set_proc_dfm_bitmap;
 		hw_var.set_proc_ext_mem = ipu6_fw_psys_set_process_ext_mem;
@@ -142,7 +140,7 @@ static void ipu_resource_cleanup(struct ipu_resource *res)
 }
 
 /********** IPU PSYS-specific resource handling **********/
-
+static DEFINE_SPINLOCK(cq_bitmap_lock);
 int ipu_psys_resource_pool_init(struct ipu_psys_resource_pool
 				*pool)
 {
@@ -173,12 +171,14 @@ int ipu_psys_resource_pool_init(struct ipu_psys_resource_pool
 			goto dfm_error;
 	}
 
+	spin_lock(&cq_bitmap_lock);
 	if (ipu_ver == IPU_VER_6SE)
 		bitmap_zero(pool->cmd_queues,
 			    IPU6SE_FW_PSYS_N_PSYS_CMD_QUEUE_ID);
 	else
 		bitmap_zero(pool->cmd_queues,
 			    IPU6_FW_PSYS_N_PSYS_CMD_QUEUE_ID);
+	spin_unlock(&cq_bitmap_lock);
 
 	return 0;
 
@@ -399,13 +399,17 @@ int ipu_psys_allocate_cmd_queue_resource(struct ipu_psys_resource_pool *pool)
 		start = IPU6SE_FW_PSYS_CMD_QUEUE_PPG0_COMMAND_ID;
 	}
 
+	spin_lock(&cq_bitmap_lock);
 	/* find available cmd queue from ppg0_cmd_id */
 	p = bitmap_find_next_zero_area(pool->cmd_queues, size, start, 1, 0);
 
-	if (p >= size)
+	if (p >= size) {
+		spin_unlock(&cq_bitmap_lock);
 		return -ENOSPC;
+	}
 
 	bitmap_set(pool->cmd_queues, p, 1);
+	spin_unlock(&cq_bitmap_lock);
 
 	return p;
 }
@@ -413,7 +417,9 @@ int ipu_psys_allocate_cmd_queue_resource(struct ipu_psys_resource_pool *pool)
 void ipu_psys_free_cmd_queue_resource(struct ipu_psys_resource_pool *pool,
 				      u8 queue_id)
 {
+	spin_lock(&cq_bitmap_lock);
 	bitmap_clear(pool->cmd_queues, queue_id, 1);
+	spin_unlock(&cq_bitmap_lock);
 }
 
 int ipu_psys_try_allocate_resources(struct device *dev,
@@ -706,32 +712,8 @@ int ipu_psys_allocate_resources(const struct device *dev,
 	return 0;
 
 free_out:
-	for (; i >= 0; i--) {
-		struct ipu_fw_psys_process *process =
-		    (struct ipu_fw_psys_process *)
-		    ((char *)pg + process_offset_table[i]);
-		struct ipu_fw_generic_program_manifest pm;
-		int retval;
-
-		if (!process)
-			break;
-
-		retval = ipu_fw_psys_get_program_manifest_by_process
-		    (&pm, pg_manifest, process);
-		if (retval < 0) {
-			dev_err(dev, "can not get manifest\n");
-			break;
-		}
-		if ((pm.cell_id != res_defs->num_cells &&
-		     pm.cell_type_id == res_defs->num_cells_type))
-			continue;
-		/* no return value check here because if finding free cell
-		 * failed, process cell would not set then calling clear_cell
-		 * will return non-zero.
-		 */
-		ipu_fw_psys_clear_process_cell(process);
-	}
 	dev_err(dev, "failed to allocate resources, ret %d\n", ret);
+	ipu_psys_reset_process_cell(dev, pg, pg_manifest, i + 1);
 	ipu_psys_free_resources(alloc, pool);
 	return ret;
 }
@@ -823,6 +805,48 @@ int ipu_psys_move_resources(const struct device *dev,
 	source_pool->cells &= ~alloc->cells;
 
 	return 0;
+}
+
+void ipu_psys_reset_process_cell(const struct device *dev,
+				 struct ipu_fw_psys_process_group *pg,
+				 void *pg_manifest,
+				 int process_count)
+{
+	int i;
+	u16 *process_offset_table;
+	const struct ipu_fw_resource_definitions *res_defs;
+
+	if (!pg)
+		return;
+
+	res_defs = get_res();
+	process_offset_table = (u16 *)((u8 *)pg + pg->processes_offset);
+	for (i = 0; i < process_count; i++) {
+		struct ipu_fw_psys_process *process =
+		    (struct ipu_fw_psys_process *)
+		    ((char *)pg + process_offset_table[i]);
+		struct ipu_fw_generic_program_manifest pm;
+		int ret;
+
+		if (!process)
+			break;
+
+		ret = ipu_fw_psys_get_program_manifest_by_process(&pm,
+								  pg_manifest,
+								  process);
+		if (ret < 0) {
+			dev_err(dev, "can not get manifest\n");
+			break;
+		}
+		if ((pm.cell_id != res_defs->num_cells &&
+		     pm.cell_type_id == res_defs->num_cells_type))
+			continue;
+		/* no return value check here because if finding free cell
+		 * failed, process cell would not set then calling clear_cell
+		 * will return non-zero.
+		 */
+		ipu_fw_psys_clear_process_cell(process);
+	}
 }
 
 /* Free resources marked in `alloc' from `resources' */

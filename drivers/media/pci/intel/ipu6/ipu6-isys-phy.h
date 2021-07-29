@@ -155,7 +155,5 @@ int ipu6_isys_phy_reset(struct ipu_isys *isys, unsigned int phy_id,
 			bool assert);
 int ipu6_isys_phy_ready(struct ipu_isys *isys, unsigned int phy_id);
 int ipu6_isys_phy_common_init(struct ipu_isys *isys);
-int ipu6_isys_phy_ppi_tinit_done(struct ipu_isys *isys,
-				 struct ipu_isys_csi2_config *cfg);
 int ipu6_isys_phy_config(struct ipu_isys *isys);
 #endif

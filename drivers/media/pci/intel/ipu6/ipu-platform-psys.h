@@ -69,7 +69,7 @@ struct ipu_psys_buffer_set {
 };
 
 int ipu_psys_kcmd_start(struct ipu_psys *psys, struct ipu_psys_kcmd *kcmd);
-void ipu_psys_kcmd_complete(struct ipu_psys *psys, struct ipu_psys_kcmd *kcmd,
+void ipu_psys_kcmd_complete(struct ipu_psys_ppg *kppg, struct ipu_psys_kcmd *kcmd,
 			    int error);
 int ipu_psys_fh_init(struct ipu_psys_fh *fh);
 int ipu_psys_fh_deinit(struct ipu_psys_fh *fh);

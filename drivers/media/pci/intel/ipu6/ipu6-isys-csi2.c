@@ -92,24 +92,18 @@ static int ipu6_csi2_phy_power_set(struct ipu_isys *isys,
 		if (ret)
 			return ret;
 
-		dev_dbg(&isys->adev->dev, "phy reset assert\n");
 		ipu6_isys_phy_reset(isys, phy_id, 0);
-		dev_dbg(&isys->adev->dev, "phy common init\n");
 		ipu6_isys_phy_common_init(isys);
 
-		dev_dbg(&isys->adev->dev, "phy config\n");
 		ret = ipu6_isys_phy_config(isys);
 		if (ret)
 			return ret;
 
-		dev_dbg(&isys->adev->dev, "phy reset de-assert\n");
 		ipu6_isys_phy_reset(isys, phy_id, 1);
-		dev_dbg(&isys->adev->dev, "phy check ready\n");
 		ret = ipu6_isys_phy_ready(isys, phy_id);
 		if (ret)
 			return ret;
 
-		dev_dbg(&isys->adev->dev, "phy is ready now\n");
 		refcount_set(ref, 1);
 		return 0;
 	}
@@ -404,10 +398,8 @@ int ipu_isys_csi2_set_stream(struct v4l2_subdev *sd,
 	}
 
 	/* reset port reset */
-	dev_dbg(&isys->adev->dev, "csi port reset assert\n");
 	writel(0x1, csi2->base + CSI_REG_PORT_GPREG_SRST);
 	usleep_range(100, 200);
-	dev_dbg(&isys->adev->dev, "csi port reset de-assert\n");
 	writel(0x0, csi2->base + CSI_REG_PORT_GPREG_SRST);
 
 	/* Enable port clock */
@@ -471,11 +463,6 @@ int ipu_isys_csi2_set_stream(struct v4l2_subdev *sd,
 	writel(0x06, csi2->base + CSI_REG_PPI2CSI_CONFIG_CSI_FEATURE);
 	writel(1, csi2->base + CSI_REG_PPI2CSI_ENABLE);
 	writel(1, csi2->base + CSI_REG_CSI_FE_ENABLE);
-
-	if (ipu_ver == IPU_VER_6SE)
-		return 0;
-
-	ipu6_isys_phy_ppi_tinit_done(isys, cfg);
 
 	return 0;
 }

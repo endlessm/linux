@@ -497,42 +497,6 @@ int ipu6_isys_phy_ready(struct ipu_isys *isys, unsigned int phy_id)
 	return -ETIMEDOUT;
 }
 
-int ipu6_isys_phy_ppi_tinit_done(struct ipu_isys *isys,
-				 struct ipu_isys_csi2_config *cfg)
-{
-	unsigned int i, j;
-	unsigned int port, phy_id;
-	u32 val;
-	void __iomem *phy_base;
-	struct ipu_bus_device *adev = to_ipu_bus_device(&isys->adev->dev);
-	struct ipu_device *isp = adev->isp;
-	void __iomem *isp_base = isp->base;
-
-	port = cfg->port;
-	phy_id = port / 4;
-	phy_base = isp_base + IPU6_ISYS_PHY_BASE(phy_id);
-	for (i = 0; i < 11; i++) {
-		/* ignore 5 as it is not needed */
-		if (i == 5)
-			continue;
-		for (j = 0; j < LOOP; j++) {
-			val = readl(phy_base + IPU6_ISYS_PHY_DBBS_UDLN(i) +
-				    PHY_DBBUDLN_PPI_STATUS);
-			if (val & PHY_DBBUDLN_TINIT_DONE) {
-				j = 0xffff;
-				continue;
-			}
-			usleep_range(10, 20);
-		}
-		if (j == LOOP)
-			dev_dbg(&isys->adev->dev,
-				"phy %d ppi %d tinit NOT done!",
-				phy_id, i);
-	}
-
-	return -ETIMEDOUT;
-}
-
 int ipu6_isys_phy_common_init(struct ipu_isys *isys)
 {
 	unsigned int phy_id;

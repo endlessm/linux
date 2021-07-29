@@ -359,14 +359,9 @@ ipu_isys_buffer_to_fw_frame_buff(struct ipu_fw_isys_frame_buff_set_abi *set,
 
 	set->send_irq_sof = 1;
 	set->send_resp_sof = 1;
-
 	set->send_irq_eof = 0;
 	set->send_resp_eof = 0;
-	/*
-	 * In tpg case, the stream start timeout if the capture ack irq
-	 * disabled. So keep it active while starting the stream, then close
-	 * it after the stream start succeed.
-	 */
+
 	if (ip->streaming)
 		set->send_irq_capture_ack = 0;
 	else

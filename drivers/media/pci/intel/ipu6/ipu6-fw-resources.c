@@ -444,30 +444,6 @@ int ipu6_fw_psys_set_process_cell_id(struct ipu_fw_psys_process *ptr, u8 index,
 	return 0;
 }
 
-u8 ipu6_fw_psys_get_process_cell_id(struct ipu_fw_psys_process *ptr, u8 index)
-{
-	return ptr->cells[index];
-}
-
-int ipu6_fw_psys_clear_process_cell(struct ipu_fw_psys_process *ptr)
-{
-	struct ipu_fw_psys_process_group *parent;
-	u8 cell_id = ipu6_fw_psys_get_process_cell_id(ptr, 0);
-	int retval = -1;
-
-	parent = (struct ipu_fw_psys_process_group *)((char *)ptr +
-						       ptr->parent_offset);
-	if ((1 << cell_id) != 0 &&
-	    ((1 << cell_id) & parent->resource_bitmap)) {
-		ipu6_fw_psys_set_process_cell_id(ptr, 0,
-						 IPU6_FW_PSYS_N_CELL_ID);
-		parent->resource_bitmap &= ~(1 << cell_id);
-		retval = 0;
-	}
-
-	return retval;
-}
-
 int ipu6_fw_psys_set_proc_dev_chn(struct ipu_fw_psys_process *ptr, u16 offset,
 				  u16 value)
 {

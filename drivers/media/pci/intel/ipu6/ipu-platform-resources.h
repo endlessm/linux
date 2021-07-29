@@ -81,6 +81,10 @@ int ipu_psys_try_allocate_resources(struct device *dev,
 				    void *pg_manifest,
 				    struct ipu_psys_resource_pool *pool);
 
+void ipu_psys_reset_process_cell(const struct device *dev,
+				 struct ipu_fw_psys_process_group *pg,
+				 void *pg_manifest,
+				 int process_count);
 void ipu_psys_free_resources(struct ipu_psys_resource_alloc *alloc,
 			     struct ipu_psys_resource_pool *pool);
 

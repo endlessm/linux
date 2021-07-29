@@ -11,8 +11,8 @@
 #include <media/v4l2-device.h>
 #include <media/v4l2-fwnode.h>
 
-#define OV01A1S_LINK_FREQ_400MHZ	400000000ULL
-#define OV01A1S_SCLK			72000000LL
+#define OV01A1S_LINK_FREQ_400MHZ		400000000ULL
+#define OV01A1S_SCLK			40000000LL
 #define OV01A1S_MCLK			19200000
 #define OV01A1S_DATA_LANES		1
 #define OV01A1S_RGB_DEPTH		10
@@ -46,7 +46,7 @@
 #define OV01A1S_ANAL_GAIN_STEP		1
 
 /* Digital gain controls from sensor */
-#define OV01A1S_REG_DGTL_GAIN		0x350A //24bits
+#define OV01A1S_REG_DGTL_GAIN		0x350A
 #define OV01A1S_DGTL_GAIN_MIN		0
 #define OV01A1S_DGTL_GAIN_MAX		0xfff
 #define OV01A1S_DGTL_GAIN_STEP		1
@@ -101,7 +101,6 @@ struct ov01a1s_mode {
 static const struct ov01a1s_reg mipi_data_rate_720mbps[] = {
 };
 
-//RAW 10bit 1296x736_30fps_MIPI 480Mbps/lane
 static const struct ov01a1s_reg sensor_1296x800_setting[] = {
 	{0x0103, 0x01},
 	{0x0302, 0x00},
@@ -214,12 +213,10 @@ static const struct ov01a1s_reg sensor_1296x800_setting[] = {
 	{0x4301, 0x00},
 	{0x4302, 0x0f},
 	{0x4503, 0x00},
-    //{DATA_8BITS, {0x4601, 0x20},
-	{0x4601, 0x50},  // PC
+	{0x4601, 0x50},
 	{0x481f, 0x34},
 	{0x4825, 0x33},
-    //{DATA_8BITS, {0x4837, 0x11},
-	{0x4837, 0x14},   // PC
+	{0x4837, 0x14},
 	{0x4881, 0x40},
 	{0x4883, 0x01},
 	{0x4890, 0x00},
@@ -229,32 +226,25 @@ static const struct ov01a1s_reg sensor_1296x800_setting[] = {
 	{0x4b0d, 0x00},
 	{0x450a, 0x04},
 	{0x450b, 0x00},
-    //{DATA_8BITS, {0x5000, 0x75},
 	{0x5000, 0x65},
 	{0x5004, 0x00},
 	{0x5080, 0x40},
 	{0x5200, 0x18},
 	{0x4837, 0x14},
-
-    // key setting for 19.2Mhz, 1296x736
 	{0x0305, 0xf4},
-    //{DATA_8BITS, {0x0323, 0x05},
-    //{DATA_8BITS, {0x0325, 0x2c},
-	{0x0325, 0xc2},                     //   PC
+	{0x0325, 0xc2},
 	{0x3808, 0x05},
-	{0x3809, 0x10},  //00
-	{0x380a, 0x03},//{DATA_8BITS, {0x380a, 0x02},  //03
-	{0x380b, 0x20},//{DATA_8BITS, {0x380b, 0xe0},  //20
-	{0x380c, 0x05},  //02
-	{0x380d, 0xd0},  //e8
+	{0x3809, 0x10},
+	{0x380a, 0x03},
+	{0x380b, 0x20},
+	{0x380c, 0x02},
+	{0x380d, 0xe8},
 	{0x380e, 0x03},
 	{0x380f, 0x80},
 	{0x3810, 0x00},
-	{0x3811, 0x00},  //09
+	{0x3811, 0x00},
 	{0x3812, 0x00},
-    //	{DATA_8BITS, {0x3813, 0x08},
-	{0x3813, 0x08}, // for demo
-
+	{0x3813, 0x09},
 	{0x3820, 0x88},
 	{0x373d, 0x24},
 };
@@ -264,7 +254,7 @@ static const char * const ov01a1s_test_pattern_menu[] = {
 	"Color Bar",
 	"Top-Bottom Darker Color Bar",
 	"Right-Left Darker Color Bar",
-	"Bottom-Top Darker Color Bar",
+	"Color Bar type 4",
 };
 
 static const s64 link_freq_menu_items[] = {
@@ -284,7 +274,7 @@ static const struct ov01a1s_mode supported_modes[] = {
 	{
 		.width = 1296,
 		.height = 800,
-		.hts = 1080,
+		.hts = 744,
 		.vts_def = OV01A1S_VTS_DEF,
 		.vts_min = OV01A1S_VTS_MIN,
 		.reg_list = {
@@ -390,7 +380,7 @@ static int ov01a1s_write_reg(struct ov01a1s *ov01a1s, u16 reg, u16 len, u32 val)
 }
 
 static int ov01a1s_write_reg_list(struct ov01a1s *ov01a1s,
-				 const struct ov01a1s_reg_list *r_list)
+				  const struct ov01a1s_reg_list *r_list)
 {
 	struct i2c_client *client = v4l2_get_subdevdata(&ov01a1s->sd);
 	unsigned int i;
@@ -398,7 +388,7 @@ static int ov01a1s_write_reg_list(struct ov01a1s *ov01a1s,
 
 	for (i = 0; i < r_list->num_of_regs; i++) {
 		ret = ov01a1s_write_reg(ov01a1s, r_list->regs[i].address, 1,
-				       r_list->regs[i].val);
+					r_list->regs[i].val);
 		if (ret) {
 			dev_err_ratelimited(&client->dev,
 					    "write reg 0x%4.4x return err = %d",
@@ -412,8 +402,7 @@ static int ov01a1s_write_reg_list(struct ov01a1s *ov01a1s,
 
 static int ov01a1s_update_digital_gain(struct ov01a1s *ov01a1s, u32 d_gain)
 {
-	// set digital gain
-	u32 real = d_gain; // (1024 << 6) = 1X DG
+	u32 real = d_gain;
 
 	real = (real << 6);
 
@@ -423,7 +412,7 @@ static int ov01a1s_update_digital_gain(struct ov01a1s *ov01a1s, u32 d_gain)
 static int ov01a1s_test_pattern(struct ov01a1s *ov01a1s, u32 pattern)
 {
 	if (pattern)
-		pattern = pattern << OV01A1S_TEST_PATTERN_BAR_SHIFT |
+		pattern = (pattern - 1) << OV01A1S_TEST_PATTERN_BAR_SHIFT |
 			  OV01A1S_TEST_PATTERN_ENABLE;
 
 	return ov01a1s_write_reg(ov01a1s, OV01A1S_REG_TEST_PATTERN, 1, pattern);
@@ -455,7 +444,7 @@ static int ov01a1s_set_ctrl(struct v4l2_ctrl *ctrl)
 	switch (ctrl->id) {
 	case V4L2_CID_ANALOGUE_GAIN:
 		ret = ov01a1s_write_reg(ov01a1s, OV01A1S_REG_ANALOG_GAIN, 2,
-				       ctrl->val << 4);
+					ctrl->val << 4);
 		break;
 
 	case V4L2_CID_DIGITAL_GAIN:
@@ -464,12 +453,12 @@ static int ov01a1s_set_ctrl(struct v4l2_ctrl *ctrl)
 
 	case V4L2_CID_EXPOSURE:
 		ret = ov01a1s_write_reg(ov01a1s, OV01A1S_REG_EXPOSURE, 2,
-				       ctrl->val);
+					ctrl->val);
 		break;
 
 	case V4L2_CID_VBLANK:
 		ret = ov01a1s_write_reg(ov01a1s, OV01A1S_REG_VTS, 2,
-				       ov01a1s->cur_mode->height + ctrl->val);
+					ov01a1s->cur_mode->height + ctrl->val);
 		break;
 
 	case V4L2_CID_TEST_PATTERN:
@@ -508,30 +497,31 @@ static int ov01a1s_init_controls(struct ov01a1s *ov01a1s)
 	cur_mode = ov01a1s->cur_mode;
 	size = ARRAY_SIZE(link_freq_menu_items);
 
-	ov01a1s->link_freq = v4l2_ctrl_new_int_menu(ctrl_hdlr, &ov01a1s_ctrl_ops,
-						   V4L2_CID_LINK_FREQ,
-						   size - 1, 0,
-						   link_freq_menu_items);
+	ov01a1s->link_freq = v4l2_ctrl_new_int_menu(ctrl_hdlr,
+						    &ov01a1s_ctrl_ops,
+						    V4L2_CID_LINK_FREQ,
+						    size - 1, 0,
+						    link_freq_menu_items);
 	if (ov01a1s->link_freq)
 		ov01a1s->link_freq->flags |= V4L2_CTRL_FLAG_READ_ONLY;
 
 	pixel_rate = to_pixel_rate(OV01A1S_LINK_FREQ_400MHZ_INDEX);
 	ov01a1s->pixel_rate = v4l2_ctrl_new_std(ctrl_hdlr, &ov01a1s_ctrl_ops,
-					       V4L2_CID_PIXEL_RATE, 0,
-					       pixel_rate, 1, pixel_rate);
+						V4L2_CID_PIXEL_RATE, 0,
+						pixel_rate, 1, pixel_rate);
 
 	vblank_min = cur_mode->vts_min - cur_mode->height;
 	vblank_max = OV01A1S_VTS_MAX - cur_mode->height;
 	vblank_default = cur_mode->vts_def - cur_mode->height;
 	ov01a1s->vblank = v4l2_ctrl_new_std(ctrl_hdlr, &ov01a1s_ctrl_ops,
-					   V4L2_CID_VBLANK, vblank_min,
-					   vblank_max, 1, vblank_default);
+					    V4L2_CID_VBLANK, vblank_min,
+					    vblank_max, 1, vblank_default);
 
 	h_blank = to_pixels_per_line(cur_mode->hts, cur_mode->link_freq_index);
 	h_blank -= cur_mode->width;
 	ov01a1s->hblank = v4l2_ctrl_new_std(ctrl_hdlr, &ov01a1s_ctrl_ops,
-					   V4L2_CID_HBLANK, h_blank, h_blank, 1,
-					   h_blank);
+					    V4L2_CID_HBLANK, h_blank, h_blank,
+					    1, h_blank);
 	if (ov01a1s->hblank)
 		ov01a1s->hblank->flags |= V4L2_CTRL_FLAG_READ_ONLY;
 
@@ -543,10 +533,11 @@ static int ov01a1s_init_controls(struct ov01a1s *ov01a1s)
 			  OV01A1S_DGTL_GAIN_STEP, OV01A1S_DGTL_GAIN_DEFAULT);
 	exposure_max = cur_mode->vts_def - OV01A1S_EXPOSURE_MAX_MARGIN;
 	ov01a1s->exposure = v4l2_ctrl_new_std(ctrl_hdlr, &ov01a1s_ctrl_ops,
-					     V4L2_CID_EXPOSURE,
-					     OV01A1S_EXPOSURE_MIN, exposure_max,
-					     OV01A1S_EXPOSURE_STEP,
-					     exposure_max);
+					      V4L2_CID_EXPOSURE,
+					      OV01A1S_EXPOSURE_MIN,
+					      exposure_max,
+					      OV01A1S_EXPOSURE_STEP,
+					      exposure_max);
 	v4l2_ctrl_new_std_menu_items(ctrl_hdlr, &ov01a1s_ctrl_ops,
 				     V4L2_CID_TEST_PATTERN,
 				     ARRAY_SIZE(ov01a1s_test_pattern_menu) - 1,
@@ -560,7 +551,7 @@ static int ov01a1s_init_controls(struct ov01a1s *ov01a1s)
 }
 
 static void ov01a1s_update_pad_format(const struct ov01a1s_mode *mode,
-				     struct v4l2_mbus_framefmt *fmt)
+				      struct v4l2_mbus_framefmt *fmt)
 {
 	fmt->width = mode->width;
 	fmt->height = mode->height;
@@ -595,7 +586,7 @@ static int ov01a1s_start_streaming(struct ov01a1s *ov01a1s)
 		return ret;
 
 	ret = ov01a1s_write_reg(ov01a1s, OV01A1S_REG_MODE_SELECT, 1,
-			       OV01A1S_MODE_STREAMING);
+				OV01A1S_MODE_STREAMING);
 	if (ret)
 		dev_err(&client->dev, "failed to start streaming");
 
@@ -605,9 +596,11 @@ static int ov01a1s_start_streaming(struct ov01a1s *ov01a1s)
 static void ov01a1s_stop_streaming(struct ov01a1s *ov01a1s)
 {
 	struct i2c_client *client = v4l2_get_subdevdata(&ov01a1s->sd);
+	int ret = 0;
 
-	if (ov01a1s_write_reg(ov01a1s, OV01A1S_REG_MODE_SELECT, 1,
-			     OV01A1S_MODE_STANDBY))
+	ret = ov01a1s_write_reg(ov01a1s, OV01A1S_REG_MODE_SELECT, 1,
+				OV01A1S_MODE_STANDBY);
+	if (ret)
 		dev_err(&client->dev, "failed to stop streaming");
 }
 
@@ -684,8 +677,8 @@ exit:
 }
 
 static int ov01a1s_set_format(struct v4l2_subdev *sd,
-			     struct v4l2_subdev_pad_config *cfg,
-			     struct v4l2_subdev_format *fmt)
+			      struct v4l2_subdev_pad_config *cfg,
+			      struct v4l2_subdev_format *fmt)
 {
 	struct ov01a1s *ov01a1s = to_ov01a1s(sd);
 	const struct ov01a1s_mode *mode;
@@ -724,8 +717,8 @@ static int ov01a1s_set_format(struct v4l2_subdev *sd,
 }
 
 static int ov01a1s_get_format(struct v4l2_subdev *sd,
-			     struct v4l2_subdev_pad_config *cfg,
-			     struct v4l2_subdev_format *fmt)
+			      struct v4l2_subdev_pad_config *cfg,
+			      struct v4l2_subdev_format *fmt)
 {
 	struct ov01a1s *ov01a1s = to_ov01a1s(sd);
 
@@ -742,8 +735,8 @@ static int ov01a1s_get_format(struct v4l2_subdev *sd,
 }
 
 static int ov01a1s_enum_mbus_code(struct v4l2_subdev *sd,
-				 struct v4l2_subdev_pad_config *cfg,
-				 struct v4l2_subdev_mbus_code_enum *code)
+				  struct v4l2_subdev_pad_config *cfg,
+				  struct v4l2_subdev_mbus_code_enum *code)
 {
 	if (code->index > 0)
 		return -EINVAL;
@@ -754,8 +747,8 @@ static int ov01a1s_enum_mbus_code(struct v4l2_subdev *sd,
 }
 
 static int ov01a1s_enum_frame_size(struct v4l2_subdev *sd,
-				  struct v4l2_subdev_pad_config *cfg,
-				  struct v4l2_subdev_frame_size_enum *fse)
+				   struct v4l2_subdev_pad_config *cfg,
+				   struct v4l2_subdev_frame_size_enum *fse)
 {
 	if (fse->index >= ARRAY_SIZE(supported_modes))
 		return -EINVAL;
@@ -777,7 +770,7 @@ static int ov01a1s_open(struct v4l2_subdev *sd, struct v4l2_subdev_fh *fh)
 
 	mutex_lock(&ov01a1s->mutex);
 	ov01a1s_update_pad_format(&supported_modes[0],
-				 v4l2_subdev_get_try_format(sd, fh->pad, 0));
+				  v4l2_subdev_get_try_format(sd, fh->pad, 0));
 	mutex_unlock(&ov01a1s->mutex);
 
 	return 0;
@@ -908,7 +901,7 @@ static const struct dev_pm_ops ov01a1s_pm_ops = {
 
 #ifdef CONFIG_ACPI
 static const struct acpi_device_id ov01a1s_acpi_ids[] = {
-	{"OVTI01AF"}, /* OVTI01AF*/
+	{ "OVTI01AF" },
 	{}
 };
 
@@ -917,7 +910,7 @@ MODULE_DEVICE_TABLE(acpi, ov01a1s_acpi_ids);
 
 static struct i2c_driver ov01a1s_i2c_driver = {
 	.driver = {
-		.name = "ov01a1s", /* ov01a1s*/
+		.name = "ov01a1s",
 		.pm = &ov01a1s_pm_ops,
 		.acpi_match_table = ACPI_PTR(ov01a1s_acpi_ids),
 	},
@@ -927,6 +920,7 @@ static struct i2c_driver ov01a1s_i2c_driver = {
 
 module_i2c_driver(ov01a1s_i2c_driver);
 
+MODULE_AUTHOR("Xu, Chongyang <chongyang.xu@intel.com>");
 MODULE_AUTHOR("Lai, Jim <jim.lai@intel.com>");
 MODULE_AUTHOR("Qiu, Tianshu <tian.shu.qiu@intel.com>");
 MODULE_AUTHOR("Shawn Tu <shawnx.tu@intel.com>");

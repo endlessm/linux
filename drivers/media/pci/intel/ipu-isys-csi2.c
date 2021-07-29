@@ -595,12 +595,15 @@ void ipu_isys_csi2_eof_event(struct ipu_isys_csi2 *csi2)
 
 	if (ip) {
 		frame_sequence = atomic_read(&ip->sequence);
+		spin_unlock_irqrestore(&csi2->isys->lock, flags);
+
+		dev_dbg(&csi2->isys->adev->dev,
+			"eof_event::csi2-%i sequence: %i\n",
+			csi2->index, frame_sequence);
+		return;
+	}
 
 	spin_unlock_irqrestore(&csi2->isys->lock, flags);
-
-	dev_dbg(&csi2->isys->adev->dev, "eof_event::csi2-%i sequence: %i\n",
-		csi2->index, frame_sequence);
-	}
 }
 
 /* Call this function only _after_ the sensor has been stopped */

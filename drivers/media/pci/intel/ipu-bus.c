@@ -196,6 +196,7 @@ void ipu_bus_del_devices(struct pci_dev *pdev)
 	mutex_lock(&ipu_bus_mutex);
 
 	list_for_each_entry_safe(adev, save, &isp->devices, list) {
+		pm_runtime_disable(&adev->dev);
 		list_del(&adev->list);
 		device_unregister(&adev->dev);
 	}
