@@ -1390,6 +1390,47 @@ config VIDEO_S5C73M3
 	  This is a V4L2 sensor driver for Samsung S5C73M3
 	  8 Mpixel camera.
 
+config POWER_CTRL_LOGIC
+	tristate "power control logic driver"
+	depends on GPIO_ACPI
+	help
+	  This is a power control logic driver for sensor, the design
+	  depends on camera sensor connections.
+	  This driver controls power by getting and using managed GPIO
+	  pins from ACPI config for sensors, such as HM11B1, OV01A1S.
+
+	  To compile this driver as a module, choose M here: the
+	  module will be called power_ctrl_logic.
+
+config VIDEO_OV01A1S
+	tristate "OmniVision OV01A1S sensor support"
+	depends on POWER_CTRL_LOGIC
+	depends on VIDEO_V4L2 && I2C
+	depends on ACPI || COMPILE_TEST
+	select MEDIA_CONTROLLER
+	select VIDEO_V4L2_SUBDEV_API
+	select V4L2_FWNODE
+	help
+	  This is a Video4Linux2 sensor driver for the OmniVision
+	  OV01A1S camera.
+
+	  To compile this driver as a module, choose M here: the
+	  module will be called ov01a1s.
+
+config VIDEO_HM11B1
+	tristate "Himax HM11B1 sensor support"
+	depends on POWER_CTRL_LOGIC
+	depends on VIDEO_V4L2 && I2C
+	select MEDIA_CONTROLLER
+	select VIDEO_V4L2_SUBDEV_API
+	select V4L2_FWNODE
+	help
+	  This is a Video4Linux2 sensor driver for the Himax
+	  HM11B1 camera.
+
+	  To compile this driver as a module, choose M here: the
+	  module will be called hm11b1.
+
 endmenu
 
 menu "Lens drivers"
