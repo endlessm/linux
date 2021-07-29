@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: GPL-2.0
-// Copyright (C) 2014 - 2020 Intel Corporation
+// Copyright (C) 2014 - 2021 Intel Corporation
 
 #include <linux/device.h>
 #include <linux/module.h>
@@ -39,6 +39,37 @@ static const u32 csi2_be_soc_supported_codes_pad[] = {
 	MEDIA_BUS_FMT_SRGGB8_1X8,
 	0,
 };
+
+/*
+ * Raw bayer format pixel order MUST BE MAINTAINED in groups of four codes.
+ * Otherwise pixel order calculation below WILL BREAK!
+ */
+static const u32 csi2_be_soc_supported_raw_bayer_codes_pad[] = {
+	MEDIA_BUS_FMT_SBGGR12_1X12,
+	MEDIA_BUS_FMT_SGBRG12_1X12,
+	MEDIA_BUS_FMT_SGRBG12_1X12,
+	MEDIA_BUS_FMT_SRGGB12_1X12,
+	MEDIA_BUS_FMT_SBGGR10_1X10,
+	MEDIA_BUS_FMT_SGBRG10_1X10,
+	MEDIA_BUS_FMT_SGRBG10_1X10,
+	MEDIA_BUS_FMT_SRGGB10_1X10,
+	MEDIA_BUS_FMT_SBGGR8_1X8,
+	MEDIA_BUS_FMT_SGBRG8_1X8,
+	MEDIA_BUS_FMT_SGRBG8_1X8,
+	MEDIA_BUS_FMT_SRGGB8_1X8,
+	0,
+};
+
+static int get_supported_code_index(u32 code)
+{
+	int i;
+
+	for (i = 0; csi2_be_soc_supported_raw_bayer_codes_pad[i]; i++) {
+		if (csi2_be_soc_supported_raw_bayer_codes_pad[i] == code)
+			return i;
+	}
+	return -EINVAL;
+}
 
 static const u32 *csi2_be_soc_supported_codes[NR_OF_CSI2_BE_SOC_PADS];
 
@@ -94,21 +125,22 @@ ipu_isys_csi2_be_soc_set_sel(struct v4l2_subdev *sd,
 	if (sel->target == V4L2_SEL_TGT_CROP &&
 	    pad->flags & MEDIA_PAD_FL_SOURCE &&
 	    asd->valid_tgts[sel->pad].crop) {
-		struct v4l2_rect *r;
 		enum isys_subdev_prop_tgt tgt =
 		    IPU_ISYS_SUBDEV_PROP_TGT_SOURCE_CROP;
+		struct v4l2_mbus_framefmt *ffmt =
+			__ipu_isys_get_ffmt(sd, cfg, sel->pad, sel->which);
 
-		r = __ipu_isys_get_selection(sd, cfg, sel->target,
-					     0, sel->which);
+		if (get_supported_code_index(ffmt->code) < 0) {
+			/* Non-bayer formats can't be odd lines cropped */
+			sel->r.left &= ~1;
+			sel->r.top &= ~1;
+		}
 
-		/* Cropping is not supported by SoC BE.
-		 * Only horizontal padding is allowed.
-		 */
-		sel->r.top = r->top;
-		sel->r.left = r->left;
-		sel->r.width = clamp(sel->r.width, r->width,
+		sel->r.width = clamp(sel->r.width, IPU_ISYS_MIN_WIDTH,
 				     IPU_ISYS_MAX_WIDTH);
-		sel->r.height = r->height;
+
+		sel->r.height = clamp(sel->r.height, IPU_ISYS_MIN_HEIGHT,
+				      IPU_ISYS_MAX_HEIGHT);
 
 		*__ipu_isys_get_selection(sd, cfg, sel->target, sel->pad,
 					  sel->which) = sel->r;
@@ -157,15 +189,31 @@ static void csi2_be_soc_set_ffmt(struct v4l2_subdev *sd,
 					      fmt->pad, fmt->which);
 	} else if (sd->entity.pads[fmt->pad].flags & MEDIA_PAD_FL_SOURCE) {
 		struct v4l2_mbus_framefmt *sink_ffmt;
-		struct v4l2_rect *r;
+		struct v4l2_rect *r = __ipu_isys_get_selection(sd, cfg,
+			V4L2_SEL_TGT_CROP, fmt->pad, fmt->which);
+		struct ipu_isys_subdev *asd = to_ipu_isys_subdev(sd);
+		u32 code;
+		int idx;
 
 		sink_ffmt = __ipu_isys_get_ffmt(sd, cfg, 0, fmt->which);
-		r = __ipu_isys_get_selection(sd, cfg, V4L2_SEL_TGT_CROP,
-					     fmt->pad, fmt->which);
+		code = sink_ffmt->code;
+		idx = get_supported_code_index(code);
 
+		if (asd->valid_tgts[fmt->pad].crop && idx >= 0) {
+			int crop_info = 0;
+
+			/* Only croping odd line at top side. */
+			if (r->top & 1)
+				crop_info |= CSI2_BE_CROP_VER;
+
+			code = csi2_be_soc_supported_raw_bayer_codes_pad
+				[((idx & CSI2_BE_CROP_MASK) ^ crop_info)
+				+ (idx & ~CSI2_BE_CROP_MASK)];
+
+		}
+		ffmt->code = code;
 		ffmt->width = r->width;
 		ffmt->height = r->height;
-		ffmt->code = sink_ffmt->code;
 		ffmt->field = sink_ffmt->field;
 
 	}

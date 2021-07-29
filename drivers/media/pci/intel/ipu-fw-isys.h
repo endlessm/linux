@@ -505,16 +505,6 @@ struct ipu6_fw_isys_fw_config {
 	u32 num_recv_queues[N_IPU_FW_ISYS_QUEUE_TYPE];
 };
 
-struct ipu6se_fw_isys_buffer_partition_abi {
-	u32 num_gda_pages[IPU6SE_STREAM_ID_MAX];
-};
-
-struct ipu6se_fw_isys_fw_config {
-	struct ipu6se_fw_isys_buffer_partition_abi buffer_partition;
-	u32 num_send_queues[N_IPU_FW_ISYS_QUEUE_TYPE];
-	u32 num_recv_queues[N_IPU_FW_ISYS_QUEUE_TYPE];
-};
-
 /**
  * struct ipu_fw_isys_resolution_abi: Generic resolution structure.
  * @Width

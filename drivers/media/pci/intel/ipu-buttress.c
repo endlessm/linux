@@ -1112,7 +1112,7 @@ static int ipu_buttress_psys_force_freq_set(void *data, u64 val)
 	return 0;
 }
 
-int ipu_buttress_isys_freq_get(void *data, u64 *val)
+static int ipu_buttress_isys_freq_get(void *data, u64 *val)
 {
 	struct ipu_device *isp = data;
 	u32 reg_val;
@@ -1135,7 +1135,7 @@ int ipu_buttress_isys_freq_get(void *data, u64 *val)
 	return 0;
 }
 
-int ipu_buttress_isys_freq_set(void *data, u64 val)
+static int ipu_buttress_isys_freq_set(void *data, u64 val)
 {
 	struct ipu_device *isp = data;
 	int rval;

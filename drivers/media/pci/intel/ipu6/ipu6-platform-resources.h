@@ -191,7 +191,6 @@ struct ipu6_fw_psys_process_ext {
 	u16 ext_mem_offset[IPU6_FW_PSYS_N_DATA_MEM_TYPE_ID];
 	u16 dev_chn_offset[IPU6_FW_PSYS_N_DEV_CHN_ID];
 	u8 ext_mem_id[IPU6_FW_PSYS_N_DATA_MEM_TYPE_ID];
-	u8 padding[IPU6_FW_PSYS_N_PADDING_UINT8_IN_PROCESS_EXT_STRUCT];
 };
 
 #endif /* IPU6_PLATFORM_RESOURCES_H */

@@ -31,6 +31,8 @@ struct trace_register_range {
 #define MEMORY_RING_BUFFER_OVERREAD	MEMORY_RING_BUFFER_GUARD
 #define MAX_TRACE_REGISTERS		200
 #define TRACE_CONF_DUMP_BUFFER_SIZE	(MAX_TRACE_REGISTERS * 2 * 32)
+#define TRACE_CONF_DATA_MAX_LEN		(1024 * 4)
+#define WPT_TRACE_CONF_DATA_MAX_LEN	(1024 * 64)
 
 struct config_value {
 	u32 reg;
@@ -112,11 +114,10 @@ static void __ipu_trace_restore(struct device *dev)
 
 	if (!sys->memory.memory_buffer) {
 		sys->memory.memory_buffer =
-			dma_alloc_coherent(dev,
-					   MEMORY_RING_BUFFER_SIZE +
-					   MEMORY_RING_BUFFER_GUARD,
-					   &sys->memory.dma_handle,
-					   GFP_KERNEL);
+		    dma_alloc_coherent(dev, MEMORY_RING_BUFFER_SIZE +
+				       MEMORY_RING_BUFFER_GUARD,
+				       &sys->memory.dma_handle,
+				       GFP_KERNEL);
 	}
 
 	if (!sys->memory.memory_buffer) {
@@ -405,7 +406,8 @@ static ssize_t traceconf_write(struct file *file, const char __user *buf,
 	u32 ipu_trace_number = 0;
 	struct config_value *cfg_buffer = NULL;
 
-	if ((*ppos < 0) || (len < sizeof(ipu_trace_number))) {
+	if ((*ppos < 0) || (len > TRACE_CONF_DATA_MAX_LEN) ||
+	    (len < sizeof(ipu_trace_number))) {
 		dev_info(&isp->pdev->dev,
 			"length is error, len:%ld, loff:%lld\n",
 			len, *ppos);
@@ -605,7 +607,8 @@ static ssize_t wptraceconf_write(struct file *file, const char __user *buf,
 	struct config_value *wpt_buffer = NULL;
 	struct ipu_subsystem_wptrace_config *wpt = &isp->trace->psys.wpt;
 
-	if ((*ppos < 0) || (len < sizeof(wp_node_number))) {
+	if ((*ppos < 0) || (len > WPT_TRACE_CONF_DATA_MAX_LEN) ||
+	    (len < sizeof(wp_node_number))) {
 		dev_info(&isp->pdev->dev,
 			"length is error, len:%ld, loff:%lld\n",
 			len, *ppos);

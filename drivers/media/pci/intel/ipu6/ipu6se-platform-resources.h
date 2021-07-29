@@ -100,28 +100,4 @@ enum {
 #define IPU6SE_FW_PSYS_DEV_DFM_ISL_EMPTY_PORT_ID_MAX_SIZE		32
 #define IPU6SE_FW_PSYS_DEV_DFM_LB_EMPTY_PORT_ID_MAX_SIZE		32
 
-struct ipu6se_fw_psys_program_manifest_ext {
-	u32 dfm_port_bitmap[IPU6SE_FW_PSYS_N_DEV_DFM_ID];
-	u32 dfm_active_port_bitmap[IPU6SE_FW_PSYS_N_DEV_DFM_ID];
-	u16 ext_mem_size[IPU6SE_FW_PSYS_N_DATA_MEM_TYPE_ID];
-	u16 ext_mem_offset[IPU6SE_FW_PSYS_N_DATA_MEM_TYPE_ID];
-	u16 dev_chn_size[IPU6SE_FW_PSYS_N_DEV_CHN_ID];
-	u16 dev_chn_offset[IPU6SE_FW_PSYS_N_DEV_CHN_ID];
-	u8 is_dfm_relocatable[IPU6SE_FW_PSYS_N_DEV_DFM_ID];
-	u8 dec_resources_input[IPU_FW_PSYS_MAX_INPUT_DEC_RESOURCES];
-	u8 dec_resources_input_terminal[IPU_FW_PSYS_MAX_INPUT_DEC_RESOURCES];
-	u8 dec_resources_output[IPU_FW_PSYS_MAX_OUTPUT_DEC_RESOURCES];
-	u8 dec_resources_output_terminal[IPU_FW_PSYS_MAX_OUTPUT_DEC_RESOURCES];
-	u8 padding[IPU_FW_PSYS_N_PADDING_UINT8_IN_PROGRAM_MANIFEST_EXT];
-};
-
-struct ipu6se_fw_psys_process_ext {
-	u32 dfm_port_bitmap[IPU6SE_FW_PSYS_N_DEV_DFM_ID];
-	u32 dfm_active_port_bitmap[IPU6SE_FW_PSYS_N_DEV_DFM_ID];
-	u16 ext_mem_offset[IPU6SE_FW_PSYS_N_DATA_MEM_TYPE_ID];
-	u16 dev_chn_offset[IPU6SE_FW_PSYS_N_DEV_CHN_ID];
-	u8 ext_mem_id[IPU6SE_FW_PSYS_N_DATA_MEM_TYPE_ID];
-	u8 padding[IPU6SE_FW_PSYS_N_PADDING_UINT8_IN_PROCESS_EXT_STRUCT];
-};
-
 #endif /* IPU6SE_PLATFORM_RESOURCES_H */

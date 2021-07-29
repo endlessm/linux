@@ -349,25 +349,30 @@ static int ipu_dma_buf_begin_cpu_access(struct dma_buf *dma_buf,
 	return -ENOTTY;
 }
 
-static void *ipu_dma_buf_vmap(struct dma_buf *dmabuf)
+static int ipu_dma_buf_vmap(struct dma_buf *dmabuf, struct dma_buf_map *map)
 {
 	struct dma_buf_attachment *attach;
 	struct ipu_dma_buf_attach *ipu_attach;
 
 	if (list_empty(&dmabuf->attachments))
-		return NULL;
+		return -EINVAL;
 
 	attach = list_last_entry(&dmabuf->attachments,
 				 struct dma_buf_attachment, node);
 	ipu_attach = attach->priv;
 
 	if (!ipu_attach || !ipu_attach->pages || !ipu_attach->npages)
-		return NULL;
+		return -EINVAL;
 
-	return vm_map_ram(ipu_attach->pages, ipu_attach->npages, 0);
+	map->vaddr = vm_map_ram(ipu_attach->pages, ipu_attach->npages, 0);
+	map->is_iomem = false;
+	if (!map->vaddr)
+		return -EINVAL;
+
+	return 0;
 }
 
-static void ipu_dma_buf_vunmap(struct dma_buf *dmabuf, void *vaddr)
+static void ipu_dma_buf_vunmap(struct dma_buf *dmabuf, struct dma_buf_map *map)
 {
 	struct dma_buf_attachment *attach;
 	struct ipu_dma_buf_attach *ipu_attach;
@@ -382,7 +387,7 @@ static void ipu_dma_buf_vunmap(struct dma_buf *dmabuf, void *vaddr)
 	if (WARN_ON(!ipu_attach || !ipu_attach->pages || !ipu_attach->npages))
 		return;
 
-	vm_unmap_ram(vaddr, ipu_attach->npages);
+	vm_unmap_ram(map->vaddr, ipu_attach->npages);
 }
 
 struct dma_buf_ops ipu_dma_buf_ops = {
@@ -441,8 +446,12 @@ static inline void ipu_psys_kbuf_unmap(struct ipu_psys_kbuffer *kbuf)
 		return;
 
 	kbuf->valid = false;
-	if (kbuf->kaddr)
-		dma_buf_vunmap(kbuf->dbuf, kbuf->kaddr);
+	if (kbuf->kaddr) {
+		struct dma_buf_map dmap;
+
+		dma_buf_map_set_vaddr(&dmap, kbuf->kaddr);
+		dma_buf_vunmap(kbuf->dbuf, &dmap);
+	}
 	if (kbuf->sgt)
 		dma_buf_unmap_attachment(kbuf->db_attach,
 					 kbuf->sgt,
@@ -564,6 +573,7 @@ int ipu_psys_mapbuf_locked(int fd, struct ipu_psys_fh *fh,
 {
 	struct ipu_psys *psys = fh->psys;
 	struct dma_buf *dbuf;
+	struct dma_buf_map dmap;
 	int ret;
 
 	dbuf = dma_buf_get(fd);
@@ -635,12 +645,12 @@ int ipu_psys_mapbuf_locked(int fd, struct ipu_psys_fh *fh,
 
 	kbuf->dma_addr = sg_dma_address(kbuf->sgt->sgl);
 
-	kbuf->kaddr = dma_buf_vmap(kbuf->dbuf);
-	if (!kbuf->kaddr) {
-		ret = -EINVAL;
+	ret = dma_buf_vmap(kbuf->dbuf, &dmap);
+	if (ret) {
 		dev_dbg(&psys->adev->dev, "dma buf vmap failed\n");
 		goto kbuf_map_fail;
 	}
+	kbuf->kaddr = dmap.vaddr;
 
 	dev_dbg(&psys->adev->dev, "%s kbuf %p fd %d with len %llu mapped\n",
 		__func__, kbuf, fd, kbuf->len);

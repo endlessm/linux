@@ -1,5 +1,5 @@
 /* SPDX-License-Identifier: GPL-2.0 */
-/* Copyright (C) 2013 - 2020 Intel Corporation */
+/* Copyright (C) 2013 - 2021 Intel Corporation */
 
 #ifndef IPU_PDATA_H
 #define IPU_PDATA_H
@@ -186,8 +186,6 @@ struct ipu_mmu_hw {
 	u8 l2_block_sz[IPU_MMU_MAX_TLB_L2_STREAMS];
 	/* flag to track if WA is needed for successive invalidate HW bug */
 	bool insert_read_before_invalidate;
-	/* flag to track if zlw based mmu invalidation is needed */
-	bool zlw_invalidate;
 };
 
 struct ipu_mmu_pdata {

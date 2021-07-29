@@ -185,10 +185,7 @@ int ipu_fw_psys_terminal_set(struct ipu_fw_psys_terminal *terminal,
 void ipu_fw_psys_pg_dump(struct ipu_psys *psys,
 			 struct ipu_psys_kcmd *kcmd, const char *note)
 {
-	if (ipu_ver == IPU_VER_6SE)
-		ipu6se_fw_psys_pg_dump(psys, kcmd, note);
-	else
-		ipu6_fw_psys_pg_dump(psys, kcmd, note);
+	ipu6_fw_psys_pg_dump(psys, kcmd, note);
 }
 
 int ipu_fw_psys_pg_get_id(struct ipu_psys_kcmd *kcmd)

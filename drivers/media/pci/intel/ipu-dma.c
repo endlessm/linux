@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: GPL-2.0
-// Copyright (C) 2013 - 2020 Intel Corporation
+// Copyright (C) 2013 - 2021 Intel Corporation
 
 #include <asm/cacheflush.h>
 
@@ -162,10 +162,8 @@ static void *ipu_dma_alloc(struct device *dev, size_t size,
 
 	iova = alloc_iova(&mmu->dmap->iovad, count,
 			  dma_get_mask(dev) >> PAGE_SHIFT, 0);
-	if (!iova) {
-		kfree(info);
-		return NULL;
-	}
+	if (!iova)
+		goto out_kfree;
 
 	pages = __dma_alloc_buffer(dev, size, gfp, attrs);
 	if (!pages)
@@ -185,8 +183,6 @@ static void *ipu_dma_alloc(struct device *dev, size_t size,
 
 	*dma_handle = iova->pfn_lo << PAGE_SHIFT;
 
-	mmu->tlb_invalidate(mmu);
-
 	info->pages = pages;
 	info->size = size;
 	list_add(&info->list, &mmu->vma_list);
@@ -202,6 +198,7 @@ out_unmap:
 
 out_free_iova:
 	__free_iova(&mmu->dmap->iovad, iova);
+out_kfree:
 	kfree(info);
 
 	return NULL;
@@ -243,9 +240,9 @@ static void ipu_dma_free(struct device *dev, size_t size, void *vaddr,
 
 	__dma_free_buffer(dev, pages, size, attrs);
 
-	__free_iova(&mmu->dmap->iovad, iova);
-
 	mmu->tlb_invalidate(mmu);
+
+	__free_iova(&mmu->dmap->iovad, iova);
 
 	kfree(info);
 }

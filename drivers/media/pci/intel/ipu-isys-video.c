@@ -720,10 +720,8 @@ static int short_packet_queue_setup(struct ipu_isys_pipeline *ip)
 		buf->ip = ip;
 		buf->ib.type = IPU_ISYS_SHORT_PACKET_BUFFER;
 		buf->bytesused = buf_size;
-		buf->buffer = dma_alloc_coherent(&av->isys->adev->dev,
-						 buf_size,
-						 &buf->dma_addr,
-						 GFP_KERNEL);
+		buf->buffer = dma_alloc_coherent(&av->isys->adev->dev, buf_size,
+						 &buf->dma_addr, GFP_KERNEL);
 		if (!buf->buffer) {
 			short_packet_queue_destroy(ip);
 			return -ENOMEM;

@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: GPL-2.0
-// Copyright (C) 2013 - 2020 Intel Corporation
+// Copyright (C) 2013 - 2021 Intel Corporation
 
 #include <asm/cacheflush.h>
 
@@ -293,8 +293,6 @@ static int ipu6_isys_fwcom_cfg_init(struct ipu_isys *isys,
 	struct ipu_fw_syscom_queue_config *input_queue_cfg;
 	struct ipu_fw_syscom_queue_config *output_queue_cfg;
 	struct ipu6_fw_isys_fw_config *isys_fw_cfg;
-	int num_in_message_queues = clamp_t(unsigned int, num_streams, 1,
-					    IPU6_ISYS_NUM_STREAMS);
 	int num_out_message_queues = 1;
 	int type_proxy = IPU_FW_ISYS_QUEUE_TYPE_PROXY;
 	int type_dev = IPU_FW_ISYS_QUEUE_TYPE_DEV;
@@ -302,7 +300,23 @@ static int ipu6_isys_fwcom_cfg_init(struct ipu_isys *isys,
 	int base_dev_send = IPU_BASE_DEV_SEND_QUEUES;
 	int base_msg_send = IPU_BASE_MSG_SEND_QUEUES;
 	int base_msg_recv = IPU_BASE_MSG_RECV_QUEUES;
+	int num_in_message_queues;
+	unsigned int max_streams;
+	unsigned int max_send_queues, max_sram_blocks, max_devq_size;
 
+	max_streams = IPU6_ISYS_NUM_STREAMS;
+	max_send_queues = IPU6_N_MAX_SEND_QUEUES;
+	max_sram_blocks = IPU6_NOF_SRAM_BLOCKS_MAX;
+	max_devq_size = IPU6_DEV_SEND_QUEUE_SIZE;
+	if (ipu_ver == IPU_VER_6SE) {
+		max_streams = IPU6SE_ISYS_NUM_STREAMS;
+		max_send_queues = IPU6SE_N_MAX_SEND_QUEUES;
+		max_sram_blocks = IPU6SE_NOF_SRAM_BLOCKS_MAX;
+		max_devq_size = IPU6SE_DEV_SEND_QUEUE_SIZE;
+	}
+
+	num_in_message_queues = clamp_t(unsigned int, num_streams, 1,
+					max_streams);
 	isys_fw_cfg = devm_kzalloc(&isys->adev->dev, sizeof(*isys_fw_cfg),
 				   GFP_KERNEL);
 	if (!isys_fw_cfg)
@@ -321,7 +335,7 @@ static int ipu6_isys_fwcom_cfg_init(struct ipu_isys *isys,
 	isys_fw_cfg->num_recv_queues[IPU_FW_ISYS_QUEUE_TYPE_MSG] =
 		num_out_message_queues;
 
-	size = sizeof(*input_queue_cfg) * IPU6_N_MAX_SEND_QUEUES;
+	size = sizeof(*input_queue_cfg) * max_send_queues;
 	input_queue_cfg = devm_kzalloc(&isys->adev->dev, size, GFP_KERNEL);
 	if (!input_queue_cfg)
 		return -ENOMEM;
@@ -345,7 +359,7 @@ static int ipu6_isys_fwcom_cfg_init(struct ipu_isys *isys,
 		isys_fw_cfg->num_recv_queues[type_msg];
 
 	/* SRAM partitioning. Equal partitioning is set. */
-	for (i = 0; i < IPU6_NOF_SRAM_BLOCKS_MAX; i++) {
+	for (i = 0; i < max_sram_blocks; i++) {
 		if (i < num_in_message_queues)
 			isys_fw_cfg->buffer_partition.num_gda_pages[i] =
 				(IPU_DEVICE_GDA_NR_PAGES *
@@ -365,120 +379,7 @@ static int ipu6_isys_fwcom_cfg_init(struct ipu_isys *isys,
 	for (i = 0; i < isys_fw_cfg->num_send_queues[type_dev]; i++) {
 		input_queue_cfg[base_dev_send + i].token_size =
 			sizeof(struct ipu_fw_send_queue_token);
-		input_queue_cfg[base_dev_send + i].queue_size =
-			IPU6_DEV_SEND_QUEUE_SIZE;
-	}
-
-	for (i = 0; i < isys_fw_cfg->num_send_queues[type_msg]; i++) {
-		input_queue_cfg[base_msg_send + i].token_size =
-			sizeof(struct ipu_fw_send_queue_token);
-		input_queue_cfg[base_msg_send + i].queue_size =
-			IPU_ISYS_SIZE_SEND_QUEUE;
-	}
-
-	for (i = 0; i < isys_fw_cfg->num_recv_queues[type_proxy]; i++) {
-		output_queue_cfg[i].token_size =
-			sizeof(struct ipu_fw_proxy_resp_queue_token);
-		output_queue_cfg[i].queue_size = IPU_ISYS_SIZE_PROXY_RECV_QUEUE;
-	}
-	/* There is no recv DEV queue */
-	for (i = 0; i < isys_fw_cfg->num_recv_queues[type_msg]; i++) {
-		output_queue_cfg[base_msg_recv + i].token_size =
-			sizeof(struct ipu_fw_resp_queue_token);
-		output_queue_cfg[base_msg_recv + i].queue_size =
-			IPU_ISYS_SIZE_RECV_QUEUE;
-	}
-
-	fwcom->dmem_addr = isys->pdata->ipdata->hw_variant.dmem_offset;
-	fwcom->specific_addr = isys_fw_cfg;
-	fwcom->specific_size = sizeof(*isys_fw_cfg);
-
-	return 0;
-}
-
-static int ipu6se_isys_fwcom_cfg_init(struct ipu_isys *isys,
-				      struct ipu_fw_com_cfg *fwcom,
-				      unsigned int num_streams)
-{
-	int i;
-	unsigned int size;
-	struct ipu_fw_syscom_queue_config *input_queue_cfg;
-	struct ipu_fw_syscom_queue_config *output_queue_cfg;
-	struct ipu6se_fw_isys_fw_config *isys_fw_cfg;
-	int num_in_message_queues = clamp_t(unsigned int, num_streams, 1,
-					    IPU6SE_ISYS_NUM_STREAMS);
-	int num_out_message_queues = 1;
-	int type_proxy = IPU_FW_ISYS_QUEUE_TYPE_PROXY;
-	int type_dev = IPU_FW_ISYS_QUEUE_TYPE_DEV;
-	int type_msg = IPU_FW_ISYS_QUEUE_TYPE_MSG;
-	int base_dev_send = IPU_BASE_DEV_SEND_QUEUES;
-	int base_msg_send = IPU_BASE_MSG_SEND_QUEUES;
-	int base_msg_recv = IPU_BASE_MSG_RECV_QUEUES;
-
-	isys_fw_cfg = devm_kzalloc(&isys->adev->dev, sizeof(*isys_fw_cfg),
-				   GFP_KERNEL);
-	if (!isys_fw_cfg)
-		return -ENOMEM;
-
-	isys_fw_cfg->num_send_queues[IPU_FW_ISYS_QUEUE_TYPE_PROXY] =
-		IPU_N_MAX_PROXY_SEND_QUEUES;
-	isys_fw_cfg->num_send_queues[IPU_FW_ISYS_QUEUE_TYPE_DEV] =
-		IPU_N_MAX_DEV_SEND_QUEUES;
-	isys_fw_cfg->num_send_queues[IPU_FW_ISYS_QUEUE_TYPE_MSG] =
-		num_in_message_queues;
-	isys_fw_cfg->num_recv_queues[IPU_FW_ISYS_QUEUE_TYPE_PROXY] =
-		IPU_N_MAX_PROXY_RECV_QUEUES;
-	/* Common msg/dev return queue */
-	isys_fw_cfg->num_recv_queues[IPU_FW_ISYS_QUEUE_TYPE_DEV] = 0;
-	isys_fw_cfg->num_recv_queues[IPU_FW_ISYS_QUEUE_TYPE_MSG] =
-		num_out_message_queues;
-
-	size = sizeof(*input_queue_cfg) * IPU6SE_N_MAX_SEND_QUEUES;
-	input_queue_cfg = devm_kzalloc(&isys->adev->dev, size, GFP_KERNEL);
-	if (!input_queue_cfg)
-		return -ENOMEM;
-
-	size = sizeof(*output_queue_cfg) * IPU_N_MAX_RECV_QUEUES;
-	output_queue_cfg = devm_kzalloc(&isys->adev->dev, size, GFP_KERNEL);
-	if (!output_queue_cfg)
-		return -ENOMEM;
-
-	fwcom->input = input_queue_cfg;
-	fwcom->output = output_queue_cfg;
-
-	fwcom->num_input_queues =
-		isys_fw_cfg->num_send_queues[type_proxy] +
-		isys_fw_cfg->num_send_queues[type_dev] +
-		isys_fw_cfg->num_send_queues[type_msg];
-
-	fwcom->num_output_queues =
-		isys_fw_cfg->num_recv_queues[type_proxy] +
-		isys_fw_cfg->num_recv_queues[type_dev] +
-		isys_fw_cfg->num_recv_queues[type_msg];
-
-	/* SRAM partitioning. Equal partitioning is set. */
-	for (i = 0; i < IPU6SE_NOF_SRAM_BLOCKS_MAX; i++) {
-		if (i < num_in_message_queues)
-			isys_fw_cfg->buffer_partition.num_gda_pages[i] =
-				(IPU_DEVICE_GDA_NR_PAGES *
-				 IPU_DEVICE_GDA_VIRT_FACTOR) /
-				num_in_message_queues;
-		else
-			isys_fw_cfg->buffer_partition.num_gda_pages[i] = 0;
-	}
-
-	/* FW assumes proxy interface at fwcom queue 0 */
-	for (i = 0; i < isys_fw_cfg->num_send_queues[type_proxy]; i++) {
-		input_queue_cfg[i].token_size =
-			sizeof(struct ipu_fw_proxy_send_queue_token);
-		input_queue_cfg[i].queue_size = IPU_ISYS_SIZE_PROXY_SEND_QUEUE;
-	}
-
-	for (i = 0; i < isys_fw_cfg->num_send_queues[type_dev]; i++) {
-		input_queue_cfg[base_dev_send + i].token_size =
-			sizeof(struct ipu_fw_send_queue_token);
-		input_queue_cfg[base_dev_send + i].queue_size =
-			IPU6SE_DEV_SEND_QUEUE_SIZE;
+		input_queue_cfg[base_dev_send + i].queue_size = max_devq_size;
 	}
 
 	for (i = 0; i < isys_fw_cfg->num_send_queues[type_msg]; i++) {
@@ -521,14 +422,7 @@ int ipu_fw_isys_init(struct ipu_isys *isys, unsigned int num_streams)
 	struct device *dev = &isys->adev->dev;
 	int rval;
 
-	if (ipu_ver == IPU_VER_6SE) {
-		ipu6se_isys_fwcom_cfg_init(isys, &fwcom, num_streams);
-	} else if (ipu_ver == IPU_VER_6 || ipu_ver == IPU_VER_6EP) {
-		ipu6_isys_fwcom_cfg_init(isys, &fwcom, num_streams);
-	} else {
-		dev_err(dev, "unsupported ipu_ver %d\n", ipu_ver);
-		return -EINVAL;
-	}
+	ipu6_isys_fwcom_cfg_init(isys, &fwcom, num_streams);
 
 	isys->fwcom = ipu_fw_com_prepare(&fwcom, isys->adev, isys->pdata->base);
 	if (!isys->fwcom) {
@@ -585,6 +479,12 @@ void ipu_fw_isys_set_params(struct ipu_fw_isys_stream_cfg_data_abi *stream_cfg)
 		    N_IPU_FW_ISYS_MIPI_DATA_TYPE;
 		stream_cfg->input_pins[i].mipi_decompression =
 		    IPU_FW_ISYS_MIPI_COMPRESSION_TYPE_NO_COMPRESSION;
+		/*
+		 * CSI BE can be used to crop and change bayer order.
+		 * NOTE: currently it only crops first and last lines in height.
+		 */
+		if (stream_cfg->crop.top_offset & 1)
+			stream_cfg->input_pins[i].crop_first_and_last_lines = 1;
 		stream_cfg->input_pins[i].capture_mode =
 			IPU_FW_ISYS_CAPTURE_MODE_REGULAR;
 	}

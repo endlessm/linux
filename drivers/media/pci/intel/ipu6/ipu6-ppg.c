@@ -503,8 +503,11 @@ void ipu_psys_enter_power_gating(struct ipu_psys *psys)
 
 		list_for_each_entry_safe(kppg, tmp, &sched->ppgs, list) {
 			mutex_lock(&kppg->mutex);
-			/* kppg has already power down */
-			if (kppg->state == PPG_STATE_STOPPED) {
+			/*
+			 * Only for SUSPENDED kppgs, STOPPED kppgs has already
+			 * power down and new kppgs might come now.
+			 */
+			if (kppg->state != PPG_STATE_SUSPENDED) {
 				mutex_unlock(&kppg->mutex);
 				continue;
 			}
@@ -539,9 +542,8 @@ void ipu_psys_exit_power_gating(struct ipu_psys *psys)
 
 		list_for_each_entry_safe(kppg, tmp, &sched->ppgs, list) {
 			mutex_lock(&kppg->mutex);
-			/* kppg is not started and power up */
-			if (kppg->state == PPG_STATE_START ||
-			    kppg->state == PPG_STATE_STARTING) {
+			/* Only for SUSPENDED kppgs */
+			if (kppg->state != PPG_STATE_SUSPENDED) {
 				mutex_unlock(&kppg->mutex);
 				continue;
 			}

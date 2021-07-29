@@ -18,33 +18,22 @@ void ipu6_psys_hw_res_variant_init(void)
 	if (ipu_ver == IPU_VER_6SE) {
 		hw_var.queue_num = IPU6SE_FW_PSYS_N_PSYS_CMD_QUEUE_ID;
 		hw_var.cell_num = IPU6SE_FW_PSYS_N_CELL_ID;
-		hw_var.set_proc_dev_chn = ipu6se_fw_psys_set_proc_dev_chn;
-		hw_var.set_proc_dfm_bitmap = ipu6se_fw_psys_set_proc_dfm_bitmap;
-		hw_var.set_proc_ext_mem = ipu6se_fw_psys_set_process_ext_mem;
-		hw_var.get_pgm_by_proc =
-			ipu6se_fw_psys_get_program_manifest_by_process;
-		return;
 	} else if (ipu_ver == IPU_VER_6) {
 		hw_var.queue_num = IPU6_FW_PSYS_N_PSYS_CMD_QUEUE_ID;
 		hw_var.cell_num = IPU6_FW_PSYS_N_CELL_ID;
-		hw_var.set_proc_dev_chn = ipu6_fw_psys_set_proc_dev_chn;
-		hw_var.set_proc_dfm_bitmap = ipu6_fw_psys_set_proc_dfm_bitmap;
-		hw_var.set_proc_ext_mem = ipu6_fw_psys_set_process_ext_mem;
-		hw_var.get_pgm_by_proc =
-			ipu6_fw_psys_get_program_manifest_by_process;
-		return;
 	} else if (ipu_ver == IPU_VER_6EP) {
 		hw_var.queue_num = IPU6_FW_PSYS_N_PSYS_CMD_QUEUE_ID;
 		hw_var.cell_num = IPU6EP_FW_PSYS_N_CELL_ID;
-		hw_var.set_proc_dev_chn = ipu6_fw_psys_set_proc_dev_chn;
-		hw_var.set_proc_dfm_bitmap = ipu6_fw_psys_set_proc_dfm_bitmap;
-		hw_var.set_proc_ext_mem = ipu6_fw_psys_set_process_ext_mem;
-		hw_var.get_pgm_by_proc =
-			ipu6_fw_psys_get_program_manifest_by_process;
-		return;
+	} else {
+		WARN(1, "ipu6 psys res var is not initialised correctly.");
 	}
 
-	WARN(1, "ipu6 psys res var is not initialised correctly.");
+	hw_var.set_proc_dev_chn = ipu6_fw_psys_set_proc_dev_chn;
+	hw_var.set_proc_dfm_bitmap = ipu6_fw_psys_set_proc_dfm_bitmap;
+	hw_var.set_proc_ext_mem = ipu6_fw_psys_set_process_ext_mem;
+	hw_var.get_pgm_by_proc =
+		ipu6_fw_psys_get_program_manifest_by_process;
+	return;
 }
 
 static const struct ipu_fw_resource_definitions *get_res(void)
@@ -703,6 +692,7 @@ int ipu_psys_allocate_resources(const struct device *dev,
 							bank, alloc);
 				if (ret)
 					goto free_out;
+
 				/* no return value check here because fw api
 				 * will do some checks, and would return
 				 * non-zero except mem_type_id == 0.
