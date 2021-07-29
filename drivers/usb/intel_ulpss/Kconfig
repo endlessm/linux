@@ -1,0 +1,11 @@
+# SPDX-License-Identifier: GPL-2.0
+
+config INTEL_LPSS_USB
+	tristate "Intel Low Power Subsystem support as USB devices"
+	depends on USB
+	help
+	  This driver supports USB-interfaced Intel Low Power Subsystem
+	  (LPSS) devices such as I2C, GPIO.
+	  Say Y or M here if you have LPSS USB devices.
+	  To compile this driver as a module, choose M here: the
+	  module will be called intel_lpss_usb.ko.
