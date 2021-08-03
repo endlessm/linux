@@ -2176,6 +2176,19 @@ static int rtl_set_mac_address(struct net_device *dev, void *p)
 	return 0;
 }
 
+static int rtl_phy_poll_quirk(struct rtl8169_private *tp)
+{
+	struct pci_dev *pdev = tp->pci_dev;
+
+	if (!pcie_aspm_enabled(pdev))
+		return 0;
+
+	if (tp->mac_version == RTL_GIGA_MAC_VER_39)
+		return 1;
+
+	return 0;
+}
+
 static void rtl_wol_suspend_quirk(struct rtl8169_private *tp)
 {
 	switch (tp->mac_version) {
@@ -5114,7 +5127,8 @@ static int r8169_mdio_register(struct rtl8169_private *tp)
 	new_bus->name = "r8169";
 	new_bus->priv = tp;
 	new_bus->parent = &pdev->dev;
-	new_bus->irq[0] = PHY_MAC_INTERRUPT;
+	new_bus->irq[0] =
+		(rtl_phy_poll_quirk(tp) ? PHY_POLL : PHY_MAC_INTERRUPT);
 	snprintf(new_bus->id, MII_BUS_ID_SIZE, "r8169-%x", pci_dev_id(pdev));
 
 	new_bus->read = r8169_mdio_read_reg;
