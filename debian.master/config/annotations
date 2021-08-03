@@ -8907,6 +8907,7 @@ CONFIG_SND_SOC_INTEL_CNL                        mark<ENFORCED> note<deprecated>
 CONFIG_SND_SOC_INTEL_CFL                        mark<ENFORCED> note<deprecated>
 CONFIG_SND_SOC_INTEL_CML_H                      mark<ENFORCED> note<deprecated>
 CONFIG_SND_SOC_INTEL_CML_LP                     mark<ENFORCED> note<deprecated>
+CONFIG_SND_SOC_INTEL_SKYLAKE_HDAUDIO_CODEC		mark<ENFORCED> note<LP:1915117>
 
 # Menu: Device Drivers >> Sound card support >> Advanced Linux Sound Architecture >> ALSA for SoC audio support >> Intel ASoC SST drivers >> Intel Machine drivers
 CONFIG_SND_SOC_INTEL_MACH                       policy<{'amd64': 'y'}>
