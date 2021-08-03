@@ -8900,14 +8900,13 @@ CONFIG_SND_SOC_INTEL_CNL                        policy<{'amd64': 'n'}>
 CONFIG_SND_SOC_INTEL_CFL                        policy<{'amd64': 'n'}>
 CONFIG_SND_SOC_INTEL_CML_H                      policy<{'amd64': 'n'}>
 CONFIG_SND_SOC_INTEL_CML_LP                     policy<{'amd64': 'n'}>
-CONFIG_SND_SOC_INTEL_SKYLAKE_HDAUDIO_CODEC      policy<{'amd64': 'n'}>
+CONFIG_SND_SOC_INTEL_SKYLAKE_HDAUDIO_CODEC      policy<{'amd64': 'y'}>
 #
 CONFIG_SND_SOC_INTEL_SKYLAKE                    mark<ENFORCED> note<deprecated>
 CONFIG_SND_SOC_INTEL_CNL                        mark<ENFORCED> note<deprecated>
 CONFIG_SND_SOC_INTEL_CFL                        mark<ENFORCED> note<deprecated>
 CONFIG_SND_SOC_INTEL_CML_H                      mark<ENFORCED> note<deprecated>
 CONFIG_SND_SOC_INTEL_CML_LP                     mark<ENFORCED> note<deprecated>
-CONFIG_SND_SOC_INTEL_SKYLAKE_HDAUDIO_CODEC      mark<ENFORCED> note<deprecated>
 
 # Menu: Device Drivers >> Sound card support >> Advanced Linux Sound Architecture >> ALSA for SoC audio support >> Intel ASoC SST drivers >> Intel Machine drivers
 CONFIG_SND_SOC_INTEL_MACH                       policy<{'amd64': 'y'}>
