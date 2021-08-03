@@ -4797,6 +4797,7 @@ snd-soc-sof_rt5682
 snd-soc-spdif-rx
 snd-soc-spdif-tx
 snd-soc-ssm2305
+snd-soc-ssm2518
 snd-soc-ssm2602
 snd-soc-ssm2602-i2c
 snd-soc-ssm2602-spi
