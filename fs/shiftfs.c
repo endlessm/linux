@@ -1737,6 +1737,8 @@ const struct file_operations shiftfs_file_operations = {
 	.compat_ioctl		= shiftfs_compat_ioctl,
 	.copy_file_range	= shiftfs_copy_file_range,
 	.remap_file_range	= shiftfs_remap_file_range,
+	.splice_read		= generic_file_splice_read,
+	.splice_write		= iter_file_splice_write,
 };
 
 const struct file_operations shiftfs_dir_operations = {
