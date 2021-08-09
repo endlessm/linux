@@ -59,6 +59,9 @@ endif
 #
 KBUILD_CFLAGS	+= $(call cc-option,-fno-ipa-sra)
 
+# Need -msoft-float for gcc 11 for the below instruction set selection
+KBUILD_CFLAGS	+= -msoft-float
+
 # This selects which instruction set is used.
 arch-$(CONFIG_CPU_32v7M)	:=-march=armv7-m
 arch-$(CONFIG_CPU_32v7)		:=-march=armv7-a
@@ -141,7 +144,7 @@ endif
 
 # Need -Uarm for gcc < 3.x
 KBUILD_CPPFLAGS	+=$(cpp-y)
-KBUILD_CFLAGS	+=$(CFLAGS_ABI) $(CFLAGS_ISA) $(arch-y) $(tune-y) $(call cc-option,-mshort-load-bytes,$(call cc-option,-malignment-traps,)) -msoft-float -Uarm
+KBUILD_CFLAGS	+=$(CFLAGS_ABI) $(CFLAGS_ISA) $(arch-y) $(tune-y) $(call cc-option,-mshort-load-bytes,$(call cc-option,-malignment-traps,)) -Uarm
 KBUILD_AFLAGS	+=$(CFLAGS_ABI) $(AFLAGS_ISA) -Wa,$(arch-y) $(tune-y) -include asm/unified.h -msoft-float
 
 CHECKFLAGS	+= -D__arm__
