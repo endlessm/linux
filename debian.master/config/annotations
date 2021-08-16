@@ -1392,7 +1392,7 @@ CONFIG_DMA_SUN6I                                policy<{'arm64': 'm'}>
 CONFIG_DW_AXI_DMAC                              policy<{'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm'}>
 CONFIG_FSL_EDMA                                 policy<{'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm'}>
 CONFIG_FSL_QDMA                                 policy<{'arm64': 'm', 'armhf': 'm'}>
-CONFIG_HISI_DMA                                 policy<{'arm64': 'm'}>
+CONFIG_HISI_DMA                                 policy<{'arm64': 'n'}>
 CONFIG_IMX_DMA                                  policy<{'arm64': 'm', 'armhf-generic': 'm'}>
 CONFIG_IMX_SDMA                                 policy<{'arm64': 'm', 'armhf-generic': 'm'}>
 CONFIG_INTEL_IDMA64                             policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm'}>
