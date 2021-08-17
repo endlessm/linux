@@ -2070,7 +2070,6 @@ hisi-sfc
 hisi-spmi-controller
 hisi-trng-v2
 hisi504_nand
-hisi_dma
 hisi_femac
 hisi_hikey_usb
 hisi_hpre
