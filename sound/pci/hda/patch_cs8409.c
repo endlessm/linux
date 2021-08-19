@@ -753,7 +753,6 @@ static void cs42l42_resume(struct sub_codec *cs42l42)
 	cs42l42_enable_jack_detect(cs42l42);
 }
 
-#ifdef CONFIG_PM
 static void cs42l42_suspend(struct sub_codec *cs42l42)
 {
 	struct hda_codec *codec = cs42l42->codec;
@@ -773,6 +772,9 @@ static void cs42l42_suspend(struct sub_codec *cs42l42)
 		{ 0x1101, 0xFF },
 	};
 
+	if (cs42l42->suspended)
+		return;
+
 	cs8409_i2c_bulk_write(cs42l42, cs42l42_pwr_down_seq, ARRAY_SIZE(cs42l42_pwr_down_seq));
 
 	if (read_poll_timeout(cs8409_i2c_read, reg_cdc_status,
@@ -790,7 +792,6 @@ static void cs42l42_suspend(struct sub_codec *cs42l42)
 	gpio_data &= ~cs42l42->reset_gpio;
 	snd_hda_codec_write(codec, CS8409_PIN_AFG, 0, AC_VERB_SET_GPIO_DATA, gpio_data);
 }
-#endif
 
 static void cs8409_free(struct hda_codec *codec)
 {
@@ -801,6 +802,33 @@ static void cs8409_free(struct hda_codec *codec)
 	cs8409_disable_i2c_clock(codec);
 
 	snd_hda_gen_free(codec);
+}
+
+/* Manage PDREF, when transition to D3hot */
+static int cs8409_cs42l42_suspend(struct hda_codec *codec)
+{
+	struct cs8409_spec *spec = codec->spec;
+	int i;
+
+	cs8409_enable_ur(codec, 0);
+
+	for (i = 0; i < spec->num_scodecs; i++)
+		cs42l42_suspend(spec->scodecs[i]);
+
+	/* Cancel i2c clock disable timer, and disable clock if left enabled */
+	cancel_delayed_work_sync(&spec->i2c_clk_work);
+	cs8409_disable_i2c_clock(codec);
+
+	snd_hda_shutup_pins(codec);
+
+	return 0;
+}
+
+static void cs8409_reboot_notify(struct hda_codec *codec)
+{
+	cs8409_cs42l42_suspend(codec);
+	snd_hda_gen_reboot_notify(codec);
+	codec->patch_ops.free(codec);
 }
 
 /******************************************************************************
@@ -845,28 +873,6 @@ static void cs8409_cs42l42_jack_unsol_event(struct hda_codec *codec, unsigned in
 	}
 }
 
-#ifdef CONFIG_PM
-/* Manage PDREF, when transition to D3hot */
-static int cs8409_cs42l42_suspend(struct hda_codec *codec)
-{
-	struct cs8409_spec *spec = codec->spec;
-	int i;
-
-	cs8409_enable_ur(codec, 0);
-
-	for (i = 0; i < spec->num_scodecs; i++)
-		cs42l42_suspend(spec->scodecs[i]);
-
-	/* Cancel i2c clock disable timer, and disable clock if left enabled */
-	cancel_delayed_work_sync(&spec->i2c_clk_work);
-	cs8409_disable_i2c_clock(codec);
-
-	snd_hda_shutup_pins(codec);
-
-	return 0;
-}
-#endif
-
 /* Vendor specific HW configuration
  * PLL, ASP, I2C, SPI, GPIOs, DMIC etc...
  */
@@ -910,6 +916,7 @@ static const struct hda_codec_ops cs8409_cs42l42_patch_ops = {
 	.init = cs8409_init,
 	.free = cs8409_free,
 	.unsol_event = cs8409_cs42l42_jack_unsol_event,
+	.reboot_notify = cs8409_reboot_notify,
 #ifdef CONFIG_PM
 	.suspend = cs8409_cs42l42_suspend,
 #endif
@@ -1121,6 +1128,7 @@ static const struct hda_codec_ops cs8409_dolphin_patch_ops = {
 	.init = cs8409_init,
 	.free = cs8409_free,
 	.unsol_event = dolphin_jack_unsol_event,
+	.reboot_notify = cs8409_reboot_notify,
 #ifdef CONFIG_PM
 	.suspend = cs8409_cs42l42_suspend,
 #endif
