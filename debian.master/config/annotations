@@ -11371,6 +11371,8 @@ CONFIG_KERNEL_LZO                               policy<{'amd64': 'n', 'armhf': '
 CONFIG_KERNEL_LZ4                               policy<{'amd64': 'n', 'armhf': 'n', 's390x': 'n'}>
 CONFIG_KERNEL_ZSTD                              policy<{'amd64': 'y', 's390x': 'y'}>
 CONFIG_KERNEL_UNCOMPRESSED                      policy<{'s390x': 'n'}>
+#
+CONFIG_KERNEL_ZSTD                              mark<ENFORCED> note<LP:#1931725>
 
 # Menu: General setup >> Namespaces support
 CONFIG_NAMESPACES                               policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 's390x': 'y'}>
