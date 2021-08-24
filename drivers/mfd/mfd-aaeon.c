@@ -16,11 +16,16 @@
 #include <linux/kernel.h>
 #include <linux/mfd/core.h>
 #include <linux/module.h>
+#include <linux/platform_data/x86/asus-wmi.h>
 #include <linux/platform_device.h>
 #include <linux/leds.h>
 #include <linux/wmi.h>
 
 #define AAEON_WMI_MGMT_GUID      "97845ED0-4E6D-11DE-8A39-0800200C9A66"
+
+#define WMI_REPORT_CAPABILITY_METHOD	0x00000000
+#define MAX_BFPI_VERSION		255
+#define GET_REVISION_ID			0x00
 
 struct aaeon_wmi_priv {
 	const struct mfd_cell *cells;
@@ -39,6 +44,21 @@ static const struct aaeon_wmi_priv aaeon_wmi_priv_data = {
 	.ncells = ARRAY_SIZE(aaeon_mfd_cells),
 };
 
+static int aaeon_wmi_check_device(void)
+{
+	int err;
+	int retval;
+
+	err = asus_wmi_evaluate_method(WMI_REPORT_CAPABILITY_METHOD, GET_REVISION_ID, 0,
+				       &retval);
+	if (err)
+		return -ENODEV;
+	if (retval < 3 || retval > MAX_BFPI_VERSION)
+		return -ENODEV;
+
+	return 0;
+}
+
 static int aaeon_wmi_probe(struct wmi_device *wdev, const void *context)
 {
 	struct aaeon_wmi_priv *priv;
@@ -48,6 +68,8 @@ static int aaeon_wmi_probe(struct wmi_device *wdev, const void *context)
 		return -ENODEV;
 	}
 
+	if (aaeon_wmi_check_device())
+		return -ENODEV;
 
 	priv = (struct aaeon_wmi_priv *)context;
 	dev_set_drvdata(&wdev->dev, priv);
