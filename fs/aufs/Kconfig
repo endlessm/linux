@@ -81,7 +81,7 @@ config AUFS_EXPORT
 config AUFS_INO_T_64
 	bool
 	depends on AUFS_EXPORT
-	depends on 64BIT && !(ALPHA || S390)
+	depends on 64BIT
 	default y
 	help
 	Automatic configuration for internal use.
