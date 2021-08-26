@@ -23,6 +23,9 @@ firmware:       advansys/mcode.bin
 firmware:       agere_ap_fw.bin
 firmware:       agere_sta_fw.bin
 firmware:       aic94xx-seq.fw
+firmware:       amd/amd_sev_fam17h_model0xh.sbin
+firmware:       amd/amd_sev_fam17h_model3xh.sbin
+firmware:       amd/amd_sev_fam19h_model0xh.sbin
 firmware:       amdgpu/arcturus_asd.bin
 firmware:       amdgpu/arcturus_gpu_info.bin
 firmware:       amdgpu/arcturus_mec.bin
