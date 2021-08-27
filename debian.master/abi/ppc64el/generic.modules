@@ -2912,6 +2912,7 @@ mtd_dataflash
 mtdblock
 mtdblock_ro
 mtdoops
+mtdpstore
 mtdram
 mtdswap
 mtip32xx
@@ -3567,6 +3568,8 @@ pseries-rng
 pseries_energy
 psmouse
 psnap
+pstore_blk
+pstore_zone
 psxpad-spi
 pt
 ptp-qoriq
@@ -5462,6 +5465,7 @@ wm8994
 wm8994-regulator
 wm97xx-ts
 wp512
+wwan
 x25
 x_tables
 xbox_remote

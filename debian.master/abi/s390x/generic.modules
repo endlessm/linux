@@ -886,6 +886,7 @@ vsockmon
 vxlan
 wireguard
 wp512
+wwan
 x_tables
 xcbc
 xfrm4_tunnel
