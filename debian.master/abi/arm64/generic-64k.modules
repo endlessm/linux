@@ -2058,7 +2058,6 @@ hisi-sfc
 hisi-spmi-controller
 hisi-trng-v2
 hisi504_nand
-hisi_dma
 hisi_femac
 hisi_hikey_usb
 hisi_hpre
@@ -3321,7 +3320,6 @@ mtd_dataflash
 mtdblock
 mtdblock_ro
 mtdoops
-mtdpstore
 mtdram
 mtdswap
 mtip32xx
@@ -4141,8 +4139,6 @@ ps2mult
 psample
 psmouse
 psnap
-pstore_blk
-pstore_zone
 psxpad-spi
 ptp-qoriq
 ptp_clockmatrix
@@ -6555,7 +6551,6 @@ wm8994
 wm8994-regulator
 wm97xx-ts
 wp512
-wwan
 x25
 x_tables
 xbox_remote
