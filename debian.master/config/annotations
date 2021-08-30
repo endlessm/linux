@@ -7947,7 +7947,7 @@ CONFIG_RESET_BERLIN                             policy<{'arm64': 'y', 'armhf': '
 CONFIG_RESET_BRCMSTB                            policy<{'arm64': 'm'}>
 CONFIG_RESET_BRCMSTB_RESCAL                     policy<{'arm64': 'y'}>
 CONFIG_RESET_IMX7                               policy<{'arm64': 'y', 'armhf-generic': 'y'}>
-CONFIG_RESET_MCHP_SPARX5                        policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y'}>
+CONFIG_RESET_MCHP_SPARX5                        policy<{'arm64': 'y'}>
 CONFIG_RESET_MESON                              policy<{'arm64': 'y', 'armhf': 'y'}>
 CONFIG_RESET_MESON_AUDIO_ARB                    policy<{'arm64': 'm', 'armhf': 'm'}>
 CONFIG_RESET_NPCM                               policy<{'armhf': 'y'}>
