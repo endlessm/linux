@@ -1,7 +1,2 @@
-if [ "$variant" = "ports" ]; then
-	archs=""
-	family='ports'
-else
-	archs="amd64 armhf arm64 ppc64el s390x"
-	family='ubuntu'
-fi
+archs="amd64 armhf arm64 ppc64el s390x"
+family='ubuntu'
