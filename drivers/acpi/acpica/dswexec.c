@@ -393,6 +393,12 @@ acpi_status acpi_ds_exec_end_op(struct acpi_walk_state *walk_state)
 		 */
 		if (!(walk_state->op_info->flags & AML_NO_OPERAND_RESOLVE)) {
 
+			if ((walk_state->num_operands < 1 ||
+			     walk_state->num_operands >= ARRAY_SIZE(walk_state->operands) + 1)) {
+				ACPI_ERROR((AE_INFO, " many operands 0x%X for op_type 0x%X", walk_state->num_operands - 1, op_type));
+				status = AE_AML_BAD_OPCODE;
+				goto cleanup;
+			}
 			/* Resolve all operands */
 
 			status = acpi_ex_resolve_operands(walk_state->opcode,
@@ -409,6 +415,11 @@ acpi_status acpi_ds_exec_end_op(struct acpi_walk_state *walk_state)
 			 * routine. There is one routine per opcode "type" based upon the
 			 * number of opcode arguments and return type.
 			 */
+			if (op_type >= ARRAY_SIZE(acpi_gbl_op_type_dispatch)) {
+				ACPI_ERROR((AE_INFO, "Unknown op_type 0x%X", op_type));
+				status = AE_AML_BAD_OPCODE;
+				goto cleanup;
+			}
 			status =
 			    acpi_gbl_op_type_dispatch[op_type] (walk_state);
 		} else {
