@@ -1,7 +1,7 @@
 # The following targets are for the maintainer only! do not run if you don't
 # know what they do.
 
-.PHONY: printenv updateconfigs printchanges insertchanges startnewrelease diffupstream help updateportsconfigs editportsconfigs autoreconstruct finalchecks
+.PHONY: printenv updateconfigs printchanges insertchanges startnewrelease diffupstream help autoreconstruct finalchecks
 
 help:
 	@echo "These are the targets in addition to the normal $(DEBIAN) ones:"
@@ -12,11 +12,6 @@ help:
 	@echo
 	@echo "  editconfigs          : Update core arch configs interractively"
 	@echo "  genconfigs           : Generate core arch configs in CONFIGS/*"
-	@echo
-	@echo "  updateportsconfigs   : Update ports arch configs"
-	@echo
-	@echo "  editportsconfigs     : Update ports arch configs interactivly"
-	@echo "  genportconfigs       : Generate ports arch configs in CONFIGS/*"
 	@echo
 	@echo "  printchanges    : Print the current changelog entries (from git)"
 	@echo
@@ -46,11 +41,6 @@ printdebian:
 updateconfigs defaultconfigs editconfigs genconfigs dumpconfigs:
 	dh_testdir;
 	$(SHELL) $(DROOT)/scripts/misc/kernelconfig $@ "$(do_enforce_all)"
-	rm -rf build
-
-updateportsconfigs defaultportsconfigs editportsconfigs genportsconfigs askconfigs:
-	dh_testdir;
-	$(SHELL) $(DROOT)/scripts/misc/kernelconfig $@ ports
 	rm -rf build
 
 printenv:
