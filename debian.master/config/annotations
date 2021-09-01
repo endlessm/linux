@@ -11250,6 +11250,7 @@ CONFIG_BPF_UNPRIV_DEFAULT_OFF                   policy<{'amd64': 'y', 'arm64': '
 CONFIG_BPF_JIT                                  policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 's390x': 'y'}>
 #
 CONFIG_BPF_JIT_ALWAYS_ON                        flag<REVIEW>
+CONFIG_BPF_UNPRIV_DEFAULT_OFF                   mark<ENFORCED> note<security reason>
 
 # Menu: General setup >> BPF subsystem >> Preload BPF file system with kernel specific program and map iterators
 CONFIG_BPF_PRELOAD                              policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'ppc64el': 'n', 's390x': 'n'}>
