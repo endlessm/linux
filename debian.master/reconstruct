@@ -60,5 +60,6 @@ chmod +x 'debian/tests-build/check-aliases'
 chmod +x 'debian/tests/rebuild'
 chmod +x 'debian/tests/ubuntu-regression-suite'
 chmod +x 'scripts/kmsg-doc'
+chmod +x 'update-dkms-versions'
 chmod +x 'update-version-dkms'
 exit 0
