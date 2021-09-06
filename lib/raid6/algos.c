@@ -152,6 +152,10 @@ static inline const struct raid6_calls *raid6_choose_gen(
 
 	for (bestgenperf = 0, bestxorperf = 0, best = NULL, algo = raid6_algos; *algo; algo++) {
 		if (!best || (*algo)->prefer >= best->prefer) {
+			/* 2 ^ (RAID6_TIME_JIFFIES_LG2 - 0.5) */
+			const unsigned long raid6_time_jiffies =
+				((1 << RAID6_TIME_JIFFIES_LG2) * 181) >> 8;
+
 			if ((*algo)->valid && !(*algo)->valid())
 				continue;
 
@@ -167,7 +171,7 @@ static inline const struct raid6_calls *raid6_choose_gen(
 			while ((j1 = jiffies) == j0)
 				cpu_relax();
 			while (time_before(jiffies,
-					    j1 + (1<<RAID6_TIME_JIFFIES_LG2))) {
+					    j1 + raid6_time_jiffies)) {
 				(*algo)->gen_syndrome(disks, PAGE_SIZE, *dptrs);
 				perf++;
 			}
@@ -178,8 +182,8 @@ static inline const struct raid6_calls *raid6_choose_gen(
 				best = *algo;
 			}
 			pr_info("raid6: %-8s gen() %5ld MB/s\n", (*algo)->name,
-				(perf * HZ * (disks-2)) >>
-				(20 - PAGE_SHIFT + RAID6_TIME_JIFFIES_LG2));
+				(((perf * HZ * (disks-2)) >>
+				 (20 - 16 + RAID6_TIME_JIFFIES_LG2)) * 1448) >> 10);
 
 			if (!(*algo)->xor_syndrome)
 				continue;
@@ -191,7 +195,7 @@ static inline const struct raid6_calls *raid6_choose_gen(
 			while ((j1 = jiffies) == j0)
 				cpu_relax();
 			while (time_before(jiffies,
-					    j1 + (1<<RAID6_TIME_JIFFIES_LG2))) {
+					    j1 + raid6_time_jiffies)) {
 				(*algo)->xor_syndrome(disks, start, stop,
 						      PAGE_SIZE, *dptrs);
 				perf++;
@@ -202,8 +206,8 @@ static inline const struct raid6_calls *raid6_choose_gen(
 				bestxorperf = perf;
 
 			pr_info("raid6: %-8s xor() %5ld MB/s\n", (*algo)->name,
-				(perf * HZ * (disks-2)) >>
-				(20 - PAGE_SHIFT + RAID6_TIME_JIFFIES_LG2 + 1));
+				(((perf * HZ * (disks-2)) >>
+				 (20 - 16 + RAID6_TIME_JIFFIES_LG2 + 1)) * 1448) >> 10);
 		}
 	}
 
@@ -215,8 +219,8 @@ static inline const struct raid6_calls *raid6_choose_gen(
 				(20 - PAGE_SHIFT+RAID6_TIME_JIFFIES_LG2));
 			if (best->xor_syndrome)
 				pr_info("raid6: .... xor() %ld MB/s, rmw enabled\n",
-					(bestxorperf * HZ * (disks-2)) >>
-					(20 - PAGE_SHIFT + RAID6_TIME_JIFFIES_LG2 + 1));
+					(((bestxorperf * HZ * (disks-2)) >>
+					 (20 - 16 + RAID6_TIME_JIFFIES_LG2 + 1)) * 1448) >> 10);
 		} else
 			pr_info("raid6: skip pq benchmark and using algorithm %s\n",
 				best->name);
