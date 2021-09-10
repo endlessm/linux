@@ -519,9 +519,11 @@ CONFIG_UNISYS_VISORBUS                          policy<{'amd64': 'm'}>
 CONFIG_IDE                                      policy<{'amd64': 'n', 'armhf': 'n', 'ppc64el': 'n'}>
 
 # Menu: Device Drivers >> Accessibility support
-CONFIG_ACCESSIBILITY                            policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'ppc64el': 'n', 's390x': 'n'}>
+CONFIG_ACCESSIBILITY                            policy<{'amd64-generic': 'y', 'amd64-lowlatency': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 's390x': 'n'}>
+CONFIG_SPEAKUP                                  policy<{'amd64-generic': 'm', 'amd64-lowlatency': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 's390x': '-'}>
 #
-CONFIG_ACCESSIBILITY                            flag<REVIEW>
+CONFIG_ACCESSIBILITY                            mark<ENFORCED> note<LP: #1942459>
+CONFIG_SPEAKUP                                  mark<ENFORCED> note<LP: #1942459>
 
 # Menu: Device Drivers >> Accessibility support >> Speakup console speech
 
