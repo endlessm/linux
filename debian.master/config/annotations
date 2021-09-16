@@ -9462,19 +9462,19 @@ CONFIG_DVB_AV7110_OSD                           policy<{'amd64': 'y', 'arm64': '
 CONFIG_DVB_BUDGET_PATCH                         policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm'}>
 
 # Menu: Device Drivers >> Staging drivers >> Media staging drivers >> Enable support to Intel Atom ISP camera drivers
-CONFIG_INTEL_ATOMISP                            policy<{'amd64': 'y'}>
+CONFIG_INTEL_ATOMISP                            policy<{'amd64': 'n'}>
 
 # Menu: Device Drivers >> Staging drivers >> Media staging drivers >> Enable support to Intel Atom ISP camera drivers >> Intel Atom Image Signal Processor Driver
-CONFIG_VIDEO_ATOMISP                            policy<{'amd64': 'm'}>
-CONFIG_VIDEO_ATOMISP_ISP2401                    policy<{'amd64': 'n'}>
-CONFIG_VIDEO_ATOMISP_OV5693                     policy<{'amd64': 'm'}>
-CONFIG_VIDEO_ATOMISP_OV2722                     policy<{'amd64': 'm'}>
-CONFIG_VIDEO_ATOMISP_GC2235                     policy<{'amd64': 'm'}>
-CONFIG_VIDEO_ATOMISP_MSRLIST_HELPER             policy<{'amd64': 'm'}>
-CONFIG_VIDEO_ATOMISP_MT9M114                    policy<{'amd64': 'm'}>
-CONFIG_VIDEO_ATOMISP_GC0310                     policy<{'amd64': 'm'}>
-CONFIG_VIDEO_ATOMISP_OV2680                     policy<{'amd64': 'm'}>
-CONFIG_VIDEO_ATOMISP_LM3554                     policy<{'amd64': 'm'}>
+CONFIG_VIDEO_ATOMISP                            policy<{'amd64': '-'}>
+CONFIG_VIDEO_ATOMISP_ISP2401                    policy<{'amd64': '-'}>
+CONFIG_VIDEO_ATOMISP_OV5693                     policy<{'amd64': '-'}>
+CONFIG_VIDEO_ATOMISP_OV2722                     policy<{'amd64': '-'}>
+CONFIG_VIDEO_ATOMISP_GC2235                     policy<{'amd64': '-'}>
+CONFIG_VIDEO_ATOMISP_MSRLIST_HELPER             policy<{'amd64': '-'}>
+CONFIG_VIDEO_ATOMISP_MT9M114                    policy<{'amd64': '-'}>
+CONFIG_VIDEO_ATOMISP_GC0310                     policy<{'amd64': '-'}>
+CONFIG_VIDEO_ATOMISP_OV2680                     policy<{'amd64': '-'}>
+CONFIG_VIDEO_ATOMISP_LM3554                     policy<{'amd64': '-'}>
 
 # Menu: Device Drivers >> Staging drivers >> Media staging drivers >> Hantro VPU driver
 CONFIG_VIDEO_HANTRO                             policy<{'arm64': 'm', 'armhf': 'm'}>
