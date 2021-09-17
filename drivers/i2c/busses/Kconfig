@@ -1308,6 +1308,16 @@ config I2C_ICY
 	  If you have a 2019 edition board with an LTC2990 sensor at address
 	  0x4c, loading the module 'ltc2990' is sufficient to enable it.
 
+config I2C_LJCA
+	tristate "I2C functionality of INTEL La Jolla Cove Adapter"
+	depends on MFD_LJCA
+	help
+	  If you say yes to this option, I2C functionality support of INTEL
+	  La Jolla Cove Adapter (LJCA) will be included.
+
+	  This driver can also be built as a module.  If so, the module
+	  will be called i2c-ljca.
+
 config I2C_MLXCPLD
 	tristate "Mellanox I2C driver"
 	depends on X86_64 || COMPILE_TEST

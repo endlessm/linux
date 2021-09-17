@@ -46,4 +46,11 @@ config INTEL_MEI_TXE
 	  Supported SoCs:
 	  Intel Bay Trail
 
+config INTEL_MEI_VSC
+	tristate "Intel Vision Sensing Controller device with ME interface"
+	select INTEL_MEI
+	depends on X86 && SPI
+	help
+	  MEI over SPI for Intel Vision Sensing Controller device
+
 source "drivers/misc/mei/hdcp/Kconfig"
