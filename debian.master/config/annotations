@@ -11397,6 +11397,7 @@ CONFIG_DEBUG_FS_DISALLOW_MOUNT                  policy<{'amd64': 'n', 'arm64': '
 CONFIG_DEBUG_FS_ALLOW_NONE                      policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'ppc64el': 'n', 's390x': 'n'}>
 
 # Menu: Kernel hacking >> Generic Kernel Debugging Instruments >> KCSAN: dynamic data race detector
+CONFIG_KCSAN                                    policy<{'amd64': 'n', 'arm64': '-', 'armhf': '-', 'ppc64el': '-', 's390x': '-'}>
 
 # Menu: Kernel hacking >> Generic Kernel Debugging Instruments >> KGDB: kernel debugger
 CONFIG_KGDB                                     policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y'}>
