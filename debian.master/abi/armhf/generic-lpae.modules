@@ -10,7 +10,6 @@
 8250_dw
 8250_exar
 8250_men_mcb
-8250_omap
 8250_uniphier
 8255
 8255_pci
@@ -74,6 +73,7 @@ ad2s1200
 ad2s1210
 ad2s90
 ad5064
+ad5110
 ad525x_dpot
 ad525x_dpot-i2c
 ad525x_dpot-spi
@@ -362,6 +362,7 @@ apss-ipq-pll
 apss-ipq6018
 aptina-pll
 aqc111
+aquacomputer_d5next
 aquantia
 ar1021_i2c
 ar5523
@@ -391,6 +392,7 @@ arm_mhu_db
 arm_mhuv2
 arm_scpi
 arm_smc_wdt
+arm_smccc_trng
 armada
 armada-37xx-cpufreq
 armada-37xx-rwtm-mailbox
@@ -513,7 +515,6 @@ axp20x_adc
 axp20x_battery
 axp20x_usb_power
 axp288_adc
-axp288_fuel_gauge
 b2c2-flexcop
 b2c2-flexcop-pci
 b2c2-flexcop-usb
@@ -555,7 +556,6 @@ bcm_vk
 bcma
 bcmsysport
 bd6107
-bd70528_wdt
 bd71815-regulator
 bd71828-regulator
 bd718x7-regulator
@@ -622,7 +622,7 @@ bnx2fc
 bnx2i
 bnx2x
 bnxt_en
-bochs-drm
+bochs
 bonding
 bpa-rs600
 bpa10x
@@ -784,6 +784,8 @@ ci_hdrc_tegra
 ci_hdrc_usb2
 cicada
 cifs
+cifs_arc4
+cifs_md4
 cirrus
 cirrusfb
 clip
@@ -819,6 +821,7 @@ clk-spmi-pmic-div
 clk-twl6040
 clk-versaclock5
 clk-wm831x
+clk-xlnx-clock-wizard
 cls_basic
 cls_bpf
 cls_cgroup
@@ -909,6 +912,7 @@ cros_ec_spi
 cros_ec_sysfs
 cros_ec_typec
 cros_ec_vbc
+cros_peripheral_charger
 cros_usbpd-charger
 cros_usbpd_logger
 cros_usbpd_notify
@@ -1072,6 +1076,7 @@ digi_acceleport
 digicolor-usart
 diskonchip
 dispcc-sc7180
+dispcc-sc7280
 dispcc-sdm845
 dispcc-sm8250
 display-connector
@@ -1088,7 +1093,6 @@ dm-cache-smq
 dm-clone
 dm-crypt
 dm-delay
-dm-ebs
 dm-era
 dm-flakey
 dm-historical-service-time
@@ -1140,6 +1144,7 @@ dps920ab
 drbd
 drivetemp
 drm
+drm_dp_aux_bus
 drm_kms_helper
 drm_mipi_dbi
 drm_ttm_helper
@@ -1600,6 +1605,7 @@ gcc-mdm9615
 gcc-msm8660
 gcc-msm8916
 gcc-msm8939
+gcc-msm8953
 gcc-msm8960
 gcc-msm8974
 gcc-msm8994
@@ -1612,7 +1618,9 @@ gcc-sc8180x
 gcc-sdm660
 gcc-sdm845
 gcc-sdx55
+gcc-sm6115
 gcc-sm6125
+gcc-sm6350
 gcc-sm8150
 gcc-sm8250
 gcc-sm8350
@@ -1706,6 +1714,7 @@ gpio-pisosr
 gpio-rcar
 gpio-rdc321x
 gpio-regulator
+gpio-rockchip
 gpio-sama5d2-piobu
 gpio-siox
 gpio-syscon
@@ -1717,6 +1726,7 @@ gpio-ucb1400
 gpio-uniphier
 gpio-vibra
 gpio-viperboard
+gpio-virtio
 gpio-wcd934x
 gpio-wm831x
 gpio-wm8350
@@ -1731,6 +1741,7 @@ gpio_wdt
 gpu-sched
 gpucc-msm8998
 gpucc-sc7180
+gpucc-sc7280
 gpucc-sdm660
 gpucc-sdm845
 gpucc-sm8150
@@ -1851,6 +1862,7 @@ hi6421-pmic-core
 hi6421-regulator
 hi6421-spmi-pmic
 hi6421v530-regulator
+hi6421v600-irq
 hi6421v600-regulator
 hi655x-pmic
 hi655x-regulator
@@ -2107,6 +2119,7 @@ i2c-versatile
 i2c-via
 i2c-viapro
 i2c-viperboard
+i2c-virtio
 i2c-xiic
 i3c
 i3c-master-cdns
@@ -2199,7 +2212,9 @@ imx274
 imx290
 imx319
 imx334
+imx335
 imx355
+imx412
 imx6ul_tsc
 imxdrm
 ina209
@@ -2470,6 +2485,7 @@ ks7010
 ks8842
 ks8851
 ks8851_mll
+ksmbd
 ksz8795
 ksz8795_spi
 ksz884x
@@ -2636,6 +2652,7 @@ libiscsi
 libiscsi_tcp
 libpoly1305
 libsas
+libsm4
 lightning
 lima
 lineage-pem
@@ -2645,6 +2662,7 @@ lis3lv02d
 lis3lv02d_i2c
 lis3lv02d_spi
 liteuart
+litex_liteeth
 litex_soc_ctrl
 lkkbd
 ll_temac
@@ -2679,6 +2697,7 @@ lm93
 lm95234
 lm95241
 lm95245
+lmh
 lmp91000
 lms283gf05
 lms501kf03
@@ -2953,6 +2972,7 @@ mcs5000_ts
 mcs7830
 mcs_touchkey
 mct_u232
+mctp
 md-cluster
 md4
 mdc800
@@ -2978,6 +2998,7 @@ me4000
 me_daq
 mediatek
 mediatek-cpufreq
+mediatek-cpufreq-hw
 mediatek-drm
 mediatek-drm-hdmi
 mediatek-ge
@@ -3000,6 +3021,7 @@ meson-drm
 meson-gx-mmc
 meson-gxl
 meson-ir
+meson-ir-tx
 meson-mx-sdhc
 meson-mx-sdio
 meson-rng
@@ -3017,6 +3039,7 @@ mhi
 mhi_net
 mhi_pci_generic
 mhi_wwan_ctrl
+mhi_wwan_mbim
 mi0283qt
 michael_mic
 micrel
@@ -3069,6 +3092,7 @@ mmc_spi
 mmcc-apq8084
 mmcc-msm8960
 mmcc-msm8974
+mmcc-msm8994
 mmcc-msm8996
 mmcc-msm8998
 mmcc-sdm660
@@ -3158,6 +3182,7 @@ mt6359-regulator
 mt6360-adc
 mt6360-core
 mt6360-regulator
+mt6360_charger
 mt6380-regulator
 mt6397
 mt6397-regulator
@@ -3188,6 +3213,7 @@ mt7921e
 mt8183-da7219-max98357
 mt8183-mt6358-ts3a227-max98357
 mt8192-mt6359-rt1015-rt5682
+mt8195-mt6359-rt1019-rt5682
 mt9m001
 mt9m032
 mt9m111
@@ -3253,6 +3279,7 @@ mxb
 mxc4005
 mxc6255
 mxic_nand
+mxl-gpy
 mxl111sf-demod
 mxl111sf-tuner
 mxl301rf
@@ -3505,6 +3532,7 @@ ntb_tool
 ntb_transport
 ntc_thermistor
 ntfs
+ntfs3
 ntxec
 null_blk
 nvidiafb
@@ -3515,6 +3543,7 @@ nvme-fc
 nvme-loop
 nvme-rdma
 nvme-tcp
+nvmem-nintendo-otp
 nvmem-rave-sp-eeprom
 nvmem-reboot-mode
 nvmem-rmem
@@ -3614,6 +3643,7 @@ ov772x
 ov7740
 ov8856
 ov8865
+ov9282
 ov9640
 ov9650
 overlay
@@ -3642,7 +3672,9 @@ panel-elida-kd35t133
 panel-feixin-k101-im2ba02
 panel-feiyang-fy07024di26a30d
 panel-ilitek-ili9322
+panel-ilitek-ili9341
 panel-ilitek-ili9881c
+panel-innolux-ej030na
 panel-innolux-p079zca
 panel-jdi-lt070me05000
 panel-khadas-ts050
@@ -3665,6 +3697,8 @@ panel-raspberrypi-touchscreen
 panel-raydium-rm67191
 panel-raydium-rm68200
 panel-ronbo-rb070d30
+panel-samsung-atna33xc20
+panel-samsung-db7430
 panel-samsung-ld9040
 panel-samsung-s6d16d0
 panel-samsung-s6e3ha2
@@ -3691,6 +3725,7 @@ panel-tpo-td043mtea1
 panel-tpo-tpg110
 panel-truly-nt35597
 panel-visionox-rm69299
+panel-widechips-ws2401
 panel-xinpeng-xpp055c272
 panfrost
 parade-ps8622
@@ -3746,7 +3781,6 @@ pata_sl82c105
 pata_triflex
 pata_via
 pbias-regulator
-pblk
 pc300too
 pc87360
 pc87427
@@ -3822,6 +3856,7 @@ phy-cadence-torrent
 phy-can-transceiver
 phy-cpcap-usb
 phy-dm816x-usb
+phy-exynos-ufs
 phy-exynos-usb2
 phy-exynos5-usbdrd
 phy-fsl-imx8-mipi-dphy
@@ -3875,7 +3910,6 @@ phy-rockchip-inno-usb2
 phy-rockchip-pcie
 phy-rockchip-typec
 phy-rockchip-usb
-phy-samsung-ufs
 phy-tahvo
 phy-ti-pipe3
 phy-tusb1210
@@ -3906,6 +3940,7 @@ pinctrl-max77620
 pinctrl-mcp23s08
 pinctrl-mcp23s08_i2c
 pinctrl-mcp23s08_spi
+pinctrl-mdm9607
 pinctrl-mdm9615
 pinctrl-msm8226
 pinctrl-msm8660
@@ -3925,6 +3960,7 @@ pinctrl-sc8180x
 pinctrl-sdm660
 pinctrl-sdm845
 pinctrl-sdx55
+pinctrl-sm6115
 pinctrl-sm6125
 pinctrl-sm8150
 pinctrl-sm8250
@@ -4147,6 +4183,7 @@ qnoc-msm8974
 qnoc-qcs404
 qnoc-sc7180
 qnoc-sc7280
+qnoc-sc8180x
 qnoc-sdm660
 qnoc-sdm845
 qnoc-sdx55
@@ -4484,6 +4521,8 @@ rpr0521
 rsi_91x
 rsi_sdio
 rsi_usb
+rsmu-i2c
+rsmu-spi
 rsxx
 rt2400pci
 rt2500pci
@@ -4645,6 +4684,8 @@ rtllib_crypt_tkip
 rtllib_crypt_wep
 rtlwifi
 rtmv20-regulator
+rtq2134-regulator
+rtq6752-regulator
 rtrs-client
 rtrs-core
 rtrs-server
@@ -4736,6 +4777,7 @@ sata_via
 sata_vsc
 savagefb
 sbp_target
+sbrmi
 sbs-battery
 sbs-charger
 sbs-manager
@@ -4832,6 +4874,7 @@ sfc-falcon
 sfp
 sgi_w1
 sgp30
+sgp40
 sh-sci
 sh_eth
 sh_mmcif
@@ -5136,6 +5179,7 @@ snd-soc-fsl-xcvr
 snd-soc-gtm601
 snd-soc-hdmi-codec
 snd-soc-i2s
+snd-soc-ics43432
 snd-soc-idma
 snd-soc-imx-audmux
 snd-soc-inno-rk3036
@@ -5193,6 +5237,7 @@ snd-soc-mt6660
 snd-soc-mt6797-afe
 snd-soc-mt8183-afe
 snd-soc-mt8192-afe
+snd-soc-mt8195-afe
 snd-soc-mtk-common
 snd-soc-nau8315
 snd-soc-nau8540
@@ -5258,6 +5303,7 @@ snd-soc-s3c-dma
 snd-soc-samsung-spdif
 snd-soc-sc7180
 snd-soc-sdm845
+snd-soc-sdw-mockup
 snd-soc-sgtl5000
 snd-soc-si476x
 snd-soc-sigmadsp
@@ -5442,6 +5488,7 @@ spi-pxa2xx-platform
 spi-qcom-qspi
 spi-qup
 spi-rockchip
+spi-rockchip-sfc
 spi-rpc-if
 spi-rspi
 spi-s3c64xx
@@ -5597,7 +5644,6 @@ sysfillrect
 sysimgblt
 sysv
 t5403
-tag_8021q
 tag_ar9331
 tag_brcm
 tag_dsa
@@ -6053,6 +6099,7 @@ vdpa
 vdpa_sim
 vdpa_sim_blk
 vdpa_sim_net
+vduse
 veml6030
 veml6070
 ves1820
@@ -6066,6 +6113,7 @@ vf610_dac
 vfio
 vfio-amba
 vfio-pci
+vfio-pci-core
 vfio-platform
 vfio-platform-amdxgbe
 vfio-platform-base
@@ -6100,6 +6148,7 @@ videobuf2-memops
 videobuf2-v4l2
 videobuf2-vmalloc
 videocc-sc7180
+videocc-sc7280
 videocc-sdm845
 videocc-sm8150
 videocc-sm8250

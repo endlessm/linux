@@ -74,7 +74,7 @@ blake2s_generic
 blocklayoutdriver
 blowfish_common
 blowfish_generic
-bochs-drm
+bochs
 bonding
 bpfilter
 br_netfilter
@@ -100,6 +100,8 @@ chacha_generic
 chsc_sch
 cicada
 cifs
+cifs_arc4
+cifs_md4
 cls_basic
 cls_bpf
 cls_cgroup
@@ -277,7 +279,6 @@ ib_srp
 ib_srpt
 ib_umad
 ib_uverbs
-icp
 icplus
 ifb
 ife
@@ -378,6 +379,7 @@ kcm
 keywrap
 kheaders
 kmem
+ksmbd
 kyber-iosched
 l2tp_core
 l2tp_debugfs
@@ -386,7 +388,6 @@ l2tp_ip
 l2tp_ip6
 l2tp_netlink
 lcs
-libarc4
 libblake2s
 libblake2s-generic
 libceph
@@ -403,6 +404,7 @@ libiscsi_tcp
 libphy
 libpoly1305
 libsas
+libsm4
 linear
 llc
 lockd
@@ -609,6 +611,7 @@ nls_utf8
 notifier-error-inject
 nsh
 ntfs
+ntfs3
 null_blk
 nvme
 nvme-core
@@ -636,7 +639,6 @@ overlay
 p8022
 paes_s390
 parman
-pblk
 pcbc
 pci-pf-stub
 pci-stub
@@ -761,7 +763,6 @@ smc_diag
 smsc
 smsgiucv_app
 softdog
-spl
 st
 st_drv
 ste10Xp
@@ -840,6 +841,7 @@ unix_diag
 veth
 vfio
 vfio-pci
+vfio-pci-core
 vfio_ap
 vfio_ccw
 vfio_iommu_type1
@@ -961,19 +963,12 @@ xt_time
 xt_u32
 xxhash_generic
 z3fold
-zavl
-zcommon
 zcrypt
 zcrypt_cex2a
 zcrypt_cex2c
 zcrypt_cex4
 zfcp
-zfs
-zlua
-znvpair
 zonefs
 zram
 zstd
 zstd_compress
-zunicode
-zzstd
