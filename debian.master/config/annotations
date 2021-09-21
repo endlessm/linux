@@ -12185,7 +12185,6 @@ CONFIG_TRANSPARENT_HUGEPAGE_MADVISE             policy<{'amd64': 'y', 'arm64': '
 # Menu: Memory setup >> Architecture: s390
 CONFIG_MAX_PHYSMEM_BITS                         policy<{'s390x': '46'}>
 CONFIG_PACK_STACK                               policy<{'s390x': 'y'}>
-CONFIG_WARN_DYNAMIC_STACK                       policy<{'s390x': 'n'}>
 
 # Menu: Networking support
 CONFIG_NET                                      policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 's390x': 'y'}>
