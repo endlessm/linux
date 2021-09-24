@@ -115,8 +115,8 @@ fi
 
 # Determine our series and mainline version from our own changelog.
 our_series=$(LC_ALL=C dpkg-parsechangelog -l"$DEBIAN/changelog" -SDistribution)
-if [ "$series" = "UNRELEASED" ]; then
-	our_series=$(LC_ALL=C dpkg-parsechangelog -l"$DEBIAN/changelog" -c1 -SDistribution)
+if [ "$our_series" = "UNRELEASED" ]; then
+	our_series=$(LC_ALL=C dpkg-parsechangelog -l"$DEBIAN/changelog" -o1 -c1 -SDistribution)
 fi
 our_mainline=$(LC_ALL=C dpkg-parsechangelog -l"$DEBIAN/changelog" -SVersion | sed -e 's/-.*//')
 
