@@ -5763,7 +5763,6 @@ CONFIG_NVMEM_IMX_IIM                            policy<{'arm64': 'm', 'armhf-gen
 CONFIG_NVMEM_IMX_OCOTP                          policy<{'arm64': 'm', 'armhf-generic': 'm'}>
 CONFIG_NVMEM_IMX_OCOTP_SCU                      policy<{'arm64': 'm', 'armhf-generic': 'm'}>
 CONFIG_MTK_EFUSE                                policy<{'arm64': 'n', 'armhf': 'n'}>
-CONFIG_NVMEM_NINTENDO_OTP                       policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm'}>
 CONFIG_QCOM_QFPROM                              policy<{'arm64': 'm', 'armhf': 'm'}>
 CONFIG_NVMEM_SPMI_SDAM                          policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm'}>
 CONFIG_ROCKCHIP_EFUSE                           policy<{'arm64': 'm', 'armhf': 'm'}>
