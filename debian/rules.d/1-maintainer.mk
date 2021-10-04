@@ -125,6 +125,9 @@ autoreconstruct:
 	fi
 
 finalchecks: debian/control
+ifeq ($(do_fips_checks),true)
+	$(DROOT)/scripts/misc/fips-checks
+endif
 	$(DROOT)/scripts/misc/final-checks "$(DEBIAN)" "$(prev_fullver)"
 
 diffupstream:
