@@ -4504,6 +4504,7 @@ snd-hda-codec-ca0132
 snd-hda-codec-cirrus
 snd-hda-codec-cmedia
 snd-hda-codec-conexant
+snd-hda-codec-cs8409
 snd-hda-codec-generic
 snd-hda-codec-hdmi
 snd-hda-codec-idt
@@ -4926,6 +4927,18 @@ spaceball
 spaceorb
 sparse-keymap
 spcp8x5
+speakup
+speakup_acntsa
+speakup_apollo
+speakup_audptr
+speakup_bns
+speakup_decext
+speakup_dectlk
+speakup_dummy
+speakup_ltlk
+speakup_soft
+speakup_spkout
+speakup_txprt
 spectrum_cs
 speedfax
 speedstep-lib
