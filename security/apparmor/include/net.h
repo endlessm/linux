@@ -79,6 +79,8 @@ static inline struct aa_sk_ctx *aa_sock(const struct sock *sk)
 	DEFINE_AUDIT_NET(NAME, OP, CRED, SK, (SK)->sk_family, (SK)->sk_type, \
 			 (SK)->sk_protocol)
 
+
+
 /* struct aa_net - network confinement data
  * @allow: basic network families permissions
  * @audit: which network permissions to force audit
@@ -109,19 +111,18 @@ aa_state_t aa_match_to_prot(struct aa_policydb *policy, aa_state_t state,
 			    u32 request, u16 af, int type, int protocol,
 			    struct aa_perms **p, const char **info);
 void audit_net_cb(struct audit_buffer *ab, void *va);
-int aa_profile_af_perm(struct aa_profile *profile,
-		       struct apparmor_audit_data *ad,
-		       u32 request, u16 family, int type, int protocol);
+int aa_profile_af_compat_perm(struct aa_profile *profile,
+			      struct apparmor_audit_data *ad,
+			      u32 request, u16 family, int type);
 int aa_af_perm(const struct cred *subj_cred, struct aa_label *label,
 	       const char *op, u32 request, u16 family,
 	       int type, int protocol);
 static inline int aa_profile_af_sk_perm(struct aa_profile *profile,
 					struct apparmor_audit_data *ad,
-					u32 request,
-					const struct sock *sk)
+					u32 request, const struct sock *sk)
 {
-	return aa_profile_af_perm(profile, ad, request, sk->sk_family,
-				  sk->sk_type, sk->sk_protocol);
+	return aa_profile_af_compat_perm(profile, ad, request, sk->sk_family,
+					 sk->sk_type);
 }
 int aa_sk_perm(const char *op, u32 request, const struct sock *sk);
 int aa_label_sk_perm(const struct cred *subj_cred, struct aa_label *label,
@@ -130,7 +131,7 @@ int aa_sock_file_perm(const struct cred *subj_cred, struct aa_label *label,
 		      const char *op, u32 request,
 		      struct file *file);
 
-int apparmor_secmark_check(struct aa_label *label, char *op, u32 request,
+int apparmor_secmark_check(struct aa_label *label, const char *op, u32 request,
 			   u32 secid, const struct sock *sk);
 
 #endif /* __AA_NET_H */

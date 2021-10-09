@@ -2501,7 +2501,7 @@ static int __init apparmor_nf_ip_init(void)
 
 	return 0;
 }
-#endif
+#endif /* defined(CONFIG_NETFILTER) && defined(CONFIG_NETWORK_SECMARK) */
 
 static const char nulldfa_src[] __aligned(8) = {
 	#include "nulldfa.in"

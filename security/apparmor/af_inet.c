@@ -226,6 +226,159 @@ static int bind_map_addr(const struct sock *sk, struct sockaddr *addr,
 	return 0;
 }
 
+/* only continue match if
+ *   insufficient current perms at current state
+ *   indicates there are more perms in later state
+ * Returns: perms struct if early match
+ */
+static struct aa_perms *early_match(struct aa_policydb *policy,
+				    aa_state_t state, u32 request)
+{
+	struct aa_perms *p;
+
+	p = aa_lookup_perms(policy, state);
+	if (((p->allow & request) != request) && (p->allow & AA_CONT_MATCH))
+		return NULL;
+	return p;
+}
+
+static int do_perms(struct aa_profile *profile, aa_state_t state, u32 request,
+		    const struct aa_perms *p, struct apparmor_audit_data *ad)
+{
+	struct aa_ruleset *rules = profile->label.rules[0];
+	struct aa_perms perms;
+
+	AA_BUG(!profile);
+
+	if (state || !p)
+		p = aa_lookup_perms(rules->policy, state);
+	perms = *p;
+	aa_apply_modes_to_perms(profile, &perms);
+	return aa_check_perms(profile, &perms, request, ad,
+			      audit_net_cb);
+}
+
+static aa_state_t match_addr(const struct aa_dfa *dfa, aa_state_t state,
+			     struct match_addr *maddr)
+{
+	char l = (char) maddr->addrtype;
+
+	state = aa_dfa_match_len(dfa, state, &l, 1);
+	state = aa_dfa_match_len(dfa, state, (char *)&maddr->port, 2);
+	if (maddr->len == 0 && !maddr->addrp) {
+		l = 0;
+	} else if (maddr->len == 4) {
+		l = 1;
+	} else if (maddr->len == 16) {
+		l = 2;
+	} else {
+		AA_BUG("address length unsupported");
+		return 0;
+	}
+	state = aa_dfa_match_len(dfa, state, &l, 1);
+	if (maddr->addrp)
+		state = aa_dfa_match_len(dfa, state, maddr->addrp, maddr->len);
+	/* null transition between addr and label */
+	state = aa_dfa_null_transition(dfa, state);
+
+	return state;
+}
+
+
+static aa_state_t match_addr_info(const struct aa_dfa *dfa, aa_state_t state,
+				  struct match_addr *maddr,
+				  const char **info)
+{
+	state = match_addr(dfa, state, maddr);
+	if (!state) {
+		*info = maddr->addrtype == ADDR_REMOTE ?
+			"failed remote addr match" :
+			"failed local addr match";
+	}
+
+	return state;
+}
+
+static aa_state_t match_addr_label(struct aa_policydb *policy, aa_state_t state,
+				   u32 request, struct match_addr *maddr,
+				   struct aa_perms **p, const char **info)
+{
+	state = match_addr_info(policy->dfa, state, maddr, info);
+	*p = early_match(policy, state, request);
+	if (!*p) {
+		/* TODO: actual label match: */
+		if (!state) {
+			*info = maddr->addrtype == ADDR_REMOTE ?
+				"failed remote label match" :
+				"failed local label match";
+		}
+
+		/* null transition after label match */
+		state = aa_dfa_null_transition(policy->dfa, state);
+	}
+
+	return state;
+}
+
+
+static aa_state_t match_to_sk(struct aa_policydb *policy, aa_state_t state,
+			      u32 request, const struct sock *sk,
+			      struct match_addr *maddr,
+			      struct aa_perms **p, const char **info)
+{
+	*p = NULL;
+	state = aa_match_to_prot(policy, state, request, sk->sk_family,
+				 sk->sk_type, sk->sk_protocol, p, info);
+	if (*p || !state)
+		return state;
+	return match_addr_label(policy, state, request, maddr, p, info);
+}
+
+enum cmd_type {
+	CMD_ADDR = 1,
+	CMD_LISTEN = 2,
+	CMD_OPT = 4,
+};
+
+static inline aa_state_t match_to_cmd(struct aa_policydb *policy,
+				      aa_state_t state, u32 request,
+				      const struct sock *sk, enum cmd_type cmd,
+				      struct match_addr *maddr,
+				      struct aa_perms **p, const char **info)
+{
+	state = match_to_sk(policy, state, request, sk, maddr, p, info);
+	if (!*p && state) {
+		char c = (char) cmd;
+		state = aa_dfa_match_len(policy->dfa, state, &c, 1);
+		if (!state)
+			*info = "failed cmd selection match";
+	}
+
+	return state;
+}
+
+/*
+static int match_label(struct aa_profile *profile, struct aa_profile *peer,
+			      aa_state_t state, u32 request,
+			      struct apparmor_audit_data *ad)
+{
+	AA_BUG(!profile);
+	AA_BUG(!peer);
+
+	ad->peer = &peer->label;
+
+	if (state) {
+		state = aa_dfa_match(profile->policy.dfa, state,
+				     peer->base.hname);
+		if (!state)
+			ad->info = "failed peer label match";
+	}
+	return do_perms(profile, state, request, ad);
+}
+*/
+
+/* ---------------------------------------------------------------------- */
+
 
 static inline int profile_sk_perm(struct aa_profile *profile, u32 request,
 				  const struct sock *sk,
@@ -234,6 +387,17 @@ static inline int profile_sk_perm(struct aa_profile *profile, u32 request,
 {
 	AA_BUG(!profile);
 	AA_BUG(!sk);
+
+	struct aa_ruleset *rules = profile->label.rules[0];
+	struct aa_perms *p = NULL;
+	aa_state_t state;
+
+	state = RULE_MEDIATES_NET(rules);
+	if (state) {
+		state = match_to_sk(rules->policy, state, request, sk,
+				    maddr, &p, &ad->info);
+		return do_perms(profile, state, request, p, ad);
+	}
 
 	return aa_profile_af_sk_perm(profile, ad, request, sk);
 }
@@ -245,8 +409,19 @@ static int profile_create_perm(struct aa_profile *profile, int family,
 {
 	AA_BUG(!profile);
 
-	return aa_profile_af_perm(profile, ad, AA_MAY_CREATE, family, type,
-				  protocol);
+	struct aa_ruleset *rules = profile->label.rules[0];
+	struct aa_perms *p = NULL;
+	aa_state_t state;
+
+	state = RULE_MEDIATES_NET(rules);
+	if (state) {
+		state = aa_match_to_prot(rules->policy, state, AA_MAY_CREATE,
+					 family, type, protocol, &p, &ad->info);
+		return do_perms(profile, state, AA_MAY_CREATE, p, ad);
+	}
+
+	return aa_profile_af_compat_perm(profile, ad, AA_MAY_CREATE, family,
+					 type);
 }
 
 
@@ -264,7 +439,22 @@ static int profile_remote_perm(struct aa_profile *profile,
 	AA_BUG(sk->sk_family != PF_INET && sk->sk_family != PF_INET6,
 	       "family=%d", sk->sk_family);
 
-	return aa_profile_af_sk_perm(profile, ad, request, sk);
+	struct aa_ruleset *rules = profile->label.rules[0];
+	struct aa_perms *p = NULL;
+	aa_state_t state;
+
+	state = RULE_MEDIATES_SK(rules, sk);
+	if (!state)
+		return aa_profile_af_sk_perm(profile, ad, request, sk);
+
+	/* TODO: deal with sa_family vs. sk_family */
+	state = match_to_cmd(rules->policy, state, request, sk, CMD_ADDR,
+			     raddr, &p, &ad->info);
+	if (state && !p)
+		/* check if perm is restricted to a pairing */
+		state = match_addr_label(rules->policy, state, request,
+					 laddr, &p, &ad->info);
+	return do_perms(profile, state, request, p, ad);
 }
 
 static int profile_bind_perm(struct aa_profile *profile,
@@ -272,8 +462,35 @@ static int profile_bind_perm(struct aa_profile *profile,
 			     struct match_addr *maddr,
 			     struct apparmor_audit_data *ad)
 {
-	return aa_profile_af_sk_perm(profile, ad, AA_MAY_BIND, sk);
+	AA_BUG(!profile);
+	AA_BUG(!sk);
+	AA_BUG(!maddr);
+	AA_BUG(sk->sk_family != PF_INET && sk->sk_family != PF_INET6,
+	       "family=%d", sk->sk_family);
 
+	struct aa_ruleset *rules = profile->label.rules[0];
+	struct aa_perms *p = NULL;
+	aa_state_t state;
+	unsigned short sport;
+
+	state = RULE_MEDIATES_SK(rules, sk);
+	if (!state)
+		return aa_profile_af_sk_perm(profile, ad, AA_MAY_BIND, sk);
+
+	/*
+	 * its possibly to have sk->sk_family == PF_INET6 and
+	 * addr->sa_family == AF_INET
+	 */
+	sport = ntohs(maddr->port);
+	if (sport) {
+		if (inet_port_requires_bind_service(sock_net(sk), sport)) {
+			/* cap NET_BIND_SERVICE will get raised */
+			maddr->addrtype = ADDR_LOCAL_PRIV;
+		}
+	}
+	state = match_to_sk(rules->policy, state, AA_MAY_BIND, sk,
+			    maddr, &p, &ad->info);
+	return do_perms(profile, state, AA_MAY_BIND, p, ad);
 }
 
 static int profile_listen_perm(struct aa_profile *profile,
@@ -287,14 +504,34 @@ static int profile_listen_perm(struct aa_profile *profile,
 	AA_BUG(sk->sk_family != PF_INET && sk->sk_family != PF_INET6,
 	       "family=%d", sk->sk_family);
 
+	struct aa_ruleset *rules = profile->label.rules[0];
+	struct aa_perms *p = NULL;
+	aa_state_t state;
+
+
+	state = RULE_MEDIATES_SK(rules, sk);
+	if (state) {
+		__be16 b = htons(backlog);
+
+		state = match_to_cmd(rules->policy, state, AA_MAY_LISTEN, sk,
+				     CMD_LISTEN, maddr, &p, &ad->info);
+		if (state && !p) {
+			state = aa_dfa_match_len(rules->policy->dfa, state,
+						 (char *) &b, 2);
+			if (!state)
+				ad->info = "failed listen backlog match";
+		}
+		return do_perms(profile, state, AA_MAY_LISTEN, p, ad);
+	}
+
 	return aa_profile_af_sk_perm(profile, ad, AA_MAY_LISTEN, sk);
 }
 
-static inline int profile_accept_perm(struct aa_profile *profile,
-				      const struct sock *sk,
-				      struct match_addr *maddr,
-				      const struct sock *newsk,
-				      struct apparmor_audit_data *ad)
+static int profile_accept_perm(struct aa_profile *profile,
+			       const struct sock *sk,
+			       struct match_addr *maddr,
+			       const struct sock *newsk,
+			       struct apparmor_audit_data *ad)
 {
 	AA_BUG(!profile);
 	AA_BUG(!sk);
@@ -302,6 +539,17 @@ static inline int profile_accept_perm(struct aa_profile *profile,
 	AA_BUG(!maddr);
 	AA_BUG(sk->sk_family != PF_INET && sk->sk_family != PF_INET6,
 	       "family=%d", sk->sk_family);
+
+	struct aa_ruleset *rules = profile->label.rules[0];
+	struct aa_perms *p = NULL;
+	aa_state_t state;
+
+	state = RULE_MEDIATES_SK(rules, sk);
+	if (state) {
+		state = match_to_sk(rules->policy, state, AA_MAY_ACCEPT, sk,
+				    maddr, &p, &ad->info);
+		return do_perms(profile, state, AA_MAY_ACCEPT, p, ad);
+	}
 
 	return aa_profile_af_sk_perm(profile, ad, AA_MAY_ACCEPT, sk);
 }
@@ -317,6 +565,28 @@ static int profile_opt_perm(struct aa_profile *profile, u32 request,
 	AA_BUG(!maddr);
 	AA_BUG(sk->sk_family != PF_INET && sk->sk_family != PF_INET6,
 	       "family=%d", sk->sk_family);
+
+	struct aa_ruleset *rules = profile->label.rules[0];
+	struct aa_perms *p = NULL;
+	aa_state_t state;
+
+	state = RULE_MEDIATES_SK(rules, sk);
+	if (state) {
+		__be16 l = htons(level);
+		__be16 n = htons(optname);
+
+		state = match_to_cmd(rules->policy, state, request, sk,
+				     CMD_OPT, maddr, &p, &ad->info);
+		if (state && !p) {
+			state = aa_dfa_match_len(rules->policy->dfa, state,
+						 (char *) &l, 2);
+			state = aa_dfa_match_len(rules->policy->dfa, state,
+						 (char *) &n, 2);
+			if (!state)
+				ad->info = "failed sockopt match";
+		}
+		return do_perms(profile, state, request, p, ad);
+	}
 
 	return aa_profile_af_sk_perm(profile, ad, request, sk);
 }
@@ -400,6 +670,7 @@ int aa_inet_create_perm(struct aa_label *label, int family, int type,
 	error = fn_for_each(label, profile,
 			    profile_create_perm(profile, family, type,
 						protocol, &ad));
+
 
 	return error;
 }
