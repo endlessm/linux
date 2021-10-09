@@ -9,6 +9,7 @@
  */
 
 #include "include/af_unix.h"
+#include "include/af_inet.h"
 #include "include/apparmor.h"
 #include "include/audit.h"
 #include "include/cred.h"
@@ -22,6 +23,7 @@
 
 struct aa_sfs_entry aa_sfs_entry_network[] = {
 	AA_SFS_FILE_STRING("af_mask",	AA_SFS_AF_MASK),
+	AA_SFS_FILE_BOOLEAN("af_inet",	1),
 	{ }
 };
 
@@ -136,12 +138,12 @@ void audit_net_cb(struct audit_buffer *ab, void *va)
 	audit_log_format(ab, " protocol=%d", ad->net.protocol);
 
 	if (ad->request & NET_PERMS_MASK) {
-		audit_log_format(ab, " requested_mask=");
+		audit_log_format(ab, " requested=");
 		aa_audit_perm_mask(ab, ad->request, NULL, 0,
 				   net_mask_names, NET_PERMS_MASK);
 
 		if (ad->denied & NET_PERMS_MASK) {
-			audit_log_format(ab, " denied_mask=");
+			audit_log_format(ab, " denied=");
 			aa_audit_perm_mask(ab, ad->denied, NULL, 0,
 					   net_mask_names, NET_PERMS_MASK);
 		}

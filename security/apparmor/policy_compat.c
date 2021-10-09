@@ -107,6 +107,8 @@ static void compute_fperms_allow(struct aa_perms *perms, struct aa_dfa *dfa,
 		perms->allow |= AA_MAY_CHANGE_PROFILE;
 	if (ACCEPT_TABLE(dfa)[state] & 0x40000000)
 		perms->allow |= AA_MAY_ONEXEC;
+	if (ACCEPT_TABLE(dfa)[state] & 0x10000000)
+		perms->allow |= AA_CONT_MATCH;
 }
 
 static struct aa_perms compute_fperms_user(struct aa_dfa *dfa,
@@ -216,6 +218,8 @@ static struct aa_perms compute_perms_entry(struct aa_dfa *dfa,
 	perms.allow = dfa_user_allow(dfa, state);
 	perms.audit = dfa_user_audit(dfa, state);
 	perms.quiet = dfa_user_quiet(dfa, state);
+	if (ACCEPT_TABLE(dfa)[state] & 0x10000000)
+		perms.allow |= AA_CONT_MATCH;
 
 	/*
 	 * This mapping is convulated due to history.

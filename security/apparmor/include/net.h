@@ -79,6 +79,8 @@ static inline struct aa_sk_ctx *aa_sock(const struct sock *sk)
 	DEFINE_AUDIT_NET(NAME, OP, CRED, SK, (SK)->sk_family, (SK)->sk_type, \
 			 (SK)->sk_protocol)
 
+
+
 /* struct aa_net - network confinement data
  * @allow: basic network families permissions
  * @audit: which network permissions to force audit
