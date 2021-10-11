@@ -11165,7 +11165,7 @@ CONFIG_ARM_SCPI_POWER_DOMAIN                    policy<{'arm64': 'm', 'armhf': '
 CONFIG_ARM_SDE_INTERFACE                        policy<{'arm64': 'y'}>
 CONFIG_EDD                                      policy<{'amd64': 'y'}>
 CONFIG_EDD_OFF                                  policy<{'amd64': 'y'}>
-CONFIG_FIRMWARE_MEMMAP                          policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y'}>
+CONFIG_FIRMWARE_MEMMAP                          policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 's390x': 'n'}>
 CONFIG_DMIID                                    policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y'}>
 CONFIG_DMI_SYSFS                                policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm'}>
 CONFIG_ISCSI_IBFT_FIND                          policy<{'amd64': 'y'}>
@@ -11222,7 +11222,7 @@ CONFIG_EFI_DISABLE_PCI_DMA                      policy<{'amd64': 'n', 'arm64': '
 CONFIG_EFI_VARS                                 mark<ENFORCED> note<EFI boot requirement (d-i) LP:#837332>
 
 # Menu: Firmware Drivers >> Google Firmware Drivers
-CONFIG_GOOGLE_FIRMWARE                          policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n'}>
+CONFIG_GOOGLE_FIRMWARE                          policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'ppc64el': 'n', 's390x': 'n'}>
 
 # Menu: Firmware Drivers >> Google Firmware Drivers >> Coreboot Table Access
 
