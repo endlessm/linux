@@ -2539,8 +2539,9 @@ ks0108
 ks0127
 ks7010
 ks8842
-ks8851
-ks8851_mll
+ks8851_common
+ks8851_par
+ks8851_spi
 ksmbd
 ksz8795
 ksz8795_spi
@@ -3609,7 +3610,6 @@ nvme-tcp
 nvmem-imx-iim
 nvmem-imx-ocotp
 nvmem-imx-ocotp-scu
-nvmem-nintendo-otp
 nvmem-rave-sp-eeprom
 nvmem-reboot-mode
 nvmem-rmem

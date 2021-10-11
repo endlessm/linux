@@ -476,6 +476,16 @@ atmel_cs
 atmel_mxt_ts
 atmel_pci
 atmtcp
+atomisp
+atomisp-gc0310
+atomisp-gc2235
+atomisp-libmsrlisthelper
+atomisp-lm3554
+atomisp-mt9m114
+atomisp-ov2680
+atomisp-ov2722
+atomisp-ov5693
+atomisp_gmin_platform
 atp
 atp870u
 atusb
@@ -2420,8 +2430,9 @@ ks0108
 ks0127
 ks7010
 ks8842
-ks8851
-ks8851_mll
+ks8851_common
+ks8851_par
+ks8851_spi
 ksmbd
 ksz8795
 ksz8795_spi
@@ -3388,7 +3399,6 @@ nvme-fc
 nvme-loop
 nvme-rdma
 nvme-tcp
-nvmem-nintendo-otp
 nvmem-rave-sp-eeprom
 nvmem-rmem
 nvmem_qcom-spmi-sdam
@@ -5858,6 +5868,7 @@ xpad
 xpc
 xpnet
 xr_serial
+xr_usb_serial_common
 xrs700x
 xrs700x_i2c
 xrs700x_mdio
