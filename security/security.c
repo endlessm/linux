@@ -884,7 +884,7 @@ static int lsm_superblock_alloc(struct super_block *sb)
 
 /* Security operations */
 
-int security_binder_set_context_mgr(struct task_struct *mgr)
+int security_binder_set_context_mgr(const struct cred *mgr)
 {
 	return call_int_hook(binder_set_context_mgr, 0, mgr);
 }
@@ -895,17 +895,17 @@ EXPORT_SYMBOL(security_binder_set_context_mgr);
  * @from: source of the transaction
  * @to: destination of the transaction
  *
- * Verify that the tasks have the same LSM "display", then
+ * Verify that the creds have the same LSM "display", then
  * call the security module hooks.
  *
  * Returns -EINVAL if the displays don't match, or the
  * result of the security module checks.
  */
-int security_binder_transaction(struct task_struct *from,
-				struct task_struct *to)
+int security_binder_transaction(const struct cred *from,
+				const struct cred *to)
 {
-	int from_display = lsm_task_display(from);
-	int to_display = lsm_task_display(to);
+	int from_display = lsm_cred_display(from);
+	int to_display = lsm_cred_display(to);
 
 	/*
 	 * If the display is LSMBLOB_INVALID the first module that has
@@ -926,15 +926,15 @@ int security_binder_transaction(struct task_struct *from,
 }
 EXPORT_SYMBOL(security_binder_transaction);
 
-int security_binder_transfer_binder(struct task_struct *from,
-				    struct task_struct *to)
+int security_binder_transfer_binder(const struct cred *from,
+				    const struct cred *to)
 {
 	return call_int_hook(binder_transfer_binder, 0, from, to);
 }
 EXPORT_SYMBOL(security_binder_transfer_binder);
 
-int security_binder_transfer_file(struct task_struct *from,
-				  struct task_struct *to, struct file *file)
+int security_binder_transfer_file(const struct cred *from,
+				  const struct cred *to, struct file *file)
 {
 	return call_int_hook(binder_transfer_file, 0, from, to, file);
 }
