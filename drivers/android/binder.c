@@ -2729,7 +2729,7 @@ static void binder_transaction(struct binder_proc *proc,
 		 * here; however, it isn't clear that binder would handle that
 		 * case well anyway.
 		 */
-		security_task_getsecid_obj(proc->tsk, &blob);
+		security_cred_getsecid(proc->cred, &blob);
 		ret = security_secid_to_secctx(&blob, &lsmctx, LSMBLOB_DISPLAY);
 		if (ret) {
 			return_error = BR_FAILED_REPLY;
