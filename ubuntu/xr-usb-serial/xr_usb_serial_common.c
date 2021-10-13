@@ -1747,9 +1747,9 @@ static const struct tty_operations xr_usb_serial_ops = {
 static int __init xr_usb_serial_init(void)
 {
 	int retval;
-	xr_usb_serial_tty_driver = tty_alloc_driver(XR_USB_SERIAL_TTY_MINORS, 0);
-	if (IS_ERR(xr_usb_serial_tty_driver))
-		return PTR_ERR(xr_usb_serial_tty_driver);
+	xr_usb_serial_tty_driver = alloc_tty_driver(XR_USB_SERIAL_TTY_MINORS);
+	if (!xr_usb_serial_tty_driver)
+		return -ENOMEM;
 	xr_usb_serial_tty_driver->driver_name = "xr_usb_serial",
 	xr_usb_serial_tty_driver->name = "ttyXRUSB",
 	xr_usb_serial_tty_driver->major = XR_USB_SERIAL_TTY_MAJOR,
@@ -1764,14 +1764,14 @@ static int __init xr_usb_serial_init(void)
 
 	retval = tty_register_driver(xr_usb_serial_tty_driver);
 	if (retval) {
-		tty_driver_kref_put(xr_usb_serial_tty_driver);
+		put_tty_driver(xr_usb_serial_tty_driver);
 		return retval;
 	}
 
 	retval = usb_register(&xr_usb_serial_driver);
 	if (retval) {
 		tty_unregister_driver(xr_usb_serial_tty_driver);
-		tty_driver_kref_put(xr_usb_serial_tty_driver);
+		put_tty_driver(xr_usb_serial_tty_driver);
 		return retval;
 	}
 
@@ -1784,7 +1784,7 @@ static void __exit xr_usb_serial_exit(void)
 {
 	usb_deregister(&xr_usb_serial_driver);
 	tty_unregister_driver(xr_usb_serial_tty_driver);
-	tty_driver_kref_put(xr_usb_serial_tty_driver);
+	put_tty_driver(xr_usb_serial_tty_driver);
 }
 
 module_init(xr_usb_serial_init);
