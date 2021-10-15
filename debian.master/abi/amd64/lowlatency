@@ -9260,7 +9260,6 @@ EXPORT_SYMBOL	 vmlinux 0x92448df7	vfs_readlink
 EXPORT_SYMBOL	 vmlinux 0x92472371	remove_proc_subtree
 EXPORT_SYMBOL	 vmlinux 0x92540fbf	finish_wait
 EXPORT_SYMBOL	 vmlinux 0x9258c776	hdmi_vendor_infoframe_pack_only
-EXPORT_SYMBOL	 vmlinux 0x92774cf8	__kfence_pool
 EXPORT_SYMBOL	 vmlinux 0x92897e3d	default_idle
 EXPORT_SYMBOL	 vmlinux 0x928ff5b8	elv_rb_del
 EXPORT_SYMBOL	 vmlinux 0x9291cd3b	memdup_user

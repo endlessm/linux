@@ -9345,7 +9345,6 @@ EXPORT_SYMBOL	 vmlinux 0x92540fbf	finish_wait
 EXPORT_SYMBOL	 vmlinux 0x9258c776	hdmi_vendor_infoframe_pack_only
 EXPORT_SYMBOL	 vmlinux 0x925d7545	fman_get_qman_channel_id
 EXPORT_SYMBOL	 vmlinux 0x926104f2	netif_napi_add
-EXPORT_SYMBOL	 vmlinux 0x92774cf8	__kfence_pool
 EXPORT_SYMBOL	 vmlinux 0x9291cd3b	memdup_user
 EXPORT_SYMBOL	 vmlinux 0x92952b6d	cgroup_bpf_enabled_key
 EXPORT_SYMBOL	 vmlinux 0x929c6a03	tcf_idr_create_from_flags
