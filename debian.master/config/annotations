@@ -692,7 +692,6 @@ CONFIG_IMX_WEIM                                 policy<{'arm64': 'y', 'armhf-gen
 CONFIG_OMAP_INTERCONNECT                        policy<{'armhf': 'y'}>
 CONFIG_OMAP_OCP2SCP                             policy<{'armhf': 'm'}>
 CONFIG_QCOM_EBI2                                policy<{'arm64': 'y', 'armhf': 'y'}>
-CONFIG_SIMPLE_PM_BUS                            policy<{'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y'}>
 CONFIG_SUN50I_DE2_BUS                           policy<{'arm64': 'y'}>
 CONFIG_SUNXI_RSB                                policy<{'arm64': 'm'}>
 CONFIG_TEGRA_ACONNECT                           policy<{'arm64': 'm'}>
