@@ -24,7 +24,6 @@ struct pipe_inode_info;
 extern void __init bdev_cache_init(void);
 
 extern int __sync_blockdev(struct block_device *bdev, int wait);
-void iterate_bdevs(void (*)(struct block_device *, void *), void *);
 void emergency_thaw_bdev(struct super_block *sb);
 #else
 static inline void bdev_cache_init(void)
@@ -34,10 +33,6 @@ static inline void bdev_cache_init(void)
 static inline int __sync_blockdev(struct block_device *bdev, int wait)
 {
 	return 0;
-}
-static inline void iterate_bdevs(void (*f)(struct block_device *, void *),
-		void *arg)
-{
 }
 static inline int emergency_thaw_bdev(struct super_block *sb)
 {
