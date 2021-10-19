@@ -4,48 +4,41 @@
 #include <linux/module.h>
 #include <linux/mutex.h>
 #include <linux/sched.h>
+#include <linux/spinlock.h>
 #include <linux/vsc.h>
-#include <linux/wait.h>
 
 #include "intel_vsc.h"
 
 #define ACE_PRIVACY_ON 2
 
 struct intel_vsc {
+	spinlock_t lock;
 	struct mutex mutex;
 
 	void *csi;
 	struct vsc_csi_ops *csi_ops;
 	uint16_t csi_registerred;
-	wait_queue_head_t csi_waitq;
 
 	void *ace;
 	struct vsc_ace_ops *ace_ops;
 	uint16_t ace_registerred;
-	wait_queue_head_t ace_waitq;
 };
 
 static struct intel_vsc vsc;
 
-static int wait_component_ready(void)
+static int check_component_ready(void)
 {
-	int ret;
+	int ret = -1;
+	unsigned long flags;
 
-	ret = wait_event_interruptible(vsc.ace_waitq,
-				       vsc.ace_registerred);
-	if (ret < 0) {
-		pr_err("wait ace register failed\n");
-		return ret;
-	}
+	spin_lock_irqsave(&vsc.lock, flags);
 
-	ret = wait_event_interruptible(vsc.csi_waitq,
-				       vsc.csi_registerred);
-	if (ret < 0) {
-		pr_err("wait csi register failed\n");
-		return ret;
-	}
+	if (vsc.ace_registerred && vsc.csi_registerred)
+		ret = 0;
 
-	return 0;
+	spin_unlock_irqrestore(&vsc.lock, flags);
+
+	return ret;
 }
 
 static void update_camera_status(struct vsc_camera_status *status,
@@ -63,17 +56,21 @@ static void update_camera_status(struct vsc_camera_status *status,
 
 int vsc_register_ace(void *ace, struct vsc_ace_ops *ops)
 {
-	if (ace && ops)
+	unsigned long flags;
+
+	if (ace && ops) {
 		if (ops->ipu_own_camera && ops->ace_own_camera) {
-			mutex_lock(&vsc.mutex);
+			spin_lock_irqsave(&vsc.lock, flags);
+
 			vsc.ace = ace;
 			vsc.ace_ops = ops;
 			vsc.ace_registerred = true;
-			mutex_unlock(&vsc.mutex);
 
-			wake_up_interruptible_all(&vsc.ace_waitq);
+			spin_unlock_irqrestore(&vsc.lock, flags);
+
 			return 0;
 		}
+	}
 
 	pr_err("register ace failed\n");
 	return -1;
@@ -82,26 +79,34 @@ EXPORT_SYMBOL_GPL(vsc_register_ace);
 
 void vsc_unregister_ace(void)
 {
-	mutex_lock(&vsc.mutex);
+	unsigned long flags;
+
+	spin_lock_irqsave(&vsc.lock, flags);
+
 	vsc.ace_registerred = false;
-	mutex_unlock(&vsc.mutex);
+
+	spin_unlock_irqrestore(&vsc.lock, flags);
 }
 EXPORT_SYMBOL_GPL(vsc_unregister_ace);
 
 int vsc_register_csi(void *csi, struct vsc_csi_ops *ops)
 {
-	if (csi && ops)
+	unsigned long flags;
+
+	if (csi && ops) {
 		if (ops->set_privacy_callback &&
 		    ops->set_owner && ops->set_mipi_conf) {
-			mutex_lock(&vsc.mutex);
+			spin_lock_irqsave(&vsc.lock, flags);
+
 			vsc.csi = csi;
 			vsc.csi_ops = ops;
 			vsc.csi_registerred = true;
-			mutex_unlock(&vsc.mutex);
 
-			wake_up_interruptible_all(&vsc.csi_waitq);
+			spin_unlock_irqrestore(&vsc.lock, flags);
+
 			return 0;
 		}
+	}
 
 	pr_err("register csi failed\n");
 	return -1;
@@ -110,9 +115,13 @@ EXPORT_SYMBOL_GPL(vsc_register_csi);
 
 void vsc_unregister_csi(void)
 {
-	mutex_lock(&vsc.mutex);
+	unsigned long flags;
+
+	spin_lock_irqsave(&vsc.lock, flags);
+
 	vsc.csi_registerred = false;
-	mutex_unlock(&vsc.mutex);
+
+	spin_unlock_irqrestore(&vsc.lock, flags);
 }
 EXPORT_SYMBOL_GPL(vsc_unregister_csi);
 
@@ -131,15 +140,14 @@ int vsc_acquire_camera_sensor(struct vsc_mipi_config *config,
 	if (!config)
 		return -EINVAL;
 
-	ret = wait_component_ready();
-	if (ret)
-		return ret;
+	ret = check_component_ready();
+	if (ret < 0) {
+		pr_info("intel vsc not ready\n");
+		return -EAGAIN;
+	}
 
 	mutex_lock(&vsc.mutex);
-	if (!vsc.csi_registerred || !vsc.ace_registerred) {
-		ret = -1;
-		goto err;
-	}
+	/* no need check component again here */
 
 	csi_ops = vsc.csi_ops;
 	ace_ops = vsc.ace_ops;
@@ -181,15 +189,14 @@ int vsc_release_camera_sensor(struct vsc_camera_status *status)
 	struct vsc_csi_ops *csi_ops;
 	struct vsc_ace_ops *ace_ops;
 
-	ret = wait_component_ready();
-	if (ret)
-		return ret;
+	ret = check_component_ready();
+	if (ret < 0) {
+		pr_info("intel vsc not ready\n");
+		return -EAGAIN;
+	}
 
 	mutex_lock(&vsc.mutex);
-	if (!vsc.csi_registerred || !vsc.ace_registerred) {
-		ret = -1;
-		goto err;
-	}
+	/* no need check component again here */
 
 	csi_ops = vsc.csi_ops;
 	ace_ops = vsc.ace_ops;
@@ -219,24 +226,17 @@ static int __init intel_vsc_init(void)
 {
 	memset(&vsc, 0, sizeof(struct intel_vsc));
 
+	spin_lock_init(&vsc.lock);
 	mutex_init(&vsc.mutex);
 
 	vsc.csi_registerred = false;
 	vsc.ace_registerred = false;
-
-	init_waitqueue_head(&vsc.ace_waitq);
-	init_waitqueue_head(&vsc.csi_waitq);
 
 	return 0;
 }
 
 static void __exit intel_vsc_exit(void)
 {
-	if (wq_has_sleeper(&vsc.ace_waitq))
-		wake_up_all(&vsc.ace_waitq);
-
-	if (wq_has_sleeper(&vsc.csi_waitq))
-		wake_up_all(&vsc.csi_waitq);
 }
 
 module_init(intel_vsc_init);

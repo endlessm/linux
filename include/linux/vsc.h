@@ -59,6 +59,7 @@ typedef void (*vsc_privacy_callback_t)(void *handle,
  * @retval 0 If success
  * @retval -EIO IO error
  * @retval -EINVAL Invalid argument
+ * @retval -EAGAIN VSC device not ready
  * @retval negative values for other errors
  */
 int vsc_acquire_camera_sensor(struct vsc_mipi_config *config,
@@ -74,6 +75,7 @@ int vsc_acquire_camera_sensor(struct vsc_mipi_config *config,
  * @retval 0 If success
  * @retval -EIO IO error
  * @retval -EINVAL Invalid argument
+ * @retval -EAGAIN VSC device not ready
  * @retval negative values for other errors
  */
 int vsc_release_camera_sensor(struct vsc_camera_status *status);
