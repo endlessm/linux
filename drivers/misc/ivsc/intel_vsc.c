@@ -244,4 +244,5 @@ module_exit(intel_vsc_exit);
 
 MODULE_AUTHOR("Intel Corporation");
 MODULE_LICENSE("GPL v2");
+MODULE_SOFTDEP("post: mei_csi mei_ace");
 MODULE_DESCRIPTION("Device driver for Intel VSC");
