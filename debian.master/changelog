@@ -1,4 +1,4 @@
-linux-unstable (5.15.0-6.6) impish; urgency=medium
+linux-unstable (5.15.0-6.6) jammy; urgency=medium
 
   * impish/linux-unstable: 5.15.0-6.6 -proposed tracker (LP: #1947565)
 
