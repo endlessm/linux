@@ -54,6 +54,7 @@
 #define SIO_F81803_ID		0x1210	/* Chipset ID */
 #define SIO_F81865_ID		0x0704	/* Chipset ID */
 #define SIO_F81866_ID		0x1010	/* Chipset ID */
+#define SIO_F81966_ID		0x1502  /* F81804 chipset ID, same for f81966 */
 
 #define F71808FG_REG_WDO_CONF		0xf0
 #define F71808FG_REG_WDT_CONF		0xf5
@@ -111,7 +112,7 @@ MODULE_PARM_DESC(start_withtimeout, "Start watchdog timer on module load with"
 	" given initial timeout. Zero (default) disables this feature.");
 
 enum chips { f71808fg, f71858fg, f71862fg, f71868, f71869, f71882fg, f71889fg,
-	     f81803, f81865, f81866};
+	     f81803, f81865, f81866, f81966};
 
 static const char *f71808e_names[] = {
 	"f71808fg",
@@ -124,6 +125,7 @@ static const char *f71808e_names[] = {
 	"f81803",
 	"f81865",
 	"f81866",
+	"f81966"
 };
 
 /* Super-I/O Function prototypes */
@@ -371,6 +373,7 @@ static int watchdog_start(void)
 		break;
 
 	case f81866:
+	case f81966:
 		/*
 		 * GPIO1 Control Register when 27h BIT3:2 = 01 & BIT0 = 0.
 		 * The PIN 70(GPIO15/WDTRST) is controlled by 2Ch:
@@ -397,7 +400,7 @@ static int watchdog_start(void)
 	superio_select(watchdog.sioaddr, SIO_F71808FG_LD_WDT);
 	superio_set_bit(watchdog.sioaddr, SIO_REG_ENABLE, 0);
 
-	if (watchdog.type == f81865 || watchdog.type == f81866)
+	if (watchdog.type == f81865 || watchdog.type == f81866 || watchdog.type == f81966)
 		superio_set_bit(watchdog.sioaddr, F81865_REG_WDO_CONF,
 				F81865_FLAG_WDOUT_EN);
 	else
@@ -819,6 +822,9 @@ static int __init f71808e_find(int sioaddr)
 		break;
 	case SIO_F81866_ID:
 		watchdog.type = f81866;
+		break;
+	case SIO_F81966_ID:
+		watchdog.type = f81966;
 		break;
 	default:
 		pr_info("Unrecognized Fintek device: %04x\n",
