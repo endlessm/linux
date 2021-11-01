@@ -7,10 +7,12 @@
 #include <linux/i2c.h>
 #include <linux/module.h>
 #include <linux/pm_runtime.h>
+#include <linux/version.h>
 #include <media/v4l2-ctrls.h>
 #include <media/v4l2-device.h>
 #include <media/v4l2-fwnode.h>
 #include "power_ctrl_logic.h"
+#include <linux/vsc.h>
 
 #define OV01A1S_LINK_FREQ_400MHZ	400000000ULL
 #define OV01A1S_SCLK			40000000LL
@@ -677,7 +679,7 @@ exit:
 }
 
 static int ov01a1s_set_format(struct v4l2_subdev *sd,
-			      struct v4l2_subdev_pad_config *cfg,
+			      struct v4l2_subdev_state *sd_state,
 			      struct v4l2_subdev_format *fmt)
 {
 	struct ov01a1s *ov01a1s = to_ov01a1s(sd);
@@ -692,7 +694,7 @@ static int ov01a1s_set_format(struct v4l2_subdev *sd,
 	mutex_lock(&ov01a1s->mutex);
 	ov01a1s_update_pad_format(mode, &fmt->format);
 	if (fmt->which == V4L2_SUBDEV_FORMAT_TRY) {
-		*v4l2_subdev_get_try_format(sd, cfg, fmt->pad) = fmt->format;
+		*v4l2_subdev_get_try_format(sd, sd_state, fmt->pad) = fmt->format;
 	} else {
 		ov01a1s->cur_mode = mode;
 		__v4l2_ctrl_s_ctrl(ov01a1s->link_freq, mode->link_freq_index);
@@ -715,15 +717,15 @@ static int ov01a1s_set_format(struct v4l2_subdev *sd,
 }
 
 static int ov01a1s_get_format(struct v4l2_subdev *sd,
-			      struct v4l2_subdev_pad_config *cfg,
+			      struct v4l2_subdev_state *sd_state,
 			      struct v4l2_subdev_format *fmt)
 {
 	struct ov01a1s *ov01a1s = to_ov01a1s(sd);
 
 	mutex_lock(&ov01a1s->mutex);
 	if (fmt->which == V4L2_SUBDEV_FORMAT_TRY)
-		fmt->format = *v4l2_subdev_get_try_format(&ov01a1s->sd, cfg,
-							  fmt->pad);
+		fmt->format = *v4l2_subdev_get_try_format(&ov01a1s->sd,
+							  sd_state, fmt->pad);
 	else
 		ov01a1s_update_pad_format(ov01a1s->cur_mode, &fmt->format);
 
@@ -733,7 +735,7 @@ static int ov01a1s_get_format(struct v4l2_subdev *sd,
 }
 
 static int ov01a1s_enum_mbus_code(struct v4l2_subdev *sd,
-				  struct v4l2_subdev_pad_config *cfg,
+				  struct v4l2_subdev_state *sd_state,
 				  struct v4l2_subdev_mbus_code_enum *code)
 {
 	if (code->index > 0)
@@ -745,7 +747,7 @@ static int ov01a1s_enum_mbus_code(struct v4l2_subdev *sd,
 }
 
 static int ov01a1s_enum_frame_size(struct v4l2_subdev *sd,
-				   struct v4l2_subdev_pad_config *cfg,
+				   struct v4l2_subdev_state *sd_state,
 				   struct v4l2_subdev_frame_size_enum *fse)
 {
 	if (fse->index >= ARRAY_SIZE(supported_modes))
@@ -768,7 +770,7 @@ static int ov01a1s_open(struct v4l2_subdev *sd, struct v4l2_subdev_fh *fh)
 
 	mutex_lock(&ov01a1s->mutex);
 	ov01a1s_update_pad_format(&supported_modes[0],
-				  v4l2_subdev_get_try_format(sd, fh->pad, 0));
+				  v4l2_subdev_get_try_format(sd, fh->state, 0));
 	mutex_unlock(&ov01a1s->mutex);
 
 	return 0;
@@ -835,11 +837,20 @@ static int ov01a1s_probe(struct i2c_client *client)
 {
 	struct ov01a1s *ov01a1s;
 	int ret = 0;
+	struct vsc_mipi_config conf;
+	struct vsc_camera_status status;
+	s64 link_freq;
 
-	if (power_ctrl_logic_set_power(1)) {
-		dev_dbg(&client->dev, "power control driver not ready.\n");
+	conf.lane_num = OV01A1S_DATA_LANES;
+	/* frequency unit 100k */
+	conf.freq = OV01A1S_LINK_FREQ_400MHZ / 100000;
+	ret = vsc_acquire_camera_sensor(&conf, NULL, NULL, &status);
+	if (ret == -EAGAIN)
+		ret = power_ctrl_logic_set_power(1);
+	if (ret == -EAGAIN)
 		return -EPROBE_DEFER;
-	}
+	else if (ret)
+		return ret;
 	ov01a1s = devm_kzalloc(&client->dev, sizeof(*ov01a1s), GFP_KERNEL);
 	if (!ov01a1s) {
 		ret = -ENOMEM;
@@ -879,6 +890,7 @@ static int ov01a1s_probe(struct i2c_client *client)
 		goto probe_error_media_entity_cleanup;
 	}
 
+	vsc_release_camera_sensor(&status);
 	/*
 	 * Device is already turned on by i2c-core with ACPI domain PM.
 	 * Enable runtime PM and turn off the device.
@@ -899,6 +911,7 @@ probe_error_v4l2_ctrl_handler_free:
 
 probe_error_ret:
 	power_ctrl_logic_set_power(0);
+	vsc_release_camera_sensor(&status);
 	return ret;
 }
 

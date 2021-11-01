@@ -219,7 +219,6 @@ extern const struct v4l2_ioctl_ops ipu_isys_ioctl_ops;
 
 void isys_setup_hw(struct ipu_isys *isys);
 int isys_isr_one(struct ipu_bus_device *adev);
-int ipu_isys_isr_run(void *ptr);
 irqreturn_t isys_isr(struct ipu_bus_device *adev);
 #ifdef IPU_ISYS_GPC
 int ipu_isys_gpc_init_debugfs(struct ipu_isys *isys);

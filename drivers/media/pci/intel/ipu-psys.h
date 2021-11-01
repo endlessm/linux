@@ -60,6 +60,8 @@ struct ipu_psys_resource_pool {
 	struct ipu_resource ext_memory[32];
 	struct ipu_resource dfms[16];
 	DECLARE_BITMAP(cmd_queues, 32);
+	/* Protects cmd_queues bitmap */
+	spinlock_t queues_lock;
 };
 
 /*
@@ -95,7 +97,6 @@ struct ipu_psys {
 	struct ia_css_syscom_config *syscom_config;
 	struct ia_css_psys_server_init *server_init;
 	struct task_struct *sched_cmd_thread;
-	struct work_struct watchdog_work;
 	wait_queue_head_t sched_cmd_wq;
 	atomic_t wakeup_count;  /* Psys schedule thread wakeup count */
 #ifdef CONFIG_DEBUG_FS
@@ -104,7 +105,6 @@ struct ipu_psys {
 
 	/* Resources needed to be managed for process groups */
 	struct ipu_psys_resource_pool resource_pool_running;
-	struct ipu_psys_resource_pool resource_pool_started;
 
 	const struct firmware *fw;
 	struct sg_table fw_sgt;
@@ -198,7 +198,6 @@ void ipu_psys_subdomains_power(struct ipu_psys *psys, bool on);
 void ipu_psys_handle_events(struct ipu_psys *psys);
 int ipu_psys_kcmd_new(struct ipu_psys_command *cmd, struct ipu_psys_fh *fh);
 void ipu_psys_run_next(struct ipu_psys *psys);
-void ipu_psys_watchdog_work(struct work_struct *work);
 struct ipu_psys_pg *__get_pg_buf(struct ipu_psys *psys, size_t pg_size);
 struct ipu_psys_kbuffer *
 ipu_psys_lookup_kbuffer(struct ipu_psys_fh *fh, int fd);

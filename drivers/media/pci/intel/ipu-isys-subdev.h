@@ -75,7 +75,7 @@ struct ipu_isys_subdev {
 	struct v4l2_ctrl_handler ctrl_handler;
 	void (*ctrl_init)(struct v4l2_subdev *sd);
 	void (*set_ffmt)(struct v4l2_subdev *sd,
-			 struct v4l2_subdev_pad_config *cfg,
+			 struct v4l2_subdev_state *sd_state,
 			 struct v4l2_subdev_format *fmt);
 	struct {
 		bool crop;
@@ -90,8 +90,7 @@ struct ipu_isys_subdev {
 	container_of(__sd, struct ipu_isys_subdev, sd)
 
 struct v4l2_mbus_framefmt *__ipu_isys_get_ffmt(struct v4l2_subdev *sd,
-					       struct v4l2_subdev_pad_config
-					       *cfg,
+					       struct v4l2_subdev_state *sd_state,
 					       unsigned int pad,
 					       unsigned int which);
 
@@ -102,37 +101,37 @@ u32 ipu_isys_subdev_code_to_uncompressed(u32 sink_code);
 enum ipu_isys_subdev_pixelorder ipu_isys_subdev_get_pixelorder(u32 code);
 
 int ipu_isys_subdev_fmt_propagate(struct v4l2_subdev *sd,
-				  struct v4l2_subdev_pad_config *cfg,
+				  struct v4l2_subdev_state *sd_state,
 				  struct v4l2_mbus_framefmt *ffmt,
 				  struct v4l2_rect *r,
 				  enum isys_subdev_prop_tgt tgt,
 				  unsigned int pad, unsigned int which);
 
 int ipu_isys_subdev_set_ffmt_default(struct v4l2_subdev *sd,
-				     struct v4l2_subdev_pad_config *cfg,
+				     struct v4l2_subdev_state *sd_state,
 				     struct v4l2_subdev_format *fmt);
 int __ipu_isys_subdev_set_ffmt(struct v4l2_subdev *sd,
-			       struct v4l2_subdev_pad_config *cfg,
+			       struct v4l2_subdev_state *sd_state,
 			       struct v4l2_subdev_format *fmt);
 struct v4l2_rect *__ipu_isys_get_selection(struct v4l2_subdev *sd,
-					   struct v4l2_subdev_pad_config *cfg,
+					   struct v4l2_subdev_state *sd_state,
 					   unsigned int target,
 					   unsigned int pad,
 					   unsigned int which);
 int ipu_isys_subdev_set_ffmt(struct v4l2_subdev *sd,
-			     struct v4l2_subdev_pad_config *cfg,
+			     struct v4l2_subdev_state *sd_state,
 			     struct v4l2_subdev_format *fmt);
 int ipu_isys_subdev_get_ffmt(struct v4l2_subdev *sd,
-			     struct v4l2_subdev_pad_config *cfg,
+			     struct v4l2_subdev_state *sd_state,
 			     struct v4l2_subdev_format *fmt);
 int ipu_isys_subdev_get_sel(struct v4l2_subdev *sd,
-			    struct v4l2_subdev_pad_config *cfg,
+			    struct v4l2_subdev_state *sd_state,
 			    struct v4l2_subdev_selection *sel);
 int ipu_isys_subdev_set_sel(struct v4l2_subdev *sd,
-			    struct v4l2_subdev_pad_config *cfg,
+			    struct v4l2_subdev_state *sd_state,
 			    struct v4l2_subdev_selection *sel);
 int ipu_isys_subdev_enum_mbus_code(struct v4l2_subdev *sd,
-				   struct v4l2_subdev_pad_config *cfg,
+				   struct v4l2_subdev_state *sd_state,
 				   struct v4l2_subdev_mbus_code_enum
 				   *code);
 int ipu_isys_subdev_link_validate(struct v4l2_subdev *sd,

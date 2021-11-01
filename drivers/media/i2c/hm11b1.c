@@ -7,6 +7,7 @@
 #include <linux/i2c.h>
 #include <linux/module.h>
 #include <linux/pm_runtime.h>
+#include <linux/version.h>
 #include <media/v4l2-ctrls.h>
 #include <media/v4l2-device.h>
 #include <media/v4l2-fwnode.h>
@@ -847,7 +848,7 @@ exit:
 }
 
 static int hm11b1_set_format(struct v4l2_subdev *sd,
-			     struct v4l2_subdev_pad_config *cfg,
+			     struct v4l2_subdev_state *sd_state,
 			     struct v4l2_subdev_format *fmt)
 {
 	struct hm11b1 *hm11b1 = to_hm11b1(sd);
@@ -862,7 +863,7 @@ static int hm11b1_set_format(struct v4l2_subdev *sd,
 	mutex_lock(&hm11b1->mutex);
 	hm11b1_update_pad_format(mode, &fmt->format);
 	if (fmt->which == V4L2_SUBDEV_FORMAT_TRY) {
-		*v4l2_subdev_get_try_format(sd, cfg, fmt->pad) = fmt->format;
+		*v4l2_subdev_get_try_format(sd, sd_state, fmt->pad) = fmt->format;
 	} else {
 		hm11b1->cur_mode = mode;
 		__v4l2_ctrl_s_ctrl(hm11b1->link_freq, mode->link_freq_index);
@@ -887,15 +888,15 @@ static int hm11b1_set_format(struct v4l2_subdev *sd,
 }
 
 static int hm11b1_get_format(struct v4l2_subdev *sd,
-			     struct v4l2_subdev_pad_config *cfg,
+			     struct v4l2_subdev_state *sd_state,
 			     struct v4l2_subdev_format *fmt)
 {
 	struct hm11b1 *hm11b1 = to_hm11b1(sd);
 
 	mutex_lock(&hm11b1->mutex);
 	if (fmt->which == V4L2_SUBDEV_FORMAT_TRY)
-		fmt->format = *v4l2_subdev_get_try_format(&hm11b1->sd, cfg,
-							  fmt->pad);
+		fmt->format = *v4l2_subdev_get_try_format(&hm11b1->sd,
+							  sd_state, fmt->pad);
 	else
 		hm11b1_update_pad_format(hm11b1->cur_mode, &fmt->format);
 
@@ -905,7 +906,7 @@ static int hm11b1_get_format(struct v4l2_subdev *sd,
 }
 
 static int hm11b1_enum_mbus_code(struct v4l2_subdev *sd,
-				 struct v4l2_subdev_pad_config *cfg,
+				 struct v4l2_subdev_state *sd_state,
 				 struct v4l2_subdev_mbus_code_enum *code)
 {
 	if (code->index > 0)
@@ -917,7 +918,7 @@ static int hm11b1_enum_mbus_code(struct v4l2_subdev *sd,
 }
 
 static int hm11b1_enum_frame_size(struct v4l2_subdev *sd,
-				  struct v4l2_subdev_pad_config *cfg,
+				  struct v4l2_subdev_state *sd_state,
 				  struct v4l2_subdev_frame_size_enum *fse)
 {
 	if (fse->index >= ARRAY_SIZE(supported_modes))
@@ -940,7 +941,7 @@ static int hm11b1_open(struct v4l2_subdev *sd, struct v4l2_subdev_fh *fh)
 
 	mutex_lock(&hm11b1->mutex);
 	hm11b1_update_pad_format(&supported_modes[0],
-				 v4l2_subdev_get_try_format(sd, fh->pad, 0));
+				 v4l2_subdev_get_try_format(sd, fh->state, 0));
 	mutex_unlock(&hm11b1->mutex);
 
 	return 0;

@@ -173,10 +173,8 @@ int ipu_isys_gpc_init_debugfs(struct ipu_isys *isys)
 		if (IS_ERR(dir))
 			goto err;
 
-		file = debugfs_create_bool("enable", 0600, dir,
-					   &isys_gpcs->gpc[i].enable);
-		if (IS_ERR(file))
-			goto err;
+		debugfs_create_bool("enable", 0600, dir,
+				    &isys_gpcs->gpc[i].enable);
 
 		debugfs_create_u32("source", 0600, dir,
 				   &isys_gpcs->gpc[i].source);

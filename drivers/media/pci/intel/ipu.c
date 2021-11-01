@@ -415,7 +415,8 @@ static int ipu_pci_probe(struct pci_dev *pdev, const struct pci_device_id *id)
 		ipu_ver = IPU_VER_6SE;
 		isp->cpd_fw_name = IPU6SE_FIRMWARE_NAME;
 		break;
-	case IPU6EP_PCI_ID:
+	case IPU6EP_ADL_P_PCI_ID:
+	case IPU6EP_ADL_N_PCI_ID:
 		ipu_ver = IPU_VER_6EP;
 		isp->cpd_fw_name = IPU6EP_FIRMWARE_NAME;
 		break;
@@ -750,7 +751,8 @@ static const struct dev_pm_ops ipu_pm_ops = {
 static const struct pci_device_id ipu_pci_tbl[] = {
 	{PCI_DEVICE(PCI_VENDOR_ID_INTEL, IPU6_PCI_ID)},
 	{PCI_DEVICE(PCI_VENDOR_ID_INTEL, IPU6SE_PCI_ID)},
-	{PCI_DEVICE(PCI_VENDOR_ID_INTEL, IPU6EP_PCI_ID)},
+	{PCI_DEVICE(PCI_VENDOR_ID_INTEL, IPU6EP_ADL_P_PCI_ID)},
+	{PCI_DEVICE(PCI_VENDOR_ID_INTEL, IPU6EP_ADL_N_PCI_ID)},
 	{0,}
 };
 MODULE_DEVICE_TABLE(pci, ipu_pci_tbl);

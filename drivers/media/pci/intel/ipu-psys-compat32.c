@@ -223,4 +223,3 @@ long ipu_psys_compat_ioctl32(struct file *file, unsigned int cmd,
 	}
 	return err;
 }
-EXPORT_SYMBOL_GPL(ipu_psys_compat_ioctl32);

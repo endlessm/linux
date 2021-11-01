@@ -116,7 +116,7 @@ __subdev_link_validate(struct v4l2_subdev *sd, struct media_link *link,
 
 static int
 ipu_isys_csi2_be_soc_set_sel(struct v4l2_subdev *sd,
-			     struct v4l2_subdev_pad_config *cfg,
+			     struct v4l2_subdev_state *sd_state,
 			     struct v4l2_subdev_selection *sel)
 {
 	struct ipu_isys_subdev *asd = to_ipu_isys_subdev(sd);
@@ -128,7 +128,7 @@ ipu_isys_csi2_be_soc_set_sel(struct v4l2_subdev *sd,
 		enum isys_subdev_prop_tgt tgt =
 		    IPU_ISYS_SUBDEV_PROP_TGT_SOURCE_CROP;
 		struct v4l2_mbus_framefmt *ffmt =
-			__ipu_isys_get_ffmt(sd, cfg, sel->pad, sel->which);
+			__ipu_isys_get_ffmt(sd, sd_state, sel->pad, sel->which);
 
 		if (get_supported_code_index(ffmt->code) < 0) {
 			/* Non-bayer formats can't be odd lines cropped */
@@ -142,9 +142,9 @@ ipu_isys_csi2_be_soc_set_sel(struct v4l2_subdev *sd,
 		sel->r.height = clamp(sel->r.height, IPU_ISYS_MIN_HEIGHT,
 				      IPU_ISYS_MAX_HEIGHT);
 
-		*__ipu_isys_get_selection(sd, cfg, sel->target, sel->pad,
+		*__ipu_isys_get_selection(sd, sd_state, sel->target, sel->pad,
 					  sel->which) = sel->r;
-		ipu_isys_subdev_fmt_propagate(sd, cfg, NULL, &sel->r,
+		ipu_isys_subdev_fmt_propagate(sd, sd_state, NULL, &sel->r,
 					      tgt, sel->pad, sel->which);
 		return 0;
 	}
@@ -171,11 +171,11 @@ static struct media_entity_operations csi2_be_soc_entity_ops = {
 };
 
 static void csi2_be_soc_set_ffmt(struct v4l2_subdev *sd,
-				 struct v4l2_subdev_pad_config *cfg,
+				 struct v4l2_subdev_state *sd_state,
 				 struct v4l2_subdev_format *fmt)
 {
 	struct v4l2_mbus_framefmt *ffmt =
-		__ipu_isys_get_ffmt(sd, cfg, fmt->pad,
+		__ipu_isys_get_ffmt(sd, sd_state, fmt->pad,
 				    fmt->which);
 
 	if (sd->entity.pads[fmt->pad].flags & MEDIA_PAD_FL_SINK) {
@@ -183,19 +183,19 @@ static void csi2_be_soc_set_ffmt(struct v4l2_subdev *sd,
 			fmt->format.field = V4L2_FIELD_NONE;
 		*ffmt = fmt->format;
 
-		ipu_isys_subdev_fmt_propagate(sd, cfg, &fmt->format,
+		ipu_isys_subdev_fmt_propagate(sd, sd_state, &fmt->format,
 					      NULL,
 					      IPU_ISYS_SUBDEV_PROP_TGT_SINK_FMT,
 					      fmt->pad, fmt->which);
 	} else if (sd->entity.pads[fmt->pad].flags & MEDIA_PAD_FL_SOURCE) {
 		struct v4l2_mbus_framefmt *sink_ffmt;
-		struct v4l2_rect *r = __ipu_isys_get_selection(sd, cfg,
+		struct v4l2_rect *r = __ipu_isys_get_selection(sd, sd_state,
 			V4L2_SEL_TGT_CROP, fmt->pad, fmt->which);
 		struct ipu_isys_subdev *asd = to_ipu_isys_subdev(sd);
 		u32 code;
 		int idx;
 
-		sink_ffmt = __ipu_isys_get_ffmt(sd, cfg, 0, fmt->which);
+		sink_ffmt = __ipu_isys_get_ffmt(sd, sd_state, 0, fmt->which);
 		code = sink_ffmt->code;
 		idx = get_supported_code_index(code);
 

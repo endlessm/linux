@@ -14,7 +14,7 @@
 /*
  * Cell types by cell IDs
  */
-const u8 ipu6ep_fw_psys_cell_types[IPU6EP_FW_PSYS_N_CELL_ID] = {
+static const u8 ipu6ep_fw_psys_cell_types[IPU6EP_FW_PSYS_N_CELL_ID] = {
 	IPU6_FW_PSYS_SP_CTRL_TYPE_ID,
 	IPU6_FW_PSYS_VP_TYPE_ID,
 	IPU6_FW_PSYS_ACC_PSA_TYPE_ID,
@@ -46,7 +46,7 @@ const u8 ipu6ep_fw_psys_cell_types[IPU6EP_FW_PSYS_N_CELL_ID] = {
 	IPU6_FW_PSYS_TNR_TYPE_ID,
 };
 
-const u16 ipu6ep_fw_num_dev_channels[IPU6_FW_PSYS_N_DEV_CHN_ID] = {
+static const u16 ipu6ep_fw_num_dev_channels[IPU6_FW_PSYS_N_DEV_CHN_ID] = {
 	IPU6_FW_PSYS_DEV_CHN_DMA_EXT0_MAX_SIZE,
 	IPU6_FW_PSYS_DEV_CHN_DMA_EXT1_READ_MAX_SIZE,
 	IPU6_FW_PSYS_DEV_CHN_DMA_EXT1_WRITE_MAX_SIZE,
@@ -54,7 +54,7 @@ const u16 ipu6ep_fw_num_dev_channels[IPU6_FW_PSYS_N_DEV_CHN_ID] = {
 	IPU6_FW_PSYS_DEV_CHN_DMA_ISA_MAX_SIZE,
 };
 
-const u16 ipu6ep_fw_psys_mem_size[IPU6_FW_PSYS_N_MEM_ID] = {
+static const u16 ipu6ep_fw_psys_mem_size[IPU6_FW_PSYS_N_MEM_ID] = {
 	IPU6_FW_PSYS_VMEM0_MAX_SIZE,
 	IPU6_FW_PSYS_TRANSFER_VMEM0_MAX_SIZE,
 	IPU6_FW_PSYS_TRANSFER_VMEM1_MAX_SIZE,
@@ -67,7 +67,7 @@ const u16 ipu6ep_fw_psys_mem_size[IPU6_FW_PSYS_N_MEM_ID] = {
 	IPU6_FW_PSYS_PMEM0_MAX_SIZE
 };
 
-const u16 ipu6ep_fw_psys_dfms[IPU6_FW_PSYS_N_DEV_DFM_ID] = {
+static const u16 ipu6ep_fw_psys_dfms[IPU6_FW_PSYS_N_DEV_DFM_ID] = {
 	IPU6_FW_PSYS_DEV_DFM_BB_FULL_PORT_ID_MAX_SIZE,
 	IPU6_FW_PSYS_DEV_DFM_BB_EMPTY_PORT_ID_MAX_SIZE,
 	IPU6_FW_PSYS_DEV_DFM_ISL_FULL_PORT_ID_MAX_SIZE,
@@ -76,7 +76,7 @@ const u16 ipu6ep_fw_psys_dfms[IPU6_FW_PSYS_N_DEV_DFM_ID] = {
 	IPU6_FW_PSYS_DEV_DFM_LB_EMPTY_PORT_ID_MAX_SIZE,
 };
 
-const u8
+static const u8
 ipu6ep_fw_psys_c_mem[IPU6EP_FW_PSYS_N_CELL_ID][IPU6_FW_PSYS_N_MEM_TYPE_ID] = {
 	{
 		/* IPU6_FW_PSYS_SP0_ID */

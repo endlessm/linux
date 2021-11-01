@@ -126,7 +126,7 @@ int power_ctrl_logic_set_power(int on)
 		pr_debug("@%s,failed to set power, gpio_ready=%d, on=%d\n",
 			 __func__, pcl.gpio_ready, on);
 		mutex_unlock(&pcl.status_lock);
-		return -EPROBE_DEFER;
+		return -EAGAIN;
 	}
 	if (pcl.power_on != on) {
 		gpiod_set_value_cansleep(pcl.reset_gpio, on);

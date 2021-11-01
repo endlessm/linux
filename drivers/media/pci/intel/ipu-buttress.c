@@ -893,7 +893,6 @@ iunit_power_off:
 
 	return rval;
 }
-EXPORT_SYMBOL(ipu_buttress_authenticate);
 
 static int ipu_buttress_send_tsc_request(struct ipu_device *isp)
 {
@@ -963,50 +962,25 @@ struct clk_ipu_sensor {
 
 int ipu_buttress_tsc_read(struct ipu_device *isp, u64 *val)
 {
-	struct ipu_buttress *b = &isp->buttress;
-	u32 tsc_hi, tsc_lo_1, tsc_lo_2, tsc_lo_3, tsc_chk = 0;
+	u32 tsc_hi_1, tsc_hi_2, tsc_lo;
 	unsigned long flags;
-	short retry = IPU_BUTTRESS_TSC_RETRY;
 
-	do {
-		spin_lock_irqsave(&b->tsc_lock, flags);
-		tsc_hi = readl(isp->base + BUTTRESS_REG_TSC_HI);
+	local_irq_save(flags);
+	tsc_hi_1 = readl(isp->base + BUTTRESS_REG_TSC_HI);
+	tsc_lo = readl(isp->base + BUTTRESS_REG_TSC_LO);
+	tsc_hi_2 = readl(isp->base + BUTTRESS_REG_TSC_HI);
+	if (tsc_hi_1 == tsc_hi_2) {
+		*val = (u64)tsc_hi_1 << 32 | tsc_lo;
+	} else {
+		/* Check if TSC has rolled over */
+		if (tsc_lo & BIT(31))
+			*val = (u64)tsc_hi_1 << 32 | tsc_lo;
+		else
+			*val = (u64)tsc_hi_2 << 32 | tsc_lo;
+	}
+	local_irq_restore(flags);
 
-		/*
-		 * We are occasionally getting broken values from
-		 * HH. Reading 3 times and doing sanity check as a WA
-		 */
-		tsc_lo_1 = readl(isp->base + BUTTRESS_REG_TSC_LO);
-		tsc_lo_2 = readl(isp->base + BUTTRESS_REG_TSC_LO);
-		tsc_lo_3 = readl(isp->base + BUTTRESS_REG_TSC_LO);
-		tsc_chk = readl(isp->base + BUTTRESS_REG_TSC_HI);
-		spin_unlock_irqrestore(&b->tsc_lock, flags);
-		if (tsc_chk == tsc_hi && tsc_lo_2 &&
-		    tsc_lo_2 - tsc_lo_1 <= IPU_BUTTRESS_TSC_LIMIT &&
-		    tsc_lo_3 - tsc_lo_2 <= IPU_BUTTRESS_TSC_LIMIT) {
-			*val = (u64)tsc_hi << 32 | tsc_lo_2;
-			return 0;
-		}
-
-		/*
-		 * Trace error only if limit checkings fails at least
-		 *  by two consecutive readings.
-		 */
-		if (retry < IPU_BUTTRESS_TSC_RETRY - 1 && tsc_lo_2)
-			dev_err(&isp->pdev->dev,
-				"%s = %u, %s = %u, %s = %u, %s = %u, %s = %u",
-				"failure: tsc_hi", tsc_hi,
-				"tsc_chk", tsc_chk,
-				"tsc_lo_1", tsc_lo_1,
-				"tsc_lo_2", tsc_lo_2, "tsc_lo_3", tsc_lo_3);
-	} while (retry--);
-
-	if (!tsc_chk && !tsc_lo_2)
-		return -EIO;
-
-	WARN_ON_ONCE(1);
-
-	return -EINVAL;
+	return 0;
 }
 EXPORT_SYMBOL_GPL(ipu_buttress_tsc_read);
 
@@ -1299,7 +1273,6 @@ int ipu_buttress_init(struct ipu_device *isp)
 	mutex_init(&b->auth_mutex);
 	mutex_init(&b->cons_mutex);
 	mutex_init(&b->ipc_mutex);
-	spin_lock_init(&b->tsc_lock);
 	init_completion(&b->ish.send_complete);
 	init_completion(&b->cse.send_complete);
 	init_completion(&b->ish.recv_complete);

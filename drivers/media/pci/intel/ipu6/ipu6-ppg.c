@@ -97,12 +97,14 @@ ipu_psys_create_buffer_set(struct ipu_psys_kcmd *kcmd,
 	buf_set_size = ipu_fw_psys_ppg_get_buffer_set_size(kcmd);
 
 	kbuf_set = __get_buf_set(fh, buf_set_size);
-	if (!kbuf_set)
-		goto error;
+	if (!kbuf_set) {
+		dev_err(&psys->adev->dev, "failed to create buffer set\n");
+		return NULL;
+	}
 
 	kbuf_set->buf_set = ipu_fw_psys_ppg_create_buffer_set(kcmd,
 							      kbuf_set->kaddr,
-	0);
+							      0);
 
 	ipu_fw_psys_ppg_buffer_set_vaddress(kbuf_set->buf_set,
 					    kbuf_set->dma_addr);
@@ -111,9 +113,6 @@ ipu_psys_create_buffer_set(struct ipu_psys_kcmd *kcmd,
 							    keb);
 
 	return kbuf_set;
-error:
-	dev_err(&psys->adev->dev, "failed to create buffer set\n");
-	return NULL;
 }
 
 int ipu_psys_ppg_get_bufset(struct ipu_psys_kcmd *kcmd,

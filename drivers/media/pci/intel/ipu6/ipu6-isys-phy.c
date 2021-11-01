@@ -25,7 +25,7 @@ struct phy_reg {
 	u32 val;
 };
 
-struct phy_reg common_init_regs[] = {
+static const struct phy_reg common_init_regs[] = {
 	/* for TGL-U, use 0x80000000 */
 	{0x00000040, 0x80000000},
 	{0x00000044, 0x00a80880},
@@ -45,7 +45,7 @@ struct phy_reg common_init_regs[] = {
 	{0x00001944, 0xfa4401e2}
 };
 
-struct phy_reg x1_port0_config_regs[] = {
+static const struct phy_reg x1_port0_config_regs[] = {
 	{0x00000694, 0xc80060fa},
 	{0x00000680, 0x3d4f78ea},
 	{0x00000690, 0x10a0140b},
@@ -69,7 +69,7 @@ struct phy_reg x1_port0_config_regs[] = {
 	{0x00000000, 0x00000000}
 };
 
-struct phy_reg x1_port1_config_regs[] = {
+static const struct phy_reg x1_port1_config_regs[] = {
 	{0x00000c94, 0xc80060fa},
 	{0x00000c80, 0xcf47abea},
 	{0x00000c90, 0x10a0840b},
@@ -93,7 +93,7 @@ struct phy_reg x1_port1_config_regs[] = {
 	{0x00000000, 0x00000000}
 };
 
-struct phy_reg x1_port2_config_regs[] = {
+static const struct phy_reg x1_port2_config_regs[] = {
 	{0x00001294, 0x28f000fa},
 	{0x00001280, 0x08130cea},
 	{0x00001290, 0x10a0140b},
@@ -117,7 +117,7 @@ struct phy_reg x1_port2_config_regs[] = {
 	{0x00000000, 0x00000000}
 };
 
-struct phy_reg x1_port3_config_regs[] = {
+static const struct phy_reg x1_port3_config_regs[] = {
 	{0x00001894, 0xc80060fa},
 	{0x00001880, 0x0f90fd6a},
 	{0x00001890, 0x10a0840b},
@@ -141,7 +141,7 @@ struct phy_reg x1_port3_config_regs[] = {
 	{0x00000000, 0x00000000}
 };
 
-struct phy_reg x2_port0_config_regs[] = {
+static const struct phy_reg x2_port0_config_regs[] = {
 	{0x00000694, 0xc80060fa},
 	{0x00000680, 0x3d4f78ea},
 	{0x00000690, 0x10a0140b},
@@ -175,7 +175,7 @@ struct phy_reg x2_port0_config_regs[] = {
 	{0x00000000, 0x00000000}
 };
 
-struct phy_reg x2_port1_config_regs[] = {
+static const struct phy_reg x2_port1_config_regs[] = {
 	{0x00000c94, 0xc80060fa},
 	{0x00000c80, 0xcf47abea},
 	{0x00000c90, 0x10a0840b},
@@ -209,7 +209,7 @@ struct phy_reg x2_port1_config_regs[] = {
 	{0x00000000, 0x00000000}
 };
 
-struct phy_reg x2_port2_config_regs[] = {
+static const struct phy_reg x2_port2_config_regs[] = {
 	{0x00001294, 0xc80060fa},
 	{0x00001280, 0x08130cea},
 	{0x00001290, 0x10a0140b},
@@ -242,7 +242,7 @@ struct phy_reg x2_port2_config_regs[] = {
 	{0x00000000, 0x00000000}
 };
 
-struct phy_reg x2_port3_config_regs[] = {
+static const struct phy_reg x2_port3_config_regs[] = {
 	{0x00001894, 0xc80060fa},
 	{0x00001880, 0x0f90fd6a},
 	{0x00001890, 0x10a0840b},
@@ -276,7 +276,7 @@ struct phy_reg x2_port3_config_regs[] = {
 	{0x00000000, 0x00000000}
 };
 
-struct phy_reg x4_port0_config_regs[] = {
+static const struct phy_reg x4_port0_config_regs[] = {
 	{0x00000694, 0xc80060fa},
 	{0x00000680, 0x3d4f78fa},
 	{0x00000690, 0x10a0140b},
@@ -330,11 +330,11 @@ struct phy_reg x4_port0_config_regs[] = {
 	{0x00000000, 0x00000000}
 };
 
-struct phy_reg x4_port1_config_regs[] = {
+static const struct phy_reg x4_port1_config_regs[] = {
 	{0x00000000, 0x00000000}
 };
 
-struct phy_reg x4_port2_config_regs[] = {
+static const struct phy_reg x4_port2_config_regs[] = {
 	{0x00001294, 0x28f000fa},
 	{0x00001280, 0x08130cfa},
 	{0x00001290, 0x10c0140b},
@@ -388,32 +388,32 @@ struct phy_reg x4_port2_config_regs[] = {
 	{0x00000000, 0x00000000}
 };
 
-struct phy_reg x4_port3_config_regs[] = {
+static const struct phy_reg x4_port3_config_regs[] = {
 	{0x00000000, 0x00000000}
 };
 
-struct phy_reg *x1_config_regs[4] = {
+static const struct phy_reg *x1_config_regs[4] = {
 	x1_port0_config_regs,
 	x1_port1_config_regs,
 	x1_port2_config_regs,
 	x1_port3_config_regs
 };
 
-struct phy_reg *x2_config_regs[4] = {
+static const struct phy_reg *x2_config_regs[4] = {
 	x2_port0_config_regs,
 	x2_port1_config_regs,
 	x2_port2_config_regs,
 	x2_port3_config_regs
 };
 
-struct phy_reg *x4_config_regs[4] = {
+static const struct phy_reg *x4_config_regs[4] = {
 	x4_port0_config_regs,
 	x4_port1_config_regs,
 	x4_port2_config_regs,
 	x4_port3_config_regs
 };
 
-struct phy_reg **config_regs[3] = {
+static const struct phy_reg **config_regs[3] = {
 	x1_config_regs,
 	x2_config_regs,
 	x4_config_regs,
@@ -561,7 +561,7 @@ int ipu6_isys_phy_config(struct ipu_isys *isys)
 	struct ipu_bus_device *adev = to_ipu_bus_device(&isys->adev->dev);
 	struct ipu_device *isp = adev->isp;
 	void __iomem *isp_base = isp->base;
-	struct phy_reg **phy_config_regs;
+	const struct phy_reg **phy_config_regs;
 	struct v4l2_async_subdev *asd;
 	struct sensor_async_subdev *s_asd;
 	struct ipu_isys_csi2_config cfg;

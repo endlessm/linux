@@ -58,7 +58,6 @@ struct ipu_buttress_ipc {
 
 struct ipu_buttress {
 	struct mutex power_mutex, auth_mutex, cons_mutex, ipc_mutex;
-	spinlock_t tsc_lock;	/* tsc lock */
 	struct ipu_buttress_ipc cse;
 	struct ipu_buttress_ipc ish;
 	struct list_head constraints;

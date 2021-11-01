@@ -20,10 +20,6 @@
 #include "ipu-platform-regs.h"
 #include "ipu-trace.h"
 
-#define is_ppg_kcmd(kcmd) (ipu_fw_psys_pg_get_protocol(	\
-			(struct ipu_psys_kcmd *)kcmd)	\
-			== IPU_FW_PSYS_PROCESS_GROUP_PROTOCOL_PPG)
-
 static bool early_pg_transfer;
 module_param(early_pg_transfer, bool, 0664);
 MODULE_PARM_DESC(early_pg_transfer,
@@ -501,7 +497,7 @@ int ipu_psys_kcmd_start(struct ipu_psys *psys, struct ipu_psys_kcmd *kcmd)
 	ret = ipu_fw_psys_pg_start(kcmd);
 	if (ret) {
 		dev_err(&psys->adev->dev, "failed to start kcmd!\n");
-		goto error;
+		return ret;
 	}
 
 	ipu_fw_psys_pg_dump(psys, kcmd, "run");
@@ -509,29 +505,10 @@ int ipu_psys_kcmd_start(struct ipu_psys *psys, struct ipu_psys_kcmd *kcmd)
 	ret = ipu_fw_psys_pg_disown(kcmd);
 	if (ret) {
 		dev_err(&psys->adev->dev, "failed to start kcmd!\n");
-		goto error;
+		return ret;
 	}
 
 	return 0;
-
-error:
-	dev_err(&psys->adev->dev, "failed to start process group\n");
-	return ret;
-}
-
-void ipu_psys_watchdog_work(struct work_struct *work)
-{
-	struct ipu_psys *psys = container_of(work,
-					     struct ipu_psys, watchdog_work);
-	dev_dbg(&psys->adev->dev, "watchdog for ppg not implemented yet!\n");
-}
-
-static void ipu_psys_watchdog(struct timer_list *t)
-{
-	struct ipu_psys_kcmd *kcmd = from_timer(kcmd, t, watchdog);
-	struct ipu_psys *psys = kcmd->fh->psys;
-
-	queue_work(IPU_PSYS_WORK_QUEUE, &psys->watchdog_work);
 }
 
 static int ipu_psys_kcmd_send_to_ppg_start(struct ipu_psys_kcmd *kcmd)
@@ -702,13 +679,12 @@ int ipu_psys_kcmd_new(struct ipu_psys_command *cmd, struct ipu_psys_fh *fh)
 		goto error;
 	}
 
-	if (!is_ppg_kcmd(kcmd)) {
+	if (ipu_fw_psys_pg_get_protocol(kcmd) !=
+			IPU_FW_PSYS_PROCESS_GROUP_PROTOCOL_PPG) {
 		dev_err(&psys->adev->dev, "No support legacy pg now\n");
 		ret = -EINVAL;
 		goto error;
 	}
-
-	timer_setup(&kcmd->watchdog, ipu_psys_watchdog, 0);
 
 	if (cmd->min_psys_freq) {
 		kcmd->constraint.min_freq = cmd->min_psys_freq;
