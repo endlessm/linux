@@ -143,8 +143,12 @@ startnewrelease:
 			ver="$${ver%.*}.$$(( $${prev_ver##*.} +1 ))"; \
 		fi; \
 	else \
-		ver="$(release)-$$(echo "$(revision)" | \
-			perl -ne 'if (/^(\d*)\.(\d*)(.*)?$$/) { printf("%d.%d%s\n", $$1 + 1, $$2 +1, $$3) }')"; \
+		rev=$(revision); \
+		suffix=$$(echo "$${rev}" | sed 's/^[0-9]*\.[0-9]*//'); \
+		abi=$${rev%%.*}; \
+		upload=$${rev#*.}; \
+		upload=$${upload%$${suffix}}; \
+		ver=$(release)-$$((abi + 1)).$$((upload + 1))$${suffix}; \
 	fi; \
 	now="$(shell date -R)"; \
 	echo "Creating new changelog set for $$ver..."; \
