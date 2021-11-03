@@ -113,7 +113,7 @@ printchanges:
 	$(DROOT)/scripts/misc/git-ubuntu-log $(ubuntu_log_opts)
 
 insertchanges: autoreconstruct finalchecks
-	@perl -w -f $(DROOT)/scripts/misc/insert-changes.pl $(DROOT) $(DEBIAN) 
+	$(DROOT)/scripts/misc/insert-changes $(DROOT) $(DEBIAN)
 
 autoreconstruct:
 	# No need for reconstruct for -rc kernels since we don't upload an
