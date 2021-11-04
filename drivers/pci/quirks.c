@@ -5897,3 +5897,9 @@ DECLARE_PCI_FIXUP_FINAL(PCI_VENDOR_ID_INTEL, 0x15f9, pci_fixup_serialize_tgl_me_
 DECLARE_PCI_FIXUP_FINAL(PCI_VENDOR_ID_INTEL, 0x15fa, pci_fixup_serialize_tgl_me_pm);
 DECLARE_PCI_FIXUP_FINAL(PCI_VENDOR_ID_INTEL, 0x15f4, pci_fixup_serialize_tgl_me_pm);
 DECLARE_PCI_FIXUP_FINAL(PCI_VENDOR_ID_INTEL, 0x15f5, pci_fixup_serialize_tgl_me_pm);
+
+static void nvidia_ion_ahci_fixup(struct pci_dev *pdev)
+{
+	pdev->dev_flags |= PCI_DEV_FLAGS_HAS_MSI_MASKING;
+}
+DECLARE_PCI_FIXUP_FINAL(PCI_VENDOR_ID_NVIDIA, 0x0ab8, nvidia_ion_ahci_fixup);
