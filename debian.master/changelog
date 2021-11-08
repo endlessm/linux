@@ -1,4 +1,4 @@
-linux (5.15.0-1.1) jammy; urgency=medium
+linux (5.15.0-9.9) jammy; urgency=medium
 
   * jammy/linux: 5.15.0-1.1 -proposed tracker (LP: #1949876)
 
