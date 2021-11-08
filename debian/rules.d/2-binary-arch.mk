@@ -176,12 +176,6 @@ endif
 ifeq ($(do_dtbs),true)
 	$(build_cd) $(kmake) $(build_O) $(conc_level) dtbs_install \
 		INSTALL_DTBS_PATH=$(pkgdir)/lib/firmware/$(abi_release)-$*/device-tree
-ifeq ($(disable_d_i),)
-	( cd $(pkgdir)/lib/firmware/$(abi_release)-$*/ && find device-tree -print ) | \
-	while read dtb_file; do \
-		echo "$$dtb_file ?" >> $(DEBIAN)/d-i/firmware/$(arch)/kernel-image; \
-	done
-endif
 endif
 
 ifeq ($(no_dumpfile),)
@@ -798,7 +792,7 @@ build-arch: $(build-arch-deps-true)
 	@echo Debug: $@
 
 ifeq ($(AUTOBUILD),)
-binary-arch-deps-$(do_flavour_image_package) += binary-udebs
+binary-arch-deps-$(do_flavour_image_package) += binary-debs
 else
 binary-arch-deps-$(do_flavour_image_package) = binary-debs
 endif

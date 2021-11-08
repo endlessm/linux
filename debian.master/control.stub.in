@@ -6,8 +6,6 @@ Standards-Version: 3.9.4.0
 Build-Depends:
  debhelper-compat (= 10),
  cpio,
- kernel-wedge <!stage1> <!noudeb> <!cross> <!autopkgtest>,
- dctrl-tools <!stage1> <!noudeb> <!cross> <!autopkgtest>,
  kmod <!stage1>,
  makedumpfile [amd64] <!stage1>,
  libcap-dev <!stage1>,

@@ -140,13 +140,3 @@ Description: Linux kernel version specific cloud tools for version PKGVER-ABINUM
  version locked tools for cloud for version PKGVER-ABINUM on
  =HUMAN=.
 
-Package: SRCPKGNAME-udebs-FLAVOUR
-Build-Profiles: <!stage1> <!noudeb> <!cross> <!autopkgtest>
-XC-Package-Type: udeb
-Section: debian-installer
-Architecture: ARCH
-Depends: ${udeb:Depends}
-Description: Metapackage depending on kernel udebs
- This package depends on the all udebs that the kernel build generated,
- for easier version and migration tracking.
-
