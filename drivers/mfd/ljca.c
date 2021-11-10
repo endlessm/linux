@@ -352,7 +352,7 @@ static int ljca_stub_write(struct ljca_stub *stub, u8 cmd, const void *obuf,
 	usb_autopm_put_interface(ljca->intf);
 
 	if (wait_ack) {
-		ret = wait_event_interruptible_timeout(
+		ret = wait_event_timeout(
 			ljca->ack_wq, stub->acked,
 			msecs_to_jiffies(USB_WRITE_ACK_TIMEOUT));
 		if (!ret || !stub->acked) {
