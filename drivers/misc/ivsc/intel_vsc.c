@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: GPL-2.0
 /* Copyright (C) 2021 Intel Corporation */
 
+#include <linux/delay.h>
 #include <linux/module.h>
 #include <linux/mutex.h>
 #include <linux/sched.h>
@@ -177,6 +178,7 @@ int vsc_acquire_camera_sensor(struct vsc_mipi_config *config,
 
 err:
 	mutex_unlock(&vsc.mutex);
+	msleep(100);
 	return ret;
 }
 EXPORT_SYMBOL_GPL(vsc_acquire_camera_sensor);
