@@ -97,8 +97,8 @@ static bool spi_need_read(struct mei_vsc_hw *hw)
 #define WAIT_FW_ASSERTED_TIMEOUT (2 * HZ)
 static int spi_xfer_wait_asserted(struct mei_vsc_hw *hw)
 {
-	wait_event_interruptible_timeout(hw->xfer_wait, spi_xfer_asserted(hw),
-					 WAIT_FW_ASSERTED_TIMEOUT);
+	wait_event_timeout(hw->xfer_wait, spi_xfer_asserted(hw),
+			   WAIT_FW_ASSERTED_TIMEOUT);
 
 	dev_dbg(&hw->spi->dev, "%s %d %d %d\n", __func__,
 		atomic_read(&hw->lock_cnt),
