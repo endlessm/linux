@@ -332,11 +332,11 @@ struct vsc_boot_fw {
 	u8 rx_buf[FW_SPI_PKG_SIZE];
 
 	/* FirmwareBootFile */
-	char *fw_file_name;
+	char fw_file_name[256];
 	/* PkgBootFile */
-	char *sensor_file_name;
+	char sensor_file_name[256];
 	/* SkuConfigBootFile */
-	char *sku_cnf_file_name;
+	char sku_cnf_file_name[256];
 
 	u32 fw_option;
 	u32 fw_cnt;
@@ -370,6 +370,7 @@ struct mei_vsc_hw {
 	atomic_t lock_cnt;
 	int write_lock_cnt;
 	wait_queue_head_t xfer_wait;
+	char cam_sensor_name[32];
 };
 
 #define to_vsc_hw(dev) ((struct mei_vsc_hw *)((dev)->hw))

@@ -339,16 +339,17 @@ static int vsc_reset(struct mei_device *dev)
 	return 0;
 }
 
-static char *fw_name[][3] = {
+/* %s is sensor name, need to be get and format in runtime */
+static char *fw_name_template[][3] = {
 	{
 		"vsc/soc_a1/ivsc_fw_a1.bin",
-		"vsc/soc_a1/ivsc_pkg_ovti01as_0_a1.bin",
-		"vsc/soc_a1/ivsc_skucfg_ovti01as_0_1_a1.bin",
+		"vsc/soc_a1/ivsc_pkg_%s_0_a1.bin",
+		"vsc/soc_a1/ivsc_skucfg_%s_0_1_a1.bin",
 	},
 	{
 		"vsc/soc_a1_prod/ivsc_fw_a1_prod.bin",
-		"vsc/soc_a1_prod/ivsc_pkg_ovti01as_0_a1_prod.bin",
-		"vsc/soc_a1_prod/ivsc_skucfg_ovti01as_0_1_a1_prod.bin",
+		"vsc/soc_a1_prod/ivsc_pkg_%s_0_a1_prod.bin",
+		"vsc/soc_a1_prod/ivsc_skucfg_%s_0_1_a1_prod.bin",
 	},
 };
 
@@ -452,13 +453,25 @@ static int check_silicon(struct mei_device *dev)
 		hw->fw.key_src == SI_STRAP_KEY_SRC_DEBUG ? "" : "-prod");
 	if (hw->fw.sub_ver == SI_SUBSTEPPING_VERSION_1) {
 		if (hw->fw.key_src == SI_STRAP_KEY_SRC_DEBUG) {
-			hw->fw.fw_file_name = fw_name[0][0];
-			hw->fw.sensor_file_name = fw_name[0][1];
-			hw->fw.sku_cnf_file_name = fw_name[0][2];
+			snprintf(hw->fw.fw_file_name,
+				 sizeof(hw->fw.fw_file_name),
+				 fw_name_template[0][0]);
+			snprintf(hw->fw.sensor_file_name,
+				 sizeof(hw->fw.sensor_file_name),
+				 fw_name_template[0][1], hw->cam_sensor_name);
+			snprintf(hw->fw.sku_cnf_file_name,
+				 sizeof(hw->fw.sku_cnf_file_name),
+				 fw_name_template[0][2], hw->cam_sensor_name);
 		} else {
-			hw->fw.fw_file_name = fw_name[1][0];
-			hw->fw.sensor_file_name = fw_name[1][1];
-			hw->fw.sku_cnf_file_name = fw_name[1][2];
+			snprintf(hw->fw.fw_file_name,
+				 sizeof(hw->fw.fw_file_name),
+				 fw_name_template[1][0]);
+			snprintf(hw->fw.sensor_file_name,
+				 sizeof(hw->fw.sensor_file_name),
+				 fw_name_template[1][1], hw->cam_sensor_name);
+			snprintf(hw->fw.sku_cnf_file_name,
+				 sizeof(hw->fw.sku_cnf_file_name),
+				 fw_name_template[1][2], hw->cam_sensor_name);
 		}
 	}
 
