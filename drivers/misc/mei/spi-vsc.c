@@ -195,6 +195,7 @@ static const struct dev_pm_ops mei_vsc_pm_ops = {
 
 static const struct acpi_device_id mei_vsc_acpi_ids[] = {
 	{ "INTC1058", 1 },
+	{ "INTC1094", 1 },
 	{},
 };
 MODULE_DEVICE_TABLE(acpi, mei_vsc_acpi_ids);
