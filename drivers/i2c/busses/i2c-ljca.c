@@ -5,6 +5,7 @@
  * Copyright (c) 2021, Intel Corporation.
  */
 
+#include <linux/acpi.h>
 #include <linux/i2c.h>
 #include <linux/mfd/ljca.h>
 #include <linux/module.h>
@@ -321,6 +322,44 @@ static const struct i2c_algorithm ljca_i2c_algo = {
 	.functionality = ljca_i2c_func,
 };
 
+static void try_bind_acpi(struct platform_device *pdev,
+			  struct ljca_i2c_dev *ljca_i2c)
+{
+	struct acpi_device *parent, *child;
+	struct acpi_device *cur = ACPI_COMPANION(&pdev->dev);
+	const char *hid1;
+	const char *uid1;
+	char uid2[2] = { 0 };
+
+	if (!cur)
+		return;
+
+	hid1 = acpi_device_hid(cur);
+	uid1 = acpi_device_uid(cur);
+	snprintf(uid2, sizeof(uid2), "%d", ljca_i2c->ctr_info->id);
+
+	dev_dbg(&pdev->dev, "hid %s uid %s new uid%s\n", hid1, uid1, uid2);
+	/*
+	* If the pdev is bound to the right acpi device, just forward it to the
+	* adapter. Otherwise, we find that of current adapter manually.
+	*/
+	if (!strcmp(uid1, uid2)) {
+		ACPI_COMPANION_SET(&ljca_i2c->adap.dev, cur);
+		return;
+	}
+
+	parent = ACPI_COMPANION(pdev->dev.parent);
+	if (!parent)
+		return;
+
+	list_for_each_entry(child, &parent->children, node) {
+		if (acpi_dev_hid_uid_match(child, hid1, uid2)) {
+			ACPI_COMPANION_SET(&ljca_i2c->adap.dev, child);
+			return;
+		}
+	}
+}
+
 static int ljca_i2c_probe(struct platform_device *pdev)
 {
 	struct ljca_i2c_dev *ljca_i2c;
@@ -338,7 +377,9 @@ static int ljca_i2c_probe(struct platform_device *pdev)
 	ljca_i2c->adap.class = I2C_CLASS_HWMON;
 	ljca_i2c->adap.algo = &ljca_i2c_algo;
 	ljca_i2c->adap.dev.parent = &pdev->dev;
-	ACPI_COMPANION_SET(&ljca_i2c->adap.dev, ACPI_COMPANION(&pdev->dev));
+
+	try_bind_acpi(pdev, ljca_i2c);
+
 	ljca_i2c->adap.dev.of_node = pdev->dev.of_node;
 	i2c_set_adapdata(&ljca_i2c->adap, ljca_i2c);
 	snprintf(ljca_i2c->adap.name, sizeof(ljca_i2c->adap.name), "%s-%s-%d",

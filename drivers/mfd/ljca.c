@@ -5,6 +5,7 @@
  * Copyright (c) 2021, Intel Corporation.
  */
 
+#include <linux/acpi.h>
 #include <linux/kernel.h>
 #include <linux/mfd/core.h>
 #include <linux/mfd/ljca.h>
@@ -23,24 +24,23 @@ enum ljca_acpi_match_adr {
 	LJCA_ACPI_MATCH_SPI1,
 };
 
-static struct mfd_cell_acpi_match ljca_acpi_match_gpio = {
-	.pnpid = "INTC1074",
+static char *gpio_hids[] = {
+	"INTC1074",
+	"INTC1096",
 };
+static struct mfd_cell_acpi_match ljca_acpi_match_gpio;
 
-static struct mfd_cell_acpi_match ljca_acpi_match_i2cs[] = {
-	{
-		.pnpid = "INTC1075",
-	},
-	{
-		.pnpid = "INTC1076",
-	},
+static char *i2c_hids[] = {
+	"INTC1075",
+	"INTC1097",
 };
+static struct mfd_cell_acpi_match ljca_acpi_match_i2cs[2];
 
-static struct mfd_cell_acpi_match ljca_acpi_match_spis[] = {
-	{
-		.pnpid = "INTC1091",
-	},
+static char *spi_hids[] = {
+	"INTC1091",
+	"INTC1098",
 };
+static struct mfd_cell_acpi_match ljca_acpi_match_spis[1];
 
 struct ljca_msg {
 	u8 type;
@@ -205,6 +205,50 @@ struct ljca_dev {
 	struct mfd_cell *cells;
 	int cell_count;
 };
+
+static int try_match_acpi_hid(struct acpi_device *child,
+			     struct mfd_cell_acpi_match *match, char **hids,
+			     int hids_num)
+{
+	struct acpi_device_id ids[2] = {};
+	int i;
+
+	for (i = 0; i < hids_num; i++) {
+		strlcpy(ids[0].id, hids[i], sizeof(ids[0].id));
+		if (!acpi_match_device_ids(child, ids)) {
+			match->pnpid = hids[i];
+			break;
+		}
+	}
+
+	return 0;
+}
+
+static int precheck_acpi_hid(struct usb_interface *intf)
+{
+	struct acpi_device *parent, *child;
+
+	parent = ACPI_COMPANION(&intf->dev);
+	if (!parent)
+		return -ENODEV;
+
+	list_for_each_entry (child, &parent->children, node) {
+		try_match_acpi_hid(child,
+				  &ljca_acpi_match_gpio,
+				   gpio_hids, ARRAY_SIZE(gpio_hids));
+		try_match_acpi_hid(child,
+				  &ljca_acpi_match_i2cs[0],
+				   i2c_hids, ARRAY_SIZE(i2c_hids));
+		try_match_acpi_hid(child,
+				  &ljca_acpi_match_i2cs[1],
+				   i2c_hids, ARRAY_SIZE(i2c_hids));
+		try_match_acpi_hid(child,
+				  &ljca_acpi_match_spis[0],
+				   spi_hids, ARRAY_SIZE(spi_hids));
+	}
+
+	return 0;
+}
 
 static bool ljca_validate(void *data, u32 data_len)
 {
@@ -568,6 +612,13 @@ static inline int ljca_mng_reset(struct ljca_stub *stub)
 static int ljca_add_mfd_cell(struct ljca_dev *ljca, struct mfd_cell *cell)
 {
 	struct mfd_cell *new_cells;
+
+	/* Enumerate the device even if it does not appear in DSDT */
+	if (!cell->acpi_match->pnpid)
+		dev_warn(&ljca->intf->dev,
+			 "The HID of cell %s does not exist in DSDT\n",
+			 cell->name);
+
 	new_cells = krealloc_array(ljca->cells, (ljca->cell_count + 1),
 				   sizeof(struct mfd_cell), GFP_KERNEL);
 	if (!new_cells)
@@ -999,6 +1050,11 @@ static int ljca_probe(struct usb_interface *intf,
 	struct ljca_dev *ljca;
 	struct usb_endpoint_descriptor *bulk_in, *bulk_out;
 	int ret;
+
+	ret = precheck_acpi_hid(intf);
+	if(ret)
+		return ret;
+
 
 	/* allocate memory for our device state and initialize it */
 	ljca = kzalloc(sizeof(*ljca), GFP_KERNEL);
