@@ -397,11 +397,11 @@ acpi_status acpi_ds_exec_end_op(struct acpi_walk_state *walk_state)
 
 			/* Resolve all operands */
 
+			union acpi_operand_object **stack_ptr = NULL;
+			if (walk_state->num_operands > 0)
+				stack_ptr = ACPI_WALK_OPERANDS;
 			status = acpi_ex_resolve_operands(walk_state->opcode,
-							  &(walk_state->
-							    operands
-							    [walk_state->
-							     num_operands - 1]),
+							  stack_ptr,
 							  walk_state);
 		}
 
