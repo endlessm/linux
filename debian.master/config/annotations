@@ -61,7 +61,7 @@ CONFIG_ACPI_APEI_MEMORY_FAILURE                 policy<{'amd64': 'y', 'arm64': '
 CONFIG_ACPI_APEI_PCIEAER                        policy<{'amd64': 'y', 'arm64': 'y'}>
 CONFIG_ACPI_APEI_SEA                            policy<{'arm64': 'y'}>
 CONFIG_ACPI_BATTERY                             policy<{'amd64': 'y', 'arm64': 'y'}>
-CONFIG_ACPI_BGRT                                policy<{'amd64': 'y', 'arm64': 'y'}>
+CONFIG_ACPI_BGRT                                policy<{'amd64': 'n', 'arm64': 'n'}>
 CONFIG_ACPI_BUTTON                              policy<{'amd64': 'y', 'arm64': 'y'}>
 CONFIG_ACPI_CCA_REQUIRED                        policy<{'arm64': 'y'}>
 CONFIG_ACPI_CMPC                                policy<{'amd64': 'm'}>
