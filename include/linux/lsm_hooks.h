@@ -1733,4 +1733,15 @@ static inline int lsm_task_display(struct task_struct *task)
 	return LSMBLOB_INVALID;
 }
 
+/* Same as lsm_task_display(), using struct cred as input */
+static inline int lsm_cred_display(struct cred *cred)
+{
+#ifdef CONFIG_SECURITY
+	int *display = cred->security;
+
+	if (display)
+		return *display;
+#endif
+	return LSMBLOB_INVALID;
+}
 #endif /* ! __LINUX_LSM_HOOKS_H */
