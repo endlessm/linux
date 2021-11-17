@@ -365,13 +365,9 @@ static void vc4_atomic_commit_tail(struct drm_atomic_state *state)
 		vc4_hvs_mask_underrun(dev, vc4_crtc_state->assigned_channel);
 	}
 
-	if (vc4->hvs->hvs5) {
-		unsigned long core_rate = max_t(unsigned long,
-						500000000,
-						new_hvs_state->core_clock_rate);
-
-		clk_set_min_rate(hvs->core_clk, core_rate);
-	}
+	old_hvs_state = vc4_hvs_get_old_global_state(state);
+	if (!old_hvs_state)
+		return;
 
 	for_each_old_crtc_in_state(state, crtc, old_crtc_state, i) {
 		struct vc4_crtc_state *vc4_crtc_state =
@@ -389,6 +385,9 @@ static void vc4_atomic_commit_tail(struct drm_atomic_state *state)
 		if (ret)
 			drm_err(dev, "Timed out waiting for commit\n");
 	}
+
+	if (vc4->hvs->hvs5)
+		clk_set_min_rate(hvs->core_clk, 500000000);
 
 	drm_atomic_helper_commit_modeset_disables(dev, state);
 
