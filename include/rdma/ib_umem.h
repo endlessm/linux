@@ -161,6 +161,7 @@ struct ib_umem *ib_umem_get_peer(struct ib_device *device, unsigned long addr,
 void ib_umem_activate_invalidation_notifier(struct ib_umem *umem,
 					   umem_invalidate_func_t func,
 					   void *cookie);
+void ib_umem_stop_invalidation_notifier(struct ib_umem *umem);
 
 #else /* CONFIG_INFINIBAND_USER_MEM */
 
@@ -219,6 +220,9 @@ static inline struct ib_umem *ib_umem_get_peer(struct ib_device *device,
 }
 static inline void ib_umem_activate_invalidation_notifier(
 	struct ib_umem *umem, umem_invalidate_func_t func, void *cookie)
+{
+}
+static inline void ib_umem_stop_invalidation_notifier(struct ib_umem *umem)
 {
 }
 

@@ -978,6 +978,9 @@ static struct mlx5_ib_mr *reg_create(struct ib_pd *pd, struct ib_umem *umem,
 	MLX5_SET(mkc, mkc, translations_octword_size,
 		 get_octo_len(iova, umem->length, mr->page_shift));
 	MLX5_SET(mkc, mkc, log_page_size, mr->page_shift);
+	if (umem->is_peer)
+		MLX5_SET(mkc, mkc, ma_translation_mode,
+			 MLX5_CAP_GEN(dev->mdev, ats));
 	if (populate) {
 		MLX5_SET(create_mkey_in, in, translations_octword_actual_size,
 			 get_octo_len(iova, umem->length, mr->page_shift));
@@ -1107,17 +1110,20 @@ static struct ib_mr *create_real_mr(struct ib_pd *pd, struct ib_umem *umem,
 	int err;
 
 	xlt_with_umr = mlx5r_umr_can_load_pas(dev, umem->length);
-	if (xlt_with_umr) {
+	if (xlt_with_umr && !umem->is_peer) {
 		mr = alloc_cacheable_mr(pd, umem, iova, access_flags);
 	} else {
 		unsigned int page_size = mlx5_umem_find_best_pgsz(
 			umem, mkc, log_page_size, 0, iova);
 
 		mutex_lock(&dev->slow_path_mutex);
-		mr = reg_create(pd, umem, iova, access_flags, page_size, true);
+		mr = reg_create(pd, umem, iova, access_flags, page_size,
+				!xlt_with_umr);
 		mutex_unlock(&dev->slow_path_mutex);
 	}
 	if (IS_ERR(mr)) {
+		if (umem->is_peer)
+			ib_umem_stop_invalidation_notifier(umem);
 		ib_umem_release(umem);
 		return ERR_CAST(mr);
 	}
@@ -1429,8 +1435,13 @@ struct ib_mr *mlx5_ib_rereg_user_mr(struct ib_mr *ib_mr, int flags, u64 start,
 				return ERR_PTR(err);
 			return NULL;
 		}
-		/* DM or ODP MR's don't have a normal umem so we can't re-use it */
-		if (!mr->umem || is_odp_mr(mr) || is_dmabuf_mr(mr))
+		/*
+		 * DM or ODP MR's don't have a normal umem so we can't re-use it.
+		 * Peer umems cannot have their MR's changed once created due
+		 * to races with invalidation.
+		 */
+		if (!mr->umem || is_odp_mr(mr) || is_dmabuf_mr(mr) ||
+		    mr->umem->is_peer)
 			goto recreate;
 
 		/*
@@ -1449,10 +1460,11 @@ struct ib_mr *mlx5_ib_rereg_user_mr(struct ib_mr *ib_mr, int flags, u64 start,
 	}
 
 	/*
-	 * DM doesn't have a PAS list so we can't re-use it, odp/dmabuf does
-	 * but the logic around releasing the umem is different
+	 * DM doesn't have a PAS list so we can't re-use it, odp/dmabuf does but
+	 * the logic around releasing the umem is different, peer memory
+	 * invalidation semantics are incompatible.
 	 */
-	if (!mr->umem || is_odp_mr(mr) || is_dmabuf_mr(mr))
+	if (!mr->umem || is_odp_mr(mr) || is_dmabuf_mr(mr) || mr->umem->is_peer)
 		goto recreate;
 
 	if (!(new_access_flags & IB_ACCESS_ON_DEMAND) &&
@@ -1582,14 +1594,23 @@ int mlx5_ib_dereg_mr(struct ib_mr *ibmr, struct ib_udata *udata)
 	}
 
 	/* Stop DMA */
-	if (mr->cache_ent) {
-		if (mlx5r_umr_revoke_mr(mr)) {
-			spin_lock_irq(&mr->cache_ent->lock);
-			mr->cache_ent->total_mrs--;
-			spin_unlock_irq(&mr->cache_ent->lock);
-			mr->cache_ent = NULL;
+	rc = 0;
+	if (mr->cache_ent || (mr->umem && mr->umem->is_peer)) {
+		rc = mlx5r_umr_revoke_mr(mr);
+		if (mr->umem && mr->umem->is_peer) {
+			if (rc)
+				return rc;
+			ib_umem_stop_invalidation_notifier(mr->umem);
 		}
 	}
+
+	if (mr->cache_ent && rc) {
+		spin_lock_irq(&mr->cache_ent->lock);
+		mr->cache_ent->total_mrs--;
+		spin_unlock_irq(&mr->cache_ent->lock);
+		mr->cache_ent = NULL;
+	}
+
 	if (!mr->cache_ent) {
 		rc = destroy_mkey(to_mdev(mr->ibmr.device), mr);
 		if (rc)

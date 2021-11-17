@@ -2270,6 +2270,8 @@ static int devx_umem_reg_cmd_alloc(struct mlx5_ib_dev *dev,
 		 order_base_2(page_size) - MLX5_ADAPTER_PAGE_SHIFT);
 	MLX5_SET(umem, umem, page_offset,
 		 ib_umem_dma_offset(obj->umem, page_size));
+	if (obj->umem->is_peer)
+		MLX5_SET(umem, umem, ats, MLX5_CAP_GEN(dev->mdev, ats));
 
 	mlx5_ib_populate_pas(obj->umem, page_size, mtt,
 			     (obj->umem->writable ? MLX5_IB_MTT_WRITE : 0) |
