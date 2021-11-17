@@ -137,6 +137,16 @@ struct peer_memory_client {
 	void (*release)(void *client_context);
 };
 
+enum {
+	PEER_MEM_INVALIDATE_UNMAPS = 1 << 0,
+};
+
+struct peer_memory_client_ex {
+	struct peer_memory_client client;
+	size_t ex_size;
+	u32 flags;
+};
+
 /*
  * If invalidate_callback() is non-NULL then the client will only support
  * umems which can be invalidated. The caller may call the
