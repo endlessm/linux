@@ -1812,6 +1812,12 @@ static enum dc_status enable_link_dp(struct dc_state *state,
 	/* get link settings for video mode timing */
 	decide_link_settings(stream, &link_settings);
 
+	/* Train with fallback when enabling DPIA link. Conventional links are
+	 * trained with fallback during sink detection.
+	 */
+	if (link->ep_type == DISPLAY_ENDPOINT_USB4_DPIA)
+		do_fallback = true;
+
 	if (pipe_ctx->stream->signal == SIGNAL_TYPE_EDP) {
 		/*in case it is not on*/
 		link->dc->hwss.edp_power_control(link, true);
