@@ -401,7 +401,7 @@ void dcn31_link_encoder_enable_dp_output(
 	struct dcn10_link_encoder *enc10 = TO_DCN10_LINK_ENC(enc);
 
 	/* Enable transmitter and encoder. */
-	if (!link_enc_cfg_is_transmitter_mappable(enc->ctx->dc->current_state, enc)) {
+	if (!link_enc_cfg_is_transmitter_mappable(enc->ctx->dc, enc)) {
 
 		dcn20_link_encoder_enable_dp_output(enc, link_settings, clock_source);
 
@@ -446,7 +446,7 @@ void dcn31_link_encoder_enable_dp_mst_output(
 	struct dcn10_link_encoder *enc10 = TO_DCN10_LINK_ENC(enc);
 
 	/* Enable transmitter and encoder. */
-	if (!link_enc_cfg_is_transmitter_mappable(enc->ctx->dc->current_state, enc)) {
+	if (!link_enc_cfg_is_transmitter_mappable(enc->ctx->dc, enc)) {
 
 		dcn10_link_encoder_enable_dp_mst_output(enc, link_settings, clock_source);
 
@@ -490,7 +490,7 @@ void dcn31_link_encoder_disable_output(
 	struct dcn10_link_encoder *enc10 = TO_DCN10_LINK_ENC(enc);
 
 	/* Disable transmitter and encoder. */
-	if (!link_enc_cfg_is_transmitter_mappable(enc->ctx->dc->current_state, enc)) {
+	if (!link_enc_cfg_is_transmitter_mappable(enc->ctx->dc, enc)) {
 
 		dcn10_link_encoder_disable_output(enc, signal);
 

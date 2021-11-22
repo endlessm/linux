@@ -1181,6 +1181,13 @@ void dce110_disable_stream(struct pipe_ctx *pipe_ctx)
 
 	dc->hwss.disable_audio_stream(pipe_ctx);
 
+	/* Link encoder may have been dynamically assigned to non-physical display endpoint. */
+	if (link->ep_type == DISPLAY_ENDPOINT_PHY)
+		link_enc = link->link_enc;
+	else if (dc->res_pool->funcs->link_encs_assign)
+		link_enc = link_enc_cfg_get_link_enc_used_by_link(link->ctx->dc, link);
+	ASSERT(link_enc);
+
 	if (link_enc)
 		link_enc->funcs->connect_dig_be_to_fe(
 			link->link_enc,
