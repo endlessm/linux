@@ -18938,6 +18938,7 @@ EXPORT_SYMBOL_GPL	 vmlinux 0x1b22d215	devlink_register
 EXPORT_SYMBOL_GPL	 vmlinux 0x1b320af7	pnv_pci_get_presence_state
 EXPORT_SYMBOL_GPL	 vmlinux 0x1b4e9b9c	netlink_remove_tap
 EXPORT_SYMBOL_GPL	 vmlinux 0x1b5059ce	ata_id_xfermask
+EXPORT_SYMBOL_GPL	 vmlinux 0x1b56815b	ehci_adjust_port_wakeup_flags
 EXPORT_SYMBOL_GPL	 vmlinux 0x1b85d933	mnt_want_write_file
 EXPORT_SYMBOL_GPL	 vmlinux 0x1b8822d8	pinctrl_gpio_direction_output
 EXPORT_SYMBOL_GPL	 vmlinux 0x1b8fd12e	blk_execute_rq_nowait
@@ -19237,6 +19238,7 @@ EXPORT_SYMBOL_GPL	 vmlinux 0x27eddd15	of_icc_get_by_index
 EXPORT_SYMBOL_GPL	 vmlinux 0x27f4f029	ftrace_set_global_filter
 EXPORT_SYMBOL_GPL	 vmlinux 0x27fa66e1	nr_free_buffer_pages
 EXPORT_SYMBOL_GPL	 vmlinux 0x27fa922e	serdev_device_set_flow_control
+EXPORT_SYMBOL_GPL	 vmlinux 0x27fd8c81	ehci_reset
 EXPORT_SYMBOL_GPL	 vmlinux 0x2807790f	da9052_regmap_config
 EXPORT_SYMBOL_GPL	 vmlinux 0x280d727e	badblocks_store
 EXPORT_SYMBOL_GPL	 vmlinux 0x28131515	hwmon_device_unregister
@@ -20128,7 +20130,6 @@ EXPORT_SYMBOL_GPL	 vmlinux 0x4c549b36	__traceiter_xhci_dbg_quirks
 EXPORT_SYMBOL_GPL	 vmlinux 0x4c5f9a5f	desc_to_gpio
 EXPORT_SYMBOL_GPL	 vmlinux 0x4c60cb6e	devm_gpiod_get_from_of_node
 EXPORT_SYMBOL_GPL	 vmlinux 0x4c743175	ata_scsi_slave_config
-EXPORT_SYMBOL_GPL	 vmlinux 0x4c7a7781	ehci_reset
 EXPORT_SYMBOL_GPL	 vmlinux 0x4c7dc653	tps65912_regmap_config
 EXPORT_SYMBOL_GPL	 vmlinux 0x4c86864c	fwnode_get_phy_node
 EXPORT_SYMBOL_GPL	 vmlinux 0x4c8e7fa3	devm_spi_register_controller
@@ -20413,6 +20414,7 @@ EXPORT_SYMBOL_GPL	 vmlinux 0x5790e7a0	pci_unlock_rescan_remove
 EXPORT_SYMBOL_GPL	 vmlinux 0x5797e0c8	sysfs_add_file_to_group
 EXPORT_SYMBOL_GPL	 vmlinux 0x579e0bf5	rtnl_unregister_all
 EXPORT_SYMBOL_GPL	 vmlinux 0x579e110e	kernfs_notify
+EXPORT_SYMBOL_GPL	 vmlinux 0x57abde12	ehci_handshake
 EXPORT_SYMBOL_GPL	 vmlinux 0x57ad4be0	opal_int_eoi
 EXPORT_SYMBOL_GPL	 vmlinux 0x57b58238	fwnode_gpiod_get_index
 EXPORT_SYMBOL_GPL	 vmlinux 0x57c64d70	dm_set_target_max_io_len
@@ -21900,7 +21902,6 @@ EXPORT_SYMBOL_GPL	 vmlinux 0x95af8d8b	ethnl_cable_test_amplitude
 EXPORT_SYMBOL_GPL	 vmlinux 0x95b16733	of_platform_populate
 EXPORT_SYMBOL_GPL	 vmlinux 0x95b6fec4	xive_native_free_vp_block
 EXPORT_SYMBOL_GPL	 vmlinux 0x95bc9078	btree_free
-EXPORT_SYMBOL_GPL	 vmlinux 0x95cab402	ehci_handshake
 EXPORT_SYMBOL_GPL	 vmlinux 0x95cae411	__page_file_index
 EXPORT_SYMBOL_GPL	 vmlinux 0x95d51b40	__traceiter_neigh_update_done
 EXPORT_SYMBOL_GPL	 vmlinux 0x95e102ab	tracepoint_probe_register
@@ -22263,7 +22264,6 @@ EXPORT_SYMBOL_GPL	 vmlinux 0xa4dc86b2	of_dma_xlate_by_chan_id
 EXPORT_SYMBOL_GPL	 vmlinux 0xa4edc08d	of_irq_find_parent
 EXPORT_SYMBOL_GPL	 vmlinux 0xa4f2b72f	spi_new_ancillary_device
 EXPORT_SYMBOL_GPL	 vmlinux 0xa4f5853e	pinconf_generic_dt_free_map
-EXPORT_SYMBOL_GPL	 vmlinux 0xa4f84051	ehci_adjust_port_wakeup_flags
 EXPORT_SYMBOL_GPL	 vmlinux 0xa50a49f9	ata_bmdma_qc_prep
 EXPORT_SYMBOL_GPL	 vmlinux 0xa50da6d9	subsys_find_device_by_id
 EXPORT_SYMBOL_GPL	 vmlinux 0xa51c27ed	blkcg_activate_policy
