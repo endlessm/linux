@@ -462,6 +462,14 @@ union mem_low_power_enable_options {
 	uint32_t u32All;
 };
 
+union dpia_debug_options {
+	struct {
+		uint32_t disable_dpia:1;
+		uint32_t reserved:31;
+	} bits;
+	uint32_t raw;
+};
+
 struct dc_debug_data {
 	uint32_t ltFailCount;
 	uint32_t i2cErrorCount;
@@ -629,6 +637,7 @@ struct dc_debug_options {
 #if defined(CONFIG_DRM_AMD_DC_DCN)
 	bool disable_z10;
 	bool enable_sw_cntl_psr;
+	union dpia_debug_options dpia_debug;
 #endif
 };
 
