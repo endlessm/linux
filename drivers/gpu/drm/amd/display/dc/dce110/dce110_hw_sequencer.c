@@ -46,6 +46,7 @@
 #include "transform.h"
 #include "stream_encoder.h"
 #include "link_encoder.h"
+#include "link_enc_cfg.h"
 #include "link_hwss.h"
 #include "dc_link_dp.h"
 #if defined(CONFIG_DRM_AMD_DC_DCN)
@@ -1165,6 +1166,7 @@ void dce110_disable_stream(struct pipe_ctx *pipe_ctx)
 	struct dc_stream_state *stream = pipe_ctx->stream;
 	struct dc_link *link = stream->link;
 	struct dc *dc = pipe_ctx->stream->ctx->dc;
+	struct link_encoder *link_enc = NULL;
 
 	if (dc_is_hdmi_tmds_signal(pipe_ctx->stream->signal)) {
 		pipe_ctx->stream_res.stream_enc->funcs->stop_hdmi_info_packets(
@@ -1179,7 +1181,8 @@ void dce110_disable_stream(struct pipe_ctx *pipe_ctx)
 
 	dc->hwss.disable_audio_stream(pipe_ctx);
 
-	link->link_enc->funcs->connect_dig_be_to_fe(
+	if (link_enc)
+		link_enc->funcs->connect_dig_be_to_fe(
 			link->link_enc,
 			pipe_ctx->stream_res.stream_enc->id,
 			false);
@@ -1560,8 +1563,9 @@ static void power_down_encoders(struct dc *dc)
 		if (signal != SIGNAL_TYPE_EDP)
 			signal = SIGNAL_TYPE_NONE;
 
-		dc->links[i]->link_enc->funcs->disable_output(
-				dc->links[i]->link_enc, signal);
+		if (dc->links[i]->ep_type == DISPLAY_ENDPOINT_PHY)
+			dc->links[i]->link_enc->funcs->disable_output(
+					dc->links[i]->link_enc, signal);
 
 		dc->links[i]->link_status.link_active = false;
 		memset(&dc->links[i]->cur_link_settings, 0,

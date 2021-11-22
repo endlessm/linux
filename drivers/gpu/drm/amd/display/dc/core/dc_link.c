@@ -3320,6 +3320,10 @@ static enum dc_status deallocate_mst_payload(struct pipe_ctx *pipe_ctx)
 static void update_psp_stream_config(struct pipe_ctx *pipe_ctx, bool dpms_off)
 {
 	struct cp_psp *cp_psp = &pipe_ctx->stream->ctx->cp_psp;
+#if defined(CONFIG_DRM_AMD_DC_DCN)
+	struct link_encoder *link_enc = NULL;
+#endif
+
 	if (cp_psp && cp_psp->funcs.update_stream_config) {
 		struct cp_psp_stream_config config = {0};
 		enum dp_panel_mode panel_mode =
@@ -3331,8 +3335,21 @@ static void update_psp_stream_config(struct pipe_ctx *pipe_ctx, bool dpms_off)
 		config.dig_be = pipe_ctx->stream->link->link_enc_hw_inst;
 #if defined(CONFIG_DRM_AMD_DC_DCN)
 		config.stream_enc_idx = pipe_ctx->stream_res.stream_enc->id - ENGINE_ID_DIGA;
-		config.link_enc_idx = pipe_ctx->stream->link->link_enc->transmitter - TRANSMITTER_UNIPHY_A;
-		config.phy_idx = pipe_ctx->stream->link->link_enc->transmitter - TRANSMITTER_UNIPHY_A;
+		if (pipe_ctx->stream->link->ep_type == DISPLAY_ENDPOINT_PHY) {
+			link_enc = pipe_ctx->stream->link->link_enc;
+			config.phy_idx = link_enc->transmitter - TRANSMITTER_UNIPHY_A;
+		} else if (pipe_ctx->stream->link->dc->res_pool->funcs->link_encs_assign) {
+			/* Use link encoder assignment from current DC state - which may differ from the DC state to be
+			 * committed - when updating PSP config.
+			 */
+			link_enc = link_enc_cfg_get_link_enc_used_by_stream(
+					pipe_ctx->stream->link->dc->current_state,
+					pipe_ctx->stream);
+			config.phy_idx = 0; /* Clear phy_idx for non-physical display endpoints. */
+		}
+		ASSERT(link_enc);
+		if (link_enc)
+			config.link_enc_idx = link_enc->transmitter - TRANSMITTER_UNIPHY_A;
 #endif
 		config.dpms_off = dpms_off;
 		config.dm_stream_ctx = pipe_ctx->stream->dm_stream_context;
@@ -3352,6 +3369,7 @@ void core_link_enable_stream(
 	struct dc_stream_state *stream = pipe_ctx->stream;
 	struct dc_link *link = stream->sink->link;
 	enum dc_status status;
+	struct link_encoder *link_enc;
 #if defined(CONFIG_DRM_AMD_DC_DCN)
 	enum otg_out_mux_dest otg_out_dest = OUT_MUX_DIO;
 #endif
@@ -3362,9 +3380,10 @@ void core_link_enable_stream(
 		return;
 
 	if (!dc_is_virtual_signal(pipe_ctx->stream->signal)) {
-		stream->link->link_enc->funcs->setup(
-			stream->link->link_enc,
-			pipe_ctx->stream->signal);
+		if (link_enc)
+			link_enc->funcs->setup(
+				link_enc,
+				pipe_ctx->stream->signal);
 		pipe_ctx->stream_res.stream_enc->funcs->setup_stereo_sync(
 			pipe_ctx->stream_res.stream_enc,
 			pipe_ctx->stream_res.tg->inst,
@@ -3495,9 +3514,10 @@ void core_link_enable_stream(
 		 * from transmitter control.
 		 */
 		if (!dc_is_virtual_signal(pipe_ctx->stream->signal))
-			stream->link->link_enc->funcs->setup(
-				stream->link->link_enc,
-				pipe_ctx->stream->signal);
+			if (link_enc)
+				link_enc->funcs->setup(
+					link_enc,
+					pipe_ctx->stream->signal);
 
 		dc->hwss.enable_stream(pipe_ctx);
 

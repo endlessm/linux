@@ -156,6 +156,9 @@ void dcn31_init_hw(struct dc *dc)
 		 */
 		struct dc_link *link = dc->links[i];
 
+		if (link->ep_type != DISPLAY_ENDPOINT_PHY)
+			continue;
+
 		link->link_enc->funcs->hw_init(link->link_enc);
 
 		/* Check for enabled DIG to identify enabled display */
@@ -220,7 +223,8 @@ void dcn31_init_hw(struct dc *dc)
 			for (i = 0; i < dc->link_count; i++) {
 				struct dc_link *link = dc->links[i];
 
-				if (link->link_enc->funcs->is_dig_enabled &&
+				if (link->ep_type == DISPLAY_ENDPOINT_PHY &&
+						link->link_enc->funcs->is_dig_enabled &&
 						link->link_enc->funcs->is_dig_enabled(link->link_enc) &&
 						dc->hwss.power_down) {
 					dc->hwss.power_down(dc);
