@@ -627,6 +627,7 @@ int dce_aux_transfer_dmub_raw(struct ddc_service *ddc,
 #define AUX_MAX_I2C_DEFER_RETRIES 7
 #define AUX_MAX_INVALID_REPLY_RETRIES 2
 #define AUX_MAX_TIMEOUT_RETRIES 3
+#define AUX_DEFER_DELAY_FOR_DPIA 4 /*ms*/
 
 static void dce_aux_log_payload(const char *payload_name,
 	unsigned char *payload, uint32_t length, uint32_t max_length_to_log)
@@ -765,7 +766,10 @@ bool dce_aux_transfer_with_retries(struct ddc_service *ddc,
 							"dce_aux_transfer_with_retries: AUX_RET_SUCCESS: AUX_TRANSACTION_REPLY_AUX_DEFER");
 
 				/* polling_timeout_period is in us */
-				defer_time_in_ms += aux110->polling_timeout_period / 1000;
+				if (aux110)
+					defer_time_in_ms += aux110->polling_timeout_period / 1000;
+				else
+					defer_time_in_ms += AUX_DEFER_DELAY_FOR_DPIA;
 				++aux_defer_retries;
 				fallthrough;
 			case AUX_TRANSACTION_REPLY_I2C_OVER_AUX_DEFER:
