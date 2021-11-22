@@ -465,7 +465,9 @@ union mem_low_power_enable_options {
 union dpia_debug_options {
 	struct {
 		uint32_t disable_dpia:1;
-		uint32_t reserved:31;
+		uint32_t force_non_lttpr:1;
+		uint32_t extend_aux_rd_interval:1;
+		uint32_t reserved:29;
 	} bits;
 	uint32_t raw;
 };
