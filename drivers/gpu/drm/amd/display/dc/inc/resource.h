@@ -49,6 +49,7 @@ struct resource_caps {
 	int num_vmid;
 	int num_dsc;
 	unsigned int num_dig_link_enc; // Total number of DIGs (digital encoders) in DIO (Display Input/Output).
+	unsigned int num_usb4_dpia; // Total number of USB4 DPIA (DisplayPort Input Adapters).
 	int num_mpc_3dlut;
 };
 

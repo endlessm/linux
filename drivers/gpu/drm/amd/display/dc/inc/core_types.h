@@ -245,6 +245,8 @@ struct resource_pool {
 	 * entries in link_encoders array.
 	 */
 	unsigned int dig_link_enc_count;
+	/* Number of USB4 DPIA (DisplayPort Input Adapter) link objects created.*/
+	unsigned int usb4_dpia_count;
 
 #if defined(CONFIG_DRM_AMD_DC_DCN)
 	struct dc_3dlut *mpc_lut[MAX_PIPES];
