@@ -7,7 +7,7 @@ abi-check-%: $(stampdir)/stamp-install-%
 # Check the module list against the last release (always)
 module-check-%: $(stampdir)/stamp-install-%
 	@echo Debug: $@
-	@perl -f $(DROOT)/scripts/module-check "$*" \
+	$(DROOT)/scripts/module-check "$*" \
 		"$(prev_abidir)" "$(abidir)" $(skipmodule)
 
 # Check the reptoline jmp/call functions against the last release.
