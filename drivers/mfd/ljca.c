@@ -1120,7 +1120,6 @@ static int ljca_probe(struct usb_interface *intf,
 		goto error;
 	}
 
-	usb_enable_autosuspend(ljca->udev);
 	ljca->state = LJCA_STARTED;
 	dev_info(&intf->dev, "LJCA USB device init success\n");
 	return 0;
