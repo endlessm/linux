@@ -288,7 +288,7 @@ static int ljca_i2c_xfer(struct i2c_adapter *adapter, struct i2c_msg *msg,
 	if (!ljca_i2c)
 		return -EINVAL;
 
-	for (i = 0; !ret && i < num; i++) {
+	for (i = 0; i < num; i++) {
 		cur_msg = &msg[i];
 		dev_dbg(&adapter->dev, "i:%d msg:(%d %d)\n", i, cur_msg->flags,
 			cur_msg->len);
