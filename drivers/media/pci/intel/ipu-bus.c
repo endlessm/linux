@@ -119,15 +119,13 @@ out_err:
 	return rval;
 }
 
-static int ipu_bus_remove(struct device *dev)
+static void ipu_bus_remove(struct device *dev)
 {
 	struct ipu_bus_device *adev = to_ipu_bus_device(dev);
 	struct ipu_bus_driver *adrv = to_ipu_bus_driver(dev->driver);
 
 	if (adrv->remove)
 		adrv->remove(adev);
-
-	return 0;
 }
 
 static struct bus_type ipu_bus = {
