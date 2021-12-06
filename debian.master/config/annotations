@@ -10557,6 +10557,7 @@ CONFIG_WMI_BMOF                                 policy<{'amd64': 'm'}>
 CONFIG_HUAWEI_WMI                               policy<{'amd64': 'm'}>
 CONFIG_MXM_WMI                                  policy<{'amd64': 'm'}>
 CONFIG_PEAQ_WMI                                 policy<{'amd64': 'm'}>
+CONFIG_NVIDIA_WMI_EC_BACKLIGHT			policy<{'amd64': 'm'}>
 CONFIG_XIAOMI_WMI                               policy<{'amd64': 'm'}>
 CONFIG_GIGABYTE_WMI                             policy<{'amd64': 'm'}>
 CONFIG_ACER_WMI                                 policy<{'amd64': 'm'}>
