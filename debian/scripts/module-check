@@ -52,30 +52,37 @@ if os.path.exists(prev_modules_ignore):
 # Read new modules first
 print('   reading new modules...', end='')
 new_count = 0
-with open(curr_modules) as fh:
-    for mod in fh:
-        mod = mod.strip()
-        modules[mod] = 1
-        new_count += 1
+for f in (curr_modules, curr_modules + '.builtin'):
+    if not os.path.exists(f):
+        continue
+    with open(f) as fh:
+        for mod in fh:
+            mod = mod.strip()
+            modules[mod] = 1
+            new_count += 1
 print('read {} modules.'.format(new_count))
 
 # Now the old modules, checking for missing ones
 print('   reading old modules...', end='')
 old_count = 0
-with open(prev_modules) as fh:
-    for mod in fh:
-        mod = mod.strip()
-        if mod not in modules:
-            if not missing:
-                print()
-            missing += 1
-            if mod not in modules_ignore:
-                print('      MISS: {}'.format(mod))
-                errors += 1
+for f in (prev_modules, prev_modules + '.builtin'):
+    if not os.path.exists(f):
+        continue
+    with open(f) as fh:
+        for mod in fh:
+            mod = mod.strip()
+            if mod not in modules:
+                if not missing:
+                    print()
+                missing += 1
+                if mod not in modules_ignore:
+                    print('      MISS: {}'.format(mod))
+                    errors += 1
+                else:
+                    print('      MISS: {} (ignored)'.format(mod))
             else:
-                print('      MISS: {} (ignored)'.format(mod))
-        else:
-            modules[mod] += 1
+                modules[mod] += 1
+            old_count += 1
 # Check for new modules
 for mod, cnt in modules.items():
     if cnt < 2:
