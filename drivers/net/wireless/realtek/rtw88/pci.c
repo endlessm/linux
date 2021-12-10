@@ -1674,14 +1674,9 @@ static void rtw_pci_napi_deinit(struct rtw_dev *rtwdev)
 	netif_napi_del(&rtwpci->napi);
 }
 
-enum rtw88_quirk_dis_pci_caps {
-	QUIRK_DIS_PCI_CAP_MSI,
-	QUIRK_DIS_PCI_CAP_ASPM,
-};
-
-static int disable_pci_caps(const struct dmi_system_id *dmi)
+static int disable_pci_caps_by_chip(const struct rtw_chip_info *chip)
 {
-	uintptr_t dis_caps = (uintptr_t)dmi->driver_data;
+	u32 dis_caps = chip->pci_quirk_data;
 
 	if (dis_caps & BIT(QUIRK_DIS_PCI_CAP_MSI))
 		rtw_disable_msi = true;
@@ -1690,19 +1685,6 @@ static int disable_pci_caps(const struct dmi_system_id *dmi)
 
 	return 1;
 }
-
-static const struct dmi_system_id rtw88_pci_quirks[] = {
-	{
-		.callback = disable_pci_caps,
-		.ident = "Protempo Ltd L116HTN6SPW",
-		.matches = {
-			DMI_MATCH(DMI_SYS_VENDOR, "Protempo Ltd"),
-			DMI_MATCH(DMI_PRODUCT_NAME, "L116HTN6SPW"),
-		},
-		.driver_data = (void *)BIT(QUIRK_DIS_PCI_CAP_ASPM),
-	},
-	{}
-};
 
 int rtw_pci_probe(struct pci_dev *pdev,
 		  const struct pci_device_id *id)
@@ -1754,7 +1736,7 @@ int rtw_pci_probe(struct pci_dev *pdev,
 		goto err_destroy_pci;
 	}
 
-	dmi_check_system(rtw88_pci_quirks);
+	disable_pci_caps_by_chip(rtwdev->chip);
 	rtw_pci_phy_cfg(rtwdev);
 
 	ret = rtw_register_hw(rtwdev, hw);
