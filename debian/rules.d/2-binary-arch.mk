@@ -449,6 +449,12 @@ endif
 	find $(pkgdir_bin) $(pkgdir) $(pkgdir_ex) -name \*.ko | \
 		sed -e 's/.*\/\([^\/]*\)\.ko/\1/' | sort > $(abidir)/$*.modules
 
+	# Build the final ABI built-in modules information.
+	if [ -f $(pkgdir)/lib/modules/$(abi_release)-$*/modules.builtin ] ; then \
+		sed -e 's/.*\/\([^\/]*\)\.ko/\1/' $(pkgdir)/lib/modules/$(abi_release)-$*/modules.builtin | \
+			sort > $(abidir)/$*.modules.builtin; \
+	fi
+
 	# Build the final ABI firmware information.
 	find $(pkgdir_bin) $(pkgdir) $(pkgdir_ex) -name \*.ko | \
 	while read ko; do \
@@ -489,6 +495,10 @@ endif
 		$(pkgdir_bldinfo)/usr/lib/linux/$(abi_release)-$*/retpoline
 	install -m644 $(abidir)/$*.compiler \
 		$(pkgdir_bldinfo)/usr/lib/linux/$(abi_release)-$*/compiler
+	if [ -f $(abidir)/$*.modules.builtin ] ; then \
+		install -m644 $(abidir)/$*.modules.builtin \
+			$(pkgdir_bldinfo)/usr/lib/linux/$(abi_release)-$*/modules.builtin; \
+	fi
 
 ifneq ($(full_build),false)
 	# Clean out this flavours build directory.
