@@ -19,6 +19,7 @@
 #include "include/audit.h"
 #include "include/cred.h"
 #include "include/file.h"
+#include "include/ipc.h"
 #include "include/match.h"
 #include "include/net.h"
 #include "include/path.h"
@@ -537,6 +538,60 @@ static int __file_sock_perm(const char *op, struct aa_label *label,
 	return error;
 }
 
+/* TODO: combine with __file_path_perm */
+static int __file_mqueue_perm(const char *op, struct aa_label *label,
+			      struct aa_label *flabel, struct file *file,
+			      u32 request, u32 denied, bool in_atomic)
+{
+	struct aa_profile *profile;
+	char *buffer;
+	int error;
+	DEFINE_AUDIT_DATA(sa, LSM_AUDIT_DATA_NONE, AA_CLASS_POSIX_MQUEUE, op);
+
+	/* revalidation due to label out of date. No revocation at this time */
+	if (!denied && aa_label_is_subset(flabel, label))
+		/* TODO: check for revocation on stale profiles */
+		return 0;
+
+	buffer = aa_get_buffer(in_atomic);
+	if (!buffer)
+		return -ENOMEM;
+
+	aad(&sa)->request = request;
+	aad(&sa)->peer = NULL;
+	aad(&sa)->mq.ouid = file_inode(file)->i_uid;
+	aad(&sa)->mq.fsuid = current_fsuid();	/* mqueue uses fsuid() */
+
+	/* check every profile in task label not in current cache */
+	error = fn_for_each_not_in_set(flabel, label, profile,
+			aa_profile_mqueue_perm(profile, &file->f_path,
+					       request, buffer, &sa));
+	if (denied && !error) {
+		/*
+		 * check every profile in file label that was not tested
+		 * in the initial check above.
+		 *
+		 * TODO: cache full perms so this only happens because of
+		 * conditionals
+		 * TODO: don't audit here
+		 */
+		if (label == flabel)
+			error = fn_for_each(label, profile,
+				aa_profile_mqueue_perm(profile, &file->f_path,
+						       request, buffer, &sa));
+		else
+			error = fn_for_each_not_in_set(label, flabel, profile,
+				aa_profile_mqueue_perm(profile, &file->f_path,
+						       request, buffer, &sa));
+	}
+	if (!error)
+		update_file_ctx(file_ctx(file), label, request);
+
+	aa_put_buffer(buffer);
+
+	return error;
+}
+
 /**
  * aa_file_perm - do permission revalidation check & audit for @file
  * @op: operation being checked
@@ -582,7 +637,10 @@ int aa_file_perm(const char *op, struct aa_label *label, struct file *file,
 	rcu_read_unlock();
 	/* TODO: label cross check */
 
-	if (file->f_path.mnt && path_mediated_fs(file->f_path.dentry))
+	if (is_mqueue_inode(file_inode(file))) {
+		error = __file_mqueue_perm(op, label, flabel, file,
+					   request, denied, in_atomic);
+	} else if (file->f_path.mnt && path_mediated_fs(file->f_path.dentry))
 		error = __file_path_perm(op, label, flabel, file, request,
 					 denied, in_atomic);
 

@@ -170,7 +170,7 @@ void aa_str_kref(struct kref *kref)
 
 
 const char aa_file_perm_chrs[] = "xwracd         km l     ";
-const char *aa_file_perm_names[] = {
+const char *aa_base_perm_names[] = {
 	"exec",
 	"write",
 	"read",
@@ -260,6 +260,10 @@ void aa_audit_perm_mask(struct audit_buffer *ab, u32 mask, const char *chrs,
 {
 	char str[33];
 
+	if (!chrs)
+		chrs = aa_file_perm_chrs;
+	if (!names)
+		names = aa_base_perm_names;
 	audit_log_format(ab, "\"");
 	if ((mask & chrsmask) && chrs) {
 		aa_perm_mask_to_str(str, sizeof(str), chrs, mask & chrsmask);
@@ -273,6 +277,22 @@ void aa_audit_perm_mask(struct audit_buffer *ab, u32 mask, const char *chrs,
 	audit_log_format(ab, "\"");
 }
 
+void aa_audit_perms(struct audit_buffer *ab, struct common_audit_data *sa,
+		    const char *chrs, u32 chrsmask, const char * const *names,
+		    u32 namesmask)
+{
+	if (aad(sa)->request) {
+		audit_log_format(ab, " requested=");
+		aa_audit_perm_mask(ab, aad(sa)->request, chrs, chrsmask,
+				   names, namesmask);
+	}
+	if (aad(sa)->denied) {
+		audit_log_format(ab, " denied=");
+		aa_audit_perm_mask(ab, aad(sa)->denied, chrs, chrsmask,
+				   names, namesmask);
+	}
+}
+
 /**
  * aa_audit_perms_cb - generic callback fn for auditing perms
  * @ab: audit buffer (NOT NULL)
@@ -282,18 +302,8 @@ static void aa_audit_perms_cb(struct audit_buffer *ab, void *va)
 {
 	struct common_audit_data *sa = va;
 
-	if (aad(sa)->request) {
-		audit_log_format(ab, " requested_mask=");
-		aa_audit_perm_mask(ab, aad(sa)->request, aa_file_perm_chrs,
-				   PERMS_CHRS_MASK, aa_file_perm_names,
-				   PERMS_NAMES_MASK);
-	}
-	if (aad(sa)->denied) {
-		audit_log_format(ab, "denied_mask=");
-		aa_audit_perm_mask(ab, aad(sa)->denied, aa_file_perm_chrs,
-				   PERMS_CHRS_MASK, aa_file_perm_names,
-				   PERMS_NAMES_MASK);
-	}
+	aa_audit_perms(ab, sa, aa_file_perm_chrs, PERMS_CHRS_MASK,
+		       aa_base_perm_names, PERMS_NAMES_MASK);
 	audit_log_format(ab, " peer=");
 	aa_label_xaudit(ab, labels_ns(aad(sa)->label), aad(sa)->peer,
 				      FLAGS_NONE, GFP_ATOMIC);
@@ -389,7 +399,7 @@ int aa_check_perms(struct aa_profile *profile, struct aa_perms *perms,
 		   void (*cb)(struct audit_buffer *, void *))
 {
 	int type, error;
-	u32 denied = request & (~perms->allow | perms->deny);
+	u32 denied = denied_perms(perms, request);
 
 	if (likely(!denied)) {
 		/* mask off perms that are not being force audited */
