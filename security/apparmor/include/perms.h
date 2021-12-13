@@ -201,6 +201,9 @@ void aa_perm_mask_to_str(char *str, size_t str_size, const char *chrs,
 			 u32 mask);
 void aa_audit_perm_names(struct audit_buffer *ab, const char * const *names,
 			 u32 mask);
+void aa_audit_perms(struct audit_buffer *ab,  struct common_audit_data *sa,
+		    const char *chrs, u32 chrsmask, const char * const *names,
+		    u32 namesmask);
 void aa_audit_perm_mask(struct audit_buffer *ab, u32 mask, const char *chrs,
 			u32 chrsmask, const char * const *names, u32 namesmask);
 void aa_apply_modes_to_perms(struct aa_profile *profile,
@@ -213,6 +216,12 @@ void aa_profile_match_label(struct aa_profile *profile,
 int aa_profile_label_perm(struct aa_profile *profile, struct aa_profile *target,
 			  u32 request, int type, u32 *deny,
 			  struct common_audit_data *sa);
+
+static inline u32 denied_perms(struct aa_perms *perms, u32 request)
+{
+	return request & (~perms->allow | perms->deny);
+}
+
 int aa_check_perms(struct aa_profile *profile, struct aa_perms *perms,
 		   u32 request, struct common_audit_data *sa,
 		   void (*cb)(struct audit_buffer *, void *));

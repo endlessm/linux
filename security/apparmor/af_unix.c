@@ -40,8 +40,8 @@ static inline int unix_fs_perm(const char *op, u32 mask, struct aa_label *label,
 	mask &= NET_FS_PERMS;
 	if (!u->path.dentry) {
 		struct path_cond cond = {
-			.uid = SOCK_INODE(u->sk->sk_socket)->i_uid,
-			.mode = SOCK_INODE(u->sk->sk_socket)->i_mode
+			.uid = SOCK_INODE(u->sk.sk_socket)->i_uid,
+			.mode = SOCK_INODE(u->sk.sk_socket)->i_mode
 		};
 		struct aa_perms perms = { };
 		struct aa_profile *profile;
