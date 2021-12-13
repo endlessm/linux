@@ -863,7 +863,7 @@ static struct aa_profile *unpack_profile(struct aa_ext *e, char **ns_name)
 	u16 size = 0;
 	size_t ns_len;
 	struct rhashtable_params params = { 0 };
-	char *key = NULL, *disconnected = NULL;
+	char *key = NULL, *disconnected = NULL, *disconnected_ipc = NULL;
 	struct aa_data *data;
 	int error = -EPROTO;
 	kernel_cap_t tmpcap;
@@ -935,6 +935,12 @@ static struct aa_profile *unpack_profile(struct aa_ext *e, char **ns_name)
 	/* disconnected attachment string is optional */
 	(void) aa_unpack_strdup(e, &disconnected, "disconnected");
 	profile->disconnected = disconnected;
+
+	/* disconnected attachment for ipc string is optional
+	 * but it fallbacks to the plain disconnected if not present
+	 */
+	(void) aa_unpack_strdup(e, &disconnected_ipc, "disconnected_ipc");
+	profile->disconnected_ipc = disconnected_ipc ? disconnected_ipc : disconnected;
 
 	/* optional */
 	(void) aa_unpack_u32(e, &profile->signal, "kill");

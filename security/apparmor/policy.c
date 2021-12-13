@@ -295,6 +295,7 @@ void aa_free_profile(struct aa_profile *profile)
 	aa_put_ns(profile->ns);
 	kfree_sensitive(profile->rename);
 	kfree_sensitive(profile->disconnected);
+	kfree_sensitive(profile->disconnected_ipc);
 
 	free_attachment(&profile->attach);
 	kfree_sensitive(profile->net_compat);

@@ -53,7 +53,7 @@ static int unix_fs_perm(const char *op, u32 mask, const struct cred *subj_cred,
 		};
 
 		return aa_path_perm(op, subj_cred, label, path,
-				    PATH_SOCK_COND, mask, &cond);
+				    PATH_SOCK_COND, mask, &cond, NULL);
 	} /* else implicitly delegated */
 
 	return 0;

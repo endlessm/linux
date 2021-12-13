@@ -58,6 +58,7 @@ enum audit_type {
 #define OP_CHMOD "chmod"
 #define OP_CHOWN "chown"
 #define OP_GETATTR "getattr"
+#define OP_SETATTR "setattr"
 #define OP_OPEN "open"
 
 #define OP_FRECEIVE "file_receive"
@@ -148,6 +149,9 @@ struct apparmor_audit_data {
 				struct {
 					const char *target;
 				} ns;
+				struct {
+					kuid_t ouid;
+				} mq;
 			};
 		};
 		struct {

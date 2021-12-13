@@ -247,6 +247,7 @@ struct aa_profile {
 	u32 path_flags;
 	int signal;
 	const char *disconnected;
+	const char *disconnected_ipc;
 
 	struct aa_attachment attach;
 	struct aa_net_compat *net_compat;

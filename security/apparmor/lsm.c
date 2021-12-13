@@ -18,6 +18,8 @@
 #include <linux/ctype.h>
 #include <linux/sysctl.h>
 #include <linux/audit.h>
+#include <linux/nsproxy.h>
+#include <linux/ipc_namespace.h>
 #include <linux/user_namespace.h>
 #include <linux/netfilter_ipv4.h>
 #include <linux/netfilter_ipv6.h>
@@ -34,6 +36,7 @@
 #include "include/capability.h"
 #include "include/cred.h"
 #include "include/file.h"
+#include "include/inode.h"
 #include "include/ipc.h"
 #include "include/net.h"
 #include "include/path.h"
@@ -65,6 +68,11 @@ static int buffer_count;
 static LIST_HEAD(aa_global_buffers);
 static DEFINE_SPINLOCK(aa_buffers_lock);
 static DEFINE_PER_CPU(struct aa_local_cache, aa_local_buffers);
+
+static bool is_mqueue_dentry(struct dentry *dentry)
+{
+	return dentry && is_mqueue_inode(d_backing_inode(dentry));
+}
 
 /*
  * LSM hook functions
@@ -226,7 +234,7 @@ static int common_perm(const char *op, const struct path *path, u32 mask,
 	label = __begin_current_label_crit_section(&needput);
 	if (!unconfined(label))
 		error = aa_path_perm(op, current_cred(), label, path, 0, mask,
-				     cond);
+				     cond, NULL);
 	__end_current_label_crit_section(label, needput);
 
 	return error;
@@ -416,12 +424,12 @@ static int apparmor_path_rename(const struct path *old_dir, struct dentry *old_d
 					     label, &new_path, 0,
 					     MAY_READ | AA_MAY_GETATTR | MAY_WRITE |
 					     AA_MAY_SETATTR | AA_MAY_DELETE,
-					     &cond_exchange);
+					     &cond_exchange, NULL);
 			if (!error)
 				error = aa_path_perm(OP_RENAME_DEST, current_cred(),
 						     label, &old_path,
 						     0, MAY_WRITE | AA_MAY_SETATTR |
-						     AA_MAY_CREATE, &cond_exchange);
+						     AA_MAY_CREATE, &cond_exchange, NULL);
 		}
 
 		if (!error)
@@ -429,12 +437,12 @@ static int apparmor_path_rename(const struct path *old_dir, struct dentry *old_d
 					     label, &old_path, 0,
 					     MAY_READ | AA_MAY_GETATTR | MAY_WRITE |
 					     AA_MAY_SETATTR | AA_MAY_DELETE,
-					     &cond);
+					     &cond, NULL);
 		if (!error)
 			error = aa_path_perm(OP_RENAME_DEST, current_cred(),
 					     label, &new_path,
 					     0, MAY_WRITE | AA_MAY_SETATTR |
-					     AA_MAY_CREATE, &cond);
+					     AA_MAY_CREATE, &cond, NULL);
 
 	}
 	end_current_label_crit_section(label);
@@ -452,9 +460,160 @@ static int apparmor_path_chown(const struct path *path, kuid_t uid, kgid_t gid)
 	return common_perm_cond(OP_CHOWN, path, AA_MAY_CHOWN);
 }
 
+static int common_mqueue_path_perm(const char *op, u32 request,
+				   const struct path *path)
+{
+	struct aa_label *label;
+	int error = 0;
+
+	label = begin_current_label_crit_section();
+	if (!unconfined(label))
+		error = aa_mqueue_perm(op, current_cred(), label, path,
+				       request);
+
+	end_current_label_crit_section(label);
+
+	return error;
+}
+
 static int apparmor_inode_getattr(const struct path *path)
 {
+	if (is_mqueue_dentry(path->dentry))
+		/* TODO: fn() for d_parent */
+		return common_mqueue_path_perm(OP_GETATTR, AA_MAY_GETATTR, path);
+
 	return common_perm_cond(OP_GETATTR, path, AA_MAY_GETATTR);
+}
+
+/* inode security operations */
+
+/* alloced by infrastructure */
+static int apparmor_inode_alloc_security(struct inode *inode)
+{
+	struct aa_inode_sec *isec = apparmor_inode(inode);
+
+	spin_lock_init(&isec->lock);
+	isec->inode = inode;
+	isec->label = NULL;
+	isec->sclass = 0;
+	isec->initialized = false;
+
+	return 0;
+}
+
+/* freed by infrastructure */
+static void apparmor_inode_free_security(struct inode *inode)
+{
+	struct aa_inode_sec *isec = apparmor_inode(inode);
+
+	if (unlikely(!isec))
+		return;
+
+	aa_put_label(isec->label);
+}
+
+static int inode_init_with_dentry(struct inode *inode, struct dentry *dentry)
+{
+	struct aa_inode_sec *isec = apparmor_inode(inode);
+
+	if (isec->initialized)
+		return 0;
+	spin_lock(&isec->lock);
+	/* recheck under lock */
+	if (isec->initialized)
+		goto unlock;
+
+	if (is_mqueue_sb(inode->i_sb)) {
+		/* only initialize based on implied label atm */
+		isec->label = aa_get_current_label();
+		isec->sclass = AA_CLASS_POSIX_MQUEUE;
+		isec->initialized = true;
+	}
+
+unlock:
+	spin_unlock(&isec->lock);
+
+	return 0;
+}
+
+static int apparmor_inode_init_security(struct inode *inode, struct inode *dir,
+				       const struct qstr *qstr,
+				       struct xattr *xattrs, int *xattr_count)
+{
+	int error;
+
+	error = inode_init_with_dentry(inode, NULL);
+	if (error)
+		return error;
+
+	/* we aren't setting xattrs yet so -EOPNOTSUPP indicates
+	 * that, not an error
+	 */
+	return -EOPNOTSUPP;
+}
+
+static void apparmor_d_instantiate(struct dentry *dentry, struct inode *inode)
+{
+	if (inode)
+		inode_init_with_dentry(inode, dentry);
+}
+
+static int apparmor_inode_create(struct inode *dir, struct dentry *dentry,
+				 umode_t mode)
+{
+	struct aa_label *label;
+	int error = 0;
+
+	label = begin_current_label_crit_section();
+	if (!unconfined(label)) {
+		struct path path = {
+			.dentry = dentry,
+			.mnt = current->nsproxy->ipc_ns->mq_mnt,
+		};
+		if (is_mqueue_inode(dir))
+			error = aa_mqueue_perm(OP_CREATE, current_cred(),
+					       label, &path, AA_MAY_CREATE);
+	}
+	end_current_label_crit_section(label);
+
+	return error;
+}
+
+static int common_mqueue_perm(const char *op, u32 request, struct inode *dir, struct dentry *dentry)
+{
+	/* can't directly determine ipc ns, but know for mqueues dir is mnt_root */
+	bool isdir = d_inode(current->nsproxy->ipc_ns->mq_mnt->mnt_root) == dir;
+	struct path path = {
+		.dentry = dentry,
+		.mnt = isdir ? current->nsproxy->ipc_ns->mq_mnt : NULL,
+	};
+
+	if (dir != d_inode(current->nsproxy->ipc_ns->mq_mnt->mnt_root))
+		pr_warn("apparmor: unlink dir != mnt_root - disconnected");
+
+	return common_mqueue_path_perm(op, request, &path);
+}
+
+static int apparmor_inode_unlink(struct inode *dir, struct dentry *dentry)
+{
+	int error = 0;
+
+	if (is_mqueue_dentry(dentry))
+		error = common_mqueue_perm(OP_UNLINK, AA_MAY_DELETE, dir, dentry);
+
+	return error;
+}
+
+static int apparmor_inode_setattr(struct mnt_idmap *idmap,
+				  struct dentry *dentry, struct iattr *iattr)
+{
+	/* TODO: extend to support iattr as a parameter */
+	if (is_mqueue_dentry(dentry))
+		/* TODO: fn() for d_parent */
+		return common_mqueue_perm(OP_SETATTR, AA_MAY_SETATTR,
+				  d_backing_inode(dentry->d_parent), dentry);
+
+	return 0;
 }
 
 static int apparmor_file_open(struct file *file)
@@ -484,17 +643,28 @@ static int apparmor_file_open(struct file *file)
 		struct mnt_idmap *idmap = file_mnt_idmap(file);
 		struct inode *inode = file_inode(file);
 		vfsuid_t vfsuid;
+		u32 allow;
 		struct path_cond cond = {
 			.mode = inode->i_mode,
 		};
 		vfsuid = i_uid_into_vfsuid(idmap, inode);
 		cond.uid = vfsuid_into_kuid(vfsuid);
 
-		error = aa_path_perm(OP_OPEN, file->f_cred,
-				     label, &file->f_path, 0,
-				     aa_map_file_to_perms(file), &cond);
-		/* todo cache full allowed permissions set and state */
-		fctx->allow = aa_map_file_to_perms(file);
+		if (is_mqueue_inode(file_inode(file))) {
+			error = aa_mqueue_perm(OP_OPEN, file->f_cred,
+					       label, &file->f_path,
+					       aa_map_file_to_perms(file));
+			allow = aa_map_file_to_perms(file);
+		} else {
+			/* will be intersected and reduced with each profile */
+			allow = ALL_PERMS_MASK;
+			error = aa_path_perm(OP_OPEN, file->f_cred,
+					     label, &file->f_path, 0,
+					     aa_map_file_to_perms(file), &cond,
+					     &allow);
+		}
+		if (!error)
+			fctx->allow = allow;
 	}
 	aa_put_label_condref(label, needput);
 
@@ -506,6 +676,7 @@ static int apparmor_file_alloc_security(struct file *file)
 	struct aa_file_ctx *ctx = file_ctx(file);
 	struct aa_label *label = begin_current_label_crit_section();
 
+	/* no inode available here */
 	spin_lock_init(&ctx->lock);
 	rcu_assign_pointer(ctx->label, aa_get_label(label));
 	end_current_label_crit_section(label);
@@ -546,7 +717,7 @@ static int apparmor_file_receive(struct file *file)
 
 static int apparmor_file_permission(struct file *file, int mask)
 {
-	return common_file_perm(OP_FPERM, file, mask, false);
+	return common_file_perm(OP_FPERM, file, mask, true);
 }
 
 static int apparmor_file_lock(struct file *file, unsigned int cmd)
@@ -1715,9 +1886,13 @@ static int apparmor_inet_conn_request(const struct sock *sk, struct sk_buff *skb
 struct lsm_blob_sizes apparmor_blob_sizes __ro_after_init = {
 	.lbs_cred = sizeof(struct aa_label *),
 	.lbs_file = sizeof(struct aa_file_ctx),
+	.lbs_inode = sizeof(struct aa_inode_sec),
 	.lbs_task = sizeof(struct aa_task_ctx),
 	.lbs_sock = sizeof(struct aa_sk_ctx),
 	.lbs_secmark = true,
+	.lbs_ipc = sizeof(struct aa_ipc_sec),
+	.lbs_msg_msg = sizeof(struct aa_msg_sec),
+	.lbs_superblock = sizeof(struct aa_superblock_sec),
 };
 
 static const struct lsm_id apparmor_lsmid = {
@@ -1747,6 +1922,16 @@ static struct security_hook_list apparmor_hooks[] __ro_after_init = {
 	LSM_HOOK_INIT(path_chmod, apparmor_path_chmod),
 	LSM_HOOK_INIT(path_chown, apparmor_path_chown),
 	LSM_HOOK_INIT(path_truncate, apparmor_path_truncate),
+	LSM_HOOK_INIT(inode_getattr, apparmor_inode_getattr),
+
+	LSM_HOOK_INIT(inode_alloc_security, apparmor_inode_alloc_security),
+	LSM_HOOK_INIT(inode_free_security, apparmor_inode_free_security),
+	LSM_HOOK_INIT(inode_init_security, apparmor_inode_init_security),
+	LSM_HOOK_INIT(d_instantiate, apparmor_d_instantiate),
+
+	LSM_HOOK_INIT(inode_create, apparmor_inode_create),
+	LSM_HOOK_INIT(inode_unlink, apparmor_inode_unlink),
+	LSM_HOOK_INIT(inode_setattr, apparmor_inode_setattr),
 	LSM_HOOK_INIT(inode_getattr, apparmor_inode_getattr),
 
 	LSM_HOOK_INIT(file_open, apparmor_file_open),

@@ -19,6 +19,7 @@
 #include "include/audit.h"
 #include "include/cred.h"
 #include "include/file.h"
+#include "include/ipc.h"
 #include "include/match.h"
 #include "include/net.h"
 #include "include/path.h"
@@ -243,7 +244,8 @@ static int profile_path_perm(const char *op, const struct cred *subj_cred,
 			     struct aa_profile *profile,
 			     const struct path *path, char *buffer, u32 request,
 			     struct path_cond *cond, int flags,
-			     struct aa_perms *perms)
+			     struct aa_perms *perms,
+			     u32 *allow)
 {
 	const char *name;
 	int error;
@@ -256,8 +258,13 @@ static int profile_path_perm(const char *op, const struct cred *subj_cred,
 			  request);
 	if (error)
 		return error;
-	return __aa_path_perm(op, subj_cred, profile, name, request, cond,
-			      flags, perms);
+	error = __aa_path_perm(op, subj_cred, profile, name, request, cond,
+			       flags, perms);
+	/* accumulate intersection of allowed to set on object cache */
+	if (!error && allow)
+		*allow &= perms->allow;
+
+	return error;
 }
 
 /**
@@ -269,13 +276,14 @@ static int profile_path_perm(const char *op, const struct cred *subj_cred,
  * @flags: any additional path flags beyond what the profile specifies
  * @request: requested permissions
  * @cond: conditional info for this request  (NOT NULL)
+ * @allow: in/out intersected  set of allowed permissions (MAYBE NULL)
  *
  * Returns: %0 else error if access denied or other error
  */
 int aa_path_perm(const char *op, const struct cred *subj_cred,
 		 struct aa_label *label,
 		 const struct path *path, int flags, u32 request,
-		 struct path_cond *cond)
+		 struct path_cond *cond, u32 *allow)
 {
 	struct aa_perms perms = {};
 	struct aa_profile *profile;
@@ -289,7 +297,7 @@ int aa_path_perm(const char *op, const struct cred *subj_cred,
 		return -ENOMEM;
 	error = fn_for_each_confined(label, profile,
 			profile_path_perm(op, subj_cred, profile, path, buffer,
-					  request, cond, flags, &perms));
+					  request, cond, flags, &perms, allow));
 
 	aa_put_buffer(buffer);
 
@@ -455,7 +463,7 @@ out:
 }
 
 static void update_file_ctx(struct aa_file_ctx *fctx, struct aa_label *label,
-			    u32 request)
+			    u32 request, u32 allow)
 {
 	struct aa_label *l, *old;
 
@@ -470,42 +478,44 @@ static void update_file_ctx(struct aa_file_ctx *fctx, struct aa_label *label,
 			aa_put_label(old);
 		} else
 			aa_put_label(l);
-		fctx->allow |= request;
+		/* TODO: reduction of perms here should result in revalidation
+		 * of components not already checked. Only affects stacking
+		 */
+		fctx->allow = allow;
 	}
 	spin_unlock(&fctx->lock);
 }
 
-static int __file_path_perm(const char *op, const struct cred *subj_cred,
-			    struct aa_label *label,
-			    struct aa_label *flabel, struct file *file,
-			    u32 request, u32 denied, bool in_atomic)
+static int __path_perm(const char *op, const struct cred *subj_cred,
+		       struct aa_label *label, struct aa_label *flabel,
+		       struct file *file, u32 request, u32 denied,
+		       struct path_cond *cond, int flags,
+		       bool in_atomic, bool is_mqueue,
+		       struct apparmor_audit_data *ad)
 {
 	struct aa_profile *profile;
 	struct aa_perms perms = {};
-	vfsuid_t vfsuid = i_uid_into_vfsuid(file_mnt_idmap(file),
-					    file_inode(file));
-	struct path_cond cond = {
-		.uid = vfsuid_into_kuid(vfsuid),
-		.mode = file_inode(file)->i_mode
-	};
 	char *buffer;
-	int flags, error;
+	u32 allow = ALL_PERMS_MASK;
+	int error;
 
 	/* revalidation due to label out of date. No revocation at this time */
 	if (!denied && aa_label_is_subset(flabel, label))
 		/* TODO: check for revocation on stale profiles */
 		return 0;
 
-	flags = PATH_DELEGATE_DELETED | (S_ISDIR(cond.mode) ? PATH_IS_DIR : 0);
 	buffer = aa_get_buffer(in_atomic);
 	if (!buffer)
 		return -ENOMEM;
 
 	/* check every profile in task label not in current cache */
-	error = fn_for_each_not_in_set(flabel, label, profile,
+	error = fn_for_each_not_in_set(flabel, label, profile, is_mqueue ?
+			aa_profile_mqueue_perm(profile, &file->f_path,
+					       request, buffer, ad) :
 			profile_path_perm(op, subj_cred, profile,
 					  &file->f_path, buffer,
-					  request, &cond, flags, &perms));
+					  request, cond, flags, &perms,
+					  &allow));
 	if (denied && !error) {
 		/*
 		 * check every profile in file label that was not tested
@@ -516,24 +526,49 @@ static int __file_path_perm(const char *op, const struct cred *subj_cred,
 		 * TODO: don't audit here
 		 */
 		if (label == flabel)
-			error = fn_for_each(label, profile,
+			error = fn_for_each(label, profile, is_mqueue ?
+				aa_profile_mqueue_perm(profile, &file->f_path,
+						       request, buffer, ad) :
 				profile_path_perm(op, subj_cred,
 						  profile, &file->f_path,
-						  buffer, request, &cond, flags,
-						  &perms));
+						  buffer, request, cond, flags,
+						  &perms, &allow));
 		else
-			error = fn_for_each_not_in_set(label, flabel, profile,
+			error = fn_for_each_not_in_set(label, flabel, profile, is_mqueue ?
+				aa_profile_mqueue_perm(profile, &file->f_path,
+						       request, buffer, ad) :
 				profile_path_perm(op, subj_cred,
 						  profile, &file->f_path,
-						  buffer, request, &cond, flags,
-						  &perms));
+						  buffer, request, cond, flags,
+						  &perms, &allow));
 	}
 	if (!error)
-		update_file_ctx(file_ctx(file), label, request);
+		update_file_ctx(file_ctx(file), label, request,
+				is_mqueue ? request : allow);
 
 	aa_put_buffer(buffer);
 
 	return error;
+}
+
+static int __file_path_perm(const char *op, const struct cred *subj_cred,
+			    struct aa_label *label,
+			    struct aa_label *flabel, struct file *file,
+			    u32 request, u32 denied, bool in_atomic)
+{
+	vfsuid_t vfsuid = i_uid_into_vfsuid(file_mnt_idmap(file),
+					    file_inode(file));
+	struct path_cond cond = {
+		.uid = vfsuid_into_kuid(vfsuid),
+		.mode = file_inode(file)->i_mode
+	};
+	int flags;
+
+	flags = PATH_DELEGATE_DELETED | (S_ISDIR(cond.mode) ? PATH_IS_DIR : 0);
+
+	return __path_perm(op, subj_cred, label, flabel, file,
+			   request, denied, &cond, flags, in_atomic,
+			   false, NULL);
 }
 
 static int __file_sock_perm(const char *op, const struct cred *subj_cred,
@@ -556,9 +591,26 @@ static int __file_sock_perm(const char *op, const struct cred *subj_cred,
 						    request, file));
 	}
 	if (!error)
-		update_file_ctx(file_ctx(file), label, request);
+		update_file_ctx(file_ctx(file), label, request, request);
 
 	return error;
+}
+
+static int __file_mqueue_perm(const char *op, const struct cred *subj_cred,
+			      struct aa_label *label,
+			      struct aa_label *flabel, struct file *file,
+			      u32 request, u32 denied, bool in_atomic)
+{
+	DEFINE_AUDIT_DATA(ad, LSM_AUDIT_DATA_NONE, AA_CLASS_POSIX_MQUEUE, op);
+
+	ad.subj_cred = subj_cred;
+	ad.request = request;
+	ad.peer = NULL;
+	ad.mq.ouid = file_inode(file)->i_uid;
+
+	return __path_perm(op, subj_cred, label, flabel, file,
+			   request, denied, NULL, 0, in_atomic,
+			   true, &ad);
 }
 
 /* for now separate fn to indicate semantics of the check */
@@ -638,7 +690,10 @@ int aa_file_perm(const char *op, const struct cred *subj_cred,
 	flabel  = aa_get_newest_label(flabel);
 	rcu_read_unlock();
 
-	if (path_mediated_fs(file->f_path.dentry))
+	if (is_mqueue_inode(file_inode(file))) {
+		error = __file_mqueue_perm(op, subj_cred, label, flabel, file,
+					   request, denied, in_atomic);
+	} else if (path_mediated_fs(file->f_path.dentry))
 		error = __file_path_perm(op, subj_cred, label, flabel, file,
 					 request, denied, in_atomic);
 

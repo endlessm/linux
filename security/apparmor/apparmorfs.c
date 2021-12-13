@@ -2315,6 +2315,12 @@ static struct aa_sfs_entry aa_sfs_entry_file[] = {
 	{ }
 };
 
+static struct aa_sfs_entry aa_sfs_entry_ipc[] = {
+	AA_SFS_FILE_STRING("posix_mqueue",
+			   "create read write open delete setattr getattr label"),
+	{ }
+};
+
 static struct aa_sfs_entry aa_sfs_entry_ptrace[] = {
 	AA_SFS_FILE_STRING("mask", "read trace"),
 	{ }
@@ -2340,7 +2346,8 @@ static struct aa_sfs_entry aa_sfs_entry_domain[] = {
 	AA_SFS_FILE_BOOLEAN("post_nnp_subset",	1),
 	AA_SFS_FILE_BOOLEAN("computed_longest_left",	1),
 	AA_SFS_DIR("attach_conditions",		aa_sfs_entry_attach),
-	AA_SFS_FILE_BOOLEAN("disconnected.path",            1),
+	AA_SFS_FILE_BOOLEAN("disconnected.path",	1),
+	AA_SFS_FILE_BOOLEAN("disconnected.ipc",		1),
 	AA_SFS_FILE_BOOLEAN("kill.signal",		1),
 	AA_SFS_FILE_STRING("version", "1.2"),
 	{ }
@@ -2415,6 +2422,7 @@ static struct aa_sfs_entry aa_sfs_entry_features[] = {
 	AA_SFS_DIR("domain",			aa_sfs_entry_domain),
 	AA_SFS_DIR("file",			aa_sfs_entry_file),
 	AA_SFS_DIR("network",			aa_sfs_entry_network_compat),
+	AA_SFS_DIR("ipc",			aa_sfs_entry_ipc),
 	AA_SFS_DIR("network_v8",		aa_sfs_entry_network),
 	AA_SFS_DIR("network_v9",		aa_sfs_entry_networkv9),
 	AA_SFS_DIR("mount",			aa_sfs_entry_mount),
