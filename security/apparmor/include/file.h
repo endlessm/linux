@@ -90,7 +90,8 @@ int __aa_path_perm(const char *op, const struct cred *subj_cred,
 		   struct aa_perms *perms);
 int aa_path_perm(const char *op, const struct cred *subj_cred,
 		 struct aa_label *label, const struct path *path,
-		 int flags, u32 request, struct path_cond *cond);
+		 int flags, u32 request, struct path_cond *cond,
+		 u32 *allow);
 
 int aa_path_link(const struct cred *subj_cred, struct aa_label *label,
 		 struct dentry *old_dentry, const struct path *new_dir,
