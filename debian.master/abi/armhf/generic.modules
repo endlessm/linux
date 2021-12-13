@@ -3283,6 +3283,7 @@ mt9v032
 mt9v111
 mtd_dataflash
 mtdoops
+mtdpstore
 mtdram
 mtdswap
 mtip32xx
@@ -4120,6 +4121,8 @@ ps2mult
 psample
 psmouse
 psnap
+pstore_blk
+pstore_zone
 psxpad-spi
 pt
 ptp-qoriq
