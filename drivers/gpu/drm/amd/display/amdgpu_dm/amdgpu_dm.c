@@ -3976,9 +3976,9 @@ static int amdgpu_dm_initialize_drm_device(struct amdgpu_device *adev)
 
 	/* Determine whether to enable PSR support by default. */
 	if (!(amdgpu_dc_debug_mask & DC_DISABLE_PSR)) {
-		switch (adev->ip_versions[DCE_HWIP][0]) {
-		case IP_VERSION(3, 1, 2):
-		case IP_VERSION(3, 1, 3):
+		switch (adev->asic_type) {
+		case CHIP_VANGOGH:
+		case CHIP_YELLOW_CARP:
 			psr_feature_enabled = true;
 			break;
 		default:
