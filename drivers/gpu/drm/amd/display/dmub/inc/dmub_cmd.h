@@ -370,7 +370,8 @@ union dmub_fw_boot_options {
 		uint32_t z10_disable: 1; /**< 1 to disable z10 */
 		uint32_t enable_dpia: 1; /**< 1 if DPIA should be enabled */
 		uint32_t invalid_vbios_data: 1; /**< 1 if VBIOS data table is invalid */
-		uint32_t reserved : 23; /**< reserved */
+		uint32_t reserved_unreleased2: 1; /**< reserved for an unreleased feature */
+		uint32_t reserved : 22; /**< reserved */
 	} bits; /**< boot bits */
 	uint32_t all; /**< 32-bit access to bits */
 };
