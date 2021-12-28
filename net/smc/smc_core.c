@@ -1126,7 +1126,7 @@ void smc_conn_free(struct smc_connection *conn)
 			smc_ism_unset_conn(conn);
 		tasklet_kill(&conn->rx_tsklet);
 	} else {
-		smc_cdc_tx_dismiss_slots(conn);
+		smc_cdc_wait_pend_tx_wr(conn);
 		if (current_work() != &conn->abort_work)
 			cancel_work_sync(&conn->abort_work);
 	}
@@ -1203,7 +1203,7 @@ void smcr_link_clear(struct smc_link *lnk, bool log)
 	smc_llc_link_clear(lnk, log);
 	smcr_buf_unmap_lgr(lnk);
 	smcr_rtoken_clear_link(lnk);
-	smc_ib_modify_qp_reset(lnk);
+	smc_ib_modify_qp_error(lnk);
 	smc_wr_free_link(lnk);
 	smc_ib_destroy_queue_pair(lnk);
 	smc_ib_dealloc_protection_domain(lnk);
@@ -1335,7 +1335,7 @@ static void smc_conn_kill(struct smc_connection *conn, bool soft)
 		else
 			tasklet_unlock_wait(&conn->rx_tsklet);
 	} else {
-		smc_cdc_tx_dismiss_slots(conn);
+		smc_cdc_wait_pend_tx_wr(conn);
 	}
 	smc_lgr_unregister_conn(conn);
 	smc_close_active_abort(smc);
@@ -1600,7 +1600,6 @@ static void smcr_link_down(struct smc_link *lnk)
 	if (!lgr || lnk->state == SMC_LNK_UNUSED || list_empty(&lgr->list))
 		return;
 
-	smc_ib_modify_qp_reset(lnk);
 	to_lnk = smc_switch_conns(lgr, lnk, true);
 	if (!to_lnk) { /* no backup link available */
 		smcr_link_clear(lnk, true);
@@ -1837,6 +1836,7 @@ create:
 	conn->local_tx_ctrl.common.type = SMC_CDC_MSG_TYPE;
 	conn->local_tx_ctrl.len = SMC_WR_TX_SIZE;
 	conn->urg_state = SMC_URG_READ;
+	init_waitqueue_head(&conn->cdc_pend_tx_wq);
 	INIT_WORK(&smc->conn.abort_work, smc_conn_abort_work);
 	if (ini->is_smcd) {
 		conn->rx_off = sizeof(struct smcd_cdc_msg);
