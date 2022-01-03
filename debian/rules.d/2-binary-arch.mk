@@ -464,6 +464,13 @@ endif
 		/sbin/modinfo $$ko | grep ^firmware || true; \
 	done | sort -u >$(abidir)/$*.fwinfo
 
+	# Build the final ABI built-in firmware information.
+	if [ -f $(pkgdir)/lib/modules/$(abi_release)-$*/modules.builtin.modinfo ] ; then \
+		cat $(pkgdir)/lib/modules/$(abi_release)-$*/modules.builtin.modinfo | \
+			tr '\0' '\n' | sed -n 's/^.*firmware=/firmware: /p' | \
+			sort -u > $(abidir)/$*.fwinfo.builtin; \
+	fi
+
 	# Build the final ABI compiler information.
 	ko=$$(find $(pkgdir_bin) $(pkgdir) $(pkgdir_ex) -name \*.ko | head -1); \
 	readelf -p .comment "$$ko" | gawk ' \
@@ -501,6 +508,10 @@ endif
 	if [ -f $(abidir)/$*.modules.builtin ] ; then \
 		install -m644 $(abidir)/$*.modules.builtin \
 			$(pkgdir_bldinfo)/usr/lib/linux/$(abi_release)-$*/modules.builtin; \
+	fi
+	if [ -f $(abidir)/$*.fwinfo.builtin ] ; then \
+		install -m644 $(abidir)/$*.fwinfo.builtin \
+			$(pkgdir_bldinfo)/usr/lib/linux/$(abi_release)-$*/fwinfo.builtin; \
 	fi
 
 ifneq ($(full_build),false)
