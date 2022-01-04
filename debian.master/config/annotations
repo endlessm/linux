@@ -10515,7 +10515,6 @@ CONFIG_DELL_WMI                                 policy<{'amd64': 'm'}>
 CONFIG_DELL_WMI_PRIVACY                         policy<{'amd64': 'y'}>
 
 # Menu: Device Drivers >> X86 Platform Specific Device Drivers >> Intel x86 Platform Specific Device Drivers
-CONFIG_X86_PLATFORM_DRIVERS_INTEL               policy<{'amd64': 'y'}>
 CONFIG_INTEL_ATOMISP2_LED                       policy<{'amd64': 'm'}>
 CONFIG_INTEL_SAR_INT1092                        policy<{'amd64': 'm'}>
 CONFIG_INTEL_CHT_INT33FE                        policy<{'amd64': 'm'}>
