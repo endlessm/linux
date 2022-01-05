@@ -36,8 +36,6 @@ static void log_quirks(struct device *dev)
 	if (SOF_SSP_GET_PORT(sof_sdw_quirk))
 		dev_dbg(dev, "SSP port %ld\n",
 			SOF_SSP_GET_PORT(sof_sdw_quirk));
-	if (sof_sdw_quirk & SOF_RT715_DAI_ID_FIX)
-		dev_dbg(dev, "quirk SOF_RT715_DAI_ID_FIX enabled\n");
 	if (sof_sdw_quirk & SOF_SDW_NO_AGGREGATION)
 		dev_dbg(dev, "quirk SOF_SDW_NO_AGGREGATION enabled\n");
 }
@@ -64,8 +62,7 @@ static const struct dmi_system_id sof_sdw_quirk_table[] = {
 			DMI_MATCH(DMI_SYS_VENDOR, "Dell Inc"),
 			DMI_EXACT_MATCH(DMI_PRODUCT_SKU, "09C6")
 		},
-		.driver_data = (void *)(RT711_JD2 |
-					SOF_RT715_DAI_ID_FIX),
+		.driver_data = (void *)RT711_JD2,
 	},
 	{
 		/* early version of SKU 09C6 */
@@ -74,8 +71,7 @@ static const struct dmi_system_id sof_sdw_quirk_table[] = {
 			DMI_MATCH(DMI_SYS_VENDOR, "Dell Inc"),
 			DMI_EXACT_MATCH(DMI_PRODUCT_SKU, "0983")
 		},
-		.driver_data = (void *)(RT711_JD2 |
-					SOF_RT715_DAI_ID_FIX),
+		.driver_data = (void *)RT711_JD2,
 	},
 	{
 		.callback = sof_sdw_quirk_cb,
@@ -84,7 +80,6 @@ static const struct dmi_system_id sof_sdw_quirk_table[] = {
 			DMI_EXACT_MATCH(DMI_PRODUCT_SKU, "098F"),
 		},
 		.driver_data = (void *)(RT711_JD2 |
-					SOF_RT715_DAI_ID_FIX |
 					SOF_SDW_FOUR_SPK),
 	},
 	{
@@ -94,7 +89,6 @@ static const struct dmi_system_id sof_sdw_quirk_table[] = {
 			DMI_EXACT_MATCH(DMI_PRODUCT_SKU, "0990"),
 		},
 		.driver_data = (void *)(RT711_JD2 |
-					SOF_RT715_DAI_ID_FIX |
 					SOF_SDW_FOUR_SPK),
 	},
 	/* IceLake devices */
@@ -126,8 +120,7 @@ static const struct dmi_system_id sof_sdw_quirk_table[] = {
 			DMI_EXACT_MATCH(DMI_PRODUCT_SKU, "0A3E")
 		},
 		.driver_data = (void *)(SOF_SDW_TGL_HDMI |
-					RT711_JD2 |
-					SOF_RT715_DAI_ID_FIX),
+					RT711_JD2),
 	},
 	{
 		/* Dell XPS 9710 */
@@ -138,7 +131,6 @@ static const struct dmi_system_id sof_sdw_quirk_table[] = {
 		},
 		.driver_data = (void *)(SOF_SDW_TGL_HDMI |
 					RT711_JD2 |
-					SOF_RT715_DAI_ID_FIX |
 					SOF_SDW_FOUR_SPK),
 	},
 	{
@@ -149,7 +141,6 @@ static const struct dmi_system_id sof_sdw_quirk_table[] = {
 		},
 		.driver_data = (void *)(SOF_SDW_TGL_HDMI |
 					RT711_JD2 |
-					SOF_RT715_DAI_ID_FIX |
 					SOF_SDW_FOUR_SPK),
 	},
 	{
@@ -210,7 +201,6 @@ static const struct dmi_system_id sof_sdw_quirk_table[] = {
 		},
 		.driver_data = (void *)(SOF_SDW_TGL_HDMI |
 					RT711_JD2 |
-					SOF_RT715_DAI_ID_FIX |
 					SOF_SDW_FOUR_SPK),
 	},
 	{
@@ -220,8 +210,7 @@ static const struct dmi_system_id sof_sdw_quirk_table[] = {
 			DMI_EXACT_MATCH(DMI_PRODUCT_SKU, "0A45")
 		},
 		.driver_data = (void *)(SOF_SDW_TGL_HDMI |
-					RT711_JD2 |
-					SOF_RT715_DAI_ID_FIX),
+					RT711_JD2),
 	},
 	/* AlderLake devices */
 	{
@@ -232,7 +221,6 @@ static const struct dmi_system_id sof_sdw_quirk_table[] = {
 		},
 		.driver_data = (void *)(RT711_JD2_100K |
 					SOF_SDW_TGL_HDMI |
-					SOF_RT715_DAI_ID_FIX |
 					SOF_BT_OFFLOAD_SSP(2) |
 					SOF_SSP_BT_OFFLOAD_PRESENT),
 	},
