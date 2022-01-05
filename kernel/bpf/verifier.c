@@ -5939,6 +5939,14 @@ static int check_func_arg(struct bpf_verifier_env *env, u32 arg,
 		 */
 		goto skip_type_check;
 
+	/* We already checked for NULL above */
+	if (arg_type == ARG_PTR_TO_ALLOC_MEM) {
+		if (reg->off != 0 || !tnum_is_const(reg->var_off)) {
+			verbose(env, "helper wants pointer to allocated memory\n");
+			return -EACCES;
+		}
+	}
+
 	/* arg_btf_id and arg_size are in a union. */
 	if (base_type(arg_type) == ARG_PTR_TO_BTF_ID)
 		arg_btf_id = fn->arg_btf_id[arg];
