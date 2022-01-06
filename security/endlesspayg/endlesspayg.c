@@ -212,6 +212,10 @@ static int payg_task_kill(struct task_struct *p, struct kernel_siginfo *info,
 	if (p->tgid != paygd_pid)
 		return 0;
 
+	/* allow SIGTERM so paygd can shutdown properly */
+	if (sig == SIGTERM)
+		return 0;
+
 	return -EPERM;
 }
 
