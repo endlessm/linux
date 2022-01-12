@@ -207,7 +207,9 @@ static int payg_ptrace_access_check(struct task_struct *child,
 static int payg_task_kill(struct task_struct *p, struct kernel_siginfo *info,
                           int sig, const struct cred *cred)
 {
-	if (p->pid != paygd_pid)
+	/* in kernel space, pid is the thread id and tgid is the process id
+	 * (aka thread group id) */
+	if (p->tgid != paygd_pid)
 		return 0;
 
 	return -EPERM;
