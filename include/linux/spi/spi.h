@@ -769,6 +769,7 @@ extern struct spi_controller *spi_busnum_to_master(u16 busnum);
 extern struct spi_device *acpi_spi_device_alloc(struct spi_controller *ctlr,
 						struct acpi_device *adev,
 						int index);
+int acpi_spi_count_resources(struct acpi_device *adev);
 #endif
 
 /*
