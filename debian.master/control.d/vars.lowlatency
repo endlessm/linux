@@ -1,4 +1,4 @@
-arch="amd64"
+arch="amd64 arm64"
 supported="Lowlatency"
 target="Geared toward desktop and server systems."
 desc="=HUMAN= SMP"
