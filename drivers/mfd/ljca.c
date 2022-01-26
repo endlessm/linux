@@ -151,7 +151,6 @@ struct ljca_stub {
 	struct list_head list;
 	u8 type;
 	struct usb_interface *intf;
-	struct mutex mutex;
 	spinlock_t event_cb_lock;
 
 	struct ljca_stub_packet ipacket;
@@ -204,6 +203,7 @@ struct ljca_dev {
 
 	struct mfd_cell *cells;
 	int cell_count;
+	struct mutex mutex;
 };
 
 static int try_match_acpi_hid(struct acpi_device *child,
@@ -281,7 +281,6 @@ static struct ljca_stub *ljca_stub_alloc(struct ljca_dev *ljca, int priv_size)
 	if (!stub)
 		return ERR_PTR(-ENOMEM);
 
-	mutex_init(&stub->mutex);
 	spin_lock_init(&stub->event_cb_lock);
 	INIT_LIST_HEAD(&stub->list);
 	list_add_tail(&stub->list, &ljca->stubs_list);
@@ -376,7 +375,7 @@ static int ljca_stub_write(struct ljca_stub *stub, u8 cmd, const void *obuf,
 		header->type, header->cmd, header->flags, header->len);
 	ljca_dump(ljca, header->data, header->len);
 
-	mutex_lock(&stub->mutex);
+	mutex_lock(&ljca->mutex);
 	stub->cur_cmd = cmd;
 	stub->ipacket.ibuf = ibuf;
 	stub->acked = false;
@@ -419,7 +418,7 @@ error:
 	if (ljca->state == LJCA_STOPPED)
 		wake_up(&ljca->disconnect_wq);
 
-	mutex_unlock(&stub->mutex);
+	mutex_unlock(&ljca->mutex);
 	return ret;
 }
 
@@ -511,7 +510,6 @@ static void ljca_stub_cleanup(struct ljca_dev *ljca)
 
 	list_for_each_entry_safe (stub, next, &ljca->stubs_list, list) {
 		list_del_init(&stub->list);
-		mutex_destroy(&stub->mutex);
 		kfree(stub);
 	}
 }
@@ -950,6 +948,7 @@ static int ljca_diag_init(struct ljca_dev *ljca)
 
 static void ljca_delete(struct ljca_dev *ljca)
 {
+	mutex_destroy(&ljca->mutex);
 	usb_free_urb(ljca->in_urb);
 	usb_put_intf(ljca->intf);
 	usb_put_dev(ljca->udev);
@@ -960,6 +959,7 @@ static void ljca_delete(struct ljca_dev *ljca)
 
 static int ljca_init(struct ljca_dev *ljca)
 {
+	mutex_init(&ljca->mutex);
 	init_waitqueue_head(&ljca->ack_wq);
 	init_waitqueue_head(&ljca->disconnect_wq);
 	INIT_LIST_HEAD(&ljca->stubs_list);
