@@ -199,9 +199,12 @@ static int ljca_spi_transfer(struct ljca_spi_dev *ljca_spi, const u8 *tx_data,
 						  complete, LJCA_SPI_READ);
 		else
 			return -EINVAL;
+
+		if (ret)
+			return ret;
 	}
 
-	return ret;
+	return 0;
 }
 
 static int ljca_spi_prepare_message(struct spi_master *master,
