@@ -36,7 +36,7 @@ Build-Depends:
  dkms <!stage1>,
  curl <!stage1>,
  zstd [amd64 s390x] <!stage1>,
- dwarves [amd64 arm64 armhf ppc64el s390x] <!stage1>,
+ pahole [amd64 arm64 armhf ppc64el s390x riscv64] | dwarves (>= 1.21) [amd64 arm64 armhf ppc64el s390x riscv64] <!stage1>,
 Build-Depends-Indep:
  xmlto <!stage1>,
  docbook-utils <!stage1>,
