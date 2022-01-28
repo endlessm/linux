@@ -1,6 +1,7 @@
 # Recreate any symlinks created since the orig.
 # Remove any files deleted from the orig.
 rm -f 'arch/hexagon/include/asm/timer-regs.h'
+rm -f 'drivers/gpu/drm/vmwgfx/vmwgfx_thp.c'
 rm -f 'drivers/staging/most/dim2/sysfs.c'
 rm -f 'tools/build/feature/test-libpython-version.c'
 rm -f 'tools/perf/util/bpf_skel/bperf.h'
