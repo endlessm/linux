@@ -1,3 +1,9 @@
+linux-unstable (5.17.0-0.0) jammy; urgency=medium
+
+  * Empty entry
+
+ -- Andrea Righi <andrea.righi@canonical.com>  Fri, 28 Jan 2022 17:14:13 +0100
+
 linux (5.15.0-18.18) jammy; urgency=medium
 
   * jammy/linux: 5.15.0-18.18 -proposed tracker (LP: #1958638)
