@@ -5118,6 +5118,7 @@ sha3_generic
 sha512-arm64
 sha512-ce
 shark2
+shiftfs
 sht15
 sht21
 sht3x

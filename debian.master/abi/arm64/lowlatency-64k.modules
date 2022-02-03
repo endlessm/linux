@@ -791,6 +791,7 @@ cdns3-pci-wrap
 cdns3-ti
 cdnsp-udc-pci
 cec
+cec-gpio
 ceph
 cfb
 cfg80211

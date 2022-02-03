@@ -4408,6 +4408,7 @@ sha256-ssse3
 sha3_generic
 sha512-ssse3
 shark2
+shiftfs
 sht15
 sht21
 sht3x

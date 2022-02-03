@@ -791,6 +791,7 @@ cdns3-pci-wrap
 cdns3-ti
 cdnsp-udc-pci
 cec
+cec-gpio
 ceph
 cfb
 cfg80211
@@ -3717,6 +3718,7 @@ nvmem-reboot-mode
 nvmem-rmem
 nvmem-rockchip-otp
 nvmem-sc27xx-efuse
+nvmem_meson_efuse
 nvmem_meson_mx_efuse
 nvmem_qcom-spmi-sdam
 nvmem_qfprom
@@ -6557,9 +6559,11 @@ vme_tsi148
 vme_user
 vme_vmivme7805
 vmk80xx
+vmw_pvrdma
 vmw_vsock_virtio_transport
 vmw_vsock_virtio_transport_common
 vmwgfx
+vmxnet3
 vp27smpx
 vp_vdpa
 vport-geneve
