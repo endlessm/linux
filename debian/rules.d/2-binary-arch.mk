@@ -565,7 +565,7 @@ define dh_all
 	dh_installdebconf -p$(1)
 	$(lockme) dh_gencontrol -p$(1) -- -Vlinux:rprovides='$(rprovides)'
 	dh_md5sums -p$(1)
-	dh_builddeb -p$(1) -- -Zxz
+	dh_builddeb -p$(1)
 endef
 define newline
 
