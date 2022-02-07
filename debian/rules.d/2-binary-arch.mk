@@ -605,7 +605,7 @@ binary-%: checks-%
 	dh_testdir
 	dh_testroot
 
-	$(call dh_all,$(pkgimg))
+	$(call dh_all,$(pkgimg)) -- -Znone
 	$(call dh_all,$(pkgimg_mods))
 
 ifeq ($(do_extras_package),true)
