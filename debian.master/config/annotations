@@ -11669,8 +11669,7 @@ CONFIG_DEBUG_INFO_BTF                           flag<REVIEW> note<Needs newer pa
 
 # Menu: Kernel hacking >> Compile-time checks and compiler options >> Compile the kernel with debug info >> DWARF version
 CONFIG_DEBUG_INFO_DWARF_TOOLCHAIN_DEFAULT       policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'ppc64el': 'n', 's390x': 'n'}>
-CONFIG_DEBUG_INFO_DWARF4                        policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 's390x': 'y'}>
-CONFIG_DEBUG_INFO_DWARF5                        policy<{'armhf': 'n'}>
+CONFIG_DEBUG_INFO_DWARF5                        policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 's390x': 'y'}>
 
 # Menu: Kernel hacking >> Debug Oops, Lockups and Hangs
 CONFIG_PANIC_ON_OOPS                            policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'ppc64el': 'n', 's390x': 'n'}>
