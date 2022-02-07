@@ -191,7 +191,7 @@ binary-headers: $(stampdir)/stamp-prepare-indep $(stampdir)/stamp-install-header
 	dh_installdeb -p$(indep_hdrpkg)
 	$(lockme) dh_gencontrol -p$(indep_hdrpkg)
 	dh_md5sums -p$(indep_hdrpkg)
-	dh_builddeb -p$(indep_hdrpkg) -- -Zxz
+	dh_builddeb -p$(indep_hdrpkg)
 
 binary-indep: cloudpkg = $(cloud_common_pkg_name)
 binary-indep: hosttoolspkg = $(hosttools_pkg_name)
@@ -229,4 +229,4 @@ endif
 	dh_installdeb -i
 	$(lockme) dh_gencontrol -i
 	dh_md5sums -i
-	dh_builddeb -i -- -Zxz
+	dh_builddeb -i
