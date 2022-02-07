@@ -634,7 +634,7 @@ ifneq ($(skipsub),true)
 endif
 
 ifneq ($(skipdbg),true)
-	$(call dh_all,$(dbgpkg))
+	$(call dh_all,$(dbgpkg)) -- -Zxz
 
 	# Hokay...here's where we do a little twiddling...
 	# Renaming the debug package prevents it from getting into
