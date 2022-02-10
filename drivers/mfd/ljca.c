@@ -193,9 +193,6 @@ struct ljca_dev {
 
 	int state;
 
-	atomic_t active_transfers;
-	wait_queue_head_t disconnect_wq;
-
 	struct list_head stubs_list;
 
 	/* to wait for an ongoing write ack */
@@ -350,7 +347,6 @@ static int ljca_stub_write(struct ljca_stub *stub, u8 cmd, const void *obuf,
 	u8 flags = CMPL_FLAG;
 	int actual;
 
-	atomic_inc(&ljca->active_transfers);
 	if (ljca->state == LJCA_STOPPED)
 		return -ENODEV;
 
@@ -392,8 +388,6 @@ static int ljca_stub_write(struct ljca_stub *stub, u8 cmd, const void *obuf,
 		goto error;
 	}
 
-	usb_autopm_put_interface(ljca->intf);
-
 	if (wait_ack) {
 		ret = wait_event_timeout(
 			ljca->ack_wq, stub->acked,
@@ -414,10 +408,7 @@ static int ljca_stub_write(struct ljca_stub *stub, u8 cmd, const void *obuf,
 	stub->ipacket.ibuf_len = 0;
 	ret = 0;
 error:
-	atomic_dec(&ljca->active_transfers);
-	if (ljca->state == LJCA_STOPPED)
-		wake_up(&ljca->disconnect_wq);
-
+	usb_autopm_put_interface(ljca->intf);
 	mutex_unlock(&ljca->mutex);
 	return ret;
 }
@@ -961,7 +952,6 @@ static int ljca_init(struct ljca_dev *ljca)
 {
 	mutex_init(&ljca->mutex);
 	init_waitqueue_head(&ljca->ack_wq);
-	init_waitqueue_head(&ljca->disconnect_wq);
 	INIT_LIST_HEAD(&ljca->stubs_list);
 
 	ljca->state = LJCA_INITED;
@@ -971,9 +961,6 @@ static int ljca_init(struct ljca_dev *ljca)
 
 static void ljca_stop(struct ljca_dev *ljca)
 {
-	ljca->state = LJCA_STOPPED;
-	wait_event_interruptible(ljca->disconnect_wq,
-				 !atomic_read(&ljca->active_transfers));
 	usb_kill_urb(ljca->in_urb);
 }
 
@@ -1139,11 +1126,12 @@ static void ljca_disconnect(struct usb_interface *intf)
 	ljca = usb_get_intfdata(intf);
 
 	ljca_stop(ljca);
+	ljca->state = LJCA_STOPPED;
 	mfd_remove_devices(&intf->dev);
 	ljca_stub_cleanup(ljca);
 	usb_set_intfdata(intf, NULL);
 	ljca_delete(ljca);
-	dev_dbg(&intf->dev, "LJCA disconnected\n");
+	dev_info(&intf->dev, "LJCA disconnected\n");
 }
 
 static int ljca_suspend(struct usb_interface *intf, pm_message_t message)
