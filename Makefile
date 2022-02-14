@@ -520,7 +520,7 @@ LINUXINCLUDE    := \
 		$(USERINCLUDE)
 
 # UBUNTU: Include our third party driver stuff too
-LINUXINCLUDE   += -Iubuntu/include $(if $(KBUILD_SRC),-I$(srctree)/ubuntu/include)
+LINUXINCLUDE   += -I$(srctree)/ubuntu/include
 
 KBUILD_AFLAGS   := -D__ASSEMBLY__ -fno-PIE
 KBUILD_CFLAGS   := -Wall -Wundef -Werror=strict-prototypes -Wno-trigraphs \
