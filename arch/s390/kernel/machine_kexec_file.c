@@ -235,7 +235,8 @@ void *kexec_file_add_components(struct kimage *image,
 	if (ret)
 		goto out;
 
-	if (image->cmdline_buf_len >= ARCH_COMMAND_LINE_SIZE) {
+	if (image->kernel_buf_len < PARMAREA + sizeof(struct parmarea) ||
+	    image->cmdline_buf_len >= ARCH_COMMAND_LINE_SIZE) {
 		ret = -EINVAL;
 		goto out;
 	}
@@ -323,20 +324,6 @@ int arch_kexec_apply_relocations_add(struct purgatory_info *pi,
 		}
 	}
 	return 0;
-}
-
-int arch_kexec_kernel_image_probe(struct kimage *image, void *buf,
-				  unsigned long buf_len)
-{
-	/* A kernel must be at least large enough to contain head.S. During
-	 * load memory in head.S will be accessed, e.g. to register the next
-	 * command line. If the next kernel were smaller the current kernel
-	 * will panic at load.
-	 */
-	if (buf_len < HEAD_END)
-		return -ENOEXEC;
-
-	return kexec_image_probe_default(image, buf, buf_len);
 }
 
 int arch_kimage_file_post_load_cleanup(struct kimage *image)
