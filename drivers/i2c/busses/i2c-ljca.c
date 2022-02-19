@@ -338,16 +338,16 @@ static void try_bind_acpi(struct platform_device *pdev,
 	uid1 = acpi_device_uid(cur);
 	snprintf(uid2, sizeof(uid2), "%d", ljca_i2c->ctr_info->id);
 
-	dev_dbg(&pdev->dev, "hid %s uid %s new uid%s\n", hid1, uid1, uid2);
 	/*
 	* If the pdev is bound to the right acpi device, just forward it to the
 	* adapter. Otherwise, we find that of current adapter manually.
 	*/
-	if (!strcmp(uid1, uid2)) {
+	if (!uid1 || !strcmp(uid1, uid2)) {
 		ACPI_COMPANION_SET(&ljca_i2c->adap.dev, cur);
 		return;
 	}
 
+	dev_dbg(&pdev->dev, "hid %s uid %s new uid%s\n", hid1, uid1, uid2);
 	parent = ACPI_COMPANION(pdev->dev.parent);
 	if (!parent)
 		return;
