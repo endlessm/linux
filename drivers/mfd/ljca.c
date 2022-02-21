@@ -795,7 +795,7 @@ static int ljca_mng_enum_spi(struct ljca_stub *stub)
 	ret = ljca_stub_write(stub, MNG_ENUM_SPI, NULL, 0, desc, &len, true);
 	if (ret) {
 		dev_err(&stub->intf->dev,
-			"MNG_ENUM_I2C failed ret:%d len:%d num:%d\n", ret, len,
+			"MNG_ENUM_SPI failed ret:%d len:%d num:%d\n", ret, len,
 			desc->num);
 		kfree(desc);
 		return -EIO;
