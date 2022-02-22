@@ -10959,6 +10959,9 @@ CONFIG_UBIFS_FS_LZO                             policy<{'amd64': 'y', 'arm64': '
 CONFIG_UBIFS_FS_ZLIB                            policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y'}>
 CONFIG_UBIFS_FS_ZSTD                            policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y'}>
 
+# Menu: File systems >> Miscellaneous filesystems >> AUFS
+CONFIG_AUFS_FS                                  policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'ppc64el': 'n', 's390x', 'n'}>
+
 # Menu: File systems >> Native language support
 CONFIG_NLS                                      policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 's390x': 'y'}>
 CONFIG_NLS_DEFAULT                              policy<{'amd64': '"utf8"', 'arm64': '"utf8"', 'armhf': '"utf8"', 'ppc64el': '"utf8"', 's390x': '"utf8"'}>
@@ -11024,6 +11027,8 @@ CONFIG_SUNRPC_DISABLE_INSECURE_ENCTYPES         policy<{'amd64': 'y', 'arm64': '
 CONFIG_SUNRPC_DEBUG                             policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 's390x': 'y'}>
 CONFIG_SUNRPC_XPRT_RDMA                         policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 's390x': 'm'}>
 CONFIG_CODA_FS                                  policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 's390x': 'm'}>
+
+
 
 # Menu: File systems >> Network File Systems >> Andrew File System support (AFS)
 CONFIG_AFS_FS                                   policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 's390x': 'm'}>
