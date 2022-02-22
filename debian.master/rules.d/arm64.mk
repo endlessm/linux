@@ -19,3 +19,5 @@ do_tools_bpftool = true
 do_tools_rtla = true
 
 do_dtbs		= true
+
+do_skip_checks	= true
