@@ -1058,6 +1058,7 @@ struct aa_load_ent *aa_load_ent_alloc(void)
 static int deflate_compress(const char *src, size_t slen, char **dst,
 			    size_t *dlen)
 {
+#ifdef CONFIG_SECURITY_APPARMOR_EXPORT_BINARY
 	int error;
 	struct z_stream_s strm;
 	void *stgbuf, *dstbuf;
@@ -1129,6 +1130,10 @@ fail_deflate_init:
 fail_deflate:
 	kvfree(stgbuf);
 	goto fail_stg_alloc;
+#else
+	*dlen = slen;
+	return 0;
+#endif
 }
 
 static int compress_loaddata(struct aa_loaddata *data)
@@ -1147,7 +1152,8 @@ static int compress_loaddata(struct aa_loaddata *data)
 		if (error)
 			return error;
 
-		kvfree(udata);
+		if (udata != data->data)
+			kvfree(udata);
 	} else
 		data->compressed_size = data->size;
 
