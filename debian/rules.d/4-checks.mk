@@ -34,6 +34,9 @@ config-prepare-check-%: $(stampdir)/stamp-prepare-tree-%
 		perl -f $(DROOT)/scripts/checks/config-check \
 			$(builddir)/build-$*/.config "$(arch)" "$*" "$(commonconfdir)" \
 			"$(skipconfig)" "$(do_enforce_all)"; \
+	elif [ $(skipconfig) == true ]; then \
+		python3 $(DROOT)/scripts/misc/annotations -f $(commonconfdir)/annotations \
+			--arch $(arch) --flavour $*; \
 	else \
 		python3 $(DROOT)/scripts/misc/annotations -f $(commonconfdir)/annotations \
 			--arch $(arch) --flavour $* --check $(builddir)/build-$*/.config; \
