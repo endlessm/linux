@@ -136,6 +136,7 @@ struct ljca_gpio_descriptor {
 #define MAX_PAYLOAD_SIZE (MAX_PACKET_SIZE - sizeof(struct ljca_msg))
 #define USB_WRITE_TIMEOUT 200
 #define USB_WRITE_ACK_TIMEOUT 500
+#define USB_ENUM_STUB_TIMEOUT 20
 
 struct ljca_event_cb_entry {
 	struct platform_device *pdev;
@@ -204,8 +205,8 @@ struct ljca_dev {
 };
 
 static int try_match_acpi_hid(struct acpi_device *child,
-			     struct mfd_cell_acpi_match *match, char **hids,
-			     int hids_num)
+			      struct mfd_cell_acpi_match *match, char **hids,
+			      int hids_num)
 {
 	struct acpi_device_id ids[2] = {};
 	int i;
@@ -230,18 +231,14 @@ static int precheck_acpi_hid(struct usb_interface *intf)
 		return -ENODEV;
 
 	list_for_each_entry (child, &parent->children, node) {
-		try_match_acpi_hid(child,
-				  &ljca_acpi_match_gpio,
-				   gpio_hids, ARRAY_SIZE(gpio_hids));
-		try_match_acpi_hid(child,
-				  &ljca_acpi_match_i2cs[0],
-				   i2c_hids, ARRAY_SIZE(i2c_hids));
-		try_match_acpi_hid(child,
-				  &ljca_acpi_match_i2cs[1],
-				   i2c_hids, ARRAY_SIZE(i2c_hids));
-		try_match_acpi_hid(child,
-				  &ljca_acpi_match_spis[0],
-				   spi_hids, ARRAY_SIZE(spi_hids));
+		try_match_acpi_hid(child, &ljca_acpi_match_gpio, gpio_hids,
+				   ARRAY_SIZE(gpio_hids));
+		try_match_acpi_hid(child, &ljca_acpi_match_i2cs[0], i2c_hids,
+				   ARRAY_SIZE(i2c_hids));
+		try_match_acpi_hid(child, &ljca_acpi_match_i2cs[1], i2c_hids,
+				   ARRAY_SIZE(i2c_hids));
+		try_match_acpi_hid(child, &ljca_acpi_match_spis[0], spi_hids,
+				   ARRAY_SIZE(spi_hids));
 	}
 
 	return 0;
@@ -254,7 +251,6 @@ static bool ljca_validate(void *data, u32 data_len)
 	return (header->len + sizeof(*header) == data_len);
 }
 
-
 void ljca_dump(struct ljca_dev *ljca, void *buf, int len)
 {
 	int i;
@@ -265,7 +261,8 @@ void ljca_dump(struct ljca_dev *ljca, void *buf, int len)
 		return;
 
 	for (i = 0; i < len; i++)
-		n += scnprintf(tmp + n, sizeof(tmp) - n - 1, "%02x ", ((u8*)buf)[i]);
+		n += scnprintf(tmp + n, sizeof(tmp) - n - 1, "%02x ",
+			       ((u8 *)buf)[i]);
 
 	dev_dbg(&ljca->intf->dev, "%s\n", tmp);
 }
@@ -339,7 +336,8 @@ static int ljca_parse(struct ljca_dev *ljca, struct ljca_msg *header)
 }
 
 static int ljca_stub_write(struct ljca_stub *stub, u8 cmd, const void *obuf,
-			   int obuf_len, void *ibuf, int *ibuf_len, bool wait_ack)
+			   int obuf_len, void *ibuf, int *ibuf_len,
+			   bool wait_ack, int timeout)
 {
 	struct ljca_msg *header;
 	struct ljca_dev *ljca = usb_get_intfdata(stub->intf);
@@ -389,13 +387,12 @@ static int ljca_stub_write(struct ljca_stub *stub, u8 cmd, const void *obuf,
 	}
 
 	if (wait_ack) {
-		ret = wait_event_timeout(
-			ljca->ack_wq, stub->acked,
-			msecs_to_jiffies(USB_WRITE_ACK_TIMEOUT));
+		ret = wait_event_timeout(ljca->ack_wq, stub->acked,
+					 msecs_to_jiffies(timeout));
 		if (!ret || !stub->acked) {
 			dev_err(&ljca->intf->dev,
 				"acked sem wait timed out ret:%d timeout:%d ack:%d\n",
-				ret, USB_WRITE_ACK_TIMEOUT, stub->acked);
+				ret, timeout, stub->acked);
 			ret = -ETIMEDOUT;
 			goto error;
 		}
@@ -413,8 +410,9 @@ error:
 	return ret;
 }
 
-static int ljca_transfer_internal(struct platform_device *pdev, u8 cmd, const void *obuf,
-		  int obuf_len, void *ibuf, int *ibuf_len, bool wait_ack)
+static int ljca_transfer_internal(struct platform_device *pdev, u8 cmd,
+				  const void *obuf, int obuf_len, void *ibuf,
+				  int *ibuf_len, bool wait_ack)
 {
 	struct ljca_platform_data *ljca_pdata;
 	struct ljca_dev *ljca;
@@ -429,11 +427,12 @@ static int ljca_transfer_internal(struct platform_device *pdev, u8 cmd, const vo
 	if (IS_ERR(stub))
 		return PTR_ERR(stub);
 
-	return ljca_stub_write(stub, cmd, obuf, obuf_len, ibuf, ibuf_len, wait_ack);
+	return ljca_stub_write(stub, cmd, obuf, obuf_len, ibuf, ibuf_len,
+			       wait_ack, USB_WRITE_ACK_TIMEOUT);
 }
 
 int ljca_transfer(struct platform_device *pdev, u8 cmd, const void *obuf,
-		     int obuf_len, void *ibuf, int *ibuf_len)
+		  int obuf_len, void *ibuf, int *ibuf_len)
 {
 	return ljca_transfer_internal(pdev, cmd, obuf, obuf_len, ibuf, ibuf_len,
 				      true);
@@ -516,6 +515,9 @@ static void ljca_read_complete(struct urb *urb)
 		"bulk read urb got message from fw, status:%d data_len:%d\n",
 		urb->status, urb->actual_length);
 
+	BUG_ON(!ljca);
+	BUG_ON(!header);
+
 	if (urb->status) {
 		/* sync/async unlink faults aren't errors */
 		if (urb->status == -ENOENT || urb->status == -ECONNRESET ||
@@ -582,7 +584,8 @@ static int ljca_mng_reset_handshake(struct ljca_stub *stub)
 	priv = ljca_priv(stub);
 	reset_id = cpu_to_le32(priv->reset_id++);
 	ret = ljca_stub_write(stub, MNG_RESET_NOTIFY, &reset_id,
-			      sizeof(reset_id), &reset_id_ret, &ilen, true);
+			      sizeof(reset_id), &reset_id_ret, &ilen, true,
+			      USB_WRITE_ACK_TIMEOUT);
 	if (ret || ilen != sizeof(reset_id_ret) || reset_id_ret != reset_id) {
 		dev_err(&stub->intf->dev,
 			"MNG_RESET_NOTIFY failed reset_id:%d/%d ret:%d\n",
@@ -595,7 +598,8 @@ static int ljca_mng_reset_handshake(struct ljca_stub *stub)
 
 static inline int ljca_mng_reset(struct ljca_stub *stub)
 {
-	return ljca_stub_write(stub, MNG_RESET, NULL, 0, NULL, NULL, true);
+	return ljca_stub_write(stub, MNG_RESET, NULL, 0, NULL, NULL, true,
+			       USB_WRITE_ACK_TIMEOUT);
 }
 
 static int ljca_add_mfd_cell(struct ljca_dev *ljca, struct mfd_cell *cell)
@@ -668,12 +672,15 @@ static int ljca_mng_enum_gpio(struct ljca_stub *stub)
 	if (!desc)
 		return -ENOMEM;
 
-	ret = ljca_stub_write(stub, MNG_ENUM_GPIO, NULL, 0, desc, &len, true);
+	ret = ljca_stub_write(stub, MNG_ENUM_GPIO, NULL, 0, desc, &len, true,
+			      USB_ENUM_STUB_TIMEOUT);
 	if (ret || len != sizeof(*desc) + desc->bank_num *
 						  sizeof(desc->bank_desc[0])) {
 		dev_err(&stub->intf->dev,
 			"enum gpio failed ret:%d len:%d bank_num:%d\n", ret,
 			len, desc->bank_num);
+		kfree(desc);
+		return -EIO;
 	}
 
 	ret = ljca_gpio_stub_init(ljca, desc);
@@ -730,7 +737,8 @@ static int ljca_mng_enum_i2c(struct ljca_stub *stub)
 	if (!desc)
 		return -ENOMEM;
 
-	ret = ljca_stub_write(stub, MNG_ENUM_I2C, NULL, 0, desc, &len, true);
+	ret = ljca_stub_write(stub, MNG_ENUM_I2C, NULL, 0, desc, &len, true,
+			      USB_ENUM_STUB_TIMEOUT);
 	if (ret) {
 		dev_err(&stub->intf->dev,
 			"MNG_ENUM_I2C failed ret:%d len:%d num:%d\n", ret, len,
@@ -792,7 +800,8 @@ static int ljca_mng_enum_spi(struct ljca_stub *stub)
 	if (!desc)
 		return -ENOMEM;
 
-	ret = ljca_stub_write(stub, MNG_ENUM_SPI, NULL, 0, desc, &len, true);
+	ret = ljca_stub_write(stub, MNG_ENUM_SPI, NULL, 0, desc, &len, true,
+			      USB_ENUM_STUB_TIMEOUT);
 	if (ret) {
 		dev_err(&stub->intf->dev,
 			"MNG_ENUM_SPI failed ret:%d len:%d num:%d\n", ret, len,
@@ -808,14 +817,15 @@ static int ljca_mng_enum_spi(struct ljca_stub *stub)
 
 static int ljca_mng_get_version(struct ljca_stub *stub, char *buf)
 {
-	struct fw_version version = {0};
+	struct fw_version version = { 0 };
 	int ret;
 	int len;
 
 	if (!buf)
 		return -EINVAL;
 
-	ret = ljca_stub_write(stub, MNG_GET_VERSION, NULL, 0, &version, &len, true);
+	ret = ljca_stub_write(stub, MNG_GET_VERSION, NULL, 0, &version, &len,
+			      true, USB_WRITE_ACK_TIMEOUT);
 	if (ret || len < sizeof(struct fw_version)) {
 		dev_err(&stub->intf->dev,
 			"MNG_GET_VERSION failed ret:%d len:%d\n", ret, len);
@@ -823,12 +833,14 @@ static int ljca_mng_get_version(struct ljca_stub *stub, char *buf)
 	}
 
 	return sysfs_emit(buf, "%d.%d.%d.%d\n", version.major, version.minor,
-		       le16_to_cpu(version.patch), le16_to_cpu(version.build));
+			  le16_to_cpu(version.patch),
+			  le16_to_cpu(version.build));
 }
 
 static inline int ljca_mng_set_dfu_mode(struct ljca_stub *stub)
 {
-	return ljca_stub_write(stub, MNG_SET_DFU_MODE, NULL, 0, NULL, NULL, true);
+	return ljca_stub_write(stub, MNG_SET_DFU_MODE, NULL, 0, NULL, NULL,
+			       true, USB_WRITE_ACK_TIMEOUT);
 }
 
 static int ljca_mng_link(struct ljca_dev *ljca, struct ljca_stub *stub)
@@ -841,24 +853,17 @@ static int ljca_mng_link(struct ljca_dev *ljca, struct ljca_stub *stub)
 
 	ljca->state = LJCA_RESET_SYNCED;
 
-	ret = ljca_mng_enum_gpio(stub);
-	if (ret)
-		return ret;
-
+	/* workaround for FW limitation, ignore return value of enum result */
+	ljca_mng_enum_gpio(stub);
 	ljca->state = LJCA_ENUM_GPIO_COMPLETE;
 
-	ret = ljca_mng_enum_i2c(stub);
-	if (ret)
-		return ret;
-
+	ljca_mng_enum_i2c(stub);
 	ljca->state = LJCA_ENUM_I2C_COMPLETE;
 
-	ret = ljca_mng_enum_spi(stub);
-	if (ret)
-		return ret;
-
+	ljca_mng_enum_spi(stub);
 	ljca->state = LJCA_ENUM_SPI_COMPLETE;
-	return ret;
+
+	return 0;
 }
 
 static int ljca_mng_init(struct ljca_dev *ljca)
@@ -896,7 +901,8 @@ static inline int ljca_diag_get_fw_log(struct ljca_stub *stub, void *buf)
 	if (!buf)
 		return -EINVAL;
 
-	ret = ljca_stub_write(stub, DIAG_GET_FW_LOG, NULL, 0, buf, &len, true);
+	ret = ljca_stub_write(stub, DIAG_GET_FW_LOG, NULL, 0, buf, &len, true,
+			      USB_WRITE_ACK_TIMEOUT);
 	if (ret)
 		return ret;
 
@@ -911,7 +917,8 @@ static inline int ljca_diag_get_coredump(struct ljca_stub *stub, void *buf)
 	if (!buf)
 		return -EINVAL;
 
-	ret = ljca_stub_write(stub, DIAG_GET_FW_COREDUMP, NULL, 0, buf, &len, true);
+	ret = ljca_stub_write(stub, DIAG_GET_FW_COREDUMP, NULL, 0, buf, &len,
+			      true, USB_WRITE_ACK_TIMEOUT);
 	if (ret)
 		return ret;
 
@@ -921,7 +928,8 @@ static inline int ljca_diag_get_coredump(struct ljca_stub *stub, void *buf)
 static inline int ljca_diag_set_trace_level(struct ljca_stub *stub, u8 level)
 {
 	return ljca_stub_write(stub, DIAG_SET_TRACE_LEVEL, &level,
-			       sizeof(level), NULL, NULL, true);
+			       sizeof(level), NULL, NULL, true,
+			       USB_WRITE_ACK_TIMEOUT);
 }
 
 static int ljca_diag_init(struct ljca_dev *ljca)
@@ -1039,9 +1047,8 @@ static int ljca_probe(struct usb_interface *intf,
 	int ret;
 
 	ret = precheck_acpi_hid(intf);
-	if(ret)
+	if (ret)
 		return ret;
-
 
 	/* allocate memory for our device state and initialize it */
 	ljca = kzalloc(sizeof(*ljca), GFP_KERNEL);
@@ -1090,13 +1097,13 @@ static int ljca_probe(struct usb_interface *intf,
 	ret = ljca_mng_init(ljca);
 	if (ret) {
 		dev_err(&intf->dev, "register mng stub failed ret %d\n", ret);
-		goto error;
+		goto error_stop;
 	}
 
 	ret = ljca_diag_init(ljca);
 	if (ret) {
 		dev_err(&intf->dev, "register diag stub failed ret %d\n", ret);
-		goto error;
+		goto error_stop;
 	}
 
 	ret = mfd_add_hotplug_devices(&intf->dev, ljca->cells,
@@ -1104,13 +1111,14 @@ static int ljca_probe(struct usb_interface *intf,
 	if (ret) {
 		dev_err(&intf->dev, "failed to add mfd devices to core %d\n",
 			ljca->cell_count);
-		goto error;
+		goto error_stop;
 	}
 
 	ljca->state = LJCA_STARTED;
 	dev_info(&intf->dev, "LJCA USB device init success\n");
 	return 0;
-
+error_stop:
+	ljca_stop(ljca);
 error:
 	dev_err(&intf->dev, "LJCA USB device init failed\n");
 	/* this frees allocated memory */
