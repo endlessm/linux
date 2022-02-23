@@ -38,7 +38,8 @@
 #define IS_USB_DEVICE(pdev) ((pdev->class >> 8) == PCI_CLASS_SERIAL_USB)
 #define IS_ISA_DEVICE(pdev) ((pdev->class >> 8) == PCI_CLASS_BRIDGE_ISA)
 #define IS_INTEL_IPU(pdev) ((pdev)->vendor == PCI_VENDOR_ID_INTEL &&	\
-			   ((pdev)->device == 0x9a19 ||		\
+			   ((pdev)->device == 0xa75d ||		\
+			    (pdev)->device == 0x9a19 ||		\
 			    (pdev)->device == 0x9a39 ||		\
 			    (pdev)->device == 0x4e19 ||		\
 			    (pdev)->device == 0x465d ||		\
