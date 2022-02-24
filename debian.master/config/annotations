@@ -4688,7 +4688,7 @@ CONFIG_HYPERV_UTILS                             policy<{'amd64': 'm', 'arm64': '
 CONFIG_HYPERV_BALLOON                           policy<{'amd64': 'm', 'arm64': 'm'}>
 
 # Menu: Device Drivers >> Microsoft Surface Platform-Specific Device Drivers
-CONFIG_SURFACE_PLATFORMS                        policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 's390x': 'n'}>
+CONFIG_SURFACE_PLATFORMS                        policy<{'amd64': 'y', 'arm64': 'y'}>
 CONFIG_SURFACE3_WMI                             policy<{'amd64': 'm'}>
 CONFIG_SURFACE_3_BUTTON                         policy<{'amd64': 'm', 'arm64': 'n'}>
 CONFIG_SURFACE_3_POWER_OPREGION                 policy<{'amd64': 'm', 'arm64': 'n'}>
@@ -6794,7 +6794,6 @@ CONFIG_IPW2200_DEBUG                            policy<{'amd64': 'n', 'arm64': '
 CONFIG_IWLWIFI                                  policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm'}>
 CONFIG_IWLDVM                                   policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm'}>
 CONFIG_IWLMVM                                   policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm'}>
-CONFIG_IWLWIFI_BCAST_FILTERING                  policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'ppc64el': 'n'}>
 
 # Menu: Device Drivers >> Network device support >> Wireless LAN >> Intel devices >> Intel Wireless WiFi Next Gen AGN - Wireless-N/Advanced-N/Ultimate-N (iwlwifi) >> Debugging Options
 CONFIG_IWLWIFI_DEBUG                            policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'ppc64el': 'n'}>
@@ -11621,7 +11620,7 @@ CONFIG_DEBUG_INFO_BTF                           flag<REVIEW> note<Needs newer pa
 # Menu: Kernel hacking >> Compile-time checks and compiler options >> Compile the kernel with debug info >> DWARF version
 CONFIG_DEBUG_INFO_DWARF_TOOLCHAIN_DEFAULT       policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'ppc64el': 'n', 's390x': 'n'}>
 CONFIG_DEBUG_INFO_DWARF4                        policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 's390x': 'y'}>
-CONFIG_DEBUG_INFO_DWARF5                        policy<{'armhf': 'n'}>
+CONFIG_DEBUG_INFO_DWARF5                        policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'ppc64el': 'n', 's390x': 'n'}>
 
 # Menu: Kernel hacking >> Debug Oops, Lockups and Hangs
 CONFIG_PANIC_ON_OOPS                            policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'ppc64el': 'n', 's390x': 'n'}>
