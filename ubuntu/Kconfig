@@ -16,10 +16,6 @@ config UBUNTU_ODM_DRIVERS
 ##
 ##
 ##
-source "ubuntu/hio/Kconfig"
-##
-##
-##
 source "ubuntu/ubuntu-host/Kconfig"
 ##
 ##
