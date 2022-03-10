@@ -1872,7 +1872,7 @@ int ima_policy_show(struct seq_file *m, void *v)
 
 	/* Do not print rules with inactive LSM labels */
 	for (i = 0; i < MAX_LSM_RULES; i++) {
-		if (entry->lsm[i].args_p && !entry->lsm[i].rule) {
+		if (entry->lsm[i].args_p && !ima_lsm_isset(entry->lsm[i].rules)) {
 			rcu_read_unlock();
 			return 0;
 		}
