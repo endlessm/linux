@@ -50,7 +50,8 @@ done
 
 # Build helper scripts.
 cat - <<'EOL' >"$pkgdir/bits/BUILD"
-[ "$1" = "unsigned" ] && signed_only=:
+[ "$1" = "unsigned" ] && { signed_only=:; shift; }
+[ "$1" = "nocheck" ] && { check_only=:; shift; }
 EOL
 grep /usr/bin/ld.bfd "$log" | grep -v scripts/genksyms/genksyms | sed -e "s@$build/@@g" >>"$pkgdir/bits/BUILD"
 sed -e 's/.*-o  *\([^ ]*\) .*/rm -f \1/g' <"$pkgdir/bits/BUILD" >"$pkgdir/bits/CLEAN"
@@ -60,6 +61,9 @@ sed -e 's/.*-o  *\([^ ]*\) .*/rm -f \1/g' <"$pkgdir/bits/BUILD" >"$pkgdir/bits/C
 # up again.
 (
 	cd "$pkgdir/bits" || exit 1
+
+	# Add checksum check.
+	echo "\$check_only sha256sum -c SHA256SUMS || exit 1" >>"$pkgdir/bits/BUILD"
 
 	# Add .ko handling to the CLEAN/BUILD dance.
 	for ko in "$pkgdir"/*.ko
@@ -72,7 +76,7 @@ sed -e 's/.*-o  *\([^ ]*\) .*/rm -f \1/g' <"$pkgdir/bits/BUILD" >"$pkgdir/bits/C
 
 	# Clear out anything we are not going to distribute and build unsigned .kos.
 	sh ./CLEAN
-	sh ./BUILD unsigned
+	sh ./BUILD unsigned nocheck
 
 	if [ "$sign" = "--custom" ]; then
 		# We are building for and archive custom signing upload.  Keep everything.
