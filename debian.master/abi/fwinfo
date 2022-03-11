@@ -609,9 +609,9 @@ firmware:       bnx2/bnx2-mips-09-6.2.1b.fw
 firmware:       bnx2/bnx2-rv2p-06-6.0.15.fw
 firmware:       bnx2/bnx2-rv2p-09-6.0.17.fw
 firmware:       bnx2/bnx2-rv2p-09ax-6.0.17.fw
-firmware:       bnx2x/bnx2x-e1-7.13.15.0.fw
-firmware:       bnx2x/bnx2x-e1h-7.13.15.0.fw
-firmware:       bnx2x/bnx2x-e2-7.13.15.0.fw
+firmware:       bnx2x/bnx2x-e1-7.13.21.0.fw
+firmware:       bnx2x/bnx2x-e1h-7.13.21.0.fw
+firmware:       bnx2x/bnx2x-e2-7.13.21.0.fw
 firmware:       brcm/bcm43xx-0.fw
 firmware:       brcm/bcm43xx_hdr-0.fw
 firmware:       brcm/brcmfmac*-pcie.*.txt
