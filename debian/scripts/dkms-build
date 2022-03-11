@@ -116,7 +116,7 @@ do
 		continue
 	fi
 	echo "II: dkms-build-configure $(basename "$dkms_config") found, executing"
-	$SHELL "$dkms_config" \
+	"$dkms_config" \
 		"$srcdir" \
 		"$dkms_conf" \
 		"$dkms_dir" \
@@ -243,7 +243,7 @@ do
 		continue
 	fi
 	echo "II: dkms-build override $(basename "$dkms_build") found, executing"
-	$SHELL "$dkms_build" \
+	"$dkms_build" \
 		"$srcdir" \
 		"$dkms_dir/build/$dkms_package/$dkms_version/objects" \
 		"$log" \
