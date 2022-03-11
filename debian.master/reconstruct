@@ -1,7 +1,9 @@
 # Recreate any symlinks created since the orig.
 # Remove any files deleted from the orig.
 rm -f 'arch/hexagon/include/asm/timer-regs.h'
+rm -f 'drivers/gpu/drm/amd/display/dc/dsc/qp_tables.h'
 rm -f 'drivers/gpu/drm/vmwgfx/vmwgfx_thp.c'
+rm -f 'drivers/of/of_net.c'
 rm -f 'drivers/staging/most/dim2/sysfs.c'
 rm -f 'tools/build/feature/test-libpython-version.c'
 rm -f 'tools/perf/util/bpf_skel/bperf.h'
@@ -50,6 +52,8 @@ chmod +x 'debian/tests-build/check-aliases'
 chmod +x 'debian/tests/rebuild'
 chmod +x 'debian/tests/ubuntu-regression-suite'
 chmod +x 'drivers/watchdog/f71808e_wdt.c'
+chmod +x 'scripts/pahole-flags.sh'
+chmod +x 'scripts/pahole-version.sh'
 chmod +x 'tools/testing/selftests/netfilter/conntrack_vrf.sh'
 chmod +x 'update-dkms-versions'
 chmod +x 'update-version-dkms'
