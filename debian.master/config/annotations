@@ -4450,8 +4450,6 @@ CONFIG_MEMORY                                   policy<{'amd64': 'y', 'arm64': '
 CONFIG_ARM_PL172_MPMC                           policy<{'arm64': 'm', 'armhf': 'm'}>
 CONFIG_BRCMSTB_DPFE                             policy<{'arm64': 'y'}>
 CONFIG_TI_EMIF                                  policy<{'armhf': 'm'}>
-CONFIG_OMAP_GPMC                                policy<{'armhf': 'y', 'arm64': 'y'}>
-CONFIG_OMAP_GPMC_DEBUG                          policy<{'armhf': 'n', 'arm64': 'n'}>
 CONFIG_TI_EMIF_SRAM                             policy<{'armhf-generic': 'm'}>
 CONFIG_FPGA_DFL_EMIF                            policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm'}>
 CONFIG_MVEBU_DEVBUS                             policy<{'armhf': 'y'}>
@@ -4562,8 +4560,6 @@ CONFIG_MTD_ONENAND_OTP                          flag<REVIEW>
 CONFIG_MTD_RAW_NAND                             policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'y', 'ppc64el': 'm', 's390x': '-'}>
 CONFIG_MTD_NAND_DENALI_PCI                      policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm'}>
 CONFIG_MTD_NAND_DENALI_DT                       policy<{'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm'}>
-CONFIG_MTD_NAND_OMAP2                           policy<{'armhf': 'y', 'arm64': 'm'}>
-CONFIG_MTD_NAND_OMAP_BCH                        policy<{'armhf': 'y', 'arm64': 'y'}>
 CONFIG_MTD_NAND_CAFE                            policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm'}>
 CONFIG_MTD_NAND_ORION                           policy<{'armhf': 'm'}>
 CONFIG_MTD_NAND_MARVELL                         policy<{'arm64': 'm', 'armhf': 'm'}>
@@ -4595,8 +4591,6 @@ CONFIG_MTD_NAND_DISKONCHIP_PROBE_ADDRESS        policy<{'amd64': '0', 'arm64': '
 CONFIG_MTD_NAND_DISKONCHIP_BBTWRITE             policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'ppc64el': 'n'}>
 #
 CONFIG_MTD_RAW_NAND                             note<boot essential on arm>
-CONFIG_MTD_NAND_OMAP2                           note<boot essential on arm>
-CONFIG_MTD_NAND_OMAP_BCH                        note<boot essential on arm>
 CONFIG_MTD_NAND_DISKONCHIP_BBTWRITE             note<can be enabled at runtime>
 
 # Menu: Device Drivers >> Memory Technology Device (MTD) support >> NAND >> Raw/Parallel NAND Device Support >> JZ4780 NAND controller
@@ -13870,6 +13864,8 @@ CONFIG_PAGE_TABLE_ISOLATION                     policy<{'amd64': 'y'}>
 CONFIG_INTEL_TXT                                policy<{'amd64': 'y'}>
 CONFIG_HARDENED_USERCOPY                        policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 's390x': 'y'}>
 CONFIG_HARDENED_USERCOPY_PAGESPAN               policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'ppc64el': 'n', 's390x': 'n'}>
+CONFIG_HARDEN_BRANCH_HISTORY                    policy<{'armhf': 'y'}>
+CONFIG_MITIGATE_SPECTRE_BRANCH_HISTORY          policy<{'arm64': 'y'}>
 CONFIG_FORTIFY_SOURCE                           policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 's390x': 'y'}>
 CONFIG_STATIC_USERMODEHELPER                    policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'ppc64el': 'n', 's390x': 'n'}>
 CONFIG_LSM                                      policy<{'amd64': '"landlock,lockdown,yama,integrity,apparmor"', 'arm64': '"landlock,lockdown,yama,integrity,apparmor"', 'armhf': '"landlock,lockdown,yama,integrity,apparmor"', 'ppc64el': '"landlock,lockdown,yama,integrity,apparmor"', 's390x': '"landlock,lockdown,yama,integrity,apparmor"'}>
