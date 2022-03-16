@@ -11131,7 +11131,7 @@ CONFIG_INTEL_STRATIX10_SERVICE                  policy<{'arm64': 'm'}>
 CONFIG_INTEL_STRATIX10_RSU                      policy<{'arm64': 'm'}>
 CONFIG_QCOM_SCM                                 policy<{'arm64': 'y', 'armhf': 'y'}>
 CONFIG_QCOM_SCM_DOWNLOAD_MODE_DEFAULT           policy<{'arm64': 'n', 'armhf': 'n'}>
-CONFIG_SYSFB_SIMPLEFB                           policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y'}>
+CONFIG_SYSFB_SIMPLEFB                           policy<{'amd64': 'n', 'arm64': 'y', 'armhf': 'y'}>
 CONFIG_TI_SCI_PROTOCOL                          policy<{'arm64': 'y'}>
 CONFIG_TRUSTED_FOUNDATIONS                      policy<{'armhf': 'y'}>
 CONFIG_TURRIS_MOX_RWTM                          policy<{'arm64': 'm', 'armhf': 'm'}>
