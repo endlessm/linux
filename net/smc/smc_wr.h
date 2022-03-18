@@ -22,6 +22,7 @@
 #define SMC_WR_BUF_CNT 16	/* # of ctrl buffers per link */
 
 #define SMC_WR_TX_WAIT_FREE_SLOT_TIME	(10 * HZ)
+#define SMC_WR_TX_WAIT_PENDING_TIME	(5 * HZ)
 
 #define SMC_WR_TX_SIZE 44 /* actual size of wr_send data (<=SMC_WR_BUF_SIZE) */
 
@@ -121,7 +122,7 @@ void smc_wr_tx_dismiss_slots(struct smc_link *lnk, u8 wr_rx_hdr_type,
 			     smc_wr_tx_filter filter,
 			     smc_wr_tx_dismisser dismisser,
 			     unsigned long data);
-void smc_wr_tx_wait_no_pending_sends(struct smc_link *link);
+int smc_wr_tx_wait_no_pending_sends(struct smc_link *link);
 
 int smc_wr_rx_register_handler(struct smc_wr_rx_handler *handler);
 int smc_wr_rx_post_init(struct smc_link *link);
