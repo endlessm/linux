@@ -1973,7 +1973,6 @@ i2c-ismt
 i2c-kempld
 i2c-matroxfb
 i2c-mlxcpld
-i2c-multi-instantiate
 i2c-mux
 i2c-mux-gpio
 i2c-mux-ltc4306

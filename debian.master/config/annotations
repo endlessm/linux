@@ -8839,6 +8839,10 @@ CONFIG_SND_SOC_CS35L33                          policy<{'amd64': 'm', 'arm64': '
 CONFIG_SND_SOC_CS35L34                          policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm'}>
 CONFIG_SND_SOC_CS35L35                          policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm'}>
 CONFIG_SND_SOC_CS35L36                          policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm'}>
+CONFIG_SND_SOC_CS35L41                          policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm'}>
+CONFIG_SND_SOC_CS35L41_I2C                      policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm'}>
+CONFIG_SND_SOC_CS35L41_LIB                      policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm'}>
+CONFIG_SND_SOC_CS35L41_SPI                      policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm'}>
 CONFIG_SND_SOC_CS42L42                          policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm'}>
 CONFIG_SND_SOC_CS42L51_I2C                      policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm'}>
 CONFIG_SND_SOC_CS42L52                          policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm'}>
@@ -8986,6 +8990,10 @@ CONFIG_SND_SOC_LPASS_RX_MACRO                   policy<{'amd64': 'm', 'arm64': '
 CONFIG_SND_SOC_LPASS_TX_MACRO                   policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm'}>
 #
 CONFIG_SND_SOC_SGTL5000                         flag<REVIEW>
+CONFIG_SND_SOC_CS35L41                          note<LP:#1965496>
+CONFIG_SND_SOC_CS35L41_I2C                      note<LP:#1965496>
+CONFIG_SND_SOC_CS35L41_LIB                      note<LP:#1965496>
+CONFIG_SND_SOC_CS35L41_SPI                      note<LP:#1965496>
 
 # Menu: Device Drivers >> Sound card support >> Advanced Linux Sound Architecture >> ALSA for SoC audio support >> Intel ASoC SST drivers
 CONFIG_SND_SOC_INTEL_SST_TOPLEVEL               policy<{'amd64': 'y'}>
@@ -9210,6 +9218,9 @@ CONFIG_SND_HDA_INTEL                            policy<{'amd64': 'm', 'arm64': '
 CONFIG_SND_HDA_TEGRA                            policy<{'arm64': 'm', 'armhf-generic': 'm'}>
 CONFIG_SND_HDA_HWDEP                            policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y'}>
 CONFIG_SND_HDA_RECONFIG                         policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y'}>
+CONFIG_SND_HDA_SCODEC_CS35L41                   policy<{'amd64': 'm', 'arm64': 'm'}>
+CONFIG_SND_HDA_SCODEC_CS35L41_I2C               policy<{'amd64': 'm', 'arm64': 'm'}>
+CONFIG_SND_HDA_SCODEC_CS35L41_SPI               policy<{'amd64': 'm', 'arm64': 'm'}>
 CONFIG_SND_HDA_INPUT_BEEP                       policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y'}>
 CONFIG_SND_HDA_INPUT_BEEP_MODE                  policy<{'amd64': '0', 'arm64': '0', 'armhf': '0', 'ppc64el': '0'}>
 CONFIG_SND_HDA_PATCH_LOADER                     policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y'}>
@@ -9232,6 +9243,9 @@ CONFIG_SND_HDA_INTEL_HDMI_SILENT_STREAM         policy<{'amd64': 'n', 'arm64': '
 #
 CONFIG_SND_HDA_RECONFIG                         note<allows fixes to be tested live>
 CONFIG_SND_HDA_POWER_SAVE_DEFAULT               note<LP:1804265>
+CONFIG_SND_HDA_SCODEC_CS35L41                   note<LP:#1965496>
+CONFIG_SND_HDA_SCODEC_CS35L41_I2C               note<LP:#1965496>
+CONFIG_SND_HDA_SCODEC_CS35L41_SPI               note<LP:#1965496>
 
 # Menu: Device Drivers >> Sound card support >> Advanced Linux Sound Architecture >> ISA sound devices
 
@@ -10503,13 +10517,15 @@ CONFIG_SONY_LAPTOP                              policy<{'amd64': 'm'}>
 CONFIG_SONYPI_COMPAT                            policy<{'amd64': 'y'}>
 CONFIG_SYSTEM76_ACPI                            policy<{'amd64': 'm'}>
 CONFIG_TOPSTAR_LAPTOP                           policy<{'amd64': 'm'}>
-CONFIG_I2C_MULTI_INSTANTIATE                    policy<{'amd64': 'm'}>
+CONFIG_SERIAL_MULTI_INSTANTIATE                 policy<{'amd64': 'm'}>
 CONFIG_MLX_PLATFORM                             policy<{'amd64': 'm'}>
 CONFIG_TOUCHSCREEN_DMI                          policy<{'amd64': 'y'}>
 CONFIG_INTEL_IPS                                policy<{'amd64': 'm'}>
 CONFIG_INTEL_SCU_PCI                            policy<{'amd64': 'y'}>
 CONFIG_INTEL_SCU_PLATFORM                       policy<{'amd64': 'm'}>
 CONFIG_INTEL_SCU_IPC_UTIL                       policy<{'amd64': 'm'}>
+#
+CONFIG_SERIAL_MULTI_INSTANTIATE                 note<LP:#1965496>
 
 # Menu: Device Drivers >> X86 Platform Specific Device Drivers >> Dell X86 Platform Specific Device Drivers
 CONFIG_X86_PLATFORM_DRIVERS_DELL                policy<{'amd64': 'y'}>
