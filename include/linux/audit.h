@@ -254,7 +254,7 @@ static inline void audit_log_path_denied(int type, const char *operation)
 static inline void audit_log_lsm(struct lsmblob *blob, bool exiting)
 { }
 static inline int audit_log_task_context(struct audit_buffer *ab,
-					 struct lsmblob *blob);
+					 struct lsmblob *blob)
 {
 	return 0;
 }
