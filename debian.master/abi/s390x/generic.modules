@@ -97,6 +97,7 @@ cfbimgblt
 ch
 chacha20poly1305
 chacha_generic
+chacha_s390
 chsc_sch
 cicada
 cifs

@@ -609,8 +609,11 @@ firmware:       bnx2/bnx2-mips-09-6.2.1b.fw
 firmware:       bnx2/bnx2-rv2p-06-6.0.15.fw
 firmware:       bnx2/bnx2-rv2p-09-6.0.17.fw
 firmware:       bnx2/bnx2-rv2p-09ax-6.0.17.fw
+firmware:       bnx2x/bnx2x-e1-7.13.15.0.fw
 firmware:       bnx2x/bnx2x-e1-7.13.21.0.fw
+firmware:       bnx2x/bnx2x-e1h-7.13.15.0.fw
 firmware:       bnx2x/bnx2x-e1h-7.13.21.0.fw
+firmware:       bnx2x/bnx2x-e2-7.13.15.0.fw
 firmware:       bnx2x/bnx2x-e2-7.13.21.0.fw
 firmware:       brcm/bcm43xx-0.fw
 firmware:       brcm/bcm43xx_hdr-0.fw
@@ -839,7 +842,7 @@ firmware:       hfi1_dc8051.fw
 firmware:       hfi1_fabric.fw
 firmware:       hfi1_pcie.fw
 firmware:       hfi1_sbus.fw
-firmware:       i915/adlp_dmc_ver2_10.bin
+firmware:       i915/adlp_dmc_ver2_12.bin
 firmware:       i915/adlp_guc_62.0.3.bin
 firmware:       i915/adls_dmc_ver2_01.bin
 firmware:       i915/bxt_dmc_ver1_07.bin
@@ -1005,7 +1008,9 @@ firmware:       liquidio/lio_23xx_nic.bin
 firmware:       liquidio/lio_410nv_nic.bin
 firmware:       me2600_firmware.bin
 firmware:       me4000_firmware.bin
+firmware:       mediatek/WIFI_MT7922_patch_mcu_1_1_hdr.bin
 firmware:       mediatek/WIFI_MT7961_patch_mcu_1_2_hdr.bin
+firmware:       mediatek/WIFI_RAM_CODE_MT7922_1.bin
 firmware:       mediatek/WIFI_RAM_CODE_MT7961_1.bin
 firmware:       mediatek/mt7610e.bin
 firmware:       mediatek/mt7610u.bin
