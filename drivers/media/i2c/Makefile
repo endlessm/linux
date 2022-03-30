@@ -138,4 +138,5 @@ obj-$(CONFIG_SDR_MAX2175) += max2175.o
 obj-$(CONFIG_VIDEO_HM11B1) += hm11b1.o
 obj-$(CONFIG_VIDEO_OV01A1S) += ov01a1s.o
 obj-$(CONFIG_VIDEO_OV01A10) += ov01a10.o
+obj-$(CONFIG_VIDEO_OV02C10) += ov02c10.o
 obj-$(CONFIG_POWER_CTRL_LOGIC) += power_ctrl_logic.o

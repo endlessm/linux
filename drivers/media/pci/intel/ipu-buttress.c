@@ -1201,17 +1201,18 @@ err:
 
 #endif /* CONFIG_DEBUG_FS */
 
-u64 ipu_buttress_tsc_ticks_to_ns(u64 ticks)
+u64 ipu_buttress_tsc_ticks_to_ns(u64 ticks, const struct ipu_device *isp)
 {
 	u64 ns = ticks * 10000;
+
 	/*
-	 * TSC clock frequency is 19.2MHz,
 	 * converting TSC tick count to ns is calculated by:
+	 * Example (TSC clock frequency is 19.2MHz):
 	 * ns = ticks * 1000 000 000 / 19.2Mhz
 	 *    = ticks * 1000 000 000 / 19200000Hz
 	 *    = ticks * 10000 / 192 ns
 	 */
-	do_div(ns, 192);
+	do_div(ns, isp->buttress.ref_clk);
 
 	return ns;
 }
@@ -1267,6 +1268,7 @@ int ipu_buttress_restore(struct ipu_device *isp)
 int ipu_buttress_init(struct ipu_device *isp)
 {
 	struct ipu_buttress *b = &isp->buttress;
+	u32 val;
 	int rval, ipc_reset_retry = BUTTRESS_CSE_IPC_RESET_RETRY;
 
 	mutex_init(&b->power_mutex);
@@ -1302,6 +1304,28 @@ int ipu_buttress_init(struct ipu_device *isp)
 	b->wdt_cached_value = readl(isp->base + BUTTRESS_REG_WDT);
 	writel(BUTTRESS_IRQS, isp->base + BUTTRESS_REG_ISR_CLEAR);
 	writel(BUTTRESS_IRQS, isp->base + BUTTRESS_REG_ISR_ENABLE);
+
+	/* get ref_clk frequency by reading the indication in btrs control */
+	val = readl(isp->base + BUTTRESS_REG_BTRS_CTRL);
+	val &= BUTTRESS_REG_BTRS_CTRL_REF_CLK_IND;
+	val >>= 8;
+
+	switch (val) {
+	case 0x0:
+		b->ref_clk = 240;
+		break;
+	case 0x1:
+		b->ref_clk = 192;
+		break;
+	case 0x2:
+		b->ref_clk = 384;
+		break;
+	default:
+		dev_warn(&isp->pdev->dev,
+			 "Unsupported ref clock, use 19.2Mhz by default.\n");
+		b->ref_clk = 192;
+		break;
+	}
 
 	rval = device_create_file(&isp->pdev->dev,
 				  &dev_attr_psys_fused_min_freq);

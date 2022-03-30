@@ -12,7 +12,6 @@
 #include <media/v4l2-device.h>
 #include <media/v4l2-fwnode.h>
 #include "power_ctrl_logic.h"
-#include <linux/vsc.h>
 
 #define OV01A1S_LINK_FREQ_400MHZ	400000000ULL
 #define OV01A1S_SCLK			40000000LL
@@ -837,20 +836,11 @@ static int ov01a1s_probe(struct i2c_client *client)
 {
 	struct ov01a1s *ov01a1s;
 	int ret = 0;
-	struct vsc_mipi_config conf;
-	struct vsc_camera_status status;
-	s64 link_freq;
 
-	conf.lane_num = OV01A1S_DATA_LANES;
-	/* frequency unit 100k */
-	conf.freq = OV01A1S_LINK_FREQ_400MHZ / 100000;
-	ret = vsc_acquire_camera_sensor(&conf, NULL, NULL, &status);
-	if (ret == -EAGAIN)
-		ret = power_ctrl_logic_set_power(1);
-	if (ret == -EAGAIN)
+	if (power_ctrl_logic_set_power(1)) {
+		dev_dbg(&client->dev, "power control driver not ready.\n");
 		return -EPROBE_DEFER;
-	else if (ret)
-		return ret;
+	}
 	ov01a1s = devm_kzalloc(&client->dev, sizeof(*ov01a1s), GFP_KERNEL);
 	if (!ov01a1s) {
 		ret = -ENOMEM;
@@ -890,7 +880,6 @@ static int ov01a1s_probe(struct i2c_client *client)
 		goto probe_error_media_entity_cleanup;
 	}
 
-	vsc_release_camera_sensor(&status);
 	/*
 	 * Device is already turned on by i2c-core with ACPI domain PM.
 	 * Enable runtime PM and turn off the device.
@@ -911,7 +900,6 @@ probe_error_v4l2_ctrl_handler_free:
 
 probe_error_ret:
 	power_ctrl_logic_set_power(0);
-	vsc_release_camera_sensor(&status);
 	return ret;
 }
 

@@ -557,7 +557,17 @@ static int ov01a10_start_streaming(struct ov01a10 *ov01a10)
 	const struct ov01a10_reg_list *reg_list;
 	int link_freq_index;
 	int ret = 0;
+	struct vsc_mipi_config conf;
+	struct vsc_camera_status status;
 
+	conf.lane_num = OV01A10_DATA_LANES;
+	/* frequency unit 100k */
+	conf.freq = OV01A10_LINK_FREQ_400MHZ / 100000;
+	ret = vsc_acquire_camera_sensor(&conf, NULL, NULL, &status);
+	if (ret) {
+		dev_err(&client->dev, "Acquire VSC failed");
+		return ret;
+	}
 	link_freq_index = ov01a10->cur_mode->link_freq_index;
 	reg_list = &link_freq_configs[link_freq_index].reg_list;
 	ret = ov01a10_write_reg_list(ov01a10, reg_list);
@@ -589,11 +599,15 @@ static void ov01a10_stop_streaming(struct ov01a10 *ov01a10)
 {
 	struct i2c_client *client = v4l2_get_subdevdata(&ov01a10->sd);
 	int ret = 0;
+	struct vsc_camera_status status;
 
 	ret = ov01a10_write_reg(ov01a10, OV01A10_REG_MODE_SELECT, 1,
 				OV01A10_MODE_STANDBY);
 	if (ret)
 		dev_err(&client->dev, "failed to stop streaming");
+	ret = vsc_release_camera_sensor(&status);
+	if (ret)
+		dev_err(&client->dev, "Release VSC failed");
 }
 
 static int ov01a10_set_stream(struct v4l2_subdev *sd, int enable)
@@ -829,16 +843,16 @@ static int ov01a10_probe(struct i2c_client *client)
 	int ret = 0;
 	struct vsc_mipi_config conf;
 	struct vsc_camera_status status;
-	s64 link_freq;
 
 	conf.lane_num = OV01A10_DATA_LANES;
 	/* frequency unit 100k */
 	conf.freq = OV01A10_LINK_FREQ_400MHZ / 100000;
 	ret = vsc_acquire_camera_sensor(&conf, NULL, NULL, &status);
-	if (ret == -EAGAIN)
+	if (ret == -EAGAIN) {
+		dev_dbg(&client->dev, "VSC not ready, will re-probe");
 		return -EPROBE_DEFER;
-	else if (ret) {
-		dev_err(&client->dev, "Acquire VSC failed.\n");
+	} else if (ret) {
+		dev_err(&client->dev, "Acquire VSC failed");
 		return ret;
 	}
 	ov01a10 = devm_kzalloc(&client->dev, sizeof(*ov01a10), GFP_KERNEL);

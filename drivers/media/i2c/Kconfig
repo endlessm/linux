@@ -1431,6 +1431,20 @@ config VIDEO_OV01A1S
 	  To compile this driver as a module, choose M here: the
 	  module will be called ov01a1s.
 
+config VIDEO_OV02C10
+	tristate "OmniVision OV02C10 sensor support"
+	depends on VIDEO_V4L2 && I2C
+	depends on ACPI || COMPILE_TEST
+	select MEDIA_CONTROLLER
+	select VIDEO_V4L2_SUBDEV_API
+	select V4L2_FWNODE
+	help
+	  This is a Video4Linux2 sensor driver for the OmniVision
+	  OV02C10 camera.
+
+	  To compile this driver as a module, choose M here: the
+	  module will be called ov02c10.
+
 config VIDEO_HM11B1
 	tristate "Himax HM11B1 sensor support"
 	depends on POWER_CTRL_LOGIC

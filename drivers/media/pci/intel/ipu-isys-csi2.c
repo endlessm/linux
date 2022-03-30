@@ -4,7 +4,6 @@
 #include <linux/device.h>
 #include <linux/module.h>
 #include <linux/version.h>
-#include <linux/vsc.h>
 
 #include <media/ipu-isys.h>
 #include <media/media-entity.h>
@@ -225,9 +224,6 @@ static int set_stream(struct v4l2_subdev *sd, int enable)
 	struct ipu_isys_csi2_timing timing = {0};
 	unsigned int nlanes;
 	int rval;
-	struct vsc_mipi_config conf;
-	struct vsc_camera_status status;
-	s64 link_freq;
 
 	dev_dbg(&csi2->isys->adev->dev, "csi2 s_stream %d\n", enable);
 
@@ -240,12 +236,6 @@ static int set_stream(struct v4l2_subdev *sd, int enable)
 
 	if (!enable) {
 		ipu_isys_csi2_set_stream(sd, timing, 0, enable);
-		rval = vsc_release_camera_sensor(&status);
-		if (rval && rval != -EAGAIN) {
-			dev_err(&csi2->isys->adev->dev,
-				"Release VSC failed.\n");
-			return rval;
-		}
 		return 0;
 	}
 
@@ -260,20 +250,6 @@ static int set_stream(struct v4l2_subdev *sd, int enable)
 		return rval;
 
 	rval = ipu_isys_csi2_set_stream(sd, timing, nlanes, enable);
-	rval = ipu_isys_csi2_get_link_freq(csi2, &link_freq);
-	if (rval)
-		return rval;
-
-	conf.lane_num = nlanes;
-	/* frequency unit 100k */
-	conf.freq = link_freq / 100000;
-	rval = vsc_acquire_camera_sensor(&conf, NULL, NULL, &status);
-	if (rval && rval != -EAGAIN) {
-		dev_err(&csi2->isys->adev->dev, "Acquire VSC failed.\n");
-		return rval;
-	} else {
-		return 0;
-	}
 
 	return rval;
 }

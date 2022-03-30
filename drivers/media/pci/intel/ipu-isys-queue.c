@@ -872,7 +872,7 @@ static u64 get_sof_ns_delta(struct ipu_isys_video *av,
 	else
 		delta = 0;
 
-	return ipu_buttress_tsc_ticks_to_ns(delta);
+	return ipu_buttress_tsc_ticks_to_ns(delta, isp);
 }
 
 void

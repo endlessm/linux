@@ -8,6 +8,7 @@
 
 #define IPU6SE_FIRMWARE_NAME		"intel/ipu6se_fw.bin"
 #define IPU6EP_FIRMWARE_NAME		"intel/ipu6ep_fw.bin"
+#define IPU6EPES_FIRMWARE_NAME		"intel/ipu6epes_fw.bin"
 #define IPU6_FIRMWARE_NAME		"intel/ipu6_fw.bin"
 
 /*
