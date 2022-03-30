@@ -5109,6 +5109,7 @@ CONFIG_VIDEO_S5C73M3                            policy<{'amd64': 'm', 'arm64': '
 CONFIG_POWER_CTRL_LOGIC                         policy<{'amd64': 'm', 'arm64': 'n'}>
 CONFIG_VIDEO_OV01A10                            policy<{'amd64': 'm', 'arm64': 'n'}>
 CONFIG_VIDEO_OV01A1S                            policy<{'amd64': 'm'}>
+CONFIG_VIDEO_OV02C10                            policy<{'amd64': 'm', 'arm64': 'n'}>
 CONFIG_VIDEO_HM11B1                             policy<{'amd64': 'm'}>
 
 # Menu: Device Drivers >> Multimedia support >> Media ancillary drivers >> Customise DVB Frontends
