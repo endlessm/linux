@@ -244,7 +244,7 @@ static int __alloc_one_resrc(const struct device *dev,
 	unsigned long retl;
 
 	if (resource_req <= 0)
-		return 0;
+		return -ENXIO;
 
 	if (alloc->resources >= IPU_MAX_RESOURCES) {
 		dev_err(dev, "out of resource handles\n");
@@ -285,7 +285,7 @@ static int ipu_psys_allocate_one_dfm(const struct device *dev,
 	unsigned long p = 0;
 
 	if (dfm_bitmap_req == 0)
-		return 0;
+		return -ENXIO;
 
 	if (alloc->resources >= IPU_MAX_RESOURCES) {
 		dev_err(dev, "out of resource handles\n");
@@ -346,7 +346,7 @@ static int __alloc_mem_resrc(const struct device *dev,
 	unsigned long retl;
 
 	if (memory_resource_req <= 0)
-		return 0;
+		return -ENXIO;
 
 	if (alloc->resources >= IPU_MAX_RESOURCES) {
 		dev_err(dev, "out of resource handles\n");
@@ -488,7 +488,7 @@ int ipu_psys_try_allocate_resources(struct device *dev,
 				ret = __alloc_one_resrc(dev, process,
 							&pool->dev_channels[id],
 							&pm, id, alloc);
-				if (ret)
+				if (ret && ret != -ENXIO)
 					goto free_out;
 			}
 		}
@@ -498,7 +498,7 @@ int ipu_psys_try_allocate_resources(struct device *dev,
 				ret = ipu_psys_allocate_one_dfm
 					(dev, process,
 					 &pool->dfms[id], &pm, id, alloc);
-				if (ret)
+				if (ret && ret != -ENXIO)
 					goto free_out;
 			}
 		}
@@ -522,7 +522,7 @@ int ipu_psys_try_allocate_resources(struct device *dev,
 							&pool->ext_memory[bank],
 							&pm, mem_type_id, bank,
 							alloc);
-				if (ret)
+				if (ret && ret != -ENXIO)
 					goto free_out;
 			}
 		}
@@ -626,6 +626,9 @@ int ipu_psys_allocate_resources(const struct device *dev,
 				ret = __alloc_one_resrc(dev, process,
 							&pool->dev_channels[id],
 							&pm, id, alloc);
+				if (ret == -ENXIO)
+					continue;
+
 				if (ret)
 					goto free_out;
 
@@ -643,6 +646,9 @@ int ipu_psys_allocate_resources(const struct device *dev,
 				ret = ipu_psys_allocate_one_dfm(dev, process,
 								&pool->dfms[id],
 								&pm, id, alloc);
+				if (ret == -ENXIO)
+					continue;
+
 				if (ret)
 					goto free_out;
 
@@ -678,6 +684,9 @@ int ipu_psys_allocate_resources(const struct device *dev,
 							&pool->ext_memory[bank],
 							&pm, mem_type_id,
 							bank, alloc);
+				if (ret == -ENXIO)
+					continue;
+
 				if (ret)
 					goto free_out;
 
