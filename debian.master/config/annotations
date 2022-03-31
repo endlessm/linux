@@ -886,7 +886,7 @@ CONFIG_SERIAL_8250_OMAP_TTYO_FIXUP              policy<{'arm64': 'y', 'armhf': '
 CONFIG_SERIAL_8250_MT6577                       policy<{'arm64': 'y', 'armhf': 'y'}>
 CONFIG_SERIAL_8250_UNIPHIER                     policy<{'armhf': 'm'}>
 CONFIG_SERIAL_8250_LPSS                         policy<{'amd64': 'm'}>
-CONFIG_SERIAL_8250_MID                          policy<{'amd64': 'm'}>
+CONFIG_SERIAL_8250_MID                          policy<{'amd64': 'y'}>
 CONFIG_SERIAL_8250_TEGRA                        policy<{'arm64': 'y', 'armhf-generic': 'y'}>
 CONFIG_SERIAL_8250_BCM7271                      policy<{'arm64': 'm'}>
 CONFIG_SERIAL_OF_PLATFORM                       policy<{'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y'}>
