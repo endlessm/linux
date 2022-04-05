@@ -515,13 +515,27 @@ CONFIG_TEE                                      policy<{'amd64': 'm', 'arm64': '
 CONFIG_UNISYS_VISORBUS                          policy<{'amd64': 'm'}>
 
 # Menu: Device Drivers >> Accessibility support
-CONFIG_ACCESSIBILITY                            policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'ppc64el': 'n', 's390x': 'n'}>
+CONFIG_ACCESSIBILITY                            policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 's390x': 'n'}>
 #
-CONFIG_ACCESSIBILITY                            flag<REVIEW>
+CONFIG_ACCESSIBILITY                            mark<ENFORCED> note<LP: #1967702>
 
 # Menu: Device Drivers >> Accessibility support >> Speakup console speech
 
 # Menu: Device Drivers >> Accessibility support >> Speakup console speech >> Speakup core
+CONFIG_SPEAKUP                                  policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 's390x': '-'}>
+CONFIG_SPEAKUP_SYNTH_ACNTSA                     policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 's390x': '-'}>
+CONFIG_SPEAKUP_SYNTH_APOLLO                     policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 's390x': '-'}>
+CONFIG_SPEAKUP_SYNTH_AUDPTR                     policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 's390x': '-'}>
+CONFIG_SPEAKUP_SYNTH_BNS                        policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 's390x': '-'}>
+CONFIG_SPEAKUP_SYNTH_DECEXT                     policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 's390x': '-'}>
+CONFIG_SPEAKUP_SYNTH_DECTLK                     policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 's390x': '-'}>
+CONFIG_SPEAKUP_SYNTH_DUMMY                      policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 's390x': '-'}>
+CONFIG_SPEAKUP_SYNTH_LTLK                       policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 's390x': '-'}>
+CONFIG_SPEAKUP_SYNTH_SOFT                       policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 's390x': '-'}>
+CONFIG_SPEAKUP_SYNTH_SPKOUT                     policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 's390x': '-'}>
+CONFIG_SPEAKUP_SYNTH_TXPRT                      policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 's390x': '-'}>
+#
+CONFIG_SPEAKUP                                  mark<ENFORCED> note<LP: #1967702>
 
 # Menu: Device Drivers >> Android
 CONFIG_ANDROID                                  policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 's390x': 'n'}>
