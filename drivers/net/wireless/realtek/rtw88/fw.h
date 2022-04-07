@@ -782,7 +782,8 @@ void rtw_fw_coex_tdma_type(struct rtw_dev *rtwdev,
 			   u8 para1, u8 para2, u8 para3, u8 para4, u8 para5);
 void rtw_fw_bt_wifi_control(struct rtw_dev *rtwdev, u8 op_code, u8 *data);
 void rtw_fw_send_rssi_info(struct rtw_dev *rtwdev, struct rtw_sta_info *si);
-void rtw_fw_send_ra_info(struct rtw_dev *rtwdev, struct rtw_sta_info *si);
+void rtw_fw_send_ra_info(struct rtw_dev *rtwdev, struct rtw_sta_info *si,
+			 bool reset_ra_mask);
 void rtw_fw_media_status_report(struct rtw_dev *rtwdev, u8 mac_id, bool conn);
 void rtw_fw_update_wl_phy_info(struct rtw_dev *rtwdev);
 void rtw_fw_beacon_filter_config(struct rtw_dev *rtwdev, bool connect,
