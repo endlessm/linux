@@ -11272,12 +11272,14 @@ CONFIG_VMAP_STACK                               policy<{'amd64': 'y', 'arm64': '
 CONFIG_RANDOMIZE_KSTACK_OFFSET_DEFAULT          policy<{'amd64': 'y', 'arm64': 'y', 's390x': 'y'}>
 CONFIG_STRICT_KERNEL_RWX                        policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 's390x': 'y'}>
 CONFIG_STRICT_MODULE_RWX                        policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 's390x': 'y'}>
+CONFIG_STRICT_SIGALTSTACK_SIZE                  policy<{'amd64': 'n'}>
 CONFIG_LOCK_EVENT_COUNTS                        policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'ppc64el': 'n', 's390x': 'n'}>
 #
 CONFIG_SECCOMP                                  mark<ENFORCED>
 CONFIG_JUMP_LABEL                               flag<REVIEW>
 CONFIG_STRICT_KERNEL_RWX                        mark<ENFORCED>
 CONFIG_STRICT_MODULE_RWX                        mark<ENFORCED>
+CONFIG_STRICT_SIGALTSTACK_SIZE                  mark<ENFORCED>
 
 # Menu: General architecture-dependent options >> Architecture: arm
 
