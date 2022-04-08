@@ -13228,6 +13228,7 @@ CONFIG_CPU_FREQ_GOV_USERSPACE                   policy<{'amd64': 'y', 'arm64': '
 CONFIG_CPU_FREQ_GOV_ONDEMAND                    policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y'}>
 CONFIG_CPU_FREQ_GOV_CONSERVATIVE                policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y'}>
 CONFIG_CPU_FREQ_GOV_SCHEDUTIL                   policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y'}>
+CONFIG_X86_AMD_PSTATE                           policy<{'amd64': 'y'}>
 CONFIG_X86_INTEL_PSTATE                         policy<{'amd64': 'y'}>
 CONFIG_X86_PCC_CPUFREQ                          policy<{'amd64': 'y'}>
 CONFIG_X86_SPEEDSTEP_CENTRINO                   policy<{'amd64': 'y'}>
