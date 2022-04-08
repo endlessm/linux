@@ -41,5 +41,5 @@ if [ "$sver" != "$rver" ]; then
     exit 1
 fi
 
-git clone git://kernel.ubuntu.com/ubuntu/kernel-testing
+git clone --depth=1 git://git.launchpad.net/~canonical-kernel-team/+git/kernel-testing
 kernel-testing/run-dep8-tests
