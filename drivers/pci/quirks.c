@@ -6009,23 +6009,36 @@ DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_INTEL, 0x9a31, dpc_log_size);
 #endif
 
 /*
- * Device [8086:9a09], [8086:a0b0] and [8086:a0bc]
  * BIOS may not be able to access config space of devices under VMD domain, so
  * it relies on software to enable ASPM for links under VMD.
  */
-static const struct pci_device_id vmd_bridge_tbl[] = {
-	{ PCI_VDEVICE(INTEL, 0x9a09) },
-	{ PCI_VDEVICE(INTEL, 0xa0b0) },
-	{ PCI_VDEVICE(INTEL, 0xa0bc) },
-	{ }
-};
+static bool pci_fixup_is_vmd_bridge(struct pci_dev *pdev)
+{
+	struct pci_bus *bus = pdev->bus;
+	struct device *dev;
+	struct pci_driver *pdrv;
+
+	if (!pci_is_root_bus(bus))
+		return false;
+
+	dev = bus->bridge->parent;
+	if (dev == NULL)
+		return false;
+
+	pdrv = pci_dev_driver(to_pci_dev(dev));
+	if (pdrv == NULL || strcmp("vmd", pdrv->name))
+		return false;
+
+	return true;
+}
 
 static void pci_fixup_enable_aspm(struct pci_dev *pdev)
 {
-	if (!pci_match_id(vmd_bridge_tbl, pdev))
+	if (!pci_fixup_is_vmd_bridge(pdev))
 		return;
 
 	pdev->dev_flags |= PCI_DEV_FLAGS_ENABLE_ASPM;
+	pci_info(pdev, "enable ASPM for pci bridge behind vmd");
 }
 DECLARE_PCI_FIXUP_CLASS_HEADER(PCI_VENDOR_ID_INTEL, PCI_ANY_ID,
 			       PCI_CLASS_BRIDGE_PCI, 8, pci_fixup_enable_aspm);
@@ -6040,7 +6053,7 @@ static void pci_fixup_enable_vmd_nvme_ltr(struct pci_dev *pdev)
 	if (!parent)
 		return;
 
-	if (!pci_match_id(vmd_bridge_tbl, parent))
+	if (!pci_fixup_is_vmd_bridge(parent))
 		return;
 
 	pos = pci_find_ext_capability(pdev, PCI_EXT_CAP_ID_LTR);
@@ -6058,6 +6071,7 @@ static void pci_fixup_enable_vmd_nvme_ltr(struct pci_dev *pdev)
 	/* 3145728ns, i.e. 0x300000ns */
 	pci_write_config_word(pdev, pos + PCI_LTR_MAX_SNOOP_LAT, 0x1003);
 	pci_write_config_word(pdev, pos + PCI_LTR_MAX_NOSNOOP_LAT, 0x1003);
+	pci_info(pdev, "enable LTR for nvme behind vmd");
 }
 DECLARE_PCI_FIXUP_CLASS_EARLY(PCI_ANY_ID, PCI_ANY_ID,
 			      PCI_CLASS_STORAGE_EXPRESS, 0, pci_fixup_enable_vmd_nvme_ltr);
