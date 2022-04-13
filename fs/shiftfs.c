@@ -308,8 +308,7 @@ static const char *shiftfs_get_link(struct dentry *dentry, struct inode *inode,
 	return p;
 }
 
-static int shiftfs_setxattr(struct user_namespace *ns,
-			    struct dentry *dentry, struct inode *inode,
+static int shiftfs_setxattr(struct dentry *dentry, struct inode *inode,
 			    const char *name, const void *value,
 			    size_t size, int flags)
 {
@@ -318,7 +317,7 @@ static int shiftfs_setxattr(struct user_namespace *ns,
 	const struct cred *oldcred;
 
 	oldcred = shiftfs_override_creds(dentry->d_sb);
-	err = vfs_setxattr(ns, lowerd, name, value, size, flags);
+	err = vfs_setxattr(&init_user_ns, lowerd, name, value, size, flags);
 	revert_creds(oldcred);
 
 	shiftfs_copyattr(lowerd->d_inode, inode);
@@ -363,7 +362,7 @@ static int shiftfs_removexattr(struct user_namespace *ns,
 	const struct cred *oldcred;
 
 	oldcred = shiftfs_override_creds(dentry->d_sb);
-	err = vfs_removexattr(ns, lowerd, name);
+	err = vfs_removexattr(&init_user_ns, lowerd, name);
 	revert_creds(oldcred);
 
 	/* update c/mtime */
@@ -379,8 +378,8 @@ static int shiftfs_xattr_set(const struct xattr_handler *handler,
 			     int flags)
 {
 	if (!value)
-		return shiftfs_removexattr(ns, dentry, name);
-	return shiftfs_setxattr(ns, dentry, inode, name, value, size, flags);
+		return shiftfs_removexattr(&init_user_ns, dentry, name);
+	return shiftfs_setxattr(dentry, inode, name, value, size, flags);
 }
 
 static int shiftfs_inode_test(struct inode *inode, void *data)
@@ -394,8 +393,7 @@ static int shiftfs_inode_set(struct inode *inode, void *data)
 	return 0;
 }
 
-static int shiftfs_create_object(struct user_namespace *ns,
-				 struct inode *diri, struct dentry *dentry,
+static int shiftfs_create_object(struct inode *diri, struct dentry *dentry,
 				 umode_t mode, const char *symlink,
 				 struct dentry *hardlink, bool excl)
 {
@@ -457,7 +455,7 @@ static int shiftfs_create_object(struct user_namespace *ns,
 		inode->i_state |= I_CREATING;
 		spin_unlock(&inode->i_lock);
 
-		inode_init_owner(ns, inode, diri, mode);
+		inode_init_owner(&init_user_ns, inode, diri, mode);
 		modei = inode->i_mode;
 	}
 
@@ -468,22 +466,22 @@ static int shiftfs_create_object(struct user_namespace *ns,
 
 	if (hardlink) {
 		lowerd_link = hardlink->d_fsdata;
-		err = vfs_link(lowerd_link, ns, loweri_dir, lowerd_new, NULL);
+		err = vfs_link(lowerd_link, &init_user_ns, loweri_dir, lowerd_new, NULL);
 	} else {
 		switch (modei & S_IFMT) {
 		case S_IFDIR:
-			err = vfs_mkdir(ns, loweri_dir, lowerd_new, modei);
+			err = vfs_mkdir(&init_user_ns, loweri_dir, lowerd_new, modei);
 			break;
 		case S_IFREG:
-			err = vfs_create(ns, loweri_dir, lowerd_new, modei, excl);
+			err = vfs_create(&init_user_ns, loweri_dir, lowerd_new, modei, excl);
 			break;
 		case S_IFLNK:
-			err = vfs_symlink(ns, loweri_dir, lowerd_new, symlink);
+			err = vfs_symlink(&init_user_ns, loweri_dir, lowerd_new, symlink);
 			break;
 		case S_IFSOCK:
 			/* fall through */
 		case S_IFIFO:
-			err = vfs_mknod(ns, loweri_dir, lowerd_new, modei, 0);
+			err = vfs_mknod(&init_user_ns, loweri_dir, lowerd_new, modei, 0);
 			break;
 		default:
 			err = -EINVAL;
@@ -545,7 +543,7 @@ static int shiftfs_create(struct user_namespace *ns,
 {
 	mode |= S_IFREG;
 
-	return shiftfs_create_object(ns, dir, dentry, mode, NULL, NULL, excl);
+	return shiftfs_create_object(dir, dentry, mode, NULL, NULL, excl);
 }
 
 static int shiftfs_mkdir(struct user_namespace *ns, struct inode *dir, struct dentry *dentry,
@@ -553,13 +551,13 @@ static int shiftfs_mkdir(struct user_namespace *ns, struct inode *dir, struct de
 {
 	mode |= S_IFDIR;
 
-	return shiftfs_create_object(ns, dir, dentry, mode, NULL, NULL, false);
+	return shiftfs_create_object(dir, dentry, mode, NULL, NULL, false);
 }
 
 static int shiftfs_link(struct dentry *hardlink, struct inode *dir,
 			struct dentry *dentry)
 {
-	return shiftfs_create_object(&init_user_ns, dir, dentry, 0, NULL, hardlink, false);
+	return shiftfs_create_object(dir, dentry, 0, NULL, hardlink, false);
 }
 
 static int shiftfs_mknod(struct user_namespace *ns,
@@ -569,13 +567,13 @@ static int shiftfs_mknod(struct user_namespace *ns,
 	if (!S_ISFIFO(mode) && !S_ISSOCK(mode))
 		return -EPERM;
 
-	return shiftfs_create_object(ns, dir, dentry, mode, NULL, NULL, false);
+	return shiftfs_create_object(dir, dentry, mode, NULL, NULL, false);
 }
 
 static int shiftfs_symlink(struct user_namespace *ns, struct inode *dir, struct dentry *dentry,
 			   const char *symlink)
 {
-	return shiftfs_create_object(ns, dir, dentry, S_IFLNK, symlink, NULL, false);
+	return shiftfs_create_object(dir, dentry, S_IFLNK, symlink, NULL, false);
 }
 
 static int shiftfs_rm(struct inode *dir, struct dentry *dentry, bool rmdir)
@@ -716,12 +714,12 @@ static int shiftfs_permission(struct user_namespace *ns, struct inode *inode, in
 		return -ECHILD;
 	}
 
-	err = generic_permission(ns, inode, mask);
+	err = generic_permission(&init_user_ns, inode, mask);
 	if (err)
 		return err;
 
 	oldcred = shiftfs_override_creds(inode->i_sb);
-	err = inode_permission(ns, loweri, mask);
+	err = inode_permission(&init_user_ns, loweri, mask);
 	revert_creds(oldcred);
 
 	return err;
@@ -760,7 +758,7 @@ static int shiftfs_tmpfile(struct user_namespace *ns,
 		return -EOPNOTSUPP;
 
 	oldcred = shiftfs_override_creds(dir->i_sb);
-	err = loweri->i_op->tmpfile(ns, loweri, lowerd, mode);
+	err = loweri->i_op->tmpfile(&init_user_ns, loweri, lowerd, mode);
 	revert_creds(oldcred);
 
 	return err;
@@ -776,7 +774,7 @@ static int shiftfs_setattr(struct user_namespace *ns, struct dentry *dentry, str
 	struct shiftfs_super_info *sbinfo = sb->s_fs_info;
 	int err;
 
-	err = setattr_prepare(ns, dentry, attr);
+	err = setattr_prepare(&init_user_ns, dentry, attr);
 	if (err)
 		return err;
 
@@ -793,7 +791,7 @@ static int shiftfs_setattr(struct user_namespace *ns, struct dentry *dentry, str
 
 	inode_lock(loweri);
 	oldcred = shiftfs_override_creds(dentry->d_sb);
-	err = notify_change(ns, lowerd, &newattr, NULL);
+	err = notify_change(&init_user_ns, lowerd, &newattr, NULL);
 	revert_creds(oldcred);
 	inode_unlock(loweri);
 
@@ -980,10 +978,10 @@ shiftfs_posix_acl_xattr_set(const struct xattr_handler *handler,
 		shift_acl_xattr_ids(inode->i_sb->s_user_ns,
 				    loweri->i_sb->s_user_ns,
 				    (void *)value, size);
-		err = shiftfs_setxattr(ns, dentry, inode, handler->name, value,
+		err = shiftfs_setxattr(dentry, inode, handler->name, value,
 				       size, flags);
 	} else {
-		err = shiftfs_removexattr(ns, dentry, handler->name);
+		err = shiftfs_removexattr(&init_user_ns, dentry, handler->name);
 	}
 
 	if (!err)
