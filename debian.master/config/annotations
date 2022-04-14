@@ -2628,7 +2628,7 @@ CONFIG_CEC_CH7322                               policy<{'amd64': 'm', 'arm64': '
 CONFIG_CEC_CROS_EC                              policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm'}>
 CONFIG_CEC_MESON_AO                             policy<{'arm64': 'm', 'armhf': 'm'}>
 CONFIG_CEC_MESON_G12A_AO                        policy<{'arm64': 'm', 'armhf': 'm'}>
-CONFIG_CEC_GPIO                                 policy<{'amd64': 'm', 'arm64-generic': '-', 'arm64-generic-64': '-', 'arm64-lowlatency': 'm', 'arm64-lowlatency-64k': 'm'}>
+CONFIG_CEC_GPIO                                 policy<{'amd64': 'm', 'arm64-generic': '-', 'arm64-generic-64': '-'}>
 CONFIG_CEC_SAMSUNG_S5P                          policy<{'armhf': 'n'}>
 CONFIG_CEC_TEGRA                                policy<{'arm64': 'm', 'armhf': 'm'}>
 CONFIG_CEC_SECO                                 policy<{'amd64': 'm'}>
@@ -3769,7 +3769,7 @@ CONFIG_INFINIBAND_IRDMA                         policy<{'amd64': 'm', 'arm64': '
 CONFIG_MLX4_INFINIBAND                          policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 's390x': 'm'}>
 CONFIG_MLX5_INFINIBAND                          policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 's390x': 'm'}>
 CONFIG_INFINIBAND_OCRDMA                        policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 's390x': 'n'}>
-CONFIG_INFINIBAND_VMWARE_PVRDMA                 policy<{'amd64': 'm', 'arm64-generic': 'm', 'arm64-lowlatency': 'm', 'armhf': 'm'}>
+CONFIG_INFINIBAND_VMWARE_PVRDMA                 policy<{'amd64': 'm', 'arm64-generic': 'm', 'armhf': 'm'}>
 CONFIG_INFINIBAND_USNIC                         policy<{'amd64': 'm'}>
 CONFIG_INFINIBAND_HNS                           policy<{'arm64': 'm'}>
 CONFIG_INFINIBAND_HNS_HIP08                     policy<{'arm64': 'y'}>
@@ -5745,7 +5745,7 @@ CONFIG_NVMEM_BCM_OCOTP                          policy<{'arm64': 'm'}>
 CONFIG_NVMEM_SUNXI_SID                          policy<{'arm64': 'm', 'armhf': '-'}>
 CONFIG_UNIPHIER_EFUSE                           policy<{'armhf': 'n', 'armhf-generic-lpae': '-'}>
 CONFIG_NVMEM_VF610_OCOTP                        policy<{'armhf': 'n'}>
-CONFIG_MESON_EFUSE                              policy<{'arm64-generic': 'm', 'arm64-lowlatency': 'm'}>
+CONFIG_MESON_EFUSE                              policy<{'arm64-generic': 'm'}>
 CONFIG_MESON_MX_EFUSE                           policy<{'arm64': 'm', 'armhf': 'm'}>
 CONFIG_NVMEM_SNVS_LPGPR                         policy<{'arm64': 'm', 'armhf': 'm'}>
 CONFIG_RAVE_SP_EEPROM                           policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm'}>
@@ -5765,7 +5765,7 @@ CONFIG_MICREL_KS8995MA                          policy<{'amd64': 'm', 'arm64': '
 CONFIG_PLIP                                     policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm'}>
 CONFIG_XEN_NETDEV_FRONTEND                      policy<{'amd64': 'y', 'arm64': 'y', 'armhf': '-'}>
 CONFIG_XEN_NETDEV_BACKEND                       policy<{'amd64': 'm', 'arm64': 'm', 'armhf': '-'}>
-CONFIG_VMXNET3                                  policy<{'amd64': 'm', 'arm64-generic': 'm', 'arm64-lowlatency': 'm', 'armhf': 'm', 's390x': 'n'}>
+CONFIG_VMXNET3                                  policy<{'amd64': 'm', 'arm64-generic': 'm', 'armhf': 'm', 's390x': 'n'}>
 CONFIG_FUJITSU_ES                               policy<{'amd64': 'm', 'arm64': 'm'}>
 CONFIG_USB4_NET                                 policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm'}>
 CONFIG_HYPERV_NET                               policy<{'amd64': 'm', 'arm64': 'm'}>
@@ -8238,7 +8238,7 @@ CONFIG_MESON_CLK_MEASURE                        policy<{'arm64': 'y', 'armhf': '
 CONFIG_MESON_GX_SOCINFO                         policy<{'arm64': 'y'}>
 CONFIG_MESON_GX_PM_DOMAINS                      policy<{'arm64': 'y', 'armhf': 'y'}>
 CONFIG_MESON_EE_PM_DOMAINS                      policy<{'arm64': 'y', 'armhf': 'y'}>
-CONFIG_MESON_SECURE_PM_DOMAINS                  policy<{'arm64-generic': 'y', 'arm64-lowlatency': 'y'}>
+CONFIG_MESON_SECURE_PM_DOMAINS                  policy<{'arm64-generic': 'y'}>
 CONFIG_MESON_MX_SOCINFO                         policy<{'armhf': 'y'}>
 
 # Menu: Device Drivers >> SOC (System On Chip) specific Drivers >> Broadcom SoC drivers
@@ -10735,7 +10735,7 @@ CONFIG_EXFAT_FS                                 policy<{'amd64': 'm', 'arm64': '
 CONFIG_EXFAT_DEFAULT_IOCHARSET                  policy<{'amd64': '"utf8"', 'arm64': '"utf8"', 'armhf': '"utf8"', 'ppc64el': '"utf8"'}>
 CONFIG_NTFS_FS                                  policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 's390x': 'm'}>
 CONFIG_NTFS_DEBUG                               policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'ppc64el': 'n', 's390x': 'n'}>
-CONFIG_NTFS_RW                                  policy<{'amd64': 'n', 'arm64-generic': 'n', 'arm64-lowlatency': 'n', 'armhf': 'n', 'ppc64el': '-', 's390x': 'y'}>
+CONFIG_NTFS_RW                                  policy<{'amd64': 'n', 'arm64-generic': 'n', 'armhf': 'n', 'ppc64el': '-', 's390x': 'y'}>
 CONFIG_VFAT_FS                                  policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 's390x': 'y'}>
 CONFIG_FAT_DEFAULT_CODEPAGE                     policy<{'amd64': '437', 'arm64': '437', 'armhf': '437', 'ppc64el': '437', 's390x': '437'}>
 CONFIG_FAT_DEFAULT_IOCHARSET                    policy<{'amd64': '"iso8859-1"', 'arm64': '"iso8859-1"', 'armhf': '"iso8859-1"', 'ppc64el': '"iso8859-1"', 's390x': '"iso8859-1"'}>
@@ -11141,7 +11141,7 @@ CONFIG_EFI_CUSTOM_SSDT_OVERLAYS                 policy<{'amd64': 'y', 'arm64': '
 CONFIG_IMX_DSP                                  policy<{'arm64': 'm', 'armhf': 'm'}>
 CONFIG_IMX_SCU                                  policy<{'arm64': 'y', 'armhf': 'y'}>
 CONFIG_IMX_SCU_PD                               policy<{'arm64': 'y', 'armhf': 'y'}>
-CONFIG_MESON_SM                                 policy<{'arm64-generic': 'y', 'arm64-lowlatency': 'y'}>
+CONFIG_MESON_SM                                 policy<{'arm64-generic': 'y'}>
 CONFIG_ARM_PSCI_CHECKER                         policy<{'arm64': 'n', 'armhf': 'n'}>
 CONFIG_ARM_SMCCC_SOC_ID                         policy<{'arm64': 'y', 'armhf': 'y'}>
 #
@@ -11437,8 +11437,8 @@ CONFIG_NET_NS                                   policy<{'amd64': 'y', 'arm64': '
 
 # Menu: General setup >> Preemption Model
 CONFIG_PREEMPT_NONE                             policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'ppc64el': 'n', 's390x': 'y'}>
-CONFIG_PREEMPT_VOLUNTARY                        policy<{'amd64-generic': 'y', 'amd64-lowlatency': 'n', 'arm64': 'y', 'arm64-lowlatency': 'n', 'arm64-lowlatency-64k': 'n', 'armhf': 'y', 'ppc64el': 'y', 's390x': 'n'}>
-CONFIG_PREEMPT                                  policy<{'amd64-generic': 'n', 'amd64-lowlatency': 'y', 'arm64': 'n', 'arm64-lowlatency': 'y', 'arm64-lowlatency-64k': 'y', 'armhf': 'n', 'ppc64el': 'n', 's390x': 'n'}>
+CONFIG_PREEMPT_VOLUNTARY                        policy<{'amd64-generic': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 's390x': 'n'}>
+CONFIG_PREEMPT                                  policy<{'amd64-generic': 'n', 'arm64': 'n', 'armhf': 'n', 'ppc64el': 'n', 's390x': 'n'}>
 #
 CONFIG_PREEMPT_NONE                             note<LP:1543165>
 
@@ -11795,12 +11795,12 @@ CONFIG_TEST_FPU                                 flag<TESTING>
 CONFIG_DEBUG_KERNEL                             policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 's390x': 'y'}>
 CONFIG_DEBUG_MISC                               policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 's390x': 'y'}>
 CONFIG_DEBUG_SHIRQ                              policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'ppc64el': 'n', 's390x': 'n'}>
-CONFIG_DEBUG_PREEMPT                            policy<{'amd64': 'n', 'arm64-lowlatency': 'n', 'arm64-lowlatency-64k': 'n'}>
+CONFIG_DEBUG_PREEMPT                            policy<{'amd64': 'n'}>
 CONFIG_DEBUG_KOBJECT                            policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'ppc64el': 'n', 's390x': 'n'}>
 CONFIG_DEBUG_CREDENTIALS                        policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'ppc64el': 'n', 's390x': 'n'}>
 CONFIG_DEBUG_WQ_FORCE_RR_CPU                    policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'ppc64el': 'n', 's390x': 'n'}>
 CONFIG_CPU_HOTPLUG_STATE_CONTROL                policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'ppc64el': 'n', 's390x': 'n'}>
-CONFIG_LATENCYTOP                               policy<{'amd64-generic': 'n', 'amd64-lowlatency': 'y', 'arm64': 'n', 'arm64-lowlatency': 'y', 'arm64-lowlatency-64k': 'y', 'armhf': 'n', 'ppc64el': 'n', 's390x': 'n'}>
+CONFIG_LATENCYTOP                               policy<{'amd64-generic': 'n', 'arm64': 'n', 'armhf': 'n', 'ppc64el': 'n', 's390x': 'n'}>
 #
 CONFIG_LATENCYTOP                               mark<ENFORCED> note<https://lists.ubuntu.com/archives/kernel-team/2014-July/045006.html, LP#1655986>
 
@@ -11911,7 +11911,7 @@ CONFIG_FTRACE                                   policy<{'amd64': 'y', 'arm64': '
 CONFIG_BOOTTIME_TRACING                         policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 's390x': 'y'}>
 CONFIG_STACK_TRACER                             policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 's390x': 'y'}>
 CONFIG_IRQSOFF_TRACER                           policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'ppc64el': 'n', 's390x': 'n'}>
-CONFIG_PREEMPT_TRACER                           policy<{'amd64': 'n', 'arm64-lowlatency': 'n', 'arm64-lowlatency-64k': 'n'}>
+CONFIG_PREEMPT_TRACER                           policy<{'amd64': 'n'}>
 CONFIG_SCHED_TRACER                             policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 's390x': 'y'}>
 CONFIG_HWLAT_TRACER                             policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 's390x': 'y'}>
 CONFIG_OSNOISE_TRACER                           policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'ppc64el': 'n', 's390x': 'n'}>
@@ -13455,7 +13455,7 @@ CONFIG_XEN                                      policy<{'amd64': 'y', 'arm64': '
 CONFIG_HIGHPTE                                  policy<{'armhf': 'y'}>
 CONFIG_COMPAT_VDSO                              policy<{'amd64': 'n'}>
 CONFIG_HIGHMEM                                  policy<{'armhf': 'y'}>
-CONFIG_FORCE_MAX_ZONEORDER                      policy<{'arm64-generic': '13', 'arm64-generic-64k': '14', 'arm64-lowlatency': '13', 'arm64-lowlatency-64k': '14', 'armhf-generic': '12', 'armhf-generic-lpae': '11', 'ppc64el': '9'}>
+CONFIG_FORCE_MAX_ZONEORDER                      policy<{'arm64-generic': '13', 'arm64-generic-64k': '14', 'armhf-generic': '12', 'armhf-generic-lpae': '11', 'ppc64el': '9'}>
 #
 CONFIG_RELOCATABLE                              flag<REVIEW>
 CONFIG_HOTPLUG_CPU                              flag<REVIEW>
@@ -13725,9 +13725,9 @@ CONFIG_VMSPLIT_1G                               policy<{'armhf': 'n'}>
 # Menu: Processor type and features >> Memory split >> Architecture: x86
 
 # Menu: Processor type and features >> Page size >> Architecture: arm64
-CONFIG_ARM64_4K_PAGES                           policy<{'arm64-generic': 'y', 'arm64-lowlatency': 'y', 'arm64-generic-64k': 'n', 'arm64-lowlatency-64k': 'n'}>
+CONFIG_ARM64_4K_PAGES                           policy<{'arm64-generic': 'y', 'arm64-generic-64k': 'n'}>
 CONFIG_ARM64_16K_PAGES                          policy<{'arm64': 'n'}>
-CONFIG_ARM64_64K_PAGES                          policy<{'arm64-generic': 'n', 'arm64-lowlatency': 'n', 'arm64-generic-64k': 'y', 'arm64-lowlatency-64k': 'y'}>
+CONFIG_ARM64_64K_PAGES                          policy<{'arm64-generic': 'n', 'arm64-generic-64k': 'y'}>
 
 # Menu: Processor type and features >> Page size >> Architecture: powerpc
 CONFIG_PPC_4K_PAGES                             policy<{'ppc64el': 'n'}>
@@ -13742,7 +13742,7 @@ CONFIG_PERF_EVENTS_AMD_UNCORE                   policy<{'amd64': 'm'}>
 
 # Menu: Processor type and features >> Physical address space size >> Architecture: arm64
 CONFIG_ARM64_PA_BITS_48                         policy<{'arm64': 'y'}>
-CONFIG_ARM64_PA_BITS_52                         policy<{'arm64-generic-64k': 'n', 'arm64-lowlatency-64k': 'n'}>
+CONFIG_ARM64_PA_BITS_52                         policy<{'arm64-generic-64k': 'n'}>
 
 # Menu: Processor type and features >> Power Management Debug Support
 #
@@ -13820,9 +13820,9 @@ CONFIG_X86_INTEL_TSX_MODE_AUTO                  policy<{'amd64': 'n'}>
 
 # Menu: Processor type and features >> Timer frequency
 CONFIG_HZ_100                                   policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'ppc64el': 'n', 's390x': 'y'}>
-CONFIG_HZ_250                                   policy<{'amd64-generic': 'y', 'amd64-lowlatency': 'n', 'arm64': 'y', 'arm64-lowlatency': 'n', 'arm64-lowlatency-64k': 'n', 'armhf': 'y', 'ppc64el': 'y', 's390x': 'n'}>
+CONFIG_HZ_250                                   policy<{'amd64-generic': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 's390x': 'n'}>
 CONFIG_HZ_300                                   policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'ppc64el': 'n', 's390x': 'n'}>
-CONFIG_HZ_1000                                  policy<{'amd64-generic': 'n', 'amd64-lowlatency': 'y', 'arm64': 'n', 'arm64-lowlatency': 'y', 'arm64-lowlatency-64k': 'y', 'armhf': 'n', 'ppc64el': 'n', 's390x': 'n'}>
+CONFIG_HZ_1000                                  policy<{'amd64-generic': 'n', 'arm64': 'n', 'armhf': 'n', 'ppc64el': 'n', 's390x': 'n'}>
 
 # Menu: Processor type and features >> Timer frequency >> Architecture: arm
 CONFIG_HZ_200                                   policy<{'armhf': 'n'}>
@@ -13841,10 +13841,10 @@ CONFIG_TUNE_Z14                                 policy<{'s390x': 'n'}>
 CONFIG_TUNE_Z15                                 policy<{'s390x': 'y'}>
 
 # Menu: Processor type and features >> Virtual address space size >> Architecture: arm64
-CONFIG_ARM64_VA_BITS_39                         policy<{'arm64-generic': 'n', 'arm64-lowlatency': 'n'}>
-CONFIG_ARM64_VA_BITS_42                         policy<{'arm64-generic-64k': 'n', 'arm64-lowlatency-64k': 'n'}>
+CONFIG_ARM64_VA_BITS_39                         policy<{'arm64-generic': 'n'}>
+CONFIG_ARM64_VA_BITS_42                         policy<{'arm64-generic-64k': 'n'}>
 CONFIG_ARM64_VA_BITS_48                         policy<{'arm64': 'y'}>
-CONFIG_ARM64_VA_BITS_52                         policy<{'arm64-generic-64k': 'n', 'arm64-lowlatency-64k': 'n'}>
+CONFIG_ARM64_VA_BITS_52                         policy<{'arm64-generic-64k': 'n'}>
 #
 CONFIG_ARM64_VA_BITS_48                         mark<ENFORCED> note<Cavium ThunderX 2-socket needs a minimum of 41 bits of VA>
 
