@@ -1,0 +1,3 @@
+# The following upstream stable releases have been ported:
+[upstream-stable]
+    linux-5.15.y = v5.15.35
