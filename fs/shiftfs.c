@@ -21,6 +21,7 @@
 #include <linux/posix_acl_xattr.h>
 #include <linux/uio.h>
 #include <linux/fiemap.h>
+#include <linux/pagemap.h>
 
 struct shiftfs_super_info {
 	struct vfsmount *mnt;
