@@ -7299,7 +7299,7 @@ CONFIG_THUNDERX2_PMU                            policy<{'arm64': 'm'}>
 CONFIG_XGENE_PMU                                policy<{'arm64': 'y'}>
 CONFIG_ARM_SPE_PMU                              policy<{'arm64': 'm'}>
 CONFIG_ARM_DMC620_PMU                           policy<{'arm64': 'm'}>
-CONFIG_HISI_PMU                                 policy<{'arm64': 'y'}>
+CONFIG_HISI_PMU                                 policy<{'arm64': 'm'}>
 
 # Menu: Device Drivers >> Pin controllers
 CONFIG_PINCTRL                                  policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y', 's390x': 'n'}>
