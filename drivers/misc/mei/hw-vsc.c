@@ -14,10 +14,7 @@
 #include <linux/swap.h>
 #include <linux/types.h>
 
-#include "hbm.h"
 #include "hw-vsc.h"
-#include "mei_dev.h"
-#include "mei-trace.h"
 
 static int spi_dev_xfer(struct mei_vsc_hw *hw, void *out_data, void *in_data,
 			int len)

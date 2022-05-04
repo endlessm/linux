@@ -13,7 +13,6 @@
 #include <linux/types.h>
 
 #include "mei_dev.h"
-#include "client.h"
 
 struct mei_cfg {
 	const struct mei_fw_status fw_status;
