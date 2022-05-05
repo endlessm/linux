@@ -3243,11 +3243,10 @@ CONFIG_IOMMU_DEFAULT_PASSTHROUGH                policy<{'amd64': 'n', 'arm64': '
 # Menu: Device Drivers >> IOMMU Hardware Support >> Support for Intel IOMMU using DMA Remapping Devices
 CONFIG_INTEL_IOMMU                              policy<{'amd64': 'y'}>
 CONFIG_INTEL_IOMMU_SVM                          policy<{'amd64': 'y'}>
-CONFIG_INTEL_IOMMU_DEFAULT_ON                   policy<{'amd64': 'y'}>
-CONFIG_INTEL_IOMMU_SCALABLE_MODE_DEFAULT_ON     policy<{'amd64': 'y'}>
-
-CONFIG_INTEL_IOMMU_DEFAULT_ON                   note<LP:1951440>
-CONFIG_INTEL_IOMMU_SCALABLE_MODE_DEFAULT_ON     note<LP:1951440>
+CONFIG_INTEL_IOMMU_DEFAULT_ON                   policy<{'amd64': 'n'}>
+CONFIG_INTEL_IOMMU_SCALABLE_MODE_DEFAULT_ON     policy<{'amd64': 'n'}>
+#
+CONFIG_INTEL_IOMMU_DEFAULT_ON                   note<the IOMMU can trigger boot failures> flag<REVIEW>
 
 # Menu: Device Drivers >> IRQ chip support
 CONFIG_AL_FIC                                   policy<{'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y'}>
