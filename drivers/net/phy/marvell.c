@@ -33,6 +33,7 @@
 #include <linux/bitfield.h>
 #include <linux/of.h>
 #include <linux/sfp.h>
+#include <linux/dmi.h>
 
 #include <linux/io.h>
 #include <asm/irq.h>
@@ -310,6 +311,16 @@ struct marvell_priv {
 	u32 last;
 	u32 step;
 	s8 pair;
+};
+
+static const struct dmi_system_id skip_config_led_tbl[] = {
+	{
+		.matches = {
+			DMI_MATCH(DMI_BOARD_VENDOR, "Dell EMC"),
+			DMI_MATCH(DMI_BOARD_NAME, "0d370eed-89ca-4dc0-a365-e9904c4c62bb"),
+		},
+	},
+	{}
 };
 
 static int marvell_read_page(struct phy_device *phydev)
@@ -758,6 +769,9 @@ static void marvell_config_led(struct phy_device *phydev)
 {
 	u16 def_config;
 	int err;
+
+	if (dmi_check_system(skip_config_led_tbl))
+		return;
 
 	switch (MARVELL_PHY_FAMILY_ID(phydev->phy_id)) {
 	/* Default PHY LED config: LED[0] .. Link, LED[1] .. Activity */
