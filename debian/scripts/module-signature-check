@@ -1,0 +1,67 @@
+#!/bin/bash -eu
+
+flavor="${1}"
+mods_dir="${2}"
+mods_extra_dir="${3}"
+sig_inc="${4}"
+
+echo "II: Checking signature of staging modules for ${flavor}..."
+
+if [ -f "${sig_inc}" ] ; then
+	echo "II: Use signature inclusion file:"
+	echo "    ${sig_inc}"
+	sig_all=0
+else
+	echo "WW: Signature inclusion file missing:"
+	echo "    ${sig_inc}"
+	echo "II: All modules must be signed"
+	sig_all=1
+fi
+
+if ! [ -d "${mods_dir}" ] ; then
+	echo "EE: Modules directory missing:"
+	echo "    ${mods_dir}"
+	exit 1
+fi
+
+echo "II: Checking modules directory:"
+echo "    ${mods_dir}"
+mods_dirs=("${mods_dir}")
+
+if [ -d "${mods_extra_dir}" ] ; then
+	echo "    ${mods_extra_dir}"
+	mods_dirs+=("${mods_extra_dir}")
+fi
+
+pass=0
+fail=0
+while IFS= read -r mod ; do
+	is=0
+	if /sbin/modinfo "${mod}" | grep -q "^signature:" ; then
+		# Module is signed
+		is=1
+	fi
+
+	must=0
+	if [ ${sig_all} -eq 1 ] || grep -qFx "${mod##*/}" "${sig_inc}" ; then
+		# Module must be signed
+		must=1
+	fi
+
+	case "${is}${must}" in
+		00) echo "    PASS (unsigned) : ${mod##*/}" ; pass=$((pass + 1)) ;;
+		01) echo "    FAIL (unsigned) : ${mod##*/}" ; fail=$((fail + 1)) ;;
+		10) echo "    FAIL (signed)   : ${mod##*/}" ; fail=$((fail + 1)) ;;
+		11) echo "    PASS (signed)   : ${mod##*/}" ; pass=$((pass + 1)) ;;
+	esac
+done < <(find "${mods_dirs[@]}" -path '*/drivers/staging/*.ko' | sort)
+
+echo "II: Checked $((pass + fail)) modules : ${pass} PASS, ${fail} FAIL"
+
+if [ ${fail} -eq 0 ] ; then
+	echo "II: Done"
+	exit 0
+else
+	echo "EE: Modules signature failures"
+	exit 1
+fi
