@@ -192,7 +192,9 @@ for arch in $archs; do
 	done
 done
 
+rc=0
 if [ "$fail" != 0 ]; then
+	rc=1
 	echo ""
 	echo "*** ERROR: $fail config-check failures detected"
 	echo ""
@@ -201,7 +203,10 @@ fi
 rm -rf build
 
 if [ "$warning_partial" ]; then
+	rc=1
 	echo ""
 	echo "WARNING: configuration operation applied only to a subset of architectures (skipped$warning_partial)" 1>&2
 	echo ""
 fi
+
+exit "${rc}"
