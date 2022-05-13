@@ -48,7 +48,6 @@ $(foreach _m,$(all_dkms_modules), \
 # Don't build tools in a cross compile environment.
 ifneq ($(DEB_HOST_ARCH),$(DEB_BUILD_ARCH))
 	do_tools=false
-	do_zfs=false
 endif
 
 # Are any of the kernel signing options enabled.
@@ -79,7 +78,7 @@ endif
 #  - disable dkms builds as the versions used may have been deleted
 ifneq ($(filter autopkgtest,$(DEB_BUILD_PROFILES)),)
 	flavours := $(firstword $(flavours))
-	$(foreach _m,$(all_dkms_modules),$(eval do_$(_m) = false))
+$(foreach _m,$(all_dkms_modules),$(eval do_$(_m) = false))
 endif
 
 # Being used to build a mainline build -- turn off things which do not work.
@@ -87,7 +86,7 @@ ifeq ($(do_mainline_build),true)
 	do_extras_package=false
 	do_tools=false
 	no_dumpfile=1
-	do_zfs=false
+$(foreach _m,$(all_dkms_modules),$(eval do_$(_m) = false))
 	skipabi=true
 	skipmodule=true
 	skipretpoline=true
