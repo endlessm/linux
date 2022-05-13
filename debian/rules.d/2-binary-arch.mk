@@ -117,8 +117,10 @@ $(stampdir)/stamp-install-%: MODSECKEY=$(builddir)/build-$*/certs/signing_key.pe
 $(stampdir)/stamp-install-%: MODPUBKEY=$(builddir)/build-$*/certs/signing_key.x509
 $(stampdir)/stamp-install-%: build_dir=$(builddir)/build-$*
 $(stampdir)/stamp-install-%: dkms_dir=$(call dkms_dir_prefix,$(builddir)/build-$*)
-$(stampdir)/stamp-install-%: enable_zfs = $(call custom_override,do_zfs,$*)
-$(stampdir)/stamp-install-%: enable_v4l2loopback = $(call custom_override,do_v4l2loopback,$*)
+$(foreach _m,$(all_dkms_modules), \
+  $(eval $$(stampdir)/stamp-install-%: enable_$(_m) = $$(filter true,$$(call custom_override,do_$(_m),$$*))) \
+  $(eval $$(stampdir)/stamp-install-%: dkms_$(_m)_pkgdir = $$(CURDIR)/debian/$(dkms_$(_m)_pkg_name)-$$*) \
+)
 $(stampdir)/stamp-install-%: dbgpkgdir_dkms = $(if $(filter true,$(skipdbg)),"",$(dbgpkgdir)/usr/lib/debug/lib/modules/$(abi_release)-$*/kernel)
 $(stampdir)/stamp-install-%: $(stampdir)/stamp-build-% $(stampdir)/stamp-install-headers
 	@echo Debug: $@ kernel_file $(kernel_file) kernfile $(kernfile) install_file $(install_file) instfile $(instfile)
@@ -126,6 +128,9 @@ $(stampdir)/stamp-install-%: $(stampdir)/stamp-build-% $(stampdir)/stamp-install
 	dh_prep -p$(bin_pkg_name)-$*
 	dh_prep -p$(mods_pkg_name)-$*
 	dh_prep -p$(hdrs_pkg_name)-$*
+	$(foreach _m,$(all_standalone_dkms_modules), \
+	  $(if $(enable_$(_m)),dh_prep -p$(dkms_$(_m)_pkg_name)-$*;)\
+	)
 ifneq ($(skipdbg),true)
 	dh_prep -p$(bin_pkg_name)-$*-dbgsym
 endif
@@ -263,6 +268,12 @@ ifeq ($(do_extras_package),true)
 		$(call install_control,$(mods_extra_pkg_name)-$*,extra,postinst postrm); \
 	fi
 endif
+	$(foreach _m,$(all_standalone_dkms_modules), \
+	  $(if $(enable_$(_m)), \
+	    install -d $(dkms_$(_m)_pkgdir)/usr/lib/linux/triggers; \
+	    $(call install_control,$(dkms_$(_m)_pkg_name)-$*,extra,postinst postrm); \
+	  ) \
+	)
 
 	# Install the full changelog.
 ifeq ($(do_doc_package),true)
@@ -412,8 +423,11 @@ endif
 	install -d $(dkms_dir) $(dkms_dir)/headers $(dkms_dir)/build $(dkms_dir)/source
 	cp -rp "$(hdrdir)" "$(indep_hdrdir)" "$(dkms_dir)/headers"
 
-	$(if $(filter true,$(enable_zfs)),$(call build_dkms, $(mods_pkg_name)-$*, $(pkgdir)/lib/modules/$(abi_release)-$*/kernel, $(dbgpkgdir_dkms), zfs, pool/universe/z/zfs-linux/zfs-dkms_$(dkms_zfs_linux_version)_all.deb))
-	$(if $(filter true,$(enable_v4l2loopback)),$(call build_dkms, $(mods_pkg_name)-$*, $(pkgdir)/lib/modules/$(abi_release)-$*/kernel, $(dbgpkgdir_dkms), v4l2loopback, pool/universe/v/v4l2loopback/v4l2loopback-dkms_$(dkms_v4l2loopback_version)_all.deb))
+	$(foreach _m,$(all_dkms_modules), \
+	  $(if $(enable_$(_m)), \
+	    $(call build_dkms,$(dkms_$(_m)_pkg_name)-$*,$(dkms_$(_m)_pkgdir)/lib/modules/$(abi_release)-$*/$(dkms_$(_m)_subdir),$(dbgpkgdir_dkms),$(_m),$(dkms_$(_m)_debpath)); \
+	  ) \
+	)
 
 
 ifneq ($(skipdbg),true)
@@ -563,7 +577,7 @@ define dh_all
 	dh_shlibdeps -p$(1) $(shlibdeps_opts)
 	dh_installdeb -p$(1)
 	dh_installdebconf -p$(1)
-	$(lockme) dh_gencontrol -p$(1) -- -Vlinux:rprovides='$(rprovides)'
+	$(lockme) dh_gencontrol -p$(1) -- -Vlinux:rprovides='$(rprovides)' $(2)
 	dh_md5sums -p$(1)
 	dh_builddeb -p$(1)
 endef
@@ -572,7 +586,7 @@ define newline
 
 endef
 define dh_all_inline
-        $(subst ${newline},; \${newline},$(call dh_all,$(1)))
+        $(subst ${newline},; \${newline},$(call dh_all,$(1),$(2)))
 endef
 
 binary-arch-headers: install-arch-headers
@@ -597,8 +611,10 @@ binary-%: dbgpkg = $(bin_pkg_name)-$*-dbgsym
 binary-%: dbgpkgdir = $(CURDIR)/debian/$(bin_pkg_name)-$*-dbgsym
 binary-%: pkgtools = $(tools_flavour_pkg_name)-$*
 binary-%: pkgcloud = $(cloud_flavour_pkg_name)-$*
-binary-%: rprovides = $(if $(filter true,$(call custom_override,do_zfs,$*)),spl-modules$(comma) spl-dkms$(comma) zfs-modules$(comma) zfs-dkms$(comma)) \
-		$(if $(filter true,$(call custom_override,do_v4l2loopback,$*)),v4l2loopback-modules$(comma) v4l2loopback-dkms$(comma))
+$(foreach _m,$(all_dkms_modules), \
+  $(eval binary-%: enable_$(_m) = $$(filter true,$$(call custom_override,do_$(_m),$$*))) \
+)
+binary-%: rprovides = $(foreach _m,$(all_built-in_dkms_modules),$(if $(enable_$(_m)),$(foreach _r,$(dkms_$(_m)_rprovides),$(_r)$(comma) )))
 binary-%: target_flavour = $*
 binary-%: checks-%
 	@echo Debug: $@
@@ -622,6 +638,10 @@ ifeq ($(do_extras_package),true)
 	fi
   endif
 endif
+
+	$(foreach _m,$(all_standalone_dkms_modules), \
+	  $(if $(enable_$(_m)),$(call dh_all,$(dkms_$(_m)_pkg_name)-$*);)\
+	)
 
 	$(call dh_all,$(pkgbldinfo))
 	$(call dh_all,$(pkghdr))
