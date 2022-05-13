@@ -40,6 +40,11 @@ do_tools_host?=false
 do_tools_perf_jvmti?=false
 do_enforce_all?=false
 
+# Default settings for DKMS modules.
+$(foreach _m,$(all_dkms_modules), \
+  $(eval do_$(_m) ?= $(if $(filter $(_m),$(filter-out $(dkms_exclude),$(dkms_include) $(subst any,$(_m),$(subst $(arch),$(_m),$(dkms_$(_m)_archs))))),true,false)) \
+)
+
 # Don't build tools in a cross compile environment.
 ifneq ($(DEB_HOST_ARCH),$(DEB_BUILD_ARCH))
 	do_tools=false
@@ -74,8 +79,7 @@ endif
 #  - disable dkms builds as the versions used may have been deleted
 ifneq ($(filter autopkgtest,$(DEB_BUILD_PROFILES)),)
 	flavours := $(firstword $(flavours))
-	do_zfs=false
-	do_v4l2loopback=false
+	$(foreach _m,$(all_dkms_modules),$(eval do_$(_m) = false))
 endif
 
 # Being used to build a mainline build -- turn off things which do not work.
@@ -97,13 +101,11 @@ ifneq ($(do_tools),true)
 	do_tools_host=
 endif
 
-ifeq ($(do_zfs),false)
-	do_zfs_disable:=$(shell for m in $$(cat $(DROOT)/zfs-modules.ignore); do grep -qxF $$m $(prev_abidir)/../modules.ignore 2>/dev/null || echo $$m >> $(prev_abidir)/../modules.ignore; done)
-endif
-
-ifeq ($(do_v4l2loopback),false)
-	do_v4l2loopback_disable:=$(shell for m in $$(cat $(DROOT)/v4l2loopback-modules.ignore); do grep -qxF $$m $(prev_abidir)/../modules.ignore 2>/dev/null || echo $$m >> $(prev_abidir)/../modules.ignore; done)
-endif
+$(foreach _m,$(all_built-in_dkms_modules), \
+  $(if $(filter true,$(do_$(_m))),, \
+    $(eval do_$(_m)_disable := $$(shell for m in $$$$(cat $(DROOT)/$(_m)-modules.ignore); do grep -qxF $$$$m $(prev_abidir)/../modules.ignore 2>/dev/null || echo $$$$m >> $(prev_abidir)/../modules.ignore; done)) \
+  ) \
+)
 
 ifeq ($(do_dkms_wireguard),false)
 	do_wireguard_disable:=$(shell for m in $$(cat $(DROOT)/wireguard-modules.ignore); do grep -qxF $$m $(prev_abidir)/../modules.ignore 2>/dev/null || echo $$m >> $(prev_abidir)/../modules.ignore; done)
@@ -111,10 +113,6 @@ endif
 
 # Either tools package needs the common source preparation
 do_any_tools=$(sort $(filter-out false,$(do_linux_tools) $(do_cloud_tools)))
-
-# Versions of dkms packages.
-dkms_zfs_linux_version=$(shell gawk '/^zfs-linux / { print $$2; }' debian/dkms-versions)
-dkms_v4l2loopback_version=$(shell gawk '/^v4l2loopback / { print $$2; }' debian/dkms-versions)
 
 # NVIDIA DKMS package gross series split into desktop and server.
 nvidia_desktop_series=$(shell sed -n -e 's/^nvidia-graphics-drivers-\([0-9][0-9]*\) .*/\1/p' debian/dkms-versions)
@@ -182,6 +180,7 @@ endif
 $(DEBIAN)/control.stub: 				\
 		$(DROOT)/scripts/control-create		\
 		$(control_files)			\
+		$(DROOT)/control.d/flavour-module.stub	\
 		$(DEBIAN)/changelog			\
 		$(wildcard $(DEBIAN)/control.d/* $(DEBIAN)/sub-flavours/*.vars)
 	for i in $(control_files); do                                           \
