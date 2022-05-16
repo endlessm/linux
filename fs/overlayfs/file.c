@@ -515,8 +515,6 @@ static void ovl_vm_prfile_set(struct vm_area_struct *vma,
 	get_file(file);
 	vma->vm_region->vm_prfile = file;
 #endif
-	/* Drop reference count from previous vm_file value */
-	fput(file);
 }
 #else /* !CONFIG_AUFS_FS */
 static void ovl_vm_prfile_set(struct vm_area_struct *vma,
