@@ -227,7 +227,7 @@ static struct link_encoder *get_link_enc_used_by_link(
 	return link_enc;
 }
 /* Clear all link encoder assignments. */
-static void clear_enc_assignments(struct dc *dc, struct dc_state *state)
+static void clear_enc_assignments(const struct dc *dc, struct dc_state *state)
 {
 	int i;
 
@@ -246,7 +246,7 @@ static void clear_enc_assignments(struct dc *dc, struct dc_state *state)
 }
 
 void link_enc_cfg_init(
-		struct dc *dc,
+		const struct dc *dc,
 		struct dc_state *state)
 {
 	clear_enc_assignments(dc, state);
