@@ -7122,9 +7122,10 @@ CONFIG_PCIEAER                                  policy<{'amd64': 'y', 'arm64': '
 CONFIG_PCIEAER_INJECT                           policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 's390x': 'n'}>
 CONFIG_PCIE_ECRC                                policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 's390x': 'n'}>
 CONFIG_PCIE_DPC                                 policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 's390x': 'y'}>
-CONFIG_PCIE_EDR                                 policy<{'amd64': 'n', 'arm64': 'n'}>
+CONFIG_PCIE_EDR                                 policy<{'amd64': 'y', 'arm64': 'y'}>
 #
 CONFIG_PCIEAER_INJECT                           flag<TESTING>
+CONFIG_PCIE_EDR                                 mark<ENFORCED> note<LP: #1965241>
 
 # Menu: Device Drivers >> PCI support >> PCI Express hierarchy optimization setting
 CONFIG_PCIE_BUS_TUNE_OFF                        policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'ppc64el': 'n', 's390x': 'n'}>
