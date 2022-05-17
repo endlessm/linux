@@ -9711,7 +9711,6 @@ CONFIG_USB_PCI                                  policy<{'amd64': 'y', 'arm64': '
 CONFIG_USB_UHCI_HCD                             policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y'}>
 CONFIG_USB_ROLE_SWITCH                          policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y'}>
 CONFIG_USB_ROLES_INTEL_XHCI                     policy<{'amd64': 'm'}>
-CONFIG_INTEL_LPSS_USB                           policy<{'amd64': 'm', 'arm64': 'n', 'armhf': 'n', 'ppc64el': 'n'}>
 #
 CONFIG_USB_UHCI_HCD                             mark<ENFORCED> note<ensures USB 2.0/1.1 probe ordering> flag<REVIEW>
 
