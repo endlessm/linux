@@ -571,6 +571,7 @@ struct rtw_tx_pkt_info {
 	u32 tx_pkt_size;
 	u8 offset;
 	u8 pkt_offset;
+	u8 tim_offset;
 	u8 mac_id;
 	u8 rate_id;
 	u8 rate;
@@ -1981,6 +1982,7 @@ static inline int rtw_chip_dump_fw_crash(struct rtw_dev *rtwdev)
 void rtw_get_channel_params(struct cfg80211_chan_def *chandef,
 			    struct rtw_channel_params *ch_param);
 bool check_hw_ready(struct rtw_dev *rtwdev, u32 addr, u32 mask, u32 target);
+void rtw_set_dtim_period(struct rtw_dev *rtwdev, int dtim_period);
 bool ltecoex_read_reg(struct rtw_dev *rtwdev, u16 offset, u32 *val);
 bool ltecoex_reg_write(struct rtw_dev *rtwdev, u16 offset, u32 value);
 void rtw_restore_reg(struct rtw_dev *rtwdev,
