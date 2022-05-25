@@ -285,3 +285,50 @@ custom_override = \
 
 # selftests that Ubuntu cares about
 ubuntu_selftests = breakpoints cpu-hotplug efivarfs memfd memory-hotplug mount net ptrace seccomp timers powerpc user ftrace
+
+# DKMS
+all_dkms_modules =
+
+subst_paired = $(subst $(firstword $(subst =, ,$(1))),$(lastword $(subst =, ,$(1))),$(2))
+recursive_call = $(if $(2),$(call recursive_call,$(1),$(wordlist 2,$(words $(2)),$(2)),$(call $(1),$(firstword $(2)),$(3))),$(3))
+
+$(foreach _line,$(shell gawk '{ OFS = "!"; $$1 = $$1; print }' $(DROOT)/dkms-versions), \
+  $(eval _params = $(subst !, ,$(_line))) \
+  $(eval _deb_pkgname = $(firstword $(_params))) \
+  $(eval _deb_version = $(word 2,$(_params))) \
+  $(if $(filter modulename=%,$(_params)), \
+    $(eval _m = $(word 2,$(subst =, ,$(filter modulename=%,$(_params))))) \
+    , \
+    $(info modulename for $(_deb_pkgname) not specified in dkms-versions. Assume $(_deb_pkgname).) \
+    $(eval _m = $(_deb_pkgname)) \
+  ) \
+  $(eval all_dkms_modules += $(_m)) \
+  $(eval dkms_$(_m)_version = $(_deb_version)) \
+  $(foreach _p,$(patsubst debpath=%,%,$(filter debpath=%,$(_params))), \
+    $(eval dkms_$(_m)_debpath += $(strip \
+      $(call recursive_call,subst_paired, \
+        %module%=$(_m) \
+        %package%=$(_deb_pkgname) \
+        %version%=$(lastword $(subst :, ,$(_deb_version))) \
+        , \
+        $(_p) \
+      ) \
+    )) \
+  ) \
+  $(if $(dkms_$(_m)_debpath),,$(error debpath for $(_deb_pkgname) not specified.)) \
+  $(if $(filter arch=%,$(_params)), \
+    $(eval dkms_$(_m)_archs = $(patsubst arch=%,%,$(filter arch=%,$(_params)))) \
+    , \
+    $(eval dkms_$(_m)_archs = any) \
+  ) \
+  $(eval dkms_$(_m)_rprovides = $(patsubst rprovides=%,%,$(filter rprovides=%,$(_params)))) \
+  $(eval dkms_$(_m)_type = $(word 1,$(patsubst type=%,%,$(filter type=%,$(_params))) built-in)) \
+  $(eval all_$(dkms_$(_m)_type)_dkms_modules += $(_m)) \
+  $(if $(filter standalone,$(dkms_$(_m)_type)), \
+    $(eval dkms_$(_m)_pkg_name = linux-modules-$(_m)-$(abi_release)) \
+    $(eval dkms_$(_m)_subdir = ubuntu) \
+    , \
+    $(eval dkms_$(_m)_pkg_name = $(mods_pkg_name)) \
+    $(eval dkms_$(_m)_subdir = kernel) \
+  ) \
+)
