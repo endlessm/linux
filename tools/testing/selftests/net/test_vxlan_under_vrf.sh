@@ -127,8 +127,5 @@ ip -netns hv-2 link set vxlan0 down
 ip -netns hv-2 link set vxlan0 up
 
 echo -n "Check VM connectivity through VXLAN (underlay in a VRF)            "
-if ! ip netns exec vm-1 ping -c 1 -W 1 10.0.0.2 &> /dev/null; then
-    echo "[XFAIL]"
-else
-    echo "[ OK ]"
-fi
+ip netns exec vm-1 ping -c 1 -W 1 10.0.0.2 &> /dev/null || (echo "[XFAIL]"; false)
+echo "[ OK ]"
