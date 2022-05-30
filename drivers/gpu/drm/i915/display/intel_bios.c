@@ -2013,6 +2013,15 @@ static void parse_ddi_port(struct drm_i915_private *i915,
 		case HDMI_MAX_DATA_RATE_PLATFORM:
 			max_tmds_clock = 0;
 			break;
+		case HDMI_MAX_DATA_RATE_594:
+			max_tmds_clock = 594000;
+			break;
+		case HDMI_MAX_DATA_RATE_340:
+			max_tmds_clock = 340000;
+			break;
+		case HDMI_MAX_DATA_RATE_300:
+			max_tmds_clock = 300000;
+			break;
 		case HDMI_MAX_DATA_RATE_297:
 			max_tmds_clock = 297000;
 			break;
