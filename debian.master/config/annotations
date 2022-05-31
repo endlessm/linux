@@ -13581,7 +13581,7 @@ CONFIG_MTRR_SANITIZER_SPARE_REG_NR_DEFAULT      policy<{'amd64': '1'}>
 CONFIG_X86_PAT                                  policy<{'amd64': 'y'}>
 CONFIG_X86_SMAP                                 policy<{'amd64': 'y'}>
 CONFIG_X86_UMIP                                 policy<{'amd64': 'y'}>
-CONFIG_X86_KERNEL_IBT                           policy<{'amd64': 'n'}>
+CONFIG_X86_KERNEL_IBT                           policy<{'amd64': 'y'}>
 CONFIG_X86_X32_ABI                              policy<{'amd64': 'n'}>
 CONFIG_X86_INTEL_MEMORY_PROTECTION_KEYS         policy<{'amd64': 'y'}>
 CONFIG_X86_SGX                                  policy<{'amd64': 'y'}>
