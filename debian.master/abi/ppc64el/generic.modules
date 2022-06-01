@@ -4405,6 +4405,7 @@ snd-bebob
 snd-bt87x
 snd-ca0106
 snd-cmipci
+snd-compress
 snd-cs4281
 snd-cs46xx
 snd-ctl-led
@@ -4532,6 +4533,10 @@ snd-soc-cs35l33
 snd-soc-cs35l34
 snd-soc-cs35l35
 snd-soc-cs35l36
+snd-soc-cs35l41
+snd-soc-cs35l41-i2c
+snd-soc-cs35l41-lib
+snd-soc-cs35l41-spi
 snd-soc-cs4234
 snd-soc-cs4265
 snd-soc-cs4270
@@ -4691,6 +4696,7 @@ snd-soc-wcd9335
 snd-soc-wcd934x
 snd-soc-wcd938x
 snd-soc-wcd938x-sdw
+snd-soc-wm-adsp
 snd-soc-wm8510
 snd-soc-wm8523
 snd-soc-wm8524
@@ -4761,6 +4767,18 @@ spaceball
 spaceorb
 sparse-keymap
 spcp8x5
+speakup
+speakup_acntsa
+speakup_apollo
+speakup_audptr
+speakup_bns
+speakup_decext
+speakup_dectlk
+speakup_dummy
+speakup_ltlk
+speakup_soft
+speakup_spkout
+speakup_txprt
 speedfax
 speedtch
 spi-altera-core

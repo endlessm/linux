@@ -16,7 +16,6 @@
 8250_exar
 8250_lpss
 8250_men_mcb
-8250_mid
 8255
 8255_pci
 8390
@@ -1921,7 +1920,6 @@ hsi
 hsi_char
 hso
 hsr
-hsu_dma
 htc-pasic3
 hts221
 hts221_i2c
@@ -4386,6 +4384,7 @@ sdio_uart
 sdricoh_cs
 seco-cec
 sensorhub
+serial-multi-instantiate
 serial_cs
 serial_ir
 serio_raw
@@ -4571,6 +4570,9 @@ snd-hda-codec-via
 snd-hda-core
 snd-hda-ext-core
 snd-hda-intel
+snd-hda-scodec-cs35l41
+snd-hda-scodec-cs35l41-i2c
+snd-hda-scodec-cs35l41-spi
 snd-hdmi-lpe-audio
 snd-hdsp
 snd-hdspm
@@ -4681,6 +4683,10 @@ snd-soc-cs35l33
 snd-soc-cs35l34
 snd-soc-cs35l35
 snd-soc-cs35l36
+snd-soc-cs35l41
+snd-soc-cs35l41-i2c
+snd-soc-cs35l41-lib
+snd-soc-cs35l41-spi
 snd-soc-cs4234
 snd-soc-cs4265
 snd-soc-cs4270
@@ -4994,6 +5000,18 @@ spaceball
 spaceorb
 sparse-keymap
 spcp8x5
+speakup
+speakup_acntsa
+speakup_apollo
+speakup_audptr
+speakup_bns
+speakup_decext
+speakup_dectlk
+speakup_dummy
+speakup_ltlk
+speakup_soft
+speakup_spkout
+speakup_txprt
 spectrum_cs
 speedfax
 speedstep-lib

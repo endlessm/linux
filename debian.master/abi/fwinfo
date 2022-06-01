@@ -617,7 +617,9 @@ firmware:       bnx2x/bnx2x-e2-7.13.15.0.fw
 firmware:       bnx2x/bnx2x-e2-7.13.21.0.fw
 firmware:       brcm/bcm43xx-0.fw
 firmware:       brcm/bcm43xx_hdr-0.fw
+firmware:       brcm/brcmfmac*-pcie.*.bin
 firmware:       brcm/brcmfmac*-pcie.*.txt
+firmware:       brcm/brcmfmac*-pcie.txt
 firmware:       brcm/brcmfmac*-sdio.*.bin
 firmware:       brcm/brcmfmac*-sdio.*.txt
 firmware:       brcm/brcmfmac43012-sdio.bin
@@ -1032,6 +1034,8 @@ firmware:       mediatek/mt7915_wm.bin
 firmware:       mellanox/mlxsw_spectrum-13.2008.2406.mfa2
 firmware:       mellanox/mlxsw_spectrum2-29.2008.2406.mfa2
 firmware:       mellanox/mlxsw_spectrum3-30.2008.2406.mfa2
+firmware:       microchip/mscc_vsc8574_revb_int8051_29e8.bin
+firmware:       microchip/mscc_vsc8584_revb_int8051_fb48.bin
 firmware:       mixart/miXart8.elf
 firmware:       mixart/miXart8.xlx
 firmware:       mixart/miXart8AES.xlx
