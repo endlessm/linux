@@ -1,3 +1,9 @@
+linux-unstable (5.19.0-0.0) kinetic; urgency=medium
+
+  * Empty entry
+
+ -- Andrea Righi <andrea.righi@canonical.com>  Thu, 09 Jun 2022 12:13:06 +0200
+
 linux (5.18.0-6.6) kinetic; urgency=medium
 
   * kinetic/linux: 5.18.0-6.6 -proposed tracker (LP: #1976327)
