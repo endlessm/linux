@@ -20,6 +20,10 @@ export SHELL=/bin/bash -e
 # Where do we find the common configuration.
 export DROOT=debian
 
+# Temporary workaround to fix build issues if only python2 runtime is installed
+# (without python3-dev).
+export PYTHON=python3
+
 # Common variables for all architectures
 include $(DROOT)/rules.d/0-common-vars.mk
 
