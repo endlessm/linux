@@ -10474,6 +10474,7 @@ CONFIG_XEN_ACPI_PROCESSOR                       policy<{'amd64': 'y'}>
 CONFIG_XEN_MCE_LOG                              policy<{'amd64': 'y'}>
 CONFIG_XEN_SYMS                                 policy<{'amd64': 'y'}>
 CONFIG_XEN_UNPOPULATED_ALLOC                    policy<{'amd64': 'y', 'arm64': 'y'}>
+CONFIG_XEN_VIRTIO                               policy<{'amd64': 'y', 'arm64': 'y'}>
 #
 CONFIG_XEN_ACPI_PROCESSOR                       mark<ENFORCED> <boot essential on XEN host>
 
@@ -11345,6 +11346,7 @@ CONFIG_RD_ZSTD                                  policy<{'amd64': 'y', 'arm64': '
 
 # Menu: General setup >> Initial RAM filesystem and RAM disk (initramfs/initrd) support >> Initramfs source file(s)
 CONFIG_INITRAMFS_SOURCE                         policy<{'amd64': '""', 'arm64': '""', 'armhf': '""', 'ppc64el': '""', 's390x': '""'}>
+CONFIG_INITRAMFS_PRESERVE_MTIME                 policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 's390x': 'y'}>
 
 # Menu: General setup >> Initial RAM filesystem and RAM disk (initramfs/initrd) support >> Initramfs source file(s) >> Built-in initramfs compression mode
 
@@ -14350,3 +14352,15 @@ CONFIG_APPLDATA_BASE                            policy<{'s390x': 'y'}>
 CONFIG_APPLDATA_MEM                             policy<{'s390x': 'm'}>
 CONFIG_APPLDATA_OS                              policy<{'s390x': 'm'}>
 CONFIG_APPLDATA_NET_SUM                         policy<{'s390x': 'm'}>
+
+# New configs options introduced in 5.19
+CONFIG_CACHEFILES_ONDEMAND                      policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'ppc64el': 'n', 's390x': 'n'}>
+CONFIG_SYSTEM_BLACKLIST_AUTH_UPDATE             policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'ppc64el': 'n', 's390x': 'n'}>
+CONFIG_DEBUG_NET                                policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'ppc64el': 'n', 's390x': 'n'}>
+CONFIG_BOOT_CONFIG_EMBED                        policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'ppc64el': 'n', 's390x': 'n'}>
+CONFIG_MODULE_UNLOAD_TAINT_TRACKING             policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'ppc64el': 'n', 's390x': 'n'}>
+CONFIG_FW_LOADER_COMPRESS_XZ                    policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 's390x': 'y'}>
+CONFIG_FW_LOADER_COMPRESS_ZSTD                  policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 's390x': 'y'}>
+CONFIG_EFI_DISABLE_RUNTIME                      policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n'}>
+CONFIG_EFI_COCO_SECRET                          policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y'}>
+CONFIG_HUGETLB_PAGE_OPTIMIZE_VMEMMAP_DEFAULT_ON policy<{'amd64': 'n', 'arm64': 'n'}>
