@@ -4785,7 +4785,8 @@ CONFIG_INTEL_VSC_ACE_DEBUG                      policy<{'amd64': 'm', 'arm64': '
 CONFIG_INTEL_VSC_CSI                            policy<{'amd64': 'm'}>
 CONFIG_INTEL_VSC_PSE                            policy<{'amd64': 'm', 'arm64': 'n', 'armhf': 'n', 'ppc64el': 'n', 's390x': 'n'}>
 CONFIG_INTEL_MEI_VSC                            policy<{'amd64': 'm'}>
-CONFIG_VMWARE_VMCI                              policy<{'amd64': 'm'}>
+CONFIG_VMWARE_VMCI                              policy<{'amd64': 'm', 'arm64': 'm'}>
+CONFIG_VMWARE_VMCI                              note<LP: #1978145>
 CONFIG_ECHO                                     policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 's390x': 'n'}>
 CONFIG_CXL                                      policy<{'ppc64el': 'm'}>
 CONFIG_OCXL                                     policy<{'ppc64el': 'm'}>
@@ -13182,7 +13183,8 @@ CONFIG_TIPC_DIAG                                policy<{'amd64': 'm', 'arm64': '
 CONFIG_VSOCKETS                                 policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 's390x': 'm'}>
 CONFIG_VSOCKETS_DIAG                            policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 's390x': 'm'}>
 CONFIG_VSOCKETS_LOOPBACK                        policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 's390x': 'm'}>
-CONFIG_VMWARE_VMCI_VSOCKETS                     policy<{'amd64': 'm'}>
+CONFIG_VMWARE_VMCI_VSOCKETS                     policy<{'amd64': 'm', 'arm64': 'm'}>
+CONFIG_VMWARE_VMCI_VSOCKETS                     note<LP: #1978145>
 CONFIG_VIRTIO_VSOCKETS                          policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 's390x': 'm'}>
 CONFIG_HYPERV_VSOCKETS                          policy<{'amd64': 'm', 'arm64': 'm'}>
 
