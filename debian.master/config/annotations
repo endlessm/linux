@@ -3253,7 +3253,6 @@ CONFIG_RENESAS_INTC_IRQPIN                      policy<{'armhf': 'y'}>
 CONFIG_RENESAS_IRQC                             policy<{'arm64': 'y', 'armhf': 'y'}>
 CONFIG_RENESAS_RZA1_IRQC                        policy<{'armhf': 'y'}>
 CONFIG_TS4800_IRQ                               policy<{'armhf': 'm'}>
-CONFIG_XILINX_INTC                              policy<{'arm64': 'y'}>
 CONFIG_QCOM_IRQ_COMBINER                        policy<{'arm64': 'y'}>
 CONFIG_IRQ_UNIPHIER_AIDET                       policy<{'armhf-generic': 'y', 'armhf-generic-lpae': '-'}>
 CONFIG_MESON_IRQ_GPIO                           policy<{'arm64': 'y', 'armhf': 'y'}>
