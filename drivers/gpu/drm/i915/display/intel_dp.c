@@ -6732,6 +6732,11 @@ intel_dp_detect(struct drm_connector *connector,
 	intel_dp_check_service_irq(intel_dp);
 
 out:
+	/* Quirk to set status as disconnected if we didn't get an EDID */
+	if (dev_priv->quirk_weibu_f3c &&
+	    to_intel_connector(connector)->detect_edid == NULL)
+		status = connector_status_disconnected;
+
 	if (status != connector_status_connected && !intel_dp->is_mst)
 		intel_dp_unset_edid(intel_dp);
 
@@ -8144,6 +8149,12 @@ intel_dp_init_connector(struct intel_digital_port *dig_port,
 		    "Adding %s connector on [ENCODER:%d:%s]\n",
 		    type == DRM_MODE_CONNECTOR_eDP ? "eDP" : "DP",
 		    intel_encoder->base.base.id, intel_encoder->base.name);
+
+	/* Poll the EDID to update connection state, since we don't know
+	 * how to access the hotplug state */
+	if (dev_priv->quirk_weibu_f3c)
+		intel_connector->polled = DRM_CONNECTOR_POLL_CONNECT |
+					  DRM_CONNECTOR_POLL_DISCONNECT;
 
 	drm_connector_init(dev, connector, &intel_dp_connector_funcs, type);
 	drm_connector_helper_add(connector, &intel_dp_connector_helper_funcs);
