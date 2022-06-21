@@ -775,6 +775,7 @@ CONFIG_VMCP_CMA_SIZE                            policy<{'s390x': '4'}>
 CONFIG_MONREADER                                policy<{'s390x': 'm'}>
 CONFIG_MONWRITER                                policy<{'s390x': 'm'}>
 CONFIG_S390_VMUR                                policy<{'s390x': 'm'}>
+CONFIG_S390_UV_UAPI                             policy<{'s390x': 'y'}>
 CONFIG_XILLYBUS                                 policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 's390x': 'n'}>
 CONFIG_XILLYBUS_PCIE                            policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm'}>
 CONFIG_XILLYBUS_OF                              policy<{'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm'}>
@@ -782,6 +783,7 @@ CONFIG_XILLYUSB                                 policy<{'amd64': 'm', 'arm64': '
 #
 CONFIG_NVRAM                                    mark<ENFORCED> note<LP#1837726>
 CONFIG_SCLP_OFB                                 mark<ENFORCED> note<LP:1787898>
+CONFIG_S390_UV_UAPI                             mark<ENFORCED> note<LP:1959973>
 
 # Menu: Device Drivers >> Character devices >> Enable TTY
 CONFIG_NULL_TTY                                 policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 's390x': 'n'}>
