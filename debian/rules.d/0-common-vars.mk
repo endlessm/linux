@@ -31,8 +31,6 @@ upstream_version := $(shell sed -n 's/^VERSION = \(.*\)$$/\1/p' Makefile)
 upstream_patchlevel := $(shell sed -n 's/^PATCHLEVEL = \(.*\)$$/\1/p' Makefile)
 upstream_tag := "v$(upstream_version).$(upstream_patchlevel)"
 
-family=ubuntu
-
 # This is an internally used mechanism for the daily kernel builds. It
 # creates packages whose ABI is suffixed with a minimal representation of
 # the current git HEAD sha. If .git/HEAD is not present, then it uses the

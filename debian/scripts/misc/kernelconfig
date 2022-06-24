@@ -30,7 +30,7 @@ variant="$2"
 . $DEBIAN/etc/kernelconfig
 
 bindir="`pwd`/${DROOT}/scripts/misc"
-common_conf="$confdir/config.common.$family"
+common_conf="$confdir/config.common.ubuntu"
 tmpdir=`mktemp -d`
 mkdir "$tmpdir/CONFIGS"
 
