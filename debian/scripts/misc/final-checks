@@ -3,8 +3,7 @@
 debian="$1"
 abi="$2"
 
-. "$debian/etc/kernelconfig"
-archs=$( awk '/^Architecture:/ { $1=""; for (i=1; i<=NF; i++) { if ($i != "all") { print $i }}}' debian/control | sort -u)
+archs=$(awk '/^Architecture:/ { $1=""; for (i=1; i<=NF; i++) { if ($i != "all") { print $i }}}' debian/control | sort -u)
 
 fail=0
 
