@@ -24,7 +24,7 @@ $(stampdir)/stamp-prepare-%: config-prepare-check-%
 	@echo Debug: $@
 	@touch $@
 $(stampdir)/stamp-prepare-tree-%: target_flavour = $*
-$(stampdir)/stamp-prepare-tree-%: $(commonconfdir)/config.common.$(family) $(archconfdir)/config.common.$(arch) $(archconfdir)/config.flavour.% debian/scripts/fix-filenames
+$(stampdir)/stamp-prepare-tree-%: $(commonconfdir)/config.common.ubuntu $(archconfdir)/config.common.$(arch) $(archconfdir)/config.flavour.% debian/scripts/fix-filenames
 	@echo Debug: $@
 	install -d $(builddir)/build-$*
 	touch $(builddir)/build-$*/ubuntu-build
