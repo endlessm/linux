@@ -169,25 +169,6 @@ struct lsmcontext {
 	int	slot;		/* Identifies the module */
 };
 
-/**
- * lsmcontext_init - initialize an lsmcontext structure.
- * @cp: Pointer to the context to initialize
- * @context: Initial context, or NULL
- * @size: Size of context, or 0
- * @slot: Which LSM provided the context
- *
- * Fill in the lsmcontext from the provided information.
- * This is a scaffolding function that will be removed when
- * lsmcontext integration is complete.
- */
-static inline void lsmcontext_init(struct lsmcontext *cp, char *context,
-				   u32 size, int slot)
-{
-	cp->slot = slot;
-	cp->context = context;
-	cp->len = size;
-}
-
 /*
  * Data exported by the security modules
  *
