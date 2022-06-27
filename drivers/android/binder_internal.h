@@ -533,6 +533,7 @@ struct binder_transaction {
 	kuid_t  sender_euid;
 	ktime_t start_time;
 	struct list_head fd_fixups;
+	int	security_interface;
 	binder_uintptr_t security_ctx;
 	/**
 	 * @lock:  protects @from, @to_proc, and @to_thread
