@@ -3059,16 +3059,26 @@ EXPORT_SYMBOL(security_cred_getsecid);
 /**
  * security_kernel_act_as() - Set the kernel credentials to act as secid
  * @new: credentials
- * @secid: secid
+ * @blob: lsm blob
  *
  * Set the credentials for a kernel service to act as (subjective context).
  * The current task must be the one that nominated @secid.
  *
  * Return: Returns 0 if successful.
  */
-int security_kernel_act_as(struct cred *new, u32 secid)
+int security_kernel_act_as(struct cred *new, struct lsmblob *blob)
 {
-	return call_int_hook(kernel_act_as, 0, new, secid);
+	struct security_hook_list *hp;
+	int rc;
+
+	hlist_for_each_entry(hp, &security_hook_heads.kernel_act_as, list) {
+		if (WARN_ON(hp->lsmid->slot < 0 || hp->lsmid->slot >= lsm_slot))
+			continue;
+		rc = hp->hook.kernel_act_as(new, blob->secid[hp->lsmid->slot]);
+		if (rc != 0)
+			return rc;
+	}
+	return 0;
 }
 
 /**
