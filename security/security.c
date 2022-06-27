@@ -3551,15 +3551,21 @@ int security_ipc_permission(struct kern_ipc_perm *ipcp, short flag)
 /**
  * security_ipc_getsecid() - Get the sysv ipc object's secid
  * @ipcp: ipc permission structure
- * @secid: secid pointer
+ * @blob: lsm blob
  *
- * Get the secid associated with the ipc object.  In case of failure, @secid
+ * Get the lsm blob associated with the ipc object.  In case of failure, @blob
  * will be set to zero.
  */
-void security_ipc_getsecid(struct kern_ipc_perm *ipcp, u32 *secid)
+void security_ipc_getsecid(struct kern_ipc_perm *ipcp, struct lsmblob *blob)
 {
-	*secid = 0;
-	call_void_hook(ipc_getsecid, ipcp, secid);
+	struct security_hook_list *hp;
+
+	lsmblob_init(blob, 0);
+	hlist_for_each_entry(hp, &security_hook_heads.ipc_getsecid, list) {
+		if (WARN_ON(hp->lsmid->slot < 0 || hp->lsmid->slot >= lsm_slot))
+			continue;
+		hp->hook.ipc_getsecid(ipcp, &blob->secid[hp->lsmid->slot]);
+	}
 }
 
 /**
