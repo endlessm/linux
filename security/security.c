@@ -2553,14 +2553,21 @@ EXPORT_SYMBOL(security_inode_listsecurity);
 /**
  * security_inode_getsecid() - Get an inode's secid
  * @inode: inode
- * @secid: secid to return
+ * @blob: lsm blob to return
  *
- * Get the secid associated with the node.  In case of failure, @secid will be
+ * Get the lsm blo associated with the node.  In case of failure, @blob will be
  * set to zero.
  */
-void security_inode_getsecid(struct inode *inode, u32 *secid)
+void security_inode_getsecid(struct inode *inode, struct lsmblob *blob)
 {
-	call_void_hook(inode_getsecid, inode, secid);
+	struct security_hook_list *hp;
+
+	lsmblob_init(blob, 0);
+	hlist_for_each_entry(hp, &security_hook_heads.inode_getsecid, list) {
+		if (WARN_ON(hp->lsmid->slot < 0 || hp->lsmid->slot >= lsm_slot))
+			continue;
+		hp->hook.inode_getsecid(inode, &blob->secid[hp->lsmid->slot]);
+	}
 }
 
 /**
@@ -5317,15 +5324,15 @@ void ima_filter_rule_free(void *lsmrule, int lsmslot)
 	}
 }
 
-int ima_filter_rule_match(u32 secid, u32 field, u32 op, void *lsmrule,
-			  int lsmslot)
+int ima_filter_rule_match(struct lsmblob *blob, u32 field, u32 op,
+			  void *lsmrule, int lsmslot)
 {
 	struct security_hook_list *hp;
 
 	hlist_for_each_entry(hp, &security_hook_heads.audit_rule_match, list)
 		if (hp->lsmid->slot == lsmslot)
-			return hp->hook.audit_rule_match(secid, field, op,
-							 lsmrule);
+			return hp->hook.audit_rule_match(blob->secid[lsmslot],
+							 field, op, lsmrule);
 
 	return 0;
 }
