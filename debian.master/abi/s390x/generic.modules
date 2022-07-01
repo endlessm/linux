@@ -4,6 +4,7 @@
 842_decompress
 9p
 9pnet
+9pnet_fd
 9pnet_rdma
 9pnet_virtio
 act_bpf
@@ -44,6 +45,7 @@ altera-cvp
 altera-pr-ip-core
 amd
 amlogic-gxl-crypto
+amt
 ansi_cprng
 appldata_mem
 appldata_net_sum
@@ -52,7 +54,6 @@ aquantia
 arp_tables
 arpt_mangle
 arptable_filter
-asym_tpm
 async_memcpy
 async_pq
 async_raid6_recov
@@ -122,7 +123,6 @@ crc-itu-t
 crc32-vx_s390
 crc32_generic
 crc4
-crc64
 crc7
 crc8
 cryptd
@@ -141,7 +141,6 @@ dccp_diag
 dccp_ipv4
 dccp_ipv6
 dcssblk
-deflate
 des_generic
 des_s390
 device_dax
@@ -190,6 +189,7 @@ drbd
 drm
 drm_kms_helper
 drm_panel_orientation_quirks
+drm_shmem_helper
 drm_ttm_helper
 drm_vram_helper
 dummy
@@ -242,7 +242,6 @@ faulty
 fb_sys_fops
 fcoe
 fcrypt
-fixed_phy
 fou
 fou6
 fpga-mgr
@@ -259,6 +258,7 @@ gpio-bt8xx
 gpio-generic
 gpio-pci-idio-16
 gpio-pcie-idio-24
+gpio-sim
 grace
 gre
 gtp
@@ -389,8 +389,6 @@ l2tp_ip
 l2tp_ip6
 l2tp_netlink
 lcs
-libblake2s
-libblake2s-generic
 libceph
 libchacha
 libchacha20poly1305
@@ -402,10 +400,8 @@ libfc
 libfcoe
 libiscsi
 libiscsi_tcp
-libphy
 libpoly1305
 libsas
-libsm4
 linear
 llc
 lockd
@@ -436,9 +432,9 @@ md-cluster
 md4
 mdev
 mdio-i2c
-mdio_devres
 memory-notifier-error-inject
 mena21_wdt
+mfd-core
 michael_mic
 micrel
 microchip
@@ -493,8 +489,6 @@ nf_dup_ipv6
 nf_dup_netdev
 nf_flow_table
 nf_flow_table_inet
-nf_flow_table_ipv4
-nf_flow_table_ipv6
 nf_log_syslog
 nf_nat
 nf_nat_amanda
@@ -532,7 +526,6 @@ nfsv4
 nft_chain_nat
 nft_compat
 nft_connlimit
-nft_counter
 nft_ct
 nft_dup_ipv4
 nft_dup_ipv6
@@ -651,7 +644,6 @@ pkey
 pktgen
 pnet
 poly1305_generic
-pps_core
 pretimeout_panic
 prng
 psample
@@ -682,6 +674,7 @@ rds
 rds_rdma
 rds_tcp
 realtek
+regmap-i2c
 rmd160
 rnbd-client
 rnbd-server
@@ -738,7 +731,6 @@ scsi_transport_spi
 scsi_transport_srp
 sctp
 sctp_diag
-selftests
 serial_core
 serpent_generic
 sfp
@@ -749,6 +741,8 @@ sha3_512_s390
 sha3_generic
 sha512_s390
 sha_common
+shiftfs
+simple-mfd-i2c
 siox-bus-gpio
 siox-core
 sit
@@ -757,8 +751,7 @@ slicoss
 slim-qcom-ctrl
 slimbus
 sm2_generic
-sm3_generic
-sm4_generic
+sm3
 smc
 smc_diag
 smsc
@@ -821,12 +814,12 @@ test_blackhole_dev
 test_bpf
 tipc
 tls
-tpm_key_parser
 tpm_vtpm_proxy
 trace-printk
 ts_bm
 ts_fsm
 ts_kmp
+tsnep
 ttm
 tunnel4
 tunnel6
