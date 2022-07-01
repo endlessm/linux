@@ -13592,7 +13592,7 @@ CONFIG_MTRR_SANITIZER_ENABLE_DEFAULT            policy<{'amd64': '1'}>
 CONFIG_MTRR_SANITIZER_SPARE_REG_NR_DEFAULT      policy<{'amd64': '1'}>
 CONFIG_X86_PAT                                  policy<{'amd64': 'y'}>
 CONFIG_X86_UMIP                                 policy<{'amd64': 'y'}>
-CONFIG_X86_KERNEL_IBT                           policy<{'amd64': 'y'}>
+CONFIG_X86_KERNEL_IBT                           policy<{'amd64': 'n'}>
 CONFIG_X86_X32_ABI                              policy<{'amd64': 'n'}>
 CONFIG_X86_INTEL_MEMORY_PROTECTION_KEYS         policy<{'amd64': 'y'}>
 CONFIG_X86_SGX                                  policy<{'amd64': 'y'}>
@@ -13609,6 +13609,7 @@ CONFIG_DEBUG_HOTPLUG_CPU0                       policy<{'amd64': 'n'}>
 CONFIG_CMDLINE_BOOL                             policy<{'amd64': 'n'}>
 CONFIG_MODIFY_LDT_SYSCALL                       policy<{'amd64': 'y'}>
 #
+CONFIG_X86_KERNEL_IBT                           mark<ENFORCED> note<LP:1980484>
 CONFIG_X86_LEGACY_VM86                          note<LP:1499089>
 CONFIG_KEXEC_BZIMAGE_VERIFY_SIG                 flag<REVIEW> note<Q: check this is in sync with the kexec/kdump userspace>
 CONFIG_MODIFY_LDT_SYSCALL                       flag<REVIEW> note<Q: check this with security>
