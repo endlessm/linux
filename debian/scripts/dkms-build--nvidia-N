@@ -53,7 +53,7 @@ cat - <<'EOL' >"$pkgdir/bits/BUILD"
 [ "$1" = "unsigned" ] && { signed_only=:; shift; }
 [ "$1" = "nocheck" ] && { check_only=:; shift; }
 EOL
-grep /usr/bin/ld.bfd "$log" | grep -v scripts/genksyms/genksyms | sed -e "s@$build/@@g" >>"$pkgdir/bits/BUILD"
+grep /usr/bin/ld.bfd "$log" | grep -v scripts/genksyms/genksyms | grep -v "warning:\|NOTE:" | sed -e "s@$build/@@g" >>"$pkgdir/bits/BUILD"
 sed -e 's/.*-o  *\([^ ]*\) .*/rm -f \1/g' <"$pkgdir/bits/BUILD" >"$pkgdir/bits/CLEAN"
 
 # As the builds contain the absolute filenames as used.  Use RECONSTRUCT to
