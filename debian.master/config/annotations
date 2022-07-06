@@ -8706,7 +8706,9 @@ CONFIG_SND_SOC_AMD_ACP3x                        policy<{'amd64': 'm'}>
 CONFIG_SND_SOC_AMD_RV_RT5682_MACH               policy<{'amd64': 'm'}>
 CONFIG_SND_SOC_AMD_RENOIR                       policy<{'amd64': 'm'}>
 CONFIG_SND_SOC_AMD_RENOIR_MACH                  policy<{'amd64': 'm'}>
+CONFIG_SND_SOC_AMD_YC_MACH                      policy<{'amd64': 'm'}>
 CONFIG_SND_SOC_AMD_ACP5x                        policy<{'amd64': 'm'}>
+CONFIG_SND_SOC_AMD_ACP6x                        policy<{'amd64': 'm'}>
 CONFIG_SND_BCM2835_SOC_I2S                      policy<{'arm64': 'm'}>
 CONFIG_SND_BCM63XX_I2S_WHISTLER                 policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm'}>
 CONFIG_SND_DESIGNWARE_I2S                       policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm'}>
@@ -8738,6 +8740,8 @@ CONFIG_SND_AUDIO_GRAPH_CARD                     policy<{'arm64': 'm', 'armhf': '
 CONFIG_SND_SOC                                  note<not autoloadable on omap>
 CONFIG_SND_SOC_AMD_RENOIR                       mark<ENFORCED> note<LP:1881046>
 CONFIG_SND_SOC_AMD_RENOIR_MACH                  mark<ENFORCED> note<LP:1881046>
+CONFIG_SND_SOC_AMD_ACP6x                        mark<ENFORCED> note<LP:1949245>
+CONFIG_SND_SOC_AMD_YC_MACH                      mark<ENFORCED> note<LP:1949245>
 
 # Menu: Device Drivers >> Sound card support >> Advanced Linux Sound Architecture >> ALSA for SoC audio support >> ASoC support for Amlogic platforms
 CONFIG_SND_MESON_AIU                            policy<{'arm64': 'm', 'armhf': 'm'}>
