@@ -20,13 +20,13 @@ build="$( dirname "$objects" )/build"
 # Copy over the objects ready for reconstruction.  The objects copy contains
 # the *.o files and the *.o-ur* retpoline files to allow the kernel to track
 # any retpoline sequences therein.  For our purposes we only want the *.o
-# files, elide the rest.
+# files, elide the rest. And .mod files for ld linking in recentish kernels.
 mkdir -p "$pkgdir/bits/scripts"
 (
 	gcc_variant1=$(gcc --version | head -1 | sed -e 's/^gcc/GCC:/')
 	gcc_variant2=$(gcc --version | head -1 | sed -e 's/^\(gcc\) \((.*)\) \(.*\)$/\1 version \3 \2/')
 	cd "$objects" || exit 1
-	find -name \*.o | \
+	find -name \*.o -o -name \*.mod | \
 	while read file
 	do
 		cp --parents "$file" "$pkgdir/bits"
