@@ -144,7 +144,7 @@ shift 2
 # Copy the objects.
 echo "II: copying objects to '$to'"
 mkdir -p "$to"
-(cd "$from" && find -name \*.o -o -name \*.o.ur-\* | cpio -Lpd "$to")
+(cd "$from" && find -name \*.o -o -name \*.o.ur-\* -o -name \*.mod | cpio -Lpd "$to")
 
 # Call the original post_install script if there is one.
 [ "$script" = '' ] && exit 0
@@ -229,6 +229,14 @@ find "$dkms_dir/build/$dkms_package/$dkms_version/objects" -name \*.o -print | \
 while read object
 do
 	"$srcdir/debian/scripts/fix-filenames" "$object" "$dkms_dir"
+done
+
+# This assumes that .mod files are in the top level build tree
+# If there are ever .mod files in sub-directories, the dirname of objectlist needs to be stripped as well
+find "$dkms_dir/build/$dkms_package/$dkms_version/objects" -name \*.mod -print | \
+while read objectlist
+do
+	sed "s|^$dkms_dir/build/$dkms_package/$dkms_version/build/||" -i $objectlist
 done
 
 # Finally see if there is a dkms-package specific post processor present.  Hand
