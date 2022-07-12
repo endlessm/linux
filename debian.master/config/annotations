@@ -12305,7 +12305,7 @@ CONFIG_NFC_ST_NCI_SPI                           policy<{'amd64': 'm', 'arm64': '
 CONFIG_NFC_NXP_NCI                              policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm'}>
 CONFIG_NFC_NXP_NCI_I2C                          policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm'}>
 CONFIG_NFC_S3FWRN5_I2C                          policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm'}>
-CONFIG_NFC_S3FWRN82_UART                        policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'n'}>
+CONFIG_NFC_S3FWRN82_UART                        policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm'}>
 CONFIG_NFC_ST95HF                               policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm'}>
 
 # Menu: Networking support >> Networking options
