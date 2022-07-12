@@ -6583,8 +6583,10 @@ vme_tsi148
 vme_user
 vme_vmivme7805
 vmk80xx
+vmw_vmci
 vmw_vsock_virtio_transport
 vmw_vsock_virtio_transport_common
+vmw_vsock_vmci_transport
 vmwgfx
 vp27smpx
 vp_vdpa
