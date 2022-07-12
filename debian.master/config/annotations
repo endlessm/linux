@@ -10706,7 +10706,7 @@ CONFIG_VFAT_FS                                  mark<ENFORCED> note<needed on ar
 
 # Menu: File systems >> DOS/FAT/EXFAT/NT Filesystems >> NTFS Read-Write file system support
 CONFIG_NTFS3_FS                                 policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm', 's390x': 'm'}>
-CONFIG_NTFS3_64BIT_CLUSTER                      policy<{'amd64': 'n', 'arm64': 'n', 'ppc64el': 'n', 'riscv64': 'y', 's390x': 'n'}>
+CONFIG_NTFS3_64BIT_CLUSTER                      policy<{'amd64': 'n', 'arm64': 'n', 'ppc64el': 'n', 'riscv64': 'n', 's390x': 'n'}>
 CONFIG_NTFS3_LZX_XPRESS                         policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y', 's390x': 'y'}>
 CONFIG_NTFS3_FS_POSIX_ACL                       policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y', 's390x': 'y'}>
 
