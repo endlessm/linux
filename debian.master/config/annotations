@@ -11454,8 +11454,8 @@ CONFIG_DEBUG_IRQFLAGS                           policy<{'amd64': 'n', 'arm64': '
 CONFIG_STACKTRACE                               policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y', 's390x': 'y'}>
 CONFIG_WARN_ALL_UNSEEDED_RANDOM                 policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'ppc64el': 'n', 'riscv64': 'n', 's390x': 'n'}>
 CONFIG_PROVIDE_OHCI1394_DMA_INIT                policy<{'amd64': 'n'}>
-CONFIG_STRICT_DEVMEM                            policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'n', 's390x': 'y'}>
-CONFIG_IO_STRICT_DEVMEM                         policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'ppc64el': 'n', 's390x': 'n'}>
+CONFIG_STRICT_DEVMEM                            policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y', 's390x': 'y'}>
+CONFIG_IO_STRICT_DEVMEM                         policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'ppc64el': 'n', 'riscv64': 'n', 's390x': 'n'}>
 #
 CONFIG_STRICT_DEVMEM                            mark<ENFORCED>
 
