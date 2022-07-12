@@ -13413,7 +13413,7 @@ CONFIG_PPC_BOOK3E_64                            policy<{'ppc64el': 'n'}>
 
 # Menu: Processor type and features
 CONFIG_NUMA                                     policy<{'amd64': 'y', 'arm64': 'y', 'ppc64el': 'y', 'riscv64': 'y', 's390x': 'y'}>
-CONFIG_KEXEC_FILE                               policy<{'amd64': 'y', 'arm64': 'y', 'ppc64el': 'y', 'riscv64': 'n', 's390x': 'n'}>
+CONFIG_KEXEC_FILE                               policy<{'amd64': 'y', 'arm64': 'y', 'ppc64el': 'y', 'riscv64': 'y', 's390x': 'n'}>
 CONFIG_KEXEC_SIG                                policy<{'amd64': 'y', 'arm64': 'y'}>
 CONFIG_ARCH_RANDOM                              policy<{'amd64': 'y', 'arm64': 'y', 'ppc64el': 'y', 's390x': 'y'}>
 CONFIG_RELOCATABLE                              policy<{'amd64': 'y', 'arm64': 'y', 'ppc64el': 'y', 's390x': 'y'}>
@@ -13906,7 +13906,7 @@ CONFIG_LOAD_PPC_KEYS                            mark<ENFORCED> note<LP:1866909>
 
 # Menu: Security options >> Enable different security models >> Integrity subsystem >> Integrity Measurement Architecture(IMA)
 CONFIG_IMA                                      policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y', 's390x': 'y'}>
-CONFIG_IMA_KEXEC                                policy<{'arm64': 'y', 'ppc64el': 'y'}>
+CONFIG_IMA_KEXEC                                policy<{'arm64': 'y', 'ppc64el': 'y', 'riscv64': 'y'}>
 CONFIG_IMA_WRITE_POLICY                         policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'ppc64el': 'n', 'riscv64': 'n', 's390x': 'n'}>
 CONFIG_IMA_READ_POLICY                          policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'ppc64el': 'y', 'riscv64': 'n', 's390x': 'n'}>
 CONFIG_IMA_DISABLE_HTABLE                       policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'ppc64el': 'n', 'riscv64': 'n', 's390x': 'n'}>
