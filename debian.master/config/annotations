@@ -11022,7 +11022,7 @@ CONFIG_PROC_CHILDREN                            policy<{'amd64': 'y', 'arm64': '
 CONFIG_SYSFS                                    policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y', 's390x': 'y'}>
 CONFIG_HUGETLBFS                                policy<{'amd64': 'y', 'arm64': 'y', 'armhf-generic-lpae': 'y', 'ppc64el': 'y', 'riscv64': 'y', 's390x': 'y'}>
 CONFIG_CONFIGFS_FS                              policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y', 's390x': 'y'}>
-CONFIG_EFIVAR_FS                                policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'riscv64': 'm'}>
+CONFIG_EFIVAR_FS                                policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'riscv64': 'y'}>
 #
 CONFIG_CONFIGFS_FS                              flag<REVIEW>
 CONFIG_EFIVAR_FS                                note<needed for variable EFI update>
