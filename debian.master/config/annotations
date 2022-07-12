@@ -11824,7 +11824,7 @@ CONFIG_KASAN                                    policy<{'amd64': 'n', 'arm64': '
 CONFIG_KFENCE                                   policy<{'amd64': 'y', 'arm64': 'y', 'riscv64': 'y', 's390x': 'y', 'armhf': 'y'}>
 CONFIG_KFENCE_STATIC_KEYS                       policy<{'amd64': 'n', 'arm64': 'n', 'riscv64': 'n', 's390x': 'n'}>
 CONFIG_KFENCE_DEFERRABLE                        policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'riscv64': 'n', 's390x': 'n'}>
-CONFIG_KFENCE_SAMPLE_INTERVAL                   policy<{'amd64': '0', 'arm64': '0', 'riscv64': '100', 's390x': '0', 'armhf': '0'}>
+CONFIG_KFENCE_SAMPLE_INTERVAL                   policy<{'amd64': '0', 'arm64': '0', 'riscv64': '0', 's390x': '0', 'armhf': '0'}>
 CONFIG_KFENCE_NUM_OBJECTS                       policy<{'amd64': '255', 'arm64': '255', 'riscv64': '255', 's390x': '255', 'armhf': '255'}>
 CONFIG_KFENCE_STRESS_TEST_FAULTS                policy<{'amd64': '0', 'arm64': '0', 'riscv64': '0', 's390x': '0', 'armhf': '0'}>
 
