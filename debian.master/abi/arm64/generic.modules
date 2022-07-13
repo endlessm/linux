@@ -2779,7 +2779,6 @@ lib80211_crypt_tkip
 lib80211_crypt_wep
 libarc4
 libblake2s
-libblake2s-generic
 libceph
 libchacha
 libchacha20poly1305
