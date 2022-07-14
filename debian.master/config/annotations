@@ -7041,7 +7041,7 @@ CONFIG_PCIEAER                                  policy<{'amd64': 'y', 'arm64': '
 CONFIG_PCIEAER_INJECT                           policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'riscv64': 'n', 's390x': 'n', 'ppc64el': '-'}>
 CONFIG_PCIE_ECRC                                policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'riscv64': 'n', 's390x': 'n', 'ppc64el': '-'}>
 CONFIG_PCIE_DPC                                 policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'riscv64': 'y', 's390x': 'y', 'ppc64el': '-'}>
-CONFIG_PCIE_EDR                                 policy<{'amd64': 'y', 'arm64': 'n'}>
+CONFIG_PCIE_EDR                                 policy<{'amd64': 'y', 'arm64': 'y'}>
 #
 CONFIG_PCIEAER_INJECT                           flag<TESTING>
 
