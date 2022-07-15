@@ -13919,7 +13919,8 @@ CONFIG_IMA_READ_POLICY                          mark<ENFORCED> note<LP:1667490> 
 # Menu: Security options >> Enable different security models >> Integrity subsystem >> Integrity Measurement Architecture(IMA) >> Appraise integrity measurements
 CONFIG_IMA_APPRAISE                             policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y', 's390x': 'y'}>
 CONFIG_IMA_APPRAISE_SIGNED_INIT                 policy<{'amd64': '-', 'arm64': '-', 'armhf': '-', 'ppc64el': 'n', 's390x': '-'}>
-CONFIG_IMA_ARCH_POLICY                          policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'ppc64el': 'y', 'riscv64': 'n', 's390x': 'n'}>
+CONFIG_IMA_ARCH_POLICY                          policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y', 's390x': 'y'}>
+CONFIG_IMA_SECURE_AND_OR_TRUSTED_BOOT           policy<{'amd64': 'y', 'arm64': 'y', 'armhf': '-', 'ppc64el': 'y', 'riscv64': '-', 's390x': 'y'}>
 CONFIG_IMA_APPRAISE_BOOTPARAM                   policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y', 's390x': 'y'}>
 CONFIG_IMA_APPRAISE_MODSIG                      policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y', 's390x': 'y'}>
 CONFIG_IMA_TRUSTED_KEYRING                      policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y', 's390x': 'y'}>
