@@ -40,7 +40,7 @@ printdebian:
 
 updateconfigs defaultconfigs editconfigs genconfigs dumpconfigs:
 	dh_testdir;
-	$(SHELL) $(DROOT)/scripts/misc/kernelconfig $@ "$(do_enforce_all)"
+	conc_level=$(conc_level) $(SHELL) $(DROOT)/scripts/misc/kernelconfig $@ "$(do_enforce_all)"
 	rm -rf build
 
 printenv:
