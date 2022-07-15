@@ -118,13 +118,13 @@ for arch in $archs; do
 						read choice
 						case "$choice" in
 						y* | Y* | "" )
-							make O=`pwd`/build $env menuconfig
+							make O=`pwd`/build $conc_level $env menuconfig
 							break ;;
 						n* | N* )
 							# 'syncconfig' prevents
 							# errors for '-' options set
 							# in common config fragments
-							make O=`pwd`/build $env syncconfig
+							make O=`pwd`/build $conc_level $env syncconfig
 							break ;;
 						*)
 							echo "Entry not valid"
@@ -134,9 +134,9 @@ for arch in $archs; do
 				    *)
 					echo "* Run $mode (yes=$yes) on $arch/$config ..."
 					if [ "$yes" -eq 1 ]; then
-						yes "" | make O=`pwd`/build $env "$mode"
+						yes "" | make O=`pwd`/build $conc_level $env "$mode"
 					else
-						make O=`pwd`/build $env "$mode"
+						make O=`pwd`/build $conc_level $env "$mode"
 					fi ;;
 				esac
 			fi
