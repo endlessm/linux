@@ -4520,6 +4520,7 @@ snd-acp3x-pdm-dma
 snd-acp3x-rn
 snd-acp5x-i2s
 snd-acp5x-pcm-dma
+snd-acp6x-pdm-dma
 snd-ad1889
 snd-ak4113
 snd-ak4114
@@ -4634,6 +4635,7 @@ snd-oxygen
 snd-oxygen-lib
 snd-pci-acp3x
 snd-pci-acp5x
+snd-pci-acp6x
 snd-pcm
 snd-pcm-dmaengine
 snd-pcsp
@@ -4662,6 +4664,7 @@ snd-soc-ac97
 snd-soc-acp-da7219mx98357-mach
 snd-soc-acp-rt5645-mach
 snd-soc-acp-rt5682-mach
+snd-soc-acp6x-mach
 snd-soc-acpi
 snd-soc-acpi-intel-match
 snd-soc-adau-utils
