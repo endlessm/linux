@@ -1819,7 +1819,9 @@ CONFIG_GPIOLIB_FASTPATH_LIMIT                   policy<{'amd64': '512', 'arm64':
 CONFIG_DEBUG_GPIO                               policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'ppc64el': 'n', 'riscv64': 'n', 's390x': 'n'}>
 CONFIG_GPIO_SYSFS                               policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y', 's390x': 'y'}>
 CONFIG_GPIO_CDEV                                policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y', 's390x': 'y'}>
-CONFIG_GPIO_CDEV_V1                             policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'ppc64el': 'n', 'riscv64': 'n', 's390x': 'n'}>
+CONFIG_GPIO_CDEV_V1                             policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y', 's390x': 'y'}>
+
+CONFIG_GPIO_CDEV_V1                             note<LP:1953613>
 
 # Menu: Device Drivers >> GPIO Support >> I2C GPIO expanders
 CONFIG_GPIO_ADP5588                             policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm', 's390x': 'n'}>
