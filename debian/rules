@@ -194,6 +194,7 @@ $(DEBIAN)/control.stub: 				\
 		-e 's/SRCPKGNAME/$(src_pkg_name)/g'                             \
 		-e 's/=HUMAN=/$(human_arch)/g'                                  \
 		-e 's/=SERIES=/$(series)/g'                                     \
+		-e 's/\(^Build-Depends:$$\)/\1\n$(GCC_BUILD_DEPENDS)/g'         \
 	  > $(DEBIAN)/control.stub;
 	flavours="$(sort $(wildcard $(DEBIAN)/control.d/vars.* $(DEBIAN)/sub-flavours/*.vars))";\
 	for i in $$flavours; do							\
