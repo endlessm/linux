@@ -112,18 +112,15 @@ DEB_BUILD_ARCH = $(shell dpkg-architecture -qDEB_BUILD_ARCH)
 # packaging phase fails, but you can at least compile the kernel quickly.
 #
 arch := $(DEB_HOST_ARCH)
-ifneq ($(arch),$(DEB_HOST_ARCH))
-	CROSS_COMPILE ?= $(shell dpkg-architecture -a$(arch) -qDEB_HOST_GNU_TYPE -f 2>/dev/null)-
-endif
+CROSS_COMPILE ?= $(DEB_HOST_GNU_TYPE)-
 
 #
-# Detect invocations of the form 'dpkg-buildpackage -B -aarmhf' within
-# an x86'en schroot. This is the only way to build all of the packages
-# (except for tools).
+# Set consistent toolchain
+# If a given kernel wants to change this, they can do so via their own
+# $(DEBIAN)/rules.d/hooks.mk and $(DEBIAN)/rules.d/$(arch).mk files
 #
-ifneq ($(DEB_BUILD_GNU_TYPE),$(DEB_HOST_GNU_TYPE))
-	CROSS_COMPILE ?= $(DEB_HOST_GNU_TYPE)-
-endif
+export gcc?=gcc-11
+GCC_BUILD_DEPENDS=\ $(gcc), $(gcc)-aarch64-linux-gnu [arm64] <cross>, $(gcc)-arm-linux-gnueabihf [armhf] <cross>, $(gcc)-powerpc64le-linux-gnu [ppc64el] <cross>, $(gcc)-riscv64-linux-gnu [riscv64] <cross>, $(gcc)-s390x-linux-gnu [s390x] <cross>, $(gcc)-x86-64-linux-gnu [amd64] <cross>,
 
 abidir		:= $(CURDIR)/$(DEBIAN)/__abi.current/$(arch)
 prev_abidir	:= $(CURDIR)/$(DEBIAN)/abi/$(arch)
@@ -257,6 +254,8 @@ PYTHON ?= $(firstword $(wildcard /usr/bin/python3) $(wildcard /usr/bin/python2) 
 # target_flavour is filled in for each step
 kmake = make ARCH=$(build_arch) \
 	CROSS_COMPILE=$(CROSS_COMPILE) \
+	HOSTCC=$(DEB_BUILD_GNU_TYPE)-$(gcc) \
+	CC=$(CROSS_COMPILE)$(gcc) \
 	KERNELVERSION=$(abi_release)-$(target_flavour) \
 	CONFIG_DEBUG_SECTION_MISMATCH=y \
 	KBUILD_BUILD_VERSION="$(uploadnum)" \

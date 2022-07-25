@@ -10,11 +10,7 @@ build_cd =
 build_O  = O=$(builddir)/build-$*
 endif
 
-# Typically supplied from the arch makefile, e.g., debian.master/control.d/armhf.mk
-ifneq ($(gcc),)
-kmake += CC=$(CROSS_COMPILE)$(gcc)
-endif
-
+# TODO this is probably wrong, and should be using $(DEB_HOST_MULTIARCH)
 shlibdeps_opts = $(if $(CROSS_COMPILE),-- -l$(CROSS_COMPILE:%-=/usr/%)/lib)
 
 debian/scripts/fix-filenames: debian/scripts/fix-filenames.c
