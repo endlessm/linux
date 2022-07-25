@@ -1070,7 +1070,6 @@ dps920ab
 drbd
 drivetemp
 drm
-drm_buddy
 drm_cma_helper
 drm_display_helper
 drm_dp_aux_bus

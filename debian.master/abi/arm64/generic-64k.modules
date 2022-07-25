@@ -1249,7 +1249,6 @@ dps920ab
 drbd
 drivetemp
 drm
-drm_buddy
 drm_cma_helper
 drm_display_helper
 drm_dp_aux_bus
@@ -2179,6 +2178,13 @@ hisi_sas_v3_hw
 hisi_sec
 hisi_sec2
 hisi_thermal
+hisi_uncore_cpa_pmu
+hisi_uncore_ddrc_pmu
+hisi_uncore_hha_pmu
+hisi_uncore_l3c_pmu
+hisi_uncore_pa_pmu
+hisi_uncore_pmu
+hisi_uncore_sllc_pmu
 hisi_zip
 hix5hd2_gmac
 hmc425a
