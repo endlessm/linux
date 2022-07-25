@@ -23,6 +23,13 @@ case "$mode" in
     *) echo "$0 called with invalid mode" 1>&2
        exit 1 ;;
 esac
+
+set -x
+if [ -z "$gcc" ]; then
+    echo "ERROR: gcc environment variable must be set"
+    exit 1
+fi
+
 kerneldir="`pwd`"
 confdir="$kerneldir/${DEBIAN}/config"
 variant="$2"
@@ -59,19 +66,16 @@ for arch in $archs; do
 	esac
 
 	# Determine cross toolchain to use for Kconfig compiler tests
-	cross_compile=""
-	deb_build_arch=$(dpkg-architecture -qDEB_BUILD_ARCH -a$arch 2>/dev/null)
-	deb_host_arch=$(dpkg-architecture -qDEB_HOST_ARCH -a$arch 2>/dev/null)
-	[ $deb_build_arch != $deb_host_arch ] && cross_compile="$(dpkg-architecture -qDEB_HOST_GNU_TYPE -a$arch 2>/dev/null)-"
+	cross_compile="$(dpkg-architecture -qDEB_HOST_GNU_TYPE -a$arch 2>/dev/null)-"
 
 	# Environment variables for 'make *config'. We omit CROSS_COMPILE
 	# for i386 since it is no longer supported after 19.04, however
 	# we maintain the configs for hwe.
 	modify_config=true
 	env="ARCH=$kernarch DEB_ARCH=$arch"
-	compiler_path=$(which "${cross_compile}gcc" || true)
+	compiler_path=$(which "${cross_compile}${gcc}" || true)
 	if [ "$compiler_path" != '' ]; then
-		env="$env CROSS_COMPILE=$cross_compile"
+		env="$env CROSS_COMPILE=$cross_compile CC=$compiler_path"
 	else
 		echo "WARNING: ${cross_compile}gcc not installed"
 		modify_config=
