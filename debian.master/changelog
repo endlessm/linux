@@ -4,6 +4,10 @@ linux (5.19.0-11.11) UNRELEASED; urgency=medium
   CHANGELOG: Use the printchanges target to see the curent changes.
   CHANGELOG: Use the insertchanges target to create the final log.
 
+  [ Upstream Kernel Changes ]
+
+  * Rebase to v5.19-rc8
+
  -- Andrea Righi <andrea.righi@canonical.com>  Mon, 25 Jul 2022 08:38:09 +0200
 
 linux (5.19.0-10.10) kinetic; urgency=medium
