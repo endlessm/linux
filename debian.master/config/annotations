@@ -10497,7 +10497,7 @@ CONFIG_XEN_SYMS                                 policy<{'amd64': 'y'}>
 CONFIG_XEN_UNPOPULATED_ALLOC                    policy<{'amd64': 'y', 'arm64': 'y'}>
 CONFIG_XEN_VIRTIO                               policy<{'amd64': 'y', 'arm64': 'y'}>
 #
-CONFIG_XEN_ACPI_PROCESSOR                       mark<ENFORCED> <boot essential on XEN host>
+CONFIG_XEN_ACPI_PROCESSOR                       mark<ENFORCED> note<boot essential on XEN host>
 
 # Menu: Device Drivers >> Xen driver support >> Backend driver support
 CONFIG_XEN_BACKEND                              policy<{'amd64': 'y', 'arm64': 'y', 'armhf': '-'}>
