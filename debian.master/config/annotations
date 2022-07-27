@@ -5768,7 +5768,7 @@ CONFIG_HYPERV_NET                               policy<{'amd64': 'm', 'arm64': '
 CONFIG_NETDEVSIM                                policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm', 's390x': 'm'}>
 CONFIG_NET_FAILOVER                             policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm', 's390x': 'm'}>
 #
-CONFIG_HIPPI                                    note<DEPRECATED>
+CONFIG_HIPPI                                    flag<DEPRECATED>
 CONFIG_XEN_NETDEV_FRONTEND                      note<not autoloadable -- XEN paravirt support>
 
 # Menu: Device Drivers >> Network device support >> ARCnet support
