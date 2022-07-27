@@ -1989,8 +1989,8 @@ CONFIG_DEBUG_TEST_DRIVER_REMOVE                 policy<{'amd64': 'n', 'arm64': '
 CONFIG_TEST_ASYNC_DRIVER_PROBE                  policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'ppc64el': 'n', 'riscv64': 'n', 's390x': 'n'}>
 CONFIG_DMA_FENCE_TRACE                          policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'ppc64el': 'n', 'riscv64': 'n', 's390x': 'n'}>
 #
-CONFIG_DEVTMPFS                                 note<ENFORCED> note<upstart requirement>
-CONFIG_DEVTMPFS_MOUNT                           note<ENFORCED> note<upstart requirement>
+CONFIG_DEVTMPFS                                 mark<ENFORCED> note<upstart requirement>
+CONFIG_DEVTMPFS_MOUNT                           mark<ENFORCED> note<upstart requirement>
 
 # Menu: Device Drivers >> Generic Driver Options >> Firmware loader
 
