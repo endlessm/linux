@@ -51,6 +51,16 @@
 /* bits 23:16 are used for exra info for certain messages */
 #define IXGBE_VT_MSGINFO_MASK	(0xFF << IXGBE_VT_MSGINFO_SHIFT)
 
+/* IXGBE_VT_MSGTYPE_NACK and IXGBE_VT_MSGTYPE_ACK were renamed to
+ * IXGBE_VT_MSGTYPE_FAILURE and IXGBE_VT_MSGTYPE_SUCCESS respectively
+ * with commit 0edbecd57057 upstream.
+ *
+ * One of the backported fixes use them with their new names. These
+ * aliases enable them to work with both older and newer names.
+ */
+#define IXGBE_VT_MSGTYPE_SUCCESS IXGBE_VT_MSGTYPE_ACK
+#define IXGBE_VT_MSGTYPE_FAILURE IXGBE_VT_MSGTYPE_NACK
+
 /* definitions to support mailbox API version negotiation */
 
 /* each element denotes a version of the API; existing numbers may not
@@ -96,6 +106,8 @@ enum ixgbe_pfvf_api_rev {
 /* mailbox API, version 1.4 VF requests */
 #define IXGBE_VF_IPSEC_ADD	0x0d
 #define IXGBE_VF_IPSEC_DEL	0x0e
+
+#define IXGBE_VF_GET_LINK_STATE 0x10 /* get vf link state */
 
 /* length of permanent address message returned from PF */
 #define IXGBE_VF_PERMADDR_MSG_LEN	4
