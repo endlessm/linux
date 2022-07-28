@@ -79,7 +79,6 @@ struct rfkill_data {
 	struct mutex		mtx;
 	wait_queue_head_t	read_wait;
 	bool			input_handler;
-	u8			max_size;
 };
 
 
@@ -1169,8 +1168,6 @@ static int rfkill_fop_open(struct inode *inode, struct file *file)
 	if (!data)
 		return -ENOMEM;
 
-	data->max_size = RFKILL_EVENT_SIZE_V1;
-
 	INIT_LIST_HEAD(&data->events);
 	mutex_init(&data->mtx);
 	init_waitqueue_head(&data->read_wait);
@@ -1253,7 +1250,6 @@ static ssize_t rfkill_fop_read(struct file *file, char __user *buf,
 				list);
 
 	sz = min_t(unsigned long, sizeof(ev->ev), count);
-	sz = min_t(unsigned long, sz, data->max_size);
 	ret = sz;
 	if (copy_to_user(buf, &ev->ev, sz))
 		ret = -EFAULT;
@@ -1268,7 +1264,6 @@ static ssize_t rfkill_fop_read(struct file *file, char __user *buf,
 static ssize_t rfkill_fop_write(struct file *file, const char __user *buf,
 				size_t count, loff_t *pos)
 {
-	struct rfkill_data *data = file->private_data;
 	struct rfkill *rfkill;
 	struct rfkill_event_ext ev;
 	int ret;
@@ -1283,7 +1278,6 @@ static ssize_t rfkill_fop_write(struct file *file, const char __user *buf,
 	 * our API version even in a write() call, if it cares.
 	 */
 	count = min(count, sizeof(ev));
-	count = min_t(size_t, count, data->max_size);
 	if (copy_from_user(&ev, buf, count))
 		return -EFAULT;
 
@@ -1343,47 +1337,31 @@ static int rfkill_fop_release(struct inode *inode, struct file *file)
 	return 0;
 }
 
+#ifdef CONFIG_RFKILL_INPUT
 static long rfkill_fop_ioctl(struct file *file, unsigned int cmd,
 			     unsigned long arg)
 {
 	struct rfkill_data *data = file->private_data;
-	int ret = -ENOTTY;
-	u32 size;
 
 	if (_IOC_TYPE(cmd) != RFKILL_IOC_MAGIC)
 		return -ENOTTY;
 
+	if (_IOC_NR(cmd) != RFKILL_IOC_NOINPUT)
+		return -ENOSYS;
+
 	mutex_lock(&data->mtx);
-	switch (_IOC_NR(cmd)) {
-#ifdef CONFIG_RFKILL_INPUT
-	case RFKILL_IOC_NOINPUT:
-		if (!data->input_handler) {
-			if (atomic_inc_return(&rfkill_input_disabled) == 1)
-				printk(KERN_DEBUG "rfkill: input handler disabled\n");
-			data->input_handler = true;
-		}
-		ret = 0;
-		break;
-#endif
-	case RFKILL_IOC_MAX_SIZE:
-		if (get_user(size, (__u32 __user *)arg)) {
-			ret = -EFAULT;
-			break;
-		}
-		if (size < RFKILL_EVENT_SIZE_V1 || size > U8_MAX) {
-			ret = -EINVAL;
-			break;
-		}
-		data->max_size = size;
-		ret = 0;
-		break;
-	default:
-		break;
+
+	if (!data->input_handler) {
+		if (atomic_inc_return(&rfkill_input_disabled) == 1)
+			printk(KERN_DEBUG "rfkill: input handler disabled\n");
+		data->input_handler = true;
 	}
+
 	mutex_unlock(&data->mtx);
 
-	return ret;
+	return 0;
 }
+#endif
 
 static const struct file_operations rfkill_fops = {
 	.owner		= THIS_MODULE,
@@ -1392,8 +1370,10 @@ static const struct file_operations rfkill_fops = {
 	.write		= rfkill_fop_write,
 	.poll		= rfkill_fop_poll,
 	.release	= rfkill_fop_release,
+#ifdef CONFIG_RFKILL_INPUT
 	.unlocked_ioctl	= rfkill_fop_ioctl,
 	.compat_ioctl	= compat_ptr_ioctl,
+#endif
 };
 
 #define RFKILL_NAME "rfkill"
