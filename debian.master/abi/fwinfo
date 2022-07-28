@@ -898,6 +898,7 @@ firmware:       hfi1_fabric.fw
 firmware:       hfi1_pcie.fw
 firmware:       hfi1_sbus.fw
 firmware:       i915/adlp_dmc_ver2_16.bin
+firmware:       i915/adlp_guc_69.0.3.bin
 firmware:       i915/adlp_guc_70.1.1.bin
 firmware:       i915/adls_dmc_ver2_01.bin
 firmware:       i915/bxt_dmc_ver1_07.bin
@@ -925,6 +926,7 @@ firmware:       i915/skl_dmc_ver1_27.bin
 firmware:       i915/skl_guc_70.1.1.bin
 firmware:       i915/skl_huc_2.0.0.bin
 firmware:       i915/tgl_dmc_ver2_12.bin
+firmware:       i915/tgl_guc_69.0.3.bin
 firmware:       i915/tgl_guc_70.1.1.bin
 firmware:       i915/tgl_huc_7.9.3.bin
 firmware:       icom_asc.bin

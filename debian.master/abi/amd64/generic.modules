@@ -360,7 +360,6 @@ amd76xrom
 amd8111e
 amd_freq_sensitivity
 amd_hsmp
-amd_pstate
 amd_sfh
 amdgpu
 amdtee
