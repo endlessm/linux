@@ -3,17 +3,26 @@
 flavor="${1}"
 mods_dir="${2}"
 mods_extra_dir="${3}"
-sig_inc="${4}"
 
 echo "II: Checking signature of staging modules for ${flavor}..."
 
-if [ -f "${sig_inc}" ] ; then
-	echo "II: Use signature inclusion file:"
-	echo "    ${sig_inc}"
+root=$(dirname "$(realpath -e "${0}")")/../..
+. "${root}"/debian/debian.env
+
+# Collect the signature-inclusion files
+sig_incs=()
+for d in debian "${DEBIAN}" ; do
+	if [ -f "${root}"/"${d}"/signature-inclusion ] ; then
+		sig_incs+=("${root}"/"${d}"/signature-inclusion)
+	fi
+done
+
+if [ "${#sig_incs[@]}" -gt 0 ] ; then
+	echo "II: Use signature inclusion file(s):"
+	printf "    %s\n" "${sig_incs[@]}"
 	sig_all=0
 else
-	echo "WW: Signature inclusion file missing:"
-	echo "    ${sig_inc}"
+	echo "WW: Signature inclusion file(s) missing"
 	echo "II: All modules must be signed"
 	sig_all=1
 fi
@@ -43,7 +52,7 @@ while IFS= read -r mod ; do
 	fi
 
 	must=0
-	if [ ${sig_all} -eq 1 ] || grep -qFx "${mod##*/}" "${sig_inc}" ; then
+	if [ ${sig_all} -eq 1 ] || grep -qFx "${mod##*/}" "${sig_incs[@]}" ; then
 		# Module must be signed
 		must=1
 	fi
