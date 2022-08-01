@@ -11193,7 +11193,6 @@ CONFIG_STRICT_MODULE_RWX                        mark<ENFORCED>
 # Menu: General architecture-dependent options >> GCC plugins
 
 # Menu: General architecture-dependent options >> GCOV-based kernel profiling
-CONFIG_GCOV_KERNEL                              policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'ppc64el': 'n', 'riscv64': 'n', 's390x': 'n'}>
 
 # Menu: General architecture-dependent options >> Link Time Optimization (LTO)
 CONFIG_LTO_NONE                                 policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y', 's390x': 'y'}>
