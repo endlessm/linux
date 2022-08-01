@@ -175,6 +175,7 @@ struct lsmcontext {
  * Any LSM that provides secid or secctx based hooks must be included.
  */
 #define LSMBLOB_ENTRIES ( \
+	(IS_ENABLED(CONFIG_SECURITY) ? 1 : 0) + \
 	(IS_ENABLED(CONFIG_SECURITY_SELINUX) ? 1 : 0) + \
 	(IS_ENABLED(CONFIG_SECURITY_SMACK) ? 1 : 0) + \
 	(IS_ENABLED(CONFIG_SECURITY_APPARMOR) ? 1 : 0) + \
