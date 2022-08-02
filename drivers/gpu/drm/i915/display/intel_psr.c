@@ -718,11 +718,7 @@ tgl_dc3co_exitline_compute_config(struct intel_dp *intel_dp,
 static bool intel_psr2_sel_fetch_config_valid(struct intel_dp *intel_dp,
 					      struct intel_crtc_state *crtc_state)
 {
-	struct intel_atomic_state *state = to_intel_atomic_state(crtc_state->uapi.state);
 	struct drm_i915_private *dev_priv = dp_to_i915(intel_dp);
-	struct intel_plane_state *plane_state;
-	struct intel_plane *plane;
-	int i;
 
 	if (!dev_priv->params.enable_psr2_sel_fetch &&
 	    intel_dp->psr.debug != I915_PSR_DEBUG_ENABLE_SEL_FETCH) {
@@ -735,14 +731,6 @@ static bool intel_psr2_sel_fetch_config_valid(struct intel_dp *intel_dp,
 		drm_dbg_kms(&dev_priv->drm,
 			    "PSR2 sel fetch not enabled, async flip enabled\n");
 		return false;
-	}
-
-	for_each_new_intel_plane_in_state(state, plane, plane_state, i) {
-		if (plane_state->uapi.rotation != DRM_MODE_ROTATE_0) {
-			drm_dbg_kms(&dev_priv->drm,
-				    "PSR2 sel fetch not enabled, plane rotated\n");
-			return false;
-		}
 	}
 
 	/* Wa_14010254185 Wa_14010103792 */
@@ -1547,6 +1535,41 @@ static void intel_psr2_sel_fetch_pipe_alignment(const struct intel_crtc_state *c
 		drm_warn(&dev_priv->drm, "Missing PSR2 sel fetch alignment with DSC\n");
 }
 
+/*
+ * TODO: Not clear how to handle planes with negative position,
+ * also planes are not updated if they have a negative X
+ * position so for now doing a full update in this cases
+ *
+ * Plane scaling and rotation is not supported by selective fetch and both
+ * properties can change without a modeset, so need to be check at every
+ * atomic commmit.
+ */
+static bool psr2_sel_fetch_plane_state_supported(const struct intel_plane_state *plane_state)
+{
+	if (plane_state->uapi.dst.y1 < 0 ||
+	    plane_state->uapi.dst.x1 < 0 ||
+	    plane_state->scaler_id >= 0 ||
+	    plane_state->uapi.rotation != DRM_MODE_ROTATE_0)
+		return false;
+
+	return true;
+}
+
+/*
+ * Check for pipe properties that is not supported by selective fetch.
+ *
+ * TODO: pipe scaling causes a modeset but skl_update_scaler_crtc() is executed
+ * after intel_psr_compute_config(), so for now keeping PSR2 selective fetch
+ * enabled and going to the full update path.
+ */
+static bool psr2_sel_fetch_pipe_state_supported(const struct intel_crtc_state *crtc_state)
+{
+	if (crtc_state->scaler_state.scaler_id >= 0)
+		return false;
+
+	return true;
+}
+
 int intel_psr2_sel_fetch_update(struct intel_atomic_state *state,
 				struct intel_crtc *crtc)
 {
@@ -1559,6 +1582,11 @@ int intel_psr2_sel_fetch_update(struct intel_atomic_state *state,
 
 	if (!crtc_state->enable_psr2_sel_fetch)
 		return 0;
+
+	if (!psr2_sel_fetch_pipe_state_supported(crtc_state)) {
+		full_update = true;
+		goto skip_sel_fetch_set_loop;
+	}
 
 	ret = drm_atomic_add_affected_planes(&state->base, &crtc->base);
 	if (ret)
@@ -1583,13 +1611,7 @@ int intel_psr2_sel_fetch_update(struct intel_atomic_state *state,
 		    !old_plane_state->uapi.visible)
 			continue;
 
-		/*
-		 * TODO: Not clear how to handle planes with negative position,
-		 * also planes are not updated if they have a negative X
-		 * position so for now doing a full update in this cases
-		 */
-		if (new_plane_state->uapi.dst.y1 < 0 ||
-		    new_plane_state->uapi.dst.x1 < 0) {
+		if (!psr2_sel_fetch_plane_state_supported(new_plane_state)) {
 			full_update = true;
 			break;
 		}
@@ -1672,6 +1694,11 @@ int intel_psr2_sel_fetch_update(struct intel_atomic_state *state,
 		inter = pipe_clip;
 		if (!drm_rect_intersect(&inter, &new_plane_state->uapi.dst))
 			continue;
+
+		if (!psr2_sel_fetch_plane_state_supported(new_plane_state)) {
+			full_update = true;
+			break;
+		}
 
 		sel_fetch_area = &new_plane_state->psr2_sel_fetch_area;
 		sel_fetch_area->y1 = inter.y1 - new_plane_state->uapi.dst.y1;
