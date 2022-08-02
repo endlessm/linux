@@ -759,18 +759,7 @@ static bool intel_psr2_sel_fetch_config_valid(struct intel_dp *intel_dp,
 	struct drm_i915_private *dev_priv = dp_to_i915(intel_dp);
 	struct intel_plane_state *plane_state;
 	struct intel_plane *plane;
-	struct edid *edid;
 	int i;
-
-	edid = intel_dp_get_edid(intel_dp);
-
-	if (edid->mfg_id[0] == 0x06 && edid->mfg_id[1] == 0xaf &&
-	    edid->prod_code[0] == 0x8c && edid->prod_code[1] == 0xcd &&
-	    IS_TIGERLAKE(dev_priv)) {
-		drm_info_once(&dev_priv->drm,
-			      "PSR2 sel fetch enabled for TGL + AUO panel\n");
-		return crtc_state->enable_psr2_sel_fetch = true;
-	}
 
 	if (!dev_priv->params.enable_psr2_sel_fetch &&
 	    intel_dp->psr.debug != I915_PSR_DEBUG_ENABLE_SEL_FETCH) {
