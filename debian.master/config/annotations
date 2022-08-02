@@ -11193,6 +11193,7 @@ CONFIG_STRICT_MODULE_RWX                        mark<ENFORCED>
 # Menu: General architecture-dependent options >> GCC plugins
 
 # Menu: General architecture-dependent options >> GCOV-based kernel profiling
+CONFIG_GCOV_KERNEL                              policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'ppc64el': 'n', 'riscv64': 'n', 's390x': 'n'}>
 
 # Menu: General architecture-dependent options >> Link Time Optimization (LTO)
 CONFIG_LTO_NONE                                 policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y', 's390x': 'y'}>
@@ -11649,7 +11650,6 @@ CONFIG_MEMTEST                                  policy<{'amd64': 'y', 'arm64': '
 CONFIG_HYPERV_TESTING                           policy<{'amd64': 'n', 'arm64': 'n'}>
 
 # Menu: Kernel hacking >> Kernel Testing and Coverage >> Code coverage for fuzzing
-CONFIG_KCOV                                     policy<{'amd64': 'n', 'arm64': '-', 'armhf': 'n', 'ppc64el': '-', 'riscv64': 'n', 's390x': '-'}>
 
 # Menu: Kernel hacking >> Kernel Testing and Coverage >> Fault-injection framework
 CONFIG_FAULT_INJECTION                          policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'ppc64el': 'n', 'riscv64': 'n', 's390x': 'n'}>
@@ -13768,7 +13768,6 @@ CONFIG_MCPM                                     policy<{'armhf': 'y'}>
 CONFIG_BIG_LITTLE                               policy<{'armhf': 'y'}>
 CONFIG_BL_SWITCHER                              policy<{'armhf': 'y'}>
 CONFIG_BL_SWITCHER_DUMMY_IF                     policy<{'armhf': 'm'}>
-CONFIG_STACKPROTECTOR_PER_TASK                  policy<{'arm64': 'y', 'riscv64': 'y'}>
 
 # Menu: Processor type and features >> Symmetric multi-processing support
 #
