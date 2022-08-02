@@ -2395,8 +2395,9 @@ void dcn20_enable_stream(struct pipe_ctx *pipe_ctx)
 	 * disconnect them during disable_stream
 	 * BY this, it is logic clean to separate stream and link
 	 */
-	link->link_enc->funcs->connect_dig_be_to_fe(link->link_enc,
-						    pipe_ctx->stream_res.stream_enc->id, true);
+	if (link_enc)
+		link_enc->funcs->connect_dig_be_to_fe(
+			link_enc, pipe_ctx->stream_res.stream_enc->id, true);
 
 	if (dc_is_dp_signal(pipe_ctx->stream->signal))
 		dp_source_sequence_trace(link, DPCD_SOURCE_SEQ_AFTER_CONNECT_DIG_FE_BE);
