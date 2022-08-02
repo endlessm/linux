@@ -14,7 +14,6 @@
 #include "reg.h"
 #include "debug.h"
 #include "bf.h"
-#include "pci.h"
 
 static const s8 lna_gain_table_0[8] = {22, 8, -6, -22, -31, -40, -46, -52};
 static const s8 lna_gain_table_1[16] = {10, 6, 2, -2, -6, -10, -14, -17,
@@ -1946,8 +1945,6 @@ struct rtw_chip_info rtw8821c_hw_spec = {
 
 	.coex_info_hw_regs_num = ARRAY_SIZE(coex_info_hw_regs_8821c),
 	.coex_info_hw_regs = coex_info_hw_regs_8821c,
-
-	.pci_quirk_data = BIT(QUIRK_DIS_PCI_CAP_ASPM),
 };
 EXPORT_SYMBOL(rtw8821c_hw_spec);
 

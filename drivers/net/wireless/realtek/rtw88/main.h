@@ -1208,9 +1208,6 @@ struct rtw_chip_info {
 	const struct rtw_hw_reg *btg_reg;
 	const struct rtw_reg_domain *coex_info_hw_regs;
 	u32 wl_fw_desired_ver;
-
-	/* quirk flags */
-	u32 pci_quirk_data;
 };
 
 enum rtw_coex_bt_state_cnt {

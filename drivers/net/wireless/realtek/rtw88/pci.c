@@ -1486,9 +1486,14 @@ static void rtw_pci_free_irq(struct rtw_dev *rtwdev, struct pci_dev *pdev)
 	pci_free_irq_vectors(pdev);
 }
 
-static int disable_pci_caps_by_chip(const struct rtw_chip_info *chip)
+enum rtw88_quirk_dis_pci_caps {
+	QUIRK_DIS_PCI_CAP_MSI,
+	QUIRK_DIS_PCI_CAP_ASPM,
+};
+
+static int disable_pci_caps(const struct dmi_system_id *dmi)
 {
-	u32 dis_caps = chip->pci_quirk_data;
+	uintptr_t dis_caps = (uintptr_t)dmi->driver_data;
 
 	if (dis_caps & BIT(QUIRK_DIS_PCI_CAP_MSI))
 		rtw_disable_msi = true;
@@ -1497,6 +1502,28 @@ static int disable_pci_caps_by_chip(const struct rtw_chip_info *chip)
 
 	return 1;
 }
+
+static const struct dmi_system_id rtw88_pci_quirks[] = {
+	{
+		.callback = disable_pci_caps,
+		.ident = "Protempo Ltd L116HTN6SPW",
+		.matches = {
+			DMI_MATCH(DMI_SYS_VENDOR, "Protempo Ltd"),
+			DMI_MATCH(DMI_PRODUCT_NAME, "L116HTN6SPW"),
+		},
+		.driver_data = (void *)BIT(QUIRK_DIS_PCI_CAP_ASPM),
+	},
+	{
+		.callback = disable_pci_caps,
+		.ident = "HP HP Pavilion Laptop 14-ce0xxx",
+		.matches = {
+			DMI_MATCH(DMI_SYS_VENDOR, "HP"),
+			DMI_MATCH(DMI_PRODUCT_NAME, "HP Pavilion Laptop 14-ce0xxx"),
+		},
+		.driver_data = (void *)BIT(QUIRK_DIS_PCI_CAP_ASPM),
+	},
+	{}
+};
 
 int rtw_pci_probe(struct pci_dev *pdev,
 		  const struct pci_device_id *id)
@@ -1546,7 +1573,7 @@ int rtw_pci_probe(struct pci_dev *pdev,
 		goto err_destroy_pci;
 	}
 
-	disable_pci_caps_by_chip(rtwdev->chip);
+	dmi_check_system(rtw88_pci_quirks);
 	rtw_pci_phy_cfg(rtwdev);
 
 	ret = rtw_register_hw(rtwdev, hw);
