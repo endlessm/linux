@@ -956,6 +956,7 @@ int tb_dp_port_set_hops(struct tb_port *port, unsigned int video,
 			unsigned int aux_tx, unsigned int aux_rx);
 bool tb_dp_port_is_enabled(struct tb_port *port);
 int tb_dp_port_enable(struct tb_port *port, bool enable);
+void tb_dp_resource_available_discovered(struct tb *tb, struct tb_port *port);
 
 struct tb_path *tb_path_discover(struct tb_port *src, int src_hopid,
 				 struct tb_port *dst, int dst_hopid,

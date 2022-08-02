@@ -832,6 +832,8 @@ struct tb_tunnel *tb_tunnel_discover_dp(struct tb *tb, struct tb_port *in,
 		goto err_deactivate;
 	}
 
+	tb_dp_resource_available_discovered(tb, tunnel->dst_port);
+
 	tb_tunnel_dbg(tunnel, "discovered\n");
 	return tunnel;
 

@@ -992,6 +992,21 @@ static void tb_dp_resource_unavailable(struct tb *tb, struct tb_port *port)
 	tb_tunnel_dp(tb);
 }
 
+void tb_dp_resource_available_discovered(struct tb *tb, struct tb_port *port)
+{
+	struct tb_cm *tcm = tb_priv(tb);
+	struct tb_port *p;
+
+	list_for_each_entry(p, &tcm->dp_resources, list) {
+		if (p == port)
+			return;
+	}
+
+	tb_port_dbg(port, "DP %s resource available discovered\n",
+		    tb_port_is_dpin(port) ? "IN" : "OUT");
+	list_add_tail(&port->list, &tcm->dp_resources);
+}
+
 static void tb_dp_resource_available(struct tb *tb, struct tb_port *port)
 {
 	struct tb_cm *tcm = tb_priv(tb);
