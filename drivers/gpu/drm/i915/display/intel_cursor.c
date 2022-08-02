@@ -637,8 +637,7 @@ intel_legacy_cursor_update(struct drm_plane *_plane,
 	 * FIXME bigjoiner fastpath would be good
 	 */
 	if (!crtc_state->hw.active || intel_crtc_needs_modeset(crtc_state) ||
-	    crtc_state->update_pipe || crtc_state->bigjoiner ||
-	    crtc_state->enable_psr2_sel_fetch)
+	    crtc_state->update_pipe || crtc_state->bigjoiner)
 		goto slow;
 
 	/*
@@ -696,7 +695,7 @@ intel_legacy_cursor_update(struct drm_plane *_plane,
 		goto out_free;
 
 	intel_frontbuffer_flush(to_intel_frontbuffer(new_plane_state->hw.fb),
-				ORIGIN_FLIP);
+				ORIGIN_CURSOR_UPDATE);
 	intel_frontbuffer_track(to_intel_frontbuffer(old_plane_state->hw.fb),
 				to_intel_frontbuffer(new_plane_state->hw.fb),
 				plane->frontbuffer_bit);

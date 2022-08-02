@@ -2052,20 +2052,16 @@ void intel_psr_invalidate(struct drm_i915_private *dev_priv,
 /*
  * When we will be completely rely on PSR2 S/W tracking in future,
  * intel_psr_flush() will invalidate and flush the PSR for ORIGIN_FLIP
- * event also therefore tgl_dc3co_flush() require to be changed
+ * event also therefore tgl_dc3co_flush_locked() require to be changed
  * accordingly in future.
  */
 static void
-tgl_dc3co_flush(struct intel_dp *intel_dp, unsigned int frontbuffer_bits,
-		enum fb_op_origin origin)
+tgl_dc3co_flush_locked(struct intel_dp *intel_dp, unsigned int frontbuffer_bits,
+		       enum fb_op_origin origin)
 {
-	mutex_lock(&intel_dp->psr.lock);
-
-	if (!intel_dp->psr.dc3co_exitline)
-		goto unlock;
-
-	if (!intel_dp->psr.psr2_enabled || !intel_dp->psr.active)
-		goto unlock;
+	if (!intel_dp->psr.dc3co_exitline || !intel_dp->psr.psr2_enabled ||
+	    !intel_dp->psr.active)
+		return;
 
 	/*
 	 * At every frontbuffer flush flip event modified delay of delayed work,
@@ -2073,14 +2069,11 @@ tgl_dc3co_flush(struct intel_dp *intel_dp, unsigned int frontbuffer_bits,
 	 */
 	if (!(frontbuffer_bits &
 	    INTEL_FRONTBUFFER_ALL_MASK(intel_dp->psr.pipe)))
-		goto unlock;
+		return;
 
 	tgl_psr2_enable_dc3co(intel_dp);
 	mod_delayed_work(system_wq, &intel_dp->psr.dc3co_work,
 			 intel_dp->psr.dc3co_exit_delay);
-
-unlock:
-	mutex_unlock(&intel_dp->psr.lock);
 }
 
 /**
@@ -2105,11 +2098,6 @@ void intel_psr_flush(struct drm_i915_private *dev_priv,
 		unsigned int pipe_frontbuffer_bits = frontbuffer_bits;
 		struct intel_dp *intel_dp = enc_to_intel_dp(encoder);
 
-		if (origin == ORIGIN_FLIP) {
-			tgl_dc3co_flush(intel_dp, frontbuffer_bits, origin);
-			continue;
-		}
-
 		mutex_lock(&intel_dp->psr.lock);
 		if (!intel_dp->psr.enabled) {
 			mutex_unlock(&intel_dp->psr.lock);
@@ -2126,6 +2114,14 @@ void intel_psr_flush(struct drm_i915_private *dev_priv,
 		 * intel_psr_resume() is called.
 		 */
 		if (intel_dp->psr.paused) {
+			mutex_unlock(&intel_dp->psr.lock);
+			continue;
+		}
+
+		if (origin == ORIGIN_FLIP ||
+		    (origin == ORIGIN_CURSOR_UPDATE &&
+		     !intel_dp->psr.psr2_sel_fetch_enabled)) {
+			tgl_dc3co_flush_locked(intel_dp, frontbuffer_bits, origin);
 			mutex_unlock(&intel_dp->psr.lock);
 			continue;
 		}
