@@ -6323,6 +6323,9 @@ static int igc_probe(struct pci_dev *pdev,
 	memcpy(&hw->mac.ops, ei->mac_ops, sizeof(hw->mac.ops));
 	memcpy(&hw->phy.ops, ei->phy_ops, sizeof(hw->phy.ops));
 
+	if (pci_is_thunderbolt_attached(pdev))
+		msleep(600);
+
 	/* Initialize skew-specific constants */
 	err = ei->get_invariants(hw);
 	if (err)
