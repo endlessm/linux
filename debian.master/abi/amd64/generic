@@ -8092,6 +8092,7 @@ EXPORT_SYMBOL	 vmlinux 0x5b62ac59	netpoll_send_udp
 EXPORT_SYMBOL	 vmlinux 0x5b641283	arch_phys_wc_add
 EXPORT_SYMBOL	 vmlinux 0x5b768272	pcim_iomap
 EXPORT_SYMBOL	 vmlinux 0x5b7f9a35	mr_rtm_dumproute
+EXPORT_SYMBOL	 vmlinux 0x5b8239ca	__x86_return_thunk
 EXPORT_SYMBOL	 vmlinux 0x5b8490f3	registered_fb
 EXPORT_SYMBOL	 vmlinux 0x5b92a111	filemap_fault
 EXPORT_SYMBOL	 vmlinux 0x5bad084e	vfs_unlink
@@ -8442,6 +8443,7 @@ EXPORT_SYMBOL	 vmlinux 0x6b3a2396	tcp_disconnect
 EXPORT_SYMBOL	 vmlinux 0x6b49db39	fs_param_is_string
 EXPORT_SYMBOL	 vmlinux 0x6b55acd0	rtnl_lock_killable
 EXPORT_SYMBOL	 vmlinux 0x6b6889b6	seq_read
+EXPORT_SYMBOL	 vmlinux 0x6b695cf1	zen_untrain_ret
 EXPORT_SYMBOL	 vmlinux 0x6b71e986	ip_getsockopt
 EXPORT_SYMBOL	 vmlinux 0x6b8222d2	mipi_dsi_driver_register_full
 EXPORT_SYMBOL	 vmlinux 0x6b853d06	ns_to_kernel_old_timeval
@@ -21688,6 +21690,7 @@ EXPORT_SYMBOL_GPL	 vmlinux 0x509d5f55	clk_divider_ro_ops
 EXPORT_SYMBOL_GPL	 vmlinux 0x50a367d4	fuse_fill_super_common
 EXPORT_SYMBOL_GPL	 vmlinux 0x50a6159d	vfio_group_iommu_domain
 EXPORT_SYMBOL_GPL	 vmlinux 0x50b03f5d	l1tf_vmx_mitigation
+EXPORT_SYMBOL_GPL	 vmlinux 0x50b42ba1	entry_ibpb
 EXPORT_SYMBOL_GPL	 vmlinux 0x50c30f7d	fscrypt_drop_inode
 EXPORT_SYMBOL_GPL	 vmlinux 0x50d1f870	pgprot_writecombine
 EXPORT_SYMBOL_GPL	 vmlinux 0x50df94f5	btree_insert
@@ -21844,6 +21847,7 @@ EXPORT_SYMBOL_GPL	 vmlinux 0x56699b2a	subsys_virtual_register
 EXPORT_SYMBOL_GPL	 vmlinux 0x567048ae	skb_zerocopy_headlen
 EXPORT_SYMBOL_GPL	 vmlinux 0x56811241	vfio_pci_core_init_device
 EXPORT_SYMBOL_GPL	 vmlinux 0x56895410	genphy_c45_aneg_done
+EXPORT_SYMBOL_GPL	 vmlinux 0x56948896	spec_ctrl_current
 EXPORT_SYMBOL_GPL	 vmlinux 0x569b6256	dev_pm_opp_enable
 EXPORT_SYMBOL_GPL	 vmlinux 0x569c94dd	syscon_regmap_lookup_by_phandle_args
 EXPORT_SYMBOL_GPL	 vmlinux 0x569f4418	regmap_mmio_detach_clk
@@ -22127,6 +22131,7 @@ EXPORT_SYMBOL_GPL	 vmlinux 0x619af3a4	__sync_filesystem
 EXPORT_SYMBOL_GPL	 vmlinux 0x619d2eca	acpi_gpio_get_irq_resource
 EXPORT_SYMBOL_GPL	 vmlinux 0x61adb224	dst_blackhole_redirect
 EXPORT_SYMBOL_GPL	 vmlinux 0x61ae1d2d	xas_pause
+EXPORT_SYMBOL_GPL	 vmlinux 0x61b443f8	x86_spec_ctrl_current
 EXPORT_SYMBOL_GPL	 vmlinux 0x61b78414	crypto_alg_extsize
 EXPORT_SYMBOL_GPL	 vmlinux 0x61e1c89d	bpf_trace_run4
 EXPORT_SYMBOL_GPL	 vmlinux 0x61eca6b8	usb_interrupt_msg
