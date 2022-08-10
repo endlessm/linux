@@ -2,10 +2,12 @@
 # Remove any files deleted from the orig.
 rm -f 'arch/hexagon/include/asm/timer-regs.h'
 rm -f 'drivers/gpu/drm/amd/display/dc/dsc/qp_tables.h'
+rm -f 'drivers/gpu/drm/msm/hdmi/hdmi_connector.c'
 rm -f 'drivers/gpu/drm/vmwgfx/vmwgfx_thp.c'
 rm -f 'drivers/of/of_net.c'
 rm -f 'drivers/platform/x86/i2c-multi-instantiate.c'
 rm -f 'drivers/staging/most/dim2/sysfs.c'
+rm -f 'include/trace/events/random.h'
 rm -f 'tools/build/feature/test-libpython-version.c'
 rm -f 'tools/perf/arch/arm64/util/machine.c'
 rm -f 'tools/perf/arch/powerpc/util/machine.c'
