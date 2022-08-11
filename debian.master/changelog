@@ -1,6 +1,9 @@
-linux (5.15.0-47.50) jammy; urgency=medium
+linux (5.15.0-47.51) jammy; urgency=medium
 
-  * jammy/linux: 5.15.0-47.50 -proposed tracker (LP: #1983903)
+  * jammy/linux: 5.15.0-47.51 -proposed tracker (LP: #1983903)
+
+  * Jammy update: v5.15.46 upstream stable release (LP: #1981864)
+    - UBUNTU: [Packaging] Move python3-dev to build-depends
 
   * touchpad and touchscreen doesn't work at all on ACER Spin 5 (SP513-54N)
     (LP: #1884232)
