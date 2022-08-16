@@ -628,12 +628,6 @@ static void rtw_txq_ba_work(struct work_struct *work)
 	rtw_iterate_stas_atomic(rtwdev, rtw_txq_ba_iter, &data);
 }
 
-void rtw_set_dtim_period(struct rtw_dev *rtwdev, int dtim_period)
-{
-	rtw_write32_set(rtwdev, REG_TCR, BIT_TCR_UPDATE_TIMIE);
-	rtw_write8(rtwdev, REG_DTIM_COUNTER_ROOT, dtim_period - 1);
-}
-
 void rtw_get_channel_params(struct cfg80211_chan_def *chandef,
 			    struct rtw_channel_params *chan_params)
 {
