@@ -743,7 +743,7 @@ struct rtw_sta_info {
 	u8 ldpc_en:2;
 	bool sgi_enable;
 	bool vht_enable;
-	bool no_update;
+	bool updated;
 	u8 init_ra_lv;
 	u64 ra_mask;
 
@@ -1993,8 +1993,7 @@ void rtw_chip_prepare_tx(struct rtw_dev *rtwdev);
 void rtw_vif_port_config(struct rtw_dev *rtwdev, struct rtw_vif *rtwvif,
 			 u32 config);
 void rtw_tx_report_purge_timer(struct timer_list *t);
-void rtw_update_sta_info(struct rtw_dev *rtwdev, struct rtw_sta_info *si,
-			 bool update);
+void rtw_update_sta_info(struct rtw_dev *rtwdev, struct rtw_sta_info *si);
 int rtw_core_start(struct rtw_dev *rtwdev);
 void rtw_core_stop(struct rtw_dev *rtwdev);
 int rtw_chip_info_setup(struct rtw_dev *rtwdev);

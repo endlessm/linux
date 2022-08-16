@@ -735,7 +735,7 @@ static void rtw_ra_mask_info_update_iter(void *data, struct ieee80211_sta *sta)
 	}
 
 	si->use_cfg_mask = true;
-	rtw_update_sta_info(br_data->rtwdev, si, true);
+	rtw_update_sta_info(br_data->rtwdev, si);
 }
 
 static void rtw_ra_mask_info_update(struct rtw_dev *rtwdev,
@@ -841,17 +841,6 @@ static void rtw_reconfig_complete(struct ieee80211_hw *hw,
 	mutex_unlock(&rtwdev->mutex);
 }
 
-static void rtw_ops_sta_rc_update(struct ieee80211_hw *hw,
-				  struct ieee80211_vif *vif,
-				  struct ieee80211_sta *sta, u32 changed)
-{
-	struct rtw_dev *rtwdev = hw->priv;
-	struct rtw_sta_info *si = (struct rtw_sta_info *)sta->drv_priv;
-
-	if (changed & IEEE80211_RC_BW_CHANGED)
-		rtw_update_sta_info(rtwdev, si, true);
-}
-
 const struct ieee80211_ops rtw_ops = {
 	.tx			= rtw_ops_tx,
 	.wake_tx_queue		= rtw_ops_wake_tx_queue,
@@ -881,7 +870,6 @@ const struct ieee80211_ops rtw_ops = {
 	.set_antenna		= rtw_ops_set_antenna,
 	.get_antenna		= rtw_ops_get_antenna,
 	.reconfig_complete	= rtw_reconfig_complete,
-	.sta_rc_update		= rtw_ops_sta_rc_update,
 #ifdef CONFIG_PM
 	.suspend		= rtw_ops_suspend,
 	.resume			= rtw_ops_resume,

@@ -291,7 +291,7 @@ int rtw_sta_add(struct rtw_dev *rtwdev, struct ieee80211_sta *sta,
 	for (i = 0; i < ARRAY_SIZE(sta->txq); i++)
 		rtw_txq_init(rtwdev, sta->txq[i]);
 
-	rtw_update_sta_info(rtwdev, si, true);
+	rtw_update_sta_info(rtwdev, si);
 	rtw_fw_media_status_report(rtwdev, si->mac_id, true);
 
 	rtwdev->sta_cnt++;
@@ -1040,8 +1040,7 @@ static u64 rtw_update_rate_mask(struct rtw_dev *rtwdev,
 	return ra_mask;
 }
 
-void rtw_update_sta_info(struct rtw_dev *rtwdev, struct rtw_sta_info *si,
-			 bool update)
+void rtw_update_sta_info(struct rtw_dev *rtwdev, struct rtw_sta_info *si)
 {
 	struct rtw_dm_info *dm_info = &rtwdev->dm_info;
 	struct ieee80211_sta *sta = si->sta;
@@ -1143,7 +1142,6 @@ void rtw_update_sta_info(struct rtw_dev *rtwdev, struct rtw_sta_info *si,
 	ra_mask = rtw_update_rate_mask(rtwdev, si, ra_mask, is_vht_enable,
 				       wireless_set);
 
-	si->no_update = !update;
 	si->bw_mode = bw_mode;
 	si->stbc_en = stbc_en;
 	si->ldpc_en = ldpc_en;
