@@ -80,7 +80,7 @@ CONFIG_CRYPTO_SHA1_ARM_CE                       policy<{'armhf': 'm'}>
 CONFIG_CRYPTO_SHA2_ARM_CE                       policy<{'armhf': 'm'}>
 CONFIG_CRYPTO_SHA256_ARM                        policy<{'armhf': 'm'}>
 CONFIG_CRYPTO_SHA512_ARM                        policy<{'armhf': 'm'}>
-CONFIG_CRYPTO_BLAKE2S_ARM                       policy<{'armhf': 'm'}>
+CONFIG_CRYPTO_BLAKE2S_ARM                       policy<{'armhf': 'y'}>
 CONFIG_CRYPTO_BLAKE2B_NEON                      policy<{'armhf': 'm'}>
 CONFIG_CRYPTO_AES_ARM                           policy<{'armhf': 'm'}>
 CONFIG_CRYPTO_AES_ARM_BS                        policy<{'armhf': 'm'}>
@@ -247,8 +247,7 @@ CONFIG_CRYPTO_CRC32                             policy<{'amd64': 'm', 'arm64': '
 CONFIG_CRYPTO_CRC32_PCLMUL                      policy<{'amd64': 'm'}>
 CONFIG_CRYPTO_XXHASH                            policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm', 's390x': 'm'}>
 CONFIG_CRYPTO_BLAKE2B                           policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm', 's390x': 'm'}>
-CONFIG_CRYPTO_BLAKE2S                           policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm', 's390x': 'm'}>
-CONFIG_CRYPTO_BLAKE2S_X86                       policy<{'amd64': 'm'}>
+CONFIG_CRYPTO_BLAKE2S_X86                       policy<{'amd64': 'y'}>
 CONFIG_CRYPTO_CRCT10DIF                         policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y', 's390x': 'y'}>
 CONFIG_CRYPTO_CRCT10DIF_PCLMUL                  policy<{'amd64': 'm'}>
 CONFIG_CRYPTO_CRCT10DIF_VPMSUM                  policy<{'ppc64el': 'm'}>

@@ -551,7 +551,6 @@ bh1780
 binder_linux
 binfmt_misc
 blake2b_generic
-blake2s_generic
 block2mtd
 blocklayoutdriver
 blowfish_common

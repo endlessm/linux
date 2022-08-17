@@ -598,8 +598,6 @@ bh1780
 binder_linux
 binfmt_misc
 blake2b_generic
-blake2s-x86_64
-blake2s_generic
 block2mtd
 blocklayoutdriver
 blowfish-x86_64

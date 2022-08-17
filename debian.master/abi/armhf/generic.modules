@@ -604,8 +604,6 @@ binder_linux
 binfmt_misc
 blake2b-neon
 blake2b_generic
-blake2s-arm
-blake2s_generic
 block2mtd
 blocklayoutdriver
 blowfish_common
