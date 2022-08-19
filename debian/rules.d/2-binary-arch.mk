@@ -134,6 +134,9 @@ $(stampdir)/stamp-install-%: $(stampdir)/stamp-build-% $(stampdir)/stamp-install
 ifneq ($(skipdbg),true)
 	dh_prep -p$(bin_pkg_name)-$*-dbgsym
 endif
+ifeq ($(do_extras_package),true)
+	dh_prep -p$(mods_extra_pkg_name)-$*
+endif
 
 	# The main image
 	# compress_file logic required because not all architectures
