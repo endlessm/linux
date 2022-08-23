@@ -6074,6 +6074,9 @@ skip_type_check:
 			return -EACCES;
 		}
 		meta->mem_size = reg->var_off.value;
+		err = mark_chain_precision(env, regno);
+		if (err)
+			return err;
 		break;
 	case ARG_PTR_TO_INT:
 	case ARG_PTR_TO_LONG:
