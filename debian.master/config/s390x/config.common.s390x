@@ -286,7 +286,6 @@ CONFIG_KVM=y
 CONFIG_LOG_BUF_SHIFT=18
 # CONFIG_LPC_ICH is not set
 # CONFIG_LPC_SCH is not set
-CONFIG_LSM="landlock,lockdown,yama,integrity,apparmor"
 # CONFIG_MAC_PARTITION is not set
 # CONFIG_MAILBOX is not set
 # CONFIG_MARVELL_88X2222_PHY is not set
