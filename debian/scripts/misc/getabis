@@ -161,6 +161,9 @@ getall_set()
 			do
 				mv "$base/$comp" "$abidir/$arch/$sub.$comp"
 			done
+			if [ -e "${base}"/modules.builtin ] ; then
+				mv "${base}"/modules.builtin "${abidir}/${arch}/${sub}".modules.builtin
+			fi
 			cat "$base/fwinfo" >>"$fwinfo"
 			if [ -e "${base}"/fwinfo.builtin ] ; then
 				cat "${base}"/fwinfo.builtin >> "${fwinfo}".builtin
