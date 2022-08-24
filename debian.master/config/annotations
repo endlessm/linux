@@ -4542,10 +4542,10 @@ CONFIG_MTD_ONENAND_VERIFY_WRITE                 note<writes here are not checked
 CONFIG_MTD_ONENAND_OTP                          flag<REVIEW>
 
 # Menu: Device Drivers >> Memory Technology Device (MTD) support >> NAND >> Raw/Parallel NAND Device Support
-CONFIG_MTD_RAW_NAND                             policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'y', 'ppc64el': 'm', 'riscv64': 'n', 's390x': '-'}>
-CONFIG_MTD_NAND_DENALI_PCI                      policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm'}>
-CONFIG_MTD_NAND_DENALI_DT                       policy<{'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm'}>
-CONFIG_MTD_NAND_CAFE                            policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm'}>
+CONFIG_MTD_RAW_NAND                             policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'y', 'ppc64el': 'm', 'riscv64': 'm', 's390x': '-'}>
+CONFIG_MTD_NAND_DENALI_PCI                      policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm'}>
+CONFIG_MTD_NAND_DENALI_DT                       policy<{'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm'}>
+CONFIG_MTD_NAND_CAFE                            policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm'}>
 CONFIG_MTD_NAND_ORION                           policy<{'armhf': 'm'}>
 CONFIG_MTD_NAND_MARVELL                         policy<{'arm64': 'm', 'armhf': 'm'}>
 CONFIG_MTD_NAND_TMIO                            policy<{'armhf': 'm'}>
@@ -4558,22 +4558,22 @@ CONFIG_MTD_NAND_SUNXI                           policy<{'arm64': 'n', 'armhf': '
 CONFIG_MTD_NAND_HISI504                         policy<{'arm64': 'm', 'armhf': 'm'}>
 CONFIG_MTD_NAND_QCOM                            policy<{'arm64': 'm', 'armhf': 'm'}>
 CONFIG_MTD_NAND_MTK                             policy<{'arm64': 'm', 'armhf': 'm'}>
-CONFIG_MTD_NAND_MXIC                            policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm'}>
+CONFIG_MTD_NAND_MXIC                            policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm'}>
 CONFIG_MTD_NAND_TEGRA                           policy<{'arm64': 'm', 'armhf': 'm'}>
 CONFIG_MTD_NAND_MESON                           policy<{'arm64': 'm', 'armhf': 'm'}>
-CONFIG_MTD_NAND_GPIO                            policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm'}>
-CONFIG_MTD_NAND_PLATFORM                        policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm'}>
-CONFIG_MTD_NAND_CADENCE                         policy<{'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm'}>
-CONFIG_MTD_NAND_ARASAN                          policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm'}>
-CONFIG_MTD_NAND_INTEL_LGM                       policy<{'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm'}>
+CONFIG_MTD_NAND_GPIO                            policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm'}>
+CONFIG_MTD_NAND_PLATFORM                        policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm'}>
+CONFIG_MTD_NAND_CADENCE                         policy<{'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm'}>
+CONFIG_MTD_NAND_ARASAN                          policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm'}>
+CONFIG_MTD_NAND_INTEL_LGM                       policy<{'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm'}>
 CONFIG_MTD_NAND_ROCKCHIP                        policy<{'arm64': 'm', 'armhf': 'm'}>
 CONFIG_MTD_NAND_PL35X                           policy<{'armhf': 'm'}>
-CONFIG_MTD_NAND_NANDSIM                         policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm'}>
-CONFIG_MTD_NAND_RICOH                           policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm'}>
-CONFIG_MTD_NAND_DISKONCHIP                      policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm'}>
-CONFIG_MTD_NAND_DISKONCHIP_PROBE_ADVANCED       policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'ppc64el': 'n'}>
-CONFIG_MTD_NAND_DISKONCHIP_PROBE_ADDRESS        policy<{'amd64': '0', 'arm64': '0', 'armhf': '0', 'ppc64el': '0'}>
-CONFIG_MTD_NAND_DISKONCHIP_BBTWRITE             policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'ppc64el': 'n'}>
+CONFIG_MTD_NAND_NANDSIM                         policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm'}>
+CONFIG_MTD_NAND_RICOH                           policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm'}>
+CONFIG_MTD_NAND_DISKONCHIP                      policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm'}>
+CONFIG_MTD_NAND_DISKONCHIP_PROBE_ADVANCED       policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'ppc64el': 'n', 'riscv64': 'n'}>
+CONFIG_MTD_NAND_DISKONCHIP_PROBE_ADDRESS        policy<{'amd64': '0', 'arm64': '0', 'armhf': '0', 'ppc64el': '0', 'riscv64': '0'}>
+CONFIG_MTD_NAND_DISKONCHIP_BBTWRITE             policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'ppc64el': 'n', 'riscv64': 'n'}>
 #
 CONFIG_MTD_RAW_NAND                             note<boot essential on arm>
 CONFIG_MTD_NAND_DISKONCHIP_BBTWRITE             note<can be enabled at runtime>
