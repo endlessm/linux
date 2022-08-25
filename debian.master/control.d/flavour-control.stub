@@ -49,7 +49,7 @@ Build-Profiles: <!stage1>
 Architecture: ARCH
 Section: kernel
 Priority: optional
-Depends: ${misc:Depends}, ${shlibs:Depends}, linux-image-PKGVER-ABINUM-FLAVOUR | linux-image-unsigned-PKGVER-ABINUM-FLAVOUR
+Depends: ${misc:Depends}, ${shlibs:Depends}
 Built-Using: ${linux:BuiltUsing}
 Description: Linux kernel extra modules for version PKGVER on DESC
  Contains the corresponding System.map file, the modules built by the
@@ -69,7 +69,7 @@ Build-Profiles: <!stage1>
 Architecture: ARCH
 Section: kernel
 Priority: optional
-Depends: ${misc:Depends}, ${shlibs:Depends}, linux-image-PKGVER-ABINUM-FLAVOUR | linux-image-unsigned-PKGVER-ABINUM-FLAVOUR, wireless-regdb
+Depends: ${misc:Depends}, ${shlibs:Depends}, linux-modules-PKGVER-ABINUM-FLAVOUR, wireless-regdb
 Description: Linux kernel extra modules for version PKGVER on DESC
  This package contains the Linux kernel extra modules for version PKGVER on
  DESC.
