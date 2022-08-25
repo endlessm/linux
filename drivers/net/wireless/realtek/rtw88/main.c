@@ -2103,6 +2103,11 @@ int rtw_register_hw(struct rtw_dev *rtwdev, struct ieee80211_hw *hw)
 	hw->wiphy->wowlan = rtwdev->chip->wowlan_stub;
 	hw->wiphy->max_sched_scan_ssids = rtwdev->chip->max_sched_scan_ssids;
 #endif
+
+	/* Disable Deep PS for 8821CE */
+	if (rtwdev->chip->id == RTW_CHIP_TYPE_8821C)
+		rtw_disable_lps_deep_mode = true;
+
 	rtw_set_supported_band(hw, rtwdev->chip);
 	SET_IEEE80211_PERM_ADDR(hw, rtwdev->efuse.addr);
 

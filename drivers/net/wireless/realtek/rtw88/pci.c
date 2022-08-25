@@ -1784,9 +1784,11 @@ int rtw_pci_probe(struct pci_dev *pdev,
 		goto err_destroy_pci;
 	}
 
-	/* Disable PCIe ASPM L1 while doing NAPI poll for 8821CE */
-	if (rtwdev->chip->id == RTW_CHIP_TYPE_8821C && bridge->vendor == PCI_VENDOR_ID_INTEL)
+	/* Disable both common ASPM and PCIe ASPM L1 while doing NAPI poll for 8821CE */
+	if (rtwdev->chip->id == RTW_CHIP_TYPE_8821C && bridge->vendor == PCI_VENDOR_ID_INTEL) {
+		rtw_pci_disable_aspm = true;
 		rtwpci->rx_no_aspm = true;
+	}
 
 	rtw_pci_phy_cfg(rtwdev);
 
