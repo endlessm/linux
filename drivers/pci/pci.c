@@ -166,6 +166,23 @@ __setup("pcie_port_pm=", pcie_port_pm_setup);
 /* Time to wait after a reset for device to become responsive */
 #define PCIE_RESET_READY_POLL_MS 60000
 
+static const struct dmi_system_id aspm_fix_whitelist[] = {
+	{
+		.ident = "LENOVO Stealth Thinkstation",
+		.matches = {
+			DMI_MATCH(DMI_BIOS_VERSION, "S07K"),
+		},
+	},
+	{
+		.ident = "Dell Inc. Precision 7960 Tower",
+		.matches = {
+			DMI_MATCH(DMI_SYS_VENDOR, "Dell Inc."),
+			DMI_MATCH(DMI_PRODUCT_NAME, "Precision 7960 Tower"),
+		},
+	},
+	{}
+};
+
 /**
  * pci_bus_max_busnr - returns maximum PCI bus number of given bus' children
  * @bus: pointer to PCI bus structure to search
@@ -1293,7 +1310,7 @@ static int pci_set_full_power_state(struct pci_dev *dev)
 		pci_restore_bars(dev);
 	}
 
-	if (dev->bus->self)
+	if (dev->bus->self && !dmi_check_system(aspm_fix_whitelist))
 		pcie_aspm_pm_state_change(dev->bus->self);
 
 	return 0;
@@ -1667,7 +1684,8 @@ int pci_save_state(struct pci_dev *dev)
 		return i;
 
 	pci_save_ltr_state(dev);
-	pci_save_aspm_l1ss_state(dev);
+	if (dmi_check_system(aspm_fix_whitelist))
+		pci_save_aspm_l1ss_state(dev);
 	pci_save_dpc_state(dev);
 	pci_save_aer_state(dev);
 	pci_save_ptm_state(dev);
@@ -1774,7 +1792,8 @@ void pci_restore_state(struct pci_dev *dev)
 	 * LTR itself (in the PCIe capability).
 	 */
 	pci_restore_ltr_state(dev);
-	pci_restore_aspm_l1ss_state(dev);
+	if (dmi_check_system(aspm_fix_whitelist))
+		pci_restore_aspm_l1ss_state(dev);
 
 	pci_restore_pcie_state(dev);
 	pci_restore_pasid_state(dev);
@@ -3491,10 +3510,12 @@ void pci_allocate_cap_save_buffers(struct pci_dev *dev)
 	if (error)
 		pci_err(dev, "unable to allocate suspend buffer for LTR\n");
 
-	error = pci_add_ext_cap_save_buffer(dev, PCI_EXT_CAP_ID_L1SS,
-					    2 * sizeof(u32));
-	if (error)
-		pci_err(dev, "unable to allocate suspend buffer for ASPM-L1SS\n");
+	if (dmi_check_system(aspm_fix_whitelist)) {
+		error = pci_add_ext_cap_save_buffer(dev, PCI_EXT_CAP_ID_L1SS,
+						    2 * sizeof(u32));
+		if (error)
+			pci_err(dev, "unable to allocate suspend buffer for ASPM-L1SS\n");
+	}
 
 	pci_allocate_vc_save_buffers(dev);
 }
