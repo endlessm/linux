@@ -13371,7 +13371,7 @@ CONFIG_PM_DEBUG                                 flag<REVIEW>
 
 # Menu: Processor support
 CONFIG_SMP                                      policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y', 's390x': 'y'}>
-CONFIG_NR_CPUS                                  policy<{'amd64': '8192', 'arm64': '256', 'armhf': '4', 'ppc64el': '2048', 'riscv64': '8', 's390x': '512'}>
+CONFIG_NR_CPUS                                  policy<{'amd64': '8192', 'arm64': '256', 'armhf': '4', 'ppc64el': '2048', 'riscv64': '32', 's390x': '512'}>
 #
 CONFIG_NR_CPUS                                  note<LP: #1864198>
 
