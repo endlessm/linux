@@ -3,9 +3,9 @@ repo_list=(
 	"http://ports.ubuntu.com/ubuntu-ports/pool/main/l/linux"
 	"http://archive.ubuntu.com/ubuntu/pool/universe/l/linux"
 	"http://ports.ubuntu.com/ubuntu-ports/pool/universe/l/linux"
-	"http://ppa.launchpad.net/canonical-kernel-team/ppa/ubuntu/pool/main/l/linux"
-	"http://ppa.launchpad.net/canonical-kernel-team/unstable/ubuntu/pool/main/l/linux"
-	"http://ppa.launchpad.net/canonical-kernel-team/bootstrap/ubuntu/pool/main/l/linux"
+	"http://ppa.launchpad.net/canonical-kernel-team/ppa/ubuntu/pool/main/l/linux-unstable"
+	"http://ppa.launchpad.net/canonical-kernel-team/unstable/ubuntu/pool/main/l/linux-unstable"
+	"http://ppa.launchpad.net/canonical-kernel-team/bootstrap/ubuntu/pool/main/l/linux-unstable"
 )
 
 package_prefixes linux-buildinfo
