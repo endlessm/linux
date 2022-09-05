@@ -11152,6 +11152,7 @@ CONFIG_STRICT_MODULE_RWX                        mark<ENFORCED>
 # Menu: General architecture-dependent options >> Architecture: arm
 
 # Menu: General architecture-dependent options >> Architecture: arm64
+CONFIG_SHADOW_CALL_STACK                        policy<{'arm64': 'y'}>
 
 # Menu: General architecture-dependent options >> Architecture: powerpc
 
@@ -13980,9 +13981,10 @@ CONFIG_DEFAULT_SECURITY_DAC                     policy<{'amd64': 'n', 'arm64': '
 # Menu: Security options >> Kernel hardening options >> Memory initialization
 CONFIG_INIT_ON_ALLOC_DEFAULT_ON                 policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y', 's390x': 'y'}>
 CONFIG_INIT_ON_FREE_DEFAULT_ON                  policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'ppc64el': 'n', 'riscv64': 'n', 's390x': 'n'}>
+CONFIG_ZERO_CALL_USED_REGS			policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y', 's390x': 'y'}>
 
 # Menu: Security options >> Kernel hardening options >> Memory initialization >> Initialize kernel stack variables at function entry
-CONFIG_INIT_STACK_NONE                          policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y', 's390x': 'y'}>
+CONFIG_INIT_STACK_ALL_ZERO                      policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y', 's390x': 'y'}>
 
 # Menu: Security options >> Kernel hardening options >> Memory initialization >> Poison kernel stack before returning from syscalls
 
