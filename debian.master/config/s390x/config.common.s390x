@@ -45,7 +45,7 @@ CONFIG_AUTOFS_FS=y
 # CONFIG_CAIF is not set
 # CONFIG_CAN is not set
 # CONFIG_CB710_CORE is not set
-CONFIG_CC_VERSION_TEXT="s390x-linux-gnu-gcc (Ubuntu 11.3.0-3ubuntu1) 11.3.0"
+CONFIG_CC_VERSION_TEXT="s390x-linux-gnu-gcc (Ubuntu 12.2.0-1ubuntu1) 12.2.0"
 # CONFIG_CDROM_PKTCDVD is not set
 CONFIG_CMA=y
 # CONFIG_CMDLINE_PARTITION is not set
