@@ -1,5 +1,11 @@
 # Recreate any symlinks created since the orig.
 # Remove any files deleted from the orig.
+rm -f 'arch/arm/crypto/blake2s-shash.c'
+rm -f 'arch/x86/crypto/blake2s-shash.c'
+rm -f 'crypto/blake2s_generic.c'
+rm -f 'fs/io-wq.c'
+rm -f 'fs/io-wq.h'
+rm -f 'fs/io_uring.c'
 chmod +x 'debian/cloud-tools/hv_get_dhcp_info'
 chmod +x 'debian/cloud-tools/hv_get_dns_info'
 chmod +x 'debian/cloud-tools/hv_set_ifconfig'
