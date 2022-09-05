@@ -7,7 +7,6 @@
 8021q
 8139cp
 8139too
-8250_aspeed_vuart
 8250_dw
 8250_exar
 8250_men_mcb
@@ -35,6 +34,7 @@
 9pnet_fd
 9pnet_rdma
 9pnet_virtio
+BusLogic
 a100u2w
 a3d
 a8293
@@ -196,7 +196,6 @@ adl_pci7x3x
 adl_pci8164
 adl_pci9111
 adl_pci9118
-adm1021
 adm1025
 adm1026
 adm1029
@@ -348,6 +347,7 @@ analogix-anx6345
 analogix-anx78xx
 analogix_dp
 ansi_cprng
+anx7411
 anx7625
 anybuss_core
 aoe
@@ -365,6 +365,7 @@ aptina-pll
 aqc111
 aquacomputer_d5next
 aquantia
+ar0521
 ar1021_i2c
 ar5523
 ar7part
@@ -379,6 +380,7 @@ arcnet
 arcpgu
 arcx-anybus
 arcxcnn_bl
+aria
 arizona
 arizona-haptics
 arizona-i2c
@@ -513,6 +515,7 @@ bcache
 bch
 bcm-keypad
 bcm-phy-lib
+bcm-phy-ptp
 bcm-sf2
 bcm203x
 bcm3510
@@ -551,7 +554,6 @@ bh1780
 binder_linux
 binfmt_misc
 blake2b_generic
-blake2s_generic
 block2mtd
 blocklayoutdriver
 blowfish_common
@@ -669,6 +671,7 @@ can-gw
 can-isotp
 can-j1939
 can-raw
+can327
 cap11xx
 capmode
 carl9170
@@ -1070,6 +1073,7 @@ dps920ab
 drbd
 drivetemp
 drm
+drm_buddy
 drm_cma_helper
 drm_display_helper
 drm_dp_aux_bus
@@ -1276,9 +1280,10 @@ epat
 epia
 epic100
 eql
+erdma
 erofs
 esas2r
-esd_usb2
+esd_usb
 esp4
 esp4_offload
 esp6
@@ -1412,7 +1417,6 @@ fsl-enetc-ierb
 fsl-enetc-mdio
 fsl-enetc-ptp
 fsl-enetc-vf
-fsl-ldb
 fsl-mph-dr-of
 fsl_linflexuart
 fsl_lpuart
@@ -1570,7 +1574,6 @@ gpio-pcie-idio-24
 gpio-pisosr
 gpio-rdc321x
 gpio-regulator
-gpio-sama5d2-piobu
 gpio-sim
 gpio-siox
 gpio-syscon
@@ -1673,6 +1676,7 @@ hci
 hci_nokia
 hci_uart
 hci_vhci
+hctr2
 hd3ss3220
 hd44780
 hd44780_common
@@ -1902,6 +1906,7 @@ i2c-fsi
 i2c-gpio
 i2c-hid
 i2c-hid-of
+i2c-hid-of-elan
 i2c-hid-of-goodix
 i2c-i801
 i2c-isch
@@ -1968,7 +1973,6 @@ ibmvscsis
 ice
 ice40-spi
 icom
-icp
 icp10100
 icp_multi
 icplus
@@ -2025,6 +2029,7 @@ imm
 imon
 imon_raw
 ims-pcu
+imx-lcdif
 imx208
 imx214
 imx219
@@ -2064,6 +2069,7 @@ intel-m10-bmc-hwmon
 intel-nand-controller
 intel-qep
 intel-xway
+intel_qat
 intel_th
 intel_th_gth
 intel_th_msu
@@ -2296,14 +2302,11 @@ ks8851_common
 ks8851_par
 ks8851_spi
 ksmbd
-ksz8795
-ksz8795_spi
 ksz884x
 ksz8863_smi
-ksz9477
 ksz9477_i2c
-ksz9477_spi
-ksz_common
+ksz_spi
+ksz_switch
 ktd253-backlight
 ktti
 kvaser_pci
@@ -2520,6 +2523,7 @@ lnbp22
 lochnagar-hwmon
 lochnagar-regulator
 lockd
+logicvc-drm
 lontium-lt8912b
 lontium-lt9211
 lontium-lt9611
@@ -2548,6 +2552,7 @@ lpfc
 lru_cache
 lrw
 lt3651-charger
+lt7182s
 ltc1660
 ltc2471
 ltc2485
@@ -2700,7 +2705,6 @@ max63xx_wdt
 max6620
 max6621
 max6639
-max6642
 max6650
 max6697
 max6875
@@ -2840,6 +2844,7 @@ mi0283qt
 michael_mic
 micrel
 microchip
+microchip-spi
 microchip-tcb-capture
 microchip_t1
 microread
@@ -3293,6 +3298,7 @@ ntxec
 null_blk
 nvidiafb
 nvme
+nvme-common
 nvme-core
 nvme-fabrics
 nvme-fc
@@ -3345,6 +3351,7 @@ omfs
 omninet
 on20
 on26
+onboard_usb_hub
 onenand
 opal-prd
 open-dice
@@ -3410,6 +3417,7 @@ panel-boe-bf060y8m-aj0
 panel-boe-himax8279d
 panel-boe-tv101wum-nl6
 panel-dsi-cm
+panel-ebbg-ft8719
 panel-edp
 panel-elida-kd35t133
 panel-feixin-k101-im2ba02
@@ -3547,6 +3555,7 @@ pcf8591
 pch_udc
 pci
 pci-epf-ntb
+pci-epf-vntb
 pci-pf-stub
 pci-stub
 pci200syn
@@ -3661,6 +3670,8 @@ pn544_i2c
 pn_pep
 pnv-php
 poly1305_generic
+polynomial
+polyval-generic
 port100
 powermate
 powernv-op-panel
@@ -3688,6 +3699,7 @@ ps2-gpio
 ps2mult
 psample
 pseries-rng
+pseries-wdt
 pseries_energy
 psmouse
 psnap
@@ -3713,6 +3725,7 @@ pwc
 pwm-atmel-hlcdc
 pwm-atmel-tcb
 pwm-beeper
+pwm-clk
 pwm-dwc
 pwm-fan
 pwm-fsl-ftm
@@ -3733,6 +3746,13 @@ pwrseq_simple
 pxa27x_udc
 pxe1610
 pxrc
+qat_4xxx
+qat_c3xxx
+qat_c3xxxvf
+qat_c62x
+qat_c62xvf
+qat_dh895xcc
+qat_dh895xccvf
 qca8k
 qca_7k_common
 qcaspi
@@ -3999,6 +4019,7 @@ regulator-haptic
 reiserfs
 repaper
 reset-ti-syscon
+reset-tps380x
 resistive-adc-touch
 retu-mfd
 retu-pwrbutton
@@ -4149,6 +4170,7 @@ rtc-mc13xxx
 rtc-mcp795
 rtc-msm6242
 rtc-mt6397
+rtc-nct3018y
 rtc-ntxec
 rtc-palmas
 rtc-pcap
@@ -4544,6 +4566,7 @@ snd-hda-codec-realtek
 snd-hda-codec-si3054
 snd-hda-codec-via
 snd-hda-core
+snd-hda-ext-core
 snd-hda-intel
 snd-hdsp
 snd-hdspm
@@ -4686,8 +4709,10 @@ snd-soc-fsl-rpmsg
 snd-soc-fsl-sai
 snd-soc-fsl-spdif
 snd-soc-fsl-ssi
+snd-soc-fsl-utils
 snd-soc-fsl-xcvr
 snd-soc-gtm601
+snd-soc-hda-codec
 snd-soc-hdmi-codec
 snd-soc-ics43432
 snd-soc-imx-audmux
@@ -4785,6 +4810,7 @@ snd-soc-tas2552
 snd-soc-tas2562
 snd-soc-tas2764
 snd-soc-tas2770
+snd-soc-tas2780
 snd-soc-tas5086
 snd-soc-tas571x
 snd-soc-tas5720
@@ -4845,6 +4871,7 @@ snd-soc-wm8974
 snd-soc-wm8978
 snd-soc-wm8985
 snd-soc-wsa881x
+snd-soc-wsa883x
 snd-soc-xlnx-formatter-pcm
 snd-soc-xlnx-i2s
 snd-soc-xlnx-spdif
@@ -4919,6 +4946,7 @@ spi-fsi
 spi-gpio
 spi-lm70llp
 spi-loopback-test
+spi-microchip-core
 spi-mux
 spi-mxic
 spi-nor
@@ -4936,7 +4964,6 @@ spi-zynqmp-gqspi
 spi_ks8995
 spidev
 spinand
-spl
 spmi
 sprd_serial
 sps30
@@ -5057,7 +5084,6 @@ surface3_spi
 svc-i3c-master
 svgalib
 switchtec
-sx8
 sx8654
 sx9310
 sx9324
@@ -5093,6 +5119,7 @@ tag_ocelot_8021q
 tag_qca
 tag_rtl4_a
 tag_rtl8_4
+tag_rzn1_a5psw
 tag_sja1105
 tag_trailer
 tag_xrs700x
@@ -5216,6 +5243,7 @@ ti-dac082s085
 ti-dac5571
 ti-dac7311
 ti-dac7612
+ti-dlpc3433
 ti-lmu
 ti-sn65dsi83
 ti-sn65dsi86
@@ -5261,6 +5289,7 @@ tpm_atmel
 tpm_st33zp24
 tpm_st33zp24_i2c
 tpm_st33zp24_spi
+tpm_tis_i2c
 tpm_tis_i2c_cr50
 tpm_tis_spi
 tpm_vtpm_proxy
@@ -5354,6 +5383,7 @@ twl6030-regulator
 twl6040-vibra
 twofish_common
 twofish_generic
+txgbe
 typec
 typec_displayport
 typec_nvidia
@@ -5369,6 +5399,7 @@ uartlite
 uas
 ubi
 ubifs
+ublk_drv
 ubuntu-host
 ucan
 ucb1400_core
@@ -5378,6 +5409,7 @@ ucd9000
 ucd9200
 ucs1002_power
 ucsi_ccg
+ucsi_stm32g0
 uda1342
 udc-core
 udc-xilinx
@@ -5495,6 +5527,7 @@ vcan
 vcnl3020
 vcnl4000
 vcnl4035
+vcpu_stall_detector
 vctrl-regulator
 vdpa
 vdpa_sim
@@ -5572,7 +5605,6 @@ vmac
 vme_fake
 vme_tsi148
 vme_user
-vme_vmivme7805
 vmk80xx
 vmw_vsock_virtio_transport
 vmw_vsock_virtio_transport_common
@@ -5598,7 +5630,6 @@ vt8623fb
 vub300
 vx855
 vxcan
-vxge
 vxlan
 vz89x
 w1-gpio
@@ -5695,6 +5726,7 @@ xc2028
 xc4000
 xc5000
 xcbc
+xctr
 xdpe12284
 xdpe152c4
 xfrm4_tunnel
@@ -5819,15 +5851,12 @@ yellowfin
 yurex
 z3fold
 zaurus
-zavl
-zcommon
 zd1201
 zd1211rw
 zd1301
 zd1301_demod
 zet6223
 zforce_ts
-zfs
 zhenhua
 ziirave_wdt
 zinitix
@@ -5835,8 +5864,6 @@ zl10036
 zl10039
 zl10353
 zl6100
-zlua
-znvpair
 zonefs
 zopt2201
 zpa2326
@@ -5846,5 +5873,3 @@ zr364xx
 zram
 zstd
 zstd_compress
-zunicode
-zzstd
