@@ -14,6 +14,7 @@
 #include <linux/fs.h>
 #include <linux/mount.h>
 
+#include "include/af_unix.h"
 #include "include/apparmor.h"
 #include "include/audit.h"
 #include "include/cred.h"
@@ -207,16 +208,16 @@ aa_state_t aa_str_perms(struct aa_policydb *file_rules, aa_state_t start,
 	return state;
 }
 
-static int __aa_path_perm(const char *op, struct aa_profile *profile,
-			  const char *name, u32 request,
-			  struct path_cond *cond, int flags,
-			  struct aa_perms *perms)
+int __aa_path_perm(const char *op, struct aa_profile *profile, const char *name,
+		   u32 request, struct path_cond *cond, int flags,
+		   struct aa_perms *perms)
 {
 	struct aa_ruleset *rules = list_first_entry(&profile->rules,
 						    typeof(*rules), list);
 	int e = 0;
 
-	if (profile_unconfined(profile))
+	if (profile_unconfined(profile) ||
+	    ((flags & PATH_SOCK_COND) && !RULE_MEDIATES_AF(rules, AF_UNIX)))
 		return 0;
 	aa_str_perms(&(rules->file), rules->file.start[AA_CLASS_FILE],
 		     name, cond, perms);
