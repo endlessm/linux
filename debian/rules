@@ -52,7 +52,6 @@ $(foreach _m,$(all_dkms_modules), \
 # Don't build tools in a cross compile environment.
 ifneq ($(DEB_HOST_ARCH),$(DEB_BUILD_ARCH))
 	do_tools=false
-	do_zfs=false
 endif
 
 # Are any of the kernel signing options enabled.
