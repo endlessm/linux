@@ -14,8 +14,6 @@
 
 #ifdef CONFIG_SECURITY_APPARMOR_HASH
 unsigned int aa_hash_size(void);
-void aa_snprint_hashstr(char *out, unsigned char *hash, unsigned int hsize);
-char *aa_asprint_hashstr(unsigned char *hash, unsigned int hsize, gfp_t gfp);
 char *aa_calc_hash(void *data, size_t len);
 int aa_calc_profile_hash(struct aa_profile *profile, u32 version, void *start,
 			 size_t len);
@@ -33,15 +31,6 @@ static inline int aa_calc_profile_hash(struct aa_profile *profile, u32 version,
 static inline unsigned int aa_hash_size(void)
 {
 	return 0;
-}
-
-void aa_snprint_hashstr(char *out, unsigned char *hash, unsigned int hsize)
-{
-}
-
-char *aa_asprint_hashstr(unsigned char *hash, unsigned int hsize, gfp_t gfp);
-{
-	return NULL;
 }
 #endif
 
