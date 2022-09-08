@@ -1930,8 +1930,7 @@ struct audit_buffer *audit_log_start(struct audit_context *ctx, gfp_t gfp_mask,
 	/* cancel dummy context to enable supporting records */
 	if (ctx)
 		ctx->dummy = 0;
-	if (type == AUDIT_MAC_TASK_CONTEXTS && ab->ctx &&
-	    ab->ctx->serial == 0) {
+	if (type == AUDIT_MAC_TASK_CONTEXTS && ab->ctx->serial == 0) {
 		audit_stamp_context(ab->ctx);
 		audit_get_stamp(ab->ctx, &t, &serial);
 	}
