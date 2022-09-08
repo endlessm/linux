@@ -97,11 +97,8 @@ static inline void scm_passec(struct socket *sock, struct msghdr *msg, struct sc
 	int err;
 
 	if (test_bit(SOCK_PASSSEC, &sock->flags)) {
-		/* There can currently be only one value in the lsmblob,
-		 * so getting it from lsmblob_value is appropriate until
-		 * security_secid_to_secctx() is converted to taking a
-		 * lsmblob directly. */
-		err = security_secid_to_secctx(lsmblob_value(&scm->lsmblob),
+		/* Scaffolding - it has to be element 0 for now */
+		err = security_secid_to_secctx(scm->lsmblob.secid[0],
 					       &secdata, &seclen);
 
 		if (!err) {
