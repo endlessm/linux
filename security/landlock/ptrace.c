@@ -20,11 +20,6 @@
 #include "ruleset.h"
 #include "setup.h"
 
-static struct lsm_id landlock_lsmid __lsm_ro_after_init = {
-       .lsm  = "landlock",
-       .slot = LSMBLOB_NEEDED
-};
-
 /**
  * domain_scope_le - Checks domain ordering for scoped ptrace
  *
@@ -121,5 +116,5 @@ static struct security_hook_list landlock_hooks[] __lsm_ro_after_init = {
 __init void landlock_add_ptrace_hooks(void)
 {
 	security_add_hooks(landlock_hooks, ARRAY_SIZE(landlock_hooks),
-			&landlock_lsmid);
+			   LANDLOCK_NAME);
 }

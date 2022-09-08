@@ -11,7 +11,6 @@
 
 #include <linux/sched.h>
 #include <linux/ptrace.h>
-#include <linux/security.h>
 #include <linux/audit_arch.h>
 #include <uapi/linux/audit.h>
 #include <uapi/linux/netfilter/nf_tables.h>
@@ -67,9 +66,8 @@ struct audit_field {
 		kuid_t			uid;
 		kgid_t			gid;
 		struct {
-			bool		lsm_isset;
 			char		*lsm_str;
-			void		*lsm_rules[LSMBLOB_ENTRIES];
+			void		*lsm_rule;
 		};
 	};
 	u32				op;
