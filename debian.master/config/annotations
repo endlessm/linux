@@ -13567,7 +13567,7 @@ CONFIG_PPC_SECVAR_SYSFS                         mark<ENFORCED> note<LP: #1866909
 # Menu: Processor type and features >> Architecture: s390
 CONFIG_KERNEL_NOBP                              policy<{'s390x': 'n'}>
 CONFIG_EXPOLINE                                 policy<{'s390x': 'y'}>
-CONFIG_EXPOLINE_EXTERN                          policy<{'s390x': 'n'}>
+CONFIG_EXPOLINE_EXTERN                          policy<{'s390x': 'y'}>
 CONFIG_SCHED_TOPOLOGY                           policy<{'s390x': 'y'}>
 
 # Menu: Processor type and features >> Architecture: x86
