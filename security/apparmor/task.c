@@ -317,12 +317,18 @@ int aa_profile_ns_perm(struct aa_profile *profile,
 		       u32 request)
 {
 	struct aa_perms perms = { };
-	int error = 0;
 
 	ad->subj_label = &profile->label;
 	ad->request = request;
 
-	if (!profile_unconfined(profile)) {
+	if (profile_unconfined(profile)) {
+		if (!aa_unprivileged_userns_restricted ||
+		    ns_capable_noaudit(current_user_ns(), CAP_SYS_ADMIN))
+			return 0;
+
+		ad->info = "User namespace creation restricted";
+		/* don't just return: allow complain mode to override */
+	} else {
 		struct aa_ruleset *rules = profile->label.rules[0];
 		aa_state_t state;
 
@@ -331,10 +337,8 @@ int aa_profile_ns_perm(struct aa_profile *profile,
 			/* TODO: add flag to complain about unmediated */
 			return 0;
 		perms = *aa_lookup_perms(rules->policy, state);
-		aa_apply_modes_to_perms(profile, &perms);
-		error = aa_check_perms(profile, &perms, request, ad,
-				       audit_ns_cb);
 	}
 
-	return error;
+	aa_apply_modes_to_perms(profile, &perms);
+	return aa_check_perms(profile, &perms, request, ad, audit_ns_cb);
 }

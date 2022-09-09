@@ -1064,7 +1064,7 @@ static int apparmor_userns_create(const struct cred *cred)
 	ad.subj_cred = current_cred();
 
 	label = begin_current_label_crit_section();
-	if (!unconfined(label)) {
+	if (aa_unprivileged_userns_restricted || !unconfined(label)) {
 		error = fn_for_each(label, profile,
 				    aa_profile_ns_perm(profile, &ad,
 						       AA_USERNS_CREATE));
@@ -2378,6 +2378,15 @@ static const struct ctl_table apparmor_sysctl_table[] = {
 		.mode           = 0600,
 		.proc_handler   = apparmor_dointvec,
 	},
+#ifdef CONFIG_USER_NS
+	{
+		.procname       = "apparmor_restrict_unprivileged_userns",
+		.data           = &aa_unprivileged_userns_restricted,
+		.maxlen         = sizeof(int),
+		.mode           = 0644,
+		.proc_handler   = apparmor_dointvec,
+	},
+#endif /* CONFIG_USER_NS */
 	{
 		.procname       = "apparmor_restrict_unprivileged_unconfined",
 		.data           = &aa_unprivileged_unconfined_restricted,

@@ -34,6 +34,7 @@
 struct aa_ns;
 
 extern int unprivileged_userns_apparmor_policy;
+extern int aa_unprivileged_userns_restricted;
 extern int aa_unprivileged_unconfined_restricted;
 
 extern const char *const aa_profile_mode_names[];
