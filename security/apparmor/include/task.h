@@ -95,4 +95,10 @@ int aa_may_ptrace(struct aa_label *tracer, struct aa_label *tracee,
 		  u32 request);
 
 
+
+#define AA_USERNS_CREATE	8
+
+int aa_profile_ns_perm(struct aa_profile *profile, struct common_audit_data *sa,
+		       u32 request);
+
 #endif /* __AA_TASK_H */
