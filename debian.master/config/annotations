@@ -3901,7 +3901,7 @@ CONFIG_EXFAT_FS                                 policy<{'amd64': 'm', 'arm64': '
 CONFIG_EXPERT                                   policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y', 's390x': 'y'}>
 CONFIG_EXPOLINE                                 policy<{'s390x': 'y'}>
 CONFIG_EXPOLINE_AUTO                            policy<{'s390x': 'y'}>
-CONFIG_EXPOLINE_EXTERN                          policy<{'s390x': 'n'}>
+CONFIG_EXPOLINE_EXTERN                          policy<{'s390x': 'y'}>
 CONFIG_EXPOLINE_FULL                            policy<{'s390x': 'n'}>
 CONFIG_EXPOLINE_OFF                             policy<{'s390x': 'n'}>
 CONFIG_EXPORTFS                                 policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y', 's390x': 'y'}>
