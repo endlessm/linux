@@ -26,7 +26,6 @@ struct virtrng_info {
 	/* data transfer */
 	struct completion have_data;
 	unsigned int data_avail;
-	unsigned int data_idx;
 	/* minimal size returned by rng_buffer_size() */
 #if SMP_CACHE_BYTES < 32
 	u8 data[32];
@@ -42,9 +41,6 @@ static void random_recv_done(struct virtqueue *vq)
 	/* We can get spurious callbacks, e.g. shared IRQs + virtio_pci. */
 	if (!virtqueue_get_buf(vi->vq, &vi->data_avail))
 		return;
-
-	vi->data_idx = 0;
-	vi->busy = false;
 
 	complete(&vi->have_data);
 }
@@ -62,16 +58,6 @@ static void register_buffer(struct virtrng_info *vi)
 	virtqueue_kick(vi->vq);
 }
 
-static unsigned int copy_data(struct virtrng_info *vi, void *buf,
-			      unsigned int size)
-{
-	size = min_t(unsigned int, size, vi->data_avail);
-	memcpy(buf, vi->data + vi->data_idx, size);
-	vi->data_idx += size;
-	vi->data_avail -= size;
-	return size;
-}
-
 static int virtio_read(struct hwrng *rng, void *buf, size_t size, bool wait)
 {
 	int ret;
@@ -82,29 +68,17 @@ static int virtio_read(struct hwrng *rng, void *buf, size_t size, bool wait)
 	if (vi->hwrng_removed)
 		return -ENODEV;
 
-	read = 0;
-
-	/* copy available data */
-	if (vi->data_avail) {
-		chunk = copy_data(vi, buf, size);
-		size -= chunk;
-		read += chunk;
+	if (!vi->busy) {
+		vi->busy = true;
+		reinit_completion(&vi->have_data);
+		register_buffer(vi);
 	}
 
 	if (!wait)
-		return read;
+		return 0;
 
-	/* We have already copied available entropy,
-	 * so either size is 0 or data_avail is 0
-	 */
+	read = 0;
 	while (size != 0) {
-		/* data_avail is 0 */
-		if (!vi->busy) {
-			/* no pending request, ask for more */
-			vi->busy = true;
-			reinit_completion(&vi->have_data);
-			register_buffer(vi);
-		}
 		ret = wait_for_completion_killable(&vi->have_data);
 		if (ret < 0)
 			return ret;
@@ -114,10 +88,19 @@ static int virtio_read(struct hwrng *rng, void *buf, size_t size, bool wait)
 		if (vi->data_avail == 0)
 			return read;
 
-		chunk = copy_data(vi, buf + read, size);
-		size -= chunk;
+		chunk = min_t(unsigned int, size, vi->data_avail);
+		memcpy(buf + read, vi->data, chunk);
 		read += chunk;
+		size -= chunk;
+		vi->data_avail = 0;
+
+		if (size != 0) {
+			reinit_completion(&vi->have_data);
+			register_buffer(vi);
+		}
 	}
+
+	vi->busy = false;
 
 	return read;
 }
@@ -178,7 +161,6 @@ static void remove_common(struct virtio_device *vdev)
 
 	vi->hwrng_removed = true;
 	vi->data_avail = 0;
-	vi->data_idx = 0;
 	complete(&vi->have_data);
 	virtio_reset_device(vdev);
 	vi->busy = false;
