@@ -24,7 +24,6 @@ case "$mode" in
        exit 1 ;;
 esac
 
-set -x
 if [ -z "$gcc" ]; then
     echo "ERROR: gcc environment variable must be set"
     exit 1
