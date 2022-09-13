@@ -49,6 +49,8 @@
 /* Flag indicating whether initialization completed */
 int apparmor_initialized;
 
+struct kmem_cache *aa_audit_slab;
+
 union aa_buffer {
 	struct list_head list;
 	DECLARE_FLEX_ARRAY(char, buffer);
@@ -2566,7 +2568,20 @@ static void __init aa_teardown_dfa_engine(void)
 
 static int __init apparmor_init(void)
 {
-	int error;
+	int error = -ENOMEM;
+
+	/* setup allocation caches */
+	aa_audit_slab = kmem_cache_create("apparmor_auditcache",
+					  sizeof(struct aa_audit_node),
+					  0, SLAB_PANIC, NULL);
+	/* redundant condition here but we are keeping it in case
+	 * we decide to drop SLAB_PANIC, as apparmor could still
+	 * function without this cache
+	 */
+	if (!aa_audit_slab) {
+		AA_ERROR("Unable to setup auditdata slab cache\n");
+		goto alloc_out;
+	}
 
 	error = aa_setup_dfa_engine();
 	if (error) {
@@ -2621,6 +2636,7 @@ buffers_out:
 alloc_out:
 	aa_destroy_aafs();
 	aa_teardown_dfa_engine();
+	kmem_cache_destroy(aa_audit_slab);
 
 	apparmor_enabled = false;
 	return error;
