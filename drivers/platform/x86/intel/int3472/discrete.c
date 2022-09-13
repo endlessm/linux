@@ -57,11 +57,17 @@ static const struct int3472_gpio_function_remap ov2680_gpio_function_remaps[] = 
 
 static const struct int3472_sensor_config int3472_sensor_configs[] = {
 	/* Lenovo Miix 510-12ISK - OV2680, Front */
-	{ "GNDF140809R", { 0 }, ov2680_gpio_function_remaps },
+	{ "GNDF140809R", { 0 }, ov2680_gpio_function_remaps, false },
 	/* Lenovo Miix 510-12ISK - OV5648, Rear */
-	{ "GEFF150023R", REGULATOR_SUPPLY("avdd", NULL), NULL },
+	{ "GEFF150023R", REGULATOR_SUPPLY("avdd", NULL), NULL, false },
 	/* Surface Go 1&2 - OV5693, Front */
-	{ "YHCU", REGULATOR_SUPPLY("avdd", NULL), NULL },
+	{ "YHCU", REGULATOR_SUPPLY("avdd", NULL), NULL, false },
+	/* Dell Latitude 9420 - OV01A1S, Front */
+	{ "0BF111N3", { 0 }, NULL, true },
+	/* Dell Latitude 9420 - HM11B1, Front */
+	{ "9BF123N3", { 0 }, NULL, true },
+	/* Lenovo X1 Yoga - OV2740, Front */
+	{ "CJFLE23", { 0 }, NULL, true },
 };
 
 static const struct int3472_sensor_config *
@@ -225,6 +231,8 @@ static int skl_int3472_handle_gpio_resources(struct acpi_resource *ares,
 	const char *err_msg;
 	int ret;
 	u8 type;
+	u8 active_value;
+	u32 polarity = GPIO_LOOKUP_FLAGS_DEFAULT;
 
 	if (!acpi_gpio_get_io_resource(ares, &agpio))
 		return 1;
@@ -245,28 +253,45 @@ static int skl_int3472_handle_gpio_resources(struct acpi_resource *ares,
 	}
 
 	type = obj->integer.value & 0xff;
+	active_value = obj->integer.value >> 24;
+	if (!active_value)
+		polarity = GPIO_ACTIVE_LOW;
 
 	switch (type) {
 	case INT3472_GPIO_TYPE_RESET:
 		ret = skl_int3472_map_gpio_to_sensor(int3472, agpio, "reset",
-						     GPIO_ACTIVE_LOW);
+						     polarity);
 		if (ret)
 			err_msg = "Failed to map reset pin to sensor\n";
 
 		break;
 	case INT3472_GPIO_TYPE_POWERDOWN:
 		ret = skl_int3472_map_gpio_to_sensor(int3472, agpio, "powerdown",
-						     GPIO_ACTIVE_LOW);
+						     polarity);
 		if (ret)
 			err_msg = "Failed to map powerdown pin to sensor\n";
 
 		break;
 	case INT3472_GPIO_TYPE_CLK_ENABLE:
 	case INT3472_GPIO_TYPE_PRIVACY_LED:
-		ret = skl_int3472_map_gpio_to_clk(int3472, agpio, type);
-		if (ret)
-			err_msg = "Failed to map GPIO to clock\n";
-
+		if (!IS_ERR(int3472->sensor_config) &&
+		    int3472->sensor_config->independent_clk_gpios) {
+			if (type == INT3472_GPIO_TYPE_CLK_ENABLE) {
+				ret = skl_int3472_map_gpio_to_sensor(int3472, agpio,
+								     "clken", polarity);
+				if (ret)
+					err_msg = "Failed to map clken pin to sensor\n";
+			} else if (type == INT3472_GPIO_TYPE_PRIVACY_LED) {
+				ret = skl_int3472_map_gpio_to_sensor(int3472, agpio,
+								     "pled", polarity);
+				if (ret)
+					err_msg = "Failed to map pled pin to sensor\n";
+			}
+		} else {
+			ret = skl_int3472_map_gpio_to_clk(int3472, agpio, type);
+			if (ret)
+				err_msg = "Failed to map GPIO to clock\n";
+		}
 		break;
 	case INT3472_GPIO_TYPE_POWER_ENABLE:
 		ret = skl_int3472_register_regulator(int3472, agpio);
