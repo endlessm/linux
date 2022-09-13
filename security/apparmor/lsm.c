@@ -62,6 +62,8 @@ static int buffer_count;
 static LIST_HEAD(aa_global_buffers);
 static DEFINE_SPINLOCK(aa_buffers_lock);
 
+struct kmem_cache *aa_audit_slab;
+
 static bool is_mqueue_dentry(struct dentry *dentry)
 {
 	return dentry && is_mqueue_inode(d_backing_inode(dentry));
@@ -2233,7 +2235,16 @@ __initcall(apparmor_nf_ip_init);
 
 static int __init apparmor_init(void)
 {
-	int error;
+	int error = -ENOMEM;
+
+	/* setup allocation caches */
+	aa_audit_slab = kmem_cache_create("apparmor_auditcache",
+					  sizeof(struct aa_audit_node),
+					  0, SLAB_PANIC, NULL);
+	if (!aa_audit_slab) {
+		AA_ERROR("Unable to setup auditdata slab cache\n");
+		goto alloc_out;
+	}
 
 	error = aa_setup_dfa_engine();
 	if (error) {
@@ -2285,6 +2296,7 @@ buffers_out:
 alloc_out:
 	aa_destroy_aafs();
 	aa_teardown_dfa_engine();
+	kmem_cache_destroy(aa_audit_slab);
 
 	apparmor_enabled = false;
 	return error;

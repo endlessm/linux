@@ -161,6 +161,22 @@ struct apparmor_audit_data {
 	struct common_audit_data common;
 };
 
+struct aa_audit_node {
+	struct apparmor_audit_data data;
+	struct list_head list;
+};
+extern struct kmem_cache *aa_audit_slab;
+
+static inline void aa_free_audit_node(struct aa_audit_node *node)
+{
+	kmem_cache_free(aa_audit_slab, node);
+}
+
+static inline struct aa_audit_node *aa_alloc_audit_node(gfp_t gfp)
+{
+	return kmem_cache_zalloc(aa_audit_slab, gfp);
+}
+
 /* macros for dealing with  apparmor_audit_data structure */
 #define aad(SA) (container_of(SA, struct apparmor_audit_data, common))
 #define DEFINE_AUDIT_DATA(NAME, T, C, X)				\
