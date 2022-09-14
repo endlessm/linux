@@ -832,7 +832,7 @@ static int apparmor_getprocattr(struct task_struct *task, const char *name,
 
 
 static int profile_interface_lsm(struct aa_profile *profile,
-				 struct common_audit_data *sa)
+				 struct apparmor_audit_data *ad)
 {
 	struct aa_ruleset *rules = list_first_entry(&profile->rules,
 						    typeof(*rules), list);
@@ -843,9 +843,9 @@ static int profile_interface_lsm(struct aa_profile *profile,
 	if (state) {
 		perms = *aa_lookup_perms(&rules->policy, state);
 		aa_apply_modes_to_perms(profile, &perms);
-		aad(sa)->label = &profile->label;
+		ad->label = &profile->label;
 
-		return aa_check_perms(profile, &perms, AA_MAY_WRITE, sa, NULL);
+		return aa_check_perms(profile, &perms, AA_MAY_WRITE, ad, NULL);
 	}
 
 	return 0;
@@ -858,17 +858,17 @@ static int apparmor_task_prctl(int option, unsigned long arg2,
 	struct aa_profile *profile;
 	struct aa_label *label;
 	int error;
-	DEFINE_AUDIT_DATA(sa, LSM_AUDIT_DATA_NONE, AA_CLASS_NONE,
+	DEFINE_AUDIT_DATA(ad, LSM_AUDIT_DATA_NONE, AA_CLASS_NONE,
 			  OP_SETPROCATTR);
 
 	if (option != PR_LSM_ATTR_SET)
 		return -ENOSYS;
 
 	/* LSM infrastructure does actual setting of interface_lsm if allowed */
-	aad(&sa)->info = "set interface lsm";
+	ad.info = "set interface lsm";
 	label = begin_current_label_crit_section();
 	error = fn_for_each_confined(label, profile,
-				profile_interface_lsm(profile, &sa));
+				profile_interface_lsm(profile, &ad));
 	end_current_label_crit_section(label);
 	return error;
 }
@@ -879,7 +879,7 @@ static int apparmor_setprocattr(const char *name, void *value,
 	char *command, *largs = NULL, *args = value;
 	size_t arg_size;
 	int error;
-	DEFINE_AUDIT_DATA(sa, LSM_AUDIT_DATA_NONE, AA_CLASS_NONE,
+	DEFINE_AUDIT_DATA(ad, LSM_AUDIT_DATA_NONE, AA_CLASS_NONE,
 			  OP_SETPROCATTR);
 
 	if (size == 0)
@@ -939,11 +939,11 @@ out:
 	return error;
 
 fail:
-	aad(&sa)->label = begin_current_label_crit_section();
-	aad(&sa)->info = name;
-	aad(&sa)->error = error = -EINVAL;
-	aa_audit_msg(AUDIT_APPARMOR_DENIED, &sa, NULL);
-	end_current_label_crit_section(aad(&sa)->label);
+	ad.label = begin_current_label_crit_section();
+	ad.info = name;
+	ad.error = error = -EINVAL;
+	aa_audit_msg(AUDIT_APPARMOR_DENIED, &ad, NULL);
+	end_current_label_crit_section(ad.label);
 	goto out;
 }
 
@@ -1040,13 +1040,13 @@ static int apparmor_userns_create(const struct cred *cred)
 	struct aa_label *label;
 	struct aa_profile *profile;
 	int error = 0;
-	DEFINE_AUDIT_DATA(sa, LSM_AUDIT_DATA_TASK, AA_CLASS_NS,
+	DEFINE_AUDIT_DATA(ad, LSM_AUDIT_DATA_TASK, AA_CLASS_NS,
 			  OP_USERNS_CREATE);
 
 	label = begin_current_label_crit_section();
 	if (unprivileged_userns_restricted || !unconfined(label)) {
 		error = fn_for_each(label, profile,
-				    aa_profile_ns_perm(profile, &sa,
+				    aa_profile_ns_perm(profile, &ad,
 						       AA_USERNS_CREATE));
 		end_current_label_crit_section(label);
 	}

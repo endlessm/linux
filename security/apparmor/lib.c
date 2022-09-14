@@ -143,10 +143,10 @@ const char *aa_splitn_fqname(const char *fqname, size_t n, const char **ns_name,
 void aa_info_message(const char *str)
 {
 	if (audit_enabled) {
-		DEFINE_AUDIT_DATA(sa, LSM_AUDIT_DATA_NONE, AA_CLASS_NONE, NULL);
+		DEFINE_AUDIT_DATA(ad, LSM_AUDIT_DATA_NONE, AA_CLASS_NONE, NULL);
 
-		aad(&sa)->info = str;
-		aa_audit_msg(AUDIT_APPARMOR_STATUS, &sa, NULL);
+		ad.info = str;
+		aa_audit_msg(AUDIT_APPARMOR_STATUS, &ad, NULL);
 	}
 	printk(KERN_INFO "AppArmor: %s\n", str);
 }
@@ -277,18 +277,18 @@ void aa_audit_perm_mask(struct audit_buffer *ab, u32 mask, const char *chrs,
 	audit_log_format(ab, "\"");
 }
 
-void aa_audit_perms(struct audit_buffer *ab, struct common_audit_data *sa,
+void aa_audit_perms(struct audit_buffer *ab, struct apparmor_audit_data *ad,
 		    const char *chrs, u32 chrsmask, const char * const *names,
 		    u32 namesmask)
 {
-	if (aad(sa)->request) {
+	if (ad->request) {
 		audit_log_format(ab, " requested=");
-		aa_audit_perm_mask(ab, aad(sa)->request, chrs, chrsmask,
+		aa_audit_perm_mask(ab, ad->request, chrs, chrsmask,
 				   names, namesmask);
 	}
-	if (aad(sa)->denied) {
+	if (ad->denied) {
 		audit_log_format(ab, " denied=");
-		aa_audit_perm_mask(ab, aad(sa)->denied, chrs, chrsmask,
+		aa_audit_perm_mask(ab, ad->denied, chrs, chrsmask,
 				   names, namesmask);
 	}
 }
@@ -301,11 +301,12 @@ void aa_audit_perms(struct audit_buffer *ab, struct common_audit_data *sa,
 static void aa_audit_perms_cb(struct audit_buffer *ab, void *va)
 {
 	struct common_audit_data *sa = va;
+	struct apparmor_audit_data *ad = aad(sa);
 
-	aa_audit_perms(ab, sa, aa_file_perm_chrs, PERMS_CHRS_MASK,
+	aa_audit_perms(ab, ad, aa_file_perm_chrs, PERMS_CHRS_MASK,
 		       aa_base_perm_names, PERMS_NAMES_MASK);
 	audit_log_format(ab, " peer=");
-	aa_label_xaudit(ab, labels_ns(aad(sa)->label), aad(sa)->peer,
+	aa_label_xaudit(ab, labels_ns(ad->label), ad->peer,
 				      FLAGS_NONE, GFP_ATOMIC);
 }
 
@@ -359,21 +360,21 @@ void aa_profile_match_label(struct aa_profile *profile,
 /* currently unused */
 int aa_profile_label_perm(struct aa_profile *profile, struct aa_profile *target,
 			  u32 request, int type, u32 *deny,
-			  struct common_audit_data *sa)
+			  struct apparmor_audit_data *ad)
 {
 	struct aa_ruleset *rules = list_first_entry(&profile->rules,
 						    typeof(*rules), list);
 	struct aa_perms perms;
 
-	aad(sa)->label = &profile->label;
-	aad(sa)->peer = &target->label;
-	aad(sa)->request = request;
+	ad->label = &profile->label;
+	ad->peer = &target->label;
+	ad->request = request;
 
 	aa_profile_match_label(profile, rules, &target->label, type, request,
 			       &perms);
 	aa_apply_modes_to_perms(profile, &perms);
 	*deny |= request & perms.deny;
-	return aa_check_perms(profile, &perms, request, sa, aa_audit_perms_cb);
+	return aa_check_perms(profile, &perms, request, ad, aa_audit_perms_cb);
 }
 
 /**
@@ -382,7 +383,7 @@ int aa_profile_label_perm(struct aa_profile *profile, struct aa_profile *target,
  * @perms: perms computed for the request
  * @request: requested perms
  * @deny: Returns: explicit deny set
- * @sa: initialized audit structure (MAY BE NULL if not auditing)
+ * @ad: initialized audit structure (MAY BE NULL if not auditing)
  * @cb: callback fn for type specific fields (MAY BE NULL)
  *
  * Returns: 0 if permission else error code
@@ -395,7 +396,7 @@ int aa_profile_label_perm(struct aa_profile *profile, struct aa_profile *target,
  *	 with a positive value.
  */
 int aa_check_perms(struct aa_profile *profile, struct aa_perms *perms,
-		   u32 request, struct common_audit_data *sa,
+		   u32 request, struct apparmor_audit_data *ad,
 		   void (*cb)(struct audit_buffer *, void *))
 {
 	int type, error;
@@ -404,7 +405,7 @@ int aa_check_perms(struct aa_profile *profile, struct aa_perms *perms,
 	if (likely(!denied)) {
 		/* mask off perms that are not being force audited */
 		request &= perms->audit;
-		if (!request || !sa)
+		if (!request || !ad)
 			return 0;
 
 		type = AUDIT_APPARMOR_AUDIT;
@@ -423,16 +424,16 @@ int aa_check_perms(struct aa_profile *profile, struct aa_perms *perms,
 			error = -ENOENT;
 
 		denied &= ~perms->quiet;
-		if (!sa || !denied)
+		if (!ad || !denied)
 			return error;
 	}
 
-	if (sa) {
-		aad(sa)->label = &profile->label;
-		aad(sa)->request = request;
-		aad(sa)->denied = denied;
-		aad(sa)->error = error;
-		aa_audit_msg(type, sa, cb);
+	if (ad) {
+		ad->label = &profile->label;
+		ad->request = request;
+		ad->denied = denied;
+		ad->error = error;
+		aa_audit_msg(type, ad, cb);
 	}
 
 	if (type == AUDIT_APPARMOR_ALLOWED)

@@ -208,18 +208,19 @@ static const char *audit_ptrace_mask(u32 mask)
 static void audit_ptrace_cb(struct audit_buffer *ab, void *va)
 {
 	struct common_audit_data *sa = va;
+	struct apparmor_audit_data *ad = aad(sa);
 
-	if (aad(sa)->request & AA_PTRACE_PERM_MASK) {
+	if (ad->request & AA_PTRACE_PERM_MASK) {
 		audit_log_format(ab, " requested_mask=\"%s\"",
-				 audit_ptrace_mask(aad(sa)->request));
+				 audit_ptrace_mask(ad->request));
 
-		if (aad(sa)->denied & AA_PTRACE_PERM_MASK) {
+		if (ad->denied & AA_PTRACE_PERM_MASK) {
 			audit_log_format(ab, " denied_mask=\"%s\"",
-					 audit_ptrace_mask(aad(sa)->denied));
+					 audit_ptrace_mask(ad->denied));
 		}
 	}
 	audit_log_format(ab, " peer=");
-	aa_label_xaudit(ab, labels_ns(aad(sa)->label), aad(sa)->peer,
+	aa_label_xaudit(ab, labels_ns(ad->label), ad->peer,
 			FLAGS_NONE, GFP_ATOMIC);
 }
 
@@ -227,51 +228,51 @@ static void audit_ptrace_cb(struct audit_buffer *ab, void *va)
 /* TODO: conditionals */
 static int profile_ptrace_perm(struct aa_profile *profile,
 			     struct aa_label *peer, u32 request,
-			     struct common_audit_data *sa)
+			     struct apparmor_audit_data *ad)
 {
 	struct aa_ruleset *rules = list_first_entry(&profile->rules,
 						    typeof(*rules), list);
 	struct aa_perms perms = { };
 
-	aad(sa)->peer = peer;
+	ad->peer = peer;
 	aa_profile_match_label(profile, rules, peer, AA_CLASS_PTRACE, request,
 			       &perms);
 	aa_apply_modes_to_perms(profile, &perms);
-	return aa_check_perms(profile, &perms, request, sa, audit_ptrace_cb);
+	return aa_check_perms(profile, &perms, request, ad, audit_ptrace_cb);
 }
 
 static int profile_tracee_perm(struct aa_profile *tracee,
 			       struct aa_label *tracer, u32 request,
-			       struct common_audit_data *sa)
+			       struct apparmor_audit_data *ad)
 {
 	if (profile_unconfined(tracee) || unconfined(tracer) ||
 	    !ANY_RULE_MEDIATES(&tracee->rules, AA_CLASS_PTRACE))
 		return 0;
 
-	return profile_ptrace_perm(tracee, tracer, request, sa);
+	return profile_ptrace_perm(tracee, tracer, request, ad);
 }
 
 static int profile_tracer_perm(struct aa_profile *tracer,
 			       struct aa_label *tracee, u32 request,
-			       struct common_audit_data *sa)
+			       struct apparmor_audit_data *ad)
 {
 	if (profile_unconfined(tracer))
 		return 0;
 
 	if (ANY_RULE_MEDIATES(&tracer->rules, AA_CLASS_PTRACE))
-		return profile_ptrace_perm(tracer, tracee, request, sa);
+		return profile_ptrace_perm(tracer, tracee, request, ad);
 
 	/* profile uses the old style capability check for ptrace */
 	if (&tracer->label == tracee)
 		return 0;
 
-	aad(sa)->label = &tracer->label;
-	aad(sa)->peer = tracee;
-	aad(sa)->request = 0;
-	aad(sa)->error = aa_capable(&tracer->label, CAP_SYS_PTRACE,
+	ad->label = &tracer->label;
+	ad->peer = tracee;
+	ad->request = 0;
+	ad->error = aa_capable(&tracer->label, CAP_SYS_PTRACE,
 				    CAP_OPT_NONE);
 
-	return aa_audit(AUDIT_APPARMOR_AUTO, tracer, sa, audit_ptrace_cb);
+	return aa_audit(AUDIT_APPARMOR_AUTO, tracer, ad, audit_ptrace_cb);
 }
 
 /**
@@ -287,39 +288,41 @@ int aa_may_ptrace(struct aa_label *tracer, struct aa_label *tracee,
 {
 	struct aa_profile *profile;
 	u32 xrequest = request << PTRACE_PERM_SHIFT;
-	DEFINE_AUDIT_DATA(sa, LSM_AUDIT_DATA_NONE, AA_CLASS_PTRACE, OP_PTRACE);
+	DEFINE_AUDIT_DATA(ad, LSM_AUDIT_DATA_NONE, AA_CLASS_PTRACE, OP_PTRACE);
 
 	return xcheck_labels(tracer, tracee, profile,
-			profile_tracer_perm(profile, tracee, request, &sa),
-			profile_tracee_perm(profile, tracer, xrequest, &sa));
+			profile_tracer_perm(profile, tracee, request, &ad),
+			profile_tracee_perm(profile, tracer, xrequest, &ad));
 }
 
 /* call back to audit ptrace fields */
 static void audit_ns_cb(struct audit_buffer *ab, void *va)
 {
 	struct common_audit_data *sa = va;
+	struct apparmor_audit_data *ad = aad(sa);
 
-	if (aad(sa)->request & AA_USERNS_CREATE)
+	if (ad->request & AA_USERNS_CREATE)
 		audit_log_format(ab, " requested=\"userns_create\"");
 
-	if (aad(sa)->denied & AA_USERNS_CREATE)
+	if (ad->denied & AA_USERNS_CREATE)
 		audit_log_format(ab, " denied=\"userns_create\"");
 }
 
-int aa_profile_ns_perm(struct aa_profile *profile, struct common_audit_data *sa,
+int aa_profile_ns_perm(struct aa_profile *profile,
+		       struct apparmor_audit_data *ad,
 		       u32 request)
 {
 	struct aa_perms perms = { };
 
-	aad(sa)->label = &profile->label;
-	aad(sa)->request = request;
+	ad->label = &profile->label;
+	ad->request = request;
 
 	if (profile_unconfined(profile)) {
 		if (!unprivileged_userns_restricted ||
 		    ns_capable_noaudit(current_user_ns(), CAP_SYS_ADMIN))
 			return 0;
 
-		aad(sa)->info = "User namespace creation restricted";
+		ad->info = "User namespace creation restricted";
 		/* don't just return: allow complain mode to override */
 	} else {
 		struct aa_ruleset *rules = list_first_entry(&profile->rules,
@@ -327,7 +330,7 @@ int aa_profile_ns_perm(struct aa_profile *profile, struct common_audit_data *sa,
 							    list);
 		aa_state_t state;
 
-		state = RULE_MEDIATES(rules, aad(sa)->class);
+		state = RULE_MEDIATES(rules, ad->class);
 		if (!state && !unprivileged_userns_restricted_force)
 			/* TODO: add flag to complain about unmediated */
 			return 0;
@@ -337,5 +340,5 @@ int aa_profile_ns_perm(struct aa_profile *profile, struct common_audit_data *sa,
 	}
 
 	aa_apply_modes_to_perms(profile, &perms);
-	return aa_check_perms(profile, &perms, request, sa, audit_ns_cb);
+	return aa_check_perms(profile, &perms, request, ad, audit_ns_cb);
 }

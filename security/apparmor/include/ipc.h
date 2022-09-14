@@ -67,7 +67,7 @@ int aa_may_signal(struct aa_label *sender, struct aa_label *target, int sig);
 int aa_profile_mqueue_perm(struct aa_profile *profile,
 			   const struct path *path,
 			   u32 request, char *buffer,
-			   struct common_audit_data *sa);
+			   struct apparmor_audit_data *ad);
 
 int aa_mqueue_perm(const char *op, struct aa_label *label,
 		   const struct path *path, u32 request);

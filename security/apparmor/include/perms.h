@@ -195,13 +195,13 @@ static inline void aa_perms_accum(struct aa_perms *accum,
 
 
 extern struct aa_perms default_perms;
-
+struct apparmor_audit_data;
 
 void aa_perm_mask_to_str(char *str, size_t str_size, const char *chrs,
 			 u32 mask);
 void aa_audit_perm_names(struct audit_buffer *ab, const char * const *names,
 			 u32 mask);
-void aa_audit_perms(struct audit_buffer *ab,  struct common_audit_data *sa,
+void aa_audit_perms(struct audit_buffer *ab,  struct apparmor_audit_data *ad,
 		    const char *chrs, u32 chrsmask, const char * const *names,
 		    u32 namesmask);
 void aa_audit_perm_mask(struct audit_buffer *ab, u32 mask, const char *chrs,
@@ -215,7 +215,7 @@ void aa_profile_match_label(struct aa_profile *profile,
 			    int type, u32 request, struct aa_perms *perms);
 int aa_profile_label_perm(struct aa_profile *profile, struct aa_profile *target,
 			  u32 request, int type, u32 *deny,
-			  struct common_audit_data *sa);
+			  struct apparmor_audit_data *ad);
 
 static inline u32 denied_perms(struct aa_perms *perms, u32 request)
 {
@@ -223,6 +223,6 @@ static inline u32 denied_perms(struct aa_perms *perms, u32 request)
 }
 
 int aa_check_perms(struct aa_profile *profile, struct aa_perms *perms,
-		   u32 request, struct common_audit_data *sa,
+		   u32 request, struct apparmor_audit_data *ad,
 		   void (*cb)(struct audit_buffer *, void *));
 #endif /* __AA_PERM_H */

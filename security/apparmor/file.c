@@ -46,33 +46,34 @@ static u32 map_mask_to_chr_mask(u32 mask)
 static void file_audit_cb(struct audit_buffer *ab, void *va)
 {
 	struct common_audit_data *sa = va;
+	struct apparmor_audit_data *ad = aad(sa);
 	kuid_t fsuid = current_fsuid();
 	char str[10];
 
-	if (aad(sa)->request & AA_AUDIT_FILE_MASK) {
+	if (ad->request & AA_AUDIT_FILE_MASK) {
 		aa_perm_mask_to_str(str, sizeof(str), aa_file_perm_chrs,
-				    map_mask_to_chr_mask(aad(sa)->request));
+				    map_mask_to_chr_mask(ad->request));
 		audit_log_format(ab, " requested_mask=\"%s\"", str);
 	}
-	if (aad(sa)->denied & AA_AUDIT_FILE_MASK) {
+	if (ad->denied & AA_AUDIT_FILE_MASK) {
 		aa_perm_mask_to_str(str, sizeof(str), aa_file_perm_chrs,
-				    map_mask_to_chr_mask(aad(sa)->denied));
+				    map_mask_to_chr_mask(ad->denied));
 		audit_log_format(ab, " denied_mask=\"%s\"", str);
 	}
-	if (aad(sa)->request & AA_AUDIT_FILE_MASK) {
+	if (ad->request & AA_AUDIT_FILE_MASK) {
 		audit_log_format(ab, " fsuid=%d",
 				 from_kuid(&init_user_ns, fsuid));
 		audit_log_format(ab, " ouid=%d",
-				 from_kuid(&init_user_ns, aad(sa)->fs.ouid));
+				 from_kuid(&init_user_ns, ad->fs.ouid));
 	}
 
-	if (aad(sa)->peer) {
+	if (ad->peer) {
 		audit_log_format(ab, " target=");
-		aa_label_xaudit(ab, labels_ns(aad(sa)->label), aad(sa)->peer,
+		aa_label_xaudit(ab, labels_ns(ad->label), ad->peer,
 				FLAG_VIEW_SUBNS, GFP_KERNEL);
-	} else if (aad(sa)->fs.target) {
+	} else if (ad->fs.target) {
 		audit_log_format(ab, " target=");
-		audit_log_untrustedstring(ab, aad(sa)->fs.target);
+		audit_log_untrustedstring(ab, ad->fs.target);
 	}
 }
 
@@ -97,50 +98,49 @@ int aa_audit_file(struct aa_profile *profile, struct aa_perms *perms,
 		  kuid_t ouid, const char *info, int error)
 {
 	int type = AUDIT_APPARMOR_AUTO;
-	DEFINE_AUDIT_DATA(sa, LSM_AUDIT_DATA_TASK, AA_CLASS_FILE, op);
+	DEFINE_AUDIT_DATA(ad, LSM_AUDIT_DATA_TASK, AA_CLASS_FILE, op);
 
-	sa.u.tsk = NULL;
-	aad(&sa)->request = request;
-	aad(&sa)->name = name;
-	aad(&sa)->fs.target = target;
-	aad(&sa)->peer = tlabel;
-	aad(&sa)->fs.ouid = ouid;
-	aad(&sa)->info = info;
-	aad(&sa)->error = error;
-	sa.u.tsk = NULL;
+	ad.request = request;
+	ad.name = name;
+	ad.fs.target = target;
+	ad.peer = tlabel;
+	ad.fs.ouid = ouid;
+	ad.info = info;
+	ad.error = error;
+	ad.common.u.tsk = NULL;
 
-	if (likely(!aad(&sa)->error)) {
+	if (likely(!ad.error)) {
 		u32 mask = perms->audit;
 
 		if (unlikely(AUDIT_MODE(profile) == AUDIT_ALL))
 			mask = 0xffff;
 
 		/* mask off perms that are not being force audited */
-		aad(&sa)->request &= mask;
+		ad.request &= mask;
 
-		if (likely(!aad(&sa)->request))
+		if (likely(!ad.request))
 			return 0;
 		type = AUDIT_APPARMOR_AUDIT;
 	} else {
 		/* only report permissions that were denied */
-		aad(&sa)->request = aad(&sa)->request & ~perms->allow;
-		AA_BUG(!aad(&sa)->request);
+		ad.request = ad.request & ~perms->allow;
+		AA_BUG(!ad.request);
 
-		if (aad(&sa)->request & perms->kill)
+		if (ad.request & perms->kill)
 			type = AUDIT_APPARMOR_KILL;
 
 		/* quiet known rejects, assumes quiet and kill do not overlap */
-		if ((aad(&sa)->request & perms->quiet) &&
+		if ((ad.request & perms->quiet) &&
 		    AUDIT_MODE(profile) != AUDIT_NOQUIET &&
 		    AUDIT_MODE(profile) != AUDIT_ALL)
-			aad(&sa)->request &= ~perms->quiet;
+			ad.request &= ~perms->quiet;
 
-		if (!aad(&sa)->request)
-			return aad(&sa)->error;
+		if (!ad.request)
+			return ad.error;
 	}
 
-	aad(&sa)->denied = aad(&sa)->request & ~perms->allow;
-	return aa_audit(type, profile, &sa, file_audit_cb);
+	ad.denied = ad.request & ~perms->allow;
+	return aa_audit(type, profile, &ad, file_audit_cb);
 }
 
 static int path_name(const char *op, struct aa_label *label,
@@ -546,7 +546,7 @@ static int __file_mqueue_perm(const char *op, struct aa_label *label,
 	struct aa_profile *profile;
 	char *buffer;
 	int error;
-	DEFINE_AUDIT_DATA(sa, LSM_AUDIT_DATA_NONE, AA_CLASS_POSIX_MQUEUE, op);
+	DEFINE_AUDIT_DATA(ad, LSM_AUDIT_DATA_NONE, AA_CLASS_POSIX_MQUEUE, op);
 
 	/* revalidation due to label out of date. No revocation at this time */
 	if (!denied && aa_label_is_subset(flabel, label))
@@ -557,15 +557,15 @@ static int __file_mqueue_perm(const char *op, struct aa_label *label,
 	if (!buffer)
 		return -ENOMEM;
 
-	aad(&sa)->request = request;
-	aad(&sa)->peer = NULL;
-	aad(&sa)->mq.ouid = file_inode(file)->i_uid;
-	aad(&sa)->mq.fsuid = current_fsuid();	/* mqueue uses fsuid() */
+	ad.request = request;
+	ad.peer = NULL;
+	ad.mq.ouid = file_inode(file)->i_uid;
+	ad.mq.fsuid = current_fsuid();	/* mqueue uses fsuid() */
 
 	/* check every profile in task label not in current cache */
 	error = fn_for_each_not_in_set(flabel, label, profile,
 			aa_profile_mqueue_perm(profile, &file->f_path,
-					       request, buffer, &sa));
+					       request, buffer, &ad));
 	if (denied && !error) {
 		/*
 		 * check every profile in file label that was not tested
@@ -578,11 +578,11 @@ static int __file_mqueue_perm(const char *op, struct aa_label *label,
 		if (label == flabel)
 			error = fn_for_each(label, profile,
 				aa_profile_mqueue_perm(profile, &file->f_path,
-						       request, buffer, &sa));
+						       request, buffer, &ad));
 		else
 			error = fn_for_each_not_in_set(label, flabel, profile,
 				aa_profile_mqueue_perm(profile, &file->f_path,
-						       request, buffer, &sa));
+						       request, buffer, &ad));
 	}
 	if (!error)
 		update_file_ctx(file_ctx(file), label, request);
