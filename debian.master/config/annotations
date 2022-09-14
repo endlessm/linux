@@ -8624,6 +8624,8 @@ CONFIG_SND_SOC_AMD_RV_RT5682_MACH               policy<{'amd64': 'm'}>
 CONFIG_SND_SOC_AMD_RENOIR                       policy<{'amd64': 'm'}>
 CONFIG_SND_SOC_AMD_RENOIR_MACH                  policy<{'amd64': 'm'}>
 CONFIG_SND_SOC_AMD_ACP5x                        policy<{'amd64': 'm'}>
+CONFIG_SND_SOC_AMD_PS                           policy<{'amd64': 'm'}>
+CONFIG_SND_SOC_AMD_PS_MACH                      policy<{'amd64': 'm'}>
 CONFIG_SND_BCM2835_SOC_I2S                      policy<{'arm64': 'm'}>
 CONFIG_SND_BCM63XX_I2S_WHISTLER                 policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm'}>
 CONFIG_SND_DESIGNWARE_I2S                       policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm'}>
