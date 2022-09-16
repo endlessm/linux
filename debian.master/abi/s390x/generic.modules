@@ -71,7 +71,6 @@ bcm87xx
 bfq
 binfmt_misc
 blake2b_generic
-blake2s_generic
 blocklayoutdriver
 blowfish_common
 blowfish_generic
