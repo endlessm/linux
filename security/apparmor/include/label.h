@@ -258,6 +258,7 @@ static inline bool label_mediates_safe(const struct aa_label *L, unsigned char C
 	return label_mediates(L, C);
 }
 
+int aa_label_cmp(const struct aa_label *a, const struct aa_label *b);
 void aa_labelset_destroy(struct aa_labelset *ls);
 void aa_labelset_init(struct aa_labelset *ls);
 void __aa_labelset_update_subtree(struct aa_ns *ns);

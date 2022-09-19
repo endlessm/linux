@@ -360,6 +360,7 @@ void aa_free_profile(struct aa_profile *profile)
 	kfree_sensitive(profile->hash);
 	aa_put_profile_loaddata(profile->rawdata);
 	aa_label_destroy(&profile->label);
+	aa_audit_cache_destroy(&profile->learning_cache);
 
 	kfree_sensitive(profile);
 }
@@ -410,6 +411,8 @@ struct aa_profile *aa_alloc_profile(const char *hname, struct aa_proxy *proxy,
 	profile->label.vec[0] = profile;
 
 	profile->signal = SIGKILL;
+	aa_audit_cache_init(&profile->learning_cache);
+
 	/* refcount released by caller */
 	return profile;
 

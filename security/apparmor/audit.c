@@ -323,3 +323,347 @@ int aa_audit_rule_match(struct lsm_prop *prop, u32 field, u32 op, void *vrule)
 	}
 	return 0;
 }
+
+/******************** audit learning and dedup cache ***********************/
+
+static int uid_cmp(kuid_t lhs, kuid_t rhs)
+{
+	if (uid_lt(lhs, rhs))
+		return -1;
+	if (uid_gt(lhs, rhs))
+		return 1;
+	return 0;
+}
+
+static int null_strcmp(const char *lhs, const char *rhs)
+{
+	if (lhs) {
+		if (rhs)
+			return strcmp(lhs, rhs);
+		return -1;
+	} else if (rhs) {
+		return 1;
+	}
+	return 0;
+}
+
+static int cred_euidcmp(const struct cred *lhs, const struct cred *rhs)
+{
+	if (lhs) {
+		if (rhs) {
+			return uid_cmp(lhs->euid, rhs->euid);
+		} else {
+			return 1;
+		}
+	} else if (rhs) {
+		return -1;
+	}
+	return 0;
+}
+
+/* std C cmp.  negative is less than, 0 is equal, positive greater than */
+long aa_audit_data_cmp(struct apparmor_audit_data *lhs,
+		       struct apparmor_audit_data *rhs)
+{
+	AA_BUG(!lhs);
+	AA_BUG(!rhs);
+
+	long res;
+
+	/* don't compare type */
+	res = lhs->class - rhs->class;
+	if (res)
+		return res;
+	/* op uses static pointers so direct ptr comparison */
+	res = lhs->op - rhs->op;
+	if (res)
+		return res;
+	res = null_strcmp(lhs->name, rhs->name);
+	if (res)
+		return res;
+	res = aa_label_cmp(lhs->subj_label, rhs->subj_label);
+	if (res)
+		return res;
+	switch (lhs->class) {
+	case AA_CLASS_FILE:
+		res = cred_fscmp(lhs->subj_cred, rhs->subj_cred);
+		if (res)
+			return res;
+		res = uid_cmp(lhs->fs.ouid, rhs->fs.ouid);
+		if (res)
+			return res;
+		res = null_strcmp(lhs->fs.target, rhs->fs.target);
+		if (res)
+			return res;
+		break;
+	case AA_CLASS_MOUNT:
+		if (lhs->mnt.flags != rhs->mnt.flags)
+			return lhs->mnt.flags < rhs->mnt.flags;
+		res = null_strcmp(lhs->mnt.src_name, rhs->mnt.src_name);
+		if (res)
+			return res;
+		res = null_strcmp(lhs->mnt.type, rhs->mnt.type);
+		if (res)
+			return res;
+		res = null_strcmp(lhs->mnt.trans, rhs->mnt.trans);
+		if (res)
+			return res;
+		res = null_strcmp(lhs->mnt.data, rhs->mnt.data);
+		if (res)
+			return res;
+		break;
+	}
+
+	return 0;
+}
+
+static void audit_node_free(struct aa_audit_node *node)
+{
+	if (!node)
+		return;
+
+	AA_BUG(!list_empty(&node->list));
+
+	/* common data that needs freed */
+	kfree(node->data.name);
+	aa_put_label(node->data.subj_label);
+	if (node->data.subj_cred)
+		put_cred(node->data.subj_cred);
+
+	/* class specific data that needs freed */
+	switch (node->data.class) {
+	case AA_CLASS_FILE:
+		aa_put_label(node->data.peer);
+		kfree(node->data.fs.target);
+		break;
+	case AA_CLASS_MOUNT:
+		kfree(node->data.mnt.src_name);
+		kfree(node->data.mnt.type);
+		kfree(node->data.mnt.trans);
+		kfree(node->data.mnt.data);
+		break;
+	}
+
+	kmem_cache_free(aa_audit_slab, node);
+}
+
+static void audit_node_free_rcu(struct rcu_head *head)
+{
+	AA_BUG(!head);
+
+	struct aa_audit_node *node = container_of(head, typeof(*node), rcu);
+
+	audit_node_free(node);
+}
+
+void aa_audit_node_free_kref(struct kref *kref)
+{
+	AA_BUG(!kref);
+
+	struct aa_audit_node *node = container_of(kref, struct aa_audit_node,
+						  count);
+	call_rcu(&node->rcu, audit_node_free_rcu);
+}
+
+struct aa_audit_node *aa_dup_audit_data(struct apparmor_audit_data *orig,
+					gfp_t gfp)
+{
+	AA_BUG(!orig);
+
+	struct aa_audit_node *copy;
+
+	copy = kmem_cache_zalloc(aa_audit_slab, gfp);
+	if (!copy)
+		return NULL;
+	kref_init(&copy->count);
+
+	INIT_LIST_HEAD(&copy->list);
+	/* copy class early so aa_free_audit_node can use switch on failure */
+	copy->data.class = orig->class;
+	copy->data.flags = orig->flags;
+
+	/* handle anything with possible failure first */
+	if (orig->name) {
+		copy->data.name = kstrdup(orig->name, gfp);
+		if (!copy->data.name)
+			goto fail;
+	}
+	/* don't dup info */
+	switch (orig->class) {
+	case AA_CLASS_FILE:
+		if (orig->fs.target) {
+			copy->data.fs.target = kstrdup(orig->fs.target, gfp);
+			if (!copy->data.fs.target)
+				goto fail;
+		}
+		break;
+	case AA_CLASS_MOUNT:
+		if (orig->mnt.src_name) {
+			copy->data.mnt.src_name = kstrdup(orig->mnt.src_name, gfp);
+			if (!copy->data.mnt.src_name)
+				goto fail;
+		}
+		if (orig->mnt.type) {
+			copy->data.mnt.type = kstrdup(orig->mnt.type, gfp);
+			if (!copy->data.mnt.type)
+				goto fail;
+		}
+		if (orig->mnt.trans) {
+			copy->data.mnt.trans = kstrdup(orig->mnt.trans, gfp);
+			if (!copy->data.mnt.trans)
+				goto fail;
+		}
+		if (orig->mnt.data) {
+			copy->data.mnt.data = kstrdup(orig->mnt.data, gfp);
+			if (!copy->data.mnt.data)
+				goto fail;
+		}
+		break;
+	}
+
+	/* now inc counts, and copy data that can't fail */
+	copy->data.error = orig->error;
+	copy->data.type = orig->type;
+	copy->data.request = orig->request;
+	copy->data.denied = orig->denied;
+	copy->data.subj_label = aa_get_label(orig->subj_label);
+
+	if (orig->subj_cred)
+		copy->data.subj_cred = get_cred(orig->subj_cred);
+
+	switch (orig->class) {
+	case AA_CLASS_NET:
+		/*
+		 * peer_sk;
+		 * addr;
+		 */
+		fallthrough;
+	case AA_CLASS_FILE:
+		copy->data.fs.ouid = orig->fs.ouid;
+		break;
+	case AA_CLASS_RLIMITS:
+	case AA_CLASS_SIGNAL:
+	case AA_CLASS_POSIX_MQUEUE:
+		copy->data.peer = aa_get_label(orig->peer);
+		break;
+	};
+
+
+	return copy;
+fail:
+	audit_node_free(copy);
+	return NULL;
+}
+
+#define __audit_cache_find(C, AD, COND...)				\
+({									\
+	struct aa_audit_node *__node;					\
+	list_for_each_entry_rcu(__node, &(C)->head, list, COND) {	\
+		if (aa_audit_data_cmp(&__node->data, AD) == 0)		\
+			goto __out_skip;				\
+	}								\
+	__node = NULL;							\
+__out_skip:								\
+	__node;								\
+})
+
+/* increments refcount on node */
+struct aa_audit_node *aa_audit_cache_find(struct aa_audit_cache *cache,
+					  struct apparmor_audit_data *ad)
+{
+	AA_BUG(!cache);
+	AA_BUG(!ad);
+
+	struct aa_audit_node *node = NULL;
+
+	rcu_read_lock();
+	node = __audit_cache_find(cache, ad);
+	aa_get_audit_node(node);
+	rcu_read_unlock();
+
+	return node;
+}
+
+/**
+ * aa_audit_cache_insert - insert an audit node into the cache
+ * @cache: the cache to insert into
+ * @node: the audit node to insert into the cache
+ *
+ * Returns: refcounted matching node in cache OR @node if @node was inserted.
+ *
+ * Increments refcount on node if successfully inserted. Assumes caller
+ *            already has valid ref count.
+ * Increments refcount on existing node if returned
+ */
+struct aa_audit_node *aa_audit_cache_insert(struct aa_audit_cache *cache,
+					    struct aa_audit_node *node)
+{
+	AA_BUG(!cache);
+	AA_BUG(!node);
+
+	struct aa_audit_node *tmp = NULL;
+
+	spin_lock(&cache->lock);
+	tmp = __audit_cache_find(cache, &node->data,
+				 spin_is_locked(&cache->lock));
+	if (!tmp) {
+		list_add_rcu(&node->list, &cache->head);
+		tmp = node;
+		cache->size++;
+	}
+
+	aa_get_audit_node(tmp);
+	/* else raced another insert */
+	spin_unlock(&cache->lock);
+
+	return tmp;
+}
+
+/**
+ * aa_audit_cache_remove - remove an audit node from the cache
+ * @cache: cache to remove from
+ * @node: the audit node to remove from the cache
+ */
+void aa_audit_cache_remove(struct aa_audit_cache *cache,
+			   struct aa_audit_node *node)
+
+{
+	AA_BUG(!cache);
+	AA_BUG(!node);
+
+	spin_lock(&cache->lock);
+	list_del_rcu(&node->list);
+	cache->size--;
+	aa_put_audit_node(node);
+	spin_unlock(&cache->lock);
+
+}
+
+void aa_audit_cache_update_ent(struct aa_audit_cache *cache,
+			       struct aa_audit_node *node,
+			       struct apparmor_audit_data *data)
+{
+	AA_BUG(!cache);
+	AA_BUG(!node);
+	AA_BUG(!data);
+
+	spin_lock(&cache->lock);
+	node->data.denied |= data->denied;
+	node->data.request = (node->data.request | data->request) &
+		~node->data.denied;
+	spin_unlock(&cache->lock);
+}
+
+/* assumes rcu callback has already happened and list can not be walked */
+void aa_audit_cache_destroy(struct aa_audit_cache *cache)
+{
+	AA_BUG(!cache);
+
+	struct aa_audit_node *node, *tmp;
+
+	list_for_each_entry_safe(node, tmp, &cache->head, list) {
+		list_del_init(&node->list);
+		aa_put_audit_node(node);
+	}
+	cache->size = 0;
+}

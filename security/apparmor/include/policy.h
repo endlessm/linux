@@ -269,6 +269,8 @@ struct aa_profile {
 
 	struct aa_attachment attach;
 
+	struct aa_audit_cache learning_cache;
+
 	struct aa_loaddata *rawdata;
 	unsigned char *hash;
 	char *dirname;
