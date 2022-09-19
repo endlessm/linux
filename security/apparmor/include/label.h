@@ -273,6 +273,7 @@ for ((I).i = (I).j = 0;							\
 })
 
 
+int aa_label_cmp(struct aa_label *a, struct aa_label *b);
 void aa_labelset_destroy(struct aa_labelset *ls);
 void aa_labelset_init(struct aa_labelset *ls);
 void __aa_labelset_update_subtree(struct aa_ns *ns);

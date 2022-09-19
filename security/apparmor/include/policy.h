@@ -215,6 +215,8 @@ struct aa_profile {
 	struct list_head rules;
 	struct aa_net_compat *net_compat;
 
+	struct aa_audit_cache learning_cache;
+
 	struct aa_loaddata *rawdata;
 	unsigned char *hash;
 	char *dirname;

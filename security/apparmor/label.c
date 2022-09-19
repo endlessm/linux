@@ -455,7 +455,7 @@ fail:
 
 
 /**
- * label_cmp - label comparison for set ordering
+ * aa_label_cmp - label comparison for set ordering
  * @a: label to compare (NOT NULL)
  * @b: label to compare (NOT NULL)
  *
@@ -463,7 +463,7 @@ fail:
  *          ==0 if a == b
  *          >0  if a > b
  */
-static int label_cmp(struct aa_label *a, struct aa_label *b)
+int aa_label_cmp(struct aa_label *a, struct aa_label *b)
 {
 	AA_BUG(!b);
 
@@ -677,7 +677,7 @@ static struct aa_label *__label_insert(struct aa_labelset *ls,
 	new = &ls->root.rb_node;
 	while (*new) {
 		struct aa_label *this = rb_entry(*new, struct aa_label, node);
-		int result = label_cmp(label, this);
+		int result = aa_label_cmp(label, this);
 
 		parent = *new;
 		if (result == 0) {

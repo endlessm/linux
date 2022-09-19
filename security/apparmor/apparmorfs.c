@@ -1122,10 +1122,24 @@ static int seq_profile_hash_show(struct seq_file *seq, void *v)
 	return 0;
 }
 
+static int seq_profile_learning_count_show(struct seq_file *seq, void *v)
+{
+	struct aa_proxy *proxy = seq->private;
+	struct aa_label *label = aa_get_label_rcu(&proxy->label);
+	struct aa_profile *profile = labels_profile(label);
+	int count = READ_ONCE(profile->learning_cache.size);
+
+	seq_printf(seq, "%d\n", count);
+	aa_put_label(label);
+
+	return 0;
+}
+
 SEQ_PROFILE_FOPS(name);
 SEQ_PROFILE_FOPS(mode);
 SEQ_PROFILE_FOPS(attach);
 SEQ_PROFILE_FOPS(hash);
+SEQ_PROFILE_FOPS(learning_count);
 
 /*
  * namespace based files
@@ -1739,6 +1753,12 @@ int __aafs_profile_mkdir(struct aa_profile *profile, struct dentry *parent)
 	if (IS_ERR(dent))
 		goto fail;
 	profile->dents[AAFS_PROF_ATTACH] = dent;
+
+	dent = create_profile_file(dir, "learning_count", profile,
+				   &seq_profile_learning_count_fops);
+	if (IS_ERR(dent))
+		goto fail;
+	profile->dents[AAFS_PROF_LEARNING_COUNT] = dent;
 
 	if (profile->hash) {
 		dent = create_profile_file(dir, "sha1", profile,

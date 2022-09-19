@@ -167,15 +167,32 @@ struct aa_audit_node {
 };
 extern struct kmem_cache *aa_audit_slab;
 
-static inline void aa_free_audit_node(struct aa_audit_node *node)
-{
-	kmem_cache_free(aa_audit_slab, node);
-}
-
 static inline struct aa_audit_node *aa_alloc_audit_node(gfp_t gfp)
 {
 	return kmem_cache_zalloc(aa_audit_slab, gfp);
 }
+
+
+struct aa_audit_cache {
+	spinlock_t lock;
+	int size;
+	struct list_head head;
+};
+
+static inline void aa_audit_cache_init(struct aa_audit_cache *cache)
+{
+	cache->size = 0;
+	spin_lock_init(&cache->lock);
+	INIT_LIST_HEAD(&cache->head);
+}
+
+struct aa_audit_node *aa_audit_cache_find(struct aa_audit_cache *cache,
+					  struct apparmor_audit_data *ad);
+struct aa_audit_node *aa_audit_cache_insert(struct aa_audit_cache *cache,
+					    struct aa_audit_node *node);
+void aa_audit_cache_destroy(struct aa_audit_cache *cache);
+
+
 
 /* macros for dealing with  apparmor_audit_data structure */
 #define aad(SA) (container_of(SA, struct apparmor_audit_data, common))
@@ -214,5 +231,12 @@ void aa_audit_rule_free(void *vrule);
 int aa_audit_rule_init(u32 field, u32 op, char *rulestr, void **vrule);
 int aa_audit_rule_known(struct audit_krule *rule);
 int aa_audit_rule_match(u32 sid, u32 field, u32 op, void *vrule);
+
+
+void aa_audit_node_free(struct aa_audit_node *node);
+struct aa_audit_node *aa_dup_audit_data(struct apparmor_audit_data *orig,
+					gfp_t gfp);
+long aa_audit_data_cmp(struct apparmor_audit_data *lhs,
+		       struct apparmor_audit_data *rhs);
 
 #endif /* __AA_AUDIT_H */
