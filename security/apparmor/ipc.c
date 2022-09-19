@@ -74,7 +74,7 @@ static void audit_signal_cb(struct audit_buffer *ab, void *va)
 		audit_log_format(ab, " signal=rtmin+%d",
 				 ad->signal - SIGRT_BASE);
 	audit_log_format(ab, " peer=");
-	aa_label_xaudit(ab, labels_ns(ad->label), ad->peer,
+	aa_label_xaudit(ab, labels_ns(ad->subj_label), ad->peer,
 			FLAGS_NONE, GFP_ATOMIC);
 }
 
@@ -131,7 +131,7 @@ static void audit_mqueue_cb(struct audit_buffer *ab, void *va)
 	}
 	if (ad->peer) {
 		audit_log_format(ab, " olabel=");
-		aa_label_xaudit(ab, labels_ns(ad->label), ad->peer,
+		aa_label_xaudit(ab, labels_ns(ad->subj_label), ad->peer,
 				FLAGS_NONE, GFP_ATOMIC);
 	}
 }
@@ -149,8 +149,6 @@ int aa_profile_mqueue_perm(struct aa_profile *profile, const struct path *path,
 	if (profile_unconfined(profile) ||
 	    !RULE_MEDIATES(rules, AA_CLASS_POSIX_MQUEUE))
 		return 0;
-
-	ad->label = &profile->label;
 
 	name = dentry_path_raw(path->dentry, buffer, aa_g_path_max);
 	if (IS_ERR(name))

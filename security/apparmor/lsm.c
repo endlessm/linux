@@ -845,7 +845,6 @@ static int profile_interface_lsm(struct aa_profile *profile,
 	if (state) {
 		perms = *aa_lookup_perms(&rules->policy, state);
 		aa_apply_modes_to_perms(profile, &perms);
-		ad->label = &profile->label;
 
 		return aa_check_perms(profile, &perms, AA_MAY_WRITE, ad, NULL);
 	}
@@ -941,11 +940,11 @@ out:
 	return error;
 
 fail:
-	ad.label = begin_current_label_crit_section();
+	ad.subj_label = begin_current_label_crit_section();
 	ad.info = name;
 	ad.error = error = -EINVAL;
 	aa_audit_msg(AUDIT_APPARMOR_DENIED, &ad, NULL);
-	end_current_label_crit_section(ad.label);
+	end_current_label_crit_section(ad.subj_label);
 	goto out;
 }
 
