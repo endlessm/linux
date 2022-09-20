@@ -56,7 +56,9 @@ static inline bool is_mqueue_inode(struct inode *i)
 	return isec && isec->sclass == AA_CLASS_POSIX_MQUEUE;
 }
 
-int aa_may_signal(struct aa_label *sender, struct aa_label *target, int sig);
+int aa_may_signal(const struct cred *subj_cred, struct aa_label *sender,
+		  const struct cred *target_cred, struct aa_label *target,
+		  int sig);
 
 #define AA_AUDIT_POSIX_MQUEUE_MASK (AA_MAY_WRITE | AA_MAY_READ |    \
 				    AA_MAY_CREATE | AA_MAY_DELETE | \
@@ -69,7 +71,8 @@ int aa_profile_mqueue_perm(struct aa_profile *profile,
 			   u32 request, char *buffer,
 			   struct apparmor_audit_data *ad);
 
-int aa_mqueue_perm(const char *op, struct aa_label *label,
+int aa_mqueue_perm(const char *op, const struct cred *subj_cred,
+		   struct aa_label *label,
 		   const struct path *path, u32 request);
 
 #endif /* __AA_IPC_H */

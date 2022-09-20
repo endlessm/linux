@@ -95,10 +95,12 @@ do {									\
 
 
 
-int aa_unix_peer_perm(struct aa_label *label, const char *op, u32 request,
+int aa_unix_peer_perm(const struct cred *subj_cred,
+		      struct aa_label *label, const char *op, u32 request,
 		      struct sock *sk, struct sock *peer_sk,
 		      struct aa_label *peer_label);
-int aa_unix_label_sk_perm(struct aa_label *label, const char *op, u32 request,
+int aa_unix_label_sk_perm(const struct cred *subj_cred,
+			  struct aa_label *label, const char *op, u32 request,
 			  struct sock *sk);
 int aa_unix_sock_perm(const char *op, u32 request, struct socket *sock);
 int aa_unix_create_perm(struct aa_label *label, int family, int type,
@@ -113,7 +115,7 @@ int aa_unix_msg_perm(const char *op, u32 request, struct socket *sock,
 		     struct msghdr *msg, int size);
 int aa_unix_opt_perm(const char *op, u32 request, struct socket *sock, int level,
 		     int optname);
-int aa_unix_file_perm(struct aa_label *label, const char *op, u32 request,
-		      struct socket *sock);
+int aa_unix_file_perm(const struct cred *subj_cred, struct aa_label *label,
+		      const char *op, u32 request, struct socket *sock);
 
 #endif /* __AA_AF_UNIX_H */
