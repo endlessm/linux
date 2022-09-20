@@ -54,7 +54,7 @@ struct aa_sk_ctx {
 
 static inline struct aa_sk_ctx *aa_sock(const struct sock *sk)
 {
-	return sk->sk_security;
+	return sk->sk_security + apparmor_blob_sizes.lbs_sock;
 }
 
 #define SOCK_ctx(X) SOCK_INODE(X)->i_security
