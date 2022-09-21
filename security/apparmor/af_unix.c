@@ -27,6 +27,16 @@ static inline struct sock *aa_unix_sk(struct unix_sock *u)
 	return &u->sk;
 }
 
+static umode_t sock_i_mode(struct sock *sk)
+{
+	umode_t mode;
+
+	read_lock_bh(&sk->sk_callback_lock);
+	mode = sk->sk_socket ? SOCK_INODE(sk->sk_socket)->i_mode : 0;
+	read_unlock_bh(&sk->sk_callback_lock);
+	return mode;
+}
+
 static inline int unix_fs_perm(const char *op, u32 mask, struct aa_label *label,
 			       struct unix_sock *u, int flags)
 {
@@ -40,8 +50,8 @@ static inline int unix_fs_perm(const char *op, u32 mask, struct aa_label *label,
 	mask &= NET_FS_PERMS;
 	if (!u->path.dentry) {
 		struct path_cond cond = {
-			.uid = SOCK_INODE(u->sk.sk_socket)->i_uid,
-			.mode = SOCK_INODE(u->sk.sk_socket)->i_mode
+			.uid = sock_i_uid(&u->sk),
+			.mode = sock_i_mode(&u->sk),
 		};
 		struct aa_perms perms = { };
 		struct aa_profile *profile;
