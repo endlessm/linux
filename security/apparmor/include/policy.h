@@ -34,7 +34,6 @@
 struct aa_ns;
 
 extern int unprivileged_userns_apparmor_policy;
-extern bool unprivileged_userns_restricted;
 
 extern const char *const aa_profile_mode_names[];
 #define APPARMOR_MODE_NAMES_MAX_INDEX 4

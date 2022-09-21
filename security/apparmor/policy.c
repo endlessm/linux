@@ -88,7 +88,6 @@
 #include "include/resource.h"
 
 int unprivileged_userns_apparmor_policy = 1;
-bool unprivileged_userns_restricted = IS_ENABLED(CONFIG_SECURITY_APPARMOR_RESTRICT_USERNS);
 
 const char *const aa_profile_mode_names[] = {
 	"enforce",
