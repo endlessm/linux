@@ -94,7 +94,6 @@ const char *const aa_profile_mode_names[] = {
 	"complain",
 	"kill",
 	"unconfined",
-	"user",
 };
 
 
