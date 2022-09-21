@@ -2447,7 +2447,6 @@ iwl3945
 iwl4965
 iwldvm
 iwlegacy
-iwlmei
 iwlmvm
 iwlwifi
 ix2505v
@@ -6180,6 +6179,5 @@ zpa2326_spi
 zr364xx
 zram
 zstd
-zstd_compress
 zunicode
 zzstd
