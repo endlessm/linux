@@ -81,10 +81,7 @@ enum profile_mode {
  */
 struct aa_policydb {
 	struct aa_dfa *dfa;
-	struct {
-		struct aa_perms *perms;
-		u32 size;
-	};
+	struct aa_perms *perms;
 	struct aa_str_table trans;
 	aa_state_t start[AA_CLASS_LAST + 1];
 };
