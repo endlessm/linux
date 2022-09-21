@@ -141,8 +141,7 @@ struct aa_profile {
 	const char *attach;
 	struct aa_dfa *xmatch;
 	unsigned int xmatch_len;
-	struct aa_perms *xmatch_perms;
-
+	u32 *xmatch_perms;
 	enum audit_mode audit;
 	long mode;
 	u32 path_flags;
