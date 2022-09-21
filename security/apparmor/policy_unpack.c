@@ -67,11 +67,6 @@ struct aa_ext {
 	u32 version;
 };
 
-#define tri int
-#define TRI_TRUE 1
-#define TRI_NONE 0
-#define TRI_FALSE -1
-
 /* audit callback for unpack fields */
 static void audit_cb(struct audit_buffer *ab, void *va)
 {
@@ -349,22 +344,22 @@ fail:
 	return false;
 }
 
-static tri unpack_array(struct aa_ext *e, const char *name, u16 *size)
+static size_t unpack_array(struct aa_ext *e, const char *name)
 {
 	void *pos = e->pos;
 
 	if (unpack_nameX(e, AA_ARRAY, name)) {
+		int size;
 		if (!inbounds(e, sizeof(u16)))
 			goto fail;
-		*size = le16_to_cpu(get_unaligned((__le16 *) e->pos));
+		size = (int)le16_to_cpu(get_unaligned((__le16 *) e->pos));
 		e->pos += sizeof(u16);
-		return TRI_TRUE;
+		return size;
 	}
 
-	return TRI_NONE;
 fail:
 	e->pos = pos;
-	return TRI_FALSE;
+	return 0;
 }
 
 static size_t unpack_blob(struct aa_ext *e, char **blob, const char *name)
@@ -482,12 +477,11 @@ static bool unpack_trans_table(struct aa_ext *e, struct aa_str_table *strs)
 
 	/* exec table is optional */
 	if (unpack_nameX(e, AA_STRUCT, "xtable")) {
-		u16 size;
-		int i;
+		int i, size;
 
-		if (unpack_array(e, NULL, &size) != TRI_TRUE ||
-		    size > (1 << 24))
-		  /* currently 2^24 bits entries 0-3 */
+		size = unpack_array(e, NULL);
+		/* currently 2^24 bits entries 0-3 */
+		if (size > (1 << 24))
 			goto fail;
 		table = kcalloc(size, sizeof(char *), GFP_KERNEL);
 		if (!table)
@@ -552,11 +546,9 @@ static bool unpack_xattrs(struct aa_ext *e, struct aa_profile *profile)
 	void *pos = e->pos;
 
 	if (unpack_nameX(e, AA_STRUCT, "xattrs")) {
-		u16 size;
-		int i;
+		int i, size;
 
-		if (unpack_array(e, NULL, &size) != TRI_TRUE)
-			goto fail;
+		size = unpack_array(e, NULL);
 		profile->xattr_count = size;
 		profile->xattrs = kcalloc(size, sizeof(char *), GFP_KERNEL);
 		if (!profile->xattrs)
@@ -581,12 +573,10 @@ fail:
 static bool unpack_secmark(struct aa_ext *e, struct aa_profile *profile)
 {
 	void *pos = e->pos;
-	u16 size;
-	int i;
+	int i, size;
 
 	if (unpack_nameX(e, AA_STRUCT, "secmark")) {
-		if (unpack_array(e, NULL, &size) != TRI_TRUE)
-			goto fail;
+		size = unpack_array(e, NULL);
 
 		profile->secmark = kcalloc(size, sizeof(struct aa_secmark),
 					   GFP_KERNEL);
@@ -630,15 +620,14 @@ static bool unpack_rlimits(struct aa_ext *e, struct aa_profile *profile)
 
 	/* rlimits are optional */
 	if (unpack_nameX(e, AA_STRUCT, "rlimits")) {
-		u16 size;
-		int i;
+		int i, size;
 		u32 tmp = 0;
 		if (!unpack_u32(e, &tmp, NULL))
 			goto fail;
 		profile->rlimits.mask = tmp;
 
-		if (unpack_array(e, NULL, &size) != TRI_TRUE ||
-		    size > RLIM_NLIMITS)
+		size = unpack_array(e, NULL);
+		if (size > RLIM_NLIMITS)
 			goto fail;
 		for (i = 0; i < size; i++) {
 			u64 tmp2 = 0;
