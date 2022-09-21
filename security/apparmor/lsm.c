@@ -819,14 +819,12 @@ static int apparmor_getprocattr(struct task_struct *task, char *name,
 static int profile_interface_lsm(struct aa_profile *profile,
 				 struct common_audit_data *sa)
 {
-	struct aa_ruleset *rules = list_first_entry(&profile->rules,
-						    typeof(*rules), list);
 	struct aa_perms perms = { };
 	unsigned int state;
 
-	state = RULE_MEDIATES(rules, AA_CLASS_DISPLAY_LSM);
+	state = PROFILE_MEDIATES(profile, AA_CLASS_DISPLAY_LSM);
 	if (state) {
-		perms = *aa_lookup_perms(&rules->policy, state);
+		aa_compute_perms(profile->policy.dfa, state, &perms);
 		aa_apply_modes_to_perms(profile, &perms);
 		aad(sa)->label = &profile->label;
 
