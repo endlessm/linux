@@ -109,7 +109,7 @@ int aa_profile_af_perm(struct aa_profile *profile, struct common_audit_data *sa,
 		       u32 request, u16 family, int type)
 {
 	struct aa_perms perms = { };
-	aa_state_t state;
+	unsigned int state;
 	__be16 buffer[2];
 
 	AA_BUG(family >= AF_MAX);
