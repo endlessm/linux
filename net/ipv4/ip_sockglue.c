@@ -140,7 +140,7 @@ static void ip_cmsg_recv_security(struct msghdr *msg, struct sk_buff *skb)
 		return;
 
 	lsmblob_init(&lb, secid);
-	err = security_secid_to_secctx(&lb, &context, LSMBLOB_DISPLAY);
+	err = security_secid_to_secctx(&lb, &context);
 	if (err)
 		return;
 
