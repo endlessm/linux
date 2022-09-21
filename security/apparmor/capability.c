@@ -64,8 +64,7 @@ static void audit_cb(struct audit_buffer *ab, void *va)
 static int audit_caps(struct common_audit_data *sa, struct aa_profile *profile,
 		      int cap, int error)
 {
-	struct aa_ruleset *rules = list_first_entry(&profile->rules,
-						    typeof(*rules), list);
+	struct aa_ruleset *rules = &profile->rules;
 	struct audit_cache *ent;
 	int type = AUDIT_APPARMOR_AUTO;
 
@@ -116,8 +115,7 @@ static int audit_caps(struct common_audit_data *sa, struct aa_profile *profile,
 static int profile_capable(struct aa_profile *profile, int cap,
 			   unsigned int opts, struct common_audit_data *sa)
 {
-	struct aa_ruleset *rules = list_first_entry(&profile->rules,
-						    typeof(*rules), list);
+	struct aa_ruleset *rules = &profile->rules;
 	int error;
 
 	if (cap_raised(rules->caps.allow, cap) &&

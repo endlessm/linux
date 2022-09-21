@@ -577,8 +577,9 @@ fail:
 	return false;
 }
 
-static bool unpack_secmark(struct aa_ext *e, struct aa_ruleset *rules)
+static bool unpack_secmark(struct aa_ext *e, struct aa_profile *profile)
 {
+	struct aa_ruleset *rules = &profile->rules;
 	void *pos = e->pos;
 	u16 size;
 	int i;
@@ -623,7 +624,7 @@ fail:
 	return false;
 }
 
-static bool unpack_rlimits(struct aa_ext *e, struct aa_ruleset *rules)
+static bool unpack_rlimits(struct aa_ext *e, struct aa_profile *profile)
 {
 	void *pos = e->pos;
 
@@ -634,7 +635,7 @@ static bool unpack_rlimits(struct aa_ext *e, struct aa_ruleset *rules)
 		u32 tmp = 0;
 		if (!unpack_u32(e, &tmp, NULL))
 			goto fail;
-		rules->rlimits.mask = tmp;
+		profile->rules.rlimits.mask = tmp;
 
 		if (unpack_array(e, NULL, &size) != TRI_TRUE ||
 		    size > RLIM_NLIMITS)
@@ -644,7 +645,7 @@ static bool unpack_rlimits(struct aa_ext *e, struct aa_ruleset *rules)
 			int a = aa_map_resource(i);
 			if (!unpack_u64(e, &tmp2, NULL))
 				goto fail;
-			rules->rlimits.limits[a].rlim_max = tmp2;
+			profile->rules.rlimits.limits[a].rlim_max = tmp2;
 		}
 		if (!unpack_nameX(e, AA_ARRAYEND, NULL))
 			goto fail;
@@ -851,7 +852,7 @@ static struct aa_profile *unpack_profile(struct aa_ext *e, char **ns_name)
 	profile = aa_alloc_profile(name, NULL, GFP_KERNEL);
 	if (!profile)
 		return ERR_PTR(-ENOMEM);
-	rules = list_first_entry(&profile->rules, typeof(*rules), list);
+	rules = &profile->rules;
 
 	/* profile renaming is optional */
 	(void) unpack_str(e, &profile->rename, "rename");
@@ -970,12 +971,12 @@ static struct aa_profile *unpack_profile(struct aa_ext *e, char **ns_name)
 		goto fail;
 	}
 
-	if (!unpack_rlimits(e, rules)) {
+	if (!unpack_rlimits(e, profile)) {
 		info = "failed to unpack profile rlimits";
 		goto fail;
 	}
 
-	if (!unpack_secmark(e, rules)) {
+	if (!unpack_secmark(e, profile)) {
 		info = "failed to unpack profile secmark rules";
 		goto fail;
 	}
@@ -1207,26 +1208,23 @@ static bool verify_perms(struct aa_policydb *pdb)
  */
 static int verify_profile(struct aa_profile *profile)
 {
-	struct aa_ruleset *rules = list_first_entry(&profile->rules,
-						    typeof(*rules), list);
-	if (!rules)
-		return 0;
-
-	if ((rules->file.dfa && !verify_dfa_xindex(rules->file.dfa,
-						  rules->file.trans.size)) ||
-	    (rules->policy.dfa &&
-	     !verify_dfa_xindex(rules->policy.dfa, rules->policy.trans.size))) {
+	if ((profile->rules.file.dfa &&
+	     !verify_dfa_xindex(profile->rules.file.dfa,
+				profile->rules.file.trans.size)) ||
+	    (profile->rules.policy.dfa &&
+	     !verify_dfa_xindex(profile->rules.policy.dfa,
+				profile->rules.policy.trans.size))) {
 		audit_iface(profile, NULL, NULL,
 			    "Unpack: Invalid named transition", NULL, -EPROTO);
 		return -EPROTO;
 	}
 
-	if (!verify_perms(&rules->file)) {
+	if (!verify_perms(&profile->rules.file)) {
 		audit_iface(profile, NULL, NULL,
 			    "Unpack: Invalid perm index", NULL, -EPROTO);
 		return -EPROTO;
 	}
-	if (!verify_perms(&rules->policy)) {
+	if (!verify_perms(&profile->rules.policy)) {
 		audit_iface(profile, NULL, NULL,
 			    "Unpack: Invalid perm index", NULL, -EPROTO);
 		return -EPROTO;

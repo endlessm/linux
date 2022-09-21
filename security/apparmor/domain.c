@@ -81,8 +81,7 @@ static inline aa_state_t match_component(struct aa_profile *profile,
 					 struct aa_profile *tp,
 					 bool stack, aa_state_t state)
 {
-	struct aa_ruleset *rules = list_first_entry(&profile->rules,
-						    typeof(*rules), list);
+	struct aa_ruleset *rules = &profile->rules;
 	const char *ns_name;
 
 	if (stack)
@@ -119,8 +118,7 @@ static int label_compound_match(struct aa_profile *profile,
 				aa_state_t state, bool subns, u32 request,
 				struct aa_perms *perms)
 {
-	struct aa_ruleset *rules = list_first_entry(&profile->rules,
-						    typeof(*rules), list);
+	struct aa_ruleset *rules = &profile->rules;
 	struct aa_profile *tp;
 	struct label_it i;
 	struct path_cond cond = { };
@@ -181,8 +179,7 @@ static int label_components_match(struct aa_profile *profile,
 				  aa_state_t start, bool subns, u32 request,
 				  struct aa_perms *perms)
 {
-	struct aa_ruleset *rules = list_first_entry(&profile->rules,
-						    typeof(*rules), list);
+	struct aa_ruleset *rules = &profile->rules;
 	struct aa_profile *tp;
 	struct label_it i;
 	struct aa_perms tmp;
@@ -506,8 +503,7 @@ static const char *next_name(int xtype, const char *name)
 struct aa_label *x_table_lookup(struct aa_profile *profile, u32 xindex,
 				const char **name)
 {
-	struct aa_ruleset *rules = list_first_entry(&profile->rules,
-						    typeof(*rules), list);
+	struct aa_ruleset *rules = &profile->rules;
 	struct aa_label *label = NULL;
 	u32 xtype = xindex & AA_X_TYPE_MASK;
 	int index = xindex & AA_X_INDEX_MASK;
@@ -557,8 +553,7 @@ static struct aa_label *x_to_label(struct aa_profile *profile,
 				   const char **lookupname,
 				   const char **info)
 {
-	struct aa_ruleset *rules = list_first_entry(&profile->rules,
-						    typeof(*rules), list);
+	struct aa_ruleset *rules = &profile->rules;
 	struct aa_label *new = NULL;
 	struct aa_ns *ns = profile->ns;
 	u32 xtype = xindex & AA_X_TYPE_MASK;
@@ -625,8 +620,7 @@ static struct aa_label *profile_transition(struct aa_profile *profile,
 					   char *buffer, struct path_cond *cond,
 					   bool *secure_exec)
 {
-	struct aa_ruleset *rules = list_first_entry(&profile->rules,
-						    typeof(*rules), list);
+	struct aa_ruleset *rules = &profile->rules;
 	struct aa_label *new = NULL;
 	const char *info = NULL, *name = NULL, *target = NULL;
 	aa_state_t state = rules->file.start[AA_CLASS_FILE];
@@ -725,8 +719,7 @@ static int profile_onexec(struct aa_profile *profile, struct aa_label *onexec,
 			  char *buffer, struct path_cond *cond,
 			  bool *secure_exec)
 {
-	struct aa_ruleset *rules = list_first_entry(&profile->rules,
-						    typeof(*rules), list);
+	struct aa_ruleset *rules = &profile->rules;
 	aa_state_t state = rules->file.start[AA_CLASS_FILE];
 	struct aa_perms perms = {};
 	const char *xname = NULL, *info = "change_profile onexec";
@@ -1266,8 +1259,7 @@ static int change_profile_perms_wrapper(const char *op, const char *name,
 					struct aa_label *target, bool stack,
 					u32 request, struct aa_perms *perms)
 {
-	struct aa_ruleset *rules = list_first_entry(&profile->rules,
-						    typeof(*rules), list);
+	struct aa_ruleset *rules = &profile->rules;
 	const char *info = NULL;
 	int error = 0;
 
