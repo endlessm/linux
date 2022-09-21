@@ -487,8 +487,6 @@ static int lsm_append(const char *new, char **result)
  * Current index to use while initializing the lsmblob secid list.
  */
 static int lsm_slot __lsm_ro_after_init;
-
-#if LSMBLOB_ENTRIES > 0
 static struct lsm_id *lsm_slotlist[LSMBLOB_ENTRIES] __lsm_ro_after_init;
 
 /**
@@ -533,7 +531,6 @@ const char *lsm_slot_to_name(int slot)
 		return NULL;
 	return lsm_slotlist[slot]->lsm;
 }
-#endif /* LSMBLOB_ENTRIES > 0 */
 
 /**
  * security_add_hooks - Add a modules hooks to the hook lists.
@@ -552,7 +549,6 @@ void __init security_add_hooks(struct security_hook_list *hooks, int count,
 
 	WARN_ON(!lsmid->slot || !lsmid->lsm);
 
-#if LSMBLOB_ENTRIES > 0
 	if (lsmid->slot == LSMBLOB_NEEDED) {
 		if (lsm_slot >= LSMBLOB_ENTRIES)
 			panic("%s Too many LSMs registered.\n", __func__);
@@ -561,7 +557,6 @@ void __init security_add_hooks(struct security_hook_list *hooks, int count,
 		init_debug("%s assigned lsmblob slot %d\n", lsmid->lsm,
 			   lsmid->slot);
 	}
-#endif /* LSMBLOB_ENTRIES > 0 */
 
 	for (i = 0; i < count; i++) {
 		hooks[i].lsmid = lsmid;
@@ -1176,8 +1171,8 @@ void security_inode_free(struct inode *inode)
 
 int security_dentry_init_security(struct dentry *dentry, int mode,
 				  const struct qstr *name,
-				  const char **xattr_name,
-				  struct lsmcontext *lsmctx)
+				  const char **xattr_name, void **ctx,
+				  u32 *ctxlen)
 {
 	struct security_hook_list *hp;
 	int rc;
@@ -1185,13 +1180,9 @@ int security_dentry_init_security(struct dentry *dentry, int mode,
 	/*
 	 * Only one module will provide a security context.
 	 */
-	hlist_for_each_entry(hp, &security_hook_heads.dentry_init_security,
-			     list) {
+	hlist_for_each_entry(hp, &security_hook_heads.dentry_init_security, list) {
 		rc = hp->hook.dentry_init_security(dentry, mode, name,
-						   xattr_name,
-						   (void **)&lsmctx->context,
-						   &lsmctx->len);
-		lsmctx->slot = hp->lsmid->slot;
+						   xattr_name, ctx, ctxlen);
 		if (rc != LSM_RET_DEFAULT(dentry_init_security))
 			return rc;
 	}
@@ -2251,7 +2242,7 @@ int security_getprocattr(struct task_struct *p, const char *lsm, char *name,
 		ilsm = lsm_task_ilsm(p);
 		if (ilsm != LSMBLOB_INVALID)
 			slot = ilsm;
-		*value = kstrdup(lsm_slot_to_name(slot), GFP_KERNEL);
+		*value = kstrdup(lsm_slotlist[slot]->lsm, GFP_KERNEL);
 		if (*value)
 			return strlen(*value);
 		return -ENOMEM;
@@ -2286,7 +2277,6 @@ int security_setprocattr(const char *lsm, const char *name, void *value,
 			 size_t size)
 {
 	struct security_hook_list *hp;
-	const char *slotname;
 	char *termed;
 	char *copy;
 	int *ilsm = current->security;
@@ -2318,14 +2308,12 @@ int security_setprocattr(const char *lsm, const char *name, void *value,
 
 		termed = strsep(&copy, " \n");
 
-		for (slot = 0; slot < lsm_slot; slot++) {
-			slotname = lsm_slot_to_name(slot);
+		for (slot = 0; slot < lsm_slot; slot++)
 			if (!strcmp(termed, lsm_slotlist[slot]->lsm)) {
-				*ilsm = slot;
+				*ilsm = lsm_slotlist[slot]->slot;
 				rc = size;
 				break;
 			}
-		}
 
 		kfree(termed);
 		return rc;

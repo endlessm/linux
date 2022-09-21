@@ -15,7 +15,6 @@
 
 #include <linux/list.h>
 #include <linux/uidgid.h>
-#include <linux/security.h>
 #include <uapi/linux/nfs4.h>
 #include <linux/sunrpc/msg_prot.h>
 
@@ -45,9 +44,10 @@ struct nfs4_acl {
 #define NFS4_MAXLABELLEN	2048
 
 struct nfs4_label {
-	uint32_t		lfs;
-	uint32_t		pi;
-	struct lsmcontext	lsmctx;
+	uint32_t	lfs;
+	uint32_t	pi;
+	u32		len;
+	char	*label;
 };
 
 typedef struct { char data[NFS4_VERIFIER_SIZE]; } nfs4_verifier;

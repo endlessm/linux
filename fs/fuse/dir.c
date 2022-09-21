@@ -464,29 +464,29 @@ static int get_security_context(struct dentry *entry, umode_t mode,
 {
 	struct fuse_secctx *fctx;
 	struct fuse_secctx_header *header;
-	struct lsmcontext lsmctx = { };
-	void *ptr;
-	u32 total_len = sizeof(*header);
+	void *ctx = NULL, *ptr;
+	u32 ctxlen, total_len = sizeof(*header);
 	int err, nr_ctx = 0;
-	const char *name = NULL;
+	const char *name;
 	size_t namelen;
 
 	err = security_dentry_init_security(entry, mode, &entry->d_name,
-					    &name, &lsmctx);
+					    &name, &ctx, &ctxlen);
+	if (err) {
+		if (err != -EOPNOTSUPP)
+			goto out_err;
+		/* No LSM is supporting this security hook. Ignore error */
+		ctxlen = 0;
+		ctx = NULL;
+	}
 
-	/* If no LSM is supporting this security hook ignore error */
-	if (err && err != -EOPNOTSUPP)
-		goto out_err;
-
-	if (lsmctx.len) {
+	if (ctxlen) {
 		nr_ctx = 1;
 		namelen = strlen(name) + 1;
 		err = -EIO;
-		if (WARN_ON(namelen > XATTR_NAME_MAX + 1 ||
-		    lsmctx.len > S32_MAX))
+		if (WARN_ON(namelen > XATTR_NAME_MAX + 1 || ctxlen > S32_MAX))
 			goto out_err;
-		total_len += FUSE_REC_ALIGN(sizeof(*fctx) + namelen +
-					    lsmctx.len);
+		total_len += FUSE_REC_ALIGN(sizeof(*fctx) + namelen + ctxlen);
 	}
 
 	err = -ENOMEM;
@@ -499,20 +499,19 @@ static int get_security_context(struct dentry *entry, umode_t mode,
 	ptr += sizeof(*header);
 	if (nr_ctx) {
 		fctx = ptr;
-		fctx->size = lsmctx.len;
+		fctx->size = ctxlen;
 		ptr += sizeof(*fctx);
 
 		strcpy(ptr, name);
 		ptr += namelen;
 
-		memcpy(ptr, lsmctx.context, lsmctx.len);
+		memcpy(ptr, ctx, ctxlen);
 	}
 	*security_ctxlen = total_len;
 	*security_ctx = header;
 	err = 0;
 out_err:
-	if (nr_ctx)
-		security_release_secctx(&lsmctx);
+	kfree(ctx);
 	return err;
 }
 

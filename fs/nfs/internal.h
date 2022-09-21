@@ -342,15 +342,13 @@ nfs4_label_copy(struct nfs4_label *dst, struct nfs4_label *src)
 	if (!dst || !src)
 		return NULL;
 
-	if (src->lsmctx.len > NFS4_MAXLABELLEN)
+	if (src->len > NFS4_MAXLABELLEN)
 		return NULL;
 
 	dst->lfs = src->lfs;
 	dst->pi = src->pi;
-	/* Use an invalid LSM slot as lsmctx should never be "released" */
-	dst->lsmctx.slot = -1;
-	dst->lsmctx.len = src->lsmctx.len;
-	memcpy(dst->lsmctx.context, src->lsmctx.context, src->lsmctx.len);
+	dst->len = src->len;
+	memcpy(dst->label, src->label, src->len);
 
 	return dst;
 }
