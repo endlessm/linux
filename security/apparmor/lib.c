@@ -136,7 +136,7 @@ __counted char *aa_str_alloc(int size, gfp_t gfp)
 {
 	struct counted_str *str;
 
-	str = kmalloc(struct_size(str, name, size), gfp);
+	str = kmalloc(sizeof(struct counted_str) + size, gfp);
 	if (!str)
 		return NULL;
 
