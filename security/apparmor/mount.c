@@ -303,14 +303,13 @@ static int match_mnt_path_str(struct aa_profile *profile,
 {
 	struct aa_perms perms = { };
 	const char *mntpnt = NULL, *info = NULL;
-	struct aa_ruleset *rules = &profile->rules;
 	int pos, error;
 
 	AA_BUG(!profile);
 	AA_BUG(!mntpath);
 	AA_BUG(!buffer);
 
-	if (!RULE_MEDIATES(rules, AA_CLASS_MOUNT))
+	if (!PROFILE_MEDIATES(profile, AA_CLASS_MOUNT))
 		return 0;
 
 	error = aa_path_name(mntpath, path_flags(profile, mntpath), buffer,
@@ -325,8 +324,8 @@ static int match_mnt_path_str(struct aa_profile *profile,
 	}
 
 	error = -EACCES;
-	pos = do_match_mnt(&rules->policy,
-			   rules->policy.start[AA_CLASS_MOUNT],
+	pos = do_match_mnt(&profile->policy,
+			   profile->policy.start[AA_CLASS_MOUNT],
 			   mntpnt, devname, type, flags, data, binary, &perms);
 	if (pos) {
 		info = mnt_info_table[pos];
@@ -364,7 +363,7 @@ static int match_mnt(struct aa_profile *profile, const struct path *path,
 	AA_BUG(!profile);
 	AA_BUG(devpath && !devbuffer);
 
-	if (!RULE_MEDIATES(&profile->rules, AA_CLASS_MOUNT))
+	if (!PROFILE_MEDIATES(profile, AA_CLASS_MOUNT))
 		return 0;
 
 	if (devpath) {
@@ -566,7 +565,6 @@ out:
 static int profile_umount(struct aa_profile *profile, const struct path *path,
 			  char *buffer)
 {
-	struct aa_ruleset *rules = &profile->rules;
 	struct aa_perms perms = { };
 	const char *name = NULL, *info = NULL;
 	aa_state_t state;
@@ -575,7 +573,7 @@ static int profile_umount(struct aa_profile *profile, const struct path *path,
 	AA_BUG(!profile);
 	AA_BUG(!path);
 
-	if (!RULE_MEDIATES(rules, AA_CLASS_MOUNT))
+	if (!PROFILE_MEDIATES(profile, AA_CLASS_MOUNT))
 		return 0;
 
 	error = aa_path_name(path, path_flags(profile, path), buffer, &name,
@@ -583,10 +581,10 @@ static int profile_umount(struct aa_profile *profile, const struct path *path,
 	if (error)
 		goto audit;
 
-	state = aa_dfa_match(rules->policy.dfa,
-			     rules->policy.start[AA_CLASS_MOUNT],
+	state = aa_dfa_match(profile->policy.dfa,
+			     profile->policy.start[AA_CLASS_MOUNT],
 			     name);
-	perms = *aa_lookup_perms(&rules->policy, state);
+	perms = *aa_lookup_perms(&profile->policy, state);
 	if (AA_MAY_UMOUNT & ~perms.allow)
 		error = -EACCES;
 
@@ -626,7 +624,6 @@ static struct aa_label *build_pivotroot(struct aa_profile *profile,
 					const struct path *old_path,
 					char *old_buffer)
 {
-	struct aa_ruleset *rules = &profile->rules;
 	const char *old_name, *new_name = NULL, *info = NULL;
 	const char *trans_name = NULL;
 	struct aa_perms perms = { };
@@ -638,7 +635,7 @@ static struct aa_label *build_pivotroot(struct aa_profile *profile,
 	AA_BUG(!old_path);
 
 	if (profile_unconfined(profile) ||
-	    !RULE_MEDIATES(rules, AA_CLASS_MOUNT))
+	    !PROFILE_MEDIATES(profile, AA_CLASS_MOUNT))
 		return aa_get_newest_label(&profile->label);
 
 	error = aa_path_name(old_path, path_flags(profile, old_path),
@@ -653,12 +650,12 @@ static struct aa_label *build_pivotroot(struct aa_profile *profile,
 		goto audit;
 
 	error = -EACCES;
-	state = aa_dfa_match(rules->policy.dfa,
-			     rules->policy.start[AA_CLASS_MOUNT],
+	state = aa_dfa_match(profile->policy.dfa,
+			     profile->policy.start[AA_CLASS_MOUNT],
 			     new_name);
-	state = aa_dfa_null_transition(rules->policy.dfa, state);
-	state = aa_dfa_match(rules->policy.dfa, state, old_name);
-	perms = *aa_lookup_perms(&rules->policy, state);
+	state = aa_dfa_null_transition(profile->policy.dfa, state);
+	state = aa_dfa_match(profile->policy.dfa, state, old_name);
+	perms = *aa_lookup_perms(&profile->policy, state);
 
 	if (AA_MAY_PIVOTROOT & perms.allow)
 		error = 0;

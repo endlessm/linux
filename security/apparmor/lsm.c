@@ -166,9 +166,9 @@ static int apparmor_capget(struct task_struct *target, kernel_cap_t *effective,
 			if (COMPLAIN_MODE(profile))
 				continue;
 			*effective = cap_intersect(*effective,
-						   profile->rules.caps.allow);
+						   profile->caps.allow);
 			*permitted = cap_intersect(*permitted,
-						   profile->rules.caps.allow);
+						   profile->caps.allow);
 		}
 	}
 	rcu_read_unlock();
