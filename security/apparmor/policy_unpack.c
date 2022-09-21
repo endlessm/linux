@@ -125,16 +125,15 @@ void __aa_loaddata_update(struct aa_loaddata *data, long revision)
 {
 	AA_BUG(!data);
 	AA_BUG(!data->ns);
+	AA_BUG(!data->dents[AAFS_LOADDATA_REVISION]);
 	AA_BUG(!mutex_is_locked(&data->ns->lock));
 	AA_BUG(data->revision > revision);
 
 	data->revision = revision;
-	if ((data->dents[AAFS_LOADDATA_REVISION])) {
-		d_inode(data->dents[AAFS_LOADDATA_DIR])->i_mtime =
-			current_time(d_inode(data->dents[AAFS_LOADDATA_DIR]));
-		d_inode(data->dents[AAFS_LOADDATA_REVISION])->i_mtime =
-			current_time(d_inode(data->dents[AAFS_LOADDATA_REVISION]));
-	}
+	d_inode(data->dents[AAFS_LOADDATA_DIR])->i_mtime =
+		current_time(d_inode(data->dents[AAFS_LOADDATA_DIR]));
+	d_inode(data->dents[AAFS_LOADDATA_REVISION])->i_mtime =
+		current_time(d_inode(data->dents[AAFS_LOADDATA_REVISION]));
 }
 
 bool aa_rawdata_eq(struct aa_loaddata *l, struct aa_loaddata *r)
@@ -1219,12 +1218,9 @@ int aa_unpack(struct aa_loaddata *udata, struct list_head *lh,
 			goto fail;
 		}
 	}
-
-	if (aa_g_export_binary) {
-		error = compress_loaddata(udata);
-		if (error)
-			goto fail;
-	}
+	error = compress_loaddata(udata);
+	if (error)
+		goto fail;
 	return 0;
 
 fail_profile:

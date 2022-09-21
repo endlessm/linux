@@ -952,18 +952,16 @@ ssize_t aa_replace_profiles(struct aa_ns *policy_ns, struct aa_label *label,
 
 	mutex_lock_nested(&ns->lock, ns->level);
 	/* check for duplicate rawdata blobs: space and file dedup */
-	if (!list_empty(&ns->rawdata_list)) {
-		list_for_each_entry(rawdata_ent, &ns->rawdata_list, list) {
-			if (aa_rawdata_eq(rawdata_ent, udata)) {
-				struct aa_loaddata *tmp;
+	list_for_each_entry(rawdata_ent, &ns->rawdata_list, list) {
+		if (aa_rawdata_eq(rawdata_ent, udata)) {
+			struct aa_loaddata *tmp;
 
-				tmp = __aa_get_loaddata(rawdata_ent);
-				/* check we didn't fail the race */
-				if (tmp) {
-					aa_put_loaddata(udata);
-					udata = tmp;
-					break;
-				}
+			tmp = __aa_get_loaddata(rawdata_ent);
+			/* check we didn't fail the race */
+			if (tmp) {
+				aa_put_loaddata(udata);
+				udata = tmp;
+				break;
 			}
 		}
 	}
@@ -971,8 +969,7 @@ ssize_t aa_replace_profiles(struct aa_ns *policy_ns, struct aa_label *label,
 	list_for_each_entry(ent, &lh, list) {
 		struct aa_policy *policy;
 
-		if (aa_g_export_binary)
-			ent->new->rawdata = aa_get_loaddata(udata);
+		ent->new->rawdata = aa_get_loaddata(udata);
 		error = __lookup_replace(ns, ent->new->base.hname,
 					 !(mask & AA_MAY_REPLACE_POLICY),
 					 &ent->old, &info);
@@ -1012,7 +1009,7 @@ ssize_t aa_replace_profiles(struct aa_ns *policy_ns, struct aa_label *label,
 	}
 
 	/* create new fs entries for introspection if needed */
-	if (!udata->dents[AAFS_LOADDATA_DIR] && aa_g_export_binary) {
+	if (!udata->dents[AAFS_LOADDATA_DIR]) {
 		error = __aa_fs_create_rawdata(ns, udata);
 		if (error) {
 			info = "failed to create raw_data dir and files";
@@ -1040,14 +1037,12 @@ ssize_t aa_replace_profiles(struct aa_ns *policy_ns, struct aa_label *label,
 
 	/* Done with checks that may fail - do actual replacement */
 	__aa_bump_ns_revision(ns);
-	if (aa_g_export_binary)
-		__aa_loaddata_update(udata, ns->revision);
+	__aa_loaddata_update(udata, ns->revision);
 	list_for_each_entry_safe(ent, tmp, &lh, list) {
 		list_del_init(&ent->list);
 		op = (!ent->old && !ent->rename) ? OP_PROF_LOAD : OP_PROF_REPL;
 
-		if (ent->old && ent->old->rawdata == ent->new->rawdata &&
-		    ent->new->rawdata) {
+		if (ent->old && ent->old->rawdata == ent->new->rawdata) {
 			/* dedup actual profile replacement */
 			audit_policy(label, op, ns_name, ent->new->base.hname,
 				     "same as current profile, skipping",
