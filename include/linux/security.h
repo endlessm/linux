@@ -249,8 +249,19 @@ static inline bool lsmblob_equal(const struct lsmblob *bloba,
 }
 
 /* Map lsm names to blob slot numbers */
+#if LSMBLOB_ENTRIES > 0
 extern int lsm_name_to_slot(char *name);
 extern const char *lsm_slot_to_name(int slot);
+#else
+static inline int lsm_name_to_slot(char *name)
+{
+	return LSMBLOB_INVALID;
+}
+static inline const char *lsm_slot_to_name(int slot)
+{
+	return NULL;
+}
+#endif
 
 /**
  * lsmblob_value - find the first non-zero value in an lsmblob structure.
@@ -489,8 +500,8 @@ int security_sb_clone_mnt_opts(const struct super_block *oldsb,
 int security_move_mount(const struct path *from_path, const struct path *to_path);
 int security_dentry_init_security(struct dentry *dentry, int mode,
 				  const struct qstr *name,
-				  const char **xattr_name, void **ctx,
-				  u32 *ctxlen);
+				  const char **xattr_name,
+				  struct lsmcontext *lsmcxt);
 int security_dentry_create_files_as(struct dentry *dentry, int mode,
 					struct qstr *name,
 					const struct cred *old,
@@ -914,8 +925,7 @@ static inline int security_dentry_init_security(struct dentry *dentry,
 						 int mode,
 						 const struct qstr *name,
 						 const char **xattr_name,
-						 void **ctx,
-						 u32 *ctxlen)
+						 struct lsmcontext *lsmcxt)
 {
 	return -EOPNOTSUPP;
 }
