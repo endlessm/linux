@@ -31,4 +31,6 @@ int aa_alloc_secid(struct aa_label *label, gfp_t gfp);
 void aa_free_secid(u32 secid);
 void aa_secid_update(u32 secid, struct aa_label *label);
 
+void aa_secids_init(void);
+
 #endif /* __AA_SECID_H */
