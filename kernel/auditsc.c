@@ -1114,25 +1114,36 @@ static inline void audit_free_context(struct audit_context *context)
 	kfree(context);
 }
 
-static void audit_log_pid_context(struct audit_context *context, pid_t pid,
-				  kuid_t auid, kuid_t uid,
-				  unsigned int sessionid,
-				  struct lsmblob *blob, char *comm)
+static int audit_log_pid_context(struct audit_context *context, pid_t pid,
+				 kuid_t auid, kuid_t uid,
+				 unsigned int sessionid,
+				 struct lsmblob *blob, char *comm)
 {
 	struct audit_buffer *ab;
+	struct lsmcontext lsmctx;
+	int rc = 0;
 
 	ab = audit_log_start(context, GFP_KERNEL, AUDIT_OBJ_PID);
 	if (!ab)
-		return;
+		return rc;
 
 	audit_log_format(ab, "opid=%d oauid=%d ouid=%d oses=%d", pid,
 			 from_kuid(&init_user_ns, auid),
 			 from_kuid(&init_user_ns, uid), sessionid);
-	if (lsmblob_is_set(blob))
-		audit_log_object_context(ab, blob);
+	if (lsmblob_is_set(blob)) {
+		if (security_secid_to_secctx(blob, &lsmctx, LSMBLOB_FIRST)) {
+			audit_log_format(ab, " obj=(none)");
+			rc = 1;
+		} else {
+			audit_log_format(ab, " obj=%s", lsmctx.context);
+			security_release_secctx(&lsmctx);
+		}
+	}
 	audit_log_format(ab, " ocomm=");
 	audit_log_untrustedstring(ab, comm);
 	audit_log_end(ab);
+
+	return rc;
 }
 
 static void audit_log_execve_info(struct audit_context *context,
@@ -1409,10 +1420,18 @@ static void show_special(struct audit_context *context, int *call_panic)
 				 from_kgid(&init_user_ns, context->ipc.gid),
 				 context->ipc.mode);
 		if (osid) {
+			struct lsmcontext lsmcxt;
 			struct lsmblob blob;
 
 			lsmblob_init(&blob, osid);
-			audit_log_object_context(ab, &blob);
+			if (security_secid_to_secctx(&blob, &lsmcxt,
+						     LSMBLOB_FIRST)) {
+				audit_log_format(ab, " osid=%u", osid);
+				*call_panic = 1;
+			} else {
+				audit_log_format(ab, " obj=%s", lsmcxt.context);
+				security_release_secctx(&lsmcxt);
+			}
 		}
 		if (context->ipc.has_perm) {
 			audit_log_end(ab);
@@ -1569,8 +1588,19 @@ static void audit_log_name(struct audit_context *context, struct audit_names *n,
 				 from_kgid(&init_user_ns, n->gid),
 				 MAJOR(n->rdev),
 				 MINOR(n->rdev));
-	if (lsmblob_is_set(&n->lsmblob))
-		audit_log_object_context(ab, &n->lsmblob);
+	if (lsmblob_is_set(&n->lsmblob)) {
+		struct lsmcontext lsmctx;
+
+		if (security_secid_to_secctx(&n->lsmblob, &lsmctx,
+					     LSMBLOB_FIRST)) {
+			audit_log_format(ab, " osid=?");
+			if (call_panic)
+				*call_panic = 2;
+		} else {
+			audit_log_format(ab, " obj=%s", lsmctx.context);
+			security_release_secctx(&lsmctx);
+		}
+	}
 
 	/* log the audit_names record type */
 	switch (n->type) {
@@ -1775,20 +1805,21 @@ static void audit_log_exit(void)
 		struct audit_aux_data_pids *axs = (void *)aux;
 
 		for (i = 0; i < axs->pid_count; i++)
-			audit_log_pid_context(context, axs->target_pid[i],
-					      axs->target_auid[i],
-					      axs->target_uid[i],
-					      axs->target_sessionid[i],
-					      &axs->target_lsm[i],
-					      axs->target_comm[i]);
+			if (audit_log_pid_context(context, axs->target_pid[i],
+						  axs->target_auid[i],
+						  axs->target_uid[i],
+						  axs->target_sessionid[i],
+						  &axs->target_lsm[i],
+						  axs->target_comm[i]))
+				call_panic = 1;
 	}
 
-	if (context->target_pid)
-		audit_log_pid_context(context, context->target_pid,
-				      context->target_auid, context->target_uid,
-				      context->target_sessionid,
-				      &context->target_lsm,
-				      context->target_comm);
+	if (context->target_pid &&
+	    audit_log_pid_context(context, context->target_pid,
+				  context->target_auid, context->target_uid,
+				  context->target_sessionid,
+				  &context->target_lsm, context->target_comm))
+			call_panic = 1;
 
 	if (context->pwd.dentry && context->pwd.mnt) {
 		ab = audit_log_start(context, GFP_KERNEL, AUDIT_CWD);
