@@ -567,6 +567,9 @@ static bool ima_match_rules(struct ima_rule_entry *rule,
 			    const char *func_data)
 {
 	int i;
+	bool result = false;
+	struct ima_rule_entry *lsm_rule = rule;
+	bool rule_reinitialized = false;
 
 	if ((rule->flags & IMA_FUNC) &&
 	    (rule->func != func && func != POST_SETATTR))
@@ -628,35 +631,57 @@ static bool ima_match_rules(struct ima_rule_entry *rule,
 		int rc = 0;
 		struct lsmblob lsmdata;
 
-		if (!ima_lsm_isset(rule->lsm[i].rules)) {
-			if (!rule->lsm[i].args_p)
+		if (!ima_lsm_isset(lsm_rule->lsm[i].rules)) {
+			if (!lsm_rule->lsm[i].args_p)
 				continue;
 			else
 				return false;
 		}
+
+retry:
 		switch (i) {
 		case LSM_OBJ_USER:
 		case LSM_OBJ_ROLE:
 		case LSM_OBJ_TYPE:
 			security_inode_getsecid(inode, &lsmdata);
-			rc = ima_filter_rule_match(&lsmdata, rule->lsm[i].type,
+			rc = ima_filter_rule_match(&lsmdata, lsm_rule->lsm[i].type,
 						   Audit_equal,
-						   rule->lsm[i].rules);
+						   lsm_rule->lsm[i].rules);
 			break;
 		case LSM_SUBJ_USER:
 		case LSM_SUBJ_ROLE:
 		case LSM_SUBJ_TYPE:
-			rc = ima_filter_rule_match(&lsmdata, rule->lsm[i].type,
+			rc = ima_filter_rule_match(&lsmdata, lsm_rule->lsm[i].type,
 						   Audit_equal,
-						   rule->lsm[i].rules);
+						   lsm_rule->lsm[i].rules);
 			break;
 		default:
 			break;
 		}
 		if (!rc)
 			return false;
+
+		if (rc == -ESTALE && !rule_reinitialized) {
+			lsm_rule = ima_lsm_copy_rule(rule);
+			if (lsm_rule) {
+				rule_reinitialized = true;
+				goto retry;
+			}
+		}
+		if (!rc) {
+			result = false;
+			goto out;
+		}
 	}
-	return true;
+	result = true;
+
+out:
+	if (rule_reinitialized) {
+		for (i = 0; i < MAX_LSM_RULES; i++)
+			ima_filter_rule_free(lsm_rule->lsm[i].rule);
+		kfree(lsm_rule);
+	}
+	return result;
 }
 
 /*
