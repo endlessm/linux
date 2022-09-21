@@ -14,7 +14,6 @@
 #include <linux/fs.h>
 #include <linux/mount.h>
 
-#include "include/af_unix.h"
 #include "include/apparmor.h"
 #include "include/audit.h"
 #include "include/cred.h"
@@ -229,8 +228,7 @@ int __aa_path_perm(const char *op, struct aa_profile *profile, const char *name,
 						    typeof(*rules), list);
 	int e = 0;
 
-	if (profile_unconfined(profile) ||
-	    ((flags & PATH_SOCK_COND) && !RULE_MEDIATES_AF(rules, AF_UNIX)))
+	if (profile_unconfined(profile))
 		return 0;
 	aa_str_perms(&(rules->file), rules->file.start[AA_CLASS_FILE],
 		     name, cond, perms);

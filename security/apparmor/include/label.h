@@ -261,10 +261,7 @@ for ((I).i = (I).j = 0;							\
 	struct label_it i;						\
 	int ret = 0;							\
 	label_for_each(i, (L), profile) {				\
-		struct aa_ruleset *rules =				\
-			list_first_entry(&profile->rules, typeof(*rules),\
-					 list);				\
-		if (RULE_MEDIATES(rules, (C))) {			\
+		if (RULE_MEDIATES(&profile->rules, (C))) {		\
 			ret = 1;					\
 			break;						\
 		}							\

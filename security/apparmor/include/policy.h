@@ -287,11 +287,8 @@ static inline aa_state_t RULE_MEDIATES_AF(struct aa_ruleset *rules, u16 AF)
 	aa_state_t state = RULE_MEDIATES(rules, AA_CLASS_NET);
 	__be16 be_af = cpu_to_be16(AF);
 
-	if (!state) {
-		state = RULE_MEDIATES(rules, AA_CLASS_NET_COMPAT);
-		if (!state)
-			return DFA_NOMATCH;
-	}
+	if (!state)
+		return DFA_NOMATCH;
 	return aa_dfa_match_len(rules->policy.dfa, state, (char *) &be_af, 2);
 }
 
