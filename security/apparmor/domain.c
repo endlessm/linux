@@ -328,7 +328,7 @@ static int aa_xattrs_match(const struct linux_binprm *bprm,
 		size = vfs_getxattr_alloc(&init_user_ns, d, profile->xattrs[i],
 					  &value, value_size, GFP_KERNEL);
 		if (size >= 0) {
-			u32 index, perm;
+			u32 perm;
 
 			/*
 			 * Check the xattr presence before value. This ensure
@@ -340,8 +340,7 @@ static int aa_xattrs_match(const struct linux_binprm *bprm,
 			/* Check xattr value */
 			state = aa_dfa_match_len(profile->xmatch.dfa, state,
 						 value, size);
-			index = ACCEPT_TABLE(profile->xmatch.dfa)[state];
-			perm = profile->xmatch.perms[index].allow;
+			perm = profile->xmatch.perms[state].allow;
 			if (!(perm & MAY_EXEC)) {
 				ret = -EINVAL;
 				goto out;
@@ -417,13 +416,12 @@ restart:
 		 */
 		if (profile->xmatch.dfa) {
 			unsigned int state, count;
-			u32 index, perm;
+			u32 perm;
 
 			state = aa_dfa_leftmatch(profile->xmatch.dfa,
 					profile->xmatch.start[AA_CLASS_XMATCH],
 					name, &count);
-			index = ACCEPT_TABLE(profile->xmatch.dfa)[state];
-			perm = profile->xmatch.perms[index].allow;
+			perm = profile->xmatch.perms[state].allow;
 			/* any accepting state means a valid match. */
 			if (perm & MAY_EXEC) {
 				int ret = 0;

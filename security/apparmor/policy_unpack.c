@@ -930,7 +930,6 @@ static struct aa_profile *unpack_profile(struct aa_ext *e, char **ns_name)
 			info = "failed to convert xmatch permission table";
 			goto fail;
 		}
-		remap_dfa_accept(profile->xmatch.dfa, 1);
 	}
 
 	/* disconnected attachment string is optional */
