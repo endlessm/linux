@@ -4875,6 +4875,7 @@ struct lsm_blob_sizes smack_blob_sizes __ro_after_init = {
 static struct lsm_id smack_lsmid __ro_after_init = {
 	.lsm      = "smack",
 	.id       = LSM_ID_SMACK,
+	.features = LSM_ATTR_CURRENT,
 };
 
 static struct security_hook_list smack_hooks[] __ro_after_init = {
