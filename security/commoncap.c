@@ -25,6 +25,7 @@
 #include <linux/binfmts.h>
 #include <linux/personality.h>
 #include <linux/mnt_idmapping.h>
+#include <uapi/linux/lsm.h>
 
 /*
  * If a non-root user executes a setuid-root binary in
@@ -1441,6 +1442,7 @@ int cap_mmap_file(struct file *file, unsigned long reqprot,
 #ifdef CONFIG_SECURITY
 static struct lsm_id capability_lsmid __ro_after_init = {
 	.lsm      = "capability",
+	.id       = LSM_ID_CAPABILITY,
 };
 
 static struct security_hook_list capability_hooks[] __ro_after_init = {

@@ -19,6 +19,7 @@
 #include <linux/ptrace.h>
 #include <linux/sched/task_stack.h>
 #include <linux/security.h>
+#include <uapi/linux/lsm.h>
 #include "lsm.h"
 
 /* Flag indicating whether initialization completed */
@@ -263,6 +264,7 @@ static int safesetid_task_fix_setgroups(struct cred *new, const struct cred *old
 
 static struct lsm_id safesetid_lsmid __ro_after_init = {
 	.lsm      = "safesetid",
+	.id       = LSM_ID_SAFESETID,
 };
 
 static struct security_hook_list safesetid_security_hooks[] = {

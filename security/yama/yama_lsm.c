@@ -18,6 +18,7 @@
 #include <linux/task_work.h>
 #include <linux/sched.h>
 #include <linux/spinlock.h>
+#include <uapi/linux/lsm.h>
 
 #define YAMA_SCOPE_DISABLED	0
 #define YAMA_SCOPE_RELATIONAL	1
@@ -423,6 +424,7 @@ static int yama_ptrace_traceme(struct task_struct *parent)
 
 static struct lsm_id yama_lsmid __ro_after_init = {
 	.lsm      = "yama",
+	.id       = LSM_ID_YAMA,
 };
 
 static struct security_hook_list yama_hooks[] __ro_after_init = {

@@ -20,6 +20,7 @@
 #include <linux/string_helpers.h>
 #include <linux/dm-verity-loadpin.h>
 #include <uapi/linux/loadpin.h>
+#include <uapi/linux/lsm.h>
 
 #define VERITY_DIGEST_FILE_HEADER "# LOADPIN_TRUSTED_VERITY_ROOT_DIGESTS"
 
@@ -210,6 +211,7 @@ static int loadpin_load_data(enum kernel_load_data_id id, bool contents)
 
 static struct lsm_id loadpin_lsmid __ro_after_init = {
 	.lsm      = "loadpin",
+	.id       = LSM_ID_LOADPIN,
 };
 
 static struct security_hook_list loadpin_hooks[] __ro_after_init = {

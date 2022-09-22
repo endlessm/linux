@@ -8,6 +8,7 @@
 
 #include <linux/init.h>
 #include <linux/lsm_hooks.h>
+#include <uapi/linux/lsm.h>
 
 #include "common.h"
 #include "cred.h"
@@ -26,6 +27,7 @@ struct lsm_blob_sizes landlock_blob_sizes __ro_after_init = {
 
 struct lsm_id landlock_lsmid __ro_after_init = {
 	.lsm      = LANDLOCK_NAME,
+	.id       = LSM_ID_LANDLOCK,
 };
 
 static int __init landlock_init(void)

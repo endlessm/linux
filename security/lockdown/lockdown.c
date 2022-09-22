@@ -13,6 +13,7 @@
 #include <linux/security.h>
 #include <linux/export.h>
 #include <linux/lsm_hooks.h>
+#include <uapi/linux/lsm.h>
 
 static enum lockdown_reason kernel_locked_down;
 
@@ -77,7 +78,8 @@ static struct security_hook_list lockdown_hooks[] __ro_after_init = {
 };
 
 static struct lsm_id lockdown_lsmid __ro_after_init = {
-	.lsm     = "lockdown",
+	.lsm      = "lockdown",
+	.id       = LSM_ID_LOCKDOWN,
 };
 
 static int __init lockdown_lsm_init(void)
