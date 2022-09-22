@@ -1439,6 +1439,9 @@ int cap_mmap_file(struct file *file, unsigned long reqprot,
 }
 
 #ifdef CONFIG_SECURITY
+static struct lsm_id capability_lsmid __ro_after_init = {
+	.lsm      = "capability",
+};
 
 static struct security_hook_list capability_hooks[] __ro_after_init = {
 	LSM_HOOK_INIT(capable, cap_capable),
@@ -1464,7 +1467,7 @@ static struct security_hook_list capability_hooks[] __ro_after_init = {
 static int __init capability_init(void)
 {
 	security_add_hooks(capability_hooks, ARRAY_SIZE(capability_hooks),
-				"capability");
+			   &capability_lsmid);
 	return 0;
 }
 
