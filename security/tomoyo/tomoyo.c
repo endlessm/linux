@@ -546,6 +546,7 @@ static void tomoyo_task_free(struct task_struct *task)
 static struct lsm_id tomoyo_lsmid __ro_after_init = {
 	.lsm      = "tomoyo",
 	.id       = LSM_ID_TOMOYO,
+	.slot     = LSMBLOB_NOT_NEEDED,
 };
 
 /*

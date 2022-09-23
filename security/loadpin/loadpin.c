@@ -212,6 +212,7 @@ static int loadpin_load_data(enum kernel_load_data_id id, bool contents)
 static struct lsm_id loadpin_lsmid __ro_after_init = {
 	.lsm      = "loadpin",
 	.id       = LSM_ID_LOADPIN,
+	.slot     = LSMBLOB_NOT_NEEDED,
 };
 
 static struct security_hook_list loadpin_hooks[] __ro_after_init = {

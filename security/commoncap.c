@@ -1443,6 +1443,7 @@ int cap_mmap_file(struct file *file, unsigned long reqprot,
 static struct lsm_id capability_lsmid __ro_after_init = {
 	.lsm      = "capability",
 	.id       = LSM_ID_CAPABILITY,
+	.slot     = LSMBLOB_NOT_NEEDED,
 };
 
 static struct security_hook_list capability_hooks[] __ro_after_init = {

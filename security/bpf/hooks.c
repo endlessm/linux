@@ -23,6 +23,7 @@ static struct security_hook_list bpf_lsm_hooks[] __ro_after_init = {
 struct lsm_id bpf_lsmid __ro_after_init = {
 	.lsm      = "bpf",
 	.id       = LSM_ID_BPF,
+	.slot     = LSMBLOB_NEEDED,
 };
 
 static int __init bpf_lsm_init(void)

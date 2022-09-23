@@ -4870,6 +4870,7 @@ static struct lsm_id smack_lsmid __ro_after_init = {
 	.lsm      = "smack",
 	.id       = LSM_ID_SMACK,
 	.features = LSM_ATTR_CURRENT,
+	.slot     = LSMBLOB_NEEDED,
 };
 
 static struct security_hook_list smack_hooks[] __ro_after_init = {

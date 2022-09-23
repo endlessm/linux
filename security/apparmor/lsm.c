@@ -1511,6 +1511,7 @@ static struct lsm_id apparmor_lsmid __ro_after_init = {
 	.lsm      = "apparmor",
 	.id       = LSM_ID_APPARMOR,
 	.features = LSM_ATTR_CURRENT | LSM_ATTR_PREV | LSM_ATTR_EXEC,
+	.slot     = LSMBLOB_NEEDED,
 };
 
 static struct security_hook_list apparmor_hooks[] __ro_after_init = {

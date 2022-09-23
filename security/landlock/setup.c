@@ -28,6 +28,7 @@ struct lsm_blob_sizes landlock_blob_sizes __ro_after_init = {
 struct lsm_id landlock_lsmid __ro_after_init = {
 	.lsm      = LANDLOCK_NAME,
 	.id       = LSM_ID_LANDLOCK,
+	.slot     = LSMBLOB_NOT_NEEDED,
 };
 
 static int __init landlock_init(void)
