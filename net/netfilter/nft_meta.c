@@ -841,7 +841,7 @@ struct nft_expr_type nft_meta_type __read_mostly = {
 
 #ifdef CONFIG_NETWORK_SECMARK
 struct nft_secmark {
-	struct lsmblob lsmdata;
+	u32 secid;
 	char *ctx;
 };
 
@@ -851,21 +851,21 @@ static const struct nla_policy nft_secmark_policy[NFTA_SECMARK_MAX + 1] = {
 
 static int nft_secmark_compute_secid(struct nft_secmark *priv)
 {
-	struct lsmblob blob;
+	u32 tmp_secid = 0;
 	int err;
 
-	err = security_secctx_to_secid(priv->ctx, strlen(priv->ctx), &blob);
+	err = security_secctx_to_secid(priv->ctx, strlen(priv->ctx), &tmp_secid);
 	if (err)
 		return err;
 
-	if (!lsmblob_is_set(&blob))
+	if (!tmp_secid)
 		return -ENOENT;
 
-	err = security_secmark_relabel_packet(&blob);
+	err = security_secmark_relabel_packet(tmp_secid);
 	if (err)
 		return err;
 
-	priv->lsmdata = blob;
+	priv->secid = tmp_secid;
 	return 0;
 }
 
@@ -875,11 +875,7 @@ static void nft_secmark_obj_eval(struct nft_object *obj, struct nft_regs *regs,
 	const struct nft_secmark *priv = nft_obj_data(obj);
 	struct sk_buff *skb = pkt->skb;
 
-	/* It is not possible for more than one secid to be set in
-	 * the lsmblob structure because it is set using
-	 * security_secctx_to_secid(). Any secid that is set must therefore
-	 * be the one that should go in the secmark. */
-	skb->secmark = lsmblob_value(&priv->lsmdata);
+	skb->secmark = priv->secid;
 }
 
 static int nft_secmark_obj_init(const struct nft_ctx *ctx,
