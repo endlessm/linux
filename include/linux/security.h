@@ -498,8 +498,8 @@ int security_task_fix_setgid(struct cred *new, const struct cred *old,
 int security_task_setpgid(struct task_struct *p, pid_t pgid);
 int security_task_getpgid(struct task_struct *p);
 int security_task_getsid(struct task_struct *p);
-void security_current_getsecid_subj(struct lsmblob *blob);
-void security_task_getsecid_obj(struct task_struct *p, struct lsmblob *blob);
+void security_current_getsecid_subj(u32 *secid);
+void security_task_getsecid_obj(struct task_struct *p, u32 *secid);
 int security_task_setnice(struct task_struct *p, int nice);
 int security_task_setioprio(struct task_struct *p, int ioprio);
 int security_task_getioprio(struct task_struct *p);
@@ -1196,15 +1196,14 @@ static inline int security_task_getsid(struct task_struct *p)
 	return 0;
 }
 
-static inline void security_task_getsecid_subj(struct lsmblob *blob)
+static inline void security_current_getsecid_subj(u32 *secid)
 {
-	lsmblob_init(blob, 0);
+	*secid = 0;
 }
 
-static inline void security_task_getsecid_obj(struct task_struct *p,
-					      struct lsmblob *blob)
+static inline void security_task_getsecid_obj(struct task_struct *p, u32 *secid)
 {
-	lsmblob_init(blob, 0);
+	*secid = 0;
 }
 
 static inline int security_task_setnice(struct task_struct *p, int nice)
