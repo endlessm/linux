@@ -35,7 +35,7 @@ struct unix_skb_parms {
 	kgid_t			gid;
 	struct scm_fp_list	*fp;		/* Passed files		*/
 #ifdef CONFIG_SECURITY_NETWORK
-	struct lsmblob		lsmblob;	/* Security LSM data	*/
+	u32			secid;		/* Security ID		*/
 #endif
 	u32			consumed;
 } __randomize_layout;

@@ -2316,22 +2316,10 @@ int security_socket_getpeersec_stream(struct socket *sock, char __user *optval,
 				optval, optlen, len);
 }
 
-int security_socket_getpeersec_dgram(struct socket *sock, struct sk_buff *skb,
-				     struct lsmblob *blob)
+int security_socket_getpeersec_dgram(struct socket *sock, struct sk_buff *skb, u32 *secid)
 {
-	struct security_hook_list *hp;
-	int rc = -ENOPROTOOPT;
-
-	hlist_for_each_entry(hp, &security_hook_heads.socket_getpeersec_dgram,
-			     list) {
-		if (WARN_ON(hp->lsmid->slot < 0 || hp->lsmid->slot >= lsm_slot))
-			continue;
-		rc = hp->hook.socket_getpeersec_dgram(sock, skb,
-						&blob->secid[hp->lsmid->slot]);
-		if (rc != 0)
-			break;
-	}
-	return rc;
+	return call_int_hook(socket_getpeersec_dgram, -ENOPROTOOPT, sock,
+			     skb, secid);
 }
 EXPORT_SYMBOL(security_socket_getpeersec_dgram);
 
