@@ -14,11 +14,6 @@
 #include "ruleset.h"
 #include "setup.h"
 
-static struct lsm_id landlock_lsmid __lsm_ro_after_init = {
-	.lsm  = "landlock",
-	.slot = LSMBLOB_NEEDED
-};
-
 static int hook_cred_prepare(struct cred *const new,
 			     const struct cred *const old, const gfp_t gfp)
 {
@@ -47,5 +42,5 @@ static struct security_hook_list landlock_hooks[] __lsm_ro_after_init = {
 __init void landlock_add_cred_hooks(void)
 {
 	security_add_hooks(landlock_hooks, ARRAY_SIZE(landlock_hooks),
-			&landlock_lsmid);
+			   LANDLOCK_NAME);
 }
