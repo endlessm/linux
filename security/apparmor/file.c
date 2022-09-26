@@ -220,10 +220,9 @@ aa_state_t aa_str_perms(struct aa_policydb *file_rules, aa_state_t start,
 	return state;
 }
 
-static int __aa_path_perm(const char *op, struct aa_profile *profile,
-			  const char *name, u32 request,
-			  struct path_cond *cond, int flags,
-			  struct aa_perms *perms)
+int __aa_path_perm(const char *op, struct aa_profile *profile, const char *name,
+		   u32 request, struct path_cond *cond, int flags,
+		   struct aa_perms *perms)
 {
 	struct aa_ruleset *rules = list_first_entry(&profile->rules,
 						    typeof(*rules), list);
