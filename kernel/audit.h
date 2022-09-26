@@ -82,7 +82,7 @@ struct audit_names {
 	kuid_t			uid;
 	kgid_t			gid;
 	dev_t			rdev;
-	struct lsmblob		oblob;
+	u32			osid;
 	struct audit_cap_data	fcap;
 	unsigned int		fcap_ver;
 	unsigned char		type;		/* record type */
@@ -161,7 +161,7 @@ struct audit_context {
 			kuid_t			uid;
 			kgid_t			gid;
 			umode_t			mode;
-			struct lsmblob		oblob;
+			u32			osid;
 			int			has_perm;
 			uid_t			perm_uid;
 			gid_t			perm_gid;
