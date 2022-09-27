@@ -287,6 +287,10 @@ struct prctl_mm_map {
 
 #define PR_GET_MDWE			66
 
+/* Set/get the active security module for /proc/self/attr */
+#define PR_LSM_ATTR_SET			67	/* Set the display LSM ID */
+#define PR_LSM_ATTR_GET			68	/* Get the display LSM ID */
+
 #define PR_SET_VMA		0x53564d41
 # define PR_SET_VMA_ANON_NAME		0
 

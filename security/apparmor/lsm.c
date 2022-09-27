@@ -15,6 +15,7 @@
 #include <linux/mount.h>
 #include <linux/namei.h>
 #include <linux/ptrace.h>
+#include <linux/prctl.h>
 #include <linux/ctype.h>
 #include <linux/sysctl.h>
 #include <linux/audit.h>
@@ -829,6 +830,49 @@ static int apparmor_getprocattr(struct task_struct *task, const char *name,
 	return error;
 }
 
+
+static int profile_interface_lsm(struct aa_profile *profile,
+				 struct common_audit_data *sa)
+{
+	struct aa_ruleset *rules = list_first_entry(&profile->rules,
+						    typeof(*rules), list);
+	struct aa_perms perms = { };
+	unsigned int state;
+
+	state = RULE_MEDIATES(rules, AA_CLASS_DISPLAY_LSM);
+	if (state) {
+		perms = *aa_lookup_perms(&rules->policy, state);
+		aa_apply_modes_to_perms(profile, &perms);
+		aad(sa)->label = &profile->label;
+
+		return aa_check_perms(profile, &perms, AA_MAY_WRITE, sa, NULL);
+	}
+
+	return 0;
+}
+
+static int apparmor_task_prctl(int option, unsigned long arg2,
+			       unsigned long arg3, unsigned long arg4,
+			       unsigned long arg5)
+{
+	struct aa_profile *profile;
+	struct aa_label *label;
+	int error;
+	DEFINE_AUDIT_DATA(sa, LSM_AUDIT_DATA_NONE, AA_CLASS_NONE,
+			  OP_SETPROCATTR);
+
+	if (option != PR_LSM_ATTR_SET)
+		return -ENOSYS;
+
+	/* LSM infrastructure does actual setting of interface_lsm if allowed */
+	aad(&sa)->info = "set interface lsm";
+	label = begin_current_label_crit_section();
+	error = fn_for_each_confined(label, profile,
+				profile_interface_lsm(profile, &sa));
+	end_current_label_crit_section(label);
+	return error;
+}
+
 static int apparmor_setprocattr(const char *name, void *value,
 				size_t size)
 {
@@ -1517,6 +1561,7 @@ static struct lsm_id apparmor_lsmid __ro_after_init = {
 static struct security_hook_list apparmor_hooks[] __ro_after_init = {
 	LSM_HOOK_INIT(ptrace_access_check, apparmor_ptrace_access_check),
 	LSM_HOOK_INIT(ptrace_traceme, apparmor_ptrace_traceme),
+	LSM_HOOK_INIT(task_prctl, apparmor_task_prctl),
 	LSM_HOOK_INIT(capget, apparmor_capget),
 	LSM_HOOK_INIT(capable, apparmor_capable),
 
