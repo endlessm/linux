@@ -7172,6 +7172,7 @@ zpa2326_spi
 zr364xx
 zram
 zstd
+zstd_compress
 zunicode
 zynqmp-aes-gcm
 zynqmp-dpsub

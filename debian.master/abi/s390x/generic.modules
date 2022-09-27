@@ -971,5 +971,6 @@ znvpair
 zonefs
 zram
 zstd
+zstd_compress
 zunicode
 zzstd

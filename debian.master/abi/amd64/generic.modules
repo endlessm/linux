@@ -4739,12 +4739,14 @@ snd-oxygen-lib
 snd-pci-acp3x
 snd-pci-acp5x
 snd-pci-acp6x
+snd-pci-ps
 snd-pcm
 snd-pcm-dmaengine
 snd-pcsp
 snd-pcxhr
 snd-pdaudiocf
 snd-portman2x4
+snd-ps-pdm-dma
 snd-pt2258
 snd-rawmidi
 snd-riptide
@@ -4924,6 +4926,7 @@ snd-soc-pcm5102a
 snd-soc-pcm512x
 snd-soc-pcm512x-i2c
 snd-soc-pcm512x-spi
+snd-soc-ps-mach
 snd-soc-rk3328
 snd-soc-rl6231
 snd-soc-rl6347a
@@ -6179,5 +6182,6 @@ zpa2326_spi
 zr364xx
 zram
 zstd
+zstd_compress
 zunicode
 zzstd
