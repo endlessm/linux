@@ -933,15 +933,14 @@ static void vc4_hdmi_encoder_pre_crtc_configure(struct drm_encoder *encoder,
 	ret = clk_set_rate(vc4_hdmi->pixel_clock, pixel_rate);
 	if (ret) {
 		DRM_ERROR("Failed to set pixel clock rate: %d\n", ret);
-		goto err_put_runtime_pm;
+		return;
 	}
 
 	ret = clk_prepare_enable(vc4_hdmi->pixel_clock);
 	if (ret) {
 		DRM_ERROR("Failed to turn on pixel clock: %d\n", ret);
-		goto err_put_runtime_pm;
+		return;
 	}
-
 
 	vc4_hdmi_cec_update_clk_div(vc4_hdmi);
 
@@ -955,13 +954,15 @@ static void vc4_hdmi_encoder_pre_crtc_configure(struct drm_encoder *encoder,
 	ret = clk_set_min_rate(vc4_hdmi->pixel_bvb_clock, bvb_rate);
 	if (ret) {
 		DRM_ERROR("Failed to set pixel bvb clock rate: %d\n", ret);
-		goto err_disable_pixel_clock;
+		clk_disable_unprepare(vc4_hdmi->pixel_clock);
+		return;
 	}
 
 	ret = clk_prepare_enable(vc4_hdmi->pixel_bvb_clock);
 	if (ret) {
 		DRM_ERROR("Failed to turn on pixel bvb clock: %d\n", ret);
-		goto err_disable_pixel_clock;
+		clk_disable_unprepare(vc4_hdmi->pixel_clock);
+		return;
 	}
 
 	if (vc4_hdmi->variant->phy_init)
@@ -974,15 +975,6 @@ static void vc4_hdmi_encoder_pre_crtc_configure(struct drm_encoder *encoder,
 
 	if (vc4_hdmi->variant->set_timings)
 		vc4_hdmi->variant->set_timings(vc4_hdmi, conn_state, mode);
-
-	return;
-
-err_disable_pixel_clock:
-	clk_disable_unprepare(vc4_hdmi->pixel_clock);
-err_put_runtime_pm:
-	pm_runtime_put(&vc4_hdmi->pdev->dev);
-
-	return;
 }
 
 static void vc4_hdmi_encoder_pre_crtc_enable(struct drm_encoder *encoder,
