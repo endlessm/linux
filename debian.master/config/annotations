@@ -11814,7 +11814,8 @@ CONFIG_DEBUG_KMEMLEAK                           policy<{'amd64': 'n', 'arm64': '
 CONFIG_RCU_SCALE_TEST                           policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'ppc64el': 'n', 'riscv64': 'n', 's390x': 'n'}>
 CONFIG_RCU_TORTURE_TEST                         policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'ppc64el': 'n', 'riscv64': 'n', 's390x': 'n'}>
 CONFIG_RCU_REF_SCALE_TEST                       policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'ppc64el': 'n', 'riscv64': 'n', 's390x': 'n'}>
-CONFIG_RCU_CPU_STALL_TIMEOUT                    policy<{'amd64': '60', 'arm64': '60', 'armhf': '60', 'ppc64el': '21', 'riscv64': '60', 's390x': '21'}>
+CONFIG_RCU_CPU_STALL_TIMEOUT                    policy<{'amd64': '60', 'arm64': '60', 'armhf': '60', 'ppc64el': '60', 'riscv64': '60', 's390x': '60'}>
+CONFIG_RCU_EXP_CPU_STALL_TIMEOUT                policy<{'amd64': '0', 'arm64': '0', 'armhf': '0', 'ppc64el': '0', 'riscv64': '0', 's390x': '0'}>
 CONFIG_RCU_TRACE                                policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'ppc64el': 'n', 'riscv64': 'n', 's390x': 'n'}>
 CONFIG_RCU_EQS_DEBUG                            policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'ppc64el': 'n', 'riscv64': 'n', 's390x': 'n'}>
 #
