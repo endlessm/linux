@@ -11138,13 +11138,14 @@ CONFIG_STACKPROTECTOR_STRONG                    policy<{'amd64': 'y', 'arm64': '
 CONFIG_ARCH_MMAP_RND_BITS                       policy<{'amd64': '28', 'arm64': '18', 'armhf': '8', 'ppc64el': '28', 'riscv64': '18'}>
 CONFIG_ARCH_MMAP_RND_COMPAT_BITS                policy<{'amd64': '8', 'arm64': '11', 'ppc64el': '8'}>
 CONFIG_COMPAT_32BIT_TIME                        policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y', 's390x': 'y'}>
-CONFIG_VMAP_STACK                               policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'riscv64': 'y', 's390x': 'y'}>
+CONFIG_VMAP_STACK                               policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'riscv64': 'n', 's390x': 'y'}>
 CONFIG_RANDOMIZE_KSTACK_OFFSET                  policy<{'amd64': 'y', 'arm64': 'y', 'ppc64el': 'y', 's390x': 'y'}>
 CONFIG_STRICT_KERNEL_RWX                        policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y', 's390x': 'y'}>
 CONFIG_STRICT_MODULE_RWX                        policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y', 's390x': 'y'}>
 CONFIG_LOCK_EVENT_COUNTS                        policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'ppc64el': 'n', 'riscv64': 'n', 's390x': 'n'}>
 CONFIG_FPROBE                                   policy<{'amd64': 'y'}>
 #
+CONFIG_VMAP_STACK                               mark<ENFORCED>
 CONFIG_SECCOMP                                  mark<ENFORCED>
 CONFIG_JUMP_LABEL                               flag<REVIEW>
 CONFIG_STRICT_KERNEL_RWX                        mark<ENFORCED>
