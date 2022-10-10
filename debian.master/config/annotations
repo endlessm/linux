@@ -7669,7 +7669,7 @@ CONFIG_PWM_RCAR                                 policy<{'arm64': 'm', 'armhf': '
 CONFIG_PWM_RENESAS_TPU                          policy<{'arm64': 'm', 'armhf': 'm'}>
 CONFIG_PWM_ROCKCHIP                             policy<{'arm64': 'm', 'armhf': 'm'}>
 CONFIG_PWM_SAMSUNG                              policy<{'armhf': 'n'}>
-CONFIG_PWM_SIFIVE                               policy<{'riscv64': 'y'}>
+CONFIG_PWM_SIFIVE                               policy<{'riscv64': 'm'}>
 CONFIG_PWM_SL28CPLD                             policy<{'arm64': 'm'}>
 CONFIG_PWM_SPRD                                 policy<{'arm64': 'm'}>
 CONFIG_PWM_STMPE                                policy<{'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y'}>
