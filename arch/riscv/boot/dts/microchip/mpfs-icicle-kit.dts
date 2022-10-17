@@ -167,9 +167,11 @@
 	status = "okay";
 };
 
+/* UBUNTU: PCIe support is not yet ready, so disable it for now
 &pcie {
 	status = "okay";
 };
+*/
 
 &qspi {
 	status = "okay";
