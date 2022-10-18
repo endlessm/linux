@@ -460,9 +460,6 @@ static int dell_uart_bl_add(struct acpi_device *dev)
 	dell_uart_bd->props.brightness = 100;
 	backlight_update_status(dell_uart_bd);
 
-	/* unregister acpi backlight interface */
-	acpi_video_set_dmi_backlight_type(acpi_backlight_vendor);
-
 	return 0;
 }
 
