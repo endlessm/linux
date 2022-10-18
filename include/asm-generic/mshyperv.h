@@ -165,6 +165,14 @@ static inline u64 hv_do_rep_hypercall(u16 code, u16 rep_count, u16 varhead_size,
 				      input, output);
 }
 
+#ifndef PKG_ABI
+/*
+ * Preserve the ability to 'make deb-pkg' since PKG_ABI is provided
+ * by the Ubuntu build rules.
+ */
+#define PKG_ABI 0
+#endif
+
 /* Generate the guest OS identifier as described in the Hyper-V TLFS */
 static inline u64 hv_generate_guest_id(u64 kernel_version)
 {
@@ -172,6 +180,7 @@ static inline u64 hv_generate_guest_id(u64 kernel_version)
 
 	guest_id = (((u64)HV_LINUX_VENDOR_ID) << 48);
 	guest_id |= (kernel_version << 16);
+	guest_id |= PKG_ABI;
 
 	return guest_id;
 }
