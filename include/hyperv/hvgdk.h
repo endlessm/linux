@@ -27,7 +27,7 @@
  * 15:0  - Distro specific identification
  */
 
-#define HV_LINUX_VENDOR_ID              0x8100
+#define HV_LINUX_VENDOR_ID              0x80 /* Canonical */
 
 /* HV_VMX_ENLIGHTENED_VMCS */
 struct hv_enlightened_vmcs {
