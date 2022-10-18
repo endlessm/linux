@@ -747,19 +747,18 @@ static int shiftfs_fiemap(struct inode *inode,
 }
 
 static int shiftfs_tmpfile(struct user_namespace *ns,
-			   struct inode *dir, struct dentry *dentry,
+			   struct inode *dir, struct file *file,
 			   umode_t mode)
 {
 	int err;
 	const struct cred *oldcred;
-	struct dentry *lowerd = dentry->d_fsdata;
 	struct inode *loweri = dir->i_private;
 
 	if (!loweri->i_op->tmpfile)
 		return -EOPNOTSUPP;
 
 	oldcred = shiftfs_override_creds(dir->i_sb);
-	err = loweri->i_op->tmpfile(&init_user_ns, loweri, lowerd, mode);
+	err = loweri->i_op->tmpfile(&init_user_ns, loweri, file, mode);
 	revert_creds(oldcred);
 
 	return err;
