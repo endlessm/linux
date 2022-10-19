@@ -166,14 +166,13 @@ $fakeroot /usr/sbin/dkms build --no-prepare-kernel --no-clean-kernel \
 	--sourcetree "$dkms_dir/source" \
 	--dkmstree "$dkms_dir/build" \
 	--kernelsourcedir "$dkms_dir/headers/linux-headers-$abi_flavour" \
-	"$dkms_conf" || rc=1
+	"$dkms_conf" || rc=$?
 
 # Find the log and add it to our own.
 for log in "$dkms_dir/build/$dkms_package/$dkms_version/$abi_flavour"/*/"log/make.log" "$dkms_dir/build/$dkms_package/$dkms_version/build/make.log"
 do
-	[ -f "$log" ] && break
+	[ -f "$log" ] && sed -e "s@$dkms_dir@<<DKMSDIR>>@g" <"$log"
 done
-sed -e "s@$dkms_dir@<<DKMSDIR>>@g" <"$log"
 
 # If this build failed then exit here.
 [ "$rc" != 0 ] && exit "$rc"
