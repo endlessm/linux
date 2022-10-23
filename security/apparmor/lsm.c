@@ -2386,6 +2386,20 @@ static const struct ctl_table apparmor_sysctl_table[] = {
 		.mode           = 0644,
 		.proc_handler   = apparmor_dointvec,
 	},
+	{
+		.procname       = "apparmor_restrict_unprivileged_userns_force",
+		.data           = &aa_unprivileged_userns_restricted_force,
+		.maxlen         = sizeof(int),
+		.mode           = 0600,
+		.proc_handler   = apparmor_dointvec,
+	},
+	{
+		.procname       = "apparmor_restrict_unprivileged_userns_complain",
+		.data           = &aa_unprivileged_userns_restricted_complain,
+		.maxlen         = sizeof(int),
+		.mode           = 0600,
+		.proc_handler   = apparmor_dointvec,
+	},
 #endif /* CONFIG_USER_NS */
 	{
 		.procname       = "apparmor_restrict_unprivileged_unconfined",
