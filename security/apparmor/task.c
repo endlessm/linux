@@ -328,10 +328,12 @@ int aa_profile_ns_perm(struct aa_profile *profile, struct common_audit_data *sa,
 		aa_state_t state;
 
 		state = RULE_MEDIATES(rules, aad(sa)->class);
-		if (!state)
+		if (!state && !unprivileged_userns_restricted_force)
 			/* TODO: add flag to complain about unmediated */
 			return 0;
 		perms = *aa_lookup_perms(&rules->policy, state);
+		if (unprivileged_userns_restricted_complain)
+			perms.complain = ALL_PERMS_MASK;
 	}
 
 	aa_apply_modes_to_perms(profile, &perms);
