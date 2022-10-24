@@ -280,7 +280,6 @@ ib_srp
 ib_srpt
 ib_umad
 ib_uverbs
-icp
 icplus
 ifb
 ife
@@ -435,7 +434,6 @@ mdev
 mdio-i2c
 memory-notifier-error-inject
 mena21_wdt
-mfd-core
 michael_mic
 micrel
 microchip
@@ -676,7 +674,6 @@ rds
 rds_rdma
 rds_tcp
 realtek
-regmap-i2c
 rmd160
 rnbd-client
 rnbd-server
@@ -744,7 +741,6 @@ sha3_generic
 sha512_s390
 sha_common
 shiftfs
-simple-mfd-i2c
 siox-bus-gpio
 siox-core
 sit
@@ -759,7 +755,6 @@ smc_diag
 smsc
 smsgiucv_app
 softdog
-spl
 st
 st_drv
 ste10Xp
@@ -829,7 +824,6 @@ twofish_common
 twofish_generic
 uPD60620
 uartlite
-ubuntu-host
 udf
 udp_diag
 udp_tunnel
@@ -960,19 +954,12 @@ xt_time
 xt_u32
 xxhash_generic
 z3fold
-zavl
-zcommon
 zcrypt
 zcrypt_cex2a
 zcrypt_cex2c
 zcrypt_cex4
 zfcp
-zfs
-zlua
-znvpair
 zonefs
 zram
 zstd
 zstd_compress
-zunicode
-zzstd
