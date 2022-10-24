@@ -7,7 +7,6 @@
 8021q
 8139cp
 8139too
-8250_bcm7271
 8250_exar
 8250_men_mcb
 8250_pericom
@@ -186,6 +185,7 @@ adi-axi-adc
 adiantum
 adin
 adin1100
+adin1110
 adis16080
 adis16130
 adis16136
@@ -298,8 +298,8 @@ afs
 ah4
 ah6
 ahci
-ahci_brcm
 ahci_ceva
+ahci_dwc
 ahci_mtk
 ahci_mvebu
 ahci_platform
@@ -328,6 +328,7 @@ algif_aead
 algif_hash
 algif_rng
 algif_skcipher
+alibaba_uncore_drw_pmu
 alim7101_wdt
 allegro
 altera-ci
@@ -426,7 +427,7 @@ arcnet
 arcpgu
 arcx-anybus
 arcxcnn_bl
-aria
+aria_generic
 arizona
 arizona-haptics
 arizona-i2c
@@ -464,7 +465,6 @@ as73211
 asc7621
 ascot2e
 asix
-aspeed-pwm-tacho
 aspeed-video
 ast
 async_memcpy
@@ -578,36 +578,21 @@ baycom_ser_fdx
 baycom_ser_hdx
 bcache
 bch
-bcm-flexrm-mailbox
 bcm-keypad
-bcm-pdc-mailbox
 bcm-phy-lib
 bcm-phy-ptp
 bcm-sba-raid
 bcm-sf2
 bcm203x
-bcm2711_thermal
-bcm2835
-bcm2835-mmal-vchiq
-bcm2835-rng
-bcm2835-v4l2
-bcm2835_thermal
-bcm2835_wdt
 bcm3510
-bcm4908_enet
 bcm54140
 bcm590xx
 bcm590xx-regulator
 bcm5974
 bcm63138_nand
 bcm6368_nand
-bcm63xx_uart
-bcm7038_wdt
 bcm7xxx
 bcm87xx
-bcm_crypto_spu
-bcm_iproc_adc
-bcm_iproc_tsc
 bcm_vk
 bcma
 bcma-hcd
@@ -673,6 +658,9 @@ bmp280-i2c
 bmp280-spi
 bna
 bnep
+bno055
+bno055_i2c
+bno055_ser
 bnx2
 bnx2fc
 bnx2i
@@ -702,10 +690,7 @@ br_netfilter
 brcmfmac
 brcmnand
 brcmsmac
-brcmstb-avs-cpufreq
-brcmstb-usb-pinmap
 brcmstb_nand
-brcmstb_thermal
 brcmutil
 brd
 bridge
@@ -733,11 +718,6 @@ bttv
 btusb
 bu21013_ts
 bu21029_ts
-budget
-budget-av
-budget-ci
-budget-core
-budget-patch
 c67x00
 c6xdigio
 c_can
@@ -873,7 +853,6 @@ cirrusfb
 clip
 clk-apple-nco
 clk-axi-clkgen
-clk-bcm2711-dvp
 clk-bd718x7
 clk-cdce706
 clk-cdce925
@@ -888,12 +867,26 @@ clk-lmk04832
 clk-lochnagar
 clk-max77686
 clk-max9485
+clk-mt6795-apmixedsys
+clk-mt6795-infracfg
+clk-mt6795-mfg
+clk-mt6795-mm
+clk-mt6795-pericfg
+clk-mt6795-topckgen
+clk-mt6795-vdecsys
+clk-mt6795-vencsys
+clk-mt8365
+clk-mt8365-apu
+clk-mt8365-cam
+clk-mt8365-mfg
+clk-mt8365-mm
+clk-mt8365-vdec
+clk-mt8365-venc
 clk-palmas
 clk-phase
 clk-plldig
 clk-pwm
 clk-qcom
-clk-raspberrypi
 clk-renesas-pcie
 clk-rk808
 clk-rpm
@@ -911,6 +904,7 @@ clk-spmi-pmic-div
 clk-sprd
 clk-twl6040
 clk-versaclock5
+clk-versaclock7
 clk-wm831x
 clk-xlnx-clock-wizard
 cls_basic
@@ -969,7 +963,6 @@ cpcap-battery
 cpcap-charger
 cpcap-pwrbutton
 cpcap-regulator
-cpia2
 cppc_cpufreq
 cpr
 cptpf
@@ -1008,6 +1001,7 @@ cros_ec_typec
 cros_ec_vbc
 cros_kbd_led_backlight
 cros_peripheral_charger
+cros_typec_switch
 cros_usbpd-charger
 cros_usbpd_logger
 cros_usbpd_notify
@@ -1145,7 +1139,6 @@ dccp_ipv6
 ddbridge
 ddbridge-dummy-fe
 de2104x
-decnet
 defxx
 delta-ahe50dc-fan
 denali
@@ -1181,9 +1174,11 @@ dispcc-qcm2290
 dispcc-sc7180
 dispcc-sc7280
 dispcc-sdm845
+dispcc-sm6115
 dispcc-sm6125
 dispcc-sm6350
 dispcc-sm8250
+dispcc-sm8450
 display-connector
 dl2k
 dlhl60d
@@ -1235,7 +1230,6 @@ dmfe
 dmi-sysfs
 dmm32at
 dmx3191d
-dn_rtmsg
 dnet
 dp83640
 dp83822
@@ -1255,8 +1249,8 @@ drbd
 drivetemp
 drm
 drm_buddy
-drm_cma_helper
 drm_display_helper
+drm_dma_helper
 drm_dp_aux_bus
 drm_kms_helper
 drm_mipi_dbi
@@ -1305,7 +1299,6 @@ dvb-as102
 dvb-bt8xx
 dvb-core
 dvb-pll
-dvb-ttpci
 dvb-ttusb-budget
 dvb-usb
 dvb-usb-a800
@@ -1358,6 +1351,7 @@ dw-hdmi-i2s-audio
 dw-i3c-master
 dw-mipi-dsi
 dw-xdata-pcie
+dw100
 dw9714
 dw9768
 dw9807-vcm
@@ -1453,8 +1447,8 @@ efibc
 efs
 egalax_ts
 egalax_ts_serial
-ehci-brcm
 ehci-fsl
+ehci-npcm7xx
 ehci-platform
 ehset
 einj
@@ -1478,6 +1472,7 @@ em_u32
 emac_rockchip
 emc1403
 emc2103
+emc2305
 emc6w201
 emi26
 emi62
@@ -1605,7 +1600,6 @@ firewire-core
 firewire-net
 firewire-ohci
 firewire-sbp2
-firewire-serial
 fit2
 fit3
 fixed
@@ -1733,6 +1727,7 @@ gcc-ipq8074
 gcc-mdm9607
 gcc-mdm9615
 gcc-msm8660
+gcc-msm8909
 gcc-msm8916
 gcc-msm8939
 gcc-msm8953
@@ -1755,6 +1750,7 @@ gcc-sdx65
 gcc-sm6115
 gcc-sm6125
 gcc-sm6350
+gcc-sm6375
 gcc-sm8150
 gcc-sm8250
 gcc-sm8350
@@ -1799,7 +1795,6 @@ gpio-74x164
 gpio-74xx-mmio
 gpio-adnp
 gpio-adp5520
-gpio-adp5588
 gpio-aggregator
 gpio-altera
 gpio-altera-a10sr
@@ -1810,7 +1805,6 @@ gpio-bd71815
 gpio-bd71828
 gpio-bd9571mwv
 gpio-beeper
-gpio-brcmstb
 gpio-cadence
 gpio-charger
 gpio-da9052
@@ -1853,7 +1847,6 @@ gpio-pci-idio-16
 gpio-pcie-idio-24
 gpio-pisosr
 gpio-pmic-eic-sprd
-gpio-raspberrypi-exp
 gpio-rcar
 gpio-rdc321x
 gpio-regmap
@@ -1882,7 +1875,6 @@ gpio-wm831x
 gpio-wm8350
 gpio-wm8994
 gpio-xgene-sb
-gpio-xgs-iproc
 gpio-xlp
 gpio-xra1403
 gpio-zynq
@@ -1898,6 +1890,7 @@ gpu-sched
 gpucc-msm8998
 gpucc-sc7180
 gpucc-sc7280
+gpucc-sc8280xp
 gpucc-sdm660
 gpucc-sdm845
 gpucc-sm6350
@@ -2004,8 +1997,6 @@ hdpvr
 he
 helene
 hellcreek_sw
-hexium_gemini
-hexium_orion
 hfcmulti
 hfcpci
 hfcsusb
@@ -2104,6 +2095,7 @@ hid-plantronics
 hid-playstation
 hid-primax
 hid-prodikeys
+hid-pxrc
 hid-razer
 hid-redragon
 hid-retrode
@@ -2148,6 +2140,7 @@ hid-sunplus
 hid-thrustmaster
 hid-tivo
 hid-tmff
+hid-topre
 hid-topseed
 hid-twinhan
 hid-u2fzero
@@ -2156,6 +2149,7 @@ hid-udraw-ps3
 hid-viewsonic
 hid-vivaldi
 hid-vivaldi-common
+hid-vrc2
 hid-waltop
 hid-wiimote
 hid-xiaomi
@@ -2178,6 +2172,7 @@ hisi_hikey_usb
 hisi_hpre
 hisi_pcie_pmu
 hisi_powerkey
+hisi_ptt
 hisi_qm
 hisi_sas_main
 hisi_sas_v1_hw
@@ -2221,6 +2216,7 @@ hpfs
 hpilo
 hpsa
 hptiop
+hpwdt
 hsi
 hsi_char
 hso
@@ -2260,9 +2256,6 @@ i2c-amd756
 i2c-amd8111
 i2c-apple
 i2c-arb-gpio-challenge
-i2c-bcm-iproc
-i2c-bcm2835
-i2c-brcmstb
 i2c-cbus-gpio
 i2c-ccgx-ucsi
 i2c-cp2615
@@ -2286,6 +2279,7 @@ i2c-imx-lpi2c
 i2c-isch
 i2c-kempld
 i2c-matroxfb
+i2c-mchp-pci1xxxx
 i2c-meson
 i2c-mlxbf
 i2c-mt65xx
@@ -2358,6 +2352,7 @@ ib_srpt
 ib_umad
 ib_uverbs
 ibm-cffps
+ibm-panel
 ibmaem
 ibmpex
 icc-bcm-voter
@@ -2367,7 +2362,6 @@ icc-rpmh
 icc-smd-rpm
 ice
 ice40-spi
-icp
 icp10100
 icp_multi
 icplus
@@ -2469,6 +2463,9 @@ imx8qxp-ldb
 imx8qxp-pixel-combiner
 imx8qxp-pixel-link
 imx8qxp-pxl2dpi
+imx93-blk-ctrl
+imx93-pd
+imx93-src
 imx_dsp_rproc
 imx_keypad
 imx_rproc
@@ -2606,7 +2603,6 @@ ipmi_ssif
 ipmi_watchdog
 ipoctal
 ipr
-iproc-rng200
 iproc_nand
 ips
 ipt_CLUSTERIP
@@ -2655,7 +2651,7 @@ ir38064
 ir_toy
 irdma
 irps5401
-irq-bcm7120-l2
+irq-imx-mu-msi
 irq-madera
 irq-pruss-intc
 irq-qcom-mpm
@@ -2728,6 +2724,10 @@ kbic
 kbtab
 kcm
 kcomedilib
+kcs_bmc
+kcs_bmc_cdev_ipmi
+kcs_bmc_npcm7xx
+kcs_bmc_serio
 ke_counter
 keembay-ocs-aes
 keembay-ocs-ecc
@@ -2816,7 +2816,6 @@ leds-adp5520
 leds-an30259a
 leds-as3645a
 leds-aw2013
-leds-bcm63138
 leds-bcm6328
 leds-bcm6358
 leds-bd2802
@@ -3048,6 +3047,7 @@ ltc4245
 ltc4260
 ltc4261
 ltr501
+ltrf216a
 ltv350qv
 lv0104cs
 lv5207lp
@@ -3132,6 +3132,7 @@ max1027
 max11100
 max1111
 max1118
+max11205
 max11801_ts
 max1241
 max127
@@ -3160,6 +3161,7 @@ max30102
 max3100
 max31722
 max31730
+max31760
 max31785
 max31790
 max31856
@@ -3244,6 +3246,8 @@ mcba_usb
 mceusb
 mchp23k256
 mchp48l640
+mchp_pci1xxxx_gp
+mchp_pci1xxxx_gpio
 mcp16502
 mcp251x
 mcp251xfd
@@ -3270,7 +3274,6 @@ mdc800
 mdev
 mdio
 mdio-bcm-unimac
-mdio-bitbang
 mdio-cavium
 mdio-gpio
 mdio-hisi-femac
@@ -3278,6 +3281,7 @@ mdio-i2c
 mdio-ipq4019
 mdio-ipq8064
 mdio-mscc-miim
+mdio-mux
 mdio-mux-gpio
 mdio-mux-meson-g12a
 mdio-mux-mmioreg
@@ -3452,6 +3456,7 @@ ms5611_spi
 ms5637
 ms_block
 ms_sensors_i2c
+msa311
 mscc
 mscc_felix
 mscc_ocelot
@@ -3476,6 +3481,8 @@ mt352
 mt6311-regulator
 mt6315-regulator
 mt6323-regulator
+mt6331-regulator
+mt6332-regulator
 mt6358-regulator
 mt6359-accdet
 mt6359-regulator
@@ -3483,6 +3490,10 @@ mt6360-adc
 mt6360-core
 mt6360-regulator
 mt6360_charger
+mt6370
+mt6370-backlight
+mt6370-charger
+mt6370-regulator
 mt6380-regulator
 mt6397
 mt6397-regulator
@@ -3555,8 +3566,10 @@ mtk-pmic-wrap
 mtk-rng
 mtk-sd
 mtk-smi
+mtk-svs
 mtk-uart-apdma
 mtk-vpu
+mtk_dp
 mtk_nand
 mtk_rpmsg
 mtk_scp
@@ -3588,7 +3601,6 @@ mwifiex_pcie
 mwifiex_sdio
 mwifiex_usb
 mwl8k
-mxb
 mxc-jpeg-encdec
 mxc4005
 mxc6255
@@ -3753,6 +3765,7 @@ nft_tproxy
 nft_tunnel
 nft_xfrm
 nftl
+ngbe
 ngene
 nhc_dest
 nhc_fragment
@@ -3838,7 +3851,6 @@ npcm-rng
 npcm750-pwm-fan
 npcm_adc
 nps_enet
-ns-thermal
 ns558
 ns83820
 nsh
@@ -3873,7 +3885,6 @@ nvme-loop
 nvme-rdma
 nvme-tcp
 nvmem-apple-efuses
-nvmem-bcm-ocotp
 nvmem-imx-iim
 nvmem-imx-ocotp
 nvmem-imx-ocotp-scu
@@ -3885,12 +3896,14 @@ nvmem-rockchip-otp
 nvmem-sc27xx-efuse
 nvmem_meson_efuse
 nvmem_meson_mx_efuse
+nvmem_mtk-efuse
 nvmem_qcom-spmi-sdam
 nvmem_qfprom
 nvmem_rockchip_efuse
 nvmem_snvs_lpgpr
 nvmem_sprd_efuse
 nvmem_sunxi_sid
+nvmem_u-boot-env
 nvmet
 nvmet-fc
 nvmet-rdma
@@ -3907,6 +3920,7 @@ nxt6000
 nzxt-kraken2
 nzxt-smart2
 objagg
+ocelot-soc
 ocfb
 ocfs2
 ocfs2_dlm
@@ -4161,9 +4175,6 @@ pci-pf-stub
 pci-stub
 pci200syn
 pcie-apple
-pcie-brcmstb
-pcie-iproc
-pcie-iproc-platform
 pcie-mediatek-gen3
 pcie-qcom-ep
 pcie-rockchip-host
@@ -4185,6 +4196,7 @@ pcmmio
 pcmuio
 pcnet32
 pcrypt
+pcs-altera-tse
 pcs-lynx
 pcs_xpcs
 pcwd_pci
@@ -4215,14 +4227,8 @@ phram
 phy-am654-serdes
 phy-armada38x-comphy
 phy-bcm-kona-usb2
-phy-bcm-ns-usb2
-phy-bcm-ns-usb3
-phy-bcm-ns2-usbdrd
-phy-bcm-sr-pcie
-phy-bcm-sr-usb
 phy-berlin-sata
 phy-berlin-usb
-phy-brcm-usb-dvr
 phy-cadence-salvo
 phy-cadence-sierra
 phy-cadence-torrent
@@ -4299,6 +4305,7 @@ phy-rockchip-inno-hdmi
 phy-rockchip-inno-usb2
 phy-rockchip-naneng-combphy
 phy-rockchip-pcie
+phy-rockchip-snps-pcie3
 phy-rockchip-typec
 phy-rockchip-usb
 phy-sun4i-usb
@@ -4316,16 +4323,12 @@ pi3usb30532
 pi433
 pim4328
 pinctrl-apple-gpio
-pinctrl-apq8064
-pinctrl-apq8084
 pinctrl-axp209
-pinctrl-bcm4908
+pinctrl-cy8c95x0
 pinctrl-da9062
 pinctrl-imx8ulp
 pinctrl-imx93
-pinctrl-ipq4019
 pinctrl-ipq6018
-pinctrl-ipq8064
 pinctrl-ipq8074
 pinctrl-keembay
 pinctrl-lochnagar
@@ -4336,19 +4339,13 @@ pinctrl-mcp23s08
 pinctrl-mcp23s08_i2c
 pinctrl-mcp23s08_spi
 pinctrl-mdm9607
-pinctrl-mdm9615
 pinctrl-meson-s4
-pinctrl-msm8226
-pinctrl-msm8660
-pinctrl-msm8909
 pinctrl-msm8916
 pinctrl-msm8953
-pinctrl-msm8960
 pinctrl-msm8976
 pinctrl-msm8994
 pinctrl-msm8996
 pinctrl-msm8998
-pinctrl-msm8x74
 pinctrl-mt6779
 pinctrl-qcm2290
 pinctrl-qcs404
@@ -4359,10 +4356,9 @@ pinctrl-sc7280
 pinctrl-sc7280-lpass-lpi
 pinctrl-sc8180x
 pinctrl-sc8280xp
+pinctrl-sc8280xp-lpass-lpi
 pinctrl-sdm660
 pinctrl-sdm845
-pinctrl-sdx55
-pinctrl-sdx65
 pinctrl-sm6115
 pinctrl-sm6125
 pinctrl-sm6350
@@ -4372,12 +4368,14 @@ pinctrl-sm8250
 pinctrl-sm8250-lpass-lpi
 pinctrl-sm8350
 pinctrl-sm8450
+pinctrl-sm8450-lpass-lpi
 pinctrl-spmi-gpio
 pinctrl-spmi-mpp
 pinctrl-ssbi-gpio
 pinctrl-ssbi-mpp
 pinctrl-stmfx
 pinctrl-zynqmp
+pinephone-keyboard
 ping
 pistachio-internal-dac
 pixcir_i2c_ts
@@ -4451,6 +4449,7 @@ pruss
 ps2-gpio
 ps2mult
 psample
+pse_regulator
 psmouse
 psnap
 pstore_blk
@@ -4459,7 +4458,6 @@ psxpad-spi
 pt
 ptp-qoriq
 ptp_clockmatrix
-ptp_dte
 ptp_idt82p33
 ptp_ines
 ptp_kvm
@@ -4477,11 +4475,8 @@ pvrusb2
 pwc
 pwm-atmel-hlcdc
 pwm-atmel-tcb
-pwm-bcm-iproc
-pwm-bcm2835
 pwm-beeper
 pwm-berlin
-pwm-brcmstb
 pwm-clk
 pwm-cros-ec
 pwm-dwc
@@ -4501,7 +4496,6 @@ pwm-mtk-disp
 pwm-ntxec
 pwm-omap-dmtimer
 pwm-pca9685
-pwm-raspberrypi-poe
 pwm-rcar
 pwm-regulator
 pwm-renesas-tpu
@@ -4701,9 +4695,6 @@ raid6_pq
 raid_class
 rainshadow-cec
 ramoops
-raspberrypi-cpufreq
-raspberrypi-hwmon
-raspberrypi-ts
 ravb
 rave-sp
 rave-sp-backlight
@@ -4905,11 +4896,9 @@ renesas_usbhs
 renesas_wdt
 repaper
 reset-a10sr
-reset-brcmstb
 reset-hi3660
 reset-meson-audio-arb
 reset-qcom-pdc
-reset-raspberrypi
 reset-rzg2l-usbphy-ctrl
 reset-scmi
 reset-ti-sci
@@ -4935,6 +4924,7 @@ rk3399_dmc
 rk805-pwrkey
 rk808
 rk808-regulator
+rk817_charger
 rk_crypto
 rm3100-core
 rm3100-i2c
@@ -5009,6 +4999,9 @@ rt4831-regulator
 rt5033
 rt5033-regulator
 rt5033_battery
+rt5120
+rt5120-pwrkey
+rt5120-regulator
 rt5190a-regulator
 rt5759-regulator
 rt6160-regulator
@@ -5026,7 +5019,6 @@ rtc-as3722
 rtc-bd70528
 rtc-bq32k
 rtc-bq4802
-rtc-brcmstb-waketimer
 rtc-cadence
 rtc-cpcap
 rtc-cros-ec
@@ -5167,6 +5159,7 @@ rtllib_crypt_wep
 rtlwifi
 rtmv20-regulator
 rtq2134-regulator
+rtq6056
 rtq6752-regulator
 rtrs-client
 rtrs-core
@@ -5243,8 +5236,6 @@ saa7134-alsa
 saa7134-dvb
 saa7134-empress
 saa7134-go7007
-saa7146
-saa7146_vv
 saa7164
 saa717x
 saa7185
@@ -5356,14 +5347,11 @@ sctp_diag
 sd_adc_modulator
 sdhci
 sdhci-acpi
-sdhci-brcmstb
 sdhci-cadence
 sdhci-esdhc-imx
-sdhci-iproc
 sdhci-milbeaut
 sdhci-msm
 sdhci-of-arasan
-sdhci-of-aspeed
 sdhci-of-at91
 sdhci-of-dwcmshc
 sdhci-of-esdhc
@@ -5524,7 +5512,6 @@ snd-au8830
 snd-aw2
 snd-azt3328
 snd-bcd2000
-snd-bcm2835
 snd-bebob
 snd-bt87x
 snd-ca0106
@@ -5670,6 +5657,7 @@ snd-soc-ak5386
 snd-soc-ak5558
 snd-soc-alc5623
 snd-soc-alc5632
+snd-soc-apple-mca
 snd-soc-apq8016-sbc
 snd-soc-apq8096
 snd-soc-armada-370-db
@@ -5677,7 +5665,6 @@ snd-soc-audio-graph-card
 snd-soc-audio-graph-card2
 snd-soc-audio-graph-card2-custom-sample
 snd-soc-aw8738
-snd-soc-bcm2835-i2s
 snd-soc-bd28623
 snd-soc-bt-sco
 snd-soc-core
@@ -5703,11 +5690,13 @@ snd-soc-cs4271
 snd-soc-cs4271-i2c
 snd-soc-cs4271-spi
 snd-soc-cs42l42
+snd-soc-cs42l42-i2c
 snd-soc-cs42l51
 snd-soc-cs42l51-i2c
 snd-soc-cs42l52
 snd-soc-cs42l56
 snd-soc-cs42l73
+snd-soc-cs42l83-i2c
 snd-soc-cs42xx8
 snd-soc-cs42xx8-i2c
 snd-soc-cs43130
@@ -5722,6 +5711,7 @@ snd-soc-dmic
 snd-soc-es7134
 snd-soc-es7241
 snd-soc-es8316
+snd-soc-es8326
 snd-soc-es8328
 snd-soc-es8328-i2c
 snd-soc-es8328-spi
@@ -5881,6 +5871,7 @@ snd-soc-rt9120
 snd-soc-rz-ssi
 snd-soc-sc7180
 snd-soc-sc7280
+snd-soc-sc8280xp
 snd-soc-sdm845
 snd-soc-sdw-mockup
 snd-soc-sgtl5000
@@ -5896,6 +5887,8 @@ snd-soc-sm8250
 snd-soc-spdif-rx
 snd-soc-spdif-tx
 snd-soc-sprd-platform
+snd-soc-src4xxx
+snd-soc-src4xxx-i2c
 snd-soc-ssm2305
 snd-soc-ssm2518
 snd-soc-ssm2602
@@ -6008,6 +6001,7 @@ snd-soc-zl38060
 snd-sof
 snd-sof-imx8
 snd-sof-imx8m
+snd-sof-imx8ulp
 snd-sof-mt8186
 snd-sof-mt8195
 snd-sof-of
@@ -6057,7 +6051,6 @@ soundwire-intel
 soundwire-qcom
 sp2
 sp805_wdt
-sp8870
 sp887x
 spaceball
 spaceorb
@@ -6085,12 +6078,7 @@ spi-altera-platform
 spi-amd
 spi-armada-3700
 spi-axi-spi-engine
-spi-bcm-qspi
-spi-bcm2835
-spi-bcm2835aux
-spi-bcm63xx-hsspi
 spi-bitbang
-spi-brcmstb-qspi
 spi-butterfly
 spi-cadence
 spi-cadence-quadspi
@@ -6108,12 +6096,12 @@ spi-gpio
 spi-hisi-kunpeng
 spi-hisi-sfc-v3xx
 spi-imx
-spi-iproc-qspi
 spi-lm70llp
 spi-loopback-test
 spi-meson-spicc
 spi-meson-spifc
 spi-microchip-core
+spi-microchip-core-qspi
 spi-mt65xx
 spi-mtk-nor
 spi-mtk-snfi
@@ -6157,7 +6145,6 @@ spi-zynqmp-gqspi
 spi_ks8995
 spidev
 spinand
-spl
 spmi
 spmi-mtk-pmif
 spmi-pmic-arb
@@ -6174,7 +6161,6 @@ sprd_wdt
 sps30
 sps30_i2c
 sps30_serial
-sr-thermal
 sr030pc30
 sr9700
 sr9800
@@ -6241,7 +6227,6 @@ stk1160
 stk3310
 stk8312
 stk8ba50
-stkwebcam
 stm_console
 stm_core
 stm_ftrace
@@ -6280,17 +6265,15 @@ stv0910
 stv6110
 stv6110x
 stv6111
-sun4i-backend
 sun4i-csi
 sun4i-drm
-sun4i-drm-hdmi
-sun4i-frontend
 sun4i-gpadc
 sun4i-ss
 sun4i-tcon
 sun4i_tv
 sun50i-codec-analog
 sun50i-cpufreq-nvmem
+sun50i-dmic
 sun6i-csi
 sun6i-dma
 sun6i-mipi-csi2
@@ -6430,6 +6413,7 @@ tcp_yeah
 tcpci
 tcpci_maxim
 tcpci_mt6360
+tcpci_mt6370
 tcpci_rt1711h
 tcpm
 tcrypt
@@ -6472,7 +6456,6 @@ team_mode_loadbalance
 team_mode_random
 team_mode_roundrobin
 tee
-tee_bnxt_fw
 tef6862
 tegra-aconnect
 tegra-bpmp-thermal
@@ -6531,6 +6514,7 @@ ti-dac5571
 ti-dac7311
 ti-dac7612
 ti-dlpc3433
+ti-ecap-capture
 ti-j721e-ufs
 ti-lmu
 ti-sn65dsi83
@@ -6557,9 +6541,6 @@ tlan
 tls
 tlv320aic23b
 tm2-touchkey
-tm6000
-tm6000-alsa
-tm6000-dvb
 tmdc
 tmio_mmc_core
 tmp006
@@ -6596,6 +6577,7 @@ tps23861
 tps40422
 tps51632-regulator
 tps53679
+tps546d24
 tps6105x
 tps6105x-regulator
 tps62360-regulator
@@ -6706,7 +6688,6 @@ uas
 ubi
 ubifs
 ublk_drv
-ubuntu-host
 ucan
 ucb1400_core
 ucb1400_ts
@@ -6765,6 +6746,7 @@ ums-realtek
 ums-sddr09
 ums-sddr55
 ums-usbat
+ums512-clk
 unix_diag
 upd64031a
 upd64083
@@ -6829,7 +6811,6 @@ ushc
 uss720
 uvcvideo
 uvesafb
-v3d
 v4l2-async
 v4l2-dv-timings
 v4l2-flash-led-class
@@ -6839,9 +6820,7 @@ v4l2-jpeg
 v4l2-mem2mem
 v4l2-tpg
 v4l2-vp9
-vc4
 vcan
-vchiq
 vcnl3020
 vcnl4000
 vcnl4035
@@ -6875,7 +6854,6 @@ vfio-platform-amdxgbe
 vfio-platform-base
 vfio-platform-calxedaxgmac
 vfio_iommu_type1
-vfio_platform_bcmflexrm
 vfio_virqfd
 vgastate
 vgem
@@ -7233,15 +7211,12 @@ yenta_socket
 yurex
 z3fold
 zaurus
-zavl
-zcommon
 zd1201
 zd1211rw
 zd1301
 zd1301_demod
 zet6223
 zforce_ts
-zfs
 zhenhua
 ziirave_wdt
 zinitix
@@ -7249,21 +7224,16 @@ zl10036
 zl10039
 zl10353
 zl6100
-zlua
-znvpair
 zonefs
 zopt2201
 zpa2326
 zpa2326_i2c
 zpa2326_spi
-zr364xx
 zram
 zstd
 zstd_compress
-zunicode
 zynqmp-aes-gcm
 zynqmp-dpsub
 zynqmp-fpga
 zynqmp-sha
 zynqmp_dma
-zzstd
