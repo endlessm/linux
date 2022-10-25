@@ -55,12 +55,21 @@ union aa_buffer {
 	DECLARE_FLEX_ARRAY(char, buffer);
 };
 
+struct aa_local_cache {
+	unsigned int contention;
+	unsigned int hold;
+	unsigned int count;
+	struct list_head head;
+};
+
+#define MAX_LOCAL_COUNT 2
 #define RESERVE_COUNT 2
 static int reserve_count = RESERVE_COUNT;
 static int buffer_count;
 
 static LIST_HEAD(aa_global_buffers);
 static DEFINE_SPINLOCK(aa_buffers_lock);
+static DEFINE_PER_CPU(struct aa_local_cache, aa_local_buffers);
 
 struct kmem_cache *aa_audit_slab;
 
@@ -2029,14 +2038,45 @@ static int param_set_mode(const char *val, const struct kernel_param *kp)
 	return 0;
 }
 
+static void update_contention(struct aa_local_cache *cache)
+{
+	cache->contention += 3;
+	if (cache->contention > 9)
+		cache->contention = 9;
+	cache->hold += 1 << cache->contention;		/* 8, 64, 512 */
+}
+
 char *aa_get_buffer(bool in_atomic)
 {
 	union aa_buffer *aa_buf;
+	struct aa_local_cache *cache;
 	bool try_again = true;
 	gfp_t flags = (GFP_KERNEL | __GFP_RETRY_MAYFAIL | __GFP_NOWARN);
 
+	/* use per cpu cached buffers first */
+	cache = get_cpu_ptr(&aa_local_buffers);
+	if (!list_empty(&cache->head)) {
+		aa_buf = list_first_entry(&cache->head, union aa_buffer, list);
+		list_del(&aa_buf->list);
+		cache->hold--;
+		cache->count--;
+		put_cpu_ptr(&aa_local_buffers);
+		return &aa_buf->buffer[0];
+	}
+	put_cpu_ptr(&aa_local_buffers);
+
+	if (!spin_trylock(&aa_buffers_lock)) {
+		cache = get_cpu_ptr(&aa_local_buffers);
+		update_contention(cache);
+		put_cpu_ptr(&aa_local_buffers);
+		spin_lock(&aa_buffers_lock);
+	} else {
+		cache = get_cpu_ptr(&aa_local_buffers);
+		if (cache->contention)
+			cache->contention--;
+		put_cpu_ptr(&aa_local_buffers);
+	}
 retry:
-	spin_lock(&aa_buffers_lock);
 	if (buffer_count > reserve_count ||
 	    (in_atomic && !list_empty(&aa_global_buffers))) {
 		aa_buf = list_first_entry(&aa_global_buffers, union aa_buffer,
@@ -2062,6 +2102,7 @@ retry:
 	if (!aa_buf) {
 		if (try_again) {
 			try_again = false;
+			spin_lock(&aa_buffers_lock);
 			goto retry;
 		}
 		pr_warn_once("AppArmor: Failed to allocate a memory buffer.\n");
@@ -2073,15 +2114,42 @@ retry:
 void aa_put_buffer(char *buf)
 {
 	union aa_buffer *aa_buf;
+	struct aa_local_cache *cache;
 
 	if (!buf)
 		return;
 	aa_buf = container_of(buf, union aa_buffer, buffer[0]);
 
-	spin_lock(&aa_buffers_lock);
-	list_add(&aa_buf->list, &aa_global_buffers);
-	buffer_count++;
-	spin_unlock(&aa_buffers_lock);
+	cache = get_cpu_ptr(&aa_local_buffers);
+	if (!cache->hold) {
+		bool must_lock = cache->count >= MAX_LOCAL_COUNT;
+
+		put_cpu_ptr(&aa_local_buffers);
+
+		if (must_lock) {
+			spin_lock(&aa_buffers_lock);
+			goto locked;
+		} else if (spin_trylock(&aa_buffers_lock)) {
+		locked:
+			/* put back on global list */
+			list_add(&aa_buf->list, &aa_global_buffers);
+			buffer_count++;
+			spin_unlock(&aa_buffers_lock);
+			cache = get_cpu_ptr(&aa_local_buffers);
+			if (cache->contention)
+				cache->contention--;
+			put_cpu_ptr(&aa_local_buffers);
+			return;
+		}
+		/* contention on global list, fallback to percpu */
+		cache = get_cpu_ptr(&aa_local_buffers);
+		update_contention(cache);
+	}
+
+	/* cache in percpu list */
+	list_add(&aa_buf->list, &cache->head);
+	cache->count++;
+	put_cpu_ptr(&aa_local_buffers);
 }
 
 /*
@@ -2123,6 +2191,16 @@ static int __init alloc_buffers(void)
 	union aa_buffer *aa_buf;
 	int i, num;
 
+	/*
+	 * per cpu set of cached allocated buffers used to help reduce
+	 * lock contention
+	 */
+	for_each_possible_cpu(i) {
+		per_cpu(aa_local_buffers, i).contention = 0;
+		per_cpu(aa_local_buffers, i).hold = 0;
+		per_cpu(aa_local_buffers, i).count = 0;
+		INIT_LIST_HEAD(&per_cpu(aa_local_buffers, i).head);
+	}
 	/*
 	 * A function may require two buffers at once. Usually the buffers are
 	 * used for a short period of time and are shared. On UP kernel buffers
