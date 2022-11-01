@@ -13581,6 +13581,7 @@ CONFIG_MARCH_ZEC12                              policy<{'s390x': 'n'}>
 CONFIG_MARCH_Z13                                policy<{'s390x': 'y'}>
 CONFIG_MARCH_Z14                                policy<{'s390x': 'n'}>
 CONFIG_MARCH_Z15                                policy<{'s390x': 'n'}>
+CONFIG_MARCH_Z16                                policy<{'s390x': 'n'}>
 
 # Menu: Processor type and features >> Support for extended (non-PC) x86 platforms >> Architecture: x86
 CONFIG_X86_NUMACHIP                             policy<{'amd64': 'y'}>
@@ -13650,7 +13651,9 @@ CONFIG_TUNE_Z196                                policy<{'s390x': 'n'}>
 CONFIG_TUNE_ZEC12                               policy<{'s390x': 'n'}>
 CONFIG_TUNE_Z13                                 policy<{'s390x': 'n'}>
 CONFIG_TUNE_Z14                                 policy<{'s390x': 'n'}>
-CONFIG_TUNE_Z15                                 policy<{'s390x': 'y'}>
+CONFIG_TUNE_Z15                                 policy<{'s390x': 'n'}>
+CONFIG_TUNE_Z16                                 policy<{'s390x': 'y'}>
+CONFIG_TUNE_Z16                                 note<LP: #1982833 in general, always pick the newest tune available>
 
 # Menu: Processor type and features >> Virtual address space size >> Architecture: arm64
 CONFIG_ARM64_VA_BITS_39                         policy<{'arm64-generic': 'n'}>
