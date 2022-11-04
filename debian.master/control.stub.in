@@ -102,6 +102,7 @@ Architecture: all
 Multi-Arch: foreign
 Section: kernel
 Priority: optional
+Provides: bpftool
 Depends: ${misc:Depends}, lsb-release
 Description: Linux kernel version specific tools for version PKGVER
  This package provides the architecture independent parts for kernel
