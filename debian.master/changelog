@@ -1,4 +1,4 @@
-linux-unstable (6.1.0-4.4) kinetic; urgency=medium
+linux-unstable (6.1.0-4.4) lunar; urgency=medium
 
   * kinetic/linux-unstable: 6.1.0-4.4 -proposed tracker (LP: #1995500)
 
