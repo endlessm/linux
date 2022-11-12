@@ -2,9 +2,6 @@
 
 . debian/debian.env
 
-# Script to merge all configs and run 'make syncconfig' on it to wade out bad juju.
-# Then split the configs into distro-commmon and flavour-specific parts
-
 # We have to be in the top level kernel source directory
 if [ ! -f MAINTAINERS ] || [ ! -f Makefile ]; then
 	echo "This does not appear to be the kernel source directory." 1>&2
@@ -36,7 +33,6 @@ variant="$2"
 . $DEBIAN/etc/kernelconfig
 
 bindir="`pwd`/${DROOT}/scripts/misc"
-common_conf="$confdir/config.common.ubuntu"
 tmpdir=`mktemp -d`
 mkdir "$tmpdir/CONFIGS"
 
@@ -48,7 +44,19 @@ fi
 
 warning_partial=
 
-for arch in $archs; do
+# Use annotations to generate configs
+ARCHES=$(sed -ne 's/^# ARCH: \(.*\)/\1/p' < ${confdir}/annotations)
+FLAVOURS=$(sed -ne 's/^# FLAVOUR: \(.*\)/\1/p' < ${confdir}/annotations)
+
+for flavour in ${FLAVOURS}; do
+	arch=$(echo $flavour    | sed 's/\([^-]*\)-\(.*\)/\1/')
+	flavour=$(echo $flavour | sed 's/\([^-]*\)-\(.*\)/\2/')
+
+	# Generate .config from annotations
+	fullconf="$tmpdir/$arch-$flavour-full"
+	python3 ${bindir}/annotations -f ${confdir}/annotations --arch $arch --flavour $flavour --export > $fullconf
+
+	# Update .config via kconfig
 	rm -rf build
 	mkdir build
 
@@ -84,118 +92,64 @@ for arch in $archs; do
 		warning_partial="$warning_partial $arch"
 	fi
 
-	archconfdir=$confdir/$arch
-	flavourconfigs=$(cd $archconfdir && ls config.flavour.*)
+	cat "$fullconf" > build/.config
 
-	# Merge configs
-	# We merge config.common.ubuntu + config.common.<arch> +
-	# config.flavour.<flavour>
-
-	for config in $flavourconfigs; do
-		fullconf="$tmpdir/$arch-$config-full"
-		case $config in
-		*)
-			: >"$fullconf"
-			if [ -f $common_conf ]; then
-				cat $common_conf >> "$fullconf"
-			fi
-			if [ -f $archconfdir/config.common.$arch ]; then
-				cat $archconfdir/config.common.$arch >> "$fullconf"
-			fi
-			cat "$archconfdir/$config" >>"$fullconf"
-			if [ -f $confdir/OVERRIDES ]; then
-				cat $confdir/OVERRIDES >> "$fullconf"
-			fi
-			;;
-		esac
-	done
-
-	for config in $flavourconfigs; do
-		if [ -f $archconfdir/$config ]; then
-			fullconf="$tmpdir/$arch-$config-full"
-			cat "$fullconf" > build/.config
-			# Call oldconfig or menuconfig
-			if [ "$modify_config" ]; then
-				case "$mode" in
-				    editconfigs)
-					# Interactively edit config parameters
-					while : ; do
-						echo -n "Do you want to edit config: $arch/$config? [Y/n] "
-						read choice
-						case "$choice" in
-						y* | Y* | "" )
-							make O=`pwd`/build $conc_level $env menuconfig
-							break ;;
-						n* | N* )
-							# 'syncconfig' prevents
-							# errors for '-' options set
-							# in common config fragments
-							make O=`pwd`/build $conc_level $env syncconfig
-							break ;;
-						*)
-							echo "Entry not valid"
-						esac
-					done
-					;;
-				    *)
-					echo "* Run $mode (yes=$yes) on $arch/$config ..."
-					if [ "$yes" -eq 1 ]; then
-						yes "" | make O=`pwd`/build $conc_level $env "$mode"
-					else
-						make O=`pwd`/build $conc_level $env "$mode"
-					fi ;;
+	# Call oldconfig or menuconfig
+	if [ "$modify_config" ]; then
+		case "$mode" in
+		    editconfigs)
+			# Interactively edit config parameters
+			while : ; do
+				echo -n "Do you want to edit config: $arch/$flavour? [Y/n] "
+				read choice
+				case "$choice" in
+				y* | Y* | "" )
+					make O=`pwd`/build $conc_level $env menuconfig
+					break ;;
+				n* | N* )
+					# 'syncconfig' prevents
+					# errors for '-' options set
+					# in common config fragments
+					make O=`pwd`/build $conc_level $env syncconfig
+					break ;;
+				*)
+					echo "Entry not valid"
 				esac
-			fi
-			cat build/.config > $archconfdir/$config
-			[ "$modify_config" ] && cat build/.config >"$tmpdir/CONFIGS/$arch-$config"
-			if [ "$keep" = "1" ]; then
-				cat build/.config > CONFIGS/$arch-$config
-			fi
-		else
-			echo "!! Config not found $archconfdir/$config..."
-		fi
-	done
+			done
+			;;
+		    *)
+			echo "* Run $mode (yes=$yes) on $arch/$flavour ..."
+			if [ "$yes" -eq 1 ]; then
+				yes "" | make O=`pwd`/build $conc_level $env "$mode"
+			else
+				make O=`pwd`/build $conc_level $env "$mode"
+			fi ;;
+		esac
+	fi
+	conf_file=${arch}-config.flavour.${flavour}
+	if [ "$modify_config" ]; then
+		# Import all changes back to annotations
+		python3 ${bindir}/annotations -f ${confdir}/annotations --arch ${arch} --flavour ${flavour} --import build/.config
 
-	echo "Running splitconfig.pl for $arch"
-	echo
-
-	# Can we make this more robust by avoiding $tmpdir completely?
-	# This approach was used for now because I didn't want to change
-	# splitconfig.pl
-	(cd $archconfdir; $bindir/splitconfig.pl config.flavour.*; mv config.common \
-	 config.common.$arch; cp config.common.$arch $tmpdir)
+		# Export config for config-check
+		cat build/.config >"$tmpdir/CONFIGS/$conf_file"
+	fi
+	if [ "$keep" = "1" ]; then
+		cat build/.config > CONFIGS/$conf_file
+	fi
 done
-
-rm -f $common_conf
-
-# Now run splitconfig.pl on all the config.common.<arch> copied to
-# $tmpdir
-(cd $tmpdir; $bindir/splitconfig.pl *)
-(
-	cd $confdir;
-	rm -f *-full
-	grep -v 'is UNMERGABLE' <$tmpdir/config.common >$common_conf
-	for arch in $archs; do
-		grep -v 'is UNMERGABLE' <$tmpdir/config.common.$arch \
-			>$arch/config.common.$arch
-	done
-)
 
 echo ""
 echo "Running config-check for all configurations ..."
 echo ""
 fail=0
-for arch in $archs; do
-	archconfdir=$confdir/$arch
-	flavourconfigs=$(cd $archconfdir && ls config.flavour.*)
-	for config in $flavourconfigs; do
-		flavour="${config##*.}"
-		if [ -f $archconfdir/$config ]; then
-			fullconf="$tmpdir/CONFIGS/$arch-$config"
-			[ ! -f "$fullconf" ] && continue
-			"$bindir/../config-check" "$fullconf" "$arch" "$flavour" "$confdir" "0" "$do_enforce_all" || let "fail=$fail+1"
-		fi
-	done
+for flavour in ${FLAVOURS}; do
+	arch=$(echo $flavour    | sed 's/\([^-]*\)-\(.*\)/\1/')
+	flavour=$(echo $flavour | sed 's/\([^-]*\)-\(.*\)/\2/')
+
+	echo "Running config-check for ${arch}-${flavour}"
+	conf_file=${arch}-config.flavour.${flavour}
+	"$bindir/../config-check" "$tmpdir/CONFIGS/${conf_file}" "$arch" "$flavour" "$confdir" "0" "$do_enforce_all" || let "fail=$fail+1"
 done
 
 rc=0
