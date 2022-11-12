@@ -142,14 +142,14 @@ for $config (keys %annot) {
 		my $is = '-';
 		$is = $values{$config} if (defined $values{$config});
 
-		my $value = '-';
+		my $value;
 		for my $which ("$arch-$flavour", "$arch-*", "*-$flavour", "$arch", "*") {
 			if (defined $policy->{$which}) {
 				$value = $policy->{$which};
 				last;
 			}
 		}
-		if ($is eq $value) {
+		if (!defined($value) or $is eq $value) {
 			$pass++;
 		} else {
 			print "$P: FAIL ($is != $value): $config$options\n";
