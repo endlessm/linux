@@ -149,7 +149,7 @@ for flavour in ${FLAVOURS}; do
 
 	echo "Running config-check for ${arch}-${flavour}"
 	conf_file=${arch}-config.flavour.${flavour}
-	"$bindir/../config-check" "$tmpdir/CONFIGS/${conf_file}" "$arch" "$flavour" "$confdir" "0" "$do_enforce_all" || let "fail=$fail+1"
+	python3 ${bindir}/annotations -f ${confdir}/annotations --arch ${arch} --flavour ${flavour} --check ${tmpdir}/CONFIGS/${conf_file} || let "fail=$fail+1"
 done
 
 rc=0

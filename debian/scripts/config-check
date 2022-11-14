@@ -139,19 +139,17 @@ for $config (keys %annot) {
 	if ($check) {
 		# CONFIG_VERSION_SIGNATURE is dynamically set during the build
 		next if ($config eq "CONFIG_VERSION_SIGNATURE");
-		# Allow to use a different version of gcc
-		next if ($config eq "CONFIG_CC_VERSION_TEXT");
 		my $is = '-';
 		$is = $values{$config} if (defined $values{$config});
 
-		my $value;
+		my $value = '-';
 		for my $which ("$arch-$flavour", "$arch-*", "*-$flavour", "$arch", "*") {
 			if (defined $policy->{$which}) {
 				$value = $policy->{$which};
 				last;
 			}
 		}
-		if (!defined($value) or $is eq $value) {
+		if ($is eq $value) {
 			$pass++;
 		} else {
 			print "$P: FAIL ($is != $value): $config$options\n";
