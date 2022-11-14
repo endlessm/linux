@@ -29,7 +29,12 @@ checks-%: module-check-% module-signature-check-% abi-check-% retpoline-check-%
 # Check the config against the known options list.
 config-prepare-check-%: $(stampdir)/stamp-prepare-tree-%
 	@echo Debug: $@
-	@perl -f $(DROOT)/scripts/config-check \
-		$(builddir)/build-$*/.config "$(arch)" "$*" "$(commonconfdir)" \
-		"$(skipconfig)" "$(do_enforce_all)"
+	if [ -e $(commonconfdir)/config.common.ubuntu ]; then \
+		perl -f $(DROOT)/scripts/config-check \
+			$(builddir)/build-$*/.config "$(arch)" "$*" "$(commonconfdir)" \
+			"$(skipconfig)" "$(do_enforce_all)"; \
+	else \
+		python3 $(DROOT)/scripts/misc/annotations -f $(commonconfdir)/annotations \
+			--arch $(arch) --flavour $* --check $(builddir)/build-$*/.config; \
+	fi
 
