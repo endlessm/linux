@@ -5,7 +5,8 @@ CCINCLUDE += -I../../bpf
 CCINCLUDE += -I../../../../lib
 CCINCLUDE += -I../../../../../usr/include/
 
-TEST_CUSTOM_PROGS = $(OUTPUT)/bpf/nat6to4.o
+TEST_CUSTOM_PROGS = \
+	# $(OUTPUT)/bpf/nat6to4.o # Disabled for Ubuntu selftests build
 all: $(TEST_CUSTOM_PROGS)
 
 $(OUTPUT)/%.o: %.c
