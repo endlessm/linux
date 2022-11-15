@@ -6848,7 +6848,7 @@ CONFIG_WWAN_HWSIM                               policy<{'amd64': 'm', 'arm64': '
 CONFIG_MHI_WWAN_CTRL                            policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm'}>
 CONFIG_MHI_WWAN_MBIM                            policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm'}>
 CONFIG_RPMSG_WWAN_CTRL                          policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm'}>
-CONFIG_IOSM                                     policy<{'amd64': 'm'}>
+CONFIG_IOSM                                     policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm'}>
 
 # Menu: Device Drivers >> Non-Transparent Bridge support
 CONFIG_NTB                                      policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm', 's390x': 'n'}>
