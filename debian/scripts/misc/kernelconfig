@@ -10,11 +10,10 @@ fi
 
 mode=${1:?"Usage: $0 (updateconfigs|defaultconfigs|genconfigs)"}
 yes=0
-keep=0
 case "$mode" in
     update*configs)  mode='syncconfig' ;;
     default*configs) mode='oldconfig'; yes=1 ;;
-    gen*configs)     mode='genconfigs' keep=1 ;;
+    gen*configs)     mode='genconfigs' ;;
     *) echo "$0 called with invalid mode" 1>&2
        exit 1 ;;
 esac
@@ -104,28 +103,27 @@ echo ""
 echo "Running config-check for all configurations ..."
 echo ""
 fail=0
+log_file=CONFIGS/config-check.log
+truncate -s0 ${log_file}
 for flavour in ${FLAVOURS}; do
 	arch=$(echo $flavour    | sed 's/\([^-]*\)-\(.*\)/\1/')
 	flavour=$(echo $flavour | sed 's/\([^-]*\)-\(.*\)/\2/')
 	conf_file=${arch}-config.flavour.${flavour}
 
 	echo "Running config-check for ${arch}-${flavour}"
-	python3 ${bindir}/annotations -f ${confdir}/annotations --arch ${arch} --flavour ${flavour} --check CONFIGS/${conf_file} || let "fail=$fail+1"
+	(python3 ${bindir}/annotations -f ${confdir}/annotations --arch ${arch} --flavour ${flavour} --check CONFIGS/${conf_file} | tee -a ${log_file}) ||
+		let "fail=$fail+1"
 done
 
 rc=0
 if [ "$fail" != 0 ]; then
 	rc=1
-	keep=1
 	echo ""
 	echo "*** ERROR: $fail config-check failures detected"
 	echo ""
 fi
 
 rm -rf build
-if [ "$keep" == 0 ]; then
-	rm -rf CONFIGS
-fi
 
 if [ "$warning_partial" ]; then
 	rc=1
