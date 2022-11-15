@@ -8,15 +8,13 @@ if [ ! -f MAINTAINERS ] || [ ! -f Makefile ]; then
 	exit 1
 fi
 
-mode=${1:?"Usage: $0 (oldconfig|editconfig) [do_enforce_all]"}
-do_enforce_all=${2:-0}
+mode=${1:?"Usage: $0 (updateconfigs|defaultconfigs|genconfigs)"}
 yes=0
+keep=0
 case "$mode" in
     update*configs)  mode='syncconfig' ;;
     default*configs) mode='oldconfig'; yes=1 ;;
-    edit*configs)    ;; # All is good
-    gen*configs)     mode='genconfigs' ;; # All is good
-    dump*configs)    mode='config'; yes=1 ;;
+    gen*configs)     mode='genconfigs' keep=1 ;;
     *) echo "$0 called with invalid mode" 1>&2
        exit 1 ;;
 esac
@@ -33,13 +31,10 @@ variant="$2"
 . $DEBIAN/etc/kernelconfig
 
 bindir="`pwd`/${DROOT}/scripts/misc"
-tmpdir=`mktemp -d`
-mkdir "$tmpdir/CONFIGS"
+test -d CONFIGS || mkdir CONFIGS
 
 if [ "$mode" = "genconfigs" ]; then
-	keep=1
 	mode="oldconfig"
-	test -d CONFIGS || mkdir CONFIGS
 fi
 
 warning_partial=
@@ -51,14 +46,13 @@ FLAVOURS=$(sed -ne 's/^# FLAVOUR: \(.*\)/\1/p' < ${confdir}/annotations)
 for flavour in ${FLAVOURS}; do
 	arch=$(echo $flavour    | sed 's/\([^-]*\)-\(.*\)/\1/')
 	flavour=$(echo $flavour | sed 's/\([^-]*\)-\(.*\)/\2/')
+	conf_file=${arch}-config.flavour.${flavour}
 
-	# Generate .config from annotations
-	fullconf="$tmpdir/$arch-$flavour-full"
-	python3 ${bindir}/annotations -f ${confdir}/annotations --arch $arch --flavour $flavour --export > $fullconf
-
-	# Update .config via kconfig
 	rm -rf build
 	mkdir build
+
+	# Generate .config from annotations
+	python3 ${bindir}/annotations -f ${confdir}/annotations --arch $arch --flavour $flavour --export > build/.config
 
 	# Map debian archs to kernel archs
 	case "$arch" in
@@ -92,51 +86,18 @@ for flavour in ${FLAVOURS}; do
 		warning_partial="$warning_partial $arch"
 	fi
 
-	cat "$fullconf" > build/.config
-
-	# Call oldconfig or menuconfig
+	# Call oldconfig or syncconfig
 	if [ "$modify_config" ]; then
-		case "$mode" in
-		    editconfigs)
-			# Interactively edit config parameters
-			while : ; do
-				echo -n "Do you want to edit config: $arch/$flavour? [Y/n] "
-				read choice
-				case "$choice" in
-				y* | Y* | "" )
-					make O=`pwd`/build $conc_level $env menuconfig
-					break ;;
-				n* | N* )
-					# 'syncconfig' prevents
-					# errors for '-' options set
-					# in common config fragments
-					make O=`pwd`/build $conc_level $env syncconfig
-					break ;;
-				*)
-					echo "Entry not valid"
-				esac
-			done
-			;;
-		    *)
-			echo "* Run $mode (yes=$yes) on $arch/$flavour ..."
-			if [ "$yes" -eq 1 ]; then
-				yes "" | make O=`pwd`/build $conc_level $env "$mode"
-			else
-				make O=`pwd`/build $conc_level $env "$mode"
-			fi ;;
-		esac
+		echo "* Run $mode (yes=$yes) on $arch/$flavour ..."
+		if [ "$yes" -eq 1 ]; then
+			yes "" | make O=`pwd`/build $conc_level $env "$mode"
+		else
+			make O=`pwd`/build $conc_level $env "$mode"
+		fi
 	fi
-	conf_file=${arch}-config.flavour.${flavour}
-	if [ "$modify_config" ]; then
-		# Import all changes back to annotations
-		python3 ${bindir}/annotations -f ${confdir}/annotations --arch ${arch} --flavour ${flavour} --import build/.config
 
-		# Export config for config-check
-		cat build/.config >"$tmpdir/CONFIGS/$conf_file"
-	fi
-	if [ "$keep" = "1" ]; then
-		cat build/.config > CONFIGS/$conf_file
-	fi
+	# Export config for config-check (or genconfigs)
+	cat build/.config > CONFIGS/${conf_file}
 done
 
 echo ""
@@ -146,21 +107,25 @@ fail=0
 for flavour in ${FLAVOURS}; do
 	arch=$(echo $flavour    | sed 's/\([^-]*\)-\(.*\)/\1/')
 	flavour=$(echo $flavour | sed 's/\([^-]*\)-\(.*\)/\2/')
+	conf_file=${arch}-config.flavour.${flavour}
 
 	echo "Running config-check for ${arch}-${flavour}"
-	conf_file=${arch}-config.flavour.${flavour}
-	python3 ${bindir}/annotations -f ${confdir}/annotations --arch ${arch} --flavour ${flavour} --check ${tmpdir}/CONFIGS/${conf_file} || let "fail=$fail+1"
+	python3 ${bindir}/annotations -f ${confdir}/annotations --arch ${arch} --flavour ${flavour} --check CONFIGS/${conf_file} || let "fail=$fail+1"
 done
 
 rc=0
 if [ "$fail" != 0 ]; then
 	rc=1
+	keep=1
 	echo ""
 	echo "*** ERROR: $fail config-check failures detected"
 	echo ""
 fi
 
 rm -rf build
+if [ "$keep" == 0 ]; then
+	rm -rf CONFIGS
+fi
 
 if [ "$warning_partial" ]; then
 	rc=1
