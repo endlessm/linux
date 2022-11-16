@@ -8,13 +8,15 @@ if [ ! -f MAINTAINERS ] || [ ! -f Makefile ]; then
 	exit 1
 fi
 
-mode=${1:?"Usage: $0 (updateconfigs|defaultconfigs|genconfigs|listnewconfigs)"}
+mode=${1:?"Usage: $0 (updateconfigs|defaultconfigs|genconfigs|listnewconfigs|importconfigs)"}
 yes=0
+import=0
 case "$mode" in
     update*configs)  mode='syncconfig' ;;
     default*configs) mode='oldconfig'; yes=1 ;;
     gen*configs)     mode='genconfigs' ;;
     listnew*configs)     mode='listnewconfig' ;;
+    import*configs)     mode='syncconfig' import=1 ;;
     *) echo "$0 called with invalid mode" 1>&2
        exit 1 ;;
 esac
@@ -51,8 +53,13 @@ for flavour in ${FLAVOURS}; do
 	rm -rf build
 	mkdir build
 
-	# Generate .config from annotations
-	python3 ${bindir}/annotations -f ${confdir}/annotations --arch $arch --flavour $flavour --export > build/.config
+	# Generate .config from annotations (if a previosly generate config is
+	# available use that).
+	if [ -e "CONFIGS/${conf_file}" ]; then
+		cat CONFIGS/${conf_file} > build/.config
+	else
+		python3 ${bindir}/annotations -f ${confdir}/annotations --arch ${arch} --flavour ${flavour} --export > build/.config
+	fi
 
 	# Map debian archs to kernel archs
 	case "$arch" in
@@ -96,6 +103,11 @@ for flavour in ${FLAVOURS}; do
 		else
 			make O=`pwd`/build $conc_level $env "$mode"
 		fi
+	fi
+
+	# Automatically import configs back into annotations
+	if [ "$import" -eq 1 ]; then
+		python3 ${bindir}/annotations -f ${confdir}/annotations --arch ${arch} --flavour ${flavour} --import build/.config
 	fi
 
 	# Export config for config-check (or genconfigs)
