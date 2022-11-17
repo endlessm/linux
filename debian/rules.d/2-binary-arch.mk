@@ -541,6 +541,8 @@ endif
 		install -m644 $(abidir)/$*.fwinfo.builtin \
 			$(pkgdir_bldinfo)/usr/lib/linux/$(abi_release)-$*/fwinfo.builtin; \
 	fi
+	install -m644 $(DROOT)/canonical-certs.pem $(pkgdir_bldinfo)/usr/lib/linux/$(abi_release)-$*/canonical-certs.pem
+	install -m644 $(DROOT)/canonical-revoked-certs.pem $(pkgdir_bldinfo)/usr/lib/linux/$(abi_release)-$*/canonical-revoked-certs.pem
 
 ifneq ($(full_build),false)
 	# Clean out this flavours build directory.
