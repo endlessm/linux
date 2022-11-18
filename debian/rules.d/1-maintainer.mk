@@ -45,7 +45,11 @@ printdebian:
 
 updateconfigs defaultconfigs genconfigs listnewconfigs importconfigs:
 	dh_testdir;
-	conc_level=$(conc_level) $(SHELL) $(DROOT)/scripts/misc/kernelconfig $@
+	if [ -e "$(DEBIAN)/config/config.common.ubuntu" ]; then \
+		conc_level=$(conc_level) $(SHELL) $(DROOT)/scripts/misc/old-kernelconfig $@; \
+	else \
+		conc_level=$(conc_level) $(SHELL) $(DROOT)/scripts/misc/kernelconfig $@; \
+	fi;
 	rm -rf build
 
 printenv:
