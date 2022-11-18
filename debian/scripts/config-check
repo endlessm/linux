@@ -58,7 +58,7 @@ sub read_annotations {
 	die "$P: $filename: open failed -- $! -- aborting\n";
     while (<$fd>) {
 	if (/^# FORMAT: (\S+)/) {
-	    die "$P: $1: unknown annotations format\n" if ($1 != 2 && $1 != 3);
+	    die "$P: $1: unknown annotations format\n" if ($1 != 2 && $1 != 3 && $1 != 4);
 	    $form = $1;
 	}
 
