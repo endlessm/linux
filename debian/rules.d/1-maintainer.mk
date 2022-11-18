@@ -1,7 +1,7 @@
 # The following targets are for the maintainer only! do not run if you don't
 # know what they do.
 
-.PHONY: printenv updateconfigs defaultconfigs genconfigs listnewconfigs importconfigs printchanges insertchanges startnewrelease diffupstream help autoreconstruct finalchecks
+.PHONY: printenv updateconfigs defaultconfigs genconfigs listnewconfigs importconfigs migrateconfigs printchanges insertchanges startnewrelease diffupstream help autoreconstruct finalchecks
 
 help:
 	@echo "These are the targets in addition to the normal $(DEBIAN) ones:"
@@ -17,6 +17,8 @@ help:
 	@echo "  listnewconfigs       : Generate new core arch configs in CONFIGS/new-*"
 	@echo
 	@echo "  importconfigs        : Automatically import new core arch configs into annotations"
+	@echo
+	@echo "  migrateconfigs       : Automatically import old configs into annotations"
 	@echo
 	@echo "  printchanges    : Print the current changelog entries (from git)"
 	@echo
@@ -42,6 +44,21 @@ help:
 
 printdebian:
 	@echo "$(DEBIAN)"
+
+migrateconfigs:
+	dh_testdir;
+	if [ -e "$(DEBIAN)/config/config.common.ubuntu" ]; then \
+		conc_level=$(conc_level) $(SHELL) $(DROOT)/scripts/misc/old-kernelconfig genconfigs; \
+		mkdir build; \
+		mv $(DEBIAN)/config/annotations build/.annotations ; \
+		mv $(DEBIAN)/config/README.rst build/.README.rst; \
+		rm -rf $(DEBIAN)/config; \
+		mkdir -p $(DEBIAN)/config; \
+		debian/scripts/misc/migrate-annotations < build/.annotations > $(DEBIAN)/config/annotations; \
+		mv build/.README.rst $(DEBIAN)/config/README.rst; \
+		conc_level=$(conc_level) $(SHELL) $(DROOT)/scripts/misc/kernelconfig importconfigs; \
+	fi
+	rm -rf build
 
 updateconfigs defaultconfigs genconfigs listnewconfigs importconfigs:
 	dh_testdir;
