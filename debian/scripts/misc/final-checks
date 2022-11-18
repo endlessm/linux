@@ -55,15 +55,17 @@ then
 	failure "$abi_version ABI version mismatch ($abi != $version)"
 fi
 
-if [ -d debian/certs ]; then
-    if ! grep -q '^CONFIG_SYSTEM_TRUSTED_KEYS="debian/canonical-certs.pem"$' $debian/config/config.common.ubuntu; then
-        failure "'CONFIG_SYSTEM_TRUSTED_KEYS="debian/canonical-certs.pem"' is required"
+if [ -e $debian/config/config.common.ubuntu ]; then
+    if [ -d debian/certs ]; then
+        if ! grep -q '^CONFIG_SYSTEM_TRUSTED_KEYS="debian/canonical-certs.pem"$' $debian/config/config.common.ubuntu; then
+            failure "'CONFIG_SYSTEM_TRUSTED_KEYS="debian/canonical-certs.pem"' is required"
+        fi
     fi
-fi
 
-if [ -d debian/revoked-certs ]; then
-    if ! grep -q '^CONFIG_SYSTEM_REVOCATION_KEYS="debian/canonical-revoked-certs.pem"$' $debian/config/config.common.ubuntu; then
-        failure "'CONFIG_SYSTEM_REVOCATION_KEYS="debian/canonical-revoked-certs.pem"' is required"
+    if [ -d debian/revoked-certs ]; then
+        if ! grep -q '^CONFIG_SYSTEM_REVOCATION_KEYS="debian/canonical-revoked-certs.pem"$' $debian/config/config.common.ubuntu; then
+            failure "'CONFIG_SYSTEM_REVOCATION_KEYS="debian/canonical-revoked-certs.pem"' is required"
+        fi
     fi
 fi
 
@@ -84,6 +86,20 @@ do
 	for flavour in $flavours
 	do
 		flavour=$(echo "$flavour" | sed -e 's@.*/config.flavour.@@')
+		if [ ! -e $debian/config/config.common.ubuntu ]; then
+			if [ -d debian/certs ]; then
+				python3 debian/scripts/misc/annotations --export -c CONFIG_SYSTEM_TRUSTED_KEYS --arch $arch --flavour $flavour | grep -q '^CONFIG_SYSTEM_TRUSTED_KEYS="debian/canonical-certs.pem"$'
+				if [ $? -ne 0 ]; then
+					failure "'CONFIG_SYSTEM_TRUSTED_KEYS="debian/canonical-certs.pem"' is required"
+				fi
+			fi
+			if [ -d debian/revoked-certs ]; then
+				python3 debian/scripts/misc/annotations --export -c CONFIG_SYSTEM_REVOCATION_KEYS --arch $arch --flavour $flavour | grep -q '^CONFIG_SYSTEM_REVOCATION_KEYS="debian/canonical-revoked-certs.pem"$'
+				if [ $? -ne 0 ]; then
+					failure "'CONFIG_SYSTEM_REVOCATION_KEYS="debian/canonical-revoked-certs.pem"' is required"
+				fi
+			fi
+		fi
 		abi_check "$debian/abi" "$arch" "$flavour"
 	done
 done
