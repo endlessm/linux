@@ -9927,6 +9927,7 @@ EXPORT_SYMBOL_GPL	 vmlinux 0x0259d56a	relay_reset
 EXPORT_SYMBOL_GPL	 vmlinux 0x027ed919	iommu_report_device_fault
 EXPORT_SYMBOL_GPL	 vmlinux 0x028b26b6	security_kernel_read_file
 EXPORT_SYMBOL_GPL	 vmlinux 0x02992b8a	serdev_device_set_parity
+EXPORT_SYMBOL_GPL	 vmlinux 0x02ba7aed	mas_empty_area_rev
 EXPORT_SYMBOL_GPL	 vmlinux 0x02dcc507	scsi_check_sense
 EXPORT_SYMBOL_GPL	 vmlinux 0x02ff7065	__dax_driver_register
 EXPORT_SYMBOL_GPL	 vmlinux 0x031363b4	pci_assign_unassigned_bridge_resources
@@ -10141,6 +10142,7 @@ EXPORT_SYMBOL_GPL	 vmlinux 0x0fadb046	device_get_child_node_count
 EXPORT_SYMBOL_GPL	 vmlinux 0x0fcf0c2f	ip_route_output_tunnel
 EXPORT_SYMBOL_GPL	 vmlinux 0x0fd4610e	kmem_dump_obj
 EXPORT_SYMBOL_GPL	 vmlinux 0x0fd46a40	blk_mq_freeze_queue
+EXPORT_SYMBOL_GPL	 vmlinux 0x0fe3259b	mas_expected_entries
 EXPORT_SYMBOL_GPL	 vmlinux 0x1008edd6	fwnode_get_next_parent
 EXPORT_SYMBOL_GPL	 vmlinux 0x10138352	tracing_on
 EXPORT_SYMBOL_GPL	 vmlinux 0x10222f84	platform_get_irq_byname
@@ -10754,6 +10756,7 @@ EXPORT_SYMBOL_GPL	 vmlinux 0x3565a929	utf8_data_table
 EXPORT_SYMBOL_GPL	 vmlinux 0x356a81c7	ipv6_proxy_select_ident
 EXPORT_SYMBOL_GPL	 vmlinux 0x3575a142	devlink_traps_unregister
 EXPORT_SYMBOL_GPL	 vmlinux 0x3584114e	alarm_forward
+EXPORT_SYMBOL_GPL	 vmlinux 0x35b104df	mas_empty_area
 EXPORT_SYMBOL_GPL	 vmlinux 0x35b5e82f	fsverity_verify_bio
 EXPORT_SYMBOL_GPL	 vmlinux 0x36013744	xdp_master_redirect
 EXPORT_SYMBOL_GPL	 vmlinux 0x3607c5d7	sthyi_fill
@@ -11813,6 +11816,7 @@ EXPORT_SYMBOL_GPL	 vmlinux 0x758ef119	proc_create_net_data
 EXPORT_SYMBOL_GPL	 vmlinux 0x759e5c3c	pci_check_and_mask_intx
 EXPORT_SYMBOL_GPL	 vmlinux 0x75e32e70	unregister_pernet_subsys
 EXPORT_SYMBOL_GPL	 vmlinux 0x75e51945	__SCK__tp_func_error_report_end
+EXPORT_SYMBOL_GPL	 vmlinux 0x75e65a97	mas_store_prealloc
 EXPORT_SYMBOL_GPL	 vmlinux 0x75e9c735	pci_ats_disabled
 EXPORT_SYMBOL_GPL	 vmlinux 0x75edf7b3	copy_from_kernel_nofault
 EXPORT_SYMBOL_GPL	 vmlinux 0x75ef37c9	gfn_to_page_many_atomic
@@ -11937,6 +11941,7 @@ EXPORT_SYMBOL_GPL	 vmlinux 0x7d52ac30	blk_mark_disk_dead
 EXPORT_SYMBOL_GPL	 vmlinux 0x7d6153cb	__cookie_v6_init_sequence
 EXPORT_SYMBOL_GPL	 vmlinux 0x7d6bb90e	pci_epc_map_addr
 EXPORT_SYMBOL_GPL	 vmlinux 0x7d6df73b	device_property_read_u64_array
+EXPORT_SYMBOL_GPL	 vmlinux 0x7d89da22	mas_store
 EXPORT_SYMBOL_GPL	 vmlinux 0x7daf585c	anon_inode_getfile
 EXPORT_SYMBOL_GPL	 vmlinux 0x7dbe9892	PageHuge
 EXPORT_SYMBOL_GPL	 vmlinux 0x7dcbfeec	skb_mpls_pop
@@ -12040,6 +12045,7 @@ EXPORT_SYMBOL_GPL	 vmlinux 0x84264ced	fs_umode_to_ftype
 EXPORT_SYMBOL_GPL	 vmlinux 0x843247df	devlink_linecard_create
 EXPORT_SYMBOL_GPL	 vmlinux 0x84502a47	blk_status_to_errno
 EXPORT_SYMBOL_GPL	 vmlinux 0x845dbf3b	scatterwalk_map_and_copy
+EXPORT_SYMBOL_GPL	 vmlinux 0x846f73a5	mas_store_gfp
 EXPORT_SYMBOL_GPL	 vmlinux 0x8488c655	pci_epc_put
 EXPORT_SYMBOL_GPL	 vmlinux 0x848bac73	skb_to_sgvec_nomark
 EXPORT_SYMBOL_GPL	 vmlinux 0x84a23f16	pci_epc_init_notify
@@ -12844,6 +12850,7 @@ EXPORT_SYMBOL_GPL	 vmlinux 0xb6732ad8	bio_iov_iter_get_pages
 EXPORT_SYMBOL_GPL	 vmlinux 0xb6787346	sfp_unregister_socket
 EXPORT_SYMBOL_GPL	 vmlinux 0xb6793c0c	bus_sort_breadthfirst
 EXPORT_SYMBOL_GPL	 vmlinux 0xb67d985d	smp_call_function_any
+EXPORT_SYMBOL_GPL	 vmlinux 0xb6842fae	mas_find_rev
 EXPORT_SYMBOL_GPL	 vmlinux 0xb68e93fc	disk_set_independent_access_ranges
 EXPORT_SYMBOL_GPL	 vmlinux 0xb6989d30	task_cputime_adjusted
 EXPORT_SYMBOL_GPL	 vmlinux 0xb69afbb0	devlink_linecard_deactivate
@@ -13533,6 +13540,7 @@ EXPORT_SYMBOL_GPL	 vmlinux 0xe1b9027d	page_endio
 EXPORT_SYMBOL_GPL	 vmlinux 0xe1c87a2f	kernel_can_power_off
 EXPORT_SYMBOL_GPL	 vmlinux 0xe1e0ff5f	dma_resv_describe
 EXPORT_SYMBOL_GPL	 vmlinux 0xe1e123c3	firmware_kobj
+EXPORT_SYMBOL_GPL	 vmlinux 0xe20c260d	mas_destroy
 EXPORT_SYMBOL_GPL	 vmlinux 0xe2181643	gpiod_get_array_value_cansleep
 EXPORT_SYMBOL_GPL	 vmlinux 0xe226e748	driver_attach
 EXPORT_SYMBOL_GPL	 vmlinux 0xe233762a	input_event_from_user
@@ -13754,6 +13762,7 @@ EXPORT_SYMBOL_GPL	 vmlinux 0xf184d189	kernel_power_off
 EXPORT_SYMBOL_GPL	 vmlinux 0xf188c78a	pci_epf_alloc_space
 EXPORT_SYMBOL_GPL	 vmlinux 0xf18a38a9	xfrm_dev_state_add
 EXPORT_SYMBOL_GPL	 vmlinux 0xf19498b7	trace_array_init_printk
+EXPORT_SYMBOL_GPL	 vmlinux 0xf194c9c3	mas_walk
 EXPORT_SYMBOL_GPL	 vmlinux 0xf19bc0ad	fwnode_graph_get_endpoint_count
 EXPORT_SYMBOL_GPL	 vmlinux 0xf1d5c5ce	mdiobus_modify
 EXPORT_SYMBOL_GPL	 vmlinux 0xf1d8944c	component_master_add_with_match
