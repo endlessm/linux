@@ -2086,6 +2086,7 @@ inv-mpu6050-spi
 io_edgeport
 io_ti
 ionic
+iosm
 iova
 iowarrior
 ip5xxx_power

@@ -2415,6 +2415,7 @@ inv-mpu6050-spi
 io-domain
 io_edgeport
 io_ti
+iosm
 iova
 iowarrior
 ip5xxx_power
