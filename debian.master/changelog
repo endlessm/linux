@@ -4,6 +4,9 @@ linux-unstable (6.1.0-8.8) UNRELEASED; urgency=medium
   CHANGELOG: Use the printchanges target to see the curent changes.
   CHANGELOG: Use the insertchanges target to create the final log.
 
+  * Miscellaneous Ubuntu changes
+    - [Config] update configs following v6.1-rc6 rebase
+
  -- Paolo Pisati <paolo.pisati@canonical.com>  Tue, 22 Nov 2022 11:42:27 +0100
 
 linux-unstable (6.1.0-7.7) lunar; urgency=medium
