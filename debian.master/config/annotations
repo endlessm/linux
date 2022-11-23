@@ -13301,6 +13301,7 @@ CONFIG_ARM64_ERRATUM_1286807                    policy<{'arm64': 'y'}>
 CONFIG_ARM64_ERRATUM_1463225                    policy<{'arm64': 'y'}>
 CONFIG_ARM64_ERRATUM_1542419                    policy<{'arm64': 'y'}>
 CONFIG_ARM64_ERRATUM_1508412                    policy<{'arm64': 'y'}>
+CONFIG_ARM64_ERRATUM_2077057                    policy<{'arm64': 'y'}>
 CONFIG_CAVIUM_ERRATUM_22375                     policy<{'arm64': 'y'}>
 CONFIG_CAVIUM_ERRATUM_23144                     policy<{'arm64': 'y'}>
 CONFIG_CAVIUM_ERRATUM_23154                     policy<{'arm64': 'y'}>
