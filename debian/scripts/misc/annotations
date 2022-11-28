@@ -115,7 +115,7 @@ def do_check(args):
     c_configs = c.config.keys()
 
     # Validate .config against annotations
-    for conf in a_configs | c_configs:
+    for conf in sorted(a_configs | c_configs):
         if conf in SKIP_CONFIGS:
             continue
         entry = a.search_config(config=conf, arch=args.arch, flavour=args.flavour)
