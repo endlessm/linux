@@ -1686,6 +1686,7 @@ CONFIG_CCW_CONSOLE                              policy<{'s390x-generic': 'y'}>
 CONFIG_CC_CAN_LINK                              policy<{'amd64-generic': 'y', 'arm64-generic': 'y', 'arm64-generic-64k': 'y', 'armhf-generic': 'y', 'armhf-generic-lpae': 'y', 'ppc64el-generic': 'y', 'riscv64-generic': 'y', 's390x-generic': 'y'}>
 CONFIG_CC_CAN_LINK_STATIC                       policy<{'amd64-generic': 'y', 'arm64-generic': 'y', 'arm64-generic-64k': 'y', 'armhf-generic': 'y', 'armhf-generic-lpae': 'y', 'ppc64el-generic': 'y', 'riscv64-generic': 'y', 's390x-generic': 'y'}>
 CONFIG_CC_HAS_ASM_GOTO_OUTPUT                   policy<{'amd64-generic': 'y', 'arm64-generic': 'y', 'arm64-generic-64k': 'y', 'armhf-generic': 'y', 'armhf-generic-lpae': 'y', 'ppc64el-generic': 'y', 'riscv64-generic': 'y', 's390x-generic': 'y'}>
+CONFIG_CC_HAS_ASM_GOTO_TIED_OUTPUT              policy<{'amd64-generic': 'y', 'arm64-generic': 'y', 'arm64-generic-64k': 'y', 'armhf-generic': 'y', 'armhf-generic-lpae': 'y', 'ppc64el-generic': 'y', 'riscv64-generic': 'y', 's390x-generic': 'y'}>
 CONFIG_CC_HAS_ASM_INLINE                        policy<{'amd64-generic': 'y', 'arm64-generic': 'y', 'arm64-generic-64k': 'y', 'armhf-generic': 'y', 'armhf-generic-lpae': 'y', 'ppc64el-generic': 'y', 'riscv64-generic': 'y', 's390x-generic': 'y'}>
 CONFIG_CC_HAS_AUTO_VAR_INIT_PATTERN             policy<{'amd64-generic': 'y', 'arm64-generic': 'y', 'arm64-generic-64k': 'y', 'armhf-generic': 'y', 'armhf-generic-lpae': 'y', 'ppc64el-generic': 'y', 'riscv64-generic': 'y', 's390x-generic': 'y'}>
 CONFIG_CC_HAS_AUTO_VAR_INIT_ZERO                policy<{'amd64-generic': 'y', 'arm64-generic': 'y', 'arm64-generic-64k': 'y', 'armhf-generic': 'y', 'armhf-generic-lpae': 'y', 'ppc64el-generic': 'y', 'riscv64-generic': 'y', 's390x-generic': 'y'}>
@@ -4222,6 +4223,7 @@ CONFIG_FPGA_DFL_FME_MGR                         policy<{'amd64': 'm', 'arm64': '
 CONFIG_FPGA_DFL_FME_REGION                      policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm'}>
 CONFIG_FPGA_DFL_NIOS_INTEL_PAC_N3000            policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm'}>
 CONFIG_FPGA_DFL_PCI                             policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm'}>
+CONFIG_FPGA_M10_BMC_SEC_UPDATE                  policy<{'amd64-generic': 'n', 'arm64-generic': 'n', 'arm64-generic-64k': 'n', 'armhf-generic': 'n', 'armhf-generic-lpae': 'n', 'ppc64el-generic': 'n', 'riscv64-generic': 'n'}>
 CONFIG_FPGA_MGR_ALTERA_CVP                      policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm', 's390x': 'm'}>
 CONFIG_FPGA_MGR_ALTERA_PS_SPI                   policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm', 's390x': '-'}>
 CONFIG_FPGA_MGR_ICE40_SPI                       policy<{'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm'}>
