@@ -131,8 +131,8 @@ for flavour in ${FLAVOURS}; do
 	conf_file=${arch}-config.flavour.${flavour}
 
 	echo "Running config-check for ${arch}-${flavour}"
-	(python3 ${bindir}/annotations -f ${confdir}/annotations --arch ${arch} --flavour ${flavour} --check CONFIGS/${conf_file} | tee -a ${log_file}) ||
-		let "fail=$fail+1"
+	python3 ${bindir}/annotations -f ${confdir}/annotations --arch ${arch} --flavour ${flavour} --check CONFIGS/${conf_file} | tee -a ${log_file}
+	[ ${PIPESTATUS[0]} -ne 0 ] && let "fail=$fail+1"
 done
 
 rc=0
