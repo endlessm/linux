@@ -51,11 +51,11 @@ migrateconfigs:
 		conc_level=$(conc_level) $(SHELL) $(DROOT)/scripts/misc/old-kernelconfig genconfigs; \
 		mkdir build; \
 		mv $(DEBIAN)/config/annotations build/.annotations ; \
-		mv $(DEBIAN)/config/README.rst build/.README.rst; \
+		mv $(DEBIAN)/config/README.rst build/.README.rst 2>/dev/null || true; \
 		rm -rf $(DEBIAN)/config; \
 		mkdir -p $(DEBIAN)/config; \
 		debian/scripts/misc/migrate-annotations < build/.annotations > $(DEBIAN)/config/annotations; \
-		mv build/.README.rst $(DEBIAN)/config/README.rst; \
+		mv build/.README.rst $(DEBIAN)/config/README.rst 2>/dev/null || true; \
 		conc_level=$(conc_level) $(SHELL) $(DROOT)/scripts/misc/kernelconfig importconfigs; \
 	fi
 	rm -rf build
