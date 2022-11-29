@@ -110,6 +110,44 @@ class Annotation(Config):
                 raise Exception(str(e) + f', line = {line}')
         return config
 
+    def _remove_entry(self, config : str):
+        if 'policy' in self.config[config]:
+            del self.config[config]['policy']
+        if 'note' in self.config[config]:
+            del self.config[config]['note']
+        if not self.config[config]:
+            del self.config[config]
+
+    def remove(self, config : str, arch: str = None, flavour: str = None):
+        if config not in self.config:
+            return
+        if arch is not None:
+            if flavour is not None:
+                flavour = f'{arch}-{flavour}'
+            else:
+                flavour = arch
+            del self.config[config]['policy'][flavour]
+            if not self.config[config]['policy']:
+                self._remove_entry(config)
+        else:
+            self._remove_entry(config)
+
+    def set(self, config : str, arch: str = None, flavour: str = None,
+            value : str = None, note : str = None):
+        if config not in self.config:
+            self.config[config] = { 'policy': {} }
+        if arch is not None:
+            if flavour is not None:
+                flavour = f'{arch}-{flavour}'
+            else:
+                flavour = arch
+            self.config[config]['policy'][flavour] = value
+        else:
+            for arch in self.arch:
+                self.config[config]['policy'][arch] = value
+        if note is not None:
+            self.config[config]['note'] = "'" + note.replace("'", '') + "'"
+
     def update(self, c: KConfig, arch: str, flavour: str = None, configs: list = []):
         """ Merge configs from a Kconfig object into Annotation object """
 
