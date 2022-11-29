@@ -8,7 +8,9 @@ if [ ! -f MAINTAINERS ] || [ ! -f Makefile ]; then
 	exit 1
 fi
 
-ARCH=$(sed -ne 's/^archs="\(.*\)"/\1/p' ${DEBIAN}/etc/kernelconfig | tr " " "\n" | sort -u)
+. ${DEBIAN}/etc/kernelconfig
+
+ARCH=$(echo $archs | tr " " "\n" | sort -u)
 FLAVOUR=$(for arch in ${ARCH}; do
 	flavours=$(sed -ne 's/^flavours\s*=\s*\(.*\)$/\1/p' ${DEBIAN}/rules.d/${arch}.mk)
 	for flavour in ${flavours}; do
