@@ -88,7 +88,7 @@ CROSS_COMPILE ?= $(DEB_HOST_GNU_TYPE)-
 # If a given kernel wants to change this, they can do so via their own
 # $(DEBIAN)/rules.d/hooks.mk and $(DEBIAN)/rules.d/$(arch).mk files
 #
-export gcc?=gcc-14
+export gcc?=gcc
 export rustc?=rustc
 export rustfmt?=rustfmt
 export bindgen?=bindgen
