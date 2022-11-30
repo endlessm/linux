@@ -5063,7 +5063,6 @@ CONFIG_GART_IOMMU                               policy<{'amd64': 'y'}>
 CONFIG_GCC11_NO_ARRAY_BOUNDS                    policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y', 's390x': 'y'}>
 CONFIG_GCC_SUPPORTS_DYNAMIC_FTRACE              policy<{'riscv64': 'y'}>
 CONFIG_GCC_SUPPORTS_DYNAMIC_FTRACE_WITH_ARGS    policy<{'arm64': 'y'}>
-CONFIG_GCC_VERSION                              policy<{'amd64': '130200', 'arm64': '130200', 'armhf': '130200', 'ppc64el': '130200', 'riscv64': '130200', 's390x': '130200'}>
 CONFIG_GCOV_KERNEL                              policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'ppc64el': 'n', 'riscv64': 'n', 's390x': 'n'}>
 CONFIG_GDB_SCRIPTS                              policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y', 's390x': 'y'}>
 CONFIG_GDS_FORCE_MITIGATION                     policy<{'amd64': 'n'}>
