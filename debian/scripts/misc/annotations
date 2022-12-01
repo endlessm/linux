@@ -62,8 +62,11 @@ def arg_fail(message):
 
 def do_query(args):
     a = Annotation(args.file)
-    res = a.search_config(config=args.config, arch=args.arch, flavour=args.flavour)
-    print(json.dumps(res, indent=4))
+    for config in (args.config, 'CONFIG_' + args.config if args.config else None):
+        res = a.search_config(config=config, arch=args.arch, flavour=args.flavour)
+        if res:
+            break
+    print(json.dumps({config or '*': res}, indent=4))
 
 def do_note(args):
     if args.config is None:
