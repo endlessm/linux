@@ -134,17 +134,18 @@ class Annotation(Config):
 
     def set(self, config : str, arch: str = None, flavour: str = None,
             value : str = None, note : str = None):
-        if config not in self.config:
-            self.config[config] = { 'policy': {} }
-        if arch is not None:
-            if flavour is not None:
-                flavour = f'{arch}-{flavour}'
+        if value is not None:
+            if config not in self.config:
+                self.config[config] = { 'policy': {} }
+            if arch is not None:
+                if flavour is not None:
+                    flavour = f'{arch}-{flavour}'
+                else:
+                    flavour = arch
+                self.config[config]['policy'][flavour] = value
             else:
-                flavour = arch
-            self.config[config]['policy'][flavour] = value
-        else:
-            for arch in self.arch:
-                self.config[config]['policy'][arch] = value
+                for arch in self.arch:
+                    self.config[config]['policy'][arch] = value
         if note is not None:
             self.config[config]['note'] = "'" + note.replace("'", '') + "'"
 
