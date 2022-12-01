@@ -31,16 +31,15 @@ def make_parser():
                         help='Select flavour (default is "generic")')
     parser.add_argument('--config', '-c', action='store',
                         help='Select a specific config option')
-    parser.add_argument('--note', '-n', action='store',
-                        help='Write a specific note to a config option in annotations (used with --write)')
 
     ga = parser.add_argument_group(title='Action').add_mutually_exclusive_group(required=True)
-
     ga.add_argument('--write', '-w', action='store',
                         metavar='VALUE', dest='value',
                         help='Set a specific config value in annotations (use \'null\' to remove)')
     ga.add_argument('--query', '-q', action='store_true',
                         help='Query annotations')
+    ga.add_argument('--note', '-n', action='store',
+                        help='Write a specific note to a config option in annotations')
     ga.add_argument('--export', '-e', action='store_true',
                         help='Convert annotations to .config format')
     ga.add_argument('--import', '-i', action='store',
@@ -64,6 +63,21 @@ def arg_fail(message):
 def do_query(args):
     a = Annotation(args.file)
     res = a.search_config(config=args.config, arch=args.arch, flavour=args.flavour)
+    print(json.dumps(res, indent=4))
+
+def do_note(args):
+    if args.config is None:
+        arg_fail('error: --note requires --config')
+
+    # Set the note in annotations
+    a = Annotation(args.file)
+    a.set(args.config, note=args.note)
+
+    # Save back to annotations
+    a.save(args.file)
+
+    # Query and print back the value
+    res = a.search_config(config=args.config)
     print(json.dumps(res, indent=4))
 
 def do_write(args):
@@ -172,10 +186,10 @@ def autodetect_annotations(args):
 def main():
     args = _ARGPARSER.parse_args()
     autodetect_annotations(args)
-    if args.query:
-        do_query(args)
-    elif args.value:
+    if args.value:
         do_write(args)
+    elif args.note:
+        do_note(args)
     elif args.export:
         do_export(args)
     elif args.import_file:
@@ -184,6 +198,8 @@ def main():
         do_update(args)
     elif args.check_file:
         do_check(args)
+    elif args.query:
+        do_query(args)
 
 if __name__ == '__main__':
     main()
