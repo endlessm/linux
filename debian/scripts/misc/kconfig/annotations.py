@@ -52,8 +52,11 @@ class Annotation(Config):
     .config[<CONFIG_OPTION>]
     """
     def _parse(self, data: str) -> dict:
-        # Parse header
+        self.arch = []
+        self.flavour = []
+        self.flavour_dep = {}
         self.header = ''
+        # Parse header
         for line in data.splitlines():
             if re.match(r'^#.*', line):
                 m = re.match(r'^# ARCH: (.*)', line)
@@ -62,6 +65,9 @@ class Annotation(Config):
                 m = re.match(r'^# FLAVOUR: (.*)', line)
                 if m:
                     self.flavour = list(m.group(1).split(' '))
+                m = re.match(r'^# FLAVOUR_DEP: (.*)', line)
+                if m:
+                    self.flavour_dep = eval(m.group(1))
                 self.header += line + "\n"
             else:
                 break
@@ -178,7 +184,7 @@ class Annotation(Config):
     def _compact(self):
         # Try to remove redundant settings: if the config value of a flavour is
         # the same as the one of the main arch simply drop it.
-        for conf in self.config:
+        for conf in self.config.copy():
             if 'policy' not in self.config[conf]:
                 continue
             for flavour in self.flavour:
@@ -188,10 +194,22 @@ class Annotation(Config):
                 if not m:
                     continue
                 arch = m.group(1)
-                if arch not in self.config[conf]['policy']:
+                if arch in self.config[conf]['policy']:
+                    if self.config[conf]['policy'][flavour] == self.config[conf]['policy'][arch]:
+                        del self.config[conf]['policy'][flavour]
+                        continue
+                if flavour not in self.flavour_dep:
                     continue
-                if self.config[conf]['policy'][flavour] == self.config[conf]['policy'][arch]:
+                generic = self.flavour_dep[flavour]
+                if generic in self.config[conf]['policy']:
+                    if self.config[conf]['policy'][flavour] == self.config[conf]['policy'][generic]:
+                        del self.config[conf]['policy'][flavour]
+                        continue
+            for flavour in self.config[conf]['policy'].copy():
+                if flavour not in list(set(self.arch + self.flavour)):
                     del self.config[conf]['policy'][flavour]
+            if not self.config[conf]['policy']:
+                del self.config[conf]
 
     def save(self, fname: str):
         """ Save annotations data to the annotation file """
@@ -218,13 +236,16 @@ class Annotation(Config):
             for conf in sorted(self.config):
                 old_val = tmp_a.config[conf] if conf in tmp_a.config else None
                 new_val = self.config[conf]
-                if old_val != new_val:
-                    if 'policy' in self.config[conf]:
-                        val = dict(sorted(self.config[conf]['policy'].items()))
-                        line = f"{conf : <47} policy<{val}>"
-                        tmp.write(line + "\n")
-                    if 'note' in self.config[conf]:
-                        val = self.config[conf]['note']
+                # If new_val is a subset of old_val, skip it
+                if old_val and 'policy' in old_val and 'policy' in new_val:
+                    if old_val['policy'] == old_val['policy'] | new_val['policy']:
+                        continue
+                if 'policy' in new_val:
+                    val = dict(sorted(new_val['policy'].items()))
+                    line = f"{conf : <47} policy<{val}>"
+                    tmp.write(line + "\n")
+                    if 'note' in new_val:
+                        val = new_val['note']
                         line = f"{conf : <47} note<{val}>"
                         tmp.write(line + "\n\n")
 
@@ -237,6 +258,10 @@ class Annotation(Config):
         if flavour is None:
             flavour = 'generic'
         flavour = f'{arch}-{flavour}'
+        if flavour in self.flavour_dep:
+            generic = self.flavour_dep[flavour]
+        else:
+            generic = flavour
         if config is None and arch is None:
             # Get all config options for all architectures
             return self.config
@@ -248,6 +273,8 @@ class Annotation(Config):
                     continue
                 if flavour in self.config[c]['policy']:
                     ret[c] = self.config[c]['policy'][flavour]
+                elif generic != flavour and generic in self.config[c]['policy']:
+                    ret[c] = self.config[c]['policy'][generic]
                 elif arch in self.config[c]['policy']:
                     ret[c] = self.config[c]['policy'][arch]
             return ret
@@ -260,6 +287,8 @@ class Annotation(Config):
                 if 'policy' in self.config[config]:
                     if flavour in self.config[config]['policy']:
                         return {config: self.config[config]['policy'][flavour]}
+                    elif generic != flavour and generic in self.config[config]['policy']:
+                        return {config: self.config[config]['policy'][generic]}
                     elif arch in self.config[config]['policy']:
                         return {config: self.config[config]['policy'][arch]}
         return None
