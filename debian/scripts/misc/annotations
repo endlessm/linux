@@ -128,9 +128,9 @@ def do_export(args):
 
 def do_import(args):
     if args.arch is None:
-        arg_fail('error: --arch and --flavour are required with --import')
+        arg_fail('error: --arch is required with --import')
     if args.flavour is None:
-        arg_fail('error: --arch and --flavour are required with --import')
+        arg_fail('error: --flavour is required with --import')
     if args.config is not None:
         arg_fail('error: --config cannot be used with --import (try --update)')
 
