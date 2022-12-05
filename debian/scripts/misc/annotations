@@ -35,13 +35,13 @@ def make_parser():
                         help='Select a specific config option')
     parser.add_argument('--query', '-q', action='store_true',
                         help='Query annotations')
+    parser.add_argument('--note', '-n', action='store',
+                        help='Write a specific note to a config option in annotations')
 
     ga = parser.add_argument_group(title='Action').add_mutually_exclusive_group(required=False)
     ga.add_argument('--write', '-w', action='store',
                         metavar='VALUE', dest='value',
                         help='Set a specific config value in annotations (use \'null\' to remove)')
-    ga.add_argument('--note', '-n', action='store',
-                        help='Write a specific note to a config option in annotations')
     ga.add_argument('--export', '-e', action='store_true',
                         help='Convert annotations to .config format')
     ga.add_argument('--import', '-i', action='store',
