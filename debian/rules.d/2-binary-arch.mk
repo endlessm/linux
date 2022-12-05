@@ -36,7 +36,7 @@ $(stampdir)/stamp-prepare-tree-%: debian/scripts/fix-filenames
 		sed -ie 's/.*CONFIG_UBUNTU_ODM_DRIVERS.*/# CONFIG_UBUNTU_ODM_DRIVERS is not set/' \
 		    $(builddir)/build-$*/.config
 	find $(builddir)/build-$* -name "*.ko" | xargs rm -f
-	$(build_cd) $(kmake) $(build_O) -j1 olddefconfig
+	$(build_cd) $(kmake) $(build_O) $(conc_level) olddefconfig
 	touch $@
 
 # Used by developers as a shortcut to prepare a tree for compilation.
@@ -555,7 +555,7 @@ ifeq ($(do_libc_dev_package),true)
 endif
 	rm -rf $(headers_tmp)
 	install -d $(headers_tmp) $(headers_dir)/usr/include/
-	$(hmake) headers_install
+	$(hmake) $(conc_level) headers_install
 	( cd $(headers_tmp)/install/include/ && \
 		find . -name '.' -o -name '.*' -prune -o -print | \
                 cpio -pvd --preserve-modification-time \
