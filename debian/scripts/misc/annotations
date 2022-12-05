@@ -3,8 +3,9 @@
 # Manage Ubuntu kernel .config and annotations
 # Copyright © 2022 Canonical Ltd.
 
-import argparse
 import sys
+sys.dont_write_bytecode = True
+import argparse
 import json
 from kconfig.annotations import Annotation, KConfig
 
