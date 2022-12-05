@@ -7,6 +7,10 @@
 # Copyright (c) 2007 Ben Collins <bcollins@ubuntu.com>
 #
 
+# Do not use make's built-in rules and variables
+# (this increases performance and avoids hard-to-debug behaviour)
+MAKEFLAGS += -rR
+
 DEBIAN=$(shell awk -F= '($$1 == "DEBIAN") { print $$2 }' <debian/debian.env)
 
 # dpkg-buildpackage passes options that are incomptatible
