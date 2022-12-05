@@ -122,10 +122,13 @@ nvidia_desktop_series=$(shell sed -n -e 's/^nvidia-graphics-drivers-\([0-9][0-9]
 nvidia_server_series=$(shell sed -n -e 's/^nvidia-graphics-drivers-\([0-9][0-9]*-server\) .*/\1/p' debian/dkms-versions)
 
 # Debian Build System targets
+.PHONY: binary
 binary: binary-indep binary-arch
 
+.PHONY: build
 build: build-arch build-indep
 
+.PHONY: clean
 clean: debian/control debian/canonical-certs.pem debian/canonical-revoked-certs.pem
 	dh_testdir
 	dh_testroot
@@ -152,6 +155,7 @@ clean: debian/control debian/canonical-certs.pem debian/canonical-revoked-certs.
 	rm -f $(DROOT)/control.stub $(DEBIAN)/control.stub
 	rm -f $(DROOT)/scripts/fix-filenames
 
+.PHONY: distclean
 distclean: clean
 	rm -rf $(DROOT)/control debian/changelog \
 		debian/control debian/control.stub debian/copyright \
