@@ -1,5 +1,7 @@
 # Used when you need to 'escape' a comma.
 comma = ,
+empty :=
+space := $(empty) $(empty)
 
 #
 # The source package name will be the first token from $(DEBIAN)/changelog
@@ -10,15 +12,12 @@ src_pkg_name := $(shell dpkg-parsechangelog -l$(DEBIAN)/changelog -S source)
 series := $(shell dpkg-parsechangelog -l$(DEBIAN)/changelog -S distribution | sed -e 's/-\(security\|updates\|proposed\)$$//')
 
 # Get some version info
-release := $(shell sed -n '1s/^$(src_pkg_name).*(\(.*\)-.*).*$$/\1/p' $(DEBIAN)/changelog)
-revisions := $(shell sed -n 's/^$(src_pkg_name)\ .*($(release)-\(.*\)).*$$/\1/p' $(DEBIAN)/changelog | tac)
-revision ?= $(word $(words $(revisions)),$(revisions))
-prev_revisions := $(filter-out $(revision),0.0 $(revisions))
-ifneq (,$(prev_revisions))
-prev_revision := $(word $(words $(prev_revisions)),$(prev_revisions))
-endif
+version := $(shell dpkg-parsechangelog -l$(DEBIAN)/changelog -S version)
+revision ?= $(lastword $(subst -,$(space),$(version)))
+release := $(patsubst %-$(revision),%,$(version))
 
-prev_fullver ?= $(shell dpkg-parsechangelog -l$(DEBIAN)/changelog -o1 -c1 | sed -ne 's/^Version: *//p')
+prev_fullver ?= $(shell dpkg-parsechangelog -l$(DEBIAN)/changelog -o1 -c1 -S version)
+prev_revision := $(lastword 0.0 $(subst -,$(space),$(prev_fullver)))
 
 # Get variants. Assume primary if debian/variants is not present.
 variants = --
