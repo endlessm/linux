@@ -78,37 +78,45 @@ def do_query(args):
 def do_note(args):
     if args.config is None:
         arg_fail('error: --note requires --config')
+    if args.config.startswith('CONFIG_'):
+        config = args.config
+    else:
+        config = 'CONFIG_' + args.config
 
     # Set the note in annotations
     a = Annotation(args.file)
-    a.set(args.config, note=args.note)
+    a.set(config, note=args.note)
 
     # Save back to annotations
     a.save(args.file)
 
     # Query and print back the value
     a = Annotation(args.file)
-    res = a.search_config(config=args.config)
-    print_result(args.config, res)
+    res = a.search_config(config=config)
+    print_result(config, res)
 
 def do_write(args):
     if args.config is None:
         arg_fail('error: --write requires --config')
+    if args.config.startswith('CONFIG_'):
+        config = args.config
+    else:
+        config = 'CONFIG_' + args.config
 
     # Set the value in annotations ('null' means remove)
     a = Annotation(args.file)
     if args.value == 'null':
-        a.remove(args.config, arch=args.arch, flavour=args.flavour)
+        a.remove(config, arch=args.arch, flavour=args.flavour)
     else:
-        a.set(args.config, arch=args.arch, flavour=args.flavour, value=args.value, note=args.note)
+        a.set(config, arch=args.arch, flavour=args.flavour, value=args.value, note=args.note)
 
     # Save back to annotations
     a.save(args.file)
 
     # Query and print back the value
     a = Annotation(args.file)
-    res = a.search_config(config=args.config)
-    print_result(args.config, res)
+    res = a.search_config(config=config)
+    print_result(config, res)
 
 def do_export(args):
     if args.arch is None:
