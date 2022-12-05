@@ -4,10 +4,10 @@ comma = ,
 #
 # The source package name will be the first token from $(DEBIAN)/changelog
 #
-src_pkg_name=$(shell sed -n '1s/^\(.*\) (.*).*$$/\1/p' $(DEBIAN)/changelog)
+src_pkg_name := $(shell dpkg-parsechangelog -l$(DEBIAN)/changelog -S source)
 
 # Get the series
-series=$(shell dpkg-parsechangelog -l$(DEBIAN)/changelog | sed -ne 's/^Distribution: *//p' | sed -e 's/-\(security\|updates\|proposed\)$$//')
+series := $(shell dpkg-parsechangelog -l$(DEBIAN)/changelog -S distribution | sed -e 's/-\(security\|updates\|proposed\)$$//')
 
 # Get some version info
 release := $(shell sed -n '1s/^$(src_pkg_name).*(\(.*\)-.*).*$$/\1/p' $(DEBIAN)/changelog)
