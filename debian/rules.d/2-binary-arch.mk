@@ -36,7 +36,7 @@ $(stampdir)/stamp-prepare-tree-%: debian/scripts/fix-filenames
 		sed -ie 's/.*CONFIG_UBUNTU_ODM_DRIVERS.*/# CONFIG_UBUNTU_ODM_DRIVERS is not set/' \
 		    $(builddir)/build-$*/.config
 	find $(builddir)/build-$* -name "*.ko" | xargs rm -f
-	$(build_cd) $(kmake) $(build_O) -j1 syncconfig prepare scripts
+	$(build_cd) $(kmake) $(build_O) -j1 olddefconfig
 	touch $@
 
 # Used by developers as a shortcut to prepare a tree for compilation.
