@@ -195,8 +195,7 @@ ifeq ($(no_dumpfile),)
 endif
 
 	$(build_cd) $(kmake) $(build_O) $(conc_level) modules_install $(vdso) \
-		INSTALL_MOD_STRIP=1 INSTALL_MOD_PATH=$(pkgdir)/ \
-		INSTALL_FW_PATH=$(pkgdir)/lib/firmware/$(abi_release)-$*
+		INSTALL_MOD_STRIP=1 INSTALL_MOD_PATH=$(pkgdir)/
 
 	#
 	# Build module blacklists:
