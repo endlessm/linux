@@ -103,10 +103,10 @@ class Annotation(Config):
                 if conf in config:
                     entry = config[conf]
                 else:
-                    entry = {}
+                    entry = {'policy': {}}
                 m = re.match(r'.*policy<(.*)>', line)
                 if m:
-                    entry['policy'] = literal_eval(m.group(1))
+                    entry['policy'] |= literal_eval(m.group(1))
                 m = re.match(r'.*note<(.*?)>', line)
                 if m:
                     entry['note'] = "'" + m.group(1).replace("'", '') + "'"
