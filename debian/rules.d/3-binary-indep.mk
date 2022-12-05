@@ -1,3 +1,4 @@
+.PHONY: build-indep
 build-indep:
 	@echo Debug: $@
 
@@ -29,6 +30,7 @@ endif
 
 docpkg = $(doc_pkg_name)
 docdir = $(CURDIR)/debian/$(docpkg)/usr/share/doc/$(docpkg)
+.PHONY: install-doc
 install-doc: $(stampdir)/stamp-prepare-indep
 	@echo Debug: $@
 ifeq ($(do_doc_package),true)
@@ -81,6 +83,7 @@ ifeq ($(do_source_package_content),true)
 endif
 endif
 
+.PHONY: install-tools
 install-tools: toolspkg = $(tools_common_pkg_name)
 install-tools: toolsbin = $(CURDIR)/debian/$(toolspkg)/usr/bin
 install-tools: toolssbin = $(CURDIR)/debian/$(toolspkg)/usr/sbin
@@ -177,11 +180,13 @@ $(stampdir)/stamp-prepare-indep:
 	dh_prep -i
 	@touch $@
 
+.PHONY: install-indep
 install-indep: $(stampdir)/stamp-install-headers install-doc install-source install-tools
 	@echo Debug: $@
 
 # This is just to make it easy to call manually. Normally done in
 # binary-indep target during builds.
+.PHONY: binary-headers
 binary-headers: $(stampdir)/stamp-prepare-indep $(stampdir)/stamp-install-headers
 	@echo Debug: $@
 	dh_installchangelogs -p$(indep_hdrpkg)

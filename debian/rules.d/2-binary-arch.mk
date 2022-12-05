@@ -545,6 +545,7 @@ hmake := $(MAKE) -C $(CURDIR) O=$(headers_tmp) \
 	KERNELVERSION=$(abi_release) INSTALL_HDR_PATH=$(headers_tmp)/install \
 	SHELL="$(SHELL)" ARCH=$(header_arch)
 
+.PHONY: install-arch-headers
 install-arch-headers:
 	@echo Debug: $@
 	dh_testdir
@@ -593,6 +594,7 @@ define dh_all_inline
         $(subst ${newline},; \${newline},$(call dh_all,$(1),$(2)))
 endef
 
+.PHONY: binary-arch-headers
 binary-arch-headers: install-arch-headers
 	@echo Debug: $@
 	dh_testdir
@@ -756,6 +758,7 @@ endif
 endif
 	@touch $@
 
+.PHONY: install-perarch
 install-perarch: toolspkgdir = $(CURDIR)/debian/$(tools_pkg_name)
 install-perarch: cloudpkgdir = $(CURDIR)/debian/$(cloud_pkg_name)
 install-perarch: $(stampdir)/stamp-build-perarch
@@ -813,6 +816,7 @@ ifeq ($(do_tools_hyperv),true)
 endif
 endif
 
+.PHONY: binary-perarch
 binary-perarch: toolspkg = $(tools_pkg_name)
 binary-perarch: cloudpkg = $(cloud_pkg_name)
 binary-perarch: install-perarch
@@ -824,6 +828,7 @@ ifeq ($(do_cloud_tools),true)
 	$(call dh_all,$(cloudpkg))
 endif
 
+.PHONY: binary-debs
 binary-debs: signing = $(CURDIR)/debian/$(bin_pkg_name)-signing
 binary-debs: signingv = $(CURDIR)/debian/$(bin_pkg_name)-signing/$(release)-$(revision)
 binary-debs: signing_tar = $(src_pkg_name)_$(release)-$(revision)_$(arch).tar.gz
@@ -837,6 +842,8 @@ ifeq ($(any_signed),true)
 endif
 
 build-arch-deps-$(do_flavour_image_package) += $(addprefix $(stampdir)/stamp-install-,$(flavours))
+
+.PHONY: build-arch
 build-arch: $(build-arch-deps-true)
 	@echo Debug: $@
 
@@ -849,6 +856,8 @@ binary-arch-deps-$(do_libc_dev_package) += binary-arch-headers
 ifneq ($(do_common_headers_indep),true)
 binary-arch-deps-$(do_flavour_header_package) += binary-headers
 endif
+
+.PHONY: binary-arch
 binary-arch: $(binary-arch-deps-true)
 	@echo Debug: $@
 

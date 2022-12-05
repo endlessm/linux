@@ -42,6 +42,7 @@ help:
 	@echo "                  : Use -jX for kernel compile"
 	@echo "  PRINTSHAS       : Include SHAs for commits in changelog"
 
+.PHONY: printdebian
 printdebian:
 	@echo "$(DEBIAN)"
 
@@ -60,7 +61,10 @@ migrateconfigs:
 	fi
 	rm -rf build
 
-updateconfigs defaultconfigs genconfigs listnewconfigs importconfigs:
+configs-targets := updateconfigs defaultconfigs genconfigs listnewconfigs importconfigs
+
+.PHONY: $(configs-targets)
+$(configs-targets):
 	dh_testdir;
 	if [ -e "$(DEBIAN)/config/config.common.ubuntu" ]; then \
 		conc_level=$(conc_level) $(SHELL) $(DROOT)/scripts/misc/old-kernelconfig $@; \
@@ -189,11 +193,13 @@ startnewrelease:
 	cat $(DEBIAN)/changelog >> $(DEBIAN)/changelog.new; \
 	mv $(DEBIAN)/changelog.new $(DEBIAN)/changelog
 
+.PHONY: compileselftests
 compileselftests:
 	# a loop is needed here to fail on errors
 	for test in $(ubuntu_selftests); do \
 		$(kmake) -C tools/testing/selftests TARGETS="$$test"; \
 	done;
 
+.PHONY: runselftests
 runselftests:
 	$(kmake) -C tools/testing/selftests TARGETS="$(ubuntu_selftests)" run_tests
