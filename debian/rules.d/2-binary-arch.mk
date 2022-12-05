@@ -757,9 +757,7 @@ ifeq ($(do_linux_tools),true)
 	install -d $(toolspkgdir)/usr/lib
 	install -d $(toolspkgdir)/usr/lib/$(src_pkg_name)-tools-$(abi_release)
 ifeq ($(do_tools_usbip),true)
-	install -m755 $(builddirpa)/tools/usb/usbip/bin/sbin/usbip \
-		$(toolspkgdir)/usr/lib/$(src_pkg_name)-tools-$(abi_release)
-	install -m755 $(builddirpa)/tools/usb/usbip/bin/sbin/usbipd \
+	install -m755 $(addprefix $(builddirpa)/tools/usb/usbip/bin/sbin/, usbip usbipd) \
 		$(toolspkgdir)/usr/lib/$(src_pkg_name)-tools-$(abi_release)
 endif
 ifeq ($(do_tools_acpidbg),true)
@@ -784,9 +782,8 @@ ifeq ($(do_tools_bpftool),true)
 	install -m755 $(builddirpa)/tools/bpf/bpftool/bpftool $(toolspkgdir)/usr/lib/$(src_pkg_name)-tools-$(abi_release)
 endif
 ifeq ($(do_tools_x86),true)
-	install -m755 $(builddirpa)/tools/power/x86/x86_energy_perf_policy/x86_energy_perf_policy \
-		$(toolspkgdir)/usr/lib/$(src_pkg_name)-tools-$(abi_release)
-	install -m755 $(builddirpa)/tools/power/x86/turbostat/turbostat \
+	install -m755 \
+		$(addprefix $(builddirpa)/tools/power/x86/, x86_energy_perf_policy/x86_energy_perf_policy turbostat/turbostat) \
 		$(toolspkgdir)/usr/lib/$(src_pkg_name)-tools-$(abi_release)
 endif
 endif
@@ -794,13 +791,7 @@ ifeq ($(do_cloud_tools),true)
 ifeq ($(do_tools_hyperv),true)
 	install -d $(cloudpkgdir)/usr/lib
 	install -d $(cloudpkgdir)/usr/lib/$(src_pkg_name)-tools-$(abi_release)
-	install -m755 $(builddirpa)/tools/hv/hv_kvp_daemon \
-		$(cloudpkgdir)/usr/lib/$(src_pkg_name)-tools-$(abi_release)
-	install -m755 $(builddirpa)/tools/hv/hv_vss_daemon \
-		$(cloudpkgdir)/usr/lib/$(src_pkg_name)-tools-$(abi_release)
-	install -m755 $(builddirpa)/tools/hv/hv_fcopy_daemon \
-		$(cloudpkgdir)/usr/lib/$(src_pkg_name)-tools-$(abi_release)
-	install -m755 $(builddirpa)/tools/hv/lsvmbus \
+	install -m755 $(addprefix $(builddirpa)/tools/hv/, hv_kvp_daemon hv_vss_daemon hv_fcopy_daemon lsvmbus) \
 		$(cloudpkgdir)/usr/lib/$(src_pkg_name)-tools-$(abi_release)
 endif
 endif
