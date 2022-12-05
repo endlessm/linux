@@ -251,10 +251,12 @@ conc_level		= -j$(CONCURRENCY_LEVEL)
 
 PYTHON ?= $(firstword $(wildcard /usr/bin/python3) $(wildcard /usr/bin/python2) $(wildcard /usr/bin/python))
 
+HOSTCC ?= $(DEB_BUILD_GNU_TYPE)-$(gcc)
+
 # target_flavour is filled in for each step
 kmake = make ARCH=$(build_arch) \
 	CROSS_COMPILE=$(CROSS_COMPILE) \
-	HOSTCC=$(DEB_BUILD_GNU_TYPE)-$(gcc) \
+	HOSTCC=$(HOSTCC) \
 	CC=$(CROSS_COMPILE)$(gcc) \
 	KERNELVERSION=$(abi_release)-$(target_flavour) \
 	CONFIG_DEBUG_SECTION_MISMATCH=y \
