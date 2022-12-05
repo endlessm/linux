@@ -37,6 +37,8 @@ def make_parser():
                         help='Query annotations')
     parser.add_argument('--note', '-n', action='store',
                         help='Write a specific note to a config option in annotations')
+    parser.add_argument('--autocomplete', action='store_true',
+                        help='Enable config bash autocomplete: `source <(annotations --autocomplete)`')
 
     ga = parser.add_argument_group(title='Action').add_mutually_exclusive_group(required=False)
     ga.add_argument('--write', '-w', action='store',
@@ -76,6 +78,11 @@ def do_query(args):
         if res:
             break
     print_result(config, res)
+
+def do_autocomplete(args):
+    a = Annotation(args.file)
+    res = (c.removeprefix('CONFIG_') for c in a.search_config())
+    print('complete -W "{}" annotations'.format(' '.join(res)))
 
 def do_note(args):
     if args.config is None:
@@ -226,6 +233,8 @@ def main():
         do_update(args)
     elif args.check_file:
         do_check(args)
+    elif args.autocomplete:
+        do_autocomplete(args)
     else:
         do_query(args)
 
