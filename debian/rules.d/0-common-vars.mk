@@ -278,8 +278,7 @@ LN = ln -sf
 
 # Checks if a var is overriden by the custom rules. Called with var and
 # flavour as arguments.
-custom_override = \
- $(shell if [ -n "$($(1)_$(2))" ]; then echo "$($(1)_$(2))"; else echo "$($(1))"; fi)
+custom_override = $(or $($(1)_$(2)),$($(1)))
 
 # selftests that Ubuntu cares about
 ubuntu_selftests = breakpoints cpu-hotplug efivarfs memfd memory-hotplug mount net ptrace seccomp timers powerpc user ftrace
