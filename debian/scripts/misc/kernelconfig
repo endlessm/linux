@@ -130,7 +130,7 @@ for flavour in ${FLAVOURS}; do
 	flavour=$(echo $flavour | sed 's/\([^-]*\)-\(.*\)/\2/')
 	conf_file=${arch}-config.flavour.${flavour}
 
-	echo "Running config-check for ${arch}-${flavour}"
+	echo "Running config-check for ${arch}-${flavour}" | tee -a ${log_file}
 	python3 ${bindir}/annotations -f ${confdir}/annotations --arch ${arch} --flavour ${flavour} --check CONFIGS/${conf_file} | tee -a ${log_file}
 	[ ${PIPESTATUS[0]} -ne 0 ] && let "fail=$fail+1"
 done
