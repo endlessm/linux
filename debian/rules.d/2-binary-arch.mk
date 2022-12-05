@@ -14,7 +14,7 @@ endif
 shlibdeps_opts = $(if $(CROSS_COMPILE),-- -l$(CROSS_COMPILE:%-=/usr/%)/lib)
 
 debian/scripts/fix-filenames: debian/scripts/fix-filenames.c
-	$(CC) -o $@ $^
+	$(HOSTCC) $^ -o $@
 
 $(stampdir)/stamp-prepare-%: config-prepare-check-%
 	@echo Debug: $@
