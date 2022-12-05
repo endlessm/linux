@@ -17,7 +17,7 @@ class Config(object):
         """
         self.fname = fname
         raw_data = self._load(fname)
-        self.config = self._parse(raw_data)
+        self._parse(raw_data)
 
     def _load(self, fname: str) -> str:
         with open(fname, 'rt') as fd:
@@ -34,29 +34,70 @@ class KConfig(Config):
     .config[<CONFIG_OPTION>]
     """
     def _parse(self, data: str) -> dict:
-        config = {}
+        self.config = {}
         for line in data.splitlines():
             m = re.match(r'^# (CONFIG_.*) is not set$', line)
             if m:
-                config[m.group(1)] = literal_eval("'n'")
+                self.config[m.group(1)] = literal_eval("'n'")
                 continue
             m = re.match(r'^(CONFIG_[A-Za-z0-9_]+)=(.*)$', line)
             if m:
-                config[m.group(1)] = literal_eval("'" + m.group(2) + "'")
+                self.config[m.group(1)] = literal_eval("'" + m.group(2) + "'")
                 continue
-        return config
 
 class Annotation(Config):
     """
-    Parse annotations file, individual config options can be accessed via
-    .config[<CONFIG_OPTION>]
+    Parse body of annotations file
+    """
+    def _parse_body(self, data: str):
+        # Skip comments
+        data = re.sub(r'(?m)^\s*#.*\n?', '', data)
+
+        # Convert multiple spaces to single space to simplifly parsing
+        data = re.sub(r'  *', ' ', data)
+
+        # Handle includes (recursively)
+        for line in data.splitlines():
+            m = re.match(r'^include\s+"?([^"]*)"?', line)
+            if m:
+                self.include.append(m.group(1))
+                include_fname = dirname(abspath(self.fname)) + '/' + m.group(1)
+                include_data = self._load(include_fname)
+                self._parse_body(include_data)
+            else:
+                # Skip empty, non-policy and non-note lines
+                if re.match('.* policy<', line) or re.match('.* note<', line):
+                    try:
+                        conf = line.split(' ')[0]
+                        if conf in self.config:
+                            entry = self.config[conf]
+                        else:
+                            entry = {'policy': {}}
+                        m = re.match(r'.*policy<(.*)>', line)
+                        if m:
+                            entry['policy'] |= literal_eval(m.group(1))
+                        m = re.match(r'.*note<(.*?)>', line)
+                        if m:
+                            entry['note'] = "'" + m.group(1).replace("'", '') + "'"
+                        if entry:
+                            self.config[conf] = entry
+                    except Exception as e:
+                        raise Exception(str(e) + f', line = {line}')
+
+    """
+    Parse main annotations file, individual config options can be accessed via
+    self.config[<CONFIG_OPTION>]
     """
     def _parse(self, data: str) -> dict:
+        self.config = {}
         self.arch = []
         self.flavour = []
         self.flavour_dep = {}
+        self.include = []
         self.header = ''
-        # Parse header
+
+        # Parse header (only main header will considered, headers in includes
+        # will be treated as comments)
         for line in data.splitlines():
             if re.match(r'^#.*', line):
                 m = re.match(r'^# ARCH: (.*)', line)
@@ -72,49 +113,8 @@ class Annotation(Config):
             else:
                 break
 
-        # Skip comments
-        data = re.sub(r'(?m)^\s*#.*\n?', '', data)
-
-        # Handle includes (recursively)
-        self.include = []
-        expand_data = ''
-        for line in data.splitlines():
-            m = re.match(r'^include\s+"?([^"]*)"?', line)
-            if m:
-                self.include.append(m.group(1))
-                include_fname = dirname(abspath(self.fname)) + '/' + m.group(1)
-                include_data = self._load(include_fname)
-                expand_data += include_data + '\n'
-            else:
-                expand_data += line + '\n'
-
-        # Skip empty, non-policy and non-note lines
-        data = "\n".join([l.rstrip() for l in expand_data.splitlines()
-             if l.strip() and (re.match('.* policy<', l) or re.match('.* note<', l))])
-
-        # Convert multiple spaces to single space to simplifly parsing
-        data = re.sub(r'  *', ' ', data)
-
-        # Parse config/note statements
-        config = {}
-        for line in data.splitlines():
-            try:
-                conf = line.split(' ')[0]
-                if conf in config:
-                    entry = config[conf]
-                else:
-                    entry = {'policy': {}}
-                m = re.match(r'.*policy<(.*)>', line)
-                if m:
-                    entry['policy'] |= literal_eval(m.group(1))
-                m = re.match(r'.*note<(.*?)>', line)
-                if m:
-                    entry['note'] = "'" + m.group(1).replace("'", '') + "'"
-                if entry:
-                    config[conf] = entry
-            except Exception as e:
-                raise Exception(str(e) + f', line = {line}')
-        return config
+        # Parse body (handle includes recursively)
+        self._parse_body(data)
 
     def _remove_entry(self, config : str):
         if 'policy' in self.config[config]:
