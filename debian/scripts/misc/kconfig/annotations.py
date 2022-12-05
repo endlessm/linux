@@ -68,6 +68,7 @@ class Annotation(Config):
                 # Skip empty, non-policy and non-note lines
                 if re.match('.* policy<', line) or re.match('.* note<', line):
                     try:
+                        # Parse single policy or note rule
                         conf = line.split(' ')[0]
                         if conf in self.config:
                             entry = self.config[conf]
@@ -76,11 +77,13 @@ class Annotation(Config):
                         m = re.match(r'.*policy<(.*)>', line)
                         if m:
                             entry['policy'] |= literal_eval(m.group(1))
-                        m = re.match(r'.*note<(.*?)>', line)
-                        if m:
-                            entry['note'] = "'" + m.group(1).replace("'", '') + "'"
-                        if entry:
-                            self.config[conf] = entry
+                        else:
+                            m = re.match(r'.*note<(.*?)>', line)
+                            if m:
+                                entry['note'] = "'" + m.group(1).replace("'", '') + "'"
+                            else:
+                                raise Exception('syntax error')
+                        self.config[conf] = entry
                     except Exception as e:
                         raise Exception(str(e) + f', line = {line}')
 
