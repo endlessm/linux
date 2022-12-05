@@ -538,11 +538,10 @@ ifneq ($(full_build),false)
 endif
 	@touch $@
 
-headers_tmp := $(CURDIR)/debian/tmp-headers
 headers_dir := $(CURDIR)/debian/linux-libc-dev
 
-hmake := $(MAKE) -C $(CURDIR) O=$(headers_tmp) \
-	INSTALL_HDR_PATH=$(headers_tmp)/install \
+hmake := $(MAKE) -C $(CURDIR) O=$(headers_dir) \
+	INSTALL_HDR_PATH=$(headers_dir)/install \
 	SHELL="$(SHELL)" ARCH=$(header_arch)
 
 .PHONY: install-arch-headers
@@ -553,16 +552,11 @@ install-arch-headers:
 ifeq ($(do_libc_dev_package),true)
 	dh_prep -plinux-libc-dev
 endif
-	rm -rf $(headers_tmp)
-	install -d $(headers_tmp) $(headers_dir)/usr/include/
+	rm -rf $(headers_dir)
+	install -d $(headers_dir)/usr/include/
 	$(hmake) $(conc_level) headers_install
-	( cd $(headers_tmp)/install/include/ && \
-		find . -name '.' -o -name '.*' -prune -o -print | \
-                cpio -pvd --preserve-modification-time \
-			$(headers_dir)/usr/include/ )
 	mkdir $(headers_dir)/usr/include/$(DEB_HOST_MULTIARCH)
 	mv $(headers_dir)/usr/include/asm $(headers_dir)/usr/include/$(DEB_HOST_MULTIARCH)/
-	rm -rf $(headers_tmp)
 
 define dh_all
 	dh_installchangelogs -p$(1)
