@@ -8,6 +8,7 @@ sys.dont_write_bytecode = True
 import argparse
 import json
 from kconfig.annotations import Annotation, KConfig
+from signal import signal, SIGPIPE, SIG_DFL
 
 VERSION = '0.1'
 
@@ -206,6 +207,11 @@ def autodetect_annotations(args):
         arg_fail('error: could not determine DEBDIR, try using: --file/-f')
 
 def main():
+    # Prevent broken pipe errors when showing output in pipe to other tools
+    # (less for example)
+    signal(SIGPIPE, SIG_DFL)
+
+    # Main annotations program
     args = _ARGPARSER.parse_args()
     autodetect_annotations(args)
     if args.value:
