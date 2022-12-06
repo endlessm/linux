@@ -76,11 +76,8 @@ def do_query(args):
     if args.arch is None and args.flavour is not None:
         arg_fail('error: --flavour requires --arch')
     a = Annotation(args.file)
-    for config in (args.config, 'CONFIG_' + args.config if args.config else None):
-        res = a.search_config(config=config, arch=args.arch, flavour=args.flavour)
-        if res:
-            break
-    print_result(config, res)
+    res = a.search_config(config=args.config, arch=args.arch, flavour=args.flavour)
+    print_result(args.config, res)
 
 def do_autocomplete(args):
     a = Annotation(args.file)
@@ -90,57 +87,45 @@ def do_autocomplete(args):
 def do_source(args):
     if args.config is None:
         arg_fail('error: --source requires --config')
-    if args.config.startswith('CONFIG_'):
-        config = args.config
-    else:
-        config = 'CONFIG_' + args.config
     if not os.path.exists('tags'):
         print('tags not found in the current directory, try: `make tags`')
         exit(1)
-    os.system(f'vim -t {config}')
+    os.system(f'vim -t {args.config}')
 
 def do_note(args):
     if args.config is None:
         arg_fail('error: --note requires --config')
-    if args.config.startswith('CONFIG_'):
-        config = args.config
-    else:
-        config = 'CONFIG_' + args.config
 
     # Set the note in annotations
     a = Annotation(args.file)
-    a.set(config, note=args.note)
+    a.set(args.config, note=args.note)
 
     # Save back to annotations
     a.save(args.file)
 
     # Query and print back the value
     a = Annotation(args.file)
-    res = a.search_config(config=config)
-    print_result(config, res)
+    res = a.search_config(config=args.config)
+    print_result(args.config, res)
 
 def do_write(args):
     if args.config is None:
         arg_fail('error: --write requires --config')
-    if args.config.startswith('CONFIG_'):
-        config = args.config
-    else:
-        config = 'CONFIG_' + args.config
 
     # Set the value in annotations ('null' means remove)
     a = Annotation(args.file)
     if args.value == 'null':
-        a.remove(config, arch=args.arch, flavour=args.flavour)
+        a.remove(args.config, arch=args.arch, flavour=args.flavour)
     else:
-        a.set(config, arch=args.arch, flavour=args.flavour, value=args.value, note=args.note)
+        a.set(args.config, arch=args.arch, flavour=args.flavour, value=args.value, note=args.note)
 
     # Save back to annotations
     a.save(args.file)
 
     # Query and print back the value
     a = Annotation(args.file)
-    res = a.search_config(config=config)
-    print_result(config, res)
+    res = a.search_config(config=args.config)
+    print_result(args.config, res)
 
 def do_export(args):
     if args.arch is None:
@@ -236,6 +221,10 @@ def main():
     # Main annotations program
     args = _ARGPARSER.parse_args()
     autodetect_annotations(args)
+
+    if args.config and not args.config.startswith('CONFIG_'):
+        args.config = 'CONFIG_' + args.config
+
     if args.value:
         do_write(args)
     elif args.note:
