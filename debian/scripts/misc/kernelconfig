@@ -30,7 +30,11 @@ kerneldir="`pwd`"
 confdir="$kerneldir/${DEBIAN}/config"
 variant="$2"
 
-. $DEBIAN/etc/kernelconfig
+# TODO: Drop this once all derivatives have migrated to the new annotations
+# scheme
+if [ -e $DEBIAN/etc/kernelconfig ] ; then
+	. $DEBIAN/etc/kernelconfig
+fi
 
 bindir="`pwd`/${DROOT}/scripts/misc"
 test -d CONFIGS || mkdir CONFIGS
