@@ -6,7 +6,7 @@ mods_extra_dir="${3}"
 
 echo "II: Checking signature of staging modules for ${flavor}..."
 
-root=$(dirname "$(realpath -e "${0}")")/../..
+root=$(dirname "$(realpath -e "${0}")")/../../..
 . "${root}"/debian/debian.env
 
 # Collect the signature-inclusion files

@@ -1,26 +1,26 @@
 # Check ABI for package against last release (if not same abinum)
 abi-check-%: $(stampdir)/stamp-install-%
 	@echo Debug: $@
-	$(DROOT)/scripts/abi-check "$*" \
+	$(DROOT)/scripts/checks/abi-check "$*" \
 		"$(prev_abidir)" "$(abidir)" $(skipabi)
 
 # Check the module list against the last release (always)
 module-check-%: $(stampdir)/stamp-install-%
 	@echo Debug: $@
-	$(DROOT)/scripts/module-check "$*" \
+	$(DROOT)/scripts/checks/module-check "$*" \
 		"$(prev_abidir)" "$(abidir)" $(skipmodule)
 
 # Check the signature of staging modules
 module-signature-check-%: $(stampdir)/stamp-install-%
 	@echo Debug: $@
-	$(DROOT)/scripts/module-signature-check "$*" \
+	$(DROOT)/scripts/checks/module-signature-check "$*" \
 		"$(DROOT)/$(mods_pkg_name)-$*" \
 		"$(DROOT)/$(mods_extra_pkg_name)-$*"
 
 # Check the reptoline jmp/call functions against the last release.
 retpoline-check-%: $(stampdir)/stamp-install-%
 	@echo Debug: $@
-	$(SHELL) $(DROOT)/scripts/retpoline-check "$*" \
+	$(DROOT)/scripts/checks/retpoline-check "$*" \
 		"$(prev_abidir)" "$(abidir)" "$(skipretpoline)" "$(builddir)/build-$*"
 
 checks-%: module-check-% module-signature-check-% abi-check-% retpoline-check-%
@@ -30,11 +30,10 @@ checks-%: module-check-% module-signature-check-% abi-check-% retpoline-check-%
 config-prepare-check-%: $(stampdir)/stamp-prepare-tree-%
 	@echo Debug: $@
 	if [ -e $(commonconfdir)/config.common.ubuntu ]; then \
-		perl -f $(DROOT)/scripts/config-check \
+		perl -f $(DROOT)/scripts/checks/config-check \
 			$(builddir)/build-$*/.config "$(arch)" "$*" "$(commonconfdir)" \
 			"$(skipconfig)" "$(do_enforce_all)"; \
 	else \
 		python3 $(DROOT)/scripts/misc/annotations -f $(commonconfdir)/annotations \
 			--arch $(arch) --flavour $* --check $(builddir)/build-$*/.config; \
 	fi
-
