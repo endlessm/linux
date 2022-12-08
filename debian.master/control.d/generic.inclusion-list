@@ -45,11 +45,16 @@ drivers/firmware/efi/*
 drivers/firmware/iscsi_ibft.ko
 drivers/gpio/gpio-max77620.ko
 drivers/gpu/drm/ast/ast.ko
+drivers/gpu/drm/bochs/bochs-drm.ko
+drivers/gpu/drm/cirrus/cirrus.ko
 drivers/gpu/drm/drm.ko
 drivers/gpu/drm/drm_kms_helper.ko
 drivers/gpu/drm/tegra/tegra-drm.ko
 drivers/gpu/drm/ttm/ttm.ko
 drivers/gpu/drm/vboxvideo/vboxvideo.ko
+drivers/gpu/drm/virtio/virtio-gpu.ko
+drivers/gpu/drm/vmwgfx/vmwgfx.ko
+drivers/gpu/drm/xen/drm_xen_front.ko
 drivers/gpu/host1x/host1x.ko
 drivers/hid/hid-generic.ko
 drivers/hid/hid-hyperv.ko
