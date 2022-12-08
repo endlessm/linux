@@ -1,210 +1,139 @@
-#!/usr/bin/perl -w
+#!/usr/bin/python3
+#
+# Check ABI changes
+#
+# To skip the ABI checks, add a file
+#  debian.<foo>/abi/<arch>/ignore.abi
+# or
+#  debian.<foo>/abi/<arch>/<flavor>.ignore.abi
+#
+# To ignore a list of symbols, add the symbols to the file
+#   debian.<foo>/abi/abi.ignore
+#
 
-my $flavour = shift;
-my $prev_abinum = shift;
-my $abinum = shift;
-my $prev_abidir = shift;
-my $abidir = shift;
-my $skipabi = shift;
+import os
+import re
+import sys
 
-my $fail_exit = 1;
-my $EE = "EE:";
-my $errors = 0;
-my $abiskip = 0;
+def decode_symline(line):
+    comps = re.sub(r'\s+', ' ', line).split(' ')
+    if comps[0].startswith('EXPORT_SYMBOL'):
+        stype, sloc, shash, sname = comps
+    else:
+        stype, shash, sname, sloc = comps[1:]
+    return sname, {'type': stype, 'loc': sloc, 'hash': shash}
 
-my $count;
+if len(sys.argv) < 4 or len(sys.argv) > 5:
+    print('Usage: abi-check <flavor> <prev_abidir> <abidir> [<skipabi>]')
+    sys.exit(2)
 
-print "II: Checking ABI for $flavour...\n";
+flavor, prev_abidir, abidir = sys.argv[1:4]  # pylint: disable=W0632
+if len(sys.argv) > 4:
+    skipabi = sys.argv[4].lower() in ['1', 'true', 'yes']
+else:
+    skipabi = False
 
-if (-f "$prev_abidir/ignore"
-    or -f "$prev_abidir/$flavour.ignore" or "$skipabi" eq "true") {
-	print "WW: Explicitly asked to ignore ABI, running in no-fail mode\n";
-	$fail_exit = 0;
-	$abiskip = 1;
-	$EE = "WW:";
-}
+print('II: Checking ABI for {}...'.format(flavor), end='')
 
-if ($prev_abinum != $abinum) {
-	print "II: Different ABI's, running in no-fail mode\n";
-	$fail_exit = 0;
-	$EE = "WW:";
-}
+if ((os.path.exists('{}/ignore.abi'.format(prev_abidir)) or
+     os.path.exists('{}/{}.ignore.abi'.format(prev_abidir, flavor)))):
+    print('WW: Explicitly ignoring ABI')
+    print('II: Done')
+    sys.exit(0)
 
-if (not -f "$abidir/$flavour" or not -f "$prev_abidir/$flavour") {
-	print "EE: Previous or current ABI file missing!\n";
-	print "    $abidir/$flavour\n" if not -f "$abidir/$flavour";
-	print "    $prev_abidir/$flavour\n" if not -f "$prev_abidir/$flavour";
+curr_abi = '{}/{}'.format(abidir, flavor)
+prev_abi = '{}/{}'.format(prev_abidir, flavor)
+if not os.path.exists(curr_abi) or not os.path.exists(prev_abi):
+    print('II: Previous or current ABI file missing!')
+    print('    {}'.format(curr_abi))
+    print('    {}'.format(prev_abi))
+    if skipabi:
+        print('WW: Explicitly asked to ignore failures')
+        print('II: Done')
+        sys.exit(0)
+    print('EE: Missing ABI file')
+    sys.exit(1)
 
-	# Exit if the ABI files are missing, but return status based on whether
-	# skip ABI was indicated.
-	if ("$abiskip" eq "1") {
-		exit(0);
-	} else {
-		exit(1);
-	}
-}
+print()
 
-my %symbols;
-my %symbols_ignore;
-my %modules_ignore;
-my %module_syms;
+symbols = {}
+symbols_ignore = {}
 
 # See if we have any ignores
-my $ignore = 0;
-print "    Reading symbols/modules to ignore...";
+print('    Reading symbols to ignore...', end='')
+ignore = 0
+prev_abi_ignore = '{}/../abi.ignore'.format(prev_abidir)
+if os.path.exists(prev_abi_ignore):
+    with open(prev_abi_ignore) as fh:
+        for sym in fh:
+            sym = sym.strip()
+            if sym.startswith('#'):
+                continue
+            symbols_ignore[sym] = 1
+            ignore += 1
+print('read {} symbols.'.format(ignore))
 
-for $file ("$prev_abidir/../blacklist") {
-	if (-f $file) {
-		open(IGNORE, "< $file") or
-			die "Could not open $file";
-		while (<IGNORE>) {
-			chomp;
-			if ($_ =~ m/M: (.*)/) {
-				$modules_ignore{$1} = 1;
-			} else {
-				$symbols_ignore{$_} = 1;
-			}
-			$ignore++;
-		}
-		close(IGNORE);
-	}
-}
-print "read $ignore symbols/modules.\n";
+# Read new symbols first
+print('    Reading new symbols...', end='')
+new_count = 0
+with open('{}/{}'.format(abidir, flavor)) as fh:
+    for line in fh:
+        sym, vals = decode_symline(line.strip())
+        symbols[sym] = vals
+        new_count += 1
+print('read {} symbols.'.format(new_count))
 
-sub is_ignored($$) {
-	my ($mod, $sym) = @_;
+# Now the old symbols
+print('    Reading old symbols...', end='')
+old_count = 0
+with open('{}/{}'.format(prev_abidir, flavor)) as fh:
+    for line in fh:
+        sym, vals = decode_symline(line.strip())
+        if sym not in symbols:
+            symbols[sym] = {}
+        symbols[sym]['old'] = vals
+        old_count += 1
+print('read {} symbols.'.format(old_count))
 
-	die "Missing module name in is_ignored()" if not defined($mod);
-	die "Missing symbol name in is_ignored()" if not defined($sym);
+print('II: Checking for ABI changes...')
+changed_loc = 0
+changed_type = 0
+error = False
+for sym, vals in symbols.items():
+    # Ignore new symbols
+    if 'old' not in vals:
+        continue
 
-	if (defined($symbols_ignore{$sym}) or defined($modules_ignore{$mod})) {
-		return 1;
-	}
-	return 0;
-}
+    # Changes in location don't hurt us, but log it anyway
+    if vals['loc'] != vals['old']['loc']:
+        changed_loc += 1
+        print('    MOVE : {:40} : {} => {}'.format(sym, vals['old']['loc'],
+                                                   vals['loc']))
 
-# Read new syms first
-print "    Reading new symbols ($abinum)...";
-$count = 0;
-open(NEW, "< $abidir/$flavour") or
-	die "Could not open $abidir/$flavour";
-while (<NEW>) {
-	chomp;
-	m/^(\S+)\s(.+)\s(0x[0-9a-f]+)\s(.+)$/;
-	$symbols{$4}{'type'} = $1;
-	$symbols{$4}{'loc'} = $2;
-	$symbols{$4}{'hash'} = $3;
-	$module_syms{$2} = 0;
-	$count++;
-}
-close(NEW);
-print "read $count symbols.\n";
+    # Changes from GPL to non-GPL are bad
+    if ((vals['old']['type'] == 'EXPORT_SYMBOL_GPL' and
+         vals['type'] != 'EXPORT_SYMBOL_GPL')):
+        changed_type += 1
+        if sym in symbols_ignore or vals['loc'] in symbols_ignore:
+            ignored = ' (ignore)'
+        else:
+            ignored = ''
+            error = True
+        print('    TYPE : {:40} : {} => {}{}'.format(sym, vals['old']['type'],
+                                                     vals['type'], ignored))
 
-# Now the old symbols, checking for missing ones
-print "    Reading old symbols ($prev_abinum)...";
-$count = 0;
-open(OLD, "< $prev_abidir/$flavour") or
-	die "Could not open $prev_abidir/$flavour";
-while (<OLD>) {
-	chomp;
-	m/^(\S+)\s(.+)\s(0x[0-9a-f]+)\s(.+)$/;
-	$symbols{$4}{'old_type'} = $1;
-	$symbols{$4}{'old_loc'} = $2;
-	$symbols{$4}{'old_hash'} = $3;
-	$count++;
-}
-close(OLD);
+if changed_loc > 0:
+    print('II: {} symbols changed location'.format(changed_loc))
 
-print "read $count symbols.\n";
+if changed_type > 0:
+    print('II: {} symbols changed export type'.format(changed_type))
 
-print "II: Checking for missing symbols in new ABI...";
-$count = 0;
-foreach $sym (keys(%symbols)) {
-	if (!defined($symbols{$sym}{'type'})) {
-		print "\n" if not $count;
-		printf("    MISS : %s%s\n", $sym,
-			is_ignored($symbols{$sym}{'old_loc'}, $sym) ? " (ignored)" : "");
-		$count++ if !is_ignored($symbols{$sym}{'old_loc'}, $sym);
-	}
-}
-print "    " if $count;
-print "found $count missing symbols\n";
-if ($count) {
-	print "$EE Symbols gone missing (what did you do!?!)\n";
-	$errors++;
-}
+if error:
+    if skipabi:
+        print('WW: Explicitly asked to ignore failures')
+    else:
+        print('EE: Symbol types changed')
+        sys.exit(1)
 
-
-print "II: Checking for new symbols in new ABI...";
-$count = 0;
-foreach $sym (keys(%symbols)) {
-	if (!defined($symbols{$sym}{'old_type'})) {
-		print "\n" if not $count;
-		print "    NEW : $sym\n";
-		$count++;
-	}
-}
-print "    " if $count;
-print "found $count new symbols\n";
-if ($count and $prev_abinum == $abinum) {
-	print "WW: Found new symbols within same ABI. Not recommended\n";
-}
-
-print "II: Checking for changes to ABI...\n";
-$count = 0;
-my $moved = 0;
-my $changed_type = 0;
-my $changed_hash = 0;
-foreach $sym (keys(%symbols)) {
-	if (!defined($symbols{$sym}{'old_type'}) or
-	    !defined($symbols{$sym}{'type'})) {
-		next;
-	}
-
-	# Changes in location don't hurt us, but log it anyway
-	if ($symbols{$sym}{'loc'} ne $symbols{$sym}{'old_loc'}) {
-		printf("    MOVE : %-40s : %s => %s\n", $sym, $symbols{$sym}{'old_loc'},
-			$symbols{$sym}{'loc'});
-		$moved++;
-	}
-
-	# Changes to export type are only bad if new type isn't
-	# EXPORT_SYMBOL. Changing things to GPL are bad.
-	if ($symbols{$sym}{'type'} ne $symbols{$sym}{'old_type'}) {
-		printf("    TYPE : %-40s : %s => %s%s\n", $sym, $symbols{$sym}{'old_type'}.
-			$symbols{$sym}{'type'}, is_ignored($symbols{$sym}{'loc'}, $sym)
-			? " (ignored)" : "");
-		$changed_type++ if $symbols{$sym}{'type'} ne "EXPORT_SYMBOL"
-			and !is_ignored($symbols{$sym}{'loc'}, $sym);
-	}
-
-	# Changes to the hash are always bad
-	if ($symbols{$sym}{'hash'} ne $symbols{$sym}{'old_hash'}) {
-		printf("    HASH : %-40s : %s => %s%s\n", $sym, $symbols{$sym}{'old_hash'},
-			$symbols{$sym}{'hash'}, is_ignored($symbols{$sym}{'loc'}, $sym)
-			? " (ignored)" : "");
-		$changed_hash++ if !is_ignored($symbols{$sym}{'loc'}, $sym);
-		$module_syms{$symbols{$sym}{'loc'}}++;
-	}
-}
-
-print "WW: $moved symbols changed location\n" if $moved;
-print "$EE $changed_type symbols changed export type and weren't ignored\n" if $changed_type;
-print "$EE $changed_hash symbols changed hash and weren't ignored\n" if $changed_hash;
-
-$errors++ if $changed_hash or $changed_type;
-if ($changed_hash) {
-	print "II: Module hash change summary...\n";
-	foreach $mod (sort { $module_syms{$b} <=> $module_syms{$a} } keys %module_syms) {
-		next if ! $module_syms{$mod};
-		printf("    %-40s: %d\n", $mod, $module_syms{$mod});
-	}
-}
-
-print "II: Done\n";
-
-if ($errors) {
-	exit($fail_exit);
-} else {
-	exit(0);
-}
+print('II: Done')
+sys.exit(0)
