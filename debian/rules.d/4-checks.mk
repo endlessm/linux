@@ -1,8 +1,8 @@
 # Check ABI for package against last release (if not same abinum)
 abi-check-%: $(stampdir)/stamp-install-%
 	@echo Debug: $@
-	@perl -f $(DROOT)/scripts/abi-check "$*" "$(prev_abinum)" "$(abinum)" \
-		"$(prev_abidir)" "$(abidir)" "$(skipabi)"
+	$(DROOT)/scripts/abi-check "$*" \
+		"$(prev_abidir)" "$(abidir)" $(skipabi)
 
 # Check the module list against the last release (always)
 module-check-%: $(stampdir)/stamp-install-%
