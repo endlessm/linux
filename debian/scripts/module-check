@@ -58,11 +58,11 @@ for f in (curr_modules, curr_modules + '.builtin'):
     with open(f) as fh:
         for mod in fh:
             mod = mod.strip()
-            modules[mod] = 1
+            modules[mod] = {'new': 1}
             new_count += 1
 print('read {} modules.'.format(new_count))
 
-# Now the old modules, checking for missing ones
+# Now the old modules
 print('   reading old modules...', end='')
 old_count = 0
 for f in (prev_modules, prev_modules + '.builtin'):
@@ -72,24 +72,28 @@ for f in (prev_modules, prev_modules + '.builtin'):
         for mod in fh:
             mod = mod.strip()
             if mod not in modules:
-                if not missing:
-                    print()
-                missing += 1
-                if mod not in modules_ignore:
-                    print('      MISS: {}'.format(mod))
-                    errors += 1
-                else:
-                    print('      MISS: {} (ignored)'.format(mod))
-            else:
-                modules[mod] += 1
+                modules[mod] = {}
+            modules[mod]['old'] = 1
             old_count += 1
-# Check for new modules
-for mod, cnt in modules.items():
-    if cnt < 2:
-        if not missing and not new:
-            print()
-        print('      NEW: {}'.format(mod))
+print('read {} modules.'.format(old_count))
+
+print('II: Checking for modules changes...')
+for mod, vals in modules.items():
+    # New modules
+    if 'old' not in vals:
+        print('    NEW: {}'.format(mod))
         new += 1
+
+    # Missing modules
+    if 'new' not in vals:
+        missing += 0
+        if mod in modules_ignore:
+            ignored = ' (ignored)'
+        else:
+            ignored = ''
+            errors += 1
+        print('    MISS : {}{}'.format(mod, ignored))
+
 if new or missing:
     print('      read {} modules : new({})  missing({})'.format(old_count, new, missing))
 else:
