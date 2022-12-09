@@ -118,11 +118,8 @@ CONFIG_COMPAT=y
 $ annotations --arch amd64 --flavour generic --import build/.config
 ```
 
-Moreover, three additional kernelconfig commands are provided
+Moreover, an additional kernelconfig commands are provided
 (via debian/rules targets):
- - `listnewconfigs`: allow to generate a list of new config options (e.g.,
-   after a rebase) and store them in CONFIGS/new-<arch>-<flavour> for
-   review
  - `migrateconfigs`: automatically merge all the previous configs into
    annotations (local changes still need to be committed)
 

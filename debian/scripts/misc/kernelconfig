@@ -8,13 +8,12 @@ if [ ! -f MAINTAINERS ] || [ ! -f Makefile ]; then
 	exit 1
 fi
 
-mode=${1:?"Usage: $0 (updateconfigs|defaultconfigs|genconfigs|listnewconfigs)"}
+mode=${1:?"Usage: $0 (updateconfigs|defaultconfigs|genconfigs)"}
 yes=0
 case "$mode" in
     update*configs)  mode='syncconfig' ;;
     default*configs) mode='oldconfig'; yes=1 ;;
     gen*configs)     mode='genconfigs' ;;
-    listnew*configs)     mode='listnewconfig' ;;
     *) echo "$0 called with invalid mode" 1>&2
        exit 1 ;;
 esac
@@ -95,12 +94,10 @@ for flavour in ${FLAVOURS}; do
 		warning_partial="$warning_partial $arch"
 	fi
 
-	# Call oldconfig, syncconfig or listnewconfig
+	# Call oldconfig or syncconfig
 	if [ "$modify_config" ]; then
 		echo "* Run $mode (yes=$yes) on $arch/$flavour ..."
-		if [ "$mode" = "listnewconfig" ]; then
-			(make O=`pwd`/build $conc_level $env "$mode" | grep "^CONFIG_" > CONFIGS/new-${conf_file}) || true
-		elif [ "$yes" -eq 1 ]; then
+		if [ "$yes" -eq 1 ]; then
 			yes "" | make O=`pwd`/build $conc_level $env "$mode"
 		else
 			make O=`pwd`/build $conc_level $env "$mode"
@@ -110,11 +107,6 @@ for flavour in ${FLAVOURS}; do
 	# Export config for config-check (or genconfigs)
 	cat build/.config > CONFIGS/${conf_file}
 done
-
-if [ "$mode" = "listnewconfig" ]; then
-	wc -l CONFIGS/new-*
-	exit 0
-fi
 
 echo ""
 echo "Running config-check for all configurations ..."
