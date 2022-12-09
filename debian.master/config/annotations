@@ -2826,8 +2826,6 @@ CONFIG_CRYPTO_XCTR                              policy<{'amd64-generic': 'm', 'a
 CONFIG_CRYPTO_XTS                               policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y', 's390x': 'y'}>
 CONFIG_CRYPTO_XXHASH                            policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm', 's390x': 'm'}>
 CONFIG_CRYPTO_ZSTD                              policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm', 's390x': 'm'}>
-CONFIG_CS5535_MFGPT                             note<'should be disabled by default'>
-
 CONFIG_CS89x0                                   policy<{'armhf-generic': 'm', 'armhf-generic-lpae': 'm'}>
 CONFIG_CS89x0_PLATFORM                          policy<{'armhf': 'm'}>
 CONFIG_CSD_LOCK_WAIT_DEBUG                      policy<{'amd64': 'n', 'arm64': 'n', 'ppc64el': 'n', 'riscv64': 'n', 's390x': 'n'}>
@@ -7350,8 +7348,6 @@ CONFIG_MOUSE_ELAN_I2C                           policy<{'amd64': 'm', 'arm64': '
 CONFIG_MOUSE_ELAN_I2C_I2C                       policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y'}>
 CONFIG_MOUSE_ELAN_I2C_SMBUS                     policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y'}>
 CONFIG_MOUSE_GPIO                               policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm', 's390x': '-'}>
-CONFIG_MOUSE_INPORT                             note<'very old ISA based mouse support'>
-
 CONFIG_MOUSE_PS2                                policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm', 's390x': '-'}>
 CONFIG_MOUSE_PS2_ALPS                           policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y'}>
 CONFIG_MOUSE_PS2_BYD                            policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y'}>
@@ -14454,8 +14450,6 @@ CONFIG_X86_CHECK_BIOS_CORRUPTION                policy<{'amd64': 'y'}>
 CONFIG_X86_CMOV                                 policy<{'amd64-generic': 'y'}>
 CONFIG_X86_CMPXCHG64                            policy<{'amd64-generic': 'y'}>
 CONFIG_X86_CPA_STATISTICS                       policy<{'amd64': 'n'}>
-CONFIG_X86_CPUFREQ_NFORCE2                      note<'not autoloadable'>
-
 CONFIG_X86_CPUID                                policy<{'amd64': 'm'}>
 CONFIG_X86_CPU_RESCTRL                          policy<{'amd64': 'y'}>
 CONFIG_X86_DEBUGCTLMSR                          policy<{'amd64-generic': 'y'}>
@@ -14481,8 +14475,6 @@ CONFIG_X86_KERNEL_IBT                           policy<{'amd64': 'n'}>
 CONFIG_X86_KERNEL_IBT                           note<'LP: #1980484'>
 
 CONFIG_X86_L1_CACHE_SHIFT                       policy<{'amd64-generic': '6'}>
-CONFIG_X86_LEGACY_VM86                          note<'LP: #1499089'>
-
 CONFIG_X86_LOCAL_APIC                           policy<{'amd64-generic': 'y'}>
 CONFIG_X86_MCE                                  policy<{'amd64': 'y'}>
 CONFIG_X86_MCELOG_LEGACY                        policy<{'amd64': 'y'}>
@@ -14516,11 +14508,7 @@ CONFIG_X86_SGX_KVM                              policy<{'amd64': 'y'}>
 CONFIG_X86_SPEEDSTEP_CENTRINO                   policy<{'amd64': 'y'}>
 CONFIG_X86_SPEEDSTEP_CENTRINO                   note<'not autoloadable'>
 
-CONFIG_X86_SPEEDSTEP_ICH                        note<'not autoloadable'>
-
 CONFIG_X86_SPEEDSTEP_LIB                        policy<{'amd64-generic': 'm'}>
-CONFIG_X86_SPEEDSTEP_SMI                        note<'not autoloadable'>
-
 CONFIG_X86_SUPPORTS_MEMORY_FAILURE              policy<{'amd64-generic': 'y'}>
 CONFIG_X86_THERMAL_VECTOR                       policy<{'amd64-generic': 'y'}>
 CONFIG_X86_TSC                                  policy<{'amd64-generic': 'y'}>
