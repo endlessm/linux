@@ -8,15 +8,13 @@ if [ ! -f MAINTAINERS ] || [ ! -f Makefile ]; then
 	exit 1
 fi
 
-mode=${1:?"Usage: $0 (updateconfigs|defaultconfigs|genconfigs|listnewconfigs|importconfigs)"}
+mode=${1:?"Usage: $0 (updateconfigs|defaultconfigs|genconfigs|listnewconfigs)"}
 yes=0
-import=0
 case "$mode" in
     update*configs)  mode='syncconfig' ;;
     default*configs) mode='oldconfig'; yes=1 ;;
     gen*configs)     mode='genconfigs' ;;
     listnew*configs)     mode='listnewconfig' ;;
-    import*configs)     mode='syncconfig' import=1 ;;
     *) echo "$0 called with invalid mode" 1>&2
        exit 1 ;;
 esac
@@ -109,11 +107,6 @@ for flavour in ${FLAVOURS}; do
 		fi
 	fi
 
-	# Automatically import configs back into annotations
-	if [ "$import" -eq 1 ]; then
-		python3 ${bindir}/annotations -f ${confdir}/annotations --arch ${arch} --flavour ${flavour} --import build/.config
-	fi
-
 	# Export config for config-check (or genconfigs)
 	cat build/.config > CONFIGS/${conf_file}
 done
@@ -155,5 +148,14 @@ if [ "$warning_partial" ]; then
 	echo "WARNING: configuration operation applied only to a subset of architectures (skipped$warning_partial)" 1>&2
 	echo ""
 fi
+
+# Automatically import configs back into annotations
+for flavour in ${FLAVOURS}; do
+	arch=$(echo $flavour    | sed 's/\([^-]*\)-\(.*\)/\1/')
+	flavour=$(echo $flavour | sed 's/\([^-]*\)-\(.*\)/\2/')
+	conf_file=${arch}-config.flavour.${flavour}
+
+	python3 ${bindir}/annotations -f ${confdir}/annotations --arch ${arch} --flavour ${flavour} --import CONFIGS/${conf_file}
+done
 
 exit "${rc}"

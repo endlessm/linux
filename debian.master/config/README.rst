@@ -123,9 +123,6 @@ Moreover, three additional kernelconfig commands are provided
  - `listnewconfigs`: allow to generate a list of new config options (e.g.,
    after a rebase) and store them in CONFIGS/new-<arch>-<flavour> for
    review
- - `importconfigs`: after new .config's are generated and reviewed (in
-   CONFIGS/<arch>-<flavour>) we can use this command to automatically
-   import all of them into the local annotations
  - `migrateconfigs`: automatically merge all the previous configs into
    annotations (local changes still need to be committed)
 
