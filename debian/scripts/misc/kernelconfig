@@ -10,6 +10,7 @@ fi
 
 mode=${1:?"Usage: $0 (updateconfigs|defaultconfigs|genconfigs)"}
 yes=0
+genconfigs=0
 case "$mode" in
     update*configs)  mode='syncconfig' ;;
     default*configs) mode='oldconfig'; yes=1 ;;
@@ -34,9 +35,10 @@ if [ -e $DEBIAN/etc/kernelconfig ] ; then
 fi
 
 bindir="`pwd`/${DROOT}/scripts/misc"
-test -d CONFIGS || mkdir CONFIGS
+tmpdir=`mktemp -d`
 
 if [ "$mode" = "genconfigs" ]; then
+	genconfigs=1
 	mode="oldconfig"
 fi
 
@@ -56,8 +58,8 @@ for flavour in ${FLAVOURS}; do
 
 	# Generate .config from annotations (if a previosly generate config is
 	# available use that).
-	if [ -e "CONFIGS/${conf_file}" ]; then
-		cat CONFIGS/${conf_file} > build/.config
+	if [ -e "${tmpdir}/${conf_file}" ]; then
+		cat ${tmpdir}/${conf_file} > build/.config
 	else
 		python3 ${bindir}/annotations -f ${confdir}/annotations --arch ${arch} --flavour ${flavour} --export > build/.config
 	fi
@@ -105,22 +107,20 @@ for flavour in ${FLAVOURS}; do
 	fi
 
 	# Export config for config-check (or genconfigs)
-	cat build/.config > CONFIGS/${conf_file}
+	cat build/.config > ${tmpdir}/${conf_file}
 done
 
 echo ""
 echo "Running config-check for all configurations ..."
 echo ""
 fail=0
-log_file=CONFIGS/config-check.log
-truncate -s0 ${log_file}
 for flavour in ${FLAVOURS}; do
 	arch=$(echo $flavour    | sed 's/\([^-]*\)-\(.*\)/\1/')
 	flavour=$(echo $flavour | sed 's/\([^-]*\)-\(.*\)/\2/')
 	conf_file=${arch}-config.flavour.${flavour}
 
-	echo "Running config-check for ${arch}-${flavour}" | tee -a ${log_file}
-	python3 ${bindir}/annotations -f ${confdir}/annotations --arch ${arch} --flavour ${flavour} --check CONFIGS/${conf_file} | tee -a ${log_file}
+	echo "Running config-check for ${arch}-${flavour}"
+	python3 ${bindir}/annotations -f ${confdir}/annotations --arch ${arch} --flavour ${flavour} --check ${tmpdir}/${conf_file}
 	[ ${PIPESTATUS[0]} -ne 0 ] && let "fail=$fail+1"
 done
 
@@ -141,13 +141,19 @@ if [ "$warning_partial" ]; then
 	echo ""
 fi
 
-# Automatically import configs back into annotations
-for flavour in ${FLAVOURS}; do
-	arch=$(echo $flavour    | sed 's/\([^-]*\)-\(.*\)/\1/')
-	flavour=$(echo $flavour | sed 's/\([^-]*\)-\(.*\)/\2/')
-	conf_file=${arch}-config.flavour.${flavour}
+if [ "$genconfigs" == "1" ]; then
+	rm -rf CONFIGS
+	mv ${tmpdir} CONFIGS
+else
+	# Automatically import configs back into annotations
+	for flavour in ${FLAVOURS}; do
+		arch=$(echo $flavour    | sed 's/\([^-]*\)-\(.*\)/\1/')
+		flavour=$(echo $flavour | sed 's/\([^-]*\)-\(.*\)/\2/')
+		conf_file=${arch}-config.flavour.${flavour}
 
-	python3 ${bindir}/annotations -f ${confdir}/annotations --arch ${arch} --flavour ${flavour} --import CONFIGS/${conf_file}
-done
+		python3 ${bindir}/annotations -f ${confdir}/annotations --arch ${arch} --flavour ${flavour} --import ${tmpdir}/${conf_file}
+	done
+	rm -rf ${tmpdir}
+fi
 
 exit "${rc}"
