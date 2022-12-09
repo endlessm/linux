@@ -1,7 +1,7 @@
 # The following targets are for the maintainer only! do not run if you don't
 # know what they do.
 
-.PHONY: printenv updateconfigs defaultconfigs genconfigs listnewconfigs migrateconfigs printchanges insertchanges startnewrelease diffupstream help autoreconstruct finalchecks
+.PHONY: printenv updateconfigs defaultconfigs genconfigs migrateconfigs printchanges insertchanges startnewrelease diffupstream help autoreconstruct finalchecks
 
 help:
 	@echo "These are the targets in addition to the normal $(DEBIAN) ones:"
@@ -13,8 +13,6 @@ help:
 	@echo "  defaultconfigs       : Update core arch configs using defaults"
 	@echo
 	@echo "  genconfigs           : Generate core arch configs in CONFIGS/*"
-	@echo
-	@echo "  listnewconfigs       : Generate new core arch configs in CONFIGS/new-*"
 	@echo
 	@echo "  migrateconfigs       : Automatically import old configs into annotations"
 	@echo
@@ -59,7 +57,7 @@ migrateconfigs:
 	fi
 	rm -rf build
 
-configs-targets := updateconfigs defaultconfigs genconfigs listnewconfigs
+configs-targets := updateconfigs defaultconfigs genconfigs
 
 .PHONY: $(configs-targets)
 $(configs-targets):
