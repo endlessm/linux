@@ -1,7 +1,7 @@
 # The following targets are for the maintainer only! do not run if you don't
 # know what they do.
 
-.PHONY: printenv updateconfigs defaultconfigs genconfigs listnewconfigs importconfigs migrateconfigs printchanges insertchanges startnewrelease diffupstream help autoreconstruct finalchecks
+.PHONY: printenv updateconfigs defaultconfigs genconfigs listnewconfigs migrateconfigs printchanges insertchanges startnewrelease diffupstream help autoreconstruct finalchecks
 
 help:
 	@echo "These are the targets in addition to the normal $(DEBIAN) ones:"
@@ -15,8 +15,6 @@ help:
 	@echo "  genconfigs           : Generate core arch configs in CONFIGS/*"
 	@echo
 	@echo "  listnewconfigs       : Generate new core arch configs in CONFIGS/new-*"
-	@echo
-	@echo "  importconfigs        : Automatically import new core arch configs into annotations"
 	@echo
 	@echo "  migrateconfigs       : Automatically import old configs into annotations"
 	@echo
@@ -57,11 +55,11 @@ migrateconfigs:
 		mkdir -p $(DEBIAN)/config; \
 		debian/scripts/misc/migrate-annotations < build/.annotations > $(DEBIAN)/config/annotations; \
 		mv build/.README.rst $(DEBIAN)/config/README.rst 2>/dev/null || true; \
-		conc_level=$(conc_level) $(SHELL) $(DROOT)/scripts/misc/kernelconfig importconfigs; \
+		conc_level=$(conc_level) $(SHELL) $(DROOT)/scripts/misc/kernelconfig updateconfigs; \
 	fi
 	rm -rf build
 
-configs-targets := updateconfigs defaultconfigs genconfigs listnewconfigs importconfigs
+configs-targets := updateconfigs defaultconfigs genconfigs listnewconfigs
 
 .PHONY: $(configs-targets)
 $(configs-targets):
