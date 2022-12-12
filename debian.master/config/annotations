@@ -11937,6 +11937,7 @@ CONFIG_SND_SOC_RT1019                           policy<{'amd64-generic': 'm'}>
 CONFIG_SND_SOC_RT1308                           policy<{'amd64-generic': 'm'}>
 CONFIG_SND_SOC_RT1308_SDW                       policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm'}>
 CONFIG_SND_SOC_RT1316_SDW                       policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm'}>
+CONFIG_SND_SOC_RT1318_SDW                       policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm'}>
 CONFIG_SND_SOC_RT274                            policy<{'amd64-generic': 'm'}>
 CONFIG_SND_SOC_RT286                            policy<{'amd64-generic': 'm'}>
 CONFIG_SND_SOC_RT298                            policy<{'amd64-generic': 'm'}>
