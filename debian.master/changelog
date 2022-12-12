@@ -1,3 +1,9 @@
+linux (6.1.0-0.0) lunar; urgency=medium
+
+  * Empty entry
+
+ -- Andrea Righi <andrea.righi@canonical.com>  Mon, 12 Dec 2022 09:42:01 +0100
+
 linux-unstable (6.1.0-9.9) lunar; urgency=medium
 
   * lunar/linux-unstable: 6.1.0-9.9 -proposed tracker (LP: #1998078)
