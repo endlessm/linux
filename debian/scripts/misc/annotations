@@ -16,8 +16,10 @@ VERSION = '0.1'
 SKIP_CONFIGS = (
     # CONFIG_VERSION_SIGNATURE is dynamically set during the build
     'CONFIG_VERSION_SIGNATURE',
-    # Allow to use a different version of gcc
+    # Allow to use a different version of gcc, as and ld
     'CONFIG_CC_VERSION_TEXT',
+    'CONFIG_AS_VERSION',
+    'CONFIG_LD_VERSION',
 )
 
 def make_parser():
