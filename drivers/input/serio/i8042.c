@@ -185,7 +185,7 @@ static int __init i8042_set_noaux(const struct dmi_system_id *dmi)
 	return 1;
 }
 
-static const struct dmi_system_id i8042_quirks[] __initconst = {
+static const struct dmi_system_id i8042_quirks[] = {
 	{
 		.callback = i8042_set_noaux,
 		.ident = "Dell laptop",
