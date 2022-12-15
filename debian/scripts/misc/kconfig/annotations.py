@@ -208,11 +208,30 @@ class Annotation(Config):
                     if self.config[conf]['policy'][flavour] == self.config[conf]['policy'][generic]:
                         del self.config[conf]['policy'][flavour]
                         continue
+            # Remove rules for flavours / arches that are not supported (not
+            # listed in the annotations header).
             for flavour in self.config[conf]['policy'].copy():
                 if flavour not in list(set(self.arch + self.flavour)):
                     del self.config[conf]['policy'][flavour]
+            # Drop empty rules
             if not self.config[conf]['policy']:
                 del self.config[conf]
+            else:
+                # Compact same value across all flavour within the same arch
+                for arch in self.arch:
+                    arch_flavours = [i for i in self.flavour if i.startswith(arch)]
+                    value = None
+                    for flavour in arch_flavours:
+                        if flavour not in self.config[conf]['policy']:
+                            break
+                        elif value is None:
+                            value = self.config[conf]['policy'][flavour]
+                        elif value != self.config[conf]['policy'][flavour]:
+                            break
+                    else:
+                        for flavour in arch_flavours:
+                            del self.config[conf]['policy'][flavour]
+                        self.config[conf]['policy'][arch] = value
 
     def save(self, fname: str):
         """ Save annotations data to the annotation file """
