@@ -322,8 +322,15 @@ endif
 	cp $(builddir)/build-$*/.config $(hdrdir)
 	chmod 644 $(hdrdir)/.config
 	$(kmake) O=$(hdrdir) -j1 syncconfig prepare scripts
-	# We'll symlink this stuff
+	# Makefile may need per-arch-flavour CC settings, which are
+	# normally set via $(kmake) during build
 	rm -f $(hdrdir)/Makefile
+	cp -a $(indep_hdrdir)/Makefile $(hdrdir)/Makefile
+	sed -i 's|\(^HOSTCC	= \)gcc$$|\1$(gcc)|' $(hdrdir)/Makefile
+	sed -i 's|\(^CC		= $$(CROSS_COMPILE)\)gcc$$|\1$(gcc)|' $(hdrdir)/Makefile
+	# Quick check for successful substitutions
+	grep '^HOSTCC	.*$(gcc)$$' $(hdrdir)/Makefile
+	grep '^CC	.*$(gcc)$$' $(hdrdir)/Makefile
 	rm -rf $(hdrdir)/include2 $(hdrdir)/source
 	# We do not need the retpoline information.
 	find $(hdrdir) -name \*.o.ur-\* | xargs rm -f
