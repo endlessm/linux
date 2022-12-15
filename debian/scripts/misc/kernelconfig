@@ -14,7 +14,7 @@ genconfigs=0
 case "$mode" in
     update*configs)  mode='syncconfig' ;;
     default*configs) mode='oldconfig'; yes=1 ;;
-    gen*configs)     mode='genconfigs' ;;
+    gen*configs)     mode='genconfigs'; genconfigs=1 ;;
     *) echo "$0 called with invalid mode" 1>&2
        exit 1 ;;
 esac
@@ -37,8 +37,7 @@ fi
 bindir="`pwd`/${DROOT}/scripts/misc"
 tmpdir=`mktemp -d`
 
-if [ "$mode" = "genconfigs" ]; then
-	genconfigs=1
+if [ "$genconfigs" == "1" ]; then
 	mode="oldconfig"
 fi
 
@@ -120,8 +119,7 @@ for flavour in ${FLAVOURS}; do
 	conf_file=${arch}-config.flavour.${flavour}
 
 	echo "Running config-check for ${arch}-${flavour}"
-	python3 ${bindir}/annotations -f ${confdir}/annotations --arch ${arch} --flavour ${flavour} --check ${tmpdir}/${conf_file}
-	[ ${PIPESTATUS[0]} -ne 0 ] && let "fail=$fail+1"
+	python3 ${bindir}/annotations -f ${confdir}/annotations --arch ${arch} --flavour ${flavour} --check ${tmpdir}/${conf_file} || let "fail=$fail+1"
 done
 
 rc=0
