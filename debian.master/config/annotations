@@ -3834,7 +3834,7 @@ CONFIG_EFI_STUB                                 policy<{'amd64': 'y', 'arm64': '
 CONFIG_EFI_TEST                                 policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'riscv64': 'm'}>
 CONFIG_EFI_VARS_PSTORE                          policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'riscv64': 'm'}>
 CONFIG_EFI_VARS_PSTORE_DEFAULT_DISABLE          policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'riscv64': 'n'}>
-CONFIG_EFI_ZBOOT                                policy<{'arm64': 'y', 'riscv64': 'y'}>
+CONFIG_EFI_ZBOOT                                policy<{'arm64': 'n', 'riscv64': 'n'}>
 CONFIG_EFS_FS                                   policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm', 's390x': 'n'}>
 CONFIG_EINT_MTK                                 policy<{'arm64': 'y', 'armhf': 'y'}>
 CONFIG_EISA                                     policy<{'amd64': 'y'}>
@@ -4751,13 +4751,13 @@ CONFIG_HAVE_IRQ_TIME_ACCOUNTING                 policy<{'amd64': 'y', 'arm64': '
 CONFIG_HAVE_JUMP_LABEL_HACK                     policy<{'amd64': 'y'}>
 CONFIG_HAVE_KCSAN_COMPILER                      policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y', 's390x': 'y'}>
 CONFIG_HAVE_KERNEL_BZIP2                        policy<{'amd64': 'y', 's390x': 'y'}>
-CONFIG_HAVE_KERNEL_GZIP                         policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y', 's390x': 'y'}>
-CONFIG_HAVE_KERNEL_LZ4                          policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'riscv64': 'y', 's390x': 'y'}>
-CONFIG_HAVE_KERNEL_LZMA                         policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'riscv64': 'y', 's390x': 'y'}>
-CONFIG_HAVE_KERNEL_LZO                          policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'riscv64': 'y', 's390x': 'y'}>
+CONFIG_HAVE_KERNEL_GZIP                         policy<{'amd64': 'y', 'arm64': '-', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': '-', 's390x': 'y'}>
+CONFIG_HAVE_KERNEL_LZ4                          policy<{'amd64': 'y', 'arm64': '-', 'armhf': 'y', 'riscv64': '-', 's390x': 'y'}>
+CONFIG_HAVE_KERNEL_LZMA                         policy<{'amd64': 'y', 'arm64': '-', 'armhf': 'y', 'riscv64': '-', 's390x': 'y'}>
+CONFIG_HAVE_KERNEL_LZO                          policy<{'amd64': 'y', 'arm64': '-', 'armhf': 'y', 'riscv64': '-', 's390x': 'y'}>
 CONFIG_HAVE_KERNEL_UNCOMPRESSED                 policy<{'s390x': 'y'}>
-CONFIG_HAVE_KERNEL_XZ                           policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y', 's390x': 'y'}>
-CONFIG_HAVE_KERNEL_ZSTD                         policy<{'amd64': 'y', 'arm64': 'y', 'riscv64': 'y', 's390x': 'y'}>
+CONFIG_HAVE_KERNEL_XZ                           policy<{'amd64': 'y', 'arm64': '-', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': '-', 's390x': 'y'}>
+CONFIG_HAVE_KERNEL_ZSTD                         policy<{'amd64': 'y', 'arm64': '-', 'riscv64': '-', 's390x': 'y'}>
 CONFIG_HAVE_KPROBES                             policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y', 's390x': 'y'}>
 CONFIG_HAVE_KPROBES_ON_FTRACE                   policy<{'amd64': 'y', 'ppc64el': 'y', 'riscv64': 'y', 's390x': 'y'}>
 CONFIG_HAVE_KRETPROBES                          policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y', 's390x': 'y'}>
@@ -6249,16 +6249,16 @@ CONFIG_KDB_KEYBOARD                             policy<{'amd64': 'y', 'arm64': '
 CONFIG_KEEMBAY_WATCHDOG                         policy<{'arm64': 'm'}>
 CONFIG_KEMPLD_WDT                               policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm'}>
 CONFIG_KERNEL_BZIP2                             policy<{'amd64': 'n', 's390x': 'n'}>
-CONFIG_KERNEL_GZIP                              policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'n', 's390x': 'n'}>
-CONFIG_KERNEL_LZ4                               policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'riscv64': 'n', 's390x': 'n'}>
-CONFIG_KERNEL_LZMA                              policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'riscv64': 'n', 's390x': 'n'}>
-CONFIG_KERNEL_LZO                               policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'riscv64': 'n', 's390x': 'n'}>
+CONFIG_KERNEL_GZIP                              policy<{'amd64': 'n', 'arm64': '-', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': '-', 's390x': 'n'}>
+CONFIG_KERNEL_LZ4                               policy<{'amd64': 'n', 'arm64': '-', 'armhf': 'n', 'riscv64': '-', 's390x': 'n'}>
+CONFIG_KERNEL_LZMA                              policy<{'amd64': 'n', 'arm64': '-', 'armhf': 'n', 'riscv64': '-', 's390x': 'n'}>
+CONFIG_KERNEL_LZO                               policy<{'amd64': 'n', 'arm64': '-', 'armhf': 'n', 'riscv64': '-', 's390x': 'n'}>
 CONFIG_KERNEL_MODE_NEON                         policy<{'arm64': 'y', 'armhf': 'y'}>
 CONFIG_KERNEL_NOBP                              policy<{'s390x': 'n'}>
 CONFIG_KERNEL_START                             policy<{'ppc64el': '0xc000000000000000'}>
 CONFIG_KERNEL_UNCOMPRESSED                      policy<{'s390x': 'n'}>
-CONFIG_KERNEL_XZ                                policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'ppc64el': 'n', 'riscv64': 'n', 's390x': 'n'}>
-CONFIG_KERNEL_ZSTD                              policy<{'amd64': 'y', 'arm64': 'y', 'riscv64': 'y', 's390x': 'y'}>
+CONFIG_KERNEL_XZ                                policy<{'amd64': 'n', 'arm64': '-', 'armhf': 'n', 'ppc64el': 'n', 'riscv64': '-', 's390x': 'n'}>
+CONFIG_KERNEL_ZSTD                              policy<{'amd64': 'y', 'arm64': '-', 'riscv64': '-', 's390x': 'y'}>
 CONFIG_KERNEL_ZSTD                              note<'LP: #1931725'>
 
 CONFIG_KERNFS                                   policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y', 's390x': 'y'}>
