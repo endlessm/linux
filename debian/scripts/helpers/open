@@ -138,6 +138,7 @@ fi
 
 # Load the info about derivative
 BACKPORT_SUFFIX=
+BACKPORT_NO_SUFFIX=
 derivative_conf="$DEBIAN/etc/update.conf"
 if [ -f "$derivative_conf" ]; then
 	# shellcheck disable=SC1090
@@ -145,7 +146,7 @@ if [ -f "$derivative_conf" ]; then
 fi
 
 # Run the update script used for backport kernels
-if [ -n "$BACKPORT_SUFFIX" ]; then
+if [ -n "$BACKPORT_SUFFIX" ] || [ -n "$BACKPORT_NO_SUFFIX" ]; then
 	update_from_master_script="$DEBIAN/scripts/helpers/copy-files"
 	if [ ! -x "$update_from_master_script" ]; then
 		echo "Backport kernel is missing the"\
