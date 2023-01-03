@@ -213,6 +213,10 @@ class Annotation(Config):
             for flavour in self.config[conf]['policy'].copy():
                 if flavour not in list(set(self.arch + self.flavour)):
                     del self.config[conf]['policy'][flavour]
+            # Remove configs that are all undefined across all arches/flavours
+            if 'policy' in self.config[conf]:
+                if list(set(self.config[conf]['policy'].values())) == ['-']:
+                    self.config[conf]['policy'] = {}
             # Drop empty rules
             if not self.config[conf]['policy']:
                 del self.config[conf]
