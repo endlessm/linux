@@ -101,7 +101,7 @@ changed_type = 0
 error = False
 for sym, vals in symbols.items():
     # Ignore new symbols
-    if 'old' not in vals:
+    if 'old' not in vals or 'loc' not in vals:
         continue
 
     # Changes in location don't hurt us, but log it anyway
