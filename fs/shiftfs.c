@@ -912,7 +912,7 @@ shiftfs_get_acl(struct inode *inode, int type, bool rcu)
 		return NULL;
 
 	oldcred = shiftfs_override_creds(inode->i_sb);
-	lower_acl = get_acl(loweri, type);
+	lower_acl = get_inode_acl(loweri, type);
 	revert_creds(oldcred);
 
 	if (lower_acl && !IS_ERR(lower_acl)) {
@@ -1026,13 +1026,13 @@ static const struct inode_operations shiftfs_dir_inode_operations = {
 	.permission	= shiftfs_permission,
 	.getattr	= shiftfs_getattr,
 	.listxattr	= shiftfs_listxattr,
-	.get_acl	= shiftfs_get_acl,
+	.get_inode_acl	= shiftfs_get_acl,
 };
 
 static const struct inode_operations shiftfs_file_inode_operations = {
 	.fiemap		= shiftfs_fiemap,
 	.getattr	= shiftfs_getattr,
-	.get_acl	= shiftfs_get_acl,
+	.get_inode_acl	= shiftfs_get_acl,
 	.listxattr	= shiftfs_listxattr,
 	.permission	= shiftfs_permission,
 	.setattr	= shiftfs_setattr,
@@ -1041,7 +1041,7 @@ static const struct inode_operations shiftfs_file_inode_operations = {
 
 static const struct inode_operations shiftfs_special_inode_operations = {
 	.getattr	= shiftfs_getattr,
-	.get_acl	= shiftfs_get_acl,
+	.get_inode_acl	= shiftfs_get_acl,
 	.listxattr	= shiftfs_listxattr,
 	.permission	= shiftfs_permission,
 	.setattr	= shiftfs_setattr,
