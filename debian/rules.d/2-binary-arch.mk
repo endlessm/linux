@@ -71,7 +71,7 @@ define build_dkms_sign =
 	)
 endef
 define build_dkms =
-	rc=0; ARCH=$(build_arch) CROSS_COMPILE=$(CROSS_COMPILE) $(SHELL) $(DROOT)/scripts/dkms-build $(dkms_dir) $(abi_release)-$* '$(call build_dkms_sign,$(builddir)/build-$*)' $(1) $(2) $(3) $(4) $(5) || rc=$$?; if [ "$$rc" = "9" ]; then echo do_$(4)_$*=false >> $(builddir)/skipped-dkms.mk; rc=0; fi; if [ "$$rc" != "0" ]; then exit $$rc; fi
+	ARCH=$(build_arch) CROSS_COMPILE=$(CROSS_COMPILE) $(SHELL) $(DROOT)/scripts/dkms-build $(dkms_dir) $(abi_release)-$* '$(call build_dkms_sign,$(builddir)/build-$*)' $(1) $(2) $(3) $(4) $(5)
 endef
 
 define install_control =
@@ -603,7 +603,6 @@ endif
 	$(call dh_all,linux-libc-dev)
 endif
 
--include $(builddir)/skipped-dkms.mk
 binary-%: pkgimg = $(bin_pkg_name)-$*
 binary-%: pkgimg_mods = $(mods_pkg_name)-$*
 binary-%: pkgimg_ex = $(mods_extra_pkg_name)-$*
