@@ -3071,7 +3071,7 @@ CONFIG_DMABUF_DEBUG                             policy<{'amd64': 'n', 'arm64': '
 CONFIG_DMABUF_HEAPS                             policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y', 's390x': 'y'}>
 CONFIG_DMABUF_HEAPS_CMA                         policy<{'arm64': 'y', 'armhf': 'y', 'riscv64': 'y'}>
 CONFIG_DMABUF_HEAPS_SYSTEM                      policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y', 's390x': 'y'}>
-CONFIG_DMABUF_MOVE_NOTIFY                       policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'ppc64el': 'n', 'riscv64': 'n', 's390x': 'n'}>
+CONFIG_DMABUF_MOVE_NOTIFY                       policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'n', 'ppc64el': 'y', 'riscv64': 'n', 's390x': 'n'}>
 CONFIG_DMABUF_SELFTESTS                         policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'ppc64el': 'n', 'riscv64': 'n', 's390x': 'n'}>
 CONFIG_DMABUF_SYSFS_STATS                       policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'ppc64el': 'n', 'riscv64': 'n', 's390x': 'n'}>
 CONFIG_DMADEVICES                               policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y', 's390x': 'n'}>
@@ -5106,6 +5106,9 @@ CONFIG_HP_ILO                                   policy<{'amd64': 'm', 'arm64': '
 CONFIG_HP_WATCHDOG                              policy<{'amd64': 'm', 'arm64': 'm'}>
 CONFIG_HP_WMI                                   policy<{'amd64': 'm'}>
 CONFIG_HSA_AMD                                  policy<{'amd64': 'y', 'arm64': 'y', 'ppc64el': 'y'}>
+CONFIG_HSA_AMD_P2P                              policy<{'amd64': 'y', 'arm64': 'y', 'ppc64el': 'y'}>
+CONFIG_HSA_AMD_P2P                              note<'LP: #1987394'>
+
 CONFIG_HSA_AMD_SVM                              policy<{'amd64': 'y', 'arm64': 'y', 'ppc64el': 'y'}>
 CONFIG_HSI                                      policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm', 's390x': 'n'}>
 CONFIG_HSI_BOARDINFO                            policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y'}>
@@ -8882,7 +8885,7 @@ CONFIG_PCI_MVEBU                                policy<{'armhf': 'y'}>
 CONFIG_PCI_NR_FUNCTIONS                         policy<{'s390x': '512'}>
 CONFIG_PCI_NR_FUNCTIONS                         note<'LP: #1866056'>
 
-CONFIG_PCI_P2PDMA                               policy<{'amd64': 'n', 'arm64': 'n', 'ppc64el': 'n'}>
+CONFIG_PCI_P2PDMA                               policy<{'amd64': 'y', 'arm64': 'y', 'ppc64el': 'y'}>
 CONFIG_PCI_PASID                                policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y', 's390x': 'n'}>
 CONFIG_PCI_PF_STUB                              policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm', 's390x': 'm'}>
 CONFIG_PCI_PRI                                  policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y', 's390x': 'n'}>
