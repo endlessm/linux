@@ -15,7 +15,8 @@ module-signature-check-%: $(stampdir)/stamp-install-%
 	@echo Debug: $@
 	$(DROOT)/scripts/checks/module-signature-check "$*" \
 		"$(DROOT)/$(mods_pkg_name)-$*" \
-		"$(DROOT)/$(mods_extra_pkg_name)-$*"
+		"$(DROOT)/$(mods_extra_pkg_name)-$*" \
+		$(skip_checks)
 
 # Check the reptoline jmp/call functions against the last release.
 retpoline-check-%: $(stampdir)/stamp-install-%

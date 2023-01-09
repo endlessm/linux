@@ -4,6 +4,12 @@ flavor="${1}"
 mods_dir="${2}"
 mods_extra_dir="${3}"
 
+skip_checks=${4:-}
+case "${skip_checks,,}" in
+        1|true|yes) skip_checks=1 ;;
+        *) skip_checks=0 ;;
+esac
+
 echo "II: Checking signature of staging modules for ${flavor}..."
 
 root=$(dirname "$(realpath -e "${0}")")/../../..
@@ -30,6 +36,11 @@ fi
 if ! [ -d "${mods_dir}" ] ; then
 	echo "EE: Modules directory missing:"
 	echo "    ${mods_dir}"
+	if [ ${skip_checks} -eq 1 ] ; then
+		echo "WW: Explicitly asked to ignore failures"
+		echo "II: Done"
+		exit 0
+	fi
 	exit 1
 fi
 
@@ -67,10 +78,14 @@ done < <(find "${mods_dirs[@]}" -path '*/drivers/staging/*.ko' | sort)
 
 echo "II: Checked $((pass + fail)) modules : ${pass} PASS, ${fail} FAIL"
 
-if [ ${fail} -eq 0 ] ; then
-	echo "II: Done"
-	exit 0
-else
-	echo "EE: Modules signature failures"
-	exit 1
+if [ ${fail} -ne 0 ] ; then
+	if [ ${skip_checks} -eq 1 ] ; then
+		echo "WW: Explicitly asked to ignore failures"
+	else
+		echo "EE: Modules signature failures"
+		exit 1
+	fi
 fi
+
+echo "II: Done"
+exit 0
