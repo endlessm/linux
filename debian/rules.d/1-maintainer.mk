@@ -80,7 +80,7 @@ printenv:
 	@echo "variants          = $(variants)"
 	@echo "flavours          = $(flavours)"
 	@echo "skip_checks       = $(skip_checks)"
-	@echo "skipdbg           = $(skipdbg)"
+	@echo "do_dbgsym_package = $(do_dbgsym_package)"
 	@echo "CONCURRENCY_LEVEL = $(CONCURRENCY_LEVEL)"
 	@echo "ubuntu_selftests  = $(ubuntu_selftests)"
 	@echo "bin package name  = $(bin_pkg_name)"

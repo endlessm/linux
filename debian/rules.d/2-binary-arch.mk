@@ -53,7 +53,7 @@ $(stampdir)/stamp-build-%: $(stampdir)/stamp-prepare-%
 	@echo Debug: $@ build_image $(build_image) bldimg $(bldimg)
 	$(build_cd) $(kmake) $(build_O) $(conc_level) $(bldimg) modules $(if $(filter true,$(do_dtbs)),dtbs)
 
-ifneq ($(skipdbg),true)
+ifeq ($(do_dbgsym_package),true)
 	# The target scripts_gdb is part of "all", so we need to call it manually
 	if grep -q CONFIG_GDB_SCRIPTS=y $(builddir)/build-$*/.config; then \
 		$(build_cd) $(kmake) $(build_O) $(conc_level) scripts_gdb ; \
@@ -122,7 +122,7 @@ $(foreach _m,$(all_dkms_modules), \
   $(eval $$(stampdir)/stamp-install-%: enable_$(_m) = $$(filter true,$$(call custom_override,do_$(_m),$$*))) \
   $(eval $$(stampdir)/stamp-install-%: dkms_$(_m)_pkgdir = $$(CURDIR)/debian/$(dkms_$(_m)_pkg_name)-$$*) \
 )
-$(stampdir)/stamp-install-%: dbgpkgdir_dkms = $(if $(filter true,$(skipdbg)),"",$(dbgpkgdir)/usr/lib/debug/lib/modules/$(abi_release)-$*/kernel)
+$(stampdir)/stamp-install-%: dbgpkgdir_dkms = $(if $(filter true,$(do_dbgsym_package)),$(dbgpkgdir)/usr/lib/debug/lib/modules/$(abi_release)-$*/kernel,"")
 $(stampdir)/stamp-install-%: $(stampdir)/stamp-build-% $(stampdir)/stamp-install-headers
 	@echo Debug: $@ kernel_file $(kernel_file) kernfile $(kernfile) install_file $(install_file) instfile $(instfile)
 	dh_testdir
@@ -132,7 +132,7 @@ $(stampdir)/stamp-install-%: $(stampdir)/stamp-build-% $(stampdir)/stamp-install
 	$(foreach _m,$(all_standalone_dkms_modules), \
 	  $(if $(enable_$(_m)),dh_prep -p$(dkms_$(_m)_pkg_name)-$*;)\
 	)
-ifneq ($(skipdbg),true)
+ifeq ($(do_dbgsym_package),true)
 	dh_prep -p$(bin_pkg_name)-$*-dbgsym
 endif
 ifeq ($(do_extras_package),true)
@@ -297,7 +297,7 @@ ifneq ($(skipsub),true)
 	done
 endif
 
-ifneq ($(skipdbg),true)
+ifeq ($(do_dbgsym_package),true)
 	# Debug image is simple
 	install -m644 -D $(builddir)/build-$*/vmlinux \
 		$(dbgpkgdir)/usr/lib/debug/boot/vmlinux-$(abi_release)-$*
@@ -444,7 +444,7 @@ endif
 	)
 
 
-ifneq ($(skipdbg),true)
+ifeq ($(do_dbgsym_package),true)
 	# Add .gnu_debuglink sections to each stripped .ko
 	# pointing to unstripped verson
 	find $(pkgdir) \
@@ -661,7 +661,7 @@ ifneq ($(skipsub),true)
 	done
 endif
 
-ifneq ($(skipdbg),true)
+ifeq ($(do_dbgsym_package),true)
 	$(call dh_all,$(dbgpkg)) -- -Zxz
 
 	# Hokay...here's where we do a little twiddling...
