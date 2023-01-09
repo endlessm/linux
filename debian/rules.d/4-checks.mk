@@ -2,13 +2,13 @@
 abi-check-%: $(stampdir)/stamp-install-%
 	@echo Debug: $@
 	$(DROOT)/scripts/checks/abi-check "$*" \
-		"$(prev_abidir)" "$(abidir)" $(skipabi)
+		"$(prev_abidir)" "$(abidir)" $(skip_checks)
 
 # Check the module list against the last release (always)
 module-check-%: $(stampdir)/stamp-install-%
 	@echo Debug: $@
 	$(DROOT)/scripts/checks/module-check "$*" \
-		"$(prev_abidir)" "$(abidir)" $(skipmodule)
+		"$(prev_abidir)" "$(abidir)" $(skip_checks)
 
 # Check the signature of staging modules
 module-signature-check-%: $(stampdir)/stamp-install-%
@@ -21,7 +21,7 @@ module-signature-check-%: $(stampdir)/stamp-install-%
 retpoline-check-%: $(stampdir)/stamp-install-%
 	@echo Debug: $@
 	$(DROOT)/scripts/checks/retpoline-check "$*" \
-		"$(prev_abidir)" "$(abidir)" "$(skipretpoline)" "$(builddir)/build-$*"
+		"$(prev_abidir)" "$(abidir)" "$(skip_checks)" "$(builddir)/build-$*"
 
 checks-%: module-check-% module-signature-check-% abi-check-% retpoline-check-%
 	@echo Debug: $@
