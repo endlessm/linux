@@ -30,13 +30,6 @@ upstream_version := $(shell sed -n 's/^VERSION = \(.*\)$$/\1/p' Makefile)
 upstream_patchlevel := $(shell sed -n 's/^PATCHLEVEL = \(.*\)$$/\1/p' Makefile)
 upstream_tag := "v$(upstream_version).$(upstream_patchlevel)"
 
-ifneq ($(NOKERNLOG),)
-ubuntu_log_opts += --no-kern-log
-endif
-ifneq ($(PRINTSHAS),)
-ubuntu_log_opts += --print-shas
-endif
-
 # Get the kernels own extra version to be added to the release signature.
 raw_kernelversion=$(shell make kernelversion)
 

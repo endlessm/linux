@@ -33,10 +33,8 @@ help:
 	@echo
 	@echo "Environment variables:"
 	@echo
-	@echo "  NOKERNLOG       : Do not add upstream kernel commits to changelog"
 	@echo "  CONCURRENCY_LEVEL=X"
 	@echo "                  : Use -jX for kernel compile"
-	@echo "  PRINTSHAS       : Include SHAs for commits in changelog"
 
 .PHONY: printdebian
 printdebian:
@@ -84,7 +82,6 @@ printenv:
 	@echo "skipabi           = $(skipabi)"
 	@echo "skipmodule        = $(skipmodule)"
 	@echo "skipdbg           = $(skipdbg)"
-	@echo "ubuntu_log_opts   = $(ubuntu_log_opts)"
 	@echo "CONCURRENCY_LEVEL = $(CONCURRENCY_LEVEL)"
 	@echo "ubuntu_selftests  = $(ubuntu_selftests)"
 	@echo "bin package name  = $(bin_pkg_name)"
@@ -132,7 +129,7 @@ printchanges:
 			gawk '/UBUNTU:\s*Ubuntu-.*$$/ { print $$1; exit }'); \
 	fi; \
 	git log "$$baseCommit"..HEAD | \
-	$(DROOT)/scripts/misc/git-ubuntu-log $(ubuntu_log_opts)
+	$(DROOT)/scripts/misc/git-ubuntu-log
 
 insertchanges: autoreconstruct finalchecks
 	$(DROOT)/scripts/misc/insert-changes $(DROOT) $(DEBIAN)
