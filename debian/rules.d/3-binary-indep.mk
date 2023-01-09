@@ -40,14 +40,12 @@ ifeq ($(do_doc_package),true)
 	install -d $(docdir)
 ifeq ($(do_doc_package_content),true)
 	# First the html docs. We skip these for autobuilds
-	if [ -z "$(AUTOBUILD)" ]; then \
-		install -d $(docdir)/$(doc_pkg_name)-tmp; \
-		$(kmake) O=$(docdir)/$(doc_pkg_name)-tmp htmldocs; \
-		install -d $(docdir)/html; \
-		rsync -aL $(docdir)/$(doc_pkg_name)-tmp/Documentation/output/ \
-			$(docdir)/html/; \
-		rm -rf $(docdir)/$(doc_pkg_name)-tmp; \
-	fi
+	install -d $(docdir)/$(doc_pkg_name)-tmp
+	$(kmake) O=$(docdir)/$(doc_pkg_name)-tmp htmldocs
+	install -d $(docdir)/html
+	rsync -aL $(docdir)/$(doc_pkg_name)-tmp/Documentation/output/ \
+		$(docdir)/html/
+	rm -rf $(docdir)/$(doc_pkg_name)-tmp
 endif
 	# Copy the rest
 	cp -a Documentation/* $(docdir)

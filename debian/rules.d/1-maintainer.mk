@@ -79,7 +79,6 @@ printenv:
 	@echo "prev_revision     = $(prev_revision)"
 	@echo "abinum            = $(abinum)"
 	@echo "upstream_tag      = $(upstream_tag)"
-	@echo "gitver            = $(gitver)"
 	@echo "variants          = $(variants)"
 	@echo "flavours          = $(flavours)"
 	@echo "skipabi           = $(skipabi)"

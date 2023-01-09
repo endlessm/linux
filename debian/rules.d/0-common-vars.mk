@@ -30,27 +30,6 @@ upstream_version := $(shell sed -n 's/^VERSION = \(.*\)$$/\1/p' Makefile)
 upstream_patchlevel := $(shell sed -n 's/^PATCHLEVEL = \(.*\)$$/\1/p' Makefile)
 upstream_tag := "v$(upstream_version).$(upstream_patchlevel)"
 
-# This is an internally used mechanism for the daily kernel builds. It
-# creates packages whose ABI is suffixed with a minimal representation of
-# the current git HEAD sha. If .git/HEAD is not present, then it uses the
-# uuidgen program,
-#
-# AUTOBUILD can also be used by anyone wanting to build a custom kernel
-# image, or rebuild the entire set of Ubuntu packages using custom patches
-# or configs.
-AUTOBUILD=
-
-ifneq ($(AUTOBUILD),)
-skipabi		= true
-skipmodule	= true
-skipretpoline	= true
-skipdbg		= true
-gitver=$(shell if test -f .git/HEAD; then cat .git/HEAD; else uuidgen; fi)
-gitverpre=$(shell echo $(gitver) | cut -b -3)
-gitverpost=$(shell echo $(gitver) | cut -b 38-40)
-abi_suffix = -$(gitverpre)$(gitverpost)
-endif
-
 ifneq ($(NOKERNLOG),)
 ubuntu_log_opts += --no-kern-log
 endif
@@ -78,8 +57,8 @@ ifeq ($(full_build),false)
 skipdbg=true
 endif
 
-abinum		:= $(firstword $(subst .,$(space),$(revision)))$(abi_suffix)
-prev_abinum	:= $(firstword $(subst .,$(space),$(prev_revision)))$(abi_suffix)
+abinum		:= $(firstword $(subst .,$(space),$(revision)))
+prev_abinum	:= $(firstword $(subst .,$(space),$(prev_revision)))
 abi_release	:= $(release)-$(abinum)
 
 uploadnum	:= $(patsubst $(abinum).%,%,$(revision))
@@ -143,7 +122,7 @@ hdrs_pkg_name=linux-headers-$(abi_release)
 indep_hdrs_pkg_name=$(src_pkg_name)-headers-$(abi_release)
 
 #
-# The generation of content in the doc package depends on both 'AUTOBUILD=' and
+# The generation of content in the doc package depends on
 # 'do_doc_package_content=true'. There are usually build errors during the development
 # cycle, so its OK to leave 'do_doc_package_content=false' until those build
 # failures get sorted out. Finally, the doc package doesn't really need to be built
