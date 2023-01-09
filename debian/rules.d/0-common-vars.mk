@@ -46,8 +46,9 @@ endif
 # The debug packages are ginormous, so you probably want to skip
 # building them (as a developer).
 #
+do_dbgsym_package = true
 ifeq ($(full_build),false)
-skipdbg=true
+	do_dbgsym_package = false
 endif
 
 abinum		:= $(firstword $(subst .,$(space),$(revision)))
