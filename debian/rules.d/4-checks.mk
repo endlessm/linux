@@ -21,7 +21,7 @@ module-signature-check-%: $(stampdir)/stamp-install-%
 retpoline-check-%: $(stampdir)/stamp-install-%
 	@echo Debug: $@
 	$(DROOT)/scripts/checks/retpoline-check "$*" \
-		"$(prev_abidir)" "$(abidir)" "$(skip_checks)" "$(builddir)/build-$*"
+		"$(prev_abidir)" "$(abidir)" $(skip_checks)
 
 checks-%: module-check-% module-signature-check-% abi-check-% retpoline-check-%
 	@echo Debug: $@
