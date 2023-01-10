@@ -1,8 +1,7 @@
 # The following targets are for the maintainer only! do not run if you don't
 # know what they do.
 
-.PHONY: printenv updateconfigs defaultconfigs genconfigs migrateconfigs printchanges insertchanges startnewrelease help autoreconstruct finalchecks
-
+.PHONY: help
 help:
 	@echo "These are the targets in addition to the normal $(DEBIAN) ones:"
 	@echo
@@ -38,6 +37,7 @@ help:
 printdebian:
 	@echo "$(DEBIAN)"
 
+.PHONY: migrateconfigs
 migrateconfigs:
 	dh_testdir;
 	if [ -e "$(DEBIAN)/config/config.common.ubuntu" ]; then \
@@ -65,6 +65,7 @@ $(configs-targets):
 	fi;
 	rm -rf build
 
+.PHONY: printenv
 printenv:
 	dh_testdir
 	@echo "src package name  = $(src_pkg_name)"
@@ -117,6 +118,7 @@ printenv:
 	@echo "arch                      = $(arch)"
 	@echo "kmake                     = $(kmake)"
 
+.PHONY: printchanges
 printchanges:
 	@baseCommit=$$(git log --pretty=format:'%H %s' | \
 		gawk '/UBUNTU: '".*Ubuntu-.*`echo $(prev_fullver) | sed 's/+/\\\\+/'`"'(~.*)?$$/ { print $$1; exit }'); \
@@ -128,9 +130,11 @@ printchanges:
 	git log "$$baseCommit"..HEAD | \
 	$(DROOT)/scripts/misc/git-ubuntu-log
 
+.PHONY: insertchanges
 insertchanges: autoreconstruct finalchecks
 	$(DROOT)/scripts/misc/insert-changes $(DROOT) $(DEBIAN)
 
+.PHONY: autoreconstruct
 autoreconstruct:
 	# No need for reconstruct for -rc kernels since we don't upload an
 	# orig tarball, so just remove it.
@@ -140,12 +144,14 @@ autoreconstruct:
 		$(DROOT)/scripts/misc/gen-auto-reconstruct $(upstream_tag) $(DEBIAN)/reconstruct $(DROOT)/source/options; \
 	fi
 
+.PHONY: finalchecks
 finalchecks: debian/control
 ifeq ($(do_fips_checks),true)
 	$(DROOT)/scripts/misc/fips-checks
 endif
 	$(DROOT)/scripts/misc/final-checks "$(DEBIAN)" "$(prev_fullver)"
 
+.PHONY: startnewrelease
 startnewrelease:
 	dh_testdir
 	@[ -f "$(DEBIAN)/etc/update.conf" ] && . "$(DEBIAN)/etc/update.conf"; \
