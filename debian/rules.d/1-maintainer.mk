@@ -5,33 +5,20 @@
 help:
 	@echo "These are the targets in addition to the normal $(DEBIAN) ones:"
 	@echo
-	@echo "  printenv        : Print some variables used in the build"
-	@echo
-	@echo "  updateconfigs        : Update core arch configs"
-	@echo
-	@echo "  defaultconfigs       : Update core arch configs using defaults"
-	@echo
-	@echo "  genconfigs           : Generate core arch configs in CONFIGS/*"
-	@echo
-	@echo "  migrateconfigs       : Automatically import old configs into annotations"
-	@echo
-	@echo "  printchanges    : Print the current changelog entries (from git)"
-	@echo
-	@echo "  insertchanges   : Insert current changelog entries (from git)"
-	@echo
-	@echo "  startnewrelease : Start a new changelog set"
-	@echo
-	@echo "  compileselftests : Only compile the selftests listed on ubuntu_selftests variable"
-	@echo
-	@echo "  runselftests    : Run the selftests listed on ubuntu_selftests variable"
-	@echo
-	@echo "  help            : If you are kernel hacking, you need the professional"
-	@echo "                    version of this"
+	@echo "  printenv            : Print some variables used in the build"
+	@echo "  updateconfigs       : Update core arch configs"
+	@echo "  defaultconfigs      : Update core arch configs using defaults"
+	@echo "  genconfigs          : Generate core arch configs in CONFIGS/*"
+	@echo "  migrateconfigs      : Automatically import old configs into annotations"
+	@echo "  printchanges        : Print the current changelog entries (from git)"
+	@echo "  insertchanges       : Insert current changelog entries (from git)"
+	@echo "  startnewrelease     : Start a new changelog set"
+	@echo "  compileselftests    : Only compile the selftests listed on ubuntu_selftests variable"
+	@echo "  runselftests        : Run the selftests listed on ubuntu_selftests variable"
 	@echo
 	@echo "Environment variables:"
 	@echo
-	@echo "  CONCURRENCY_LEVEL=X"
-	@echo "                  : Use -jX for kernel compile"
+	@echo "  CONCURRENCY_LEVEL=X : Use -jX for kernel compile"
 
 .PHONY: printdebian
 printdebian:
