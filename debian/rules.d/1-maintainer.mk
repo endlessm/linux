@@ -1,7 +1,7 @@
 # The following targets are for the maintainer only! do not run if you don't
 # know what they do.
 
-.PHONY: printenv updateconfigs defaultconfigs genconfigs migrateconfigs printchanges insertchanges startnewrelease diffupstream help autoreconstruct finalchecks
+.PHONY: printenv updateconfigs defaultconfigs genconfigs migrateconfigs printchanges insertchanges startnewrelease help autoreconstruct finalchecks
 
 help:
 	@echo "These are the targets in addition to the normal $(DEBIAN) ones:"
@@ -21,8 +21,6 @@ help:
 	@echo "  insertchanges   : Insert current changelog entries (from git)"
 	@echo
 	@echo "  startnewrelease : Start a new changelog set"
-	@echo
-	@echo "  diffupstream    : Diff stock kernel code against upstream (git)"
 	@echo
 	@echo "  compileselftests : Only compile the selftests listed on ubuntu_selftests variable"
 	@echo
@@ -147,9 +145,6 @@ ifeq ($(do_fips_checks),true)
 	$(DROOT)/scripts/misc/fips-checks
 endif
 	$(DROOT)/scripts/misc/final-checks "$(DEBIAN)" "$(prev_fullver)"
-
-diffupstream:
-	@git diff-tree -p refs/remotes/linux-2.6/master..HEAD $(shell ls | grep -vE '^(ubuntu|$(DEBIAN)|\.git.*)')
 
 startnewrelease:
 	dh_testdir
