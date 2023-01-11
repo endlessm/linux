@@ -347,12 +347,13 @@ static unsigned long get_got_size(const Elf64_Ehdr *hdr,
 static void dedotify_versions(struct modversion_info *vers,
 			      unsigned long size)
 {
-	struct modversion_info *end;
+	struct modversion_info *end = (void *)vers + size;
 
-	for (end = (void *)vers + size; vers < end; vers++)
+	for (; vers < end && vers->next; vers = (void *)vers + vers->next) {
 		if (vers->name[0] == '.') {
 			memmove(vers->name, vers->name+1, strlen(vers->name));
 		}
+	}
 }
 
 /*

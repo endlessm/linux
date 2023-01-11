@@ -17,32 +17,30 @@ int check_version(const struct load_info *info,
 {
 	Elf_Shdr *sechdrs = info->sechdrs;
 	unsigned int versindex = info->index.vers;
-	unsigned int i, num_versions;
-	struct modversion_info *versions;
+	struct modversion_info *versions, *end;
+	u32 crcval;
 
 	/* Exporting module didn't supply crcs?  OK, we're already tainted. */
 	if (!crc)
 		return 1;
+	crcval = *crc;
 
 	/* No versions at all?  modprobe --force does this. */
 	if (versindex == 0)
 		return try_to_force_load(mod, symname) == 0;
 
 	versions = (void *)sechdrs[versindex].sh_addr;
-	num_versions = sechdrs[versindex].sh_size
-		/ sizeof(struct modversion_info);
+	end = (void *)versions + sechdrs[versindex].sh_size;
 
-	for (i = 0; i < num_versions; i++) {
-		u32 crcval;
-
-		if (strcmp(versions[i].name, symname) != 0)
+	for (; versions < end && versions->next;
+	       versions = (void *)versions + versions->next) {
+		if (strcmp(versions->name, symname) != 0)
 			continue;
 
-		crcval = *crc;
-		if (versions[i].crc == crcval)
+		if (versions->crc == crcval)
 			return 1;
-		pr_debug("Found checksum %X vs module %lX\n",
-			 crcval, versions[i].crc);
+		pr_debug("Found checksum %X vs module %X\n",
+			 crcval, versions->crc);
 		goto bad_version;
 	}
 

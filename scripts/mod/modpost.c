@@ -1984,13 +1984,17 @@ static void add_exported_symbols(struct buffer *buf, struct module *mod)
 static void add_versions(struct buffer *b, struct module *mod)
 {
 	struct symbol *s;
+	unsigned int name_len;
+	unsigned int name_len_padded;
+	unsigned int tmp;
+	unsigned char *tmp_view = (unsigned char *)&tmp;
 
 	if (!modversions)
 		return;
 
 	buf_printf(b, "\n");
-	buf_printf(b, "static const struct modversion_info ____versions[]\n");
-	buf_printf(b, "__used __section(\"__versions\") = {\n");
+	buf_printf(b, "static const char ____versions[]\n");
+	buf_printf(b, "__used __section(\"__versions\") =\n");
 
 	list_for_each_entry(s, &mod->unresolved_symbols, list) {
 		if (!s->module)
@@ -2000,16 +2004,27 @@ static void add_versions(struct buffer *b, struct module *mod)
 				s->name, mod->name);
 			continue;
 		}
-		if (strlen(s->name) >= MODULE_NAME_LEN) {
-			error("too long symbol \"%s\" [%s.ko]\n",
-			      s->name, mod->name);
-			break;
-		}
-		buf_printf(b, "\t{ %#8x, \"%s\" },\n",
-			   s->crc, s->name);
+		name_len = strlen(s->name);
+		name_len_padded = (name_len + 1 + 3) & ~3;
+
+		/* Offset to next entry */
+		tmp = 8 + name_len_padded;
+		tmp = TO_NATIVE(tmp);
+		buf_printf(b, "\t\"\\x%02x\\x%02x\\x%02x\\x%02x",
+			   tmp_view[0], tmp_view[1], tmp_view[2], tmp_view[3]);
+
+		tmp = TO_NATIVE(s->crc);
+		buf_printf(b, "\\x%02x\\x%02x\\x%02x\\x%02x\"\n",
+			   tmp_view[0], tmp_view[1], tmp_view[2], tmp_view[3]);
+
+		buf_printf(b, "\t\"%s", s->name);
+		for (; name_len < name_len_padded; name_len++)
+			buf_printf(b, "\\0");
+		buf_printf(b, "\"\n");
 	}
 
-	buf_printf(b, "};\n");
+	/* Always end with a NULL entry */
+	buf_printf(b, "\t\"\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\";\n");
 }
 
 static void add_depends(struct buffer *b, struct module *mod)

@@ -116,18 +116,19 @@ foreach my $thismod (@allcfiles) {
 	while ( <$module> ) {
 		chomp;
 		if ($state == 0) {
-			$state = 1 if ($_ =~ /static const struct modversion_info/);
+			$state = 1 if ($_ =~ /static const char ____versions/);
 			next;
 		}
 		if ($state == 1) {
-			$state = 2 if ($_ =~ /__attribute__\(\(section\("__versions"\)\)\)/);
+			$state = 2 if ($_ =~ /__used __section\("__versions"\)/);
 			next;
 		}
 		if ($state == 2) {
-			if ( $_ !~ /0x[0-9a-f]+,/ ) {
+			if ( $_ !~ /\\0"/ ) {
+				last if ($_ =~ /;/);
 				next;
 			}
-			my $sym = (split /([,"])/,)[4];
+			my $sym = (split /(["\\])/,)[2];
 			my ($module, $value, $symbol, $gpl) = @{$SYMBOL{$sym}};
 			$SYMBOL{ $sym } =  [ $module, $value+1, $symbol, $gpl];
 			push(@{$MODULE{$thismod}} , $sym);
