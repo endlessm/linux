@@ -51,6 +51,11 @@ do_dbgsym_package = true
 ifeq ($(do_full_build),false)
 	do_dbgsym_package = false
 endif
+ifeq ($(filter $(DEB_BUILD_OPTIONS),noautodbgsym),noautodbgsym)
+	# Disable debug package builds if we're building in a PPA that has the
+	# 'Build debug symbols' option disabled
+	do_dbgsym_package = false
+endif
 
 abinum		:= $(firstword $(subst .,$(space),$(revision)))
 prev_abinum	:= $(firstword $(subst .,$(space),$(prev_revision)))
