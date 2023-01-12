@@ -669,6 +669,9 @@ ifeq ($(do_dbgsym_package),true)
 	$(lockme) sed -i '/^$(dbgpkg)_/s/\.deb /.ddeb /' debian/files
 	# Now, the package wont get into the archive, but it will get put
 	# into the debug system.
+
+	# Clean out the debugging package source directory.
+	rm -rf $(dbgpkgdir)
 endif
 
 ifeq ($(do_linux_tools),true)
@@ -676,11 +679,6 @@ ifeq ($(do_linux_tools),true)
 endif
 ifeq ($(do_cloud_tools),true)
 	$(call dh_all,$(pkgcloud))
-endif
-
-ifneq ($(do_full_build),false)
-	# Clean out the debugging package source directory.
-	rm -rf $(dbgpkgdir)
 endif
 
 #
