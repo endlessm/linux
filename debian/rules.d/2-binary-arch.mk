@@ -477,8 +477,8 @@ endif
 		$(builddir)/build-$*/Module.symvers | sort > $(abidir)/$*
 
 	# Build the final ABI modules information.
-	find $(pkgdir_bin) $(pkgdir) $(pkgdir_ex) -name \*.ko | \
-		sed -e 's/.*\/\([^\/]*\)\.ko/\1/' | sort > $(abidir)/$*.modules
+	find $(pkgdir_bin) $(pkgdir) $(pkgdir_ex) \( -name '*.ko' -o -name '*.ko.*' \) | \
+		sed -e 's/.*\/\([^\/]*\)\.ko.*/\1/' | sort > $(abidir)/$*.modules
 
 	# Build the final ABI built-in modules information.
 	if [ -f $(pkgdir)/lib/modules/$(abi_release)-$*/modules.builtin ] ; then \
