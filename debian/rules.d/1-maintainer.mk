@@ -110,7 +110,7 @@ printenv:
 	@echo " uefi_signed               = $(uefi_signed)"
 	@echo " opal_signed               = $(opal_signed)"
 	@echo " sipl_signed               = $(sipl_signed)"
-	@echo "full_build                = $(full_build)"
+	@echo "do_full_build             = $(do_full_build)"
 	@echo "libc_dev_version          = $(libc_dev_version)"
 	@echo "DEB_HOST_GNU_TYPE         = $(DEB_HOST_GNU_TYPE)"
 	@echo "DEB_BUILD_GNU_TYPE        = $(DEB_BUILD_GNU_TYPE)"

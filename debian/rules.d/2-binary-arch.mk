@@ -544,7 +544,7 @@ endif
 	install -m644 $(DROOT)/canonical-certs.pem $(pkgdir_bldinfo)/usr/lib/linux/$(abi_release)-$*/canonical-certs.pem
 	install -m644 $(DROOT)/canonical-revoked-certs.pem $(pkgdir_bldinfo)/usr/lib/linux/$(abi_release)-$*/canonical-revoked-certs.pem
 
-ifneq ($(full_build),false)
+ifneq ($(do_full_build),false)
 	# Clean out this flavours build directory.
 	rm -rf $(builddir)/build-$*
 endif
@@ -693,7 +693,7 @@ ifeq ($(do_cloud_tools),true)
 	$(call dh_all,$(pkgcloud))
 endif
 
-ifneq ($(full_build),false)
+ifneq ($(do_full_build),false)
 	# Clean out the debugging package source directory.
 	rm -rf $(dbgpkgdir)
 endif

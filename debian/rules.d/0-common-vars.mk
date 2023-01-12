@@ -34,12 +34,13 @@ upstream_tag := "v$(upstream_version).$(upstream_patchlevel)"
 raw_kernelversion=$(shell make kernelversion)
 
 #
-# full_build -- are we doing a full buildd style build
+# do_full_build -- are we doing a full buildd style build, i.e., are we
+#                  building in a PPA
 #
 ifeq ($(wildcard /CurrentlyBuilding),)
-full_build?=false
+	do_full_build ?= false
 else
-full_build?=true
+	do_full_build ?= true
 endif
 
 #
@@ -47,7 +48,7 @@ endif
 # building them (as a developer).
 #
 do_dbgsym_package = true
-ifeq ($(full_build),false)
+ifeq ($(do_full_build),false)
 	do_dbgsym_package = false
 endif
 
@@ -56,7 +57,7 @@ prev_abinum	:= $(firstword $(subst .,$(space),$(prev_revision)))
 abi_release	:= $(release)-$(abinum)
 
 uploadnum	:= $(patsubst $(abinum).%,%,$(revision))
-ifneq ($(full_build),false)
+ifneq ($(do_full_build),false)
   uploadnum	:= $(uploadnum)-Ubuntu
 endif
 
@@ -127,7 +128,7 @@ else
 do_doc_package=false
 endif
 do_doc_package_content=false
-ifeq ($(full_build),false)
+ifeq ($(do_full_build),false)
 do_doc_package_content=false
 endif
 doc_pkg_name=$(src_pkg_name)-doc
@@ -138,7 +139,7 @@ doc_pkg_name=$(src_pkg_name)-doc
 #
 do_source_package=true
 do_source_package_content=true
-ifeq ($(full_build),false)
+ifeq ($(do_full_build),false)
 do_source_package_content=false
 endif
 
