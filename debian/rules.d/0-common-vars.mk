@@ -248,9 +248,7 @@ endif
 
 # Locking is required in parallel builds to prevent loss of contents
 # of the debian/files.
-lockme_file = $(CURDIR)/debian/.LOCK
-lockme_cmd = flock -w 60
-lockme = $(lockme_cmd) $(lockme_file)
+lockme = flock -w 60 $(CURDIR)/debian/.LOCK
 
 # Don't fail if a link already exists.
 LN = ln -sf
