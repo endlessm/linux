@@ -3847,7 +3847,9 @@ CONFIG_EFI_EMBEDDED_FIRMWARE                    policy<{'amd64': 'y'}>
 CONFIG_EFI_ESRT                                 policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'riscv64': 'y'}>
 CONFIG_EFI_FAKE_MEMMAP                          policy<{'amd64': 'n'}>
 CONFIG_EFI_GENERIC_STUB                         policy<{'arm64': 'y', 'armhf': 'y', 'riscv64': 'y'}>
-CONFIG_EFI_HANDOVER_PROTOCOL                    policy<{'amd64': 'n'}>
+CONFIG_EFI_HANDOVER_PROTOCOL                    policy<{'amd64': 'y'}>
+CONFIG_EFI_HANDOVER_PROTOCOL                    note<'{GRUB may include some downstream patches that may rely on the handover protocol, so make sure this is enabled}'>
+
 CONFIG_EFI_MIXED                                policy<{'amd64': 'y'}>
 CONFIG_EFI_PARAMS_FROM_FDT                      policy<{'arm64': 'y', 'armhf': 'y', 'riscv64': 'y'}>
 CONFIG_EFI_PARTITION                            policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y', 's390x': 'y'}>
