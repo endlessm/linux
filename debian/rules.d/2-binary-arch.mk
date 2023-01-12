@@ -672,16 +672,7 @@ ifeq ($(do_dbgsym_package),true)
 	#
 	mv ../$(dbgpkg)_$(release)-$(revision)_$(arch).deb \
 		../$(dbgpkg)_$(release)-$(revision)_$(arch).ddeb
-	set -e; \
-	( \
-		$(lockme_cmd) 9 || exit 1; \
-		if grep -qs '^Build-Debug-Symbols: yes$$' /CurrentlyBuilding; then \
-			sed -i '/^$(dbgpkg)_/s/\.deb /.ddeb /' debian/files; \
-		else \
-			grep -v '^$(dbgpkg)_.*$$' debian/files > debian/files.new; \
-			mv debian/files.new debian/files; \
-		fi; \
-	) 9>$(lockme_file)
+	$(lockme) sed -i '/^$(dbgpkg)_/s/\.deb /.ddeb /' debian/files
 	# Now, the package wont get into the archive, but it will get put
 	# into the debug system.
 endif
