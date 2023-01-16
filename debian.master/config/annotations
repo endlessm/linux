@@ -748,6 +748,7 @@ CONFIG_ARM64_ERRATUM_2077057                    policy<{'arm64': 'y'}>
 CONFIG_ARM64_ERRATUM_2441007                    policy<{'arm64': 'y'}>
 CONFIG_ARM64_ERRATUM_2441009                    policy<{'arm64': 'y'}>
 CONFIG_ARM64_ERRATUM_2457168                    policy<{'arm64': 'y'}>
+CONFIG_ARM64_ERRATUM_2645198                    policy<{'arm64': 'y'}>
 CONFIG_ARM64_ERRATUM_2658417                    policy<{'arm64': 'y'}>
 CONFIG_ARM64_ERRATUM_819472                     policy<{'arm64': 'y'}>
 CONFIG_ARM64_ERRATUM_824069                     policy<{'arm64': 'y'}>
@@ -1736,6 +1737,7 @@ CONFIG_CC_OPTIMIZE_FOR_SIZE                     policy<{'amd64': 'n', 'arm64': '
 CONFIG_CC_VERSION_TEXT                          policy<{'amd64': '"x86_64-linux-gnu-gcc-12 (Ubuntu 12.2.0-10ubuntu1) 12.2.0"', 'arm64': '"aarch64-linux-gnu-gcc-12 (Ubuntu 12.2.0-9ubuntu1) 12.2.0"', 'armhf': '"arm-linux-gnueabihf-gcc-12 (Ubuntu 12.2.0-9ubuntu1) 12.2.0"', 'ppc64el': '"powerpc64le-linux-gnu-gcc-12 (Ubuntu 12.2.0-9ubuntu1) 12.2.0"', 'riscv64': '"riscv64-linux-gnu-gcc-12 (Ubuntu 12.2.0-9ubuntu1) 12.2.0"', 's390x': '"s390x-linux-gnu-gcc-12 (Ubuntu 12.2.0-9ubuntu1) 12.2.0"'}>
 CONFIG_CDNS_I3C_MASTER                          policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm'}>
 CONFIG_CDROM                                    policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y', 's390x': 'y'}>
+CONFIG_CDROM_PKTCDVD                            policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'ppc64el': 'n', 'riscv64': 'n', 's390x': 'n'}>
 CONFIG_CEC_CH7322                               policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm', 's390x': '-'}>
 CONFIG_CEC_CORE                                 policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm'}>
 CONFIG_CEC_CROS_EC                              policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm'}>
@@ -4080,7 +4082,7 @@ CONFIG_FB_NVIDIA                                policy<{'amd64': 'm', 'arm64': '
 CONFIG_FB_NVIDIA_BACKLIGHT                      policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y'}>
 CONFIG_FB_NVIDIA_DEBUG                          policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'ppc64el': 'n', 'riscv64': 'n', 's390x': '-'}>
 CONFIG_FB_NVIDIA_I2C                            policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y'}>
-CONFIG_FB_OF                                    policy<{'ppc64el': 'y'}>
+CONFIG_FB_OF                                    policy<{'ppc64el': 'm'}>
 CONFIG_FB_OMAP2                                 policy<{'armhf': 'm'}>
 CONFIG_FB_OMAP2_CONNECTOR_ANALOG_TV             policy<{'armhf': 'n'}>
 CONFIG_FB_OMAP2_CONNECTOR_DVI                   policy<{'armhf': 'n'}>
@@ -4408,6 +4410,7 @@ CONFIG_GAMEPORT_L4                              policy<{'amd64': 'm', 'arm64': '
 CONFIG_GAMEPORT_NS558                           policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm', 's390x': '-'}>
 CONFIG_GARP                                     policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm', 's390x': 'm'}>
 CONFIG_GART_IOMMU                               policy<{'amd64': 'y'}>
+CONFIG_GCC11_NO_ARRAY_BOUNDS                    policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y', 's390x': 'y'}>
 CONFIG_GCC12_NO_ARRAY_BOUNDS                    policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y', 's390x': 'y'}>
 CONFIG_GCC_SUPPORTS_DYNAMIC_FTRACE_WITH_ARGS    policy<{'arm64': 'y'}>
 CONFIG_GCC_VERSION                              policy<{'amd64': '120200', 'arm64': '120200', 'armhf': '120200', 'ppc64el': '120200', 'riscv64': '120200', 's390x': '120200'}>
@@ -11960,6 +11963,7 @@ CONFIG_SND_SOC_PCM512x_I2C                      policy<{'amd64': 'm', 'arm64': '
 CONFIG_SND_SOC_PCM512x_SPI                      policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm'}>
 CONFIG_SND_SOC_QCOM                             policy<{'arm64': 'm', 'armhf': 'm'}>
 CONFIG_SND_SOC_QCOM_COMMON                      policy<{'arm64': 'm', 'armhf': 'm'}>
+CONFIG_SND_SOC_QCOM_SDW                         policy<{'arm64': 'm', 'armhf': 'm'}>
 CONFIG_SND_SOC_QDSP6                            policy<{'arm64': 'm', 'armhf': 'm'}>
 CONFIG_SND_SOC_QDSP6_ADM                        policy<{'arm64': 'm', 'armhf': 'm'}>
 CONFIG_SND_SOC_QDSP6_AFE                        policy<{'arm64': 'm', 'armhf': 'm'}>
