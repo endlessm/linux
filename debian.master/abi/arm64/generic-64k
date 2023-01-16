@@ -163,6 +163,7 @@ EXPORT_SYMBOL	 crypto/sm4 0x7931a202	crypto_sm4_fk
 EXPORT_SYMBOL	 crypto/sm4 0xf4fd3bd2	crypto_sm4_sbox
 EXPORT_SYMBOL	 crypto/xor 0x5b6c00e6	xor_blocks
 EXPORT_SYMBOL	 drivers/acpi/nfit/nfit 0x06848c60	to_nfit_uuid
+EXPORT_SYMBOL	 drivers/acpi/video 0x103735ba	acpi_video_report_nolcd
 EXPORT_SYMBOL	 drivers/acpi/video 0x12b92c32	acpi_video_get_levels
 EXPORT_SYMBOL	 drivers/acpi/video 0x45b61916	acpi_video_register_backlight
 EXPORT_SYMBOL	 drivers/acpi/video 0x5b33560b	acpi_video_get_edid
