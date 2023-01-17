@@ -18,6 +18,7 @@ Build-Depends:
  libdw-dev <!stage1>,
  libpci-dev <!stage1>,
  pkg-config <!stage1>,
+ python3 <!stage1>,
  flex <!stage1>,
  bison <!stage1>,
  libunwind8-dev [amd64 arm64 armhf ppc64el] <!stage1>,
