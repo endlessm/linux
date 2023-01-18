@@ -48,7 +48,8 @@ $(configs-targets):
 	if [ -e "$(DEBIAN)/config/config.common.ubuntu" ]; then \
 		conc_level=$(conc_level) $(SHELL) $(DROOT)/scripts/misc/old-kernelconfig $@; \
 	else \
-		conc_level=$(conc_level) $(SHELL) $(DROOT)/scripts/misc/kernelconfig $@; \
+		skip_checks=$(do_skip_checks) conc_level=$(conc_level) \
+			$(SHELL) $(DROOT)/scripts/misc/kernelconfig $@; \
 	fi;
 	rm -rf build
 
