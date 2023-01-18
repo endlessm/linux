@@ -1,4 +1,12 @@
 #!/bin/bash -u
+#
+# Manage kernel config annotations
+#
+# Supported environment variales:
+#   conc_level  : Concurrency level for upstream make (-jX)
+#   skip_checks : Skip config checks if set to 'true'
+#   gcc         : Default gcc to use (mandatory)
+#
 
 function cleanup()
 {
@@ -104,25 +112,31 @@ EOF
 	mv build/.config "${tmp_conf_file}"
 done
 
-echo
-echo "Running config-check for all configurations ..."
-fail=0
-for arch_flavour in ${FLAVOURS} ; do
-	arch=${arch_flavour%%-*}
-	flavour=${arch_flavour#*-}
-	tmp_conf_file=${TMP_DIR}/${arch}-config.flavour.${flavour}
-
-	echo
-	echo "* Run config-check for ${arch}-${flavour} ..."
-	python3 debian/scripts/misc/annotations -f "${annotations_file}" \
-			--arch "${arch}" --flavour "${flavour}" --check "${tmp_conf_file}" || \
-		fail=$((fail + 1))
-done
-
 rc=0
-if [ ${fail} -gt 0 ] ; then
-	rc=1
-	echo "ERROR: ${fail} config-check failures detected" >&2
+
+if [ "${skip_checks:-}" = "true" ] ; then
+	echo
+	echo "Skipping config-check (skip_checks=${skip_checks}) ..."
+else
+	echo
+	echo "Running config-check for all configurations ..."
+	fail=0
+	for arch_flavour in ${FLAVOURS} ; do
+		arch=${arch_flavour%%-*}
+		flavour=${arch_flavour#*-}
+		tmp_conf_file=${TMP_DIR}/${arch}-config.flavour.${flavour}
+
+		echo
+		echo "* Run config-check for ${arch}-${flavour} ..."
+		python3 debian/scripts/misc/annotations -f "${annotations_file}" \
+				--arch "${arch}" --flavour "${flavour}" --check "${tmp_conf_file}" || \
+			fail=$((fail + 1))
+	done
+
+	if [ ${fail} -gt 0 ] ; then
+		rc=1
+		echo "ERROR: ${fail} config-check failures detected" >&2
+	fi
 fi
 
 if [ ${#warning_partial[@]} -gt 0 ] ; then
