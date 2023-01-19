@@ -184,11 +184,15 @@ ifneq (,$(wildcard $(DEBIAN)/control.d/linux-doc.stub))
 endif
 endif
 
+# Calculate Ubuntu Compatible Signing levels
+UBUNTU_COMPATIBLE_SIGNING=$(shell grep -qx ' *Subject: C = GB, ST = Isle of Man, O = Canonical Ltd., OU = Secure Boot, CN = Canonical Ltd. Secure Boot Signing (2021 v3)' debian/canonical-revoked-certs.pem && echo ubuntu/4 pro/3)
+
 # Misc stuff
 .PHONY: $(DEBIAN)/control.stub
 $(DEBIAN)/control.stub: 				\
 		$(DROOT)/scripts/control-create		\
 		$(control_files)			\
+		debian/canonical-revoked-certs.pem	\
 		$(DROOT)/control.d/flavour-module.stub	\
 		$(DEBIAN)/changelog			\
 		$(wildcard $(DEBIAN)/control.d/* $(DEBIAN)/sub-flavours/*.vars)
@@ -200,6 +204,7 @@ $(DEBIAN)/control.stub: 				\
 		-e 's/SRCPKGNAME/$(src_pkg_name)/g'                             \
 		-e 's/=HUMAN=/$(human_arch)/g'                                  \
 		-e 's/=SERIES=/$(series)/g'                                     \
+		-e 's|\(^Maintainer:.*\)|\1\nXSC-Ubuntu-Compatible-Signing: $(UBUNTU_COMPATIBLE_SIGNING)|g' \
 		-e 's/\(^Build-Depends:$$\)/\1\n$(GCC_BUILD_DEPENDS)/g'         \
 	  > $(DEBIAN)/control.stub;
 	flavours="$(sort $(wildcard $(DEBIAN)/control.d/vars.* $(DEBIAN)/sub-flavours/*.vars))";\
