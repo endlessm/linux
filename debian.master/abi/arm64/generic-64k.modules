@@ -5881,6 +5881,7 @@ snd-soc-pcm512x
 snd-soc-pcm512x-i2c
 snd-soc-pcm512x-spi
 snd-soc-qcom-common
+snd-soc-qcom-sdw
 snd-soc-rcar
 snd-soc-rk3288-hdmi-analog
 snd-soc-rk3328
@@ -6751,6 +6752,7 @@ uas
 ubi
 ubifs
 ublk_drv
+ubuntu-host
 ucan
 ucb1400_core
 ucb1400_ts

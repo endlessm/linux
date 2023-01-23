@@ -3379,6 +3379,7 @@ of_pmem
 of_xilinx_wdt
 ofb
 ofdrm
+offb
 ofpart
 og01a1b
 ohci-platform
@@ -5468,6 +5469,7 @@ uas
 ubi
 ubifs
 ublk_drv
+ubuntu-host
 ucan
 ucb1400_core
 ucb1400_ts

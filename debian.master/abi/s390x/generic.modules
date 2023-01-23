@@ -824,6 +824,7 @@ twofish_common
 twofish_generic
 uPD60620
 uartlite
+ubuntu-host
 udf
 udp_diag
 udp_tunnel
