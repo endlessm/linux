@@ -5461,6 +5461,7 @@ slram
 sm2_generic
 sm3
 sm3-ce
+sm3-neon
 sm3_generic
 sm4
 sm4-ce
