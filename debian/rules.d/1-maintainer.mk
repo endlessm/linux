@@ -9,6 +9,7 @@ help:
 	@echo "  updateconfigs       : Update core arch configs"
 	@echo "  defaultconfigs      : Update core arch configs using defaults"
 	@echo "  genconfigs          : Generate core arch configs in CONFIGS/*"
+	@echo "  editconfigs         : Edit core arch configs"
 	@echo "  migrateconfigs      : Automatically import old configs into annotations"
 	@echo "  printchanges        : Print the current changelog entries (from git)"
 	@echo "  insertchanges       : Insert current changelog entries (from git)"
@@ -40,7 +41,7 @@ migrateconfigs:
 	fi
 	rm -rf build
 
-configs-targets := updateconfigs defaultconfigs genconfigs
+configs-targets := updateconfigs defaultconfigs genconfigs editconfigs
 
 .PHONY: $(configs-targets)
 $(configs-targets):
