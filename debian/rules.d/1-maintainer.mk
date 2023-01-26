@@ -27,32 +27,32 @@ printdebian:
 
 .PHONY: migrateconfigs
 migrateconfigs:
-	dh_testdir;
-	if [ -e "$(DEBIAN)/config/config.common.ubuntu" ]; then \
-		conc_level=$(conc_level) $(SHELL) $(DROOT)/scripts/misc/old-kernelconfig genconfigs; \
-		mkdir build; \
-		mv $(DEBIAN)/config/annotations build/.annotations ; \
-		mv $(DEBIAN)/config/README.rst build/.README.rst 2>/dev/null || true; \
-		rm -rf $(DEBIAN)/config; \
-		mkdir -p $(DEBIAN)/config; \
-		debian/scripts/misc/migrate-annotations < build/.annotations > $(DEBIAN)/config/annotations; \
-		mv build/.README.rst $(DEBIAN)/config/README.rst 2>/dev/null || true; \
-		conc_level=$(conc_level) $(SHELL) $(DROOT)/scripts/misc/kernelconfig updateconfigs; \
-	fi
+ifneq ($(wildcard $(DEBIAN)/config/config.common.ubuntu),)
+	dh_testdir
+	conc_level=$(conc_level) $(SHELL) $(DROOT)/scripts/misc/old-kernelconfig genconfigs
 	rm -rf build
+	mkdir build
+	mv $(DEBIAN)/config/annotations build/.annotations
+	mv $(DEBIAN)/config/README.rst build/.README.rst 2>/dev/null || true
+	rm -rf $(DEBIAN)/config
+	mkdir -p $(DEBIAN)/config
+	debian/scripts/misc/migrate-annotations < build/.annotations > $(DEBIAN)/config/annotations
+	mv build/.README.rst $(DEBIAN)/config/README.rst 2>/dev/null || true
+	rm -rf build
+	conc_level=$(conc_level) $(SHELL) $(DROOT)/scripts/misc/kernelconfig updateconfigs
+endif
 
 configs-targets := updateconfigs defaultconfigs genconfigs editconfigs
 
 .PHONY: $(configs-targets)
 $(configs-targets):
-	dh_testdir;
-	if [ -e "$(DEBIAN)/config/config.common.ubuntu" ]; then \
-		conc_level=$(conc_level) $(SHELL) $(DROOT)/scripts/misc/old-kernelconfig $@; \
-	else \
-		skip_checks=$(do_skip_checks) conc_level=$(conc_level) \
-			$(SHELL) $(DROOT)/scripts/misc/kernelconfig $@; \
-	fi;
-	rm -rf build
+	dh_testdir
+ifneq ($(wildcard $(DEBIAN)/config/config.common.ubuntu),)
+	conc_level=$(conc_level) $(SHELL) $(DROOT)/scripts/misc/old-kernelconfig $@
+else
+	skip_checks=$(do_skip_checks) conc_level=$(conc_level) \
+		$(SHELL) $(DROOT)/scripts/misc/kernelconfig $@
+endif
 
 .PHONY: printenv
 printenv:
