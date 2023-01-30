@@ -1581,7 +1581,6 @@ CONFIG_BUG                                      policy<{'amd64': 'y', 'arm64': '
 CONFIG_BUG_ON_DATA_CORRUPTION                   policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'ppc64el': 'n', 'riscv64': 'n', 's390x': 'n'}>
 CONFIG_BUILDTIME_MCOUNT_SORT                    policy<{'amd64': 'y', 'armhf': 'y'}>
 CONFIG_BUILDTIME_TABLE_SORT                     policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y', 's390x': 'y'}>
-CONFIG_BUILD_BIN2C                              policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y', 's390x': 'y'}>
 CONFIG_BUILD_SALT                               policy<{'amd64': '""', 'arm64': '""', 'armhf': '""', 'ppc64el': '""', 'riscv64': '""', 's390x': '""'}>
 CONFIG_BXT_WC_PMIC_OPREGION                     policy<{'amd64': 'y'}>
 CONFIG_BYTCRC_PMIC_OPREGION                     policy<{'amd64': 'y'}>
