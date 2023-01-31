@@ -158,8 +158,11 @@ firmware:       amdgpu/gc_11_0_3_mes.bin
 firmware:       amdgpu/gc_11_0_3_mes1.bin
 firmware:       amdgpu/gc_11_0_3_pfp.bin
 firmware:       amdgpu/gc_11_0_3_rlc.bin
+firmware:       amdgpu/gc_11_0_4_imu.bin
 firmware:       amdgpu/gc_11_0_4_me.bin
 firmware:       amdgpu/gc_11_0_4_mec.bin
+firmware:       amdgpu/gc_11_0_4_mes.bin
+firmware:       amdgpu/gc_11_0_4_mes1.bin
 firmware:       amdgpu/gc_11_0_4_pfp.bin
 firmware:       amdgpu/gc_11_0_4_rlc.bin
 firmware:       amdgpu/green_sardine_asd.bin
