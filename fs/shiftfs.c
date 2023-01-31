@@ -632,10 +632,10 @@ static int shiftfs_rename(struct user_namespace *ns,
 	struct inode *loweri_dir_old = lowerd_dir_old->d_inode,
 		     *loweri_dir_new = lowerd_dir_new->d_inode;
 	struct renamedata rd = {
-		.old_mnt_userns	= ns,
+		.old_mnt_userns	= &init_user_ns,
 		.old_dir	= loweri_dir_old,
 		.old_dentry	= lowerd_old,
-		.new_mnt_userns	= ns,
+		.new_mnt_userns	= &init_user_ns,
 		.new_dir	= loweri_dir_new,
 		.new_dentry	= lowerd_new,
 	};
@@ -971,7 +971,7 @@ shiftfs_posix_acl_xattr_set(const struct xattr_handler *handler,
 		return -EOPNOTSUPP;
 	if (handler->flags == ACL_TYPE_DEFAULT && !S_ISDIR(inode->i_mode))
 		return value ? -EACCES : 0;
-	if (!inode_owner_or_capable(ns, inode))
+	if (!inode_owner_or_capable(&init_user_ns, inode))
 		return -EPERM;
 
 	if (value) {
@@ -2012,6 +2012,16 @@ static int shiftfs_fill_super(struct super_block *sb, void *raw_data,
 
 	if (!S_ISDIR(path.dentry->d_inode->i_mode)) {
 		err = -ENOTDIR;
+		goto out_put_path;
+	}
+
+	/*
+	 * It makes no sense to handle idmapped layers from shiftfs.
+	 * And we didn't support it properly anyway.
+	 */
+	if (is_idmapped_mnt(path.mnt)) {
+		err = -EINVAL;
+		pr_err("idmapped layers are currently not supported\n");
 		goto out_put_path;
 	}
 
