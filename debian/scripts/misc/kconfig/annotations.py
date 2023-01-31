@@ -214,9 +214,11 @@ class Annotation(Config):
                 if flavour not in list(set(self.arch + self.flavour)):
                     del self.config[conf]['policy'][flavour]
             # Remove configs that are all undefined across all arches/flavours
-            if 'policy' in self.config[conf]:
-                if list(set(self.config[conf]['policy'].values())) == ['-']:
-                    self.config[conf]['policy'] = {}
+            # (unless we have includes)
+            if not self.include:
+                if 'policy' in self.config[conf]:
+                    if list(set(self.config[conf]['policy'].values())) == ['-']:
+                        self.config[conf]['policy'] = {}
             # Drop empty rules
             if not self.config[conf]['policy']:
                 del self.config[conf]
@@ -238,15 +240,17 @@ class Annotation(Config):
                         self.config[conf]['policy'][arch] = value
         # After the first round of compaction we may end up having configs that
         # are undefined across all arches, so do another round of compaction to
-        # drop these settings that are not needed anymore.
-        for conf in self.config.copy():
-            # Remove configs that are all undefined across all arches/flavours
-            if 'policy' in self.config[conf]:
-                if list(set(self.config[conf]['policy'].values())) == ['-']:
-                    self.config[conf]['policy'] = {}
-            # Drop empty rules
-            if not self.config[conf]['policy']:
-                del self.config[conf]
+        # drop these settings that are not needed anymore
+        # (unless we have includes).
+        if not self.include:
+            for conf in self.config.copy():
+                # Remove configs that are all undefined across all arches/flavours
+                if 'policy' in self.config[conf]:
+                    if list(set(self.config[conf]['policy'].values())) == ['-']:
+                        self.config[conf]['policy'] = {}
+                # Drop empty rules
+                if not self.config[conf]['policy']:
+                    del self.config[conf]
 
     def save(self, fname: str):
         """ Save annotations data to the annotation file """
