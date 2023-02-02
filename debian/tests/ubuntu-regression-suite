@@ -41,5 +41,6 @@ if [ "$sver" != "$rver" ]; then
     exit 1
 fi
 
-git clone --depth=1 git://git.launchpad.net/~canonical-kernel-team/+git/kernel-testing
+git clone --depth=1 -b autotest3 git://git.launchpad.net/~canonical-kernel-team/+git/kernel-testing
+git -C kernel-testing/ show HEAD -q
 kernel-testing/run-dep8-tests
