@@ -15,6 +15,7 @@
 #include <linux/sort.h>
 #include <linux/iversion.h>
 #include <linux/fscrypt.h>
+#include <linux/delay.h>
 
 #include "super.h"
 #include "mds_client.h"
@@ -742,7 +743,8 @@ static inline blkcnt_t calc_inode_blocks(u64 size)
  * truncate() increments the corresponding _seq values.)
  */
 int ceph_fill_file_size(struct inode *inode, int issued,
-			u32 truncate_seq, u64 truncate_size, u64 size)
+			u32 truncate_seq, u64 truncate_size,
+			u64 size, int newcaps)
 {
 	struct ceph_inode_info *ci = ceph_inode(inode);
 	int queue_trunc = 0;
@@ -770,10 +772,20 @@ int ceph_fill_file_size(struct inode *inode, int issued,
 			ci->i_truncate_seq = truncate_seq;
 
 			/* the MDS should have revoked these caps */
-			WARN_ON_ONCE(issued & (CEPH_CAP_FILE_EXCL |
-					       CEPH_CAP_FILE_RD |
-					       CEPH_CAP_FILE_WR |
-					       CEPH_CAP_FILE_LAZYIO));
+			if (issued & (CEPH_CAP_FILE_EXCL |
+				      CEPH_CAP_FILE_RD |
+				      CEPH_CAP_FILE_WR |
+				      CEPH_CAP_FILE_LAZYIO)) {
+				pr_err("%s %p ino %llx.%llx already issued %s, newcaps %s\n",
+				       __func__, inode, ceph_vinop(inode),
+				       ceph_cap_string(issued),
+				       ceph_cap_string(newcaps));
+				pr_err(" truncate_seq %u -> %u\n",
+				       ci->i_truncate_seq, truncate_seq);
+				pr_err("  size %lld -> %llu\n", isize, size);
+				msleep(1000);
+				BUG();
+			}
 			/*
 			 * If we hold relevant caps, or in the case where we're
 			 * not the only client referencing this file and we
@@ -1099,7 +1111,7 @@ int ceph_fill_inode(struct inode *inode, struct page *locked_page,
 		queue_trunc = ceph_fill_file_size(inode, issued,
 					le32_to_cpu(info->truncate_seq),
 					le64_to_cpu(info->truncate_size),
-					size);
+					size, info_caps);
 		/* only update max_size on auth cap */
 		if ((info->cap.flags & CEPH_CAP_FLAG_AUTH) &&
 		    ci->i_max_size != le64_to_cpu(info->max_size)) {
