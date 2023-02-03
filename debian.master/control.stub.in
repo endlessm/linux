@@ -14,7 +14,7 @@ Build-Depends:
  libiberty-dev <!stage1>,
  default-jdk-headless <!stage1>,
  java-common <!stage1>,
- rsync <!stage1>,
+ rsync [!i386] <!stage1>,
  libdw-dev <!stage1>,
  libpci-dev <!stage1>,
  pkg-config <!stage1>,
