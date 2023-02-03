@@ -120,11 +120,7 @@ class Annotation(Config):
         self._parse_body(data)
 
     def _remove_entry(self, config : str):
-        if 'policy' in self.config[config]:
-            del self.config[config]['policy']
-        if 'note' in self.config[config]:
-            del self.config[config]['note']
-        if not self.config[config]:
+        if self.config[config]:
             del self.config[config]
 
     def remove(self, config : str, arch: str = None, flavour: str = None):
