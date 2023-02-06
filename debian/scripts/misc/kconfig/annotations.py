@@ -82,6 +82,7 @@ class Annotation(Config):
 
                         m = re.match(r'.* note<(.*?)>', line)
                         if m:
+                            entry['oneline'] = match
                             match = True
                             entry['note'] = "'" + m.group(1).replace("'", '') + "'"
 
@@ -284,11 +285,16 @@ class Annotation(Config):
                 if 'policy' in new_val:
                     val = dict(sorted(new_val['policy'].items()))
                     line = f"{conf : <47} policy<{val}>"
-                    tmp.write(line + "\n")
                     if 'note' in new_val:
                         val = new_val['note']
-                        line = f"{conf : <47} note<{val}>"
-                        tmp.write(line + "\n\n")
+                        if new_val.get('oneline', False):
+                            # Single line
+                            line += f' note<{val}>'
+                        else:
+                            # Separate policy and note lines,
+                            # followed by an empty line
+                            line += f'\n{conf : <47} note<{val}>\n'
+                    tmp.write(line + "\n")
 
             # Replace annotations with the updated version
             tmp.flush()
