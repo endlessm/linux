@@ -56,8 +56,8 @@ class Annotation(Config):
         # Convert multiple spaces to single space to simplifly parsing
         data = re.sub(r'  *', ' ', data)
 
-        # Handle includes (recursively)
         for line in data.splitlines():
+            # Handle includes (recursively)
             m = re.match(r'^include\s+"?([^"]*)"?', line)
             if m:
                 self.include.append(m.group(1))
@@ -65,24 +65,28 @@ class Annotation(Config):
                 include_data = self._load(include_fname)
                 self._parse_body(include_data)
             else:
-                # Skip empty, non-policy and non-note lines
-                if re.match('.* policy<', line) or re.match('.* note<', line):
+                # Handle policy and note lines
+                if re.match(r'.* (policy|note)<', line):
                     try:
-                        # Parse single policy or note rule
                         conf = line.split(' ')[0]
                         if conf in self.config:
                             entry = self.config[conf]
                         else:
                             entry = {'policy': {}}
-                        m = re.match(r'.*policy<(.*)>', line)
+
+                        match = False
+                        m = re.match(r'.* policy<(.*?)>', line)
                         if m:
+                            match = True
                             entry['policy'] |= literal_eval(m.group(1))
-                        else:
-                            m = re.match(r'.*note<(.*?)>', line)
-                            if m:
-                                entry['note'] = "'" + m.group(1).replace("'", '') + "'"
-                            else:
-                                raise Exception('syntax error')
+
+                        m = re.match(r'.* note<(.*?)>', line)
+                        if m:
+                            match = True
+                            entry['note'] = "'" + m.group(1).replace("'", '') + "'"
+
+                        if not match:
+                            raise Exception('syntax error')
                         self.config[conf] = entry
                     except Exception as e:
                         raise Exception(str(e) + f', line = {line}')
