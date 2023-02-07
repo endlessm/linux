@@ -68,33 +68,38 @@ class Annotation(Config):
                 include_fname = dirname(abspath(self.fname)) + '/' + m.group(1)
                 include_data = self._load(include_fname)
                 self._parse_body(include_data)
-            else:
-                # Handle policy and note lines
-                if re.match(r'.* (policy|note)<', line):
-                    try:
-                        conf = line.split(' ')[0]
-                        if conf in self.config:
-                            entry = self.config[conf]
-                        else:
-                            entry = {'policy': {}}
+                continue
 
-                        match = False
-                        m = re.match(r'.* policy<(.*?)>', line)
-                        if m:
-                            match = True
-                            entry['policy'] |= literal_eval(m.group(1))
+            # Handle policy and note lines
+            if re.match(r'.* (policy|note)<', line):
+                try:
+                    conf = line.split(' ')[0]
+                    if conf in self.config:
+                        entry = self.config[conf]
+                    else:
+                        entry = {'policy': {}}
 
-                        m = re.match(r'.* note<(.*?)>', line)
-                        if m:
-                            entry['oneline'] = match
-                            match = True
-                            entry['note'] = "'" + m.group(1).replace("'", '') + "'"
+                    match = False
+                    m = re.match(r'.* policy<(.*?)>', line)
+                    if m:
+                        match = True
+                        entry['policy'] |= literal_eval(m.group(1))
 
-                        if not match:
-                            raise Exception('syntax error')
-                        self.config[conf] = entry
-                    except Exception as e:
-                        raise Exception(str(e) + f', line = {line}')
+                    m = re.match(r'.* note<(.*?)>', line)
+                    if m:
+                        entry['oneline'] = match
+                        match = True
+                        entry['note'] = "'" + m.group(1).replace("'", '') + "'"
+
+                    if not match:
+                        raise Exception('syntax error')
+                    self.config[conf] = entry
+                except Exception as e:
+                    raise Exception(str(e) + f', line = {line}')
+                continue
+
+            # Invalid line
+            raise Exception(f'invalid line: {line}')
 
     """
     Parse main annotations file, individual config options can be accessed via
