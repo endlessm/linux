@@ -50,13 +50,17 @@ class Annotation(Config):
     Parse body of annotations file
     """
     def _parse_body(self, data: str):
-        # Skip comments
-        data = re.sub(r'(?m)^\s*#.*\n?', '', data)
-
-        # Convert multiple spaces to single space to simplifly parsing
-        data = re.sub(r'  *', ' ', data)
-
         for line in data.splitlines():
+            # Replace tabs with spaces, squeeze multiple into singles and
+            # remove leading and trailing spaces
+            line = line.replace('\t', ' ')
+            line = re.sub(r' +', ' ', line)
+            line = line.strip()
+
+            # Ignore empty lines and comments
+            if not line or line.startswith('#'):
+                continue
+
             # Handle includes (recursively)
             m = re.match(r'^include\s+"?([^"]*)"?', line)
             if m:
