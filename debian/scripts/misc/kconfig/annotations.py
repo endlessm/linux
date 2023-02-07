@@ -57,8 +57,17 @@ class Annotation(Config):
             line = re.sub(r' +', ' ', line)
             line = line.strip()
 
-            # Ignore empty lines and comments
-            if not line or line.startswith('#'):
+            # Ignore empty lines
+            if not line:
+                continue
+
+            # Catpure flavors of included files
+            if line.startswith('# FLAVOUR: '):
+                self.include_flavour += line.split(' ')[2:]
+                continue
+
+            # Ignore comments
+            if line.startswith('#'):
                 continue
 
             # Handle includes (recursively)
@@ -112,6 +121,7 @@ class Annotation(Config):
         self.flavour_dep = {}
         self.include = []
         self.header = ''
+        self.include_flavour = []
 
         # Parse header (only main header will considered, headers in includes
         # will be treated as comments)
@@ -132,6 +142,13 @@ class Annotation(Config):
 
         # Parse body (handle includes recursively)
         self._parse_body(data)
+
+        # Sanity check: Verify that all FLAVOUR_DEP flavors are valid
+        for src, tgt in self.flavour_dep.items():
+            if src not in self.flavour:
+                raise Exception(f'Invalid source flavour in FLAVOUR_DEP: {src}')
+            if tgt not in self.include_flavour:
+                raise Exception(f'Invalid target flavour in FLAVOUR_DEP: {tgt}')
 
     def _remove_entry(self, config: str):
         if self.config[config]:
