@@ -53,19 +53,19 @@ def make_parser():
 
     ga = parser.add_argument_group(title='Action').add_mutually_exclusive_group(required=False)
     ga.add_argument('--write', '-w', action='store',
-                        metavar='VALUE', dest='value',
-                        help='Set a specific config value in annotations (use \'null\' to remove)')
+                    metavar='VALUE', dest='value',
+                    help='Set a specific config value in annotations (use \'null\' to remove)')
     ga.add_argument('--export', '-e', action='store_true',
-                        help='Convert annotations to .config format')
+                    help='Convert annotations to .config format')
     ga.add_argument('--import', '-i', action='store',
-                        metavar="FILE", dest='import_file',
-                        help='Import a full .config for a specific arch and flavour into annotations')
+                    metavar="FILE", dest='import_file',
+                    help='Import a full .config for a specific arch and flavour into annotations')
     ga.add_argument('--update', '-u', action='store',
-                        metavar="FILE", dest='update_file',
-                        help='Import a partial .config into annotations (only resync configs specified in FILE)')
+                    metavar="FILE", dest='update_file',
+                    help='Import a partial .config into annotations (only resync configs specified in FILE)')
     ga.add_argument('--check', '-k', action='store',
-                        metavar="FILE", dest='check_file',
-                        help='Validate kernel .config with annotations')
+                    metavar="FILE", dest='check_file',
+                    help='Validate kernel .config with annotations')
     return parser
 
 _ARGPARSER = make_parser()
@@ -218,7 +218,7 @@ def autodetect_annotations(args):
     try:
         with open('debian/debian.env', 'rt') as fd:
             args.file = fd.read().rstrip().split('=')[1] + '/config/annotations'
-    except:
+    except Exception:
         arg_fail('error: could not determine DEBDIR, try using: --file/-f')
 
 def main():

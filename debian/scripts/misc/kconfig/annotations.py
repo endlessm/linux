@@ -124,11 +124,11 @@ class Annotation(Config):
         # Parse body (handle includes recursively)
         self._parse_body(data)
 
-    def _remove_entry(self, config : str):
+    def _remove_entry(self, config: str):
         if self.config[config]:
             del self.config[config]
 
-    def remove(self, config : str, arch: str = None, flavour: str = None):
+    def remove(self, config: str, arch: str = None, flavour: str = None):
         if config not in self.config:
             return
         if arch is not None:
@@ -142,11 +142,11 @@ class Annotation(Config):
         else:
             self._remove_entry(config)
 
-    def set(self, config : str, arch: str = None, flavour: str = None,
-            value : str = None, note : str = None):
+    def set(self, config: str, arch: str = None, flavour: str = None,
+            value: str = None, note: str = None):
         if value is not None:
             if config not in self.config:
-                self.config[config] = { 'policy': {} }
+                self.config[config] = {'policy': {}}
             if arch is not None:
                 if flavour is not None:
                     flavour = f'{arch}-{flavour}'
@@ -316,7 +316,7 @@ class Annotation(Config):
             # Get config options of a specific architecture
             ret = {}
             for c in self.config:
-                if not 'policy' in self.config[c]:
+                if 'policy' not in self.config[c]:
                     continue
                 if flavour in self.config[c]['policy']:
                     ret[c] = self.config[c]['policy'][flavour]
