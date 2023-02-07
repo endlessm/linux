@@ -276,25 +276,29 @@ class Annotation(Config):
 
             # Only save local differences (preserve includes)
             for conf in sorted(self.config):
-                old_val = tmp_a.config[conf] if conf in tmp_a.config else None
                 new_val = self.config[conf]
+                if 'policy' not in new_val:
+                    continue
+
                 # If new_val is a subset of old_val, skip it
-                if old_val and 'policy' in old_val and 'policy' in new_val:
+                old_val = tmp_a.config.get(conf)
+                if old_val and 'policy' in old_val:
                     if old_val['policy'] == old_val['policy'] | new_val['policy']:
                         continue
-                if 'policy' in new_val:
-                    val = dict(sorted(new_val['policy'].items()))
-                    line = f"{conf : <47} policy<{val}>"
-                    if 'note' in new_val:
-                        val = new_val['note']
-                        if new_val.get('oneline', False):
-                            # Single line
-                            line += f' note<{val}>'
-                        else:
-                            # Separate policy and note lines,
-                            # followed by an empty line
-                            line += f'\n{conf : <47} note<{val}>\n'
-                    tmp.write(line + "\n")
+
+                # Write out the policy (and note) line(s)
+                val = dict(sorted(new_val['policy'].items()))
+                line = f"{conf : <47} policy<{val}>"
+                if 'note' in new_val:
+                    val = new_val['note']
+                    if new_val.get('oneline', False):
+                        # Single line
+                        line += f' note<{val}>'
+                    else:
+                        # Separate policy and note lines,
+                        # followed by an empty line
+                        line += f'\n{conf : <47} note<{val}>\n'
+                tmp.write(line + "\n")
 
             # Replace annotations with the updated version
             tmp.flush()
