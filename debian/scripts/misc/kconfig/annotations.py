@@ -262,6 +262,17 @@ class Annotation(Config):
                 if not self.config[conf]['policy']:
                     del self.config[conf]
 
+    def _sorted(self, config):
+        """ Sort configs alphabetically but return configs with a note first """
+        w_note = []
+        wo_note = []
+        for c in sorted(config):
+            if 'note' in config[c]:
+                w_note.append(c)
+            else:
+                wo_note.append(c)
+        return w_note + wo_note
+
     def save(self, fname: str):
         """ Save annotations data to the annotation file """
         # Compact annotations structure
@@ -284,7 +295,8 @@ class Annotation(Config):
             tmp_a = Annotation(fname)
 
             # Only save local differences (preserve includes)
-            for conf in sorted(self.config):
+            marker = False
+            for conf in self._sorted(self.config):
                 new_val = self.config[conf]
                 if 'policy' not in new_val:
                     continue
@@ -307,6 +319,11 @@ class Annotation(Config):
                         # Separate policy and note lines,
                         # followed by an empty line
                         line += f'\n{conf : <47} note<{val}>\n'
+                elif not marker:
+                    # Write out a marker indicating the start of annotations
+                    # without notes
+                    tmp.write('\n# ---- Annotations without notes ----\n\n')
+                    marker = True
                 tmp.write(line + "\n")
 
             # Replace annotations with the updated version
