@@ -118,7 +118,7 @@ EOF
 	# Call config target
 	echo
 	echo "* Run ${target} on ${arch}/${flavour} ..."
-	make O=build "${env[@]}" "${target}"
+	${kmake} O=build "${env[@]}" "${target}"
 
 	# Move config for further processing
 	mv build/.config "${tmp_conf_file}"

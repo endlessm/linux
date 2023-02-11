@@ -39,7 +39,7 @@ ifneq ($(wildcard $(DEBIAN)/config/config.common.ubuntu),)
 	debian/scripts/misc/migrate-annotations < build/.annotations > $(DEBIAN)/config/annotations
 	mv build/.README.rst $(DEBIAN)/config/README.rst 2>/dev/null || true
 	rm -rf build
-	conc_level=$(conc_level) $(SHELL) $(DROOT)/scripts/misc/kernelconfig updateconfigs
+	kmake='$(kmake)' conc_level=$(conc_level) $(SHELL) $(DROOT)/scripts/misc/kernelconfig updateconfigs
 endif
 
 configs-targets := updateconfigs defaultconfigs genconfigs editconfigs
@@ -50,7 +50,7 @@ $(configs-targets):
 ifneq ($(wildcard $(DEBIAN)/config/config.common.ubuntu),)
 	conc_level=$(conc_level) $(SHELL) $(DROOT)/scripts/misc/old-kernelconfig $@
 else
-	skip_checks=$(do_skip_checks) conc_level=$(conc_level) \
+	kmake='$(kmake)' skip_checks=$(do_skip_checks) conc_level=$(conc_level) \
 		$(SHELL) $(DROOT)/scripts/misc/kernelconfig $@
 endif
 
