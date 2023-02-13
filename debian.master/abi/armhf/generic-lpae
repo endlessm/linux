@@ -19588,6 +19588,7 @@ EXPORT_SYMBOL_GPL	 vmlinux 0x115a2938	__dax_driver_register
 EXPORT_SYMBOL_GPL	 vmlinux 0x116a8187	__blk_req_zone_write_unlock
 EXPORT_SYMBOL_GPL	 vmlinux 0x116b4f1e	wakeup_source_register
 EXPORT_SYMBOL_GPL	 vmlinux 0x1170a6e8	sata_scr_write
+EXPORT_SYMBOL_GPL	 vmlinux 0x1171c909	ZSTD_getErrorName
 EXPORT_SYMBOL_GPL	 vmlinux 0x11778c8f	usb_get_dev
 EXPORT_SYMBOL_GPL	 vmlinux 0x117dc1da	vp_legacy_config_vector
 EXPORT_SYMBOL_GPL	 vmlinux 0x11a44ab7	dm_audit_log_ti
@@ -22448,7 +22449,6 @@ EXPORT_SYMBOL_GPL	 vmlinux 0x7b1e1f17	snd_soc_of_get_slot_mask
 EXPORT_SYMBOL_GPL	 vmlinux 0x7b234ced	dev_pm_opp_get_power
 EXPORT_SYMBOL_GPL	 vmlinux 0x7b3078c5	simple_attr_read
 EXPORT_SYMBOL_GPL	 vmlinux 0x7b33a30f	pin_get_name
-EXPORT_SYMBOL_GPL	 vmlinux 0x7b489ea0	ZSTD_isError
 EXPORT_SYMBOL_GPL	 vmlinux 0x7b5a4926	sha1_zero_message_hash
 EXPORT_SYMBOL_GPL	 vmlinux 0x7b70b13e	shmem_read_mapping_page_gfp
 EXPORT_SYMBOL_GPL	 vmlinux 0x7b7bd5ca	stmpe_dev_pm_ops
@@ -22570,7 +22570,7 @@ EXPORT_SYMBOL_GPL	 vmlinux 0x7fffffff	HUF_readStats
 EXPORT_SYMBOL_GPL	 vmlinux 0x7fffffff	TSS_checkhmac1
 EXPORT_SYMBOL_GPL	 vmlinux 0x7fffffff	ZSTD_customCalloc
 EXPORT_SYMBOL_GPL	 vmlinux 0x7fffffff	ZSTD_getErrorCode
-EXPORT_SYMBOL_GPL	 vmlinux 0x7fffffff	ZSTD_getErrorName
+EXPORT_SYMBOL_GPL	 vmlinux 0x7fffffff	ZSTD_isError
 EXPORT_SYMBOL_GPL	 vmlinux 0x7fffffff	__SCK__tp_func_arm_event
 EXPORT_SYMBOL_GPL	 vmlinux 0x7fffffff	__SCK__tp_func_ata_bmdma_setup
 EXPORT_SYMBOL_GPL	 vmlinux 0x7fffffff	__SCK__tp_func_ata_bmdma_start

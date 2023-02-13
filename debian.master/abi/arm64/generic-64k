@@ -25228,7 +25228,6 @@ EXPORT_SYMBOL_GPL	 vmlinux 0xb077e70a	clk_unprepare
 EXPORT_SYMBOL_GPL	 vmlinux 0xb078970e	spi_mem_dirmap_read
 EXPORT_SYMBOL_GPL	 vmlinux 0xb084fef7	devm_request_free_mem_region
 EXPORT_SYMBOL_GPL	 vmlinux 0xb08a22a3	cpufreq_show_cpus
-EXPORT_SYMBOL_GPL	 vmlinux 0xb08bea7f	ZSTD_isError
 EXPORT_SYMBOL_GPL	 vmlinux 0xb08c618d	tps6586x_get_version
 EXPORT_SYMBOL_GPL	 vmlinux 0xb08fba2a	devm_hwspin_lock_unregister
 EXPORT_SYMBOL_GPL	 vmlinux 0xb098bc84	relay_buf_full
@@ -25852,6 +25851,7 @@ EXPORT_SYMBOL_GPL	 vmlinux 0xc5dd6ada	clockevents_unbind_device
 EXPORT_SYMBOL_GPL	 vmlinux 0xc5ea2243	thermal_zone_device_update
 EXPORT_SYMBOL_GPL	 vmlinux 0xc617f82c	unregister_oom_notifier
 EXPORT_SYMBOL_GPL	 vmlinux 0xc623fadd	crypto_lookup_template
+EXPORT_SYMBOL_GPL	 vmlinux 0xc6250576	ZSTD_isError
 EXPORT_SYMBOL_GPL	 vmlinux 0xc62611e1	scatterwalk_map_and_copy
 EXPORT_SYMBOL_GPL	 vmlinux 0xc62f4ab0	param_ops_bool_enable_only
 EXPORT_SYMBOL_GPL	 vmlinux 0xc63330e1	dev_pm_opp_get_suspend_opp_freq
@@ -25961,6 +25961,7 @@ EXPORT_SYMBOL_GPL	 vmlinux 0xca1fa591	regulator_bulk_free
 EXPORT_SYMBOL_GPL	 vmlinux 0xca2a5109	vcap_keyfieldset
 EXPORT_SYMBOL_GPL	 vmlinux 0xca454a34	vt_get_leds
 EXPORT_SYMBOL_GPL	 vmlinux 0xca4728cd	raw_abort
+EXPORT_SYMBOL_GPL	 vmlinux 0xca500464	ZSTD_getErrorName
 EXPORT_SYMBOL_GPL	 vmlinux 0xca77e306	dpcon_get_attributes
 EXPORT_SYMBOL_GPL	 vmlinux 0xca7c16a2	wm8350_reg_write
 EXPORT_SYMBOL_GPL	 vmlinux 0xca7d8764	kthread_freezable_should_stop
@@ -27189,7 +27190,6 @@ EXPORT_SYMBOL_GPL	 vmlinux 0xf6e0e03c	security_inode_setattr
 EXPORT_SYMBOL_GPL	 vmlinux 0xf6e772c3	irq_bypass_unregister_producer
 EXPORT_SYMBOL_GPL	 vmlinux 0xf6e874f5	ata_timing_merge
 EXPORT_SYMBOL_GPL	 vmlinux 0xf6ebdf95	mctrl_gpio_free
-EXPORT_SYMBOL_GPL	 vmlinux 0xf6ecc31d	ZSTD_getErrorName
 EXPORT_SYMBOL_GPL	 vmlinux 0xf6f16c56	rcu_barrier_tasks
 EXPORT_SYMBOL_GPL	 vmlinux 0xf6fa9d2f	ahci_set_em_messages
 EXPORT_SYMBOL_GPL	 vmlinux 0xf70963cf	crypto_unregister_skcipher

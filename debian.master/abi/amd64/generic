@@ -24701,7 +24701,6 @@ EXPORT_SYMBOL_GPL	 vmlinux 0xb077e70a	clk_unprepare
 EXPORT_SYMBOL_GPL	 vmlinux 0xb081397c	pin_user_pages_fast_only
 EXPORT_SYMBOL_GPL	 vmlinux 0xb082e258	fwnode_property_match_string
 EXPORT_SYMBOL_GPL	 vmlinux 0xb084edf6	gpiod_put_array
-EXPORT_SYMBOL_GPL	 vmlinux 0xb08bea7f	ZSTD_isError
 EXPORT_SYMBOL_GPL	 vmlinux 0xb0948ae3	devfreq_event_disable_edev
 EXPORT_SYMBOL_GPL	 vmlinux 0xb09aca52	crypto_stats_get
 EXPORT_SYMBOL_GPL	 vmlinux 0xb0b4a37f	clocksource_verify_percpu
@@ -25299,6 +25298,7 @@ EXPORT_SYMBOL_GPL	 vmlinux 0xc6056416	pci_enable_pasid
 EXPORT_SYMBOL_GPL	 vmlinux 0xc60e4104	dev_pm_qos_add_notifier
 EXPORT_SYMBOL_GPL	 vmlinux 0xc60f9965	dev_pm_opp_get_voltage
 EXPORT_SYMBOL_GPL	 vmlinux 0xc617f82c	unregister_oom_notifier
+EXPORT_SYMBOL_GPL	 vmlinux 0xc6250576	ZSTD_isError
 EXPORT_SYMBOL_GPL	 vmlinux 0xc62611e1	scatterwalk_map_and_copy
 EXPORT_SYMBOL_GPL	 vmlinux 0xc62b6b71	pm_generic_poweroff_late
 EXPORT_SYMBOL_GPL	 vmlinux 0xc62f63af	crypto_register_scomp
@@ -25417,6 +25417,7 @@ EXPORT_SYMBOL_GPL	 vmlinux 0xca388c2a	debugfs_create_x16
 EXPORT_SYMBOL_GPL	 vmlinux 0xca454a34	vt_get_leds
 EXPORT_SYMBOL_GPL	 vmlinux 0xca46591e	inode_sb_list_add
 EXPORT_SYMBOL_GPL	 vmlinux 0xca467318	hibernation_set_ops
+EXPORT_SYMBOL_GPL	 vmlinux 0xca500464	ZSTD_getErrorName
 EXPORT_SYMBOL_GPL	 vmlinux 0xca66e718	simple_attr_write
 EXPORT_SYMBOL_GPL	 vmlinux 0xca6cc0fb	iommu_group_get
 EXPORT_SYMBOL_GPL	 vmlinux 0xca741294	dummy_con
@@ -26621,7 +26622,6 @@ EXPORT_SYMBOL_GPL	 vmlinux 0xf6c8dc62	cpu_hotplug_enable
 EXPORT_SYMBOL_GPL	 vmlinux 0xf6cc34b9	ata_sff_freeze
 EXPORT_SYMBOL_GPL	 vmlinux 0xf6e3f746	PageHuge
 EXPORT_SYMBOL_GPL	 vmlinux 0xf6e874f5	ata_timing_merge
-EXPORT_SYMBOL_GPL	 vmlinux 0xf6ecc31d	ZSTD_getErrorName
 EXPORT_SYMBOL_GPL	 vmlinux 0xf6ef002a	inet6_sk_rebuild_header
 EXPORT_SYMBOL_GPL	 vmlinux 0xf6f16c56	rcu_barrier_tasks
 EXPORT_SYMBOL_GPL	 vmlinux 0xf6f2c6ee	tcp_plb_check_rehash

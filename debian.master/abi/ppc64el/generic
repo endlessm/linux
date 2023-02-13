@@ -23284,7 +23284,6 @@ EXPORT_SYMBOL_GPL	 vmlinux 0xb0747ed2	rcu_cpu_stall_suppress
 EXPORT_SYMBOL_GPL	 vmlinux 0xb077e70a	clk_unprepare
 EXPORT_SYMBOL_GPL	 vmlinux 0xb0782125	sdio_readb
 EXPORT_SYMBOL_GPL	 vmlinux 0xb087df4c	led_trigger_register
-EXPORT_SYMBOL_GPL	 vmlinux 0xb08bea7f	ZSTD_isError
 EXPORT_SYMBOL_GPL	 vmlinux 0xb097dd3c	netlink_strict_get_check
 EXPORT_SYMBOL_GPL	 vmlinux 0xb0ad17df	ping_rcv
 EXPORT_SYMBOL_GPL	 vmlinux 0xb0b7dacf	pcie_aspm_enabled
@@ -23833,6 +23832,7 @@ EXPORT_SYMBOL_GPL	 vmlinux 0xc606cd3c	boot_cpuid
 EXPORT_SYMBOL_GPL	 vmlinux 0xc61217e8	fscrypt_fname_siphash
 EXPORT_SYMBOL_GPL	 vmlinux 0xc6134ef2	stmpe_set_bits
 EXPORT_SYMBOL_GPL	 vmlinux 0xc617f82c	unregister_oom_notifier
+EXPORT_SYMBOL_GPL	 vmlinux 0xc6250576	ZSTD_isError
 EXPORT_SYMBOL_GPL	 vmlinux 0xc62611e1	scatterwalk_map_and_copy
 EXPORT_SYMBOL_GPL	 vmlinux 0xc6299625	rht_bucket_nested_insert
 EXPORT_SYMBOL_GPL	 vmlinux 0xc629df12	tps6586x_writes
@@ -23952,6 +23952,7 @@ EXPORT_SYMBOL_GPL	 vmlinux 0xca3eba3c	user_destroy
 EXPORT_SYMBOL_GPL	 vmlinux 0xca454a34	vt_get_leds
 EXPORT_SYMBOL_GPL	 vmlinux 0xca47a869	virtqueue_get_avail_addr
 EXPORT_SYMBOL_GPL	 vmlinux 0xca4b5c51	idr_remove
+EXPORT_SYMBOL_GPL	 vmlinux 0xca500464	ZSTD_getErrorName
 EXPORT_SYMBOL_GPL	 vmlinux 0xca5cab55	tcp_get_syncookie_mss
 EXPORT_SYMBOL_GPL	 vmlinux 0xca71a482	rio_release_dma
 EXPORT_SYMBOL_GPL	 vmlinux 0xca74bb4e	skb_complete_tx_timestamp
@@ -25102,7 +25103,6 @@ EXPORT_SYMBOL_GPL	 vmlinux 0xf6e05d25	rhashtable_init
 EXPORT_SYMBOL_GPL	 vmlinux 0xf6e355ee	dma_resv_get_singleton
 EXPORT_SYMBOL_GPL	 vmlinux 0xf6e772c3	irq_bypass_unregister_producer
 EXPORT_SYMBOL_GPL	 vmlinux 0xf6e874f5	ata_timing_merge
-EXPORT_SYMBOL_GPL	 vmlinux 0xf6ecc31d	ZSTD_getErrorName
 EXPORT_SYMBOL_GPL	 vmlinux 0xf6f080af	led_set_brightness_nosleep
 EXPORT_SYMBOL_GPL	 vmlinux 0xf705b6cf	platform_get_resource
 EXPORT_SYMBOL_GPL	 vmlinux 0xf70e3b96	__blk_mq_debugfs_rq_show

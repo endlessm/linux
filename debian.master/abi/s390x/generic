@@ -10298,7 +10298,6 @@ EXPORT_SYMBOL_GPL	 vmlinux 0x1949b364	crypto_larval_kill
 EXPORT_SYMBOL_GPL	 vmlinux 0x194ea493	crypto_alg_mod_lookup
 EXPORT_SYMBOL_GPL	 vmlinux 0x1966816c	pci_destroy_slot
 EXPORT_SYMBOL_GPL	 vmlinux 0x196c686b	gpiod_get_value
-EXPORT_SYMBOL_GPL	 vmlinux 0x1973e16e	ZSTD_getErrorName
 EXPORT_SYMBOL_GPL	 vmlinux 0x19808dda	unregister_kprobes
 EXPORT_SYMBOL_GPL	 vmlinux 0x19821689	__tracepoint_fdb_delete
 EXPORT_SYMBOL_GPL	 vmlinux 0x19848b0f	virtio_reset_device
@@ -10494,6 +10493,7 @@ EXPORT_SYMBOL_GPL	 vmlinux 0x260cccd6	shmem_truncate_range
 EXPORT_SYMBOL_GPL	 vmlinux 0x262df04e	pid_vnr
 EXPORT_SYMBOL_GPL	 vmlinux 0x263500d1	__s390_uv_destroy_range
 EXPORT_SYMBOL_GPL	 vmlinux 0x26520970	vm_memory_committed
+EXPORT_SYMBOL_GPL	 vmlinux 0x2653ca04	ZSTD_getErrorName
 EXPORT_SYMBOL_GPL	 vmlinux 0x265bbef9	kexec_crash_loaded
 EXPORT_SYMBOL_GPL	 vmlinux 0x266a4b08	tasklet_unlock
 EXPORT_SYMBOL_GPL	 vmlinux 0x26742372	__platform_create_bundle
@@ -12137,7 +12137,6 @@ EXPORT_SYMBOL_GPL	 vmlinux 0x890adc80	ip6_push_pending_frames
 EXPORT_SYMBOL_GPL	 vmlinux 0x8924eb1e	rcu_force_quiescent_state
 EXPORT_SYMBOL_GPL	 vmlinux 0x8925947f	ip6_append_data
 EXPORT_SYMBOL_GPL	 vmlinux 0x89280cec	gpiod_set_array_value
-EXPORT_SYMBOL_GPL	 vmlinux 0x8933e81f	ZSTD_isError
 EXPORT_SYMBOL_GPL	 vmlinux 0x8939afc9	__cpuhp_state_remove_instance
 EXPORT_SYMBOL_GPL	 vmlinux 0x893abbdd	devlink_fmsg_u32_pair_put
 EXPORT_SYMBOL_GPL	 vmlinux 0x89485687	iommu_group_put
@@ -13428,6 +13427,7 @@ EXPORT_SYMBOL_GPL	 vmlinux 0xd8451ff0	pci_set_cacheline_size
 EXPORT_SYMBOL_GPL	 vmlinux 0xd84d35bd	dax_read_lock
 EXPORT_SYMBOL_GPL	 vmlinux 0xd857f551	raw_seq_stop
 EXPORT_SYMBOL_GPL	 vmlinux 0xd85984d0	debugfs_create_symlink
+EXPORT_SYMBOL_GPL	 vmlinux 0xd85f7bb2	ZSTD_isError
 EXPORT_SYMBOL_GPL	 vmlinux 0xd86955dc	devres_open_group
 EXPORT_SYMBOL_GPL	 vmlinux 0xd87fb8fd	input_ff_event
 EXPORT_SYMBOL_GPL	 vmlinux 0xd8812e75	gpiod_export_link

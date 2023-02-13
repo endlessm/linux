@@ -19525,6 +19525,7 @@ EXPORT_SYMBOL_GPL	 vmlinux 0x114a3740	__tracepoint_rpm_return_int
 EXPORT_SYMBOL_GPL	 vmlinux 0x115a8ff2	raw_seq_stop
 EXPORT_SYMBOL_GPL	 vmlinux 0x115d4676	device_attach
 EXPORT_SYMBOL_GPL	 vmlinux 0x11658b1d	__sock_recv_cmsgs
+EXPORT_SYMBOL_GPL	 vmlinux 0x1171c909	ZSTD_getErrorName
 EXPORT_SYMBOL_GPL	 vmlinux 0x11758b7e	debugfs_create_x32
 EXPORT_SYMBOL_GPL	 vmlinux 0x11783d05	kobject_rename
 EXPORT_SYMBOL_GPL	 vmlinux 0x1186f8c0	snd_dmaengine_pcm_prepare_slave_config
@@ -22352,7 +22353,6 @@ EXPORT_SYMBOL_GPL	 vmlinux 0x7b1d04d3	usb_hcd_is_primary_hcd
 EXPORT_SYMBOL_GPL	 vmlinux 0x7b1d7cd7	amba_device_put
 EXPORT_SYMBOL_GPL	 vmlinux 0x7b1de5c3	onboard_hub_create_pdevs
 EXPORT_SYMBOL_GPL	 vmlinux 0x7b3613a3	perf_event_sysfs_show
-EXPORT_SYMBOL_GPL	 vmlinux 0x7b489ea0	ZSTD_isError
 EXPORT_SYMBOL_GPL	 vmlinux 0x7b4bb10e	usb_gadget_unregister_driver
 EXPORT_SYMBOL_GPL	 vmlinux 0x7b562c49	usb_amd_pt_check_port
 EXPORT_SYMBOL_GPL	 vmlinux 0x7b5a4926	sha1_zero_message_hash
@@ -22490,7 +22490,7 @@ EXPORT_SYMBOL_GPL	 vmlinux 0x7fffffff	HUF_readStats
 EXPORT_SYMBOL_GPL	 vmlinux 0x7fffffff	TSS_checkhmac1
 EXPORT_SYMBOL_GPL	 vmlinux 0x7fffffff	ZSTD_customCalloc
 EXPORT_SYMBOL_GPL	 vmlinux 0x7fffffff	ZSTD_getErrorCode
-EXPORT_SYMBOL_GPL	 vmlinux 0x7fffffff	ZSTD_getErrorName
+EXPORT_SYMBOL_GPL	 vmlinux 0x7fffffff	ZSTD_isError
 EXPORT_SYMBOL_GPL	 vmlinux 0x7fffffff	__SCK__tp_func_arm_event
 EXPORT_SYMBOL_GPL	 vmlinux 0x7fffffff	__SCK__tp_func_ata_bmdma_setup
 EXPORT_SYMBOL_GPL	 vmlinux 0x7fffffff	__SCK__tp_func_ata_bmdma_start
