@@ -1422,7 +1422,7 @@ CONFIG_ARCH_VEXPRESS_TC2_PM                     policy<{'armhf': 'y'}>
 CONFIG_ARCH_VIRT                                policy<{'armhf': 'y'}>
 CONFIG_ARCH_VISCONTI                            policy<{'arm64': 'y'}>
 CONFIG_ARCH_WANTS_DYNAMIC_TASK_STRUCT           policy<{'amd64': 'y', 's390x': 'y'}>
-CONFIG_ARCH_WANTS_NO_INSTR                      policy<{'amd64': 'y', 'arm64': 'y', 'ppc64el': 'y', 's390x': 'y'}>
+CONFIG_ARCH_WANTS_NO_INSTR                      policy<{'amd64': 'y', 'arm64': 'y', 's390x': 'y'}>
 CONFIG_ARCH_WANTS_THP_SWAP                      policy<{'amd64': 'y', 'arm64-generic': 'y', 'riscv64': 'y'}>
 CONFIG_ARCH_WANT_BATCHED_UNMAP_TLB_FLUSH        policy<{'amd64': 'y'}>
 CONFIG_ARCH_WANT_COMPAT_IPC_PARSE_VERSION       policy<{'amd64': 'y', 'arm64': 'y', 'ppc64el': 'y', 's390x': 'y'}>
