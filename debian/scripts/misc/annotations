@@ -8,8 +8,9 @@ sys.dont_write_bytecode = True
 import os
 import argparse
 import json
-from kconfig.annotations import Annotation, KConfig
 from signal import signal, SIGPIPE, SIG_DFL
+
+from kconfig.annotations import Annotation, KConfig
 
 VERSION = '0.1'
 
@@ -27,6 +28,7 @@ SKIP_CONFIGS = (
     'CONFIG_RUSTC_VERSION_TEXT',
     'CONFIG_BINDGEN_VERSION_TEXT',
 )
+
 
 def make_parser():
     parser = argparse.ArgumentParser(
@@ -68,17 +70,21 @@ def make_parser():
                     help='Validate kernel .config with annotations')
     return parser
 
+
 _ARGPARSER = make_parser()
+
 
 def arg_fail(message):
     print(message)
     _ARGPARSER.print_usage()
-    exit(1)
+    sys.exit(1)
+
 
 def print_result(config, res):
     if res is not None and config not in res:
         res = {config or '*': res}
     print(json.dumps(res, indent=4))
+
 
 def do_query(args):
     if args.arch is None and args.flavour is not None:
@@ -87,18 +93,22 @@ def do_query(args):
     res = a.search_config(config=args.config, arch=args.arch, flavour=args.flavour)
     print_result(args.config, res)
 
+
 def do_autocomplete(args):
     a = Annotation(args.file)
     res = (c.removeprefix('CONFIG_') for c in a.search_config())
-    print('complete -W "{}" annotations'.format(' '.join(res)))
+    res_str = ' '.join(res)
+    print(f'complete -W "{res_str}" annotations')
+
 
 def do_source(args):
     if args.config is None:
         arg_fail('error: --source requires --config')
     if not os.path.exists('tags'):
         print('tags not found in the current directory, try: `make tags`')
-        exit(1)
+        sys.exit(1)
     os.system(f'vim -t {args.config}')
+
 
 def do_note(args):
     if args.config is None:
@@ -115,6 +125,7 @@ def do_note(args):
     a = Annotation(args.file)
     res = a.search_config(config=args.config)
     print_result(args.config, res)
+
 
 def do_write(args):
     if args.config is None:
@@ -135,6 +146,7 @@ def do_write(args):
     res = a.search_config(config=args.config)
     print_result(args.config, res)
 
+
 def do_export(args):
     if args.arch is None:
         arg_fail('error: --export requires --arch')
@@ -142,6 +154,7 @@ def do_export(args):
     conf = a.search_config(config=args.config, arch=args.arch, flavour=args.flavour)
     if conf:
         print(a.to_config(conf))
+
 
 def do_import(args):
     if args.arch is None:
@@ -159,6 +172,7 @@ def do_import(args):
     # Save back to annotations
     a.save(args.file)
 
+
 def do_update(args):
     if args.arch is None:
         arg_fail('error: --arch is required with --update')
@@ -173,6 +187,7 @@ def do_update(args):
 
     # Save back to annotations
     a.save(args.file)
+
 
 def do_check(args):
     # Determine arch and flavour
@@ -208,7 +223,8 @@ def do_check(args):
         total += 1
 
     print(f"check-config: {good}/{total} checks passed -- exit {ret}")
-    exit(ret)
+    sys.exit(ret)
+
 
 def autodetect_annotations(args):
     if args.file:
@@ -216,10 +232,11 @@ def autodetect_annotations(args):
     # If --file/-f isn't specified try to automatically determine the right
     # location of the annotations file looking at debian/debian.env.
     try:
-        with open('debian/debian.env', 'rt') as fd:
+        with open('debian/debian.env', 'rt', encoding='utf-8') as fd:
             args.file = fd.read().rstrip().split('=')[1] + '/config/annotations'
-    except Exception:
+    except (FileNotFoundError, IndexError):
         arg_fail('error: could not determine DEBDIR, try using: --file/-f')
+
 
 def main():
     # Prevent broken pipe errors when showing output in pipe to other tools
@@ -251,6 +268,7 @@ def main():
         do_source(args)
     else:
         do_query(args)
+
 
 if __name__ == '__main__':
     main()

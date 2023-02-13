@@ -7,20 +7,26 @@ import json
 import re
 import shutil
 import tempfile
+
+from abc import abstractmethod
 from ast import literal_eval
 from os.path import dirname, abspath
 
-class Config(object):
-    def __init__(self, fname: str, arch: str = None, flavour: str = None):
+
+class Config():
+    def __init__(self, fname):
         """
         Basic configuration file object
         """
         self.fname = fname
+        self.config = {}
+
         raw_data = self._load(fname)
         self._parse(raw_data)
 
-    def _load(self, fname: str) -> str:
-        with open(fname, 'rt') as fd:
+    @staticmethod
+    def _load(fname: str) -> str:
+        with open(fname, 'rt', encoding='utf-8') as fd:
             data = fd.read()
         return data.rstrip()
 
@@ -28,12 +34,17 @@ class Config(object):
         """ Return a JSON representation of the config """
         return json.dumps(self.config, indent=4)
 
+    @abstractmethod
+    def _parse(self, data: str):
+        pass
+
+
 class KConfig(Config):
     """
     Parse a .config file, individual config options can be accessed via
     .config[<CONFIG_OPTION>]
     """
-    def _parse(self, data: str) -> dict:
+    def _parse(self, data: str):
         self.config = {}
         for line in data.splitlines():
             m = re.match(r'^# (CONFIG_.*) is not set$', line)
@@ -44,6 +55,7 @@ class KConfig(Config):
             if m:
                 self.config[m.group(1)] = literal_eval("'" + m.group(2) + "'")
                 continue
+
 
 class Annotation(Config):
     """
@@ -104,17 +116,17 @@ class Annotation(Config):
                         raise Exception('syntax error')
                     self.config[conf] = entry
                 except Exception as e:
-                    raise Exception(str(e) + f', line = {line}')
+                    raise Exception(str(e) + f', line = {line}') from e
                 continue
 
             # Invalid line
             raise Exception(f'invalid line: {line}')
 
-    """
-    Parse main annotations file, individual config options can be accessed via
-    self.config[<CONFIG_OPTION>]
-    """
-    def _parse(self, data: str) -> dict:
+    def _parse(self, data: str):
+        """
+        Parse main annotations file, individual config options can be accessed
+        via self.config[<CONFIG_OPTION>]
+        """
         self.config = {}
         self.arch = []
         self.flavour = []
@@ -135,7 +147,7 @@ class Annotation(Config):
                     self.flavour = list(m.group(1).split(' '))
                 m = re.match(r'^# FLAVOUR_DEP: (.*)', line)
                 if m:
-                    self.flavour_dep = eval(m.group(1))
+                    self.flavour_dep = literal_eval(m.group(1))
                 self.header += line + "\n"
             else:
                 break
@@ -180,12 +192,12 @@ class Annotation(Config):
                     flavour = arch
                 self.config[config]['policy'][flavour] = value
             else:
-                for arch in self.arch:
-                    self.config[config]['policy'][arch] = value
+                for a in self.arch:
+                    self.config[config]['policy'][a] = value
         if note is not None:
             self.config[config]['note'] = "'" + note.replace("'", '') + "'"
 
-    def update(self, c: KConfig, arch: str, flavour: str = None, configs: list = []):
+    def update(self, c: KConfig, arch: str, flavour: str = None, configs: list = None):
         """ Merge configs from a Kconfig object into Annotation object """
 
         # Determine if we need to import all configs or a single config
@@ -257,7 +269,7 @@ class Annotation(Config):
                     for flavour in arch_flavours:
                         if flavour not in self.config[conf]['policy']:
                             break
-                        elif value is None:
+                        if value is None:
                             value = self.config[conf]['policy'][flavour]
                         elif value != self.config[conf]['policy'][flavour]:
                             break
@@ -279,7 +291,8 @@ class Annotation(Config):
                 if not self.config[conf]['policy']:
                     del self.config[conf]
 
-    def _sorted(self, config):
+    @staticmethod
+    def _sorted(config):
         """ Sort configs alphabetically but return configs with a note first """
         w_note = []
         wo_note = []
@@ -359,31 +372,31 @@ class Annotation(Config):
         if config is None and arch is None:
             # Get all config options for all architectures
             return self.config
-        elif config is None and arch is not None:
+        if config is None and arch is not None:
             # Get config options of a specific architecture
             ret = {}
-            for c in self.config:
-                if 'policy' not in self.config[c]:
+            for c, val in self.config.items():
+                if 'policy' not in val:
                     continue
-                if flavour in self.config[c]['policy']:
-                    ret[c] = self.config[c]['policy'][flavour]
-                elif generic != flavour and generic in self.config[c]['policy']:
-                    ret[c] = self.config[c]['policy'][generic]
-                elif arch in self.config[c]['policy']:
-                    ret[c] = self.config[c]['policy'][arch]
+                if flavour in val['policy']:
+                    ret[c] = val['policy'][flavour]
+                elif generic != flavour and generic in val['policy']:
+                    ret[c] = val['policy'][generic]
+                elif arch in val['policy']:
+                    ret[c] = val['policy'][arch]
             return ret
-        elif config is not None and arch is None:
+        if config is not None and arch is None:
             # Get a specific config option for all architectures
             return self.config[config] if config in self.config else None
-        elif config is not None and arch is not None:
+        if config is not None and arch is not None:
             # Get a specific config option for a specific architecture
             if config in self.config:
                 if 'policy' in self.config[config]:
                     if flavour in self.config[config]['policy']:
                         return {config: self.config[config]['policy'][flavour]}
-                    elif generic != flavour and generic in self.config[config]['policy']:
+                    if generic != flavour and generic in self.config[config]['policy']:
                         return {config: self.config[config]['policy'][generic]}
-                    elif arch in self.config[config]['policy']:
+                    if arch in self.config[config]['policy']:
                         return {config: self.config[config]['policy'][arch]}
         return None
 
