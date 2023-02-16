@@ -315,6 +315,9 @@ ifeq ($(do_dbgsym_package),true)
 	rm -f $(dbgpkgdir)/usr/lib/debug/lib/modules/$(abi_release)-$*/modules.*
 	rm -fr $(dbgpkgdir)/usr/lib/debug/lib/firmware
 endif
+ifeq ($(do_tools_bpftool),true)
+	cp $(builddir)/build-$*/vmlinux tools/bpf/bpftool/
+endif
 
 	# The flavour specific headers image
 	# TODO: Would be nice if we didn't have to dupe the original builddir
@@ -735,7 +738,9 @@ ifeq ($(do_tools_perf),true)
 		$(kmake) prefix=/usr HAVE_NO_LIBBFD=1 HAVE_CPLUS_DEMANGLE_SUPPORT=1 CROSS_COMPILE=$(CROSS_COMPILE) NO_LIBPYTHON=1 NO_LIBPERL=1 WERROR=0
 endif
 ifeq ($(do_tools_bpftool),true)
+	mv $(builddirpa)/tools/bpf/bpftool/vmlinux $(builddirpa)/vmlinux
 	$(kmake) CROSS_COMPILE=$(CROSS_COMPILE) -C $(builddirpa)/tools/bpf/bpftool
+	rm -f $(builddirpa)/vmlinux
 endif
 ifeq ($(do_tools_x86),true)
 	cd $(builddirpa)/tools/power/x86/x86_energy_perf_policy && make CROSS_COMPILE=$(CROSS_COMPILE)
