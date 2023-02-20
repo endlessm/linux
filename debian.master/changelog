@@ -4,6 +4,10 @@ linux-unstable (6.2.0-10.10) UNRELEASED; urgency=medium
   CHANGELOG: Use the printchanges target to see the curent changes.
   CHANGELOG: Use the insertchanges target to create the final log.
 
+  [ Upstream Kernel Changes ]
+
+  * Rebase to v6.2
+
  -- Andrea Righi <andrea.righi@canonical.com>  Mon, 20 Feb 2023 09:07:51 +0100
 
 linux-unstable (6.2.0-9.9) lunar; urgency=medium
