@@ -61,7 +61,7 @@ sed -e 's/.*-o  *\([^ ]*\) .*/rm -f \1/g' <"$pkgdir/bits/BUILD" >"$pkgdir/bits/C
 # rebuild the .ko's, sign them, pull off the signatures and then finally clean
 # up again.
 (
-	cd "$pkgdir/bits" || exit 1
+	cd "$pkgdir/bits"
 
 	# Add checksum check.
 	echo "\$check_only sha256sum -c SHA256SUMS || exit 1" >>"$pkgdir/bits/BUILD"
@@ -110,4 +110,4 @@ sed -e 's/.*-o  *\([^ ]*\) .*/rm -f \1/g' <"$pkgdir/bits/BUILD" >"$pkgdir/bits/C
 		find "$pkgdir" -name \*.sig -prune -o -name SHA256SUMS -prune -o -type f -print | xargs rm -f
 		find "$pkgdir" -depth -type d -print | xargs rmdir --ignore-fail-on-non-empty
 	fi
-) || exit "$?"
+)
