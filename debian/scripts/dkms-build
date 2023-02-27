@@ -171,7 +171,10 @@ $fakeroot /usr/sbin/dkms build --no-prepare-kernel --no-clean-kernel \
 # Find the log and add it to our own.
 for log in "$dkms_dir/build/$dkms_package/$dkms_version/$abi_flavour"/*/"log/make.log" "$dkms_dir/build/$dkms_package/$dkms_version/build/make.log"
 do
-	[ -f "$log" ] && sed -e "s@$dkms_dir@<<DKMSDIR>>@g" <"$log"
+	if [ -f "$log" ]; then
+		sed -e "s@$dkms_dir@<<DKMSDIR>>@g" <"$log"
+		break
+	fi
 done
 
 # If this build failed then exit here.
