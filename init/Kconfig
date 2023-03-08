@@ -62,6 +62,7 @@ config LLD_VERSION
 
 config RUST_IS_AVAILABLE
 	def_bool $(success,$(srctree)/scripts/rust_is_available.sh)
+	depends on X86_64
 	help
 	  This shows whether a suitable Rust toolchain is available (found).
 
