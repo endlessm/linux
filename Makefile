@@ -1369,8 +1369,9 @@ export INSTALL_HDR_PATH = $(objtree)/usr
 quiet_cmd_headers_install = INSTALL $(INSTALL_HDR_PATH)/include
       cmd_headers_install = \
 	mkdir -p $(INSTALL_HDR_PATH); \
-	rsync -mrl --include='*/' --include='*\.h' --exclude='*' \
-	usr/include $(INSTALL_HDR_PATH)
+	find usr/include -type f -name '*.h' -print0 | \
+	tar -czf - --null --no-recursion --no-wildcards-match-slash -T- | \
+	tar -xzf - --strip-components=1 -C $(INSTALL_HDR_PATH)
 
 PHONY += headers_install
 headers_install: headers
