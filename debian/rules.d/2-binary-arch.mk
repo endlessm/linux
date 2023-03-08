@@ -36,7 +36,7 @@ $(stampdir)/stamp-prepare-tree-%: debian/scripts/fix-filenames
 		sed -ie 's/.*CONFIG_UBUNTU_ODM_DRIVERS.*/# CONFIG_UBUNTU_ODM_DRIVERS is not set/' \
 		    $(builddir)/build-$*/.config
 	find $(builddir)/build-$* -name "*.ko" | xargs rm -f
-	$(build_cd) $(kmake) $(build_O) $(conc_level) rustavailable
+	$(build_cd) $(kmake) $(build_O) $(conc_level) rustavailable || true
 	$(build_cd) $(kmake) $(build_O) $(conc_level) olddefconfig
 	touch $@
 
