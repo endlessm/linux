@@ -1,5 +1,6 @@
 # Recreate any symlinks created since the orig.
 # Remove any files deleted from the orig.
+rm -f 'scripts/is_rust_module.sh'
 rm -f 'tools/testing/selftests/net/bpf/Makefile'
 rm -f 'tools/testing/selftests/net/bpf/nat6to4.c'
 chmod +x 'debian/cloud-tools/hv_get_dhcp_info'
@@ -51,6 +52,7 @@ chmod +x 'debian/tests-build/check-aliases'
 chmod +x 'debian/tests/rebuild'
 chmod +x 'debian/tests/ubuntu-regression-suite'
 chmod +x 'drivers/watchdog/f71808e_wdt.c'
+chmod +x 'scripts/is_rust_module.sh'
 chmod +x 'update-dkms-versions'
 chmod +x 'update-version-dkms'
 exit 0
