@@ -7249,7 +7249,6 @@ EXPORT_SYMBOL	 vmlinux 0x23fe5d46	xfrm_replay_seqhi
 EXPORT_SYMBOL	 vmlinux 0x240b9ba1	dup_iter
 EXPORT_SYMBOL	 vmlinux 0x24146429	jbd2__journal_start
 EXPORT_SYMBOL	 vmlinux 0x241bd9d6	of_phy_connect
-EXPORT_SYMBOL	 vmlinux 0x241c32f6	module_layout
 EXPORT_SYMBOL	 vmlinux 0x2423cc61	migrate_vma_setup
 EXPORT_SYMBOL	 vmlinux 0x243a9c33	lookup_one_positive_unlocked
 EXPORT_SYMBOL	 vmlinux 0x24428be5	strncpy_from_user
@@ -7846,6 +7845,7 @@ EXPORT_SYMBOL	 vmlinux 0x3f682131	kobject_put
 EXPORT_SYMBOL	 vmlinux 0x3f87c303	kobject_set_name
 EXPORT_SYMBOL	 vmlinux 0x3f89071b	security_ib_pkey_access
 EXPORT_SYMBOL	 vmlinux 0x3f94a4ea	jbd2_journal_set_triggers
+EXPORT_SYMBOL	 vmlinux 0x3fb24400	registered_fb
 EXPORT_SYMBOL	 vmlinux 0x3fbc7549	sk_stream_error
 EXPORT_SYMBOL	 vmlinux 0x3fbf3c89	vme_slave_set
 EXPORT_SYMBOL	 vmlinux 0x3fd625d1	blk_start_plug
@@ -8852,6 +8852,7 @@ EXPORT_SYMBOL	 vmlinux 0x6c0b3e47	bio_alloc_clone
 EXPORT_SYMBOL	 vmlinux 0x6c224cda	gen_pool_destroy
 EXPORT_SYMBOL	 vmlinux 0x6c257ac0	tty_termios_hw_change
 EXPORT_SYMBOL	 vmlinux 0x6c270355	serio_unregister_child_port
+EXPORT_SYMBOL	 vmlinux 0x6c61ce70	num_registered_fb
 EXPORT_SYMBOL	 vmlinux 0x6c795fac	__cgroup_bpf_run_filter_sock_addr
 EXPORT_SYMBOL	 vmlinux 0x6c7a0323	__tracepoint_kmem_cache_alloc
 EXPORT_SYMBOL	 vmlinux 0x6c841799	add_to_pipe
@@ -9635,6 +9636,7 @@ EXPORT_SYMBOL	 vmlinux 0x8fa25c24	xa_find
 EXPORT_SYMBOL	 vmlinux 0x8fa964f9	tcp_timewait_state_process
 EXPORT_SYMBOL	 vmlinux 0x8fb7b70b	fqdir_init
 EXPORT_SYMBOL	 vmlinux 0x8fc9ea11	fman_port_cfg_buf_prefix_content
+EXPORT_SYMBOL	 vmlinux 0x8fd180e7	kernel_neon_begin
 EXPORT_SYMBOL	 vmlinux 0x8fd3aa4f	revert_creds
 EXPORT_SYMBOL	 vmlinux 0x8fe22b29	simple_fill_super
 EXPORT_SYMBOL	 vmlinux 0x8fe553a8	inet_del_protocol
@@ -10190,6 +10192,7 @@ EXPORT_SYMBOL	 vmlinux 0xa874d738	kern_unmount
 EXPORT_SYMBOL	 vmlinux 0xa897e3e7	mempool_free
 EXPORT_SYMBOL	 vmlinux 0xa89a1cf1	ipmi_dmi_get_slave_addr
 EXPORT_SYMBOL	 vmlinux 0xa89d0ec2	generic_block_bmap
+EXPORT_SYMBOL	 vmlinux 0xa8a8110c	kernel_neon_end
 EXPORT_SYMBOL	 vmlinux 0xa8b04c5f	d_add_ci
 EXPORT_SYMBOL	 vmlinux 0xa8b1ea27	skb_queue_tail
 EXPORT_SYMBOL	 vmlinux 0xa8b30a30	input_event
@@ -11356,6 +11359,7 @@ EXPORT_SYMBOL	 vmlinux 0xdc512134	backlight_register_notifier
 EXPORT_SYMBOL	 vmlinux 0xdc628784	get_cached_acl_rcu
 EXPORT_SYMBOL	 vmlinux 0xdc63012e	sk_free
 EXPORT_SYMBOL	 vmlinux 0xdc738755	vlan_vids_del_by_dev
+EXPORT_SYMBOL	 vmlinux 0xdc86ef8a	module_layout
 EXPORT_SYMBOL	 vmlinux 0xdca8c3d4	logic_outb
 EXPORT_SYMBOL	 vmlinux 0xdcb764ad	memset
 EXPORT_SYMBOL	 vmlinux 0xdcbeba1d	sg_copy_from_buffer
@@ -15938,26 +15942,26 @@ EXPORT_SYMBOL_GPL	 drivers/net/wireless/mediatek/mt76/mt76x2/mt76x2-common 0xefe
 EXPORT_SYMBOL_GPL	 drivers/net/wireless/mediatek/mt76/mt76x2/mt76x2-common 0xf5e04a10	mt76x2_phy_update_channel_gain
 EXPORT_SYMBOL_GPL	 drivers/net/wireless/mediatek/mt76/mt7921/mt7921-common 0x015aa1d1	mt7921_mac_sta_assoc
 EXPORT_SYMBOL_GPL	 drivers/net/wireless/mediatek/mt76/mt7921/mt7921-common 0x07012ee9	mt7921_usb_sdio_tx_complete_skb
-EXPORT_SYMBOL_GPL	 drivers/net/wireless/mediatek/mt76/mt7921/mt7921-common 0x0a44d275	mt7921_mcu_drv_pmctrl
 EXPORT_SYMBOL_GPL	 drivers/net/wireless/mediatek/mt76/mt7921/mt7921-common 0x0b462f12	mt7921_stop
 EXPORT_SYMBOL_GPL	 drivers/net/wireless/mediatek/mt76/mt7921/mt7921-common 0x129caff6	mt7921_usb_sdio_tx_prepare_skb
-EXPORT_SYMBOL_GPL	 drivers/net/wireless/mediatek/mt76/mt7921/mt7921-common 0x1eb6c194	mt7921_mcu_set_eeprom
-EXPORT_SYMBOL_GPL	 drivers/net/wireless/mediatek/mt76/mt7921/mt7921-common 0x3907af13	mt7921_mac_sta_poll
+EXPORT_SYMBOL_GPL	 drivers/net/wireless/mediatek/mt76/mt7921/mt7921-common 0x2c04517d	mt7921_mcu_set_eeprom
+EXPORT_SYMBOL_GPL	 drivers/net/wireless/mediatek/mt76/mt7921/mt7921-common 0x321872e0	mt7921_mcu_fw_pmctrl
+EXPORT_SYMBOL_GPL	 drivers/net/wireless/mediatek/mt76/mt7921/mt7921-common 0x3516f98f	mt7921_mac_init
+EXPORT_SYMBOL_GPL	 drivers/net/wireless/mediatek/mt76/mt7921/mt7921-common 0x40d9ea8a	mt7921_run_firmware
 EXPORT_SYMBOL_GPL	 drivers/net/wireless/mediatek/mt76/mt7921/mt7921-common 0x410eb962	mt7921_mcu_parse_response
+EXPORT_SYMBOL_GPL	 drivers/net/wireless/mediatek/mt76/mt7921/mt7921-common 0x522bd6c3	mt7921_register_device
 EXPORT_SYMBOL_GPL	 drivers/net/wireless/mediatek/mt76/mt7921/mt7921-common 0x5531920d	mt7921_ops
 EXPORT_SYMBOL_GPL	 drivers/net/wireless/mediatek/mt76/mt7921/mt7921-common 0x60591f12	mt7921_check_offload_capability
+EXPORT_SYMBOL_GPL	 drivers/net/wireless/mediatek/mt76/mt7921/mt7921-common 0x693b9c47	mt7921_mcu_drv_pmctrl
 EXPORT_SYMBOL_GPL	 drivers/net/wireless/mediatek/mt76/mt7921/mt7921-common 0x6c7dfea7	mt7921_usb_sdio_tx_status_data
-EXPORT_SYMBOL_GPL	 drivers/net/wireless/mediatek/mt76/mt7921/mt7921-common 0x705534fb	mt7921_mac_init
-EXPORT_SYMBOL_GPL	 drivers/net/wireless/mediatek/mt76/mt7921/mt7921-common 0x8ad545e7	__mt7921_start
 EXPORT_SYMBOL_GPL	 drivers/net/wireless/mediatek/mt76/mt7921/mt7921-common 0x8f128cec	mt7921_queue_rx_skb
-EXPORT_SYMBOL_GPL	 drivers/net/wireless/mediatek/mt76/mt7921/mt7921-common 0x9e3c9fcb	mt7921_mcu_fw_pmctrl
+EXPORT_SYMBOL_GPL	 drivers/net/wireless/mediatek/mt76/mt7921/mt7921-common 0x9cd0e063	mt7921_mac_sta_poll
 EXPORT_SYMBOL_GPL	 drivers/net/wireless/mediatek/mt76/mt7921/mt7921-common 0xa27f2e56	mt7921_mac_sta_add
+EXPORT_SYMBOL_GPL	 drivers/net/wireless/mediatek/mt76/mt7921/mt7921-common 0xb8c38386	__mt7921_start
+EXPORT_SYMBOL_GPL	 drivers/net/wireless/mediatek/mt76/mt7921/mt7921-common 0xb9f556db	mt7921_txwi_free
 EXPORT_SYMBOL_GPL	 drivers/net/wireless/mediatek/mt76/mt7921/mt7921-common 0xc31a3a19	mt7921_update_channel
 EXPORT_SYMBOL_GPL	 drivers/net/wireless/mediatek/mt76/mt7921/mt7921-common 0xceb4e0f8	mt7921_mac_sta_remove
-EXPORT_SYMBOL_GPL	 drivers/net/wireless/mediatek/mt76/mt7921/mt7921-common 0xcfd69803	mt7921_txwi_free
-EXPORT_SYMBOL_GPL	 drivers/net/wireless/mediatek/mt76/mt7921/mt7921-common 0xd67b8a18	mt7921_run_firmware
 EXPORT_SYMBOL_GPL	 drivers/net/wireless/mediatek/mt76/mt7921/mt7921-common 0xf2078e9e	mt7921_sta_ps
-EXPORT_SYMBOL_GPL	 drivers/net/wireless/mediatek/mt76/mt7921/mt7921-common 0xf4882c11	mt7921_register_device
 EXPORT_SYMBOL_GPL	 drivers/net/wireless/mediatek/mt76/mt7921/mt7921-common 0xf6ac0ea7	mt7921_rx_check
 EXPORT_SYMBOL_GPL	 drivers/net/wireless/mediatek/mt76/mt7921/mt7921-common 0xfbda0db6	mt7921_reset
 EXPORT_SYMBOL_GPL	 drivers/net/wireless/microchip/wilc1000/wilc1000 0x53fedd1c	host_sleep_notify
@@ -23945,6 +23949,7 @@ EXPORT_SYMBOL_GPL	 vmlinux 0x82d79b51	sysctl_vfs_cache_pressure
 EXPORT_SYMBOL_GPL	 vmlinux 0x82e11176	dpbp_close
 EXPORT_SYMBOL_GPL	 vmlinux 0x82ebbe79	regcache_cache_only
 EXPORT_SYMBOL_GPL	 vmlinux 0x82f27b82	__inet_lookup_listener
+EXPORT_SYMBOL_GPL	 vmlinux 0x82f2aa81	fb_deferred_io_release
 EXPORT_SYMBOL_GPL	 vmlinux 0x82f4bfdf	__devm_irq_alloc_descs
 EXPORT_SYMBOL_GPL	 vmlinux 0x82ffc280	ata_sff_dma_pause
 EXPORT_SYMBOL_GPL	 vmlinux 0x831485e8	usb_anchor_urb
@@ -24311,7 +24316,6 @@ EXPORT_SYMBOL_GPL	 vmlinux 0x8fab64c1	component_bind_all
 EXPORT_SYMBOL_GPL	 vmlinux 0x8fba234f	fib_rule_matchall
 EXPORT_SYMBOL_GPL	 vmlinux 0x8fc12788	software_node_unregister_node_group
 EXPORT_SYMBOL_GPL	 vmlinux 0x8fc265db	ip_valid_fib_dump_req
-EXPORT_SYMBOL_GPL	 vmlinux 0x8fd180e7	kernel_neon_begin
 EXPORT_SYMBOL_GPL	 vmlinux 0x8fe85faf	pm_generic_runtime_suspend
 EXPORT_SYMBOL_GPL	 vmlinux 0x8ff60436	mpi_ec_add_points
 EXPORT_SYMBOL_GPL	 vmlinux 0x8ff77597	xfrm_state_mtu
@@ -25001,7 +25005,6 @@ EXPORT_SYMBOL_GPL	 vmlinux 0xa8841cc6	mas_next
 EXPORT_SYMBOL_GPL	 vmlinux 0xa88cd51b	dev_pm_opp_free_cpufreq_table
 EXPORT_SYMBOL_GPL	 vmlinux 0xa89926dc	crypto_dh_decode_key
 EXPORT_SYMBOL_GPL	 vmlinux 0xa8a6364c	xas_get_mark
-EXPORT_SYMBOL_GPL	 vmlinux 0xa8a8110c	kernel_neon_end
 EXPORT_SYMBOL_GPL	 vmlinux 0xa8dad51f	dpbp_get_attributes
 EXPORT_SYMBOL_GPL	 vmlinux 0xa8e88656	pci_epc_multi_mem_init
 EXPORT_SYMBOL_GPL	 vmlinux 0xa8f89076	device_show_bool

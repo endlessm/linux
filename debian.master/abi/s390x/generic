@@ -2946,7 +2946,6 @@ EXPORT_SYMBOL	 vmlinux 0x183aa29a	md_wakeup_thread
 EXPORT_SYMBOL	 vmlinux 0x1842ca6d	xsk_uses_need_wakeup
 EXPORT_SYMBOL	 vmlinux 0x187e5286	simple_transaction_release
 EXPORT_SYMBOL	 vmlinux 0x188ea314	jiffies_to_timespec64
-EXPORT_SYMBOL	 vmlinux 0x188f64a4	module_layout
 EXPORT_SYMBOL	 vmlinux 0x189b6bac	memory_read_from_buffer
 EXPORT_SYMBOL	 vmlinux 0x189c6af7	alloc_file_pseudo
 EXPORT_SYMBOL	 vmlinux 0x18ac12b3	skb_copy_datagram_from_iter
@@ -2989,6 +2988,7 @@ EXPORT_SYMBOL	 vmlinux 0x1b015d25	bitmap_parselist
 EXPORT_SYMBOL	 vmlinux 0x1b04ae2c	pci_rebar_get_possible_sizes
 EXPORT_SYMBOL	 vmlinux 0x1b1171f1	xfrm_state_check_expire
 EXPORT_SYMBOL	 vmlinux 0x1b132904	forget_cached_acl
+EXPORT_SYMBOL	 vmlinux 0x1b1d308e	module_layout
 EXPORT_SYMBOL	 vmlinux 0x1b40103f	generic_pipe_buf_release
 EXPORT_SYMBOL	 vmlinux 0x1b42914b	jbd2_journal_put_journal_head
 EXPORT_SYMBOL	 vmlinux 0x1b6314fd	in_aton
@@ -3445,6 +3445,7 @@ EXPORT_SYMBOL	 vmlinux 0x34a479bc	sk_free
 EXPORT_SYMBOL	 vmlinux 0x34a707a9	__icmp_send
 EXPORT_SYMBOL	 vmlinux 0x34b19c90	ethtool_op_get_ts_info
 EXPORT_SYMBOL	 vmlinux 0x34bb4e99	pci_assign_resource
+EXPORT_SYMBOL	 vmlinux 0x34bf4b59	ptep_reset_dat_prot
 EXPORT_SYMBOL	 vmlinux 0x34c7cdbc	lookup_bdev
 EXPORT_SYMBOL	 vmlinux 0x34d150ae	udp_seq_next
 EXPORT_SYMBOL	 vmlinux 0x34d795cb	call_netdevice_notifiers
@@ -4480,6 +4481,7 @@ EXPORT_SYMBOL	 vmlinux 0x6c0f08aa	register_shrinker
 EXPORT_SYMBOL	 vmlinux 0x6c257ac0	tty_termios_hw_change
 EXPORT_SYMBOL	 vmlinux 0x6c433cee	proc_create_mount_point
 EXPORT_SYMBOL	 vmlinux 0x6c4f5ed0	kbd_ascebc
+EXPORT_SYMBOL	 vmlinux 0x6c61ce70	num_registered_fb
 EXPORT_SYMBOL	 vmlinux 0x6c6aeaec	scsi_change_queue_depth
 EXPORT_SYMBOL	 vmlinux 0x6c6e1173	param_get_ushort
 EXPORT_SYMBOL	 vmlinux 0x6c75f92d	sk_stream_wait_memory
@@ -6930,6 +6932,7 @@ EXPORT_SYMBOL	 vmlinux 0xec180341	ndisc_send_skb
 EXPORT_SYMBOL	 vmlinux 0xec407428	jbd2_journal_finish_inode_data_buffers
 EXPORT_SYMBOL	 vmlinux 0xec41bf8b	xattr_supported_namespace
 EXPORT_SYMBOL	 vmlinux 0xec7906a5	fault_in_iov_iter_readable
+EXPORT_SYMBOL	 vmlinux 0xec8711cb	registered_fb
 EXPORT_SYMBOL	 vmlinux 0xec9d7c8a	__traceiter_s390_diagnose
 EXPORT_SYMBOL	 vmlinux 0xeca2c1ac	input_reset_device
 EXPORT_SYMBOL	 vmlinux 0xeca957d1	__bitmap_and
@@ -10961,6 +10964,7 @@ EXPORT_SYMBOL_GPL	 vmlinux 0x4186a0ab	vp_legacy_get_driver_features
 EXPORT_SYMBOL_GPL	 vmlinux 0x418a7018	skcipher_walk_aead_encrypt
 EXPORT_SYMBOL_GPL	 vmlinux 0x4196fdbb	__dev_fwnode_const
 EXPORT_SYMBOL_GPL	 vmlinux 0x419e7efd	sfp_module_stop
+EXPORT_SYMBOL_GPL	 vmlinux 0x41a7a991	fb_deferred_io_release
 EXPORT_SYMBOL_GPL	 vmlinux 0x41b78afc	dax_layout_busy_page_range
 EXPORT_SYMBOL_GPL	 vmlinux 0x41b9a6e6	bsg_unregister_queue
 EXPORT_SYMBOL_GPL	 vmlinux 0x41ba910c	dw_pcie_find_capability

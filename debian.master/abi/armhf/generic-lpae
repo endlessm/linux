@@ -8425,6 +8425,7 @@ EXPORT_SYMBOL	 vmlinux 0x6c38d38f	nand_ecc_get_sw_engine
 EXPORT_SYMBOL	 vmlinux 0x6c46f631	skb_eth_pop
 EXPORT_SYMBOL	 vmlinux 0x6c4c3fd0	genphy_read_lpa
 EXPORT_SYMBOL	 vmlinux 0x6c4c8f13	tty_wait_until_sent
+EXPORT_SYMBOL	 vmlinux 0x6c61ce70	num_registered_fb
 EXPORT_SYMBOL	 vmlinux 0x6c6401cb	sb_min_blocksize
 EXPORT_SYMBOL	 vmlinux 0x6c810e42	__xa_clear_mark
 EXPORT_SYMBOL	 vmlinux 0x6c82b520	cred_fscmp
@@ -10925,6 +10926,7 @@ EXPORT_SYMBOL	 vmlinux 0x7fffffff	register_sysctl_paths
 EXPORT_SYMBOL	 vmlinux 0x7fffffff	register_sysctl_table
 EXPORT_SYMBOL	 vmlinux 0x7fffffff	register_sysrq_key
 EXPORT_SYMBOL	 vmlinux 0x7fffffff	register_tcf_proto_ops
+EXPORT_SYMBOL	 vmlinux 0x7fffffff	registered_fb
 EXPORT_SYMBOL	 vmlinux 0x7fffffff	release_and_free_resource
 EXPORT_SYMBOL	 vmlinux 0x7fffffff	release_dentry_name_snapshot
 EXPORT_SYMBOL	 vmlinux 0x7fffffff	release_fiq
@@ -23728,6 +23730,7 @@ EXPORT_SYMBOL_GPL	 vmlinux 0x7fffffff	fat_setattr
 EXPORT_SYMBOL_GPL	 vmlinux 0x7fffffff	fat_time_fat2unix
 EXPORT_SYMBOL_GPL	 vmlinux 0x7fffffff	fb_deferred_io_cleanup
 EXPORT_SYMBOL_GPL	 vmlinux 0x7fffffff	fb_deferred_io_mmap
+EXPORT_SYMBOL_GPL	 vmlinux 0x7fffffff	fb_deferred_io_release
 EXPORT_SYMBOL_GPL	 vmlinux 0x7fffffff	fb_destroy_modelist
 EXPORT_SYMBOL_GPL	 vmlinux 0x7fffffff	fb_mode_option
 EXPORT_SYMBOL_GPL	 vmlinux 0x7fffffff	fb_notifier_call_chain

@@ -8020,6 +8020,7 @@ EXPORT_SYMBOL	 vmlinux 0x58c8ffed	phy_connect
 EXPORT_SYMBOL	 vmlinux 0x58d8b6ca	inet_frag_reasm_prepare
 EXPORT_SYMBOL	 vmlinux 0x58de1b34	blk_stack_limits
 EXPORT_SYMBOL	 vmlinux 0x58e3306d	bit_wait_io
+EXPORT_SYMBOL	 vmlinux 0x58e9a36a	module_layout
 EXPORT_SYMBOL	 vmlinux 0x58fad869	__var_waitqueue
 EXPORT_SYMBOL	 vmlinux 0x592b5bd9	tcp_sockets_allocated
 EXPORT_SYMBOL	 vmlinux 0x59495dfa	fib_notifier_ops_register
@@ -8442,6 +8443,7 @@ EXPORT_SYMBOL	 vmlinux 0x6c257ac0	tty_termios_hw_change
 EXPORT_SYMBOL	 vmlinux 0x6c3d3caa	input_set_abs_params
 EXPORT_SYMBOL	 vmlinux 0x6c4d98b2	inet_add_offload
 EXPORT_SYMBOL	 vmlinux 0x6c53c8df	phy_read_paged
+EXPORT_SYMBOL	 vmlinux 0x6c61ce70	num_registered_fb
 EXPORT_SYMBOL	 vmlinux 0x6c76e482	nand_create_bbt
 EXPORT_SYMBOL	 vmlinux 0x6c810e42	__xa_clear_mark
 EXPORT_SYMBOL	 vmlinux 0x6c82b520	cred_fscmp
@@ -10282,7 +10284,6 @@ EXPORT_SYMBOL	 vmlinux 0x7fffffff	mntget
 EXPORT_SYMBOL	 vmlinux 0x7fffffff	mod_node_page_state
 EXPORT_SYMBOL	 vmlinux 0x7fffffff	mod_timer
 EXPORT_SYMBOL	 vmlinux 0x7fffffff	mode_strip_sgid
-EXPORT_SYMBOL	 vmlinux 0x7fffffff	module_layout
 EXPORT_SYMBOL	 vmlinux 0x7fffffff	module_put
 EXPORT_SYMBOL	 vmlinux 0x7fffffff	module_refcount
 EXPORT_SYMBOL	 vmlinux 0x7fffffff	mount_bdev
@@ -10851,6 +10852,7 @@ EXPORT_SYMBOL	 vmlinux 0x7fffffff	register_sysctl_paths
 EXPORT_SYMBOL	 vmlinux 0x7fffffff	register_sysctl_table
 EXPORT_SYMBOL	 vmlinux 0x7fffffff	register_sysrq_key
 EXPORT_SYMBOL	 vmlinux 0x7fffffff	register_tcf_proto_ops
+EXPORT_SYMBOL	 vmlinux 0x7fffffff	registered_fb
 EXPORT_SYMBOL	 vmlinux 0x7fffffff	release_dentry_name_snapshot
 EXPORT_SYMBOL	 vmlinux 0x7fffffff	release_fiq
 EXPORT_SYMBOL	 vmlinux 0x7fffffff	release_firmware
@@ -23676,6 +23678,7 @@ EXPORT_SYMBOL_GPL	 vmlinux 0x7fffffff	fb_bl_default_curve
 EXPORT_SYMBOL_GPL	 vmlinux 0x7fffffff	fb_deferred_io_cleanup
 EXPORT_SYMBOL_GPL	 vmlinux 0x7fffffff	fb_deferred_io_fsync
 EXPORT_SYMBOL_GPL	 vmlinux 0x7fffffff	fb_deferred_io_open
+EXPORT_SYMBOL_GPL	 vmlinux 0x7fffffff	fb_deferred_io_release
 EXPORT_SYMBOL_GPL	 vmlinux 0x7fffffff	fb_destroy_modelist
 EXPORT_SYMBOL_GPL	 vmlinux 0x7fffffff	fb_mode_option
 EXPORT_SYMBOL_GPL	 vmlinux 0x7fffffff	fb_notifier_call_chain

@@ -8354,6 +8354,7 @@ EXPORT_SYMBOL	 vmlinux 0x6c11178b	jbd2_journal_stop
 EXPORT_SYMBOL	 vmlinux 0x6c2184e0	fscrypt_setup_filename
 EXPORT_SYMBOL	 vmlinux 0x6c232c89	flow_block_cb_incref
 EXPORT_SYMBOL	 vmlinux 0x6c44a3bf	tcp_sock_set_cork
+EXPORT_SYMBOL	 vmlinux 0x6c61ce70	num_registered_fb
 EXPORT_SYMBOL	 vmlinux 0x6c7a0323	__tracepoint_kmem_cache_alloc
 EXPORT_SYMBOL	 vmlinux 0x6c9be695	sock_release
 EXPORT_SYMBOL	 vmlinux 0x6ca43c40	filemap_fdatawrite
@@ -8518,7 +8519,6 @@ EXPORT_SYMBOL	 vmlinux 0x74f23987	netif_stacked_transfer_operstate
 EXPORT_SYMBOL	 vmlinux 0x74f70769	sock_no_linger
 EXPORT_SYMBOL	 vmlinux 0x7502675d	jbd2_journal_ack_err
 EXPORT_SYMBOL	 vmlinux 0x7510c895	update_region
-EXPORT_SYMBOL	 vmlinux 0x752f2d1e	module_layout
 EXPORT_SYMBOL	 vmlinux 0x7534e1f3	devm_pci_alloc_host_bridge
 EXPORT_SYMBOL	 vmlinux 0x7538b132	agp_off
 EXPORT_SYMBOL	 vmlinux 0x7550ba55	flow_indr_dev_setup_offload
@@ -8574,6 +8574,7 @@ EXPORT_SYMBOL	 vmlinux 0x775f2676	lookup_one_unlocked
 EXPORT_SYMBOL	 vmlinux 0x7775d140	fb_set_var
 EXPORT_SYMBOL	 vmlinux 0x7786740a	param_ops_string
 EXPORT_SYMBOL	 vmlinux 0x778e6bbc	validate_slab_cache
+EXPORT_SYMBOL	 vmlinux 0x77976881	registered_fb
 EXPORT_SYMBOL	 vmlinux 0x77b19bbb	ppp_unregister_channel
 EXPORT_SYMBOL	 vmlinux 0x77bc13a0	strim
 EXPORT_SYMBOL	 vmlinux 0x77bc413e	ip6_xmit
@@ -11321,6 +11322,7 @@ EXPORT_SYMBOL	 vmlinux 0xf8354fdc	sock_set_reuseaddr
 EXPORT_SYMBOL	 vmlinux 0xf84bd6ee	bpf_stats_enabled_key
 EXPORT_SYMBOL	 vmlinux 0xf86d32e8	blk_mq_run_hw_queue
 EXPORT_SYMBOL	 vmlinux 0xf8b9ffdb	dma_unmap_sg_attrs
+EXPORT_SYMBOL	 vmlinux 0xf8d03762	module_layout
 EXPORT_SYMBOL	 vmlinux 0xf8d07858	bitmap_from_arr32
 EXPORT_SYMBOL	 vmlinux 0xf8d2bc2c	zstd_find_frame_compressed_size
 EXPORT_SYMBOL	 vmlinux 0xf8e1115e	_outsl_ns
@@ -23756,6 +23758,7 @@ EXPORT_SYMBOL_GPL	 vmlinux 0xc27b4681	task_cls_state
 EXPORT_SYMBOL_GPL	 vmlinux 0xc289e46d	cpufreq_generic_frequency_table_verify
 EXPORT_SYMBOL_GPL	 vmlinux 0xc29ddd97	fuse_init_fs_context_submount
 EXPORT_SYMBOL_GPL	 vmlinux 0xc2a814db	tcp_memory_pressure
+EXPORT_SYMBOL_GPL	 vmlinux 0xc2a8e79d	fb_deferred_io_release
 EXPORT_SYMBOL_GPL	 vmlinux 0xc2ac66c3	cgrp_dfl_root
 EXPORT_SYMBOL_GPL	 vmlinux 0xc2ad3115	dw_pcie_setup_rc
 EXPORT_SYMBOL_GPL	 vmlinux 0xc2af5429	sata_set_spd
