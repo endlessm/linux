@@ -228,6 +228,9 @@ CONFIG_HOTPLUG_PCI_SHPC                         note<'LP: #1374440'>
 CONFIG_HSA_AMD_P2P                              policy<{'amd64': 'y', 'arm64': 'y', 'ppc64el': 'y'}>
 CONFIG_HSA_AMD_P2P                              note<'LP: #1987394'>
 
+CONFIG_HSU_DMA                                  policy<{'amd64': 'y'}>
+CONFIG_HSU_DMA                                  note<'required by CONFIG_SERIAL_8250_MID (LP: #2009283)'>
+
 CONFIG_HVC_UDBG                                 policy<{'ppc64el': 'n'}>
 CONFIG_HVC_UDBG                                 note<'LP: #1680888'>
 
@@ -533,6 +536,9 @@ CONFIG_SECURITY_SAFESETID                       note<'LP: #1845391'>
 
 CONFIG_SECURITY_SELINUX_DISABLE                 policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'ppc64el': 'n', 'riscv64': 'n', 's390x': 'n'}>
 CONFIG_SECURITY_SELINUX_DISABLE                 note<'LP: #1680315'>
+
+CONFIG_SERIAL_8250_MID                          policy<{'amd64': 'y'}>
+CONFIG_SERIAL_8250_MID                          note<'required to provide console on some Intel SoC platforms (LP: #2009283)'>
 
 CONFIG_SERIAL_DEV_BUS                           policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y', 's390x': 'y'}>
 CONFIG_SERIAL_DEV_BUS                           note<'LP: #1739939'>
@@ -5650,7 +5656,6 @@ CONFIG_HSI                                      policy<{'amd64': 'm', 'arm64': '
 CONFIG_HSI_BOARDINFO                            policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y'}>
 CONFIG_HSI_CHAR                                 policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm'}>
 CONFIG_HSR                                      policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm', 's390x': 'n'}>
-CONFIG_HSU_DMA                                  policy<{'amd64': 'm'}>
 CONFIG_HT16K33                                  policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm', 's390x': '-'}>
 CONFIG_HTC_EGPIO                                policy<{'armhf': 'y'}>
 CONFIG_HTC_PASIC3                               policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm', 's390x': 'n'}>
@@ -11396,7 +11401,6 @@ CONFIG_SERIAL_8250_FSL                          policy<{'arm64': 'y', 'armhf': '
 CONFIG_SERIAL_8250_LPSS                         policy<{'amd64': 'm'}>
 CONFIG_SERIAL_8250_MANY_PORTS                   policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y'}>
 CONFIG_SERIAL_8250_MEN_MCB                      policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm'}>
-CONFIG_SERIAL_8250_MID                          policy<{'amd64': 'm'}>
 CONFIG_SERIAL_8250_MT6577                       policy<{'arm64': 'y', 'armhf': 'y'}>
 CONFIG_SERIAL_8250_NR_UARTS                     policy<{'amd64': '48', 'arm64': '48', 'armhf': '48', 'ppc64el': '48', 'riscv64': '48'}>
 CONFIG_SERIAL_8250_OMAP                         policy<{'arm64': 'y', 'armhf': 'y'}>
