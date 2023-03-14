@@ -13067,10 +13067,6 @@ EXPORT_SYMBOL_GPL	 drivers/dma/dw/dw_dmac_core 0x6391a10b	dw_dma_filter
 EXPORT_SYMBOL_GPL	 drivers/dma/dw/dw_dmac_core 0x83e87e38	do_dw_dma_enable
 EXPORT_SYMBOL_GPL	 drivers/dma/dw/dw_dmac_core 0xbe0f89d7	idma32_dma_probe
 EXPORT_SYMBOL_GPL	 drivers/dma/dw/dw_dmac_core 0xc0e40a1c	idma32_dma_remove
-EXPORT_SYMBOL_GPL	 drivers/dma/hsu/hsu_dma 0x03463f7b	hsu_dma_do_irq
-EXPORT_SYMBOL_GPL	 drivers/dma/hsu/hsu_dma 0x125c75c9	hsu_dma_probe
-EXPORT_SYMBOL_GPL	 drivers/dma/hsu/hsu_dma 0x41347479	hsu_dma_remove
-EXPORT_SYMBOL_GPL	 drivers/dma/hsu/hsu_dma 0x781271b2	hsu_dma_get_status
 EXPORT_SYMBOL_GPL	 drivers/dma/qcom/hdma_mgmt 0x57b5b0df	hidma_mgmt_setup
 EXPORT_SYMBOL_GPL	 drivers/dma/qcom/hdma_mgmt 0x835f79ad	hidma_mgmt_init_sys
 EXPORT_SYMBOL_GPL	 drivers/edac/edac_mce_amd 0x0be1a4d8	amd_unregister_ecc_decoder
@@ -20226,6 +20222,7 @@ EXPORT_SYMBOL_GPL	 vmlinux 0x031f9d20	crypto_find_alg
 EXPORT_SYMBOL_GPL	 vmlinux 0x033832c7	usb_amd_hang_symptom_quirk
 EXPORT_SYMBOL_GPL	 vmlinux 0x033bd0cd	__dax_driver_register
 EXPORT_SYMBOL_GPL	 vmlinux 0x0343bdf1	__i2c_board_list
+EXPORT_SYMBOL_GPL	 vmlinux 0x03463f7b	hsu_dma_do_irq
 EXPORT_SYMBOL_GPL	 vmlinux 0x0365ead5	extcon_set_property_sync
 EXPORT_SYMBOL_GPL	 vmlinux 0x036de383	perf_event_cgrp_subsys_enabled_key
 EXPORT_SYMBOL_GPL	 vmlinux 0x0372497a	netdev_rx_handler_unregister
@@ -20673,6 +20670,7 @@ EXPORT_SYMBOL_GPL	 vmlinux 0x12491940	crypto_register_skciphers
 EXPORT_SYMBOL_GPL	 vmlinux 0x124a0273	n_tty_inherit_ops
 EXPORT_SYMBOL_GPL	 vmlinux 0x124f3024	kstrdup_quotable_cmdline
 EXPORT_SYMBOL_GPL	 vmlinux 0x12550e27	__SCK__tp_func_extlog_mem_event
+EXPORT_SYMBOL_GPL	 vmlinux 0x125c75c9	hsu_dma_probe
 EXPORT_SYMBOL_GPL	 vmlinux 0x125e29ed	_RNvXsp_NtNtCs9WMcp1Hn5Bv_4core4sync6atomicNtB5_8AtomicU8NtNtB9_3fmt5Debug3fmt
 EXPORT_SYMBOL_GPL	 vmlinux 0x1269c275	_RNvXsP_NtNtCs9WMcp1Hn5Bv_4core3fmt3numtNtB7_8UpperHex3fmt
 EXPORT_SYMBOL_GPL	 vmlinux 0x127ab43f	ata_qc_get_active
@@ -22065,6 +22063,7 @@ EXPORT_SYMBOL_GPL	 vmlinux 0x411023e4	dst_cache_set_ip4
 EXPORT_SYMBOL_GPL	 vmlinux 0x411d0bea	_RNvXs_NtNtNtCs9WMcp1Hn5Bv_4core3fmt3num3imphNtB8_7Display3fmt
 EXPORT_SYMBOL_GPL	 vmlinux 0x4129f5ee	kernel_fpu_begin_mask
 EXPORT_SYMBOL_GPL	 vmlinux 0x412bc681	ring_buffer_empty_cpu
+EXPORT_SYMBOL_GPL	 vmlinux 0x41347479	hsu_dma_remove
 EXPORT_SYMBOL_GPL	 vmlinux 0x413e43d5	fwnode_get_phy_node
 EXPORT_SYMBOL_GPL	 vmlinux 0x414d119a	videomode_from_timings
 EXPORT_SYMBOL_GPL	 vmlinux 0x4159042e	gpiod_get_index_optional
@@ -23640,6 +23639,7 @@ EXPORT_SYMBOL_GPL	 vmlinux 0x78041b8f	byte_rev_table
 EXPORT_SYMBOL_GPL	 vmlinux 0x7808e28c	virtqueue_disable_cb
 EXPORT_SYMBOL_GPL	 vmlinux 0x780d5d29	folio_wait_writeback_killable
 EXPORT_SYMBOL_GPL	 vmlinux 0x780e25ed	ima_file_hash
+EXPORT_SYMBOL_GPL	 vmlinux 0x781271b2	hsu_dma_get_status
 EXPORT_SYMBOL_GPL	 vmlinux 0x781ce09c	device_wakeup_disable
 EXPORT_SYMBOL_GPL	 vmlinux 0x7824c73b	pci_pri_supported
 EXPORT_SYMBOL_GPL	 vmlinux 0x782adb74	hpet_rtc_interrupt
