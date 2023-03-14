@@ -1,8 +1,10 @@
 # Recreate any symlinks created since the orig.
 # Remove any files deleted from the orig.
+rm -f 'net/sched/cls_tcindex.c'
 rm -f 'scripts/is_rust_module.sh'
 rm -f 'tools/testing/selftests/net/bpf/Makefile'
 rm -f 'tools/testing/selftests/net/bpf/nat6to4.c'
+rm -f 'tools/testing/selftests/tc-testing/tc-tests/filters/tcindex.json'
 chmod +x 'debian/cloud-tools/hv_get_dhcp_info'
 chmod +x 'debian/cloud-tools/hv_get_dns_info'
 chmod +x 'debian/cloud-tools/hv_set_ifconfig'
