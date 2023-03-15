@@ -1020,10 +1020,15 @@ static int vmd_enable_domain(struct vmd_dev *vmd, unsigned long features)
 
 	sd->node = pcibus_to_node(vmd->dev->bus);
 
+	pci_lock_rescan_remove();
+
 	vmd->bus = pci_create_root_bus(&vmd->dev->dev, vmd->busn_start,
 				       &vmd_ops, sd, &resources);
 	if (!vmd->bus) {
 		pci_bus_release_emul_domain_nr(sd->domain);
+
+		pci_unlock_rescan_remove();
+
 		pci_free_resource_list(&resources);
 		vmd_remove_irq_domain(vmd);
 		return -ENODEV;
@@ -1086,6 +1091,8 @@ static int vmd_enable_domain(struct vmd_dev *vmd, unsigned long features)
 	pci_bus_add_devices(vmd->bus);
 
 	vmd_acpi_end();
+
+	pci_unlock_rescan_remove();
 	return 0;
 }
 
