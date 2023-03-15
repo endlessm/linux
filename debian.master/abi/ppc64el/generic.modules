@@ -793,7 +793,6 @@ cls_matchall
 cls_route
 cls_rsvp
 cls_rsvp6
-cls_tcindex
 cls_u32
 cm109
 cm32181
@@ -1372,6 +1371,7 @@ fdomain
 fdomain_pci
 fdp
 fdp_i2c
+fealnx
 ff-memless
 fhci
 fieldbus_dev
@@ -2035,7 +2035,6 @@ imm
 imon
 imon_raw
 ims-pcu
-imx-lcdif
 imx208
 imx214
 imx219
@@ -3084,7 +3083,6 @@ mxl5007t
 mxl5xx
 mxl692
 mxser
-mxsfb
 mxuport
 myrb
 myri10ge

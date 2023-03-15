@@ -891,7 +891,6 @@ cls_matchall
 cls_route
 cls_rsvp
 cls_rsvp6
-cls_tcindex
 cls_u32
 cm109
 cm32181
@@ -1552,6 +1551,7 @@ fdomain
 fdomain_pci
 fdp
 fdp_i2c
+fealnx
 ff-memless
 fieldbus_dev
 firedtv
@@ -2109,6 +2109,7 @@ hisi-rng
 hisi-sfc
 hisi-spmi-controller
 hisi504_nand
+hisi_dma
 hisi_femac
 hisi_hikey_usb
 hisi_powerkey
@@ -3543,7 +3544,6 @@ nci
 nci_spi
 nci_uart
 nct6683
-nct6775
 nct6775-core
 nct6775-i2c
 nct7802

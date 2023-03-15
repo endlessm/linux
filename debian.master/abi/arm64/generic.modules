@@ -925,7 +925,6 @@ cls_matchall
 cls_route
 cls_rsvp
 cls_rsvp6
-cls_tcindex
 cls_u32
 cm109
 cm32181
@@ -1603,6 +1602,7 @@ fdomain
 fdomain_pci
 fdp
 fdp_i2c
+fealnx
 ff-memless
 ffa-module
 fieldbus_dev
@@ -5230,6 +5230,7 @@ rtw89_8852ce
 rtw89_core
 rtw89_pci
 rvu_af
+rvu_cptcommon
 rvu_cptpf
 rvu_cptvf
 rvu_mbox

@@ -730,6 +730,10 @@ firmware:       brcm/brcmfmac4350-pcie.bin
 firmware:       brcm/brcmfmac4350c2-pcie.bin
 firmware:       brcm/brcmfmac4354-sdio.bin
 firmware:       brcm/brcmfmac4354-sdio.clm_blob
+firmware:       brcm/brcmfmac4355-pcie.bin
+firmware:       brcm/brcmfmac4355-pcie.clm_blob
+firmware:       brcm/brcmfmac4355c1-pcie.bin
+firmware:       brcm/brcmfmac4355c1-pcie.clm_blob
 firmware:       brcm/brcmfmac4356-pcie.bin
 firmware:       brcm/brcmfmac4356-pcie.clm_blob
 firmware:       brcm/brcmfmac4356-sdio.bin
@@ -741,7 +745,10 @@ firmware:       brcm/brcmfmac4358-pcie.bin
 firmware:       brcm/brcmfmac4359-pcie.bin
 firmware:       brcm/brcmfmac4359-sdio.bin
 firmware:       brcm/brcmfmac43602-pcie.bin
-firmware:       brcm/brcmfmac4364-pcie.bin
+firmware:       brcm/brcmfmac4364b2-pcie.bin
+firmware:       brcm/brcmfmac4364b2-pcie.clm_blob
+firmware:       brcm/brcmfmac4364b3-pcie.bin
+firmware:       brcm/brcmfmac4364b3-pcie.clm_blob
 firmware:       brcm/brcmfmac4365b-pcie.bin
 firmware:       brcm/brcmfmac4365c-pcie.bin
 firmware:       brcm/brcmfmac4366b-pcie.bin
@@ -752,9 +759,10 @@ firmware:       brcm/brcmfmac4373-sdio.clm_blob
 firmware:       brcm/brcmfmac4373.bin
 firmware:       brcm/brcmfmac43752-sdio.bin
 firmware:       brcm/brcmfmac43752-sdio.clm_blob
+firmware:       brcm/brcmfmac4377b3-pcie.bin
+firmware:       brcm/brcmfmac4377b3-pcie.clm_blob
 firmware:       brcm/brcmfmac4378b1-pcie.bin
 firmware:       brcm/brcmfmac4378b1-pcie.clm_blob
-firmware:       brcm/brcmfmac89459-pcie.bin
 firmware:       c218tunx.cod
 firmware:       c320tunx.cod
 firmware:       cadence/mhdp8546.bin

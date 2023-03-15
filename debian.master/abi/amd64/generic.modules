@@ -845,7 +845,6 @@ cls_matchall
 cls_route
 cls_rsvp
 cls_rsvp6
-cls_tcindex
 cls_u32
 cm109
 cm32181
@@ -1493,6 +1492,7 @@ fdomain_cs
 fdomain_pci
 fdp
 fdp_i2c
+fealnx
 ff-memless
 fieldbus_dev
 fintek-cir
