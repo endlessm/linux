@@ -92,6 +92,7 @@ int aa_unprivileged_userns_restricted = IS_ENABLED(CONFIG_SECURITY_APPARMOR_REST
 int aa_unprivileged_userns_restricted_force;
 int aa_unprivileged_userns_restricted_complain;
 int aa_unprivileged_unconfined_restricted;
+int aa_unprivileged_uring_restricted;
 
 const char *const aa_profile_mode_names[] = {
 	"enforce",
