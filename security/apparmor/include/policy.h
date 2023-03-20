@@ -37,6 +37,7 @@ extern int aa_unprivileged_userns_restricted;
 extern int aa_unprivileged_userns_restricted_force;
 extern int aa_unprivileged_userns_restricted_complain;
 extern int aa_unprivileged_unconfined_restricted;
+extern int aa_unprivileged_uring_restricted;
 
 extern const char *const aa_profile_mode_names[];
 
