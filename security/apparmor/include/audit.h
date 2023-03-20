@@ -107,6 +107,9 @@ enum audit_type {
 
 #define OP_USERNS_CREATE "userns_create"
 
+#define OP_URING_OVERRIDE "uring_override"
+#define OP_URING_SQPOLL "uring_sqpoll"
+
 #define AUDIT_TAILGLOB_NAME 1
 struct apparmor_audit_data {
 	u32 flags;		/* control flags not part of actual data */
@@ -163,6 +166,9 @@ struct apparmor_audit_data {
 			const char *data;
 			unsigned long flags;
 		} mnt;
+		struct {
+			struct aa_label *target;
+		} uring;
 	};
 
 	struct common_audit_data common;
