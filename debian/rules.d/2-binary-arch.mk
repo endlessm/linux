@@ -153,7 +153,7 @@ else
 	chmod 600 $(pkgdir_bin)/boot/$(instfile)-$(abi_release)-$*
 endif
 
-ifeq ($(uefi_signed),true)
+ifeq ($(uefi_signed),DISABLED)
 	install -d $(signingv)
 	# gzipped kernel images must be decompressed for signing
 	if [[ "$(kernfile)" =~ \.gz$$ ]]; then \
@@ -167,12 +167,12 @@ ifeq ($(uefi_signed),true)
 			$(signingv)/$(instfile)-$(abi_release)-$*.efi; \
 	fi
 endif
-ifeq ($(opal_signed),true)
+ifeq ($(opal_signed),DISABLED)
 	install -d $(signingv)
 	cp -p $(pkgdir_bin)/boot/$(instfile)-$(abi_release)-$* \
 		$(signingv)/$(instfile)-$(abi_release)-$*.opal;
 endif
-ifeq ($(sipl_signed),true)
+ifeq ($(sipl_signed),DISABLED)
 	install -d $(signingv)
 	cp -p $(pkgdir_bin)/boot/$(instfile)-$(abi_release)-$* \
 		$(signingv)/$(instfile)-$(abi_release)-$*.sipl;
