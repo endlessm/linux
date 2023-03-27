@@ -3,6 +3,12 @@
 debian="$1"
 abi="$2"
 
+skipabi=${3:-}
+case "${skipabi,,}" in
+    1|true|yes) skipabi=true ;;
+    *) skipabi=false ;;
+esac
+
 archs=$(awk '/^Architecture:/ { $1=""; for (i=1; i<=NF; i++) { if ($i != "all") { print $i }}}' debian/control | sort -u)
 
 fail=0
@@ -100,7 +106,9 @@ do
 				fi
 			fi
 		fi
-		abi_check "$debian/abi" "$arch" "$flavour"
+		if [ "${skipabi}" = "false" ] ; then
+			abi_check "$debian/abi" "$arch" "$flavour"
+		fi
 	done
 done
 
