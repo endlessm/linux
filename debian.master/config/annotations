@@ -453,6 +453,9 @@ CONFIG_PCIEASPM_DEFAULT                         note<'LP: #1398544'>
 CONFIG_PCIEPORTBUS                              policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'n', 'riscv64': 'y', 's390x': 'y'}>
 CONFIG_PCIEPORTBUS                              note<'LP: #1665404'>
 
+CONFIG_PCI_MESON                                policy<{'amd64': 'n', 'arm64': 'm', 'armhf': 'n', 'ppc64el': 'n', 'riscv64': 'n', 's390x': 'n'}>
+CONFIG_PCI_MESON                                note<'LP: #2007745'>
+
 CONFIG_PCI_NR_FUNCTIONS                         policy<{'s390x': '512'}>
 CONFIG_PCI_NR_FUNCTIONS                         note<'LP: #1866056'>
 
@@ -9197,7 +9200,6 @@ CONFIG_PCI_LABEL                                policy<{'amd64': 'y', 'arm64': '
 CONFIG_PCI_LAYERSCAPE                           policy<{'arm64': 'y', 'armhf': 'n'}>
 CONFIG_PCI_LAYERSCAPE_EP                        policy<{'arm64': 'y', 'armhf': 'y'}>
 CONFIG_PCI_LOCKLESS_CONFIG                      policy<{'amd64': 'y'}>
-CONFIG_PCI_MESON                                policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'ppc64el': 'n', 'riscv64': 'n', 's390x': 'n'}>
 CONFIG_PCI_MMCONFIG                             policy<{'amd64': 'y'}>
 CONFIG_PCI_MSI                                  policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y', 's390x': 'y'}>
 CONFIG_PCI_MSI_ARCH_FALLBACKS                   policy<{'ppc64el': 'y', 's390x': 'y'}>
