@@ -61,7 +61,7 @@ class Annotation(Config):
     """
     Parse body of annotations file
     """
-    def _parse_body(self, data: str):
+    def _parse_body(self, data: str, parent=True):
         for line in data.splitlines():
             # Replace tabs with spaces, squeeze multiple into singles and
             # remove leading and trailing spaces
@@ -85,10 +85,11 @@ class Annotation(Config):
             # Handle includes (recursively)
             m = re.match(r'^include\s+"?([^"]*)"?', line)
             if m:
-                self.include.append(m.group(1))
+                if parent:
+                    self.include.append(m.group(1))
                 include_fname = dirname(abspath(self.fname)) + '/' + m.group(1)
                 include_data = self._load(include_fname)
-                self._parse_body(include_data)
+                self._parse_body(include_data, parent=False)
                 continue
 
             # Handle policy and note lines
