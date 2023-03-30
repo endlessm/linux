@@ -349,8 +349,10 @@ ifeq ($(build_arch),powerpc)
 	cp $(builddir)/build-$*/arch/powerpc/lib/*.o $(hdrdir)/arch/powerpc/lib
 endif
 ifeq ($(build_arch),s390)
-	mkdir -p $(hdrdir)/arch/s390/lib/expoline/
-	cp $(builddir)/build-$*/arch/s390/lib/expoline/*.o $(hdrdir)/arch/s390/lib/expoline/
+	if [ -n "$$(find $(builddir)/build-$*/arch/s390/lib/expoline -maxdepth 1 -name '*.o' -print -quit)" ]; then \
+		mkdir -p $(hdrdir)/arch/s390/lib/expoline/; \
+		cp $(builddir)/build-$*/arch/s390/lib/expoline/*.o $(hdrdir)/arch/s390/lib/expoline/; \
+	fi
 endif
 	# Copy over scripts/module.lds for building external modules
 	cp $(builddir)/build-$*/scripts/module.lds $(hdrdir)/scripts
