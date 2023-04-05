@@ -72,7 +72,7 @@ define build_dkms_sign =
 	)
 endef
 define build_dkms =
-	rc=0; ARCH=$(build_arch) CROSS_COMPILE=$(CROSS_COMPILE) $(SHELL) $(DROOT)/scripts/dkms-build $(dkms_dir) $(abi_release)-$* '$(call build_dkms_sign,$(builddir)/build-$*)' $(1) $(2) $(3) $(4) $(5) || rc=$$?; if [ "$$rc" = "9" ]; then echo do_$(4)_$*=false >> $(builddir)/skipped-dkms.mk; rc=0; fi; if [ "$$rc" != "0" ]; then exit $$rc; fi
+	rc=0; unset MAKEFLAGS; ARCH=$(build_arch) CROSS_COMPILE=$(CROSS_COMPILE) $(SHELL) $(DROOT)/scripts/dkms-build $(dkms_dir) $(abi_release)-$* '$(call build_dkms_sign,$(builddir)/build-$*)' $(1) $(2) $(3) $(4) $(5) || rc=$$?; if [ "$$rc" = "9" -o "$$rc" = "77" ]; then echo do_$(4)_$*=false >> $(builddir)/skipped-dkms.mk; rc=0; fi; if [ "$$rc" != "0" ]; then exit $$rc; fi
 endef
 
 define install_control =
