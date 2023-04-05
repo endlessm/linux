@@ -1,3 +1,5 @@
 zfs-linux 2.1.9-2ubuntu1 modulename=zfs debpath=pool/universe/z/%package%/zfs-dkms_%version%_all.deb arch=amd64 arch=arm64 arch=ppc64el arch=s390x rprovides=spl-modules rprovides=spl-dkms rprovides=zfs-modules rprovides=zfs-dkms
 ipu6-drivers 0~git202211220708.278b7e3d-0ubuntu0.23.04.1 modulename=ipu6 debpath=pool/universe/i/%package%/intel-ipu6-dkms_%version%_amd64.deb arch=amd64 rprovides=ipu6-modules rprovides=intel-ipu6-dkms type=standalone
 ivsc-driver 0~git202211241536.70d95269-0ubuntu0.23.04.1 modulename=ivsc debpath=pool/universe/i/%package%/intel-vsc-dkms_%version%_amd64.deb arch=amd64 rprovides=ivsc-modules rprovides=intel-vsc-dkms type=standalone
+backport-iwlwifi-dkms 9904-0ubuntu5 modulename=iwlwifi debpath=pool/universe/b/%package%/backport-iwlwifi-dkms_%version%_all.deb arch=amd64 rprovides=iwlwifi-modules rprovides=backport-iwlwifi-dkms type=standalone
+v4l2loopback 0.12.7-2ubuntu3 modulename=v4l2loopback debpath=pool/universe/v/%package%/v4l2loopback-dkms_%version%_all.deb arch=amd64 rprovides=v4l2loopback-modules rprovides=v4l2loopback-dkms
