@@ -50,7 +50,12 @@ fi
 		new=$( printf "0%s" $new )
 		changed=$(( (old ^ new) & 0111 ))
 		if [ "$changed" -ne 0 ]; then
-			echo "chmod +x '$name'"
+			added=$(( new & 0111 ))
+			if [ "$added" -ne 0 ]; then
+				echo "chmod +x '$name'"
+			else
+				echo "chmod -x '$name'"
+			fi
 		fi
 	done
 
