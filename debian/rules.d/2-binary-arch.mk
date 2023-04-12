@@ -336,8 +336,12 @@ endif
 	grep '^HOSTCC	.*$(gcc)$$' $(hdrdir)/Makefile
 	grep '^CC	.*$(gcc)$$' $(hdrdir)/Makefile
 	rm -rf $(hdrdir)/include2 $(hdrdir)/source
+	# Do not ship .o and .cmd artifacts in headers
+	find $(hdrdir) -name \*.o -or -name \*.cmd -exec rm -f {} \;
+	# Strip .so files (e.g., rust/libmacros.so) to reduce size even more
+	find $(hdrdir) -name libmacros.so -exec strip -s {} \;
 	# We do not need the retpoline information.
-	find $(hdrdir) -name \*.o.ur-\* | xargs rm -f
+	find $(hdrdir) -name \*.o.ur-\* -exec rm -f {} \;
 	# Copy over the compilation version.
 	cp "$(builddir)/build-$*/include/generated/compile.h" \
 		"$(hdrdir)/include/generated/compile.h"
