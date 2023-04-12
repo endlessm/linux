@@ -62,11 +62,11 @@ volatile struct profiler_config_struct bpf_config = {};
 #define READ_ENVIRON_FROM_EXEC (bpf_config.read_environ_from_exec)
 #define ENABLE_CGROUP_V1_RESOLVER (bpf_config.enable_cgroup_v1_resolver)
 
-struct kernfs_iattrs___52 {
+struct _kernfs_iattrs___52 {
 	struct iattr ia_iattr;
 };
 
-struct kernfs_node___52 {
+struct _kernfs_node___52 {
 	union /* kernfs_node_id */ {
 		struct {
 			u32 ino;
@@ -232,7 +232,7 @@ static INLINE void* read_full_cgroup_path(struct kernfs_node* cgroup_node,
 
 static ino_t get_inode_from_kernfs(struct kernfs_node* node)
 {
-	struct kernfs_node___52* node52 = (void*)node;
+	struct _kernfs_node___52* node52 = (void*)node;
 
 	if (bpf_core_field_exists(node52->id.ino)) {
 		barrier_var(node52);
@@ -287,13 +287,13 @@ static INLINE void* populate_cgroup_info(struct cgroup_data_t* cgroup_data,
 		cgroup_data->cgroup_proc_mtime =
 			BPF_CORE_READ(proc_kernfs, iattr, ia_mtime.tv_nsec);
 	} else {
-		struct kernfs_iattrs___52* root_iattr =
-			(struct kernfs_iattrs___52*)BPF_CORE_READ(root_kernfs, iattr);
+		struct _kernfs_iattrs___52* root_iattr =
+			(struct _kernfs_iattrs___52*)BPF_CORE_READ(root_kernfs, iattr);
 		cgroup_data->cgroup_root_mtime =
 			BPF_CORE_READ(root_iattr, ia_iattr.ia_mtime.tv_nsec);
 
-		struct kernfs_iattrs___52* proc_iattr =
-			(struct kernfs_iattrs___52*)BPF_CORE_READ(proc_kernfs, iattr);
+		struct _kernfs_iattrs___52* proc_iattr =
+			(struct _kernfs_iattrs___52*)BPF_CORE_READ(proc_kernfs, iattr);
 		cgroup_data->cgroup_proc_mtime =
 			BPF_CORE_READ(proc_iattr, ia_iattr.ia_mtime.tv_nsec);
 	}
