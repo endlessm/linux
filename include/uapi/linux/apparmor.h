@@ -13,6 +13,8 @@
 #define APPARMOR_MODESET_KILL 64
 #define APPARMOR_MODESET_USER 128
 
+#define APPARMOR_FLAG_NOCACHE 1
+
 enum apparmor_notif_type {
 	APPARMOR_NOTIF_RESP,
 	APPARMOR_NOTIF_CANCEL,
@@ -42,7 +44,7 @@ struct apparmor_notif {
 	struct apparmor_notif_common base;
 	__u16 ntype;			/* notify type */
 	__u8 signalled;
-	__u8 reserved;
+	__u8 flags;
 	__u64 id;			/* unique id, not gloablly unique*/
 	__s32 error;			/* error if unchanged */
 } __attribute__((packed));

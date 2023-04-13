@@ -293,7 +293,7 @@ void __listener_complete_user_pending(struct aa_listener *listener,
 
 		knotif->ad->denied = uresp->deny;
 		knotif->ad->request = uresp->allow | uresp->deny;
-
+		knotif->ad->flags = uresp->base.flags;
 		if (!knotif->ad->denied) {
 			/* no more denial, clear the error*/
 			knotif->ad->error = 0;
@@ -433,7 +433,8 @@ prompt:
 		 */
 	} else {
 		err = 0;
-		*cache_response = true;
+		if (!(node->data.flags & 1))
+			*cache_response = true;
 		spin_lock(&listener->lock);
 		if (!list_empty(&knotif->list)) {
 			__listener_del_knotif(listener, knotif);
