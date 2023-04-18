@@ -531,8 +531,8 @@ CONFIG_SCSI_IPR_DUMP                            note<'LP: #1343109'>
 CONFIG_SCSI_IPR_TRACE                           policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y'}>
 CONFIG_SCSI_IPR_TRACE                           note<'LP: #1343109'>
 
-CONFIG_SCSI_VIRTIO                              policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm', 's390x': 'm'}>
-CONFIG_SCSI_VIRTIO                              note<'tech preview of new feature'>
+CONFIG_SCSI_VIRTIO                              policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y', 's390x': 'y'}>
+CONFIG_SCSI_VIRTIO                              note<'enable initrdless boot in VMs for ease of use, cloud-kernel parity and disaster recovery, LP: #1685291'>
 
 CONFIG_SECURITY_SAFESETID                       policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y', 's390x': 'y'}>
 CONFIG_SECURITY_SAFESETID                       note<'LP: #1845391'>
