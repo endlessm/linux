@@ -4988,7 +4988,7 @@ CONFIG_GENERIC_CLOCKEVENTS                      policy<{'amd64': 'y', 'arm64': '
 CONFIG_GENERIC_CLOCKEVENTS_BROADCAST            policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y'}>
 CONFIG_GENERIC_CLOCKEVENTS_MIN_ADJUST           policy<{'amd64': 'y'}>
 CONFIG_GENERIC_CMOS_UPDATE                      policy<{'amd64': 'y', 'ppc64el': 'y'}>
-CONFIG_GENERIC_CPU                              policy<{'amd64': 'y', 'ppc64el': 'y'}>
+CONFIG_GENERIC_CPU                              policy<{'amd64': 'y', 'ppc64el': '-'}>
 CONFIG_GENERIC_CPU_AUTOPROBE                    policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 's390x': 'y'}>
 CONFIG_GENERIC_CPU_VULNERABILITIES              policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 's390x': 'y'}>
 CONFIG_GENERIC_CSUM                             policy<{'arm64': 'y', 'riscv64': 'y'}>
@@ -9720,6 +9720,7 @@ CONFIG_POWERCAP                                 policy<{'amd64': 'y', 'arm64': '
 CONFIG_POWERNV_CPUFREQ                          policy<{'ppc64el': 'y'}>
 CONFIG_POWERNV_CPUIDLE                          policy<{'ppc64el': 'y'}>
 CONFIG_POWERNV_OP_PANEL                         policy<{'ppc64el': 'm'}>
+CONFIG_POWERPC64_CPU                            policy<{'ppc64el': 'y'}>
 CONFIG_POWER_AVS_OMAP                           policy<{'armhf-generic': 'y'}>
 CONFIG_POWER_AVS_OMAP_CLASS3                    policy<{'armhf-generic': 'y'}>
 CONFIG_POWER_MLXBF                              policy<{'arm64': 'm'}>
@@ -11430,7 +11431,6 @@ CONFIG_SERIAL_EARLYCON                          policy<{'amd64': 'y', 'arm64': '
 CONFIG_SERIAL_EARLYCON_ARM_SEMIHOST             policy<{'arm64': 'y', 'armhf': 'y'}>
 CONFIG_SERIAL_FSL_LINFLEXUART                   policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'n', 's390x': 'n'}>
 CONFIG_SERIAL_FSL_LPUART                        policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm', 's390x': 'n'}>
-CONFIG_SERIAL_FSL_LPUART_CONSOLE                policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y'}>
 CONFIG_SERIAL_ICOM                              policy<{'ppc64el': 'm'}>
 CONFIG_SERIAL_IMX                               policy<{'arm64': 'y', 'armhf': 'y'}>
 CONFIG_SERIAL_IMX_CONSOLE                       policy<{'arm64': 'y', 'armhf': 'y'}>
@@ -12912,6 +12912,8 @@ CONFIG_TAHVO_USB                                policy<{'amd64': 'm', 'arm64': '
 CONFIG_TAHVO_USB_HOST_BY_DEFAULT                policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y'}>
 CONFIG_TAP                                      policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm', 's390x': 'm'}>
 CONFIG_TARGET_CORE                              policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm', 's390x': 'm'}>
+CONFIG_TARGET_CPU                               policy<{'ppc64el': '"power8"'}>
+CONFIG_TARGET_CPU_BOOL                          policy<{'ppc64el': 'y'}>
 CONFIG_TASKSTATS                                policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y', 's390x': 'y'}>
 CONFIG_TASKS_RCU                                policy<{'amd64': 'y', 'arm64': 'y'}>
 CONFIG_TASKS_RCU_GENERIC                        policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y', 's390x': 'y'}>
@@ -13180,6 +13182,7 @@ CONFIG_TN3270                                   policy<{'s390x': 'y'}>
 CONFIG_TN3270_CONSOLE                           policy<{'s390x': 'y'}>
 CONFIG_TN3270_FS                                policy<{'s390x': 'm'}>
 CONFIG_TN3270_TTY                               policy<{'s390x': 'y'}>
+CONFIG_TOOLCHAIN_DEFAULT_CPU                    policy<{'ppc64el': 'n'}>
 CONFIG_TOOLCHAIN_HAS_ZICBOM                     policy<{'riscv64': 'y'}>
 CONFIG_TOOLCHAIN_HAS_ZIHINTPAUSE                policy<{'riscv64': 'y'}>
 CONFIG_TOPSTAR_LAPTOP                           policy<{'amd64': 'm'}>
