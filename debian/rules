@@ -112,10 +112,6 @@ $(foreach _m,$(all_built-in_dkms_modules), \
   ) \
 )
 
-ifeq ($(do_dkms_wireguard),false)
-	do_wireguard_disable:=$(shell for m in $$(cat $(DROOT)/wireguard-modules.ignore); do grep -qxF $$m $(prev_abidir)/../modules.ignore 2>/dev/null || echo $$m >> $(prev_abidir)/../modules.ignore; done)
-endif
-
 # Either tools package needs the common source preparation
 do_any_tools=$(sort $(filter-out false,$(do_linux_tools) $(do_cloud_tools)))
 

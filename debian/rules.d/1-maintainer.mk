@@ -117,8 +117,6 @@ printenv:
 	@echo " do_tools_x86             = $(do_tools_x86)"
 	@echo "do_cloud_tools            = $(do_cloud_tools)"
 	@echo " do_tools_hyperv          = $(do_tools_hyperv)"
-	@echo "do_dkms_wireguard         = $(do_dkms_wireguard)"
-	@echo " do_wireguard_disable     = $(do_wireguard_disable)"
 
 .PHONY: printchanges
 printchanges:
