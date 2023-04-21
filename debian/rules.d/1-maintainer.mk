@@ -117,6 +117,10 @@ printenv:
 	@echo " do_tools_x86             = $(do_tools_x86)"
 	@echo "do_cloud_tools            = $(do_cloud_tools)"
 	@echo " do_tools_hyperv          = $(do_tools_hyperv)"
+	@echo
+	@echo "all_dkms_modules          = $(all_dkms_modules)"
+	@$(foreach mod,$(all_dkms_modules),$(foreach var,$(do_$(mod)),\
+		printf " %-24s = %s\n" "do_$(mod)" "$(var)";))
 
 .PHONY: printchanges
 printchanges:
