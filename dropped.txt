@@ -1,0 +1,23 @@
+UBUNTU: SAUCE: Revert "perf tools: Use Python devtools for version autodetection rather than runtime" # we should have python3-dev in our build chroot at this point
+
+UBUNTU: SAUCE: Revert "radix-tree: Use local_lock for protection" # required by nvidia, but it's a latency degradation for everyone
+UBUNTU: SAUCE: Revert "arm64/fpsimd: Make kernel_neon_ API _GPL" # need to be dropped as soon as we update zfs
+UBUNTU: SAUCE: kvm: BIOS disabled kvm support should be a warning # patched error/warning not present anymore
+UBUNTU: SAUCE: arm: fix build error in kvm tracepoint # this should be fixed upstream at this point
+
+UBUNTU: SAUCE: RDMA/core: Introduce peer memory interface # need some redesign
+UBUNTU: SAUCE: RDMA/core: Updated ib_peer_memory # need some redesign
+UBUNTU: SAUCE: RDMA/core: ib_peer_memory fix build errors # need some redesign
+
+UBUNTU: SAUCE: for aufs mmap: print the virtual file path # need some redesign, maybe get updated patch from https://github.com/sfjro/aufs5-linux
+UBUNTU: SAUCE: overlayfs: Skip permission checking for trusted.overlayfs.* xattrs # we may not need this anymore with new overlayfs: to be tested
+UBUNTU: SAUCE: overlayfs: handle idmapped mounts in ovl_do_(set|remove)xattr # review this patch, need some attention
+UBUNTU: SAUCE: overlayfs: fix incorrect mnt_id of files opened from map_files # review this patch, need some attention
+
+UBUNTU: SAUCE: net: wwan: t7xx: Enable devlink based fw flashing and coredump collection
+UBUNTU: SAUCE: net: wwan: t7xx: Devlink documentation
+
+UBUNTU: SAUCE: platform/x86: int3472: support independent clock and LED GPIOs # conflicts, why is this not upstream yet?
+UBUNTU: SAUCE: Revert "net/smc: Introduce a specific sysctl for TEST_LINK time" # should be fixed upstream at this point, it was supposed to be a temporary fix for 6.2, todo: ask IBM
+UBUNTU: SAUCE: drm/i915/display/psr: Disable PSR2 sel fetch on panel SHP 5457 # why is this not upstream yet?
+UBUNTU: SAUCE: rust: allow to use INIT_STACK_ALL_ZERO # this is upstream now
