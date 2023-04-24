@@ -741,6 +741,9 @@ CONFIG_X86_SPEEDSTEP_CENTRINO                   note<'not autoloadable'>
 CONFIG_X86_UV                                   policy<{'amd64': 'y'}>
 CONFIG_X86_UV                                   note<'LP: #1863810'>
 
+CONFIG_X86_X32_ABI                              policy<{'amd64': 'n'}>
+CONFIG_X86_X32_ABI                              note<'LP: #1994516'>
+
 CONFIG_XEN_512GB                                policy<{'amd64': 'y'}>
 CONFIG_XEN_512GB                                note<'Q: is this related to the utlemming questions on memory size?'>
 
@@ -14761,7 +14764,6 @@ CONFIG_X86_VMX_FEATURE_NAMES                    policy<{'amd64': 'y'}>
 CONFIG_X86_VSMP                                 policy<{'amd64': 'n'}>
 CONFIG_X86_VSYSCALL_EMULATION                   policy<{'amd64': 'y'}>
 CONFIG_X86_X2APIC                               policy<{'amd64': 'y'}>
-CONFIG_X86_X32_ABI                              policy<{'amd64': 'n'}>
 CONFIG_XARRAY_MULTI                             policy<{'amd64': 'y', 'arm64': 'y', 'armhf-generic-lpae': 'y', 'ppc64el': 'y', 'riscv64': 'y', 's390x': 'y'}>
 CONFIG_XDP_SOCKETS                              policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y', 's390x': 'y'}>
 CONFIG_XDP_SOCKETS_DIAG                         policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm', 's390x': 'm'}>
