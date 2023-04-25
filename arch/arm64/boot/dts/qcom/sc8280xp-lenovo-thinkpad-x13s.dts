@@ -1480,6 +1480,11 @@
 	status = "okay";
 };
 
+&venus {
+	firmware-name = "qcom/sc8280xp/LENOVO/21BX/qcvss8280.mbn";
+	status = "okay";
+};
+
 &wsamacro {
 	status = "okay";
 };
