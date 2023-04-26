@@ -3,10 +3,6 @@
 set -e
 
 if [ "$1" = "" ]; then
-	# This would be set doing the actual kernel build
-	if [ "$KBUILD_VERBOSE" = "" ]; then
-		return 1
-	fi
 	case $ARCH in
 	x86)	ARCH=amd64;;
 	*)	;;
