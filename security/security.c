@@ -3558,9 +3558,6 @@ int security_task_prctl(int option, unsigned long arg2, unsigned long arg3,
 	int rc = LSM_RET_DEFAULT(task_prctl);
 	struct security_hook_list *hp;
 
-	if (lsm_slot == 0)
-		return -EINVAL;
-
 	hlist_for_each_entry(hp, &security_hook_heads.task_prctl, list) {
 		thisrc = hp->hook.task_prctl(option, arg2, arg3, arg4, arg5);
 		if (thisrc != LSM_RET_DEFAULT(task_prctl)) {
@@ -3569,6 +3566,9 @@ int security_task_prctl(int option, unsigned long arg2, unsigned long arg3,
 				break;
 		}
 	}
+
+	if (lsm_slot == 0)
+		return rc;
 
 	switch (option) {
 	case PR_LSM_ATTR_SET:
