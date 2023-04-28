@@ -340,7 +340,7 @@ int aa_profile_ns_perm(struct aa_profile *profile,
 		if (!state && !unprivileged_userns_restricted_force)
 			/* TODO: add flag to complain about unmediated */
 			return 0;
-		perms = *aa_lookup_perms(&rules->policy, state);
+		perms = *aa_lookup_perms(rules->policy, state);
 		if (unprivileged_userns_restricted_complain)
 			perms.complain = ALL_PERMS_MASK;
 	}

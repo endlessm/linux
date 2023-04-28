@@ -95,8 +95,8 @@ static int profile_signal_perm(const struct cred *cred,
 	ad->subj_cred = cred;
 	ad->peer = peer;
 	/* TODO: secondary cache check <profile, profile, perm> */
-	state = aa_dfa_next(rules->policy.dfa,
-			    rules->policy.start[AA_CLASS_SIGNAL],
+	state = aa_dfa_next(rules->policy->dfa,
+			    rules->policy->start[AA_CLASS_SIGNAL],
 			    ad->signal);
 	aa_label_match(profile, rules, peer, state, false, request, &perms);
 	aa_apply_modes_to_perms(profile, &perms);
@@ -166,10 +166,10 @@ int aa_profile_mqueue_perm(struct aa_profile *profile, const struct path *path,
 
 	ad->name = name;
 
-	state = aa_dfa_match(rules->policy.dfa,
-			     rules->policy.start[AA_CLASS_POSIX_MQUEUE],
+	state = aa_dfa_match(rules->policy->dfa,
+			     rules->policy->start[AA_CLASS_POSIX_MQUEUE],
 			     name);
-	perms = *aa_lookup_perms(&rules->policy, state);
+	perms = *aa_lookup_perms(rules->policy, state);
 	aa_apply_modes_to_perms(profile, &perms);
 	if (!denied_perms(&perms, request)) {
 		/* early bailout sufficient perms no need to do further

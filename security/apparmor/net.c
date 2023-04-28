@@ -179,9 +179,9 @@ int aa_profile_af_perm(struct aa_profile *profile, struct apparmor_audit_data *a
 	if (state) {
 		buffer[0] = cpu_to_be16(family);
 		buffer[1] = cpu_to_be16((u16) type);
-		state = aa_dfa_match_len(rules->policy.dfa, state,
+		state = aa_dfa_match_len(rules->policy->dfa, state,
 					 (char *) &buffer, 4);
-		perms = *aa_lookup_perms(&rules->policy, state);
+		perms = *aa_lookup_perms(rules->policy, state);
 	} else if (profile->net_compat) {
 		/* 2.x socket mediation compat */
 		perms.allow = (profile->net_compat->allow[family] & (1 << type)) ?

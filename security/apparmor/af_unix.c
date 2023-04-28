@@ -200,7 +200,7 @@ static int do_perms(struct aa_profile *profile, struct aa_ruleset *rule,
 
 	AA_BUG(!profile);
 
-	perms = *aa_lookup_perms(&rule->policy, state);
+	perms = *aa_lookup_perms(rule->policy, state);
 	aa_apply_modes_to_perms(profile, &perms);
 	return aa_check_perms(profile, &perms, request, ad,
 			      audit_net_cb);
@@ -216,7 +216,7 @@ static int match_label(struct aa_profile *profile, struct aa_ruleset *rule,
 	ad->peer = &peer->label;
 
 	if (state) {
-		state = aa_dfa_match(rule->policy.dfa, state,
+		state = aa_dfa_match(rule->policy->dfa, state,
 				     peer->base.hname);
 		if (!state)
 			ad->info = "failed peer label match";
@@ -243,7 +243,7 @@ static int profile_create_perm(struct aa_profile *profile, int family,
 
 	state = RULE_MEDIATES_AF(rules, AF_UNIX);
 	if (state) {
-		state = match_to_prot(rules->policy.dfa, state, type, protocol,
+		state = match_to_prot(rules->policy->dfa, state, type, protocol,
 				      &ad.info);
 		return do_perms(profile, rules, state, AA_MAY_CREATE, &ad);
 	}
@@ -280,7 +280,7 @@ static inline int profile_sk_perm(struct aa_profile *profile,
 
 	state = RULE_MEDIATES_AF(rules, AF_UNIX);
 	if (state) {
-		state = match_to_sk(rules->policy.dfa, state, unix_sk(sk),
+		state = match_to_sk(rules->policy->dfa, state, unix_sk(sk),
 				    &ad->info);
 		return do_perms(profile, rules, state, request, ad);
 	}
@@ -350,7 +350,7 @@ static int profile_bind_perm(struct aa_profile *profile, struct sock *sk,
 		ad.net.addr = unix_addr(addr);
 		ad.net.addrlen = addrlen;
 
-		state = match_to_local(rules->policy.dfa, state,
+		state = match_to_local(rules->policy->dfa, state,
 				       sk->sk_type, sk->sk_protocol,
 				       unix_addr(addr), addrlen,
 				       &ad.info);
@@ -405,10 +405,10 @@ static int profile_listen_perm(struct aa_profile *profile, struct sock *sk,
 	if (state) {
 		__be16 b = cpu_to_be16(backlog);
 
-		state = match_to_cmd(rules->policy.dfa, state, unix_sk(sk),
+		state = match_to_cmd(rules->policy->dfa, state, unix_sk(sk),
 				     CMD_LISTEN, &ad.info);
 		if (state) {
-			state = aa_dfa_match_len(rules->policy.dfa, state,
+			state = aa_dfa_match_len(rules->policy->dfa, state,
 						 (char *) &b, 2);
 			if (!state)
 				ad.info = "failed listen backlog match";
@@ -452,7 +452,7 @@ static inline int profile_accept_perm(struct aa_profile *profile,
 
 	state = RULE_MEDIATES_AF(rules, AF_UNIX);
 	if (state) {
-		state = match_to_sk(rules->policy.dfa, state, unix_sk(sk),
+		state = match_to_sk(rules->policy->dfa, state, unix_sk(sk),
 				    &ad.info);
 		return do_perms(profile, rules, state, AA_MAY_ACCEPT, &ad);
 	}
@@ -506,10 +506,10 @@ static int profile_opt_perm(struct aa_profile *profile, const char *op, u32 requ
 	if (state) {
 		__be16 b = cpu_to_be16(optname);
 
-		state = match_to_cmd(rules->policy.dfa, state, unix_sk(sk),
+		state = match_to_cmd(rules->policy->dfa, state, unix_sk(sk),
 				     CMD_OPT, &ad.info);
 		if (state) {
-			state = aa_dfa_match_len(rules->policy.dfa, state,
+			state = aa_dfa_match_len(rules->policy->dfa, state,
 						 (char *) &b, 2);
 			if (!state)
 				ad.info = "failed sockopt match";
@@ -564,7 +564,7 @@ static int profile_peer_perm(struct aa_profile *profile, const char *op, u32 req
 			addr = unix_sk(peer_sk)->addr->name;
 			len = unix_sk(peer_sk)->addr->len;
 		}
-		state = match_to_peer(rules->policy.dfa, state, unix_sk(sk),
+		state = match_to_peer(rules->policy->dfa, state, unix_sk(sk),
 				      addr, len, &ad->info);
 		if (!peer_label)
 			peer_label = peer_ctx->label;

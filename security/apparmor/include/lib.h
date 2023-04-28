@@ -16,6 +16,9 @@
 
 #include "match.h"
 
+extern struct aa_dfa *stacksplitdfa;
+
+
 #define list_add_entry(ent, list, member) list_add(&(ent)->member, (list))
 #define list_add_tail_entry(ent, list, member) list_add_tail(&(ent)->member, (list))
 
