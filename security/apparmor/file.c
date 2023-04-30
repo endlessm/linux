@@ -106,6 +106,7 @@ static int check_cache(struct aa_profile *profile,
 			AA_DEBUG(DEBUG_UPCALL,
 				 "cache hit denied, request: 0x%x by cached deny 0x%x\n",
 				 ad->request, hit->data.denied);
+			aa_put_audit_node(hit);
 			return ad->error;
 		} else if (ad->request & ~hit->data.request) {
 			/* asking for more perms than is cached */
@@ -116,9 +117,12 @@ static int check_cache(struct aa_profile *profile,
 		} else {
 			AA_DEBUG(DEBUG_UPCALL, "cache hit");
 			ad->error = 0;
+			aa_put_audit_node(hit);
 			/* do audit */
 			return 0;
 		}
+		aa_put_audit_node(hit);
+		hit = NULL;
 	} else {
 		AA_DEBUG(DEBUG_UPCALL, "cache miss");
 	}
@@ -151,34 +155,31 @@ static int check_cache(struct aa_profile *profile,
 	ad->error = node->data.error;
 
 	if (cache_response) {
-		if (hit) {
-hit:
+		/* TODO: shouldn't add until after auditing it, or at
+		 * least having a refcount. Fix once removing entry is
+		 * allowed
+		 */
+		AA_DEBUG(DEBUG_UPCALL, "inserting cache entry requ 0x%x  denied 0x%x",
+			 node->data.request, node->data.denied);
+		hit = aa_audit_cache_insert(&profile->learning_cache,
+					    node);
+		AA_DEBUG(DEBUG_UPCALL, "cache insert %s: name %s node %s\n",
+			 hit != node ? "lost race" : "",
+			 hit->data.name, node->data.name);
+		if (hit != node) {
 			AA_DEBUG(DEBUG_UPCALL, "updating existing cache entry");
 			aa_audit_cache_update_ent(&profile->learning_cache,
 						  hit, &node->data);
+			aa_put_audit_node(hit);
 		} else {
-			/* TODO: shouldn't add until after auditing it, or at
-			 * least having a refcount. Fix once removing entry is
-			 * allowed
-			 */
-			AA_DEBUG(DEBUG_UPCALL, "inserting cache entry requ 0x%x  denied 0x%x",
-				 node->data.request, node->data.denied);
-			hit = aa_audit_cache_insert(&profile->learning_cache,
-						    node);
-			AA_DEBUG(DEBUG_UPCALL, "cache insert %s: name %s node %s\n",
-				 hit != node ? "lost race" : "",
-				 hit->data.name, node->data.name);
-			if (hit != node)
-				goto hit;
+
 			AA_DEBUG(DEBUG_UPCALL, "inserted into cache");
-			/* do not free node, it is now owned by the cache */
-			node = NULL;
 		}
 		/* now to audit */
 	} /* cache_response */
 
 return_to_audit:
-	aa_audit_node_free(node);
+	aa_put_audit_node(node);
 	return 0;
 }
 

@@ -91,5 +91,4 @@ static inline void aa_put_listener(struct aa_listener *listener)
 		kref_put(&listener->count, aa_listener_kref);
 }
 
-
 #endif /* __AA_NOTIFY_H */

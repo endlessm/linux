@@ -206,6 +206,8 @@ struct aa_audit_rule {
 	struct aa_label *label;
 };
 
+/****************************** audit rules *******************************/
+
 void aa_audit_rule_free(void *vrule)
 {
 	struct aa_audit_rule *rule = vrule;
@@ -340,7 +342,7 @@ long aa_audit_data_cmp(struct apparmor_audit_data *lhs,
 	return 0;
 }
 
-void aa_audit_node_free(struct aa_audit_node *node)
+static void audit_node_free(struct aa_audit_node *node)
 {
 	if (!node)
 		return;
@@ -363,6 +365,13 @@ void aa_audit_node_free(struct aa_audit_node *node)
 	kmem_cache_free(aa_audit_slab, node);
 }
 
+void aa_audit_node_free_kref(struct kref *kref)
+{
+	struct aa_audit_node *node = container_of(kref, struct aa_audit_node,
+						  count);
+	audit_node_free(node);
+}
+
 struct aa_audit_node *aa_dup_audit_data(struct apparmor_audit_data *orig,
 					gfp_t gfp)
 {
@@ -371,6 +380,7 @@ struct aa_audit_node *aa_dup_audit_data(struct apparmor_audit_data *orig,
 	copy = kmem_cache_zalloc(aa_audit_slab, gfp);
 	if (!copy)
 		return NULL;
+	kref_init(&copy->count);
 
 	copy->knotif.ad = &copy->data;
 	INIT_LIST_HEAD(&copy->list);
@@ -447,7 +457,7 @@ struct aa_audit_node *aa_dup_audit_data(struct apparmor_audit_data *orig,
 
 	return copy;
 fail:
-	aa_audit_node_free(copy);
+	audit_node_free(copy);
 	return NULL;
 }
 
@@ -463,6 +473,7 @@ __out_skip:								\
 	__node;								\
 })
 
+// increments refcount on node
 struct aa_audit_node *aa_audit_cache_find(struct aa_audit_cache *cache,
 					  struct apparmor_audit_data *ad)
 {
@@ -470,6 +481,7 @@ struct aa_audit_node *aa_audit_cache_find(struct aa_audit_cache *cache,
 
 	rcu_read_lock();
 	node = __audit_cache_find(cache, ad);
+	aa_get_audit_node(node);
 	rcu_read_unlock();
 
 	return node;
@@ -480,9 +492,12 @@ struct aa_audit_node *aa_audit_cache_find(struct aa_audit_cache *cache,
  * @cache: the cache to insert into
  * @node: the audit node to insert into the cache
  *
- * Returns: matching node in cache OR @node if @node was inserted.
+ * Returns: refcounted matching node in cache OR @node if @node was inserted.
+ *
+ * Increments refcount on node if successfully inserted. Assumes caller
+ *            already has valid ref count.
+ * Increments refcount on existing node if returned
  */
-
 struct aa_audit_node *aa_audit_cache_insert(struct aa_audit_cache *cache,
 					    struct aa_audit_node *node)
 
@@ -497,6 +512,8 @@ struct aa_audit_node *aa_audit_cache_insert(struct aa_audit_cache *cache,
 		tmp = node;
 		cache->size++;
 	}
+
+	aa_get_audit_node(tmp);
 	/* else raced another insert */
 	spin_unlock(&cache->lock);
 
@@ -521,7 +538,7 @@ void aa_audit_cache_destroy(struct aa_audit_cache *cache)
 
 	list_for_each_entry_safe(node, tmp, &cache->head, list) {
 		list_del_init(&node->list);
-		aa_audit_node_free(node);
+		aa_put_audit_node(node);
 	}
 	cache->size = 0;
 }
