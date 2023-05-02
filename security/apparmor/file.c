@@ -79,14 +79,16 @@ static void file_audit_cb(struct audit_buffer *ab, void *va)
 	}
 }
 
+// ??? differentiate between
+// cached - allow    : no audit == 1
+// cached - deny     : no audit < 0
+// cached - complain : no audit
+// cached - partial  : audit missing part : as miss
+// not cached = 0
 static int check_cache(struct aa_profile *profile,
-		       struct apparmor_audit_data *ad,
-		       struct aa_perms *perms)
+		       struct apparmor_audit_data *ad)
 {
-	struct aa_audit_node *node = NULL;
 	struct aa_audit_node *hit;
-	bool cache_response;
-	int err;
 
 	AA_BUG(!profile);
 	ad->subj_label = &profile->label; // normally set in aa_audit
@@ -116,23 +118,36 @@ static int check_cache(struct aa_profile *profile,
 			/* continue to do prompt */
 		} else {
 			AA_DEBUG(DEBUG_UPCALL, "cache hit");
-			ad->error = 0;
 			aa_put_audit_node(hit);
-			/* do audit */
-			return 0;
+			/* don't audit: if its in the cache already audited */
+			return 1;
 		}
 		aa_put_audit_node(hit);
 		hit = NULL;
 	} else {
 		AA_DEBUG(DEBUG_UPCALL, "cache miss");
 	}
+
+	return 0;
+}
+
+// error - immediate return
+//       - debug message do audit
+// caching is handled on listener task side
+static int check_user(struct aa_profile *profile,
+		      struct apparmor_audit_data *ad,
+		      struct aa_perms *perms)
+{
+	struct aa_audit_node *node = NULL;
+	int err;
+
 	/* assume we are going to dispatch */
 	node = aa_dup_audit_data(ad, GFP_KERNEL);
 	if (!node) {
 		AA_DEBUG(DEBUG_UPCALL,
 			 "notifcation failed to duplicate with error -ENOMEM\n");
 		/* do audit */
-		return 0;
+		return -ENOMEM;
 	}
 
 	get_task_struct(current);
@@ -140,10 +155,11 @@ static int check_cache(struct aa_profile *profile,
 	node->data.type = AUDIT_APPARMOR_USER;
 	node->data.request = ad->request;
 	node->data.denied = ad->request & ~perms->allow;
-	err = aa_do_notification(APPARMOR_NOTIF_OP, node, &cache_response);
+	err = aa_do_notification(APPARMOR_NOTIF_OP, node);
 	put_task_struct(node->data.subjtsk);
 
 	if (err) {
+		// do we want to do something special with -ERESTARTSYS
 		AA_DEBUG(DEBUG_UPCALL, "notifcation failed with error %d\n",
 			 ad->error);
 		goto return_to_audit;
@@ -154,33 +170,9 @@ static int check_cache(struct aa_profile *profile,
 	ad->denied = node->data.denied;
 	ad->error = node->data.error;
 
-	if (cache_response) {
-		/* TODO: shouldn't add until after auditing it, or at
-		 * least having a refcount. Fix once removing entry is
-		 * allowed
-		 */
-		AA_DEBUG(DEBUG_UPCALL, "inserting cache entry requ 0x%x  denied 0x%x",
-			 node->data.request, node->data.denied);
-		hit = aa_audit_cache_insert(&profile->learning_cache,
-					    node);
-		AA_DEBUG(DEBUG_UPCALL, "cache insert %s: name %s node %s\n",
-			 hit != node ? "lost race" : "",
-			 hit->data.name, node->data.name);
-		if (hit != node) {
-			AA_DEBUG(DEBUG_UPCALL, "updating existing cache entry");
-			aa_audit_cache_update_ent(&profile->learning_cache,
-						  hit, &node->data);
-			aa_put_audit_node(hit);
-		} else {
-
-			AA_DEBUG(DEBUG_UPCALL, "inserted into cache");
-		}
-		/* now to audit */
-	} /* cache_response */
-
 return_to_audit:
 	aa_put_audit_node(node);
-	return 0;
+	return err;
 }
 
 /**
@@ -220,14 +212,33 @@ int aa_audit_file(const struct cred *subj_cred,
 	ad.common.u.tsk = NULL;
 	ad.subjtsk = NULL;
 
-	if (unlikely(ad.error) && ((prompt && USER_MODE(profile)) ||
-				   ((request & perms->prompt) &&
-				    ((request & (perms->prompt |
-						 perms->allow)) == request)))) {
-		err = check_cache(profile, &ad, perms);
-		if (err)
-			/* only happens if already cached */
-			return err;
+	ad.denied = denied_perms(perms, ad.request);
+
+	if (unlikely(ad.error)) {
+		u32 implicit_deny;
+
+		/* learning cache - not audit dedup yet */
+		err = check_cache(profile, &ad);
+		if (err != 0)
+			/* cached */
+			return ad.error;
+
+		implicit_deny = (ad.request & ~perms->allow) & ~perms->deny;
+		if (USER_MODE(profile))
+			perms->prompt = ALL_PERMS_MASK;
+
+		/* don't prompt
+		 * - if explicit deny
+		 * - if implicit_deny is not entirely covered by prompt
+		 *   as no point asking user to just deny it anyway.
+		 */
+		if (prompt && !(request & perms->deny) &&
+		    (perms->prompt & implicit_deny) == implicit_deny) {
+			err = check_user(profile, &ad, perms);
+			if (err == -ERESTARTSYS)
+				/* are there other errors we should bail on */
+				return err;
+		}
 	}
 
 	if (likely(!ad.error)) {
@@ -260,7 +271,6 @@ int aa_audit_file(const struct cred *subj_cred,
 			return ad.error;
 	}
 
-	ad.denied = ad.request & ~perms->allow;
 	err = aa_audit(type, profile, &ad, file_audit_cb);
 	return err;
 }

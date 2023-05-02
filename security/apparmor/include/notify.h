@@ -50,6 +50,9 @@ struct aa_listener_proxy {
 	struct list_head nslist;
 };
 
+#define KNOTIF_PULSE
+#define KNOTIF_PENDING
+#define KNOTIF_CANCELLED
 /* need to split knofif into audit_proxy
  * prompt notifications only go to first taker so no need for completion
  * in the proxy, it increases size of proxy in non-prompt case
@@ -60,14 +63,14 @@ struct aa_knotif {
 	struct completion ready;
 	u64 id;
 	u16 ntype;
+	u16 flags;
 };
 
 void aa_free_listener_proxy(struct aa_listener_proxy *proxy);
 bool aa_register_listener_proxy(struct aa_listener *listener, struct aa_ns *ns);
 struct aa_listener *aa_new_listener(struct aa_ns *ns, gfp_t gfp);
 struct aa_knotif *__aa_find_notif(struct aa_listener *listener, u64 id);
-int aa_do_notification(u16 ntype, struct aa_audit_node *node,
-		       bool *cache_response);
+int aa_do_notification(u16 ntype, struct aa_audit_node *node);
 
 long aa_listener_unotif_recv(struct aa_listener *listener, void __user *buf,
 			     u16 max_size);
