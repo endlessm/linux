@@ -47,7 +47,7 @@ extern struct aa_dfa *stacksplitdfa;
 #define AA_DEBUG(opt, fmt, args...)					\
 	do {								\
 		if (aa_g_debug & opt)					\
-			pr_warn_ratelimited("%s: " fmt, __func__, ##args); \
+			pr_warn("%s: " fmt, __func__, ##args); \
 	} while (0)
 #define AA_DEBUG_ON(C, args...) do { if (C) AA_DEBUG(args); } while (0)
 #define AA_DEBUG_LABEL(LAB, X, fmt, args)				\

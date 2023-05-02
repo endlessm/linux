@@ -326,13 +326,15 @@ static void dispatch_notif(struct aa_listener *listener,
 	lockdep_assert_held(&listener->lock);
 
 	AA_DEBUG_ON(knotif->id, DEBUG_UPCALL,
-		    "redispatching notification with id %lld as new id %lld",
+		    "id %lld: redispatching notification as new id %lld",
 		    knotif->id, listener->last_id);
 	knotif->ntype = ntype;
 	knotif->id = ++listener->last_id;
 	init_completion(&knotif->ready);
 	INIT_LIST_HEAD(&knotif->list);
 	__listener_add_knotif(listener, knotif);
+	AA_DEBUG(DEBUG_UPCALL, "id %lld: %s wake_up_interruptible",
+		 knotif->id, __func__);
 	// TODO: wake up listener
 }
 
@@ -358,16 +360,18 @@ static int handle_synchronous_notif(struct aa_listener *listener,
 		__listener_del_knotif(listener, knotif);
 		spin_unlock(&listener->lock);
 		if (werr == 0) {
-			AA_DEBUG(DEBUG_UPCALL, "prompt timed out %lld",
+			AA_DEBUG(DEBUG_UPCALL, "id %lld: prompt timed out",
 				knotif->id);
 			//err = -1; // TODO: ???;
 			err = 0;
 		} else if (werr == -ERESTARTSYS) {
 			// interrupt fired syscall needs to be restarted
 			// instead of mediated
+			AA_DEBUG(DEBUG_UPCALL, "id %lld: prompt interrupted, error %ld",
+				 knotif->id, werr);
 			err = -ERESTARTSYS;
 		} else {
-			AA_DEBUG(DEBUG_UPCALL, "prompt errored out %lld error %ld",
+			AA_DEBUG(DEBUG_UPCALL, "id %lld: prompt errored out error %ld",
 				 knotif->id, werr);
 			err = (int) werr;
 		}
@@ -380,7 +384,7 @@ static int handle_synchronous_notif(struct aa_listener *listener,
 		if (!list_empty(&knotif->list)) {
 			__listener_del_knotif(listener, knotif);
 			AA_DEBUG(DEBUG_UPCALL,
-				 "bug prompt knotif still on listener list at notif completion %lld",
+				 "id %lld: bug prompt knotif still on listener list at notif completion",
 				 knotif->id);
 		}
 		spin_unlock(&listener->lock);
@@ -419,7 +423,7 @@ int aa_do_notification(u16 ntype, struct aa_audit_node *node)
 		/* delvier notification - dispatch determines if we break */
 		dispatch_notif(listener, ntype, knotif); // count);
 		spin_unlock(&listener->lock);
-		AA_DEBUG(DEBUG_UPCALL, "found listener for %lld\n",
+		AA_DEBUG(DEBUG_UPCALL, "id %lld: found listener\n",
 			 knotif->id);
 
 		/* break to prompt */
@@ -433,8 +437,8 @@ int aa_do_notification(u16 ntype, struct aa_audit_node *node)
 		aa_put_listener(listener);
 	}
 	spin_unlock(&ns->listener_lock);
-	AA_DEBUG(DEBUG_UPCALL, "%d listener matches for %lld\n", count,
-		 knotif->id);
+	AA_DEBUG(DEBUG_UPCALL, "id %lld: %d listener matches\n",
+		 knotif->id, count);
 
 	/* count == 0 is no match found. No change to audit params
 	 * long term need to fold prompt perms into denied
@@ -453,8 +457,8 @@ static bool response_is_valid(struct apparmor_notif_resp *reply,
 	if ((knotif->ad->request | knotif->ad->denied) &
 	    ~(reply->allow | reply->deny)) {
 		AA_DEBUG(DEBUG_UPCALL,
-			 "response does not cover permission bits in the upcall request/reply 0x%x/0x%x deny/reply 0x%x/0x%x",
-			 knotif->ad->request, reply->allow, knotif->ad->denied,
+			 "id %lld: response does not cover permission bits in the upcall request/reply 0x%x/0x%x deny/reply 0x%x/0x%x",
+			 knotif->id, knotif->ad->request, reply->allow, knotif->ad->denied,
 			 reply->deny);
 		return false;
 	}
@@ -531,7 +535,7 @@ long aa_listener_unotif_response(struct aa_listener *listener,
 	}
 	if (!response_is_valid(uresp, knotif)) {
 		ret = -EINVAL;
-		AA_DEBUG(DEBUG_UPCALL, "response not valid");
+		AA_DEBUG(DEBUG_UPCALL, "id %lld: response not valid", knotif->id);
 		__listener_complete_user_pending(listener, knotif, NULL);
 		goto out;
 	}
@@ -546,19 +550,16 @@ long aa_listener_unotif_response(struct aa_listener *listener,
 		struct aa_audit_node *hit;
 		struct aa_profile *profile = labels_profile(node->data.subj_label);
 
-		/* TODO: shouldn't add until after auditing it, or at
-		 * least having a refcount. Fix once removing entry is
-		 * allowed
-		 */
-		AA_DEBUG(DEBUG_UPCALL, "inserting cache entry requ 0x%x  denied 0x%x",
-			 node->data.request, node->data.denied);
+		AA_DEBUG(DEBUG_UPCALL, "id %lld: inserting cache entry requ 0x%x  denied 0x%x",
+			 knotif->id, node->data.request, node->data.denied);
 		hit = aa_audit_cache_insert(&profile->learning_cache,
 					    node);
-		AA_DEBUG(DEBUG_UPCALL, "cache insert %s: name %s node %s\n",
-			 hit != node ? "lost race" : "",
+		AA_DEBUG(DEBUG_UPCALL, "id %lld: cache insert %s: name %s node %s\n",
+			 knotif->id, hit != node ? "lost race" : "",
 			 hit->data.name, node->data.name);
 		if (hit != node) {
-			AA_DEBUG(DEBUG_UPCALL, "updating existing cache entry");
+			AA_DEBUG(DEBUG_UPCALL, "id %lld: updating existing cache entry",
+				 knotif->id);
 			aa_audit_cache_update_ent(&profile->learning_cache,
 						  hit, &node->data);
 			aa_put_audit_node(hit);
@@ -572,7 +573,7 @@ long aa_listener_unotif_response(struct aa_listener *listener,
 
 	ret = size;
 
-	AA_DEBUG(DEBUG_UPCALL, "completing notif %lld", knotif->id);
+	AA_DEBUG(DEBUG_UPCALL, "id %lld: completing notif", knotif->id);
 	__listener_complete_user_pending(listener, knotif, uresp);
 out:
 	spin_unlock(&listener->lock);
@@ -592,8 +593,10 @@ static long build_v3_unotif(struct aa_knotif *knotif, void __user *buf,
 	int psize, nsize = 0;
 	u16 size;
 
+	AA_DEBUG(DEBUG_UPCALL, "building notif max size %d", max_size);
 	size = sizeof(unotif);
 	profile = labels_profile(knotif->ad->subj_label);
+	AA_BUG(profile == NULL);
 	psize = strlen(profile->base.hname) + 1;
 	size += psize;
 	if (knotif->ad->name)
@@ -651,15 +654,16 @@ static long build_mediation_notif(struct aa_listener *listener,
 		ret = build_v3_unotif(knotif, buf, max_size);
 		if (ret < 0) {
 			AA_DEBUG(DEBUG_UPCALL,
-				 "error (%ld): failed to copy to notif %lld data to user reading size %ld, maxsize %d",
-				 ret, knotif->id,
+				 "id %lld: (error=%ld) failed to copy data to user reading size %ld, maxsize %d",
+				 knotif->id, ret,
 				 sizeof(union apparmor_notif_all), max_size);
 			listener_repush_knotif(listener, knotif);
 			goto out;
 		}
 		break;
 	default:
-		AA_DEBUG(DEBUG_UPCALL, "unknown notification class");
+		AA_BUG("unknown notification class");
+		AA_DEBUG(DEBUG_UPCALL, "id %lld: unknown notification class", knotif->id);
 		/* skip and move onto the next notification
 		 * release knotif
 		 * currently knotif cleanup handled by waking task in
@@ -687,7 +691,7 @@ long aa_listener_unotif_recv(struct aa_listener *listener, void __user *buf,
 			ret = -ENOENT;
 			break;
 		}
-		AA_DEBUG(DEBUG_UPCALL, "removed notif %lld from listener queue",
+		AA_DEBUG(DEBUG_UPCALL, "id %lld: removed notif from listener queue",
 			 knotif->id);
 
 		ret = build_mediation_notif(listener, knotif, buf, max_size);
@@ -697,10 +701,10 @@ long aa_listener_unotif_recv(struct aa_listener *listener, void __user *buf,
 		goto out;
 
 	if (knotif->ad->type == AUDIT_APPARMOR_USER) {
-		AA_DEBUG(DEBUG_UPCALL, "adding notif %lld to pending", knotif->id);
+		AA_DEBUG(DEBUG_UPCALL, "id %lld: adding notif to pending", knotif->id);
 		listener_push_user_pending(listener, knotif);
 	} else {
-		AA_DEBUG(DEBUG_UPCALL, "non-prompt audit in notif");
+		AA_DEBUG(DEBUG_UPCALL, "id %lld: non-prompt audit notif delivered", knotif->id);
 	}
 out:
 	return ret;

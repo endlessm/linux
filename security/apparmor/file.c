@@ -96,28 +96,29 @@ static int check_cache(struct aa_profile *profile,
 	/* TODO: need rcu locking around whole check once we allow
 	 * removing node from cache
 	 */
-	AA_DEBUG(DEBUG_UPCALL, "attempting prompt upcall pid %d name:'%s'",
-		 current->pid, ad->name);
+	AA_DEBUG(DEBUG_UPCALL, "cache check: profile '%s', pid %d name:'%s'",
+		 profile->base.hname, current->pid, ad->name);
 	hit = aa_audit_cache_find(&profile->learning_cache,  ad);
 	if (hit) {
-		AA_DEBUG(DEBUG_UPCALL, "matched node in profile cache");
+		AA_DEBUG(DEBUG_UPCALL, "    matched node in audit cache");
 		if (ad->request & hit->data.denied) {
 			/* this request could only partly succeed prompting for
 			 * the part and failing makes no sense
 			 */
 			AA_DEBUG(DEBUG_UPCALL,
-				 "cache hit denied, request: 0x%x by cached deny 0x%x\n",
+				 "    hit denied, request: 0x%x by cached deny 0x%x\n",
 				 ad->request, hit->data.denied);
 			aa_put_audit_node(hit);
 			return ad->error;
 		} else if (ad->request & ~hit->data.request) {
 			/* asking for more perms than is cached */
 			AA_DEBUG(DEBUG_UPCALL,
-				 "cache miss insufficient perms, request: 0x%x cached 0x%x\n",
+				 "    miss insufficient perms, request: 0x%x cached 0x%x\n",
 				 ad->request, hit->data.request);
 			/* continue to do prompt */
 		} else {
-			AA_DEBUG(DEBUG_UPCALL, "cache hit");
+			AA_DEBUG(DEBUG_UPCALL, "cache hit->error %d. returning 0",
+				 hit->data.error);
 			aa_put_audit_node(hit);
 			/* don't audit: if its in the cache already audited */
 			return 1;
@@ -161,7 +162,7 @@ static int check_user(struct aa_profile *profile,
 	if (err) {
 		// do we want to do something special with -ERESTARTSYS
 		AA_DEBUG(DEBUG_UPCALL, "notifcation failed with error %d\n",
-			 ad->error);
+			 err);
 		goto return_to_audit;
 	}
 
@@ -219,13 +220,20 @@ int aa_audit_file(const struct cred *subj_cred,
 
 		/* learning cache - not audit dedup yet */
 		err = check_cache(profile, &ad);
-		if (err != 0)
+		if (err != 0) {
+			AA_DEBUG(DEBUG_UPCALL, "cache early bail %d\n", err);
 			/* cached */
-			return ad.error;
-
+			return ad.err;
+		}
 		implicit_deny = (ad.request & ~perms->allow) & ~perms->deny;
 		if (USER_MODE(profile))
 			perms->prompt = ALL_PERMS_MASK;
+
+		if (ad.request & MAY_EXEC)
+			AA_DEBUG(DEBUG_UPCALL,
+				 "do prompt %d: exec req 0x%x, allow 0x%x, deny 0x%x, ideny 0x%x, prompt 0x%x",
+				 prompt, ad.request, perms->allow, perms->deny,
+				 implicit_deny, perms->prompt);
 
 		/* don't prompt
 		 * - if explicit deny
@@ -235,9 +243,11 @@ int aa_audit_file(const struct cred *subj_cred,
 		if (prompt && !(request & perms->deny) &&
 		    (perms->prompt & implicit_deny) == implicit_deny) {
 			err = check_user(profile, &ad, perms);
-			if (err == -ERESTARTSYS)
+			if (err == -ERESTARTSYS) {
+				AA_DEBUG(DEBUG_UPCALL, "    check user returned -ERESTART_SYS");
 				/* are there other errors we should bail on */
 				return err;
+			}
 		}
 	}
 
