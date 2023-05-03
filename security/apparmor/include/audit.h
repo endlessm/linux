@@ -118,7 +118,7 @@ struct apparmor_audit_data {
 	const char *info;
 	u32 request;
 	u32 denied;
-	u8 flags;		/* temporary - move to audit_node or knotif */
+  //u8 flags;		/* temporary - move to audit_node or knotif */
 	struct task_struct *subjtsk;
 
 	union {

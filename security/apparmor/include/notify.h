@@ -50,6 +50,7 @@ struct aa_listener_proxy {
 	struct list_head nslist;
 };
 
+#define KNOTIF_ON_LIST 1
 #define KNOTIF_PULSE
 #define KNOTIF_PENDING
 #define KNOTIF_CANCELLED

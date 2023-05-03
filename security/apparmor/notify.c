@@ -25,6 +25,59 @@
 
 /* TODO: when adding listener or ns propagate, on recursive add to child ns */
 
+// TODO: currently all knotif will have audit_node but not all in future
+static inline struct aa_knotif *aa_get_knotif(struct aa_knotif *knotif)
+{
+	if (knotif)
+		aa_get_audit_node(container_of(knotif, struct aa_audit_node,
+					       knotif));
+
+	return knotif;
+}
+
+static inline void aa_put_knotif(struct aa_knotif *knotif)
+{
+	if (knotif)
+		aa_put_audit_node(container_of(knotif, struct aa_audit_node,
+					       knotif));
+}
+
+static void put_refs(struct aa_listener *listener, struct aa_knotif *knotif)
+{
+	aa_put_listener(listener);
+	aa_put_knotif(knotif);
+}
+
+static void get_refs(struct aa_listener *listener, struct aa_knotif *knotif)
+{
+	aa_get_listener(listener);
+	aa_get_knotif(knotif);
+}
+
+static void __knotif_del_and_hold(struct aa_knotif *knotif)
+{
+	list_del_init(&knotif->list);
+	knotif->flags &= ~KNOTIF_ON_LIST;
+	/* keep list refcounts */
+}
+
+static void __list_append_held(struct list_head *lh, struct aa_knotif *knotif)
+{
+	AA_BUG(!lh);
+	AA_BUG(!knotif);
+
+	list_add_tail_entry(knotif, lh, list);
+	knotif->flags |= KNOTIF_ON_LIST;
+}
+
+static void __list_push_held(struct list_head *lh, struct aa_knotif *knotif)
+{
+	AA_BUG(!lh);
+	AA_BUG(!knotif);
+
+	list_add_entry(knotif, lh, list);
+	knotif->flags |= KNOTIF_ON_LIST;
+}
 
 static void __listener_add_knotif(struct aa_listener *listener,
 				  struct aa_knotif *knotif)
@@ -33,10 +86,11 @@ static void __listener_add_knotif(struct aa_listener *listener,
 	AA_BUG(!knotif);
 	lockdep_assert_held(&listener->lock);
 
-	aa_get_listener(listener);
-	list_add_tail_entry(knotif, &listener->notifications, list);
+	get_refs(listener, knotif);
+	__list_append_held(&listener->notifications, knotif);
 }
 
+// drops refs
 static void __listener_del_knotif(struct aa_listener *listener,
 				  struct aa_knotif *knotif)
 {
@@ -45,7 +99,10 @@ static void __listener_del_knotif(struct aa_listener *listener,
 	lockdep_assert_held(&listener->lock);
 
 	list_del_init(&knotif->list);
-	aa_put_listener(listener);
+	if (knotif->flags & KNOTIF_ON_LIST) {
+		knotif->flags &= ~KNOTIF_ON_LIST;
+		put_refs(listener, knotif);
+	}
 }
 
 void aa_free_listener_proxy(struct aa_listener_proxy *proxy)
@@ -142,6 +199,7 @@ static void free_listener(struct aa_listener *listener)
 					 list);
 		__listener_del_knotif(listener, knotif);
 		complete(&knotif->ready);
+		put_refs(listener, knotif);
 	}
 	spin_unlock(&listener->lock);
 
@@ -152,6 +210,7 @@ static void free_listener(struct aa_listener *listener)
 					  list);
 		__listener_del_knotif(listener, knotif);
 		complete(&knotif->ready);
+		put_refs(listener, knotif);
 	}
 	spin_unlock(&listener->lock);
 
@@ -228,6 +287,7 @@ out:
 	return knotif;
 }
 
+// don't drop refcounts
 struct aa_knotif *listener_pop_and_hold_knotif(struct aa_listener *listener)
 {
 	struct aa_knotif *knotif = NULL;
@@ -235,33 +295,37 @@ struct aa_knotif *listener_pop_and_hold_knotif(struct aa_listener *listener)
 	spin_lock(&listener->lock);
 	if (!list_empty(&listener->notifications)) {
 		knotif = list_first_entry(&listener->notifications, typeof(*knotif), list);
-		list_del_init(&knotif->list);
+		__knotif_del_and_hold(knotif);
 	}
 	spin_unlock(&listener->lock);
 
 	return knotif;
 }
 
-void listener_repush_knotif(struct aa_listener *listener,
-			    struct aa_knotif *knotif)
+// require refcounts held
+void listener_push_held_knotif(struct aa_listener *listener,
+			       struct aa_knotif *knotif)
 {
 	spin_lock(&listener->lock);
 	/* listener ref held from pop and hold */
-	list_add_tail_entry(knotif, &listener->notifications, list);
+	__list_push_held(&listener->notifications, knotif);
 	spin_unlock(&listener->lock);
 	wake_up_interruptible_poll(&listener->wait, EPOLLIN | EPOLLRDNORM);
 }
 
-void listener_push_user_pending(struct aa_listener *listener,
-				struct aa_knotif *knotif)
+// require refcounts held
+// list of knotifs waiting for response
+void listener_append_held_user_pending(struct aa_listener *listener,
+				       struct aa_knotif *knotif)
 {
 	spin_lock(&listener->lock);
-	list_add_tail_entry(knotif, &listener->pending, list);
+	__list_append_held(&listener->pending, knotif);
 	spin_unlock(&listener->lock);
-//extraneous wakeup, called after reading notification
-//	wake_up_interruptible_poll(&listener->wait, EPOLLOUT | EPOLLWRNORM);
+	//extraneous wakeup, called after reading notification
+	//wake_up_interruptible_poll(&listener->wait, EPOLLOUT | EPOLLWRNORM);
 }
 
+// don't drop refcounts
 struct aa_knotif *__del_and_hold_user_pending(struct aa_listener *listener,
 					      u64 id)
 {
@@ -272,22 +336,12 @@ struct aa_knotif *__del_and_hold_user_pending(struct aa_listener *listener,
 
 	list_for_each_entry(knotif, &listener->pending, list) {
 		if (knotif->id == id) {
-			list_del_init(&knotif->list);
+			__knotif_del_and_hold(knotif);
 			return knotif;
 		}
 	}
 
 	return NULL;
-}
-
-void __listener_complete_user_pending(struct aa_listener *listener,
-				      struct aa_knotif *knotif,
-				      struct apparmor_notif_resp *uresp)
-{
-	list_del_init(&knotif->list);
-
-	complete(&knotif->ready);
-	aa_put_listener(listener);
 }
 
 
@@ -330,12 +384,14 @@ static void dispatch_notif(struct aa_listener *listener,
 		    knotif->id, listener->last_id);
 	knotif->ntype = ntype;
 	knotif->id = ++listener->last_id;
+	knotif->flags = 0;
+	// only needed if syncrhonous notit
 	init_completion(&knotif->ready);
 	INIT_LIST_HEAD(&knotif->list);
 	__listener_add_knotif(listener, knotif);
 	AA_DEBUG(DEBUG_UPCALL, "id %lld: %s wake_up_interruptible",
 		 knotif->id, __func__);
-	// TODO: wake up listener
+	wake_up_interruptible_poll(&listener->wait, EPOLLIN | EPOLLRDNORM);
 }
 
 
@@ -349,14 +405,11 @@ static int handle_synchronous_notif(struct aa_listener *listener,
 	long werr;
 	int err;
 
-	AA_DEBUG(DEBUG_UPCALL, "prompt doing wake_up_interruptible %lld",
-		 knotif->id);
-	wake_up_interruptible_poll(&listener->wait, EPOLLIN | EPOLLRDNORM);
-
 	werr = wait_for_completion_interruptible_timeout(&knotif->ready, msecs_to_jiffies(60000));
 	if (werr <= 0) {
 		/* ensure knotif is not on list because of early exit */
 		spin_lock(&listener->lock);
+		// puts refs but still have calling refs
 		__listener_del_knotif(listener, knotif);
 		spin_unlock(&listener->lock);
 		if (werr == 0) {
@@ -382,6 +435,7 @@ static int handle_synchronous_notif(struct aa_listener *listener,
 		err = 0;
 		spin_lock(&listener->lock);
 		if (!list_empty(&knotif->list)) {
+			// puts refs but still have calling refs
 			__listener_del_knotif(listener, knotif);
 			AA_DEBUG(DEBUG_UPCALL,
 				 "id %lld: bug prompt knotif still on listener list at notif completion",
@@ -447,6 +501,27 @@ int aa_do_notification(u16 ntype, struct aa_audit_node *node)
 }
 
 /******************** task responding to notification **********************/
+
+// drop references
+// complete anything pending on ready
+static void __listener_complete_held_user_pending(struct aa_listener *listener,
+						  struct aa_knotif *knotif)
+{
+	AA_BUG(!listener);
+	lockdep_assert_held(&listener->lock);
+
+	__knotif_del_and_hold(knotif);
+	complete(&knotif->ready);
+	put_refs(listener, knotif);
+}
+
+static void listener_complete_held_user_pending(struct aa_listener *listener,
+						struct aa_knotif *knotif)
+{
+	spin_lock(&listener->lock);
+	__listener_complete_held_user_pending(listener, knotif);
+	spin_unlock(&listener->lock);
+}
 
 /* base checks userspace respnse to a notification is valid */
 static bool response_is_valid(struct apparmor_notif_resp *reply,
@@ -514,7 +589,7 @@ static void knotif_update_from_uresp(struct aa_knotif *knotif,
 }
 
 // move to apparmor.h
-#define KNOTIF_NO_CACHE 1
+#define UNOTIF_NO_CACHE 1
 
 /* handle userspace responding to a synchronous notification */
 long aa_listener_unotif_response(struct aa_listener *listener,
@@ -536,13 +611,13 @@ long aa_listener_unotif_response(struct aa_listener *listener,
 	if (!response_is_valid(uresp, knotif)) {
 		ret = -EINVAL;
 		AA_DEBUG(DEBUG_UPCALL, "id %lld: response not valid", knotif->id);
-		__listener_complete_user_pending(listener, knotif, NULL);
+		__listener_complete_held_user_pending(listener, knotif);
 		goto out;
 	}
 
 	/* handle updating actual data */
 	knotif_update_from_uresp(knotif, uresp, &flags);
-	if (!(flags & KNOTIF_NO_CACHE)) {
+	if (!(flags & UNOTIF_NO_CACHE)) {
 		/* cache of response requested */
 		struct aa_audit_node *node = container_of(knotif,
 							  struct aa_audit_node,
@@ -574,7 +649,7 @@ long aa_listener_unotif_response(struct aa_listener *listener,
 	ret = size;
 
 	AA_DEBUG(DEBUG_UPCALL, "id %lld: completing notif", knotif->id);
-	__listener_complete_user_pending(listener, knotif, uresp);
+	__listener_complete_held_user_pending(listener, knotif);
 out:
 	spin_unlock(&listener->lock);
 
@@ -669,9 +744,9 @@ static long build_v3_unotif(struct aa_knotif *knotif, void __user *buf,
 // return < 0 == error
 //          0 == repeat
 //        > 0 == built notification successfully
-static long build_mediation_notif(struct aa_listener *listener,
-				  struct aa_knotif *knotif,
-				  void __user *buf, u16 max_size)
+static long build_mediation_unotif(struct aa_listener *listener,
+				   struct aa_knotif *knotif,
+				   void __user *buf, u16 max_size)
 {
 	long ret;
 
@@ -683,20 +758,13 @@ static long build_mediation_notif(struct aa_listener *listener,
 				 "id %lld: (error=%ld) failed to copy data to user reading size %ld, maxsize %d",
 				 knotif->id, ret,
 				 sizeof(union apparmor_notif_all), max_size);
-			listener_repush_knotif(listener, knotif);
 			goto out;
 		}
 		break;
 	default:
 		AA_BUG("unknown notification class");
 		AA_DEBUG(DEBUG_UPCALL, "id %lld: unknown notification class", knotif->id);
-		/* skip and move onto the next notification
-		 * release knotif
-		 * currently knotif cleanup handled by waking task in
-		 * aa_do_notification. Need to switch to refcount
-		 */
-//??? why put here
-		aa_put_listener(listener);
+		/* skip and move onto the next notification */
 		return 0;
 	}
 out:
@@ -720,18 +788,28 @@ long aa_listener_unotif_recv(struct aa_listener *listener, void __user *buf,
 		AA_DEBUG(DEBUG_UPCALL, "id %lld: removed notif from listener queue",
 			 knotif->id);
 
-		ret = build_mediation_notif(listener, knotif, buf, max_size);
-
+		ret = build_mediation_unotif(listener, knotif, buf, max_size);
+		if (ret < 0) {
+			/* failed - drop notif and return error to reader */
+			listener_complete_held_user_pending(listener, knotif);
+			return ret;
+		} else if (ret > 0) {
+			/* else notification copied */
+			break;
+		}
+		/* unknown notification: drop and try next */
+		listener_complete_held_user_pending(listener, knotif);
 	} while (ret == 0);
-	if (ret < 0)
-		goto out;
 
+	/* success */
 	if (knotif->ad->type == AUDIT_APPARMOR_USER) {
 		AA_DEBUG(DEBUG_UPCALL, "id %lld: adding notif to pending", knotif->id);
-		listener_push_user_pending(listener, knotif);
+		listener_append_held_user_pending(listener, knotif);
 	} else {
+		/* no one waiting on this notification drop it */
 		AA_DEBUG(DEBUG_UPCALL, "id %lld: non-prompt audit notif delivered", knotif->id);
+		listener_complete_held_user_pending(listener, knotif);
 	}
-out:
+
 	return ret;
 }
