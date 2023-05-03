@@ -45,6 +45,12 @@ CONFIG_ASYMMETRIC_PUBLIC_KEY_SUBTYPE            note<'module signing'>
 CONFIG_ATA_PIIX                                 policy<{'amd64': 'y', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm', 's390x': '-'}>
 CONFIG_ATA_PIIX                                 note<'LP: #1627324'>
 
+CONFIG_INTEL_ATOMISP                            policy<{'amd64': 'n'}>
+CONFIG_INTEL_ATOMISP                            note<'LP: #2017444'>
+
+CONFIG_INTEL_ATOMISP2_PM                        policy<{'amd64': 'm'}>
+CONFIG_INTEL_ATOMISP2_PM                        note<'LP: #2017444'>
+
 CONFIG_BINFMT_SCRIPT                            policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y', 's390x': 'y'}>
 CONFIG_BINFMT_SCRIPT                            note<'required if init is a shell script such as in initramfs-tools'>
 
@@ -6335,7 +6341,6 @@ CONFIG_INTEGRITY_CA_MACHINE_KEYRING             policy<{'amd64': 'n', 'arm64': '
 CONFIG_INTEGRITY_MACHINE_KEYRING                policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'riscv64': 'y'}>
 CONFIG_INTEGRITY_SIGNATURE                      policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y', 's390x': 'y'}>
 CONFIG_INTEGRITY_TRUSTED_KEYRING                policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y', 's390x': 'y'}>
-CONFIG_INTEL_ATOMISP                            policy<{'amd64': 'y'}>
 CONFIG_INTEL_ATOMISP2_LED                       policy<{'amd64': 'm'}>
 CONFIG_INTEL_ATOMISP2_PDX86                     policy<{'amd64': 'y'}>
 CONFIG_INTEL_BXTWC_PMIC_TMU                     policy<{'amd64': 'm'}>
@@ -14313,16 +14318,6 @@ CONFIG_VIDEO_AMPHION_VPU                        policy<{'arm64': 'm', 'armhf': '
 CONFIG_VIDEO_APTINA_PLL                         policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm'}>
 CONFIG_VIDEO_AR0521                             policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm'}>
 CONFIG_VIDEO_ASPEED                             policy<{'amd64': '-', 'arm64': '-', 'armhf': 'm', 'ppc64el': '-', 'riscv64': '-'}>
-CONFIG_VIDEO_ATOMISP                            policy<{'amd64': 'm'}>
-CONFIG_VIDEO_ATOMISP_GC0310                     policy<{'amd64': 'm'}>
-CONFIG_VIDEO_ATOMISP_GC2235                     policy<{'amd64': 'm'}>
-CONFIG_VIDEO_ATOMISP_ISP2401                    policy<{'amd64': 'y'}>
-CONFIG_VIDEO_ATOMISP_LM3554                     policy<{'amd64': 'm'}>
-CONFIG_VIDEO_ATOMISP_MSRLIST_HELPER             policy<{'amd64': 'm'}>
-CONFIG_VIDEO_ATOMISP_MT9M114                    policy<{'amd64': 'm'}>
-CONFIG_VIDEO_ATOMISP_OV2680                     policy<{'amd64': 'm'}>
-CONFIG_VIDEO_ATOMISP_OV2722                     policy<{'amd64': 'm'}>
-CONFIG_VIDEO_ATOMISP_OV5693                     policy<{'amd64': 'm'}>
 CONFIG_VIDEO_AU0828                             policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm'}>
 CONFIG_VIDEO_AU0828_RC                          policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y'}>
 CONFIG_VIDEO_AU0828_V4L2                        policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y'}>
