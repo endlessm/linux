@@ -583,6 +583,35 @@ out:
 
 /******************** task reading notification to userspace ****************/
 
+static long append_str(void __user *pos, long remaining, const char *str)
+{
+	long size;
+
+	if (!str)
+		return 0;
+	size = strlen(str) + 1;
+	if (size > remaining)
+		return -EMSGSIZE;
+	if (copy_to_user(pos, str, size))
+		return -EFAULT;
+
+	return size;
+}
+
+#define build_append_str(__BUF, __POS, __MAX, __STR, __FIELD, __SIZE)	\
+({									\
+	typeof(__SIZE) __tmp_size;					\
+	__FIELD = __POS - __BUF;					\
+	__tmp_size = append_str(__POS, max_size - (__POS - __BUF), __STR); \
+	if (__tmp_size >= 0) {						\
+		__POS += __tmp_size;					\
+		__SIZE += __tmp_size;					\
+	} else {							\
+		__SIZE = __tmp_size;					\
+	}								\
+	(__tmp_size >= 0);						\
+})
+
 /* copy to userspace: notification data */
 static long build_v3_unotif(struct aa_knotif *knotif, void __user *buf,
 			    u16 max_size)
@@ -590,18 +619,13 @@ static long build_v3_unotif(struct aa_knotif *knotif, void __user *buf,
 	union apparmor_notif_all unotif = { };
 	struct user_namespace *user_ns;
 	struct aa_profile *profile;
-	int psize, nsize = 0;
-	u16 size;
+	void __user *pos;
+	long size;
 
 	AA_DEBUG(DEBUG_UPCALL, "building notif max size %d", max_size);
 	size = sizeof(unotif);
 	profile = labels_profile(knotif->ad->subj_label);
 	AA_BUG(profile == NULL);
-	psize = strlen(profile->base.hname) + 1;
-	size += psize;
-	if (knotif->ad->name)
-		nsize = strlen(knotif->ad->name) + 1;
-	size += nsize;
 	if (size > max_size)
 		return -EMSGSIZE;
 
@@ -624,21 +648,22 @@ static long build_v3_unotif(struct aa_knotif *knotif, void __user *buf,
 		unotif.file.suid = from_kuid(user_ns, task_uid(knotif->ad->subjtsk));
 	}
 	unotif.op.class = knotif->ad->class;
-	unotif.op.label = sizeof(unotif);
-	unotif.file.name = sizeof(unotif) + psize;
 	unotif.file.ouid = from_kuid(user_ns, knotif->ad->fs.ouid);
 
 	put_user_ns(user_ns);
 
+	pos = buf + sizeof(unotif);
+	if (!build_append_str(buf, pos, max_size, profile->base.hname,
+			      unotif.op.label, size))
+		return size;
+	if (!build_append_str(buf, pos, max_size, knotif->ad->name,
+			      unotif.file.name, size))
+		return size;
+	/* now the struct, at the start of user mem */
 	if (copy_to_user(buf, &unotif, sizeof(unotif)))
 		return -EFAULT;
-	if (copy_to_user(buf + sizeof(unotif), profile->base.hname, psize))
-		return -EFAULT;
-	if (knotif->ad->name &&
-	    copy_to_user(buf + sizeof(unotif) + psize, knotif->ad->name, nsize))
-		return -EFAULT;
 
-	return size;
+	return pos - buf;
 }
 
 // return < 0 == error
