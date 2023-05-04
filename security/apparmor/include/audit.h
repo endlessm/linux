@@ -107,7 +107,9 @@ enum audit_type {
 
 #define OP_USERNS_CREATE "userns_create"
 
+#define AUDIT_TAILGLOB_NAME 1
 struct apparmor_audit_data {
+	u32 flags;		/* control flags not part of actual data */
 	int error;
 	int type;
 	u16 class;
@@ -118,7 +120,7 @@ struct apparmor_audit_data {
 	const char *info;
 	u32 request;
 	u32 denied;
-  //u8 flags;		/* temporary - move to audit_node or knotif */
+
 	struct task_struct *subjtsk;
 
 	union {

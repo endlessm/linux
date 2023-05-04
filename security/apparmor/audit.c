@@ -314,7 +314,11 @@ long aa_audit_data_cmp(struct apparmor_audit_data *lhs,
 	if (res)
 		return res;
 	/* don't compare op */
-	res = strcmp(lhs->name, rhs->name);
+	if (lhs->flags & AUDIT_TAILGLOB_NAME)
+		/* lhs glob matches strings longer than it */
+		res = strncmp(lhs->name, rhs->name, strlen(lhs->name));
+	else
+		res = strcmp(lhs->name, rhs->name);
 	if (res)
 		return res;
 	res = aa_label_cmp(lhs->subj_label, rhs->subj_label);
@@ -386,6 +390,7 @@ struct aa_audit_node *aa_dup_audit_data(struct apparmor_audit_data *orig,
 	INIT_LIST_HEAD(&copy->list);
 	/* copy class early so aa_free_audit_node can use switch on failure */
 	copy->data.class = orig->class;
+	copy->data.flags = orig->flags;
 
 	/* handle anything with possible failure first */
 	if (orig->name) {

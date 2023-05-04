@@ -45,6 +45,7 @@ struct apparmor_notif_filter {
 #define URESPONSE_NO_CACHE 1
 #define URESPONSE_LOOKUP 2
 #define URESPONSE_PROFILE 4
+#define URESPONSE_TAILGLOB 8
 
 struct apparmor_notif {
 	struct apparmor_notif_common base;
@@ -70,7 +71,10 @@ struct apparmor_notif_resp_perm {
 } __attribute__((packed));
 
 struct apparmor_notif_resp_name {
-	struct apparmor_notif_resp_perm perm;
+	union {
+		struct apparmor_notif base;
+		struct apparmor_notif_resp_perm perm;
+	};
 	__u32 name;
 	__u8 data[];
 } __attribute__((packed));

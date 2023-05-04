@@ -574,20 +574,32 @@ static bool response_is_valid_name(struct apparmor_notif_resp_name *reply,
 		return -EINVAL;
 	}
 	/* currently supported flags */
-	if (reply->perm.base.flags != (URESPONSE_LOOKUP | URESPONSE_PROFILE)) {
+	if ((reply->perm.base.flags != (URESPONSE_LOOKUP | URESPONSE_PROFILE)) ||
+	    (reply->perm.base.flags != (URESPONSE_TAILGLOB))) {
 		AA_DEBUG(DEBUG_UPCALL,
 			 "id %lld: reply bad flags 0x%x expected 0x%x",
 			 knotif->id, reply->perm.base.flags,
 			 URESPONSE_LOOKUP | URESPONSE_PROFILE);
 		return -EINVAL;
 	}
+
+	if ((reply->perm.base.flags == URESPONSE_TAILGLOB) &&
+	    !response_is_valid_perm(&reply->perm, knotif, size)) {
+		AA_DEBUG(DEBUG_UPCALL,
+			 "id %lld: reply bad tail glob perms",
+			 knotif->id);
+		return false;
+	}
+
 	/* check name for terminating null */
 	for (i = reply->name - sizeof(*reply); i < size - sizeof(*reply); i++) {
 		if (reply->data[i] == 0)
 			return true;
 	}
 	/* reached end of data without finding null */
-	return -EINVAL;
+	AA_DEBUG(DEBUG_UPCALL,
+		 "id %lld: reply bad no terminating null on name",
+		 knotif->id);
 
 	return false;
 }
@@ -709,41 +721,109 @@ struct aa_ruleset *aa_clone_ruleset(struct aa_ruleset *rules)
 }
 
 static long knotif_update_from_uresp_name(struct aa_knotif *knotif,
-				struct apparmor_notif_resp_name *uresp,
+				struct apparmor_notif_resp_name *reply,
 				u16 size)
 {
 	struct aa_ruleset *rules;
 	struct aa_profile *profile;
 	struct aa_ns *ns;
-	char *name;
+	char *name, *glob;
+	struct aa_audit_node *clone;
 	struct aa_audit_node *node = container_of(knotif,
 						  struct aa_audit_node,
 						  knotif);
 
 	ns = aa_get_current_ns();
-	name = (char *) &uresp->data[uresp->name - sizeof(*uresp)];
-	profile = aa_lookup_profile(ns, name);
-	if (!profile) {
+	name = (char *) &reply->data[reply->name - sizeof(*reply)];
+
+	if (reply->perm.base.flags == (URESPONSE_LOOKUP | URESPONSE_PROFILE)) {
+		profile = aa_lookup_profile(ns, name);
+		if (!profile) {
+			aa_put_ns(ns);
+			return -ENOENT;
+		}
 		aa_put_ns(ns);
-		return -ENOENT;
-	}
-	aa_put_ns(ns);
 
-	rules = aa_clone_ruleset(list_first_entry(&profile->rules,
-						  typeof(*rules), list));
-	if (!rules) {
+		rules = aa_clone_ruleset(list_first_entry(&profile->rules,
+							  typeof(*rules), list));
+		if (!rules) {
+			aa_put_profile(profile);
+			return -ENOMEM;
+		}
+		AA_DEBUG(DEBUG_UPCALL,
+			 "id %lld: cloned profile '%s' rule set", knotif->id,
+			 profile->base.hname);
 		aa_put_profile(profile);
-		return -ENOMEM;
+
+		/* add list to profile rules TODO: improve locking*/
+		profile = labels_profile(node->data.subj_label);
+		list_add_tail_entry(rules, &profile->rules, list);
+	} else if (reply->perm.base.flags == URESPONSE_TAILGLOB) {
+		// TODO: dedup with cache update in perm
+		struct aa_audit_node *node = container_of(knotif,
+							  struct aa_audit_node,
+							  knotif);
+		struct aa_audit_node *hit;
+		struct aa_profile *profile = labels_profile(node->data.subj_label);
+
+		clone = aa_dup_audit_data(&node->data, GFP_KERNEL);
+		glob = kstrdup(name, GFP_KERNEL);
+		if (!name)
+			return -ENOMEM;
+		if (!clone) {
+			kfree(name);
+			return -ENOMEM;
+		}
+		kfree(clone->data.name);
+		clone->data.name = glob;
+		clone->data.flags = AUDIT_TAILGLOB_NAME;
+		clone->knotif.id = knotif->id;
+		clone->knotif.ntype = knotif->ntype;
+		node = clone;
+		knotif = &clone->knotif;
+
+		// now add it to the cache
+		AA_DEBUG(DEBUG_UPCALL,
+			 "notif %lld: response allow/reply 0x%x/0x%x, denied/reply 0x%x/0x%x, error %d/%d",
+			 knotif->id, knotif->ad->request, reply->perm.allow,
+			 knotif->ad->denied, reply->perm.deny, knotif->ad->error,
+			 reply->base.error);
+
+		knotif->ad->denied = reply->perm.deny;
+		knotif->ad->request = reply->perm.allow | reply->perm.deny;
+
+		if (!knotif->ad->denied) {
+			/* no more denial, clear the error*/
+			knotif->ad->error = 0;
+			AA_DEBUG(DEBUG_UPCALL,
+				 "notif %lld: response allowed, clearing error\n",
+				 knotif->id);
+		} else {
+			AA_DEBUG(DEBUG_UPCALL,
+				 "notif %lld: response denied returning error %d\n",
+				 knotif->id, knotif->ad->error);
+		}
+
+		AA_DEBUG(DEBUG_UPCALL, "id %lld: inserting cache entry requ 0x%x  denied 0x%x",
+			 knotif->id, node->data.request, node->data.denied);
+		hit = aa_audit_cache_insert(&profile->learning_cache,
+					    node);
+		AA_DEBUG(DEBUG_UPCALL, "id %lld: cache insert %s: name %s node %s\n",
+			 knotif->id, hit != node ? "lost race" : "",
+			 hit->data.name, node->data.name);
+		if (hit != node) {
+			AA_DEBUG(DEBUG_UPCALL,
+				 "id %lld: updating existing cache entry",
+				 knotif->id);
+			aa_audit_cache_update_ent(&profile->learning_cache,
+						  hit, &node->data);
+			aa_put_audit_node(hit);
+		} else {
+
+			AA_DEBUG(DEBUG_UPCALL, "inserted into cache");
+		}
+		aa_put_audit_node(clone);
 	}
-	AA_DEBUG(DEBUG_UPCALL,
-		 "id %lld: cloned profile '%s' rule set", knotif->id,
-		 profile->base.hname);
-	aa_put_profile(profile);
-
-	/* add list to profile rules TODO: improve locking*/
-	profile = labels_profile(node->data.subj_label);
-	list_add_tail_entry(rules, &profile->rules, list);
-
 	return size;
 }
 
