@@ -21,3 +21,10 @@ UBUNTU: SAUCE: platform/x86: int3472: support independent clock and LED GPIOs # 
 UBUNTU: SAUCE: Revert "net/smc: Introduce a specific sysctl for TEST_LINK time" # should be fixed upstream at this point, it was supposed to be a temporary fix for 6.2, todo: ask IBM
 UBUNTU: SAUCE: drm/i915/display/psr: Disable PSR2 sel fetch on panel SHP 5457 # why is this not upstream yet?
 UBUNTU: SAUCE: rust: allow to use INIT_STACK_ALL_ZERO # this is upstream now
+
+UBUNTU: SAUCE: mm: disable vma based swap readahead by default
+
+apparmor + LSM stacking patch set (waiting for new Ubuntu version)
+
+hio patch set (driver deprecated)
+xr-usb-serial patch set (driver deprecated)
