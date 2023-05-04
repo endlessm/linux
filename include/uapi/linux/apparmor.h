@@ -16,11 +16,12 @@
 #define APPARMOR_FLAG_NOCACHE 1
 
 enum apparmor_notif_type {
-	APPARMOR_NOTIF_RESP,
+	APPARMOR_NOTIF_RESP_PERM,
 	APPARMOR_NOTIF_CANCEL,
 	APPARMOR_NOTIF_INTERUPT,
 	APPARMOR_NOTIF_ALIVE,
-	APPARMOR_NOTIF_OP
+	APPARMOR_NOTIF_OP,
+	APPARMOR_NOTIF_RESP_NAME,
 };
 
 #define APPARMOR_NOTIFY_VERSION 3
@@ -40,6 +41,11 @@ struct apparmor_notif_filter {
 	__u8 data[];
 } __attribute__((packed));
 
+// flags
+#define URESPONSE_NO_CACHE 1
+#define URESPONSE_LOOKUP 2
+#define URESPONSE_PROFILE 4
+
 struct apparmor_notif {
 	struct apparmor_notif_common base;
 	__u16 ntype;			/* notify type */
@@ -56,11 +62,23 @@ struct apparmor_notif_update {
 } __attribute__((packed));
 
 /* userspace response to notification that expects a response */
-struct apparmor_notif_resp {
+struct apparmor_notif_resp_perm {
 	struct apparmor_notif base;
 	__s32 error;			/* error if unchanged */
 	__u32 allow;
 	__u32 deny;
+} __attribute__((packed));
+
+struct apparmor_notif_resp_name {
+	struct apparmor_notif_resp_perm perm;
+	__u32 name;
+	__u8 data[];
+} __attribute__((packed));
+
+union apparmor_notif_resp {
+	struct apparmor_notif base;
+	struct apparmor_notif_resp_perm perm;
+	struct apparmor_notif_resp_name name;
 } __attribute__((packed));
 
 struct apparmor_notif_op {
@@ -75,7 +93,7 @@ struct apparmor_notif_op {
 
 struct apparmor_notif_file {
 	struct apparmor_notif_op base;
-	uid_t suid, ouid;
+	uid_t subj_uid, obj_uid;
 	__u32 name;			/* offset into data */
 
 	__u8 data[];
@@ -87,6 +105,7 @@ union apparmor_notif_all {
 	struct apparmor_notif base;
 	struct apparmor_notif_op op;
 	struct apparmor_notif_file file;
+	union apparmor_notif_resp respnse;
 };
 
 #define APPARMOR_IOC_MAGIC             0xF8
@@ -103,6 +122,6 @@ union apparmor_notif_all {
 #define APPARMOR_NOTIF_RECV            _IOWR(APPARMOR_IOC_MAGIC, 4,     \
 						struct apparmor_notif *)
 #define APPARMOR_NOTIF_SEND            _IOWR(APPARMOR_IOC_MAGIC, 5,    \
-						struct apparmor_notif_resp *)
+						union apparmor_notif_resp *)
 
 #endif /* _UAPI_LINUX_APPARMOR_H */

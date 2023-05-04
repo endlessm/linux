@@ -523,12 +523,9 @@ static void listener_complete_held_user_pending(struct aa_listener *listener,
 	spin_unlock(&listener->lock);
 }
 
-/* base checks userspace respnse to a notification is valid */
-static bool response_is_valid(struct apparmor_notif_resp *reply,
-			      struct aa_knotif *knotif)
+static bool response_is_valid_perm(struct apparmor_notif_resp_perm *reply,
+				   struct aa_knotif *knotif, u16 size)
 {
-	if (reply->base.ntype != APPARMOR_NOTIF_RESP)
-		return false;
 	if ((knotif->ad->request | knotif->ad->denied) &
 	    ~(reply->allow | reply->deny)) {
 		AA_DEBUG(DEBUG_UPCALL,
@@ -537,6 +534,7 @@ static bool response_is_valid(struct apparmor_notif_resp *reply,
 			 reply->deny);
 		return false;
 	}
+	return true;
 	/* TODO: this was disabled per snapd request, setup flag to do check
 	 * // allow bits that were never requested
 	 * if (reply->allow & ~knotif->ad->request) {
@@ -550,14 +548,71 @@ static bool response_is_valid(struct apparmor_notif_resp *reply,
 	 *	return false;
 	 * }
 	 */
-	return true;
 }
 
-/* copy uresponse into knotif */
-static void knotif_update_from_uresp(struct aa_knotif *knotif,
-				     struct apparmor_notif_resp *uresp,
-				     u16 *flags)
+static bool response_is_valid_name(struct apparmor_notif_resp_name *reply,
+				   struct aa_knotif *knotif, u16 size)
 {
+	long i;
+
+	if (size <= sizeof(*reply)) {
+		AA_DEBUG(DEBUG_UPCALL,
+			 "id %lld: reply bad size %u < %ld",
+			 knotif->id, size, sizeof(*reply));
+		return -EMSGSIZE;
+	}
+	if (reply->name < sizeof(*reply)) {
+		/* inside of data declared fields */
+		AA_DEBUG(DEBUG_UPCALL,
+			 "id %lld: reply bad name offset in fields %u < %ld",
+			 knotif->id, reply->name, sizeof(*reply));
+		return -EINVAL;
+	}
+	if (reply->name > size) {
+		AA_DEBUG(DEBUG_UPCALL,
+			 "id %lld: reply name pasted end of data size %u > %ld",
+			 knotif->id, reply->name, sizeof(*reply));
+		return -EINVAL;
+	}
+	/* currently supported flags */
+	if (reply->perm.base.flags != (URESPONSE_LOOKUP | URESPONSE_PROFILE)) {
+		AA_DEBUG(DEBUG_UPCALL,
+			 "id %lld: reply bad flags 0x%x expected 0x%x",
+			 knotif->id, reply->perm.base.flags,
+			 URESPONSE_LOOKUP | URESPONSE_PROFILE);
+		return -EINVAL;
+	}
+	/* check name for terminating null */
+	for (i = reply->name - sizeof(*reply); i < size - sizeof(*reply); i++) {
+		if (reply->data[i] == 0)
+			return true;
+	}
+	/* reached end of data without finding null */
+	return -EINVAL;
+
+	return false;
+}
+
+/* base checks userspace respnse to a notification is valid */
+static bool response_is_valid(union apparmor_notif_resp *reply,
+			      struct aa_knotif *knotif, u16 size)
+{
+	if (reply->base.ntype == APPARMOR_NOTIF_RESP_PERM)
+		return response_is_valid_perm(&reply->perm, knotif, size);
+	else if (reply->base.ntype == APPARMOR_NOTIF_RESP_NAME)
+		return response_is_valid_name(&reply->name, knotif, size);
+	else
+		return false;
+	return false;
+}
+
+
+/* copy uresponse into knotif */
+static void knotif_update_from_uresp_perm(struct aa_knotif *knotif,
+				     struct apparmor_notif_resp_perm *uresp)
+{
+	u16 flags;
+
 	if (uresp) {
 		AA_DEBUG(DEBUG_UPCALL,
 			 "notif %lld: response allow/reply 0x%x/0x%x, denied/reply 0x%x/0x%x, error %d/%d",
@@ -567,7 +622,7 @@ static void knotif_update_from_uresp(struct aa_knotif *knotif,
 
 		knotif->ad->denied = uresp->deny;
 		knotif->ad->request = uresp->allow | uresp->deny;
-		*flags = uresp->base.flags;
+		flags = uresp->base.flags;
 		if (!knotif->ad->denied) {
 			/* no more denial, clear the error*/
 			knotif->ad->error = 0;
@@ -581,43 +636,12 @@ static void knotif_update_from_uresp(struct aa_knotif *knotif,
 		}
 	} else {
 		AA_DEBUG(DEBUG_UPCALL,
-			 "notif %lld: respons bad going with: allow 0x%x, denied 0x%x, error %d",
+			 "id %lld: respons bad going with: allow 0x%x, denied 0x%x, error %d",
 			 knotif->id, knotif->ad->request, knotif->ad->denied,
 			 knotif->ad->error);
 	}
 
-}
-
-// move to apparmor.h
-#define UNOTIF_NO_CACHE 1
-
-/* handle userspace responding to a synchronous notification */
-long aa_listener_unotif_response(struct aa_listener *listener,
-				 struct apparmor_notif_resp *uresp,
-				 u16 size)
-{
-	struct aa_knotif *knotif = NULL;
-	u16 flags;
-	long ret;
-
-	spin_lock(&listener->lock);
-	knotif = __del_and_hold_user_pending(listener, uresp->base.id);
-	if (!knotif) {
-		ret = -ENOENT;
-		AA_DEBUG(DEBUG_UPCALL, "could not find id %lld",
-			 uresp->base.id);
-		goto out;
-	}
-	if (!response_is_valid(uresp, knotif)) {
-		ret = -EINVAL;
-		AA_DEBUG(DEBUG_UPCALL, "id %lld: response not valid", knotif->id);
-		__listener_complete_held_user_pending(listener, knotif);
-		goto out;
-	}
-
-	/* handle updating actual data */
-	knotif_update_from_uresp(knotif, uresp, &flags);
-	if (!(flags & UNOTIF_NO_CACHE)) {
+	if (!(flags & URESPONSE_NO_CACHE)) {
 		/* cache of response requested */
 		struct aa_audit_node *node = container_of(knotif,
 							  struct aa_audit_node,
@@ -644,8 +668,114 @@ long aa_listener_unotif_response(struct aa_listener *listener,
 		}
 		/* now to audit */
 	} /* cache_response */
+}
 
 
+void aa_free_ruleset(struct aa_ruleset *rules)
+{
+	if (!rules)
+		return;
+	aa_put_pdb(rules->policy);
+	aa_put_pdb(rules->file);
+	kfree_sensitive(rules);
+}
+
+struct aa_ruleset *aa_new_ruleset(gfp_t gfp)
+{
+	struct aa_ruleset *rules = kzalloc(sizeof(*rules), gfp);
+
+	INIT_LIST_HEAD(&rules->list);
+
+	return rules;
+}
+
+struct aa_ruleset *aa_clone_ruleset(struct aa_ruleset *rules)
+{
+	struct aa_ruleset *clone;
+
+	clone = aa_new_ruleset(GFP_KERNEL);
+	if (!clone)
+		return NULL;
+	clone->size = rules->size;
+	clone->policy = aa_get_pdb(rules->policy);
+	clone->file = aa_get_pdb(rules->file);
+	clone->caps = rules->caps;
+	clone->rlimits = rules->rlimits;
+
+	/* TODO: secmark */
+	return clone;
+}
+
+static long knotif_update_from_uresp_name(struct aa_knotif *knotif,
+				struct apparmor_notif_resp_name *uresp,
+				u16 size)
+{
+	struct aa_ruleset *rules;
+	struct aa_profile *profile;
+	struct aa_ns *ns;
+	char *name;
+	struct aa_audit_node *node = container_of(knotif,
+						  struct aa_audit_node,
+						  knotif);
+
+	ns = aa_get_current_ns();
+	name = (char *) &uresp->data[uresp->name - sizeof(*uresp)];
+	profile = aa_lookup_profile(ns, name);
+	if (!profile) {
+		aa_put_ns(ns);
+		return -ENOENT;
+	}
+	aa_put_ns(ns);
+
+	rules = aa_clone_ruleset(list_first_entry(&profile->rules,
+						  typeof(*rules), list));
+	if (!rules) {
+		aa_put_profile(profile);
+		return -ENOMEM;
+	}
+	AA_DEBUG(DEBUG_UPCALL,
+		 "id %lld: cloned profile '%s' rule set", knotif->id,
+		 profile->base.hname);
+	aa_put_profile(profile);
+
+	/* add list to profile rules TODO: improve locking*/
+	profile = labels_profile(node->data.subj_label);
+	list_add_tail_entry(rules, &profile->rules, list);
+
+	return size;
+}
+
+/* handle userspace responding to a synchronous notification */
+long aa_listener_unotif_response(struct aa_listener *listener,
+				 union apparmor_notif_resp *uresp,
+				 u16 size)
+{
+	struct aa_knotif *knotif = NULL;
+	long ret;
+
+	spin_lock(&listener->lock);
+	knotif = __del_and_hold_user_pending(listener, uresp->base.id);
+	if (!knotif) {
+		ret = -ENOENT;
+		AA_DEBUG(DEBUG_UPCALL, "could not find id %lld",
+			 uresp->base.id);
+		goto out;
+	}
+	if (!response_is_valid(uresp, knotif, size)) {
+		ret = -EINVAL;
+		AA_DEBUG(DEBUG_UPCALL, "id %lld: response not valid", knotif->id);
+		__listener_complete_held_user_pending(listener, knotif);
+		goto out;
+	}
+
+	if (uresp->perm.base.ntype == APPARMOR_NOTIF_RESP_PERM) {
+		knotif_update_from_uresp_perm(knotif, &uresp->perm);
+	} else if (uresp->perm.base.ntype == APPARMOR_NOTIF_RESP_NAME) {
+		size = knotif_update_from_uresp_name(knotif, &uresp->name, size);
+	} else {
+		AA_DEBUG(DEBUG_UPCALL, "id %lld: unknown response type", knotif->id);
+		size = -EINVAL;
+	}
 	ret = size;
 
 	AA_DEBUG(DEBUG_UPCALL, "id %lld: completing notif", knotif->id);
@@ -720,10 +850,10 @@ static long build_v3_unotif(struct aa_knotif *knotif, void __user *buf,
 
 	if (knotif->ad->subjtsk != NULL) {
 		unotif.op.pid = task_pid_vnr(knotif->ad->subjtsk);
-		unotif.file.suid = from_kuid(user_ns, task_uid(knotif->ad->subjtsk));
+		unotif.file.subj_uid = from_kuid(user_ns, task_uid(knotif->ad->subjtsk));
 	}
 	unotif.op.class = knotif->ad->class;
-	unotif.file.ouid = from_kuid(user_ns, knotif->ad->fs.ouid);
+	unotif.file.obj_uid = from_kuid(user_ns, knotif->ad->fs.ouid);
 
 	put_user_ns(user_ns);
 

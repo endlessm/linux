@@ -177,6 +177,10 @@ struct aa_ruleset {
 	struct aa_secmark *secmark;
 };
 
+void aa_free_ruleset(struct aa_ruleset *rules);
+struct aa_ruleset *aa_new_ruleset(gfp_t gfp);
+struct aa_ruleset *aa_clone_ruleset(struct aa_ruleset *rules);
+
 /* struct aa_attachment - data and rules for a profiles attachment
  * @list:
  * @xmatch_str: human readable attachment string

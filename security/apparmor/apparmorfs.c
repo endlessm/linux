@@ -36,6 +36,7 @@
 #include "include/policy.h"
 #include "include/policy_ns.h"
 #include "include/resource.h"
+#include "include/path.h"
 #include "include/policy_unpack.h"
 #include "include/task.h"
 
@@ -693,19 +694,36 @@ static long notify_user_recv(struct aa_listener *listener,
 static long notify_user_response(struct aa_listener *listener,
 				 unsigned long arg)
 {
-	struct apparmor_notif_resp uresp = {};
+	union apparmor_notif_resp uresp = {};
+	union apparmor_notif_resp *big_resp = NULL;
+	long error;
 	u16 size;
 	void __user *buf = (void __user *)arg;
 
 	if (copy_from_user(&size, buf, sizeof(size)))
 		return -EFAULT;
-	size = min_t(size_t, size, sizeof(uresp));
-	if (copy_from_user(&uresp, buf, size))
-		return -EFAULT;
+	if (size > aa_g_path_max)
+		return -EMSGSIZE;
+	if (size > sizeof(uresp)) {
+		/* TODO: put max size on message */
+		big_resp = (union apparmor_notif_resp *) aa_get_buffer(false);
+		if (big_resp)
+			return -ENOMEM;
+		if (copy_from_user(big_resp, buf, size)) {
+			kfree(big_resp);
+			return -EFAULT;
+		}
+	} else {
+		size = min_t(size_t, size, sizeof(uresp));
+		if (copy_from_user(&uresp, buf, size))
+			return -EFAULT;
+	}
 
-	return aa_listener_unotif_response(listener, &uresp, size);
+	error = aa_listener_unotif_response(listener, &uresp, size);
+	aa_put_buffer((char *) big_resp);
+
+	return error;
 }
-
 
 static long notify_is_id_valid(struct aa_listener *listener,
 			       unsigned long arg)

@@ -76,7 +76,7 @@ int aa_do_notification(u16 ntype, struct aa_audit_node *node);
 long aa_listener_unotif_recv(struct aa_listener *listener, void __user *buf,
 			     u16 max_size);
 long aa_listener_unotif_response(struct aa_listener *listener,
-				 struct apparmor_notif_resp *uresp,
+				 union apparmor_notif_resp *uresp,
 				 u16 size);
 
 void aa_listener_kref(struct kref *kref);
