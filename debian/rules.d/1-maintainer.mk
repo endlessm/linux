@@ -69,6 +69,7 @@ printenv:
 	@echo "flavours                  = $(flavours)"
 	@echo "bin_pkg_name              = $(bin_pkg_name)"
 	@echo "hdr_pkg_name              = $(hdrs_pkg_name)"
+	@echo "rust_pkg_name             = $(rust_pkg_name)"
 	@echo "doc_pkg_name              = $(doc_pkg_name)"
 	@echo "libc_dev_version          = $(libc_dev_version)"
 	@echo "ubuntu_selftests          = $(ubuntu_selftests)"

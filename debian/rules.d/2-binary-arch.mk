@@ -109,10 +109,12 @@ $(stampdir)/stamp-install-%: signingv = $(CURDIR)/debian/$(bin_pkg_name)-signing
 $(stampdir)/stamp-install-%: toolspkgdir = $(CURDIR)/debian/$(tools_flavour_pkg_name)-$*
 $(stampdir)/stamp-install-%: cloudpkgdir = $(CURDIR)/debian/$(cloud_flavour_pkg_name)-$*
 $(stampdir)/stamp-install-%: basepkg = $(hdrs_pkg_name)
+$(stampdir)/stamp-install-%: baserustpkg = $(rust_pkg_name)
 $(stampdir)/stamp-install-%: indeppkg = $(indep_hdrs_pkg_name)
 $(stampdir)/stamp-install-%: kernfile = $(call custom_override,kernel_file,$*)
 $(stampdir)/stamp-install-%: instfile = $(call custom_override,install_file,$*)
 $(stampdir)/stamp-install-%: hdrdir = $(CURDIR)/debian/$(basepkg)-$*/usr/src/$(basepkg)-$*
+$(stampdir)/stamp-install-%: rustdir = $(CURDIR)/debian/$(baserustpkg)-$*/usr/src/$(baserustpkg)-$*
 $(stampdir)/stamp-install-%: target_flavour = $*
 $(stampdir)/stamp-install-%: MODHASHALGO=sha512
 $(stampdir)/stamp-install-%: MODSECKEY=$(builddir)/build-$*/certs/signing_key.pem
@@ -130,6 +132,7 @@ $(stampdir)/stamp-install-%: $(stampdir)/stamp-build-% $(stampdir)/stamp-install
 	dh_prep -p$(bin_pkg_name)-$*
 	dh_prep -p$(mods_pkg_name)-$*
 	dh_prep -p$(hdrs_pkg_name)-$*
+	dh_prep -p$(rust_pkg_name)-$*
 	$(foreach _m,$(all_standalone_dkms_modules), \
 	  $(if $(enable_$(_m)),dh_prep -p$(dkms_$(_m)_pkg_name)-$*;)\
 	)
@@ -336,10 +339,6 @@ endif
 	grep '^HOSTCC	.*$(gcc)$$' $(hdrdir)/Makefile
 	grep '^CC	.*$(gcc)$$' $(hdrdir)/Makefile
 	rm -rf $(hdrdir)/include2 $(hdrdir)/source
-	# Do not ship .o and .cmd artifacts in headers
-	find $(hdrdir) -name \*.o -or -name \*.cmd -exec rm -f {} \;
-	# Strip .so files (e.g., rust/libmacros.so) to reduce size even more
-	find $(hdrdir) -name libmacros.so -exec strip -s {} \;
 	# We do not need the retpoline information.
 	find $(hdrdir) -name \*.o.ur-\* -exec rm -f {} \;
 	# Copy over the compilation version.
@@ -386,7 +385,7 @@ endif
 	#
 	# Remove files which are generated at installation by postinst,
 	# except for modules.order and modules.builtin
-	# 
+	#
 	# NOTE: need to keep this list in sync with postrm
 	#
 	mkdir $(pkgdir)/lib/modules/$(abi_release)-$*/_
@@ -554,6 +553,17 @@ endif
 	install -m644 $(DROOT)/canonical-certs.pem $(pkgdir_bldinfo)/usr/lib/linux/$(abi_release)-$*/canonical-certs.pem
 	install -m644 $(DROOT)/canonical-revoked-certs.pem $(pkgdir_bldinfo)/usr/lib/linux/$(abi_release)-$*/canonical-revoked-certs.pem
 
+	# Get rid of .o and .cmd artifacts in headers
+	find $(hdrdir) -name \*.o -or -name \*.cmd -exec rm -f {} \;
+	# Strip .so files (e.g., rust/libmacros.so) to reduce size even more
+	find $(hdrdir) -name libmacros.so -exec strip -s {} \;
+
+	# Generate Rust lib files
+	install -d -m755 $(rustdir)
+	mv $(hdrdir)/rust $(rustdir)
+	# Generate symlink for Rust lib directory in headers
+	$(SHELL) $(DROOT)/scripts/link-lib-rust "$(hdrdir)" "$(indeppkg)" "$*"
+
 ifneq ($(do_full_build),false)
 	# Clean out this flavours build directory.
 	rm -rf $(builddir)/build-$*
@@ -626,6 +636,7 @@ binary-%: pkgimg_ex = $(mods_extra_pkg_name)-$*
 binary-%: pkgdir_ex = $(CURDIR)/debian/$(extra_pkg_name)-$*
 binary-%: pkgbldinfo = $(bldinfo_pkg_name)-$*
 binary-%: pkghdr = $(hdrs_pkg_name)-$*
+binary-%: pkgrust = $(rust_pkg_name)-$*
 binary-%: dbgpkg = $(bin_pkg_name)-$*-dbgsym
 binary-%: dbgpkgdir = $(CURDIR)/debian/$(bin_pkg_name)-$*-dbgsym
 binary-%: pkgtools = $(tools_flavour_pkg_name)-$*
@@ -664,6 +675,7 @@ endif
 
 	$(call dh_all,$(pkgbldinfo))
 	$(call dh_all,$(pkghdr))
+	$(call dh_all,$(pkgrust))
 
 ifneq ($(skipsub),true)
 	@set -e; for sub in $($(*)_sub); do		\

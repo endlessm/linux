@@ -9,6 +9,7 @@ build-indep:
 #
 indep_hdrpkg = $(indep_hdrs_pkg_name)
 indep_hdrdir = $(CURDIR)/debian/$(indep_hdrpkg)/usr/src/$(indep_hdrpkg)
+
 $(stampdir)/stamp-install-headers: $(stampdir)/stamp-prepare-indep
 	@echo Debug: $@
 	dh_testdir
@@ -25,6 +26,8 @@ ifeq ($(do_flavour_header_package),true)
 	(find arch -name include -type d -print | \
 		xargs -n1 -i: find : -type f) | \
 		cpio -pd --preserve-modification-time $(indep_hdrdir)
+	# Do not ship .o and .cmd artifacts in headers
+	find $(indep_hdrdir) -name \*.o -or -name \*.cmd -exec rm -f {} \;
 endif
 	@touch $@
 

@@ -100,6 +100,17 @@ Description: Linux kernel headers for version PKGVER on DESC
  This is for sites that want the latest kernel headers.  Please read
  /usr/share/doc/linux-headers-PKGVER-ABINUM/debian.README.gz for details.
 
+Package: SRCPKGNAME-lib-rust-PKGVER-ABINUM-FLAVOUR
+Build-Profiles: <!stage1>
+Architecture: amd64
+Multi-Arch: foreign
+Section: devel
+Priority: optional
+Depends: ${misc:Depends}, coreutils
+Description: Rust library files related to Linux kernel version PKGVER
+ This package provides kernel library files for version PKGVER, that allow to
+ compile out-of-tree kernel modules written in Rust.
+
 Package: linux-image=SIGN-ME-PKG=-PKGVER-ABINUM-FLAVOUR-dbgsym
 Build-Profiles: <!stage1>
 Architecture: ARCH

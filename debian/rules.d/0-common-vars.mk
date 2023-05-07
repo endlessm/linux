@@ -119,7 +119,9 @@ mods_pkg_name=linux-modules-$(abi_release)
 mods_extra_pkg_name=linux-modules-extra-$(abi_release)
 bldinfo_pkg_name=linux-buildinfo-$(abi_release)
 hdrs_pkg_name=linux-headers-$(abi_release)
+rust_pkg_name=$(src_pkg_name)-lib-rust-$(abi_release)
 indep_hdrs_pkg_name=$(src_pkg_name)-headers-$(abi_release)
+indep_lib_rust_pkg_name=$(src_pkg_name)-lib-rust-$(abi_release)
 
 #
 # The generation of content in the doc package depends on
