@@ -10,7 +10,6 @@ help:
 	@echo "  defaultconfigs      : Update core arch configs using defaults"
 	@echo "  genconfigs          : Generate core arch configs in CONFIGS/*"
 	@echo "  editconfigs         : Edit core arch configs"
-	@echo "  migrateconfigs      : Automatically import old configs into annotations"
 	@echo "  printchanges        : Print the current changelog entries (from git)"
 	@echo "  insertchanges       : Insert current changelog entries (from git)"
 	@echo "  startnewrelease     : Start a new changelog set"
@@ -25,34 +24,13 @@ help:
 printdebian:
 	@echo "$(DEBIAN)"
 
-.PHONY: migrateconfigs
-migrateconfigs:
-ifneq ($(wildcard $(DEBIAN)/config/config.common.ubuntu),)
-	dh_testdir
-	conc_level=$(conc_level) $(SHELL) $(DROOT)/scripts/misc/old-kernelconfig genconfigs
-	rm -rf build
-	mkdir build
-	mv $(DEBIAN)/config/annotations build/.annotations
-	mv $(DEBIAN)/config/README.rst build/.README.rst 2>/dev/null || true
-	rm -rf $(DEBIAN)/config
-	mkdir -p $(DEBIAN)/config
-	debian/scripts/misc/migrate-annotations < build/.annotations > $(DEBIAN)/config/annotations
-	mv build/.README.rst $(DEBIAN)/config/README.rst 2>/dev/null || true
-	rm -rf build
-	kmake='$(kmake)' conc_level=$(conc_level) $(SHELL) $(DROOT)/scripts/misc/kernelconfig updateconfigs
-endif
-
 configs-targets := updateconfigs defaultconfigs genconfigs editconfigs
 
 .PHONY: $(configs-targets)
 $(configs-targets):
 	dh_testdir
-ifneq ($(wildcard $(DEBIAN)/config/config.common.ubuntu),)
-	conc_level=$(conc_level) $(SHELL) $(DROOT)/scripts/misc/old-kernelconfig $@
-else
 	kmake='$(kmake)' skip_checks=$(do_skip_checks) conc_level=$(conc_level) \
 		$(SHELL) $(DROOT)/scripts/misc/kernelconfig $@
-endif
 
 .PHONY: printenv
 printenv:
