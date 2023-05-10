@@ -409,6 +409,8 @@ static int shiftfs_create_object(struct inode *diri, struct dentry *dentry,
 	const struct inode_operations *loweri_dir_iop = loweri_dir->i_op;
 	struct dentry *lowerd_link = NULL;
 
+	inode_lock_nested(loweri_dir, I_MUTEX_PARENT);
+
 	if (hardlink) {
 		loweri_iop_ptr = loweri_dir_iop->link;
 	} else {
@@ -433,8 +435,6 @@ static int shiftfs_create_object(struct inode *diri, struct dentry *dentry,
 		err = -EINVAL;
 		goto out_iput;
 	}
-
-	inode_lock_nested(loweri_dir, I_MUTEX_PARENT);
 
 	if (!hardlink) {
 		inode = new_inode(dir_sb);
