@@ -6,6 +6,7 @@
 LOCAL_BRANCH=
 RELEASE_REPO=
 SOURCE_RELEASE_BRANCH=
+OWN=
 
 function out()
 {
@@ -37,6 +38,7 @@ usage="$0 [-r RELEASE_REPO] [ -b REMOTE_BRANCH ] [-l LOCAL_BRANCH] [-d]"$'\n\n'
 usage+="-r RELEASE_REPO		Git repository to fetch the reference branch from."$'\n'
 usage+="-b REMOTE_BRANCH	Remote branch to fetch from."$'\n'
 usage+="-l LOCAL_BRANCH		Use LOCAL_BRANCH as the reference branch."$'\n'
+usage+="-o 			Rebase against own kernel."$'\n'
 usage+="-d 			Dry run (do not rebase)."
 
 #
@@ -45,12 +47,13 @@ usage+="-d 			Dry run (do not rebase)."
 # [-b REMOTE_BRANCH] - override default remote branch.
 # [-l LOCAL_BRANCH]  - do not fetch from remote repo, use a local branch.
 
-while getopts "r:b:l:d" opt; do
+while getopts "r:b:l:od" opt; do
 	case $opt in
 	r ) RELEASE_REPO="$OPTARG" ;;
 	b ) SOURCE_RELEASE_BRANCH="$OPTARG" ;;
 	l ) LOCAL_BRANCH="$OPTARG" ;;
 	d ) DRY_RUN=1 ;;
+	o ) OWN=1 ;;
 	\? ) echo "usage: ${usage}"; exit ;;
 	esac
 done
@@ -66,9 +69,13 @@ if [ ! -f "$DEBIAN/etc/update.conf" ]; then
 elif [ "$DEBIAN_MASTER" != "" -a ! -d "$DEBIAN_MASTER" ]; then
         IS_REBASE_KERNEL=false
 fi
-if ! $IS_REBASE_KERNEL; then
+if ! $IS_REBASE_KERNEL && [ -z "$OWN" ]; then
 	echo "This is not a rebase kernel, no rebase should be needed, please report if otherwise"
 	exit 0
+fi
+
+if [ "${OWN}" ] ; then
+	DEBIAN_MASTER="${DEBIAN}"
 fi
 
 if [ "$DEBIAN_MASTER" = "" ]; then
