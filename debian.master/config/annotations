@@ -45,12 +45,6 @@ CONFIG_ASYMMETRIC_PUBLIC_KEY_SUBTYPE            note<'module signing'>
 CONFIG_ATA_PIIX                                 policy<{'amd64': 'y', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm', 's390x': '-'}>
 CONFIG_ATA_PIIX                                 note<'LP: #1627324'>
 
-CONFIG_INTEL_ATOMISP                            policy<{'amd64': 'n'}>
-CONFIG_INTEL_ATOMISP                            note<'LP: #2017444'>
-
-CONFIG_INTEL_ATOMISP2_PM                        policy<{'amd64': 'm'}>
-CONFIG_INTEL_ATOMISP2_PM                        note<'LP: #2017444'>
-
 CONFIG_BINFMT_SCRIPT                            policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y', 's390x': 'y'}>
 CONFIG_BINFMT_SCRIPT                            note<'required if init is a shell script such as in initramfs-tools'>
 
@@ -299,6 +293,12 @@ CONFIG_INPUT_UINPUT                             note<'LP: #584812'>
 
 CONFIG_INTEGRITY_PLATFORM_KEYRING               policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y', 's390x': 'y'}>
 CONFIG_INTEGRITY_PLATFORM_KEYRING               note<'Required for lockdown'>
+
+CONFIG_INTEL_ATOMISP                            policy<{'amd64': 'n'}>
+CONFIG_INTEL_ATOMISP                            note<'LP: #2017444'>
+
+CONFIG_INTEL_ATOMISP2_PM                        policy<{'amd64': 'm'}>
+CONFIG_INTEL_ATOMISP2_PM                        note<'LP: #2017444'>
 
 CONFIG_INTEL_IOMMU_DEFAULT_ON                   policy<{'amd64': 'n'}>
 CONFIG_INTEL_IOMMU_DEFAULT_ON                   note<'the IOMMU can trigger boot failures'>
@@ -2324,7 +2324,6 @@ CONFIG_CALL_THUNKS_DEBUG                        policy<{'amd64': 'n'}>
 CONFIG_CAN                                      policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm', 's390x': 'n'}>
 CONFIG_CAN_8DEV_USB                             policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm'}>
 CONFIG_CAN_BCM                                  policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm'}>
-CONFIG_CAN_BXCAN                                policy<{'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm'}>
 CONFIG_CAN_CALC_BITTIMING                       policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y'}>
 CONFIG_CAN_CAN327                               policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm'}>
 CONFIG_CAN_CC770                                policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm'}>
@@ -11008,8 +11007,6 @@ CONFIG_RZ_MTU3                                  policy<{'arm64': 'y', 'riscv64':
 CONFIG_RZ_MTU3_CNT                              policy<{'arm64': 'm'}>
 CONFIG_S2IO                                     policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm', 's390x': 'n'}>
 CONFIG_S390                                     policy<{'s390x': 'y'}>
-CONFIG_S390_AP_IOMMU                            policy<{'s390x': 'y'}>
-CONFIG_S390_CCW_IOMMU                           policy<{'s390x': 'y'}>
 CONFIG_S390_GUEST                               policy<{'s390x': 'y'}>
 CONFIG_S390_HYPFS_FS                            policy<{'s390x': 'y'}>
 CONFIG_S390_IOMMU                               policy<{'s390x': 'y'}>
@@ -11089,11 +11086,9 @@ CONFIG_SCD4X                                    policy<{'amd64': 'm', 'arm64': '
 CONFIG_SCF_TORTURE_TEST                         policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'ppc64el': 'n', 'riscv64': 'n', 's390x': 'n'}>
 CONFIG_SCHEDSTATS                               policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y', 's390x': 'y'}>
 CONFIG_SCHED_AUTOGROUP                          policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y', 's390x': 'y'}>
-CONFIG_SCHED_BOOK                               policy<{'s390x': 'y'}>
 CONFIG_SCHED_CLUSTER                            policy<{'amd64': 'y', 'arm64': 'y'}>
 CONFIG_SCHED_CORE                               policy<{'amd64': 'y', 'arm64': 'y', 'armhf': '-', 'ppc64el': 'y', 's390x': 'y'}>
 CONFIG_SCHED_DEBUG                              policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y', 's390x': 'y'}>
-CONFIG_SCHED_DRAWER                             policy<{'s390x': 'y'}>
 CONFIG_SCHED_HRTICK                             policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y', 's390x': 'y'}>
 CONFIG_SCHED_INFO                               policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y', 's390x': 'y'}>
 CONFIG_SCHED_MC                                 policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'riscv64': 'y', 's390x': 'y'}>
