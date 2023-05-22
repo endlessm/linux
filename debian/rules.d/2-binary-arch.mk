@@ -132,7 +132,9 @@ $(stampdir)/stamp-install-%: $(stampdir)/stamp-build-% $(stampdir)/stamp-install
 	dh_prep -p$(bin_pkg_name)-$*
 	dh_prep -p$(mods_pkg_name)-$*
 	dh_prep -p$(hdrs_pkg_name)-$*
+ifeq ($(build_arch),x86)
 	dh_prep -p$(rust_pkg_name)-$*
+endif
 	$(foreach _m,$(all_standalone_dkms_modules), \
 	  $(if $(enable_$(_m)),dh_prep -p$(dkms_$(_m)_pkg_name)-$*;)\
 	)
@@ -675,7 +677,9 @@ endif
 
 	$(call dh_all,$(pkgbldinfo))
 	$(call dh_all,$(pkghdr))
+ifeq ($(build_arch),x86)
 	$(call dh_all,$(pkgrust))
+endif
 
 ifneq ($(skipsub),true)
 	@set -e; for sub in $($(*)_sub); do		\
