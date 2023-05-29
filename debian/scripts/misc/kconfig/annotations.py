@@ -338,15 +338,16 @@ class Annotation(Config):
                 if 'policy' not in new_val:
                     continue
 
-                # If new_val is a subset of old_val, skip it
+                # If new_val is a subset of old_val, skip it unless there are
+                # new notes that are different than the old ones.
                 old_val = tmp_a.config.get(conf)
                 if old_val and 'policy' in old_val:
-                    try:
-                        if old_val['policy'] == old_val['policy'] | new_val['policy']:
+                    if old_val['policy'] == old_val['policy'] | new_val['policy']:
+                        if not 'note' in new_val:
                             continue
-                    except TypeError:
-                        if old_val['policy'] == {**old_val['policy'], **new_val['policy']}:
-                            continue
+                        if 'note' in old_val and 'note' in new_val:
+                            if old_val['note'] == new_val['note']:
+                                continue
 
                 # Write out the policy (and note) line(s)
                 val = dict(sorted(new_val['policy'].items()))
