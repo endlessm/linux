@@ -414,9 +414,6 @@ CONFIG_NLS                                      note<'dependancy of boot essenti
 CONFIG_NOP_USB_XCEIV                            policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'y', 'ppc64el': 'm', 'riscv64': 'm', 's390x': '-'}>
 CONFIG_NOP_USB_XCEIV                            note<'boot essential on omap/highbank'>
 
-CONFIG_NOUVEAU_LEGACY_CTX_SUPPORT               policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'ppc64el': 'n', 'riscv64': 'n', 's390x': '-'}>
-CONFIG_NOUVEAU_LEGACY_CTX_SUPPORT               note<'Selects CONFIG_DRM_LEGACY which is not wanted'>
-
 CONFIG_NO_HZ_IDLE                               policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y', 's390x': 'y'}>
 CONFIG_NO_HZ_IDLE                               note<'LP: #1413968'>
 
@@ -5847,10 +5844,10 @@ CONFIG_HYPERV_TESTING                           policy<{'amd64': 'n', 'arm64': '
 CONFIG_HYPERV_TIMER                             policy<{'amd64': 'y'}>
 CONFIG_HYPERV_UTILS                             policy<{'amd64': 'm', 'arm64': 'm'}>
 CONFIG_HYPERV_VSOCKETS                          policy<{'amd64': 'm', 'arm64': 'm'}>
+CONFIG_HYPERV_VTL_MODE                          policy<{'amd64': 'n'}>
 CONFIG_HZ                                       policy<{'amd64': '250', 'arm64': '250', 'armhf': '250', 'ppc64el': '250', 'riscv64': '250', 's390x': '100'}>
 CONFIG_HZ_100                                   policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'ppc64el': 'n', 'riscv64': 'n', 's390x': 'y'}>
 CONFIG_HZ_1000                                  policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'ppc64el': 'n', 'riscv64': 'n', 's390x': 'n'}>
-CONFIG_HYPERV_VTL_MODE                          policy<{'amd64': 'n'}>
 CONFIG_HZ_200                                   policy<{'armhf': 'n'}>
 CONFIG_HZ_250                                   policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y', 's390x': 'n'}>
 CONFIG_HZ_300                                   policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'ppc64el': 'n', 'riscv64': 'n', 's390x': 'n'}>
