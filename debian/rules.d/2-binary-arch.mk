@@ -759,11 +759,11 @@ ifeq ($(do_tools_perf),true)
 	cd $(builddirpa) && $(kmake) syncconfig
 	cd $(builddirpa) && $(kmake) prepare
 	cd $(builddirpa)/tools/perf && \
-		$(kmake) prefix=/usr HAVE_NO_LIBBFD=1 HAVE_CPLUS_DEMANGLE_SUPPORT=1 CROSS_COMPILE=$(CROSS_COMPILE) NO_LIBPYTHON=1 NO_LIBPERL=1 WERROR=0
+		$(kmake) prefix=/usr NO_LIBTRACEEVENT=1 HAVE_NO_LIBBFD=1 HAVE_CPLUS_DEMANGLE_SUPPORT=1 CROSS_COMPILE=$(CROSS_COMPILE) NO_LIBPYTHON=1 NO_LIBPERL=1 WERROR=0
 endif
 ifeq ($(do_tools_bpftool),true)
 	mv $(builddirpa)/tools/bpf/bpftool/vmlinux $(builddirpa)/vmlinux
-	$(kmake) CROSS_COMPILE=$(CROSS_COMPILE) -C $(builddirpa)/tools/bpf/bpftool
+	$(kmake) NO_LIBTRACEEVENT=1 CROSS_COMPILE=$(CROSS_COMPILE) -C $(builddirpa)/tools/bpf/bpftool
 	rm -f $(builddirpa)/vmlinux
 endif
 ifeq ($(do_tools_x86),true)
