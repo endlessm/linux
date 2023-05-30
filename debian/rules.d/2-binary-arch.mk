@@ -132,7 +132,7 @@ $(stampdir)/stamp-install-%: $(stampdir)/stamp-build-% $(stampdir)/stamp-install
 	dh_prep -p$(bin_pkg_name)-$*
 	dh_prep -p$(mods_pkg_name)-$*
 	dh_prep -p$(hdrs_pkg_name)-$*
-ifeq ($(build_arch),x86)
+ifeq ($(do_lib_rust),true)
 	dh_prep -p$(rust_pkg_name)-$*
 endif
 	$(foreach _m,$(all_standalone_dkms_modules), \
@@ -651,7 +651,7 @@ endif
 
 	$(call dh_all,$(pkgbldinfo))
 	$(call dh_all,$(pkghdr))
-ifeq ($(build_arch),x86)
+ifeq ($(do_lib_rust),true)
 	$(call dh_all,$(pkgrust))
 endif
 

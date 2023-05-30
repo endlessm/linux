@@ -82,6 +82,7 @@ printenv:
 	@echo "do_common_headers_indep   = $(do_common_headers_indep)"
 	@echo "do_full_source            = $(do_full_source)"
 	@echo "do_odm_drivers            = $(do_odm_drivers)"
+	@echo "do_lib_rust               = $(do_lib_rust)"
 	@echo "do_tools                  = $(do_tools)"
 	@echo "do_tools_common           = $(do_tools_common)"
 	@echo "do_any_tools              = $(do_any_tools)"
