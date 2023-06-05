@@ -112,8 +112,6 @@ cls_flower
 cls_fw
 cls_matchall
 cls_route
-cls_rsvp
-cls_rsvp6
 cls_u32
 cmac
 coda
@@ -265,7 +263,6 @@ gre
 gtp
 hangcheck-timer
 hmcdrv
-i2c-algo-bit
 i2c-core
 i2c-dev
 i2c-mux
@@ -280,7 +277,6 @@ ib_srp
 ib_srpt
 ib_umad
 ib_uverbs
-icp
 icplus
 ifb
 ife
@@ -356,7 +352,6 @@ ip_vti
 ipcomp
 ipcomp6
 ipip
-ipt_CLUSTERIP
 ipt_ECN
 ipt_REJECT
 ipt_SYNPROXY
@@ -687,12 +682,10 @@ rxrpc
 s390-trng
 sample-trace-array
 sch_cake
-sch_cbq
 sch_cbs
 sch_choke
 sch_codel
 sch_drr
-sch_dsmark
 sch_etf
 sch_ets
 sch_fq
@@ -704,6 +697,7 @@ sch_hhf
 sch_htb
 sch_ingress
 sch_mqprio
+sch_mqprio_lib
 sch_multiq
 sch_netem
 sch_pie
@@ -755,7 +749,6 @@ smc_diag
 smsc
 smsgiucv_app
 softdog
-spl
 st
 st_drv
 ste10Xp
@@ -850,7 +843,6 @@ virtio_crypto
 virtio_dma_buf
 virtio_input
 virtio_net
-virtio_scsi
 virtiofs
 vitesse
 vmac
@@ -955,18 +947,11 @@ xt_time
 xt_u32
 xxhash_generic
 z3fold
-zavl
-zcommon
 zcrypt
 zcrypt_cex2a
 zcrypt_cex2c
 zcrypt_cex4
 zfcp
-zfs
-zlua
-znvpair
 zonefs
 zram
 zstd
-zunicode
-zzstd
