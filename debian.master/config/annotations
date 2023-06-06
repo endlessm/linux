@@ -438,6 +438,9 @@ CONFIG_NVRAM                                    note<'LP: #1837726'>
 CONFIG_N_GSM                                    policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm', 's390x': 'n'}>
 CONFIG_N_GSM                                    note<'LP: #1404670'>
 
+CONFIG_OSNOISE_TRACER                           policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y', 's390x': 'y'}>
+CONFIG_OSNOISE_TRACER                           note<'This enables the osnoise tracer for the kernel. LP: #2018591'>
+
 CONFIG_PAGE_POISONING                           policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y', 's390x': 'y'}>
 CONFIG_PAGE_POISONING                           note<'LP: #1783651'>
 
@@ -644,6 +647,9 @@ CONFIG_TCG_TPM                                  note<'needed for early validatio
 
 CONFIG_TEST_BLACKHOLE_DEV                       policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm', 's390x': 'm'}>
 CONFIG_TEST_BLACKHOLE_DEV                       note<'Used by net selftests'>
+
+CONFIG_TIMERLAT_TRACER                          policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y', 's390x': 'y'}>
+CONFIG_TIMERLAT_TRACER                          note<'This enables the osnoise tracer for the kernel. LP: #2018591'>
 
 CONFIG_TMPFS_POSIX_ACL                          policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y', 's390x': 'y'}>
 CONFIG_TMPFS_POSIX_ACL                          note<'some /dev nodes require POSIX ACLs, like /dev/dsp'>
@@ -9090,7 +9096,6 @@ CONFIG_ORION_IRQCHIP                            policy<{'armhf': 'y'}>
 CONFIG_ORION_TIMER                              policy<{'armhf': 'y'}>
 CONFIG_ORION_WATCHDOG                           policy<{'armhf': 'm'}>
 CONFIG_OSF_PARTITION                            policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y', 's390x': 'n'}>
-CONFIG_OSNOISE_TRACER                           policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'ppc64el': 'n', 'riscv64': 'n', 's390x': 'n'}>
 CONFIG_OUTER_CACHE                              policy<{'armhf': 'y'}>
 CONFIG_OUTER_CACHE_SYNC                         policy<{'armhf': 'y'}>
 CONFIG_OUTPUT_FORMAT                            policy<{'amd64': '"elf64-x86-64"'}>
@@ -13309,7 +13314,6 @@ CONFIG_TIFM_CORE                                policy<{'amd64': 'm', 'arm64': '
 CONFIG_TIGON3                                   policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm', 's390x': '-'}>
 CONFIG_TIGON3_HWMON                             policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y'}>
 CONFIG_TIMERFD                                  policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y', 's390x': 'y'}>
-CONFIG_TIMERLAT_TRACER                          policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'ppc64el': 'n', 'riscv64': 'n', 's390x': 'n'}>
 CONFIG_TIMER_ACPI                               policy<{'arm64': 'y'}>
 CONFIG_TIMER_IMX_SYS_CTR                        policy<{'arm64': 'y'}>
 CONFIG_TIMER_OF                                 policy<{'arm64': 'y', 'armhf': 'y', 'ppc64el': '-', 'riscv64': 'y'}>
