@@ -157,32 +157,6 @@ else
 		$(pkgdir_bin)/boot/$(instfile)-$(abi_release)-$*
 	chmod 600 $(pkgdir_bin)/boot/$(instfile)-$(abi_release)-$*
 endif
-
-ifeq ($(uefi_signed),DISABLED)
-	install -d $(signingv)
-	# gzipped kernel images must be decompressed for signing
-	if [[ "$(kernfile)" =~ \.gz$$ ]]; then \
-		< $(pkgdir_bin)/boot/$(instfile)-$(abi_release)-$* \
-			gunzip -cv > $(signingv)/$(instfile)-$(abi_release)-$*.efi; \
-		cp -p --attributes-only $(pkgdir_bin)/boot/$(instfile)-$(abi_release)-$* \
-			$(signingv)/$(instfile)-$(abi_release)-$*.efi; \
-		echo "GZIP=1" >> $(signingv)/$(instfile)-$(abi_release)-$*.efi.vars; \
-	else \
-		cp -p $(pkgdir_bin)/boot/$(instfile)-$(abi_release)-$* \
-			$(signingv)/$(instfile)-$(abi_release)-$*.efi; \
-	fi
-endif
-ifeq ($(opal_signed),DISABLED)
-	install -d $(signingv)
-	cp -p $(pkgdir_bin)/boot/$(instfile)-$(abi_release)-$* \
-		$(signingv)/$(instfile)-$(abi_release)-$*.opal;
-endif
-ifeq ($(sipl_signed),DISABLED)
-	install -d $(signingv)
-	cp -p $(pkgdir_bin)/boot/$(instfile)-$(abi_release)-$* \
-		$(signingv)/$(instfile)-$(abi_release)-$*.sipl;
-endif
-
 	install -d $(pkgdir)/boot
 	install -m644 $(builddir)/build-$*/.config \
 		$(pkgdir)/boot/config-$(abi_release)-$*
@@ -840,17 +814,8 @@ ifeq ($(do_cloud_tools),true)
 endif
 
 .PHONY: binary-debs
-binary-debs: signing = $(CURDIR)/debian/$(bin_pkg_name)-signing
-binary-debs: signingv = $(CURDIR)/debian/$(bin_pkg_name)-signing/$(release)-$(revision)
-binary-debs: signing_tar = $(src_pkg_name)_$(release)-$(revision)_$(arch).tar.gz
 binary-debs: binary-perarch $(addprefix binary-,$(flavours))
 	@echo Debug: $@
-ifeq ($(any_signed),true)
-	install -d $(signingv)/control
-	{ echo "tarball"; } >$(signingv)/control/options
-	cd $(signing) && tar czvf ../../../$(signing_tar) .
-	dpkg-distaddfile $(signing_tar) raw-signing -
-endif
 
 build-arch-deps-$(do_flavour_image_package) += $(addprefix $(stampdir)/stamp-install-,$(flavours))
 
