@@ -345,6 +345,12 @@ CONFIG_LOAD_PPC_KEYS                            note<'LP: #1866909'>
 CONFIG_LOCALVERSION_AUTO                        policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'ppc64el': 'n', 'riscv64': 'n', 's390x': 'n'}>
 CONFIG_LOCALVERSION_AUTO                        note<'triggers packaging failures'>
 
+CONFIG_LRU_GEN                                  policy<{'amd64': 'y', 'arm64': 'y', 'ppc64el': 'y', 'riscv64': 'y', 's390x': 'y'}>
+CONFIG_LRU_GEN                                  note<'{Enable multi-gen LRU by default - LP: #2023629}'>
+
+CONFIG_LRU_GEN_ENABLED                          policy<{'amd64': 'y', 'arm64': 'y', 'ppc64el': 'y', 'riscv64': 'y', 's390x': 'y'}>
+CONFIG_LRU_GEN_ENABLED                          note<'{Enable multi-gen LRU by default - LP: #2023629}'>
+
 CONFIG_MEMORY_HOTPLUG_DEFAULT_ONLINE            policy<{'amd64': 'y', 'arm64': 'y', 'ppc64el': 'n', 's390x': 'n'}>
 CONFIG_MEMORY_HOTPLUG_DEFAULT_ONLINE            note<'LP: #1848492'>
 
@@ -7228,8 +7234,6 @@ CONFIG_LPC_ICH                                  policy<{'amd64': 'm', 'arm64': '
 CONFIG_LPC_SCH                                  policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm', 's390x': 'n'}>
 CONFIG_LP_CONSOLE                               policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'ppc64el': 'n', 'riscv64': 'n', 's390x': '-'}>
 CONFIG_LRU_CACHE                                policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm', 's390x': 'm'}>
-CONFIG_LRU_GEN                                  policy<{'amd64': 'y', 'arm64': 'y', 'ppc64el': 'y', 'riscv64': 'y', 's390x': 'y'}>
-CONFIG_LRU_GEN_ENABLED                          policy<{'amd64': 'n', 'arm64': 'n', 'ppc64el': 'n', 'riscv64': 'n', 's390x': 'n'}>
 CONFIG_LRU_GEN_STATS                            policy<{'amd64': 'n', 'arm64': 'n', 'ppc64el': 'n', 'riscv64': 'n', 's390x': 'n'}>
 CONFIG_LSI_ET1011C_PHY                          policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm', 's390x': 'm'}>
 CONFIG_LSM                                      policy<{'amd64': '"landlock,lockdown,yama,integrity,apparmor"', 'arm64': '"landlock,lockdown,yama,integrity,apparmor"', 'armhf': '"landlock,lockdown,yama,integrity,apparmor"', 'ppc64el': '"landlock,lockdown,yama,integrity,apparmor"', 'riscv64': '"landlock,lockdown,yama,integrity,apparmor"', 's390x': '"landlock,lockdown,yama,integrity,apparmor"'}>
