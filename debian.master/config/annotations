@@ -1216,7 +1216,7 @@ CONFIG_ARCH_HAS_MEM_ENCRYPT                     policy<{'amd64': 'y', 'ppc64el':
 CONFIG_ARCH_HAS_MMIOWB                          policy<{'ppc64el': 'y', 'riscv64': 'y'}>
 CONFIG_ARCH_HAS_NMI_SAFE_THIS_CPU_OPS           policy<{'amd64': 'y', 'arm64': 'y', 's390x': 'y'}>
 CONFIG_ARCH_HAS_NONLEAF_PMD_YOUNG               policy<{'amd64': 'y'}>
-CONFIG_ARCH_HAS_NON_OVERLAPPING_ADDRESS_SPACE   policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y'}>
+CONFIG_ARCH_HAS_NON_OVERLAPPING_ADDRESS_SPACE   policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y'}>
 CONFIG_ARCH_HAS_PARANOID_L1D_FLUSH              policy<{'amd64': 'y'}>
 CONFIG_ARCH_HAS_PHYS_TO_DMA                     policy<{'ppc64el': 'y'}>
 CONFIG_ARCH_HAS_PKEYS                           policy<{'amd64': 'y'}>
