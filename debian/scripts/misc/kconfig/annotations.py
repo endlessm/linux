@@ -117,14 +117,14 @@ class Annotation(Config):
                         entry['note'] = "'" + m.group(1).replace("'", '') + "'"
 
                     if not match:
-                        raise Exception('syntax error')
+                        raise SyntaxError('syntax error')
                     self.config[conf] = entry
                 except Exception as e:
-                    raise Exception(str(e) + f', line = {line}') from e
+                    raise SyntaxError(str(e) + f', line = {line}') from e
                 continue
 
             # Invalid line
-            raise Exception(f'invalid line: {line}')
+            raise SyntaxError(f'invalid line: {line}')
 
     def _parse(self, data: str):
         """
@@ -162,9 +162,9 @@ class Annotation(Config):
         # Sanity check: Verify that all FLAVOUR_DEP flavors are valid
         for src, tgt in self.flavour_dep.items():
             if src not in self.flavour:
-                raise Exception(f'Invalid source flavour in FLAVOUR_DEP: {src}')
+                raise SyntaxError(f'Invalid source flavour in FLAVOUR_DEP: {src}')
             if tgt not in self.include_flavour:
-                raise Exception(f'Invalid target flavour in FLAVOUR_DEP: {tgt}')
+                raise SyntaxError(f'Invalid target flavour in FLAVOUR_DEP: {tgt}')
 
     def _remove_entry(self, config: str):
         if self.config[config]:
@@ -342,8 +342,12 @@ class Annotation(Config):
                 # new notes that are different than the old ones.
                 old_val = tmp_a.config.get(conf)
                 if old_val and 'policy' in old_val:
-                    if old_val['policy'] == old_val['policy'] | new_val['policy']:
-                        if not 'note' in new_val:
+                    try:
+                        can_skip = old_val['policy'] == old_val['policy'] | new_val['policy']
+                    except TypeError:
+                        can_skip = old_val['policy'] == {**old_val['policy'], **new_val['policy']}
+                    if can_skip:
+                        if 'note' not in new_val:
                             continue
                         if 'note' in old_val and 'note' in new_val:
                             if old_val['note'] == new_val['note']:
