@@ -319,31 +319,39 @@ int aa_profile_ns_perm(struct aa_profile *profile,
 		       struct apparmor_audit_data *ad,
 		       u32 request)
 {
+	struct aa_ruleset *rules = list_first_entry(&profile->rules,
+						    typeof(*rules), list);
 	struct aa_perms perms = { };
+	aa_state_t state;
 
 	ad->request = request;
 
-	if (profile_unconfined(profile)) {
-		if (!unprivileged_userns_restricted ||
-		    ns_capable_noaudit(current_user_ns(), CAP_SYS_ADMIN))
-			return 0;
 
-		ad->info = "User namespace creation restricted";
-		/* don't just return: allow complain mode to override */
-	} else {
-		struct aa_ruleset *rules = list_first_entry(&profile->rules,
-							    typeof(*rules),
-							    list);
-		aa_state_t state;
-
-		state = RULE_MEDIATES(rules, ad->class);
-		if (!state && !unprivileged_userns_restricted_force)
-			/* TODO: add flag to complain about unmediated */
+	/* TODO: rework unconfined profile/dfa to mediate user ns, then
+	 * we can drop the unconfined test
+	 */
+	state = RULE_MEDIATES(rules, ad->class);
+	if (!state) {
+		/* TODO: this gets replaced when the default unconfined
+		 * profile dfa gets updated to handle this
+		 */
+		if (profile_unconfined(profile) &&
+		    profile == profiles_ns(profile)->unconfined) {
+			if (!unprivileged_userns_restricted ||
+			    ns_capable_noaudit(current_user_ns(),
+					       CAP_SYS_ADMIN))
+				return 0;
+			ad->info = "User namespace creation restricted";
+			/* unconfined unprivileged user */
+			/* don't just return: allow complain mode to override */
+		} else if (!unprivileged_userns_restricted_force) {
 			return 0;
-		perms = *aa_lookup_perms(rules->policy, state);
-		if (unprivileged_userns_restricted_complain)
-			perms.complain = ALL_PERMS_MASK;
+		}
+		/* continue to mediation */
 	}
+	perms = *aa_lookup_perms(rules->policy, state);
+	if (unprivileged_userns_restricted_complain)
+		perms.complain = ALL_PERMS_MASK;
 
 	aa_apply_modes_to_perms(profile, &perms);
 	return aa_check_perms(profile, &perms, request, ad, audit_ns_cb);

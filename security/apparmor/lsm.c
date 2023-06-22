@@ -1070,15 +1070,17 @@ static int apparmor_userns_create(const struct cred *cred)
 	struct aa_label *label;
 	struct aa_profile *profile;
 	int error = 0;
-	DEFINE_AUDIT_DATA(ad, LSM_AUDIT_DATA_TASK, AA_CLASS_NS,
-			  OP_USERNS_CREATE);
 
-	ad.subj_cred = current_cred();
 	label = begin_current_label_crit_section();
-	if (unprivileged_userns_restricted || !unconfined(label)) {
+	/* remove unprivileged_userns_restricted check when unconfined is updated */
+	if (unprivileged_userns_restricted ||
+	    LABEL_MEDIATES(label, AA_CLASS_NS)) {
+		DEFINE_AUDIT_DATA(ad, LSM_AUDIT_DATA_TASK, AA_CLASS_NS,
+				  OP_USERNS_CREATE);
+		ad.subj_cred = current_cred();
+
 		error = fn_for_each(label, profile,
-				    aa_profile_ns_perm(profile, &ad,
-						       AA_USERNS_CREATE));
+			    aa_profile_ns_perm(profile, &ad, AA_USERNS_CREATE));
 		end_current_label_crit_section(label);
 	}
 
