@@ -14,6 +14,8 @@ UBUNTU: SAUCE: overlayfs: Skip permission checking for trusted.overlayfs.* xattr
 UBUNTU: SAUCE: overlayfs: handle idmapped mounts in ovl_do_(set|remove)xattr # review this patch, need some attention
 UBUNTU: SAUCE: overlayfs: fix incorrect mnt_id of files opened from map_files # review this patch, need some attention
 
+UBUNTU: SAUCE: Clear Linux: silence rapl # patch not needed anymore
+
 UBUNTU: SAUCE: net: wwan: t7xx: Enable devlink based fw flashing and coredump collection
 UBUNTU: SAUCE: net: wwan: t7xx: Devlink documentation
 
