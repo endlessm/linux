@@ -8,8 +8,4 @@ else
   arch := $(ARCH)
 endif
 config:
-	if [ -e debian/config/config.common.ubuntu ]; then \
-	    cat debian.$(branch)/config/config.common.ubuntu debian.$(branch)/config/$(arch)/config.common.$(arch) debian.$(branch)/config/$(arch)/config.flavour.$(flavour) >.config; \
-	else \
-	    python3 debian/scripts/misc/annotations --export --arch $(arch) --flavour $(flavour) >.config; \
-	fi
+	python3 debian/scripts/misc/annotations --export --arch $(arch) --flavour $(flavour) >.config
