@@ -63,13 +63,15 @@ fi
 
 for arch in $archs
 do
+	if [ ! -f "$debian/rules.d/$arch.mk" ]; then
+		continue
+	fi
+
 	image_pkg=$(awk -F '\\s*=\\s*' '$1 == "do_flavour_image_package" { print $2 }' $debian/rules.d/$arch.mk)
 	if [ "$image_pkg" = "false" ]; then
 		continue
 	fi
-	if [ ! -f "$debian/rules.d/$arch.mk" ]; then
-		continue
-	fi
+
 	flavours=$(
 		awk '/^\s*flavours\s*=/{
 			sub(/^\s*flavours\s*=\s*/, "");
