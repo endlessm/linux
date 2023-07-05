@@ -52,7 +52,7 @@ DEBIAN=debian
 [ -z "$sru_cycle" ] && default_sru_cycle
 if [ -z "$remote_repo" ]; then
 	case "$sru_cycle" in
-	s[0-9][0-9][0-9][0-9].[0-9][0-9].[0-9][0-9])
+	c[0-9][0-9][0-9][0-9].[0-9][0-9].[0-9][0-9])
 		remote_repo='security' ;;
 	*)
 		remote_repo='main' ;;
