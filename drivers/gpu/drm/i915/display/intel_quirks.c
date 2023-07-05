@@ -65,6 +65,12 @@ static void quirk_no_pps_backlight_power_hook(struct drm_i915_private *i915)
 	drm_info(&i915->drm, "Applying no pps backlight power quirk\n");
 }
 
+static void quirk_multiple_vbt_devices(struct drm_i915_private *i915)
+{
+	intel_set_quirk(i915, QUIRK_MULTIPLE_VBT_DEVICES);
+	drm_info(&i915->drm, "Applying multiple VBT devices quirk\n");
+}
+
 struct intel_quirk {
 	int device;
 	int subsystem_vendor;
@@ -87,6 +93,12 @@ static int intel_dmi_reverse_brightness(const struct dmi_system_id *id)
 static int intel_dmi_no_pps_backlight(const struct dmi_system_id *id)
 {
 	DRM_INFO("No pps backlight support on %s\n", id->ident);
+	return 1;
+}
+
+static int intel_dmi_multiple_vbt_devices(const struct dmi_system_id *id)
+{
+	DRM_INFO("Allow multiple VBT devices in one port on %s\n", id->ident);
 	return 1;
 }
 
@@ -135,6 +147,22 @@ static const struct intel_dmi_quirk intel_dmi_quirks[] = {
 			{ }
 		},
 		.hook = quirk_no_pps_backlight_power_hook,
+	},
+};
+
+static const struct intel_dmi_quirk intel_dmi_quirks_early[] = {
+	{
+		.dmi_id_list = &(const struct dmi_system_id[]) {
+			{
+				.callback = intel_dmi_multiple_vbt_devices,
+				.ident = "HP ZBook Power 15.6 inch G10 Mobile Workstation PC",
+				.matches = {DMI_EXACT_MATCH(DMI_SYS_VENDOR, "HP"),
+					    DMI_EXACT_MATCH(DMI_PRODUCT_NAME, "HP ZBook Power 15.6 inch G10 Mobile Workstation PC"),
+				},
+			},
+			{ }
+		},
+		.hook = quirk_multiple_vbt_devices,
 	},
 };
 
@@ -221,6 +249,16 @@ void intel_init_quirks(struct drm_i915_private *i915)
 	for (i = 0; i < ARRAY_SIZE(intel_dmi_quirks); i++) {
 		if (dmi_check_system(*intel_dmi_quirks[i].dmi_id_list) != 0)
 			intel_dmi_quirks[i].hook(i915);
+	}
+}
+
+void intel_init_quirks_early(struct drm_i915_private *i915)
+{
+	int i;
+
+	for (i = 0; i < ARRAY_SIZE(intel_dmi_quirks_early); i++) {
+		if (dmi_check_system(*intel_dmi_quirks_early[i].dmi_id_list) != 0)
+			intel_dmi_quirks_early[i].hook(i915);
 	}
 }
 

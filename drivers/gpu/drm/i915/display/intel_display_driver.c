@@ -201,6 +201,8 @@ int intel_display_driver_probe_noirq(struct drm_i915_private *i915)
 			return ret;
 	}
 
+	intel_init_quirks_early(i915);
+
 	intel_bios_init(i915);
 
 	ret = intel_vga_register(i915);

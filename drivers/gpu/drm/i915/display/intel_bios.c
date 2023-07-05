@@ -34,6 +34,7 @@
 #include "intel_display.h"
 #include "intel_display_types.h"
 #include "intel_gmbus.h"
+#include "intel_quirks.h"
 
 #define _INTEL_BIOS_PRIVATE
 #include "intel_vbt_defs.h"
@@ -2744,7 +2745,7 @@ static void parse_ddi_port(struct intel_bios_encoder_data *devdata)
 		return;
 	}
 
-	if (i915->display.vbt.ports[port]) {
+	if (i915->display.vbt.ports[port] && !intel_has_quirk(i915, QUIRK_MULTIPLE_VBT_DEVICES)) {
 		drm_dbg_kms(&i915->drm,
 			    "More than one child device for port %c in VBT, using the first.\n",
 			    port_name(port));
