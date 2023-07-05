@@ -1065,7 +1065,7 @@ static struct file *shiftfs_open_realfile(const struct file *file,
 	struct path realpath = { .mnt = info->mnt, .dentry = lowerd };
 
 	old_cred = shiftfs_override_creds(inode->i_sb);
-	realfile = open_with_fake_path(&realpath, file->f_flags, realinode,
+	realfile = backing_file_open(&file->f_path, file->f_flags, &realpath,
 				       info->creator_cred);
 	revert_creds(old_cred);
 
@@ -1756,7 +1756,7 @@ const struct file_operations shiftfs_file_operations = {
 	.compat_ioctl		= shiftfs_compat_ioctl,
 	.copy_file_range	= shiftfs_copy_file_range,
 	.remap_file_range	= shiftfs_remap_file_range,
-	.splice_read		= generic_file_splice_read,
+	.splice_read		= filemap_splice_read,
 	.splice_write		= iter_file_splice_write,
 };
 
