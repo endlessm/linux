@@ -53,6 +53,7 @@ enum {
 	Opt_uuid,
 	Opt_nfs_export,
 	Opt_userxattr,
+	Opt_nouserxattr,
 	Opt_xino,
 	Opt_metacopy,
 	Opt_volatile,
@@ -114,6 +115,7 @@ const struct fs_parameter_spec ovl_parameter_spec[] = {
 	fsparam_enum("uuid",                Opt_uuid, ovl_parameter_bool),
 	fsparam_enum("nfs_export",          Opt_nfs_export, ovl_parameter_bool),
 	fsparam_flag("userxattr",           Opt_userxattr),
+	fsparam_flag("nouserxattr",         Opt_nouserxattr),
 	fsparam_enum("xino",                Opt_xino, ovl_parameter_xino),
 	fsparam_enum("metacopy",            Opt_metacopy, ovl_parameter_bool),
 	fsparam_flag("volatile",            Opt_volatile),
@@ -578,6 +580,9 @@ static int ovl_parse_param(struct fs_context *fc, struct fs_parameter *param)
 	case Opt_userxattr:
 		config->userxattr = true;
 		break;
+	case Opt_nouserxattr:
+		config->userxattr = false;
+		break;
 	default:
 		pr_err("unrecognized mount option \"%s\" or missing value\n",
 		       param->key);
@@ -683,6 +688,8 @@ int ovl_init_fs_context(struct fs_context *fc)
 	ofs->config.nfs_export		= ovl_nfs_export_def;
 	ofs->config.xino		= ovl_xino_def();
 	ofs->config.metacopy		= ovl_metacopy_def;
+	if (fc->user_ns != &init_user_ns)
+		ofs->config.userxattr = true;
 
 	fc->s_fs_info		= ofs;
 	fc->fs_private		= ctx;
@@ -909,5 +916,7 @@ int ovl_show_options(struct seq_file *m, struct dentry *dentry)
 		seq_puts(m, ",volatile");
 	if (ofs->config.userxattr)
 		seq_puts(m, ",userxattr");
+	else
+		seq_puts(m, ",nouserxattr");
 	return 0;
 }
