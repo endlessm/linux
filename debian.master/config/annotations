@@ -555,6 +555,15 @@ CONFIG_SERIAL_DEV_BUS                           note<'LP: #1739939'>
 CONFIG_SERIAL_DEV_CTRL_TTYPORT                  policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y', 's390x': 'y'}>
 CONFIG_SERIAL_DEV_CTRL_TTYPORT                  note<'LP: #1739939'>
 
+CONFIG_SERIAL_SH_SCI                            policy<{'arm64': 'y', 'armhf': 'y', 'riscv64': 'y'}>
+CONFIG_SERIAL_SH_SCI                            note<'LP: #2022361'>
+
+CONFIG_SERIAL_SH_SCI_CONSOLE                    policy<{'arm64': 'y', 'armhf': 'y', 'riscv64': 'y'}>
+CONFIG_SERIAL_SH_SCI_CONSOLE                    note<'LP: #2022361'>
+
+CONFIG_SERIAL_SH_SCI_EARLYCON                   policy<{'arm64': 'y', 'armhf': 'y', 'riscv64': 'y'}>
+CONFIG_SERIAL_SH_SCI_EARLYCON                   note<'LP: #2022361'>
+
 CONFIG_SETEND_EMULATION                         policy<{'arm64': 'y'}>
 CONFIG_SETEND_EMULATION                         note<'LP: #1545542'>
 
@@ -11741,7 +11750,6 @@ CONFIG_SERIAL_SC16IS7XX_I2C                     policy<{'amd64': 'y', 'arm64': '
 CONFIG_SERIAL_SC16IS7XX_SPI                     policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y'}>
 CONFIG_SERIAL_SCCNXP                            policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y', 's390x': 'n'}>
 CONFIG_SERIAL_SCCNXP_CONSOLE                    policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y'}>
-CONFIG_SERIAL_SH_SCI                            policy<{'arm64': 'm', 'armhf': 'm', 'riscv64': 'm'}>
 CONFIG_SERIAL_SH_SCI_DMA                        policy<{'arm64': 'y', 'armhf': 'y', 'riscv64': 'y'}>
 CONFIG_SERIAL_SH_SCI_NR_UARTS                   policy<{'arm64': '2', 'armhf': '2', 'riscv64': '18'}>
 CONFIG_SERIAL_SIFIVE                            policy<{'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'y'}>
