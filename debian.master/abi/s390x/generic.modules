@@ -92,9 +92,6 @@ ccm
 ccwgroup
 ceph
 cfb
-cfbcopyarea
-cfbfillrect
-cfbimgblt
 ch
 chacha20poly1305
 chacha_generic
@@ -237,7 +234,6 @@ essiv
 et1011c
 failover
 faulty
-fb_sys_fops
 fcoe
 fcrypt
 fou
@@ -262,6 +258,7 @@ grace
 gre
 gtp
 hangcheck-timer
+hfcpci
 hmcdrv
 i2c-core
 i2c-dev
@@ -378,6 +375,7 @@ kheaders
 kmem
 ksmbd
 kyber-iosched
+l1oip
 l2tp_core
 l2tp_debugfs
 l2tp_eth
@@ -408,6 +406,8 @@ lz4
 lz4_compress
 lz4hc
 lz4hc_compress
+mISDN_core
+mISDN_dsp
 mac-celtic
 mac-centeuro
 mac-croatian
@@ -430,6 +430,7 @@ mdev
 mdio-i2c
 memory-notifier-error-inject
 mena21_wdt
+mfd-core
 michael_mic
 micrel
 microchip
@@ -669,6 +670,7 @@ rds
 rds_rdma
 rds_tcp
 realtek
+regmap-i2c
 rmd160
 rnbd-client
 rnbd-server
@@ -724,14 +726,13 @@ scsi_transport_spi
 scsi_transport_srp
 sctp
 sctp_diag
-serial_core
+serial_base
 serpent_generic
 sfp
 sha1_s390
 sha256_s390
 sha3_256_s390
 sha3_512_s390
-sha3_generic
 sha512_s390
 sha_common
 shiftfs
@@ -762,9 +763,6 @@ stp
 streebog_generic
 sunrpc
 switchtec
-syscopyarea
-sysfillrect
-sysimgblt
 tap
 tape
 tape_34xx
@@ -806,6 +804,10 @@ test_bpf
 tipc
 tls
 tpm_vtpm_proxy
+tps6594-core
+tps6594-esm
+tps6594-i2c
+tps6594-pfsm
 trace-printk
 ts_bm
 ts_fsm
