@@ -375,6 +375,9 @@ CONFIG_MMC_SDHCI_PLTFM                          note<'boot essential on highbank
 CONFIG_MODIFY_LDT_SYSCALL                       policy<{'amd64': 'y'}>
 CONFIG_MODIFY_LDT_SYSCALL                       note<'Q: check this with security'>
 
+CONFIG_MODULE_COMPRESS_ZSTD                     policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y', 's390x': 'y'}>
+CONFIG_MODULE_COMPRESS_ZSTD                     note<'LP: #2028568'>
+
 CONFIG_MODVERSIONS                              policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y', 's390x': 'y'}>
 CONFIG_MODVERSIONS                              note<'required as we have a livepatch/drivers modules signing key'>
 
@@ -7902,10 +7905,10 @@ CONFIG_MODULES_USE_ELF_RELA                     policy<{'amd64': 'y', 'arm64': '
 CONFIG_MODULE_ALLOW_BTF_MISMATCH                policy<{'amd64': 'n', 'arm64': 'n', 'ppc64el': 'n', 'riscv64': 'n', 's390x': 'n'}>
 CONFIG_MODULE_ALLOW_MISSING_NAMESPACE_IMPORTS   policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'ppc64el': 'n', 'riscv64': 'n', 's390x': 'n'}>
 CONFIG_MODULE_COMPRESS_GZIP                     policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'ppc64el': 'n', 'riscv64': 'n', 's390x': 'n'}>
-CONFIG_MODULE_COMPRESS_NONE                     policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y', 's390x': 'y'}>
+CONFIG_MODULE_COMPRESS_NONE                     policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'ppc64el': 'n', 'riscv64': 'n', 's390x': 'n'}>
 CONFIG_MODULE_COMPRESS_XZ                       policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'ppc64el': 'n', 'riscv64': 'n', 's390x': 'n'}>
-CONFIG_MODULE_COMPRESS_ZSTD                     policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'ppc64el': 'n', 'riscv64': 'n', 's390x': 'n'}>
 CONFIG_MODULE_DEBUG                             policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'ppc64el': 'n', 'riscv64': 'n', 's390x': 'n'}>
+CONFIG_MODULE_DECOMPRESS                        policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y', 's390x': 'y'}>
 CONFIG_MODULE_FORCE_LOAD                        policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'ppc64el': 'n', 'riscv64': 'n', 's390x': 'n'}>
 CONFIG_MODULE_FORCE_UNLOAD                      policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'ppc64el': 'n', 'riscv64': 'n', 's390x': 'n'}>
 CONFIG_MODULE_SECTIONS                          policy<{'riscv64': 'y'}>
