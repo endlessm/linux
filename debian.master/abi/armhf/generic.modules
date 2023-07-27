@@ -892,7 +892,6 @@ cm36651
 cma3000_d0x
 cma3000_d0x_i2c
 cmac
-cmt_speech
 cmtp
 cnic
 cobra
@@ -1028,6 +1027,7 @@ cxgbit
 cxl_core
 cxl_mem
 cxl_pci
+cxl_pmem
 cxl_pmu
 cxl_port
 cy8ctma140
@@ -1051,7 +1051,6 @@ cyttsp_spi
 da280
 da311
 da7280
-da8xx-fb
 da9030_battery
 da9034-ts
 da903x-regulator
@@ -1083,6 +1082,7 @@ da9210-regulator
 da9211-regulator
 daqboard2000
 davicom
+dax_cxl
 db9
 dc395x
 dccp
@@ -1099,6 +1099,7 @@ denali_dt
 denali_pci
 des_generic
 designware_i2s
+device_dax
 dfl
 dfl-afu
 dfl-emif
@@ -1579,7 +1580,6 @@ ftwdt010_wdt
 fujitsu_ts
 funcore
 funeth
-fusb300_udc
 fusb302
 fxas21002c_core
 fxas21002c_i2c
@@ -2058,7 +2058,6 @@ hid-zpff
 hid-zydacron
 hideep
 hidp
-hifn_795x
 highbank-cpufreq
 highbank_l2_edac
 highbank_mc_edac
@@ -2126,6 +2125,7 @@ i2c-amd756
 i2c-amd8111
 i2c-arb-gpio-challenge
 i2c-aspeed
+i2c-axxia
 i2c-cbus-gpio
 i2c-ccgx-ucsi
 i2c-cp2615
@@ -3524,6 +3524,9 @@ nct6775-core
 nct6775-i2c
 nct7802
 nct7904
+nd_btt
+nd_pmem
+nd_virtio
 ne2k-pci
 neofb
 net1080
@@ -3708,7 +3711,6 @@ nls_koi8-ru
 nls_koi8-u
 nls_utf8
 noa1305
-nokia-modem
 nosy
 notifier-error-inject
 nouveau
@@ -3759,7 +3761,6 @@ nvmem-rave-sp-eeprom
 nvmem-reboot-mode
 nvmem-rmem
 nvmem-rockchip-otp
-nvmem-uniphier-efuse
 nvmem_meson_mx_efuse
 nvmem_mtk-efuse
 nvmem_qcom-spmi-sdam
@@ -3799,6 +3800,7 @@ ocmem
 ocrdma
 of-fpga-region
 of_mmc_spi
+of_pmem
 of_xilinx_wdt
 ofb
 og01a1b
@@ -3811,17 +3813,12 @@ omap-mailbox
 omap-ocp2scp
 omap-rng
 omap-sham
-omap-vout
 omap2430
 omap2fb
-omap3-isp
-omap3-rom-rng
-omap4-iss
 omap4-keypad
 omap_hdq
 omap_hwspinlock
 omap_remoteproc
-omap_ssi
 omap_wdt
 omapdss
 omfs
@@ -3830,7 +3827,6 @@ on20
 on26
 onboard_usb_hub
 onenand
-onenand_omap2
 onie-tlv
 open-dice
 opencores-kbd
@@ -4411,7 +4407,6 @@ qcom-spmi-vadc
 qcom-vadc-common
 qcom-wdt
 qcom-wled
-qcom_adm
 qcom_aoss
 qcom_bam_dmux
 qcom_battmgr
@@ -4868,6 +4863,7 @@ rt61pci
 rt6245-regulator
 rt73usb
 rt9455_charger
+rt9467-charger
 rt9471
 rtc-88pm80x
 rtc-88pm860x
@@ -5231,7 +5227,6 @@ sfp
 sgi_w1
 sgp30
 sgp40
-sh-sci
 sh_eth
 sh_mmcif
 sh_mobile_lcdcfb
@@ -5346,13 +5341,16 @@ snd-ad1889
 snd-ak4113
 snd-ak4114
 snd-ak4xxx-adda
+snd-ali5451
 snd-aloop
+snd-als300
 snd-atiixp
 snd-atiixp-modem
 snd-au8810
 snd-au8820
 snd-au8830
 snd-aw2
+snd-azt3328
 snd-bcd2000
 snd-bebob
 snd-bt87x
@@ -5360,6 +5358,7 @@ snd-ca0106
 snd-cmipci
 snd-cs4281
 snd-cs46xx
+snd-cs8427
 snd-ctl-led
 snd-ctxfi
 snd-darla20
@@ -5367,8 +5366,14 @@ snd-darla24
 snd-dice
 snd-dummy
 snd-echo3g
+snd-emu10k1
+snd-emu10k1-synth
+snd-emu10k1x
+snd-emux-synth
 snd-ens1370
 snd-ens1371
+snd-es1938
+snd-es1968
 snd-fireface
 snd-firewire-digi00x
 snd-firewire-lib
@@ -5401,6 +5406,7 @@ snd-hdspm
 snd-hrtimer
 snd-hwdep
 snd-i2c
+snd-ice1712
 snd-ice1724
 snd-ice17xx-ak4xxx
 snd-indigo
@@ -5416,6 +5422,7 @@ snd-korg1212
 snd-layla20
 snd-layla24
 snd-lola
+snd-maestro3
 snd-mia
 snd-mixart
 snd-mixer-oss
@@ -5641,12 +5648,7 @@ snd-soc-nau8821
 snd-soc-nau8822
 snd-soc-nau8824
 snd-soc-nau8825
-snd-soc-omap-abe-twl6040
-snd-soc-omap-dmic
 snd-soc-omap-mcbsp
-snd-soc-omap-mcpdm
-snd-soc-omap-twl4030
-snd-soc-omap3pandora
 snd-soc-pcm1681
 snd-soc-pcm1789-codec
 snd-soc-pcm1789-i2c
@@ -5710,7 +5712,6 @@ snd-soc-rt715
 snd-soc-rt715-sdca
 snd-soc-rt722-sdca
 snd-soc-rt9120
-snd-soc-rx51
 snd-soc-sc7180
 snd-soc-sc7280
 snd-soc-sc8280xp
@@ -5799,8 +5800,6 @@ snd-soc-tpa6130a2
 snd-soc-ts3a227e
 snd-soc-tscs42xx
 snd-soc-tscs454
-snd-soc-twl4030
-snd-soc-twl6040
 snd-soc-uda1334
 snd-soc-wcd-mbhc
 snd-soc-wcd9335
@@ -5847,6 +5846,8 @@ snd-soc-xlnx-i2s
 snd-soc-xlnx-spdif
 snd-soc-xtfpga-i2s
 snd-soc-zl38060
+snd-sonicvibes
+snd-trident
 snd-ua101
 snd-ump
 snd-usb-6fire
@@ -5859,6 +5860,7 @@ snd-usb-podhd
 snd-usb-toneport
 snd-usb-variax
 snd-usbmidi-lib
+snd-util-mem
 snd-via82xx
 snd-via82xx-modem
 snd-virmidi
@@ -5997,7 +5999,6 @@ ssd130x
 ssd130x-i2c
 ssd130x-spi
 ssfdc
-ssi_protocol
 ssif_bmc
 ssp_accel_sensor
 ssp_gyro_sensor
@@ -6243,6 +6244,7 @@ tegra-vde
 tegra-video
 tegra-xudc
 tegra186-cpufreq
+tegra186-gpc-dma
 tegra30-devfreq
 tegra30-tsensor
 tegra_cec
@@ -6286,8 +6288,6 @@ ti-dac7311
 ti-dac7612
 ti-dlpc3433
 ti-ecap-capture
-ti-emif-sram
-ti-eqep
 ti-lmp92064
 ti-lmu
 ti-sc
@@ -6303,7 +6303,6 @@ ti_am335x_adc
 ti_am335x_tsc
 ti_am335x_tscadc
 ti_cpsw_new
-ti_davinci_emac
 ti_edac
 ti_hecc
 ti_usb_3410_5052
@@ -6675,6 +6674,7 @@ virtio_crypto
 virtio_dma_buf
 virtio_input
 virtio_net
+virtio_pmem
 virtio_rpmsg_bus
 virtio_snd
 virtio_vdpa
@@ -6780,7 +6780,6 @@ winbond-840
 wire
 wireguard
 wishbone-serial
-wkup_m3_rproc
 wl1251
 wl1251_sdio
 wl1251_spi
