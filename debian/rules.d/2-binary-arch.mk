@@ -561,7 +561,7 @@ install-arch-headers:
 ifeq ($(do_libc_dev_package),true)
 	dh_prep -plinux-libc-dev
 endif
-	rm -rf $(headers_tmp)
+	rm -rf $(headers_tmp) $(headers_dir)
 	install -d $(headers_tmp) $(headers_dir)/usr/include/
 	$(hmake) $(conc_level) headers_install
 	( cd $(headers_tmp)/install/include/ && \
