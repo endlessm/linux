@@ -1,6 +1,5 @@
 human_arch	= ARM (hard float)
 build_arch	= arm
-header_arch	= arm
 defconfig	= defconfig
 flavours	= generic
 build_image	= zImage

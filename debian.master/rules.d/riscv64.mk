@@ -1,6 +1,5 @@
 human_arch	= RISC-V
 build_arch	= riscv
-header_arch	= $(build_arch)
 defconfig	= defconfig
 flavours        = generic
 build_image	= Image

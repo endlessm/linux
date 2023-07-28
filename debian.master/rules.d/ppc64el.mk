@@ -1,6 +1,5 @@
 human_arch	= PowerPC 64el
 build_arch	= powerpc
-header_arch	= $(build_arch)
 defconfig	= pseries_le_defconfig
 flavours	= generic
 build_image	= vmlinux.strip

@@ -1,6 +1,5 @@
 human_arch	= 64 bit x86 (32 bit userspace)
 build_arch	= x86
-header_arch	= $(build_arch)
 defconfig	= defconfig
 flavours	= 
 build_image	= bzImage

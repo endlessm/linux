@@ -551,7 +551,7 @@ headers_dir := $(CURDIR)/debian/linux-libc-dev
 
 hmake := $(MAKE) -C $(CURDIR) O=$(headers_tmp) \
 	INSTALL_HDR_PATH=$(headers_tmp)/install \
-	SHELL="$(SHELL)" ARCH=$(header_arch)
+	SHELL="$(SHELL)" ARCH=$(build_arch)
 
 .PHONY: install-arch-headers
 install-arch-headers:
