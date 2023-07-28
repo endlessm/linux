@@ -558,12 +558,7 @@ ifeq ($(do_libc_dev_package),true)
 	dh_prep -plinux-libc-dev
 endif
 	rm -rf $(headers_tmp) $(headers_dir)
-	install -d $(headers_tmp) $(headers_dir)/usr/include/
-	$(kmake) O=$(headers_tmp) INSTALL_HDR_PATH=$(headers_tmp)/install $(conc_level) headers_install
-	( cd $(headers_tmp)/install/include/ && \
-		find . -name '.' -o -name '.*' -prune -o -print | \
-                cpio -pvd --preserve-modification-time \
-			$(headers_dir)/usr/include/ )
+	$(kmake) O=$(headers_tmp) INSTALL_HDR_PATH=$(headers_dir)/usr $(conc_level) headers_install
 	mkdir $(headers_dir)/usr/include/$(DEB_HOST_MULTIARCH)
 	mv $(headers_dir)/usr/include/asm $(headers_dir)/usr/include/$(DEB_HOST_MULTIARCH)/
 	rm -rf $(headers_tmp)
