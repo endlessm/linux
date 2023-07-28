@@ -549,10 +549,6 @@ endif
 headers_tmp := $(CURDIR)/debian/tmp-headers
 headers_dir := $(CURDIR)/debian/linux-libc-dev
 
-hmake := $(MAKE) -C $(CURDIR) O=$(headers_tmp) \
-	INSTALL_HDR_PATH=$(headers_tmp)/install \
-	SHELL="$(SHELL)" ARCH=$(build_arch)
-
 .PHONY: install-arch-headers
 install-arch-headers:
 	@echo Debug: $@
@@ -563,7 +559,7 @@ ifeq ($(do_libc_dev_package),true)
 endif
 	rm -rf $(headers_tmp) $(headers_dir)
 	install -d $(headers_tmp) $(headers_dir)/usr/include/
-	$(hmake) $(conc_level) headers_install
+	$(kmake) O=$(headers_tmp) INSTALL_HDR_PATH=$(headers_tmp)/install $(conc_level) headers_install
 	( cd $(headers_tmp)/install/include/ && \
 		find . -name '.' -o -name '.*' -prune -o -print | \
                 cpio -pvd --preserve-modification-time \
