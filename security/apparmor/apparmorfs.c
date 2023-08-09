@@ -2593,6 +2593,8 @@ static struct aa_sfs_entry aa_sfs_entry_versions[] = {
 
 static struct aa_sfs_entry aa_sfs_entry_unconfined[] = {
 	AA_SFS_FILE_INTPTR("userns",		unprivileged_userns_restricted),
+	AA_SFS_FILE_INTPTR("change_profile",
+			    aa_unprivileged_unconfined_restricted),
 	{ }
 };
 
