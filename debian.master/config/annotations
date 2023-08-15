@@ -3125,6 +3125,7 @@ CONFIG_CPU_PJ4B                                 policy<{'armhf': 'y'}>
 CONFIG_CPU_PM                                   policy<{'arm64': 'y', 'armhf': 'y', 'riscv64': 'y'}>
 CONFIG_CPU_RMAP                                 policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y', 's390x': 'y'}>
 CONFIG_CPU_SPECTRE                              policy<{'armhf': 'y'}>
+CONFIG_CPU_SRSO                                 policy<{'amd64': 'y'}>
 CONFIG_CPU_SUP_AMD                              policy<{'amd64': 'y'}>
 CONFIG_CPU_SUP_CENTAUR                          policy<{'amd64': 'y'}>
 CONFIG_CPU_SUP_HYGON                            policy<{'amd64': 'y'}>
@@ -5056,6 +5057,7 @@ CONFIG_GCC_SUPPORTS_DYNAMIC_FTRACE_WITH_ARGS    policy<{'arm64': 'y'}>
 CONFIG_GCC_VERSION                              policy<{'amd64': '130200', 'arm64': '130200', 'armhf': '130200', 'ppc64el': '130200', 'riscv64': '130200', 's390x': '130200'}>
 CONFIG_GCOV_KERNEL                              policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'ppc64el': 'n', 'riscv64': 'n', 's390x': 'n'}>
 CONFIG_GDB_SCRIPTS                              policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y', 's390x': 'y'}>
+CONFIG_GDS_FORCE_MITIGATION                     policy<{'amd64': 'n'}>
 CONFIG_GEMINI_ETHERNET                          policy<{'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm'}>
 CONFIG_GENERIC_ADC_BATTERY                      policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm'}>
 CONFIG_GENERIC_ADC_THERMAL                      policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm'}>
@@ -9312,7 +9314,7 @@ CONFIG_PCIPCWATCHDOG                            policy<{'amd64': 'm', 'arm64': '
 CONFIG_PCI_AARDVARK                             policy<{'arm64': 'y'}>
 CONFIG_PCI_ATMEL                                policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm'}>
 CONFIG_PCI_ATS                                  policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y', 's390x': 'y'}>
-CONFIG_PCI_BRIDGE_EMUL                          policy<{'arm64': 'y', 'armhf': '-'}>
+CONFIG_PCI_BRIDGE_EMUL                          policy<{'arm64': 'y', 'armhf': 'y'}>
 CONFIG_PCI_CNB20LE_QUIRK                        policy<{'amd64': 'n'}>
 CONFIG_PCI_DEBUG                                policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'ppc64el': 'n', 'riscv64': 'n', 's390x': 'n'}>
 CONFIG_PCI_DIRECT                               policy<{'amd64': 'y'}>
@@ -9356,6 +9358,7 @@ CONFIG_PCI_LOCKLESS_CONFIG                      policy<{'amd64': 'y'}>
 CONFIG_PCI_MMCONFIG                             policy<{'amd64': 'y'}>
 CONFIG_PCI_MSI                                  policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y', 's390x': 'y'}>
 CONFIG_PCI_MSI_ARCH_FALLBACKS                   policy<{'ppc64el': 'y', 's390x': 'y'}>
+CONFIG_PCI_MVEBU                                policy<{'armhf': 'm'}>
 CONFIG_PCI_P2PDMA                               policy<{'amd64': 'y', 'arm64': 'y', 'ppc64el': 'y'}>
 CONFIG_PCI_PASID                                policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y', 's390x': 'n'}>
 CONFIG_PCI_PF_STUB                              policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm', 's390x': 'm'}>
