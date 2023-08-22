@@ -616,6 +616,8 @@ static int listener_release(struct inode *inode, struct file *file)
 {
 	struct aa_listener *listener = file->private_data;
 
+	if (!aa_current_policy_admin_capable(NULL))
+		return -EPERM;
 	if (listener)
 		aa_put_listener(listener);
 
@@ -626,6 +628,8 @@ static int listener_open(struct inode *inode, struct file *file)
 {
 	struct aa_listener *listener;
 
+	if (!aa_current_policy_admin_capable(NULL))
+		return -EPERM;
 	listener = aa_new_listener(NULL, GFP_KERNEL);
 	if (!listener)
 		return -ENOMEM;
@@ -726,6 +730,8 @@ static long listener_ioctl(struct file *file, unsigned int cmd,
 {
 	struct aa_listener *listener = file->private_data;
 
+	if (!aa_current_policy_admin_capable(NULL))
+		return -EPERM;
 	if (!listener)
 		return -EINVAL;
 
@@ -751,6 +757,9 @@ static __poll_t listener_poll(struct file *file, poll_table *pt)
 {
 	struct aa_listener *listener = file->private_data;
 	__poll_t mask = 0;
+
+	if (!aa_current_policy_admin_capable(NULL))
+		return -EPERM;
 
 	if (listener) {
 		spin_lock(&listener->lock);
