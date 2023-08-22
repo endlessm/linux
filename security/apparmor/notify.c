@@ -357,16 +357,38 @@ struct aa_knotif *__del_and_hold_user_pending(struct aa_listener *listener,
  */
 
 /* TODO: allow registering on multiple namespaces */
-/* TODO: make filter access read side lockless */
 static bool notification_match(struct aa_listener *listener,
 			       struct aa_audit_node *ad)
 {
 	if (!(listener->mask & (1 << ad->data.type)))
 		return false;
 
-	if (!listener->filter)
-		return true;
+	if (listener->filter) {
+		aa_state_t state;
+		unsigned int mask;
 
+		AA_DEBUG(DEBUG_UPCALL, "using filter");
+		if (!aa_ns_visible(listener->ns, labels_ns(ad->data.subj_label),
+				   false))
+			return false;
+		state = aa_dfa_next(listener->filter, DFA_START, ad->data.type);
+		state = aa_dfa_match(listener->filter, state, ad->data.subj_label->hname);
+		if (!state)
+			return false;
+		state = aa_dfa_null_transition(listener->filter, state);
+		state = aa_dfa_match_u16(listener->filter, state, ad->data.class);
+		mask = ACCEPT_TABLE(listener->filter)[state];
+		if (ad->data.request & mask)
+			return true;
+
+		/* allow for enhanced match conditions in the future
+		 * if (mask & AA_MATCH_CONT) {
+		 *	// TODO: match extensions
+		 * }
+		 */
+		return false;
+	}
+	AA_DEBUG(DEBUG_UPCALL, "matched type mask filter");
 	return true;
 }
 

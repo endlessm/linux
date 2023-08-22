@@ -119,6 +119,14 @@ static inline aa_state_t aa_dfa_null_transition(struct aa_dfa *dfa,
 	return aa_dfa_next(dfa, start, 0);
 }
 
+static inline aa_state_t aa_dfa_match_u16(struct aa_dfa *dfa, aa_state_t state,
+					  u16 data)
+{
+	__be16 buffer = cpu_to_be16(data);
+
+	return aa_dfa_match_len(dfa, state, (char *) &buffer, 2);
+}
+
 static inline bool path_mediated_fs(struct dentry *dentry)
 {
 	return !(dentry->d_sb->s_flags & SB_NOUSER);

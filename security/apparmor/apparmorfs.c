@@ -652,14 +652,15 @@ static long notify_set_filter(struct aa_listener *listener,
 		return -EFAULT;
 	if (size < sizeof(unotif))
 		return -EINVAL;
-	/* todo upper limit on allocation size */
+	/* size is capped at U16_MAX by data type */
 	unotif = kzalloc(size, GFP_KERNEL);
 	if (!unotif)
 		return -ENOMEM;
 
-	if (copy_from_user(unotif, buf, size))
-		return -EFAULT;
-
+	if (copy_from_user(unotif, buf, size)) {
+		ret = -EFAULT;
+		goto out;
+	}
 	ret = size;
 
 	/* todo validate to known modes */
@@ -668,11 +669,28 @@ static long notify_set_filter(struct aa_listener *listener,
 	if (unotif->ns)
 		/* todo */
 		ns = NULL;
-	if (unotif->filter)
-		; /* todo */
+	if (unotif->filter) {
+		struct aa_dfa *dfa;
+		void *pos = (void *) unotif + unotif->filter;
 
+		if (unotif->filter >= size ||
+		    ALIGN((size_t) pos, 8) != (size_t)pos) {
+			ret = -EINVAL;
+			goto out;
+		}
+		dfa = aa_dfa_unpack(pos, size - ((void *) unotif - pos),
+				    DFA_FLAG_VERIFY_STATES |
+				    TO_ACCEPT1_FLAG(YYTD_DATA32));
+		if (IS_ERR(dfa)) {
+			ret = PTR_ERR(dfa);
+			goto out;
+		}
+		listener->filter = dfa;
+	}
 	if (!aa_register_listener_proxy(listener, ns))
 		ret = -ENOMEM;
+
+out:
 	kfree(unotif);
 
 	return ret;
