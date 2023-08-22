@@ -908,6 +908,8 @@ static struct aa_profile *unpack_profile(struct aa_ext *e, char **ns_name)
 		profile->label.flags |= FLAG_DEBUG1;
 	if (tmp & PACKED_FLAG_DEBUG2)
 		profile->label.flags |= FLAG_DEBUG2;
+	if (tmp & PACKED_FLAG_INTERRUPTIBLE)
+		profile->label.flags |= FLAG_INTERRUPTIBLE;
 	if (!aa_unpack_u32(e, &tmp, NULL))
 		goto fail;
 	if (tmp == PACKED_MODE_COMPLAIN || (e->version & FORCE_COMPLAIN_FLAG)) {

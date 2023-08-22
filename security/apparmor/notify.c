@@ -405,7 +405,14 @@ static int handle_synchronous_notif(struct aa_listener *listener,
 	long werr;
 	int err;
 
-	werr = wait_for_completion_interruptible_timeout(&knotif->ready, msecs_to_jiffies(60000));
+	if (knotif->ad->subj_label->flags & FLAG_INTERRUPTIBLE)
+		werr = wait_for_completion_interruptible_timeout(&knotif->ready,
+						 msecs_to_jiffies(60000));
+	else
+		/* do not use close to long jiffies so cast is safe */
+		werr = (long) wait_for_completion_timeout(&knotif->ready,
+						   msecs_to_jiffies(60000));
+	/* time out OR interrupt */
 	if (werr <= 0) {
 		/* ensure knotif is not on list because of early exit */
 		spin_lock(&listener->lock);

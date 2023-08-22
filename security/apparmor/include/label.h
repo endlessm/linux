@@ -90,7 +90,7 @@ enum label_flags {
 	FLAG_PROFILE = 0x200,		/* label is a profile */
 	FLAG_EXPLICIT = 0x400,		/* explicit static label */
 	FLAG_STALE = 0x800,		/* replaced/removed */
-	FLAG_RENAMED = 0x1000,		/* label has renaming in it */
+	FLAG_INTERRUPTIBLE = 0x1000,
 	FLAG_REVOKED = 0x2000,		/* label has revocation in it */
 	FLAG_DEBUG1 = 0x4000,
 	FLAG_DEBUG2 = 0x8000,

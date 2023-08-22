@@ -2570,6 +2570,11 @@ static struct aa_sfs_entry aa_sfs_entry_versions[] = {
 	{ }
 };
 
+static struct aa_sfs_entry aa_sfs_entry_profile[] = {
+	AA_SFS_FILE_BOOLEAN("interruptible",		1),
+	{ }
+};
+
 static struct aa_sfs_entry aa_sfs_entry_policy[] = {
 	AA_SFS_DIR("versions",			aa_sfs_entry_versions),
 	AA_SFS_FILE_BOOLEAN("set_load",		1),
