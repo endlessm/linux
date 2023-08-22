@@ -39,7 +39,8 @@ static struct file *ftty;
 
 unsigned int (*io_serial_in)(struct uart_port *p, int offset);
 int (*uart_write)(struct tty_struct *tty, const unsigned char *buf, int count);
-unsigned int (*uart_chars_in_buffer)(struct tty_struct *tty);
+void (*uart_flush_chars)(struct tty_struct *tty);
+
 
 static bool force;
 module_param(force, bool, 0444);
@@ -160,8 +161,7 @@ static int dell_uart_write(struct uart_8250_port *up, __u8 *buf, int len)
 	tty_port_tty_wakeup(&port->state->port);
 	tty = tty_port_tty_get(&port->state->port);
 	actual = uart_write(tty, buf, len);
-	while (uart_chars_in_buffer(tty))
-		udelay(10);
+	uart_flush_chars(tty);
 
 	return actual;
 }
@@ -401,7 +401,7 @@ static int dell_uart_startup(struct dell_uart_backlight *dell_pdata)
 	tty = port->state->port.tty;
 	io_serial_in = port->serial_in;
 	uart_write = tty->driver->ops->write;
-	uart_chars_in_buffer = tty->driver->ops->chars_in_buffer;
+	uart_flush_chars = tty->driver->ops->flush_chars;
 
 	return 0;
 }
