@@ -1,3 +1,9 @@
+linux (6.5.0-0.0) mantic; urgency=medium
+
+  * Empty entry
+
+ -- Andrea Righi <andrea.righi@canonical.com>  Wed, 23 Aug 2023 08:14:48 +0200
+
 linux-unstable (6.5.0-4.4) mantic; urgency=medium
 
   * mantic/linux-unstable: 6.5.0-4.4 -proposed tracker (LP: #2029086)
