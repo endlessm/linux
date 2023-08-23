@@ -1,11 +1,16 @@
 #!/bin/bash
 
 remote_repo=''
+remote_branch='main'
 sru_cycle=
 while :
 do
 	if [ "$1" = "--remote-repo" ]; then
 		remote_repo="$2"
+		shift 2
+
+	elif [ "$1" = "--remote-branch" ]; then
+		remote_branch="$2"
 		shift 2
 
 	elif [ "$1" = "--sru-cycle" ]; then
@@ -102,8 +107,8 @@ cat_file()
 # Determine if this is merge format (main branch exists).
 present=$(cat_file -t "$remote_name/main" 2>/dev/null)
 if [ "$present" ]; then
-	git_base="$remote_name/main:$sru_cycle/"
-	git_base_devel="$remote_name/main:tip/"
+	git_base="$remote_name/$remote_branch:$sru_cycle/"
+	git_base_devel="$remote_name/$remote_branch:tip/"
 else
 	git_base="$remote_name/$sru_cycle:"
 	git_base_devel="$remote_name/master:"
