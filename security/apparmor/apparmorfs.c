@@ -2600,6 +2600,7 @@ static struct aa_sfs_entry aa_sfs_entry_unconfined[] = {
 
 static struct aa_sfs_entry aa_sfs_entry_profile[] = {
 	AA_SFS_FILE_BOOLEAN("interruptible",		1),
+	AA_SFS_FILE_BOOLEAN("disconnected.path",	1),
 	{ }
 };
 
