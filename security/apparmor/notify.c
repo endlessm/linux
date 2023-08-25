@@ -634,7 +634,8 @@ static long build_v3_unotif(struct aa_knotif *knotif, void __user *buf,
 		return -EFAULT;
 	if (copy_to_user(buf + sizeof(unotif), profile->base.hname, psize))
 		return -EFAULT;
-	if (copy_to_user(buf + sizeof(unotif) + psize, knotif->ad->name, nsize))
+	if (knotif->ad->name &&
+	    copy_to_user(buf + sizeof(unotif) + psize, knotif->ad->name, nsize))
 		return -EFAULT;
 
 	return size;

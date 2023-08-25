@@ -121,15 +121,14 @@ static int check_cache(struct aa_profile *profile,
 				 hit->data.error);
 			aa_put_audit_node(hit);
 			/* don't audit: if its in the cache already audited */
-			return 1;
+			return 0;
 		}
 		aa_put_audit_node(hit);
-		hit = NULL;
 	} else {
 		AA_DEBUG(DEBUG_UPCALL, "cache miss");
 	}
 
-	return 0;
+	return 1;
 }
 
 // error - immediate return
@@ -220,10 +219,10 @@ int aa_audit_file(const struct cred *subj_cred,
 
 		/* learning cache - not audit dedup yet */
 		err = check_cache(profile, &ad);
-		if (err != 0) {
+		if (err <= 0) {
 			AA_DEBUG(DEBUG_UPCALL, "cache early bail %d\n", err);
 			/* cached */
-			return ad.err;
+			return err;
 		}
 		implicit_deny = (ad.request & ~perms->allow) & ~perms->deny;
 		if (USER_MODE(profile))
