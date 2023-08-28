@@ -395,6 +395,7 @@ firmware:       amdgpu/psp_13_0_4_toc.bin
 firmware:       amdgpu/psp_13_0_5_ta.bin
 firmware:       amdgpu/psp_13_0_5_toc.bin
 firmware:       amdgpu/psp_13_0_6_sos.bin
+firmware:       amdgpu/psp_13_0_6_ta.bin
 firmware:       amdgpu/psp_13_0_7_sos.bin
 firmware:       amdgpu/psp_13_0_7_ta.bin
 firmware:       amdgpu/psp_13_0_8_ta.bin

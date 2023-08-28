@@ -5026,6 +5026,7 @@ spi-zynqmp-gqspi
 spi_ks8995
 spidev
 spinand
+spl
 spmi
 sprd_serial
 sps30
@@ -5655,7 +5656,6 @@ virt-dma
 virt_wifi
 virtio-gpu
 virtio-rng
-virtio_blk
 virtio_bt
 virtio_crypto
 virtio_dma_buf
@@ -5936,6 +5936,7 @@ zd1301
 zd1301_demod
 zet6223
 zforce_ts
+zfs
 zhenhua
 ziirave_wdt
 zinitix

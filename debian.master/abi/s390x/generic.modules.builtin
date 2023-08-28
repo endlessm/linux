@@ -126,6 +126,7 @@ utf8data
 vfat
 virtio
 virtio_balloon
+virtio_blk
 virtio_console
 virtio_pci
 virtio_pci_legacy_dev

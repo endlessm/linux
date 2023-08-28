@@ -750,6 +750,7 @@ smc_diag
 smsc
 smsgiucv_app
 softdog
+spl
 st
 st_drv
 ste10Xp
@@ -840,7 +841,6 @@ vhost_scsi
 vhost_vsock
 virtio-gpu
 virtio-rng
-virtio_blk
 virtio_crypto
 virtio_dma_buf
 virtio_input
@@ -954,6 +954,7 @@ zcrypt_cex2a
 zcrypt_cex2c
 zcrypt_cex4
 zfcp
+zfs
 zonefs
 zram
 zstd

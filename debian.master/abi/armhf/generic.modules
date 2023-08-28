@@ -4058,6 +4058,7 @@ pci-dra7xx
 pci-epf-mhi
 pci-epf-ntb
 pci-epf-vntb
+pci-mvebu
 pci-pf-stub
 pci-stub
 pci200syn
@@ -6668,7 +6669,6 @@ viperboard_adc
 virt_wifi
 virtio-gpu
 virtio-rng
-virtio_blk
 virtio_bt
 virtio_crypto
 virtio_dma_buf

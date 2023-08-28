@@ -418,6 +418,7 @@ vfat
 virt-dma
 virtio
 virtio_balloon
+virtio_blk
 virtio_console
 virtio_mmio
 virtio_pci
