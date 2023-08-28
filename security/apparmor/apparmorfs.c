@@ -1216,6 +1216,9 @@ static int aa_sfs_seq_show(struct seq_file *seq, void *v)
 	case AA_SFS_TYPE_U64:
 		seq_printf(seq, "%#08lx\n", fs_file->v.u64);
 		break;
+	case AA_SFS_TYPE_INTPTR:
+		seq_printf(seq, "%d\n", READ_ONCE(*fs_file->v.intptr));
+		break;
 	default:
 		/* Ignore unpritable entry types. */
 		break;

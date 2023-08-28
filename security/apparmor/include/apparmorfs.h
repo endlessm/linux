@@ -17,6 +17,7 @@ enum aa_sfs_type {
 	AA_SFS_TYPE_BOOLEAN,
 	AA_SFS_TYPE_STRING,
 	AA_SFS_TYPE_U64,
+	AA_SFS_TYPE_INTPTR,
 	AA_SFS_TYPE_FOPS,
 	AA_SFS_TYPE_DIR,
 };
@@ -33,6 +34,7 @@ struct aa_sfs_entry {
 		char *string;
 		unsigned long u64;
 		struct aa_sfs_entry *files;
+		int *intptr;
 	} v;
 	const struct file_operations *file_ops;
 };
@@ -50,6 +52,10 @@ extern const struct file_operations aa_sfs_seq_file_ops;
 #define AA_SFS_FILE_U64(_name, _value) \
 	{ .name = (_name), .mode = 0444, \
 	  .v_type = AA_SFS_TYPE_U64, .v.u64 = (_value), \
+	  .file_ops = &aa_sfs_seq_file_ops }
+#define AA_SFS_FILE_INTPTR(_name, _value) \
+	{ .name = (_name), .mode = 0444, \
+	  .v_type = AA_SFS_TYPE_INTPTR, .v.intptr = &(_value), \
 	  .file_ops = &aa_sfs_seq_file_ops }
 #define AA_SFS_FILE_FOPS(_name, _mode, _fops) \
 	{ .name = (_name), .v_type = AA_SFS_TYPE_FOPS, \
