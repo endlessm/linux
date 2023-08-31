@@ -13070,8 +13070,8 @@ CONFIG_ST_THERMAL_MEMMAP                        policy<{'arm64': 'm'}>
 CONFIG_ST_UVIS25                                policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm'}>
 CONFIG_ST_UVIS25_I2C                            policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm'}>
 CONFIG_ST_UVIS25_SPI                            policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm'}>
-CONFIG_SUN20I_D1_CCU                            policy<{'riscv64': 'm'}>
-CONFIG_SUN20I_D1_R_CCU                          policy<{'riscv64': 'm'}>
+CONFIG_SUN20I_D1_CCU                            policy<{'riscv64': 'y'}>
+CONFIG_SUN20I_D1_R_CCU                          policy<{'riscv64': 'y'}>
 CONFIG_SUN20I_PPU                               policy<{'arm64': 'y', 'riscv64': 'y'}>
 CONFIG_SUN4I_EMAC                               policy<{'arm64': 'n', 'armhf': '-', 'riscv64': 'm'}>
 CONFIG_SUN4I_GPADC                              policy<{'arm64': 'n', 'armhf': '-', 'riscv64': 'm'}>
@@ -13104,7 +13104,7 @@ CONFIG_SUNRPC_DEBUG                             policy<{'amd64': 'y', 'arm64': '
 CONFIG_SUNRPC_GSS                               policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm', 's390x': 'm'}>
 CONFIG_SUNRPC_SWAP                              policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y', 's390x': 'y'}>
 CONFIG_SUNRPC_XPRT_RDMA                         policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm', 's390x': 'm'}>
-CONFIG_SUNXI_CCU                                policy<{'arm64': 'y', 'armhf': '-', 'riscv64': 'm'}>
+CONFIG_SUNXI_CCU                                policy<{'arm64': 'y', 'armhf': '-', 'riscv64': 'y'}>
 CONFIG_SUNXI_MBUS                               policy<{'arm64': 'y'}>
 CONFIG_SUNXI_NMI_INTC                           policy<{'arm64': 'y'}>
 CONFIG_SUNXI_RSB                                policy<{'arm64': 'm', 'armhf': '-', 'riscv64': 'm'}>
