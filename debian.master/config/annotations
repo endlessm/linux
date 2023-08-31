@@ -516,8 +516,8 @@ CONFIG_QCOM_QDF2400_ERRATUM_0065                note<'LP: #1672486'>
 CONFIG_QETH_OSX                                 policy<{'s390x': 'n'}>
 CONFIG_QETH_OSX                                 note<'LP: #1959890'>
 
-CONFIG_REGULATOR_FIXED_VOLTAGE                  policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'y', 'ppc64el': 'm', 'riscv64': 'm', 's390x': '-'}>
-CONFIG_REGULATOR_FIXED_VOLTAGE                  note<'boot essential on arm'>
+CONFIG_REGULATOR_FIXED_VOLTAGE                  policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'y', 'ppc64el': 'm', 'riscv64': 'y', 's390x': '-'}>
+CONFIG_REGULATOR_FIXED_VOLTAGE                  note<'boot essential on arm and the Allwinner D1 RISC-V SoC'>
 
 CONFIG_REGULATOR_TPS65217                       policy<{'arm64': 'm', 'armhf': 'y', 'ppc64el': '-', 'riscv64': 'm'}>
 CONFIG_REGULATOR_TPS65217                       note<'boot essential on AM335x'>
