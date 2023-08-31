@@ -13111,7 +13111,7 @@ CONFIG_SUNXI_MBUS                               policy<{'arm64': 'y'}>
 CONFIG_SUNXI_NMI_INTC                           policy<{'arm64': 'y'}>
 CONFIG_SUNXI_RSB                                policy<{'arm64': 'm', 'armhf': '-', 'riscv64': 'm'}>
 CONFIG_SUNXI_SRAM                               policy<{'arm64': 'y', 'riscv64': 'y'}>
-CONFIG_SUNXI_WATCHDOG                           policy<{'arm64': 'm', 'armhf': '-', 'riscv64': 'm'}>
+CONFIG_SUNXI_WATCHDOG                           policy<{'arm64': 'm', 'armhf': '-', 'riscv64': 'y'}>
 CONFIG_SUN_PARTITION                            policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y', 's390x': 'n'}>
 CONFIG_SURFACE3_WMI                             policy<{'amd64': 'm'}>
 CONFIG_SURFACE_3_POWER_OPREGION                 policy<{'amd64': 'm', 'arm64': 'n'}>
