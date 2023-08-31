@@ -669,6 +669,9 @@ CONFIG_SQUASHFS_DECOMP_MULTI_PERCPU             note<'LP: #1980861'>
 CONFIG_STACK_VALIDATION                         policy<{'amd64': 'y'}>
 CONFIG_STACK_VALIDATION                         note<'needed for livepatch'>
 
+CONFIG_SUN6I_RTC_CCU                            policy<{'arm64': 'm', 'riscv64': 'y'}>
+CONFIG_SUN6I_RTC_CCU                            note<'needed by Allwinner D1 pinctrl/gpio'>
+
 CONFIG_SWP_EMULATION                            policy<{'arm64': 'y'}>
 CONFIG_SWP_EMULATION                            note<'LP: #1545542'>
 
@@ -13086,7 +13089,6 @@ CONFIG_SUN50I_H6_CCU                            policy<{'arm64': 'y'}>
 CONFIG_SUN50I_H6_R_CCU                          policy<{'arm64': 'y'}>
 CONFIG_SUN50I_IOMMU                             policy<{'arm64': 'y', 'armhf': '-', 'riscv64': 'y'}>
 CONFIG_SUN6I_MSGBOX                             policy<{'arm64': 'y', 'armhf': '-', 'riscv64': 'm'}>
-CONFIG_SUN6I_RTC_CCU                            policy<{'arm64': 'm', 'riscv64': 'm'}>
 CONFIG_SUN6I_R_INTC                             policy<{'arm64': 'y'}>
 CONFIG_SUN8I_DE2_CCU                            policy<{'arm64': 'y', 'armhf': '-', 'riscv64': 'm'}>
 CONFIG_SUN8I_H3_CCU                             policy<{'arm64': 'y', 'armhf': '-'}>
