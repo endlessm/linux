@@ -90,7 +90,7 @@ CONFIG_CP15_BARRIER_EMULATION                   note<'LP: #1545542'>
 CONFIG_CPUFREQ_DT                               policy<{'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y'}>
 CONFIG_CPUFREQ_DT                               note<'not autoloadable'>
 
-CONFIG_CPU_FREQ_DEFAULT_GOV_PERFORMANCE         policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'ppc64el': 'n', 'riscv64': 'n'}>
+CONFIG_CPU_FREQ_DEFAULT_GOV_PERFORMANCE         policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'ppc64el': 'n', 'riscv64': 'y'}>
 CONFIG_CPU_FREQ_DEFAULT_GOV_PERFORMANCE         note<'for bootspeed'>
 
 CONFIG_CPU_FREQ_GOV_CONSERVATIVE                policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y'}>
@@ -3120,7 +3120,7 @@ CONFIG_CPU_CP15                                 policy<{'armhf': 'y'}>
 CONFIG_CPU_CP15_MMU                             policy<{'armhf': 'y'}>
 CONFIG_CPU_FREQ                                 policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y'}>
 CONFIG_CPU_FREQ_DEFAULT_GOV_CONSERVATIVE        policy<{'arm64': 'n', 'armhf': 'n', 'ppc64el': 'n', 'riscv64': 'n'}>
-CONFIG_CPU_FREQ_DEFAULT_GOV_ONDEMAND            policy<{'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y'}>
+CONFIG_CPU_FREQ_DEFAULT_GOV_ONDEMAND            policy<{'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'n'}>
 CONFIG_CPU_FREQ_DEFAULT_GOV_POWERSAVE           policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'ppc64el': 'n', 'riscv64': 'n'}>
 CONFIG_CPU_FREQ_DEFAULT_GOV_SCHEDUTIL           policy<{'amd64': 'y', 'arm64': 'n', 'armhf': 'n', 'ppc64el': 'n', 'riscv64': 'n'}>
 CONFIG_CPU_FREQ_DEFAULT_GOV_USERSPACE           policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'ppc64el': 'n', 'riscv64': 'n'}>
