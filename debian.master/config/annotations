@@ -14701,7 +14701,7 @@ CONFIG_VLAN_8021Q                               policy<{'amd64': 'm', 'arm64': '
 CONFIG_VLAN_8021Q_GVRP                          policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y', 's390x': 'y'}>
 CONFIG_VLAN_8021Q_MVRP                          policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y', 's390x': 'y'}>
 CONFIG_VMAP_PFN                                 policy<{'amd64': 'y', 'arm64': '-'}>
-CONFIG_VMAP_STACK                               policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'riscv64': 'n', 's390x': 'y'}>
+CONFIG_VMAP_STACK                               policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'riscv64': 'y', 's390x': 'y'}>
 CONFIG_VMCP                                     policy<{'s390x': 'y'}>
 CONFIG_VMCP_CMA_SIZE                            policy<{'s390x': '4'}>
 CONFIG_VMD                                      policy<{'amd64': 'm'}>
