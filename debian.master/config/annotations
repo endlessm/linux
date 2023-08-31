@@ -567,6 +567,9 @@ CONFIG_SCSI_VIRTIO                              note<'enable initrdless boot in 
 CONFIG_SECURITY_SAFESETID                       policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y', 's390x': 'y'}>
 CONFIG_SECURITY_SAFESETID                       note<'LP: #1845391'>
 
+CONFIG_SERIAL_8250_DW                           policy<{'amd64': 'm', 'arm64': 'y', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'y'}>
+CONFIG_SERIAL_8250_DW                           note<'several RISC-V boards needs this for console output'>
+
 CONFIG_SERIAL_8250_MID                          policy<{'amd64': 'y'}>
 CONFIG_SERIAL_8250_MID                          note<'required to provide console on some Intel SoC platforms (LP: #2009283)'>
 
@@ -11646,7 +11649,6 @@ CONFIG_SERIAL_8250_DEPRECATED_OPTIONS           policy<{'amd64': 'n', 'arm64': '
 CONFIG_SERIAL_8250_DETECT_IRQ                   policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'ppc64el': 'n', 'riscv64': 'n'}>
 CONFIG_SERIAL_8250_DFL                          policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'n', 'riscv64': 'm'}>
 CONFIG_SERIAL_8250_DMA                          policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y'}>
-CONFIG_SERIAL_8250_DW                           policy<{'amd64': 'm', 'arm64': 'y', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm'}>
 CONFIG_SERIAL_8250_DWLIB                        policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y'}>
 CONFIG_SERIAL_8250_EM                           policy<{'arm64': 'n', 'armhf': 'n', 'riscv64': 'n'}>
 CONFIG_SERIAL_8250_EXAR                         policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm'}>
