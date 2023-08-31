@@ -9789,7 +9789,7 @@ CONFIG_PINCTRL_SPRD_SC9860                      policy<{'arm64': 'y'}>
 CONFIG_PINCTRL_STARFIVE_JH7100                  policy<{'riscv64': 'm'}>
 CONFIG_PINCTRL_STARFIVE_JH7110                  policy<{'riscv64': 'y'}>
 CONFIG_PINCTRL_STARFIVE_JH7110_AON              policy<{'riscv64': 'm'}>
-CONFIG_PINCTRL_STARFIVE_JH7110_SYS              policy<{'riscv64': 'm'}>
+CONFIG_PINCTRL_STARFIVE_JH7110_SYS              policy<{'riscv64': 'y'}>
 CONFIG_PINCTRL_STM32                            policy<{'arm64': 'y'}>
 CONFIG_PINCTRL_STM32MP257                       policy<{'arm64': 'y'}>
 CONFIG_PINCTRL_STMFX                            policy<{'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm'}>
