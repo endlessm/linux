@@ -13082,7 +13082,7 @@ CONFIG_SUN4I_TIMER                              policy<{'arm64': 'y', 'armhf': '
 CONFIG_SUN50I_A100_CCU                          policy<{'arm64': 'y'}>
 CONFIG_SUN50I_A100_R_CCU                        policy<{'arm64': 'y'}>
 CONFIG_SUN50I_A64_CCU                           policy<{'arm64': 'y'}>
-CONFIG_SUN50I_DE2_BUS                           policy<{'arm64': 'y', 'armhf': '-', 'riscv64': 'y'}>
+CONFIG_SUN50I_DE2_BUS                           policy<{'arm64': 'y', 'armhf': '-', 'riscv64': 'n'}>
 CONFIG_SUN50I_ERRATUM_UNKNOWN1                  policy<{'arm64': 'y'}>
 CONFIG_SUN50I_H616_CCU                          policy<{'arm64': 'y'}>
 CONFIG_SUN50I_H6_CCU                            policy<{'arm64': 'y'}>
