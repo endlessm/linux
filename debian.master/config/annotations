@@ -117,6 +117,21 @@ CONFIG_CRASH_DUMP                               note<'LP: #1363180'>
 CONFIG_CRYPTO_SHA512                            policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y', 's390x': 'y'}>
 CONFIG_CRYPTO_SHA512                            note<'module signing'>
 
+CONFIG_CRYPTO_SHA512_ARM                        policy<{'armhf': 'y'}>
+CONFIG_CRYPTO_SHA512_ARM                        note<'LP: #2034061'>
+
+CONFIG_CRYPTO_SHA512_ARM64                      policy<{'arm64': 'y'}>
+CONFIG_CRYPTO_SHA512_ARM64                      note<'LP: #2034061'>
+
+CONFIG_CRYPTO_SHA512_ARM64_CE                   policy<{'arm64': 'y'}>
+CONFIG_CRYPTO_SHA512_ARM64_CE                   note<'LP: #2034061'>
+
+CONFIG_CRYPTO_SHA512_S390                       policy<{'s390x': 'y'}>
+CONFIG_CRYPTO_SHA512_S390                       note<'LP: #2034061'>
+
+CONFIG_CRYPTO_SHA512_SSSE3                      policy<{'amd64': 'y'}>
+CONFIG_CRYPTO_SHA512_SSSE3                      note<'LP: #2034061'>
+
 CONFIG_CRYPTO_USER_API_ENABLE_OBSOLETE          policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'ppc64el': 'n', 'riscv64': 'n', 's390x': 'n'}>
 CONFIG_CRYPTO_USER_API_ENABLE_OBSOLETE          note<'Obsolete w/ no known userspace dependencies'>
 
@@ -3486,11 +3501,6 @@ CONFIG_CRYPTO_SHA3                              policy<{'amd64': 'y', 'arm64': '
 CONFIG_CRYPTO_SHA3_256_S390                     policy<{'s390x': 'm'}>
 CONFIG_CRYPTO_SHA3_512_S390                     policy<{'s390x': 'm'}>
 CONFIG_CRYPTO_SHA3_ARM64                        policy<{'arm64': 'm'}>
-CONFIG_CRYPTO_SHA512_ARM                        policy<{'armhf': 'm'}>
-CONFIG_CRYPTO_SHA512_ARM64                      policy<{'arm64': 'm'}>
-CONFIG_CRYPTO_SHA512_ARM64_CE                   policy<{'arm64': 'm'}>
-CONFIG_CRYPTO_SHA512_S390                       policy<{'s390x': 'm'}>
-CONFIG_CRYPTO_SHA512_SSSE3                      policy<{'amd64': 'm'}>
 CONFIG_CRYPTO_SIG2                              policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y', 's390x': 'y'}>
 CONFIG_CRYPTO_SIMD                              policy<{'amd64': 'm', 'armhf': 'm'}>
 CONFIG_CRYPTO_SKCIPHER                          policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y', 's390x': 'y'}>
