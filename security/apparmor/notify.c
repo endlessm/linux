@@ -526,8 +526,7 @@ static void listener_complete_held_user_pending(struct aa_listener *listener,
 static bool response_is_valid_perm(struct apparmor_notif_resp_perm *reply,
 				   struct aa_knotif *knotif, u16 size)
 {
-	if ((knotif->ad->request | knotif->ad->denied) &
-	    ~(reply->allow | reply->deny)) {
+	if ((knotif->ad->denied) & ~(reply->allow | reply->deny)) {
 		AA_DEBUG(DEBUG_UPCALL,
 			 "id %lld: response does not cover permission bits in the upcall request/reply 0x%x/0x%x deny/reply 0x%x/0x%x",
 			 knotif->id, knotif->ad->request, reply->allow, knotif->ad->denied,
@@ -621,7 +620,8 @@ static void knotif_update_from_uresp_perm(struct aa_knotif *knotif,
 			 uresp->base.error);
 
 		knotif->ad->denied = uresp->deny;
-		knotif->ad->request = uresp->allow | uresp->deny;
+		knotif->ad->request = (knotif->ad->request | uresp->allow) &
+			~uresp->deny;
 		flags = uresp->base.flags;
 		if (!knotif->ad->denied) {
 			/* no more denial, clear the error*/
@@ -653,11 +653,13 @@ static void knotif_update_from_uresp_perm(struct aa_knotif *knotif,
 			 knotif->id, node->data.request, node->data.denied);
 		hit = aa_audit_cache_insert(&profile->learning_cache,
 					    node);
-		AA_DEBUG(DEBUG_UPCALL, "id %lld: cache insert %s: name %s node %s\n",
-			 knotif->id, hit != node ? "lost race" : "",
+		AA_DEBUG(DEBUG_UPCALL,
+			 "id %lld: (node %p, hit %p) cache insert %s: name %s node %s\n",
+			 knotif->id, node, hit, hit != node ? "entry already exists" : "",
 			 hit->data.name, node->data.name);
 		if (hit != node) {
-			AA_DEBUG(DEBUG_UPCALL, "id %lld: updating existing cache entry",
+			AA_DEBUG(DEBUG_UPCALL,
+				 "id %lld: updating existing cache entry",
 				 knotif->id);
 			aa_audit_cache_update_ent(&profile->learning_cache,
 						  hit, &node->data);
