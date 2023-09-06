@@ -737,6 +737,9 @@ static int vmd_pm_enable_quirk(struct pci_dev *pdev, void *userdata)
 	if (!(features & VMD_FEAT_BIOS_PM_QUIRK))
 		return 0;
 
+	/* Allow ASPM override */
+	pdev->dev_flags |= PCI_DEV_FLAGS_ENABLE_ASPM;
+
 	pci_enable_link_state(pdev, PCIE_LINK_STATE_ALL);
 
 	pos = pci_find_ext_capability(pdev, PCI_EXT_CAP_ID_LTR);
