@@ -192,8 +192,8 @@ if [ -d "$DEBIAN/abi" ]; then
 		if [ -f "$DEBIAN/abi/version" ]; then
 			# This is an unversioned ABI directory, so simply update the
 			# version file
-			echo "$new" > "$DEBIAN/abi/version"
-			git add "$DEBIAN/abi/version"
+			echo "$new" | run tee "$DEBIAN/abi/version" >/dev/null
+			run git add "$DEBIAN/abi/version"
 		else
 			# Get the old ABI directory:
 			old=$(find "$DEBIAN/abi/" -mindepth 1 -maxdepth 1 -type d | \
