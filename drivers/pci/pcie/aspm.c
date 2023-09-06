@@ -647,7 +647,8 @@ static void pcie_aspm_cap_init(struct pcie_link_state *link, int blacklist)
 	aspm_l1ss_init(link);
 
 	/* Save default state */
-	link->aspm_default = link->aspm_enabled;
+	link->aspm_default = parent->dev_flags & PCI_DEV_FLAGS_ENABLE_ASPM ?
+			     ASPM_STATE_ALL : link->aspm_enabled;
 
 	/* Setup initial capable state. Will be updated later */
 	link->aspm_capable = link->aspm_support;
@@ -1127,7 +1128,7 @@ int pci_enable_link_state(struct pci_dev *pdev, int state)
 	 * systems we have to observe the FADT ACPI_FADT_NO_ASPM bit and
 	 * the _OSC method), we can't honor that request.
 	 */
-	if (aspm_disabled) {
+	if (aspm_disabled && !(pdev->dev_flags & PCI_DEV_FLAGS_ENABLE_ASPM)) {
 		pci_warn(pdev, "can't override BIOS ASPM; OS doesn't have ASPM control\n");
 		return -EPERM;
 	}
