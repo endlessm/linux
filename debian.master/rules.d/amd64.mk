@@ -20,4 +20,4 @@ do_extras_package = true
 do_tools_common = true
 do_tools_acpidbg = true
 do_odm_drivers  = true
-do_lib_rust     = false
+do_lib_rust     = true
