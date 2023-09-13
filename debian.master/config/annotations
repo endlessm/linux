@@ -10645,7 +10645,7 @@ CONFIG_RESET_NUVOTON_MA35D1                     policy<{'arm64': 'y'}>
 CONFIG_RESET_POLARFIRE_SOC                      policy<{'riscv64': 'y'}>
 CONFIG_RESET_QCOM_AOSS                          policy<{'arm64': 'y', 'armhf': 'y'}>
 CONFIG_RESET_QCOM_PDC                           policy<{'arm64': 'm', 'armhf': 'm'}>
-CONFIG_RESET_RZG2L_USBPHY_CTRL                  policy<{'arm64': 'm', 'riscv64': 'm'}>
+CONFIG_RESET_RZG2L_USBPHY_CTRL                  policy<{'arm64': 'y', 'riscv64': 'm'}>
 CONFIG_RESET_SCMI                               policy<{'arm64': 'm', 'armhf': 'm'}>
 CONFIG_RESET_SIMPLE                             policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y'}>
 CONFIG_RESET_SOCFPGA                            policy<{'armhf': 'y'}>
