@@ -270,14 +270,8 @@ CONFIG_IMA                                      note<'LP: #1643652'>
 CONFIG_IMA_APPRAISE                             policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y', 's390x': 'y'}>
 CONFIG_IMA_APPRAISE                             note<'LP: #1643652'>
 
-CONFIG_IMA_APPRAISE_SIGNED_INIT                 policy<{'amd64': '-', 'arm64': '-', 'armhf': '-', 'ppc64el': 'n', 's390x': '-'}>
-CONFIG_IMA_APPRAISE_SIGNED_INIT                 note<'LP: #1667490'>
-
 CONFIG_IMA_ARCH_POLICY                          policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y', 's390x': 'y'}>
 CONFIG_IMA_ARCH_POLICY                          note<'LP: #1866909'>
-
-CONFIG_IMA_BLACKLIST_KEYRING                    policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'ppc64el': 'n', 'riscv64': 'n', 's390x': 'n'}>
-CONFIG_IMA_BLACKLIST_KEYRING                    note<'LP: #1667490'>
 
 CONFIG_IMA_DEFAULT_HASH_SHA256                  policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'ppc64el': 'y', 'riscv64': 'n', 's390x': 'n'}>
 CONFIG_IMA_DEFAULT_HASH_SHA256                  note<'LP: #1643652'>
@@ -288,23 +282,14 @@ CONFIG_IMA_KEXEC                                note<'LP: #1643652'>
 CONFIG_IMA_KEYRINGS_PERMIT_SIGNED_BY_BUILTIN_OR_SECONDARY policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'ppc64el': 'n', 'riscv64': 'n', 's390x': 'n'}>
 CONFIG_IMA_KEYRINGS_PERMIT_SIGNED_BY_BUILTIN_OR_SECONDARY note<'LP: #1667490'>
 
-CONFIG_IMA_LOAD_X509                            policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'ppc64el': 'y', 'riscv64': 'n', 's390x': 'n'}>
-CONFIG_IMA_LOAD_X509                            note<'LP: #1643652'>
-
 CONFIG_IMA_READ_POLICY                          policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'ppc64el': 'y', 'riscv64': 'n', 's390x': 'n'}>
 CONFIG_IMA_READ_POLICY                          note<'LP: #1866909'>
 
 CONFIG_IMA_SIG_TEMPLATE                         policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'ppc64el': 'y', 'riscv64': 'n', 's390x': 'n'}>
 CONFIG_IMA_SIG_TEMPLATE                         note<'LP: #1643652'>
 
-CONFIG_IMA_TRUSTED_KEYRING                      policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y', 's390x': 'y'}>
-CONFIG_IMA_TRUSTED_KEYRING                      note<'LP: #1643652'>
-
 CONFIG_IMA_WRITE_POLICY                         policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'ppc64el': 'n', 'riscv64': 'n', 's390x': 'n'}>
 CONFIG_IMA_WRITE_POLICY                         note<'LP: #1667490'>
-
-CONFIG_IMA_X509_PATH                            policy<{'ppc64el': '"/etc/keys/x509_ima.der"'}>
-CONFIG_IMA_X509_PATH                            note<'LP: #1643652'>
 
 CONFIG_INPUT_UINPUT                             policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y'}>
 CONFIG_INPUT_UINPUT                             note<'LP: #584812'>
@@ -6570,6 +6555,7 @@ CONFIG_IPQ_GCC_806X                             policy<{'arm64': '-', 'armhf': '
 CONFIG_IPQ_GCC_8074                             policy<{'arm64': 'm', 'armhf': 'm'}>
 CONFIG_IPQ_GCC_9574                             policy<{'arm64': 'm', 'armhf': 'm'}>
 CONFIG_IPQ_LCC_806X                             policy<{'arm64': '-', 'armhf': 'm'}>
+CONFIG_IPU_BRIDGE                               policy<{'amd64': 'm'}>
 CONFIG_IPV6_FOU                                 policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm', 's390x': 'm'}>
 CONFIG_IPV6_FOU_TUNNEL                          policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm', 's390x': 'm'}>
 CONFIG_IPV6_GRE                                 policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm', 's390x': 'm'}>
@@ -7652,7 +7638,7 @@ CONFIG_MFD_QCOM_RPM                             policy<{'arm64': 'm', 'armhf': '
 CONFIG_MFD_RC5T583                              policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y', 's390x': '-'}>
 CONFIG_MFD_RDC321X                              policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm', 's390x': 'n'}>
 CONFIG_MFD_RETU                                 policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm', 's390x': 'n'}>
-CONFIG_MFD_RK8XX                                policy<{'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y'}>
+CONFIG_MFD_RK8XX                                policy<{'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm'}>
 CONFIG_MFD_RK8XX_I2C                            policy<{'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm'}>
 CONFIG_MFD_RK8XX_SPI                            policy<{'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm'}>
 CONFIG_MFD_RN5T618                              policy<{'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm'}>
@@ -11885,9 +11871,9 @@ CONFIG_SM_GCC_6375                              policy<{'arm64': 'm', 'armhf': '
 CONFIG_SM_GCC_7150                              policy<{'arm64': 'm', 'armhf': 'm'}>
 CONFIG_SM_GCC_8150                              policy<{'arm64': 'm', 'armhf': '-'}>
 CONFIG_SM_GCC_8250                              policy<{'arm64': 'm', 'armhf': '-'}>
-CONFIG_SM_GCC_8350                              policy<{'arm64': 'm', 'armhf': 'm'}>
-CONFIG_SM_GCC_8450                              policy<{'arm64': 'm', 'armhf': 'm'}>
-CONFIG_SM_GCC_8550                              policy<{'arm64': 'm', 'armhf': 'm'}>
+CONFIG_SM_GCC_8350                              policy<{'arm64': 'm', 'armhf': '-'}>
+CONFIG_SM_GCC_8450                              policy<{'arm64': 'm', 'armhf': '-'}>
+CONFIG_SM_GCC_8550                              policy<{'arm64': 'm', 'armhf': '-'}>
 CONFIG_SM_GPUCC_6115                            policy<{'arm64': 'm'}>
 CONFIG_SM_GPUCC_6125                            policy<{'arm64': 'm'}>
 CONFIG_SM_GPUCC_6350                            policy<{'arm64': 'm', 'armhf': '-'}>
@@ -11895,14 +11881,14 @@ CONFIG_SM_GPUCC_6375                            policy<{'arm64': 'm'}>
 CONFIG_SM_GPUCC_8150                            policy<{'arm64': 'm', 'armhf': '-'}>
 CONFIG_SM_GPUCC_8250                            policy<{'arm64': 'm', 'armhf': '-'}>
 CONFIG_SM_GPUCC_8350                            policy<{'arm64': 'm', 'armhf': '-'}>
-CONFIG_SM_GPUCC_8450                            policy<{'arm64': 'm', 'armhf': 'm'}>
-CONFIG_SM_GPUCC_8550                            policy<{'arm64': 'm', 'armhf': 'm'}>
+CONFIG_SM_GPUCC_8450                            policy<{'arm64': 'm', 'armhf': '-'}>
+CONFIG_SM_GPUCC_8550                            policy<{'arm64': 'm', 'armhf': '-'}>
 CONFIG_SM_TCSRCC_8550                           policy<{'arm64': 'm', 'armhf': '-'}>
 CONFIG_SM_VIDEOCC_8150                          policy<{'arm64': 'm', 'armhf': '-'}>
 CONFIG_SM_VIDEOCC_8250                          policy<{'arm64': 'm', 'armhf': '-'}>
-CONFIG_SM_VIDEOCC_8350                          policy<{'arm64': 'm', 'armhf': 'm'}>
-CONFIG_SM_VIDEOCC_8450                          policy<{'arm64': 'm', 'armhf': 'm'}>
-CONFIG_SM_VIDEOCC_8550                          policy<{'arm64': 'm', 'armhf': 'm'}>
+CONFIG_SM_VIDEOCC_8350                          policy<{'arm64': 'm', 'armhf': '-'}>
+CONFIG_SM_VIDEOCC_8450                          policy<{'arm64': 'm', 'armhf': '-'}>
+CONFIG_SM_VIDEOCC_8550                          policy<{'arm64': 'm', 'armhf': '-'}>
 CONFIG_SND_AC97_CODEC                           policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm'}>
 CONFIG_SND_AC97_POWER_SAVE                      policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y'}>
 CONFIG_SND_AC97_POWER_SAVE_DEFAULT              policy<{'amd64': '0', 'arm64': '0', 'armhf': '0', 'ppc64el': '0', 'riscv64': '0'}>
@@ -14407,6 +14393,7 @@ CONFIG_VIDEO_BT866                              policy<{'amd64': 'm', 'arm64': '
 CONFIG_VIDEO_CADENCE_CSI2RX                     policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm'}>
 CONFIG_VIDEO_CADENCE_CSI2TX                     policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm'}>
 CONFIG_VIDEO_CAFE_CCIC                          policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm'}>
+CONFIG_VIDEO_CAMERA_SENSOR                      policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y'}>
 CONFIG_VIDEO_CCS                                policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm'}>
 CONFIG_VIDEO_CCS_PLL                            policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm'}>
 CONFIG_VIDEO_CMDLINE                            policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y', 's390x': 'y'}>
