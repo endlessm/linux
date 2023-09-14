@@ -1,5 +1,7 @@
 # Recreate any symlinks created since the orig.
 # Remove any files deleted from the orig.
+rm -f 'drivers/media/pci/intel/ipu3/cio2-bridge.c'
+rm -f 'drivers/media/pci/intel/ipu3/cio2-bridge.h'
 rm -f 'include/linux/ceph/mdsmap.h'
 rm -f 'scripts/is_rust_module.sh'
 chmod +x 'debian/cloud-tools/hv_get_dhcp_info'
@@ -24,6 +26,7 @@ chmod +x 'debian/scripts/link-lib-rust'
 chmod +x 'debian/scripts/misc/annotations'
 chmod +x 'debian/scripts/misc/arch-has-odm-enabled.sh'
 chmod +x 'debian/scripts/misc/find-missing-sauce.sh'
+chmod +x 'debian/scripts/misc/fips-checks'
 chmod +x 'debian/scripts/misc/fw-to-ihex.sh'
 chmod +x 'debian/scripts/misc/gen-auto-reconstruct'
 chmod +x 'debian/scripts/misc/getabis'
