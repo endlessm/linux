@@ -36,6 +36,7 @@
 #include <linux/uaccess.h>
 #include <linux/vfio.h>
 #include <linux/workqueue.h>
+#include <linux/mdev.h>
 #include <linux/notifier.h>
 #include "vfio.h"
 
@@ -112,6 +113,7 @@ struct vfio_batch {
 struct vfio_iommu_group {
 	struct iommu_group	*iommu_group;
 	struct list_head	next;
+	bool			mdev_group;
 	bool			pinned_page_dirty_scope;
 };
 
@@ -1674,6 +1676,18 @@ out_unlock:
 	return ret;
 }
 
+static int vfio_bus_type(struct device *dev, void *data)
+{
+	struct bus_type **bus = data;
+
+	if (*bus && *bus != dev->bus)
+		return -EINVAL;
+
+	*bus = dev->bus;
+
+	return 0;
+}
+
 static int vfio_iommu_replay(struct vfio_iommu *iommu,
 			     struct vfio_domain *domain)
 {
@@ -1916,6 +1930,81 @@ static bool vfio_iommu_has_sw_msi(struct list_head *group_resv_regions,
 	}
 
 	return ret;
+}
+
+static int vfio_mdev_attach_domain(struct device *dev, void *data)
+{
+	struct mdev_device *mdev = to_mdev_device(dev);
+	struct iommu_domain *domain = data;
+	struct device *iommu_device;
+
+	iommu_device = mdev_get_iommu_device(mdev);
+	if (iommu_device)
+		return iommu_attach_device(domain, iommu_device);
+
+	return -EINVAL;
+}
+
+static int vfio_mdev_detach_domain(struct device *dev, void *data)
+{
+	struct mdev_device *mdev = to_mdev_device(dev);
+	struct iommu_domain *domain = data;
+	struct device *iommu_device;
+
+	iommu_device = mdev_get_iommu_device(mdev);
+	if (iommu_device)
+		iommu_detach_device(domain, iommu_device);
+
+	return 0;
+}
+
+static int vfio_iommu_attach_group(struct vfio_domain *domain,
+				   struct vfio_iommu_group *group)
+{
+	if (group->mdev_group)
+		return iommu_group_for_each_dev(group->iommu_group,
+						domain->domain,
+						vfio_mdev_attach_domain);
+	else
+		return iommu_attach_group(domain->domain, group->iommu_group);
+}
+
+static void vfio_iommu_detach_group(struct vfio_domain *domain,
+				    struct vfio_iommu_group *group)
+{
+	if (group->mdev_group)
+		iommu_group_for_each_dev(group->iommu_group, domain->domain,
+					 vfio_mdev_detach_domain);
+	else
+		iommu_detach_group(domain->domain, group->iommu_group);
+}
+
+static bool vfio_bus_is_mdev(struct bus_type *bus)
+{
+	struct bus_type *mdev_bus;
+	bool ret = false;
+
+	mdev_bus = symbol_get(mdev_bus_type);
+	if (mdev_bus) {
+		ret = (bus == mdev_bus);
+		symbol_put(mdev_bus_type);
+	}
+
+	return ret;
+}
+
+static int vfio_mdev_iommu_device(struct device *dev, void *data)
+{
+	struct mdev_device *mdev = to_mdev_device(dev);
+	struct device **old = data, *new;
+
+	new = mdev_get_iommu_device(mdev);
+	if (!new || (*old && *old != new))
+		return -EINVAL;
+
+	*old = new;
+
+	return 0;
 }
 
 /*
@@ -2180,6 +2269,26 @@ static int vfio_iommu_type1_attach_group(void *iommu_data,
 	group->iommu_group = iommu_group;
 
 	if (type == VFIO_EMULATED_IOMMU) {
+		struct bus_type *bus = NULL;
+
+		ret = iommu_group_for_each_dev(iommu_group, &bus, vfio_bus_type);
+
+		if (!ret && vfio_bus_is_mdev(bus)) {
+			struct device *iommu_device = NULL;
+
+			group->mdev_group = true;
+
+			/* Determine the isolation type */
+			ret = iommu_group_for_each_dev(iommu_group,
+						       &iommu_device,
+						       vfio_mdev_iommu_device);
+			if (!ret && iommu_device) {
+				iommu_group = iommu_device->iommu_group;
+				goto mdev_iommu_device;
+			}
+		}
+
+
 		list_add(&group->next, &iommu->emulated_iommu_groups);
 		/*
 		 * An emulated IOMMU group cannot dirty memory directly, it can
@@ -2191,6 +2300,8 @@ static int vfio_iommu_type1_attach_group(void *iommu_data,
 		ret = 0;
 		goto out_unlock;
 	}
+
+mdev_iommu_device:
 
 	ret = -ENOMEM;
 	domain = kzalloc(sizeof(*domain), GFP_KERNEL);
@@ -2214,7 +2325,7 @@ static int vfio_iommu_type1_attach_group(void *iommu_data,
 			goto out_domain;
 	}
 
-	ret = iommu_attach_group(domain->domain, group->iommu_group);
+	ret = vfio_iommu_attach_group(domain, group);
 	if (ret)
 		goto out_domain;
 
@@ -2287,17 +2398,15 @@ static int vfio_iommu_type1_attach_group(void *iommu_data,
 		if (d->domain->ops == domain->domain->ops &&
 		    d->enforce_cache_coherency ==
 			    domain->enforce_cache_coherency) {
-			iommu_detach_group(domain->domain, group->iommu_group);
-			if (!iommu_attach_group(d->domain,
-						group->iommu_group)) {
+			vfio_iommu_detach_group(domain, group);
+			if (!vfio_iommu_attach_group(d,	group)) {
 				list_add(&group->next, &d->group_list);
 				iommu_domain_free(domain->domain);
 				kfree(domain);
 				goto done;
 			}
 
-			ret = iommu_attach_group(domain->domain,
-						 group->iommu_group);
+			ret = vfio_iommu_attach_group(domain, group);
 			if (ret)
 				goto out_domain;
 		}
@@ -2334,7 +2443,7 @@ done:
 	return 0;
 
 out_detach:
-	iommu_detach_group(domain->domain, group->iommu_group);
+	vfio_iommu_detach_group(domain, group);
 out_domain:
 	iommu_domain_free(domain->domain);
 	vfio_iommu_iova_free(&iova_copy);
@@ -2495,7 +2604,7 @@ static void vfio_iommu_type1_detach_group(void *iommu_data,
 		if (!group)
 			continue;
 
-		iommu_detach_group(domain->domain, group->iommu_group);
+		vfio_iommu_detach_group(domain, group);
 		update_dirty_scope = !group->pinned_page_dirty_scope;
 		list_del(&group->next);
 		kfree(group);
@@ -2584,7 +2693,7 @@ static void vfio_release_domain(struct vfio_domain *domain)
 
 	list_for_each_entry_safe(group, group_tmp,
 				 &domain->group_list, next) {
-		iommu_detach_group(domain->domain, group->iommu_group);
+		vfio_iommu_detach_group(domain, group);
 		list_del(&group->next);
 		kfree(group);
 	}

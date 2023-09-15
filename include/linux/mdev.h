@@ -20,6 +20,7 @@ struct mdev_device {
 	guid_t uuid;
 	struct list_head next;
 	struct mdev_type *type;
+	struct device *iommu_device;
 	bool active;
 };
 
@@ -53,6 +54,25 @@ static inline struct mdev_device *to_mdev_device(struct device *dev)
 	return container_of(dev, struct mdev_device, dev);
 }
 
+/*
+ * Called by the parent device driver to set the device which represents
+ * this mdev in iommu protection scope. By default, the iommu device is
+ * NULL, that indicates using vendor defined isolation.
+ *
+ * @dev: the mediated device that iommu will isolate.
+ * @iommu_device: a pci device which represents the iommu for @dev.
+ */
+static inline void mdev_set_iommu_device(struct mdev_device *mdev,
+					 struct device *iommu_device)
+{
+	mdev->iommu_device = iommu_device;
+}
+
+static inline struct device *mdev_get_iommu_device(struct mdev_device *mdev) {
+	return mdev->iommu_device;
+}
+
+
 /**
  * struct mdev_driver - Mediated device driver
  * @device_api: string to return for the device_api sysfs
@@ -72,6 +92,8 @@ struct mdev_driver {
 	ssize_t (*show_description)(struct mdev_type *mtype, char *buf);
 	struct device_driver driver;
 };
+
+extern struct bus_type mdev_bus_type;
 
 int mdev_register_parent(struct mdev_parent *parent, struct device *dev,
 		struct mdev_driver *mdev_driver, struct mdev_type **types,
