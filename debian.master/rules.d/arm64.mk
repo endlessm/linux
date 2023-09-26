@@ -2,9 +2,8 @@ human_arch	= ARMv8
 build_arch	= arm64
 defconfig	= defconfig
 flavours	= generic generic-64k
-# Non-efi flavours likely want the old Image.gz here
-build_image	= vmlinuz.efi
-kernel_file	= arch/$(build_arch)/boot/vmlinuz.efi
+build_image	= Image.gz
+kernel_file	= arch/$(build_arch)/boot/Image.gz
 install_file	= vmlinuz
 no_dumpfile = true
 uefi_signed     = true
