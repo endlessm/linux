@@ -171,7 +171,6 @@ regmap-i2c
 regmap-mmio
 regmap-spi
 rfkill
-rk8xx-core
 rng
 rng-core
 roles

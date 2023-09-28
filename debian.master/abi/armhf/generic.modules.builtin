@@ -312,7 +312,6 @@ reset-imx7
 reset-meson
 reset-qcom-aoss
 rfkill
-rk8xx-core
 rng
 rng-core
 roles
@@ -348,6 +347,7 @@ sh-sci
 sha1_generic
 sha256_generic
 sha3_generic
+sha512-arm
 sha512_generic
 sig
 skcipher

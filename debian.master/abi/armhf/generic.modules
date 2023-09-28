@@ -1665,9 +1665,6 @@ gcc-sdx55
 gcc-sdx65
 gcc-sdx75
 gcc-sm7150
-gcc-sm8350
-gcc-sm8450
-gcc-sm8550
 gdmtty
 gdmulte
 ge2d
@@ -1792,8 +1789,6 @@ gpmi-nand
 gpu-sched
 gpucc-msm8998
 gpucc-sa8775p
-gpucc-sm8450
-gpucc-sm8550
 gr_udc
 grace
 grcan
@@ -4769,6 +4764,7 @@ rk3399_dmc
 rk805-pwrkey
 rk808-regulator
 rk817_charger
+rk8xx-core
 rk8xx-i2c
 rk8xx-spi
 rk_crypto
@@ -5236,7 +5232,6 @@ sha1-arm-ce
 sha1-arm-neon
 sha2-arm-ce
 sha256-arm
-sha512-arm
 shark2
 shiftfs
 shmob-drm
@@ -6658,9 +6653,6 @@ videobuf2-dvb
 videobuf2-memops
 videobuf2-v4l2
 videobuf2-vmalloc
-videocc-sm8350
-videocc-sm8450
-videocc-sm8550
 videodev
 vim2m
 vimc

@@ -108,6 +108,8 @@ sha1_generic
 sha256_generic
 sha3_generic
 sha512_generic
+sha512_s390
+sha_common
 sig
 skcipher
 smsgiucv

@@ -212,6 +212,7 @@ sg
 sha1_generic
 sha256_generic
 sha3_generic
+sha512-ssse3
 sha512_generic
 sig
 skcipher

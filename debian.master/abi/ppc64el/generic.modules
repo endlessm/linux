@@ -4044,6 +4044,7 @@ rj54n1cb0c
 rk805-pwrkey
 rk808-regulator
 rk817_charger
+rk8xx-core
 rk8xx-i2c
 rk8xx-spi
 rm3100-core

@@ -791,6 +791,7 @@ firmware:       cadence/mhdp8546.bin
 firmware:       carl9170-1.fw
 firmware:       cavium/cnn55xx_se.fw
 firmware:       cbfw-3.2.5.1.bin
+firmware:       cf-fsi-fw.bin
 firmware:       cis/3CCFEM556.cis
 firmware:       cis/3CXEM556.cis
 firmware:       cis/COMpad2.cis
