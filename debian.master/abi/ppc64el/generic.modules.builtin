@@ -73,6 +73,7 @@ evdev
 exportfs
 ext4
 extcon-core
+failover
 fat
 fb
 fb_sys_fops
@@ -142,6 +143,7 @@ mousedev
 mpi
 mq-deadline
 n_null
+net_failover
 nls_base
 nls_cp437
 nvram
@@ -233,6 +235,7 @@ virtio_balloon
 virtio_blk
 virtio_console
 virtio_mmio
+virtio_net
 virtio_pci
 virtio_pci_legacy_dev
 virtio_pci_modern_dev

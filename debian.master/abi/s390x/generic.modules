@@ -232,7 +232,6 @@ esp6
 esp6_offload
 essiv
 et1011c
-failover
 faulty
 fcoe
 fcrypt
@@ -457,7 +456,6 @@ mscc
 msdos
 national
 nbd
-net_failover
 netconsole
 netdevsim
 netfs
@@ -842,7 +840,6 @@ virtio-rng
 virtio_crypto
 virtio_dma_buf
 virtio_input
-virtio_net
 virtiofs
 vitesse
 vmac

@@ -15798,8 +15798,6 @@ EXPORT_SYMBOL_GPL	 drivers/net/mdio/mdio-i2c 0xfe117f3f	mdio_i2c_alloc
 EXPORT_SYMBOL_GPL	 drivers/net/mdio/mdio-mux 0x6318757f	mdio_mux_uninit
 EXPORT_SYMBOL_GPL	 drivers/net/mdio/mdio-mux 0xfc53475b	mdio_mux_init
 EXPORT_SYMBOL_GPL	 drivers/net/mdio/mdio-regmap 0xb74544f6	devm_mdio_regmap_register
-EXPORT_SYMBOL_GPL	 drivers/net/net_failover 0xab76a048	net_failover_destroy
-EXPORT_SYMBOL_GPL	 drivers/net/net_failover 0xee56d87c	net_failover_create
 EXPORT_SYMBOL_GPL	 drivers/net/pcs/pcs_xpcs 0x384bfd26	xpcs_config_eee
 EXPORT_SYMBOL_GPL	 drivers/net/pcs/pcs_xpcs 0x48d03b12	xpcs_create_mdiodev
 EXPORT_SYMBOL_GPL	 drivers/net/pcs/pcs_xpcs 0x5efda68f	xpcs_do_config
@@ -18641,9 +18639,6 @@ EXPORT_SYMBOL_GPL	 net/bridge/bridge 0xd2f48bbb	br_port_flag_is_set
 EXPORT_SYMBOL_GPL	 net/bridge/bridge 0xd444b9ca	br_handle_frame_finish
 EXPORT_SYMBOL_GPL	 net/bridge/bridge 0xd50e191a	br_vlan_get_proto
 EXPORT_SYMBOL_GPL	 net/bridge/bridge 0xff85b142	br_vlan_get_pvid
-EXPORT_SYMBOL_GPL	 net/core/failover 0x221e7bab	failover_register
-EXPORT_SYMBOL_GPL	 net/core/failover 0x45da6eb2	failover_slave_unregister
-EXPORT_SYMBOL_GPL	 net/core/failover 0x9e31a8f6	failover_unregister
 EXPORT_SYMBOL_GPL	 net/dccp/dccp 0x0042cbf5	dccp_send_sync
 EXPORT_SYMBOL_GPL	 net/dccp/dccp 0x01f62b3c	dccp_recvmsg
 EXPORT_SYMBOL_GPL	 net/dccp/dccp 0x06c20c19	dccp_feat_nn_get
@@ -21769,6 +21764,7 @@ EXPORT_SYMBOL_GPL	 vmlinux 0x220102f2	of_k3_ringacc_get_by_phandle
 EXPORT_SYMBOL_GPL	 vmlinux 0x220ce70c	kvm_arm_hyp_service_available
 EXPORT_SYMBOL_GPL	 vmlinux 0x2216e9c8	kthread_flush_work
 EXPORT_SYMBOL_GPL	 vmlinux 0x221addc8	umd_unload_blob
+EXPORT_SYMBOL_GPL	 vmlinux 0x221e7bab	failover_register
 EXPORT_SYMBOL_GPL	 vmlinux 0x222211de	simple_attr_write_signed
 EXPORT_SYMBOL_GPL	 vmlinux 0x22233731	cpufreq_cpu_get
 EXPORT_SYMBOL_GPL	 vmlinux 0x2228e90d	blk_execute_rq_nowait
@@ -22796,6 +22792,7 @@ EXPORT_SYMBOL_GPL	 vmlinux 0x45a25ee5	locks_owner_has_blockers
 EXPORT_SYMBOL_GPL	 vmlinux 0x45b1478d	sata_link_hardreset
 EXPORT_SYMBOL_GPL	 vmlinux 0x45cc329d	devm_power_supply_get_by_phandle
 EXPORT_SYMBOL_GPL	 vmlinux 0x45d430d9	kthread_flush_worker
+EXPORT_SYMBOL_GPL	 vmlinux 0x45da6eb2	failover_slave_unregister
 EXPORT_SYMBOL_GPL	 vmlinux 0x45e8b450	mnt_idmap_get
 EXPORT_SYMBOL_GPL	 vmlinux 0x45ec699a	extcon_unregister_notifier_all
 EXPORT_SYMBOL_GPL	 vmlinux 0x45fa3f11	synchronize_srcu
@@ -25397,6 +25394,7 @@ EXPORT_SYMBOL_GPL	 vmlinux 0x9e13823c	regcache_sync
 EXPORT_SYMBOL_GPL	 vmlinux 0x9e178071	crypto_alloc_sync_skcipher
 EXPORT_SYMBOL_GPL	 vmlinux 0x9e229c49	sg_alloc_table_chained
 EXPORT_SYMBOL_GPL	 vmlinux 0x9e2938d3	meson_clk_mpll_ops
+EXPORT_SYMBOL_GPL	 vmlinux 0x9e31a8f6	failover_unregister
 EXPORT_SYMBOL_GPL	 vmlinux 0x9e3e9257	pci_get_dsn
 EXPORT_SYMBOL_GPL	 vmlinux 0x9e42b5f6	sysfs_group_change_owner
 EXPORT_SYMBOL_GPL	 vmlinux 0x9e472f5f	snmp_fold_field
@@ -25771,6 +25769,7 @@ EXPORT_SYMBOL_GPL	 vmlinux 0xab5b81b4	device_get_named_child_node
 EXPORT_SYMBOL_GPL	 vmlinux 0xab63964b	tty_buffer_set_limit
 EXPORT_SYMBOL_GPL	 vmlinux 0xab64193a	__suspend_report_result
 EXPORT_SYMBOL_GPL	 vmlinux 0xab6f0ded	__tracepoint_rpm_idle
+EXPORT_SYMBOL_GPL	 vmlinux 0xab76a048	net_failover_destroy
 EXPORT_SYMBOL_GPL	 vmlinux 0xab76c56c	xfrm_audit_state_replay
 EXPORT_SYMBOL_GPL	 vmlinux 0xab8310ed	k3_udma_glue_rx_get_dma_device
 EXPORT_SYMBOL_GPL	 vmlinux 0xab8a89c9	irq_domain_associate_many
@@ -27673,6 +27672,7 @@ EXPORT_SYMBOL_GPL	 vmlinux 0xee3f3307	usb_set_device_state
 EXPORT_SYMBOL_GPL	 vmlinux 0xee4e48cc	blk_mq_sched_mark_restart_hctx
 EXPORT_SYMBOL_GPL	 vmlinux 0xee518148	kmsg_dump_get_buffer
 EXPORT_SYMBOL_GPL	 vmlinux 0xee56a9e7	devm_clk_hw_get_clk
+EXPORT_SYMBOL_GPL	 vmlinux 0xee56d87c	net_failover_create
 EXPORT_SYMBOL_GPL	 vmlinux 0xee632615	crypto_create_tfm_node
 EXPORT_SYMBOL_GPL	 vmlinux 0xee6b71c4	syscon_regmap_lookup_by_compatible
 EXPORT_SYMBOL_GPL	 vmlinux 0xee6c633a	devices_cgrp_subsys_on_dfl_key

@@ -141,6 +141,7 @@ exportfs
 ext4
 extcon-core
 exynos_thermal
+failover
 fat
 fb
 fb_sys_fops
@@ -245,6 +246,7 @@ mxc-clk
 n_null
 nand
 nandcore
+net_failover
 nls_base
 nls_cp437
 npcm_wdt
@@ -421,6 +423,7 @@ virtio_balloon
 virtio_blk
 virtio_console
 virtio_mmio
+virtio_net
 virtio_pci
 virtio_pci_legacy_dev
 virtio_pci_modern_dev

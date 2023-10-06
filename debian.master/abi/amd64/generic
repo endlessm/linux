@@ -4753,10 +4753,10 @@ EXPORT_SYMBOL	 drivers/usb/serial/usb_wwan 0xe12f7222	usb_wwan_write
 EXPORT_SYMBOL	 drivers/usb/serial/usbserial 0x321b9238	usb_serial_suspend
 EXPORT_SYMBOL	 drivers/usb/serial/usbserial 0x3dc304b1	usb_serial_resume
 EXPORT_SYMBOL	 drivers/vdpa/vdpa 0x63bdcb6e	vdpa_set_status
-EXPORT_SYMBOL	 drivers/vfio/mdev/mdev 0x252d04f4	mdev_register_parent
-EXPORT_SYMBOL	 drivers/vfio/mdev/mdev 0x98881a65	mdev_unregister_parent
-EXPORT_SYMBOL	 drivers/vfio/mdev/mdev 0xcccf9518	mdev_register_driver
-EXPORT_SYMBOL	 drivers/vfio/mdev/mdev 0xd17e76da	mdev_unregister_driver
+EXPORT_SYMBOL	 drivers/vfio/mdev/mdev 0x219731bc	mdev_register_driver
+EXPORT_SYMBOL	 drivers/vfio/mdev/mdev 0x6e94eb0a	mdev_unregister_driver
+EXPORT_SYMBOL	 drivers/vfio/mdev/mdev 0x72a328ac	mdev_register_parent
+EXPORT_SYMBOL	 drivers/vfio/mdev/mdev 0x791a9dcc	mdev_unregister_parent
 EXPORT_SYMBOL	 drivers/vfio/vfio 0x076a7f93	vfio_unpin_pages
 EXPORT_SYMBOL	 drivers/vfio/vfio 0x19567d06	vfio_info_cap_shift
 EXPORT_SYMBOL	 drivers/vfio/vfio 0x6c28be5a	vfio_info_add_capability
@@ -15764,8 +15764,6 @@ EXPORT_SYMBOL_GPL	 drivers/net/macvlan 0xd390176b	macvlan_dellink
 EXPORT_SYMBOL_GPL	 drivers/net/macvlan 0xdd6eaea2	macvlan_common_newlink
 EXPORT_SYMBOL_GPL	 drivers/net/mdio/mdio-i2c 0x6b87f2a0	mdio_i2c_alloc
 EXPORT_SYMBOL_GPL	 drivers/net/mdio/mdio-regmap 0xc50db1d7	devm_mdio_regmap_register
-EXPORT_SYMBOL_GPL	 drivers/net/net_failover 0x9a232ea2	net_failover_destroy
-EXPORT_SYMBOL_GPL	 drivers/net/net_failover 0xf53fd40e	net_failover_create
 EXPORT_SYMBOL_GPL	 drivers/net/pcs/pcs-lynx 0xea2cb99a	lynx_pcs_create_fwnode
 EXPORT_SYMBOL_GPL	 drivers/net/pcs/pcs_xpcs 0x153feb53	xpcs_get_interfaces
 EXPORT_SYMBOL_GPL	 drivers/net/pcs/pcs_xpcs 0x60c6afbf	xpcs_destroy
@@ -17848,6 +17846,7 @@ EXPORT_SYMBOL_GPL	 drivers/vdpa/vdpa 0xd4122922	vdpa_set_config
 EXPORT_SYMBOL_GPL	 drivers/vdpa/vdpa 0xe6e7d526	__vdpa_register_driver
 EXPORT_SYMBOL_GPL	 drivers/vdpa/vdpa_sim/vdpa_sim 0x4e745feb	vdpasim_create
 EXPORT_SYMBOL_GPL	 drivers/vdpa/vdpa_sim/vdpa_sim 0x7a9d5097	vdpasim_schedule_work
+EXPORT_SYMBOL_GPL	 drivers/vfio/mdev/mdev 0xa7211358	mdev_bus_type
 EXPORT_SYMBOL_GPL	 drivers/vfio/pci/vfio-pci-core 0x04922e9d	vfio_pci_core_unregister_device
 EXPORT_SYMBOL_GPL	 drivers/vfio/pci/vfio-pci-core 0x1394807e	vfio_pci_core_enable
 EXPORT_SYMBOL_GPL	 drivers/vfio/pci/vfio-pci-core 0x2241f238	vfio_pci_core_mmap
@@ -18454,9 +18453,6 @@ EXPORT_SYMBOL_GPL	 net/bridge/bridge 0xde7ad4a0	br_multicast_has_querier_adjacen
 EXPORT_SYMBOL_GPL	 net/bridge/bridge 0xf9eda789	br_vlan_get_pvid_rcu
 EXPORT_SYMBOL_GPL	 net/bridge/bridge 0xffa48dc1	br_multicast_list_adjacent
 EXPORT_SYMBOL_GPL	 net/bridge/bridge 0xffea1eba	br_forward_finish
-EXPORT_SYMBOL_GPL	 net/core/failover 0x42d5a1a8	failover_register
-EXPORT_SYMBOL_GPL	 net/core/failover 0x7d38b8bc	failover_slave_unregister
-EXPORT_SYMBOL_GPL	 net/core/failover 0x866dbf4e	failover_unregister
 EXPORT_SYMBOL_GPL	 net/dccp/dccp 0x03971ed5	dccp_close
 EXPORT_SYMBOL_GPL	 net/dccp/dccp 0x0a5d005a	dccp_destroy_sock
 EXPORT_SYMBOL_GPL	 net/dccp/dccp 0x13fa2481	dccp_feat_signal_nn_change
@@ -22597,6 +22593,7 @@ EXPORT_SYMBOL_GPL	 vmlinux 0x42acaac6	thermal_zone_bind_cooling_device
 EXPORT_SYMBOL_GPL	 vmlinux 0x42b75d3c	pci_get_dsn
 EXPORT_SYMBOL_GPL	 vmlinux 0x42bf8fe1	list_lru_del
 EXPORT_SYMBOL_GPL	 vmlinux 0x42c55d99	xhci_dbg_trace
+EXPORT_SYMBOL_GPL	 vmlinux 0x42d5a1a8	failover_register
 EXPORT_SYMBOL_GPL	 vmlinux 0x42e732cb	vcap_rule_add_key_u128
 EXPORT_SYMBOL_GPL	 vmlinux 0x42f728aa	mctrl_gpio_get_outputs
 EXPORT_SYMBOL_GPL	 vmlinux 0x430d88ec	__traceiter_arm_event
@@ -24425,6 +24422,7 @@ EXPORT_SYMBOL_GPL	 vmlinux 0x7d2dd42d	__pm_runtime_disable
 EXPORT_SYMBOL_GPL	 vmlinux 0x7d30f9be	serdev_device_remove
 EXPORT_SYMBOL_GPL	 vmlinux 0x7d345667	_RNvXs0_NtNtCs3AkgXgqgK6r_4core3ffi5c_strNtB5_4CStrNtNtB9_3fmt5Debug3fmt
 EXPORT_SYMBOL_GPL	 vmlinux 0x7d348eac	do_xdp_generic
+EXPORT_SYMBOL_GPL	 vmlinux 0x7d38b8bc	failover_slave_unregister
 EXPORT_SYMBOL_GPL	 vmlinux 0x7d4ddb62	of_devfreq_cooling_register
 EXPORT_SYMBOL_GPL	 vmlinux 0x7d59dd46	pm_wq
 EXPORT_SYMBOL_GPL	 vmlinux 0x7d79c079	usb_init_urb
@@ -24701,6 +24699,7 @@ EXPORT_SYMBOL_GPL	 vmlinux 0x8644a8bb	__iomap_dio_rw
 EXPORT_SYMBOL_GPL	 vmlinux 0x86585a33	devlink_fmsg_obj_nest_start
 EXPORT_SYMBOL_GPL	 vmlinux 0x865947c4	__SCK__tp_func_ata_bmdma_status
 EXPORT_SYMBOL_GPL	 vmlinux 0x86623fd7	notify_remote_via_irq
+EXPORT_SYMBOL_GPL	 vmlinux 0x866dbf4e	failover_unregister
 EXPORT_SYMBOL_GPL	 vmlinux 0x866f5838	nexthop_for_each_fib6_nh
 EXPORT_SYMBOL_GPL	 vmlinux 0x86700220	acpi_get_cpuid
 EXPORT_SYMBOL_GPL	 vmlinux 0x86702a15	nvmem_layout_get_match_data
@@ -25340,6 +25339,7 @@ EXPORT_SYMBOL_GPL	 vmlinux 0x9a0c7960	regmap_field_update_bits_base
 EXPORT_SYMBOL_GPL	 vmlinux 0x9a11a0fc	crypto_attr_alg_name
 EXPORT_SYMBOL_GPL	 vmlinux 0x9a127198	_RNvXs0_NtNtCs3AkgXgqgK6r_4core3fmt3numaNtB5_10DisplayInt6to_u32
 EXPORT_SYMBOL_GPL	 vmlinux 0x9a2075ee	_RNvMs2_NtNtCs3AkgXgqgK6r_4core3num5errorNtB5_13ParseIntError4kind
+EXPORT_SYMBOL_GPL	 vmlinux 0x9a232ea2	net_failover_destroy
 EXPORT_SYMBOL_GPL	 vmlinux 0x9a234adb	_RNvXs32_NtCs4G5TVFbM653_8bindings12bindings_rawNtB6_13rcu_segcblistNtNtCs3AkgXgqgK6r_4core7default7Default7default
 EXPORT_SYMBOL_GPL	 vmlinux 0x9a23ea6b	alarm_expires_remaining
 EXPORT_SYMBOL_GPL	 vmlinux 0x9a2851ef	__SCT__tp_func_ata_bmdma_setup
@@ -28218,6 +28218,7 @@ EXPORT_SYMBOL_GPL	 vmlinux 0xf4fae939	xhci_init_driver
 EXPORT_SYMBOL_GPL	 vmlinux 0xf4fbe947	ipv6_dup_options
 EXPORT_SYMBOL_GPL	 vmlinux 0xf52115ec	usb_add_hcd
 EXPORT_SYMBOL_GPL	 vmlinux 0xf53856ed	blk_mq_alloc_sq_tag_set
+EXPORT_SYMBOL_GPL	 vmlinux 0xf53fd40e	net_failover_create
 EXPORT_SYMBOL_GPL	 vmlinux 0xf54bd49b	lcm
 EXPORT_SYMBOL_GPL	 vmlinux 0xf553318d	cpuidle_pause_and_lock
 EXPORT_SYMBOL_GPL	 vmlinux 0xf55da257	pci_find_next_ht_capability
@@ -28592,7 +28593,6 @@ I915_GVT EXPORT_SYMBOL_GPL 0x16879729	intel_gvt_clear_ops	drivers/gpu/drm/i915/i
 I915_GVT EXPORT_SYMBOL_GPL 0x16ef5092	__intel_context_do_unpin	drivers/gpu/drm/i915/i915
 I915_GVT EXPORT_SYMBOL_GPL 0x20e21d29	intel_context_create	drivers/gpu/drm/i915/i915
 I915_GVT EXPORT_SYMBOL_GPL 0x22bf18e3	i915_gem_ww_ctx_backoff	drivers/gpu/drm/i915/i915
-I915_GVT EXPORT_SYMBOL_GPL 0x373dfea5	intel_gvt_iterate_mmio_table	drivers/gpu/drm/i915/i915
 I915_GVT EXPORT_SYMBOL_GPL 0x38b91c5b	i915_fence_ops	drivers/gpu/drm/i915/i915
 I915_GVT EXPORT_SYMBOL_GPL 0x3c015f49	shmem_unpin_map	drivers/gpu/drm/i915/i915
 I915_GVT EXPORT_SYMBOL_GPL 0x422b04e3	i915_request_add	drivers/gpu/drm/i915/i915
@@ -28606,6 +28606,7 @@ I915_GVT EXPORT_SYMBOL_GPL 0x890fc889	i915_vm_release	drivers/gpu/drm/i915/i915
 I915_GVT EXPORT_SYMBOL_GPL 0x8dba5e76	i915_gem_ww_ctx_init	drivers/gpu/drm/i915/i915
 I915_GVT EXPORT_SYMBOL_GPL 0x95df3b0f	__i915_gem_object_flush_map	drivers/gpu/drm/i915/i915
 I915_GVT EXPORT_SYMBOL_GPL 0x9abb30bb	intel_uncore_forcewake_get	drivers/gpu/drm/i915/i915
+I915_GVT EXPORT_SYMBOL_GPL 0xa8ded55c	intel_gvt_iterate_mmio_table	drivers/gpu/drm/i915/i915
 I915_GVT EXPORT_SYMBOL_GPL 0xad308475	intel_gvt_set_ops	drivers/gpu/drm/i915/i915
 I915_GVT EXPORT_SYMBOL_GPL 0xbc3da09d	i915_gem_object_pin_map	drivers/gpu/drm/i915/i915
 I915_GVT EXPORT_SYMBOL_GPL 0xbddfb86b	i915_gem_object_ggtt_pin_ww	drivers/gpu/drm/i915/i915

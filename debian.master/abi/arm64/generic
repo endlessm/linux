@@ -15801,8 +15801,6 @@ EXPORT_SYMBOL_GPL	 drivers/net/mdio/mdio-i2c 0xff542579	mdio_i2c_alloc
 EXPORT_SYMBOL_GPL	 drivers/net/mdio/mdio-mux 0x50d72877	mdio_mux_init
 EXPORT_SYMBOL_GPL	 drivers/net/mdio/mdio-mux 0x6318757f	mdio_mux_uninit
 EXPORT_SYMBOL_GPL	 drivers/net/mdio/mdio-regmap 0xeb5ef252	devm_mdio_regmap_register
-EXPORT_SYMBOL_GPL	 drivers/net/net_failover 0x87b83f77	net_failover_create
-EXPORT_SYMBOL_GPL	 drivers/net/net_failover 0xd2709737	net_failover_destroy
 EXPORT_SYMBOL_GPL	 drivers/net/pcs/pcs_xpcs 0x5a40313a	xpcs_config_eee
 EXPORT_SYMBOL_GPL	 drivers/net/pcs/pcs_xpcs 0x6bbdb0f3	xpcs_destroy
 EXPORT_SYMBOL_GPL	 drivers/net/pcs/pcs_xpcs 0x85bbf224	xpcs_get_interfaces
@@ -18644,9 +18642,6 @@ EXPORT_SYMBOL_GPL	 net/bridge/bridge 0xdafbef06	br_dev_queue_push_xmit
 EXPORT_SYMBOL_GPL	 net/bridge/bridge 0xdcdd6d57	br_multicast_router
 EXPORT_SYMBOL_GPL	 net/bridge/bridge 0xe795f54b	br_forward_finish
 EXPORT_SYMBOL_GPL	 net/bridge/bridge 0xe8db773d	br_multicast_has_querier_anywhere
-EXPORT_SYMBOL_GPL	 net/core/failover 0x7675e397	failover_register
-EXPORT_SYMBOL_GPL	 net/core/failover 0x965f2f9e	failover_unregister
-EXPORT_SYMBOL_GPL	 net/core/failover 0xac7d5477	failover_slave_unregister
 EXPORT_SYMBOL_GPL	 net/dccp/dccp 0x07dd7e2d	dccp_getsockopt
 EXPORT_SYMBOL_GPL	 net/dccp/dccp 0x0e140e39	dccp_rcv_state_process
 EXPORT_SYMBOL_GPL	 net/dccp/dccp 0x182ec2bf	dccp_ackvec_parsed_add
@@ -24217,6 +24212,7 @@ EXPORT_SYMBOL_GPL	 vmlinux 0x76517f03	interval_tree_span_iter_advance
 EXPORT_SYMBOL_GPL	 vmlinux 0x7656410c	mpi_sub
 EXPORT_SYMBOL_GPL	 vmlinux 0x765f8fcc	gpiochip_populate_parent_fwspec_fourcell
 EXPORT_SYMBOL_GPL	 vmlinux 0x7665a95b	idr_remove
+EXPORT_SYMBOL_GPL	 vmlinux 0x7675e397	failover_register
 EXPORT_SYMBOL_GPL	 vmlinux 0x7681946c	unregister_pm_notifier
 EXPORT_SYMBOL_GPL	 vmlinux 0x76852bb6	virtio_config_changed
 EXPORT_SYMBOL_GPL	 vmlinux 0x768c2794	acpiphp_register_attention
@@ -24763,6 +24759,7 @@ EXPORT_SYMBOL_GPL	 vmlinux 0x87993658	ip_route_output_flow
 EXPORT_SYMBOL_GPL	 vmlinux 0x87ab784a	tty_port_link_device
 EXPORT_SYMBOL_GPL	 vmlinux 0x87abaa76	inet6_lookup
 EXPORT_SYMBOL_GPL	 vmlinux 0x87b60681	of_icc_xlate_onecell
+EXPORT_SYMBOL_GPL	 vmlinux 0x87b83f77	net_failover_create
 EXPORT_SYMBOL_GPL	 vmlinux 0x87b850bd	irq_domain_reset_irq_data
 EXPORT_SYMBOL_GPL	 vmlinux 0x87b85e05	hwmon_notify_event
 EXPORT_SYMBOL_GPL	 vmlinux 0x87beb0a6	gpiod_get
@@ -25200,6 +25197,7 @@ EXPORT_SYMBOL_GPL	 vmlinux 0x9649fb89	inet_bhash2_update_saddr
 EXPORT_SYMBOL_GPL	 vmlinux 0x965426a6	cpu_topology
 EXPORT_SYMBOL_GPL	 vmlinux 0x96554810	register_keyboard_notifier
 EXPORT_SYMBOL_GPL	 vmlinux 0x965e8561	devm_mbox_controller_unregister
+EXPORT_SYMBOL_GPL	 vmlinux 0x965f2f9e	failover_unregister
 EXPORT_SYMBOL_GPL	 vmlinux 0x9672e83d	badblocks_check
 EXPORT_SYMBOL_GPL	 vmlinux 0x9672f6da	linear_hugepage_index
 EXPORT_SYMBOL_GPL	 vmlinux 0x9676e68e	devlink_params_unregister
@@ -25821,6 +25819,7 @@ EXPORT_SYMBOL_GPL	 vmlinux 0xac4b21a6	__mdiobus_modify_changed
 EXPORT_SYMBOL_GPL	 vmlinux 0xac541a4d	devl_rate_leaf_destroy
 EXPORT_SYMBOL_GPL	 vmlinux 0xac5e6f4b	mctrl_gpio_init_noauto
 EXPORT_SYMBOL_GPL	 vmlinux 0xac7aab41	platform_get_irq_optional
+EXPORT_SYMBOL_GPL	 vmlinux 0xac7d5477	failover_slave_unregister
 EXPORT_SYMBOL_GPL	 vmlinux 0xac8195ff	ata_std_postreset
 EXPORT_SYMBOL_GPL	 vmlinux 0xac8d1cc3	evm_inode_init_security
 EXPORT_SYMBOL_GPL	 vmlinux 0xac9c4fc7	dax_inode
@@ -26890,6 +26889,7 @@ EXPORT_SYMBOL_GPL	 vmlinux 0xd248a519	rockchip_pmu_block
 EXPORT_SYMBOL_GPL	 vmlinux 0xd24d0ca6	serial8250_request_dma
 EXPORT_SYMBOL_GPL	 vmlinux 0xd24e9e8c	klist_init
 EXPORT_SYMBOL_GPL	 vmlinux 0xd260af0d	ring_buffer_write
+EXPORT_SYMBOL_GPL	 vmlinux 0xd2709737	net_failover_destroy
 EXPORT_SYMBOL_GPL	 vmlinux 0xd273b1b1	__round_jiffies_up_relative
 EXPORT_SYMBOL_GPL	 vmlinux 0xd2768242	lynx_pcs_create_fwnode
 EXPORT_SYMBOL_GPL	 vmlinux 0xd27eeb4b	alloc_iova

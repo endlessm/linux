@@ -46,6 +46,7 @@ encrypted-keys
 evdev
 exportfs
 ext4
+failover
 fat
 fb
 fb_sys_fops
@@ -86,6 +87,7 @@ mpi
 mq-deadline
 multipath
 n_null
+net_failover
 nls_base
 nls_cp437
 oid_registry
@@ -130,6 +132,7 @@ virtio
 virtio_balloon
 virtio_blk
 virtio_console
+virtio_net
 virtio_pci
 virtio_pci_legacy_dev
 virtio_pci_modern_dev

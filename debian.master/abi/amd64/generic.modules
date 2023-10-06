@@ -1406,7 +1406,6 @@ f81232
 f81534
 f81601
 f81604
-failover
 fakelb
 fam15h_power
 fan53555
@@ -3282,7 +3281,6 @@ neofb
 net1080
 net2272
 net2280
-net_failover
 netconsole
 netdevsim
 netfs
@@ -5978,7 +5976,6 @@ virtio_crypto
 virtio_dma_buf
 virtio_input
 virtio_mem
-virtio_net
 virtio_pmem
 virtio_rpmsg_bus
 virtio_snd
