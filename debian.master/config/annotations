@@ -567,7 +567,7 @@ CONFIG_RTC_DRV_TWL4030                          note<'boot essential on OMAP3/OM
 CONFIG_RT_GROUP_SCHED                           policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'ppc64el': 'n', 'riscv64': 'n', 's390x': 'n'}>
 CONFIG_RT_GROUP_SCHED                           note<'LP: #1875665'>
 
-CONFIG_RUST                                     policy<{'amd64': 'y', 'arm64': 'y'}>
+CONFIG_RUST                                     policy<{'amd64': 'n', 'arm64': 'n'}>
 CONFIG_RUST                                     note<'Make sure this remains enabled'>
 
 CONFIG_S390_UV_UAPI                             policy<{'s390x': 'y'}>
