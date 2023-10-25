@@ -2363,6 +2363,17 @@ static int apparmor_dointvec(const struct ctl_table *table, int write,
 	return proc_dointvec(table, write, buffer, lenp, ppos);
 }
 
+static int userns_restrict_dointvec(const struct ctl_table *table, int write,
+				    void *buffer, size_t *lenp, loff_t *ppos)
+{
+	if (!apparmor_enabled)
+		return -EINVAL;
+	if (write && !aa_current_policy_admin_capable(NULL))
+		return -EPERM;
+
+	return proc_dointvec(table, write, buffer, lenp, ppos);
+}
+
 static const struct ctl_table apparmor_sysctl_table[] = {
 #ifdef CONFIG_USER_NS
 	{
@@ -2386,7 +2397,7 @@ static const struct ctl_table apparmor_sysctl_table[] = {
 		.data           = &aa_unprivileged_userns_restricted,
 		.maxlen         = sizeof(int),
 		.mode           = 0644,
-		.proc_handler   = apparmor_dointvec,
+		.proc_handler   = userns_restrict_dointvec,
 	},
 	{
 		.procname       = "apparmor_restrict_unprivileged_userns_force",
@@ -2407,8 +2418,8 @@ static const struct ctl_table apparmor_sysctl_table[] = {
 		.procname       = "apparmor_restrict_unprivileged_unconfined",
 		.data           = &aa_unprivileged_unconfined_restricted,
 		.maxlen         = sizeof(int),
-		.mode           = 0600,
-		.proc_handler   = apparmor_dointvec,
+		.mode           = 0644,
+		.proc_handler   = userns_restrict_dointvec,
 	},
 };
 
