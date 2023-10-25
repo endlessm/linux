@@ -229,6 +229,10 @@ static void int3472_get_con_id_and_polarity(struct int3472_discrete_device *int3
 		/* Setups using a handshake pin need 25 ms enable delay */
 		*enable_time_us = 25 * USEC_PER_MSEC;
 		break;
+	case INT3472_GPIO_TYPE_HANDSHAKE:
+		*con_id = "handshake";
+		*gpio_flags = GPIO_ACTIVE_HIGH;
+		break;
 	default:
 		*con_id = "unknown";
 		*gpio_flags = GPIO_ACTIVE_HIGH;
@@ -324,6 +328,8 @@ static int skl_int3472_handle_gpio_resources(struct acpi_resource *ares,
 	case INT3472_GPIO_TYPE_RESET:
 	case INT3472_GPIO_TYPE_POWERDOWN:
 	case INT3472_GPIO_TYPE_HOTPLUG_DETECT:
+		ret = skl_int3472_map_gpio_to_sensor(int3472, agpio, con_id, gpio_flags);
+	case INT3472_GPIO_TYPE_HANDSHAKE:
 		ret = skl_int3472_map_gpio_to_sensor(int3472, agpio, con_id, gpio_flags);
 		if (ret)
 			err_msg = "Failed to map GPIO pin to sensor\n";
