@@ -41,6 +41,7 @@
 			   ((pdev)->device == 0xa75d ||		\
 			    (pdev)->device == 0x9a19 ||		\
 			    (pdev)->device == 0x9a39 ||		\
+			    (pdev)->device == 0x7d19 ||		\
 			    (pdev)->device == 0x4e19 ||		\
 			    (pdev)->device == 0x465d ||		\
 			    (pdev)->device == 0x1919))
