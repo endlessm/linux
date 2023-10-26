@@ -148,8 +148,8 @@ do_flavour_header_package=true
 # DTBs
 do_dtbs=false
 
-# ZSTD compressed kernel modules
-do_zstd_ko=true
+# Do not ZSTD compressed kernel modules
+do_zstd_ko=
 ifeq ($(DEB_DISTRIBUTION),jammy)
 do_zstd_ko=
 endif
