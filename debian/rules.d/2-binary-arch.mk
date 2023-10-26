@@ -567,8 +567,6 @@ define dh_all
 	dh_installchangelogs -p$(1)
 	dh_installdocs -p$(1)
 	dh_compress -p$(1)
-	# Compress kernel modules
-	find debian/$(1) -name '*.ko' -print0 | xargs -0 -n1 -P $(CONCURRENCY_LEVEL) zstd -19 --quiet --rm
 	dh_fixperms -p$(1) -X/boot/
 	dh_shlibdeps -p$(1) $(shlibdeps_opts)
 	dh_installdeb -p$(1)
@@ -627,7 +625,7 @@ binary-%: checks-%
 	dh_testroot
 
 	$(call dh_all,$(pkgimg)) -- -Znone
-	$(call dh_all,$(pkgimg_mods)) -- -Znone
+	$(call dh_all,$(pkgimg_mods))
 
 	dh_installdirs -p$(metapkgimg)
 	dh_installdocs -p$(metapkgimg)
@@ -686,13 +684,13 @@ ifeq ($(do_extras_package),true)
 		| tee -a $(target_flavour).not-shipped.log;
   else
 	if [ -f $(DEBIAN)/control.d/$(target_flavour).inclusion-list ] ; then \
-		$(call dh_all_inline,$(pkgimg_ex)) -- -Znone; \
+		$(call dh_all_inline,$(pkgimg_ex)); \
 	fi
   endif
 endif
 
 	$(foreach _m,$(all_standalone_dkms_modules), \
-	  $(if $(enable_$(_m)),$(call dh_all,$(dkms_$(_m)_pkg_name)-$*) -- -Znone;)\
+	  $(if $(enable_$(_m)),$(call dh_all,$(dkms_$(_m)_pkg_name)-$*);)\
 	)
 
 	$(call dh_all,$(pkgbldinfo))
