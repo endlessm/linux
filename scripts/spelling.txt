@@ -1124,8 +1124,8 @@ paramaters||parameters
 paramater||parameter
 parametes||parameters
 parametised||parametrised
-paramter||parameter
-paramters||parameters
+parameter||parameter
+parameters||parameters
 parmaters||parameters
 particuarly||particularly
 particularily||particularly
