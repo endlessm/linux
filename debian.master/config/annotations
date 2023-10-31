@@ -14666,7 +14666,7 @@ CONFIG_VIRTIO_PMEM                              policy<{'amd64': 'm', 'arm64': '
 CONFIG_VIRTIO_VDPA                              policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm'}>
 CONFIG_VIRTIO_VSOCKETS                          policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm', 's390x': 'm'}>
 CONFIG_VIRTIO_VSOCKETS_COMMON                   policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm', 's390x': 'm'}>
-CONFIG_VIRTUALIZATION                           policy<{'amd64': 'y', 'arm64': 'y', 'ppc64el': 'y', 'riscv64': 'y', 's390x': 'y'}>
+CONFIG_VIRTUALIZATION                           policy<{'amd64': 'y', 'arm64': 'n', 'ppc64el': 'y', 'riscv64': 'y', 's390x': 'y'}>
 CONFIG_VIRT_CPU_ACCOUNTING                      policy<{'s390x': 'y'}>
 CONFIG_VIRT_CPU_ACCOUNTING_GEN                  policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'ppc64el': 'n', 'riscv64': 'n'}>
 CONFIG_VIRT_CPU_ACCOUNTING_NATIVE               policy<{'ppc64el': 'n', 's390x': 'y'}>
@@ -14926,7 +14926,7 @@ CONFIG_X9250                                    policy<{'amd64': 'm', 'arm64': '
 CONFIG_XARRAY_MULTI                             policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y', 's390x': 'y'}>
 CONFIG_XDP_SOCKETS                              policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y', 's390x': 'y'}>
 CONFIG_XDP_SOCKETS_DIAG                         policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm', 's390x': 'm'}>
-CONFIG_XEN                                      policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'n'}>
+CONFIG_XEN                                      policy<{'amd64': 'y', 'arm64': 'n', 'armhf': 'n'}>
 CONFIG_XENFS                                    policy<{'amd64': 'm', 'arm64': 'm', 'armhf': '-'}>
 CONFIG_XEN_ACPI                                 policy<{'amd64': 'y'}>
 CONFIG_XEN_AUTO_XLATE                           policy<{'amd64': 'y', 'arm64': 'y'}>
