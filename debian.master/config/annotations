@@ -13490,6 +13490,7 @@ CONFIG_TOOLCHAIN_HAS_V                          policy<{'riscv64': 'y'}>
 CONFIG_TOOLCHAIN_HAS_ZBB                        policy<{'riscv64': 'y'}>
 CONFIG_TOOLCHAIN_HAS_ZIHINTPAUSE                policy<{'riscv64': 'y'}>
 CONFIG_TOOLCHAIN_NEEDS_EXPLICIT_ZICSR_ZIFENCEI  policy<{'riscv64': 'y'}>
+CONFIG_TOOLS_SUPPORT_RELR                       policy<{'amd64': 'y', 'ppc64el': 'y'}>
 CONFIG_TOPSTAR_LAPTOP                           policy<{'amd64': 'm'}>
 CONFIG_TOSHIBA_BT_RFKILL                        policy<{'amd64': 'm'}>
 CONFIG_TOSHIBA_HAPS                             policy<{'amd64': 'm'}>
