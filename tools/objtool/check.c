@@ -4040,7 +4040,10 @@ static int validate_retpoline(struct objtool_file *file)
 		}
 	}
 
-	return warnings;
+	/* RETPOLINE is an optional security safety feature, make it
+	 * fatal to ensure no new code is introduced that fails
+	 * RETPOLINE */
+	return -warnings;
 }
 
 static bool is_kasan_insn(struct instruction *insn)
