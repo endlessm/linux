@@ -384,6 +384,7 @@ static int nvme_remap_probe(struct pci_dev *dev,
 			nr_res->start = res->start;
 			nr_res->end = res->end;
 			nr_res->flags = res->flags;
+			nr_res->parent = res->parent;
 			pci_add_resource(&resources, nr_res);
 		}
 	}
@@ -424,6 +425,16 @@ static int nvme_remap_probe(struct pci_dev *dev,
 
 		/* Share the legacy IRQ between all devices */
 		child->irq = dev->irq;
+
+		if (child->class == PCI_CLASS_STORAGE_SATA_AHCI) {
+			/*
+			 * The new created remapped ACHI controller is a
+			 * virtual interface. The real RAID controller will
+			 * handle the AHCI's PM actions through this module. So,
+			 * skip this virtual interface's PM actions.
+			 */
+			child->skip_bus_pm = 1;
+		}
 	}
 
 	pci_assign_unassigned_bus_resources(nrdev->bus);
