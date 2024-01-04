@@ -2384,6 +2384,7 @@ static struct aa_sfs_entry aa_sfs_entry_ns[] = {
 	AA_SFS_FILE_BOOLEAN("profile",		1),
 	AA_SFS_FILE_BOOLEAN("pivot_root",	0),
 	AA_SFS_FILE_STRING("mask", "userns_create"),
+	AA_SFS_FILE_STRING("userns_create", "pciu&"),
 	{ }
 };
 

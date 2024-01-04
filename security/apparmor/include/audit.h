@@ -145,6 +145,9 @@ struct apparmor_audit_data {
 						int addrlen;
 					} peer;
 				} net;
+				struct {
+					const char *target;
+				} ns;
 			};
 		};
 		struct {

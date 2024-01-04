@@ -1053,7 +1053,7 @@ static int apparmor_task_kill(struct task_struct *target, struct kernel_siginfo 
 	return error;
 }
 
-static int apparmor_userns_create(const struct cred *cred)
+static int apparmor_userns_create(const struct cred *new_cred)
 {
 	struct aa_label *label;
 	struct aa_profile *profile;
@@ -1063,13 +1063,22 @@ static int apparmor_userns_create(const struct cred *cred)
 	/* remove unprivileged_userns_restricted check when unconfined is updated */
 	if (aa_unprivileged_userns_restricted ||
 	    label_mediates(label, AA_CLASS_NS)) {
+		struct aa_label *new;
 		DEFINE_AUDIT_DATA(ad, LSM_AUDIT_DATA_TASK, AA_CLASS_NS,
 				  OP_USERNS_CREATE);
 		ad.subj_cred = current_cred();
 
-		error = fn_for_each(label, profile,
-			    aa_profile_ns_perm(profile, &ad, AA_USERNS_CREATE));
-		end_current_label_crit_section(label);
+		new = fn_label_build(label, profile, GFP_KERNEL,
+				aa_profile_ns_perm(profile, &ad,
+						   AA_USERNS_CREATE));
+		if (IS_ERR(new)) {
+			error = PTR_ERR(new);
+		} else if (new && cred_label(new_cred) != new) {
+			aa_put_label(cred_label(new_cred));
+			set_cred_label(new_cred, new);
+		} else {
+			aa_put_label(new);
+		}
 	}
 	end_current_label_crit_section(label);
 

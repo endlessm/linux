@@ -310,18 +310,103 @@ static void audit_ns_cb(struct audit_buffer *ab, void *va)
 
 	if (ad->denied & AA_USERNS_CREATE)
 		audit_log_format(ab, " denied=\"userns_create\"");
+
+	if (ad->peer) {
+		audit_log_format(ab, " target=");
+		aa_label_xaudit(ab, labels_ns(ad->subj_label), ad->peer,
+				FLAG_VIEW_SUBNS, GFP_KERNEL);
+	} else if (ad->ns.target) {
+		audit_log_format(ab, " target=");
+		audit_log_untrustedstring(ab, ad->ns.target);
+	}
+
 }
 
-int aa_profile_ns_perm(struct aa_profile *profile,
-		       struct apparmor_audit_data *ad,
-		       u32 request)
+/*
+ * Returns: refcounted label to change to, even if no change
+ *          PTR_ERR on failure
+ */
+static struct aa_label *ns_x_to_label(struct aa_profile *profile,
+				      u32 xindex, const char **lookupname,
+				      const char **info)
+{
+	struct aa_label *new = NULL;
+	u32 xtype = xindex & AA_X_TYPE_MASK;
+	struct aa_label *stack = NULL;
+
+	/* must be none or table */
+	switch (xtype) {
+	case AA_X_NONE:
+		/* default not failure */
+		*lookupname = NULL;
+		return NULL;
+		break;
+	case AA_X_TABLE:
+		/* TODO: fix when perm mapping done at unload */
+		/* released by caller
+		 * if null for both stack and direct want to try fallback
+		 */
+		new = x_table_lookup(profile, xindex, lookupname);
+		if (!new) {
+			*info = "failed to find transition profile";
+			return ERR_PTR(-ENOMEM);
+		}
+		if (**lookupname == '&') {
+			stack = new;
+			new = NULL;
+		}
+		break;
+	default:
+		*info = "invalid profile transition type";
+		return ERR_PTR(-EINVAL);
+		break;
+	}
+
+	/* stack is true if !new */
+	if (!new) {
+		if (xindex & AA_X_UNCONFINED) {
+			new = aa_get_newest_label(ns_unconfined(profile->ns));
+			*info = "ux fallback";
+		} else {
+			if (xindex & AA_X_INHERIT) {
+				/* (p|c|n)ix - don't change profile but do
+				 * use the newest version
+				 */
+				*info = "ix fallback";
+				/* no profile && no error */
+			} /* else, stack is implicitly against current */
+			new = aa_get_newest_label(&profile->label);
+		}
+	}
+
+	if (stack) {
+		/* base the stack on post domain transition */
+		struct aa_label *base = new;
+
+		new = aa_label_merge(base, stack, GFP_KERNEL);
+		/* null on error */
+		aa_put_label(base);
+		aa_put_label(stack);
+		if (!new)
+			return ERR_PTR(-ENOMEM);
+	}
+
+	/* released by caller */
+	return new;
+}
+
+struct aa_label *aa_profile_ns_perm(struct aa_profile *profile,
+				    struct apparmor_audit_data *ad,
+				    u32 request)
 {
 	struct aa_ruleset *rules = profile->label.rules[0];
+	struct aa_label *new;
 	struct aa_perms perms = { };
 	aa_state_t state;
 
 	ad->subj_label = &profile->label;
 	ad->request = request;
+	int error;
 
 
 	/* TODO: rework unconfined profile/dfa to mediate user ns, then
@@ -337,19 +422,57 @@ int aa_profile_ns_perm(struct aa_profile *profile,
 			if (!aa_unprivileged_userns_restricted ||
 			    ns_capable_noaudit(current_user_ns(),
 					       CAP_SYS_ADMIN))
-				return 0;
+				return aa_get_newest_label(&profile->label);
 			ad->info = "User namespace creation restricted";
 			/* unconfined unprivileged user */
 			/* don't just return: allow complain mode to override */
+// hardcode unconfined transition for now
+			new = aa_label_parse(&profile->label,
+					     "unprivileged_userns", GFP_KERNEL,
+					     true, false);
+			if (IS_ERR(new)) {
+				ad->info = "Userns create restricted - failed to find unprivileged_userns profile";
+				ad->error = PTR_ERR(new);
+				ad->ns.target = "unprivileged_userns";
+				new = NULL;
+				perms.deny |= request;
+				goto hard_coded;
+			}
+			ad->info = "Userns create - transitioning profile";
+			perms.audit = request;
+			perms.allow = request;
+			goto hard_coded;
+// once we have special unconfined profile, jump to ns_x_to_label()
+// end hardcode
 		} else if (!aa_unprivileged_userns_restricted_force) {
-			return 0;
+			return aa_get_newest_label(&profile->label);
 		}
 		/* continue to mediation */
 	}
+
 	perms = *aa_lookup_perms(rules->policy, state);
+	new = ns_x_to_label(profile, perms.xindex, &ad->ns.target, &ad->info);
+	if (IS_ERR(new)) {
+		ad->error = PTR_ERR(new);
+		new = NULL;
+		perms.deny |= request;
+	} else if (!new) {
+		/* no transition - not done in x_to_label so we can track */
+		new = aa_get_label(&profile->label);
+	} else {
+hard_coded:
+		ad->peer = new;
+	}
 	if (aa_unprivileged_userns_restricted_complain)
 		perms.complain = ALL_PERMS_MASK;
+	// TODO: nnp
+	// TODO: complain mode support for transitions
 
 	aa_apply_modes_to_perms(profile, &perms);
-	return aa_check_perms(profile, &perms, request, ad, audit_ns_cb);
+	error = aa_check_perms(profile, &perms, request, ad, audit_ns_cb);
+	if (error) {
+		aa_put_label(new);
+		return ERR_PTR(error);
+	}
+	return new;
 }
