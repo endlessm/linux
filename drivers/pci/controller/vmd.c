@@ -731,6 +731,23 @@ static int vmd_power_on_pci_device(struct pci_dev *pdev, void *userdata)
 }
 
 /*
+ * Intel VMD hardware generates 'dummy' devices (0x09ab) for multi-function
+ * devices when mapped. Power off the dummy devices to save more power.
+ * https://www.intel.com/content/www/us/en/support/articles/000088762/technologies/intel-rapid-storage-technology-intel-rst.html
+ */
+static int do_power_off_dummy_pci(struct pci_dev *pdev, void *userdata)
+{
+       if (pdev->vendor == PCI_VENDOR_ID_INTEL && pdev->device == 0x09ab)
+               pci_set_power_state(pdev, PCI_D3cold);
+       return 0;
+}
+
+static void vmd_power_off_dummy_pci(struct vmd_dev *vmd)
+{
+       pci_walk_bus(vmd->dev->bus, do_power_off_dummy_pci, NULL);
+}
+
+/*
  * Enable ASPM and LTR settings on devices that aren't configured by BIOS.
  */
 static int vmd_pm_enable_quirk(struct pci_dev *pdev, void *userdata)
@@ -954,6 +971,9 @@ static int vmd_enable_domain(struct vmd_dev *vmd, unsigned long features)
 
 	WARN(sysfs_create_link(&vmd->dev->dev.kobj, &vmd->bus->dev.kobj,
 			       "domain"), "Can't create symlink to domain\n");
+
+	vmd_power_off_dummy_pci(vmd);
+
 	return 0;
 }
 
@@ -1052,6 +1072,7 @@ static int vmd_suspend(struct device *dev)
 	struct vmd_dev *vmd = pci_get_drvdata(pdev);
 	int i;
 
+	vmd_power_off_dummy_pci(vmd);
 	for (i = 0; i < vmd->msix_count; i++)
 		devm_free_irq(dev, vmd->irqs[i].virq, &vmd->irqs[i]);
 
@@ -1064,6 +1085,7 @@ static int vmd_resume(struct device *dev)
 	struct vmd_dev *vmd = pci_get_drvdata(pdev);
 	int err, i;
 
+	vmd_power_off_dummy_pci(vmd);
        if (vmd->irq_domain)
                vmd_set_msi_remapping(vmd, true);
        else
