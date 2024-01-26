@@ -724,6 +724,12 @@ static void vmd_copy_host_bridge_flags(struct pci_host_bridge *root_bridge,
 	vmd_bridge->native_dpc = root_bridge->native_dpc;
 }
 
+static int vmd_power_on_pci_device(struct pci_dev *pdev, void *userdata)
+{
+	pci_set_power_state(pdev, PCI_D0);
+	return 0;
+}
+
 /*
  * Enable ASPM and LTR settings on devices that aren't configured by BIOS.
  */
@@ -777,7 +783,6 @@ static int vmd_enable_domain(struct vmd_dev *vmd, unsigned long features)
 	resource_size_t offset[2] = {0};
 	resource_size_t membar2_offset = 0x2000;
 	struct pci_bus *child;
-	struct pci_dev *dev;
 	int ret;
 
 	/*
@@ -921,27 +926,14 @@ static int vmd_enable_domain(struct vmd_dev *vmd, unsigned long features)
 	vmd_acpi_begin();
 
 	pci_scan_child_bus(vmd->bus);
-	vmd_domain_reset(vmd);
 
-	/* When Intel VMD is enabled, the OS does not discover the Root Ports
-	 * owned by Intel VMD within the MMCFG space. pci_reset_bus() applies
-	 * a reset to the parent of the PCI device supplied as argument. This
-	 * is why we pass a child device, so the reset can be triggered at
-	 * the Intel bridge level and propagated to all the children in the
-	 * hierarchy.
+	/*
+	 * Make PCI devices at D0 when enable PCI-PM L1 PM Substates from
+	 * Section 5.5.4 of PCIe Base Spec Revision 5.0 Version 0.1
 	 */
-	list_for_each_entry(child, &vmd->bus->children, node) {
-		if (!list_empty(&child->devices)) {
-			dev = list_first_entry(&child->devices,
-					       struct pci_dev, bus_list);
-			ret = pci_reset_bus(dev);
-			if (ret)
-				pci_warn(dev, "can't reset device: %d\n", ret);
+	pci_walk_bus(vmd->bus, vmd_power_on_pci_device, NULL);
 
-			break;
-		}
-	}
-
+	vmd_domain_reset(vmd);
 	pci_assign_unassigned_bus_resources(vmd->bus);
 
 	pci_walk_bus(vmd->bus, vmd_pm_enable_quirk, &features);
