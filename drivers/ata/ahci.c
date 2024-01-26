@@ -1404,6 +1404,33 @@ static bool ahci_broken_devslp(struct pci_dev *pdev)
 	return pci_match_id(ids, pdev);
 }
 
+static bool ahci_force_lpm_policy(void)
+{
+	/*
+	 * Some systems, like ASUS B1400CEAE equipped with the SATA controller
+	 * [8086:a0d3] can use LPM policy to save power, especially for s2idle.
+	 * However, the same controller may be failed on other platforms. So,
+	 * commit (ata: ahci: Revert "ata: ahci: Add Tiger Lake UP{3,4} AHCI
+	 * controller") drops LPM policy for [8086:a0d3].
+	 *
+	 * https://bugzilla.kernel.org/show_bug.cgi?id=218394
+	 */
+	static const struct dmi_system_id sysids[] = {
+		{
+			.ident = "ASUS B1400CEAE",
+			.matches = {
+				DMI_MATCH(DMI_SYS_VENDOR,
+					  "ASUSTeK COMPUTER INC."),
+				DMI_MATCH(DMI_PRODUCT_NAME,
+					  "ASUS EXPERTBOOK B1400CEAE"),
+			},
+		},
+		{ }	/* terminate list */
+	};
+
+	return dmi_first_match(sysids);
+}
+
 #ifdef CONFIG_ATA_ACPI
 static void ahci_gtf_filter_workaround(struct ata_host *host)
 {
@@ -1721,6 +1748,11 @@ static int ahci_init_one(struct pci_dev *pdev, const struct pci_device_id *ent)
 	} else if (pdev->vendor == PCI_VENDOR_ID_LOONGSON) {
 		if (pdev->device == 0x7a08)
 			ahci_pci_bar = AHCI_PCI_BAR_LOONGSON;
+	}
+
+	if (ahci_force_lpm_policy()) {
+		pi = ahci_port_info[board_ahci_low_power];
+		dev_info(&pdev->dev, "force controller follow LPM policy\n");
 	}
 
 	/* acquire resources */
