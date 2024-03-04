@@ -62,6 +62,9 @@ bool last_level_cache_is_valid(unsigned int cpu)
 	if (!cache_leaves(cpu) || !per_cpu_cacheinfo(cpu))
 		return false;
 
+	if (!per_cpu_cacheinfo(cpu))
+		return false;
+
 	llc = per_cpu_cacheinfo_idx(cpu, cache_leaves(cpu) - 1);
 
 	return (llc->attributes & CACHE_ID) || !!llc->fw_token;
