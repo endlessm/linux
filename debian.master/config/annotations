@@ -4416,7 +4416,7 @@ CONFIG_DW_EDMA_PCIE                             policy<{'amd64': 'm', 'arm64': '
 CONFIG_DW_I3C_MASTER                            policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm'}>
 CONFIG_DW_WATCHDOG                              policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm', 's390x': 'n'}>
 CONFIG_DW_XDATA_PCIE                            policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm', 's390x': 'n'}>
-CONFIG_DYNAMIC_DEBUG                            policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y', 's390x': 'y'}>
+CONFIG_DYNAMIC_DEBUG                            policy<{'amd64': 'y', 'arm64': 'n', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y', 's390x': 'y'}>
 CONFIG_DYNAMIC_DEBUG_CORE                       policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y', 's390x': 'y'}>
 CONFIG_DYNAMIC_EVENTS                           policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y', 's390x': 'y'}>
 CONFIG_DYNAMIC_FTRACE                           policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y', 's390x': 'y'}>
@@ -4974,7 +4974,7 @@ CONFIG_FS_VERITY_BUILTIN_SIGNATURES             policy<{'amd64': 'y', 'arm64': '
 CONFIG_FTGMAC100                                policy<{'armhf': 'm'}>
 CONFIG_FTL                                      policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm'}>
 CONFIG_FTMAC100                                 policy<{'armhf': 'm'}>
-CONFIG_FTRACE                                   policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y', 's390x': 'y'}>
+CONFIG_FTRACE                                   policy<{'amd64': 'y', 'arm64': 'n', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y', 's390x': 'y'}>
 CONFIG_FTRACE_MCOUNT_RECORD                     policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y', 's390x': 'y'}>
 CONFIG_FTRACE_MCOUNT_USE_CC                     policy<{'amd64': 'y', 's390x': 'y'}>
 CONFIG_FTRACE_MCOUNT_USE_OBJTOOL                policy<{'ppc64el': 'y'}>
