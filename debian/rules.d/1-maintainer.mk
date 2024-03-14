@@ -83,6 +83,7 @@ printenv:
 	@echo " do_tools_host            = $(do_tools_host)"
 	@echo " do_tools_perf            = $(do_tools_perf)"
 	@echo " do_tools_perf_jvmti      = $(do_tools_perf_jvmti)"
+	@echo " do_tools_perf_python     = $(do_tools_perf_python)"
 	@echo " do_tools_usbip           = $(do_tools_usbip)"
 	@echo " do_tools_x86             = $(do_tools_x86)"
 	@echo "do_cloud_tools            = $(do_cloud_tools)"

@@ -20,5 +20,6 @@ do_tools_usbip         = false
 do_tools_cpupower      = false
 do_tools_perf          = false
 do_tools_perf_jvmti    = false
+do_tools_perf_python = false
 do_tools_bpftool       = false
 do_dtbs                = false

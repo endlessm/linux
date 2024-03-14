@@ -21,6 +21,7 @@ Build-Depends:
  pkg-config <!stage1>,
  python3 <!stage1>,
  python3-dev <!stage1>,
+ python3-setuptools <!stage1>,
  flex <!stage1>,
  bison <!stage1>,
  libunwind8-dev [amd64 arm64 armhf ppc64el] <!stage1>,

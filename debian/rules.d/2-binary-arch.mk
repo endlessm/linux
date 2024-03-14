@@ -654,7 +654,7 @@ ifeq ($(do_tools_cpupower),true)
 endif
 ifeq ($(do_tools_perf),true)
 	cd $(builddirpa)/tools/perf && \
-		$(kmake) prefix=/usr NO_LIBTRACEEVENT=1 HAVE_NO_LIBBFD=1 HAVE_CPLUS_DEMANGLE_SUPPORT=1 CROSS_COMPILE=$(CROSS_COMPILE) NO_LIBPYTHON=1 NO_LIBPERL=1 WERROR=0
+		$(kmake) prefix=/usr NO_LIBTRACEEVENT=1 HAVE_CPLUS_DEMANGLE_SUPPORT=1 CROSS_COMPILE=$(CROSS_COMPILE) NO_LIBPERL=1 WERROR=0
 endif
 ifeq ($(do_tools_bpftool),true)
 	mv $(builddirpa)/tools/bpf/bpftool/vmlinux $(builddirpa)/vmlinux
@@ -702,6 +702,9 @@ ifeq ($(do_tools_perf),true)
 	install -m755 $(builddirpa)/tools/perf/perf $(toolspkgdir)/usr/lib/$(src_pkg_name)-tools-$(abi_release)
 ifeq ($(do_tools_perf_jvmti),true)
 	install -m755 $(builddirpa)/tools/perf/libperf-jvmti.so $(toolspkgdir)/usr/lib/$(src_pkg_name)-tools-$(abi_release)
+endif
+ifeq ($(do_tools_perf_python),true)
+	install -m755 $(builddirpa)/tools/perf/python/perf*.so $(toolspkgdir)/usr/lib/python3/dist-packages
 endif
 endif
 ifeq ($(do_tools_bpftool),true)

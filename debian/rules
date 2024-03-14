@@ -48,6 +48,7 @@ include $(DROOT)/rules.d/1-maintainer.mk
 do_linux_tools=$(sort $(filter-out false,$(do_tools_usbip) $(do_tools_cpupower) $(do_tools_perf) $(do_tools_bpftool) $(do_tools_x86)))
 do_cloud_tools=$(sort $(filter-out false,$(do_tools_hyperv)))
 do_tools_perf_jvmti?=false
+do_tools_perf_python?=false
 
 # Indep tools packages may only be built for the main linux source package
 ifeq ($(src_pkg_name),linux)
