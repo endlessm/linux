@@ -704,7 +704,8 @@ ifeq ($(do_tools_perf_jvmti),true)
 	install -m755 $(builddirpa)/tools/perf/libperf-jvmti.so $(toolspkgdir)/usr/lib/$(src_pkg_name)-tools-$(abi_release)
 endif
 ifeq ($(do_tools_perf_python),true)
-	install -m755 $(builddirpa)/tools/perf/python/perf*.so $(toolspkgdir)/usr/lib/python3/dist-packages
+	install -d $(toolspkgdir)/usr/lib/python3/dist-packages/$(src_pkg_name)-tools-$(abi_release)
+	install -m755 $(builddirpa)/tools/perf/python/perf*.so $(toolspkgdir)/usr/lib/python3/dist-packages/$(src_pkg_name)-tools-$(abi_release)
 endif
 endif
 ifeq ($(do_tools_bpftool),true)

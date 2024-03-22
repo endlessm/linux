@@ -55,6 +55,7 @@ install-tools: toolspkg = $(tools_common_pkg_name)
 install-tools: toolsbin = $(CURDIR)/debian/$(toolspkg)/usr/bin
 install-tools: toolssbin = $(CURDIR)/debian/$(toolspkg)/usr/sbin
 install-tools: toolsman = $(CURDIR)/debian/$(toolspkg)/usr/share/man
+install-tools: toolspython = $(CURDIR)/debian/$(toolspkg)/usr/lib/python3/dist-packages
 install-tools: toolsbashcomp = $(CURDIR)/debian/$(toolspkg)/usr/share/bash-completion/completions
 install-tools: hosttoolspkg = $(hosttools_pkg_name)
 install-tools: hosttoolsbin = $(CURDIR)/debian/$(hosttoolspkg)/usr/bin
@@ -79,6 +80,7 @@ ifeq ($(do_tools_common),true)
 	install -d $(toolsman)/man1
 	install -d $(toolsman)/man8
 	install -d $(toolsbashcomp)
+	install -d $(toolspython)
 
 	install -m755 debian/tools/generic $(toolsbin)/usbip
 	install -m755 debian/tools/generic $(toolsbin)/usbipd
@@ -108,6 +110,11 @@ ifeq ($(do_tools_common),true)
 	install -m644 $(CURDIR)/tools/power/x86/x86_energy_perf_policy/*.8 $(toolsman)/man8
 	install -m644 $(CURDIR)/tools/power/x86/turbostat/*.8 $(toolsman)/man8
 
+ifeq ($(do_tools_perf_python),true)
+	# Python wrapper module for python-perf
+	install -d $(toolspython)/perf
+	install -m755 debian/tools/python-perf.py $(toolspython)/perf/__init__.py
+endif
 ifeq ($(do_cloud_tools),true)
 ifeq ($(do_tools_hyperv),true)
 	install -d $(cloudsbin)
