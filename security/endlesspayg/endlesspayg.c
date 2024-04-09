@@ -12,6 +12,7 @@
 #include <linux/security.h>
 #include <linux/kernel.h>
 #include <linux/types.h>
+#include <uapi/linux/lsm.h>
 #include "endlesspayg.h"
 
 /* exported in drivers/rtc/dev.c */
@@ -26,6 +27,7 @@ static pid_t paygd_pid = -1;
 
 static struct lsm_id payg_lsmid __ro_after_init = {
 	.lsm  = "endlesspayg",
+	.id   = LSM_ID_ENDLESSPAYG,
 	.slot = LSMBLOB_NEEDED
 };
 
