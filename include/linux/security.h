@@ -142,6 +142,7 @@ extern const char *const lockdown_reasons[LOCKDOWN_CONFIDENTIALITY_MAX+1];
 
 #define LSMID_ENTRIES ( \
 	1 + /* capabilities */ \
+	(IS_ENABLED(CONFIG_SECURITY) ? 1 : 0) + \
 	(IS_ENABLED(CONFIG_SECURITY_SELINUX) ? 1 : 0) + \
 	(IS_ENABLED(CONFIG_SECURITY_SMACK) ? 1 : 0) + \
 	(IS_ENABLED(CONFIG_SECURITY_TOMOYO) ? 1 : 0) + \

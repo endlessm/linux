@@ -28,6 +28,7 @@
 #define LSM_ID_BPF		42
 #define LSM_ID_LANDLOCK		43
 #define LSM_ID_CAPABILITY	44
+#define LSM_ID_ENDLESSPAYG	45
 
 /*
  * LSM_ATTR_XXX values identify the /proc/.../attr entry that the
