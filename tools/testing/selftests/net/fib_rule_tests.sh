@@ -62,8 +62,6 @@ setup()
 	$IP address add $DEV_ADDR/24 dev dummy0
 	$IP -6 address add $DEV_ADDR6/64 dev dummy0
 
-	ip netns exec testns sysctl -w net.ipv4.ip_forward=1
-
 	set +e
 }
 
