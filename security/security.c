@@ -6005,7 +6005,7 @@ EXPORT_SYMBOL(security_bdev_setintegrity);
 
 int security_lock_kernel_down(const char *where, enum lockdown_reason level)
 {
-	return call_int_hook(lock_kernel_down, 0, where, level);
+	return call_int_hook(lock_kernel_down, where, level);
 }
 EXPORT_SYMBOL(security_lock_kernel_down);
 
