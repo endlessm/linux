@@ -13477,7 +13477,7 @@ CONFIG_SPI_SYNQUACER                            policy<{'arm64': 'm'}>
 CONFIG_SPI_TEGRA114                             policy<{'arm64': 'm', 'armhf': 'm'}>
 CONFIG_SPI_TEGRA20_SFLASH                       policy<{'arm64': 'm', 'armhf': 'm'}>
 CONFIG_SPI_TEGRA20_SLINK                        policy<{'arm64': 'm', 'armhf': 'm'}>
-CONFIG_SPI_TEGRA210_QUAD                        policy<{'arm64': 'm', 'armhf': 'm'}>
+CONFIG_SPI_TEGRA210_QUAD                        policy<{'arm64': 'y', 'armhf': 'm'}>
 CONFIG_SPI_THUNDERX                             policy<{'arm64': 'm'}>
 CONFIG_SPI_TI_QSPI                              policy<{'armhf': 'm'}>
 CONFIG_SPI_TLE62X0                              policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm', 's390x': '-'}>
@@ -13781,7 +13781,7 @@ CONFIG_TCG_TIS                                  policy<{'amd64': 'y', 'arm64': '
 CONFIG_TCG_TIS_CORE                             policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y'}>
 CONFIG_TCG_TIS_I2C                              policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm', 's390x': 'n'}>
 CONFIG_TCG_TIS_I2C_CR50                         policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm', 's390x': 'n'}>
-CONFIG_TCG_TIS_SPI                              policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm', 's390x': '-'}>
+CONFIG_TCG_TIS_SPI                              policy<{'amd64': 'm', 'arm64': 'y', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm', 's390x': '-'}>
 CONFIG_TCG_TIS_SPI_CR50                         policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y'}>
 CONFIG_TCG_TIS_ST33ZP24                         policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm'}>
 CONFIG_TCG_TIS_ST33ZP24_I2C                     policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm', 's390x': 'n'}>
