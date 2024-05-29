@@ -1,4 +1,4 @@
-# On Azure/Hyper-V systems start the hv_fcopy_daemon
+# On Azure/Hyper-V systems start the hv_fcopy_uio_daemon
 #
 description "Hyper-V File Copy Protocol Daemon"
 author "Andy Whitcroft <apw@canonical.com>"
@@ -19,4 +19,4 @@ pre-start script
 	fi
 end script
 
-exec /usr/sbin/hv_fcopy_daemon -n
+exec /usr/sbin/hv_fcopy_uio_daemon -n

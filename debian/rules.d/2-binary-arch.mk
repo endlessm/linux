@@ -375,7 +375,7 @@ ifeq ($(do_tools_hyperv),true)
 	install -d $(cloudpkgdir)/usr/lib/linux-tools/$(abi_release)-$*
 	$(LN) ../../$(src_pkg_name)-tools-$(abi_release)/hv_kvp_daemon $(cloudpkgdir)/usr/lib/linux-tools/$(abi_release)-$*
 	$(LN) ../../$(src_pkg_name)-tools-$(abi_release)/hv_vss_daemon $(cloudpkgdir)/usr/lib/linux-tools/$(abi_release)-$*
-	$(LN) ../../$(src_pkg_name)-tools-$(abi_release)/hv_fcopy_daemon $(cloudpkgdir)/usr/lib/linux-tools/$(abi_release)-$*
+	$(LN) ../../$(src_pkg_name)-tools-$(abi_release)/hv_fcopy_uio_daemon $(cloudpkgdir)/usr/lib/linux-tools/$(abi_release)-$*
 	$(LN) ../../$(src_pkg_name)-tools-$(abi_release)/lsvmbus $(cloudpkgdir)/usr/lib/linux-tools/$(abi_release)-$*
 endif
 endif
@@ -677,7 +677,7 @@ endif
 endif
 ifeq ($(do_cloud_tools),true)
 ifeq ($(do_tools_hyperv),true)
-	cd $(builddirpa)/tools/hv && make CFLAGS="-I$(headers_dir)/usr/include -I$(headers_dir)/usr/include/$(DEB_HOST_MULTIARCH)" CROSS_COMPILE=$(CROSS_COMPILE) hv_kvp_daemon hv_vss_daemon hv_fcopy_daemon
+	cd $(builddirpa)/tools/hv && make CFLAGS="-I$(headers_dir)/usr/include -I$(headers_dir)/usr/include/$(DEB_HOST_MULTIARCH)" CROSS_COMPILE=$(CROSS_COMPILE) hv_kvp_daemon hv_vss_daemon hv_fcopy_uio_daemon
 endif
 endif
 	$(stamp)
@@ -730,7 +730,7 @@ ifeq ($(do_cloud_tools),true)
 ifeq ($(do_tools_hyperv),true)
 	install -d $(cloudpkgdir)/usr/lib
 	install -d $(cloudpkgdir)/usr/lib/$(src_pkg_name)-tools-$(abi_release)
-	install -m755 $(addprefix $(builddirpa)/tools/hv/, hv_kvp_daemon hv_vss_daemon hv_fcopy_daemon lsvmbus) \
+	install -m755 $(addprefix $(builddirpa)/tools/hv/, hv_kvp_daemon hv_vss_daemon hv_fcopy_uio_daemon lsvmbus) \
 		$(cloudpkgdir)/usr/lib/$(src_pkg_name)-tools-$(abi_release)
 endif
 endif

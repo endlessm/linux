@@ -1,4 +1,4 @@
-# On Azure/Hyper-V systems start the hv_fcopy_daemon
+# On Azure/Hyper-V systems start the hv_fcopy_uio_daemon
 #
 # author "Andy Whitcroft <apw@canonical.com>"
 [Unit]
@@ -8,7 +8,7 @@ ConditionPathExists=/dev/vmbus/hv_fcopy
 BindsTo=sys-devices-virtual-misc-vmbus\x21hv_fcopy.device
 
 [Service]
-ExecStart=/usr/sbin/hv_fcopy_daemon -n
+ExecStart=/usr/sbin/hv_fcopy_uio_daemon -n
 
 [Install]
 WantedBy=multi-user.target
