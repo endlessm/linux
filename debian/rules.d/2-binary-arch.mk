@@ -247,8 +247,6 @@ ifeq ($(do_dbgsym_package),true)
 	if [ -d $(builddir)/build-$*/scripts/gdb/linux ]; then \
 		install -m644 -D $(builddir)/build-$*/vmlinux-gdb.py \
 			$(dbgpkgdir)/usr/share/gdb/auto-load/boot/vmlinux-$(abi_release)-$*/vmlinuz-$(abi_release)-$*-gdb.py; \
-		install -m644 -D $(builddir)/build-$*/scripts/gdb/linux/* \
-			--target-directory=$(dbgpkgdir)/usr/share/gdb/auto-load/boot/vmlinux-$(abi_release)-$*/scripts/gdb/linux; \
 	fi
 	$(kmake) O=$(builddir)/build-$* modules_install $(vdso) \
 		INSTALL_MOD_PATH=$(dbgpkgdir)/usr/lib/debug
