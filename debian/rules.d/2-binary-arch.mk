@@ -653,13 +653,6 @@ ifeq ($(do_tools_cpupower),true)
 		CPUFREQ_BENCH=false
 endif
 ifeq ($(do_tools_perf),true)
-	cd $(builddirpa) && $(kmake) $(defconfig)
-	mv $(builddirpa)/.config $(builddirpa)/.config.old
-	sed -e 's/^# \(CONFIG_MODVERSIONS\) is not set$$/\1=y/' \
-	  -e 's/.*CONFIG_LOCALVERSION_AUTO.*/# CONFIG_LOCALVERSION_AUTO is not set/' \
-	  $(builddirpa)/.config.old > $(builddirpa)/.config
-	cd $(builddirpa) && $(kmake) syncconfig
-	cd $(builddirpa) && $(kmake) prepare
 	cd $(builddirpa)/tools/perf && \
 		$(kmake) prefix=/usr NO_LIBTRACEEVENT=1 HAVE_NO_LIBBFD=1 HAVE_CPLUS_DEMANGLE_SUPPORT=1 CROSS_COMPILE=$(CROSS_COMPILE) NO_LIBPYTHON=1 NO_LIBPERL=1 WERROR=0
 endif
