@@ -60,8 +60,18 @@ do
 				break
 			fi
 
+			# Get pools from *.list files.
+			slist_files="/etc/apt/sources.list $( find /etc/apt/sources.list.d/ -type f -name "*.list" | xargs )"
+			slist_pools=$( grep -h '^deb ' $slist_files | awk '{print $2}' )
+
+			# Get pools from *.sources (deb822-style) files.
+			deb822_files=$( find /etc/apt/sources.list.d/ -type f -name "*.sources" | xargs )
+			# Split stanzas on empty lines and only select deb pools, then get the URIs.
+			# Since RS != \n, regex is not line-by-line so the newline matching is more explicit.
+			deb822_pools=$( awk -v RS= '/(^|\n)Types:[^\n]* deb($|\s)/' $deb822_files | sed -n 's/^URIs: //p' )
+
 			# Download from the available pools.
-			for pool in $( grep -h '^deb ' /etc/apt/sources.list /etc/apt/sources.list.d/*.list | awk '{print $2}' | sort -u )
+			for pool in $( echo $slist_pools $deb822_pools | xargs -n1 | sort -u )
 			do
 				if package_present "$lpackage"; then
 					break
