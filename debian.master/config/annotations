@@ -12208,7 +12208,7 @@ CONFIG_SERIAL_RP2_NR_UARTS                      policy<{'amd64': '32', 'arm64': 
 CONFIG_SERIAL_SAMSUNG                           policy<{'arm64': 'm', 'armhf': 'm'}>
 CONFIG_SERIAL_SAMSUNG_CONSOLE                   policy<{'arm64': 'y', 'armhf': 'y'}>
 CONFIG_SERIAL_SAMSUNG_UARTS                     policy<{'arm64': '4', 'armhf': '4'}>
-CONFIG_SERIAL_SC16IS7XX_CORE                    policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm', 's390x': 'n'}>
+CONFIG_SERIAL_SC16IS7XX                         policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm', 's390x': 'n'}>
 CONFIG_SERIAL_SC16IS7XX_I2C                     policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm'}>
 CONFIG_SERIAL_SC16IS7XX_SPI                     policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm'}>
 CONFIG_SERIAL_SCCNXP                            policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y', 's390x': 'n'}>
