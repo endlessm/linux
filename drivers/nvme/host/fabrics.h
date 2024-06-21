@@ -67,6 +67,7 @@ enum {
 	NVMF_OPT_KEYRING	= 1 << 26,
 	NVMF_OPT_TLS_KEY	= 1 << 27,
 	NVMF_OPT_CONCAT		= 1 << 28,
+	NVMF_OPT_RECOVERY_DELAY = 1 << 29,
 };
 
 /**
@@ -93,6 +94,7 @@ enum {
  * @queue_size: Number of IO queue elements.
  * @nr_io_queues: Number of controller IO queues that will be established.
  * @reconnect_delay: Time between two consecutive reconnect attempts.
+ * @recovery_delay: Time before error recovery starts after error detection.
  * @discovery_nqn: indicates if the subsysnqn is the well-known discovery NQN.
  * @kato:	Keep-alive timeout.
  * @host:	Virtual NVMe host, contains the NQN and Host ID.
@@ -123,6 +125,7 @@ struct nvmf_ctrl_options {
 	size_t			queue_size;
 	unsigned int		nr_io_queues;
 	unsigned int		reconnect_delay;
+	unsigned int		recovery_delay;
 	bool			discovery_nqn;
 	bool			duplicate_connect;
 	unsigned int		kato;
