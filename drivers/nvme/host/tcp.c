@@ -616,10 +616,14 @@ static void nvme_tcp_init_recv_ctx(struct nvme_tcp_queue *queue)
  */
 static void nvme_tcp_error_recovery(struct nvme_ctrl *ctrl)
 {
-	unsigned long delay = nvme_keep_alive_work_period(ctrl);
+	unsigned long delay;
 
 	if (!nvme_change_ctrl_state(ctrl, NVME_CTRL_RESETTING))
 		return;
+
+	delay = ctrl->opts->recovery_delay * HZ;
+	if (!delay)
+		delay = nvme_keep_alive_work_period(ctrl);
 
 	dev_warn(ctrl->device, "starting error recovery in %lu seconds\n",
 		 delay / HZ);
