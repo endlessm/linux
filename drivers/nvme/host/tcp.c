@@ -609,13 +609,21 @@ static void nvme_tcp_init_recv_ctx(struct nvme_tcp_queue *queue)
 	queue->ddgst_remaining = 0;
 }
 
+/*
+ * Error recovery needs to be started after KATO expired,
+ * always delay until the next KATO interval before
+ * starting error recovery.
+ */
 static void nvme_tcp_error_recovery(struct nvme_ctrl *ctrl)
 {
+	unsigned long delay = nvme_keep_alive_work_period(ctrl);
+
 	if (!nvme_change_ctrl_state(ctrl, NVME_CTRL_RESETTING))
 		return;
 
-	dev_warn(ctrl->device, "starting error recovery\n");
-	queue_delayed_work(nvme_reset_wq, &to_tcp_ctrl(ctrl)->err_work, 0);
+	dev_warn(ctrl->device, "starting error recovery in %lu seconds\n",
+		 delay / HZ);
+	queue_delayed_work(nvme_reset_wq, &to_tcp_ctrl(ctrl)->err_work, delay);
 }
 
 static int nvme_tcp_process_nvme_cqe(struct nvme_tcp_queue *queue,

@@ -1303,7 +1303,7 @@ EXPORT_SYMBOL_NS_GPL(nvme_passthru_end, "NVME_TARGET_PASSTHRU");
  *   The host should send Keep Alive commands at half of the Keep Alive Timeout
  *   accounting for transport roundtrip times [..].
  */
-static unsigned long nvme_keep_alive_work_period(struct nvme_ctrl *ctrl)
+unsigned long nvme_keep_alive_work_period(struct nvme_ctrl *ctrl)
 {
 	unsigned long delay = ctrl->kato * HZ / 2;
 
@@ -1317,6 +1317,7 @@ static unsigned long nvme_keep_alive_work_period(struct nvme_ctrl *ctrl)
 		delay /= 2;
 	return delay;
 }
+EXPORT_SYMBOL_GPL(nvme_keep_alive_work_period);
 
 static void nvme_queue_keep_alive_work(struct nvme_ctrl *ctrl)
 {
