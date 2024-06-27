@@ -483,11 +483,13 @@ endif
 	# Strip .so files (e.g., rust/libmacros.so) to reduce size even more
 	find $(hdrdir) -name libmacros.so -exec strip -s {} \;
 
+ifeq ($(do_lib_rust),true)
 	# Generate Rust lib files
 	install -d -m755 $(rustdir)
 	mv $(hdrdir)/rust $(rustdir)
 	# Generate symlink for Rust lib directory in headers
 	$(SHELL) $(DROOT)/scripts/link-lib-rust "$(hdrdir)" "$(indeppkg)" "$*"
+endif
 
 ifneq ($(do_full_build),false)
 	# Clean out this flavours build directory.
