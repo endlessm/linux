@@ -342,6 +342,12 @@ CONFIG_INTEL_IOMMU_SCALABLE_MODE_DEFAULT_ON     note<'LP: #1951440'>
 CONFIG_IOMMU_DEBUGFS                            policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'ppc64el': 'n', 'riscv64': 'n', 's390x': 'n'}>
 CONFIG_IOMMU_DEBUGFS                            note<'LP: #1861057'>
 
+CONFIG_IOMMU_DEFAULT_DMA_LAZY                   policy<{'amd64': 'y', 'arm64': 'n', 'armhf': 'n', 'ppc64el': 'n', 'riscv64': 'n', 's390x': 'y'}>
+CONFIG_IOMMU_DEFAULT_DMA_LAZY                   note<'LP: #2071471'>
+
+CONFIG_IOMMU_DEFAULT_DMA_STRICT                 policy<{'amd64': 'n', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y', 's390x': 'n'}>
+CONFIG_IOMMU_DEFAULT_DMA_STRICT                 note<'LP: #2071471'>
+
 CONFIG_IPMMU_VMSA                               policy<{'arm64': 'n', 'armhf': 'n', 'riscv64': '-'}>
 CONFIG_IPMMU_VMSA                               note<'LP: #1718734'>
 
@@ -6810,8 +6816,6 @@ CONFIG_IOMMUFD                                  policy<{'amd64': 'm', 'arm64': '
 CONFIG_IOMMUFD_DRIVER                           policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y'}>
 CONFIG_IOMMU_API                                policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y', 's390x': 'y'}>
 CONFIG_IOMMU_DEBUG                              policy<{'amd64': 'n'}>
-CONFIG_IOMMU_DEFAULT_DMA_LAZY                   policy<{'amd64': 'y', 'arm64': 'n', 'armhf': 'n', 'ppc64el': 'n', 'riscv64': 'n', 's390x': 'n'}>
-CONFIG_IOMMU_DEFAULT_DMA_STRICT                 policy<{'amd64': 'n', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y', 's390x': 'y'}>
 CONFIG_IOMMU_DEFAULT_PASSTHROUGH                policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'ppc64el': 'n', 'riscv64': 'n', 's390x': 'n'}>
 CONFIG_IOMMU_DMA                                policy<{'amd64': 'y', 'arm64': 'y', 's390x': 'y'}>
 CONFIG_IOMMU_HELPER                             policy<{'amd64': 'y', 'ppc64el': 'y', 's390x': 'y'}>
