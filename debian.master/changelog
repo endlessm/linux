@@ -4,6 +4,9 @@ linux (6.10.0-16.16) UNRELEASED; urgency=medium
   CHANGELOG: Use the printchanges target to see the curent changes.
   CHANGELOG: Use the insertchanges target to create the final log.
 
+  * Miscellaneous Ubuntu changes
+    - rebase on v6.10-rc7
+
  -- Paolo Pisati <paolo.pisati@canonical.com>  Mon, 08 Jul 2024 17:34:27 +0200
 
 linux (6.10.0-15.15) oracular; urgency=medium
