@@ -7222,7 +7222,7 @@ CONFIG_KEXEC                                    policy<{'amd64': 'y', 'arm64': '
 CONFIG_KEXEC_CORE                               policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y', 's390x': 'y'}>
 CONFIG_KEXEC_ELF                                policy<{'ppc64el': 'y', 'riscv64': 'y'}>
 CONFIG_KEXEC_FILE                               policy<{'amd64': 'y', 'arm64': 'y', 'ppc64el': 'y', 'riscv64': 'y', 's390x': 'y'}>
-CONFIG_KEXEC_IMAGE_VERIFY_SIG                   policy<{'arm64': 'n'}>
+CONFIG_KEXEC_IMAGE_VERIFY_SIG                   policy<{'arm64': 'y'}>
 CONFIG_KEXEC_JUMP                               policy<{'amd64': 'y'}>
 CONFIG_KEXEC_SIG                                policy<{'amd64': 'y', 'arm64': 'y', 's390x': 'y'}>
 CONFIG_KEXEC_SIG_FORCE                          policy<{'amd64': 'n'}>
