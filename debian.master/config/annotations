@@ -4883,8 +4883,8 @@ CONFIG_EROFS_FS_SECURITY                        policy<{'amd64': 'y', 'arm64': '
 CONFIG_EROFS_FS_XATTR                           policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y', 's390x': 'y'}>
 CONFIG_EROFS_FS_ZIP                             policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y', 's390x': 'y'}>
 CONFIG_EROFS_FS_ZIP_DEFLATE                     policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y', 's390x': 'y'}>
-CONFIG_EROFS_FS_ZIP_LZMA                        policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'ppc64el': 'n', 'riscv64': 'n', 's390x': 'n'}>
-CONFIG_EROFS_FS_ZIP_ZSTD                        policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'ppc64el': 'n', 'riscv64': 'n', 's390x': 'n'}>
+CONFIG_EROFS_FS_ZIP_LZMA                        policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y', 's390x': 'y'}>
+CONFIG_EROFS_FS_ZIP_ZSTD                        policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y', 's390x': 'y'}>
 CONFIG_ERRATA_ANDES                             policy<{'riscv64': 'n'}>
 CONFIG_ERRATA_SIFIVE                            policy<{'riscv64': 'y'}>
 CONFIG_ERRATA_SIFIVE_CIP_1200                   policy<{'riscv64': 'y'}>
