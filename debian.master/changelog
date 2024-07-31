@@ -1,3 +1,9 @@
+linux-unstable (6.11.0-0.0) oracular; urgency=medium
+
+  * Dummy entry.
+
+ -- Timo Aaltonen <timo.aaltonen@canonical.com>  Wed, 31 Jul 2024 16:41:50 +0300
+
 linux (6.10.0-18.18) oracular; urgency=medium
 
   * oracular/linux: 6.10.0-18.18 -proposed tracker (LP: #2073754)
