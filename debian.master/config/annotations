@@ -513,6 +513,9 @@ CONFIG_PCIEASPM_DEFAULT                         note<'LP: #1398544'>
 CONFIG_PCIEPORTBUS                              policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'n', 'riscv64': 'y', 's390x': 'y'}>
 CONFIG_PCIEPORTBUS                              note<'LP: #1665404'>
 
+CONFIG_PCI_DYNAMIC_OF_NODES                     policy<{'arm64': 'n', 'armhf': 'n', 'ppc64el': 'n', 'riscv64': 'n'}>
+CONFIG_PCI_DYNAMIC_OF_NODES                     note<'LP: #2074376'>
+
 CONFIG_PCI_MESON                                policy<{'amd64': 'n', 'arm64': 'm', 'armhf': 'n', 'ppc64el': 'n', 'riscv64': 'n', 's390x': 'n'}>
 CONFIG_PCI_MESON                                note<'LP: #2007745'>
 
@@ -9802,7 +9805,6 @@ CONFIG_PCI_DOMAINS_GENERIC                      policy<{'arm64': 'y', 'armhf': '
 CONFIG_PCI_DRA7XX                               policy<{'armhf': 'm'}>
 CONFIG_PCI_DRA7XX_EP                            policy<{'armhf': 'm'}>
 CONFIG_PCI_DRA7XX_HOST                          policy<{'armhf': 'm'}>
-CONFIG_PCI_DYNAMIC_OF_NODES                     policy<{'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y'}>
 CONFIG_PCI_ECAM                                 policy<{'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y'}>
 CONFIG_PCI_ENDPOINT                             policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y', 's390x': 'y'}>
 CONFIG_PCI_ENDPOINT_CONFIGFS                    policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y', 's390x': 'y'}>
