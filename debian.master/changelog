@@ -4,6 +4,9 @@ linux-unstable (6.11.0-2.2) UNRELEASED; urgency=medium
   CHANGELOG: Use the printchanges target to see the curent changes.
   CHANGELOG: Use the insertchanges target to create the final log.
 
+  * Miscellaneous Ubuntu changes
+    - UBUNTU: Rebase on v6.11-rc3
+
  -- Timo Aaltonen <timo.aaltonen@canonical.com>  Mon, 12 Aug 2024 07:17:13 +0300
 
 linux-unstable (6.11.0-1.1) oracular; urgency=medium
