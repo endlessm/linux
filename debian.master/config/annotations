@@ -1901,7 +1901,7 @@ CONFIG_AS_SHA1_NI                               policy<{'amd64': 'y'}>
 CONFIG_AS_SHA256_NI                             policy<{'amd64': 'y'}>
 CONFIG_AS_TPAUSE                                policy<{'amd64': 'y'}>
 CONFIG_AS_VAES                                  policy<{'amd64': 'y'}>
-CONFIG_AS_VERSION                               policy<{'amd64': '24290', 'arm64': '24290', 'armhf': '24290', 'ppc64el': '24290', 'riscv64': '24290', 's390x': '24290'}>
+CONFIG_AS_VERSION                               policy<{'amd64': '24300', 'arm64': '24290', 'armhf': '24290', 'ppc64el': '24290', 'riscv64': '24290', 's390x': '24290'}>
 CONFIG_AS_VFP_VMRS_FPINST                       policy<{'armhf': 'y'}>
 CONFIG_AS_VPCLMULQDQ                            policy<{'amd64': 'y'}>
 CONFIG_AS_WRUSS                                 policy<{'amd64': 'y'}>
@@ -2615,7 +2615,7 @@ CONFIG_CC_NO_ARRAY_BOUNDS                       policy<{'amd64': 'y', 'arm64': '
 CONFIG_CC_NO_STRINGOP_OVERFLOW                  policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y', 's390x': 'y'}>
 CONFIG_CC_OPTIMIZE_FOR_PERFORMANCE              policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y', 's390x': 'y'}>
 CONFIG_CC_OPTIMIZE_FOR_SIZE                     policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'ppc64el': 'n', 'riscv64': 'n', 's390x': 'n'}>
-CONFIG_CC_VERSION_TEXT                          policy<{'amd64': '"x86_64-linux-gnu-gcc-14 (Ubuntu 14.1.0-5ubuntu1) 14.1.0"', 'arm64': '"aarch64-linux-gnu-gcc-14 (Ubuntu 14.1.0-5ubuntu1) 14.1.0"', 'armhf': '"arm-linux-gnueabihf-gcc-14 (Ubuntu 14.1.0-5ubuntu1) 14.1.0"', 'ppc64el': '"powerpc64le-linux-gnu-gcc-14 (Ubuntu 14.1.0-5ubuntu1) 14.1.0"', 'riscv64': '"riscv64-linux-gnu-gcc-14 (Ubuntu 14.1.0-5ubuntu1) 14.1.0"', 's390x': '"s390x-linux-gnu-gcc-14 (Ubuntu 14.1.0-5ubuntu1) 14.1.0"'}>
+CONFIG_CC_VERSION_TEXT                          policy<{'amd64': '"x86_64-linux-gnu-gcc-14 (Ubuntu 14.2.0-1ubuntu1) 14.2.0"', 'arm64': '"aarch64-linux-gnu-gcc-14 (Ubuntu 14.1.0-5ubuntu1) 14.1.0"', 'armhf': '"arm-linux-gnueabihf-gcc-14 (Ubuntu 14.1.0-5ubuntu1) 14.1.0"', 'ppc64el': '"powerpc64le-linux-gnu-gcc-14 (Ubuntu 14.1.0-5ubuntu1) 14.1.0"', 'riscv64': '"riscv64-linux-gnu-gcc-14 (Ubuntu 14.1.0-5ubuntu1) 14.1.0"', 's390x': '"s390x-linux-gnu-gcc-14 (Ubuntu 14.1.0-5ubuntu1) 14.1.0"'}>
 CONFIG_CDNS_I3C_MASTER                          policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm'}>
 CONFIG_CDROM                                    policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y', 's390x': 'y'}>
 CONFIG_CDROM_PKTCDVD                            policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'ppc64el': 'n', 'riscv64': 'n', 's390x': 'n'}>
@@ -5379,7 +5379,7 @@ CONFIG_GCC10_NO_ARRAY_BOUNDS                    policy<{'amd64': 'y', 'arm64': '
 CONFIG_GCC_NO_STRINGOP_OVERFLOW                 policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y', 's390x': 'y'}>
 CONFIG_GCC_SUPPORTS_DYNAMIC_FTRACE              policy<{'riscv64': 'y'}>
 CONFIG_GCC_SUPPORTS_DYNAMIC_FTRACE_WITH_ARGS    policy<{'arm64': 'y'}>
-CONFIG_GCC_VERSION                              policy<{'amd64': '140100', 'arm64': '140100', 'armhf': '140100', 'ppc64el': '140100', 'riscv64': '140100', 's390x': '140100'}>
+CONFIG_GCC_VERSION                              policy<{'amd64': '140200', 'arm64': '140100', 'armhf': '140100', 'ppc64el': '140100', 'riscv64': '140100', 's390x': '140100'}>
 CONFIG_GCOV_KERNEL                              policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'ppc64el': 'n', 'riscv64': 'n', 's390x': 'n'}>
 CONFIG_GDB_SCRIPTS                              policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y', 's390x': 'y'}>
 CONFIG_GEMINI_ETHERNET                          policy<{'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm'}>
@@ -7433,7 +7433,7 @@ CONFIG_LD_HEAD_STUB_CATCH                       policy<{'ppc64el': 'n'}>
 CONFIG_LD_IS_BFD                                policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y', 's390x': 'y'}>
 CONFIG_LD_ORPHAN_WARN                           policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y', 's390x': 'y'}>
 CONFIG_LD_ORPHAN_WARN_LEVEL                     policy<{'amd64': '"warn"', 'arm64': '"warn"', 'armhf': '"warn"', 'ppc64el': '"warn"', 'riscv64': '"warn"', 's390x': '"warn"'}>
-CONFIG_LD_VERSION                               policy<{'amd64': '24290', 'arm64': '24290', 'armhf': '24290', 'ppc64el': '24290', 'riscv64': '24290', 's390x': '24290'}>
+CONFIG_LD_VERSION                               policy<{'amd64': '24300', 'arm64': '24290', 'armhf': '24290', 'ppc64el': '24290', 'riscv64': '24290', 's390x': '24290'}>
 CONFIG_LEDS_88PM860X                            policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm', 's390x': '-'}>
 CONFIG_LEDS_AAEON                               policy<{'amd64': 'm'}>
 CONFIG_LEDS_AAT1290                             policy<{'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm'}>
