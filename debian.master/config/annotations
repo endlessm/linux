@@ -4905,8 +4905,8 @@ CONFIG_EVM_EXTRA_SMACK_XATTRS                   policy<{'amd64': 'y', 'arm64': '
 CONFIG_EXAR_WDT                                 policy<{'amd64': 'm'}>
 CONFIG_EXCLUSIVE_SYSTEM_RAM                     policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y', 's390x': 'y'}>
 CONFIG_EXECMEM                                  policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y', 's390x': 'y'}>
-CONFIG_EXFAT_DEFAULT_IOCHARSET                  policy<{'amd64': '"utf8"', 'arm64': '"utf8"', 'armhf': '"utf8"', 'ppc64el': '"utf8"', 'riscv64': '"utf8"'}>
-CONFIG_EXFAT_FS                                 policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm', 's390x': 'n'}>
+CONFIG_EXFAT_DEFAULT_IOCHARSET                  policy<{'amd64': '"utf8"', 'arm64': '"utf8"', 'armhf': '"utf8"', 'ppc64el': '"utf8"', 'riscv64': '"utf8"', 's390x': '"utf8"'}>
+CONFIG_EXFAT_FS                                 policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm', 's390x': 'm'}>
 CONFIG_EXPERT                                   policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y', 's390x': 'y'}>
 CONFIG_EXPOLINE                                 policy<{'s390x': 'y'}>
 CONFIG_EXPOLINE_AUTO                            policy<{'s390x': 'y'}>
