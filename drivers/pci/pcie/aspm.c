@@ -1465,8 +1465,12 @@ static int __pci_enable_link_state(struct pci_dev *pdev, int state, bool locked)
 	 * the _OSC method), we can't honor that request.
 	 */
 	if (aspm_disabled) {
-		pci_warn(pdev, "can't override BIOS ASPM; OS doesn't have ASPM control\n");
-		return -EPERM;
+		if (aspm_support_enabled && pdev->aspm_os_control)
+			pci_info(pdev, "BIOS can't program ASPM, let OS control it\n");
+		else {
+			pci_warn(pdev, "can't override BIOS ASPM; OS doesn't have ASPM control\n");
+			return -EPERM;
+		}
 	}
 
 	if (!locked)
