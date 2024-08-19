@@ -183,6 +183,9 @@ CONFIG_DRM_AMDGPU_CIK                           note<'for zesty'>
 CONFIG_DRM_HISI_HIBMC                           policy<{'arm64': 'm'}>
 CONFIG_DRM_HISI_HIBMC                           note<'LP: #1762940'>
 
+CONFIG_DRM_I915_REPLAY_GPU_HANGS_API            policy<{'amd64': 'n'}>
+CONFIG_DRM_I915_REPLAY_GPU_HANGS_API            note<'Only useful for upstream developers'>
+
 CONFIG_DRM_MGAG200                              policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm', 's390x': 'n'}>
 CONFIG_DRM_MGAG200                              note<'LP: #1693337'>
 
@@ -4212,7 +4215,6 @@ CONFIG_DRM_I915_MAX_REQUEST_BUSYWAIT            policy<{'amd64': '8000'}>
 CONFIG_DRM_I915_PREEMPT_TIMEOUT                 policy<{'amd64': '640'}>
 CONFIG_DRM_I915_PREEMPT_TIMEOUT_COMPUTE         policy<{'amd64': '7500'}>
 CONFIG_DRM_I915_PXP                             policy<{'amd64': 'y'}>
-CONFIG_DRM_I915_REPLAY_GPU_HANGS_API            policy<{'amd64': 'y'}>
 CONFIG_DRM_I915_REQUEST_TIMEOUT                 policy<{'amd64': '20000'}>
 CONFIG_DRM_I915_SELFTEST                        policy<{'amd64': 'n'}>
 CONFIG_DRM_I915_STOP_TIMEOUT                    policy<{'amd64': '100'}>
