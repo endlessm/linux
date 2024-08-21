@@ -664,7 +664,11 @@ endif
 ifeq ($(do_tools_bpftool),true)
 	mv $(builddirpa)/tools/bpf/bpftool/vmlinux $(builddirpa)/vmlinux
 	$(kmake) NO_LIBTRACEEVENT=1 CROSS_COMPILE=$(CROSS_COMPILE) -C $(builddirpa)/tools/bpf/bpftool
+ifneq ($(do_tools_bpftool_stub),true)
 	$(builddirpa)/tools/bpf/bpftool/bpftool btf dump file $(builddirpa)/vmlinux format c > $(builddirpa)/vmlinux.h
+else
+	echo '#error "Kernel does not support CONFIG_DEBUG_INFO_BTF"' > $(builddirpa)/vmlinux.h
+endif
 	rm -f $(builddirpa)/vmlinux
 endif
 ifeq ($(do_tools_x86),true)
