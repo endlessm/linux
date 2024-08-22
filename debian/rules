@@ -175,6 +175,7 @@ ifeq ($(src_pkg_name),linux)
 	control_files += debian/control.d/linux-tools-host.stub
 	control_files += debian/control.d/linux-source.stub
 	control_files += debian/control.d/linux-doc.stub
+	control_files += debian/control.d/linux-bpf-dev.stub
 endif
 
 # Calculate Ubuntu Compatible Signing levels
