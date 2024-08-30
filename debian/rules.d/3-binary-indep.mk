@@ -103,7 +103,7 @@ ifeq ($(do_tools_common),true)
 	install -m755 debian/tools/generic $(toolsbin)/x86_energy_perf_policy
 	install -m755 debian/tools/generic $(toolsbin)/turbostat
 
-	cd $(builddir)/tools/tools/perf && make NO_LIBTRACEEVENT=1 man
+	cd $(builddir)/tools/tools/perf && make man
 	install -m644 $(builddir)/tools/tools/perf/Documentation/*.1 \
 		$(toolsman)/man1
 
@@ -146,7 +146,7 @@ ifeq ($(do_tools_host),true)
 	install -m 644 $(CURDIR)/tools/kvm/kvm_stat/kvm_stat.service \
 		$(hosttoolssystemd)/
 
-	cd $(builddir)/tools/tools/kvm/kvm_stat && make NO_LIBTRACEEVENT=1 man
+	cd $(builddir)/tools/tools/kvm/kvm_stat && make man
 	install -m644 $(builddir)/tools/tools/kvm/kvm_stat/*.1 \
 		$(hosttoolsman)/man1
 endif

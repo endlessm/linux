@@ -659,11 +659,11 @@ ifeq ($(do_tools_cpupower),true)
 endif
 ifeq ($(do_tools_perf),true)
 	cd $(builddirpa)/tools/perf && \
-		$(kmake) prefix=/usr NO_LIBTRACEEVENT=1 HAVE_CPLUS_DEMANGLE_SUPPORT=1 CROSS_COMPILE=$(CROSS_COMPILE) NO_LIBPERL=1 WERROR=0
+		$(kmake) prefix=/usr HAVE_CPLUS_DEMANGLE_SUPPORT=1 CROSS_COMPILE=$(CROSS_COMPILE) NO_LIBPERL=1 WERROR=0
 endif
 ifeq ($(do_tools_bpftool),true)
 	mv $(builddirpa)/tools/bpf/bpftool/vmlinux $(builddirpa)/vmlinux
-	$(kmake) NO_LIBTRACEEVENT=1 CROSS_COMPILE=$(CROSS_COMPILE) -C $(builddirpa)/tools/bpf/bpftool
+	$(kmake) CROSS_COMPILE=$(CROSS_COMPILE) -C $(builddirpa)/tools/bpf/bpftool
 ifneq ($(do_tools_bpftool_stub),true)
 	$(builddirpa)/tools/bpf/bpftool/bpftool btf dump file $(builddirpa)/vmlinux format c > $(builddirpa)/vmlinux.h
 else
