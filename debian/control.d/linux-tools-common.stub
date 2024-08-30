@@ -4,7 +4,9 @@ Architecture: all
 Multi-Arch: foreign
 Section: kernel
 Priority: optional
-Provides: bpftool
+Provides: 
+ bpftool, 
+ linux-cpupower,
 Depends: ${misc:Depends}, lsb-release, hwdata
 Description: Linux kernel version specific tools for version PKGVER
  This package provides the architecture independent parts for kernel
