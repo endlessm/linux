@@ -1,0 +1,102 @@
+Source: SRCPKGNAME
+Section: devel
+Priority: optional
+Maintainer: Ubuntu Kernel Team <kernel-team@lists.ubuntu.com>
+Rules-Requires-Root: no
+Standards-Version: 3.9.4.0
+Build-Depends:
+ autoconf <!stage1>,
+ automake <!stage1>,
+ bc <!stage1>,
+ bindgen:native [amd64 arm64 armhf ppc64el riscv64 s390x],
+ bison <!stage1>,
+ clang-21:native [amd64 arm64 armhf ppc64el riscv64 s390x],
+ cpio,
+ curl <!stage1>,
+ debhelper-compat (= 10),
+ default-jdk-headless:native <!stage1>,
+ dkms <!stage1>,
+ flex <!stage1>,
+ gawk <!stage1>,
+ java-common <!stage1>,
+ kmod <!stage1>,
+ libaudit-dev <!stage1>,
+ libbpf-dev <!stage1>,
+ libcap-dev <!stage1>,
+ libdebuginfod-dev [amd64 arm64 armhf ppc64el s390x riscv64] <!stage1>,
+ libdw-dev <!stage1>,
+ libelf-dev <!stage1>,
+ libiberty-dev <!stage1>,
+ liblzma-dev <!stage1>,
+ libnewt-dev <!stage1>,
+ libnl-3-dev,
+ libnl-genl-3-dev,
+ libnuma-dev [amd64 arm64 ppc64el s390x] <!stage1>,
+ libpci-dev <!stage1>,
+ libssl-dev <!stage1>,
+ libstdc++-dev,
+ libtool <!stage1>,
+ libtraceevent-dev [amd64 arm64 armhf ppc64el s390x riscv64] <!stage1>,
+ libtracefs-dev [amd64 arm64 armhf ppc64el s390x riscv64] <!stage1>,
+ libudev-dev <!stage1>,
+ libunwind8-dev [amd64 arm64 armhf ppc64el] <!stage1>,
+ llvm-21-dev,
+ makedumpfile:native [amd64] <!stage1>,
+ openssl <!stage1>,
+ pahole (>= 1.29-2ubuntu2) [amd64 arm64 armhf ppc64el s390x riscv64] | dwarves (>= 1.21) [amd64 arm64 armhf ppc64el s390x riscv64] <!stage1>,
+ pkg-config <!stage1>,
+ python3:native <!stage1>,
+ python3-dev:native <!stage1>,
+ libpython3-dev <!stage1> <cross>,
+ python3-setuptools,
+ rsync [!i386] <!stage1>,
+ rust-src:native [amd64 arm64 armhf ppc64el riscv64 s390x],
+ rustc:native (>= 1.82) [amd64 arm64 armhf ppc64el riscv64 s390x],
+ rustfmt:native [amd64 arm64 armhf ppc64el riscv64 s390x],
+ uuid-dev <!stage1>,
+ zstd <!stage1>,
+ bpftool:native [amd64 arm64 armhf ppc64el riscv64 s390x] <!stage1 cross>,
+Build-Depends-Indep:
+ asciidoc <!stage1>,
+ bzip2 <!stage1>,
+ python3-docutils <!stage1>,
+ sharutils <!stage1>,
+ xmlto <!stage1>,
+Vcs-Git: git://git.launchpad.net/~ubuntu-kernel/ubuntu/+source/linux/+git/=SERIES=
+XS-Testsuite: autopkgtest
+#XS-Testsuite-Depends: gcc-4.7 binutils
+
+Package: SRCPKGNAME-headers-PKGVER-ABINUM
+Build-Profiles: <!stage1>
+Architecture: all
+Multi-Arch: foreign
+Section: devel
+Priority: optional
+Depends: ${misc:Depends}, coreutils
+Description: Header files related to Linux kernel version PKGVER
+ This package provides kernel header files for version PKGVER, for sites
+ that want the latest kernel headers. Please read
+ /usr/share/doc/SRCPKGNAME-headers-PKGVER-ABINUM/debian.README.gz for details
+
+Package: SRCPKGNAME-tools-PKGVER-ABINUM
+Build-Profiles: <!stage1>
+Architecture: amd64 armhf arm64 ppc64el s390x
+Section: devel
+Priority: optional
+Depends: ${misc:Depends}, ${shlibs:Depends}, linux-tools-common
+Description: Linux kernel version specific tools for version PKGVER-ABINUM
+ This package provides the architecture dependant parts for kernel
+ version locked tools (such as perf and x86_energy_perf_policy) for
+ version PKGVER-ABINUM.
+ You probably want to install linux-tools-PKGVER-ABINUM-<flavour>.
+
+Package: SRCPKGNAME-cloud-tools-PKGVER-ABINUM
+Build-Profiles: <!stage1>
+Architecture: amd64 armhf
+Section: devel
+Priority: optional
+Depends: ${misc:Depends}, ${shlibs:Depends}, linux-cloud-tools-common
+Description: Linux kernel version specific cloud tools for version PKGVER-ABINUM
+ This package provides the architecture dependant parts for kernel
+ version locked tools for cloud tools for version PKGVER-ABINUM.
+ You probably want to install linux-cloud-tools-PKGVER-ABINUM-<flavour>.

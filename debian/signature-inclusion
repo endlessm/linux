@@ -1,0 +1,6 @@
+#
+# This file lists the staging drivers that are safe for signing
+# and loading in a secure boot environment with signed module enforcement.
+#
+intel-ipu7-isys.ko
+intel-ipu7.ko

@@ -1,0 +1,88 @@
+# Items that get replaced:
+# FLAVOUR
+# ARCH
+# SUPPORTED
+# TARGET
+# BOOTLOADER
+# =PROVIDES=
+# =DEPENDS=
+#
+# Items marked with =FOO= are optional
+#
+# This file describes the template for packages that are created for each flavour
+# in debian/control.d/vars.*
+#
+# This file gets edited in a couple of places. See the debian/control.stub rule in
+# debian/rules. PGGVER, ABINUM, and SRCPKGNAME are all converted in the
+# process of creating debian/control.
+#
+# The flavour specific strings (ARCH, etc) are converted using values from the various
+# flavour files in debian/control.d/vars.*
+#
+# XXX: Leave the blank line before the first package!!
+
+Package: linux-modules-PKGVER-ABINUM-FLAVOUR
+Build-Profiles: <!stage1>
+Architecture: ARCH
+Section: kernel
+Priority: optional
+Depends: ${misc:Depends}, ${shlibs:Depends}, =DEPENDS=wireless-regdb
+Built-Using: ${linux:BuiltUsing}
+Description: Linux kernel modules for version PKGVER
+ Contains the corresponding System.map file, the modules built by the
+ packager, and scripts that try to ensure that the system is not left in an
+ unbootable state after an update.
+ .
+ Supports SUPPORTED processors.
+ .
+ TARGET
+ .
+ You likely do not want to install this package directly. Instead, install
+ the linux-FLAVOUR meta-package, which will ensure that upgrades work
+ correctly, and that supporting packages are also installed.
+
+Package: linux-headers-PKGVER-ABINUM-FLAVOUR
+Build-Profiles: <!stage1>
+Architecture: ARCH
+Section: devel
+Priority: optional
+Depends: ${misc:Depends}, SRCPKGNAME-headers-PKGVER-ABINUM, ${shlibs:Depends}
+Provides: linux-headers, linux-headers-3.0
+Description: Linux kernel headers for version PKGVER
+ This package provides kernel header files for version PKGVER.
+ .
+ This is for sites that want the latest kernel headers.  Please read
+ /usr/share/doc/linux-headers-PKGVER-ABINUM/debian.README.gz for details.
+
+Package: linux-lib-rust-PKGVER-ABINUM-FLAVOUR
+Build-Profiles: <!stage1>
+Architecture: amd64
+Multi-Arch: foreign
+Section: devel
+Priority: optional
+Depends: ${misc:Depends}, coreutils
+Description: Rust library files related to Linux kernel version PKGVER
+ This package provides kernel library files for version PKGVER, that allow to
+ compile out-of-tree kernel modules written in Rust.
+
+Package: linux-tools-PKGVER-ABINUM-FLAVOUR
+Build-Profiles: <!stage1>
+Architecture: ARCH
+Section: devel
+Priority: optional
+Depends: ${misc:Depends}, SRCPKGNAME-tools-PKGVER-ABINUM
+Description: Linux kernel version specific tools for version PKGVER-ABINUM
+ This package provides the architecture dependant parts for kernel
+ version locked tools (such as x86_energy_perf_policy) for
+ version PKGVER-ABINUM.
+
+Package: linux-cloud-tools-PKGVER-ABINUM-FLAVOUR
+Build-Profiles: <!stage1>
+Architecture: ARCH
+Section: devel
+Priority: optional
+Depends: ${misc:Depends}, SRCPKGNAME-cloud-tools-PKGVER-ABINUM
+Description: Linux kernel version specific cloud tools for version PKGVER-ABINUM
+ This package provides the architecture dependant parts for kernel
+ version locked tools for cloud for version PKGVER-ABINUM.
+

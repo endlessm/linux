@@ -1,0 +1,7 @@
+#!/bin/sh
+
+echo $(
+	grep -qx ' *Subject: C = GB, ST = Isle of Man, O = Canonical Ltd., OU = Secure Boot, CN = Canonical Ltd. Secure Boot Signing (2021 v3)' debian/canonical-revoked-certs.pem && echo ubuntu/4 pro/3
+	grep -qx ' *Subject: CN=Canonical Ltd. Live Patch Signing 2025 Kmod' debian/canonical-certs.pem && echo livepatch:2025
+	grep -qx ' *Subject: CN=Canonical Ltd. Kernel Module Signing 2025 Kmod' debian/canonical-certs.pem && echo kmod:2025
+)
