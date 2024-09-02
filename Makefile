@@ -581,6 +581,9 @@ LINUXINCLUDE    := \
 		-I$(objtree)/include \
 		$(USERINCLUDE)
 
+# UBUNTU: Include our third party driver stuff too
+LINUXINCLUDE   += -I$(srctree)/ubuntu/include
+
 KBUILD_AFLAGS   := -D__ASSEMBLY__ -fno-PIE
 
 KBUILD_CFLAGS :=
