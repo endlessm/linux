@@ -1,11 +1,9 @@
 Driver-related patches (dropped at every major release if they are not yet upstream):
- - UBUNTU: SAUCE: Revert "fbdev: Make registered_fb[] private to fbmem.c" (required by nvidia, plan was to drop in newer kernels)
 
 Ubuntu-specific features not supported anymore:
- - UBUNTU: SAUCE: shiftfs: deprecated
- - UBUNTU: SAUCE: ubuntu fan: deprecated
 
-Retpoline annotations reverted after enforcing objtool warnings as fatal (LP: #2046440):
- - UBUNTU: SAUCE: apm -- annotate indirect calls within firmware_restrict_branch_speculation_{start,end}
- - UBUNTU: SAUCE: early/late -- annotate indirect calls in early/late initialisation code
- - UBUNTU: SAUCE: vga_set_mode -- avoid jump tables
+Others:
+- UBUNTU: SAUCE: selftests/bpf: avoid conflicting data types in profiler.inc.h
+- UBUNTU: SAUCE: Revert "arm64/fpsimd: Make kernel_neon_ API _GPL"
+- UBUNTU: SAUCE: net: wwan: t7xx: PCIe reset rescan
+- UBUNTU: SAUCE: PCI/ASPM: Introduce a new helper to report ASPM capability
