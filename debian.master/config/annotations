@@ -258,6 +258,9 @@ CONFIG_GPIO_TWL4030                             note<'LP: #921934'>
 CONFIG_HIBERNATION                              policy<{'amd64': 'y', 'arm64': 'n', 'armhf': 'y', 'ppc64el': 'n', 'riscv64': 'y'}>
 CONFIG_HIBERNATION                              note<'LP: #1867753'>
 
+CONFIG_HIPERDISPATCH_ON                         policy<{'s390x': 'y'}>
+CONFIG_HIPERDISPATCH_ON                         note<'LP: #2072760'>
+
 CONFIG_HOTPLUG_PCI_PCIE                         policy<{'amd64': 'y', 'arm64': 'y', 'armhf': '-', 'ppc64el': '-', 'riscv64': 'y', 's390x': 'y'}>
 CONFIG_HOTPLUG_PCI_PCIE                         note<'LP: #1374440'>
 
@@ -599,6 +602,9 @@ CONFIG_SATA_AHCI_PLATFORM                       note<'boot essential on highbank
 
 CONFIG_SATA_HIGHBANK                            policy<{'armhf': 'y'}>
 CONFIG_SATA_HIGHBANK                            note<'LP: #1703430'>
+
+CONFIG_SCHED_TOPOLOGY_VERTICAL                  policy<{'s390x': 'y'}>
+CONFIG_SCHED_TOPOLOGY_VERTICAL                  note<'LP: #2072760'>
 
 CONFIG_SCLP_OFB                                 policy<{'s390x': 'y'}>
 CONFIG_SCLP_OFB                                 note<'LP: #1787898'>
