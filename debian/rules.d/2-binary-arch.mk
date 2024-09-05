@@ -617,7 +617,7 @@ ifeq ($(do_cloud_tools),true)
 	$(call dh_all,$(pkgcloud))
 endif
 ifeq ($(do_tools_bpftool),true)
-	$(call dh_all,linux-bpf-dev)
+	$(call if_package, linux-bpf-dev, $(call dh_all,linux-bpf-dev))
 endif
 
 #
