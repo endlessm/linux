@@ -4136,6 +4136,7 @@ CONFIG_DRM_AUX_BRIDGE                           policy<{'arm64': 'm', 'armhf': '
 CONFIG_DRM_AUX_HPD_BRIDGE                       policy<{'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm'}>
 CONFIG_DRM_BOCHS                                policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm', 's390x': 'm'}>
 CONFIG_DRM_BRIDGE                               policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y', 's390x': 'y'}>
+CONFIG_DRM_BRIDGE_CONNECTOR                     policy<{'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y'}>
 CONFIG_DRM_BUDDY                                policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm'}>
 CONFIG_DRM_CDNS_DSI                             policy<{'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm'}>
 CONFIG_DRM_CDNS_DSI_J721E                       policy<{'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y'}>
@@ -4156,7 +4157,7 @@ CONFIG_DRM_DISPLAY_DP_HELPER                    policy<{'amd64': 'y', 'arm64': '
 CONFIG_DRM_DISPLAY_DP_TUNNEL                    policy<{'amd64': 'y'}>
 CONFIG_DRM_DISPLAY_HDCP_HELPER                  policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y'}>
 CONFIG_DRM_DISPLAY_HDMI_HELPER                  policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y'}>
-CONFIG_DRM_DISPLAY_HDMI_STATE_HELPER            policy<{'arm64': 'y', 'armhf': 'y'}>
+CONFIG_DRM_DISPLAY_HDMI_STATE_HELPER            policy<{'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y'}>
 CONFIG_DRM_DISPLAY_HELPER                       policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm'}>
 CONFIG_DRM_DW_HDMI                              policy<{'arm64': 'm', 'armhf': 'm', 'ppc64el': '-', 'riscv64': 'm'}>
 CONFIG_DRM_DW_HDMI_AHB_AUDIO                    policy<{'arm64': 'm', 'armhf': 'm', 'ppc64el': '-', 'riscv64': 'm'}>
