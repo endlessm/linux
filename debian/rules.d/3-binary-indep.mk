@@ -120,7 +120,9 @@ ifeq ($(do_tools_hyperv),true)
 	install -d $(cloudsbin)
 	install -m755 debian/tools/generic $(cloudsbin)/hv_kvp_daemon
 	install -m755 debian/tools/generic $(cloudsbin)/hv_vss_daemon
+ifneq ($(build_arch),arm64)
 	install -m755 debian/tools/generic $(cloudsbin)/hv_fcopy_uio_daemon
+endif
 	install -m755 debian/tools/generic $(cloudsbin)/lsvmbus
 	install -m755 debian/cloud-tools/hv_get_dhcp_info $(cloudsbin)
 	install -m755 debian/cloud-tools/hv_get_dns_info $(cloudsbin)
@@ -187,14 +189,20 @@ ifeq ($(do_cloud_tools),true)
 ifeq ($(do_tools_hyperv),true)
 	dh_installinit -p$(cloudpkg) -n --name hv-kvp-daemon
 	dh_installinit -p$(cloudpkg) -n --name hv-vss-daemon
+ifneq ($(build_arch),arm64)
 	dh_installinit -p$(cloudpkg) -n --name hv-fcopy-daemon
+endif
 	dh_installudev -p$(cloudpkg) -n --name hv-kvp-daemon
 	dh_installudev -p$(cloudpkg) -n --name hv-vss-daemon
+ifneq ($(build_arch),arm64)
 	dh_installudev -p$(cloudpkg) -n --name hv-fcopy-daemon
+endif
 	dh_systemd_enable -p$(cloudpkg)
 	dh_installinit -p$(cloudpkg) -o --name hv-kvp-daemon
 	dh_installinit -p$(cloudpkg) -o --name hv-vss-daemon
+ifneq ($(build_arch),arm64)
 	dh_installinit -p$(cloudpkg) -o --name hv-fcopy-daemon
+endif
 	dh_systemd_start -p$(cloudpkg)
 endif
 	# Keep intel_sgx service disabled by default, so add it after dh_systemd_enable
