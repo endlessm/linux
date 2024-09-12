@@ -62,9 +62,9 @@ libpin_init_internal_name := $(call procmacro-name,pin_init_internal)
 always-$(CONFIG_RUST) += $(libzerocopy_derive_name) $(libmacros_name) $(libpin_init_internal_name)
 
 # `$(rust_flags)` is passed in case the user added `--sysroot`.
-rustc_sysroot := $(shell MAKEFLAGS= $(RUSTC) $(rust_flags) --print sysroot)
+rustc_sysroot := $(shell MAKEFLAGS= $(RUSTC) $(rust_flags) --version | awk '{print "/usr/src/" $$1 "-" $$2}')
 rustc_host_target := $(shell $(RUSTC) --version --verbose | grep -F 'host: ' | cut -d' ' -f2)
-RUST_LIB_SRC ?= $(rustc_sysroot)/lib/rustlib/src/rust/library
+RUST_LIB_SRC ?= $(rustc_sysroot)/library
 
 ifneq ($(quiet),)
 rust_test_quiet=-q
