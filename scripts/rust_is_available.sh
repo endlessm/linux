@@ -267,8 +267,8 @@ fi
 # Check that the source code for the `core` standard library exists.
 #
 # `$KRUSTFLAGS` is passed in case the user added `--sysroot`.
-rustc_sysroot=$("$RUSTC" $KRUSTFLAGS --print sysroot)
-rustc_src=${RUST_LIB_SRC:-"$rustc_sysroot/lib/rustlib/src/rust/library"}
+rustc_sysroot=$("$RUSTC" $KRUSTFLAGS --version | awk '{print "/usr/src/" $1 "-" $2}')
+rustc_src=${RUST_LIB_SRC:-"$rustc_sysroot/library"}
 rustc_src_core="$rustc_src/core/src/lib.rs"
 if [ ! -e "$rustc_src_core" ]; then
 	echo >&2 "***"
