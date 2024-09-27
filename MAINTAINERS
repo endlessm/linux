@@ -14151,6 +14151,7 @@ LENOVO YOGA SLIM 7X EC DRIVER
 M:	Maya Matuszczyk <maccraft123mc@gmail.com>
 S:	Maintained
 F:	Documentation/devicetree/bindings/platform/lenovo,yoga-slim7x-ec.yaml
+F:	drivers/platform/arm64/lenovo-yoga-slim7x.c
 
 LETSKETCH HID TABLET DRIVER
 M:	Hans de Goede <hansg@kernel.org>
