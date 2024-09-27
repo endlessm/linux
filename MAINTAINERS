@@ -14147,6 +14147,11 @@ L:	platform-driver-x86@vger.kernel.org
 S:	Maintained
 F:	drivers/platform/x86/lenovo/wmi-hotkey-utilities.c
 
+LENOVO YOGA SLIM 7X EC DRIVER
+M:	Maya Matuszczyk <maccraft123mc@gmail.com>
+S:	Maintained
+F:	Documentation/devicetree/bindings/platform/lenovo,yoga-slim7x-ec.yaml
+
 LETSKETCH HID TABLET DRIVER
 M:	Hans de Goede <hansg@kernel.org>
 L:	linux-input@vger.kernel.org
