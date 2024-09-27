@@ -14847,6 +14847,11 @@ S:	Maintained
 F:	Documentation/ABI/testing/sysfs-driver-lenovo-yb9-kbdock
 F:	drivers/platform/x86/lenovo/yb9-kbdock.c
 
+LENOVO YOGA SLIM 7X EC DRIVER
+M:	Maya Matuszczyk <maccraft123mc@gmail.com>
+S:	Maintained
+F:	Documentation/devicetree/bindings/platform/lenovo,yoga-slim7x-ec.yaml
+
 LETSKETCH HID TABLET DRIVER
 M:	Hans de Goede <hansg@kernel.org>
 L:	linux-input@vger.kernel.org
