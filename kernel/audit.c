@@ -54,6 +54,7 @@
 #include <net/netlink.h>
 #include <linux/skbuff.h>
 #include <linux/security.h>
+#include <linux/lsm_hooks.h>
 #include <linux/freezer.h>
 #include <linux/pid_namespace.h>
 #include <net/netns/generic.h>
@@ -2241,21 +2242,51 @@ int audit_log_task_context(struct audit_buffer *ab)
 {
 	struct lsm_prop prop;
 	struct lsm_context ctx;
+	bool space = false;
 	int error;
+	int i;
 
 	security_current_getlsmprop_subj(&prop);
 	if (!lsmprop_is_set(&prop))
 		return 0;
 
-	error = security_lsmprop_to_secctx(&prop, &ctx, LSM_ID_UNDEF);
-	if (error < 0) {
-		if (error != -EINVAL)
-			goto error_path;
+	if (lsm_prop_cnt < 2) {
+		error = security_lsmprop_to_secctx(&prop, &ctx, LSM_ID_UNDEF);
+		if (error < 0) {
+			if (error != -EINVAL)
+				goto error_path;
+			return 0;
+		}
+		audit_log_format(ab, " subj=%s", ctx.context);
+		security_release_secctx(&ctx);
 		return 0;
 	}
+	/* Multiple LSMs provide contexts. Include an aux record. */
+	audit_log_format(ab, " subj=?");
+	error = audit_buffer_aux_new(ab, AUDIT_MAC_TASK_CONTEXTS);
+	if (error)
+		goto error_path;
 
-	audit_log_format(ab, " subj=%s", ctx.context);
-	security_release_secctx(&ctx);
+	for (i = 0; i < lsm_active_cnt; i++) {
+		if (!lsm_idlist[i]->lsmprop)
+			continue;
+		error = security_lsmprop_to_secctx(&prop, &ctx,
+						   lsm_idlist[i]->id);
+		if (error < 0) {
+			if (error == -EOPNOTSUPP)
+				continue;
+			audit_log_format(ab, "%ssubj_%s=?", space ? " " : "",
+					 lsm_idlist[i]->name);
+			if (error != -EINVAL)
+				audit_panic("error in audit_log_task_context");
+		} else {
+			audit_log_format(ab, "%ssubj_%s=%s", space ? " " : "",
+					 lsm_idlist[i]->name, ctx.context);
+			security_release_secctx(&ctx);
+		}
+		space = true;
+	}
+	audit_buffer_aux_end(ab);
 	return 0;
 
 error_path:

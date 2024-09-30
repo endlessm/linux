@@ -53,6 +53,7 @@ struct security_hook_heads {
 struct lsm_id {
 	const char *name;
 	u64 id;
+	bool lsmprop;
 };
 
 /*

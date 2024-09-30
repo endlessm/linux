@@ -18,6 +18,7 @@ static struct security_hook_list bpf_lsm_hooks[] __ro_after_init = {
 static const struct lsm_id bpf_lsmid = {
 	.name = "bpf",
 	.id = LSM_ID_BPF,
+	.lsmprop = false, /* property exists, but will not be used */
 };
 
 static int __init bpf_lsm_init(void)

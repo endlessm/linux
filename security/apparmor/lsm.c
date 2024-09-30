@@ -1666,6 +1666,7 @@ struct lsm_blob_sizes apparmor_blob_sizes __ro_after_init = {
 static const struct lsm_id apparmor_lsmid = {
 	.name = "apparmor",
 	.id = LSM_ID_APPARMOR,
+	.lsmprop = true,
 };
 
 static struct security_hook_list apparmor_hooks[] __ro_after_init = {
