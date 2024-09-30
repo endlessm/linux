@@ -41,6 +41,7 @@ struct aa_listener {
 	u64 last_id;
 	u32 mask;
 	u32 flags;
+	u16 version;
 };
 
 struct aa_listener_proxy {

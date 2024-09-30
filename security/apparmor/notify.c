@@ -950,7 +950,7 @@ static long build_v3_unotif(struct aa_knotif *knotif, void __user *buf,
 
 	/* build response */
 	unotif.common.len = size;
-	unotif.common.version = APPARMOR_NOTIFY_VERSION;
+	unotif.common.version = APPARMOR_NOTIFY_V3;
 	unotif.base.ntype = knotif->ntype;
 	unotif.base.id = knotif->id;
 	unotif.base.error = knotif->ad->error;
@@ -997,14 +997,18 @@ static long build_mediation_unotif(struct aa_listener *listener,
 
 	switch (knotif->ad->class) {
 	case AA_CLASS_FILE:
-		ret = build_v3_unotif(knotif, buf, max_size);
-		if (ret < 0) {
-			AA_DEBUG(DEBUG_UPCALL,
+		if (listener->version == APPARMOR_NOTIFY_V3) {
+			ret = build_v3_unotif(knotif, buf, max_size);
+			if (ret < 0) {
+				AA_DEBUG(DEBUG_UPCALL,
 				 "id %lld: (error=%ld) failed to copy data to user reading size %ld, maxsize %d",
-				 knotif->id, ret,
-				 sizeof(union apparmor_notif_all), max_size);
-			goto out;
+					 knotif->id, ret,
+					 sizeof(union apparmor_notif_all), max_size);
+				goto out;
+			}
 		}
+		ret = -ENOTSUPP;
+		goto out;
 		break;
 	default:
 		AA_BUG("unknown notification class");

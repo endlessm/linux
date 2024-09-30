@@ -24,6 +24,7 @@ enum apparmor_notif_type {
 	APPARMOR_NOTIF_RESP_NAME,
 };
 
+#define APPARMOR_NOTIFY_V3 3
 #define APPARMOR_NOTIFY_VERSION 3
 
 /* base notification struct embedded as head of notifications to userspace */
