@@ -3283,7 +3283,7 @@ CONFIG_COMMON_CLK_MT8516_AUDSYS                 policy<{'arm64': 'y', 'armhf': '
 CONFIG_COMMON_CLK_NUVOTON                       policy<{'arm64': 'y'}>
 CONFIG_COMMON_CLK_PALMAS                        policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm', 's390x': '-'}>
 CONFIG_COMMON_CLK_PWM                           policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm', 's390x': '-'}>
-CONFIG_COMMON_CLK_QCOM                          policy<{'arm64': 'm', 'armhf': 'm'}>
+CONFIG_COMMON_CLK_QCOM                          policy<{'arm64': 'y', 'armhf': 'y'}>
 CONFIG_COMMON_CLK_RK808                         policy<{'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm'}>
 CONFIG_COMMON_CLK_ROCKCHIP                      policy<{'arm64': 'y', 'armhf': 'y'}>
 CONFIG_COMMON_CLK_RS9_PCIE                      policy<{'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm'}>
@@ -6836,7 +6836,7 @@ CONFIG_INTEL_WMI_SBL_FW_UPDATE                  policy<{'amd64': 'm'}>
 CONFIG_INTEL_WMI_THUNDERBOLT                    policy<{'amd64': 'm'}>
 CONFIG_INTEL_XWAY_PHY                           policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm', 's390x': 'm'}>
 CONFIG_INTERCONNECT                             policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y', 's390x': 'n'}>
-CONFIG_INTERCONNECT_CLK                         policy<{'arm64': 'm', 'armhf': 'm'}>
+CONFIG_INTERCONNECT_CLK                         policy<{'arm64': 'y', 'armhf': 'y'}>
 CONFIG_INTERCONNECT_IMX                         policy<{'arm64': 'm', 'armhf': 'm'}>
 CONFIG_INTERCONNECT_IMX8MM                      policy<{'arm64': 'm', 'armhf': 'm'}>
 CONFIG_INTERCONNECT_IMX8MN                      policy<{'arm64': 'm', 'armhf': 'm'}>
@@ -10797,7 +10797,7 @@ CONFIG_QCOM_CLK_APCC_MSM8996                    policy<{'arm64': 'm'}>
 CONFIG_QCOM_CLK_APCS_MSM8916                    policy<{'arm64': 'm', 'armhf': 'm'}>
 CONFIG_QCOM_CLK_APCS_SDX55                      policy<{'arm64': '-', 'armhf': 'm'}>
 CONFIG_QCOM_CLK_RPM                             policy<{'arm64': 'm', 'armhf': 'm'}>
-CONFIG_QCOM_CLK_RPMH                            policy<{'arm64': 'm', 'armhf': 'm'}>
+CONFIG_QCOM_CLK_RPMH                            policy<{'arm64': 'y', 'armhf': 'y'}>
 CONFIG_QCOM_CLK_SMD_RPM                         policy<{'arm64': 'm', 'armhf': 'm'}>
 CONFIG_QCOM_COINCELL                            policy<{'arm64': 'm', 'armhf': 'm'}>
 CONFIG_QCOM_COMMAND_DB                          policy<{'arm64': 'y', 'armhf': 'y'}>
@@ -10810,7 +10810,7 @@ CONFIG_QCOM_FALKOR_ERRATUM_1009                 policy<{'arm64': 'y'}>
 CONFIG_QCOM_FALKOR_ERRATUM_E1041                policy<{'arm64': 'y'}>
 CONFIG_QCOM_FASTRPC                             policy<{'arm64': 'm', 'armhf': 'm'}>
 CONFIG_QCOM_GDSC                                policy<{'arm64': 'y', 'armhf': 'y'}>
-CONFIG_QCOM_GENI_SE                             policy<{'arm64': 'm', 'armhf': 'm'}>
+CONFIG_QCOM_GENI_SE                             policy<{'arm64': 'y', 'armhf': 'y'}>
 CONFIG_QCOM_GPI_DMA                             policy<{'arm64': 'm', 'armhf': 'm'}>
 CONFIG_QCOM_GSBI                                policy<{'arm64': 'm', 'armhf': 'm'}>
 CONFIG_QCOM_HFPLL                               policy<{'arm64': 'm', 'armhf': 'm'}>
@@ -11942,7 +11942,7 @@ CONFIG_SC_DISPCC_7180                           policy<{'arm64': 'm', 'armhf': '
 CONFIG_SC_DISPCC_7280                           policy<{'arm64': 'm', 'armhf': '-'}>
 CONFIG_SC_DISPCC_8280XP                         policy<{'arm64': 'm', 'armhf': '-'}>
 CONFIG_SC_GCC_7180                              policy<{'arm64': 'm', 'armhf': '-'}>
-CONFIG_SC_GCC_7280                              policy<{'arm64': 'm', 'armhf': '-'}>
+CONFIG_SC_GCC_7280                              policy<{'arm64': 'y', 'armhf': '-'}>
 CONFIG_SC_GCC_8180X                             policy<{'arm64': 'm', 'armhf': '-'}>
 CONFIG_SC_GCC_8280XP                            policy<{'arm64': 'm', 'armhf': '-'}>
 CONFIG_SC_GPUCC_7180                            policy<{'arm64': 'm', 'armhf': '-'}>
@@ -12406,7 +12406,7 @@ CONFIG_SERIAL_NUVOTON_MA35D1                    policy<{'arm64': 'm'}>
 CONFIG_SERIAL_OF_PLATFORM                       policy<{'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y'}>
 CONFIG_SERIAL_OWL                               policy<{'arm64': 'y', 'armhf': 'y'}>
 CONFIG_SERIAL_OWL_CONSOLE                       policy<{'arm64': 'y', 'armhf': 'y'}>
-CONFIG_SERIAL_QCOM_GENI                         policy<{'arm64': 'm', 'armhf': 'm'}>
+CONFIG_SERIAL_QCOM_GENI                         policy<{'arm64': 'y', 'armhf': 'y'}>
 CONFIG_SERIAL_QCOM_GENI_CONSOLE                 policy<{'arm64': 'y', 'armhf': 'y'}>
 CONFIG_SERIAL_QE                                policy<{'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm'}>
 CONFIG_SERIAL_RDA                               policy<{'armhf': 'y'}>
