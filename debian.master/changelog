@@ -1,3 +1,9 @@
+linux-unstable (6.12.0-0.0) plucky; urgency=medium
+
+  * Dummy entry.
+
+ -- Timo Aaltonen <timo.aaltonen@canonical.com>  Thu, 03 Oct 2024 15:00:32 +0300
+
 linux (6.11.0-8.8) oracular; urgency=medium
 
   * oracular/linux: 6.11.0-8.8 -proposed tracker (LP: #2080825)
