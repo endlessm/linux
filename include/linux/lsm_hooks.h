@@ -88,6 +88,7 @@ struct lsm_blob_sizes {
 	int lbs_bpf_map;
 	int lbs_bpf_prog;
 	int lbs_bpf_token;
+	bool lbs_secmark; /* expressed desire for secmark use */
 };
 
 /*

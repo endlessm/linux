@@ -383,6 +383,11 @@ static inline int smk_inode_transmutable(const struct inode *isp)
 	return (sip->smk_flags & SMK_INODE_TRANSMUTE) != 0;
 }
 
+static inline bool smack_secmark(void)
+{
+	return smack_blob_sizes.lbs_secmark;
+}
+
 /*
  * Present a pointer to the smack label entry in an inode blob.
  */

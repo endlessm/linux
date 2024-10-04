@@ -243,6 +243,13 @@ static void __init lsm_set_blob_sizes(struct lsm_blob_sizes *needed)
 	lsm_set_blob_size(&needed->lbs_bpf_map, &blob_sizes.lbs_bpf_map);
 	lsm_set_blob_size(&needed->lbs_bpf_prog, &blob_sizes.lbs_bpf_prog);
 	lsm_set_blob_size(&needed->lbs_bpf_token, &blob_sizes.lbs_bpf_token);
+
+	if (needed->lbs_secmark) {
+		if (blob_sizes.lbs_secmark)
+			needed->lbs_secmark = false;
+		else
+			blob_sizes.lbs_secmark = true;
+	}
 }
 
 /* Prepare LSM for initialization. */
