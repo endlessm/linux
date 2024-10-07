@@ -51,7 +51,7 @@ do_tools_perf_jvmti?=false
 do_tools_perf_python?=false
 
 # Indep tools packages may only be built for the main linux source package
-ifeq ($(src_pkg_name),linux)
+ifeq ($(DEB_SOURCE),linux)
 	do_tools_common = true
 	do_tools_host = true
 endif
@@ -59,7 +59,7 @@ endif
 # The linux-source package may only be built for the linux source package
 # We need to explicitly turn this off here to override any (incorrect)
 # statement in any of the above included makefile snippets
-ifneq ($(src_pkg_name),linux)
+ifneq ($(DEB_SOURCE),linux)
 	do_source_package = false
 endif
 
@@ -168,7 +168,7 @@ include $(DROOT)/rules.d/3-binary-indep.mk
 include $(DROOT)/rules.d/4-checks.mk
 
 control_files := $(DEBIAN)/control.stub.in
-ifeq ($(src_pkg_name),linux)
+ifeq ($(DEB_SOURCE),linux)
 	control_files += debian/control.d/linux-libc-dev.stub
 	control_files += debian/control.d/linux-tools-common.stub
 	control_files += debian/control.d/linux-cloud-tools-common.stub
@@ -193,22 +193,22 @@ $(DEBIAN)/control.stub: 				\
 	for i in $(control_files); do                                           \
 	  cat $$i;                                                              \
 	  echo "";                                                              \
-	done | sed -e 's/PKGVER/$(release)/g'                                   \
+	done | sed -e 's/PKGVER/$(DEB_VERSION_UPSTREAM)/g'                      \
 	        -e 's/ABINUM/$(abinum)/g'                                       \
-		-e 's/SRCPKGNAME/$(src_pkg_name)/g'                             \
+		-e 's/SRCPKGNAME/$(DEB_SOURCE)/g'                               \
 		-e 's/=HUMAN=/$(human_arch)/g'                                  \
-		-e 's/=SERIES=/$(series)/g'                                     \
+		-e 's/=SERIES=/$(DEB_DISTRIBUTION)/g'                           \
 		-e 's|\(^Maintainer:.*\)|\1\nXSC-Ubuntu-Compatible-Signing: $(UBUNTU_COMPATIBLE_SIGNING)|g' \
 		-e 's/\(^Build-Depends:$$\)/\1\n$(GCC_BUILD_DEPENDS)/g'         \
 	  > $(DEBIAN)/control.stub;
 	flavours="$(sort $(wildcard $(DEBIAN)/control.d/vars.*))";\
 	for i in $$flavours; do							\
 	  $(SHELL) $(DROOT)/scripts/control-create $$i "$(any_signed)" |	\
-		sed -e 's/PKGVER/$(release)/g'                                  \
+		sed -e 's/PKGVER/$(DEB_VERSION_UPSTREAM)/g'                     \
 		-e 's/ABINUM/$(abinum)/g'                                       \
-		-e 's/SRCPKGNAME/$(src_pkg_name)/g'                             \
+		-e 's/SRCPKGNAME/$(DEB_SOURCE)/g'                               \
 		-e 's/=HUMAN=/$(human_arch)/g'                                  \
-		-e 's/=SERIES=/$(series)/g'                                     \
+		-e 's/=SERIES=/$(DEB_DISTRIBUTION)/g'                           \
 		>> $(DEBIAN)/control.stub;                                      \
 	done
 

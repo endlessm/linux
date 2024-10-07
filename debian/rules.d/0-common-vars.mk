@@ -3,21 +3,24 @@ comma = ,
 empty :=
 space := $(empty) $(empty)
 
-#
+# We cannot include /usr/share/dpkg/pkg-info.mk because the variables defined
+# here depend on the $(DEBIAN) directory, which can vary between kernels.
+# Instead, this file will define the same variables but using the $(DEBIAN)
+# variable to use the correct files.
+
 # The source package name will be the first token from $(DEBIAN)/changelog
-#
-src_pkg_name := $(shell dpkg-parsechangelog -l$(DEBIAN)/changelog -S source)
+DEB_SOURCE := $(shell dpkg-parsechangelog -l$(DEBIAN)/changelog -S source)
 
 # Get the series
-series := $(shell dpkg-parsechangelog -l$(DEBIAN)/changelog -S distribution | sed -e 's/-\(security\|updates\|proposed\)$$//')
+DEB_DISTRIBUTION := $(shell dpkg-parsechangelog -l$(DEBIAN)/changelog -S distribution | sed -e 's/-\(security\|updates\|proposed\)$$//')
 
 # Get some version info
-version := $(shell dpkg-parsechangelog -l$(DEBIAN)/changelog -S version)
-revision ?= $(lastword $(subst -,$(space),$(version)))
-release := $(patsubst %-$(revision),%,$(version))
+DEB_VERSION := $(shell dpkg-parsechangelog -l$(DEBIAN)/changelog -S version)
+DEB_REVISION ?= $(lastword $(subst -,$(space),$(DEB_VERSION)))
+DEB_VERSION_UPSTREAM := $(patsubst %-$(DEB_REVISION),%,$(DEB_VERSION))
 
-prev_fullver ?= $(shell dpkg-parsechangelog -l$(DEBIAN)/changelog -o1 -c1 -S version)
-prev_revision := $(lastword 0.0 $(subst -,$(space),$(prev_fullver)))
+DEB_VERSION_PREV ?= $(shell dpkg-parsechangelog -l$(DEBIAN)/changelog -o1 -c1 -S version)
+DEB_REVISION_PREV := $(lastword 0.0 $(subst -,$(space),$(DEB_VERSION_PREV)))
 
 # Get upstream version info
 upstream_version := $(shell sed -n 's/^VERSION = \(.*\)$$/\1/p' Makefile)
@@ -58,11 +61,11 @@ ifeq ($(filter $(DEB_BUILD_OPTIONS),noautodbgsym),noautodbgsym)
 	do_dbgsym_package = false
 endif
 
-abinum		:= $(firstword $(subst .,$(space),$(revision)))
+abinum		:= $(firstword $(subst .,$(space),$(DEB_REVISION)))
 prev_abinum	:= $(firstword $(subst .,$(space),$(prev_revision)))
-abi_release	:= $(release)-$(abinum)
+abi_release	:= $(DEB_VERSION_UPSTREAM)-$(abinum)
 
-uploadnum	:= $(patsubst $(abinum).%,%,$(revision))
+uploadnum	:= $(patsubst $(abinum).%,%,$(DEB_REVISION))
 ifneq ($(do_full_build),false)
   uploadnum	:= $(uploadnum)-Ubuntu
 endif
@@ -107,9 +110,9 @@ mods_pkg_name=linux-modules-$(abi_release)
 mods_extra_pkg_name=linux-modules-extra-$(abi_release)
 bldinfo_pkg_name=linux-buildinfo-$(abi_release)
 hdrs_pkg_name=linux-headers-$(abi_release)
-rust_pkg_name=$(src_pkg_name)-lib-rust-$(abi_release)
-indep_hdrs_pkg_name=$(src_pkg_name)-headers-$(abi_release)
-indep_lib_rust_pkg_name=$(src_pkg_name)-lib-rust-$(abi_release)
+rust_pkg_name=$(DEB_SOURCE)-lib-rust-$(abi_release)
+indep_hdrs_pkg_name=$(DEB_SOURCE)-headers-$(abi_release)
+indep_lib_rust_pkg_name=$(DEB_SOURCE)-lib-rust-$(abi_release)
 
 #
 # Similarly with the linux-source package, you need not build it as a developer. Its
@@ -135,10 +138,10 @@ ifneq ($(wildcard $(CURDIR)/tools),)
 else
 	do_tools?=false
 endif
-tools_pkg_name=$(src_pkg_name)-tools-$(abi_release)
+tools_pkg_name=$(DEB_SOURCE)-tools-$(abi_release)
 tools_common_pkg_name=linux-tools-common
 tools_flavour_pkg_name=linux-tools-$(abi_release)
-cloud_pkg_name=$(src_pkg_name)-cloud-tools-$(abi_release)
+cloud_pkg_name=$(DEB_SOURCE)-cloud-tools-$(abi_release)
 cloud_common_pkg_name=linux-cloud-tools-common
 cloud_flavour_pkg_name=linux-cloud-tools-$(abi_release)
 hosttools_pkg_name=linux-tools-host
@@ -154,7 +157,7 @@ do_dtbs=false
 
 # ZSTD compressed kernel modules
 do_zstd_ko=true
-ifeq ($(series),jammy)
+ifeq ($(DEB_DISTRIBUTION),jammy)
 do_zstd_ko=
 endif
 

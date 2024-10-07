@@ -31,7 +31,7 @@ ifeq ($(do_flavour_header_package),true)
 endif
 	$(stamp)
 
-srcpkg = linux-source-$(release)
+srcpkg = linux-source-$(DEB_VERSION_UPSTREAM)
 srcdir = $(CURDIR)/debian/$(srcpkg)/usr/src/$(srcpkg)
 balldir = $(CURDIR)/debian/$(srcpkg)/usr/src/$(srcpkg)/$(srcpkg)
 install-source: $(stampdir)/stamp-prepare-indep

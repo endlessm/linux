@@ -34,10 +34,10 @@ $(configs-targets):
 .PHONY: printenv
 printenv:
 	@dh_testdir
-	@echo "src_pkg_name              = $(src_pkg_name)"
-	@echo "series                    = $(series)"
-	@echo "release                   = $(release)"
-	@echo "revision                  = $(revision)"
+	@echo "DEB_SOURCE                = $(DEB_SOURCE)"
+	@echo "DEB_DISTRIBUTION          = $(DEB_DISTRIBUTION)"
+	@echo "DEB_VERSION_UPSTREAM      = $(DEB_VERSION_UPSTREAM)"
+	@echo "DEB_REVISION              = $(DEB_REVISION)"
 	@echo "uploadnum                 = $(uploadnum)"
 	@echo "prev_revision             = $(prev_revision)"
 	@echo "abinum                    = $(abinum)"
@@ -97,7 +97,7 @@ printenv:
 .PHONY: printchanges
 printchanges:
 	@baseCommit=$$(git log --pretty=format:'%H %s' | \
-		gawk '/UBUNTU: '".*Ubuntu-.*`echo $(prev_fullver) | sed 's/+/\\\\+/'`"'(~.*)?$$/ { print $$1; exit }'); \
+		gawk '/UBUNTU: '".*Ubuntu-.*`echo $(DEB_VERSION_PREV) | sed 's/+/\\\\+/'`"'(~.*)?$$/ { print $$1; exit }'); \
 	if [ -z "$$baseCommit" ]; then \
 		echo "WARNING: couldn't find a commit for the previous version. Using the lastest one." >&2; \
 		baseCommit=$$(git log --pretty=format:'%H %s' | \
@@ -122,7 +122,7 @@ autoreconstruct:
 
 .PHONY: finalchecks
 finalchecks: debian/control
-	$(DROOT)/scripts/checks/final-checks "$(DEBIAN)" "$(prev_fullver)" $(do_skip_checks)
+	$(DROOT)/scripts/checks/final-checks "$(DEBIAN)" "$(DEB_VERSION_PREV)" $(do_skip_checks)
 
 .PHONY: compileselftests
 compileselftests:
