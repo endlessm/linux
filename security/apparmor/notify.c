@@ -929,61 +929,85 @@ static long append_str(void __user *pos, long remaining, const char *str)
 	(__tmp_size >= 0);						\
 })
 
-/* copy to userspace: notification data */
-static long build_v3_unotif(struct aa_knotif *knotif, void __user *buf,
-			    u16 max_size)
+static long build_v3_unotif_common(struct aa_profile *profile,
+				   struct aa_knotif *knotif,
+				   union apparmor_notif_all *unotif,
+				   void __user *buf, u16 max_size)
 {
-	union apparmor_notif_all unotif = { };
 	struct user_namespace *user_ns;
-	struct aa_profile *profile;
-	void __user *pos;
-	long size;
 
 	AA_DEBUG(DEBUG_UPCALL, "building notif max size %d", max_size);
-	size = sizeof(unotif);
-	profile = labels_profile(knotif->ad->subj_label);
-	AA_BUG(profile == NULL);
-	if (size > max_size)
+	if (sizeof(*unotif) > max_size)
 		return -EMSGSIZE;
 
 	user_ns = get_user_ns(current->nsproxy->uts_ns->user_ns);
 
 	/* build response */
-	unotif.common.len = size;
-	unotif.common.version = APPARMOR_NOTIFY_V3;
-	unotif.base.ntype = knotif->ntype;
-	unotif.base.id = knotif->id;
-	unotif.base.error = knotif->ad->error;
-	unotif.op.allow = knotif->ad->request & ~knotif->ad->denied;
-	unotif.op.deny = knotif->ad->denied;
+	unotif->common.len = sizeof(*unotif);
+	unotif->common.version = APPARMOR_NOTIFY_V3;
+	unotif->base.ntype = knotif->ntype;
+	unotif->base.id = knotif->id;
+	unotif->base.error = knotif->ad->error;
+	unotif->op.allow = knotif->ad->request & ~knotif->ad->denied;
+	unotif->op.deny = knotif->ad->denied;
 	AA_DEBUG(DEBUG_UPCALL,
 		 "notif %lld: sent to user read request 0x%x, denied 0x%x, error %d",
 		 knotif->id, knotif->ad->request, knotif->ad->denied, knotif->ad->error);
 
 	if (knotif->ad->subjtsk != NULL) {
-		unotif.op.pid = task_pid_vnr(knotif->ad->subjtsk);
-		unotif.file.subj_uid = from_kuid(user_ns, task_uid(knotif->ad->subjtsk));
+		unotif->op.pid = task_pid_vnr(knotif->ad->subjtsk);
+		unotif->file.subj_uid = from_kuid(user_ns, task_uid(knotif->ad->subjtsk));
 	}
-	unotif.op.class = knotif->ad->class;
-	unotif.file.obj_uid = from_kuid(user_ns, knotif->ad->fs.ouid);
+	unotif->op.class = knotif->ad->class;
+	unotif->file.obj_uid = from_kuid(user_ns, knotif->ad->fs.ouid);
 
 	put_user_ns(user_ns);
 
-	pos = buf + sizeof(unotif);
+	return sizeof(*unotif);
+}
+
+static long build_v3_unotif_file(struct aa_profile *profile,
+				 struct aa_knotif *knotif,
+				 union apparmor_notif_all *unotif,
+				 void __user *buf, long size, u16 max_size)
+{
+	void __user *pos = buf + size;
 	if (!build_append_str(buf, pos, max_size, profile->base.hname,
-			      unotif.op.label, size))
+			      unotif->op.label, size))
 		return -EMSGSIZE;
 	if (!build_append_str(buf, pos, max_size, knotif->ad->name,
-			      unotif.file.name, size))
+			      unotif->file.name, size))
 		return -EMSGSIZE;
 
-	/* set size after appending strings */
+	return pos - buf;
+}
+
+/* copy to userspace: notification data */
+static long build_v3_unotif(struct aa_knotif *knotif, void __user *buf,
+			    u16 max_size)
+{
+	union apparmor_notif_all unotif = { };
+	struct aa_profile *profile;
+	long size;
+
+	profile = labels_profile(knotif->ad->subj_label);
+	AA_BUG(profile == NULL);
+
+	size = build_v3_unotif_common(profile, knotif, &unotif, buf, max_size);
+	if (size < 0)
+		return size;
+	size = build_v3_unotif_file(profile, knotif, &unotif, buf, size,
+				    max_size);
+	if (size < 0)
+		return size;
+
+	/* set size after appending variable length info */
 	unotif.common.len = size;
 	/* now the struct, at the start of user mem */
 	if (copy_to_user(buf, &unotif, sizeof(unotif)))
 		return -EFAULT;
 
-	return pos - buf;
+	return size;
 }
 
 // return < 0 == error
