@@ -7,3 +7,4 @@ Others:
 - UBUNTU: SAUCE: Revert "arm64/fpsimd: Make kernel_neon_ API _GPL"
 - UBUNTU: SAUCE: net: wwan: t7xx: PCIe reset rescan
 - UBUNTU: SAUCE: PCI/ASPM: Introduce a new helper to report ASPM capability
+- UBUNTU: SAUCE: Revert "mm: remove follow_pfn"
