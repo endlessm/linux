@@ -16,6 +16,7 @@ Build-Depends:
  debhelper-compat (= 10),
  default-jdk-headless <!stage1>,
  dkms <!stage1>,
+ dwarfdump <!stage1>,
  flex <!stage1>,
  gawk <!stage1>,
  java-common <!stage1>,
