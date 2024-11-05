@@ -62,14 +62,14 @@ define build_dkms_sign =
 	)
 endef
 define build_dkms =
-	rc=0; unset MAKEFLAGS; ARCH=$(build_arch) CROSS_COMPILE=$(CROSS_COMPILE) $(SHELL) $(DROOT)/scripts/dkms-build $(dkms_dir) $(abi_release)-$* '$(call build_dkms_sign,$(builddir)/build-$*)' $(1) $(2) $(3) $(4) $(5) || rc=$$?; if [ "$$rc" = "9" -o "$$rc" = "77" ]; then echo do_$(4)_$*=false >> $(builddir)/skipped-dkms.mk; rc=0; fi; if [ "$$rc" != "0" ]; then exit $$rc; fi
+	rc=0; unset MAKEFLAGS; ARCH=$(build_arch) CROSS_COMPILE=$(CROSS_COMPILE) $(SHELL) debian/scripts/dkms-build $(dkms_dir) $(abi_release)-$* '$(call build_dkms_sign,$(builddir)/build-$*)' $(1) $(2) $(3) $(4) $(5) || rc=$$?; if [ "$$rc" = "9" -o "$$rc" = "77" ]; then echo do_$(4)_$*=false >> $(builddir)/skipped-dkms.mk; rc=0; fi; if [ "$$rc" != "0" ]; then exit $$rc; fi
 endef
 
 define install_control =
 	for which in $(3);							\
 	do									\
-		template="$(DROOT)/templates/$(2).$$which.in";			\
-		script="$(DROOT)/$(1).$$which";					\
+		template="debian/templates/$(2).$$which.in";			\
+		script="debian/$(1).$$which";					\
 		sed -e 's/@abiname@/$(abi_release)/g'				\
 		    -e 's/@localversion@/-$*/g'					\
 		    -e 's/@image-stem@/$(instfile)/g'				\
@@ -199,7 +199,7 @@ ifeq ($(do_extras_package),true)
 		mkdir -p $(pkgdir_ex)/lib/modules/$(abi_release)-$*; \
 		mv $(pkgdir)/lib/modules/$(abi_release)-$*/kernel \
 			$(pkgdir_ex)/lib/modules/$(abi_release)-$*/kernel; \
-		$(SHELL) $(DROOT)/scripts/module-inclusion --master \
+		$(SHELL) debian/scripts/module-inclusion --master \
 			$(pkgdir_ex)/lib/modules/$(abi_release)-$*/kernel \
 			$(pkgdir)/lib/modules/$(abi_release)-$*/kernel \
 			$(DEBIAN)/control.d/$(target_flavour).inclusion-list \
@@ -229,7 +229,7 @@ endif
 		$(pkgdir)/lib/modules/$(abi_release)-$*/initrd/; \
 	fi
 
-	echo "interest linux-update-$(abi_release)-$*" >"$(DROOT)/$(bin_pkg_name)-$*.triggers"
+	echo "interest linux-update-$(abi_release)-$*" >"debian/$(bin_pkg_name)-$*.triggers"
 	install -d $(pkgdir_bin)/usr/lib/linux/triggers
 	$(call install_control,$(bin_pkg_name)-$*,image,postinst postrm preinst prerm)
 	install -d $(pkgdir)/usr/lib/linux/triggers
@@ -303,7 +303,7 @@ endif
 	# Copy over scripts/module.lds for building external modules
 	cp $(builddir)/build-$*/scripts/module.lds $(hdrdir)/scripts
 	# Script to symlink everything up
-	$(SHELL) $(DROOT)/scripts/link-headers "$(hdrdir)" "$(indeppkg)" "$*"
+	$(SHELL) debian/scripts/link-headers "$(hdrdir)" "$(indeppkg)" "$*"
 	# The build symlink
 	install -d debian/$(basepkg)-$*/lib/modules/$(abi_release)-$*
 	$(LN) /usr/src/$(basepkg)-$* \
@@ -321,7 +321,7 @@ endif
 	 PREV_REVISION="$(prev_revision)" ABI_NUM="$(abinum)"		\
 	 PREV_ABI_NUM="$(prev_abinum)" BUILD_DIR="$(builddir)/build-$*"	\
 	 INSTALL_DIR="$(pkgdir)" SOURCE_DIR="$(CURDIR)"			\
-	 run-parts -v $(DROOT)/tests-build
+	 run-parts -v debian/tests-build
 
 	#
 	# Remove files which are generated at installation by postinst,
@@ -485,8 +485,8 @@ endif
 		install -m644 $(abidir)/$*.fwinfo.builtin \
 			$(pkgdir_bldinfo)/usr/lib/linux/$(abi_release)-$*/fwinfo.builtin; \
 	fi
-	install -m644 $(DROOT)/canonical-certs.pem $(pkgdir_bldinfo)/usr/lib/linux/$(abi_release)-$*/canonical-certs.pem
-	install -m644 $(DROOT)/canonical-revoked-certs.pem $(pkgdir_bldinfo)/usr/lib/linux/$(abi_release)-$*/canonical-revoked-certs.pem
+	install -m644 debian/canonical-certs.pem $(pkgdir_bldinfo)/usr/lib/linux/$(abi_release)-$*/canonical-certs.pem
+	install -m644 debian/canonical-revoked-certs.pem $(pkgdir_bldinfo)/usr/lib/linux/$(abi_release)-$*/canonical-revoked-certs.pem
 	# List of source files used for this build
 	install -m644 $(builddir)/build-$*/sources.list $(pkgdir_bldinfo)/usr/lib/linux/$(abi_release)-$*/sources
 
@@ -500,7 +500,7 @@ ifeq ($(do_lib_rust),true)
 	install -d -m755 $(rustdir)
 	mv $(hdrdir)/rust $(rustdir)
 	# Generate symlink for Rust lib directory in headers
-	$(SHELL) $(DROOT)/scripts/link-lib-rust "$(hdrdir)" "$(indeppkg)" "$*"
+	$(SHELL) debian/scripts/link-lib-rust "$(hdrdir)" "$(indeppkg)" "$*"
 endif
 
 ifneq ($(do_full_build),false)

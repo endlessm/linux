@@ -29,7 +29,7 @@ configs-targets := updateconfigs defaultconfigs genconfigs editconfigs
 $(configs-targets):
 	dh_testdir
 	kmake='$(kmake)' skip_checks=$(do_skip_checks) conc_level=$(conc_level) \
-		$(SHELL) $(DROOT)/scripts/misc/kernelconfig $@
+		$(SHELL) debian/scripts/misc/kernelconfig $@
 
 .PHONY: printenv
 printenv:
@@ -104,11 +104,11 @@ printchanges:
 			gawk '/UBUNTU:\s*Ubuntu-.*$$/ { print $$1; exit }'); \
 	fi; \
 	git log "$$baseCommit"..HEAD | \
-	$(DROOT)/scripts/misc/git-ubuntu-log
+	debian/scripts/misc/git-ubuntu-log
 
 .PHONY: insertchanges
 insertchanges: autoreconstruct finalchecks
-	$(DROOT)/scripts/misc/insert-changes $(DROOT) $(DEBIAN)
+	debian/scripts/misc/insert-changes debian $(DEBIAN)
 
 .PHONY: autoreconstruct
 autoreconstruct:
@@ -117,12 +117,12 @@ autoreconstruct:
 	if grep -q "^EXTRAVERSION = -rc[0-9]\+$$" Makefile; then \
 		echo "exit 0" >$(DEBIAN)/reconstruct; \
 	else \
-		$(DROOT)/scripts/misc/gen-auto-reconstruct $(upstream_tag) $(DEBIAN)/reconstruct $(DROOT)/source/options; \
+		debian/scripts/misc/gen-auto-reconstruct $(upstream_tag) $(DEBIAN)/reconstruct debian/source/options; \
 	fi
 
 .PHONY: finalchecks
 finalchecks: debian/control
-	$(DROOT)/scripts/checks/final-checks "$(DEBIAN)" "$(DEB_VERSION_PREV)" $(do_skip_checks)
+	debian/scripts/checks/final-checks "$(DEBIAN)" "$(DEB_VERSION_PREV)" $(do_skip_checks)
 
 .PHONY: compileselftests
 compileselftests:

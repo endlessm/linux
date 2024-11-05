@@ -26,15 +26,12 @@ unexport LDFLAGS
 export LC_ALL=C
 export SHELL=/bin/bash -e
 
-# Where do we find the common configuration.
-export DROOT=debian
-
 # Temporary workaround to fix build issues if only python2 runtime is installed
 # (without python3-dev).
 export PYTHON=python3
 
 # Common variables for all architectures
-include $(DROOT)/rules.d/0-common-vars.mk
+include debian/rules.d/0-common-vars.mk
 
 # Pull in some arch specific stuff
 -include $(DEBIAN)/rules.d/$(arch).mk
@@ -43,7 +40,7 @@ include $(DROOT)/rules.d/0-common-vars.mk
 -include $(DEBIAN)/rules.d/hooks.mk
 
 # Maintainer targets
-include $(DROOT)/rules.d/1-maintainer.mk
+include debian/rules.d/1-maintainer.mk
 
 do_linux_tools=$(sort $(filter-out false,$(do_tools_usbip) $(do_tools_cpupower) $(do_tools_perf) $(do_tools_bpftool) $(do_tools_x86)))
 do_cloud_tools=$(sort $(filter-out false,$(do_tools_hyperv)))
@@ -150,22 +147,22 @@ clean: debian/control debian/canonical-certs.pem debian/canonical-revoked-certs.
 	[ -f $(DEBIAN)/reconstruct ] && bash $(DEBIAN)/reconstruct || true
 
 	# Remove generated intermediate files
-	rm -f $(DROOT)/control.stub $(DEBIAN)/control.stub
-	rm -f $(DROOT)/scripts/fix-filenames
+	rm -f debian/control.stub $(DEBIAN)/control.stub
+	rm -f debian/scripts/fix-filenames
 
 .PHONY: distclean
 distclean: clean
-	rm -rf $(DROOT)/control debian/changelog \
+	rm -rf debian/control debian/changelog \
 		debian/control debian/control.stub debian/copyright
 
 # Builds the image, arch headers and debug packages
-include $(DROOT)/rules.d/2-binary-arch.mk
+include debian/rules.d/2-binary-arch.mk
 
 # Builds the source and linux-headers indep packages
-include $(DROOT)/rules.d/3-binary-indep.mk
+include debian/rules.d/3-binary-indep.mk
 
 # Various checks to be performed on builds
-include $(DROOT)/rules.d/4-checks.mk
+include debian/rules.d/4-checks.mk
 
 control_files := $(DEBIAN)/control.stub.in
 ifeq ($(DEB_SOURCE),linux)
@@ -184,10 +181,10 @@ UBUNTU_COMPATIBLE_SIGNING=$(shell grep -qx ' *Subject: C = GB, ST = Isle of Man,
 # Misc stuff
 .PHONY: $(DEBIAN)/control.stub
 $(DEBIAN)/control.stub: 				\
-		$(DROOT)/scripts/control-create		\
+		debian/scripts/control-create		\
 		$(control_files)			\
 		debian/canonical-revoked-certs.pem	\
-		$(DROOT)/control.d/flavour-module.stub	\
+		debian/control.d/flavour-module.stub	\
 		$(DEBIAN)/changelog			\
 		$(wildcard $(DEBIAN)/control.d/*)
 	for i in $(control_files); do                                           \
@@ -203,7 +200,7 @@ $(DEBIAN)/control.stub: 				\
 	  > $(DEBIAN)/control.stub;
 	flavours="$(sort $(wildcard $(DEBIAN)/control.d/vars.*))";\
 	for i in $$flavours; do							\
-	  $(SHELL) $(DROOT)/scripts/control-create $$i "$(any_signed)" |	\
+	  $(SHELL) debian/scripts/control-create $$i "$(any_signed)" |		\
 		sed -e 's/PKGVER/$(DEB_VERSION_UPSTREAM)/g'                     \
 		-e 's/ABINUM/$(abinum)/g'                                       \
 		-e 's/SRCPKGNAME/$(DEB_SOURCE)/g'                               \
@@ -216,10 +213,10 @@ $(DEBIAN)/control.stub: 				\
 debian/control: $(DEBIAN)/control.stub
 	cp $(DEBIAN)/control.stub debian/control
 
-debian/canonical-certs.pem: $(wildcard $(DROOT)/certs/*-all.pem) $(wildcard $(DROOT)/certs/*-$(arch).pem) $(wildcard $(DEBIAN)/certs/*-all.pem) $(wildcard $(DEBIAN)/certs/*-$(arch).pem)
+debian/canonical-certs.pem: $(wildcard debian/certs/*-all.pem) $(wildcard debian/certs/*-$(arch).pem) $(wildcard $(DEBIAN)/certs/*-all.pem) $(wildcard $(DEBIAN)/certs/*-$(arch).pem)
 	for cert in $(sort $(notdir $^));					\
 	do									\
-		for dir in $(DEBIAN) $(DROOT);					\
+		for dir in $(DEBIAN) debian;					\
 		do								\
 			if [ -f "$$dir/certs/$$cert" ]; then			\
 				cat "$$dir/certs/$$cert";			\
@@ -228,10 +225,10 @@ debian/canonical-certs.pem: $(wildcard $(DROOT)/certs/*-all.pem) $(wildcard $(DR
 		done;								\
 	done >"$@"
 
-debian/canonical-revoked-certs.pem: $(wildcard $(DROOT)/revoked-certs/*-all.pem) $(wildcard $(DROOT)/revoked-certs/*-$(arch).pem) $(wildcard $(DEBIAN)/revoked-certs/*-all.pem) $(wildcard $(DEBIAN)/revoked-certs/*-$(arch).pem)
+debian/canonical-revoked-certs.pem: $(wildcard debian/revoked-certs/*-all.pem) $(wildcard debian/revoked-certs/*-$(arch).pem) $(wildcard $(DEBIAN)/revoked-certs/*-all.pem) $(wildcard $(DEBIAN)/revoked-certs/*-$(arch).pem)
 	for cert in $(sort $(notdir $^));					\
 	do									\
-		for dir in $(DEBIAN) $(DROOT);					\
+		for dir in $(DEBIAN) debian;					\
 		do								\
 			if [ -f "$$dir/revoked-certs/$$cert" ]; then		\
 				cat "$$dir/revoked-certs/$$cert";		\
