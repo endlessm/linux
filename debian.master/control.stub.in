@@ -23,6 +23,7 @@ Build-Depends:
  kmod <!stage1>,
  libaudit-dev <!stage1>,
  libcap-dev <!stage1>,
+ libdebuginfod-dev [amd64 arm64 armhf ppc64el s390x riscv64] <!stage1>,
  libdw-dev <!stage1>,
  libelf-dev <!stage1>,
  libiberty-dev <!stage1>,
