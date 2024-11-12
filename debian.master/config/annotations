@@ -1055,7 +1055,6 @@ CONFIG_AD9832                                   policy<{'amd64': 'm', 'arm64': '
 CONFIG_AD9834                                   policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm'}>
 CONFIG_ADA4250                                  policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm'}>
 CONFIG_ADAPTEC_STARFIRE                         policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm', 's390x': '-'}>
-CONFIG_ADDRESS_MASKING                          policy<{'amd64': 'y'}>
 CONFIG_ADF4350                                  policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm'}>
 CONFIG_ADF4371                                  policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm'}>
 CONFIG_ADF4377                                  policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm'}>
@@ -1679,7 +1678,6 @@ CONFIG_ARM64_PTR_AUTH                           policy<{'arm64': 'y'}>
 CONFIG_ARM64_PTR_AUTH_KERNEL                    policy<{'arm64': 'y'}>
 CONFIG_ARM64_RAS_EXTN                           policy<{'arm64': 'y'}>
 CONFIG_ARM64_RELOC_TEST                         policy<{'arm64': 'n'}>
-CONFIG_ARM64_SME                                policy<{'arm64': 'y'}>
 CONFIG_ARM64_SVE                                policy<{'arm64': 'y'}>
 CONFIG_ARM64_SW_TTBR0_PAN                       policy<{'arm64': 'y'}>
 CONFIG_ARM64_TAGGED_ADDR_ABI                    policy<{'arm64': 'y'}>
@@ -2506,6 +2504,7 @@ CONFIG_CAN_BXCAN                                policy<{'arm64': 'm'}>
 CONFIG_CAN_CALC_BITTIMING                       policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y'}>
 CONFIG_CAN_CAN327                               policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm'}>
 CONFIG_CAN_CC770                                policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm'}>
+CONFIG_CAN_CC770_ISA                            policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm'}>
 CONFIG_CAN_CC770_PLATFORM                       policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm'}>
 CONFIG_CAN_CTUCANFD                             policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm'}>
 CONFIG_CAN_CTUCANFD_PCI                         policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm'}>
@@ -2554,9 +2553,10 @@ CONFIG_CAN_PLX_PCI                              policy<{'amd64': 'm', 'arm64': '
 CONFIG_CAN_RAW                                  policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm'}>
 CONFIG_CAN_RCAR                                 policy<{'arm64': 'm', 'armhf': 'm', 'riscv64': 'm'}>
 CONFIG_CAN_RCAR_CANFD                           policy<{'arm64': 'm', 'armhf': 'm', 'riscv64': 'm'}>
-CONFIG_CAN_ROCKCHIP_CANFD                       policy<{'arm64': 'n', 'armhf': 'n', 'ppc64el': 'n', 'riscv64': 'n'}>
+CONFIG_CAN_ROCKCHIP_CANFD                       policy<{'arm64': 'n', 'armhf': 'n', 'ppc64el': '-', 'riscv64': '-'}>
 CONFIG_CAN_RX_OFFLOAD                           policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y'}>
 CONFIG_CAN_SJA1000                              policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm'}>
+CONFIG_CAN_SJA1000_ISA                          policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm'}>
 CONFIG_CAN_SJA1000_PLATFORM                     policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm'}>
 CONFIG_CAN_SLCAN                                policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm'}>
 CONFIG_CAN_SOFTING                              policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm'}>
@@ -2606,6 +2606,7 @@ CONFIG_CC_HAS_ENTRY_PADDING                     policy<{'amd64': 'y'}>
 CONFIG_CC_HAS_IBT                               policy<{'amd64': 'y'}>
 CONFIG_CC_HAS_INT128                            policy<{'amd64': 'y', 'arm64': 'y', 'ppc64el': 'y', 'riscv64': 'y', 's390x': 'y'}>
 CONFIG_CC_HAS_KASAN_GENERIC                     policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y', 's390x': 'y'}>
+CONFIG_CC_HAS_KASAN_SW_TAGS                     policy<{'amd64': 'y', 'arm64': 'y'}>
 CONFIG_CC_HAS_MIN_FUNCTION_ALIGNMENT            policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y', 's390x': 'y'}>
 CONFIG_CC_HAS_NAMED_AS                          policy<{'amd64': 'y'}>
 CONFIG_CC_HAS_NAMED_AS_FIXED_SANITIZERS         policy<{'amd64': 'y'}>
@@ -5867,7 +5868,7 @@ CONFIG_HAVE_REGS_AND_STACK_ACCESS_API           policy<{'amd64': 'y', 'arm64': '
 CONFIG_HAVE_RELIABLE_STACKTRACE                 policy<{'amd64': 'y', 'ppc64el': 'y', 's390x': 'y'}>
 CONFIG_HAVE_RETHOOK                             policy<{'amd64': 'y', 'ppc64el': 'y', 'riscv64': 'y', 's390x': 'y'}>
 CONFIG_HAVE_RSEQ                                policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y', 's390x': 'y'}>
-CONFIG_HAVE_RUST                                policy<{'amd64': 'y', 'arm64': '-', 'riscv64': 'y'}>
+CONFIG_HAVE_RUST                                policy<{'amd64': 'y', 'arm64': '-', 'riscv64': '-'}>
 CONFIG_HAVE_SAMPLE_FTRACE_DIRECT                policy<{'amd64': 'y', 'arm64': 'y', 'riscv64': 'y', 's390x': 'y'}>
 CONFIG_HAVE_SAMPLE_FTRACE_DIRECT_MULTI          policy<{'amd64': 'y', 'arm64': 'y', 'riscv64': 'y', 's390x': 'y'}>
 CONFIG_HAVE_SCHED_AVG_IRQ                       policy<{'ppc64el': 'y'}>
@@ -11693,7 +11694,6 @@ CONFIG_RTW89_PCI                                policy<{'amd64': 'm', 'arm64': '
 CONFIG_RT_MUTEXES                               policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y', 's390x': 'y'}>
 CONFIG_RUNTIME_KERNEL_TESTING_MENU              policy<{'riscv64': 'n'}>
 CONFIG_RUNTIME_TESTING_MENU                     policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y', 's390x': 'y'}>
-CONFIG_RUST                                     policy<{'amd64': '-', 'riscv64': 'n'}>
 CONFIG_RUSTC_LLVM_VERSION                       policy<{'amd64': '180108', 'arm64': '180108', 'armhf': '180108', 'ppc64el': '180108', 'riscv64': '180108', 's390x': '180108'}>
 CONFIG_RUSTC_SUPPORTS_RISCV                     policy<{'riscv64': 'y'}>
 CONFIG_RUSTC_VERSION                            policy<{'amd64': '108001', 'arm64': '108001', 'armhf': '108001', 'ppc64el': '108001', 'riscv64': '108001', 's390x': '108001'}>
