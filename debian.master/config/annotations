@@ -1268,6 +1268,7 @@ CONFIG_ARCH_CONFIGURES_CPU_MITIGATIONS          policy<{'amd64': 'y'}>
 CONFIG_ARCH_CORRECT_STACKTRACE_ON_KRETPROBE     policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 's390x': 'y'}>
 CONFIG_ARCH_CPUIDLE_HALTPOLL                    policy<{'amd64': 'y'}>
 CONFIG_ARCH_CPU_PROBE_RELEASE                   policy<{'ppc64el': 'y'}>
+CONFIG_ARCH_DEFAULT_CRASH_DUMP                  policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y', 's390x': 'y'}>
 CONFIG_ARCH_DEFAULT_KEXEC_IMAGE_VERIFY_SIG      policy<{'arm64': 'y'}>
 CONFIG_ARCH_DIGICOLOR                           policy<{'armhf': 'n'}>
 CONFIG_ARCH_DISABLE_KASAN_INLINE                policy<{'ppc64el': 'y'}>
