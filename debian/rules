@@ -213,7 +213,7 @@ $(DEBIAN)/control.stub: 				\
 debian/control: $(DEBIAN)/control.stub
 	cp $(DEBIAN)/control.stub debian/control
 
-debian/canonical-certs.pem: $(wildcard debian/certs/*-all.pem) $(wildcard debian/certs/*-$(arch).pem) $(wildcard $(DEBIAN)/certs/*-all.pem) $(wildcard $(DEBIAN)/certs/*-$(arch).pem)
+debian/canonical-certs.pem: $(wildcard debian/certs/*.pem $(DEBIAN)/certs/*.pem)
 	for cert in $(sort $(notdir $^));					\
 	do									\
 		for dir in $(DEBIAN) debian;					\
@@ -225,7 +225,7 @@ debian/canonical-certs.pem: $(wildcard debian/certs/*-all.pem) $(wildcard debian
 		done;								\
 	done >"$@"
 
-debian/canonical-revoked-certs.pem: $(wildcard debian/revoked-certs/*-all.pem) $(wildcard debian/revoked-certs/*-$(arch).pem) $(wildcard $(DEBIAN)/revoked-certs/*-all.pem) $(wildcard $(DEBIAN)/revoked-certs/*-$(arch).pem)
+debian/canonical-revoked-certs.pem: $(wildcard debian/revoked-certs/*.pem $(DEBIAN)/revoked-certs/*.pem)
 	for cert in $(sort $(notdir $^));					\
 	do									\
 		for dir in $(DEBIAN) debian;					\
