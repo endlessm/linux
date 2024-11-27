@@ -46,7 +46,7 @@ endif
 
 	# Collect the list of kernel source files used for this build. Need to do this early
 	# before modules are stripped. Fail if the resulting file is empty.
-	find $(builddir)/build-$* -name vmlinux -o -name \*.ko -exec dwarfdump -i {} \; | \
+	find $(builddir)/build-$* \( -name vmlinux -o -name \*.ko \) -exec dwarfdump -i {} \; | \
 		grep -E 'DW_AT_(call|decl)_file' | sed -n 's|.*\s/|/|p' | sort -u > \
 		$(builddir)/build-$*/sources.list
 	test -s $(builddir)/build-$*/sources.list
