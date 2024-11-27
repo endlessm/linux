@@ -272,7 +272,7 @@ union efi_boot_services {
 		efi_status_t (__efiapi *wait_for_event)(unsigned long,
 							efi_event_t *,
 							unsigned long *);
-		void *signal_event;
+		efi_status_t (__efiapi *signal_event)(efi_event_t);
 		efi_status_t (__efiapi *close_event)(efi_event_t);
 		void *check_event;
 		void *install_protocol_interface;
@@ -324,7 +324,7 @@ union efi_boot_services {
 		void *calculate_crc32;
 		void (__efiapi *copy_mem)(void *, const void *, unsigned long);
 		void (__efiapi *set_mem)(void *, unsigned long, unsigned char);
-		void *create_event_ex;
+		efi_status_t (__efiapi *create_event_ex)(u32, int, void *, void *, void *, efi_event_t *);
 	};
 	struct {
 		efi_table_hdr_t hdr;
