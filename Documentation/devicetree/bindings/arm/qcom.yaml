@@ -1092,6 +1092,12 @@ properties:
 
       - items:
           - enum:
+              - acer,swift-sf14-11
+          - const: qcom,x1p64100
+          - const: qcom,x1e80100
+
+      - items:
+          - enum:
               - qcom,x1p42100-crd
           - const: qcom,x1p42100
 
