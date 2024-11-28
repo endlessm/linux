@@ -113,7 +113,7 @@ ifeq ($(do_tools_common),true)
 ifeq ($(do_tools_perf_python),true)
 	# Python wrapper module for python-perf
 	install -d $(toolspython)/perf
-	install -m755 debian/tools/python-perf.py $(toolspython)/perf/__init__.py
+	install -m644 debian/tools/python-perf.py $(toolspython)/perf/__init__.py
 endif
 ifeq ($(do_cloud_tools),true)
 ifeq ($(do_tools_hyperv),true)
