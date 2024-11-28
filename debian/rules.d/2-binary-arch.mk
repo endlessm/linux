@@ -346,45 +346,15 @@ endif
 	rmdir $(pkgdir)/lib/modules/$(abi_release)-$*/_
 
 ifeq ($(do_linux_tools),true)
-	# Create the linux-tools tool links
-	install -d $(toolspkgdir)/usr/lib/linux-tools/$(abi_release)-$*
-ifeq ($(do_tools_usbip),true)
-	$(LN) ../../$(DEB_SOURCE)-tools-$(abi_release)/usbip $(toolspkgdir)/usr/lib/linux-tools/$(abi_release)-$*
-	$(LN) ../../$(DEB_SOURCE)-tools-$(abi_release)/usbipd $(toolspkgdir)/usr/lib/linux-tools/$(abi_release)-$*
-endif
-ifeq ($(do_tools_acpidbg),true)
-	$(LN) ../../$(DEB_SOURCE)-tools-$(abi_release)/acpidbg $(toolspkgdir)/usr/lib/linux-tools/$(abi_release)-$*
-endif
-ifeq ($(do_tools_cpupower),true)
-	$(LN) ../../$(DEB_SOURCE)-tools-$(abi_release)/cpupower $(toolspkgdir)/usr/lib/linux-tools/$(abi_release)-$*
-endif
-ifeq ($(do_tools_rtla),true)
-	$(LN) ../../$(DEB_SOURCE)-tools-$(abi_release)/rtla $(toolspkgdir)/usr/lib/linux-tools/$(abi_release)-$*
-endif
-ifeq ($(do_tools_perf),true)
-	$(LN) ../../$(DEB_SOURCE)-tools-$(abi_release)/perf $(toolspkgdir)/usr/lib/linux-tools/$(abi_release)-$*
-ifeq ($(do_tools_perf_jvmti),true)
-	$(LN) ../../$(DEB_SOURCE)-tools-$(abi_release)/libperf-jvmti.so $(toolspkgdir)/usr/lib/linux-tools/$(abi_release)-$*
-endif
-endif
-ifeq ($(do_tools_bpftool),true)
-	$(LN) ../../$(DEB_SOURCE)-tools-$(abi_release)/bpftool $(toolspkgdir)/usr/lib/linux-tools/$(abi_release)-$*
-endif
-ifeq ($(do_tools_x86),true)
-	$(LN) ../../$(DEB_SOURCE)-tools-$(abi_release)/x86_energy_perf_policy $(toolspkgdir)/usr/lib/linux-tools/$(abi_release)-$*
-	$(LN) ../../$(DEB_SOURCE)-tools-$(abi_release)/turbostat $(toolspkgdir)/usr/lib/linux-tools/$(abi_release)-$*
-endif
+	# Create the linux-tools tool link
+	install -d $(toolspkgdir)/usr/lib/linux-tools
+	$(LN) ../$(DEB_SOURCE)-tools-$(abi_release) $(toolspkgdir)/usr/lib/linux-tools/$(abi_release)-$*
 endif
 ifeq ($(do_cloud_tools),true)
 ifeq ($(do_tools_hyperv),true)
-	# Create the linux-hyperv tool links
-	install -d $(cloudpkgdir)/usr/lib/linux-tools/$(abi_release)-$*
-	$(LN) ../../$(DEB_SOURCE)-tools-$(abi_release)/hv_kvp_daemon $(cloudpkgdir)/usr/lib/linux-tools/$(abi_release)-$*
-	$(LN) ../../$(DEB_SOURCE)-tools-$(abi_release)/hv_vss_daemon $(cloudpkgdir)/usr/lib/linux-tools/$(abi_release)-$*
-ifneq ($(build_arch),arm64)
-	$(LN) ../../$(DEB_SOURCE)-tools-$(abi_release)/hv_fcopy_uio_daemon $(cloudpkgdir)/usr/lib/linux-tools/$(abi_release)-$*
-endif
-	$(LN) ../../$(DEB_SOURCE)-tools-$(abi_release)/lsvmbus $(cloudpkgdir)/usr/lib/linux-tools/$(abi_release)-$*
+	# Create the linux-hyperv tool link
+	install -d $(cloudpkgdir)/usr/lib/linux-tools
+	$(LN) ../$(DEB_SOURCE)-tools-$(abi_release) $(cloudpkgdir)/usr/lib/linux-tools/$(abi_release)-$*
 endif
 endif
 
