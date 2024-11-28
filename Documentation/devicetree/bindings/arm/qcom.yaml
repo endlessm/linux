@@ -1248,6 +1248,12 @@ properties:
 
       - items:
           - enum:
+              - acer,swift-sf14-11
+          - const: qcom,x1p64100
+          - const: qcom,x1e80100
+
+      - items:
+          - enum:
               - asus,vivobook-s15-x1p4
               - hp,omnibook-x14-fe1
               - lenovo,thinkbook-16
