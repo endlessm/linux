@@ -100,7 +100,7 @@ Description: Linux kernel headers for version PKGVER on DESC
  This is for sites that want the latest kernel headers.  Please read
  /usr/share/doc/linux-headers-PKGVER-ABINUM/debian.README.gz for details.
 
-Package: SRCPKGNAME-lib-rust-PKGVER-ABINUM-FLAVOUR
+Package: linux-lib-rust-PKGVER-ABINUM-FLAVOUR
 Build-Profiles: <!stage1>
 Architecture: amd64
 Multi-Arch: foreign

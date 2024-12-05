@@ -113,9 +113,8 @@ mods_pkg_name=linux-modules-$(abi_release)
 mods_extra_pkg_name=linux-modules-extra-$(abi_release)
 bldinfo_pkg_name=linux-buildinfo-$(abi_release)
 hdrs_pkg_name=linux-headers-$(abi_release)
-rust_pkg_name=$(DEB_SOURCE)-lib-rust-$(abi_release)
+rust_pkg_name=linux-lib-rust-$(abi_release)
 indep_hdrs_pkg_name=$(DEB_SOURCE)-headers-$(abi_release)
-indep_lib_rust_pkg_name=$(DEB_SOURCE)-lib-rust-$(abi_release)
 
 #
 # Similarly with the linux-source package, you need not build it as a developer. Its
