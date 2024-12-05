@@ -677,6 +677,7 @@ install-perarch: $(stampdir)/stamp-build-perarch
 ifeq ($(do_linux_tools),true)
 	install -d $(toolspkgdir)/usr/lib
 	install -d $(toolspkgdir)/usr/lib/$(DEB_SOURCE)-tools-$(abi_release)
+	install -d $(toolspkgdir)/usr/lib/$(DEB_SOURCE)-tools-$(abi_release)/lib
 ifeq ($(do_tools_usbip),true)
 	install -m755 $(addprefix $(builddirpa)/tools/usb/usbip/bin/sbin/, usbip usbipd) \
 		$(toolspkgdir)/usr/lib/$(DEB_SOURCE)-tools-$(abi_release)
@@ -696,10 +697,9 @@ endif
 ifeq ($(do_tools_perf),true)
 	install -m755 $(builddirpa)/tools/perf/perf $(toolspkgdir)/usr/lib/$(DEB_SOURCE)-tools-$(abi_release)
 ifeq ($(do_tools_perf_jvmti),true)
-	install -m755 $(builddirpa)/tools/perf/libperf-jvmti.so $(toolspkgdir)/usr/lib/$(DEB_SOURCE)-tools-$(abi_release)
+	install -m644 $(builddirpa)/tools/perf/libperf-jvmti.so $(toolspkgdir)/usr/lib/$(DEB_SOURCE)-tools-$(abi_release)/lib
 endif
 ifeq ($(do_tools_perf_python),true)
-	install -d $(toolspkgdir)/usr/lib/$(DEB_SOURCE)-tools-$(abi_release)/lib
 	install -m644 $(builddirpa)/tools/perf/python/perf.*.so $(toolspkgdir)/usr/lib/$(DEB_SOURCE)-tools-$(abi_release)/lib
 endif
 endif
