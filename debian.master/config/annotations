@@ -3260,13 +3260,11 @@ CONFIG_COMMON_CLK_MT8192_VDECSYS                policy<{'arm64': 'y'}>
 CONFIG_COMMON_CLK_MT8192_VENCSYS                policy<{'arm64': 'y'}>
 CONFIG_COMMON_CLK_MT8195                        policy<{'arm64': 'y'}>
 CONFIG_COMMON_CLK_MT8195_APUSYS                 policy<{'arm64': 'm'}>
-CONFIG_COMMON_CLK_MT8195_AUDSYS                 policy<{'arm64': 'm'}>
 CONFIG_COMMON_CLK_MT8195_CAMSYS                 policy<{'arm64': 'm'}>
 CONFIG_COMMON_CLK_MT8195_IMGSYS                 policy<{'arm64': 'm'}>
 CONFIG_COMMON_CLK_MT8195_IMP_IIC_WRAP           policy<{'arm64': 'm'}>
 CONFIG_COMMON_CLK_MT8195_IPESYS                 policy<{'arm64': 'm'}>
 CONFIG_COMMON_CLK_MT8195_MFGCFG                 policy<{'arm64': 'm'}>
-CONFIG_COMMON_CLK_MT8195_MSDC                   policy<{'arm64': 'm'}>
 CONFIG_COMMON_CLK_MT8195_SCP_ADSP               policy<{'arm64': 'm'}>
 CONFIG_COMMON_CLK_MT8195_VDECSYS                policy<{'arm64': 'm'}>
 CONFIG_COMMON_CLK_MT8195_VDOSYS                 policy<{'arm64': 'm'}>
@@ -5047,6 +5045,7 @@ CONFIG_FB_DDC                                   policy<{'amd64': 'm', 'arm64': '
 CONFIG_FB_DEFERRED_IO                           policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y', 's390x': 'y'}>
 CONFIG_FB_DEVICE                                policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y', 's390x': 'y'}>
 CONFIG_FB_DMAMEM_HELPERS                        policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y'}>
+CONFIG_FB_DMAMEM_HELPERS_DEFERRED               policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y'}>
 CONFIG_FB_FOREIGN_ENDIAN                        policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'ppc64el': 'n', 'riscv64': 'n', 's390x': 'n'}>
 CONFIG_FB_GOLDFISH                              policy<{'riscv64': 'm'}>
 CONFIG_FB_HECUBA                                policy<{'amd64': 'm'}>
@@ -10535,7 +10534,7 @@ CONFIG_POWER_RESET_VERSATILE                    policy<{'armhf': 'y'}>
 CONFIG_POWER_RESET_VEXPRESS                     policy<{'arm64': 'y', 'armhf': 'y'}>
 CONFIG_POWER_RESET_XGENE                        policy<{'arm64': 'n'}>
 CONFIG_POWER_SEQUENCING                         policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm', 's390x': 'm'}>
-CONFIG_POWER_SEQUENCING_QCOM_WCN                policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm', 's390x': 'm'}>
+CONFIG_POWER_SEQUENCING_QCOM_WCN                policy<{'amd64': '-', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm', 's390x': '-'}>
 CONFIG_POWER_SUPPLY                             policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y', 's390x': 'n'}>
 CONFIG_POWER_SUPPLY_DEBUG                       policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'ppc64el': 'n', 'riscv64': 'n', 's390x': '-'}>
 CONFIG_POWER_SUPPLY_HWMON                       policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y'}>
@@ -14219,7 +14218,7 @@ CONFIG_TI_K3_AM65_CPSW_SWITCHDEV                policy<{'arm64': 'y'}>
 CONFIG_TI_K3_AM65_CPTS                          policy<{'arm64': 'm'}>
 CONFIG_TI_K3_CPPI_DESC_POOL                     policy<{'arm64': 'm'}>
 CONFIG_TI_K3_DSP_REMOTEPROC                     policy<{'arm64': 'm'}>
-CONFIG_TI_K3_M4_REMOTEPROC                      policy<{'arm64': 'n', 'armhf': 'n'}>
+CONFIG_TI_K3_M4_REMOTEPROC                      policy<{'arm64': 'n', 'armhf': '-'}>
 CONFIG_TI_K3_PSIL                               policy<{'arm64': 'y'}>
 CONFIG_TI_K3_R5_REMOTEPROC                      policy<{'arm64': 'm'}>
 CONFIG_TI_K3_RINGACC                            policy<{'arm64': 'y'}>
@@ -15520,7 +15519,7 @@ CONFIG_VL6180                                   policy<{'amd64': 'm', 'arm64': '
 CONFIG_VLAN_8021Q                               policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm', 's390x': 'm'}>
 CONFIG_VLAN_8021Q_GVRP                          policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y', 's390x': 'y'}>
 CONFIG_VLAN_8021Q_MVRP                          policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y', 's390x': 'y'}>
-CONFIG_VMAP_PFN                                 policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y'}>
+CONFIG_VMAP_PFN                                 policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y', 's390x': 'y'}>
 CONFIG_VMAP_STACK                               policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'riscv64': 'y', 's390x': 'y'}>
 CONFIG_VMCORE_INFO                              policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y', 's390x': 'y'}>
 CONFIG_VMCP                                     policy<{'s390x': 'y'}>
