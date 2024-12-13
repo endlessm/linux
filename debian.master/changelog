@@ -1,4 +1,4 @@
-linux-unstable (6.12.0-5.5) plucky; urgency=medium
+linux (6.12.0-5.5) plucky; urgency=medium
 
   * plucky/linux-unstable: 6.12.0-5.5 -proposed tracker (LP: #2091628)
 
