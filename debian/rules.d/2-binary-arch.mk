@@ -7,12 +7,8 @@ shlibdeps_opts = $(if $(CROSS_COMPILE),-- -l$(CROSS_COMPILE:%-=/usr/%)/lib)
 debian/scripts/fix-filenames: debian/scripts/fix-filenames.c
 	$(HOSTCC) $^ -o $@
 
-$(stampdir)/stamp-prepare-%: config-prepare-check-%
-	@echo Debug: $@
-	$(stamp)
-
-$(stampdir)/stamp-prepare-tree-%: target_flavour = $*
-$(stampdir)/stamp-prepare-tree-%: debian/scripts/fix-filenames
+$(stampdir)/stamp-prepare-%: target_flavour = $*
+$(stampdir)/stamp-prepare-%: debian/scripts/fix-filenames
 	@echo Debug: $@
 	install -d $(builddir)/build-$*
 	touch $(builddir)/build-$*/ubuntu-build
@@ -21,6 +17,10 @@ $(stampdir)/stamp-prepare-tree-%: debian/scripts/fix-filenames
 	find $(builddir)/build-$* -name "*.ko" | xargs rm -f
 	$(kmake) O=$(builddir)/build-$* $(conc_level) rustavailable || true
 	$(kmake) O=$(builddir)/build-$* $(conc_level) olddefconfig
+ifneq ($(do_skip_checks),true)
+	python3 debian/scripts/misc/annotations -f $(CURDIR)/$(DEBIAN)/config/annotations \
+		--arch $(arch) --flavour $* --check $(builddir)/build-$*/.config
+endif
 	$(stamp)
 
 # Used by developers as a shortcut to prepare a tree for compilation.
