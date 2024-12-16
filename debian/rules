@@ -161,9 +161,6 @@ include debian/rules.d/2-binary-arch.mk
 # Builds the source and linux-headers indep packages
 include debian/rules.d/3-binary-indep.mk
 
-# Various checks to be performed on builds
-include debian/rules.d/4-checks.mk
-
 control_files := $(DEBIAN)/control.stub.in
 ifeq ($(DEB_SOURCE),linux)
 	control_files += debian/control.d/linux-libc-dev.stub
