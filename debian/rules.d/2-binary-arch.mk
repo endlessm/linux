@@ -33,7 +33,7 @@ build-%: $(stampdir)/stamp-install-%
 # Do the actual build, including image and modules
 $(stampdir)/stamp-build-%: target_flavour = $*
 $(stampdir)/stamp-build-%: bldimg = $(call custom_override,build_image,$*)
-$(stampdir)/stamp-build-%: $(stampdir)/stamp-prepare-%
+$(stampdir)/stamp-build-%: $(stampdir)/stamp-build-perarch $(stampdir)/stamp-prepare-%
 	@echo Debug: $@ build_image $(build_image) bldimg $(bldimg)
 	$(kmake) O=$(builddir)/build-$* $(conc_level) $(bldimg) modules $(if $(filter true,$(do_dtbs)),dtbs)
 
@@ -42,6 +42,14 @@ ifeq ($(do_dbgsym_package),true)
 	if grep -q CONFIG_GDB_SCRIPTS=y $(builddir)/build-$*/.config; then \
 		$(kmake) O=$(builddir)/build-$* $(conc_level) scripts_gdb ; \
 	fi
+endif
+
+ifeq ($(do_tools_bpftool),true)
+ifeq ($(do_tools_bpftool_stub),true)
+	echo '#error "Kernel does not support CONFIG_DEBUG_INFO_BTF"' > $(builddir)/build-$*/vmlinux.h
+else
+	$(builddirpa)/tools/bpf/bpftool/bpftool btf dump file $(builddir)/build-$*/vmlinux format c > $(builddir)/build-$*/vmlinux.h
+endif
 endif
 
 	# Collect the list of kernel source files used for this build. Need to do this early
@@ -98,6 +106,7 @@ $(stampdir)/stamp-install-%: dbgpkgdir = $(CURDIR)/debian/$(bin_pkg_name)-$*-dbg
 $(stampdir)/stamp-install-%: signingv = $(CURDIR)/debian/$(bin_pkg_name)-signing/$(DEB_VERSION_UPSTREAM)-$(DEB_REVISION)
 $(stampdir)/stamp-install-%: toolspkgdir = $(CURDIR)/debian/$(tools_flavour_pkg_name)-$*
 $(stampdir)/stamp-install-%: cloudpkgdir = $(CURDIR)/debian/$(cloud_flavour_pkg_name)-$*
+$(stampdir)/stamp-install-%: bpfdevpkgdir = $(CURDIR)/debian/linux-bpf-dev
 $(stampdir)/stamp-install-%: basepkg = $(hdrs_pkg_name)
 $(stampdir)/stamp-install-%: baserustpkg = $(rust_pkg_name)
 $(stampdir)/stamp-install-%: indeppkg = $(indep_hdrs_pkg_name)
@@ -116,7 +125,7 @@ $(foreach _m,$(all_dkms_modules), \
   $(eval $$(stampdir)/stamp-install-%: dkms_$(_m)_pkgdir = $$(CURDIR)/debian/$(dkms_$(_m)_pkg_name)-$$*) \
 )
 $(stampdir)/stamp-install-%: dbgpkgdir_dkms = $(if $(filter true,$(do_dbgsym_package)),$(dbgpkgdir)/usr/lib/debug/lib/modules/$(abi_release)-$*/kernel,"")
-$(stampdir)/stamp-install-%: $(stampdir)/stamp-build-% $(stampdir)/stamp-install-headers
+$(stampdir)/stamp-install-%: $(stampdir)/stamp-install-headers $(stampdir)/stamp-build-%
 	@echo Debug: $@ kernel_file $(kernel_file) kernfile $(kernfile) install_file $(install_file) instfile $(instfile)
 	dh_testdir
 	dh_prep -p$(bin_pkg_name)-$*
@@ -264,9 +273,6 @@ ifeq ($(do_dbgsym_package),true)
 	rm -f $(dbgpkgdir)/usr/lib/debug/lib/modules/$(abi_release)-$*/modules.*
 	rm -fr $(dbgpkgdir)/usr/lib/debug/lib/firmware
 endif
-ifeq ($(do_tools_bpftool),true)
-	cp $(builddir)/build-$*/vmlinux tools/bpf/bpftool/
-endif
 
 	# The flavour specific headers image
 	# TODO: Would be nice if we didn't have to dupe the original builddir
@@ -356,6 +362,11 @@ ifeq ($(do_tools_hyperv),true)
 	install -d $(cloudpkgdir)/usr/lib/linux-tools
 	$(LN) ../$(DEB_SOURCE)-tools-$(abi_release) $(cloudpkgdir)/usr/lib/linux-tools/$(abi_release)-$*
 endif
+endif
+ifeq ($(do_tools_bpftool),true)
+	install -d -m755 $(bpfdevpkgdir)/usr/include/$(DEB_HOST_MULTIARCH)/linux/
+	install -m644 $(builddir)/build-$*/vmlinux.h \
+		 $(bpfdevpkgdir)/usr/include/$(DEB_HOST_MULTIARCH)/linux/
 endif
 
 	# Build a temporary "installed headers" directory.
@@ -616,7 +627,7 @@ ifeq ($(do_any_tools),true)
 endif
 	$(stamp)
 
-$(stampdir)/stamp-build-perarch: $(stampdir)/stamp-prepare-perarch install-arch-headers build-arch
+$(stampdir)/stamp-build-perarch: install-arch-headers $(stampdir)/stamp-prepare-perarch
 	@echo Debug: $@
 ifeq ($(do_linux_tools),true)
 ifeq ($(do_tools_usbip),true)
@@ -644,14 +655,7 @@ ifeq ($(do_tools_perf),true)
 		$(kmake) prefix=/usr HAVE_CPLUS_DEMANGLE_SUPPORT=1 CROSS_COMPILE=$(CROSS_COMPILE) NO_LIBPERL=1 WERROR=0
 endif
 ifeq ($(do_tools_bpftool),true)
-	mv $(builddirpa)/tools/bpf/bpftool/vmlinux $(builddirpa)/vmlinux
 	$(kmake) CROSS_COMPILE=$(CROSS_COMPILE) -C $(builddirpa)/tools/bpf/bpftool
-ifneq ($(do_tools_bpftool_stub),true)
-	$(builddirpa)/tools/bpf/bpftool/bpftool btf dump file $(builddirpa)/vmlinux format c > $(builddirpa)/vmlinux.h
-else
-	echo '#error "Kernel does not support CONFIG_DEBUG_INFO_BTF"' > $(builddirpa)/vmlinux.h
-endif
-	rm -f $(builddirpa)/vmlinux
 endif
 ifeq ($(do_tools_x86),true)
 	cd $(builddirpa)/tools/power/x86/x86_energy_perf_policy && make CROSS_COMPILE=$(CROSS_COMPILE)
@@ -705,10 +709,6 @@ endif
 endif
 ifeq ($(do_tools_bpftool),true)
 	install -m755 $(builddirpa)/tools/bpf/bpftool/bpftool $(toolspkgdir)/usr/lib/$(DEB_SOURCE)-tools-$(abi_release)
-endif
-ifeq ($(do_tools_bpftool),true)
-	install -d -m755 $(CURDIR)/debian/linux-bpf-dev/usr/include/$(DEB_HOST_MULTIARCH)/linux/
-	install -m644 $(builddirpa)/vmlinux.h $(CURDIR)/debian/linux-bpf-dev/usr/include/$(DEB_HOST_MULTIARCH)/linux/vmlinux.h
 endif
 ifeq ($(do_tools_x86),true)
 	install -m755 \
