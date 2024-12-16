@@ -501,11 +501,10 @@ ifneq ($(do_full_build),false)
 endif
 	$(stamp)
 
-headers_tmp := $(CURDIR)/debian/tmp-headers
 headers_dir := $(CURDIR)/debian/linux-libc-dev
 
-.PHONY: install-arch-headers
-install-arch-headers:
+$(stampdir)/stamp-install-arch-headers: headers_tmp = $(CURDIR)/debian/tmp-headers
+$(stampdir)/stamp-install-arch-headers:
 	@echo Debug: $@
 	dh_testdir
 	dh_testroot
@@ -515,6 +514,7 @@ install-arch-headers:
 	mkdir $(headers_dir)/usr/include/$(DEB_HOST_MULTIARCH)
 	mv $(headers_dir)/usr/include/asm $(headers_dir)/usr/include/$(DEB_HOST_MULTIARCH)/
 	rm -rf $(headers_tmp)
+	$(stamp)
 
 define dh_all
 	dh_installchangelogs -p$(1)
@@ -539,7 +539,7 @@ define dh_all_inline
 endef
 
 .PHONY: binary-arch-headers
-binary-arch-headers: install-arch-headers
+binary-arch-headers: $(stampdir)/stamp-install-arch-headers
 	@echo Debug: $@
 	dh_testdir
 	dh_testroot
@@ -642,7 +642,7 @@ ifeq ($(do_any_tools),true)
 endif
 	$(stamp)
 
-$(stampdir)/stamp-build-perarch: install-arch-headers $(stampdir)/stamp-prepare-perarch
+$(stampdir)/stamp-build-perarch: $(stampdir)/stamp-install-arch-headers $(stampdir)/stamp-prepare-perarch
 	@echo Debug: $@
 ifeq ($(do_linux_tools),true)
 ifeq ($(do_tools_usbip),true)
