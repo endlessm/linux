@@ -336,6 +336,9 @@ endif
 	 INSTALL_DIR="$(pkgdir)" SOURCE_DIR="$(CURDIR)"			\
 	 run-parts -v debian/tests-build
 
+	# Run the module signature check
+	debian/scripts/checks/module-signature-check "$*" "$(pkgdir)" "$(pkgdir_ex)" $(do_skip_checks)
+
 	#
 	# Remove files which are generated at installation by postinst,
 	# except for modules.order and modules.builtin
@@ -562,7 +565,7 @@ $(foreach _m,$(all_dkms_modules), \
 )
 binary-%: rprovides = $(foreach _m,$(all_built-in_dkms_modules),$(if $(enable_$(_m)),$(foreach _r,$(dkms_$(_m)_rprovides),$(_r)$(comma) )))
 binary-%: target_flavour = $*
-binary-%: checks-%
+binary-%: $(stampdir)/stamp-install-%
 	@echo Debug: $@
 	dh_testdir
 	dh_testroot
