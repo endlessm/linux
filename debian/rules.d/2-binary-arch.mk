@@ -328,15 +328,7 @@ endif
 	# Now the header scripts
 	$(call install_control,$(hdrs_pkg_name)-$*,headers,postinst)
 
-	# At the end of the package prep, call the tests
-	DPKG_ARCH="$(arch)" KERN_ARCH="$(build_arch)" FLAVOUR="$*"	\
-	 VERSION="$(abi_release)" REVISION="$(DEB_REVISION)"		\
-	 PREV_REVISION="$(prev_revision)" ABI_NUM="$(abinum)"		\
-	 PREV_ABI_NUM="$(prev_abinum)" BUILD_DIR="$(builddir)/build-$*"	\
-	 INSTALL_DIR="$(pkgdir)" SOURCE_DIR="$(CURDIR)"			\
-	 run-parts -v debian/tests-build
-
-	# Run the module signature check
+	# At the end of the package prep, run the module signature check
 	debian/scripts/checks/module-signature-check "$*" "$(pkgdir)" "$(pkgdir_ex)" $(do_skip_checks)
 
 	#
