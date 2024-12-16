@@ -143,6 +143,13 @@ endif
 ifeq ($(do_extras_package),true)
 	dh_prep -p$(mods_extra_pkg_name)-$*
 endif
+ifeq ($(do_tools_bpftool),true)
+	# Do this only for the primary (first) flavor
+	# linux-bpf-dev is broken: It provides vmlinux.h which is a flavored header file!
+	if [ $* = $(firstword $(flavours)) ] ; then \
+		$(call if_package, linux-bpf-dev, dh_prep -plinux-bpf-dev) ; \
+	fi
+endif
 
 	# The main image
 	# compress_file logic required because not all architectures
@@ -364,9 +371,13 @@ ifeq ($(do_tools_hyperv),true)
 endif
 endif
 ifeq ($(do_tools_bpftool),true)
-	install -d -m755 $(bpfdevpkgdir)/usr/include/$(DEB_HOST_MULTIARCH)/linux/
-	install -m644 $(builddir)/build-$*/vmlinux.h \
-		 $(bpfdevpkgdir)/usr/include/$(DEB_HOST_MULTIARCH)/linux/
+	# Do this only for the primary (first) flavor
+	# linux-bpf-dev is broken: It provides vmlinux.h which is a flavored header file!
+	if [ $* = $(firstword $(flavours)) ] ; then \
+		install -d -m755 $(bpfdevpkgdir)/usr/include/$(DEB_HOST_MULTIARCH)/linux/ ; \
+		install -m644 $(builddir)/build-$*/vmlinux.h \
+			 $(bpfdevpkgdir)/usr/include/$(DEB_HOST_MULTIARCH)/linux/ ; \
+	fi
 endif
 
 	# Build a temporary "installed headers" directory.
@@ -610,7 +621,11 @@ ifeq ($(do_cloud_tools),true)
 	$(call dh_all,$(pkgcloud))
 endif
 ifeq ($(do_tools_bpftool),true)
-	$(call if_package, linux-bpf-dev, $(call dh_all,linux-bpf-dev))
+	# Do this only for the primary (first) flavor
+	# linux-bpf-dev is broken: It provides vmlinux.h which is a flavored header file!
+	if [ $* = $(firstword $(flavours)) ] ; then \
+		$(call if_package, linux-bpf-dev, $(call dh_all_inline,linux-bpf-dev)) ; \
+	fi
 endif
 
 #
