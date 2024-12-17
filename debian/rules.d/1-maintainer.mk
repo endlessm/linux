@@ -39,7 +39,6 @@ printenv:
 	@echo "DEB_VERSION_UPSTREAM      = $(DEB_VERSION_UPSTREAM)"
 	@echo "DEB_REVISION              = $(DEB_REVISION)"
 	@echo "uploadnum                 = $(uploadnum)"
-	@echo "prev_revision             = $(prev_revision)"
 	@echo "abinum                    = $(abinum)"
 	@echo "upstream_tag              = $(upstream_tag)"
 	@echo "flavours                  = $(flavours)"

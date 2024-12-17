@@ -62,7 +62,6 @@ ifeq ($(filter $(DEB_BUILD_OPTIONS),noautodbgsym),noautodbgsym)
 endif
 
 abinum		:= $(firstword $(subst .,$(space),$(DEB_REVISION)))
-prev_abinum	:= $(firstword $(subst .,$(space),$(prev_revision)))
 abi_release	:= $(DEB_VERSION_UPSTREAM)-$(abinum)
 
 uploadnum	:= $(patsubst $(abinum).%,%,$(DEB_REVISION))
