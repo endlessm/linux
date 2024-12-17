@@ -1,6 +1,9 @@
 # We don't want make removing intermediary stamps
 .SECONDARY :
 
+# Per-flavor variables (evaluated at runtime)
+abi_dir = $(builddir)/abi-$*
+
 # TODO this is probably wrong, and should be using $(DEB_HOST_MULTIARCH)
 shlibdeps_opts = $(if $(CROSS_COMPILE),-- -l$(CROSS_COMPILE:%-=/usr/%)/lib)
 
@@ -119,7 +122,6 @@ $(stampdir)/stamp-install-%: MODHASHALGO=sha512
 $(stampdir)/stamp-install-%: MODSECKEY=$(builddir)/build-$*/certs/signing_key.pem
 $(stampdir)/stamp-install-%: MODPUBKEY=$(builddir)/build-$*/certs/signing_key.x509
 $(stampdir)/stamp-install-%: build_dir=$(builddir)/build-$*
-$(stampdir)/stamp-install-%: abidir=$(builddir)/abi-$*
 $(stampdir)/stamp-install-%: dkms_dir=$(call dkms_dir_prefix,$(builddir)/build-$*)
 $(foreach _m,$(all_dkms_modules), \
   $(eval $$(stampdir)/stamp-install-%: enable_$(_m) = $$(filter true,$$(call custom_override,do_$(_m),$$*))) \
@@ -415,31 +417,31 @@ ifeq ($(do_dbgsym_package),true)
 endif
 
 	# Build the final ABI information.
-	install -d $(abidir)
+	install -d $(abi_dir)
 	sed -e 's/^\(.\+\)[[:space:]]\+\(.\+\)[[:space:]]\(.\+\)$$/\3 \2 \1/'	\
-		$(builddir)/build-$*/Module.symvers | sort > $(abidir)/$*
+		$(builddir)/build-$*/Module.symvers | sort > $(abi_dir)/$*
 
 	# Build the final ABI modules information.
 	find $(pkgdir_bin) $(pkgdir) $(pkgdir_ex) \( -name '*.ko' -o -name '*.ko.*' \) | \
-		sed -e 's/.*\/\([^\/]*\)\.ko.*/\1/' | sort > $(abidir)/$*.modules
+		sed -e 's/.*\/\([^\/]*\)\.ko.*/\1/' | sort > $(abi_dir)/$*.modules
 
 	# Build the final ABI built-in modules information.
 	if [ -f $(pkgdir)/lib/modules/$(abi_release)-$*/modules.builtin ] ; then \
 		sed -e 's/.*\/\([^\/]*\)\.ko/\1/' $(pkgdir)/lib/modules/$(abi_release)-$*/modules.builtin | \
-			sort > $(abidir)/$*.modules.builtin; \
+			sort > $(abi_dir)/$*.modules.builtin; \
 	fi
 
 	# Build the final ABI firmware information.
 	find $(pkgdir_bin) $(pkgdir) $(pkgdir_ex) -name \*.ko | \
 	while read ko; do \
 		/sbin/modinfo $$ko | grep ^firmware || true; \
-	done | sort -u >$(abidir)/$*.fwinfo
+	done | sort -u >$(abi_dir)/$*.fwinfo
 
 	# Build the final ABI built-in firmware information.
 	if [ -f $(pkgdir)/lib/modules/$(abi_release)-$*/modules.builtin.modinfo ] ; then \
 		cat $(pkgdir)/lib/modules/$(abi_release)-$*/modules.builtin.modinfo | \
 			tr '\0' '\n' | sed -n 's/^.*firmware=/firmware: /p' | \
-			sort -u > $(abidir)/$*.fwinfo.builtin; \
+			sort -u > $(abi_dir)/$*.fwinfo.builtin; \
 	fi
 
 	# Build the final ABI compiler information.
@@ -451,26 +453,26 @@ endif
 				printf(" %s", $$n); \
 			} \
 			print "" \
-		}' | sort -u >$(abidir)/$*.compiler
+		}' | sort -u >$(abi_dir)/$*.compiler
 
 	# Build the buildinfo package content.
 	install -d $(pkgdir_bldinfo)/usr/lib/linux/$(abi_release)-$*
 	install -m644 $(builddir)/build-$*/.config \
 		$(pkgdir_bldinfo)/usr/lib/linux/$(abi_release)-$*/config
-	install -m644 $(abidir)/$* \
+	install -m644 $(abi_dir)/$* \
 		$(pkgdir_bldinfo)/usr/lib/linux/$(abi_release)-$*/abi
-	install -m644 $(abidir)/$*.modules \
+	install -m644 $(abi_dir)/$*.modules \
 		$(pkgdir_bldinfo)/usr/lib/linux/$(abi_release)-$*/modules
-	install -m644 $(abidir)/$*.fwinfo \
+	install -m644 $(abi_dir)/$*.fwinfo \
 		$(pkgdir_bldinfo)/usr/lib/linux/$(abi_release)-$*/fwinfo
-	install -m644 $(abidir)/$*.compiler \
+	install -m644 $(abi_dir)/$*.compiler \
 		$(pkgdir_bldinfo)/usr/lib/linux/$(abi_release)-$*/compiler
-	if [ -f $(abidir)/$*.modules.builtin ] ; then \
-		install -m644 $(abidir)/$*.modules.builtin \
+	if [ -f $(abi_dir)/$*.modules.builtin ] ; then \
+		install -m644 $(abi_dir)/$*.modules.builtin \
 			$(pkgdir_bldinfo)/usr/lib/linux/$(abi_release)-$*/modules.builtin; \
 	fi
-	if [ -f $(abidir)/$*.fwinfo.builtin ] ; then \
-		install -m644 $(abidir)/$*.fwinfo.builtin \
+	if [ -f $(abi_dir)/$*.fwinfo.builtin ] ; then \
+		install -m644 $(abi_dir)/$*.fwinfo.builtin \
 			$(pkgdir_bldinfo)/usr/lib/linux/$(abi_release)-$*/fwinfo.builtin; \
 	fi
 	install -m644 debian/canonical-certs.pem $(pkgdir_bldinfo)/usr/lib/linux/$(abi_release)-$*/canonical-certs.pem
@@ -494,7 +496,7 @@ endif
 ifneq ($(do_full_build),false)
 	# Clean out this flavours build directory.
 	rm -rf $(builddir)/build-$*
-	rm -rf $(abidir)
+	rm -rf $(abi_dir)
 endif
 	$(stamp)
 
