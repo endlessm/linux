@@ -3,6 +3,7 @@
 
 # Per-flavor variables (evaluated at runtime)
 abi_dir = $(builddir)/abi-$*
+build_dir = $(builddir)/build-$*
 
 # TODO this is probably wrong, and should be using $(DEB_HOST_MULTIARCH)
 shlibdeps_opts = $(if $(CROSS_COMPILE),-- -l$(CROSS_COMPILE:%-=/usr/%)/lib)
@@ -13,16 +14,16 @@ debian/scripts/fix-filenames: debian/scripts/fix-filenames.c
 $(stampdir)/stamp-prepare-%: target_flavour = $*
 $(stampdir)/stamp-prepare-%: debian/scripts/fix-filenames
 	@echo Debug: $@
-	install -d $(builddir)/build-$*
-	touch $(builddir)/build-$*/ubuntu-build
-	python3 debian/scripts/misc/annotations --export --arch $(arch) --flavour $(target_flavour) > $(builddir)/build-$*/.config
-	sed -i 's/.*CONFIG_VERSION_SIGNATURE.*/CONFIG_VERSION_SIGNATURE="Ubuntu $(DEB_VERSION_UPSTREAM)-$(DEB_REVISION)-$* $(raw_kernelversion)"/' $(builddir)/build-$*/.config
-	find $(builddir)/build-$* -name "*.ko" | xargs rm -f
-	$(kmake) O=$(builddir)/build-$* $(conc_level) rustavailable || true
-	$(kmake) O=$(builddir)/build-$* $(conc_level) olddefconfig
+	install -d $(build_dir)
+	touch $(build_dir)/ubuntu-build
+	python3 debian/scripts/misc/annotations --export --arch $(arch) --flavour $(target_flavour) > $(build_dir)/.config
+	sed -i 's/.*CONFIG_VERSION_SIGNATURE.*/CONFIG_VERSION_SIGNATURE="Ubuntu $(DEB_VERSION_UPSTREAM)-$(DEB_REVISION)-$* $(raw_kernelversion)"/' $(build_dir)/.config
+	find $(build_dir) -name "*.ko" | xargs rm -f
+	$(kmake) O=$(build_dir) $(conc_level) rustavailable || true
+	$(kmake) O=$(build_dir) $(conc_level) olddefconfig
 ifneq ($(do_skip_checks),true)
 	python3 debian/scripts/misc/annotations -f $(CURDIR)/$(DEBIAN)/config/annotations \
-		--arch $(arch) --flavour $* --check $(builddir)/build-$*/.config
+		--arch $(arch) --flavour $* --check $(build_dir)/.config
 endif
 	$(stamp)
 
@@ -38,29 +39,29 @@ $(stampdir)/stamp-build-%: target_flavour = $*
 $(stampdir)/stamp-build-%: bldimg = $(call custom_override,build_image,$*)
 $(stampdir)/stamp-build-%: $(stampdir)/stamp-build-perarch $(stampdir)/stamp-prepare-%
 	@echo Debug: $@ build_image $(build_image) bldimg $(bldimg)
-	$(kmake) O=$(builddir)/build-$* $(conc_level) $(bldimg) modules $(if $(filter true,$(do_dtbs)),dtbs)
+	$(kmake) O=$(build_dir) $(conc_level) $(bldimg) modules $(if $(filter true,$(do_dtbs)),dtbs)
 
 ifeq ($(do_dbgsym_package),true)
 	# The target scripts_gdb is part of "all", so we need to call it manually
-	if grep -q CONFIG_GDB_SCRIPTS=y $(builddir)/build-$*/.config; then \
-		$(kmake) O=$(builddir)/build-$* $(conc_level) scripts_gdb ; \
+	if grep -q CONFIG_GDB_SCRIPTS=y $(build_dir)/.config; then \
+		$(kmake) O=$(build_dir) $(conc_level) scripts_gdb ; \
 	fi
 endif
 
 ifeq ($(do_tools_bpftool),true)
 ifeq ($(do_tools_bpftool_stub),true)
-	echo '#error "Kernel does not support CONFIG_DEBUG_INFO_BTF"' > $(builddir)/build-$*/vmlinux.h
+	echo '#error "Kernel does not support CONFIG_DEBUG_INFO_BTF"' > $(build_dir)/vmlinux.h
 else
-	$(builddirpa)/tools/bpf/bpftool/bpftool btf dump file $(builddir)/build-$*/vmlinux format c > $(builddir)/build-$*/vmlinux.h
+	$(builddirpa)/tools/bpf/bpftool/bpftool btf dump file $(build_dir)/vmlinux format c > $(build_dir)/vmlinux.h
 endif
 endif
 
 	# Collect the list of kernel source files used for this build. Need to do this early
 	# before modules are stripped. Fail if the resulting file is empty.
-	find $(builddir)/build-$* \( -name vmlinux -o -name \*.ko \) -exec dwarfdump -i {} \; | \
+	find $(build_dir) \( -name vmlinux -o -name \*.ko \) -exec dwarfdump -i {} \; | \
 		grep -E 'DW_AT_(call|decl)_file' | sed -n 's|.*\s/|/|p' | sort -u > \
-		$(builddir)/build-$*/sources.list
-	test -s $(builddir)/build-$*/sources.list
+		$(build_dir)/sources.list
+	test -s $(build_dir)/sources.list
 
 	$(stamp)
 
@@ -73,7 +74,7 @@ define build_dkms_sign =
 	)
 endef
 define build_dkms =
-	rc=0; unset MAKEFLAGS; ARCH=$(build_arch) CROSS_COMPILE=$(CROSS_COMPILE) $(SHELL) debian/scripts/dkms-build $(dkms_dir) $(abi_release)-$* '$(call build_dkms_sign,$(builddir)/build-$*)' $(1) $(2) $(3) $(4) $(5) || rc=$$?; if [ "$$rc" = "9" -o "$$rc" = "77" ]; then echo do_$(4)_$*=false >> $(builddir)/skipped-dkms.mk; rc=0; fi; if [ "$$rc" != "0" ]; then exit $$rc; fi
+	rc=0; unset MAKEFLAGS; ARCH=$(build_arch) CROSS_COMPILE=$(CROSS_COMPILE) $(SHELL) debian/scripts/dkms-build $(dkms_dir) $(abi_release)-$* '$(call build_dkms_sign,$(build_dir))' $(1) $(2) $(3) $(4) $(5) || rc=$$?; if [ "$$rc" = "9" -o "$$rc" = "77" ]; then echo do_$(4)_$*=false >> $(builddir)/skipped-dkms.mk; rc=0; fi; if [ "$$rc" != "0" ]; then exit $$rc; fi
 endef
 
 define install_control =
@@ -119,10 +120,9 @@ $(stampdir)/stamp-install-%: hdrdir = $(CURDIR)/debian/$(basepkg)-$*/usr/src/$(b
 $(stampdir)/stamp-install-%: rustdir = $(CURDIR)/debian/$(baserustpkg)-$*/usr/src/$(baserustpkg)-$*
 $(stampdir)/stamp-install-%: target_flavour = $*
 $(stampdir)/stamp-install-%: MODHASHALGO=sha512
-$(stampdir)/stamp-install-%: MODSECKEY=$(builddir)/build-$*/certs/signing_key.pem
-$(stampdir)/stamp-install-%: MODPUBKEY=$(builddir)/build-$*/certs/signing_key.x509
-$(stampdir)/stamp-install-%: build_dir=$(builddir)/build-$*
-$(stampdir)/stamp-install-%: dkms_dir=$(call dkms_dir_prefix,$(builddir)/build-$*)
+$(stampdir)/stamp-install-%: MODSECKEY=$(build_dir)/certs/signing_key.pem
+$(stampdir)/stamp-install-%: MODPUBKEY=$(build_dir)/certs/signing_key.x509
+$(stampdir)/stamp-install-%: dkms_dir=$(call dkms_dir_prefix,$(build_dir))
 $(foreach _m,$(all_dkms_modules), \
   $(eval $$(stampdir)/stamp-install-%: enable_$(_m) = $$(filter true,$$(call custom_override,do_$(_m),$$*))) \
   $(eval $$(stampdir)/stamp-install-%: dkms_$(_m)_pkgdir = $$(CURDIR)/debian/$(dkms_$(_m)_pkg_name)-$$*) \
@@ -158,32 +158,32 @@ endif
 	# compress_file logic required because not all architectures
 	# generate a zImage automatically out of the box
 ifeq ($(compress_file),)
-	install -m600 -D $(builddir)/build-$*/$(kernfile) \
+	install -m600 -D $(build_dir)/$(kernfile) \
 		$(pkgdir_bin)/boot/$(instfile)-$(abi_release)-$*
 else
 	install -d $(pkgdir_bin)/boot
-	gzip -c9v $(builddir)/build-$*/$(kernfile) > \
+	gzip -c9v $(build_dir)/$(kernfile) > \
 		$(pkgdir_bin)/boot/$(instfile)-$(abi_release)-$*
 	chmod 600 $(pkgdir_bin)/boot/$(instfile)-$(abi_release)-$*
 endif
 	install -d $(pkgdir)/boot
-	install -m644 $(builddir)/build-$*/.config \
+	install -m644 $(build_dir)/.config \
 		$(pkgdir)/boot/config-$(abi_release)-$*
-	install -m600 $(builddir)/build-$*/System.map \
+	install -m600 $(build_dir)/System.map \
 		$(pkgdir)/boot/System.map-$(abi_release)-$*
 
 ifeq ($(do_dtbs),true)
-	$(kmake) O=$(builddir)/build-$* $(conc_level) dtbs_install \
+	$(kmake) O=$(build_dir) $(conc_level) dtbs_install \
 		INSTALL_DTBS_PATH=$(pkgdir)/lib/firmware/$(abi_release)-$*/device-tree
 endif
 
 ifeq ($(no_dumpfile),)
 	makedumpfile -g $(pkgdir)/boot/vmcoreinfo-$(abi_release)-$* \
-		-x $(builddir)/build-$*/vmlinux
+		-x $(build_dir)/vmlinux
 	chmod 0600 $(pkgdir)/boot/vmcoreinfo-$(abi_release)-$*
 endif
 
-	$(kmake) O=$(builddir)/build-$* $(conc_level) modules_install $(vdso) \
+	$(kmake) O=$(build_dir) $(conc_level) modules_install $(vdso) \
 		INSTALL_MOD_STRIP=1 INSTALL_MOD_PATH=$(pkgdir)
 
 	#
@@ -235,7 +235,7 @@ endif
 
 ifeq ($(no_dumpfile),)
 	makedumpfile -g $(pkgdir)/boot/vmcoreinfo-$(abi_release)-$* \
-		-x $(builddir)/build-$*/vmlinux
+		-x $(build_dir)/vmlinux
 	chmod 0600 $(pkgdir)/boot/vmcoreinfo-$(abi_release)-$*
 endif
 	rm -f $(pkgdir)/lib/modules/$(abi_release)-$*/build
@@ -269,13 +269,13 @@ endif
 
 ifeq ($(do_dbgsym_package),true)
 	# Debug image is simple
-	install -m644 -D $(builddir)/build-$*/vmlinux \
+	install -m644 -D $(build_dir)/vmlinux \
 		$(dbgpkgdir)/usr/lib/debug/boot/vmlinux-$(abi_release)-$*
-	if [ -d $(builddir)/build-$*/scripts/gdb/linux ]; then \
-		install -m644 -D $(builddir)/build-$*/vmlinux-gdb.py \
+	if [ -d $(build_dir)/scripts/gdb/linux ]; then \
+		install -m644 -D $(build_dir)/vmlinux-gdb.py \
 			$(dbgpkgdir)/usr/share/gdb/auto-load/boot/vmlinux-$(abi_release)-$*/vmlinuz-$(abi_release)-$*-gdb.py; \
 	fi
-	$(kmake) O=$(builddir)/build-$* modules_install $(vdso) \
+	$(kmake) O=$(build_dir) modules_install $(vdso) \
 		INSTALL_MOD_PATH=$(dbgpkgdir)/usr/lib/debug
 	# Add .gnu_debuglink sections only after all/DKMS modules are built.
 	rm -f $(dbgpkgdir)/usr/lib/debug/lib/modules/$(abi_release)-$*/build
@@ -287,7 +287,7 @@ endif
 	# The flavour specific headers image
 	# TODO: Would be nice if we didn't have to dupe the original builddir
 	install -d -m755 $(hdrdir)
-	cp $(builddir)/build-$*/.config $(hdrdir)
+	cp $(build_dir)/.config $(hdrdir)
 	chmod 644 $(hdrdir)/.config
 	$(kmake) O=$(hdrdir) -j1 syncconfig prepare scripts
 	# Makefile may need per-arch-flavour CC settings, which are
@@ -301,23 +301,23 @@ endif
 	grep '^CC	.*$(gcc)$$' $(hdrdir)/Makefile
 	rm -rf $(hdrdir)/include2 $(hdrdir)/source
 	# Copy over the compilation version.
-	cp "$(builddir)/build-$*/include/generated/compile.h" \
+	cp "$(build_dir)/include/generated/compile.h" \
 		"$(hdrdir)/include/generated/compile.h"
 	# Add UTS_UBUNTU_RELEASE_ABI since UTS_RELEASE is difficult to parse.
 	echo "#define UTS_UBUNTU_RELEASE_ABI $(abinum)" >> $(hdrdir)/include/generated/utsrelease.h
 	# powerpc kernel arch seems to need some .o files for external module linking. Add them in.
 ifeq ($(build_arch),powerpc)
 	mkdir -p $(hdrdir)/arch/powerpc/lib
-	cp $(builddir)/build-$*/arch/powerpc/lib/*.o $(hdrdir)/arch/powerpc/lib
+	cp $(build_dir)/arch/powerpc/lib/*.o $(hdrdir)/arch/powerpc/lib
 endif
 ifeq ($(build_arch),s390)
-	if [ -n "$$(find $(builddir)/build-$*/arch/s390/lib/expoline -maxdepth 1 -name '*.o' -print -quit)" ]; then \
+	if [ -n "$$(find $(build_dir)/arch/s390/lib/expoline -maxdepth 1 -name '*.o' -print -quit)" ]; then \
 		mkdir -p $(hdrdir)/arch/s390/lib/expoline/; \
-		cp $(builddir)/build-$*/arch/s390/lib/expoline/*.o $(hdrdir)/arch/s390/lib/expoline/; \
+		cp $(build_dir)/arch/s390/lib/expoline/*.o $(hdrdir)/arch/s390/lib/expoline/; \
 	fi
 endif
 	# Copy over scripts/module.lds for building external modules
-	cp $(builddir)/build-$*/scripts/module.lds $(hdrdir)/scripts
+	cp $(build_dir)/scripts/module.lds $(hdrdir)/scripts
 	# Script to symlink everything up
 	$(SHELL) debian/scripts/link-headers "$(hdrdir)" "$(indeppkg)" "$*"
 	# The build symlink
@@ -325,7 +325,7 @@ endif
 	$(LN) /usr/src/$(basepkg)-$* \
 		debian/$(basepkg)-$*/lib/modules/$(abi_release)-$*/build
 	# And finally the symvers
-	install -m644 $(builddir)/build-$*/Module.symvers \
+	install -m644 $(build_dir)/Module.symvers \
 		$(hdrdir)/Module.symvers
 
 	# Now the header scripts
@@ -373,7 +373,7 @@ ifeq ($(do_tools_bpftool),true)
 	# linux-bpf-dev is broken: It provides vmlinux.h which is a flavored header file!
 	if [ $* = $(firstword $(flavours)) ] ; then \
 		install -d -m755 $(bpfdevpkgdir)/usr/include/$(DEB_HOST_MULTIARCH)/linux/ ; \
-		install -m644 $(builddir)/build-$*/vmlinux.h \
+		install -m644 $(build_dir)/vmlinux.h \
 			 $(bpfdevpkgdir)/usr/include/$(DEB_HOST_MULTIARCH)/linux/ ; \
 	fi
 endif
@@ -403,9 +403,9 @@ ifeq ($(do_dbgsym_package),true)
 			$(CROSS_COMPILE)objcopy \
 				--add-gnu-debuglink=$(dbgpkgdir)/usr/lib/debug/$$module \
 				$$path_module; \
-			if grep -q CONFIG_MODULE_SIG=y $(builddir)/build-$*/.config && \
+			if grep -q CONFIG_MODULE_SIG=y $(build_dir)/.config && \
 			   [ "$$signature" = $$'~Module signature appended~\n' ]; then \
-				$(builddir)/build-$*/scripts/sign-file $(MODHASHALGO) \
+				$(build_dir)/scripts/sign-file $(MODHASHALGO) \
 					$(MODSECKEY) \
 					$(MODPUBKEY) \
 					$$path_module; \
@@ -419,7 +419,7 @@ endif
 	# Build the final ABI information.
 	install -d $(abi_dir)
 	sed -e 's/^\(.\+\)[[:space:]]\+\(.\+\)[[:space:]]\(.\+\)$$/\3 \2 \1/'	\
-		$(builddir)/build-$*/Module.symvers | sort > $(abi_dir)/$*
+		$(build_dir)/Module.symvers | sort > $(abi_dir)/$*
 
 	# Build the final ABI modules information.
 	find $(pkgdir_bin) $(pkgdir) $(pkgdir_ex) \( -name '*.ko' -o -name '*.ko.*' \) | \
@@ -457,7 +457,7 @@ endif
 
 	# Build the buildinfo package content.
 	install -d $(pkgdir_bldinfo)/usr/lib/linux/$(abi_release)-$*
-	install -m644 $(builddir)/build-$*/.config \
+	install -m644 $(build_dir)/.config \
 		$(pkgdir_bldinfo)/usr/lib/linux/$(abi_release)-$*/config
 	install -m644 $(abi_dir)/$* \
 		$(pkgdir_bldinfo)/usr/lib/linux/$(abi_release)-$*/abi
@@ -478,7 +478,7 @@ endif
 	install -m644 debian/canonical-certs.pem $(pkgdir_bldinfo)/usr/lib/linux/$(abi_release)-$*/canonical-certs.pem
 	install -m644 debian/canonical-revoked-certs.pem $(pkgdir_bldinfo)/usr/lib/linux/$(abi_release)-$*/canonical-revoked-certs.pem
 	# List of source files used for this build
-	install -m644 $(builddir)/build-$*/sources.list $(pkgdir_bldinfo)/usr/lib/linux/$(abi_release)-$*/sources
+	install -m644 $(build_dir)/sources.list $(pkgdir_bldinfo)/usr/lib/linux/$(abi_release)-$*/sources
 
 	# Get rid of .o and .cmd artifacts in headers
 	find $(hdrdir) -name \*.o -or -name \*.cmd -exec rm -f {} \;
@@ -495,7 +495,7 @@ endif
 
 ifneq ($(do_full_build),false)
 	# Clean out this flavours build directory.
-	rm -rf $(builddir)/build-$*
+	rm -rf $(build_dir)
 	rm -rf $(abi_dir)
 endif
 	$(stamp)
