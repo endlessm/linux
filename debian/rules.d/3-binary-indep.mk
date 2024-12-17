@@ -10,9 +10,10 @@ build-indep:
 indep_hdrpkg = $(indep_hdrs_pkg_name)
 indep_hdrdir = $(CURDIR)/debian/$(indep_hdrpkg)/usr/src/$(indep_hdrpkg)
 
-$(stampdir)/stamp-install-headers: $(stampdir)/stamp-prepare-indep
+$(stampdir)/stamp-install-headers:
 	@echo Debug: $@
 	dh_testdir
+	dh_prep -p$(indep_hdrpkg)
 
 ifeq ($(do_flavour_header_package),true)
 	install -d $(indep_hdrdir)
@@ -34,9 +35,10 @@ endif
 srcpkg = linux-source-$(DEB_VERSION_UPSTREAM)
 srcdir = $(CURDIR)/debian/$(srcpkg)/usr/src/$(srcpkg)
 balldir = $(CURDIR)/debian/$(srcpkg)/usr/src/$(srcpkg)/$(srcpkg)
-install-source: $(stampdir)/stamp-prepare-indep
+install-source:
 	@echo Debug: $@
 ifeq ($(do_source_package),true)
+	dh_prep -p$(srcpkg)
 
 	install -d $(srcdir)
 ifeq ($(do_source_package_content),true)
@@ -65,10 +67,12 @@ install-tools: cloudpkg = $(cloud_common_pkg_name)
 install-tools: cloudbin = $(CURDIR)/debian/$(cloudpkg)/usr/bin
 install-tools: cloudsbin = $(CURDIR)/debian/$(cloudpkg)/usr/sbin
 install-tools: cloudman = $(CURDIR)/debian/$(cloudpkg)/usr/share/man
-install-tools: $(stampdir)/stamp-prepare-indep $(stampdir)/stamp-build-perarch
+install-tools: $(stampdir)/stamp-build-perarch
 	@echo Debug: $@
 
 ifeq ($(do_tools_common),true)
+	dh_prep -p$(toolspkg)
+
 	rm -rf $(builddir)/tools
 	install -d $(builddir)/tools
 	for i in *; do $(LN) $(CURDIR)/$$i $(builddir)/tools/; done
@@ -117,6 +121,8 @@ ifeq ($(do_tools_perf_python),true)
 endif
 ifeq ($(do_cloud_tools),true)
 ifeq ($(do_tools_hyperv),true)
+	dh_prep -p$(cloudpkg)
+
 	install -d $(cloudsbin)
 	install -m755 debian/tools/generic $(cloudsbin)/hv_kvp_daemon
 	install -m755 debian/tools/generic $(cloudsbin)/hv_vss_daemon
@@ -140,6 +146,8 @@ endif
 endif
 
 ifeq ($(do_tools_host),true)
+	dh_prep -p$(hosttoolspkg)
+
 	install -d $(hosttoolsbin)
 	install -d $(hosttoolsman)/man1
 	install -d $(hosttoolssystemd)
@@ -153,11 +161,6 @@ ifeq ($(do_tools_host),true)
 		$(hosttoolsman)/man1
 endif
 
-$(stampdir)/stamp-prepare-indep:
-	@echo Debug: $@
-	dh_prep -i
-	$(stamp)
-
 .PHONY: install-indep
 install-indep: $(stampdir)/stamp-install-headers install-source install-tools
 	@echo Debug: $@
@@ -165,7 +168,7 @@ install-indep: $(stampdir)/stamp-install-headers install-source install-tools
 # This is just to make it easy to call manually. Normally done in
 # binary-indep target during builds.
 .PHONY: binary-headers
-binary-headers: $(stampdir)/stamp-prepare-indep $(stampdir)/stamp-install-headers
+binary-headers: $(stampdir)/stamp-install-headers
 	@echo Debug: $@
 	dh_installchangelogs -p$(indep_hdrpkg)
 	dh_installdocs -p$(indep_hdrpkg)
