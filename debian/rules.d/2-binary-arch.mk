@@ -536,7 +536,6 @@ binary-arch-headers: $(stampdir)/stamp-install-arch-headers
 binary-%: pkgimg = $(bin_pkg_name)-$*
 binary-%: pkgimg_mods = $(mods_pkg_name)-$*
 binary-%: pkgimg_ex = $(mods_extra_pkg_name)-$*
-binary-%: pkgdir_ex = $(CURDIR)/debian/$(extra_pkg_name)-$*
 binary-%: pkgbldinfo = $(bldinfo_pkg_name)-$*
 binary-%: pkghdr = $(hdrs_pkg_name)-$*
 binary-%: pkgrust = $(rust_pkg_name)-$*
@@ -557,18 +556,9 @@ binary-%: $(stampdir)/stamp-install-%
 	$(call dh_all,$(pkgimg_mods))$(if $(do_zstd_ko), -- -Znone)
 
 ifeq ($(do_extras_package),true)
-  ifeq ($(ship_extras_package),false)
-	# If $(ship_extras_package) is explicitly set to false, then do not
-	# construct the linux-image-extra package; instead just log all of the
-	# "extra" modules which were pointlessly built yet won't be shipped.
-	find $(pkgdir_ex) -name '*.ko' | sort \
-		| sed 's|^$(pkgdir_ex)/|NOT-SHIPPED |' \
-		| tee -a $*.not-shipped.log;
-  else
 	if [ -f $(DEBIAN)/control.d/$*.inclusion-list ] ; then \
 		$(call dh_all_inline,$(pkgimg_ex))$(if $(do_zstd_ko), -- -Znone); \
 	fi
-  endif
 endif
 
 	$(foreach _m,$(all_standalone_dkms_modules), \
