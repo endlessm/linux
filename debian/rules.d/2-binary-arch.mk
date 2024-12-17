@@ -152,17 +152,8 @@ ifeq ($(do_tools_bpftool),true)
 endif
 
 	# The main image
-	# compress_file logic required because not all architectures
-	# generate a zImage automatically out of the box
-ifeq ($(compress_file),)
 	install -m600 -D $(build_dir)/$(kernfile) \
 		$(pkgdir_bin)/boot/$(instfile)-$(abi_release)-$*
-else
-	install -d $(pkgdir_bin)/boot
-	gzip -c9v $(build_dir)/$(kernfile) > \
-		$(pkgdir_bin)/boot/$(instfile)-$(abi_release)-$*
-	chmod 600 $(pkgdir_bin)/boot/$(instfile)-$(abi_release)-$*
-endif
 	install -d $(pkgdir)/boot
 	install -m644 $(build_dir)/.config \
 		$(pkgdir)/boot/config-$(abi_release)-$*
