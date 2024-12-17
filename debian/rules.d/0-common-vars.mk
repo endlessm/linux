@@ -196,7 +196,7 @@ PYTHON ?= $(firstword $(wildcard /usr/bin/python3) $(wildcard /usr/bin/python2) 
 
 HOSTCC ?= $(DEB_BUILD_GNU_TYPE)-$(gcc)
 
-# target_flavour is filled in for each step
+# $* is the flavour name which is filled in for each step
 kmake = make ARCH=$(build_arch) \
 	CROSS_COMPILE=$(CROSS_COMPILE) \
 	HOSTCC=$(HOSTCC) \
@@ -205,7 +205,7 @@ kmake = make ARCH=$(build_arch) \
 	HOSTRUSTC=$(rustc) \
 	RUSTFMT=$(rustfmt) \
 	BINDGEN=$(bindgen) \
-	KERNELRELEASE=$(abi_release)-$(target_flavour) \
+	KERNELRELEASE=$(abi_release)-$* \
 	CONFIG_DEBUG_SECTION_MISMATCH=y \
 	KBUILD_BUILD_VERSION="$(uploadnum)" \
 	CFLAGS_MODULE="-DPKG_ABI=$(abinum)" \

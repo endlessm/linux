@@ -11,12 +11,11 @@ shlibdeps_opts = $(if $(CROSS_COMPILE),-- -l$(CROSS_COMPILE:%-=/usr/%)/lib)
 debian/scripts/fix-filenames: debian/scripts/fix-filenames.c
 	$(HOSTCC) $^ -o $@
 
-$(stampdir)/stamp-prepare-%: target_flavour = $*
 $(stampdir)/stamp-prepare-%: debian/scripts/fix-filenames
 	@echo Debug: $@
 	install -d $(build_dir)
 	touch $(build_dir)/ubuntu-build
-	python3 debian/scripts/misc/annotations --export --arch $(arch) --flavour $(target_flavour) > $(build_dir)/.config
+	python3 debian/scripts/misc/annotations --export --arch $(arch) --flavour $* > $(build_dir)/.config
 	sed -i 's/.*CONFIG_VERSION_SIGNATURE.*/CONFIG_VERSION_SIGNATURE="Ubuntu $(DEB_VERSION_UPSTREAM)-$(DEB_REVISION)-$* $(raw_kernelversion)"/' $(build_dir)/.config
 	find $(build_dir) -name "*.ko" | xargs rm -f
 	$(kmake) O=$(build_dir) $(conc_level) rustavailable || true
@@ -35,7 +34,6 @@ build-%: $(stampdir)/stamp-install-%
 	@echo Debug: $@
 
 # Do the actual build, including image and modules
-$(stampdir)/stamp-build-%: target_flavour = $*
 $(stampdir)/stamp-build-%: bldimg = $(call custom_override,build_image,$*)
 $(stampdir)/stamp-build-%: $(stampdir)/stamp-build-perarch $(stampdir)/stamp-prepare-%
 	@echo Debug: $@ build_image $(build_image) bldimg $(bldimg)
@@ -118,7 +116,6 @@ $(stampdir)/stamp-install-%: kernfile = $(call custom_override,kernel_file,$*)
 $(stampdir)/stamp-install-%: instfile = $(call custom_override,install_file,$*)
 $(stampdir)/stamp-install-%: hdrdir = $(CURDIR)/debian/$(basepkg)-$*/usr/src/$(basepkg)-$*
 $(stampdir)/stamp-install-%: rustdir = $(CURDIR)/debian/$(baserustpkg)-$*/usr/src/$(baserustpkg)-$*
-$(stampdir)/stamp-install-%: target_flavour = $*
 $(stampdir)/stamp-install-%: MODHASHALGO=sha512
 $(stampdir)/stamp-install-%: MODSECKEY=$(build_dir)/certs/signing_key.pem
 $(stampdir)/stamp-install-%: MODPUBKEY=$(build_dir)/certs/signing_key.x509
@@ -211,7 +208,7 @@ ifeq ($(do_extras_package),true)
 	#
 	# Remove all modules not in the inclusion list.
 	#
-	if [ -f $(DEBIAN)/control.d/$(target_flavour).inclusion-list ] ; then \
+	if [ -f $(DEBIAN)/control.d/$*.inclusion-list ] ; then \
 		/sbin/depmod -v -b $(pkgdir) $(abi_release)-$* | \
 			sed -e "s@$(pkgdir)/lib/modules/$(abi_release)-$*/kernel/@@g" | \
 			awk '{ print $$1 " " $$NF}' >$(build_dir)/module-inclusion.depmap; \
@@ -221,12 +218,12 @@ ifeq ($(do_extras_package),true)
 		$(SHELL) debian/scripts/module-inclusion --master \
 			$(pkgdir_ex)/lib/modules/$(abi_release)-$*/kernel \
 			$(pkgdir)/lib/modules/$(abi_release)-$*/kernel \
-			$(DEBIAN)/control.d/$(target_flavour).inclusion-list \
+			$(DEBIAN)/control.d/$*.inclusion-list \
 			$(build_dir)/module-inclusion.depmap 2>&1 | \
-				tee $(target_flavour).inclusion-list.log; \
+				tee $*.inclusion-list.log; \
 		/sbin/depmod -b $(pkgdir) -ea -F $(pkgdir)/boot/System.map-$(abi_release)-$* \
-			$(abi_release)-$* 2>&1 |tee $(target_flavour).depmod.log; \
-		if [ `grep -c 'unknown symbol' $(target_flavour).depmod.log` -gt 0 ]; then \
+			$(abi_release)-$* 2>&1 |tee $*.depmod.log; \
+		if [ `grep -c 'unknown symbol' $*.depmod.log` -gt 0 ]; then \
 			echo "EE: Unresolved module dependencies in base package!"; \
 			exit 1; \
 		fi \
@@ -255,7 +252,7 @@ endif
 	$(call install_control,$(mods_pkg_name)-$*,extra,postinst postrm)
 ifeq ($(do_extras_package),true)
 	# Install the postinit/postrm scripts in the extras package.
-	if [ -f $(DEBIAN)/control.d/$(target_flavour).inclusion-list ] ; then	\
+	if [ -f $(DEBIAN)/control.d/$*.inclusion-list ] ; then	\
 		install -d $(pkgdir_ex)/usr/lib/linux/triggers; \
 		$(call install_control,$(mods_extra_pkg_name)-$*,extra,postinst postrm); \
 	fi
@@ -560,7 +557,6 @@ $(foreach _m,$(all_dkms_modules), \
   $(eval binary-%: enable_$(_m) = $$(filter true,$$(call custom_override,do_$(_m),$$*))) \
 )
 binary-%: rprovides = $(foreach _m,$(all_built-in_dkms_modules),$(if $(enable_$(_m)),$(foreach _r,$(dkms_$(_m)_rprovides),$(_r)$(comma) )))
-binary-%: target_flavour = $*
 binary-%: $(stampdir)/stamp-install-%
 	@echo Debug: $@
 	dh_testdir
@@ -576,9 +572,9 @@ ifeq ($(do_extras_package),true)
 	# "extra" modules which were pointlessly built yet won't be shipped.
 	find $(pkgdir_ex) -name '*.ko' | sort \
 		| sed 's|^$(pkgdir_ex)/|NOT-SHIPPED |' \
-		| tee -a $(target_flavour).not-shipped.log;
+		| tee -a $*.not-shipped.log;
   else
-	if [ -f $(DEBIAN)/control.d/$(target_flavour).inclusion-list ] ; then \
+	if [ -f $(DEBIAN)/control.d/$*.inclusion-list ] ; then \
 		$(call dh_all_inline,$(pkgimg_ex))$(if $(do_zstd_ko), -- -Znone); \
 	fi
   endif
