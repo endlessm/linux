@@ -689,7 +689,6 @@ install-perarch: $(stampdir)/stamp-build-perarch
 	@echo Debug: $@
 	# Add the tools.
 ifeq ($(do_linux_tools),true)
-	install -d $(toolspkgdir)/usr/lib
 	install -d $(toolspkgdir)/usr/lib/$(DEB_SOURCE)-tools-$(abi_release)
 	install -d $(toolspkgdir)/usr/lib/$(DEB_SOURCE)-tools-$(abi_release)/lib
 ifeq ($(do_tools_usbip),true)
@@ -709,26 +708,28 @@ ifeq ($(do_tools_rtla),true)
 		$(toolspkgdir)/usr/lib/$(DEB_SOURCE)-tools-$(abi_release)/rtla
 endif
 ifeq ($(do_tools_perf),true)
-	install -m755 $(builddirpa)/tools/perf/perf $(toolspkgdir)/usr/lib/$(DEB_SOURCE)-tools-$(abi_release)
+	install -m755 $(builddirpa)/tools/perf/perf \
+		$(toolspkgdir)/usr/lib/$(DEB_SOURCE)-tools-$(abi_release)
 ifeq ($(do_tools_perf_jvmti),true)
-	install -m644 $(builddirpa)/tools/perf/libperf-jvmti.so $(toolspkgdir)/usr/lib/$(DEB_SOURCE)-tools-$(abi_release)/lib
+	install -m644 $(builddirpa)/tools/perf/libperf-jvmti.so \
+		$(toolspkgdir)/usr/lib/$(DEB_SOURCE)-tools-$(abi_release)/lib
 endif
 ifeq ($(do_tools_perf_python),true)
-	install -m644 $(builddirpa)/tools/perf/python/perf.*.so $(toolspkgdir)/usr/lib/$(DEB_SOURCE)-tools-$(abi_release)/lib
+	install -m644 $(builddirpa)/tools/perf/python/perf.*.so \
+		$(toolspkgdir)/usr/lib/$(DEB_SOURCE)-tools-$(abi_release)/lib
 endif
-endif
+endif # do_tools_perf
 ifeq ($(do_tools_bpftool),true)
-	install -m755 $(builddirpa)/tools/bpf/bpftool/bpftool $(toolspkgdir)/usr/lib/$(DEB_SOURCE)-tools-$(abi_release)
-endif
-ifeq ($(do_tools_x86),true)
-	install -m755 \
-		$(addprefix $(builddirpa)/tools/power/x86/, x86_energy_perf_policy/x86_energy_perf_policy turbostat/turbostat) \
+	install -m755 $(builddirpa)/tools/bpf/bpftool/bpftool \
 		$(toolspkgdir)/usr/lib/$(DEB_SOURCE)-tools-$(abi_release)
 endif
+ifeq ($(do_tools_x86),true)
+	install -m755 $(addprefix $(builddirpa)/tools/power/x86/, x86_energy_perf_policy/x86_energy_perf_policy turbostat/turbostat) \
+		$(toolspkgdir)/usr/lib/$(DEB_SOURCE)-tools-$(abi_release)
 endif
+endif # do_linux_tools
 ifeq ($(do_cloud_tools),true)
 ifeq ($(do_tools_hyperv),true)
-	install -d $(cloudpkgdir)/usr/lib
 	install -d $(cloudpkgdir)/usr/lib/$(DEB_SOURCE)-tools-$(abi_release)
 	install -m755 $(addprefix $(builddirpa)/tools/hv/, hv_kvp_daemon hv_vss_daemon lsvmbus) \
 		$(cloudpkgdir)/usr/lib/$(DEB_SOURCE)-tools-$(abi_release)
@@ -736,8 +737,8 @@ ifneq ($(build_arch),arm64)
 	install -m755 $(addprefix $(builddirpa)/tools/hv/, hv_fcopy_uio_daemon) \
 		$(cloudpkgdir)/usr/lib/$(DEB_SOURCE)-tools-$(abi_release)
 endif
-endif
-endif
+endif # do_tools_hyperv
+endif # do_cloud_tools
 
 .PHONY: binary-perarch
 binary-perarch: toolspkg = $(tools_pkg_name)
