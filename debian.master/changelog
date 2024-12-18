@@ -4,6 +4,8 @@ linux (6.12.0-7.7) UNRELEASED; urgency=medium
   CHANGELOG: Use the printchanges target to see the curent changes.
   CHANGELOG: Use the insertchanges target to create the final log.
 
+  * Remove the entire AA stack (FTBFS)
+
  -- Paolo Pisati <paolo.pisati@canonical.com>  Wed, 18 Dec 2024 14:50:26 +0100
 
 linux (6.12.0-6.6) plucky; urgency=medium
