@@ -111,10 +111,10 @@ endif
 
 # Disable tools build and packaging if do_tools != true
 ifneq ($(do_tools),true)
-	do_linux_tools=
-	do_cloud_tools=
-	do_tools_common=
-	do_tools_host=
+	do_linux_tools = false
+	do_cloud_tools = false
+	do_tools_common = false
+	do_tools_host = false
 endif
 
 # Either tools package needs the common source preparation
