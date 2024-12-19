@@ -46,12 +46,14 @@ ifeq ($(do_dbgsym_package),true)
 	fi
 endif
 
-ifeq ($(do_tools_bpftool),true)
-ifeq ($(do_tools_bpftool_stub),true)
+ifeq ($(do_linux_tools),true)
+ ifeq ($(do_tools_bpftool),true)
+  ifeq ($(do_tools_bpftool_stub),true)
 	echo '#error "Kernel does not support CONFIG_DEBUG_INFO_BTF"' > $(build_dir)/vmlinux.h
-else
+  else
 	$(builddirpa)/tools/bpf/bpftool/bpftool btf dump file $(build_dir)/vmlinux format c > $(build_dir)/vmlinux.h
-endif
+  endif
+ endif
 endif
 
 	# Collect the list of kernel source files used for this build. Need to do this early
@@ -143,12 +145,14 @@ endif
 ifeq ($(do_extras_package),true)
 	dh_prep -p$(mods_extra_pkg_name)-$*
 endif
-ifeq ($(do_tools_bpftool),true)
+ifeq ($(do_linux_tools),true)
+ ifeq ($(do_tools_bpftool),true)
 	# Do this only for the primary (first) flavor
 	# linux-bpf-dev is broken: It provides vmlinux.h which is a flavored header file!
 	if [ $* = $(firstword $(flavours)) ] ; then \
 		$(call if_package, linux-bpf-dev, dh_prep -plinux-bpf-dev) ; \
 	fi
+ endif
 endif
 
 	# The main image
@@ -348,15 +352,7 @@ ifeq ($(do_linux_tools),true)
 	# Create the linux-tools tool link
 	install -d $(toolspkgdir)/usr/lib/linux-tools
 	$(LN) ../$(DEB_SOURCE)-tools-$(abi_release) $(toolspkgdir)/usr/lib/linux-tools/$(abi_release)-$*
-endif
-ifeq ($(do_cloud_tools),true)
-ifeq ($(do_tools_hyperv),true)
-	# Create the linux-hyperv tool link
-	install -d $(cloudpkgdir)/usr/lib/linux-tools
-	$(LN) ../$(DEB_SOURCE)-tools-$(abi_release) $(cloudpkgdir)/usr/lib/linux-tools/$(abi_release)-$*
-endif
-endif
-ifeq ($(do_tools_bpftool),true)
+ ifeq ($(do_tools_bpftool),true)
 	# Do this only for the primary (first) flavor
 	# linux-bpf-dev is broken: It provides vmlinux.h which is a flavored header file!
 	if [ $* = $(firstword $(flavours)) ] ; then \
@@ -364,6 +360,15 @@ ifeq ($(do_tools_bpftool),true)
 		install -m644 $(build_dir)/vmlinux.h \
 			 $(bpfdevpkgdir)/usr/include/$(DEB_HOST_MULTIARCH)/linux/ ; \
 	fi
+ endif
+endif
+
+ifeq ($(do_cloud_tools),true)
+ ifeq ($(do_tools_hyperv),true)
+	# Create the linux-hyperv tool link
+	install -d $(cloudpkgdir)/usr/lib/linux-tools
+	$(LN) ../$(DEB_SOURCE)-tools-$(abi_release) $(cloudpkgdir)/usr/lib/linux-tools/$(abi_release)-$*
+ endif
 endif
 
 	# Build a temporary "installed headers" directory.
@@ -596,12 +601,14 @@ endif
 ifeq ($(do_cloud_tools),true)
 	$(call dh_all,$(pkgcloud))
 endif
-ifeq ($(do_tools_bpftool),true)
+ifeq ($(do_linux_tools),true)
+ ifeq ($(do_tools_bpftool),true)
 	# Do this only for the primary (first) flavor
 	# linux-bpf-dev is broken: It provides vmlinux.h which is a flavored header file!
 	if [ $* = $(firstword $(flavours)) ] ; then \
 		$(call if_package, linux-bpf-dev, $(call dh_all_inline,linux-bpf-dev)) ; \
 	fi
+ endif
 endif
 
 #
