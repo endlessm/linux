@@ -28,7 +28,7 @@ upstream_patchlevel := $(shell sed -n 's/^PATCHLEVEL = \(.*\)$$/\1/p' Makefile)
 upstream_tag := "v$(upstream_version).$(upstream_patchlevel)"
 
 # Get the kernels own extra version to be added to the release signature.
-raw_kernelversion=$(shell make kernelversion)
+raw_kernelversion := $(shell make -s kernelversion)
 
 packages_enabled := $(shell dh_listpackages 2>/dev/null)
 define if_package
