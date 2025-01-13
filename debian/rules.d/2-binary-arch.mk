@@ -147,11 +147,13 @@ ifeq ($(do_extras_package),true)
 endif
 ifeq ($(do_linux_tools),true)
  ifeq ($(do_tools_bpftool),true)
+  ifneq ($(filter linux-bpf-dev,$(packages_enabled)),)
 	# Do this only for the primary (first) flavor
 	# linux-bpf-dev is broken: It provides vmlinux.h which is a flavored header file!
 	if [ $* = $(firstword $(flavours)) ] ; then \
-		$(call if_package, linux-bpf-dev, dh_prep -plinux-bpf-dev) ; \
+		dh_prep -plinux-bpf-dev ; \
 	fi
+  endif
  endif
 endif
 
@@ -353,6 +355,7 @@ ifeq ($(do_linux_tools),true)
 	install -d $(toolspkgdir)/usr/lib/linux-tools
 	$(LN) ../$(DEB_SOURCE)-tools-$(abi_release) $(toolspkgdir)/usr/lib/linux-tools/$(abi_release)-$*
  ifeq ($(do_tools_bpftool),true)
+  ifneq ($(filter linux-bpf-dev,$(packages_enabled)),)
 	# Do this only for the primary (first) flavor
 	# linux-bpf-dev is broken: It provides vmlinux.h which is a flavored header file!
 	if [ $* = $(firstword $(flavours)) ] ; then \
@@ -360,6 +363,7 @@ ifeq ($(do_linux_tools),true)
 		install -m644 $(build_dir)/vmlinux.h \
 			 $(bpfdevpkgdir)/usr/include/$(DEB_HOST_MULTIARCH)/linux/ ; \
 	fi
+  endif
  endif
 endif
 
@@ -603,11 +607,13 @@ ifeq ($(do_cloud_tools),true)
 endif
 ifeq ($(do_linux_tools),true)
  ifeq ($(do_tools_bpftool),true)
+  ifneq ($(filter linux-bpf-dev,$(packages_enabled)),)
 	# Do this only for the primary (first) flavor
 	# linux-bpf-dev is broken: It provides vmlinux.h which is a flavored header file!
 	if [ $* = $(firstword $(flavours)) ] ; then \
-		$(call if_package, linux-bpf-dev, $(call dh_all_inline,linux-bpf-dev)) ; \
+		$(call dh_all_inline,linux-bpf-dev) ; \
 	fi
+  endif
  endif
 endif
 
