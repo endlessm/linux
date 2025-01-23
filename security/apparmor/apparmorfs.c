@@ -669,7 +669,7 @@ static long notify_set_filter(struct aa_listener *listener,
 	ret = size;
 
 	if (!notif_supported_version((struct apparmor_notif_common *)unotif)) {
-		ret = -ENOTSUPP;
+		ret = -EPROTONOSUPPORT;
 		goto out;
 	}
 
@@ -749,7 +749,7 @@ static long notify_user_response(struct aa_listener *listener,
 	}
 
 	if (!notif_supported_version((struct apparmor_notif_common *)&uresp)) {
-		error = ENOTSUPP;
+		error = -EPROTONOSUPPORT;
 		goto out;
 	}
 	error = aa_listener_unotif_response(listener, &uresp, size);

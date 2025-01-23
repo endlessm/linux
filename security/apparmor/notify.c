@@ -1031,7 +1031,7 @@ static long build_mediation_unotif(struct aa_listener *listener,
 				goto out;
 			}
 		}
-		ret = -ENOTSUPP;
+		ret = -EPROTONOSUPPORT;
 		goto out;
 		break;
 	default:
