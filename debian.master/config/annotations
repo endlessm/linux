@@ -14241,7 +14241,7 @@ CONFIG_TEGRA186_GPC_DMA                         policy<{'arm64': 'm', 'armhf': '
 CONFIG_TEGRA186_TIMER                           policy<{'arm64': 'y', 'armhf': 'y'}>
 CONFIG_TEGRA20_APB_DMA                          policy<{'arm64': 'y', 'armhf': 'y'}>
 CONFIG_TEGRA20_EMC                              policy<{'armhf': 'y'}>
-CONFIG_TEGRA210_ADMA                            policy<{'arm64': 'm', 'armhf': 'm'}>
+CONFIG_TEGRA210_ADMA                            policy<{'arm64': 'm', 'armhf': 'n'}>
 CONFIG_TEGRA210_EMC                             policy<{'arm64': 'm'}>
 CONFIG_TEGRA210_EMC_TABLE                       policy<{'arm64': 'y'}>
 CONFIG_TEGRA241_CMDQV                           policy<{'arm64': 'y'}>
