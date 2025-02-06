@@ -123,6 +123,9 @@ CONFIG_CPU_FREQ_STAT                            note<'dependancy of boot essenti
 CONFIG_CRASH_DUMP                               policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y', 's390x': 'y'}>
 CONFIG_CRASH_DUMP                               note<'LP: #1363180'>
 
+CONFIG_CRYPTO_HMAC_S390                         policy<{'s390x': 'm'}>
+CONFIG_CRYPTO_HMAC_S390                         note<'LP: #2096812'>
+
 CONFIG_CRYPTO_SHA512                            policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y', 's390x': 'y'}>
 CONFIG_CRYPTO_SHA512                            note<'module signing'>
 
@@ -3721,7 +3724,6 @@ CONFIG_CRYPTO_HASH2                             policy<{'amd64': 'y', 'arm64': '
 CONFIG_CRYPTO_HASH_INFO                         policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y', 's390x': 'y'}>
 CONFIG_CRYPTO_HCTR2                             policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm', 's390x': 'n'}>
 CONFIG_CRYPTO_HMAC                              policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y', 's390x': 'y'}>
-CONFIG_CRYPTO_HMAC_S390                         policy<{'s390x': 'n'}>
 CONFIG_CRYPTO_HW                                policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y', 's390x': 'y'}>
 CONFIG_CRYPTO_JITTERENTROPY                     policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y', 's390x': 'y'}>
 CONFIG_CRYPTO_JITTERENTROPY_MEMORY_BLOCKS       policy<{'amd64': '64', 'arm64': '64', 'armhf': '64', 'ppc64el': '64', 'riscv64': '64', 's390x': '64'}>
