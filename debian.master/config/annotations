@@ -4253,7 +4253,7 @@ CONFIG_DRM_GPUVM                                policy<{'amd64': 'm', 'arm64': '
 CONFIG_DRM_GUD                                  policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm', 's390x': '-'}>
 CONFIG_DRM_HDLCD                                policy<{'arm64': 'm', 'armhf': 'm'}>
 CONFIG_DRM_HDLCD_SHOW_UNDERRUN                  policy<{'arm64': 'n', 'armhf': 'n'}>
-CONFIG_DRM_HISI_HIBMC                           policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm', 's390x': 'm'}>
+CONFIG_DRM_HISI_HIBMC                           policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'ppc64el': 'n', 'riscv64': 'n', 's390x': 'n'}>
 CONFIG_DRM_HISI_KIRIN                           policy<{'arm64': 'm'}>
 CONFIG_DRM_HYPERV                               policy<{'amd64': 'm', 'arm64': 'm'}>
 CONFIG_DRM_I2C_ADV7511                          policy<{'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm'}>
@@ -4538,8 +4538,8 @@ CONFIG_DRM_TOSHIBA_TC358764                     policy<{'arm64': 'm', 'armhf': '
 CONFIG_DRM_TOSHIBA_TC358767                     policy<{'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm'}>
 CONFIG_DRM_TOSHIBA_TC358768                     policy<{'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm'}>
 CONFIG_DRM_TOSHIBA_TC358775                     policy<{'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm'}>
-CONFIG_DRM_TTM                                  policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm', 's390x': 'm'}>
-CONFIG_DRM_TTM_HELPER                           policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm', 's390x': 'm'}>
+CONFIG_DRM_TTM                                  policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm', 's390x': '-'}>
+CONFIG_DRM_TTM_HELPER                           policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm', 's390x': '-'}>
 CONFIG_DRM_TVE200                               policy<{'armhf': 'm'}>
 CONFIG_DRM_UDL                                  policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm', 's390x': '-'}>
 CONFIG_DRM_VGEM                                 policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm', 's390x': 'n'}>
@@ -4548,7 +4548,7 @@ CONFIG_DRM_VIRTIO_GPU_KMS                       policy<{'amd64': 'y', 'arm64': '
 CONFIG_DRM_VKMS                                 policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm', 's390x': 'n'}>
 CONFIG_DRM_VMWGFX                               policy<{'amd64': 'm', 'arm64': 'm'}>
 CONFIG_DRM_VMWGFX_MKSSTATS                      policy<{'amd64': 'n'}>
-CONFIG_DRM_VRAM_HELPER                          policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm', 's390x': 'm'}>
+CONFIG_DRM_VRAM_HELPER                          policy<{'amd64': 'm', 'arm64': '-', 'armhf': '-', 'ppc64el': '-', 'riscv64': '-', 's390x': '-'}>
 CONFIG_DRM_WERROR                               policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'ppc64el': 'n', 'riscv64': 'n', 's390x': 'n'}>
 CONFIG_DRM_XE                                   policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm', 's390x': 'n'}>
 CONFIG_DRM_XEN                                  policy<{'amd64': 'y', 'arm64': 'y'}>
@@ -6313,7 +6313,7 @@ CONFIG_HZ_FIXED                                 policy<{'armhf': '0'}>
 CONFIG_HZ_PERIODIC                              policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'ppc64el': 'n', 'riscv64': 'n', 's390x': 'n'}>
 CONFIG_I2C                                      policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y', 's390x': 'm'}>
 CONFIG_I2CR_SCOM                                policy<{'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm'}>
-CONFIG_I2C_ALGOBIT                              policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm', 's390x': 'm'}>
+CONFIG_I2C_ALGOBIT                              policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm', 's390x': '-'}>
 CONFIG_I2C_ALGOPCA                              policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm'}>
 CONFIG_I2C_ALI1535                              policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm', 's390x': '-'}>
 CONFIG_I2C_ALI1563                              policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm', 's390x': '-'}>
