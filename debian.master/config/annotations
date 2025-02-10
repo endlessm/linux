@@ -5621,7 +5621,7 @@ CONFIG_GPIO_GENERIC                             policy<{'amd64': 'y', 'arm64': '
 CONFIG_GPIO_GENERIC_PLATFORM                    policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'm', 'riscv64': 'y', 's390x': 'm'}>
 CONFIG_GPIO_GPIO_MM                             policy<{'amd64': 'm'}>
 CONFIG_GPIO_GRANITERAPIDS                       policy<{'amd64': 'm'}>
-CONFIG_GPIO_GRGPIO                              policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm', 's390x': 'n'}>
+CONFIG_GPIO_GRGPIO                              policy<{'amd64': '-', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm', 's390x': '-'}>
 CONFIG_GPIO_GW_PLD                              policy<{'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm'}>
 CONFIG_GPIO_HISI                                policy<{'arm64': 'm'}>
 CONFIG_GPIO_HLWD                                policy<{'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm'}>
@@ -7553,7 +7553,7 @@ CONFIG_L2TP_V3                                  policy<{'amd64': 'y', 'arm64': '
 CONFIG_LAN743X                                  policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm', 's390x': '-'}>
 CONFIG_LAN865X                                  policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm'}>
 CONFIG_LAN966X_DCB                              policy<{'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y'}>
-CONFIG_LAN966X_OIC                              policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm', 's390x': 'n'}>
+CONFIG_LAN966X_OIC                              policy<{'amd64': '-', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm', 's390x': '-'}>
 CONFIG_LAN966X_SWITCH                           policy<{'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm'}>
 CONFIG_LAN969X_SWITCH                           policy<{'arm64': 'y'}>
 CONFIG_LAPB                                     policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm', 's390x': 'n'}>
