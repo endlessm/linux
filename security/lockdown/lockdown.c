@@ -72,9 +72,19 @@ static int lockdown_is_locked_down(enum lockdown_reason what)
 	return 0;
 }
 
+/**
+ * security_lock_kernel_down() - Put the kernel into lock-down mode.
+ *
+ * @where: Where the lock-down is originating from (e.g. command line option)
+ * @level: The lock-down level (can only increase)
+ */
+int security_lock_kernel_down(const char *where, enum lockdown_reason level)
+{
+	return lock_kernel_down(where, level);
+}
+
 static struct security_hook_list lockdown_hooks[] __ro_after_init = {
 	LSM_HOOK_INIT(locked_down, lockdown_is_locked_down),
-	LSM_HOOK_INIT(lock_kernel_down, lock_kernel_down),
 };
 
 static const struct lsm_id lockdown_lsmid = {
