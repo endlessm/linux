@@ -7393,7 +7393,7 @@ CONFIG_KEBA_LAN9252                             policy<{'amd64': 'm', 'arm64': '
 CONFIG_KEEMBAY_WATCHDOG                         policy<{'arm64': 'm'}>
 CONFIG_KEMPLD_WDT                               policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm'}>
 CONFIG_KERNEL_BZIP2                             policy<{'amd64': 'n', 'riscv64': 'n', 's390x': 'n'}>
-CONFIG_KERNEL_GZIP                              policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y', 's390x': 'n'}>
+CONFIG_KERNEL_GZIP                              policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'n', 's390x': 'n'}>
 CONFIG_KERNEL_IMAGE_BASE                        policy<{'s390x': '0x3FFE0000000'}>
 CONFIG_KERNEL_LZ4                               policy<{'amd64': 'n', 'arm64': '-', 'armhf': 'n', 'riscv64': 'n', 's390x': 'n'}>
 CONFIG_KERNEL_LZMA                              policy<{'amd64': 'n', 'arm64': '-', 'armhf': 'n', 'riscv64': 'n', 's390x': 'n'}>
@@ -7401,7 +7401,7 @@ CONFIG_KERNEL_LZO                               policy<{'amd64': 'n', 'arm64': '
 CONFIG_KERNEL_MODE_NEON                         policy<{'arm64': 'y', 'armhf': 'y'}>
 CONFIG_KERNEL_NOBP                              policy<{'s390x': 'n'}>
 CONFIG_KERNEL_START                             policy<{'ppc64el': '0xc000000000000000'}>
-CONFIG_KERNEL_UNCOMPRESSED                      policy<{'riscv64': 'n', 's390x': 'n'}>
+CONFIG_KERNEL_UNCOMPRESSED                      policy<{'riscv64': 'y', 's390x': 'n'}>
 CONFIG_KERNEL_XZ                                policy<{'amd64': 'n', 'arm64': '-', 'armhf': 'n', 'ppc64el': 'n', 'riscv64': 'n', 's390x': 'n'}>
 CONFIG_KERNFS                                   policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y', 's390x': 'y'}>
 CONFIG_KEXEC                                    policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y', 's390x': 'y'}>
