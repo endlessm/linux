@@ -11470,7 +11470,7 @@ CONFIG_RISCV_ISA_SVNAPOT                        policy<{'riscv64': 'y'}>
 CONFIG_RISCV_ISA_SVPBMT                         policy<{'riscv64': 'n'}>
 CONFIG_RISCV_ISA_V                              policy<{'riscv64': 'y'}>
 CONFIG_RISCV_ISA_VENDOR_EXT                     policy<{'riscv64': 'y'}>
-CONFIG_RISCV_ISA_VENDOR_EXT_ANDES               policy<{'riscv64': 'y'}>
+CONFIG_RISCV_ISA_VENDOR_EXT_ANDES               policy<{'riscv64': 'n'}>
 CONFIG_RISCV_ISA_VENDOR_EXT_THEAD               policy<{'riscv64': 'y'}>
 CONFIG_RISCV_ISA_V_DEFAULT_ENABLE               policy<{'riscv64': 'y'}>
 CONFIG_RISCV_ISA_V_PREEMPTIVE                   policy<{'riscv64': 'y'}>
