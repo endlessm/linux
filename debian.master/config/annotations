@@ -11467,7 +11467,7 @@ CONFIG_RISCV_ISA_C                              policy<{'riscv64': 'y'}>
 CONFIG_RISCV_ISA_FALLBACK                       policy<{'riscv64': 'y'}>
 CONFIG_RISCV_ISA_SUPM                           policy<{'riscv64': 'y'}>
 CONFIG_RISCV_ISA_SVNAPOT                        policy<{'riscv64': 'y'}>
-CONFIG_RISCV_ISA_SVPBMT                         policy<{'riscv64': 'n'}>
+CONFIG_RISCV_ISA_SVPBMT                         policy<{'riscv64': 'y'}>
 CONFIG_RISCV_ISA_V                              policy<{'riscv64': 'y'}>
 CONFIG_RISCV_ISA_VENDOR_EXT                     policy<{'riscv64': 'y'}>
 CONFIG_RISCV_ISA_VENDOR_EXT_ANDES               policy<{'riscv64': 'n'}>
