@@ -2668,7 +2668,7 @@ CONFIG_CC_NO_ARRAY_BOUNDS                       policy<{'amd64': 'y', 'arm64': '
 CONFIG_CC_NO_STRINGOP_OVERFLOW                  policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y', 's390x': 'y'}>
 CONFIG_CC_OPTIMIZE_FOR_PERFORMANCE              policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y', 's390x': 'y'}>
 CONFIG_CC_OPTIMIZE_FOR_SIZE                     policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'ppc64el': 'n', 'riscv64': 'n', 's390x': 'n'}>
-CONFIG_CC_VERSION_TEXT                          policy<{'amd64': '"x86_64-linux-gnu-gcc-14 (Ubuntu 14.2.0-16ubuntu1) 14.2.0"', 'arm64': '"aarch64-linux-gnu-gcc-14 (Ubuntu 14.2.0-12ubuntu1) 14.2.0"', 'armhf': '"arm-linux-gnueabihf-gcc-14 (Ubuntu 14.2.0-12ubuntu1) 14.2.0"', 'ppc64el': '"powerpc64le-linux-gnu-gcc-14 (Ubuntu 14.2.0-12ubuntu1) 14.2.0"', 'riscv64': '"riscv64-linux-gnu-gcc-14 (Ubuntu 14.2.0-12ubuntu1) 14.2.0"', 's390x': '"s390x-linux-gnu-gcc-14 (Ubuntu 14.2.0-12ubuntu1) 14.2.0"'}>
+CONFIG_CC_VERSION_TEXT                          policy<{'amd64': '"x86_64-linux-gnu-gcc-14 (Ubuntu 14.2.0-17ubuntu3) 14.2.0"', 'arm64': '"aarch64-linux-gnu-gcc-14 (Ubuntu 14.2.0-12ubuntu1) 14.2.0"', 'armhf': '"arm-linux-gnueabihf-gcc-14 (Ubuntu 14.2.0-12ubuntu1) 14.2.0"', 'ppc64el': '"powerpc64le-linux-gnu-gcc-14 (Ubuntu 14.2.0-12ubuntu1) 14.2.0"', 'riscv64': '"riscv64-linux-gnu-gcc-14 (Ubuntu 14.2.0-12ubuntu1) 14.2.0"', 's390x': '"s390x-linux-gnu-gcc-14 (Ubuntu 14.2.0-12ubuntu1) 14.2.0"'}>
 CONFIG_CDNS_I3C_MASTER                          policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm'}>
 CONFIG_CDROM                                    policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y', 's390x': 'y'}>
 CONFIG_CDROM_PKTCDVD                            policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'ppc64el': 'n', 'riscv64': 'n', 's390x': 'n'}>
@@ -11855,10 +11855,10 @@ CONFIG_RT_MUTEXES                               policy<{'amd64': 'y', 'arm64': '
 CONFIG_RUNTIME_KERNEL_TESTING_MENU              policy<{'riscv64': 'n'}>
 CONFIG_RUNTIME_TESTING_MENU                     policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y', 's390x': 'y'}>
 CONFIG_RUSTC_HAS_COERCE_POINTEE                 policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y', 's390x': 'y'}>
-CONFIG_RUSTC_LLVM_VERSION                       policy<{'amd64': '190106', 'arm64': '190106', 'armhf': '190106', 'ppc64el': '190106', 'riscv64': '190106', 's390x': '190106'}>
+CONFIG_RUSTC_LLVM_VERSION                       policy<{'amd64': '190107', 'arm64': '190107', 'armhf': '190107', 'ppc64el': '190107', 'riscv64': '190107', 's390x': '190107'}>
 CONFIG_RUSTC_SUPPORTS_ARM64                     policy<{'arm64': 'y'}>
 CONFIG_RUSTC_SUPPORTS_RISCV                     policy<{'riscv64': 'y'}>
-CONFIG_RUSTC_VERSION                            policy<{'amd64': '108400', 'arm64': '108400', 'armhf': '108400', 'ppc64el': '108400', 'riscv64': '108400', 's390x': '108400'}>
+CONFIG_RUSTC_VERSION                            policy<{'amd64': '108401', 'arm64': '108401', 'armhf': '108401', 'ppc64el': '108401', 'riscv64': '108401', 's390x': '108401'}>
 CONFIG_RUST_IS_AVAILABLE                        policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y', 's390x': 'y'}>
 CONFIG_RV                                       policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y', 's390x': 'y'}>
 CONFIG_RVU_ESWITCH                              policy<{'arm64': 'm'}>
