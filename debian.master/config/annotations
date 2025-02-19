@@ -952,7 +952,7 @@ CONFIG_ACPI_NUMA                                policy<{'amd64': 'y', 'arm64': '
 CONFIG_ACPI_PCC                                 policy<{'amd64': 'y', 'arm64': 'y', 'riscv64': 'y'}>
 CONFIG_ACPI_PCI_SLOT                            policy<{'amd64': 'y', 'arm64': 'y', 'riscv64': 'y'}>
 CONFIG_ACPI_PFRUT                               policy<{'amd64': 'm', 'arm64': 'm', 'riscv64': 'm'}>
-CONFIG_ACPI_PLATFORM_PROFILE                    policy<{'amd64': 'm', 'arm64': 'm'}>
+CONFIG_ACPI_PLATFORM_PROFILE                    policy<{'amd64': 'm', 'arm64': 'm', 'riscv64': 'm'}>
 CONFIG_ACPI_PPTT                                policy<{'arm64': 'y', 'riscv64': 'y'}>
 CONFIG_ACPI_PRMT                                policy<{'amd64': 'y', 'arm64': 'y'}>
 CONFIG_ACPI_PROCESSOR                           policy<{'amd64': 'y', 'arm64': 'y', 'riscv64': 'y'}>
@@ -6053,7 +6053,7 @@ CONFIG_HID_KYE                                  policy<{'amd64': 'm', 'arm64': '
 CONFIG_HID_KYSONA                               policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm'}>
 CONFIG_HID_LCPOWER                              policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm', 's390x': '-'}>
 CONFIG_HID_LED                                  policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm', 's390x': '-'}>
-CONFIG_HID_LENOVO                               policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm', 's390x': '-'}>
+CONFIG_HID_LENOVO                               policy<{'amd64': 'm', 'arm64': 'm', 'armhf': '-', 'ppc64el': '-', 'riscv64': 'm', 's390x': '-'}>
 CONFIG_HID_LETSKETCH                            policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm'}>
 CONFIG_HID_LOGITECH                             policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm'}>
 CONFIG_HID_LOGITECH_DJ                          policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm'}>
