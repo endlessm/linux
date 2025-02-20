@@ -1,4 +1,3 @@
-human_arch	= 64 bit x86
 build_arch	= x86
 defconfig	= defconfig
 flavours	= generic

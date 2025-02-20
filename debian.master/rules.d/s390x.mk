@@ -1,4 +1,3 @@
-human_arch      = System 390x
 build_arch      = s390
 defconfig       = defconfig
 flavours        = generic

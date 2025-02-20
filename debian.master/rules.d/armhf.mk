@@ -1,4 +1,3 @@
-human_arch	= ARM (hard float)
 build_arch	= arm
 defconfig	= defconfig
 flavours	= generic

@@ -1,4 +1,3 @@
-human_arch	= ARMv8
 build_arch	= arm64
 defconfig	= defconfig
 flavours	= generic generic-64k

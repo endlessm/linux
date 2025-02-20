@@ -1,4 +1,3 @@
-human_arch     = RISC-V
 build_arch     = riscv
 defconfig      = defconfig
 flavours       = generic

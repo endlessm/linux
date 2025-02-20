@@ -9,9 +9,8 @@ Recommends: BOOTLOADER, initramfs-tools | linux-initramfs-tool
 Breaks: flash-kernel (<< 3.90ubuntu2) [arm64 armhf], s390-tools (<< 2.3.0-0ubuntu3) [s390x]
 Conflicts: linux-image=SIGN-PEER-PKG=-PKGVER-ABINUM-FLAVOUR
 Suggests: fdutils, SRCPKGNAME-tools, linux-headers-PKGVER-ABINUM-FLAVOUR, linux-modules-extra-PKGVER-ABINUM-FLAVOUR
-Description: Linux kernel image for version PKGVER on DESC
- This package contains the=SIGN-ME-TXT= Linux kernel image for version PKGVER on
- DESC.
+Description: Linux kernel image for version PKGVER
+ This package contains the=SIGN-ME-TXT= Linux kernel image for version PKGVER.
  .
  Supports SUPPORTED processors.
  .
@@ -28,9 +27,8 @@ Section: devel
 Priority: optional
 Depends: ${misc:Depends}
 Provides: linux-debug
-Description: Linux kernel debug image for version PKGVER on DESC
- This package provides the=SIGN-ME-TXT= kernel debug image for version PKGVER on
- DESC.
+Description: Linux kernel debug image for version PKGVER
+ This package provides the=SIGN-ME-TXT= kernel debug image for version PKGVER.
  .
  This is for sites that wish to debug the kernel.
  .

@@ -35,7 +35,7 @@ gen_common () {
 }
 
 gen_per_flavour () {
-	local arch bootloader conflicts desc flavour provides supported target
+	local arch bootloader conflicts flavour provides supported target
 	local sed_common_patterns signed_arch unsigned_arch
 
 	var=$1
@@ -62,7 +62,6 @@ gen_per_flavour () {
 		-e "/^#/d"
 		-e "s/BOOTLOADER/${bootloader}/g"
 		-e "s/=CONFLICTS=/${conflicts}/g"
-		-e "s/DESC/${desc}/g"
 		-e "s/FLAVOUR/${flavour}/g"
 		-e "s/=PROVIDES=/${provides}/g"
 		-e "s/SUPPORTED/${supported}/g"

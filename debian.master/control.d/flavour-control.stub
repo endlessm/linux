@@ -1,6 +1,5 @@
 # Items that get replaced:
 # FLAVOUR
-# DESC
 # ARCH
 # SUPPORTED
 # TARGET
@@ -16,7 +15,7 @@
 # debian/rules. PGGVER, ABINUM, and SRCPKGNAME are all converted in the
 # process of creating debian/control.
 #
-# The flavour specific strings (ARCH, DESC, etc) are converted using values from the various
+# The flavour specific strings (ARCH, etc) are converted using values from the various
 # flavour files in debian/control.d/vars.*
 #
 # XXX: Leave the blank line before the first package!!
@@ -28,7 +27,7 @@ Section: kernel
 Priority: optional
 Depends: ${misc:Depends}, ${shlibs:Depends}
 Built-Using: ${linux:BuiltUsing}
-Description: Linux kernel extra modules for version PKGVER on DESC
+Description: Linux kernel extra modules for version PKGVER
  Contains the corresponding System.map file, the modules built by the
  packager, and scripts that try to ensure that the system is not left in an
  unbootable state after an update.
@@ -47,9 +46,8 @@ Architecture: ARCH
 Section: kernel
 Priority: optional
 Depends: ${misc:Depends}, ${shlibs:Depends}, linux-modules-PKGVER-ABINUM-FLAVOUR, wireless-regdb
-Description: Linux kernel extra modules for version PKGVER on DESC
- This package contains the Linux kernel extra modules for version PKGVER on
- DESC.
+Description: Linux kernel extra modules for version PKGVER
+ This package contains the Linux kernel extra modules for version PKGVER.
  .
  Also includes the corresponding System.map file, the modules built by the
  packager, and scripts that try to ensure that the system is not left in an
@@ -70,9 +68,8 @@ Section: devel
 Priority: optional
 Depends: ${misc:Depends}, SRCPKGNAME-headers-PKGVER-ABINUM, ${shlibs:Depends}
 Provides: linux-headers, linux-headers-3.0
-Description: Linux kernel headers for version PKGVER on DESC
- This package provides kernel header files for version PKGVER on
- DESC.
+Description: Linux kernel headers for version PKGVER
+ This package provides kernel header files for version PKGVER.
  .
  This is for sites that want the latest kernel headers.  Please read
  /usr/share/doc/linux-headers-PKGVER-ABINUM/debian.README.gz for details.
@@ -97,8 +94,7 @@ Depends: ${misc:Depends}, SRCPKGNAME-tools-PKGVER-ABINUM
 Description: Linux kernel version specific tools for version PKGVER-ABINUM
  This package provides the architecture dependant parts for kernel
  version locked tools (such as perf and x86_energy_perf_policy) for
- version PKGVER-ABINUM on
- =HUMAN=.
+ version PKGVER-ABINUM.
 
 Package: linux-cloud-tools-PKGVER-ABINUM-FLAVOUR
 Build-Profiles: <!stage1>
@@ -108,6 +104,5 @@ Priority: optional
 Depends: ${misc:Depends}, SRCPKGNAME-cloud-tools-PKGVER-ABINUM
 Description: Linux kernel version specific cloud tools for version PKGVER-ABINUM
  This package provides the architecture dependant parts for kernel
- version locked tools for cloud for version PKGVER-ABINUM on
- =HUMAN=.
+ version locked tools for cloud for version PKGVER-ABINUM.
 

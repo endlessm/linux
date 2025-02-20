@@ -1,4 +1,3 @@
-human_arch	= PowerPC 64el
 build_arch	= powerpc
 defconfig	= pseries_le_defconfig
 flavours	= generic
