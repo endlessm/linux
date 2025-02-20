@@ -1,64 +1,131 @@
 #!/bin/bash
 
 set -e
+shopt -s nullglob
+
+DEB_SOURCE=$1
 
 . debian/debian.env
 
-vars=$1
-any_signed=$2
-
-. $vars
-
-[ "$provides" != '' ] && provides="$provides, "
-
-flavour=$(basename $vars | sed 's/.*\.//')
-stub="${DEBIAN}/control.d/flavour-signed-control.stub ${DEBIAN}/control.d/flavour-control.stub debian/control.d/flavour-buildinfo.stub"
-if [ "$any_signed" = 'true' ]; then
-	sign_me_pkg="-unsigned"
-	sign_me_txt=" unsigned"
-	sign_peer_pkg=""
-else
-	sign_me_pkg=""
-	sign_me_txt=""
-	sign_peer_pkg="-unsigned"
+if [ -z "${DEBIAN}" ]; then
+	echo "DEBIAN is empty" >&2
+	exit 1
 fi
 
-cat $stub | grep -v '^#' | sed \
-	-e "s#FLAVOUR#$flavour#g"		\
-	-e "s#DESC#$desc#g"			\
-	-e "s#ARCH#$arch#g"			\
-	-e "s#SUPPORTED#$supported#g"		\
-	-e "s#TARGET#$target#g"			\
-	-e "s#BOOTLOADER#$bootloader#g" 	\
-	-e "s#=PROVIDES=#$provides#g"		\
-	-e "s#=CONFLICTS=#$conflicts#g"		\
-	-e "s#=SIGN-ME-PKG=#$sign_me_pkg#g"	\
-	-e "s#=SIGN-ME-TXT=#$sign_me_txt#g"	\
-	-e "s#=SIGN-PEER-PKG=#$sign_peer_pkg#g"
+gen_common () {
+	local stubs=("${DEBIAN}/control.stub.in")
 
-while read package version extras
-do
-	module="$package"
-	module_type=
+	if [ "${DEB_SOURCE}" = linux ]; then
+		stubs+=(
+			debian/control.d/linux-libc-dev.stub
+			debian/control.d/linux-tools-common.stub
+			debian/control.d/linux-cloud-tools-common.stub
+			debian/control.d/linux-tools-host.stub
+			debian/control.d/linux-source.stub
+			debian/control.d/linux-doc.stub
+			debian/control.d/linux-bpf-dev.stub
+		)
+	fi
 
-	# Module arch parameters are skipped here, so a package section will
-	# be generated for each flavour, and its Architecture will be set to
-	# all architectures with that flavour. Even that is being generated,
-	# it doesn't follow all of them will be built. That's to work-around
-	# dkms_exclude/dkms_include that manipulates supported architectures
-	# in $(DEBIAN)/rules.d/$(arch).mk.
-	for param in $extras; do
-		case "$param" in
-		modulename=*) module="${param#modulename=}" ;;
-		type=*) module_type="${param#type=}" ;;
-		*) continue ;;
-		esac
+	for f in "${stubs[@]}"
+	do
+		cat "${f}"
+		echo ""
+	done
+}
+
+gen_per_flavour () {
+	local arch bootloader conflicts desc flavour provides supported target
+	local sed_common_patterns signed_arch unsigned_arch
+
+	var=$1
+
+	flavour=${var##*.}
+
+	. "${var}"
+
+	if [ "$provides" != '' ]; then
+		provides+=", "
+	fi
+
+	for a in ${arch}
+	do
+		# This is a makefile, so grepping...
+		if grep -q -E '(uefi|opal|sipl)_signed[[:space:]]*=[[:space:]]*true' "${DEBIAN}/rules.d/${a}.mk"; then
+			signed_arch+=("${a}")
+		else
+			unsigned_arch+=("${a}")
+		fi
 	done
 
-	[ "$module_type" = "standalone" ] || continue
+	sed_common_patterns=(
+		-e "/^#/d"
+		-e "s/BOOTLOADER/${bootloader}/g"
+		-e "s/=CONFLICTS=/${conflicts}/g"
+		-e "s/DESC/${desc}/g"
+		-e "s/FLAVOUR/${flavour}/g"
+		-e "s/=PROVIDES=/${provides}/g"
+		-e "s/SUPPORTED/${supported}/g"
+		-e "s/TARGET/${target}/g"
+	)
 
-	cat debian/control.d/flavour-module.stub | grep -v '^#' | sed	\
-		-e "s#ARCH#$arch#g"		\
-		-e "s#MODULE#$module#g"		\
-		-e "s#FLAVOUR#$flavour#g"
-done <"${DEBIAN}/dkms-versions"
+	if [ "${#signed_arch[@]}" != 0 ]; then
+		sed "${sed_common_patterns[@]}" \
+		    -e "s/ARCH/${signed_arch[*]}/g" \
+		    -e "s/=SIGN-ME-PKG=/-unsigned/g" \
+		    -e "s/=SIGN-ME-TXT=/ unsigned/g" \
+		    -e "s/=SIGN-PEER-PKG=//g" \
+		  "${DEBIAN}/control.d/flavour-signed-control.stub"
+	fi
+
+	if [ "${#unsigned_arch[@]}" != 0 ]; then
+		sed "${sed_common_patterns[@]}" \
+		    -e "s/ARCH/${unsigned_arch[*]}/g" \
+		    -e "s/=SIGN-ME-PKG=//g" \
+		    -e "s/=SIGN-ME-TXT=//g" \
+		    -e "s/=SIGN-PEER-PKG=/-unsigned/g" \
+		    "${DEBIAN}/control.d/flavour-signed-control.stub"
+	fi
+
+	sed "${sed_common_patterns[@]}" \
+	    -e "s/ARCH/${arch}/g" \
+	    "${DEBIAN}/control.d/flavour-control.stub"
+
+	sed "${sed_common_patterns[@]}" \
+	    -e "s/ARCH/${arch}/g" \
+	    "debian/control.d/flavour-buildinfo.stub"
+
+	while read -r package version extras
+	do
+		module="$package"
+		module_type=
+
+		# Module arch parameters are skipped here, so a package section will
+		# be generated for each flavour, and its Architecture will be set to
+		# all architectures with that flavour. Even that is being generated,
+		# it doesn't follow all of them will be built. That's to work-around
+		# dkms_exclude/dkms_include that manipulates supported architectures
+		# in $(DEBIAN)/rules.d/$(arch).mk.
+		for param in $extras; do
+			case "$param" in
+				modulename=*) module="${param#modulename=}" ;;
+				type=*) module_type="${param#type=}" ;;
+				*) continue ;;
+			esac
+		done
+
+		[ "$module_type" = "standalone" ] || continue
+
+		sed "${sed_common_patterns[@]}" \
+			-e "s/ARCH/${arch}/g" \
+			-e "s/MODULE/${module}/g" \
+			debian/control.d/flavour-module.stub
+	done < "${DEBIAN}/dkms-versions"
+}
+
+gen_common
+
+for v in "${DEBIAN}"/control.d/vars.*
+do
+	gen_per_flavour "${v}"
+done

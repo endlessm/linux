@@ -183,15 +183,7 @@ $(DEBIAN)/control.stub: 				\
 		debian/canonical-revoked-certs.pem	\
 		debian/control.d/flavour-module.stub	\
 		$(DEBIAN)/changelog
-	for i in $(control_files); do                                           \
-	  cat $$i;                                                              \
-	  echo "";                                                              \
-	done > $(DEBIAN)/control.stub;
-	flavours="$(sort $(wildcard $(DEBIAN)/control.d/vars.*))";\
-	for i in $$flavours; do							\
-	  $(SHELL) debian/scripts/control-create $$i "$(any_signed)"		\
-		>> $(DEBIAN)/control.stub;                                      \
-	done
+	debian/scripts/control-create $(DEB_SOURCE) > $(DEBIAN)/control.stub
 	sed -i -e 's/PKGVER/$(DEB_VERSION_UPSTREAM)/g'                          \
 	        -e 's/ABINUM/$(abinum)/g'                                       \
 		-e 's/SRCPKGNAME/$(DEB_SOURCE)/g'                               \
