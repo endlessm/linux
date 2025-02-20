@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -e
+
 . debian/debian.env
 
 vars=$1
