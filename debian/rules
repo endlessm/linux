@@ -161,28 +161,12 @@ include debian/rules.d/2-binary-arch.mk
 # Builds the source and linux-headers indep packages
 include debian/rules.d/3-binary-indep.mk
 
-control_files := $(DEBIAN)/control.stub.in
-ifeq ($(DEB_SOURCE),linux)
-	control_files += debian/control.d/linux-libc-dev.stub
-	control_files += debian/control.d/linux-tools-common.stub
-	control_files += debian/control.d/linux-cloud-tools-common.stub
-	control_files += debian/control.d/linux-tools-host.stub
-	control_files += debian/control.d/linux-source.stub
-	control_files += debian/control.d/linux-doc.stub
-	control_files += debian/control.d/linux-bpf-dev.stub
-endif
-
 # Calculate Ubuntu Compatible Signing levels
 UBUNTU_COMPATIBLE_SIGNING=$(shell grep -qx ' *Subject: C = GB, ST = Isle of Man, O = Canonical Ltd., OU = Secure Boot, CN = Canonical Ltd. Secure Boot Signing (2021 v3)' debian/canonical-revoked-certs.pem && echo ubuntu/4 pro/3)
 
 # Misc stuff
 .PHONY: $(DEBIAN)/control.stub
-$(DEBIAN)/control.stub: 				\
-		debian/scripts/control-create		\
-		$(control_files)			\
-		debian/canonical-revoked-certs.pem	\
-		debian/control.d/flavour-module.stub	\
-		$(DEBIAN)/changelog
+$(DEBIAN)/control.stub: debian/canonical-revoked-certs.pem $(DEBIAN)/changelog
 	debian/scripts/control-create $(DEB_SOURCE) > $(DEBIAN)/control.stub
 	sed -i -e 's/PKGVER/$(DEB_VERSION_UPSTREAM)/g'                          \
 	        -e 's/ABINUM/$(abinum)/g'                                       \
