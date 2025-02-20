@@ -1,0 +1,15 @@
+/*.postinst
+/*.postrm
+/*.preinst
+/*.prerm
+/*.substvars
+/*.triggers
+/build/
+/canonical-certs.pem
+/canonical-revoked-certs.pem
+/changelog
+/control
+/files
+/linux-*/
+/stamps/
+/tmp-headers/
