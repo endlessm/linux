@@ -153,8 +153,7 @@ clean: debian/control debian/canonical-certs.pem debian/canonical-revoked-certs.
 
 .PHONY: distclean
 distclean: clean
-	rm -rf debian/control debian/changelog \
-		debian/control debian/control.stub debian/copyright
+	rm -rf debian/control debian/changelog debian/copyright
 
 # Builds the image, arch headers and debug packages
 include debian/rules.d/2-binary-arch.mk
