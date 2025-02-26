@@ -3874,7 +3874,7 @@ CONFIG_CXL_REGION_INVALIDATION_TEST             policy<{'amd64': 'n', 'arm64': '
 CONFIG_CXL_SUSPEND                              policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y'}>
 CONFIG_CX_ECAT                                  policy<{'amd64': 'm'}>
 CONFIG_CYPRESS_FIRMWARE                         policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm'}>
-CONFIG_CZNIC_PLATFORMS                          policy<{'amd64': 'n', 'arm64-generic': 'y', 'arm64-generic-64k': 'n', 'armhf': 'n', 'ppc64el': 'n', 'riscv64': 'n', 's390x': 'n'}>
+CONFIG_CZNIC_PLATFORMS                          policy<{'amd64': '-', 'arm64-generic': 'y', 'arm64-generic-64k': 'n', 'armhf': 'n', 'ppc64el': '-', 'riscv64': '-', 's390x': '-'}>
 CONFIG_DA280                                    policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm'}>
 CONFIG_DA311                                    policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm'}>
 CONFIG_DA9052_WATCHDOG                          policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm', 's390x': '-'}>
@@ -6603,7 +6603,7 @@ CONFIG_IMX_MBOX                                 policy<{'arm64': 'm', 'armhf': '
 CONFIG_IMX_MU_MSI                               policy<{'arm64': 'm', 'armhf': 'm'}>
 CONFIG_IMX_REMOTEPROC                           policy<{'arm64': 'm', 'armhf': 'm'}>
 CONFIG_IMX_SCMI_BBM_EXT                         policy<{'arm64': 'y', 'armhf': 'y'}>
-CONFIG_IMX_SCMI_MISC_DRV                        policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm', 's390x': 'n'}>
+CONFIG_IMX_SCMI_MISC_DRV                        policy<{'amd64': '-', 'arm64': 'm', 'armhf': 'm', 'ppc64el': '-', 'riscv64': '-', 's390x': '-'}>
 CONFIG_IMX_SCMI_MISC_EXT                        policy<{'arm64': 'm', 'armhf': 'm'}>
 CONFIG_IMX_SCU                                  policy<{'arm64': 'y', 'armhf': 'y'}>
 CONFIG_IMX_SCU_PD                               policy<{'arm64': 'y', 'armhf': 'y'}>
