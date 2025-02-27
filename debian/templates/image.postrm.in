@@ -31,7 +31,7 @@ if [ "$1" = purge ]; then
                       modules.alias modules.ccwmap modules.inputmap \
                       modules.symbols modules.ofmap \
                       modules.seriomap modules.\*.bin \
-		      modules.softdep modules.devname; do
+		      modules.softdep modules.weakdep modules.devname; do
 	eval rm -f /lib/modules/$version/$extra_file
     done
     rmdir /lib/modules/$version || true
