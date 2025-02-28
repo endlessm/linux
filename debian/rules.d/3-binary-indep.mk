@@ -53,6 +53,10 @@ endif
 endif
 
 .PHONY: install-tools
+install-tools: bpftoolpkg = $(bpftool_pkg_name)
+install-tools: bpftoolsbin = $(CURDIR)/debian/$(bpftoolpkg)/usr/sbin
+install-tools: bpftoolman = $(CURDIR)/debian/$(bpftoolpkg)/usr/share/man
+install-tools: bpftoolbashcomp = $(CURDIR)/debian/$(bpftoolpkg)/usr/share/bash-completion/completions
 install-tools: toolspkg = $(tools_common_pkg_name)
 install-tools: toolsbin = $(CURDIR)/debian/$(toolspkg)/usr/bin
 install-tools: toolssbin = $(CURDIR)/debian/$(toolspkg)/usr/sbin
@@ -96,13 +100,6 @@ ifeq ($(do_tools_common),true)
 	install -m755 debian/tools/generic $(toolsbin)/rtla
 
 	install -m755 debian/tools/generic $(toolsbin)/perf
-
-	install -m755 debian/tools/generic $(toolssbin)/bpftool
-	make -C $(builddir)/tools/tools/bpf/bpftool doc
-	install -m644 $(builddir)/tools/tools/bpf/bpftool/Documentation/*.8 \
-		$(toolsman)/man8
-	install -m644 $(builddir)/tools/tools/bpf/bpftool/bash-completion/bpftool \
-		$(toolsbashcomp)
 
 	install -m755 debian/tools/generic $(toolsbin)/x86_energy_perf_policy
 	install -m755 debian/tools/generic $(toolsbin)/turbostat
@@ -159,6 +156,21 @@ ifeq ($(do_tools_host),true)
 	cd $(builddir)/tools/tools/kvm/kvm_stat && make man
 	install -m644 $(builddir)/tools/tools/kvm/kvm_stat/*.1 \
 		$(hosttoolsman)/man1
+endif
+
+ifeq ($(do_linux_tools),true)
+  ifeq ($(do_tools_bpftool),true)
+	dh_prep -p$(bpftoolpkg)
+
+	install -d $(bpftoolsbin)
+	install -d $(bpftoolman)/man8
+	install -d $(bpftoolbashcomp)
+	make -C $(builddir)/tools/tools/bpf/bpftool doc
+	install -m644 $(builddir)/tools/tools/bpf/bpftool/Documentation/*.8 \
+		$(bpftoolman)/man8
+	install -m644 $(builddir)/tools/tools/bpf/bpftool/bash-completion/bpftool \
+		$(bpftoolbashcomp)
+  endif
 endif
 
 .PHONY: install-indep

@@ -8,6 +8,19 @@ build_dir = $(builddir)/build-$*
 # TODO this is probably wrong, and should be using $(DEB_HOST_MULTIARCH)
 shlibdeps_opts = $(if $(CROSS_COMPILE),-- -l$(CROSS_COMPILE:%-=/usr/%)/lib)
 
+# These are used by both binary-% and binary-perarch targets.
+BPFTOOL_VERSION_MAJOR = $(shell sed -ne \
+	's,^#define LIBBPF_MAJOR_VERSION \(.*\)$$,\1,p' \
+	tools/lib/bpf/libbpf_version.h)
+BPFTOOL_VERSION_MINOR = $(shell sed -ne \
+	's,^#define LIBBPF_MINOR_VERSION \(.*\)$$,\1,p' \
+	tools/lib/bpf/libbpf_version.h)
+BPFTOOL_VERSION_PATCH = $(shell sed -ne \
+	's,^#define BPFTOOL_PATCH_VERSION \(.*\)$$,\1,p' \
+	tools/bpf/bpftool/main.c)
+BPFTOOL_VERSION = $(shell expr $(BPFTOOL_VERSION_MAJOR) + 6).$(BPFTOOL_VERSION_MINOR).$(BPFTOOL_VERSION_PATCH)
+BPFTOOL_GENCONTROL_ARGS = -v$(BPFTOOL_VERSION)+$(DEB_VERSION)
+
 debian/scripts/fix-filenames: debian/scripts/fix-filenames.c
 	$(HOSTCC) $^ -o $@
 
@@ -111,6 +124,7 @@ $(stampdir)/stamp-install-%: signingv = $(CURDIR)/debian/$(bin_pkg_name)-signing
 $(stampdir)/stamp-install-%: toolspkgdir = $(CURDIR)/debian/$(tools_flavour_pkg_name)-$*
 $(stampdir)/stamp-install-%: cloudpkgdir = $(CURDIR)/debian/$(cloud_flavour_pkg_name)-$*
 $(stampdir)/stamp-install-%: bpfdevpkgdir = $(CURDIR)/debian/linux-bpf-dev
+$(stampdir)/stamp-install-%: bpftoolpkgdir = $(CURDIR)/debian/$(bpftool_pkg_name)
 $(stampdir)/stamp-install-%: basepkg = $(hdrs_pkg_name)
 $(stampdir)/stamp-install-%: baserustpkg = $(rust_pkg_name)
 $(stampdir)/stamp-install-%: indeppkg = $(indep_hdrs_pkg_name)
@@ -614,6 +628,11 @@ ifeq ($(do_linux_tools),true)
 		$(call dh_all_inline,linux-bpf-dev) ; \
 	fi
   endif
+  ifneq ($(filter $(bpftool_pkg_name),$(packages_enabled)),)
+	if [ $* = $(firstword $(flavours)) ] ; then \
+		$(call dh_all_inline,$(bpftool_pkg_name),$(BPFTOOL_GENCONTROL_ARGS)) ; \
+	fi
+  endif
  endif
 endif
 
@@ -679,6 +698,7 @@ endif
 .PHONY: install-perarch
 install-perarch: toolspkgdir = $(CURDIR)/debian/$(tools_pkg_name)
 install-perarch: cloudpkgdir = $(CURDIR)/debian/$(cloud_pkg_name)
+install-perarch: bpftoolpkgdir = $(CURDIR)/debian/$(bpftool_pkg_name)
 install-perarch: $(stampdir)/stamp-build-perarch
 	@echo Debug: $@
 	# Add the tools.
@@ -714,8 +734,9 @@ ifeq ($(do_tools_perf_python),true)
 endif
 endif # do_tools_perf
 ifeq ($(do_tools_bpftool),true)
+	install -d $(bpftoolpkgdir)/usr/sbin
 	install -m755 $(builddirpa)/tools/bpf/bpftool/bpftool \
-		$(toolspkgdir)/usr/lib/$(DEB_SOURCE)-tools-$(abi_release)
+		$(bpftoolpkgdir)/usr/sbin/bpftool
 endif
 ifeq ($(do_tools_x86),true)
 	install -m755 $(addprefix $(builddirpa)/tools/power/x86/, x86_energy_perf_policy/x86_energy_perf_policy turbostat/turbostat) \
@@ -737,6 +758,7 @@ endif # do_cloud_tools
 .PHONY: binary-perarch
 binary-perarch: toolspkg = $(tools_pkg_name)
 binary-perarch: cloudpkg = $(cloud_pkg_name)
+binary-perarch: bpftoolpkg = $(bpftool_pkg_name)
 binary-perarch: install-perarch
 	@echo Debug: $@
 ifeq ($(do_linux_tools),true)
@@ -744,6 +766,15 @@ ifeq ($(do_linux_tools),true)
 endif
 ifeq ($(do_cloud_tools),true)
 	$(call dh_all,$(cloudpkg))
+endif
+ifeq ($(do_linux_tools),true)
+  ifeq ($(do_tools_bpftool),true)
+    ifneq ($(filter $(bpftoolpkg),$(packages_enabled)),)
+		if [ $* = $(firstword $(flavours)) ] ; then \
+			$(call dh_all_inline,$(bpftoolpkg),$(BPFTOOL_GENCONTROL_ARGS)) ; \
+		fi
+    endif
+  endif
 endif
 
 .PHONY: binary-debs

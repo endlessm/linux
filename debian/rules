@@ -53,6 +53,12 @@ ifeq ($(DEB_SOURCE),linux)
 	do_tools_host = true
 endif
 
+# The unversioned and unflavoured bpftools package should only be built for the
+# linux source package.
+ifneq ($(DEB_SOURCE),linux)
+	do_tools_bpftool = false
+endif
+
 # The linux-source package may only be built for the linux source package
 # We need to explicitly turn this off here to override any (incorrect)
 # statement in any of the above included makefile snippets

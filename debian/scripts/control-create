@@ -24,6 +24,7 @@ gen_common () {
 			debian/control.d/linux-source.stub
 			debian/control.d/linux-doc.stub
 			debian/control.d/linux-bpf-dev.stub
+			debian/control.d/bpftool.stub
 		)
 	fi
 

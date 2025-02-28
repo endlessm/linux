@@ -135,6 +135,7 @@ ifneq ($(wildcard $(CURDIR)/tools),)
 else
 	do_tools?=false
 endif
+bpftool_pkg_name=bpftool
 tools_pkg_name=$(DEB_SOURCE)-tools-$(abi_release)
 tools_common_pkg_name=linux-tools-common
 tools_flavour_pkg_name=linux-tools-$(abi_release)
