@@ -136,6 +136,7 @@ else
 	do_tools?=false
 endif
 bpftool_pkg_name=bpftool
+perf_pkg_name=linux-perf
 tools_pkg_name=$(DEB_SOURCE)-tools-$(abi_release)
 tools_common_pkg_name=linux-tools-common
 tools_flavour_pkg_name=linux-tools-$(abi_release)

@@ -57,11 +57,14 @@ install-tools: bpftoolpkg = $(bpftool_pkg_name)
 install-tools: bpftoolsbin = $(CURDIR)/debian/$(bpftoolpkg)/usr/sbin
 install-tools: bpftoolman = $(CURDIR)/debian/$(bpftoolpkg)/usr/share/man
 install-tools: bpftoolbashcomp = $(CURDIR)/debian/$(bpftoolpkg)/usr/share/bash-completion/completions
+install-tools: perfpkg = $(perf_pkg_name)
+install-tools: perfbin = $(CURDIR)/debian/$(perfpkg)/usr/bin
+install-tools: perfman = $(CURDIR)/debian/$(perfpkg)/usr/share/man
+install-tools: perfpython = $(CURDIR)/debian/$(perfpkg)/usr/lib/python3/dist-packages
 install-tools: toolspkg = $(tools_common_pkg_name)
 install-tools: toolsbin = $(CURDIR)/debian/$(toolspkg)/usr/bin
 install-tools: toolssbin = $(CURDIR)/debian/$(toolspkg)/usr/sbin
 install-tools: toolsman = $(CURDIR)/debian/$(toolspkg)/usr/share/man
-install-tools: toolspython = $(CURDIR)/debian/$(toolspkg)/usr/lib/python3/dist-packages
 install-tools: toolsbashcomp = $(CURDIR)/debian/$(toolspkg)/usr/share/bash-completion/completions
 install-tools: hosttoolspkg = $(hosttools_pkg_name)
 install-tools: hosttoolsbin = $(CURDIR)/debian/$(hosttoolspkg)/usr/bin
@@ -76,6 +79,7 @@ install-tools: $(stampdir)/stamp-build-perarch
 
 ifeq ($(do_tools_common),true)
 	dh_prep -p$(toolspkg)
+	dh_prep -p$(perfpkg)
 
 	rm -rf $(builddir)/tools
 	install -d $(builddir)/tools
@@ -88,7 +92,9 @@ ifeq ($(do_tools_common),true)
 	install -d $(toolsman)/man1
 	install -d $(toolsman)/man8
 	install -d $(toolsbashcomp)
-	install -d $(toolspython)
+	install -d $(perfbin)
+	install -d $(perfman)/man1
+	install -d $(perfpython)
 
 	install -m755 debian/tools/generic $(toolsbin)/usbip
 	install -m755 debian/tools/generic $(toolsbin)/usbipd
@@ -99,22 +105,20 @@ ifeq ($(do_tools_common),true)
 
 	install -m755 debian/tools/generic $(toolsbin)/rtla
 
-	install -m755 debian/tools/generic $(toolsbin)/perf
-
 	install -m755 debian/tools/generic $(toolsbin)/x86_energy_perf_policy
 	install -m755 debian/tools/generic $(toolsbin)/turbostat
 
 	cd $(builddir)/tools/tools/perf && make man
 	install -m644 $(builddir)/tools/tools/perf/Documentation/*.1 \
-		$(toolsman)/man1
+		$(perfman)/man1
 
 	install -m644 $(CURDIR)/tools/power/x86/x86_energy_perf_policy/*.8 $(toolsman)/man8
 	install -m644 $(CURDIR)/tools/power/x86/turbostat/*.8 $(toolsman)/man8
 
 ifeq ($(do_tools_perf_python),true)
 	# Python wrapper module for python-perf
-	install -d $(toolspython)/perf
-	install -m644 debian/tools/python-perf.py $(toolspython)/perf/__init__.py
+	install -d $(perfpython)/perf
+	install -m644 debian/tools/python-perf.py $(perfpython)/perf/__init__.py
 endif
 ifeq ($(do_cloud_tools),true)
 ifeq ($(do_tools_hyperv),true)

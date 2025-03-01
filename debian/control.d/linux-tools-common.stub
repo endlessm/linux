@@ -8,6 +8,7 @@ Provides:
  linux-cpupower,
 Recommends:
  bpftool (>= 7.6.0+6.14.0-8~),
+ linux-perf,
 Depends: ${misc:Depends}, lsb-release, hwdata
 Description: Linux kernel version specific tools for version PKGVER
  This package provides the architecture independent parts for kernel

@@ -125,6 +125,7 @@ $(stampdir)/stamp-install-%: toolspkgdir = $(CURDIR)/debian/$(tools_flavour_pkg_
 $(stampdir)/stamp-install-%: cloudpkgdir = $(CURDIR)/debian/$(cloud_flavour_pkg_name)-$*
 $(stampdir)/stamp-install-%: bpfdevpkgdir = $(CURDIR)/debian/linux-bpf-dev
 $(stampdir)/stamp-install-%: bpftoolpkgdir = $(CURDIR)/debian/$(bpftool_pkg_name)
+$(stampdir)/stamp-install-%: perfpkgdir = $(CURDIR)/debian/$(perf_pkg_name)
 $(stampdir)/stamp-install-%: basepkg = $(hdrs_pkg_name)
 $(stampdir)/stamp-install-%: baserustpkg = $(rust_pkg_name)
 $(stampdir)/stamp-install-%: indeppkg = $(indep_hdrs_pkg_name)
@@ -634,6 +635,13 @@ ifeq ($(do_linux_tools),true)
 	fi
   endif
  endif
+ ifeq ($(do_tools_perf),true)
+  ifneq ($(filter $(perf_pkg_name),$(packages_enabled)),)
+	if [ $* = $(firstword $(flavours)) ] ; then \
+		$(call dh_all_inline,$(perf_pkg_name)) ; \
+	fi
+  endif
+ endif
 endif
 
 #
@@ -699,12 +707,12 @@ endif
 install-perarch: toolspkgdir = $(CURDIR)/debian/$(tools_pkg_name)
 install-perarch: cloudpkgdir = $(CURDIR)/debian/$(cloud_pkg_name)
 install-perarch: bpftoolpkgdir = $(CURDIR)/debian/$(bpftool_pkg_name)
+install-perarch: perfpkgdir = $(CURDIR)/debian/$(perf_pkg_name)
 install-perarch: $(stampdir)/stamp-build-perarch
 	@echo Debug: $@
 	# Add the tools.
 ifeq ($(do_linux_tools),true)
 	install -d $(toolspkgdir)/usr/lib/$(DEB_SOURCE)-tools-$(abi_release)
-	install -d $(toolspkgdir)/usr/lib/$(DEB_SOURCE)-tools-$(abi_release)/lib
 ifeq ($(do_tools_usbip),true)
 	install -m755 $(addprefix $(builddirpa)/tools/usb/usbip/bin/sbin/, usbip usbipd) \
 		$(toolspkgdir)/usr/lib/$(DEB_SOURCE)-tools-$(abi_release)
@@ -722,15 +730,17 @@ ifeq ($(do_tools_rtla),true)
 		$(toolspkgdir)/usr/lib/$(DEB_SOURCE)-tools-$(abi_release)/rtla
 endif
 ifeq ($(do_tools_perf),true)
+	install -d $(perfpkgdir)/usr/bin
+	install -d $(perfpkgdir)/usr/lib
 	install -m755 $(builddirpa)/tools/perf/perf \
-		$(toolspkgdir)/usr/lib/$(DEB_SOURCE)-tools-$(abi_release)
+		$(perfpkgdir)/usr/bin/perf
 ifeq ($(do_tools_perf_jvmti),true)
 	install -m644 $(builddirpa)/tools/perf/libperf-jvmti.so \
-		$(toolspkgdir)/usr/lib/$(DEB_SOURCE)-tools-$(abi_release)/lib
+		$(perfpkgdir)/usr/lib/
 endif
 ifeq ($(do_tools_perf_python),true)
 	install -m644 $(builddirpa)/tools/perf/python/perf.*.so \
-		$(toolspkgdir)/usr/lib/$(DEB_SOURCE)-tools-$(abi_release)/lib
+		$(perfpkgdir)/usr/lib/
 endif
 endif # do_tools_perf
 ifeq ($(do_tools_bpftool),true)
@@ -759,6 +769,7 @@ endif # do_cloud_tools
 binary-perarch: toolspkg = $(tools_pkg_name)
 binary-perarch: cloudpkg = $(cloud_pkg_name)
 binary-perarch: bpftoolpkg = $(bpftool_pkg_name)
+binary-perarch: perfpkg = $(perf_pkg_name)
 binary-perarch: install-perarch
 	@echo Debug: $@
 ifeq ($(do_linux_tools),true)
@@ -772,6 +783,13 @@ ifeq ($(do_linux_tools),true)
     ifneq ($(filter $(bpftoolpkg),$(packages_enabled)),)
 		if [ $* = $(firstword $(flavours)) ] ; then \
 			$(call dh_all_inline,$(bpftoolpkg),$(BPFTOOL_GENCONTROL_ARGS)) ; \
+		fi
+    endif
+  endif
+  ifeq ($(do_tools_perf),true)
+    ifneq ($(filter $(perfpkg),$(packages_enabled)),)
+		if [ $* = $(firstword $(flavours)) ] ; then \
+			$(call dh_all_inline,$(perfpkg)) ; \
 		fi
     endif
   endif
