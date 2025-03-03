@@ -151,8 +151,6 @@ clean: debian/control debian/canonical-certs.pem debian/canonical-revoked-certs.
 	# If we have a reconstruct script use it.
 	[ -f $(DEBIAN)/reconstruct ] && bash $(DEBIAN)/reconstruct || true
 
-	# Remove generated intermediate files
-	rm -f debian/control.stub $(DEBIAN)/control.stub
 	rm -f debian/scripts/fix-filenames
 
 .PHONY: distclean
@@ -169,20 +167,15 @@ include debian/rules.d/3-binary-indep.mk
 UBUNTU_COMPATIBLE_SIGNING=$(shell grep -qx ' *Subject: C = GB, ST = Isle of Man, O = Canonical Ltd., OU = Secure Boot, CN = Canonical Ltd. Secure Boot Signing (2021 v3)' debian/canonical-revoked-certs.pem && echo ubuntu/4 pro/3)
 
 # Misc stuff
-.PHONY: $(DEBIAN)/control.stub
-$(DEBIAN)/control.stub: debian/canonical-revoked-certs.pem $(DEBIAN)/changelog
-	debian/scripts/control-create $(DEB_SOURCE) > $(DEBIAN)/control.stub
+debian/control: debian/canonical-revoked-certs.pem $(DEBIAN)/changelog FORCE
+	debian/scripts/control-create $(DEB_SOURCE) > $@
 	sed -i -e 's/PKGVER/$(DEB_VERSION_UPSTREAM)/g'                          \
 	        -e 's/ABINUM/$(abinum)/g'                                       \
 		-e 's/SRCPKGNAME/$(DEB_SOURCE)/g'                               \
 		-e 's/=SERIES=/$(DEB_DISTRIBUTION)/g'                           \
 		-e 's|\(^Maintainer:.*\)|\1\nXSC-Ubuntu-Compatible-Signing: $(UBUNTU_COMPATIBLE_SIGNING)|g' \
 		-e 's/\(^Build-Depends:$$\)/\1\n$(GCC_BUILD_DEPENDS)/g'         \
-	$(DEBIAN)/control.stub
-
-.PHONY: debian/control
-debian/control: $(DEBIAN)/control.stub
-	cp $(DEBIAN)/control.stub debian/control
+	$@
 
 debian/canonical-certs.pem: $(wildcard debian/certs/*.pem $(DEBIAN)/certs/*.pem)
 	for cert in $(sort $(notdir $^));					\
@@ -207,3 +200,9 @@ debian/canonical-revoked-certs.pem: $(wildcard debian/revoked-certs/*.pem $(DEBI
 			fi;							\
 		done;								\
 	done >"$@"
+
+# delete partially updated (i.e. corrupted) files on error
+.DELETE_ON_ERROR:
+
+# Add FORCE to the prerequisites of a target to force it to be always rebuilt.
+.PHONY: FORCE
