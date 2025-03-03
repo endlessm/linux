@@ -148,9 +148,6 @@ clean: debian/control debian/canonical-certs.pem debian/canonical-revoked-certs.
 
 	cp $(DEBIAN)/changelog debian/changelog
 
-	# Install the copyright information.
-	cp $(DEBIAN)/copyright debian/copyright
-
 	# If we have a reconstruct script use it.
 	[ -f $(DEBIAN)/reconstruct ] && bash $(DEBIAN)/reconstruct || true
 
@@ -160,7 +157,7 @@ clean: debian/control debian/canonical-certs.pem debian/canonical-revoked-certs.
 
 .PHONY: distclean
 distclean: clean
-	rm -rf debian/control debian/changelog debian/copyright
+	rm -rf debian/control debian/changelog
 
 # Builds the image, arch headers and debug packages
 include debian/rules.d/2-binary-arch.mk
