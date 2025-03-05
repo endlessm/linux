@@ -220,6 +220,7 @@ drivers/video/vgastate.ko
 drivers/virt/vboxguest/vboxguest.ko
 drivers/virtio/*
 drivers/watchdog/softdog.ko
+drivers/watchdog/wdat_wdt.ko
 drivers/xen/*
 fs/9p/*
 fs/aufs/aufs.ko
