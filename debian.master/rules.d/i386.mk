@@ -8,6 +8,5 @@ vdso		= vdso_install
 no_dumpfile	= true
 do_flavour_image_package = false
 do_tools	= false
-do_extras_package = false
 do_flavour_header_package = false
 do_common_headers_indep = false

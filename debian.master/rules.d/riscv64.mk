@@ -12,7 +12,6 @@ do_flavour_image_package = false
 do_tools                 = true
 do_flavour_header_package = false
 do_common_headers_indep = false
-do_extras_package      = false
 do_tools_usbip         = false
 do_tools_cpupower      = false
 do_tools_perf          = true

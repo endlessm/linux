@@ -105,7 +105,6 @@ stampdir	:= $(CURDIR)/debian/stamps
 bin_pkg_name_signed=linux-image-$(abi_release)
 bin_pkg_name_unsigned=linux-image-unsigned-$(abi_release)
 mods_pkg_name=linux-modules-$(abi_release)
-mods_extra_pkg_name=linux-modules-extra-$(abi_release)
 bldinfo_pkg_name=linux-buildinfo-$(abi_release)
 hdrs_pkg_name=linux-headers-$(abi_release)
 rust_pkg_name=linux-lib-rust-$(abi_release)
