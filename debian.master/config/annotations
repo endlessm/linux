@@ -4850,6 +4850,7 @@ CONFIG_ECHO                                     policy<{'amd64': 'm', 'arm64': '
 CONFIG_ECRYPT_FS_MESSAGING                      policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y', 's390x': 'y'}>
 CONFIG_EC_ACER_ASPIRE1                          policy<{'arm64': 'm'}>
 CONFIG_EC_LENOVO_YOGA_C630                      policy<{'arm64-generic': 'm', 'arm64-generic-64k': 'n'}>
+CONFIG_EC_LENOVO_YOGA_SLIM7X                    policy<{'arm64': 'm'}>
 CONFIG_EDAC                                     policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y'}>
 CONFIG_EDAC_ALTERA                              policy<{'arm64': 'y', 'armhf': 'y'}>
 CONFIG_EDAC_ALTERA_ETHERNET                     policy<{'arm64': 'y', 'armhf': 'y'}>
@@ -14686,6 +14687,7 @@ CONFIG_TYPEC_MUX_INTEL_PMC                      policy<{'amd64': 'm'}>
 CONFIG_TYPEC_MUX_IT5205                         policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm'}>
 CONFIG_TYPEC_MUX_NB7VPQ904M                     policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm'}>
 CONFIG_TYPEC_MUX_PI3USB30532                    policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm'}>
+CONFIG_TYPEC_MUX_PS883X                         policy<{'arm64': 'm'}>
 CONFIG_TYPEC_MUX_PTN36502                       policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm'}>
 CONFIG_TYPEC_MUX_TUSB1046                       policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm'}>
 CONFIG_TYPEC_MUX_WCD939X_USBSS                  policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm'}>
