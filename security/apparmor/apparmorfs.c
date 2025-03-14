@@ -999,6 +999,10 @@ static int aa_sfs_seq_show(struct seq_file *seq, void *v)
 	case AA_SFS_TYPE_BOOLEAN:
 		seq_printf(seq, "%s\n", str_yes_no(fs_file->v.boolean));
 		break;
+	case AA_SFS_TYPE_BOOLEAN_INTPRINT:
+		// Allow printing the boolean as 0/1 for backwards compatibility
+		seq_printf(seq, "%s\n", fs_file->v.boolean ? "1" : "0");
+		break;
 	case AA_SFS_TYPE_STRING:
 		seq_printf(seq, "%s\n", fs_file->v.string);
 		break;
