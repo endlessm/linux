@@ -4039,6 +4039,7 @@ CONFIG_DEV_DAX_HMEM                             policy<{'amd64': 'm', 'arm64': '
 CONFIG_DEV_DAX_HMEM_DEVICES                     policy<{'amd64': 'y', 'arm64': 'y', 'riscv64': 'y'}>
 CONFIG_DEV_DAX_KMEM                             policy<{'amd64': 'm', 'arm64': 'm', 'ppc64el': 'm', 'riscv64': 'm', 's390x': 'm'}>
 CONFIG_DEV_DAX_PMEM                             policy<{'amd64': 'm', 'arm64': 'm', 'ppc64el': 'm', 'riscv64': 'm'}>
+CONFIG_DEV_SYNC_PROBE                           policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm', 's390x': 'm'}>
 CONFIG_DHT11                                    policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm'}>
 CONFIG_DIAG288_WATCHDOG                         policy<{'s390x': 'm'}>
 CONFIG_DIMLIB                                   policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y', 's390x': 'y'}>
