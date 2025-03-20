@@ -731,16 +731,17 @@ ifeq ($(do_tools_rtla),true)
 endif
 ifeq ($(do_tools_perf),true)
 	install -d $(perfpkgdir)/usr/bin
-	install -d $(perfpkgdir)/usr/lib
 	install -m755 $(builddirpa)/tools/perf/perf \
 		$(perfpkgdir)/usr/bin/perf
 ifeq ($(do_tools_perf_jvmti),true)
+	install -d $(perfpkgdir)/usr/lib
 	install -m644 $(builddirpa)/tools/perf/libperf-jvmti.so \
 		$(perfpkgdir)/usr/lib/
 endif
 ifeq ($(do_tools_perf_python),true)
+	install -d $(perfpkgdir)/usr/lib/python3/dist-packages
 	install -m644 $(builddirpa)/tools/perf/python/perf.*.so \
-		$(perfpkgdir)/usr/lib/
+		$(perfpkgdir)/usr/lib/python3/dist-packages/
 endif
 endif # do_tools_perf
 ifeq ($(do_tools_bpftool),true)
