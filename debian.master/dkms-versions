@@ -1,5 +1,5 @@
-zfs-linux 2.2.7-2ubuntu5 modulename=zfs debpath=pool/universe/z/%package%/zfs-dkms_%version%_all.deb arch=amd64 arch=arm64 arch=ppc64el arch=s390x rprovides=spl-modules rprovides=spl-dkms rprovides=zfs-modules rprovides=zfs-dkms
-ipu6-drivers 0~git202411190607.0ad49882-0ubuntu2 modulename=ipu6 debpath=pool/universe/i/%package%/intel-ipu6-dkms_%version%_amd64.deb arch=amd64 rprovides=ipu6-modules rprovides=intel-ipu6-dkms type=standalone
+zfs-linux 2.3.1-1ubuntu1 modulename=zfs debpath=pool/universe/z/%package%/zfs-dkms_%version%_all.deb arch=amd64 arch=arm64 arch=ppc64el arch=s390x rprovides=spl-modules rprovides=spl-dkms rprovides=zfs-modules rprovides=zfs-dkms
+ipu6-drivers 0~git202411190607.0ad49882-0ubuntu3 modulename=ipu6 debpath=pool/universe/i/%package%/intel-ipu6-dkms_%version%_amd64.deb arch=amd64 rprovides=ipu6-modules rprovides=intel-ipu6-dkms type=standalone
 ipu7-drivers 0~git202412060257.0fc08453-0ubuntu2 modulename=ipu7 debpath=pool/universe/i/%package%/intel-ipu7-dkms_%version%_amd64.deb arch=amd64 rprovides=ipu7-modules rprovides=intel-ipu7-dkms type=standalone
 backport-iwlwifi-dkms 1:0~93.12955-gite723a6f0-0ubuntu1 modulename=iwlwifi debpath=pool/universe/b/%package%/backport-iwlwifi-dkms_%version%_all.deb arch=amd64 rprovides=iwlwifi-modules rprovides=backport-iwlwifi-dkms type=standalone
 v4l2loopback 0.13.2-1ubuntu1 modulename=v4l2loopback debpath=pool/universe/v/%package%/v4l2loopback-dkms_%version%_all.deb arch=amd64 rprovides=v4l2loopback-modules rprovides=v4l2loopback-dkms
