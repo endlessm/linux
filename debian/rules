@@ -168,7 +168,7 @@ UBUNTU_COMPATIBLE_SIGNING=$(shell grep -qx ' *Subject: C = GB, ST = Isle of Man,
 
 # Misc stuff
 debian/control: debian/canonical-revoked-certs.pem $(DEBIAN)/changelog FORCE
-	debian/scripts/control-create $(DEB_SOURCE) > $@
+	$(SHELL) debian/scripts/control-create $(DEB_SOURCE) > $@
 	sed -i -e 's/PKGVER/$(DEB_VERSION_UPSTREAM)/g'                          \
 	        -e 's/ABINUM/$(abinum)/g'                                       \
 		-e 's/SRCPKGNAME/$(DEB_SOURCE)/g'                               \
