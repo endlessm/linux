@@ -93,7 +93,7 @@ Priority: optional
 Depends: ${misc:Depends}, SRCPKGNAME-tools-PKGVER-ABINUM
 Description: Linux kernel version specific tools for version PKGVER-ABINUM
  This package provides the architecture dependant parts for kernel
- version locked tools (such as perf and x86_energy_perf_policy) for
+ version locked tools (such as x86_energy_perf_policy) for
  version PKGVER-ABINUM.
 
 Package: linux-cloud-tools-PKGVER-ABINUM-FLAVOUR
