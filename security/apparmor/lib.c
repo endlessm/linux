@@ -46,6 +46,7 @@ static struct val_table_ent debug_values_table[] = {
 	{ "interface", DEBUG_INTERFACE },
 	{ "upcall", DEBUG_UPCALL },
 	{ "unpack", DEBUG_UNPACK },
+	{ "tags", DEBUG_TAGS },
 	{ NULL, 0 }
 };
 

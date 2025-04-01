@@ -615,39 +615,49 @@ static const struct file_operations aa_fs_ns_revision_fops = {
 /* file hook fn for notificaions of policy actions */
 static int listener_release(struct inode *inode, struct file *file)
 {
-	struct aa_listener *listener = file->private_data;
+	struct aa_listener_proxy *proxy = file->private_data;
 
 	if (!aa_current_policy_admin_capable(NULL))
 		return -EPERM;
-	if (listener)
-		aa_put_listener(listener);
-
+	AA_DEBUG(DEBUG_UPCALL, "file %p, listener %p, id %llu", file, proxy->listener, proxy->listener->listener_id);
+	if (proxy) {
+		AA_DEBUG(DEBUG_UPCALL, "file putting proxy");
+		aa_delayed_free_listener_proxy(proxy);
+	}
 	return 0;
 }
 
 static int listener_open(struct inode *inode, struct file *file)
 {
+	struct aa_listener_proxy *proxy;
 	struct aa_listener *listener;
+	struct aa_ns *ns = NULL;
 
 	if (!aa_current_policy_admin_capable(NULL))
 		return -EPERM;
 	listener = aa_new_listener(NULL, GFP_KERNEL);
 	if (!listener)
 		return -ENOMEM;
-	file->private_data = listener;
+	proxy = aa_new_listener_proxy(listener, ns);
+	aa_put_listener(listener);
+	if (!proxy)
+		return -ENOMEM;
+	AA_DEBUG(DEBUG_UPCALL, "Registered listener using protocol version %d",
+		 listener->version);
+	file->private_data = proxy;
 	return 0;
 }
 
 static bool notif_supported_version(struct apparmor_notif_common *unotif)
 {
-	return (unotif->version == APPARMOR_NOTIFY_VERSION);
+	return (unotif->version == 3 || unotif->version == 5);
 }
 
 /* todo: separate register and set filter */
 static long notify_set_filter(struct aa_listener *listener,
 			      unsigned long arg)
 {
-	struct apparmor_notif_filter *unotif;
+	union apparmor_notif_filters *unotif;
 	struct aa_ns *ns = NULL;
 	long ret;
 	u16 size;
@@ -669,6 +679,7 @@ static long notify_set_filter(struct aa_listener *listener,
 	ret = size;
 
 	if (!notif_supported_version((struct apparmor_notif_common *)unotif)) {
+		AA_DEBUG(DEBUG_UPCALL, "Failed to Register listener using unsupported protocol version %d", unotif->base.version);
 		ret = -EPROTONOSUPPORT;
 		goto out;
 	}
@@ -698,8 +709,6 @@ static long notify_set_filter(struct aa_listener *listener,
 		}
 		listener->filter = dfa;
 	}
-	if (!aa_register_listener_proxy(listener, ns))
-		ret = -ENOMEM;
 
 out:
 	kfree(unotif);
@@ -711,13 +720,25 @@ out:
 static long notify_user_recv(struct aa_listener *listener,
 			     unsigned long arg)
 {
-	u16 max_size;
+	struct apparmor_notif_common common;
 	void __user *buf = (void __user *)arg;
+	__u16 version;
 
-	if (copy_from_user(&max_size, buf, sizeof(max_size)))
+	if (copy_from_user(&common.len, buf, sizeof(common.len)))
 		return -EFAULT;
+	if (listener->version >= 5) {
+		/* allow individual messages to specify version */
+		if (common.len < sizeof(common))
+			return -EMSGSIZE;
+		if (copy_from_user(&common, buf, sizeof(common)))
+			return -EFAULT;
+		version = common.version;
+	} else {
+		version = listener->version;
+	}
 	/* size check handled by individual message handlers */
-	return aa_listener_unotif_recv(listener, buf, max_size);
+	return aa_listener_unotif_recv(listener, buf, common.len,
+				       version);
 }
 
 static long notify_user_response(struct aa_listener *listener,
@@ -749,6 +770,7 @@ static long notify_user_response(struct aa_listener *listener,
 	}
 
 	if (!notif_supported_version((struct apparmor_notif_common *)&uresp)) {
+		AA_DEBUG(DEBUG_UPCALL, "Failed response listener using unsupported protocol version %d", uresp.base.base.version);
 		error = -EPROTONOSUPPORT;
 		goto out;
 	}
@@ -777,16 +799,101 @@ static long notify_is_id_valid(struct aa_listener *listener,
 	return ret;
 }
 
-static long listener_ioctl(struct file *file, unsigned int cmd,
-			 unsigned long arg)
+static long notify_user_register(struct aa_listener *listener,
+				 unsigned long arg, struct file *file)
 {
-	struct aa_listener *listener = file->private_data;
+	struct apparmor_notif_register_v5 reg;
+	struct aa_listener *found = NULL;
+	void __user *buf = (void __user *)arg;
+	long res;
 
-	if (!aa_current_policy_admin_capable(NULL))
-		return -EPERM;
-	if (!listener)
-		return -EINVAL;
+	if (copy_from_user(&reg.base.len, buf, sizeof(reg.base.len)))
+		return -EFAULT;
+	if (reg.base.len < sizeof(reg))
+		return -EMSGSIZE;
+	if (copy_from_user(&reg, buf, sizeof(reg)))
+		return -EFAULT;
+	/* to balance potential put and retry, ideally would grab from
+	 * file here, but need to refactor for that
+	 */
+	aa_get_listener(listener);
+retry:
+	res = aa_register_listener_id(listener, &reg.listener_id, &found);
+	AA_DEBUG(DEBUG_UPCALL, "registered id %llu found %p res %ld", reg.listener_id, found, res);
+	if (res >= 0) {
+		if (found) {
+			struct aa_listener *l;
 
+			AA_DEBUG(DEBUG_UPCALL, "updating file");
+			struct aa_listener_proxy *proxy;
+
+			spin_lock(&file->f_lock);
+			proxy = file->private_data;
+			if (proxy->listener != listener) {
+				/* raced, try again */
+				l = aa_get_listener(proxy->listener);
+				spin_unlock(&file->f_lock);
+				aa_put_listener(found);
+				aa_put_listener(listener);
+				listener = l;
+				found = NULL;
+				goto retry;
+			}
+			spin_lock(&listener->lock);
+			l = proxy->listener;
+			proxy->listener = NULL;
+			list_del_init(&proxy->llist);
+			spin_unlock(&listener->lock);
+
+			spin_lock(&found->lock);
+			proxy->listener = found; /* transfer search ref */
+			list_add_tail_entry(proxy, &found->ns_proxies,
+					    llist);
+			spin_unlock(&found->lock);
+			spin_unlock(&file->f_lock);
+			aa_put_listener(l);
+			AA_DEBUG(DEBUG_UPCALL, "completed file update");
+		}
+		res = sizeof(reg);
+		if (copy_to_user(buf, &reg, sizeof(reg)))
+			res = -EFAULT;
+	}
+	aa_put_listener(listener);
+	/* size check handled by individual message handlers */
+
+	return res;
+}
+
+static long notify_user_resend(struct aa_listener *listener,
+			       unsigned long arg)
+{
+	struct apparmor_notif_resend_v5 resend;
+	void __user *buf = (void __user *)arg;
+	long res;
+
+	if (copy_from_user(&resend.base.len, buf, sizeof(resend.base.len)))
+		return -EFAULT;
+	if (resend.base.len < sizeof(resend))
+		return -EMSGSIZE;
+	if (copy_from_user(&resend, buf, sizeof(resend)))
+		return -EFAULT;
+	
+	/* size check handled by individual message handlers */
+	res = aa_listener_unotif_resend(listener, &resend.ready,
+					&resend.pending);
+	if (!res) {
+		if (copy_to_user(buf, &resend, sizeof(resend)))
+			return -EFAULT;
+		res = sizeof(resend);
+	}
+	return res;
+}
+
+
+static long listener_ioctl_switch(struct file *file,
+				  struct aa_listener *listener,
+				  unsigned int cmd, unsigned long arg)
+{
 	/* todo permission to issue these commands */
 	switch (cmd) {
 	case APPARMOR_NOTIF_SET_FILTER:
@@ -797,21 +904,50 @@ static long listener_ioctl(struct file *file, unsigned int cmd,
 		return notify_user_response(listener, arg);
 	case APPARMOR_NOTIF_IS_ID_VALID:
 		return notify_is_id_valid(listener, arg);
-	default:
+	case APPARMOR_NOTIF_REGISTER:
+		return notify_user_register(listener, arg, file);
+	case APPARMOR_NOTIF_RESEND:
+		return notify_user_resend(listener, arg);
+	}
+	return -EINVAL;
+}
+
+static long listener_ioctl(struct file *file, unsigned int cmd,
+			 unsigned long arg)
+{
+	struct aa_listener_proxy *proxy;
+	struct aa_listener *listener;
+	long error;
+
+	if (!aa_current_policy_admin_capable(NULL))
+		return -EPERM;
+
+	spin_lock(&file->f_lock);
+	proxy = file->private_data;
+	listener = aa_get_listener(proxy->listener);
+	spin_unlock(&file->f_lock);
+	if (!listener)
 		return -EINVAL;
 
-	}
+	error = listener_ioctl_switch(file, listener, cmd, arg);
+	aa_put_listener(listener);
 
-	return -EINVAL;
+	return error;
 }
 
 static __poll_t listener_poll(struct file *file, poll_table *pt)
 {
-	struct aa_listener *listener = file->private_data;
+	struct aa_listener_proxy *proxy;
+	struct aa_listener *listener;
 	__poll_t mask = 0;
 
 	if (!aa_current_policy_admin_capable(NULL))
 		return EPOLLERR;
+
+	spin_lock(&file->f_lock);
+	proxy = file->private_data;
+	listener = aa_get_listener(proxy->listener);
+	spin_unlock(&file->f_lock);
 
 	if (listener) {
 		spin_lock(&listener->lock);
@@ -822,6 +958,7 @@ static __poll_t listener_poll(struct file *file, poll_table *pt)
 			mask |= EPOLLOUT | EPOLLWRNORM;
 		spin_unlock(&listener->lock);
 	}
+	aa_put_listener(listener);
 
 	return mask;
 }
@@ -2625,12 +2762,13 @@ static struct aa_sfs_entry aa_sfs_entry_versions[] = {
 };
 
 static struct aa_sfs_entry aa_sfs_entry_notify[] = {
-	AA_SFS_FILE_STRING("user", "file"),
+	AA_SFS_FILE_STRING("user", "file tags"),
 	{ }
 };
 
 static struct aa_sfs_entry aa_sfs_entry_notify_versions[] = {
 	AA_SFS_FILE_BOOLEAN("v3",	1),
+	AA_SFS_FILE_BOOLEAN("v5",	1),
 	{ }
 };
 
@@ -2646,6 +2784,7 @@ static struct aa_sfs_entry aa_sfs_entry_policy[] = {
 	AA_SFS_FILE_U64("outofband",		MAX_OOB_SUPPORTED),
 	AA_SFS_FILE_U64("permstable32_version",	3),
 	AA_SFS_FILE_STRING("permstable32", PERMS32STR),
+	AA_SFS_FILE_U64("metadata_tagging_version", 1),
 	AA_SFS_FILE_U64("state32",	1),
 	AA_SFS_DIR("unconfined_restrictions",   aa_sfs_entry_unconfined),
 	AA_SFS_DIR("notify",   aa_sfs_entry_notify),

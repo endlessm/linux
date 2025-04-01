@@ -124,6 +124,7 @@ struct apparmor_audit_data {
 	const char *info;
 	u32 request;
 	u32 denied;
+	u32 tags;
 
 	struct task_struct *subjtsk;
 

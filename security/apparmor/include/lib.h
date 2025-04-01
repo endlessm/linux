@@ -37,8 +37,9 @@ extern struct aa_dfa *stacksplitdfa;
 #define DEBUG_INTERFACE 0x10
 #define DEBUG_UPCALL 0x20
 #define DEBUG_UNPACK 0x40
+#define DEBUG_TAGS 0x80
 
-#define DEBUG_ALL 0x3f		/* update if new DEBUG_X added */
+#define DEBUG_ALL 0xff		/* update if new DEBUG_X added */
 #define DEBUG_PARSE_ERROR (-1)
 
 #define DEBUG_ON (aa_g_debug != DEBUG_NONE)

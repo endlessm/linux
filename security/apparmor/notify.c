@@ -11,6 +11,7 @@
  * published by the Free Software Foundation, version 2 of the
  * License.
  */
+#include <linux/align.h>
 #include <linux/ctype.h>
 #include <linux/utsname.h>
 #include <linux/poll.h>
@@ -21,7 +22,26 @@
 #include "include/cred.h"
 #include "include/lib.h"
 #include "include/notify.h"
+#include "include/policy.h"
 #include "include/policy_ns.h"
+
+
+
+static DEFINE_SPINLOCK(notif_lock);
+static u64 g_listener_id = 1;
+
+static u64 get_next_listener_id(void)
+{
+	u64 tmp;
+
+	spin_lock(&notif_lock);
+	tmp = ++g_listener_id;
+	spin_unlock(&notif_lock);	
+
+	return tmp;
+}
+
+/*****************************************************************/
 
 /* TODO: when adding listener or ns propagate, on recursive add to child ns */
 
@@ -109,18 +129,24 @@ static void __listener_del_knotif(struct aa_listener *listener,
 
 void aa_free_listener_proxy(struct aa_listener_proxy *proxy)
 {
-	if (proxy) {
-		AA_BUG(!list_empty(&proxy->llist));
-		AA_BUG(!list_empty(&proxy->nslist));
-
-		aa_put_ns(proxy->ns);
-		/* listener is owned by file, handled there */
-		kfree_sensitive(proxy);
+	if (proxy->listener) {
+		spin_lock(&proxy->listener->lock);
+		list_del_init(&proxy->llist);
+		spin_unlock(&proxy->listener->lock);
 	}
+	if (proxy->ns) {
+		spin_lock(&proxy->ns->listener_lock);
+		list_del_init(&proxy->nslist);
+		spin_unlock(&proxy->ns->listener_lock);
+	}
+	aa_put_ns(proxy->ns);
+	aa_put_listener(proxy->listener);
+	kfree_sensitive(proxy);
 }
 
-static struct aa_listener_proxy *new_listener_proxy(struct aa_listener *listener,
-						   struct aa_ns *ns)
+// transfers listeners refcount
+struct aa_listener_proxy *aa_new_listener_proxy(struct aa_listener *listener,
+						struct aa_ns *ns)
 {
 	struct aa_listener_proxy *proxy;
 
@@ -133,7 +159,7 @@ static struct aa_listener_proxy *new_listener_proxy(struct aa_listener *listener
 	INIT_LIST_HEAD(&proxy->llist);
 	INIT_LIST_HEAD(&proxy->nslist);
 
-	proxy->listener = listener;
+	proxy->listener = aa_get_listener(listener);
 	if (ns)
 		ns = aa_get_ns(ns);
 	else
@@ -148,21 +174,8 @@ static struct aa_listener_proxy *new_listener_proxy(struct aa_listener *listener
 	list_add_tail_entry(proxy, &ns->listeners, nslist);
 	spin_unlock(&ns->listener_lock);
 
+	AA_DEBUG(DEBUG_UPCALL, "Added new listener proxy for listener %lld", listener->listener_id);
 	return proxy;
-}
-
-
-bool aa_register_listener_proxy(struct aa_listener *listener, struct aa_ns *ns)
-{
-	struct aa_listener_proxy *proxy;
-
-	AA_BUG(!listener);
-
-	proxy = new_listener_proxy(listener, ns);
-	if (!proxy)
-		return false;
-
-	return true;
 }
 
 static void free_listener(struct aa_listener *listener)
@@ -170,6 +183,7 @@ static void free_listener(struct aa_listener *listener)
 	struct aa_listener_proxy *proxy;
 	struct aa_knotif *knotif;
 
+	AA_DEBUG(DEBUG_UPCALL, "enter freeing listener_id %llu", listener->listener_id);
 	if (!listener)
 		return;
 
@@ -219,7 +233,9 @@ static void free_listener(struct aa_listener *listener)
 	/* todo count on audit_data */
 	aa_put_ns(listener->ns);
 	aa_put_dfa(listener->filter);
+	aa_put_label(listener->label);
 
+	AA_DEBUG(DEBUG_UPCALL, "freeing listener_id %llu", listener->listener_id);
 	kfree_sensitive(listener);
 }
 
@@ -227,7 +243,35 @@ void aa_listener_kref(struct kref *kref)
 {
 	struct aa_listener *l = container_of(kref, struct aa_listener, count);
 
+	AA_DEBUG(DEBUG_UPCALL, "going to free listener %p, label %p, id %llu", l, l->label, l->listener_id);
 	free_listener(l);
+}
+
+#define from_delayed_work(var, callback_work, work_fieldname)	\
+	container_of(to_delayed_work(callback_work), typeof(*var), work_fieldname)
+
+static void proxy_work_function(struct work_struct *t)
+{
+	struct aa_listener_proxy *proxy = from_delayed_work(proxy, t, work);
+	AA_DEBUG(DEBUG_UPCALL, "listener reclaim timer fired. Putting listener %llu", proxy->listener->listener_id);
+	aa_free_listener_proxy(proxy);
+	/* don't want to remove here because may have been reclaimed */
+	//aa_put_listener(proxy->listener);
+}
+
+
+//unsigned long seconds = 1;
+void aa_delayed_free_listener_proxy(struct aa_listener_proxy *proxy)
+{
+	memset(&proxy->work, 0, sizeof(proxy->work));
+
+	AA_DEBUG(DEBUG_UPCALL, "before timer listener %p listener_id %llu label %p", proxy->listener, proxy->listener->listener_id, proxy->listener->label);
+
+	/* delay putting the listener giving a chance to reclaim */
+	INIT_DELAYED_WORK(&proxy->work, proxy_work_function);
+	schedule_delayed_work(&proxy->work, secs_to_jiffies(30));
+
+	AA_DEBUG(DEBUG_UPCALL, "after timer listener %p listener_id %llu label %p", proxy->listener, proxy->listener->listener_id, proxy->listener->label);
 }
 
 struct aa_listener *aa_new_listener(struct aa_ns *ns, gfp_t gfp)
@@ -236,7 +280,8 @@ struct aa_listener *aa_new_listener(struct aa_ns *ns, gfp_t gfp)
 
 	if (!listener)
 		return NULL;
-
+	AA_DEBUG(DEBUG_UPCALL, "listener %p", listener);
+	
 	kref_init(&listener->count);
 	spin_lock_init(&listener->lock);
 	init_waitqueue_head(&listener->wait);
@@ -251,8 +296,85 @@ struct aa_listener *aa_new_listener(struct aa_ns *ns, gfp_t gfp)
 		ns = aa_get_current_ns();
 	listener->ns = ns;
 	listener->last_id = 1;
+	listener->listener_id = get_next_listener_id();
+
+	AA_DEBUG(DEBUG_UPCALL, "created listener %lld ns %p", listener->listener_id, ns);
+	return listener;
+}
+
+/* increments proxy->listener ref count
+* can still be on list because file callback to cleanup is delayed
+*/
+static struct aa_listener *find_matching_listener_by_id(struct aa_ns *ns,
+							u64 id)
+{
+	struct aa_listener *listener = NULL;
+	struct aa_listener_proxy *proxy = NULL;
+
+	spin_lock(&ns->listener_lock);
+	list_for_each_entry(proxy, &ns->listeners, nslist) {
+		AA_DEBUG(DEBUG_UPCALL, "   comparing listener %p label %p id %llu to %llu", proxy->listener, proxy->listener->label, proxy->listener->listener_id, id);
+		spin_lock(&proxy->listener->lock);
+		if (proxy->listener->listener_id == id) {
+			listener = aa_get_listener(proxy->listener);
+			spin_unlock(&proxy->listener->lock);
+			AA_DEBUG(DEBUG_UPCALL, "      found listener %p label %p id %llu to %llu", listener, listener->label, listener->listener_id, id);
+			break;
+		}
+		spin_unlock(&proxy->listener->lock);
+	}
+	spin_unlock(&ns->listener_lock);
 
 	return listener;
+}
+
+/* attempt to register a listener. If id is 0 get a new id else find
+ * existing listener
+ */
+long aa_register_listener_id(struct aa_listener *listener, u64 *id,
+			     struct aa_listener **found)
+{
+	struct aa_label *label;
+	int error = 0;
+
+	AA_BUG(!listener);
+	AA_BUG(!id);
+
+	*found = NULL;
+
+	label = begin_current_label_crit_section();
+	if (*id == 0) {
+		spin_lock(&listener->ns->listener_lock);
+		if (listener->label) {
+			if (listener->label == label) {
+				*id = listener->listener_id;
+			} else {
+				error = -EPERM;
+			}
+		} else {
+			listener->label = aa_get_label(label);
+			*id = listener->listener_id;
+			AA_DEBUG(DEBUG_UPCALL, "assigned label %p to listener %p listener->label %p id %llu", label, listener, listener->label, listener->listener_id);
+		}
+		spin_unlock(&listener->ns->listener_lock);
+	} else {
+		struct aa_listener *tmp = find_matching_listener_by_id(listener->ns, *id);
+		if (tmp) {
+			if (tmp->label != label) {
+				AA_DEBUG(DEBUG_UPCALL, "confinement for listener %p id %llu search id %llu, listener->label %p != label %p", tmp, tmp->listener_id, *id, tmp->label , label);
+				aa_put_listener(tmp);
+				error = -EPERM;
+			} else {
+				*found = tmp;
+			}
+		} else {
+			AA_DEBUG(DEBUG_UPCALL, "  no listener found");
+			error = -ENOENT;
+		}
+	}
+	end_current_label_crit_section(label);
+
+	return error;
 }
 
 static struct aa_knotif *__aa_find_notif_pending(struct aa_listener *listener,
@@ -290,6 +412,7 @@ out:
 }
 
 // don't drop refcounts
+/* TODO: replace use of pop/push with more correct append or enqueue/dequeue */
 static struct aa_knotif *
 listener_pop_and_hold_knotif(struct aa_listener *listener)
 {
@@ -365,8 +488,10 @@ __del_and_hold_user_pending(struct aa_listener *listener, u64 id)
 static bool notification_match(struct aa_listener *listener,
 			       struct aa_audit_node *ad)
 {
-	if (!(listener->mask & (1 << ad->data.type)))
+	if (!(listener->mask & (1 << ad->data.type))) {
+		AA_DEBUG(DEBUG_UPCALL, "listener mask failed 0x%x, type %d", listener->mask, ad->data.type);
 		return false;
+	}
 
 	if (listener->filter) {
 		aa_state_t state;
@@ -391,6 +516,7 @@ static bool notification_match(struct aa_listener *listener,
 		 *	// TODO: match extensions
 		 * }
 		 */
+		AA_DEBUG(DEBUG_UPCALL, "failed filter match");
 		return false;
 	}
 	AA_DEBUG(DEBUG_UPCALL, "matched type mask filter");
@@ -398,8 +524,7 @@ static bool notification_match(struct aa_listener *listener,
 }
 
 /* Add a notification to the listener queue and wake up listener??? */
-static void dispatch_notif(struct aa_listener *listener,
-			   u16 ntype,
+static void dispatch_notif(struct aa_listener *listener, u16 ntype,
 			   struct aa_knotif *knotif)
 {
 	AA_BUG(!listener);
@@ -407,8 +532,8 @@ static void dispatch_notif(struct aa_listener *listener,
 	lockdep_assert_held(&listener->lock);
 
 	AA_DEBUG_ON(knotif->id, DEBUG_UPCALL,
-		    "id %lld: redispatching notification as new id %lld",
-		    knotif->id, listener->last_id);
+		    "dispatching notification as new id %lld",
+		    listener->last_id);
 	knotif->ntype = ntype;
 	knotif->id = ++listener->last_id;
 	knotif->flags = 0;
@@ -503,13 +628,14 @@ int aa_do_notification(u16 ntype, struct aa_audit_node *node)
 		listener = aa_get_listener(proxy->listener);
 		AA_BUG(!listener);
 		spin_lock(&listener->lock);
+		AA_DEBUG(DEBUG_UPCALL, "checking listener %lld for match", listener->listener_id);
 		if (!notification_match(listener, node)) {
 			spin_unlock(&listener->lock);
 			aa_put_listener(listener);
 			continue;
 		}
 		/* delvier notification - dispatch determines if we break */
-		dispatch_notif(listener, ntype, knotif); // count);
+		dispatch_notif(listener, ntype, knotif);
 		spin_unlock(&listener->lock);
 		AA_DEBUG(DEBUG_UPCALL, "id %lld: found listener\n",
 			 knotif->id);
@@ -532,6 +658,37 @@ int aa_do_notification(u16 ntype, struct aa_audit_node *node)
 	 * long term need to fold prompt perms into denied
 	 **/
 	return err;
+}
+
+long aa_listener_unotif_resend(struct aa_listener *listener, u32 *ready,
+			       u32 *pending)
+{
+	struct aa_knotif *knotif;
+	*ready = 0;
+	*pending = 0;
+
+	spin_lock(&listener->ns->listener_lock);
+	list_for_each_entry(knotif, &listener->notifications, list) {
+		(*ready)++;
+	}
+	list_for_each_entry(knotif, &listener->pending, list) {
+		knotif->flags = KNOTIF_RESEND;
+		AA_DEBUG_ON(knotif->id, DEBUG_UPCALL,
+			    "redispatching notification id %lld",
+			    knotif->id);
+		(*pending)++;
+	}
+	/* splice is like stack to move pending onto of notification
+	 * but pulled from head like queue. ie pending is moving
+	 * to the front of the queue.
+	 */
+	list_splice_init(&listener->pending, &listener->notifications);
+	AA_DEBUG(DEBUG_UPCALL, "id %lld: %s wake_up_interruptible",
+		 knotif->id, __func__);
+	wake_up_interruptible_poll(&listener->wait, EPOLLIN | EPOLLRDNORM);
+	spin_unlock(&listener->ns->listener_lock);
+
+	return 0;
 }
 
 /******************** task responding to notification **********************/
@@ -900,13 +1057,9 @@ out:
 
 /******************** task reading notification to userspace ****************/
 
-static long append_str(void __user *pos, long remaining, const char *str)
+static long append_bytes(void __user *pos, long remaining, const char *str,
+			 u32 size)
 {
-	long size;
-
-	if (!str)
-		return 0;
-	size = strlen(str) + 1;
 	if (size > remaining)
 		return -EMSGSIZE;
 	if (copy_to_user(pos, str, size))
@@ -915,21 +1068,130 @@ static long append_str(void __user *pos, long remaining, const char *str)
 	return size;
 }
 
-#define build_append_str(__BUF, __POS, __MAX, __STR, __FIELD, __SIZE)	\
+/* __POS will be updated
+ *  __FIELD will be updated
+ *  returns __SIZE or error
+ */
+#define build_append_bytes(__BUF, __POS, __MAX, __STR, __SIZE, __FIELD)	\
 ({									\
-	typeof(__SIZE) __tmp_size;					\
-	__FIELD = __POS - __BUF;					\
-	__tmp_size = append_str(__POS, max_size - (__POS - __BUF), __STR); \
+	long __tmp_size;						\
+	long __tmp_offset = __POS - __BUF;				\
+	__tmp_size = append_bytes(__POS, __MAX - __tmp_offset, __STR, __SIZE); \
 	if (__tmp_size >= 0) {						\
+		__FIELD = __tmp_offset;					\
 		__POS += __tmp_size;					\
-		__SIZE += __tmp_size;					\
-	} else {							\
-		__SIZE = __tmp_size;					\
 	}								\
-	(__tmp_size >= 0);						\
+	(__tmp_size);							\
 })
 
-static long build_v3_unotif_common(struct aa_profile *profile,
+/* __POS will be updated
+ *  __FIELD will be updated
+ *  returns __SIZE or error
+ */
+#define build_append_str(__BUF, __POS, __MAX, __STR, __FIELD)		\
+({									\
+	long __tmp_size = 0;						\
+	if (__STR) {							\
+		__tmp_size = build_append_bytes(__BUF, __POS, __MAX, __STR, \
+						strlen(__STR)+1, __FIELD);\
+	}								\
+	(__tmp_size);							\
+})
+
+/* returns amount written to tpos */
+static long build_tagset(void __user *buf, void __user *hpos, void __user *tpos,
+			 u16 max_size, u32 mask, u32 count, const char *tagstr,
+			 u32 tagsize)
+{
+	struct apparmor_tags_header_v5 th;
+	long size;
+
+	th.mask = mask;
+	th.count = count;
+	th.tagset = tpos - buf;
+	size = build_append_bytes(buf, tpos, max_size, tagstr, tagsize,
+				  th.tagset);
+	if (size < 0) {
+		AA_DEBUG(DEBUG_TAGS, "build_append_bytes %ld < 0, max %d, tagstr '%s', (long) pos %d, size %d", size, max_size, tagstr, th.tagset, tagsize);
+		return size;
+	}
+	AA_DEBUG(DEBUG_TAGS, "      tagset: mask 0x%x, count %d, pos %d, str '%s', strlen %ld, size %ld, return size %ld\n", mask, count, th.tagset, tagstr, strlen(tagstr), (long) tagsize, size);
+	if (copy_to_user(hpos, &th, sizeof(th))) {
+		AA_DEBUG(DEBUG_TAGS, "failed: copy_to_user hpos %ld", (long) hpos);
+		return -EFAULT;
+	}
+	return size;
+}
+
+/* build tags for a given tag index */
+static long build_tags(union apparmor_notif_all *unotif,
+		       void __user *buf, void __user *pos, u16 max_size,
+		       struct aa_tags_struct *metatags, u32 mask, u32 permidx)
+{
+	void __user *hpos, *tpos;
+	int i, c = 0;
+
+	if (!metatags || permidx == 0)
+		return pos - buf;
+
+	/* count number of header that need to be laid down */
+	for (i = 0; i < metatags->sets.table[permidx]; i++) {
+		u32 idx = metatags->sets.table[permidx+1+i];
+		if (mask & metatags->hdrs.table[idx].mask) {
+			c++;
+			AA_DEBUG(DEBUG_TAGS, "matched mask 0x%x, tag[%d].mask 0x%x\n", mask, i, metatags->hdrs.table[idx].mask);
+		}
+	}
+	if (c == 0) {
+		AA_DEBUG(DEBUG_TAGS, "No matching tag info");
+		/* no tags match */
+		return pos - buf;
+	}
+
+	hpos = PTR_ALIGN(pos, 8);
+	tpos = hpos + (c * sizeof(struct apparmor_tags_header_v5)); //c * 96
+
+	unotif->file.tags = hpos - buf;
+	unotif->file.tags_count = c;
+	AA_DEBUG(DEBUG_TAGS,
+		 "file tags header hpos %ld, tpos %ld tagset_count %d",
+		 hpos - buf, tpos- buf, c);
+	for (i = 0; i < metatags->sets.table[permidx]; i++) {
+		u32 idx = metatags->sets.table[permidx+1+i];
+		AA_DEBUG(DEBUG_TAGS,
+		    "  ... building loop %d, idx %d, mask 0x%x, tags mask 0x%x",
+			 i, idx, mask, metatags->hdrs.table[idx].mask);
+		if (mask & metatags->hdrs.table[idx].mask) {
+			struct aa_tags_header *h = &metatags->hdrs.table[idx];
+			long size;
+
+			AA_DEBUG(DEBUG_TAGS,
+			   "   build_tagset hpos %ld, tpos %ld, index tagset %d tagstr '%s'",
+				 hpos - buf, tpos - buf, h->tags,
+				 metatags->strs.table[h->tags].strs);
+			size = build_tagset(buf, hpos, tpos, max_size,
+					    h->mask, h->count,
+					    metatags->strs.table[h->tags].strs,
+					    h->size);
+			if (size < 0) {
+				AA_DEBUG(DEBUG_TAGS, "build_tagset failed");
+				return size;
+			}
+			hpos += sizeof(struct apparmor_tags_header_v5);
+			tpos += size;
+		} else
+			AA_DEBUG(DEBUG_TAGS, "   no build tagset %d",
+				 mask & metatags->hdrs.table[idx].mask);
+	}
+
+	AA_DEBUG(DEBUG_TAGS,
+		 "   build_tags completed pos %ld, buf %ld, size %ld",
+		 (long) tpos, (long) buf, tpos-buf);
+	return tpos - buf;
+}
+
+static long build_v35_unotif_common(struct aa_profile *profile,
+				   u16 version,
 				   struct aa_knotif *knotif,
 				   union apparmor_notif_all *unotif,
 				   void __user *buf, u16 max_size)
@@ -944,8 +1206,10 @@ static long build_v3_unotif_common(struct aa_profile *profile,
 
 	/* build response */
 	unotif->common.len = sizeof(*unotif);
-	unotif->common.version = APPARMOR_NOTIFY_V3;
+	unotif->common.version = version;
 	unotif->base.ntype = knotif->ntype;
+	if (knotif->flags & KNOTIF_RESEND)
+		unotif->base.flags |= UNOTIF_RESENT;
 	unotif->base.id = knotif->id;
 	unotif->base.error = knotif->ad->error;
 	unotif->op.allow = knotif->ad->request & ~knotif->ad->denied;
@@ -966,25 +1230,37 @@ static long build_v3_unotif_common(struct aa_profile *profile,
 	return sizeof(*unotif);
 }
 
-static long build_v3_unotif_file(struct aa_profile *profile,
+/* returns total size */
+static long build_v35_unotif_file(struct aa_profile *profile,
 				 struct aa_knotif *knotif,
 				 union apparmor_notif_all *unotif,
 				 void __user *buf, long size, u16 max_size)
 {
 	void __user *pos = buf + size;
-	if (!build_append_str(buf, pos, max_size, profile->base.hname,
-			      unotif->op.label, size))
-		return -EMSGSIZE;
-	if (!build_append_str(buf, pos, max_size, knotif->ad->name,
-			      unotif->file.name, size))
-		return -EMSGSIZE;
+	size = build_append_str(buf, pos, max_size, profile->base.hname,
+				unotif->op.label);
+	if (size < 0)
+		return size;
+	size = build_append_str(buf, pos, max_size, knotif->ad->name,
+				unotif->file.name);
+	if (size < 0)
+		return size;
 
+	if (unotif->common.version == 5) {
+		struct aa_ruleset *rules = profile->label.rules[0];
+		size = build_tags(unotif, buf, pos, max_size, &rules->file->tags,
+				  knotif->ad->request | knotif->ad->denied,
+				  knotif->ad->tags);
+		if (size < 0)
+			return size;
+		pos = buf + size;
+	}
 	return pos - buf;
 }
 
 /* copy to userspace: notification data */
-static long build_v3_unotif(struct aa_knotif *knotif, void __user *buf,
-			    u16 max_size)
+static long build_v35_unotif(u16 version, struct aa_knotif *knotif,
+			     void __user *buf, u16 max_size)
 {
 	union apparmor_notif_all unotif = { };
 	struct aa_profile *profile;
@@ -993,11 +1269,12 @@ static long build_v3_unotif(struct aa_knotif *knotif, void __user *buf,
 	profile = labels_profile(knotif->ad->subj_label);
 	AA_BUG(profile == NULL);
 
-	size = build_v3_unotif_common(profile, knotif, &unotif, buf, max_size);
+	size = build_v35_unotif_common(profile, version, knotif, &unotif, buf,
+				       max_size);
 	if (size < 0)
 		return size;
-	size = build_v3_unotif_file(profile, knotif, &unotif, buf, size,
-				    max_size);
+	size = build_v35_unotif_file(profile, knotif, &unotif, buf, size,
+				     max_size);
 	if (size < 0)
 		return size;
 
@@ -1015,14 +1292,17 @@ static long build_v3_unotif(struct aa_knotif *knotif, void __user *buf,
 //        > 0 == built notification successfully
 static long build_mediation_unotif(struct aa_listener *listener,
 				   struct aa_knotif *knotif,
-				   void __user *buf, u16 max_size)
+				   void __user *buf, u16 max_size,
+				   u16 version)
 {
 	long ret;
 
 	switch (knotif->ad->class) {
 	case AA_CLASS_FILE:
-		if (listener->version == APPARMOR_NOTIFY_V3) {
-			ret = build_v3_unotif(knotif, buf, max_size);
+		if (listener->version == APPARMOR_NOTIFY_V3 ||
+		    listener->version == APPARMOR_NOTIFY_V5) {
+			ret = build_v35_unotif(listener->version, knotif,
+					       buf, max_size);
 			if (ret < 0) {
 				AA_DEBUG(DEBUG_UPCALL,
 				 "id %lld: (error=%ld) failed to copy data to user reading size %ld, maxsize %d",
@@ -1030,9 +1310,9 @@ static long build_mediation_unotif(struct aa_listener *listener,
 					 sizeof(union apparmor_notif_all), max_size);
 				goto out;
 			}
+		} else {
+			ret = -EPROTONOSUPPORT;
 		}
-		ret = -EPROTONOSUPPORT;
-		goto out;
 		break;
 	default:
 		AA_BUG("unknown notification class");
@@ -1047,7 +1327,7 @@ out:
 /* Handle the listener reading a notification into userspace */
 // TODO: output multiple messages in one recv
 long aa_listener_unotif_recv(struct aa_listener *listener, void __user *buf,
-			     u16 max_size)
+			     u16 max_size, u16 version)
 {
 	struct aa_knotif *knotif;
 	long ret;
@@ -1060,7 +1340,8 @@ long aa_listener_unotif_recv(struct aa_listener *listener, void __user *buf,
 		AA_DEBUG(DEBUG_UPCALL, "id %lld: removed notif from listener queue",
 			 knotif->id);
 
-		ret = build_mediation_unotif(listener, knotif, buf, max_size);
+		ret = build_mediation_unotif(listener, knotif, buf, max_size,
+					     version);
 		if (ret < 0) {
 			/* failed - drop notif and return error to reader */
 			listener_complete_held_user_pending(listener, knotif);

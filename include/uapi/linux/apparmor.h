@@ -25,12 +25,25 @@ enum apparmor_notif_type {
 };
 
 #define APPARMOR_NOTIFY_V3 3
-#define APPARMOR_NOTIFY_VERSION 3
+#define APPARMOR_NOTIFY_V5 5
+#define APPARMOR_NOTIFY_VERSION 5
 
 /* base notification struct embedded as head of notifications to userspace */
 struct apparmor_notif_common {
 	__u16 len;			/* actual len data */
 	__u16 version;			/* interface version */
+} __attribute__((packed));
+
+struct apparmor_notif_register_v5 {
+	struct apparmor_notif_common base;
+	__u64 listener_id;		/* unique id for listener */
+} __attribute__((packed));
+
+struct apparmor_notif_resend_v5 {
+	struct apparmor_notif_common base;
+	__u64 listener_id;		/* unique id for listener */
+	__u32 ready;			/* notifications that are ready */
+	__u32 pending;			/* notifs that are pendying reply */
 } __attribute__((packed));
 
 struct apparmor_notif_filter {
@@ -47,6 +60,7 @@ struct apparmor_notif_filter {
 #define URESPONSE_LOOKUP 2
 #define URESPONSE_PROFILE 4
 #define URESPONSE_TAILGLOB 8
+#define UNOTIF_RESENT 0x10
 
 struct apparmor_notif {
 	struct apparmor_notif_common base;
@@ -80,12 +94,6 @@ struct apparmor_notif_resp_name {
 	__u8 data[];
 } __attribute__((packed));
 
-union apparmor_notif_resp {
-	struct apparmor_notif base;
-	struct apparmor_notif_resp_perm perm;
-	struct apparmor_notif_resp_name name;
-} __attribute__((packed));
-
 struct apparmor_notif_op {
 	struct apparmor_notif base;
 	__u32 allow;
@@ -96,37 +104,113 @@ struct apparmor_notif_op {
 	__u16 op;
 } __attribute__((packed));
 
+struct apparmor_tags_header_v5 {
+	__u32 mask;
+	__u32 count;
+	__u32 tagset;
+};
+
+// v3 doesn't have tags but this just adds padding to the data section
 struct apparmor_notif_file {
 	struct apparmor_notif_op base;
 	uid_t subj_uid, obj_uid;
 	__u32 name;			/* offset into data */
-
 	__u8 data[];
+} __attribute__((packed));
+
+struct apparmor_notif_file_v5 {
+	struct apparmor_notif_op base;
+	uid_t subj_uid, obj_uid;
+	__u32 name;			/* offset into data */
+	__u32 tags;
+	__u16 tags_count;
+	__u8 data[];
+} __attribute__((packed));
+
+/* ioctl structs */
+union apparmor_notif_filters {
+	struct {
+		struct apparmor_notif_common base;
+		__u32 modeset;			/* which notification mode */
+		__u32 ns;			/* offset into data */
+		__u32 filter;			/* offset into data */
+
+		__u8 data[];
+	};
+	/* common and defined before vX, replicates v3  */
+	struct apparmor_notif_filter v3;
+	struct apparmor_notif_filter v5;
+} __attribute__((packed));
+
+union apparmor_notif_recv {
+	/* common and defined before vX, replicates v3  */
+	struct {
+		struct apparmor_notif_op base;
+		uid_t subj_uid, obj_uid;
+		__u32 name;			/* offset into data */
+		__u8 data[];
+	};
+	struct {
+		struct apparmor_notif_file file;
+	} v3;
+	struct {
+		struct apparmor_notif_file_v5 file;
+	} v5;
+} __attribute__((packed));
+
+union apparmor_notif_resp {
+	/* common and defined before vX, replicates v3  */
+	struct apparmor_notif base;
+	struct apparmor_notif_resp_perm perm;
+	struct apparmor_notif_resp_name name;
+	union {
+		struct apparmor_notif_resp_perm perm;
+		struct apparmor_notif_resp_name name;
+	} v3;
+	union {
+		struct apparmor_notif_resp_perm perm;
+		struct apparmor_notif_resp_name name;
+	} v5;
+} __attribute__((packed));
+
+union apparmor_notif_register {
+	struct {
+		struct apparmor_notif_register_v5 registration;
+		struct apparmor_notif_resend_v5 resend;
+	} v5;
 } __attribute__((packed));
 
 union apparmor_notif_all {
 	struct apparmor_notif_common common;
-	struct apparmor_notif_filter filter;
 	struct apparmor_notif base;
 	struct apparmor_notif_op op;
-	struct apparmor_notif_file file;
+	struct apparmor_notif_file filev3;
+	struct apparmor_notif_file_v5 file;
+	union apparmor_notif_filters filter;
+	union apparmor_notif_recv recv;
 	union apparmor_notif_resp respnse;
-};
+	union apparmor_notif_register registration;
+} __attribute__((packed));
 
 #define APPARMOR_IOC_MAGIC             0xF8
 
 /* Flags for apparmor notification fd ioctl. */
 
 #define APPARMOR_NOTIF_SET_FILTER      _IOW(APPARMOR_IOC_MAGIC, 0,     \
-						struct apparmor_notif_filter *)
+						union apparmor_notif_filters *)
 #define APPARMOR_NOTIF_GET_FILTER      _IOR(APPARMOR_IOC_MAGIC, 1,     \
-						struct apparmor_notif_filter *)
+						union apparmor_notif_filters *)
 #define APPARMOR_NOTIF_IS_ID_VALID     _IOR(APPARMOR_IOC_MAGIC, 3,     \
 						__u64)
 /* RECV/SEND from userspace pov */
 #define APPARMOR_NOTIF_RECV            _IOWR(APPARMOR_IOC_MAGIC, 4,     \
-						struct apparmor_notif *)
+						union apparmor_notif_recv *)
 #define APPARMOR_NOTIF_SEND            _IOWR(APPARMOR_IOC_MAGIC, 5,    \
 						union apparmor_notif_resp *)
+#define APPARMOR_NOTIF_REGISTER        _IOWR(APPARMOR_IOC_MAGIC, 6,    \
+						union apparmor_notif_register *)
+#define APPARMOR_NOTIF_RESEND        _IOWR(APPARMOR_IOC_MAGIC, 7,    \
+						union apparmor_notif_register *)
+
 
 #endif /* _UAPI_LINUX_APPARMOR_H */
