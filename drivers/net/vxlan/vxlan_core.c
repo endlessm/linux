@@ -5139,12 +5139,20 @@ static __net_init int vxlan_init_net(struct net *net)
 #ifdef CONFIG_SYSCTL
 static struct ctl_table_header *vxlan_fan_header;
 static unsigned int vxlan_fan_version = 4;
+static unsigned int ifla_vxlan_fan_map = IFLA_VXLAN_FAN_MAP;
 
 static struct ctl_table vxlan_fan_sysctls[] = {
 	{
 		.procname	= "vxlan",
 		.data		= &vxlan_fan_version,
 		.maxlen		= sizeof(vxlan_fan_version),
+		.mode		= 0444,
+		.proc_handler	= proc_dointvec,
+	},
+	{
+		.procname	= "IFLA_VXLAN_FAN_MAP",
+		.data		= &ifla_vxlan_fan_map,
+		.maxlen		= sizeof(ifla_vxlan_fan_map),
 		.mode		= 0444,
 		.proc_handler	= proc_dointvec,
 	},
