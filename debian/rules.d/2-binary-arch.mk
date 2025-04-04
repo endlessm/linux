@@ -8,7 +8,7 @@ build_dir = $(builddir)/build-$*
 # TODO this is probably wrong, and should be using $(DEB_HOST_MULTIARCH)
 shlibdeps_opts = $(if $(CROSS_COMPILE),-- -l$(CROSS_COMPILE:%-=/usr/%)/lib)
 
-# These are used by both binary-% and binary-perarch targets.
+# These are used by binary-perarch target.
 BPFTOOL_VERSION_MAJOR = $(shell sed -ne \
 	's,^#define LIBBPF_MAJOR_VERSION \(.*\)$$,\1,p' \
 	tools/lib/bpf/libbpf_version.h)
@@ -629,18 +629,6 @@ ifeq ($(do_linux_tools),true)
 		$(call dh_all_inline,linux-bpf-dev) ; \
 	fi
   endif
-  ifneq ($(filter $(bpftool_pkg_name),$(packages_enabled)),)
-	if [ $* = $(firstword $(flavours)) ] ; then \
-		$(call dh_all_inline,$(bpftool_pkg_name),$(BPFTOOL_GENCONTROL_ARGS)) ; \
-	fi
-  endif
- endif
- ifeq ($(do_tools_perf),true)
-  ifneq ($(filter $(perf_pkg_name),$(packages_enabled)),)
-	if [ $* = $(firstword $(flavours)) ] ; then \
-		$(call dh_all_inline,$(perf_pkg_name)) ; \
-	fi
-  endif
  endif
 endif
 
@@ -781,17 +769,13 @@ ifeq ($(do_cloud_tools),true)
 endif
 ifeq ($(do_linux_tools),true)
   ifeq ($(do_tools_bpftool),true)
-    ifneq ($(filter $(bpftoolpkg),$(packages_enabled)),)
-		if [ $* = $(firstword $(flavours)) ] ; then \
-			$(call dh_all_inline,$(bpftoolpkg),$(BPFTOOL_GENCONTROL_ARGS)) ; \
-		fi
+    ifneq ($(filter $(bpftool_pkg_name),$(packages_enabled)),)
+	$(call dh_all_inline,$(bpftoolpkg),$(BPFTOOL_GENCONTROL_ARGS))
     endif
   endif
   ifeq ($(do_tools_perf),true)
-    ifneq ($(filter $(perfpkg),$(packages_enabled)),)
-		if [ $* = $(firstword $(flavours)) ] ; then \
-			$(call dh_all_inline,$(perfpkg)) ; \
-		fi
+    ifneq ($(filter $(perf_pkg_name),$(packages_enabled)),)
+	$(call dh_all_inline,$(perfpkg))
     endif
   endif
 endif
