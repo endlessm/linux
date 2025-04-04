@@ -796,8 +796,10 @@ ifeq ($(do_linux_tools),true)
   endif
 endif
 
+binary-debs-deps-$(do_flavour_image_package) += $(addprefix binary-,$(flavours))
+
 .PHONY: binary-debs
-binary-debs: binary-perarch $(addprefix binary-,$(flavours))
+binary-debs: binary-perarch $(binary-debs-deps-true)
 	@echo Debug: $@
 
 build-arch-deps-$(do_flavour_image_package) += $(addprefix $(stampdir)/stamp-install-,$(flavours))
@@ -806,8 +808,7 @@ build-arch-deps-$(do_flavour_image_package) += $(addprefix $(stampdir)/stamp-ins
 build-arch: $(build-arch-deps-true)
 	@echo Debug: $@
 
-binary-arch-deps-$(do_flavour_image_package) += binary-debs
-binary-arch-deps-true += binary-arch-headers
+binary-arch-deps-true += binary-debs binary-arch-headers
 ifneq ($(do_common_headers_indep),true)
 binary-arch-deps-$(do_flavour_header_package) += binary-headers
 endif
