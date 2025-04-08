@@ -594,6 +594,15 @@ static int mqueue_create_attr(struct dentry *dentry, umode_t mode, void *arg)
 		ipc_ns->mq_queues_count--;
 		goto out_unlock;
 	}
+	error = security_inode_init_security(inode, dir,
+					     &dentry->d_name, NULL,
+					     NULL);
+	if (error) {
+		iput(inode);
+		spin_lock(&mq_lock);
+		ipc_ns->mq_queues_count--;
+		goto out_unlock;
+	}
 
 	put_ipc_ns(ipc_ns);
 	dir->i_size += DIRENT_SIZE;
