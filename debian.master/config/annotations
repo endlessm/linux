@@ -7723,6 +7723,7 @@ CONFIG_LEGACY_VSYSCALL_NONE                     policy<{'amd64': 'n'}>
 CONFIG_LEGACY_VSYSCALL_XONLY                    policy<{'amd64': 'y'}>
 CONFIG_LENOVO_SE10_WDT                          policy<{'amd64': 'm'}>
 CONFIG_LENOVO_WMI_CAMERA                        policy<{'amd64': 'm'}>
+CONFIG_LENOVO_WMI_HOTKEY_UTILITIES              policy<{'amd64': 'm'}>
 CONFIG_LENOVO_YMC                               policy<{'amd64': 'm'}>
 CONFIG_LG_LAPTOP                                policy<{'amd64': 'm'}>
 CONFIG_LIBCRC32C                                policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm', 's390x': 'm'}>
