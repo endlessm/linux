@@ -72,11 +72,6 @@ $(foreach _m,$(all_dkms_modules), \
   $(eval do_$(_m) ?= $(if $(filter $(_m),$(filter-out $(dkms_exclude),$(dkms_include) $(subst any,$(_m),$(subst $(arch),$(_m),$(dkms_$(_m)_archs))))),true,false)) \
 )
 
-# Don't build tools in a cross compile environment.
-ifneq ($(DEB_HOST_ARCH),$(DEB_BUILD_ARCH))
-	do_tools=false
-endif
-
 # Are any of the kernel signing options enabled.
 any_signed=$(sort $(filter-out false,$(uefi_signed) $(opal_signed) $(sipl_signed)))
 ifeq ($(any_signed),true)
