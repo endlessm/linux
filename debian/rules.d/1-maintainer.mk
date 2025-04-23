@@ -72,6 +72,7 @@ printenv:
 	@echo "do_flavour_header_package = $(do_flavour_header_package)"
 	@echo "do_common_headers_indep   = $(do_common_headers_indep)"
 	@echo "do_lib_rust               = $(do_lib_rust)"
+	@echo "do_sources_list           = $(do_sources_list)"
 	@echo "do_tools                  = $(do_tools)"
 	@echo "do_tools_common           = $(do_tools_common)"
 	@echo "do_any_tools              = $(do_any_tools)"

@@ -109,6 +109,7 @@ ifeq ($(do_mainline_build),true)
 	no_dumpfile=1
 $(foreach _m,$(all_dkms_modules),$(eval do_$(_m) = false))
 	do_skip_checks=true
+	do_sources_list = false
 endif
 
 # Disable tools build and packaging if do_tools != true

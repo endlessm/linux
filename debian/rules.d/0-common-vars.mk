@@ -160,6 +160,13 @@ ifeq ($(DEB_DISTRIBUTION),jammy)
 do_zstd_ko=
 endif
 
+# Generate a list of source files used for the build
+ifeq ($(DEB_SOURCE),linux-unstable)
+	do_sources_list = false
+else
+	do_sources_list = true
+endif
+
 # Support parallel=<n> in DEB_BUILD_OPTIONS (see #209008)
 #
 # These 2 environment variables set the -j value of the kernel build. For example,
