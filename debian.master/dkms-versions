@@ -4,4 +4,4 @@ ipu7-drivers 0~git202501150639.ffcbb112-0ubuntu1 modulename=ipu7 debpath=pool/un
 backport-iwlwifi-dkms 1:0~93.12955-gite723a6f0-0ubuntu1 modulename=iwlwifi debpath=pool/universe/b/%package%/backport-iwlwifi-dkms_%version%_all.deb arch=amd64 rprovides=iwlwifi-modules rprovides=backport-iwlwifi-dkms type=standalone
 v4l2loopback 0.13.2-1ubuntu1 modulename=v4l2loopback debpath=pool/universe/v/%package%/v4l2loopback-dkms_%version%_all.deb arch=amd64 rprovides=v4l2loopback-modules rprovides=v4l2loopback-dkms
 usbio-drivers 0~git202410311813.266ae665-0ubuntu2 modulename=usbio debpath=pool/universe/u/%package%/intel-usbio-dkms_%version%_amd64.deb arch=amd64 rprovides=usbio-modules rprovides=intel-usbio-dkms type=standalone
-vision-drivers 0~git202412180414.6b1462d8-0ubuntu1 modulename=vision debpath=pool/universe/v/%package%/intel-vision-dkms_%version%_amd64.deb arch=amd64 rprovides=vision-modules rprovides=intel-vision-dkms type=standalone
+vision-drivers 0~git202503130554.feab312c-0ubuntu1 modulename=vision debpath=pool/universe/v/%package%/intel-vision-dkms_%version%_amd64.deb arch=amd64 rprovides=vision-modules rprovides=intel-vision-dkms type=standalone
