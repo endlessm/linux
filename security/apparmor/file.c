@@ -662,7 +662,7 @@ static int __path_perm(const char *op, const struct cred *subj_cred,
 			profile_path_perm(op, subj_cred, profile,
 					  &file->f_path, buffer,
 					  request, cond, flags, &perms,
-					  &allow, false));
+					  &allow, !in_atomic));
 	if (denied && !error) {
 		/*
 		 * check every profile in file label that was not tested
@@ -679,7 +679,7 @@ static int __path_perm(const char *op, const struct cred *subj_cred,
 				profile_path_perm(op, subj_cred,
 						  profile, &file->f_path,
 						  buffer, request, cond, flags,
-						  &perms, &allow, false));
+						  &perms, &allow, !in_atomic));
 		else
 			error = fn_for_each_not_in_set(label, flabel, profile, is_mqueue ?
 				aa_profile_mqueue_perm(profile, &file->f_path,
@@ -687,7 +687,7 @@ static int __path_perm(const char *op, const struct cred *subj_cred,
 				profile_path_perm(op, subj_cred,
 						  profile, &file->f_path,
 						  buffer, request, cond, flags,
-						  &perms, &allow, false));
+						  &perms, &allow, !in_atomic));
 	}
 	if (!error)
 		update_file_ctx(file_ctx(file), label, request,
