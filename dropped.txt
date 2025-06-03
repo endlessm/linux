@@ -13,3 +13,7 @@ Others:
  - UBUNTU: SAUCE: modpost: support arbitrary symbol length in modversion
  - UBUNTU: SAUCE: allows to enable Rust with modversions
  - UBUNTU: SAUCE: modpost: Replace 0-length array with flex-array member
+
+6.15:
+ - UBUNTU: SAUCE: objtool: Make objtool check actually fatal upon fatal errors
+ - UBUNTU: SAUCE: r8169: Fix compile warning
