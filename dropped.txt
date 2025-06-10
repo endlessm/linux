@@ -17,3 +17,26 @@ Others:
 6.15:
  - UBUNTU: SAUCE: objtool: Make objtool check actually fatal upon fatal errors
  - UBUNTU: SAUCE: r8169: Fix compile warning
+
+6.16:
+ - UBUNTU: SAUCE: binder: turn into module - lock_vma_under_rcu()
+ - UBUNTU: SAUCE: arm64: dts: qcom: x1e78100-t14s: mark l12b and l15b always-on
+ - UBUNTU: SAUCE: arm64: dts: qcom: x1e78100-t14s: fix missing HID supplies
+ - UBUNTU: SAUCE: arm64: dts: qcom: x1e80100: Add cpucp mailbox and sram nodes
+ - UBUNTU: SAUCE: arm64: dts: qcom: x1e80100-t14s: Describe the Parade PS8830 retimers
+ - UBUNTU: SAUCE: arm64: dts: qcom: x1e80100-t14s: Enable HBR3 on external DPs
+ - UBUNTU: SAUCE: arm64: dts: qcom: x1e78100-t14s: enable bluetooth
+ - UBUNTU: SAUCE: arm64: dts: qcom: Add EC to Lenovo Yoga Slim 7x
+ - UBUNTU: SAUCE: arm64: dts: qcom: x1e80100-vivobook-s15: Add bluetooth
+ - UBUNTU: SAUCE: arm64: dts: qcom: x1p64100-acer-swift-sf14-11 dt for Acer Swift 14 SF14-11 (touchpad fix)
+ - UBUNTU: SAUCE: dt-bindings: arm: qcom: Add Acer Swift 14 AI
+ - UBUNTU: SAUCE: arm64: dts: qcom: x1e78100-t14s: Add display brightness control support
+ - UBUNTU: SAUCE: gpio: aggregator: add aggr_alloc()/aggr_free()
+ - UBUNTU: SAUCE: gpio: aggregator: introduce basic configfs interface
+ - UBUNTU: SAUCE: gpio: aggregator: rename 'name' to 'key' in aggr_parse()
+ - UBUNTU: SAUCE: gpio: aggregator: expose aggregator created via legacy sysfs to configfs
+ - UBUNTU: SAUCE: drm/msm/dp: Fix support of LTTPR handling
+ - UBUNTU: SAUCE: drm/msm/dp: Introduce link training per-segment for LTTPRs
+ - UBUNTU: SAUCE: gpio: aggregator: Fix gpio_aggregator_line_alloc() checking
+ - UBUNTU: SAUCE: gpio: aggregator: Fix error code in gpio_aggregator_activate()
+ - UBUNTU: SAUCE: Revert "gcc-15: acpi: sprinkle random '__nonstring' crumbles around"
