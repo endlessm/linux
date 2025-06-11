@@ -3378,7 +3378,6 @@ CONFIG_COMMON_CLK_SP7021                        policy<{'armhf': 'm'}>
 CONFIG_COMMON_CLK_STM32MP                       policy<{'arm64': 'y'}>
 CONFIG_COMMON_CLK_STM32MP257                    policy<{'arm64': 'y'}>
 CONFIG_COMMON_CLK_TI_ADPLL                      policy<{'armhf': 'y'}>
-CONFIG_COMMON_CLK_TPS68470                      policy<{'amd64': 'm'}>
 CONFIG_COMMON_CLK_VC3                           policy<{'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm'}>
 CONFIG_COMMON_CLK_VC5                           policy<{'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm'}>
 CONFIG_COMMON_CLK_VC7                           policy<{'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm'}>
@@ -5772,7 +5771,6 @@ CONFIG_GPIO_TPS65219                            policy<{'arm64': 'm', 'armhf': '
 CONFIG_GPIO_TPS6586X                            policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y'}>
 CONFIG_GPIO_TPS65910                            policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y'}>
 CONFIG_GPIO_TPS65912                            policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm', 's390x': '-'}>
-CONFIG_GPIO_TPS68470                            policy<{'amd64': 'm'}>
 CONFIG_GPIO_TQMX86                              policy<{'amd64': 'm', 'arm64': 'm', 'ppc64el': 'm', 'riscv64': 'm'}>
 CONFIG_GPIO_TS4800                              policy<{'armhf': 'm'}>
 CONFIG_GPIO_TS4900                              policy<{'armhf': 'm'}>
@@ -6964,7 +6962,7 @@ CONFIG_INTEL_SCU_IPC_UTIL                       policy<{'amd64': 'm'}>
 CONFIG_INTEL_SCU_PCI                            policy<{'amd64': 'y'}>
 CONFIG_INTEL_SCU_PLATFORM                       policy<{'amd64': 'm'}>
 CONFIG_INTEL_SDSI                               policy<{'amd64': 'm'}>
-CONFIG_INTEL_SKL_INT3472                        policy<{'amd64': 'm'}>
+CONFIG_INTEL_SKL_INT3472                        policy<{'amd64': 'n'}>
 CONFIG_INTEL_SMARTCONNECT                       policy<{'amd64': 'm'}>
 CONFIG_INTEL_SOC_DTS_IOSF_CORE                  policy<{'amd64': 'm'}>
 CONFIG_INTEL_SOC_DTS_THERMAL                    policy<{'amd64': 'm'}>
@@ -11501,7 +11499,6 @@ CONFIG_REGULATOR_TPS6586X                       policy<{'amd64': 'm', 'arm64': '
 CONFIG_REGULATOR_TPS65910                       policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm', 's390x': '-'}>
 CONFIG_REGULATOR_TPS65912                       policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm', 's390x': '-'}>
 CONFIG_REGULATOR_TPS6594                        policy<{'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm'}>
-CONFIG_REGULATOR_TPS68470                       policy<{'amd64': 'm'}>
 CONFIG_REGULATOR_USERSPACE_CONSUMER             policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm', 's390x': '-'}>
 CONFIG_REGULATOR_VCTRL                          policy<{'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm'}>
 CONFIG_REGULATOR_VEXPRESS                       policy<{'arm64': 'm', 'armhf': 'm'}>
@@ -14811,7 +14808,6 @@ CONFIG_TPS65010                                 policy<{'amd64': 'm', 'arm64': '
 CONFIG_TPS6507X                                 policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm', 's390x': 'n'}>
 CONFIG_TPS6594_ESM                              policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm', 's390x': 'm'}>
 CONFIG_TPS6594_PFSM                             policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm', 's390x': 'm'}>
-CONFIG_TPS68470_PMIC_OPREGION                   policy<{'amd64': 'y'}>
 CONFIG_TQMX86_WDT                               policy<{'amd64': 'm'}>
 CONFIG_TRACEPOINTS                              policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y', 's390x': 'y'}>
 CONFIG_TRACEPOINT_BENCHMARK                     policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'ppc64el': 'n', 'riscv64': 'n', 's390x': 'n'}>
