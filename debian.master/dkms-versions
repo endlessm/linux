@@ -1,1 +1,0 @@
-v4l2loopback 0.13.2-1ubuntu1 modulename=v4l2loopback debpath=pool/universe/v/%package%/v4l2loopback-dkms_%version%_all.deb arch=amd64 rprovides=v4l2loopback-modules rprovides=v4l2loopback-dkms
