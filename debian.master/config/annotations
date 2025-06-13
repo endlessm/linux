@@ -4041,7 +4041,7 @@ CONFIG_DELL_SMBIOS                              policy<{'amd64': 'm'}>
 CONFIG_DELL_SMBIOS_SMM                          policy<{'amd64': 'y'}>
 CONFIG_DELL_SMBIOS_WMI                          policy<{'amd64': 'y'}>
 CONFIG_DELL_SMO8800                             policy<{'amd64': 'm'}>
-CONFIG_DELL_UART_BACKLIGHT                      policy<{'amd64': 'n'}>
+CONFIG_DELL_UART_BACKLIGHT                      policy<{'amd64': 'm'}>
 CONFIG_DELL_WMI                                 policy<{'amd64': 'm'}>
 CONFIG_DELL_WMI_AIO                             policy<{'amd64': 'm'}>
 CONFIG_DELL_WMI_DDV                             policy<{'amd64': 'm'}>
