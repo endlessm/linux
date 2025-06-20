@@ -169,7 +169,7 @@ static int vxlan_parse_fan_map(struct nlattr *data[], struct vxlan_dev *vxlan)
 	struct nlattr *attr;
 	int rem, rv;
 
-	nla_for_each_nested(attr, data[IFLA_IPTUN_FAN_MAP], rem) {
+	nla_for_each_nested(attr, data[IFLA_VXLAN_FAN_MAP], rem) {
 		map = nla_data(attr);
 		rv = vxlan_fan_add_map(vxlan, map);
 		if (rv)
