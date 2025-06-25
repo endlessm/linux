@@ -5177,14 +5177,13 @@ CONFIG_FB_FOREIGN_ENDIAN                        policy<{'amd64': 'n', 'arm64': '
 CONFIG_FB_GOLDFISH                              policy<{'riscv64': 'm'}>
 CONFIG_FB_HECUBA                                policy<{'amd64': 'm'}>
 CONFIG_FB_HGA                                   policy<{'amd64': 'm'}>
-CONFIG_FB_HYPERV                                policy<{'amd64': 'm', 'arm64': 'm'}>
+CONFIG_FB_HYPERV                                policy<{'amd64': 'n', 'arm64': 'n'}>
 CONFIG_FB_I740                                  policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm', 's390x': 'n'}>
 CONFIG_FB_IBM_GXT4500                           policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'ppc64el': 'y', 'riscv64': 'n', 's390x': 'n'}>
 CONFIG_FB_IMSTT                                 policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y', 's390x': 'n'}>
 CONFIG_FB_IMX                                   policy<{'arm64': 'm', 'armhf': 'm'}>
 CONFIG_FB_IOMEM_FOPS                            policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y', 's390x': '-'}>
 CONFIG_FB_IOMEM_HELPERS                         policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y'}>
-CONFIG_FB_IOMEM_HELPERS_DEFERRED                policy<{'amd64': 'y', 'arm64': 'y'}>
 CONFIG_FB_KYRO                                  policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm', 's390x': 'n'}>
 CONFIG_FB_MACMODES                              policy<{'ppc64el': 'm'}>
 CONFIG_FB_MATROX                                policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm', 's390x': 'n'}>
