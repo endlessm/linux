@@ -612,14 +612,14 @@ ifeq ($(do_tools_usbip),true)
 	chmod 755 $(builddirpa)/tools/usb/usbip/autogen.sh
 	cd $(builddirpa)/tools/usb/usbip && ./autogen.sh
 	chmod 755 $(builddirpa)/tools/usb/usbip/configure
-	cd $(builddirpa)/tools/usb/usbip && ./configure --prefix=$(builddirpa)/tools/usb/usbip/bin
+	cd $(builddirpa)/tools/usb/usbip && ./configure --host=$(DEB_HOST_GNU_TYPE) --prefix=$(builddirpa)/tools/usb/usbip/bin
 	cd $(builddirpa)/tools/usb/usbip && make install CFLAGS="-g -O2 -static" CROSS_COMPILE=$(CROSS_COMPILE)
 endif
 ifeq ($(do_tools_acpidbg),true)
 	cd $(builddirpa)/tools/power/acpi && make clean && make CFLAGS="-g -O2 -static -I$(builddirpa)/include" CROSS_COMPILE=$(CROSS_COMPILE) acpidbg
 endif
 ifeq ($(do_tools_rtla),true)
-	cd $(builddirpa) && $(kmake) -C tools/tracing/rtla clean && $(kmake) LD=ld -C tools/tracing/rtla static
+	cd $(builddirpa) && $(kmake) -C tools/tracing/rtla clean && $(kmake) LD=$(CROSS_COMPILE)ld HOSTLD=ld -C tools/tracing/rtla static
 endif
 ifeq ($(do_tools_cpupower),true)
 	make -C $(builddirpa)/tools/power/cpupower \
