@@ -125,11 +125,6 @@ do_common_headers_indep=true
 
 # build tools
 ifneq ($(wildcard $(CURDIR)/tools),)
-	ifeq ($(do_tools),)
-		ifneq ($(DEB_BUILD_GNU_TYPE),$(DEB_HOST_GNU_TYPE))
-			do_tools=false
-		endif
-	endif
 	do_tools?=true
 else
 	do_tools?=false
