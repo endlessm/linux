@@ -12763,7 +12763,7 @@ CONFIG_SERIAL_SC16IS7XX_SPI                     policy<{'amd64': 'm', 'arm64': '
 CONFIG_SERIAL_SCCNXP                            policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y', 's390x': 'n'}>
 CONFIG_SERIAL_SCCNXP_CONSOLE                    policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y'}>
 CONFIG_SERIAL_SH_SCI_DMA                        policy<{'arm64': 'y', 'armhf': 'y'}>
-CONFIG_SERIAL_SH_SCI_NR_UARTS                   policy<{'arm64': '2', 'armhf': '2'}>
+CONFIG_SERIAL_SH_SCI_NR_UARTS                   policy<{'arm64': '18', 'armhf': '2'}>
 CONFIG_SERIAL_SIFIVE                            policy<{'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'y'}>
 CONFIG_SERIAL_SIFIVE_CONSOLE                    policy<{'riscv64': 'y'}>
 CONFIG_SERIAL_SPRD                              policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm', 's390x': '-'}>
