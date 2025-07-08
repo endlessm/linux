@@ -1083,9 +1083,15 @@ properties:
 
       - items:
           - enum:
-              - asus,zenbook-a14-ux3407qa
+              - asus,zenbook-a14-ux3407qa-lcd
+              - asus,zenbook-a14-ux3407qa-oled
               - hp,omnibook-x14-fe1
               - lenovo,thinkbook-16
+          - const: asus,zenbook-a14-ux3407qa
+          - const: qcom,x1p42100
+
+      - items:
+          - enum:
               - qcom,x1p42100-crd
           - const: qcom,x1p42100
 
