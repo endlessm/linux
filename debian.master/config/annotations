@@ -12004,8 +12004,8 @@ CONFIG_RUSTC_HAS_COERCE_POINTEE                 policy<{'amd64': 'y', 'arm64': '
 CONFIG_RUSTC_LLVM_VERSION                       policy<{'amd64': '190107', 'arm64': '190107', 'armhf': '190107', 'ppc64el': '190107', 'riscv64': '190107', 's390x': '190107'}>
 CONFIG_RUSTC_SUPPORTS_ARM64                     policy<{'arm64': 'y'}>
 CONFIG_RUSTC_SUPPORTS_RISCV                     policy<{'riscv64': 'y'}>
-CONFIG_RUSTC_VERSION                            policy<{'amd64': '108401', 'arm64': '108401', 'armhf': '108401', 'ppc64el': '108401', 'riscv64': '108401', 's390x': '108401'}>
-CONFIG_RUSTC_VERSION_TEXT                       policy<{'amd64': '-', 'arm64': '"rustc 1.84.1 (e71f9a9a9 2025-01-27) (built from a source tarball)"'}>
+CONFIG_RUSTC_VERSION                            policy<{'amd64': '108501', 'arm64': '108501', 'armhf': '108501', 'ppc64el': '108501', 'riscv64': '108501', 's390x': '108501'}>
+CONFIG_RUSTC_VERSION_TEXT                       policy<{'amd64': '-', 'arm64': '"rustc 1.85.1 (4eb161250 2025-03-15) (built from a source tarball)"'}>
 CONFIG_RUST_BUILD_ASSERT_ALLOW                  policy<{'amd64': '-', 'arm64': 'n'}>
 CONFIG_RUST_DEBUG_ASSERTIONS                    policy<{'amd64': '-', 'arm64': 'n'}>
 CONFIG_RUST_FW_LOADER_ABSTRACTIONS              policy<{'amd64': '-', 'arm64': 'n'}>
