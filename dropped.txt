@@ -40,3 +40,4 @@ Others:
  - UBUNTU: SAUCE: gpio: aggregator: Fix gpio_aggregator_line_alloc() checking
  - UBUNTU: SAUCE: gpio: aggregator: Fix error code in gpio_aggregator_activate()
  - UBUNTU: SAUCE: Revert "gcc-15: acpi: sprinkle random '__nonstring' crumbles around"
+ - UBUNTU: SAUCE: arm: Fix instruction set selection for GCC 11
