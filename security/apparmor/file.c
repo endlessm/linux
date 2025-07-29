@@ -289,7 +289,8 @@ int aa_audit_file(const struct cred *subj_cred,
 static int path_name(const char *op, const struct cred *subj_cred,
 		     struct aa_label *label,
 		     const struct path *path, int flags, char *buffer,
-		     const char **name, struct path_cond *cond, u32 request)
+		     const char **name, struct path_cond *cond, u32 request,
+		     bool prompt)
 {
 	struct aa_profile *profile;
 	const char *info = NULL;
@@ -301,7 +302,8 @@ static int path_name(const char *op, const struct cred *subj_cred,
 		fn_for_each_confined(label, profile,
 			aa_audit_file(subj_cred,
 				      profile, &nullperms, op, request, *name,
-				      NULL, NULL, cond->uid, info, error, true));
+				      NULL, NULL, cond->uid, info, error,
+				      prompt));
 		return error;
 	}
 
@@ -395,7 +397,7 @@ static int profile_path_perm(const char *op, const struct cred *subj_cred,
 
 	error = path_name(op, subj_cred, &profile->label, path,
 			  flags | profile->path_flags, buffer, &name, cond,
-			  request);
+			  request, prompt);
 	if (error)
 		return error;
 	error = __aa_path_perm(op, subj_cred, profile, name, request, cond,
@@ -481,14 +483,14 @@ static int profile_path_link(const struct cred *subj_cred,
 
 	error = path_name(OP_LINK, subj_cred, &profile->label, link,
 			  profile->path_flags,
-			  buffer, &lname, cond, AA_MAY_LINK);
+			  buffer, &lname, cond, AA_MAY_LINK, false);
 	if (error)
 		goto audit;
 
 	/* buffer2 freed below, tname is pointer in buffer2 */
 	error = path_name(OP_LINK, subj_cred, &profile->label, target,
 			  profile->path_flags,
-			  buffer2, &tname, cond, AA_MAY_LINK);
+			  buffer2, &tname, cond, AA_MAY_LINK, false);
 	if (error)
 		goto audit;
 
