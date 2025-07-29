@@ -341,9 +341,9 @@ ifeq ($(do_linux_tools),true)
 	# Do this only for the primary (first) flavor
 	# linux-bpf-dev is broken: It provides vmlinux.h which is a flavored header file!
 	if [ $* = $(firstword $(flavours)) ] ; then \
-		install -d -m755 $(bpfdevpkgdir)/usr/include/$(DEB_HOST_MULTIARCH)/linux/ ; \
+		install -d -m755 $(bpfdevpkgdir)/usr/include/$(DEB_HOST_MULTIARCH)/linux/bpf/ ; \
 		install -m644 $(build_dir)/vmlinux.h \
-			 $(bpfdevpkgdir)/usr/include/$(DEB_HOST_MULTIARCH)/linux/ ; \
+			 $(bpfdevpkgdir)/usr/include/$(DEB_HOST_MULTIARCH)/linux/bpf/ ; \
 	fi
   endif
  endif
