@@ -45,6 +45,7 @@ static struct val_table_ent debug_values_table[] = {
 	{ "policy", DEBUG_POLICY },
 	{ "interface", DEBUG_INTERFACE },
 	{ "upcall", DEBUG_UPCALL },
+	{ "unpack", DEBUG_UNPACK },
 	{ NULL, 0 }
 };
 
@@ -119,7 +120,7 @@ int aa_print_debug_params(char *buffer)
 
 bool aa_resize_str_table(struct aa_str_table *t, int newsize, gfp_t gfp)
 {
-	char **n;
+	struct aa_str_table_ent *n;
 	int i;
 
 	if (t->size == newsize)
@@ -130,7 +131,7 @@ bool aa_resize_str_table(struct aa_str_table *t, int newsize, gfp_t gfp)
 	for (i = 0; i < min(t->size, newsize); i++)
 		n[i] = t->table[i];
 	for (; i < t->size; i++)
-		kfree_sensitive(t->table[i]);
+		kfree_sensitive(t->table[i].strs);
 	if (newsize > t->size)
 		memset(&n[t->size], 0, (newsize-t->size)*sizeof(*n));
 	kfree_sensitive(t->table);
@@ -141,10 +142,10 @@ bool aa_resize_str_table(struct aa_str_table *t, int newsize, gfp_t gfp)
 }
 
 /**
- * aa_free_str_table - free entries str table
+ * aa_destroy_str_table - free entries str table
  * @t: the string table to free  (MAYBE NULL)
  */
-void aa_free_str_table(struct aa_str_table *t)
+void aa_destroy_str_table(struct aa_str_table *t)
 {
 	int i;
 
@@ -152,8 +153,9 @@ void aa_free_str_table(struct aa_str_table *t)
 		if (!t->table)
 			return;
 
-		for (i = 0; i < t->size; i++)
-			kfree_sensitive(t->table[i]);
+		for (i = 0; i < t->size; i++) {
+			kfree_sensitive(t->table[i].strs);
+		}
 		kfree_sensitive(t->table);
 		t->table = NULL;
 		t->size = 0;
