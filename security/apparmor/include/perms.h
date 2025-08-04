@@ -216,7 +216,7 @@ void aa_perms_accum_raw(struct aa_perms *accum, const struct aa_perms *addend);
 void aa_profile_match_label(const struct aa_profile *profile,
 			    struct aa_ruleset *rules, struct aa_label *label,
 			    int type, u32 request, struct aa_perms *perms);
-static inline u32 denied_perms(struct aa_perms *perms, u32 request)
+static inline u32 denied_perms(const struct aa_perms *perms, u32 request)
 {
 	return request & (~perms->allow | perms->deny);
 }
