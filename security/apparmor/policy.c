@@ -310,7 +310,14 @@ void aa_free_profile(struct aa_profile *profile)
 	aa_put_ns(profile->ns);
 	kfree_sensitive(profile->rename);
 	kfree_sensitive(profile->disconnected);
-	kfree_sensitive(profile->disconnected_ipc);
+	/*
+	 * If disconnected is specified while disconnected_ipc is not,
+	 * disconnected_ipc will be set to disconnected in unpack_profile().
+	 * Thus, we need to check that the pointers are distinct in order to
+	 * prevent a double free.
+	 */
+	if (profile->disconnected_ipc != profile->disconnected)
+		kfree_sensitive(profile->disconnected_ipc);
 
 	free_attachment(&profile->attach);
 	kfree_sensitive(profile->net_compat);
