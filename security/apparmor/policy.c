@@ -236,6 +236,9 @@ static void aa_free_data(void *ptr, void *arg)
 {
 	struct aa_data *data = ptr;
 
+	if (!ptr)
+		return;
+
 	kvfree_sensitive(data->data, data->size);
 	kfree_sensitive(data->key);
 	kfree_sensitive(data);
@@ -244,6 +247,9 @@ static void aa_free_data(void *ptr, void *arg)
 static void free_attachment(struct aa_attachment *attach)
 {
 	int i;
+
+	if (!attach)
+		return;
 
 	for (i = 0; i < attach->xattr_count; i++)
 		kfree_sensitive(attach->xattrs[i]);
