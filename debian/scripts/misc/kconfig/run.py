@@ -2,11 +2,11 @@
 # Manage Ubuntu kernel .config and annotations
 # Copyright © 2022 Canonical Ltd.
 
-import sys
-import os
 import argparse
 import json
-from signal import signal, SIGPIPE, SIG_DFL
+import os
+import sys
+from signal import SIG_DFL, SIGPIPE, signal
 
 try:
     from argcomplete import autocomplete
@@ -17,9 +17,8 @@ except ModuleNotFoundError:
 
 
 from kconfig.annotations import Annotation, KConfig  # noqa: E402 Import not at top of file
-from kconfig.utils import autodetect_annotations, arg_fail  # noqa: E402 Import not at top of file
-from kconfig.version import VERSION, ANNOTATIONS_FORMAT_VERSION  # noqa: E402 Import not at top of file
-
+from kconfig.utils import arg_fail, autodetect_annotations  # noqa: E402 Import not at top of file
+from kconfig.version import ANNOTATIONS_FORMAT_VERSION, VERSION  # noqa: E402 Import not at top of file
 
 SKIP_CONFIGS = (
     # CONFIG_VERSION_SIGNATURE is dynamically set during the build
@@ -35,6 +34,12 @@ SKIP_CONFIGS = (
     "CONFIG_RUSTC_VERSION_TEXT",
     "CONFIG_BINDGEN_VERSION_TEXT",
 )
+
+
+def removeprefix(data, prefix):
+    if data[: len(prefix)] == prefix:
+        data = data[len(prefix) :]
+    return data
 
 
 def make_parser():
@@ -182,7 +187,7 @@ def do_query(args):
 
 def do_autocomplete(args):
     a = Annotation(args.file)
-    res = (c.removeprefix("CONFIG_") for c in a.search_config())
+    res = (removeprefix(c, "CONFIG_") for c in a.search_config())
     res_str = " ".join(res)
     print(f'complete -W "{res_str}" annotations')
 

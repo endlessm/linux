@@ -18,6 +18,7 @@ import sys
 sys.dont_write_bytecode = True
 
 import os  # noqa: E402 Import not at top of file
+
 from kconfig import run  # noqa: E402 Import not at top of file
 
 
