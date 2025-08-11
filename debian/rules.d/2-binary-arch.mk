@@ -68,18 +68,6 @@ ifeq ($(do_linux_tools),true)
   endif
  endif
 endif
-
-	# Collect the list of kernel source files used for this build. Need to do this early
-	# before modules are stripped. Fail if the resulting file is empty.
-ifeq ($(do_sources_list),true)
-	find $(build_dir) \( -name vmlinux -o -name \*.ko \) -exec dwarfdump -i {} \; | \
-		grep -E 'DW_AT_(call|decl)_file' | sed -n 's|.*\s/|/|p' | sort -u > \
-		$(build_dir)/sources.list
-	test -s $(build_dir)/sources.list
-else
-	true > $(build_dir)/sources.list
-endif
-
 	$(stamp)
 
 define build_dkms_sign =
@@ -455,8 +443,6 @@ endif
 	fi
 	install -m644 debian/canonical-certs.pem $(pkgdir_bldinfo)/usr/lib/linux/$(abi_release)-$*/canonical-certs.pem
 	install -m644 debian/canonical-revoked-certs.pem $(pkgdir_bldinfo)/usr/lib/linux/$(abi_release)-$*/canonical-revoked-certs.pem
-	# List of source files used for this build
-	install -m644 $(build_dir)/sources.list $(pkgdir_bldinfo)/usr/lib/linux/$(abi_release)-$*/sources
 
 	# Get rid of .o and .cmd artifacts in headers
 	find $(hdrdir) -name \*.o -or -name \*.cmd -exec rm -f {} \;
