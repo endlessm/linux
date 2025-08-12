@@ -3244,6 +3244,9 @@ static int rtw89_pci_claim_device(struct rtw89_dev *rtwdev,
 	pci_set_master(pdev);
 	pci_set_drvdata(pdev, rtwdev->hw);
 
+	if (test_bit(RTW89_QUIRK_PCI_NO_D3COLD, rtwdev->quirks))
+		pci_d3cold_disable(pdev);
+
 	rtwpci->pdev = pdev;
 
 	return 0;
