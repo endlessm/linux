@@ -20,6 +20,12 @@ BPFTOOL_VERSION_PATCH = $(shell sed -ne \
 	tools/bpf/bpftool/main.c)
 BPFTOOL_VERSION = $(shell expr $(BPFTOOL_VERSION_MAJOR) + 6).$(BPFTOOL_VERSION_MINOR).$(BPFTOOL_VERSION_PATCH)
 BPFTOOL_GENCONTROL_ARGS = -v$(BPFTOOL_VERSION)+$(DEB_VERSION)
+ifneq ($(DEB_HOST_ARCH),$(DEB_BUILD_ARCH))
+# Use system bpftool when cross-building
+BPFTOOL_PATH = /usr/sbin/bpftool
+else
+BPFTOOL_PATH = $(builddirpa)/tools/bpf/bpftool/bpftool
+endif
 
 debian/scripts/fix-filenames: debian/scripts/fix-filenames.c
 	$(HOSTCC) $^ -o $@
@@ -64,7 +70,7 @@ ifeq ($(do_linux_tools),true)
   ifeq ($(do_tools_bpftool_stub),true)
 	echo '#error "Kernel does not support CONFIG_DEBUG_INFO_BTF"' > $(build_dir)/vmlinux.h
   else
-	$(builddirpa)/tools/bpf/bpftool/bpftool btf dump file $(build_dir)/vmlinux format c > $(build_dir)/vmlinux.h
+	$(BPFTOOL_PATH) btf dump file $(build_dir)/vmlinux format c > $(build_dir)/vmlinux.h
   endif
  endif
 endif
