@@ -69,11 +69,23 @@ static const struct rtw89_pci_info rtw8852b_pci_info = {
 	.ssid_quirks		= NULL,
 };
 
+static const struct dmi_system_id rtw8852b_pci_quirks[] = {
+	{
+		.ident = "ASUS TUF Gaming F16 FX607VUR_FX607VU",
+		.matches = {
+			DMI_MATCH(DMI_SYS_VENDOR, "ASUSTeK COMPUTER INC."),
+			DMI_MATCH(DMI_PRODUCT_NAME, "ASUS TUF Gaming F16 FX607VUR_FX607VU"),
+		},
+		.driver_data = (void *)RTW89_QUIRK_PCI_NO_D3COLD,
+	},
+	{},
+};
+
 static const struct rtw89_driver_info rtw89_8852be_info = {
 	.chip = &rtw8852b_chip_info,
 	.variant = NULL,
 	.board = NULL,
-	.quirks = NULL,
+	.quirks = rtw8852b_pci_quirks,
 	.dev_id_quirks = 0,
 	.bus = {
 		.pci = &rtw8852b_pci_info,
