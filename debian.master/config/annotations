@@ -15864,10 +15864,12 @@ CONFIG_VIDEO_MAX9286                            policy<{'arm64': 'm', 'armhf': '
 CONFIG_VIDEO_MAX96712                           policy<{'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm'}>
 CONFIG_VIDEO_MAX96714                           policy<{'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm'}>
 CONFIG_VIDEO_MAX96717                           policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm'}>
-CONFIG_VIDEO_MEDIATEK_JPEG                      policy<{'arm64': 'n'}>
-CONFIG_VIDEO_MEDIATEK_MDP                       policy<{'arm64': 'n'}>
-CONFIG_VIDEO_MEDIATEK_MDP3                      policy<{'arm64': 'n'}>
-CONFIG_VIDEO_MEDIATEK_VCODEC                    policy<{'arm64': 'n'}>
+CONFIG_VIDEO_MEDIATEK_JPEG                      policy<{'arm64': 'm'}>
+CONFIG_VIDEO_MEDIATEK_MDP                       policy<{'arm64': 'm'}>
+CONFIG_VIDEO_MEDIATEK_MDP3                      policy<{'arm64': 'm'}>
+CONFIG_VIDEO_MEDIATEK_VCODEC                    policy<{'arm64': 'm'}>
+CONFIG_VIDEO_MEDIATEK_VCODEC_SCP                policy<{'arm64': 'y'}>
+CONFIG_VIDEO_MEDIATEK_VCODEC_VPU                policy<{'arm64': 'y'}>
 CONFIG_VIDEO_MEDIATEK_VPU                       policy<{'arm64': 'm', 'armhf': 'm'}>
 CONFIG_VIDEO_MEM2MEM_DEINTERLACE                policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm'}>
 CONFIG_VIDEO_MESON_GE2D                         policy<{'arm64': 'm', 'armhf': 'm'}>
