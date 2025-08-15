@@ -1956,7 +1956,7 @@ CONFIG_AS_HAS_OPTION_ARCH                       policy<{'riscv64': 'y'}>
 CONFIG_AS_HAS_ULEB128                           policy<{'riscv64': 'y'}>
 CONFIG_AS_IS_GNU                                policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y', 's390x': 'y'}>
 CONFIG_AS_VAES                                  policy<{'amd64': 'y'}>
-CONFIG_AS_VERSION                               policy<{'amd64': '24450', 'arm64': '24450', 'armhf': '24450', 'ppc64el': '24450', 'riscv64': '24450', 's390x': '24450'}>
+CONFIG_AS_VERSION                               policy<{'amd64': '24500', 'arm64': '24500', 'armhf': '24500', 'ppc64el': '24500', 'riscv64': '24500', 's390x': '24500'}>
 CONFIG_AS_VPCLMULQDQ                            policy<{'amd64': 'y'}>
 CONFIG_AS_WRUSS                                 policy<{'amd64': 'y'}>
 CONFIG_AT76C50X_USB                             policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm'}>
@@ -2661,6 +2661,7 @@ CONFIG_CC_HAS_AUTO_VAR_INIT_ZERO                policy<{'amd64': 'y', 'arm64': '
 CONFIG_CC_HAS_AUTO_VAR_INIT_ZERO_BARE           policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y', 's390x': 'y'}>
 CONFIG_CC_HAS_BRANCH_PROT_PAC_RET               policy<{'arm64': 'y'}>
 CONFIG_CC_HAS_BRANCH_PROT_PAC_RET_BTI           policy<{'arm64': 'y'}>
+CONFIG_CC_HAS_COUNTED_BY                        policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y', 's390x': 'y'}>
 CONFIG_CC_HAS_ELFV2                             policy<{'ppc64el': 'y'}>
 CONFIG_CC_HAS_ENTRY_PADDING                     policy<{'amd64': 'y'}>
 CONFIG_CC_HAS_IBT                               policy<{'amd64': 'y'}>
@@ -2669,6 +2670,7 @@ CONFIG_CC_HAS_KASAN_GENERIC                     policy<{'amd64': 'y', 'arm64': '
 CONFIG_CC_HAS_KASAN_SW_TAGS                     policy<{'amd64': 'y', 'arm64': 'y'}>
 CONFIG_CC_HAS_MARCH_NATIVE                      policy<{'amd64': 'y'}>
 CONFIG_CC_HAS_MIN_FUNCTION_ALIGNMENT            policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y', 's390x': 'y'}>
+CONFIG_CC_HAS_MULTIDIMENSIONAL_NONSTRING        policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y', 's390x': 'y'}>
 CONFIG_CC_HAS_NAMED_AS                          policy<{'amd64': 'y'}>
 CONFIG_CC_HAS_NAMED_AS_FIXED_SANITIZERS         policy<{'amd64': 'y'}>
 CONFIG_CC_HAS_NO_PROFILE_FN_ATTR                policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y', 's390x': 'y'}>
@@ -2689,7 +2691,7 @@ CONFIG_CC_NO_ARRAY_BOUNDS                       policy<{'amd64': 'y', 'arm64': '
 CONFIG_CC_NO_STRINGOP_OVERFLOW                  policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y', 's390x': 'y'}>
 CONFIG_CC_OPTIMIZE_FOR_PERFORMANCE              policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y', 's390x': 'y'}>
 CONFIG_CC_OPTIMIZE_FOR_SIZE                     policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'ppc64el': 'n', 'riscv64': 'n', 's390x': 'n'}>
-CONFIG_CC_VERSION_TEXT                          policy<{'amd64': '"x86_64-linux-gnu-gcc-14 (Ubuntu 14.3.0-1ubuntu1) 14.3.0"', 'arm64': '"aarch64-linux-gnu-gcc-14 (Ubuntu 14.2.0-19ubuntu2) 14.2.0"', 'armhf': '"arm-linux-gnueabihf-gcc-14 (Ubuntu 14.2.0-19ubuntu2) 14.2.0"', 'ppc64el': '"powerpc64le-linux-gnu-gcc-14 (Ubuntu 14.2.0-19ubuntu2) 14.2.0"', 'riscv64': '"riscv64-linux-gnu-gcc-14 (Ubuntu 14.2.0-19ubuntu2) 14.2.0"', 's390x': '"s390x-linux-gnu-gcc-14 (Ubuntu 14.2.0-19ubuntu2) 14.2.0"'}>
+CONFIG_CC_VERSION_TEXT                          policy<{'amd64': '"x86_64-linux-gnu-gcc (Ubuntu 15.2.0-1ubuntu1) 15.2.0"', 'arm64': '"aarch64-linux-gnu-gcc (Ubuntu 15.1.0-10ubuntu2) 15.1.0"', 'armhf': '"arm-linux-gnueabihf-gcc (Ubuntu 15.1.0-10ubuntu2) 15.1.0"', 'ppc64el': '"powerpc64le-linux-gnu-gcc (Ubuntu 15.1.0-10ubuntu2) 15.1.0"', 'riscv64': '"riscv64-linux-gnu-gcc (Ubuntu 15.1.0-10ubuntu2) 15.1.0"', 's390x': '"s390x-linux-gnu-gcc (Ubuntu 15.1.0-10ubuntu2) 15.1.0"'}>
 CONFIG_CDNS_I3C_MASTER                          policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm'}>
 CONFIG_CDROM                                    policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y', 's390x': 'y'}>
 CONFIG_CDROM_PKTCDVD                            policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'ppc64el': 'n', 'riscv64': 'n', 's390x': 'n'}>
@@ -5543,7 +5545,7 @@ CONFIG_GCC10_NO_ARRAY_BOUNDS                    policy<{'amd64': 'y', 'arm64': '
 CONFIG_GCC_NO_STRINGOP_OVERFLOW                 policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y', 's390x': 'y'}>
 CONFIG_GCC_SUPPORTS_DYNAMIC_FTRACE              policy<{'riscv64': 'y'}>
 CONFIG_GCC_SUPPORTS_DYNAMIC_FTRACE_WITH_ARGS    policy<{'arm64': 'y'}>
-CONFIG_GCC_VERSION                              policy<{'amd64': '140300', 'arm64': '140200', 'armhf': '140200', 'ppc64el': '140200', 'riscv64': '140200', 's390x': '140200'}>
+CONFIG_GCC_VERSION                              policy<{'amd64': '150200', 'arm64': '150100', 'armhf': '150100', 'ppc64el': '150100', 'riscv64': '150100', 's390x': '150100'}>
 CONFIG_GCOV_KERNEL                              policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'ppc64el': 'n', 'riscv64': 'n', 's390x': 'n'}>
 CONFIG_GDB_SCRIPTS                              policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y', 's390x': 'y'}>
 CONFIG_GEHC_PMC_ADC                             policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm'}>
@@ -7659,7 +7661,7 @@ CONFIG_LD_HEAD_STUB_CATCH                       policy<{'ppc64el': 'n'}>
 CONFIG_LD_IS_BFD                                policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y', 's390x': 'y'}>
 CONFIG_LD_ORPHAN_WARN                           policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y', 's390x': 'y'}>
 CONFIG_LD_ORPHAN_WARN_LEVEL                     policy<{'amd64': '"warn"', 'arm64': '"warn"', 'armhf': '"warn"', 'ppc64el': '"warn"', 'riscv64': '"warn"', 's390x': '"warn"'}>
-CONFIG_LD_VERSION                               policy<{'amd64': '24450', 'arm64': '24450', 'armhf': '24450', 'ppc64el': '24450', 'riscv64': '24450', 's390x': '24450'}>
+CONFIG_LD_VERSION                               policy<{'amd64': '24500', 'arm64': '24500', 'armhf': '24500', 'ppc64el': '24500', 'riscv64': '24500', 's390x': '24500'}>
 CONFIG_LEDS_88PM860X                            policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm', 's390x': '-'}>
 CONFIG_LEDS_AAEON                               policy<{'amd64': 'm'}>
 CONFIG_LEDS_AAT1290                             policy<{'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm'}>
@@ -7966,6 +7968,7 @@ CONFIG_MARCH_Z14                                policy<{'s390x': 'n'}>
 CONFIG_MARCH_Z15                                policy<{'s390x': 'n'}>
 CONFIG_MARCH_Z16                                policy<{'s390x': 'n'}>
 CONFIG_MARCH_Z16_TUNE                           policy<{'s390x': 'y'}>
+CONFIG_MARCH_Z17                                policy<{'s390x': 'n'}>
 CONFIG_MARCH_Z196                               policy<{'s390x': 'n'}>
 CONFIG_MARCH_ZEC12                              policy<{'s390x': 'n'}>
 CONFIG_MARVELL_10G_PHY                          policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm', 's390x': 'm'}>
@@ -11613,6 +11616,8 @@ CONFIG_RISCV_ISA_V_DEFAULT_ENABLE               policy<{'riscv64': 'y'}>
 CONFIG_RISCV_ISA_V_PREEMPTIVE                   policy<{'riscv64': 'y'}>
 CONFIG_RISCV_ISA_V_UCOPY_THRESHOLD              policy<{'riscv64': '768'}>
 CONFIG_RISCV_ISA_XTHEADVECTOR                   policy<{'riscv64': 'y'}>
+CONFIG_RISCV_ISA_ZABHA                          policy<{'riscv64': 'y'}>
+CONFIG_RISCV_ISA_ZACAS                          policy<{'riscv64': 'y'}>
 CONFIG_RISCV_ISA_ZAWRS                          policy<{'riscv64': 'y'}>
 CONFIG_RISCV_ISA_ZBA                            policy<{'riscv64': 'y'}>
 CONFIG_RISCV_ISA_ZBB                            policy<{'riscv64': 'y'}>
@@ -14676,6 +14681,8 @@ CONFIG_TN3270_FS                                policy<{'s390x': 'm'}>
 CONFIG_TOOLCHAIN_DEFAULT_CPU                    policy<{'ppc64el': 'n'}>
 CONFIG_TOOLCHAIN_HAS_V                          policy<{'riscv64': 'y'}>
 CONFIG_TOOLCHAIN_HAS_VECTOR_CRYPTO              policy<{'riscv64': 'y'}>
+CONFIG_TOOLCHAIN_HAS_ZABHA                      policy<{'riscv64': 'y'}>
+CONFIG_TOOLCHAIN_HAS_ZACAS                      policy<{'riscv64': 'y'}>
 CONFIG_TOOLCHAIN_HAS_ZBA                        policy<{'riscv64': 'y'}>
 CONFIG_TOOLCHAIN_HAS_ZBB                        policy<{'riscv64': 'y'}>
 CONFIG_TOOLCHAIN_HAS_ZBC                        policy<{'riscv64': 'y'}>
@@ -14864,6 +14871,7 @@ CONFIG_TUNE_Z10                                 policy<{'s390x': 'n'}>
 CONFIG_TUNE_Z13                                 policy<{'s390x': 'n'}>
 CONFIG_TUNE_Z14                                 policy<{'s390x': 'n'}>
 CONFIG_TUNE_Z15                                 policy<{'s390x': 'n'}>
+CONFIG_TUNE_Z17                                 policy<{'s390x': 'n'}>
 CONFIG_TUNE_Z196                                policy<{'s390x': 'n'}>
 CONFIG_TUNE_ZEC12                               policy<{'s390x': 'n'}>
 CONFIG_TUN_VNET_CROSS_LE                        policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'ppc64el': 'n', 'riscv64': 'n', 's390x': 'n'}>
