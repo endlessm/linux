@@ -1288,7 +1288,8 @@ static void pci_enable_rrs_sv(struct pci_dev *pdev)
 	if (root_cap & PCI_EXP_RTCAP_RRS_SV) {
 		pcie_capability_set_word(pdev, PCI_EXP_RTCTL,
 					 PCI_EXP_RTCTL_RRS_SVE);
-		pdev->config_rrs_sv = 1;
+		if (!(pdev->dev_flags & PCI_DEV_FLAGS_NO_RRS_SV))
+			pdev->config_rrs_sv = 1;
 	}
 }
 

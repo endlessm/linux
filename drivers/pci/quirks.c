@@ -6356,3 +6356,21 @@ static void pci_mask_replay_timer_timeout(struct pci_dev *pdev)
 DECLARE_PCI_FIXUP_FINAL(PCI_VENDOR_ID_GLI, 0x9750, pci_mask_replay_timer_timeout);
 DECLARE_PCI_FIXUP_FINAL(PCI_VENDOR_ID_GLI, 0x9755, pci_mask_replay_timer_timeout);
 #endif
+
+/*
+ * Although the root port device claims to support RRS, some devices don't work
+ * with RRS polling, when reading the Vendor ID, they just return ~0 if config
+ * access is not ready, this will break the pci_dev_wait(). Here disable the RRS
+ * forcibly for this type of device.
+ */
+static void quirk_no_rrs_sv(struct pci_dev *dev)
+{
+	struct pci_dev *root;
+
+	root = pcie_find_root_port(dev);
+	if (root) {
+		root->dev_flags |= PCI_DEV_FLAGS_NO_RRS_SV;
+		root->config_rrs_sv = 0;
+	}
+}
+DECLARE_PCI_FIXUP_EARLY(PCI_VENDOR_ID_INTEL, 0x0a54, quirk_no_rrs_sv);
