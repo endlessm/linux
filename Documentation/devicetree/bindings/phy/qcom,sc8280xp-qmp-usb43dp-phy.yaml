@@ -76,6 +76,19 @@ properties:
   mode-switch: true
   orientation-switch: true
 
+  qcom,combo-initial-mode:
+    description:
+      Describe the initial mode of the Combo PHY configuration.
+      The Combo PHY is a wrapper on top of a DP PHY and an USB3 PHY,
+      sharing the same SuperSpeed lanes with either DisplayPort over
+      the 4 lanes (dp), USB3 on a pair of lanes (usb3) or both
+      technologies in a 2+2 configuration (usb3+dp) as default.
+    default: usb3+dp
+    enum:
+      - usb3+dp
+      - usb3
+      - dp
+
   ports:
     $ref: /schemas/graph.yaml#/properties/ports
     properties:
