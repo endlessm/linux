@@ -1,0 +1,39 @@
+// SPDX-License-Identifier: BSD-3-Clause
+/*
+* Copyright (c) 2023 Qualcomm Innovation Center, Inc. All rights reserved.
+* Copyright (c) 2024, Linaro Limited
+*/
+
+/dts-v1/;
+
+#include "x1e80100.dtsi"
+#include "x1e80100-pmics.dtsi"
+#include "x1-acer-swift-14.dtsi"
+
+/ {
+   model = "Acer Swift 14 AI (SF14-11)";
+   compatible = "acer,swift-sf14-11","lenovo,thinkpad-t14s", "qcom,x1p64100", "qcom,x1e80100";
+	chassis-type = "laptop";
+};
+
+&gpu {
+	status = "okay";
+
+	zap-shader {
+		firmware-name = "qcom/x1e80100/ACER/SF14-11/qcdxkmsuc8380.mbn";
+	};
+};
+
+&remoteproc_adsp {
+	firmware-name = "qcom/x1e80100/ACER/SF14-11/qcadsp8380.mbn",
+			"qcom/x1e80100/ACER/SF14-11/adsp_dtbs.elf";
+
+	status = "okay";
+};
+
+&remoteproc_cdsp {
+	firmware-name = "qcom/x1e80100/ACER/SF14-11/qccdsp8380.mbn",
+			"qcom/x1e80100/ACER/SF14-11/cdsp_dtbs.elf";
+
+	status = "okay";
+};
