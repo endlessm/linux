@@ -208,7 +208,7 @@ static int profile_create_perm(struct aa_profile *profile, int family,
 	AA_BUG(!profile);
 	AA_BUG(profile_unconfined(profile));
 
-	state = RULE_MEDIATES_v9NET(rules);
+	state = RULE_MEDIATES_NET(rules);
 	if (state) {
 		state = aa_match_to_prot(rules->policy, state, AA_MAY_CREATE,
 					 PF_UNIX, type, protocol, NULL,
@@ -234,7 +234,7 @@ static int profile_sk_perm(struct aa_profile *profile,
 	AA_BUG(!sk);
 	AA_BUG(profile_unconfined(profile));
 
-	state = RULE_MEDIATES_v9NET(rules);
+	state = RULE_MEDIATES_NET(rules);
 	if (state) {
 		if (is_unix_fs(sk))
 			return unix_fs_perm(ad->op, request, ad->subj_cred,
@@ -263,7 +263,7 @@ static int profile_bind_perm(struct aa_profile *profile, struct sock *sk,
 	AA_BUG(!ad);
 	AA_BUG(profile_unconfined(profile));
 
-	state = RULE_MEDIATES_v9NET(rules);
+	state = RULE_MEDIATES_NET(rules);
 	if (state) {
 		if (is_unix_addr_fs(ad->net.addr, ad->net.addrlen))
 			/* under v7-9 fs hook handles bind */
@@ -294,7 +294,7 @@ static int profile_listen_perm(struct aa_profile *profile, struct sock *sk,
 	AA_BUG(!ad);
 	AA_BUG(profile_unconfined(profile));
 
-	state = RULE_MEDIATES_v9NET(rules);
+	state = RULE_MEDIATES_NET(rules);
 	if (state) {
 		__be16 b = cpu_to_be16(backlog);
 
@@ -331,7 +331,7 @@ static int profile_accept_perm(struct aa_profile *profile,
 	AA_BUG(!ad);
 	AA_BUG(profile_unconfined(profile));
 
-	state = RULE_MEDIATES_v9NET(rules);
+	state = RULE_MEDIATES_NET(rules);
 	if (state) {
 		if (is_unix_fs(sk))
 			return unix_fs_perm(ad->op, AA_MAY_ACCEPT,
@@ -361,7 +361,7 @@ static int profile_opt_perm(struct aa_profile *profile, u32 request,
 	AA_BUG(!ad);
 	AA_BUG(profile_unconfined(profile));
 
-	state = RULE_MEDIATES_v9NET(rules);
+	state = RULE_MEDIATES_NET(rules);
 	if (state) {
 		__be16 b = cpu_to_be16(optname);
 		if (is_unix_fs(sk))
@@ -402,7 +402,7 @@ static int profile_peer_perm(struct aa_profile *profile, u32 request,
 	AA_BUG(!peer_label);
 	AA_BUG(!ad);
 
-	state = RULE_MEDIATES_v9NET(rules);
+	state = RULE_MEDIATES_NET(rules);
 	if (state) {
 		struct aa_profile *peerp;
 
