@@ -12875,7 +12875,8 @@ CONFIG_SERIAL_TEGRA_UTC                         policy<{'arm64': 'm', 'armhf': '
 CONFIG_SERIAL_TEGRA_UTC_CONSOLE                 policy<{'arm64': 'y', 'armhf': 'y'}>
 CONFIG_SERIAL_UARTLITE                          policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm', 's390x': 'm'}>
 CONFIG_SERIAL_UARTLITE_NR_UARTS                 policy<{'amd64': '1', 'arm64': '1', 'armhf': '1', 'ppc64el': '1', 'riscv64': '1', 's390x': '1'}>
-CONFIG_SERIAL_XILINX_PS_UART                    policy<{'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm'}>
+CONFIG_SERIAL_XILINX_PS_UART                    policy<{'arm64': 'y', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm'}>
+CONFIG_SERIAL_XILINX_PS_UART_CONSOLE            policy<{'arm64': 'y'}>
 CONFIG_SERIO                                    policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y', 's390x': 'n'}>
 CONFIG_SERIO_ALTERA_PS2                         policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm', 's390x': '-'}>
 CONFIG_SERIO_AMBAKMI                            policy<{'arm64': 'm', 'armhf': 'm', 'riscv64': 'm'}>
