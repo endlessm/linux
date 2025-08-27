@@ -195,7 +195,7 @@ CONFIG_EFIVAR_FS                                note<'needed for variable EFI up
 CONFIG_EFI_HANDOVER_PROTOCOL                    policy<{'amd64': 'y'}>
 CONFIG_EFI_HANDOVER_PROTOCOL                    note<'{GRUB may include some downstream patches that may rely on the handover protocol, so make sure this is enabled}'>
 
-CONFIG_EFI_ZBOOT                                policy<{'arm64': 'y', 'riscv64': 'n'}>
+CONFIG_EFI_ZBOOT                                policy<{'arm64': 'y', 'riscv64': 'y'}>
 CONFIG_EFI_ZBOOT                                note<'LP: #2002226'>
 
 CONFIG_EVM                                      policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y', 's390x': 'y'}>
@@ -354,7 +354,7 @@ CONFIG_IP_PNP                                   note<'LP: #1259861'>
 CONFIG_ISM                                      policy<{'s390x': 'm'}>
 CONFIG_ISM                                      note<'LP: #1789934'>
 
-CONFIG_KERNEL_ZSTD                              policy<{'amd64': 'y', 'arm64': 'y', 'riscv64': 'n', 's390x': 'y'}>
+CONFIG_KERNEL_ZSTD                              policy<{'amd64': 'y', 'arm64': 'y', 'riscv64': 'y', 's390x': 'y'}>
 CONFIG_KERNEL_ZSTD                              note<'LP: #193172'>
 
 CONFIG_KEXEC_BZIMAGE_VERIFY_SIG                 policy<{'amd64': 'y'}>
@@ -5972,13 +5972,13 @@ CONFIG_HAVE_IRQ_EXIT_ON_IRQ_STACK               policy<{'amd64': 'y', 'armhf': '
 CONFIG_HAVE_IRQ_TIME_ACCOUNTING                 policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y'}>
 CONFIG_HAVE_JUMP_LABEL_HACK                     policy<{'amd64': 'y'}>
 CONFIG_HAVE_KCSAN_COMPILER                      policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y', 's390x': 'y'}>
-CONFIG_HAVE_KERNEL_BZIP2                        policy<{'amd64': 'y', 'riscv64': 'y', 's390x': 'y'}>
+CONFIG_HAVE_KERNEL_BZIP2                        policy<{'amd64': 'y', 'riscv64': '-', 's390x': 'y'}>
 CONFIG_HAVE_KERNEL_GZIP                         policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y', 's390x': 'y'}>
-CONFIG_HAVE_KERNEL_LZ4                          policy<{'amd64': 'y', 'arm64': '-', 'armhf': 'y', 'riscv64': 'y', 's390x': 'y'}>
-CONFIG_HAVE_KERNEL_LZMA                         policy<{'amd64': 'y', 'arm64': '-', 'armhf': 'y', 'riscv64': 'y', 's390x': 'y'}>
-CONFIG_HAVE_KERNEL_LZO                          policy<{'amd64': 'y', 'arm64': '-', 'armhf': 'y', 'riscv64': 'y', 's390x': 'y'}>
-CONFIG_HAVE_KERNEL_UNCOMPRESSED                 policy<{'riscv64': 'y', 's390x': 'y'}>
-CONFIG_HAVE_KERNEL_XZ                           policy<{'amd64': 'y', 'arm64': '-', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y', 's390x': 'y'}>
+CONFIG_HAVE_KERNEL_LZ4                          policy<{'amd64': 'y', 'arm64': '-', 'armhf': 'y', 'riscv64': '-', 's390x': 'y'}>
+CONFIG_HAVE_KERNEL_LZMA                         policy<{'amd64': 'y', 'arm64': '-', 'armhf': 'y', 'riscv64': '-', 's390x': 'y'}>
+CONFIG_HAVE_KERNEL_LZO                          policy<{'amd64': 'y', 'arm64': '-', 'armhf': 'y', 'riscv64': '-', 's390x': 'y'}>
+CONFIG_HAVE_KERNEL_UNCOMPRESSED                 policy<{'riscv64': '-', 's390x': 'y'}>
+CONFIG_HAVE_KERNEL_XZ                           policy<{'amd64': 'y', 'arm64': '-', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': '-', 's390x': 'y'}>
 CONFIG_HAVE_KERNEL_ZSTD                         policy<{'amd64': 'y', 'arm64': 'y', 'riscv64': 'y', 's390x': 'y'}>
 CONFIG_HAVE_KPROBES                             policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y', 's390x': 'y'}>
 CONFIG_HAVE_KPROBES_ON_FTRACE                   policy<{'amd64': 'y', 'ppc64el': 'y', 'riscv64': '-', 's390x': 'y'}>
@@ -7498,17 +7498,17 @@ CONFIG_KEBA_CP500                               policy<{'amd64': 'm', 'arm64': '
 CONFIG_KEBA_LAN9252                             policy<{'amd64': 'm', 'arm64': 'm'}>
 CONFIG_KEEMBAY_WATCHDOG                         policy<{'arm64': 'm'}>
 CONFIG_KEMPLD_WDT                               policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm'}>
-CONFIG_KERNEL_BZIP2                             policy<{'amd64': 'n', 'riscv64': 'n', 's390x': 'n'}>
+CONFIG_KERNEL_BZIP2                             policy<{'amd64': 'n', 'riscv64': '-', 's390x': 'n'}>
 CONFIG_KERNEL_GZIP                              policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'n', 's390x': 'n'}>
 CONFIG_KERNEL_IMAGE_BASE                        policy<{'s390x': '0x3FFE0000000'}>
-CONFIG_KERNEL_LZ4                               policy<{'amd64': 'n', 'arm64': '-', 'armhf': 'n', 'riscv64': 'n', 's390x': 'n'}>
-CONFIG_KERNEL_LZMA                              policy<{'amd64': 'n', 'arm64': '-', 'armhf': 'n', 'riscv64': 'n', 's390x': 'n'}>
-CONFIG_KERNEL_LZO                               policy<{'amd64': 'n', 'arm64': '-', 'armhf': 'n', 'riscv64': 'n', 's390x': 'n'}>
+CONFIG_KERNEL_LZ4                               policy<{'amd64': 'n', 'arm64': '-', 'armhf': 'n', 'riscv64': '-', 's390x': 'n'}>
+CONFIG_KERNEL_LZMA                              policy<{'amd64': 'n', 'arm64': '-', 'armhf': 'n', 'riscv64': '-', 's390x': 'n'}>
+CONFIG_KERNEL_LZO                               policy<{'amd64': 'n', 'arm64': '-', 'armhf': 'n', 'riscv64': '-', 's390x': 'n'}>
 CONFIG_KERNEL_MODE_NEON                         policy<{'arm64': 'y', 'armhf': 'y'}>
 CONFIG_KERNEL_NOBP                              policy<{'s390x': 'n'}>
 CONFIG_KERNEL_START                             policy<{'ppc64el': '0xc000000000000000'}>
-CONFIG_KERNEL_UNCOMPRESSED                      policy<{'riscv64': 'y', 's390x': 'n'}>
-CONFIG_KERNEL_XZ                                policy<{'amd64': 'n', 'arm64': '-', 'armhf': 'n', 'ppc64el': 'n', 'riscv64': 'n', 's390x': 'n'}>
+CONFIG_KERNEL_UNCOMPRESSED                      policy<{'riscv64': '-', 's390x': 'n'}>
+CONFIG_KERNEL_XZ                                policy<{'amd64': 'n', 'arm64': '-', 'armhf': 'n', 'ppc64el': 'n', 'riscv64': '-', 's390x': 'n'}>
 CONFIG_KERNFS                                   policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y', 's390x': 'y'}>
 CONFIG_KEXEC                                    policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y', 's390x': 'y'}>
 CONFIG_KEXEC_CORE                               policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y', 's390x': 'y'}>
