@@ -11624,7 +11624,7 @@ CONFIG_RISCV_INTC                               policy<{'riscv64': 'y'}>
 CONFIG_RISCV_IOMMU                              policy<{'riscv64': 'y'}>
 CONFIG_RISCV_IOMMU_PCI                          policy<{'riscv64': 'y'}>
 CONFIG_RISCV_ISA_C                              policy<{'riscv64': 'y'}>
-CONFIG_RISCV_ISA_FALLBACK                       policy<{'riscv64': 'y'}>
+CONFIG_RISCV_ISA_FALLBACK                       policy<{'riscv64': 'n'}>
 CONFIG_RISCV_ISA_SUPM                           policy<{'riscv64': 'y'}>
 CONFIG_RISCV_ISA_SVNAPOT                        policy<{'riscv64': 'y'}>
 CONFIG_RISCV_ISA_SVPBMT                         policy<{'riscv64': 'y'}>
