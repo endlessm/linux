@@ -4418,14 +4418,14 @@ CONFIG_DRM_PANEL_ELIDA_KD35T133                 policy<{'arm64': 'm', 'armhf': '
 CONFIG_DRM_PANEL_FEIXIN_K101_IM2BA02            policy<{'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm'}>
 CONFIG_DRM_PANEL_FEIYANG_FY07024DI26A30D        policy<{'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm'}>
 CONFIG_DRM_PANEL_HIMAX_HX8279                   policy<{'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm'}>
-CONFIG_DRM_PANEL_HIMAX_HX83102                  policy<{'arm64': 'm', 'armhf': 'n', 'ppc64el': 'n', 'riscv64': 'n'}>
+CONFIG_DRM_PANEL_HIMAX_HX83102                  policy<{'arm64': 'm', 'armhf': 'n', 'ppc64el': 'n', 'riscv64': 'm'}>
 CONFIG_DRM_PANEL_HIMAX_HX83112A                 policy<{'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm'}>
 CONFIG_DRM_PANEL_HIMAX_HX83112B                 policy<{'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm'}>
 CONFIG_DRM_PANEL_HIMAX_HX8394                   policy<{'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm'}>
 CONFIG_DRM_PANEL_ILITEK_IL9322                  policy<{'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm'}>
 CONFIG_DRM_PANEL_ILITEK_ILI9341                 policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm'}>
 CONFIG_DRM_PANEL_ILITEK_ILI9805                 policy<{'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm'}>
-CONFIG_DRM_PANEL_ILITEK_ILI9806E                policy<{'arm64': 'm', 'armhf': 'n', 'ppc64el': 'n', 'riscv64': 'n'}>
+CONFIG_DRM_PANEL_ILITEK_ILI9806E                policy<{'arm64': 'm', 'armhf': 'n', 'ppc64el': 'n', 'riscv64': 'm'}>
 CONFIG_DRM_PANEL_ILITEK_ILI9881C                policy<{'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm'}>
 CONFIG_DRM_PANEL_ILITEK_ILI9882T                policy<{'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm'}>
 CONFIG_DRM_PANEL_INNOLUX_EJ030NA                policy<{'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm'}>
@@ -4441,7 +4441,7 @@ CONFIG_DRM_PANEL_LEADTEK_LTK500HD1829           policy<{'arm64': 'm', 'armhf': '
 CONFIG_DRM_PANEL_LG_LB035Q02                    policy<{'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm'}>
 CONFIG_DRM_PANEL_LG_LG4573                      policy<{'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm'}>
 CONFIG_DRM_PANEL_LG_SW43408                     policy<{'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm'}>
-CONFIG_DRM_PANEL_LINCOLNTECH_LCD197             policy<{'arm64': 'm', 'armhf': 'n', 'ppc64el': 'n', 'riscv64': 'n'}>
+CONFIG_DRM_PANEL_LINCOLNTECH_LCD197             policy<{'arm64': 'm', 'armhf': 'n', 'ppc64el': 'n', 'riscv64': 'm'}>
 CONFIG_DRM_PANEL_LVDS                           policy<{'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm'}>
 CONFIG_DRM_PANEL_MAGNACHIP_D53E6EA8966          policy<{'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm'}>
 CONFIG_DRM_PANEL_MANTIX_MLAF057WE51             policy<{'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm'}>
@@ -6297,7 +6297,7 @@ CONFIG_HUAWEI_WMI                               policy<{'amd64': 'm'}>
 CONFIG_HUGETLBFS                                policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y', 's390x': 'y'}>
 CONFIG_HUGETLB_PAGE                             policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y', 's390x': 'y'}>
 CONFIG_HUGETLB_PAGE_OPTIMIZE_VMEMMAP            policy<{'amd64': 'y', 'arm64': '-', 'riscv64': 'y', 's390x': 'y'}>
-CONFIG_HUGETLB_PAGE_OPTIMIZE_VMEMMAP_DEFAULT_ON policy<{'amd64': 'n', 'arm64': '-', 'riscv64': 'y', 's390x': 'n'}>
+CONFIG_HUGETLB_PAGE_OPTIMIZE_VMEMMAP_DEFAULT_ON policy<{'amd64': 'n', 'arm64': '-', 'riscv64': 'n', 's390x': 'n'}>
 CONFIG_HUGETLB_PAGE_SIZE_VARIABLE               policy<{'ppc64el': 'y'}>
 CONFIG_HUGETLB_PMD_PAGE_TABLE_SHARING           policy<{'amd64': 'y', 'arm64-generic': 'y', 'riscv64': 'y'}>
 CONFIG_HVCS                                     policy<{'ppc64el': 'm'}>
@@ -16188,7 +16188,7 @@ CONFIG_WM8350_WATCHDOG                          policy<{'amd64': 'm', 'arm64': '
 CONFIG_WMI_BMOF                                 policy<{'amd64': 'm'}>
 CONFIG_WPCM450_SOC                              policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm', 's390x': 'n'}>
 CONFIG_WQ_CPU_INTENSIVE_REPORT                  policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y', 's390x': 'y'}>
-CONFIG_WQ_POWER_EFFICIENT_DEFAULT               policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'n'}>
+CONFIG_WQ_POWER_EFFICIENT_DEFAULT               policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y'}>
 CONFIG_WQ_WATCHDOG                              policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'ppc64el': 'n', 'riscv64': 'n', 's390x': 'n'}>
 CONFIG_WWAN_DEBUGFS                             policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y'}>
 CONFIG_WWAN_HWSIM                               policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm', 's390x': '-'}>
