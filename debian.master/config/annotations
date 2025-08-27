@@ -5010,7 +5010,7 @@ CONFIG_EFI_PGT_DUMP                             policy<{'amd64': 'n'}>
 CONFIG_EFI_RCI2_TABLE                           policy<{'amd64': 'y'}>
 CONFIG_EFI_RUNTIME_MAP                          policy<{'amd64': 'y'}>
 CONFIG_EFI_RUNTIME_WRAPPERS                     policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'riscv64': 'y'}>
-CONFIG_EFI_SBAT_FILE                            policy<{'amd64': '""', 'arm64': '""'}>
+CONFIG_EFI_SBAT_FILE                            policy<{'amd64': '""', 'arm64': '""', 'riscv64': '""'}>
 CONFIG_EFI_SECRET                               policy<{'amd64': 'm'}>
 CONFIG_EFI_SOFT_RESERVE                         policy<{'amd64': 'y', 'arm64': 'y', 'riscv64': 'y'}>
 CONFIG_EFI_STUB                                 policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'riscv64': 'y'}>
