@@ -1436,7 +1436,7 @@ CONFIG_ARCH_INLINE_WRITE_UNLOCK_IRQRESTORE      policy<{'s390x': 'y'}>
 CONFIG_ARCH_INTEL_SOCFPGA                       policy<{'arm64': 'y', 'armhf': 'y'}>
 CONFIG_ARCH_K3                                  policy<{'arm64': 'y'}>
 CONFIG_ARCH_KEEMBAY                             policy<{'arm64': 'y'}>
-CONFIG_ARCH_KEEP_MEMBLOCK                       policy<{'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y'}>
+CONFIG_ARCH_KEEP_MEMBLOCK                       policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y'}>
 CONFIG_ARCH_KEYSTONE                            policy<{'armhf': 'n'}>
 CONFIG_ARCH_LAYERSCAPE                          policy<{'arm64': 'y'}>
 CONFIG_ARCH_LG1K                                policy<{'arm64': 'y'}>
@@ -7001,6 +7001,7 @@ CONFIG_INTEL_STRATIX10_SERVICE                  policy<{'arm64': 'm'}>
 CONFIG_INTEL_TCC                                policy<{'amd64': 'y'}>
 CONFIG_INTEL_TCC_COOLING                        policy<{'amd64': 'm'}>
 CONFIG_INTEL_TDX_GUEST                          policy<{'amd64': 'y'}>
+CONFIG_INTEL_TDX_HOST                           policy<{'amd64': 'y'}>
 CONFIG_INTEL_TELEMETRY                          policy<{'amd64': 'm'}>
 CONFIG_INTEL_TH                                 policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm', 's390x': 'm'}>
 CONFIG_INTEL_THC_HID                            policy<{'amd64': 'm'}>
@@ -7631,6 +7632,7 @@ CONFIG_KVM_GUEST                                policy<{'amd64': 'y', 'ppc64el':
 CONFIG_KVM_HYPERV                               policy<{'amd64': 'y'}>
 CONFIG_KVM_INTEL                                policy<{'amd64': 'm'}>
 CONFIG_KVM_INTEL_PROVE_VE                       policy<{'amd64': 'y'}>
+CONFIG_KVM_INTEL_TDX                            policy<{'amd64': 'y'}>
 CONFIG_KVM_IOAPIC                               policy<{'amd64': 'y'}>
 CONFIG_KVM_MAX_NR_VCPUS                         policy<{'amd64': '4096'}>
 CONFIG_KVM_MMIO                                 policy<{'amd64': 'y', 'arm64': 'y', 'ppc64el': '-', 'riscv64': 'y'}>
