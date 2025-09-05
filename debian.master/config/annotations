@@ -726,6 +726,9 @@ CONFIG_TIMERLAT_TRACER                          note<'This enables the osnoise t
 CONFIG_TMPFS_POSIX_ACL                          policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y', 's390x': 'y'}>
 CONFIG_TMPFS_POSIX_ACL                          note<'some /dev nodes require POSIX ACLs, like /dev/dsp'>
 
+CONFIG_TOUCHSCREEN_APPLE_Z2                     policy<{'arm64': 'm'}>
+CONFIG_TOUCHSCREEN_APPLE_Z2                     note<'LP: #2115758'>
+
 CONFIG_TOUCHSCREEN_ELAN                         policy<{'amd64': 'y', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm', 's390x': '-'}>
 CONFIG_TOUCHSCREEN_ELAN                         note<'LP: #1630238'>
 
@@ -14829,7 +14832,6 @@ CONFIG_TOUCHSCREEN_AD7879_I2C                   policy<{'amd64': 'm', 'arm64': '
 CONFIG_TOUCHSCREEN_AD7879_SPI                   policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm'}>
 CONFIG_TOUCHSCREEN_ADC                          policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm'}>
 CONFIG_TOUCHSCREEN_ADS7846                      policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm', 's390x': '-'}>
-CONFIG_TOUCHSCREEN_APPLE_Z2                     policy<{'arm64-generic': 'y', 'arm64-generic-64k': 'm'}>
 CONFIG_TOUCHSCREEN_AR1021_I2C                   policy<{'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm'}>
 CONFIG_TOUCHSCREEN_ATMEL_MXT                    policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm', 's390x': '-'}>
 CONFIG_TOUCHSCREEN_ATMEL_MXT_T37                policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y'}>
