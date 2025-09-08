@@ -51,7 +51,7 @@ Build-Depends:
  rustfmt:native [amd64 arm64 armhf ppc64el riscv64 s390x],
  uuid-dev <!stage1>,
  zstd <!stage1>,
- bpftool:native [amd64 arm64 armhf ppc64el riscv64 s390x] <!stage1> <cross>,
+ bpftool:native [amd64 arm64 armhf ppc64el riscv64 s390x] <!stage1 cross>,
 Build-Depends-Indep:
  asciidoc <!stage1>,
  bzip2 <!stage1>,
