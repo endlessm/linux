@@ -1,0 +1,13 @@
+# SPDX-License-Identifier: GPL-2.0+
+
+config AMD_ISP4
+	tristate "AMD ISP4 and camera driver"
+	depends on VIDEO_DEV && VIDEO_V4L2_SUBDEV_API
+	select VIDEOBUF2_CORE
+	select VIDEOBUF2_V4L2
+	select VIDEOBUF2_MEMOPS
+	help
+	  This is support for AMD ISP4 and camera subsystem driver.
+	  Say Y here to enable the ISP4 and camera device for video capture.
+	  To compile this driver as a module, choose M here. The module will
+	  be called amd_capture.
