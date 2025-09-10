@@ -4,3 +4,4 @@
 
 obj-$(CONFIG_AMD_ISP4) += amd_capture.o
 amd_capture-objs := isp4.o	\
+			isp4_interface.o \
