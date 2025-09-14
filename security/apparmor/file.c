@@ -835,7 +835,7 @@ int aa_file_perm(const char *op, const struct cred *subj_cred,
 	 */
 	denied = request & ~fctx->allow;
 	if (unconfined(label) || __file_is_delegated(flabel) ||
-	    __unix_needs_revalidation(file, label, request) ||
+	    !__unix_needs_revalidation(file, label, request) ||
 	    (!denied && __aa_subj_label_is_cached(label, flabel))) {
 		rcu_read_unlock();
 		goto done;
