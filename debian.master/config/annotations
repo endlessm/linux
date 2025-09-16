@@ -8499,6 +8499,7 @@ CONFIG_MITIGATION_SSB                           policy<{'amd64': 'y'}>
 CONFIG_MITIGATION_TAA                           policy<{'amd64': 'y'}>
 CONFIG_MITIGATION_TSA                           policy<{'amd64': 'y'}>
 CONFIG_MITIGATION_UNRET_ENTRY                   policy<{'amd64': 'y'}>
+CONFIG_MITIGATION_VMSCAPE                       policy<{'amd64': 'y'}>
 CONFIG_MKISS                                    policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm'}>
 CONFIG_MLX4_CORE                                policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm', 's390x': 'm'}>
 CONFIG_MLX4_CORE_GEN2                           policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y', 's390x': 'y'}>
@@ -8861,7 +8862,7 @@ CONFIG_MTD_GEN_PROBE                            policy<{'amd64': 'm', 'arm64': '
 CONFIG_MTD_HYPERBUS                             policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm'}>
 CONFIG_MTD_ICHXROM                              policy<{'amd64': 'm'}>
 CONFIG_MTD_IMPA7                                policy<{'armhf': 'm'}>
-CONFIG_MTD_INTEL_DG                             policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm'}>
+CONFIG_MTD_INTEL_DG                             policy<{'amd64': 'm', 'arm64': 'm', 'arm64-generic-64k': '-', 'armhf': 'm', 'ppc64el': '-', 'riscv64': 'm'}>
 CONFIG_MTD_JEDECPROBE                           policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm'}>
 CONFIG_MTD_L440GX                               policy<{'amd64': 'm'}>
 CONFIG_MTD_LPDDR                                policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm'}>
