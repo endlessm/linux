@@ -152,6 +152,9 @@ static int vxlan_fan_add_map(struct vxlan_dev *vxlan, struct ifla_fan_map *map)
 		return -EEXIST;
 
 	fan_map = kmalloc(sizeof(*fan_map), GFP_KERNEL);
+	if (!fan_map)
+		return -ENOMEM;
+
 	fan_map->underlay = map->underlay;
 	fan_map->overlay = map->overlay;
 	fan_map->underlay_prefix = map->underlay_prefix;
