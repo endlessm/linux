@@ -1,4 +1,4 @@
-linux (6.17.0-6.6) questing; urgency=medium
+linux-unstable (6.18.0-0.0) questing; urgency=medium
 
   * questing/linux: 6.17.0-6.6 -proposed tracker (LP: #2126040)
 
