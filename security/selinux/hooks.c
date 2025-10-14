@@ -7592,9 +7592,7 @@ static __init int selinux_init(void)
 	cred_init_security();
 
 	/* Inform the audit system that secctx is used */
-	audit_cfg_lsm(&selinux_lsmid,
-		      AUDIT_CFG_LSM_SECCTX_SUBJECT |
-		      AUDIT_CFG_LSM_SECCTX_OBJECT);
+	audit_cfg_lsm(&selinux_lsmid, AUDIT_CFG_LSM_SECCTX_SUBJECT);
 
 	default_noexec = !(VM_DATA_DEFAULT_FLAGS & VM_EXEC);
 	if (!default_noexec)

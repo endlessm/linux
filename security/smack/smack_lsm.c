@@ -5268,9 +5268,7 @@ static __init int smack_init(void)
 	init_smack_known_list();
 
 	/* Inform the audit system that secctx is used */
-	audit_cfg_lsm(&smack_lsmid,
-		      AUDIT_CFG_LSM_SECCTX_SUBJECT |
-		      AUDIT_CFG_LSM_SECCTX_OBJECT);
+	audit_cfg_lsm(&smack_lsmid, AUDIT_CFG_LSM_SECCTX_SUBJECT);
 
 	return 0;
 }
