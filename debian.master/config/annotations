@@ -2282,7 +2282,7 @@ CONFIG_BHYVE_GUEST                              policy<{'amd64': 'y'}>
 CONFIG_BIG_KEYS                                 policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y', 's390x': 'y'}>
 CONFIG_BIG_LITTLE                               policy<{'armhf': 'y'}>
 CONFIG_BINARY_PRINTF                            policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y', 's390x': 'y'}>
-CONFIG_BINDGEN_VERSION_TEXT                     policy<{'amd64': '"bindgen 0.71.1"', 'arm64': '"bindgen 0.71.1"'}>
+CONFIG_BINDGEN_VERSION_TEXT                     policy<{'amd64': '"bindgen 0.72.1"', 'arm64': '"bindgen 0.72.1"'}>
 CONFIG_BINFMT_ELF                               policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y', 's390x': 'y'}>
 CONFIG_BINFMT_ELF_FDPIC                         policy<{'armhf': 'y'}>
 CONFIG_BINFMT_FLAT                              policy<{'armhf': 'y', 'riscv64': 'n'}>
@@ -2694,7 +2694,7 @@ CONFIG_CC_NO_ARRAY_BOUNDS                       policy<{'amd64': 'y', 'arm64': '
 CONFIG_CC_NO_STRINGOP_OVERFLOW                  policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y', 's390x': 'y'}>
 CONFIG_CC_OPTIMIZE_FOR_PERFORMANCE              policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y', 's390x': 'y'}>
 CONFIG_CC_OPTIMIZE_FOR_SIZE                     policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'ppc64el': 'n', 'riscv64': 'n', 's390x': 'n'}>
-CONFIG_CC_VERSION_TEXT                          policy<{'amd64': '"x86_64-linux-gnu-gcc (Ubuntu 15.2.0-4ubuntu2) 15.2.0"', 'arm64': '"aarch64-linux-gnu-gcc (Ubuntu 15.2.0-4ubuntu2) 15.2.0"', 'armhf': '"arm-linux-gnueabihf-gcc (Ubuntu 15.2.0-4ubuntu2) 15.2.0"', 'ppc64el': '"powerpc64le-linux-gnu-gcc (Ubuntu 15.2.0-4ubuntu2) 15.2.0"', 'riscv64': '"riscv64-linux-gnu-gcc (Ubuntu 15.2.0-4ubuntu2) 15.2.0"', 's390x': '"s390x-linux-gnu-gcc (Ubuntu 15.2.0-4ubuntu2) 15.2.0"'}>
+CONFIG_CC_VERSION_TEXT                          policy<{'amd64': '"x86_64-linux-gnu-gcc (Ubuntu 15.2.0-5ubuntu1) 15.2.0"', 'arm64': '"aarch64-linux-gnu-gcc (Ubuntu 15.2.0-4ubuntu4) 15.2.0"', 'armhf': '"arm-linux-gnueabihf-gcc (Ubuntu 15.2.0-4ubuntu4) 15.2.0"', 'ppc64el': '"powerpc64le-linux-gnu-gcc (Ubuntu 15.2.0-4ubuntu4) 15.2.0"', 'riscv64': '"riscv64-linux-gnu-gcc (Ubuntu 15.2.0-4ubuntu4) 15.2.0"', 's390x': '"s390x-linux-gnu-gcc (Ubuntu 15.2.0-4ubuntu4) 15.2.0"'}>
 CONFIG_CDNS_I3C_MASTER                          policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm'}>
 CONFIG_CDROM                                    policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y', 's390x': 'y'}>
 CONFIG_CDX_BUS                                  policy<{'arm64': 'y'}>
@@ -6126,7 +6126,7 @@ CONFIG_HID_GOOGLE_STADIA_FF                     policy<{'amd64': 'm', 'arm64': '
 CONFIG_HID_GREENASIA                            policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm', 's390x': '-'}>
 CONFIG_HID_GT683R                               policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm'}>
 CONFIG_HID_GYRATION                             policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm', 's390x': '-'}>
-CONFIG_HID_HAPTIC                               policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm'}>
+CONFIG_HID_HAPTIC                               policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y'}>
 CONFIG_HID_HOLTEK                               policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm'}>
 CONFIG_HID_HYPERV_MOUSE                         policy<{'amd64': 'm', 'arm64': 'm'}>
 CONFIG_HID_ICADE                                policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm', 's390x': '-'}>
