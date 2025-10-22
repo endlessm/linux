@@ -12112,11 +12112,13 @@ CONFIG_RT_MUTEXES                               policy<{'amd64': 'y', 'arm64': '
 CONFIG_RUNTIME_KERNEL_TESTING_MENU              policy<{'riscv64': 'n'}>
 CONFIG_RUNTIME_TESTING_MENU                     policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y', 's390x': 'y'}>
 CONFIG_RUSTC_HAS_COERCE_POINTEE                 policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y', 's390x': 'y'}>
-CONFIG_RUSTC_LLVM_VERSION                       policy<{'amd64': '190107', 'arm64': '190107', 'armhf': '190107', 'ppc64el': '190107', 'riscv64': '190107', 's390x': '190107'}>
+CONFIG_RUSTC_HAS_SPAN_FILE                      policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y', 's390x': 'y'}>
+CONFIG_RUSTC_HAS_UNNECESSARY_TRANSMUTES         policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y', 's390x': 'y'}>
+CONFIG_RUSTC_LLVM_VERSION                       policy<{'amd64': '200108', 'arm64': '200108', 'armhf': '200108', 'ppc64el': '200108', 'riscv64': '200108', 's390x': '200108'}>
 CONFIG_RUSTC_SUPPORTS_ARM64                     policy<{'arm64': 'y'}>
 CONFIG_RUSTC_SUPPORTS_RISCV                     policy<{'riscv64': 'y'}>
-CONFIG_RUSTC_VERSION                            policy<{'amd64': '108501', 'arm64': '108501', 'armhf': '108501', 'ppc64el': '108501', 'riscv64': '108501', 's390x': '108501'}>
-CONFIG_RUSTC_VERSION_TEXT                       policy<{'amd64': '"rustc 1.85.1 (4eb161250 2025-03-15) (built from a source tarball)"', 'arm64': '"rustc 1.85.1 (4eb161250 2025-03-15) (built from a source tarball)"'}>
+CONFIG_RUSTC_VERSION                            policy<{'amd64': '108800', 'arm64': '108800', 'armhf': '108800', 'ppc64el': '108800', 'riscv64': '108800', 's390x': '108800'}>
+CONFIG_RUSTC_VERSION_TEXT                       policy<{'amd64': '"rustc 1.88.0 (6b00bc388 2025-06-23) (built from a source tarball)"', 'arm64': '"rustc 1.88.0 (6b00bc388 2025-06-23) (built from a source tarball)"'}>
 CONFIG_RUST_BITMAP_HARDENED                     policy<{'amd64': 'n', 'arm64': 'n'}>
 CONFIG_RUST_BUILD_ASSERT_ALLOW                  policy<{'amd64': 'n', 'arm64': 'n'}>
 CONFIG_RUST_DEBUG_ASSERTIONS                    policy<{'amd64': 'n', 'arm64': 'n'}>
