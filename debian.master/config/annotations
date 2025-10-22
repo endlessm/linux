@@ -3575,7 +3575,7 @@ CONFIG_CRYPTO_ARIA_AESNI_AVX2_X86_64            policy<{'amd64': 'm'}>
 CONFIG_CRYPTO_ARIA_AESNI_AVX_X86_64             policy<{'amd64': 'm'}>
 CONFIG_CRYPTO_ARIA_GFNI_AVX512_X86_64           policy<{'amd64': 'm'}>
 CONFIG_CRYPTO_AUTHENC                           policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm', 's390x': 'm'}>
-CONFIG_CRYPTO_BENCHMARK                         policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'ppc64el': 'n', 'riscv64': 'n', 's390x': 'n'}>
+CONFIG_CRYPTO_BENCHMARK                         policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm', 's390x': 'm'}>
 CONFIG_CRYPTO_BLAKE2B                           policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm', 's390x': 'm'}>
 CONFIG_CRYPTO_BLAKE2B_NEON                      policy<{'armhf': 'm'}>
 CONFIG_CRYPTO_BLOWFISH                          policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm', 's390x': 'm'}>
