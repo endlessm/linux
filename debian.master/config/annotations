@@ -5994,6 +5994,8 @@ CONFIG_HAVE_LD_DEAD_CODE_DATA_ELIMINATION       policy<{'armhf': 'y', 'ppc64el':
 CONFIG_HAVE_LIVEPATCH                           policy<{'amd64': 'y', 'arm64': 'y', 'ppc64el': 'y', 's390x': 'y'}>
 CONFIG_HAVE_MARCH_Z10_FEATURES                  policy<{'s390x': 'y'}>
 CONFIG_HAVE_MARCH_Z13_FEATURES                  policy<{'s390x': 'y'}>
+CONFIG_HAVE_MARCH_Z14_FEATURES                  policy<{'s390x': 'y'}>
+CONFIG_HAVE_MARCH_Z15_FEATURES                  policy<{'s390x': 'y'}>
 CONFIG_HAVE_MARCH_Z196_FEATURES                 policy<{'s390x': 'y'}>
 CONFIG_HAVE_MARCH_ZEC12_FEATURES                policy<{'s390x': 'y'}>
 CONFIG_HAVE_MEMBLOCK_PHYS_MAP                   policy<{'s390x': 'y'}>
@@ -8011,9 +8013,9 @@ CONFIG_MANA_INFINIBAND                          policy<{'amd64': 'm', 'arm64': '
 CONFIG_MANTIS_CORE                              policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm'}>
 CONFIG_MAPPING_DIRTY_HELPERS                    policy<{'amd64': 'y', 'arm64': 'y'}>
 CONFIG_MARCH_Z10                                policy<{'s390x': 'n'}>
-CONFIG_MARCH_Z13                                policy<{'s390x': 'y'}>
+CONFIG_MARCH_Z13                                policy<{'s390x': 'n'}>
 CONFIG_MARCH_Z14                                policy<{'s390x': 'n'}>
-CONFIG_MARCH_Z15                                policy<{'s390x': 'n'}>
+CONFIG_MARCH_Z15                                policy<{'s390x': 'y'}>
 CONFIG_MARCH_Z16                                policy<{'s390x': 'n'}>
 CONFIG_MARCH_Z16_TUNE                           policy<{'s390x': 'y'}>
 CONFIG_MARCH_Z17                                policy<{'s390x': 'n'}>
