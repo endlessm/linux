@@ -1217,8 +1217,8 @@ CONFIG_AMD_PMF                                  policy<{'amd64': 'm'}>
 CONFIG_AMD_PMF_DEBUG                            policy<{'amd64': 'y'}>
 CONFIG_AMD_PTDMA                                policy<{'amd64': 'm'}>
 CONFIG_AMD_QDMA                                 policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm'}>
-CONFIG_AMD_SBRMI_HWMON                          policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y'}>
-CONFIG_AMD_SBRMI_I2C                            policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm', 's390x': 'n'}>
+CONFIG_AMD_SBRMI_HWMON                          policy<{'amd64': '-', 'arm64': 'y', 'armhf': 'y', 'ppc64el': '-', 'riscv64': '-'}>
+CONFIG_AMD_SBRMI_I2C                            policy<{'amd64': '-', 'arm64': 'm', 'armhf': 'm', 'ppc64el': '-', 'riscv64': '-', 's390x': '-'}>
 CONFIG_AMD_SECURE_AVIC                          policy<{'amd64': 'y'}>
 CONFIG_AMD_SFH_HID                              policy<{'amd64': 'm'}>
 CONFIG_AMD_WBRF                                 policy<{'amd64': 'y'}>
@@ -5786,7 +5786,7 @@ CONFIG_GPIO_TQMX86                              policy<{'amd64': 'm', 'arm64': '
 CONFIG_GPIO_TS4800                              policy<{'armhf': 'm'}>
 CONFIG_GPIO_TS4900                              policy<{'armhf': 'm'}>
 CONFIG_GPIO_TWL6040                             policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'y', 'ppc64el': 'm', 'riscv64': 'm', 's390x': '-'}>
-CONFIG_GPIO_USBIO                               policy<{'amd64': 'm', 'arm64': 'm', 'riscv64': 'm'}>
+CONFIG_GPIO_USBIO                               policy<{'amd64': 'm', 'arm64': '-', 'riscv64': '-'}>
 CONFIG_GPIO_VF610                               policy<{'arm64': 'y', 'armhf': 'y'}>
 CONFIG_GPIO_VIPERBOARD                          policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm'}>
 CONFIG_GPIO_VIRTIO                              policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm', 's390x': 'n'}>
@@ -6527,7 +6527,7 @@ CONFIG_I2C_TEGRA                                policy<{'arm64': 'm', 'armhf': '
 CONFIG_I2C_TEGRA_BPMP                           policy<{'arm64': 'm', 'armhf': 'm'}>
 CONFIG_I2C_THUNDERX                             policy<{'arm64': 'm'}>
 CONFIG_I2C_TINY_USB                             policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm', 's390x': '-'}>
-CONFIG_I2C_USBIO                                policy<{'amd64': 'm', 'arm64': 'm', 'riscv64': 'm'}>
+CONFIG_I2C_USBIO                                policy<{'amd64': 'm', 'arm64': '-', 'riscv64': '-'}>
 CONFIG_I2C_VERSATILE                            policy<{'arm64': 'm', 'armhf': 'm'}>
 CONFIG_I2C_VIA                                  policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm', 's390x': '-'}>
 CONFIG_I2C_VIAPRO                               policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm', 's390x': '-'}>
@@ -11159,7 +11159,7 @@ CONFIG_QCA808X_PHY                              policy<{'amd64': 'm', 'arm64': '
 CONFIG_QCA83XX_PHY                              policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm', 's390x': 'n'}>
 CONFIG_QCM_DISPCC_2290                          policy<{'arm64': 'm', 'armhf': 'm'}>
 CONFIG_QCM_GCC_2290                             policy<{'arm64': 'm', 'armhf': 'm'}>
-CONFIG_QCOMTEE                                  policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm'}>
+CONFIG_QCOMTEE                                  policy<{'amd64': '-', 'arm64': 'm', 'armhf': 'm'}>
 CONFIG_QCOM_A53PLL                              policy<{'arm64': 'm', 'armhf': 'm'}>
 CONFIG_QCOM_A7PLL                               policy<{'arm64': 'm', 'armhf': 'm'}>
 CONFIG_QCOM_AOSS_QMP                            policy<{'arm64': 'm', 'armhf': 'm'}>
@@ -15624,7 +15624,7 @@ CONFIG_USB_UHCI_SUPPORT_NON_PCI_HC              policy<{'armhf': 'y'}>
 CONFIG_USB_ULPI                                 policy<{'arm64': 'y', 'armhf': 'y'}>
 CONFIG_USB_ULPI_BUS                             policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm', 's390x': '-'}>
 CONFIG_USB_ULPI_VIEWPORT                        policy<{'arm64': 'y', 'armhf': 'y'}>
-CONFIG_USB_USBIO                                policy<{'amd64': 'm', 'arm64': 'm', 'riscv64': 'm'}>
+CONFIG_USB_USBIO                                policy<{'amd64': 'm', 'arm64': '-', 'riscv64': '-'}>
 CONFIG_USB_USBNET                               policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm'}>
 CONFIG_USB_USS720                               policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm'}>
 CONFIG_USB_U_AUDIO                              policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm'}>
