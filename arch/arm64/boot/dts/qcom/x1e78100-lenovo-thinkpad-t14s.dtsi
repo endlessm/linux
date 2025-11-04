@@ -502,6 +502,28 @@
 			};
 		};
 	};
+
+	connector {
+		compatible = "pcie-m2-m-connector";
+		vpcie3v3-supply = <&vreg_nvme>;
+
+		ports {
+			#address-cells = <1>;
+			#size-cells = <0>;
+
+			port@0 {
+				#address-cells = <1>;
+				#size-cells = <0>;
+
+				reg = <0>;
+
+				m2_pcie_ep: endpoint@0 {
+					reg = <0>;
+					remote-endpoint = <&pcie6a_port0_ep>;
+				};
+			};
+		};
+	};
 };
 
 &apps_rsc {
@@ -1200,8 +1222,6 @@
 };
 
 &pcie6a {
-	vddpe-3v3-supply = <&vreg_nvme>;
-
 	pinctrl-0 = <&pcie6a_default>;
 	pinctrl-names = "default";
 
@@ -1216,8 +1236,16 @@
 };
 
 &pcie6a_port0 {
+	compatible = "pciclass,0604";
+
 	reset-gpios = <&tlmm 152 GPIO_ACTIVE_LOW>;
 	wake-gpios = <&tlmm 154 GPIO_ACTIVE_LOW>;
+
+	port {
+		pcie6a_port0_ep: endpoint {
+			remote-endpoint = <&m2_pcie_ep>;
+		};
+	};
 };
 
 &pm8550_gpios {
