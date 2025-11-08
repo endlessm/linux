@@ -419,8 +419,8 @@ static int profile_create_perm(struct aa_profile *profile, int family,
 		return do_perms(profile, state, AA_MAY_CREATE, p, ad);
 	}
 
-	return aa_profile_af_perm(profile, ad, AA_MAY_CREATE, family, type,
-				  protocol);
+	return aa_profile_af_compat_perm(profile, ad, AA_MAY_CREATE, family,
+					 type);
 }
 
 

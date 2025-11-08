@@ -218,8 +218,8 @@ static int profile_create_perm(struct aa_profile *profile, int family,
 				   NULL, ad);
 	}
 
-	return aa_profile_af_perm(profile, ad, AA_MAY_CREATE, family, type,
-				  protocol);
+	return aa_profile_af_compat_perm(profile, ad, AA_MAY_CREATE, family,
+					 type);
 }
 
 static int profile_sk_perm(struct aa_profile *profile,
