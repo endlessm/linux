@@ -13411,7 +13411,7 @@ SYSCALL_DEFINE5(perf_event_open,
 	if (flags & ~PERF_FLAG_ALL)
 		return -EINVAL;
 
-	if (perf_paranoid_any() && !capable(CAP_SYS_ADMIN))
+	if (perf_paranoid_any() && !perfmon_capable())
 		return -EACCES;
 
 	err = perf_copy_attr(attr_uptr, &attr);
