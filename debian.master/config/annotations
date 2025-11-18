@@ -5948,6 +5948,7 @@ CONFIG_HAVE_FUNCTION_TRACER                     policy<{'amd64': 'y', 'arm64': '
 CONFIG_HAVE_GCC_PLUGINS                         policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y', 's390x': 'y'}>
 CONFIG_HAVE_GENERIC_TIF_BITS                    policy<{'amd64': 'y', 'riscv64': 'y', 's390x': 'y'}>
 CONFIG_HAVE_GENERIC_VDSO                        policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y', 's390x': 'y'}>
+CONFIG_HAVE_GIGANTIC_FOLIOS                     policy<{'amd64': 'y', 'arm64': 'y', 'ppc64el': 'y', 'riscv64': 'y', 's390x': 'y'}>
 CONFIG_HAVE_GUP_FAST                            policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y', 's390x': 'y'}>
 CONFIG_HAVE_HARDLOCKUP_DETECTOR_ARCH            policy<{'ppc64el': 'y'}>
 CONFIG_HAVE_HARDLOCKUP_DETECTOR_BUDDY           policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y', 's390x': 'y'}>
@@ -7524,6 +7525,7 @@ CONFIG_KEXEC_CORE                               policy<{'amd64': 'y', 'arm64': '
 CONFIG_KEXEC_ELF                                policy<{'ppc64el': 'y', 'riscv64': 'y'}>
 CONFIG_KEXEC_FILE                               policy<{'amd64': 'y', 'arm64': 'y', 'ppc64el': 'y', 'riscv64': 'y', 's390x': 'y'}>
 CONFIG_KEXEC_HANDOVER                           policy<{'amd64': 'y', 'arm64': 'y'}>
+CONFIG_KEXEC_HANDOVER_DEBUG                     policy<{'amd64': 'n', 'arm64': 'n'}>
 CONFIG_KEXEC_IMAGE_VERIFY_SIG                   policy<{'arm64': 'y'}>
 CONFIG_KEXEC_JUMP                               policy<{'amd64': 'y'}>
 CONFIG_KEXEC_SIG                                policy<{'amd64': 'y', 'arm64': 'y', 's390x': 'y'}>
