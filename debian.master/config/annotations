@@ -349,7 +349,7 @@ CONFIG_IP_PNP                                   policy<{'amd64': 'n', 'arm64': '
 CONFIG_IP_PNP                                   note<'LP: #1259861'>
 
 CONFIG_KERNEL_ZSTD                              policy<{'amd64': 'y', 'arm64': 'y', 'riscv64': 'y', 's390x': 'y'}>
-CONFIG_KERNEL_ZSTD                              note<'LP: #193172'>
+CONFIG_KERNEL_ZSTD                              note<'LP: #1931725'>
 
 CONFIG_KEXEC_BZIMAGE_VERIFY_SIG                 policy<{'amd64': 'y'}>
 CONFIG_KEXEC_BZIMAGE_VERIFY_SIG                 note<'Q: check this is in sync with the kexec/kdump userspace'>
