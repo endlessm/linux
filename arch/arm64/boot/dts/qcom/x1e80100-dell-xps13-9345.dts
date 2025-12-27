@@ -44,17 +44,14 @@
 	leds {
 		compatible = "gpio-leds";
 
-		pinctrl-names = "default";
 		pinctrl-0 = <&cam_indicator_en>;
+		pinctrl-names = "default";
 
-		led-camera-indicator {
-			label = "white:camera-indicator";
+		privacy_led: privacy-led {
 			function = LED_FUNCTION_INDICATOR;
 			color = <LED_COLOR_ID_WHITE>;
 			gpios = <&tlmm 110 GPIO_ACTIVE_HIGH>;
-			linux,default-trigger = "none";
 			default-state = "off";
-			/* Reuse as a panic indicator until we get a "camera on" trigger */
 			panic-indicator;
 		};
 	};
@@ -790,6 +787,9 @@
 		reset-gpios = <&tlmm 237 GPIO_ACTIVE_LOW>;
 		pinctrl-names = "default";
 		pinctrl-0 = <&cam_rgb_default>;
+
+		leds = <&privacy_led>;
+		led-names = "privacy";
 
 		clocks = <&camcc CAM_CC_MCLK4_CLK>;
 		assigned-clocks = <&camcc CAM_CC_MCLK4_CLK>;
