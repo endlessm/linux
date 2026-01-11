@@ -20,5 +20,9 @@ source "ubuntu/ubuntu-host/Kconfig"
 ##
 ##
 ##
+source "ubuntu/igh-ecat/Kconfig"
+##
+##
+##
 
 endmenu

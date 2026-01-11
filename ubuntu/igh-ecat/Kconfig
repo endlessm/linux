@@ -1,0 +1,21 @@
+# SPDX-License-Identifier: GPL-2.0-only
+
+menuconfig IGH_ECAT
+        tristate "IgH EtherCAT master driver support"
+        depends on NET && ETHERNET
+        default m
+        help
+          This section contains options for IgH EtherCAT master support.
+
+if IGH_ECAT
+
+config IGH_ECAT_GENERIC_DEVICE
+       tristate "Enable IgH EtherCAT master generic device driver"
+       depends on IGH_ECAT
+
+config IGH_ECAT_ENABLE_EOE
+        bool "Enable Ethernet over EtherCAT (EoE) support"
+        depends on IGH_ECAT
+        default y
+
+endif # IGH_ECAT

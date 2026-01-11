@@ -16,3 +16,7 @@ obj-$(CONFIG_UBUNTU_HOST)      += ubuntu-host/
 ##
 ##
 ##
+obj-$(CONFIG_IGH_ECAT)         += igh-ecat/
+##
+##
+##
