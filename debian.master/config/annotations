@@ -126,7 +126,7 @@ CONFIG_CRASH_DUMP                               note<'LP: #1363180'>
 CONFIG_CRYPTO_HMAC_S390                         policy<{'s390x': 'm'}>
 CONFIG_CRYPTO_HMAC_S390                         note<'LP: #2096812'>
 
-CONFIG_CRYPTO_LIB_SHA512_ARCH                   policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': '-', 'riscv64': 'y', 's390x': 'y'}>
+CONFIG_CRYPTO_LIB_SHA512_ARCH                   policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': '-', 'riscv64': '-', 's390x': 'y'}>
 CONFIG_CRYPTO_LIB_SHA512_ARCH                   note<'LP: #2034061'>
 
 CONFIG_CRYPTO_SHA512                            policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y', 's390x': 'y'}>
@@ -3563,7 +3563,6 @@ CONFIG_CRYPTO_AES_ARM_BS                        policy<{'armhf': 'm'}>
 CONFIG_CRYPTO_AES_ARM_CE                        policy<{'armhf': 'm'}>
 CONFIG_CRYPTO_AES_GCM_P10                       policy<{'ppc64el': 'm'}>
 CONFIG_CRYPTO_AES_NI_INTEL                      policy<{'amd64': 'm'}>
-CONFIG_CRYPTO_AES_RISCV64                       policy<{'riscv64': 'm'}>
 CONFIG_CRYPTO_AES_S390                          policy<{'s390x': 'm'}>
 CONFIG_CRYPTO_AES_TI                            policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm', 's390x': 'm'}>
 CONFIG_CRYPTO_AKCIPHER                          policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y', 's390x': 'y'}>
@@ -3750,7 +3749,6 @@ CONFIG_CRYPTO_GHASH                             policy<{'amd64': 'y', 'arm64': '
 CONFIG_CRYPTO_GHASH_ARM64_CE                    policy<{'arm64': 'm'}>
 CONFIG_CRYPTO_GHASH_ARM_CE                      policy<{'armhf': 'm'}>
 CONFIG_CRYPTO_GHASH_CLMUL_NI_INTEL              policy<{'amd64': 'm'}>
-CONFIG_CRYPTO_GHASH_RISCV64                     policy<{'riscv64': 'm'}>
 CONFIG_CRYPTO_GHASH_S390                        policy<{'s390x': 'm'}>
 CONFIG_CRYPTO_HASH                              policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y', 's390x': 'y'}>
 CONFIG_CRYPTO_HASH2                             policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y', 's390x': 'y'}>
@@ -3775,7 +3773,7 @@ CONFIG_CRYPTO_LIB_ARC4                          policy<{'amd64': 'm', 'arm64': '
 CONFIG_CRYPTO_LIB_BLAKE2S_ARCH                  policy<{'amd64': 'y', 'armhf': 'y'}>
 CONFIG_CRYPTO_LIB_CHACHA                        policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y', 's390x': 'y'}>
 CONFIG_CRYPTO_LIB_CHACHA20POLY1305              policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y', 's390x': 'y'}>
-CONFIG_CRYPTO_LIB_CHACHA_ARCH                   policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y', 's390x': 'y'}>
+CONFIG_CRYPTO_LIB_CHACHA_ARCH                   policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': '-', 's390x': 'y'}>
 CONFIG_CRYPTO_LIB_CURVE25519                    policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm', 's390x': 'm'}>
 CONFIG_CRYPTO_LIB_CURVE25519_ARCH               policy<{'amd64': 'y', 'armhf': 'y', 'ppc64el': 'y'}>
 CONFIG_CRYPTO_LIB_CURVE25519_GENERIC            policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': '-', 'riscv64': 'y', 's390x': 'y'}>
@@ -3790,7 +3788,7 @@ CONFIG_CRYPTO_LIB_POLY1305_RSIZE                policy<{'amd64': '11', 'arm64': 
 CONFIG_CRYPTO_LIB_SHA1                          policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y', 's390x': 'y'}>
 CONFIG_CRYPTO_LIB_SHA1_ARCH                     policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 's390x': 'y'}>
 CONFIG_CRYPTO_LIB_SHA256                        policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y', 's390x': 'y'}>
-CONFIG_CRYPTO_LIB_SHA256_ARCH                   policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'riscv64': 'y', 's390x': 'y'}>
+CONFIG_CRYPTO_LIB_SHA256_ARCH                   policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'riscv64': '-', 's390x': 'y'}>
 CONFIG_CRYPTO_LIB_SHA512                        policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y', 's390x': 'y'}>
 CONFIG_CRYPTO_LIB_SM3                           policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm'}>
 CONFIG_CRYPTO_LIB_UTILS                         policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y', 's390x': 'y'}>
@@ -3841,7 +3839,6 @@ CONFIG_CRYPTO_SM3_ARM64_CE                      policy<{'arm64': 'm'}>
 CONFIG_CRYPTO_SM3_AVX_X86_64                    policy<{'amd64': 'm'}>
 CONFIG_CRYPTO_SM3_GENERIC                       policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm', 's390x': 'n'}>
 CONFIG_CRYPTO_SM3_NEON                          policy<{'arm64': 'm'}>
-CONFIG_CRYPTO_SM3_RISCV64                       policy<{'riscv64': 'm'}>
 CONFIG_CRYPTO_SM4                               policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm'}>
 CONFIG_CRYPTO_SM4_AESNI_AVX2_X86_64             policy<{'amd64': 'm'}>
 CONFIG_CRYPTO_SM4_AESNI_AVX_X86_64              policy<{'amd64': 'm'}>
@@ -3851,7 +3848,6 @@ CONFIG_CRYPTO_SM4_ARM64_CE_CCM                  policy<{'arm64': 'm'}>
 CONFIG_CRYPTO_SM4_ARM64_CE_GCM                  policy<{'arm64': 'm'}>
 CONFIG_CRYPTO_SM4_ARM64_NEON_BLK                policy<{'arm64': 'm'}>
 CONFIG_CRYPTO_SM4_GENERIC                       policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm', 's390x': 'n'}>
-CONFIG_CRYPTO_SM4_RISCV64                       policy<{'riscv64': 'm'}>
 CONFIG_CRYPTO_STREEBOG                          policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm', 's390x': 'm'}>
 CONFIG_CRYPTO_TWOFISH                           policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm', 's390x': 'm'}>
 CONFIG_CRYPTO_TWOFISH_AVX_X86_64                policy<{'amd64': 'm'}>
@@ -14203,7 +14199,6 @@ CONFIG_SPI_MASTER                               policy<{'amd64': 'y', 'arm64': '
 CONFIG_SPI_MEM                                  policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y'}>
 CONFIG_SPI_MESON_SPICC                          policy<{'arm64': 'm', 'armhf': 'm'}>
 CONFIG_SPI_MESON_SPIFC                          policy<{'arm64': 'm', 'armhf': 'm'}>
-CONFIG_SPI_MICROCHIP_CORE                       policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm'}>
 CONFIG_SPI_MICROCHIP_CORE_QSPI                  policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm'}>
 CONFIG_SPI_MT65XX                               policy<{'arm64': 'm', 'armhf': 'm'}>
 CONFIG_SPI_MTK_NOR                              policy<{'arm64': 'm', 'armhf': 'm'}>
@@ -14221,6 +14216,7 @@ CONFIG_SPI_OMAP24XX                             policy<{'arm64': 'y', 'armhf': '
 CONFIG_SPI_ORION                                policy<{'arm64': 'm', 'armhf': 'm'}>
 CONFIG_SPI_PCI1XXXX                             policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm'}>
 CONFIG_SPI_PL022                                policy<{'arm64': 'm', 'armhf': 'm', 'riscv64': '-'}>
+CONFIG_SPI_POLARFIRE_SOC                        policy<{'arm64': 'm'}>
 CONFIG_SPI_PXA2XX                               policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': '-', 'riscv64': '-', 's390x': '-'}>
 CONFIG_SPI_PXA2XX_PCI                           policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': '-', 'riscv64': '-'}>
 CONFIG_SPI_QCOM_GENI                            policy<{'arm64': 'm', 'armhf': 'm'}>
