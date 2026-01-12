@@ -128,6 +128,17 @@ config SECURITY_APPARMOR_RESTRICT_USERNS
 	  tasks ability to create new user namespaces will be controlled
 	  by their profile.
 
+config SECURITY_APPARMOR_PACKET_MEDIATION_ENABLED
+	bool "Enable AppArmor packet mediation by defauit
+	depends on SECURITY_APPARMOR && NETWORK_SECMARK
+	default n
+	help
+	  This options controls whether apparmor packet mediation is
+	  enabled by default. If disabled AppArmor will not do
+	  mediation of packets, mediation of interfaces, or labeling
+	  of packets. This just provides the default value, and it can
+	  be changed via the sysctl apparmor_packet_mediation.
+
 config SECURITY_APPARMOR_KUNIT_TEST
 	tristate "Build KUnit tests for policy_unpack.c" if !KUNIT_ALL_TESTS
 	depends on KUNIT && SECURITY_APPARMOR

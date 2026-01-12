@@ -88,6 +88,7 @@
 #include "include/policy_unpack.h"
 #include "include/resource.h"
 
+int aa_skb_packet_mediation = IS_ENABLED(CONFIG_SECURITY_APPARMOR_PACKET_MEDIATION);
 int unprivileged_userns_apparmor_policy = 1;
 int aa_unprivileged_userns_restricted = IS_ENABLED(CONFIG_SECURITY_APPARMOR_RESTRICT_USERNS);
 int aa_unprivileged_userns_restricted_force;

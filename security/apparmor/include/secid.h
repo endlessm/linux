@@ -34,4 +34,14 @@ void apparmor_release_secctx(struct lsm_context *cp);
 int aa_alloc_secid(struct aa_label *label, gfp_t gfp);
 void aa_free_secid(u32 secid);
 
+static inline void aa_pin_secid(struct aa_label *label)
+{
+	/* currently a nop but could change */
+}
+
+static inline void aa_release_secid(int secid)
+{
+	/* currently a not, needs to change in sync with pin */
+}
+
 #endif /* __AA_SECID_H */

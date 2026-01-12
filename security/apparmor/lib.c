@@ -47,6 +47,7 @@ static const struct val_table_ent debug_values_table[] = {
 	{ "unpack", DEBUG_UNPACK },
 	{ "tags", DEBUG_TAGS },
 	{ "upcall", DEBUG_UPCALL },
+	{ "skb", DEBUG_SKB },
 	{ NULL, 0 }
 };
 

@@ -16,6 +16,13 @@
 
 #include "label.h"
 
+struct cred;
+struct sock;
+struct sk_buff;
+struct nf_hook_state;
+struct match_addr;
+struct apparmor_audit_data;
+
 int aa_inet_peer_perm(const struct cred *subj_cred,
 		      struct aa_label *label, const char *op, u32 request,
 		      const struct sock *sk, const struct sock *peer_sk,
@@ -39,5 +46,21 @@ int aa_inet_opt_perm(const char *op, u32 request, struct socket *sock, int level
 int aa_inet_file_perm(const struct cred *subj_cred,
 		      struct aa_label *label, const char *op, u32 request,
 		      struct socket *sock);
+
+
+int aa_secmark_relabel_packet(u32 sid);
+int __aa_sock_rcv_skb(struct aa_label *label, const struct sock *sk,
+		      const struct sk_buff *skb);
+int __aa_inet_conn_request(struct aa_label *label, const struct sock *sk,
+			   const struct sk_buff *skb,
+			   const struct request_sock *req);
+int __aa_ip_forward(struct aa_label *label, struct sk_buff *skb,
+		    const struct nf_hook_state *state);
+int __aa_ip_postroute(struct aa_label *label, const struct sock *sk,
+		      const struct sk_buff *skb,
+		      const struct nf_hook_state *state);
+struct aa_label *__aa_ip_localout(struct aa_label *label,
+				  const struct sock *sk,
+				  const struct sk_buff *skb);
 
 #endif /* __AA_AF_INET_H */

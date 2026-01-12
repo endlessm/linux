@@ -38,8 +38,9 @@ extern struct aa_dfa *stacksplitdfa;
 #define DEBUG_UNPACK 0x20
 #define DEBUG_TAGS 0x40
 #define DEBUG_UPCALL 0x80
+#define DEBUG_SKB 0x100
 
-#define DEBUG_ALL 0xff		/* update if new DEBUG_X added */
+#define DEBUG_ALL 0x1ff		/* update if new DEBUG_X added */
 #define DEBUG_PARSE_ERROR (-1)
 
 #define DEBUG_ON (aa_g_debug != DEBUG_NONE)
@@ -374,5 +375,8 @@ __done:									\
 	fn_label_build((L), (P), (GFP),					\
 		__fn_build_in_scope(labels_ns(L), (P), (NS_FN), (OTHER_FN))); \
 })
+
+#define fn_label_build_in_netns_scope(L, P, GFP, FN)	\
+	fn_label_build((L), (P), (GFP), (FN))
 
 #endif /* __AA_LIB_H */

@@ -34,6 +34,16 @@ struct aa_sfs_entry aa_sfs_entry_networkv9[] = {
 	AA_SFS_FILE_BOOLEAN("tcp-fast-open",		1),
 	{ }
 };
+struct aa_sfs_entry aa_sfs_entry_networkv9_skb[] = {
+	AA_SFS_FILE_STRING("af_mask",	"inet inet6"),
+	AA_SFS_FILE_STRING("iface", "receive connect, secmark_postroute"),
+	AA_SFS_FILE_STRING("rcv_skb", "secmark_receive"),
+	/*AA_SFS_FILE_STRING("forward", "secmar_forwardk"),*/
+	AA_SFS_FILE_STRING("postroute", "secmark_send"),
+	AA_SFS_FILE_STRING("localout", "secmark_set"),
+	AA_SFS_FILE_STRING("relabel", "setcred"),
+	{ }
+};
 struct aa_sfs_entry aa_sfs_entry_network_compat[] = {
 	AA_SFS_FILE_STRING("af_mask",	AA_SFS_AF_MASK),
 	AA_SFS_FILE_BOOLEAN("af_unix",	1),
@@ -79,7 +89,7 @@ static const char * const net_mask_names[] = {
 	"unknown",
 	"unknown",
 	"unknown",
-	"unknown",
+	"set_label",
 };
 
 static void audit_unix_addr(struct audit_buffer *ab, const char *str,
@@ -447,6 +457,9 @@ int apparmor_secmark_check(struct aa_label *label, const char *op, u32 request,
 {
 	struct aa_profile *profile;
 	DEFINE_AUDIT_SK(ad, op, NULL, sk);
+
+	if (secid == 0)
+		return 0;
 
 	return fn_for_each_confined(label, profile,
 				    aa_secmark_perm(profile, request, secid,

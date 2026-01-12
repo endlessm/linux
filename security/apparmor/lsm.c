@@ -1285,7 +1285,7 @@ static int apparmor_sk_alloc_security(struct sock *sk, int family, gfp_t gfp)
 	bool needput;
 
 	label = __begin_current_label_crit_section(&needput);
-	//spin_lock_init(&ctx->lock);
+	spin_lock_init(&ctx->lock);
 	rcu_assign_pointer(ctx->label, aa_get_label(label));
 	rcu_assign_pointer(ctx->peer, NULL);
 	rcu_assign_pointer(ctx->peer_lastupdate, NULL);
@@ -1862,6 +1862,71 @@ static void apparmor_sock_graft(struct sock *sk, struct socket *parent)
 }
 
 #ifdef CONFIG_NETWORK_SECMARK
+
+/* secmark reference count */
+static atomic_t apparmor_secmark_refcount = ATOMIC_INIT(0);
+
+
+/* count of rules using secmark that have been loaded into netfilter
+ * would be nice if it was per packet, or least per secid so we know which ids
+ * to pin
+ */
+static void apparmor_secmark_refcount_inc(void)
+{
+	atomic_inc(&apparmor_secmark_refcount);
+}
+
+/* rule using secmark has been removed from netfilter */
+static void apparmor_secmark_refcount_dec(void)
+{
+	atomic_dec(&apparmor_secmark_refcount);
+}
+
+static inline bool aa_secmark_enabled(void)
+{
+	return (aa_secmark() && aa_skb_packet_mediation);
+}
+
+static inline bool aa_mediates_secmark(struct aa_label *label)
+{
+	return aa_secmark_enabled() &&
+		(label_mediates(label, AA_CLASS_NETV9_SKB) ||
+		 atomic_read(&apparmor_secmark_refcount));
+}
+
+/* check if current process can use secmark to set a label on the packet
+ * only done in mangle or security tables
+ * @sid is the label that is going to be set
+ */
+static int apparmor_secmark_relabel_packet(u32 sid)
+{
+	if (!aa_secmark_enabled())
+		return 0;
+
+	return aa_secmark_relabel_packet(sid);
+}
+
+#endif /* CONFIG_NETWROK_SECMARK */
+
+static void update_sock_ctx(struct aa_sk_ctx *ctx, struct aa_label *label)
+{
+	struct aa_label *l, *old;
+
+	/* update caching of label on sk_ctx */
+	spin_lock(&ctx->lock);
+	old = rcu_dereference_protected(ctx->label,
+					lockdep_is_held(&ctx->lock));
+	l = aa_label_merge(old, label, GFP_ATOMIC);
+	if (l) {
+		if (l != old) {
+			rcu_assign_pointer(ctx->label, l);
+			aa_put_label(old);
+		} else
+			aa_put_label(l);
+	}
+	spin_unlock(&ctx->lock);
+}
+
 /**
  * apparmor_socket_sock_rcv_skb - check perms before associating skb to sk
  * @sk: sk to associate @skb with
@@ -1875,9 +1940,11 @@ static void apparmor_sock_graft(struct sock *sk, struct socket *parent)
 static int apparmor_socket_sock_rcv_skb(struct sock *sk, struct sk_buff *skb)
 {
 	struct aa_sk_ctx *ctx = aa_sock(sk);
-	int error;
+	struct aa_label *label, *new;
+	bool needput;
+	int error = 0;
 
-	if (!aa_secmark() || !skb->secmark)
+	if (!aa_secmark_enabled())
 		return 0;
 	if (sk->sk_family != PF_INET && sk->sk_family != PF_INET6)
 		return 0;
@@ -1890,75 +1957,235 @@ static int apparmor_socket_sock_rcv_skb(struct sock *sk, struct sk_buff *skb)
 		return -EACCES;
 
 	rcu_read_lock();
-	error = apparmor_secmark_check(rcu_dereference(ctx->label), OP_RECVMSG,
-				       AA_MAY_RECEIVE, skb->secmark, sk);
+	label = rcu_dereference(ctx->label);
+	new = aa_get_newest_label_condref(label, &needput);
+	AA_DEBUG_LABEL(new, DEBUG_SKB, "ctx label %p %s, mediates %d secmark %d", new, new->hname ? new->hname : "<NULL>", label_mediates(new, AA_CLASS_NETV9_SKB), skb->secmark);
+
+	if (label_mediates(new, AA_CLASS_NETV9_SKB) || skb->secmark)
+		/* receive uses socket label as proxy
+		 * may do interface processing without SECMARK
+		 */
+		error = __aa_sock_rcv_skb(new, sk, skb);
+	/* else none of the profiles in label mediate skbs &&
+	 * the skb is unlabeled
+	 */
+	if (new != label)
+		update_sock_ctx(ctx, new);
+
+	aa_put_label_condref(new, needput);
 	rcu_read_unlock();
 
 	return error;
 }
 
-static int apparmor_inet_conn_request(const struct sock *sk, struct sk_buff *skb,
+/* Accept an incoming connection request
+ */
+static int apparmor_inet_conn_request(const struct sock *sk,
+				      struct sk_buff *skb,
 				      struct request_sock *req)
 {
 	struct aa_sk_ctx *ctx = aa_sock(sk);
-	int error;
+	struct aa_label *label, *new;
+	bool needput;
+	int error = 0;
 
-	if (!aa_secmark() || !skb->secmark)
+	if (!aa_secmark_enabled())
 		return 0;
 
 	rcu_read_lock();
-	error = apparmor_secmark_check(rcu_dereference(ctx->label), OP_CONNECT,
-				       AA_MAY_CONNECT, skb->secmark, sk);
+	label = rcu_dereference(ctx->label);
+	new = aa_get_newest_label_condref(label, &needput);
+	AA_DEBUG_LABEL(new, DEBUG_SKB, "label_mediates %d, skb->secmark, %u", label_mediates(new, AA_CLASS_NETV9_SKB), skb->secmark);
+	if (label_mediates(new, AA_CLASS_NETV9_SKB) || skb->secmark)
+		/* receive uses socket label as proxy
+		 * may do interface processing without SECMARK
+		 */
+		error = __aa_inet_conn_request(new, sk, skb, req);
+	/* else none of the profiles in label mediate skbs &&
+	 * the skb is unlabeled
+	 */
+
+	if (new != label)
+		update_sock_ctx(ctx, new);
+
+	aa_put_label_condref(new, needput);
 	rcu_read_unlock();
 
 	return error;
 }
-#endif
 
-#if defined(CONFIG_NETFILTER) && defined(CONFIG_NETWORK_SECMARK)
+
+#ifdef CONFIG_NETFILTER
+
 static unsigned int apparmor_ip_postroute(void *priv,
 					  struct sk_buff *skb,
 					  const struct nf_hook_state *state)
 {
 	struct aa_sk_ctx *ctx;
+	struct aa_label *label, *new;
+	bool needput;
 	struct sock *sk;
-	int error;
+	int error = 0;
 
-	if (!aa_secmark() || !skb->secmark)
+	/* we need the secmark for postroute mediation */
+	if (!aa_secmark_enabled() || !skb->secmark)
 		return NF_ACCEPT;
 
 	sk = skb_to_full_sk(skb);
-	if (sk == NULL)
-		return NF_ACCEPT;
+	if (sk == NULL) {
+		if (skb->skb_iif)
+			/* Forwarded packet, not handled atm */
+			return NF_ACCEPT;
+		/* kernel sending a packet - no need to look at secmark */
+		label = kernel_t;
+	} else if (sk_listener(sk)) {
+		/* locally generated SYN_ACK - regenerate below using ctx */
+	} else {
+		/* locally generated packet - look at skb and ctx below*/
+	}
 
 	ctx = aa_sock(sk);
 	rcu_read_lock();
-	error = apparmor_secmark_check(rcu_dereference(ctx->label), OP_SENDMSG,
-				       AA_MAY_SEND, skb->secmark, sk);
-	rcu_read_unlock();
-	if (!error)
-		return NF_ACCEPT;
+	label = rcu_dereference(ctx->label);
+	new = aa_get_newest_label_condref(label, &needput);
+	AA_DEBUG_LABEL(new, DEBUG_SKB, "ctx label %p %s", new, new && new->hname ? new->hname : "<null>");
 
-	return NF_DROP_ERR(-ECONNREFUSED);
+	if (new && label_mediates(new, AA_CLASS_NETV9_SKB))
+		error = __aa_ip_postroute(new, sk, skb, state);
+
+	if (new != label)
+		update_sock_ctx(ctx, new);
+
+	if (error) {
+		AA_DEBUG_LABEL(new, DEBUG_SKB, "error %d", error);
+		error = NF_DROP_ERR(-ECONNREFUSED);
+	} else {
+		AA_DEBUG_LABEL(new, DEBUG_SKB, "accept %p %s", new, new && new->hname ? new->hname : "<null>");
+		error = NF_ACCEPT;
+	}
+
+	aa_put_label_condref(new, needput);
+	rcu_read_unlock();
+	return error;
 }
 
+
+static unsigned int apparmor_ip_localout(void *priv, struct sk_buff *skb,
+				       const struct nf_hook_state *state)
+{
+	struct aa_label *label, *out;
+	bool needput;
+
+	if (!aa_secmark_enabled())
+		return NF_ACCEPT;
+
+	label = __begin_current_label_crit_section(&needput);
+	if (!label_mediates(label, AA_CLASS_NETV9_SKB)) {
+		/* apparmor isn't going to do iface or packet based
+		 * filtering so bail.
+		 */
+		AA_DEBUG_LABEL(label, DEBUG_SKB, "label does not mediate skb");
+		__end_current_label_crit_section(label, needput);
+		return NF_ACCEPT;
+	}
+
+	struct sock *sk = skb_to_full_sk(skb);
+
+	if (sk) {
+		if (sk_listener(sk)) {
+			/* socket is in listening state, packet is a SYN-ACK
+			 * If using socket as proxy would need conn/request
+			 * socket, but only have parent.
+			 * However unless socket perms are delegated not
+			 * labeling based on socket but sending task
+			 */
+			if (aa_g_debug & DEBUG_SKB) {
+				rcu_read_lock();
+				struct aa_label *sklabel = aa_get_label(aa_sock(sk)->label);
+
+				rcu_read_unlock();
+				aa_put_label(sklabel);
+
+			}
+			AA_DEBUG_LABEL(label, DEBUG_SKB, "sk_listener");
+			return NF_ACCEPT;
+		}
+		/* TODO: support delegation via socket label instead of
+		 * task
+		 */
+		out = __aa_ip_localout(label, sk, skb);
+	} else {
+		out = kernel_t;
+	}
+	__end_current_label_crit_section(label, needput);
+
+	if (IS_ERR(out))
+		return NF_DROP_ERR(PTR_ERR(out));
+
+	if (!out)
+		/* all profiles decline to provide a label */
+		out = unlabeled_t;
+
+	/* put mark on packet */
+	aa_pin_secid(out);
+	skb->secmark = out->secid;
+	if (out != unlabeled_t && out != kernel_t)
+		aa_put_label(out);
+
+	return NF_ACCEPT;
+}
+
+/* HOOKS requiring NETFILTER, and may require SECMARK */
 static const struct nf_hook_ops apparmor_nf_ops[] = {
+	{
+		.hook =         apparmor_ip_localout,
+		.pf =           NFPROTO_IPV4,
+		.hooknum =      NF_INET_LOCAL_OUT,
+		.priority =     NF_IP_PRI_SELINUX_FIRST,
+	},
+#ifdef CONFIG_NETWORK_SECMARK
 	{
 		.hook =         apparmor_ip_postroute,
 		.pf =           NFPROTO_IPV4,
 		.hooknum =      NF_INET_POST_ROUTING,
 		.priority =     NF_IP_PRI_SELINUX_FIRST,
 	},
+	/* ip_forward goes here is apparmor ever supports it
+	 *{
+	 *	.hook =		apparmor_ip_forward,
+	 *	.pf =		NFPROTO_IPV4,
+	 *	.hooknum =	NF_INET_FORWARD,
+	 *	.priority =	NF_IP_PRI_SELINUX_FIRST,
+	 *},
+	 */
+#endif /* CONFIG_NETWORK_SECMARK */
+
 #if IS_ENABLED(CONFIG_IPV6)
+	{
+		.hook =         apparmor_ip_localout,
+		.pf =           NFPROTO_IPV6,
+		.hooknum =      NF_INET_LOCAL_OUT,
+		.priority =     NF_IP6_PRI_SELINUX_FIRST,
+	},
+#ifdef CONFIG_NETWORK_SECMARK
 	{
 		.hook =         apparmor_ip_postroute,
 		.pf =           NFPROTO_IPV6,
 		.hooknum =      NF_INET_POST_ROUTING,
 		.priority =     NF_IP6_PRI_SELINUX_FIRST,
 	},
-#endif
+	/* ip_forward goes here is apparmor ever supports it
+	 *{
+	 *	.hook =		apparmor_ip_forward,
+	 *	.pf =		NFPROTO_IPV6,
+	 *	.hooknum =	NF_INET_FORWARD,
+	 *	.priority =	NF_IP6_PRI_SELINUX_FIRST,
+	 *},
+	 */
+#endif /* CONFIG_NETWORK_SECMARK */
+#endif /* IS_ENABLED(CONFIG_IPV6) */
 };
-#endif
+#endif /* CONFIG_NETFILTER */
 
 /*
  * The cred blob is a pointer to, not an instance of, an aa_label.
@@ -2049,17 +2276,18 @@ static struct security_hook_list apparmor_hooks[] __ro_after_init = {
 	LSM_HOOK_INIT(socket_getsockopt, apparmor_socket_getsockopt),
 	LSM_HOOK_INIT(socket_setsockopt, apparmor_socket_setsockopt),
 	LSM_HOOK_INIT(socket_shutdown, apparmor_socket_shutdown),
-#ifdef CONFIG_NETWORK_SECMARK
 	LSM_HOOK_INIT(socket_sock_rcv_skb, apparmor_socket_sock_rcv_skb),
+#ifdef CONFIG_NETWORK_SECMARK
+	LSM_HOOK_INIT(secmark_relabel_packet, apparmor_secmark_relabel_packet),
+	LSM_HOOK_INIT(secmark_refcount_inc, apparmor_secmark_refcount_inc),
+	LSM_HOOK_INIT(secmark_refcount_dec, apparmor_secmark_refcount_dec),
 #endif
 	LSM_HOOK_INIT(socket_getpeersec_stream,
 		      apparmor_socket_getpeersec_stream),
 	LSM_HOOK_INIT(socket_getpeersec_dgram,
 		      apparmor_socket_getpeersec_dgram),
 	LSM_HOOK_INIT(sock_graft, apparmor_sock_graft),
-#ifdef CONFIG_NETWORK_SECMARK
 	LSM_HOOK_INIT(inet_conn_request, apparmor_inet_conn_request),
-#endif
 
 	LSM_HOOK_INIT(cred_alloc_blank, apparmor_cred_alloc_blank),
 	LSM_HOOK_INIT(cred_free, apparmor_cred_free),
@@ -2727,6 +2955,13 @@ static const struct ctl_table apparmor_sysctl_table[] = {
 		.mode           = 0600,
 		.proc_handler   = apparmor_dointvec,
 	},
+	{
+		.procname       = "apparmor_packet_mediation",
+		.data           = &aa_skb_packet_mediation,
+		.maxlen         = sizeof(int),
+		.mode           = 0600,
+		.proc_handler   = apparmor_dointvec,
+	},
 };
 
 static int __init apparmor_init_sysctl(void)
@@ -2901,6 +3136,18 @@ static int __init apparmor_init(void)
 	else
 		aa_info_message("AppArmor initialized");
 
+	if (aa_secmark()) {
+		if (aa_skb_packet_mediation)
+			aa_info_message("AppArmor secmark mediation enabled");
+		else
+			aa_info_message("AppArmor secmark mediation reserved: ready to be enabled");
+	} else {
+#ifdef CONFIG_NETWORK_SECMARK
+		aa_info_message("AppArmor secmark mediation disabled - failed to register");
+#else
+		aa_info_message("AppArmor secmark mediation disabled by config");
+#endif /* CONFIG_NETWORK_SECMARK */
+	}
 	return error;
 
 buffers_out:

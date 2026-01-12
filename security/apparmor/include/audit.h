@@ -88,6 +88,11 @@ enum audit_type {
 #define OP_GETSOCKOPT "getsockopt"
 #define OP_SETSOCKOPT "setsockopt"
 #define OP_SHUTDOWN "socket_shutdown"
+#define OP_RELABEL_PACKET "relabel_packet"
+#define OP_RCV_SKB "receive_packet"
+#define OP_LOCALOUT "localout"
+#define OP_CONN_REQ "conn_req"
+#define OP_POSTROUTE "postroute"
 
 #define OP_PTRACE "ptrace"
 #define OP_SIGNAL "signal"
