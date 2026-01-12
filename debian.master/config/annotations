@@ -11257,14 +11257,14 @@ CONFIG_QCOM_WCNSS_CTRL                          policy<{'arm64': 'm', 'armhf': '
 CONFIG_QCOM_WCNSS_PIL                           policy<{'arm64': 'n', 'armhf': 'n'}>
 CONFIG_QCOM_WDT                                 policy<{'arm64': 'm', 'armhf': 'm'}>
 CONFIG_QCS_CAMCC_615                            policy<{'arm64': 'm'}>
-CONFIG_QCS_DISPCC_615                           policy<{'arm64': 'm', 'armhf': 'm'}>
+CONFIG_QCS_DISPCC_615                           policy<{'arm64': 'm', 'armhf': '-'}>
 CONFIG_QCS_GCC_404                              policy<{'arm64': 'm', 'armhf': 'm'}>
-CONFIG_QCS_GCC_615                              policy<{'arm64': 'm', 'armhf': 'm'}>
+CONFIG_QCS_GCC_615                              policy<{'arm64': 'm', 'armhf': '-'}>
 CONFIG_QCS_GCC_8300                             policy<{'arm64': 'm'}>
-CONFIG_QCS_GPUCC_615                            policy<{'arm64': 'm', 'armhf': 'm'}>
+CONFIG_QCS_GPUCC_615                            policy<{'arm64': 'm', 'armhf': '-'}>
 CONFIG_QCS_Q6SSTOP_404                          policy<{'arm64': 'm', 'armhf': 'm'}>
 CONFIG_QCS_TURING_404                           policy<{'arm64': 'm', 'armhf': 'm'}>
-CONFIG_QCS_VIDEOCC_615                          policy<{'arm64': 'm', 'armhf': 'm'}>
+CONFIG_QCS_VIDEOCC_615                          policy<{'arm64': 'm', 'armhf': '-'}>
 CONFIG_QDIO                                     policy<{'s390x': 'm'}>
 CONFIG_QDU_ECPRICC_1000                         policy<{'arm64': 'm'}>
 CONFIG_QDU_GCC_1000                             policy<{'arm64': 'm', 'armhf': 'm'}>
@@ -13061,7 +13061,7 @@ CONFIG_SM_FTL                                   policy<{'amd64': 'm', 'arm64': '
 CONFIG_SM_GCC_4450                              policy<{'arm64': 'm'}>
 CONFIG_SM_GCC_6115                              policy<{'arm64': 'm', 'armhf': '-'}>
 CONFIG_SM_GCC_6125                              policy<{'arm64': 'm', 'armhf': '-'}>
-CONFIG_SM_GCC_6350                              policy<{'arm64': 'm', 'armhf': 'm'}>
+CONFIG_SM_GCC_6350                              policy<{'arm64': 'm', 'armhf': '-'}>
 CONFIG_SM_GCC_6375                              policy<{'arm64': 'm', 'armhf': '-'}>
 CONFIG_SM_GCC_7150                              policy<{'arm64': 'm', 'armhf': '-'}>
 CONFIG_SM_GCC_8150                              policy<{'arm64': 'm', 'armhf': '-'}>
@@ -13088,7 +13088,7 @@ CONFIG_SM_LPASSCC_6115                          policy<{'arm64': 'm'}>
 CONFIG_SM_TCSRCC_8550                           policy<{'arm64': 'm', 'armhf': '-'}>
 CONFIG_SM_TCSRCC_8650                           policy<{'arm64': 'm'}>
 CONFIG_SM_TCSRCC_8750                           policy<{'arm64': 'm'}>
-CONFIG_SM_VIDEOCC_6350                          policy<{'arm64': 'm', 'armhf': 'm'}>
+CONFIG_SM_VIDEOCC_6350                          policy<{'arm64': 'm', 'armhf': '-'}>
 CONFIG_SM_VIDEOCC_7150                          policy<{'arm64': 'm'}>
 CONFIG_SM_VIDEOCC_8150                          policy<{'arm64': 'm', 'armhf': '-'}>
 CONFIG_SM_VIDEOCC_8250                          policy<{'arm64': 'm', 'armhf': '-'}>
