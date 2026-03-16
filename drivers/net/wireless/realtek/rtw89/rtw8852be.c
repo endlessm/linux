@@ -82,7 +82,7 @@ static const struct dmi_system_id rtw8852b_pci_quirks[] = {
 		.ident = "ECS SE40AN",
 		.matches = {
 			DMI_MATCH(DMI_SYS_VENDOR, "ECS"),
-			DMI_MATCH(DMI_PRODUCT_NAME, "SE40AN"),
+			DMI_MATCH(DMI_BOARD_NAME, "SE40AN"),
 		},
 		.driver_data = (void *)RTW89_QUIRK_PCI_NO_D3COLD,
 	},
@@ -90,7 +90,7 @@ static const struct dmi_system_id rtw8852b_pci_quirks[] = {
 		.ident = "Endless SE40AN",
 		.matches = {
 			DMI_MATCH(DMI_SYS_VENDOR, "Endless"),
-			DMI_MATCH(DMI_PRODUCT_NAME, "SE40AN"),
+			DMI_MATCH(DMI_BOARD_NAME, "SE40AN"),
 		},
 		.driver_data = (void *)RTW89_QUIRK_PCI_NO_D3COLD,
 	},
