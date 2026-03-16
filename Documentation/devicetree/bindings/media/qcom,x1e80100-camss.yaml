@@ -14,7 +14,11 @@ description:
 
 properties:
   compatible:
-    const: qcom,x1e80100-camss
+    oneOf:
+      - const: qcom,x1e80100-camss
+      - items:
+          - const: qcom,x1e80100-camss
+          - const: simple-mfd
 
   reg:
     maxItems: 17
@@ -191,7 +195,7 @@ examples:
         #size-cells = <2>;
 
         camss: isp@acb7000 {
-            compatible = "qcom,x1e80100-camss";
+            compatible = "qcom,x1e80100-camss", "simple-mfd";
 
             reg = <0 0x0acb7000 0 0x2000>,
                   <0 0x0acb9000 0 0x2000>,
