@@ -1,0 +1,53 @@
+// SPDX-License-Identifier: BSD-3-Clause
+
+/dts-v1/;
+
+#include "purwa.dtsi"
+#include "hamoa-pmics.dtsi"
+#include "x1-hp-omnibook-x14.dtsi"
+/delete-node/ &pmc8380_6;
+/delete-node/ &pmc8380_6_thermal;
+
+/ {
+	model = "HP EliteBook 6 G1q 14 inch Notebook Next Gen AI PC";
+	compatible = "hp,elitebook-6-g1q", "qcom,x1p42100";
+	chassis-type = "laptop";
+};
+
+&gpu_zap_shader {
+	firmware-name = "qcom/x1p42100/hp/elitebook-6-g1q/qcdxkmsucpurwa.mbn";
+};
+
+&remoteproc_adsp {
+	firmware-name = "qcom/x1p42100/hp/elitebook-6-g1q/qcadsp8380.mbn",
+			"qcom/x1p42100/hp/elitebook-6-g1q/adsp_dtbs.elf";
+
+	status = "okay";
+};
+
+&remoteproc_cdsp {
+	firmware-name = "qcom/x1p42100/hp/elitebook-6-g1q/qccdsp8380.mbn",
+			"qcom/x1p42100/hp/elitebook-6-g1q/cdsp_dtbs.elf";
+
+	status = "okay";
+};
+
+&i2c0 {
+	/* The touchpad in the EliteBook is on a different I2C address */
+	/delete-node/ touchpad@15;
+	touchpad@2c {
+		compatible = "hid-over-i2c";
+		reg = <0x2c>;
+
+		hid-descr-addr = <0x20>;
+		interrupts-extended = <&tlmm 3 IRQ_TYPE_LEVEL_LOW>;
+
+		vdd-supply = <&vreg_misc_3p3>;
+		vddl-supply = <&vreg_l12b_1p2>;
+
+		pinctrl-0 = <&tpad_default>;
+		pinctrl-names = "default";
+
+		wakeup-source;
+	};
+};
