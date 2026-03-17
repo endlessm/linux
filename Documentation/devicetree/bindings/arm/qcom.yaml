@@ -1207,6 +1207,7 @@ properties:
               - dell,latitude-7455
               - dell,xps13-9345
               - honor,magicbook-art-14-snapdragon
+              - hp,elitebook-6-g1q
               - hp,elitebook-ultra-g1q
               - hp,omnibook-x14
               - lenovo,ideacentre-mini-01q8x10
