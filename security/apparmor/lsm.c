@@ -1879,6 +1879,8 @@ static int apparmor_socket_sock_rcv_skb(struct sock *sk, struct sk_buff *skb)
 
 	if (!aa_secmark() || !skb->secmark)
 		return 0;
+	if (sk->sk_family != PF_INET && sk->sk_family != PF_INET6)
+		return 0;
 
 	/*
 	 * If reach here before socket_post_create hook is called, in which
