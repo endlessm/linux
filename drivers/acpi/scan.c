@@ -2029,7 +2029,7 @@ int acpi_scan_add_dep(acpi_handle handle, struct acpi_handle_list *dep_devices)
 		honor_dep = acpi_info_matches_ids(info, acpi_honor_dep_ids);
 		kfree(info);
 
-		if (skip)
+		if (skip && !honor_dep)
 			continue;
 
 		dep = kzalloc_obj(*dep);
