@@ -1274,6 +1274,34 @@ static int r8168g_mdio_read(struct rtl8169_private *tp, int reg)
 	return r8168_phy_ocp_read(tp, tp->ocp_base + reg * 2);
 }
 
+/* The quirk reflects RTL8116af SerDes status. */
+static int r8116af_mdio_read_quirk(struct rtl8169_private *tp, int reg)
+{
+	u8 phyStatus = RTL_R8(tp, PHYstatus);
+
+	if (!(phyStatus & LinkStatus))
+		return 0;
+
+	/* BMSR */
+	if (tp->ocp_base == OCP_STD_PHY_BASE && reg == MII_BMSR)
+		return BMSR_ANEGCOMPLETE | BMSR_LSTATUS;
+
+	/* PHYSR */
+	if (tp->ocp_base == 0xa430 && reg == 0x12)
+	{	if (phyStatus & _1000bpsF)
+			return 0x0028;
+		else if (phyStatus & _100bps)
+			return 0x0018;
+	}
+
+	return 0;
+}
+
+static int r8116af_mdio_read(struct rtl8169_private *tp, int reg)
+{
+	return r8168g_mdio_read(tp, reg) | r8116af_mdio_read_quirk(tp, reg);
+}
+
 static void mac_mcu_write(struct rtl8169_private *tp, int reg, int value)
 {
 	if (reg == 0x1f) {
@@ -1367,6 +1395,13 @@ static int r8168dp_2_mdio_read(struct rtl8169_private *tp, int reg)
 	return value;
 }
 
+static bool rtl_is_8116af(struct rtl8169_private *tp)
+{
+	return tp->mac_version == RTL_GIGA_MAC_VER_52 &&
+		(r8168_mac_ocp_read(tp, 0xdc00) & 0x0078) == 0x0030 &&
+		(r8168_mac_ocp_read(tp, 0xd006) & 0x00ff) == 0x0000;
+}
+
 static void rtl_writephy(struct rtl8169_private *tp, int location, int val)
 {
 	switch (tp->mac_version) {
@@ -1390,7 +1425,10 @@ static int rtl_readphy(struct rtl8169_private *tp, int location)
 	case RTL_GIGA_MAC_VER_31:
 		return r8168dp_2_mdio_read(tp, location);
 	case RTL_GIGA_MAC_VER_40 ... RTL_GIGA_MAC_VER_LAST:
-		return r8168g_mdio_read(tp, location);
+		if (rtl_is_8116af(tp))
+			return r8116af_mdio_read(tp, location);
+		else
+			return r8168g_mdio_read(tp, location);
 	default:
 		return r8169_mdio_read(tp, location);
 	}
