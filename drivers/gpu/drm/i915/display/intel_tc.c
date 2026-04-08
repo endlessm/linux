@@ -1732,6 +1732,11 @@ bool intel_tc_port_connected(struct intel_encoder *encoder)
 	if (tc->mode != TC_PORT_DISCONNECTED)
 		mask = BIT(tc->mode);
 
+	if (tc->link_refcount > 0 &&
+	    tc->mode == TC_PORT_DP_ALT &&
+	    tc_phy_is_owned(tc))
+		return true;
+
 	return tc_phy_hpd_live_status(tc) & mask;
 }
 
