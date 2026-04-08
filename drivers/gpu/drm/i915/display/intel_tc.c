@@ -1186,9 +1186,10 @@ static void xelpdp_tc_phy_get_hw_state(struct intel_tc_port *tc)
 			tc->max_lane_count = 4;
 	}
 
-	drm_WARN_ON(display->drm,
-		    (tc->mode == TC_PORT_DP_ALT || tc->mode == TC_PORT_LEGACY) &&
-		    !xelpdp_tc_phy_tcss_power_is_enabled(tc));
+	if ((tc->mode == TC_PORT_DP_ALT || tc->mode == TC_PORT_LEGACY) &&
+	    !xelpdp_tc_phy_tcss_power_is_enabled(tc))
+		drm_dbg_kms(display->drm, "Port %s: TCSS unexpectedly not powered\n",
+			    tc->port_name);
 
 	__tc_cold_unblock(tc, domain, tc_cold_wref);
 }
