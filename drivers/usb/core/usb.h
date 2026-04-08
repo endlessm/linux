@@ -211,7 +211,10 @@ extern int usb_acpi_register(void);
 extern void usb_acpi_unregister(void);
 extern acpi_handle usb_get_hub_port_acpi_handle(struct usb_device *hdev,
 	int port1);
+extern int usb_acpi_port_prr_reset(struct usb_device *hdev, int port1);
 #else
 static inline int usb_acpi_register(void) { return 0; };
 static inline void usb_acpi_unregister(void) { };
+static inline int usb_acpi_port_prr_reset(struct usb_device *hdev,
+					  int port1) { return -ENODEV; }
 #endif

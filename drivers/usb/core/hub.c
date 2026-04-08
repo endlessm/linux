@@ -5621,11 +5621,25 @@ loop:
 
 		/* When halfway through our retry count, power-cycle the port */
 		if (i == (PORT_INIT_TRIES - 1) / 2) {
+			int prr_reset;
+
 			dev_info(&port_dev->dev, "attempt power cycle\n");
 			usb_hub_set_port_power(hdev, hub, port1, false);
 			msleep(2 * hub_power_on_good_delay(hub));
+			prr_reset = usb_acpi_port_prr_reset(hdev, port1);
 			usb_hub_set_port_power(hdev, hub, port1, true);
 			msleep(hub_power_on_good_delay(hub));
+			/*
+			 * USB 2.0 spec §7.1.7.3 requires at least 100 ms
+			 * between VBUS power-on and the first reset for power
+			 * settling.  hub_power_on_good_delay() on an xHCI root
+			 * hub returns bPwrOn2PwrGood * 2 with no minimum floor,
+			 * which can be as little as 20 ms.  When _PRR _RST was
+			 * also exercised the device must complete its power-on
+			 * sequence before enumeration; enforce the spec minimum.
+			 */
+			if (prr_reset == 0)
+				msleep(100);
 		}
 	}
 	if (hub->hdev->parent ||

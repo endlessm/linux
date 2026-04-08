@@ -143,6 +143,74 @@ int usb_acpi_set_power_state(struct usb_device *hdev, int index, bool enable)
 EXPORT_SYMBOL_GPL(usb_acpi_set_power_state);
 
 /**
+ * usb_acpi_port_prr_reset - issue an ACPI _PRR reset on a hub port
+ * @hdev: USB device belonging to the usb hub
+ * @port1: port number (one-based)
+ *
+ * Some devices expose their hardware reset line via an ACPI Power Resource for
+ * Reset (_PRR).  When such a device fails to enumerate (e.g. because the reset
+ * GPIO is stuck low), the USB power-cycle alone is not enough; the firmware
+ * reset path must also be exercised.
+ *
+ * This function evaluates _PRR on the port's ACPI companion to obtain the
+ * power-resource reference and then calls _RST on that resource to toggle the
+ * reset line.  It is intended to be called alongside the mid-retry VBUS
+ * power-cycle already performed by hub_port_connect().
+ *
+ * Returns 0 on success, -ENODEV if the port has no ACPI handle or no _PRR
+ * method, or a negative error code on failure.
+ */
+int usb_acpi_port_prr_reset(struct usb_device *hdev, int port1)
+{
+	acpi_handle port_handle;
+	struct acpi_buffer buffer = { ACPI_ALLOCATE_BUFFER, NULL };
+	union acpi_object *pkg, *ref;
+	acpi_status status;
+	int ret = 0;
+
+	port_handle = usb_get_hub_port_acpi_handle(hdev, port1);
+	if (!port_handle)
+		return -ENODEV;
+
+	if (!acpi_has_method(port_handle, "_PRR"))
+		return -ENODEV;
+
+	status = acpi_evaluate_object(port_handle, "_PRR", NULL, &buffer);
+	if (ACPI_FAILURE(status)) {
+		dev_dbg(&hdev->dev, "port%d: _PRR evaluation failed: %s\n",
+			port1, acpi_format_exception(status));
+		return -ENODEV;
+	}
+
+	pkg = buffer.pointer;
+	if (!pkg || pkg->type != ACPI_TYPE_PACKAGE || pkg->package.count < 1) {
+		dev_dbg(&hdev->dev, "port%d: _PRR returned unexpected object\n",
+			port1);
+		ret = -EINVAL;
+		goto out;
+	}
+
+	ref = &pkg->package.elements[0];
+	if (ref->type != ACPI_TYPE_LOCAL_REFERENCE || !ref->reference.handle) {
+		dev_dbg(&hdev->dev, "port%d: _PRR element is not a reference\n",
+			port1);
+		ret = -EINVAL;
+		goto out;
+	}
+
+	status = acpi_evaluate_object(ref->reference.handle, "_RST", NULL, NULL);
+	if (ACPI_FAILURE(status)) {
+		dev_dbg(&hdev->dev, "port%d: _RST evaluation failed: %s\n",
+			port1, acpi_format_exception(status));
+		ret = -EIO;
+	}
+
+out:
+	kfree(buffer.pointer);
+	return ret;
+}
+
+/**
  * usb_acpi_add_usb4_devlink - add device link to USB4 Host Interface for tunneled USB3 devices
  *
  * @udev: Tunneled USB3 device connected to a roothub.
