@@ -11,6 +11,7 @@
 #include <linux/delay.h>
 #include <linux/pm_runtime.h>
 #include <linux/platform_data/x86/apple.h>
+#include <linux/pci.h>
 
 #include "tb.h"
 #include "tb_regs.h"
@@ -18,6 +19,7 @@
 
 #define TB_TIMEOUT		100	/* ms */
 #define TB_RELEASE_BW_TIMEOUT	10000	/* ms */
+#define TB_PCIEHP_ENUMERATION_DELAY 300	/* ms */
 
 /*
  * How many time bandwidth allocation request from graphics driver is
@@ -83,6 +85,12 @@ struct tb_hotplug_event {
 	int retry;
 };
 
+/* Delayed work to rescan PCIe bus after tunnel activation */
+struct tb_pci_rescan_work {
+	struct delayed_work work;
+	struct pci_bus *bus;
+};
+
 static void tb_scan_port(struct tb_port *port);
 static void tb_handle_hotplug(struct work_struct *work);
 static void tb_dp_resource_unavailable(struct tb *tb, struct tb_port *port,
@@ -90,6 +98,17 @@ static void tb_dp_resource_unavailable(struct tb *tb, struct tb_port *port,
 static void tb_queue_dp_bandwidth_request(struct tb *tb, u64 route, u8 port,
 					  int retry, unsigned long delay);
 static void tb_dp_tunnel_active(struct tb_tunnel *tunnel, void *data);
+
+static void tb_pci_rescan_work_fn(struct work_struct *work)
+{
+	struct tb_pci_rescan_work *rescan_work =
+		container_of(work, typeof(*rescan_work), work.work);
+
+	pci_lock_rescan_remove();
+	pci_rescan_bus(rescan_work->bus);
+	pci_unlock_rescan_remove();
+	kfree(rescan_work);
+}
 
 static void tb_queue_hotplug(struct tb *tb, u64 route, u8 port, bool unplug)
 {
@@ -2323,6 +2342,22 @@ static int tb_tunnel_pci(struct tb *tb, struct tb_switch *sw)
 		tb_sw_warn(sw, "failed to connect xHCI\n");
 
 	list_add_tail(&tunnel->list, &tcm->tunnel_list);
+
+	/* Schedule a delayed PCIe bus rescan in case pciehp misses devices */
+	if (tb->nhi && tb->nhi->pdev && tb->nhi->pdev->bus) {
+		struct pci_bus *bus = tb->nhi->pdev->bus;
+		struct tb_pci_rescan_work *rescan_work;
+
+		rescan_work = kmalloc(sizeof(*rescan_work), GFP_KERNEL);
+		if (!rescan_work)
+			return 0;
+
+		rescan_work->bus = bus->parent ? bus->parent : bus;
+		INIT_DELAYED_WORK(&rescan_work->work, tb_pci_rescan_work_fn);
+		queue_delayed_work(tb->wq, &rescan_work->work,
+				   msecs_to_jiffies(TB_PCIEHP_ENUMERATION_DELAY));
+	}
+
 	return 0;
 }
 
