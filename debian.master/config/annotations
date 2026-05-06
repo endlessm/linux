@@ -174,6 +174,9 @@ CONFIG_DRM_I915_REPLAY_GPU_HANGS_API            note<'Only useful for upstream d
 CONFIG_DRM_MGAG200                              policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm', 's390x': 'n'}>
 CONFIG_DRM_MGAG200                              note<'LP: #1693337'>
 
+CONFIG_DRM_NOVA                                 policy<{'amd64': 'n', 'arm64': 'n'}>
+CONFIG_DRM_NOVA                                 note<'LP: #2150845'>
+
 CONFIG_DRM_SIMPLEDRM                            policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y', 's390x': 'n'}>
 CONFIG_DRM_SIMPLEDRM                            note<'LP: #1965303'>
 
@@ -4440,7 +4443,6 @@ CONFIG_DRM_NOUVEAU_BACKLIGHT                    policy<{'amd64': 'y', 'arm64': '
 CONFIG_DRM_NOUVEAU_CH7006                       policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm'}>
 CONFIG_DRM_NOUVEAU_SIL164                       policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm'}>
 CONFIG_DRM_NOUVEAU_SVM                          policy<{'amd64': 'n', 'arm64': 'n', 'ppc64el': 'n', 'riscv64': 'n'}>
-CONFIG_DRM_NOVA                                 policy<{'amd64': 'm', 'arm64': 'm'}>
 CONFIG_DRM_NWL_MIPI_DSI                         policy<{'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm'}>
 CONFIG_DRM_NXP_PTN3460                          policy<{'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm'}>
 CONFIG_DRM_OFDRM                                policy<{'ppc64el': 'm'}>
