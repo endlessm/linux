@@ -1,73 +1,23 @@
 Driver-related patches (dropped at every major release if they are not yet upstream):
 
 Ubuntu-specific features not supported anymore:
- 
-Others:
-- UBUNTU: SAUCE: selftests/bpf: avoid conflicting data types in profiler.inc.h
-- UBUNTU: SAUCE: Revert "arm64/fpsimd: Make kernel_neon_ API _GPL"
-- UBUNTU: SAUCE: net: wwan: t7xx: PCIe reset rescan
-- UBUNTU: SAUCE: PCI/ASPM: Introduce a new helper to report ASPM capability
-- UBUNTU: SAUCE: Revert "mm: remove follow_pfn"
 
-6.14:
- - UBUNTU: SAUCE: modpost: support arbitrary symbol length in modversion
- - UBUNTU: SAUCE: allows to enable Rust with modversions
- - UBUNTU: SAUCE: modpost: Replace 0-length array with flex-array member
-
-6.15:
- - UBUNTU: SAUCE: objtool: Make objtool check actually fatal upon fatal errors
- - UBUNTU: SAUCE: r8169: Fix compile warning
-
-6.16:
- - UBUNTU: SAUCE: binder: turn into module - lock_vma_under_rcu()
- - UBUNTU: SAUCE: arm64: dts: qcom: x1e78100-t14s: mark l12b and l15b always-on
- - UBUNTU: SAUCE: arm64: dts: qcom: x1e78100-t14s: fix missing HID supplies
- - UBUNTU: SAUCE: arm64: dts: qcom: x1e80100: Add cpucp mailbox and sram nodes
- - UBUNTU: SAUCE: arm64: dts: qcom: x1e80100-t14s: Describe the Parade PS8830 retimers
- - UBUNTU: SAUCE: arm64: dts: qcom: x1e80100-t14s: Enable HBR3 on external DPs
- - UBUNTU: SAUCE: arm64: dts: qcom: x1e78100-t14s: enable bluetooth
- - UBUNTU: SAUCE: arm64: dts: qcom: Add EC to Lenovo Yoga Slim 7x
- - UBUNTU: SAUCE: arm64: dts: qcom: x1e80100-vivobook-s15: Add bluetooth
- - UBUNTU: SAUCE: arm64: dts: qcom: x1p64100-acer-swift-sf14-11 dt for Acer Swift 14 SF14-11 (touchpad fix)
- - UBUNTU: SAUCE: dt-bindings: arm: qcom: Add Acer Swift 14 AI
- - UBUNTU: SAUCE: arm64: dts: qcom: x1e78100-t14s: Add display brightness control support
- - UBUNTU: SAUCE: gpio: aggregator: add aggr_alloc()/aggr_free()
- - UBUNTU: SAUCE: gpio: aggregator: introduce basic configfs interface
- - UBUNTU: SAUCE: gpio: aggregator: rename 'name' to 'key' in aggr_parse()
- - UBUNTU: SAUCE: gpio: aggregator: expose aggregator created via legacy sysfs to configfs
- - UBUNTU: SAUCE: drm/msm/dp: Fix support of LTTPR handling
- - UBUNTU: SAUCE: drm/msm/dp: Introduce link training per-segment for LTTPRs
- - UBUNTU: SAUCE: gpio: aggregator: Fix gpio_aggregator_line_alloc() checking
- - UBUNTU: SAUCE: gpio: aggregator: Fix error code in gpio_aggregator_activate()
- - UBUNTU: SAUCE: Revert "gcc-15: acpi: sprinkle random '__nonstring' crumbles around"
- - UBUNTU: SAUCE: arm: Fix instruction set selection for GCC 11
-
-6.18:
- - UBUNTU: SAUCE: isapnp_init: make isa PNP scans occur async
- - UBUNTU: SAUCE: sstep.c: #include <asm/cpu_has_feature.h>
- - UBUNTU: SAUCE: ptp: free ptp clock properly
- - UBUNTU: SAUCE: Documentation: import error c_funcptr_sig_re, c_sig_re (sphinx-doc/sphinx@0f49e30c)
- - UBUNTU: SAUCE: riscv: dts: microchip: Disable PCIe on the Icicle Kit
- - UBUNTU: SAUCE: audit: fix skb leak when audit rate limit is exceeded
- - UBUNTU: SAUCE: (no-up) mei_me: Add module parameter to disable MSI
-
-6.19:
- - UBUNTU: SAUCE: media: Support ov05c10 camera sensor
- - UBUNTU: SAUCE: drm/dp: clamp PWM bit count to advertised MIN and MAX capabilities
- - UBUNTU: SAUCE: arm64: dts: qcom: x1e80100-asus-zenbook-a14: Enable WiFi, Bluetooth
- - UBUNTU: SAUCE: leds: lp55xx -- do not force use of the fallback loader
- - UBUNTU: SAUCE: phy: qcom-qmp-combo: drop regulator loads
- - UBUNTU: SAUCE: phy: qcom: qmp-combo: get default qmpphy_mode from DT
- - UBUNTU: SAUCE: dt-bindings: arm: qcom: Add Asus Zenbook A14 UX3407QA LCD/OLED variants
- - UBUNTU: SAUCE: arm64: dts: qcom: Rework X1-based Asus Zenbook A14's displays
- - Dropped lsm reverts due to fixing lockdown
-
-7.0:
- - UBUNTU: SAUCE: arm64: dts: qcom: x1e80100-asus-vivobook: Introduce retimers, external DP
- - UBUNTU: SAUCE: net: qrtr: mhi: synchronize qrtr and mhi preparation
- - UBUNTU: SAUCE: wip: arm64: dts: qcom: x1e78100-t14s: enable bluetooth
- - UBUNTU: SAUCE: arm64: dts: qcom: x1e78100-lenovo-thinkpad-t14s: add HDMI nodes
- - UBUNTU: SAUCE: arm64: dts: qcom: x1e80100: move remaining dp0/1/2 data-lanes to SoC dtsi
- - UBUNTU: SAUCE: PCI: Disable RRS polling for Intel SSDPE2KX020T8 nvme
- - UBUNTU: SAUCE: Reapply "serial: 8250: Switch to nbcon console"
- - UBUNTU: SAUCE: Reapply "serial: 8250: Revert "drop lockdep annotation from serial8250_clear_IER()"
+7.1
+ - UBUNTU: SAUCE: import Huawei ES3000_V2 (2.1.0.23)
+ - UBUNTU: SAUCE: cdc-acm: Exclude Exar USB serial ports
+ - UBUNTU: SAUCE: riscv: mm: Force disable sv57
+ - UBUNTU: SAUCE: make ASYNCB_INITIALIZED available for the kernel
+ - UBUNTU: SAUCE: Microsemi PCIe expansion board DT entry.
+ - UBUNTU: SAUCE: riscv: sifive: fu740: cpu{1, 2, 3, 4} set compatible to sifive, u74-mc
+ - UBUNTU: SAUCE: md/raid0: Link to wiki with guidance on multi-zone RAID0 layout migration
+ - UBUNTU: SAUCE: md/raid0: Use kernel specific layout
+ - UBUNTU: SAUCE: Revert "scsi: libsas: allow async aborts"
+ - UBUNTU: SAUCE: cacheinfo: Check for null last-level cache info
+ - UBUNTU: SAUCE: (no-up) PCI: fix system hang issue of Marvell SATA host controller
+ - UBUNTU: SAUCE: (no-up) intel_ips: blacklist ASUSTek G60JX laptops
+ - UBUNTU: SAUCE: (no-up) arm64: gicv3: its: Increase FORCE_MAX_ZONEORDER for Cavium ThunderX
+ - UBUNTU: SAUCE: [nf,v2] netfilter: x_tables: don't rely on well-behaving userspace
+ - UBUNTU: SAUCE: x86/PCI: Export find_cap() to be used in early PCI code
+ - UBUNTU: SAUCE: x86/quirks: Add parameter to clear MSIs early on boot
+ - UBUNTU: SAUCE: x86/quirks: Scan all busses for early PCI quirks
+ - UBUNTU: SAUCE: kthread: Do not leave kthread_create() immediately upon SIGKILL.
