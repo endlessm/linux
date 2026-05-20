@@ -5690,7 +5690,22 @@ CONFIG_GOOGLE_FIRMWARE                          policy<{'amd64': 'n', 'arm64': '
 CONFIG_GP2AP002                                 policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm'}>
 CONFIG_GP2AP020A00F                             policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm'}>
 CONFIG_GPD_POCKET_FAN                           policy<{'amd64': 'm'}>
-CONFIG_GPIB                                     policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'ppc64el': 'n', 'riscv64': 'n', 's390x': 'n'}>
+CONFIG_GPIB                                     policy<{'amd64': 'm', 'arm64': 'n', 'armhf': 'n', 'ppc64el': 'n', 'riscv64': 'n', 's390x': 'n'}>
+CONFIG_GPIB_AGILENT_82350B                      policy<{'amd64': 'm', 'arm64': '-', 'armhf': '-', 'ppc64el': '-', 'riscv64': '-'}>
+CONFIG_GPIB_AGILENT_82357A                      policy<{'amd64': 'm', 'arm64': '-', 'armhf': '-', 'ppc64el': '-', 'riscv64': '-'}>
+CONFIG_GPIB_CB7210                              policy<{'amd64': 'm', 'arm64': '-', 'armhf': '-', 'ppc64el': '-', 'riscv64': '-'}>
+CONFIG_GPIB_CEC_PCI                             policy<{'amd64': 'm', 'arm64': '-', 'armhf': '-', 'ppc64el': '-', 'riscv64': '-'}>
+CONFIG_GPIB_COMMON                              policy<{'amd64': 'm', 'arm64': '-', 'armhf': '-', 'ppc64el': '-', 'riscv64': '-'}>
+CONFIG_GPIB_HP82335                             policy<{'amd64': 'm'}>
+CONFIG_GPIB_HP82341                             policy<{'amd64': 'm'}>
+CONFIG_GPIB_INES                                policy<{'amd64': 'm', 'arm64': '-', 'armhf': '-', 'ppc64el': '-', 'riscv64': '-'}>
+CONFIG_GPIB_LPVO                                policy<{'amd64': 'm', 'arm64': '-', 'armhf': '-', 'ppc64el': '-', 'riscv64': '-'}>
+CONFIG_GPIB_NEC7210                             policy<{'amd64': 'm', 'arm64': '-', 'armhf': '-', 'ppc64el': '-', 'riscv64': '-'}>
+CONFIG_GPIB_NI_PCI_ISA                          policy<{'amd64': 'm', 'arm64': '-', 'ppc64el': '-', 'riscv64': '-'}>
+CONFIG_GPIB_NI_USB                              policy<{'amd64': 'm', 'arm64': '-', 'armhf': '-', 'ppc64el': '-', 'riscv64': '-'}>
+CONFIG_GPIB_PC2                                 policy<{'amd64': 'm'}>
+CONFIG_GPIB_PCMCIA                              policy<{'amd64': 'y'}>
+CONFIG_GPIB_TMS9914                             policy<{'amd64': 'm', 'arm64': '-', 'armhf': '-', 'ppc64el': '-', 'riscv64': '-'}>
 CONFIG_GPIOLIB                                  policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y', 's390x': 'y'}>
 CONFIG_GPIOLIB_FASTPATH_LIMIT                   policy<{'amd64': '512', 'arm64': '512', 'armhf': '512', 'ppc64el': '512', 'riscv64': '512', 's390x': '512'}>
 CONFIG_GPIOLIB_IRQCHIP                          policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y', 's390x': 'y'}>
