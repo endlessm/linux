@@ -6,7 +6,7 @@ Priority: optional
 Provides: linux-source
 Depends: ${misc:Depends}, binutils, bzip2, coreutils
 Recommends: libc-dev, gcc, make
-Suggests: libncurses-dev | ncurses-dev, kernel-package, libqt3-dev
+Suggests: libncurses-dev | ncurses-dev, kernel-package
 Description: Linux kernel source for version PKGVER with Ubuntu patches
  This package provides the source code for the Linux kernel version
  PKGVER.
