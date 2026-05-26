@@ -150,9 +150,6 @@ do_dtbs=false
 
 # ZSTD compressed kernel modules
 do_zstd_ko=true
-ifeq ($(DEB_DISTRIBUTION),jammy)
-do_zstd_ko=
-endif
 
 # Support parallel=<n> in DEB_BUILD_OPTIONS (see #209008)
 #
