@@ -1,3 +1,9 @@
+linux (7.1.0-0.0) stonking; urgency=medium
+
+  * Dummy entry.
+
+ -- Timo Aaltonen <timo.aaltonen@canonical.com>  Tue, 26 May 2026 09:59:13 +0300
+
 linux (7.0.0-15.15) resolute; urgency=medium
 
   * resolute/linux: 7.0.0-15.15 -proposed tracker (LP: #2148866)
