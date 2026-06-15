@@ -113,6 +113,17 @@ static const struct ipu_sensor_config ipu_supported_sensors[] = {
 	IPU_SENSOR_CONFIG("XMCC0003", 1, 321468000),
 };
 
+enum upside_down_match_type {
+	UPSIDE_DOWN_MATCH_HID,
+	UPSIDE_DOWN_MATCH_DSM,
+};
+
+struct upside_down_match_info {
+	enum upside_down_match_type type;
+	const guid_t guid;
+	const char * const ids[3];
+};
+
 /*
  * DMI matches for laptops which have their sensor mounted upside-down
  * without reporting a rotation of 180° in neither the SSDB nor the _PLD.
@@ -123,35 +134,50 @@ static const struct dmi_system_id upside_down_sensor_dmi_ids[] = {
 			DMI_EXACT_MATCH(DMI_SYS_VENDOR, "Dell Inc."),
 			DMI_EXACT_MATCH(DMI_PRODUCT_NAME, "XPS 13 9340"),
 		},
-		.driver_data = "OVTI02C1",
+		.driver_data = &(struct upside_down_match_info) {
+			.type = UPSIDE_DOWN_MATCH_HID,
+			.ids = { "OVTI02C1", NULL, },
+		},
 	},
 	{
 		.matches = {
 			DMI_EXACT_MATCH(DMI_SYS_VENDOR, "Dell Inc."),
 			DMI_EXACT_MATCH(DMI_PRODUCT_NAME, "XPS 13 9350"),
 		},
-		.driver_data = "OVTI02C1",
+		.driver_data = &(struct upside_down_match_info) {
+			.type = UPSIDE_DOWN_MATCH_HID,
+			.ids = { "OVTI02C1", NULL, },
+		},
 	},
 	{
 		.matches = {
 			DMI_EXACT_MATCH(DMI_SYS_VENDOR, "Dell Inc."),
 			DMI_EXACT_MATCH(DMI_PRODUCT_NAME, "XPS 14 9440"),
 		},
-		.driver_data = "OVTI02C1",
+		.driver_data = &(struct upside_down_match_info) {
+			.type = UPSIDE_DOWN_MATCH_HID,
+			.ids = { "OVTI02C1", NULL, },
+		},
 	},
 	{
 		.matches = {
 			DMI_EXACT_MATCH(DMI_SYS_VENDOR, "Dell Inc."),
 			DMI_EXACT_MATCH(DMI_PRODUCT_NAME, "XPS 16 9640"),
 		},
-		.driver_data = "OVTI02C1",
+		.driver_data = &(struct upside_down_match_info) {
+			.type = UPSIDE_DOWN_MATCH_HID,
+			.ids = { "OVTI02C1", NULL, },
+		},
 	},
 	{
 		.matches = {
 			DMI_EXACT_MATCH(DMI_SYS_VENDOR, "Dell Inc."),
 			DMI_EXACT_MATCH(DMI_PRODUCT_NAME, "XPS 16 (Dell 16 Premium) DA16250"),
 		},
-		.driver_data = "OVTI02C1",
+		.driver_data = &(struct upside_down_match_info) {
+			.type = UPSIDE_DOWN_MATCH_HID,
+			.ids = { "OVTI02C1", NULL, },
+		},
 	},
 	/*
 	 * The first four characters of DMI_BOARD_NAME identify the Lenovo
@@ -166,7 +192,10 @@ static const struct dmi_system_id upside_down_sensor_dmi_ids[] = {
 			DMI_MATCH(DMI_SYS_VENDOR, "LENOVO"),
 			DMI_MATCH(DMI_BOARD_NAME, "21QA"),
 		},
-		.driver_data = "SONY471A",
+		.driver_data = &(struct upside_down_match_info) {
+			.type = UPSIDE_DOWN_MATCH_HID,
+			.ids = { "SONY471A", NULL, },
+		},
 	},
 	{
 		/* Lenovo X9-14 */
@@ -174,7 +203,10 @@ static const struct dmi_system_id upside_down_sensor_dmi_ids[] = {
 			DMI_MATCH(DMI_SYS_VENDOR, "LENOVO"),
 			DMI_MATCH(DMI_BOARD_NAME, "21QB"),
 		},
-		.driver_data = "SONY471A",
+		.driver_data = &(struct upside_down_match_info) {
+			.type = UPSIDE_DOWN_MATCH_HID,
+			.ids = { "SONY471A", NULL, },
+		},
 	},
 	{
 		/* Lenovo X9-15 */
@@ -182,7 +214,10 @@ static const struct dmi_system_id upside_down_sensor_dmi_ids[] = {
 			DMI_MATCH(DMI_SYS_VENDOR, "LENOVO"),
 			DMI_MATCH(DMI_BOARD_NAME, "21Q6"),
 		},
-		.driver_data = "SONY471A",
+		.driver_data = &(struct upside_down_match_info) {
+			.type = UPSIDE_DOWN_MATCH_HID,
+			.ids = { "SONY471A", NULL, },
+		},
 	},
 	{
 		/* Lenovo X9-15 */
@@ -190,7 +225,10 @@ static const struct dmi_system_id upside_down_sensor_dmi_ids[] = {
 			DMI_MATCH(DMI_SYS_VENDOR, "LENOVO"),
 			DMI_MATCH(DMI_BOARD_NAME, "21Q7"),
 		},
-		.driver_data = "SONY471A",
+		.driver_data = &(struct upside_down_match_info) {
+			.type = UPSIDE_DOWN_MATCH_HID,
+			.ids = { "SONY471A", NULL, },
+		},
 	},
 	{
 		/* Samsung Galaxy Book5 Pro 360 */
@@ -198,28 +236,31 @@ static const struct dmi_system_id upside_down_sensor_dmi_ids[] = {
 			DMI_EXACT_MATCH(DMI_SYS_VENDOR, "SAMSUNG ELECTRONICS CO., LTD."),
 			DMI_EXACT_MATCH(DMI_PRODUCT_NAME, "960QHA"),
 		},
-		.driver_data = "OVTI02E1",
+		.driver_data = &(struct upside_down_match_info) {
+			.type = UPSIDE_DOWN_MATCH_HID,
+			.ids = { "OVTI02E1", NULL, },
+		},
 	},
 	{
 		.matches = {
 			DMI_EXACT_MATCH(DMI_SYS_VENDOR, "Dell Inc."),
 			DMI_EXACT_MATCH(DMI_PRODUCT_NAME, "XPS 14 DA14260"),
 		},
-		.driver_data = "OVTI08F4",
+		.driver_data = &(struct upside_down_match_info) {
+			.type = UPSIDE_DOWN_MATCH_HID,
+			.ids = { "OVTI08F4", NULL, },
+		},
 	},
 	{
 		.matches = {
 			DMI_EXACT_MATCH(DMI_SYS_VENDOR, "Dell Inc."),
 			DMI_EXACT_MATCH(DMI_PRODUCT_NAME, "Dell Pro 14 Premium PA14260"),
 		},
-		.driver_data = "CJFOE90_B",
-	},
-	{
-		.matches = {
-			DMI_EXACT_MATCH(DMI_SYS_VENDOR, "Dell Inc."),
-			DMI_EXACT_MATCH(DMI_PRODUCT_NAME, "Dell Pro 14 Premium PA14260"),
+		.driver_data = &(struct upside_down_match_info) {
+			.type = UPSIDE_DOWN_MATCH_DSM,
+			.guid = sensor_module_guid,
+			.ids = { "CJFOE90_B", "BBG809N3A_B", NULL, },
 		},
-		.driver_data = "BBG809N3A_B",
 	},
 	{} /* Terminating entry */
 };
@@ -409,24 +450,38 @@ static u32 ipu_bridge_parse_rotation(struct acpi_device *adev,
 				     struct ipu_sensor_ssdb *ssdb)
 {
 	const struct dmi_system_id *dmi_id;
-	union acpi_object *obj;
 
 	/* A machine may have one entry per sensor, so check all matches. */
 	for (dmi_id = dmi_first_match(upside_down_sensor_dmi_ids); dmi_id;
-	     dmi_id = dmi_first_match(dmi_id + 1))
-		if (acpi_dev_hid_match(adev, dmi_id->driver_data))
-			return 180;
+	     dmi_id = dmi_first_match(dmi_id + 1)) {
+		const struct upside_down_match_info *match = dmi_id->driver_data;
+		union acpi_object *obj;
+		int i;
 
-	obj = acpi_evaluate_dsm_typed(adev->handle,
-				      &sensor_module_guid, 0x00,
-				      0x01, NULL, ACPI_TYPE_STRING);
+		switch (match->type) {
+		case UPSIDE_DOWN_MATCH_HID:
+			for (i = 0; match->ids[i]; i++)
+				if (acpi_dev_hid_match(adev, match->ids[i]))
+					return 180;
 
-	if (dmi_id && (!strcmp(dmi_id->driver_data, obj->string.pointer))) {
-		ACPI_FREE(obj);
-		return 180;
+			break;
+		case UPSIDE_DOWN_MATCH_DSM:
+			obj = acpi_evaluate_dsm_typed(adev->handle,
+						      &match->guid, 0x00,
+						      0x01, NULL, ACPI_TYPE_STRING);
+			if (!obj)
+				break;
+
+			for (i = 0; match->ids[i]; i++)
+				if (!strcmp(match->ids[i], obj->string.pointer)) {
+					ACPI_FREE(obj);
+					return 180;
+				}
+
+			ACPI_FREE(obj);
+			break;
+		}
 	}
-
-	ACPI_FREE(obj);
 
 	switch (ssdb->degree) {
 	case IPU_SENSOR_ROTATION_NORMAL:
