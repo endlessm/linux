@@ -151,6 +151,9 @@ do_dtbs=false
 # ZSTD compressed kernel modules
 do_zstd_ko=true
 
+# Generate SPDX SBOM documents (scripts/sbom). Requires Python >= 3.10.
+do_sbom = false
+
 # Support parallel=<n> in DEB_BUILD_OPTIONS (see #209008)
 #
 # These 2 environment variables set the -j value of the kernel build. For example,

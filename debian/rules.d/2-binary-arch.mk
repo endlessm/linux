@@ -77,6 +77,14 @@ ifeq ($(do_linux_tools),true)
   endif
  endif
 endif
+
+ifeq ($(do_sbom),true)
+	# Generate SPDX SBOM documents (sbom-{source,build,output}.spdx.json)
+	# into the obj-tree via the kernel's native 'sbom' target. The image,
+	# modules and modules.order are already built, so this only runs the
+	# generation step. Kept non-fatal so SBOM issues cannot break the build.
+	$(kmake) O=$(build_dir) sbom || true
+endif
 	$(stamp)
 
 define build_dkms_sign =
@@ -455,6 +463,16 @@ endif
 	fi
 	install -m644 debian/canonical-certs.pem $(pkgdir_bldinfo)/usr/lib/linux/$(abi_release)-$*/canonical-certs.pem
 	install -m644 debian/canonical-revoked-certs.pem $(pkgdir_bldinfo)/usr/lib/linux/$(abi_release)-$*/canonical-revoked-certs.pem
+
+ifeq ($(do_sbom),true)
+	# Ship the generated SPDX SBOM documents in the buildinfo package.
+	for f in sbom-source.spdx.json sbom-build.spdx.json sbom-output.spdx.json; do \
+		if [ -f $(build_dir)/$$f ]; then \
+			install -m644 $(build_dir)/$$f \
+				$(pkgdir_bldinfo)/usr/lib/linux/$(abi_release)-$*/$$f; \
+		fi; \
+	done
+endif
 
 	# Get rid of .o and .cmd artifacts in headers
 	find $(hdrdir) -name \*.o -or -name \*.cmd -exec rm -f {} \;

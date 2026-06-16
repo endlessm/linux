@@ -18,3 +18,4 @@ do_tools_hyperv	= true
 do_tools_rtla = true
 do_tools_acpidbg = true
 do_lib_rust     = true
+do_sbom         = true
