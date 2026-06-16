@@ -5646,7 +5646,7 @@ CONFIG_GENERIC_IRQ_SHOW                         policy<{'amd64': 'y', 'arm64': '
 CONFIG_GENERIC_IRQ_SHOW_LEVEL                   policy<{'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y'}>
 CONFIG_GENERIC_ISA_DMA                          policy<{'amd64': 'y', 'ppc64el': 'y'}>
 CONFIG_GENERIC_LIB_DEVMEM_IS_ALLOWED            policy<{'arm64': 'y', 'armhf': 'y', 'riscv64': 'y'}>
-CONFIG_GENERIC_LOCKBREAK                        policy<{'ppc64el': 'y', 's390x': 'y'}>
+CONFIG_GENERIC_LOCKBREAK                        policy<{'ppc64el': 'y', 's390x': '-'}>
 CONFIG_GENERIC_MSI_IRQ                          policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y', 's390x': 'y'}>
 CONFIG_GENERIC_NET_UTILS                        policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y', 's390x': 'y'}>
 CONFIG_GENERIC_PCI_IOMAP                        policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y'}>
@@ -6873,16 +6873,28 @@ CONFIG_INIT_ON_FREE_DEFAULT_ON                  policy<{'amd64': 'n', 'arm64': '
 CONFIG_INIT_STACK_ALL_PATTERN                   policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'ppc64el': 'n', 'riscv64': 'n', 's390x': 'n'}>
 CONFIG_INIT_STACK_ALL_ZERO                      policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y', 's390x': 'y'}>
 CONFIG_INIT_STACK_NONE                          policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'ppc64el': 'n', 'riscv64': 'n', 's390x': 'n'}>
+CONFIG_INLINE_READ_LOCK                         policy<{'s390x': 'y'}>
+CONFIG_INLINE_READ_LOCK_BH                      policy<{'s390x': 'y'}>
+CONFIG_INLINE_READ_LOCK_IRQ                     policy<{'s390x': 'y'}>
+CONFIG_INLINE_READ_LOCK_IRQSAVE                 policy<{'s390x': 'y'}>
 CONFIG_INLINE_READ_TRYLOCK                      policy<{'s390x': 'y'}>
 CONFIG_INLINE_READ_UNLOCK                       policy<{'armhf': 'y', 'ppc64el': '-', 'riscv64': '-', 's390x': 'y'}>
 CONFIG_INLINE_READ_UNLOCK_BH                    policy<{'s390x': 'y'}>
 CONFIG_INLINE_READ_UNLOCK_IRQ                   policy<{'armhf': 'y', 'ppc64el': '-', 'riscv64': '-', 's390x': 'y'}>
 CONFIG_INLINE_READ_UNLOCK_IRQRESTORE            policy<{'s390x': 'y'}>
+CONFIG_INLINE_SPIN_LOCK                         policy<{'s390x': 'y'}>
+CONFIG_INLINE_SPIN_LOCK_BH                      policy<{'s390x': 'y'}>
+CONFIG_INLINE_SPIN_LOCK_IRQ                     policy<{'s390x': 'y'}>
+CONFIG_INLINE_SPIN_LOCK_IRQSAVE                 policy<{'s390x': 'y'}>
 CONFIG_INLINE_SPIN_TRYLOCK                      policy<{'s390x': 'y'}>
 CONFIG_INLINE_SPIN_TRYLOCK_BH                   policy<{'s390x': 'y'}>
 CONFIG_INLINE_SPIN_UNLOCK_BH                    policy<{'s390x': 'y'}>
 CONFIG_INLINE_SPIN_UNLOCK_IRQ                   policy<{'armhf': 'y', 'ppc64el': '-', 'riscv64': '-', 's390x': 'y'}>
 CONFIG_INLINE_SPIN_UNLOCK_IRQRESTORE            policy<{'s390x': 'y'}>
+CONFIG_INLINE_WRITE_LOCK                        policy<{'s390x': 'y'}>
+CONFIG_INLINE_WRITE_LOCK_BH                     policy<{'s390x': 'y'}>
+CONFIG_INLINE_WRITE_LOCK_IRQ                    policy<{'s390x': 'y'}>
+CONFIG_INLINE_WRITE_LOCK_IRQSAVE                policy<{'s390x': 'y'}>
 CONFIG_INLINE_WRITE_TRYLOCK                     policy<{'s390x': 'y'}>
 CONFIG_INLINE_WRITE_UNLOCK                      policy<{'armhf': 'y', 'ppc64el': '-', 'riscv64': '-', 's390x': 'y'}>
 CONFIG_INLINE_WRITE_UNLOCK_BH                   policy<{'s390x': 'y'}>
