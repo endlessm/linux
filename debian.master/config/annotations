@@ -459,6 +459,9 @@ CONFIG_NLS                                      note<'dependancy of boot essenti
 CONFIG_NOP_USB_XCEIV                            policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'y', 'ppc64el': 'm', 'riscv64': 'm', 's390x': '-'}>
 CONFIG_NOP_USB_XCEIV                            note<'boot essential on omap/highbank'>
 
+CONFIG_NOVA_CORE                                policy<{'amd64': 'n', 'arm64': 'n'}>
+CONFIG_NOVA_CORE                                note<'LP: #2150845'>
+
 CONFIG_NO_HZ_FULL                               policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'n', 'ppc64el': 'n', 'riscv64': 'n'}>
 CONFIG_NO_HZ_FULL                               note<'LP: #2051342'>
 
@@ -9943,7 +9946,6 @@ CONFIG_NOUVEAU_DEBUG_DEFAULT                    policy<{'amd64': '3', 'arm64': '
 CONFIG_NOUVEAU_DEBUG_MMU                        policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'ppc64el': 'n', 'riscv64': 'n', 's390x': '-'}>
 CONFIG_NOUVEAU_DEBUG_PUSH                       policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'ppc64el': 'n', 'riscv64': 'n', 's390x': '-'}>
 CONFIG_NOUVEAU_PLATFORM_DRIVER                  policy<{'arm64': 'y', 'armhf': 'y'}>
-CONFIG_NOVA_CORE                                policy<{'amd64': 'm', 'arm64': 'm'}>
 CONFIG_NOZOMI                                   policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm', 's390x': 'n'}>
 CONFIG_NO_HZ                                    policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y', 's390x': 'y'}>
 CONFIG_NO_HZ_COMMON                             policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y', 's390x': 'y'}>
