@@ -21,3 +21,8 @@ Ubuntu-specific features not supported anymore:
  - UBUNTU: SAUCE: x86/quirks: Add parameter to clear MSIs early on boot
  - UBUNTU: SAUCE: x86/quirks: Scan all busses for early PCI quirks
  - UBUNTU: SAUCE: kthread: Do not leave kthread_create() immediately upon SIGKILL.
+
+7.2:
+ - UBUNTU: SAUCE: ACPI: scan: Update HID for new platform
+ - UBUNTU: SAUCE: media: platform: amd: Add isp4 fw and hw interface
+ - UBUNTU: SAUCE: media: platform: amd: isp4 video node and buffers handling added
