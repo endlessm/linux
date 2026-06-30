@@ -2344,8 +2344,8 @@ static int tb_tunnel_pci(struct tb *tb, struct tb_switch *sw)
 	list_add_tail(&tunnel->list, &tcm->tunnel_list);
 
 	/* Schedule a delayed PCIe bus rescan in case pciehp misses devices */
-	if (tb->nhi && tb->nhi->pdev && tb->nhi->pdev->bus) {
-		struct pci_bus *bus = tb->nhi->pdev->bus;
+	if (tb->nhi && tb->nhi->dev && to_pci_dev(tb->nhi->dev)->bus) {
+		struct pci_bus *bus = to_pci_dev(tb->nhi->dev)->bus;
 		struct tb_pci_rescan_work *rescan_work;
 
 		rescan_work = kmalloc(sizeof(*rescan_work), GFP_KERNEL);
