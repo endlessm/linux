@@ -39,12 +39,21 @@ $(stampdir)/stamp-prepare-%: debian/scripts/fix-filenames
 	touch $(build_dir)/ubuntu-build
 	python3 debian/scripts/misc/annotations --export --arch $(arch) --flavour $* > $(build_dir)/.config
 	sed -i 's/.*CONFIG_VERSION_SIGNATURE.*/CONFIG_VERSION_SIGNATURE="Ubuntu $(DEB_VERSION_UPSTREAM)-$(DEB_REVISION)-$* $(raw_kernelversion)"/' $(build_dir)/.config
+ifeq ($(do_skip_btf),true)
+	scripts/config --file $(build_dir)/.config \
+		--disable DEBUG_INFO_BTF \
+		--disable DEBUG_INFO_BTF_MODULES
+endif
 	find $(build_dir) -name "*.ko" | xargs rm -f
 	$(kmake) O=$(build_dir) $(conc_level) rustavailable || true
 	$(kmake) O=$(build_dir) $(conc_level) olddefconfig
 ifneq ($(do_skip_checks),true)
+ ifneq ($(do_skip_btf),true)
 	python3 debian/scripts/misc/annotations -f $(CURDIR)/$(DEBIAN)/config/annotations \
 		--arch $(arch) --flavour $* --check $(build_dir)/.config
+ else
+	@echo "Skipping annotations check because do_skip_btf=true"
+ endif
 endif
 	$(stamp)
 
@@ -54,6 +63,15 @@ prepare-%: $(stampdir)/stamp-prepare-%
 # Used by developers to allow efficient pre-building without fakeroot.
 build-%: $(stampdir)/stamp-install-%
 	@echo Debug: $@
+
+# Used by developers to rebuild debs incrementally after patching.
+# Only the packaging stamps and ABI output are reset; debian/build/build-$*
+# is preserved so Kbuild can reuse existing object files.
+rebuild-%: FORCE
+	@echo Debug: $@
+	rm -f $(stampdir)/stamp-build-$* $(stampdir)/stamp-install-$*
+	rm -rf $(abi_dir)
+	$(MAKE) -f debian/rules do_full_build=false binary-$*
 
 # Do the actual build, including image and modules
 $(stampdir)/stamp-build-%: bldimg = $(call custom_override,build_image,$*)
@@ -776,4 +794,3 @@ endif
 .PHONY: binary-arch
 binary-arch: $(binary-arch-deps-true)
 	@echo Debug: $@
-

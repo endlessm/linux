@@ -148,6 +148,14 @@ do_flavour_header_package=true
 # DTBs
 do_dtbs=false
 
+# Developer-only shortcut to disable BTF in the generated build config.
+# Set do_skip_btf=true on the initial build; incremental rebuilds reuse the
+# existing build tree and inherit the generated no-BTF .config.
+do_skip_btf=false
+ifeq ($(do_skip_btf),true)
+do_tools_bpftool_stub=true
+endif
+
 # ZSTD compressed kernel modules
 do_zstd_ko=true
 
