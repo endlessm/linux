@@ -54,6 +54,38 @@ debian/build/build-generic
 That preserved directory contains the existing `.config`, object files, and
 Kbuild state used for incremental rebuilds.
 
+## Rebuild package snapshots
+
+After a successful `rebuild-<flavour>`, generated binary packages are copied to:
+
+```text
+../rebuilds/<DirectoryID>/
+```
+
+The package names are unchanged, so this does not require custom versioning or
+extra rebuild work. The directory ID is derived from Git state:
+
+| Tree state | Directory ID |
+| --- | --- |
+| clean committed tree | `<HEAD-short>` |
+| dirty tracked changes | `<HEAD-short>-dirty-<diff-hash>` |
+
+For example:
+
+```text
+../rebuilds/2d1fdcea6aef-dirty-1a2b3c4d5e6f/
+  linux-image-unsigned-7.0.0-28-generic_7.0.0-28.28_amd64.deb
+  linux-modules-7.0.0-28-generic_7.0.0-28.28_amd64.deb
+  manifest.txt
+```
+
+The snapshot step can be disabled or redirected:
+
+```bash
+fakeroot debian/rules rebuild-generic do_rebuild_snapshot=false
+fakeroot debian/rules rebuild-generic rebuild_snapshot_dir=/tmp/rebuilds
+```
+
 ## Optional no-BTF developer mode
 
 For faster local iteration, the initial build can disable BTF generation:

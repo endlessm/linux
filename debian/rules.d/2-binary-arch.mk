@@ -72,6 +72,38 @@ rebuild-%: FORCE
 	rm -f $(stampdir)/stamp-build-$* $(stampdir)/stamp-install-$*
 	rm -rf $(abi_dir)
 	$(MAKE) -f debian/rules do_full_build=false binary-$*
+ifeq ($(do_rebuild_snapshot),true)
+	@head=$$(git rev-parse --short HEAD 2>/dev/null || echo nogit); \
+	if git diff --quiet HEAD -- 2>/dev/null; then \
+		rebuild_id="$$head"; \
+	else \
+		diff_hash=$$(git diff --binary HEAD -- 2>/dev/null | sha1sum | awk '{print substr($$1,1,12)}'); \
+		rebuild_id="$${head}-dirty-$${diff_hash}"; \
+	fi; \
+	snapshot_dir="$(rebuild_snapshot_dir)/$$rebuild_id"; \
+	install -d "$$snapshot_dir"; \
+	manifest="$$snapshot_dir/manifest.txt"; \
+	{ \
+		echo "timestamp=$$(date -Ins)"; \
+		echo "flavour=$*"; \
+		echo "version=$(DEB_VERSION)"; \
+		echo "arch=$(arch)"; \
+		echo "git_head=$$head"; \
+		echo "rebuild_id=$$rebuild_id"; \
+		echo "packages:"; \
+	} >"$$manifest"; \
+	count=0; \
+	for pkg in ../*-$*_*_$(arch).deb ../*-$*_*_$(arch).ddeb \
+		   ../linux-bpf-dev_$(DEB_VERSION)_$(arch).deb \
+		   ../linux-bpf-dev_$(DEB_VERSION)_$(arch).ddeb; do \
+		if [ -e "$$pkg" ]; then \
+			cp -a "$$pkg" "$$snapshot_dir/"; \
+			echo "  $$(basename "$$pkg")" >>"$$manifest"; \
+			count=$$((count + 1)); \
+		fi; \
+	done; \
+	echo "Copied $$count package(s) to $$snapshot_dir"
+endif
 
 # Do the actual build, including image and modules
 $(stampdir)/stamp-build-%: bldimg = $(call custom_override,build_image,$*)

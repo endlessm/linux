@@ -156,6 +156,10 @@ ifeq ($(do_skip_btf),true)
 do_tools_bpftool_stub=true
 endif
 
+# Copy successful rebuild outputs into ../rebuilds/<DirectoryID>/.
+do_rebuild_snapshot=true
+rebuild_snapshot_dir=$(CURDIR)/../rebuilds
+
 # ZSTD compressed kernel modules
 do_zstd_ko=true
 
