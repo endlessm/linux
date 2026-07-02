@@ -1542,7 +1542,7 @@ int ecrt_slave_config_eoe_dns_address(ec_slave_config_t *sc,
 int ecrt_slave_config_eoe_hostname(ec_slave_config_t *sc,
         const char *name)
 {
-    strncpy(sc->eoe_ip_param_request.name, name, EC_MAX_HOSTNAME_SIZE - 1);
+    strscpy(sc->eoe_ip_param_request.name, name, EC_MAX_HOSTNAME_SIZE - 1);
     sc->eoe_ip_param_request.name_included = 1;
     return 0;
 }

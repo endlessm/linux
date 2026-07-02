@@ -2716,7 +2716,7 @@ int ecrt_master_get_slave(ec_master_t *master, uint16_t slave_position,
     slave_info->sync_count = slave->sii.sync_count;
     slave_info->sdo_count = ec_slave_sdo_count(slave);
     if (slave->sii.name) {
-        strncpy(slave_info->name, slave->sii.name, EC_MAX_STRING_LENGTH);
+        strscpy(slave_info->name, slave->sii.name, EC_MAX_STRING_LENGTH);
     } else {
         slave_info->name[0] = 0;
     }
