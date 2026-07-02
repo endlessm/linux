@@ -1312,7 +1312,7 @@ static char compat_uts_machine[__OLD_UTS_LEN+1] = COMPAT_UTS_MACHINE;
 
 static int __init parse_compat_uts_machine(char *arg)
 {
-	strncpy(compat_uts_machine, arg, __OLD_UTS_LEN);
+	strscpy(compat_uts_machine, arg, __OLD_UTS_LEN);
 	compat_uts_machine[__OLD_UTS_LEN] = 0;
 	return 0;
 }
