@@ -433,7 +433,7 @@ int __init ec_gen_init_module(void)
             rcu_read_unlock();
             goto out_err;
         }
-        strncpy(desc->name, netdev->name, IFNAMSIZ);
+        strscpy(desc->name, netdev->name, IFNAMSIZ);
         desc->netdev = netdev;
         desc->ifindex = netdev->ifindex;
         memcpy(desc->dev_addr, netdev->dev_addr, ETH_ALEN);

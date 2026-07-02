@@ -776,7 +776,7 @@ void ec_fsm_foe_state_data_read(
                 fsm->request->error_code);
         if (rec_size > 6) {
             uint8_t text[256];
-            strncpy(text, data + 6, min(rec_size - 6, sizeof(text)));
+            strscpy(text, data + 6, min(rec_size - 6, sizeof(text)));
             EC_SLAVE_ERR(slave, "FoE Error Text: %s\n", text);
         }
         ec_foe_set_rx_error(fsm, FOE_OPCODE_ERROR);
