@@ -1227,6 +1227,7 @@ static const struct venus_resources qcm2290_res = {
 	.min_fw = &min_fw,
 };
 
+#if (!IS_ENABLED(CONFIG_VIDEO_QCOM_IRIS))
 static const struct freq_tbl sc8280xp_freq_table[] = {
 	{ 0, 239999999 },
 	{ 0, 338000000 },
@@ -1269,6 +1270,7 @@ static const struct venus_resources sc8280xp_res = {
 	.cp_nonpixel_size = 0x24800000,
 	.fwname = "qcom/vpu-2.0/venus.mbn",
 };
+#endif
 
 
 static const struct of_device_id venus_dt_match[] = {
@@ -1278,15 +1280,15 @@ static const struct of_device_id venus_dt_match[] = {
 	{ .compatible = "qcom,msm8998-venus", .data = &msm8998_res },
 	{ .compatible = "qcom,qcm2290-venus", .data = &qcm2290_res },
 	{ .compatible = "qcom,sc7180-venus", .data = &sc7180_res },
-	{ .compatible = "qcom,sc8280xp-venus", .data = &sc8280xp_res },
 	{ .compatible = "qcom,sdm660-venus", .data = &sdm660_res },
 	{ .compatible = "qcom,sdm845-venus", .data = &sdm845_res },
 	{ .compatible = "qcom,sdm845-venus-v2", .data = &sdm845_res_v2 },
 #if (!IS_ENABLED(CONFIG_VIDEO_QCOM_IRIS))
 	{ .compatible = "qcom,sc7280-venus", .data = &sc7280_res },
+	{ .compatible = "qcom,sc8280xp-venus", .data = &sc8280xp_res },
 	{ .compatible = "qcom,sm8250-venus", .data = &sm8250_res },
-#endif
 	{ .compatible = "qcom,sm8350-venus", .data = &sm8350_res },
+#endif
 	{ }
 };
 MODULE_DEVICE_TABLE(of, venus_dt_match);
