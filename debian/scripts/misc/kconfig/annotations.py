@@ -80,7 +80,7 @@ class Annotation(Config):
             if not line:
                 continue
 
-            # Catpure flavors of included files
+            # Capture flavors of included files
             if line.startswith("# FLAVOUR: "):
                 self.include_flavour += line.split(" ")[2:]
                 continue
@@ -211,7 +211,7 @@ class Annotation(Config):
             self.include = data["attributes"]["include"]
             self.include_flavour = []
         else:
-            # We are procesing an imported annotations, so merge all the
+            # We are processing an imported annotations, so merge all the
             # configs and attributes.
             try:
                 self.config = data["config"] | self.config
