@@ -1908,24 +1908,36 @@ static int apparmor_secmark_relabel_packet(u32 sid)
 
 #endif /* CONFIG_NETWROK_SECMARK */
 
-static void update_sock_ctx(struct aa_sk_ctx *ctx, struct aa_label *label)
+static struct aa_label *refresh_sk_ctx(struct aa_sk_ctx *ctx)
 {
-	struct aa_label *l, *old;
+	struct aa_label *new, *old;
 
 	/* update caching of label on sk_ctx */
 	spin_lock(&ctx->lock);
 	old = rcu_dereference_protected(ctx->label,
 					lockdep_is_held(&ctx->lock));
-	l = aa_label_merge(old, label, GFP_ATOMIC);
-	if (l) {
-		if (l != old) {
-			rcu_assign_pointer(ctx->label, l);
-			aa_put_label(old);
-		} else
-			aa_put_label(l);
-	}
+	new = aa_get_newest_label(old);
+	rcu_assign_pointer(ctx->label, new);
 	spin_unlock(&ctx->lock);
+	aa_put_label(old);
+
+	return new;		/* no refcount, use only in rcu_read_lock */
 }
+
+/* must be called from within rcu_read_lock */
+static struct aa_label *__begin_sk_ctx_crit_section(struct aa_sk_ctx *ctx)
+{
+	struct aa_label *label;
+
+	label = rcu_dereference(ctx->label);
+	if (label_is_stale(label)) {
+		label = refresh_sk_ctx(ctx);
+	}
+
+	return label;
+}
+
+#define __end_sk_ctx_crit_section(label)	/* nop */
 
 /**
  * apparmor_socket_sock_rcv_skb - check perms before associating skb to sk
@@ -1940,8 +1952,7 @@ static void update_sock_ctx(struct aa_sk_ctx *ctx, struct aa_label *label)
 static int apparmor_socket_sock_rcv_skb(struct sock *sk, struct sk_buff *skb)
 {
 	struct aa_sk_ctx *ctx = aa_sock(sk);
-	struct aa_label *label, *new;
-	bool needput;
+	struct aa_label *label;
 	int error = 0;
 
 	if (!aa_secmark_enabled())
@@ -1957,22 +1968,18 @@ static int apparmor_socket_sock_rcv_skb(struct sock *sk, struct sk_buff *skb)
 		return -EACCES;
 
 	rcu_read_lock();
-	label = rcu_dereference(ctx->label);
-	new = aa_get_newest_label_condref(label, &needput);
-	AA_DEBUG_LABEL(new, DEBUG_SKB, "ctx label %p %s, mediates %d secmark %d", new, new->hname ? new->hname : "<NULL>", label_mediates(new, AA_CLASS_NETV9_SKB), skb->secmark);
+	label = __begin_sk_ctx_crit_section(ctx);
+	AA_DEBUG_LABEL(label, DEBUG_SKB, "ctx label %p %s, mediates %d secmark %d", label, label->hname ? label->hname : "<NULL>", label_mediates(label, AA_CLASS_NETV9_SKB), skb->secmark);
 
-	if (label_mediates(new, AA_CLASS_NETV9_SKB) || skb->secmark)
+	if (label_mediates(label, AA_CLASS_NETV9_SKB) || skb->secmark)
 		/* receive uses socket label as proxy
 		 * may do interface processing without SECMARK
 		 */
-		error = __aa_sock_rcv_skb(new, sk, skb);
+		error = __aa_sock_rcv_skb(label, sk, skb);
 	/* else none of the profiles in label mediate skbs &&
 	 * the skb is unlabeled
 	 */
-	if (new != label)
-		update_sock_ctx(ctx, new);
-
-	aa_put_label_condref(new, needput);
+	__end_sk_ctx_crit_section(label);
 	rcu_read_unlock();
 
 	return error;
@@ -1985,30 +1992,24 @@ static int apparmor_inet_conn_request(const struct sock *sk,
 				      struct request_sock *req)
 {
 	struct aa_sk_ctx *ctx = aa_sock(sk);
-	struct aa_label *label, *new;
-	bool needput;
+	struct aa_label *label;
 	int error = 0;
 
 	if (!aa_secmark_enabled())
 		return 0;
 
 	rcu_read_lock();
-	label = rcu_dereference(ctx->label);
-	new = aa_get_newest_label_condref(label, &needput);
-	AA_DEBUG_LABEL(new, DEBUG_SKB, "label_mediates %d, skb->secmark, %u", label_mediates(new, AA_CLASS_NETV9_SKB), skb->secmark);
-	if (label_mediates(new, AA_CLASS_NETV9_SKB) || skb->secmark)
+	label = __begin_sk_ctx_crit_section(ctx);
+	AA_DEBUG_LABEL(label, DEBUG_SKB, "label_mediates %d, skb->secmark, %u", label_mediates(label, AA_CLASS_NETV9_SKB), skb->secmark);
+	if (label_mediates(label, AA_CLASS_NETV9_SKB) || skb->secmark)
 		/* receive uses socket label as proxy
 		 * may do interface processing without SECMARK
 		 */
-		error = __aa_inet_conn_request(new, sk, skb, req);
+		error = __aa_inet_conn_request(label, sk, skb, req);
 	/* else none of the profiles in label mediate skbs &&
 	 * the skb is unlabeled
 	 */
-
-	if (new != label)
-		update_sock_ctx(ctx, new);
-
-	aa_put_label_condref(new, needput);
+	__end_sk_ctx_crit_section(label);
 	rcu_read_unlock();
 
 	return error;
@@ -2022,8 +2023,7 @@ static unsigned int apparmor_ip_postroute(void *priv,
 					  const struct nf_hook_state *state)
 {
 	struct aa_sk_ctx *ctx;
-	struct aa_label *label, *new;
-	bool needput;
+	struct aa_label *label;
 	struct sock *sk;
 	int error = 0;
 
@@ -2046,25 +2046,21 @@ static unsigned int apparmor_ip_postroute(void *priv,
 
 	ctx = aa_sock(sk);
 	rcu_read_lock();
-	label = rcu_dereference(ctx->label);
-	new = aa_get_newest_label_condref(label, &needput);
-	AA_DEBUG_LABEL(new, DEBUG_SKB, "ctx label %p %s", new, new && new->hname ? new->hname : "<null>");
+	label = __begin_sk_ctx_crit_section(ctx);
+	AA_DEBUG_LABEL(label, DEBUG_SKB, "ctx label %p %s", label, label && label->hname ? label->hname : "<null>");
 
-	if (new && label_mediates(new, AA_CLASS_NETV9_SKB))
-		error = __aa_ip_postroute(new, sk, skb, state);
-
-	if (new != label)
-		update_sock_ctx(ctx, new);
+	if (label && label_mediates(label, AA_CLASS_NETV9_SKB))
+		error = __aa_ip_postroute(label, sk, skb, state);
 
 	if (error) {
-		AA_DEBUG_LABEL(new, DEBUG_SKB, "error %d", error);
+		AA_DEBUG_LABEL(label, DEBUG_SKB, "error %d", error);
 		error = NF_DROP_ERR(-ECONNREFUSED);
 	} else {
-		AA_DEBUG_LABEL(new, DEBUG_SKB, "accept %p %s", new, new && new->hname ? new->hname : "<null>");
+		AA_DEBUG_LABEL(label, DEBUG_SKB, "accept %p %s", label, label && label->hname ? label->hname : "<null>");
 		error = NF_ACCEPT;
 	}
 
-	aa_put_label_condref(new, needput);
+	__end_sk_ctx_crit_section(label);
 	rcu_read_unlock();
 	return error;
 }
