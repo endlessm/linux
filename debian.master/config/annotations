@@ -1632,6 +1632,7 @@ CONFIG_ARCH_THEAD                               policy<{'riscv64': 'n'}>
 CONFIG_ARCH_THUNDER                             policy<{'arm64': 'y'}>
 CONFIG_ARCH_THUNDER2                            policy<{'arm64': 'y'}>
 CONFIG_ARCH_U8500                               policy<{'armhf': 'n'}>
+CONFIG_ARCH_ULTRARISC                           policy<{'riscv64': 'n'}>
 CONFIG_ARCH_UNIPHIER                            policy<{'arm64': 'n', 'armhf': 'n'}>
 CONFIG_ARCH_USERFLAGS                           policy<{'armhf': '"-mlittle-endian"', 'riscv64': '"-march=rv64g -mabi=lp64d"', 's390x': '"-m64"'}>
 CONFIG_ARCH_USES_CFI_GENERIC_LLVM_PASS          policy<{'armhf': 'y'}>
