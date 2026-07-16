@@ -26,3 +26,8 @@ Ubuntu-specific features not supported anymore:
  - UBUNTU: SAUCE: ACPI: scan: Update HID for new platform
  - UBUNTU: SAUCE: media: platform: amd: Add isp4 fw and hw interface
  - UBUNTU: SAUCE: media: platform: amd: isp4 video node and buffers handling added
+ - UBUNTU: SAUCE: (no-up) x86: reboot: Make Dell Optiplex 390 use reboot=pci
+ - UBUNTU: SAUCE: (no-up) x86: reboot: Make Dell Latitude E6220 use reboot=pci
+ - UBUNTU: SAUCE: (no-up) x86: reboot: Make Dell Optiplex 990 use reboot=pci
+ - UBUNTU: SAUCE: (no-up) x86: reboot: Make Dell Optiplex 790 use reboot=pci
+ - UBUNTU: SAUCE: (no-up) x86: reboot: Make Dell Latitude E6520 use reboot=pci
