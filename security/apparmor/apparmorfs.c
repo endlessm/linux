@@ -586,14 +586,6 @@ fail:
 
 }
 #else
-static int decompress_zstd(char *src __always_unused,
-			   size_t slen __always_unused,
-			   char *dst __always_unused,
-			   size_t dlen __always_unused)
-{
-	return -EINVAL;
-}
-
 static struct aa_loaddata *aa_get_data_from_compressed(const char __user *userbuf __always_unused,
 						  size_t buffer_size __always_unused,
 						  loff_t *pos __always_unused,
