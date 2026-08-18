@@ -12320,8 +12320,8 @@ CONFIG_RUSTC_LLVM_MAJOR_VERSION                 policy<{'amd64': '21', 'arm64': 
 CONFIG_RUSTC_LLVM_VERSION                       policy<{'amd64': '210108', 'arm64': '210108', 'armhf': '210108', 'ppc64el': '210108', 'riscv64': '210108', 's390x': '210108'}>
 CONFIG_RUSTC_SUPPORTS_ARM64                     policy<{'arm64': 'y'}>
 CONFIG_RUSTC_SUPPORTS_RISCV                     policy<{'riscv64': 'y'}>
-CONFIG_RUSTC_VERSION                            policy<{'amd64': '109301', 'arm64': '109301', 'armhf': '109301', 'ppc64el': '109301', 'riscv64': '109301', 's390x': '109301'}>
-CONFIG_RUSTC_VERSION_TEXT                       policy<{'amd64': '"rustc 1.93.1 (01f6ddf75 2026-02-11) (built from a source tarball)"', 'arm64': '"rustc 1.93.1 (01f6ddf75 2026-02-11) (built from a source tarball)"'}>
+CONFIG_RUSTC_VERSION                            policy<{'amd64': '109500', 'arm64': '109500', 'armhf': '109500', 'ppc64el': '109500', 'riscv64': '109500', 's390x': '109500'}>
+CONFIG_RUSTC_VERSION_TEXT                       policy<{'amd64': '"rustc 1.95.0 (59807616e 2026-04-14) (built from a source tarball)"', 'arm64': '"rustc 1.95.0 (59807616e 2026-04-14) (built from a source tarball)"'}>
 CONFIG_RUST_BITMAP_HARDENED                     policy<{'amd64': 'n', 'arm64': 'n'}>
 CONFIG_RUST_BUILD_ASSERT_ALLOW                  policy<{'amd64': 'n', 'arm64': 'n'}>
 CONFIG_RUST_DEBUG_ASSERTIONS                    policy<{'amd64': 'n', 'arm64': 'n'}>
