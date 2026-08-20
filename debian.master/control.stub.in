@@ -46,7 +46,7 @@ Build-Depends:
  makedumpfile:native [amd64] <!stage1>,
  openssl <!stage1>,
  pahole (>= 1.29-2ubuntu2) [amd64 arm64 armhf ppc64el s390x riscv64] | dwarves (>= 1.21) [amd64 arm64 armhf ppc64el s390x riscv64] <!stage1>,
- pkg-config <!stage1>,
+ pkgconf <!stage1>,
  python3:native <!stage1>,
  python3-dev:native <!stage1>,
  libpython3-dev <!stage1> <cross>,
