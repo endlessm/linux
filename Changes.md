@@ -31,3 +31,9 @@ Ubuntu-specific features not supported anymore:
  - UBUNTU: SAUCE: (no-up) x86: reboot: Make Dell Optiplex 990 use reboot=pci
  - UBUNTU: SAUCE: (no-up) x86: reboot: Make Dell Optiplex 790 use reboot=pci
  - UBUNTU: SAUCE: (no-up) x86: reboot: Make Dell Latitude E6520 use reboot=pci
+
+7.3:
+ - UBUNTU: SAUCE: apparmor5.1.0 [1-61/61] (the whole apparmor 5.1.0 SAUCE series)
+ - UBUNTU: [Config] Enable SECURITY_APPARMOR_COMPRESSED_POLICY
+ - UBUNTU: [Config] enable/disable SECURITY_APPARMOR_PACKET_MEDIATION_ENABLED
+ - UBUNTU: SAUCE: arm64: dts: qcom: sc8280xp: Add Venus
