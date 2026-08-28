@@ -1,6 +1,9 @@
 # Ignore vbox symlinks, we will regenerate these at clean (LP:1426113)
 ## autoreconstruct -- begin
 # Ignore any symlinks created since the orig which are rebuilt by reconstruct.
+extend-diff-ignore=^tools/testing/selftests/vfio/lib/drivers/igb/e1000_82575.h$
+extend-diff-ignore=^tools/testing/selftests/vfio/lib/drivers/igb/e1000_defines.h$
+extend-diff-ignore=^tools/testing/selftests/vfio/lib/drivers/igb/e1000_regs.h$
 extend-diff-ignore=^ubuntu/igh-ecat/master/rtdm-ioctl.c$
 ## autoreconstruct -- end
 
