@@ -37,3 +37,6 @@ Ubuntu-specific features not supported anymore:
  - UBUNTU: [Config] Enable SECURITY_APPARMOR_COMPRESSED_POLICY
  - UBUNTU: [Config] enable/disable SECURITY_APPARMOR_PACKET_MEDIATION_ENABLED
  - UBUNTU: SAUCE: arm64: dts: qcom: sc8280xp: Add Venus
+ - UBUNTU: SAUCE: arm64: dts: qcom: sc8280xp-x13s: Enable Venus
+ - UBUNTU: SAUCE: media: ipu-bridge: Support imx471 sensor
+ - UBUNTU: SAUCE: media: ipu-bridge: add TBE20A0 ACPI id for Sony IMX471
