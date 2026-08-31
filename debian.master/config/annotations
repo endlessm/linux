@@ -6135,7 +6135,7 @@ CONFIG_HAVE_PERF_EVENTS_NMI                     policy<{'amd64': 'y', 'arm64': '
 CONFIG_HAVE_PERF_REGS                           policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y', 's390x': 'y'}>
 CONFIG_HAVE_PERF_USER_STACK_DUMP                policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y', 's390x': 'y'}>
 CONFIG_HAVE_PNETID                              policy<{'s390x': 'm'}>
-CONFIG_HAVE_POSIX_CPU_TIMERS_TASK_WORK          policy<{'amd64': 'y', 'arm64': 'y', 'ppc64el': 'y', 'riscv64': 'y', 's390x': 'y'}>
+CONFIG_HAVE_POSIX_CPU_TIMERS_TASK_WORK          policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y', 's390x': 'y'}>
 CONFIG_HAVE_PREEMPT_DYNAMIC                     policy<{'amd64': 'y', 'arm64': 'y', 'ppc64el': 'y', 'riscv64': 'y', 's390x': 'y'}>
 CONFIG_HAVE_PREEMPT_DYNAMIC_CALL                policy<{'amd64': 'y'}>
 CONFIG_HAVE_PREEMPT_DYNAMIC_KEY                 policy<{'arm64': 'y', 'ppc64el': 'y', 'riscv64': 'y', 's390x': 'y'}>
@@ -7341,6 +7341,7 @@ CONFIG_IPMI_PLAT_DATA                           policy<{'amd64': 'y', 'arm64': '
 CONFIG_IPMI_POWERNV                             policy<{'ppc64el': 'm'}>
 CONFIG_IPMI_POWEROFF                            policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm'}>
 CONFIG_IPMI_SI                                  policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm'}>
+CONFIG_IPMI_SI_ASYNC_INIT                       policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'ppc64el': 'n', 'riscv64': 'n'}>
 CONFIG_IPMI_SSIF                                policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm'}>
 CONFIG_IPMI_WATCHDOG                            policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm'}>
 CONFIG_IPQ_APSS_5424                            policy<{'arm64': 'm', 'armhf': '-'}>
@@ -11083,7 +11084,7 @@ CONFIG_POLYNOMIAL                               policy<{'amd64': 'm', 'arm64': '
 CONFIG_PORTABLE                                 policy<{'riscv64': 'y'}>
 CONFIG_PORTWELL_EC                              policy<{'amd64': 'm'}>
 CONFIG_POSIX_AUX_CLOCKS                         policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y', 's390x': 'y'}>
-CONFIG_POSIX_CPU_TIMERS_TASK_WORK               policy<{'amd64': 'y', 'arm64': 'y', 'ppc64el': 'y', 'riscv64': 'y', 's390x': 'y'}>
+CONFIG_POSIX_CPU_TIMERS_TASK_WORK               policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y', 's390x': 'y'}>
 CONFIG_POSIX_MQUEUE                             policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y', 's390x': 'y'}>
 CONFIG_POSIX_MQUEUE_SYSCTL                      policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y', 's390x': 'y'}>
 CONFIG_POSIX_TIMERS                             policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y', 's390x': 'y'}>
@@ -12267,7 +12268,7 @@ CONFIG_RTC_DRV_RX8010                           policy<{'amd64': 'm', 'arm64': '
 CONFIG_RTC_DRV_RX8025                           policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm'}>
 CONFIG_RTC_DRV_RX8111                           policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm'}>
 CONFIG_RTC_DRV_RX8581                           policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm'}>
-CONFIG_RTC_DRV_RZN1                             policy<{'armhf': 'm'}>
+CONFIG_RTC_DRV_RZN1                             policy<{'arm64': 'n', 'armhf': 'm'}>
 CONFIG_RTC_DRV_S32G                             policy<{'arm64': 'm'}>
 CONFIG_RTC_DRV_S35390A                          policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm'}>
 CONFIG_RTC_DRV_S3C                              policy<{'armhf': 'n'}>
@@ -14948,7 +14949,7 @@ CONFIG_TASK_DELAY_ACCT                          policy<{'amd64': 'y', 'arm64': '
 CONFIG_TASK_IO_ACCOUNTING                       policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y', 's390x': 'y'}>
 CONFIG_TASK_XACCT                               policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y', 's390x': 'y'}>
 CONFIG_TCG_ARM_CRB_FFA                          policy<{'arm64': 'm'}>
-CONFIG_TCG_ATMEL                                policy<{'amd64': 'm', 'arm64': 'm', 'ppc64el': 'm', 'riscv64': 'm'}>
+CONFIG_TCG_ATMEL                                policy<{'amd64': 'm', 'arm64': '-', 'ppc64el': '-', 'riscv64': '-'}>
 CONFIG_TCG_CRB                                  policy<{'amd64': 'y', 'arm64': 'y', 'riscv64': 'y'}>
 CONFIG_TCG_FTPM_TEE                             policy<{'arm64': 'm', 'armhf': 'm'}>
 CONFIG_TCG_IBMVTPM                              policy<{'ppc64el': 'y'}>
