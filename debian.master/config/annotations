@@ -12407,19 +12407,19 @@ CONFIG_RUSTC_HAS_FILE_AS_C_STR                  policy<{'amd64': 'y', 'arm64': '
 CONFIG_RUSTC_HAS_FILE_WITH_NUL                  policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y', 's390x': 'y'}>
 CONFIG_RUSTC_HAS_SPAN_FILE                      policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y', 's390x': 'y'}>
 CONFIG_RUSTC_HAS_UNNECESSARY_TRANSMUTES         policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y', 's390x': 'y'}>
-CONFIG_RUSTC_LLVM_MAJOR_VERSION                 policy<{'amd64': '21', 'arm64': '21', 'armhf': '21', 'ppc64el': '21', 'riscv64': '21', 's390x': '21'}>
-CONFIG_RUSTC_LLVM_VERSION                       policy<{'amd64': '210108', 'arm64': '210108', 'armhf': '210108', 'ppc64el': '210108', 'riscv64': '210108', 's390x': '210108'}>
+CONFIG_RUSTC_LLVM_MAJOR_VERSION                 policy<{'amd64': '22', 'arm64': '22', 'armhf': '22', 'ppc64el': '22', 'riscv64': '22', 's390x': '22'}>
+CONFIG_RUSTC_LLVM_VERSION                       policy<{'amd64': '220106', 'arm64': '220106', 'armhf': '220106', 'ppc64el': '220106', 'riscv64': '220106', 's390x': '220106'}>
 CONFIG_RUSTC_SUPPORTS_ARM64                     policy<{'arm64': 'y'}>
 CONFIG_RUSTC_SUPPORTS_RISCV                     policy<{'riscv64': 'y'}>
-CONFIG_RUSTC_VERSION                            policy<{'amd64': '109500', 'arm64': '109500', 'armhf': '109500', 'ppc64el': '109500', 'riscv64': '109500', 's390x': '109500'}>
-CONFIG_RUSTC_VERSION_TEXT                       policy<{'amd64': '"rustc 1.95.0 (59807616e 2026-04-14) (built from a source tarball)"', 'arm64': '"rustc 1.95.0 (59807616e 2026-04-14) (built from a source tarball)"'}>
+CONFIG_RUSTC_VERSION                            policy<{'amd64': '109701', 'arm64': '109701', 'armhf': '109701', 'ppc64el': '109701', 'riscv64': '109701', 's390x': '109701'}>
+CONFIG_RUSTC_VERSION_TEXT                       policy<{'amd64': '"rustc 1.97.1 (8bab26f4f 2026-07-14) (built from a source tarball)"', 'arm64': '"rustc 1.97.1 (8bab26f4f 2026-07-14) (built from a source tarball)"'}>
 CONFIG_RUST_BITMAP_HARDENED                     policy<{'amd64': 'n', 'arm64': 'n'}>
 CONFIG_RUST_BUILD_ASSERT_ALLOW                  policy<{'amd64': 'n', 'arm64': 'n'}>
 CONFIG_RUST_DEBUG_ASSERTIONS                    policy<{'amd64': 'n', 'arm64': 'n'}>
 CONFIG_RUST_DRM_GEM_SHMEM_HELPER                policy<{'arm64': 'y'}>
 CONFIG_RUST_DRM_GPUVM                           policy<{'arm64': 'y'}>
 CONFIG_RUST_FW_LOADER_ABSTRACTIONS              policy<{'amd64': 'y', 'arm64': 'y'}>
-CONFIG_RUST_IS_AVAILABLE                        policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y', 's390x': '-'}>
+CONFIG_RUST_IS_AVAILABLE                        policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y', 's390x': 'y'}>
 CONFIG_RUST_OVERFLOW_CHECKS                     policy<{'amd64': 'y', 'arm64': 'y'}>
 CONFIG_RUST_PHYLIB_ABSTRACTIONS                 policy<{'amd64': 'y', 'arm64': 'y'}>
 CONFIG_RUST_SERIAL_DEV_BUS_ABSTRACTIONS         policy<{'amd64': 'n', 'arm64': 'n'}>
