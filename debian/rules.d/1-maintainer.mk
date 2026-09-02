@@ -64,6 +64,7 @@ printenv:
 	@echo "do_full_build             = $(do_full_build)"
 	@echo "do_mainline_build         = $(do_mainline_build)"
 	@echo "do_dbgsym_package         = $(do_dbgsym_package)"
+	@echo "do_linux_main_modules_depends = $(do_linux_main_modules_depends)"
 	@echo "do_dtbs                   = $(do_dtbs)"
 	@echo "do_source_package         = $(do_source_package)"
 	@echo "do_source_package_content = $(do_source_package_content)"

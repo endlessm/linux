@@ -48,6 +48,17 @@ else
 endif
 
 #
+# do_linux_main_modules_depends -- include linux-main-modules-* in linux-modules Depends.
+# Set to false to skip these dependencies, e.g. for local or CI testing when
+# the companion modules packages are not available.
+#
+do_linux_main_modules_depends ?= true
+export do_linux_main_modules_depends
+ifeq ($(do_linux_main_modules_depends),false)
+  $(info II: do_linux_main_modules_depends=false -- skipping linux-main-modules-* dependencies)
+endif
+
+#
 # The debug packages are ginormous, so you probably want to skip
 # building them (as a developer).
 #

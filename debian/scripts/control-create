@@ -45,6 +45,11 @@ gen_per_flavour () {
 
 	. "${var}"
 
+	if [ "${do_linux_main_modules_depends}" = false ]; then
+		echo "II: do_linux_main_modules_depends=false -- dropping depends '${depends}' for flavour ${flavour}" >&2
+		depends=''
+	fi
+
 	if [ "$provides" != '' ]; then
 		provides+=", "
 	fi

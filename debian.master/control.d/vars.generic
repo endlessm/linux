@@ -3,4 +3,6 @@ supported="Generic"
 target="Geared toward desktop and server systems."
 bootloader="grub-pc [amd64] | grub-efi-amd64 [amd64] | grub-efi-ia32 [amd64] | grub [amd64] | lilo [amd64] | flash-kernel [armhf arm64] | grub-efi-arm64 [arm64] | grub-efi-arm [armhf] | grub-ieee1275 [ppc64el]"
 provides="kvm-api-4, redhat-cluster-modules, ivtv-modules, virtualbox-guest-modules [amd64]"
+# The depends line will be bypassed by the do_linux_main_modules_depends
+#   config if set to false, skipping all the configured modules
 depends="linux-main-modules-zfs-PKGVER-ABINUM-generic [amd64 arm64 ppc64el s390x]"
