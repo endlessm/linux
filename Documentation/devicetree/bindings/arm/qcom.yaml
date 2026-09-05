@@ -1179,6 +1179,11 @@ properties:
           - const: qcom,x1e80100
 
       - items:
+          - const: lenovo,hamoa-ideacentre-mini-01q8x10
+          - const: lenovo,ideacentre-mini-01q8x10
+          - const: qcom,x1e80100
+
+      - items:
           - enum:
               - lenovo,thinkpad-t14s-lcd
               - lenovo,thinkpad-t14s-oled
@@ -1210,7 +1215,6 @@ properties:
               - hp,elitebook-6-g1q
               - hp,elitebook-ultra-g1q
               - hp,omnibook-x14
-              - lenovo,ideacentre-mini-01q8x10
               - lenovo,yoga-slim7x
               - microsoft,romulus13
               - microsoft,romulus15
@@ -1228,6 +1232,11 @@ properties:
           - const: microsoft,denali-oled
           - const: microsoft,denali
           - const: qcom,x1e80100
+
+      - items:
+          - const: lenovo,purwa-ideacentre-mini-01q8x10
+          - const: lenovo,ideacentre-mini-01q8x10
+          - const: qcom,x1p42100
 
       - items:
           - const: microsoft,surface-pro-12in
