@@ -1,0 +1,42 @@
+// SPDX-License-Identifier: BSD-3-Clause
+/*
+ * Copyright (c) Qualcomm Technologies, Inc. and/or its subsidiaries.
+ * Copyright (c) Jens Glathe
+ */
+
+/dts-v1/;
+
+#include "purwa.dtsi"
+#include "x1-lenovo-ideacentre-mini-01q8x10.dtsi"
+
+/delete-node/ &pmc8380_6;
+/delete-node/ &pmc8380_6_thermal;
+
+/ {
+	model = "Lenovo IdeaCentre Mini 01Q8X10 (Purwa)";
+	compatible = "lenovo,purwa-ideacentre-mini-01q8x10", "lenovo,ideacentre-mini-01q8x10", "qcom,x1p42100";
+};
+
+&iris {
+	firmware-name = "qcom/x1p42100/LENOVO/91B6/qcvss8380_pa.mbn";
+
+	status = "okay";
+};
+
+&gpu_zap_shader {
+	firmware-name = "qcom/x1p42100/LENOVO/91B6/qcdxkmsucpurwa.mbn";
+};
+
+&remoteproc_adsp {
+	firmware-name = "qcom/x1p42100/LENOVO/91B6/qcadsp8380.mbn",
+			"qcom/x1p42100/LENOVO/91B6/adsp_dtbs.elf";
+
+	status = "okay";
+};
+
+&remoteproc_cdsp {
+	firmware-name = "qcom/x1p42100/LENOVO/91B6/qccdsp8380.mbn",
+			"qcom/x1p42100/LENOVO/91B6/cdsp_dtbs.elf";
+
+	status = "okay";
+};
