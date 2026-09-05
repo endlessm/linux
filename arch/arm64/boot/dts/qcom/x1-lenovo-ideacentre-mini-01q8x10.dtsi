@@ -665,6 +665,10 @@
 	};
 };
 
+&lpass_vamacro {
+	qcom,dmic-sample-rate = <2400000>;
+};
+
 &gpu {
 	status = "okay";
 };
@@ -674,6 +678,8 @@
 };
 
 &mdss_dp0 {
+	sound-name-prefix = "DisplayPort0";
+
 	status = "okay";
 };
 
@@ -682,6 +688,8 @@
 };
 
 &mdss_dp1 {
+	sound-name-prefix = "DisplayPort1";
+
 	status = "okay";
 };
 
@@ -690,6 +698,8 @@
 };
 
 &mdss_dp2 {
+	sound-name-prefix = "DisplayPort2";
+
 	status = "okay";
 };
 
