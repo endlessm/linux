@@ -4,6 +4,7 @@
  */
 
 #include <dt-bindings/gpio/gpio.h>
+#include <dt-bindings/pinctrl/qcom,pmic-gpio.h>
 #include <dt-bindings/regulator/qcom,rpmh-regulator.h>
 
 #include "hamoa-pmics.dtsi"
@@ -173,13 +174,16 @@
 		regulator-min-microvolt = <3300000>;
 		regulator-max-microvolt = <3300000>;
 
-		gpio = <&tlmm 18 GPIO_ACTIVE_HIGH>;
+		gpio = <&pmc8380_3_gpios 5 GPIO_ACTIVE_HIGH>;
 		enable-active-high;
 
-		pinctrl-0 = <&nvme_reg_en>;
+		pinctrl-0 = <&nvme2_reg_en>;
 		pinctrl-names = "default";
 
+		startup-delay-us = <2000000>;
+
 		regulator-boot-on;
+		regulator-always-on;
 	};
 
 	vreg_v0p9: regulator-v0p9 {
@@ -786,6 +790,19 @@
 &pcie6a_port0 {
 	reset-gpios = <&tlmm 152 GPIO_ACTIVE_LOW>;
 	wake-gpios = <&tlmm 154 GPIO_ACTIVE_LOW>;
+};
+
+&pmc8380_3_gpios {
+	nvme2_reg_en: nvme2-reg-en-state {
+		pins = "gpio5";
+		function = "normal";
+		power-source = <0>;
+		input-disable;
+		output-enable;
+		drive-push-pull;
+		bias-disable;
+		qcom,drive-strength = <PMIC_GPIO_STRENGTH_LOW>;
+	};
 };
 
 &pmc8380_5_gpios {
