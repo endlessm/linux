@@ -1,0 +1,30 @@
+// SPDX-License-Identifier: BSD-3-Clause
+/*
+ * Copyright (c) 2023 Qualcomm Innovation Center, Inc. All rights reserved.
+ * Copyright (c) 2024, Linaro Limited
+ * Copyright (c) 2026 Jens Glathe
+ */
+
+/dts-v1/;
+
+#include "x1p42100-lenovo-ideapad-slim5x.dtsi"
+
+/ {
+	model = "Lenovo IdeaPad Slim 5x 14Q8X9 (LCD)";
+	compatible = "lenovo,ideapad-slim5x-lcd", "lenovo,ideapad-5", "qcom,x1p42100";
+
+	backlight: backlight {
+		compatible = "pwm-backlight";
+		pwms = <&pmk8550_pwm 0 4166667>;
+
+		power-supply = <&vreg_edp_3p3>;
+	};
+};
+
+&panel {
+	backlight = <&backlight>;
+};
+
+&pmk8550_pwm {
+	status = "okay";
+};
