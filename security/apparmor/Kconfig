@@ -129,7 +129,7 @@ config SECURITY_APPARMOR_RESTRICT_USERNS
 	  by their profile.
 
 config SECURITY_APPARMOR_PACKET_MEDIATION_ENABLED
-	bool "Enable AppArmor packet mediation by defauit
+	bool "Enable AppArmor packet mediation by default"
 	depends on SECURITY_APPARMOR && NETWORK_SECMARK
 	default n
 	help
