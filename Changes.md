@@ -40,3 +40,10 @@ Ubuntu-specific features not supported anymore:
  - UBUNTU: SAUCE: arm64: dts: qcom: sc8280xp-x13s: Enable Venus
  - UBUNTU: SAUCE: media: ipu-bridge: Support imx471 sensor
  - UBUNTU: SAUCE: media: ipu-bridge: add TBE20A0 ACPI id for Sony IMX471
+ - UBUNTU: SAUCE: ceph: move mdsmap.h to fs/ceph/
+ - UBUNTU: SAUCE: Revert "rfkill: make new event layout opt-in"
+ - UBUNTU: SAUCE: ACPICA: avoid accessing operands out-of-bounds
+ - UBUNTU: SAUCE: Revert "net/tls(TLS_SW): Add selftest for 'chunked' sendfile test"
+ - UBUNTU: SAUCE: net: ena: fix too long default tx interrupt moderation interval
+ - UBUNTU: SAUCE: (lockdown) security: use default hook return value
+ - UBUNTU: SAUCE: (no-up) Input: Cypress PS/2 Trackpad simulated multitouch
