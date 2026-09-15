@@ -4,7 +4,7 @@ Build-Profiles: <!stage1>
 Architecture: ARCH
 Section: kernel
 Priority: optional
-Depends: ${misc:Depends}, ${shlibs:Depends}
+Depends: ${misc:Depends}, ${shlibs:Depends}, zstd
 Built-Using: ${linux:BuiltUsing}
 Description: Linux kernel buildinfo for version PKGVER
  This package contains the Linux kernel buildinfo for version PKGVER.

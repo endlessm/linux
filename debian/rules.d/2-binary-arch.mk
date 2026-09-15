@@ -515,11 +515,15 @@ endif
 	install -m644 debian/canonical-revoked-certs.pem $(pkgdir_bldinfo)/usr/lib/linux/$(abi_release)-$*/canonical-revoked-certs.pem
 
 ifeq ($(do_sbom),true)
-	# Ship the generated SPDX SBOM documents in the buildinfo package.
+	# Ship the generated SPDX SBOM documents in the buildinfo package,
+	# compressed with zstd. Uncompressed they are ~300MB for a single
+	# flavour (sbom-build.spdx.json alone is ~280MB), which dwarfs
+	# everything else in the package. zstd -19 gets that down to ~8MB.
 	for f in sbom-source.spdx.json sbom-build.spdx.json sbom-output.spdx.json; do \
 		if [ -f $(build_dir)/$$f ]; then \
-			install -m644 $(build_dir)/$$f \
-				$(pkgdir_bldinfo)/usr/lib/linux/$(abi_release)-$*/$$f; \
+			zstd -19 -f -q -T$(CONCURRENCY_LEVEL) $(build_dir)/$$f \
+				-o $(pkgdir_bldinfo)/usr/lib/linux/$(abi_release)-$*/$$f.zst; \
+			chmod 644 $(pkgdir_bldinfo)/usr/lib/linux/$(abi_release)-$*/$$f.zst; \
 		fi; \
 	done
 endif
