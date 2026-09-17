@@ -10,6 +10,8 @@
 #include <asm/amd/hsmp.h>
 
 #include <linux/acpi.h>
+#include <linux/array_size.h>
+#include <linux/build_bug.h>
 #include <linux/cleanup.h>
 #include <linux/delay.h>
 #include <linux/device.h>
@@ -45,7 +47,196 @@
  */
 #define CHECK_GET_BIT		BIT(31)
 
+/* Indexed by enum hsmp_client_message_ids; see there for per-message details */
+static const struct hsmp_msg_desc hsmp_client_msg_desc_table[] = {
+	/* RESERVED */
+	{0, 0, HSMP_RSVD},
+
+	/* HSMP_CLIENT_TEST */
+	{1, 1, HSMP_GET},
+
+	/* HSMP_CLIENT_GET_SMU_VER */
+	{0, 1, HSMP_GET},
+
+	/* HSMP_CLIENT_GET_INTERFACE_VER */
+	{0, 1, HSMP_GET},
+
+	/* HSMP_CLIENT_GET_METRICS_TABLE_VER */
+	{0, 1, HSMP_GET},
+
+	/* HSMP_CLIENT_GET_METRICS_TABLE */
+	{0, 0, HSMP_GET},
+
+	/* HSMP_CLIENT_GET_METRICS_TABLE_DRAM_ADDR */
+	{0, 3, HSMP_GET},
+
+	/* HSMP_CLIENT_SET_CORE_PSM_MARGIN */
+	{1, 0, HSMP_SET},
+
+	/* HSMP_CLIENT_SET_ALL_CORE_PSM_MARGIN */
+	{1, 0, HSMP_SET},
+
+	/* HSMP_CLIENT_SET_FAST_PPT_LIMIT */
+	{1, 0, HSMP_SET},
+
+	/* HSMP_CLIENT_SET_VRM_VDD_CURRENT_LIMIT */
+	{1, 0, HSMP_SET},
+
+	/* HSMP_CLIENT_SET_VRM_VDD_MAX_CURRENT_LIMIT */
+	{1, 0, HSMP_SET},
+
+	/* HSMP_CLIENT_SET_TJ_MAX */
+	{1, 0, HSMP_SET},
+
+	/* HSMP_CLIENT_SET_FIT_LIMIT_SCALAR */
+	{1, 0, HSMP_SET},
+
+	/* HSMP_CLIENT_ENABLE_OVERCLOCKING */
+	{0, 0, HSMP_SET},
+
+	/* HSMP_CLIENT_DISABLE_OVERCLOCKING */
+	{0, 0, HSMP_SET},
+
+	/* HSMP_CLIENT_SET_OVERCLOCK_FREQ_ALL_CORES */
+	{1, 0, HSMP_SET},
+
+	/* HSMP_CLIENT_SET_OVERCLOCK_FREQ_PER_CORE */
+	{1, 0, HSMP_SET},
+
+	/* HSMP_CLIENT_SET_OVERCLOCK_VID */
+	{1, 0, HSMP_SET},
+
+	/* HSMP_CLIENT_SET_FCLK_OVERCLOCK_ON_THE_FLY */
+	{1, 0, HSMP_SET},
+
+	/* HSMP_CLIENT_GET_CORE_PERF_ORDER */
+	{1, 1, HSMP_GET},
+
+	/* HSMP_CLIENT_SET_SUSTAINED_POWER_LIMIT */
+	{1, 0, HSMP_SET},
+
+	/* HSMP_CLIENT_SET_SLOW_PPT_LIMIT */
+	{1, 0, HSMP_SET},
+
+	/* HSMP_CLIENT_SET_VRM_GFX_MAX_CURRENT_LIMIT */
+	{1, 0, HSMP_SET},
+
+	/* HSMP_CLIENT_SET_VRM_SOC_CURRENT_LIMIT */
+	{1, 0, HSMP_SET},
+
+	/* HSMP_CLIENT_SET_FAST_SPM_LIMIT */
+	{1, 0, HSMP_SET},
+
+	/* HSMP_CLIENT_SET_SLOW_SPM_LIMIT */
+	{1, 0, HSMP_SET},
+
+	/* HSMP_CLIENT_GET_CORE_PSM_MARGIN */
+	{1, 1, HSMP_GET},
+
+	/* HSMP_CLIENT_GET_GFX_PSM_MARGIN */
+	{0, 1, HSMP_GET},
+
+	/* HSMP_CLIENT_SPARE_0X1D */
+	{0, 0, HSMP_RSVD},
+
+	/* HSMP_CLIENT_SPARE_0X1E */
+	{0, 0, HSMP_RSVD},
+
+	/* HSMP_CLIENT_SPARE_0X1F */
+	{0, 0, HSMP_RSVD},
+
+	/* HSMP_CLIENT_SPARE_0X20 */
+	{0, 0, HSMP_RSVD},
+
+	/* HSMP_CLIENT_SET_GFXCLK_OVERDRIVE_BY_FREQ_VID */
+	{1, 0, HSMP_SET},
+
+	/* HSMP_CLIENT_DISABLE_GFXCLK_OVERDRIVE */
+	{0, 0, HSMP_SET},
+
+	/* HSMP_CLIENT_SET_GFX_PSM_MARGIN */
+	{1, 0, HSMP_SET},
+
+	/* HSMP_CLIENT_SET_CCLK_FMAX_OFFSET */
+	{1, 0, HSMP_SET},
+
+	/* HSMP_CLIENT_SET_CORE_POWER_LIMIT_OFFSET */
+	{1, 0, HSMP_SET},
+
+	/* HSMP_CLIENT_ADD_EXTRA_PSM_GUARDBAND */
+	{1, 0, HSMP_SET},
+
+	/* HSMP_CLIENT_ADD_EXTRA_PSM_GUARDBAND_GFX */
+	{1, 0, HSMP_SET},
+
+	/* HSMP_CLIENT_SET_GFXCLK_FMAX */
+	{1, 0, HSMP_SET},
+};
+
+/* Catch a table left out of sync with its enum at build time */
+static_assert(ARRAY_SIZE(hsmp_msg_desc_table) == HSMP_MSG_ID_MAX);
+static_assert(ARRAY_SIZE(hsmp_client_msg_desc_table) == HSMP_CLIENT_MSG_ID_MAX);
+
+/* Per-platform message set: which table to use, and driver-issued msg IDs */
+struct hsmp_plat_desc {
+	const struct hsmp_msg_desc	*msg_desc;
+	u32				num_msgs;
+	u32				test_msg;
+	u32				proto_ver_msg;
+};
+
+static const struct hsmp_plat_desc hsmp_desc_server = {
+	.msg_desc		= hsmp_msg_desc_table,
+	.num_msgs		= HSMP_MSG_ID_MAX,
+	.test_msg		= HSMP_TEST,
+	.proto_ver_msg		= HSMP_GET_PROTO_VER,
+};
+
+/* The client drives a different mailbox with the Ryzen Master SMC message set */
+static const struct hsmp_plat_desc hsmp_desc_client = {
+	.msg_desc		= hsmp_client_msg_desc_table,
+	.num_msgs		= HSMP_CLIENT_MSG_ID_MAX,
+	.test_msg		= HSMP_CLIENT_TEST,
+	.proto_ver_msg		= HSMP_CLIENT_GET_INTERFACE_VER,
+};
+
 static struct hsmp_plat_device hsmp_pdev;
+
+/*
+ * Resolved on first use and cached, since is_client_platform() always
+ * settles on the same descriptor once booted. Concurrent first callers are
+ * benign: every one of them computes and stores that same pointer, so
+ * READ_ONCE()/WRITE_ONCE() only need to keep the access from being torn or
+ * reordered by the compiler, not order it against anything else.
+ */
+static const struct hsmp_plat_desc *hsmp_desc_cache;
+
+static inline const struct hsmp_plat_desc *hsmp_desc(void)
+{
+	const struct hsmp_plat_desc *desc = READ_ONCE(hsmp_desc_cache);
+
+	if (likely(desc))
+		return desc;
+
+	desc = is_client_platform() ? &hsmp_desc_client : &hsmp_desc_server;
+	WRITE_ONCE(hsmp_desc_cache, desc);
+
+	return desc;
+}
+
+/* Returns NULL if msg_id is out of range or reserved for this platform */
+static inline const struct hsmp_msg_desc *get_msg_desc(u32 msg_id)
+{
+	const struct hsmp_plat_desc *desc = hsmp_desc();
+
+	if (msg_id >= desc->num_msgs)
+		return NULL;
+
+	if (desc->msg_desc[msg_id].type == HSMP_RSVD)
+		return NULL;
+
+	return &desc->msg_desc[msg_id];
+}
 
 /*
  * Gates the AMD HSMP data plane against socket bring-up and teardown.
@@ -184,30 +375,29 @@ static int __hsmp_send_message(struct hsmp_socket *sock, struct hsmp_message *ms
 
 static int validate_message(struct hsmp_message *msg)
 {
-	/* msg_id against valid range of message IDs */
-	if (msg->msg_id < HSMP_TEST || msg->msg_id >= HSMP_MSG_ID_MAX)
-		return -ENOMSG;
+	const struct hsmp_msg_desc *desc;
 
-	/* msg_id is a reserved message ID */
-	if (hsmp_msg_desc_table[msg->msg_id].type == HSMP_RSVD)
+	/* Unknown or reserved message ID for this platform */
+	desc = get_msg_desc(msg->msg_id);
+	if (!desc)
 		return -ENOMSG;
 
 	/*
 	 * num_args passed by user should match the num_args specified in
 	 * message description table.
 	 */
-	if (msg->num_args != hsmp_msg_desc_table[msg->msg_id].num_args)
+	if (msg->num_args != desc->num_args)
 		return -EINVAL;
 
 	/*
 	 * As the HSMP protocol evolves, newer platforms may define more
 	 * response arguments for existing messages.  Use an upper-bound
 	 * check so that older userspace callers requesting fewer response
-	 * words than what the current hsmp_msg_desc_table[] defines are
-	 * still accepted, while rejecting requests that exceed the
-	 * hardware capability.
+	 * words than what the current descriptor table defines are still
+	 * accepted, while rejecting requests that exceed the hardware
+	 * capability.
 	 */
-	if (msg->response_sz > hsmp_msg_desc_table[msg->msg_id].response_sz)
+	if (msg->response_sz > desc->response_sz)
 		return -EINVAL;
 
 	return 0;
@@ -316,7 +506,7 @@ int hsmp_test(u16 sock_ind, u32 value)
 	 * Test the hsmp port by performing TEST command. The test message
 	 * takes one argument and returns the value of that argument + 1.
 	 */
-	msg.msg_id	= HSMP_TEST;
+	msg.msg_id	= hsmp_desc()->test_msg;
 	msg.num_args	= 1;
 	msg.response_sz	= 1;
 	msg.args[0]	= value;
@@ -338,12 +528,12 @@ int hsmp_test(u16 sock_ind, u32 value)
 }
 EXPORT_SYMBOL_NS_GPL(hsmp_test, "AMD_HSMP");
 
-static bool is_get_msg(struct hsmp_message *msg)
+static bool is_get_msg(const struct hsmp_msg_desc *desc, struct hsmp_message *msg)
 {
-	if (hsmp_msg_desc_table[msg->msg_id].type == HSMP_GET)
+	if (desc->type == HSMP_GET)
 		return true;
 
-	if (hsmp_msg_desc_table[msg->msg_id].type == HSMP_SET_GET &&
+	if (desc->type == HSMP_SET_GET &&
 	    (msg->args[0] & CHECK_GET_BIT))
 		return true;
 
@@ -354,6 +544,8 @@ static long hsmp_ioctl_msg(struct file *fp, unsigned long arg)
 {
 	int __user *arguser = (int  __user *)arg;
 	struct hsmp_message msg = { 0 };
+	const struct hsmp_plat_desc *plat_desc = hsmp_desc();
+	const struct hsmp_msg_desc *desc;
 	int ret;
 
 	if (copy_struct_from_user(&msg, sizeof(msg), arguser, sizeof(struct hsmp_message)))
@@ -361,23 +553,25 @@ static long hsmp_ioctl_msg(struct file *fp, unsigned long arg)
 
 	/*
 	 * Check msg_id is within the range of supported msg ids
-	 * i.e within the array bounds of hsmp_msg_desc_table
+	 * i.e within the array bounds of the platform's descriptor table
 	 */
-	if (msg.msg_id < HSMP_TEST || msg.msg_id >= HSMP_MSG_ID_MAX)
+	if (msg.msg_id < plat_desc->test_msg || msg.msg_id >= plat_desc->num_msgs)
 		return -ENOMSG;
 
 	/*
 	 * Sanitize the user-controlled msg_id against speculative
 	 * execution.  The bounds check above retires the out-of-range
 	 * case with -ENOMSG, but a mispredicted branch can still let the
-	 * CPU speculatively use msg_id as an index into
-	 * hsmp_msg_desc_table[] (here and in validate_message() /
-	 * is_get_msg() called downstream via hsmp_send_message()), and
-	 * pull arbitrary kernel memory into the cache (Spectre v1,
-	 * CVE-2017-5753).  Clamp once into msg.msg_id so every downstream
-	 * dereference sees the sanitized value.
+	 * CPU speculatively use msg_id as an index into the message
+	 * descriptor table, here and again in validate_message() called
+	 * downstream via hsmp_send_message().
 	 */
-	msg.msg_id = array_index_nospec(msg.msg_id, HSMP_MSG_ID_MAX);
+	msg.msg_id = array_index_nospec(msg.msg_id, plat_desc->num_msgs);
+
+	/* Rejects the reserved IDs the table describes as such */
+	desc = get_msg_desc(msg.msg_id);
+	if (!desc)
+		return -ENOMSG;
 
 	switch (fp->f_mode & (FMODE_WRITE | FMODE_READ)) {
 	case FMODE_WRITE:
@@ -385,7 +579,7 @@ static long hsmp_ioctl_msg(struct file *fp, unsigned long arg)
 		 * Device is opened in O_WRONLY mode
 		 * Execute only set/configure commands
 		 */
-		if (is_get_msg(&msg))
+		if (is_get_msg(desc, &msg))
 			return -EPERM;
 		break;
 	case FMODE_READ:
@@ -393,7 +587,7 @@ static long hsmp_ioctl_msg(struct file *fp, unsigned long arg)
 		 * Device is opened in O_RDONLY mode
 		 * Execute only get/monitor commands
 		 */
-		if (!is_get_msg(&msg))
+		if (!is_get_msg(desc, &msg))
 			return -EPERM;
 		break;
 	case FMODE_READ | FMODE_WRITE:
@@ -410,7 +604,7 @@ static long hsmp_ioctl_msg(struct file *fp, unsigned long arg)
 	if (ret)
 		return ret;
 
-	if (hsmp_msg_desc_table[msg.msg_id].response_sz > 0) {
+	if (desc->response_sz > 0) {
 		/* Copy results back to user for get/monitor commands */
 		if (copy_to_user(arguser, &msg, sizeof(struct hsmp_message)))
 			return -EFAULT;
@@ -685,11 +879,16 @@ EXPORT_SYMBOL_NS_GPL(hsmp_get_tbl_dram_base, "AMD_HSMP");
 int hsmp_cache_proto_ver(u16 sock_ind)
 {
 	struct hsmp_message msg = { 0 };
+	const struct hsmp_msg_desc *desc;
 	int ret;
 
-	msg.msg_id	= HSMP_GET_PROTO_VER;
+	msg.msg_id	= hsmp_desc()->proto_ver_msg;
+	desc = get_msg_desc(msg.msg_id);
+	if (WARN_ON(!desc))
+		return -ENOMSG;
+
 	msg.sock_ind	= sock_ind;
-	msg.response_sz = hsmp_msg_desc_table[HSMP_GET_PROTO_VER].response_sz;
+	msg.response_sz	= desc->response_sz;
 
 	ret = hsmp_send_message_locked(&msg);
 	if (!ret)
