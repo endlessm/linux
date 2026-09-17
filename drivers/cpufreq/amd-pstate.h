@@ -146,6 +146,8 @@ struct amd_cpudata {
 	enum platform_profile_option current_profile;
 	struct device *ppdev;
 	char *profile_name;
+
+	enum x86_topology_cpu_type cpu_type;
 };
 
 /*
