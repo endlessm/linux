@@ -95,6 +95,15 @@ enum hsmp_proto_versions {
 	HSMP_PROTO_VER7
 };
 
+/*
+ * The Ryzen Master SMC interface versions its own way, reported by
+ * HSMP_CLIENT_GET_INTERFACE_VER. It is a separate numbering space from
+ * enum hsmp_proto_versions above, which only applies to the server set.
+ */
+enum ryzen_master_proto_versions {
+	RYZEN_MASTER_PROTO_VER1 = 1,
+};
+
 struct hsmp_msg_desc {
 	int num_args;
 	int response_sz;
