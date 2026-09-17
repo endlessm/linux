@@ -2373,8 +2373,12 @@ static void __init amd_pstate_init_epp_values(void)
 	const struct x86_cpu_id *id = x86_match_cpu(amd_pstate_epp_soc_ids);
 	const struct amd_pstate_epp_soc *soc;
 
-	if (!id || !id->driver_data)
+	if (!id || !id->driver_data) {
+		if (cpu_feature_enabled(X86_FEATURE_ZEN6) &&
+		    cpu_feature_enabled(X86_FEATURE_AMD_HTR_CORES))
+			pr_warn_once("No EPP tunings found for platform\n");
 		return;
+	}
 
 	soc = (const struct amd_pstate_epp_soc *)id->driver_data;
 
