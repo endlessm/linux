@@ -206,7 +206,33 @@ struct amd_pstate_epp_soc {
  * Per-CPU-type EPP overrides for hybrid systems. Only hybrid SoCs should be
  * listed here; non-hybrid systems always use the legacy defaults.
  */
+static const struct amd_pstate_epp_soc epp_soc_zen6_client __initconst = {
+	.performance_core = {
+		.performance		= 25,
+		.balance_performance	= 51,
+		.balance_power		= 64,
+		.power			= 64,
+	},
+	.efficiency_core = {
+		.performance		= 25,
+		.balance_performance	= 51,
+		.balance_power		= 64,
+		.power			= 115,
+	},
+	.low_power_core = {
+		.performance		= 25,
+		.balance_performance	= 51,
+		.balance_power		= 64,
+		.power			= 115,
+	},
+};
+
 static const struct x86_cpu_id amd_pstate_epp_soc_ids[] __initconst = {
+	X86_MATCH_VENDOR_FAM_MODEL(AMD, 0x1A, 0x80, &epp_soc_zen6_client),
+	X86_MATCH_VENDOR_FAM_MODEL(AMD, 0x1A, 0x81, &epp_soc_zen6_client),
+	X86_MATCH_VENDOR_FAM_MODEL(AMD, 0x1A, 0x84, &epp_soc_zen6_client),
+	X86_MATCH_VENDOR_FAM_MODEL(AMD, 0x1A, 0x85, &epp_soc_zen6_client),
+	X86_MATCH_VENDOR_FAM_MODEL(AMD, 0x1A, 0xe0, &epp_soc_zen6_client),
 	{}
 };
 
