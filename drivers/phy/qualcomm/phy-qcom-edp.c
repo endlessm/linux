@@ -48,13 +48,10 @@
 /* LANE_TXn registers */
 #define TXn_CLKBUF_ENABLE                       0x0000
 #define TXn_TX_EMP_POST1_LVL                    0x0004
-
 #define TXn_TX_DRV_LVL                          0x0014
 #define TXn_TX_DRV_LVL_OFFSET                   0x0018
 #define TXn_RESET_TSYNC_EN                      0x001c
-#define TXn_LDO_CONFIG                          0x0084
 #define TXn_TX_BAND                             0x0028
-
 #define TXn_RES_CODE_LANE_OFFSET_TX0            0x0044
 #define TXn_RES_CODE_LANE_OFFSET_TX1            0x0048
 
@@ -64,6 +61,7 @@
 #define TXn_LANE_MODE_1                         0x0064
 
 #define TXn_TRAN_DRVR_EMP_EN                    0x0078
+#define TXn_LDO_CONFIG                          0x0084
 
 struct qcom_edp_swing_pre_emph_cfg {
 	const u8 (*swing_hbr_rbr)[4][4];
@@ -82,6 +80,12 @@ struct phy_ver_ops {
 	int (*com_configure_pll)(const struct qcom_edp *edp);
 	int (*com_configure_ssc)(const struct qcom_edp *edp);
 	int (*com_ldo_config)(const struct qcom_edp *edp);
+	int (*prepare_power_on)(const struct qcom_edp *edp);
+	int (*configure_tx_pre_pll)(const struct qcom_edp *edp);
+	int (*configure_rate_pcs)(const struct qcom_edp *edp,
+				  unsigned long *pixel_freq);
+	void (*configure_lanes_after_pll)(const struct qcom_edp *edp);
+	int (*finish_power_on)(const struct qcom_edp *edp);
 };
 
 struct qcom_edp_phy_cfg {
@@ -116,6 +120,13 @@ struct qcom_edp {
 
 	bool is_edp;
 };
+
+static int qcom_edp_prepare_power_on_v46(const struct qcom_edp *edp);
+static int qcom_edp_configure_tx_pre_pll_v46(const struct qcom_edp *edp);
+static int qcom_edp_configure_rate_pcs_v46(const struct qcom_edp *edp,
+					   unsigned long *pixel_freq);
+static void qcom_edp_configure_lanes_after_pll_v46(const struct qcom_edp *edp);
+static int qcom_edp_finish_power_on_v46(const struct qcom_edp *edp);
 
 static const u8 dp_swing_hbr_rbr[4][4] = {
 	{ 0x07, 0x0f, 0x16, 0x1f },
@@ -653,6 +664,11 @@ static const struct phy_ver_ops qcom_edp_phy_ops_v3 = {
 	.com_configure_pll	= qcom_edp_com_configure_pll_v4,
 	.com_configure_ssc	= qcom_edp_com_configure_ssc_v4,
 	.com_ldo_config		= qcom_edp_ldo_config_v3,
+	.prepare_power_on	= qcom_edp_prepare_power_on_v46,
+	.configure_tx_pre_pll	= qcom_edp_configure_tx_pre_pll_v46,
+	.configure_rate_pcs	= qcom_edp_configure_rate_pcs_v46,
+	.configure_lanes_after_pll = qcom_edp_configure_lanes_after_pll_v46,
+	.finish_power_on	= qcom_edp_finish_power_on_v46,
 };
 
 static const struct phy_ver_ops qcom_edp_phy_ops_v4 = {
@@ -663,6 +679,11 @@ static const struct phy_ver_ops qcom_edp_phy_ops_v4 = {
 	.com_configure_pll	= qcom_edp_com_configure_pll_v4,
 	.com_configure_ssc	= qcom_edp_com_configure_ssc_v4,
 	.com_ldo_config		= qcom_edp_ldo_config_v4,
+	.prepare_power_on	= qcom_edp_prepare_power_on_v46,
+	.configure_tx_pre_pll	= qcom_edp_configure_tx_pre_pll_v46,
+	.configure_rate_pcs	= qcom_edp_configure_rate_pcs_v46,
+	.configure_lanes_after_pll = qcom_edp_configure_lanes_after_pll_v46,
+	.finish_power_on	= qcom_edp_finish_power_on_v46,
 };
 
 static const struct qcom_edp_phy_cfg sa8775p_dp_phy_cfg = {
@@ -898,6 +919,11 @@ static const struct phy_ver_ops qcom_edp_phy_ops_v6 = {
 	.com_configure_pll	= qcom_edp_com_configure_pll_v6,
 	.com_configure_ssc	= qcom_edp_com_configure_ssc_v6,
 	.com_ldo_config		= qcom_edp_ldo_config_v6,
+	.prepare_power_on	= qcom_edp_prepare_power_on_v46,
+	.configure_tx_pre_pll	= qcom_edp_configure_tx_pre_pll_v46,
+	.configure_rate_pcs	= qcom_edp_configure_rate_pcs_v46,
+	.configure_lanes_after_pll = qcom_edp_configure_lanes_after_pll_v46,
+	.finish_power_on	= qcom_edp_finish_power_on_v46,
 };
 
 static struct qcom_edp_phy_cfg x1e80100_phy_cfg = {
@@ -1079,6 +1105,11 @@ static const struct phy_ver_ops qcom_edp_phy_ops_v8 = {
 	.com_configure_pll	= qcom_edp_com_configure_pll_v8,
 	.com_configure_ssc	= qcom_edp_com_configure_ssc_v8,
 	.com_ldo_config		= qcom_edp_ldo_config_v6,
+	.prepare_power_on	= qcom_edp_prepare_power_on_v46,
+	.configure_tx_pre_pll	= qcom_edp_configure_tx_pre_pll_v46,
+	.configure_rate_pcs	= qcom_edp_configure_rate_pcs_v46,
+	.configure_lanes_after_pll = qcom_edp_configure_lanes_after_pll_v46,
+	.finish_power_on	= qcom_edp_finish_power_on_v46,
 };
 
 static struct qcom_edp_phy_cfg glymur_phy_cfg = {
@@ -1089,81 +1120,49 @@ static struct qcom_edp_phy_cfg glymur_phy_cfg = {
 	.ver_ops = &qcom_edp_phy_ops_v8,
 };
 
-static int qcom_edp_phy_power_on(struct phy *phy)
+static int qcom_edp_prepare_power_on_v46(const struct qcom_edp *edp)
 {
-	const struct qcom_edp *edp = phy_get_drvdata(phy);
-	u32 bias0_en, drvr0_en, bias1_en, drvr1_en;
-	unsigned long pixel_freq;
-	int ret;
-	u32 val;
-	u8 cfg1;
+	return 0;
+}
 
-	ret = edp->cfg->ver_ops->com_power_on(edp);
-	if (ret)
-		return ret;
-
-	ret = edp->cfg->ver_ops->com_ldo_config(edp);
-	if (ret)
-		return ret;
-
-	writel(0x00, edp->tx0 + TXn_LANE_MODE_1);
-	writel(0x00, edp->tx1 + TXn_LANE_MODE_1);
-
-	if (edp->dp_opts.ssc) {
-		ret = qcom_edp_configure_ssc(edp);
-		if (ret)
-			return ret;
-	}
-
-	ret = qcom_edp_configure_pll(edp);
-	if (ret)
-		return ret;
-
-	/* TX Lane configuration */
+static int qcom_edp_configure_tx_pre_pll_v46(const struct qcom_edp *edp)
+{
 	writel(0x05, edp->edp + DP_PHY_TX0_TX1_LANE_CTL);
 	writel(0x05, edp->edp + DP_PHY_TX2_TX3_LANE_CTL);
 
-	/* TX-0 register configuration */
 	writel(0x03, edp->tx0 + TXn_TRANSCEIVER_BIAS_EN);
 	writel(0x0f, edp->tx0 + TXn_CLKBUF_ENABLE);
 	writel(0x03, edp->tx0 + TXn_RESET_TSYNC_EN);
 	writel(0x01, edp->tx0 + TXn_TRAN_DRVR_EMP_EN);
 	writel(0x04, edp->tx0 + TXn_TX_BAND);
 
-	/* TX-1 register configuration */
 	writel(0x03, edp->tx1 + TXn_TRANSCEIVER_BIAS_EN);
 	writel(0x0f, edp->tx1 + TXn_CLKBUF_ENABLE);
 	writel(0x03, edp->tx1 + TXn_RESET_TSYNC_EN);
 	writel(0x01, edp->tx1 + TXn_TRAN_DRVR_EMP_EN);
 	writel(0x04, edp->tx1 + TXn_TX_BAND);
 
-	ret = qcom_edp_set_vco_div(edp, &pixel_freq);
-	if (ret)
-		return ret;
+	return 0;
+}
 
-	writel(0x01, edp->edp + DP_PHY_CFG);
-	writel(0x05, edp->edp + DP_PHY_CFG);
-	writel(0x01, edp->edp + DP_PHY_CFG);
-	writel(0x09, edp->edp + DP_PHY_CFG);
+static void qcom_edp_configure_lanes_after_pll_v46(const struct qcom_edp *edp)
+{
+	u32 bias0_en, drvr0_en, bias1_en, drvr1_en;
+	u8 cfg1;
 
-	ret = edp->cfg->ver_ops->com_resetsm_cntrl(edp);
-	if (ret)
-		return ret;
-
-	writel(0x19, edp->edp + DP_PHY_CFG);
 	writel(0x1f, edp->tx0 + TXn_HIGHZ_DRVR_EN);
 	writel(0x04, edp->tx0 + TXn_HIGHZ_DRVR_EN);
 	writel(0x00, edp->tx0 + TXn_TX_POL_INV);
 	writel(0x1f, edp->tx1 + TXn_HIGHZ_DRVR_EN);
 	writel(0x04, edp->tx1 + TXn_HIGHZ_DRVR_EN);
 	writel(0x00, edp->tx1 + TXn_TX_POL_INV);
+
 	writel(0x10, edp->tx0 + TXn_TX_DRV_LVL_OFFSET);
 	writel(0x10, edp->tx1 + TXn_TX_DRV_LVL_OFFSET);
 	writel(0x11, edp->tx0 + TXn_RES_CODE_LANE_OFFSET_TX0);
 	writel(0x11, edp->tx0 + TXn_RES_CODE_LANE_OFFSET_TX1);
 	writel(0x11, edp->tx1 + TXn_RES_CODE_LANE_OFFSET_TX0);
 	writel(0x11, edp->tx1 + TXn_RES_CODE_LANE_OFFSET_TX1);
-
 	writel(0x10, edp->tx0 + TXn_TX_EMP_POST1_LVL);
 	writel(0x10, edp->tx1 + TXn_TX_EMP_POST1_LVL);
 	writel(0x1f, edp->tx0 + TXn_TX_DRV_LVL);
@@ -1194,14 +1193,90 @@ static int qcom_edp_phy_power_on(struct phy *phy)
 	writel(drvr1_en, edp->tx1 + TXn_HIGHZ_DRVR_EN);
 	writel(bias1_en, edp->tx1 + TXn_TRANSCEIVER_BIAS_EN);
 	writel(cfg1, edp->edp + DP_PHY_CFG_1);
+}
 
-	writel(0x18, edp->edp + DP_PHY_CFG);
-	usleep_range(100, 1000);
+static int qcom_edp_configure_rate_pcs_v46(const struct qcom_edp *edp,
+					   unsigned long *pixel_freq)
+{
+	return qcom_edp_set_vco_div(edp, pixel_freq);
+}
+
+static int qcom_edp_start_pll(const struct qcom_edp *edp)
+{
+	int ret;
+
+	writel(0x01, edp->edp + DP_PHY_CFG);
+	writel(0x05, edp->edp + DP_PHY_CFG);
+	writel(0x01, edp->edp + DP_PHY_CFG);
+	writel(0x09, edp->edp + DP_PHY_CFG);
+
+	ret = edp->cfg->ver_ops->com_resetsm_cntrl(edp);
+	if (ret)
+		return ret;
 
 	writel(0x19, edp->edp + DP_PHY_CFG);
 
-	ret = readl_poll_timeout(edp->edp + DP_PHY_STATUS,
-				 val, val & BIT(1), 500, 10000);
+	return 0;
+}
+
+static int qcom_edp_finish_power_on_v46(const struct qcom_edp *edp)
+{
+	u32 val;
+
+	writel(0x18, edp->edp + DP_PHY_CFG);
+	usleep_range(100, 1000);
+	writel(0x19, edp->edp + DP_PHY_CFG);
+
+	return readl_poll_timeout(edp->edp + DP_PHY_STATUS, val, val & BIT(1),
+				  500, 10000);
+}
+
+static int qcom_edp_phy_power_on(struct phy *phy)
+{
+	const struct qcom_edp *edp = phy_get_drvdata(phy);
+	unsigned long pixel_freq;
+	int ret;
+
+	ret = edp->cfg->ver_ops->com_power_on(edp);
+	if (ret)
+		return ret;
+
+	ret = edp->cfg->ver_ops->prepare_power_on(edp);
+	if (ret)
+		return ret;
+
+	ret = edp->cfg->ver_ops->com_ldo_config(edp);
+	if (ret)
+		return ret;
+
+	writel(0x00, edp->tx0 + TXn_LANE_MODE_1);
+	writel(0x00, edp->tx1 + TXn_LANE_MODE_1);
+
+	if (edp->dp_opts.ssc) {
+		ret = qcom_edp_configure_ssc(edp);
+		if (ret)
+			return ret;
+	}
+
+	ret = qcom_edp_configure_pll(edp);
+	if (ret)
+		return ret;
+
+	ret = edp->cfg->ver_ops->configure_tx_pre_pll(edp);
+	if (ret)
+		return ret;
+
+	ret = edp->cfg->ver_ops->configure_rate_pcs(edp, &pixel_freq);
+	if (ret)
+		return ret;
+
+	ret = qcom_edp_start_pll(edp);
+	if (ret)
+		return ret;
+
+	edp->cfg->ver_ops->configure_lanes_after_pll(edp);
+
+	ret = edp->cfg->ver_ops->finish_power_on(edp);
 	if (ret)
 		return ret;
 
