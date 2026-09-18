@@ -40,28 +40,50 @@
 #define DP_PHY_AUX_INTERRUPT_MASK		0x0058
 
 #define DP_PHY_VCO_DIV                          0x0074
+#define DP_PHY_TSYNC_OVRD                       0x0078
 #define DP_PHY_TX0_TX1_LANE_CTL                 0x007c
 #define DP_PHY_TX2_TX3_LANE_CTL                 0x00a0
+#define DP_PHY_AUXLESS_CFG1                     0x00cc
+#define DP_PHY_LFPS_PERIOD                      0x00d4
+#define DP_PHY_LFPS_CYC                         0x00d8
+#define DP_PHY_AUXLESS_SETUP_CYC                0x00dc
+#define DP_PHY_AUXLESS_SILENCE_CYC              0x00e0
+#define DP_PHY_LDO_CFG                          0x00f0
 
 #define DP_PHY_STATUS                           0x00e0
+#define DP_PHY_STATUS_V8                        0x0110
 
 /* LANE_TXn registers */
 #define TXn_CLKBUF_ENABLE                       0x0000
 #define TXn_TX_EMP_POST1_LVL                    0x0004
+#define TXn_TX_IDLE_LVL_LARGE_AMP               0x0010
 #define TXn_TX_DRV_LVL                          0x0014
 #define TXn_TX_DRV_LVL_OFFSET                   0x0018
 #define TXn_RESET_TSYNC_EN                      0x001c
+#define TXn_PRE_EMPH                            0x0020
+#define TXn_INTERFACE_SELECT                    0x0024
 #define TXn_TX_BAND                             0x0028
+#define TXn_SLEW_CNTL                           0x002c
+#define TXn_LPB_CFG1                            0x0034
+#define TXn_RES_CODE_LANE_TX                    0x003c
+#define TXn_RES_CODE_LANE_TX1                   0x0040
 #define TXn_RES_CODE_LANE_OFFSET_TX0            0x0044
 #define TXn_RES_CODE_LANE_OFFSET_TX1            0x0048
+#define TXn_SERDES_BYP_EN_OUT                   0x004c
 
 #define TXn_TRANSCEIVER_BIAS_EN                 0x0054
 #define TXn_HIGHZ_DRVR_EN                       0x0058
 #define TXn_TX_POL_INV                          0x005c
+#define TXn_PARRATE_REC_DETECT_IDLE_EN          0x0060
 #define TXn_LANE_MODE_1                         0x0064
+#define TXn_LANE_MODE_2                         0x0068
 
 #define TXn_TRAN_DRVR_EMP_EN                    0x0078
+#define TXn_VMODE_CTRL1                         0x007c
 #define TXn_LDO_CONFIG                          0x0084
+#define TXn_DCC0_CTRL                           0x00c8
+#define TXn_DCC1_CTRL                           0x00d0
+#define TXn_DCC_DONE                            0x00e0
 
 struct qcom_edp_swing_pre_emph_cfg {
 	const u8 (*swing_hbr_rbr)[4][4];
@@ -122,11 +144,18 @@ struct qcom_edp {
 };
 
 static int qcom_edp_prepare_power_on_v46(const struct qcom_edp *edp);
+static int qcom_edp_prepare_power_on_v8(const struct qcom_edp *edp);
 static int qcom_edp_configure_tx_pre_pll_v46(const struct qcom_edp *edp);
+static int qcom_edp_configure_tx_pre_pll_v8(const struct qcom_edp *edp);
 static int qcom_edp_configure_rate_pcs_v46(const struct qcom_edp *edp,
 					   unsigned long *pixel_freq);
+static int qcom_edp_configure_rate_pcs_v8(const struct qcom_edp *edp,
+					  unsigned long *pixel_freq);
 static void qcom_edp_configure_lanes_after_pll_v46(const struct qcom_edp *edp);
+static void qcom_edp_configure_lanes_after_pll_v8(const struct qcom_edp *edp);
 static int qcom_edp_finish_power_on_v46(const struct qcom_edp *edp);
+static int qcom_edp_finish_power_on_v8(const struct qcom_edp *edp);
+
 
 static const u8 dp_swing_hbr_rbr[4][4] = {
 	{ 0x07, 0x0f, 0x16, 0x1f },
@@ -239,6 +268,41 @@ static const struct qcom_edp_swing_pre_emph_cfg edp_phy_swing_pre_emph_cfg = {
 	.pre_emphasis_hbr3_hbr2 = &edp_pre_emp_hbr2_hbr3,
 };
 
+static const u8 edp_swing_hbr_rbr_v8[4][4] = {
+	{ 0x07, 0x0f, 0x16, 0x1f },
+	{ 0x0d, 0x16, 0x1e, 0xff },
+	{ 0x11, 0x1b, 0xff, 0xff },
+	{ 0x16, 0xff, 0xff, 0xff }
+};
+
+static const u8 edp_pre_emp_hbr_rbr_v8[4][4] = {
+	{ 0x05, 0x11, 0x17, 0x1d },
+	{ 0x05, 0x11, 0x18, 0xff },
+	{ 0x06, 0x11, 0xff, 0xff },
+	{ 0x00, 0xff, 0xff, 0xff }
+};
+
+static const u8 edp_swing_hbr2_hbr3_v8[4][4] = {
+	{ 0x0b, 0x11, 0x17, 0x1c },
+	{ 0x10, 0x19, 0x1f, 0xff },
+	{ 0x19, 0x1f, 0xff, 0xff },
+	{ 0x1f, 0xff, 0xff, 0xff }
+};
+
+static const u8 edp_pre_emp_hbr2_hbr3_v8[4][4] = {
+	{ 0x0c, 0x15, 0x19, 0x1e },
+	{ 0x0b, 0x15, 0x19, 0xff },
+	{ 0x0e, 0x14, 0xff, 0xff },
+	{ 0x0d, 0xff, 0xff, 0xff }
+};
+
+static const struct qcom_edp_swing_pre_emph_cfg edp_phy_swing_pre_emph_cfg_v8 = {
+	.swing_hbr_rbr = &edp_swing_hbr_rbr_v8,
+	.swing_hbr3_hbr2 = &edp_swing_hbr2_hbr3_v8,
+	.pre_emphasis_hbr_rbr = &edp_pre_emp_hbr_rbr_v8,
+	.pre_emphasis_hbr3_hbr2 = &edp_pre_emp_hbr2_hbr3_v8,
+};
+
 static const u8 edp_phy_aux_cfg_v4[DP_AUX_CFG_SIZE] = {
 	0x00, 0x13, 0x24, 0x00, 0x0a, 0x26, 0x0a, 0x03, 0x37, 0x03, 0x02, 0x02, 0x00,
 };
@@ -294,7 +358,7 @@ static const u8 edp_phy_aux_cfg_v5[DP_AUX_CFG_SIZE] = {
 };
 
 static const u8 edp_phy_aux_cfg_v8[DP_AUX_CFG_SIZE] = {
-	0x00, 0x00, 0xa0, 0x00, 0x0a, 0x26, 0x0a, 0x03, 0x37, 0x03, 0x02, 0x02, 0x04,
+	0x00, 0x13, 0xa4, 0x00, 0x0a, 0x26, 0x0a, 0x03, 0x37, 0x03, 0x02, 0x02, 0x04,
 };
 
 static const u8 edp_phy_vco_div_cfg_v8[4] = {
@@ -425,6 +489,145 @@ static int qcom_edp_configure_ssc(const struct qcom_edp *edp)
 static int qcom_edp_configure_pll(const struct qcom_edp *edp)
 {
 	return edp->cfg->ver_ops->com_configure_pll(edp);
+}
+
+static int qcom_edp_set_link_rate_aux_cfg2(const struct qcom_edp *edp)
+{
+	const struct phy_configure_opts_dp *dp_opts = &edp->dp_opts;
+	u32 aux_cfg2;
+
+	switch (dp_opts->link_rate) {
+	case 1620:
+	case 2700:
+	case 5400:
+		aux_cfg2 = 0xa4;
+		break;
+	case 8100:
+		aux_cfg2 = 0xa0;
+		break;
+	default:
+		return -EINVAL;
+	}
+
+	writel(aux_cfg2, edp->edp + DP_PHY_AUX_CFG(2));
+
+	return 0;
+}
+
+static void qcom_edp_configure_tx_pre_pll_v8_lane(void __iomem *tx, u32 interface_select)
+{
+	writel(0x0f, tx + TXn_CLKBUF_ENABLE);
+	writel(0x00, tx + TXn_PRE_EMPH);
+	writel(0x00, tx + TXn_VMODE_CTRL1);
+	writel(0x00, tx + TXn_SERDES_BYP_EN_OUT);
+	writel(0x03, tx + TXn_LPB_CFG1);
+	writel(0x10, tx + TXn_TX_DRV_LVL_OFFSET);
+	writel(interface_select, tx + TXn_INTERFACE_SELECT);
+	writel(0x01, tx + TXn_TRAN_DRVR_EMP_EN);
+	writel(0x06, tx + TXn_TX_EMP_POST1_LVL);
+	writel(0x00, tx + TXn_LANE_MODE_1);
+	writel(0x00, tx + TXn_LANE_MODE_2);
+	writel(0x12, tx + TXn_TX_DRV_LVL);
+	writel(0x00, tx + TXn_PARRATE_REC_DETECT_IDLE_EN);
+	writel(0x00, tx + TXn_TX_IDLE_LVL_LARGE_AMP);
+	writel(0x03, tx + TXn_RESET_TSYNC_EN);
+	writel(0x04, tx + TXn_TX_BAND);
+	writel(0x00, tx + TXn_SLEW_CNTL);
+	writel(0x60, tx + TXn_RES_CODE_LANE_TX);
+	writel(0x60, tx + TXn_RES_CODE_LANE_TX1);
+}
+
+static void qcom_edp_configure_lanes_after_pll_v8(const struct qcom_edp *edp)
+{
+	if (edp->dp_opts.lanes == 2) {
+		writel(0x1b, edp->tx0 + TXn_HIGHZ_DRVR_EN);
+		writel(0x03, edp->tx0 + TXn_TRANSCEIVER_BIAS_EN);
+		writel(0x04, edp->tx0 + TXn_HIGHZ_DRVR_EN);
+		writel(0x00, edp->tx0 + TXn_TX_POL_INV);
+
+		writel(0x1b, edp->tx1 + TXn_HIGHZ_DRVR_EN);
+		writel(0x03, edp->tx1 + TXn_TRANSCEIVER_BIAS_EN);
+		writel(0x04, edp->tx1 + TXn_HIGHZ_DRVR_EN);
+		writel(0x50, edp->tx1 + TXn_TX_IDLE_LVL_LARGE_AMP);
+		writel(0x00, edp->tx1 + TXn_TX_POL_INV);
+	} else {
+		writel(0x1f, edp->tx0 + TXn_HIGHZ_DRVR_EN);
+		writel(0x03, edp->tx0 + TXn_TRANSCEIVER_BIAS_EN);
+		writel(0x04, edp->tx0 + TXn_HIGHZ_DRVR_EN);
+		writel(0x00, edp->tx0 + TXn_TX_POL_INV);
+
+		writel(0x1f, edp->tx1 + TXn_HIGHZ_DRVR_EN);
+		writel(0x03, edp->tx1 + TXn_TRANSCEIVER_BIAS_EN);
+		writel(0x04, edp->tx1 + TXn_HIGHZ_DRVR_EN);
+		writel(0x00, edp->tx1 + TXn_TX_POL_INV);
+	}
+}
+
+static int qcom_edp_configure_tx_pre_pll_v8_lanes(const struct qcom_edp *edp)
+{
+	u32 interface_select;
+
+	switch (edp->dp_opts.link_rate) {
+	case 1620:
+	case 2700:
+	case 5400:
+		interface_select = 0x05;
+		break;
+	case 8100:
+		interface_select = 0x07;
+		break;
+	default:
+		return -EINVAL;
+	}
+
+	qcom_edp_configure_tx_pre_pll_v8_lane(edp->tx0, interface_select);
+	qcom_edp_configure_tx_pre_pll_v8_lane(edp->tx1, interface_select);
+
+	return 0;
+}
+
+static int qcom_edp_configure_pcs_v8(const struct qcom_edp *edp)
+{
+	const struct phy_configure_opts_dp *dp_opts = &edp->dp_opts;
+	u32 auxless_setup_cyc;
+	u32 auxless_silence_cyc;
+	u32 lfps_period;
+
+	switch (dp_opts->link_rate) {
+	case 1620:
+		auxless_setup_cyc = 0x03;
+		auxless_silence_cyc = 0x06;
+		lfps_period = 0x00;
+		break;
+	case 2700:
+		auxless_setup_cyc = 0x04;
+		auxless_silence_cyc = 0x08;
+		lfps_period = 0x11;
+		break;
+	case 5400:
+		auxless_setup_cyc = 0x09;
+		auxless_silence_cyc = 0x11;
+		lfps_period = 0x33;
+		break;
+	case 8100:
+		auxless_setup_cyc = 0x0f;
+		auxless_silence_cyc = 0x1a;
+		lfps_period = 0x55;
+		break;
+	default:
+		return -EINVAL;
+	}
+
+	writel(edp->is_edp ? 0x03 : 0x00, edp->edp + DP_PHY_LDO_CFG);
+	writel(0x0f, edp->edp + DP_PHY_CFG_1);
+	writel(0x00, edp->edp + DP_PHY_AUXLESS_CFG1);
+	writel(auxless_setup_cyc, edp->edp + DP_PHY_AUXLESS_SETUP_CYC);
+	writel(auxless_silence_cyc, edp->edp + DP_PHY_AUXLESS_SILENCE_CYC);
+	writel(0x08, edp->edp + DP_PHY_LFPS_CYC);
+	writel(lfps_period, edp->edp + DP_PHY_LFPS_PERIOD);
+	writel(0x2f, edp->edp + DP_PHY_CFG_1);
+
+	return 0;
 }
 
 static int qcom_edp_set_vco_div(const struct qcom_edp *edp, unsigned long *pixel_freq)
@@ -911,6 +1114,22 @@ static int qcom_edp_ldo_config_v6(const struct qcom_edp *edp)
 	return 0;
 }
 
+static int qcom_edp_ldo_config_v8(const struct qcom_edp *edp)
+{
+	const struct phy_configure_opts_dp *dp_opts = &edp->dp_opts;
+	u32 ldo_config;
+
+	if (edp->is_edp)
+		ldo_config = 0xd0;
+	else
+		ldo_config = 0x00;
+
+	writel(ldo_config, edp->tx0 + TXn_LDO_CONFIG);
+	writel(dp_opts->lanes > 2 ? ldo_config : 0x00, edp->tx1 + TXn_LDO_CONFIG);
+
+	return 0;
+}
+
 static const struct phy_ver_ops qcom_edp_phy_ops_v6 = {
 	.com_power_on		= qcom_edp_phy_power_on_v6,
 	.com_resetsm_cntrl	= qcom_edp_phy_com_resetsm_cntrl_v6,
@@ -942,13 +1161,18 @@ static int qcom_edp_com_configure_ssc_v8(const struct qcom_edp *edp)
 
 	switch (dp_opts->link_rate) {
 	case 1620:
-	case 2700:
-	case 8100:
-		step1 = 0x5b;
+		step1 = 0x83;
 		step2 = 0x02;
 		break;
-
+	case 2700:
+		step1 = 0x18;
+		step2 = 0x02;
+		break;
 	case 5400:
+		step1 = 0x18;
+		step2 = 0x02;
+		break;
+	case 8100:
 		step1 = 0x5b;
 		step2 = 0x02;
 		break;
@@ -976,34 +1200,68 @@ static int qcom_edp_com_configure_pll_v8(const struct qcom_edp *edp)
 	u32 dec_start_mode0;
 	u32 lock_cmp1_mode0;
 	u32 lock_cmp2_mode0;
+	u32 lock_cmp_en;
 	u32 code1_mode0;
 	u32 code2_mode0;
+	u32 coreclk_div_mode0;
+	u32 vco_tune1_mode0;
+	u32 vco_tune2_mode0;
 	u32 hsclk_sel;
+	u32 core_clk_en;
+	u32 cmn_config_1;
 
 	switch (dp_opts->link_rate) {
 	case 1620:
-		hsclk_sel = 0x5;
-		dec_start_mode0 = 0x34;
-		div_frac_start2_mode0 = 0xc0;
-		div_frac_start3_mode0 = 0x0b;
-		lock_cmp1_mode0 = 0x37;
-		lock_cmp2_mode0 = 0x04;
-		code1_mode0 = 0x71;
-		code2_mode0 = 0x0c;
+		hsclk_sel = 0x4;
+		dec_start_mode0 = 0x54;
+		div_frac_start2_mode0 = 0x00;
+		div_frac_start3_mode0 = 0x06;
+		lock_cmp1_mode0 = 0x1c;
+		lock_cmp2_mode0 = 0x02;
+		lock_cmp_en = 0x04;
+		coreclk_div_mode0 = 0x14;
+		vco_tune1_mode0 = 0xfe;
+		vco_tune2_mode0 = 0x00;
+		code1_mode0 = 0x8d;
+		code2_mode0 = 0x27;
+		core_clk_en = 0x60;
+		cmn_config_1 = 0x76;
 		break;
 
 	case 2700:
 		hsclk_sel = 0x3;
-		dec_start_mode0 = 0x34;
-		div_frac_start2_mode0 = 0xc0;
-		div_frac_start3_mode0 = 0x0b;
-		lock_cmp1_mode0 = 0x07;
+		dec_start_mode0 = 0x46;
+		div_frac_start2_mode0 = 0x00;
+		div_frac_start3_mode0 = 0x05;
+		lock_cmp1_mode0 = 0x08;
 		lock_cmp2_mode0 = 0x07;
-		code1_mode0 = 0x71;
-		code2_mode0 = 0x0c;
+		lock_cmp_en = 0x08;
+		coreclk_div_mode0 = 0x14;
+		vco_tune1_mode0 = 0xae;
+		vco_tune2_mode0 = 0x02;
+		code1_mode0 = 0xf6;
+		code2_mode0 = 0x20;
+		core_clk_en = 0x00;
+		cmn_config_1 = 0x96;
 		break;
 
 	case 5400:
+		hsclk_sel = 0x1;
+		dec_start_mode0 = 0x46;
+		div_frac_start2_mode0 = 0x00;
+		div_frac_start3_mode0 = 0x05;
+		lock_cmp1_mode0 = 0x10;
+		lock_cmp2_mode0 = 0x0e;
+		lock_cmp_en = 0x08;
+		coreclk_div_mode0 = 0x14;
+		vco_tune1_mode0 = 0xae;
+		vco_tune2_mode0 = 0x02;
+		code1_mode0 = 0xf6;
+		code2_mode0 = 0x20;
+		core_clk_en = 0x00;
+		cmn_config_1 = 0x56;
+		break;
+
 	case 8100:
 		hsclk_sel = 0x2;
 		dec_start_mode0 = 0x4f;
@@ -1011,8 +1269,14 @@ static int qcom_edp_com_configure_pll_v8(const struct qcom_edp *edp)
 		div_frac_start3_mode0 = 0x01;
 		lock_cmp1_mode0 = 0x18;
 		lock_cmp2_mode0 = 0x15;
+		lock_cmp_en = 0x08;
+		coreclk_div_mode0 = 0x0a;
+		vco_tune1_mode0 = 0xa0;
+		vco_tune2_mode0 = 0x01;
 		code1_mode0 = 0x14;
 		code2_mode0 = 0x25;
+		core_clk_en = 0x00;
+		cmn_config_1 = 0x96;
 		break;
 
 	default:
@@ -1028,7 +1292,7 @@ static int qcom_edp_com_configure_pll_v8(const struct qcom_edp *edp)
 	writel(0x30, edp->pll + DP_QSERDES_V8_COM_CLK_SELECT);
 	writel(hsclk_sel, edp->pll + DP_QSERDES_V8_COM_HSCLK_SEL_1);
 	writel(0x07, edp->pll + DP_QSERDES_V8_COM_PLL_IVCO);
-	writel(0x00, edp->pll + DP_QSERDES_V8_COM_LOCK_CMP_EN);
+	writel(lock_cmp_en, edp->pll + DP_QSERDES_V8_COM_LOCK_CMP_EN);
 	writel(0x36, edp->pll + DP_QSERDES_V8_COM_PLL_CCTRL_MODE0);
 	writel(0x16, edp->pll + DP_QSERDES_V8_COM_PLL_RCTRL_MODE0);
 	writel(0x06, edp->pll + DP_QSERDES_V8_COM_CP_CTRL_MODE0);
@@ -1036,7 +1300,7 @@ static int qcom_edp_com_configure_pll_v8(const struct qcom_edp *edp)
 	writel(0x00, edp->pll + DP_QSERDES_V8_COM_DIV_FRAC_START1_MODE0);
 	writel(div_frac_start2_mode0, edp->pll + DP_QSERDES_V8_COM_DIV_FRAC_START2_MODE0);
 	writel(div_frac_start3_mode0, edp->pll + DP_QSERDES_V8_COM_DIV_FRAC_START3_MODE0);
-	writel(0x96, edp->pll + DP_QSERDES_V8_COM_CMN_CONFIG_1);
+	writel(cmn_config_1, edp->pll + DP_QSERDES_V8_COM_CMN_CONFIG_1);
 	writel(0x3f, edp->pll + DP_QSERDES_V8_COM_INTEGLOOP_GAIN0_MODE0);
 	writel(0x00, edp->pll + DP_QSERDES_V8_COM_INTEGLOOP_GAIN1_MODE0);
 	writel(0x00, edp->pll + DP_QSERDES_V8_COM_VCO_TUNE_MAP);
@@ -1044,12 +1308,12 @@ static int qcom_edp_com_configure_pll_v8(const struct qcom_edp *edp)
 	writel(lock_cmp2_mode0, edp->pll + DP_QSERDES_V8_COM_LOCK_CMP2_MODE0);
 
 	writel(0x0a, edp->pll + DP_QSERDES_V8_COM_BG_TIMER);
-	writel(0x0a, edp->pll + DP_QSERDES_V8_COM_CORECLK_DIV_MODE0);
+	writel(coreclk_div_mode0, edp->pll + DP_QSERDES_V8_COM_CORECLK_DIV_MODE0);
 	writel(0x00, edp->pll + DP_QSERDES_V8_COM_VCO_TUNE_CTRL);
 	writel(0x1f, edp->pll + DP_QSERDES_V8_COM_BIAS_EN_CLKBUFLR_EN);
-	writel(0x00, edp->pll + DP_QSERDES_V8_COM_CORE_CLK_EN);
-	writel(0xa0, edp->pll + DP_QSERDES_V8_COM_VCO_TUNE1_MODE0);
-	writel(0x01, edp->pll + DP_QSERDES_V8_COM_VCO_TUNE2_MODE0);
+	writel(core_clk_en, edp->pll + DP_QSERDES_V8_COM_CORE_CLK_EN);
+	writel(vco_tune1_mode0, edp->pll + DP_QSERDES_V8_COM_VCO_TUNE1_MODE0);
+	writel(vco_tune2_mode0, edp->pll + DP_QSERDES_V8_COM_VCO_TUNE2_MODE0);
 
 	writel(code1_mode0, edp->pll + DP_QSERDES_V8_COM_BIN_VCOCAL_CMP_CODE1_MODE0);
 	writel(code2_mode0, edp->pll + DP_QSERDES_V8_COM_BIN_VCOCAL_CMP_CODE2_MODE0);
@@ -1104,24 +1368,82 @@ static const struct phy_ver_ops qcom_edp_phy_ops_v8 = {
 	.com_clk_fwd_cfg	= qcom_edp_com_clk_fwd_cfg_v8,
 	.com_configure_pll	= qcom_edp_com_configure_pll_v8,
 	.com_configure_ssc	= qcom_edp_com_configure_ssc_v8,
-	.com_ldo_config		= qcom_edp_ldo_config_v6,
-	.prepare_power_on	= qcom_edp_prepare_power_on_v46,
-	.configure_tx_pre_pll	= qcom_edp_configure_tx_pre_pll_v46,
-	.configure_rate_pcs	= qcom_edp_configure_rate_pcs_v46,
-	.configure_lanes_after_pll = qcom_edp_configure_lanes_after_pll_v46,
-	.finish_power_on	= qcom_edp_finish_power_on_v46,
+	.com_ldo_config		= qcom_edp_ldo_config_v8,
+	.prepare_power_on	= qcom_edp_prepare_power_on_v8,
+	.configure_tx_pre_pll	= qcom_edp_configure_tx_pre_pll_v8,
+	.configure_rate_pcs	= qcom_edp_configure_rate_pcs_v8,
+	.configure_lanes_after_pll = qcom_edp_configure_lanes_after_pll_v8,
+	.finish_power_on	= qcom_edp_finish_power_on_v8,
 };
 
 static struct qcom_edp_phy_cfg glymur_phy_cfg = {
 	.aux_cfg = edp_phy_aux_cfg_v8,
 	.vco_div_cfg = edp_phy_vco_div_cfg_v8,
 	.dp_swing_pre_emph_cfg = &dp_phy_swing_pre_emph_cfg_v8,
-	.edp_swing_pre_emph_cfg = &edp_phy_swing_pre_emph_cfg,
+	.edp_swing_pre_emph_cfg = &edp_phy_swing_pre_emph_cfg_v8,
 	.ver_ops = &qcom_edp_phy_ops_v8,
 };
 
+static void qcom_edp_disable_dcc(const struct qcom_edp *edp)
+{
+	writel(0x06, edp->tx0 + TXn_DCC0_CTRL);
+	writel(0x06, edp->tx0 + TXn_DCC1_CTRL);
+	writel(0x06, edp->tx1 + TXn_DCC0_CTRL);
+	writel(0x06, edp->tx1 + TXn_DCC1_CTRL);
+}
+
+static int qcom_edp_run_dcc_calibration(const struct qcom_edp *edp)
+{
+	u32 val;
+	int ret;
+
+	writel(0x07, edp->tx0 + TXn_DCC0_CTRL);
+	writel(0x07, edp->tx0 + TXn_DCC1_CTRL);
+
+	if (edp->dp_opts.lanes > 2) {
+		writel(0x07, edp->tx1 + TXn_DCC0_CTRL);
+		writel(0x07, edp->tx1 + TXn_DCC1_CTRL);
+	}
+
+	ret = readl_poll_timeout(edp->tx0 + TXn_DCC_DONE,
+				 val, (val & GENMASK(1, 0)) == GENMASK(1, 0),
+				 500, 10000);
+	if (ret)
+		goto out_disable_dcc;
+
+	if (edp->dp_opts.lanes > 2) {
+		ret = readl_poll_timeout(edp->tx1 + TXn_DCC_DONE,
+					 val, (val & GENMASK(1, 0)) == GENMASK(1, 0),
+					 500, 10000);
+	}
+
+out_disable_dcc:
+	qcom_edp_disable_dcc(edp);
+
+	return ret;
+}
+
+static void qcom_edp_run_tsync(const struct qcom_edp *edp)
+{
+	writel(0x0f, edp->tx0 + TXn_RESET_TSYNC_EN);
+	writel(0x0f, edp->tx1 + TXn_RESET_TSYNC_EN);
+	writel(0x03, edp->edp + DP_PHY_TSYNC_OVRD);
+	writel(0x23, edp->edp + DP_PHY_TSYNC_OVRD);
+	writel(0x22, edp->edp + DP_PHY_TSYNC_OVRD);
+	writel(0x0a, edp->tx0 + TXn_RESET_TSYNC_EN);
+	writel(0x0a, edp->tx1 + TXn_RESET_TSYNC_EN);
+	writel(0x3e, edp->edp + DP_PHY_TSYNC_OVRD);
+}
+
 static int qcom_edp_prepare_power_on_v46(const struct qcom_edp *edp)
 {
+	return 0;
+}
+
+static int qcom_edp_prepare_power_on_v8(const struct qcom_edp *edp)
+{
+	qcom_edp_disable_dcc(edp);
+
 	return 0;
 }
 
@@ -1143,6 +1465,14 @@ static int qcom_edp_configure_tx_pre_pll_v46(const struct qcom_edp *edp)
 	writel(0x04, edp->tx1 + TXn_TX_BAND);
 
 	return 0;
+}
+
+static int qcom_edp_configure_tx_pre_pll_v8(const struct qcom_edp *edp)
+{
+	writel(0x05, edp->edp + DP_PHY_TX0_TX1_LANE_CTL);
+	writel(0x05, edp->edp + DP_PHY_TX2_TX3_LANE_CTL);
+
+	return qcom_edp_configure_tx_pre_pll_v8_lanes(edp);
 }
 
 static void qcom_edp_configure_lanes_after_pll_v46(const struct qcom_edp *edp)
@@ -1201,6 +1531,22 @@ static int qcom_edp_configure_rate_pcs_v46(const struct qcom_edp *edp,
 	return qcom_edp_set_vco_div(edp, pixel_freq);
 }
 
+static int qcom_edp_configure_rate_pcs_v8(const struct qcom_edp *edp,
+					  unsigned long *pixel_freq)
+{
+	int ret;
+
+	ret = qcom_edp_set_vco_div(edp, pixel_freq);
+	if (ret)
+		return ret;
+
+	ret = qcom_edp_set_link_rate_aux_cfg2(edp);
+	if (ret)
+		return ret;
+
+	return qcom_edp_configure_pcs_v8(edp);
+}
+
 static int qcom_edp_start_pll(const struct qcom_edp *edp)
 {
 	int ret;
@@ -1229,6 +1575,24 @@ static int qcom_edp_finish_power_on_v46(const struct qcom_edp *edp)
 
 	return readl_poll_timeout(edp->edp + DP_PHY_STATUS, val, val & BIT(1),
 				  500, 10000);
+}
+
+static int qcom_edp_finish_power_on_v8(const struct qcom_edp *edp)
+{
+	u32 val;
+	int ret;
+
+	qcom_edp_run_tsync(edp);
+	writel(0x08, edp->edp + DP_PHY_CFG);
+	usleep_range(100, 1000);
+	writel(0x09, edp->edp + DP_PHY_CFG);
+
+	ret = readl_poll_timeout(edp->edp + DP_PHY_STATUS_V8, val, val & BIT(1),
+				 500, 10000);
+	if (ret)
+		return ret;
+
+	return qcom_edp_run_dcc_calibration(edp);
 }
 
 static int qcom_edp_phy_power_on(struct phy *phy)
