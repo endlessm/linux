@@ -10588,6 +10588,7 @@ CONFIG_PHY_QCOM_IPQ806X_SATA                    policy<{'arm64': 'm', 'armhf': '
 CONFIG_PHY_QCOM_IPQ806X_USB                     policy<{'arm64': 'm', 'armhf': 'm'}>
 CONFIG_PHY_QCOM_M31_EUSB                        policy<{'arm64': 'm', 'armhf': 'm'}>
 CONFIG_PHY_QCOM_M31_USB                         policy<{'arm64': 'm', 'armhf': 'm'}>
+CONFIG_PHY_QCOM_MIPI_CSI2                       policy<{'arm64': 'm', 'armhf': 'm'}>
 CONFIG_PHY_QCOM_PCIE2                           policy<{'arm64': 'm', 'armhf': 'm'}>
 CONFIG_PHY_QCOM_QMP                             policy<{'arm64': 'm', 'armhf': 'm'}>
 CONFIG_PHY_QCOM_QMP_COMBO                       policy<{'arm64': 'm', 'armhf': 'm'}>
@@ -13700,6 +13701,9 @@ CONFIG_SND_SOC_ADAU1761                         policy<{'amd64': 'm', 'arm64': '
 CONFIG_SND_SOC_ADAU1761_I2C                     policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm'}>
 CONFIG_SND_SOC_ADAU1761_SPI                     policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm'}>
 CONFIG_SND_SOC_ADAU17X1                         policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm'}>
+CONFIG_SND_SOC_ADAU1977                         policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm'}>
+CONFIG_SND_SOC_ADAU1977_I2C                     policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm'}>
+CONFIG_SND_SOC_ADAU1977_SPI                     policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm'}>
 CONFIG_SND_SOC_ADAU7002                         policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm'}>
 CONFIG_SND_SOC_ADAU7118                         policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm'}>
 CONFIG_SND_SOC_ADAU7118_HW                      policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm'}>
