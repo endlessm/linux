@@ -1789,6 +1789,7 @@ CONFIG_ARM64_VA_BITS                            policy<{'arm64': '48'}>
 CONFIG_ARM64_VA_BITS_39                         policy<{'arm64': 'n', 'arm64-generic-64k': '-'}>
 CONFIG_ARM64_VA_BITS_42                         policy<{'arm64-generic-64k': 'n'}>
 CONFIG_ARM64_VA_BITS_52                         policy<{'arm64': 'n'}>
+CONFIG_ARM64_WORKAROUND_BROKEN_AMU_CONSTCNT     policy<{'arm64': 'y'}>
 CONFIG_ARM64_WORKAROUND_CLEAN_CACHE             policy<{'arm64': 'y'}>
 CONFIG_ARM64_WORKAROUND_DISABLE_CNP             policy<{'arm64': 'y'}>
 CONFIG_ARM64_WORKAROUND_REPEAT_TLBI_SYNC        policy<{'arm64': 'y'}>
@@ -2720,6 +2721,7 @@ CONFIG_CC_NO_ARRAY_BOUNDS                       policy<{'amd64': 'y', 'arm64': '
 CONFIG_CC_NO_STRINGOP_OVERFLOW                  policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y', 's390x': 'y'}>
 CONFIG_CC_OPTIMIZE_FOR_PERFORMANCE              policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y', 's390x': 'y'}>
 CONFIG_CC_OPTIMIZE_FOR_SIZE                     policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'ppc64el': 'n', 'riscv64': 'n', 's390x': 'n'}>
+CONFIG_CC_OPT_INLINE_MEMSET                     policy<{'amd64': '"-finline-stringops=memset"', 'arm64': '"-finline-stringops=memset"', 'armhf': '"-finline-stringops=memset"', 'ppc64el': '"-finline-stringops=memset"', 'riscv64': '"-finline-stringops=memset"', 's390x': '"-finline-stringops=memset"'}>
 CONFIG_CC_VERSION_TEXT                          policy<{'amd64': '"x86_64-linux-gnu-gcc (Ubuntu 15.3.0-4ubuntu1) 15.3.0"', 'arm64': '"aarch64-linux-gnu-gcc (Ubuntu 15.3.0-4ubuntu1) 15.3.0"', 'armhf': '"arm-linux-gnueabihf-gcc (Ubuntu 15.3.0-4ubuntu1) 15.3.0"', 'ppc64el': '"powerpc64le-linux-gnu-gcc (Ubuntu 15.3.0-4ubuntu1) 15.3.0"', 'riscv64': '"riscv64-linux-gnu-gcc (Ubuntu 15.3.0-4ubuntu1) 15.3.0"', 's390x': '"s390x-linux-gnu-gcc (Ubuntu 15.3.0-4ubuntu1) 15.3.0"'}>
 CONFIG_CDNS_I3C_MASTER                          policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 'riscv64': 'm'}>
 CONFIG_CDROM                                    policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 'riscv64': 'y', 's390x': 'y'}>
