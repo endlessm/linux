@@ -357,6 +357,9 @@ CONFIG_KERNEL_ZSTD                              note<'LP: #193172'>
 CONFIG_KEXEC_BZIMAGE_VERIFY_SIG                 policy<{'amd64': 'y'}>
 CONFIG_KEXEC_BZIMAGE_VERIFY_SIG                 note<'Q: check this is in sync with the kexec/kdump userspace'>
 
+CONFIG_KEXEC_HANDOVER_ENABLE_DEFAULT            policy<{'amd64': 'n', 'arm64': 'n'}>
+CONFIG_KEXEC_HANDOVER_ENABLE_DEFAULT            note<'LP: #2169198'>
+
 CONFIG_KFENCE_STATIC_KEYS                       policy<{'amd64': 'n', 'arm64': 'n', 'armhf': '-', 'ppc64el': 'n', 'riscv64': 'n', 's390x': 'n'}>
 CONFIG_KFENCE_STATIC_KEYS                       note<'LP: #1948038'>
 
@@ -7693,7 +7696,6 @@ CONFIG_KEXEC_FILE                               policy<{'amd64': 'y', 'arm64': '
 CONFIG_KEXEC_HANDOVER                           policy<{'amd64': 'y', 'arm64': 'y'}>
 CONFIG_KEXEC_HANDOVER_DEBUG                     policy<{'amd64': 'n', 'arm64': 'n'}>
 CONFIG_KEXEC_HANDOVER_DEBUGFS                   policy<{'amd64': 'y', 'arm64': 'y'}>
-CONFIG_KEXEC_HANDOVER_ENABLE_DEFAULT            policy<{'amd64': 'y', 'arm64': 'y'}>
 CONFIG_KEXEC_IMAGE_VERIFY_SIG                   policy<{'arm64': 'y'}>
 CONFIG_KEXEC_JUMP                               policy<{'amd64': 'y'}>
 CONFIG_KEXEC_SIG                                policy<{'amd64': 'y', 'arm64': 'y', 's390x': 'y'}>
